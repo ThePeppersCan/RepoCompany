@@ -1503,7 +1503,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <div class="world-cup-event-hub" aria-label="Repo Sports World Cup event information">
     <div class="world-cup-event-layout">
       <div class="world-cup-event-panel world-cup-event-panel-fixtures">
-        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-fixtures.png" alt="Repo Sports World Cup fixtures">
+        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-fixtures.png?v=20260809-aug14-16" alt="Repo Sports World Cup fixtures">
         <span class="world-cup-fixture-nav-button world-cup-fixture-nav-button-guide" role="button" tabindex="0" aria-label="Welcome to Velmora" title="Welcome to Velmora">
           <img src="assets/repo-sports-world-cup-guide-button.png" alt="Welcome to Velmora">
         </span>
@@ -3330,44 +3330,56 @@ window.__QD_HOST__={
     kitAudioFadeFrame = requestAnimationFrame(tick);
   };
 
+  const resumeWorldCupMenuMusic = () => {
+    if (!overlay.classList.contains('is-event-open') || closing) return;
+    menuMusic.volume = 0.30;
+    const playPromise = menuMusic.play();
+    if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+  };
+
   const stopMarovarKitTheme = (restoreMenu = true) => {
     cancelKitAudioFade();
+    const finish = () => {
+      stopAudio(marovarKitAudio);
+      marovarKitAudio.volume = 0;
+      if (restoreMenu) resumeWorldCupMenuMusic();
+    };
     if (!marovarKitAudio.paused) {
       const startVolume = marovarKitAudio.volume;
       const started = performance.now();
       const tick = now => {
         const t = Math.min(1, (now - started) / 300);
         marovarKitAudio.volume = Math.max(0, startVolume * (1 - t));
-        if (restoreMenu) menuMusic.volume = 0.08 + (0.30 - 0.08) * t;
         if (t < 1) kitAudioFadeFrame = requestAnimationFrame(tick);
         else {
           kitAudioFadeFrame = 0;
-          stopAudio(marovarKitAudio);
-          marovarKitAudio.volume = 0;
-          if (restoreMenu) menuMusic.volume = 0.30;
+          finish();
         }
       };
       kitAudioFadeFrame = requestAnimationFrame(tick);
-    } else if (restoreMenu) {
-      menuMusic.volume = 0.30;
+    } else {
+      finish();
     }
   };
 
   const syncKitTheme = country => {
     if (country === 'Marovar') {
       cancelKitAudioFade();
-      menuMusic.volume = Math.min(menuMusic.volume, 0.30);
+
+      // Team kit themes fully replace the normal World Cup menu music.
+      // Pause rather than reset it so the menu track can continue naturally
+      // when the user leaves the themed kit.
+      try { menuMusic.pause(); } catch (_) {}
+
       stopAudio(marovarKitAudio);
       marovarKitAudio.volume = 0;
       const playPromise = marovarKitAudio.play();
       if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
       const started = performance.now();
-      const menuStart = menuMusic.volume;
       const tick = now => {
         const t = Math.min(1, (now - started) / 480);
         const eased = 1 - Math.pow(1 - t, 3);
         marovarKitAudio.volume = 0.30 * eased;
-        menuMusic.volume = menuStart + (0.08 - menuStart) * eased;
         if (t < 1) kitAudioFadeFrame = requestAnimationFrame(tick);
         else kitAudioFadeFrame = 0;
       };
