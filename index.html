@@ -1503,7 +1503,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <div class="world-cup-event-hub" aria-label="Repo Sports World Cup event information">
     <div class="world-cup-event-layout">
       <div class="world-cup-event-panel world-cup-event-panel-fixtures">
-        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-fixtures.png?v=20260809-aug14-16" alt="Repo Sports World Cup fixtures">
+        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-fixtures.png" alt="Repo Sports World Cup fixtures">
         <span class="world-cup-fixture-nav-button world-cup-fixture-nav-button-guide" role="button" tabindex="0" aria-label="Welcome to Velmora" title="Welcome to Velmora">
           <img src="assets/repo-sports-world-cup-guide-button.png" alt="Welcome to Velmora">
         </span>
@@ -1568,6 +1568,9 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <audio id="worldCupEventMusic" src="assets/repo-sports-world-cup-menu.mp3" preload="auto" loop aria-hidden="true"></audio>
   <audio id="worldCupLoreOpenAudio" src="assets/repo-sports-world-cup-page-open.mp3" preload="auto" aria-hidden="true"></audio>
   <audio id="worldCupMarovarKitAudio" src="assets/repo-sports-kit-marovar-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupDrazhenKitAudio" src="assets/repo-sports-kit-drazhen-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupZafranKitAudio" src="assets/repo-sports-kit-zafran-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupQasmirKitAudio" src="assets/repo-sports-kit-qasmir-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
 </div>
 
 <main>
@@ -3224,6 +3227,9 @@ window.__QD_HOST__={
   const kitClose = document.getElementById('closeWorldCupKit');
   const loreOpenAudio = document.getElementById('worldCupLoreOpenAudio');
   const marovarKitAudio = document.getElementById('worldCupMarovarKitAudio');
+  const drazhenKitAudio = document.getElementById('worldCupDrazhenKitAudio');
+  const zafranKitAudio = document.getElementById('worldCupZafranKitAudio');
+  const qasmirKitAudio = document.getElementById('worldCupQasmirKitAudio');
   const guideButton = overlay?.querySelector('.world-cup-fixture-nav-button-guide');
   const historyButton = overlay?.querySelector('.world-cup-fixture-nav-button-history');
   const countryPages = {
@@ -3266,11 +3272,20 @@ window.__QD_HOST__={
     Sorevia:'assets/repo-sports-kit-sorevia-2026.png',
     Iskandar:'assets/repo-sports-kit-iskandar-2026.png'
   };
+  const kitThemeAudio = {
+    Marovar: marovarKitAudio,
+    Drazhen: drazhenKitAudio,
+    Zafran: zafranKitAudio,
+    Qasmir: qasmirKitAudio
+  };
+  let activeKitThemeAudio = null;
+  let activeKitThemeCountry = null;
+
   let lastLoreTrigger = null;
   let currentCountry = null;
   let activeKitIndex = 0;
   let kitReturnFocus = null;
-  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio) return;
+  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio) return;
 
   const FALLBACK_MS = 3422;
   let transitionTimer = 0;
@@ -3337,19 +3352,40 @@ window.__QD_HOST__={
     if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
   };
 
-  const stopMarovarKitTheme = (restoreMenu = true) => {
+  const stopAllKitThemesImmediately = () => {
     cancelKitAudioFade();
+    for (const audio of Object.values(kitThemeAudio)) {
+      stopAudio(audio);
+      audio.volume = 0;
+    }
+    activeKitThemeAudio = null;
+    activeKitThemeCountry = null;
+  };
+
+  const stopActiveKitTheme = (restoreMenu = true) => {
+    cancelKitAudioFade();
+    const audio = activeKitThemeAudio;
+    if (!audio) {
+      if (restoreMenu) resumeWorldCupMenuMusic();
+      return;
+    }
+
     const finish = () => {
-      stopAudio(marovarKitAudio);
-      marovarKitAudio.volume = 0;
+      stopAudio(audio);
+      audio.volume = 0;
+      if (activeKitThemeAudio === audio) {
+        activeKitThemeAudio = null;
+        activeKitThemeCountry = null;
+      }
       if (restoreMenu) resumeWorldCupMenuMusic();
     };
-    if (!marovarKitAudio.paused) {
-      const startVolume = marovarKitAudio.volume;
+
+    if (!audio.paused && audio.volume > 0.001) {
+      const startVolume = audio.volume;
       const started = performance.now();
       const tick = now => {
-        const t = Math.min(1, (now - started) / 300);
-        marovarKitAudio.volume = Math.max(0, startVolume * (1 - t));
+        const t = Math.min(1, (now - started) / 260);
+        audio.volume = Math.max(0, startVolume * (1 - t));
         if (t < 1) kitAudioFadeFrame = requestAnimationFrame(tick);
         else {
           kitAudioFadeFrame = 0;
@@ -3363,30 +3399,49 @@ window.__QD_HOST__={
   };
 
   const syncKitTheme = country => {
-    if (country === 'Marovar') {
-      cancelKitAudioFade();
+    const nextAudio = kitThemeAudio[country] || null;
 
-      // Team kit themes fully replace the normal World Cup menu music.
-      // Pause rather than reset it so the menu track can continue naturally
-      // when the user leaves the themed kit.
+    // Already on the same themed kit: leave its music playing.
+    if (nextAudio && activeKitThemeAudio === nextAudio && activeKitThemeCountry === country && !nextAudio.paused) {
+      return;
+    }
+
+    cancelKitAudioFade();
+
+    // Team kit themes fully replace the normal World Cup menu music.
+    if (nextAudio) {
       try { menuMusic.pause(); } catch (_) {}
 
-      stopAudio(marovarKitAudio);
-      marovarKitAudio.volume = 0;
-      const playPromise = marovarKitAudio.play();
+      // Stop any other team theme instantly so tracks can never overlap.
+      for (const audio of Object.values(kitThemeAudio)) {
+        if (audio !== nextAudio) {
+          stopAudio(audio);
+          audio.volume = 0;
+        }
+      }
+
+      activeKitThemeAudio = nextAudio;
+      activeKitThemeCountry = country;
+      stopAudio(nextAudio);
+      nextAudio.volume = 0;
+
+      const playPromise = nextAudio.play();
       if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+
       const started = performance.now();
       const tick = now => {
         const t = Math.min(1, (now - started) / 480);
         const eased = 1 - Math.pow(1 - t, 3);
-        marovarKitAudio.volume = 0.30 * eased;
+        nextAudio.volume = 0.30 * eased;
         if (t < 1) kitAudioFadeFrame = requestAnimationFrame(tick);
         else kitAudioFadeFrame = 0;
       };
       kitAudioFadeFrame = requestAnimationFrame(tick);
-    } else {
-      stopMarovarKitTheme(true);
+      return;
     }
+
+    // This team has no custom music yet: return to the normal World Cup track.
+    stopActiveKitTheme(true);
   };
 
   const showEventHub = () => {
@@ -3417,9 +3472,7 @@ window.__QD_HOST__={
     transitionTimer = 0;
     stopAudio(sting);
     stopAudio(menuMusic);
-    cancelKitAudioFade();
-    stopAudio(marovarKitAudio);
-    marovarKitAudio.volume = 0;
+    stopAllKitThemesImmediately();
     try { previousFocus?.focus?.({preventScroll:true}); } catch (_) {}
   };
 
@@ -3430,9 +3483,7 @@ window.__QD_HOST__={
     window.clearTimeout(transitionTimer);
     stopAudio(sting);
     stopAudio(menuMusic);
-    cancelKitAudioFade();
-    stopAudio(marovarKitAudio);
-    marovarKitAudio.volume = 0;
+    stopAllKitThemesImmediately();
     transitionTimer = window.setTimeout(finishClose, 190);
   };
 
@@ -3624,7 +3675,7 @@ window.__QD_HOST__={
     if (!kitViewer.classList.contains('is-open')) return false;
     kitViewer.classList.remove('is-open');
     kitViewer.setAttribute('aria-hidden', 'true');
-    stopMarovarKitTheme(true);
+    stopActiveKitTheme(true);
     kitImage.classList.remove('from-next', 'from-prev', 'is-first-open');
     const focusTarget = kitReturnFocus?.isConnected ? kitReturnFocus : kitsButton;
     kitReturnFocus = null;
