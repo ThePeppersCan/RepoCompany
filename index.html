@@ -1571,6 +1571,10 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <audio id="worldCupDrazhenKitAudio" src="assets/repo-sports-kit-drazhen-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
   <audio id="worldCupZafranKitAudio" src="assets/repo-sports-kit-zafran-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
   <audio id="worldCupQasmirKitAudio" src="assets/repo-sports-kit-qasmir-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupCalvoraKitAudio" src="assets/repo-sports-kit-calvora-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupRovarnKitAudio" src="assets/repo-sports-kit-rovarn-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupTaluneKitAudio" src="assets/repo-sports-kit-talune-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupBelrosKitAudio" src="assets/repo-sports-kit-belros-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
 </div>
 
 <main>
@@ -3230,6 +3234,10 @@ window.__QD_HOST__={
   const drazhenKitAudio = document.getElementById('worldCupDrazhenKitAudio');
   const zafranKitAudio = document.getElementById('worldCupZafranKitAudio');
   const qasmirKitAudio = document.getElementById('worldCupQasmirKitAudio');
+  const calvoraKitAudio = document.getElementById('worldCupCalvoraKitAudio');
+  const rovarnKitAudio = document.getElementById('worldCupRovarnKitAudio');
+  const taluneKitAudio = document.getElementById('worldCupTaluneKitAudio');
+  const belrosKitAudio = document.getElementById('worldCupBelrosKitAudio');
   const guideButton = overlay?.querySelector('.world-cup-fixture-nav-button-guide');
   const historyButton = overlay?.querySelector('.world-cup-fixture-nav-button-history');
   const countryPages = {
@@ -3276,7 +3284,11 @@ window.__QD_HOST__={
     Marovar: marovarKitAudio,
     Drazhen: drazhenKitAudio,
     Zafran: zafranKitAudio,
-    Qasmir: qasmirKitAudio
+    Qasmir: qasmirKitAudio,
+    Calvora: calvoraKitAudio,
+    Rovarn: rovarnKitAudio,
+    Talune: taluneKitAudio,
+    Belros: belrosKitAudio
   };
   let activeKitThemeAudio = null;
   let activeKitThemeCountry = null;
@@ -3285,7 +3297,7 @@ window.__QD_HOST__={
   let currentCountry = null;
   let activeKitIndex = 0;
   let kitReturnFocus = null;
-  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio) return;
+  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio || !calvoraKitAudio || !rovarnKitAudio || !taluneKitAudio || !belrosKitAudio) return;
 
   const FALLBACK_MS = 3422;
   let transitionTimer = 0;

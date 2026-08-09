@@ -1,17 +1,11 @@
-REPO SPORTS WORLD CUP - KIT MUSIC UPDATE
+Repo Sports World Cup – kit music batch 2
 
-Added team-specific kit music:
-- Marovar -> assets/repo-sports-kit-marovar-theme.mp3
-- Drazhen -> assets/repo-sports-kit-drazhen-theme.mp3
-- Zafran -> assets/repo-sports-kit-zafran-theme.mp3
-- Qasmir -> assets/repo-sports-kit-qasmir-theme.mp3
+Matched by uploaded filename:
+- CALVORA.mp3 -> Calvora kit
+- ROVARN.mp3 -> Rovarn kit
+- TALUNE.mp3 -> Talune kit
+- BELROS.mp3 -> Belros kit
 
-Behaviour:
-- A team-specific track starts only while that team's kit is active.
-- The normal World Cup menu music pauses completely while a team-specific track is playing.
-- Switching directly between custom-music teams stops the previous team track before starting the new one.
-- Moving to a team without custom music stops the team track and resumes the normal World Cup menu music.
-- Closing the kit viewer stops the active team track and resumes the menu music.
-
-Install:
-Merge this ZIP into the website root and replace index.html when prompted.
+Existing Marovar, Drazhen, Zafran and Qasmir team tracks remain wired.
+Team-specific music fully pauses the normal World Cup menu music while active.
+Switching to a kit without a custom theme restores the normal World Cup menu music.
