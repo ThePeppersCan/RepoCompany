@@ -1575,6 +1575,14 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <audio id="worldCupRovarnKitAudio" src="assets/repo-sports-kit-rovarn-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
   <audio id="worldCupTaluneKitAudio" src="assets/repo-sports-kit-talune-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
   <audio id="worldCupBelrosKitAudio" src="assets/repo-sports-kit-belros-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupVardeshKitAudio" src="assets/repo-sports-kit-vardesh-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupSoreviaKitAudio" src="assets/repo-sports-kit-sorevia-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupIskandarKitAudio" src="assets/repo-sports-kit-iskandar-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupKordeshKitAudio" src="assets/repo-sports-kit-kordesh-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupNambaraKitAudio" src="assets/repo-sports-kit-nambara-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupElvaneKitAudio" src="assets/repo-sports-kit-elvane-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupNorvethKitAudio" src="assets/repo-sports-kit-norveth-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+  <audio id="worldCupLumerreKitAudio" src="assets/repo-sports-kit-lumerre-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
 </div>
 
 <main>
@@ -3238,6 +3246,14 @@ window.__QD_HOST__={
   const rovarnKitAudio = document.getElementById('worldCupRovarnKitAudio');
   const taluneKitAudio = document.getElementById('worldCupTaluneKitAudio');
   const belrosKitAudio = document.getElementById('worldCupBelrosKitAudio');
+  const vardeshKitAudio = document.getElementById('worldCupVardeshKitAudio');
+  const soreviaKitAudio = document.getElementById('worldCupSoreviaKitAudio');
+  const iskandarKitAudio = document.getElementById('worldCupIskandarKitAudio');
+  const kordeshKitAudio = document.getElementById('worldCupKordeshKitAudio');
+  const nambaraKitAudio = document.getElementById('worldCupNambaraKitAudio');
+  const elvaneKitAudio = document.getElementById('worldCupElvaneKitAudio');
+  const norvethKitAudio = document.getElementById('worldCupNorvethKitAudio');
+  const lumerreKitAudio = document.getElementById('worldCupLumerreKitAudio');
   const guideButton = overlay?.querySelector('.world-cup-fixture-nav-button-guide');
   const historyButton = overlay?.querySelector('.world-cup-fixture-nav-button-history');
   const countryPages = {
@@ -3288,7 +3304,15 @@ window.__QD_HOST__={
     Calvora: calvoraKitAudio,
     Rovarn: rovarnKitAudio,
     Talune: taluneKitAudio,
-    Belros: belrosKitAudio
+    Belros: belrosKitAudio,
+    Vardesh: vardeshKitAudio,
+    Sorevia: soreviaKitAudio,
+    Iskandar: iskandarKitAudio,
+    Kordesh: kordeshKitAudio,
+    Nambara: nambaraKitAudio,
+    Elvane: elvaneKitAudio,
+    Norveth: norvethKitAudio,
+    Lumerre: lumerreKitAudio
   };
   let activeKitThemeAudio = null;
   let activeKitThemeCountry = null;
@@ -3297,7 +3321,7 @@ window.__QD_HOST__={
   let currentCountry = null;
   let activeKitIndex = 0;
   let kitReturnFocus = null;
-  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio || !calvoraKitAudio || !rovarnKitAudio || !taluneKitAudio || !belrosKitAudio) return;
+  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio || !calvoraKitAudio || !rovarnKitAudio || !taluneKitAudio || !belrosKitAudio || !vardeshKitAudio || !soreviaKitAudio || !iskandarKitAudio || !kordeshKitAudio || !nambaraKitAudio || !elvaneKitAudio || !norvethKitAudio || !lumerreKitAudio) return;
 
   const FALLBACK_MS = 3422;
   let transitionTimer = 0;
