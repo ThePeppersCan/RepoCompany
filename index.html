@@ -1464,6 +1464,52 @@ button.qg-game-card{font:inherit;cursor:pointer}
     }
   </style>
 
+
+  <style id="worldCupCosmeticsStyles">
+    /* World Cup supporter name tags keep their original 285x105 proportions. */
+    #quidditchModePitch .qm-pet>.pet-label.has-custom-nametag[data-nametag^="nametag_worldcup_"]>.qm-custom-nametag{
+      width:150px!important;
+      height:55px!important;
+      margin:0 auto -7px!important;
+    }
+    #quidditchModePitch .qm-pet>.pet-label.has-custom-nametag[data-nametag^="nametag_worldcup_"]>.qm-custom-nametag>img{
+      object-fit:contain!important;
+    }
+    #quidditchModePitch .qm-pet>.pet-label.has-custom-nametag[data-nametag^="nametag_worldcup_"]>.qm-custom-nametag>b{
+      letter-spacing:-.08px!important;
+      text-rendering:geometricPrecision;
+    }
+    .nametag-shop-item[data-nametag-preview^="nametag_worldcup_"] .nametag-shop-art img{
+      width:auto!important;
+      max-width:100%!important;
+      height:72px!important;
+      object-fit:contain!important;
+    }
+    .party-pete-item.world-cup-backdrop{
+      position:relative;
+    }
+    .party-pete-item.world-cup-backdrop::after{
+      content:"WORLD CUP · 2K";
+      position:absolute;
+      top:6px;
+      right:6px;
+      padding:2px 5px;
+      border:1px solid rgba(225,181,82,.68);
+      background:rgba(7,14,24,.86);
+      color:#f4d47d;
+      font:900 7px Georgia,serif;
+      letter-spacing:.45px;
+      text-shadow:1px 1px #000;
+      pointer-events:none;
+    }
+    @media(max-width:850px){
+      #quidditchModePitch .qm-pet>.pet-label.has-custom-nametag[data-nametag^="nametag_worldcup_"]>.qm-custom-nametag{
+        width:122px!important;
+        height:45px!important;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <audio id="signedOutNatureAudio" src="assets/signed-out-nature.mp3" preload="auto" loop aria-hidden="true"></audio>
@@ -3031,7 +3077,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=quidditch-watch-xp-minute-ping-20260808-2"></script>
+<script src="script.js?v=world-cup-cosmetics-20260810-1"></script>
 <script src="assets/quidditch-survivor/quidditch-survivor.js?v=20260807-character-visible-1"></script>
 <script src="assets/repo-diver/data.js?v=20260807-1"></script>
 <script src="assets/repo-diver/engine.js?v=20260807-1"></script>

@@ -4482,7 +4482,23 @@ const GERTRUDE_NAMETAGS=[
   {id:'nametag_nimbus_broom',name:'Nimbus Broom',image:'assets/nametags/nimbus-broom.png'},
   {id:'nametag_garden_window',name:'Garden Window',image:'assets/nametags/garden-window.png'},
   {id:'nametag_bakery_window',name:'Bakery Window',image:'assets/nametags/bakery-window.png'},
-  {id:'nametag_tea_biscuits',name:'Tea & Biscuits',image:'assets/nametags/tea-biscuits.png'}
+  {id:'nametag_tea_biscuits',name:'Tea & Biscuits',image:'assets/nametags/tea-biscuits.png'},
+  {id:'nametag_worldcup_belros',name:'Belros Supporter',image:'assets/nametags/world-cup-belros.png'},
+  {id:'nametag_worldcup_calvora',name:'Calvora Supporter',image:'assets/nametags/world-cup-calvora.png'},
+  {id:'nametag_worldcup_drazhen',name:'Drazhen Supporter',image:'assets/nametags/world-cup-drazhen.png'},
+  {id:'nametag_worldcup_elvane',name:'Elvane Supporter',image:'assets/nametags/world-cup-elvane.png'},
+  {id:'nametag_worldcup_iskandar',name:'Iskandar Supporter',image:'assets/nametags/world-cup-iskandar.png'},
+  {id:'nametag_worldcup_kordesh',name:'Kordesh Supporter',image:'assets/nametags/world-cup-kordesh.png'},
+  {id:'nametag_worldcup_lumerre',name:'Lumerre Supporter',image:'assets/nametags/world-cup-lumerre.png'},
+  {id:'nametag_worldcup_marovar',name:'Marovar Supporter',image:'assets/nametags/world-cup-marovar.png'},
+  {id:'nametag_worldcup_nambara',name:'Nambara Supporter',image:'assets/nametags/world-cup-nambara.png'},
+  {id:'nametag_worldcup_norveth',name:'Norveth Supporter',image:'assets/nametags/world-cup-norveth.png'},
+  {id:'nametag_worldcup_qasmir',name:'Qasmir Supporter',image:'assets/nametags/world-cup-qasmir.png'},
+  {id:'nametag_worldcup_rovarn',name:'Rovarn Supporter',image:'assets/nametags/world-cup-rovarn.png'},
+  {id:'nametag_worldcup_sorevia',name:'Sorevia Supporter',image:'assets/nametags/world-cup-sorevia.png'},
+  {id:'nametag_worldcup_talune',name:'Talune Supporter',image:'assets/nametags/world-cup-talune.png'},
+  {id:'nametag_worldcup_vardesh',name:'Vardesh Supporter',image:'assets/nametags/world-cup-vardesh.png'},
+  {id:'nametag_worldcup_zafran',name:'Zafran Supporter',image:'assets/nametags/world-cup-zafran.png'}
 ];
 
 
@@ -4527,6 +4543,22 @@ const QUIDDITCH_NAMETAG_TEXT={
   nametag_frozen_clan_banner:{color:'#e8f5ff',outline:'#152d59',font:'Arial,sans-serif',weight:900,size:10},
   nametag_dreamies:{color:'#242124',outline:'#fffdf5',font:'"Brush Script MT","Segoe Script","Comic Sans MS",cursive',weight:900,size:11.35},
   nametag_gilded_scroll:{color:'#704108',outline:'#fff1bc',font:'Georgia,serif',weight:900,size:10.2},nametag_iron_prospect:{color:'#e6e9e8',outline:'#15191d',font:'Arial,sans-serif',weight:900,size:10},nametag_lilac_unicorn:{color:'#794fa7',outline:'#fff4ff',font:'Georgia,serif',weight:900,size:10.2},nametag_verdant_grove:{color:'#f4e7b8',outline:'#173719',font:'Georgia,serif',weight:900,size:10},nametag_midnight_familiar:{color:'#e1e6ff',outline:'#121a4d',font:'Georgia,serif',weight:900,size:10},nametag_glacial_sigil:{color:'#d8ffff',outline:'#075465',font:'Arial,sans-serif',weight:900,size:10},nametag_crimson_decree:{color:'#ffe9b7',outline:'#5a0608',font:'Georgia,serif',weight:900,size:10.2},nametag_coastal_catch:{color:'#6a401b',outline:'#fff1bc',font:'Georgia,serif',weight:900,size:10},nametag_imperial_onyx:{color:'#f6d98d',outline:'#251018',font:'Georgia,serif',weight:900,size:10.2},nametag_runed_steel:{color:'#eee2c6',outline:'#39342e',font:'Georgia,serif',weight:900,size:10},nametag_prism_ward:{color:'#e4efff',outline:'#172448',font:'Georgia,serif',weight:900,size:10},nametag_nimbus_broom:{color:'#e9d4a3',outline:'#20140d',font:'Georgia,serif',weight:900,size:10},nametag_garden_window:{color:'#6c321d',outline:'#fff1d2',font:'Georgia,serif',weight:900,size:10},nametag_bakery_window:{color:'#75401e',outline:'#fff1bd',font:'Georgia,serif',weight:900,size:10},nametag_tea_biscuits:{color:'#75452e',outline:'#fff6da',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_belros:{color:'#ffe1a6',outline:'#3b0d12',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_calvora:{color:'#fff0b5',outline:'#0c3150',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_drazhen:{color:'#ffd47e',outline:'#1a0806',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_elvane:{color:'#ffe3a0',outline:'#351006',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_iskandar:{color:'#fff2c8',outline:'#173457',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_kordesh:{color:'#ffe0a0',outline:'#2b1004',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_lumerre:{color:'#fff0b0',outline:'#16391e',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_marovar:{color:'#ffe6ad',outline:'#21133e',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_nambara:{color:'#ffe29a',outline:'#281800',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_norveth:{color:'#f1d5a0',outline:'#120a0a',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_qasmir:{color:'#f1ddff',outline:'#23113c',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_rovarn:{color:'#ffe0a0',outline:'#1d0808',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_sorevia:{color:'#fff1dc',outline:'#601b36',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_talune:{color:'#fff1b6',outline:'#12351c',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_vardesh:{color:'#e9fbff',outline:'#193852',font:'Georgia,serif',weight:900,size:10},
+  nametag_worldcup_zafran:{color:'#ffe29b',outline:'#28180a',font:'Georgia,serif',weight:900,size:10},
   nametag_panda_rare:{color:'#352113',outline:'#fff4d2',font:'Georgia,serif',weight:900,size:10.2}
 };
 function quidditchNametagFor(source){
@@ -4555,7 +4587,24 @@ const QUIDDITCH_NAMETAG_LAYOUT={
   nametag_venomcore:{left:22,right:7},nametag_druids_embrace:{left:18,right:18},
   nametag_tidecaller:{left:8,right:8},nametag_lunar_sorcerer:{left:22,right:18},
   nametag_frozen_clan_banner:{left:18,right:8},nametag_dreamies:{left:29,right:22},
-  nametag_gilded_scroll:{left:14,right:11},nametag_iron_prospect:{left:13,right:17},nametag_lilac_unicorn:{left:16,right:14},nametag_verdant_grove:{left:17,right:15},nametag_midnight_familiar:{left:24,right:13},nametag_glacial_sigil:{left:26,right:17},nametag_crimson_decree:{left:12,right:10},nametag_coastal_catch:{left:20,right:18},nametag_imperial_onyx:{left:14,right:13},nametag_runed_steel:{left:7,right:7},nametag_prism_ward:{left:16,right:14},nametag_nimbus_broom:{left:8,right:8},nametag_garden_window:{left:16,right:9},nametag_bakery_window:{left:17,right:14},nametag_tea_biscuits:{left:17,right:15},nametag_panda_rare:{left:15,right:15,top:5}
+  nametag_gilded_scroll:{left:14,right:11},nametag_iron_prospect:{left:13,right:17},nametag_lilac_unicorn:{left:16,right:14},nametag_verdant_grove:{left:17,right:15},nametag_midnight_familiar:{left:24,right:13},nametag_glacial_sigil:{left:26,right:17},nametag_crimson_decree:{left:12,right:10},nametag_coastal_catch:{left:20,right:18},nametag_imperial_onyx:{left:14,right:13},nametag_runed_steel:{left:7,right:7},nametag_prism_ward:{left:16,right:14},nametag_nimbus_broom:{left:8,right:8},nametag_garden_window:{left:16,right:9},nametag_bakery_window:{left:17,right:14},nametag_tea_biscuits:{left:17,right:15},
+  nametag_worldcup_belros:{left:31,right:7},
+  nametag_worldcup_calvora:{left:33,right:7},
+  nametag_worldcup_drazhen:{left:31,right:15},
+  nametag_worldcup_elvane:{left:31,right:7},
+  nametag_worldcup_iskandar:{left:33,right:7},
+  nametag_worldcup_kordesh:{left:32,right:7},
+  nametag_worldcup_lumerre:{left:34,right:7},
+  nametag_worldcup_marovar:{left:32,right:7},
+  nametag_worldcup_nambara:{left:32,right:7},
+  nametag_worldcup_norveth:{left:31,right:7},
+  nametag_worldcup_qasmir:{left:31,right:11},
+  nametag_worldcup_rovarn:{left:31,right:19},
+  nametag_worldcup_sorevia:{left:31,right:10},
+  nametag_worldcup_talune:{left:31,right:18},
+  nametag_worldcup_vardesh:{left:32,right:7},
+  nametag_worldcup_zafran:{left:31,right:11},
+  nametag_panda_rare:{left:15,right:15,top:5}
 };
 function quidditchNametagFontSize(name,base=10){
   const length=Array.from(String(name||'')).length;
@@ -4682,6 +4731,22 @@ function npcPartyPeteShopRequest(){
 function npcPartyPeteLeave(){npcRunLines([{who:'player',text:'I should get back to the party.'},{who:'partypete',text:'Excellent! Remember: if a valuable item goes missing before the balloon drop, it was probably a wizard.'}],npcEndDialogue)}
 
 const PARTY_PETE_WATCHCARDS=[
+  ['watchcard_wc_belros','World Cup — Belros','assets/watchcard-backgrounds/world-cup-belros.webp',2000],
+  ['watchcard_wc_calvora','World Cup — Calvora','assets/watchcard-backgrounds/world-cup-calvora.webp',2000],
+  ['watchcard_wc_drazhen','World Cup — Drazhen','assets/watchcard-backgrounds/world-cup-drazhen.webp',2000],
+  ['watchcard_wc_elvane','World Cup — Elvane','assets/watchcard-backgrounds/world-cup-elvane.webp',2000],
+  ['watchcard_wc_iskandar','World Cup — Iskandar','assets/watchcard-backgrounds/world-cup-iskandar.webp',2000],
+  ['watchcard_wc_kordesh','World Cup — Kordesh','assets/watchcard-backgrounds/world-cup-kordesh.webp',2000],
+  ['watchcard_wc_lumerre','World Cup — Lumerre','assets/watchcard-backgrounds/world-cup-lumerre.webp',2000],
+  ['watchcard_wc_marovar','World Cup — Marovar','assets/watchcard-backgrounds/world-cup-marovar.webp',2000],
+  ['watchcard_wc_nambara','World Cup — Nambara','assets/watchcard-backgrounds/world-cup-nambara.webp',2000],
+  ['watchcard_wc_norveth','World Cup — Norveth','assets/watchcard-backgrounds/world-cup-norveth.webp',2000],
+  ['watchcard_wc_qasmir','World Cup — Qasmir','assets/watchcard-backgrounds/world-cup-qasmir.webp',2000],
+  ['watchcard_wc_rovarn','World Cup — Rovarn','assets/watchcard-backgrounds/world-cup-rovarn.webp',2000],
+  ['watchcard_wc_sorevia','World Cup — Sorevia','assets/watchcard-backgrounds/world-cup-sorevia.webp',2000],
+  ['watchcard_wc_talune','World Cup — Talune','assets/watchcard-backgrounds/world-cup-talune.webp',2000],
+  ['watchcard_wc_vardesh','World Cup — Vardesh','assets/watchcard-backgrounds/world-cup-vardesh.webp',2000],
+  ['watchcard_wc_zafran','World Cup — Zafran','assets/watchcard-backgrounds/world-cup-zafran.webp',2000],
   ['watchcard_crystal_bloom','Crystal Bloom Court','assets/watchcard-backgrounds/crystal-bloom-court.webp'],
   ['watchcard_molten_forge','Molten Forge','assets/watchcard-backgrounds/molten-forge.webp'],
   ['watchcard_moonlit_observatory','Moonlit Observatory','assets/watchcard-backgrounds/moonlit-observatory.webp'],
@@ -4717,7 +4782,7 @@ const PARTY_PETE_WATCHCARDS=[
   ['watchcard_elderwood_hideaway','Elderwood Hideaway','assets/watchcard-backgrounds/elderwood-hideaway.webp'],
   ['watchcard_dragonback_vista','Dragonback Vista','assets/watchcard-backgrounds/dragonback-vista.webp'],
   ['watchcard_brickbuilt_kingdom','Brickbuilt Kingdom','assets/watchcard-backgrounds/brickbuilt-kingdom.webp']
-].map(([id,name,image])=>({id,name,image,price:25000}));
+].map(([id,name,image,price=25000])=>({id,name,image,price}));
 function partyPeteItem(id){return PARTY_PETE_WATCHCARDS.find(item=>item.id===id)}
 function partyPeteAdminTesting(){return !!(character&&String(character.username||'').toLowerCase()==='catasthma'&&typeof toaState!=='undefined'&&toaState.adminMode)}
 function partyPeteOwned(id){return partyPeteAdminTesting()||Number(bankState?.items?.[id]||0)>0}
@@ -4739,12 +4804,12 @@ function partyPetePreviewMarkup(item){
 function renderPartyPeteShop(message=partyPeteAdminTesting()?'ADMIN TEST MODE: every background is temporarily unlocked.':'Choose a background to preview it before buying.'){
   const gp=Number(bankState?.gp||0),equipped=character?.equipped_watchcard_background||null;
   const testing=partyPeteAdminTesting();
-  $('npcDialogueText').innerHTML=`<section class="party-pete-shop"><header><img src="assets/npc-party-pete.png" alt=""><div><h4>PARTY PETE'S WATCHCARD SHOP</h4><p>${testing?`ADMIN TEST MODE · all ${PARTY_PETE_WATCHCARDS.length} backgrounds unlocked temporarily.`:'Every background costs 25,000 GP. Purchased backgrounds can be equipped at any time.'}</p></div><strong>${testing?'TEST UNLOCKS':`${gp.toLocaleString('en-GB')} GP`}</strong></header><div class="party-pete-grid">${PARTY_PETE_WATCHCARDS.map(item=>`<button type="button" class="party-pete-item ${partyPeteOwned(item.id)?'owned':''} ${equipped===item.id?'equipped':''}" data-watchcard-preview="${item.id}"><img src="${item.image}" alt=""><span><b>${escapeHtml(item.name)}</b><small>${equipped===item.id?'EQUIPPED':testing?'ADMIN TEST · CLICK TO EQUIP':partyPeteOwned(item.id)?'OWNED · CLICK TO EQUIP':'25,000 GP'}</small></span></button>`).join('')}</div><p class="party-pete-message">${escapeHtml(message)}</p><button class="npc-interface-back" type="button">BACK TO PARTY PETE</button></section>`;
+  $('npcDialogueText').innerHTML=`<section class="party-pete-shop"><header><img src="assets/npc-party-pete.png" alt=""><div><h4>PARTY PETE'S WATCHCARD SHOP</h4><p>${testing?`ADMIN TEST MODE · all ${PARTY_PETE_WATCHCARDS.length} backgrounds unlocked temporarily.`:'World Cup supporter backdrops are 2,000 GP each. Standard backgrounds remain 25,000 GP.'}</p></div><strong>${testing?'TEST UNLOCKS':`${gp.toLocaleString('en-GB')} GP`}</strong></header><div class="party-pete-grid">${PARTY_PETE_WATCHCARDS.map(item=>`<button type="button" class="party-pete-item ${partyPeteOwned(item.id)?'owned':''} ${equipped===item.id?'equipped':''} ${item.id.startsWith('watchcard_wc_')?'world-cup-backdrop':''}" data-watchcard-preview="${item.id}"><img src="${item.image}" alt=""><span><b>${escapeHtml(item.name)}</b><small>${equipped===item.id?'EQUIPPED':testing?'ADMIN TEST · CLICK TO EQUIP':partyPeteOwned(item.id)?'OWNED · CLICK TO EQUIP':formatGpCompact(item.price)}</small></span></button>`).join('')}</div><p class="party-pete-message">${escapeHtml(message)}</p><button class="npc-interface-back" type="button">BACK TO PARTY PETE</button></section>`;
   $('npcDialogueText').querySelectorAll('[data-watchcard-preview]').forEach(button=>button.addEventListener('click',()=>renderPartyPeteConfirmation(button.dataset.watchcardPreview)));
 }
 function renderPartyPeteConfirmation(id){
   const item=partyPeteItem(id);if(!item)return;const testing=partyPeteAdminTesting(),owned=partyPeteOwned(id),equipped=character?.equipped_watchcard_background===id,afford=Number(bankState?.gp||0)>=item.price;
-  $('npcDialogueText').innerHTML=`<section class="party-pete-confirm"><h4>${escapeHtml(item.name)}</h4>${partyPetePreviewMarkup(item)}<p>${testing?(equipped?'This test background is currently equipped.':'Temporarily equip this background for admin testing?'):owned?(equipped?'This background is currently equipped.':'You already own this background. Equip it now?'):`Purchase this background for <b>25,000 GP</b>?`}</p><div><button type="button" class="party-pete-confirm-yes" ${!owned&&!afford?'disabled':''}>${equipped?'UNEQUIP':testing?'TEST EQUIP':owned?'EQUIP':afford?'CONFIRM PURCHASE':'NOT ENOUGH GP'}</button><button type="button" class="party-pete-confirm-no">CANCEL</button></div></section>`;
+  $('npcDialogueText').innerHTML=`<section class="party-pete-confirm"><h4>${escapeHtml(item.name)}</h4>${partyPetePreviewMarkup(item)}<p>${testing?(equipped?'This test background is currently equipped.':'Temporarily equip this background for admin testing?'):owned?(equipped?'This background is currently equipped.':'You already own this background. Equip it now?'):`Purchase this background for <b>${item.price.toLocaleString('en-GB')} GP</b>?`}</p><div><button type="button" class="party-pete-confirm-yes" ${!owned&&!afford?'disabled':''}>${equipped?'UNEQUIP':testing?'TEST EQUIP':owned?'EQUIP':afford?'CONFIRM PURCHASE':'NOT ENOUGH GP'}</button><button type="button" class="party-pete-confirm-no">CANCEL</button></div></section>`;
   $('npcDialogueText').querySelector('.party-pete-confirm-no').addEventListener('click',()=>renderPartyPeteShop());
   const yes=$('npcDialogueText').querySelector('.party-pete-confirm-yes');if(!yes.disabled)yes.addEventListener('click',()=>owned?setPartyPeteWatchcard(equipped?null:id):buyPartyPeteWatchcard(id));
 }
@@ -4756,7 +4821,7 @@ async function buyPartyPeteWatchcard(id){
   character.equipped_watchcard_background=row?.equipped_watchcard_background||id;
   partyPeteRefreshTestCard();
   if($('bankDialog')?.open)renderBank();
-  renderPartyPeteShop(`${partyPeteItem(id)?.name||'Background'} purchased for 25,000 GP, added to your Bank and equipped!`);
+  const purchased=partyPeteItem(id);renderPartyPeteShop(`${purchased?.name||'Background'} purchased for ${Number(purchased?.price||0).toLocaleString('en-GB')} GP, added to your Bank and equipped!`);
 }
 async function setPartyPeteWatchcard(id){
   if(partyPeteAdminTesting()){partyPeteSetTestBackdrop(id);renderPartyPeteShop(id?'Admin test background equipped.':'Admin test background unequipped.');return;}
@@ -15962,10 +16027,8 @@ qmShowSharedGoal=function(state){
     db.__repoWatchXpRpcWrapped=true;
     db.rpc=async function(name,args,options){
       const result=await originalRpc(name,args,options);
-      if(name==='claim_quidditch_watch_xp_400'&&!result?.error){
-        const gained=Number(result?.data)||0;
-        if(gained>0)setTimeout(()=>restartWatchXpAnimation(gained),0);
-      }
+      // qmClaimSpectatorXp owns the WATCH XP visual. Keeping the RPC wrapper
+      // side-effect free prevents a successful minute award from animating twice.
       return result;
     };
   }
