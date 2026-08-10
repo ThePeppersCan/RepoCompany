@@ -3337,7 +3337,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=wc-tcg-nametagfix-20260810-2"></script>
+<script src="script.js?v=barry-tip-v3-safe-recovery-20260810-1100"></script>
 <script src="assets/quidditch-survivor/quidditch-survivor.js?v=20260807-character-visible-1"></script>
 <script src="assets/repo-diver/data.js?v=20260807-1"></script>
 <script src="assets/repo-diver/engine.js?v=20260807-1"></script>
@@ -3628,7 +3628,7 @@ window.__QD_HOST__={
   let currentCountry = null;
   let activeKitIndex = 0;
   let kitReturnFocus = null;
-  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio || !calvoraKitAudio || !rovarnKitAudio || !taluneKitAudio || !belrosKitAudio || !vardeshKitAudio || !soreviaKitAudio || !iskandarKitAudio || !kordeshKitAudio || !nambaraKitAudio || !elvaneKitAudio || !norvethKitAudio || !lumerreKitAudio) return;
+  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !guideButton || !historyButton || !teamsButton || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio || !calvoraKitAudio || !rovarnKitAudio || !taluneKitAudio || !belrosKitAudio || !vardeshKitAudio || !soreviaKitAudio || !iskandarKitAudio || !kordeshKitAudio || !nambaraKitAudio || !elvaneKitAudio || !norvethKitAudio || !lumerreKitAudio) return;
 
   const FALLBACK_MS = 3422;
   let transitionTimer = 0;
@@ -3965,6 +3965,11 @@ window.__QD_HOST__={
     'World Cup History',
     'assets/repo-sports-world-cup-rivalries-record.png',
     'The Great Quidditch Rivalries of Velmora and World Cup record'
+  );
+  wireLoreButton(
+    teamsButton,
+    'assets/repo-sports-world-cup-family-trees.png',
+    'Meet the Teams — Player Family Trees'
   );
 
   const pulseKitsButton = () => {

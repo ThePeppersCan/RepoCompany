@@ -9451,85 +9451,196 @@ qmSetPredictionUi=function(state){
   qmRenderPredictionSplit(state);
 };
 
-// Throw coins to the Repo Sports commentator — once per live match.
-(function(){
-  const tipFrames=[
+// Barry Bramble tipping — isolated V3 controller.
+// V3 deliberately does NOT validate through the legacy wall-clock/authoritative
+// clock chain. It charges against the exact match id currently displayed by the
+// live Quidditch state and enforces one successful tip per account + match.
+(function installBarryBrambleTippingV3(){
+  if(window.__barryTipV3Installed)return;
+  window.__barryTipV3Installed=true;
+
+  const TIP_COST=200;
+  const TIP_FRAMES=[
     'assets/commentator-tip-1.png','assets/commentator-tip-2.png','assets/commentator-tip-3.png','assets/commentator-tip-4.png',
     'assets/commentator-tip-5.png','assets/commentator-tip-6.png','assets/commentator-tip-7.png','assets/commentator-tip-8.png'
   ];
-  let tipping=false,tipTimer=0,tippedMatchId=null,lastSeenMatchId=null;
+  let busy=false;
+  let knownMatchId=null;
+  let tippedMatchId=null;
   let lifetimeTipGp=0;
-  const tipSound=new Audio('assets/commentator-tip-sound.mp3');tipSound.preload='auto';tipSound.volume=.3;
-  function playTipSound(){try{tipSound.currentTime=0;const p=tipSound.play();if(p?.catch)p.catch(()=>{});}catch(_){}}
-  function sprite(){return document.getElementById('qmCommentatorSprite')}
-  function studio(){return document.getElementById('qmCommentatorStudio')}
-  function button(){return document.getElementById('qmThrowCoin')}
-  function totalTipsEl(){return document.getElementById('qmTotalTipsValue')}
+  let tipTimer=0;
+  let statusBusy=false;
+  const tipSound=new Audio('assets/commentator-tip-sound.mp3');
+  tipSound.preload='auto';tipSound.volume=.3;
+
+  const button=()=>document.getElementById('qmThrowCoin');
+  const sprite=()=>document.getElementById('qmCommentatorSprite');
+  const studio=()=>document.getElementById('qmCommentatorStudio');
+  const notify=(message,duration=4800)=>{try{toast(message,duration)}catch(_){console.info(message)}};
+
+  function displayedMatchId(){
+    const a=Number(qmState?.liveState?.match_id||0);
+    if(Number.isSafeInteger(a)&&a>0)return a;
+    const b=Number(qmState?.liveMatchId||0);
+    return Number.isSafeInteger(b)&&b>0?b:null;
+  }
+
+  async function freshMatchId(){
+    const local=displayedMatchId();
+    if(local)return local;
+    if(typeof db==='undefined'||!db?.rpc)return null;
+    try{
+      const viewer=(typeof QM_VIEWER_KEY!=='undefined'&&QM_VIEWER_KEY)
+        ?QM_VIEWER_KEY
+        :(`barry-v3-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      const {data,error}=await db.rpc('get_live_quidditch_state',{p_viewer_key:viewer});
+      if(error)return null;
+      const row=Array.isArray(data)?data[0]:data;
+      const id=Number(row?.match_id||0);
+      return Number.isSafeInteger(id)&&id>0?id:null;
+    }catch(_){return null}
+  }
+
   function renderLifetimeTips(value=lifetimeTipGp){
     lifetimeTipGp=Math.max(0,Number(value)||0);
-    const el=totalTipsEl();if(el)el.textContent=`${lifetimeTipGp.toLocaleString()} GP`;
+    const total=document.getElementById('qmTotalTipsValue');if(total)total.textContent=`${lifetimeTipGp.toLocaleString()} GP`;
     const target=250000,progress=Math.min(1,lifetimeTipGp/target),percent=Math.floor(progress*100);
     const fill=document.getElementById('qmTipGoalFill');if(fill)fill.style.height=`${percent}%`;
     const pct=document.getElementById('qmTipGoalPercent');if(pct)pct.textContent=progress>=1?'UNLOCKED':`${percent}%`;
-    const status=document.getElementById('qmTipGoalStatus');if(status)status.textContent=progress>=1?"Barry's Boater unlocked!":`${lifetimeTipGp.toLocaleString()} / 250,000 GP`;
-    const goal=document.getElementById('qmTipGoal');goal?.classList.toggle('is-unlocked',progress>=1);
-    const coins=document.getElementById('qmTipGoalCoins');if(coins){const wanted=Math.min(14,Math.floor(progress*14));while(coins.children.length<wanted){const coin=document.createElement('i');coin.style.left=`${8+Math.random()*72}%`;coin.style.bottom=`${Math.random()*Math.max(4,percent-7)}%`;coin.style.setProperty('--coin-r',`${-18+Math.random()*36}deg`);coins.appendChild(coin)}while(coins.children.length>wanted)coins.lastChild.remove();}
+    const status=document.getElementById('qmTipGoalStatus');
+    if(status){
+      const label=status.querySelector('span');
+      const note=status.querySelector('em');
+      if(label)label.textContent=progress>=1?"Barry's Boater unlocked!":"Barry's Boater";
+      if(note)note.textContent=progress>=1?'Community goal complete':`${lifetimeTipGp.toLocaleString()} / 250,000 GP`;
+    }
+    document.getElementById('qmTipGoal')?.classList.toggle('is-unlocked',progress>=1);
   }
-  async function loadLifetimeTips(){
-    try{const {data,error}=await db.rpc('get_quidditch_commentator_total_tips');if(!error)renderLifetimeTips(data);}catch(_){ }
-  }
-  function currentMatchId(){return Number(qmState?.liveState?.match_id)||Math.floor(Date.now()/1000/235)}
-  function setFrame(path){const el=sprite();if(el)el.src=path}
-  function setButtonUsed(used){
+
+  function forceButtonClickable(){
     const el=button();if(!el)return;
-    el.disabled=Boolean(used||tipping);el.classList.toggle('is-used',Boolean(used));
-    const label=el.querySelector('b');if(label)label.textContent=used?'TIP SENT':'THROW';
-    el.title=used?'You have already tipped the commentator this match.':'Throw 200 GP to the commentator';
+    // Recovery-safe: update only when a value actually changed. Do NOT observe
+    // these attributes with MutationObserver; doing so can recursively trigger
+    // this function and freeze the browser tab.
+    if(el.disabled)el.disabled=false;
+    if(el.hasAttribute('disabled'))el.removeAttribute('disabled');
+    const matchId=displayedMatchId();
+    const used=Boolean(matchId&&tippedMatchId===matchId);
+    const desiredAria=(busy||used)?'true':'false';
+    if(el.getAttribute('aria-disabled')!==desiredAria)el.setAttribute('aria-disabled',desiredAria);
+    if(el.classList.contains('is-used')!==used)el.classList.toggle('is-used',used);
+    if(el.classList.contains('is-busy')!==busy)el.classList.toggle('is-busy',busy);
+    const label=el.querySelector('b');
+    const desiredLabel=busy?'THROWING…':used?'TIP SENT':'THROW';
+    if(label&&label.textContent!==desiredLabel)label.textContent=desiredLabel;
+    const desiredTitle=used?'You have already tipped Barry Bramble during this match.':'Throw 200 GP to Barry Bramble';
+    if(el.title!==desiredTitle)el.title=desiredTitle;
   }
-  function restore(){const el=sprite();if(el)el.src='assets/commentator-22.png';studio()?.classList.remove('is-tipped')}
-  async function animateTip(){
-    clearTimeout(tipTimer);const box=studio();box?.classList.remove('is-speaking','is-goal','is-tipped');void box?.offsetWidth;box?.classList.add('is-tipped');
-    const holds=[300,300,350,350,330,330,390,390];
-    for(let i=0;i<tipFrames.length;i++){setFrame(tipFrames[i]);await new Promise(r=>setTimeout(r,holds[i]));}
-    tipTimer=setTimeout(restore,350);
+
+  function resetForMatch(matchId){
+    knownMatchId=matchId;
+    tippedMatchId=null;
+    forceButtonClickable();
   }
-  async function throwCoin(){
-    const matchId=currentMatchId();
-    if(tipping||tippedMatchId===matchId)return;
-    if(!character){toast('Sign in before throwing coins to the commentator.');return;}
-    if((Number(character.gp)||0)<200){toast('You need 200 GP to throw coins.');return;}
-    const el=button();tipping=true;setButtonUsed(false);if(el)el.disabled=true;
+
+  async function loadLifetimeTips(){
+    if(typeof db==='undefined'||!db?.rpc)return;
     try{
-      const {data,error}=await db.rpc('tip_quidditch_commentator',{p_match_id:matchId});
+      const {data,error}=await db.rpc('get_quidditch_commentator_total_tips_v3');
+      if(!error)renderLifetimeTips(data);
+    }catch(_){ }
+  }
+
+  async function refreshStatus(force=false){
+    if(statusBusy||typeof character==='undefined'||!character||typeof db==='undefined'||!db?.rpc){forceButtonClickable();return}
+    const matchId=displayedMatchId();
+    if(!matchId){forceButtonClickable();return}
+    if(matchId!==knownMatchId)resetForMatch(matchId);
+    if(!force&&tippedMatchId===matchId){forceButtonClickable();return}
+    statusBusy=true;
+    try{
+      const {data,error}=await db.rpc('has_tipped_quidditch_commentator_v3',{p_match_id:matchId});
+      if(!error)tippedMatchId=data===true?matchId:null;
+    }catch(_){ }
+    finally{statusBusy=false;forceButtonClickable()}
+  }
+
+  function playTipSound(){try{tipSound.currentTime=0;tipSound.play().catch(()=>{})}catch(_){} }
+  function restoreBarry(){const s=sprite();if(s)s.src='assets/commentator-22.png';studio()?.classList.remove('is-tipped')}
+  async function animateTip(){
+    clearTimeout(tipTimer);
+    const box=studio(),s=sprite();if(!s)return;
+    box?.classList.remove('is-speaking','is-goal','is-tipped');void box?.offsetWidth;box?.classList.add('is-tipped');
+    const holds=[300,300,350,350,330,330,390,390];
+    for(let i=0;i<TIP_FRAMES.length;i++){
+      if(!s.isConnected)break;
+      s.src=TIP_FRAMES[i];
+      await new Promise(resolve=>setTimeout(resolve,holds[i]));
+    }
+    tipTimer=setTimeout(restoreBarry,350);
+  }
+
+  async function throwCoin(){
+    if(busy)return;
+    if(typeof character==='undefined'||!character){notify('Sign in before throwing coins to Barry Bramble.');return}
+    if((Number(character.gp)||0)<TIP_COST){notify('You need 200 GP to tip Barry Bramble.');return}
+    if(typeof db==='undefined'||!db?.rpc){notify('Barry’s tipping service is still loading. Try again in a moment.');return}
+
+    const matchId=await freshMatchId();
+    if(!matchId){notify('The current Quidditch match is still loading. Try again in a moment.');return}
+    if(matchId!==knownMatchId)resetForMatch(matchId);
+    if(tippedMatchId===matchId){forceButtonClickable();notify('You have already tipped Barry Bramble during this match.');return}
+
+    busy=true;forceButtonClickable();
+    try{
+      const {data,error}=await db.rpc('tip_quidditch_commentator_v3',{p_match_id:matchId});
       if(error)throw error;
-      const row=Array.isArray(data)?data[0]:data;if(row&&character)character.gp=Number(row.remaining_gp)||0;
-      if(row?.lifetime_tip_gp!=null)renderLifetimeTips(row.lifetime_tip_gp);else renderLifetimeTips(lifetimeTipGp+200);
-      tippedMatchId=matchId;renderCharacter();setButtonUsed(true);playTipSound();await animateTip();toast('You tipped Barry Bramble. He seems delighted.',3500);
+      const row=Array.isArray(data)?data[0]:data;
+      tippedMatchId=matchId;knownMatchId=matchId;
+      if(row?.remaining_gp!=null)character.gp=Number(row.remaining_gp)||0;
+      if(row?.lifetime_tip_gp!=null)renderLifetimeTips(row.lifetime_tip_gp);
+      try{renderCharacter()}catch(_){ }
+      playTipSound();animateTip();
+      notify('You tipped Barry Bramble. He seems delighted.',3500);
     }catch(error){
       const message=String(error?.message||'');
-      if(/already tipped/i.test(message)){tippedMatchId=matchId;setButtonUsed(true);toast('You have already tipped the commentator this match.');}
-      else toast(message||'The commentator missed the coins. Run the updated Quidditch SQL in Supabase.');
-    }finally{tipping=false;setButtonUsed(tippedMatchId===currentMatchId());}
+      console.error('Barry Bramble V3 tip failed:',error);
+      if(/already tipped/i.test(message)){
+        tippedMatchId=matchId;
+        notify('You have already tipped Barry Bramble during this match.');
+      }else if(/tip_quidditch_commentator_v3|has_tipped_quidditch_commentator_v3|schema cache|function .*does not exist/i.test(message)){
+        notify('Barry V3 is not installed in Supabase yet — run fix-barry-bramble-tipping-v3.sql once.',7000);
+      }else{
+        notify(`Barry tip failed: ${message||'unknown database error'}`,7000);
+      }
+    }finally{
+      busy=false;forceButtonClickable();
+    }
   }
-  async function checkTipStatus(force=false){
-    if(!character||typeof db==='undefined')return;
-    const matchId=currentMatchId();if(!force&&lastSeenMatchId===matchId)return;lastSeenMatchId=matchId;tippedMatchId=null;setButtonUsed(false);
-    try{const {data,error}=await db.rpc('has_tipped_quidditch_commentator',{p_match_id:matchId});if(!error&&data===true)tippedMatchId=matchId;}catch(_){ }
-    setButtonUsed(tippedMatchId===matchId);
-  }
-  function handleTipClick(event){
+
+  // Capture phase owns the button before any older Quidditch click handler can
+  // intercept the event. Native disabled is continuously removed above/below.
+  document.addEventListener('click',event=>{
     const target=event.target instanceof Element?event.target.closest('#qmThrowCoin'):null;
     if(!target)return;
     event.preventDefault();
+    event.stopImmediatePropagation();
     throwCoin();
-  }
+  },true);
+
   function init(){
-    // Delegate from document so the control still works if the Quidditch panel
-    // recreates the button during a live-state refresh.
-    document.addEventListener('click',handleTipClick);
-    setTimeout(()=>{checkTipStatus(true);loadLifetimeTips();},900);
-    setInterval(()=>checkTipStatus(false),1000);
-    setInterval(loadLifetimeTips,15000);
+    forceButtonClickable();
+    const matchId=displayedMatchId();if(matchId)knownMatchId=matchId;
+    setTimeout(()=>{refreshStatus(true);loadLifetimeTips();forceButtonClickable();},700);
+    // Lightweight safety sync only. No MutationObserver and no high-frequency
+    // attribute feedback loop. This also clears a stale native disabled state.
+    setInterval(()=>{
+      const matchId=displayedMatchId();
+      if(matchId!==knownMatchId){resetForMatch(matchId);if(matchId)refreshStatus(true)}
+      else forceButtonClickable();
+    },1000);
+    setInterval(()=>refreshStatus(false),5000);
+    setInterval(loadLifetimeTips,30000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
@@ -17487,267 +17598,6 @@ qmShowSharedGoal=function(state){
     lastFrame=now;
     return previousElapsed();
   };
-})();
-
-
-/*
- * Repo Company — Barry Bramble tipping compatibility repair
- * Load this AFTER the main script.js.
- *
- * Why it exists:
- * The authoritative Quidditch clock can now run longer than the original
- * fixed 235-second match slot (for sudden death). Older versions of the
- * tip_quidditch_commentator RPC validate against that legacy slot, so a valid
- * displayed match can be rejected as "ended". This override tries both IDs.
- */
-(function repoBarryTippingCurrentMatchRepair() {
-  'use strict';
-
-  const TIP_COST = 200;
-  const LEGACY_MATCH_MS = 235000;
-  const TIP_FRAMES = [
-    'assets/commentator-tip-1.png',
-    'assets/commentator-tip-2.png',
-    'assets/commentator-tip-3.png',
-    'assets/commentator-tip-4.png',
-    'assets/commentator-tip-5.png',
-    'assets/commentator-tip-6.png',
-    'assets/commentator-tip-7.png',
-    'assets/commentator-tip-8.png'
-  ];
-
-  let busy = false;
-  let acceptedMatchId = null;
-  let acceptedDisplayMatchId = null;
-
-  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-  const getButton = () => document.getElementById('qmThrowCoin');
-  const getSprite = () => document.getElementById('qmCommentatorSprite');
-  const getStudio = () => document.getElementById('qmCommentatorStudio');
-
-  function notify(message, duration = 4200) {
-    try {
-      if (typeof toast === 'function') {
-        toast(message, duration);
-        return;
-      }
-    } catch (_) {}
-    console.info(message);
-  }
-
-  function displayedMatchId() {
-    try {
-      const value = Number(qmState?.liveState?.match_id || qmState?.liveMatchId || 0);
-      return Number.isSafeInteger(value) && value > 0 ? value : null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function legacyCurrentMatchId() {
-    return Math.floor(Date.now() / LEGACY_MATCH_MS);
-  }
-
-  function candidateMatchIds(extraId = null) {
-    const ids = [extraId, displayedMatchId(), legacyCurrentMatchId()]
-      .map(Number)
-      .filter(value => Number.isSafeInteger(value) && value > 0);
-    return [...new Set(ids)];
-  }
-
-  function setButtonState({loading = false, used = false} = {}) {
-    const button = getButton();
-    if (!button) return;
-    button.disabled = Boolean(loading || used);
-    button.classList.toggle('is-used', used);
-    const label = button.querySelector('b');
-    if (label) label.textContent = loading ? 'THROWING…' : used ? 'TIP SENT' : 'THROW';
-    button.title = used
-      ? 'You have already tipped Barry during this match.'
-      : 'Throw 200 GP to Barry Bramble';
-  }
-
-  function renderLifetimeTotal(value) {
-    const total = Math.max(0, Number(value) || 0);
-    const valueElement = document.getElementById('qmTotalTipsValue');
-    if (valueElement) valueElement.textContent = `${total.toLocaleString()} GP`;
-
-    const target = 250000;
-    const progress = Math.min(1, total / target);
-    const percent = Math.floor(progress * 100);
-    const fill = document.getElementById('qmTipGoalFill');
-    const percentage = document.getElementById('qmTipGoalPercent');
-    const status = document.getElementById('qmTipGoalStatus');
-    const goal = document.getElementById('qmTipGoal');
-    if (fill) fill.style.height = `${percent}%`;
-    if (percentage) percentage.textContent = progress >= 1 ? 'UNLOCKED' : `${percent}%`;
-    if (status) status.textContent = progress >= 1
-      ? "Barry's Boater unlocked!"
-      : `${total.toLocaleString()} / 250,000 GP`;
-    goal?.classList.toggle('is-unlocked', progress >= 1);
-  }
-
-  async function playAnimation() {
-    const studio = getStudio();
-    const sprite = getSprite();
-    if (!sprite) return;
-
-    studio?.classList.remove('is-speaking', 'is-goal', 'is-tipped');
-    void studio?.offsetWidth;
-    studio?.classList.add('is-tipped');
-
-    try {
-      const sound = new Audio('assets/commentator-tip-sound.mp3');
-      sound.volume = 0.3;
-      await sound.play().catch(() => {});
-    } catch (_) {}
-
-    const holds = [300, 300, 350, 350, 330, 330, 390, 390];
-    for (let index = 0; index < TIP_FRAMES.length; index += 1) {
-      if (!sprite.isConnected) break;
-      sprite.src = TIP_FRAMES[index];
-      await wait(holds[index]);
-    }
-
-    if (sprite.isConnected) sprite.src = 'assets/commentator-22.png';
-    studio?.classList.remove('is-tipped');
-  }
-
-  async function fetchFreshDisplayedMatchId() {
-    try {
-      if (typeof db === 'undefined' || !db?.rpc) return null;
-      let viewerKey = sessionStorage.getItem('repo-qm-viewer');
-      if (!viewerKey) {
-        viewerKey = `barry-tip-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        sessionStorage.setItem('repo-qm-viewer', viewerKey);
-      }
-      const result = await db.rpc('get_live_quidditch_state', {p_viewer_key: viewerKey});
-      if (result.error) return null;
-      const state = Array.isArray(result.data) ? result.data[0] : result.data;
-      const id = Number(state?.match_id || 0);
-      return Number.isSafeInteger(id) && id > 0 ? id : null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  async function tryTipWithId(matchId) {
-    const result = await db.rpc('tip_quidditch_commentator', {p_match_id: matchId});
-    if (result.error) throw result.error;
-    return Array.isArray(result.data) ? result.data[0] : result.data;
-  }
-
-  async function submitTip() {
-    if (busy) return;
-
-    const displayId = displayedMatchId();
-    if (displayId && acceptedDisplayMatchId === displayId) {
-      setButtonState({used: true});
-      notify('You have already tipped Barry Bramble during this match.');
-      return;
-    }
-
-    try {
-      if (typeof character === 'undefined' || !character) {
-        notify('Sign in before throwing coins to Barry Bramble.');
-        return;
-      }
-      if ((Number(character.gp) || 0) < TIP_COST) {
-        notify('You need 200 GP to tip Barry Bramble.');
-        return;
-      }
-      if (typeof db === 'undefined' || !db?.rpc) {
-        notify('The tipping service is unavailable. Refresh the page and try again.');
-        return;
-      }
-    } catch (_) {
-      notify('The tipping service is unavailable. Refresh the page and try again.');
-      return;
-    }
-
-    busy = true;
-    setButtonState({loading: true});
-
-    let lastError = null;
-    let row = null;
-    let successfulId = null;
-
-    try {
-      const freshId = await fetchFreshDisplayedMatchId();
-      const ids = candidateMatchIds(freshId);
-
-      for (const matchId of ids) {
-        try {
-          row = await tryTipWithId(matchId);
-          successfulId = matchId;
-          break;
-        } catch (error) {
-          lastError = error;
-          const message = String(error?.message || '');
-
-          if (/already tipped/i.test(message)) {
-            acceptedMatchId = matchId;
-            acceptedDisplayMatchId = displayedMatchId();
-            setButtonState({used: true});
-            notify('You have already tipped Barry Bramble during this match.');
-            return;
-          }
-
-          // Only an ended/stale-match error should fall through to the next ID.
-          if (!/match has ended|current match|ended match/i.test(message)) throw error;
-        }
-      }
-
-      if (!successfulId) throw lastError || new Error('Barry could not receive the tip.');
-
-      acceptedMatchId = successfulId;
-      acceptedDisplayMatchId = displayedMatchId();
-
-      if (row && typeof character !== 'undefined' && character) {
-        if (row.remaining_gp != null) character.gp = Number(row.remaining_gp) || 0;
-        if (row.lifetime_tip_gp != null) renderLifetimeTotal(row.lifetime_tip_gp);
-      }
-
-      try {
-        if (typeof renderCharacter === 'function') renderCharacter();
-      } catch (_) {}
-
-      setButtonState({used: true});
-      await playAnimation();
-      notify('You tipped Barry Bramble. He seems delighted.', 3500);
-    } catch (error) {
-      const message = String(error?.message || '');
-      console.warn('Barry Bramble tip repair:', error);
-      setButtonState({used: false});
-      notify(message || 'Barry could not receive the coins.');
-    } finally {
-      busy = false;
-      const currentDisplayId = displayedMatchId();
-      setButtonState({used: Boolean(currentDisplayId && currentDisplayId === acceptedDisplayMatchId)});
-    }
-  }
-
-  // Capture phase prevents the older main-script handler from submitting the
-  // stale ID as a second request. No observer or DOM rewrite is used.
-  document.addEventListener('click', event => {
-    const target = event.target instanceof Element
-      ? event.target.closest('#qmThrowCoin')
-      : null;
-    if (!target) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    submitTip();
-  }, true);
-
-  // Release the local once-per-match state as soon as the displayed match changes.
-  setInterval(() => {
-    const current = displayedMatchId();
-    if (acceptedDisplayMatchId && current && current !== acceptedDisplayMatchId) {
-      acceptedDisplayMatchId = null;
-      acceptedMatchId = null;
-      setButtonState({used: false});
-    }
-  }, 1000);
 })();
 
 
