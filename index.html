@@ -2003,9 +2003,92 @@ button.qg-game-card{font:inherit;cursor:pointer}
   @media(max-width:780px){.world-cup-player-profile-bio-scroll{padding-right:1.6%}.world-cup-player-profile-glance{gap:.36em}}
   @media(prefers-reduced-motion:reduce){.world-cup-player-profile-bio{animation:none!important}}
 
+
+  /* ============================================================
+     REPO SPORTS WORLD CUP — ADMIN LIVE TEST LOBBY
+     ============================================================ */
+  .world-cup-event-panel-map{overflow:visible}
+  .world-cup-live-tune-button{
+    position:absolute;z-index:12;left:50%;top:calc(100% + 10px);transform:translateX(-50%);
+    min-width:clamp(180px,15vw,270px);height:clamp(42px,3.2vw,58px);padding:0 24px;
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;
+    border:2px solid #d9a12b!important;outline:1px solid rgba(80,145,224,.64);outline-offset:-5px;
+    border-radius:3px;background:linear-gradient(180deg,#142b48 0%,#071526 52%,#040b14 100%)!important;
+    color:#ffe08a!important;font:900 clamp(12px,1vw,18px)/1 Georgia,'Times New Roman',serif!important;
+    letter-spacing:.075em;text-shadow:0 2px 0 #000,0 0 8px rgba(255,194,63,.28);
+    box-shadow:0 8px 20px rgba(0,0,0,.62),inset 0 0 0 2px rgba(5,11,19,.82),inset 0 0 18px rgba(55,118,180,.18),0 0 14px rgba(221,157,35,.12);
+    cursor:pointer;white-space:nowrap;transition:transform .14s ease,filter .14s ease,box-shadow .14s ease;
+  }
+  .world-cup-live-tune-button[hidden]{display:none!important}
+  .world-cup-live-tune-button::before{content:'';width:9px;height:9px;border-radius:50%;background:#f04435;box-shadow:0 0 0 2px rgba(117,18,12,.55),0 0 10px rgba(255,70,48,.72);animation:wcLivePulse 1.2s ease-in-out infinite}
+  .world-cup-live-tune-button:hover{filter:brightness(1.18);transform:translateX(-50%) translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.66),inset 0 0 0 2px rgba(5,11,19,.82),0 0 20px rgba(221,157,35,.24)}
+  .world-cup-live-tune-button:active{transform:translateX(-50%) translateY(1px) scale(.985)}
+  .world-cup-live-tune-button:focus-visible{outline:2px solid #8ac9ff;outline-offset:3px}
+  @keyframes wcLivePulse{0%,100%{opacity:.65;transform:scale(.86)}50%{opacity:1;transform:scale(1.16)}}
+
+  .world-cup-live-lobby{
+    position:absolute;inset:0;z-index:18;display:flex;align-items:center;justify-content:center;padding:2.2vw;
+    background:radial-gradient(circle at 50% 42%,rgba(16,38,66,.42),rgba(0,0,0,.92) 76%);
+    opacity:0;visibility:hidden;pointer-events:none;transform:scale(.992);
+    transition:opacity .22s ease,transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s linear .28s;
+  }
+  .world-cup-live-lobby.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:scale(1);transition:opacity .22s ease,transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s}
+  .world-cup-tv-ident.is-live-lobby-open .world-cup-event-hub{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:scale(.985)!important}
+  .world-cup-tv-ident.is-live-lobby-open .world-cup-event-close{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+  .world-cup-live-lobby-stage{position:relative;width:min(96vw,1672px);aspect-ratio:1672/941;max-height:94vh;filter:drop-shadow(0 25px 52px rgba(0,0,0,.72));animation:wcLobbyIn .34s cubic-bezier(.2,.82,.25,1) both}
+  .world-cup-live-lobby-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+  @keyframes wcLobbyIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+
+  .wc-live-players-panel{position:absolute;left:6.9%;top:29.2%;width:26.3%;height:49.7%;display:grid;grid-template-rows:auto minmax(0,1fr) auto 42%;gap:.65%;padding:1.25% 1.1% 1.15%;box-sizing:border-box;color:#e9f4ff;font-family:Arial,sans-serif}
+  .wc-live-room-status{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;padding:0 2%;color:#92b7d3;font:800 clamp(7px,.62vw,10px)/1 Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase}
+  .wc-live-room-status b{color:#ffe19a;font-size:1.08em}
+  .wc-live-player-list{min-height:0;overflow:auto;padding:.35% 1.3%;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:#a87923 #06111d}
+  .wc-live-player{display:grid;grid-template-columns:9px minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 9px;border:1px solid rgba(202,151,50,.36);background:linear-gradient(90deg,rgba(10,29,48,.86),rgba(5,14,24,.52));box-shadow:inset 0 0 0 1px rgba(80,137,183,.08);color:#e8f2f8;font:800 clamp(8px,.7vw,11px)/1.15 Arial,sans-serif;letter-spacing:.025em}
+  .wc-live-player::before{content:'';width:7px;height:7px;border-radius:50%;background:#66d48b;box-shadow:0 0 7px rgba(102,212,139,.5)}
+  .wc-live-player em{font-style:normal;color:#d8ae4a;font-size:.78em;letter-spacing:.08em}
+  .wc-live-player-empty{display:grid;place-items:center;height:100%;min-height:50px;color:#6f8da4;font:800 clamp(7px,.62vw,10px)/1.35 Arial,sans-serif;letter-spacing:.08em;text-align:center;text-transform:uppercase}
+  .wc-live-host-action{display:flex;align-items:center;justify-content:center;min-height:34px}
+  .wc-live-start-button{width:92%;min-height:34px;border:1px solid #d4a03a;background:linear-gradient(#563716,#221306);color:#ffe29b;font:900 clamp(8px,.72vw,12px)/1 Georgia,serif;letter-spacing:.08em;cursor:pointer;box-shadow:inset 0 0 0 2px #0c1018,0 3px 9px rgba(0,0,0,.42)}
+  .wc-live-start-button:hover:not(:disabled){filter:brightness(1.22)}
+  .wc-live-start-button:disabled{opacity:.48;cursor:default}
+  .wc-live-waiting-copy{color:#7f9ab0;font:800 clamp(7px,.58vw,9px)/1.25 Arial,sans-serif;letter-spacing:.07em;text-align:center;text-transform:uppercase}
+
+  .wc-live-chat{min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;border-top:1px solid rgba(197,145,44,.5);padding-top:7px}
+  .wc-live-chat-title{display:flex;align-items:center;justify-content:space-between;padding:0 4px 5px;color:#d7af55;font:900 clamp(7px,.62vw,10px)/1 Georgia,serif;letter-spacing:.11em;text-transform:uppercase}
+  .wc-live-chat-title span{color:#638aa7;font:800 .78em/1 Arial,sans-serif;letter-spacing:.06em}
+  .wc-live-chat-log{min-height:0;overflow:auto;padding:6px 7px;border:1px solid rgba(104,155,193,.18);background:rgba(2,9,16,.62);box-shadow:inset 0 0 14px rgba(0,0,0,.42);scrollbar-width:thin;scrollbar-color:#9a7127 #07111c}
+  .wc-live-chat-line{margin:0 0 4px;color:#cbdce8;font:700 clamp(7px,.58vw,9.5px)/1.3 Arial,sans-serif;overflow-wrap:anywhere}
+  .wc-live-chat-line b{color:#f2cc73}.wc-live-chat-line.is-system{color:#6f91a8;font-style:italic}.wc-live-chat-line.is-system b{color:#80aac7}
+  .wc-live-chat-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;margin-top:5px}
+  .wc-live-chat-input{min-width:0;height:29px;padding:0 8px;border:1px solid #72531d;background:#07131f;color:#edf7fd;font:700 clamp(7px,.62vw,10px)/1 Arial,sans-serif;outline:none;box-shadow:inset 0 0 8px rgba(0,0,0,.68)}
+  .wc-live-chat-input:focus{border-color:#77bce8;box-shadow:inset 0 0 8px rgba(0,0,0,.68),0 0 0 1px rgba(119,188,232,.18)}
+  .wc-live-chat-send{height:29px;padding:0 10px;border:1px solid #a97d29;background:linear-gradient(#3f2b12,#1b1107);color:#ffe098;font:900 clamp(7px,.58vw,9px)/1 Georgia,serif;letter-spacing:.06em;cursor:pointer}
+  .wc-live-chat-send:hover{filter:brightness(1.18)}
+
+  .wc-live-fixture-panel{position:absolute;left:37.45%;top:29.75%;width:55.05%;height:50.95%;display:flex;align-items:center;justify-content:center;padding:1.15%;box-sizing:border-box;overflow:hidden}
+  .wc-live-fixture-card{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(220,168,60,.62);outline:1px solid rgba(73,139,190,.2);outline-offset:-5px;background:radial-gradient(circle at 50% 44%,#17283a,#030a11 72%);box-shadow:inset 0 0 28px rgba(0,0,0,.82),0 0 18px rgba(214,156,44,.12)}
+  .wc-live-fixture-card img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;filter:brightness(.96) contrast(1.025) drop-shadow(0 8px 14px rgba(0,0,0,.55));transform:scale(.985);animation:wcFixtureFloat 7s ease-in-out infinite}
+  .wc-live-fixture-card::after{content:'';position:absolute;inset:-40% auto -40% -28%;width:16%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,240,188,.18),transparent);opacity:.0;animation:wcFixtureSheen 6.8s ease-in-out 1.3s infinite;pointer-events:none}
+  @keyframes wcFixtureFloat{0%,100%{transform:scale(.985)}50%{transform:scale(.992)}}
+  @keyframes wcFixtureSheen{0%,72%{left:-28%;opacity:0}78%{opacity:.8}92%{left:118%;opacity:.45}100%{left:118%;opacity:0}}
+
+  .wc-live-back-hit{position:absolute;left:80.15%;top:85.55%;width:12.9%;height:7.1%;display:block;cursor:pointer;background:transparent;border:0;outline:none}
+  .wc-live-back-hit:hover{filter:drop-shadow(0 0 8px rgba(255,205,81,.38));backdrop-filter:brightness(1.08)}
+  .wc-live-back-hit:active{transform:translateY(1px)}
+  .wc-live-back-hit:focus-visible{outline:2px solid rgba(124,195,239,.76);outline-offset:-4px;border-radius:4px}
+  .wc-live-match-banner{position:absolute;left:37.8%;right:7.7%;bottom:9.4%;min-height:30px;display:flex;align-items:center;justify-content:center;color:#7ea4bf;font:800 clamp(7px,.62vw,10px)/1 Arial,sans-serif;letter-spacing:.10em;text-transform:uppercase;pointer-events:none;text-shadow:0 1px #000}
+  .wc-live-match-banner.is-started{color:#ffe098;text-shadow:0 1px #000,0 0 8px rgba(255,192,59,.2)}
+
+  @media(max-width:760px){
+    .world-cup-live-lobby{padding:1vw}.world-cup-live-lobby-stage{width:99vw}
+    .wc-live-player{padding:4px 5px;gap:4px}.wc-live-chat-log{padding:3px}.wc-live-chat-form{gap:3px}.wc-live-chat-input,.wc-live-chat-send{height:23px}
+  }
+  @media(prefers-reduced-motion:reduce){.world-cup-live-tune-button::before,.world-cup-live-lobby-stage,.wc-live-fixture-card img,.wc-live-fixture-card::after{animation:none!important}}
+
 </style>
 
   <!-- RepoSports player profile recovery: avatars + visible biographies v3 -->
+  <link rel="stylesheet" href="world-cup-quidditch-v1.css?v=wc-game-v1-20260810-broadcast-v7">
 </head>
 <body>
   <audio id="signedOutNatureAudio" src="assets/signed-out-nature.mp3" preload="auto" loop aria-hidden="true"></audio>
@@ -2078,6 +2161,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
           <span class="world-cup-country-hotspot" role="button" tabindex="0" style="--x:54.545%;--y:74.495%;--w:8.074%;--h:11.371%" aria-label="Sorevia" title="Sorevia"></span>
           <span class="world-cup-country-hotspot" role="button" tabindex="0" style="--x:81.758%;--y:74.814%;--w:8.074%;--h:11.265%" aria-label="Iskandar" title="Iskandar"></span>
         </div>
+        <button id="worldCupLiveTuneButton" class="world-cup-live-tune-button" type="button" hidden aria-label="Tune in live to the World Cup test lobby">TUNE IN! LIVE</button>
         <span class="world-cup-menu-sheen" aria-hidden="true"></span>
         <span class="world-cup-menu-particles" aria-hidden="true"></span>
       </div>
@@ -2115,6 +2199,37 @@ button.qg-game-card{font:inherit;cursor:pointer}
       </div>
       <img class="world-cup-player-profile-frame" src="assets/repo-sports-player-profile-frame.png" alt="Repo Sports player profile">
       <span id="worldCupPlayerProfileBack" class="world-cup-player-profile-back" role="button" tabindex="0" aria-label="Back to Meet the Teams" title="Back to Meet the Teams"></span>
+    </div>
+  </div>
+
+
+
+  <div id="worldCupLiveLobby" class="world-cup-live-lobby" role="dialog" aria-modal="true" aria-label="Repo Sports World Cup waiting room" aria-hidden="true">
+    <div class="world-cup-live-lobby-stage">
+      <img class="world-cup-live-lobby-bg" src="assets/repo-sports-world-cup-waiting-room.png" alt="Repo Sports World Cup Waiting Room">
+
+      <section class="wc-live-players-panel" aria-label="Players waiting and lobby chat">
+        <div class="wc-live-room-status"><span>LIVE TEST LOBBY</span><b id="worldCupLivePlayerCount">0 / 12</b></div>
+        <div id="worldCupLivePlayerList" class="wc-live-player-list" aria-live="polite"><div class="wc-live-player-empty">Connecting to the waiting room…</div></div>
+        <div id="worldCupLiveHostAction" class="wc-live-host-action"><span class="wc-live-waiting-copy">Waiting for CatAsthma to start</span></div>
+        <div class="wc-live-chat">
+          <div class="wc-live-chat-title">LOBBY CHAT <span>LIVE</span></div>
+          <div id="worldCupLiveChatLog" class="wc-live-chat-log" aria-live="polite"></div>
+          <form id="worldCupLiveChatForm" class="wc-live-chat-form" autocomplete="off">
+            <input id="worldCupLiveChatInput" class="wc-live-chat-input" type="text" maxlength="180" placeholder="Message the lobby…" aria-label="Lobby chat message">
+            <button class="wc-live-chat-send" type="submit">SEND</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="wc-live-fixture-panel" aria-label="Upcoming fixture">
+        <div class="wc-live-fixture-card">
+          <img src="assets/repo-sports-world-cup-upcoming-belros-zafran.png" alt="Upcoming fixture: Belros vs Zafran, Friday 14th August at 9pm">
+        </div>
+      </section>
+
+      <div id="worldCupLiveMatchBanner" class="wc-live-match-banner">Waiting for the host · CatAsthma controls the start</div>
+      <span id="worldCupLiveBack" class="wc-live-back-hit" role="button" tabindex="0" aria-label="Back to World Cup hub" title="Back to World Cup hub"></span>
     </div>
   </div>
 
@@ -4662,5 +4777,223 @@ window.__QD_HOST__={
 })();
 </script>
 
+
+<script id="repoSportsWorldCupLiveLobbyScript">
+(() => {
+  const $ = id => document.getElementById(id);
+  const overlay = $('worldCupTvIdent');
+  const tuneButton = $('worldCupLiveTuneButton');
+  const lobby = $('worldCupLiveLobby');
+  const playerList = $('worldCupLivePlayerList');
+  const playerCount = $('worldCupLivePlayerCount');
+  const hostAction = $('worldCupLiveHostAction');
+  const chatForm = $('worldCupLiveChatForm');
+  const chatInput = $('worldCupLiveChatInput');
+  const chatLog = $('worldCupLiveChatLog');
+  const back = $('worldCupLiveBack');
+  const banner = $('worldCupLiveMatchBanner');
+  const menuMusic = $('worldCupEventMusic');
+  if (!overlay || !tuneButton || !lobby || !playerList || !hostAction || !chatForm || !chatInput || !chatLog || !back || !banner) return;
+
+  const ROOM = 'repo-world-cup-live-test-2026';
+  const MAX_PLAYERS = 12;
+  let channel = null;
+  let subscribed = false;
+  let opening = false;
+  let startInProgress = false;
+  let clientKey = '';
+  let matchStarted = false;
+
+  const currentCharacter = () => {
+    try { return typeof character !== 'undefined' ? character : null; }
+    catch (_) { return null; }
+  };
+  const currentName = () => String(currentCharacter()?.username || 'Guest');
+  const isHost = () => {
+    try {
+      if (typeof repoIsSiteAdmin === 'function') return repoIsSiteAdmin();
+    } catch (_) {}
+    return currentName().toLowerCase() === 'catasthma';
+  };
+  const adminTestEnabled = () => {
+    try { return isHost() && typeof toaState !== 'undefined' && !!toaState.adminMode; }
+    catch (_) { return false; }
+  };
+  const esc = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+
+  function syncTuneButton(){
+    const show = adminTestEnabled();
+    tuneButton.hidden = !show;
+    tuneButton.setAttribute('aria-hidden', show ? 'false' : 'true');
+    if (!show && lobby.classList.contains('is-open')) closeLobby();
+  }
+
+  function addChat(name, text, system=false){
+    const line = document.createElement('div');
+    line.className = `wc-live-chat-line${system ? ' is-system' : ''}`;
+    if (system) line.innerHTML = `<b>WORLD CUP</b> · ${esc(text)}`;
+    else line.innerHTML = `<b>${esc(name)}</b>: ${esc(text)}`;
+    chatLog.appendChild(line);
+    while (chatLog.children.length > 60) chatLog.firstElementChild?.remove();
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  function presencePlayers(){
+    if (!channel?.presenceState) return [];
+    const flat = Object.values(channel.presenceState() || {}).flat();
+    const byClient = new Map();
+    for (const item of flat){
+      const key = String(item?.clientKey || item?.userId || item?.name || '').trim();
+      if (!key || byClient.has(key)) continue;
+      byClient.set(key, item);
+    }
+    return [...byClient.values()].sort((a,b) => {
+      if (String(a?.name||'').toLowerCase()==='catasthma') return -1;
+      if (String(b?.name||'').toLowerCase()==='catasthma') return 1;
+      return String(a?.name||'').localeCompare(String(b?.name||''));
+    });
+  }
+
+  function renderPlayers(){
+    const players = presencePlayers();
+    if (playerCount) playerCount.textContent = `${Math.min(players.length, MAX_PLAYERS)} / ${MAX_PLAYERS}`;
+    playerList.replaceChildren();
+    if (!players.length){
+      const empty=document.createElement('div');empty.className='wc-live-player-empty';empty.textContent=subscribed?'Waiting for players…':'Connecting to the waiting room…';playerList.appendChild(empty);
+    } else {
+      players.slice(0,MAX_PLAYERS).forEach(player => {
+        const row=document.createElement('div');row.className='wc-live-player';
+        const name=String(player?.name||'Player');
+        row.innerHTML=`<span>${esc(name)}</span>${name.toLowerCase()==='catasthma'?'<em>HOST</em>':'<em>READY</em>'}`;
+        playerList.appendChild(row);
+      });
+    }
+    renderHostControl();
+  }
+
+  function renderHostControl(){
+    hostAction.replaceChildren();
+    if (isHost()){
+      const button=document.createElement('button');button.type='button';button.className='wc-live-start-button';
+      button.textContent=startInProgress?'STARTING…':matchStarted?'MATCH STARTED':'START WORLD CUP TEST';
+      button.disabled=startInProgress||matchStarted;
+      button.addEventListener('click',startMatch);
+      hostAction.appendChild(button);
+    } else {
+      const wait=document.createElement('span');wait.className='wc-live-waiting-copy';wait.textContent=matchStarted?'Host has started the match':'Waiting for CatAsthma to start';hostAction.appendChild(wait);
+    }
+  }
+
+  async function sendBroadcast(event,payload){
+    if (!channel) return false;
+    try {
+      const result=await channel.send({type:'broadcast',event,payload});
+      return result==='ok'||result===true||result?.status==='ok';
+    } catch (error){ console.warn('[WC LIVE] broadcast failed',error); return false; }
+  }
+
+  function handleStart(payload={}){
+    if (matchStarted) return;
+    matchStarted=true;startInProgress=false;
+    banner.textContent=`MATCH STARTED BY ${String(payload.host||'CatAsthma').toUpperCase()} · GAMEPLAY TEST SIGNAL ACTIVE`;
+    banner.classList.add('is-started');
+    addChat('WORLD CUP',`${payload.host||'CatAsthma'} started the World Cup test.`,true);
+    renderHostControl();
+    try { window.dispatchEvent(new CustomEvent('repo-world-cup-live-start',{detail:{fixture:'Belros vs Zafran',host:payload.host||'CatAsthma',startedAt:payload.startedAt||Date.now()}})); } catch (_) {}
+    // Future gameplay module hook. The lobby remains stable if the module has not yet been attached.
+    try {
+      if (window.RepoSportsWorldCupGameplay?.open) window.RepoSportsWorldCupGameplay.open({fixture:'Belros vs Zafran',host:'CatAsthma'});
+    } catch (error) { console.warn('[WC LIVE] gameplay hook',error); }
+  }
+
+  async function startMatch(){
+    if (!isHost() || startInProgress || matchStarted) return;
+    startInProgress=true;renderHostControl();
+    const payload={host:'CatAsthma',fixture:'Belros vs Zafran',startedAt:Date.now()};
+    await sendBroadcast('start',payload);
+    handleStart(payload);
+  }
+
+  async function joinLobby(){
+    if (channel || opening) return;
+    const c=currentCharacter();
+    if (!c){ addChat('WORLD CUP','Sign in before entering the live test lobby.',true); return; }
+    let database=null;
+    try { database=typeof db!=='undefined'?db:null; } catch (_) {}
+    if (!database?.channel){ addChat('WORLD CUP','Realtime lobby connection is unavailable.',true); return; }
+    opening=true;
+    clientKey=`${c.id||c.username||'player'}-${Math.random().toString(36).slice(2,8)}`;
+    const ch=database.channel(ROOM,{config:{broadcast:{self:false,ack:false},presence:{key:clientKey}}});
+    channel=ch;
+    ch.on('presence',{event:'sync'},renderPlayers);
+    ch.on('broadcast',{event:'chat'},({payload})=>{ if(payload?.text) addChat(payload.name||'Player',payload.text,false); });
+    ch.on('broadcast',{event:'start'},({payload})=>handleStart(payload||{}));
+    ch.subscribe(async status=>{
+      if(status==='SUBSCRIBED'){
+        subscribed=true;opening=false;
+        try { await ch.track({clientKey,userId:String(c.id||''),name:currentName(),joinedAt:Date.now()}); } catch (error) { console.warn('[WC LIVE] presence track',error); }
+        addChat('WORLD CUP',`${currentName()} joined the waiting room.`,true);
+        renderPlayers();
+      } else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
+        subscribed=false;opening=false;renderPlayers();addChat('WORLD CUP','Lobby connection interrupted. Reopen the room to retry.',true);
+      }
+    });
+  }
+
+  async function leaveLobby(){
+    const ch=channel;channel=null;subscribed=false;opening=false;
+    if (ch){
+      try { await ch.untrack(); } catch (_) {}
+      try { const database=typeof db!=='undefined'?db:null; if(database?.removeChannel) await database.removeChannel(ch); else await ch.unsubscribe(); } catch (_) {}
+    }
+  }
+
+  async function openLobby(){
+    if (!adminTestEnabled()) return;
+    matchStarted=false;startInProgress=false;banner.classList.remove('is-started');banner.textContent='Waiting for the host · CatAsthma controls the start';
+    chatLog.replaceChildren();
+    overlay.classList.add('is-live-lobby-open');lobby.classList.add('is-open');lobby.setAttribute('aria-hidden','false');
+    renderHostControl();renderPlayers();
+    await joinLobby();
+    try { chatInput.focus({preventScroll:true}); } catch (_) {}
+  }
+
+  async function closeLobby(){
+    if (!lobby.classList.contains('is-open')) return;
+    lobby.classList.remove('is-open');lobby.setAttribute('aria-hidden','true');overlay.classList.remove('is-live-lobby-open');
+    await leaveLobby();
+    try { tuneButton.focus({preventScroll:true}); } catch (_) {}
+  }
+
+  chatForm.addEventListener('submit',async event=>{
+    event.preventDefault();
+    const text=String(chatInput.value||'').trim();
+    if(!text||!channel||!subscribed)return;
+    chatInput.value='';addChat(currentName(),text,false);
+    await sendBroadcast('chat',{name:currentName(),text:text.slice(0,180),sentAt:Date.now()});
+  });
+  tuneButton.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openLobby();});
+  back.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();closeLobby();});
+  back.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();back.click();}});
+
+  document.addEventListener('keydown',event=>{
+    if(!lobby.classList.contains('is-open'))return;
+    if(event.key==='Escape'){
+      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();closeLobby();
+    }
+  },true);
+
+  document.addEventListener('click',event=>{
+    if(event.target.closest('#adminButton,#adminToggleTesting')) setTimeout(syncTuneButton,80);
+    if(event.target.closest('#closeWorldCupEvent')) leaveLobby();
+  },true);
+  window.addEventListener('repo-character-changed',()=>setTimeout(syncTuneButton,40));
+  window.addEventListener('pagehide',()=>leaveLobby());
+  window.RepoSportsWorldCupLive={open:openLobby,close:closeLobby,start:startMatch,sync:syncTuneButton};
+  syncTuneButton();
+})();
+</script>
+
+  <script src="world-cup-quidditch-v1.js?v=wc-game-v1-20260810-broadcast-v7"></script>
 </body>
 </html>

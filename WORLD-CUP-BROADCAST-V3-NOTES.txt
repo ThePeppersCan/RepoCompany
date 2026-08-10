@@ -1,0 +1,25 @@
+VELMORA QUIDDITCH — BROADCAST / KICKOFF / BOUNDARY V3
+
+Replace these existing files:
+- web2/world-cup-quidditch-v1.js
+- web2/world-cup-quidditch-v1.css
+- web2/index.html  (cache-buster only for the two files above)
+
+Add this new asset:
+- web2/assets/world-cup-game-v1/prematch-anthem.mp3
+
+Main changes:
+- Stronger predictive left/right AND top/bottom flight-edge recovery.
+- Players are steered away before they touch the ground/floor boundary; emergency edge stalls force an inward recovery target.
+- Penalty/set-piece target positions no longer place players below the safe flight envelope.
+- JUD is the largest player sprite; Nimbler 2000 is the smallest; Bramble/Zizi/Rafi/Saffi use the same standard size.
+- Referee keeps the previously enlarged referee size.
+- Corrected JUD/Nimbler relationship text to uncle/nephew.
+- 30-second broadcast pre-match package: intro, lineups, key players, match facts, arena, five-second kickoff countdown.
+- Prematch anthem plays at 50% volume. Included asset is the final ~30 seconds of the supplied track so its natural ending is the kickoff trigger.
+- Referee visibly holds the Quaffle during pre-match and tosses it upward over the final ~1.2 seconds.
+- Kickoff begins on the anthem 'ended' event; the first receiver flies to the live ball instead of receiving an instant teleported possession.
+- Proper halftime broadcast sequence: score, real tracked stats, player of the half, stored match moment, match-aware summary, then CatAsthma host continuation.
+- Three-second second-half countdown before play resumes.
+- Contextual goal wording, stored match events, richer player match stats, and post-match sequence with Player of the Match / defining moment.
+- Goal/rebound restarts keep current player locations and transition rather than hard-resetting coordinates.

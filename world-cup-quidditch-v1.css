@@ -1,0 +1,137 @@
+/* ============================================================
+   REPO SPORTS WORLD CUP — AUTOMATED QUIDDITCH BROADCAST V1
+   Isolated from the standard RepoSports Quidditch mode.
+   ============================================================ */
+#wcWorldCupBroadcast{
+  position:fixed;inset:0;z-index:2147483300;display:none;place-items:center;
+  background:radial-gradient(circle at 50% 45%,#0c1828 0,#02060b 68%,#000 100%);
+  color:#f8e8b2;font-family:Georgia,'Times New Roman',serif;overflow:hidden;
+}
+#wcWorldCupBroadcast.is-open{display:grid}
+#wcWorldCupBroadcast *{box-sizing:border-box}
+.wcg-shell{
+  position:relative;width:min(98vw,1672px);aspect-ratio:1672/941;max-height:96vh;
+  overflow:hidden;background:#06101b;box-shadow:0 24px 90px #000,0 0 0 2px #000;
+  isolation:isolate;
+}
+.wcg-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;background:#071426;image-rendering:auto}
+.wcg-tv-frame{position:absolute;inset:0;z-index:90;width:100%;height:100%;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 3px 5px #000)}
+.wcg-screen-effects{position:absolute;inset:0;z-index:75;pointer-events:none;border:1px solid #000}
+.wcg-screen-effects::before{content:'';position:absolute;inset:1.7% 2.1% 5.2%;background:repeating-linear-gradient(180deg,rgba(255,255,255,.016) 0 1px,rgba(0,0,0,.035) 1px 3px);mix-blend-mode:overlay;opacity:.45}
+.wcg-screen-effects::after{content:'';position:absolute;inset:1.7% 2.1% 5.2%;box-shadow:inset 0 0 34px rgba(0,0,0,.72),inset 0 0 5px rgba(116,190,255,.15);border-radius:5px}
+.wcg-snow{position:absolute;inset:0;z-index:44;pointer-events:none;overflow:hidden}
+.wcg-snow i{position:absolute;top:-8%;width:2px;height:2px;border-radius:50%;background:#dff5ff;opacity:.55;filter:drop-shadow(0 0 2px #b9e9ff);animation:wcgSnowFall linear infinite}
+@keyframes wcgSnowFall{to{transform:translate3d(var(--drift),118vh,0)}}
+
+.wcg-scorebar{
+  position:absolute;z-index:100;left:50%;top:2.8%;transform:translateX(-50%);width:min(760px,64%);
+  min-height:68px;display:grid;grid-template-columns:1fr 126px 1fr;align-items:stretch;
+  border:2px solid #c99738;outline:2px solid rgba(3,8,15,.92);outline-offset:-6px;
+  background:linear-gradient(180deg,rgba(15,31,48,.97),rgba(3,10,17,.96));
+  box-shadow:0 8px 20px #000b,inset 0 0 28px rgba(55,110,163,.16);text-shadow:0 2px #000;
+}
+.wcg-team-score{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:8px 14px;min-width:0}
+.wcg-team-score:first-child{border-right:1px solid rgba(213,167,75,.35)}
+.wcg-team-score:last-child{border-left:1px solid rgba(213,167,75,.35)}
+.wcg-team-badge{width:36px;height:36px;display:grid;place-items:center;border:2px solid #d9ac4d;transform:rotate(45deg);background:#240b08;box-shadow:0 0 10px #000}
+.wcg-team-score:last-child .wcg-team-badge{background:#332606}
+.wcg-team-badge span{transform:rotate(-45deg);font:900 11px/1 monospace;color:#fff4c2}
+.wcg-team-copy{min-width:0}.wcg-team-copy b{display:block;font-size:19px;letter-spacing:.08em;color:#ffe3a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wcg-team-copy small{display:block;margin-top:3px;font:800 7px/1.1 monospace;letter-spacing:.11em;color:#90b5d1}
+.wcg-team-goals{font:900 35px/1 Georgia,serif;color:#fff3c3;min-width:36px;text-align:center}
+.wcg-clock{display:grid;place-content:center;text-align:center;padding:5px;background:linear-gradient(#091521,#020609)}
+.wcg-clock b{font:900 23px/1 monospace;color:#fff0ae}.wcg-clock span{margin-top:4px;font:900 7px/1 monospace;letter-spacing:.16em;color:#e3be67}.wcg-clock em{margin-top:4px;font:800 6px/1 monospace;color:#78c9a0;font-style:normal}
+
+.wcg-live-chip{position:absolute;z-index:101;right:3.4%;top:3.6%;display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #b27b32;background:rgba(3,9,15,.86);font:900 8px/1 monospace;letter-spacing:.12em;color:#f5d991;box-shadow:0 4px 12px #0009}
+.wcg-live-chip::before{content:'';width:7px;height:7px;border-radius:50%;background:#e33b2f;box-shadow:0 0 8px #ff4e40;animation:wcgLivePulse 1.25s ease-in-out infinite}
+@keyframes wcgLivePulse{50%{opacity:.35}}
+
+.wcg-event-banner{position:absolute;z-index:105;left:50%;top:15.4%;transform:translate(-50%,-10px) scale(.96);min-width:260px;max-width:72%;padding:8px 18px;border:1px solid #c89b47;background:linear-gradient(180deg,rgba(36,24,10,.94),rgba(8,8,7,.94));color:#ffe09a;font:900 15px/1.15 Georgia,serif;letter-spacing:.08em;text-align:center;text-shadow:0 2px #000;box-shadow:0 8px 20px #000a,0 0 14px rgba(240,183,67,.16);opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease}
+.wcg-event-banner.is-visible{opacity:1;transform:translate(-50%,0) scale(1)}
+.wcg-event-banner.is-danger{border-color:#d8573f;color:#ffd1b3;box-shadow:0 8px 20px #000a,0 0 18px rgba(255,69,37,.23)}
+.wcg-event-banner.is-var{border-color:#6eb6ed;color:#d9f2ff;box-shadow:0 8px 20px #000a,0 0 18px rgba(64,174,255,.27)}
+
+.wcg-commentator{
+  position:absolute;z-index:110;left:2.25%;bottom:5.2%;width:min(520px,42%);height:116px;display:grid;grid-template-columns:100px minmax(0,1fr);align-items:end;pointer-events:none;
+}
+.wcg-barry{align-self:end;width:106px;max-height:112px;object-fit:contain;object-position:left bottom;filter:drop-shadow(0 5px 4px #000);transform-origin:50% 100%}
+.wcg-commentator.is-speaking .wcg-barry{animation:wcgBarryTalk .38s ease-in-out 2}
+@keyframes wcgBarryTalk{50%{transform:translateY(-2px) rotate(-.8deg)}}
+.wcg-comment-box{align-self:end;min-height:76px;padding:9px 12px 8px 14px;border:2px solid #bd8731;background:linear-gradient(180deg,rgba(14,26,38,.96),rgba(4,9,14,.97));box-shadow:0 8px 18px #000c,inset 0 0 16px rgba(67,123,165,.12)}
+.wcg-comment-box b{display:block;margin-bottom:5px;color:#f5cf68;font:900 10px/1 monospace;letter-spacing:.08em}.wcg-comment-box p{margin:0;color:#f4ecd5;font:700 12px/1.35 Georgia,serif;text-shadow:0 1px #000}
+
+.wcg-mini-stats{position:absolute;z-index:99;right:3.3%;bottom:6.2%;width:245px;padding:8px 10px;border:1px solid rgba(197,153,68,.75);background:rgba(3,10,16,.82);box-shadow:0 6px 18px #000a;color:#cbd9e4;font:800 7px/1.25 monospace;letter-spacing:.04em;pointer-events:none}
+.wcg-mini-stats header{display:flex;justify-content:space-between;margin-bottom:6px;color:#f3d37e;font:900 8px/1 monospace}.wcg-stat-row{display:grid;grid-template-columns:42px 1fr 42px;gap:5px;align-items:center;margin:3px 0}.wcg-stat-row span:first-child{text-align:right;color:#ebc360}.wcg-stat-row span:last-child{text-align:left;color:#e7d18c}.wcg-stat-row b{text-align:center;color:#a8c2d6;font-weight:800}
+
+.wcg-overlay-card{position:absolute;z-index:140;inset:0;display:none;place-items:center;background:rgba(0,6,12,.58);backdrop-filter:blur(2px)}
+.wcg-overlay-card.is-open{display:grid}
+.wcg-panel{width:min(720px,83%);max-height:76%;overflow:auto;padding:20px 22px;border:3px solid #c9983e;outline:2px solid #07111c;outline-offset:-8px;background:radial-gradient(circle at 50% -10%,rgba(39,93,133,.24),transparent 38%),linear-gradient(180deg,#132437,#050c13 68%);box-shadow:0 22px 60px #000,inset 0 0 34px rgba(83,147,191,.10);text-align:center}
+.wcg-panel h2{margin:0;color:#ffe29a;font:900 clamp(24px,3vw,42px)/1 Georgia,serif;letter-spacing:.07em;text-shadow:0 3px #000}.wcg-panel h3{margin:9px 0 0;color:#9fc5df;font:900 11px/1 monospace;letter-spacing:.12em}.wcg-panel p{max-width:610px;margin:13px auto 0;color:#e7dfca;font:700 13px/1.45 Georgia,serif}
+.wcg-panel button{margin-top:16px;min-width:210px;padding:10px 18px;border:2px solid #c6983e;background:linear-gradient(#5d421d,#241507);color:#ffe4a1;font:900 12px/1 Georgia,serif;letter-spacing:.08em;cursor:pointer;box-shadow:inset 0 0 9px #000,0 5px 14px #0009}.wcg-panel button:hover{filter:brightness(1.18)}
+.wcg-panel button[hidden]{display:none!important}
+.wcg-halftime-stats{display:grid;grid-template-columns:1fr 130px 1fr;gap:12px;margin:16px auto 0;max-width:610px}.wcg-half-team{padding:12px;border:1px solid rgba(198,151,61,.48);background:#050c13aa}.wcg-half-team b{display:block;color:#f1d282;font-size:15px}.wcg-half-team strong{display:block;margin-top:5px;color:#fff4bf;font-size:36px}.wcg-half-centre{display:grid;place-content:center;color:#9db7c9;font:800 9px/1.4 monospace}
+
+.wcg-var-box{position:absolute;z-index:145;inset:0;display:none;place-items:center;background:rgba(1,6,11,.34);pointer-events:none}.wcg-var-box.is-open{display:grid}.wcg-var-card{min-width:340px;padding:16px 25px;border:3px solid #66b9f2;background:rgba(4,13,21,.94);box-shadow:0 0 0 2px #05101a,0 12px 36px #000d,0 0 28px rgba(77,183,255,.28);text-align:center}.wcg-var-card b{display:block;color:#d7f2ff;font:900 29px/1 monospace;letter-spacing:.1em}.wcg-var-card span{display:block;margin-top:8px;color:#98cbe9;font:800 10px/1.3 monospace;letter-spacing:.08em}.wcg-var-box.is-decision .wcg-var-card{border-color:#e5b85b;box-shadow:0 0 0 2px #05101a,0 12px 36px #000d,0 0 28px rgba(233,181,71,.25)}.wcg-var-box.is-decision .wcg-var-card b{color:#ffe4a4}
+
+.wcg-fulltime-grid{display:grid;grid-template-columns:1fr 90px 1fr;gap:7px 12px;margin:18px auto 0;max-width:620px;text-align:center;font:800 9px/1.2 monospace}.wcg-fulltime-grid .h{color:#f5d67f;font:900 12px/1.2 Georgia,serif}.wcg-fulltime-grid .label{color:#8fb1c8}.wcg-fulltime-grid .val{color:#e9dfc2}
+
+.wcg-controls{position:absolute;z-index:115;left:50%;bottom:5.55%;transform:translateX(-50%);display:flex;gap:7px;align-items:center}.wcg-control{padding:6px 9px;border:1px solid #9d7331;background:rgba(5,11,17,.88);color:#d9c38b;font:900 7px/1 monospace;letter-spacing:.08em;cursor:pointer}.wcg-control:hover{filter:brightness(1.18)}.wcg-control[hidden]{display:none!important}
+
+.wcg-player-label{position:absolute;z-index:60;transform:translate(-50%,-50%);padding:3px 5px;border:1px solid rgba(211,169,78,.6);background:rgba(2,8,13,.72);color:#fff2bd;font:900 7px/1 monospace;letter-spacing:.03em;pointer-events:none;white-space:nowrap;text-shadow:0 1px #000;opacity:.9}
+
+@media(max-width:900px){
+  .wcg-scorebar{width:74%;grid-template-columns:1fr 94px 1fr;min-height:54px}.wcg-team-score{gap:5px;padding:6px 8px}.wcg-team-badge{width:27px;height:27px}.wcg-team-copy b{font-size:12px}.wcg-team-copy small{font-size:5px}.wcg-team-goals{font-size:26px}.wcg-clock b{font-size:17px}.wcg-commentator{width:50%;height:90px;grid-template-columns:72px 1fr}.wcg-barry{width:76px;max-height:86px}.wcg-comment-box{min-height:58px;padding:7px 8px}.wcg-comment-box p{font-size:9px}.wcg-mini-stats{display:none}.wcg-live-chip{font-size:6px}.wcg-event-banner{font-size:11px}.wcg-panel{width:89%;padding:15px}.wcg-halftime-stats{grid-template-columns:1fr 85px 1fr}.wcg-controls{bottom:5.2%}
+}
+@media(prefers-reduced-motion:reduce){.wcg-snow{display:none}.wcg-live-chip::before,.wcg-commentator.is-speaking .wcg-barry{animation:none!important}}
+
+.wcg-admin-panel{position:absolute;z-index:118;right:2.4%;bottom:10.5%;width:min(390px,34%);padding:9px;border:2px solid #c5963e;background:linear-gradient(180deg,rgba(9,20,30,.97),rgba(2,7,12,.98));box-shadow:0 10px 26px #000c,inset 0 0 18px rgba(64,121,164,.12)}
+.wcg-admin-panel[hidden]{display:none!important}.wcg-admin-title{margin-bottom:7px;color:#f4d178;font:900 8px/1 monospace;letter-spacing:.1em;text-align:center}.wcg-admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.wcg-admin-grid button{padding:6px 4px;border:1px solid #9f7431;background:#0b1620;color:#e9d18c;font:900 7px/1 monospace;cursor:pointer}.wcg-admin-grid button:hover{filter:brightness(1.2);border-color:#e4b85d}.wcg-admin-only[hidden]{display:none!important}
+.wcg-canvas{image-rendering:pixelated}
+@media(max-width:900px){.wcg-admin-panel{right:2%;bottom:13%;width:60%}.wcg-admin-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ============================================================
+   WORLD CUP BROADCAST FLAVOUR PACKAGE — V3
+   ============================================================ */
+.wcg-presentation{position:absolute;z-index:132;inset:10.8% 8% 15%;display:grid;place-items:center;pointer-events:none;opacity:0;transform:translateY(8px);transition:opacity .28s ease,transform .28s ease}
+.wcg-presentation.is-open{opacity:1;transform:none}
+.wcg-presentation::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(7,18,28,.72),rgba(1,5,10,.16) 58%,transparent 78%);filter:blur(1px)}
+.wcg-presentation-panel{position:relative;width:min(850px,78%);padding:18px 28px 20px;border:2px solid rgba(211,166,73,.78);outline:1px solid rgba(3,8,14,.95);outline-offset:-7px;background:linear-gradient(180deg,rgba(10,25,39,.94),rgba(3,9,15,.91));box-shadow:0 18px 50px #000c,inset 0 0 38px rgba(76,139,184,.10);text-align:center;text-shadow:0 2px #000;overflow:hidden}
+.wcg-presentation-panel::after{content:'';position:absolute;left:12%;right:12%;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#d2a54c,transparent);opacity:.65}
+.wcg-presentation-panel>small{display:block;color:#82b9d9;font:900 9px/1 monospace;letter-spacing:.2em;text-transform:uppercase}
+.wcg-presentation-panel>h1{margin:7px 0 10px;color:#ffe6a0;font:900 clamp(24px,3.4vw,52px)/.96 Georgia,serif;letter-spacing:.06em;text-transform:uppercase}
+.wcg-presentation-body{color:#e9e1cd;font:700 12px/1.4 Georgia,serif}.wcg-presentation-panel>footer{display:block!important;margin:11px auto 0!important;padding:0!important;min-height:0!important;border:0!important;outline:0!important;background:none!important;box-shadow:none!important;color:#8fb8d2!important;font:900 8px/1.2 monospace!important;letter-spacing:.14em!important;text-transform:uppercase!important}
+.wcg-presentation-panel.is-countdown{width:min(420px,45%);padding:16px 22px}.wcg-presentation-panel.is-countdown>h1{font-size:clamp(58px,8vw,105px);line-height:.82;color:#fff0b2}.wcg-count-copy{font:900 9px/1.2 monospace;letter-spacing:.14em;color:#9cc9e2}
+.wcg-versus{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;margin:12px auto 2px}.wcg-versus b{font-size:25px;color:#fff1bd}.wcg-versus span{padding:6px 9px;border:1px solid rgba(205,159,70,.5);font:900 8px/1 monospace;color:#c7a85e;letter-spacing:.12em}
+.wcg-lineups{display:grid;grid-template-columns:1fr 1fr;gap:18px}.wcg-lineup-side{padding:9px 10px;border:1px solid rgba(199,154,68,.33);background:rgba(2,8,13,.36)}.wcg-lineup-side h3{margin:0 0 8px;color:#f0c86b;font:900 12px/1 monospace;letter-spacing:.14em}.wcg-lineup-players{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.wcg-lineup-players article{min-width:0}.wcg-lineup-players img{display:block;width:64px;height:72px;max-width:100%;margin:0 auto 4px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 4px 4px #000);transform:scaleX(var(--wcg-intro-face,1)) scale(var(--wcg-intro-scale,1));transform-origin:50% 78%}.wcg-lineup-players b{display:block;color:#fff0bb;font:900 9px/1.1 monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wcg-lineup-players span{display:block;margin-top:3px;color:#80aecb;font:800 6px/1 monospace;letter-spacing:.08em}
+.wcg-key-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.wcg-key-player{display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:center;padding:9px 12px;text-align:left;border:1px solid rgba(201,156,70,.4);background:rgba(2,8,13,.45)}.wcg-key-player img{width:88px;height:88px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 4px 4px #000);transform:scaleX(var(--wcg-intro-face,1)) scale(var(--wcg-intro-scale,1));transform-origin:50% 78%}.wcg-key-player small{color:#82b9d9;font:900 7px/1 monospace;letter-spacing:.1em}.wcg-key-player b{display:block;margin-top:5px;color:#ffe4a0;font:900 20px/1 Georgia,serif}.wcg-key-player p{margin:5px 0 0;color:#ded5bf;font:700 11px/1.3 Georgia,serif}
+
+.wcg-profile-meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:7px;color:#7fa9c2;font:800 6px/1.2 monospace;letter-spacing:.07em}.wcg-profile-meta span{white-space:nowrap}.wcg-profile-meta strong{color:#efd487;font-weight:900}
+.wcg-arena-details{max-width:650px;margin:0 auto}.wcg-arena-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.wcg-arena-facts span{padding:7px 6px;background:rgba(7,20,31,.55);border-top:1px solid rgba(114,164,193,.22);color:#7fa9c2;font:800 6px/1.3 monospace;letter-spacing:.06em}.wcg-arena-facts b{display:block;margin-top:3px;color:#efd487;font-size:7px}
+.wcg-presentation-panel.is-countdown>footer{opacity:.72}
+.wcg-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.wcg-facts span{padding:12px 8px;border:1px solid rgba(197,154,70,.4);background:rgba(3,10,16,.58);color:#9ebed2;font:900 8px/1.2 monospace;letter-spacing:.08em}.wcg-facts b{display:block;margin-bottom:4px;color:#ffe29a;font:900 32px/1 Georgia,serif}.wcg-arena-copy,.wcg-moment-copy{max-width:610px;margin:7px auto 0!important;color:#e8deca;font:700 14px/1.45 Georgia,serif}.wcg-half-big{padding:11px 14px;border-top:1px solid rgba(203,157,70,.35);border-bottom:1px solid rgba(203,157,70,.35);font:900 10px/1 monospace;letter-spacing:.16em;color:#a8c6d8}
+.wcg-broadcast-stats{display:grid;gap:5px;max-width:610px;margin:8px auto}.wcg-broadcast-stats>div{display:grid;grid-template-columns:1fr 180px 1fr;align-items:center;gap:8px;padding:5px 10px;border-bottom:1px solid rgba(173,139,75,.22)}.wcg-broadcast-stats b{color:#ffe2a0;font:900 15px/1 monospace}.wcg-broadcast-stats span{color:#91b7ce;font:900 7px/1 monospace;letter-spacing:.1em}
+.wcg-player-half{display:grid;grid-template-columns:95px 1fr;gap:16px;align-items:center;max-width:500px;margin:4px auto;text-align:left}.wcg-player-half img{width:95px;height:98px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 5px 5px #000)}.wcg-player-half p{margin:0!important;color:#d9d0ba;font:900 10px/1.5 monospace;letter-spacing:.04em}
+#wcWorldCupBroadcast[data-broadcast-state="INTRO"] .wcg-scorebar,#wcWorldCupBroadcast[data-broadcast-state="PRE_MATCH"] .wcg-scorebar,#wcWorldCupBroadcast[data-broadcast-state="KICKOFF_COUNTDOWN"] .wcg-scorebar{opacity:.88}
+#wcWorldCupBroadcast[data-broadcast-state="INTRO"] .wcg-commentator,#wcWorldCupBroadcast[data-broadcast-state="PRE_MATCH"] .wcg-commentator{opacity:.72}
+#wcWorldCupBroadcast[data-broadcast-state="HALFTIME"] .wcg-commentator,#wcWorldCupBroadcast[data-broadcast-state="HALFTIME_STATS"] .wcg-commentator{opacity:.55}
+
+@media(max-width:900px){
+  .wcg-presentation{inset:12% 3% 15%}.wcg-presentation-panel{width:88%;padding:12px 14px}.wcg-lineups{gap:8px}.wcg-lineup-players img{width:45px;height:51px}.wcg-lineup-players article.is-jud img{--wcg-intro-scale:1.24!important}.wcg-lineup-players b{font-size:6px}.wcg-key-player{grid-template-columns:58px 1fr;padding:6px}.wcg-key-player img{width:56px;height:60px}.wcg-key-player b{font-size:13px}.wcg-key-player p{font-size:8px}.wcg-facts span{padding:8px 4px}.wcg-facts b{font-size:22px}.wcg-broadcast-stats>div{grid-template-columns:1fr 110px 1fr}.wcg-player-half{grid-template-columns:70px 1fr}.wcg-player-half img{width:68px;height:72px}
+}
+@media(prefers-reduced-motion:reduce){.wcg-presentation{transition:none}}
+
+/* ============================================================
+   WORLD CUP LIVE BROADCAST DIRECTOR — V5
+   Barry reaction states + smoother commentary presentation.
+   ============================================================ */
+.wcg-barry{will-change:transform;transition:filter .16s ease}
+.wcg-commentator.is-excited .wcg-barry{animation:wcgBarryInterested .34s cubic-bezier(.2,.8,.2,1) both}
+.wcg-commentator.is-shocked .wcg-barry{animation:wcgBarryShock .42s cubic-bezier(.16,.9,.22,1) both}
+.wcg-commentator.is-goal .wcg-barry{animation:wcgBarryGoal .60s cubic-bezier(.16,.9,.22,1) both;filter:drop-shadow(0 6px 5px #000) drop-shadow(0 0 8px rgba(255,205,84,.24))}
+.wcg-commentator.is-var .wcg-barry{animation:wcgBarryVar .48s ease-out both}
+@keyframes wcgBarryInterested{0%{transform:translateY(0)}45%{transform:translateY(-3px) rotate(-1deg)}100%{transform:translateY(0)}}
+@keyframes wcgBarryShock{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-5px) scale(1.035)}100%{transform:translateY(0) scale(1)}}
+@keyframes wcgBarryGoal{0%{transform:translateY(0) scale(1)}32%{transform:translateY(-8px) scale(1.07) rotate(-2deg)}68%{transform:translateY(-3px) scale(1.04) rotate(1deg)}100%{transform:translateY(0) scale(1)}}
+@keyframes wcgBarryVar{0%{transform:translateY(0)}35%{transform:translateY(-2px) rotate(.8deg)}100%{transform:translateY(0)}}
+#wcWorldCupBroadcast[data-barry-debug="HALFTIME"] .wcg-comment-box{border-color:#93b7cf}
+#wcWorldCupBroadcast[data-barry-debug="FULLTIME"] .wcg-comment-box{border-color:#d6aa4c}
+@media(prefers-reduced-motion:reduce){.wcg-commentator.is-excited .wcg-barry,.wcg-commentator.is-shocked .wcg-barry,.wcg-commentator.is-goal .wcg-barry,.wcg-commentator.is-var .wcg-barry{animation:none!important}}
