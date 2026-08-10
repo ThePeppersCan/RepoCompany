@@ -832,6 +832,13 @@ button.qg-game-card{font:inherit;cursor:pointer}
     .world-cup-fixture-nav-button::after{content:none!important;display:none!important}
     .world-cup-fixture-nav-button-guide{left:14.8%}
     .world-cup-fixture-nav-button-history{right:14.8%}
+    /* Meet the Teams sits directly beneath World Cup History and inherits the
+       exact same image-only hover/press treatment. */
+    .world-cup-fixture-nav-button-teams{
+      right:16.8%;
+      top:94.05%;
+      width:24%;
+    }
     .world-cup-fixture-nav-button img{
       display:block;
       width:100%;
@@ -1795,6 +1802,9 @@ button.qg-game-card{font:inherit;cursor:pointer}
         </span>
         <span class="world-cup-fixture-nav-button world-cup-fixture-nav-button-history" role="button" tabindex="0" aria-label="Open World Cup History" title="World Cup History">
           <img src="assets/repo-sports-world-cup-history-button.png" alt="World Cup History">
+        </span>
+        <span class="world-cup-fixture-nav-button world-cup-fixture-nav-button-teams" role="button" tabindex="0" aria-label="Meet the Teams" title="Meet the Teams">
+          <img src="assets/repo-sports-world-cup-meet-teams-button.png" alt="Meet the Teams">
         </span>
         <span class="world-cup-menu-sheen" aria-hidden="true"></span>
         <span class="world-cup-menu-particles" aria-hidden="true"></span>
@@ -3557,6 +3567,7 @@ window.__QD_HOST__={
   const lumerreKitAudio = document.getElementById('worldCupLumerreKitAudio');
   const guideButton = overlay?.querySelector('.world-cup-fixture-nav-button-guide');
   const historyButton = overlay?.querySelector('.world-cup-fixture-nav-button-history');
+  const teamsButton = overlay?.querySelector('.world-cup-fixture-nav-button-teams');
   const countryPages = {
     Vardesh: 'assets/repo-sports-country-vardesh.png',
     Lumerre: 'assets/repo-sports-country-lumerre.png',
@@ -3622,7 +3633,7 @@ window.__QD_HOST__={
   let currentCountry = null;
   let activeKitIndex = 0;
   let kitReturnFocus = null;
-  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio || !calvoraKitAudio || !rovarnKitAudio || !taluneKitAudio || !belrosKitAudio || !vardeshKitAudio || !soreviaKitAudio || !iskandarKitAudio || !kordeshKitAudio || !nambaraKitAudio || !elvaneKitAudio || !norvethKitAudio || !lumerreKitAudio) return;
+  if (!button || !overlay || !sting || !menuMusic || !closeButton || !loreViewer || !loreImage || !loreSecondaryImage || !loreClose || !kitsButton || !kitViewer || !kitImage || !kitStatus || !kitPrev || !kitNext || !kitClose || !guideButton || !historyButton || !teamsButton || !marovarKitAudio || !drazhenKitAudio || !zafranKitAudio || !qasmirKitAudio || !calvoraKitAudio || !rovarnKitAudio || !taluneKitAudio || !belrosKitAudio || !vardeshKitAudio || !soreviaKitAudio || !iskandarKitAudio || !kordeshKitAudio || !nambaraKitAudio || !elvaneKitAudio || !norvethKitAudio || !lumerreKitAudio) return;
 
   const FALLBACK_MS = 3422;
   let transitionTimer = 0;
@@ -3959,6 +3970,11 @@ window.__QD_HOST__={
     'World Cup History',
     'assets/repo-sports-world-cup-rivalries-record.png',
     'The Great Quidditch Rivalries of Velmora and World Cup record'
+  );
+  wireLoreButton(
+    teamsButton,
+    'assets/repo-sports-world-cup-family-trees.png',
+    'Meet the Teams — Player Family Trees'
   );
 
   const pulseKitsButton = () => {
