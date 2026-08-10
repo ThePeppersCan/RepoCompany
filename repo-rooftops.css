@@ -22,3 +22,22 @@
 .rr-checkpoint-choices small{min-height:48px;margin-top:9px!important;color:#a8c0cd!important;font:12px/1.45 Arial!important}
 .rr-checkpoint-choices strong{margin-top:auto;padding-top:13px;color:#79cfee;font:800 9px Arial;letter-spacing:1.5px}
 @media(max-width:760px){.rr-checkpoint-card{padding:22px 14px!important}.rr-checkpoint-choices button{min-height:120px!important;display:grid!important;grid-template-columns:46px 1fr;grid-template-rows:auto auto auto;text-align:left!important;align-items:center}.rr-choice-key{left:7px;top:7px}.rr-choice-icon{grid-row:1/4;width:42px;height:42px;margin:0;font-size:22px}.rr-checkpoint-choices em,.rr-checkpoint-choices b,.rr-checkpoint-choices small{grid-column:2}.rr-checkpoint-choices strong{position:absolute;right:10px;top:8px;padding:0}}
+
+/* ============================================================
+   REPO ROOFTOPS 2.0 — FLOW / EVENTS / PROFESSIONAL GAME FEEL
+   ============================================================ */
+.rr-flow-strip{position:absolute;z-index:18;left:50%;top:82px;width:min(430px,44%);transform:translateX(-50%);pointer-events:none;filter:drop-shadow(0 5px 10px rgba(0,0,0,.55))}
+.rr-flow-copy{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:5px;color:#b6d4e6;font:800 9px/1 Arial,sans-serif;letter-spacing:1.4px;text-shadow:0 2px 3px #000}
+.rr-flow-copy span{color:#c7efff}.rr-flow-copy span b{color:#ffe098;font-size:12px}.rr-flow-copy em{max-width:55%;overflow:hidden;color:#8fb9cf;font-style:normal;text-overflow:ellipsis;white-space:nowrap}
+.rr-flow-track{height:7px;padding:2px;border:1px solid rgba(108,178,213,.76);background:rgba(3,12,18,.88);box-shadow:inset 0 0 8px #000,0 0 12px rgba(96,199,241,.08)}
+.rr-flow-track i{display:block;width:0;height:100%;background:linear-gradient(90deg,#62c6f0 0%,#9be8ff 48%,#f0cf77 76%,#fff0a8 100%);box-shadow:0 0 9px rgba(122,219,255,.46);transition:width .09s linear}
+.rr-event-banner{position:absolute;z-index:24;left:50%;top:124px;width:min(520px,58%);box-sizing:border-box;padding:9px 14px 10px;border:1px solid rgba(240,201,105,.72);background:linear-gradient(90deg,rgba(5,16,24,.08),rgba(9,24,34,.94) 16%,rgba(23,27,26,.96) 50%,rgba(9,24,34,.94) 84%,rgba(5,16,24,.08));box-shadow:0 8px 22px rgba(0,0,0,.48),inset 0 0 18px rgba(98,197,239,.08);opacity:0;transform:translate(-50%,-10px) scale(.98);pointer-events:none;text-align:center}
+.rr-event-banner.show{animation:rrEventBanner 3.35s cubic-bezier(.2,.75,.2,1) both}
+.rr-event-banner small{display:block;color:#76ccef;font:800 7px/1 Arial,sans-serif;letter-spacing:2.5px}.rr-event-banner strong{display:block;margin-top:3px;color:#ffe39d;font:900 17px/1.15 Georgia,serif;letter-spacing:.7px;text-shadow:0 2px #2b1808}.rr-event-banner span{display:block;margin-top:4px;color:#9bb8c8;font:700 9px/1.35 Arial,sans-serif;letter-spacing:.15px}
+.rr-game-message{border-color:rgba(97,174,210,.25)!important;box-shadow:0 8px 20px rgba(0,0,0,.34),inset 0 0 14px rgba(98,190,230,.05)}
+.rr-summary-stats{grid-template-columns:repeat(5,minmax(0,1fr))!important}.rr-summary-stats>div{min-width:0}.rr-summary-stats b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rr-howto article{position:relative;overflow:hidden}.rr-howto article::after{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(#77d5fa,#f0c969);opacity:.7}.rr-howto h4{letter-spacing:.5px}
+@keyframes rrEventBanner{0%{opacity:0;transform:translate(-50%,-12px) scale(.97)}10%,72%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,8px) scale(.985)}}
+@media(max-width:1050px){.rr-flow-strip{top:119px;width:min(430px,52%)}.rr-event-banner{top:159px}.rr-summary-stats{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+@media(max-width:760px){.rr-flow-strip{left:10px;right:48px;top:83px;width:auto;transform:none}.rr-flow-copy{font-size:7px}.rr-flow-copy em{max-width:48%}.rr-event-banner{top:116px;width:82%;padding:7px 10px}.rr-event-banner strong{font-size:14px}.rr-event-banner span{display:none}.rr-summary-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}.rr-game-message{bottom:80px;max-width:80%;text-align:center}}
+@media(prefers-reduced-motion:reduce){.rr-event-banner.show{animation-duration:.01ms!important}.rr-flow-track i{transition:none!important}}

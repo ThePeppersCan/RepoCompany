@@ -128,3 +128,47 @@
 #gbpCustomizeView #gbpRandomCharacter,#gbpCustomizeView #gbpResetCharacter{background:linear-gradient(#2d2116,#17130f)!important}
 #gbpGameView .gbp-game-shell>canvas{box-shadow:inset 0 0 35px rgba(0,0,0,.8);border-top:1px solid #6b512e}
 @media(max-width:900px){#gbpCustomizeView .gbp-custom-layout{grid-template-columns:1fr!important}#gbpCustomizeView .gbp-character-options{grid-template-columns:1fr!important}#gbpCustomizeView .gbp-custom-actions{position:static!important;grid-template-columns:1fr 1fr!important}#gbpCustomizeView #gbpSaveCharacter{grid-column:1/-1!important}}
+
+/* === Goblin Bomb Party — 2–4 player online party === */
+.gbp-play-stack{grid-area:play;display:grid;grid-template-columns:1fr 1fr;gap:7px;min-width:0}
+.gbp-play-stack .gbp-play-button{grid-area:auto!important;width:100%;margin:0;min-width:0}
+.gbp-play-stack .gbp-solo-play{background:linear-gradient(#765022,#3f2912)}
+.gbp-play-stack .gbp-online-party-button{border-color:#61b9db;background:radial-gradient(circle at 50% 0,rgba(71,183,221,.2),transparent 50%),linear-gradient(#1b4d61,#102b38);box-shadow:inset 0 0 0 1px #0b1d26,0 0 18px rgba(71,183,221,.14);color:#dff8ff}
+.gbp-play-stack .gbp-online-party-button span{color:#dff8ff;text-shadow:0 0 10px rgba(110,215,255,.28)}
+.gbp-play-stack .gbp-online-party-button small{color:#8bcde5}
+.gbp-play-stack .gbp-online-party-button:hover{filter:brightness(1.16);box-shadow:inset 0 0 0 1px #0b1d26,0 0 24px rgba(71,183,221,.3)}
+
+.gbp-multiplayer-view{overflow:auto!important;background:radial-gradient(circle at 50% 0,rgba(52,128,158,.13),transparent 34%)}
+.gbp-mp-layout{display:grid;grid-template-columns:minmax(300px,.84fr) minmax(430px,1.16fr);gap:12px;max-width:1040px;margin:0 auto 20px}
+.gbp-mp-join-panel,.gbp-mp-lobby-panel{position:relative;border:2px solid #765a30;background:linear-gradient(180deg,#151b1e,#080c0e 72%);box-shadow:inset 0 0 0 2px #050809,0 16px 38px #0008;overflow:hidden}
+.gbp-mp-join-panel:before,.gbp-mp-lobby-panel:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,#d7a84b,#72c9e8,transparent);opacity:.68}
+.gbp-mp-join-panel{padding:18px}
+.gbp-mp-intro small{color:#6ec7e7;font:900 8px monospace;letter-spacing:.18em}
+.gbp-mp-intro h2{margin:5px 0 10px;color:#ffe09a;font-size:clamp(28px,4vw,45px);line-height:.92;text-shadow:2px 3px #2c190c}
+.gbp-mp-intro p{margin:0 0 16px;color:#a8b1aa;font-size:12px;line-height:1.55}
+.gbp-mp-actions{display:grid;gap:8px;margin:14px 0}
+#gbpMpCreate{min-height:54px;border:2px solid #d0a046;background:linear-gradient(#684019,#39230f);color:#ffebb2;cursor:pointer}
+#gbpMpCreate b,#gbpMpCreate small{display:block}#gbpMpCreate b{font:900 13px Georgia,serif;letter-spacing:.08em}#gbpMpCreate small{margin-top:3px;color:#c7aa69;font:900 7px monospace;letter-spacing:.1em}
+#gbpMpCreate:hover:not(:disabled){filter:brightness(1.15)}#gbpMpCreate:disabled{opacity:.35;cursor:default}
+.gbp-mp-join-row{display:grid;grid-template-columns:1fr 90px;gap:7px}
+#gbpMpCodeInput{height:46px;box-sizing:border-box;border:2px solid #53656b;background:#060c10;color:#e7f7ff;text-align:center;font:900 18px monospace;letter-spacing:.21em;text-transform:uppercase;outline:0}
+#gbpMpCodeInput:focus{border-color:#70c6e6;box-shadow:0 0 0 2px rgba(112,198,230,.12)}#gbpMpCodeInput:disabled{opacity:.4}
+#gbpMpJoin{border:2px solid #5faac5;background:linear-gradient(#224e61,#102d3b);color:#e3f8ff;font:900 10px monospace;cursor:pointer}#gbpMpJoin:hover:not(:disabled){filter:brightness(1.16)}#gbpMpJoin:disabled{opacity:.35}
+.gbp-mp-room-code{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin-top:12px;padding:10px;border:1px solid #4d626a;background:#070d11}
+.gbp-mp-room-code small{color:#84969b;font:900 7px monospace;letter-spacing:.1em}.gbp-mp-room-code strong{color:#90ddf6;font:900 24px monospace;letter-spacing:.2em;text-align:center;text-shadow:0 0 12px rgba(72,190,230,.22)}
+.gbp-mp-room-code button{border:1px solid #6b8791;background:#101b20;color:#b8dce7;padding:7px 8px;font:900 8px monospace;cursor:pointer}
+.gbp-mp-status{min-height:34px;margin:10px 0 6px;padding:9px 10px;border-left:3px solid #65767b;background:#0a0f11;color:#9fa9a4;font:800 9px/1.4 monospace}
+.gbp-mp-status[data-kind="ok"]{border-color:#55b67d;color:#a7ddb8}.gbp-mp-status[data-kind="error"]{border-color:#c65646;color:#eab0a7}.gbp-mp-status[data-kind="waiting"]{border-color:#c79b44;color:#dbc48d}
+.gbp-mp-note{display:block;color:#758187;font:700 8px/1.45 monospace}
+
+.gbp-mp-lobby-panel{padding:14px}
+.gbp-mp-lobby-panel>header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:3px 2px 12px;border-bottom:1px solid #4f422d}.gbp-mp-lobby-panel>header small{display:block;color:#c99d47;font:900 8px monospace;letter-spacing:.16em}.gbp-mp-lobby-panel>header h4{margin:4px 0 0;color:#e9d39c;font:900 12px Georgia,serif}.gbp-mp-lobby-panel>header>span{padding:6px 8px;border:1px solid #4f8598;background:#0d2028;color:#8ed7ee;font:900 8px monospace;white-space:nowrap}
+.gbp-mp-slots{display:grid;gap:7px;margin:12px 0}.gbp-mp-slot{display:grid;grid-template-columns:44px 1fr 38px;align-items:center;gap:8px;min-height:58px;padding:7px 9px;box-sizing:border-box;border:1px solid #48545a;background:linear-gradient(90deg,#0b1114,#11181b);transition:border-color .16s,filter .16s,transform .16s}.gbp-mp-slot>span{display:grid;place-items:center;width:38px;height:38px;border:1px solid #6a5736;background:#1b160f;color:#e4bf6c;font:900 10px monospace}.gbp-mp-slot b{display:block;color:#ddd5c1;font:900 11px Georgia,serif}.gbp-mp-slot small{display:block;margin-top:3px;color:#7f8b8c;font:800 7px monospace;letter-spacing:.07em}.gbp-mp-slot em{font-style:normal;color:#718085;font:900 15px monospace;text-align:center}.gbp-mp-slot.ready{border-color:#4a8f65;background:linear-gradient(90deg,#0a1610,#102019)}.gbp-mp-slot.ready em{color:#79cf94}.gbp-mp-slot.mine{box-shadow:inset 3px 0 0 #75c9e7}.gbp-mp-slot.mine>span{border-color:#568da0;color:#b7e9fa;background:#10222a}.gbp-mp-slot.empty{opacity:.46;border-style:dashed}.gbp-mp-slot.empty b{color:#788383}
+.gbp-mp-lobby-actions{display:grid;grid-template-columns:1fr 2fr 1fr;gap:7px;margin-top:10px}.gbp-mp-lobby-actions button{min-height:43px;border:1px solid #685437;background:linear-gradient(#282016,#15120e);color:#d7c69c;font:900 9px monospace;cursor:pointer}.gbp-mp-lobby-actions button:hover:not(:disabled){filter:brightness(1.16)}.gbp-mp-lobby-actions button.selected{border-color:#69c58b;color:#c4f4d3;background:linear-gradient(#214a31,#11261a)}.gbp-mp-lobby-actions .primary{border:2px solid #d0a046;background:linear-gradient(#734719,#3b240f);color:#ffebb1}.gbp-mp-lobby-actions .primary b,.gbp-mp-lobby-actions .primary small{display:block}.gbp-mp-lobby-actions .primary small{margin-top:3px;color:#bba26d;font-size:7px}.gbp-mp-lobby-actions button:disabled{opacity:.32;cursor:default;filter:grayscale(.4)}
+.gbp-mp-rules{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin-top:13px;padding:10px;border:1px solid #343f42;background:#070b0d}.gbp-mp-rules b{grid-column:1/-1;color:#d7aa50;font:900 8px monospace;letter-spacing:.13em}.gbp-mp-rules span{color:#899592;font:800 8px/1.35 monospace}
+
+#gbpGameView .gbp-online-net-badge{position:absolute;z-index:22;left:10px;top:64px;padding:5px 7px;border:1px solid #5bb7d4;background:#07151bcf;color:#9be4f9;font:900 7px monospace;letter-spacing:.08em;pointer-events:none}
+.gbp-multiplayer-results .gbp-rewards{opacity:.62}
+
+@media(max-width:900px){.gbp-mp-layout{grid-template-columns:1fr}.gbp-play-stack{grid-template-columns:1fr}.gbp-mp-lobby-panel{min-height:420px}}
+@media(max-width:620px){.gbp-mp-lobby-actions{grid-template-columns:1fr}.gbp-mp-rules{grid-template-columns:1fr}.gbp-mp-rules b{grid-column:auto}.gbp-mp-room-code{grid-template-columns:1fr auto}.gbp-mp-room-code small{grid-column:1/-1}.gbp-mp-room-code strong{text-align:left;font-size:20px}.gbp-mp-join-row{grid-template-columns:1fr 78px}}

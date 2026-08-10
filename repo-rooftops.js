@@ -174,7 +174,7 @@
     const now=ac.currentTime;
     const osc=ac.createOscillator(),gain=ac.createGain();
     const volume=.055*state.settings.masterVolume*state.settings.sfxVolume*intensity;
-    const configs={jump:[260,460,.12,'square'],land:[130,80,.11,'triangle'],dash:[520,170,.09,'sawtooth'],coin:[620,920,.1,'square'],mark:[700,1320,.42,'sine'],death:[210,55,.55,'sawtooth'],checkpoint:[420,840,.38,'triangle'],click:[330,420,.05,'square'],shield:[240,980,.2,'sine']};
+    const configs={jump:[260,460,.12,'square'],land:[130,80,.11,'triangle'],dash:[520,170,.09,'sawtooth'],coin:[620,920,.1,'square'],mark:[700,1320,.42,'sine'],death:[210,55,.55,'sawtooth'],checkpoint:[420,840,.38,'triangle'],click:[330,420,.05,'square'],shield:[240,980,.2,'sine'],perfect:[760,1420,.18,'sine'],vault:[310,610,.11,'triangle'],event:[360,980,.3,'triangle']};
     const [f1,f2,dur,wave]=configs[type]||configs.click;
     osc.type=wave;osc.frequency.setValueAtTime(f1,now);osc.frequency.exponentialRampToValueAtTime(Math.max(20,f2),now+dur);
     gain.gain.setValueAtTime(volume,now);gain.gain.exponentialRampToValueAtTime(.0001,now+dur);
@@ -321,10 +321,10 @@
 
   function renderModes(body){
     const modes=[
-      ['hardcore','HARDCORE MODE','Faster danger, fewer recovery rooftops and limited protection.','SEPARATE LEADERBOARD'],
+      ['hardcore','HARDCORE MODE','Faster danger, full Flow systems, events and almost no room for hesitation.','SEPARATE LEADERBOARD'],
       ['timetrial','TIME TRIAL','Climb as high as possible in three minutes.','3 MINUTES'],
       ['practice','PRACTICE MODE','Test movement and your character with no rewards or records.','NO REWARDS'],
-      ['endless','ENDLESS MODE','The primary climb from the streets with full rewards.','FULL REWARDS']
+      ['endless','ENDLESS MODE','The full Rooftops 2.0 climb: route choices, events, Flow, blessings and PB ghost.','FULL REWARDS']
     ];
     body.innerHTML=`<div class="rr-mode-grid">${modes.map(([id,name,desc,badge])=>`<article class="rr-mode-card"><b>${badge}</b><h4>${name}</h4><p>${desc}</p><button type="button" data-rr-mode="${id}">PLAY ${name.replace(' MODE','')}</button></article>`).join('')}</div>`;
     body.querySelectorAll('[data-rr-mode]').forEach(btn=>btn.addEventListener('click',()=>startRun(btn.dataset.rrMode)));
@@ -404,15 +404,111 @@
   function prettyKey(code){return String(code).replace('Key','').replace('Arrow','').replace('Left',' L').replace('Right',' R').toUpperCase();}
 
   function renderHowTo(body){
-    body.innerHTML=`<div class="rr-howto"><article><h4>CLIMB</h4><p>Use <b>A / D</b> or the arrow keys to move. Use <b>Space</b> to jump. Hold jump for extra height. Coyote time and jump buffering keep movement responsive.</p></article><article><h4>ADVANCED MOVEMENT</h4><p>Jump against walls to wall-slide, then jump again to launch away. Press <b>Shift</b> to dash. Land to recharge it.</p></article><article><h4>KEEP MOVING</h4><p>The danger below rises faster at greater heights. Maintain upward momentum, use recovery rooftops wisely and watch hazard telegraphs.</p></article><article><h4>REWARDS</h4><p>Runs qualify for a deliberately modest GP reward after 50 metres or five rooftops. Marks of Grace have an independent server-backed 1-in-50 roll on eligible levels and save immediately when collected.</p></article><article><h4>ROUTES</h4><p>Wide routes are safer. Smaller optional routes contain more coins, momentum and risk bonuses. Every generated section retains a validated safe route upward.</p></article><article><h4>MODES</h4><p>Endless awards full rewards. Daily uses the same seed for everybody. Hardcore has faster danger. Time Trial lasts three minutes. Practice awards nothing.</p></article></div>`;
+    body.innerHTML=`<div class="rr-howto"><article><h4>MOVE WITH INTENT</h4><p>Use <b>A / D</b> or arrows to move and <b>Space</b> to jump. Jump buffering, coyote time, ledge saves and variable jump height make movement precise without feeling brittle.</p></article><article><h4>BUILD FLOW</h4><p>Keep climbing, clear technical routes, collect Flow tokens and chain Perfect Landings to raise your Flow multiplier. Standing around drains Flow.</p></article><article><h4>PERFECT LANDINGS</h4><p>Press jump just before touching down after a real fall. A clean buffered landing instantly keeps your movement going, builds Flow and starts a Perfect chain.</p></article><article><h4>CHOOSE YOUR ROUTE</h4><p>Safe roofs are consistent. Risk routes contain smaller ledges and better Flow opportunities. Shortcut sections are faster but demand cleaner movement.</p></article><article><h4>ROOFTOP EVENTS</h4><p>Long runs can trigger Rooftop Rush, Gust Front, Precision Window and Skyline Token Trail events. Adapt your route instead of repeating the same climb.</p></article><article><h4>BLESSINGS</h4><p>Every 250m, choose one of three temporary run perks. Mobility, recovery, Perfect Landing and Flow builds can develop differently each run.</p></article><article><h4>PB GHOST</h4><p>Your best local Endless or Daily run is replayed as a faint rooftop ghost, giving you an immediate pace target without changing secure rewards.</p></article><article><h4>REWARDS</h4><p>Secure GP, Agility XP, Marks of Grace and leaderboard saving still use the existing server-backed systems. The new gameplay systems do not bypass reward validation.</p></article></div>`;
+  }
+
+  function flowMultiplier(run){
+    const tier=Math.floor(clamp(Number(run?.momentum||0),0,100)/20);
+    return 1+tier*.25;
+  }
+
+  function addFlow(run,amount,score=0){
+    if(!run)return;
+    const eventBoost=run.event?.id==='rush'?1.25:run.event?.id==='precision'?1.12:1;
+    run.momentum=clamp(run.momentum+amount*eventBoost,0,100);
+    run.maxMomentum=Math.max(run.maxMomentum,run.momentum);
+    if(score)run.score+=Math.floor(score*flowMultiplier(run));
+  }
+
+  function ghostStorageKey(mode){return `repoRooftopsGhost:${mode==='daily'?'daily':'endless'}`;}
+  function loadPbGhost(mode){
+    try{
+      const raw=JSON.parse(localStorage.getItem(ghostStorageKey(mode))||'null');
+      return raw&&Array.isArray(raw.samples)&&raw.samples.length>4?raw:null;
+    }catch(_){return null;}
+  }
+  function savePbGhost(run){
+    if(!run||run.mode==='practice'||run.mode==='timetrial'||run.height<75||!run.ghostSamples?.length)return;
+    const previous=loadPbGhost(run.mode);
+    if(previous&&Number(previous.height||0)>run.height)return;
+    const compact=run.ghostSamples.slice(-18000).map(v=>[Math.round(v[0]),Math.round(v[1]),Math.round(v[2])]);
+    try{localStorage.setItem(ghostStorageKey(run.mode),JSON.stringify({height:run.height,level:run.completedLevel,createdAt:Date.now(),samples:compact}));}catch(_){ }
+  }
+  function ghostSampleAt(run,elapsed){
+    const samples=run.ghost?.samples;if(!samples?.length)return null;
+    let lo=0,hi=samples.length-1;
+    while(lo<hi){const mid=(lo+hi+1)>>1;if(samples[mid][0]<=elapsed)lo=mid;else hi=mid-1;}
+    const a=samples[lo],b=samples[Math.min(samples.length-1,lo+1)];
+    if(!a)return null;if(!b||b[0]===a[0])return {x:a[1],y:a[2]};
+    const t=clamp((elapsed-a[0])/(b[0]-a[0]),0,1);return {x:lerp(a[1],b[1],t),y:lerp(a[2],b[2],t)};
+  }
+
+  function showEventBanner(event,on=true){
+    const el=byId('rrEventBanner');if(!el)return;
+    if(!on){el.classList.remove('show');return;}
+    el.querySelector('strong').textContent=event.name;
+    el.querySelector('span').textContent=event.desc;
+    el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
+  }
+
+  function seedEventTokens(run){
+    const ahead=run.platforms.filter(p=>p.active!==false&&p.type!=='wall'&&p.y>run.player.y+80&&p.y<run.player.y+850).slice(0,12);
+    ahead.forEach((p,i)=>{
+      const c={id:`flow-${run.completedLevel}-${i}-${Math.floor(run.rng()*1e7)}`,x:p.x+p.w*(.25+run.rng()*.5),y:p.y+(p.h||14)+34,r:8,value:0,scoreValue:250,kind:'flow',collected:false};
+      run.collectables.push(c);
+    });
+  }
+
+  function startRooftopEvent(run,now){
+    if(!run||run.event||(run.mode==='practice'&&run.height<120))return;
+    const event={...ROOFTOP_EVENTS[Math.floor(run.rng()*ROOFTOP_EVENTS.length)]};
+    event.startedAt=now;event.endsAt=now+event.duration*1000;run.event=event;run.stats.events++;
+    run.nextEventHeight=run.height+380+Math.floor(run.rng()*260);
+    if(event.id==='tokens')seedEventTokens(run);
+    showEventBanner(event,true);tone('event',.8);run.shake=Math.max(run.shake,2.5);
+  }
+
+  function updateRooftopEvent(run,dt,now){
+    if(!run)return;
+    if(!run.event&&run.height>=run.nextEventHeight)startRooftopEvent(run,now);
+    if(run.event&&now>=run.event.endsAt){showEventBanner(run.event,false);showGameMessage(`${run.event.name} complete`);run.event=null;}
+    if(run.event?.id==='gust'&&!run.player.onGround){
+      const wind=Math.sin(now/430)*145;run.player.vx+=wind*dt;
+    }
+  }
+
+  function perfectLanding(run,impact){
+    run.stats.perfectLandings++;
+    run.perfectChain++;
+    run.maxPerfectChain=Math.max(run.maxPerfectChain,run.perfectChain);
+    addFlow(run,8+Math.min(8,run.perfectChain),280+run.perfectChain*45);
+    run.player.landSquash=.16;run.player.perfectPulse=.28;
+    tone('perfect',.82);spawnBurst(run,run.player.x,run.player.y,12,'#fff2a6');
+    const label=run.perfectChain>1?`PERFECT LANDING ×${run.perfectChain}`:'PERFECT LANDING';showGameMessage(label);
+  }
+
+  function tryLedgeSave(run,p){
+    if(p.onGround||p.vy>=-80||p.ledgeSaveCd>0)return false;
+    const left=p.x-p.w/2,right=p.x+p.w/2;
+    for(const plat of activePlatforms(run)){
+      if(plat.type==='wall'||plat.active===false)continue;
+      const top=plat.y+(plat.h||14);
+      if(p.y>top||p.y<top-22)continue;
+      const nearLeft=Math.abs(right-plat.x)<9,nearRight=Math.abs(left-(plat.x+plat.w))<9;
+      if(!nearLeft&&!nearRight)continue;
+      p.x=nearLeft?plat.x-p.w/2+4:plat.x+plat.w+p.w/2-4;
+      p.y=top;p.vy=285;p.vx=(nearLeft?-1:1)*115;p.onGround=false;p.ledgeSaveCd=.45;
+      run.stats.ledgeSaves++;addFlow(run,4,120);tone('vault',.6);spawnBurst(run,p.x,p.y,7,'#bcecff');showGameMessage('LEDGE SAVE');return true;
+    }
+    return false;
   }
 
   function freshRun(mode,server={}){
     const dailySeed=`daily-${londonDate()}`;
     const seed=server.seed||((mode==='daily')?dailySeed:`${mode}-${Date.now()}-${Math.random()}`);
     const rng=mulberry32(seedHash(seed));
-    const player={x:480,y:20,w:24,h:40,vx:0,vy:0,onGround:true,coyote:.11,jumpBuffer:0,dashReady:true,dashing:0,wallDir:0,facing:1,dropTimer:0,shield:0,invulnerable:0,extraDash:0,trail:[]};
-    return {active:true,mode,runId:server.run_id||server.runId||makeId('practice'),seed,rng,startedAt:performance.now(),serverStartedAt:server.server_started_at||null,player,platforms:[],hazards:[],collectables:[],particles:[],chunks:[],level:0,completedLevel:0,nextChunkY:0,nextChunkX:480,cameraBottom:-80,highestY:50,height:10,score:0,provisionalGp:0,coinGp:0,riskGp:0,marks:0,markPending:0,momentum:0,maxMomentum:0,dangerY:-360,districtIndex:-1,difficulty:'Beginner',lastLevelAt:performance.now(),lastProgressAt:performance.now(),lastHudAt:0,keys:{left:false,right:false,jump:false,dash:false,down:false},pressed:{jump:false,dash:false},gamepad:{},paused:false,ended:false,finalising:false,finishReason:'',timeLimit:mode==='timetrial'?180000:0,checkpointNext:CHECKPOINT_STEP,checkpointSeen:new Set(),powerups:{},dailySeed,dbEnabled:mode!=='practice',previewPromises:new Map(),levelCompletionQueue:Promise.resolve(),completedLevelRecords:[],weatherParticles:[],shake:0,flash:0,tutorial:{move:false,jump:false,wall:false},stats:{obstacles:0,riskRoutes:0,coins:0,districts:new Set(),bestCombo:0},lastPlatform:null};
+    const player={x:480,y:20,w:24,h:40,vx:0,vy:0,onGround:true,coyote:.11,jumpBuffer:0,dashReady:true,dashing:0,wallDir:0,facing:1,dropTimer:0,shield:0,revive:0,invulnerable:0,extraDash:0,trail:[],landSquash:0,perfectPulse:0,ledgeSaveCd:0,vaultCd:0};
+    return {active:true,mode,runId:server.run_id||server.runId||makeId('practice'),seed,rng,startedAt:performance.now(),serverStartedAt:server.server_started_at||null,player,platforms:[],hazards:[],collectables:[],particles:[],chunks:[],level:0,completedLevel:0,nextChunkY:0,nextChunkX:480,cameraBottom:-80,highestY:50,height:10,score:0,provisionalGp:0,coinGp:0,riskGp:0,marks:0,markPending:0,momentum:0,maxMomentum:0,perfectChain:0,maxPerfectChain:0,dangerY:-360,districtIndex:-1,difficulty:'Beginner',lastLevelAt:performance.now(),lastProgressAt:performance.now(),lastHudAt:0,keys:{left:false,right:false,jump:false,dash:false,down:false},pressed:{jump:false,dash:false},gamepad:{},paused:false,ended:false,finalising:false,finishReason:'',timeLimit:mode==='timetrial'?180000:0,checkpointNext:CHECKPOINT_STEP,checkpointSeen:new Set(),powerups:{},dailySeed,dbEnabled:mode!=='practice',previewPromises:new Map(),levelCompletionQueue:Promise.resolve(),completedLevelRecords:[],weatherParticles:[],shake:0,flash:0,event:null,nextEventHeight:340+Math.floor(rng()*220),ghost:loadPbGhost(mode),ghostSamples:[],lastGhostSampleAt:-9999,startBestHeight:Number(state.profile?.best_height||0),tutorial:{move:false,jump:false,wall:false},stats:{obstacles:0,riskRoutes:0,coins:0,districts:new Set(),bestCombo:0,perfectLandings:0,vaults:0,ledgeSaves:0,events:0,shortcuts:0},lastPlatform:null};
   }
 
   async function startRun(mode='endless'){
@@ -442,7 +538,7 @@
     state.run=freshRun(mode,server||{});
     initialiseWorld(state.run);
     applyView('game');
-    hide(byId('rrPauseOverlay'));hide(byId('rrCheckpointOverlay'));
+    hide(byId('rrPauseOverlay'));hide(byId('rrCheckpointOverlay'));byId('rrEventBanner')?.classList.remove('show');
     byId('rrGameMessage').classList.remove('show');
     updateHud(true);
     showDistrict(0,true);
@@ -460,15 +556,26 @@
     while(run.nextChunkY<900)generateChunk(run);
   }
 
-  const TEMPLATE_NAMES=['stairs','zigzag','moving','crumble','bounce','wallshaft','conveyor','ice','laser','vent','risk','recovery'];
+  const TEMPLATE_NAMES=['stairs','zigzag','moving','crumble','bounce','wallshaft','conveyor','ice','laser','vent','risk','recovery','chimneys','awnings','crane','vaultline','splitroute','billboard'];
+  const TEMPLATE_META={
+    stairs:['STAIRCASE RUN','SAFE'],zigzag:['ZIGZAG ROOFS','SAFE'],moving:['CLOCKWORK CROSSING','TECHNICAL'],crumble:['CRUMBLING TERRACE','DANGER'],bounce:['AWNING LAUNCH','MOMENTUM'],wallshaft:['WALL SHAFT','TECHNICAL'],conveyor:['FACTORY BELTS','TECHNICAL'],ice:['FROSTED ROOFS','SLIPPERY'],laser:['ARC-LIGHT CROSSING','DANGER'],vent:['FURNACE VENTS','DANGER'],risk:['RISK BALCONY','ROUTE CHOICE'],recovery:['BREATHER ROOF','SAFE'],chimneys:['CHIMNEY RUN','PRECISION'],awnings:['MARKET AWNINGS','MOMENTUM'],crane:['CRANE CROSSING','PRECISION'],vaultline:['VAULT ALLEY','FLOW'],splitroute:['SPLIT ROOFTOPS','ROUTE CHOICE'],billboard:['BILLBOARD CLIMB','TECHNICAL']
+  };
+  const ROOFTOP_EVENTS=[
+    {id:'rush',name:'ROOFTOP RUSH',desc:'The danger climbs faster. Flow and score gains are boosted.',duration:14},
+    {id:'gust',name:'GUST FRONT',desc:'Strong crosswinds sweep across exposed jumps.',duration:13},
+    {id:'precision',name:'PRECISION WINDOW',desc:'Perfect Landing timing is wider. Chain them while it lasts.',duration:14},
+    {id:'tokens',name:'SKYLINE TOKEN TRAIL',desc:'A temporary trail of Flow tokens has appeared above.',duration:16}
+  ];
 
   function generateChunk(run){
     const level=run.chunks.length+1;
     const metres=Math.floor(run.nextChunkY/PX_PER_METRE);
     const difficulty=clamp(level/95,0,1);
     const unlocked=['stairs','zigzag','recovery'];
-    if(metres>80)unlocked.push('moving','crumble','bounce','risk');
-    if(metres>250)unlocked.push('wallshaft','conveyor','vent');
+    if(metres>40)unlocked.push('chimneys','awnings');
+    if(metres>80)unlocked.push('moving','crumble','bounce','risk','vaultline');
+    if(metres>180)unlocked.push('splitroute','crane');
+    if(metres>250)unlocked.push('wallshaft','conveyor','vent','billboard');
     if(metres>550)unlocked.push('ice','laser');
     let template=unlocked[Math.floor(run.rng()*unlocked.length)];
     if(level===1)template='stairs';
@@ -482,7 +589,7 @@
     if(district.id==='clockwork'&&run.rng()<.4)template=run.rng()<.5?'moving':'conveyor';
     if(district.id==='stormside'&&run.rng()<.3)template='risk';
     if(district.id==='arcane'&&run.rng()<.35)template='bounce';
-    const chunk={level,id:`${run.seed.slice(0,20)}-${level}-${Math.floor(run.rng()*1e8).toString(36)}`,template,startY:run.nextChunkY,platforms:[],hazards:[],collectables:[],completed:false,previewed:false,mark:null,district:district.id,checkpoint};
+    const chunk={level,id:`${run.seed.slice(0,20)}-${level}-${Math.floor(run.rng()*1e8).toString(36)}`,template,name:TEMPLATE_META[template]?.[0]||'ROOFTOP RUN',routeType:TEMPLATE_META[template]?.[1]||'SAFE',routePrompt:'',announced:false,startY:run.nextChunkY,platforms:[],hazards:[],collectables:[],completed:false,previewed:false,mark:null,district:district.id,checkpoint};
     const addP=(x,y,w,type='solid',extra={})=>{const p={id:`p-${level}-${chunk.platforms.length}`,x:clamp(x,28,W-28-w),y,w,h:14,type,baseX:x,time:run.rng()*10,active:true,...extra};chunk.platforms.push(p);run.platforms.push(p);return p;};
     const addCoin=(x,y,value=100,kind='coin')=>{const c={id:`c-${level}-${chunk.collectables.length}`,x,y,r:8,value:Math.max(1,Math.floor(value*.05)),scoreValue:value,kind,collected:false};chunk.collectables.push(c);run.collectables.push(c);return c;};
     const addHaz=(h)=>{h.id=`h-${level}-${chunk.hazards.length}`;chunk.hazards.push(h);run.hazards.push(h);return h;};
@@ -511,7 +618,22 @@
     }else if(template==='vent'){
       y+=step;x=clamp(x+(run.rng()-.5)*160,160,800);const base=addP(x-100,y,200,'solid',{safe:true});addHaz({type:'vent',x:base.x+base.w*.5-20,y:y+14,w:40,h:100,period:2.2,phase:run.rng()*2.2});y+=125;x=clamp(x+(run.rng()-.5)*120,140,820);exit=addP(x-widths.mid/2,y,widths.mid,'solid',{safe:true});
     }else if(template==='risk'){
+      chunk.routePrompt='SAFE ROOF OR RISK BALCONY?';
       y+=step;x=clamp(x+(run.rng()-.5)*120,180,780);const safe=addP(x-widths.wide/2,y,widths.wide,'solid',{safe:true});const riskDir=run.rng()<.5?-1:1;const rx=clamp(x+riskDir*190,70,890);addP(rx-42,y+48,84,'crumble',{optional:true,crumble:0,respawn:0});addCoin(rx,y+86,750,'risk');y+=step+30;exit=addP(clamp(x+(run.rng()-.5)*160,140,820)-widths.mid/2,y,widths.mid,'solid',{safe:true});
+    }else if(template==='chimneys'){
+      chunk.routePrompt='CHIMNEY RUN — KEEP YOUR RHYTHM';const dir=run.rng()<.5?-1:1;
+      for(let i=0;i<5;i++){x=clamp(x+dir*(68+run.rng()*32),90,870);y+=48+run.rng()*13;exit=addP(x-38,y,76,'solid',{safe:true,chimney:true});if(i===2||i===4)addCoin(x,y+34,180,i===4?'risk':'coin');}
+    }else if(template==='awnings'){
+      chunk.routePrompt='MARKET AWNINGS — BOUNCE THROUGH';
+      for(let i=0;i<3;i++){y+=54+(i?70:0);x=clamp(x+(run.rng()-.5)*190,130,830);exit=addP(x-72,y,144,i<2?'bounce':'solid',{safe:true,awning:true});if(i===1)addCoin(x,y+45,220);}
+    }else if(template==='crane'){
+      chunk.routePrompt='CRANE CROSSING — DON’T HESITATE';y+=step;x=clamp(x+(run.rng()-.5)*130,180,780);addP(x-135,y,270,'moving',{range:105,speed:1.15+difficulty*.65,safe:true,crane:true});y+=104;x=clamp(x+(run.rng()-.5)*210,140,820);exit=addP(x-58,y,116,'solid',{safe:true});addCoin(x,y+38,420,'risk');
+    }else if(template==='vaultline'){
+      chunk.routePrompt='VAULT ALLEY — STAY ON THE GAS';y+=66;x=clamp(x+(run.rng()-.5)*120,250,710);const roof=addP(x-190,y,380,'solid',{safe:true});addP(x-16,y+14,32,'vault',{h:34,safe:true});addP(x+92,y+14,30,'vault',{h:30,safe:true});addCoin(x+145,y+48,260,'flow');y+=88;exit=addP(clamp(x+(run.rng()-.5)*150,150,810)-90,y,180,'solid',{safe:true});
+    }else if(template==='splitroute'){
+      chunk.routePrompt='ROUTE CHOICE — SAFE LEFT / SHORTCUT RIGHT';const dir=run.rng()<.5?-1:1;y+=58;const sx=clamp(x-dir*95,150,810);addP(sx-105,y,210,'solid',{safe:true});y+=62;const sx2=clamp(sx-dir*80,140,820);addP(sx2-90,y,180,'solid',{safe:true});const rx=clamp(x+dir*175,80,880);addP(rx-38,y+28,76,'crumble',{optional:true,shortcut:true,crumble:0,respawn:0});addCoin(rx,y+64,500,'flow');y+=72;exit=addP(clamp((sx2+rx)/2-80,100,700),y,160,'solid',{safe:true});
+    }else if(template==='billboard'){
+      chunk.routePrompt='BILLBOARD CLIMB — USE THE WALL';const center=clamp(x+(run.rng()-.5)*160,260,700);addP(center-12,y+12,24,'wall',{h:150,safe:true,billboard:true});addP(center-116,y+54,88,'solid',{safe:true});addP(center+28,y+105,88,'solid',{safe:true});y+=176;exit=addP(center-100,y,200,'solid',{safe:true});addCoin(center,y+36,350,'flow');
     }else{
       y+=72;x=480;const wide=addP(120,y,720,'solid',{safe:true,checkpoint:true});exit=wide;for(let i=0;i<3;i++)addCoin(390+i*60,y+36,100);y+=70;exit=addP(480-widths.wide/2,y,widths.wide,'solid',{safe:true});
     }
@@ -557,24 +679,27 @@
     const p=run.player;
     const input=run.keys;
     const move=(input.left?-1:0)+(input.right?1:0);
-    const accel=p.onGround?1850:1120,maxSpeed=250+(run.powerups.speed?35:0);
-    if(move){p.vx+=move*accel*dt;p.facing=move;p.vx=clamp(p.vx,-maxSpeed,maxSpeed);run.tutorial.move=true;}else{const friction=p.onGround?(run.lastPlatform?.type==='ice'?180:1650):120;p.vx=Math.abs(p.vx)<=friction*dt?0:p.vx-Math.sign(p.vx)*friction*dt;}
+    const accel=p.onGround?1900:1160,maxSpeed=255+(run.powerups.speed?28:0);
+    if(move){p.vx+=move*accel*dt;p.facing=move;p.vx=clamp(p.vx,-maxSpeed,maxSpeed);run.tutorial.move=true;}else{const friction=p.onGround?(run.lastPlatform?.type==='ice'?175:1680):125;p.vx=Math.abs(p.vx)<=friction*dt?0:p.vx-Math.sign(p.vx)*friction*dt;}
     if(run.pressed.jump){p.jumpBuffer=.15;run.pressed.jump=false;}
     p.jumpBuffer=Math.max(0,p.jumpBuffer-dt);p.coyote=Math.max(0,p.coyote-dt);
     if(input.down&&p.onGround&&run.lastPlatform&&run.lastPlatform.type!=='wall'){p.dropTimer=.2;p.y-=7;p.onGround=false;}
     detectWall(run);
-    if((p.onGround||p.coyote>0)&&p.jumpBuffer>0){p.vy=565;p.onGround=false;p.coyote=0;p.jumpBuffer=0;run.tutorial.jump=true;tone('jump');spawnBurst(run,p.x,p.y,8,'#bcecff');}
-    else if(p.wallDir&&p.jumpBuffer>0&&!p.onGround){p.vy=530;p.vx=-p.wallDir*335;p.facing=-p.wallDir;p.jumpBuffer=0;p.dashReady=true;run.tutorial.wall=true;tone('jump',1.15);spawnBurst(run,p.x,p.y+18,10,'#e6c975');}
+    const jumpPower=565+(run.powerups.jump?28:0);
+    if((p.onGround||p.coyote>0)&&p.jumpBuffer>0){p.vy=jumpPower;p.onGround=false;p.coyote=0;p.jumpBuffer=0;run.tutorial.jump=true;tone('jump');spawnBurst(run,p.x,p.y,8,'#bcecff');}
+    else if(p.wallDir&&p.jumpBuffer>0&&!p.onGround){p.vy=535+(run.powerups.jump?18:0);p.vx=-p.wallDir*340;p.facing=-p.wallDir;p.jumpBuffer=0;p.dashReady=true;run.tutorial.wall=true;tone('jump',1.15);spawnBurst(run,p.x,p.y+18,10,'#e6c975');}
     if(!input.jump&&p.vy>140)p.vy*=.55;
     if(run.pressed.dash&&p.dashReady){p.dashing=.13;p.dashReady=p.extraDash>0?(p.extraDash--,true):false;const vertical=input.down?-1:input.jump?1:0;let dx=move||p.facing;p.vx=dx*520;p.vy=vertical*360+(vertical===0?45:0);run.pressed.dash=false;tone('dash');run.shake=Math.max(run.shake,4);spawnBurst(run,p.x,p.y+18,16,'#70d7ff');}
     run.pressed.dash=false;
     if(p.dashing>0){p.dashing-=dt;}else{p.vy-=1220*dt;if(p.wallDir&&!p.onGround&&p.vy<0)p.vy=Math.max(p.vy,-115);}
     if(run.mode==='hardcore')p.vy-=55*dt;
+    updateRooftopEvent(run,dt,now);
     const oldX=p.x,oldY=p.y;
     p.x+=p.vx*dt;resolveHorizontal(run,p,oldX);
     p.y+=p.vy*dt;p.onGround=false;resolveVertical(run,p,oldY);
-    p.dropTimer=Math.max(0,p.dropTimer-dt);p.invulnerable=Math.max(0,Number(p.invulnerable||0)-dt);
-    if(p.onGround){p.coyote=.11;p.dashReady=true;}
+    if(!p.onGround)tryLedgeSave(run,p);
+    p.dropTimer=Math.max(0,p.dropTimer-dt);p.invulnerable=Math.max(0,Number(p.invulnerable||0)-dt);p.ledgeSaveCd=Math.max(0,p.ledgeSaveCd-dt);p.vaultCd=Math.max(0,p.vaultCd-dt);p.landSquash=Math.max(0,p.landSquash-dt);p.perfectPulse=Math.max(0,p.perfectPulse-dt);
+    if(p.onGround){p.coyote=.11+(run.powerups.grip?.035:0);p.dashReady=true;}
     if(p.wallDir&&p.vy<0&&Math.random()<dt*10)spawnBurst(run,p.x+p.wallDir*12,p.y+18,1,'#93b6c7');
     if(p.dashing>0){p.trail.unshift({x:p.x-p.facing*10,y:p.y+20,a:1,dir:p.facing});if(p.trail.length>8)p.trail.pop();}
     p.trail.forEach(t=>t.a-=dt*6);p.trail=p.trail.filter(t=>t.a>0);
@@ -584,6 +709,7 @@
     updateProgress(run,now);
     updateDanger(run,dt);
     updateParticles(run,dt);
+    const elapsed=now-run.startedAt;if(elapsed-run.lastGhostSampleAt>=120){run.lastGhostSampleAt=elapsed;run.ghostSamples.push([elapsed,p.x,p.y]);}
     if(run.timeLimit&&now-run.startedAt>=run.timeLimit)finishRun('time');
     if(p.y<run.dangerY+8)hitPlayer(run,'danger');
     if(p.y<-220)hitPlayer(run,'fall');
@@ -598,6 +724,9 @@
       if(plat.type!=='wall'&&plat.h<=18)continue;
       const r=platformRect(plat),left=p.x-p.w/2,right=p.x+p.w/2,bottom=p.y,top=p.y+p.h;
       if(top<=r.y||bottom>=r.y+r.h||right<=r.x||left>=r.x+r.w)continue;
+      if(plat.type==='vault'&&p.vaultCd<=0&&Math.abs(p.vx)>70&&p.onGround){
+        const dir=p.vx>=0?1:-1;p.vy=350;p.vx=dir*Math.max(270,Math.abs(p.vx));p.facing=dir;p.onGround=false;p.vaultCd=.34;run.stats.vaults++;addFlow(run,5,150);tone('vault',.75);spawnBurst(run,p.x,p.y,8,'#e9d28c');showGameMessage('VAULT');continue;
+      }
       if(p.vx>0&&oldX+p.w/2<=r.x+4){p.x=r.x-p.w/2;p.vx=0;}else if(p.vx<0&&oldX-p.w/2>=r.x+r.w-4){p.x=r.x+r.w+p.w/2;p.vx=0;}
     }
   }
@@ -611,10 +740,12 @@
         continue;
       }
       const top=plat.y+(plat.h||14);
-      // Rooftop ledges are one-way: pass upward through them, then land cleanly from above.
       if(p.vy<=0&&oldY>=top-1&&p.y<=top&&right>plat.x&&left<plat.x+plat.w&&p.dropTimer<=0){
-        p.y=top;p.vy=0;p.onGround=true;run.lastPlatform=plat;
-        if(plat.type==='bounce'){p.vy=665;p.onGround=false;tone('jump',1.2);spawnBurst(run,p.x,p.y,14,'#b77dff');}
+        const impact=Math.max(0,-p.vy),perfectThreshold=run.powerups.precision?.02:(run.event?.id==='precision'?.02:.052);
+        const isPerfect=impact>175&&p.jumpBuffer>perfectThreshold;
+        p.y=top;p.vy=0;p.onGround=true;run.lastPlatform=plat;p.landSquash=Math.max(p.landSquash,.11);
+        if(isPerfect)perfectLanding(run,impact);else if(impact>180)run.perfectChain=0;
+        if(plat.type==='bounce'){p.vy=665+(run.powerups.jump?20:0);p.onGround=false;tone('jump',1.2);spawnBurst(run,p.x,p.y,14,'#b77dff');}
         if(plat.type==='conveyor')p.x+=Number(plat.speed||0)/120;
         if(plat.type==='crumble'&&!plat.crumble)plat.crumble=.72;
       }
@@ -648,7 +779,16 @@
     const p=run.player;
     for(const c of run.collectables){
       if(c.collected)continue;
-      const dx=p.x-c.x,dy=(p.y+p.h*.5)-c.y;if(dx*dx+dy*dy<30*30){c.collected=true;if(c.kind==='risk'){run.riskGp+=c.value;run.stats.riskRoutes++;run.momentum=clamp(run.momentum+10,0,100);}else{run.coinGp+=c.value;}run.stats.coins++;run.score+=(c.scoreValue??c.value)*3;tone('coin');spawnBurst(run,c.x,c.y,12,c.kind==='risk'?'#ffdc67':'#7ddcff');}
+      const dx=p.x-c.x,dy=(p.y+p.h*.5)-c.y;if(dx*dx+dy*dy<30*30){
+        c.collected=true;
+        if(c.kind==='flow'){
+          addFlow(run,6,c.scoreValue||250);tone('coin',.8);spawnBurst(run,c.x,c.y,11,'#d8b6ff');
+        }else if(c.kind==='risk'){
+          run.riskGp+=c.value;run.stats.riskRoutes++;addFlow(run,10,c.scoreValue*3);tone('coin');spawnBurst(run,c.x,c.y,12,'#ffdc67');
+        }else{
+          run.coinGp+=c.value;run.score+=Math.floor((c.scoreValue??c.value)*3*flowMultiplier(run));run.stats.coins++;tone('coin');spawnBurst(run,c.x,c.y,12,'#7ddcff');
+        }
+      }
     }
     for(const chunk of run.chunks){
       const m=chunk.mark;if(!m||m.collected||m.pending)continue;
@@ -695,24 +835,32 @@
       tone('shield');run.flash=.42;run.shake=Math.max(run.shake,5);spawnBurst(run,p.x,p.y+20,24,'#9de9ff');
       showGameMessage('ROOFTOP AEGIS ACTIVATED — 1.35s PROTECTION');return;
     }
+    if(p.revive>0&&run.lastPlatform){
+      p.revive--;p.invulnerable=2;p.dashing=0;p.vx=0;p.vy=360;p.x=run.lastPlatform.x+run.lastPlatform.w/2;p.y=run.lastPlatform.y+(run.lastPlatform.h||14)+4;run.dangerY=Math.min(run.dangerY,p.y-330);run.momentum=Math.max(0,run.momentum-28);run.perfectChain=0;
+      tone('shield',.85);spawnBurst(run,p.x,p.y+12,30,'#ffe7a0');run.flash=.35;run.shake=Math.max(run.shake,5);showGameMessage('CAT’S GRACE — FALL RECOVERED');return;
+    }
     finishRun(reason);
   }
 
   function updateProgress(run,now){
     const p=run.player;run.highestY=Math.max(run.highestY,p.y);run.height=Math.max(0,Math.floor(run.highestY/PX_PER_METRE));
-    const targetBottom=p.y-H*.53;if(targetBottom>run.cameraBottom)run.cameraBottom=lerp(run.cameraBottom,targetBottom,.08);
+    const cameraLead=clamp(p.vy*.11,-24,72),targetBottom=p.y-H*.55+cameraLead;if(targetBottom>run.cameraBottom)run.cameraBottom=lerp(run.cameraBottom,targetBottom,.075);
     while(run.nextChunkY<run.cameraBottom+H+480)generateChunk(run);
     const oldDistrict=run.districtIndex;run.districtIndex=Math.floor(run.height/DISTRICT_STEP);if(run.districtIndex!==oldDistrict){showDistrict(run.districtIndex);run.stats.districts.add(resolveDistrict(run.height).id);}
     run.difficulty=difficultyFor(run.height);
     for(const chunk of run.chunks){
+      if(!chunk.announced&&p.y>=chunk.startY-4){chunk.announced=true;if(chunk.routePrompt)showGameMessage(chunk.routePrompt);else if(chunk.level%4===0)showGameMessage(`ROOFTOP ${chunk.level} · ${chunk.name}`);}
       if(chunk.completed||p.y<chunk.exitY)continue;
       if(chunk.level!==run.completedLevel+1)continue;
-      chunk.completed=true;run.completedLevel=chunk.level;run.level=chunk.level;run.stats.obstacles++;run.score+=500+Math.floor(run.momentum*8);run.completedLevelRecords.push({level:chunk.level,id:chunk.id,height:run.height,serverConfirmed:false});const elapsed=(now-run.lastLevelAt)/1000;run.lastLevelAt=now;run.lastProgressAt=now;
-      if(elapsed<4)run.momentum=clamp(run.momentum+12,0,100);else if(elapsed<7)run.momentum=clamp(run.momentum+6,0,100);else run.momentum=clamp(run.momentum-4,0,100);run.maxMomentum=Math.max(run.maxMomentum,run.momentum);run.stats.bestCombo=Math.max(run.stats.bestCombo,Math.floor(run.momentum/10));
+      chunk.completed=true;run.completedLevel=chunk.level;run.level=chunk.level;run.stats.obstacles++;
+      const baseScore=500+Math.floor(run.momentum*8);run.score+=Math.floor(baseScore*flowMultiplier(run));
+      run.completedLevelRecords.push({level:chunk.level,id:chunk.id,height:run.height,serverConfirmed:false});const elapsed=(now-run.lastLevelAt)/1000;run.lastLevelAt=now;run.lastProgressAt=now;
+      if(elapsed<4)addFlow(run,12);else if(elapsed<7)addFlow(run,6);else run.momentum=clamp(run.momentum-4,0,100);run.stats.bestCombo=Math.max(run.stats.bestCombo,Math.floor(run.momentum/10));
+      if(chunk.template==='splitroute'&&run.stats.riskRoutes>0)run.stats.shortcuts++;
       run.levelCompletionQueue=run.levelCompletionQueue.then(()=>completeLevelServer(run,chunk)).catch(error=>console.warn('Level validation queued for final retry',error));
       if(run.height>=run.checkpointNext){showCheckpoint(run,run.checkpointNext);run.checkpointNext+=CHECKPOINT_STEP;}
     }
-    const idle=(now-run.lastProgressAt)/1000;if(idle>4)run.momentum=Math.max(0,run.momentum-(idle>8?.16:.06));
+    const idle=(now-run.lastProgressAt)/1000;if(idle>4){const hold=run.powerups.flowhold?.48:1;run.momentum=Math.max(0,run.momentum-(idle>8?.16:.06)*hold);if(idle>8)run.perfectChain=0;}
     run.provisionalGp=estimateGp(run);
     run.platforms=run.platforms.filter(x=>x.y>run.cameraBottom-420||x.id==='start');run.hazards=run.hazards.filter(x=>x.y>run.cameraBottom-420);run.collectables=run.collectables.filter(x=>x.y>run.cameraBottom-420&&!x.collected);run.chunks=run.chunks.filter(x=>x.exitY>run.cameraBottom-500||!x.completed);
   }
@@ -760,7 +908,7 @@
   function momentumPercent(m){return m>=85?.12:m>=65?.09:m>=45?.06:m>=25?.03:0;}
 
   function updateDanger(run,dt){
-    const base=run.mode==='hardcore'?46:29;const scale=Math.min(75,run.height*.035);const targetGap=run.mode==='hardcore'?330:430;const desired=run.highestY-targetGap;
+    const eventPressure=run.event?.id==='rush'?1.55:1;const base=(run.mode==='hardcore'?46:29)*eventPressure;const scale=Math.min(75,run.height*.035)*eventPressure;const targetGap=run.mode==='hardcore'?330:430;const desired=run.highestY-targetGap;
     if(run.dangerY<desired)run.dangerY+=Math.max(base+scale,(desired-run.dangerY)*.12)*dt;else run.dangerY+=(base+scale)*.35*dt;
   }
 
@@ -768,18 +916,31 @@
     if(!run||!run.paused||byId('rrCheckpointOverlay')?.classList.contains('hidden'))return;
     if(id==='dash'){run.player.extraDash=Math.min(2,Number(run.player.extraDash||0)+1);run.player.dashReady=true;}
     else if(id==='shield'){run.player.shield=Math.min(2,Number(run.player.shield||0)+1);}
+    else if(id==='speed'){run.powerups.speed=Math.min(2,Number(run.powerups.speed||0)+1);}
+    else if(id==='jump'){run.powerups.jump=Math.min(2,Number(run.powerups.jump||0)+1);}
+    else if(id==='flowhold'){run.powerups.flowhold=true;addFlow(run,12);}
+    else if(id==='precision'){run.powerups.precision=true;}
+    else if(id==='grip'){run.powerups.grip=true;}
+    else if(id==='revive'){run.player.revive=Math.min(1,Number(run.player.revive||0)+1);}
     else{run.riskGp+=20;run.score+=500;}
     const name=button?.querySelector('b')?.textContent||'Blessing';hide(byId('rrCheckpointOverlay'));run.paused=false;state.lastFrame=performance.now();showGameMessage(`${name} acquired`);
   }
 
   function showCheckpoint(run,height){
     if(run.mode==='practice'||run.checkpointSeen.has(height))return;run.checkpointSeen.add(height);run.paused=true;show(byId('rrCheckpointOverlay'));tone('checkpoint');
-    const choices=[
-      ['1','✦','WINDSTEP','Recharge your dash and gain one bonus mid-air dash charge.','dash','MOBILITY'],
-      ['2','⬡','ROOFTOP AEGIS','Blocks one lethal hit, launches you clear and grants 1.35 seconds of protection.','shield','SURVIVAL'],
-      ['3','◆','TREASURE CACHE','Adds 20 provisional GP and 500 score. Safe, modest value.','treasure','REWARD']
+    const pool=[
+      ['✦','WINDSTEP','Recharge dash + gain one bonus mid-air dash.','dash','MOBILITY'],
+      ['⬡','ROOFTOP AEGIS','Block one lethal hit and launch clear.','shield','SURVIVAL'],
+      ['➜','LONGSTRIDE','Slightly increase maximum running speed.','speed','MOBILITY'],
+      ['↑','FEATHERSTEP','Slightly improve jump power.','jump','MOBILITY'],
+      ['∞','MOMENTUM','Flow drains much slower while you hesitate.','flowhold','FLOW'],
+      ['◎','SURE FOOTING','Widen the Perfect Landing timing window.','precision','FLOW'],
+      ['⌁','CAT GRIP','More forgiving coyote time at rooftop edges.','grip','CONTROL'],
+      ['♥','CAT’S GRACE','Recover from one otherwise lethal fall.','revive','SURVIVAL'],
+      ['◆','TREASURE CACHE','Adds 20 provisional GP and 500 score.','treasure','REWARD']
     ];
-    const box=byId('rrCheckpointChoices');box.innerHTML=choices.map(([key,icon,name,desc,id,type])=>`<button type="button" data-choice="${id}"><span class="rr-choice-key">${key}</span><i class="rr-choice-icon">${icon}</i><em>${type}</em><b>${name}</b><small>${desc}</small><strong>PRESS ${key}</strong></button>`).join('');
+    const shuffled=pool.slice().sort(()=>run.rng()-.5).slice(0,3);
+    const box=byId('rrCheckpointChoices');box.innerHTML=shuffled.map(([icon,name,desc,id,type],i)=>`<button type="button" data-choice="${id}"><span class="rr-choice-key">${i+1}</span><i class="rr-choice-icon">${icon}</i><em>${type}</em><b>${name}</b><small>${desc}</small><strong>PRESS ${i+1}</strong></button>`).join('');
     box.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>selectCheckpointChoice(run,b.dataset.choice,b));
   }
 
@@ -834,11 +995,12 @@
   function drawPlatform(run,p,d,time){
     const sy=worldToScreenY(run,p.y+(p.h||14));if(sy<-80||sy>H+80||p.active===false)return;const h=p.h||14;
     ctx.save();if(p.type==='crumble'&&p.crumble>0)ctx.translate((run.rng()-.5)*3,0);
-    let top=d.accent,body='#17242c';if(p.type==='ice'){top='#d8f5ff';body='#497084';}else if(p.type==='bounce'){top='#c592ff';body='#40275d';}else if(p.type==='conveyor'){top='#f3a84b';body='#3b322a';}else if(p.type==='moving'){top='#8bd8ff';body='#243d4b';}else if(p.checkpoint){top='#ffe59a';body='#43535c';}
+    let top=d.accent,body='#17242c';if(p.type==='ice'){top='#d8f5ff';body='#497084';}else if(p.type==='bounce'){top='#c592ff';body='#40275d';}else if(p.type==='conveyor'){top='#f3a84b';body='#3b322a';}else if(p.type==='moving'){top='#8bd8ff';body='#243d4b';}else if(p.type==='vault'){top='#f3cf79';body='#3a2b1d';}else if(p.checkpoint){top='#ffe59a';body='#43535c';}
     ctx.fillStyle='#04080b';ctx.fillRect(Math.round(p.x)-2,Math.round(sy)-2,Math.round(p.w)+4,h+8);ctx.fillStyle=body;ctx.fillRect(Math.round(p.x),Math.round(sy),Math.round(p.w),h+4);ctx.fillStyle=top;ctx.fillRect(Math.round(p.x),Math.round(sy),Math.round(p.w),4);
     if(p.type==='conveyor'){ctx.fillStyle='#10171b';for(let x=p.x+8;x<p.x+p.w;x+=24){const off=((time*(p.speed||40))%24);ctx.fillRect(Math.round(x+off%24),Math.round(sy+7),10,3);}}
     if(p.type==='bounce'){ctx.fillStyle='#f5deff';for(let x=p.x+8;x<p.x+p.w;x+=18)ctx.fillRect(Math.round(x),Math.round(sy-4),10,4);}
     if(p.type==='crumble'){ctx.strokeStyle='#8e745c';for(let x=p.x+18;x<p.x+p.w;x+=30){ctx.beginPath();ctx.moveTo(x,sy+4);ctx.lineTo(x-8,sy+12);ctx.lineTo(x+3,sy+17);ctx.stroke();}}
+    if(p.type==='vault'){ctx.fillStyle='#d7b765';ctx.fillRect(p.x+5,sy+5,Math.max(4,p.w-10),3);}
     if(p.type==='wall'){ctx.fillStyle=body;ctx.fillRect(p.x,sy,p.w,h);ctx.fillStyle=top;for(let y=sy;y<sy+h;y+=18)ctx.fillRect(p.x,y,p.w,2);}
     ctx.restore();
   }
@@ -849,22 +1011,25 @@
     else{ctx.fillStyle='#2a211c';ctx.fillRect(h.x,sy+h.h-14,h.w,14);const flameH=active?h.h:warn?h.h*.45:8;const fg=ctx.createLinearGradient(0,sy+h.h-flameH,0,sy+h.h);fg.addColorStop(0,'rgba(255,225,94,.1)');fg.addColorStop(.45,'#ffb13b');fg.addColorStop(1,'#d72d17');ctx.fillStyle=fg;ctx.beginPath();ctx.moveTo(h.x,sy+h.h);for(let x=h.x;x<=h.x+h.w;x+=8)ctx.lineTo(x,sy+h.h-flameH*(.65+.35*Math.sin(time*8+x)));ctx.lineTo(h.x+h.w,sy+h.h);ctx.fill();}
   }
 
-  function drawCollectable(run,c,time){const sy=worldToScreenY(run,c.y);if(sy<-40||sy>H+40)return;const bob=Math.sin(time*5+c.x)*4;ctx.save();ctx.translate(c.x,sy+bob);ctx.rotate(time*2);ctx.fillStyle=c.kind==='risk'?'#ffd65b':'#72dbff';ctx.fillRect(-7,-7,14,14);ctx.fillStyle='#fff6c3';ctx.fillRect(-2,-6,4,12);ctx.restore();}
+  function drawCollectable(run,c,time){const sy=worldToScreenY(run,c.y);if(sy<-40||sy>H+40)return;const bob=Math.sin(time*5+c.x)*4;ctx.save();ctx.translate(c.x,sy+bob);ctx.rotate(time*2);ctx.fillStyle=c.kind==='risk'?'#ffd65b':c.kind==='flow'?'#d8a8ff':'#72dbff';ctx.fillRect(-7,-7,14,14);ctx.fillStyle='#fff6c3';ctx.fillRect(-2,-6,4,12);ctx.restore();}
   function drawMark(run,m,time){const sy=worldToScreenY(run,m.y);if(sy<-50||sy>H+50)return;ctx.save();ctx.translate(m.x,sy+Math.sin(time*3)*7);ctx.rotate(time*1.2);ctx.shadowBlur=18;ctx.shadowColor='#ffe69a';ctx.fillStyle='#fff3b5';ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,r=i%2?7:15;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#7ad7ff';ctx.fillRect(-3,-3,6,6);ctx.restore();}
 
   function drawPlayer(run,time){
     const p=run.player,sy=worldToScreenY(run,p.y);
+    const ghost=ghostSampleAt(run,performance.now()-run.startedAt);
+    if(ghost){const gy=worldToScreenY(run,ghost.y);if(gy>-80&&gy<H+80){ctx.save();ctx.translate(ghost.x,gy);ctx.globalAlpha=.20;drawRunner(ctx,state.character,0,0,1.55,1,'run',time,.55);ctx.globalCompositeOperation='screen';ctx.fillStyle='rgba(125,211,255,.22)';ctx.fillRect(-15,-54,30,58);ctx.restore();}}
     for(let i=p.trail.length-1;i>=0;i--){
       const t=p.trail[i];if(t.a<=0)continue;
       const tsy=worldToScreenY(run,t.y);ctx.save();ctx.globalAlpha=Math.max(0,t.a*.32);ctx.fillStyle='#7bdcff';ctx.fillRect(Math.round(t.x-t.dir*18),Math.round(tsy-25),Math.round(20+t.a*16),3);ctx.fillStyle='#f3dc8a';ctx.fillRect(Math.round(t.x-t.dir*10),Math.round(tsy-17),Math.round(10+t.a*10),2);ctx.restore();
     }
-    const anim=p.dashing>0?'dash':!p.onGround?(p.vy>0?'jump':'fall'):Math.abs(p.vx)>30?'run':'idle';ctx.save();ctx.translate(p.x,sy);drawRunner(ctx,state.character,0,0,1.55,p.facing,anim,time);if(p.shield>0){ctx.strokeStyle='#9de9ff';ctx.lineWidth=2;ctx.globalAlpha=.65+.2*Math.sin(time*6);ctx.beginPath();ctx.arc(0,-24,28,0,Math.PI*2);ctx.stroke();}ctx.restore();
+    const anim=p.dashing>0?'dash':!p.onGround?(p.vy>0?'jump':'fall'):Math.abs(p.vx)>30?'run':'idle';ctx.save();ctx.translate(p.x,sy);const squash=clamp(p.landSquash/.16,0,1);ctx.scale(1+squash*.08,1-squash*.07);if(p.perfectPulse>0){ctx.save();ctx.globalAlpha=clamp(p.perfectPulse/.28,0,1)*.7;ctx.strokeStyle='#fff1a0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-20,24+(1-p.perfectPulse/.28)*16,0,Math.PI*2);ctx.stroke();ctx.restore();}drawRunner(ctx,state.character,0,0,1.55,p.facing,anim,time);if(p.shield>0){ctx.strokeStyle='#9de9ff';ctx.lineWidth=2;ctx.globalAlpha=.65+.2*Math.sin(time*6);ctx.beginPath();ctx.arc(0,-24,28,0,Math.PI*2);ctx.stroke();}ctx.restore();
   }
   function drawParticles(run){for(const p of run.particles){const sy=worldToScreenY(run,p.y);ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.color;ctx.fillRect(p.x,sy,p.size,p.size);}ctx.globalAlpha=1;}
 
   function updateHud(force=false,now=performance.now()){
     const run=state.run;if(!run)return;if(!force&&now-run.lastHudAt<90)return;run.lastHudAt=now;
     byId('rrHudHeight').textContent=format(run.height);byId('rrHudLevel').textContent=format(run.completedLevel);byId('rrHudScore').textContent=format(run.score);byId('rrHudGp').textContent=format(run.provisionalGp);byId('rrHudMarks').textContent=format(run.marks);byId('rrHudMomentum').textContent=`${Math.floor(run.momentum)}%`;
+    const fill=byId('rrFlowFill'),mult=byId('rrFlowMultiplier'),chain=byId('rrPerfectChain');if(fill)fill.style.width=`${clamp(run.momentum,0,100)}%`;if(mult)mult.textContent=`×${flowMultiplier(run).toFixed(2)}`;if(chain)chain.textContent=run.perfectChain?`PERFECT ×${run.perfectChain}`:(run.event?run.event.name:'KEEP MOVING');
     if(run.timeLimit){const left=Math.max(0,run.timeLimit-(now-run.startedAt));byId('rrHudScore').textContent=`${Math.ceil(left/1000)}s`;}
   }
 
@@ -878,7 +1043,7 @@
   function stopRunLoop(){cancelAnimationFrame(state.raf);state.raf=0;state.lastFrame=0;state.accumulator=0;}
 
   async function finishRun(reason='death',claim=true){
-    const run=state.run;if(!run||run.ended)return;run.finalising=true;run.ended=true;run.active=false;run.finishReason=reason;stopRunLoop();tone('death');
+    const run=state.run;if(!run||run.ended)return;run.finalising=true;run.ended=true;run.active=false;run.finishReason=reason;stopRunLoop();showEventBanner(run.event||{},false);savePbGhost(run);tone('death');
     let reward=null,error=null,pending=false;
     if(run.mode!=='practice'&&claim){
       byId('rrSummaryStatus').textContent='Validating and saving your run…';
@@ -919,7 +1084,7 @@
     byId('rrSummaryEyebrow').textContent=run.mode==='practice'?'PRACTICE COMPLETE':reward?.is_personal_best?'NEW PERSONAL BEST':'RUN COMPLETE';
     byId('rrSummaryTitle').textContent=run.finishReason==='time'?'TIME IS UP':run.finishReason==='quit'?'RUN ENDED':run.finishReason==='danger'?'THE CITY CAUGHT YOU':'THE ROOFTOPS WIN THIS ROUND';
     byId('rrSummaryHeight').textContent=format(run.height);
-    const stats=[['Rooftops',run.completedLevel],['Score',run.score],['Momentum',`${Math.floor(run.maxMomentum)}%`],['Marks',run.marks],['Time',`${Math.floor((performance.now()-run.startedAt)/1000)}s`]];
+    const stats=[['Rooftops',run.completedLevel],['Score',run.score],['Best Flow',`${Math.floor(run.maxMomentum)}%`],['Perfect',run.stats.perfectLandings],['Best Chain',run.maxPerfectChain],['Vaults',run.stats.vaults],['Ledge Saves',run.stats.ledgeSaves],['Events',run.stats.events],['Marks',run.marks],['Time',`${Math.floor((performance.now()-run.startedAt)/1000)}s`]];
     byId('rrSummaryStats').innerHTML=stats.map(([a,b])=>`<div><small>${a.toUpperCase()}</small><b>${typeof b==='number'?format(b):b}</b></div>`).join('');
     const box=byId('rrRewardBreakdown');
     if(run.mode==='practice'){box.innerHTML='<div class="rr-reward-row total"><span>Practice Mode</span><b>No rewards or records</b></div>';byId('rrSummaryStatus').textContent='Movement test complete. Your account was not changed.';byId('rrSummaryStatus').className='rr-status';}
