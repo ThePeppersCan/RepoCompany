@@ -15584,7 +15584,16 @@ qmShowSharedGoal=function(state){
     {id:'world_cup_sorevia_special_full_art',name:'Sorevia — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png',rarity:'full_art'},
     {id:'world_cup_talune_special_full_art',name:'Talune — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png',rarity:'full_art'},
     {id:'world_cup_vardesh_special_full_art',name:'Vardesh — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png',rarity:'full_art'},
-    {id:'world_cup_zafran_special_full_art',name:'Zafran — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png',rarity:'full_art'}
+    {id:'world_cup_zafran_special_full_art',name:'Zafran — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png',rarity:'full_art'},
+    {id:'vardesh_pipsqueak_full_art',name:'Vardesh: Pipsqueak — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/vardesh-pipsqueak.png',rarity:'full_art'},
+    {id:'norveth_rocky_full_art',name:'Norveth: ROCKY — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/norveth-rocky.png',rarity:'full_art'},
+    {id:'talune_soup_full_art',name:'Talune: Soup — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/talune-soup.png',rarity:'full_art'},
+    {id:'iskandar_besquelcher_full_art',name:'Iskandar: Besquelcher — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/iskandar-besquelcher.png',rarity:'full_art'},
+    {id:'sorevia_debbie_full_art',name:'Sorevia: Debbie — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/sorevia-debbie.png',rarity:'full_art'},
+    {id:'drazhen_dopey_dom_full_art',name:'Drazhen: Dopey Dom — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/drazhen-dopey-dom.png',rarity:'full_art'},
+    {id:'belros_jud_full_art',name:'Belros: JUD — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-jud.png',rarity:'full_art'},
+    {id:'nambara_mad_rager_full_art',name:'Nambara: Mad Rager — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/nambara-mad-rager.png',rarity:'full_art'},
+    {id:'belros_nimbler_2000_full_art',name:'Belros: Nimbler 2000 — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-nimbler-2000.png',rarity:'full_art'}
   ];
   const CARD_BY_ID=Object.fromEntries(CARD_CATALOG.map(card=>[card.id,card]));
   // Slot coordinates are normalised against the supplied marked-up binder
@@ -16461,7 +16470,7 @@ qmShowSharedGoal=function(state){
 
 
 // ============================================================
-// QUIDDITCH TCG BINDER V3 — EIGHT DOUBLE-PAGE SPREADS / 144 SLOTS
+// QUIDDITCH TCG BINDER V3 — AUTO-EXPANDING DOUBLE-PAGE SPREADS
 // Front cover -> eight collection spreads -> back cover.
 // Cards can be dragged across spreads by hovering over the Previous / Next
 // controls (or the page-edge drop zones) while the drag is still active.
@@ -16470,8 +16479,8 @@ qmShowSharedGoal=function(state){
   if(window.__repoTcgSevenSpreadBinderInstalled)return;
   window.__repoTcgSevenSpreadBinderInstalled=true;
 
-  const SPREAD_COUNT=8;
   const SLOTS_PER_SPREAD=18;
+  const SPREAD_COUNT=Math.max(8,Math.ceil(CARD_CATALOG.length/SLOTS_PER_SPREAD));
   const TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   let activeDragFrom=-1;
   let activeDragCard='';
