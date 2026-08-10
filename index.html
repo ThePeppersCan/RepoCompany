@@ -1485,6 +1485,14 @@ button.qg-game-card{font:inherit;cursor:pointer}
       height:72px!important;
       object-fit:contain!important;
     }
+    .pet-room .roaming-pet .pet-label.has-custom-nametag[data-nametag^="nametag_worldcup_"]>.qm-custom-nametag{
+      width:150px!important;
+      height:55px!important;
+      margin:0 auto -7px!important;
+    }
+    .pet-room .roaming-pet .pet-label.has-custom-nametag[data-nametag^="nametag_worldcup_"]>.qm-custom-nametag>img{
+      object-fit:contain!important;
+    }
     .party-pete-item.world-cup-backdrop{
       position:relative;
     }
@@ -1507,6 +1515,238 @@ button.qg-game-card{font:inherit;cursor:pointer}
         width:122px!important;
         height:45px!important;
       }
+    }
+  </style>
+
+
+  <style id="accountCosmeticsStyles">
+    #skillsDialog .skills-footer-actions{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      width:min(100%,560px);
+      margin-top:18px;
+    }
+    #skillsDialog .skills-footer-actions .skills-leaderboard-button{
+      width:100%;
+      min-width:0;
+      margin-top:0;
+    }
+    #skillsDialog .account-cosmetics-open-button{
+      border-color:#76613a;
+      background:
+        linear-gradient(180deg,rgba(75,58,29,.82),rgba(27,22,14,.98));
+    }
+    #skillsDialog .account-cosmetics-open-button img{
+      width:24px;
+      height:24px;
+      object-fit:contain;
+      image-rendering:auto;
+    }
+    .account-cosmetics-dialog{
+      width:min(940px,calc(100% - 24px))!important;
+      max-height:min(90vh,880px);
+      overflow:auto;
+      padding:24px!important;
+      background:
+        radial-gradient(circle at 50% -15%,rgba(204,155,60,.16),transparent 36%),
+        linear-gradient(145deg,#1b1811,#0d0c09 58%,#090907)!important;
+      border-color:#8e6b31!important;
+      box-shadow:inset 0 0 0 2px #241d11,0 24px 75px #000!important;
+    }
+    .account-cosmetics-heading{
+      padding-right:42px;
+      margin-bottom:12px;
+    }
+    .account-cosmetics-heading img{
+      width:54px!important;
+      height:54px!important;
+      object-fit:contain;
+    }
+    .account-cosmetics-heading h3{margin:0;color:#e8c66e}
+    .account-cosmetics-heading p{margin:4px 0 0;color:#a99d84}
+    .account-cosmetics-active{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-height:58px;
+      margin:12px 0 14px;
+      padding:10px 13px;
+      border:1px solid #5d4b2b;
+      border-radius:7px;
+      background:linear-gradient(90deg,#17140e,#0d0c09);
+    }
+    .account-cosmetics-active>div{min-width:0}
+    .account-cosmetics-active span{
+      display:block;
+      color:#8c7f65;
+      font:900 9px/1 system-ui,sans-serif;
+      letter-spacing:1.4px;
+    }
+    .account-cosmetics-active strong{
+      display:block;
+      margin-top:5px;
+      overflow:hidden;
+      color:#efd17c;
+      font:900 15px/1.1 Georgia,serif;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .account-cosmetics-active button{
+      margin-left:auto!important;
+      padding:8px 12px!important;
+      border-color:#72582d!important;
+      color:#e7c878!important;
+      font-size:10px!important;
+    }
+    .account-cosmetics-section-title{
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:10px;
+      margin:4px 0 9px;
+      padding-bottom:8px;
+      border-bottom:1px solid #493a22;
+    }
+    .account-cosmetics-section-title b{
+      color:#d7b963;
+      font:900 13px/1 Georgia,serif;
+      letter-spacing:1px;
+    }
+    .account-cosmetics-section-title small{
+      color:#817765;
+      font:700 10px/1 system-ui,sans-serif;
+    }
+    .account-watchcard-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+    .account-watchcard-item{
+      position:relative;
+      display:flex;
+      min-width:0;
+      flex-direction:column;
+      gap:8px;
+      padding:9px;
+      border:1px solid #493d29;
+      border-radius:7px;
+      background:linear-gradient(145deg,#191712,#0c0c09);
+      box-shadow:inset 0 1px rgba(255,255,255,.025),0 5px 14px rgba(0,0,0,.22);
+    }
+    .account-watchcard-item.equipped{
+      border-color:#c6953d;
+      box-shadow:inset 0 0 0 1px rgba(213,166,65,.2),0 0 18px rgba(213,166,65,.12);
+    }
+    .account-watchcard-art{
+      position:relative;
+      overflow:hidden;
+      aspect-ratio:16/9;
+      border:1px solid #5a4929;
+      border-radius:5px;
+      background:#080808;
+    }
+    .account-watchcard-art img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+    }
+    .account-watchcard-art::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:linear-gradient(115deg,transparent 33%,rgba(255,255,255,.07) 48%,transparent 63%);
+      transform:translateX(-115%);
+      transition:transform .55s ease;
+    }
+    .account-watchcard-item:hover .account-watchcard-art::after{transform:translateX(115%)}
+    .account-watchcard-copy{
+      min-width:0;
+      display:grid;
+      gap:3px;
+    }
+    .account-watchcard-copy b{
+      overflow:hidden;
+      color:#e2d2aa;
+      font:900 12px/1.15 Georgia,serif;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .account-watchcard-copy small{
+      color:#837b6d;
+      font:800 9px/1.15 system-ui,sans-serif;
+      letter-spacing:.35px;
+    }
+    .account-watchcard-item>button{
+      width:100%;
+      margin:0!important;
+      padding:8px 9px!important;
+      border:1px solid #654d27!important;
+      border-radius:4px;
+      background:linear-gradient(#2b2418,#14110c)!important;
+      color:#d6ba73!important;
+      font:900 10px/1 system-ui,sans-serif!important;
+      letter-spacing:.7px;
+    }
+    .account-watchcard-item.equipped>button{
+      border-color:#b98834!important;
+      color:#ffe49a!important;
+    }
+    .account-cosmetics-empty{
+      grid-column:1/-1;
+      padding:28px 18px;
+      border:1px dashed #4e412c;
+      border-radius:7px;
+      background:#0b0b09;
+      color:#918875;
+      text-align:center;
+      font:700 12px/1.5 system-ui,sans-serif;
+    }
+    .account-cosmetics-message{
+      display:block;
+      min-height:17px;
+      margin-top:11px;
+      color:#d3b86f;
+      text-align:center;
+      font:700 11px/1.3 system-ui,sans-serif;
+    }
+    @media(max-width:760px){
+      #skillsDialog .skills-footer-actions{grid-template-columns:1fr;width:100%;margin-top:10px}
+      .account-watchcard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:500px){
+      .account-watchcard-grid{grid-template-columns:1fr}
+      .account-cosmetics-active{align-items:flex-start;flex-direction:column}
+      .account-cosmetics-active button{width:100%;margin-left:0!important}
+    }
+  </style>
+
+
+  <style id="worldCupNametagPreviewFitFix">
+    /* Kordesh / Nambara / Zafran exports contain wider decorative frames.
+       Keep their whole frame visible in Gertrude's card instead of shrinking
+       them into a short-looking centre strip. */
+    .nametag-shop-item:is(
+      [data-nametag-preview="nametag_worldcup_kordesh"],
+      [data-nametag-preview="nametag_worldcup_nambara"],
+      [data-nametag-preview="nametag_worldcup_zafran"]
+    ) .nametag-shop-art{
+      overflow:visible!important;
+      padding:0 5px!important;
+      box-sizing:border-box!important;
+    }
+    .nametag-shop-item:is(
+      [data-nametag-preview="nametag_worldcup_kordesh"],
+      [data-nametag-preview="nametag_worldcup_nambara"],
+      [data-nametag-preview="nametag_worldcup_zafran"]
+    ) .nametag-shop-art img{
+      width:min(230px,100%)!important;
+      max-width:100%!important;
+      height:72px!important;
+      object-fit:fill!important;
+      object-position:center!important;
     }
   </style>
 
@@ -2006,6 +2246,18 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <div id="petEquipmentItems" class="cosmetics-grid equipment-cosmetics-grid" aria-live="polite"></div>
   <small id="petCosmeticsMessage" class="bank-message">Loading cosmetics…</small>
 </dialog>
+
+<dialog id="accountCosmeticsDialog" class="game-dialog account-cosmetics-dialog">
+  <button class="dialog-x" data-close="accountCosmeticsDialog" aria-label="Close">×</button>
+  <div class="bank-heading account-cosmetics-heading"><img src="assets/pet-cosmetics-icon.png" alt=""><div><h3>ACCOUNT COSMETICS</h3><p>Your account-wide visual unlocks live here instead of taking up Bank slots.</p></div></div>
+  <section class="account-cosmetics-active">
+    <div><span>ACTIVE QUIDDITCH WATCHCARD</span><strong id="accountCosmeticsActiveWatchcard">Standard Watchcard</strong></div>
+    <button id="accountCosmeticsUnequipWatchcard" type="button">USE STANDARD</button>
+  </section>
+  <div class="account-cosmetics-section-title"><b>WATCHCARD BACKDROPS</b><small>Purchased permanently from Party Pete.</small></div>
+  <div id="accountWatchcardItems" class="account-watchcard-grid" aria-live="polite"></div>
+  <small id="accountCosmeticsMessage" class="account-cosmetics-message">Loading your cosmetics…</small>
+</dialog>
 <dialog id="lampDialog" class="game-dialog lamp-dialog"><button class="dialog-x" data-close="lampDialog" aria-label="Close">×</button><div class="bank-heading"><img id="lampDialogImage" src="assets/harmony-lamp-30k.png" alt=""><div><h3>USE HARMONY XP LAMP</h3><p id="lampDialogCopy">Choose the skill that should receive this XP.</p></div></div><label for="lampSkillChoice">Skill</label><select id="lampSkillChoice"></select><button id="confirmLampUse" type="button">USE LAMP</button><small id="lampMessage" class="bank-message"></small></dialog>
 
 
@@ -2304,7 +2556,10 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <h3 id="skillsTitle">CHARACTER</h3>
   <div id="skillsGrid" class="skills-grid"></div>
   <div id="collectionGrid" class="collection-grid hidden" aria-hidden="true"></div>
-  <button id="openLeaderboard" class="skills-leaderboard-button leaderboard-open-button" type="button"><img src="assets/leaderboard-icon.png" alt="" width="24" height="24"><span>LEADERBOARD</span></button>
+  <div class="skills-footer-actions">
+    <button id="openLeaderboard" class="skills-leaderboard-button leaderboard-open-button" type="button"><img src="assets/leaderboard-icon.png" alt="" width="24" height="24"><span>LEADERBOARD</span></button>
+    <button id="openAccountCosmetics" class="skills-leaderboard-button account-cosmetics-open-button" type="button"><img src="assets/pet-cosmetics-icon.png" alt="" width="24" height="24"><span>ACCOUNT COSMETICS</span></button>
+  </div>
   <button id="changeCharacter" class="change-character" type="button">LOG OUT</button>
 </dialog>
 
@@ -3077,7 +3332,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=world-cup-cosmetics-20260810-1"></script>
+<script src="script.js?v=wc-tcg-nametagfix-20260810-2"></script>
 <script src="assets/quidditch-survivor/quidditch-survivor.js?v=20260807-character-visible-1"></script>
 <script src="assets/repo-diver/data.js?v=20260807-1"></script>
 <script src="assets/repo-diver/engine.js?v=20260807-1"></script>

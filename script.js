@@ -614,66 +614,121 @@ async function collectResource() {
 
 async function openSkills() {
   if (!character) return;
-  $('skillsTitle').textContent = character.username.toUpperCase();
-  $('skillsGrid').innerHTML = Object.entries(SKILLS).map(([key, info]) => {
-    const xp = Number(character[`${key}_xp`]) || 0;
-    const lvl = levelFromXp(xp);
-    const next = lvl === 99 ? xp : xpForLevel(lvl + 1);
-    const previous = xpForLevel(lvl);
-    const pct = lvl === 99 ? 100 : Math.max(0, Math.min(100, ((xp - previous) / (next - previous)) * 100));
-    return `<div class="skill-card"><img src="${info.image}" alt=""><div><b>${info.label}</b><strong>${lvl}</strong><small>${xp.toLocaleString('en-GB')} XP</small><i><span style="width:${pct}%"></span></i></div></div>`;
+
+  const skillDefinitions = {
+    woodcutting: { label:'Woodcutting', image:'assets/tree.png', branch:'gathering' },
+    mining: { label:'Mining', image:'assets/runite-rocks.png', branch:'gathering' },
+    fishing: { label:'Fishing', image:'assets/shark.png', branch:'gathering' },
+    farming: { label:'Farming', image:'assets/watering-can.png', branch:'gathering' },
+    attack: { label:'Attack', image:'assets/attack-icon.webp', branch:'combat' },
+    strength: { label:'Strength', image:'assets/strength-icon.webp', branch:'combat' },
+    defence: { label:'Defence', image:'assets/defence-icon.webp', branch:'combat' },
+    magic: { label:'Magic', image:'assets/magic-icon.png', branch:'combat' },
+    ranged: { label:'Ranged', image:'assets/ranged-icon.png', branch:'combat' },
+    slayer: { label:'Slayer', image:'assets/slayer-icon.png', branch:'combat' },
+    cooking: { label:'Cooking', image:'assets/cooking-icon-new.png', branch:'artisan' },
+    runecrafting: { label:'Runecrafting', image:'assets/runecrafting-icon.png', branch:'artisan' },
+    agility: { label:'Agility', image:'assets/agility-icon.webp', branch:'adventure' },
+    sailing: { label:'Sailing', image:'assets/sailing-icon.webp', branch:'adventure' }
+  };
+
+  const branchDefinitions = [
+    { key:'gathering', label:'Gathering', symbol:'◆', blurb:'Resources & cultivation' },
+    { key:'combat', label:'Combat', symbol:'⚔', blurb:'Offence, defence & slaying' },
+    { key:'artisan', label:'Artisan', symbol:'✦', blurb:'Craft, cook & create' },
+    { key:'adventure', label:'Adventure', symbol:'⌁', blurb:'Movement & exploration' }
+  ];
+
+  const getSkillStats = (key, definition) => {
+    const xp = Math.max(0, Number(character[`${key}_xp`]) || 0);
+    const level = levelFromXp(xp);
+    const previousXp = xpForLevel(level);
+    const nextXp = level >= 99 ? xp : xpForLevel(level + 1);
+    const span = Math.max(1, nextXp - previousXp);
+    const progress = level >= 99 ? 100 : Math.max(0, Math.min(100, ((xp - previousXp) / span) * 100));
+    const remaining = level >= 99 ? 0 : Math.max(0, nextXp - xp);
+    return { key, ...definition, xp, level, progress, remaining, maxed: level >= 99 };
+  };
+
+  const personalSkills = Object.entries(skillDefinitions).map(([key, definition]) => getSkillStats(key, definition));
+  const harmonyXp = Math.max(0, Number(count) || 0);
+  const harmonyLevel = harmonyLevelFromXp(harmonyXp);
+  const harmonyPrevious = xpForLevel(harmonyLevel);
+  const harmonyNext = harmonyLevel >= 99 ? harmonyXp : xpForLevel(harmonyLevel + 1);
+  const harmonyProgress = harmonyLevel >= 99 ? 100 : Math.max(0, Math.min(100, ((harmonyXp - harmonyPrevious) / Math.max(1, harmonyNext - harmonyPrevious)) * 100));
+  const harmonyRemaining = harmonyLevel >= 99 ? 0 : Math.max(0, harmonyNext - harmonyXp);
+  const harmony = { label:'Harmony', xp:harmonyXp, level:harmonyLevel, progress:harmonyProgress, remaining:harmonyRemaining, maxed:harmonyLevel >= 99 };
+
+  const allSkills = [harmony, ...personalSkills];
+  const totalLevel = allSkills.reduce((sum, skill) => sum + skill.level, 0);
+  const totalXp = allSkills.reduce((sum, skill) => sum + skill.xp, 0);
+  const highest = allSkills.reduce((best, skill) => skill.level > best.level || (skill.level === best.level && skill.xp > best.xp) ? skill : best, allSkills[0]);
+  const mastered = allSkills.filter(skill => skill.maxed).length;
+
+  const renderSkillNode = skill => `
+    <div class="skill-tree-node ${skill.maxed ? 'is-maxed' : ''}">
+      <div class="skill-node-icon">
+        <img src="${skill.image}" alt="${skill.label}">
+        <span>${skill.level}</span>
+      </div>
+      <div class="skill-node-details">
+        <div class="skill-node-title"><b>${skill.label}</b><em>${skill.maxed ? 'MAX' : `${Math.round(skill.progress)}%`}</em></div>
+        <small>${skill.xp.toLocaleString('en-GB')} XP</small>
+        <div class="skill-node-progress"><i style="width:${skill.progress}%"></i></div>
+        <span class="skill-node-next">${skill.maxed ? 'MASTERED · LEVEL 99' : `${skill.remaining.toLocaleString('en-GB')} XP TO LEVEL ${skill.level + 1}`}</span>
+      </div>
+    </div>`;
+
+  const branches = branchDefinitions.map(branch => {
+    const skills = personalSkills.filter(skill => skill.branch === branch.key);
+    const branchLevel = skills.reduce((sum, skill) => sum + skill.level, 0);
+    return `
+      <section class="skill-branch skill-branch-${branch.key}">
+        <div class="skill-branch-header">
+          <span class="skill-branch-symbol">${branch.symbol}</span>
+          <div><b>${branch.label}</b><small>${branch.blurb}</small></div>
+          <strong>${branchLevel}</strong>
+        </div>
+        <div class="skill-branch-nodes">${skills.map(renderSkillNode).join('')}</div>
+      </section>`;
   }).join('');
 
-  const agilityXp = Number(character.agility_xp) || 0;
-  const agilityLevel = levelFromXp(agilityXp);
-  const agilityNext = agilityLevel === 99 ? agilityXp : xpForLevel(agilityLevel + 1);
-  const agilityPrevious = xpForLevel(agilityLevel);
-  const agilityPct = agilityLevel === 99 ? 100 : Math.max(0, Math.min(100, ((agilityXp - agilityPrevious) / (agilityNext - agilityPrevious)) * 100));
-  $('skillsGrid').insertAdjacentHTML('beforeend', `<div class="skill-card agility"><img class="agility-skill-icon" src="assets/agility-icon.webp" alt="Agility"><div><b>Agility</b><strong>${agilityLevel}</strong><small>${agilityXp.toLocaleString('en-GB')} XP</small><i><span style="width:${agilityPct}%"></span></i></div></div>`);
-  const slayerXp = Number(character.slayer_xp) || 0;
-  const slayerLevel = levelFromXp(slayerXp);
-  const slayerNext = slayerLevel === 99 ? slayerXp : xpForLevel(slayerLevel + 1);
-  const slayerPrevious = xpForLevel(slayerLevel);
-  const slayerPct = slayerLevel === 99 ? 100 : Math.max(0, Math.min(100, ((slayerXp - slayerPrevious) / (slayerNext - slayerPrevious)) * 100));
-  $('skillsGrid').insertAdjacentHTML('beforeend', `<div class="skill-card slayer"><img class="slayer-skill-icon" src="assets/slayer-icon.png" alt="Slayer"><div><b>Slayer</b><strong>${slayerLevel}</strong><small>${slayerXp.toLocaleString('en-GB')} XP</small><i><span style="width:${slayerPct}%"></span></i></div></div>`);
-  [['Attack','attack','assets/attack-icon.webp'],['Strength','strength','assets/strength-icon.webp'],['Defence','defence','assets/defence-icon.webp'],['Magic','magic','assets/magic-icon.png'],['Ranged','ranged','assets/ranged-icon.png']].forEach(([label,key,image]) => {
-    const xp = Number(character[`${key}_xp`]) || 0;
-    const lvl = levelFromXp(xp);
-    const next = lvl === 99 ? xp : xpForLevel(lvl + 1);
-    const previous = xpForLevel(lvl);
-    const pct = lvl === 99 ? 100 : Math.max(0, Math.min(100, ((xp - previous) / (next - previous)) * 100));
-    $('skillsGrid').insertAdjacentHTML('beforeend', `<div class="skill-card combat-skill"><img class="combat-skill-icon" src="${image}" alt="${label}"><div><b>${label}</b><strong>${lvl}</strong><small>${xp.toLocaleString('en-GB')} XP</small><i><span style="width:${pct}%"></span></i></div></div>`);
-  });
-  const sailingXp = Number(character.sailing_xp) || 0;
-  const sailingLevel = levelFromXp(sailingXp);
-  const sailingNext = sailingLevel === 99 ? sailingXp : xpForLevel(sailingLevel + 1);
-  const sailingPrevious = xpForLevel(sailingLevel);
-  const sailingPct = sailingLevel === 99 ? 100 : Math.max(0, Math.min(100, ((sailingXp - sailingPrevious) / (sailingNext - sailingPrevious)) * 100));
-  $('skillsGrid').insertAdjacentHTML('beforeend', `<div class="skill-card sailing"><img class="sailing-skill-icon" src="assets/sailing-icon.webp" alt="Sailing"><div><b>Sailing</b><strong>${sailingLevel}</strong><small>${sailingXp.toLocaleString('en-GB')} XP</small><i><span style="width:${sailingPct}%"></span></i></div></div>`);
-  const rcXp = Number(character.runecrafting_xp) || 0;
-  const rcLvl = levelFromXp(rcXp), rcPrev=xpForLevel(rcLvl), rcNext=rcLvl===99?rcXp:xpForLevel(rcLvl+1);
-  const rcPct=rcLvl===99?100:Math.max(0,Math.min(100,((rcXp-rcPrev)/(rcNext-rcPrev))*100));
-  $('skillsGrid').insertAdjacentHTML('beforeend', `<div class="skill-card runecrafting"><img class="rc-skill-icon" src="assets/runecrafting-icon.png" alt=""><div><b>Runecrafting</b><strong>${rcLvl}</strong><small>${rcXp.toLocaleString('en-GB')} XP</small><i><span style="width:${rcPct}%"></span></i></div></div>`);
-  const cookingXp=Number(character.cooking_xp)||0,cookingLvl=levelFromXp(cookingXp),cookingPrev=xpForLevel(cookingLvl),cookingNext=cookingLvl===99?cookingXp:xpForLevel(cookingLvl+1),cookingPct=cookingLvl===99?100:Math.max(0,Math.min(100,((cookingXp-cookingPrev)/(cookingNext-cookingPrev))*100));
-  $('skillsGrid').insertAdjacentHTML('beforeend', `<div class="skill-card cooking"><img src="assets/cooking-icon-new.png" alt="Cooking"><div><b>Cooking</b><strong>${cookingLvl}</strong><small>${cookingXp.toLocaleString('en-GB')} XP</small><i><span style="width:${cookingPct}%"></span></i></div></div>`);
-  const farmingXp=Number(character.farming_xp)||0,farmingLvl=levelFromXp(farmingXp),farmingPrev=xpForLevel(farmingLvl),farmingNext=farmingLvl===99?farmingXp:xpForLevel(farmingLvl+1),farmingPct=farmingLvl===99?100:Math.max(0,Math.min(100,((farmingXp-farmingPrev)/(farmingNext-farmingPrev))*100));
-  $('skillsGrid').insertAdjacentHTML('beforeend', `<div class="skill-card farming"><img src="assets/watering-can.png" alt="Farming"><div><b>Farming</b><strong>${farmingLvl}</strong><small>${farmingXp.toLocaleString('en-GB')} XP</small><i><span style="width:${farmingPct}%"></span></i></div></div>`);
+  $('skillsTitle').textContent = `${character.username.toUpperCase()} · SKILL TREE`;
+  $('skillsGrid').innerHTML = `
+    <section class="skills-overview">
+      <div class="skills-overview-intro">
+        <span>PROGRESSION OVERVIEW</span>
+        <strong>${escapeHtml(character.username)}</strong>
+        <small>Every skill feeds your total progression. Harmony remains the shared foundation.</small>
+      </div>
+      <div class="skills-overview-stat"><small>TOTAL LEVEL</small><b>${totalLevel.toLocaleString('en-GB')}</b><span>${allSkills.length} skills</span></div>
+      <div class="skills-overview-stat"><small>TOTAL XP</small><b>${totalXp.toLocaleString('en-GB')}</b><span>All progression</span></div>
+      <div class="skills-overview-stat"><small>HIGHEST SKILL</small><b>${highest.label}</b><span>Level ${highest.level}</span></div>
+      <div class="skills-overview-stat"><small>MASTERED</small><b>${mastered}</b><span>Level 99 skills</span></div>
+    </section>
 
-  const harmonyXp = Number(count) || 0;
-  const harmonyLvl = harmonyLevelFromXp(harmonyXp);
-  const harmonyPrev = xpForLevel(harmonyLvl);
-  const harmonyNext = harmonyLvl === 99 ? harmonyXp : xpForLevel(harmonyLvl + 1);
-  const harmonyPct = harmonyLvl === 99 ? 100 : Math.max(0, Math.min(100, ((harmonyXp - harmonyPrev) / Math.max(1, harmonyNext - harmonyPrev)) * 100));
-  $('skillsGrid').insertAdjacentHTML('afterbegin', `<div class="skill-card harmony-skill"><img class="harmony-skill-logo" src="assets/harmony-logo.png" alt="Harmony"><div><b>Harmony</b><strong>${harmonyLvl}</strong><small>${harmonyXp.toLocaleString('en-GB')} XP · Shared</small><i><span style="width:${harmonyPct}%"></span></i></div></div>`);
+    <section class="skills-tree-root">
+      <span class="skills-root-crown">SHARED FOUNDATION</span>
+      <div class="skills-root-node ${harmony.maxed ? 'is-maxed' : ''}">
+        <div class="skills-root-icon"><img src="assets/harmony-logo.png" alt="Harmony"><span>${harmony.level}</span></div>
+        <div class="skills-root-copy">
+          <div><b>Harmony</b><em>${harmony.maxed ? 'Mastered' : 'Shared skill'}</em></div>
+          <strong>${harmony.xp.toLocaleString('en-GB')} XP · Shared across Repo Company</strong>
+          <div class="skills-root-progress"><i style="width:${harmony.progress}%"></i></div>
+          <small>${harmony.maxed ? 'MASTERED · LEVEL 99' : `${harmony.remaining.toLocaleString('en-GB')} XP TO LEVEL ${harmony.level + 1}`}</small>
+        </div>
+      </div>
+    </section>
+    <div class="skills-tree-connector" aria-hidden="true"></div>
+    <div class="skills-tree-branches">${branches}</div>`;
 
-
-
-  const unlocked = new Set(character.collection || []);
-  $('collectionGrid').innerHTML = COLLECTIBLES.map(([id, label]) => `<div class="collectible ${unlocked.has(id) ? 'found' : ''}"><span>${unlocked.has(id) ? '◆' : '?'}</span>${label}</div>`).join('');
+  if ($('collectionGrid')) {
+    $('collectionGrid').innerHTML = '';
+    $('collectionGrid').classList.add('hidden');
+    $('collectionGrid').setAttribute('aria-hidden', 'true');
+  }
   $('skillsDialog').showModal();
 }
-
-
 
 function setAgilityMode(mode) {
   agilityMode = mode;
@@ -2622,12 +2677,11 @@ function renderBank(){
   ensureQuidditchTcgBinderUi();
   const gp=Number(bankState?.gp||0);$('bankGp').textContent=`${gp.toLocaleString('en-GB')} GP`;
   const items=bankState?.items&&typeof bankState.items==='object'?bankState.items:{};
-  const entries=Object.entries(items).filter(([id,qty])=>Number(qty)>0&&!PET_CATALOG[id]&&!id.startsWith('nametag_')&&!PET_EQUIPMENT_IDS.has(id));
+  const entries=Object.entries(items).filter(([id,qty])=>Number(qty)>0&&!PET_CATALOG[id]&&!id.startsWith('nametag_')&&!id.startsWith('watchcard_')&&!PET_EQUIPMENT_IDS.has(id));
   const slots=entries.map(([id,qty])=>{const lamp=HARMONY_LAMPS[id];if(lamp)return `<div class="bank-slot lamp-bank-slot"><img src="${lamp.image}" alt="${lamp.name}" class="bank-item-art lamp-bank-art"><b>${lamp.name}</b><small>${lamp.xp.toLocaleString('en-GB')} XP in any skill</small><strong>${Number(qty)}</strong><button type="button" class="use-harmony-lamp" data-lamp="${id}">USE</button></div>`;return bankWatchcardSlot(id,qty)||bankCosmeticSlot(id,qty)||bankStandardItemSlot(id,qty)||`<div class="bank-slot"><div class="bank-placeholder">?</div><b>${escapeHtml(String(id).replaceAll('_',' '))}</b><strong>${Number(qty).toLocaleString('en-GB')}</strong></div>`;});
   if(hasBirthdayGenieLamp())slots.unshift(birthdayGenieLampSlot());
   while(slots.length<30)slots.push('<div class="bank-slot empty"><span>—</span></div>');$('bankItems').innerHTML=slots.join('');
   $('bankItems').querySelectorAll('.bank-cosmetic-toggle').forEach(b=>b.addEventListener('click',()=>togglePetCosmetic(b.dataset.cosmetic)));
-  $('bankItems').querySelectorAll('.bank-watchcard-equip').forEach(b=>b.addEventListener('click',()=>setPartyPeteWatchcard(character?.equipped_watchcard_background===b.dataset.watchcard?null:b.dataset.watchcard)));
   $('bankItems').querySelectorAll('.use-harmony-lamp').forEach(b=>b.addEventListener('click',()=>openHarmonyLamp(b.dataset.lamp)));
   startRepoRareDropBankAnimation();
   $('birthdayGenieLampSlot')?.addEventListener('click',openBirthdayGenieLampCountdown);if(hasBirthdayGenieLamp())startBirthdayGenieLampAnimation();
@@ -3523,7 +3577,7 @@ function renderWiseTask(){
   const required=Number(t.required_xp)||0,current=Math.max(0,Number(t.current_xp)-Number(t.start_xp)),done=Math.min(required,current);
   const pct=required?Math.min(100,(done/required)*100):0;
   $('wiseTaskTitle').textContent=`Earn ${required.toLocaleString('en-GB')} ${label} XP`;
-  $('wiseTaskText').textContent=t.task_skill==='combat'?'Play Level Combat in any location or difficulty. Attack, Strength and Defence XP all count.':`Play Level ${label} and earn the assigned XP.`;
+  $('wiseTaskText').textContent=t.task_skill==='combat'?'Earn Combat XP anywhere. Attack, Strength, Defence, Magic and Ranged XP all count from any valid activity or mode.':`Earn ${label} XP anywhere on Repo Company. Any valid ${label} XP source counts.`;
   $('wiseTaskProgress').textContent=`${done.toLocaleString('en-GB')} / ${required.toLocaleString('en-GB')} XP`;
   $('wiseTaskReward').textContent=`${Number(t.reward_gp).toLocaleString('en-GB')} GP`;
   $('wiseTaskFill').style.width=`${pct}%`;
@@ -3531,7 +3585,7 @@ function renderWiseTask(){
   $('wiseSkipTask').disabled=Number(t.gp||0)<5000;
   $('wiseSkipTask').title=Number(t.gp||0)<5000?'You need 5,000 GP to skip this task.':'Pay 5,000 GP and receive a different task.';
   $('wiseActiveTask').classList.toggle('complete',Boolean(t.can_claim));
-  $('wiseTaskMessage').textContent=t.can_claim?'Task complete — claim your Gold pieces!':'Earn the XP in the matching Repo Company level.';
+  $('wiseTaskMessage').textContent=t.can_claim?'Task complete — claim your Gold pieces!':'Any valid XP source for this assignment counts automatically.';
 }
 async function openWiseTask(){
   if(!character){
@@ -4180,6 +4234,8 @@ $('openRunecrafting').onclick = openRunecrafting;
 $('openWiseTask').onclick = openWiseTask;
 $('openBank').onclick = openBank;
 $('openPets').onclick = openPets;
+$('openAccountCosmetics').onclick = openAccountCosmetics;
+$('accountCosmeticsUnequipWatchcard').onclick = ()=>setPartyPeteWatchcard(null,'account');
 const tcgBinderQuickButton=$('openTcgBinderQuick');if(tcgBinderQuickButton)tcgBinderQuickButton.onclick=()=>openQuidditchTcgBinder();
 $('petsPutAway').onclick = ()=>setMyActivePet(null);
 $('openPetCosmetics').onclick = openPetCosmetics;
@@ -4488,17 +4544,17 @@ const GERTRUDE_NAMETAGS=[
   {id:'nametag_worldcup_drazhen',name:'Drazhen Supporter',image:'assets/nametags/world-cup-drazhen.png'},
   {id:'nametag_worldcup_elvane',name:'Elvane Supporter',image:'assets/nametags/world-cup-elvane.png'},
   {id:'nametag_worldcup_iskandar',name:'Iskandar Supporter',image:'assets/nametags/world-cup-iskandar.png'},
-  {id:'nametag_worldcup_kordesh',name:'Kordesh Supporter',image:'assets/nametags/world-cup-kordesh.png'},
+  {id:'nametag_worldcup_kordesh',name:'Kordesh Supporter',image:'assets/nametags/world-cup-kordesh.png?v=3'},
   {id:'nametag_worldcup_lumerre',name:'Lumerre Supporter',image:'assets/nametags/world-cup-lumerre.png'},
   {id:'nametag_worldcup_marovar',name:'Marovar Supporter',image:'assets/nametags/world-cup-marovar.png'},
-  {id:'nametag_worldcup_nambara',name:'Nambara Supporter',image:'assets/nametags/world-cup-nambara.png'},
+  {id:'nametag_worldcup_nambara',name:'Nambara Supporter',image:'assets/nametags/world-cup-nambara.png?v=3'},
   {id:'nametag_worldcup_norveth',name:'Norveth Supporter',image:'assets/nametags/world-cup-norveth.png'},
   {id:'nametag_worldcup_qasmir',name:'Qasmir Supporter',image:'assets/nametags/world-cup-qasmir.png'},
   {id:'nametag_worldcup_rovarn',name:'Rovarn Supporter',image:'assets/nametags/world-cup-rovarn.png'},
   {id:'nametag_worldcup_sorevia',name:'Sorevia Supporter',image:'assets/nametags/world-cup-sorevia.png'},
   {id:'nametag_worldcup_talune',name:'Talune Supporter',image:'assets/nametags/world-cup-talune.png'},
   {id:'nametag_worldcup_vardesh',name:'Vardesh Supporter',image:'assets/nametags/world-cup-vardesh.png'},
-  {id:'nametag_worldcup_zafran',name:'Zafran Supporter',image:'assets/nametags/world-cup-zafran.png'}
+  {id:'nametag_worldcup_zafran',name:'Zafran Supporter',image:'assets/nametags/world-cup-zafran.png?v=3'}
 ];
 
 
@@ -4593,17 +4649,17 @@ const QUIDDITCH_NAMETAG_LAYOUT={
   nametag_worldcup_drazhen:{left:31,right:15},
   nametag_worldcup_elvane:{left:31,right:7},
   nametag_worldcup_iskandar:{left:33,right:7},
-  nametag_worldcup_kordesh:{left:32,right:7},
+  nametag_worldcup_kordesh:{left:44,right:7},
   nametag_worldcup_lumerre:{left:34,right:7},
   nametag_worldcup_marovar:{left:32,right:7},
-  nametag_worldcup_nambara:{left:32,right:7},
+  nametag_worldcup_nambara:{left:44,right:7},
   nametag_worldcup_norveth:{left:31,right:7},
   nametag_worldcup_qasmir:{left:31,right:11},
   nametag_worldcup_rovarn:{left:31,right:19},
   nametag_worldcup_sorevia:{left:31,right:10},
   nametag_worldcup_talune:{left:31,right:18},
   nametag_worldcup_vardesh:{left:32,right:7},
-  nametag_worldcup_zafran:{left:31,right:11},
+  nametag_worldcup_zafran:{left:38,right:11},
   nametag_panda_rare:{left:15,right:15,top:5}
 };
 function quidditchNametagFontSize(name,base=10){
@@ -4821,12 +4877,78 @@ async function buyPartyPeteWatchcard(id){
   character.equipped_watchcard_background=row?.equipped_watchcard_background||id;
   partyPeteRefreshTestCard();
   if($('bankDialog')?.open)renderBank();
-  const purchased=partyPeteItem(id);renderPartyPeteShop(`${purchased?.name||'Background'} purchased for ${Number(purchased?.price||0).toLocaleString('en-GB')} GP, added to your Bank and equipped!`);
+  const purchased=partyPeteItem(id);renderPartyPeteShop(`${purchased?.name||'Background'} purchased for ${Number(purchased?.price||0).toLocaleString('en-GB')} GP, added to Account Cosmetics and equipped!`);
 }
-async function setPartyPeteWatchcard(id){
-  if(partyPeteAdminTesting()){partyPeteSetTestBackdrop(id);renderPartyPeteShop(id?'Admin test background equipped.':'Admin test background unequipped.');return;}
-  const {data,error}=await db.rpc('set_watchcard_background',{p_item:id});if(error){console.error(error);renderPartyPeteShop(error.message||'Could not equip that background.');return}
-  const row=Array.isArray(data)?data[0]:data;character.equipped_watchcard_background=row?.equipped_watchcard_background||null;partyPeteRefreshTestCard();if($('bankDialog')?.open)renderBank();renderPartyPeteShop(id?'Background equipped.':'Background unequipped.');
+async function setPartyPeteWatchcard(id,surface='shop'){
+  const fromAccount=surface==='account';
+  if(partyPeteAdminTesting()){
+    partyPeteSetTestBackdrop(id);
+    if(fromAccount)renderAccountCosmetics(id?'Background equipped.':'Standard Watchcard restored.');
+    else renderPartyPeteShop(id?'Admin test background equipped.':'Admin test background unequipped.');
+    return;
+  }
+  const {data,error}=await db.rpc('set_watchcard_background',{p_item:id});
+  if(error){
+    console.error(error);
+    if(fromAccount)renderAccountCosmetics(error.message||'Could not equip that background.');
+    else renderPartyPeteShop(error.message||'Could not equip that background.');
+    return;
+  }
+  const row=Array.isArray(data)?data[0]:data;
+  character.equipped_watchcard_background=row?.equipped_watchcard_background||null;
+  partyPeteRefreshTestCard();
+  if($('bankDialog')?.open)renderBank();
+  if($('accountCosmeticsDialog')?.open)renderAccountCosmetics(id?'Background equipped.':'Standard Watchcard restored.');
+  if(!fromAccount)renderPartyPeteShop(id?'Background equipped.':'Background unequipped.');
+}
+
+function accountOwnedWatchcards(){
+  const items=bankState?.items&&typeof bankState.items==='object'?bankState.items:{};
+  return PARTY_PETE_WATCHCARDS.filter(item=>Number(items[item.id]||0)>0);
+}
+function renderAccountCosmetics(message=''){
+  const grid=$('accountWatchcardItems');
+  if(!grid)return;
+  const owned=accountOwnedWatchcards();
+  const equippedId=character?.equipped_watchcard_background||null;
+  const equipped=partyPeteItem(equippedId);
+  $('accountCosmeticsActiveWatchcard').textContent=equipped?.name||'Standard Watchcard';
+  $('accountCosmeticsUnequipWatchcard').disabled=!equippedId;
+  grid.innerHTML=owned.length?owned.map(item=>{
+    const active=equippedId===item.id;
+    const type=item.id.startsWith('watchcard_wc_')?'WORLD CUP BACKDROP':'WATCHCARD BACKDROP';
+    return `<article class="account-watchcard-item ${active?'equipped':''}">
+      <div class="account-watchcard-art"><img src="${item.image}" alt="${escapeHtml(item.name)}"></div>
+      <div class="account-watchcard-copy"><b>${escapeHtml(item.name)}</b><small>${type}</small></div>
+      <button type="button" data-account-watchcard="${item.id}">${active?'UNEQUIP':'EQUIP'}</button>
+    </article>`;
+  }).join(''):`<div class="account-cosmetics-empty">No Watchcard backdrops owned yet.<br>Visit Party Pete to purchase one.</div>`;
+  grid.querySelectorAll('[data-account-watchcard]').forEach(button=>button.addEventListener('click',()=>{
+    const id=button.dataset.accountWatchcard;
+    setPartyPeteWatchcard(character?.equipped_watchcard_background===id?null:id,'account');
+  }));
+  $('accountCosmeticsMessage').textContent=message||`${owned.length} Watchcard backdrop${owned.length===1?'':'s'} owned.`;
+}
+async function openAccountCosmetics(){
+  if(!character){
+    toast('Log in or create an account to view cosmetics.');
+    openCharacterDialog('login');
+    return;
+  }
+  $('accountCosmeticsDialog').showModal();
+  $('accountWatchcardItems').innerHTML='<div class="account-cosmetics-empty">Loading your cosmetics…</div>';
+  $('accountCosmeticsMessage').textContent='Checking account unlocks…';
+  try{
+    await loadBankAndPets();
+    const {data,error}=await db.rpc('get_my_watchcard_background');
+    if(error)throw error;
+    character.equipped_watchcard_background=data?.[0]?.equipped_watchcard_background||null;
+    renderAccountCosmetics();
+  }catch(error){
+    console.error(error);
+    $('accountWatchcardItems').innerHTML='<div class="account-cosmetics-empty">Could not load account cosmetics.</div>';
+    $('accountCosmeticsMessage').textContent='Could not load Watchcard unlocks.';
+  }
 }
 async function npcOpenPartyPeteShop(){
   const panel=$('npcContactDialogue');panel.classList.add('interface-open');$('npcDialoguePrompt').classList.add('hidden');$('npcDialogueContinue').classList.add('hidden');$('npcDialogueOptions').replaceChildren();
@@ -15430,7 +15552,39 @@ qmShowSharedGoal=function(state){
     {id:'cat_on_the_pitch_standard',name:'Cat on the Pitch',image:'assets/quidditch-tcg/cards/standard/cat-on-the-pitch.png',rarity:'standard'},
     {id:'keepers_dream_standard',name:'Keepers Dream',image:'assets/quidditch-tcg/cards/standard/keepers-dream.png',rarity:'standard'},
     {id:'keepers_nightmare_standard',name:"Keeper's Nightmare",image:'assets/quidditch-tcg/cards/standard/keepers-nightmare.png',rarity:'standard'},
-    {id:'mash_and_grab_standard',name:'Mash and Grab',image:'assets/quidditch-tcg/cards/standard/mash-and-grab.png',rarity:'standard'}
+    {id:'mash_and_grab_standard',name:'Mash and Grab',image:'assets/quidditch-tcg/cards/standard/mash-and-grab.png',rarity:'standard'},
+    {id:'world_cup_belros_full_art',name:'Belros — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/belros.png',rarity:'full_art'},
+    {id:'world_cup_calvora_full_art',name:'Calvora — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/calvora.png',rarity:'full_art'},
+    {id:'world_cup_drazhen_full_art',name:'Drazhen — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png',rarity:'full_art'},
+    {id:'world_cup_elvane_full_art',name:'Elvane — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/elvane.png',rarity:'full_art'},
+    {id:'world_cup_iskandar_full_art',name:'Iskandar — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png',rarity:'full_art'},
+    {id:'world_cup_kordesh_full_art',name:'Kordesh — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png',rarity:'full_art'},
+    {id:'world_cup_lumerre_full_art',name:'Lumerre — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png',rarity:'full_art'},
+    {id:'world_cup_marovar_full_art',name:'Marovar — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/marovar.png',rarity:'full_art'},
+    {id:'world_cup_nambara_full_art',name:'Nambara — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/nambara.png',rarity:'full_art'},
+    {id:'world_cup_norveth_full_art',name:'Norveth — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/norveth.png',rarity:'full_art'},
+    {id:'world_cup_qasmir_full_art',name:'Qasmir — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png',rarity:'full_art'},
+    {id:'world_cup_rovarn_full_art',name:'Rovarn — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png',rarity:'full_art'},
+    {id:'world_cup_sorevia_full_art',name:'Sorevia — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png',rarity:'full_art'},
+    {id:'world_cup_talune_full_art',name:'Talune — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/talune.png',rarity:'full_art'},
+    {id:'world_cup_vardesh_full_art',name:'Vardesh — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png',rarity:'full_art'},
+    {id:'world_cup_zafran_full_art',name:'Zafran — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/zafran.png',rarity:'full_art'},
+    {id:'world_cup_belros_special_full_art',name:'Belros — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png',rarity:'full_art'},
+    {id:'world_cup_calvora_special_full_art',name:'Calvora — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png',rarity:'full_art'},
+    {id:'world_cup_drazhen_special_full_art',name:'Drazhen — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png',rarity:'full_art'},
+    {id:'world_cup_elvane_special_full_art',name:'Elvane — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/elvane.png',rarity:'full_art'},
+    {id:'world_cup_iskandar_special_full_art',name:'Iskandar — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/iskandar.png',rarity:'full_art'},
+    {id:'world_cup_kordesh_special_full_art',name:'Kordesh — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/kordesh.png',rarity:'full_art'},
+    {id:'world_cup_lumerre_special_full_art',name:'Lumerre — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/lumerre.png',rarity:'full_art'},
+    {id:'world_cup_marovar_special_full_art',name:'Marovar — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/marovar.png',rarity:'full_art'},
+    {id:'world_cup_nambara_special_full_art',name:'Nambara — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/nambara.png',rarity:'full_art'},
+    {id:'world_cup_norveth_special_full_art',name:'Norveth — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/norveth.png',rarity:'full_art'},
+    {id:'world_cup_qasmir_special_full_art',name:'Qasmir — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/qasmir.png',rarity:'full_art'},
+    {id:'world_cup_rovarn_special_full_art',name:'Rovarn — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/rovarn.png',rarity:'full_art'},
+    {id:'world_cup_sorevia_special_full_art',name:'Sorevia — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png',rarity:'full_art'},
+    {id:'world_cup_talune_special_full_art',name:'Talune — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png',rarity:'full_art'},
+    {id:'world_cup_vardesh_special_full_art',name:'Vardesh — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png',rarity:'full_art'},
+    {id:'world_cup_zafran_special_full_art',name:'Zafran — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png',rarity:'full_art'}
   ];
   const CARD_BY_ID=Object.fromEntries(CARD_CATALOG.map(card=>[card.id,card]));
   // Slot coordinates are normalised against the supplied marked-up binder
@@ -16144,7 +16298,39 @@ qmShowSharedGoal=function(state){
     ['cat_on_the_pitch_standard','Cat on the Pitch','assets/quidditch-tcg/cards/standard/cat-on-the-pitch.png'],
     ['keepers_dream_standard','Keepers Dream','assets/quidditch-tcg/cards/standard/keepers-dream.png'],
     ['keepers_nightmare_standard',"Keeper's Nightmare",'assets/quidditch-tcg/cards/standard/keepers-nightmare.png'],
-    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png']
+    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png'],
+    ['world_cup_belros_full_art','Belros — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/belros.png'],
+    ['world_cup_calvora_full_art','Calvora — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/calvora.png'],
+    ['world_cup_drazhen_full_art','Drazhen — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png'],
+    ['world_cup_elvane_full_art','Elvane — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/elvane.png'],
+    ['world_cup_iskandar_full_art','Iskandar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png'],
+    ['world_cup_kordesh_full_art','Kordesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png'],
+    ['world_cup_lumerre_full_art','Lumerre — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png'],
+    ['world_cup_marovar_full_art','Marovar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/marovar.png'],
+    ['world_cup_nambara_full_art','Nambara — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/nambara.png'],
+    ['world_cup_norveth_full_art','Norveth — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/norveth.png'],
+    ['world_cup_qasmir_full_art','Qasmir — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png'],
+    ['world_cup_rovarn_full_art','Rovarn — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png'],
+    ['world_cup_sorevia_full_art','Sorevia — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png'],
+    ['world_cup_talune_full_art','Talune — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/talune.png'],
+    ['world_cup_vardesh_full_art','Vardesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png'],
+    ['world_cup_zafran_full_art','Zafran — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/zafran.png'],
+    ['world_cup_belros_special_full_art','Belros — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png'],
+    ['world_cup_calvora_special_full_art','Calvora — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png'],
+    ['world_cup_drazhen_special_full_art','Drazhen — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png'],
+    ['world_cup_elvane_special_full_art','Elvane — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/elvane.png'],
+    ['world_cup_iskandar_special_full_art','Iskandar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/iskandar.png'],
+    ['world_cup_kordesh_special_full_art','Kordesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/kordesh.png'],
+    ['world_cup_lumerre_special_full_art','Lumerre — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/lumerre.png'],
+    ['world_cup_marovar_special_full_art','Marovar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/marovar.png'],
+    ['world_cup_nambara_special_full_art','Nambara — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/nambara.png'],
+    ['world_cup_norveth_special_full_art','Norveth — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/norveth.png'],
+    ['world_cup_qasmir_special_full_art','Qasmir — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/qasmir.png'],
+    ['world_cup_rovarn_special_full_art','Rovarn — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/rovarn.png'],
+    ['world_cup_sorevia_special_full_art','Sorevia — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png'],
+    ['world_cup_talune_special_full_art','Talune — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png'],
+    ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
+    ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png']
   ];
   const cardMap=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
   const currentCollection=()=>window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[]};
@@ -16275,8 +16461,8 @@ qmShowSharedGoal=function(state){
 
 
 // ============================================================
-// QUIDDITCH TCG BINDER V3 — SEVEN DOUBLE-PAGE SPREADS / 126 SLOTS
-// Front cover -> seven collection spreads -> back cover.
+// QUIDDITCH TCG BINDER V3 — EIGHT DOUBLE-PAGE SPREADS / 144 SLOTS
+// Front cover -> eight collection spreads -> back cover.
 // Cards can be dragged across spreads by hovering over the Previous / Next
 // controls (or the page-edge drop zones) while the drag is still active.
 // ============================================================
@@ -16284,7 +16470,7 @@ qmShowSharedGoal=function(state){
   if(window.__repoTcgSevenSpreadBinderInstalled)return;
   window.__repoTcgSevenSpreadBinderInstalled=true;
 
-  const SPREAD_COUNT=7;
+  const SPREAD_COUNT=8;
   const SLOTS_PER_SPREAD=18;
   const TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   let activeDragFrom=-1;
@@ -16439,7 +16625,39 @@ qmShowSharedGoal=function(state){
     ['cat_on_the_pitch_standard','Cat on the Pitch','assets/quidditch-tcg/cards/standard/cat-on-the-pitch.png'],
     ['keepers_dream_standard','Keepers Dream','assets/quidditch-tcg/cards/standard/keepers-dream.png'],
     ['keepers_nightmare_standard',"Keeper's Nightmare",'assets/quidditch-tcg/cards/standard/keepers-nightmare.png'],
-    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png']
+    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png'],
+    ['world_cup_belros_full_art','Belros — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/belros.png'],
+    ['world_cup_calvora_full_art','Calvora — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/calvora.png'],
+    ['world_cup_drazhen_full_art','Drazhen — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png'],
+    ['world_cup_elvane_full_art','Elvane — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/elvane.png'],
+    ['world_cup_iskandar_full_art','Iskandar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png'],
+    ['world_cup_kordesh_full_art','Kordesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png'],
+    ['world_cup_lumerre_full_art','Lumerre — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png'],
+    ['world_cup_marovar_full_art','Marovar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/marovar.png'],
+    ['world_cup_nambara_full_art','Nambara — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/nambara.png'],
+    ['world_cup_norveth_full_art','Norveth — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/norveth.png'],
+    ['world_cup_qasmir_full_art','Qasmir — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png'],
+    ['world_cup_rovarn_full_art','Rovarn — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png'],
+    ['world_cup_sorevia_full_art','Sorevia — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png'],
+    ['world_cup_talune_full_art','Talune — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/talune.png'],
+    ['world_cup_vardesh_full_art','Vardesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png'],
+    ['world_cup_zafran_full_art','Zafran — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/zafran.png'],
+    ['world_cup_belros_special_full_art','Belros — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png'],
+    ['world_cup_calvora_special_full_art','Calvora — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png'],
+    ['world_cup_drazhen_special_full_art','Drazhen — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png'],
+    ['world_cup_elvane_special_full_art','Elvane — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/elvane.png'],
+    ['world_cup_iskandar_special_full_art','Iskandar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/iskandar.png'],
+    ['world_cup_kordesh_special_full_art','Kordesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/kordesh.png'],
+    ['world_cup_lumerre_special_full_art','Lumerre — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/lumerre.png'],
+    ['world_cup_marovar_special_full_art','Marovar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/marovar.png'],
+    ['world_cup_nambara_special_full_art','Nambara — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/nambara.png'],
+    ['world_cup_norveth_special_full_art','Norveth — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/norveth.png'],
+    ['world_cup_qasmir_special_full_art','Qasmir — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/qasmir.png'],
+    ['world_cup_rovarn_special_full_art','Rovarn — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/rovarn.png'],
+    ['world_cup_sorevia_special_full_art','Sorevia — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png'],
+    ['world_cup_talune_special_full_art','Talune — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png'],
+    ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
+    ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png']
   ];
   const map=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
   const current=()=>window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[]};
@@ -17025,7 +17243,39 @@ qmShowSharedGoal=function(state){
     ['cat_on_the_pitch_standard','Cat on the Pitch','assets/quidditch-tcg/cards/standard/cat-on-the-pitch.png'],
     ['keepers_dream_standard','Keepers Dream','assets/quidditch-tcg/cards/standard/keepers-dream.png'],
     ['keepers_nightmare_standard',"Keeper's Nightmare",'assets/quidditch-tcg/cards/standard/keepers-nightmare.png'],
-    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png']
+    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png'],
+    ['world_cup_belros_full_art','Belros — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/belros.png'],
+    ['world_cup_calvora_full_art','Calvora — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/calvora.png'],
+    ['world_cup_drazhen_full_art','Drazhen — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png'],
+    ['world_cup_elvane_full_art','Elvane — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/elvane.png'],
+    ['world_cup_iskandar_full_art','Iskandar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png'],
+    ['world_cup_kordesh_full_art','Kordesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png'],
+    ['world_cup_lumerre_full_art','Lumerre — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png'],
+    ['world_cup_marovar_full_art','Marovar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/marovar.png'],
+    ['world_cup_nambara_full_art','Nambara — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/nambara.png'],
+    ['world_cup_norveth_full_art','Norveth — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/norveth.png'],
+    ['world_cup_qasmir_full_art','Qasmir — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png'],
+    ['world_cup_rovarn_full_art','Rovarn — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png'],
+    ['world_cup_sorevia_full_art','Sorevia — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png'],
+    ['world_cup_talune_full_art','Talune — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/talune.png'],
+    ['world_cup_vardesh_full_art','Vardesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png'],
+    ['world_cup_zafran_full_art','Zafran — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/zafran.png'],
+    ['world_cup_belros_special_full_art','Belros — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png'],
+    ['world_cup_calvora_special_full_art','Calvora — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png'],
+    ['world_cup_drazhen_special_full_art','Drazhen — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png'],
+    ['world_cup_elvane_special_full_art','Elvane — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/elvane.png'],
+    ['world_cup_iskandar_special_full_art','Iskandar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/iskandar.png'],
+    ['world_cup_kordesh_special_full_art','Kordesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/kordesh.png'],
+    ['world_cup_lumerre_special_full_art','Lumerre — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/lumerre.png'],
+    ['world_cup_marovar_special_full_art','Marovar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/marovar.png'],
+    ['world_cup_nambara_special_full_art','Nambara — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/nambara.png'],
+    ['world_cup_norveth_special_full_art','Norveth — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/norveth.png'],
+    ['world_cup_qasmir_special_full_art','Qasmir — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/qasmir.png'],
+    ['world_cup_rovarn_special_full_art','Rovarn — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/rovarn.png'],
+    ['world_cup_sorevia_special_full_art','Sorevia — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png'],
+    ['world_cup_talune_special_full_art','Talune — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png'],
+    ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
+    ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png']
   ];
   const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
