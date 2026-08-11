@@ -1,0 +1,8 @@
+Copy ad-01.png through ad-08.png into exactly:
+
+C:\Users\Isaac\Desktop\web2\assets\homepage-billboard\ads\
+
+After copying, this exact file should exist:
+C:\Users\Isaac\Desktop\web2\assets\homepage-billboard\ads\ad-01.png
+
+Do not copy the repair folder itself into web2. Open the repair ZIP/folder and copy the eight PNG files into the existing ads folder.

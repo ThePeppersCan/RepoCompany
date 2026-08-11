@@ -6690,9 +6690,9 @@ body:not(.repo-logged-out) .repo-main-header .character-box{
 }
 
 /* Homepage tavern lobby: replaces the old desk-character carousel. */
-.scene.tavern-scene{min-height:0!important;height:auto!important;width:100%;align-self:start;aspect-ratio:1086 / 1290;background:#100b07!important;box-shadow:inset 0 0 0 2px #2b1a0e,0 6px 15px rgba(0,0,0,.42)!important}
+.scene.tavern-scene{min-height:0!important;height:auto!important;width:100%;align-self:start;aspect-ratio:1086 / 1290;background:#0c1121!important;box-shadow:inset 0 0 0 2px #202942,0 8px 18px rgba(0,0,0,.45)!important}
 .scene.tavern-scene>.tavern-room,.scene.tavern-scene>.poster,.scene.tavern-scene>.monitor,.scene.tavern-scene>.desk,.scene.tavern-scene>.keyboard,.scene.tavern-scene>.chair,.scene.tavern-scene>.gamer,.scene.tavern-scene>.next-desk-character,.scene.tavern-scene>.level,.scene.tavern-scene>.resource-layer{display:none!important}
-.tavern-lobby{position:absolute;inset:0;z-index:2;overflow:hidden;background:#120b07}.tavern-lobby>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;image-rendering:auto;pointer-events:none}.tavern-lobby-base{z-index:0;opacity:1}.tavern-lobby-frame{z-index:1;opacity:0;transition:opacity 180ms linear;will-change:opacity}.tavern-lobby-frame.is-visible{opacity:1}.tavern-lobby-vignette{position:absolute;inset:0;z-index:3;pointer-events:none;box-shadow:inset 0 0 26px rgba(18,8,3,.42)}
+.tavern-lobby{position:absolute;inset:0;z-index:2;overflow:hidden;background:#120b07}.tavern-lobby>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;image-rendering:auto;pointer-events:none}.tavern-lobby-base{z-index:0;opacity:1}.tavern-lobby-frame{z-index:1;opacity:0;transition:opacity 760ms cubic-bezier(.33,0,.2,1);will-change:opacity}.tavern-lobby-frame.is-visible{opacity:1}.tavern-lobby-vignette{position:absolute;inset:0;z-index:3;pointer-events:none;box-shadow:inset 0 0 26px rgba(18,8,3,.42)}
 @media(max-width:760px){.scene.tavern-scene{min-height:0!important;aspect-ratio:1086 / 1290}}
 
 /* Live tavern guests.  Their transparent sprites sit above the room artwork
@@ -8529,4 +8529,193 @@ body:not(.repo-logged-out) .repo-main-header .character-box{
 }
 @media(prefers-reduced-motion:reduce){
   .star-arena::before,.volcano-sky::before,.volcano-sky>i,.starfield i,.meteor-trails i,.crater-haze,.star-impact-halo,.shooting-star,.shooting-star::before,.shooting-star::after,.shooting-star>.star-core,.star-dust i,.mining-pet{animation:none!important}
+}
+
+
+/* Temporary homepage billboard scene swap */
+.scene.billboard-scene>.tavern-sound-toggle{display:none!important}
+.scene.billboard-scene .tavern-lobby{background:#0c1121}
+.scene.billboard-scene .tavern-lobby>img{object-position:center center}
+.scene.billboard-scene .tavern-lobby-vignette{box-shadow:inset 0 0 34px rgba(4,9,22,.26)}
+.scene.billboard-scene .tavern-guest{width:32.5%;z-index:4;transform:translate(-50%,-50%);transform-origin:50% 100%}
+.scene.billboard-scene .tavern-guest img{filter:drop-shadow(0 3px 2px rgba(6,9,18,.52))}
+.scene.billboard-scene .tavern-guest.is-idle{animation:none}
+@media(max-width:760px){.scene.billboard-scene .tavern-guest{width:35%}}
+
+.scene.billboard-scene .tavern-guest.is-billboard-seated{animation:none!important}
+.scene.billboard-scene .tavern-guest.is-billboard-seated img{transform-origin:50% 100%}
+
+
+/* Billboard V3: dedicated ladder poses + corrected perch baseline */
+.scene.billboard-scene .tavern-guest.is-billboard-climbing{
+  width:var(--billboard-climb-width,9.2%)!important;
+  z-index:5;
+  transform:translate(-50%,-50%);
+}
+.scene.billboard-scene .tavern-guest.is-billboard-climbing img{
+  transform:translate(0,0) scaleX(var(--guest-facing,-1))!important;
+  transform-origin:50% 50%!important;
+  filter:drop-shadow(0 2px 1px rgba(5,8,18,.58));
+}
+.scene.billboard-scene .tavern-guest.is-billboard-seated{
+  z-index:5;
+}
+/* Keep the billboard lip visually in front of the dangling lower legs. */
+.scene.billboard-scene .tavern-guest.is-billboard-seated::before{
+  content:"";
+  position:absolute;
+  left:20%;right:20%;top:49.5%;height:2px;
+  background:rgba(8,10,15,.18);
+  pointer-events:none;
+}
+
+
+/* Billboard V4: feet-aligned platform walk + consistent ladder/entry scale */
+.scene.billboard-scene .tavern-guest.is-billboard-walking{
+  width:var(--billboard-walk-width,19%)!important;
+  z-index:5;
+  animation:none!important;
+}
+.scene.billboard-scene .tavern-guest.is-billboard-walking img{
+  transform-origin:50% 100%;
+}
+
+
+/* Billboard V5: clean sit transition, depth ordering and true sky dissolves */
+.scene.billboard-scene .tavern-lobby-base,
+.scene.billboard-scene .tavern-lobby-frame{
+  opacity:0;
+  transition:opacity 1120ms cubic-bezier(.22,.61,.36,1);
+  will-change:opacity;
+}
+.scene.billboard-scene .tavern-guest.is-billboard-walking{
+  z-index:3!important; /* route passes behind seated guests */
+}
+.scene.billboard-scene .tavern-guest.is-billboard-seated{
+  z-index:6!important;
+}
+.scene.billboard-scene .tavern-guest.is-billboard-climbing{
+  z-index:7!important;
+}
+
+/* Billboard V6: keep guests permanently above the environmental dissolve.
+   Background frames may swap z-index while crossfading, but never over actors. */
+.scene.billboard-scene .tavern-guest-layer{
+  z-index:10!important;
+}
+.scene.billboard-scene .tavern-lobby-base,
+.scene.billboard-scene .tavern-lobby-frame{
+  pointer-events:none;
+}
+
+
+/* Billboard V8: World Cup advertisement rotation inside the physical screen */
+.scene.billboard-scene .billboard-ad-layer{
+  position:absolute;
+  left:14.25%;
+  top:11.45%;
+  width:71.55%;
+  height:36.85%;
+  z-index:6;
+  overflow:hidden;
+  pointer-events:none;
+  background:#050811;
+  border-radius:.35%;
+  box-shadow:
+    inset 0 0 0 1px rgba(235,187,93,.07),
+    inset 0 0 28px rgba(0,0,0,.30),
+    0 0 12px rgba(89,126,185,.05);
+  isolation:isolate;
+}
+.scene.billboard-scene .billboard-ad-slide{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transition:opacity 1450ms cubic-bezier(.22,.61,.36,1);
+  will-change:opacity;
+  overflow:hidden;
+}
+.scene.billboard-scene .billboard-ad-slide::before{
+  content:"";
+  position:absolute;
+  inset:-4%;
+  background-image:var(--ad-image);
+  background-size:cover;
+  background-position:center;
+  filter:blur(10px) brightness(.42) saturate(.82);
+  transform:scale(1.05);
+  opacity:.72;
+}
+.scene.billboard-scene .billboard-ad-slide img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+  object-position:center center;
+  z-index:1;
+  transform:scale(1.012);
+  transform-origin:center;
+  filter:brightness(.92) contrast(1.035) saturate(.94);
+  image-rendering:auto;
+}
+.scene.billboard-scene .billboard-ad-slide.is-active{opacity:1}
+.scene.billboard-scene .billboard-ad-scanlines{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.012),transparent 12%,transparent 88%,rgba(255,196,97,.018)),
+    repeating-linear-gradient(to bottom,rgba(255,255,255,.012) 0 1px,rgba(0,0,0,.018) 1px 3px);
+  mix-blend-mode:soft-light;
+  opacity:.48;
+}
+.scene.billboard-scene .billboard-ad-sheen{
+  position:absolute;
+  z-index:5;
+  top:-18%;
+  bottom:-18%;
+  left:-42%;
+  width:30%;
+  transform:skewX(-18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,236,194,.055),transparent);
+  filter:blur(3px);
+  opacity:.55;
+  animation:billboard-ad-sheen 13s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes billboard-ad-sheen{
+  0%,18%{left:-42%;opacity:0}
+  28%{opacity:.42}
+  48%{left:118%;opacity:.20}
+  52%,100%{left:118%;opacity:0}
+}
+/* Environmental frames keep their JS-controlled 1/2/3 stacking during the
+   wind dissolve. The ad screen sits above them, and guests sit above the ad. */
+.scene.billboard-scene .billboard-ad-layer{z-index:5!important}
+.scene.billboard-scene .tavern-lobby-vignette{z-index:9;pointer-events:none}
+.scene.billboard-scene .tavern-guest-layer{z-index:10!important}
+
+
+/* Billboard V9: registered environmental plate + screen overscan */
+.scene.billboard-scene .billboard-ad-layer{
+  /* 0.08% overscan is hidden behind the physical frame and prevents a
+     browser-rounding seam from appearing along the top edge. */
+  clip-path:inset(0 round .35%);
+}
+
+
+/* Billboard V10: true full-bleed adverts. The fixture posters are 16:9 while
+   the physical billboard aperture is slightly taller; cover + tiny overscan
+   removes the remaining top/bottom letterbox seam without exposing the frame. */
+.scene.billboard-scene .billboard-ad-slide img{
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:scale(1.012);
+}
+.scene.billboard-scene .billboard-ad-slide::before{
+  inset:-6%;
+  transform:scale(1.08);
 }

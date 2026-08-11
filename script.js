@@ -6552,30 +6552,97 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   });
 })();
 
-// Homepage tavern lobby: Frame 1 stays present as the scene's calm base.
-// Each environmental frame crossfades over it instead of hard-cutting.
+// Homepage environmental scene animation. In billboard mode every transition is a
+// true adjacent-frame dissolve: the current sky stays visible while the next sky
+// fades over it. This avoids exposing frame 1 between frames and removes the
+// dark/light flash that the old tavern-style compositor caused.
 (() => {
   const lobby=document.getElementById('tavernLobby');
   if(!lobby)return;
-  const framePool=[...lobby.querySelectorAll('.tavern-lobby-frame')];
-  if(!framePool.length)return;
-  // Frames 06 and 09 have an almost-out fire that causes a distracting snap
-  // against the surrounding blaze.  Run the consistent flame frames up and
-  // back down instead, so the fire breathes naturally throughout the loop.
-  const frames=[framePool[0],framePool[1],framePool[2],framePool[3],framePool[5],framePool[6],framePool[8],framePool[6],framePool[5],framePool[3],framePool[2],framePool[1]].filter(Boolean);
-  let index=-1,timer=null;
-  const showNext=()=>{
-    const previous=frames[index];
-    index=(index+1)%frames.length;
-    previous?.classList.remove('is-visible');
-    frames[index].classList.add('is-visible');
+  const baseFrame=lobby.querySelector('.tavern-lobby-base');
+  const overlayFrames=[...lobby.querySelectorAll('.tavern-lobby-frame')];
+  if(!overlayFrames.length)return;
+  const billboardMode=lobby.classList.contains('tavern-lobby--billboard');
+  if(!billboardMode){
+    const frames=[overlayFrames[0],overlayFrames[1],overlayFrames[2],overlayFrames[3],overlayFrames[5],overlayFrames[6],overlayFrames[8],overlayFrames[6],overlayFrames[5],overlayFrames[3],overlayFrames[2],overlayFrames[1]].filter(Boolean);
+    let index=-1,timer=null;
+    const showNext=()=>{const previous=frames[index];index=(index+1)%frames.length;previous?.classList.remove('is-visible');frames[index].classList.add('is-visible');};
+    const start=()=>{if(timer)return;showNext();timer=setInterval(showNext,260);};
+    const stop=()=>{clearInterval(timer);timer=null;};
+    start();document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else start();});
+    return;
+  }
+
+  const source=[baseFrame,...overlayFrames].filter(Boolean);
+  // Move forward through the wind/cloud sequence and then back through it so
+  // the loop boundary is 2 -> 1 rather than a sudden 8 -> 1 lighting jump.
+  const order=[0,1,2,3,4,5,6,7,6,5,4,3,2,1];
+  const dissolveMs=1120;
+  const holdMs=1320;
+  let orderIndex=0,timer=null,current=source[order[0]];
+
+  source.forEach((img,i)=>{
+    img.classList.remove('is-visible');
+    img.style.transition=`opacity ${dissolveMs}ms cubic-bezier(.22,.61,.36,1)`;
+    img.style.opacity=i===order[0]?'1':'0';
+    img.style.zIndex=i===order[0]?'2':'1';
+    img.style.willChange='opacity';
+  });
+
+  const advance=()=>{
+    const nextOrder=(orderIndex+1)%order.length;
+    const next=source[order[nextOrder]];
+    if(!next||next===current){orderIndex=nextOrder;return;}
+    const previous=current;
+    next.style.transition='none';
+    next.style.opacity='0';
+    next.style.zIndex='3';
+    previous.style.zIndex='2';
+    void next.offsetWidth;
+    next.style.transition=`opacity ${dissolveMs}ms cubic-bezier(.22,.61,.36,1)`;
+    next.style.opacity='1';
+    window.setTimeout(()=>{
+      if(previous!==next){previous.style.transition='none';previous.style.opacity='0';previous.style.zIndex='1';}
+      next.style.zIndex='2';
+      current=next;
+      orderIndex=nextOrder;
+    },dissolveMs+35);
   };
-  // A brisk, readable 10-frame loop: smooth compositing without turning the
-  // supplied pixel sequence into an unreadable blur.
-  const start=()=>{if(timer)return;showNext();timer=setInterval(showNext,260);};
+  const start=()=>{if(timer)return;timer=setInterval(advance,holdMs);};
   const stop=()=>{clearInterval(timer);timer=null;};
   start();
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else start();});
+})();
+
+
+// Billboard World Cup advertisements: hold each fixture for eleven seconds,
+// then dissolve directly into the next. This layer is independent of the
+// wind/cloud environmental animation so neither transition can flash through
+// the other.
+(() => {
+  const layer=document.getElementById('billboardAdLayer');
+  if(!layer)return;
+  const slides=[...layer.querySelectorAll('.billboard-ad-slide')];
+  if(slides.length<2)return;
+  slides.forEach(slide=>{
+    const img=slide.querySelector('img');
+    if(img){const preload=new Image();preload.src=img.src;}
+  });
+  let index=0,timer=null;
+  const advance=()=>{
+    const previous=slides[index];
+    index=(index+1)%slides.length;
+    const next=slides[index];
+    next.classList.add('is-active');
+    window.setTimeout(()=>previous.classList.remove('is-active'),1480);
+  };
+  const start=()=>{if(timer)return;timer=window.setInterval(advance,11000);};
+  const stop=()=>{if(timer){window.clearInterval(timer);timer=null;}};
+  start();
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)stop();
+    else start();
+  });
 })();
 
 // Tavern ambience is deliberately opt-in. Browsers never hear it until they
@@ -6608,13 +6675,38 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
 (() => {
   const layer=document.getElementById('tavernGuestLayer');
   const seatTester=document.getElementById('tavernSeatTester');
+  const lobby=document.getElementById('tavernLobby');
+  const billboardMode=!!lobby?.classList?.contains('tavern-lobby--billboard');
   // Presence must run on every page, even when that page does not render the tavern.
   // Only the visual renderer depends on #tavernGuestLayer.
   if(typeof db==='undefined')return;
 
   const characters={
+    kat:{
+      displayName:'Kat',
+      climb:'assets/homepage-billboard/climbs/kat-climb.png',
+      climbWidth:'9.0%',
+      walkWidth:'19.0%',
+      platformWalkY:46.15,
+      ladderTopY:47.60,
+      walk:['assets/tavern-guests/kat/walk-01.png'],
+      sit:[
+        'assets/tavern-guests/kat/sit-01-standing.png',
+        'assets/tavern-guests/kat/sit-02-start-lower.png',
+        'assets/tavern-guests/kat/sit-03-lower.png',
+        'assets/tavern-guests/kat/sit-04-deep-lower.png',
+        'assets/tavern-guests/kat/sit-05-side.png',
+        'assets/tavern-guests/kat/sit-06-seated.png'
+      ],
+      idle:['assets/tavern-guests/kat/idle-01-neutral.png']
+    },
     catasthma:{
       displayName:'CatAsthma',
+      climb:'assets/homepage-billboard/climbs/catasthma-climb.png',
+      climbWidth:'11.7%',
+      walkWidth:'17.4%',
+      platformWalkY:46.9,
+      ladderTopY:48.35,
       walk:Array.from({length:6},(_,i)=>`assets/tavern-guests/catasthma/walk-${String(i+1).padStart(2,'0')}.png`),
       // These supplied sit frames deliberately use descriptive filenames.
       // Keep the full paths here instead of manufacturing numbered names so
@@ -6638,6 +6730,11 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     },
     lemime:{
       displayName:'CovidPanda',
+      climb:'assets/homepage-billboard/climbs/lemime-climb.png',
+      climbWidth:'8.9%',
+      walkWidth:'19.0%',
+      platformWalkY:46.15,
+      ladderTopY:47.60,
       walk:[
         'assets/tavern-guests/lemime/walk-01.png',
         'assets/tavern-guests/lemime/walk-02.png',
@@ -6663,6 +6760,11 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     },
     proco:{
       displayName:'Proco',
+      climb:'assets/homepage-billboard/climbs/proco-climb.png',
+      climbWidth:'9.2%',
+      walkWidth:'21.8%',
+      platformWalkY:45.55,
+      ladderTopY:47.55,
       walk:Array.from({length:6},(_,i)=>`assets/tavern-guests/proco/walk-${String(i+1).padStart(2,'0')}.png`),
       sit:[
         'assets/tavern-guests/proco/sit-01-standing.png',
@@ -6683,6 +6785,11 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     },
     emlux:{
       displayName:'Emlux',
+      climb:'assets/homepage-billboard/climbs/emlux-climb.png',
+      climbWidth:'9.0%',
+      walkWidth:'23.0%',
+      platformWalkY:45.55,
+      ladderTopY:47.60,
       walk:Array.from({length:6},(_,i)=>`assets/tavern-guests/emlux/walk-${String(i+1).padStart(2,'0')}.png`),
       sit:[
         'assets/tavern-guests/emlux/sit-01-standing.png',
@@ -6703,6 +6810,11 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     },
     smokedrope1028:{
       displayName:'Smokedrope1028',
+      climb:'assets/homepage-billboard/climbs/smokedrope1028-climb.png',
+      climbWidth:'8.9%',
+      walkWidth:'19.1%',
+      platformWalkY:46.15,
+      ladderTopY:47.55,
       walk:Array.from({length:6},(_,i)=>`assets/tavern-guests/smokedrope1028/walk-${String(i+1).padStart(2,'0')}.png`),
       sit:[
         'assets/tavern-guests/smokedrope1028/sit-01-standing.png',
@@ -6725,22 +6837,27 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   // Four forward-facing places on the sofa plus the two side-facing armchairs.
   // The supplied turning-seat frame gives the armchairs a side profile until
   // dedicated side-idle packs are added for each character.
-  const seats=[
-    // Each anchor is the centre of a cushion.  A lower Y lets the avatar's
-    // legs hang naturally over the front rather than perch on the back.
-    {id:'sofa-left',kind:'sofa',x:33,y:52},
-    {id:'sofa-left-centre',kind:'sofa',x:45,y:52},
-    {id:'sofa-right-centre',kind:'sofa',x:57.5,y:52},
-    {id:'sofa-right',kind:'sofa',x:69,y:52},
-    // These are the centres of the actual cushions, rather than the outer
-    // chair silhouettes.  Keeping this separate from the sofa coordinates
-    // prevents a guest landing on an arm rest.
-    // The side-seat PNG is padded to the right of its canvas. These anchors
-    // compensate for that padding, placing its visible body in each cushion.
-    {id:'armchair-left',kind:'armchair',x:11.5,y:57.5,facing:'right',scale:.95},
-    {id:'armchair-right',kind:'armchair',x:89,y:57.5,facing:'left',scale:.95}
-  ];
-  Object.values(characters).forEach(definition=>[...definition.walk,...definition.sit,...definition.idle].forEach(src=>{const image=new Image();image.src=src;}));
+  const seats=billboardMode
+    ? [
+        // The anchor is intentionally ABOVE the visible platform line because
+        // the supplied 512px sitting sprites include transparent padding.
+        // This places hips on the metal ledge and lets the legs hang below it.
+        {id:'sofa-left',kind:'billboard',x:18.0,y:48.05},
+        {id:'sofa-left-centre',kind:'billboard',x:30.9,y:47.95},
+        {id:'sofa-right-centre',kind:'billboard',x:43.9,y:48.00},
+        {id:'sofa-right',kind:'billboard',x:56.8,y:47.95},
+        {id:'armchair-left',kind:'billboard',x:69.6,y:48.00},
+        {id:'armchair-right',kind:'billboard',x:81.8,y:47.85}
+      ]
+    : [
+        {id:'sofa-left',kind:'sofa',x:33,y:52},
+        {id:'sofa-left-centre',kind:'sofa',x:45,y:52},
+        {id:'sofa-right-centre',kind:'sofa',x:57.5,y:52},
+        {id:'sofa-right',kind:'sofa',x:69,y:52},
+        {id:'armchair-left',kind:'armchair',x:11.5,y:57.5,facing:'right',scale:.95},
+        {id:'armchair-right',kind:'armchair',x:89,y:57.5,facing:'left',scale:.95}
+      ];
+  Object.values(characters).forEach(definition=>[...definition.walk,...definition.sit,...definition.idle,...(definition.climb?[definition.climb]:[])].forEach(src=>{const image=new Image();image.src=src;}));
   const guests=new Map();
   // Local-only admin overrides let the site owner replay a character's genuine
   // walk-in / sit-down / walk-out mechanics without writing fake online rows.
@@ -6804,7 +6921,7 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   const forwardIdleFrames=(definition,guestKey='')=>{
     // Proco's exported breathing extremes shift her helmet noticeably. Use the
     // two neutral frames for a restrained idle while keeping a little life.
-    if(guestKey==='catasthma'||guestKey==='lemime'||guestKey==='proco')return [definition.idle[0]];
+    if(guestKey==='kat'||guestKey==='catasthma'||guestKey==='lemime'||guestKey==='proco')return [definition.idle[0]];
     // Smokedrope's forward-idle exports have different transparent bounds,
     // which makes the character appear to bob. Hold one neutral frame so the
     // seated character stays completely locked to the cushion.
@@ -6814,7 +6931,11 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     if(guestKey==='emlux')return [definition.idle[0]];
     return definition.idle.filter((_,index)=>index!==1&&index!==4);
   };
-  const walkDuration=(from,to)=>Math.max(650,Math.round(Math.abs(to.x-from.x)*42));
+  const walkDuration=(from,to)=>{
+    const dx=Math.abs((to.x||0)-(from.x||0));
+    const dy=Math.abs((to.y||0)-(from.y||0));
+    return Math.max(520,Math.round(Math.hypot(dx,dy)*46));
+  };
   function walkTo(actor,from,to){
     const duration=walkDuration(from,to);
     actor.el.style.transition=`left ${duration}ms linear,top ${duration}ms linear,opacity 180ms ease`;
@@ -6860,7 +6981,11 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     // and raised by a microscopic amount so she rests naturally on the sofa.
     const emluxForwardIdleScale=actor.isSeated&&actor.seat?.kind==='sofa'&&guestKey==='emlux'?1.02:1;
     const emluxForwardIdleY=actor.isSeated&&actor.seat?.kind==='sofa'&&guestKey==='emlux'?-0.3:0;
-    actor.img.style.setProperty('--frame-scale',scale*seatedScale*forwardSeatScale*guestScale*procoArmchairScale*smokedropeForwardIdleScale*emluxForwardIdleScale);actor.img.style.setProperty('--frame-y',`${offset+smokedropeForwardIdleY+emluxForwardIdleY}%`);actor.img.style.setProperty('--frame-x',`${facingOffset+procoForwardIdleX}%`);
+    // Proco's final seated PNG is visibly centred around x≈196 rather than the
+    // 512px canvas centre (256). Correct that transparent-canvas offset only
+    // on the billboard so her BODY aligns with the shared perch row.
+    const procoBillboardSeatX=actor.isSeated&&actor.seat?.kind==='billboard'&&guestKey==='proco'?11.6:0;
+    actor.img.style.setProperty('--frame-scale',scale*seatedScale*forwardSeatScale*guestScale*procoArmchairScale*smokedropeForwardIdleScale*emluxForwardIdleScale);actor.img.style.setProperty('--frame-y',`${offset+smokedropeForwardIdleY+emluxForwardIdleY}%`);actor.img.style.setProperty('--frame-x',`${facingOffset+procoForwardIdleX+procoBillboardSeatX}%`);
     actor.img.src=src;
   }
   function face(actor,direction){
@@ -6873,6 +6998,15 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     stopAnimation(actor);let frame=offset%frames.length;setFrame(actor,frames[frame]);
     actor.frameTimer=setInterval(()=>{frame=(frame+1)%frames.length;setFrame(actor,frames[frame]);},delay);
   }
+  async function playFramesOnce(actor,frames,delay=105,motionToken=actor?.motion){
+    stopAnimation(actor);
+    for(const src of frames){
+      if(actor.motion!==motionToken||actor.leaving||!actor.el.isConnected)return false;
+      setFrame(actor,src);
+      await wait(delay);
+    }
+    return actor.motion===motionToken&&!actor.leaving&&actor.el.isConnected;
+  }
   function setPoint(actor,point,immediate=false){
     if(immediate)actor.el.style.transition='none';
     actor.el.style.setProperty('--guest-x',`${point.x}%`);actor.el.style.setProperty('--guest-y',`${point.y}%`);
@@ -6881,11 +7015,14 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   function makeGuest(name,definition,seat){
     const el=document.createElement('div');el.className='tavern-guest';el.dataset.guest=name;el.dataset.seat=seat.id;
     el.classList.toggle('is-side-seat',seat.kind==='armchair');
-    const img=document.createElement('img');img.alt=`${definition.displayName} relaxing in the tavern`;img.draggable=false;el.appendChild(img);layer.appendChild(el);
+    const img=document.createElement('img');img.alt=`${definition.displayName} relaxing at the billboard`;img.draggable=false;el.appendChild(img);layer.appendChild(el);
+    if(definition.climbWidth)el.style.setProperty('--billboard-climb-width',definition.climbWidth);
+    if(definition.walkWidth)el.style.setProperty('--billboard-walk-width',definition.walkWidth);
+    if(billboardMode)el.classList.add('is-billboard-walking');
     if(name==='lemime')el.style.animation='none';
     // The entrance is derived from the server-owned seat, so every browser
     // shows the same character approaching from the same side.
-    const entrySide=seat.x<50?'left':'right';
+    const entrySide=billboardMode?'right':(seat.x<50?'left':'right');
     return {el,img,definition,seat,entrySide,frameTimer:null,leaving:false,motion:0,isSeated:false,testSeat:false};
   }
   function visualSeatPoint(actor){
@@ -6927,8 +7064,61 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     return actor.definition.sit[4];
   }
   const guestKeyForIdle=actor=>actor?.el?.dataset?.guest||'';
+  function beginBillboardClimb(actor){
+    stopAnimation(actor);
+    actor.isSeated=false;
+    actor.el.classList.remove('is-idle','is-billboard-seated','is-billboard-walking');
+    actor.el.classList.add('is-billboard-climbing');
+    // Uploaded climb poses face right. The ladder is approached from its
+    // outside/right edge, so flip the character to face left into the rungs.
+    face(actor,'left');
+    setFrame(actor,actor.definition.climb||actor.definition.walk[0]);
+  }
+  function endBillboardClimb(actor,walkDirection='left'){
+    actor.el.classList.remove('is-billboard-climbing','is-billboard-walking');
+    actor.el.classList.add('is-billboard-walking');
+    face(actor,walkDirection);
+    loopFrames(actor,actor.definition.walk,185,1);
+  }
   async function enterGuest(actor){
     const motion=++actor.motion;actor.leaving=false;actor.el.classList.remove('is-idle');
+    if(billboardMode){
+      const ladderEntry={x:104.5,y:88.3};
+      const ladderBase={x:91.8,y:86.2};
+      const ladderTop={x:91.8,y:actor.definition.ladderTopY||47.7};
+      const ledgeY=actor.definition.platformWalkY||46.1;
+      const seatPoint=visualSeatPoint(actor);
+      actor.el.classList.remove('is-billboard-seated');
+      actor.el.classList.add('is-billboard-walking');
+      face(actor,'left');setPoint(actor,ladderEntry,true);loopFrames(actor,actor.definition.walk,185);
+      requestAnimationFrame(()=>{actor.el.classList.add('is-present');walkTo(actor,ladderEntry,ladderBase);});
+      let duration=walkDuration(ladderEntry,ladderBase);
+      await wait(duration+40);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
+      beginBillboardClimb(actor);
+      duration=walkTo(actor,ladderBase,ladderTop);
+      await wait(duration+40);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
+      endBillboardClimb(actor,seatPoint.x<ladderTop.x?'left':'right');
+      const platformStart={x:ladderTop.x,y:ledgeY};
+      setPoint(actor,platformStart,true);
+      duration=walkTo(actor,platformStart,{x:seatPoint.x,y:ledgeY});
+      await wait(duration+35);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
+      stopAnimation(actor);
+      actor.el.classList.remove('is-billboard-walking');
+      actor.isSeated=true;
+      face(actor,'right');
+      actor.el.style.transition='left 260ms ease-out,top 340ms cubic-bezier(.2,.75,.25,1),opacity 180ms ease';
+      setPoint(actor,seatPoint);
+      await wait(260);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
+      // Billboard seating never uses the tavern's side-turn/lowering sequence.
+      // The actor arrives at the perch, settles briefly, then switches directly
+      // to the final forward seated pose so there is no sideways sitting flash.
+      await wait(120);
+      if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
+      stopAnimation(actor);setFrame(actor,actor.definition.sit[actor.definition.sit.length-1]);
+      actor.el.classList.add('is-idle','is-billboard-seated');
+      actor.el.style.transition='';
+      return;
+    }
     const fromLeft=actor.entrySide==='left';
     const seatPoint=visualSeatPoint(actor);const entrance={x:fromLeft?-18:118,y:64},approach={x:seatPoint.x,y:60};
     face(actor,fromLeft?'right':'left');setPoint(actor,entrance,true);loopFrames(actor,actor.definition.walk,190);
@@ -6936,30 +7126,24 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     requestAnimationFrame(()=>{actor.el.classList.add('is-present');walkTo(actor,entrance,approach);});
     await wait(duration+30);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
     stopAnimation(actor);
-    // Seat direction applies only after the walk. Front-facing sofa sprites
-    // stay unflipped; armchair sprites face into the room.
     face(actor,actor.seat.kind==='armchair'?actor.seat.facing:'right');
     actor.isSeated=true;
     actor.el.style.transition='left 420ms ease-out,top 520ms cubic-bezier(.2,.75,.25,1),opacity 180ms ease';
     setPoint(actor,seatPoint);
     setTimeout(()=>{if(actor.motion===motion)actor.el.style.transition='';},560);
     if(actor.seat.kind==='armchair'){
-      // Hold the supplied side-sitting pose after reaching the cushion.
       setFrame(actor,armchairRestFrame(actor));actor.el.classList.add('is-idle');
       return;
     }
-    // Sofa guests should simply walk over and sit forwards. Do not play the
-    // side-on lowering frames here: they caused the brief sideways jump and
-    // apparent disappearance on the middle cushions.
-    // Two differently-composed exports are excluded so the forward idle stays
-    // locked in place rather than flashing for one frame.
     loopFrames(actor,forwardIdleFrames(actor.definition,actor.el?.dataset?.guest),guestKeyForIdle(actor)==='proco'?520:390);actor.el.classList.add('is-idle');
   }
   function settleGuest(actor){
     ++actor.motion;actor.leaving=false;actor.isSeated=true;
+    actor.el.classList.remove('is-billboard-climbing','is-billboard-walking');
     actor.el.classList.add('is-present','is-idle');
-    face(actor,actor.seat.kind==='armchair'?actor.seat.facing:'right');
+    face(actor,billboardMode?'right':(actor.seat.kind==='armchair'?actor.seat.facing:'right'));
     setPoint(actor,visualSeatPoint(actor),true);
+    if(billboardMode){stopAnimation(actor);setFrame(actor,actor.definition.sit[actor.definition.sit.length-1]);actor.el.classList.add('is-idle','is-billboard-seated');return;}
     if(actor.seat.kind==='armchair'){setFrame(actor,armchairRestFrame(actor));return;}
     loopFrames(actor,forwardIdleFrames(actor.definition,actor.el?.dataset?.guest),guestKeyForIdle(actor)==='proco'?520:390);
   }
@@ -6968,6 +7152,28 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     actor.el.classList.remove('is-idle');
     if(actor.motion!==motion||!actor.el.isConnected)return;
     const seatPoint=visualSeatPoint(actor);
+    if(billboardMode){
+      const ladderTop={x:91.8,y:actor.definition.ladderTopY||47.7};
+      const ledgeY=actor.definition.platformWalkY||46.1;
+      const ladderBase={x:91.8,y:86.2};
+      const exit={x:104.5,y:88.3};
+      actor.el.classList.remove('is-billboard-seated');
+      actor.el.classList.add('is-billboard-walking');
+      face(actor,seatPoint.x<ladderTop.x?'right':'left');loopFrames(actor,actor.definition.walk,185,2);
+      setPoint(actor,{x:seatPoint.x,y:ledgeY},true);
+      let duration=walkTo(actor,{x:seatPoint.x,y:ledgeY},{x:ladderTop.x,y:ledgeY});
+      await wait(duration+40);if(actor.motion!==motion)return;
+      beginBillboardClimb(actor);
+      setPoint(actor,ladderTop,true);
+      duration=walkTo(actor,ladderTop,ladderBase);
+      await wait(duration+40);if(actor.motion!==motion)return;
+      actor.el.classList.remove('is-billboard-climbing');
+      actor.el.classList.add('is-billboard-walking');
+      face(actor,'right');loopFrames(actor,actor.definition.walk,185,2);duration=walkTo(actor,ladderBase,exit);
+      await wait(duration+40);if(actor.motion!==motion)return;
+      stopAnimation(actor);actor.el.remove();guests.delete(actor.el.dataset.guest);
+      return;
+    }
     const exitLeft=actor.entrySide==='left',exit={x:exitLeft?-18:118,y:64},from={x:seatPoint.x,y:seatPoint.y};
     face(actor,exitLeft?'left':'right');loopFrames(actor,actor.definition.walk,190,2);const duration=walkTo(actor,from,exit);
     await wait(duration+30);if(actor.motion!==motion)return;stopAnimation(actor);actor.el.remove();guests.delete(actor.el.dataset.guest);

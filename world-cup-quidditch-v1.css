@@ -25,7 +25,7 @@
 
 .wcg-scorebar{
   position:absolute;z-index:100;left:50%;top:2.8%;transform:translateX(-50%);width:min(760px,64%);
-  min-height:68px;display:grid;grid-template-columns:1fr 126px 1fr;align-items:stretch;
+  min-height:78px;display:grid;grid-template-columns:1fr 126px 1fr;align-items:stretch;
   border:2px solid #c99738;outline:2px solid rgba(3,8,15,.92);outline-offset:-6px;
   background:linear-gradient(180deg,rgba(15,31,48,.97),rgba(3,10,17,.96));
   box-shadow:0 8px 20px #000b,inset 0 0 28px rgba(55,110,163,.16);text-shadow:0 2px #000;
@@ -36,7 +36,7 @@
 .wcg-team-badge{width:36px;height:36px;display:grid;place-items:center;border:2px solid #d9ac4d;transform:rotate(45deg);background:#240b08;box-shadow:0 0 10px #000}
 .wcg-team-score:last-child .wcg-team-badge{background:#332606}
 .wcg-team-badge span{transform:rotate(-45deg);font:900 11px/1 monospace;color:#fff4c2}
-.wcg-team-copy{min-width:0}.wcg-team-copy b{display:block;font-size:19px;letter-spacing:.08em;color:#ffe3a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wcg-team-copy small{display:block;margin-top:3px;font:800 7px/1.1 monospace;letter-spacing:.11em;color:#90b5d1}
+.wcg-team-copy{min-width:0}.wcg-team-copy b{display:block;font-size:19px;letter-spacing:.08em;color:#ffe3a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wcg-team-copy small{display:block;margin-top:3px;font:800 7px/1.1 monospace;letter-spacing:.11em;color:#90b5d1}.wcg-team-lineup{opacity:.9}.wcg-team-scorers{margin-top:4px;font:900 6px/1.12 monospace;letter-spacing:.08em;color:#f0d27a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .wcg-team-goals{font:900 35px/1 Georgia,serif;color:#fff3c3;min-width:36px;text-align:center}
 .wcg-clock{display:grid;place-content:center;text-align:center;padding:5px;background:linear-gradient(#091521,#020609)}
 .wcg-clock b{font:900 23px/1 monospace;color:#fff0ae}.wcg-clock span{margin-top:4px;font:900 7px/1 monospace;letter-spacing:.16em;color:#e3be67}.wcg-clock em{margin-top:4px;font:800 6px/1 monospace;color:#78c9a0;font-style:normal}
@@ -79,7 +79,7 @@
 .wcg-player-label{position:absolute;z-index:60;transform:translate(-50%,-50%);padding:3px 5px;border:1px solid rgba(211,169,78,.6);background:rgba(2,8,13,.72);color:#fff2bd;font:900 7px/1 monospace;letter-spacing:.03em;pointer-events:none;white-space:nowrap;text-shadow:0 1px #000;opacity:.9}
 
 @media(max-width:900px){
-  .wcg-scorebar{width:74%;grid-template-columns:1fr 94px 1fr;min-height:54px}.wcg-team-score{gap:5px;padding:6px 8px}.wcg-team-badge{width:27px;height:27px}.wcg-team-copy b{font-size:12px}.wcg-team-copy small{font-size:5px}.wcg-team-goals{font-size:26px}.wcg-clock b{font-size:17px}.wcg-commentator{width:50%;height:90px;grid-template-columns:72px 1fr}.wcg-barry{width:76px;max-height:86px}.wcg-comment-box{min-height:58px;padding:7px 8px}.wcg-comment-box p{font-size:9px}.wcg-mini-stats{display:none}.wcg-live-chip{font-size:6px}.wcg-event-banner{font-size:11px}.wcg-panel{width:89%;padding:15px}.wcg-halftime-stats{grid-template-columns:1fr 85px 1fr}.wcg-controls{bottom:5.2%}
+  .wcg-scorebar{width:74%;grid-template-columns:1fr 94px 1fr;min-height:64px}.wcg-team-score{gap:5px;padding:6px 8px}.wcg-team-badge{width:27px;height:27px}.wcg-team-copy b{font-size:12px}.wcg-team-copy small{font-size:5px}.wcg-team-goals{font-size:26px}.wcg-clock b{font-size:17px}.wcg-commentator{width:50%;height:90px;grid-template-columns:72px 1fr}.wcg-barry{width:76px;max-height:86px}.wcg-comment-box{min-height:58px;padding:7px 8px}.wcg-comment-box p{font-size:9px}.wcg-mini-stats{display:none}.wcg-live-chip{font-size:6px}.wcg-event-banner{font-size:11px}.wcg-panel{width:89%;padding:15px}.wcg-halftime-stats{grid-template-columns:1fr 85px 1fr}.wcg-controls{bottom:5.2%}
 }
 @media(prefers-reduced-motion:reduce){.wcg-snow{display:none}.wcg-live-chip::before,.wcg-commentator.is-speaking .wcg-barry{animation:none!important}}
 
@@ -135,3 +135,211 @@
 #wcWorldCupBroadcast[data-barry-debug="HALFTIME"] .wcg-comment-box{border-color:#93b7cf}
 #wcWorldCupBroadcast[data-barry-debug="FULLTIME"] .wcg-comment-box{border-color:#d6aa4c}
 @media(prefers-reduced-motion:reduce){.wcg-commentator.is-excited .wcg-barry,.wcg-commentator.is-shocked .wcg-barry,.wcg-commentator.is-goal .wcg-barry,.wcg-commentator.is-var .wcg-barry{animation:none!important}}
+
+/* ============================================================
+   V16 — REPO SPORTS BRANDING, FLAGS & HALF-TIME DESK
+   ============================================================ */
+.wcg-scorebar{width:min(820px,68%);grid-template-columns:1fr 136px 1fr}
+.wcg-team-badge{width:42px;height:32px;border:0;transform:none;background:transparent!important;box-shadow:none;overflow:hidden;border-radius:2px}
+.wcg-team-flag{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;filter:drop-shadow(0 2px 3px #000)}
+.wcg-score-logo{display:block;width:72px;height:18px;object-fit:contain;margin:0 auto 2px;filter:drop-shadow(0 1px 2px #000)}
+.wcg-clock{padding:3px 5px 5px}.wcg-clock b{font-size:20px}.wcg-clock span{margin-top:2px}
+.wcg-live-chip{gap:7px;border-color:rgba(113,169,207,.42);background:linear-gradient(180deg,rgba(10,28,43,.94),rgba(3,9,15,.95));color:#e7f4fb}
+.wcg-live-chip img{width:74px;height:17px;object-fit:contain;filter:drop-shadow(0 1px 2px #000)}
+
+.wcg-presentation-brand{display:flex;align-items:center;justify-content:center;gap:9px;margin:-5px auto 8px;padding-bottom:7px;border-bottom:1px solid rgba(112,172,207,.18)}
+.wcg-presentation-brand img{width:88px;height:22px;object-fit:contain;filter:drop-shadow(0 2px 2px #000)}
+.wcg-presentation-brand span{color:#77badf;font:900 7px/1 monospace;letter-spacing:.18em}
+.wcg-flag-matchup{display:grid;grid-template-columns:1fr 80px 1fr;gap:14px;align-items:center;max-width:610px;margin:9px auto 12px}
+.wcg-flag-matchup>div{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0}
+.wcg-flag-matchup>div:first-child{justify-content:flex-end}.wcg-flag-matchup>div:last-child{justify-content:flex-start}
+.wcg-broadcast-flag{width:52px;height:34px;object-fit:cover;image-rendering:pixelated;filter:drop-shadow(0 3px 3px #000)}
+.wcg-flag-matchup b{color:#fff0ba;font:900 18px/1 Georgia,serif;letter-spacing:.06em}.wcg-flag-matchup strong{color:#fff3c3;font:900 31px/1 Georgia,serif}.wcg-flag-matchup>span{color:#82b9d9;font:900 7px/1 monospace;letter-spacing:.14em}
+.wcg-versus-sub{color:#91b8d0;font:900 7px/1 monospace;letter-spacing:.15em}
+.wcg-lineup-side h3{display:flex;align-items:center;justify-content:center;gap:7px}.wcg-lineup-flag{width:29px;height:18px;object-fit:cover;image-rendering:pixelated}
+.wcg-key-player small{display:flex;align-items:center;gap:5px}.wcg-key-flag{width:22px;height:14px;object-fit:cover;image-rendering:pixelated}
+
+/* Barry now faces into the pitch. All reaction keyframes preserve the flip. */
+.wcg-commentator{width:min(590px,47%);height:124px;grid-template-columns:108px minmax(0,1fr);align-items:end}
+.wcg-barry{width:114px;max-height:120px;transform:scaleX(-1);filter:drop-shadow(0 6px 5px #000)}
+.wcg-comment-box{position:relative;min-height:88px;padding:0 16px 12px 17px;border:1px solid rgba(107,171,211,.72);border-left:4px solid #dfb45d;background:linear-gradient(110deg,rgba(5,18,29,.98),rgba(12,33,49,.97) 62%,rgba(3,10,16,.98));box-shadow:0 12px 28px #000d,inset 0 1px rgba(255,255,255,.05),inset 0 0 24px rgba(64,138,181,.12);clip-path:polygon(0 0,96% 0,100% 22%,100% 100%,0 100%)}
+.wcg-comment-box::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,#d9aa4a,#66b5e1,transparent)}
+.wcg-comment-head{min-height:35px;margin:0 -16px 9px -17px;padding:6px 16px 5px 17px;display:grid;grid-template-columns:76px 1fr auto;gap:10px;align-items:center;background:linear-gradient(90deg,rgba(20,56,79,.78),rgba(7,24,36,.40));border-bottom:1px solid rgba(115,179,215,.24)}
+.wcg-comment-head>img{width:70px;height:20px;object-fit:contain;filter:drop-shadow(0 1px 2px #000)}
+.wcg-comment-head div b{display:block!important;margin:0!important;color:#ffe09b!important;font:900 11px/1 Georgia,serif!important;letter-spacing:.07em!important}.wcg-comment-head div span{display:block;margin-top:3px;color:#8fbfd8;font:900 6px/1 monospace;letter-spacing:.13em}.wcg-comment-head i{font:900 6px/1 monospace;font-style:normal;letter-spacing:.12em;color:#ffdf88;border:1px solid rgba(225,174,80,.48);padding:4px 5px;background:rgba(87,49,8,.32)}
+.wcg-comment-box p{font-size:13px;line-height:1.38;color:#f2ead7}
+@keyframes wcgBarryTalk{0%,100%{transform:scaleX(-1) translateY(0)}50%{transform:scaleX(-1) translateY(-2px) rotate(.8deg)}}
+@keyframes wcgBarryInterested{0%,100%{transform:scaleX(-1) translateY(0)}45%{transform:scaleX(-1) translateY(-3px) rotate(1deg)}}
+@keyframes wcgBarryShock{0%,100%{transform:scaleX(-1) translateY(0) scale(1)}35%{transform:scaleX(-1) translateY(-5px) scale(1.035)}}
+@keyframes wcgBarryGoal{0%{transform:scaleX(-1) translateY(0) scale(1)}32%{transform:scaleX(-1) translateY(-8px) scale(1.07) rotate(2deg)}68%{transform:scaleX(-1) translateY(-3px) scale(1.04) rotate(-1deg)}100%{transform:scaleX(-1) translateY(0) scale(1)}}
+@keyframes wcgBarryVar{0%,100%{transform:scaleX(-1) translateY(0)}35%{transform:scaleX(-1) translateY(-2px) rotate(-.8deg)}}
+
+.wcg-half-wait-panel{width:min(790px,88%);max-height:84%;padding:17px 24px 18px;border:1px solid rgba(111,177,215,.72);outline:1px solid rgba(229,183,85,.52);outline-offset:-7px;background:radial-gradient(circle at 50% -15%,rgba(44,111,153,.28),transparent 40%),linear-gradient(180deg,rgba(11,31,47,.98),rgba(3,10,16,.98) 73%)}
+.wcg-half-brand{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:8px}.wcg-half-brand img{width:92px;height:22px;object-fit:contain}.wcg-half-brand span{color:#7fbad8;font:900 7px/1 monospace;letter-spacing:.17em}
+.wcg-halftime-stats{max-width:650px;margin-top:12px}.wcg-half-team{display:grid;grid-template-columns:46px 1fr auto;gap:9px;align-items:center;padding:8px 11px;border:1px solid rgba(105,164,199,.25);background:rgba(3,12,19,.66);text-align:left}.wcg-half-team:last-child{grid-template-columns:46px 1fr auto}.wcg-half-team img{width:46px;height:30px;object-fit:cover;image-rendering:pixelated}.wcg-half-team b{font-size:13px}.wcg-half-team strong{margin:0;font-size:32px}.wcg-half-centre{font-size:8px}
+.wcg-half-rotation{min-height:176px;max-width:690px;margin:12px auto 0;padding:12px 16px;border-top:1px solid rgba(100,162,198,.23);border-bottom:1px solid rgba(100,162,198,.18);background:linear-gradient(90deg,transparent,rgba(15,42,60,.52),transparent);opacity:0;transform:translateY(4px);transition:opacity .65s ease,transform .65s ease}
+.wcg-half-rotation.is-visible{opacity:1;transform:none}.wcg-half-slide>small{display:block;color:#78b7d7;font:900 7px/1 monospace;letter-spacing:.15em}.wcg-half-slide h4{margin:7px 0 8px;color:#ffe09a;font:900 20px/1 Georgia,serif;letter-spacing:.06em}.wcg-half-slide p{margin:4px auto!important;max-width:600px;color:#e8e0cc;font-size:12px}.wcg-half-rotation .wcg-broadcast-stats{max-width:650px;margin:5px auto}.wcg-half-rotation .wcg-broadcast-stats>div{padding:4px 10px}.wcg-half-player-card{display:grid;grid-template-columns:84px 1fr;gap:14px;align-items:center;max-width:500px;margin:0 auto;text-align:left}.wcg-half-player-card img{width:82px;height:86px;object-fit:contain;image-rendering:pixelated}.wcg-half-player-card p{font:800 9px/1.6 monospace!important}.wcg-half-player-card p b{color:#ffe0a0}
+#wcgHalfCopy{margin:11px auto 0;color:#a9c8da;font:800 8px/1.3 monospace;letter-spacing:.06em}
+.wcg-half-wait-panel button{margin-top:11px;border:1px solid rgba(95,167,207,.75);background:linear-gradient(180deg,#173b52,#07151f);color:#eff8fc;box-shadow:0 5px 14px #0009,inset 0 1px rgba(255,255,255,.08)}
+
+@media(max-width:900px){
+  .wcg-scorebar{width:78%;grid-template-columns:1fr 102px 1fr;min-height:62px}.wcg-team-badge{width:30px;height:23px}.wcg-score-logo{width:55px;height:14px}.wcg-live-chip img{width:56px}.wcg-commentator{width:56%;grid-template-columns:76px 1fr}.wcg-barry{width:82px;max-height:88px}.wcg-comment-head{grid-template-columns:55px 1fr auto}.wcg-comment-head>img{width:52px}.wcg-comment-head div b{font-size:8px!important}.wcg-comment-head div span{font-size:5px}.wcg-comment-box p{font-size:9px}.wcg-flag-matchup{grid-template-columns:1fr 52px 1fr}.wcg-broadcast-flag{width:38px;height:25px}.wcg-flag-matchup b{font-size:12px}.wcg-half-rotation{min-height:145px}.wcg-half-wait-panel{width:92%;padding:13px 14px}.wcg-half-team{grid-template-columns:32px 1fr auto}.wcg-half-team img{width:32px;height:21px}.wcg-half-team strong{font-size:24px}
+}
+
+/* ============================================================
+   V17 — REAL VELMORA FLAGS + BARRY BRAMBLE MAKESHIFT STUDIO
+   The flag files are direct crops of the user-supplied Velmora map.
+   ============================================================ */
+.wcg-team-badge{
+  width:52px;height:30px;padding:2px 3px;
+  border:1px solid rgba(218,176,83,.72);border-radius:2px;
+  background:linear-gradient(180deg,rgba(18,29,36,.96),rgba(4,9,13,.98))!important;
+  box-shadow:0 3px 8px #0009,inset 0 0 0 1px rgba(255,224,145,.08);
+  overflow:hidden;
+}
+.wcg-team-flag,.wcg-broadcast-flag,.wcg-lineup-flag,.wcg-key-flag,.wcg-half-team img{
+  object-fit:contain!important;background:rgba(2,7,11,.72);image-rendering:pixelated;
+}
+.wcg-broadcast-flag{padding:2px;border:1px solid rgba(216,174,80,.58);border-radius:2px}
+.wcg-lineup-flag,.wcg-key-flag{padding:1px;border:1px solid rgba(215,173,81,.48);border-radius:1px}
+.wcg-half-team img{padding:2px;border:1px solid rgba(215,173,81,.52);border-radius:2px}
+
+/* A physical little pitch-side broadcast booth made entirely from HTML/CSS. */
+.wcg-commentator{
+  width:min(660px,52%);height:148px;
+  grid-template-columns:154px minmax(0,1fr);gap:0;align-items:end;
+}
+.wcg-barry-studio{
+  position:relative;align-self:end;width:154px;height:136px;z-index:2;
+  border:2px solid #b98331;border-bottom-width:3px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px) 0 0/9px 100%,
+    linear-gradient(180deg,#112636 0 22%,#07121b 22% 100%);
+  box-shadow:0 11px 22px #000d,inset 0 0 0 2px #02070b,inset 0 0 22px rgba(62,125,164,.16);
+  clip-path:polygon(3% 0,97% 0,100% 4%,100% 100%,0 100%,0 4%);
+  overflow:visible;
+}
+.wcg-barry-studio::before,.wcg-barry-studio::after{
+  content:'';position:absolute;top:23px;bottom:22px;width:7px;z-index:5;
+  background:linear-gradient(90deg,#3c250e,#ad7528 40%,#2a1708 44% 70%,#d2a049 74%,#3a220d);
+  box-shadow:0 0 6px #000;
+}
+.wcg-barry-studio::before{left:5px}.wcg-barry-studio::after{right:5px}
+.wcg-studio-roof{
+  position:absolute;z-index:7;left:5px;right:5px;top:4px;height:24px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 7px;
+  border:1px solid rgba(218,174,77,.55);
+  background:linear-gradient(180deg,#173a50,#07131d);
+  box-shadow:0 3px 6px #000a,inset 0 1px rgba(255,255,255,.06);
+}
+.wcg-studio-roof span{color:#f3d47e;font:900 7px/1 monospace;letter-spacing:.11em;text-shadow:0 1px #000}
+.wcg-studio-roof i{font:900 5px/1 monospace;font-style:normal;letter-spacing:.1em;color:#88c4e5}
+.wcg-studio-window{
+  position:absolute;z-index:2;left:10px;right:10px;top:29px;bottom:23px;overflow:hidden;
+  border:1px solid rgba(92,154,189,.38);
+  background:
+    linear-gradient(155deg,rgba(100,186,231,.08),transparent 34%),
+    radial-gradient(circle at 76% 12%,rgba(255,212,111,.10),transparent 25%),
+    linear-gradient(180deg,rgba(7,25,38,.96),rgba(2,8,13,.98));
+  box-shadow:inset 0 0 18px #000b;
+}
+.wcg-studio-window::before{
+  content:'';position:absolute;left:8px;top:8px;width:18px;height:5px;border-radius:50%;
+  background:rgba(235,197,103,.28);filter:blur(3px);box-shadow:92px 2px 8px rgba(109,191,234,.20);
+}
+.wcg-barry-studio .wcg-barry{
+  position:absolute;z-index:3;left:17px;bottom:-4px;width:118px;max-height:109px;
+  object-fit:contain;object-position:center bottom;margin:0;
+  transform:scaleX(-1);transform-origin:50% 100%;
+  filter:drop-shadow(0 5px 4px #000);
+}
+.wcg-studio-desk{
+  position:absolute;z-index:6;left:4px;right:4px;bottom:5px;height:31px;
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:5px;padding:4px 8px;
+  border:1px solid #a77228;border-top:2px solid #d1a24c;
+  background:linear-gradient(180deg,#173142 0,#07131c 42%,#03090e 100%);
+  box-shadow:0 -4px 9px #0009,inset 0 1px rgba(255,255,255,.06);
+}
+.wcg-studio-desk img{display:block;width:78px;height:19px;object-fit:contain;filter:drop-shadow(0 1px 2px #000)}
+.wcg-studio-desk span{color:#e2bd66;font:900 5px/1 monospace;letter-spacing:.1em;writing-mode:vertical-rl;transform:rotate(180deg)}
+.wcg-studio-leg{position:absolute;z-index:1;bottom:-8px;width:9px;height:15px;background:#18100a;border:1px solid #79531e;box-shadow:0 4px 5px #000}.wcg-studio-leg-left{left:22px}.wcg-studio-leg-right{right:22px}
+
+/* The lower third now docks into the booth rather than beginning beside a floating sprite. */
+.wcg-comment-box{
+  margin-left:-2px;min-height:91px;border-left:2px solid #c18b35;
+  clip-path:polygon(0 0,96.5% 0,100% 20%,100% 100%,0 100%);
+}
+.wcg-comment-box::before{
+  content:'';position:absolute;left:-1px;top:13px;width:8px;height:55px;
+  background:linear-gradient(180deg,#d1a14b,#5e3b12,#d1a14b);box-shadow:0 0 6px #000;
+}
+
+/* Preserve Barry's inward-facing flip throughout reaction animations inside the booth. */
+.wcg-commentator.is-speaking .wcg-barry{animation:wcgBarryTalkV17 .38s ease-in-out 2}
+.wcg-commentator.is-excited .wcg-barry{animation:wcgBarryInterestedV17 .34s cubic-bezier(.2,.8,.2,1) both}
+.wcg-commentator.is-shocked .wcg-barry{animation:wcgBarryShockV17 .42s cubic-bezier(.16,.9,.22,1) both}
+.wcg-commentator.is-goal .wcg-barry{animation:wcgBarryGoalV17 .60s cubic-bezier(.16,.9,.22,1) both}
+.wcg-commentator.is-var .wcg-barry{animation:wcgBarryVarV17 .48s ease-out both}
+@keyframes wcgBarryTalkV17{0%,100%{transform:scaleX(-1) translateY(0)}50%{transform:scaleX(-1) translateY(-2px) rotate(.8deg)}}
+@keyframes wcgBarryInterestedV17{0%,100%{transform:scaleX(-1) translateY(0)}45%{transform:scaleX(-1) translateY(-3px) rotate(1deg)}}
+@keyframes wcgBarryShockV17{0%,100%{transform:scaleX(-1) translateY(0) scale(1)}35%{transform:scaleX(-1) translateY(-4px) scale(1.03)}}
+@keyframes wcgBarryGoalV17{0%{transform:scaleX(-1) translateY(0) scale(1)}32%{transform:scaleX(-1) translateY(-6px) scale(1.055) rotate(1.5deg)}68%{transform:scaleX(-1) translateY(-2px) scale(1.03) rotate(-.7deg)}100%{transform:scaleX(-1) translateY(0) scale(1)}}
+@keyframes wcgBarryVarV17{0%,100%{transform:scaleX(-1) translateY(0)}35%{transform:scaleX(-1) translateY(-2px) rotate(-.6deg)}}
+
+@media(max-width:900px){
+  .wcg-team-badge{width:36px;height:22px;padding:1px 2px}
+  .wcg-commentator{width:61%;height:112px;grid-template-columns:108px minmax(0,1fr)}
+  .wcg-barry-studio{width:108px;height:102px}
+  .wcg-studio-roof{height:19px;left:4px;right:4px;top:3px;padding:0 4px}.wcg-studio-roof span{font-size:5px}.wcg-studio-roof i{font-size:4px}
+  .wcg-studio-window{left:7px;right:7px;top:23px;bottom:19px}
+  .wcg-barry-studio .wcg-barry{left:10px;bottom:-3px;width:88px;max-height:79px}
+  .wcg-studio-desk{left:3px;right:3px;bottom:4px;height:24px;padding:3px 5px}.wcg-studio-desk img{width:56px;height:14px}.wcg-studio-desk span{font-size:4px}
+  .wcg-comment-box{min-height:74px}
+}
+
+/* V18 goal-event presentation: keep the existing broadcast language, but make a score feel significant. */
+#wcWorldCupBroadcast.is-goal-celebration .wcg-scorebar { animation: wcg-goal-score-pulse .72s ease-in-out 0s 8; box-shadow: 0 0 28px rgba(255,202,67,.34), 0 8px 28px rgba(0,0,0,.66); }
+#wcWorldCupBroadcast.is-goal-celebration .wcg-live-chip { animation: wcg-goal-live-pulse .8s ease-in-out infinite alternate; }
+#wcWorldCupBroadcast.is-goal-celebration .wcg-event-banner.is-visible { transform: translateX(-50%) scale(1.045); }
+@keyframes wcg-goal-score-pulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.28) drop-shadow(0 0 10px rgba(255,205,88,.55)); } }
+@keyframes wcg-goal-live-pulse { from { filter: brightness(1); } to { filter: brightness(1.2); } }
+
+#wcWorldCupBroadcast.is-goal-celebration .wcg-stage::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:7;box-shadow:inset 0 0 90px rgba(255,194,55,.14);animation:wcg-goal-arena-flash .62s ease-in-out infinite alternate}
+@keyframes wcg-goal-arena-flash{from{opacity:.22}to{opacity:.72}}
+
+/* ============================================================
+   V26 · REPO SPORTS BROADCAST DIRECTOR V2
+   ============================================================ */
+.wcg-replay-bug{position:absolute;z-index:128;left:4.1%;top:11.8%;display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(218,175,82,.82);background:linear-gradient(180deg,rgba(8,23,35,.96),rgba(2,8,13,.96));box-shadow:0 6px 18px #000a,inset 0 0 12px rgba(93,161,204,.08);opacity:0;transform:translateY(-7px);pointer-events:none;transition:opacity .22s ease,transform .22s ease;color:#f6dfa0;text-shadow:0 1px #000}
+.wcg-replay-bug.is-visible{opacity:1;transform:none}
+.wcg-replay-bug img{width:64px;height:16px;object-fit:contain;filter:drop-shadow(0 1px 2px #000)}
+.wcg-replay-bug span{padding:3px 6px;border-left:1px solid rgba(218,175,82,.42);border-right:1px solid rgba(218,175,82,.42);font:900 10px/1 monospace;letter-spacing:.14em}
+.wcg-replay-bug i{font:800 7px/1 monospace;font-style:normal;letter-spacing:.13em;color:#8fc0dd}
+#wcWorldCupBroadcast[data-broadcast-state="REPLAY"] .wcg-live-chip{opacity:.42}
+#wcWorldCupBroadcast[data-broadcast-state="REPLAY"] .wcg-mini-stats{opacity:.20}
+
+.wcg-story-card{position:absolute;z-index:124;left:4.1%;top:22%;bottom:auto;width:min(360px,30%);min-height:72px;display:grid;grid-template-columns:54px 1fr auto;align-items:center;gap:9px;padding:8px 10px;border:1px solid rgba(203,157,68,.78);background:linear-gradient(105deg,rgba(4,15,24,.96),rgba(8,28,42,.94) 68%,rgba(39,26,8,.90));box-shadow:0 10px 26px #000b,inset 0 0 18px rgba(90,164,207,.07);opacity:0;transform:translateX(-18px);pointer-events:none;transition:opacity .28s ease,transform .32s cubic-bezier(.2,.75,.25,1);overflow:hidden}
+.wcg-story-card::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,#6db5dd,#e3b350,transparent);opacity:.78}
+.wcg-story-card.is-visible{opacity:1;transform:none}
+.wcg-story-flag{width:48px;height:33px;display:grid;place-items:center;border:1px solid rgba(219,175,79,.42);background:#07131d;overflow:hidden}
+.wcg-story-flag img{width:100%;height:100%;object-fit:cover}
+.wcg-story-copy{display:flex;min-width:0;flex-direction:column;gap:3px;text-shadow:0 1px #000}
+.wcg-story-copy small{color:#79b9db;font:900 6px/1 monospace;letter-spacing:.18em;text-transform:uppercase}
+.wcg-story-copy b{color:#ffe09a;font:900 15px/1 Georgia,serif;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wcg-story-copy span{color:#d5e2e9;font:800 7px/1.2 monospace;letter-spacing:.04em}
+.wcg-story-player{align-self:end;width:58px;height:66px;object-fit:contain;object-position:center bottom;image-rendering:auto;filter:drop-shadow(0 2px 2px #000)}
+
+#wcWorldCupBroadcast[data-broadcast-state="REPLAY"] .wcg-event-banner{opacity:0!important}
+#wcWorldCupBroadcast[data-broadcast-state="REPLAY"] .wcg-commentator{opacity:.58;transition:opacity .25s ease}
+
+@media(max-width:900px){.wcg-story-card{width:38%;grid-template-columns:40px 1fr auto;bottom:21%}.wcg-story-flag{width:36px;height:25px}.wcg-story-player{width:42px;height:50px}.wcg-story-copy b{font-size:10px}.wcg-replay-bug{left:3.5%;top:12.5%}.wcg-replay-bug img{width:48px}}
+@media(prefers-reduced-motion:reduce){.wcg-replay-bug,.wcg-story-card{transition:none!important}}
+
+.wcg-replay-sponsor{position:absolute;z-index:129;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0;transform:scale(.82);transition:opacity .18s ease,transform .28s cubic-bezier(.2,.75,.25,1)}
+.wcg-replay-sponsor::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.16),rgba(6,11,18,.18) 32%,rgba(0,0,0,.55) 100%)}
+.wcg-replay-sponsor img{position:relative;max-width:min(460px,46%);max-height:28%;object-fit:contain;filter:drop-shadow(0 10px 26px rgba(0,0,0,.8)) drop-shadow(0 0 28px rgba(255,210,90,.18))}
+.wcg-replay-sponsor.is-visible{opacity:1;transform:scale(1.02);animation:wcgReplaySponsorFlash .82s cubic-bezier(.2,.72,.22,1) both}
+@keyframes wcgReplaySponsorFlash{0%{opacity:0;transform:scale(.76)}18%{opacity:1;transform:scale(1.08)}72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.98)}}
+
+@media(max-width:900px){.wcg-team-scorers{font-size:5px}}
+@media(max-width:1100px){.wcg-team-scorers{font-size:5px}}
