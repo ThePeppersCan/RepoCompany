@@ -1,0 +1,28 @@
+REPO COMPANY — V38.17 GOBLIN PARTY LOW-LATENCY CLIENT
+
+ONLY MODIFIED FILES
+- index.html
+- assets/goblin-bomb-party/multiplayer.js
+
+WHAT CHANGED
+- Guest WASD movement now uses immediate local client prediction.
+- Key presses no longer wait for guest -> host -> state round-trip before moving visually.
+- Host remains authoritative for the actual match result, collisions, eliminations, bomb state and hazards.
+- Guest position reconciles softly to host state and only hard-corrects major divergence.
+- Releasing movement converges quickly back to exact host position.
+- Guest dash gets immediate local visual prediction, then host confirmation.
+- Host state stream increased from ~15 Hz to ~30 Hz.
+- Guest input loop increased and key changes still transmit immediately.
+- Mouse/input packets are throttled so pointer movement cannot flood Supabase Realtime and delay gameplay packets.
+- Identical held inputs use a short keepalive instead of unnecessary constant broadcasts.
+- Host now broadcasts one shared state packet per tick rather than duplicating the same snapshot once per guest.
+- Shared game events/results also use one broadcast instead of duplicate targeted copies.
+- Remote competitors interpolate faster toward the host's authoritative state.
+
+RESULT
+The non-host should now feel dramatically closer to the host: movement begins on the next local animation frame instead of after network round-trip latency.
+
+INSTALL
+Drag both files/folders into:
+C:\Users\Isaac\Desktop\web2\
+Overwrite when prompted, then Ctrl + Shift + R.

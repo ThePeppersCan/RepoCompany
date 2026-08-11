@@ -10,8 +10,12 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ALPHABET='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const MAX_HUMANS=4;
 const TOTAL_COMPETITORS=8;
-const INPUT_MS=33;
-const STATE_MS=66;
+const INPUT_MS=20;
+const STATE_MS=33;
+const INPUT_THROTTLE_MS=18;
+const INPUT_KEEPALIVE_MS=100;
+const LOCAL_SOFT_ERROR=22;
+const LOCAL_HARD_ERROR=120;
 const LOBBY_HEARTBEAT_MS=1200;
 
 function code6(){let s='';for(let i=0;i<6;i++)s+=ALPHABET[Math.floor(Math.random()*ALPHABET.length)];return s;}
@@ -49,6 +53,8 @@ function install(){
       this.humanPlacements={};
       this.lastNetworkAt=performance.now();
       this.networkBombTarget=null;
+      this.localPredictionKeys=new Set();
+      this.localAuthX=null;this.localAuthY=null;this.localAuthAt=0;
       super.init();
     }
     createCompetitors(){
@@ -90,6 +96,58 @@ function install(){
       return super.aiInput(e,dt,owner);
     }
     recoverStuckAI(e){if(e?.isHuman)return;return super.recoverStuckAI(e);}
+    setLocalPredictionInput(payload={}){
+      if(!this.networkClient)return false;
+      const keys=new Set(Array.isArray(payload.keys)?payload.keys:[]);
+      this.localPredictionKeys=keys;
+      // Keep BaseEngine's key set aligned so locally predicted dash direction is
+      // identical to the host's eventual authoritative dash direction.
+      this.keys=new Set(keys);
+      if(Number.isFinite(Number(payload.mouseX)))this.mouse.x=Number(payload.mouseX);
+      if(Number.isFinite(Number(payload.mouseY)))this.mouse.y=Number(payload.mouseY);
+      return true;
+    }
+    predictLocalDash(){
+      if(!this.networkClient)return false;
+      const e=this.player;if(!e?.alive||this.spectating)return false;
+      this.tryDash(e);return true;
+    }
+    predictLocalMovement(dt){
+      const e=this.player;if(!e?.alive||this.spectating)return;
+      const keys=this.localPredictionKeys||this.keys||new Set();
+      let ix=(keys.has('d')||keys.has('ArrowRight')?1:0)-(keys.has('a')||keys.has('ArrowLeft')?1:0);
+      let iy=(keys.has('s')||keys.has('ArrowDown')?1:0)-(keys.has('w')||keys.has('ArrowUp')?1:0);
+      const moving=Math.abs(ix)+Math.abs(iy)>.01;
+      const d=Math.hypot(ix,iy)||1;
+      if(moving){e.lastDirX=ix/d;e.lastDirY=iy/d;e.dir=e.lastDirX<-.05?-1:e.lastDirX>.05?1:e.dir;}
+      let speed=e.speed*(this.rareEvent?.type==='fast'?1.28:1);
+      if(e.frozen>0)speed*=.08;
+      if(e.dashT>0){ix=e.dashDx;iy=e.dashDy;speed=620;}
+      const md=Math.hypot(ix,iy)||1,ox=e.x,oy=e.y;
+      e.x+=(Math.abs(ix)+Math.abs(iy)>.01?ix/md:0)*speed*dt+(Number(e.kx)||0)*dt;
+      e.y+=(Math.abs(ix)+Math.abs(iy)>.01?iy/md:0)*speed*dt+(Number(e.ky)||0)*dt;
+      // Decay visual knockback locally between authoritative packets.
+      e.kx=(Number(e.kx)||0)*Math.pow(.055,dt);e.ky=(Number(e.ky)||0)*Math.pow(.055,dt);
+      try{this.resolveObstacle(e,ox,oy);}catch(_){}
+      const b=this.bounds();
+      e.x=clamp(e.x,b.x-e.r*.1,b.x+b.w+e.r*.1);
+      e.y=clamp(e.y,b.y-e.r*.1,b.y+b.h+e.r*.1);
+
+      // Host remains authoritative. While moving, tolerate the normal network
+      // lead created by client prediction; only correct meaningful divergence.
+      // Once the player releases movement, converge quickly and invisibly.
+      if(Number.isFinite(this.localAuthX)&&Number.isFinite(this.localAuthY)){
+        const ex=this.localAuthX-e.x,ey=this.localAuthY-e.y,err=Math.hypot(ex,ey);
+        if(err>LOCAL_HARD_ERROR){e.x=this.localAuthX;e.y=this.localAuthY;}
+        else if(!moving&&e.dashT<=0&&err>.5){
+          const k=1-Math.pow(.002,dt*2.5);e.x+=ex*k;e.y+=ey*k;
+        }else if(err>LOCAL_SOFT_ERROR){
+          const excess=(err-LOCAL_SOFT_ERROR)/Math.max(err,1);
+          const k=Math.min(.12,(1-Math.pow(.02,dt))*excess);
+          e.x+=ex*k;e.y+=ey*k;
+        }
+      }
+    }
     setHumanInput(entityId,payload={}){
       const id=Number(entityId),e=this.entities?.find(x=>x.id===id&&x.isHuman&&!x.isLocal);
       if(!e)return false;
@@ -221,14 +279,28 @@ function install(){
       for(const incoming of s.entities){
         const e=this.entities.find(x=>x.id===incoming.id);if(!e)continue;
         const wasAlive=e.alive;
-        e._netX=Number(incoming.x);e._netY=Number(incoming.y);
+        if(e.isLocal){
+          this.localAuthX=Number(incoming.x);this.localAuthY=Number(incoming.y);this.localAuthAt=performance.now();
+        }else{
+          e._netX=Number(incoming.x);e._netY=Number(incoming.y);
+        }
         for(const [k,v] of Object.entries(incoming))if(!['id','x','y'].includes(k))e[k]=clone(v);
         if(wasAlive&&!e.alive&&e.isLocal){this.spectating=true;this.playerEliminated=true;}
       }
     }
     networkUpdate(dt){
-      const a=1-Math.pow(.001,dt*1.9);
-      for(const e of this.entities){if(Number.isFinite(e._netX)){e.x+=(e._netX-e.x)*a;e.y+=(e._netY-e.y)*a;}}
+      // Predict only the guest's own movement locally so WASD responds on the
+      // very next animation frame instead of waiting for guest -> host -> state.
+      this.predictLocalMovement(dt);
+
+      // Remote players, AI and the bomb still interpolate toward the host's
+      // authoritative 30 Hz stream. The faster easing keeps them visually close
+      // to the host without introducing client-side simulation disagreements.
+      const a=1-Math.pow(.00025,dt*2.35);
+      for(const e of this.entities){
+        if(e.isLocal)continue;
+        if(Number.isFinite(e._netX)){e.x+=(e._netX-e.x)*a;e.y+=(e._netY-e.y)*a;}
+      }
       if(this.bomb&&this.networkBombTarget){this.bomb.x+=(this.networkBombTarget.x-this.bomb.x)*a;this.bomb.y+=(this.networkBombTarget.y-this.bomb.y)*a;}
       if(this.bomb?.timer>0)this.bomb.timer=Math.max(0,this.bomb.timer-dt);
       this.flash=Math.max(0,this.flash-dt*2.8);this.shake=Math.max(0,this.shake-dt*18);this.shrinkMargin+=(this.shrinkTarget-this.shrinkMargin)*Math.min(1,dt*2.6);
@@ -274,7 +346,7 @@ function install(){
     clearInterval(net.joinTimer);clearInterval(net.lobbyHeartbeat);clearInterval(net.stateTimer);clearInterval(net.inputTimer);clearInterval(net.startRetry);
     net.joinTimer=net.lobbyHeartbeat=net.stateTimer=net.inputTimer=net.startRetry=null;
     if(net.channel){try{db()?.removeChannel(net.channel);}catch(_){try{net.channel.unsubscribe();}catch(__){}}}
-    net.role=null;net.code='';net.channel=null;net.connected=false;net.accepted=false;net.slot=null;net.players=[];net.ready=false;net.active=false;net.startToken='';net.localEntityId=0;net.keys.clear();net.lastInputSig='';net.pendingStart=null;
+    net.role=null;net.code='';net.channel=null;net.connected=false;net.accepted=false;net.slot=null;net.players=[];net.ready=false;net.active=false;net.startToken='';net.localEntityId=0;net.keys.clear();net.lastInputSig='';net.lastInputAt=0;net.pendingStart=null;
     if(!keepLast)net.lastWasMultiplayer=false;
     renderLobby();
   }
@@ -337,9 +409,9 @@ function install(){
       const idx=net.pendingStart?.roster?.findIndex(p=>p.clientId===payload.clientId);if(idx<=0)return;
       app.engine?.humanAction?.(idx,payload.action,payload);
     });
-    channel.on('broadcast',{event:'state'},({payload})=>{if(net.role==='guest'&&net.active&&payload?.targetId===net.clientId&&payload.snapshot){net.hostSeenAt=Date.now();app.engine?.applyNetworkSnapshot?.(payload.snapshot);}});
-    channel.on('broadcast',{event:'game-event'},({payload})=>{if(net.role==='guest'&&net.active&&payload?.targetId===net.clientId&&payload.event){handleRemoteGameEvent(payload.event);}});
-    channel.on('broadcast',{event:'game-end'},({payload})=>{if(net.role==='guest'&&net.active&&payload?.targetId===net.clientId&&payload.summary){showMultiplayerResults(payload.summary);}});
+    channel.on('broadcast',{event:'state'},({payload})=>{if(net.role==='guest'&&net.active&&(!payload?.targetId||payload.targetId===net.clientId)&&payload?.snapshot){net.hostSeenAt=Date.now();app.engine?.applyNetworkSnapshot?.(payload.snapshot);}});
+    channel.on('broadcast',{event:'game-event'},({payload})=>{if(net.role==='guest'&&net.active&&(!payload?.targetId||payload.targetId===net.clientId)&&payload?.event){handleRemoteGameEvent(payload.event);}});
+    channel.on('broadcast',{event:'game-end'},({payload})=>{if(net.role==='guest'&&net.active&&(!payload?.targetId||payload.targetId===net.clientId)&&payload?.summary){showMultiplayerResults(payload.summary);}});
     channel.on('broadcast',{event:'host-heartbeat'},({payload})=>{if(net.role==='guest'){net.hostSeenAt=Date.now();if(payload?.players)net.players=payload.players;}});
     channel.on('presence',{event:'sync'},()=>{
       if(net.role!=='host')return;
@@ -387,20 +459,20 @@ function install(){
   }
 
   function startMultiplayerEngine(payload,isGuest){
-    net.active=true;net.lastWasMultiplayer=true;net.keys.clear();net.lastInputSig='';
+    net.active=true;net.lastWasMultiplayer=true;net.keys.clear();net.lastInputSig='';net.lastInputAt=0;
     app.engine?.stop?.();app.engine=null;app.practice=true;app.matchId=null;app.rewardStartError='Online party matches currently use casual rewards.';
     app.show('game');$('gbpTutorial')?.classList.add('hidden');$('gbpGameOverlay')?.classList.add('hidden');$('gbpSpectatorBar')?.classList.add('hidden');
     const spectatorText=$('gbpSpectatorBar')?.querySelector('span');if(spectatorText)spectatorText.textContent="YOU'RE OUT — WATCH THE PARTY PANIC";
-    const notice=$('gbpInlineNotice');if(notice)notice.textContent=`ONLINE ${payload.roster.length}P · ${TOTAL_COMPETITORS-payload.roster.length} AI GOBLINS · HOST-AUTHORITATIVE`;
+    const notice=$('gbpInlineNotice');if(notice)notice.textContent=`ONLINE ${payload.roster.length}P · ${TOTAL_COMPETITORS-payload.roster.length} AI GOBLINS · HOST-AUTHORITATIVE · LOCAL INPUT PREDICTION`;
     const canvas=$('gbpCanvas');if(!canvas)return;
     app.engine=new E.MultiplayerEngine(canvas,{audio:app.audio,appearance:app.character,difficulty:payload.difficulty,arena:payload.arena,seed:payload.seed,settings:app.settings,humans:payload.roster,localHumanId:net.localEntityId,networkClient:isGuest,onHud:h=>app.hud(h),onEvent:e=>{
-      if(!isGuest){app.gameEvent(e);for(const p of payload.roster.filter(x=>x.clientId!==net.clientId))send('game-event',{targetId:p.clientId,event:e});}
+      if(!isGuest){app.gameEvent(e);send('game-event',{event:e});}
     },onFinish:s=>{if(!isGuest)finishHostGame(s);}});
-    app.engine.start();canvas.focus();
+    app.engine.start();app.engine?.setLocalPredictionInput?.({keys:[...net.keys],mouseX:net.mouseX,mouseY:net.mouseY});canvas.focus();
     if(!isGuest){
       clearInterval(net.stateTimer);net.stateTimer=setInterval(()=>{
         if(!net.active||net.role!=='host'||!app.engine?.serializeNetwork)return;
-        const snapshot=app.engine.serializeNetwork();for(const p of payload.roster.filter(x=>x.clientId!==net.clientId))send('state',{targetId:p.clientId,snapshot});
+        const snapshot=app.engine.serializeNetwork();send('state',{snapshot});
       },STATE_MS);
     }else{
       clearInterval(net.inputTimer);net.inputTimer=setInterval(sendGuestInput,INPUT_MS);
@@ -411,7 +483,14 @@ function install(){
   function sendGuestInput(force=false){
     if(net.role!=='guest'||!net.active)return;
     const payload={clientId:net.clientId,keys:[...net.keys],mouseX:net.mouseX,mouseY:net.mouseY};
-    const sig=JSON.stringify(payload),now=Date.now();if(!force&&sig===net.lastInputSig&&now-net.lastInputAt<240)return;net.lastInputSig=sig;net.lastInputAt=now;send('input',payload);
+    // Update the local predictor immediately even if this packet is throttled.
+    app.engine?.setLocalPredictionInput?.(payload);
+    const sig=JSON.stringify(payload),now=Date.now();
+    if(!force){
+      if(now-net.lastInputAt<INPUT_THROTTLE_MS)return;
+      if(sig===net.lastInputSig&&now-net.lastInputAt<INPUT_KEEPALIVE_MS)return;
+    }
+    net.lastInputSig=sig;net.lastInputAt=now;send('input',payload);
   }
   function guestAction(action,payload={}){if(net.role==='guest'&&net.active)send('action',{clientId:net.clientId,action,...payload});}
 
@@ -426,8 +505,7 @@ function install(){
   function finishHostGame(summary){
     if(!net.active)return;
     clearInterval(net.stateTimer);net.stateTimer=null;
-    const roster=net.pendingStart?.roster||[];
-    for(const p of roster.filter(x=>x.clientId!==net.clientId))send('game-end',{targetId:p.clientId,summary});
+    send('game-end',{summary});
     showMultiplayerResults(summary);
   }
 
@@ -493,7 +571,7 @@ function install(){
     const raw=ev.key,k=raw.length===1?raw.toLowerCase():raw;
     if(['w','a','s','d','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','e','Escape'].includes(k)||['W','A','S','D','E'].includes(raw))ev.preventDefault();
     if(k==='Escape'){app.callout?.('ONLINE MATCHES CANNOT BE PAUSED');return;}
-    if(k===' '||k==='Spacebar'){if(!ev.repeat)guestAction('dash');return;}
+    if(k===' '||k==='Spacebar'){if(!ev.repeat){app.engine?.predictLocalDash?.();guestAction('dash');}return;}
     if(k==='e'){if(!ev.repeat)guestAction('power');return;}
     net.keys.add(k);sendGuestInput(true);
   };
