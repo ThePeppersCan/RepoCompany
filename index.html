@@ -2490,8 +2490,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
            Keep that element present but permanently hidden so its old listener cannot collide with Director. -->
       <button id="openPetWars" type="button" hidden aria-hidden="true" tabindex="-1" style="display:none!important"></button>
       <button id="openQuidditchDirector" class="quidditch-director-open-button other-quidditch-open-button" title="Repo Company: Quidditch Games"><img src="assets/quidditch-mode-icon.png" alt="" width="32" height="32" style="width:32px;height:32px;object-fit:contain"><span class="activity-button-copy"><small>PLAY</small><span>QUIDDITCH GAMES</span></span></button>
-      <button id="openQuidditchMode" class="other-quidditch-open-button" title="Open Repo Sports"><img src="assets/repo-sports-logo.png" alt="Repo Sports" width="42" height="21" style="width:42px;height:21px;object-fit:contain"><span class="activity-button-copy"><small>OPEN</small><span>REPO SPORTS</span></span></button>
-      <button id="openRepoSportsV2Test" class="other-quidditch-open-button" type="button" title="Admin test: Repo Sports V2" hidden><img src="assets/repo-sports-logo.png" alt="Repo Sports" width="42" height="21" style="width:42px;height:21px;object-fit:contain"><span class="activity-button-copy"><small>ADMIN TEST</small><span>REPO SPORTS V2</span></span></button>
+      <button id="openRepoSports" class="other-quidditch-open-button" type="button" title="Open Repo Sports"><img src="assets/repo-sports-logo.png" alt="Repo Sports" width="42" height="21" style="width:42px;height:21px;object-fit:contain"><span class="activity-button-copy"><small>OPEN</small><span>REPO SPORTS</span></span></button>
       <button id="openRaids" class="raids-open-button"><img src="assets/raids-icon.png" alt=""><span class="activity-button-copy"><small>OPEN</small><span>RAIDS</span></span></button>
       <button id="openNpcContact" class="npc-contact-open-button"><img src="assets/npc-contact-icon.png" alt="" width="24" height="24"><span class="activity-button-copy"><small>OPEN</small><span>NPC CONTACT</span></span></button>
       <button id="openAchievements" class="achievements-open-button"><img src="assets/achievement-log-icon.png" alt="" width="24" height="24"><span class="activity-button-copy"><small>OPEN</small><span>ACHIEVEMENTS</span></span></button>
@@ -2507,7 +2506,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
     <div class="pet-room-bg pet-room-bg-a is-visible" aria-hidden="true"></div>
     <div class="pet-room-bg pet-room-bg-b" aria-hidden="true"></div>
     <div id="roamingPets" class="roaming-pets" aria-live="off" aria-hidden="true"></div>
-    <button id="quidditchModeButton" class="quidditch-mode-button" type="button" title="Open fullscreen Quidditch mode">QUIDDITCH MODE</button>
+    <button id="repoSportsPetRoomButton" class="quidditch-mode-button" type="button" title="Open Repo Sports">REPO SPORTS</button>
     <button id="petRoomSkip" class="pet-room-skip" type="button" title="Skip to the next pet room" aria-label="Skip to the next pet room">SKIP</button>
     <button id="petChatToggle" class="pet-chat-toggle" type="button" aria-expanded="false" aria-controls="petChatPanel">CHAT</button>
     <form id="petChatPanel" class="pet-chat-panel" autocomplete="off">
@@ -3892,7 +3891,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=v38-16-multiplayer-rooftops-binder-preview"></script>
+<script src="script.js?v=repo-sports-live-launch-20260812"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -5398,7 +5397,7 @@ window.__QD_HOST__={
 })();
 </script>
 
-  <script src="world-cup-quidditch-v1.js?v=wc-game-v38-12-random-music"></script>
+  <script src="world-cup-quidditch-v1.js?v=wc-game-v38-13-shootout-ref"></script>
 <style id="repoSportsV2LaunchStyles">
 #repoSportsV2TestOverlay{position:fixed;inset:0;z-index:2147483000;background:#01050a;display:none;overflow:hidden}
 #repoSportsV2TestFrame{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .36s ease}
@@ -5407,23 +5406,26 @@ window.__QD_HOST__={
 #repoSportsV2LaunchSting{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:radial-gradient(circle at 50% 44%,#0c1725 0,#02070d 64%,#000 100%);opacity:0;visibility:hidden;transition:opacity .34s ease}
 #repoSportsV2LaunchSting.is-playing{opacity:1;visibility:visible}
 #repoSportsV2LaunchSting.is-leaving{opacity:0}
-.repo-v2-sting-tv{position:relative;width:min(96vw,1448px);max-height:96vh;aspect-ratio:1448/1086;filter:drop-shadow(0 26px 55px #000)}
+.repo-v2-sting-tv{position:relative;width:min(96vw,1448px);max-height:96vh;aspect-ratio:1448/1086;filter:drop-shadow(0 26px 55px #000);contain:paint}
 .repo-v2-sting-tv>img{display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto}
-.repo-v2-logo-shine{position:absolute;left:21.1%;top:25.8%;width:56.2%;height:38.7%;overflow:hidden;pointer-events:none;mix-blend-mode:screen}
-.repo-v2-logo-shine::after{content:"";position:absolute;top:-42%;left:-34%;width:18%;height:190%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),rgba(255,247,202,.86),rgba(130,220,255,.38),transparent);filter:blur(2px);opacity:0}
-#repoSportsV2LaunchSting.is-playing .repo-v2-logo-shine::after{animation:repoV2LogoShine 1.42s cubic-bezier(.2,.74,.2,1) .18s both}
-.repo-v2-screen-glow{position:absolute;left:18.2%;top:23.4%;width:63.7%;height:45%;border-radius:3%;box-shadow:0 0 45px rgba(60,150,255,.0);pointer-events:none}
-#repoSportsV2LaunchSting.is-playing .repo-v2-screen-glow{animation:repoV2ScreenPulse 1.62s ease-out .06s both}
-@keyframes repoV2LogoShine{0%{left:-32%;opacity:0}12%{opacity:.75}62%{opacity:1}100%{left:122%;opacity:0}}
-@keyframes repoV2ScreenPulse{0%{box-shadow:0 0 0 rgba(60,150,255,0)}38%{box-shadow:0 0 48px rgba(58,143,255,.22),inset 0 0 22px rgba(255,230,160,.08)}100%{box-shadow:0 0 12px rgba(60,150,255,0)}}
+.repo-v2-logo-shine{position:absolute;left:21.1%;top:25.8%;width:56.2%;height:38.7%;overflow:hidden;pointer-events:none;mix-blend-mode:screen;transform:translateZ(0);contain:paint}
+.repo-v2-logo-shine::before{content:"";position:absolute;inset:-10%;background:radial-gradient(ellipse at center,rgba(54,139,255,.17),transparent 58%),radial-gradient(ellipse at 50% 70%,rgba(239,31,48,.13),transparent 60%);opacity:0;will-change:opacity,transform;transform:translateZ(0) scale(.985)}
+.repo-v2-logo-shine::after{content:"";position:absolute;top:-45%;left:0;width:24%;height:195%;background:linear-gradient(90deg,transparent 0%,rgba(48,126,255,.10) 16%,rgba(140,205,255,.55) 34%,rgba(255,255,255,.96) 49%,rgba(255,255,255,.96) 53%,rgba(240,39,59,.52) 70%,rgba(240,39,59,.08) 84%,transparent 100%);opacity:0;will-change:transform,opacity;backface-visibility:hidden;transform:translate3d(-190%,0,0) skewX(-17deg)}
+#repoSportsV2LaunchSting.is-playing .repo-v2-logo-shine::before{animation:repoV2LogoAura var(--repo-v2-sting-duration,1.62s) ease-in-out both}
+#repoSportsV2LaunchSting.is-playing .repo-v2-logo-shine::after{animation:repoV2LogoShine var(--repo-v2-sting-duration,1.62s) cubic-bezier(.18,.70,.20,1) both}
+.repo-v2-screen-glow{position:absolute;left:18.2%;top:23.4%;width:63.7%;height:45%;border-radius:3%;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,rgba(62,145,255,.18),transparent 62%),radial-gradient(ellipse at 50% 72%,rgba(235,35,52,.09),transparent 64%);opacity:0;will-change:opacity,transform;transform:translateZ(0) scale(.985)}
+#repoSportsV2LaunchSting.is-playing .repo-v2-screen-glow{animation:repoV2ScreenPulse var(--repo-v2-sting-duration,1.62s) ease-out both}
+@keyframes repoV2LogoShine{0%{transform:translate3d(-190%,0,0) skewX(-17deg);opacity:0}9%{opacity:.58}50%{opacity:1}80%{opacity:.82}100%{transform:translate3d(545%,0,0) skewX(-17deg);opacity:0}}
+@keyframes repoV2LogoAura{0%,100%{opacity:0;transform:translateZ(0) scale(.985)}22%{opacity:.42}50%{opacity:.72;transform:translateZ(0) scale(1.01)}75%{opacity:.30}}
+@keyframes repoV2ScreenPulse{0%,100%{opacity:0;transform:translateZ(0) scale(.985)}30%{opacity:.52}54%{opacity:.78;transform:translateZ(0) scale(1.008)}78%{opacity:.28}}
 @media(prefers-reduced-motion:reduce){.repo-v2-logo-shine::after,.repo-v2-screen-glow{animation:none!important}}
 </style>
 <div id="repoSportsV2TestOverlay" aria-hidden="true">
   <button id="closeRepoSportsV2Test" type="button">×</button>
-  <iframe id="repoSportsV2TestFrame" title="Repo Sports V2 test" allow="autoplay; fullscreen"></iframe>
+  <iframe id="repoSportsV2TestFrame" title="Repo Sports Live" allow="autoplay; fullscreen"></iframe>
   <div id="repoSportsV2LaunchSting" aria-hidden="true">
     <div class="repo-v2-sting-tv">
-      <img src="assets/repo-sports-v2/repo-sports-v2-tv-sting.png" alt="Repo Sports television ident">
+      <img src="assets/repo-sports-v2/repo-sports-v2-tv-sting-test41.png" alt="Repo Sports television ident">
       <span class="repo-v2-screen-glow"></span>
       <span class="repo-v2-logo-shine"></span>
     </div>
@@ -5431,20 +5433,45 @@ window.__QD_HOST__={
 </div>
 <script>
 (()=>{
-  const b=document.getElementById('openRepoSportsV2Test'),o=document.getElementById('repoSportsV2TestOverlay'),f=document.getElementById('repoSportsV2TestFrame'),x=document.getElementById('closeRepoSportsV2Test'),sting=document.getElementById('repoSportsV2LaunchSting');
-  const a=()=>{try{return String((typeof character!=='undefined'&&character?.username)||'').toLowerCase()==='catasthma'}catch(_){return false}};
-  const s=()=>b.hidden=!a();
+  const b=document.getElementById('openRepoSports'),o=document.getElementById('repoSportsV2TestOverlay'),f=document.getElementById('repoSportsV2TestFrame'),x=document.getElementById('closeRepoSportsV2Test'),sting=document.getElementById('repoSportsV2LaunchSting');
+  const s=()=>{if(b)b.hidden=false};
   let revealTimer=0,closeTimer=0,launchSerial=0;
-  function playRepoV2LaunchSound(){
+  const repoV2LaunchAudio=new Audio('assets/repo-sports-v2/repo-sports-v2-launch-test41.mp3');
+  repoV2LaunchAudio.preload='auto';
+  // Test 43: Repo Sports button sting at 25%.
+  repoV2LaunchAudio.volume=.25;
+  const REPO_V2_STING_FALLBACK_MS=1620;
+  function repoV2StingDurationMs(){
+    const seconds=Number(repoV2LaunchAudio.duration);
+    return Number.isFinite(seconds)&&seconds>.2?Math.round(seconds*1000):REPO_V2_STING_FALLBACK_MS;
+  }
+  function syncRepoV2StingDuration(){
+    const ms=repoV2StingDurationMs();
+    sting.style.setProperty('--repo-v2-sting-duration',`${ms}ms`);
+    return ms;
+  }
+  repoV2LaunchAudio.addEventListener('loadedmetadata',syncRepoV2StingDuration);
+  function playRepoV2LaunchSound(serial,onFinished){
+    let finished=false,fallback=0;
+    const done=()=>{
+      if(finished)return;
+      finished=true;
+      clearTimeout(fallback);
+      repoV2LaunchAudio.removeEventListener('ended',done);
+      if(serial===launchSerial)onFinished?.();
+    };
     try{
-      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-      const ctx=playRepoV2LaunchSound.ctx||(playRepoV2LaunchSound.ctx=new AC());
-      if(ctx.state==='suspended')void ctx.resume();
-      const now=ctx.currentTime,master=ctx.createGain();master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.17,now+.035);master.gain.exponentialRampToValueAtTime(.0001,now+1.12);master.connect(ctx.destination);
-      const bass=ctx.createOscillator();bass.type='sine';bass.frequency.setValueAtTime(92,now);bass.frequency.exponentialRampToValueAtTime(58,now+.52);const bg=ctx.createGain();bg.gain.setValueAtTime(.20,now);bg.gain.exponentialRampToValueAtTime(.0001,now+.58);bass.connect(bg);bg.connect(master);bass.start(now);bass.stop(now+.62);
-      [392,523.25,783.99].forEach((freq,i)=>{const osc=ctx.createOscillator(),g=ctx.createGain(),t=now+.13+i*.13;osc.type=i===2?'triangle':'sine';osc.frequency.setValueAtTime(freq,t);osc.frequency.exponentialRampToValueAtTime(freq*1.045,t+.20);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(i===2?.30:.22,t+.018);g.gain.exponentialRampToValueAtTime(.0001,t+.34);osc.connect(g);g.connect(master);osc.start(t);osc.stop(t+.36)});
-      const sparkle=ctx.createOscillator(),sg=ctx.createGain();sparkle.type='sine';sparkle.frequency.setValueAtTime(1174.66,now+.63);sparkle.frequency.exponentialRampToValueAtTime(1567.98,now+.92);sg.gain.setValueAtTime(.0001,now+.63);sg.gain.exponentialRampToValueAtTime(.17,now+.67);sg.gain.exponentialRampToValueAtTime(.0001,now+1.03);sparkle.connect(sg);sg.connect(master);sparkle.start(now+.63);sparkle.stop(now+1.05);
-    }catch(_){}
+      repoV2LaunchAudio.pause();
+      repoV2LaunchAudio.currentTime=0;
+      syncRepoV2StingDuration();
+      repoV2LaunchAudio.addEventListener('ended',done,{once:true});
+      fallback=setTimeout(done,repoV2StingDurationMs()+140);
+      const playPromise=repoV2LaunchAudio.play();
+      if(playPromise?.catch)playPromise.catch(()=>{fallback=setTimeout(done,REPO_V2_STING_FALLBACK_MS)});
+    }catch(_){
+      fallback=setTimeout(done,REPO_V2_STING_FALLBACK_MS);
+    }
+    return done;
   }
   function hideLaunchSting(serial){
     if(serial!==launchSerial)return;
@@ -5590,40 +5617,144 @@ window.__QD_HOST__={
         return localFallback();
       }
     },
+    async claimWatchXp(){
+      // Exact parity with the existing live RepoSports Quidditch mode.
+      // The existing server RPC remains authoritative over the 400 XP/min rate.
+      if(typeof character==='undefined'||!character)return{gained:0,rate_per_min:400,signed_in:false};
+      if(document.hidden)return{gained:0,rate_per_min:400,hidden:true,signed_in:true};
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Quidditch watch XP service is not connected');
+
+      const{data,error}=await db.rpc('claim_quidditch_watch_xp_400');
+      if(error)throw error;
+
+      const gained=Math.max(0,Number(Array.isArray(data)?data[0]:data)||0);
+      if(gained>0){
+        character.agility_xp=Math.max(0,Number(character.agility_xp||0)+gained);
+        try{if(typeof renderCharacter==='function')renderCharacter()}catch(_){}
+      }
+
+      return{
+        gained,
+        rate_per_min:400,
+        agility_xp:Math.max(0,Number(character.agility_xp||0)),
+        signed_in:true
+      };
+    },
     async getCareerLeaderboards(){
       if(typeof db==='undefined'||!db?.rpc)throw new Error('Repo Sports career database is not connected');
 
-      // Same source as original RepoSports Quidditch Mode.
-      let result=await db.rpc('get_quidditch_career_leaderboards_v3');
-      if(result.error&&(/get_quidditch_career_leaderboards_v3|schema cache|could not find/i.test(`${result.error.message||''} ${result.error.details||''}`))){
-        result=await db.rpc('get_quidditch_career_leaderboards_v2');
+      // Player records keep the historical Repo Sports career totals, then add
+      // the results produced by the new live league from launch onward.
+      let original=await db.rpc('get_quidditch_career_leaderboards_v3');
+      if(original.error&&(/get_quidditch_career_leaderboards_v3|schema cache|could not find/i.test(`${original.error.message||''} ${original.error.details||''}`))){
+        original=await db.rpc('get_quidditch_career_leaderboards_v2');
       }
-      if(result.error)throw result.error;
+      if(original.error)console.warn('Historical Repo Sports career database:',original.error);
 
-      const row=Array.isArray(result.data)?result.data[0]:result.data;
-      if(!row)return{goal_leaders:[],winrate_leaders:[],team_leaders:[]};
+      const live=await db.rpc('get_repo_sports_live_leaderboards');
+      if(live.error)console.warn('Live Repo Sports league database:',live.error);
 
-      // Same public rename override pass as the original leaderboard so a pet
-      // keeps its permanent totals but displays its latest custom name.
+      const oldRow=Array.isArray(original.data)?original.data[0]:original.data||{};
+      const liveRow=Array.isArray(live.data)?live.data[0]:live.data||{};
+      const livePlayers=Array.isArray(liveRow?.player_leaders)?liveRow.player_leaders:[];
+      const liveTeams=Array.isArray(liveRow?.team_standings)?liveRow.team_standings:[];
+
       let overrides=[];
       try{
         const renameResult=await db.from('quidditch_pet_name_overrides').select('owner_name,pet_id,previous_name,pet_name');
         if(!renameResult.error&&Array.isArray(renameResult.data))overrides=renameResult.data;
       }catch(_){}
 
-      const key=value=>String(value||'').trim().toLowerCase();
-      const byPet=new Map(overrides.filter(x=>x.pet_id).map(x=>[`${key(x.owner_name)}|${key(x.pet_id)}`,x.pet_name]));
-      const byOldName=new Map(overrides.filter(x=>x.previous_name).map(x=>[`${key(x.owner_name)}|${key(x.previous_name)}`,x.pet_name]));
-      const renameItems=items=>(Array.isArray(items)?items:[]).map(item=>{
-        const owner=key(item?.owner_name),petId=key(item?.pet_id),oldName=key(item?.pet_name);
-        const latest=(petId&&byPet.get(`${owner}|${petId}`))||byOldName.get(`${owner}|${oldName}`);
-        return latest?{...item,pet_name:latest}:item;
+      const norm=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
+      const candidateMap=new Map();
+      const nameToKey=new Map();
+
+      function absorbBase(item){
+        if(!item)return;
+        const name=String(item.pet_name||item.player_name||'').trim();
+        const petId=String(item.pet_id||item.player_id||'').trim();
+        const key=norm(petId)||norm(name);
+        if(!key)return;
+        const previous=candidateMap.get(key)||{};
+        const merged={
+          ...previous,
+          ...item,
+          pet_id:petId||previous.pet_id||'',
+          pet_name:name||previous.pet_name||'Unknown',
+          owner_name:item.owner_name||previous.owner_name||'',
+          matches:Math.max(Number(previous.matches)||0,Number(item.matches)||0),
+          wins:Math.max(Number(previous.wins)||0,Number(item.wins)||0),
+          losses:Math.max(Number(previous.losses)||0,Number(item.losses)||0),
+          goals:Math.max(Number(previous.goals)||0,Number(item.goals)||0)
+        };
+        candidateMap.set(key,merged);
+        if(name)nameToKey.set(norm(name),key);
+      }
+
+      (Array.isArray(oldRow?.goal_leaders)?oldRow.goal_leaders:[]).forEach(absorbBase);
+      (Array.isArray(oldRow?.winrate_leaders)?oldRow.winrate_leaders:[]).forEach(absorbBase);
+
+      // Add each launch-era delta exactly once to the historical base.
+      livePlayers.forEach(delta=>{
+        const idKey=norm(delta.player_id||delta.pet_id);
+        const nameKey=norm(delta.player_name||delta.pet_name);
+        const key=(idKey&&candidateMap.has(idKey)?idKey:nameToKey.get(nameKey))||idKey||nameKey;
+        if(!key)return;
+        const base=candidateMap.get(key)||{
+          pet_id:delta.player_id||delta.pet_id||'',
+          pet_name:delta.player_name||delta.pet_name||'Unknown',
+          owner_name:delta.owner_name||'',
+          matches:0,wins:0,losses:0,goals:0
+        };
+        candidateMap.set(key,{
+          ...base,
+          pet_id:base.pet_id||delta.player_id||delta.pet_id||'',
+          pet_name:base.pet_name||delta.player_name||delta.pet_name||'Unknown',
+          owner_name:base.owner_name||delta.owner_name||'',
+          matches:(Number(base.matches)||0)+(Number(delta.matches)||0),
+          wins:(Number(base.wins)||0)+(Number(delta.wins)||0),
+          losses:(Number(base.losses)||0)+(Number(delta.losses)||0),
+          goals:(Number(base.goals)||0)+(Number(delta.goals)||0)
+        });
       });
 
+      const byPet=new Map(overrides.filter(x=>x.pet_id).map(x=>[`${norm(x.owner_name)}|${norm(x.pet_id)}`,x.pet_name]));
+      const byOldName=new Map(overrides.filter(x=>x.previous_name).map(x=>[`${norm(x.owner_name)}|${norm(x.previous_name)}`,x.pet_name]));
+
+      const players=[...candidateMap.values()].map(item=>{
+        const matches=Math.max(0,Number(item.matches)||0),wins=Math.max(0,Number(item.wins)||0);
+        const owner=norm(item.owner_name),petId=norm(item.pet_id),oldName=norm(item.pet_name);
+        const latest=(petId&&byPet.get(`${owner}|${petId}`))||byOldName.get(`${owner}|${oldName}`)||item.pet_name;
+        return{
+          ...item,
+          pet_name:latest||item.pet_name,
+          matches,wins,
+          losses:Math.max(0,Number(item.losses)||Math.max(0,matches-wins)),
+          goals:Math.max(0,Number(item.goals)||0),
+          win_rate:matches>0?(wins/matches)*100:0
+        };
+      });
+
+      const goalLeaders=players.slice().sort((a,b)=>
+        (Number(b.goals)||0)-(Number(a.goals)||0) ||
+        (Number(b.matches)||0)-(Number(a.matches)||0) ||
+        String(a.pet_name||'').localeCompare(String(b.pet_name||''))
+      ).slice(0,5);
+
+      const winrateLeaders=players.filter(p=>Number(p.matches||0)>=40).sort((a,b)=>
+        (Number(b.win_rate)||0)-(Number(a.win_rate)||0) ||
+        (Number(b.wins)||0)-(Number(a.wins)||0) ||
+        String(a.pet_name||'').localeCompare(String(b.pet_name||''))
+      ).slice(0,5);
+
+      const fallbackTeams=['Hrafnvik','Blackglass','Saint Ciro','Marenza','Grand Khor','Aurelia','Drazh Hollow','Rova End','Zafir Row','Talun Cross','Ossa Mere','Varka Fell','Iskara','Naskor','Ashwick','Skarholt','Orsanne','Cinderbank'].map((team_name,sort_order)=>({
+        team_name,sort_order:sort_order+1,matches:0,wins:0,losses:0,goals_for:0,goals_against:0,goal_difference:0,win_rate:0
+      }));
+
       return{
-        goal_leaders:renameItems(row.goal_leaders),
-        winrate_leaders:renameItems(row.winrate_leaders),
-        team_leaders:Array.isArray(row.team_leaders)?row.team_leaders:[]
+        goal_leaders:goalLeaders,
+        winrate_leaders:winrateLeaders,
+        team_leaders:liveTeams.length?liveTeams:fallbackTeams
       };
     },
     async getBarryTipState(){
@@ -5657,7 +5788,7 @@ window.__QD_HOST__={
       if(error)throw error;return Array.isArray(data)?data[0]:data;
     },
     async awardPrediction(matchKey){
-      if(!a())throw new Error('V2 reward is admin-test only');if(typeof db==='undefined'||!db?.rpc)throw new Error('Database is not connected');
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Database is not connected');
       const{data,error}=await db.rpc('claim_repo_sports_v2_prediction_reward',{p_match_key:String(matchKey||'')});if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;if(row?.new_gp!=null&&typeof character!=='undefined'&&character){character.gp=Number(row.new_gp)||0;try{if(typeof renderCharacter==='function')renderCharacter()}catch(_){}}
       return row||{awarded:false,new_gp:Number(character?.gp||0)}
@@ -5690,6 +5821,139 @@ window.__QD_HOST__={
     }
   }
 
+  // ============================================================
+  // REPO SPORTS V2 — GLOBAL LIVE BROADCAST COORDINATOR
+  // Mirrors the existing RepoSports model: one open website browser owns a
+  // short server lease and advances the shared clock. With zero site browsers,
+  // no heartbeat exists and the match clock remains frozen server-side.
+  // ============================================================
+  const REPO_V2_LIVE_HEARTBEAT_MS=5000;
+  const REPO_V2_LIVE_POLL_MS=500;
+  let repoV2LiveViewerKey='',repoV2LiveState=null,repoV2LiveIsHost=false,repoV2LiveBusy=false,repoV2LiveHostFrame=null,repoV2LiveHeartbeatTimer=0,repoV2LivePollTimer=0;
+
+  function repoV2LiveKey(){
+    if(repoV2LiveViewerKey)return repoV2LiveViewerKey;
+    try{repoV2LiveViewerKey=localStorage.getItem('repo_sports_v2_global_viewer_key')||''}catch(_){}
+    if(!repoV2LiveViewerKey){
+      try{repoV2LiveViewerKey=crypto.randomUUID()}catch(_){repoV2LiveViewerKey=`repo-v2-global-${Date.now()}-${Math.random().toString(36).slice(2)}`}
+      try{localStorage.setItem('repo_sports_v2_global_viewer_key',repoV2LiveViewerKey)}catch(_){}
+    }
+    return repoV2LiveViewerKey;
+  }
+  function repoV2LiveTargets(){
+    const targets=[];
+    if(f?.contentWindow&&f.src&&f.src!=='about:blank')targets.push(f.contentWindow);
+    if(repoV2LiveHostFrame?.contentWindow)targets.push(repoV2LiveHostFrame.contentWindow);
+    return targets;
+  }
+  function repoV2PushLiveState(targetWindow,payload=repoV2LiveState){
+    if(!targetWindow||!payload)return;
+    try{targetWindow.postMessage({type:'repo-sports-v2-live-state',payload},'*')}catch(_){}
+  }
+  function repoV2BroadcastLiveState(payload=repoV2LiveState){repoV2LiveTargets().forEach(w=>repoV2PushLiveState(w,payload))}
+  function repoV2DestroyHostFrame(){
+    const h=repoV2LiveHostFrame;repoV2LiveHostFrame=null;
+    if(h){try{h.remove()}catch(_){}}
+  }
+  function repoV2VisibleFeedActive(){
+    return !!(o&&o.style.display==='block'&&f?.contentWindow&&f.src&&f.src!=='about:blank');
+  }
+  function repoV2EnsureHostFrame(){
+    if(!repoV2LiveIsHost){repoV2DestroyHostFrame();return}
+
+    // Test 39: if this host browser is WATCHING V2, the visible deterministic
+    // engine is already doing the simulation. Do not run a duplicate hidden one.
+    if(repoV2VisibleFeedActive()){
+      repoV2DestroyHostFrame();
+      repoV2PushLiveState(f.contentWindow);
+      return;
+    }
+
+    if(repoV2LiveHostFrame?.isConnected){repoV2PushLiveState(repoV2LiveHostFrame.contentWindow);return}
+    const h=document.createElement('iframe');repoV2LiveHostFrame=h;
+    h.id='repoSportsV2GlobalHostFrame';h.tabIndex=-1;h.setAttribute('aria-hidden','true');
+    h.style.cssText='position:fixed!important;width:1px!important;height:1px!important;left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;border:0!important';
+    h.addEventListener('load',()=>setTimeout(()=>repoV2PushLiveState(h.contentWindow),30));
+    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-live-launch';
+    document.body.appendChild(h);
+  }
+  function repoV2NormalizeLiveRow(row){
+    if(!row)return null;
+    return{
+      match_serial:Number(row.match_serial)||1,
+      active_elapsed_ms:Math.max(0,Number(row.active_elapsed_ms)||0),
+      running:row.running!==false,
+      server_now_ms:Number(row.server_now_ms)||Date.now(),
+      last_result:row.last_result||null
+    };
+  }
+  function repoV2CommitLiveRow(raw,broadcast=true){
+    const row=repoV2NormalizeLiveRow(raw);if(!row)return repoV2LiveState;
+    const previous=repoV2LiveState;
+
+    if(previous){
+      if(row.match_serial<previous.match_serial)return previous;
+      if(row.match_serial===previous.match_serial){
+        // RPC requests may resolve out of order. Ignore an older server sample.
+        if(row.server_now_ms+25<Number(previous.server_now_ms||0))return previous;
+        // The elapsed clock only resets when match_serial changes.
+        row.active_elapsed_ms=Math.max(
+          Number(previous.active_elapsed_ms)||0,
+          Number(row.active_elapsed_ms)||0
+        );
+      }
+    }
+
+    repoV2LiveState=row;
+    if(broadcast)repoV2BroadcastLiveState(row);
+    return row;
+  }
+  async function repoV2FetchLiveState(){
+    if(typeof db==='undefined'||!db?.rpc)return repoV2LiveState;
+    try{
+      const{data,error}=await db.rpc('get_repo_sports_v2_live_state');if(error)throw error;
+      return repoV2CommitLiveRow(Array.isArray(data)?data[0]:data,true);
+    }catch(error){
+      if(!/get_repo_sports_v2_live_state/i.test(String(error?.message||'')))console.warn('Repo Sports V2 live state:',error);
+      return repoV2LiveState;
+    }
+  }
+  async function repoV2AdvanceLiveBackground(){
+    if(repoV2LiveBusy||typeof db==='undefined'||!db?.rpc)return;
+    repoV2LiveBusy=true;
+    try{
+      const{data,error}=await db.rpc('advance_repo_sports_v2_background',{p_viewer_key:repoV2LiveKey()});if(error)throw error;
+      const raw=Array.isArray(data)?data[0]:data;
+      repoV2LiveIsHost=raw?.is_host===true;document.documentElement.dataset.repoSportsV2BackgroundHost=repoV2LiveIsHost?'true':'false';
+      repoV2CommitLiveRow(raw,true);
+      repoV2EnsureHostFrame();
+      // Read the smooth extrapolated server clock immediately after the lease
+      // heartbeat. This makes the -30 prematch countdown visibly start at once.
+      setTimeout(()=>void repoV2FetchLiveState(),40);
+    }catch(error){
+      repoV2LiveIsHost=false;repoV2DestroyHostFrame();
+      if(!/advance_repo_sports_v2_background/i.test(String(error?.message||'')))console.warn('Repo Sports V2 background host:',error);
+    }finally{repoV2LiveBusy=false}
+  }
+  async function repoV2CompleteRotation(serial,result){
+    if(!repoV2LiveIsHost||typeof db==='undefined'||!db?.rpc)return false;
+    try{
+      const{data,error}=await db.rpc('complete_repo_sports_v2_rotation',{p_viewer_key:repoV2LiveKey(),p_match_serial:Number(serial)||0,p_result:result||{}});if(error)throw error;
+      repoV2CommitLiveRow(Array.isArray(data)?data[0]:data,true);
+      if(f?.contentWindow)setTimeout(()=>void repoV2PushCareer(f.contentWindow),120);
+      return true;
+    }catch(error){console.warn('Repo Sports V2 rotation complete:',error);return false}
+  }
+  function repoV2StartGlobalCoordinator(){
+    if(repoV2LiveHeartbeatTimer)return;
+    void repoV2AdvanceLiveBackground();
+    repoV2LiveHeartbeatTimer=setInterval(()=>void repoV2AdvanceLiveBackground(),REPO_V2_LIVE_HEARTBEAT_MS);
+    repoV2LivePollTimer=setInterval(()=>{if(repoV2LiveIsHost||o?.style.display==='block')void repoV2FetchLiveState()},REPO_V2_LIVE_POLL_MS);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden){void repoV2AdvanceLiveBackground();void repoV2FetchLiveState()}});
+    window.addEventListener('online',()=>void repoV2AdvanceLiveBackground());
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',repoV2StartGlobalCoordinator,{once:true});else repoV2StartGlobalCoordinator();
+
   let repoV2HoveredWatcher='';
   function repoV2ProfileTopZ(){
     const card=document.getElementById('qmWatcherProfileCard');
@@ -5699,7 +5963,21 @@ window.__QD_HOST__={
   window.addEventListener('message',event=>{
     const data=event?.data;
     if(!data)return;
-    if(f?.contentWindow&&event.source!==f.contentWindow)return;
+    const fromVisible=!!(f?.contentWindow&&event.source===f.contentWindow),fromHost=!!(repoV2LiveHostFrame?.contentWindow&&event.source===repoV2LiveHostFrame.contentWindow);
+    if(!fromVisible&&!fromHost)return;
+
+    if(data.type==='repo-sports-v2-live-state-request'){
+      if(repoV2LiveState)repoV2PushLiveState(event.source);else void repoV2FetchLiveState().then(row=>repoV2PushLiveState(event.source,row));
+      return;
+    }
+    if(data.type==='repo-sports-v2-rotation-complete'){
+      // Test 39 removes the hidden engine while the host is visibly watching.
+      // Therefore either synced iframe may report completion; the server lease
+      // still decides whether this parent is authorised to rotate globally.
+      if((fromHost||fromVisible)&&repoV2LiveIsHost)void repoV2CompleteRotation(data.matchSerial,data.result||{});
+      return;
+    }
+    if(fromHost)return;
 
     if(data.type==='repo-sports-v2-watch-party-request'){
       void repoV2PushWatchParty(event.source,false);
@@ -5708,6 +5986,17 @@ window.__QD_HOST__={
 
     if(data.type==='repo-sports-v2-career-request'){
       void repoV2PushCareer(event.source);
+      return;
+    }
+
+    if(data.type==='repo-sports-v2-watch-xp-request'){
+      const requestId=String(data.requestId||'');
+      const reply=(ok,payload,error)=>{
+        try{event.source?.postMessage({type:'repo-sports-v2-watch-xp-response',requestId,ok,payload:payload||null,error:error||''},'*')}catch(_){}
+      };
+      Promise.resolve(window.RepoSportsV2TestBridge.claimWatchXp())
+        .then(payload=>reply(true,payload,''))
+        .catch(error=>reply(false,null,String(error?.message||error||'Watch XP request failed')));
       return;
     }
 
@@ -5772,32 +6061,43 @@ window.__QD_HOST__={
     }
   });
   f?.addEventListener('load',()=>{
+    setTimeout(()=>repoV2PushLiveState(f.contentWindow),25);
     setTimeout(()=>void repoV2PushWatchParty(f.contentWindow,true),60);
     setTimeout(()=>void repoV2PushCareer(f.contentWindow),110);
   });
-  s();setInterval(s,1200);addEventListener('repo-character-changed',s);
+  s();
+  document.getElementById('repoSportsPetRoomButton')?.addEventListener('click',()=>b?.click());
   b.onclick=()=>{
-    if(!a())return;
     launchSerial++;const serial=launchSerial;
     clearTimeout(revealTimer);clearTimeout(closeTimer);
     o.style.display='block';o.setAttribute('aria-hidden','false');o.classList.remove('is-feed-visible');
     document.body.style.overflow='hidden';
     sting.classList.remove('is-leaving');sting.classList.add('is-playing');sting.setAttribute('aria-hidden','false');
-    // Restart the shine animation cleanly on every launch.
+    // Restart the Repo Sports red/blue/white shine on every launch.
+    syncRepoV2StingDuration();
     void sting.offsetWidth;
-    playRepoV2LaunchSound();
-    let loaded=false,minElapsed=false;
-    const reveal=()=>{if(serial!==launchSerial||!loaded||!minElapsed)return;hideLaunchSting(serial)};
-    f.addEventListener('load',()=>{loaded=true;reveal()},{once:true});
-    f.src='repo-sports-quidditch-v2-test.html?v=test31-fulltime-kat';
-    setTimeout(()=>{minElapsed=true;reveal()},1650);
-    revealTimer=setTimeout(()=>hideLaunchSting(serial),2600);
+    let soundFinished=false;
+    const reveal=()=>{
+      if(serial!==launchSerial||!soundFinished)return;
+      hideLaunchSting(serial);
+    };
+    playRepoV2LaunchSound(serial,()=>{soundFinished=true;reveal()});
+    void repoV2FetchLiveState();
+    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-live-launch';
+    // Hand the host simulation from the hidden iframe to the visible feed.
+    repoV2EnsureHostFrame();
+    // Safety only: normal reveal is driven by the MP3 'ended' event.
+    revealTimer=setTimeout(()=>{soundFinished=true;reveal()},repoV2StingDurationMs()+220);
   };
   x.onclick=()=>{
     launchSerial++;clearTimeout(revealTimer);clearTimeout(closeTimer);
+    try{repoV2LaunchAudio.pause();repoV2LaunchAudio.currentTime=0}catch(_){}
     o.style.display='none';o.setAttribute('aria-hidden','true');o.classList.remove('is-feed-visible');
     sting.classList.remove('is-playing','is-leaving');sting.setAttribute('aria-hidden','true');
     f.src='about:blank';document.body.style.overflow='';
+    // If this browser owns the lease, resume the lightweight headless host while
+    // the user remains elsewhere on RepoCompany.
+    setTimeout(repoV2EnsureHostFrame,40);
     repoV2HoveredWatcher='';try{if(typeof qmHideWatcherProfile==='function')qmHideWatcherProfile()}catch(_){}
   };
 })();

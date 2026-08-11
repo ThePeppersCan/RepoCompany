@@ -9327,6 +9327,10 @@ qmApplyLiveState=function(state){qmCareerApplyBase(state);if(qmState.open)qmLoad
 // The short Supabase lease automatically transfers if that browser closes.
 // ============================================================
 (function(){
+  // REPO SPORTS LIVE LAUNCH:
+  // the previous Quidditch Mode must no longer advance matches or career stats
+  // in the background. The new shared Repo Sports engine is authoritative.
+  return;
   const STORAGE_KEY='repo_quidditch_background_viewer_key';
   const HEARTBEAT_MS=5000;
   let timer=null;

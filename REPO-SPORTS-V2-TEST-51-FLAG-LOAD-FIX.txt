@@ -1,0 +1,32 @@
+REPO SPORTS V2 TEST 51 — BLACK SCREEN / FLAG INITIALISATION FIX
+
+ROOT CAUSE
+Test 50 created TEAM_INFO using:
+  flagForTeamName('Hrafnvik')
+
+before the const CLUB_FLAG_FILES lookup table had been initialized.
+
+The JavaScript file therefore passed syntax validation but failed at runtime
+with a temporal-dead-zone ReferenceError as soon as the iframe loaded.
+
+That caused:
+Repo Sports TV sting -> black V2 screen.
+
+FIX
+The initialization order is now:
+1. V2_LEAGUE_TEAMS
+2. CLUB_FLAG_ROOT
+3. CLUB_FLAG_FILES
+4. flag helper functions
+5. TEAM_INFO
+
+No gameplay, sync, standings, dimensions, or flag associations were changed.
+
+TEST 50 ASSETS
+Keep the 18 club flag assets from Test 50 installed.
+This Test 51 patch only needs the three web files.
+
+INSTALL
+Copy these files into:
+C:\Users\Isaac\Desktop\web2\
+Overwrite, then Ctrl + Shift + R.

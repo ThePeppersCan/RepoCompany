@@ -1,0 +1,73 @@
+REPO SPORTS V2 TEST 40 — EXACT SHARED MATCH SYNC
+
+SCREENSHOT DIAGNOSIS
+Both browsers were on the same match serial/fixture/arena, but one was roughly
+8 seconds ahead. The extra goal and different player positions can therefore be
+explained by the two clients watching different points of the same simulation.
+
+ROOT CLOCK BUG
+Test 37 deliberately used:
+  max(serverElapsed, projectedLocalElapsed, engineElapsed)
+This prevented rewinds, but it also meant a browser that got ahead was allowed
+to keep its own clock forever.
+
+TEST 40 CLOCK MODEL
+- Supabase active_elapsed_ms is authoritative.
+- Every fresh server sample becomes the new interpolation anchor.
+- Browser clock may smoothly move between samples, but cannot keep a permanently
+  faster private timeline.
+- Live-state read polling tightened from 1000ms to 500ms.
+- If a browser is more than 2 seconds away from server time, the iframe closes
+  and deterministically reconstructs the SAME match serial/seed to the correct
+  elapsed point.
+
+DETERMINISTIC RNG FIX
+Barry/commentary had been using state.simRand for:
+- random commentary line selection
+- lore checks/selection
+- occasional tactical commentary
+
+Barry speaking/queue timing uses real browser performance timing, so two browsers
+could eventually consume different quantities of gameplay random numbers.
+
+Test 40 creates a completely separate commentaryRand stream.
+Barry/UI timing can now differ without EVER changing:
+- passes
+- interceptions
+- tackles
+- shots
+- saves
+- goals
+- VAR
+- penalties
+- winner
+
+The actual gameplay RNG sequence is isolated from commentator behaviour.
+
+VISIBLE HOST ROTATION
+Test 39 correctly removes the duplicate hidden engine while the host watches V2,
+but the parent was still accepting rotation-complete only from the hidden iframe.
+Test 40 accepts it from the visible synced host too. Supabase host lease remains
+the authority, so normal viewers cannot rotate the match.
+
+60 FPS
+Test 39 visual interpolation is retained.
+Authoritative gameplay stays fixed 30 Hz; presentation targets normal RAF/~60fps.
+
+NO SQL NEEDED FOR TEST 40.
+Keep Test 38 heartbeat SQL installed.
+
+TEST
+Open the same live match in two browsers and hard refresh both after installing.
+Within normal network latency they should show the same match clock, score and
+same simulation actions. A tab that gets >2 seconds detached automatically
+rebuilds itself from the shared match seed instead of remaining divergent.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\
+Overwrite, then Ctrl + Shift + R in BOTH test browsers.

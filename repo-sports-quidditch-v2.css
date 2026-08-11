@@ -1673,7 +1673,7 @@ img[src*="world-cup-flags-transparent"]{
 .wcg-v2-broadcast-layout>.wcg-shell{
   position:relative!important;
   width:100%!important;
-  max-width:1672px!important;
+  max-width:1740px!important;
   max-height:96vh!important;
   align-self:center!important;
   overflow:hidden!important;
@@ -1873,21 +1873,37 @@ img[src*="world-cup-flags-transparent"]{
 }
 .wcg-v2-broadcast-layout{
   display:grid!important;
-  grid-template-columns:clamp(205px,12.6vw,245px) minmax(0,1fr)!important;
-  gap:10px!important;
+  grid-template-columns:clamp(225px,13.5vw,255px) minmax(0,1672px) clamp(300px,18vw,340px)!important;
+  gap:8px!important;
   align-items:start!important;
   justify-content:center!important;
-  width:min(99vw,1932px)!important;
+  width:max-content!important;
+  max-width:calc(100vw - 12px)!important;
   max-height:98vh!important;
 }
 .wcg-v2-tv-column{
   min-width:0;
+  width:100%;
   display:flex;
   flex-direction:column;
   align-items:stretch;
   gap:8px;
   max-height:98vh;
 }
+.wcg-v2-broadcast-layout>.wcg-v2-standings-board{
+  grid-column:3!important;
+  grid-row:1!important;
+  align-self:start!important;
+  justify-self:stretch!important;
+  position:relative!important;
+  inset:auto!important;
+  margin:0!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  z-index:220!important;
+}
+
 .wcg-v2-tv-column>.wcg-shell{
   position:relative!important;
   inset:auto!important;
@@ -1903,7 +1919,7 @@ img[src*="world-cup-flags-transparent"]{
   position:relative;
   z-index:210;
   display:grid;
-  grid-template-columns:minmax(0,1.75fr) minmax(245px,.82fr) minmax(235px,.70fr);
+  grid-template-columns:minmax(0,1.85fr) minmax(250px,.84fr) minmax(245px,.74fr);
   gap:8px;
   width:100%;
   height:112px;
@@ -2094,7 +2110,7 @@ img[src*="world-cup-flags-transparent"]{
 }
 
 @media(max-width:1250px){
-  .wcg-v2-broadcast-layout{grid-template-columns:185px minmax(0,1fr)!important;gap:7px!important}
+  .wcg-v2-broadcast-layout{grid-template-columns:190px minmax(0,1672px) 255px!important;gap:6px!important;width:max-content!important;max-width:calc(100vw - 8px)!important}
   .wcg-v2-under-tv-deck{height:100px!important;grid-template-columns:minmax(0,1.55fr) minmax(210px,.78fr) minmax(205px,.72fr)!important;padding:5px!important;gap:5px!important}
   .wcg-v2-under-tv-deck>.wcg-commentator,
   .wcg-v2-under-tv-deck>.wcg-v2-watch-party,
@@ -2105,7 +2121,7 @@ img[src*="world-cup-flags-transparent"]{
 }
 @media(max-width:900px){
   #wcWorldCupBroadcast.is-open{padding:4px!important}
-  .wcg-v2-broadcast-layout{grid-template-columns:145px minmax(0,1fr)!important;gap:5px!important;width:99.5vw!important}
+  .wcg-v2-broadcast-layout{grid-template-columns:145px minmax(0,1672px) 215px!important;gap:4px!important;width:max-content!important;max-width:calc(100vw - 6px)!important}
   .wcg-v2-tv-column{gap:5px!important}
   .wcg-v2-under-tv-deck{height:86px!important;grid-template-columns:minmax(0,1.45fr) minmax(170px,.78fr) minmax(155px,.72fr)!important;padding:4px!important;gap:4px!important}
   .wcg-v2-under-tv-deck>.wcg-commentator,
@@ -2126,9 +2142,10 @@ img[src*="world-cup-flags-transparent"]{
 @media(max-height:850px){
   #wcWorldCupBroadcast.is-open{padding:4px!important}
   .wcg-v2-broadcast-layout{
-    grid-template-columns:190px minmax(0,1fr)!important;
+    grid-template-columns:210px minmax(0,1672px) 255px!important;
     gap:6px!important;
-    width:99.3vw!important;
+    width:max-content!important;
+    max-width:calc(100vw - 8px)!important;
   }
   .wcg-v2-tv-column{gap:5px!important}
   .wcg-v2-under-tv-deck{

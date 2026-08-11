@@ -15,7 +15,6 @@
   const MATCH_MUSIC = BASE+'match-music.mp3';
   const MATCH_MUSIC_ALT = BASE+'loop.mp3';
   const MATCH_MUSIC_THIRD = BASE+'eternal-throne.mp3';
-  const MATCH_MUSIC_FOURTH = BASE+'music-3.mp3';
   const PLAYER_RIDE_HEIGHT = 113.4, PLAYER_STAND_HEIGHT = 90.3;
   // V38.6 — standing artwork is not uniformly trimmed/oriented.
   // visible-bottom ratios are generated from each supplied PNG's alpha bounds.
@@ -590,7 +589,7 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
   }
 
   const audio = {
-    crowd:null,whistle:null,goal:null,goalCheer:null,prematch:null,matchMusic:null,matchMusicAlt:null,matchMusicThird:null,matchMusicFourth:null,matchMusicTracks:[],currentMatchMusic:null,currentMatchMusicIndex:-1,matchMusicFading:false,matchMusicShuffleBag:[],lastMatchMusicIndex:-1,intercepts:[],shots:[],passMissSfx:[],missImpactSfx:[],hoopHitSfx:[],stealSfx:[],crowdAccentSfx:[],crowdLong:null,crowdAccentTimer:18,crowdAccentActive:null,crowdAccentStopTimer:0,lastCrowdAccent:-1,goalCheerGuardUntil:0,activeTransientSfx:new Set(),windCtx:null,windSource:null,mix:{ambience:.018,crowd:.18,commentary:.58,sfx:.55,music:.20,matchMusic:.05},
+    crowd:null,whistle:null,goal:null,goalCheer:null,prematch:null,matchMusic:null,matchMusicAlt:null,matchMusicThird:null,matchMusicTracks:[],currentMatchMusic:null,currentMatchMusicIndex:0,matchMusicFading:false,intercepts:[],shots:[],passMissSfx:[],missImpactSfx:[],hoopHitSfx:[],stealSfx:[],crowdAccentSfx:[],crowdLong:null,crowdAccentTimer:18,crowdAccentActive:null,crowdAccentStopTimer:0,lastCrowdAccent:-1,goalCheerGuardUntil:0,activeTransientSfx:new Set(),windCtx:null,windSource:null,mix:{ambience:.018,crowd:.18,commentary:.58,sfx:.55,music:.20,matchMusic:.05},
     ensure(){
       if(this.crowd)return;
       this.crowd=new Audio('assets/quidditch-crowd.mp3');this.crowd.loop=true;this.crowd.preload='auto';
@@ -601,8 +600,7 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
       this.matchMusic=new Audio(MATCH_MUSIC);this.matchMusic.preload='auto';this.matchMusic.loop=false;
       this.matchMusicAlt=new Audio(MATCH_MUSIC_ALT);this.matchMusicAlt.preload='auto';this.matchMusicAlt.loop=false;
       this.matchMusicThird=new Audio(MATCH_MUSIC_THIRD);this.matchMusicThird.preload='auto';this.matchMusicThird.loop=false;
-      this.matchMusicFourth=new Audio(MATCH_MUSIC_FOURTH);this.matchMusicFourth.preload='auto';this.matchMusicFourth.loop=false;
-      this.matchMusicTracks=[this.matchMusic,this.matchMusicAlt,this.matchMusicThird,this.matchMusicFourth].filter(Boolean);
+      this.matchMusicTracks=[this.matchMusic,this.matchMusicAlt,this.matchMusicThird].filter(Boolean);
       this.intercepts=[1,2].map(n=>new Audio(`assets/quidditch-intercept-${n}.mp3`));
       this.shots=[1,2,3,4,5].map(n=>new Audio(`assets/quidditch-sfx/shot-${n}.mp3`));
       this.passMissSfx=[1,2,3].map(n=>new Audio(`${BASE}match-sfx/pass-miss-${n}.mp3`));
@@ -613,61 +611,14 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
       this.crowdLong=new Audio(`${BASE}crowd-sfx/crowd-long.mp3`);
       [...this.passMissSfx,...this.missImpactSfx,...this.hoopHitSfx,...this.stealSfx,...this.crowdAccentSfx,this.crowdLong].forEach(a=>{if(a)a.preload='auto'});
     },
-    buildMatchMusicShuffleBag(exclude=-1){
-      this.ensure();
-      const tracks=this.matchMusicTracks||[],ids=tracks.map((_,i)=>i);
-      // Fisher-Yates shuffle using presentation RNG where available.
-      for(let i=ids.length-1;i>0;i--){
-        const rnd=(state.visualRand?.()||Math.random()),j=Math.floor(rnd*(i+1));
-        [ids[i],ids[j]]=[ids[j],ids[i]];
-      }
-      if(ids.length>1&&ids[0]===exclude){
-        const swap=1+Math.floor((state.visualRand?.()||Math.random())*(ids.length-1));
-        [ids[0],ids[swap]]=[ids[swap],ids[0]];
-      }
-      this.matchMusicShuffleBag=ids;
-      return ids;
-    },
-    nextRandomMatchTrack(){
-      this.ensure();
-      const tracks=this.matchMusicTracks||[];if(!tracks.length)return -1;
-      const current=this.currentMatchMusicIndex;
-      if(!Array.isArray(this.matchMusicShuffleBag)||!this.matchMusicShuffleBag.length)this.buildMatchMusicShuffleBag(current);
-      let next=this.matchMusicShuffleBag.shift();
-      if(tracks.length>1&&next===current){
-        if(!this.matchMusicShuffleBag.length)this.buildMatchMusicShuffleBag(current);
-        next=this.matchMusicShuffleBag.shift();
-      }
-      return Number.isFinite(next)?next:0;
-    },
-    chooseMatchMusicStart(){
-      this.ensure();
-      const tracks=this.matchMusicTracks||[];if(!tracks.length)return 0;
-      let last=-1;
-      try{last=Number(sessionStorage.getItem('repoSportsWorldCupLastMusicTrack'));if(!Number.isFinite(last))last=-1}catch(_){}
-      this.lastMatchMusicIndex=last;
-      this.buildMatchMusicShuffleBag(last);
-      const next=this.matchMusicShuffleBag.shift();
-      return Number.isFinite(next)?next:0;
-    },
-    playMatchTrack(index=null,seek=0){
+    playMatchTrack(index=0,seek=0){
       this.ensure();
       const tracks=this.matchMusicTracks||[];if(!tracks.length)return;
-      const wanted=Number.isFinite(index)?index:this.nextRandomMatchTrack();
-      const safe=((wanted%tracks.length)+tracks.length)%tracks.length;
+      const safe=((index%tracks.length)+tracks.length)%tracks.length;
       const a=tracks[safe];if(!a)return;
-      this.currentMatchMusicIndex=safe;this.lastMatchMusicIndex=safe;this.currentMatchMusic=a;this.matchMusicFading=false;
-      try{sessionStorage.setItem('repoSportsWorldCupLastMusicTrack',String(safe))}catch(_){}
-      tracks.forEach(track=>{if(track&&track!==a){try{track.pause();track.currentTime=0;track.volume=0;track.onended=null}catch(_){}}});
-      try{
-        a.pause();
-        if(Number.isFinite(seek)&&seek>0)a.currentTime=Math.max(0,seek);else a.currentTime=0;
-        a.volume=0;
-        // Ended tracks pull from a shuffled bag, never index+1.
-        a.onended=()=>{if(!state.open)return;this.playMatchTrack(this.nextRandomMatchTrack(),0)};
-        const pr=a.play();
-        pr?.then?.(()=>this.fadeVolume(a,0,this.mix.matchMusic,900))?.catch?.(()=>{});
-      }catch(_){}
+      this.currentMatchMusicIndex=safe;this.currentMatchMusic=a;this.matchMusicFading=false;
+      tracks.forEach((track,i)=>{if(track&&track!==a){try{track.pause();track.currentTime=0;track.volume=0}catch(_){}}});
+      try{a.pause();if(Number.isFinite(seek)&&seek>0)a.currentTime=Math.max(0,seek);else a.currentTime=0;a.volume=0;a.onended=()=>{if(!state.open)return;this.playMatchTrack((this.currentMatchMusicIndex+1)%tracks.length,0)};const pr=a.play();pr?.then?.(()=>this.fadeVolume(a,0,this.mix.matchMusic,900))?.catch?.(()=>{})}catch(_){}
     },
     fadeVolume(a,from,to,ms,onDone=null){
       if(!a)return;const start=performance.now(),token=(a.__wcFadeToken||0)+1;a.__wcFadeToken=token;a.volume=clamp(from,0,1);
@@ -695,10 +646,10 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
     },
     start(){this.ensure();this.stopCrowdAccent();this.crowdAccentTimer=14+(state.visualRand?.()||Math.random())*14;try{this.crowd.volume=state.phase==='intro'?.09:state.crowdBase;this.crowd.currentTime=0;this.crowd.play()?.catch?.(()=>{})}catch(_){};this.startWind()},
     startPrematch(offset=0){this.ensure();const a=this.prematch;if(!a)return;try{a.pause();a.volume=this.mix.music;a.playbackRate=1;const begin=()=>{try{const duration=Number(a.duration)||INTRO_SECONDS;a.playbackRate=clamp(duration/INTRO_SECONDS,.75,1.25);a.currentTime=clamp(offset*(duration/INTRO_SECONDS),0,Math.max(0,duration-.08));const pr=a.play();pr?.catch?.(()=>{state.prematchAudioFailed=true})}catch(_){state.prematchAudioFailed=true}};a.onended=()=>{if(state.open&&state.phase==='intro')completePrematch()};if(Number.isFinite(a.duration)&&a.duration>0)begin();else a.addEventListener('loadedmetadata',begin,{once:true})}catch(_){state.prematchAudioFailed=true}},
-    startMatchMusic(){this.ensure();if(this.currentMatchMusic&&!this.currentMatchMusic.paused)return;if(this.currentMatchMusicIndex<0)this.currentMatchMusicIndex=this.chooseMatchMusicStart();this.playMatchTrack(this.currentMatchMusicIndex,0)},
+    startMatchMusic(){this.ensure();if(this.currentMatchMusic&&!this.currentMatchMusic.paused)return;this.playMatchTrack(this.currentMatchMusicIndex||0,0)},
     pauseMatchMusic(){this.ensure();const a=this.currentMatchMusic;if(!a||a.paused||this.matchMusicFading)return;this.matchMusicFading=true;try{this.fadeVolume(a,a.volume,0,700,()=>{try{a.pause()}catch(_){}this.matchMusicFading=false})}catch(_){try{a.pause()}catch(__){}this.matchMusicFading=false}},
     startWind(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC||this.windCtx)return;const ctx=new AC(),buffer=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.42;const src=ctx.createBufferSource(),low=ctx.createBiquadFilter(),high=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buffer;src.loop=true;low.type='lowpass';low.frequency.value=780;high.type='highpass';high.frequency.value=90;gain.gain.value=this.mix.ambience;src.connect(low);low.connect(high);high.connect(gain);gain.connect(ctx.destination);src.start();this.windCtx=ctx;this.windSource=src}catch(_){}} ,
-    stop(){this.ensure();this.stopCrowdAccent();for(const a of this.activeTransientSfx){try{a.__wcFadeToken=(a.__wcFadeToken||0)+1;a.pause();a.currentTime=0}catch(_){}}this.activeTransientSfx.clear();[this.crowd,this.whistle,this.goal,this.goalCheer,this.prematch,...(this.matchMusicTracks||[]),...this.intercepts,...this.shots,...this.passMissSfx,...this.missImpactSfx,...this.hoopHitSfx,...this.stealSfx,...this.crowdAccentSfx,this.crowdLong].forEach(a=>{try{a?.pause();if(a){a.currentTime=0;a.volume=0;a.onended=null}}catch(_){}});this.currentMatchMusic=null;this.currentMatchMusicIndex=-1;this.matchMusicShuffleBag=[];try{this.windSource?.stop()}catch(_){};try{this.windCtx?.close()}catch(_){};this.windSource=null;this.windCtx=null},
+    stop(){this.ensure();this.stopCrowdAccent();for(const a of this.activeTransientSfx){try{a.__wcFadeToken=(a.__wcFadeToken||0)+1;a.pause();a.currentTime=0}catch(_){}}this.activeTransientSfx.clear();[this.crowd,this.whistle,this.goal,this.goalCheer,this.prematch,...(this.matchMusicTracks||[]),...this.intercepts,...this.shots,...this.passMissSfx,...this.missImpactSfx,...this.hoopHitSfx,...this.stealSfx,...this.crowdAccentSfx,this.crowdLong].forEach(a=>{try{a?.pause();if(a){a.currentTime=0;a.volume=0;a.onended=null}}catch(_){}});this.currentMatchMusic=null;try{this.windSource?.stop()}catch(_){};try{this.windCtx?.close()}catch(_){};this.windSource=null;this.windCtx=null},
     crowdHit(amount=.22){state.crowdBoost=Math.max(state.crowdBoost,amount)},
     shot(){this.ensure();this.play(this.shots[Math.floor((state.visualRand?.()||Math.random())*this.shots.length)],.48)},
     intercept(){this.ensure();this.play(this.intercepts[Math.floor((state.visualRand?.()||Math.random())*this.intercepts.length)],.46)},
@@ -1271,7 +1222,7 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
     $('wcgScoreBelros').textContent=state.score.belros;$('wcgScoreZafran').textContent=state.score.zafran;
     let t=state.matchTime,phase='1ST HALF';
     if(state.phase==='intro'){ $('wcgClock').textContent=`-${Math.max(0,Math.ceil(INTRO_SECONDS-state.introElapsed))}`;phase='PRE-MATCH'; }
-    else { if(state.celebration)phase='GOAL CELEBRATION';else if(state.phase==='second')phase='2ND HALF';else if(state.phase==='halftime')phase='HALF TIME';else if(state.phase==='secondcountdown')phase='2ND HALF SOON';else if(state.phase==='shootout')phase='PENALTIES';else if(state.phase==='fulltime')phase='FULL TIME'; const m=Math.floor(t/60),s=Math.floor(t%60);$('wcgClock').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+    else { if(state.celebration)phase='GOAL CELEBRATION';else if(state.phase==='second')phase='2ND HALF';else if(state.phase==='halftime')phase='HALF TIME';else if(state.phase==='secondcountdown')phase='2ND HALF SOON';else if(state.phase==='shootout'){const so=state.shootout;phase=so?`PENS ${so.score.belros}-${so.score.zafran}`:'PENALTIES';}else if(state.phase==='fulltime')phase='FULL TIME'; const m=Math.floor(t/60),s=Math.floor(t%60);$('wcgClock').textContent=state.phase==='shootout'?'PENS':`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
     $('wcgPhase').textContent=phase;
     updateScorerUi();
     const a=state.teamStats.belros,b=state.teamStats.zafran;
@@ -2085,7 +2036,11 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
 
   function startPenalty(team,shootout=false){
     if(!shootout)state.teamStats[team].penalties++;
-    const shooter=teamEntities(team).find(e=>e.player.role==='attacker')||teamEntities(team)[0];state.special={type:'penalty',elapsed:0,team,shooter,shootout,shot:false};
+    const players=teamEntities(team);
+    const shooter=shootout&&state.shootout
+      ?players[(state.shootout.attempts[team]||0)%Math.max(1,players.length)]
+      :(players.find(e=>e.player.role==='attacker')||players[0]);
+    state.special={type:'penalty',elapsed:0,team,shooter,shootout,shot:false};
     const dir=teamMeta[team].attack;shooter.tx=team==='belros'?.72:.28;shooter.ty=.52;setPlayerAnim(shooter,'DECELERATING',.55,ANIM_PRIORITY.DECELERATING,{setPiece:true});teamEntities(team).filter(e=>e!==shooter).forEach((e,i)=>{e.tx=.5-dir*.08;e.ty=.39+i*.24;setPlayerAnim(e,'IDLE',1.35,ANIM_PRIORITY.IDLE,{setPiece:true})});teamEntities(other(team)).forEach((e,i)=>{e.tx=.5+dir*.08;e.ty=.39+i*.12});state.ref.tx=.5;state.ref.ty=.42;state.camera.tx=team==='belros'?.535:.465;state.camera.ty=.52;state.camera.tz=1.06;showBanner(shootout?'SHOOTOUT PENALTY':`PENALTY · ${teamMeta[team].name}`,'danger',2.0);eventLine('penalty',{team:teamMeta[team].name,pet:shooter.player.name},shooter.player,.06);audio.ensure();audio.play(audio.whistle,.55);
   }
   function updatePenalty(dt){
@@ -2172,7 +2127,15 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
   }
 
   function beginShootout(){
-    state.phase='shootout';state.shootout={score:{belros:0,zafran:0},attempts:{belros:0,zafran:0},turn:0,order:['belros','zafran'],round:0};state.special=null;state.delay={t:2.0,cb:shootoutNext};showBanner('PENALTY SHOOTOUT','var',2.4);say(`Eighteen minutes cannot separate them. No Golden Snitch here — ${teamMeta.belros.name} and ${teamMeta.zafran.name} will settle it from the penalty line.`);audio.ensure();audio.startMatchMusic();audio.play(audio.whistle,.6);
+    if(state.phase==='shootout'||state.phase==='fulltime')return;
+    const first=state.simRand()<.5?'belros':'zafran',second=other(first);
+    state.phase='shootout';
+    state.shootout={score:{belros:0,zafran:0},attempts:{belros:0,zafran:0},turn:0,order:[first,second],round:0};
+    state.special=null;state.delay={t:2.0,cb:shootoutNext};
+    setBroadcastState('PENALTY_SHOOTOUT');
+    showBanner('PENALTY SHOOTOUT','var',2.4);
+    say(`Eighteen minutes cannot separate them. ${teamMeta[first].name} won the toss and will take the first penalty.`);
+    audio.ensure();audio.startMatchMusic();audio.play(audio.whistle,.6);
   }
   function shootoutNext(){
     const so=state.shootout;if(!so)return;const team=so.order[so.turn%2];const attemptsA=so.attempts.belros,attemptsB=so.attempts.zafran;
@@ -2614,8 +2577,15 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
     breakGeneralPackGrouping(dt,true);
     for(const e of state.entities)steerEntity(e,dt);
     const target=state.ball.flight?state.ball:(state.carrier||{x:.5,y:.5});
-    const refSide=state.possession==='belros'?.055:state.possession==='zafran'?-.055:0;
-    if((state.ref.reactionUntil||0)<=performance.now()){state.ref.reactionState='playing';state.ref.tx=safeX(target.x-refSide);state.ref.ty=safeY(target.y+.075)}
+    // William observes from a wider trailing diagonal, keeping him visually
+    // outside the main player cluster while still following the ball.
+    const refBehind=state.possession==='belros'?.115:state.possession==='zafran'?-.115:0;
+    const refVertical=target.y<.50?.115:-.115;
+    if((state.ref.reactionUntil||0)<=performance.now()){
+      state.ref.reactionState='playing';
+      state.ref.tx=safeX(target.x-refBehind);
+      state.ref.ty=safeY(target.y+refVertical);
+    }
     else if(state.ref.reactionMeta?.faceX!=null)state.ref.dir=state.ref.reactionMeta.faceX>=state.ref.x?1:-1;
     const r=state.ref;enforceInteriorIntent(r,dt);const dx=r.tx-r.x,dy=r.ty-r.y,dist=Math.hypot(dx,dy),ds=Math.min(r.maxSpeed,dist*1.55+.02);let rvx=dist?dx/dist*ds:0,rvy=dist?dy/dist*ds:0;[rvx,rvy]=applyBoundarySteering(r,rvx,rvy);const k=1-Math.exp(-dt*4.2);
     r.vx=lerp(r.vx,rvx,k);r.vy=lerp(r.vy,rvy,k);let rx=r.x+r.vx*dt,ry=r.y+r.vy*dt;
@@ -2874,7 +2844,7 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
     try{
       createUi();applyFixtureConfig(opts);refreshFixtureUi();
       await preload();
-    state.open=true;state.opening=false;state.startedAt=Number(opts.startedAt)||Date.now();state.seed=hashSeed(`${state.startedAt}|${activeFixture.id}|WC2026`);state.simRand=mulberry32(state.seed);state.visualRand=mulberry32(state.seed^0x9e3779b9);state.phase='intro';state.introElapsed=clamp((Date.now()-state.startedAt)/1000,0,INTRO_SECONDS-.08);state.matchTime=0;state.speed=1;state.half=1;state.firstKickoff='belros';state.score={belros:0,zafran:0};state.shootout=null;state.special=null;state.delay=null;state.celebration=null;state.reactionHistory={};state.reactionSerial=0;state.refReaction=null;state.varContext=null;state.actionTimer=2.5;state.ball={x:.5,y:.5,vx:0,vy:0,speed:0,direction:0,flight:null,visible:true,state:'HELD',owner:null,previousOwner:null,currentOwner:null,intendedReceiver:null,predictedDestination:null,lastTouchedBy:null};state.pendingPass=null;state.possessionChangedAt=performance.now();state.loreUsed=new Set();state.introCue=-1;state.presentationKey='';state.broadcastState='PRE_MATCH';state.broadcastSequence={state:'fixtureIntro',elapsed:0,serial:1,frozen:true,skipped:false};state.halftimeElapsed=0;state.halftimeReady=false;state.halftimeWaitSlide=-1;state.secondCountdown=0;state.fulltimeElapsed=0;state.fulltimeData=null;state.events=[];state.kickoffToss=null;state.kickoffMount=null;state.kickoffReceiver=null;state.prematchAudioFailed=false;state.replay=null;state.replayIntro=null;state.replayOutro=null;state.replayBuffer=[];state.replayCaptureAccum=0;state.lastReplayAt=-999;state.chanceBuild=null;initMatchFlowDirector();state.storyGraphicTimer=34;state.storyGraphicUntil=0;state.storyGraphicIndex=0;state.cameraDirector={shot:'MAIN',timer:3.5,lastShot:'',cutSerial:0};state.camera={x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'};state.lastTs=0;state.crowdBoost=0;state.movementPulse=.12;state.tacticalPulse=0;state.broadcast={lastSpokenAt:0,lastText:'',recent:[],recentSkeletons:[],queue:null,barryState:'NEUTRAL',barryPriority:0,barryUntil:0,barryTimer:0,talkTimer:0,phaseSeen:'',crowdLevel:.12,crowdTarget:.12,speaking:false,debugEvent:'IDLE',voiceName:'TEXT ONLY',variantCount:BARRY_COMMENTARY_VARIANTS};state.director={phase:'BUILD-UP',momentum:{belros:0,zafran:0},pressure:{belros:0,zafran:0},recent:[],pulse:0};resetStats();createEntities();primeBarryVoice();stopWorldCupMenuAudio();audio.currentMatchMusicIndex=audio.chooseMatchMusicStart();audio.start();audio.startPrematch(state.introElapsed);await joinMatchChannel();const root=$('wcWorldCupBroadcast');root.classList.add('is-open');root.setAttribute('aria-hidden','false');$('wcgHalftime').classList.remove('is-open');$('wcgFulltime').classList.remove('is-open');hidePresentation();$('wcgVar').classList.remove('is-open','is-decision');const admin=adminEnabled();$('wcgSpeed').hidden=!admin;$('wcgSkipHalf').hidden=!admin;$('wcgAdminEvents').hidden=!admin;$('wcgAdminPanel').hidden=true;setSpeed(1,false);setBroadcastState('PRE_MATCH');say(commentary.intro[0]);showBanner('VELMORA QUIDDITCH WORLD CUP','',2.0);updatePrematchPresentation();updateKickoffToss(0);updateScoreUi();render();state.raf=requestAnimationFrame(update);return true;
+    state.open=true;state.opening=false;state.startedAt=Number(opts.startedAt)||Date.now();state.seed=hashSeed(`${state.startedAt}|${activeFixture.id}|WC2026`);state.simRand=mulberry32(state.seed);state.visualRand=mulberry32(state.seed^0x9e3779b9);state.phase='intro';state.introElapsed=clamp((Date.now()-state.startedAt)/1000,0,INTRO_SECONDS-.08);state.matchTime=0;state.speed=1;state.half=1;state.firstKickoff='belros';state.score={belros:0,zafran:0};state.shootout=null;state.special=null;state.delay=null;state.celebration=null;state.reactionHistory={};state.reactionSerial=0;state.refReaction=null;state.varContext=null;state.actionTimer=2.5;state.ball={x:.5,y:.5,vx:0,vy:0,speed:0,direction:0,flight:null,visible:true,state:'HELD',owner:null,previousOwner:null,currentOwner:null,intendedReceiver:null,predictedDestination:null,lastTouchedBy:null};state.pendingPass=null;state.possessionChangedAt=performance.now();state.loreUsed=new Set();state.introCue=-1;state.presentationKey='';state.broadcastState='PRE_MATCH';state.broadcastSequence={state:'fixtureIntro',elapsed:0,serial:1,frozen:true,skipped:false};state.halftimeElapsed=0;state.halftimeReady=false;state.halftimeWaitSlide=-1;state.secondCountdown=0;state.fulltimeElapsed=0;state.fulltimeData=null;state.events=[];state.kickoffToss=null;state.kickoffMount=null;state.kickoffReceiver=null;state.prematchAudioFailed=false;state.replay=null;state.replayIntro=null;state.replayOutro=null;state.replayBuffer=[];state.replayCaptureAccum=0;state.lastReplayAt=-999;state.chanceBuild=null;initMatchFlowDirector();state.storyGraphicTimer=34;state.storyGraphicUntil=0;state.storyGraphicIndex=0;state.cameraDirector={shot:'MAIN',timer:3.5,lastShot:'',cutSerial:0};state.camera={x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'};state.lastTs=0;state.crowdBoost=0;state.movementPulse=.12;state.tacticalPulse=0;state.broadcast={lastSpokenAt:0,lastText:'',recent:[],recentSkeletons:[],queue:null,barryState:'NEUTRAL',barryPriority:0,barryUntil:0,barryTimer:0,talkTimer:0,phaseSeen:'',crowdLevel:.12,crowdTarget:.12,speaking:false,debugEvent:'IDLE',voiceName:'TEXT ONLY',variantCount:BARRY_COMMENTARY_VARIANTS};state.director={phase:'BUILD-UP',momentum:{belros:0,zafran:0},pressure:{belros:0,zafran:0},recent:[],pulse:0};resetStats();createEntities();primeBarryVoice();stopWorldCupMenuAudio();audio.currentMatchMusicIndex=Math.floor((state.visualRand?.()||Math.random())*3);audio.start();audio.startPrematch(state.introElapsed);await joinMatchChannel();const root=$('wcWorldCupBroadcast');root.classList.add('is-open');root.setAttribute('aria-hidden','false');$('wcgHalftime').classList.remove('is-open');$('wcgFulltime').classList.remove('is-open');hidePresentation();$('wcgVar').classList.remove('is-open','is-decision');const admin=adminEnabled();$('wcgSpeed').hidden=!admin;$('wcgSkipHalf').hidden=!admin;$('wcgAdminEvents').hidden=!admin;$('wcgAdminPanel').hidden=true;setSpeed(1,false);setBroadcastState('PRE_MATCH');say(commentary.intro[0]);showBanner('VELMORA QUIDDITCH WORLD CUP','',2.0);updatePrematchPresentation();updateKickoffToss(0);updateScoreUi();render();state.raf=requestAnimationFrame(update);return true;
     }catch(error){
       console.error('[WORLD CUP] Match open failed',error);
       state.open=false;state.opening=false;

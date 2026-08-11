@@ -1,0 +1,69 @@
+REPO SPORTS V2 TEST 45 — NEW 18-CLUB LEAGUE
+
+NEW OFFICIAL V2 CLUB POOL
+1. Hrafnvik
+2. Blackglass
+3. Saint Ciro
+4. Marenza
+5. Grand Khor
+6. Aurelia
+7. Drazh Hollow
+8. Rova End
+9. Zafir Row
+10. Talun Cross
+11. Ossa Mere
+12. Varka Fell
+13. Iskara
+14. Naskor
+15. Ashwick
+16. Skarholt
+17. Orsanne
+18. Cinderbank
+
+GLOBAL MATCH ROTATION
+- Removed the old imported Quidditch club list from V2.
+- Every shared match serial now deterministically selects two DIFFERENT clubs
+  from the new 18-team list.
+- Arena and six-player selection remain deterministic/shared exactly as before.
+- Everyone watching the same live serial still sees the same clubs and actions.
+
+TEAM LEADERBOARD
+- V2 no longer displays old RepoSports team-win totals.
+- All 18 new clubs are supplied to the V2 team leaderboard with:
+  matches = 0
+  wins = 0
+  goals_for = 0
+- The visible leaderboard remains TOP 5 by design; while every club is tied on
+  zero it follows the official league order above.
+- Team rows explicitly say PRESEASON · RECORD STARTS AT ZERO.
+- No V2 team result writes have been enabled.
+
+PLAYER CAREER RECORDS
+- Existing Top Goalscorers and Best Pet Win Rate remain read-only from the
+  existing player career database.
+- Only the TEAM identity/history has been reset in this patch.
+
+OLD/CURRENT QUIDDITCH MODE
+- Untouched.
+- These club changes apply to Repo Sports V2 only.
+
+RETAINED
+- Test 40 exact global sync
+- Test 41 grounded celebrations
+- Test 42 replay lock / scorer broom FX
+- Test 43/44 audio timing and levels
+- Test 38 heartbeat SQL
+- 30 Hz deterministic simulation / RAF visual presentation
+- 400 Agility XP/minute
+- penalty shootouts
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+
+NO SQL OR ASSET CHANGES.
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

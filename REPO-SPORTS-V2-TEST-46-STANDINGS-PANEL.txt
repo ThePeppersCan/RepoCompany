@@ -1,0 +1,28 @@
+REPO SPORTS V2 TEST 46 — RIGHT-SIDE LEAGUE TABLE
+
+ADDED
+- New Repo Sports standings panel on the RIGHT side of the TV.
+- Uses the supplied decorative table frame artwork.
+- Shows all 18 V2 league clubs.
+- Columns: position, team, wins, losses, goals for, goals against, goal difference, win rate.
+- Styled to fit inside the large open central area of the frame.
+
+DATA BEHAVIOUR
+- While V2 team records are still preseason / not being written, every club will display 0 values.
+- Ordering defaults to the official 18-club league order when clubs are tied.
+- If team stats are enabled later, the panel already sorts by wins, goal difference, goals for, losses.
+
+RETAINED
+- Left all-time records board unchanged.
+- Shared live sync unchanged.
+- Audio / replay / watch party / under-TV deck unchanged.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- NEW: assets/repo-sports-v2/repo-sports-v2-standings-board.png
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

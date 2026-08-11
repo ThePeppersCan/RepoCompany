@@ -1,5 +1,5 @@
 /* ============================================================
-   REPO SPORTS — STANDARD QUIDDITCH V2 TEST ENGINE
+   REPO SPORTS — LIVE QUIDDITCH ENGINE
    Belros vs Zafran prototype. 50/50 team balance by construction.
    No Golden Snitch. Standard RepoSports Quidditch remains untouched.
    ============================================================ */
@@ -13,7 +13,8 @@
   const POST_MATCH_SECONDS = 30;
   const LIVE_TEMPO = 1.18;
   const BROADCAST_DEBUG = false;
-  const PREMATCH_ANTHEM = BASE+'prematch-anthem.mp3';
+  const PREMATCH_ANTHEM = 'assets/repo-sports-v2/prematch-dark-drums-test43.mp3';
+  const KICKOFF_RELEASE_SFX = 'assets/repo-sports-v2/kickoff-ball-release-test43.mp3';
   const MATCH_MUSIC = BASE+'match-music.mp3';
   const MATCH_MUSIC_ALT = BASE+'loop.mp3';
   const MATCH_MUSIC_THIRD = BASE+'eternal-throne.mp3';
@@ -203,6 +204,14 @@
     rocky:{id:'rocky',name:'ROCKY',role:'defender',risk:1,standing:'assets/repo-sports-v2/players/rocky-standing.png',riding:'assets/repo-sports-v2/players/rocky-riding.png',short:'Repo Sports V2 test player',lore:[]},
     soup:{id:'soup',name:'SOUP',role:'support',risk:1,standing:'assets/repo-sports-v2/players/soup-standing.png',riding:'assets/repo-sports-v2/players/soup-riding.png',short:'Repo Sports V2 test player',lore:[]}
   };
+  const V2_PLAYER_OWNERS=Object.freeze({
+    besquelcher:'CatAsthma',
+    jenny:'Proco',
+    nimbler2000:'CovidPanda',
+    pipsqueak:'kat',
+    rocky:'SmokedRope1028',
+    soup:'Emlux'
+  });
   const TEST_LINEUPS = [
     {home:['besquelcher','jenny','nimbler2000'],away:['pipsqueak','rocky','soup']},
     {home:['pipsqueak','jenny','nimbler2000'],away:['besquelcher','rocky','soup']},
@@ -213,7 +222,34 @@
   ];
   let roster = {belros:TEST_LINEUPS[0].home.map(id=>V2_PLAYERS[id]),zafran:TEST_LINEUPS[0].away.map(id=>V2_PLAYERS[id])};
   let allPlayers=[...roster.belros,...roster.zafran];let byId=Object.fromEntries(allPlayers.map(p=>[p.id,p]));
-  const TEAM_INFO={home:{name:'REPO RED',abbr:'RED',flag:'assets/repo-sports-logo.png'},away:{name:'REPO BLUE',abbr:'BLU',flag:'assets/repo-sports-logo.png'}};
+  const V2_LEAGUE_TEAMS=['Hrafnvik','Blackglass','Saint Ciro','Marenza','Grand Khor','Aurelia','Drazh Hollow','Rova End','Zafir Row','Talun Cross','Ossa Mere','Varka Fell','Iskara','Naskor','Ashwick','Skarholt','Orsanne','Cinderbank'];
+  const CLUB_FLAG_ROOT='assets/repo-sports-v2/club-flags/';
+  const CLUB_FLAG_FILES={
+    'HRAFNVIK':'hrafnvik.png',
+    'BLACKGLASS':'blackglass.png',
+    'SAINT CIRO':'saint-ciro.png',
+    'MARENZA':'marenza.png',
+    'GRAND KHOR':'grand-khor.png',
+    'AURELIA':'aurelia.png',
+    'DRAZH HOLLOW':'drazh-hollow.png',
+    'ROVA END':'rova-end.png',
+    'ZAFIR ROW':'zafir-row.png',
+    'TALUN CROSS':'talun-cross.png',
+    'OSSA MERE':'ossa-mere.png',
+    'VARKA FELL':'varka-fell.png',
+    'ISKARA':'iskara.png',
+    'NASKOR':'naskor.png',
+    'ASHWICK':'ashwick.png',
+    'SKARHOLT':'skarholt.png',
+    'ORSANNE':'orsanne.png',
+    'CINDERBANK':'cinderbank.png'
+  };
+  function normaliseClubName(name){return String(name||'').trim().replace(/\s+/g,' ').toUpperCase()}
+  function flagForTeamName(name){const key=normaliseClubName(name);return CLUB_FLAG_FILES[key]?`${CLUB_FLAG_ROOT}${CLUB_FLAG_FILES[key]}`:'assets/repo-sports-logo.png'}
+  function abbrForTeamName(name){const parts=normaliseClubName(name).split(/[^A-Z0-9]+/).filter(Boolean);if(!parts.length)return 'CLB';if(parts.length===1)return parts[0].slice(0,3);if(parts.length===2)return `${parts[0][0]}${parts[1].slice(0,2)}`.slice(0,3);return parts.slice(0,3).map(p=>p[0]).join('').slice(0,3)}
+  // Must be created after the flag table above; otherwise flagForTeamName()
+  // reads CLUB_FLAG_FILES while that const is still in its temporal dead zone.
+  const TEAM_INFO={home:{name:'HRAFNVIK',abbr:'HRA',flag:flagForTeamName('Hrafnvik')},away:{name:'BLACKGLASS',abbr:'BLK',flag:flagForTeamName('Blackglass')}};
   const FIXTURE_CONFIGS={
     'arena-01':{id:'arena-01',home:'home',away:'away',venue:'SUNSPIRE AMPHITHEATRE',arena:'assets/repo-sports-v2/arenas/01-lumerre-sunspire-amphitheatre.png',groundY:.758,floorY:.858,hoops:{left:[{x:.075,y:.650},{x:.101,y:.580},{x:.128,y:.650}],right:[{x:.872,y:.650},{x:.899,y:.580},{x:.925,y:.650}]}},
     'arena-02':{id:'arena-02',home:'home',away:'away',venue:'IRONROOT FORGE BOWL',arena:'assets/repo-sports-v2/arenas/02-kordesh-ironroot-forge-bowl.png',groundY:.758,floorY:.858,hoops:{left:[{x:.075,y:.650},{x:.101,y:.580},{x:.128,y:.650}],right:[{x:.872,y:.650},{x:.899,y:.580},{x:.925,y:.650}]}},
@@ -455,7 +491,7 @@
   function fixtureVisualFloorY(){return Number.isFinite(Number(activeFixture?.floorY))?Number(activeFixture.floorY):null}
   function standingDirectionForPlayer(player,slotTeam){const sourceFacing=STANDING_PLAYER_SOURCE_FACING[player?.id]||-1;const desiredFacing=slotTeam==='belros'?1:-1;return desiredFacing*sourceFacing}
   function standingRenderDir(e){return standingDirectionForPlayer(e?.player,e?.team)}
-  const teamMeta={belros:{name:'REPO RED',abbr:'RED',colour:'#b63a2c',attack:1,flag:'assets/repo-sports-logo.png',sourceTeam:'home'},zafran:{name:'REPO BLUE',abbr:'BLU',colour:'#4a84c6',attack:-1,flag:'assets/repo-sports-logo.png',sourceTeam:'away'}};
+  const teamMeta={belros:{name:'HRAFNVIK',abbr:'HRA',colour:'#b63a2c',attack:1,flag:flagForTeamName('Hrafnvik'),sourceTeam:'home'},zafran:{name:'BLACKGLASS',abbr:'BLK',colour:'#4a84c6',attack:-1,flag:flagForTeamName('Blackglass'),sourceTeam:'away'}};
 
   function resolveFixtureConfig(opts={}){
     const direct=String(opts.fixtureId||opts.id||'').toLowerCase();
@@ -471,10 +507,13 @@
     const valid=id=>!!V2_PLAYERS[id],homeIds=requestedHome.filter(valid),awayIds=requestedAway.filter(valid);
     const split=(homeIds.length===3&&awayIds.length===3&&new Set([...homeIds,...awayIds]).size===6)?{home:homeIds,away:awayIds}:fallback;
     roster={belros:split.home.map(id=>V2_PLAYERS[id]),zafran:split.away.map(id=>V2_PLAYERS[id])};allPlayers=[...roster.belros,...roster.zafran];byId=Object.fromEntries(allPlayers.map(p=>[p.id,p]));
-    const home={...TEAM_INFO.home,name:String(opts.homeName||'REPO RED').toUpperCase()},away={...TEAM_INFO.away,name:String(opts.awayName||'REPO BLUE').toUpperCase()};
+    const homeNameRaw=String(opts.homeName||'HRAFNVIK');
+    const awayNameRaw=String(opts.awayName||'BLACKGLASS');
+    const home={...TEAM_INFO.home,name:homeNameRaw.toUpperCase(),abbr:abbrForTeamName(homeNameRaw),flag:flagForTeamName(homeNameRaw)};
+    const away={...TEAM_INFO.away,name:awayNameRaw.toUpperCase(),abbr:abbrForTeamName(awayNameRaw),flag:flagForTeamName(awayNameRaw)};
     Object.assign(teamMeta.belros,home,{attack:1,sourceTeam:'home'});Object.assign(teamMeta.zafran,away,{attack:-1,sourceTeam:'away'});
     hoops.belros=activeFixture.hoops.right.map(h=>({...h}));hoops.zafran=activeFixture.hoops.left.map(h=>({...h}));
-    state.fixture={...(opts||{}),id:activeFixture.id,venue:activeFixture.venue,home:home.name,away:away.name,stage:'REPO SPORTS · V2 TEST'};state.assets={};state.assetsKey='';
+    state.fixture={...(opts||{}),id:activeFixture.id,venue:activeFixture.venue,home:home.name,away:away.name,stage:'REPO SPORTS · LIVE LEAGUE'};state.assets={};state.assetsKey='';
     commentary.intro=[`Good evening from the ${activeFixture.venue}. Six players are ready for the next four-and-a-half-minute Repo Sports match.`,`${home.name} against ${away.name} — a fresh Repo Sports rotation is almost ready.`,`The Quaffle is prepared and William Whistleworth has the whistle.`,`Four minutes thirty. Three players per side. Pure Repo Sports Quidditch.`,`Welcome to ${activeFixture.venue} for ${home.name} vs ${away.name}.`];
     commentary.kickoff=[`The whistle goes — ${home.name} and ${away.name} are airborne!`,`We are under way at ${activeFixture.venue}!`,`The Quaffle is live. ${home.name} face ${away.name}.`,`Repo Sports Quidditch is live from ${activeFixture.venue}!`];
     refreshArenaAtmosphereDom();
@@ -703,8 +742,13 @@
     fixture:null,broadcastSequence:{state:'complete',elapsed:0,serial:0,frozen:false,skipped:false},
     cameraDirector:{shot:'MAIN',timer:0,lastShot:'',cutSerial:0},
     broadcast:{lastSpokenAt:0,lastText:'',recent:[],recentSkeletons:[],queue:null,barryState:'NEUTRAL',barryPriority:0,barryUntil:0,barryTimer:0,talkTimer:0,phaseSeen:'',crowdLevel:.12,crowdTarget:.12,speaking:false,debugEvent:'IDLE',voiceName:'TEXT ONLY',variantCount:BARRY_COMMENTARY_VARIANTS},
-    teamTactics:{belros:null,zafran:null}
+    teamTactics:{belros:null,zafran:null},
+    syncMode:false,headless:false,liveSerial:0,engineElapsed:0,simClockMs:0,syncAnchorElapsed:0,syncAnchorPerf:0,syncRunning:false,fastForwarding:false,rotationQueued:false,audioRand:null,commentaryRand:null,renderLead:0
   };
+
+  const FIXED_SIM_DT=1/30;
+  function simNow(){return state.syncMode?state.simClockMs:performance.now()}
+  function syncTargetElapsed(){return Math.max(0,state.syncAnchorElapsed+(state.syncRunning?(performance.now()-state.syncAnchorPerf)/1000:0))}
 
   function blankTeamStats(){return {shots:0,onTarget:0,missedChances:0,passes:0,completed:0,interceptions:0,rebounds:0,fouls:0,penalties:0,var:0,possession:0,turnovers:0,counterattacks:0,presses:0,tacklesAttempted:0,tacklesWon:0}}
   function resetStats(){
@@ -712,17 +756,84 @@
     state.playerStats=Object.fromEntries(allPlayers.map(p=>[p.id,{goals:0,assists:0,shots:0,onTarget:0,missedChances:0,possession:0,tacklesAttempted:0,tacklesWon:0,interceptions:0,fouls:0,passes:0,completed:0,saves:0,rebounds:0}]));
   }
 
+
+  function ensureV2StandingsStyles(){
+    if(document.getElementById('wcgV2StandingsStyles'))return;
+    const style=document.createElement('style');
+    style.id='wcgV2StandingsStyles';
+    style.textContent=`
+      .wcg-v2-standings-board{position:relative;width:100%;min-width:0;height:780px;align-self:flex-start;margin:0}
+      .wcg-v2-standings-frame{display:block;width:100%;height:780px;object-fit:fill;image-rendering:auto;filter:drop-shadow(0 10px 18px rgba(0,0,0,.42))}
+      .wcg-v2-standings-surface{position:absolute;left:5.9%;right:5.9%;top:74px;bottom:30px;display:flex;flex-direction:column;overflow:hidden;color:#f3dfab}
+      .wcg-v2-standings-kicker{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#8dbbe0}
+      .wcg-v2-standings-kicker b{font-size:12px;letter-spacing:.07em;color:#f2ddb0}
+      .wcg-v2-standings-head,.wcg-v2-standings-row{display:grid;grid-template-columns:20px minmax(0,2.4fr) 22px 22px 25px 25px 27px 36px;gap:3px;align-items:center}
+      .wcg-v2-standings-head{padding:6px 6px;margin-bottom:4px;border:1px solid rgba(207,167,76,.34);background:linear-gradient(180deg,rgba(18,49,75,.96),rgba(8,24,40,.96));box-shadow:inset 0 0 0 1px rgba(255,240,187,.05);font-size:7px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9fd0f5}
+      .wcg-v2-standings-body{display:flex;flex-direction:column;gap:2px;overflow:hidden}
+      .wcg-v2-standings-row{min-height:29px;padding:5px 6px;border:1px solid rgba(167,134,55,.25);background:linear-gradient(180deg,rgba(8,25,40,.96),rgba(7,20,33,.94));box-shadow:inset 0 0 0 1px rgba(255,236,180,.03);font-size:9px;line-height:1.05}
+      .wcg-v2-standings-row.is-top{background:linear-gradient(180deg,rgba(72,54,18,.98),rgba(32,24,8,.95));border-color:rgba(224,182,77,.48)}
+      .wcg-v2-standings-row:nth-child(even):not(.is-top){background:linear-gradient(180deg,rgba(10,31,49,.96),rgba(8,23,37,.94))}
+      .wcg-v2-standings-row span{min-width:0}
+      .wcg-v2-standings-pos{font-weight:700;color:#f6d98c;text-align:center}
+      .wcg-v2-standings-team{display:flex;align-items:center;gap:4px;min-width:0;font-weight:700;color:#f6e8c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:1px;font-size:8.5px}
+      .wcg-v2-standings-team i{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .wcg-v2-standings-flag{width:13px;height:9px;flex:0 0 13px;object-fit:cover;border:1px solid rgba(201,162,74,.55);box-shadow:0 1px 2px rgba(0,0,0,.35)}
+      .wcg-v2-standings-num{font-weight:700;color:#f6d98c;text-align:right;font-size:8.5px}
+      .wcg-v2-standings-rate{font-weight:700;color:#9fd6ff;text-align:right;font-size:8.5px}
+      .wcg-v2-standings-empty{padding:14px 10px;text-align:center;font-size:12px;color:#9fb8ca;border:1px solid rgba(207,167,76,.18);background:rgba(5,18,28,.82)}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function v2StandingsData(){
+    const byName=new Map();
+    const list=Array.isArray(v2CareerState.data?.team_leaders)?v2CareerState.data.team_leaders:[];
+    list.forEach((item,idx)=>{
+      const key=String(item?.team_name||'').trim().toLowerCase();
+      if(key)byName.set(key,{...item,_sourceIndex:idx});
+    });
+    return V2_LEAGUE_TEAMS.map((team_name,index)=>{
+      const item=byName.get(team_name.toLowerCase())||{};
+      const wins=Math.max(0,Number(item.wins||0));
+      const matches=Math.max(wins,Number(item.matches||0));
+      const losses=Math.max(0,Number(item.losses ?? (matches-wins) ?? 0));
+      const gf=Math.max(0,Number(item.goals_for||0));
+      const ga=Math.max(0,Number(item.goals_against||0));
+      const gd=gf-ga;
+      const wr=matches>0?(wins/matches)*100:Number(item.win_rate||0)||0;
+      return {rankSeed:index,team_name,wins,losses,gf,ga,gd,wr,matches};
+    }).sort((a,b)=>{
+      if(b.wins!==a.wins)return b.wins-a.wins;
+      if(b.gd!==a.gd)return b.gd-a.gd;
+      if(b.gf!==a.gf)return b.gf-a.gf;
+      if(a.losses!==b.losses)return a.losses-b.losses;
+      return a.rankSeed-b.rankSeed;
+    }).map((row,idx)=>({...row,pos:idx+1}));
+  }
+
+  function renderV2StandingsBoard(){
+    const body=$('wcgStandingsRows');
+    if(!body)return;
+    const rows=v2StandingsData();
+    if(!rows.length){
+      body.innerHTML='<div class="wcg-v2-standings-empty">No standings available yet.</div>';
+      return;
+    }
+    body.innerHTML=rows.map((row,index)=>`<div class="wcg-v2-standings-row${index===0?' is-top':''}"><span class="wcg-v2-standings-pos">${row.pos}</span><span class="wcg-v2-standings-team" title="${v2CareerEscape(row.team_name)}"><img class="wcg-v2-standings-flag" src="${flagForTeamName(row.team_name)}" alt=""><i>${v2CareerEscape(row.team_name)}</i></span><span class="wcg-v2-standings-num">${row.wins}</span><span class="wcg-v2-standings-num">${row.losses}</span><span class="wcg-v2-standings-num">${row.gf}</span><span class="wcg-v2-standings-num">${row.ga}</span><span class="wcg-v2-standings-num">${row.gd>0?`+${row.gd}`:row.gd}</span><span class="wcg-v2-standings-rate">${row.wr.toFixed(1)}%</span></div>`).join('');
+  }
+
   function createUi(){
     if ($('wcWorldCupBroadcast')) return;
+    ensureV2StandingsStyles();
     const root=document.createElement('div');root.id='wcWorldCupBroadcast';root.setAttribute('aria-hidden','true');
     root.innerHTML=`<div class="wcg-shell" role="dialog" aria-modal="true" aria-label="Repo Sports Quidditch live match">
       <canvas id="wcgCanvas" class="wcg-canvas" width="${W}" height="${H}"></canvas>
       <div id="wcgArenaAtmosphere" class="wcg-arena-atmosphere" aria-hidden="true"></div>
       <div id="wcgSnow" class="wcg-snow" aria-hidden="true"></div>
       <div class="wcg-scorebar">
-        <div class="wcg-team-score"><span class="wcg-team-badge"><img class="wcg-team-flag" src="assets/world-cup-flags/belros-flag.png" alt="Belros flag"></span><div class="wcg-team-copy"><b>BELROS</b><small class="wcg-team-lineup">JUD · NIMBLER 2000 · BRAMBLE</small><small id="wcgScorersBelros" class="wcg-team-scorers">SCORERS: —</small></div><strong id="wcgScoreBelros" class="wcg-team-goals">0</strong></div>
+        <div class="wcg-team-score"><div class="wcg-team-copy"><b class="wcg-team-name-row" style="display:flex;align-items:center;gap:8px"><img class="wcg-team-flag wcg-team-flag-inline" src="assets/world-cup-flags/belros-flag.png" alt="Belros flag" style="width:26px;height:18px;object-fit:cover;border:1px solid rgba(231,210,150,.55);box-shadow:0 1px 4px rgba(0,0,0,.35);border-radius:2px;flex:0 0 auto"><span class="wcg-team-name-text">BELROS</span></b><small class="wcg-team-lineup">JUD · NIMBLER 2000 · BRAMBLE</small><small id="wcgScorersBelros" class="wcg-team-scorers">SCORERS: —</small></div><strong id="wcgScoreBelros" class="wcg-team-goals">0</strong></div>
         <div class="wcg-clock"><img class="wcg-score-logo" src="assets/repo-sports-logo.png" alt="Repo Sports"><b id="wcgClock">PRE</b><span id="wcgPhase">REPO SPORTS</span><em id="wcgArena">STANDARD ROTATION</em></div>
-        <div class="wcg-team-score"><strong id="wcgScoreZafran" class="wcg-team-goals">0</strong><div class="wcg-team-copy"><b>ZAFRAN</b><small class="wcg-team-lineup">ZIZI · RAFI · SAFFI</small><small id="wcgScorersZafran" class="wcg-team-scorers">SCORERS: —</small></div><span class="wcg-team-badge"><img class="wcg-team-flag" src="assets/world-cup-flags/zafran-flag.png" alt="Zafran flag"></span></div>
+        <div class="wcg-team-score"><strong id="wcgScoreZafran" class="wcg-team-goals">0</strong><div class="wcg-team-copy"><b class="wcg-team-name-row" style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><img class="wcg-team-flag wcg-team-flag-inline" src="assets/world-cup-flags/zafran-flag.png" alt="Zafran flag" style="width:26px;height:18px;object-fit:cover;border:1px solid rgba(231,210,150,.55);box-shadow:0 1px 4px rgba(0,0,0,.35);border-radius:2px;flex:0 0 auto"><span class="wcg-team-name-text">ZAFRAN</span></b><small class="wcg-team-lineup">ZIZI · RAFI · SAFFI</small><small id="wcgScorersZafran" class="wcg-team-scorers">SCORERS: —</small></div></div>
       </div>
       <div class="wcg-live-chip"><img src="assets/repo-sports-logo.png" alt="">LIVE</div>
       <div id="wcgPresentation" class="wcg-presentation" aria-hidden="true"><div id="wcgPresentationPanel" class="wcg-presentation-panel"><div class="wcg-presentation-brand"><img src="assets/repo-sports-logo.png" alt="Repo Sports"><span>REPO SPORTS LIVE</span></div><small id="wcgPresentationKicker"></small><h1 id="wcgPresentationTitle"></h1><div id="wcgPresentationBody" class="wcg-presentation-body"></div><footer id="wcgPresentationFooter"></footer></div></div>
@@ -745,11 +856,12 @@
           <div id="wcgCareerWinrate" class="wcg-v2-career-rows"><p>Loading records…</p></div>
         </section>
         <section class="wcg-v2-career-section" data-career-section="teams">
-          <div class="wcg-v2-career-section-head"><div><small>TEAM RECORDS</small><b>MOST TEAM WINS</b></div><span>TOP 5</span></div>
+          <div class="wcg-v2-career-section-head"><div><small>REPO SPORTS LEAGUE</small><b>MOST TEAM WINS</b></div><span>TOP 5</span></div>
           <div id="wcgCareerTeams" class="wcg-v2-career-rows"><p>Loading records…</p></div>
         </section>
-        <footer><span>ORIGINAL REPOSPORTS CAREER DATABASE</span><i>READ ONLY</i></footer>
+        <footer><span>PLAYER CAREER + LIVE LEAGUE RECORDS</span><i>READ ONLY</i></footer>
       </aside>
+      <aside id="wcgStandingsBoard" class="wcg-v2-standings-board" aria-label="Repo Sports league table"><img class="wcg-v2-standings-frame" src="assets/repo-sports-v2/repo-sports-v2-standings-board.png" alt=""><div class="wcg-v2-standings-surface"><div class="wcg-v2-standings-kicker"><b>LEAGUE STANDINGS</b><span>18 CLUBS</span></div><div class="wcg-v2-standings-head"><span>#</span><span>TEAM</span><span>W</span><span>L</span><span>GF</span><span>GA</span><span>GD</span><span>WR</span></div><div id="wcgStandingsRows" class="wcg-v2-standings-body"></div></div></aside>
       <div id="wcgCommentator" class="wcg-commentator" data-barry-state="NEUTRAL"><div class="wcg-barry-studio wcg-barry-portrait-only" aria-label="Barry Bramble"><div class="wcg-studio-window"><img id="wcgBarrySprite" class="wcg-barry" src="assets/commentator-22.png" alt="Barry Bramble"></div></div><div class="wcg-comment-stack"><div class="wcg-comment-box"><div class="wcg-comment-head"><img src="assets/repo-sports-logo.png" alt=""><div><b>BARRY BRAMBLE</b><span>LIVE COMMENTARY · REPO SPORTS</span></div><i>ON AIR</i></div><p id="wcgCommentary">Welcome to Repo Sports Quidditch.</p></div><div id="wcgBarryTipPanel" class="wcg-barry-tip-panel wcg-barry-tip-mini wcg-barry-tip-rail"><button id="wcgBarryTipButton" type="button" title="Tip Barry 200 GP toward Barry's Boater"><img src="assets/commentator-coin.png" alt=""><span><b>TIP BARRY</b><small>200 GP</small></span></button><div class="wcg-barry-tip-mini-progress" title="Barry's Boater community unlock progress"><div><i id="wcgBarryTipFill"></i></div><strong id="wcgBarryTipPercent">0%</strong><span>BOATER</span></div><em id="wcgBarryTipStatus" aria-live="polite"></em></div></div></div>
       <section id="wcgWatchParty" class="wcg-v2-watch-party" aria-label="Repo Sports Watch Party">
         <header>
@@ -760,7 +872,7 @@
       </section>
       <div class="wcg-mini-stats"><header><span>BELROS</span><span>LIVE MATCH STATS</span><span>ZAFRAN</span></header><div id="wcgMiniStats"></div></div>
       <div id="wcgVar" class="wcg-var-box"><div class="wcg-var-card"><b id="wcgVarTitle">VAR CHECK</b><span id="wcgVarText">Reviewing the incident…</span></div></div>
-      <div id="wcgHalftime" class="wcg-overlay-card"><div class="wcg-panel wcg-half-wait-panel"><div class="wcg-half-brand"><img src="assets/repo-sports-logo.png" alt="Repo Sports"><span>HALF-TIME LIVE</span></div><h2 id="wcgHalfTitle">SECOND HALF READY</h2><h3>STANDARD REPO SPORTS ARENA · REPO SPORTS · V2 TEST</h3><div class="wcg-halftime-stats"><div class="wcg-half-team"><img src="assets/world-cup-flags/belros-flag.png" alt="Belros flag"><b>BELROS</b><strong id="wcgHalfBelros">0</strong></div><div class="wcg-half-centre">9 MINUTES<br>COMPLETE<br><span id="wcgHalfShots"></span></div><div class="wcg-half-team"><img src="assets/world-cup-flags/zafran-flag.png" alt="Zafran flag"><b>ZAFRAN</b><strong id="wcgHalfZafran">0</strong></div></div><div id="wcgHalfRotation" class="wcg-half-rotation"></div><p id="wcgHalfCopy">Waiting for CatAsthma to continue the broadcast.</p><button id="wcgContinueHalf" type="button">CONTINUE SECOND HALF</button></div></div>
+      <div id="wcgHalftime" class="wcg-overlay-card"><div class="wcg-panel wcg-half-wait-panel"><div class="wcg-half-brand"><img src="assets/repo-sports-logo.png" alt="Repo Sports"><span>HALF-TIME LIVE</span></div><h2 id="wcgHalfTitle">SECOND HALF READY</h2><h3>STANDARD REPO SPORTS ARENA · REPO SPORTS LIVE</h3><div class="wcg-halftime-stats"><div class="wcg-half-team"><img src="assets/world-cup-flags/belros-flag.png" alt="Belros flag"><b>BELROS</b><strong id="wcgHalfBelros">0</strong></div><div class="wcg-half-centre">9 MINUTES<br>COMPLETE<br><span id="wcgHalfShots"></span></div><div class="wcg-half-team"><img src="assets/world-cup-flags/zafran-flag.png" alt="Zafran flag"><b>ZAFRAN</b><strong id="wcgHalfZafran">0</strong></div></div><div id="wcgHalfRotation" class="wcg-half-rotation"></div><p id="wcgHalfCopy">Waiting for CatAsthma to continue the broadcast.</p><button id="wcgContinueHalf" type="button">CONTINUE SECOND HALF</button></div></div>
       <div id="wcgPredictionBar" class="wcg-v2-prediction" aria-hidden="true"><div class="wcg-v2-prediction-copy"><small>REPO SPORTS PREDICT</small><b>WHO WINS?</b><span>Correct pick · +1,000 GP</span></div><div class="wcg-v2-prediction-buttons"><button id="wcgPredictHome" type="button" data-v2-predict="belros"><b>HOME</b><span id="wcgPredictHomeShare">0% · 0</span></button><i>OR</i><button id="wcgPredictAway" type="button" data-v2-predict="zafran"><b>AWAY</b><span id="wcgPredictAwayShare">0% · 0</span></button></div><div id="wcgFanVote" class="wcg-v2-fan-vote"><b>FAN VOTE</b><span>WAITING FOR PICKS</span></div><em id="wcgPredictionStatus">PICK ANY TIME BEFORE KICKOFF</em></div>
       <div id="wcgFulltime" class="wcg-overlay-card"><div class="wcg-panel wcg-v2-fulltime-panel wcg-v2-fulltime-clean">
         <div class="wcg-v2-fulltime-brand"><img src="assets/repo-sports-logo.png" alt="Repo Sports"><span>FINAL WHISTLE · 4:30 ROTATION</span></div>
@@ -790,7 +902,8 @@
     const commentatorNode=root.querySelector('#wcgCommentator');
     const watchPartyNode=root.querySelector('#wcgWatchParty');
     const statsNode=root.querySelector('.wcg-mini-stats');
-    if(shellNode&&careerNode&&commentatorNode&&watchPartyNode&&statsNode){
+    const standingsNode=root.querySelector('#wcgStandingsBoard');
+    if(shellNode&&careerNode&&commentatorNode&&watchPartyNode&&statsNode&&standingsNode){
       const layout=document.createElement('div');
       layout.className='wcg-v2-broadcast-layout';
       const tvColumn=document.createElement('div');
@@ -800,6 +913,7 @@
       root.appendChild(layout);
       layout.appendChild(careerNode);
       layout.appendChild(tvColumn);
+      layout.appendChild(standingsNode);
       tvColumn.appendChild(shellNode);
       lowerDeck.appendChild(commentatorNode);
       lowerDeck.appendChild(watchPartyNode);
@@ -807,6 +921,7 @@
       tvColumn.appendChild(lowerDeck);
     }
     document.body.appendChild(root);
+    renderV2StandingsBoard();
     const snow=$('wcgSnow');
     if(snow){snow.innerHTML='';snow.setAttribute('hidden','hidden')}
     $('wcgContinueHalf').addEventListener('click',continueSecondHalf);
@@ -825,11 +940,11 @@
   function refreshFixtureUi(){
     const root=$('wcWorldCupBroadcast');if(!root)return;
     const scoreTeams=root.querySelectorAll('.wcg-scorebar .wcg-team-score');
-    if(scoreTeams[0]){const img=scoreTeams[0].querySelector('.wcg-team-flag'),name=scoreTeams[0].querySelector('.wcg-team-copy b'),line=scoreTeams[0].querySelector('.wcg-team-lineup');if(img){img.src=teamMeta.belros.flag;img.alt=`${teamMeta.belros.name} flag`}if(name)name.textContent=teamMeta.belros.name;if(line)line.textContent=roster.belros.map(p=>p.name).join(' · ')}
-    if(scoreTeams[1]){const img=scoreTeams[1].querySelector('.wcg-team-flag'),name=scoreTeams[1].querySelector('.wcg-team-copy b'),line=scoreTeams[1].querySelector('.wcg-team-lineup');if(img){img.src=teamMeta.zafran.flag;img.alt=`${teamMeta.zafran.name} flag`}if(name)name.textContent=teamMeta.zafran.name;if(line)line.textContent=roster.zafran.map(p=>p.name).join(' · ')}
+    if(scoreTeams[0]){const img=scoreTeams[0].querySelector('.wcg-team-flag'),name=scoreTeams[0].querySelector('.wcg-team-name-text'),line=scoreTeams[0].querySelector('.wcg-team-lineup');if(img){img.src=teamMeta.belros.flag;img.alt=`${teamMeta.belros.name} flag`}if(name)name.textContent=teamMeta.belros.name;if(line)line.textContent=roster.belros.map(p=>p.name).join(' · ')}
+    if(scoreTeams[1]){const img=scoreTeams[1].querySelector('.wcg-team-flag'),name=scoreTeams[1].querySelector('.wcg-team-name-text'),line=scoreTeams[1].querySelector('.wcg-team-lineup');if(img){img.src=teamMeta.zafran.flag;img.alt=`${teamMeta.zafran.name} flag`}if(name)name.textContent=teamMeta.zafran.name;if(line)line.textContent=roster.zafran.map(p=>p.name).join(' · ')}
     const mini=root.querySelectorAll('.wcg-mini-stats header span');if(mini[0])mini[0].textContent=teamMeta.belros.name;if(mini[2])mini[2].textContent=teamMeta.zafran.name;
     const arenaLabel=$('wcgArena');if(arenaLabel)arenaLabel.textContent=fixtureVenue();
-    const halfTitle=root.querySelector('#wcgHalftime h3');if(halfTitle)halfTitle.textContent=`${fixtureVenue()} · REPO SPORTS · V2 TEST`;
+    const halfTitle=root.querySelector('#wcgHalftime h3');if(halfTitle)halfTitle.textContent=`${fixtureVenue()} · REPO SPORTS LIVE`;
     const halfTeams=root.querySelectorAll('.wcg-halftime-stats .wcg-half-team');
     if(halfTeams[0]){const im=halfTeams[0].querySelector('img'),b=halfTeams[0].querySelector('b');if(im){im.src=teamMeta.belros.flag;im.alt=`${teamMeta.belros.name} flag`}if(b)b.textContent=teamMeta.belros.name}
     if(halfTeams[1]){const im=halfTeams[1].querySelector('img'),b=halfTeams[1].querySelector('b');if(im){im.src=teamMeta.zafran.flag;im.alt=`${teamMeta.zafran.name} flag`}if(b)b.textContent=teamMeta.zafran.name}
@@ -1100,6 +1215,61 @@
 
 
   // ==========================================================
+  // REPO SPORTS V2 — WATCH XP PARITY WITH ORIGINAL MODE
+  // ==========================================================
+  const v2WatchXp={timer:null,pending:false,seq:0,requests:new Map(),sessionGained:0};
+
+  function requestV2WatchXp(){
+    if(v2WatchXp.pending||!state.open||document.hidden)return;
+    const requestId=`v2-xp-${Date.now()}-${++v2WatchXp.seq}`;
+    v2WatchXp.pending=true;
+    const timer=setTimeout(()=>{
+      v2WatchXp.requests.delete(requestId);
+      v2WatchXp.pending=false;
+    },5000);
+    v2WatchXp.requests.set(requestId,{timer});
+    try{
+      if(window.parent&&window.parent!==window){
+        window.parent.postMessage({type:'repo-sports-v2-watch-xp-request',requestId},'*');
+      }else{
+        clearTimeout(timer);v2WatchXp.requests.delete(requestId);v2WatchXp.pending=false;
+      }
+    }catch(_){
+      clearTimeout(timer);v2WatchXp.requests.delete(requestId);v2WatchXp.pending=false;
+    }
+  }
+
+  window.addEventListener('message',event=>{
+    const data=event?.data;
+    if(!data||data.type!=='repo-sports-v2-watch-xp-response')return;
+    const requestId=String(data.requestId||''),req=v2WatchXp.requests.get(requestId);
+    if(!req)return;
+    clearTimeout(req.timer);v2WatchXp.requests.delete(requestId);v2WatchXp.pending=false;
+    if(!data.ok){console.warn('[REPO SPORTS V2] Watch XP:',data.error||'claim failed');return}
+    const gained=Math.max(0,Number(data.payload?.gained)||0);
+    if(gained>0){
+      v2WatchXp.sessionGained+=gained;
+      showBanner(`+${gained.toLocaleString('en-GB')} AGILITY XP`,'',1.8);
+    }
+  });
+
+  function startV2WatchXpHeartbeat(){
+    stopV2WatchXpHeartbeat();
+    requestV2WatchXp();
+    v2WatchXp.timer=setInterval(requestV2WatchXp,2000);
+  }
+
+  function stopV2WatchXpHeartbeat(){
+    if(v2WatchXp.timer){clearInterval(v2WatchXp.timer);v2WatchXp.timer=null}
+    for(const req of v2WatchXp.requests.values())clearTimeout(req.timer);
+    v2WatchXp.requests.clear();v2WatchXp.pending=false;
+  }
+
+  document.addEventListener('visibilitychange',()=>{
+    if(state.open&&!document.hidden)requestV2WatchXp();
+  });
+
+  // ==========================================================
   // REPO SPORTS V2 — ORIGINAL CAREER LEADERBOARDS (READ-ONLY)
   // ==========================================================
   const v2CareerState={data:null,lastRefresh:0,polling:false,signature:''};
@@ -1120,7 +1290,9 @@
     const team=type==='teams';
     const name=v2CareerEscape(team?(item.team_name||'Unknown Team'):(item.pet_name||'Unknown'));
     const sub=team
-      ?`${Number(item.matches||0).toLocaleString('en-GB')} matches · ${Number(item.goals_for||0).toLocaleString('en-GB')} goals`
+      ?(Number(item.matches||0)===0
+        ?'NO MATCHES PLAYED YET'
+        :`${Number(item.matches||0).toLocaleString('en-GB')} matches · ${Number(item.goals_for||0).toLocaleString('en-GB')} GF · ${Number(item.goals_against||0).toLocaleString('en-GB')} GA`)
       :`${v2CareerEscape(item.owner_name||'Unknown owner')} · ${Number(item.matches||0).toLocaleString('en-GB')} matches`;
     const value=type==='goals'
       ?`<strong>${Number(item.goals||0).toLocaleString('en-GB')}</strong><small>GOALS</small>`
@@ -1146,6 +1318,7 @@
     renderV2CareerSection('goals','wcgCareerGoals');
     renderV2CareerSection('winrate','wcgCareerWinrate');
     renderV2CareerSection('teams','wcgCareerTeams');
+    renderV2StandingsBoard();
   }
   window.addEventListener('message',event=>{
     const data=event?.data;
@@ -1204,14 +1377,16 @@
   }
 
   const audio = {
-    crowd:null,whistle:null,goal:null,goalCheer:null,prematch:null,matchMusic:null,matchMusicAlt:null,matchMusicThird:null,matchMusicFourth:null,matchMusicTracks:[],currentMatchMusic:null,currentMatchMusicIndex:-1,matchMusicFading:false,matchMusicShuffleBag:[],lastMatchMusicIndex:-1,intercepts:[],shots:[],passMissSfx:[],missImpactSfx:[],hoopHitSfx:[],stealSfx:[],crowdAccentSfx:[],crowdLong:null,crowdAccentTimer:18,crowdAccentActive:null,crowdAccentStopTimer:0,lastCrowdAccent:-1,goalCheerGuardUntil:0,activeTransientSfx:new Set(),windCtx:null,windSource:null,mix:{ambience:.018,crowd:.18,commentary:.58,sfx:.55,music:.20,matchMusic:.05},
+    crowd:null,whistle:null,goal:null,goalCheer:null,prematch:null,kickoffRelease:null,matchMusic:null,matchMusicAlt:null,matchMusicThird:null,matchMusicFourth:null,matchMusicTracks:[],currentMatchMusic:null,currentMatchMusicIndex:-1,matchMusicFading:false,matchMusicShuffleBag:[],lastMatchMusicIndex:-1,intercepts:[],shots:[],passMissSfx:[],missImpactSfx:[],hoopHitSfx:[],stealSfx:[],crowdAccentSfx:[],crowdLong:null,crowdAccentTimer:18,crowdAccentActive:null,crowdAccentStopTimer:0,lastCrowdAccent:-1,goalCheerGuardUntil:0,activeTransientSfx:new Set(),windCtx:null,windSource:null,mix:{ambience:.018,crowd:.18,commentary:.58,sfx:.55,music:.20,matchMusic:.05},
     ensure(){
+      if(state.headless||state.fastForwarding)return;
       if(this.crowd)return;
       this.crowd=new Audio('assets/quidditch-crowd.mp3');this.crowd.loop=true;this.crowd.preload='auto';
       this.whistle=new Audio('assets/quidditch-kickoff-whistle.mp3');
       this.goal=new Audio('assets/quidditch-sfx/goal.mp3');
       this.goalCheer=new Audio(`${BASE}crowd-sfx/goal-cheer.mp3`);this.goalCheer.preload='auto';
       this.prematch=new Audio(PREMATCH_ANTHEM);this.prematch.preload='auto';this.prematch.loop=false;
+      this.kickoffRelease=new Audio(KICKOFF_RELEASE_SFX);this.kickoffRelease.preload='auto';
       this.matchMusic=new Audio(MATCH_MUSIC);this.matchMusic.preload='auto';this.matchMusic.loop=false;
       this.matchMusicAlt=new Audio(MATCH_MUSIC_ALT);this.matchMusicAlt.preload='auto';this.matchMusicAlt.loop=false;
       this.matchMusicThird=new Audio(MATCH_MUSIC_THIRD);this.matchMusicThird.preload='auto';this.matchMusicThird.loop=false;
@@ -1232,11 +1407,11 @@
       const tracks=this.matchMusicTracks||[],ids=tracks.map((_,i)=>i);
       // Fisher-Yates shuffle using presentation RNG where available.
       for(let i=ids.length-1;i>0;i--){
-        const rnd=(state.visualRand?.()||Math.random()),j=Math.floor(rnd*(i+1));
+        const rnd=(state.audioRand?.()||Math.random()),j=Math.floor(rnd*(i+1));
         [ids[i],ids[j]]=[ids[j],ids[i]];
       }
       if(ids.length>1&&ids[0]===exclude){
-        const swap=1+Math.floor((state.visualRand?.()||Math.random())*(ids.length-1));
+        const swap=1+Math.floor((state.audioRand?.()||Math.random())*(ids.length-1));
         [ids[0],ids[swap]]=[ids[swap],ids[0]];
       }
       this.matchMusicShuffleBag=ids;
@@ -1289,6 +1464,7 @@
       requestAnimationFrame(step);
     },
     play(a,vol=.55){
+      if(state.headless||state.fastForwarding)return null;
       try{
         if(!a)return null;
         // Every discrete match SFX is intentionally 50% quieter than its previous mix.
@@ -1307,19 +1483,37 @@
         return inst;
       }catch(_){return null}
     },
-    start(){this.ensure();this.stopCrowdAccent();this.crowdAccentTimer=14+(state.visualRand?.()||Math.random())*14;try{this.crowd.volume=state.phase==='intro'?.09:state.crowdBase;this.crowd.currentTime=0;this.crowd.play()?.catch?.(()=>{})}catch(_){};this.startWind()},
-    startPrematch(offset=0){this.ensure();state.prematchAudioFailed=false;return;},
+    start(){this.ensure();this.stopCrowdAccent();this.crowdAccentTimer=14+(state.audioRand?.()||Math.random())*14;try{this.crowd.volume=state.phase==='intro'?.09:state.crowdBase;this.crowd.currentTime=0;this.crowd.play()?.catch?.(()=>{})}catch(_){};this.startWind()},
+    startPrematch(offset=0){
+      this.ensure();state.prematchAudioFailed=false;
+      if(state.headless||state.fastForwarding||state.phase!=='intro'||!this.prematch)return;
+      const a=this.prematch;
+      try{
+        a.pause();
+        const start=clamp(Number(offset)||0,0,Math.max(0,(Number(a.duration)||35.616)-.08));
+        if(Number.isFinite(start)&&start>0)a.currentTime=start;else a.currentTime=0;
+        a.volume=this.mix.music; // 30%
+        const pr=a.play();
+        pr?.catch?.(()=>{state.prematchAudioFailed=true});
+      }catch(_){state.prematchAudioFailed=true}
+    },
+    playKickoffRelease(){
+      // audio.play() intentionally halves discrete SFX; .40 => final 20%.
+      this.ensure();
+      if(state.headless||state.fastForwarding)return;
+      this.play(this.kickoffRelease,.40);
+    },
     startMatchMusic(){this.ensure();if(this.currentMatchMusic&&!this.currentMatchMusic.paused)return;if(this.currentMatchMusicIndex<0)this.currentMatchMusicIndex=this.chooseMatchMusicStart();this.playMatchTrack(this.currentMatchMusicIndex,0)},
     pauseMatchMusic(){this.ensure();const a=this.currentMatchMusic;if(!a||a.paused||this.matchMusicFading)return;this.matchMusicFading=true;try{this.fadeVolume(a,a.volume,0,700,()=>{try{a.pause()}catch(_){}this.matchMusicFading=false})}catch(_){try{a.pause()}catch(__){}this.matchMusicFading=false}},
-    startWind(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC||this.windCtx)return;const ctx=new AC(),buffer=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.42;const src=ctx.createBufferSource(),low=ctx.createBiquadFilter(),high=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buffer;src.loop=true;low.type='lowpass';low.frequency.value=780;high.type='highpass';high.frequency.value=90;gain.gain.value=this.mix.ambience;src.connect(low);low.connect(high);high.connect(gain);gain.connect(ctx.destination);src.start();this.windCtx=ctx;this.windSource=src}catch(_){}} ,
-    stop(){this.ensure();this.stopCrowdAccent();for(const a of this.activeTransientSfx){try{a.__wcFadeToken=(a.__wcFadeToken||0)+1;a.pause();a.currentTime=0}catch(_){}}this.activeTransientSfx.clear();[this.crowd,this.whistle,this.goal,this.goalCheer,this.prematch,...(this.matchMusicTracks||[]),...this.intercepts,...this.shots,...this.passMissSfx,...this.missImpactSfx,...this.hoopHitSfx,...this.stealSfx,...this.crowdAccentSfx,this.crowdLong].forEach(a=>{try{a?.pause();if(a){a.currentTime=0;a.volume=0;a.onended=null}}catch(_){}});this.currentMatchMusic=null;this.currentMatchMusicIndex=-1;this.matchMusicShuffleBag=[];try{this.windSource?.stop()}catch(_){};try{this.windCtx?.close()}catch(_){};this.windSource=null;this.windCtx=null},
+    startWind(){if(state.headless||state.fastForwarding)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC||this.windCtx)return;const ctx=new AC(),buffer=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.42;const src=ctx.createBufferSource(),low=ctx.createBiquadFilter(),high=ctx.createBiquadFilter(),gain=ctx.createGain();src.buffer=buffer;src.loop=true;low.type='lowpass';low.frequency.value=780;high.type='highpass';high.frequency.value=90;gain.gain.value=this.mix.ambience;src.connect(low);low.connect(high);high.connect(gain);gain.connect(ctx.destination);src.start();this.windCtx=ctx;this.windSource=src}catch(_){}} ,
+    stop(){this.ensure();this.stopCrowdAccent();for(const a of this.activeTransientSfx){try{a.__wcFadeToken=(a.__wcFadeToken||0)+1;a.pause();a.currentTime=0}catch(_){}}this.activeTransientSfx.clear();[this.crowd,this.whistle,this.goal,this.goalCheer,this.prematch,this.kickoffRelease,...(this.matchMusicTracks||[]),...this.intercepts,...this.shots,...this.passMissSfx,...this.missImpactSfx,...this.hoopHitSfx,...this.stealSfx,...this.crowdAccentSfx,this.crowdLong].forEach(a=>{try{a?.pause();if(a){a.currentTime=0;a.volume=0;a.onended=null}}catch(_){}});this.currentMatchMusic=null;this.currentMatchMusicIndex=-1;this.matchMusicShuffleBag=[];try{this.windSource?.stop()}catch(_){};try{this.windCtx?.close()}catch(_){};this.windSource=null;this.windCtx=null},
     crowdHit(amount=.22){state.crowdBoost=Math.max(state.crowdBoost,amount)},
-    shot(){this.ensure();this.play(this.shots[Math.floor((state.visualRand?.()||Math.random())*this.shots.length)],.48)},
-    intercept(){this.ensure();this.play(this.intercepts[Math.floor((state.visualRand?.()||Math.random())*this.intercepts.length)],.46)},
-    passMiss(){this.ensure();this.play(this.passMissSfx[Math.floor((state.visualRand?.()||Math.random())*this.passMissSfx.length)],.30)},
-    missImpact(){this.ensure();this.play(this.missImpactSfx[Math.floor((state.visualRand?.()||Math.random())*this.missImpactSfx.length)],.60)},
-    hoopHit(){this.ensure();this.play(this.hoopHitSfx[Math.floor((state.visualRand?.()||Math.random())*this.hoopHitSfx.length)],.50)},
-    steal(){this.ensure();this.play(this.stealSfx[Math.floor((state.visualRand?.()||Math.random())*this.stealSfx.length)],.50)},
+    shot(){this.ensure();this.play(this.shots[Math.floor((state.audioRand?.()||Math.random())*this.shots.length)],.48)},
+    intercept(){this.ensure();this.play(this.intercepts[Math.floor((state.audioRand?.()||Math.random())*this.intercepts.length)],.46)},
+    passMiss(){this.ensure();this.play(this.passMissSfx[Math.floor((state.audioRand?.()||Math.random())*this.passMissSfx.length)],.30)},
+    missImpact(){this.ensure();this.play(this.missImpactSfx[Math.floor((state.audioRand?.()||Math.random())*this.missImpactSfx.length)],.60)},
+    hoopHit(){this.ensure();this.play(this.hoopHitSfx[Math.floor((state.audioRand?.()||Math.random())*this.hoopHitSfx.length)],.50)},
+    steal(){this.ensure();this.play(this.stealSfx[Math.floor((state.audioRand?.()||Math.random())*this.stealSfx.length)],.50)},
     goalCelebration(){this.ensure();const now=performance.now();if(now<this.goalCheerGuardUntil)return;this.goalCheerGuardUntil=now+2800;this.stopCrowdAccent();this.play(this.goalCheer,.15);this.crowdAccentTimer=Math.max(this.crowdAccentTimer,16)},
     stopCrowdAccent(){
       clearTimeout(this.crowdAccentStopTimer);this.crowdAccentStopTimer=0;
@@ -1329,23 +1523,24 @@
       }
     },
     playCrowdShort(){
-      this.ensure();if(this.crowdAccentActive)return;let idx=Math.floor((state.visualRand?.()||Math.random())*this.crowdAccentSfx.length);
+      this.ensure();if(this.crowdAccentActive)return;let idx=Math.floor((state.audioRand?.()||Math.random())*this.crowdAccentSfx.length);
       if(idx===this.lastCrowdAccent&&this.crowdAccentSfx.length>1)idx=(idx+1)%this.crowdAccentSfx.length;this.lastCrowdAccent=idx;
       const a=this.crowdAccentSfx[idx];if(!a)return;this.crowdAccentActive=a;try{a.pause();a.currentTime=0;a.volume=0;a.__wcAccentFadeOut=false;a.onended=()=>{if(this.crowdAccentActive===a)this.crowdAccentActive=null};a.ontimeupdate=()=>{const d=Number(a.duration)||0;if(d>0&&a.currentTime>=Math.max(.3,d-.65)&&!a.__wcAccentFadeOut){a.__wcAccentFadeOut=true;this.fadeVolume(a,a.volume,0,620,()=>{try{a.pause()}catch(_){}if(this.crowdAccentActive===a)this.crowdAccentActive=null})}};const pr=a.play();pr?.then?.(()=>this.fadeVolume(a,0,.075,420))?.catch?.(()=>{if(this.crowdAccentActive===a)this.crowdAccentActive=null})}catch(_){this.crowdAccentActive=null}
     },
     playCrowdLongSegment(){
       this.ensure();if(this.crowdAccentActive||!this.crowdLong)return;const a=this.crowdLong;this.crowdAccentActive=a;
-      const begin=()=>{if(!state.open){this.crowdAccentActive=null;return}try{const r=state.visualRand?.()||Math.random(),r2=state.visualRand?.()||Math.random(),segment=3.8+r2*2.4,maxStart=Math.max(0,(a.duration||123)-segment-1),start=r*maxStart;a.pause();a.currentTime=start;a.volume=0;const pr=a.play();pr?.then?.(()=>this.fadeVolume(a,0,.075,520))?.catch?.(()=>{if(this.crowdAccentActive===a)this.crowdAccentActive=null});clearTimeout(this.crowdAccentStopTimer);this.crowdAccentStopTimer=setTimeout(()=>{this.fadeVolume(a,a.volume,0,700,()=>{try{a.pause()}catch(_){}if(this.crowdAccentActive===a)this.crowdAccentActive=null})},Math.max(900,segment*1000-700))}catch(_){this.crowdAccentActive=null}};
+      const begin=()=>{if(!state.open){this.crowdAccentActive=null;return}try{const r=state.audioRand?.()||Math.random(),r2=state.audioRand?.()||Math.random(),segment=3.8+r2*2.4,maxStart=Math.max(0,(a.duration||123)-segment-1),start=r*maxStart;a.pause();a.currentTime=start;a.volume=0;const pr=a.play();pr?.then?.(()=>this.fadeVolume(a,0,.075,520))?.catch?.(()=>{if(this.crowdAccentActive===a)this.crowdAccentActive=null});clearTimeout(this.crowdAccentStopTimer);this.crowdAccentStopTimer=setTimeout(()=>{this.fadeVolume(a,a.volume,0,700,()=>{try{a.pause()}catch(_){}if(this.crowdAccentActive===a)this.crowdAccentActive=null})},Math.max(900,segment*1000-700))}catch(_){this.crowdAccentActive=null}};
       if(Number.isFinite(a.duration)&&a.duration>0)begin();else a.addEventListener('loadedmetadata',begin,{once:true});
     },
     updateCrowdAccents(dt){
       if(!state.open||!['first','second'].includes(state.phase)||state.celebration||state.special)return;
       if(this.crowdAccentActive&&!this.crowdAccentActive.paused)return;
       this.crowdAccentTimer-=dt;if(this.crowdAccentTimer>0)return;
-      const r=state.visualRand?.()||Math.random();if(r<.18)this.playCrowdLongSegment();else this.playCrowdShort();
-      this.crowdAccentTimer=21+(state.visualRand?.()||Math.random())*23;
+      const r=state.audioRand?.()||Math.random();if(r<.18)this.playCrowdLongSegment();else this.playCrowdShort();
+      this.crowdAccentTimer=21+(state.audioRand?.()||Math.random())*23;
     },
     varTone(){
+      if(state.headless||state.fastForwarding)return;
       try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC();const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.setValueAtTime(620,ctx.currentTime);o.frequency.setValueAtTime(440,ctx.currentTime+.16);g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0225,ctx.currentTime+.06);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.42);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.45)}catch(_){}
     }
   };
@@ -1437,7 +1632,8 @@
     const a=$('worldCupEventMusic');if(a){try{a.volume=.30;a.play()?.catch?.(()=>{})}catch(_){}}
   }
 
-  function pick(arr){return arr[Math.floor(state.simRand()*arr.length)]}
+  function commentaryRandom(){return state.commentaryRand?.()||Math.random()}
+  function pick(arr){return arr[Math.floor(commentaryRandom()*arr.length)]}
   function commentarySkeleton(text){
     let s=String(text||'').toLowerCase();
     allPlayers.forEach(p=>{s=s.replaceAll(p.name.toLowerCase(),'<player>')});
@@ -1481,9 +1677,9 @@
     if(reactionDelay){const expected=text;setTimeout(()=>{if(state.open&&state.broadcast.lastText===expected)startBarrySpeaking(text,priority,intensity)},reactionDelay)}else startBarrySpeaking(text,priority,intensity);return true;
   }
   function maybeLore(player, chance=.12){
-    chance=Math.min(chance,.025);if(!player||state.simRand()>chance)return false;
+    chance=Math.min(chance,.025);if(!player||commentaryRandom()>chance)return false;
     const available=player.lore.map((line,i)=>({line,key:player.id+':'+i})).filter(x=>!state.loreUsed.has(x.key));
-    if(!available.length)return false;const item=available[Math.floor(state.simRand()*available.length)];const spoken=say(item.line,{priority:2,intensity:'calm',kind:'lore'});if(spoken)state.loreUsed.add(item.key);return spoken;
+    if(!available.length)return false;const item=available[Math.floor(commentaryRandom()*available.length)];const spoken=say(item.line,{priority:2,intensity:'calm',kind:'lore'});if(spoken)state.loreUsed.add(item.key);return spoken;
   }
   function eventLine(kind,data={},player=null,loreChance=.08){
     if(maybeLore(player,loreChance))return;
@@ -1504,8 +1700,8 @@
   }
   function tickBroadcastSequence(dt){if(state.broadcastSequence)state.broadcastSequence.elapsed=(state.broadcastSequence.elapsed||0)+Math.max(0,dt||0)}
   function fixtureStage(){
-    const raw=String(state.fixture?.stage||state.fixture?.round||state.fixture?.competitionStage||'REPO SPORTS · V2 TEST').trim();
-    return raw?raw.toUpperCase():'REPO SPORTS · V2 TEST';
+    const raw=String(state.fixture?.stage||state.fixture?.round||state.fixture?.competitionStage||'REPO SPORTS · LIVE LEAGUE').trim();
+    return raw?raw.toUpperCase():'REPO SPORTS · LIVE LEAGUE';
   }
   function fixtureVenue(){
     return String(state.fixture?.venue?.name||state.fixture?.venue||state.fixture?.stadium||activeFixture?.venue||'STANDARD REPO SPORTS ARENA').trim()||'STANDARD REPO SPORTS ARENA';
@@ -1518,7 +1714,7 @@
     return `<div class="wcg-next-fixture"><small>NEXT ON REPO SPORTS</small><b>${a} <span>vs</span> ${b}</b>${venue?`<em>${venue}</em>`:''}</div>`;
   }
   function skipBroadcastPresentation(){
-    if(!state.open)return;
+    if(!state.open||state.syncMode)return;
     if(state.phase==='intro'){state.broadcastSequence.skipped=true;completePrematch();return}
     if(state.phase==='halftime'&&state.halftimeReady&&isHost()){continueSecondHalf();return}
     if(state.phase==='fulltime'){state.broadcastSequence.skipped=true;state.fulltimeElapsed=999;hidePresentation();populateFulltimePanel(state.fulltimeData);$('wcgFulltime')?.classList.add('is-open');setBroadcastState('POST_MATCH');setBroadcastSequence('complete',{frozen:true});}
@@ -1553,9 +1749,9 @@
     if(state.replayBuffer.length>140)state.replayBuffer.splice(0,state.replayBuffer.length-140);
   }
   function beginReplay(label='MATCH REPLAY',frames=null,opts={}){
-    if(state.replay||state.replayIntro||state.replayOutro)return false;frames=(frames||state.replayBuffer).slice(-(opts.frames||56));if(frames.length<10)return false;
-    const payload={frames,elapsed:0,duration:opts.duration||3.7,label,slow:opts.slow||.58,onDone:opts.onDone||null};
-    const introDuration=opts.introDuration==null?.85:opts.introDuration;
+    if(state.replay||state.replayIntro||state.replayOutro)return false;frames=(frames||state.replayBuffer).slice(-(opts.frames||46));if(frames.length<10)return false;
+    const payload={frames,elapsed:0,duration:opts.duration||2.85,label,slow:opts.slow||.66,onDone:opts.onDone||null};
+    const introDuration=opts.introDuration==null?.50:opts.introDuration;
     if(introDuration>0){
       state.replayIntro={elapsed:0,duration:introDuration,payload};
       const sponsor=$('wcgReplaySponsor');if(sponsor){sponsor.classList.add('is-visible');sponsor.setAttribute('aria-hidden','false')}
@@ -1570,7 +1766,7 @@
     const bug=$('wcgReplayBug');if(bug){bug.classList.remove('is-visible');bug.setAttribute('aria-hidden','true')}
     // Bookend every replay with the same Repo Sports Quidditch sting used on entry.
     // The simulation remains paused until this short outro finishes.
-    state.replayOutro={elapsed:0,duration:.85,onDone:r.onDone||null};
+    state.replayOutro={elapsed:0,duration:.48,onDone:r.onDone||null};
     const sponsor=$('wcgReplaySponsor');
     if(sponsor){
       sponsor.classList.remove('is-visible');
@@ -1594,7 +1790,7 @@
   function playerSpriteHeight(e,standing=false){const base=standing?PLAYER_STAND_HEIGHT:PLAYER_RIDE_HEIGHT;return base*(PLAYER_SCALE[e?.player?.id]||1)}
   function setPlayerAnim(e,name,duration=.35,priority=null,meta={}){
     if(!e||!e.player)return false;
-    const pr=priority==null?(ANIM_PRIORITY[name]??2):priority,now=performance.now();
+    const pr=priority==null?(ANIM_PRIORITY[name]??2):priority,now=simNow();
     if((e.animUntil||0)>now && (e.animPriority||0)>pr)return false;
     e.animState=name;e.animPriority=pr;e.animUntil=now+Math.max(.05,duration)*1000;e.animElapsed=0;e.animMeta=meta||{};return true;
   }
@@ -1618,7 +1814,7 @@
     if(!e?.player)return false;
     const ok=setPlayerAnim(e,animState,duration,priority??ANIM_PRIORITY[animState]??5,{...meta,reactionState});
     if(!ok)return false;
-    e.reactionState=reactionState;e.reactionUntil=performance.now()+duration*1000;e.reactionMeta={...meta};e.reactionSerial=(state.reactionSerial=(state.reactionSerial||0)+1);
+    e.reactionState=reactionState;e.reactionUntil=simNow()+duration*1000;e.reactionMeta={...meta};e.reactionSerial=(state.reactionSerial=(state.reactionSerial||0)+1);
     if(meta.faceX!=null){e.facing=meta.faceX>=e.x?1:-1;e.dir=-e.facing}
     if(REACTION_DEBUG)console.log('[REACTION]',e.player.name,reactionState,meta.type||animState,`${Math.round(duration*1000)}ms`);
     return true;
@@ -1645,7 +1841,7 @@
     if(loser){loser.intent='recover';loser.tx=safeX(lerp(loser.x,winner.x,.20));loser.ty=safeY(lerp(loser.y,winner.y,.20));enterReaction(loser,'recovering','RETURNING_TO_POSITION',.48+visualRandom()*.35,{type:'turnAndChase',faceX:winner.x},ANIM_PRIORITY.RETURNING_TO_POSITION)}
   }
   function updateReactionExpiry(e){
-    if(!e?.player)return;const now=performance.now();
+    if(!e?.player)return;const now=simNow();
     if(e.reactionState&&e.reactionState!=='playing'&&(e.reactionUntil||0)<=now){
       e.reactionState='returningToPosition';e.reactionMeta={};e.reactionUntil=now+280;
       if((e.animUntil||0)<=now)setPlayerAnim(e,'RETURNING_TO_POSITION',.28,ANIM_PRIORITY.RETURNING_TO_POSITION,{});
@@ -1653,7 +1849,7 @@
   }
   function normaliseAngle(a){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a}
   function updateLocomotionAnim(e,dt,prevVx,prevVy){
-    if(!e?.player)return;const now=performance.now();e.animElapsed=(e.animElapsed||0)+dt;
+    if(!e?.player)return;const now=simNow();e.animElapsed=(e.animElapsed||0)+dt;
     if((e.animUntil||0)>now)return;
     e.animPriority=0;e.animMeta={};
     const speed=Math.hypot(e.vx,e.vy),prevSpeed=Math.hypot(prevVx||0,prevVy||0),accel=(speed-prevSpeed)/Math.max(.016,dt);
@@ -1680,7 +1876,9 @@
     const st=e?.animState||'IDLE',t=(e?.animElapsed||0),phase=(e?.animMeta?.phase||0);let rot=0,sx=1,sy=1,ox=0,oy=0,bob=0;
     if(standing){
       bob=0;sy=1;
-      const c=state.celebration;if(c&&c.grounded&&e?.team===c.team){
+      const c=state.celebration;if(c&&e?.team===c.team){
+        // Test 41: celebration presentation uses the standing/floor pose from
+        // the very start of the celebration, not the old aerial riding pose.
         const id=e?.player?.id||'',isScorer=e===c.scorer,moving=clamp((e?.celebrationMotion||0)*8,0,1),beat=Math.abs(Math.sin(t*(isScorer?4.8:3.8)+(e?.flowPhase||0)));
         oy=-(isScorer?2.2:1.1)*beat*(1-moving*.55);sx=1+(isScorer?.040:.025)*beat;sy=1+(isScorer?.026:.016)*beat;
         rot=Math.sin(t*(moving?5.2:3.0)+(e?.flowPhase||0))*(isScorer?.050:.030)+(e?.facing||1)*moving*.025;
@@ -1726,11 +1924,11 @@
   function profileStrength(p){const a=entityById(p.id)?.attributes||{};const labels=p.role==='defender'?[['POSITIONING',a.positioning],['INTERCEPTION',a.interception],['ANTICIPATION',a.anticipation]]:p.role==='attacker'?[['SHOOTING',a.shooting],['ACCELERATION',a.accel],['ANTICIPATION',a.anticipation]]:[['PASSING',a.passing],['POSITIONING',a.positioning],['COMPOSURE',a.composure]];return labels.sort((x,y)=>(y[1]||0)-(x[1]||0))[0]?.[0]||p.role.toUpperCase()}
   function updatePrematchPresentation(){
     const remaining=Math.max(0,INTRO_SECONDS-state.introElapsed),elapsed=INTRO_SECONDS-remaining,skip=$('wcgSkipBroadcast');
-    if(skip)skip.hidden=false;updatePredictionUi();
+    if(skip)skip.hidden=state.syncMode;updatePredictionUi();
     const homePlayers=roster.belros.map(p=>p.name).join(' · '),awayPlayers=roster.zafran.map(p=>p.name).join(' · ');
     if(elapsed<4.5){
       setBroadcastState('INTRO');
-      showPresentation('v2-ident','REPO SPORTS','QUIDDITCH LIVE',`<div class="wcg-ident-lockup"><img src="assets/repo-sports-logo.png" alt="Repo Sports"><span>STANDARD 4:30 ROTATION</span></div><div class="wcg-v2-format-strip"><span>4:30 MATCH</span><span>3 vs 3</span><span>NO HALF-TIME</span><span>50/50 ENGINE</span></div>`,'NEXT MATCH · PREDICTIONS OPEN','ident')
+      showPresentation('v2-ident','REPO SPORTS','QUIDDITCH LIVE',`<div class="wcg-ident-lockup"><img src="assets/repo-sports-logo.png" alt="Repo Sports"><span>STANDARD 4:30 ROTATION</span></div><div class="wcg-v2-format-strip"><span>4:30 MATCH</span><span>3 vs 3</span><span>NO HALF-TIME</span><span>LIVE LEAGUE</span></div>`,'NEXT MATCH · PREDICTIONS OPEN','ident')
     }else if(elapsed<10.5){
       setBroadcastState('PRE_MATCH');
       showPresentation('v2-stadium','LIVE FROM',fixtureVenue(),`${matchupMarkup(false)}<div class="wcg-arena-details"><p class="wcg-arena-copy">${teamMeta.belros.name} face ${teamMeta.zafran.name} in the next standard Repo Sports rotation.</p></div>`,'REPO SPORTS · ARENA FEED','arena')
@@ -1884,7 +2082,15 @@
     const remain=INTRO_SECONDS-state.introElapsed;
     if(remain<=2.30)beginPrematchMount();
     if(remain>1.45){const h=refStandingBallPoint();state.ball.x=h.x;state.ball.y=h.y;state.ball.visible=true;state.ball.state='HELD';state.ball.owner='referee';return}
-    if(!state.kickoffToss){const h=refStandingBallPoint();state.kickoffToss={elapsed:0,duration:1.42,sx:h.x,sy:h.y,tx:.5,ty:.525};showBanner('REFEREE RELEASES THE QUAFFLE','',1.1);for(const e of state.entities){e.animState='ACCELERATING';e.animElapsed=0;e.intent='contest-toss'}}
+    if(!state.kickoffToss){
+      const h=refStandingBallPoint();
+      state.kickoffToss={elapsed:0,duration:1.42,sx:h.x,sy:h.y,tx:.5,ty:.525};
+      // Test 43: user's start SFX fires at the exact frame William throws the
+      // Quaffle into the air. Presentation-only; never runs during catch-up.
+      audio.playKickoffRelease();
+      showBanner('REFEREE RELEASES THE QUAFFLE','',1.1);
+      for(const e of state.entities){e.animState='ACCELERATING';e.animElapsed=0;e.intent='contest-toss'}
+    }
     const k=state.kickoffToss;k.elapsed=Math.min(k.duration,k.elapsed+dt);const t=clamp(k.elapsed/k.duration,0,1),q=ease(t);const px=state.ball.x,py=state.ball.y;state.ball.x=lerp(k.sx,k.tx,q);state.ball.y=lerp(k.sy,k.ty,q)-Math.sin(Math.PI*t)*.022;state.ball.visible=true;state.ball.state='IN_FLIGHT';state.ball.owner=null;updateBallTelemetry(px,py,Math.max(dt,.016));
   }
   function completePrematch(){if(state.phase!=='intro')return;state.introElapsed=INTRO_SECONDS;state.prediction.locked=true;updatePredictionUi();hidePresentation();const skip=$('wcgSkipBroadcast');if(skip)skip.hidden=true;setBroadcastSequence('firstHalf',{frozen:false});state.firstKickoff=state.simRand()<.5?'belros':'zafran';beginKickoff(state.firstKickoff,false)}
@@ -1927,8 +2133,33 @@
     hidePresentation();setBroadcastState('POST_MATCH');setBroadcastSequence('complete',{frozen:true,reset:false});
     $('wcgFulltime')?.classList.add('is-open');populateFulltimePanel(data);
     const remain=Math.max(0,Math.ceil(POST_MATCH_SECONDS-state.fulltimeElapsed)),count=$('wcgNextMatchCountdown');
-    if(count)count.innerHTML=remain>0?`NEXT MATCH LOADS IN <b>${remain}</b>S`:'LOADING NEXT RANDOM MATCH…';
-    if(state.fulltimeElapsed>=POST_MATCH_SECONDS&&!state.rotationQueued){state.rotationQueued=true;window.RepoSportsV2CycleNext?.()}
+    if(count)count.innerHTML=remain>0?`NEXT MATCH LOADS IN <b>${remain}</b>S`:'SYNCING NEXT LIVE MATCH…';
+    if(state.fulltimeElapsed>=POST_MATCH_SECONDS&&!state.rotationQueued){
+      state.rotationQueued=true;
+      if(state.syncMode&&window.parent&&window.parent!==window){
+        const so=state.fulltimeData?.so||null;
+        // Visible and headless synced engines may both report completion; only
+        // the parent holding the live server lease can actually rotate the match.
+        const careerPlayers=['belros','zafran'].flatMap(side=>
+          roster[side].map(p=>({
+            player_id:p.id,
+            player_name:p.name,
+            owner_name:V2_PLAYER_OWNERS[p.id]||'',
+            side,
+            goals:Math.max(0,Number(state.playerStats?.[p.id]?.goals)||0)
+          }))
+        );
+        window.parent.postMessage({type:'repo-sports-v2-rotation-complete',matchSerial:state.liveSerial,result:{
+          home_team:teamMeta.belros.name,
+          away_team:teamMeta.zafran.name,
+          regulation:{belros:state.score.belros,zafran:state.score.zafran},
+          penalties:so?{belros:Number(so.score?.belros)||0,zafran:Number(so.score?.zafran)||0}:null,
+          winner:state.fulltimeData?.winner||null,
+          fixture:activeFixture?.id||null,
+          players:careerPlayers
+        }},'*');
+      }
+    }
   }
 
   function scorerSummary(team){
@@ -1985,7 +2216,7 @@
     $('wcgScoreBelros').textContent=state.score.belros;$('wcgScoreZafran').textContent=state.score.zafran;
     let t=state.matchTime,phase='1ST HALF';
     if(state.phase==='intro'){ $('wcgClock').textContent=`-${Math.max(0,Math.ceil(INTRO_SECONDS-state.introElapsed))}`;phase='PRE-MATCH'; }
-    else { if(state.celebration)phase='GOAL CELEBRATION';else if(state.phase==='second')phase='2ND HALF';else if(state.phase==='halftime')phase='HALF TIME';else if(state.phase==='secondcountdown')phase='2ND HALF SOON';else if(state.phase==='shootout')phase='PENALTIES';else if(state.phase==='fulltime')phase='FULL TIME'; const m=Math.floor(t/60),s=Math.floor(t%60);$('wcgClock').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+    else { if(state.celebration)phase='GOAL CELEBRATION';else if(state.phase==='second')phase='2ND HALF';else if(state.phase==='halftime')phase='HALF TIME';else if(state.phase==='secondcountdown')phase='2ND HALF SOON';else if(state.phase==='shootout'){const so=state.shootout;phase=so?`PENS ${so.score.belros}-${so.score.zafran}`:'PENALTIES';}else if(state.phase==='fulltime')phase='FULL TIME'; const m=Math.floor(t/60),s=Math.floor(t%60);$('wcgClock').textContent=state.phase==='shootout'?'PENS':`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
     $('wcgPhase').textContent=phase;
     updateScorerUi();
     const a=state.teamStats.belros,b=state.teamStats.zafran;
@@ -2031,7 +2262,7 @@
 
   function initTeamTactics(){
     state.teamTactics={};
-    for(const team of ['belros','zafran'])state.teamTactics[team]={team,identity:TEAM_STYLE[team].name,state:'BUILDUP',previousState:'BUILDUP',risk:.50,pressing:.50,width:TEAM_STYLE[team].width,depth:TEAM_STYLE[team].depth,tempo:TEAM_STYLE[team].tempo,lastChange:performance.now(),responsibilities:{},memory:{lanePressure:{},hotPlayer:null,lastTurnoverAt:0},debugReason:'opening shape'};
+    for(const team of ['belros','zafran'])state.teamTactics[team]={team,identity:TEAM_STYLE[team].name,state:'BUILDUP',previousState:'BUILDUP',risk:.50,pressing:.50,width:TEAM_STYLE[team].width,depth:TEAM_STYLE[team].depth,tempo:TEAM_STYLE[team].tempo,lastChange:simNow(),responsibilities:{},memory:{lanePressure:{},hotPlayer:null,lastTurnoverAt:0},debugReason:'opening shape'};
   }
   function tacticalScoreContext(team){
     const diff=(state.score?.[team]||0)-(state.score?.[other(team)]||0),remaining=Math.max(0,MATCH_SECONDS-(state.matchTime||0)),late=remaining<162,veryLate=remaining<68;
@@ -2043,7 +2274,7 @@
     if(state.celebration)return state.celebration.team===team?'GOAL_CELEBRATION':'RESTART';
     if(state.special?.type==='penalty')return 'RESTART';
     if(!state.possession)return 'RECOVERY';
-    const owns=state.possession===team,recent=performance.now()-(state.possessionChangedAt||0)<1650,zone=state.zone||.15;
+    const owns=state.possession===team,recent=simNow()-(state.possessionChangedAt||0)<1650,zone=state.zone||.15;
     if(owns){if(recent&&zone<.72)return 'COUNTERATTACK';if(zone>.68)return 'FINAL_ATTACK';if(zone>.37)return 'ATTACK';return 'BUILDUP'}
     const carrier=state.carrier,nearest=carrier?Math.min(...teamEntities(team).map(e=>dist2(e,carrier))):1;
     if(recent)return 'RECOVERY';if(carrier&&nearest<.18)return 'PRESSING';return 'DEFENSIVE';
@@ -2075,9 +2306,9 @@
       tt.pressing=clamp(.42+(next==='PRESSING'?.18:0)+(ctx.diff<0&&ctx.late?.10:0),.30,.72);
       tt.width=1;tt.depth=1;tt.tempo=clamp(.92+tt.risk*.18,.96,1.06);
       if(next!==tt.state){
-        tt.previousState=tt.state;tt.state=next;tt.lastChange=performance.now();tt.debugReason=`${state.possession||'loose'} · zone ${Number(state.zone||0).toFixed(2)}`;recordEvent('tactic',{team,state:next},.65);
+        tt.previousState=tt.state;tt.state=next;tt.lastChange=simNow();tt.debugReason=`${state.possession||'loose'} · zone ${Number(state.zone||0).toFixed(2)}`;recordEvent('tactic',{team,state:next},.65);
         if(next==='PRESSING')state.teamStats[team].presses++;if(next==='COUNTERATTACK')recordEvent('counterattack',{team},1.8);
-        if((state.phase==='first'||state.phase==='second')&&!state.broadcast?.speaking&&state.simRand()<.16){const line=next==='PRESSING'?`${teamMeta[team].name} squeeze the space.`:next==='FINAL_ATTACK'?`${teamMeta[team].name} push numbers forward.`:next==='DEFENSIVE'&&ctx.late&&ctx.diff>0?`${teamMeta[team].name} settle into their shape.`:next==='COUNTERATTACK'?`${teamMeta[team].name} can break here.`:'';if(line)say(line,{priority:2,intensity:'calm',kind:'tactic'})}
+        if((state.phase==='first'||state.phase==='second')&&!state.broadcast?.speaking&&commentaryRandom()<.16){const line=next==='PRESSING'?`${teamMeta[team].name} squeeze the space.`:next==='FINAL_ATTACK'?`${teamMeta[team].name} push numbers forward.`:next==='DEFENSIVE'&&ctx.late&&ctx.diff>0?`${teamMeta[team].name} settle into their shape.`:next==='COUNTERATTACK'?`${teamMeta[team].name} can break here.`:'';if(line)say(line,{priority:2,intensity:'calm',kind:'tactic'})}
       }
       for(const key of Object.keys(tt.memory.lanePressure||{}))tt.memory.lanePressure[key]*=.985;
       assignTacticalResponsibilities(team);
@@ -2088,7 +2319,7 @@
     if(!state.carrier)return;
     refreshMovementTargets(true);
   }
-  function setPossession(team,carrier,zone=.15){const previous=state.possession,changed=previous!==team;state.possession=team;state.carrier=carrier;state.zone=zone;state.passesSinceShot=0;state.lastPasser=null;state.ball.visible=true;state.pendingPass=null;setBallPossession(carrier);if(changed){state.possessionChangedAt=performance.now();if(previous&&state.teamStats[previous])state.teamStats[previous].turnovers++;if(team&&previous&&state.teamStats[team])state.teamStats[team].counterattacks++;flowPossessionChanged(team,previous);updateTeamTacticalDirector(0,true)}setNormalFormation()}
+  function setPossession(team,carrier,zone=.15){const previous=state.possession,changed=previous!==team;state.possession=team;state.carrier=carrier;state.zone=zone;state.passesSinceShot=0;state.lastPasser=null;state.ball.visible=true;state.pendingPass=null;setBallPossession(carrier);if(changed){state.possessionChangedAt=simNow();if(previous&&state.teamStats[previous])state.teamStats[previous].turnovers++;if(team&&previous&&state.teamStats[team])state.teamStats[team].counterattacks++;flowPossessionChanged(team,previous);updateTeamTacticalDirector(0,true)}setNormalFormation()}
 
   // All riding sprites face left in their source art.  Keep a separate attack/facing
   // direction so the visual orientation never gets accidentally tied to movement.
@@ -2267,7 +2498,7 @@
       quietUntil:0,lastMajorAt:-99,lastTurnoverAt:-99,lastSwitchAt:-99,lastAction:'restart',forcedPhaseUntil:0
     };
   }
-  function flowRand(){return state.visualRand?.()||Math.random()}
+  function flowRand(){return state.simRand?.()||Math.random()}
   function flowTempoScale(){const t=state.matchFlow?.tempo;return t==='fast'?.82:t==='slow'?1.22:1}
   function flowScheduleNext(min=.95,max=1.85){const k=flowTempoScale();scheduleNext(min*k,max*k)}
   function chooseFlowTemplate(preferCounter=false){
@@ -2431,7 +2662,7 @@
     if(!shooter||state.chanceBuild||state.delay){performShot({shooter});return}
     const opp=other(shooter.team),specialist=rolePlayer(opp,'defender'),allDef=teamEntities(opp);
     const defPool=specialist?[specialist,...allDef.filter(e=>e!==specialist)]:allDef;
-    const duration=.72+(state.visualRand?.()||Math.random())*.42,def=defPool.slice().sort((a,b)=>dist2(a,shooter)-dist2(b,shooter))[0];
+    const duration=.72+(state.simRand?.()||Math.random())*.42,def=defPool.slice().sort((a,b)=>dist2(a,shooter)-dist2(b,shooter))[0];
     state.chanceBuild={shooter,defender:def,elapsed:0,duration};setFlowPhase(FLOW_PHASES.SHOT_SEQUENCE,'chance created');noteFlowMajor('shot-sequence');state.director.phase='GOAL CHANCE';
     shooter.intent='prepare-shot';setPlayerAnim(shooter,'DECELERATING',Math.min(.55,duration),ANIM_PRIORITY.DECELERATING,{bigChance:true});
     if(def){
@@ -2511,14 +2742,16 @@
     {id:'huge-important',name:'Huge Final / Important Goal Celebration',group:'big',importantOnly:true}
   ];
   function chooseGoalCelebration(team,scorer){
-    // V37 personality selection is visual-only and uses visual RNG exclusively.
+    // Celebration choice affects the length of the frozen goal sequence, so it
+    // belongs to the deterministic simulation RNG in globally synced V2.
+    const goalRand=()=>state.simRand?.()||Math.random();
     const pp=getPlayerPersonality(scorer),signature=pp.signatureCelebration||signatureCelebrations[scorer?.player?.name]||signatureCelebrations[scorer?.player?.name?.toUpperCase?.()];
-    if(signature&&visualRandom()<.28){const found=GOAL_CELEBRATIONS.find(c=>c.id===signature);if(found){if(PERSONALITY_DEBUG)console.log('[PERSONALITY]',scorer.player.name,'goal',pp.archetype,found.id,'SIGNATURE');return found}}
+    if(signature&&goalRand()<.28){const found=GOAL_CELEBRATIONS.find(c=>c.id===signature);if(found){if(PERSONALITY_DEBUG)console.log('[PERSONALITY]',scorer.player.name,'goal',pp.archetype,found.id,'SIGNATURE');return found}}
     const late=state.matchTime>=MATCH_SECONDS-95,margin=Math.abs(state.score.belros-state.score.zafran),important=late&&margin<=1;
-    if(important&&visualRandom()<.58)return GOAL_CELEBRATIONS.find(c=>c.id==='huge-important');
+    if(important&&goalRand()<.58)return GOAL_CELEBRATIONS.find(c=>c.id==='huge-important');
     const pool=GOAL_CELEBRATIONS.filter(c=>!c.importantOnly),recent=personalityRecent(scorer,'goalCelebration'),fresh=pool.filter(c=>!recent.includes(c.id)),base=fresh.length?fresh:pool;
     const preferred=personalityCelebrationPreferences(scorer),weighted=[];for(const c of base){weighted.push(c);if(preferred.includes(c.id))weighted.push(c,c)}
-    const choice=weighted[Math.floor(visualRandom()*weighted.length)]||base[0];recent.push(choice.id);while(recent.length>3)recent.shift();
+    const choice=weighted[Math.floor(goalRand()*weighted.length)]||base[0];recent.push(choice.id);while(recent.length>3)recent.shift();
     if(PERSONALITY_DEBUG)console.log('[PERSONALITY]',scorer.player.name,'goal',pp.archetype,choice.id,'signature false');
     return choice;
   }
@@ -2591,12 +2824,36 @@
     else if(id==='huge-important'){oy=-4.5*pulse;rot=-(e.facing||1)*.07*Math.sin(c.elapsed*5.5);sx=1+.04*pulse}
     return {rot,sx,sy,ox,oy};
   }
-  function celebrationPalette(team){return team==='belros'?['#ffd45f','#df3340','#fff2b0']:['#ffd84f','#f4b900','#fff6c6']}
-  function makeCelebrationFlag(c){
-    const r=state.visualRand?.()||Math.random(),r2=state.visualRand?.()||Math.random(),left=r<.5;
-    const x=left?.075:.925,y=.31+r2*.19,targetX=c.centerX+((state.visualRand?.()||Math.random())-.5)*.22;
-    const flight=1.35+(state.visualRand?.()||Math.random())*.75;
-    return {x,y,vx:(targetX-x)/flight,vy:-.075-(state.visualRand?.()||Math.random())*.055,g:.19+(state.visualRand?.()||Math.random())*.045,age:0,life:4.4+(state.visualRand?.()||Math.random())*2.2,floorY:groundedY(.010+(state.visualRand?.()||Math.random())*.018),rot:((state.visualRand?.()||Math.random())-.5)*.8,vr:((state.visualRand?.()||Math.random())-.5)*3.2,landed:false};
+  function celebrationPalette(team){
+    // V2 broadcast home/away language rather than World Cup flag colours.
+    return team==='belros'
+      ?['#f2b452','#f7de9a','#9e402b','#fff2ca']
+      :['#67c7ee','#b9edff','#27577d','#f0fbff'];
+  }
+  function makeCelebrationToss(c){
+    const vr=()=>state.visualRand?.()||Math.random(),left=vr()<.5;
+    const roll=vr(),type=roll<.42?'petal':roll<.78?'confetti':'scarf';
+    const palette=celebrationPalette(c.team),colour=palette[Math.floor(vr()*palette.length)]||palette[0];
+    const x=left?.035:.965,y=.24+vr()*.25,targetX=c.centerX+(vr()-.5)*.32;
+    const flight=1.55+vr()*.95;
+    const size=type==='scarf'?1.15+vr()*.38:type==='petal'?.70+vr()*.35:.62+vr()*.42;
+    return {
+      type,colour,x,y,
+      vx:(targetX-x)/flight,
+      vy:-.065-vr()*.070,
+      g:.165+vr()*.050,
+      age:0,
+      life:type==='scarf'?4.8+vr()*1.6:3.6+vr()*1.5,
+      floorY:groundedY(.006+vr()*.015),
+      rot:(vr()-.5)*1.2,
+      vr:(vr()-.5)*(type==='scarf'?2.2:5.2),
+      phase:vr()*Math.PI*2,
+      flutter:.012+vr()*.016,
+      size,
+      bounces:0,
+      onFloor:false,
+      floorAge:0
+    };
   }
   function makeFirework(c){return {x:clamp(c.centerX+((state.visualRand?.()||Math.random())-.5)*.58,.20,.80),y:.245+(state.visualRand?.()||Math.random())*.17,age:0,life:1.25+(state.visualRand?.()||Math.random())*.55,seed:(state.visualRand?.()||Math.random())*Math.PI*2};}
   function celebrationWaypoints(c,e){
@@ -2615,13 +2872,13 @@
     return {x:safeX(x),y:groundedY(baseOffset-jump),jump};
   }
   function beginGoalCelebration(team,scorer,restartTeam,varContext=null,adminPreview=false){
-    const style=chooseGoalCelebration(team,scorer),fullTeam=visualRandom()<.125||style.group==='big';
+    const style=chooseGoalCelebration(team,scorer),fullTeam=(state.simRand?.()||Math.random())<.125||style.group==='big';
     const players=teamEntities(team),others=players.filter(e=>e!==scorer).sort((a,b)=>dist2(a,scorer)-dist2(b,scorer));
     const partner=others[0]||null,participants=fullTeam?[scorer,...others]:[scorer,partner].filter(Boolean);
-    const aerialDuration=style.id==='huge-important'?1.9:1.25+visualRandom()*.45,descentDuration=.72,groundedAt=aerialDuration+descentDuration;
+    const aerialDuration=style.id==='huge-important'?1.9:1.25+(state.simRand?.()||Math.random())*.45,descentDuration=.72,groundedAt=aerialDuration+descentDuration;
     // V38.12: keep the grounded celebration on screen long enough to read before
     // the logo/replay sting begins. Same timing rules for both teams.
-    const duration=clamp(groundedAt+(fullTeam?2.05:1.68)+visualRandom()*.55,3.55,5.45),centerX=team==='belros'?.67:.33;
+    const duration=clamp(groundedAt+(fullTeam?2.05:1.68)+(state.simRand?.()||Math.random())*.55,3.55,5.45),centerX=team==='belros'?.67:.33;
     const order=participants.slice().sort((a,b)=>a.y-b.y).map(e=>e.player.id),starts={},targets={},otherStarts={},otherTargets={},paths={};
     participants.forEach((e,i)=>{
       starts[e.player.id]={x:e.x,y:e.y};
@@ -2650,13 +2907,13 @@
       const isKeeper=e.player.role==='defender',type=isKeeper?personalityChoice(e,'concedeKeeper',['lowerHead','pointDefenders','lookBack'],getPlayerPersonality(e).reactionStyle==='expressive'?['lowerHead']:['lookBack','pointDefenders']):personalityReaction(e,'concede',['headShake','lookKeeper','dropShoulders','turnHome']);
       enterReaction(e,isKeeper?'keeperFrustrated':'disappointed',isKeeper?'KEEPER_FRUSTRATED':'DISAPPOINTED',.8+visualRandom()*.8,{conceded:true,type,faceX:isKeeper?centerX:(rolePlayer(restartTeam,'defender')?.x??centerX)},isKeeper?ANIM_PRIORITY.KEEPER_FRUSTRATED:ANIM_PRIORITY.DISAPPOINTED);
     });
-    state.ref.tx=safeX(lerp(state.ref.x,centerX,.30));state.ref.ty=safeY(.54);state.ref.reactionState='reactingToGoal';state.ref.reactionUntil=performance.now()+1300;
+    state.ref.tx=safeX(lerp(state.ref.x,centerX,.30));state.ref.ty=safeY(.54);state.ref.reactionState='reactingToGoal';state.ref.reactionUntil=simNow()+1300;
     state.ball.flight=null;state.ball.visible=false;state.carrier=null;state.pendingPass=null;state.delay=null;
-    const stareTarget=teamEntities(restartTeam).slice().sort((a,b)=>dist2(a,scorer)-dist2(b,scorer))[0]||null,replayFrames=state.replayBuffer.slice(-78);
-    state.celebration={team,scorer,scorerStart:{...starts[scorer.player.id]},partner,participants,fullTeam,style,restartTeam,varContext,adminPreview,elapsed:0,duration,aerialDuration,descentDuration,groundedAt,grounded:false,centerX,starts,targets,otherStarts,otherTargets,order,paths,stareTarget,replayFrames,goalGraphicShown:false,flags:[],fireworks:[]};
+    const stareTarget=teamEntities(restartTeam).slice().sort((a,b)=>dist2(a,scorer)-dist2(b,scorer))[0]||null,replayFrames=state.replayBuffer.slice(-52);
+    state.celebration={team,scorer,scorerStart:{...starts[scorer.player.id]},partner,participants,fullTeam,style,restartTeam,varContext,adminPreview,elapsed:0,duration,aerialDuration,descentDuration,groundedAt,grounded:false,centerX,starts,targets,otherStarts,otherTargets,order,paths,stareTarget,replayFrames,goalGraphicShown:false,tosses:[],nextTossAt:.12,fireworks:[]};
     const fx=state.celebration;
-    const flagCount=fullTeam?5:3,fireworkCount=fullTeam?5:3;
-    for(let i=0;i<flagCount;i++)fx.flags.push(makeCelebrationFlag(fx));
+    const tossCount=fullTeam?8:6,fireworkCount=fullTeam?4:2;
+    for(let i=0;i<tossCount;i++)fx.tosses.push(makeCelebrationToss(fx));
     for(let i=0;i<fireworkCount;i++)fx.fireworks.push(makeFirework(fx));
     setBroadcastState('GOAL_CELEBRATION');$('wcWorldCupBroadcast')?.classList.add('is-goal-celebration');
     audio.goalCelebration();audio.crowdAccentTimer=Math.max(audio.crowdAccentTimer,7);barryReaction('GOAL_REACTION',10,2200);
@@ -2664,6 +2921,14 @@
   }
   function finishGoalCelebration(){
     const c=state.celebration;if(!c)return;
+    // Lock the conceding side onto the exact restart positions they have just
+    // flown toward. This guarantees no post-replay snap.
+    teamEntities(c.restartTeam).forEach(e=>{
+      const target=c.otherTargets?.[e.player.id];
+      if(!target)return;
+      e.x=target.x;e.y=target.y;e.tx=target.x;e.ty=target.y;
+      e.vx=e.vy=0;e.intent='restart-ready';
+    });
     state.celebration=null;$('wcWorldCupBroadcast')?.classList.remove('is-goal-celebration');
     // V33.1 camera safety: remove celebration zoom/momentum before any replay sting.
     Object.assign(state.camera,{x:.5,y:.515,zoom:1.022,tx:.5,ty:.515,tz:1.022,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'});
@@ -2676,23 +2941,63 @@
     // V33 flow: goal -> reactions/celebration -> logo sting -> replay -> logo sting -> restart.
     // beginReplay and its outro callback keep the simulation frozen for the whole cinematic.
     if(!c.adminPreview&&c.replayFrames?.length>=10){
-      const started=beginReplay('GOAL REPLAY',c.replayFrames,{frames:62,duration:4.15,slow:.52,introDuration:.9,onDone:finishSequence});
+      const started=beginReplay('GOAL REPLAY',c.replayFrames,{frames:38,duration:2.55,slow:.68,introDuration:.48,onDone:finishSequence});
       if(started)return;
     }
     finishSequence();
   }
   function updateGoalCelebration(dt){
     const c=state.celebration;if(!c)return;c.elapsed+=dt;
-    // V33.2: celebration VFX are presentation-only and must never be able to crash the match loop.
-    if(!Array.isArray(c.flags))c.flags=[];
+    // Celebration VFX are presentation-only and never use gameplay RNG.
+    if(!Array.isArray(c.tosses))c.tosses=[];
     if(!Array.isArray(c.fireworks))c.fireworks=[];
     for(const fw of c.fireworks)fw.age=(fw.age||0)+dt;
     c.fireworks=c.fireworks.filter(fw=>(fw.age||0)<(fw.life||1.5));
-    for(const f of c.flags){
-      f.age=(f.age||0)+dt;
-      if(!f.landed){f.vy=(f.vy||0)+(f.g||.2)*dt;f.x+=(f.vx||0)*dt;f.y+=(f.vy||0)*dt;f.rot+=(f.vr||0)*dt;if(f.y>=(f.floorY||.72)){f.y=f.floorY||.72;f.vx*=.25;f.vy=0;f.vr*=.25;f.landed=true}}
+
+    // Keep a few new crowd throws arriving during the celebration instead of
+    // dumping everything at frame one.
+    if(c.elapsed<(c.duration-.70)&&c.elapsed>=(c.nextTossAt||0)){
+      const burst=(state.visualRand?.()||Math.random())<.24?2:1;
+      for(let i=0;i<burst;i++)c.tosses.push(makeCelebrationToss(c));
+      c.nextTossAt=c.elapsed+.34+(state.visualRand?.()||Math.random())*.38;
     }
-    c.flags=c.flags.filter(f=>(f.age||0)<(f.life||5));
+
+    for(const f of c.tosses){
+      f.age=(f.age||0)+dt;
+      f.rot+=(f.vr||0)*dt;
+
+      if(!f.onFloor){
+        f.vy=(f.vy||0)+(f.g||.18)*dt;
+        // Petals/confetti/scarves flutter independently of their ballistic arc.
+        const flutter=Math.sin(f.age*(f.type==='scarf'?5.2:9.0)+(f.phase||0))*(f.flutter||.014);
+        f.x+=(f.vx||0)*dt+flutter*dt;
+        f.y+=(f.vy||0)*dt;
+
+        if(f.y>=(f.floorY||.72)){
+          f.y=f.floorY||.72;
+          f.bounces=(f.bounces||0)+1;
+          if(f.bounces<=2&&Math.abs(f.vy)>.028){
+            f.vy=-Math.abs(f.vy)*(f.type==='scarf'?.26:.34);
+            f.vx*=.72;
+            f.vr*=.78;
+          }else{
+            f.onFloor=true;
+            f.floorAge=0;
+            f.vy=0;
+            f.vx*=.55;
+            f.vr*=.55;
+          }
+        }
+      }else{
+        f.floorAge=(f.floorAge||0)+dt;
+        // Never become a frozen decal: slide/turn briefly, then fade away.
+        f.x+=(f.vx||0)*dt;
+        f.vx*=Math.exp(-dt*1.7);
+        f.vr*=Math.exp(-dt*1.4);
+        if(f.type==='scarf')f.rot+=Math.sin(f.floorAge*4+(f.phase||0))*.18*dt;
+      }
+    }
+    c.tosses=c.tosses.filter(f=>(f.age||0)<(f.life||5)&&(!f.onFloor||(f.floorAge||0)<1.35));
     if(!c.grounded&&c.elapsed>=c.groundedAt){
       c.grounded=true;
       teamEntities(c.team).forEach(e=>{
@@ -2744,13 +3049,15 @@
       }else{
         const a=c.otherStarts[e.player.id],b=c.otherTargets[e.player.id];
         if(a&&b){
-          // Slow, readable retreat while the scoring team celebrates.
-          const retreatDuration=Math.max(2.25,Math.min(3.35,c.duration-.15));
-          const oq=ease(clamp(c.elapsed/retreatDuration,0,1)),px=e.x,py=e.y;
+          // Conceding team react for a beat, then visibly fly ALL the way back
+          // to their restart/kickoff shape over almost the full celebration.
+          const retreatDelay=.28,retreatDuration=Math.max(2.75,c.duration-retreatDelay-.22);
+          const raw=clamp((c.elapsed-retreatDelay)/retreatDuration,0,1);
+          const oq=raw*raw*(3-2*raw),px=e.x,py=e.y;
           e.x=lerp(a.x,b.x,oq);e.y=lerp(a.y,b.y,oq);
           e.vx=(e.x-px)/Math.max(dt,.001);e.vy=(e.y-py)/Math.max(dt,.001);
-          e.intent='restart-retreat';
-          if(Math.abs(e.vx)>.005){e.facing=e.vx>=0?1:-1;e.dir=-e.facing}
+          e.intent=raw<1?'restart-retreat':'restart-ready';
+          if(Math.abs(e.vx)>.003){e.facing=e.vx>=0?1:-1;e.dir=-e.facing}
         }
       }
     }
@@ -2776,7 +3083,7 @@
       const defender=keeper;state.playerStats[defender.player.id].saves++;recordEvent('save',{player:defender.player.name,team:opp},3.7);defender.tx=info.hoop.x+(team==='belros'?-.025:.025);defender.ty=info.hoop.y;setPlayerAnim(defender,'SAVING',.64,ANIM_PRIORITY.SAVING,{saved:true,saveStyle:info.target.y<.49?'high':info.target.y>.555?'low':dist2(defender,info.target)<.08?'close':'centre'});enterReaction(shooter,'reactingToSave','REACTING_TO_SAVE',.55+visualRandom()*.55,{saved:true,type:personalityChoice(shooter,'savedShot',['handsHead','slowDown','headShake'],getPlayerPersonality(shooter).reactionStyle==='expressive'?['handsHead']:['slowDown','headShake']),faceX:info.hoop.x},ANIM_PRIORITY.REACTING_TO_SAVE);reactKeeperSave(defender,shooter);audio.crowdHit(.13);
       const nominalKeeper=rolePlayer(opp,'defender'),outfieldBlock=defender!==nominalKeeper;
       const keeperControl=executionSkill(defender.attributes,'catching'),cleanChance=clamp(.38+(keeperControl-.86)*.22,.32,.46);const saveType=outfieldBlock?'block':shootout?'clean':(dist2(defender,info.target)<.050&&state.simRand()<cleanChance?'clean':state.simRand()<.50?'parry':'block');
-      showBanner(`${saveType==='clean'?'SAVE':saveType==='parry'?'PARRY':'BLOCK'} · ${defender.player.name}`,'',1.6);eventLine('save',{pet:shooter.player.name,defender:defender.player.name},defender.player,.10);if(state.playerStats[defender.player.id].saves%2===0)showStoryCard('REPO SPORTS · KEEPER WATCH',defender.player.name,`${state.playerStats[defender.player.id].saves} saves tonight`,defender.team,defender.player,3.8);if(saveType!=='clean'&&state.replayBuffer.length>=24&&state.matchTime-state.lastReplayAt>28&&(state.visualRand?.()||Math.random())<.42)beginReplay('SAVE REPLAY',state.replayBuffer.slice(-52),{frames:42,duration:3.1,slow:.56,introDuration:.72});
+      showBanner(`${saveType==='clean'?'SAVE':saveType==='parry'?'PARRY':'BLOCK'} · ${defender.player.name}`,'',1.6);eventLine('save',{pet:shooter.player.name,defender:defender.player.name},defender.player,.10);if(state.playerStats[defender.player.id].saves%2===0)showStoryCard('REPO SPORTS · KEEPER WATCH',defender.player.name,`${state.playerStats[defender.player.id].saves} saves tonight`,defender.team,defender.player,3.8);if(saveType!=='clean'&&state.replayBuffer.length>=24&&state.matchTime-state.lastReplayAt>28&&(state.simRand?.()||Math.random())<.42)beginReplay('SAVE REPLAY',state.replayBuffer.slice(-42),{frames:34,duration:2.30,slow:.69,introDuration:.45});
       if(shootout){resolveShootoutPenalty(team,false,shooter);return}
       if(saveType==='clean'){setPossession(opp,defender,.12);scheduleNext(.75,1.4);}
       else {
@@ -2806,7 +3113,7 @@
   function performFoul(offender=null){
     const victim=state.carrier;if(!victim){scheduleNext();return}offender=offender||teamEntities(other(victim.team)).slice().sort((a,b)=>dist2(a,victim)-dist2(b,victim))[0];if(!offender||dist2(offender,victim)>.13){scheduleNext(.45,.8);return}state.teamStats[offender.team].fouls++;state.playerStats[offender.player.id].fouls++;recordEvent('foul',{player:offender.player.name,team:offender.team,victim:victim.player.name},2.4);offender.form=clamp((offender.form||0)-.018,-.12,.12);offender.tx=victim.x;offender.ty=victim.y;state.ref.tx=clamp(victim.x+.025,.2,.8);state.ref.ty=clamp(victim.y-.08,.3,.7);audio.ensure();audio.play(audio.whistle,.62);audio.crowdHit(.15);state.camera.shake=.008;showBanner(`FOUL · ${offender.player.name}`,'danger',1.8);eventLine('foul',{offender:offender.player.name,victim:victim.player.name},offender.player,.08);
     enterReaction(offender,'arguing','ARGUING',.85+visualRandom()*.65,{victim:victim.player.id,type:personalityReaction(offender,'foulOffender',['protest','turnOpponent','raiseArm']),faceX:victim.x},ANIM_PRIORITY.ARGUING);enterReaction(victim,'frustrated','FOUL_REACTION',.65+visualRandom()*.55,{fouled:true,type:personalityReaction(victim,'foulVictim',['wobble','recoverBalance','lookOpponent']),faceX:offender.x},ANIM_PRIORITY.FOUL_REACTION);
-    state.ref.reactionState='arguing';state.ref.reactionUntil=performance.now()+1200;state.ref.reactionMeta={type:'warning',faceX:victim.x};
+    state.ref.reactionState='arguing';state.ref.reactionUntil=simNow()+1200;state.ref.reactionMeta={type:'warning',faceX:victim.x};
     for(const e of state.entities){if(e!==offender&&e!==victim&&dist2(e,victim)<.16)setPlayerAnim(e,'DECELERATING',.38,ANIM_PRIORITY.DECELERATING,{foul:true})}
     const inDanger=state.zone>.60,possiblePenalty=inDanger&&state.simRand()<.62;
     if(possiblePenalty && state.simRand()<.30){state.delay={t:1.2,cb:()=>startVar({kind:'foul',team:victim.team,offender,victim,possiblePenalty:true})};}
@@ -2837,7 +3144,11 @@
 
   function startPenalty(team,shootout=false){
     if(!shootout)state.teamStats[team].penalties++;
-    const shooter=teamEntities(team).find(e=>e.player.role==='attacker')||teamEntities(team)[0];state.special={type:'penalty',elapsed:0,team,shooter,shootout,shot:false};
+    const players=teamEntities(team);
+    const shooter=shootout&&state.shootout
+      ?players[(state.shootout.attempts[team]||0)%Math.max(1,players.length)]
+      :(players.find(e=>e.player.role==='attacker')||players[0]);
+    state.special={type:'penalty',elapsed:0,team,shooter,shootout,shot:false};
     const dir=teamMeta[team].attack;shooter.tx=team==='belros'?.72:.28;shooter.ty=.52;setPlayerAnim(shooter,'DECELERATING',.55,ANIM_PRIORITY.DECELERATING,{setPiece:true});teamEntities(team).filter(e=>e!==shooter).forEach((e,i)=>{e.tx=.5-dir*.08;e.ty=.39+i*.24;setPlayerAnim(e,'IDLE',1.35,ANIM_PRIORITY.IDLE,{setPiece:true})});teamEntities(other(team)).forEach((e,i)=>{e.tx=.5+dir*.08;e.ty=.39+i*.12});state.ref.tx=.5;state.ref.ty=.42;state.camera.tx=team==='belros'?.535:.465;state.camera.ty=.52;state.camera.tz=1.06;showBanner(shootout?'SHOOTOUT PENALTY':`PENALTY · ${teamMeta[team].name}`,'danger',2.0);eventLine('penalty',{team:teamMeta[team].name,pet:shooter.player.name},shooter.player,.06);audio.ensure();audio.play(audio.whistle,.55);
   }
   function updatePenalty(dt){
@@ -2935,7 +3246,11 @@
   }
 
   function beginKickoff(team,second=false){
-    state.phase=second?'second':'first';state.half=second?2:1;const skipBroadcast=$('wcgSkipBroadcast');if(skipBroadcast)skipBroadcast.hidden=true;if(!state.matchFlow)initMatchFlowDirector();setFlowPhase(FLOW_PHASES.RESTART,'kickoff');chooseFlowTemplate(false);setBroadcastState('LIVE');const receiver=teamEntities(team)[second?1:0];state.possession=team;state.carrier=null;state.kickoffReceiver=receiver;state.zone=.12;state.passesSinceShot=0;state.lastPasser=null;state.camera.tx=.5;state.camera.ty=.5;state.camera.tz=1.015;audio.ensure();try{if(audio.prematch){audio.prematch.pause();audio.prematch.currentTime=0}if(audio.crowd)audio.crowd.volume=state.crowdBase}catch(_){}audio.play(audio.whistle,.62);audio.startMatchMusic();audio.crowdHit(.16);showBanner(second?'SECOND HALF · PLAY!':'QUILL ON!','',1.8);say(formatLine('kickoff'),commentaryOpts('kickoff'));
+    state.phase=second?'second':'first';state.half=second?2:1;const skipBroadcast=$('wcgSkipBroadcast');if(skipBroadcast)skipBroadcast.hidden=true;if(!state.matchFlow)initMatchFlowDirector();setFlowPhase(FLOW_PHASES.RESTART,'kickoff');chooseFlowTemplate(false);setBroadcastState('LIVE');const receiver=teamEntities(team)[second?1:0];state.possession=team;state.carrier=null;state.kickoffReceiver=receiver;state.zone=.12;state.passesSinceShot=0;state.lastPasser=null;state.camera.tx=.5;state.camera.ty=.5;state.camera.tz=1.015;audio.ensure();try{
+      // The pre-match drums end the instant live play begins.
+      if(audio.prematch){audio.prematch.pause();audio.prematch.currentTime=0;audio.prematch.volume=0}
+      if(audio.crowd)audio.crowd.volume=state.crowdBase
+    }catch(_){}audio.play(audio.whistle,.62);audio.startMatchMusic();audio.crowdHit(.16);showBanner(second?'SECOND HALF · PLAY!':'QUILL ON!','',1.8);say(formatLine('kickoff'),commentaryOpts('kickoff'));
     for(const e of state.entities)setPlayerAnim(e,'ACCELERATING',.72,ANIM_PRIORITY.ACCELERATING,{kickoff:true});
     const refPoint=refStandingBallPoint();
     const from=second?{x:refPoint.x,y:refPoint.y}:{x:state.ball.x||.5,y:state.ball.y||.535};
@@ -2955,7 +3270,15 @@
   }
 
   function beginShootout(){
-    state.phase='shootout';state.shootout={score:{belros:0,zafran:0},attempts:{belros:0,zafran:0},turn:0,order:['belros','zafran'],round:0};state.special=null;state.delay={t:2.0,cb:shootoutNext};showBanner('PENALTY SHOOTOUT','var',2.4);say(`Four minutes thirty cannot separate them. No Golden Snitch here — ${teamMeta.belros.name} and ${teamMeta.zafran.name} will settle it from the penalty line.`);audio.ensure();audio.startMatchMusic();audio.play(audio.whistle,.6);
+    if(state.phase==='shootout'||state.phase==='fulltime')return;
+    const first=state.simRand()<.5?'belros':'zafran',second=other(first);
+    state.phase='shootout';
+    state.shootout={score:{belros:0,zafran:0},attempts:{belros:0,zafran:0},turn:0,order:[first,second],round:0};
+    state.special=null;state.delay={t:2.0,cb:shootoutNext};
+    setBroadcastState('PENALTY_SHOOTOUT');
+    showBanner('PENALTY SHOOTOUT','var',2.4);
+    say(`Four minutes thirty cannot separate them. ${teamMeta[first].name} won the toss and will take the first penalty.`);
+    audio.ensure();audio.startMatchMusic();audio.play(audio.whistle,.6);
   }
   function shootoutNext(){
     const so=state.shootout;if(!so)return;const team=so.order[so.turn%2];const attemptsA=so.attempts.belros,attemptsB=so.attempts.zafran;
@@ -2991,10 +3314,12 @@
     </article>`;
   }
   function populateFulltimePanel(data){
-    const {draw,winner,mvp}=data;
+    const {draw,winner,mvp,fromShootout,so}=data;
     $('wcgFullTitle').textContent=draw?'MATCH DRAWN':`${teamMeta[winner].name} WIN`;
-    $('wcgFullSubtitle').textContent=`FULL TIME · ${fixtureVenue()}`;
-    $('wcgFullScore').textContent=`${teamMeta.belros.name} ${state.score.belros}–${state.score.zafran} ${teamMeta.zafran.name}`;
+    $('wcgFullSubtitle').textContent=fromShootout?'DECIDED BY PENALTY SHOOTOUT':`FULL TIME · ${fixtureVenue()}`;
+    $('wcgFullScore').textContent=fromShootout&&so
+      ?`${teamMeta.belros.name} ${state.score.belros}–${state.score.zafran} ${teamMeta.zafran.name} · PENS ${so.score.belros}–${so.score.zafran}`
+      :`${teamMeta.belros.name} ${state.score.belros}–${state.score.zafran} ${teamMeta.zafran.name}`;
 
     const a=state.teamStats.belros,b=state.teamStats.zafran;
     const possTotal=Math.max(.001,a.possession+b.possession),pa=Math.round(a.possession/possTotal*100),pb=100-pa;
@@ -3042,11 +3367,18 @@
 
   function finishMatch(fromShootout=false){
     if(state.phase==='fulltime')return;
+    const so=state.shootout;
+    const regulationDraw=state.score.belros===state.score.zafran;
+    const winner=fromShootout&&so
+      ?(so.score.belros>so.score.zafran?'belros':'zafran')
+      :(regulationDraw?null:(state.score.belros>state.score.zafran?'belros':'zafran'));
+    const draw=!fromShootout&&regulationDraw;
     state.phase='fulltime';state.chanceBuild=null;state.special=null;state.delay=null;state.ball.flight=null;state.carrier=null;state.ball.visible=false;state.fulltimeElapsed=0;
-    setBroadcastState('FULL_TIME');setBroadcastSequence('fullTimeWhistle',{frozen:true});audio.ensure();audio.pauseMatchMusic();audio.play(audio.whistle,.65);barryReaction('FULLTIME',9,1800);say(formatLine('fulltime'),commentaryOpts('fulltime'));showBanner('FULL TIME','',2.4);
-    const draw=state.score.belros===state.score.zafran;
-    const winner=draw?null:(state.score.belros>state.score.zafran?'belros':'zafran');
-    const mvp=playerOfPeriod(null);state.fulltimeData={fromShootout:false,draw,winner,so:null,mvp};void resolvePredictionReward().finally(()=>populateFulltimePanel(state.fulltimeData));
+    setBroadcastState('FULL_TIME');setBroadcastSequence('fullTimeWhistle',{frozen:true});audio.ensure();audio.pauseMatchMusic();audio.play(audio.whistle,.65);barryReaction('FULLTIME',9,1800);
+    if(fromShootout&&so)say(`${teamMeta[winner].name} win the penalty shootout ${so.score.belros}-${so.score.zafran}.`,{priority:10,intensity:'excited',force:true,kind:'fulltime'});
+    else say(formatLine('fulltime'),commentaryOpts('fulltime'));
+    showBanner(fromShootout?'SHOOTOUT COMPLETE':'FULL TIME','',2.4);
+    const mvp=playerOfPeriod(null);state.fulltimeData={fromShootout,draw,winner,so:fromShootout?so:null,mvp};if(state.headless)populateFulltimePanel(state.fulltimeData);else void resolvePredictionReward().finally(()=>populateFulltimePanel(state.fulltimeData));
     if(draw){
       for(const e of state.entities){e.tx=safeX(e.team==='belros'?.38:.62);e.ty=safeY(.40+teamEntities(e.team).indexOf(e)*.11);setPlayerAnim(e,'FULLTIME',2.4,ANIM_PRIORITY.FULLTIME,{draw:true})}
     }else{
@@ -3073,7 +3405,7 @@
   }
 
   function updateIntro(dt){tickBroadcastSequence(dt);
-    const a=audio.prematch;state.introElapsed=clamp(state.introElapsed+dt,0,INTRO_SECONDS);void refreshPredictionCounts(false);
+    const a=audio.prematch;state.introElapsed=clamp(state.introElapsed+dt,0,INTRO_SECONDS);if(!state.headless)void refreshPredictionCounts(false);
     const cue=Math.floor(state.introElapsed/6);if(cue!==state.introCue&&cue<5){state.introCue=cue;say(commentary.intro[Math.min(cue,commentary.intro.length-1)]);if(cue===1){state.camera.tx=.46;state.camera.tz=1.035}else if(cue===2){state.camera.tx=.54;state.camera.tz=1.035}else if(cue===3){state.camera.tx=.5;state.camera.ty=.56;state.camera.tz=1.045}else{state.camera.tx=.5;state.camera.ty=.5;state.camera.tz=1.005}}
     updatePrematchPresentation();updateKickoffToss(dt);if(state.introElapsed>=INTRO_SECONDS-.02)completePrematch();
   }
@@ -3087,7 +3419,7 @@
     if(flight?.meta?.kind==='pass')d.phase='ATTACK';
     else if(state.special?.type==='penalty')d.phase='SET PIECE';
     else if(state.celebration)d.phase='RESET';
-    else if(performance.now()-(state.possessionChangedAt||0)<1800)d.phase='COUNTERATTACK';
+    else if(simNow()-(state.possessionChangedAt||0)<1800)d.phase='COUNTERATTACK';
     else if(state.possession&&state.teamTactics?.[other(state.possession)]?.state==='PRESSING'&&zone<.66)d.phase='DEFENSIVE PRESSURE';
     else if(zone>.66)d.phase='GOAL CHANCE';
     else if(zone>.42)d.phase='ATTACK';
@@ -3459,7 +3791,7 @@
     if(Math.abs(e.vx)>.018){const candidate=e.vx>=0?1:-1;if(candidate!==(e.facing||candidate)){if(e.faceCandidate===candidate)e.faceCandidateTime=(e.faceCandidateTime||0)+dt;else{e.faceCandidate=candidate;e.faceCandidateTime=0}}else e.faceCandidateTime=0;if((e.faceCandidateTime||0)>.085){e.facing=candidate;e.dir=-candidate;e.faceCandidateTime=0}}else e.faceCandidateTime=Math.max(0,(e.faceCandidateTime||0)-dt*2);
     const desiredHeading=Math.atan2(dvy,dvx),currentHeading=Math.atan2(e.vy||0.001,e.vx||0.001),headingError=normaliseAngle(desiredHeading-currentHeading);e.smoothedTurn=lerp(e.smoothedTurn||0,headingError,1-Math.exp(-dt*2.6));e.bank=lerp(e.bank,clamp((e.smoothedTurn||0)*.07,-.055,.055),1-Math.exp(-dt*2.8));if(e.celebrate>0)e.celebrate=Math.max(0,e.celebrate-dt);
     updateReactionExpiry(e);
-    if(live&&!state.ball.flight&&!state.delay&&(e.animUntil||0)<=performance.now()){
+    if(live&&!state.ball.flight&&!state.delay&&(e.animUntil||0)<=simNow()){
       e.microReactionClock=(e.microReactionClock||4)-dt;
       if(e.microReactionClock<=0){
         const pp=getPlayerPersonality(e),idleRate=pp.idleStyle==='restless'?0.40:pp.idleStyle==='playful'?0.36:pp.idleStyle==='alert'?0.33:0.24;
@@ -3487,8 +3819,15 @@
     breakGeneralPackGrouping(dt,true);
     for(const e of state.entities)steerEntity(e,dt);
     const target=state.ball.flight?state.ball:(state.carrier||{x:.5,y:.5});
-    const refSide=state.possession==='belros'?.055:state.possession==='zafran'?-.055:0;
-    if((state.ref.reactionUntil||0)<=performance.now()){state.ref.reactionState='playing';state.ref.tx=safeX(target.x-refSide);state.ref.ty=safeY(target.y+.075)}
+    // William observes from a clear trailing diagonal rather than joining the
+    // player pack. The offsets mirror perfectly with possession direction.
+    const refBehind=state.possession==='belros'?.115:state.possession==='zafran'?-.115:0;
+    const refVertical=target.y<.50?.115:-.115;
+    if((state.ref.reactionUntil||0)<=simNow()){
+      state.ref.reactionState='playing';
+      state.ref.tx=safeX(target.x-refBehind);
+      state.ref.ty=safeY(target.y+refVertical);
+    }
     else if(state.ref.reactionMeta?.faceX!=null)state.ref.dir=state.ref.reactionMeta.faceX>=state.ref.x?1:-1;
     const r=state.ref;enforceInteriorIntent(r,dt);const dx=r.tx-r.x,dy=r.ty-r.y,dist=Math.hypot(dx,dy),ds=Math.min(r.maxSpeed,dist*1.55+.02);let rvx=dist?dx/dist*ds:0,rvy=dist?dy/dist*ds:0;[rvx,rvy]=applyBoundarySteering(r,rvx,rvy);const k=1-Math.exp(-dt*4.2);
     r.vx=lerp(r.vx,rvx,k);r.vy=lerp(r.vy,rvy,k);let rx=r.x+r.vx*dt,ry=r.y+r.vy*dt;
@@ -3589,9 +3928,11 @@
   }
 
   function drawTournamentEnvironment(ctx){
-    const t=performance.now()/1000,flags=[['belros',.155,.265],['belros',.205,.295],['zafran',.795,.265],['zafran',.845,.295]];ctx.save();ctx.imageSmoothingEnabled=false;
-    for(let i=0;i<flags.length;i++){const [team,x,y]=flags[i],img=team==='belros'?state.assets.flagBelros:state.assets.flagZafran;if(!img)continue;const wave=1+Math.sin(t*1.35+i*.9)*.035,w=42,h=Math.max(16,Math.round(42*(img.height/Math.max(1,img.width))));ctx.globalAlpha=.26;ctx.save();ctx.translate(Math.round(x*W),Math.round(y*H));ctx.scale(wave,1);ctx.drawImage(img,-w/2,-h/2,w,h);ctx.restore()}
-    ctx.restore();
+    // V2 is not a World Cup broadcast. Do not draw team-flag image objects onto
+    // the field. In V2 those assets are Repo Sports logos, which could read as
+    // logos being thrown around during goal camera shake/celebrations.
+    // Goal celebration debris is procedural flowers, confetti and scarves only.
+    return;
   }
   function drawReplayScene(ctx,frame){
     if(!frame)return;drawTournamentEnvironment(ctx);
@@ -3656,35 +3997,195 @@
       const palette=celebrationPalette(c.team);ctx.save();ctx.globalCompositeOperation='screen';
       for(const fw of (Array.isArray(c.fireworks)?c.fireworks:[])){const t=clamp(fw.age/fw.life,0,1),alpha=Math.sin(Math.PI*t)*.94,r=10+t*72;ctx.globalAlpha=alpha;for(let i=0;i<24;i++){const a=fw.seed+i*Math.PI*2/24,rr=r*(.72+(i%4)*.085),x=fw.x*W,y=fw.y*H;ctx.strokeStyle=palette[i%palette.length];ctx.lineWidth=i%4===0?2:1.2;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*rr*.30,y+Math.sin(a)*rr*.30);ctx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);ctx.stroke();ctx.fillStyle=palette[(i+1)%palette.length];ctx.fillRect(Math.round(x+Math.cos(a)*rr)-1,Math.round(y+Math.sin(a)*rr)-1,3,3)}}ctx.restore();
     }else{
-      const flag=c.team==='belros'?state.assets.flagBelros:state.assets.flagZafran;if(!flag)return;ctx.save();ctx.imageSmoothingEnabled=false;
-      for(const f of (Array.isArray(c.flags)?c.flags:[])){const fade=f.age>f.life-1?clamp(f.life-f.age,0,1):1;ctx.globalAlpha=.92*fade;ctx.save();ctx.translate(Math.round(f.x*W),Math.round(f.y*H));ctx.rotate(f.rot);const w=f.landed?27:24,h=Math.max(12,Math.round(w*(flag.height/Math.max(1,flag.width))));ctx.drawImage(flag,Math.round(-w/2),Math.round(-h/2),w,h);ctx.restore()}ctx.restore();
+      ctx.save();
+      ctx.imageSmoothingEnabled=false;
+      for(const f of (Array.isArray(c.tosses)?c.tosses:[])){
+        const life=Math.max(.1,f.life||4),endFade=clamp((life-(f.age||0))/.65,0,1);
+        const floorFade=f.onFloor?clamp(1-(f.floorAge||0)/1.35,0,1):1;
+        ctx.globalAlpha=.90*endFade*floorFade;
+        ctx.save();
+        ctx.translate(Math.round(f.x*W),Math.round(f.y*H));
+        ctx.rotate(f.rot||0);
+        ctx.fillStyle=f.colour||'#f5d982';
+        ctx.strokeStyle=f.colour||'#f5d982';
+
+        const s=Math.max(2.2,5.2*(f.size||1));
+        if(f.type==='petal'){
+          // Small flower/petal cluster: four soft petals and a warm centre.
+          for(let i=0;i<4;i++){
+            ctx.save();ctx.rotate(i*Math.PI/2);
+            ctx.beginPath();ctx.ellipse(0,-s*.42,s*.26,s*.48,0,0,Math.PI*2);ctx.fill();
+            ctx.restore();
+          }
+          ctx.fillStyle='#f6d46e';
+          ctx.beginPath();ctx.arc(0,0,Math.max(1,s*.18),0,Math.PI*2);ctx.fill();
+        }else if(f.type==='scarf'){
+          // A lightweight fabric ribbon that visibly bends/flutter as it falls.
+          const wave=Math.sin((f.age||0)*6+(f.phase||0))*s*.28;
+          ctx.lineWidth=Math.max(2,s*.34);
+          ctx.lineCap='round';
+          ctx.beginPath();
+          ctx.moveTo(-s*1.15,0);
+          ctx.quadraticCurveTo(-s*.25,wave,s*1.12,0);
+          ctx.stroke();
+          ctx.lineWidth=Math.max(1,s*.12);
+          ctx.beginPath();ctx.moveTo(-s*1.20,-s*.16);ctx.lineTo(-s*1.43,-s*.36);ctx.moveTo(-s*1.20,s*.16);ctx.lineTo(-s*1.43,s*.36);ctx.stroke();
+        }else{
+          // Confetti has a thin rectangular paper profile and keeps rotating.
+          ctx.fillRect(Math.round(-s*.48),Math.round(-s*.20),Math.max(2,Math.round(s*.96)),Math.max(2,Math.round(s*.40)));
+        }
+        ctx.restore();
+      }
+      ctx.restore();
     }
   }
 
+  const SCORER_BROOM_TRAILS={
+    besquelcher:{kind:'wisp',primary:'#9b63ff',secondary:'#e1c7ff'},
+    jenny:{kind:'sparkle',primary:'#ff8fbd',secondary:'#ffe0a8'},
+    nimbler2000:{kind:'ember',primary:'#ff6a2c',secondary:'#ffd66d'},
+    pipsqueak:{kind:'frost',primary:'#57d8ff',secondary:'#eefcff'},
+    rocky:{kind:'dust',primary:'#cfd5dc',secondary:'#d7a25c'},
+    soup:{kind:'mote',primary:'#79db7d',secondary:'#e8ef9a'}
+  };
+
+  function drawScorerBroomTrail(ctx,c,lead=0){
+    const scorer=c?.scorer;if(!scorer)return;
+    const style=SCORER_BROOM_TRAILS[scorer.player?.id];if(!style)return;
+
+    const e=visualEntity(scorer,lead);
+    const t=(Number(c.elapsed)||0)+lead;
+    const remaining=Math.max(0,(Number(c.duration)||0)-t);
+    const fade=clamp(Math.min(t/.28,remaining/.42),0,1);
+    if(fade<=.01)return;
+
+    const vx=Number(e.vx)||0;
+    const motionDir=Math.abs(vx)>.003?Math.sign(vx):(Number(e.facing)||1);
+    const originX=(e.x-motionDir*.022)*W;
+    const originY=groundedY(-.052)*H;
+    const motion=clamp(Math.abs(vx)*18,.32,1);
+    const length=26+motion*20;
+
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.lineCap='round';
+
+    for(let i=0;i<6;i++){
+      const q=i/5;
+      const phase=t*(style.kind==='ember'?11:style.kind==='frost'?8.5:7.2)+i*1.47;
+      const x=originX-motionDir*(6+q*length);
+      const y=originY+Math.sin(phase)*(2.2+q*2.7)-q*1.4;
+      const alpha=fade*(1-q)*.34;
+      const size=1.1+(1-q)*1.8;
+
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle=i%2?style.secondary:style.primary;
+      ctx.strokeStyle=ctx.fillStyle;
+
+      if(style.kind==='ember'){
+        ctx.fillRect(Math.round(x-size),Math.round(y-size*.55),Math.max(2,Math.round(size*2)),Math.max(2,Math.round(size*1.1)));
+        if(i<3){ctx.globalAlpha=alpha*.55;ctx.fillStyle=style.secondary;ctx.fillRect(Math.round(x-motionDir*3),Math.round(y-3),2,2)}
+      }else if(style.kind==='frost'){
+        ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(x-size*1.6,y);ctx.lineTo(x+size*1.6,y);ctx.moveTo(x,y-size*1.6);ctx.lineTo(x,y+size*1.6);ctx.stroke();
+      }else if(style.kind==='sparkle'){
+        ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(x-size*1.8,y);ctx.lineTo(x+size*1.8,y);ctx.moveTo(x,y-size*1.8);ctx.lineTo(x,y+size*1.8);ctx.stroke();
+        ctx.fillRect(Math.round(x-1),Math.round(y-1),2,2);
+      }else if(style.kind==='wisp'){
+        ctx.lineWidth=Math.max(1,2.2*(1-q));
+        ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x-motionDir*5,y+Math.sin(phase+.8)*4,x-motionDir*10,y+Math.sin(phase+1.3)*2);ctx.stroke();
+      }else if(style.kind==='dust'){
+        ctx.fillRect(Math.round(x-size*.7),Math.round(y-size*.7),Math.max(2,Math.round(size*1.4)),Math.max(2,Math.round(size*1.4)));
+      }else{
+        ctx.beginPath();ctx.arc(x,y,size*.75,0,Math.PI*2);ctx.fill();
+      }
+    }
+
+    ctx.globalAlpha=fade*.34;
+    ctx.fillStyle=style.secondary;
+    ctx.fillRect(Math.round(originX-1),Math.round(originY-1),3,3);
+    ctx.restore();
+  }
+
+  function visualLeadSeconds(){
+    if(state.headless||state.fastForwarding)return 0;
+    return clamp(Number(state.renderLead)||0,0,FIXED_SIM_DT);
+  }
+  function visualEntity(e,lead=visualLeadSeconds()){
+    if(!e||lead<=.0001)return e;
+    const vx=Number(e.vx)||0,vy=Number(e.vy)||0;
+    if(Math.abs(vx)<.00001&&Math.abs(vy)<.00001)return e;
+    return{
+      ...e,
+      x:safeX(e.x+vx*lead),
+      y:safeY(e.y+vy*lead),
+      animElapsed:(Number(e.animElapsed)||0)+lead
+    };
+  }
+  function visualBall(lead=visualLeadSeconds()){
+    const b=state.ball;if(!b||lead<=.0001||state.carrier)return b;
+    return{...b,x:safeX(b.x+(Number(b.vx)||0)*lead),y:safeY(b.y+(Number(b.vy)||0)*lead)};
+  }
+  function visualCamera(lead=visualLeadSeconds()){
+    const c=state.camera;if(!c||lead<=.0001)return c;
+    const zoom=clamp(c.zoom+(Number(c.vz)||0)*lead,.985,1.095);
+    const bounds=cameraBoundsForZoom(Math.max(1,zoom));
+    return{
+      ...c,
+      x:clamp(c.x+(Number(c.vx)||0)*lead,bounds.x0,bounds.x1),
+      y:clamp(c.y+(Number(c.vy)||0)*lead,bounds.y0,bounds.y1),
+      zoom
+    };
+  }
+
   function render(){
-    const canvas=$('wcgCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');if(!ctx||!state.assets.arena)return;ctx.clearRect(0,0,W,H);ctx.save();const replayFrame=currentReplayFrame(),gc=state.celebration,shakeAmp=!replayFrame&&gc?(gc.grounded?4.8:2.6):0,shakeX=gc&&!replayFrame?(Math.sin(gc.elapsed*31)*shakeAmp+Math.sin(gc.elapsed*53)*shakeAmp*.34):0,shakeY=gc&&!replayFrame?(Math.cos(gc.elapsed*37)*shakeAmp*.55+Math.sin(gc.elapsed*67)*shakeAmp*.22):0,rc=replayFrame?.camera||state.camera,replayZoom=replayFrame?clamp((replayFrame.camera?.zoom||1.03)+.035,1.035,1.105):rc.zoom,renderZoom=Math.round(replayZoom*200)/200,camX=Math.round((replayFrame?lerp(replayFrame.camera?.x||.5,replayFrame.ball?.x||.5,.18):rc.x)*W),camY=Math.round((replayFrame?lerp(replayFrame.camera?.y||.5,replayFrame.ball?.y||.5,.12):rc.y)*H);ctx.translate(Math.round(W/2+shakeX),Math.round(H/2+shakeY));ctx.scale(renderZoom,renderZoom);ctx.translate(-camX,-camY);ctx.imageSmoothingEnabled=false;ctx.drawImage(state.assets.arena,0,0,W,H);drawArenaAmbience(ctx,'back');if(replayFrame){drawReplayScene(ctx,replayFrame);ctx.restore();return}drawTournamentEnvironment(ctx);drawGoalCelebrationEffects(ctx,'back');
+    const canvas=$('wcgCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');if(!ctx||!state.assets.arena)return;ctx.clearRect(0,0,W,H);ctx.save();const replayFrame=currentReplayFrame(),lead=visualLeadSeconds(),gc=state.celebration,shakeAmp=!replayFrame&&gc?(gc.grounded?4.8:2.6):0,shakeX=gc&&!replayFrame?(Math.sin((gc.elapsed+lead)*31)*shakeAmp+Math.sin((gc.elapsed+lead)*53)*shakeAmp*.34):0,shakeY=gc&&!replayFrame?(Math.cos((gc.elapsed+lead)*37)*shakeAmp*.55+Math.sin((gc.elapsed+lead)*67)*shakeAmp*.22):0,rc=replayFrame?.camera||visualCamera(lead),replayZoom=replayFrame?clamp((replayFrame.camera?.zoom||1.03)+.035,1.035,1.105):rc.zoom,renderZoom=Math.round(replayZoom*200)/200,replayBounds=replayFrame?cameraBoundsForZoom(renderZoom):null,rawCamX=replayFrame?lerp(replayFrame.camera?.x||.5,replayFrame.ball?.x||.5,.18):rc.x,rawCamY=replayFrame?lerp(replayFrame.camera?.y||.5,replayFrame.ball?.y||.5,.12):rc.y,viewCamX=replayFrame?clamp(rawCamX,replayBounds.x0+.0015,replayBounds.x1-.0015):rawCamX,viewCamY=replayFrame?clamp(rawCamY,replayBounds.y0+.0015,replayBounds.y1-.0015):rawCamY,camX=Math.round(viewCamX*W),camY=Math.round(viewCamY*H);ctx.translate(Math.round(W/2+shakeX),Math.round(H/2+shakeY));ctx.scale(renderZoom,renderZoom);ctx.translate(-camX,-camY);ctx.imageSmoothingEnabled=false;ctx.drawImage(state.assets.arena,0,0,W,H);drawArenaAmbience(ctx,'back');if(replayFrame){drawReplayScene(ctx,replayFrame);ctx.restore();return}drawTournamentEnvironment(ctx);drawGoalCelebrationEffects(ctx,'back');
     const prematchMounted=state.phase==='intro'&&!!state.kickoffMount;
     const standing=(state.phase==='intro'&&!prematchMounted)||state.phase==='secondcountdown'||(state.phase==='halftime'&&state.halftimeElapsed>2.15);
     if(state.celebration){
-      const c=state.celebration;for(const e of state.entities){const onGround=c.grounded&&e.team===c.team;const ce=onGround?{...e,dir:standingRenderDir(e)}:e;drawSprite(ctx,state.assets[e.player.id+(onGround?'Standing':'Riding')],ce,playerSpriteHeight(e,onGround),onGround)}
-      const rr={...state.ref,player:{name:REFEREE_LABEL}};drawSprite(ctx,state.assets.refFlying,rr,REF_FLY_HEIGHT,false);drawGoalCelebrationEffects(ctx,'front');
+      const c=state.celebration;
+      // Subtle scorer-only themed broom trail, behind the standing sprites.
+      drawScorerBroomTrail(ctx,c,lead);
+      for(const e of state.entities){
+        const ve=visualEntity(e,lead);
+        const celebratingOnFloor=e.team===c.team;
+        // Use the SAME arena floor anchoring system as the normal grounded
+        // presentation. We preserve horizontal choreography, but deliberately
+        // clamp the visual Y to logical ground so feet are planted on every map.
+        const ce=celebratingOnFloor
+          ?{...ve,y:groundedY(0),dir:standingRenderDir(e)}
+          :ve;
+        drawSprite(
+          ctx,
+          state.assets[e.player.id+(celebratingOnFloor?'Standing':'Riding')],
+          ce,
+          playerSpriteHeight(e,celebratingOnFloor),
+          celebratingOnFloor
+        );
+      }
+      const rr={...visualEntity(state.ref,lead),player:{name:REFEREE_LABEL}};drawSprite(ctx,state.assets.refFlying,rr,REF_FLY_HEIGHT,false);drawGoalCelebrationEffects(ctx,'front');
     }else if(prematchMounted){
-      for(const e of state.entities)drawSprite(ctx,state.assets[e.player.id+'Riding'],e,playerSpriteHeight(e,false),false);
-      const rr={...state.ref,player:{name:REFEREE_LABEL},dir:1};drawSprite(ctx,state.assets.refStanding,rr,REF_STAND_HEIGHT,true);
-      if(state.ball.visible)drawBall(ctx,state.ball.x,state.ball.y,!!state.kickoffToss);
+      for(const e of state.entities)drawSprite(ctx,state.assets[e.player.id+'Riding'],visualEntity(e,lead),playerSpriteHeight(e,false),false);
+      const rr={...visualEntity(state.ref,lead),player:{name:REFEREE_LABEL},dir:1};drawSprite(ctx,state.assets.refStanding,rr,REF_STAND_HEIGHT,true);
+      if(state.ball.visible){const vb=visualBall(lead);drawBall(ctx,vb.x,vb.y,!!state.kickoffToss)};
     }else if(standing){
       for(const e of state.entities){
         // Grounded broadcast sections use the supplied artwork's actual native
         // facing, then flip only when needed so both teams face into the pitch.
-        const groundedEntity={...e,dir:standingRenderDir(e)};
+        const groundedEntity={...visualEntity(e,lead),dir:standingRenderDir(e)};
         drawSprite(ctx,state.assets[e.player.id+'Standing'],groundedEntity,playerSpriteHeight(e,true),true);
       }
-      const rr={...state.ref,player:{name:REFEREE_LABEL},dir:1};drawSprite(ctx,state.assets.refStanding,rr,REF_STAND_HEIGHT,true);
-      if(state.ball.visible)drawBall(ctx,state.ball.x,state.ball.y,false);
+      const rr={...visualEntity(state.ref,lead),player:{name:REFEREE_LABEL},dir:1};drawSprite(ctx,state.assets.refStanding,rr,REF_STAND_HEIGHT,true);
+      if(state.ball.visible){const vb=visualBall(lead);drawBall(ctx,vb.x,vb.y,false)};
     }else{
-      for(const e of state.entities)drawSprite(ctx,state.assets[e.player.id+'Riding'],e,playerSpriteHeight(e,false),false);
-      const rr={...state.ref,player:{name:REFEREE_LABEL}};drawSprite(ctx,state.assets.refFlying,rr,REF_FLY_HEIGHT,false);
-      if(state.ball.visible&&state.assets.ball){const hold=state.carrier?ballHoldPoint(state.carrier):null;drawBall(ctx,hold?hold.x:state.ball.x,hold?hold.y:state.ball.y,!!state.ball.flight)}
+      for(const e of state.entities)drawSprite(ctx,state.assets[e.player.id+'Riding'],visualEntity(e,lead),playerSpriteHeight(e,false),false);
+      const rr={...visualEntity(state.ref,lead),player:{name:REFEREE_LABEL}};drawSprite(ctx,state.assets.refFlying,rr,REF_FLY_HEIGHT,false);
+      if(state.ball.visible&&state.assets.ball){
+        const vc=state.carrier?visualEntity(state.carrier,lead):null,vb=visualBall(lead);
+        const hold=vc?ballHoldPoint(vc):null;
+        drawBall(ctx,hold?hold.x:vb.x,hold?hold.y:vb.y,!!state.ball.flight);
+      }
     }
     drawArenaAmbience(ctx,'front');
     if(adminEnabled()&&new URLSearchParams(location.search).get('wcDebug')==='1'){
@@ -3700,38 +4201,64 @@
     ctx.restore();
   }
 
-  function update(ts){
+  function simulateFixedStep(dt){
     if(!state.open)return;
-    updateBarryTipPolling(ts);
-    updateV2WatchPartyPolling(ts);
-    updateV2CareerPolling(ts);
-    try {
-    const rawDt=state.lastTs?Math.min(.05,(ts-state.lastTs)/1000):0;state.lastTs=ts;const dt=rawDt*state.speed;
-    if(state.eventBannerTimer>0){state.eventBannerTimer-=dt;if(state.eventBannerTimer<=0)$('wcgEventBanner')?.classList.remove('is-visible')}
+    state.engineElapsed+=dt;state.simClockMs+=dt*1000;
+    const rawDt=dt,scaledDt=dt*state.speed;
+    if(state.eventBannerTimer>0){state.eventBannerTimer-=scaledDt;if(state.eventBannerTimer<=0)$('wcgEventBanner')?.classList.remove('is-visible')}
     if(state.celebration)updateGoalCelebration(rawDt);
-    if(state.crowdBoost>0)state.crowdBoost=Math.max(0,state.crowdBoost-rawDt*.16);audio.updateCrowdAccents(rawDt);updateStoryGraphics(rawDt);
-    if(state.replayIntro){updateReplayIntro(rawDt);updateCamera(rawDt);updateScoreUi();render();state.raf=requestAnimationFrame(update);return}
-    if(state.replay){updateReplay(rawDt);updateCamera(rawDt);updateScoreUi();render();state.raf=requestAnimationFrame(update);return}
-    if(state.replayOutro){updateReplayOutro(rawDt);updateCamera(rawDt);updateScoreUi();render();state.raf=requestAnimationFrame(update);return}
+    if(state.crowdBoost>0)state.crowdBoost=Math.max(0,state.crowdBoost-rawDt*.16);
+    audio.updateCrowdAccents(rawDt);updateStoryGraphics(rawDt);
+    if(state.replayIntro){updateReplayIntro(rawDt);updateCamera(rawDt);return}
+    if(state.replay){updateReplay(rawDt);updateCamera(rawDt);return}
+    if(state.replayOutro){updateReplayOutro(rawDt);updateCamera(rawDt);return}
     if(state.phase==='intro')updateIntro(rawDt);
     else if(state.phase==='first'||state.phase==='second'){
-      const liveDt=dt*LIVE_TEMPO;
-      if(!state.special&&!state.celebration){state.matchTime+=dt;if(state.possession&&state.teamStats[state.possession])state.teamStats[state.possession].possession+=dt;if(state.carrier?.player?.id&&state.playerStats[state.carrier.player.id])state.playerStats[state.carrier.player.id].possession+=dt}
-      if(state.phase==='first'&&state.matchTime>=MATCH_SECONDS){state.matchTime=MATCH_SECONDS;finishMatch(false)}
+      const liveDt=scaledDt*LIVE_TEMPO;
+      if(!state.special&&!state.celebration){state.matchTime+=scaledDt;if(state.possession&&state.teamStats[state.possession])state.teamStats[state.possession].possession+=scaledDt;if(state.carrier?.player?.id&&state.playerStats[state.carrier.player.id])state.playerStats[state.carrier.player.id].possession+=scaledDt}
+      if(state.phase==='first'&&state.matchTime>=MATCH_SECONDS){state.matchTime=MATCH_SECONDS;if(state.score.belros===state.score.zafran)beginShootout();else finishMatch(false)}
       if((state.phase==='first'||state.phase==='second')&&!state.celebration){updateMatchFlowDirector(liveDt);updateFlight(liveDt);updateDelay(liveDt);if(state.special?.type==='var')updateVar(liveDt);else if(state.special?.type==='penalty')updatePenalty(liveDt);if(!state.special&&!state.delay&&!state.ball.flight){state.actionTimer-=liveDt;if(state.actionTimer<=0)nextAction()}}
     }else if(state.phase==='halftime')updateHalftimePresentation(rawDt);
     else if(state.phase==='secondcountdown')updateSecondHalfCountdown(rawDt);
-    else if(state.phase==='shootout'){updateFlight(dt);updateDelay(dt);if(state.special?.type==='penalty')updatePenalty(dt)}
+    else if(state.phase==='shootout'){updateFlight(scaledDt);updateDelay(scaledDt);if(state.special?.type==='penalty')updatePenalty(scaledDt)}
     else if(state.phase==='fulltime')updateFulltimePresentation(rawDt);
-    const entityDt=(state.phase==='first'||state.phase==='second')&&!state.celebration?dt*LIVE_TEMPO:dt;
-    updateEntities(entityDt);syncHeldBallToCarrier();captureReplayFrame(rawDt);updateBroadcastDirector(rawDt);updateCamera(rawDt);updateScoreUi();render();
-    } catch(err) {
-      console.error('[Repo Sports Quidditch] recovered frame error',err);
-      state.lastTs=ts;
-      if(state.ball&&!state.carrier&&!state.ball.flight){state.ball.state='LOOSE'}
-    }
-    state.raf=requestAnimationFrame(update);
+    const entityDt=(state.phase==='first'||state.phase==='second')&&!state.celebration?scaledDt*LIVE_TEMPO:scaledDt;
+    updateEntities(entityDt);syncHeldBallToCarrier();captureReplayFrame(rawDt);updateBroadcastDirector(rawDt);updateCamera(rawDt);
   }
+
+  function catchUpTo(targetSeconds,maxSteps=36000){
+    targetSeconds=Math.max(0,Number(targetSeconds)||0);
+    let steps=0;const wasFast=state.fastForwarding,lag=Math.max(0,targetSeconds-state.engineElapsed);
+    state.fastForwarding=state.headless||lag>.35;
+    try{
+      while(state.open&&state.engineElapsed+FIXED_SIM_DT<=targetSeconds+1e-8&&steps<maxSteps){simulateFixedStep(FIXED_SIM_DT);steps++}
+    }finally{state.fastForwarding=wasFast}
+    return steps;
+  }
+
+  function update(ts){
+    if(!state.open)return;
+    if(!state.headless){updateBarryTipPolling(ts);updateV2WatchPartyPolling(ts);updateV2CareerPolling(ts)}
+    try{
+      let target;
+      if(state.syncMode)target=syncTargetElapsed();
+      else{
+        const raw=state.lastTs?Math.min(.10,(ts-state.lastTs)/1000):0;
+        target=state.engineElapsed+raw;
+      }
+      state.lastTs=ts;
+      catchUpTo(target,900);
+      // Presentation-only fractional motion between authoritative 30 Hz ticks.
+      // This value never feeds back into simulation/gameplay.
+      state.renderLead=clamp(target-state.engineElapsed,0,FIXED_SIM_DT);
+      if(!state.headless){updateScoreUi();render()}
+    }catch(err){
+      console.error('[Repo Sports Quidditch] recovered frame error',err);
+      state.lastTs=ts;if(state.ball&&!state.carrier&&!state.ball.flight)state.ball.state='LOOSE';
+    }
+    if(!state.headless)state.raf=requestAnimationFrame(update);
+  }
+
 
   async function joinMatchChannel(){state.channel=null;state.subscribed=false;}
   async function sendMatch(){return false;}
@@ -3742,7 +4269,7 @@
     const b=$('wcgSpeed');
     if(b)b.textContent=state.speed===1?'TEST SPEED ×4':'RETURN TO ×1';
   }
-  function toggleSpeed(){if(!adminEnabled())return;setSpeed(state.speed===1?4:1,false)}
+  function toggleSpeed(){if(state.syncMode||!adminEnabled())return;setSpeed(state.speed===1?4:1,false)}
 
   async function openBroadcast(opts={}){
     if(state.open){
@@ -3755,37 +4282,77 @@
     try{
       createUi();applyFixtureConfig(opts);refreshFixtureUi();await preload();
       state.open=true;state.opening=false;state.rotationQueued=false;
-      state.startedAt=Number(opts.startedAt)||Date.now();
-      state.seed=hashSeed(`${state.startedAt}|${activeFixture.id}|REPO_SPORTS_V2`);
-      state.simRand=mulberry32(state.seed);state.visualRand=mulberry32(state.seed^0x9e3779b9);
-      state.phase='intro';state.introElapsed=clamp((Date.now()-state.startedAt)/1000,0,INTRO_SECONDS-.08);
+      state.syncMode=!!opts.syncMode;state.headless=!!opts.headless;state.liveSerial=Math.max(0,Number(opts.liveSerial)||0);state.engineElapsed=0;state.simClockMs=0;state.renderLead=0;
+      state.syncAnchorElapsed=Math.max(0,Number(opts.targetElapsedMs)||0)/1000;state.syncAnchorPerf=performance.now();state.syncRunning=opts.running!==false;
+      state.startedAt=state.liveSerial||Number(opts.startedAt)||Date.now();
+      state.seed=hashSeed(`${state.liveSerial||state.startedAt}|${activeFixture.id}|REPO_SPORTS_V2_GLOBAL`);
+      state.simRand=mulberry32(state.seed);
+      state.visualRand=mulberry32(state.seed^0x9e3779b9);
+      state.audioRand=mulberry32(state.seed^0x85ebca6b);
+      // Barry/UI timing differs between browsers and must never advance simRand.
+      state.commentaryRand=mulberry32(state.seed^0xc2b2ae35);
+      state.phase='intro';state.introElapsed=0;
       state.matchTime=0;state.speed=1;state.half=1;state.firstKickoff='belros';state.score={belros:0,zafran:0};
       state.shootout=null;state.special=null;state.delay=null;state.celebration=null;state.reactionHistory={};state.reactionSerial=0;state.refReaction=null;state.varContext=null;state.actionTimer=2.5;
       state.ball={x:.5,y:.5,vx:0,vy:0,speed:0,direction:0,flight:null,visible:true,state:'HELD',owner:null,previousOwner:null,currentOwner:null,intendedReceiver:null,predictedDestination:null,lastTouchedBy:null};
-      state.pendingPass=null;state.possessionChangedAt=performance.now();state.loreUsed=new Set();state.introCue=-1;state.presentationKey='';state.broadcastState='PRE_MATCH';state.broadcastSequence={state:'fixtureIntro',elapsed:0,serial:1,frozen:true,skipped:false};
+      state.pendingPass=null;state.possessionChangedAt=simNow();state.loreUsed=new Set();state.introCue=-1;state.presentationKey='';state.broadcastState='PRE_MATCH';state.broadcastSequence={state:'fixtureIntro',elapsed:0,serial:1,frozen:true,skipped:false};
       state.halftimeElapsed=0;state.halftimeReady=false;state.halftimeWaitSlide=-1;state.secondCountdown=0;state.fulltimeElapsed=0;state.fulltimeData=null;state.events=[];state.kickoffToss=null;state.kickoffMount=null;state.kickoffReceiver=null;state.prematchAudioFailed=false;
-      state.prediction={pick:null,locked:false,resolved:false,correct:false,rewardPaid:false,rewardAttempted:false,rewardMessage:'',matchKey:String(opts.matchKey||`v2-${Date.now()}`),counts:{belros:0,zafran:0,total:0},lastPoll:0,polling:false};
+      state.prediction={pick:null,locked:false,resolved:false,correct:false,rewardPaid:false,rewardAttempted:false,rewardMessage:'',matchKey:String(opts.matchKey||`v2-live-${state.liveSerial||1}`),counts:{belros:0,zafran:0,total:0},lastPoll:0,polling:false};
       barryTipState.busy=false;barryTipState.tipped=false;barryTipState.matchId=null;barryTipState.lastRefresh=0;barryTipState.polling=false;renderBarryTipState('LOADING…');
       v2WatchPartyState.lastRefresh=0;v2WatchPartyState.polling=false;v2WatchPartyState.signature='';v2WatchPartyState.recentCards.clear();
+      if(!state.headless)startV2WatchXpHeartbeat();
       v2CareerState.lastRefresh=0;v2CareerState.polling=false;v2CareerState.signature='';v2CareerState.data=null;renderV2CareerBoard();
       state.replay=null;state.replayIntro=null;state.replayOutro=null;state.replayBuffer=[];state.replayCaptureAccum=0;state.lastReplayAt=-999;state.chanceBuild=null;initMatchFlowDirector();
       state.storyGraphicTimer=34;state.storyGraphicUntil=0;state.storyGraphicIndex=0;state.cameraDirector={shot:'MAIN',timer:3.5,lastShot:'',cutSerial:0};state.camera={x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'};
       state.lastTs=0;state.crowdBoost=0;state.movementPulse=.12;state.tacticalPulse=0;
       state.broadcast={lastSpokenAt:0,lastText:'',recent:[],recentSkeletons:[],queue:null,barryState:'NEUTRAL',barryPriority:0,barryUntil:0,barryTimer:0,talkTimer:0,phaseSeen:'',crowdLevel:.12,crowdTarget:.12,speaking:false,debugEvent:'IDLE',voiceName:'TEXT ONLY',variantCount:BARRY_COMMENTARY_VARIANTS};
       state.director={phase:'BUILD-UP',momentum:{belros:0,zafran:0},pressure:{belros:0,zafran:0},recent:[],pulse:0};
-      resetStats();createEntities();primeBarryVoice();
-      audio.currentMatchMusicIndex=audio.chooseMatchMusicStart();audio.start();audio.startPrematch(state.introElapsed);await joinMatchChannel();
+      resetStats();createEntities();if(!state.headless)primeBarryVoice();
+      if(!state.headless){audio.currentMatchMusicIndex=audio.chooseMatchMusicStart();audio.start()}await joinMatchChannel();
       const root=$('wcWorldCupBroadcast');root.classList.add('is-open');root.setAttribute('aria-hidden','false');$('wcgHalftime')?.classList.remove('is-open');$('wcgFulltime')?.classList.remove('is-open');hidePresentation();$('wcgVar')?.classList.remove('is-open','is-decision');
-      const admin=adminEnabled();if($('wcgSpeed'))$('wcgSpeed').hidden=!admin;if($('wcgSkipHalf'))$('wcgSkipHalf').hidden=true;if($('wcgAdminEvents'))$('wcgAdminEvents').hidden=!admin;if($('wcgAdminPanel'))$('wcgAdminPanel').hidden=true;
-      setSpeed(1,false);setBroadcastState('PRE_MATCH');say(commentary.intro[0]);showBanner('REPO SPORTS QUIDDITCH','',2.0);updatePrematchPresentation();updatePredictionUi();void refreshPredictionCounts(true);void refreshBarryTipState(true);void refreshV2WatchParty(true);void refreshV2CareerBoard(true);updateKickoffToss(0);updateScoreUi();render();state.raf=requestAnimationFrame(update);return true;
+      const admin=adminEnabled()&&!state.syncMode;if($('wcgSpeed'))$('wcgSpeed').hidden=!admin;if($('wcgSkipHalf'))$('wcgSkipHalf').hidden=true;if($('wcgAdminEvents'))$('wcgAdminEvents').hidden=!admin;if($('wcgAdminPanel'))$('wcgAdminPanel').hidden=true;
+      setSpeed(1,false);setBroadcastState('PRE_MATCH');if(!state.headless){say(commentary.intro[0]);showBanner('REPO SPORTS QUIDDITCH','',2.0);updatePrematchPresentation();updatePredictionUi();void refreshPredictionCounts(true);void refreshBarryTipState(true);void refreshV2WatchParty(true);void refreshV2CareerBoard(true)}updateKickoffToss(0);
+      catchUpTo(state.syncAnchorElapsed,36000);
+      // Start/seek the supplied drums AFTER deterministic catch-up. A viewer
+      // joining 12 seconds into prematch hears the track from ~12s, not from 0.
+      if(!state.headless&&state.phase==='intro')audio.startPrematch(state.introElapsed);
+      if(!state.headless){updateScoreUi();render();state.raf=requestAnimationFrame(update)}return true;
     }catch(error){
-      console.error('[REPO SPORTS V2] Match open failed',error);state.open=false;state.opening=false;try{cancelAnimationFrame(state.raf)}catch(_){}const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');try{audio.stop()}catch(_){}return false;
+      console.error('[REPO SPORTS V2] Match open failed',error);stopV2WatchXpHeartbeat();state.open=false;state.opening=false;try{cancelAnimationFrame(state.raf)}catch(_){}const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');try{audio.stop()}catch(_){}return false;
     }
   }
 
   async function closeBroadcast(broadcastClose=false){
-    if(!state.open)return;if(broadcastClose&&isHost())await sendMatch('close',{host:'CatAsthma'});state.open=false;cancelAnimationFrame(state.raf);state.phase='closed';setBroadcastState('CLOSED');hidePresentation();clearBarryTimers();cancelBarryAudio();audio.stop();await leaveMatchChannel();const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');restoreWorldCupMenuAudio();
+    if(!state.open)return;stopV2WatchXpHeartbeat();if(broadcastClose&&isHost())await sendMatch('close',{host:'CatAsthma'});state.open=false;cancelAnimationFrame(state.raf);state.phase='closed';setBroadcastState('CLOSED');hidePresentation();clearBarryTimers();cancelBarryAudio();audio.stop();await leaveMatchChannel();const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');restoreWorldCupMenuAudio();
   }
 
-  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,assetsKey:state.assetsKey||'',leaderboardWrites:false})};
+  async function syncLive(meta={}){
+    const serial=Math.max(0,Number(meta.match_serial)||0);if(!serial)return false;
+    if(state.open&&state.liveSerial&&serial!==state.liveSerial)return false;
+
+    const now=performance.now();
+    const serverElapsed=Math.max(0,Number(meta.active_elapsed_ms)||0)/1000;
+    const running=meta.running!==false;
+
+    state.syncMode=true;
+    state.liveSerial=serial;
+
+    // TEST 40 — server-authoritative live time.
+    //
+    // The previous version preserved a browser's locally projected clock with
+    // Math.max(projected,...). Once one tab got ahead it could therefore remain
+    // ahead forever. A fresh Supabase sample now ALWAYS becomes the anchor.
+    //
+    // We do not rewind already-simulated state in-place. If engineElapsed is a
+    // little ahead, catchUpTo simply pauses until this anchor catches it. Larger
+    // drift is handled by the wrapper's deterministic hard-resync.
+    state.syncAnchorElapsed=serverElapsed;
+    state.syncAnchorPerf=now;
+    state.syncRunning=running;
+
+    if(state.headless)catchUpTo(syncTargetElapsed(),36000);
+    return true;
+  }
+
+  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',leaderboardWrites:true})};
 })();

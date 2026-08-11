@@ -1,0 +1,51 @@
+REPO SPORTS V2 TEST 42
+
+1. SMOOTHER REPO SPORTS STING
+- Shine no longer animates CSS left across a large surface.
+- Uses GPU-friendly translate3d.
+- Removed blur from the moving shine.
+- Replaced animated giant box-shadows with opacity/scale radial glows.
+- Keeps the blue / white / red Repo Sports look.
+- Still lasts exactly with the supplied MP3.
+
+2. SOUND
+- Launch MP3 volume is now 0.40 (40% of Test 41).
+
+3. REPLAY CAMERA LOCK
+- Final blended replay camera position is now clamped to the arena bounds.
+- Camera can still track the replay naturally.
+- Arena image can no longer pan far enough to expose outside the pitch/TV area.
+
+4. SCORER BROOM EFFECT
+A small presentation-only trail appears behind the scorer during the goal
+celebration:
+- Besquelcher: violet spectral wisp
+- Jenny: rose/gold sparkle
+- Nimbler 2000: infernal ember
+- Pipsqueak: icy cyan frost
+- Rocky: silver/amber stone dust
+- Soup: soft green/gold motes
+
+It is intentionally subtle: six tiny procedural elements, no blur, no assets,
+no persistent particle system and no gameplay RNG.
+
+RETAINED
+- Test 40 exact shared synchronization
+- Test 41 grounded celebrations
+- deterministic 30 Hz gameplay
+- RAF/~60fps presentation
+- Test 38 heartbeat SQL
+- shootouts
+- 400 Agility XP/min
+- flowers/confetti/scarves
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+
+NO SQL OR ASSET CHANGES.
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Ctrl + Shift + R.

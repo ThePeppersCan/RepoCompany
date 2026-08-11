@@ -1,0 +1,28 @@
+REPO SPORTS V2 TEST 48 — SIDEBAR BALANCE / EXTRA BLACK SPACE FIX
+
+ISSUE
+After Test 47, the standings panel was correctly attached on the right side,
+but the overall broadcast composition still left too much unused black space
+on both sides and made the left/right outer boards feel too narrow.
+
+FIX
+This pass rebalances the whole outer V2 broadcast layout:
+
+- wider left ALL-TIME RECORDS column
+- wider right STANDINGS column
+- slightly broader TV allowance
+- slightly broader under-TV deck proportions
+- height-responsive layout also remains 3-column instead of collapsing the feel
+
+RESULT
+The full presentation uses more of the screen width, reduces the empty black
+gutters, and makes BOTH outer side boxes feel less squashed.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.css
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then hard refresh with Ctrl + Shift + R.

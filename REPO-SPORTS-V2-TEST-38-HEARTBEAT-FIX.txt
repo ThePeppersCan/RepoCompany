@@ -1,0 +1,40 @@
+REPO SPORTS V2 TEST 38 — HEARTBEAT SQL FIX
+
+You do NOT need to host the website for the global countdown to work.
+The screenshot proving Career Records, Watch Party and Agility XP are working
+also proves the local page can communicate with Supabase.
+
+ACTUAL BUG
+The Test 36/37 heartbeat PL/pgSQL returned a field named active_elapsed_ms and
+then used an unqualified active_elapsed_ms reference inside UPDATE statements.
+PostgreSQL can interpret that as an ambiguous PL/pgSQL variable/column reference,
+so the read RPC works while the advance RPC fails.
+
+RESULT
+- Fixture loads correctly
+- Broadcast shows PRE-MATCH -30
+- Database clock never advances
+- Countdown appears permanently frozen
+
+TEST 38
+Replaces ONLY:
+- advance_repo_sports_v2_background(text)
+- complete_repo_sports_v2_rotation(text,bigint,jsonb)
+
+All live-state table columns are now explicitly referenced through alias `l`,
+for example:
+  active_elapsed_ms = l.active_elapsed_ms + delta_ms
+
+NO WEBSITE FILES NEED REPLACING.
+NO MATCH STATE IS RESET.
+
+HOW TO APPLY
+1. Open Supabase SQL Editor.
+2. Run RUN-TEST-38-FIX-GLOBAL-HEARTBEAT.sql.
+3. Keep RepoCompany open.
+4. Within roughly 5 seconds the existing Test 37 page should acquire the host
+   lease and the -30 countdown should begin.
+5. Ctrl + Shift + R only if you want to force a clean visible reload.
+
+If the SQL Editor shows the final diagnostic SELECT, active_elapsed_ms should
+start increasing while any RepoCompany browser remains open.
