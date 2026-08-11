@@ -1,0 +1,17 @@
+REPO SPORTS WORLD CUP QUIDDITCH — V36.1 PRE-MATCH TIMING FIX
+
+Fixes:
+- Restored 30-second pre-match intro.
+- Broadcast graphics now use the full 30-second timeline.
+- Prematch anthem is synchronised to the same 30-second master clock.
+- Countdown no longer begins around 15 seconds.
+- Referee holds the Quaffle until the final kickoff sequence.
+- Referee toss only begins in the final ~1.45 seconds.
+- No repeated/stuck referee toss while waiting for the song to finish.
+- Anthem ends as live play begins.
+- Match clock / AI / RNG remain frozen until kickoff.
+- Existing V36 broadcast package preserved.
+- Existing replay, reaction, celebration and V35 flow systems preserved.
+- No group standings/table system added.
+
+Replace world-cup-quidditch-v1.js and world-cup-quidditch-v1.css in the web2 folder.

@@ -1,0 +1,26 @@
+REPO SPORTS WORLD CUP QUIDDITCH — V36
+
+Full Broadcast Presentation Package.
+
+Includes:
+- Repo Sports pre-match ident
+- Stadium establishing presentation
+- Match title and fixture/stage display
+- Starting six lineup presentation
+- Referee introduction
+- Ready-for-kickoff countdown
+- Skip Intro control
+- Full gameplay freeze during pre-match presentation
+- Concise halftime score/stat/standout package
+- Second-half broadcast restart
+- Full-time reactions and broadcast sequence
+- Final match statistics
+- Repo Sports Player of the Match
+- Result consequence presentation
+- Optional next-fixture teaser when fixture data supplies one
+- Central broadcast sequence state manager
+- Broadcast debug switch (disabled)
+- Existing replay/reaction/flow systems preserved
+- NO WORLD CUP GROUP TABLE / STANDINGS SCREEN
+
+Replace both JS and CSS in your web2 folder.

@@ -1,0 +1,14 @@
+REPO SPORTS WORLD CUP — V38.8
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+
+Fixes:
+- Corrected Drazhen standing orientation for Dopey Dom, Zippy and Drazzi.
+- Applies both to the on-pitch grounded intro and LINEUPS presentation.
+- Fixed top scorebar fixture refresh selector (.wcg-scorebar).
+- Top header now shows the selected fixture's real team names, flags and three players instead of always Belros vs Zafran.
+- No flying, movement, RNG, tackles, blocks, arenas or assets changed.
+
+JS syntax check passed.

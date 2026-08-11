@@ -1,0 +1,27 @@
+REPO SPORTS WORLD CUP — V38.2 ACTUAL MATCH START FIX
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+
+Root cause fixed:
+- V38.1's shipped index still contained the old handleStart/startMatch code.
+- It marked MATCH STARTED before awaiting the Quidditch gameplay opener.
+
+New sequence:
+START
+-> wait for RepoSportsWorldCupGameplay module
+-> await selected fixture gameplay open()
+-> verify #wcWorldCupBroadcast is visibly open
+-> only then mark lobby MATCH STARTED
+-> broadcast start to other lobby users
+
+Additional recovery:
+- Gameplay open is now transactional.
+- If initialization fails after beginning, state.open/state.opening are reset.
+- A failed match can be retried instead of becoming internally stuck as already open.
+- Failed launch keeps/re-enables CatAsthma's START control and reports the error in lobby chat.
+- JS cache version bumped to force the browser to load this repair.
+
+No assets, avatars, arenas, flags or sprites included.
+Drag both files over your existing web2 folder, then Ctrl + Shift + R.

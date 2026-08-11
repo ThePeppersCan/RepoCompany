@@ -1,0 +1,44 @@
+REPO SPORTS WORLD CUP — V38.7
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+
+FIXES
+
+1. PER-PLAYER STANDING FACING
+The supplied standing sprites are not consistently authored in the same direction,
+even inside a single national team.
+
+V38.7 replaces team-level facing metadata with per-player facing metadata for all
+48 World Cup players.
+
+This is now used for:
+- players standing behind the opening broadcast cards
+- STARTING SIX / LINEUPS images
+- other pre-match presentation player portraits
+- halftime/standing pitch sections
+- grounded goal celebrations
+
+The left/home team visually faces toward the centre/right.
+The right/away team visually faces toward the centre/left.
+
+Important mixed team correction:
+- Kordesh: Daska has the opposite native orientation to Brakka/Kovo.
+
+2. DRAZHEN vs ROVARN HESTHOLM GROUND
+The Drazhen-Rovarn fixture was missing Hestholm Fjord Arena's visual floorY value.
+That was why this fixture still had every grounded character floating high above
+the ice while Iskandar-Calvora used the same arena more correctly.
+
+Drazhen-Rovarn now uses the same Hestholm floor anchor as Iskandar-Calvora.
+
+UNCHANGED
+- Flying/riding orientation and flight movement
+- open-play Y bounds
+- tackles/interceptions
+- blocks/saves
+- match fairness/RNG
+- camera
+
+JS syntax check passed.

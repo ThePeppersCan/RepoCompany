@@ -1,0 +1,19 @@
+REPO SPORTS WORLD CUP — V38.4 ARENA GROUND ALIGNMENT
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+
+Changes:
+- Grounded Y is now fixture/arena-specific.
+- Crown of Vardesh Glacier keeps the original ground line.
+- Hestholm Fjord Arena, Warmvein, Treedesh Forest, Basalt Coast and Yrsa Varn use a lower ground line matching their artwork.
+- Pre-match standing lineups now stand on the visible arena floor.
+- Referee standing position follows the arena floor.
+- Grounded goal celebrations descend to the correct arena floor.
+- Celebration jumps remain relative to that floor.
+- Celebration flag/confetti landing follows the arena floor.
+- Halftime standing/recovery positions follow the arena floor.
+- Flying/open-play bounds, movement, tackles, blocks and camera behavior are unchanged.
+
+This is a baseline ground alignment for the new arenas. Individual arena/player sizing can be tuned fixture-by-fixture next.

@@ -1,0 +1,34 @@
+REPO SPORTS WORLD CUP — V38.9
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+- world-cup-quidditch-v1.css
+
+FLAGS
+- Scorebar flags now use the native 116:62 flag aspect ratio.
+- Removed the extra padded/gold wrapper around the already-framed flag art.
+- All team flags use contain/centred fitting without cropping or stretching.
+- Same clean fit rule applied to lineup, broadcast, halftime and story flags.
+
+GOAL CELEBRATIONS
+- All three scoring-team players now descend to the arena floor after a goal.
+- The scorer + chosen celebration partner retain the main celebration choreography.
+- The remaining teammate descends and joins the grounded celebration scene.
+- Rare full-team celebration behaviour is still distinct.
+- Grounded scene uses the existing per-arena/per-sprite floor anchoring.
+
+OPPOSITION RESET
+- The conceding team remains on broom/riding sprites.
+- They slowly fly back into the exact restart formation during the celebration.
+- Retreat is deliberately slower and readable (~2.25–3.35 seconds).
+- Their target positions now match restartAfterScore(), reducing post-replay snapping.
+
+UNCHANGED
+- Normal flying/open-play movement
+- tackle/interception logic
+- save/block logic
+- match RNG/fairness
+- replay system
+
+JS syntax check passed.

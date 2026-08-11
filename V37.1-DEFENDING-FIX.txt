@@ -1,0 +1,26 @@
+REPO SPORTS WORLD CUP QUIDDITCH — V37.1 DEFENDING / BLOCKING FIX
+
+Built directly on V37.
+
+Changes:
+- Added visible close-range carrier tackle / clean-steal contests.
+- Tackles require real proximity and closing; failed tackles visibly recover.
+- Increased pass-lane challenge frequency modestly.
+- Increased incidental physical pass deflections.
+- Slightly widened physically valid interception challenge radius.
+- Removed the protected attacking bubble around the hoops.
+- Keeper, primary presser and cover defender can now enter the hoop area.
+- Defenders can get goal-side of an attacker hovering above the hoops.
+- Ordinary shot save outcomes can be contested by the best-positioned defender,
+  not only the nominal defender/keeper.
+- Outfield/cover defender stops are explicitly shown as BLOCK.
+- Increased save/block share by converting some plain misses into defensive stops.
+- GOAL probability is unchanged by that adjustment; the extra blocks come from
+  the previous miss slice.
+- Blocks/parries can create loose-ball scrambles.
+- Same tackle/block rules apply to both teams.
+- V37 personality remains presentation-only.
+- V36.1 30-second anthem/kickoff timing retained.
+- Replay, celebration, broadcast and Match Flow systems retained.
+
+Replace both files in your web2 folder.

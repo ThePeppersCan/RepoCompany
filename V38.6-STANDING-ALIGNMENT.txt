@@ -1,0 +1,29 @@
+REPO SPORTS WORLD CUP — V38.6 PER-SPRITE GROUND + FACING FIX
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+
+Grounding:
+- Measured the real alpha/non-transparent lower edge of all 48 supplied standing PNGs.
+- Each player's visible character bottom now locks to the arena floor independently.
+- Fixes sprites with large hidden transparent padding underneath them.
+- Grounded vertical micro-bobbing/pose Y offsets are suppressed so feet remain planted.
+- Celebration jumps still work because their height comes from logical player Y.
+
+Facing:
+- Added native-facing metadata for each supplied team's standing artwork.
+- Home/left side always visually faces toward centre/right.
+- Away/right side always visually faces toward centre/left.
+- Corrects teams whose source PNGs were authored in the opposite direction.
+- Applies to pre-match, lineups, halftime and grounded celebrations.
+
+UNCHANGED:
+- Flying/open-play movement
+- riding sprite orientation/flight
+- tackles/interceptions
+- blocking/saves
+- match RNG/fairness
+- camera
+
+JS syntax check passed.

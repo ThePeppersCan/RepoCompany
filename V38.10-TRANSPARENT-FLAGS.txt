@@ -1,0 +1,23 @@
+REPO SPORTS WORLD CUP — V38.10 TRANSPARENT FLAG ASSETS
+
+Modified files:
+- index.html
+- world-cup-quidditch-v1.js
+- world-cup-quidditch-v1.css
+
+New assets:
+- assets/world-cup-flags-transparent/ (16 supplied transparent flags)
+
+Changes:
+- Switched World Cup flag references from the old framed flag assets to the
+  newly supplied transparent/tightly-cropped PNG assets.
+- Removed forced shared aspect ratio from scorebar flags.
+- Flags now preserve their own natural proportions.
+- Scorebar flags use a clean 58x34 available area with max-size containment.
+- Lineup flags, broadcast flags, halftime flags, story flags and key-player
+  flags each have context-appropriate max sizes.
+- Removed duplicate borders/padding/background frames around flag images.
+- Fixture/lobby flag helper now points to the new transparent asset folder.
+- No gameplay, celebration, movement, scoring or RNG changes in this patch.
+
+JS syntax check passed.

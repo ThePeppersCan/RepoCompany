@@ -1,0 +1,24 @@
+REPO SPORTS WORLD CUP — V38.11
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+- world-cup-quidditch-v1.css
+
+REFEREE CARD
+- William Whistleworth now uses an official-card-specific title size.
+- Full surname should fit without clipping.
+- Keeps the intended two-line WILLIAM / WHISTLEWORTH presentation.
+
+QUAFFLE CARRY
+- Held Quaffle is now re-attached to the carrier every frame.
+- Ball coordinates no longer remain at the old possession pickup point while
+  the player continues moving.
+- Hand attachment now uses the player's current visual facing, not merely the
+  team's attack direction.
+- New-team sprites use a tighter generic hand/upper-body carry offset.
+- Original bespoke Belros/Zafran offsets are preserved.
+- Ball state/owner remains synchronised while carried.
+- Passing, shooting, loose balls and in-flight Quaffle logic are unchanged.
+
+JS syntax check passed.
