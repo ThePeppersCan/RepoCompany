@@ -1564,13 +1564,13 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
   }
   function flowActionWeights(){
     const f=state.matchFlow||{},phase=f.currentPhase,quiet=(state.matchTime||0)<(f.quietUntil||0);
-    if(quiet)return {shot:.015,drive:.16,pass:.825};
-    if(phase===FLOW_PHASES.BUILDUP)return {shot:.02,drive:.18,pass:.80};
-    if(phase===FLOW_PHASES.CIRCULATION)return {shot:.02,drive:.12,pass:.86};
-    if(phase===FLOW_PHASES.PROBING)return {shot:.06,drive:.29,pass:.65};
-    if(phase===FLOW_PHASES.COUNTER)return {shot:.12,drive:.43,pass:.45};
-    if(phase===FLOW_PHASES.FINAL_THIRD)return {shot:.34,drive:.24,pass:.42};
-    return {shot:.15,drive:.30,pass:.55};
+    if(quiet)return {shot:.018,drive:.16,pass:.822};
+    if(phase===FLOW_PHASES.BUILDUP)return {shot:.024,drive:.18,pass:.796};
+    if(phase===FLOW_PHASES.CIRCULATION)return {shot:.027,drive:.12,pass:.853};
+    if(phase===FLOW_PHASES.PROBING)return {shot:.068,drive:.29,pass:.642};
+    if(phase===FLOW_PHASES.COUNTER)return {shot:.132,drive:.43,pass:.438};
+    if(phase===FLOW_PHASES.FINAL_THIRD)return {shot:.365,drive:.24,pass:.395};
+    return {shot:.162,drive:.30,pass:.538};
   }
 
   function performPass(){
@@ -1821,7 +1821,9 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
     const players=teamEntities(team),others=players.filter(e=>e!==scorer).sort((a,b)=>dist2(a,scorer)-dist2(b,scorer));
     const partner=others[0]||null,participants=fullTeam?[scorer,...others]:[scorer,partner].filter(Boolean);
     const aerialDuration=style.id==='huge-important'?1.9:1.25+visualRandom()*.45,descentDuration=.72,groundedAt=aerialDuration+descentDuration;
-    const duration=clamp(groundedAt+(fullTeam?1.35:1.0)+visualRandom()*.55,2.7,4.6),centerX=team==='belros'?.67:.33;
+    // V38.12: keep the grounded celebration on screen long enough to read before
+    // the logo/replay sting begins. Same timing rules for both teams.
+    const duration=clamp(groundedAt+(fullTeam?2.05:1.68)+visualRandom()*.55,3.55,5.45),centerX=team==='belros'?.67:.33;
     const order=participants.slice().sort((a,b)=>a.y-b.y).map(e=>e.player.id),starts={},targets={},otherStarts={},otherTargets={},paths={};
     participants.forEach((e,i)=>{
       starts[e.player.id]={x:e.x,y:e.y};
@@ -2005,7 +2007,7 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
     enterReaction(offender,'arguing','ARGUING',.85+visualRandom()*.65,{victim:victim.player.id,type:personalityReaction(offender,'foulOffender',['protest','turnOpponent','raiseArm']),faceX:victim.x},ANIM_PRIORITY.ARGUING);enterReaction(victim,'frustrated','FOUL_REACTION',.65+visualRandom()*.55,{fouled:true,type:personalityReaction(victim,'foulVictim',['wobble','recoverBalance','lookOpponent']),faceX:offender.x},ANIM_PRIORITY.FOUL_REACTION);
     state.ref.reactionState='arguing';state.ref.reactionUntil=performance.now()+1200;state.ref.reactionMeta={type:'warning',faceX:victim.x};
     for(const e of state.entities){if(e!==offender&&e!==victim&&dist2(e,victim)<.16)setPlayerAnim(e,'DECELERATING',.38,ANIM_PRIORITY.DECELERATING,{foul:true})}
-    const inDanger=state.zone>.62,possiblePenalty=inDanger&&state.simRand()<.58;
+    const inDanger=state.zone>.60,possiblePenalty=inDanger&&state.simRand()<.62;
     if(possiblePenalty && state.simRand()<.30){state.delay={t:1.2,cb:()=>startVar({kind:'foul',team:victim.team,offender,victim,possiblePenalty:true})};}
     else if(possiblePenalty){state.delay={t:1.1,cb:()=>startPenalty(victim.team,false)};}
     else {state.delay={t:1.2,cb:()=>{setPossession(victim.team,victim,clamp(state.zone-.04,.12,.9));scheduleNext(.75,1.4)}};}
@@ -2045,13 +2047,13 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
   function attemptCarrierTackle(defender,carrier){
     if(!defender||!carrier||defender.team===carrier.team||state.ball.flight||state.special||state.delay)return false;
     const gap=dist2(defender,carrier);
-    if(gap>.095)return false;
+    if(gap>.101)return false;
     // Symmetric physical tackle window. Personality and player identity are deliberately
     // excluded: only visible proximity/closing and shared RNG decide the contest.
     const rvx=(defender.vx||0)-(carrier.vx||0),rvy=(defender.vy||0)-(carrier.vy||0),dx=carrier.x-defender.x,dy=carrier.y-defender.y;
     const rel=Math.hypot(rvx,rvy),d=Math.max(.001,Math.hypot(dx,dy));
     const closing=rel>.001?clamp((rvx*dx+rvy*dy)/(rel*d),-1,1):0;
-    const attemptP=clamp(.24+(.095-gap)*3.1+Math.max(0,closing)*.14,.22,.58);
+    const attemptP=clamp(.265+(.101-gap)*3.15+Math.max(0,closing)*.145,.24,.61);
     if(state.simRand()>=attemptP)return false;
     defender.intent='tackle';defender.tx=safeX(lerp(defender.x,carrier.x,.82));defender.ty=safeY(lerp(defender.y,carrier.y,.82));
     setPlayerAnim(defender,'INTERCEPTING',.42,ANIM_PRIORITY.INTERCEPTING,{tackle:true,target:carrier.player.id});
@@ -2089,6 +2091,9 @@ belros:{name:'BELROS',abbr:'BEL',flag:'assets/world-cup-flags-transparent/belros
     let shotW=flow.shot,driveW=flow.drive,passW=flow.pass;
     if(state.zone<.54)shotW=.005;
     if(phase===FLOW_PHASES.FINAL_THIRD)shotW+=Math.min(.10,state.passesSinceShot*.025);
+    // Small anti-loop nudge: after several passes in genuine attacking territory,
+    // the carrier is a little more willing to actually try the hoops.
+    if(state.zone>=.58&&state.passesSinceShot>=3)shotW+=Math.min(.035,(state.passesSinceShot-2)*.008);
     if(contact<.07){passW+=.08;driveW=Math.max(.05,driveW-.03)}
     const total=shotW+driveW+passW,r=state.simRand()*total;
     if(state.matchFlow)state.matchFlow.actionIndex++;

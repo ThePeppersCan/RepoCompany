@@ -1091,7 +1091,7 @@
     else if(reward){
       const rows=[['Height GP',reward.height_gp],['Rooftop GP',reward.level_gp],['Difficulty GP',reward.difficulty_gp],['Collectables',reward.collectable_gp],['Risk routes',reward.risk_gp],['Momentum bonus',reward.momentum_gp],['Personal-best bonus',reward.personal_best_gp],['Milestone bonuses',reward.milestone_gp],['Agility XP',`${format(reward.agility_xp_gained)} XP`],['Total GP',reward.total_gp]];
       box.innerHTML=rows.map(([a,b],i)=>`<div class="rr-reward-row ${i===rows.length-1?'total':''}"><span>${a}</span><b>${typeof b==='number'?format(b):b}</b></div>`).join('');byId('rrSummaryStatus').textContent=reward.already_claimed?'Reward already claimed safely — no duplicate payout.':'Reward confirmed and saved to your account.';byId('rrSummaryStatus').className='rr-status rr-run-confirmed';
-    }else{box.innerHTML=`<div class="rr-reward-row total"><span>Reward status</span><b>${pending?'PENDING SAVE':'FAILED'}</b></div>`;byId('rrSummaryStatus').textContent=pending?'Your result is stored locally. Reopen Repo Rooftops and the same idempotent run will retry automatically; no duplicate payout can occur.':(error?.message||'Reward could not be saved.');byId('rrSummaryStatus').className=`rr-status ${pending?'rr-run-pending':'rr-run-failed'}`;}
+    }else{box.innerHTML=`<div class="rr-reward-row total"><span>Reward status</span><b>${pending?'PENDING SAVE':'FAILED'}</b></div>`;byId('rrSummaryStatus').textContent=pending?`Your result is stored locally and will retry safely. Server response: ${databaseErrorText(error)}. No duplicate payout can occur.`:(error?.message||'Reward could not be saved.');byId('rrSummaryStatus').className=`rr-status ${pending?'rr-run-pending':'rr-run-failed'}`;}
   }
 
   function pollGamepad(run){

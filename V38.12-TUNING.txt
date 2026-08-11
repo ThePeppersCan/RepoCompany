@@ -1,0 +1,35 @@
+REPO SPORTS WORLD CUP — V38.12 LIGHT MATCH TUNING
+
+Modified files only:
+- index.html
+- world-cup-quidditch-v1.js
+
+CELEBRATIONS
+- Goal celebrations remain on screen roughly 0.6–0.9 seconds longer.
+- Extra time is primarily grounded celebration time before replay/logo transition.
+- Replay flow remains goal -> celebration -> logo -> replay -> logo -> restart.
+
+SHOOTING
+- Very small shot-weight increase across match-flow phases.
+- Added a tiny anti-pass-loop nudge after 3+ passes when already in attacking territory.
+- Existing shot eligibility gate and shot-result RNG are unchanged.
+- Goal probability per actual shot is unchanged.
+
+TACKLING
+- Physical tackle trigger radius increased only slightly.
+- Tackle attempt probability increased modestly.
+- Success calculation remains essentially unchanged, so this mainly creates more visible challenges.
+
+PENALTIES
+- Dangerous-foul zone widened very slightly.
+- Dangerous fouls convert to possible penalties slightly more often.
+- Same rules apply symmetrically to both teams.
+
+FAIRNESS
+- No team-specific modifiers.
+- No favourites.
+- No rubber-banding.
+- No scripted goals.
+- Changes apply identically to both teams.
+
+JS syntax check passed.

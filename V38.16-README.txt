@@ -1,0 +1,67 @@
+REPO COMPANY — V38.16 MULTIPLAYER / ROOFTOPS / BINDER PREVIEW REPAIR
+
+MODIFIED / RESTORED WEBSITE FILES
+- index.html
+- script.js
+- repo-rooftops.js
+- assets/goblin-bomb-party/goblin-bomb-party.css
+- assets/goblin-bomb-party/multiplayer.js
+
+ONE SERVER-SIDE FILE (RUN ONCE)
+- RUN-ONCE-IN-SUPABASE-fix-repo-rooftops-endless-save.sql
+
+GOBLIN BOMB PARTY
+- Restores the original 2–4 player ONLINE PARTY implementation recovered from
+  the full Repo Company site archive.
+- Six-character room codes.
+- Four visible human slots.
+- Ready-up system.
+- Host starts once at least 2 human players are present and all guests are ready.
+- 2 humans = 6 AI goblins.
+- 3 humans = 5 AI goblins.
+- 4 humans = 4 AI goblins.
+- Host-authoritative Supabase Realtime simulation.
+- Synced movement, bomb, throws, dashes, knockback, hazards, eliminations, etc.
+- Existing solo mode remains.
+- Multiplayer stays casual / zero reward as the original implementation intended.
+
+BINDER PREVIEW
+- Preview now stacks above the binder spread instead of disappearing behind it.
+- Reduced to a sensible maximum size.
+- Explicit aspect ratio + contained image fit.
+- Preview is clamped fully inside the binder dialog.
+- It flips to the opposite side of the pointer near the right edge.
+- Preview is hidden on pointer leave and during drag.
+- Old legacy card overlay is forced hidden while the V3 binder is active.
+- Binder pages, hidden cards, drag/drop and customisation are otherwise unchanged.
+
+REPO ROOFTOPS
+- Restores the project's existing Endless save/finalisation client fix.
+- Long/endless runs no longer replay every rooftop RPC before final claim.
+- Pending reward retry goes straight to the idempotent final claim.
+- Pending summary now exposes the actual server error text for diagnosis.
+- IMPORTANT: the included Supabase SQL must be run ONCE for the server-side
+  reconciliation fix. A browser ZIP cannot alter Supabase functions itself.
+- Existing pending run is kept in localStorage and should retry automatically
+  after the SQL is installed and Repo Rooftops is reopened while logged in.
+
+INSTALL WEBSITE FILES
+1. Drag all website files/folders over:
+   C:\Users\Isaac\Desktop\web2\
+2. Overwrite when prompted.
+3. Ctrl + Shift + R.
+
+ROOFTOPS SQL
+Open Supabase -> SQL Editor.
+Paste the complete contents of:
+RUN-ONCE-IN-SUPABASE-fix-repo-rooftops-endless-save.sql
+Run it ONCE.
+Then reopen Repo Rooftops while logged in to retry the pending result.
+
+VALIDATION
+- script.js syntax: PASS
+- multiplayer.js syntax: PASS
+- repo-rooftops.js syntax: PASS
+- All static multiplayer DOM IDs required by multiplayer.js: PRESENT
+- Script order: bridge -> game.js -> multiplayer.js: PASS
+- Current World Cup V38.12 gameplay reference: PRESERVED

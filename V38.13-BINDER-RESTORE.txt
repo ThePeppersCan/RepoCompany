@@ -1,0 +1,37 @@
+REPO SPORTS — V38.13 TCG BINDER REGRESSION RESTORE
+
+Modified files only:
+- index.html
+- script.js
+
+RESTORED BINDER
+- Restores the full auto-expanding Quidditch TCG binder implementation.
+- Minimum 8 double-sided spreads (16 collection pages).
+- 18 slots per spread (9 cards per physical page).
+- Binder expands further automatically if the card catalog requires it.
+- Previous/Next spread navigation restored.
+- Cross-spread drag/drop restored.
+
+PER-USER LAYOUTS
+- Preserves the existing key:
+  repo_tcg_binder_54_layout_<username>
+- This is intentionally NOT replaced with a new versioned layout key.
+- Existing saved user arrangements should therefore reappear where browser storage still contains them.
+- Public/user binder viewing continues to resolve the selected user's collection.
+
+HIDDEN CARDS
+- Restores the per-user stored/hidden-card drawer.
+- Uses the existing key:
+  repo_tcg_binder_storage_<username>
+- Button is now explicitly labelled HIDDEN CARDS.
+- Search/filter/restore controls retained.
+- Hidden cards remain owned and can be restored to any free binder slot.
+- Hidden-card controls remain unavailable when viewing somebody else's public binder.
+
+IMPORTANT
+- No World Cup gameplay files were changed.
+- No card image assets are included.
+- No avatar/arena/flag assets are included.
+- This repair only restores the main site script + updates its cache reference.
+
+Both JavaScript syntax checks passed.

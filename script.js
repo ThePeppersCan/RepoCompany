@@ -16526,267 +16526,6 @@ qmShowSharedGoal=function(state){
 
 
 // ============================================================
-// STABLE THREE-PAGE QUIDDITCH TCG BINDER — 18 POCKETS
-// Front cover -> one 9-per-page spread -> back cover.
-// ============================================================
-(function installStableThreePageBinder18(){
-  if(window.__repoStableThreePageBinder18Installed)return;
-  window.__repoStableThreePageBinder18Installed=true;
-
-  const style=document.createElement('style');
-  style.id='repoStableThreePageBinder18Styles';
-  style.textContent=`
-    #quidditchTcgBinderDialog{width:min(96vw,1380px)!important;height:min(93vh,860px)!important}
-    #quidditchTcgBinderDialog .quidditch-tcg-binder-shell{grid-template-rows:auto minmax(0,1fr) auto!important}
-    #quidditchTcgBinderDialog .quidditch-tcg-binder-stage{padding:18px 24px!important;overflow:hidden!important;contain:layout paint!important}
-    #quidditchTcgBinderDialog .quidditch-tcg-binder-image{max-width:82%!important;max-height:88%!important;height:auto!important;width:auto!important;object-fit:contain!important}
-    #quidditchTcgBinderDialog.binder-page-turning .quidditch-tcg-binder-image{opacity:1!important;transform:none!important;filter:drop-shadow(0 13px 17px rgba(0,0,0,.82))!important}
-    #quidditchTcgBinderCards{display:none!important}
-    .repo-binder-spread-18{position:relative;width:min(100%,1320px);aspect-ratio:1.86;box-sizing:border-box;grid-template-columns:1fr 1fr;gap:3.2%;padding:3.6% 3.1%;border:3px solid #b77c24;outline:2px solid #08111d;outline-offset:-9px;background:linear-gradient(90deg,#071321 0 48.7%,#02060b 49.25% 50.75%,#071321 51.3% 100%);box-shadow:0 18px 42px #000,inset 0 0 0 2px #e2b343,inset 0 0 52px rgba(30,78,125,.32);contain:layout paint;z-index:3}
-    .repo-binder-page-9{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:3.8% 4.2%;min-width:0;min-height:0}
-    .repo-binder-slot-18{position:relative;min-width:0;min-height:0;overflow:hidden;border:2px solid #bd8525;background:linear-gradient(145deg,#142a44,#081522);box-shadow:inset 0 0 0 2px #06101a,0 0 0 1px #e0b246;display:flex;align-items:center;justify-content:center}
-    .repo-binder-slot-18::after{content:'';position:absolute;right:0;bottom:0;width:0;height:0;border-left:11px solid transparent;border-top:11px solid transparent;border-right:11px solid #e5b53c;border-bottom:11px solid #e5b53c;pointer-events:none;opacity:.92}
-    .repo-binder-slot-18 img{display:block;max-width:94%;max-height:96%;width:auto;height:auto;object-fit:contain;object-position:center;user-select:none;-webkit-user-drag:element;filter:drop-shadow(0 2px 3px #000)}
-    .repo-binder-slot-18.is-drop{outline:3px solid #74caff;outline-offset:-5px}
-
-    .repo-tcg-card-hover-preview{position:fixed!important;z-index:2147483647!important;display:none;pointer-events:none;width:min(360px,28vw);max-height:82vh;aspect-ratio:0.68;padding:8px;border:2px solid #e0b246;background:linear-gradient(#15283f,#07111d);box-shadow:0 18px 48px #000,0 0 24px rgba(110,183,255,.35),inset 0 0 0 2px #08111d;transform:translate(18px,-50%)}
-    .repo-tcg-card-hover-preview.is-visible{display:block!important}
-    .repo-tcg-card-hover-preview img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 8px #000)}
-    #quidditchTcgBinderDialog[data-binder-page='open'] #quidditchTcgBinderImage{display:none!important}
-    #quidditchTcgBinderDialog:not([data-binder-page='open']) .repo-binder-spread-18{display:none!important}
-    @media(max-width:760px){
-      #quidditchTcgBinderDialog{width:99vw!important;height:94vh!important}
-      #quidditchTcgBinderDialog .quidditch-tcg-binder-stage{padding:8px!important}
-      .repo-binder-spread-18{width:99%;padding:4.1%;gap:3.7%}
-      .repo-binder-page-9{gap:3.8% 4.3%}
-      .repo-binder-slot-18 img{max-width:92%;max-height:95%}
-    }
-  `;
-  document.head.appendChild(style);
-
-  const catalog=[
-    ['soup','Soup','assets/quidditch-tcg/cards/soup.png'],
-    ['besquelcher','Besquelcher','assets/quidditch-tcg/cards/besquelcher.png'],
-    ['debbie','Debbie','assets/quidditch-tcg/cards/debbie.png'],
-    ['dopey_dom','Dopey Dom','assets/quidditch-tcg/cards/dopey-dom.png'],
-    ['jud','Jud','assets/quidditch-tcg/cards/jud.png'],
-    ['mad_rager','Mad Rager','assets/quidditch-tcg/cards/mad-rager.png'],
-    ['mod_ash','Mod Ash','assets/quidditch-tcg/cards/mod-ash.png'],
-    ['nimbler_2000','Nimbler 2000','assets/quidditch-tcg/cards/nimbler-2000.png'],
-    ['rocky','Rocky','assets/quidditch-tcg/cards/rocky.png'],
-    ['rocky_full_art','Rocky — Special Full Art','assets/quidditch-tcg/cards/full-art/rocky-special.png'],
-    ['soup_full_art','Soup — Special Full Art','assets/quidditch-tcg/cards/full-art/soup-special.png'],
-    ['nimbler_2000_full_art','Nimbler 2000 — Special Full Art','assets/quidditch-tcg/cards/full-art/nimbler-special.png'],
-    ['debbie_full_art','Debbie — Special Full Art','assets/quidditch-tcg/cards/full-art/debbie-special.png'],
-    ['besquelcher_full_art','Besquelcher — Special Full Art','assets/quidditch-tcg/cards/full-art/besquelcher-special.png'],
-    ['changing_room_full_art','Changing Room — Special Full Art','assets/quidditch-tcg/cards/full-art/changing-room-special.png'],
-    ['barry_bramble_full_art','Barry Bramble — Special Full Art','assets/quidditch-tcg/cards/full-art/barry-bramble-special.png'],['golden_snitch_rising_full_art','Golden Snitch Rising — Event Full Art','assets/quidditch-tcg/cards/full-art/golden-snitch-rising.png'],['healers_bench_full_art','Healer’s Bench — Special Full Art','assets/quidditch-tcg/cards/full-art/healers-bench.png'],['matchday_tunnel_full_art','Matchday Tunnel — Special Full Art','assets/quidditch-tcg/cards/full-art/matchday-tunnel.png'],['reposports_castle_arena_full_art','RepoSports Castle Arena — Location Full Art','assets/quidditch-tcg/cards/full-art/reposports-castle-arena.png'],
-    ['ltd_week_one_anniversary','1 Week Anniversary — LTD Edition','assets/quidditch-tcg/cards/limited/ltd-one-week-anniversary.png'],
-    ['repo_company_legendary_full_art','Repo Company — Gold Legendary','assets/quidditch-tcg/cards/legendary/repo-company-legendary.png'],
-    ['besquelcher_millennium','Besquelcher — Millennium','assets/quidditch-tcg/cards/millennium/besquelcher-millennium.png'],
-    ['debbie_millennium','Debbie — Millennium','assets/quidditch-tcg/cards/millennium/debbie-millennium.png'],
-    ['mod_ash_millennium','Mod Ash — Millennium','assets/quidditch-tcg/cards/millennium/mod-ash-millennium.png'],
-    ['rocky_millennium','Rocky — Millennium','assets/quidditch-tcg/cards/millennium/rocky-millennium.png'],
-    ['soup_millennium','Soup — Millennium','assets/quidditch-tcg/cards/millennium/soup-millennium.png'],
-    ['jud_debbie_rival','Jud & Debbie — Rival','assets/quidditch-tcg/cards/rival/jud-debbie-rival.png'],
-    ['nimbler_besquelcher_rival','Nimbler 2000 & Besquelcher — Rival','assets/quidditch-tcg/cards/rival/nimbler-besquelcher-rival.png'],
-    ['rocky_mod_ash_rival','Rocky & Mod Ash — Rival','assets/quidditch-tcg/cards/rival/rocky-mod-ash-rival.png'],
-    ['practice_makes_perfect_standard','Practice Makes Perfect','assets/quidditch-tcg/cards/standard/practice-makes-perfect.png'],
-    ['snitch_senses_standard','Snitch Senses','assets/quidditch-tcg/cards/standard/snitch-senses.png'],
-    ['team_photo_standard','Team Photo!','assets/quidditch-tcg/cards/standard/team-photo.png'],
-    ['show_some_love_standard','Show Some Love!','assets/quidditch-tcg/cards/standard/show-some-love.png'],
-    ['snitch_stuck_again_standard','Snitch Stuck Again','assets/quidditch-tcg/cards/standard/snitch-stuck-again.png'],
-    ['post_game_feast_standard','Post-Game Feast','assets/quidditch-tcg/cards/standard/post-game-feast.png'],
-    ['repo_sports_world_cup_standard','Repo Sports World Cup','assets/quidditch-tcg/cards/standard/repo-sports-world-cup.png'],
-    ['halftime_hangout_standard','Halftime Hangout','assets/quidditch-tcg/cards/standard/halftime-hangout.png'],
-    ['broom_shop_myth_standard','The Broom Shop Myth','assets/quidditch-tcg/cards/standard/broom-shop-myth.png'],
-    ['barrys_burger_cart_standard','Barry’s Burger Cart','assets/quidditch-tcg/cards/standard/barrys-burger-cart.png'],
-    ['back_in_the_day_barry_full_art','Back in the Day Barry — Full Art','assets/quidditch-tcg/cards/full-art/back-in-the-day-barry.png'],
-    ['berry_bramble_full_art','Berry Bramble — The Apprentice — Full Art','assets/quidditch-tcg/cards/full-art/berry-bramble-full-art.png'],
-    ['jenny_full_art','Jenny — Full Art','assets/quidditch-tcg/cards/full-art/jenny-full-art.png'],
-    ['jenny_rookie_full_art','Jenny — Rookie — Full Art','assets/quidditch-tcg/cards/full-art/jenny-rookie-full-art.png'],
-    ['rocky_signature','Rocky — Signature','assets/quidditch-tcg/cards/signature/rocky-signature.png'],
-    ['debbie_signature','Debbie — Signature','assets/quidditch-tcg/cards/signature/debbie-signature.png'],
-    ['jud_signature','Jud — Signature','assets/quidditch-tcg/cards/signature/jud-signature.png'],
-    ['mod_ash_signature','Mod Ash — Signature','assets/quidditch-tcg/cards/signature/mod-ash-signature.png'],
-    ['nimbler_2000_signature','Nimbler 2000 — Signature','assets/quidditch-tcg/cards/signature/nimbler-2000-signature.png'],
-    ['soup_signature','Soup — Signature','assets/quidditch-tcg/cards/signature/soup-signature.png'],
-    ['besquelcher_signature','Besquelcher — Signature','assets/quidditch-tcg/cards/signature/besquelcher-signature.png'],
-    ['back_from_retirement_standard','Back from Retirement','assets/quidditch-tcg/cards/standard/back-from-retirement.png'],
-    ['binder_flex_standard','Binder Flex','assets/quidditch-tcg/cards/standard/binder-flex.png'],
-    ['verdant_whisper_standard','Verdant Whisper','assets/quidditch-tcg/cards/standard/verdant-whisper.png'],
-    ['frostbound_arc_standard','Frostbound Arc','assets/quidditch-tcg/cards/standard/frostbound-arc.png'],
-    ['cinder_spite_standard','Cinder Spite','assets/quidditch-tcg/cards/standard/cinder-spite.png'],
-    ['amethyst_reign_standard','Amethyst Reign','assets/quidditch-tcg/cards/standard/amethyst-reign.png'],
-    ['starweave_comet_standard','Starweave Comet','assets/quidditch-tcg/cards/standard/starweave-comet.png'],
-    ['gravemark_glider_standard','Gravemark Glider','assets/quidditch-tcg/cards/standard/gravemark-glider.png'],
-    ['moonlit_hush_standard','Moonlit Hush','assets/quidditch-tcg/cards/standard/moonlit-hush.png'],
-    ['cat_on_the_pitch_standard','Cat on the Pitch','assets/quidditch-tcg/cards/standard/cat-on-the-pitch.png'],
-    ['keepers_dream_standard','Keepers Dream','assets/quidditch-tcg/cards/standard/keepers-dream.png'],
-    ['keepers_nightmare_standard',"Keeper's Nightmare",'assets/quidditch-tcg/cards/standard/keepers-nightmare.png'],
-    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png'],
-    ['world_cup_belros_full_art','Belros — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/belros.png'],
-    ['world_cup_calvora_full_art','Calvora — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/calvora.png'],
-    ['world_cup_drazhen_full_art','Drazhen — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png'],
-    ['world_cup_elvane_full_art','Elvane — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/elvane.png'],
-    ['world_cup_iskandar_full_art','Iskandar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png'],
-    ['world_cup_kordesh_full_art','Kordesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png'],
-    ['world_cup_lumerre_full_art','Lumerre — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png'],
-    ['world_cup_marovar_full_art','Marovar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/marovar.png'],
-    ['world_cup_nambara_full_art','Nambara — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/nambara.png'],
-    ['world_cup_norveth_full_art','Norveth — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/norveth.png'],
-    ['world_cup_qasmir_full_art','Qasmir — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png'],
-    ['world_cup_rovarn_full_art','Rovarn — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png'],
-    ['world_cup_sorevia_full_art','Sorevia — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png'],
-    ['world_cup_talune_full_art','Talune — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/talune.png'],
-    ['world_cup_vardesh_full_art','Vardesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png'],
-    ['world_cup_zafran_full_art','Zafran — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/zafran.png'],
-    ['world_cup_belros_special_full_art','Belros — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png'],
-    ['world_cup_calvora_special_full_art','Calvora — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png'],
-    ['world_cup_drazhen_special_full_art','Drazhen — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png'],
-    ['world_cup_elvane_special_full_art','Elvane — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/elvane.png'],
-    ['world_cup_iskandar_special_full_art','Iskandar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/iskandar.png'],
-    ['world_cup_kordesh_special_full_art','Kordesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/kordesh.png'],
-    ['world_cup_lumerre_special_full_art','Lumerre — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/lumerre.png'],
-    ['world_cup_marovar_special_full_art','Marovar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/marovar.png'],
-    ['world_cup_nambara_special_full_art','Nambara — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/nambara.png'],
-    ['world_cup_norveth_special_full_art','Norveth — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/norveth.png'],
-    ['world_cup_qasmir_special_full_art','Qasmir — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/qasmir.png'],
-    ['world_cup_rovarn_special_full_art','Rovarn — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/rovarn.png'],
-    ['world_cup_sorevia_special_full_art','Sorevia — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png'],
-    ['world_cup_talune_special_full_art','Talune — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png'],
-    ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
-    ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png']
-  ];
-  const cardMap=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
-  const currentCollection=()=>window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[]};
-  const ownerName=()=>String(currentCollection().username||(typeof character!=='undefined'&&character?.username)||'guest').toLowerCase();
-  const layoutKey=()=>`repo_tcg_binder_18_layout_${ownerName()}`;
-  const loadLayout=()=>{try{const v=JSON.parse(localStorage.getItem(layoutKey())||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}};
-  const saveLayout=v=>{try{localStorage.setItem(layoutKey(),JSON.stringify(v))}catch(_){}};
-  const ownedIds=()=>{
-    const raw=currentCollection().cards||[];
-    const aliases={'dopey-dom':'dopey_dom','mad-rager':'mad_rager','mod-ash':'mod_ash','nimbler-2000':'nimbler_2000'};
-    const out=[];
-    for(const id of Array.isArray(raw)?raw:[]){
-      const base=String(id||'').trim().toLowerCase();
-      const clean=aliases[base]||base;
-      if(cardMap[clean]&&!out.includes(clean))out.push(clean);
-    }
-    // Fallback: read cards already rendered by the original collection layer.
-    if(!out.length){
-      document.querySelectorAll('#quidditchTcgBinderCards img').forEach(img=>{
-        const src=String(img.getAttribute('src')||'');
-        const match=catalog.find(([id,,path])=>src.endsWith(path)||src.includes('/'+path));
-        if(match&&!out.includes(match[0]))out.push(match[0]);
-      });
-    }
-    return out;
-  };
-  function orderedCards(){
-    const owned=ownedIds();
-    const saved=loadLayout();
-    const slots=Array(18).fill(null);
-    saved.slice(0,18).forEach((id,i)=>{if(owned.includes(id)&&!slots.includes(id))slots[i]=id});
-    for(const id of owned){if(!slots.includes(id)){const empty=slots.indexOf(null);if(empty>=0)slots[empty]=id}}
-    return slots;
-  }
-  function ensureSpread(){
-    const dialog=document.getElementById('quidditchTcgBinderDialog');
-    const stage=dialog?.querySelector('.quidditch-tcg-binder-stage');
-    if(!dialog||!stage)return null;
-    let spread=stage.querySelector('.repo-binder-spread-18');
-    if(spread)return spread;
-    spread=document.createElement('div');
-    spread.className='repo-binder-spread-18';
-    spread.innerHTML='<section class="repo-binder-page-9 left"></section><section class="repo-binder-page-9 right"></section>';
-    const pages=spread.querySelectorAll('.repo-binder-page-9');
-    for(let i=0;i<18;i++){
-      const slot=document.createElement('div');slot.className='repo-binder-slot-18';slot.dataset.slot=String(i);
-      pages[i<9?0:1].appendChild(slot);
-    }
-    bindDrag(spread);bindHoverPreview(spread);stage.appendChild(spread);return spread;
-  }
-  function renderSpread(){
-    const dialog=document.getElementById('quidditchTcgBinderDialog');
-    const spread=ensureSpread();if(!dialog||!spread)return;
-    const open=dialog.dataset.binderPage==='open';
-    spread.style.display=open?'grid':'none';
-    if(!open)return;
-    const cards=orderedCards();
-    spread.querySelectorAll('.repo-binder-slot-18').forEach((slot,index)=>{
-      const id=cards[index],card=cardMap[id];
-      slot.replaceChildren();
-      if(card){const img=document.createElement('img');img.draggable=true;img.dataset.cardId=id;img.src=card.image;img.alt=`${card.name} Quidditch trading card`;slot.appendChild(img);slot.title=card.name+(currentCollection().isPublic?' · View only':' · Drag to rearrange')}else slot.title='Empty card slot';
-    });
-  }
-
-  function ensureHoverPreview(){
-    const dialog=document.getElementById('quidditchTcgBinderDialog');
-    let preview=document.getElementById('repoTcgCardHoverPreview');
-    if(preview&&preview.parentElement!==dialog){preview.remove();preview=null}
-    if(preview)return preview;
-    preview=document.createElement('div');preview.id='repoTcgCardHoverPreview';preview.className='repo-tcg-card-hover-preview';
-    preview.innerHTML='<img alt="Enlarged Quidditch trading card preview">';
-    (dialog||document.body).appendChild(preview);return preview;
-  }
-  function positionHoverPreview(preview,x,y){
-    const margin=16,w=preview.offsetWidth||300,h=preview.offsetHeight||440;
-    let left=x+10,top=y-h/2;
-    if(left+w>innerWidth-margin)left=x-w-10;
-    top=Math.max(margin,Math.min(innerHeight-h-margin,top));
-    preview.style.left=`${left}px`;preview.style.top=`${top}px`;preview.style.transform='none';
-  }
-  function bindHoverPreview(spread){
-    const preview=ensureHoverPreview(),previewImg=preview.querySelector('img');
-    spread.addEventListener('pointerover',e=>{const img=e.target.closest('img[data-card-id]');if(!img)return;previewImg.src=img.src;previewImg.alt=img.alt;preview.classList.add('is-visible');positionHoverPreview(preview,e.clientX,e.clientY)});
-    spread.addEventListener('pointermove',e=>{if(preview.classList.contains('is-visible'))positionHoverPreview(preview,e.clientX,e.clientY)});
-    spread.addEventListener('pointerout',e=>{if(e.target.closest('img[data-card-id]'))preview.classList.remove('is-visible')});
-    spread.addEventListener('dragstart',()=>preview.classList.remove('is-visible'));
-  }
-  function bindDrag(spread){
-    let from=-1;
-    spread.addEventListener('dragstart',e=>{if(current().isPublic){e.preventDefault();return}const img=e.target.closest('img[data-card-id]');if(!img)return;from=Number(img.parentElement.dataset.slot);e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(from))});
-    spread.addEventListener('dragover',e=>{const slot=e.target.closest('.repo-binder-slot-18');if(!slot)return;e.preventDefault();slot.classList.add('is-drop')});
-    spread.addEventListener('dragleave',e=>e.target.closest('.repo-binder-slot-18')?.classList.remove('is-drop'));
-    spread.addEventListener('drop',e=>{const target=e.target.closest('.repo-binder-slot-18');if(!target)return;e.preventDefault();spread.querySelectorAll('.is-drop').forEach(n=>n.classList.remove('is-drop'));const to=Number(target.dataset.slot);if(from<0||to<0||from===to)return;const cards=orderedCards();[cards[from],cards[to]]=[cards[to],cards[from]];saveLayout(cards);from=-1;renderSpread()});
-    spread.addEventListener('dragend',()=>{from=-1;spread.querySelectorAll('.is-drop').forEach(n=>n.classList.remove('is-drop'))});
-  }
-
-  const originalSet=setQuidditchTcgBinderPage;
-  setQuidditchTcgBinderPage=function(page,{sound=true}={}){
-    const next=Math.max(0,Math.min(2,Number(page)||0));
-    const dialog=document.getElementById('quidditchTcgBinderDialog');
-    const image=document.getElementById('quidditchTcgBinderImage');
-    if(!dialog||!image)return;
-    const changed=next!==quidditchTcgBinderPage;quidditchTcgBinderPage=next;
-    const meta=QUIDDITCH_TCG_BINDER_PAGES[next];
-    if(changed&&sound)quidditchTcgBinderPlayPageSound();
-    image.src=quidditchTcgBinderAssetForPage(next);image.alt=meta.alt;
-    dialog.dataset.binderPage=meta.key;
-    image.className=`quidditch-tcg-binder-image ${meta.key==='open'?'is-open-binder':'is-cover-binder'}`;
-    image.style.display=meta.key==='open'?'none':'block';
-    const label=document.getElementById('quidditchTcgBinderPageLabel');if(label)label.textContent=meta.label;
-    const hint=document.getElementById('quidditchTcgBinderHint');if(hint)hint.textContent=meta.key==='open'?`${ownedIds().length} of 9 current cards collected.`:meta.hint;
-    const prev=document.getElementById('quidditchTcgBinderPrev');if(prev)prev.disabled=next===0;
-    const nextBtn=document.getElementById('quidditchTcgBinderNext');if(nextBtn)nextBtn.disabled=next===2;
-    renderSpread();
-    requestAnimationFrame(renderSpread);
-  };
-
-  const oldEnsure=ensureQuidditchTcgBinderUi;
-  ensureQuidditchTcgBinderUi=function(){const r=oldEnsure.apply(this,arguments);ensureSpread();return r};
-  document.addEventListener('DOMContentLoaded',()=>{ensureSpread();renderSpread()},{once:true});
-  let collectionRefreshTries=0;
-  const collectionRefresh=setInterval(()=>{
-    const dialog=document.getElementById('quidditchTcgBinderDialog');
-    if(dialog?.open&&dialog.dataset.binderPage==='open')renderSpread();
-    if(++collectionRefreshTries>=20)clearInterval(collectionRefresh);
-  },250);
-})();
-
-
-// ============================================================
 // QUIDDITCH TCG BINDER V3 — AUTO-EXPANDING DOUBLE-PAGE SPREADS
 // Front cover -> eight collection spreads -> back cover.
 // Cards can be dragged across spreads by hovering over the Previous / Next
@@ -16797,8 +16536,11 @@ qmShowSharedGoal=function(state){
   window.__repoTcgSevenSpreadBinderInstalled=true;
 
   const SLOTS_PER_SPREAD=18;
-  const SPREAD_COUNT=Math.max(8,Math.ceil(CARD_CATALOG.length/SLOTS_PER_SPREAD));
-  const TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
+  // V38.15: CARD_CATALOG lives inside the pack-system closure and is not
+  // visible here. Initialise safely, then calculate from this binder's own
+  // local catalog once that catalog has been declared below.
+  let SPREAD_COUNT=8;
+  let TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   let activeDragFrom=-1;
   let activeDragCard='';
   let dragTurnLockedUntil=0;
@@ -16814,7 +16556,9 @@ qmShowSharedGoal=function(state){
     .repo-binder-slot-126.is-drop{outline:3px solid #74caff;outline-offset:-5px;background:linear-gradient(145deg,#214a70,#0b2034)}
     #quidditchTcgBinderDialog[data-binder-page^='open'] #quidditchTcgBinderImage{display:none!important}
     #quidditchTcgBinderDialog:not([data-binder-page^='open']) .repo-binder-spread-126{display:none!important}
-    .repo-tcg-card-hover-preview{position:absolute!important;transform:translate(-50%,-50%)!important;width:min(300px,24vw)!important;max-height:76vh!important;pointer-events:none!important}
+    .repo-tcg-card-hover-preview{position:absolute!important;z-index:180!important;display:none;box-sizing:border-box;width:clamp(176px,16vw,248px)!important;height:auto!important;max-height:68%!important;aspect-ratio:.68!important;transform:none!important;pointer-events:none!important;overflow:hidden!important}
+    .repo-tcg-card-hover-preview.is-visible{display:block!important}
+    .repo-tcg-card-hover-preview img{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
     #quidditchTcgBinderDialog{overflow:visible!important}
     .repo-binder-storage{position:absolute;z-index:70;right:16px;top:68px;bottom:18px;width:min(390px,43%);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;transform:translateX(calc(100% + 34px));transition:transform .24s cubic-bezier(.2,.78,.2,1),opacity .18s ease,visibility 0s linear .24s;border:2px solid #cda44f;outline:1px solid rgba(173,215,243,.42);outline-offset:-6px;background:radial-gradient(circle at 50% -10%,rgba(111,181,226,.18),transparent 32%),linear-gradient(180deg,#1a2c3f 0%,#091522 44%,#050b12 100%);box-shadow:0 22px 52px rgba(0,0,0,.82),inset 0 0 0 4px rgba(3,8,14,.65),inset 0 0 28px rgba(87,151,199,.10);color:#f4d58a;font-family:Georgia,serif}
     .repo-binder-storage.is-open,.repo-binder-storage.is-drop{visibility:visible;opacity:1;pointer-events:auto;transform:translateX(0);transition-delay:0s}
@@ -16985,6 +16729,8 @@ qmShowSharedGoal=function(state){
     ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
     ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png']
   ];
+  SPREAD_COUNT=Math.max(8,Math.ceil(catalog.length/SLOTS_PER_SPREAD));
+  TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   const map=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
   const current=()=>window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[]};
   const owner=()=>String(current().username||'guest').toLowerCase();
@@ -17022,7 +16768,7 @@ qmShowSharedGoal=function(state){
   }
   function syncStorageDrawerState(box,launch){
     const open=Boolean(box?.classList.contains('is-open'));
-    if(launch){launch.setAttribute('aria-expanded',String(open));launch.title=open?'Close card storage':'Open card storage'}
+    if(launch){launch.setAttribute('aria-expanded',String(open));launch.title=open?'Close hidden cards':'View your hidden cards'}
     box?.setAttribute('aria-hidden',String(!open));
   }
 
@@ -17035,25 +16781,32 @@ qmShowSharedGoal=function(state){
       p.className='repo-tcg-card-hover-preview';
       p.innerHTML='<img alt="Enlarged card preview">';
     }
-    // Keep the preview in the dialog top-layer. Fixed/body positioning is offset
-    // by the scaled modal, which is what made it appear far to the right.
+    // A modal dialog lives in the browser top-layer, so the preview must remain
+    // inside it. It gets a higher stacking level than the card spread and is
+    // explicitly clamped to the dialog bounds below.
     if(dialog&&p.parentElement!==dialog)dialog.appendChild(p);
-    else if(!dialog&&!p.parentElement)document.body.appendChild(p);
     return p;
   }
   function pos(p,x,y){
     const dialog=document.getElementById('quidditchTcgBinderDialog');
-    if(!dialog)return;
+    if(!dialog||!p)return;
     const rect=dialog.getBoundingClientRect();
     const scaleX=rect.width/(dialog.offsetWidth||rect.width||1);
     const scaleY=rect.height/(dialog.offsetHeight||rect.height||1);
-    // Convert viewport pointer coordinates into the dialog's local coordinate
-    // system, then centre the enlarged card exactly on the pointer.
     const localX=(Number(x)-rect.left)/(scaleX||1);
     const localY=(Number(y)-rect.top)/(scaleY||1);
-    p.style.left=localX+'px';
-    p.style.top=localY+'px';
-    p.style.transform='translate(-50%,-50%)';
+    const w=p.offsetWidth||220,h=p.offsetHeight||Math.round(w/0.68);
+    const margin=14,gap=18;
+    const dialogW=dialog.offsetWidth||rect.width/(scaleX||1);
+    const dialogH=dialog.offsetHeight||rect.height/(scaleY||1);
+    let left=localX+gap;
+    if(left+w>dialogW-margin)left=localX-w-gap;
+    left=Math.max(margin,Math.min(dialogW-w-margin,left));
+    let top=localY-h/2;
+    top=Math.max(margin,Math.min(dialogH-h-margin,top));
+    p.style.left=Math.round(left)+'px';
+    p.style.top=Math.round(top)+'px';
+    p.style.transform='none';
   }
   function updateDragEdges(){const d=document.getElementById('quidditchTcgBinderDialog'),idx=spreadIndex();if(!d)return;const left=d.querySelector('.repo-binder-drag-edge.left'),right=d.querySelector('.repo-binder-drag-edge.right');left?.classList.toggle('available',idx>0);right?.classList.toggle('available',idx>=0&&idx<SPREAD_COUNT-1)}
   function positionStorage(){
@@ -17076,6 +16829,7 @@ qmShowSharedGoal=function(state){
     const d=document.getElementById('quidditchTcgBinderDialog'),stage=d?.querySelector('.quidditch-tcg-binder-stage');if(!d||!stage)return null;
     const existingStorage=document.querySelector('.repo-binder-storage');if(existingStorage&&existingStorage.parentElement!==d)d.appendChild(existingStorage);
     stage.querySelectorAll('.repo-binder-spread-36,.repo-binder-spread-54').forEach(n=>n.remove());
+    const legacyLayer=document.getElementById('quidditchTcgBinderCards');if(legacyLayer){legacyLayer.style.display='none';legacyLayer.setAttribute('aria-hidden','true')}
     let spread=stage.querySelector('.repo-binder-spread-126');
     if(!spread){
       spread=document.createElement('div');spread.className='repo-binder-spread-126';spread.innerHTML='<section class="repo-binder-page-126"></section><section class="repo-binder-page-126"></section>';
@@ -17107,19 +16861,19 @@ qmShowSharedGoal=function(state){
     }
     let launch=d.querySelector('.repo-binder-storage-launch');
     if(!launch){
-      launch=document.createElement('button');launch.type='button';launch.className='repo-binder-storage-launch';launch.innerHTML='CARDS <span>(0)</span>';
+      launch=document.createElement('button');launch.type='button';launch.className='repo-binder-storage-launch';launch.innerHTML='HIDDEN CARDS <span>(0)</span>';
       d.querySelector('.quidditch-tcg-binder-shell')?.appendChild(launch);
     }
     if(launch.dataset.storageManagerV2!=='1'){
       const fresh=launch.cloneNode(true);launch.replaceWith(fresh);launch=fresh;launch.dataset.storageManagerV2='1';
     }
-    launch.setAttribute('aria-controls','repoTcgCardStorageDrawer');launch.setAttribute('aria-expanded','false');launch.title='Open card storage';
+    launch.setAttribute('aria-controls','repoTcgCardStorageDrawer');launch.setAttribute('aria-expanded','false');launch.title='View your hidden cards';
 
     let box=d.querySelector('.repo-binder-storage');
     if(box&&box.dataset.storageManagerV2!=='1'){box.remove();box=null}
     if(!box){
-      box=document.createElement('aside');box.id='repoTcgCardStorageDrawer';box.className='repo-binder-storage';box.dataset.storageManagerV2='1';box.dataset.storageFilter='all';box.setAttribute('aria-label','Card Storage');box.setAttribute('aria-hidden','true');
-      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">CARD STORAGE</strong><span class="repo-binder-storage-subtitle">Stored cards remain in your collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Card Storage">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search stored cards…" aria-label="Search stored cards"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Use RESTORE to place a card into the current spread. You can also drag a stored card directly onto a slot.</div>`;
+      box=document.createElement('aside');box.id='repoTcgCardStorageDrawer';box.className='repo-binder-storage';box.dataset.storageManagerV2='1';box.dataset.storageFilter='all';box.setAttribute('aria-label','Hidden Cards');box.setAttribute('aria-hidden','true');
+      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN CARDS</strong><span class="repo-binder-storage-subtitle">Hidden cards remain in your collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Hidden Cards">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search stored cards…" aria-label="Search hidden cards"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Use RESTORE to place a card into the current spread. You can also drag a stored card directly onto a slot.</div>`;
       d.appendChild(box);
     }
     const setStorageOpen=open=>{
@@ -17166,7 +16920,7 @@ qmShowSharedGoal=function(state){
     const list=box.querySelector('.repo-binder-storage-list'),count=box.querySelector('.repo-binder-storage-count'),launchCount=d.querySelector('.repo-binder-storage-launch span'),results=box.querySelector('.repo-binder-storage-results');
     if(count)count.textContent=String(allStored.length);if(launchCount)launchCount.textContent=`(${allStored.length})`;if(results)results.textContent=allStored.length?`Showing ${visible.length} of ${allStored.length} stored cards`:'No cards currently stored';
     list.replaceChildren();
-    if(!allStored.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='CARD STORAGE IS EMPTY<br><small>Right-click a displayed card or drag one here to put it away.</small>';list.appendChild(empty);return}
+    if(!allStored.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='NO HIDDEN CARDS<br><small>Right-click a displayed card or drag one here to put it away.</small>';list.appendChild(empty);return}
     if(!visible.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='NO MATCHING CARDS<br><small>Try a different search or category.</small>';list.appendChild(empty);return}
     for(const id of visible){
       const card=map[id],category=storageCategory(id),item=document.createElement('article');item.className='repo-binder-storage-card';item.dataset.cardId=id;item.draggable=!Boolean(current().isPublic);item.title='Drag onto a binder slot, double-click, or use Restore';
@@ -17208,7 +16962,7 @@ qmShowSharedGoal=function(state){
     spread.addEventListener('pointermove',e=>{const img=e.target.closest('img[data-card-id]');if(img&&p.classList.contains('is-visible'))pos(p,e.clientX,e.clientY)});
     spread.addEventListener('pointerout',e=>{if(e.target.closest('img[data-card-id]'))p.classList.remove('is-visible')});
     spread.addEventListener('pointermove',e=>{const r=spread.getBoundingClientRect();if(!r.width||!r.height)return;spread.style.setProperty('--repo-ambient-x',`${Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100))}%`);spread.style.setProperty('--repo-ambient-y',`${Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))}%`)});
-    spread.addEventListener('pointerleave',()=>{spread.style.setProperty('--repo-ambient-x','50%');spread.style.setProperty('--repo-ambient-y','34%');hideCardContextMenu()});
+    spread.addEventListener('pointerleave',()=>{p.classList.remove('is-visible');spread.style.setProperty('--repo-ambient-x','50%');spread.style.setProperty('--repo-ambient-y','34%');hideCardContextMenu()});
     spread.addEventListener('contextmenu',e=>{
       const img=e.target.closest('img[data-card-id]');if(!img)return;
       e.preventDefault();if(current().isPublic)return;
@@ -17217,7 +16971,7 @@ qmShowSharedGoal=function(state){
       if(!Number.isFinite(slot)||!id)return;
       cards[slot]=null;const stored=loadStorage();if(!stored.includes(id))stored.push(id);
       save(cards);saveStorage(stored);render();
-      if(typeof showToast==='function')showToast(`${map[id]?.name||'Card'} added to Card Storage.`);
+      if(typeof showToast==='function')showToast(`${map[id]?.name||'Card'} added to Hidden Cards.`);
     });
     spread.addEventListener('dragstart',e=>{if(current().isPublic){e.preventDefault();return}const img=e.target.closest('img[data-card-id]');if(!img)return;activeDragFrom=Number(img.parentElement.dataset.slot);activeDragCard=img.dataset.cardId||'';p.classList.remove('is-visible');document.getElementById('quidditchTcgBinderDialog')?.classList.add('repo-binder-dragging');updateDragEdges();e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(activeDragFrom));e.dataTransfer.setData('application/x-repo-tcg-card',activeDragCard)});
     spread.addEventListener('dragover',e=>{if(current().isPublic||activeDragFrom<0)return;const s=e.target.closest('.repo-binder-slot-126');if(!s)return;e.preventDefault();e.dataTransfer.dropEffect='move';spread.querySelectorAll('.is-drop').forEach(n=>{if(n!==s)n.classList.remove('is-drop')});s.classList.add('is-drop')});
@@ -17232,7 +16986,7 @@ qmShowSharedGoal=function(state){
     const isSpread=next>=1&&next<=SPREAD_COUNT;d.dataset.binderPage=isSpread?`open${next}`:(next===0?'front':'back');
     if(next===0){img.src=quidditchTcgBinderAssetForPage(0);img.alt='Quidditch TCG binder front cover';img.style.display='block'}else if(next===LAST_PAGE){img.src=quidditchTcgBinderAssetForPage(2);img.alt='Quidditch TCG binder back cover';img.style.display='block'}else img.style.display='none';
     const l=document.getElementById('quidditchTcgBinderPageLabel');if(l)l.textContent=isSpread?`COLLECTION PAGES ${next*2-1}–${next*2}`:(next===0?'FRONT COVER':'BACK COVER');
-    const h=document.getElementById('quidditchTcgBinderHint');if(h)h.textContent=isSpread?`${owned().length} of ${catalog.length} current cards collected · Spread ${next} of ${SPREAD_COUNT}. Drag between spreads, or right-click a card to instantly add it to Card Storage.`:(next===0?'Click Next to open the binder.':'Click Previous to reopen the binder.');
+    const h=document.getElementById('quidditchTcgBinderHint');if(h)h.textContent=isSpread?`${owned().length} of ${catalog.length} current cards collected · Spread ${next} of ${SPREAD_COUNT}. Drag between spreads, or right-click a card to instantly add it to Hidden Cards.`:(next===0?'Click Next to open the binder.':'Click Previous to reopen the binder.');
     const prev=document.getElementById('quidditchTcgBinderPrev');if(prev)prev.disabled=next===0;
     const nb=document.getElementById('quidditchTcgBinderNext');if(nb)nb.disabled=next===LAST_PAGE;
     bindNavigationDragTargets();render();
@@ -17402,7 +17156,8 @@ qmShowSharedGoal=function(state){
         0 0 22px rgba(105,178,232,.22),
         0 0 34px rgba(225,188,91,.09),
         inset 0 0 0 2px rgba(4,10,17,.86)!important;
-      transform:translate(-50%,-50%)!important;
+      transform:none!important;
+      z-index:180!important;
       will-change:left,top,filter;
     }
     #quidditchTcgBinderDialog .repo-tcg-card-hover-preview.is-visible{

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="style.css?v=homepage-billboard-v11">
   <link rel="stylesheet" href="repo-rooftops.css?v=repo-rooftops-20260810-2-0">
   <link rel="stylesheet" href="repoggle.css?v=repoggle-1">
-  <link rel="stylesheet" href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260807-1">
+  <link rel="stylesheet" href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260811-v38-16">
   <link rel="stylesheet" href="assets/repo-diver/repo-diver.css?v=20260807-service-end-pets-1">
   <link rel="stylesheet" href="assets/quidditch-director/quidditch-director.css?v=20260807-polish5">
   <style id="tcgBinderNavIconStyles">
@@ -3275,7 +3275,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
     </button>
     <button id="openGoblinBombActivity" class="slayer-activity-card goblin-bomb" type="button">
       <span class="slayer-activity-art goblin-bomb-art" aria-hidden="true"></span>
-      <span><strong>GOBLIN BOMB PARTY</strong><small>Pass, throw and dodge a magical bomb against seven panicking goblins.</small><em>NEW · 1 PLAYER + 7 GOBLINS · 60–90 SEC</em></span>
+      <span><strong>GOBLIN BOMB PARTY</strong><small>Pass, throw and dodge a magical bomb solo or with a 2–4 player online party.</small><em>SOLO OR ONLINE · UP TO 4 HUMANS · 60–90 SEC</em></span>
     </button>
   </div>
 
@@ -3320,7 +3320,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 
     <section id="gbpMenuView" class="gbp-view gbp-menu-view">
       <div class="gbp-menu-hero">
-        <div class="gbp-menu-copy"><small>THE SIMPLE RULE</small><h2>DON'T BE HOLDING IT<br>WHEN IT GOES <b>BOOM.</b></h2><p>One player. Seven goblins. One increasingly angry magical bomb.</p>
+        <div class="gbp-menu-copy"><small>THE SIMPLE RULE</small><h2>DON'T BE HOLDING IT<br>WHEN IT GOES <b>BOOM.</b></h2><p>Play solo against seven goblins, or bring 2–4 human players into one increasingly angry online bomb party.</p>
           <div class="gbp-menu-stats"><span><small>WINS</small><b id="gbpMenuWins">0</b></span><span><small>STREAK</small><b id="gbpMenuStreak">0</b></span><span><small>BEST SCORE</small><b id="gbpMenuBest">0</b></span></div>
         </div>
         <div class="gbp-menu-art" aria-hidden="true"><div class="gbp-menu-bomb"></div><i class="g1"></i><i class="g2"></i><i class="g3"></i></div>
@@ -3331,7 +3331,10 @@ button.qg-game-card{font:inherit;cursor:pointer}
         <button type="button" data-gbp-difficulty="insane"><strong>INSANE</strong><small>LOCKED · 15 WINS</small></button>
       </div>
       <div class="gbp-selected-arena"><span>ARENA</span><b id="gbpSelectedArena">GOBLIN VILLAGE</b></div>
-      <button id="gbpPlay" class="gbp-play-button" type="button"><span>PLAY</span><small>1 PLAYER + 7 GOBLINS</small></button>
+      <div class="gbp-play-stack">
+        <button id="gbpPlay" class="gbp-play-button gbp-solo-play" type="button"><span>SOLO</span><small>1 PLAYER + 7 GOBLINS</small></button>
+        <button class="gbp-play-button gbp-online-party-button" type="button" data-gbp-view="multiplayer"><span>ONLINE PARTY</span><small>2–4 PLAYERS · 8 TOTAL COMPETITORS</small></button>
+      </div>
       <div class="gbp-menu-grid">
         <button type="button" data-gbp-view="customize"><b>CUSTOMIZE CHARACTER</b><small>Make your little Slayer menace.</small></button>
         <button type="button" data-gbp-view="arenas"><b>ARENAS</b><small>Choose your battleground.</small></button>
@@ -3339,6 +3342,63 @@ button.qg-game-card{font:inherit;cursor:pointer}
         <button type="button" data-gbp-view="achievements"><b>ACHIEVEMENTS</b><small>Unlock ridiculous cosmetics.</small></button>
         <button type="button" data-gbp-view="howto"><b>HOW TO PLAY</b><small>Learn it in seconds.</small></button>
         <button type="button" data-gbp-view="settings"><b>SETTINGS</b><small>Audio, effects and accessibility.</small></button>
+      </div>
+    </section>
+
+    <section id="gbpMultiplayerView" class="gbp-view gbp-multiplayer-view hidden">
+      <div class="gbp-subhead">
+        <button type="button" data-gbp-view="menu">← MENU</button>
+        <div><small>2–4 PLAYER REALTIME PARTY</small><h3>ONLINE PARTY</h3></div>
+      </div>
+      <div class="gbp-mp-layout">
+        <section class="gbp-mp-join-panel">
+          <div class="gbp-mp-intro">
+            <small>PRIVATE REALTIME ROOMS</small>
+            <h2>PARTY UP.</h2>
+            <p>Create a six-character room or join a friend. The arena always has eight competitors: every empty human slot is filled by an AI goblin.</p>
+          </div>
+          <div class="gbp-mp-actions">
+            <button id="gbpMpCreate" type="button"><b>CREATE ROOM</b><small>HOST A PRIVATE PARTY</small></button>
+            <div class="gbp-mp-join-row">
+              <input id="gbpMpCodeInput" maxlength="6" autocomplete="off" spellcheck="false" inputmode="text" placeholder="ABC123" aria-label="Goblin Bomb Party room code">
+              <button id="gbpMpJoin" type="button">JOIN</button>
+            </div>
+          </div>
+          <div class="gbp-mp-room-code">
+            <small>ROOM CODE</small>
+            <strong id="gbpMpRoomCodeDisplay">------</strong>
+            <button id="gbpMpCopy" type="button">COPY</button>
+          </div>
+          <p id="gbpMpStatus" class="gbp-mp-status" data-kind="waiting">Create a room or join with a six-character code.</p>
+          <small class="gbp-mp-note">The host runs the authoritative match simulation through Supabase Realtime. Online party matches are casual and do not award Slayer XP or GP.</small>
+        </section>
+
+        <section class="gbp-mp-lobby-panel">
+          <header>
+            <div><small>PARTY LOBBY</small><h4>READY ROOM</h4></div>
+            <span id="gbpMpHostSettings">GOBLIN VILLAGE · NORMAL · 8 AI GOBLINS</span>
+          </header>
+          <div id="gbpMpSlots" class="gbp-mp-slots">
+            <article class="gbp-mp-slot empty"><span>P1</span><div><b>OPEN SLOT</b><small>Create or join a room</small></div><em>—</em></article>
+            <article class="gbp-mp-slot empty"><span>P2</span><div><b>OPEN SLOT</b><small>Waiting for player…</small></div><em>—</em></article>
+            <article class="gbp-mp-slot empty"><span>P3</span><div><b>OPEN SLOT</b><small>Waiting for player…</small></div><em>—</em></article>
+            <article class="gbp-mp-slot empty"><span>P4</span><div><b>OPEN SLOT</b><small>Waiting for player…</small></div><em>—</em></article>
+          </div>
+          <div class="gbp-mp-lobby-actions">
+            <button id="gbpMpReady" type="button" hidden>READY UP</button>
+            <button id="gbpMpStart" class="primary" type="button" hidden disabled><b>START MATCH</b><small>NEED AT LEAST 2 PLAYERS</small></button>
+            <button id="gbpMpLeave" type="button" hidden>LEAVE ROOM</button>
+          </div>
+          <div class="gbp-mp-rules">
+            <b>ONLINE PARTY RULES</b>
+            <span>2 humans → 6 AI goblins</span>
+            <span>3 humans → 5 AI goblins</span>
+            <span>4 humans → 4 AI goblins</span>
+            <span>Guests ready up; host starts</span>
+            <span>Host controls arena + difficulty</span>
+            <span>Disconnects eliminate safely</span>
+          </div>
+        </section>
       </div>
     </section>
 
@@ -3831,7 +3891,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=homepage-billboard-v11"></script>
+<script src="script.js?v=v38-16-multiplayer-rooftops-binder-preview"></script>
 <script src="assets/quidditch-survivor/quidditch-survivor.js?v=20260807-character-visible-1"></script>
 <script src="assets/repo-diver/data.js?v=20260807-1"></script>
 <script src="assets/repo-diver/engine.js?v=20260807-1"></script>
@@ -3903,10 +3963,43 @@ window.__QD_HOST__={
   window.addEventListener('qd:ready',()=>button.dataset.qdReady='1');
 })();
 </script>
-<script src="assets/goblin-bomb-party/audio.js?v=20260807-1"></script>
-<script src="assets/goblin-bomb-party/renderer.js?v=20260807-1"></script>
-<script src="assets/goblin-bomb-party/engine.js?v=20260807-1"></script>
-<script src="assets/goblin-bomb-party/game.js?v=20260807-1"></script>
+<script id="repoGoblinBombEarlyBridge">
+(() => {
+  if (window.RepoGoblinBombBridge) return;
+  window.RepoGoblinBombBridge = {
+    get db(){
+      try { return typeof db !== 'undefined' ? db : null; }
+      catch (_) { return null; }
+    },
+    getCharacter(){
+      try { return typeof character !== 'undefined' ? character : null; }
+      catch (_) { return null; }
+    },
+    getUsername(){
+      try {
+        const c = typeof character !== 'undefined' ? character : null;
+        return String(c?.username || c?.name || '').trim();
+      } catch (_) { return ''; }
+    },
+    onReward(result={}){
+      try {
+        if (typeof character === 'undefined' || !character) return;
+        if (result.new_slayer_xp != null) character.slayer_xp = Number(result.new_slayer_xp);
+        if (result.new_gp != null) character.gp = Number(result.new_gp);
+        if (typeof renderCharacter === 'function') renderCharacter();
+        if (typeof queueWiseTaskCheck === 'function') queueWiseTaskCheck(180);
+      } catch (error) {
+        console.warn('[GBP early bridge]', error);
+      }
+    }
+  };
+})();
+</script>
+<script src="assets/goblin-bomb-party/audio.js?v=v38-14-multiplayer-restore"></script>
+<script src="assets/goblin-bomb-party/renderer.js?v=v38-14-multiplayer-restore"></script>
+<script src="assets/goblin-bomb-party/engine.js?v=v38-14-multiplayer-restore"></script>
+<script src="assets/goblin-bomb-party/game.js?v=v38-14-multiplayer-restore"></script>
+<script src="assets/goblin-bomb-party/multiplayer.js?v=20260811-v38-16"></script>
 <script id="repoMinigameLauncherRepair">
 (() => {
   const $ = id => document.getElementById(id);
@@ -3998,7 +4091,7 @@ window.__QD_HOST__={
 </script>
 <script src="repoggle-levels.js?v=repoggle-1"></script>
 <script src="repoggle.js?v=repoggle-charged-armour-fix-20260808-1"></script>
-<script src="repo-rooftops.js?v=repo-rooftops-20260810-2-0"></script>
+<script src="repo-rooftops.js?v=repo-rooftops-20260811-v38-16-endless-save"></script>
 
 <script id="repoSportsEndlessHordePreviewScript">
 (() => {
@@ -5266,6 +5359,6 @@ window.__QD_HOST__={
 })();
 </script>
 
-  <script src="world-cup-quidditch-v1.js?v=wc-game-v38-11-ref-ballhold"></script>
+  <script src="world-cup-quidditch-v1.js?v=wc-game-v38-12-tempo-tuning"></script>
 </body>
 </html>

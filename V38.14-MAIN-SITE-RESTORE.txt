@@ -1,0 +1,58 @@
+REPO COMPANY — V38.14 MAIN SITE REGRESSION RESTORE
+
+MODIFIED FILES ONLY
+- index.html
+- script.js
+
+ROOT CAUSE
+V38.13 replaced the site's main script.js with an older build while trying
+to restore the TCG binder. script.js also owns the homepage billboard runtime
+and many integration hooks, so unrelated systems regressed at the same time.
+
+TCG BINDER RESTORED
+- Uses the later auto-expanding double-page binder.
+- Minimum 8 spreads / 16 collection pages.
+- 18 slots per spread.
+- Existing per-user layout key retained:
+  repo_tcg_binder_54_layout_<username>
+- Hidden-card storage retained with the existing per-user key:
+  repo_tcg_binder_storage_<username>
+- Hidden card control is explicitly labelled HIDDEN CARDS.
+- Cross-spread drag/drop retained.
+- Previous/next spread navigation retained.
+
+BINDER CUSTOMISATION RESTORED
+- BINDER STYLE button restored.
+- CUSTOMISE BINDER menu restored.
+- Colour themes restored.
+- Background effects restored.
+- Legendary animations restored.
+- Pocket finishes restored.
+- Existing per-user binder style persistence retained.
+
+HOMEPAGE BILLBOARD RESTORED
+- Restored the later homepage billboard runtime.
+- Animated frame sequence retained.
+- Billboard ad rotation retained.
+- Billboard guest walking/climbing/seating runtime retained.
+- Existing current billboard HTML/assets are not replaced.
+
+GOBLIN BOMB PARTY MULTIPLAYER INTEGRATION
+- RepoGoblinBombBridge now exists BEFORE Goblin Bomb scripts initialise.
+- Existing database/character/reward integration remains available.
+- Goblin Bomb audio/renderer/engine/game cache versions are bumped so the
+  browser reloads the copies already present in your assets folder.
+- No Goblin Bomb asset is overwritten in this patch.
+
+WORLD CUP
+- Current World Cup HTML and V38.12 gameplay script reference are preserved.
+- No World Cup gameplay mechanics were rolled back.
+
+VALIDATION
+- script.js syntax check passed.
+- Verified 8+ spread binder marker.
+- Verified hidden-card storage marker.
+- Verified binder customisation installer/UI.
+- Verified homepage billboard runtime/ad rotator.
+- Verified current World Cup gameplay script is still referenced.
+- Verified early Goblin Bomb integration bridge appears before Goblin scripts.
