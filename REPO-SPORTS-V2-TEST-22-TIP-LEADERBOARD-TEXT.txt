@@ -1,0 +1,63 @@
+REPO SPORTS V2 TEST 22
+
+LEADERBOARD READABILITY
+- Physical All-Time Records sidebar dimensions are unchanged.
+- Increased ALL cyan/blue supporting text substantially:
+  owner names
+  match counts
+  qualification labels
+  GOALS/WINS captions
+  TOP 5 labels
+  footer/database text
+  loading/empty-state text
+- Short-height responsive rules can no longer shrink these labels back to
+  unreadable 3–4px text.
+
+BARRY TIPPING — RELIABLE V2 BRIDGE
+ROOT CAUSE ADDRESSED
+- Watch Party already used postMessage because the V2 iframe can be isolated
+  from the parent page in local-file/browser-origin setups.
+- Barry tipping was still using direct window.parent.RepoSportsV2TestBridge
+  access, so the visible button could fail even though the backend existed.
+
+NOW
+- Barry tip state and tip action use a request/response postMessage bridge.
+- 5-second timeout and explicit error handling included.
+- Successful tip immediately refreshes the shared total.
+- GP balance still refreshes on the parent account after a successful tip.
+
+IMPORTANT: SAME ORIGINAL TIP COUNTER
+V2 does NOT have a new Barry counter.
+It still uses the existing parent bridge functions which call:
+- get_quidditch_commentator_total_tips_v3
+- has_tipped_quidditch_commentator_v3
+- tip_quidditch_commentator_v3
+
+Therefore:
+- The percentage starts from the same lifetime total already accumulated in
+  the original RepoSports Quidditch mode.
+- Every V2 tip contributes to that same existing lifetime community total.
+- The 250,000 GP Barry's Boater target remains the same shared reward.
+- Existing server-side one-tip/current-live-rotation protection remains.
+- Tip cost remains 200 GP.
+
+UNCHANGED
+- Test 19 gameplay balance.
+- Test 21 Barry portrait.
+- Watch Party stability/cards/profile hover.
+- Live Match Stats.
+- All-Time Records data.
+- No V2 career/leaderboard writes.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- repo-sports-quidditch-v2.css
+
+NO ASSETS.
+NO SQL.
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

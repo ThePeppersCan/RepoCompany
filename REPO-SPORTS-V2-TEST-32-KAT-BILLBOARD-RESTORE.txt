@@ -1,0 +1,59 @@
+REPO SPORTS V2 TEST 32 — KAT BILLBOARD RESTORE
+
+WHAT WENT WRONG
+- Test 31 used a generic error fallback chain.
+- If Kat's seated/walk images failed, that chain eventually selected kat-climb.png.
+- The climb artwork was then being displayed while Kat was already seated.
+- A seated billboard guest uses a much larger wrapper than a climbing guest,
+  which is why Kat appeared enormous and permanently in the raised-knee pose.
+
+TEST 32
+- Removes the Test 31 generic fallback chain entirely.
+- Restores Kat's REAL matching white-top / denim sprite set.
+- Uses the billboard's EXISTING shared movement state machine.
+- No new special Kat movement logic.
+
+RESTORED STATES
+- walk-01.png           = real walking Kat
+- kat-climb.png         = raised-knee Kat, ONLY while physically climbing ladder
+- sit-01-standing       = standing/approach pose
+- sit-02 / sit-03       = transition pose
+- sit-04 / sit-05       = seated transition
+- sit-06-seated         = real seated Kat
+- idle-01-neutral       = valid seated/rest Kat
+
+SCALING
+- All supplied Kat artwork is normalized onto transparent 512x512 canvases.
+- Walking is sized for the billboard walking wrapper.
+- Climbing is sized for the much smaller ladder wrapper.
+- Seated frames are deliberately much smaller inside their canvas so Kat matches
+  the visual scale of the other guests instead of filling the 32.5% guest box.
+
+STATE SAFETY
+- A tiny index.html guard only prevents a stale climb image from remaining after
+  the normal state machine has already switched Kat to walking/seated.
+- It does NOT control timing, movement, seat choice, walk route or presence.
+
+UNCHANGED
+- All other billboard guests.
+- Billboard positions and seat assignments.
+- Homepage ads/background.
+- Repo Sports V2 gameplay.
+- Test 31 full-time readability.
+- Main script.js is NOT replaced.
+
+FILES CHANGED
+- index.html
+- assets/tavern-guests/kat/walk-01.png
+- assets/tavern-guests/kat/sit-01-standing.png
+- assets/tavern-guests/kat/sit-02-start-lower.png
+- assets/tavern-guests/kat/sit-03-lower.png
+- assets/tavern-guests/kat/sit-04-deep-lower.png
+- assets/tavern-guests/kat/sit-05-side.png
+- assets/tavern-guests/kat/sit-06-seated.png
+- assets/tavern-guests/kat/idle-01-neutral.png
+- assets/homepage-billboard/climbs/kat-climb.png
+
+INSTALL
+Drag the contents into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

@@ -1,0 +1,59 @@
+REPO SPORTS V2 TEST 31
+
+FULL-TIME LOWER HALF
+Everything from PLAYER STATISTICS downward has been made substantially larger.
+
+PLAYER SECTION
+- PLAYER STATISTICS heading: 15px
+- Team names: 18px
+- Player names: 25px
+- Roles: 13px
+- GOALS / SHOTS / TACKLES / POSSESSION labels: 14px
+- Player stat values: 27px
+- Player rows widened/tallened so the larger text remains clean.
+
+BOTTOM FOOTER
+- Player of the Match: 12px
+- Prediction result: 12px
+- Next-match countdown: 11px
+- Countdown number: 20px
+- NEXT TEST MATCH NOW button: 11px
+- Footer is taller and text is allowed to wrap instead of being clipped into
+  tiny single-line text.
+
+The upper team-statistics table was tightened very slightly to create enough
+vertical room without making the full-time report larger than the screen.
+
+KAT HOMEPAGE BILLBOARD AVATAR
+The screenshot shows "Kat relaxing at the billboard", which is the IMG alt text.
+That confirms Kat's dynamic image request is failing.
+
+Test 31 adds a Kat-specific image recovery chain directly in index.html.
+If the current seated sprite fails, it automatically tries:
+1. sit-06-seated
+2. idle-01-neutral
+3. sit-05-side
+4. sit-04-deep-lower
+5. sit-03-lower
+6. walk-01
+7. kat-climb
+
+This means one missing Kat export can no longer leave an empty/broken avatar.
+The billboard seating/presence logic itself is unchanged.
+
+IMPORTANT
+- Main script.js is NOT replaced in this patch.
+- No homepage layout changes.
+- No assets replaced.
+- Test 30 goal presentation remains unchanged.
+- 4:30 matches remain unchanged.
+- No SQL changes.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.css
+
+INSTALL
+Copy these files into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

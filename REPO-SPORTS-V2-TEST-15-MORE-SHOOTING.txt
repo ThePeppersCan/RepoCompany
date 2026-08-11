@@ -1,0 +1,56 @@
+REPO SPORTS V2 TEST 15 — MORE SHOOTING / LESS PASS-DEFENCE LOOP
+
+ROOT CAUSE FIXED
+- passesSinceShot was incremented when a pass started.
+- A successful pass then called setPossession().
+- setPossession() reset passesSinceShot back to 0 and lastPasser to null.
+- Result: the anti-pass-loop logic almost never saw a real multi-pass chain.
+- It also meant the previous passer could be lost before a goal, hurting assists.
+- Successful SAME-TEAM passes now preserve both the pass-chain count and the
+  correct assist candidate.
+- Real turnovers/restarts still clear them normally.
+
+MORE ATTACKING ACTION
+- Build-up, circulation, probing, counter and final-third phases all have more
+  shooting intent and less passing weight.
+- After just 1 completed pass in useful territory, shot weight starts rising.
+- After 3+ passes, the attack becomes strongly encouraged to shoot or drive.
+- Long-range shot intent is no longer crushed to a fixed 0.008.
+- Actual shots are allowed from zone 0.44 rather than waiting for zone 0.58.
+- Medium-range attempts remain harder to score because the existing distance
+  and zone penalties still apply.
+- Big-chance wind-up shortened from roughly 0.88–1.50s to roughly 0.68–1.08s.
+- Decisions after passes and drives happen sooner.
+
+LESS CONSTANT DEFENSIVE INTERRUPTION
+- Pass interception read window reduced.
+- Pass interception probability reduced and capped at 50%.
+- Carrier tackle radius reduced.
+- Tackle attempt probability reduced and capped at 50%.
+- Successful tackle probability reduced slightly.
+- Tackles/interceptions remain a real part of play, but should no longer break
+  up nearly every developing attack.
+
+SCORING / FAIRNESS
+- Goal probability per shot was NOT increased in Test 15.
+- The extra scoring should come from creating more actual attempts.
+- Both teams use exactly the same action weights, tackle/interception rules,
+  shot eligibility and goal RNG.
+- No favourites.
+- No rubber-banding.
+- No comeback logic.
+- No target score.
+- Results remain capable of being cagey or wild purely through symmetric RNG.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+
+NO CSS.
+NO ASSETS.
+NO SQL.
+NO WORLD CUP CHANGES.
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\, overwrite, then Ctrl + Shift + R.

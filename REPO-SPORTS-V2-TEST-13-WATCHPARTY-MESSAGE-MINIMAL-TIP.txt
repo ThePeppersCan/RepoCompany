@@ -1,0 +1,36 @@
+REPO SPORTS V2 TEST 13
+
+BARRY TIPPING — MINIMAL
+- Removed the large Barry's Boater reward block from the commentator panel.
+- Removed reward artwork from the visible UI.
+- Barry now has one compact TIP BARRY / 200 GP button.
+- Beside it is only a tiny Boater progress bar + percentage.
+- Existing 200 GP tipping backend, 250,000 GP community target, tip animation,
+  sound and actual Barry's Boater reward logic remain unchanged.
+- Commentator box height has been reduced again to reclaim pitch space.
+
+WATCH PARTY — HARD TRANSPORT FIX
+- V2 no longer depends on direct iframe -> parent JavaScript property access.
+- Added a window.postMessage Watch Party channel.
+- Parent page pushes the signed-in viewer card immediately when V2 loads.
+- Parent also responds whenever the V2 iframe requests a refresh.
+- CatAsthma/current signed-in account is sent BEFORE any database RPC.
+- The live server viewer list is then sent as a second/enriched update.
+- This works in local-file setups where iframe origins can block direct
+  window.parent.RepoSportsV2TestBridge access.
+- Direct bridge remains as a bonus fallback when browser origin rules allow it.
+- Existing 2.5-second refresh remains.
+- Watch Party remains shifted slightly right to keep clear of Barry.
+
+NO SQL UPDATE.
+NO ASSET UPDATE.
+NO MATCH ENGINE CHANGE.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- repo-sports-quidditch-v2.css
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\, overwrite, then Ctrl + Shift + R.

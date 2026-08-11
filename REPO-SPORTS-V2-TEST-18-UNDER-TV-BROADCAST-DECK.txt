@@ -1,0 +1,57 @@
+REPO SPORTS V2 TEST 18 — PROFESSIONAL UNDER-TV BROADCAST DECK
+
+STRUCTURAL CHANGE
+Barry Bramble/commentary, Repo Sports Watch Party and Live Match Stats are
+no longer children of .wcg-shell (the television picture).
+
+They are physically moved into a separate lower broadcast deck after the TV:
+    [ ALL-TIME RECORDS ] [ TELEVISION ]
+                         [ BARRY | WATCH PARTY | LIVE STATS ]
+
+Because these elements are outside .wcg-shell, they cannot cover the pitch,
+players or TV picture regardless of older absolute-position CSS.
+
+LOWER BROADCAST DECK
+- Sits directly beneath the TV with an 8px gap.
+- Same width as the television.
+- Consistent Repo Sports navy/gold frame language.
+- Barry/commentary receives the largest section on the left.
+- Watch Party is the centre section.
+- Live Match Stats are the right section.
+- All three modules have matching height, border treatment and spacing.
+- Barry's minimal Tip Barry + Boater percentage remains available.
+- Watch Party equipped Watchcard backgrounds and original hover profiles remain.
+- Live Match Stats data remains unchanged.
+
+ALL-TIME RECORDS
+- Remains outside the TV on the far left.
+- Still shows all three original career leaderboards stacked vertically.
+- Stretches alongside the complete broadcast composition.
+
+RESPONSIVE FIT
+- Added compact layouts for narrower screens and browser heights <= 850px.
+- Keeps the TV and lower deck within common laptop/desktop viewports.
+
+UNCHANGED
+- 5-minute Test 17 gameplay balance.
+- 50/50 match engine.
+- Predictions.
+- Barry tipping backend.
+- Watch Party backend/profile behaviour.
+- Career leaderboard data.
+- Music shuffle.
+- World Cup.
+- No leaderboard/career writes from V2.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- repo-sports-quidditch-v2.css
+
+NO ASSETS.
+NO SQL.
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

@@ -1,0 +1,61 @@
+REPO SPORTS V2 TEST 24 — CLEAN FULL-TIME STAT SHEET
+
+END SCREEN REDESIGN
+- Replaces the old dense match-report dashboard with a simple football-style
+  statistics presentation based on the supplied reference.
+- Result header is compact instead of several giant stacked title blocks.
+- Main team statistics are now one clear three-column table:
+    HOME VALUE | STATISTIC | AWAY VALUE
+- Alternating navy/blue rows improve scanability.
+
+TEAM STATISTICS SHOWN
+- Shots
+- Shots on Target
+- Possession
+- Pass Completion
+- Tackles Won
+- Interceptions
+- Fouls
+- VAR Reviews
+
+PLAYER STATISTICS BELOW
+- Two clean team panels side-by-side.
+- Three players per team.
+- Each player shows ONLY:
+    Goals
+    Shots
+    Tackles
+    Possession
+- Player possession is shown as that player's share of their team's possession.
+- Removed assists, missed chances, passes, saves, rebounds and other tiny boxes
+  from the visible full-time player report to prevent clutter.
+
+FOOTER
+- Player of the Match stays, but is a single compact line.
+- Prediction result stays.
+- 30-second next-match countdown stays.
+- Admin/test Next Match button stays.
+- These share one slim footer row rather than four stacked boxes.
+
+UNCHANGED
+- Match lasts 5 minutes.
+- 30-second full-time screen duration.
+- Test 19 gameplay balance.
+- Arena atmosphere from Test 23.
+- Barry tipping / Watch Party / external leaderboard.
+- 50/50 match engine.
+- No V2 career/leaderboard writes.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- repo-sports-quidditch-v2.css
+
+NO ASSETS.
+NO SQL.
+NO WORLD CUP CHANGES.
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

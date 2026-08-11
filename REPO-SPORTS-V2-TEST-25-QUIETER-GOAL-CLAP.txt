@@ -1,0 +1,25 @@
+REPO SPORTS V2 TEST 25 — QUIETER GOAL CLAP
+
+- Goal-scoring celebration clap/cheer volume reduced by 40%.
+- Previous playback level: 0.25
+- New playback level: 0.15
+- This is exactly 60% of the previous volume.
+
+UNCHANGED
+- Crowd ambience
+- Background music
+- Whistles
+- Replay stings
+- Other match SFX
+- Gameplay / scoring / 50-50 engine
+- Arena atmosphere
+- Full-time screen
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

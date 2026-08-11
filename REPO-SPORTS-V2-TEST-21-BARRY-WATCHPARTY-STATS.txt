@@ -1,0 +1,60 @@
+REPO SPORTS V2 TEST 21
+
+BARRY PORTRAIT
+- Removed the small REPO SPORTS / LIVE BOOTH rectangle above Barry.
+- Removed the REPO SPORTS / QUIDDITCH desk rectangle below Barry.
+- Removed the decorative little studio legs.
+- Barry now appears by himself in a clean square navy/gold portrait frame.
+- Barry's name, role and ON AIR status remain only in the main commentary box.
+
+WATCH PARTY FLASHING FIX
+ROOT CAUSE:
+- Every 2.5-second Watch Party request sent a CatAsthma-only local payload FIRST.
+- The real server payload containing the other active viewers arrived afterwards.
+- This made other Watchcards literally disappear and reappear on every poll.
+
+FIX:
+- Instant local-only payload is now sent ONLY on initial iframe load.
+- Normal refreshes send the real viewer payload without shrinking to one viewer first.
+- Added a 12-second recent-viewer grace cache inside V2.
+- A single missed/incomplete heartbeat will not make a viewer blink out.
+- Genuine inactive viewers disappear after the grace period.
+- Watchcard backgrounds and hover profiles are unchanged.
+
+LIVE MATCH STATS
+- Physical stats module size is unchanged.
+- Increased header/team/stat text sizes.
+- Stats now fill the box vertically with 8 rows:
+  SHOTS
+  ON TARGET
+  POSSESSION
+  PASSES (completed/attempted)
+  INTERCEPTS
+  TACKLES WON
+  FOULS
+  VAR
+- Reduced wasted gaps and padding.
+- Home/away values retain their gold/cyan colour language.
+
+UNCHANGED
+- Test 19 gameplay balance.
+- Barry tipping backend and tip rail.
+- Watch Party backend/profile hover.
+- All-Time Records.
+- World Cup.
+- Music.
+- Predictions.
+- No V2 leaderboard/career writes.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- repo-sports-quidditch-v2.css
+
+NO ASSETS.
+NO SQL.
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\ and overwrite.
+Then Ctrl + Shift + R.

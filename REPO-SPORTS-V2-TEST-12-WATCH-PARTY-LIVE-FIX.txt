@@ -1,0 +1,43 @@
+REPO SPORTS V2 TEST 12 — WATCH PARTY LIVE FIX
+
+ROOT CAUSE
+Test 11 awaited qmRefreshWatcherProfiles() before returning the first Watch
+Party payload. That original helper performs several profile/background RPCs.
+A slow or unavailable profile request could therefore leave V2 permanently
+showing "Loading watch party...".
+
+FIX
+- Watch Party no longer waits for profile enrichment.
+- Active viewer names and avatars are returned immediately.
+- Watchcard/profile enrichment continues asynchronously.
+- The next refresh picks up equipped Watchcard backgrounds.
+- Signed-in current account is guaranteed to appear at least once even if the
+  server viewer_names list has not caught up yet.
+- Current viewer's equipped Watchcard background is read directly from
+  character.equipped_watchcard_background, so it does not depend on profile RPC.
+- Only ONE get_live_quidditch_state request is made per refresh.
+- Live-state request has an 1800 ms safety timeout.
+- If the backend is slow, the signed-in viewer is rendered as a local fallback
+  instead of leaving the panel on Loading.
+- Refresh cadence improved from 4.0 seconds to 2.5 seconds.
+- Failure state now says "Watch Party reconnecting..." rather than an eternal
+  Loading placeholder.
+
+POSITION
+- Watch Party moved from 50% to 55.5% horizontal centre.
+- This gives Barry's commentary panel a clean gap while keeping Watch Party
+  beneath the middle/right-centre of the TV.
+- Smaller layouts use 54.5%.
+
+NO SQL CHANGES.
+NO ASSET CHANGES.
+NO MATCH ENGINE CHANGES.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- repo-sports-quidditch-v2.css
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\, overwrite, then Ctrl + Shift + R.

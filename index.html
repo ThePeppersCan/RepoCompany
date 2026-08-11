@@ -2491,6 +2491,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
       <button id="openPetWars" type="button" hidden aria-hidden="true" tabindex="-1" style="display:none!important"></button>
       <button id="openQuidditchDirector" class="quidditch-director-open-button other-quidditch-open-button" title="Repo Company: Quidditch Games"><img src="assets/quidditch-mode-icon.png" alt="" width="32" height="32" style="width:32px;height:32px;object-fit:contain"><span class="activity-button-copy"><small>PLAY</small><span>QUIDDITCH GAMES</span></span></button>
       <button id="openQuidditchMode" class="other-quidditch-open-button" title="Open Repo Sports"><img src="assets/repo-sports-logo.png" alt="Repo Sports" width="42" height="21" style="width:42px;height:21px;object-fit:contain"><span class="activity-button-copy"><small>OPEN</small><span>REPO SPORTS</span></span></button>
+      <button id="openRepoSportsV2Test" class="other-quidditch-open-button" type="button" title="Admin test: Repo Sports V2" hidden><img src="assets/repo-sports-logo.png" alt="Repo Sports" width="42" height="21" style="width:42px;height:21px;object-fit:contain"><span class="activity-button-copy"><small>ADMIN TEST</small><span>REPO SPORTS V2</span></span></button>
       <button id="openRaids" class="raids-open-button"><img src="assets/raids-icon.png" alt=""><span class="activity-button-copy"><small>OPEN</small><span>RAIDS</span></span></button>
       <button id="openNpcContact" class="npc-contact-open-button"><img src="assets/npc-contact-icon.png" alt="" width="24" height="24"><span class="activity-button-copy"><small>OPEN</small><span>NPC CONTACT</span></span></button>
       <button id="openAchievements" class="achievements-open-button"><img src="assets/achievement-log-icon.png" alt="" width="24" height="24"><span class="activity-button-copy"><small>OPEN</small><span>ACHIEVEMENTS</span></span></button>
@@ -3892,6 +3893,44 @@ button.qg-game-card{font:inherit;cursor:pointer}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js?v=v38-16-multiplayer-rooftops-binder-preview"></script>
+<script>
+/* Kat billboard state guard — Test 32.
+   The normal billboard state machine remains authoritative. This only prevents
+   an old/stale climb image from remaining after the element has already changed
+   to walking or seated state. */
+(() => {
+  const syncKat = () => {
+    document.querySelectorAll('.tavern-guest[data-guest="kat"]').forEach(guest => {
+      const img = guest.querySelector('img');
+      if (!img) return;
+      const src = String(img.getAttribute('src') || '');
+      if (guest.classList.contains('is-billboard-climbing')) {
+        if (!/kat-climb\.png(?:\?|$)/i.test(src)) {
+          img.src = 'assets/homepage-billboard/climbs/kat-climb.png';
+        }
+        return;
+      }
+      if (guest.classList.contains('is-billboard-walking')) {
+        if (/kat-climb\.png(?:\?|$)/i.test(src)) {
+          img.src = 'assets/tavern-guests/kat/walk-01.png';
+        }
+        return;
+      }
+      if (guest.classList.contains('is-billboard-seated') || guest.classList.contains('is-idle')) {
+        if (/kat-climb\.png(?:\?|$)/i.test(src)) {
+          img.src = 'assets/tavern-guests/kat/sit-06-seated.png';
+        }
+      }
+    });
+  };
+  new MutationObserver(syncKat).observe(document.documentElement,{
+    subtree:true,childList:true,attributes:true,attributeFilter:['class','src']
+  });
+  addEventListener('load',syncKat,{once:true});
+  syncKat();
+})();
+</script>
+
 <script src="assets/quidditch-survivor/quidditch-survivor.js?v=20260807-character-visible-1"></script>
 <script src="assets/repo-diver/data.js?v=20260807-1"></script>
 <script src="assets/repo-diver/engine.js?v=20260807-1"></script>
@@ -5359,6 +5398,409 @@ window.__QD_HOST__={
 })();
 </script>
 
-  <script src="world-cup-quidditch-v1.js?v=wc-game-v38-12-tempo-tuning"></script>
+  <script src="world-cup-quidditch-v1.js?v=wc-game-v38-12-random-music"></script>
+<style id="repoSportsV2LaunchStyles">
+#repoSportsV2TestOverlay{position:fixed;inset:0;z-index:2147483000;background:#01050a;display:none;overflow:hidden}
+#repoSportsV2TestFrame{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .36s ease}
+#repoSportsV2TestOverlay.is-feed-visible #repoSportsV2TestFrame{opacity:1}
+#closeRepoSportsV2Test{position:absolute;right:14px;top:14px;z-index:12;width:42px;height:42px;border:2px solid #c79532;background:#281707;color:#ffe09a;font:900 26px/1 Georgia;cursor:pointer;box-shadow:0 5px 18px #000a}
+#repoSportsV2LaunchSting{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:radial-gradient(circle at 50% 44%,#0c1725 0,#02070d 64%,#000 100%);opacity:0;visibility:hidden;transition:opacity .34s ease}
+#repoSportsV2LaunchSting.is-playing{opacity:1;visibility:visible}
+#repoSportsV2LaunchSting.is-leaving{opacity:0}
+.repo-v2-sting-tv{position:relative;width:min(96vw,1448px);max-height:96vh;aspect-ratio:1448/1086;filter:drop-shadow(0 26px 55px #000)}
+.repo-v2-sting-tv>img{display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto}
+.repo-v2-logo-shine{position:absolute;left:21.1%;top:25.8%;width:56.2%;height:38.7%;overflow:hidden;pointer-events:none;mix-blend-mode:screen}
+.repo-v2-logo-shine::after{content:"";position:absolute;top:-42%;left:-34%;width:18%;height:190%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),rgba(255,247,202,.86),rgba(130,220,255,.38),transparent);filter:blur(2px);opacity:0}
+#repoSportsV2LaunchSting.is-playing .repo-v2-logo-shine::after{animation:repoV2LogoShine 1.42s cubic-bezier(.2,.74,.2,1) .18s both}
+.repo-v2-screen-glow{position:absolute;left:18.2%;top:23.4%;width:63.7%;height:45%;border-radius:3%;box-shadow:0 0 45px rgba(60,150,255,.0);pointer-events:none}
+#repoSportsV2LaunchSting.is-playing .repo-v2-screen-glow{animation:repoV2ScreenPulse 1.62s ease-out .06s both}
+@keyframes repoV2LogoShine{0%{left:-32%;opacity:0}12%{opacity:.75}62%{opacity:1}100%{left:122%;opacity:0}}
+@keyframes repoV2ScreenPulse{0%{box-shadow:0 0 0 rgba(60,150,255,0)}38%{box-shadow:0 0 48px rgba(58,143,255,.22),inset 0 0 22px rgba(255,230,160,.08)}100%{box-shadow:0 0 12px rgba(60,150,255,0)}}
+@media(prefers-reduced-motion:reduce){.repo-v2-logo-shine::after,.repo-v2-screen-glow{animation:none!important}}
+</style>
+<div id="repoSportsV2TestOverlay" aria-hidden="true">
+  <button id="closeRepoSportsV2Test" type="button">×</button>
+  <iframe id="repoSportsV2TestFrame" title="Repo Sports V2 test" allow="autoplay; fullscreen"></iframe>
+  <div id="repoSportsV2LaunchSting" aria-hidden="true">
+    <div class="repo-v2-sting-tv">
+      <img src="assets/repo-sports-v2/repo-sports-v2-tv-sting.png" alt="Repo Sports television ident">
+      <span class="repo-v2-screen-glow"></span>
+      <span class="repo-v2-logo-shine"></span>
+    </div>
+  </div>
+</div>
+<script>
+(()=>{
+  const b=document.getElementById('openRepoSportsV2Test'),o=document.getElementById('repoSportsV2TestOverlay'),f=document.getElementById('repoSportsV2TestFrame'),x=document.getElementById('closeRepoSportsV2Test'),sting=document.getElementById('repoSportsV2LaunchSting');
+  const a=()=>{try{return String((typeof character!=='undefined'&&character?.username)||'').toLowerCase()==='catasthma'}catch(_){return false}};
+  const s=()=>b.hidden=!a();
+  let revealTimer=0,closeTimer=0,launchSerial=0;
+  function playRepoV2LaunchSound(){
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+      const ctx=playRepoV2LaunchSound.ctx||(playRepoV2LaunchSound.ctx=new AC());
+      if(ctx.state==='suspended')void ctx.resume();
+      const now=ctx.currentTime,master=ctx.createGain();master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(.17,now+.035);master.gain.exponentialRampToValueAtTime(.0001,now+1.12);master.connect(ctx.destination);
+      const bass=ctx.createOscillator();bass.type='sine';bass.frequency.setValueAtTime(92,now);bass.frequency.exponentialRampToValueAtTime(58,now+.52);const bg=ctx.createGain();bg.gain.setValueAtTime(.20,now);bg.gain.exponentialRampToValueAtTime(.0001,now+.58);bass.connect(bg);bg.connect(master);bass.start(now);bass.stop(now+.62);
+      [392,523.25,783.99].forEach((freq,i)=>{const osc=ctx.createOscillator(),g=ctx.createGain(),t=now+.13+i*.13;osc.type=i===2?'triangle':'sine';osc.frequency.setValueAtTime(freq,t);osc.frequency.exponentialRampToValueAtTime(freq*1.045,t+.20);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(i===2?.30:.22,t+.018);g.gain.exponentialRampToValueAtTime(.0001,t+.34);osc.connect(g);g.connect(master);osc.start(t);osc.stop(t+.36)});
+      const sparkle=ctx.createOscillator(),sg=ctx.createGain();sparkle.type='sine';sparkle.frequency.setValueAtTime(1174.66,now+.63);sparkle.frequency.exponentialRampToValueAtTime(1567.98,now+.92);sg.gain.setValueAtTime(.0001,now+.63);sg.gain.exponentialRampToValueAtTime(.17,now+.67);sg.gain.exponentialRampToValueAtTime(.0001,now+1.03);sparkle.connect(sg);sg.connect(master);sparkle.start(now+.63);sparkle.stop(now+1.05);
+    }catch(_){}
+  }
+  function hideLaunchSting(serial){
+    if(serial!==launchSerial)return;
+    sting.classList.add('is-leaving');
+    o.classList.add('is-feed-visible');
+    clearTimeout(closeTimer);
+    closeTimer=setTimeout(()=>{if(serial!==launchSerial)return;sting.classList.remove('is-playing','is-leaving');sting.setAttribute('aria-hidden','true')},380);
+  }
+  let repoV2BarryViewerKey='';
+  function repoV2ExistingBarryMatchId(){
+    try{
+      const first=Number((typeof qmState!=='undefined'&&qmState?.liveState?.match_id)||0);
+      if(Number.isSafeInteger(first)&&first>0)return first;
+      const second=Number((typeof qmState!=='undefined'&&qmState?.liveMatchId)||0);
+      return Number.isSafeInteger(second)&&second>0?second:null;
+    }catch(_){return null}
+  }
+  async function repoV2BarryMatchId(){
+    const existing=repoV2ExistingBarryMatchId();if(existing)return existing;
+    if(typeof db==='undefined'||!db?.rpc)return null;
+    try{
+      if(!repoV2BarryViewerKey){
+        try{repoV2BarryViewerKey=sessionStorage.getItem('repoV2BarryViewerKey')||''}catch(_){}
+        if(!repoV2BarryViewerKey){
+          repoV2BarryViewerKey=`repo-v2-barry-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          try{sessionStorage.setItem('repoV2BarryViewerKey',repoV2BarryViewerKey)}catch(_){}
+        }
+      }
+      const{data,error}=await db.rpc('get_live_quidditch_state',{p_viewer_key:repoV2BarryViewerKey});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data,id=Number(row?.match_id||0);
+      return Number.isSafeInteger(id)&&id>0?id:null;
+    }catch(_){return null}
+  }
+  function repoV2LocalWatchPartyPayload(){
+    const currentName=(typeof character!=='undefined'&&character?.username)?String(character.username):'';
+    if(!currentName)return{match_id:repoV2ExistingBarryMatchId(),viewer_count:0,cards:[]};
+    let avatar='assets/dialogue-placeholder-1.png',background=null;
+    try{if(typeof qmWatcherAvatarForName==='function')avatar=qmWatcherAvatarForName(currentName)||avatar}catch(_){}
+    try{
+      if(typeof partyPeteItem==='function'){
+        const own=partyPeteItem(character?.equipped_watchcard_background||null);
+        if(own?.image)background=own.image;
+      }
+      if(!background&&typeof qmWatchcardBackdropForName==='function'){
+        const backdrop=qmWatchcardBackdropForName(currentName);
+        if(backdrop?.image)background=backdrop.image;
+      }
+    }catch(_){}
+    return{match_id:repoV2ExistingBarryMatchId(),viewer_count:1,cards:[{name:currentName,avatar,background}]};
+  }
+
+  window.RepoSportsV2TestBridge={
+    async getWatchParty(){
+      const currentName=(typeof character!=='undefined'&&character?.username)?String(character.username):'';
+      const watcherKey=name=>String(name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+
+      const cardFrom=name=>{
+        let avatar='assets/dialogue-placeholder-1.png',background=null;
+        try{if(typeof qmWatcherAvatarForName==='function')avatar=qmWatcherAvatarForName(name)||avatar}catch(_){}
+        try{
+          if(typeof qmWatchcardBackdropForName==='function'){
+            const backdrop=qmWatchcardBackdropForName(name);
+            if(backdrop?.image)background=backdrop.image;
+          }
+        }catch(_){}
+        return{name,avatar,background};
+      };
+
+      const localFallback=()=>repoV2LocalWatchPartyPayload();
+      if(typeof db==='undefined'||!db?.rpc)return localFallback();
+
+      try{
+        if(!repoV2BarryViewerKey){
+          try{repoV2BarryViewerKey=sessionStorage.getItem('repoV2BarryViewerKey')||''}catch(_){}
+          if(!repoV2BarryViewerKey){
+            repoV2BarryViewerKey=`repo-v2-watch-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            try{sessionStorage.setItem('repoV2BarryViewerKey',repoV2BarryViewerKey)}catch(_){}
+          }
+        }
+
+        const liveRequest=db.rpc('get_live_quidditch_state',{p_viewer_key:repoV2BarryViewerKey});
+        const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('watch party live-state timeout')),1800));
+        const result=await Promise.race([liveRequest,timeout]);
+        if(result?.error)throw result.error;
+
+        const row=Array.isArray(result?.data)?result.data[0]:(result?.data||{});
+        let names=Array.isArray(row.viewer_names)?row.viewer_names.filter(Boolean).map(String):[];
+        if(currentName&&!names.some(name=>watcherKey(name)===watcherKey(currentName)))names.push(currentName);
+        names=names.sort((a,b)=>a.localeCompare(b));
+
+        // The original Watch Party gets equipped backgrounds from this exact RPC.
+        // It is lightweight, so unlike the full profile lookup we DO wait for this
+        // one before sending the enriched Watch Party payload.
+        let backgroundByName=new Map();
+        if(names.length){
+          try{
+            const{data:backgroundRows,error:backgroundError}=await db.rpc('get_watchcard_backgrounds',{p_usernames:[...new Set(names)]});
+            if(backgroundError)console.warn('V2 Watch Party backgrounds:',backgroundError);
+            backgroundByName=new Map((backgroundRows||[]).map(row=>[watcherKey(row.username),row.equipped_watchcard_background||null]));
+          }catch(error){
+            console.warn('V2 Watch Party backgrounds:',error);
+          }
+        }
+
+        const cards=names.map(name=>{
+          let card=cardFrom(name),backgroundId=backgroundByName.get(watcherKey(name))||null;
+
+          // The current signed-in account may have a fresher local equipped
+          // Watchcard than the server response (especially during admin testing).
+          if(currentName&&watcherKey(name)===watcherKey(currentName)){
+            const localEquipped=character?.equipped_watchcard_background||null;
+            if(localEquipped)backgroundId=localEquipped;
+          }
+
+          try{
+            if(backgroundId&&typeof partyPeteItem==='function'){
+              const item=partyPeteItem(backgroundId);
+              if(item?.image)card.background=item.image;
+            }
+          }catch(_){}
+
+          return card;
+        });
+
+        // Load the rest of the original Watch Party profile information in the
+        // background. Hovering a V2 card also performs a forced refresh.
+        try{
+          if(typeof qmRefreshWatcherProfiles==='function'&&names.length){
+            Promise.resolve(qmRefreshWatcherProfiles([...new Set(names)])).catch(error=>console.warn('V2 Watch Party profile refresh:',error));
+          }
+        }catch(error){
+          console.warn('V2 Watch Party profile refresh:',error);
+        }
+
+        return{
+          match_id:Number(row.match_id||0)||repoV2ExistingBarryMatchId()||null,
+          viewer_count:Math.max(Number(row.viewer_count)||0,cards.length,currentName?1:0),
+          cards
+        };
+      }catch(error){
+        console.warn('V2 Watch Party live viewer fallback:',error);
+        return localFallback();
+      }
+    },
+    async getCareerLeaderboards(){
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Repo Sports career database is not connected');
+
+      // Same source as original RepoSports Quidditch Mode.
+      let result=await db.rpc('get_quidditch_career_leaderboards_v3');
+      if(result.error&&(/get_quidditch_career_leaderboards_v3|schema cache|could not find/i.test(`${result.error.message||''} ${result.error.details||''}`))){
+        result=await db.rpc('get_quidditch_career_leaderboards_v2');
+      }
+      if(result.error)throw result.error;
+
+      const row=Array.isArray(result.data)?result.data[0]:result.data;
+      if(!row)return{goal_leaders:[],winrate_leaders:[],team_leaders:[]};
+
+      // Same public rename override pass as the original leaderboard so a pet
+      // keeps its permanent totals but displays its latest custom name.
+      let overrides=[];
+      try{
+        const renameResult=await db.from('quidditch_pet_name_overrides').select('owner_name,pet_id,previous_name,pet_name');
+        if(!renameResult.error&&Array.isArray(renameResult.data))overrides=renameResult.data;
+      }catch(_){}
+
+      const key=value=>String(value||'').trim().toLowerCase();
+      const byPet=new Map(overrides.filter(x=>x.pet_id).map(x=>[`${key(x.owner_name)}|${key(x.pet_id)}`,x.pet_name]));
+      const byOldName=new Map(overrides.filter(x=>x.previous_name).map(x=>[`${key(x.owner_name)}|${key(x.previous_name)}`,x.pet_name]));
+      const renameItems=items=>(Array.isArray(items)?items:[]).map(item=>{
+        const owner=key(item?.owner_name),petId=key(item?.pet_id),oldName=key(item?.pet_name);
+        const latest=(petId&&byPet.get(`${owner}|${petId}`))||byOldName.get(`${owner}|${oldName}`);
+        return latest?{...item,pet_name:latest}:item;
+      });
+
+      return{
+        goal_leaders:renameItems(row.goal_leaders),
+        winrate_leaders:renameItems(row.winrate_leaders),
+        team_leaders:Array.isArray(row.team_leaders)?row.team_leaders:[]
+      };
+    },
+    async getBarryTipState(){
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Barry tipping service is not connected');
+      const matchId=await repoV2BarryMatchId();
+      const totalRequest=db.rpc('get_quidditch_commentator_total_tips_v3');
+      const tippedRequest=matchId?db.rpc('has_tipped_quidditch_commentator_v3',{p_match_id:matchId}):Promise.resolve({data:false,error:null});
+      const[totalResult,tippedResult]=await Promise.all([totalRequest,tippedRequest]);
+      if(totalResult.error)throw totalResult.error;if(tippedResult.error)throw tippedResult.error;
+      return{match_id:matchId,total_gp:Number(totalResult.data)||0,tipped:tippedResult.data===true,tip_cost:200,target_gp:250000,current_gp:Number((typeof character!=='undefined'&&character?.gp)||0)};
+    },
+    async tipBarry(){
+      if(typeof character==='undefined'||!character)throw new Error('Sign in to tip Barry Bramble');
+      if((Number(character.gp)||0)<200)throw new Error('You need 200 GP to tip Barry Bramble');
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Barry tipping service is not connected');
+      const matchId=await repoV2BarryMatchId();if(!matchId)throw new Error('The current live rotation is still loading');
+      const{data,error}=await db.rpc('tip_quidditch_commentator_v3',{p_match_id:matchId});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(row?.remaining_gp!=null){character.gp=Number(row.remaining_gp)||0;try{if(typeof renderCharacter==='function')renderCharacter()}catch(_){}}
+      return{...row,match_id:matchId,total_gp:Number(row?.lifetime_tip_gp)||0,tipped:true,tip_cost:200,target_gp:250000};
+    },
+    async submitPrediction(matchKey,pick){
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Database is not connected');
+      const{data,error}=await db.rpc('submit_repo_sports_v2_prediction',{p_match_key:String(matchKey||''),p_pick:String(pick||'')});
+      if(error)throw error;return Array.isArray(data)?data[0]:data;
+    },
+    async getPredictionCounts(matchKey){
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Database is not connected');
+      const{data,error}=await db.rpc('get_repo_sports_v2_prediction_counts',{p_match_key:String(matchKey||'')});
+      if(error)throw error;return Array.isArray(data)?data[0]:data;
+    },
+    async awardPrediction(matchKey){
+      if(!a())throw new Error('V2 reward is admin-test only');if(typeof db==='undefined'||!db?.rpc)throw new Error('Database is not connected');
+      const{data,error}=await db.rpc('claim_repo_sports_v2_prediction_reward',{p_match_key:String(matchKey||'')});if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;if(row?.new_gp!=null&&typeof character!=='undefined'&&character){character.gp=Number(row.new_gp)||0;try{if(typeof renderCharacter==='function')renderCharacter()}catch(_){}}
+      return row||{awarded:false,new_gp:Number(character?.gp||0)}
+    }
+  };
+  async function repoV2PushWatchParty(targetWindow,includeImmediateLocal=false){
+    if(!targetWindow)return;
+    const send=payload=>{
+      try{targetWindow.postMessage({type:'repo-sports-v2-watch-party-data',payload},'*')}catch(_){}
+    };
+    // Only the FIRST iframe load gets the instant local card. Test 20 sent this
+    // one-viewer payload before EVERY refresh, which made other viewers flash
+    // off and back on whenever the real server payload arrived.
+    if(includeImmediateLocal)send(repoV2LocalWatchPartyPayload());
+    try{
+      const payload=await window.RepoSportsV2TestBridge.getWatchParty();
+      send(payload);
+    }catch(error){
+      console.warn('V2 Watch Party push:',error);
+      if(includeImmediateLocal)send(repoV2LocalWatchPartyPayload());
+    }
+  }
+  async function repoV2PushCareer(targetWindow){
+    if(!targetWindow)return;
+    try{
+      const payload=await window.RepoSportsV2TestBridge.getCareerLeaderboards();
+      targetWindow.postMessage({type:'repo-sports-v2-career-data',payload},'*');
+    }catch(error){
+      console.warn('V2 Career leaderboard push:',error);
+    }
+  }
+
+  let repoV2HoveredWatcher='';
+  function repoV2ProfileTopZ(){
+    const card=document.getElementById('qmWatcherProfileCard');
+    if(!card)return;
+    card.style.setProperty('z-index','2147483646','important');
+  }
+  window.addEventListener('message',event=>{
+    const data=event?.data;
+    if(!data)return;
+    if(f?.contentWindow&&event.source!==f.contentWindow)return;
+
+    if(data.type==='repo-sports-v2-watch-party-request'){
+      void repoV2PushWatchParty(event.source,false);
+      return;
+    }
+
+    if(data.type==='repo-sports-v2-career-request'){
+      void repoV2PushCareer(event.source);
+      return;
+    }
+
+    if(data.type==='repo-sports-v2-barry-tip-request'){
+      const requestId=String(data.requestId||''),action=String(data.action||'state');
+      const reply=(ok,payload,error)=>{
+        try{event.source?.postMessage({type:'repo-sports-v2-barry-tip-response',requestId,ok,payload:payload||null,error:error||''},'*')}catch(_){}
+      };
+      const work=action==='tip'
+        ?window.RepoSportsV2TestBridge.tipBarry()
+        :window.RepoSportsV2TestBridge.getBarryTipState();
+      Promise.resolve(work).then(payload=>reply(true,payload,'')).catch(error=>reply(false,null,String(error?.message||error||'Barry tip request failed')));
+      return;
+    }
+
+    if(data.type==='repo-sports-v2-watch-profile-hover'){
+      const name=String(data.name||'').trim(),x=Number(data.x)||0,y=Number(data.y)||0;
+      if(!name)return;
+      repoV2HoveredWatcher=name;
+
+      // Show whatever is already cached immediately, exactly like the original.
+      try{
+        if(typeof qmRenderWatcherProfile==='function'){
+          qmRenderWatcherProfile(name,x,y);
+          repoV2ProfileTopZ();
+        }
+      }catch(error){console.warn('V2 Watch Party profile render:',error)}
+
+      // Then force the original full watcher profile refresh so skills, highest
+      // pet, favourite TCG card and the equipped Watchcard background are current.
+      try{
+        if(typeof qmRefreshWatcherProfiles==='function'){
+          Promise.resolve(qmRefreshWatcherProfiles([name],true)).then(()=>{
+            if(repoV2HoveredWatcher!==name)return;
+            try{
+              if(typeof qmRenderWatcherProfile==='function'){
+                qmRenderWatcherProfile(name,x,y);
+                repoV2ProfileTopZ();
+              }
+            }catch(_){}
+          }).catch(error=>console.warn('V2 Watch Party profile refresh:',error));
+        }
+      }catch(error){console.warn('V2 Watch Party profile refresh:',error)}
+      return;
+    }
+
+    if(data.type==='repo-sports-v2-watch-profile-move'){
+      const x=Number(data.x)||0,y=Number(data.y)||0;
+      try{
+        const card=document.getElementById('qmWatcherProfileCard');
+        if(card?.classList.contains('is-visible')&&typeof qmPositionWatcherProfileCard==='function'){
+          qmPositionWatcherProfileCard(card,x,y);
+          repoV2ProfileTopZ();
+        }
+      }catch(_){}
+      return;
+    }
+
+    if(data.type==='repo-sports-v2-watch-profile-hide'){
+      repoV2HoveredWatcher='';
+      try{if(typeof qmHideWatcherProfile==='function')qmHideWatcherProfile()}catch(_){}
+    }
+  });
+  f?.addEventListener('load',()=>{
+    setTimeout(()=>void repoV2PushWatchParty(f.contentWindow,true),60);
+    setTimeout(()=>void repoV2PushCareer(f.contentWindow),110);
+  });
+  s();setInterval(s,1200);addEventListener('repo-character-changed',s);
+  b.onclick=()=>{
+    if(!a())return;
+    launchSerial++;const serial=launchSerial;
+    clearTimeout(revealTimer);clearTimeout(closeTimer);
+    o.style.display='block';o.setAttribute('aria-hidden','false');o.classList.remove('is-feed-visible');
+    document.body.style.overflow='hidden';
+    sting.classList.remove('is-leaving');sting.classList.add('is-playing');sting.setAttribute('aria-hidden','false');
+    // Restart the shine animation cleanly on every launch.
+    void sting.offsetWidth;
+    playRepoV2LaunchSound();
+    let loaded=false,minElapsed=false;
+    const reveal=()=>{if(serial!==launchSerial||!loaded||!minElapsed)return;hideLaunchSting(serial)};
+    f.addEventListener('load',()=>{loaded=true;reveal()},{once:true});
+    f.src='repo-sports-quidditch-v2-test.html?v=test31-fulltime-kat';
+    setTimeout(()=>{minElapsed=true;reveal()},1650);
+    revealTimer=setTimeout(()=>hideLaunchSting(serial),2600);
+  };
+  x.onclick=()=>{
+    launchSerial++;clearTimeout(revealTimer);clearTimeout(closeTimer);
+    o.style.display='none';o.setAttribute('aria-hidden','true');o.classList.remove('is-feed-visible');
+    sting.classList.remove('is-playing','is-leaving');sting.setAttribute('aria-hidden','true');
+    f.src='about:blank';document.body.style.overflow='';
+    repoV2HoveredWatcher='';try{if(typeof qmHideWatcherProfile==='function')qmHideWatcherProfile()}catch(_){}
+  };
+})();
+</script>
 </body>
 </html>

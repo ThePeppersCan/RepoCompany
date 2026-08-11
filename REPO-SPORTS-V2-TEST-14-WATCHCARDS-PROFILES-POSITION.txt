@@ -1,0 +1,51 @@
+REPO SPORTS V2 TEST 14
+
+WATCHCARD BACKGROUNDS
+- V2 now calls get_watchcard_backgrounds for the active viewer names.
+- This is the same equipped Watchcard source used by the original RepoSports
+  Watch Party.
+- The returned equipped_watchcard_background is resolved with partyPeteItem()
+  and displayed behind the viewer avatar.
+- The current signed-in account's local equipped Watchcard wins when it is
+  fresher than the server value.
+
+HOVER PROFILE
+- V2 Watchcards are now interactive/focusable.
+- Hovering a Watchcard sends the viewer name + pointer position to the parent.
+- The parent calls the ORIGINAL qmRenderWatcherProfile().
+- The original full profile popup is therefore reused:
+  total skill level, highest skill, highest-scoring pet, favourite TCG card,
+  Watchcard background, avatar and existing original presentation.
+- Hover also forces qmRefreshWatcherProfiles([viewer], true), so the profile is
+  refreshed rather than relying on stale V2 data.
+- Pointer movement reuses qmPositionWatcherProfileCard().
+- Leaving/blur reuses qmHideWatcherProfile().
+- The original popup is forced above the V2 full-screen overlay.
+
+POSITION
+- Watch Party is no longer bottom-centre/right-centre.
+- It is anchored immediately to the LEFT of the existing Live Match Stats box.
+- Uses the same 6.2% bottom alignment as the stats box.
+- Uses the same 245px width as the stats box.
+- 12px clean gap between Watch Party and Live Match Stats.
+- This matches the lower-left area marked in the supplied screenshot.
+
+UNCHANGED
+- Barry tip system.
+- 5-minute match engine.
+- Predictions.
+- Music.
+- World Cup.
+- Leaderboards.
+
+NO SQL UPDATE.
+NO ASSET UPDATE.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+- repo-sports-quidditch-v2.css
+
+INSTALL
+Copy into C:\Users\Isaac\Desktop\web2\, overwrite, then Ctrl + Shift + R.
