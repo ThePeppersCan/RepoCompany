@@ -889,13 +889,22 @@
     throw lastError||new Error('Rooftop level validation failed');
   }
 
-  async function syncCompletedLevels(run,maxMs=900){
+  async function syncCompletedLevels(run,maxMs=2200){
     if(!run||run.mode==='practice')return;
-    // Endless runs can contain dozens or hundreds of rooftops. Replaying every
-    // completed-level RPC at the results screen made long runs very likely to
-    // fall into PENDING SAVE. Give the live validation queue a brief chance to
-    // finish, then let the final server claim reconcile any missing tail levels.
+    // Let the normal live queue finish first. Long runs can finish immediately
+    // after a rooftop completion, so the final few validation calls may still be
+    // in flight when the death/results screen begins.
     await Promise.race([run.levelCompletionQueue.catch(()=>{}),wait(maxMs)]);
+
+    // Explicitly replay only the unconfirmed tail. The complete-level RPC is
+    // idempotent, so this repairs a dropped final request without replaying a
+    // 100+ rooftop run or creating duplicate rewards.
+    const pending=(run.completedLevelRecords||[]).filter(row=>!row.serverConfirmed).slice(-12);
+    for(const row of pending){
+      try{
+        await completeLevelServer(run,{level:Number(row.level)||0,id:String(row.id||'')},2,true);
+      }catch(error){console.warn('Final rooftop validation still pending',row?.level,error);}
+    }
   }
 
   function estimateGp(run){
@@ -1043,7 +1052,11 @@
   function stopRunLoop(){cancelAnimationFrame(state.raf);state.raf=0;state.lastFrame=0;state.accumulator=0;}
 
   async function finishRun(reason='death',claim=true){
-    const run=state.run;if(!run||run.ended)return;run.finalising=true;run.ended=true;run.active=false;run.finishReason=reason;stopRunLoop();showEventBanner(run.event||{},false);savePbGhost(run);tone('death');
+    const run=state.run;if(!run||run.ended)return;
+    // Do NOT mark the run as finalising yet. completeLevelServer deliberately
+    // skips ordinary queued writes once finalising is true; setting it here used
+    // to cancel the last rooftop validation(s) before claimRun could flush them.
+    run.ended=true;run.active=false;run.finishReason=reason;stopRunLoop();showEventBanner(run.event||{},false);savePbGhost(run);tone('death');
     let reward=null,error=null,pending=false;
     if(run.mode!=='practice'&&claim){
       byId('rrSummaryStatus').textContent='Validating and saving your run…';
@@ -1054,7 +1067,9 @@
   }
 
   async function claimRun(run){
-    await syncCompletedLevels(run);
+    await syncCompletedLevels(run,2200);
+    // From this point onward no ordinary level-validation write should start.
+    run.finalising=true;
     const payload={p_run_id:run.runId,p_height:run.height,p_rooftop_level:run.completedLevel,p_score:Math.floor(run.score),p_client_duration_ms:Math.floor(performance.now()-run.startedAt),p_district:resolveDistrict(run.height).name,p_momentum:Math.floor(run.maxMomentum),p_collectable_gp:Math.floor(run.coinGp),p_risk_gp:Math.floor(run.riskGp),p_marks_collected:run.marks};
     const data=await rpcWithRetry('repo_rooftops_claim_run',payload,3);const row=Array.isArray(data)?data[0]:data;if(!row)throw new Error('No reward result returned.');
     if(Number.isFinite(Number(row.new_gp)))character.gp=Number(row.new_gp);if(Number.isFinite(Number(row.new_agility_xp)))character.agility_xp=Number(row.new_agility_xp);if(typeof renderCharacter==='function')renderCharacter();if(typeof loadDailyXpLeaderboard==='function')loadDailyXpLeaderboard();if(typeof loadGlobalXpLeaderboard==='function')loadGlobalXpLeaderboard();
@@ -1067,10 +1082,17 @@
     let p;try{p=JSON.parse(localStorage.getItem('repoRooftopsPendingReward')||'null')}catch(_){return;}
     if(!p||!isLoggedIn())return;state.pendingReward=p;
     try{
-      // Do not replay every level RPC here. A long Endless run may have 50–200+
-      // level records and one transient request used to block the actual claim.
-      // The claim RPC is idempotent and the server-side repair SQL validates and
-      // reconciles a believable missing tail safely.
+      // Repair only the unconfirmed tail saved with the pending result before
+      // attempting the idempotent reward claim. This also gives already-pending
+      // long runs a chance to heal after this patch is installed.
+      const tail=(Array.isArray(p.levelRecords)?p.levelRecords:[]).filter(row=>!row?.serverConfirmed).slice(-12);
+      for(const row of tail){
+        try{
+          await rpcWithRetry('repo_rooftops_complete_level',{p_run_id:p.runId,p_level_number:Number(row.level)||0,p_level_id:String(row.id||''),p_height:Math.max(0,Math.floor(Number(row.height)||0))},2);
+          row.serverConfirmed=true;
+        }catch(error){console.warn('Pending rooftop tail validation still waiting',row?.level,error);}
+      }
+      localStorage.setItem('repoRooftopsPendingReward',JSON.stringify(p));
       const data=await rpcWithRetry('repo_rooftops_claim_run',{p_run_id:p.runId,p_height:p.height,p_rooftop_level:p.rooftopLevel,p_score:p.score,p_client_duration_ms:p.durationMs,p_district:p.district,p_momentum:p.momentum,p_collectable_gp:p.collectableGp,p_risk_gp:p.riskGp,p_marks_collected:p.marksCollected},4);
       localStorage.removeItem('repoRooftopsPendingReward');state.pendingReward=null;
       const row=Array.isArray(data)?data[0]:data;

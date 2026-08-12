@@ -1,8 +1,0 @@
-REPO SPORTS WORLD CUP — V37.3 AVATARS RESTORED
-
-- Restored all 48 Meet the Teams player avatars.
-- Supplied portraits are packaged as PNGs under assets/repo-sports-player-avatars/.
-- Updated index.html avatar mapping from .webp to the restored .png files.
-- Zafran.png from the supplied archive is mapped to Rafi, as Rafi was the only missing Zafran player file and Zizi/Saffi were already present.
-- William Whistleworth naming retained.
-- Fixture lobby scheduling, teaser posters, invisible hotspots and CatAsthma host rules retained.

@@ -1,7 +1,0 @@
-TEST 52
-
-Adds the correct club flags directly beside the team names in the top live scoreboard.
-Keeps Test 51 flag loading fix intact.
-No sync/gameplay/layout logic changed.
-
-Overwrite the three web files and hard refresh.

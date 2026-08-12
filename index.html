@@ -1926,7 +1926,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
   }
   .world-cup-player-profile-viewer.is-open{opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
   .world-cup-player-profile-stage{
-    position:relative;width:min(96vw,1672px);aspect-ratio:1672/941;max-height:94vh;
+    position:relative;width:min(96vw,1672px);aspect-ratio:1676/938;max-height:94vh;
     overflow:hidden;isolation:isolate;filter:drop-shadow(0 24px 34px rgba(0,0,0,.72));
     transform:translateY(8px) scale(.985);opacity:.4;
     transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .25s ease;
@@ -2087,7 +2087,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
   .world-cup-live-lobby.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:scale(1);transition:opacity .22s ease,transform .28s cubic-bezier(.2,.8,.2,1),visibility 0s}
   .world-cup-tv-ident.is-live-lobby-open .world-cup-event-hub{opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:scale(.985)!important}
   .world-cup-tv-ident.is-live-lobby-open .world-cup-event-close{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
-  .world-cup-live-lobby-stage{position:relative;width:min(96vw,1672px);aspect-ratio:1672/941;max-height:94vh;filter:drop-shadow(0 25px 52px rgba(0,0,0,.72));animation:wcLobbyIn .34s cubic-bezier(.2,.82,.25,1) both}
+  .world-cup-live-lobby-stage{position:relative;width:min(96vw,1672px);aspect-ratio:1676/938;max-height:94vh;filter:drop-shadow(0 25px 52px rgba(0,0,0,.72));animation:wcLobbyIn .34s cubic-bezier(.2,.82,.25,1) both}
   .world-cup-live-lobby-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
   @keyframes wcLobbyIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
 
@@ -2200,7 +2200,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
         <span class="world-cup-event-spark" aria-hidden="true"></span>
         <img src="assets/repo-sports-world-cup-tab.png" alt="Repo Sports World Cup" width="72" height="40">
       </button>
-      <button id="openQuidditchMode" class="header-quick-button legacy-quidditch-tab" type="button" aria-label="Open Legacy Quidditch Mode" title="Legacy Quidditch Mode — results are not recorded">
+      <button id="openQuidditchMode" class="header-quick-button legacy-quidditch-tab" type="button" aria-label="Open Legacy Quidditch Mode" title="Legacy Quidditch Mode — results are not recorded" hidden style="display:none!important">
         <img src="assets/repo-sports-legacy-mode-tab.png" alt="Repo Sports Legacy Mode" width="102" height="46">
       </button>
       <button id="openTcgBinderQuick" class="tcg-binder-nav-button" type="button" aria-label="Open Quidditch TCG Binder" title="Open Quidditch TCG Binder">
@@ -3938,7 +3938,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=legacy-quidditch-mode-20260812"></script>
+<script src="script.js?v=legacy-quidditch-mode-20260812-watchcard-pet-image-fix"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -4085,6 +4085,61 @@ window.__QD_HOST__={
 <script src="assets/goblin-bomb-party/engine.js?v=v38-14-multiplayer-restore"></script>
 <script src="assets/goblin-bomb-party/game.js?v=v38-14-multiplayer-restore"></script>
 <script src="assets/goblin-bomb-party/multiplayer.js?v=20260811-v38-17-low-latency"></script>
+<script id="repoGoblinAntiOscillationV38_18">
+(()=>{
+  const Engine=window.GoblinBombEngine?.Engine;
+  if(!Engine||Engine.prototype.__repoAntiOscillationV38_18)return;
+  Engine.prototype.__repoAntiOscillationV38_18=true;
+  const baseAi=Engine.prototype.aiInput;
+  if(typeof baseAi!=='function')return;
+
+  Engine.prototype.aiInput=function(entity,dt,owner){
+    const result=baseAi.call(this,entity,dt,owner);
+    if(!entity||entity.isPlayer||entity.isHuman||entity.human||entity.dead||entity.alive===false)return result;
+    const now=performance.now();
+    const s=entity.__repoAntiOsc||(entity.__repoAntiOsc={x:Number(entity.x)||0,y:Number(entity.y)||0,at:now,lastDir:0,flips:0,windowAt:now,escapeUntil:0,escapeX:0,escapeY:0});
+
+    // During a short escape burst, hold one decisive route instead of allowing
+    // the normal pathfinder to choose left/right on alternate frames.
+    if(now<s.escapeUntil){
+      entity.aiX=s.escapeX;entity.aiY=s.escapeY;
+      entity.targetX=(Number(entity.x)||0)+s.escapeX*120;
+      entity.targetY=(Number(entity.y)||0)+s.escapeY*95;
+      if(Math.abs(s.escapeX)>.08)entity.dir=s.escapeX>=0?1:-1;
+      entity.decision=Math.max(Number(entity.decision)||0,.28);
+      return result;
+    }
+
+    if(now-s.at>=90){
+      const x=Number(entity.x)||0,y=Number(entity.y)||0;
+      const moved=Math.hypot(x-s.x,y-s.y);
+      const rawX=Math.abs(Number(entity.aiX)||0)>.12?Number(entity.aiX):Number(entity.dir)||0;
+      const dir=Math.sign(rawX);
+      if(dir&&s.lastDir&&dir!==s.lastDir&&moved<5.5)s.flips++;
+      else if(moved>9)s.flips=Math.max(0,s.flips-2);
+      if(now-s.windowAt>1100){s.flips=Math.max(0,s.flips-2);s.windowAt=now;}
+      s.x=x;s.y=y;s.at=now;if(dir)s.lastDir=dir;
+
+      if(s.flips>=4&&moved<6){
+        let bounds=null;try{bounds=typeof this.bounds==='function'?this.bounds():null}catch(_){}
+        const bx=Number(bounds?.x)||0,by=Number(bounds?.y)||0,bw=Number(bounds?.w)||960,bh=Number(bounds?.h)||600;
+        const cx=bx+bw*.5,cy=by+bh*.5;
+        let dx=cx-x,dy=cy-y;
+        const side=((Number(entity.id)||0)%2===0)?1:-1;
+        // Head generally back into navigable space but add a strong perpendicular
+        // component so a wall/corner cannot make it reverse forever.
+        let ex=dx-dy*.62*side,ey=dy+dx*.62*side;
+        const mag=Math.hypot(ex,ey)||1;ex/=mag;ey/=mag;
+        if(Math.abs(ex)<.34)ex=(side||1)*.34;
+        const renorm=Math.hypot(ex,ey)||1;ex/=renorm;ey/=renorm;
+        s.escapeX=ex;s.escapeY=ey;s.escapeUntil=now+760+Math.random()*240;s.flips=0;s.windowAt=now;
+        entity.aiX=ex;entity.aiY=ey;entity.targetX=x+ex*120;entity.targetY=y+ey*95;entity.dir=ex>=0?1:-1;entity.decision=.55;
+      }
+    }
+    return result;
+  };
+})();
+</script>
 <script id="repoMinigameLauncherRepair">
 (() => {
   const $ = id => document.getElementById(id);
@@ -4176,7 +4231,7 @@ window.__QD_HOST__={
 </script>
 <script src="repoggle-levels.js?v=repoggle-1"></script>
 <script src="repoggle.js?v=repoggle-charged-armour-fix-20260808-1"></script>
-<script src="repo-rooftops.js?v=repo-rooftops-20260811-v38-16-endless-save"></script>
+<script src="repo-rooftops.js?v=repo-rooftops-20260812-v38-18-final-height-sync"></script>
 
 <script id="repoSportsEndlessHordePreviewScript">
 (() => {
@@ -5466,9 +5521,167 @@ window.__QD_HOST__={
 @keyframes repoV2LogoAura{0%,100%{opacity:0;transform:translateZ(0) scale(.985)}22%{opacity:.42}50%{opacity:.72;transform:translateZ(0) scale(1.01)}75%{opacity:.30}}
 @keyframes repoV2ScreenPulse{0%,100%{opacity:0;transform:translateZ(0) scale(.985)}30%{opacity:.52}54%{opacity:.78;transform:translateZ(0) scale(1.008)}78%{opacity:.28}}
 @media(prefers-reduced-motion:reduce){.repo-v2-logo-shine::after,.repo-v2-screen-glow{animation:none!important}}
+/* Repo Sports League hub — opens before the live broadcast. */
+/* Build: repo-league-hub-watchcard-official-goals-flags-20260812 */
+#repoSportsV2LeagueMenu{position:absolute;inset:0;z-index:6;display:none;place-items:center;overflow:hidden;background:#020812 url("repo-sports-league-menu-bg.png?v=repo-league-hub-polish-20260812") center center/cover no-repeat;opacity:0;transition:opacity .30s ease;isolation:isolate}
+#repoSportsV2LeagueMenu::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 43%,rgba(8,22,42,.02) 0 30%,rgba(3,10,22,.10) 58%,rgba(0,3,9,.35) 100%),linear-gradient(180deg,rgba(2,8,19,.04),rgba(0,3,10,.16));box-shadow:inset 0 0 100px rgba(0,0,0,.34)}
+#repoSportsV2LeagueMenu::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 10% 44%,rgba(240,171,55,.055),transparent 12%),radial-gradient(circle at 90% 44%,rgba(240,171,55,.055),transparent 12%),radial-gradient(circle at 50% 8%,rgba(41,104,190,.055),transparent 30%);mix-blend-mode:screen}
+#repoSportsV2LeagueMenu.is-open{display:grid;opacity:1}
+.repo-v2-league-particles{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;contain:strict;mix-blend-mode:screen;filter:saturate(1.12)}
+.repo-v2-league-particles::before{content:"";position:absolute;inset:-8%;pointer-events:none;opacity:.34;background-image:radial-gradient(circle,rgba(129,189,255,.54) 0 1px,transparent 1.7px),radial-gradient(circle,rgba(255,213,112,.42) 0 1px,transparent 1.8px);background-size:77px 83px,113px 127px;background-position:0 0,28px 39px;animation:repoLeagueDustField 18s linear infinite}
+.repo-v2-league-particle{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);border-radius:50%;opacity:0;will-change:transform,opacity;animation:repoLeagueParticleDrift var(--dur) linear var(--delay) infinite;animation-play-state:paused;transform:translate3d(0,0,0);background:radial-gradient(circle,rgba(247,252,255,1) 0 14%,rgba(177,217,255,.98) 22%,rgba(91,159,239,.76) 40%,rgba(35,83,167,.22) 64%,transparent 79%);box-shadow:0 0 4px rgba(213,235,255,.96),0 0 10px rgba(78,151,241,.72),0 0 18px rgba(36,91,190,.34)}
+.repo-v2-league-particle.is-gold{background:radial-gradient(circle,rgba(255,252,223,1) 0 14%,rgba(255,229,145,.98) 23%,rgba(239,176,62,.78) 42%,rgba(172,92,22,.21) 64%,transparent 80%);box-shadow:0 0 4px rgba(255,241,186,.96),0 0 11px rgba(239,177,63,.74),0 0 19px rgba(173,91,22,.32)}
+.repo-v2-league-particle.is-streak{width:var(--len)!important;height:1.5px!important;border-radius:999px;background:linear-gradient(90deg,transparent 0%,rgba(211,235,255,.24) 12%,rgba(238,248,255,.95) 48%,rgba(103,177,255,.58) 70%,transparent 100%);box-shadow:0 0 5px rgba(149,204,255,.82),0 0 11px rgba(65,139,237,.42);transform-origin:center;animation-name:repoLeagueStreakDrift}
+.repo-v2-league-particle.is-streak.is-gold{background:linear-gradient(90deg,transparent 0%,rgba(255,225,143,.22) 12%,rgba(255,248,208,.98) 48%,rgba(241,180,58,.60) 70%,transparent 100%);box-shadow:0 0 5px rgba(255,229,151,.84),0 0 12px rgba(231,158,40,.42)}
+#repoSportsV2LeagueMenu.is-open .repo-v2-league-particle{animation-play-state:running}
+@keyframes repoLeagueParticleDrift{0%{opacity:0;transform:translate3d(0,10px,0) scale(.55)}9%{opacity:var(--a)}45%{opacity:calc(var(--a) * .92);transform:translate3d(calc(var(--dx) * .45),calc(var(--dy) * .45),0) scale(.98)}78%{opacity:calc(var(--a) * .68)}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(1.22)}}
+@keyframes repoLeagueStreakDrift{0%{opacity:0;transform:translate3d(0,10px,0) rotate(var(--rot)) scaleX(.55)}14%{opacity:var(--a)}68%{opacity:calc(var(--a) * .8)}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) rotate(var(--rot)) scaleX(1.12)}}
+@keyframes repoLeagueDustField{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(17px,-12px,0)}100%{transform:translate3d(34px,-24px,0)}}
+#repoSportsV2LeagueMenu.is-leaving{opacity:0;pointer-events:none}
+.repo-v2-league-menu-stage{position:relative;z-index:2;width:100%;height:100%;display:grid;grid-template-rows:auto auto auto;justify-items:center;align-items:center;align-content:center;gap:clamp(3px,.55vh,7px);box-sizing:border-box;padding:clamp(8px,1vh,14px) 12px}
+.repo-v2-league-header-wrap{position:relative;width:min(46vw,780px);max-width:82vw;overflow:hidden;filter:drop-shadow(0 9px 18px rgba(0,0,0,.62));animation:repoLeagueHeaderIn .62s cubic-bezier(.18,.75,.22,1) both}
+.repo-v2-league-header-wrap>img{display:block;width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 0 8px rgba(43,112,255,.18))}
+.repo-v2-league-header-wrap::after{content:"";position:absolute;inset:0;background:linear-gradient(108deg,transparent 0 38%,rgba(110,181,255,.12) 43%,rgba(255,255,255,.76) 49%,rgba(255,224,126,.28) 54%,transparent 61% 100%);background-size:270% 100%;background-position:135% 0;mix-blend-mode:screen;opacity:0;pointer-events:none;-webkit-mask:url("repo-sports-league-header.png") center/100% 100% no-repeat;mask:url("repo-sports-league-header.png") center/100% 100% no-repeat;animation:repoLeagueHeaderShine 4.8s 1.15s ease-in-out infinite}
+/* League Hub side records — same exact visual height as the central lore map. */
+.repo-v2-hub-main{width:min(98vw,1840px);height:min(57vh,620px);display:grid;grid-template-columns:clamp(205px,14vw,260px) auto clamp(278px,18.5vw,350px);justify-content:center;align-items:stretch;gap:clamp(10px,1vw,18px);min-height:0}
+.repo-v2-hub-side{position:relative;align-self:stretch;min-width:0;min-height:0;filter:drop-shadow(0 14px 24px rgba(0,0,0,.52));animation:repoLeaguePanelIn .62s .12s cubic-bezier(.18,.75,.22,1) both}
+.repo-v2-hub-panel{position:absolute;inset:0;display:grid;min-width:0;min-height:0;overflow:hidden;border:1px solid rgba(225,180,73,.72);background:linear-gradient(180deg,rgba(7,22,37,.96),rgba(3,14,25,.96));box-shadow:inset 0 0 0 1px rgba(34,85,120,.64),inset 0 0 28px rgba(0,0,0,.42),0 0 0 2px rgba(2,8,14,.72);color:#e6f4ff}
+.repo-v2-hub-panel::before,.repo-v2-hub-panel::after{content:"";position:absolute;z-index:3;pointer-events:none;width:18px;height:18px;border-color:#d8a83d;border-style:solid;opacity:.82}
+.repo-v2-hub-panel::before{left:5px;top:5px;border-width:1px 0 0 1px}.repo-v2-hub-panel::after{right:5px;bottom:5px;border-width:0 1px 1px 0}
+.repo-v2-hub-panel-title{position:relative;z-index:1;min-height:43px;display:grid;align-content:center;justify-items:center;padding:6px 10px;border-bottom:1px solid rgba(216,169,63,.62);background:linear-gradient(180deg,rgba(20,48,67,.95),rgba(8,28,44,.92));box-shadow:inset 0 -1px rgba(63,126,161,.24)}
+.repo-v2-hub-panel-title::before{content:"◆";position:absolute;top:-7px;left:50%;transform:translateX(-50%);color:#e5b84e;font-size:10px;text-shadow:0 0 7px rgba(68,152,220,.75)}
+.repo-v2-hub-panel-title small{font:800 7px/1 Arial,sans-serif;letter-spacing:.22em;color:#80b6d8;text-transform:uppercase}.repo-v2-hub-panel-title strong{margin-top:3px;font:900 clamp(12px,.92vw,16px)/1 Georgia,serif;letter-spacing:.055em;color:#ffe0a0;text-transform:uppercase;text-shadow:0 2px #000}
+.repo-v2-player-records-panel{grid-template-rows:auto 1fr 1fr}
+.repo-v2-record-section{display:grid;grid-template-rows:auto 1fr;min-height:0;padding:0 5px 4px}
+.repo-v2-record-section+.repo-v2-record-section{border-top:1px solid rgba(216,169,63,.43)}
+.repo-v2-record-head{height:25px;display:flex;align-items:center;justify-content:space-between;padding:0 5px;color:#f0c96e;font:900 8px/1 Arial,sans-serif;letter-spacing:.09em;text-transform:uppercase}.repo-v2-record-head span{color:#6fa6c7;font-size:6.5px;letter-spacing:.13em}
+.repo-v2-record-list{display:grid;grid-template-rows:repeat(5,minmax(0,1fr));min-height:0}
+.repo-v2-record-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:5px;min-height:0;padding:2px 5px;border-top:1px solid rgba(52,101,130,.34);background:rgba(7,25,39,.24)}
+.repo-v2-record-row:first-child{border-top-color:rgba(217,168,61,.28)}.repo-v2-record-row.is-first{background:linear-gradient(90deg,rgba(111,75,14,.34),rgba(9,29,43,.28))}
+.repo-v2-record-rank{width:17px;height:17px;display:grid;place-items:center;border:1px solid rgba(209,164,59,.55);color:#f8ce69;background:rgba(42,29,8,.72);font:900 8px/1 Arial,sans-serif}
+.repo-v2-record-copy{min-width:0}.repo-v2-record-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff1c8;font:900 clamp(7px,.58vw,9.5px)/1.1 Georgia,serif;text-transform:uppercase}.repo-v2-record-meta{display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#76a9c5;font:700 clamp(5.5px,.42vw,7px)/1.1 Arial,sans-serif}.repo-v2-record-value{text-align:right;color:#f4c95e;font:900 clamp(9px,.7vw,12px)/1 Arial,sans-serif}.repo-v2-record-value small{display:block;margin-top:2px;color:#80b8d7;font-size:5.5px;letter-spacing:.08em;text-transform:uppercase}
+.repo-v2-record-empty{display:grid;place-items:center;grid-row:1/-1;color:#6f96ad;font:700 8px/1.3 Arial,sans-serif;text-align:center;padding:8px}
+.repo-v2-standings-panel{grid-template-rows:auto auto 1fr}
+.repo-v2-standing-head,.repo-v2-standing-row{display:grid;grid-template-columns:19px minmax(86px,1fr) 23px 20px 20px 25px 25px 29px 40px;align-items:center;column-gap:2px;text-align:center;min-width:0}
+.repo-v2-standing-head{height:26px;padding:0 5px;background:#103755;border-bottom:1px solid rgba(215,170,66,.65);color:#bde3fa;font:900 clamp(7.4px,.48vw,8.6px)/1 Arial,sans-serif;letter-spacing:.055em;text-transform:uppercase}.repo-v2-standing-head .team{text-align:left;padding-left:3px;font-size:1.05em}
+#repoSportsV2HubStandings{display:grid;grid-template-rows:repeat(18,minmax(0,1fr));min-height:0;padding:0 5px 5px}
+.repo-v2-standing-row{min-height:0;padding:1px 0;border-bottom:1px solid rgba(49,97,124,.42);color:#e4f4ff;font:800 clamp(7.3px,.52vw,9.1px)/1 Arial,sans-serif}.repo-v2-standing-row:nth-child(odd){background:rgba(14,36,51,.28)}.repo-v2-standing-row.is-first{background:linear-gradient(90deg,rgba(103,69,11,.46),rgba(19,39,50,.28));color:#ffe4a2}
+.repo-v2-standing-row .pos{color:#e4b74b}.repo-v2-standing-row .team{display:flex;align-items:center;gap:4px;min-width:0;overflow:hidden;white-space:nowrap;text-align:left;color:#fff1ca;font:900 clamp(8.4px,.62vw,11px)/1 Georgia,serif;letter-spacing:.005em}.repo-v2-standing-row .team .repo-v2-standing-flag{width:15px;height:10px;flex:0 0 15px;display:block;object-fit:cover;border:1px solid rgba(217,177,77,.5);box-sizing:border-box;box-shadow:0 1px 2px rgba(0,0,0,.55)}.repo-v2-standing-row .team b{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:inherit;color:inherit;letter-spacing:inherit}.repo-v2-standing-row .gd.posgd{color:#88dfb4}.repo-v2-standing-row .gd.neggd{color:#ff9c91}.repo-v2-standing-row .wr{color:#8ec7e7}.repo-v2-standings-loading{display:grid;place-items:center;grid-row:1/-1;color:#78a4bd;font:700 8px/1.3 Arial,sans-serif;text-align:center}
+@keyframes repoLeaguePanelIn{from{opacity:0;transform:translateY(9px) scale(.975)}to{opacity:1;transform:none}}
+@media(max-height:760px){.repo-v2-hub-main{height:min(54vh,430px);grid-template-columns:190px auto 255px;gap:9px}.repo-v2-hub-panel-title{min-height:36px;padding:4px 8px}.repo-v2-record-head,.repo-v2-standing-head{height:21px}.repo-v2-record-name{font-size:7px}.repo-v2-record-meta{font-size:5px}.repo-v2-standing-row{font-size:6.7px}.repo-v2-standing-row .team{font-size:7.5px}}
+@media(max-width:1180px){.repo-v2-hub-main{height:auto;width:94vw;display:block}.repo-v2-hub-side{display:none}.repo-v2-league-map-wrap{width:94vw;height:auto}}
+.repo-v2-league-map-wrap{position:relative;height:100%;width:auto;aspect-ratio:1676/938;align-self:stretch;justify-self:center;filter:drop-shadow(0 15px 26px rgba(0,0,0,.58));animation:repoLeagueMapIn .68s .08s cubic-bezier(.18,.75,.22,1) both;contain:layout paint}
+.repo-v2-league-map-wrap::before{content:"";position:absolute;inset:-4px;z-index:4;pointer-events:none;border:1px solid rgba(231,187,78,.78);border-radius:3px;box-shadow:0 0 0 1px rgba(17,53,83,.92),0 0 0 3px rgba(6,15,26,.62),0 0 17px rgba(0,0,0,.48)}
+.repo-v2-league-map-wrap::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;border:1px solid rgba(107,165,212,.20);border-radius:2px;box-shadow:inset 0 0 16px rgba(1,8,17,.22)}
+.repo-v2-league-map{display:block;width:100%;height:100%;object-fit:contain;border-radius:2px;box-shadow:0 0 24px rgba(0,0,0,.25)}
+.repo-v2-club-hotspots{position:absolute;inset:0;z-index:5;pointer-events:none}
+/* Match the World Cup lore-map interaction exactly: these are invisible spans,
+   never HTML buttons, so the global brown/gold button skin cannot appear. */
+.repo-v2-club-hotspot{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);display:block;padding:0!important;margin:0!important;border:0!important;border-radius:4px;background:transparent!important;background-image:none!important;color:transparent!important;box-shadow:none!important;cursor:pointer;pointer-events:auto;outline:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .11s ease,backdrop-filter .16s ease,-webkit-backdrop-filter .16s ease}
+.repo-v2-club-hotspot::before{content:"";position:absolute;inset:5%;border-radius:4px;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(255,241,184,.10) 0%,rgba(255,217,104,.025) 52%,transparent 78%);box-shadow:none!important;border:0!important;transition:opacity .14s ease}
+.repo-v2-club-hotspot::after{content:"";position:absolute;top:4%;bottom:4%;left:-28%;width:18%;pointer-events:none;opacity:0;transform:skewX(-18deg) translateX(0);background:linear-gradient(90deg,transparent,rgba(255,249,218,.34),rgba(255,222,118,.10),transparent);mix-blend-mode:screen}
+.repo-v2-club-hotspot:hover,.repo-v2-club-hotspot:focus-visible{-webkit-backdrop-filter:brightness(1.34) saturate(1.28) contrast(1.055);backdrop-filter:brightness(1.34) saturate(1.28) contrast(1.055)}
+.repo-v2-club-hotspot:hover::before,.repo-v2-club-hotspot:focus-visible::before{opacity:1;box-shadow:none!important;border:0!important}
+.repo-v2-club-hotspot:hover::after,.repo-v2-club-hotspot:focus-visible::after{animation:repoLeagueClubPlaqueShine .72s cubic-bezier(.2,.72,.2,1) 1}
+.repo-v2-club-hotspot:active,.repo-v2-club-hotspot.is-pressed{transform:scale(.975);-webkit-backdrop-filter:brightness(1.46) saturate(1.34) contrast(1.06);backdrop-filter:brightness(1.46) saturate(1.34) contrast(1.06)}
+.repo-v2-club-hotspot:focus-visible::before{box-shadow:none!important;border:0!important}
+@keyframes repoLeagueClubPlaqueShine{0%{opacity:0;transform:skewX(-18deg) translateX(0)}18%{opacity:.8}72%{opacity:.55}100%{opacity:0;transform:skewX(-18deg) translateX(760%)}}
+#repoSportsV2ClubReadout{display:none!important}
+#repoSportsV2WatchLive{position:relative;top:5px;width:min(17.5vw,250px);max-width:54vw;min-width:160px;display:block;border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;padding:0!important;margin:0!important;cursor:pointer;line-height:0;filter:drop-shadow(0 7px 10px rgba(0,0,0,.56));transform:translateZ(0);transition:transform .16s cubic-bezier(.18,.76,.26,1),filter .16s ease;animation:repoLeagueWatchIn .6s .16s cubic-bezier(.18,.75,.22,1) both;overflow:visible;outline:0;-webkit-tap-highlight-color:transparent}
+#repoSportsV2WatchLive>img{display:block;width:100%;height:auto;object-fit:contain;filter:brightness(1.01);transition:filter .16s ease}
+#repoSportsV2WatchLive::after{content:"";position:absolute;left:5%;right:5%;top:12%;bottom:12%;border-radius:8px;box-shadow:0 0 0 0 rgba(57,144,255,0);transition:box-shadow .16s ease;pointer-events:none}
+#repoSportsV2WatchLive:hover,#repoSportsV2WatchLive:focus-visible{transform:translateY(-3px) scale(1.035);filter:drop-shadow(0 11px 17px rgba(0,0,0,.62)) drop-shadow(0 0 9px rgba(41,118,255,.36))}
+#repoSportsV2WatchLive:hover>img,#repoSportsV2WatchLive:focus-visible>img{filter:brightness(1.12) saturate(1.07)}
+#repoSportsV2WatchLive:hover::after,#repoSportsV2WatchLive:focus-visible::after{box-shadow:0 0 20px 2px rgba(68,140,255,.18),0 0 9px rgba(255,49,66,.13)}
+#repoSportsV2WatchLive:focus-visible{outline:2px solid #ffe39c;outline-offset:4px;border-radius:6px}
+#repoSportsV2WatchLive:active,#repoSportsV2WatchLive.is-pressed{transform:translateY(1px) scale(.96);filter:drop-shadow(0 4px 7px rgba(0,0,0,.55))}
+@keyframes repoLeagueHubBg{0%{transform:translate3d(-1.2%,-.5%,0) scale(1.01)}100%{transform:translate3d(1.1%,.8%,0) scale(1.025)}}
+@keyframes repoLeagueHeaderIn{from{opacity:0;transform:translateY(-13px) scale(.965)}to{opacity:1;transform:none}}
+@keyframes repoLeagueHeaderShine{0%,60%{opacity:0;background-position:135% 0}66%{opacity:.78}82%{opacity:.42}100%{opacity:0;background-position:-135% 0}}
+@keyframes repoLeagueMapIn{from{opacity:0;transform:translateY(9px) scale(.982)}to{opacity:1;transform:none}}
+@keyframes repoLeagueWatchIn{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:none}}
+@media(max-height:760px){.repo-v2-league-menu-stage{gap:2px;padding:4px 10px}.repo-v2-league-header-wrap{width:min(36vw,590px)}#repoSportsV2WatchLive{top:3px;width:min(16vw,220px);min-width:145px}}
+@media(max-width:760px){.repo-v2-league-header-wrap{width:min(76vw,590px)}#repoSportsV2WatchLive{top:3px;width:min(43vw,225px);min-width:145px}}
+/* Repo Sports club archive viewer — centered two-page spreads from the League map. */
+#repoSportsV2ClubArchive{position:absolute;inset:0;z-index:10;display:grid;place-items:center;padding:clamp(10px,2vw,28px);box-sizing:border-box;background:radial-gradient(circle at 50% 45%,rgba(17,32,52,.78),rgba(0,4,9,.94) 66%,rgba(0,2,5,.98));-webkit-backdrop-filter:blur(7px) brightness(.54);backdrop-filter:blur(7px) brightness(.54);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .24s ease,visibility 0s linear .24s}
+#repoSportsV2ClubArchive.is-open{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .24s ease,visibility 0s}
+#repoSportsV2ClubArchive::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,rgba(75,137,210,.08),transparent 58%),linear-gradient(115deg,transparent 25%,rgba(255,218,118,.025) 48%,transparent 70%)}
+.repo-v2-club-archive-stage{position:relative;z-index:1;display:grid;place-items:center;width:min(96vw,1760px);height:min(94vh,990px);max-width:calc(100vw - 28px);max-height:calc(100vh - 28px);transform:translateY(12px) scale(.955);opacity:.25;transition:transform .32s cubic-bezier(.18,.76,.22,1),opacity .26s ease;filter:drop-shadow(0 22px 34px rgba(0,0,0,.72))}
+#repoSportsV2ClubArchive.is-open .repo-v2-club-archive-stage{transform:none;opacity:1}
+.repo-v2-club-archive-stage::after{content:"";position:absolute;z-index:3;top:-8%;bottom:-8%;left:-19%;width:12%;pointer-events:none;opacity:0;background:linear-gradient(90deg,transparent,rgba(255,249,220,.24),rgba(103,176,255,.10),transparent);mix-blend-mode:screen;transform:skewX(-15deg)}
+#repoSportsV2ClubArchive.is-open .repo-v2-club-archive-stage::after{animation:repoV2ArchiveShine .72s .17s cubic-bezier(.16,.72,.22,1) 1}
+#repoSportsV2ClubArchiveImage{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;image-rendering:auto;opacity:1;transition:opacity .18s ease,filter .18s ease;filter:brightness(1.01) contrast(1.01)}
+#repoSportsV2ClubArchive.is-loading #repoSportsV2ClubArchiveImage{opacity:.22;filter:blur(1.5px) brightness(.72)}
+#repoSportsV2ClubArchiveClose{position:absolute;z-index:5;right:clamp(5px,1vw,14px);top:clamp(5px,1vw,14px);width:38px;height:38px;display:grid;place-items:center;padding:0!important;margin:0!important;border:1px solid rgba(227,188,91,.72)!important;border-radius:2px!important;background:rgba(8,15,24,.86)!important;color:#ffe2a0!important;box-shadow:0 5px 16px rgba(0,0,0,.55)!important;font:900 24px/1 Georgia,serif!important;cursor:pointer;transition:transform .12s ease,background .12s ease,border-color .12s ease,filter .12s ease}
+#repoSportsV2ClubArchiveClose:hover,#repoSportsV2ClubArchiveClose:focus-visible{transform:scale(1.055);background:rgba(25,39,55,.94)!important;border-color:#ffe09a!important;filter:drop-shadow(0 0 5px rgba(255,205,85,.28));outline:0}
+#repoSportsV2ClubArchiveClose:active{transform:scale(.94)}
+@keyframes repoV2ArchiveShine{0%{opacity:0;transform:translateX(0) skewX(-15deg)}22%{opacity:.7}75%{opacity:.34}100%{opacity:0;transform:translateX(1140%) skewX(-15deg)}}
+@media(max-width:760px){#repoSportsV2ClubArchive{padding:8px}.repo-v2-club-archive-stage{width:98vw;height:94vh;max-width:calc(100vw - 12px);max-height:calc(100vh - 12px)}#repoSportsV2ClubArchiveClose{width:34px;height:34px;font-size:21px}}
+@media(prefers-reduced-motion:reduce){#repoSportsV2ClubArchive,.repo-v2-club-archive-stage,#repoSportsV2ClubArchiveImage,#repoSportsV2ClubArchiveClose{transition:none!important}.repo-v2-club-archive-stage::after{animation:none!important}}
+@media(prefers-reduced-motion:reduce){#repoSportsV2LeagueMenu::before,.repo-v2-league-header-wrap,.repo-v2-league-header-wrap::after,.repo-v2-league-map-wrap,#repoSportsV2WatchLive,.repo-v2-league-particle{animation:none!important;transition:none!important}.repo-v2-league-particle{display:none!important}}
 </style>
 <div id="repoSportsV2TestOverlay" aria-hidden="true">
-  <button id="closeRepoSportsV2Test" type="button">×</button>
+  <button id="closeRepoSportsV2Test" type="button" aria-label="Close Repo Sports">×</button>
+  <div id="repoSportsV2LeagueMenu" aria-hidden="true">
+    <div id="repoSportsV2LeagueParticles" class="repo-v2-league-particles" aria-hidden="true"></div>
+    <div class="repo-v2-league-menu-stage">
+      <div class="repo-v2-league-header-wrap" aria-hidden="true"><img src="repo-sports-league-header.png" alt=""></div>
+      <div class="repo-v2-hub-main">
+        <aside class="repo-v2-hub-side repo-v2-player-records-side" aria-label="Repo Sports player records">
+          <div class="repo-v2-hub-panel repo-v2-player-records-panel">
+            <div class="repo-v2-hub-panel-title"><small>REPO SPORTS LEAGUE</small><strong>Player Records</strong></div>
+            <section class="repo-v2-record-section">
+              <div class="repo-v2-record-head">Top Goalscorers <span>Top 5</span></div>
+              <div id="repoSportsV2HubScorers" class="repo-v2-record-list"><div class="repo-v2-record-empty">Loading player records…</div></div>
+            </section>
+            <section class="repo-v2-record-section">
+              <div class="repo-v2-record-head">Best Win Rate <span>40 Match Minimum</span></div>
+              <div id="repoSportsV2HubWinrate" class="repo-v2-record-list"><div class="repo-v2-record-empty">Loading player records…</div></div>
+            </section>
+          </div>
+        </aside>
+      <div class="repo-v2-league-map-wrap">
+        <img class="repo-v2-league-map" src="repo-sports-league-map.png?v=repo-map-hub-records-20260812" alt="Velmora Repo Sports League club map">
+
+      <div class="repo-v2-club-hotspots" aria-label="Repo Sports League clubs">
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Hrafnvik" aria-label="Hrafnvik" style="--x:2.39%;--y:1.60%;--w:9.84%;--h:15.46%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Blackglass" aria-label="Blackglass" style="--x:14.02%;--y:8.32%;--w:10.26%;--h:14.39%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Aurelia" aria-label="Aurelia" style="--x:32.52%;--y:8.32%;--w:8.95%;--h:13.86%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Grand Khor" aria-label="Grand Khor" style="--x:45.53%;--y:17.38%;--w:9.43%;--h:14.39%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Naskor" aria-label="Naskor" style="--x:68.79%;--y:11.51%;--w:10.14%;--h:14.39%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Varka Fell" aria-label="Varka Fell" style="--x:16.83%;--y:22.92%;--w:9.43%;--h:14.71%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Skarholt" aria-label="Skarholt" style="--x:5.67%;--y:29.10%;--w:9.84%;--h:14.93%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Zafir Row" aria-label="Zafir Row" style="--x:22.55%;--y:37.74%;--w:9.43%;--h:14.61%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Ossa Mere" aria-label="Ossa Mere" style="--x:44.21%;--y:36.78%;--w:10.02%;--h:14.61%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Saint Ciro" aria-label="Saint Ciro" style="--x:86.40%;--y:26.87%;--w:10.26%;--h:14.61%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Marenza" aria-label="Marenza" style="--x:86.40%;--y:42.54%;--w:10.26%;--h:14.50%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Talun Cross" aria-label="Talun Cross" style="--x:12.23%;--y:58.64%;--w:10.02%;--h:14.61%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Drazh Hollow" aria-label="Drazh Hollow" style="--x:29.83%;--y:60.34%;--w:9.96%;--h:15.03%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Ashwick" aria-label="Ashwick" style="--x:42.48%;--y:63.86%;--w:9.25%;--h:14.93%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Rova End" aria-label="Rova End" style="--x:59.55%;--y:50.11%;--w:10.14%;--h:14.07%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Cinderbank" aria-label="Cinderbank" style="--x:70.88%;--y:53.20%;--w:9.55%;--h:14.93%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Orsanne" aria-label="Orsanne" style="--x:54.30%;--y:73.13%;--w:10.14%;--h:15.25%"></span>
+        <span class="repo-v2-club-hotspot" role="button" tabindex="0" data-club="Iskara" aria-label="Iskara" style="--x:80.25%;--y:73.13%;--w:9.84%;--h:15.25%"></span>
+      </div>
+      <div id="repoSportsV2ClubReadout" aria-live="polite"></div>
+      </div>
+        <aside class="repo-v2-hub-side repo-v2-standings-side" aria-label="Repo Sports League standings">
+          <div class="repo-v2-hub-panel repo-v2-standings-panel">
+            <div class="repo-v2-hub-panel-title"><small>18 CLUBS</small><strong>League Standings</strong></div>
+            <div class="repo-v2-standing-head"><span>#</span><span class="team">Team</span><span>MP</span><span>W</span><span>L</span><span>GF</span><span>GA</span><span>GD</span><span>WR</span></div>
+            <div id="repoSportsV2HubStandings"><div class="repo-v2-standings-loading">Loading league table…</div></div>
+          </div>
+        </aside>
+      </div>
+      <span id="repoSportsV2WatchLive" role="button" tabindex="0" aria-label="Watch Repo Sports live"><img src="repo-sports-watch-live.png" alt="Watch Live!"></span>
+    </div>
+  </div>
+  <div id="repoSportsV2ClubArchive" aria-hidden="true">
+    <div class="repo-v2-club-archive-stage" role="dialog" aria-modal="true" aria-label="Repo Sports club archive">
+      <img id="repoSportsV2ClubArchiveImage" src="" alt="">
+      <button id="repoSportsV2ClubArchiveClose" type="button" aria-label="Close club archive">×</button>
+    </div>
+  </div>
   <iframe id="repoSportsV2TestFrame" title="Repo Sports Live" allow="autoplay; fullscreen"></iframe>
   <div id="repoSportsV2LaunchSting" aria-hidden="true">
     <div class="repo-v2-sting-tv">
@@ -5480,13 +5693,174 @@ window.__QD_HOST__={
 </div>
 <script>
 (()=>{
-  const b=document.getElementById('openRepoSports'),o=document.getElementById('repoSportsV2TestOverlay'),f=document.getElementById('repoSportsV2TestFrame'),x=document.getElementById('closeRepoSportsV2Test'),sting=document.getElementById('repoSportsV2LaunchSting');
+  const b=document.getElementById('openRepoSports'),o=document.getElementById('repoSportsV2TestOverlay'),f=document.getElementById('repoSportsV2TestFrame'),x=document.getElementById('closeRepoSportsV2Test'),sting=document.getElementById('repoSportsV2LaunchSting'),leagueMenu=document.getElementById('repoSportsV2LeagueMenu'),watchLive=document.getElementById('repoSportsV2WatchLive'),clubReadout=document.getElementById('repoSportsV2ClubReadout'),clubArchive=document.getElementById('repoSportsV2ClubArchive'),clubArchiveImage=document.getElementById('repoSportsV2ClubArchiveImage'),clubArchiveClose=document.getElementById('repoSportsV2ClubArchiveClose'),leagueParticles=document.getElementById('repoSportsV2LeagueParticles');
   const s=()=>{if(b)b.hidden=false};
   let revealTimer=0,closeTimer=0,launchSerial=0;
+  function buildRepoV2LeagueParticles(){
+    if(!leagueParticles||leagueParticles.childElementCount)return;
+    let seed=0x52A7D31;
+    const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+    const visibleSpawn=(i)=>{
+      const band=i%10;
+      if(band<4)return {x:2+rand()*96,y:2+rand()*22};       // open sky above the hub
+      if(band<7)return {x:2+rand()*96,y:74+rand()*23};      // arena floor / lower scene
+      if(band<9)return {x:1+rand()*12,y:22+rand()*54};      // left stadium edge
+      return {x:87+rand()*12,y:22+rand()*54};               // right stadium edge
+    };
+    for(let i=0;i<64;i++){
+      const bit=document.createElement('i'),pos=visibleSpawn(i);
+      const gold=(i%4===0)||(i%11===0);
+      bit.className=`repo-v2-league-particle${gold?' is-gold':''}`;
+      const size=(gold?2.0:1.7)+rand()*(gold?3.8:3.2);
+      const dx=(-34+rand()*68),dy=-(45+rand()*125),dur=6.2+rand()*8.5,delay=-(rand()*dur),alpha=(gold?.58:.50)+rand()*(gold?.30:.32);
+      bit.style.setProperty('--x',`${pos.x.toFixed(2)}%`);bit.style.setProperty('--y',`${pos.y.toFixed(2)}%`);bit.style.setProperty('--s',`${size.toFixed(2)}px`);
+      bit.style.setProperty('--dx',`${dx.toFixed(1)}px`);bit.style.setProperty('--dy',`${dy.toFixed(1)}px`);bit.style.setProperty('--dur',`${dur.toFixed(2)}s`);bit.style.setProperty('--delay',`${delay.toFixed(2)}s`);bit.style.setProperty('--a',alpha.toFixed(2));
+      leagueParticles.appendChild(bit);
+    }
+    for(let i=0;i<8;i++){
+      const bit=document.createElement('i'),pos=visibleSpawn(i+71),gold=i%3===0;
+      bit.className=`repo-v2-league-particle is-streak${gold?' is-gold':''}`;
+      const dx=(-55+rand()*110),dy=-(85+rand()*150),dur=8.5+rand()*7,delay=-(rand()*dur),alpha=.34+rand()*.26;
+      bit.style.setProperty('--x',`${pos.x.toFixed(2)}%`);bit.style.setProperty('--y',`${pos.y.toFixed(2)}%`);bit.style.setProperty('--s','2px');bit.style.setProperty('--len',`${(28+rand()*48).toFixed(1)}px`);bit.style.setProperty('--rot',`${(-24+rand()*18).toFixed(1)}deg`);
+      bit.style.setProperty('--dx',`${dx.toFixed(1)}px`);bit.style.setProperty('--dy',`${dy.toFixed(1)}px`);bit.style.setProperty('--dur',`${dur.toFixed(2)}s`);bit.style.setProperty('--delay',`${delay.toFixed(2)}s`);bit.style.setProperty('--a',alpha.toFixed(2));
+      leagueParticles.appendChild(bit);
+    }
+  }
+  buildRepoV2LeagueParticles();
   const repoV2LaunchAudio=new Audio('assets/repo-sports-v2/repo-sports-v2-launch-test41.mp3');
   repoV2LaunchAudio.preload='auto';
   // Test 43: Repo Sports button sting at 25%.
   repoV2LaunchAudio.volume=.25;
+  const repoV2LeagueMenuAudio=new Audio('repo-sports-league-menu-theme.mp3?v=repo-multi-fix-20260812');
+  repoV2LeagueMenuAudio.preload='auto';repoV2LeagueMenuAudio.loop=true;repoV2LeagueMenuAudio.volume=.30;
+  let repoV2LeagueMusicLeadTimer=0,repoV2LeagueMusicFadeTimer=0;
+  try{repoV2LeagueMenuAudio.load()}catch(_){}
+  function stopRepoV2LeagueMenuMusic(){clearTimeout(repoV2LeagueMusicLeadTimer);clearInterval(repoV2LeagueMusicFadeTimer);try{repoV2LeagueMenuAudio.pause();repoV2LeagueMenuAudio.currentTime=0}catch(_){}}
+  function playRepoV2LeagueMenuMusic(restart=false,volume=.30){
+    try{if(restart){repoV2LeagueMenuAudio.pause();repoV2LeagueMenuAudio.currentTime=0;}repoV2LeagueMenuAudio.volume=Math.max(0,Math.min(.30,volume));const p=repoV2LeagueMenuAudio.play();if(p?.catch)p.catch(()=>{});}catch(_){}
+  }
+  function fadeRepoV2LeagueMenuMusic(target=.30,duration=360){
+    clearInterval(repoV2LeagueMusicFadeTimer);const from=Number(repoV2LeagueMenuAudio.volume)||0,start=performance.now();
+    repoV2LeagueMusicFadeTimer=setInterval(()=>{const t=Math.min(1,(performance.now()-start)/duration);repoV2LeagueMenuAudio.volume=from+(target-from)*t;if(t>=1){clearInterval(repoV2LeagueMusicFadeTimer);repoV2LeagueMusicFadeTimer=0;}},32);
+  }
+  let repoV2HubStatsTimer=0,repoV2HubStatsBusy=false;
+  const repoV2HubEsc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const repoV2HubKey=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
+  const repoV2HubClubFlagFiles=Object.freeze({
+    'hrafnvik':'hrafnvik.png','blackglass':'blackglass.png','saintciro':'saint-ciro.png','marenza':'marenza.png','grandkhor':'grand-khor.png','aurelia':'aurelia.png','drazhhollow':'drazh-hollow.png','rovaend':'rova-end.png','zafirrow':'zafir-row.png','taluncross':'talun-cross.png','ossamere':'ossa-mere.png','varkafell':'varka-fell.png','iskara':'iskara.png','naskor':'naskor.png','ashwick':'ashwick.png','skarholt':'skarholt.png','orsanne':'orsanne.png','cinderbank':'cinderbank.png'
+  });
+  const repoV2HubFlagForTeam=name=>{const file=repoV2HubClubFlagFiles[repoV2HubKey(name)];return file?`assets/repo-sports-v2/club-flags/${file}`:'assets/repo-sports-logo.png'};
+  let repoV2OfficialPlayersCache=[],repoV2OfficialPlayersCacheAt=0,repoV2OfficialPlayersInflight=null;
+  function repoV2RememberOfficialPlayers(rows){
+    if(!Array.isArray(rows))return;
+    repoV2OfficialPlayersCache=rows.slice();repoV2OfficialPlayersCacheAt=Date.now();
+  }
+  function repoV2PatchWatcherProfileFromOfficial(name,rows=repoV2OfficialPlayersCache){
+    if(typeof qmWatcherProfileCache==='undefined'||!qmWatcherProfileCache?.get||!Array.isArray(rows)||!rows.length)return false;
+    const ownerKey=repoV2HubKey(name);if(!ownerKey)return false;
+    const owned=rows.filter(row=>repoV2HubKey(row.owner_name||row.username)===ownerKey);if(!owned.length)return false;
+    owned.sort((a,b)=>(Number(b.goals)||0)-(Number(a.goals)||0)||(Number(b.matches)||0)-(Number(a.matches)||0)||String(a.pet_name||'').localeCompare(String(b.pet_name||'')));
+    const best=owned[0],key=typeof qmWatcherKey==='function'?qmWatcherKey(name):ownerKey,existing=qmWatcherProfileCache.get(key)||{};
+    // Repo Sports career IDs identify the competitive player record, but they are
+    // not guaranteed to be keys in PET_CATALOG. Keep the real watcher-profile pet
+    // catalogue ID for artwork unless the official row explicitly supplies a valid
+    // catalogue ID. This keeps name/goals and artwork sourced correctly.
+    const officialIds=[best.pet_catalog_id,best.catalog_pet_id,best.base_pet_id,best.source_pet_id,best.original_pet_id,best.pet_id,best.player_id]
+      .map(value=>String(value||'').trim()).filter(Boolean);
+    const catalog=(typeof PET_CATALOG!=='undefined'&&PET_CATALOG)||{};
+    const officialCatalogId=officialIds.find(id=>catalog?.[id]?.image)||'';
+    const existingCatalogId=String(existing.top_pet_id||'').trim();
+    const imagePetId=officialCatalogId||(catalog?.[existingCatalogId]?.image?existingCatalogId:'')||existingCatalogId||'';
+    qmWatcherProfileCache.set(key,{...existing,username:existing.username||name,top_pet_id:imagePetId,top_pet_name:best.pet_name||best.player_name||existing.top_pet_name||'No goals recorded yet',top_pet_goals:Math.max(0,Number(best.goals)||0)});
+    return true;
+  }
+  async function repoV2GetOfficialPlayers(force=false){
+    const now=Date.now();if(!force&&repoV2OfficialPlayersCache.length&&now-repoV2OfficialPlayersCacheAt<12000)return repoV2OfficialPlayersCache;
+    if(repoV2OfficialPlayersInflight)return repoV2OfficialPlayersInflight;
+    const bridge=window.RepoSportsV2TestBridge;if(!bridge?.getCareerLeaderboards)return repoV2OfficialPlayersCache;
+    repoV2OfficialPlayersInflight=Promise.resolve(bridge.getCareerLeaderboards()).then(payload=>{const rows=Array.isArray(payload?.all_players)?payload.all_players:[];if(rows.length)repoV2RememberOfficialPlayers(rows);return repoV2OfficialPlayersCache;}).catch(error=>{console.warn('Repo Sports official Watch Party pet stats:',error);return repoV2OfficialPlayersCache;}).finally(()=>{repoV2OfficialPlayersInflight=null});
+    return repoV2OfficialPlayersInflight;
+  }
+  async function repoV2SyncWatcherOfficialPetGoals(names,force=false){
+    const rows=await repoV2GetOfficialPlayers(force);for(const name of [...new Set((names||[]).filter(Boolean).map(String))])repoV2PatchWatcherProfileFromOfficial(name,rows);return rows;
+  }
+  function repoV2HubRenderPlayerList(target,rows,mode){
+    if(!target)return;
+    const items=Array.isArray(rows)?rows.slice(0,5):[];
+    if(!items.length){target.innerHTML='<div class="repo-v2-record-empty">No official records yet.</div>';return;}
+    target.innerHTML=items.map((row,index)=>{
+      const name=repoV2HubEsc(row.pet_name||row.player_name||'Unknown');
+      const owner=repoV2HubEsc(row.owner_name||row.username||'');
+      const matches=Math.max(0,Number(row.matches)||0),goals=Math.max(0,Number(row.goals)||0),wr=Math.max(0,Number(row.win_rate)||0);
+      const value=mode==='winrate'?`${wr.toFixed(1)}%`:goals.toLocaleString('en-GB');
+      const unit=mode==='winrate'?`${Math.max(0,Number(row.wins)||0).toLocaleString('en-GB')} WINS`:'GOALS';
+      const meta=owner?`${owner} · ${matches.toLocaleString('en-GB')} matches`:`${matches.toLocaleString('en-GB')} matches`;
+      return `<div class="repo-v2-record-row${index===0?' is-first':''}"><span class="repo-v2-record-rank">${index+1}</span><span class="repo-v2-record-copy"><b class="repo-v2-record-name">${name}</b><small class="repo-v2-record-meta">${repoV2HubEsc(meta)}</small></span><strong class="repo-v2-record-value">${value}<small>${unit}</small></strong></div>`;
+    }).join('');
+  }
+  function repoV2HubRenderStandings(target,rows){
+    if(!target)return;
+    const teams=Array.isArray(rows)?rows.slice(0,18):[];
+    if(!teams.length){target.innerHTML='<div class="repo-v2-standings-loading">No league standings yet.</div>';return;}
+    target.innerHTML=teams.map((row,index)=>{
+      const mp=Math.max(0,Number(row.matches??row.mp)||0),w=Math.max(0,Number(row.wins)||0),l=Math.max(0,Number(row.losses)||0),gf=Math.max(0,Number(row.goals_for??row.gf)||0),ga=Math.max(0,Number(row.goals_against??row.ga)||0);
+      const gd=Number.isFinite(Number(row.goal_difference??row.gd))?Number(row.goal_difference??row.gd):gf-ga;
+      const wr=Number.isFinite(Number(row.win_rate??row.wr))?Number(row.win_rate??row.wr):(mp?w/mp*100:0);
+      const gdText=gd>0?`+${gd}`:`${gd}`;
+      const teamName=String(row.team_name||row.team||'—');
+      return `<div class="repo-v2-standing-row${index===0?' is-first':''}"><span class="pos">${index+1}</span><span class="team" title="${repoV2HubEsc(teamName)}"><img class="repo-v2-standing-flag" src="${repoV2HubEsc(repoV2HubFlagForTeam(teamName))}" alt=""><b>${repoV2HubEsc(teamName)}</b></span><span>${mp}</span><span>${w}</span><span>${l}</span><span>${gf}</span><span>${ga}</span><span class="gd ${gd>0?'posgd':gd<0?'neggd':''}">${gdText}</span><span class="wr">${wr.toFixed(1)}%</span></div>`;
+    }).join('');
+  }
+  async function repoV2RefreshHubStats(){
+    if(repoV2HubStatsBusy||!leagueMenu?.classList.contains('is-open'))return;
+    const bridge=window.RepoSportsV2TestBridge;
+    if(!bridge?.getCareerLeaderboards)return;
+    repoV2HubStatsBusy=true;
+    try{
+      const payload=await bridge.getCareerLeaderboards();
+      if(Array.isArray(payload?.all_players))repoV2RememberOfficialPlayers(payload.all_players);
+      repoV2HubRenderPlayerList(document.getElementById('repoSportsV2HubScorers'),payload?.goal_leaders,'goals');
+      repoV2HubRenderPlayerList(document.getElementById('repoSportsV2HubWinrate'),payload?.winrate_leaders,'winrate');
+      repoV2HubRenderStandings(document.getElementById('repoSportsV2HubStandings'),payload?.team_leaders);
+    }catch(error){
+      console.warn('Repo Sports League Hub records:',error);
+      const scorer=document.getElementById('repoSportsV2HubScorers'),winrate=document.getElementById('repoSportsV2HubWinrate'),standings=document.getElementById('repoSportsV2HubStandings');
+      if(scorer&&!scorer.querySelector('.repo-v2-record-row'))scorer.innerHTML='<div class="repo-v2-record-empty">Records temporarily unavailable.</div>';
+      if(winrate&&!winrate.querySelector('.repo-v2-record-row'))winrate.innerHTML='<div class="repo-v2-record-empty">Records temporarily unavailable.</div>';
+      if(standings&&!standings.querySelector('.repo-v2-standing-row'))standings.innerHTML='<div class="repo-v2-standings-loading">Standings temporarily unavailable.</div>';
+    }finally{repoV2HubStatsBusy=false;}
+  }
+  function setRepoV2LeagueMenuOpen(open){
+    if(!leagueMenu)return;
+    leagueMenu.classList.toggle('is-open',!!open);leagueMenu.classList.remove('is-leaving');leagueMenu.setAttribute('aria-hidden',open?'false':'true');
+    clearInterval(repoV2HubStatsTimer);repoV2HubStatsTimer=0;
+    if(open){setTimeout(()=>void repoV2RefreshHubStats(),40);repoV2HubStatsTimer=setInterval(()=>void repoV2RefreshHubStats(),12000);}
+  }
+  const repoV2ClubArchiveFiles=Object.freeze({
+    'Hrafnvik':'hrafnvik-collector-spread.png','Aurelia':'aurelia-collector-spread.png','Grand Khor':'grand-khor-collector-spread.png','Naskor':'naskor-collector-spread.png',
+    'Blackglass':'blackglass-collector-spread.png','Rova End':'rova-end-collector-spread.png','Drazh Hollow':'drazh-hollow-collector-spread.png','Ossa Mere':'ossa-mere-collector-spread.png',
+    'Iskara':'iskara-collector-spread.png','Marenza':'marenza-collector-spread.png','Zafir Row':'zafir-row-collector-spread.png','Talun Cross':'talun-cross-collector-spread.png',
+    'Varka Fell':'varka-fell-collector-spread.png','Ashwick':'ashwick-collector-spread.png','Cinderbank':'cinderbank-collector-spread.png','Orsanne':'orsanne-collector-spread.png',
+    'Skarholt':'skarholt-collector-spread.png','Saint Ciro':'saint-ciro-collector-spread.png'
+  });
+  let repoV2ArchiveReturnFocus=null;
+  function closeRepoV2ClubArchive(restoreFocus=true){
+    if(!clubArchive)return;
+    clubArchive.classList.remove('is-open','is-loading');clubArchive.setAttribute('aria-hidden','true');
+    if(restoreFocus&&repoV2ArchiveReturnFocus){const target=repoV2ArchiveReturnFocus;setTimeout(()=>{try{target.focus({preventScroll:true})}catch(_){}},80)}
+    repoV2ArchiveReturnFocus=null;
+  }
+  function openRepoV2ClubArchive(club,sourceEl=null){
+    const src=repoV2ClubArchiveFiles[String(club||'')];if(!src||!clubArchive||!clubArchiveImage)return;
+    repoV2ArchiveReturnFocus=sourceEl||document.activeElement;
+    clubArchive.classList.add('is-loading');clubArchive.classList.remove('is-open');clubArchive.setAttribute('aria-hidden','false');
+    clubArchiveImage.alt=`${club} — Repo Sports League official club archive`;
+    const reveal=()=>{clubArchive.classList.remove('is-loading');requestAnimationFrame(()=>clubArchive.classList.add('is-open'));};
+    clubArchiveImage.onload=reveal;clubArchiveImage.onerror=reveal;
+    clubArchiveImage.src=src;
+    if(clubArchiveImage.complete)requestAnimationFrame(reveal);
+    setTimeout(()=>{if(clubArchive.getAttribute('aria-hidden')==='false')clubArchiveClose?.focus({preventScroll:true})},300);
+  }
   const REPO_V2_STING_FALLBACK_MS=1620;
   function repoV2StingDurationMs(){
     const seconds=Number(repoV2LaunchAudio.duration);
@@ -5571,8 +5945,15 @@ window.__QD_HOST__={
     return{match_id:repoV2ExistingBarryMatchId(),viewer_count:1,cards:[{name:currentName,avatar,background}]};
   }
 
+  let repoV2DeferredCharacterRender=false;
+  let repoV2WatchPartyCache=null,repoV2WatchPartyCacheAt=0,repoV2WatchPartyInflight=null,repoV2WatchProfileRefreshAt=0;
+
   window.RepoSportsV2TestBridge={
     async getWatchParty(){
+      const cacheNow=performance.now();
+      if(repoV2WatchPartyCache&&cacheNow-repoV2WatchPartyCacheAt<4200)return repoV2WatchPartyCache;
+      if(repoV2WatchPartyInflight)return repoV2WatchPartyInflight;
+      repoV2WatchPartyInflight=(async()=>{
       const currentName=(typeof character!=='undefined'&&character?.username)?String(character.username):'';
       const watcherKey=name=>String(name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 
@@ -5647,8 +6028,11 @@ window.__QD_HOST__={
         // Load the rest of the original Watch Party profile information in the
         // background. Hovering a V2 card also performs a forced refresh.
         try{
-          if(typeof qmRefreshWatcherProfiles==='function'&&names.length){
-            Promise.resolve(qmRefreshWatcherProfiles([...new Set(names)])).catch(error=>console.warn('V2 Watch Party profile refresh:',error));
+          const profileNow=performance.now();
+          if(typeof qmRefreshWatcherProfiles==='function'&&names.length&&profileNow-repoV2WatchProfileRefreshAt>30000){
+            repoV2WatchProfileRefreshAt=profileNow;
+            const uniqueNames=[...new Set(names)];
+            Promise.resolve(qmRefreshWatcherProfiles(uniqueNames)).then(()=>repoV2SyncWatcherOfficialPetGoals(uniqueNames)).catch(error=>console.warn('V2 Watch Party profile refresh:',error));
           }
         }catch(error){
           console.warn('V2 Watch Party profile refresh:',error);
@@ -5663,6 +6047,79 @@ window.__QD_HOST__={
         console.warn('V2 Watch Party live viewer fallback:',error);
         return localFallback();
       }
+      })();
+      try{
+        const payload=await repoV2WatchPartyInflight;
+        repoV2WatchPartyCache=payload;repoV2WatchPartyCacheAt=performance.now();
+        return payload;
+      }finally{repoV2WatchPartyInflight=null}
+    },
+    async getPlayerNametags(players=[]){
+      const requested=Array.isArray(players)?players.slice(0,6):[];
+      const norm=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
+      const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const clean=requested.map(item=>({
+        id:String(item?.id||''),
+        name:String(item?.name||'PET'),
+        owner:String(item?.owner||''),
+        team:String(item?.team||''),
+        teamName:String(item?.teamName||'')
+      })).filter(item=>item.id);
+
+      let activeRows=[];
+      if(typeof db!=='undefined'&&db?.rpc){
+        try{
+          const{data,error}=await db.rpc('get_active_pets');
+          if(error)throw error;
+          if(Array.isArray(data))activeRows=data;
+        }catch(error){
+          console.warn('V2 Players panel pet loadouts:',error);
+        }
+      }
+      const byOwner=new Map();
+      activeRows.forEach(row=>{
+        const key=norm(row?.username);
+        if(key)byOwner.set(key,row||{});
+      });
+
+      const currentUser=norm((typeof character!=='undefined'&&character?.username)||'');
+      return clean.map(item=>{
+        const key=norm(item.owner);
+        const serverRow=byOwner.get(key)||{};
+        const source={...serverRow,username:item.owner};
+
+        // For the signed-in player, prefer the freshest local cosmetic state so
+        // equipping a paid nametag is reflected without waiting for the next DB read.
+        if(currentUser&&key===currentUser){
+          try{
+            if(typeof equippedPetNametagState!=='undefined')source.equipped_pet_nametag=equippedPetNametagState||null;
+            if(typeof equippedPetCosmeticState!=='undefined')source.equipped_pet_cosmetic=equippedPetCosmeticState||null;
+            if(typeof activePetState!=='undefined'&&activePetState&&typeof petNamesState!=='undefined'){
+              source.pet_name=petNamesState?.[activePetState]||source.pet_name||item.name;
+            }
+          }catch(_){}
+        }
+
+        const petName=String(source.pet_name||item.name||'PET');
+        let markup='';
+        try{
+          if(typeof quidditchPetLabelMarkup==='function'){
+            markup=quidditchPetLabelMarkup(source,petName,'');
+          }
+        }catch(error){
+          console.warn('V2 Players panel nametag markup:',error);
+        }
+        if(!markup){
+          markup=`<div class="pet-label"><b>${escape(petName)}</b><small></small></div>`;
+        }
+        return{
+          ...item,
+          petName,
+          nametag:String(source.equipped_pet_nametag||''),
+          hasCustomNametag:!!source.equipped_pet_nametag,
+          markup
+        };
+      });
     },
     async claimWatchXp(){
       // Exact parity with the existing live RepoSports Quidditch mode.
@@ -5677,7 +6134,10 @@ window.__QD_HOST__={
       const gained=Math.max(0,Number(Array.isArray(data)?data[0]:data)||0);
       if(gained>0){
         character.agility_xp=Math.max(0,Number(character.agility_xp||0)+gained);
-        try{if(typeof renderCharacter==='function')renderCharacter()}catch(_){}
+        // Do not rebuild the entire homepage character UI every 2 seconds while
+        // the full-screen broadcast is covering it. That periodic synchronous
+        // render was a direct source of the tiny recurring FPS hitch.
+        repoV2DeferredCharacterRender=true;
       }
 
       return{
@@ -5746,7 +6206,8 @@ window.__QD_HOST__={
       return{
         goal_leaders:goalLeaders,
         winrate_leaders:winrateLeaders,
-        team_leaders:liveTeams.length?liveTeams:fallbackTeams
+        team_leaders:liveTeams.length?liveTeams:fallbackTeams,
+        all_players:renamed
       };
     },
     async getBarryTipState(){
@@ -5867,7 +6328,7 @@ window.__QD_HOST__={
     h.id='repoSportsV2GlobalHostFrame';h.tabIndex=-1;h.setAttribute('aria-hidden','true');
     h.style.cssText='position:fixed!important;width:1px!important;height:1px!important;left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;border:0!important';
     h.addEventListener('load',()=>setTimeout(()=>repoV2PushLiveState(h.contentWindow),30));
-    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-banner-fixed-simchecked-20260812-0245';
+    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-league-hub-archives-20260812';
     document.body.appendChild(h);
   }
   function repoV2NormalizeLiveRow(row){
@@ -6004,7 +6465,11 @@ window.__QD_HOST__={
     if(repoV2LiveHeartbeatTimer)return;
     void repoV2AdvanceLiveBackground();
     repoV2LiveHeartbeatTimer=setInterval(()=>void repoV2AdvanceLiveBackground(),REPO_V2_LIVE_HEARTBEAT_MS);
-    repoV2LivePollTimer=setInterval(()=>{if(repoV2LiveIsHost||o?.style.display==='block')void repoV2FetchLiveState()},REPO_V2_LIVE_POLL_MS);
+    let repoV2LastHostOnlyPollAt=0;
+    repoV2LivePollTimer=setInterval(()=>{
+      if(o?.style.display==='block'){void repoV2FetchLiveState();return}
+      if(repoV2LiveIsHost){const now=performance.now();if(now-repoV2LastHostOnlyPollAt>=950){repoV2LastHostOnlyPollAt=now;void repoV2FetchLiveState()}}
+    },REPO_V2_LIVE_POLL_MS);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden){void repoV2AdvanceLiveBackground();void repoV2FetchLiveState()}});
     window.addEventListener('online',()=>void repoV2AdvanceLiveBackground());
   }
@@ -6051,6 +6516,17 @@ window.__QD_HOST__={
       return;
     }
 
+    if(data.type==='repo-sports-v2-player-tags-request'){
+      const requestId=String(data.requestId||'');
+      const reply=(ok,payload,error)=>{
+        try{event.source?.postMessage({type:'repo-sports-v2-player-tags-response',requestId,ok,payload:Array.isArray(payload)?payload:[],error:error||''},'*')}catch(_){}
+      };
+      Promise.resolve(window.RepoSportsV2TestBridge.getPlayerNametags(data.players||[]))
+        .then(payload=>reply(true,payload,''))
+        .catch(error=>reply(false,[],String(error?.message||error||'Player nametags request failed')));
+      return;
+    }
+
     if(data.type==='repo-sports-v2-watch-xp-request'){
       const requestId=String(data.requestId||'');
       const reply=(ok,payload,error)=>{
@@ -6079,6 +6555,9 @@ window.__QD_HOST__={
       if(!name)return;
       repoV2HoveredWatcher=name;
 
+      // The hub already fetched the official Repo Sports career table, so patch
+      // the cached Watch Party pet total before the first paint whenever possible.
+      repoV2PatchWatcherProfileFromOfficial(name);
       // Show whatever is already cached immediately, exactly like the original.
       try{
         if(typeof qmRenderWatcherProfile==='function'){
@@ -6091,7 +6570,7 @@ window.__QD_HOST__={
       // pet, favourite TCG card and the equipped Watchcard background are current.
       try{
         if(typeof qmRefreshWatcherProfiles==='function'){
-          Promise.resolve(qmRefreshWatcherProfiles([name],true)).then(()=>{
+          Promise.resolve(qmRefreshWatcherProfiles([name],true)).then(()=>repoV2SyncWatcherOfficialPetGoals([name],true)).then(()=>{
             if(repoV2HoveredWatcher!==name)return;
             try{
               if(typeof qmRenderWatcherProfile==='function'){
@@ -6127,41 +6606,175 @@ window.__QD_HOST__={
     setTimeout(()=>void repoV2PushWatchParty(f.contentWindow,true),60);
     setTimeout(()=>void repoV2PushCareer(f.contentWindow),110);
   });
+  window.addEventListener('message',event=>{
+    if(event?.data?.type!=='repo-sports-v2-open-legacy-mode')return;
+    if(event.source!==f?.contentWindow)return;
+    // Close the V2 overlay first, then invoke the exact existing Legacy Mode button/handler.
+    x?.click();
+    setTimeout(()=>document.getElementById('openQuidditchMode')?.click(),70);
+  });
   s();
   document.getElementById('repoSportsPetRoomButton')?.addEventListener('click',()=>b?.click());
-  b.onclick=()=>{
-    launchSerial++;const serial=launchSerial;
-    clearTimeout(revealTimer);clearTimeout(closeTimer);
+  function revealRepoV2LeagueMenuAfterSting(serial){
+    if(serial!==launchSerial)return;
+    setRepoV2LeagueMenuOpen(true);playRepoV2LeagueMenuMusic(false,.30);fadeRepoV2LeagueMenuMusic(.30,220);
+    sting.classList.add('is-leaving');
+    clearTimeout(closeTimer);
+    closeTimer=setTimeout(()=>{if(serial!==launchSerial)return;sting.classList.remove('is-playing','is-leaving');sting.setAttribute('aria-hidden','true')},380);
+  }
+  function openRepoV2LeagueMenu(){
+    launchSerial++;const serial=launchSerial;clearTimeout(revealTimer);clearTimeout(closeTimer);stopRepoV2LeagueMenuMusic();
     o.style.display='block';o.setAttribute('aria-hidden','false');o.classList.remove('is-feed-visible');
-    document.body.style.overflow='hidden';
+    document.body.style.overflow='hidden';f.src='about:blank';setRepoV2LeagueMenuOpen(false);
     sting.classList.remove('is-leaving');sting.classList.add('is-playing');sting.setAttribute('aria-hidden','false');
-    // Restart the Repo Sports red/blue/white shine on every launch.
-    syncRepoV2StingDuration();
-    void sting.offsetWidth;
+    syncRepoV2StingDuration();void sting.offsetWidth;
     let soundFinished=false;
-    const reveal=()=>{
-      if(serial!==launchSerial||!soundFinished)return;
-      hideLaunchSting(serial);
-    };
+    const reveal=()=>{if(serial!==launchSerial||!soundFinished)return;revealRepoV2LeagueMenuAfterSting(serial)};
     playRepoV2LaunchSound(serial,()=>{soundFinished=true;reveal()});
-    void repoV2FetchLiveState();
-    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-banner-fixed-simchecked-20260812-0245';
-    // Hand the host simulation from the hidden iframe to the visible feed.
+    // Prime playback inside the original click gesture at effectively silent
+    // volume, then make it audible about one second BEFORE the hub appears. This
+    // avoids the previous delayed-feeling music start without fighting autoplay.
+    playRepoV2LeagueMenuMusic(true,.001);
+    const leadDelay=Math.max(80,repoV2StingDurationMs()-1000);
+    repoV2LeagueMusicLeadTimer=setTimeout(()=>{if(serial!==launchSerial)return;fadeRepoV2LeagueMenuMusic(.30,420)},leadDelay);
     repoV2EnsureHostFrame();
-    // Safety only: normal reveal is driven by the MP3 'ended' event.
     revealTimer=setTimeout(()=>{soundFinished=true;reveal()},repoV2StingDurationMs()+220);
-  };
+  }
+  function startRepoV2LiveFromLeagueMenu(){
+    launchSerial++;const serial=launchSerial;clearTimeout(revealTimer);clearTimeout(closeTimer);stopRepoV2LeagueMenuMusic();closeRepoV2ClubArchive(false);
+    watchLive?.classList.add('is-pressed');setTimeout(()=>watchLive?.classList.remove('is-pressed'),180);
+    o.style.display='block';o.setAttribute('aria-hidden','false');o.classList.remove('is-feed-visible');document.body.style.overflow='hidden';
+    leagueMenu?.classList.add('is-leaving');
+    // WATCH LIVE uses the same Repo Sports sting/sound as opening the League Hub.
+    sting.classList.remove('is-playing','is-leaving');sting.setAttribute('aria-hidden','false');syncRepoV2StingDuration();void sting.offsetWidth;sting.classList.add('is-playing');
+    let stingFinished=false,frameReady=false,revealed=false;
+    const revealLive=()=>{
+      if(revealed||serial!==launchSerial||!stingFinished||!frameReady)return;revealed=true;
+      o.classList.add('is-feed-visible');setRepoV2LeagueMenuOpen(false);
+      sting.classList.add('is-leaving');clearTimeout(closeTimer);
+      closeTimer=setTimeout(()=>{if(serial!==launchSerial)return;sting.classList.remove('is-playing','is-leaving');sting.setAttribute('aria-hidden','true')},380);
+    };
+    const markFrameReady=()=>{if(serial!==launchSerial)return;frameReady=true;revealLive();};
+    f.addEventListener('load',()=>setTimeout(markFrameReady,35),{once:true});
+    playRepoV2LaunchSound(serial,()=>{stingFinished=true;revealLive();});
+    void repoV2FetchLiveState();
+    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-league-hub-archives-20260812';
+    repoV2EnsureHostFrame();
+    revealTimer=setTimeout(markFrameReady,2200);
+  }
+  b.onclick=openRepoV2LeagueMenu;
+  watchLive?.addEventListener('click',startRepoV2LiveFromLeagueMenu);
+  watchLive?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();startRepoV2LiveFromLeagueMenu();}});
+  leagueMenu?.querySelectorAll('.repo-v2-club-hotspot').forEach(hotspot=>{
+    const choose=()=>{
+      hotspot.classList.remove('is-pressed');void hotspot.offsetWidth;hotspot.classList.add('is-pressed');
+      setTimeout(()=>hotspot.classList.remove('is-pressed'),115);
+      const club=hotspot.dataset.club||hotspot.getAttribute('aria-label')||'';
+      try{window.dispatchEvent(new CustomEvent('repo-sports-club-map-select',{detail:{club}}));}catch(_){}
+      setTimeout(()=>openRepoV2ClubArchive(club,hotspot),75);
+    };
+    hotspot.addEventListener('click',choose);
+    hotspot.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose();}});
+  });
+  clubArchiveClose?.addEventListener('click',()=>closeRepoV2ClubArchive(true));
+  clubArchive?.addEventListener('click',event=>{if(event.target===clubArchive)closeRepoV2ClubArchive(true)});
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&clubArchive?.classList.contains('is-open')){event.preventDefault();event.stopPropagation();closeRepoV2ClubArchive(true)}
+  },true);
   x.onclick=()=>{
-    launchSerial++;clearTimeout(revealTimer);clearTimeout(closeTimer);
+    launchSerial++;clearTimeout(revealTimer);clearTimeout(closeTimer);stopRepoV2LeagueMenuMusic();closeRepoV2ClubArchive(false);setRepoV2LeagueMenuOpen(false);
     try{repoV2LaunchAudio.pause();repoV2LaunchAudio.currentTime=0}catch(_){}
     o.style.display='none';o.setAttribute('aria-hidden','true');o.classList.remove('is-feed-visible');
     sting.classList.remove('is-playing','is-leaving');sting.setAttribute('aria-hidden','true');
     f.src='about:blank';document.body.style.overflow='';
+    if(repoV2DeferredCharacterRender){repoV2DeferredCharacterRender=false;requestAnimationFrame(()=>{try{if(typeof renderCharacter==='function')renderCharacter()}catch(_){}})}
     // If this browser owns the lease, resume the lightweight headless host while
     // the user remains elsewhere on RepoCompany.
     setTimeout(repoV2EnsureHostFrame,40);
     repoV2HoveredWatcher='';try{if(typeof qmHideWatcherProfile==='function')qmHideWatcherProfile()}catch(_){}
   };
+})();
+</script>
+
+<script id="repoHarmonyResponsiveClickQueue">
+(()=>{
+  const button=document.getElementById('can');
+  if(!button||button.dataset.repoHarmonyQueueV3==='1')return;
+  button.dataset.repoHarmonyQueueV3='1';
+  let queued=0,flushing=false,lastSoundAt=0,lastBoardRefreshAt=0,leaderboardTimer=0;
+
+  function scheduleHarmonyLeaderboards(force=false){
+    if(typeof character==='undefined'||!character)return;
+    const now=performance.now();
+    const remaining=Math.max(0,1250-(now-lastBoardRefreshAt));
+    const delay=force?80:Math.max(120,remaining);
+    if(leaderboardTimer){if(!force)return;clearTimeout(leaderboardTimer);}
+    leaderboardTimer=setTimeout(()=>{
+      leaderboardTimer=0;lastBoardRefreshAt=performance.now();
+      try{Promise.resolve(typeof loadDailyXpLeaderboard==='function'?loadDailyXpLeaderboard():null).catch(()=>{});}catch(_){}
+      try{Promise.resolve(typeof loadGlobalXpLeaderboard==='function'?loadGlobalXpLeaderboard():null).catch(()=>{});}catch(_){}
+    },delay);
+  }
+
+  async function flushHarmonyQueue(){
+    if(flushing||queued<=0)return;flushing=true;
+    try{
+      while(queued>0){
+        let result;
+        try{result=await db.rpc('harmonize_once_v2');}
+        catch(error){result={error};}
+        const {data,error}=result||{};
+        if(error){
+          // Roll back only the unsaved optimistic click; the other queued clicks
+          // remain waiting and will continue once this request has recovered.
+          queued=Math.max(0,queued-1);count=Math.max(0,Number(count||0)-3);render();
+          showError('Harmony XP could not be gained. Run fix-harmonize-3xp-v2.sql in Supabase.',error);
+          break;
+        }
+        const row=Array.isArray(data)?data[0]:data;
+        const serverCount=Number(row?.new_xp),xpGained=Number(row?.xp_gained);
+        if(!Number.isFinite(serverCount)||xpGained!==3){
+          queued=Math.max(0,queued-1);count=Math.max(0,Number(count||0)-3);render();
+          showError('Harmony XP response was invalid. Run fix-harmonize-3xp-v2.sql in Supabase.',row);
+          break;
+        }
+        queued=Math.max(0,queued-1);
+        // Keep optimistic clicks visible while accepting a newer authoritative
+        // server value if another browser has pushed the shared counter higher.
+        if(serverCount>Number(count||0)){count=serverCount;render();}
+        // Regression fix: confirmed Harmony XP must feed the DAILY + TOTAL XP
+        // boards even while the user is still spam-clicking. Refresh at most once
+        // per ~1.25s so the server/UI stay live without making clicks laggy.
+        scheduleHarmonyLeaderboards(false);
+      }
+    }finally{
+      flushing=false;
+      if(queued>0)setTimeout(flushHarmonyQueue,220);
+      else scheduleHarmonyLeaderboards(true);
+    }
+  }
+
+  function registerHarmonyClick(event){
+    if(event){event.preventDefault();event.stopImmediatePropagation();}
+    if(typeof character==='undefined'||!character)return;
+    count=Math.max(0,Number(count||0)+3);queued++;render();
+    toast('+3 Harmony XP',650);
+    const now=performance.now();
+    // Keep click feedback instant. The heavier chord is throttled very lightly,
+    // while every physical click still counts and queues server-side.
+    try{
+      if(typeof harmonySoundEnabled==='undefined'||harmonySoundEnabled){
+        if(typeof playClickSound==='function')playClickSound();
+        if(now-lastSoundAt>110){lastSoundAt=now;if(typeof playHarmonyEffect==='function')playHarmonyEffect();}
+      }
+    }catch(_){}
+    button.classList.remove('is-harmonizing');requestAnimationFrame(()=>button.classList.add('is-harmonizing'));
+    clearTimeout(button._repoHarmonyPulse);button._repoHarmonyPulse=setTimeout(()=>button.classList.remove('is-harmonizing'),170);
+    flushHarmonyQueue();
+  }
+
+  button.onclick=null;
+  button.addEventListener('click',registerHarmonyClick,true);
 })();
 </script>
 </body>

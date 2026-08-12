@@ -1,8 +1,0 @@
-REPO COMPANY — QUIDDITCH ARSENAL + FAN INVASION + JENNY FULL ART
-
-1. Extract this ZIP over the website root and overwrite matching files.
-2. Run add-jenny-full-art-quidditch-tcg-cards.sql once in Supabase SQL Editor.
-3. Deploy to Cloudflare Pages.
-4. Hard refresh (Ctrl+F5) and start a NEW Repo Sports Quidditch Ground run.
-
-The Quidditch Ground remains an isolated single-player mode. Normal Repo Combat gameplay logic is not changed by this patch.

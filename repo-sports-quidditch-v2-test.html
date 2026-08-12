@@ -1,49 +1,85 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="repo-sports-quidditch-v2.css?v=repo-sports-banner-fixed-simchecked-20260812-0245"></head><body style="margin:0;background:#02070c;overflow:hidden"><style id="repoV2NoTestWarning">
-/* Production broadcast: permanently suppress any old V2 test warning strip. */
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="repo-sports-quidditch-v2.css?v=repo-sports-league-hub-menu-20260812"></head><body style="margin:0;background:#02070c;overflow:hidden"><style id="repoV2NoTestWarning">
+/* Production broadcast: permanently suppress known legacy test-warning hosts. */
 html::before,html::after,body::before,body::after{content:none!important;display:none!important}
 .repo-sports-v2-test-warning,.wcg-v2-test-warning,[data-v2-test-warning],[data-leaderboard-writes-warning],[class*="test-warning"],[class*="leaderboard-write"]{display:none!important;visibility:hidden!important}
 </style><script>
 (()=>{
-  const isOldWarning=el=>{
-    if(!el||el===document.body||el===document.documentElement)return false;
-    const t=String(el.textContent||'').replace(/\s+/g,' ').trim().toUpperCase();
-    return t==='REPO SPORTS V2 TEST · LEADERBOARD WRITES DISABLED'||
-      (t.length<160&&t.includes('REPO SPORTS V2 TEST')&&t.includes('LEADERBOARD WRITES DISABLED'));
-  };
-  const removeOldTestWarning=root=>{
-    if(root?.nodeType===1&&isOldWarning(root)){root.remove();return;}
-    for(const el of root?.querySelectorAll?.('*')||[])if(isOldWarning(el))el.remove();
+  const warningText='REPO SPORTS V2 TEST · LEADERBOARD WRITES DISABLED';
+  const cleanNode=node=>{
+    if(!node||node.nodeType!==1)return;
+    const el=node;
+    const text=String(el.textContent||'').replace(/\s+/g,' ').trim().toUpperCase();
+    if(text===warningText||((text.length<160)&&text.includes('REPO SPORTS V2 TEST')&&text.includes('LEADERBOARD WRITES DISABLED'))){el.remove();return;}
+    // Inspect only newly-added descendants. Previous builds rescanned *every* DOM
+    // node and forced pseudo-element styles every 1.5s, causing periodic frame hitches.
+    for(const child of el.querySelectorAll?.('.repo-sports-v2-test-warning,.wcg-v2-test-warning,[data-v2-test-warning],[data-leaderboard-writes-warning],[class*="test-warning"],[class*="leaderboard-write"]')||[])child.remove();
   };
   const start=()=>{
-    removeOldTestWarning(document.body);
-    const observer=new MutationObserver(records=>{
-      for(const record of records)for(const node of record.addedNodes||[])removeOldTestWarning(node);
-      removeOldTestWarning(document.body);
-    });
-    observer.observe(document.documentElement,{childList:true,subtree:true});
-    // Deliberate permanent safety sweep for anything restored by cached/late scripts.
-    setInterval(()=>removeOldTestWarning(document.body),1500);
+    for(const el of document.querySelectorAll('.repo-sports-v2-test-warning,.wcg-v2-test-warning,[data-v2-test-warning],[data-leaderboard-writes-warning],[class*="test-warning"],[class*="leaderboard-write"]'))el.remove();
+    new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes||[])cleanNode(node)}).observe(document.documentElement,{childList:true,subtree:true});
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
-</script><script>window.toaState={adminMode:false}</script><script src="repo-sports-quidditch-v2.js?v=repo-sports-banner-fixed-simchecked-20260812-0245"></script><script>
+</script><script>window.toaState={adminMode:false}</script><script src="repo-sports-quidditch-v2.js?v=repo-sports-league-hub-menu-20260812"></script><script>
 (()=>{
   const A=['arena-01','arena-02','arena-03','arena-04','arena-05','arena-06','arena-07','arena-08','arena-09','arena-10','arena-11','arena-12'];
   const T=['Hrafnvik','Blackglass','Saint Ciro','Marenza','Grand Khor','Aurelia','Drazh Hollow','Rova End','Zafir Row','Talun Cross','Ossa Mere','Varka Fell','Iskara','Naskor','Ashwick','Skarholt','Orsanne','Cinderbank'];
   const P={attacker:['besquelcher','pipsqueak'],defender:['jenny','rocky'],support:['nimbler2000','soup']};
   const HEADLESS=new URLSearchParams(location.search).get('headless')==='1';
-  let activeSerial=0,lastMeta=null,opening=false,forceFreshResync=false;window.REPO_SPORTS_V2_SYNC_BUILD='repo-sports-banner-fixed-simchecked-20260812-0245';
+  let activeSerial=0,lastMeta=null,opening=false,forceFreshResync=false;window.REPO_SPORTS_V2_SYNC_BUILD='repo-sports-league-hub-menu-20260812';
 
   if(HEADLESS){document.documentElement.dataset.repoV2Headless='true';document.body.style.visibility='hidden'}
 
   function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
   function hashSerial(serial){let x=(Number(serial)||1)>>>0;x^=0x51f15e;x=Math.imul(x^(x>>>16),0x45d9f3b);x=Math.imul(x^(x>>>16),0x45d9f3b);return (x^(x>>>16))>>>0}
-  function fixtureForSerial(serial){
+  // Club-selection migration: keep every already-issued serial through 34 on
+  // the legacy deterministic draw so deploying this build cannot alter the
+  // current live fixture. From serial 35 onward, the draw actively balances MP.
+  const BALANCED_SCHEDULE_START=35;
+  // Official standings snapshot carried forward through the current ORSANNE v
+  // OSSA MERE fixture. It is used only as a deterministic migration baseline;
+  // results/win rates remain entirely controlled by the match engine/server.
+  const BALANCED_BASE_MP=Object.freeze({
+    'Hrafnvik':2,'Blackglass':9,'Saint Ciro':1,'Marenza':4,'Grand Khor':2,'Aurelia':2,
+    'Drazh Hollow':1,'Rova End':4,'Zafir Row':3,'Talun Cross':2,'Ossa Mere':4,'Varka Fell':5,
+    'Iskara':2,'Naskor':1,'Ashwick':3,'Skarholt':3,'Orsanne':3,'Cinderbank':3
+  });
+  function legacyFixtureForSerial(serial){
     const r=rng(hashSerial(serial));const pick=a=>a[Math.floor(r()*a.length)];
     const arena=pick(A);let home=pick(T),away=pick(T);while(away===home)away=pick(T);
     const homePlayers=[],awayPlayers=[];
     Object.values(P).forEach(pair=>{const first=r()<.5?0:1;homePlayers.push(pair[first]);awayPlayers.push(pair[1-first])});
     return{arena,home,away,homePlayers,awayPlayers,matchKey:`v2-live-${serial}`};
+  }
+  function balancedClubPairForSerial(serial){
+    const counts={};T.forEach(team=>counts[team]=Math.max(0,Number(BALANCED_BASE_MP[team])||0));
+    const pairCounts=new Map();let previous=[];let chosen=null;
+    const pairKey=(a,b)=>[a,b].sort().join('|');
+    for(let s=BALANCED_SCHEDULE_START;s<=serial;s++){
+      const r=rng((hashSerial(s)^0x6b616c61)>>>0),jitter=new Map(T.map(team=>[team,r()]));
+      const ordered=T.slice().sort((a,b)=>
+        counts[a]-counts[b] ||
+        (previous.includes(a)?1:0)-(previous.includes(b)?1:0) ||
+        (jitter.get(a)-jitter.get(b)) || a.localeCompare(b)
+      );
+      const first=ordered[0];
+      const second=ordered.slice(1).sort((a,b)=>
+        counts[a]-counts[b] ||
+        (previous.includes(a)?1:0)-(previous.includes(b)?1:0) ||
+        ((pairCounts.get(pairKey(first,a))||0)-(pairCounts.get(pairKey(first,b))||0)) ||
+        (jitter.get(a)-jitter.get(b)) || a.localeCompare(b)
+      )[0];
+      const key=pairKey(first,second);pairCounts.set(key,(pairCounts.get(key)||0)+1);
+      counts[first]++;counts[second]++;previous=[first,second];
+      const flip=r()<.5;chosen={home:flip?second:first,away:flip?first:second};
+    }
+    return chosen;
+  }
+  function fixtureForSerial(serial){
+    const legacy=legacyFixtureForSerial(serial);
+    if(Number(serial)<BALANCED_SCHEDULE_START)return legacy;
+    const pair=balancedClubPairForSerial(Number(serial));
+    return pair?{...legacy,home:pair.home,away:pair.away}:legacy;
   }
 
   async function applyLiveMeta(meta){
