@@ -1333,6 +1333,7 @@
     const payload=data.payload||{};
     const signature=JSON.stringify(payload);
     v2CareerState.data=payload;
+    v2CareerState.lastRefresh=performance.now();
     if(signature!==v2CareerState.signature){
       v2CareerState.signature=signature;
       renderV2CareerBoard();
@@ -1351,8 +1352,15 @@
     v2CareerState.polling=true;
     try{
       const payload=await bridge.getCareerLeaderboards();
-      v2CareerState.data=payload||{};
-      renderV2CareerBoard();
+      const next=payload||{};
+      const signature=JSON.stringify(next);
+      v2CareerState.data=next;
+      // Do not rebuild the leaderboard DOM every poll when nothing changed.
+      // This avoids the visible 'refresh' flash during a live match.
+      if(signature!==v2CareerState.signature){
+        v2CareerState.signature=signature;
+        renderV2CareerBoard();
+      }
     }catch(error){
       console.warn('[REPO SPORTS V2] Career leaderboard direct bridge unavailable; postMessage remains active',error);
     }finally{v2CareerState.polling=false}
@@ -4258,7 +4266,12 @@
         target=state.engineElapsed+raw;
       }
       state.lastTs=ts;
-      catchUpTo(target,900);
+      // Visible viewers must never perform an enormous catch-up burst in one RAF.
+      // Normal polling keeps this tiny; after a suspended tab we spread any larger
+      // forward catch-up over a few frames instead of freezing the entire broadcast.
+      const lag=Math.max(0,target-state.engineElapsed);
+      const visibleCatchupSteps=lag>2?120:lag>.65?60:30;
+      catchUpTo(target,state.headless?36000:visibleCatchupSteps);
       // Presentation-only fractional motion between authoritative 30 Hz ticks.
       // This value never feeds back into simulation/gameplay.
       state.renderLead=clamp(target-state.engineElapsed,0,FIXED_SIM_DT);
@@ -4387,5 +4400,5 @@
     return true;
   }
 
-  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-smooth-sync-20260812-0155',leaderboardWrites:true})};
+  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-stable-no-refresh-20260812-0208',leaderboardWrites:true})};
 })();
