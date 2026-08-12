@@ -5888,7 +5888,7 @@ window.__QD_HOST__={
   });
   const repoV2ClubLoreAudio=new Audio();
   repoV2ClubLoreAudio.preload='auto';
-  repoV2ClubLoreAudio.volume=.30;
+  repoV2ClubLoreAudio.volume=.43;
   function stopRepoV2ClubLoreAudio(){
     try{repoV2ClubLoreAudio.pause();repoV2ClubLoreAudio.currentTime=0;}catch(_){}
   }
@@ -5898,7 +5898,7 @@ window.__QD_HOST__={
     if(!src)return;
     try{
       repoV2ClubLoreAudio.src=src;
-      repoV2ClubLoreAudio.volume=.30;
+      repoV2ClubLoreAudio.volume=.43;
       repoV2ClubLoreAudio.load();
       const promise=repoV2ClubLoreAudio.play();
       if(promise?.catch)promise.catch(error=>console.warn(`Repo Sports club lore audio (${club}):`,error));
