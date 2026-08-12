@@ -743,20 +743,17 @@
     cameraDirector:{shot:'MAIN',timer:0,lastShot:'',cutSerial:0},
     broadcast:{lastSpokenAt:0,lastText:'',recent:[],recentSkeletons:[],queue:null,barryState:'NEUTRAL',barryPriority:0,barryUntil:0,barryTimer:0,talkTimer:0,phaseSeen:'',crowdLevel:.12,crowdTarget:.12,speaking:false,debugEvent:'IDLE',voiceName:'TEXT ONLY',variantCount:BARRY_COMMENTARY_VARIANTS},
     teamTactics:{belros:null,zafran:null},
-    syncMode:false,headless:false,liveSerial:0,engineElapsed:0,simClockMs:0,syncAnchorElapsed:0,syncAnchorPerf:0,syncRunning:false,fastForwarding:false,rotationQueued:false,rotationAnnounceAt:0,audioRand:null,commentaryRand:null,renderLead:0
+    syncMode:false,headless:false,liveSerial:0,engineElapsed:0,simClockMs:0,syncAnchorElapsed:0,syncAnchorPerf:0,syncRunning:false,syncAwaitingFreshSample:false,fastForwarding:false,rotationQueued:false,rotationAnnounceAt:0,audioRand:null,commentaryRand:null,renderLead:0
   };
 
   const FIXED_SIM_DT=1/30;
   function simNow(){return state.syncMode?state.simClockMs:performance.now()}
-  // SERVER-AUTHORITATIVE SYNC GUARD
-  // Never let a browser free-run far beyond the last Supabase sample. Background
-  // tabs are explicitly frozen and resume only after a fresh server sync arrives.
-  const SYNC_MAX_LOCAL_PROJECTION_SECONDS=1.25;
   function syncTargetElapsed(){
-    const anchor=Math.max(0,Number(state.syncAnchorElapsed)||0);
-    if(!state.syncRunning||document.hidden)return anchor;
-    const projected=anchor+Math.max(0,(performance.now()-state.syncAnchorPerf)/1000);
-    return Math.min(projected,anchor+SYNC_MAX_LOCAL_PROJECTION_SECONDS);
+    // A backgrounded browser must never extrapolate from a stale anchor when it
+    // wakes up. Freeze local simulation until the parent supplies a fresh
+    // authoritative Supabase sample, then resume from that exact server anchor.
+    if(state.syncMode&&(document.hidden||state.syncAwaitingFreshSample))return Math.max(0,state.engineElapsed);
+    return Math.max(0,state.syncAnchorElapsed+(state.syncRunning?(performance.now()-state.syncAnchorPerf)/1000:0));
   }
 
   function blankTeamStats(){return {shots:0,onTarget:0,missedChances:0,passes:0,completed:0,interceptions:0,rebounds:0,fouls:0,penalties:0,var:0,possession:0,turnovers:0,counterattacks:0,presses:0,tacklesAttempted:0,tacklesWon:0}}
@@ -1276,24 +1273,6 @@
 
   document.addEventListener('visibilitychange',()=>{
     if(state.open&&!document.hidden)requestV2WatchXp();
-    if(!state.open||!state.syncMode)return;
-    const now=performance.now();
-    if(document.hidden){
-      // Freeze on the exact simulation tick already rendered. Do not allow a
-      // throttled/background browser to keep projecting the match on its own.
-      state.syncAnchorElapsed=Math.max(0,state.engineElapsed);
-      state.syncAnchorPerf=now;
-      state.syncRunning=false;
-    }else{
-      // Stay frozen until the parent supplies the next authoritative elapsed
-      // sample. The normal live sync poll will then deterministically catch up.
-      state.syncAnchorElapsed=Math.max(0,state.engineElapsed);
-      state.syncAnchorPerf=now;
-      state.syncRunning=false;
-      try{
-        if(window.parent&&window.parent!==window)window.parent.postMessage({type:'repo-sports-v2-sync-request',matchSerial:state.liveSerial},'*');
-      }catch(_){}
-    }
   });
 
   // ==========================================================
@@ -4291,6 +4270,22 @@
   }
 
 
+  // LIVE SYNC LOCK — background tabs are not allowed to free-run from an old
+  // clock sample. On return, wait for a new parent/server sample before the RAF
+  // can advance gameplay again. This prevents the 5–10 second fork seen when a
+  // viewer tunes out and comes back.
+  document.addEventListener('visibilitychange',()=>{
+    if(!state.open||!state.syncMode)return;
+    state.lastTs=0;
+    if(document.hidden){
+      state.syncAwaitingFreshSample=true;
+      return;
+    }
+    state.syncAwaitingFreshSample=true;
+    try{if(window.parent&&window.parent!==window)window.parent.postMessage({type:'repo-sports-v2-live-state-request',headless:state.headless,reason:'visibility-resume'},'*')}catch(_){}
+  });
+
+
   async function joinMatchChannel(){state.channel=null;state.subscribed=false;}
   async function sendMatch(){return false;}
   async function leaveMatchChannel(){state.channel=null;state.subscribed=false;}
@@ -4314,7 +4309,7 @@
       createUi();applyFixtureConfig(opts);refreshFixtureUi();await preload();
       state.open=true;state.opening=false;state.rotationQueued=false;state.rotationAnnounceAt=0;
       state.syncMode=!!opts.syncMode;state.headless=!!opts.headless;state.liveSerial=Math.max(0,Number(opts.liveSerial)||0);state.engineElapsed=0;state.simClockMs=0;state.renderLead=0;
-      state.syncAnchorElapsed=Math.max(0,Number(opts.targetElapsedMs)||0)/1000;state.syncAnchorPerf=performance.now();state.syncRunning=opts.running!==false;
+      state.syncAnchorElapsed=Math.max(0,Number(opts.targetElapsedMs)||0)/1000;state.syncAnchorPerf=performance.now();state.syncRunning=opts.running!==false;state.syncAwaitingFreshSample=!!(state.syncMode&&document.hidden);
       state.startedAt=state.liveSerial||Number(opts.startedAt)||Date.now();
       state.seed=hashSeed(`${state.liveSerial||state.startedAt}|${activeFixture.id}|REPO_SPORTS_V2_GLOBAL`);
       state.simRand=mulberry32(state.seed);
@@ -4380,16 +4375,11 @@
     state.syncAnchorElapsed=serverElapsed;
     state.syncAnchorPerf=now;
     state.syncRunning=running;
+    state.syncAwaitingFreshSample=false;
 
-    // A returning/slow browser must catch up to the authoritative server sample
-    // immediately rather than spending several visible seconds running behind.
-    // Fixed-step simulation keeps the result deterministic and identical to every
-    // other viewer using the same serial/seed. Hidden tabs remain frozen.
-    const behindBy=serverElapsed-state.engineElapsed;
-    if(!document.hidden&&behindBy>.12)catchUpTo(serverElapsed,36000);
-    else if(state.headless)catchUpTo(syncTargetElapsed(),36000);
+    if(state.headless)catchUpTo(syncTargetElapsed(),36000);
     return true;
   }
 
-  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',leaderboardWrites:true})};
+  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-sync-lock-20260812-0135',leaderboardWrites:true})};
 })();
