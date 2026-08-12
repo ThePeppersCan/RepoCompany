@@ -877,6 +877,8 @@
     return Object.values(commentary).reduce((n,bank)=>n+(Array.isArray(bank)?bank.length:0),0);
   }
   const BARRY_COMMENTARY_VARIANTS=buildBarryCommentaryLibrary();
+  const HAT_TRICK_BANNER_SRC='assets/repo-sports-v2/moment-popups/hat-trick.png?v=20260812b';
+  const PENALTY_BANNER_SRC='assets/repo-sports-v2/moment-popups/penalty.png?v=20260812b';
 
   const state = {
     open:false, startedAt:0, seed:0, simRand:null, visualRand:null, assets:{}, entities:[], ref:null,
@@ -885,7 +887,7 @@
     actionTimer:2.4, delay:null, special:null, ball:{x:.5,y:.5,flight:null,visible:true},
     score:{belros:0,zafran:0}, shootout:null,
     teamStats:{}, playerStats:{}, camera:{x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'},
-    eventBannerTimer:0, celebration:null, reactionHistory:{},reactionSerial:0,refReaction:null,varContext:null, channel:null, subscribed:false,
+    eventBannerTimer:0, bigMomentTimer:0, celebration:null, reactionHistory:{},reactionSerial:0,refReaction:null,varContext:null, channel:null, subscribed:false,
     lastTs:0, raf:0, loreUsed:new Set(), introCue:-1, audioUnlocked:false, crowdBase:.18, crowdBoost:0,
     shootoutPending:false, opening:false, movementPulse:0, tacticalPulse:0, adminPreviewTimer:0, pendingPass:null, possessionChangedAt:0,
     broadcastState:'CLOSED', presentationKey:'', halftimeElapsed:0, halftimeReady:false, secondCountdown:0,
@@ -1186,6 +1188,28 @@
     `;
     document.head.appendChild(style);
   }
+
+
+function ensureBigMomentStyles(){
+  if(document.getElementById('wcgBigMomentStyles'))return;
+  const style=document.createElement('style');style.id='wcgBigMomentStyles';
+  style.textContent=`
+    #wcWorldCupBroadcast .wcg-big-moment{position:absolute!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:none!important;z-index:58!important;opacity:0;visibility:hidden;overflow:hidden!important}
+    #wcWorldCupBroadcast .wcg-big-moment.is-visible{opacity:1;visibility:visible}
+    #wcWorldCupBroadcast .wcg-big-moment-flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,rgba(255,238,183,.34),rgba(255,111,43,.17) 22%,rgba(6,16,28,0) 60%);opacity:0;mix-blend-mode:screen}
+    #wcWorldCupBroadcast .wcg-big-moment-img{position:relative;display:block;max-width:min(78%,980px);max-height:34%;width:auto;height:auto;object-fit:contain;transform:translateY(20px) scale(.88);opacity:0;filter:drop-shadow(0 10px 0 rgba(4,12,21,.52)) drop-shadow(0 0 24px rgba(255,218,101,.30));image-rendering:auto}
+    #wcWorldCupBroadcast .wcg-big-moment[data-kind="penalty"] .wcg-big-moment-img{max-width:min(70%,860px);max-height:31%;filter:drop-shadow(0 10px 0 rgba(4,12,21,.58)) drop-shadow(0 0 24px rgba(255,122,63,.28))}
+    #wcWorldCupBroadcast .wcg-big-moment-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+    #wcWorldCupBroadcast .wcg-big-moment-particle{position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,#fff9df 0,#ffd35d 32%,rgba(255,139,31,.8) 64%,rgba(255,139,31,0) 100%);box-shadow:0 0 9px rgba(255,219,103,.9),0 0 18px rgba(255,123,29,.5);opacity:0;transform:translate(-50%,-50%) scale(.2)}
+    #wcWorldCupBroadcast .wcg-big-moment[data-kind="penalty"] .wcg-big-moment-particle{background:radial-gradient(circle,#fff7df 0,#ffc65c 34%,rgba(233,67,35,.82) 66%,rgba(233,67,35,0) 100%)}
+    #wcWorldCupBroadcast .wcg-big-moment.is-animate .wcg-big-moment-flash{animation:wcgBigMomentFlash 2.15s ease forwards}
+    #wcWorldCupBroadcast .wcg-big-moment.is-animate .wcg-big-moment-img{animation:wcgBigMomentPop 2.15s cubic-bezier(.18,.88,.2,1) forwards}
+    #wcWorldCupBroadcast .wcg-big-moment.is-animate .wcg-big-moment-particle{animation:wcgBigMomentParticle var(--dur,1.5s) cubic-bezier(.13,.85,.2,1) forwards;animation-delay:var(--delay,0s)}
+    @keyframes wcgBigMomentFlash{0%{opacity:0}7%{opacity:1}24%{opacity:.9}72%{opacity:.24}100%{opacity:0}}
+    @keyframes wcgBigMomentPop{0%{opacity:0;transform:translateY(20px) scale(.88)}9%{opacity:1;transform:translateY(-8px) scale(1.075)}21%{opacity:1;transform:translateY(0) scale(1)}76%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-7px) scale(.98)}}
+    @keyframes wcgBigMomentParticle{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot)) translateX(0) scale(.15)}10%{opacity:1}72%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--rot)) translateX(var(--dist)) translateY(var(--rise)) scale(.9)}}
+  `;document.head.appendChild(style);
+}
 
   function v2StandingsData(){
     const byName=new Map();
@@ -1510,6 +1534,7 @@
   function createUi(){
     if ($('wcWorldCupBroadcast')) return;
     ensureV2StandingsStyles();
+    ensureBigMomentStyles();
     const root=document.createElement('div');root.id='wcWorldCupBroadcast';root.setAttribute('aria-hidden','true');
     root.innerHTML=`<div class="wcg-shell" role="dialog" aria-modal="true" aria-label="Repo Sports Quidditch live match">
       <canvas id="wcgCanvas" class="wcg-canvas" width="${W}" height="${H}"></canvas>
@@ -1523,6 +1548,7 @@
       <div class="wcg-live-chip"><img src="assets/repo-sports-logo.png" alt="">LIVE</div>
       <div id="wcgPresentation" class="wcg-presentation" aria-hidden="true"><div id="wcgPresentationPanel" class="wcg-presentation-panel"><div class="wcg-presentation-brand"><img src="assets/repo-sports-logo.png" alt="Repo Sports"><span>REPO SPORTS LIVE</span></div><small id="wcgPresentationKicker"></small><h1 id="wcgPresentationTitle"></h1><div id="wcgPresentationBody" class="wcg-presentation-body"></div><footer id="wcgPresentationFooter"></footer></div></div>
       <div id="wcgEventBanner" class="wcg-event-banner"></div>
+      <div id="wcgBigMoment" class="wcg-big-moment" aria-hidden="true"><div class="wcg-big-moment-flash"></div><div id="wcgBigMomentParticles" class="wcg-big-moment-particles"></div><img id="wcgBigMomentImg" class="wcg-big-moment-img" alt=""></div>
       <div id="wcgReplaySponsor" class="wcg-replay-sponsor" aria-hidden="true"><img src="assets/repo-sports-logo.png" alt="Repo Sports replay"></div>
       <div id="wcgReplayBug" class="wcg-replay-bug" aria-hidden="true"><img src="assets/repo-sports-logo.png" alt=""><span>REPLAY</span><i id="wcgReplayLabel">MATCH REPLAY</i></div>
       <div id="wcgStoryCard" class="wcg-story-card" aria-hidden="true"><div class="wcg-story-flag"><img id="wcgStoryFlag" alt=""></div><div class="wcg-story-copy"><small id="wcgStoryKicker">REPO SPORTS</small><b id="wcgStoryTitle"></b><span id="wcgStoryBody"></span></div><img id="wcgStoryPlayer" class="wcg-story-player" alt=""></div>
@@ -1578,7 +1604,7 @@
 
         </div>
       </div></div>
-      <div class="wcg-controls"><button id="wcgSkipBroadcast" class="wcg-control wcg-skip-broadcast" type="button" hidden>SKIP INTRO</button><button id="wcgSkipHalf" class="wcg-control wcg-admin-only" type="button" hidden>SKIP TO HALF TIME</button><button id="wcgSpeed" class="wcg-control wcg-admin-only" type="button" hidden>TEST SPEED ×4</button><button id="wcgAdminEvents" class="wcg-control wcg-admin-only" type="button" hidden>ADMIN EVENT TESTS</button><button id="wcgExit" class="wcg-control" type="button">EXIT BROADCAST</button></div><div id="wcgAdminPanel" class="wcg-admin-panel" hidden><div class="wcg-admin-title">REPO SPORTS V2 · ADMIN TEST DECK</div><div class="wcg-admin-grid"><button data-test-event="goal">GOAL</button><button data-test-event="save">SAVE</button><button data-test-event="miss">MISS</button><button data-test-event="post">POST / REBOUND</button><button data-test-event="foul">FOUL</button><button data-test-event="penalty">PENALTY</button><button data-test-event="var">VAR CHECK</button><button data-test-event="intercept">INTERCEPTION</button></div></div>
+      <div class="wcg-controls"><button id="wcgSkipBroadcast" class="wcg-control wcg-skip-broadcast" type="button" hidden>SKIP INTRO</button><button id="wcgSkipHalf" class="wcg-control wcg-admin-only" type="button" hidden>SKIP TO HALF TIME</button><button id="wcgSpeed" class="wcg-control wcg-admin-only" type="button" hidden>TEST SPEED ×4</button><button id="wcgAdminEvents" class="wcg-control wcg-admin-only" type="button" hidden>ADMIN EVENT TESTS</button><button id="wcgExit" class="wcg-control" type="button">EXIT BROADCAST</button></div><div id="wcgAdminPanel" class="wcg-admin-panel" hidden><div class="wcg-admin-title">REPO SPORTS V2 · ADMIN TEST DECK</div><div class="wcg-admin-grid"><button data-test-event="goal">GOAL</button><button data-test-event="save">SAVE</button><button data-test-event="miss">MISS</button><button data-test-event="post">POST / REBOUND</button><button data-test-event="foul">FOUL</button><button data-test-event="penalty">PENALTY</button><button data-test-event="hattrick">HAT TRICK POPUP</button><button data-test-event="penaltypopup">PENALTY POPUP</button><button data-test-event="var">VAR CHECK</button><button data-test-event="intercept">INTERCEPTION</button></div></div>
       <div class="wcg-screen-effects"></div><img class="wcg-tv-frame" src="${BASE}broadcast-tv-frame.webp" alt="" aria-hidden="true">
     </div>`;
     // Test 18: the TV picture is reserved for the match itself. Career records
@@ -2288,6 +2314,16 @@
     varTone(){
       if(state.headless||state.fastForwarding)return;
       try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC();const o=ctx.createOscillator(),g=ctx.createGain();o.type='square';o.frequency.setValueAtTime(620,ctx.currentTime);o.frequency.setValueAtTime(440,ctx.currentTime+.16);g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0225,ctx.currentTime+.06);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.42);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.45)}catch(_){}
+    },
+    specialMoment(kind='hattrick'){
+      if(state.headless||state.fastForwarding)return;
+      try{
+        const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const ctx=new AC(),now=ctx.currentTime,master=ctx.createGain();master.gain.value=.12;master.connect(ctx.destination);
+        const tone=(type,freq,start,dur,vol,endFreq=null)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,start);if(endFreq)o.frequency.exponentialRampToValueAtTime(endFreq,start+dur);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(vol,start+.018);g.gain.exponentialRampToValueAtTime(.0001,start+dur);o.connect(g);g.connect(master);o.start(start);o.stop(start+dur+.02)};
+        if(kind==='penalty'){tone('square',820,now,.13,.14,640);tone('triangle',300,now+.035,.34,.11,220);tone('sine',150,now+.055,.42,.07,95)}
+        else{tone('triangle',523.25,now,.18,.12);tone('triangle',659.25,now+.075,.18,.12);tone('triangle',783.99,now+.15,.30,.14);tone('sine',1046.5,now+.18,.44,.065,784)}
+        setTimeout(()=>{try{ctx.close()}catch(_){}},850);
+      }catch(_){}
     }
   };
 
@@ -2437,6 +2473,34 @@
   }
 
   function showBanner(text,type='',seconds=1.8){const el=$('wcgEventBanner');if(!el)return;el.textContent=text;el.className='wcg-event-banner is-visible'+(type?` is-${type}`:'');state.eventBannerTimer=seconds}
+
+function hideBigMoment(){
+  const root=$('wcgBigMoment');if(!root)return;
+  root.classList.remove('is-visible','is-animate');root.removeAttribute('data-kind');
+  const host=$('wcgBigMomentParticles');if(host)host.innerHTML='';
+  state.bigMomentTimer=0;
+}
+function spawnBigMomentParticles(kind='hattrick',count=28){
+  const host=$('wcgBigMomentParticles');if(!host)return;host.innerHTML='';
+  const rand=state.visualRand||Math.random;
+  for(let i=0;i<count;i++){
+    const p=document.createElement('span');p.className='wcg-big-moment-particle';
+    const angle=-96+(192*(i/Math.max(1,count-1)))+(rand()-.5)*16;
+    const dist=(kind==='penalty'?108:134)+rand()*(kind==='penalty'?110:150);
+    p.style.setProperty('--rot',angle.toFixed(2)+'deg');p.style.setProperty('--dist',dist.toFixed(1)+'px');p.style.setProperty('--rise',(-8-rand()*38).toFixed(1)+'px');
+    p.style.setProperty('--delay',(rand()*.13).toFixed(3)+'s');p.style.setProperty('--dur',((kind==='penalty'?1.02:1.14)+rand()*.56).toFixed(3)+'s');
+    const sz=(4+rand()*8.5).toFixed(1)+'px';p.style.width=sz;p.style.height=sz;host.appendChild(p);
+  }
+}
+function triggerBigMoment(kind='hattrick'){
+  if(state.headless||state.fastForwarding)return;
+  const root=$('wcgBigMoment'),img=$('wcgBigMomentImg');if(!root||!img)return;
+  const k=String(kind).toLowerCase()==='penalty'?'penalty':'hattrick';
+  root.classList.remove('is-visible','is-animate');void root.offsetWidth;root.dataset.kind=k;
+  img.src=k==='penalty'?PENALTY_BANNER_SRC:HAT_TRICK_BANNER_SRC;img.alt=k==='penalty'?'Penalty':'Hat trick';
+  spawnBigMomentParticles(k,k==='penalty'?24:30);root.classList.add('is-visible','is-animate');
+  state.bigMomentTimer=k==='penalty'?1.95:2.30;audio.specialMoment?.(k);
+}
   function setBroadcastState(name){state.broadcastState=name;const root=$('wcWorldCupBroadcast');if(root)root.dataset.broadcastState=name}
   function setBroadcastSequence(name,{frozen=true,reset=true}={}){
     const b=state.broadcastSequence||(state.broadcastSequence={state:'complete',elapsed:0,serial:0,frozen:false,skipped:false});
@@ -3917,10 +3981,12 @@
     if(outcome==='goal'){
       if(shootout){resolveShootoutPenalty(team,true,shooter);return}
       state.score[team]++;state.playerStats[shooter.player.id].goals++;recordEvent('goal',{player:shooter.player.name,team},6.0);const assister=(state.lastPasser&&state.lastPasser.team===team)?state.lastPasser:null;if(assister)state.playerStats[assister.player.id].assists++;
+      const hatTrickEarned=state.playerStats[shooter.player.id].goals===3;
       playV2NametagGoalEffect(shooter.player.id);
       audio.ensure();audio.play(audio.goal,.70);audio.crowdHit(.50);
       const score=`${state.score.belros}-${state.score.zafran}`,late=state.matchTime>120,equal=state.score.belros===state.score.zafran,goAhead=Math.abs(state.score.belros-state.score.zafran)===1;const flavour=late?(equal?'LATE EQUALISER!':'DRAMA!'):equal?'ALL SQUARE!':goAhead?'GO-AHEAD GOAL!':'GOAL!';showBanner(`${flavour} · ${shooter.player.name} · ${score}`,'',3.0);eventLine('goal',{pet:shooter.player.name,team:teamMeta[team].name,score},shooter.player,.24);
-      const varCheck=!penalty&&state.simRand()<.12,varContext=varCheck?{kind:'goal',team,shooter,assister}:null;
+      const varCheck=!penalty&&state.simRand()<.12,varContext=varCheck?{kind:'goal',team,shooter,assister,hatTrick:hatTrickEarned}:null;
+      if(hatTrickEarned&&!varCheck)triggerBigMoment('hattrick');
       beginGoalCelebration(team,shooter,opp,varContext,false);
     }else if(outcome==='save'){
       const defender=keeper;state.playerStats[defender.player.id].saves++;recordEvent('save',{player:defender.player.name,team:opp},3.7);defender.tx=info.hoop.x+(team==='belros'?-.025:.025);defender.ty=info.hoop.y;setPlayerAnim(defender,'SAVING',.64,ANIM_PRIORITY.SAVING,{saved:true,saveStyle:info.target.y<.49?'high':info.target.y>.555?'low':dist2(defender,info.target)<.08?'close':'centre'});enterReaction(shooter,'reactingToSave','REACTING_TO_SAVE',.55+visualRandom()*.55,{saved:true,type:personalityChoice(shooter,'savedShot',['handsHead','slowDown','headShake'],getPlayerPersonality(shooter).reactionStyle==='expressive'?['handsHead']:['slowDown','headShake']),faceX:info.hoop.x},ANIM_PRIORITY.REACTING_TO_SAVE);reactKeeperSave(defender,shooter);audio.crowdHit(.13);
@@ -4049,7 +4115,7 @@
     if(s.elapsed>=s.duration){const ctx=s.ctx;$('wcgVar').classList.remove('is-open','is-decision');state.special=null;state.camera.tx=.5;state.camera.ty=.5;state.camera.tz=1.02;
       if(ctx.kind==='goal'){
         if(ctx.decision==='NO GOAL'){state.score[ctx.team]=Math.max(0,state.score[ctx.team]-1);state.playerStats[ctx.shooter.player.id].goals=Math.max(0,state.playerStats[ctx.shooter.player.id].goals-1);if(ctx.assister)state.playerStats[ctx.assister.player.id].assists=Math.max(0,state.playerStats[ctx.assister.player.id].assists-1);showBanner('GOAL OVERTURNED','danger',2.0);say(`VAR overturns it. ${ctx.shooter.player.name}'s finish is wiped away and ${teamMeta[other(ctx.team)].name} restart.`,{priority:9,intensity:'excited',force:true,kind:'var'});restartAfterScore(other(ctx.team));}
-        else {say(`Decision confirmed. ${ctx.shooter.player.name}'s goal stands.`,{priority:8,intensity:'excited',force:true,kind:'var'});restartAfterScore(other(ctx.team));}
+        else {if(ctx.hatTrick)triggerBigMoment('hattrick');say(`Decision confirmed. ${ctx.shooter.player.name}'s goal stands.`,{priority:8,intensity:'excited',force:true,kind:'var'});restartAfterScore(other(ctx.team));}
       } else {
         if(ctx.decision==='PENALTY'){say(`The review is complete: penalty to ${teamMeta[ctx.team].name}.`,{priority:8,intensity:'excited',force:true,kind:'var'});startPenalty(ctx.team,false)}
         else {say('No penalty after review. The referee restarts play.',{priority:7,intensity:'interested',force:true,kind:'var'});setPossession(ctx.team,ctx.victim,.38);scheduleNext(.75,1.4)}
@@ -4064,6 +4130,7 @@
       ?players[(state.shootout.attempts[team]||0)%Math.max(1,players.length)]
       :(players.find(e=>e.player.role==='attacker')||players[0]);
     state.special={type:'penalty',elapsed:0,team,shooter,shootout,shot:false};
+    if(!shootout)triggerBigMoment('penalty');
     const dir=teamMeta[team].attack;shooter.tx=team==='belros'?.72:.28;shooter.ty=.52;setPlayerAnim(shooter,'DECELERATING',.55,ANIM_PRIORITY.DECELERATING,{setPiece:true});teamEntities(team).filter(e=>e!==shooter).forEach((e,i)=>{e.tx=.5-dir*.08;e.ty=.39+i*.24;setPlayerAnim(e,'IDLE',1.35,ANIM_PRIORITY.IDLE,{setPiece:true})});teamEntities(other(team)).forEach((e,i)=>{e.tx=.5+dir*.08;e.ty=.39+i*.12});state.ref.tx=.5;state.ref.ty=.42;state.camera.tx=team==='belros'?.535:.465;state.camera.ty=.52;state.camera.tz=1.06;showBanner(shootout?'SHOOTOUT PENALTY':`PENALTY · ${teamMeta[team].name}`,'danger',2.0);eventLine('penalty',{team:teamMeta[team].name,pet:shooter.player.name},shooter.player,.06);audio.ensure();audio.play(audio.whistle,.55);
   }
   function updatePenalty(dt){
@@ -4319,9 +4386,11 @@
     if(!adminEnabled())return;
     const scorer=state.carrier||rolePlayer('belros','attacker'), defender=rolePlayer(other(scorer.team),'defender');
     const team=kind==='goal'?'belros':scorer.team, teamName=teamMeta[team].name;
-    const messages={goal:[`GOAL · ${scorer.player.name} · TEST`,''],save:[`SAVE · ${defender.player.name} · TEST`,''],miss:[`MISS · ${scorer.player.name} · TEST`,''],post:['OFF THE RING! · TEST','danger'],foul:[`FOUL · ${defender.player.name} · TEST`,'danger'],penalty:[`PENALTY · ${teamName} · TEST`,'danger'],var:['VAR CHECK · TEST','var'],intercept:[`INTERCEPTION · ${defender.player.name} · TEST`,'']};
+    const messages={goal:[`GOAL · ${scorer.player.name} · TEST`,''],save:[`SAVE · ${defender.player.name} · TEST`,''],miss:[`MISS · ${scorer.player.name} · TEST`,''],post:['OFF THE RING! · TEST','danger'],foul:[`FOUL · ${defender.player.name} · TEST`,'danger'],penalty:[`PENALTY · ${teamName} · TEST`,'danger'],hattrick:[`HAT TRICK · ${scorer.player.name} · TEST`,''],penaltypopup:[`PENALTY POPUP · ${teamName} · TEST`,'danger'],var:['VAR CHECK · TEST','var'],intercept:[`INTERCEPTION · ${defender.player.name} · TEST`,'']};
     const [text,type]=messages[kind]||['EVENT TEST',''];
     if(kind==='goal'){audio.ensure();audio.play(audio.goal,.7);audio.crowdHit(.50);beginGoalCelebration(team,scorer,other(team),null,true)}
+    if(kind==='hattrick')triggerBigMoment('hattrick');
+    if(kind==='penaltypopup')triggerBigMoment('penalty');
     if(kind==='foul'||kind==='penalty'){audio.ensure();audio.play(audio.whistle,.62);state.camera.shake=.009}
     if(kind==='save'||kind==='miss'||kind==='post'||kind==='intercept'){audio.crowdHit(.18);state.camera.shake=.006}
     showBanner(text,type,2.0);say(kind==='goal'?`TEST EVENT: ${scorer.player.name} scores for ${teamName}.`:kind==='foul'?'TEST EVENT: referee whistles for a foul.':kind==='penalty'?`TEST EVENT: penalty awarded to ${teamName}.`:kind==='var'?'TEST EVENT: VAR review is now on screen.':`TEST EVENT: ${text.toLowerCase()}.`);
@@ -5148,6 +5217,7 @@
     state.engineElapsed+=dt;state.simClockMs+=dt*1000;
     const rawDt=dt,scaledDt=dt*state.speed;
     if(state.eventBannerTimer>0){state.eventBannerTimer-=scaledDt;if(state.eventBannerTimer<=0)$('wcgEventBanner')?.classList.remove('is-visible')}
+    if(state.bigMomentTimer>0){state.bigMomentTimer-=rawDt;if(state.bigMomentTimer<=0)hideBigMoment()}
     if(state.celebration)updateGoalCelebration(rawDt);
     if(state.crowdBoost>0)state.crowdBoost=Math.max(0,state.crowdBoost-rawDt*.16);
     audio.updateCrowdAccents(rawDt);updateStoryGraphics(rawDt);
@@ -5304,7 +5374,7 @@
       if(!state.headless)startV2WatchXpHeartbeat();
       v2CareerState.lastRefresh=0;v2CareerState.polling=false;v2CareerState.signature='';v2CareerState.data=null;renderV2CareerBoard();
       state.replay=null;state.replayIntro=null;state.replayOutro=null;state.replayBuffer=[];state.replayCaptureAccum=0;state.lastReplayAt=-999;state.chanceBuild=null;initMatchFlowDirector();
-      state.storyGraphicTimer=34;state.storyGraphicUntil=0;state.storyGraphicIndex=0;state.cameraDirector={shot:'MAIN',timer:3.5,lastShot:'',cutSerial:0};state.camera={x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'};
+      state.storyGraphicTimer=34;state.storyGraphicUntil=0;state.storyGraphicIndex=0;hideBigMoment();state.cameraDirector={shot:'MAIN',timer:3.5,lastShot:'',cutSerial:0};state.camera={x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'};
       state.lastTs=0;state.crowdBoost=0;state.movementPulse=.12;state.tacticalPulse=0;
       state.broadcast={lastSpokenAt:0,lastText:'',recent:[],recentSkeletons:[],queue:null,barryState:'NEUTRAL',barryPriority:0,barryUntil:0,barryTimer:0,talkTimer:0,phaseSeen:'',crowdLevel:.12,crowdTarget:.12,speaking:false,debugEvent:'IDLE',voiceName:'TEXT ONLY',variantCount:BARRY_COMMENTARY_VARIANTS};
       state.director={phase:'BUILD-UP',momentum:{belros:0,zafran:0},pressure:{belros:0,zafran:0},recent:[],pulse:0};
