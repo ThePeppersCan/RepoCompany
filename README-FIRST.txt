@@ -1,8 +1,13 @@
-REPO BINDER V3 + BILLBOARD RECOVERY
+REPO HATTRICK / PENALTY POPUP TWEAK
 
-1. Replace ONLY script.js.
-2. Do NOT run any more binder SQL. The already-created snapshot RPCs are reused when available.
-3. Ctrl + Shift + R.
+Replace:
+1. script.js
+2. assets/quidditch-hat-trick-popup.png
+3. assets/quidditch-penalty-popup.png (optional but included for completeness)
 
-This build is based on the last known-good V3 script, not the broken 18-slot intermediate build.
-It restores the full multi-spread binder and billboard lobby, keeps physical shooting-star click mining, publishes owner binder layout one-way for public viewing, and uses the new skill-tree layout for leaderboard profiles.
+Then hard refresh with Ctrl + Shift + R.
+
+Changes in this patch:
+- Hat-trick popup now uses a cleaned transparent asset so the white/transparent-looking background is gone.
+- Penalty popup is noticeably larger.
+- Popup sizing is slightly polished for desktop and mobile.

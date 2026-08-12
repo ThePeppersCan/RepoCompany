@@ -12334,8 +12334,8 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
   style.id='repoQuidditchPenaltyStyles';
   style.textContent=`
     #quidditchModePitch .qm-penalty-alert{
-      position:absolute;left:50%;top:47%;z-index:145;width:min(390px,48%);
-      transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.78));
+      position:absolute;left:50%;top:47%;z-index:145;width:min(520px,62%);
+      transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,.78));
       animation:qmPenaltyPop .22s ease-out both,qmPenaltyShake .13s linear .22s 7;
     }
     #quidditchModePitch .qm-penalty-alert img{display:block;width:100%;height:auto;image-rendering:pixelated}
@@ -12360,7 +12360,7 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
     @keyframes qmPenaltyCaption{from{opacity:0;transform:translate(-50%,-42%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
     @keyframes qmPenaltySpot{from{opacity:.45;transform:translate(-50%,-50%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
     @media(max-width:760px){
-      #quidditchModePitch .qm-penalty-alert{width:min(300px,58%)}
+      #quidditchModePitch .qm-penalty-alert{width:min(360px,72%)}
       #quidditchModePitch .qm-penalty-caption{font-size:12px;min-width:185px;padding:6px 11px}
     }
   `;
@@ -13414,12 +13414,15 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
   style.textContent=`
     #quidditchModePitch .qm-hat-trick-popup{
       position:absolute;left:50%;top:48%;z-index:190;
-      width:min(58%,430px);pointer-events:none;
+      width:min(60%,470px);pointer-events:none;
       opacity:0;transform:translate(-50%,-50%) scale(.82);
       transform-origin:center;filter:drop-shadow(0 8px 12px rgba(0,0,0,.48));
+      background:none!important;border:0!important;box-shadow:none!important;
+      isolation:isolate;
     }
     #quidditchModePitch .qm-hat-trick-popup img{
       display:block;width:100%;height:auto;object-fit:contain;
+      background:transparent!important;
     }
     #quidditchModePitch .qm-hat-trick-popup.is-visible{
       opacity:1;animation:qmHatTrickPop .42s cubic-bezier(.18,.8,.26,1.18) both,
