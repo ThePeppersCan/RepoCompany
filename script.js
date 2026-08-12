@@ -8293,10 +8293,29 @@ qmRenderFullTimeStats=function(state){
 
 // --- Quidditch presentation/timing and spectator Agility XP patch ---
 let qmWatchXpTimer=null;
+let qmWatchXpMinuteTimer=null;
+let qmWatchXpPending=0;
+function qmShowMinuteSpectatorXp(){
+  if(!qmState?.open||!character||document.hidden)return;
+  const gained=Math.max(0,Math.floor(Number(qmWatchXpPending)||0));
+  if(gained<=0)return;
+  qmWatchXpPending=0;
+  const drop=$('qmAgilityXpDrop');
+  if(drop){
+    const amount=drop.querySelector('b');
+    if(amount)amount.textContent=`+${gained.toLocaleString('en-GB')}`;
+    const label=drop.querySelector('span');
+    if(label)label.textContent='AGILITY XP · 1 MIN';
+    drop.classList.remove('is-visible');
+    void drop.offsetWidth;
+    drop.classList.add('is-visible');
+    clearTimeout(drop.__qmWatchHide);
+    drop.__qmWatchHide=setTimeout(()=>drop.classList.remove('is-visible'),2200);
+  }
+}
 async function qmClaimSpectatorXp(){
-  // Watching XP is tied to having the Repo Sports broadcast open, not to one
-  // fragile live-state string. Line-up/full-time transitions must not silently
-  // stop the heartbeat. Hidden/background tabs are deliberately not rewarded.
+  // Keep the server-authoritative XP heartbeat frequent, but never show a popup
+  // for each tiny award. Accumulate gains and surface one total every minute.
   if(!qmState.open||!character||document.hidden)return;
   if(typeof db==='undefined'||!db?.rpc)return;
   try{
@@ -8312,14 +8331,10 @@ async function qmClaimSpectatorXp(){
     if(badge)delete badge.dataset.syncError;
     if(gained>0){
       character.agility_xp=Math.max(0,Number(character.agility_xp||0)+gained);
-      const drop=$('qmAgilityXpDrop');
-      if(drop){
-        const amount=drop.querySelector('b');if(amount)amount.textContent=`+${gained.toLocaleString('en-GB')}`;
-        drop.classList.remove('is-visible');void drop.offsetWidth;drop.classList.add('is-visible');
-        clearTimeout(drop.__qmWatchHide);drop.__qmWatchHide=setTimeout(()=>drop.classList.remove('is-visible'),2800);
-      }
-      badge?.classList.add('is-earned');
-      clearTimeout(badge?.__qmWatchPulse);if(badge)badge.__qmWatchPulse=setTimeout(()=>badge.classList.remove('is-earned'),1100);
+      qmWatchXpPending+=gained;
+      // Explicitly clear any stale per-tick visual state left by older builds.
+      $('qmAgilityXpDrop')?.classList.remove('is-visible');
+      badge?.classList.remove('is-earned');
       renderCharacter?.();
     }
   }catch(error){console.warn('Quidditch watch XP:',error);}
@@ -8328,11 +8343,14 @@ function qmStartWatchXpHeartbeat(){
   clearInterval(qmWatchXpTimer);
   qmClaimSpectatorXp();
   qmWatchXpTimer=setInterval(()=>{qmClaimSpectatorXp();},2000);
+  if(!qmWatchXpMinuteTimer){
+    qmWatchXpMinuteTimer=setInterval(qmShowMinuteSpectatorXp,60000);
+  }
 }
 const qmOpenWithWatch=openQuidditchMode;
 openQuidditchMode=function(){qmOpenWithWatch();if(qmState.open)qmStartWatchXpHeartbeat();};
 const qmCloseWithWatch=closeQuidditchMode;
-closeQuidditchMode=function(){clearInterval(qmWatchXpTimer);qmWatchXpTimer=null;qmCloseWithWatch();};
+closeQuidditchMode=function(){clearInterval(qmWatchXpTimer);qmWatchXpTimer=null;clearInterval(qmWatchXpMinuteTimer);qmWatchXpMinuteTimer=null;qmWatchXpPending=0;qmCloseWithWatch();};
 // Existing listeners captured the prior function, so bind a safe heartbeat too.
 $('quidditchModeButton')?.addEventListener('click',()=>setTimeout(()=>{if(qmState.open)qmStartWatchXpHeartbeat();},50));
 $('openQuidditchMode')?.addEventListener('click',()=>setTimeout(()=>{if(qmState.open)qmStartWatchXpHeartbeat();},50));

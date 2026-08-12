@@ -748,7 +748,16 @@
 
   const FIXED_SIM_DT=1/30;
   function simNow(){return state.syncMode?state.simClockMs:performance.now()}
-  function syncTargetElapsed(){return Math.max(0,state.syncAnchorElapsed+(state.syncRunning?(performance.now()-state.syncAnchorPerf)/1000:0))}
+  // SERVER-AUTHORITATIVE SYNC GUARD
+  // Never let a browser free-run far beyond the last Supabase sample. Background
+  // tabs are explicitly frozen and resume only after a fresh server sync arrives.
+  const SYNC_MAX_LOCAL_PROJECTION_SECONDS=1.25;
+  function syncTargetElapsed(){
+    const anchor=Math.max(0,Number(state.syncAnchorElapsed)||0);
+    if(!state.syncRunning||document.hidden)return anchor;
+    const projected=anchor+Math.max(0,(performance.now()-state.syncAnchorPerf)/1000);
+    return Math.min(projected,anchor+SYNC_MAX_LOCAL_PROJECTION_SECONDS);
+  }
 
   function blankTeamStats(){return {shots:0,onTarget:0,missedChances:0,passes:0,completed:0,interceptions:0,rebounds:0,fouls:0,penalties:0,var:0,possession:0,turnovers:0,counterattacks:0,presses:0,tacklesAttempted:0,tacklesWon:0}}
   function resetStats(){
@@ -1267,6 +1276,24 @@
 
   document.addEventListener('visibilitychange',()=>{
     if(state.open&&!document.hidden)requestV2WatchXp();
+    if(!state.open||!state.syncMode)return;
+    const now=performance.now();
+    if(document.hidden){
+      // Freeze on the exact simulation tick already rendered. Do not allow a
+      // throttled/background browser to keep projecting the match on its own.
+      state.syncAnchorElapsed=Math.max(0,state.engineElapsed);
+      state.syncAnchorPerf=now;
+      state.syncRunning=false;
+    }else{
+      // Stay frozen until the parent supplies the next authoritative elapsed
+      // sample. The normal live sync poll will then deterministically catch up.
+      state.syncAnchorElapsed=Math.max(0,state.engineElapsed);
+      state.syncAnchorPerf=now;
+      state.syncRunning=false;
+      try{
+        if(window.parent&&window.parent!==window)window.parent.postMessage({type:'repo-sports-v2-sync-request',matchSerial:state.liveSerial},'*');
+      }catch(_){}
+    }
   });
 
   // ==========================================================
@@ -4354,7 +4381,13 @@
     state.syncAnchorPerf=now;
     state.syncRunning=running;
 
-    if(state.headless)catchUpTo(syncTargetElapsed(),36000);
+    // A returning/slow browser must catch up to the authoritative server sample
+    // immediately rather than spending several visible seconds running behind.
+    // Fixed-step simulation keeps the result deterministic and identical to every
+    // other viewer using the same serial/seed. Hidden tabs remain frozen.
+    const behindBy=serverElapsed-state.engineElapsed;
+    if(!document.hidden&&behindBy>.12)catchUpTo(serverElapsed,36000);
+    else if(state.headless)catchUpTo(syncTargetElapsed(),36000);
     return true;
   }
 
