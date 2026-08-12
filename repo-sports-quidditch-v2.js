@@ -291,6 +291,138 @@
   // REPO SPORTS V2 — ARENA-SPECIFIC AMBIENT WEATHER
   // Presentation-only; this never consumes gameplay randomness.
   // ==========================================================
+  // REPO SPORTS CLUB MODE — MAP LINES PRE-MATCH COMMENTATOR INTRO
+  // Uses only the supplied MP3 clips. This is presentation-only: it never reads
+  // or advances simRand, and therefore cannot affect fixture/order/gameplay RNG.
+  const RECORDED_INTRO_AUDIO_ROOT='assets/repo-sports-v2/commentator-map-lines/';
+  const RECORDED_INTRO_VOLUME=.25;
+  const RECORDED_INTRO_CUE_SECONDS=5;
+  const RECORDED_INTRO_GAP_MIN_MS=0;
+  const RECORDED_INTRO_GAP_RANGE_MS=1;
+  const RECORDED_INTRO_FILES=Object.freeze([
+    'A packed.mp3','And here we have.mp3','and.mp3','Ashwick.mp3','AT THE.mp3','Aurelia.mp3','awaits.mp3','Blackglass.mp3',
+    'Canopy Thunderbowl.mp3','Cinderbank.mp3','Coralcrest Harbour arena.mp3','Drazh hollow.mp3','Emberkeep colleseum.mp3','face.mp3','For.mp3',
+    'From the heart of Velmora.mp3','Gloam Carnival Ground.mp3','Grand Khor.mp3','Hrafnvik.mp3','Ironroot forge bowl.mp3','Iskara.mp3',
+    'Lotuswater Pavilion.mp3','Marenza.mp3','Mirage Crown Stadium.mp3','Moonbloom glade.mp3','Naskor.mp3','Observatory Arena.mp3','Orsanne.mp3',
+    'Ossa Mere.mp3','Rova End.mp3','Saint Ciro.mp3','Skarholt.mp3','Skyhold aerodrome.mp3','Sunspire Amphitheatre.mp3','Talun Cross.mp3',
+    'Thornvault stadium.mp3','Tonight, the brooms take flight.mp3','Tonight#U2019s Repo Sports League fixture.mp3','Varka Fell.mp3','VS.mp3',
+    'Welcome To.mp3','Zafir Row.mp3'
+  ]);
+  const RECORDED_INTRO_VENUES=Object.freeze([
+    'Sunspire Amphitheatre','Ironroot Forge Bowl','Canopy Thunderbowl','Emberkeep Coliseum','Mirage Crown Stadium','Moonbloom Glade',
+    'Observatory Arena','Coralcrest Harbour Arena','Skyhold Aerodrome','Lotuswater Pavilion','Gloam Carnival Ground','Thornvault Stadium'
+  ]);
+  function recordedIntroKey(value){
+    return String(value||'')
+      .replace(/#u2019/gi,"'")
+      .replace(/[\u2018\u2019']/g,'')
+      .replace(/colleseum/gi,'coliseum')
+      .replace(/\.mp3$/i,'')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g,'');
+  }
+  const RECORDED_INTRO_FILE_BY_KEY=(()=>{
+    const map=new Map();
+    for(const file of RECORDED_INTRO_FILES){const key=recordedIntroKey(file);if(key&&!map.has(key))map.set(key,file)}
+    return map;
+  })();
+  function resolveRecordedIntroClip(label){
+    const file=RECORDED_INTRO_FILE_BY_KEY.get(recordedIntroKey(label));
+    return file?`${RECORDED_INTRO_AUDIO_ROOT}${encodeURIComponent(file)}?v=20260812-tight-venue-join`:null;
+  }
+  function canonicalRecordedIntroTeam(value){
+    const key=normaliseClubName(value);
+    return V2_LEAGUE_TEAMS.find(name=>normaliseClubName(name)===key)||null;
+  }
+  function canonicalRecordedIntroVenue(value){
+    const key=recordedIntroKey(value);
+    return RECORDED_INTRO_VENUES.find(name=>recordedIntroKey(name)===key)||null;
+  }
+  const RECORDED_INTRO_TEMPLATES=Object.freeze([
+    ({home,away,arena})=>({text:`Tonight’s Repo Sports League fixture: ${home} VS ${away} at the ${arena}.`,clips:["Tonight’s Repo Sports League fixture",home,'VS',away,'AT THE',arena]}),
+    ({home,away,arena})=>({text:`And here we have ${home} VS ${away} at the ${arena}.`,clips:['And here we have',home,'VS',away,'AT THE',arena]}),
+    ({home,away,arena})=>({text:`From the heart of Velmora, ${home} face ${away} at the ${arena}.`,clips:['From the heart of Velmora',home,'face',away,'AT THE',arena]}),
+    ({home,away,arena})=>({text:`A packed ${arena} awaits ${home} VS ${away}.`,clips:['A packed',arena,'awaits',home,'VS',away]}),
+    ({home,away,arena})=>({text:`Tonight, the brooms take flight: ${home} VS ${away} at the ${arena}.`,clips:['Tonight, the brooms take flight',home,'VS',away,'AT THE',arena]}),
+    ({home,away,arena})=>({text:`Welcome to ${arena} for ${home} VS ${away}.`,clips:['Welcome To',arena,'For',home,'VS',away]})
+  ]);
+  let recordedPrematchAudio=null,recordedPrematchRunToken=0;
+  function buildRecordedPrematchIntroPlan(){
+    const home=canonicalRecordedIntroTeam(teamMeta.belros?.name),away=canonicalRecordedIntroTeam(teamMeta.zafran?.name),arena=canonicalRecordedIntroVenue(fixtureVenue());
+    if(!home||!away||!arena){console.warn('[REPO SPORTS V2] Recorded intro skipped: fixture data did not match current club/venue lists',{home:teamMeta.belros?.name,away:teamMeta.zafran?.name,arena:fixtureVenue()});return null}
+    const templateSeed=hashSeed(`${state.liveSerial||state.startedAt||0}|${activeFixture?.id||''}|${home}|${away}|${arena}|RECORDED_PREMATCH_INTRO`);
+    const templateIndex=templateSeed%RECORDED_INTRO_TEMPLATES.length;
+    const built=RECORDED_INTRO_TEMPLATES[templateIndex]({home,away,arena});
+    const urls=built.clips.map(resolveRecordedIntroClip),missing=built.clips.filter((_,i)=>!urls[i]);
+    if(missing.length){console.warn('[REPO SPORTS V2] Recorded intro skipped: missing supplied clips',missing);return null}
+    const pauses=urls.slice(0,-1).map((_,i)=>RECORDED_INTRO_GAP_MIN_MS+(hashSeed(`${templateSeed}|gap|${i}`)%RECORDED_INTRO_GAP_RANGE_MS));
+    return {home,away,arena,templateIndex,text:built.text,clipLabels:built.clips.slice(),urls,pauses,played:false,playing:false,expired:false};
+  }
+  function preloadRecordedPrematchIntro(plan){
+    if(!plan||state.headless)return;
+    plan.preloadedAudio=plan.urls.map(src=>{
+      try{const a=new Audio(src);a.preload='auto';a.volume=RECORDED_INTRO_VOLUME;a.load();return a}catch(_){return null}
+    });
+  }
+  function stopBarryRecordedIntro(){
+    const b=state.broadcast,wrap=$('wcgCommentator');if(!b?.recordedIntroSpeaking)return;
+    clearInterval(b.talkTimer);b.talkTimer=0;clearTimeout(b.barryTimer);b.barryTimer=0;
+    b.recordedIntroSpeaking=false;b.speaking=false;b.barryPriority=0;b.barryUntil=0;b.barryState='NEUTRAL';
+    if(wrap){wrap.dataset.barryState='NEUTRAL';wrap.classList.remove('is-speaking','is-excited','is-shocked','is-goal','is-var')}
+    barryAsset(BARRY.neutral);
+  }
+  function startBarryRecordedIntro(text){
+    const b=state.broadcast,wrap=$('wcgCommentator'),box=$('wcgCommentary');if(!b||!box)return;
+    clearBarryTimers();b.queue=null;b.speaking=true;b.recordedIntroSpeaking=true;b.barryState='SPEAKING';b.barryPriority=10;b.barryUntil=Number.POSITIVE_INFINITY;
+    box.textContent=text;b.lastSpokenAt=performance.now();b.lastText=text;b.debugEvent='RECORDED_PREMATCH_INTRO';
+    const skeleton=commentarySkeleton(text);b.recent=[text,...(b.recent||[]).filter(x=>x!==text)].slice(0,60);b.recentSkeletons=[skeleton,...(b.recentSkeletons||[]).filter(x=>x!==skeleton)].slice(0,32);
+    if(wrap){wrap.dataset.barryState='SPEAKING';wrap.classList.remove('is-excited','is-shocked','is-goal','is-var');wrap.classList.add('is-speaking')}
+    let frame=0;barryAsset(BARRY.talk[0]);
+    b.talkTimer=setInterval(()=>{if(!state.open||!state.broadcast?.recordedIntroSpeaking)return;frame=(frame+1)%BARRY.talk.length;barryAsset(BARRY.talk[frame])},155);
+  }
+  function cancelRecordedPrematchIntro(){
+    recordedPrematchRunToken++;
+    if(recordedPrematchAudio){try{recordedPrematchAudio.pause();recordedPrematchAudio.currentTime=0;recordedPrematchAudio.onended=null;recordedPrematchAudio.onerror=null}catch(_){}}
+    recordedPrematchAudio=null;
+    if(state.recordedPrematchIntro)state.recordedPrematchIntro.playing=false;
+    stopBarryRecordedIntro();
+  }
+  function waitRecordedIntroGap(ms,token){return new Promise(resolve=>{const end=performance.now()+Math.max(0,ms||0);const tick=()=>{if(token!==recordedPrematchRunToken||!state.open||performance.now()>=end)return resolve();setTimeout(tick,Math.min(30,Math.max(1,end-performance.now())))};tick()})}
+  function playRecordedIntroClip(src,token,preparedAudio=null){
+    return new Promise(resolve=>{
+      if(token!==recordedPrematchRunToken||!state.open)return resolve(false);
+      const a=preparedAudio||new Audio(src);
+      let done=false;const finish=ok=>{if(done)return;done=true;if(recordedPrematchAudio===a)recordedPrematchAudio=null;try{a.onended=null;a.onerror=null}catch(_){}resolve(ok)};
+      recordedPrematchAudio=a;a.preload='auto';a.volume=RECORDED_INTRO_VOLUME;a.currentTime=0;a.onended=()=>finish(true);a.onerror=()=>finish(false);
+      try{const p=a.play();p?.catch?.(()=>finish(false))}catch(_){finish(false)}
+    });
+  }
+  async function playRecordedPrematchIntro(plan){
+    if(!plan||plan.playing||!plan.urls.length||state.headless)return;
+    const token=++recordedPrematchRunToken;plan.playing=true;startBarryRecordedIntro(plan.text);
+    try{
+      for(let i=0;i<plan.urls.length;i++){
+        if(token!==recordedPrematchRunToken||!state.open)break;
+        await playRecordedIntroClip(plan.urls[i],token,plan.preloadedAudio?.[i]||null);
+        if(i<plan.urls.length-1&&token===recordedPrematchRunToken&&state.open)await waitRecordedIntroGap(plan.pauses[i],token);
+      }
+    }finally{
+      if(token===recordedPrematchRunToken){plan.playing=false;recordedPrematchAudio=null;stopBarryRecordedIntro()}
+    }
+  }
+  function maybeTriggerRecordedPrematchIntro(){
+    const plan=state.recordedPrematchIntro;if(!plan||plan.played||plan.expired||state.phase!=='intro')return;
+    const elapsed=Math.max(0,state.introElapsed);
+    // The cue is five seconds AFTER the 30-second pre-match countdown starts.
+    // Viewers who join after that shared cue do not get a late/replayed intro.
+    if(state.headless){if(elapsed>=RECORDED_INTRO_CUE_SECONDS)plan.played=true;return}
+    if(state.fastForwarding){
+      if(elapsed>RECORDED_INTRO_CUE_SECONDS+.45){plan.expired=true;plan.played=true}
+      return;
+    }
+    if(elapsed>=RECORDED_INTRO_CUE_SECONDS){plan.played=true;void playRecordedPrematchIntro(plan)}
+  }
+
   const ARENA_AMBIENCE={
     'arena-01':{effects:[
       {kind:'petal',count:20,colour:'#f3b5c7',colour2:'#fff0c6',alpha:.34,speed:.020,size:2.4,drift:.028},
@@ -1416,7 +1548,7 @@
       </aside>
       <aside id="wcgStandingsBoard" class="wcg-v2-standings-board" aria-label="Repo Sports league table"><img class="wcg-v2-standings-frame" src="assets/repo-sports-v2/repo-sports-v2-standings-board.png" alt=""><div class="wcg-v2-standings-surface"><div class="wcg-v2-standings-kicker"><b>LEAGUE STANDINGS</b><span>18 CLUBS</span></div><div class="wcg-v2-standings-head"><span>#</span><span>TEAM</span><span>MP</span><span>W</span><span>L</span><span>GF</span><span>GA</span><span>GD</span><span>WR</span></div><div id="wcgStandingsRows" class="wcg-v2-standings-body"></div></div></aside>
       <div id="wcgLegacyModeSlot" class="wcg-v2-legacy-slot"><button id="wcgLegacyModeLaunch" class="wcg-v2-legacy-launch" type="button" aria-label="Open Repo Sports Legacy Mode" title="Open Repo Sports Legacy Mode"><img src="assets/repo-sports-legacy-mode-tab.png" alt="Repo Sports Legacy Mode" width="102" height="46"></button></div>
-      <aside id="wcgPlayersBoard" class="wcg-v2-players-board" aria-label="Repo Sports players"><img class="wcg-v2-players-frame" src="players-box.png?v=repo-sports-league-hub-menu-20260812" alt="Players"><div id="wcgPlayersSlots" class="wcg-v2-players-surface" aria-live="polite"></div></aside>
+      <aside id="wcgPlayersBoard" class="wcg-v2-players-board" aria-label="Repo Sports players"><img class="wcg-v2-players-frame" src="players-box.png?v=repo-sports-harmony-performance-20260812" alt="Players"><div id="wcgPlayersSlots" class="wcg-v2-players-surface" aria-live="polite"></div></aside>
       <div id="wcgCommentator" class="wcg-commentator" data-barry-state="NEUTRAL"><div class="wcg-barry-studio wcg-barry-portrait-only" aria-label="Barry Bramble"><div class="wcg-studio-window"><img id="wcgBarrySprite" class="wcg-barry" src="assets/commentator-22.png" alt="Barry Bramble"></div></div><div class="wcg-comment-stack"><div class="wcg-comment-box"><div class="wcg-comment-head"><img src="assets/repo-sports-logo.png" alt=""><div><b>BARRY BRAMBLE</b><span>LIVE COMMENTARY · REPO SPORTS</span></div><i>ON AIR</i></div><p id="wcgCommentary">Welcome to Repo Sports Quidditch.</p></div><div id="wcgBarryTipPanel" class="wcg-barry-tip-panel wcg-barry-tip-mini wcg-barry-tip-rail"><button id="wcgBarryTipButton" type="button" title="Tip Barry 200 GP toward Barry's Boater"><img src="assets/commentator-coin.png" alt=""><span><b>TIP BARRY</b><small>200 GP</small></span></button><div class="wcg-barry-tip-mini-progress" title="Barry's Boater community unlock progress"><div><i id="wcgBarryTipFill"></i></div><strong id="wcgBarryTipPercent">0%</strong><span>BOATER</span></div><em id="wcgBarryTipStatus" aria-live="polite"></em></div></div></div>
       <section id="wcgWatchParty" class="wcg-v2-watch-party" aria-label="Repo Sports Watch Party">
         <header>
@@ -4199,7 +4331,7 @@
   function updateIntro(dt){tickBroadcastSequence(dt);
     const a=audio.prematch;state.introElapsed=clamp(state.introElapsed+dt,0,INTRO_SECONDS);if(!state.headless)void refreshPredictionCounts(false);
     const cue=Math.floor(state.introElapsed/6);if(cue!==state.introCue&&cue<5){state.introCue=cue;say(commentary.intro[Math.min(cue,commentary.intro.length-1)]);if(cue===1){state.camera.tx=.46;state.camera.tz=1.035}else if(cue===2){state.camera.tx=.54;state.camera.tz=1.035}else if(cue===3){state.camera.tx=.5;state.camera.ty=.56;state.camera.tz=1.045}else{state.camera.tx=.5;state.camera.ty=.5;state.camera.tz=1.005}}
-    updatePrematchPresentation();updateKickoffToss(dt);if(state.introElapsed>=INTRO_SECONDS-.02)completePrematch();
+    maybeTriggerRecordedPrematchIntro();updatePrematchPresentation();updateKickoffToss(dt);if(state.introElapsed>=INTRO_SECONDS-.02)completePrematch();
   }
 
   function updateDelay(dt){if(!state.delay)return;state.delay.t-=dt;if(state.delay.t<=0){const cb=state.delay.cb;state.delay=null;cb?.()}}
@@ -5157,7 +5289,10 @@
       state.audioRand=mulberry32(state.seed^0x85ebca6b);
       // Barry/UI timing differs between browsers and must never advance simRand.
       state.commentaryRand=mulberry32(state.seed^0xc2b2ae35);
+      cancelRecordedPrematchIntro();
       state.phase='intro';state.introElapsed=0;
+      state.recordedPrematchIntro=buildRecordedPrematchIntroPlan();
+      if(!state.headless)preloadRecordedPrematchIntro(state.recordedPrematchIntro);
       state.matchTime=0;state.speed=1;state.half=1;state.firstKickoff='belros';state.score={belros:0,zafran:0};
       state.shootout=null;state.special=null;state.delay=null;state.celebration=null;state.reactionHistory={};state.reactionSerial=0;state.refReaction=null;state.varContext=null;state.actionTimer=2.5;
       state.ball={x:.5,y:.5,vx:0,vy:0,speed:0,direction:0,flight:null,visible:true,state:'HELD',owner:null,previousOwner:null,currentOwner:null,intendedReceiver:null,predictedDestination:null,lastTouchedBy:null};
@@ -5185,12 +5320,12 @@
       if(!state.headless&&state.phase==='intro')audio.startPrematch(state.introElapsed);
       if(!state.headless){updateScoreUi();render();state.raf=requestAnimationFrame(update)}return true;
     }catch(error){
-      console.error('[REPO SPORTS V2] Match open failed',error);stopV2WatchXpHeartbeat();state.open=false;state.opening=false;try{cancelAnimationFrame(state.raf)}catch(_){}const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');try{audio.stop()}catch(_){}return false;
+      console.error('[REPO SPORTS V2] Match open failed',error);cancelRecordedPrematchIntro();stopV2WatchXpHeartbeat();state.open=false;state.opening=false;try{cancelAnimationFrame(state.raf)}catch(_){}const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');try{audio.stop()}catch(_){}return false;
     }
   }
 
   async function closeBroadcast(broadcastClose=false){
-    if(!state.open)return;clearTimeout(headlessCatchupTimer);headlessCatchupTimer=0;headlessCatchupTarget=0;clearTimeout(v2PlayerTagsState.timeout);v2PlayerTagsState.pending=false;v2PlayerTagsState.requestId='';stopV2WatchXpHeartbeat();if(broadcastClose&&isHost())await sendMatch('close',{host:'CatAsthma'});state.open=false;cancelAnimationFrame(state.raf);state.phase='closed';setBroadcastState('CLOSED');hidePresentation();clearBarryTimers();cancelBarryAudio();audio.stop();await leaveMatchChannel();const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');restoreWorldCupMenuAudio();
+    if(!state.open)return;cancelRecordedPrematchIntro();clearTimeout(headlessCatchupTimer);headlessCatchupTimer=0;headlessCatchupTarget=0;clearTimeout(v2PlayerTagsState.timeout);v2PlayerTagsState.pending=false;v2PlayerTagsState.requestId='';stopV2WatchXpHeartbeat();if(broadcastClose&&isHost())await sendMatch('close',{host:'CatAsthma'});state.open=false;cancelAnimationFrame(state.raf);state.phase='closed';setBroadcastState('CLOSED');hidePresentation();clearBarryTimers();cancelBarryAudio();audio.stop();await leaveMatchChannel();const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open');root?.setAttribute('aria-hidden','true');restoreWorldCupMenuAudio();
   }
 
   async function syncLive(meta={}){
@@ -5231,5 +5366,5 @@
     return true;
   }
 
-  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,tactics:state.teamTactics?{belros:{club:teamMeta.belros.name,profile:tacticalDescriptor('belros')},zafran:{club:teamMeta.zafran.name,profile:tacticalDescriptor('zafran')}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-league-hub-menu-20260812',leaderboardWrites:true})};
+  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,tactics:state.teamTactics?{belros:{club:teamMeta.belros.name,profile:tacticalDescriptor('belros')},zafran:{club:teamMeta.zafran.name,profile:tacticalDescriptor('zafran')}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-commentator-tight-venue-join-20260812',recordedIntro:state.recordedPrematchIntro?{template:state.recordedPrematchIntro.templateIndex,text:state.recordedPrematchIntro.text,played:state.recordedPrematchIntro.played,playing:state.recordedPrematchIntro.playing}:null,leaderboardWrites:true})};
 })();

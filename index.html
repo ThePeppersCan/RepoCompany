@@ -3834,11 +3834,33 @@ button.qg-game-card{font:inherit;cursor:pointer}
     <div class="admin-terminal-line">C:\REPO\ADMIN&gt; access_granted</div>
     <div class="admin-terminal-line admin-terminal-status">SELECT COMMAND:</div>
     <button id="adminToggleTesting" type="button" role="menuitem"><span>&gt;</span> ENABLE ADMIN TEST MODE</button>
+    <button id="adminTestRepoCommentator" type="button" role="menuitem"><span>&gt;</span> TEST REPO SPORTS INTRO</button>
     <button id="adminOpenRename" type="button" role="menuitem"><span>&gt;</span> RENAME AN ACCOUNT</button>
     <div class="admin-terminal-cursor">C:\REPO\ADMIN&gt;<b>█</b></div>
   </div>
 </div>
 
+<style id="repoSportsCommentatorAdminStyles">
+#adminRepoCommentatorDialog.repo-commentator-admin-dialog{width:min(760px,calc(100vw - 32px));max-width:760px;border:1px solid #ba8a32;background:linear-gradient(180deg,#071622 0%,#030b11 100%);color:#e9f3f7;box-shadow:0 24px 90px #000c,0 0 0 2px #0d2e42 inset;padding:0;overflow:hidden}
+#adminRepoCommentatorDialog::backdrop{background:rgba(0,5,10,.78);backdrop-filter:blur(3px)}
+.repo-commentator-admin-head{padding:18px 52px 14px 20px;border-bottom:1px solid #60491f;background:linear-gradient(90deg,#092236,#07141f);position:relative}.repo-commentator-admin-head small{display:block;color:#77bbdf;font:700 10px/1.2 monospace;letter-spacing:1.7px;margin-bottom:4px}.repo-commentator-admin-head h3{margin:0;color:#f0cf7c;font:700 21px/1.15 Georgia,serif;letter-spacing:.6px}.repo-commentator-admin-head p{margin:6px 0 0;color:#9fb6c3;font:12px/1.45 Arial,sans-serif}
+#adminRepoCommentatorClose{position:absolute;right:12px;top:10px;width:32px;height:32px;border:1px solid #ba8a32;background:#2a1a0b;color:#f7d98e;font:700 20px/1 monospace;cursor:pointer}.repo-commentator-admin-body{padding:18px 20px 20px}.repo-commentator-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.repo-commentator-admin-field{display:flex;flex-direction:column;gap:5px;color:#80bad8;font:700 10px/1 monospace;letter-spacing:1.1px}.repo-commentator-admin-field select{width:100%;height:38px;border:1px solid #355a70;background:#06131d;color:#eef7fa;padding:0 10px;font:700 12px Arial,sans-serif;outline:none}.repo-commentator-admin-field select:focus{border-color:#d1a445;box-shadow:0 0 0 1px #d1a44555}
+.repo-commentator-admin-preview{margin-top:14px;min-height:62px;border:1px solid #2c5268;background:#04101a;padding:12px 14px}.repo-commentator-admin-preview small{display:block;color:#648ca3;font:700 9px/1 monospace;letter-spacing:1.2px;margin-bottom:6px}.repo-commentator-admin-preview strong{display:block;color:#f4dfaa;font:700 15px/1.4 Georgia,serif}.repo-commentator-admin-status{margin-top:8px;color:#72a8c6;font:11px/1.35 monospace;min-height:15px}.repo-commentator-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.repo-commentator-admin-actions button{border:1px solid #a77b2b;background:linear-gradient(#62411d,#3b260f);color:#ffe3a0;padding:9px 14px;font:700 10px/1 monospace;letter-spacing:.8px;cursor:pointer}.repo-commentator-admin-actions button:hover{filter:brightness(1.18)}.repo-commentator-admin-actions button.primary{background:linear-gradient(#0c4567,#082b42);border-color:#5ea3c9}.repo-commentator-admin-note{display:block;margin-top:12px;color:#758e9c;font:10px/1.45 Arial,sans-serif}@media(max-width:620px){.repo-commentator-admin-grid{grid-template-columns:1fr}}
+</style>
+<dialog id="adminRepoCommentatorDialog" class="game-dialog repo-commentator-admin-dialog" aria-label="Repo Sports commentator introduction tester">
+  <div class="repo-commentator-admin-head"><button id="adminRepoCommentatorClose" type="button" aria-label="Close commentator tester">×</button><small>REPO SPORTS · ADMIN AUDIO LAB</small><h3>PRE-MATCH COMMENTATOR TESTER</h3><p>Build and preview the exact recorded intro system without changing the live fixture or simulation.</p></div>
+  <div class="repo-commentator-admin-body">
+    <div class="repo-commentator-admin-grid">
+      <label class="repo-commentator-admin-field">HOME CLUB<select id="adminRepoCommentatorHome"></select></label>
+      <label class="repo-commentator-admin-field">AWAY CLUB<select id="adminRepoCommentatorAway"></select></label>
+      <label class="repo-commentator-admin-field">ARENA<select id="adminRepoCommentatorArena"></select></label>
+      <label class="repo-commentator-admin-field">LINE TEMPLATE<select id="adminRepoCommentatorTemplate"><option value="random">RANDOM TEMPLATE</option><option value="0">1 · Tonight’s fixture…</option><option value="1">2 · And here we have…</option><option value="2">3 · From the heart of Velmora…</option><option value="3">4 · A packed arena awaits…</option><option value="4">5 · Tonight, the brooms take flight…</option><option value="5">6 · Welcome to…</option></select></label>
+    </div>
+    <div class="repo-commentator-admin-preview"><small>GENERATED LINE</small><strong id="adminRepoCommentatorPreview">Choose a fixture to preview.</strong></div><div id="adminRepoCommentatorStatus" class="repo-commentator-admin-status">20% VOLUME · TEST MODE ONLY</div>
+    <div class="repo-commentator-admin-actions"><button id="adminRepoCommentatorRandom" type="button">RANDOMISE FIXTURE</button><button id="adminRepoCommentatorPlay" class="primary" type="button">▶ PLAY INTRO</button><button id="adminRepoCommentatorStop" type="button">■ STOP</button></div>
+    <small class="repo-commentator-admin-note">This tester never writes fixture data, never opens a match and never consumes Repo Sports gameplay RNG. Gloam Carnival Ground uses the existing venue recording because that one venue clip was not included in MAP LINES.zip.</small>
+  </div>
+</dialog>
 
 <dialog id="repoSportsSurvivorDialog" aria-label="Repo Sports Quidditch Ground Survivor Mode">
   <div class="qs-shell">
@@ -5505,6 +5527,7 @@ window.__QD_HOST__={
 #repoSportsV2TestFrame{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .36s ease}
 #repoSportsV2TestOverlay.is-feed-visible #repoSportsV2TestFrame{opacity:1}
 #closeRepoSportsV2Test{position:absolute;right:14px;top:14px;z-index:12;width:42px;height:42px;border:2px solid #c79532;background:#281707;color:#ffe09a;font:900 26px/1 Georgia;cursor:pointer;box-shadow:0 5px 18px #000a}
+#repoSportsV2TestOverlay.is-club-archive-open>#closeRepoSportsV2Test{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 #repoSportsV2LaunchSting{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:radial-gradient(circle at 50% 44%,#0c1725 0,#02070d 64%,#000 100%);opacity:0;visibility:hidden;transition:opacity .34s ease}
 #repoSportsV2LaunchSting.is-playing{opacity:1;visibility:visible}
 #repoSportsV2LaunchSting.is-leaving{opacity:0}
@@ -5843,15 +5866,57 @@ window.__QD_HOST__={
     'Varka Fell':'varka-fell-collector-spread.png','Ashwick':'ashwick-collector-spread.png','Cinderbank':'cinderbank-collector-spread.png','Orsanne':'orsanne-collector-spread.png',
     'Skarholt':'skarholt-collector-spread.png','Saint Ciro':'saint-ciro-collector-spread.png'
   });
+  const repoV2ClubLoreAudioFiles=Object.freeze({
+    'Hrafnvik':'assets/repo-sports-v2/club-lore-audio/hrafnvik.mp3',
+    'Blackglass':'assets/repo-sports-v2/club-lore-audio/blackglass.mp3',
+    'Aurelia':'assets/repo-sports-v2/club-lore-audio/aurelia.mp3',
+    'Grand Khor':'assets/repo-sports-v2/club-lore-audio/grand-khor.mp3',
+    'Naskor':'assets/repo-sports-v2/club-lore-audio/naskor.mp3',
+    'Varka Fell':'assets/repo-sports-v2/club-lore-audio/varka-fell.mp3',
+    'Skarholt':'assets/repo-sports-v2/club-lore-audio/skarholt.mp3',
+    'Zafir Row':'assets/repo-sports-v2/club-lore-audio/zafir-row.mp3',
+    'Ossa Mere':'assets/repo-sports-v2/club-lore-audio/ossa-mere.mp3',
+    'Saint Ciro':'assets/repo-sports-v2/club-lore-audio/saint-ciro.mp3',
+    'Marenza':'assets/repo-sports-v2/club-lore-audio/marenza.mp3',
+    'Talun Cross':'assets/repo-sports-v2/club-lore-audio/talun-cross.mp3',
+    'Drazh Hollow':'assets/repo-sports-v2/club-lore-audio/drazh-hollow.mp3',
+    'Ashwick':'assets/repo-sports-v2/club-lore-audio/ashwick.mp3',
+    'Rova End':'assets/repo-sports-v2/club-lore-audio/rova-end.mp3',
+    'Cinderbank':'assets/repo-sports-v2/club-lore-audio/cinderbank.mp3',
+    'Orsanne':'assets/repo-sports-v2/club-lore-audio/orsanne.mp3',
+    'Iskara':'assets/repo-sports-v2/club-lore-audio/iskara.mp3'
+  });
+  const repoV2ClubLoreAudio=new Audio();
+  repoV2ClubLoreAudio.preload='auto';
+  repoV2ClubLoreAudio.volume=.30;
+  function stopRepoV2ClubLoreAudio(){
+    try{repoV2ClubLoreAudio.pause();repoV2ClubLoreAudio.currentTime=0;}catch(_){}
+  }
+  function playRepoV2ClubLoreAudio(club){
+    const src=repoV2ClubLoreAudioFiles[String(club||'')];
+    stopRepoV2ClubLoreAudio();
+    if(!src)return;
+    try{
+      repoV2ClubLoreAudio.src=src;
+      repoV2ClubLoreAudio.volume=.30;
+      repoV2ClubLoreAudio.load();
+      const promise=repoV2ClubLoreAudio.play();
+      if(promise?.catch)promise.catch(error=>console.warn(`Repo Sports club lore audio (${club}):`,error));
+    }catch(error){console.warn(`Repo Sports club lore audio (${club}):`,error)}
+  }
   let repoV2ArchiveReturnFocus=null;
   function closeRepoV2ClubArchive(restoreFocus=true){
+    stopRepoV2ClubLoreAudio();
     if(!clubArchive)return;
+    o?.classList.remove('is-club-archive-open');
     clubArchive.classList.remove('is-open','is-loading');clubArchive.setAttribute('aria-hidden','true');
     if(restoreFocus&&repoV2ArchiveReturnFocus){const target=repoV2ArchiveReturnFocus;setTimeout(()=>{try{target.focus({preventScroll:true})}catch(_){}},80)}
     repoV2ArchiveReturnFocus=null;
   }
   function openRepoV2ClubArchive(club,sourceEl=null){
     const src=repoV2ClubArchiveFiles[String(club||'')];if(!src||!clubArchive||!clubArchiveImage)return;
+    o?.classList.add('is-club-archive-open');
+    playRepoV2ClubLoreAudio(club);
     repoV2ArchiveReturnFocus=sourceEl||document.activeElement;
     clubArchive.classList.add('is-loading');clubArchive.classList.remove('is-open');clubArchive.setAttribute('aria-hidden','false');
     clubArchiveImage.alt=`${club} — Repo Sports League official club archive`;
@@ -6328,7 +6393,7 @@ window.__QD_HOST__={
     h.id='repoSportsV2GlobalHostFrame';h.tabIndex=-1;h.setAttribute('aria-hidden','true');
     h.style.cssText='position:fixed!important;width:1px!important;height:1px!important;left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;border:0!important';
     h.addEventListener('load',()=>setTimeout(()=>repoV2PushLiveState(h.contentWindow),30));
-    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-league-hub-archives-20260812';
+    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-commentator-faster-25pct-20260812';
     document.body.appendChild(h);
   }
   function repoV2NormalizeLiveRow(row){
@@ -6658,7 +6723,7 @@ window.__QD_HOST__={
     f.addEventListener('load',()=>setTimeout(markFrameReady,35),{once:true});
     playRepoV2LaunchSound(serial,()=>{stingFinished=true;revealLive();});
     void repoV2FetchLiveState();
-    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-league-hub-archives-20260812';
+    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-commentator-faster-25pct-20260812';
     repoV2EnsureHostFrame();
     revealTimer=setTimeout(markFrameReady,2200);
   }
@@ -6775,6 +6840,30 @@ window.__QD_HOST__={
 
   button.onclick=null;
   button.addEventListener('click',registerHarmonyClick,true);
+})();
+</script>
+
+<script id="repoSportsMapLinesAdminTester">
+(()=>{
+  const TEAM_NAMES=['Hrafnvik','Blackglass','Saint Ciro','Marenza','Grand Khor','Aurelia','Drazh Hollow','Rova End','Zafir Row','Talun Cross','Ossa Mere','Varka Fell','Iskara','Naskor','Ashwick','Skarholt','Orsanne','Cinderbank'];
+  const VENUES=['Sunspire Amphitheatre','Ironroot Forge Bowl','Canopy Thunderbowl','Emberkeep Coliseum','Mirage Crown Stadium','Moonbloom Glade','Observatory Arena','Coralcrest Harbour Arena','Skyhold Aerodrome','Lotuswater Pavilion','Gloam Carnival Ground','Thornvault Stadium'];
+  const ROOT='assets/repo-sports-v2/commentator-map-lines/';
+  const FILES=['A packed.mp3','And here we have.mp3','and.mp3','Ashwick.mp3','AT THE.mp3','Aurelia.mp3','awaits.mp3','Blackglass.mp3','Canopy Thunderbowl.mp3','Cinderbank.mp3','Coralcrest Harbour arena.mp3','Drazh hollow.mp3','Emberkeep colleseum.mp3','face.mp3','For.mp3','From the heart of Velmora.mp3','Gloam Carnival Ground.mp3','Grand Khor.mp3','Hrafnvik.mp3','Ironroot forge bowl.mp3','Iskara.mp3','Lotuswater Pavilion.mp3','Marenza.mp3','Mirage Crown Stadium.mp3','Moonbloom glade.mp3','Naskor.mp3','Observatory Arena.mp3','Orsanne.mp3','Ossa Mere.mp3','Rova End.mp3','Saint Ciro.mp3','Skarholt.mp3','Skyhold aerodrome.mp3','Sunspire Amphitheatre.mp3','Talun Cross.mp3','Thornvault stadium.mp3','Tonight, the brooms take flight.mp3','Tonight#U2019s Repo Sports League fixture.mp3','Varka Fell.mp3','VS.mp3','Welcome To.mp3','Zafir Row.mp3'];
+  const key=v=>String(v||'').replace(/#u2019/gi,"'").replace(/[\u2018\u2019']/g,'').replace(/colleseum/gi,'coliseum').replace(/\.mp3$/i,'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+  const fileByKey=new Map(FILES.map(file=>[key(file),file]));const clip=label=>{const file=fileByKey.get(key(label));return file?ROOT+encodeURIComponent(file):null};
+  const templates=[({home,away,arena})=>({text:`Tonight’s Repo Sports League fixture: ${home} VS ${away} at the ${arena}.`,clips:["Tonight’s Repo Sports League fixture",home,'VS',away,'AT THE',arena]}),({home,away,arena})=>({text:`And here we have ${home} VS ${away} at the ${arena}.`,clips:['And here we have',home,'VS',away,'AT THE',arena]}),({home,away,arena})=>({text:`From the heart of Velmora, ${home} face ${away} at the ${arena}.`,clips:['From the heart of Velmora',home,'face',away,'AT THE',arena]}),({home,away,arena})=>({text:`A packed ${arena} awaits ${home} VS ${away}.`,clips:['A packed',arena,'awaits',home,'VS',away]}),({home,away,arena})=>({text:`Tonight, the brooms take flight: ${home} VS ${away} at the ${arena}.`,clips:['Tonight, the brooms take flight',home,'VS',away,'AT THE',arena]}),({home,away,arena})=>({text:`Welcome to ${arena} for ${home} VS ${away}.`,clips:['Welcome To',arena,'For',home,'VS',away]})];
+  const $=id=>document.getElementById(id),dialog=$('adminRepoCommentatorDialog'),openBtn=$('adminTestRepoCommentator'),closeBtn=$('adminRepoCommentatorClose'),home=$('adminRepoCommentatorHome'),away=$('adminRepoCommentatorAway'),arena=$('adminRepoCommentatorArena'),template=$('adminRepoCommentatorTemplate'),preview=$('adminRepoCommentatorPreview'),status=$('adminRepoCommentatorStatus');if(!dialog||!openBtn||!home||!away||!arena||!template)return;
+  const fill=(select,values)=>{select.innerHTML=values.map(v=>`<option>${v}</option>`).join('')};fill(home,TEAM_NAMES);fill(away,TEAM_NAMES);fill(arena,VENUES);away.selectedIndex=1;let token=0,currentAudio=null,preloaded=new Map();
+  function stop(){token++;if(currentAudio){try{currentAudio.pause();currentAudio.currentTime=0;currentAudio.onended=null;currentAudio.onerror=null}catch(_){}}currentAudio=null;status.textContent='STOPPED · 25% VOLUME · TEST MODE ONLY'}
+  function pickTemplate(){return template.value==='random'?Math.floor(Math.random()*templates.length):Math.max(0,Math.min(5,Number(template.value)||0))}
+  function currentPlan(forceTemplate=null){if(home.value===away.value){const i=(TEAM_NAMES.indexOf(away.value)+1)%TEAM_NAMES.length;away.value=TEAM_NAMES[i]===home.value?TEAM_NAMES[(i+1)%TEAM_NAMES.length]:TEAM_NAMES[i]}const ti=forceTemplate==null?pickTemplate():forceTemplate,built=templates[ti]({home:home.value,away:away.value,arena:arena.value}),urls=built.clips.map(clip),missing=built.clips.filter((_,i)=>!urls[i]);return{...built,urls,missing,templateIndex:ti}}
+  function updatePreview(){const ti=template.value==='random'?0:Number(template.value)||0,plan=currentPlan(ti);preview.textContent=template.value==='random'?`RANDOM LINE · ${plan.text}`:plan.text;status.textContent=plan.missing.length?`MISSING CLIPS: ${plan.missing.join(', ')}`:'READY · 25% VOLUME · TEST MODE ONLY'}
+  function preload(src){if(preloaded.has(src))return preloaded.get(src);const a=new Audio(src);a.preload='auto';a.volume=.25;try{a.load()}catch(_){}preloaded.set(src,a);return a}
+  function playClip(src,myToken){return new Promise(resolve=>{if(myToken!==token)return resolve(false);const base=preload(src),a=base.cloneNode?base.cloneNode(true):new Audio(src);currentAudio=a;a.preload='auto';a.volume=.25;a.currentTime=0;let done=false;const finish=ok=>{if(done)return;done=true;if(currentAudio===a)currentAudio=null;a.onended=null;a.onerror=null;resolve(ok)};a.onended=()=>finish(true);a.onerror=()=>finish(false);try{const p=a.play();p?.catch?.(()=>finish(false))}catch(_){finish(false)}})}
+  const wait=(ms,myToken)=>new Promise(resolve=>{const end=performance.now()+ms;const tick=()=>{if(myToken!==token||performance.now()>=end)return resolve();setTimeout(tick,Math.min(15,Math.max(1,end-performance.now())))};tick()});
+  async function play(){stop();const plan=currentPlan();preview.textContent=plan.text;if(plan.missing.length){status.textContent=`CANNOT PLAY · MISSING: ${plan.missing.join(', ')}`;return}const myToken=++token;status.textContent=`PLAYING TEMPLATE ${plan.templateIndex+1} · 25% VOLUME`;for(let i=0;i<plan.urls.length;i++){if(myToken!==token)break;await playClip(plan.urls[i],myToken);if(i<plan.urls.length-1&&myToken===token)await wait(0,myToken)}if(myToken===token){currentAudio=null;status.textContent='COMPLETE · READY TO TEST AGAIN'}}
+  function randomise(){home.value=TEAM_NAMES[Math.floor(Math.random()*TEAM_NAMES.length)];do{away.value=TEAM_NAMES[Math.floor(Math.random()*TEAM_NAMES.length)]}while(away.value===home.value);arena.value=VENUES[Math.floor(Math.random()*VENUES.length)];template.value='random';updatePreview()}
+  openBtn.addEventListener('click',()=>{stop();updatePreview();document.getElementById('adminDropdown')?.classList.add('hidden');document.getElementById('adminButton')?.setAttribute('aria-expanded','false');dialog.showModal?.()});closeBtn?.addEventListener('click',()=>{stop();dialog.close()});dialog.addEventListener('cancel',()=>stop());dialog.addEventListener('close',()=>stop());document.getElementById('adminRepoCommentatorPlay')?.addEventListener('click',play);document.getElementById('adminRepoCommentatorStop')?.addEventListener('click',stop);document.getElementById('adminRepoCommentatorRandom')?.addEventListener('click',randomise);[home,away,arena,template].forEach(el=>el.addEventListener('change',updatePreview));updatePreview();
 })();
 </script>
 </body>
