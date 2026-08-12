@@ -1,9 +1,8 @@
-REPO SPORTS V2 — RESTORED CURRENT BUILD + MAP LINES ADMIN TESTER
+REPO BINDER V3 + BILLBOARD RECOVERY
 
-This fixes the accidental regression caused by the recent commentator package being based on an older V2 engine.
+1. Replace ONLY script.js.
+2. Do NOT run any more binder SQL. The already-created snapshot RPCs are reused when available.
+3. Ctrl + Shift + R.
 
-Restored: current MP standings layout, Players/namecard panel, Legacy button placement, nametag effects, tactical identity, expanded flight envelope, sync/performance fixes, fair-MP fixture scheduling and current broadcast layout.
-
-Kept: MAP LINES pre-match commentary. This revision raises commentator audio to 25% and removes the deliberate inter-clip pause so phrases join immediately while still never overlapping. Trigger remains 5 seconds after countdown START. Admin TEST REPO SPORTS INTRO uses the same 25%/tight pacing. Club lore audio and safe lore close behavior remain unchanged.
-
-Replace/merge the files into your website root, then Ctrl+Shift+R. No SQL required.
+This build is based on the last known-good V3 script, not the broken 18-slot intermediate build.
+It restores the full multi-spread binder and billboard lobby, keeps physical shooting-star click mining, publishes owner binder layout one-way for public viewing, and uses the new skill-tree layout for leaderboard profiles.

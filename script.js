@@ -2185,7 +2185,12 @@ function renderMiningState(){
   $('mineStarButton').textContent=active?'PET IS MINING…':(degraded?'STRIKE A NEW STAR':'START 7-MINUTE CYCLE');
   $('stopMiningButton').disabled=false;
   $('miningGame').classList.toggle('is-active',active);
-  $('shootingStar').classList.toggle('degraded',degraded&&!active);
+  const starEl=$('shootingStar');
+  starEl.classList.toggle('degraded',degraded&&!active);
+  starEl.classList.toggle('is-clickable',!active);
+  starEl.setAttribute('aria-disabled',active?'true':'false');
+  starEl.title=active?`Your pet is already mining · ${formatMiningTime(remaining)} remaining`:(degraded?'Click the star to begin another 7-minute mining cycle':'Click the star to start a 7-minute mining cycle');
+  starEl.style.cursor=active?'default':'pointer';
   const cycleXp=Math.min(1500,Number(miningAfkState.cycle_xp)||0),cycleGp=Math.min(2500,Number(miningAfkState.cycle_gp)||0),progress=Math.min(100,Math.max(0,Number(miningAfkState.progress_percent)||0));
   $('miningCycleXp').textContent=`${cycleXp.toLocaleString('en-GB')} / 1,500 XP`;
   $('miningCycleGp').textContent=`${cycleGp.toLocaleString('en-GB')} / 2,500 GP`;
@@ -3645,53 +3650,54 @@ async function checkWiseTaskProgress(autoClaim=false){
 }
 
 async function openPlayerStats(username) {
-  $('playerStatsTitle').textContent = String(username).toUpperCase();
+  const profileName=String(username||'').trim();
+  $('playerStatsTitle').textContent = `${profileName.toUpperCase()} · SKILL TREE`;
   $('playerStatsBody').textContent = 'Loading...';
   if (!$('playerStatsDialog').open) $('playerStatsDialog').showModal();
-  const { data, error } = await db.rpc('get_public_character', { p_username: username });
+  const { data, error } = await db.rpc('get_public_character', { p_username: profileName });
   if (error || !data?.[0]) {
     console.error(error);
     $('playerStatsBody').textContent = 'Could not load this player. Run the player stats SQL update.';
     return;
   }
-  const row = data[0];
-  const skills = [
-    ['Harmony', 'assets/harmony-logo.png', count],
-    ['Woodcutting', 'assets/tree.png', row.woodcutting_xp],
-    ['Mining', 'assets/runite-rocks.png', row.mining_xp],
-    ['Fishing', 'assets/shark.png', row.fishing_xp],
-    ['Agility', 'assets/agility-icon.webp', row.agility_xp],
-    ['Slayer', 'assets/slayer-icon.png', row.slayer_xp],
-    ['Attack', 'assets/attack-icon.webp', row.attack_xp],
-    ['Strength', 'assets/strength-icon.webp', row.strength_xp],
-    ['Defence', 'assets/defence-icon.webp', row.defence_xp],
-    ['Magic', 'assets/magic-icon.png', row.magic_xp],
-    ['Ranged', 'assets/ranged-icon.png', row.ranged_xp],
-    ['Sailing', 'assets/sailing-icon.webp', row.sailing_xp],
-    ['Runecrafting', 'assets/runecrafting-icon.png', row.runecrafting_xp],
-    ['Cooking', 'assets/cooking-icon-new.png', row.cooking_xp],
-    ['Farming', 'assets/watering-can.png', row.farming_xp]
+  const row=data[0];
+  const skillDefinitions={
+    woodcutting:{label:'Woodcutting',image:'assets/tree.png',branch:'gathering'},
+    mining:{label:'Mining',image:'assets/runite-rocks.png',branch:'gathering'},
+    fishing:{label:'Fishing',image:'assets/shark.png',branch:'gathering'},
+    farming:{label:'Farming',image:'assets/watering-can.png',branch:'gathering'},
+    attack:{label:'Attack',image:'assets/attack-icon.webp',branch:'combat'},
+    strength:{label:'Strength',image:'assets/strength-icon.webp',branch:'combat'},
+    defence:{label:'Defence',image:'assets/defence-icon.webp',branch:'combat'},
+    magic:{label:'Magic',image:'assets/magic-icon.png',branch:'combat'},
+    ranged:{label:'Ranged',image:'assets/ranged-icon.png',branch:'combat'},
+    slayer:{label:'Slayer',image:'assets/slayer-icon.png',branch:'combat'},
+    cooking:{label:'Cooking',image:'assets/cooking-icon-new.png',branch:'artisan'},
+    runecrafting:{label:'Runecrafting',image:'assets/runecrafting-icon.png',branch:'artisan'},
+    agility:{label:'Agility',image:'assets/agility-icon.webp',branch:'adventure'},
+    sailing:{label:'Sailing',image:'assets/sailing-icon.webp',branch:'adventure'}
+  };
+  const branchDefinitions=[
+    {key:'gathering',label:'Gathering',symbol:'◆',blurb:'Resources & cultivation'},
+    {key:'combat',label:'Combat',symbol:'⚔',blurb:'Offence, defence & slaying'},
+    {key:'artisan',label:'Artisan',symbol:'✦',blurb:'Craft, cook & create'},
+    {key:'adventure',label:'Adventure',symbol:'⌁',blurb:'Movement & exploration'}
   ];
-  const totalLevel = skills.reduce((sum, skill) => {
-    const xp = Number(skill[2]) || 0;
-    return sum + (skill[0] === 'Harmony' ? harmonyLevelFromXp(xp) : levelFromXp(xp));
-  }, 0);
-  let skillCards = skills.map(([label, image, rawXp]) => {
-    const xp = Number(rawXp) || 0;
-    const level = label === 'Harmony' ? harmonyLevelFromXp(xp) : levelFromXp(xp);
-    const nextXp = xpForLevel(Math.min(level + 1, 99));
-    const currentXp = xpForLevel(level);
-    const pct = level >= 99 ? 100 : Math.max(0, Math.min(100, ((xp - currentXp) / Math.max(1, nextXp - currentXp)) * 100));
-    return `<div class="public-skill${label === 'Harmony' ? ' harmony-public-skill' : ''}"><img src="${image}" alt="${label}"><div class="public-skill-copy"><b>${label}</b><small>${xp.toLocaleString('en-GB')} XP${label === 'Harmony' ? ' · Shared' : ''}</small><i><span style="width:${pct}%"></span></i></div><strong>${level}</strong></div>`;
-  }).join('');
-  const created = row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Unknown';
-  $('playerStatsBody').innerHTML = `
-    <div class="public-profile-summary">
-      <div><span>Total level</span><strong>${totalLevel}</strong></div>
-      <div><span>Best Dash</span><strong>${row.agility_best_ms ? formatDashTime(row.agility_best_ms) : '—'}</strong></div>
-      <div><span>Joined</span><strong>${escapeHtml(created)}</strong></div>
-    </div>
-    <div class="public-skills-grid">${skillCards}</div>`;
+  const stat=(key,definition)=>{
+    const xp=Math.max(0,Number(row[`${key}_xp`])||0),level=levelFromXp(xp),previous=xpForLevel(level),next=level>=99?xp:xpForLevel(level+1),span=Math.max(1,next-previous);
+    return{key,...definition,xp,level,progress:level>=99?100:Math.max(0,Math.min(100,((xp-previous)/span)*100)),remaining:level>=99?0:Math.max(0,next-xp),maxed:level>=99};
+  };
+  const personalSkills=Object.entries(skillDefinitions).map(([key,definition])=>stat(key,definition));
+  // Harmony is deliberately shared across Repo Company, matching the normal Skills page.
+  const harmonyXp=Math.max(0,Number(count)||0),harmonyLevel=harmonyLevelFromXp(harmonyXp),harmonyPrevious=xpForLevel(harmonyLevel),harmonyNext=harmonyLevel>=99?harmonyXp:xpForLevel(harmonyLevel+1),harmonySpan=Math.max(1,harmonyNext-harmonyPrevious);
+  const harmony={label:'Harmony',image:'assets/harmony-logo.png',xp:harmonyXp,level:harmonyLevel,progress:harmonyLevel>=99?100:Math.max(0,Math.min(100,((harmonyXp-harmonyPrevious)/harmonySpan)*100)),remaining:harmonyLevel>=99?0:Math.max(0,harmonyNext-harmonyXp),maxed:harmonyLevel>=99};
+  const allSkills=[harmony,...personalSkills],totalLevel=allSkills.reduce((n,x)=>n+x.level,0),totalXp=allSkills.reduce((n,x)=>n+x.xp,0),highest=allSkills.reduce((best,x)=>x.level>best.level||(x.level===best.level&&x.xp>best.xp)?x:best,allSkills[0]),mastered=allSkills.filter(x=>x.maxed).length;
+  const renderSkillNode=skill=>`<div class="skill-tree-node ${skill.maxed?'is-maxed':''}"><div class="skill-node-icon"><img src="${skill.image}" alt="${skill.label}"><span>${skill.level}</span></div><div class="skill-node-details"><div class="skill-node-title"><b>${skill.label}</b><em>${skill.maxed?'MAX':`${Math.round(skill.progress)}%`}</em></div><small>${skill.xp.toLocaleString('en-GB')} XP</small><div class="skill-node-progress"><i style="width:${skill.progress}%"></i></div><span class="skill-node-next">${skill.maxed?'MASTERED · LEVEL 99':`${skill.remaining.toLocaleString('en-GB')} XP TO LEVEL ${skill.level+1}`}</span></div></div>`;
+  const branches=branchDefinitions.map(branch=>{const skills=personalSkills.filter(skill=>skill.branch===branch.key),branchLevel=skills.reduce((n,x)=>n+x.level,0);return`<section class="skill-branch skill-branch-${branch.key}"><div class="skill-branch-header"><span class="skill-branch-symbol">${branch.symbol}</span><div><b>${branch.label}</b><small>${branch.blurb}</small></div><strong>${branchLevel}</strong></div><div class="skill-branch-nodes">${skills.map(renderSkillNode).join('')}</div></section>`}).join('');
+  const body=$('playerStatsBody');
+  body.classList.add('skills-grid','repo-public-skills-grid');
+  body.innerHTML=`<section class="skills-overview"><div class="skills-overview-intro"><span>PLAYER PROGRESSION</span><strong>${escapeHtml(profileName)}</strong><small>Public skill tree · the same progression layout used on your own Stats page.</small></div><div class="skills-overview-stat"><small>TOTAL LEVEL</small><b>${totalLevel.toLocaleString('en-GB')}</b><span>${allSkills.length} skills</span></div><div class="skills-overview-stat"><small>TOTAL XP</small><b>${totalXp.toLocaleString('en-GB')}</b><span>All progression</span></div><div class="skills-overview-stat"><small>HIGHEST SKILL</small><b>${highest.label}</b><span>Level ${highest.level}</span></div><div class="skills-overview-stat"><small>MASTERED</small><b>${mastered}</b><span>Level 99 skills</span></div></section><section class="skills-tree-root"><span class="skills-root-crown">SHARED FOUNDATION</span><div class="skills-root-node ${harmony.maxed?'is-maxed':''}"><div class="skills-root-icon"><img src="assets/harmony-logo.png" alt="Harmony"><span>${harmony.level}</span></div><div class="skills-root-copy"><div><b>Harmony</b><em>${harmony.maxed?'Mastered':'Shared skill'}</em></div><strong>${harmony.xp.toLocaleString('en-GB')} XP · Shared across Repo Company</strong><div class="skills-root-progress"><i style="width:${harmony.progress}%"></i></div><small>${harmony.maxed?'MASTERED · LEVEL 99':`${harmony.remaining.toLocaleString('en-GB')} XP TO LEVEL ${harmony.level+1}`}</small></div></div></section><div class="skills-tree-connector" aria-hidden="true"></div><div class="skills-tree-branches">${branches}</div>`;
+  if(!document.getElementById('repoPublicStatsLayoutFix')){const style=document.createElement('style');style.id='repoPublicStatsLayoutFix';style.textContent=`#playerStatsDialog{width:min(96vw,1180px)!important;max-width:none!important}#playerStatsBody.repo-public-skills-grid{display:block!important;max-height:min(78vh,820px)!important;overflow:auto!important;padding:12px!important}#playerStatsBody.repo-public-skills-grid>.skills-overview{margin-bottom:12px}`;document.head.appendChild(style)}
 }
 
 function formatDashTime(milliseconds) {
@@ -4214,6 +4220,20 @@ $('openMining').disabled=false;
 $('openQuests').disabled=false;
 $('openMining').onclick = openMining;
 $('mineStarButton').onclick = strikeShootingStar;
+const physicalMiningStar=$('shootingStar');
+if(physicalMiningStar){
+  physicalMiningStar.setAttribute('role','button');
+  physicalMiningStar.setAttribute('tabindex','0');
+  physicalMiningStar.setAttribute('aria-label','Strike the shooting star to start a seven-minute mining cycle');
+  const startMiningFromStar=()=>{
+    if($('mineStarButton')?.disabled)return;
+    void strikeShootingStar();
+  };
+  physicalMiningStar.addEventListener('click',startMiningFromStar);
+  physicalMiningStar.addEventListener('keydown',event=>{
+    if(event.key==='Enter'||event.key===' '){event.preventDefault();startMiningFromStar();}
+  });
+}
 $('stopMiningButton').onclick = stopShootingStar;
 $('miningOpenBank').onclick = ()=>{stopShootingStar();openBank()};
 $('openSlayer').onclick = openSlayer;
@@ -8293,29 +8313,10 @@ qmRenderFullTimeStats=function(state){
 
 // --- Quidditch presentation/timing and spectator Agility XP patch ---
 let qmWatchXpTimer=null;
-let qmWatchXpMinuteTimer=null;
-let qmWatchXpPending=0;
-function qmShowMinuteSpectatorXp(){
-  if(!qmState?.open||!character||document.hidden)return;
-  const gained=Math.max(0,Math.floor(Number(qmWatchXpPending)||0));
-  if(gained<=0)return;
-  qmWatchXpPending=0;
-  const drop=$('qmAgilityXpDrop');
-  if(drop){
-    const amount=drop.querySelector('b');
-    if(amount)amount.textContent=`+${gained.toLocaleString('en-GB')}`;
-    const label=drop.querySelector('span');
-    if(label)label.textContent='AGILITY XP · 1 MIN';
-    drop.classList.remove('is-visible');
-    void drop.offsetWidth;
-    drop.classList.add('is-visible');
-    clearTimeout(drop.__qmWatchHide);
-    drop.__qmWatchHide=setTimeout(()=>drop.classList.remove('is-visible'),2200);
-  }
-}
 async function qmClaimSpectatorXp(){
-  // Keep the server-authoritative XP heartbeat frequent, but never show a popup
-  // for each tiny award. Accumulate gains and surface one total every minute.
+  // Watching XP is tied to having the Repo Sports broadcast open, not to one
+  // fragile live-state string. Line-up/full-time transitions must not silently
+  // stop the heartbeat. Hidden/background tabs are deliberately not rewarded.
   if(!qmState.open||!character||document.hidden)return;
   if(typeof db==='undefined'||!db?.rpc)return;
   try{
@@ -8331,10 +8332,14 @@ async function qmClaimSpectatorXp(){
     if(badge)delete badge.dataset.syncError;
     if(gained>0){
       character.agility_xp=Math.max(0,Number(character.agility_xp||0)+gained);
-      qmWatchXpPending+=gained;
-      // Explicitly clear any stale per-tick visual state left by older builds.
-      $('qmAgilityXpDrop')?.classList.remove('is-visible');
-      badge?.classList.remove('is-earned');
+      const drop=$('qmAgilityXpDrop');
+      if(drop){
+        const amount=drop.querySelector('b');if(amount)amount.textContent=`+${gained.toLocaleString('en-GB')}`;
+        drop.classList.remove('is-visible');void drop.offsetWidth;drop.classList.add('is-visible');
+        clearTimeout(drop.__qmWatchHide);drop.__qmWatchHide=setTimeout(()=>drop.classList.remove('is-visible'),2800);
+      }
+      badge?.classList.add('is-earned');
+      clearTimeout(badge?.__qmWatchPulse);if(badge)badge.__qmWatchPulse=setTimeout(()=>badge.classList.remove('is-earned'),1100);
       renderCharacter?.();
     }
   }catch(error){console.warn('Quidditch watch XP:',error);}
@@ -8343,14 +8348,11 @@ function qmStartWatchXpHeartbeat(){
   clearInterval(qmWatchXpTimer);
   qmClaimSpectatorXp();
   qmWatchXpTimer=setInterval(()=>{qmClaimSpectatorXp();},2000);
-  if(!qmWatchXpMinuteTimer){
-    qmWatchXpMinuteTimer=setInterval(qmShowMinuteSpectatorXp,60000);
-  }
 }
 const qmOpenWithWatch=openQuidditchMode;
 openQuidditchMode=function(){qmOpenWithWatch();if(qmState.open)qmStartWatchXpHeartbeat();};
 const qmCloseWithWatch=closeQuidditchMode;
-closeQuidditchMode=function(){clearInterval(qmWatchXpTimer);qmWatchXpTimer=null;clearInterval(qmWatchXpMinuteTimer);qmWatchXpMinuteTimer=null;qmWatchXpPending=0;qmCloseWithWatch();};
+closeQuidditchMode=function(){clearInterval(qmWatchXpTimer);qmWatchXpTimer=null;qmCloseWithWatch();};
 // Existing listeners captured the prior function, so bind a safe heartbeat too.
 $('quidditchModeButton')?.addEventListener('click',()=>setTimeout(()=>{if(qmState.open)qmStartWatchXpHeartbeat();},50));
 $('openQuidditchMode')?.addEventListener('click',()=>setTimeout(()=>{if(qmState.open)qmStartWatchXpHeartbeat();},50));
@@ -16732,16 +16734,47 @@ qmShowSharedGoal=function(state){
   TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   const map=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
   const current=()=>window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[]};
-  const owner=()=>String(current().username||'guest').toLowerCase();
-  // Keep the previous key so existing 54-slot arrangements migrate in place.
+  const owner=()=>String(current().username||'guest').trim().toLowerCase();
+  const isPublicView=()=>Boolean(current().isPublic);
+  // Keep the previous key so every player's REAL multi-spread browser arrangement survives untouched.
   const key=()=>`repo_tcg_binder_54_layout_${owner()}`;
   const storageKey=()=>`repo_tcg_binder_storage_${owner()}`;
-  const load=()=>{try{const v=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}};
-  const save=v=>{try{localStorage.setItem(key(),JSON.stringify(v.slice(0,TOTAL_SLOTS)))}catch(_){}};
-  const loadStorage=()=>{try{const v=JSON.parse(localStorage.getItem(storageKey())||'[]');return Array.isArray(v)?v.filter(id=>map[id]):[]}catch(_){return[]}};
-  const saveStorage=v=>{try{localStorage.setItem(storageKey(),JSON.stringify([...new Set(v.filter(id=>map[id]))]))}catch(_){}};
-  const owned=()=>{const out=[];for(const raw of current().cards||[]){const id=String(raw||'').trim().toLowerCase().replaceAll('-','_');if(map[id]&&!out.includes(id))out.push(id)}return out};
-  const ordered=()=>{const stored=loadStorage(),have=owned().filter(id=>!stored.includes(id)),slots=Array(TOTAL_SLOTS).fill(null);load().slice(0,TOTAL_SLOTS).forEach((id,i)=>{if(have.includes(id)&&!slots.includes(id))slots[i]=id});for(const id of have){if(!slots.includes(id)){const e=slots.indexOf(null);if(e>=0)slots[e]=id}}return slots};
+  const publicSnapshots=new Map();
+  let snapshotTimer=0,snapshotBusy=false,snapshotQueued=false;
+  const cleanId=raw=>String(raw||'').trim().toLowerCase().replaceAll('-','_');
+  const cleanLayout=raw=>{const out=Array(TOTAL_SLOTS).fill(null),src=Array.isArray(raw)?raw:[];src.slice(0,TOTAL_SLOTS).forEach((value,i)=>{const id=cleanId(value);if(id&&map[id]&&!out.includes(id))out[i]=id});return out};
+  const cleanStorage=raw=>[...new Set((Array.isArray(raw)?raw:[]).map(cleanId).filter(id=>map[id]))];
+  const localLoad=()=>{try{const v=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}};
+  const localLoadStorage=()=>{try{const v=JSON.parse(localStorage.getItem(storageKey())||'[]');return Array.isArray(v)?v.filter(id=>map[id]):[]}catch(_){return[]}};
+  const publicSnapshot=()=>publicSnapshots.get(owner())||null;
+  const load=()=>isPublicView()?(publicSnapshot()?.loaded?cleanLayout(publicSnapshot().layout):[]):localLoad();
+  const loadStorage=()=>isPublicView()?(publicSnapshot()?.loaded?cleanStorage(publicSnapshot().storage):[]):localLoadStorage();
+  async function flushOwnSnapshot(){
+    if(snapshotBusy||!snapshotQueued||isPublicView()||typeof db==='undefined'||!db?.rpc||typeof character==='undefined'||!character?.username)return;
+    snapshotQueued=false;snapshotBusy=true;
+    try{
+      const username=String(character.username);
+      const layout=cleanLayout(localLoad()),storage=cleanStorage(localLoadStorage());
+      // A recovery copy is made before publishing. Supabase is NEVER read back into the owner's browser.
+      try{localStorage.setItem(`repo_tcg_binder_v3_recovery_${username.trim().toLowerCase()}`,JSON.stringify({layout,storage,savedAt:Date.now()}))}catch(_){}
+      const {error}=await db.rpc('set_my_quidditch_tcg_binder_layout',{p_username:username,p_layout:layout,p_storage:storage});
+      if(error)throw error;
+    }catch(error){console.warn('Binder public snapshot save skipped; local V3 binder remains authoritative.',error)}
+    finally{snapshotBusy=false;if(snapshotQueued)queueOwnSnapshot()}
+  }
+  function queueOwnSnapshot(){if(isPublicView()||typeof character==='undefined'||!character?.username)return;snapshotQueued=true;clearTimeout(snapshotTimer);snapshotTimer=setTimeout(flushOwnSnapshot,400)}
+  async function fetchPublicSnapshot(username){
+    const name=String(username||'').trim(),lookup=name.toLowerCase();if(!name)return;
+    publicSnapshots.set(lookup,{loaded:false,layout:[],storage:[]});
+    try{
+      const {data,error}=await db.rpc('get_public_quidditch_tcg_binder_layout',{p_username:name});if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;publicSnapshots.set(lookup,{loaded:true,layout:cleanLayout(row?.layout),storage:cleanStorage(row?.storage)});
+    }catch(error){console.warn('Public binder layout snapshot unavailable.',error);publicSnapshots.set(lookup,{loaded:true,layout:[],storage:[]})}
+  }
+  const save=v=>{if(isPublicView())return;try{localStorage.setItem(key(),JSON.stringify(v.slice(0,TOTAL_SLOTS)))}catch(_){}queueOwnSnapshot()};
+  const saveStorage=v=>{if(isPublicView())return;try{localStorage.setItem(storageKey(),JSON.stringify([...new Set(v.filter(id=>map[id]))]))}catch(_){}queueOwnSnapshot()};
+  const owned=()=>{const out=[];for(const raw of current().cards||[]){const id=cleanId(raw);if(map[id]&&!out.includes(id))out.push(id)}return out};
+  const ordered=()=>{if(isPublicView()&&!publicSnapshot()?.loaded)return Array(TOTAL_SLOTS).fill(null);const stored=loadStorage(),have=owned().filter(id=>!stored.includes(id)),slots=Array(TOTAL_SLOTS).fill(null);load().slice(0,TOTAL_SLOTS).forEach((id,i)=>{if(have.includes(id)&&!slots.includes(id))slots[i]=id});for(const id of have){if(!slots.includes(id)){const e=slots.indexOf(null);if(e>=0)slots[e]=id}}return slots};
   const spreadIndex=()=>{const key=String(document.getElementById('quidditchTcgBinderDialog')?.dataset.binderPage||'');const match=/^open(\d+)$/.exec(key);return match?Number(match[1])-1:-1};
   const storageCategory=id=>{
     if(id==='ltd_week_one_anniversary')return {key:'limited',label:'LIMITED'};
@@ -16991,7 +17024,16 @@ qmShowSharedGoal=function(state){
     bindNavigationDragTargets();render();
   };
   const oldEnsure=ensureQuidditchTcgBinderUi;ensureQuidditchTcgBinderUi=function(){const r=oldEnsure.apply(this,arguments);ensure();bindNavigationDragTargets();return r};
-  document.addEventListener('DOMContentLoaded',()=>{ensure();bindNavigationDragTargets();render()},{once:true});
+  const previousOpenForPublicLayout=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(target){
+    const publicName=typeof target==='string'&&target.trim()?target.trim():'';
+    if(publicName)publicSnapshots.set(publicName.toLowerCase(),{loaded:false,layout:[],storage:[]});
+    const result=previousOpenForPublicLayout.apply(this,arguments);
+    if(publicName){fetchPublicSnapshot(publicName).then(()=>{const dialog=document.getElementById('quidditchTcgBinderDialog');if(dialog?.open&&current().isPublic&&owner()===publicName.toLowerCase()){render();requestAnimationFrame(render)}})}
+    else queueOwnSnapshot();
+    return result;
+  };
+  document.addEventListener('DOMContentLoaded',()=>{ensure();bindNavigationDragTargets();render();setTimeout(()=>{if(typeof character!=='undefined'&&character?.username)queueOwnSnapshot()},900)},{once:true});
   setInterval(()=>{const d=document.getElementById('quidditchTcgBinderDialog');if(d?.open&&/^open\d+$/.test(d.dataset.binderPage||''))render()},1000);
 })();
 
@@ -19800,3 +19842,7 @@ qmShowSharedGoal=function(state){
     if(message)message.textContent='Bought Abyssal protector for 20,000 GP. It is now in your Pets collection.';
   };
 })();
+
+
+// V3 binder recovery guard — never allow the obsolete one-spread/18-pocket renderer to win.
+(()=>{const clean=()=>{document.getElementById('repoStableThreePageBinder18Styles')?.remove();document.querySelectorAll('.repo-binder-spread-18:not(.repo-binder-spread-126)').forEach(node=>{if(node.closest('#quidditchTcgBinderDialog'))node.remove()})};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean();})();
