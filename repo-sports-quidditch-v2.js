@@ -772,22 +772,25 @@
     style.textContent=`
       .wcg-v2-standings-board{position:relative;width:100%;min-width:0;height:780px;align-self:flex-start;margin:0}
       .wcg-v2-standings-frame{display:block;width:100%;height:780px;object-fit:fill;image-rendering:auto;filter:drop-shadow(0 10px 18px rgba(0,0,0,.42))}
-      .wcg-v2-standings-surface{position:absolute;left:5.9%;right:5.9%;top:74px;bottom:30px;display:flex;flex-direction:column;overflow:hidden;color:#f3dfab}
-      .wcg-v2-standings-kicker{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#8dbbe0}
-      .wcg-v2-standings-kicker b{font-size:12px;letter-spacing:.07em;color:#f2ddb0}
-      .wcg-v2-standings-head,.wcg-v2-standings-row{display:grid;grid-template-columns:20px minmax(0,2.4fr) 22px 22px 25px 25px 27px 36px;gap:3px;align-items:center}
-      .wcg-v2-standings-head{padding:6px 6px;margin-bottom:4px;border:1px solid rgba(207,167,76,.34);background:linear-gradient(180deg,rgba(18,49,75,.96),rgba(8,24,40,.96));box-shadow:inset 0 0 0 1px rgba(255,240,187,.05);font-size:7px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9fd0f5}
-      .wcg-v2-standings-body{display:flex;flex-direction:column;gap:2px;overflow:hidden}
-      .wcg-v2-standings-row{min-height:29px;padding:5px 6px;border:1px solid rgba(167,134,55,.25);background:linear-gradient(180deg,rgba(8,25,40,.96),rgba(7,20,33,.94));box-shadow:inset 0 0 0 1px rgba(255,236,180,.03);font-size:9px;line-height:1.05}
+      .wcg-v2-standings-surface{position:absolute;left:3.4%;right:3.4%;top:72px;bottom:28px;display:flex;flex-direction:column;overflow:hidden;color:#f3dfab}
+      .wcg-v2-standings-kicker{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;width:100%;margin-bottom:7px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#8dbbe0}
+      .wcg-v2-standings-kicker b{grid-column:2;justify-self:center;font-size:13px;line-height:1;letter-spacing:.065em;color:#f2ddb0;text-align:center;white-space:nowrap}
+      .wcg-v2-standings-kicker span{grid-column:3;justify-self:end;text-align:right;white-space:nowrap}
+      .wcg-v2-standings-head,.wcg-v2-standings-row{display:grid;grid-template-columns:18px minmax(72px,1fr) 22px 19px 19px 22px 22px 25px 37px;gap:2px;align-items:center;width:100%;box-sizing:border-box}
+      .wcg-v2-standings-head{padding:6px 4px;margin-bottom:4px;border:1px solid rgba(207,167,76,.34);background:linear-gradient(180deg,rgba(18,49,75,.96),rgba(8,24,40,.96));box-shadow:inset 0 0 0 1px rgba(255,240,187,.05);font-size:7.5px;font-weight:800;letter-spacing:.035em;text-transform:uppercase;color:#9fd0f5}
+      .wcg-v2-standings-head>span{text-align:center;white-space:nowrap}
+      .wcg-v2-standings-head>span:nth-child(2){text-align:left;padding-left:1px}
+      .wcg-v2-standings-body{display:flex;flex-direction:column;gap:2px;overflow:hidden;width:100%}
+      .wcg-v2-standings-row{min-height:29px;padding:5px 4px;border:1px solid rgba(167,134,55,.25);background:linear-gradient(180deg,rgba(8,25,40,.96),rgba(7,20,33,.94));box-shadow:inset 0 0 0 1px rgba(255,236,180,.03);font-size:9px;line-height:1.05}
       .wcg-v2-standings-row.is-top{background:linear-gradient(180deg,rgba(72,54,18,.98),rgba(32,24,8,.95));border-color:rgba(224,182,77,.48)}
       .wcg-v2-standings-row:nth-child(even):not(.is-top){background:linear-gradient(180deg,rgba(10,31,49,.96),rgba(8,23,37,.94))}
       .wcg-v2-standings-row span{min-width:0}
-      .wcg-v2-standings-pos{font-weight:700;color:#f6d98c;text-align:center}
+      .wcg-v2-standings-pos{font-weight:800;color:#f6d98c;text-align:center}
       .wcg-v2-standings-team{display:flex;align-items:center;gap:4px;min-width:0;font-weight:700;color:#f6e8c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:1px;font-size:8.5px}
       .wcg-v2-standings-team i{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .wcg-v2-standings-flag{width:13px;height:9px;flex:0 0 13px;object-fit:cover;border:1px solid rgba(201,162,74,.55);box-shadow:0 1px 2px rgba(0,0,0,.35)}
-      .wcg-v2-standings-num{font-weight:700;color:#f6d98c;text-align:right;font-size:8.5px}
-      .wcg-v2-standings-rate{font-weight:700;color:#9fd6ff;text-align:right;font-size:8.5px}
+      .wcg-v2-standings-num{font-weight:800;color:#f6d98c;text-align:center;font-size:8.5px;font-variant-numeric:tabular-nums}
+      .wcg-v2-standings-rate{font-weight:800;color:#9fd6ff;text-align:center;font-size:8.25px;font-variant-numeric:tabular-nums}
       .wcg-v2-standings-empty{padding:14px 10px;text-align:center;font-size:12px;color:#9fb8ca;border:1px solid rgba(207,167,76,.18);background:rgba(5,18,28,.82)}
     `;
     document.head.appendChild(style);
@@ -827,7 +830,7 @@
       body.innerHTML='<div class="wcg-v2-standings-empty">No standings available yet.</div>';
       return;
     }
-    body.innerHTML=rows.map((row,index)=>`<div class="wcg-v2-standings-row${index===0?' is-top':''}"><span class="wcg-v2-standings-pos">${row.pos}</span><span class="wcg-v2-standings-team" title="${v2CareerEscape(row.team_name)}"><img class="wcg-v2-standings-flag" src="${flagForTeamName(row.team_name)}" alt=""><i>${v2CareerEscape(row.team_name)}</i></span><span class="wcg-v2-standings-num">${row.wins}</span><span class="wcg-v2-standings-num">${row.losses}</span><span class="wcg-v2-standings-num">${row.gf}</span><span class="wcg-v2-standings-num">${row.ga}</span><span class="wcg-v2-standings-num">${row.gd>0?`+${row.gd}`:row.gd}</span><span class="wcg-v2-standings-rate">${row.wr.toFixed(1)}%</span></div>`).join('');
+    body.innerHTML=rows.map((row,index)=>`<div class="wcg-v2-standings-row${index===0?' is-top':''}"><span class="wcg-v2-standings-pos">${row.pos}</span><span class="wcg-v2-standings-team" title="${v2CareerEscape(row.team_name)}"><img class="wcg-v2-standings-flag" src="${flagForTeamName(row.team_name)}" alt=""><i>${v2CareerEscape(row.team_name)}</i></span><span class="wcg-v2-standings-num">${row.matches}</span><span class="wcg-v2-standings-num">${row.wins}</span><span class="wcg-v2-standings-num">${row.losses}</span><span class="wcg-v2-standings-num">${row.gf}</span><span class="wcg-v2-standings-num">${row.ga}</span><span class="wcg-v2-standings-num">${row.gd>0?`+${row.gd}`:row.gd}</span><span class="wcg-v2-standings-rate">${row.wr.toFixed(1)}%</span></div>`).join('');
   }
 
   function createUi(){
@@ -869,7 +872,7 @@
         </section>
         <footer><span>PLAYER CAREER + LIVE LEAGUE RECORDS</span><i>READ ONLY</i></footer>
       </aside>
-      <aside id="wcgStandingsBoard" class="wcg-v2-standings-board" aria-label="Repo Sports league table"><img class="wcg-v2-standings-frame" src="assets/repo-sports-v2/repo-sports-v2-standings-board.png" alt=""><div class="wcg-v2-standings-surface"><div class="wcg-v2-standings-kicker"><b>LEAGUE STANDINGS</b><span>18 CLUBS</span></div><div class="wcg-v2-standings-head"><span>#</span><span>TEAM</span><span>W</span><span>L</span><span>GF</span><span>GA</span><span>GD</span><span>WR</span></div><div id="wcgStandingsRows" class="wcg-v2-standings-body"></div></div></aside>
+      <aside id="wcgStandingsBoard" class="wcg-v2-standings-board" aria-label="Repo Sports league table"><img class="wcg-v2-standings-frame" src="assets/repo-sports-v2/repo-sports-v2-standings-board.png" alt=""><div class="wcg-v2-standings-surface"><div class="wcg-v2-standings-kicker"><b>LEAGUE STANDINGS</b><span>18 CLUBS</span></div><div class="wcg-v2-standings-head"><span>#</span><span>TEAM</span><span>MP</span><span>W</span><span>L</span><span>GF</span><span>GA</span><span>GD</span><span>WR</span></div><div id="wcgStandingsRows" class="wcg-v2-standings-body"></div></div></aside>
       <div id="wcgCommentator" class="wcg-commentator" data-barry-state="NEUTRAL"><div class="wcg-barry-studio wcg-barry-portrait-only" aria-label="Barry Bramble"><div class="wcg-studio-window"><img id="wcgBarrySprite" class="wcg-barry" src="assets/commentator-22.png" alt="Barry Bramble"></div></div><div class="wcg-comment-stack"><div class="wcg-comment-box"><div class="wcg-comment-head"><img src="assets/repo-sports-logo.png" alt=""><div><b>BARRY BRAMBLE</b><span>LIVE COMMENTARY · REPO SPORTS</span></div><i>ON AIR</i></div><p id="wcgCommentary">Welcome to Repo Sports Quidditch.</p></div><div id="wcgBarryTipPanel" class="wcg-barry-tip-panel wcg-barry-tip-mini wcg-barry-tip-rail"><button id="wcgBarryTipButton" type="button" title="Tip Barry 200 GP toward Barry's Boater"><img src="assets/commentator-coin.png" alt=""><span><b>TIP BARRY</b><small>200 GP</small></span></button><div class="wcg-barry-tip-mini-progress" title="Barry's Boater community unlock progress"><div><i id="wcgBarryTipFill"></i></div><strong id="wcgBarryTipPercent">0%</strong><span>BOATER</span></div><em id="wcgBarryTipStatus" aria-live="polite"></em></div></div></div>
       <section id="wcgWatchParty" class="wcg-v2-watch-party" aria-label="Repo Sports Watch Party">
         <header>
@@ -1225,7 +1228,49 @@
   // ==========================================================
   // REPO SPORTS V2 — WATCH XP PARITY WITH ORIGINAL MODE
   // ==========================================================
-  const v2WatchXp={timer:null,pending:false,seq:0,requests:new Map(),sessionGained:0};
+  const v2WatchXp={timer:null,minuteTimer:null,pending:false,seq:0,requests:new Map(),sessionGained:0,minuteGained:0};
+
+  function ensureV2MinuteXpToast(){
+    let toast=document.getElementById('repoV2MinuteXpToast');
+    if(toast)return toast;
+    if(!document.getElementById('repoV2MinuteXpToastStyles')){
+      const style=document.createElement('style');
+      style.id='repoV2MinuteXpToastStyles';
+      style.textContent=`
+        #repoV2MinuteXpToast{
+          position:fixed;right:18px;bottom:18px;z-index:2147483600;
+          display:flex;align-items:center;gap:6px;padding:5px 8px;
+          border:1px solid rgba(196,151,48,.72);background:rgba(7,14,20,.88);
+          color:#e8d69a;font:800 9px/1.1 Georgia,'Times New Roman',serif;
+          letter-spacing:.45px;box-shadow:0 2px 10px rgba(0,0,0,.34);
+          opacity:0;transform:translateY(4px);pointer-events:none;
+          transition:opacity .18s ease,transform .18s ease;
+          white-space:nowrap;
+        }
+        #repoV2MinuteXpToast.is-visible{opacity:.92;transform:translateY(0)}
+        #repoV2MinuteXpToast small{font:700 7px/1 sans-serif;color:#91a6b6;letter-spacing:.55px}
+      `;
+      document.head.appendChild(style);
+    }
+    toast=document.createElement('div');
+    toast.id='repoV2MinuteXpToast';
+    toast.setAttribute('aria-live','polite');
+    document.body.appendChild(toast);
+    return toast;
+  }
+
+  function showV2MinuteXp(){
+    const gained=Math.max(0,Math.floor(Number(v2WatchXp.minuteGained)||0));
+    v2WatchXp.minuteGained=0;
+    if(!gained||!state.open||document.hidden)return;
+    const toast=ensureV2MinuteXpToast();
+    toast.innerHTML=`+${gained.toLocaleString('en-GB')} AGILITY XP <small>1 MIN WATCHED</small>`;
+    toast.classList.remove('is-visible');
+    void toast.offsetWidth;
+    toast.classList.add('is-visible');
+    clearTimeout(toast.__repoV2MinuteHide);
+    toast.__repoV2MinuteHide=setTimeout(()=>toast.classList.remove('is-visible'),1800);
+  }
 
   function requestV2WatchXp(){
     if(v2WatchXp.pending||!state.open||document.hidden)return;
@@ -1256,21 +1301,30 @@
     if(!data.ok){console.warn('[REPO SPORTS V2] Watch XP:',data.error||'claim failed');return}
     const gained=Math.max(0,Number(data.payload?.gained)||0);
     if(gained>0){
+      // Keep frequent server claims for accurate accounting, but never show the
+      // old per-claim centre banner. Accumulate silently and surface one tiny
+      // combined notification for the previous minute of actual earned XP.
       v2WatchXp.sessionGained+=gained;
-      showBanner(`+${gained.toLocaleString('en-GB')} AGILITY XP`,'',1.8);
+      v2WatchXp.minuteGained+=gained;
     }
   });
 
   function startV2WatchXpHeartbeat(){
     stopV2WatchXpHeartbeat();
+    v2WatchXp.minuteGained=0;
     requestV2WatchXp();
     v2WatchXp.timer=setInterval(requestV2WatchXp,2000);
+    // Presentation cadence is deliberately independent from the server claim
+    // cadence: exactly one subtle combined notice per minute while watching.
+    v2WatchXp.minuteTimer=setInterval(showV2MinuteXp,60000);
   }
 
   function stopV2WatchXpHeartbeat(){
     if(v2WatchXp.timer){clearInterval(v2WatchXp.timer);v2WatchXp.timer=null}
+    if(v2WatchXp.minuteTimer){clearInterval(v2WatchXp.minuteTimer);v2WatchXp.minuteTimer=null}
     for(const req of v2WatchXp.requests.values())clearTimeout(req.timer);
-    v2WatchXp.requests.clear();v2WatchXp.pending=false;
+    v2WatchXp.requests.clear();v2WatchXp.pending=false;v2WatchXp.minuteGained=0;
+    document.getElementById('repoV2MinuteXpToast')?.classList.remove('is-visible');
   }
 
   document.addEventListener('visibilitychange',()=>{
@@ -3134,18 +3188,90 @@
   }
 
   function restartAfterScore(team){
-    const carrier=teamEntities(team)[Math.floor(state.simRand()*3)];teamEntities(team).forEach((e,i)=>{e.tx=team==='belros'?.43:.57;e.ty=.40+i*.12;e.intent='recover';enterReaction(e,'returningToPosition','RETURNING_TO_POSITION',.72,{restart:true},ANIM_PRIORITY.RETURNING_TO_POSITION)});teamEntities(other(team)).forEach((e,i)=>{e.tx=team==='belros'?.61:.39;e.ty=.40+i*.12;e.intent='recover';enterReaction(e,'returningToPosition','RETURNING_TO_POSITION',.72,{restart:true},ANIM_PRIORITY.RETURNING_TO_POSITION)});setPossession(team,carrier,.13);state.camera.tx=.5;state.camera.ty=.5;state.camera.tz=1.015;scheduleNext(.9,1.6);
+    // POST-GOAL KICKOFF: `team` is ALWAYS the side that conceded. Never let the
+    // scoring side retain the Quaffle after a goal. Reset both teams into a
+    // mirrored centre restart shape, then visibly release the ball from centre
+    // to one of the conceding team's players before open play resumes.
+    const restartTeam=team;
+    const receivingTeam=teamEntities(restartTeam);
+    const carrier=receivingTeam[Math.floor(state.simRand()*Math.max(1,receivingTeam.length))]||receivingTeam[0];
+    if(!carrier){scheduleNext(.65,.95);return;}
+    receivingTeam.forEach((e,i)=>{
+      e.tx=restartTeam==='belros'?.455:.545;
+      e.ty=.405+i*.115;
+      e.intent='restart-ready';
+      enterReaction(e,'returningToPosition','RETURNING_TO_POSITION',.68,{restart:true,kickoff:true},ANIM_PRIORITY.RETURNING_TO_POSITION);
+    });
+    teamEntities(other(restartTeam)).forEach((e,i)=>{
+      e.tx=restartTeam==='belros'?.60:.40;
+      e.ty=.405+i*.115;
+      e.intent='restart-shape';
+      enterReaction(e,'returningToPosition','RETURNING_TO_POSITION',.68,{restart:true,kickoff:true},ANIM_PRIORITY.RETURNING_TO_POSITION);
+    });
+    state.possession=restartTeam;
+    state.carrier=null;
+    state.kickoffReceiver=carrier;
+    state.zone=.12;
+    state.passesSinceShot=0;
+    state.lastPasser=null;
+    state.pendingPass=null;
+    state.ball.visible=true;
+    state.ball.flight=null;
+    state.ball.owner=null;
+    state.ball.state='IN_FLIGHT';
+    state.ball.x=.5;
+    state.ball.y=.535;
+    carrier.intent='receive';
+    carrier.tx=safeX(.5+(restartTeam==='belros'?-.028:.028));
+    carrier.ty=.565;
+    setPlayerAnim(carrier,'RECEIVING',.82,ANIM_PRIORITY.RECEIVING,{kickoff:true,afterGoal:true});
+    state.camera.tx=.5;state.camera.ty=.5;state.camera.tz=1.015;
+    audio.ensure();audio.play(audio.whistle,.48);audio.playKickoffRelease();
+    showBanner(`${teamMeta[restartTeam].name} RESTART`,'',1.05);
+    startFlight({x:.5,y:.535},{x:carrier.tx,y:carrier.ty},.62,-.025,()=>{
+      state.kickoffReceiver=null;
+      setPossession(restartTeam,carrier,.12);
+      scheduleNext(.72,1.18);
+    },{kind:'kickoff',receiver:carrier,afterGoal:true});
+  }
+
+  function startFreeKick(team,victim){
+    const players=teamEntities(team);
+    const taker=(victim&&victim.team===team?victim:null)||players.find(e=>e.player.role==='support')||players[0];
+    if(!taker){scheduleNext(.55,.85);return;}
+    // The whistle has already stopped the action visually; now set a tidy little
+    // free-kick shape before handing the Quaffle back. The match clock continues
+    // throughout because this uses the ordinary delay/action system, not a frozen phase.
+    const dir=teamMeta[team].attack;
+    players.forEach((e,i)=>{
+      if(e===taker){e.tx=safeX(e.x-dir*.012);e.ty=safeY(e.y);e.intent='free-kick-taker';}
+      else {e.tx=safeX(taker.x-dir*(.055+.025*i));e.ty=safeY(taker.y+(i?-.07:.07));e.intent='set-piece-support';}
+      setPlayerAnim(e,'DECELERATING',.42,ANIM_PRIORITY.DECELERATING,{setPiece:true,freeKick:true});
+    });
+    teamEntities(other(team)).forEach((e,i)=>{
+      e.tx=safeX(taker.x+dir*(.10+.018*i));
+      e.ty=safeY(taker.y+(i-1)*.075);
+      e.intent='set-piece-defend';
+      setPlayerAnim(e,'IDLE',.52,ANIM_PRIORITY.IDLE,{setPiece:true,freeKick:true});
+    });
+    state.ref.tx=safeX(taker.x-dir*.04);state.ref.ty=safeY(taker.y-.075);
+    audio.ensure();audio.play(audio.whistle,.42);
+    showBanner(`FREE KICK · ${teamMeta[team].name}`,'',1.15);
+    setPossession(team,taker,clamp(state.zone-.04,.12,.9));
+    scheduleNext(.68,1.05);
   }
 
   function performFoul(offender=null){
     const victim=state.carrier;if(!victim){scheduleNext();return}offender=offender||teamEntities(other(victim.team)).slice().sort((a,b)=>dist2(a,victim)-dist2(b,victim))[0];if(!offender||dist2(offender,victim)>.13){scheduleNext(.45,.8);return}state.teamStats[offender.team].fouls++;state.playerStats[offender.player.id].fouls++;recordEvent('foul',{player:offender.player.name,team:offender.team,victim:victim.player.name},2.4);offender.form=clamp((offender.form||0)-.018,-.12,.12);offender.tx=victim.x;offender.ty=victim.y;state.ref.tx=clamp(victim.x+.025,.2,.8);state.ref.ty=clamp(victim.y-.08,.3,.7);audio.ensure();audio.play(audio.whistle,.62);audio.crowdHit(.15);state.camera.shake=.008;showBanner(`FOUL · ${offender.player.name}`,'danger',1.8);eventLine('foul',{offender:offender.player.name,victim:victim.player.name},offender.player,.08);
     enterReaction(offender,'arguing','ARGUING',.85+visualRandom()*.65,{victim:victim.player.id,type:personalityReaction(offender,'foulOffender',['protest','turnOpponent','raiseArm']),faceX:victim.x},ANIM_PRIORITY.ARGUING);enterReaction(victim,'frustrated','FOUL_REACTION',.65+visualRandom()*.55,{fouled:true,type:personalityReaction(victim,'foulVictim',['wobble','recoverBalance','lookOpponent']),faceX:offender.x},ANIM_PRIORITY.FOUL_REACTION);
-    state.ref.reactionState='arguing';state.ref.reactionUntil=simNow()+1200;state.ref.reactionMeta={type:'warning',faceX:victim.x};
-    for(const e of state.entities){if(e!==offender&&e!==victim&&dist2(e,victim)<.16)setPlayerAnim(e,'DECELERATING',.38,ANIM_PRIORITY.DECELERATING,{foul:true})}
+    state.ref.reactionState='arguing';state.ref.reactionUntil=simNow()+1450;state.ref.reactionMeta={type:'warning',faceX:victim.x};
+    for(const e of state.entities){if(e!==offender&&e!==victim)setPlayerAnim(e,'DECELERATING',.52,ANIM_PRIORITY.DECELERATING,{foul:true,stoppage:true})}
     const inDanger=state.zone>.60,possiblePenalty=inDanger&&state.simRand()<.62;
-    if(possiblePenalty && state.simRand()<.30){state.delay={t:1.2,cb:()=>startVar({kind:'foul',team:victim.team,offender,victim,possiblePenalty:true})};}
-    else if(possiblePenalty){state.delay={t:1.1,cb:()=>startPenalty(victim.team,false)};}
-    else {state.delay={t:1.2,cb:()=>{setPossession(victim.team,victim,clamp(state.zone-.04,.12,.9));scheduleNext(.75,1.4)}};}
+    // Natural stoppage: everybody visibly settles for ~1.5s before VAR, a penalty,
+    // or a free kick is taken. `state.delay` does NOT stop the match clock.
+    if(possiblePenalty && state.simRand()<.30){state.delay={t:1.55,reason:'foul-stoppage',cb:()=>startVar({kind:'foul',team:victim.team,offender,victim,possiblePenalty:true})};}
+    else if(possiblePenalty){state.delay={t:1.50,reason:'foul-stoppage',cb:()=>startPenalty(victim.team,false)};}
+    else {state.delay={t:1.45,reason:'foul-stoppage',cb:()=>startFreeKick(victim.team,victim)};}
   }
 
   function startVar(ctx){
@@ -4242,7 +4368,15 @@
     if(state.phase==='intro')updateIntro(rawDt);
     else if(state.phase==='first'||state.phase==='second'){
       const liveDt=scaledDt*LIVE_TEMPO;
-      if(!state.special&&!state.celebration){state.matchTime+=scaledDt;if(state.possession&&state.teamStats[state.possession])state.teamStats[state.possession].possession+=scaledDt;if(state.carrier?.player?.id&&state.playerStats[state.carrier.player.id])state.playerStats[state.carrier.player.id].possession+=scaledDt}
+      // The match clock keeps running through ordinary foul stoppages AND the
+      // short penalty setup. Presentation can pause while official time continues.
+      const clockRuns=!state.celebration&&(!state.special||state.special.type==='penalty');
+      if(clockRuns){
+        state.matchTime+=scaledDt;
+        // Do not award possession time while a penalty is being staged.
+        if(!state.special&&state.possession&&state.teamStats[state.possession])state.teamStats[state.possession].possession+=scaledDt;
+        if(!state.special&&state.carrier?.player?.id&&state.playerStats[state.carrier.player.id])state.playerStats[state.carrier.player.id].possession+=scaledDt;
+      }
       if(state.phase==='first'&&state.matchTime>=MATCH_SECONDS){state.matchTime=MATCH_SECONDS;if(state.score.belros===state.score.zafran)beginShootout();else finishMatch(false)}
       if((state.phase==='first'||state.phase==='second')&&!state.celebration){updateMatchFlowDirector(liveDt);updateFlight(liveDt);updateDelay(liveDt);if(state.special?.type==='var')updateVar(liveDt);else if(state.special?.type==='penalty')updatePenalty(liveDt);if(!state.special&&!state.delay&&!state.ball.flight){state.actionTimer-=liveDt;if(state.actionTimer<=0)nextAction()}}
     }else if(state.phase==='halftime')updateHalftimePresentation(rawDt);
@@ -4408,5 +4542,5 @@
     return true;
   }
 
-  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-spatial-neutrality-20260812-0215',leaderboardWrites:true})};
+  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-banner-fixed-simchecked-20260812-0245',leaderboardWrites:true})};
 })();
