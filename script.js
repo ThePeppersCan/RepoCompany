@@ -8139,7 +8139,7 @@ function qmRenderWatcherAccounts(state,skipProfileRefresh=false){
 function qmApplyLiveState(state){
   if(!state||!qmState.open)return;qmApplyArena(state.match_id);const previousLivePhase=qmState.liveState?.phase;qmState.liveState=state;if(previousLivePhase==='lineup'&&state.phase==='live')playQuidditchKickoffWhistle();qmRenderWatcherAccounts(state);qmState.leftName=state.left_name;qmState.rightName=state.right_name;qmState.leftScore=Number(state.left_score)||0;qmState.rightScore=Number(state.right_score)||0;qmState.leftScorers=state.left_scorers||{};qmState.rightScorers=state.right_scorers||{};qmRenderScore();
   $('qmTimer').textContent=state.phase==='live'?`${Math.floor(Math.max(0,state.phase_seconds)/60)}:${String(Math.max(0,state.phase_seconds)%60).padStart(2,'0')}`:`0:${String(Math.max(0,state.phase_seconds)).padStart(2,'0')}`;$('qmStatus').textContent=state.phase==='lineup'?'TEAM LINEUP':state.phase==='post'?'FULL TIME':'LIVE';$('qmViewers').textContent=`${Math.max(1,Number(state.viewer_count)||1)} WATCHING LIVE`;
-  if(Number(state.reward_paid)>0){toast('Correct Quidditch prediction: +1,000 GP!',5000);if(character)character.gp=Number(character.gp||0)+1000;}
+  // Legacy prediction rewards are archival only and never credited to the account.
   const changed=String(qmState.liveMatchId)!==String(state.match_id);if(changed){qmState.liveMatchId=state.match_id;qmState.liveStarted=false;clearInterval(qmState.tick);qmState.tick=null;qmState.carrier=null;qmState.pets=[];$('quidditchModePitch').replaceChildren();}
   if(state.phase==='lineup'){qmShowLiveLineup(state);qmState.liveStarted=false;return;}
   if(state.phase==='post'){
@@ -9286,35 +9286,12 @@ function qmCareerRows(items,type){
 }
 async function qmLoadCareerLeaderboards(force=false){
   if(!qmState?.open&&!force)return;
-  const now=Date.now();if(!force&&now-qmCareerLastLoad<8000)return;qmCareerLastLoad=now;
   const goals=$('qmCareerGoals'),wins=$('qmCareerWinrate'),teams=$('qmCareerTeams');
   if(!goals||!wins||!teams)return;
-  // v3 obtains five already-qualified win-rate entries from the career table.
-  // Keep v2 as a fallback so older installations continue to display safely.
-  let {data,error}=await db.rpc('get_quidditch_career_leaderboards_v3');
-  if(error&&(/get_quidditch_career_leaderboards_v3|schema cache|could not find/i.test(`${error.message||''} ${error.details||''}`))){
-    ({data,error}=await db.rpc('get_quidditch_career_leaderboards_v2'));
-  }
-  if(error){console.warn('Quidditch career leaderboards:',error);goals.innerHTML=wins.innerHTML=teams.innerHTML='<p>Career records unavailable</p>';return;}
-  const row=Array.isArray(data)?data[0]:data;if(!row)return;
-  // Career totals are permanent, but the displayed name should always be the
-  // pet's latest custom name. Apply public rename overrides at render time.
-  let overrides=[];
-  try{
-    const result=await db.from('quidditch_pet_name_overrides').select('owner_name,pet_id,previous_name,pet_name');
-    if(!result.error&&Array.isArray(result.data))overrides=result.data;
-  }catch(_error){}
-  const key=value=>String(value||'').trim().toLowerCase();
-  const byPet=new Map(overrides.filter(x=>x.pet_id).map(x=>[`${key(x.owner_name)}|${key(x.pet_id)}`,x.pet_name]));
-  const byOldName=new Map(overrides.filter(x=>x.previous_name).map(x=>[`${key(x.owner_name)}|${key(x.previous_name)}`,x.pet_name]));
-  const renameItems=items=>(Array.isArray(items)?items:[]).map(item=>{
-    const owner=key(item?.owner_name),petId=key(item?.pet_id),oldName=key(item?.pet_name);
-    const latest=(petId&&byPet.get(`${owner}|${petId}`))||byOldName.get(`${owner}|${oldName}`);
-    return latest?{...item,pet_name:latest}:item;
-  });
-  goals.innerHTML=qmCareerRows(renameItems(row.goal_leaders),'goals');
-  wins.innerHTML=qmCareerRows(renameItems(row.winrate_leaders),'winrate');
-  teams.innerHTML=qmCareerRows(row.team_leaders,'team');
+  const notice='<p style="padding:9px 7px;color:#d8bd72;font-weight:900;letter-spacing:.05em">LEGACY MODE · NOT RECORDED</p>';
+  goals.innerHTML=notice;
+  wins.innerHTML=notice;
+  teams.innerHTML=notice;
 }
 const qmCareerOpenBase=openQuidditchMode;
 openQuidditchMode=function(){qmCareerOpenBase();setTimeout(()=>qmLoadCareerLeaderboards(true),250);};
@@ -9327,10 +9304,10 @@ qmApplyLiveState=function(state){qmCareerApplyBase(state);if(qmState.open)qmLoad
 // The short Supabase lease automatically transfers if that browser closes.
 // ============================================================
 (function(){
-  // REPO SPORTS LIVE LAUNCH:
-  // the previous Quidditch Mode must no longer advance matches or career stats
-  // in the background. The new shared Repo Sports engine is authoritative.
-  return;
+  // LEGACY QUIDDITCH ARCHIVE CHANNEL:
+  // Restore the original shared background clock so every viewer sees the
+  // same legacy fixture/score/time. Official Repo Sports records are isolated
+  // in their own frozen snapshot + live league tables and never read this.
   const STORAGE_KEY='repo_quidditch_background_viewer_key';
   const HEARTBEAT_MS=5000;
   let timer=null;

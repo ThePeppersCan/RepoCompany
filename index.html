@@ -400,6 +400,49 @@ button.qg-game-card{font:inherit;cursor:pointer}
       .world-cup-event-tab,.world-cup-event-tab img,.world-cup-event-spark{transition:none!important;animation:none!important}
       .world-cup-event-tab::before{animation:none!important}
     }
+
+    /* Legacy Quidditch sits directly to the RIGHT of the World Cup tab. */
+    .legacy-quidditch-tab{
+      position:relative!important;
+      flex:0 0 108px!important;
+      width:108px!important;
+      min-width:108px!important;
+      height:47px!important;
+      min-height:47px!important;
+      padding:0 3px!important;
+      border:0!important;
+      border-radius:2px!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+      cursor:pointer!important;
+      transition:transform .13s ease,filter .13s ease!important;
+    }
+    .legacy-quidditch-tab::before,
+    .legacy-quidditch-tab::after{content:none!important;display:none!important}
+    .legacy-quidditch-tab img{
+      display:block!important;
+      width:102px!important;
+      height:46px!important;
+      max-width:none!important;
+      object-fit:contain!important;
+      image-rendering:auto!important;
+      filter:drop-shadow(0 3px 2px rgba(0,0,0,.78))!important;
+      transition:transform .15s cubic-bezier(.2,.9,.25,1.2),filter .15s ease!important;
+    }
+    .legacy-quidditch-tab:hover{
+      transform:translateY(-2px)!important;
+      filter:brightness(1.08) saturate(1.06)!important;
+    }
+    .legacy-quidditch-tab:hover img{
+      transform:scale(1.045)!important;
+      filter:drop-shadow(0 3px 2px rgba(0,0,0,.78)) drop-shadow(0 0 7px rgba(255,197,48,.30))!important;
+    }
+    .legacy-quidditch-tab:active{transform:translateY(1px) scale(.985)!important}
+    .legacy-quidditch-tab:focus-visible{outline:2px solid #ffe591!important;outline-offset:2px!important}
+    @media(prefers-reduced-motion:reduce){
+      .legacy-quidditch-tab,.legacy-quidditch-tab img{transition:none!important}
+    }
   </style>
 
   <style id="worldCupTvIdentStyles">
@@ -2157,6 +2200,9 @@ button.qg-game-card{font:inherit;cursor:pointer}
         <span class="world-cup-event-spark" aria-hidden="true"></span>
         <img src="assets/repo-sports-world-cup-tab.png" alt="Repo Sports World Cup" width="72" height="40">
       </button>
+      <button id="openQuidditchMode" class="header-quick-button legacy-quidditch-tab" type="button" aria-label="Open Legacy Quidditch Mode" title="Legacy Quidditch Mode — results are not recorded">
+        <img src="assets/repo-sports-legacy-mode-tab.png" alt="Repo Sports Legacy Mode" width="102" height="46">
+      </button>
       <button id="openTcgBinderQuick" class="tcg-binder-nav-button" type="button" aria-label="Open Quidditch TCG Binder" title="Open Quidditch TCG Binder">
         <img src="assets/quidditch-tcg-binder/binder-nav-icon.png" alt="" width="31" height="36">
       </button>
@@ -2520,10 +2566,11 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </section>
 
 
-<div id="quidditchModeOverlay" class="quidditch-mode-overlay" aria-hidden="true">
+<div id="quidditchModeOverlay" class="quidditch-mode-overlay" aria-hidden="true" aria-label="Legacy Quidditch Mode">
   <div class="quidditch-mode-layout">
   <div class="quidditch-mode-tv">
-    <button id="quidditchModeClose" class="quidditch-mode-close" type="button" aria-label="Close Quidditch mode">×</button>
+    <button id="quidditchModeClose" class="quidditch-mode-close" type="button" aria-label="Close Legacy Quidditch mode">×</button>
+    <div style="position:absolute;left:50%;top:6px;z-index:90;transform:translateX(-50%);padding:4px 10px;border:1px solid rgba(220,172,67,.72);background:rgba(7,15,25,.88);color:#f0d284;font:900 8px/1 Georgia,serif;letter-spacing:.11em;white-space:nowrap;pointer-events:none;box-shadow:0 2px 7px #0008">LEGACY MODE · RESULTS NOT RECORDED</div>
     <div class="quidditch-mode-hud">
       <div class="quidditch-mode-team is-left"><b id="qmLeftName">GRYFFINDOR</b><strong id="qmLeftScore">0</strong><small id="qmLeftScorers">No scorers yet</small></div>
       <div class="quidditch-mode-centre"><span id="qmTimer">3:00</span><em id="qmStatus">LIVE</em><small id="qmViewers">1 WATCHING LIVE</small></div>
@@ -2593,7 +2640,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
     </section>
   </aside>
   <aside class="qm-broadcast-sidebar" aria-label="Quidditch broadcast information">
-    <section class="qm-career-panel" aria-label="All-time Quidditch leaderboards">
+    <section class="qm-career-panel" aria-label="Legacy Quidditch records are disabled">
       <header class="qm-career-art-header"><img src="assets/all-time-records-header.png" alt="All-Time Records"></header>
       <section><h3>TOP GOALSCORERS</h3><div id="qmCareerGoals" class="qm-career-list"><p>Loading records…</p></div></section>
       <section><h3>BEST PET WIN RATE</h3><div id="qmCareerWinrate" class="qm-career-list"><p>Loading records…</p></div></section>
@@ -3891,7 +3938,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=repo-sports-live-launch-20260812"></script>
+<script src="script.js?v=legacy-quidditch-mode-20260812"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -5643,21 +5690,17 @@ window.__QD_HOST__={
     async getCareerLeaderboards(){
       if(typeof db==='undefined'||!db?.rpc)throw new Error('Repo Sports career database is not connected');
 
-      // Player records keep the historical Repo Sports career totals, then add
-      // the results produced by the new live league from launch onward.
-      let original=await db.rpc('get_quidditch_career_leaderboards_v3');
-      if(original.error&&(/get_quidditch_career_leaderboards_v3|schema cache|could not find/i.test(`${original.error.message||''} ${original.error.details||''}`))){
-        original=await db.rpc('get_quidditch_career_leaderboards_v2');
+      let result=await db.rpc('get_repo_sports_official_leaderboards');
+      if(result.error){
+        console.warn('Repo Sports official leaderboards:',result.error);
+        await new Promise(resolve=>setTimeout(resolve,180));
+        result=await db.rpc('get_repo_sports_official_leaderboards');
       }
-      if(original.error)console.warn('Historical Repo Sports career database:',original.error);
+      if(result.error)throw result.error;
 
-      const live=await db.rpc('get_repo_sports_live_leaderboards');
-      if(live.error)console.warn('Live Repo Sports league database:',live.error);
-
-      const oldRow=Array.isArray(original.data)?original.data[0]:original.data||{};
-      const liveRow=Array.isArray(live.data)?live.data[0]:live.data||{};
-      const livePlayers=Array.isArray(liveRow?.player_leaders)?liveRow.player_leaders:[];
-      const liveTeams=Array.isArray(liveRow?.team_standings)?liveRow.team_standings:[];
+      const row=Array.isArray(result.data)?result.data[0]:result.data||{};
+      const players=Array.isArray(row?.player_leaders)?row.player_leaders:[];
+      const liveTeams=Array.isArray(row?.team_standings)?row.team_standings:[];
 
       let overrides=[];
       try{
@@ -5666,68 +5709,17 @@ window.__QD_HOST__={
       }catch(_){}
 
       const norm=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
-      const candidateMap=new Map();
-      const nameToKey=new Map();
-
-      function absorbBase(item){
-        if(!item)return;
-        const name=String(item.pet_name||item.player_name||'').trim();
-        const petId=String(item.pet_id||item.player_id||'').trim();
-        const key=norm(petId)||norm(name);
-        if(!key)return;
-        const previous=candidateMap.get(key)||{};
-        const merged={
-          ...previous,
-          ...item,
-          pet_id:petId||previous.pet_id||'',
-          pet_name:name||previous.pet_name||'Unknown',
-          owner_name:item.owner_name||previous.owner_name||'',
-          matches:Math.max(Number(previous.matches)||0,Number(item.matches)||0),
-          wins:Math.max(Number(previous.wins)||0,Number(item.wins)||0),
-          losses:Math.max(Number(previous.losses)||0,Number(item.losses)||0),
-          goals:Math.max(Number(previous.goals)||0,Number(item.goals)||0)
-        };
-        candidateMap.set(key,merged);
-        if(name)nameToKey.set(norm(name),key);
-      }
-
-      (Array.isArray(oldRow?.goal_leaders)?oldRow.goal_leaders:[]).forEach(absorbBase);
-      (Array.isArray(oldRow?.winrate_leaders)?oldRow.winrate_leaders:[]).forEach(absorbBase);
-
-      // Add each launch-era delta exactly once to the historical base.
-      livePlayers.forEach(delta=>{
-        const idKey=norm(delta.player_id||delta.pet_id);
-        const nameKey=norm(delta.player_name||delta.pet_name);
-        const key=(idKey&&candidateMap.has(idKey)?idKey:nameToKey.get(nameKey))||idKey||nameKey;
-        if(!key)return;
-        const base=candidateMap.get(key)||{
-          pet_id:delta.player_id||delta.pet_id||'',
-          pet_name:delta.player_name||delta.pet_name||'Unknown',
-          owner_name:delta.owner_name||'',
-          matches:0,wins:0,losses:0,goals:0
-        };
-        candidateMap.set(key,{
-          ...base,
-          pet_id:base.pet_id||delta.player_id||delta.pet_id||'',
-          pet_name:base.pet_name||delta.player_name||delta.pet_name||'Unknown',
-          owner_name:base.owner_name||delta.owner_name||'',
-          matches:(Number(base.matches)||0)+(Number(delta.matches)||0),
-          wins:(Number(base.wins)||0)+(Number(delta.wins)||0),
-          losses:(Number(base.losses)||0)+(Number(delta.losses)||0),
-          goals:(Number(base.goals)||0)+(Number(delta.goals)||0)
-        });
-      });
-
       const byPet=new Map(overrides.filter(x=>x.pet_id).map(x=>[`${norm(x.owner_name)}|${norm(x.pet_id)}`,x.pet_name]));
       const byOldName=new Map(overrides.filter(x=>x.previous_name).map(x=>[`${norm(x.owner_name)}|${norm(x.previous_name)}`,x.pet_name]));
 
-      const players=[...candidateMap.values()].map(item=>{
+      const renamed=players.map(item=>{
         const matches=Math.max(0,Number(item.matches)||0),wins=Math.max(0,Number(item.wins)||0);
-        const owner=norm(item.owner_name),petId=norm(item.pet_id),oldName=norm(item.pet_name);
-        const latest=(petId&&byPet.get(`${owner}|${petId}`))||byOldName.get(`${owner}|${oldName}`)||item.pet_name;
+        const owner=norm(item.owner_name),petId=norm(item.pet_id||item.player_id),oldName=norm(item.pet_name||item.player_name);
+        const latest=(petId&&byPet.get(`${owner}|${petId}`))||byOldName.get(`${owner}|${oldName}`)||item.pet_name||item.player_name;
         return{
           ...item,
-          pet_name:latest||item.pet_name,
+          pet_id:item.pet_id||item.player_id||'',
+          pet_name:latest||item.pet_name||item.player_name||'Unknown',
           matches,wins,
           losses:Math.max(0,Number(item.losses)||Math.max(0,matches-wins)),
           goals:Math.max(0,Number(item.goals)||0),
@@ -5735,13 +5727,13 @@ window.__QD_HOST__={
         };
       });
 
-      const goalLeaders=players.slice().sort((a,b)=>
+      const goalLeaders=renamed.slice().sort((a,b)=>
         (Number(b.goals)||0)-(Number(a.goals)||0) ||
         (Number(b.matches)||0)-(Number(a.matches)||0) ||
         String(a.pet_name||'').localeCompare(String(b.pet_name||''))
       ).slice(0,5);
 
-      const winrateLeaders=players.filter(p=>Number(p.matches||0)>=40).sort((a,b)=>
+      const winrateLeaders=renamed.filter(p=>Number(p.matches||0)>=40).sort((a,b)=>
         (Number(b.win_rate)||0)-(Number(a.win_rate)||0) ||
         (Number(b.wins)||0)-(Number(a.wins)||0) ||
         String(a.pet_name||'').localeCompare(String(b.pet_name||''))
@@ -5830,6 +5822,7 @@ window.__QD_HOST__={
   const REPO_V2_LIVE_HEARTBEAT_MS=5000;
   const REPO_V2_LIVE_POLL_MS=500;
   let repoV2LiveViewerKey='',repoV2LiveState=null,repoV2LiveIsHost=false,repoV2LiveBusy=false,repoV2LiveHostFrame=null,repoV2LiveHeartbeatTimer=0,repoV2LivePollTimer=0;
+  let repoV2PendingCompletion=null,repoV2CompletionRetryTimer=0,repoV2CompletionBusy=false;
 
   function repoV2LiveKey(){
     if(repoV2LiveViewerKey)return repoV2LiveViewerKey;
@@ -5874,7 +5867,7 @@ window.__QD_HOST__={
     h.id='repoSportsV2GlobalHostFrame';h.tabIndex=-1;h.setAttribute('aria-hidden','true');
     h.style.cssText='position:fixed!important;width:1px!important;height:1px!important;left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;border:0!important';
     h.addEventListener('load',()=>setTimeout(()=>repoV2PushLiveState(h.contentWindow),30));
-    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-live-launch';
+    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-live-fail-safe-rotation';
     document.body.appendChild(h);
   }
   function repoV2NormalizeLiveRow(row){
@@ -5927,6 +5920,13 @@ window.__QD_HOST__={
       repoV2LiveIsHost=raw?.is_host===true;document.documentElement.dataset.repoSportsV2BackgroundHost=repoV2LiveIsHost?'true':'false';
       repoV2CommitLiveRow(raw,true);
       repoV2EnsureHostFrame();
+      if(repoV2PendingCompletion){
+        if(Number(raw?.match_serial)>Number(repoV2PendingCompletion.serial))repoV2ClearPendingCompletion();
+        else{
+          if(repoV2CompletionRetryTimer){clearTimeout(repoV2CompletionRetryTimer);repoV2CompletionRetryTimer=0}
+          setTimeout(()=>void repoV2CompleteRotation(repoV2PendingCompletion?.serial,repoV2PendingCompletion?.result,true),120);
+        }
+      }
       // Read the smooth extrapolated server clock immediately after the lease
       // heartbeat. This makes the -30 prematch countdown visibly start at once.
       setTimeout(()=>void repoV2FetchLiveState(),40);
@@ -5935,14 +5935,64 @@ window.__QD_HOST__={
       if(!/advance_repo_sports_v2_background/i.test(String(error?.message||'')))console.warn('Repo Sports V2 background host:',error);
     }finally{repoV2LiveBusy=false}
   }
-  async function repoV2CompleteRotation(serial,result){
-    if(!repoV2LiveIsHost||typeof db==='undefined'||!db?.rpc)return false;
+  function repoV2ClearPendingCompletion(){
+    repoV2PendingCompletion=null;
+    if(repoV2CompletionRetryTimer){clearTimeout(repoV2CompletionRetryTimer);repoV2CompletionRetryTimer=0}
+  }
+  function repoV2ScheduleCompletionRetry(delay=1800){
+    if(repoV2CompletionRetryTimer||!repoV2PendingCompletion)return;
+    repoV2CompletionRetryTimer=setTimeout(()=>{
+      repoV2CompletionRetryTimer=0;
+      const pending=repoV2PendingCompletion;
+      if(!pending)return;
+      // If another viewer already advanced the serial, this completion is done.
+      if(repoV2LiveState&&Number(repoV2LiveState.match_serial)>Number(pending.serial)){repoV2ClearPendingCompletion();return}
+      void repoV2CompleteRotation(pending.serial,pending.result,true);
+    },delay);
+  }
+  async function repoV2CompleteRotation(serial,result,isRetry=false){
+    const matchSerial=Number(serial)||0;
+    if(!matchSerial)return false;
+    if(!isRetry||!repoV2PendingCompletion||Number(repoV2PendingCompletion.serial)!==matchSerial){
+      repoV2PendingCompletion={serial:matchSerial,result:result||{}};
+    }
+    if(repoV2CompletionBusy){repoV2ScheduleCompletionRetry();return false}
+    // Do not require local host ownership here. At full time the server can
+    // safely accept a completion from a non-host viewer once the authoritative
+    // match has passed its fail-safe completion threshold. This prevents an
+    // old/stale browser lease from trapping the live channel forever.
+    if(typeof db==='undefined'||!db?.rpc){repoV2ScheduleCompletionRetry();return false}
+
+    repoV2CompletionBusy=true;
     try{
-      const{data,error}=await db.rpc('complete_repo_sports_v2_rotation',{p_viewer_key:repoV2LiveKey(),p_match_serial:Number(serial)||0,p_result:result||{}});if(error)throw error;
-      repoV2CommitLiveRow(Array.isArray(data)?data[0]:data,true);
-      if(f?.contentWindow)setTimeout(()=>void repoV2PushCareer(f.contentWindow),120);
-      return true;
-    }catch(error){console.warn('Repo Sports V2 rotation complete:',error);return false}
+      const{data,error}=await db.rpc('complete_repo_sports_v2_rotation',{
+        p_viewer_key:repoV2LiveKey(),
+        p_match_serial:matchSerial,
+        p_result:repoV2PendingCompletion?.result||result||{}
+      });
+      if(error)throw error;
+
+      const row=Array.isArray(data)?data[0]:data;
+      repoV2CommitLiveRow(row,true);
+
+      // Successful completion normally returns the next serial. A duplicate
+      // completion may also return a serial that has already moved forward.
+      if(Number(row?.match_serial)>matchSerial){
+        repoV2ClearPendingCompletion();
+        if(f?.contentWindow)setTimeout(()=>void repoV2PushCareer(f.contentWindow),120);
+        setTimeout(()=>void repoV2FetchLiveState(),60);
+        return true;
+      }
+
+      repoV2ScheduleCompletionRetry();
+      return false;
+    }catch(error){
+      console.warn('Repo Sports live rotation complete:',error);
+      repoV2ScheduleCompletionRetry();
+      return false;
+    }finally{
+      repoV2CompletionBusy=false;
+    }
   }
   function repoV2StartGlobalCoordinator(){
     if(repoV2LiveHeartbeatTimer)return;
@@ -5971,10 +6021,11 @@ window.__QD_HOST__={
       return;
     }
     if(data.type==='repo-sports-v2-rotation-complete'){
-      // Test 39 removes the hidden engine while the host is visibly watching.
-      // Therefore either synced iframe may report completion; the server lease
-      // still decides whether this parent is authorised to rotate globally.
-      if((fromHost||fromVisible)&&repoV2LiveIsHost)void repoV2CompleteRotation(data.matchSerial,data.result||{});
+      // LIVE HANDOFF FIX:
+      // Never discard a valid final-whistle signal just because this browser
+      // has not acquired the host lease yet. repoV2CompleteRotation stores the
+      // pending result and retries automatically the moment we become host.
+      if(fromHost||fromVisible)void repoV2CompleteRotation(data.matchSerial,data.result||{});
       return;
     }
     if(fromHost)return;
@@ -6083,7 +6134,7 @@ window.__QD_HOST__={
     };
     playRepoV2LaunchSound(serial,()=>{soundFinished=true;reveal()});
     void repoV2FetchLiveState();
-    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-live-launch';
+    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-live-fail-safe-rotation';
     // Hand the host simulation from the hidden iframe to the visible feed.
     repoV2EnsureHostFrame();
     // Safety only: normal reveal is driven by the MP3 'ended' event.

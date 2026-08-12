@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="repo-sports-quidditch-v2.css?v=repo-sports-live-launch"></head><body style="margin:0;background:#02070c;overflow:hidden"><script>window.toaState={adminMode:false}</script><script src="repo-sports-quidditch-v2.js?v=repo-sports-live-launch"></script><script>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="repo-sports-quidditch-v2.css?v=repo-sports-live-fail-safe-rotation"></head><body style="margin:0;background:#02070c;overflow:hidden"><script>window.toaState={adminMode:false}</script><script src="repo-sports-quidditch-v2.js?v=repo-sports-live-fail-safe-rotation"></script><script>
 (()=>{
   const A=['arena-01','arena-02','arena-03','arena-04','arena-05','arena-06','arena-07','arena-08','arena-09','arena-10','arena-11','arena-12'];
   const T=['Hrafnvik','Blackglass','Saint Ciro','Marenza','Grand Khor','Aurelia','Drazh Hollow','Rova End','Zafir Row','Talun Cross','Ossa Mere','Varka Fell','Iskara','Naskor','Ashwick','Skarholt','Orsanne','Cinderbank'];
@@ -32,7 +32,12 @@
     // the authoritative server clock, rebuild the deterministic match from its
     // shared seed at the correct elapsed point. This also repairs any old Test
     // 37/39 tab that had already free-run several seconds ahead.
-    const hardResync=serial===activeSerial&&status?.open&&Math.abs(drift)>2.0;
+    // Never rebuild the SAME finished match just because the authoritative
+    // clock continues moving while final-whistle persistence/rotation is being
+    // committed. The parent retries completion server-side until the serial
+    // advances. This prevents full-time -> black -> full-time loops.
+    const waitingForRotation=status?.phase==='fulltime'&&serial===activeSerial;
+    const hardResync=serial===activeSerial&&status?.open&&!waitingForRotation&&Math.abs(drift)>2.0;
     const needsOpen=serial!==activeSerial||hardResync;
 
     if(needsOpen){

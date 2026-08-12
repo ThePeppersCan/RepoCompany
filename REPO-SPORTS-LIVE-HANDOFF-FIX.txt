@@ -1,0 +1,62 @@
+REPO SPORTS LIVE — FINAL-WHISTLE HANDOFF FIX
+
+WHAT YOUR LATEST SCREENSHOT PROVES
+- Official player leaderboards are loading.
+- The 18-team standings RPC is loading.
+- The client is no longer flickering/rebuilding at full time.
+- The remaining problem is the final-whistle handoff into the next global serial.
+
+ROOT CAUSE
+The V2 engine sends a `repo-sports-v2-rotation-complete` message at full time.
+
+The parent previously accepted that message ONLY when:
+  repoV2LiveIsHost === true
+
+If the iframe finished the match a fraction before this browser acquired the
+global host lease, the valid final result was silently discarded.
+
+The engine then set:
+  rotationQueued = true
+
+and never announced completion again.
+
+RESULT:
+  stable FULL TIME screen
+  SYNCING NEXT LIVE MATCH...
+  forever
+
+FIX 1 — QUEUE BEFORE HOST
+The parent now passes EVERY valid completion message from the visible/headless
+Repo Sports iframe into repoV2CompleteRotation().
+
+If the browser is not host yet:
+- the result is stored as repoV2PendingCompletion
+- retry timer starts
+- when the host heartbeat grants the lease, the same result is submitted
+
+FIX 2 — PERIODIC RE-ANNOUNCEMENT
+The live engine now re-sends the completed result roughly every 2 seconds while
+the same finished match serial remains open.
+
+This is safe because the server already uses:
+- current match_serial
+- repo_sports_recorded_matches primary key
+to prevent double-counting.
+
+NO SQL IS REQUIRED FOR THIS PATCH
+Keep the Recovery V2 SQL you just ran.
+
+FILES CHANGED
+- index.html
+- repo-sports-quidditch-v2-test.html
+- repo-sports-quidditch-v2.js
+
+INSTALL
+Copy the three files into:
+C:\Users\Isaac\Desktop\web2\
+
+Overwrite, then Ctrl + Shift + R.
+
+The currently stuck Rova End 4-4 Drazh Hollow match should then announce its
+finished result again, obtain/await the host lease, advance the global serial,
+and move into the next live fixture.

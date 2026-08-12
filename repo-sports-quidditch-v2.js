@@ -743,7 +743,7 @@
     cameraDirector:{shot:'MAIN',timer:0,lastShot:'',cutSerial:0},
     broadcast:{lastSpokenAt:0,lastText:'',recent:[],recentSkeletons:[],queue:null,barryState:'NEUTRAL',barryPriority:0,barryUntil:0,barryTimer:0,talkTimer:0,phaseSeen:'',crowdLevel:.12,crowdTarget:.12,speaking:false,debugEvent:'IDLE',voiceName:'TEXT ONLY',variantCount:BARRY_COMMENTARY_VARIANTS},
     teamTactics:{belros:null,zafran:null},
-    syncMode:false,headless:false,liveSerial:0,engineElapsed:0,simClockMs:0,syncAnchorElapsed:0,syncAnchorPerf:0,syncRunning:false,fastForwarding:false,rotationQueued:false,audioRand:null,commentaryRand:null,renderLead:0
+    syncMode:false,headless:false,liveSerial:0,engineElapsed:0,simClockMs:0,syncAnchorElapsed:0,syncAnchorPerf:0,syncRunning:false,fastForwarding:false,rotationQueued:false,rotationAnnounceAt:0,audioRand:null,commentaryRand:null,renderLead:0
   };
 
   const FIXED_SIM_DT=1/30;
@@ -888,7 +888,7 @@
           <p id="wcgMvp"></p>
           <div id="wcgFullPrediction" class="wcg-v2-full-prediction"></div>
           <div id="wcgNextMatchCountdown" class="wcg-v2-next-match">NEXT MATCH LOADS IN <b>30</b>S</div>
-          <button id="wcgReturnLobby" type="button">NEXT TEST MATCH NOW</button>
+
         </div>
       </div></div>
       <div class="wcg-controls"><button id="wcgSkipBroadcast" class="wcg-control wcg-skip-broadcast" type="button" hidden>SKIP INTRO</button><button id="wcgSkipHalf" class="wcg-control wcg-admin-only" type="button" hidden>SKIP TO HALF TIME</button><button id="wcgSpeed" class="wcg-control wcg-admin-only" type="button" hidden>TEST SPEED ×4</button><button id="wcgAdminEvents" class="wcg-control wcg-admin-only" type="button" hidden>ADMIN EVENT TESTS</button><button id="wcgExit" class="wcg-control" type="button">EXIT BROADCAST</button></div><div id="wcgAdminPanel" class="wcg-admin-panel" hidden><div class="wcg-admin-title">REPO SPORTS V2 · ADMIN TEST DECK</div><div class="wcg-admin-grid"><button data-test-event="goal">GOAL</button><button data-test-event="save">SAVE</button><button data-test-event="miss">MISS</button><button data-test-event="post">POST / REBOUND</button><button data-test-event="foul">FOUL</button><button data-test-event="penalty">PENALTY</button><button data-test-event="var">VAR CHECK</button><button data-test-event="intercept">INTERCEPTION</button></div></div>
@@ -928,7 +928,7 @@
     $('wcgSkipBroadcast')?.addEventListener('click',skipBroadcastPresentation);
     document.querySelectorAll('[data-v2-predict]').forEach(btn=>btn.addEventListener('click',()=>setPredictionPick(btn.dataset.v2Predict)));
     $('wcgBarryTipButton')?.addEventListener('click',tipBarryFromV2);
-    $('wcgReturnLobby').addEventListener('click',()=>{if(state.phase==='fulltime')window.RepoSportsV2CycleNext?.();else closeBroadcast(true)});
+
     $('wcgExit').addEventListener('click',()=>closeBroadcast(true));
     $('wcgSpeed').addEventListener('click',toggleSpeed);
     $('wcgSkipHalf').addEventListener('click',skipToHalftime);
@@ -2133,13 +2133,14 @@
     hidePresentation();setBroadcastState('POST_MATCH');setBroadcastSequence('complete',{frozen:true,reset:false});
     $('wcgFulltime')?.classList.add('is-open');populateFulltimePanel(data);
     const remain=Math.max(0,Math.ceil(POST_MATCH_SECONDS-state.fulltimeElapsed)),count=$('wcgNextMatchCountdown');
-    if(count)count.innerHTML=remain>0?`NEXT MATCH LOADS IN <b>${remain}</b>S`:'SYNCING NEXT LIVE MATCH…';
-    if(state.fulltimeElapsed>=POST_MATCH_SECONDS&&!state.rotationQueued){
-      state.rotationQueued=true;
-      if(state.syncMode&&window.parent&&window.parent!==window){
+    if(count)count.innerHTML=remain>0?`NEXT LIVE MATCH IN <b>${remain}</b>S`:'FINALISING LIVE RESULT…';
+    if(state.fulltimeElapsed>=POST_MATCH_SECONDS){
+      const shouldAnnounce=!state.rotationQueued||state.fulltimeElapsed>=state.rotationAnnounceAt;
+      if(shouldAnnounce&&state.syncMode&&window.parent&&window.parent!==window){
+        state.rotationQueued=true;
+        state.rotationAnnounceAt=state.fulltimeElapsed+2.0;
+
         const so=state.fulltimeData?.so||null;
-        // Visible and headless synced engines may both report completion; only
-        // the parent holding the live server lease can actually rotate the match.
         const careerPlayers=['belros','zafran'].flatMap(side=>
           roster[side].map(p=>({
             player_id:p.id,
@@ -2149,6 +2150,9 @@
             goals:Math.max(0,Number(state.playerStats?.[p.id]?.goals)||0)
           }))
         );
+
+        // Re-announce every ~2s until the shared match serial changes.
+        // Server-side match_serial/recorded-match guards make duplicates safe.
         window.parent.postMessage({type:'repo-sports-v2-rotation-complete',matchSerial:state.liveSerial,result:{
           home_team:teamMeta.belros.name,
           away_team:teamMeta.zafran.name,
@@ -4281,7 +4285,7 @@
     state.opening=true;
     try{
       createUi();applyFixtureConfig(opts);refreshFixtureUi();await preload();
-      state.open=true;state.opening=false;state.rotationQueued=false;
+      state.open=true;state.opening=false;state.rotationQueued=false;state.rotationAnnounceAt=0;
       state.syncMode=!!opts.syncMode;state.headless=!!opts.headless;state.liveSerial=Math.max(0,Number(opts.liveSerial)||0);state.engineElapsed=0;state.simClockMs=0;state.renderLead=0;
       state.syncAnchorElapsed=Math.max(0,Number(opts.targetElapsedMs)||0)/1000;state.syncAnchorPerf=performance.now();state.syncRunning=opts.running!==false;
       state.startedAt=state.liveSerial||Number(opts.startedAt)||Date.now();
