@@ -51,7 +51,8 @@
     rubberBand:false,         // scoreline may change tactics, never execution odds
     scriptedGoals:false,      // every goal must emerge from the live ball/shot path
     attributeCompression:.55, // individuality matters, but execution gaps stay soft
-    closeContestVariance:.055 // small symmetric uncertainty for genuinely close races
+    closeContestVariance:.055, // small symmetric uncertainty for genuinely close races
+    spatialSideBias:false       // raw left/right screen position never boosts finishing
   });
 
   const FLOW_DEBUG = false;
@@ -2258,7 +2259,7 @@
     for(const team of ['belros','zafran'])for(const p of roster[team])profiles[p.id]=roleProfile(p.role);
     // Every fixture is constructed from the exact same role templates on both sides.
     // Individual personality is presentation-only; physical execution remains symmetrical.
-    state.fairness={belros:1,zafran:1,target:1,teamWinBias:0,rubberBand:false,scriptedGoals:false,principle:'50/50 OPEN COMPETITION'};
+    state.fairness={belros:1,zafran:1,target:1,teamWinBias:0,rubberBand:false,scriptedGoals:false,principle:'50/50 OPEN COMPETITION',spatialSideBias:false};
     const makeEntity=(p,team,x,i)=>{
       const a={...profiles[p.id]};
       return {player:p,team,x,y:groundY,vx:0,vy:0,ax:0,ay:0,tx:x,ty:groundY,
@@ -2660,9 +2661,13 @@
   }
 
   function chooseShotOutcome(shooter,penalty=false){
-    const a=shooter.attributes||{},speed=Math.hypot(shooter.vx,shooter.vy),defenders=teamEntities(other(shooter.team)),pressure=Math.min(...defenders.map(d=>dist2(shooter,d))),goalX=shooter.team==='belros'?.91:.09,distGoal=Math.abs(goalX-shooter.x);
+    const a=shooter.attributes||{},speed=Math.hypot(shooter.vx,shooter.vy),defenders=teamEntities(other(shooter.team)),pressure=Math.min(...defenders.map(d=>dist2(shooter,d)));
     const shooting=executionSkill(a,'shooting'),composure=executionSkill(a,'composure');
-    const pressurePenalty=clamp((.16-pressure)*.72,0,.10),distancePenalty=clamp((distGoal-.18)*.18,0,.055),motionPenalty=clamp(speed-.13,0,.08)*.22;
+    // SPATIAL NEUTRALITY: finishing quality must never depend on raw screen X.
+    // Both sides use the same attack-progress value, so a visual tendency for the
+    // pack to sit on the right or left cannot secretly improve one team's odds.
+    const attackProgress=clamp(Number(state.zone)||.15,.08,.97);
+    const pressurePenalty=clamp((.16-pressure)*.72,0,.10),distancePenalty=clamp((.82-attackProgress)*.125,0,.045),motionPenalty=clamp(speed-.13,0,.08)*.22;
     if(penalty){
       // Same formula for both teams: skill creates probability, never certainty.
       const quality=.58+.16*shooting+.08*composure+(shooter.form||0)*.55+fairNoise(.018),r=state.simRand();
@@ -2700,7 +2705,10 @@
     // V2 four-and-a-half-minute games allow genuine medium-range attempts. The lower zone
     // and positional gate creates more SHOTS, while distance/zone penalties in
     // chooseShotOutcome() still make those attempts harder to score.
-    if(!opts.penalty && ((shooter.team==='belros' && (state.zone<.50 || shooter.x<.49)) || (shooter.team==='zafran' && (state.zone<.50 || shooter.x>.51)))) {
+    // SPATIAL NEUTRALITY: raw screen position is presentation/AI movement only.
+    // A shot becomes available from identical attack progress for both teams.
+    // This prevents any right-side or left-side loitering from becoming a hidden buff.
+    if(!opts.penalty && state.zone<.50) {
       performDrive(); return;
     }
     const team=opts.team||shooter.team,opp=other(team),penalty=!!opts.penalty,shootout=!!opts.shootout;if(!penalty){setFlowPhase(FLOW_PHASES.SHOT_SEQUENCE,'shot');noteFlowMajor('shot')}
@@ -4400,5 +4408,5 @@
     return true;
   }
 
-  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-stable-no-refresh-20260812-0208',leaderboardWrites:true})};
+  window.RepoSportsQuidditchV2={open:openBroadcast,close:closeBroadcast,syncLive,getStatus:()=>({open:state.open,opening:state.opening,fixture:activeFixture?.id||null,liveSerial:state.liveSerial,seed:state.seed,engineElapsed:state.engineElapsed,targetElapsed:state.syncMode?syncTargetElapsed():state.engineElapsed,phase:state.phase,matchTime:state.matchTime,score:{...state.score},shootout:state.shootout?{score:{...state.shootout.score},attempts:{...state.shootout.attempts}}:null,headless:state.headless,assetsKey:state.assetsKey||'',syncBuild:'repo-sports-spatial-neutrality-20260812-0215',leaderboardWrites:true})};
 })();
