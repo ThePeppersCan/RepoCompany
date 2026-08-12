@@ -5867,7 +5867,7 @@ window.__QD_HOST__={
     h.id='repoSportsV2GlobalHostFrame';h.tabIndex=-1;h.setAttribute('aria-hidden','true');
     h.style.cssText='position:fixed!important;width:1px!important;height:1px!important;left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;border:0!important';
     h.addEventListener('load',()=>setTimeout(()=>repoV2PushLiveState(h.contentWindow),30));
-    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-sync-lock-20260812-0135';
+    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-smooth-sync-20260812-0155';
     document.body.appendChild(h);
   }
   function repoV2NormalizeLiveRow(row){
@@ -5877,6 +5877,7 @@ window.__QD_HOST__={
       active_elapsed_ms:Math.max(0,Number(row.active_elapsed_ms)||0),
       running:row.running!==false,
       server_now_ms:Number(row.server_now_ms)||Date.now(),
+      transport_comp_ms:Math.max(0,Math.min(250,Number(row.transport_comp_ms)||0)),
       last_result:row.last_result||null
     };
   }
@@ -5903,9 +5904,12 @@ window.__QD_HOST__={
   }
   async function repoV2FetchLiveState(){
     if(typeof db==='undefined'||!db?.rpc)return repoV2LiveState;
+    const requestStarted=performance.now();
     try{
       const{data,error}=await db.rpc('get_repo_sports_v2_live_state');if(error)throw error;
-      return repoV2CommitLiveRow(Array.isArray(data)?data[0]:data,true);
+      const raw=Array.isArray(data)?data[0]:data;
+      if(raw&&typeof raw==='object')raw.transport_comp_ms=Math.min(250,Math.max(0,(performance.now()-requestStarted)*.5));
+      return repoV2CommitLiveRow(raw,true);
     }catch(error){
       if(!/get_repo_sports_v2_live_state/i.test(String(error?.message||'')))console.warn('Repo Sports V2 live state:',error);
       return repoV2LiveState;
@@ -5914,9 +5918,11 @@ window.__QD_HOST__={
   async function repoV2AdvanceLiveBackground(){
     if(repoV2LiveBusy||typeof db==='undefined'||!db?.rpc)return;
     repoV2LiveBusy=true;
+    const requestStarted=performance.now();
     try{
       const{data,error}=await db.rpc('advance_repo_sports_v2_background',{p_viewer_key:repoV2LiveKey()});if(error)throw error;
       const raw=Array.isArray(data)?data[0]:data;
+      if(raw&&typeof raw==='object')raw.transport_comp_ms=Math.min(250,Math.max(0,(performance.now()-requestStarted)*.5));
       repoV2LiveIsHost=raw?.is_host===true;document.documentElement.dataset.repoSportsV2BackgroundHost=repoV2LiveIsHost?'true':'false';
       repoV2CommitLiveRow(raw,true);
       repoV2EnsureHostFrame();
@@ -6017,7 +6023,12 @@ window.__QD_HOST__={
     if(!fromVisible&&!fromHost)return;
 
     if(data.type==='repo-sports-v2-live-state-request'){
-      if(repoV2LiveState)repoV2PushLiveState(event.source);else void repoV2FetchLiveState().then(row=>repoV2PushLiveState(event.source,row));
+      // Visibility-resume requests must never be answered from a stale cached row.
+      // Fetch a new authoritative server clock first, then hand that exact sample
+      // back to the iframe. Ordinary startup requests can still use the cache.
+      if(data.fresh===true||data.reason==='visibility-resume')void repoV2FetchLiveState().then(row=>repoV2PushLiveState(event.source,row));
+      else if(repoV2LiveState)repoV2PushLiveState(event.source);
+      else void repoV2FetchLiveState().then(row=>repoV2PushLiveState(event.source,row));
       return;
     }
     if(data.type==='repo-sports-v2-rotation-complete'){
@@ -6134,7 +6145,7 @@ window.__QD_HOST__={
     };
     playRepoV2LaunchSound(serial,()=>{soundFinished=true;reveal()});
     void repoV2FetchLiveState();
-    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-sync-lock-20260812-0135';
+    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-smooth-sync-20260812-0155';
     // Hand the host simulation from the hidden iframe to the visible feed.
     repoV2EnsureHostFrame();
     // Safety only: normal reveal is driven by the MP3 'ended' event.
