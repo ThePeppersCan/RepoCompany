@@ -1,16 +1,15 @@
-REPO SPORTS WORLD CUP — V1.13 HOMEPAGE BILLBOARD COUNTDOWN
+REPO SPORTS WORLD CUP V1.19 — CONFETTI MOTION FIX
+
+Fixes the homepage middle-scene confetti appearing to pause/static briefly.
 
 Changes:
-- Homepage billboard now shows a live red LED-style HH:MM:SS countdown.
-- Target is Friday 14 August 2026 at 9:00 PM British Summer Time (20:00 UTC).
-- Dark charcoal / near-black billboard face with subtle LED glow and scanline texture.
-- Existing billboard adverts remain loaded underneath for layout stability but are hidden while the countdown is active.
-- At kick-off the display reaches 00:00:00 and changes to WORLD CUP IS LIVE.
+- confetti travel now uses continuous linear motion rather than an ease curve that decelerated to near-zero at keyframe waypoints
+- opacity transitions remain soft without interrupting movement
+- gust overlap is slightly tighter so the teaser feels continuously alive without becoming busy
+- confetti remains clipped to the middle character scene only
 
 Install:
-1. Replace your current main script.js with the included script.js.
-2. Hard-refresh with Ctrl + Shift + R.
+1. Replace your current script.js with the included script.js
+2. Hard refresh with Ctrl + Shift + R
 
-No SQL changes.
-No image changes.
-No index.html replacement.
+No SQL or asset changes required.

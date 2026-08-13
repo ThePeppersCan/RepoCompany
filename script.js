@@ -23383,14 +23383,14 @@ updateHunterCantoHud=function(){
 
 
 // ============================================================================
-// REPO SPORTS WORLD CUP 2026 — HOMEPAGE BILLBOARD KICK-OFF COUNTDOWN V1.14
+// REPO SPORTS WORLD CUP 2026 — HOMEPAGE BILLBOARD KICK-OFF COUNTDOWN V1.18
 // Replaces the billboard creative with a real absolute countdown to the first
 // World Cup fixture: Friday 14 August 2026, 21:00 British Summer Time.
 // The timestamp is stored as UTC so browser timezone settings cannot move it.
 // ============================================================================
 (() => {
-  if (window.__repoWorldCupKickoffBillboardV114) return;
-  window.__repoWorldCupKickoffBillboardV114 = true;
+  if (window.__repoWorldCupKickoffBillboardV118) return;
+  window.__repoWorldCupKickoffBillboardV118 = true;
 
   // 21:00 BST = 20:00 UTC on 14 August 2026.
   const KICKOFF_AT = Date.UTC(2026, 7, 14, 20, 0, 0);
@@ -23399,7 +23399,7 @@ updateHunterCantoHud=function(){
     '5':'acdfg','6':'acdefg','7':'abc','8':'abcdefg','9':'abcdfg'
   });
 
-  const styleId='repoWorldCupKickoffBillboardV114Styles';
+  const styleId='repoWorldCupKickoffBillboardV118Styles';
   if (!document.getElementById(styleId)) {
     const style=document.createElement('style');
     style.id=styleId;
@@ -23424,6 +23424,24 @@ updateHunterCantoHud=function(){
         content:"";position:absolute;inset:-12%;pointer-events:none;
         background:radial-gradient(ellipse at center,rgba(255,26,45,.055),transparent 48%);
         animation:repoWcKickoffBreath 3.6s ease-in-out infinite;
+      }
+      #repoWorldCupHomepageWindConfetti{
+        position:absolute;inset:0;z-index:38;pointer-events:none;overflow:hidden;
+        width:100%;height:100%;margin:0;padding:0;
+        contain:paint style;
+      }
+      #repoWorldCupHomepageWindConfetti .repo-wc-wind-bit{
+        position:absolute;left:-7vw;top:var(--y);width:var(--w);height:var(--h);
+        border-radius:1px;background:var(--c);opacity:0;
+        box-shadow:0 0 4px color-mix(in srgb,var(--c) 38%,transparent);
+        transform-origin:center;will-change:transform,opacity;
+        animation:repoWcHomepageWindBit var(--dur) linear forwards;
+      }
+      #repoWorldCupHomepageWindConfetti .repo-wc-wind-bit.is-paper{
+        border-radius:2px 0 2px 0;
+      }
+      #repoWorldCupHomepageWindConfetti .repo-wc-wind-bit.is-streamer{
+        border-radius:3px;
       }
       .repo-wc-kickoff-inner{
         position:relative;z-index:2;width:88%;height:78%;max-width:none;max-height:none;
@@ -23481,6 +23499,14 @@ updateHunterCantoHud=function(){
       #repoWorldCupKickoffBillboard.is-live .repo-wc-led-colon{animation:repoWcLivePulse 1.35s ease-in-out infinite}
       #repoWorldCupKickoffBillboard.is-live .repo-wc-kickoff-meta strong{color:#ff5260;text-shadow:0 0 10px rgba(255,38,56,.48)}
       @keyframes repoWcKickoffBreath{0%,100%{opacity:.45;transform:scale(.98)}50%{opacity:1;transform:scale(1.025)}}
+      @keyframes repoWcHomepageWindBit{
+        0%{opacity:0;transform:translate3d(0,0,0) rotate(var(--r0)) rotateY(0deg)}
+        5%{opacity:var(--op)}
+        28%{opacity:var(--op);transform:translate3d(var(--x1),var(--y1),0) rotate(var(--r1)) rotateY(110deg)}
+        56%{opacity:calc(var(--op) * .92);transform:translate3d(var(--x2),var(--y2),0) rotate(var(--r2)) rotateY(245deg)}
+        80%{opacity:calc(var(--op) * .76)}
+        100%{opacity:0;transform:translate3d(var(--x3),var(--y3),0) rotate(var(--r3)) rotateY(430deg)}
+      }
       @keyframes repoWcLivePulse{50%{filter:brightness(1.24)}}
       @media(max-width:760px){
         .repo-wc-kickoff-inner{width:86%;height:76%;gap:6px}
@@ -23551,6 +23577,66 @@ updateHunterCantoHud=function(){
       const a=makeDigit(),b=makeDigit();pair.append(a,b);digits.push(a,b);
     });
     billboard._repoDigits=digits;
+
+    // World Cup teaser confetti is clipped to the central homepage scene only.
+    // It never crosses the surrounding website UI. Gusts remain sparse, but are
+    // V1.19 keeps each piece in continuous motion: usually one piece, sometimes two, with overlapping gusts.
+    const ensureHomepageWindConfetti=()=>{
+      const scene=document.getElementById('tavernLobby');
+      if(!scene||scene.clientWidth<40||scene.clientHeight<40)return null;
+      let windLayer=document.getElementById('repoWorldCupHomepageWindConfetti');
+      if(windLayer&&windLayer.parentElement!==scene){windLayer.remove();windLayer=null;}
+      if(!windLayer){
+        windLayer=document.createElement('div');
+        windLayer.id='repoWorldCupHomepageWindConfetti';
+        windLayer.setAttribute('aria-hidden','true');
+        scene.appendChild(windLayer);
+      }
+      if(windLayer.dataset.started==='1')return windLayer;
+      windLayer.dataset.started='1';
+      const colours=['#f3c443','#e74a4f','#2e7ddf','#f1eee2','#4da85f','#df8a34'];
+      const spawnBit=(offset=0)=>{
+        if(!scene.isConnected)return;
+        const bit=document.createElement('i');
+        bit.className='repo-wc-wind-bit '+(Math.random()>.58?'is-paper':'is-streamer');
+        const w=5+Math.random()*7;
+        const h=Math.max(2.5,w*(.30+Math.random()*.42));
+        const y=16+Math.random()*68;
+        const lift=-18+Math.random()*36;
+        const gust1=lift*.28+(-9+Math.random()*18);
+        const gust2=lift*.62+(-12+Math.random()*24);
+        const gust3=lift+(-16+Math.random()*32);
+        const travel=Math.max(360,scene.clientWidth+70);
+        const spin=(Math.random()>.5?1:-1);
+        bit.style.setProperty('--y',`${y}%`);
+        bit.style.setProperty('--w',`${w.toFixed(1)}px`);
+        bit.style.setProperty('--h',`${h.toFixed(1)}px`);
+        bit.style.setProperty('--c',colours[Math.floor(Math.random()*colours.length)]);
+        bit.style.setProperty('--dur',`${(8.1+Math.random()*4.9).toFixed(2)}s`);
+        bit.style.setProperty('--op',`${(.61+Math.random()*.25).toFixed(2)}`);
+        bit.style.setProperty('--x1',`${(travel*.28).toFixed(1)}px`);
+        bit.style.setProperty('--x2',`${(travel*.59).toFixed(1)}px`);
+        bit.style.setProperty('--x3',`${travel.toFixed(1)}px`);
+        bit.style.setProperty('--y1',`${gust1.toFixed(1)}px`);
+        bit.style.setProperty('--y2',`${gust2.toFixed(1)}px`);
+        bit.style.setProperty('--y3',`${gust3.toFixed(1)}px`);
+        bit.style.setProperty('--r0',`${spin*(-18+Math.random()*36)}deg`);
+        bit.style.setProperty('--r1',`${spin*(90+Math.random()*160)}deg`);
+        bit.style.setProperty('--r2',`${spin*(250+Math.random()*240)}deg`);
+        bit.style.setProperty('--r3',`${spin*(520+Math.random()*430)}deg`);
+        if(offset)bit.style.animationDelay=`${offset}ms`;
+        windLayer.appendChild(bit);
+        bit.addEventListener('animationend',()=>bit.remove(),{once:true});
+      };
+      const scheduleWave=()=>{
+        spawnBit(0);
+        if(Math.random()<.38)spawnBit(220+Math.random()*620);
+        windLayer._repoTimer=setTimeout(scheduleWave,3000+Math.random()*3600);
+      };
+      windLayer._repoTimer=setTimeout(scheduleWave,650+Math.random()*1200);
+      return windLayer;
+    };
+    ensureHomepageWindConfetti();
     layer.appendChild(billboard);
 
     // Keep the old advertising slides loaded underneath for layout stability, but
