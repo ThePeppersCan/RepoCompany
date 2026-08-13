@@ -1,30 +1,12 @@
-REPO SPORTS LEAGUE HUB + LEVEL HUNTER INTEGRATED FIX
+LEVEL HUNTER — DARWIN INTERACTION / FOLLOW SMOOTHING
 
-This fixes the regression where the Repo Sports button skipped the League Hub and opened the live game directly.
+Replace only script.js, then hard refresh with Ctrl + Shift + R.
 
-Replace / merge:
-- index.html
-- script.js
-- assets/velmora-animal-centre-menu.png
-- assets/velmora-animal-centre-explore-map.png
-- assets/velmora-elvane-region-map.png
-- assets/hunter-menu-garden-ambience.mp3
-- assets/elvane-saltarello.mp3
-
-Expected Repo Sports flow after this patch:
-REPO SPORTS button -> League Hub menu -> WATCH LIVE -> live Club Mode broadcast.
-
-Level Hunter work preserved:
-- Animal Centre menu
-- invisible image hotspots
-- ambience + click effects
-- Explore Velmora map
-- Elvane-only default unlock
-- Elvane regional progression map
-- Canto Plains / Elvara initial unlock
-- Solmere then Valeron progression
-- Saltarello audio in Elvane
-- admin unlock-all toggle
-
-No SQL required.
-Hard refresh after replacing files: Ctrl + Shift + R.
+Changes:
+- Darwin talk radius reduced significantly.
+- Clicking Darwin from outside talk range no longer opens dialogue.
+- Darwin trails slightly farther behind the player while following.
+- Follow movement + visual position are smoothed to remove the vibrating/jittery look.
+- Darwin's facing direction no longer flips on tiny path corrections.
+- POIs / world interactions / the Elvane exit take priority over Darwin when pressing E.
+- This keeps Darwin from stealing the interact action when he is following beside you.
