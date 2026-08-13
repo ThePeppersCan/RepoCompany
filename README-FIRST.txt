@@ -1,13 +1,24 @@
-REPO HATTRICK / PENALTY POPUP TWEAK
+LEVEL HUNTER — ELVANE REGION MAP
 
-Replace:
-1. script.js
-2. assets/quidditch-hat-trick-popup.png
-3. assets/quidditch-penalty-popup.png (optional but included for completeness)
+Merge into the website root:
+- index.html
+- script.js
+- assets/velmora-elvane-region-map.png
+- assets/elvane-saltarello.mp3
 
-Then hard refresh with Ctrl + Shift + R.
+Changes:
+- Clicking Elvane on Explore Velmora opens the Elvane regional map.
+- Canto Plains + Elvara are the starting unlocked section.
+- Solmere Vineyards is locked until the starting section reaches 60% completion.
+- Valeron Valley is locked until Solmere reaches 60% completion.
+- Existing Hunter admin Unlock All Regions preview also unlocks all Elvane areas.
+- Elvane map hotspots are completely invisible; only subtle glow/ripple feedback is used.
+- Saltarello starts when Elvane opens at 30% volume and stops when leaving the Elvane map.
+- Garden ambience resumes when returning to Explore Velmora.
 
-Changes in this patch:
-- Hat-trick popup now uses a cleaned transparent asset so the white/transparent-looking background is gone.
-- Penalty popup is noticeably larger.
-- Popup sizing is slightly polished for desktop and mobile.
+Future Hunter activities can advance progression with:
+window.repoSetHunterElvaneCompletion('east', 0.60)
+window.repoSetHunterElvaneCompletion('solmere', 0.60)
+
+No SQL required.
+Hard refresh after install: Ctrl + Shift + R.

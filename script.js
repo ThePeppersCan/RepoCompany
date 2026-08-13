@@ -2185,12 +2185,7 @@ function renderMiningState(){
   $('mineStarButton').textContent=active?'PET IS MINING…':(degraded?'STRIKE A NEW STAR':'START 7-MINUTE CYCLE');
   $('stopMiningButton').disabled=false;
   $('miningGame').classList.toggle('is-active',active);
-  const starEl=$('shootingStar');
-  starEl.classList.toggle('degraded',degraded&&!active);
-  starEl.classList.toggle('is-clickable',!active);
-  starEl.setAttribute('aria-disabled',active?'true':'false');
-  starEl.title=active?`Your pet is already mining · ${formatMiningTime(remaining)} remaining`:(degraded?'Click the star to begin another 7-minute mining cycle':'Click the star to start a 7-minute mining cycle');
-  starEl.style.cursor=active?'default':'pointer';
+  $('shootingStar').classList.toggle('degraded',degraded&&!active);
   const cycleXp=Math.min(1500,Number(miningAfkState.cycle_xp)||0),cycleGp=Math.min(2500,Number(miningAfkState.cycle_gp)||0),progress=Math.min(100,Math.max(0,Number(miningAfkState.progress_percent)||0));
   $('miningCycleXp').textContent=`${cycleXp.toLocaleString('en-GB')} / 1,500 XP`;
   $('miningCycleGp').textContent=`${cycleGp.toLocaleString('en-GB')} / 2,500 GP`;
@@ -3650,54 +3645,53 @@ async function checkWiseTaskProgress(autoClaim=false){
 }
 
 async function openPlayerStats(username) {
-  const profileName=String(username||'').trim();
-  $('playerStatsTitle').textContent = `${profileName.toUpperCase()} · SKILL TREE`;
+  $('playerStatsTitle').textContent = String(username).toUpperCase();
   $('playerStatsBody').textContent = 'Loading...';
   if (!$('playerStatsDialog').open) $('playerStatsDialog').showModal();
-  const { data, error } = await db.rpc('get_public_character', { p_username: profileName });
+  const { data, error } = await db.rpc('get_public_character', { p_username: username });
   if (error || !data?.[0]) {
     console.error(error);
     $('playerStatsBody').textContent = 'Could not load this player. Run the player stats SQL update.';
     return;
   }
-  const row=data[0];
-  const skillDefinitions={
-    woodcutting:{label:'Woodcutting',image:'assets/tree.png',branch:'gathering'},
-    mining:{label:'Mining',image:'assets/runite-rocks.png',branch:'gathering'},
-    fishing:{label:'Fishing',image:'assets/shark.png',branch:'gathering'},
-    farming:{label:'Farming',image:'assets/watering-can.png',branch:'gathering'},
-    attack:{label:'Attack',image:'assets/attack-icon.webp',branch:'combat'},
-    strength:{label:'Strength',image:'assets/strength-icon.webp',branch:'combat'},
-    defence:{label:'Defence',image:'assets/defence-icon.webp',branch:'combat'},
-    magic:{label:'Magic',image:'assets/magic-icon.png',branch:'combat'},
-    ranged:{label:'Ranged',image:'assets/ranged-icon.png',branch:'combat'},
-    slayer:{label:'Slayer',image:'assets/slayer-icon.png',branch:'combat'},
-    cooking:{label:'Cooking',image:'assets/cooking-icon-new.png',branch:'artisan'},
-    runecrafting:{label:'Runecrafting',image:'assets/runecrafting-icon.png',branch:'artisan'},
-    agility:{label:'Agility',image:'assets/agility-icon.webp',branch:'adventure'},
-    sailing:{label:'Sailing',image:'assets/sailing-icon.webp',branch:'adventure'}
-  };
-  const branchDefinitions=[
-    {key:'gathering',label:'Gathering',symbol:'◆',blurb:'Resources & cultivation'},
-    {key:'combat',label:'Combat',symbol:'⚔',blurb:'Offence, defence & slaying'},
-    {key:'artisan',label:'Artisan',symbol:'✦',blurb:'Craft, cook & create'},
-    {key:'adventure',label:'Adventure',symbol:'⌁',blurb:'Movement & exploration'}
+  const row = data[0];
+  const skills = [
+    ['Harmony', 'assets/harmony-logo.png', count],
+    ['Woodcutting', 'assets/tree.png', row.woodcutting_xp],
+    ['Mining', 'assets/runite-rocks.png', row.mining_xp],
+    ['Fishing', 'assets/shark.png', row.fishing_xp],
+    ['Agility', 'assets/agility-icon.webp', row.agility_xp],
+    ['Slayer', 'assets/slayer-icon.png', row.slayer_xp],
+    ['Attack', 'assets/attack-icon.webp', row.attack_xp],
+    ['Strength', 'assets/strength-icon.webp', row.strength_xp],
+    ['Defence', 'assets/defence-icon.webp', row.defence_xp],
+    ['Magic', 'assets/magic-icon.png', row.magic_xp],
+    ['Ranged', 'assets/ranged-icon.png', row.ranged_xp],
+    ['Sailing', 'assets/sailing-icon.webp', row.sailing_xp],
+    ['Runecrafting', 'assets/runecrafting-icon.png', row.runecrafting_xp],
+    ['Cooking', 'assets/cooking-icon-new.png', row.cooking_xp],
+    ['Farming', 'assets/watering-can.png', row.farming_xp]
   ];
-  const stat=(key,definition)=>{
-    const xp=Math.max(0,Number(row[`${key}_xp`])||0),level=levelFromXp(xp),previous=xpForLevel(level),next=level>=99?xp:xpForLevel(level+1),span=Math.max(1,next-previous);
-    return{key,...definition,xp,level,progress:level>=99?100:Math.max(0,Math.min(100,((xp-previous)/span)*100)),remaining:level>=99?0:Math.max(0,next-xp),maxed:level>=99};
-  };
-  const personalSkills=Object.entries(skillDefinitions).map(([key,definition])=>stat(key,definition));
-  // Harmony is deliberately shared across Repo Company, matching the normal Skills page.
-  const harmonyXp=Math.max(0,Number(count)||0),harmonyLevel=harmonyLevelFromXp(harmonyXp),harmonyPrevious=xpForLevel(harmonyLevel),harmonyNext=harmonyLevel>=99?harmonyXp:xpForLevel(harmonyLevel+1),harmonySpan=Math.max(1,harmonyNext-harmonyPrevious);
-  const harmony={label:'Harmony',image:'assets/harmony-logo.png',xp:harmonyXp,level:harmonyLevel,progress:harmonyLevel>=99?100:Math.max(0,Math.min(100,((harmonyXp-harmonyPrevious)/harmonySpan)*100)),remaining:harmonyLevel>=99?0:Math.max(0,harmonyNext-harmonyXp),maxed:harmonyLevel>=99};
-  const allSkills=[harmony,...personalSkills],totalLevel=allSkills.reduce((n,x)=>n+x.level,0),totalXp=allSkills.reduce((n,x)=>n+x.xp,0),highest=allSkills.reduce((best,x)=>x.level>best.level||(x.level===best.level&&x.xp>best.xp)?x:best,allSkills[0]),mastered=allSkills.filter(x=>x.maxed).length;
-  const renderSkillNode=skill=>`<div class="skill-tree-node ${skill.maxed?'is-maxed':''}"><div class="skill-node-icon"><img src="${skill.image}" alt="${skill.label}"><span>${skill.level}</span></div><div class="skill-node-details"><div class="skill-node-title"><b>${skill.label}</b><em>${skill.maxed?'MAX':`${Math.round(skill.progress)}%`}</em></div><small>${skill.xp.toLocaleString('en-GB')} XP</small><div class="skill-node-progress"><i style="width:${skill.progress}%"></i></div><span class="skill-node-next">${skill.maxed?'MASTERED · LEVEL 99':`${skill.remaining.toLocaleString('en-GB')} XP TO LEVEL ${skill.level+1}`}</span></div></div>`;
-  const branches=branchDefinitions.map(branch=>{const skills=personalSkills.filter(skill=>skill.branch===branch.key),branchLevel=skills.reduce((n,x)=>n+x.level,0);return`<section class="skill-branch skill-branch-${branch.key}"><div class="skill-branch-header"><span class="skill-branch-symbol">${branch.symbol}</span><div><b>${branch.label}</b><small>${branch.blurb}</small></div><strong>${branchLevel}</strong></div><div class="skill-branch-nodes">${skills.map(renderSkillNode).join('')}</div></section>`}).join('');
-  const body=$('playerStatsBody');
-  body.classList.add('skills-grid','repo-public-skills-grid');
-  body.innerHTML=`<section class="skills-overview"><div class="skills-overview-intro"><span>PLAYER PROGRESSION</span><strong>${escapeHtml(profileName)}</strong><small>Public skill tree · the same progression layout used on your own Stats page.</small></div><div class="skills-overview-stat"><small>TOTAL LEVEL</small><b>${totalLevel.toLocaleString('en-GB')}</b><span>${allSkills.length} skills</span></div><div class="skills-overview-stat"><small>TOTAL XP</small><b>${totalXp.toLocaleString('en-GB')}</b><span>All progression</span></div><div class="skills-overview-stat"><small>HIGHEST SKILL</small><b>${highest.label}</b><span>Level ${highest.level}</span></div><div class="skills-overview-stat"><small>MASTERED</small><b>${mastered}</b><span>Level 99 skills</span></div></section><section class="skills-tree-root"><span class="skills-root-crown">SHARED FOUNDATION</span><div class="skills-root-node ${harmony.maxed?'is-maxed':''}"><div class="skills-root-icon"><img src="assets/harmony-logo.png" alt="Harmony"><span>${harmony.level}</span></div><div class="skills-root-copy"><div><b>Harmony</b><em>${harmony.maxed?'Mastered':'Shared skill'}</em></div><strong>${harmony.xp.toLocaleString('en-GB')} XP · Shared across Repo Company</strong><div class="skills-root-progress"><i style="width:${harmony.progress}%"></i></div><small>${harmony.maxed?'MASTERED · LEVEL 99':`${harmony.remaining.toLocaleString('en-GB')} XP TO LEVEL ${harmony.level+1}`}</small></div></div></section><div class="skills-tree-connector" aria-hidden="true"></div><div class="skills-tree-branches">${branches}</div>`;
-  if(!document.getElementById('repoPublicStatsLayoutFix')){const style=document.createElement('style');style.id='repoPublicStatsLayoutFix';style.textContent=`#playerStatsDialog{width:min(96vw,1180px)!important;max-width:none!important}#playerStatsBody.repo-public-skills-grid{display:block!important;max-height:min(78vh,820px)!important;overflow:auto!important;padding:12px!important}#playerStatsBody.repo-public-skills-grid>.skills-overview{margin-bottom:12px}`;document.head.appendChild(style)}
+  const totalLevel = skills.reduce((sum, skill) => {
+    const xp = Number(skill[2]) || 0;
+    return sum + (skill[0] === 'Harmony' ? harmonyLevelFromXp(xp) : levelFromXp(xp));
+  }, 0);
+  let skillCards = skills.map(([label, image, rawXp]) => {
+    const xp = Number(rawXp) || 0;
+    const level = label === 'Harmony' ? harmonyLevelFromXp(xp) : levelFromXp(xp);
+    const nextXp = xpForLevel(Math.min(level + 1, 99));
+    const currentXp = xpForLevel(level);
+    const pct = level >= 99 ? 100 : Math.max(0, Math.min(100, ((xp - currentXp) / Math.max(1, nextXp - currentXp)) * 100));
+    return `<div class="public-skill${label === 'Harmony' ? ' harmony-public-skill' : ''}"><img src="${image}" alt="${label}"><div class="public-skill-copy"><b>${label}</b><small>${xp.toLocaleString('en-GB')} XP${label === 'Harmony' ? ' · Shared' : ''}</small><i><span style="width:${pct}%"></span></i></div><strong>${level}</strong></div>`;
+  }).join('');
+  const created = row.created_at ? new Date(row.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Unknown';
+  $('playerStatsBody').innerHTML = `
+    <div class="public-profile-summary">
+      <div><span>Total level</span><strong>${totalLevel}</strong></div>
+      <div><span>Best Dash</span><strong>${row.agility_best_ms ? formatDashTime(row.agility_best_ms) : '—'}</strong></div>
+      <div><span>Joined</span><strong>${escapeHtml(created)}</strong></div>
+    </div>
+    <div class="public-skills-grid">${skillCards}</div>`;
 }
 
 function formatDashTime(milliseconds) {
@@ -4210,30 +4204,423 @@ function openUpcomingTrainingSkill(skillName) {
   toast(`${skillName} training has been added to the menu and is ready for its future minigame.`);
 }
 
+
+const HUNTER_MENU_IMAGE_PATH = 'assets/velmora-animal-centre-menu.png';
+const HUNTER_MENU_AMBIENCE_PATH = 'assets/hunter-menu-garden-ambience.mp3';
+const HUNTER_EXPLORE_MAP_PATH = 'assets/velmora-animal-centre-explore-map.png';
+const HUNTER_ELVANE_MAP_PATH = 'assets/velmora-elvane-region-map.png';
+const HUNTER_ELVANE_MUSIC_PATH = 'assets/elvane-saltarello.mp3';
+const HUNTER_ELVANE_PROGRESS_KEY = 'repo_hunter_elvane_progress_v1';
+const HUNTER_ELVANE_UNLOCK_RATIO = .60;
+const HUNTER_ELVANE_AREAS = [
+  {id:'canto',label:'Canto Plains',x:76.0,y:35.0,w:28,h:27,tier:'east'},
+  {id:'elvara',label:'Elvara',x:50.0,y:47.0,w:18,h:18,tier:'east'},
+  {id:'solmere',label:'Solmere Vineyards',x:50.5,y:76.0,w:35,h:24,tier:'solmere'},
+  {id:'valeron',label:'Valeron Valley',x:24.5,y:35.0,w:28,h:29,tier:'valeron'}
+];
+const HUNTER_ADMIN_UNLOCK_KEY = 'repo_hunter_admin_unlock_all_v1';
+const HUNTER_START_REGION = 'elvane';
+const HUNTER_REGIONS = [
+  {id:'vardesh',label:'Vardesh',x:15.1,y:17.4,w:12,h:9},
+  {id:'lumerre',label:'Lumerre',x:36.2,y:20.3,w:12,h:9},
+  {id:'kordesh',label:'Kordesh',x:52.0,y:21.0,w:12,h:9},
+  {id:'nambara',label:'Nambara',x:75.0,y:19.8,w:12,h:9},
+  {id:'norveth',label:'Norveth',x:15.1,y:35.2,w:12,h:9},
+  {id:'qasmir',label:'Qasmir',x:68.4,y:37.1,w:12,h:9},
+  {id:'calvora',label:'Calvora',x:86.8,y:45.1,w:12,h:9},
+  {id:'zafran',label:'Zafran',x:28.2,y:45.5,w:12,h:9},
+  {id:'elvane',label:'Elvane',x:50.0,y:45.8,w:13,h:10},
+  {id:'rovarn',label:'Rovarn',x:62.7,y:59.7,w:12,h:9},
+  {id:'marovar',label:'Marovar',x:76.7,y:61.7,w:12,h:9},
+  {id:'talune',label:'Talune',x:15.0,y:64.9,w:12,h:9},
+  {id:'drazhen',label:'Drazhen',x:34.0,y:62.6,w:12,h:9},
+  {id:'belros',label:'Belros',x:49.2,y:68.0,w:12,h:9},
+  {id:'sorevia',label:'Sorevia',x:54.7,y:82.5,w:12,h:9},
+  {id:'iskandar',label:'Iskandar',x:84.9,y:76.2,w:12,h:9}
+];
+const HUNTER_MENU_HOTSPOTS = [
+  {id:'my-centre',label:'My Centre',style:'left:1.35%;top:22.4%;width:26.2%;height:9.7%;'},
+  {id:'explore-velmora',label:'Explore Velmora',style:'left:2.25%;top:33.35%;width:23.3%;height:8.8%;'},
+  {id:'wildlife-journal',label:'Wildlife Journal',style:'left:2.45%;top:43.35%;width:23.0%;height:8.6%;'},
+  {id:'my-home',label:'My Home',style:'left:2.45%;top:53.15%;width:23.0%;height:8.7%;'},
+  {id:'adoptions',label:'Adoptions',style:'left:2.55%;top:63.45%;width:11.3%;height:7.4%;'},
+  {id:'upgrades',label:'Upgrades',style:'left:14.55%;top:63.55%;width:10.4%;height:7.3%;'},
+  {id:'records',label:'Records',style:'left:2.65%;top:74.35%;width:6.7%;height:12.6%;'},
+  {id:'settings',label:'Settings',style:'left:9.55%;top:74.35%;width:6.3%;height:12.6%;'},
+  {id:'hunter',label:'Hunter',style:'left:48.0%;top:1.45%;width:11.8%;height:7.0%;'},
+  {id:'gp',label:'GP',style:'left:59.5%;top:1.45%;width:9.1%;height:7.0%;'},
+  {id:'animals',label:'Animals',style:'left:68.65%;top:1.45%;width:10.4%;height:7.0%;'},
+  {id:'species',label:'Species',style:'left:78.4%;top:1.45%;width:9.4%;height:7.0%;'},
+  {id:'reputation',label:'Reputation',style:'left:87.25%;top:1.45%;width:11.0%;height:7.0%;'}
+];
+let hunterMenuAmbience=null;
+let hunterElvaneMusic=null;
+function ensureHunterElvaneMusic(){
+  if(hunterElvaneMusic)return hunterElvaneMusic;
+  hunterElvaneMusic=new Audio(HUNTER_ELVANE_MUSIC_PATH);
+  hunterElvaneMusic.loop=true;
+  hunterElvaneMusic.preload='auto';
+  hunterElvaneMusic.volume=.30;
+  return hunterElvaneMusic;
+}
+function playHunterElvaneMusic(){
+  const audio=ensureHunterElvaneMusic();
+  try{audio.currentTime=0;}catch(_){ }
+  audio.play().catch(()=>{});
+}
+function stopHunterElvaneMusic(){
+  if(!hunterElvaneMusic)return;
+  try{hunterElvaneMusic.pause();hunterElvaneMusic.currentTime=0;}catch(_){ }
+}
+function hunterElvaneProgress(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(HUNTER_ELVANE_PROGRESS_KEY)||'{}')||{};
+    return {east:Math.max(0,Math.min(1,Number(raw.east)||0)),solmere:Math.max(0,Math.min(1,Number(raw.solmere)||0))};
+  }catch(_){return {east:0,solmere:0};}
+}
+function setHunterElvaneCompletion(section,ratio){
+  if(section!=='east'&&section!=='solmere')return false;
+  const progress=hunterElvaneProgress();
+  progress[section]=Math.max(0,Math.min(1,Number(ratio)||0));
+  try{localStorage.setItem(HUNTER_ELVANE_PROGRESS_KEY,JSON.stringify(progress));}catch(_){ }
+  syncHunterElvaneUnlocks();
+  return true;
+}
+window.repoSetHunterElvaneCompletion=setHunterElvaneCompletion;
+function hunterElvaneTierUnlocked(tier){
+  if(tier==='east')return true;
+  if(hunterAdminUnlockAllEnabled())return true;
+  const progress=hunterElvaneProgress();
+  if(tier==='solmere')return progress.east>=HUNTER_ELVANE_UNLOCK_RATIO;
+  if(tier==='valeron')return progress.solmere>=HUNTER_ELVANE_UNLOCK_RATIO;
+  return false;
+}
+function ensureHunterMenuAudio(){
+  if(hunterMenuAmbience) return hunterMenuAmbience;
+  hunterMenuAmbience=new Audio(HUNTER_MENU_AMBIENCE_PATH);
+  hunterMenuAmbience.loop=true;
+  hunterMenuAmbience.preload='auto';
+  hunterMenuAmbience.volume=.28;
+  return hunterMenuAmbience;
+}
+function playHunterMenuAmbience(){
+  const audio=ensureHunterMenuAudio();
+  try{audio.currentTime=0;}catch(_){ }
+  audio.play().catch(()=>{});
+}
+function stopHunterMenuAmbience(){
+  if(!hunterMenuAmbience)return;
+  try{hunterMenuAmbience.pause();hunterMenuAmbience.currentTime=0;}catch(_){ }
+}
+function playHunterButtonSound(kind='normal'){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    const ctx=new AC(),now=ctx.currentTime,master=ctx.createGain();
+    master.gain.setValueAtTime(.0001,now);
+    master.gain.exponentialRampToValueAtTime(kind==='locked'?.026:.045,now+.008);
+    master.gain.exponentialRampToValueAtTime(.0001,now+(kind==='locked'?.16:.22));
+    master.connect(ctx.destination);
+    const hit=(type,freq,start,dur,amount,endFreq)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,start);if(endFreq)o.frequency.exponentialRampToValueAtTime(endFreq,start+dur);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(amount,start+.006);g.gain.exponentialRampToValueAtTime(.0001,start+dur);o.connect(g);g.connect(master);o.start(start);o.stop(start+dur+.02)};
+    if(kind==='locked'){
+      hit('triangle',190,now,.12,.48,132);hit('sine',92,now+.015,.13,.26,72);
+    }else{
+      hit('triangle',310,now,.105,.44,230);hit('sine',610,now+.018,.13,.24,430);hit('sine',990,now+.052,.11,.12,760);
+    }
+    setTimeout(()=>{try{ctx.close()}catch(_){ }},450);
+  }catch(_){ }
+}
+function hunterAdminUnlockAllEnabled(){
+  return !!(typeof repoIsSiteAdmin==='function'&&repoIsSiteAdmin()&&localStorage.getItem(HUNTER_ADMIN_UNLOCK_KEY)==='1');
+}
+function hunterRegionUnlocked(regionId){return regionId===HUNTER_START_REGION||hunterAdminUnlockAllEnabled();}
+function ensureHunterMenuStyles(){
+  if(document.getElementById('hunterMenuRuntimeStyles')) return;
+  const style=document.createElement('style');
+  style.id='hunterMenuRuntimeStyles';
+  style.textContent=`
+    body.hunter-menu-open{overflow:hidden;}
+    #hunterMenuOverlay{position:fixed;inset:0;z-index:4500;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at 50% 20%,rgba(221,188,126,.14),transparent 34%),linear-gradient(180deg,rgba(4,10,14,.74),rgba(3,7,10,.88));backdrop-filter:blur(5px);opacity:0;pointer-events:none;transition:opacity .22s ease;}
+    #hunterMenuOverlay.open{opacity:1;pointer-events:auto;}
+    #hunterMenuOverlay .hunter-menu-frame{position:relative;width:min(96vw,1700px);max-height:min(95vh,980px);padding:18px;border-radius:26px;background:linear-gradient(180deg,rgba(24,29,22,.96),rgba(11,17,14,.97));border:2px solid rgba(203,158,73,.9);box-shadow:0 28px 70px rgba(0,0,0,.58),0 0 0 2px rgba(93,62,20,.8) inset,0 0 28px rgba(214,171,83,.16);overflow:hidden;}
+    #hunterMenuOverlay .hunter-menu-frame::before{content:'';position:absolute;inset:8px;border:1px solid rgba(244,214,149,.42);border-radius:20px;pointer-events:none;}
+    #hunterMenuOverlay .hunter-menu-stage{position:relative;border-radius:18px;overflow:hidden;border:3px solid rgba(191,145,61,.96);background:linear-gradient(180deg,#08100c,#111b12);box-shadow:0 0 0 1px rgba(245,226,171,.28) inset,0 12px 40px rgba(0,0,0,.42);}
+    #hunterMenuOverlay .hunter-menu-image-wrap{position:relative;aspect-ratio:1680 / 945;width:min(100%,1620px);}
+    #hunterMenuOverlay .hunter-menu-image{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none;}
+    #hunterMenuOverlay .hunter-menu-shade{position:absolute;inset:0;background:radial-gradient(circle at 72% 14%,rgba(255,239,200,.10),transparent 18%),linear-gradient(180deg,rgba(0,0,0,.01),rgba(0,0,0,.055));pointer-events:none;}
+    #hunterMenuOverlay .hunter-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 20%,rgba(255,229,154,.10),transparent 26%),radial-gradient(circle at 16% 72%,rgba(138,182,82,.11),transparent 24%);mix-blend-mode:screen;}
+    /* Image-menu controls are true invisible hotspots. Never reveal their rectangular hit boxes. */
+    #hunterMenuOverlay .hunter-hotspot{position:absolute;display:block;padding:0!important;margin:0!important;border:0!important;outline:0!important;background:none!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;color:transparent!important;font-size:0!important;line-height:0!important;min-width:0!important;min-height:0!important;cursor:pointer;overflow:visible;opacity:1;user-select:none;-webkit-tap-highlight-color:transparent;}
+    #hunterMenuOverlay .hunter-hotspot::before{content:'';position:absolute;left:50%;top:50%;width:82%;height:74%;transform:translate(-50%,-50%) scale(.72);border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,238,177,.20) 0%,rgba(239,204,112,.10) 34%,rgba(181,221,128,.05) 52%,transparent 74%);filter:blur(7px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .24s ease;}
+    #hunterMenuOverlay .hunter-hotspot::after{content:'';position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%) scale(.25);border-radius:50%;background:radial-gradient(circle,rgba(255,250,221,.72) 0 8%,rgba(255,221,129,.30) 18%,rgba(255,221,129,.08) 38%,transparent 70%);opacity:0;pointer-events:none;}
+    #hunterMenuOverlay .hunter-hotspot:hover::before,#hunterMenuOverlay .hunter-hotspot:focus-visible::before{opacity:.72;transform:translate(-50%,-50%) scale(1.04);}
+    #hunterMenuOverlay .hunter-hotspot:hover::after,#hunterMenuOverlay .hunter-hotspot:focus-visible::after{opacity:.62;animation:hunterHotspotSparkle 1.35s ease-in-out infinite;}
+    #hunterMenuOverlay .hunter-hotspot.is-clicked::before{animation:hunterHotspotGlowClick .34s ease-out both;}
+    #hunterMenuOverlay .hunter-hotspot.is-clicked::after{opacity:1;animation:hunterHotspotRipple .42s ease-out both;}
+    #hunterMenuOverlay .hunter-menu-close{position:absolute;top:26px;right:26px;z-index:8;width:34px;height:34px;padding:0;border:0;background:rgba(9,14,11,.58);color:#f2d490;font:700 24px/32px Georgia,serif;border-radius:50%;cursor:pointer;box-shadow:0 0 0 1px rgba(231,194,107,.28),0 5px 14px rgba(0,0,0,.28);backdrop-filter:blur(3px);transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+    #hunterMenuOverlay .hunter-menu-close:hover{transform:scale(1.07);background:rgba(18,25,17,.82);box-shadow:0 0 0 1px rgba(246,217,150,.55),0 0 18px rgba(232,194,102,.17);}
+    #hunterMenuOverlay .hunter-menu-effects{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+    #hunterMenuOverlay .hunter-leaf{position:absolute;left:var(--x);top:-10%;width:var(--size);height:calc(var(--size)*.58);opacity:var(--opacity);background:radial-gradient(circle at 35% 35%,rgba(255,234,170,.9),rgba(255,234,170,.18) 22%,transparent 24%),linear-gradient(135deg,#9ec96f 0%,#4e7c36 58%,#274923 100%);border-radius:100% 0 100% 0;box-shadow:0 0 8px rgba(111,160,72,.18);transform:rotate(var(--spin));animation:hunterLeafDrift var(--dur) linear infinite;animation-delay:var(--delay);filter:saturate(1.05);}
+    #hunterMenuOverlay .hunter-leaf::after{content:'';position:absolute;left:48%;top:10%;width:1px;height:80%;background:rgba(241,232,186,.5);transform:rotate(22deg);}
+    #hunterMenuOverlay .hunter-wisp{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:2px;border-radius:999px;background:linear-gradient(90deg,transparent,rgba(236,246,228,.02),rgba(236,246,228,.46),rgba(236,246,228,.02),transparent);filter:blur(.5px);opacity:var(--opacity);animation:hunterWispDrift var(--dur) ease-in-out infinite;animation-delay:var(--delay);}
+    #hunterMenuOverlay .hunter-view{display:none;position:relative;animation:hunterViewIn .34s cubic-bezier(.2,.8,.2,1) both;}
+    #hunterMenuOverlay .hunter-view.is-active{display:block;}
+    #hunterMenuOverlay .hunter-explore-wrap{position:relative;aspect-ratio:1672/941;width:min(100%,1620px);overflow:hidden;background:#0b1314;}
+    #hunterMenuOverlay .hunter-explore-base,#hunterMenuOverlay .hunter-explore-colour{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none;}
+    #hunterMenuOverlay .hunter-explore-base{filter:grayscale(.96) saturate(.12) brightness(.48) contrast(1.05);transition:filter .45s ease,opacity .45s ease;}
+    #hunterMenuOverlay .hunter-explore-colour{clip-path:polygon(39% 31%,48% 27%,59% 29%,63% 39%,60% 51%,56% 57%,46% 56%,39% 48%,36% 39%);filter:saturate(1.06) brightness(1.03);transition:opacity .42s ease;filter:drop-shadow(0 0 15px rgba(255,221,134,.20));}
+    #hunterMenuOverlay .hunter-explore-wrap.is-all-unlocked .hunter-explore-base{filter:none;}
+    #hunterMenuOverlay .hunter-explore-wrap.is-all-unlocked .hunter-explore-colour{opacity:0;}
+    #hunterMenuOverlay .hunter-map-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 44%,transparent 38%,rgba(4,10,12,.10) 76%,rgba(1,5,7,.30) 100%);box-shadow:inset 0 0 0 2px rgba(230,194,111,.32),inset 0 0 38px rgba(0,0,0,.30);}
+    /* Map regions are invisible hotspots too: no lock cards, borders or rectangular hover states. */
+    #hunterMenuOverlay .hunter-region-button{position:absolute;display:block;transform:translate(-50%,-50%);padding:0!important;margin:0!important;border:0!important;outline:0!important;background:none!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;color:transparent!important;font-size:0!important;line-height:0!important;min-width:0!important;min-height:0!important;cursor:pointer;z-index:4;overflow:visible;user-select:none;-webkit-tap-highlight-color:transparent;}
+    #hunterMenuOverlay .hunter-region-button::before{content:'';position:absolute;left:50%;top:50%;width:84%;height:78%;transform:translate(-50%,-50%) scale(.78);border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,235,167,.18),rgba(255,205,84,.07) 42%,transparent 72%);filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .24s ease;}
+    #hunterMenuOverlay .hunter-region-button::after{content:'';position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%) scale(.2);border-radius:50%;background:radial-gradient(circle,rgba(255,244,200,.58),rgba(255,205,100,.18) 28%,transparent 68%);opacity:0;pointer-events:none;}
+    #hunterMenuOverlay .hunter-region-button:hover::before,#hunterMenuOverlay .hunter-region-button:focus-visible::before{opacity:.66;transform:translate(-50%,-50%) scale(1.06);}
+    #hunterMenuOverlay .hunter-region-button:hover::after,#hunterMenuOverlay .hunter-region-button:focus-visible::after{opacity:.55;animation:hunterHotspotSparkle 1.45s ease-in-out infinite;}
+    #hunterMenuOverlay .hunter-region-button.is-locked{cursor:not-allowed;}
+    #hunterMenuOverlay .hunter-region-button.is-locked::before{background:radial-gradient(ellipse at center,rgba(214,190,135,.12),rgba(154,145,122,.04) 42%,transparent 72%);}
+    #hunterMenuOverlay .hunter-region-button.is-unlocked::before{background:radial-gradient(ellipse at center,rgba(236,246,184,.22),rgba(178,225,115,.09) 42%,transparent 72%);}
+    #hunterMenuOverlay .hunter-region-button.is-clicked::before{animation:hunterHotspotGlowClick .34s ease-out both;}
+    #hunterMenuOverlay .hunter-region-button.is-clicked::after{opacity:1;animation:hunterHotspotRipple .42s ease-out both;}
+    #hunterMenuOverlay .hunter-region-button span{display:none!important;}
+    #hunterMenuOverlay .hunter-explore-back{position:absolute;left:18px;top:18px;z-index:7;border:1px solid rgba(227,195,120,.48);background:rgba(7,13,13,.76);color:#f1d899;padding:9px 14px;border-radius:10px;font:700 13px Georgia,serif;letter-spacing:.4px;cursor:pointer;box-shadow:0 7px 20px rgba(0,0,0,.30),inset 0 0 0 1px rgba(255,240,200,.08);backdrop-filter:blur(4px);transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+    #hunterMenuOverlay .hunter-explore-back:hover{transform:translateY(-1px);background:rgba(18,28,24,.90);box-shadow:0 8px 22px rgba(0,0,0,.34),0 0 15px rgba(221,190,111,.12);}
+    #hunterMenuOverlay .hunter-elvane-wrap{position:relative;aspect-ratio:1680/945;width:min(100%,1620px);overflow:hidden;background:#0b1314;}
+    #hunterMenuOverlay .hunter-elvane-base,#hunterMenuOverlay .hunter-elvane-zone{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none;}
+    #hunterMenuOverlay .hunter-elvane-base{filter:grayscale(.96) saturate(.14) brightness(.46) contrast(1.07);}
+    #hunterMenuOverlay .hunter-elvane-zone{opacity:0;filter:saturate(1.06) brightness(1.025);transition:opacity .42s ease;pointer-events:none;}
+    #hunterMenuOverlay .hunter-elvane-zone.is-unlocked{opacity:1;}
+    #hunterMenuOverlay .hunter-elvane-east{clip-path:polygon(38% 7%,100% 7%,100% 78%,88% 76%,78% 71%,69% 66%,61% 60%,52% 60%,45% 58%,40% 51%,36% 41%);}
+    #hunterMenuOverlay .hunter-elvane-solmere{clip-path:polygon(24% 58%,36% 54%,47% 58%,58% 58%,69% 63%,80% 70%,87% 78%,86% 96%,12% 96%,12% 76%,18% 66%);}
+    #hunterMenuOverlay .hunter-elvane-valeron{clip-path:polygon(3% 8%,42% 8%,44% 31%,41% 44%,36% 54%,28% 60%,17% 60%,8% 53%,3% 42%);}
+    #hunterMenuOverlay .hunter-elvane-wrap::after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at 52% 44%,transparent 35%,rgba(3,8,8,.10) 73%,rgba(1,5,6,.29) 100%);box-shadow:inset 0 0 0 2px rgba(230,194,111,.32),inset 0 0 40px rgba(0,0,0,.31);}
+    #hunterMenuOverlay .hunter-elvane-button{position:absolute;display:block;transform:translate(-50%,-50%);padding:0!important;margin:0!important;border:0!important;outline:0!important;background:none!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;color:transparent!important;font-size:0!important;line-height:0!important;min-width:0!important;min-height:0!important;cursor:pointer;z-index:7;overflow:visible;user-select:none;-webkit-tap-highlight-color:transparent;}
+    #hunterMenuOverlay .hunter-elvane-button::before{content:'';position:absolute;left:50%;top:50%;width:78%;height:74%;transform:translate(-50%,-50%) scale(.78);border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,238,177,.18),rgba(211,228,133,.07) 42%,transparent 72%);filter:blur(9px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .24s ease;}
+    #hunterMenuOverlay .hunter-elvane-button::after{content:'';position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%) scale(.2);border-radius:50%;background:radial-gradient(circle,rgba(255,248,210,.64),rgba(235,201,108,.20) 30%,transparent 70%);opacity:0;pointer-events:none;}
+    #hunterMenuOverlay .hunter-elvane-button:hover::before,#hunterMenuOverlay .hunter-elvane-button:focus-visible::before{opacity:.70;transform:translate(-50%,-50%) scale(1.06);}
+    #hunterMenuOverlay .hunter-elvane-button:hover::after,#hunterMenuOverlay .hunter-elvane-button:focus-visible::after{opacity:.58;animation:hunterHotspotSparkle 1.45s ease-in-out infinite;}
+    #hunterMenuOverlay .hunter-elvane-button.is-locked{cursor:not-allowed;}
+    #hunterMenuOverlay .hunter-elvane-button.is-locked::before{background:radial-gradient(ellipse at center,rgba(211,198,154,.10),rgba(139,139,123,.035) 43%,transparent 72%);}
+    #hunterMenuOverlay .hunter-elvane-button.is-clicked::before{animation:hunterHotspotGlowClick .34s ease-out both;}
+    #hunterMenuOverlay .hunter-elvane-button.is-clicked::after{opacity:1;animation:hunterHotspotRipple .42s ease-out both;}
+    #hunterMenuOverlay .hunter-elvane-back{position:absolute;left:18px;top:18px;z-index:9;border:1px solid rgba(227,195,120,.48);background:rgba(7,13,13,.76);color:#f1d899;padding:9px 14px;border-radius:10px;font:700 13px Georgia,serif;letter-spacing:.4px;cursor:pointer;box-shadow:0 7px 20px rgba(0,0,0,.30),inset 0 0 0 1px rgba(255,240,200,.08);backdrop-filter:blur(4px);transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+    #hunterMenuOverlay .hunter-elvane-back:hover{transform:translateY(-1px);background:rgba(18,28,24,.90);box-shadow:0 8px 22px rgba(0,0,0,.34),0 0 15px rgba(221,190,111,.12);}
+    #hunterMenuOverlay .hunter-admin-map-badge{display:none;position:absolute;right:18px;bottom:16px;z-index:6;padding:7px 10px;border:1px solid rgba(121,221,132,.38);border-radius:8px;background:rgba(5,24,12,.70);color:#b9f4bd;font:700 10px Consolas,monospace;letter-spacing:.7px;text-transform:uppercase;box-shadow:0 4px 14px rgba(0,0,0,.28);}
+    #hunterMenuOverlay .hunter-explore-wrap.is-all-unlocked .hunter-admin-map-badge{display:block;}
+    @keyframes hunterViewIn{from{opacity:0;transform:scale(.988) translateY(4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    @keyframes hunterButtonSheen{0%{opacity:0}100%{opacity:0}}
+    @keyframes hunterHotspotClick{0%,100%{opacity:1}}
+    @keyframes hunterHotspotSparkle{0%,100%{transform:translate(-50%,-50%) scale(.42);opacity:.18}50%{transform:translate(-50%,-50%) scale(1.18);opacity:.72}}
+    @keyframes hunterHotspotGlowClick{0%{opacity:.72;transform:translate(-50%,-50%) scale(.82)}45%{opacity:1;transform:translate(-50%,-50%) scale(1.16)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.28)}}
+    @keyframes hunterHotspotRipple{0%{opacity:.9;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.8)}}
+    @keyframes hunterLeafDrift{0%{transform:translate3d(0,-12%,0) rotate(var(--spin));}18%{transform:translate3d(4vw,18vh,0) rotate(calc(var(--spin) + 70deg));}36%{transform:translate3d(-3vw,37vh,0) rotate(calc(var(--spin) + 130deg));}60%{transform:translate3d(6vw,61vh,0) rotate(calc(var(--spin) + 210deg));}82%{transform:translate3d(-2vw,82vh,0) rotate(calc(var(--spin) + 290deg));}100%{transform:translate3d(5vw,112vh,0) rotate(calc(var(--spin) + 360deg));}}
+    @keyframes hunterWispDrift{0%,100%{transform:translateX(-3%);opacity:calc(var(--opacity) * .55);}50%{transform:translateX(6%);opacity:var(--opacity);}}
+    @media(max-width:1100px){#hunterMenuOverlay .hunter-menu-frame{padding:14px;border-radius:20px;}#hunterMenuOverlay .hunter-hotspot{border-radius:10px;}#hunterMenuOverlay .hunter-menu-close{top:20px;right:20px;}}
+    @media(max-width:760px){#hunterMenuOverlay{padding:8px;}#hunterMenuOverlay .hunter-menu-close{top:14px;right:14px;width:30px;height:30px;font-size:20px;line-height:28px;}}
+  `;
+  document.head.appendChild(style);
+}
+function populateHunterMenuEffects(effectLayer){
+  if(!effectLayer || effectLayer.dataset.ready==='1') return;
+  effectLayer.dataset.ready='1';
+  for(let i=0;i<22;i++){
+    const leaf=document.createElement('div');
+    leaf.className='hunter-leaf';
+    leaf.style.setProperty('--x',`${3 + Math.random()*94}%`);
+    leaf.style.setProperty('--size',`${9 + Math.random()*16}px`);
+    leaf.style.setProperty('--opacity',`${0.20 + Math.random()*0.44}`);
+    leaf.style.setProperty('--dur',`${10 + Math.random()*12}s`);
+    leaf.style.setProperty('--delay',`${-Math.random()*13}s`);
+    leaf.style.setProperty('--spin',`${Math.round(Math.random()*320)}deg`);
+    effectLayer.appendChild(leaf);
+  }
+  for(let i=0;i<11;i++){
+    const wisp=document.createElement('div');
+    wisp.className='hunter-wisp';
+    wisp.style.setProperty('--x',`${-7 + Math.random()*28}%`);
+    wisp.style.setProperty('--y',`${8 + Math.random()*74}%`);
+    wisp.style.setProperty('--w',`${130 + Math.random()*190}px`);
+    wisp.style.setProperty('--opacity',`${0.10 + Math.random()*0.24}`);
+    wisp.style.setProperty('--dur',`${5.2 + Math.random()*4.8}s`);
+    wisp.style.setProperty('--delay',`${-Math.random()*7}s`);
+    effectLayer.appendChild(wisp);
+  }
+}
+function hunterHotspotsMarkup(){
+  return HUNTER_MENU_HOTSPOTS.map(h=>`<span class="hunter-hotspot" data-hunter-action="${h.id}" role="button" tabindex="0" aria-label="${h.label}" style="${h.style}"></span>`).join('');
+}
+function hunterRegionButtonsMarkup(){
+  return HUNTER_REGIONS.map(r=>`<span class="hunter-region-button" data-hunter-region="${r.id}" role="button" tabindex="0" aria-label="${r.label}" style="left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%;"><span aria-hidden="true"></span></span>`).join('');
+}
+function hunterElvaneButtonsMarkup(){
+  return HUNTER_ELVANE_AREAS.map(a=>`<span class="hunter-elvane-button" data-hunter-elvane-area="${a.id}" role="button" tabindex="0" aria-label="${a.label}" style="left:${a.x}%;top:${a.y}%;width:${a.w}%;height:${a.h}%;"></span>`).join('');
+}
+function syncHunterElvaneUnlocks(){
+  const wrap=document.getElementById('hunterElvaneWrap');if(!wrap)return;
+  const east=document.getElementById('hunterElvaneEastLayer'),solmere=document.getElementById('hunterElvaneSolmereLayer'),valeron=document.getElementById('hunterElvaneValeronLayer');
+  east?.classList.toggle('is-unlocked',hunterElvaneTierUnlocked('east'));
+  solmere?.classList.toggle('is-unlocked',hunterElvaneTierUnlocked('solmere'));
+  valeron?.classList.toggle('is-unlocked',hunterElvaneTierUnlocked('valeron'));
+  wrap.querySelectorAll('[data-hunter-elvane-area]').forEach(btn=>{
+    const area=HUNTER_ELVANE_AREAS.find(a=>a.id===btn.dataset.hunterElvaneArea);
+    const unlocked=!!area&&hunterElvaneTierUnlocked(area.tier);
+    btn.classList.toggle('is-unlocked',unlocked);btn.classList.toggle('is-locked',!unlocked);
+    btn.setAttribute('aria-disabled',unlocked?'false':'true');
+  });
+}
+function syncHunterExploreUnlocks(){
+  const wrap=document.getElementById('hunterExploreWrap');if(!wrap)return;
+  const all=hunterAdminUnlockAllEnabled();wrap.classList.toggle('is-all-unlocked',all);
+  wrap.querySelectorAll('[data-hunter-region]').forEach(btn=>{
+    const unlocked=hunterRegionUnlocked(btn.dataset.hunterRegion);
+    btn.classList.toggle('is-unlocked',unlocked);btn.classList.toggle('is-locked',!unlocked);
+    btn.setAttribute('aria-disabled',unlocked?'false':'true');
+  });
+  syncHunterElvaneUnlocks();
+}
+function ensureHunterMenuOverlay(){
+  ensureHunterMenuStyles();
+  let overlay=document.getElementById('hunterMenuOverlay');
+  if(overlay) return overlay;
+  overlay=document.createElement('div');
+  overlay.id='hunterMenuOverlay';
+  overlay.setAttribute('aria-hidden','true');
+  overlay.innerHTML=`
+    <div class="hunter-menu-frame" role="dialog" aria-modal="true" aria-label="Velmora Animal Centre">
+      <button type="button" class="hunter-menu-close" id="hunterMenuClose" aria-label="Return">×</button>
+      <div class="hunter-menu-stage">
+        <div id="hunterMenuMainView" class="hunter-view is-active">
+          <div class="hunter-menu-image-wrap">
+            <img class="hunter-menu-image" src="${HUNTER_MENU_IMAGE_PATH}" alt="Velmora Animal Centre menu" />
+            <div class="hunter-menu-effects" id="hunterMenuEffects"></div>
+            <div class="hunter-menu-shade"></div>
+            <div class="hunter-glow"></div>
+            ${hunterHotspotsMarkup()}
+          </div>
+        </div>
+        <div id="hunterExploreView" class="hunter-view">
+          <div id="hunterExploreWrap" class="hunter-explore-wrap">
+            <img class="hunter-explore-base" src="${HUNTER_EXPLORE_MAP_PATH}" alt="Explore Velmora map" />
+            <img class="hunter-explore-colour" src="${HUNTER_EXPLORE_MAP_PATH}" alt="" aria-hidden="true" />
+            <button id="hunterExploreBack" type="button" class="hunter-explore-back">← Animal Centre</button>
+            ${hunterRegionButtonsMarkup()}
+            <div class="hunter-admin-map-badge">Admin preview · all regions unlocked</div>
+            <div class="hunter-menu-effects" id="hunterExploreEffects"></div>
+            <div class="hunter-map-vignette"></div>
+          </div>
+        </div>
+        <div id="hunterElvaneView" class="hunter-view">
+          <div id="hunterElvaneWrap" class="hunter-elvane-wrap">
+            <img class="hunter-elvane-base" src="${HUNTER_ELVANE_MAP_PATH}" alt="Elvane exploration map" />
+            <img id="hunterElvaneEastLayer" class="hunter-elvane-zone hunter-elvane-east is-unlocked" src="${HUNTER_ELVANE_MAP_PATH}" alt="" aria-hidden="true" />
+            <img id="hunterElvaneSolmereLayer" class="hunter-elvane-zone hunter-elvane-solmere" src="${HUNTER_ELVANE_MAP_PATH}" alt="" aria-hidden="true" />
+            <img id="hunterElvaneValeronLayer" class="hunter-elvane-zone hunter-elvane-valeron" src="${HUNTER_ELVANE_MAP_PATH}" alt="" aria-hidden="true" />
+            <button id="hunterElvaneBack" type="button" class="hunter-elvane-back">← Velmora</button>
+            ${hunterElvaneButtonsMarkup()}
+            <div class="hunter-menu-effects" id="hunterElvaneEffects"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  populateHunterMenuEffects(document.getElementById('hunterMenuEffects'));
+  populateHunterMenuEffects(document.getElementById('hunterExploreEffects'));
+  populateHunterMenuEffects(document.getElementById('hunterElvaneEffects'));
+  overlay.addEventListener('click',e=>{ if(e.target===overlay){playHunterButtonSound();closeHunterMenu();} });
+  const closeButton=document.getElementById('hunterMenuClose');
+  if(closeButton) closeButton.addEventListener('click',()=>{playHunterButtonSound();closeHunterMenu();});
+  overlay.querySelectorAll('[data-hunter-action]').forEach(btn=>btn.addEventListener('click',()=>selectHunterMenuOption(btn)));
+  document.getElementById('hunterExploreBack')?.addEventListener('click',()=>{playHunterButtonSound();showHunterMenuMain();});
+  document.getElementById('hunterElvaneBack')?.addEventListener('click',()=>{playHunterButtonSound();showHunterExploreFromElvane();});
+  overlay.querySelectorAll('[data-hunter-region]').forEach(btn=>btn.addEventListener('click',()=>selectHunterRegion(btn.dataset.hunterRegion)));
+  overlay.querySelectorAll('[data-hunter-elvane-area]').forEach(btn=>btn.addEventListener('click',()=>selectHunterElvaneArea(btn.dataset.hunterElvaneArea)));
+  overlay.querySelectorAll('.hunter-hotspot,.hunter-region-button,.hunter-elvane-button').forEach(hotspot=>hotspot.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();hotspot.click();}}));
+  syncHunterExploreUnlocks();
+  if(!window.__hunterMenuEscBound){
+    window.__hunterMenuEscBound=true;
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.getElementById('hunterMenuOverlay')?.classList.contains('open')) closeHunterMenu(); });
+  }
+  return overlay;
+}
+function selectHunterMenuOption(button){
+  if(!button)return;
+  const found=HUNTER_MENU_HOTSPOTS.find(h=>h.id===button.dataset.hunterAction);
+  if(!found)return;
+  playHunterButtonSound();
+  button.classList.remove('is-clicked');void button.offsetWidth;button.classList.add('is-clicked');
+  setTimeout(()=>button.classList.remove('is-clicked'),340);
+  if(found.id==='explore-velmora'){openHunterExploreMap();return;}
+  if(typeof toast==='function') toast(`${found.label} selected.`);
+}
+function openHunterExploreMap(){
+  const main=document.getElementById('hunterMenuMainView'),map=document.getElementById('hunterExploreView'),elvane=document.getElementById('hunterElvaneView');
+  if(!main||!map)return;main.classList.remove('is-active');elvane?.classList.remove('is-active');map.classList.remove('is-active');void map.offsetWidth;map.classList.add('is-active');syncHunterExploreUnlocks();
+}
+function showHunterMenuMain(){
+  const main=document.getElementById('hunterMenuMainView'),map=document.getElementById('hunterExploreView'),elvane=document.getElementById('hunterElvaneView');
+  if(!main||!map)return;map.classList.remove('is-active');elvane?.classList.remove('is-active');stopHunterElvaneMusic();main.classList.remove('is-active');void main.offsetWidth;main.classList.add('is-active');
+}
+function openHunterElvaneMap(){
+  const map=document.getElementById('hunterExploreView'),elvane=document.getElementById('hunterElvaneView');
+  if(!map||!elvane)return;
+  map.classList.remove('is-active');elvane.classList.remove('is-active');syncHunterElvaneUnlocks();
+  stopHunterMenuAmbience();playHunterElvaneMusic();
+  void elvane.offsetWidth;elvane.classList.add('is-active');
+}
+function showHunterExploreFromElvane(){
+  const map=document.getElementById('hunterExploreView'),elvane=document.getElementById('hunterElvaneView');
+  if(!map||!elvane)return;
+  elvane.classList.remove('is-active');stopHunterElvaneMusic();playHunterMenuAmbience();syncHunterExploreUnlocks();
+  map.classList.remove('is-active');void map.offsetWidth;map.classList.add('is-active');
+}
+function selectHunterElvaneArea(areaId){
+  const area=HUNTER_ELVANE_AREAS.find(a=>a.id===areaId);if(!area)return;
+  const unlocked=hunterElvaneTierUnlocked(area.tier);
+  playHunterButtonSound(unlocked?'normal':'locked');
+  if(!unlocked){
+    const requirement=area.tier==='solmere'?'Complete more of Canto Plains and Elvara to open Solmere Vineyards.':'Complete more of Solmere Vineyards to open Valeron Valley.';
+    if(typeof toast==='function')toast(requirement);return;
+  }
+  const btn=document.querySelector(`[data-hunter-elvane-area="${area.id}"]`);if(btn){btn.classList.remove('is-clicked');void btn.offsetWidth;btn.classList.add('is-clicked');setTimeout(()=>btn.classList.remove('is-clicked'),340);}
+  if(typeof toast==='function')toast(`${area.label} selected.`);
+}
+function selectHunterRegion(regionId){
+  const region=HUNTER_REGIONS.find(r=>r.id===regionId);if(!region)return;
+  const unlocked=hunterRegionUnlocked(region.id);
+  playHunterButtonSound(unlocked?'normal':'locked');
+  if(!unlocked){if(typeof toast==='function')toast(`${region.label} is still locked. Begin your expeditions in Elvane.`);return;}
+  const btn=document.querySelector(`[data-hunter-region="${region.id}"]`);if(btn){btn.classList.remove('is-clicked');void btn.offsetWidth;btn.classList.add('is-clicked');setTimeout(()=>btn.classList.remove('is-clicked'),340);}
+  if(region.id==='elvane'){openHunterElvaneMap();return;}
+  if(typeof toast==='function')toast(`${region.label} selected. Exploration content will open here.`);
+}
+function openHunterMenu(){
+  if(!character) return;
+  const overlay=ensureHunterMenuOverlay();
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden','false');
+  document.body.classList.add('hunter-menu-open');
+  showHunterMenuMain();
+  playHunterMenuAmbience();
+}
+function closeHunterMenu(){
+  const overlay=document.getElementById('hunterMenuOverlay');
+  if(!overlay) return;
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden','true');
+  document.body.classList.remove('hunter-menu-open');
+  stopHunterMenuAmbience();
+  stopHunterElvaneMusic();
+}
 function openFishing() { openUpcomingTrainingSkill('Fishing'); }
 function openHerblore() { openUpcomingTrainingSkill('Herblore'); }
 function openConstruction() { openUpcomingTrainingSkill('Construction'); }
-function openHunter() { openUpcomingTrainingSkill('Hunter'); }
+function openHunter() { openHunterMenu(); }
 
 $('openAgility').onclick = openAgility;
 $('openMining').disabled=false;
 $('openQuests').disabled=false;
 $('openMining').onclick = openMining;
 $('mineStarButton').onclick = strikeShootingStar;
-const physicalMiningStar=$('shootingStar');
-if(physicalMiningStar){
-  physicalMiningStar.setAttribute('role','button');
-  physicalMiningStar.setAttribute('tabindex','0');
-  physicalMiningStar.setAttribute('aria-label','Strike the shooting star to start a seven-minute mining cycle');
-  const startMiningFromStar=()=>{
-    if($('mineStarButton')?.disabled)return;
-    void strikeShootingStar();
-  };
-  physicalMiningStar.addEventListener('click',startMiningFromStar);
-  physicalMiningStar.addEventListener('keydown',event=>{
-    if(event.key==='Enter'||event.key===' '){event.preventDefault();startMiningFromStar();}
-  });
-}
 $('stopMiningButton').onclick = stopShootingStar;
 $('miningOpenBank').onclick = ()=>{stopShootingStar();openBank()};
 $('openSlayer').onclick = openSlayer;
@@ -10559,6 +10946,8 @@ function adminCloseDropdown(){adminDropdown?.classList.add('hidden');$('adminBut
 function adminSyncMenu(){
   const toggle=$('adminToggleTesting');
   if(toggle)toggle.textContent=toaState.adminMode?'DISABLE ADMIN TEST MODE':'ENABLE ADMIN TEST MODE';
+  const hunterUnlock=$('adminHunterUnlockAll');
+  if(hunterUnlock)hunterUnlock.innerHTML=`<span>&gt;</span> ${hunterAdminUnlockAllEnabled()?'HUNTER: LOCK TO ELVANE':'HUNTER: UNLOCK ALL REGIONS'}`;
   window.tavernAdminCharacterTesterVisible?.();
 }
 $('adminButton')?.removeEventListener('click',toaToggleAdminMode);
@@ -10571,6 +10960,14 @@ $('adminButton')?.addEventListener('click',event=>{
   adminSyncMenu();
 });
 $('adminToggleTesting')?.addEventListener('click',()=>{if(!repoIsSiteAdmin())return;toaSetAdminMode(!toaState.adminMode);adminSyncMenu();adminCloseDropdown();});
+$('adminHunterUnlockAll')?.addEventListener('click',()=>{
+  if(!repoIsSiteAdmin())return;
+  const next=!hunterAdminUnlockAllEnabled();
+  localStorage.setItem(HUNTER_ADMIN_UNLOCK_KEY,next?'1':'0');
+  playHunterButtonSound();
+  syncHunterExploreUnlocks();adminSyncMenu();adminCloseDropdown();
+  if(typeof toast==='function')toast(next?'Hunter admin preview: every Velmora region is now unlocked.':'Hunter admin preview disabled: only Elvane is unlocked.');
+});
 $('adminOpenRename')?.addEventListener('click',()=>{if(!repoIsSiteAdmin())return;adminCloseDropdown();adminOpenAccountTools();});
 document.addEventListener('click',event=>{if(!event.target.closest('#adminButton,#adminDropdown'))adminCloseDropdown();});
 repoLoadAccountIdentityAliases();
@@ -12334,8 +12731,8 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
   style.id='repoQuidditchPenaltyStyles';
   style.textContent=`
     #quidditchModePitch .qm-penalty-alert{
-      position:absolute;left:50%;top:47%;z-index:145;width:min(520px,62%);
-      transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 8px 12px rgba(0,0,0,.78));
+      position:absolute;left:50%;top:47%;z-index:145;width:min(390px,48%);
+      transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.78));
       animation:qmPenaltyPop .22s ease-out both,qmPenaltyShake .13s linear .22s 7;
     }
     #quidditchModePitch .qm-penalty-alert img{display:block;width:100%;height:auto;image-rendering:pixelated}
@@ -12360,7 +12757,7 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
     @keyframes qmPenaltyCaption{from{opacity:0;transform:translate(-50%,-42%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
     @keyframes qmPenaltySpot{from{opacity:.45;transform:translate(-50%,-50%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
     @media(max-width:760px){
-      #quidditchModePitch .qm-penalty-alert{width:min(360px,72%)}
+      #quidditchModePitch .qm-penalty-alert{width:min(300px,58%)}
       #quidditchModePitch .qm-penalty-caption{font-size:12px;min-width:185px;padding:6px 11px}
     }
   `;
@@ -13414,15 +13811,12 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
   style.textContent=`
     #quidditchModePitch .qm-hat-trick-popup{
       position:absolute;left:50%;top:48%;z-index:190;
-      width:min(60%,470px);pointer-events:none;
+      width:min(58%,430px);pointer-events:none;
       opacity:0;transform:translate(-50%,-50%) scale(.82);
       transform-origin:center;filter:drop-shadow(0 8px 12px rgba(0,0,0,.48));
-      background:none!important;border:0!important;box-shadow:none!important;
-      isolation:isolate;
     }
     #quidditchModePitch .qm-hat-trick-popup img{
       display:block;width:100%;height:auto;object-fit:contain;
-      background:transparent!important;
     }
     #quidditchModePitch .qm-hat-trick-popup.is-visible{
       opacity:1;animation:qmHatTrickPop .42s cubic-bezier(.18,.8,.26,1.18) both,
@@ -16737,47 +17131,16 @@ qmShowSharedGoal=function(state){
   TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   const map=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
   const current=()=>window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[]};
-  const owner=()=>String(current().username||'guest').trim().toLowerCase();
-  const isPublicView=()=>Boolean(current().isPublic);
-  // Keep the previous key so every player's REAL multi-spread browser arrangement survives untouched.
+  const owner=()=>String(current().username||'guest').toLowerCase();
+  // Keep the previous key so existing 54-slot arrangements migrate in place.
   const key=()=>`repo_tcg_binder_54_layout_${owner()}`;
   const storageKey=()=>`repo_tcg_binder_storage_${owner()}`;
-  const publicSnapshots=new Map();
-  let snapshotTimer=0,snapshotBusy=false,snapshotQueued=false;
-  const cleanId=raw=>String(raw||'').trim().toLowerCase().replaceAll('-','_');
-  const cleanLayout=raw=>{const out=Array(TOTAL_SLOTS).fill(null),src=Array.isArray(raw)?raw:[];src.slice(0,TOTAL_SLOTS).forEach((value,i)=>{const id=cleanId(value);if(id&&map[id]&&!out.includes(id))out[i]=id});return out};
-  const cleanStorage=raw=>[...new Set((Array.isArray(raw)?raw:[]).map(cleanId).filter(id=>map[id]))];
-  const localLoad=()=>{try{const v=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}};
-  const localLoadStorage=()=>{try{const v=JSON.parse(localStorage.getItem(storageKey())||'[]');return Array.isArray(v)?v.filter(id=>map[id]):[]}catch(_){return[]}};
-  const publicSnapshot=()=>publicSnapshots.get(owner())||null;
-  const load=()=>isPublicView()?(publicSnapshot()?.loaded?cleanLayout(publicSnapshot().layout):[]):localLoad();
-  const loadStorage=()=>isPublicView()?(publicSnapshot()?.loaded?cleanStorage(publicSnapshot().storage):[]):localLoadStorage();
-  async function flushOwnSnapshot(){
-    if(snapshotBusy||!snapshotQueued||isPublicView()||typeof db==='undefined'||!db?.rpc||typeof character==='undefined'||!character?.username)return;
-    snapshotQueued=false;snapshotBusy=true;
-    try{
-      const username=String(character.username);
-      const layout=cleanLayout(localLoad()),storage=cleanStorage(localLoadStorage());
-      // A recovery copy is made before publishing. Supabase is NEVER read back into the owner's browser.
-      try{localStorage.setItem(`repo_tcg_binder_v3_recovery_${username.trim().toLowerCase()}`,JSON.stringify({layout,storage,savedAt:Date.now()}))}catch(_){}
-      const {error}=await db.rpc('set_my_quidditch_tcg_binder_layout',{p_username:username,p_layout:layout,p_storage:storage});
-      if(error)throw error;
-    }catch(error){console.warn('Binder public snapshot save skipped; local V3 binder remains authoritative.',error)}
-    finally{snapshotBusy=false;if(snapshotQueued)queueOwnSnapshot()}
-  }
-  function queueOwnSnapshot(){if(isPublicView()||typeof character==='undefined'||!character?.username)return;snapshotQueued=true;clearTimeout(snapshotTimer);snapshotTimer=setTimeout(flushOwnSnapshot,400)}
-  async function fetchPublicSnapshot(username){
-    const name=String(username||'').trim(),lookup=name.toLowerCase();if(!name)return;
-    publicSnapshots.set(lookup,{loaded:false,layout:[],storage:[]});
-    try{
-      const {data,error}=await db.rpc('get_public_quidditch_tcg_binder_layout',{p_username:name});if(error)throw error;
-      const row=Array.isArray(data)?data[0]:data;publicSnapshots.set(lookup,{loaded:true,layout:cleanLayout(row?.layout),storage:cleanStorage(row?.storage)});
-    }catch(error){console.warn('Public binder layout snapshot unavailable.',error);publicSnapshots.set(lookup,{loaded:true,layout:[],storage:[]})}
-  }
-  const save=v=>{if(isPublicView())return;try{localStorage.setItem(key(),JSON.stringify(v.slice(0,TOTAL_SLOTS)))}catch(_){}queueOwnSnapshot()};
-  const saveStorage=v=>{if(isPublicView())return;try{localStorage.setItem(storageKey(),JSON.stringify([...new Set(v.filter(id=>map[id]))]))}catch(_){}queueOwnSnapshot()};
-  const owned=()=>{const out=[];for(const raw of current().cards||[]){const id=cleanId(raw);if(map[id]&&!out.includes(id))out.push(id)}return out};
-  const ordered=()=>{if(isPublicView()&&!publicSnapshot()?.loaded)return Array(TOTAL_SLOTS).fill(null);const stored=loadStorage(),have=owned().filter(id=>!stored.includes(id)),slots=Array(TOTAL_SLOTS).fill(null);load().slice(0,TOTAL_SLOTS).forEach((id,i)=>{if(have.includes(id)&&!slots.includes(id))slots[i]=id});for(const id of have){if(!slots.includes(id)){const e=slots.indexOf(null);if(e>=0)slots[e]=id}}return slots};
+  const load=()=>{try{const v=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}};
+  const save=v=>{try{localStorage.setItem(key(),JSON.stringify(v.slice(0,TOTAL_SLOTS)))}catch(_){}};
+  const loadStorage=()=>{try{const v=JSON.parse(localStorage.getItem(storageKey())||'[]');return Array.isArray(v)?v.filter(id=>map[id]):[]}catch(_){return[]}};
+  const saveStorage=v=>{try{localStorage.setItem(storageKey(),JSON.stringify([...new Set(v.filter(id=>map[id]))]))}catch(_){}};
+  const owned=()=>{const out=[];for(const raw of current().cards||[]){const id=String(raw||'').trim().toLowerCase().replaceAll('-','_');if(map[id]&&!out.includes(id))out.push(id)}return out};
+  const ordered=()=>{const stored=loadStorage(),have=owned().filter(id=>!stored.includes(id)),slots=Array(TOTAL_SLOTS).fill(null);load().slice(0,TOTAL_SLOTS).forEach((id,i)=>{if(have.includes(id)&&!slots.includes(id))slots[i]=id});for(const id of have){if(!slots.includes(id)){const e=slots.indexOf(null);if(e>=0)slots[e]=id}}return slots};
   const spreadIndex=()=>{const key=String(document.getElementById('quidditchTcgBinderDialog')?.dataset.binderPage||'');const match=/^open(\d+)$/.exec(key);return match?Number(match[1])-1:-1};
   const storageCategory=id=>{
     if(id==='ltd_week_one_anniversary')return {key:'limited',label:'LIMITED'};
@@ -17027,16 +17390,7 @@ qmShowSharedGoal=function(state){
     bindNavigationDragTargets();render();
   };
   const oldEnsure=ensureQuidditchTcgBinderUi;ensureQuidditchTcgBinderUi=function(){const r=oldEnsure.apply(this,arguments);ensure();bindNavigationDragTargets();return r};
-  const previousOpenForPublicLayout=openQuidditchTcgBinder;
-  openQuidditchTcgBinder=function(target){
-    const publicName=typeof target==='string'&&target.trim()?target.trim():'';
-    if(publicName)publicSnapshots.set(publicName.toLowerCase(),{loaded:false,layout:[],storage:[]});
-    const result=previousOpenForPublicLayout.apply(this,arguments);
-    if(publicName){fetchPublicSnapshot(publicName).then(()=>{const dialog=document.getElementById('quidditchTcgBinderDialog');if(dialog?.open&&current().isPublic&&owner()===publicName.toLowerCase()){render();requestAnimationFrame(render)}})}
-    else queueOwnSnapshot();
-    return result;
-  };
-  document.addEventListener('DOMContentLoaded',()=>{ensure();bindNavigationDragTargets();render();setTimeout(()=>{if(typeof character!=='undefined'&&character?.username)queueOwnSnapshot()},900)},{once:true});
+  document.addEventListener('DOMContentLoaded',()=>{ensure();bindNavigationDragTargets();render()},{once:true});
   setInterval(()=>{const d=document.getElementById('quidditchTcgBinderDialog');if(d?.open&&/^open\d+$/.test(d.dataset.binderPage||''))render()},1000);
 })();
 
@@ -19845,7 +20199,3 @@ qmShowSharedGoal=function(state){
     if(message)message.textContent='Bought Abyssal protector for 20,000 GP. It is now in your Pets collection.';
   };
 })();
-
-
-// V3 binder recovery guard — never allow the obsolete one-spread/18-pocket renderer to win.
-(()=>{const clean=()=>{document.getElementById('repoStableThreePageBinder18Styles')?.remove();document.querySelectorAll('.repo-binder-spread-18:not(.repo-binder-spread-126)').forEach(node=>{if(node.closest('#quidditchTcgBinderDialog'))node.remove()})};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean,{once:true});else clean();})();
