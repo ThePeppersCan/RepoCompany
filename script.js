@@ -23380,3 +23380,223 @@ updateHunterCantoHud=function(){
   function accountWatcher(){const u=currentUsername();if(u!==lastUser){lastUser=u;eventState=null;passportState=[];stateLoaded=false;renderLaunchers();renderPassport();if(u)refreshState({silent:true})}}
   installStyles();ensureLaunchers();accountWatcher();setInterval(accountWatcher,1200);setInterval(()=>{if(currentUsername())refreshState({silent:true})},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUsername())refreshState({silent:true})});
 })();
+
+
+// ============================================================================
+// REPO SPORTS WORLD CUP 2026 — HOMEPAGE BILLBOARD KICK-OFF COUNTDOWN V1.14
+// Replaces the billboard creative with a real absolute countdown to the first
+// World Cup fixture: Friday 14 August 2026, 21:00 British Summer Time.
+// The timestamp is stored as UTC so browser timezone settings cannot move it.
+// ============================================================================
+(() => {
+  if (window.__repoWorldCupKickoffBillboardV114) return;
+  window.__repoWorldCupKickoffBillboardV114 = true;
+
+  // 21:00 BST = 20:00 UTC on 14 August 2026.
+  const KICKOFF_AT = Date.UTC(2026, 7, 14, 20, 0, 0);
+  const SEGMENTS = Object.freeze({
+    '0':'abcdef','1':'bc','2':'abdeg','3':'abcdg','4':'bcfg',
+    '5':'acdfg','6':'acdefg','7':'abc','8':'abcdefg','9':'abcdfg'
+  });
+
+  const styleId='repoWorldCupKickoffBillboardV114Styles';
+  if (!document.getElementById(styleId)) {
+    const style=document.createElement('style');
+    style.id=styleId;
+    style.textContent=`
+      #billboardAdLayer{position:relative!important;overflow:hidden!important}
+      #repoWorldCupKickoffBillboard{
+        position:absolute;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+        background:
+          radial-gradient(ellipse at 50% 47%,rgba(46,49,54,.24) 0%,rgba(17,18,20,.16) 34%,rgba(5,6,7,.76) 77%),
+          linear-gradient(180deg,#101114 0%,#090a0c 45%,#050607 100%);
+        color:#ff2434;isolation:isolate;overflow:hidden;
+        font-family:Arial,Helvetica,sans-serif;
+      }
+      #repoWorldCupKickoffBillboard::before{
+        content:"";position:absolute;inset:0;pointer-events:none;opacity:.34;
+        background:
+          repeating-linear-gradient(180deg,rgba(255,255,255,.018) 0 1px,transparent 1px 4px),
+          radial-gradient(circle at 50% 50%,transparent 0 54%,rgba(0,0,0,.48) 100%);
+        mix-blend-mode:screen;
+      }
+      #repoWorldCupKickoffBillboard::after{
+        content:"";position:absolute;inset:-12%;pointer-events:none;
+        background:radial-gradient(ellipse at center,rgba(255,26,45,.055),transparent 48%);
+        animation:repoWcKickoffBreath 3.6s ease-in-out infinite;
+      }
+      .repo-wc-kickoff-inner{
+        position:relative;z-index:2;width:88%;height:78%;max-width:none;max-height:none;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(6px,1.15vh,12px);
+      }
+      .repo-wc-kickoff-kicker{
+        color:#858b94;font:800 clamp(6px,.52vw,9px)/1.1 Arial,sans-serif;
+        letter-spacing:.24em;text-transform:uppercase;text-align:center;
+        text-shadow:0 1px 0 #000;opacity:.9;white-space:nowrap;
+      }
+      .repo-wc-led-clock{
+        width:86%;max-width:620px;display:flex;align-items:center;justify-content:center;
+        gap:2.1%;filter:drop-shadow(0 0 14px rgba(255,21,43,.18));
+      }
+      .repo-wc-led-pair{display:flex;align-items:center;justify-content:center;gap:9%;flex:1 1 0;min-width:0}
+      .repo-wc-led-digit{
+        --led:#ff2638;--led-hot:#ff5360;--led-off:#2a0a0f;
+        position:relative;flex:1 1 0;width:auto;min-width:0;max-width:58px;aspect-ratio:.57/1;
+      }
+      .repo-wc-led-seg{
+        position:absolute;display:block;background:var(--led-off);opacity:.36;
+        box-shadow:inset 0 0 2px rgba(0,0,0,.9);transition:background .08s linear,opacity .08s linear,box-shadow .08s linear;
+      }
+      .repo-wc-led-seg.on{
+        opacity:1;background:linear-gradient(180deg,var(--led-hot),var(--led) 45%,#d80018);
+        box-shadow:0 0 4px rgba(255,37,55,.95),0 0 13px rgba(255,20,43,.72),0 0 27px rgba(255,0,32,.26),inset 0 0 2px #ffd7db;
+      }
+      .repo-wc-led-seg.a,.repo-wc-led-seg.d,.repo-wc-led-seg.g{
+        left:15%;width:70%;height:9%;clip-path:polygon(10% 0,90% 0,100% 50%,90% 100%,10% 100%,0 50%);
+      }
+      .repo-wc-led-seg.a{top:2%}.repo-wc-led-seg.g{top:45.5%}.repo-wc-led-seg.d{bottom:2%}
+      .repo-wc-led-seg.b,.repo-wc-led-seg.c,.repo-wc-led-seg.e,.repo-wc-led-seg.f{
+        width:10%;height:39%;clip-path:polygon(50% 0,100% 10%,100% 90%,50% 100%,0 90%,0 10%);
+      }
+      .repo-wc-led-seg.b{right:4%;top:7%}.repo-wc-led-seg.c{right:4%;bottom:7%}
+      .repo-wc-led-seg.f{left:4%;top:7%}.repo-wc-led-seg.e{left:4%;bottom:7%}
+      .repo-wc-led-colon{
+        position:relative;width:4.2%;max-width:16px;min-width:8px;height:auto;aspect-ratio:.16/1;flex:0 0 auto;align-self:stretch;max-height:92px;
+      }
+      .repo-wc-led-colon::before,.repo-wc-led-colon::after{
+        content:"";position:absolute;left:50%;transform:translateX(-50%);width:clamp(5px,.7vw,10px);aspect-ratio:1;border-radius:50%;
+        background:#ff2638;box-shadow:0 0 5px #ff2434,0 0 15px rgba(255,25,47,.7),0 0 28px rgba(255,0,31,.22);
+      }
+      .repo-wc-led-colon::before{top:27%}.repo-wc-led-colon::after{bottom:27%}
+      .repo-wc-kickoff-meta{
+        display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;text-transform:uppercase;
+      }
+      .repo-wc-kickoff-meta strong{
+        color:#c8ccd2;font:800 clamp(6px,.58vw,9px)/1.1 Arial,sans-serif;letter-spacing:.14em;white-space:nowrap;
+      }
+      .repo-wc-kickoff-meta span{
+        color:#686e77;font:700 clamp(5px,.48vw,8px)/1.1 Arial,sans-serif;letter-spacing:.13em;
+      }
+      #repoWorldCupKickoffBillboard.is-live .repo-wc-led-digit,
+      #repoWorldCupKickoffBillboard.is-live .repo-wc-led-colon{animation:repoWcLivePulse 1.35s ease-in-out infinite}
+      #repoWorldCupKickoffBillboard.is-live .repo-wc-kickoff-meta strong{color:#ff5260;text-shadow:0 0 10px rgba(255,38,56,.48)}
+      @keyframes repoWcKickoffBreath{0%,100%{opacity:.45;transform:scale(.98)}50%{opacity:1;transform:scale(1.025)}}
+      @keyframes repoWcLivePulse{50%{filter:brightness(1.24)}}
+      @media(max-width:760px){
+        .repo-wc-kickoff-inner{width:86%;height:76%;gap:6px}
+        .repo-wc-led-clock{width:84%;gap:1.8%}
+        .repo-wc-led-pair{gap:8%}.repo-wc-led-digit{max-width:48px}
+        .repo-wc-led-colon{max-width:12px;min-width:6px}
+        .repo-wc-kickoff-kicker{letter-spacing:.17em}.repo-wc-kickoff-meta strong{letter-spacing:.10em}
+      }
+
+      @supports (container-type:inline-size){
+        #billboardAdLayer{container-type:inline-size}
+        @container (max-width:560px){
+          .repo-wc-kickoff-inner{width:88%;height:76%;gap:5px}
+          .repo-wc-led-clock{width:82%;gap:1.8%}
+          .repo-wc-led-digit{max-width:46px}
+          .repo-wc-led-colon{max-width:11px}
+          .repo-wc-kickoff-kicker{font-size:7px;letter-spacing:.18em}
+          .repo-wc-kickoff-meta strong{font-size:7px;letter-spacing:.10em}
+          .repo-wc-kickoff-meta span{font-size:6px}
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const makeDigit=()=>{
+    const digit=document.createElement('div');
+    digit.className='repo-wc-led-digit';
+    digit.setAttribute('aria-hidden','true');
+    for(const name of 'abcdefg'){
+      const seg=document.createElement('span');
+      seg.className=`repo-wc-led-seg ${name}`;
+      seg.dataset.segment=name;
+      digit.appendChild(seg);
+    }
+    return digit;
+  };
+
+  const setDigit=(digit,value)=>{
+    const active=SEGMENTS[String(value)]||'';
+    digit.querySelectorAll('.repo-wc-led-seg').forEach(seg=>seg.classList.toggle('on',active.includes(seg.dataset.segment)));
+  };
+
+  const mount=()=>{
+    const layer=document.getElementById('billboardAdLayer');
+    if(!layer)return false;
+    if(document.getElementById('repoWorldCupKickoffBillboard'))return true;
+
+    const billboard=document.createElement('div');
+    billboard.id='repoWorldCupKickoffBillboard';
+    billboard.setAttribute('role','timer');
+    billboard.setAttribute('aria-live','off');
+    billboard.innerHTML=`
+      <div class="repo-wc-kickoff-inner">
+        <div class="repo-wc-kickoff-kicker">Repo Sports World Cup · Kick-off in</div>
+        <div class="repo-wc-led-clock" aria-hidden="true">
+          <div class="repo-wc-led-pair" data-pair="hours"></div>
+          <span class="repo-wc-led-colon"></span>
+          <div class="repo-wc-led-pair" data-pair="minutes"></div>
+          <span class="repo-wc-led-colon"></span>
+          <div class="repo-wc-led-pair" data-pair="seconds"></div>
+        </div>
+        <div class="repo-wc-kickoff-meta"><strong>Friday 14 August · 9:00 PM BST</strong><span>First World Cup fixture</span></div>
+      </div>`;
+
+    const digits=[];
+    billboard.querySelectorAll('.repo-wc-led-pair').forEach(pair=>{
+      const a=makeDigit(),b=makeDigit();pair.append(a,b);digits.push(a,b);
+    });
+    billboard._repoDigits=digits;
+    layer.appendChild(billboard);
+
+    // Keep the old advertising slides loaded underneath for layout stability, but
+    // make the live countdown the only visible billboard content until kick-off.
+    layer.querySelectorAll('.billboard-ad-slide').forEach(slide=>{
+      slide.style.visibility='hidden';
+      slide.style.pointerEvents='none';
+    });
+    return true;
+  };
+
+  const render=()=>{
+    const billboard=document.getElementById('repoWorldCupKickoffBillboard');
+    if(!billboard)return;
+    let remaining=Math.max(0,KICKOFF_AT-Date.now());
+    const totalSeconds=Math.floor(remaining/1000);
+    // Keep the clock in HH:MM:SS; hours may exceed 24 if this patch is reused earlier.
+    const hours=Math.floor(totalSeconds/3600);
+    const minutes=Math.floor((totalSeconds%3600)/60);
+    const seconds=totalSeconds%60;
+    const hh=String(Math.min(hours,99)).padStart(2,'0');
+    const mm=String(minutes).padStart(2,'0');
+    const ss=String(seconds).padStart(2,'0');
+    const value=hh+mm+ss;
+    billboard._repoDigits?.forEach((digit,i)=>setDigit(digit,value[i]||'0'));
+    billboard.setAttribute('aria-label',remaining>0?`World Cup kick-off in ${hours} hours ${minutes} minutes ${seconds} seconds`:'World Cup is live');
+    if(remaining<=0){
+      billboard.classList.add('is-live');
+      const kicker=billboard.querySelector('.repo-wc-kickoff-kicker');
+      const strong=billboard.querySelector('.repo-wc-kickoff-meta strong');
+      const sub=billboard.querySelector('.repo-wc-kickoff-meta span');
+      if(kicker)kicker.textContent='Repo Sports World Cup';
+      if(strong)strong.textContent='WORLD CUP IS LIVE';
+      if(sub)sub.textContent='Kick-off · 9:00 PM BST';
+    }
+  };
+
+  let attempts=0;
+  const boot=()=>{
+    if(mount()){
+      render();
+      const timer=window.setInterval(render,250);
+      window.addEventListener('pagehide',()=>window.clearInterval(timer),{once:true});
+      return;
+    }
+    if(attempts++<80)window.setTimeout(boot,250);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();

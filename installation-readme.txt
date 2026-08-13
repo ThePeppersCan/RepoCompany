@@ -1,15 +1,16 @@
-LEVEL HUNTER — CANTO PREMIUM V4.3
-Windmill Scale + Collision Hotfix
+REPO SPORTS WORLD CUP — V1.14 BILLBOARD SIZING FIX
 
-This hotfix fixes two Windmill issues:
-1) the player was rendering too small inside the Windmill
-2) the player could walk through the surrounding stone walls / outside the interior floor
+Fixes the homepage World Cup kick-off countdown so the LED clock scales to the actual billboard rather than the browser viewport.
+
+Changes:
+- Countdown digits no longer overflow/crop on the billboard.
+- Clock is centred with more breathing room.
+- Header/date typography scales down with the billboard.
+- Responsive sizing now follows the billboard container where supported.
+- Kick-off target remains Friday 14 August 2026, 9:00 PM BST.
 
 Install:
-- Replace script.js with the included version
-- Hard refresh the page: Ctrl + Shift + R
+1. Replace script.js with the included file.
+2. Hard refresh: Ctrl + Shift + R.
 
-Notes:
-- No index.html replacement
-- No new SQL required
-- No image replacement required if you already installed the earlier Windmill update
+No SQL and no asset replacement required.
