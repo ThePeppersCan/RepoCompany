@@ -1,0 +1,98 @@
+[
+  {
+    "id": "forage-clover",
+    "label": "Meadow Herb Patch",
+    "foodId": "clover_sprigs",
+    "type": "herb",
+    "x": 725,
+    "y": 405
+  },
+  {
+    "id": "forage-berries",
+    "label": "Canto Berry Bush",
+    "foodId": "canto_berries",
+    "type": "berry",
+    "x": 548,
+    "y": 467
+  },
+  {
+    "id": "forage-seeds",
+    "label": "Seed & Flower Patch",
+    "foodId": "sunflower_seeds",
+    "type": "seed",
+    "x": 1185,
+    "y": 350
+  },
+  {
+    "id": "forage-grain",
+    "label": "Loose Field Grain",
+    "foodId": "grain",
+    "type": "seed",
+    "x": 1305,
+    "y": 565
+  },
+  {
+    "id": "forage-roots",
+    "label": "Diggable Root Patch",
+    "foodId": "carrot",
+    "type": "root",
+    "x": 1230,
+    "y": 520
+  },
+  {
+    "id": "forage-greens",
+    "label": "Garden Greens",
+    "foodId": "garden_greens",
+    "type": "herb",
+    "x": 820,
+    "y": 600
+  },
+  {
+    "id": "forage-fruit",
+    "label": "Windfallen Orchard Fruit",
+    "foodId": "orchard_fruit",
+    "type": "fruit",
+    "x": 665,
+    "y": 690
+  },
+  {
+    "id": "forage-worms",
+    "label": "Soft Riverbank Soil",
+    "foodId": "worms",
+    "type": "root",
+    "x": 1080,
+    "y": 645
+  },
+  {
+    "id": "forage-insects",
+    "label": "Meadow Insect Spot",
+    "foodId": "grasshopper",
+    "type": "insect",
+    "x": 925,
+    "y": 845
+  },
+  {
+    "id": "forage-mushrooms",
+    "label": "Woodland Mushroom Cluster",
+    "foodId": "brown_mushroom",
+    "type": "mushroom",
+    "x": 505,
+    "y": 855
+  },
+  {
+    "id": "forage-nuts",
+    "label": "Woodland Seed Patch",
+    "foodId": "acorn",
+    "type": "seed",
+    "x": 455,
+    "y": 245
+  },
+  {
+    "id": "forage-fishing",
+    "label": "River Ripple",
+    "foodId": "basic_fish",
+    "type": "fishing",
+    "x": 1005,
+    "y": 540
+  }
+]

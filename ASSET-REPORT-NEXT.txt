@@ -1,0 +1,55 @@
+LEVEL HUNTER — NEXT VISUAL / AUDIO ASSETS THAT WOULD NOTICEABLY RAISE QUALITY
+
+The systems are implemented without requiring these assets. These are the next bespoke assets worth making so CSS/reused-animation fallbacks can be replaced.
+
+PLAYER
+- Dedicated kneel / lower-body interaction animation.
+- Inspect-ground / inspect-object animation.
+- Place-food-on-floor animation.
+- Gentle Reach Out animation.
+- Small-animal carrier open / lift / close animation.
+- Indoor stair transition pose if you want visible stair traversal instead of the current short fade.
+
+CANTO FIELD VOLE
+- Peek-from-cover frames.
+- Alert / freeze pose.
+- Sniff-food frames.
+- Dedicated nibble/eat frames with crumbs kept extremely restrained.
+- Cautious approach frames.
+- Partial-retreat / back-away frames.
+- Receptive / relaxed pose.
+
+KEEPER DARWIN
+- Looking down at a clue.
+- Small pointing gesture.
+- Short talking variation.
+- Quiet 'hold there / give it room' gesture.
+- Proud/smiling quest-complete idle.
+
+WINDMILL
+- Torn grain sack overlay sprite matching Floor 1.
+- Scattered fine-grain overlay sprite.
+- Tiny vole track overlay matching the upper dusty boards.
+- Sheltered hiding-gap foreground/mask so the vole can visually pass behind props.
+- 2–4 subtle animated machinery frames/masks for the lower central mill.
+- 2–4 subtle upper-gear / sail-shaft animation frames.
+- Optional dedicated dust-mote pixels if you want to replace the current restrained CSS motes.
+
+UI
+- Field Note icon.
+- Quest icon.
+- Bespoke New Resident frame.
+- Bespoke Canto location-completion crest/stamp.
+- Food quickbar frame if the quickbar gets a dedicated art pass.
+
+AUDIO
+- Windmill exterior sail rotation loop.
+- Lower-floor wooden mechanism / grain movement loop.
+- Upper-floor stronger wind + gearing loop.
+- Door open / close one-shots.
+- Short wood stair creaks.
+- Vole peek/sniff/nibble micro-SFX.
+- Restrained successful-befriending musical sting.
+- Restrained quest-complete sting.
+
+Do not replace the current systems just to wait for these assets. They are polish upgrades, not blockers.

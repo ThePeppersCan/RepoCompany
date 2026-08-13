@@ -1,0 +1,169 @@
+function populateHunterMenuEffects(effectLayer){
+  if(!effectLayer || effectLayer.dataset.ready==='1') return;
+  effectLayer.dataset.ready='1';
+  for(let i=0;i<22;i++){
+    const leaf=document.createElement('div');
+    leaf.className='hunter-leaf';
+    leaf.style.setProperty('--x',`${3 + Math.random()*94}%`);
+    leaf.style.setProperty('--size',`${9 + Math.random()*16}px`);
+    leaf.style.setProperty('--opacity',`${0.20 + Math.random()*0.44}`);
+    leaf.style.setProperty('--dur',`${10 + Math.random()*12}s`);
+    leaf.style.setProperty('--delay',`${-Math.random()*13}s`);
+    leaf.style.setProperty('--spin',`${Math.round(Math.random()*320)}deg`);
+    effectLayer.appendChild(leaf);
+  }
+  for(let i=0;i<11;i++){
+    const wisp=document.createElement('div');
+    wisp.className='hunter-wisp';
+    wisp.style.setProperty('--x',`${-7 + Math.random()*28}%`);
+    wisp.style.setProperty('--y',`${8 + Math.random()*74}%`);
+    wisp.style.setProperty('--w',`${130 + Math.random()*190}px`);
+    wisp.style.setProperty('--opacity',`${0.10 + Math.random()*0.24}`);
+    wisp.style.setProperty('--dur',`${5.2 + Math.random()*4.8}s`);
+    wisp.style.setProperty('--delay',`${-Math.random()*7}s`);
+    effectLayer.appendChild(wisp);
+  }
+}
+function hunterHotspotsMarkup(){
+  return HUNTER_MENU_HOTSPOTS.map(h=>`<span class="hunter-hotspot" data-hunter-action="${h.id}" role="button" tabindex="0" aria-label="${h.label}" style="${h.style}"></span>`).join('');
+}
+function hunterRegionButtonsMarkup(){
+  return HUNTER_REGIONS.map(r=>`<span class="hunter-region-button" data-hunter-region="${r.id}" role="button" tabindex="0" aria-label="${r.label}" style="left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%;"><span aria-hidden="true"></span></span>`).join('');
+}
+function hunterElvaneButtonsMarkup(){
+  return HUNTER_ELVANE_AREAS.map(a=>`<span class="hunter-elvane-button" data-hunter-elvane-area="${a.id}" role="button" tabindex="0" aria-label="${a.label}" style="left:${a.x}%;top:${a.y}%;width:${a.w}%;height:${a.h}%;"></span>`).join('');
+}
+function syncHunterElvaneUnlocks(){
+  const wrap=document.getElementById('hunterElvaneWrap');if(!wrap)return;
+  const east=document.getElementById('hunterElvaneEastLayer'),solmere=document.getElementById('hunterElvaneSolmereLayer'),valeron=document.getElementById('hunterElvaneValeronLayer');
+  east?.classList.toggle('is-unlocked',hunterElvaneTierUnlocked('east'));
+  solmere?.classList.toggle('is-unlocked',hunterElvaneTierUnlocked('solmere'));
+  valeron?.classList.toggle('is-unlocked',hunterElvaneTierUnlocked('valeron'));
+  wrap.querySelectorAll('[data-hunter-elvane-area]').forEach(btn=>{
+    const area=HUNTER_ELVANE_AREAS.find(a=>a.id===btn.dataset.hunterElvaneArea);
+    const unlocked=!!area&&hunterElvaneTierUnlocked(area.tier);
+    btn.classList.toggle('is-unlocked',unlocked);btn.classList.toggle('is-locked',!unlocked);
+    btn.setAttribute('aria-disabled',unlocked?'false':'true');
+  });
+}
+function syncHunterExploreUnlocks(){
+  const wrap=document.getElementById('hunterExploreWrap');if(!wrap)return;
+  const all=hunterAdminUnlockAllEnabled();wrap.classList.toggle('is-all-unlocked',all);
+  wrap.querySelectorAll('[data-hunter-region]').forEach(btn=>{
+    const unlocked=hunterRegionUnlocked(btn.dataset.hunterRegion);
+    btn.classList.toggle('is-unlocked',unlocked);btn.classList.toggle('is-locked',!unlocked);
+    btn.setAttribute('aria-disabled',unlocked?'false':'true');
+  });
+  syncHunterElvaneUnlocks();
+}
+function ensureHunterMenuOverlay(){
+  ensureHunterMenuStyles();
+  ensureHunterWildlifeStyles();
+  ensureHunterCantoCollisionImage();
+  let overlay=document.getElementById('hunterMenuOverlay');
+  if(overlay) return overlay;
+  overlay=document.createElement('div');
+  overlay.id='hunterMenuOverlay';
+  overlay.setAttribute('aria-hidden','true');
+  overlay.innerHTML=`
+    <div class="hunter-menu-frame" role="dialog" aria-modal="true" aria-label="Velmora Animal Centre">
+      <button type="button" class="hunter-menu-close" id="hunterMenuClose" aria-label="Return">×</button>
+      <div class="hunter-menu-stage">
+        <div id="hunterMenuMainView" class="hunter-view is-active">
+          <div class="hunter-menu-image-wrap">
+            <img class="hunter-menu-image" src="${HUNTER_MENU_IMAGE_PATH}" alt="Velmora Animal Centre menu" />
+            <div class="hunter-menu-effects" id="hunterMenuEffects"></div>
+            <div class="hunter-menu-shade"></div>
+            <div class="hunter-glow"></div>
+            ${hunterHotspotsMarkup()}
+          </div>
+        </div>
+        <div id="hunterExploreView" class="hunter-view">
+          <div id="hunterExploreWrap" class="hunter-explore-wrap">
+            <img class="hunter-explore-base" src="${HUNTER_EXPLORE_MAP_PATH}" alt="Explore Velmora map" />
+            <img class="hunter-explore-colour" src="${HUNTER_EXPLORE_MAP_PATH}" alt="" aria-hidden="true" />
+            <button id="hunterExploreBack" type="button" class="hunter-explore-back">← Animal Centre</button>
+            ${hunterRegionButtonsMarkup()}
+            <div class="hunter-admin-map-badge">Admin preview · all regions unlocked</div>
+            <div class="hunter-menu-effects" id="hunterExploreEffects"></div>
+            <div class="hunter-map-vignette"></div>
+          </div>
+        </div>
+        <div id="hunterElvaneView" class="hunter-view">
+          <div id="hunterElvaneWrap" class="hunter-elvane-wrap">
+            <img class="hunter-elvane-base" src="${HUNTER_ELVANE_MAP_PATH}" alt="Elvane exploration map" />
+            <img id="hunterElvaneEastLayer" class="hunter-elvane-zone hunter-elvane-east is-unlocked" src="${HUNTER_ELVANE_MAP_PATH}" alt="" aria-hidden="true" />
+            <img id="hunterElvaneSolmereLayer" class="hunter-elvane-zone hunter-elvane-solmere" src="${HUNTER_ELVANE_MAP_PATH}" alt="" aria-hidden="true" />
+            <img id="hunterElvaneValeronLayer" class="hunter-elvane-zone hunter-elvane-valeron" src="${HUNTER_ELVANE_MAP_PATH}" alt="" aria-hidden="true" />
+            <button id="hunterElvaneBack" type="button" class="hunter-elvane-back">← Velmora</button>
+            ${hunterElvaneButtonsMarkup()}
+            <div class="hunter-menu-effects" id="hunterElvaneEffects"></div>
+          </div>
+        </div>
+        <div id="hunterCantoView" class="hunter-view">
+          <div class="hunter-canto-shell">
+            <div id="hunterCantoViewport" class="hunter-canto-viewport">
+              <div id="hunterCantoWorld" class="hunter-canto-world">
+                <img class="hunter-canto-map" src="${HUNTER_CANTO_MAP_PATH}" alt="Canto Plains exploration area" />
+                <div id="hunterForageLayer" class="hunter-forage-layer" aria-label="Canto forage opportunities"></div>
+                <div id="hunterWildlifeLayer" class="hunter-wildlife-layer" aria-label="Canto wildlife opportunities"></div>
+                <div id="hunterCantoDarwin" class="hunter-canto-darwin" role="button" aria-label="Speak to Keeper Darwin"></div>
+                <div id="hunterCantoRupert" class="hunter-canto-rupert" aria-label="Rupert, Keeper Darwin's companion"></div>
+                <div id="hunterCantoPlayer" class="hunter-canto-player" aria-hidden="true"></div>
+              </div>
+              <div id="hunterCantoMotes" class="hunter-canto-motes"></div>
+              <div class="hunter-canto-vignette"></div>
+              <div class="hunter-canto-hud"><strong>Canto Plains</strong><span id="hunterCantoZone">Castle Road Edge</span><span id="hunterCantoNotes" class="hunter-canto-notes">Field notes 0/6</span><span id="hunterCantoWildlife" class="hunter-canto-wildlife-line">Wildlife 0/20 · Pack 0/24</span><span id="hunterCantoConditions" class="hunter-canto-condition-line">daytime · clear</span><span id="hunterCantoQuest" class="hunter-canto-quest-line">Talk to Darwin for fieldwork</span></div>
+              <button id="hunterCantoBack" type="button" class="hunter-canto-back">← Elvane</button>
+              <div id="hunterCantoPrompt" class="hunter-canto-prompt"></div>
+              <div id="hunterWildlifeNotices" class="hunter-wildlife-notices"></div>
+              <div id="hunterEncounterPanel" class="hunter-wildlife-panel hunter-encounter-panel"><header><div><b id="hunterEncounterName">Wildlife Encounter</b><small id="hunterEncounterMeta"></small></div><button class="hunter-wildlife-close" data-hunter-wildlife-close="encounter" aria-label="Close">×</button></header><div class="hunter-trust-row"><label><span>Gain Trust</span><b id="hunterEncounterTrustLabel">Trust 0/50</b></label><div class="hunter-trust-bar"><i id="hunterEncounterTrustFill"></i></div></div><div id="hunterEncounterMessage" class="hunter-encounter-message">Take your time and read the animal's behaviour.</div><div id="hunterEncounterActions" class="hunter-encounter-actions"></div><div id="hunterEncounterFoods" class="hunter-encounter-foods"></div></div>
+              <div id="hunterFieldPackPanel" class="hunter-wildlife-panel hunter-side-panel"><header><div><b>Field Pack</b><small id="hunterFieldPackMeta">0/24 carried</small></div><button class="hunter-wildlife-close" data-hunter-wildlife-close="pack" aria-label="Close">×</button></header><div id="hunterFieldPackList" class="hunter-panel-scroll"></div></div>
+              <div class="hunter-canto-help">WASD / arrows · Shift careful step · E interact · I pack · J journal</div>
+              <div id="hunterDialogueLayer" class="hunter-dialogue-layer"><div class="hunter-dialogue-box"><div id="hunterDialogueName" class="hunter-dialogue-name"></div><div id="hunterDialogueText" class="hunter-dialogue-text"></div><div id="hunterDialogueChoices" class="hunter-dialogue-choices"></div><div class="hunter-dialogue-continue">◆</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div id="hunterJournalPanel" class="hunter-wildlife-panel hunter-side-panel"><header><div><b>Wildlife Journal · Canto Plains</b><small id="hunterJournalMeta">0/20 species</small></div><button class="hunter-wildlife-close" data-hunter-wildlife-close="journal" aria-label="Close">×</button></header><div id="hunterJournalList" class="hunter-panel-scroll"></div></div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  hunterBindWildlifeUi();
+  populateHunterMenuEffects(document.getElementById('hunterMenuEffects'));
+  populateHunterMenuEffects(document.getElementById('hunterExploreEffects'));
+  populateHunterMenuEffects(document.getElementById('hunterElvaneEffects'));
+  overlay.addEventListener('click',e=>{ if(e.target===overlay){playHunterButtonSound();closeHunterMenu();} });
+  const closeButton=document.getElementById('hunterMenuClose');
+  if(closeButton) closeButton.addEventListener('click',()=>{playHunterButtonSound();closeHunterMenu();});
+  overlay.querySelectorAll('[data-hunter-action]').forEach(btn=>btn.addEventListener('click',()=>selectHunterMenuOption(btn)));
+  document.getElementById('hunterExploreBack')?.addEventListener('click',()=>{playHunterButtonSound();showHunterMenuMain();});
+  document.getElementById('hunterElvaneBack')?.addEventListener('click',()=>{playHunterButtonSound();showHunterExploreFromElvane();});
+  document.getElementById('hunterCantoBack')?.addEventListener('click',()=>{playHunterButtonSound();showHunterElvaneFromCanto();});
+  document.getElementById('hunterCantoViewport')?.addEventListener('pointerdown',hunterCantoClickToMove);
+  document.getElementById('hunterCantoDarwin')?.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();speakToHunterDarwin();});
+  document.getElementById('hunterDialogueLayer')?.addEventListener('pointerdown',e=>{if(e.target.closest?.('.hunter-dialogue-choice'))return;e.preventDefault();e.stopPropagation();advanceHunterDialogue();});
+  overlay.querySelectorAll('[data-hunter-region]').forEach(btn=>btn.addEventListener('click',()=>selectHunterRegion(btn.dataset.hunterRegion)));
+  overlay.querySelectorAll('[data-hunter-elvane-area]').forEach(btn=>btn.addEventListener('click',()=>selectHunterElvaneArea(btn.dataset.hunterElvaneArea)));
+  overlay.querySelectorAll('.hunter-hotspot,.hunter-region-button,.hunter-elvane-button').forEach(hotspot=>hotspot.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();hotspot.click();}}));
+  syncHunterExploreUnlocks();
+  if(!window.__hunterMenuEscBound){
+    window.__hunterMenuEscBound=true;
+    document.addEventListener('keydown',e=>{ if(e.key!=='Escape'||!document.getElementById('hunterMenuOverlay')?.classList.contains('open'))return;if(document.getElementById('hunterCantoView')?.classList.contains('is-active')){e.preventDefault();if(hunterCloseTopWildlifeUi())return;showHunterElvaneFromCanto();return;}closeHunterMenu(); });
+  }
+  return overlay;
+}
+function selectHunterMenuOption(button){
+  if(!button)return;
+  const found=HUNTER_MENU_HOTSPOTS.find(h=>h.id===button.dataset.hunterAction);
+  if(!found)return;
+  playHunterButtonSound();
+  button.classList.remove('is-clicked');void button.offsetWidth;button.classList.add('is-clicked');
+  setTimeout(()=>button.classList.remove('is-clicked'),340);
+  if(found.id==='explore-velmora'){openHunterExploreMap();return;}
+  if(found.id==='wildlife-journal'){hunterLoadWildlifeSave().then(()=>hunterToggleJournal(true));return;}
+  if(typeof toast==='function') toast(`${found.label} selected.`);
+}
+function openHunterExploreMap(){
+  const main=document.getElementById('hunterMenuMainView'),map=document.getElementById('hunterExploreView'),elvane=document.getElementById('hunterElvaneView'),canto=document.getElementById('hunterCantoView');
+  if(!main||!map)return;stopHunterCantoGame();stopHunterCantoMusic();main.classList.remove('is-active');elvane?.classList.remove('is-active');canto?.classList.remove('is-active');map.classList.remove('is-active');void map.offsetWidth;map.classList.add('is-active');syncHunterExploreUnlocks();
+}

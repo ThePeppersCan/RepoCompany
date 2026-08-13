@@ -1,0 +1,1304 @@
+[
+  {
+    "speciesId": "sunmeadow_hare",
+    "name": "Sunmeadow Hare",
+    "region": "Canto Plains",
+    "habitats": [
+      "meadow",
+      "farmland"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 100,
+    "activeTimes": [
+      "morning",
+      "daytime",
+      "evening"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "visible"
+    ],
+    "temperament": "Skittish",
+    "movementBehaviour": "graze-and-bolt",
+    "fearSensitivity": 0.72,
+    "trustDifficulty": 0.35,
+    "preferredFoods": [
+      "carrot"
+    ],
+    "likedFoods": [
+      "clover_sprigs",
+      "turnip",
+      "canto_berries"
+    ],
+    "neutralFoods": [
+      "garden_greens",
+      "grain"
+    ],
+    "dislikedFoods": [
+      "grasshopper"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "slow",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Meadow grass around the windmill often bends before a hare appears.",
+      "Sudden movement makes it freeze, then bolt."
+    ],
+    "centreRequirements": {
+      "trust": 58
+    },
+    "baseXpReward": 45,
+    "baseGpPotential": 18,
+    "spriteReference": "assets/level-hunter/animals-runtime/sunmeadow_hare-runtime.png",
+    "size": 22,
+    "specialBehaviour": "Freezes briefly when watched before deciding whether to run."
+  },
+  {
+    "speciesId": "canto_field_vole",
+    "name": "Canto Field Vole",
+    "region": "Canto Plains",
+    "habitats": [
+      "farmland",
+      "village_edge"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 92,
+    "activeTimes": [
+      "morning",
+      "evening"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "tracks",
+      "burrow"
+    ],
+    "temperament": "Nervous",
+    "movementBehaviour": "short-dashes",
+    "fearSensitivity": 0.66,
+    "trustDifficulty": 0.24,
+    "preferredFoods": [
+      "sunflower_seeds"
+    ],
+    "likedFoods": [
+      "mixed_seeds",
+      "grain",
+      "acorn"
+    ],
+    "neutralFoods": [
+      "canto_berries"
+    ],
+    "dislikedFoods": [
+      "clover_sprigs"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "wait",
+    "interactionStages": [
+      "inspect_clue",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Tiny paired tracks appear along field margins.",
+      "It is braver when the player stays still."
+    ],
+    "centreRequirements": {
+      "trust": 52
+    },
+    "baseXpReward": 38,
+    "baseGpPotential": 12,
+    "spriteReference": "assets/level-hunter/animals-runtime/canto_field_vole-runtime.png",
+    "size": 14,
+    "specialBehaviour": "Often reveals itself only after the player waits beside fresh tracks."
+  },
+  {
+    "speciesId": "brambleback_hedgehog",
+    "name": "Brambleback Hedgehog",
+    "region": "Canto Plains",
+    "habitats": [
+      "woodland",
+      "overgrown_grove"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 62,
+    "activeTimes": [
+      "evening",
+      "night"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "rustle",
+      "visible"
+    ],
+    "temperament": "Defensive",
+    "movementBehaviour": "slow-forage",
+    "fearSensitivity": 0.42,
+    "trustDifficulty": 0.42,
+    "preferredFoods": [
+      "worms"
+    ],
+    "likedFoods": [
+      "grub",
+      "grasshopper",
+      "canto_berries"
+    ],
+    "neutralFoods": [
+      "orchard_fruit"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "slow",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Bramble patches may rustle without wind.",
+      "If crowded it curls rather than immediately fleeing."
+    ],
+    "centreRequirements": {
+      "trust": 64
+    },
+    "baseXpReward": 58,
+    "baseGpPotential": 20,
+    "spriteReference": "assets/level-hunter/animals-runtime/brambleback_hedgehog-runtime.png",
+    "size": 18,
+    "specialBehaviour": "Curls into a defensive ball if approached too quickly."
+  },
+  {
+    "speciesId": "ambercrest_quail",
+    "name": "Ambercrest Quail",
+    "region": "Canto Plains",
+    "habitats": [
+      "meadow",
+      "farmland"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 84,
+    "activeTimes": [
+      "morning",
+      "daytime"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "visible",
+      "nest"
+    ],
+    "temperament": "Alert",
+    "movementBehaviour": "peck-and-scurry",
+    "fearSensitivity": 0.76,
+    "trustDifficulty": 0.32,
+    "preferredFoods": [
+      "grain"
+    ],
+    "likedFoods": [
+      "mixed_seeds",
+      "sunflower_seeds",
+      "grasshopper"
+    ],
+    "neutralFoods": [
+      "canto_berries"
+    ],
+    "dislikedFoods": [
+      "root_vegetables"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "slow",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Look along crop edges rather than the middle of fields.",
+      "A rushed approach can flush it into cover."
+    ],
+    "centreRequirements": {
+      "trust": 56
+    },
+    "baseXpReward": 42,
+    "baseGpPotential": 14,
+    "spriteReference": "assets/level-hunter/animals-runtime/ambercrest_quail-runtime.png",
+    "size": 15,
+    "specialBehaviour": "Flushes a short distance if the player approaches at full speed."
+  },
+  {
+    "speciesId": "brookfoot_otter_kit",
+    "name": "Brookfoot Otter Kit",
+    "region": "Canto Plains",
+    "habitats": [
+      "riverbank",
+      "wetland"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 54,
+    "activeTimes": [
+      "morning",
+      "daytime",
+      "evening"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "rain"
+    ],
+    "discoveryMethods": [
+      "ripples"
+    ],
+    "temperament": "Curious",
+    "movementBehaviour": "bank-play",
+    "fearSensitivity": 0.48,
+    "trustDifficulty": 0.52,
+    "preferredFoods": [
+      "river_trout"
+    ],
+    "likedFoods": [
+      "basic_fish",
+      "grasshopper",
+      "worms"
+    ],
+    "neutralFoods": [
+      "canto_berries"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "clover_sprigs"
+    ],
+    "specialFood": null,
+    "approachMethod": "observe_first",
+    "interactionStages": [
+      "inspect_clue",
+      "observe",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Watch for repeated ripples close to a bank.",
+      "It often approaches after being watched quietly."
+    ],
+    "centreRequirements": {
+      "trust": 68
+    },
+    "baseXpReward": 66,
+    "baseGpPotential": 28,
+    "spriteReference": "assets/level-hunter/animals-runtime/brookfoot_otter_kit-runtime.png",
+    "size": 20,
+    "specialBehaviour": "May approach the player itself after a patient observation."
+  },
+  {
+    "speciesId": "clovershell_tortoise",
+    "name": "Clovershell Tortoise",
+    "region": "Canto Plains",
+    "habitats": [
+      "meadow",
+      "ruins"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 75,
+    "activeTimes": [
+      "daytime"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "visible"
+    ],
+    "temperament": "Calm",
+    "movementBehaviour": "slow-wander",
+    "fearSensitivity": 0.18,
+    "trustDifficulty": 0.2,
+    "preferredFoods": [
+      "clover_sprigs"
+    ],
+    "likedFoods": [
+      "garden_greens",
+      "peas",
+      "orchard_fruit"
+    ],
+    "neutralFoods": [
+      "turnip"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "ordinary",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "It favours sun-warmed grass near old stone.",
+      "Patience matters more than stealth."
+    ],
+    "centreRequirements": {
+      "trust": 48
+    },
+    "baseXpReward": 34,
+    "baseGpPotential": 10,
+    "spriteReference": "assets/level-hunter/animals-runtime/clovershell_tortoise-runtime.png",
+    "size": 18,
+    "specialBehaviour": "Withdraws into its shell if repeatedly crowded, but quickly settles again."
+  },
+  {
+    "speciesId": "orchard_dormouse",
+    "name": "Orchard Dormouse",
+    "region": "Canto Plains",
+    "habitats": [
+      "village_edge",
+      "farmland",
+      "woodland"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 56,
+    "activeTimes": [
+      "evening",
+      "night"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "rustle",
+      "nest"
+    ],
+    "temperament": "Shy",
+    "movementBehaviour": "cover-to-cover",
+    "fearSensitivity": 0.7,
+    "trustDifficulty": 0.44,
+    "preferredFoods": [
+      "orchard_fruit"
+    ],
+    "likedFoods": [
+      "pear",
+      "plum",
+      "hazelnuts",
+      "sunflower_seeds"
+    ],
+    "neutralFoods": [
+      "canto_berries"
+    ],
+    "dislikedFoods": [
+      "root_vegetables"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "wait",
+    "interactionStages": [
+      "inspect_clue",
+      "observe",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Fruit skins around hedges are a useful sign.",
+      "It prefers to approach food after the player backs away."
+    ],
+    "centreRequirements": {
+      "trust": 64
+    },
+    "baseXpReward": 60,
+    "baseGpPotential": 22,
+    "spriteReference": "assets/level-hunter/animals-runtime/orchard_dormouse-runtime.png",
+    "size": 14,
+    "specialBehaviour": "Moves between hedge cover and pauses if the player stays still."
+  },
+  {
+    "speciesId": "reedtail_ferret",
+    "name": "Reedtail Ferret",
+    "region": "Canto Plains",
+    "habitats": [
+      "wetland",
+      "farmland",
+      "riverbank"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 49,
+    "activeTimes": [
+      "morning",
+      "evening"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "rain"
+    ],
+    "discoveryMethods": [
+      "tracks"
+    ],
+    "temperament": "Curious",
+    "movementBehaviour": "dart-between-cover",
+    "fearSensitivity": 0.55,
+    "trustDifficulty": 0.58,
+    "preferredFoods": [
+      "basic_fish"
+    ],
+    "likedFoods": [
+      "river_trout",
+      "worms",
+      "grub"
+    ],
+    "neutralFoods": [
+      "grain"
+    ],
+    "dislikedFoods": [
+      "orchard_fruit"
+    ],
+    "hatedFoods": [
+      "clover_sprigs"
+    ],
+    "specialFood": null,
+    "approachMethod": "follow",
+    "interactionStages": [
+      "inspect_clue",
+      "follow",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Long thin tracks often weave between reeds.",
+      "It dislikes being cornered but may circle back to investigate."
+    ],
+    "centreRequirements": {
+      "trust": 72
+    },
+    "baseXpReward": 72,
+    "baseGpPotential": 30,
+    "spriteReference": "assets/level-hunter/animals-runtime/reedtail_ferret-runtime.png",
+    "size": 20,
+    "specialBehaviour": "Darts to nearby cover and reappears instead of fleeing the encounter outright."
+  },
+  {
+    "speciesId": "furrow_mole",
+    "name": "Furrow Mole",
+    "region": "Canto Plains",
+    "habitats": [
+      "farmland"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 58,
+    "activeTimes": [
+      "morning",
+      "evening"
+    ],
+    "weatherPreferences": [
+      "rain",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "burrow",
+      "tracks"
+    ],
+    "temperament": "Nervous",
+    "movementBehaviour": "surface-and-burrow",
+    "fearSensitivity": 0.62,
+    "trustDifficulty": 0.28,
+    "preferredFoods": [
+      "worms"
+    ],
+    "likedFoods": [
+      "grub",
+      "grasshopper"
+    ],
+    "neutralFoods": [
+      "root_vegetables"
+    ],
+    "dislikedFoods": [
+      "canto_berries"
+    ],
+    "hatedFoods": [
+      "orchard_fruit"
+    ],
+    "specialFood": null,
+    "approachMethod": "wait",
+    "interactionStages": [
+      "inspect_clue",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Fresh soil heaps are more useful than searching for the animal itself.",
+      "Damp weather makes surface activity easier to find."
+    ],
+    "centreRequirements": {
+      "trust": 54
+    },
+    "baseXpReward": 54,
+    "baseGpPotential": 18,
+    "spriteReference": "assets/level-hunter/animals-runtime/furrow_mole-runtime.png",
+    "size": 15,
+    "specialBehaviour": "Only stays above ground if the player remains still after inspecting a mound."
+  },
+  {
+    "speciesId": "copperstripe_squirrel",
+    "name": "Copperstripe Squirrel",
+    "region": "Canto Plains",
+    "habitats": [
+      "woodland",
+      "village_edge"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 88,
+    "activeTimes": [
+      "morning",
+      "daytime"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "visible",
+      "sound"
+    ],
+    "temperament": "Curious",
+    "movementBehaviour": "tree-circle",
+    "fearSensitivity": 0.46,
+    "trustDifficulty": 0.38,
+    "preferredFoods": [
+      "acorn"
+    ],
+    "likedFoods": [
+      "hazelnuts",
+      "sunflower_seeds",
+      "orchard_fruit"
+    ],
+    "neutralFoods": [
+      "grain"
+    ],
+    "dislikedFoods": [
+      "garden_greens"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "allow_approach",
+    "interactionStages": [
+      "observe",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Chattering from low trees often gives it away.",
+      "It may come closer if you stop moving with food selected."
+    ],
+    "centreRequirements": {
+      "trust": 60
+    },
+    "baseXpReward": 44,
+    "baseGpPotential": 16,
+    "spriteReference": "assets/level-hunter/animals-runtime/copperstripe_squirrel-runtime.png",
+    "size": 17,
+    "specialBehaviour": "Circles nearby cover before approaching a patient player."
+  },
+  {
+    "speciesId": "bellflower_badger_cub",
+    "name": "Bellflower Badger Cub",
+    "region": "Canto Plains",
+    "habitats": [
+      "woodland",
+      "ruins",
+      "overgrown_grove"
+    ],
+    "rarityTier": "Rare",
+    "encounterWeight": 26,
+    "activeTimes": [
+      "evening",
+      "night"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "tracks",
+      "burrow"
+    ],
+    "temperament": "Territorial",
+    "movementBehaviour": "sniff-and-huff",
+    "fearSensitivity": 0.38,
+    "trustDifficulty": 0.68,
+    "preferredFoods": [
+      "grub"
+    ],
+    "likedFoods": [
+      "worms",
+      "blackberries",
+      "orchard_fruit"
+    ],
+    "neutralFoods": [
+      "root_vegetables"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "clover_sprigs"
+    ],
+    "specialFood": null,
+    "approachMethod": "observe_first",
+    "interactionStages": [
+      "inspect_clue",
+      "observe",
+      "wait",
+      "offer_food",
+      "calm",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Broad prints near old stones are worth following.",
+      "A warning huff means give it space rather than pressing forward."
+    ],
+    "centreRequirements": {
+      "trust": 78
+    },
+    "baseXpReward": 95,
+    "baseGpPotential": 42,
+    "spriteReference": "assets/level-hunter/animals-runtime/bellflower_badger_cub-runtime.png",
+    "size": 22,
+    "specialBehaviour": "Warns before retreating, giving the player a chance to back off."
+  },
+  {
+    "speciesId": "canto_grass_lizard",
+    "name": "Canto Grass Lizard",
+    "region": "Canto Plains",
+    "habitats": [
+      "ruins",
+      "meadow"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 78,
+    "activeTimes": [
+      "daytime"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "visible"
+    ],
+    "temperament": "Skittish",
+    "movementBehaviour": "bask-and-dash",
+    "fearSensitivity": 0.78,
+    "trustDifficulty": 0.3,
+    "preferredFoods": [
+      "grasshopper"
+    ],
+    "likedFoods": [
+      "grub",
+      "pond_insects"
+    ],
+    "neutralFoods": [
+      "canto_berries"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "garden_greens"
+    ],
+    "specialFood": null,
+    "approachMethod": "slow",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Warm stones near the ruins are good basking spots.",
+      "Approaching from the side is safer than rushing directly at it."
+    ],
+    "centreRequirements": {
+      "trust": 55
+    },
+    "baseXpReward": 40,
+    "baseGpPotential": 13,
+    "spriteReference": "assets/level-hunter/animals-runtime/canto_grass_lizard-runtime.png",
+    "size": 17,
+    "specialBehaviour": "Basks motionless, then darts several body lengths when startled."
+  },
+  {
+    "speciesId": "meadowbell_lamb",
+    "name": "Meadowbell Lamb",
+    "region": "Canto Plains",
+    "habitats": [
+      "meadow",
+      "farmland"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 73,
+    "activeTimes": [
+      "morning",
+      "daytime",
+      "evening"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "visible"
+    ],
+    "temperament": "Social",
+    "movementBehaviour": "graze-and-follow",
+    "fearSensitivity": 0.2,
+    "trustDifficulty": 0.18,
+    "preferredFoods": [
+      "clover_sprigs"
+    ],
+    "likedFoods": [
+      "garden_greens",
+      "peas",
+      "carrot"
+    ],
+    "neutralFoods": [
+      "grain"
+    ],
+    "dislikedFoods": [
+      "orchard_fruit"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "ordinary",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "The youngest lambs graze close to the main farm tracks.",
+      "Once comfortable, they often follow for a few steps."
+    ],
+    "centreRequirements": {
+      "trust": 46
+    },
+    "baseXpReward": 32,
+    "baseGpPotential": 12,
+    "spriteReference": "assets/level-hunter/animals-runtime/meadowbell_lamb-runtime.png",
+    "size": 23,
+    "specialBehaviour": "Briefly follows the player after reaching high trust."
+  },
+  {
+    "speciesId": "redbank_fox_kit",
+    "name": "Redbank Fox Kit",
+    "region": "Canto Plains",
+    "habitats": [
+      "woodland",
+      "riverbank",
+      "ruins"
+    ],
+    "rarityTier": "Rare",
+    "encounterWeight": 22,
+    "activeTimes": [
+      "evening",
+      "night"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "tracks",
+      "visible"
+    ],
+    "temperament": "Wary",
+    "movementBehaviour": "circle-and-watch",
+    "fearSensitivity": 0.68,
+    "trustDifficulty": 0.76,
+    "preferredFoods": [
+      "field_treat"
+    ],
+    "likedFoods": [
+      "basic_fish",
+      "river_trout",
+      "grub"
+    ],
+    "neutralFoods": [
+      "orchard_fruit"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "clover_sprigs"
+    ],
+    "specialFood": null,
+    "approachMethod": "observe_first",
+    "interactionStages": [
+      "inspect_clue",
+      "observe",
+      "wait",
+      "approach",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Fox tracks often double back before reaching cover.",
+      "It watches the player for a long time before deciding whether to approach."
+    ],
+    "centreRequirements": {
+      "trust": 84
+    },
+    "baseXpReward": 110,
+    "baseGpPotential": 48,
+    "spriteReference": "assets/level-hunter/animals-runtime/redbank_fox_kit-runtime.png",
+    "size": 21,
+    "specialBehaviour": "Circles at a distance; repeated rushing makes it relocate rather than vanish forever."
+  },
+  {
+    "speciesId": "canal_duckling",
+    "name": "Canal Duckling",
+    "region": "Canto Plains",
+    "habitats": [
+      "riverbank",
+      "wetland"
+    ],
+    "rarityTier": "Common",
+    "encounterWeight": 86,
+    "activeTimes": [
+      "morning",
+      "daytime",
+      "evening"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "rain"
+    ],
+    "discoveryMethods": [
+      "visible",
+      "ripples"
+    ],
+    "temperament": "Curious",
+    "movementBehaviour": "bank-waddle",
+    "fearSensitivity": 0.28,
+    "trustDifficulty": 0.2,
+    "preferredFoods": [
+      "peas"
+    ],
+    "likedFoods": [
+      "grain",
+      "mixed_seeds",
+      "pond_insects"
+    ],
+    "neutralFoods": [
+      "clover_sprigs"
+    ],
+    "dislikedFoods": [
+      "orchard_fruit"
+    ],
+    "hatedFoods": [
+      "root_vegetables"
+    ],
+    "specialFood": null,
+    "approachMethod": "ordinary",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Ducklings favour quiet banks beside the smaller crossings.",
+      "They are bold around food but easily distracted."
+    ],
+    "centreRequirements": {
+      "trust": 48
+    },
+    "baseXpReward": 33,
+    "baseGpPotential": 11,
+    "spriteReference": "assets/level-hunter/animals-runtime/canal_duckling-runtime.png",
+    "size": 14,
+    "specialBehaviour": "Waddles along the bank and may follow tossed grain."
+  },
+  {
+    "speciesId": "dewdrop_frog",
+    "name": "Dewdrop Frog",
+    "region": "Canto Plains",
+    "habitats": [
+      "wetland",
+      "riverbank"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 52,
+    "activeTimes": [
+      "evening",
+      "night"
+    ],
+    "weatherPreferences": [
+      "rain",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "sound",
+      "ripples"
+    ],
+    "temperament": "Skittish",
+    "movementBehaviour": "hop-and-still",
+    "fearSensitivity": 0.72,
+    "trustDifficulty": 0.4,
+    "preferredFoods": [
+      "grasshopper"
+    ],
+    "likedFoods": [
+      "grub",
+      "pond_insects"
+    ],
+    "neutralFoods": [
+      "worms"
+    ],
+    "dislikedFoods": [
+      "canto_berries"
+    ],
+    "hatedFoods": [
+      "grain"
+    ],
+    "specialFood": null,
+    "approachMethod": "wait",
+    "interactionStages": [
+      "inspect_clue",
+      "wait",
+      "observe",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Listen before looking; the call carries farther than the frog is visible.",
+      "Rain makes it much more confident around open banks."
+    ],
+    "centreRequirements": {
+      "trust": 62
+    },
+    "baseXpReward": 62,
+    "baseGpPotential": 24,
+    "spriteReference": "assets/level-hunter/animals-runtime/dewdrop_frog-runtime.png",
+    "size": 13,
+    "specialBehaviour": "Hops only when the player moves, then becomes almost impossible to spot while still."
+  },
+  {
+    "speciesId": "millstone_goat_kid",
+    "name": "Millstone Goat Kid",
+    "region": "Canto Plains",
+    "habitats": [
+      "farmland",
+      "meadow"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 50,
+    "activeTimes": [
+      "daytime"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "visible"
+    ],
+    "temperament": "Playful",
+    "movementBehaviour": "skip-and-nudge",
+    "fearSensitivity": 0.16,
+    "trustDifficulty": 0.46,
+    "preferredFoods": [
+      "carrot"
+    ],
+    "likedFoods": [
+      "garden_greens",
+      "turnip",
+      "clover_sprigs"
+    ],
+    "neutralFoods": [
+      "orchard_fruit"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "ordinary",
+    "interactionStages": [
+      "observe",
+      "approach",
+      "play",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "It strays closest to the windmill-side fences.",
+      "A playful nudge is a good sign, not aggression."
+    ],
+    "centreRequirements": {
+      "trust": 66
+    },
+    "baseXpReward": 64,
+    "baseGpPotential": 26,
+    "spriteReference": "assets/level-hunter/animals-runtime/millstone_goat_kid-runtime.png",
+    "size": 24,
+    "specialBehaviour": "May hop toward the player and perform a harmless playful head-butt."
+  },
+  {
+    "speciesId": "honeywing_pipit",
+    "name": "Honeywing Pipit",
+    "region": "Canto Plains",
+    "habitats": [
+      "meadow",
+      "farmland",
+      "ruins"
+    ],
+    "rarityTier": "Uncommon",
+    "encounterWeight": 45,
+    "activeTimes": [
+      "morning",
+      "daytime"
+    ],
+    "weatherPreferences": [
+      "clear"
+    ],
+    "discoveryMethods": [
+      "sound",
+      "nest"
+    ],
+    "temperament": "Alert",
+    "movementBehaviour": "short-flight",
+    "fearSensitivity": 0.82,
+    "trustDifficulty": 0.56,
+    "preferredFoods": [
+      "mixed_seeds"
+    ],
+    "likedFoods": [
+      "grain",
+      "sunflower_seeds",
+      "grasshopper"
+    ],
+    "neutralFoods": [
+      "canto_berries"
+    ],
+    "dislikedFoods": [
+      "root_vegetables"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "maintain_distance",
+    "interactionStages": [
+      "inspect_clue",
+      "observe",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "Its call is easiest to hear near meadow fence posts.",
+      "It prefers food placed down rather than offered from too close."
+    ],
+    "centreRequirements": {
+      "trust": 72
+    },
+    "baseXpReward": 74,
+    "baseGpPotential": 30,
+    "spriteReference": "assets/level-hunter/animals-runtime/honeywing_pipit-runtime.png",
+    "size": 14,
+    "specialBehaviour": "Makes short flights between nearby perches rather than fleeing the entire encounter."
+  },
+  {
+    "speciesId": "raincoil_snail",
+    "name": "Raincoil Snail",
+    "region": "Canto Plains",
+    "habitats": [
+      "wetland",
+      "overgrown_grove"
+    ],
+    "rarityTier": "Rare",
+    "encounterWeight": 18,
+    "activeTimes": [
+      "morning",
+      "evening",
+      "night"
+    ],
+    "weatherPreferences": [
+      "rain",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "tracks",
+      "visible"
+    ],
+    "temperament": "Calm",
+    "movementBehaviour": "very-slow",
+    "fearSensitivity": 0.02,
+    "trustDifficulty": 0.12,
+    "preferredFoods": [
+      "garden_greens"
+    ],
+    "likedFoods": [
+      "clover_sprigs",
+      "peas",
+      "brown_mushroom"
+    ],
+    "neutralFoods": [
+      "orchard_fruit"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "basic_fish"
+    ],
+    "specialFood": null,
+    "approachMethod": "ordinary",
+    "interactionStages": [
+      "inspect_clue",
+      "observe",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "A bright wet trail may persist after the animal has moved.",
+      "Rain transforms it from a rare find into a much more plausible one."
+    ],
+    "centreRequirements": {
+      "trust": 44
+    },
+    "baseXpReward": 82,
+    "baseGpPotential": 32,
+    "spriteReference": "assets/level-hunter/animals-runtime/raincoil_snail-runtime.png",
+    "size": 13,
+    "specialBehaviour": "Leaves a distinctive glistening trail that acts as its own tracking clue."
+  },
+  {
+    "speciesId": "barnloft_owlet",
+    "name": "Barnloft Owlet",
+    "region": "Canto Plains",
+    "habitats": [
+      "village_edge",
+      "ruins"
+    ],
+    "rarityTier": "Very Rare",
+    "encounterWeight": 10,
+    "activeTimes": [
+      "evening",
+      "night"
+    ],
+    "weatherPreferences": [
+      "clear",
+      "fog"
+    ],
+    "discoveryMethods": [
+      "sound",
+      "nest"
+    ],
+    "temperament": "Cautious",
+    "movementBehaviour": "perch-and-flutter",
+    "fearSensitivity": 0.64,
+    "trustDifficulty": 0.7,
+    "preferredFoods": [
+      "grub"
+    ],
+    "likedFoods": [
+      "grasshopper",
+      "worms",
+      "basic_fish"
+    ],
+    "neutralFoods": [
+      "field_treat"
+    ],
+    "dislikedFoods": [
+      "grain"
+    ],
+    "hatedFoods": [
+      "clover_sprigs"
+    ],
+    "specialFood": null,
+    "approachMethod": "observe_first",
+    "interactionStages": [
+      "inspect_clue",
+      "observe",
+      "wait",
+      "offer_food",
+      "gain_trust",
+      "bring_to_centre"
+    ],
+    "researchHints": [
+      "A soft call around lofts and old stone can be more important than what you can see.",
+      "It needs several calm observations before tolerating a close approach."
+    ],
+    "centreRequirements": {
+      "trust": 80
+    },
+    "baseXpReward": 125,
+    "baseGpPotential": 55,
+    "spriteReference": "assets/level-hunter/animals-runtime/barnloft_owlet-runtime.png",
+    "size": 15,
+    "specialBehaviour": "Usually announces itself by voice before the player can see the perch."
+  }
+]

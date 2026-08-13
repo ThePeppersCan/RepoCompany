@@ -4296,6 +4296,194 @@ const HUNTER_CANTO_POIS = [
   {id:'reed-hide',label:'Reed Hide',x:910,y:850,text:'The reeds form a sheltered wildlife pocket beside the boardwalk.'},
   {id:'hollow-log',label:'Hollow Log',x:500,y:875,text:'Something has recently dragged berries into the hollow log.'}
 ];
+/* ============================================================
+   LEVEL HUNTER · CANTO PLAINS WILDLIFE VERTICAL SLICE
+   Data-driven species, forage, journal, encounters, quest hooks,
+   expedition ecology and account-backed persistence.
+   ============================================================ */
+const HUNTER_WILDLIFE_SAVE_VERSION=1;
+const HUNTER_WILDLIFE_INVENTORY_BASE_CAPACITY=24;
+const HUNTER_WILDLIFE_SERVER_TABLE='level_hunter_wildlife_saves';
+const HUNTER_WILDLIFE_FOOD={
+  canto_berries:{name:'Canto Berries',short:'BR',source:'Forage · meadow/hedge',description:'Soft wild berries found around Canto hedges.'},
+  sunflower_seeds:{name:'Sunflower Seeds',short:'SE',source:'Forage · farm edge',description:'Dry seeds gathered from field margins.'},
+  clover_sprigs:{name:'Clover Sprigs',short:'CL',source:'Forage · meadow',description:'Fresh clover from the open meadow.'},
+  root_vegetables:{name:'Root Vegetables',short:'RT',source:'Forage · farm edge',description:'Small roots gathered near cultivated ground.'},
+  garden_greens:{name:'Garden Greens',short:'GR',source:'Forage · village gardens',description:'Tender greens from permitted village-edge patches.'},
+  worms:{name:'Earthworms',short:'WO',source:'Forage · damp soil',description:'Useful animal food found in soft damp ground.'},
+  pond_insects:{name:'Pond Insects',short:'IN',source:'Forage · wetland',description:'Small insects gathered around reeds and shallow water.'},
+  orchard_fruit:{name:'Orchard Fruit',short:'FR',source:'Forage · village edge',description:'Windfallen fruit from Canto orchard trees.'},
+  grain:{name:'Field Grain',short:'GN',source:'Forage · farm edge',description:'Loose grain collected from the edge of harvested plots.'},
+  basic_fish:{name:'Small River Fish',short:'FI',source:'Vendor/Fishing hook',description:'A simple river fish. Proper fishing/vendor art is still pending.'}
+};
+const HUNTER_CANTO_SPECIES=[
+  {speciesId:'sunmeadow_hare',name:'Sunmeadow Hare',region:'Canto Plains',habitats:['meadow','farmland'],rarityTier:'Common',encounterWeight:100,activeTimes:['morning','daytime','evening'],weatherPreferences:['clear'],discoveryMethods:['visible'],temperament:'Skittish',movementBehaviour:'graze-and-bolt',fearSensitivity:.72,trustDifficulty:.35,preferredFoods:['clover_sprigs'],likedFoods:['root_vegetables','canto_berries'],neutralFoods:['grain'],dislikedFoods:['pond_insects'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'slow',interactionStages:['observe','approach','offer_food','gain_trust','bring_to_centre'],researchHints:['Meadow grass around the windmill often bends before a hare appears.','Sudden movement makes it freeze, then bolt.'],centreRequirements:{trust:58},baseXpReward:45,baseGpPotential:18,spriteReference:'assets/level-hunter/animals-runtime/sunmeadow_hare-runtime.png',size:22,specialBehaviour:'Freezes briefly when watched before deciding whether to run.'},
+  {speciesId:'canto_field_vole',name:'Canto Field Vole',region:'Canto Plains',habitats:['farmland','village_edge'],rarityTier:'Common',encounterWeight:92,activeTimes:['morning','evening'],weatherPreferences:['clear','fog'],discoveryMethods:['tracks','burrow'],temperament:'Nervous',movementBehaviour:'short-dashes',fearSensitivity:.66,trustDifficulty:.24,preferredFoods:['sunflower_seeds'],likedFoods:['grain','root_vegetables'],neutralFoods:['canto_berries'],dislikedFoods:['clover_sprigs'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'wait',interactionStages:['inspect_clue','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Tiny paired tracks appear along field margins.','It is braver when the player stays still.'],centreRequirements:{trust:52},baseXpReward:38,baseGpPotential:12,spriteReference:'assets/level-hunter/animals-runtime/canto_field_vole-runtime.png',size:14,specialBehaviour:'Often reveals itself only after the player waits beside fresh tracks.'},
+  {speciesId:'brambleback_hedgehog',name:'Brambleback Hedgehog',region:'Canto Plains',habitats:['woodland','overgrown_grove'],rarityTier:'Uncommon',encounterWeight:62,activeTimes:['evening','night'],weatherPreferences:['clear','fog'],discoveryMethods:['rustle','visible'],temperament:'Defensive',movementBehaviour:'slow-forage',fearSensitivity:.42,trustDifficulty:.42,preferredFoods:['worms'],likedFoods:['pond_insects','canto_berries'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'slow',interactionStages:['observe','approach','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Bramble patches may rustle without wind.','If crowded it curls rather than immediately fleeing.'],centreRequirements:{trust:64},baseXpReward:58,baseGpPotential:20,spriteReference:'assets/level-hunter/animals-runtime/brambleback_hedgehog-runtime.png',size:18,specialBehaviour:'Curls into a defensive ball if approached too quickly.'},
+  {speciesId:'ambercrest_quail',name:'Ambercrest Quail',region:'Canto Plains',habitats:['meadow','farmland'],rarityTier:'Common',encounterWeight:84,activeTimes:['morning','daytime'],weatherPreferences:['clear'],discoveryMethods:['visible','nest'],temperament:'Alert',movementBehaviour:'peck-and-scurry',fearSensitivity:.76,trustDifficulty:.32,preferredFoods:['grain'],likedFoods:['sunflower_seeds','pond_insects'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'slow',interactionStages:['observe','approach','offer_food','gain_trust','bring_to_centre'],researchHints:['Look along crop edges rather than the middle of fields.','A rushed approach can flush it into cover.'],centreRequirements:{trust:56},baseXpReward:42,baseGpPotential:14,spriteReference:'assets/level-hunter/animals-runtime/ambercrest_quail-runtime.png',size:15,specialBehaviour:'Flushes a short distance if the player approaches at full speed.'},
+  {speciesId:'brookfoot_otter_kit',name:'Brookfoot Otter Kit',region:'Canto Plains',habitats:['riverbank','wetland'],rarityTier:'Uncommon',encounterWeight:54,activeTimes:['morning','daytime','evening'],weatherPreferences:['clear','rain'],discoveryMethods:['ripples'],temperament:'Curious',movementBehaviour:'bank-play',fearSensitivity:.48,trustDifficulty:.52,preferredFoods:['basic_fish'],likedFoods:['pond_insects','worms'],neutralFoods:['canto_berries'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs'],specialFood:null,approachMethod:'observe_first',interactionStages:['inspect_clue','observe','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Watch for repeated ripples close to a bank.','It often approaches after being watched quietly.'],centreRequirements:{trust:68},baseXpReward:66,baseGpPotential:28,spriteReference:'assets/level-hunter/animals-runtime/brookfoot_otter_kit-runtime.png',size:20,specialBehaviour:'May approach the player itself after a patient observation.'},
+  {speciesId:'clovershell_tortoise',name:'Clovershell Tortoise',region:'Canto Plains',habitats:['meadow','ruins'],rarityTier:'Common',encounterWeight:75,activeTimes:['daytime'],weatherPreferences:['clear'],discoveryMethods:['visible'],temperament:'Calm',movementBehaviour:'slow-wander',fearSensitivity:.18,trustDifficulty:.20,preferredFoods:['clover_sprigs'],likedFoods:['garden_greens','orchard_fruit'],neutralFoods:['root_vegetables'],dislikedFoods:['grain'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'ordinary',interactionStages:['observe','approach','offer_food','gain_trust','bring_to_centre'],researchHints:['It favours sun-warmed grass near old stone.','Patience matters more than stealth.'],centreRequirements:{trust:48},baseXpReward:34,baseGpPotential:10,spriteReference:'assets/level-hunter/animals-runtime/clovershell_tortoise-runtime.png',size:18,specialBehaviour:'Withdraws into its shell if repeatedly crowded, but quickly settles again.'},
+  {speciesId:'orchard_dormouse',name:'Orchard Dormouse',region:'Canto Plains',habitats:['village_edge','farmland','woodland'],rarityTier:'Uncommon',encounterWeight:56,activeTimes:['evening','night'],weatherPreferences:['clear','fog'],discoveryMethods:['rustle','nest'],temperament:'Shy',movementBehaviour:'cover-to-cover',fearSensitivity:.70,trustDifficulty:.44,preferredFoods:['orchard_fruit'],likedFoods:['sunflower_seeds','canto_berries'],neutralFoods:['grain'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'wait',interactionStages:['inspect_clue','observe','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Fruit skins around hedges are a useful sign.','It prefers to approach food after the player backs away.'],centreRequirements:{trust:64},baseXpReward:60,baseGpPotential:22,spriteReference:'assets/level-hunter/animals-runtime/orchard_dormouse-runtime.png',size:14,specialBehaviour:'Moves between hedge cover and pauses if the player stays still.'},
+  {speciesId:'reedtail_ferret',name:'Reedtail Ferret',region:'Canto Plains',habitats:['wetland','farmland','riverbank'],rarityTier:'Uncommon',encounterWeight:49,activeTimes:['morning','evening'],weatherPreferences:['clear','rain'],discoveryMethods:['tracks'],temperament:'Curious',movementBehaviour:'dart-between-cover',fearSensitivity:.55,trustDifficulty:.58,preferredFoods:['basic_fish'],likedFoods:['worms','pond_insects'],neutralFoods:['grain'],dislikedFoods:['orchard_fruit'],hatedFoods:['clover_sprigs'],specialFood:null,approachMethod:'follow',interactionStages:['inspect_clue','follow','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Long thin tracks often weave between reeds.','It dislikes being cornered but may circle back to investigate.'],centreRequirements:{trust:72},baseXpReward:72,baseGpPotential:30,spriteReference:'assets/level-hunter/animals-runtime/reedtail_ferret-runtime.png',size:20,specialBehaviour:'Darts to nearby cover and reappears instead of fleeing the encounter outright.'},
+  {speciesId:'furrow_mole',name:'Furrow Mole',region:'Canto Plains',habitats:['farmland'],rarityTier:'Uncommon',encounterWeight:58,activeTimes:['morning','evening'],weatherPreferences:['rain','fog'],discoveryMethods:['burrow','tracks'],temperament:'Nervous',movementBehaviour:'surface-and-burrow',fearSensitivity:.62,trustDifficulty:.28,preferredFoods:['worms'],likedFoods:['pond_insects'],neutralFoods:['root_vegetables'],dislikedFoods:['canto_berries'],hatedFoods:['orchard_fruit'],specialFood:null,approachMethod:'wait',interactionStages:['inspect_clue','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Fresh soil heaps are more useful than searching for the animal itself.','Damp weather makes surface activity easier to find.'],centreRequirements:{trust:54},baseXpReward:54,baseGpPotential:18,spriteReference:'assets/level-hunter/animals-runtime/furrow_mole-runtime.png',size:15,specialBehaviour:'Only stays above ground if the player remains still after inspecting a mound.'},
+  {speciesId:'copperstripe_squirrel',name:'Copperstripe Squirrel',region:'Canto Plains',habitats:['woodland','village_edge'],rarityTier:'Common',encounterWeight:88,activeTimes:['morning','daytime'],weatherPreferences:['clear'],discoveryMethods:['visible','sound'],temperament:'Curious',movementBehaviour:'tree-circle',fearSensitivity:.46,trustDifficulty:.38,preferredFoods:['sunflower_seeds'],likedFoods:['orchard_fruit','canto_berries'],neutralFoods:['grain'],dislikedFoods:['garden_greens'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'allow_approach',interactionStages:['observe','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Chattering from low trees often gives it away.','It may come closer if you stop moving with food selected.'],centreRequirements:{trust:60},baseXpReward:44,baseGpPotential:16,spriteReference:'assets/level-hunter/animals-runtime/copperstripe_squirrel-runtime.png',size:17,specialBehaviour:'Circles nearby cover before approaching a patient player.'},
+  {speciesId:'bellflower_badger_cub',name:'Bellflower Badger Cub',region:'Canto Plains',habitats:['woodland','ruins','overgrown_grove'],rarityTier:'Rare',encounterWeight:26,activeTimes:['evening','night'],weatherPreferences:['clear','fog'],discoveryMethods:['tracks','burrow'],temperament:'Territorial',movementBehaviour:'sniff-and-huff',fearSensitivity:.38,trustDifficulty:.68,preferredFoods:['worms'],likedFoods:['canto_berries','root_vegetables'],neutralFoods:['pond_insects'],dislikedFoods:['grain'],hatedFoods:['garden_greens'],specialFood:null,approachMethod:'observe_first',interactionStages:['inspect_clue','observe','wait','offer_food','calm','gain_trust','bring_to_centre'],researchHints:['Broad prints near old stones are worth following.','A warning huff means give it space rather than pressing forward.'],centreRequirements:{trust:78},baseXpReward:95,baseGpPotential:42,spriteReference:'assets/level-hunter/animals-runtime/bellflower_badger_cub-runtime.png',size:22,specialBehaviour:'Warns before retreating, giving the player a chance to back off.'},
+  {speciesId:'canto_grass_lizard',name:'Canto Grass Lizard',region:'Canto Plains',habitats:['ruins','meadow'],rarityTier:'Common',encounterWeight:78,activeTimes:['daytime'],weatherPreferences:['clear'],discoveryMethods:['visible'],temperament:'Skittish',movementBehaviour:'bask-and-dash',fearSensitivity:.78,trustDifficulty:.30,preferredFoods:['pond_insects'],likedFoods:['worms'],neutralFoods:[],dislikedFoods:['canto_berries'],hatedFoods:['garden_greens','grain'],specialFood:null,approachMethod:'slow',interactionStages:['observe','approach','offer_food','gain_trust','bring_to_centre'],researchHints:['Warm stones near the ruins are good basking spots.','Approaching from the side is safer than rushing directly at it.'],centreRequirements:{trust:55},baseXpReward:40,baseGpPotential:13,spriteReference:'assets/level-hunter/animals-runtime/canto_grass_lizard-runtime.png',size:17,specialBehaviour:'Basks motionless, then darts several body lengths when startled.'},
+  {speciesId:'meadowbell_lamb',name:'Meadowbell Lamb',region:'Canto Plains',habitats:['meadow','farmland'],rarityTier:'Common',encounterWeight:73,activeTimes:['morning','daytime','evening'],weatherPreferences:['clear'],discoveryMethods:['visible'],temperament:'Social',movementBehaviour:'graze-and-follow',fearSensitivity:.20,trustDifficulty:.18,preferredFoods:['clover_sprigs'],likedFoods:['garden_greens','grain'],neutralFoods:['root_vegetables'],dislikedFoods:['canto_berries'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'ordinary',interactionStages:['observe','approach','offer_food','gain_trust','bring_to_centre'],researchHints:['The youngest lambs graze close to the main farm tracks.','Once comfortable, they often follow for a few steps.'],centreRequirements:{trust:46},baseXpReward:32,baseGpPotential:12,spriteReference:'assets/level-hunter/animals-runtime/meadowbell_lamb-runtime.png',size:23,specialBehaviour:'Briefly follows the player after reaching high trust.'},
+  {speciesId:'redbank_fox_kit',name:'Redbank Fox Kit',region:'Canto Plains',habitats:['woodland','riverbank','ruins'],rarityTier:'Rare',encounterWeight:22,activeTimes:['evening','night'],weatherPreferences:['clear','fog'],discoveryMethods:['tracks','visible'],temperament:'Wary',movementBehaviour:'circle-and-watch',fearSensitivity:.68,trustDifficulty:.76,preferredFoods:['basic_fish'],likedFoods:['worms','canto_berries'],neutralFoods:['pond_insects'],dislikedFoods:['grain'],hatedFoods:['garden_greens'],specialFood:null,approachMethod:'observe_first',interactionStages:['inspect_clue','observe','wait','approach','offer_food','gain_trust','bring_to_centre'],researchHints:['Fox tracks often double back before reaching cover.','It watches the player for a long time before deciding whether to approach.'],centreRequirements:{trust:84},baseXpReward:110,baseGpPotential:48,spriteReference:'assets/level-hunter/animals-runtime/redbank_fox_kit-runtime.png',size:21,specialBehaviour:'Circles at a distance; repeated rushing makes it relocate rather than vanish forever.'},
+  {speciesId:'canal_duckling',name:'Canal Duckling',region:'Canto Plains',habitats:['riverbank','wetland'],rarityTier:'Common',encounterWeight:86,activeTimes:['morning','daytime','evening'],weatherPreferences:['clear','rain'],discoveryMethods:['visible','ripples'],temperament:'Curious',movementBehaviour:'bank-waddle',fearSensitivity:.28,trustDifficulty:.20,preferredFoods:['grain'],likedFoods:['sunflower_seeds','pond_insects'],neutralFoods:['garden_greens'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'ordinary',interactionStages:['observe','approach','offer_food','gain_trust','bring_to_centre'],researchHints:['Ducklings favour quiet banks beside the smaller crossings.','They are bold around food but easily distracted.'],centreRequirements:{trust:48},baseXpReward:33,baseGpPotential:11,spriteReference:'assets/level-hunter/animals-runtime/canal_duckling-runtime.png',size:14,specialBehaviour:'Waddles along the bank and may follow tossed grain.'},
+  {speciesId:'dewdrop_frog',name:'Dewdrop Frog',region:'Canto Plains',habitats:['wetland','riverbank'],rarityTier:'Uncommon',encounterWeight:52,activeTimes:['evening','night'],weatherPreferences:['rain','fog'],discoveryMethods:['sound','ripples'],temperament:'Skittish',movementBehaviour:'hop-and-still',fearSensitivity:.72,trustDifficulty:.40,preferredFoods:['pond_insects'],likedFoods:['worms'],neutralFoods:[],dislikedFoods:['sunflower_seeds'],hatedFoods:['grain','root_vegetables'],specialFood:null,approachMethod:'wait',interactionStages:['inspect_clue','wait','observe','offer_food','gain_trust','bring_to_centre'],researchHints:['Listen before looking; the call carries farther than the frog is visible.','Rain makes it much more confident around open banks.'],centreRequirements:{trust:62},baseXpReward:62,baseGpPotential:24,spriteReference:'assets/level-hunter/animals-runtime/dewdrop_frog-runtime.png',size:13,specialBehaviour:'Hops only when the player moves, then becomes almost impossible to spot while still.'},
+  {speciesId:'millstone_goat_kid',name:'Millstone Goat Kid',region:'Canto Plains',habitats:['farmland','meadow'],rarityTier:'Uncommon',encounterWeight:50,activeTimes:['daytime'],weatherPreferences:['clear'],discoveryMethods:['visible'],temperament:'Playful',movementBehaviour:'skip-and-nudge',fearSensitivity:.16,trustDifficulty:.46,preferredFoods:['garden_greens'],likedFoods:['clover_sprigs','root_vegetables','grain'],neutralFoods:['orchard_fruit'],dislikedFoods:['canto_berries'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'ordinary',interactionStages:['observe','approach','play','offer_food','gain_trust','bring_to_centre'],researchHints:['It strays closest to the windmill-side fences.','A playful nudge is a good sign, not aggression.'],centreRequirements:{trust:66},baseXpReward:64,baseGpPotential:26,spriteReference:'assets/level-hunter/animals-runtime/millstone_goat_kid-runtime.png',size:24,specialBehaviour:'May hop toward the player and perform a harmless playful head-butt.'},
+  {speciesId:'honeywing_pipit',name:'Honeywing Pipit',region:'Canto Plains',habitats:['meadow','farmland','ruins'],rarityTier:'Uncommon',encounterWeight:45,activeTimes:['morning','daytime'],weatherPreferences:['clear'],discoveryMethods:['sound','nest'],temperament:'Alert',movementBehaviour:'short-flight',fearSensitivity:.82,trustDifficulty:.56,preferredFoods:['sunflower_seeds'],likedFoods:['pond_insects','grain'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'maintain_distance',interactionStages:['inspect_clue','observe','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['Its call is easiest to hear near meadow fence posts.','It prefers food placed down rather than offered from too close.'],centreRequirements:{trust:72},baseXpReward:74,baseGpPotential:30,spriteReference:'assets/level-hunter/animals-runtime/honeywing_pipit-runtime.png',size:14,specialBehaviour:'Makes short flights between nearby perches rather than fleeing the entire encounter.'},
+  {speciesId:'raincoil_snail',name:'Raincoil Snail',region:'Canto Plains',habitats:['wetland','overgrown_grove'],rarityTier:'Rare',encounterWeight:18,activeTimes:['morning','evening','night'],weatherPreferences:['rain','fog'],discoveryMethods:['tracks','visible'],temperament:'Calm',movementBehaviour:'very-slow',fearSensitivity:.02,trustDifficulty:.12,preferredFoods:['garden_greens'],likedFoods:['clover_sprigs','canto_berries'],neutralFoods:['root_vegetables'],dislikedFoods:['grain'],hatedFoods:['basic_fish'],specialFood:null,approachMethod:'ordinary',interactionStages:['inspect_clue','observe','offer_food','gain_trust','bring_to_centre'],researchHints:['A bright wet trail may persist after the animal has moved.','Rain transforms it from a rare find into a much more plausible one.'],centreRequirements:{trust:44},baseXpReward:82,baseGpPotential:32,spriteReference:'assets/level-hunter/animals-runtime/raincoil_snail-runtime.png',size:13,specialBehaviour:'Leaves a distinctive glistening trail that acts as its own tracking clue.'},
+  {speciesId:'barnloft_owlet',name:'Barnloft Owlet',region:'Canto Plains',habitats:['village_edge','ruins'],rarityTier:'Very Rare',encounterWeight:10,activeTimes:['evening','night'],weatherPreferences:['clear','fog'],discoveryMethods:['sound','nest'],temperament:'Cautious',movementBehaviour:'perch-and-flutter',fearSensitivity:.64,trustDifficulty:.70,preferredFoods:['pond_insects'],likedFoods:['worms','basic_fish'],neutralFoods:[],dislikedFoods:['canto_berries'],hatedFoods:['grain','garden_greens'],specialFood:null,approachMethod:'observe_first',interactionStages:['inspect_clue','observe','wait','offer_food','gain_trust','bring_to_centre'],researchHints:['A soft call around lofts and old stone can be more important than what you can see.','It needs several calm observations before tolerating a close approach.'],centreRequirements:{trust:80},baseXpReward:125,baseGpPotential:55,spriteReference:'assets/level-hunter/animals-runtime/barnloft_owlet-runtime.png',size:15,specialBehaviour:'Usually announces itself by voice before the player can see the perch.'}
+];
+const HUNTER_CANTO_SPECIES_BY_ID=Object.fromEntries(HUNTER_CANTO_SPECIES.map(s=>[s.speciesId,s]));
+const HUNTER_CANTO_HABITAT_ANCHORS=[
+  {id:'meadow-a',habitat:'meadow',x:750,y:405},{id:'meadow-b',habitat:'meadow',x:650,y:390},{id:'meadow-c',habitat:'meadow',x:535,y:470},{id:'meadow-d',habitat:'meadow',x:895,y:390},
+  {id:'farm-a',habitat:'farmland',x:1210,y:335},{id:'farm-b',habitat:'farmland',x:1270,y:505},{id:'farm-c',habitat:'farmland',x:1185,y:605},{id:'farm-d',habitat:'farmland',x:1350,y:585},
+  {id:'wood-a',habitat:'woodland',x:555,y:265},{id:'wood-b',habitat:'woodland',x:690,y:255},{id:'wood-c',habitat:'woodland',x:520,y:825},
+  {id:'ruin-a',habitat:'ruins',x:360,y:245},{id:'ruin-b',habitat:'ruins',x:470,y:785},{id:'ruin-c',habitat:'ruins',x:410,y:330},
+  {id:'river-a',habitat:'riverbank',x:830,y:300},{id:'river-b',habitat:'riverbank',x:1025,y:500},{id:'river-c',habitat:'riverbank',x:1110,y:635},{id:'river-d',habitat:'riverbank',x:1210,y:745},
+  {id:'wet-a',habitat:'wetland',x:900,y:830},{id:'wet-b',habitat:'wetland',x:960,y:890},{id:'wet-c',habitat:'wetland',x:850,y:790},
+  {id:'village-a',habitat:'village_edge',x:640,y:625},{id:'village-b',habitat:'village_edge',x:825,y:610},{id:'village-c',habitat:'village_edge',x:720,y:710},
+  {id:'grove-a',habitat:'overgrown_grove',x:500,y:855},{id:'grove-b',habitat:'overgrown_grove',x:575,y:900}
+];
+const HUNTER_CANTO_FORAGE_NODES=[
+  {id:'forage-clover',label:'Meadow Clover',foodId:'clover_sprigs',x:725,y:405,min:2,max:4},
+  {id:'forage-berries',label:'Berry Hedge',foodId:'canto_berries',x:548,y:467,min:2,max:3},
+  {id:'forage-seeds',label:'Seed Heads',foodId:'sunflower_seeds',x:1185,y:350,min:2,max:4},
+  {id:'forage-grain',label:'Loose Grain',foodId:'grain',x:1305,y:565,min:2,max:4},
+  {id:'forage-roots',label:'Field Roots',foodId:'root_vegetables',x:1230,y:520,min:1,max:3},
+  {id:'forage-greens',label:'Garden Greens',foodId:'garden_greens',x:780,y:612,min:1,max:3},
+  {id:'forage-fruit',label:'Windfallen Fruit',foodId:'orchard_fruit',x:665,y:690,min:1,max:3},
+  {id:'forage-worms',label:'Soft Riverbank Soil',foodId:'worms',x:1080,y:645,min:2,max:4},
+  {id:'forage-insects',label:'Reed Insects',foodId:'pond_insects',x:925,y:845,min:2,max:4}
+];
+const HUNTER_CANTO_VENDOR_HOOK={id:'canto-market-stall',label:'Canto Market Stall',x:820,y:608};
+const HUNTER_CANTO_QUESTS={
+  darwin_first_fieldwork:{id:'darwin_first_fieldwork',name:'Darwin\'s First Fieldwork',description:'Learn the basics of observing, foraging, gaining trust and bringing a suitable animal to the Centre.',rewardXp:90}
+};
+const HUNTER_CLUE_LABELS={visible:'Wildlife',tracks:'Fresh tracks',burrow:'Small burrow',nest:'Nest sign',ripples:'Water ripples',sound:'Wildlife call',rustle:'Rustling cover'};
+const HUNTER_CLUE_GLYPHS={tracks:'✣',burrow:'◌',nest:'⌁',ripples:'≈',sound:'♪',rustle:'✦'};
+let hunterWildlifePersistent=null;
+let hunterWildlifeState=null;
+let hunterWildlifeSaveTimer=0;
+let hunterWildlifeServerDisabled=false;
+let hunterWildlifeStylesInstalled=false;
+function hunterWildlifeDefaultSave(){return{version:HUNTER_WILDLIFE_SAVE_VERSION,updatedAt:Date.now(),hunterXp:0,inventoryCapacity:HUNTER_WILDLIFE_INVENTORY_BASE_CAPACITY,inventory:{},species:{},centreAnimals:[],quests:{darwin_first_fieldwork:{status:'not_started',stage:'start'}},regionStats:{canto:{visits:0,discoveries:0,befriended:0}},unlockedFoods:[]};}
+function hunterWildlifeStorageKey(){const u=String(character?.username||'guest').trim().toLowerCase().replace(/[^a-z0-9_-]+/g,'_');return`repo_level_hunter_wildlife_v1_${u}`;}
+function hunterWildlifeNormalizeSave(raw){const base=hunterWildlifeDefaultSave(),s=raw&&typeof raw==='object'?raw:{};return{...base,...s,inventory:{...base.inventory,...(s.inventory||{})},species:{...(s.species||{})},quests:{...base.quests,...(s.quests||{})},regionStats:{...base.regionStats,...(s.regionStats||{}),canto:{...base.regionStats.canto,...(s.regionStats?.canto||{})}},centreAnimals:Array.isArray(s.centreAnimals)?s.centreAnimals:[],unlockedFoods:Array.isArray(s.unlockedFoods)?s.unlockedFoods:[]};}
+function hunterSpeciesRecord(id){if(!hunterWildlifePersistent)hunterWildlifePersistent=hunterWildlifeDefaultSave();if(!hunterWildlifePersistent.species[id])hunterWildlifePersistent.species[id]={discovered:false,research:0,observations:0,befriendedCount:0,foodPreferences:{},behaviours:[]};return hunterWildlifePersistent.species[id];}
+function hunterWildlifeLocalLoad(){try{return hunterWildlifeNormalizeSave(JSON.parse(localStorage.getItem(hunterWildlifeStorageKey())||'null'));}catch(_){return hunterWildlifeDefaultSave();}}
+function hunterWildlifeLocalSave(){if(!hunterWildlifePersistent)return;hunterWildlifePersistent.updatedAt=Date.now();try{localStorage.setItem(hunterWildlifeStorageKey(),JSON.stringify(hunterWildlifePersistent));}catch(_){}}
+async function hunterLoadWildlifeSave(force=false){if(hunterWildlifePersistent&&!force)return hunterWildlifePersistent;const local=hunterWildlifeLocalLoad();hunterWildlifePersistent=local;if(hunterWildlifeServerDisabled||typeof db==='undefined')return hunterWildlifePersistent;try{const user=(await db.auth.getUser()).data?.user;if(!user)return hunterWildlifePersistent;const {data,error}=await db.from(HUNTER_WILDLIFE_SERVER_TABLE).select('state,updated_at').eq('user_id',user.id).maybeSingle();if(error){if(String(error.code||'')==='42P01'||/does not exist/i.test(String(error.message||'')))hunterWildlifeServerDisabled=true;return hunterWildlifePersistent;}const remote=hunterWildlifeNormalizeSave(data?.state||null);const remoteStamp=Date.parse(data?.updated_at||0)||Number(remote.updatedAt||0);const localStamp=Number(local.updatedAt||0);if(data&&remoteStamp>localStamp){hunterWildlifePersistent=remote;hunterWildlifeLocalSave();}else if(!data||localStamp>=remoteStamp){hunterQueueWildlifeSave();}}catch(_){ }return hunterWildlifePersistent;}
+function hunterQueueWildlifeSave(){if(!hunterWildlifePersistent)return;hunterWildlifeLocalSave();clearTimeout(hunterWildlifeSaveTimer);hunterWildlifeSaveTimer=setTimeout(()=>hunterSaveWildlifeServer(),550);}
+async function hunterSaveWildlifeServer(){if(!hunterWildlifePersistent||hunterWildlifeServerDisabled||typeof db==='undefined')return;try{const user=(await db.auth.getUser()).data?.user;if(!user)return;const payload={user_id:user.id,state:hunterWildlifePersistent,updated_at:new Date().toISOString()};const {error}=await db.from(HUNTER_WILDLIFE_SERVER_TABLE).upsert(payload,{onConflict:'user_id'});if(error&&(String(error.code||'')==='42P01'||/does not exist/i.test(String(error.message||''))))hunterWildlifeServerDisabled=true;}catch(_){}}
+function hunterInventoryUsed(){return Object.values(hunterWildlifePersistent?.inventory||{}).reduce((n,v)=>n+Math.max(0,Number(v)||0),0);}
+function hunterFoodQty(id){return Math.max(0,Number(hunterWildlifePersistent?.inventory?.[id])||0);}
+function hunterAddFood(id,qty){if(!HUNTER_WILDLIFE_FOOD[id]||qty<=0)return 0;const cap=Number(hunterWildlifePersistent?.inventoryCapacity)||HUNTER_WILDLIFE_INVENTORY_BASE_CAPACITY,space=Math.max(0,cap-hunterInventoryUsed()),add=Math.min(space,qty);if(add<=0)return 0;hunterWildlifePersistent.inventory[id]=hunterFoodQty(id)+add;if(!hunterWildlifePersistent.unlockedFoods.includes(id))hunterWildlifePersistent.unlockedFoods.push(id);hunterQueueWildlifeSave();return add;}
+function hunterConsumeFood(id,qty=1){if(hunterFoodQty(id)<qty)return false;hunterWildlifePersistent.inventory[id]-=qty;if(hunterWildlifePersistent.inventory[id]<=0)delete hunterWildlifePersistent.inventory[id];hunterQueueWildlifeSave();return true;}
+function hunterHashString(str){let h=2166136261>>>0;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function hunterMulberry32(seed){return function(){let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+function hunterCantoConditions(){const h=new Date().getHours();const time=h<9?'morning':h<17?'daytime':h<21?'evening':'night';const day=new Date().toISOString().slice(0,10),seed=hunterHashString(`${character?.username||'guest'}:${day}:canto-weather`),r=hunterMulberry32(seed)();const weather=r<.64?'clear':r<.79?'rain':r<.91?'fog':'storm';return{time,weather};}
+function hunterWeightedPick(items,rng){let total=0;for(const item of items)total+=Math.max(0,item.weight||0);if(total<=0)return null;let roll=rng()*total;for(const item of items){roll-=Math.max(0,item.weight||0);if(roll<=0)return item.value;}return items[items.length-1]?.value||null;}
+function hunterSpeciesConditionWeight(species,conditions){let w=species.encounterWeight||1;if(species.activeTimes?.length&&!species.activeTimes.includes(conditions.time))w*=species.rarityTier==='Very Rare'?.08:.28;if(species.weatherPreferences?.length){if(species.weatherPreferences.includes(conditions.weather))w*=1.45;else if(species.rarityTier==='Very Rare')w*=.28;else w*=.72;}return w;}
+function hunterQuestState(id='darwin_first_fieldwork'){if(!hunterWildlifePersistent)hunterWildlifePersistent=hunterWildlifeDefaultSave();if(!hunterWildlifePersistent.quests[id])hunterWildlifePersistent.quests[id]={status:'not_started',stage:'start'};return hunterWildlifePersistent.quests[id];}
+function hunterQuestObjectiveText(){const q=hunterQuestState();if(q.status==='complete')return'Darwin fieldwork complete';if(q.status!=='active')return'Talk to Darwin for fieldwork';if(q.stage==='observe_hare')return'Fieldwork · Observe a Sunmeadow Hare';if(q.stage==='forage_clover')return'Fieldwork · Forage some clover';if(q.stage==='gain_trust')return'Fieldwork · Gain the hare\'s trust';if(q.stage==='bring_hare')return'Fieldwork · Bring the hare to the Centre';return'Darwin fieldwork';}
+function hunterStartDarwinFieldwork(){const q=hunterQuestState();q.status='active';q.stage='observe_hare';hunterQueueWildlifeSave();hunterEnsureTutorialHare();hunterWildlifeNotice('NEW FIELD TASK','Observe a Sunmeadow Hare near the windmill meadow.','quest');hunterRenderWildlifeHud();}
+function hunterAdvanceDarwinQuest(trigger,speciesId){const q=hunterQuestState();if(q.status!=='active')return;if(q.stage==='observe_hare'&&trigger==='discover'&&speciesId==='sunmeadow_hare'){q.stage=hunterFoodQty('clover_sprigs')>0?'gain_trust':'forage_clover';hunterWildlifeNotice('FIELD TASK UPDATED',q.stage==='gain_trust'?'Offer the hare some clover.':'Find clover around the meadow.','quest');hunterQueueWildlifeSave();}
+  if(q.stage==='forage_clover'&&trigger==='forage'&&speciesId==='clover_sprigs'){q.stage='gain_trust';hunterWildlifeNotice('FIELD TASK UPDATED','Return to the hare and gain its trust.','quest');hunterQueueWildlifeSave();}
+  if(q.stage==='gain_trust'&&trigger==='trust'&&speciesId==='sunmeadow_hare'){q.stage='bring_hare';hunterWildlifeNotice('FIELD TASK UPDATED','The hare trusts you. Bring it to the Centre.','quest');hunterQueueWildlifeSave();}
+  if((q.stage==='gain_trust'||q.stage==='bring_hare')&&trigger==='befriend'&&speciesId==='sunmeadow_hare'){q.status='complete';q.stage='complete';hunterWildlifePersistent.hunterXp=(Number(hunterWildlifePersistent.hunterXp)||0)+(HUNTER_CANTO_QUESTS.darwin_first_fieldwork.rewardXp||0);hunterWildlifePersistent.inventoryCapacity=Math.max(Number(hunterWildlifePersistent.inventoryCapacity)||24,28);hunterWildlifeNotice('FIELDWORK COMPLETE','Darwin\'s first fieldwork complete · +90 Hunter XP · Field Pack +4 capacity','quest');hunterQueueWildlifeSave();}
+  hunterRenderWildlifeHud();
+}
+function hunterWildlifeNotice(title,detail='',type='info'){const host=document.getElementById('hunterWildlifeNotices');if(!host)return;const el=document.createElement('div');el.className=`hunter-wildlife-notice is-${type}`;el.innerHTML=`<b>${escapeHtml(String(title))}</b>${detail?`<span>${escapeHtml(String(detail))}</span>`:''}`;host.appendChild(el);requestAnimationFrame(()=>el.classList.add('is-in'));setTimeout(()=>{el.classList.remove('is-in');setTimeout(()=>el.remove(),300);},3300);}
+function hunterSpeciesPreference(species,foodId){if(species.preferredFoods?.includes(foodId))return'favorite';if(species.likedFoods?.includes(foodId))return'liked';if(species.neutralFoods?.includes(foodId))return'neutral';if(species.dislikedFoods?.includes(foodId))return'disliked';if(species.hatedFoods?.includes(foodId))return'hated';return'neutral';}
+function hunterPreferenceLabel(pref){return{favorite:'Favourite',liked:'Liked',neutral:'Neutral',disliked:'Disliked',hated:'Unsuitable'}[pref]||'Unknown';}
+function hunterDiscoveryMethodFor(species,rng){const methods=species.discoveryMethods||['visible'];return methods[Math.floor(rng()*methods.length)]||'visible';}
+function hunterFindAnchorForSpecies(species,used,rng){const pool=HUNTER_CANTO_HABITAT_ANCHORS.filter(a=>species.habitats.includes(a.habitat)&&!used.has(a.id));if(!pool.length)return null;for(let tries=0;tries<pool.length*2;tries++){const a=pool[Math.floor(rng()*pool.length)],spot=hunterCantoNearestWalkable(a.x,a.y,70);if(!spot)continue;used.add(a.id);return{...a,x:spot.x,y:spot.y};}return null;}
+function hunterCreateOpportunity(species,anchor,method,rng,tutorial=false){return{id:`wild-${species.speciesId}-${Math.floor(rng()*1e9)}`,speciesId:species.speciesId,homeX:anchor.x,homeY:anchor.y,x:anchor.x,y:anchor.y,targetX:anchor.x,targetY:anchor.y,method,revealed:method==='visible',status:'active',trust:0,observed:false,approached:false,waitCount:0,frame:0,facing:rng()<.5?-1:1,idle:1+rng()*2.5,moveT:0,fearT:0,hiddenUntil:0,tutorial,habitat:anchor.habitat};}
+function hunterGenerateExpedition(){if(!hunterWildlifePersistent)return;const conditions=hunterCantoConditions(),visits=(hunterWildlifePersistent.regionStats.canto.visits||0)+1;hunterWildlifePersistent.regionStats.canto.visits=visits;const seed=hunterHashString(`${character?.username||'guest'}:${Date.now()}:${visits}`),rng=hunterMulberry32(seed),usedAnchors=new Set(),ops=[];const q=hunterQuestState();const hareNeeded=q.status==='active'&&q.status!=='complete'||!hunterSpeciesRecord('sunmeadow_hare').discovered;
+  if(hareNeeded){const hare=HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare;const anchor={id:'tutorial-hare',habitat:'meadow',...(hunterCantoNearestWalkable(770,405,80)||{x:770,y:405})};usedAnchors.add(anchor.id);ops.push(hunterCreateOpportunity(hare,anchor,'visible',rng,true));}
+  const slots=['Common','Common','Common','Common','Uncommon','Uncommon','Uncommon','Rare'];if(conditions.time==='night'&&rng()<.35)slots.push('Very Rare');
+  const picked=new Set(ops.map(o=>o.speciesId));for(const rarity of slots){const candidates=HUNTER_CANTO_SPECIES.filter(s=>s.rarityTier===rarity&&!picked.has(s.speciesId)).map(s=>({value:s,weight:hunterSpeciesConditionWeight(s,conditions)}));const species=hunterWeightedPick(candidates,rng);if(!species)continue;const anchor=hunterFindAnchorForSpecies(species,usedAnchors,rng);if(!anchor)continue;picked.add(species.speciesId);ops.push(hunterCreateOpportunity(species,anchor,hunterDiscoveryMethodFor(species,rng),rng,false));}
+  hunterWildlifeState={conditions,seed,ops,forage:HUNTER_CANTO_FORAGE_NODES.map(n=>({...n,collected:false})),activeEncounterId:null,ui:null,lastRender:0};hunterQueueWildlifeSave();hunterRenderWildlifeWorld(true);hunterRenderWildlifeHud();}
+function hunterEnsureTutorialHare(){if(!hunterWildlifeState)return;if(hunterWildlifeState.ops.some(o=>o.speciesId==='sunmeadow_hare'&&o.status!=='befriended'))return;const s=HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare,spot=hunterCantoNearestWalkable(770,405,80)||{x:770,y:405};hunterWildlifeState.ops.push(hunterCreateOpportunity(s,{...spot,habitat:'meadow'},'visible',Math.random,false));hunterRenderWildlifeWorld(true);}
+function hunterWildlifeActorEl(op){return document.querySelector(`[data-hunter-wildlife-id="${op.id}"]`);}
+function hunterRenderWildlifeWorld(force=false){const layer=document.getElementById('hunterWildlifeLayer'),forageLayer=document.getElementById('hunterForageLayer');if(!layer||!forageLayer||!hunterWildlifeState)return;if(force){layer.innerHTML='';forageLayer.innerHTML='';}
+  for(const op of hunterWildlifeState.ops){if(op.status==='befriended')continue;let el=hunterWildlifeActorEl(op);if(!el){el=document.createElement('span');el.dataset.hunterWildlifeId=op.id;el.className=op.revealed?'hunter-wildlife-actor':'hunter-wildlife-clue';el.setAttribute('role','button');el.setAttribute('tabindex','0');el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterInteractOpportunity(op.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterInteractOpportunity(op.id);}});layer.appendChild(el);}const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];if(op.revealed){el.className='hunter-wildlife-actor';const size=species.size||18;el.style.width=`${size}px`;el.style.height=`${size}px`;el.style.marginLeft=`${-size/2}px`;el.style.marginTop=`${-size*.82}px`;el.style.backgroundImage=`url('${species.spriteReference}')`;el.style.backgroundSize=`${size*4}px ${size*4}px`;const frame=op.frame||0,col=frame%4,row=Math.floor(frame/4);el.style.backgroundPosition=`${-col*size}px ${-row*size}px`;el.style.transform=`scaleX(${op.facing<0?-1:1})`;el.style.left=`${op.x}px`;el.style.top=`${op.y}px`;el.style.zIndex='7';el.style.display=(op.hiddenUntil&&performance.now()<op.hiddenUntil)?'none':'';el.setAttribute('aria-label',species.name);}else{el.className='hunter-wildlife-clue';el.textContent=HUNTER_CLUE_GLYPHS[op.method]||'·';el.style.left=`${op.homeX}px`;el.style.top=`${op.homeY}px`;el.style.display='';el.setAttribute('aria-label',HUNTER_CLUE_LABELS[op.method]||'Wildlife clue');}}
+  for(const node of hunterWildlifeState.forage){let el=forageLayer.querySelector(`[data-hunter-forage-id="${node.id}"]`);if(!el){el=document.createElement('span');el.className='hunter-forage-node';el.dataset.hunterForageId=node.id;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.innerHTML='<i></i>';el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterForageNode(node.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterForageNode(node.id);}});forageLayer.appendChild(el);}el.style.left=`${node.x}px`;el.style.top=`${node.y}px`;el.classList.toggle('is-collected',!!node.collected);el.setAttribute('aria-label',node.collected?`${node.label} already foraged`:node.label);}
+}
+function hunterUpdateWildlife(dt){if(!hunterWildlifeState||!hunterCantoState?.running)return;const now=performance.now(),panelOpen=hunterWildlifeBlockingUiOpen();for(const op of hunterWildlifeState.ops){if(op.status==='befriended'||!op.revealed)continue;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];if(op.hiddenUntil){if(now<op.hiddenUntil)continue;op.hiddenUntil=0;op.status='active';op.x=op.homeX;op.y=op.homeY;op.trust=Math.max(0,op.trust-4);}
+    if(panelOpen&&hunterWildlifeState.activeEncounterId===op.id){op.frame=0;continue;}
+    const pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y),playerMoving=(hunterCantoState.frame||0)!==0,careful=!!hunterCantoState.careful;
+    if(species.fearSensitivity>.62&&pd<24+species.fearSensitivity*18&&playerMoving&&!careful&&!hunterWildlifeBlockingUiOpen()){op.fearT=(op.fearT||0)+dt;if(op.fearT>.46){hunterWildlifeFlee(op,'You moved too quickly and it slipped away.');continue;}}else op.fearT=Math.max(0,(op.fearT||0)-dt*1.8);
+    op.idle-=dt;let vx=op.targetX-op.x,vy=op.targetY-op.y,dist=Math.hypot(vx,vy),moving=false;if(dist>1.2){const baseSpeed=species.movementBehaviour==='very-slow'?2.2:species.movementBehaviour.includes('dash')||species.movementBehaviour.includes('flight')?13:species.movementBehaviour.includes('slow')?4.5:7.5;const step=Math.min(dist,baseSpeed*dt),nx=op.x+vx/dist*step,ny=op.y+vy/dist*step;if(hunterCantoCanStand(nx,ny)){op.x=nx;op.y=ny;moving=true;if(Math.abs(vx)>.5)op.facing=vx<0?-1:1;}else{op.targetX=op.homeX;op.targetY=op.homeY;op.idle=.6;}}
+    if(!moving&&op.idle<=0){op.idle=1.1+Math.random()*3.2;for(let t=0;t<8;t++){const a=Math.random()*Math.PI*2,r=8+Math.random()*26,nx=op.homeX+Math.cos(a)*r,ny=op.homeY+Math.sin(a)*r;if(hunterCantoCanStand(nx,ny)){op.targetX=nx;op.targetY=ny;break;}}}
+    op.moveT=(op.moveT||0)+dt;op.frame=moving?4+(Math.floor(op.moveT/.18)%4):(Math.floor(op.moveT/2.4)%2?0:2);
+  }hunterRenderWildlifeWorld(false);
+}
+function hunterWildlifeFlee(op,message){if(!op)return;op.status='fled';op.hiddenUntil=performance.now()+(op.tutorial?12000:26000);op.fearT=0;op.targetX=op.homeX;op.targetY=op.homeY;hunterCloseEncounter();if(typeof toast==='function')toast(message||'The animal moves away. You can try again later.');}
+function hunterNearestWildlifeOpportunity(max=54){if(!hunterWildlifeState||!hunterCantoState)return null;let best=null,bd=max;for(const op of hunterWildlifeState.ops){if(op.status==='befriended'||(op.hiddenUntil&&performance.now()<op.hiddenUntil))continue;const x=op.revealed?op.x:op.homeX,y=op.revealed?op.y:op.homeY,d=Math.hypot(hunterCantoState.x-x,hunterCantoState.y-y);if(d<bd){best=op;bd=d;}}return best;}
+function hunterNearestForageNode(max=48){if(!hunterWildlifeState||!hunterCantoState)return null;let best=null,bd=max;for(const n of hunterWildlifeState.forage){if(n.collected)continue;const d=Math.hypot(hunterCantoState.x-n.x,hunterCantoState.y-n.y);if(d<bd){best=n;bd=d;}}return best;}
+function hunterNearVendorHook(max=48){if(!hunterCantoState)return false;return Math.hypot(hunterCantoState.x-HUNTER_CANTO_VENDOR_HOOK.x,hunterCantoState.y-HUNTER_CANTO_VENDOR_HOOK.y)<max;}
+function hunterOpenVendorHook(){showHunterDialogue('Canto Market','The animal-supply stall is being prepared. Common food, bait and field supplies will be sold here once the vendor artwork and shop inventory are added.');}
+function hunterInteractOpportunity(id){const op=hunterWildlifeState?.ops.find(o=>o.id===id);if(!op||!hunterCantoState)return;const x=op.revealed?op.x:op.homeX,y=op.revealed?op.y:op.homeY;if(Math.hypot(hunterCantoState.x-x,hunterCantoState.y-y)>58){if(typeof toast==='function')toast('Move a little closer to investigate.');return;}if(!op.revealed){op.revealed=true;op.x=op.homeX;op.y=op.homeY;op.status='active';const clue=HUNTER_CLUE_LABELS[op.method]||'Wildlife clue';hunterWildlifeNotice(op.method==='tracks'?'NEW TRACK FOUND':'WILDLIFE CLUE',`${clue} · something is close by.`,'clue');hunterRenderWildlifeWorld(true);return;}hunterOpenAnimalEncounter(op.id);}
+function hunterForageNode(id){const node=hunterWildlifeState?.forage.find(n=>n.id===id);if(!node||node.collected||!hunterCantoState)return;if(Math.hypot(hunterCantoState.x-node.x,hunterCantoState.y-node.y)>52){if(typeof toast==='function')toast('Move closer to forage here.');return;}const qty=node.min+Math.floor(Math.random()*(node.max-node.min+1)),added=hunterAddFood(node.foodId,qty);if(!added){hunterWildlifeNotice('FIELD PACK FULL','Make some room before gathering more food.','warning');return;}node.collected=true;const food=HUNTER_WILDLIFE_FOOD[node.foodId];hunterWildlifeNotice('FORAGED',`${added} × ${food.name}`,'food');hunterAdvanceDarwinQuest('forage',node.foodId);hunterRenderWildlifeWorld(false);hunterRenderWildlifeHud();}
+function hunterWildlifeBlockingUiOpen(){return !!document.querySelector('#hunterEncounterPanel.is-open,#hunterFieldPackPanel.is-open,#hunterJournalPanel.is-open');}
+function hunterCloseTopWildlifeUi(){if(document.getElementById('hunterEncounterPanel')?.classList.contains('is-open')){hunterCloseEncounter();return true;}if(document.getElementById('hunterFieldPackPanel')?.classList.contains('is-open')){hunterToggleFieldPack(false);return true;}if(document.getElementById('hunterJournalPanel')?.classList.contains('is-open')){hunterToggleJournal(false);return true;}return false;}
+function hunterCloseEncounter(){const p=document.getElementById('hunterEncounterPanel');if(p)p.classList.remove('is-open');if(hunterWildlifeState)hunterWildlifeState.activeEncounterId=null;}
+function hunterOpenAnimalEncounter(id){const op=hunterWildlifeState?.ops.find(o=>o.id===id);if(!op)return;hunterWildlifeState.activeEncounterId=id;document.getElementById('hunterEncounterPanel')?.classList.add('is-open');hunterRenderEncounter();}
+function hunterEncounterMessage(text){const el=document.getElementById('hunterEncounterMessage');if(el)el.textContent=text||'';}
+function hunterDiscoverSpecies(op){const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),fresh=!rec.discovered;rec.discovered=true;rec.observations=(rec.observations||0)+1;rec.research=Math.min(100,(rec.research||0)+10);op.observed=true;if(fresh){hunterWildlifePersistent.regionStats.canto.discoveries=(hunterWildlifePersistent.regionStats.canto.discoveries||0)+1;hunterWildlifeNotice('NEW SPECIES DISCOVERED',species.name,'species');hunterAdvanceDarwinQuest('discover',species.speciesId);}else hunterWildlifeNotice('NEW JOURNAL INFORMATION',`${species.name} research ${rec.research}%`,'journal');hunterQueueWildlifeSave();return fresh;}
+function hunterEncounterApproach(op){const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];if((species.approachMethod==='observe_first'||species.approachMethod==='maintain_distance')&&!op.observed){hunterEncounterMessage('It is watching you. Observe it first rather than closing the distance.');return;}const carefulRecent=performance.now()-(hunterCantoState?.lastCarefulAt||0)<2400;let chance=.88-species.trustDifficulty*.28-species.fearSensitivity*.18;if(['slow','maintain_distance'].includes(species.approachMethod))chance+=carefulRecent?.20:-.12;if(species.approachMethod==='ordinary')chance+=.08;if(species.temperament==='Curious'||species.temperament==='Calm'||species.temperament==='Social')chance+=.08;if(Math.random()>chance){hunterWildlifeFlee(op,'The approach was too much. It relocates nearby for a while.');return;}op.approached=true;op.trust=Math.min(100,op.trust+9+(species.approachMethod==='slow'&&carefulRecent?7:0));hunterEncounterMessage(carefulRecent?'Your careful approach works. It remains settled.':'You move closer without alarming it.');hunterRenderEncounter();}
+function hunterEncounterWait(op){const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];op.waitCount=(op.waitCount||0)+1;let gain=['Nervous','Shy','Curious','Cautious','Wary'].includes(species.temperament)?9:5;if(species.approachMethod==='wait'||species.approachMethod==='allow_approach')gain+=5;op.trust=Math.min(100,op.trust+gain);hunterEncounterMessage(species.temperament==='Territorial'?'Giving it space lowers the tension.':'You wait quietly. The animal seems more comfortable with your presence.');hunterRenderEncounter();}
+function hunterOfferFoodToEncounter(foodId){const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op||!hunterConsumeFood(foodId,1))return;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),pref=hunterSpeciesPreference(species,foodId),known=rec.foodPreferences?.[foodId];rec.foodPreferences=rec.foodPreferences||{};rec.foodPreferences[foodId]=pref;const food=HUNTER_WILDLIFE_FOOD[foodId];let gain=0,msg='';if(pref==='favorite'){gain=30;msg=`It eagerly takes the ${food.name.toLowerCase()}. That looks like a favourite.`;}else if(pref==='liked'){gain=18;msg=`It accepts the ${food.name.toLowerCase()} happily.`;}else if(pref==='neutral'){gain=4;msg=`It eats a little, but does not seem especially interested.`;}else if(pref==='disliked'){gain=-3;msg=`It turns away from the ${food.name.toLowerCase()}.`;}else{gain=-8;msg=`It refuses the ${food.name.toLowerCase()} and moves back cautiously.`;}
+  op.trust=Math.max(0,Math.min(100,op.trust+gain));rec.research=Math.min(100,(rec.research||0)+4);if(!known)hunterWildlifeNotice('NEW FOOD PREFERENCE LEARNED',`${species.name} · ${food.name}: ${hunterPreferenceLabel(pref)}`,'journal');hunterEncounterMessage(msg);hunterQueueWildlifeSave();if(op.trust>=species.centreRequirements.trust)hunterAdvanceDarwinQuest('trust',species.speciesId);if(pref==='hated'&&Math.random()<.42){hunterWildlifeFlee(op,'It refuses the food and relocates nearby.');return;}hunterRenderEncounter();hunterRenderWildlifeHud();}
+function hunterBefriendEncounter(){const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];if(op.trust<species.centreRequirements.trust){hunterEncounterMessage('It is not comfortable enough to travel back to the Centre yet.');return;}const rec=hunterSpeciesRecord(op.speciesId);rec.discovered=true;rec.befriendedCount=(rec.befriendedCount||0)+1;rec.research=Math.min(100,(rec.research||0)+18);hunterWildlifePersistent.centreAnimals.push({id:`${op.speciesId}-${Date.now()}-${Math.floor(Math.random()*9999)}`,speciesId:op.speciesId,region:'canto',befriendedAt:new Date().toISOString()});hunterWildlifePersistent.hunterXp=(Number(hunterWildlifePersistent.hunterXp)||0)+(species.baseXpReward||0);hunterWildlifePersistent.regionStats.canto.befriended=(hunterWildlifePersistent.regionStats.canto.befriended||0)+1;op.status='befriended';hunterWildlifeNotice('ANIMAL BEFRIENDED',`${species.name} · +${species.baseXpReward} Hunter XP`,'befriend');hunterAdvanceDarwinQuest('befriend',species.speciesId);hunterQueueWildlifeSave();hunterCloseEncounter();hunterRenderWildlifeWorld(true);hunterRenderWildlifeHud();}
+function hunterRenderEncounter(){const panel=document.getElementById('hunterEncounterPanel');if(!panel||!hunterWildlifeState)return;const op=hunterWildlifeState.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op){panel.classList.remove('is-open');return;}const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),name=document.getElementById('hunterEncounterName'),meta=document.getElementById('hunterEncounterMeta'),trust=document.getElementById('hunterEncounterTrustFill'),trustLabel=document.getElementById('hunterEncounterTrustLabel'),actions=document.getElementById('hunterEncounterActions'),foods=document.getElementById('hunterEncounterFoods');if(name)name.textContent=rec.discovered?species.name:'Unknown Canto Wildlife';if(meta)meta.textContent=rec.discovered?`${species.rarityTier} · ${species.temperament} · ${op.habitat.replace('_',' ')}`:'Observe it to identify the species';if(trust)trust.style.width=`${Math.max(0,Math.min(100,op.trust))}%`;if(trustLabel)trustLabel.textContent=`Trust ${Math.round(op.trust)}/${species.centreRequirements.trust}`;
+  if(actions)actions.innerHTML=`<button type="button" data-hunter-encounter-action="observe">Observe</button><button type="button" data-hunter-encounter-action="approach">Approach</button><button type="button" data-hunter-encounter-action="wait">Wait</button><button type="button" data-hunter-encounter-action="food">Offer Food</button>${op.trust>=species.centreRequirements.trust?'<button type="button" class="is-ready" data-hunter-encounter-action="bring">Bring to Centre</button>':''}<button type="button" data-hunter-encounter-action="close">Leave it be</button>`;
+  if(foods){foods.innerHTML='';foods.classList.remove('is-open');}
+}
+function hunterEncounterAction(action){const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;if(action==='close'){hunterCloseEncounter();return;}if(action==='observe'){const fresh=hunterDiscoverSpecies(op);op.trust=Math.min(100,op.trust+(HUNTER_CANTO_SPECIES_BY_ID[op.speciesId].temperament==='Curious'?7:3));hunterEncounterMessage(fresh?'You quietly study its markings and behaviour.':'You notice a little more about how it behaves.');hunterRenderEncounter();return;}if(action==='approach'){hunterEncounterApproach(op);return;}if(action==='wait'){hunterEncounterWait(op);return;}if(action==='food'){hunterRenderEncounterFoodPicker();return;}if(action==='bring'){hunterBefriendEncounter();return;}}
+function hunterRenderEncounterFoodPicker(){const foods=document.getElementById('hunterEncounterFoods');if(!foods)return;const entries=Object.keys(hunterWildlifePersistent?.inventory||{}).filter(id=>hunterFoodQty(id)>0&&HUNTER_WILDLIFE_FOOD[id]);foods.innerHTML=entries.length?entries.map(id=>`<button type="button" data-hunter-offer-food="${id}"><i>${HUNTER_WILDLIFE_FOOD[id].short}</i><span>${escapeHtml(HUNTER_WILDLIFE_FOOD[id].name)}</span><b>×${hunterFoodQty(id)}</b></button>`).join(''):'<p>Your Field Pack has no suitable food. Explore Canto and forage first.</p>';foods.classList.add('is-open');}
+function hunterToggleFieldPack(force){const panel=document.getElementById('hunterFieldPackPanel');if(!panel)return;const open=typeof force==='boolean'?force:!panel.classList.contains('is-open');if(open){document.getElementById('hunterJournalPanel')?.classList.remove('is-open');hunterCloseEncounter();hunterRenderFieldPack();}panel.classList.toggle('is-open',open);}
+function hunterRenderFieldPack(){const list=document.getElementById('hunterFieldPackList'),meta=document.getElementById('hunterFieldPackMeta');if(!list||!hunterWildlifePersistent)return;const cap=hunterWildlifePersistent.inventoryCapacity||24;if(meta)meta.textContent=`${hunterInventoryUsed()}/${cap} carried`;const entries=Object.keys(HUNTER_WILDLIFE_FOOD).filter(id=>hunterFoodQty(id)>0);list.innerHTML=entries.length?entries.map(id=>{const f=HUNTER_WILDLIFE_FOOD[id];return`<div class="hunter-pack-item"><i>${f.short}</i><span><b>${escapeHtml(f.name)}</b><small>${escapeHtml(f.source)}</small></span><strong>×${hunterFoodQty(id)}</strong></div>`;}).join(''):'<div class="hunter-empty-panel">Your Field Pack is empty. Forage around Canto Plains to gather beginner foods.</div>';}
+function hunterToggleJournal(force){const panel=document.getElementById('hunterJournalPanel');if(!panel)return;const open=typeof force==='boolean'?force:!panel.classList.contains('is-open');if(open){document.getElementById('hunterFieldPackPanel')?.classList.remove('is-open');hunterCloseEncounter();hunterRenderJournal();}panel.classList.toggle('is-open',open);}
+function hunterRenderJournal(){const list=document.getElementById('hunterJournalList'),meta=document.getElementById('hunterJournalMeta');if(!list||!hunterWildlifePersistent)return;const discovered=HUNTER_CANTO_SPECIES.filter(s=>hunterSpeciesRecord(s.speciesId).discovered).length,befriended=hunterWildlifePersistent.centreAnimals.length;if(meta)meta.textContent=`${discovered}/20 species · ${befriended} animals brought to Centre · ${Math.round(hunterWildlifePersistent.hunterXp||0)} Hunter XP`;list.innerHTML=HUNTER_CANTO_SPECIES.map((s,idx)=>{const r=hunterSpeciesRecord(s.speciesId);if(!r.discovered)return`<div class="hunter-journal-entry is-unknown"><em>${String(idx+1).padStart(2,'0')}</em><span><b>Undiscovered Canto species</b><small>Explore its habitat to learn more.</small></span></div>`;const learned=Object.entries(r.foodPreferences||{});const foodText=learned.length?learned.map(([id,p])=>`${HUNTER_WILDLIFE_FOOD[id]?.name||id}: ${hunterPreferenceLabel(p)}`).join(' · '):'Food preferences unknown';return`<div class="hunter-journal-entry"><em>${String(idx+1).padStart(2,'0')}</em><span><b>${escapeHtml(s.name)}</b><small>${escapeHtml(`${s.rarityTier} · ${s.temperament} · Research ${Math.round(r.research||0)}%`)}</small><small class="hunter-journal-food">${escapeHtml(foodText)}</small></span><strong>${r.befriendedCount||0} HOME</strong></div>`;}).join('');}
+function hunterRenderWildlifeHud(){if(!hunterWildlifePersistent)return;const wild=document.getElementById('hunterCantoWildlife'),conditions=document.getElementById('hunterCantoConditions'),quest=document.getElementById('hunterCantoQuest');if(wild){const n=HUNTER_CANTO_SPECIES.filter(s=>hunterSpeciesRecord(s.speciesId).discovered).length;wild.textContent=`Wildlife ${n}/20 · Pack ${hunterInventoryUsed()}/${hunterWildlifePersistent.inventoryCapacity||24}`;}if(conditions){const c=hunterWildlifeState?.conditions||hunterCantoConditions();conditions.textContent=`${c.time} · ${c.weather}`;}if(quest)quest.textContent=hunterQuestObjectiveText();}
+function hunterDarwinFieldworkDialogue(){const q=hunterQuestState();if(q.status==='not_started'){showHunterDialogue('Keeper Darwin','If you want to learn the work properly, start small. There is usually a Sunmeadow Hare around the windmill meadow. Watch it first, find something suitable to offer, then see if it trusts you enough to come back to the Centre.',[{label:'Start fieldwork',action:()=>{hunterStartDarwinFieldwork();showHunterDialogue('Keeper Darwin','Good. Observe before you rush in. The meadow around the windmill is your best place to begin.');}},{label:'Maybe later',action:()=>closeHunterDialogue()}]);return;}if(q.status==='complete'){showHunterDialogue('Keeper Darwin','You handled that exactly as I hoped. From here, Canto is yours to study. Different animals will need different approaches — and Rupert will happily pretend he knew that all along.');return;}showHunterDialogue('Keeper Darwin',`Your current field task: ${hunterQuestObjectiveText().replace('Fieldwork · ','')}. Take your time; a failed attempt is information, not disaster.`);}
+function hunterBindWildlifeUi(){const overlay=document.getElementById('hunterMenuOverlay');if(!overlay||overlay.dataset.wildlifeUiBound==='1')return;overlay.dataset.wildlifeUiBound='1';overlay.querySelectorAll('.hunter-wildlife-panel').forEach(panel=>panel.addEventListener('pointerdown',e=>e.stopPropagation()));overlay.addEventListener('click',e=>{const a=e.target.closest?.('[data-hunter-encounter-action]');if(a){e.preventDefault();e.stopPropagation();playHunterButtonSound();hunterEncounterAction(a.dataset.hunterEncounterAction);return;}const f=e.target.closest?.('[data-hunter-offer-food]');if(f){e.preventDefault();e.stopPropagation();playHunterButtonSound();hunterOfferFoodToEncounter(f.dataset.hunterOfferFood);return;}const close=e.target.closest?.('[data-hunter-wildlife-close]');if(close){e.preventDefault();e.stopPropagation();const target=close.dataset.hunterWildlifeClose;if(target==='pack')hunterToggleFieldPack(false);else if(target==='journal')hunterToggleJournal(false);else hunterCloseEncounter();}});}
+function ensureHunterWildlifeStyles(){if(hunterWildlifeStylesInstalled||document.getElementById('hunterWildlifeRuntimeStyles'))return;hunterWildlifeStylesInstalled=true;const style=document.createElement('style');style.id='hunterWildlifeRuntimeStyles';style.textContent=`
+#hunterMenuOverlay .hunter-wildlife-layer,#hunterMenuOverlay .hunter-forage-layer{position:absolute;inset:0;pointer-events:none;z-index:6}
+#hunterMenuOverlay .hunter-wildlife-actor{position:absolute;display:block;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(0 2px 2px rgba(0,0,0,.44));cursor:pointer;pointer-events:auto;transform-origin:50% 85%}
+#hunterMenuOverlay .hunter-wildlife-actor::after{content:'';position:absolute;left:50%;bottom:1px;width:66%;height:16%;transform:translateX(-50%);border-radius:50%;background:rgba(20,18,10,.18);filter:blur(1.2px);z-index:-1}
+#hunterMenuOverlay .hunter-wildlife-actor:hover{filter:drop-shadow(0 2px 2px rgba(0,0,0,.42)) drop-shadow(0 0 4px rgba(241,216,139,.36))}
+#hunterMenuOverlay .hunter-wildlife-clue{position:absolute;display:grid;place-items:center;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;color:#f0d88f;font:900 11px Georgia,serif;background:radial-gradient(circle,rgba(28,38,24,.76),rgba(8,15,12,.28) 55%,transparent 70%);text-shadow:0 1px 2px #000;filter:drop-shadow(0 0 4px rgba(242,218,142,.45));pointer-events:auto;cursor:pointer;animation:hunterWildCluePulse 1.9s ease-in-out infinite}
+#hunterMenuOverlay .hunter-forage-node{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;pointer-events:auto;cursor:pointer}
+#hunterMenuOverlay .hunter-forage-node i{position:absolute;inset:3px;border-radius:50%;background:rgba(187,213,101,.28);box-shadow:0 0 5px rgba(223,231,150,.68);animation:hunterForageGlow 2.4s ease-in-out infinite}
+#hunterMenuOverlay .hunter-forage-node.is-collected{display:none}
+#hunterMenuOverlay .hunter-canto-hud .hunter-canto-wildlife-line{color:#dfc88f!important;font-size:9px!important;margin-top:5px!important}
+#hunterMenuOverlay .hunter-canto-hud .hunter-canto-condition-line{color:#94b999!important;font-size:8px!important;margin-top:2px!important}
+#hunterMenuOverlay .hunter-canto-hud .hunter-canto-quest-line{max-width:230px;color:#f0d99e!important;font-size:8px!important;margin-top:5px!important;line-height:1.25!important}
+#hunterMenuOverlay .hunter-wildlife-notices{position:absolute;right:20px;top:70px;z-index:58;width:min(330px,34vw);pointer-events:none;display:flex;flex-direction:column;gap:7px}
+#hunterMenuOverlay .hunter-wildlife-notice{align-self:flex-end;width:100%;padding:9px 12px;border-left:3px solid #c69a42;background:linear-gradient(90deg,rgba(8,21,18,.96),rgba(7,14,13,.88));box-shadow:0 8px 24px rgba(0,0,0,.32),inset 0 0 0 1px rgba(238,209,135,.18);opacity:0;transform:translateX(16px);transition:.25s ease}
+#hunterMenuOverlay .hunter-wildlife-notice.is-in{opacity:1;transform:translateX(0)}#hunterMenuOverlay .hunter-wildlife-notice b{display:block;color:#f0d58f;font:800 11px Georgia,serif;letter-spacing:.7px}#hunterMenuOverlay .hunter-wildlife-notice span{display:block;color:#bed1ba;font:600 10px system-ui,sans-serif;margin-top:2px}
+#hunterMenuOverlay .hunter-wildlife-notice.is-species{border-left-color:#83c77b}#hunterMenuOverlay .hunter-wildlife-notice.is-befriend{border-left-color:#e0bd65}#hunterMenuOverlay .hunter-wildlife-notice.is-journal{border-left-color:#78aec8}#hunterMenuOverlay .hunter-wildlife-notice.is-warning{border-left-color:#c46e50}
+#hunterMenuOverlay .hunter-wildlife-panel{position:absolute;z-index:62;display:none;background:linear-gradient(180deg,rgba(7,20,18,.98),rgba(5,12,11,.98));border:1px solid rgba(209,168,77,.82);box-shadow:0 18px 45px rgba(0,0,0,.50),inset 0 0 0 1px rgba(255,235,182,.08);color:#e5d9b3;backdrop-filter:blur(8px)}#hunterMenuOverlay .hunter-wildlife-panel.is-open{display:block;animation:hunterWildPanelIn .18s ease-out}
+#hunterMenuOverlay .hunter-encounter-panel{right:18px;bottom:18px;width:min(350px,35vw);padding:14px;border-radius:14px}#hunterMenuOverlay .hunter-encounter-panel header,#hunterMenuOverlay .hunter-side-panel header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:9px;border-bottom:1px solid rgba(203,165,79,.30)}#hunterMenuOverlay .hunter-encounter-panel header b,#hunterMenuOverlay .hunter-side-panel header b{font:800 18px Georgia,serif;color:#f1d99b}#hunterMenuOverlay .hunter-encounter-panel header small,#hunterMenuOverlay .hunter-side-panel header small{display:block;margin-top:2px;color:#8fb0a0;font:700 9px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.6px}
+#hunterMenuOverlay .hunter-wildlife-close{border:0;background:transparent;color:#d7b76b;font-size:20px;line-height:1;cursor:pointer;padding:2px 4px}
+#hunterMenuOverlay .hunter-trust-row{margin:11px 0 8px}#hunterMenuOverlay .hunter-trust-row label{display:flex;justify-content:space-between;font:700 9px system-ui,sans-serif;color:#b9caaa;text-transform:uppercase;letter-spacing:.5px}#hunterMenuOverlay .hunter-trust-bar{height:7px;margin-top:5px;border:1px solid rgba(197,157,70,.42);background:#08100e;overflow:hidden}#hunterMenuOverlay .hunter-trust-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#50774c,#c5a54f);transition:width .24s ease}
+#hunterMenuOverlay .hunter-encounter-message{min-height:38px;padding:8px 0;color:#d8d1b7;font:600 11px/1.35 system-ui,sans-serif}#hunterMenuOverlay .hunter-encounter-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}#hunterMenuOverlay .hunter-encounter-actions button,#hunterMenuOverlay .hunter-encounter-foods button{border:1px solid rgba(196,154,67,.50);background:linear-gradient(180deg,rgba(28,47,37,.94),rgba(11,23,19,.96));color:#ead7a6;font:700 10px Georgia,serif;padding:8px 7px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,239,196,.04)}#hunterMenuOverlay .hunter-encounter-actions button:hover,#hunterMenuOverlay .hunter-encounter-foods button:hover{filter:brightness(1.12);border-color:rgba(232,196,111,.75)}#hunterMenuOverlay .hunter-encounter-actions button.is-ready{grid-column:1/-1;background:linear-gradient(180deg,rgba(72,93,50,.98),rgba(29,49,28,.98));color:#f5e2a2;border-color:#d0ab55}
+#hunterMenuOverlay .hunter-encounter-foods{display:none;max-height:145px;overflow:auto;margin-top:8px;padding-top:8px;border-top:1px solid rgba(196,154,67,.25);grid-template-columns:1fr 1fr;gap:5px}#hunterMenuOverlay .hunter-encounter-foods.is-open{display:grid}#hunterMenuOverlay .hunter-encounter-foods button{display:grid;grid-template-columns:24px 1fr auto;align-items:center;text-align:left;gap:6px;padding:6px}#hunterMenuOverlay .hunter-encounter-foods button i,#hunterMenuOverlay .hunter-pack-item i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#293a25;border:1px solid #90733c;color:#e9d596;font:800 8px system-ui,sans-serif;font-style:normal}#hunterMenuOverlay .hunter-encounter-foods p{grid-column:1/-1;color:#9fb09d;font-size:10px}
+#hunterMenuOverlay .hunter-side-panel{left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,82%);max-height:78%;border-radius:15px;padding:15px;overflow:hidden}#hunterMenuOverlay .hunter-side-panel .hunter-panel-scroll{max-height:58vh;overflow:auto;padding-right:4px;margin-top:10px}#hunterMenuOverlay .hunter-pack-item{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:8px;padding:8px;border-bottom:1px solid rgba(197,158,72,.18)}#hunterMenuOverlay .hunter-pack-item span b{display:block;color:#ead8ad;font:700 11px Georgia,serif}#hunterMenuOverlay .hunter-pack-item span small{display:block;color:#849e8e;font-size:9px;margin-top:2px}#hunterMenuOverlay .hunter-pack-item strong{color:#f1d68e}
+#hunterMenuOverlay .hunter-journal-entry{display:grid;grid-template-columns:32px 1fr auto;gap:8px;padding:9px 7px;border-bottom:1px solid rgba(195,155,70,.16);align-items:start}#hunterMenuOverlay .hunter-journal-entry em{font:800 10px Georgia,serif;color:#a88a4e;font-style:normal}#hunterMenuOverlay .hunter-journal-entry span b{display:block;color:#ead7a8;font:800 11px Georgia,serif}#hunterMenuOverlay .hunter-journal-entry span small{display:block;color:#8ca498;font:600 9px system-ui,sans-serif;margin-top:2px}#hunterMenuOverlay .hunter-journal-entry .hunter-journal-food{color:#bea974}#hunterMenuOverlay .hunter-journal-entry strong{color:#91b992;font:800 8px system-ui,sans-serif}#hunterMenuOverlay .hunter-journal-entry.is-unknown{opacity:.48}#hunterMenuOverlay .hunter-empty-panel{padding:24px;text-align:center;color:#9fac98;font-size:11px}
+@keyframes hunterWildCluePulse{0%,100%{transform:scale(.82);opacity:.55}50%{transform:scale(1.12);opacity:1}}@keyframes hunterForageGlow{0%,100%{transform:scale(.7);opacity:.25}50%{transform:scale(1.3);opacity:.85}}@keyframes hunterWildPanelIn{from{opacity:0}to{opacity:1}}
+@media(max-width:760px){#hunterMenuOverlay .hunter-encounter-panel{left:10px;right:10px;bottom:10px;width:auto}#hunterMenuOverlay .hunter-wildlife-notices{right:10px;top:56px;width:54vw}#hunterMenuOverlay .hunter-side-panel{width:88%;max-height:82%}}
+`;document.head.appendChild(style);}
+
+
 const HUNTER_ELVANE_PROGRESS_KEY = 'repo_hunter_elvane_progress_v1';
 const HUNTER_ELVANE_UNLOCK_RATIO = .60;
 const HUNTER_ELVANE_AREAS = [
@@ -4492,11 +4680,16 @@ function ensureHunterCantoStyles(){
     #hunterMenuOverlay .hunter-dialogue-box{position:relative;width:min(94%,1180px);aspect-ratio:1771/634;background:url('${HUNTER_DARWIN_DIALOGUE_PATH}') center/100% 100% no-repeat;filter:drop-shadow(0 15px 22px rgba(0,0,0,.45));pointer-events:auto;animation:hunterDialogueIn .18s ease-out both;}
     #hunterMenuOverlay .hunter-dialogue-name{position:absolute;left:5.0%;top:80.8%;width:20.4%;height:8.2%;display:flex;align-items:center;justify-content:center;text-align:center;color:#f1ddb1;font:800 16px Georgia,serif;line-height:1;letter-spacing:.5px;text-shadow:0 1px 0 #000;}
     #hunterMenuOverlay .hunter-dialogue-text{position:absolute;left:28.0%;top:21.5%;width:65.0%;height:51%;display:flex;align-items:flex-start;color:#3c2b19;font:700 clamp(16px,1.25vw,22px) Georgia,serif;line-height:1.45;letter-spacing:.15px;text-shadow:0 1px rgba(255,255,255,.20);overflow:hidden;}
-    #hunterMenuOverlay .hunter-dialogue-choices{position:absolute;left:28.0%;right:7.5%;bottom:9.4%;display:none;align-items:center;justify-content:flex-end;gap:10px;z-index:4;}
+    #hunterMenuOverlay .hunter-dialogue-choices{position:absolute;left:28.0%;right:7.5%;bottom:8.6%;display:none;align-items:center;justify-content:center;gap:8px;z-index:4;}
     #hunterMenuOverlay .hunter-dialogue-choices.is-visible{display:flex;}
-    #hunterMenuOverlay .hunter-dialogue-choice{min-width:150px;padding:9px 16px;border:1px solid #9b6b2f;border-radius:7px;background:linear-gradient(180deg,#315f5c,#183b3a);box-shadow:inset 0 0 0 1px rgba(244,219,160,.28),0 3px 0 rgba(72,45,18,.55);color:#f5e4b7;font:800 14px Georgia,serif;letter-spacing:.25px;text-shadow:0 1px #13201c;cursor:pointer;transition:transform .12s ease,filter .12s ease,box-shadow .12s ease;}
-    #hunterMenuOverlay .hunter-dialogue-choice:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:inset 0 0 0 1px rgba(255,235,188,.38),0 4px 0 rgba(72,45,18,.55),0 0 13px rgba(221,190,112,.13);}
-    #hunterMenuOverlay .hunter-dialogue-choice:active{transform:translateY(1px);box-shadow:inset 0 0 0 1px rgba(255,235,188,.28),0 1px 0 rgba(72,45,18,.55);}
+    #hunterMenuOverlay .hunter-dialogue-choice{position:relative;isolation:isolate;flex:1 1 0;min-width:0;max-width:210px;height:38px;padding:0 16px 1px;border:0;border-radius:0;background:linear-gradient(180deg,#183f3b 0%,#102d2b 48%,#0b211f 100%);clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);box-shadow:0 4px 8px rgba(16,10,4,.34),inset 0 1px rgba(255,235,184,.13),inset 0 -2px rgba(0,0,0,.25);color:#f4e3b6;font:800 13px Georgia,serif;letter-spacing:.18px;text-shadow:0 1px 1px #07100e;cursor:pointer;overflow:hidden;transition:transform .12s ease,filter .12s ease,color .12s ease;}
+    #hunterMenuOverlay .hunter-dialogue-choice::before{content:'';position:absolute;inset:2px;z-index:-1;clip-path:inherit;border:1px solid rgba(207,164,72,.68);box-shadow:inset 0 0 0 1px rgba(244,222,158,.08);pointer-events:none;}
+    #hunterMenuOverlay .hunter-dialogue-choice::after{content:'';position:absolute;top:-35%;left:-34%;width:26%;height:170%;transform:skewX(-22deg);background:linear-gradient(90deg,transparent,rgba(255,235,174,.17),transparent);opacity:0;pointer-events:none;}
+    #hunterMenuOverlay .hunter-dialogue-choice:hover{filter:brightness(1.12);transform:translateY(-1px);color:#fff0c9;}
+    #hunterMenuOverlay .hunter-dialogue-choice:hover::after{opacity:1;animation:hunterChoiceSheen .46s ease-out both;}
+    #hunterMenuOverlay .hunter-dialogue-choice:active{transform:translateY(1px) scale(.992);filter:brightness(.98);}
+    #hunterMenuOverlay .hunter-dialogue-choice:focus-visible{outline:2px solid rgba(239,203,111,.86);outline-offset:2px;}
+    @keyframes hunterChoiceSheen{from{left:-34%}to{left:116%}}
     #hunterMenuOverlay .hunter-dialogue-continue{position:absolute;right:8.5%;bottom:14%;color:#7d5a22;font:900 16px Georgia,serif;opacity:.65;animation:hunterDialoguePulse 1s ease-in-out infinite;}
     @keyframes hunterDialogueIn{from{opacity:0;transform:translateY(20px) scale(.985)}to{opacity:1;transform:none}}
     @keyframes hunterDialoguePulse{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(3px);opacity:.95}}
@@ -4775,20 +4968,20 @@ function speakToHunterDarwin(){
   if(d.mode==='following'){
     showHunterDialogue('Keeper Darwin',HUNTER_DARWIN_FOLLOWING_DIALOGUE,[
       {label:'Stop following',action:()=>{startHunterDarwinReturning();showHunterDialogue('Keeper Darwin','All right. Rupert and I will make our way back to our usual patch by the castle road.');}},
-      {label:'About Rupert',action:showHunterDarwinRupertDialogue},
+      {label:'Canto fieldwork',action:hunterDarwinFieldworkDialogue},{label:'About Rupert',action:showHunterDarwinRupertDialogue},
       {label:'Keep following',action:()=>closeHunterDialogue()}
     ]);return;
   }
   if(d.mode==='returning'){
     showHunterDialogue('Keeper Darwin',HUNTER_DARWIN_RETURNING_DIALOGUE,[
       {label:'Follow me',action:()=>{startHunterDarwinFollowing();showHunterDialogue('Keeper Darwin','Of course. Lead the way — Rupert and I will stay on the paths behind you.');}},
-      {label:'About Rupert',action:showHunterDarwinRupertDialogue},
+      {label:'Canto fieldwork',action:hunterDarwinFieldworkDialogue},{label:'About Rupert',action:showHunterDarwinRupertDialogue},
       {label:'Keep heading back',action:()=>closeHunterDialogue()}
     ]);return;
   }
   showHunterDialogue('Keeper Darwin',HUNTER_DARWIN_DIALOGUE,[
     {label:'Follow me',action:()=>{startHunterDarwinFollowing();showHunterDialogue('Keeper Darwin','Of course. Lead the way — Rupert and I will stay on the paths behind you.');}},
-    {label:'About Rupert',action:showHunterDarwinRupertDialogue},
+    {label:'Canto fieldwork',action:hunterDarwinFieldworkDialogue},{label:'About Rupert',action:showHunterDarwinRupertDialogue},
     {label:'Not yet',action:()=>closeHunterDialogue()}
   ]);
 }
@@ -4831,15 +5024,19 @@ function renderHunterDarwin(){
   el.style.backgroundPosition=`${-d.frame*30.618}px 0`;el.style.transform=`scaleX(${d.facing<0?-1:1})`;
 }
 function updateHunterCantoHud(){
-  if(!hunterCantoState)return;const zone=hunterCantoZoneAt(hunterCantoState.x,hunterCantoState.y),zoneEl=document.getElementById('hunterCantoZone'),notes=document.getElementById('hunterCantoNotes');if(zoneEl)zoneEl.textContent=zone.label;if(notes)notes.textContent=`Field notes ${hunterCantoState.discovered.size}/${HUNTER_CANTO_POIS.length}`;
-  const poi=hunterCantoNearestPoi(),prompt=document.getElementById('hunterCantoPrompt');if(!prompt)return;
-  if(hunterDialogueOpen()){prompt.classList.remove('is-visible');return;}
-  // World interactions always win over a following companion. Darwin should never block a well,
-  // building/POI, route exit or future interactable just because he is standing beside the player.
-  if(poi){prompt.textContent=hunterCantoState.discovered.has(poi.id)?`E · Revisit ${poi.label}`:`E · Inspect ${poi.label}`;prompt.classList.add('is-visible');}else if(hunterCantoState.x<230&&Math.abs(hunterCantoState.y-505)<85){prompt.textContent='E · Return to Elvane';prompt.classList.add('is-visible');}else if(hunterNearDarwin()){prompt.textContent='E · Speak to Keeper Darwin';prompt.classList.add('is-visible');}else prompt.classList.remove('is-visible');
+  if(!hunterCantoState)return;const zone=hunterCantoZoneAt(hunterCantoState.x,hunterCantoState.y),zoneEl=document.getElementById('hunterCantoZone'),notes=document.getElementById('hunterCantoNotes');if(zoneEl)zoneEl.textContent=zone.label;if(notes)notes.textContent=`Field notes ${hunterCantoState.discovered.size}/${HUNTER_CANTO_POIS.length}`;hunterRenderWildlifeHud();
+  const prompt=document.getElementById('hunterCantoPrompt');if(!prompt)return;if(hunterDialogueOpen()||hunterWildlifeBlockingUiOpen()){prompt.classList.remove('is-visible');return;}
+  const wild=hunterNearestWildlifeOpportunity(),forage=hunterNearestForageNode(),poi=hunterCantoNearestPoi();
+  if(wild){const species=HUNTER_CANTO_SPECIES_BY_ID[wild.speciesId];prompt.textContent=wild.revealed?`E · Observe ${hunterSpeciesRecord(wild.speciesId).discovered?species.name:'wildlife'}`:`E · Inspect ${HUNTER_CLUE_LABELS[wild.method]||'wildlife clue'}`;prompt.classList.add('is-visible');}
+  else if(forage){prompt.textContent=`E · Forage ${forage.label}`;prompt.classList.add('is-visible');}
+  else if(hunterNearVendorHook()){prompt.textContent='E · Canto Market Stall';prompt.classList.add('is-visible');}
+  else if(poi){prompt.textContent=hunterCantoState.discovered.has(poi.id)?`E · Revisit ${poi.label}`:`E · Inspect ${poi.label}`;prompt.classList.add('is-visible');}
+  else if(hunterCantoState.x<230&&Math.abs(hunterCantoState.y-505)<85){prompt.textContent='E · Return to Elvane';prompt.classList.add('is-visible');}
+  else if(hunterNearDarwin()){prompt.textContent='E · Speak to Keeper Darwin';prompt.classList.add('is-visible');}
+  else prompt.classList.remove('is-visible');
 }
 function inspectHunterCantoPoi(){
-  if(!hunterCantoState)return;const poi=hunterCantoNearestPoi();
+  if(!hunterCantoState||hunterWildlifeBlockingUiOpen())return;const wild=hunterNearestWildlifeOpportunity();if(wild){hunterInteractOpportunity(wild.id);return;}const forage=hunterNearestForageNode();if(forage){hunterForageNode(forage.id);return;}if(hunterNearVendorHook()){hunterOpenVendorHook();return;}const poi=hunterCantoNearestPoi();
   if(poi){playHunterButtonSound();const fresh=!hunterCantoState.discovered.has(poi.id);hunterCantoState.discovered.add(poi.id);if(fresh)saveHunterCantoDiscoveries(hunterCantoState.discovered);if(typeof toast==='function')toast(`${poi.label}: ${poi.text}`);updateHunterCantoHud();return;}
   if(hunterCantoState.x<230&&Math.abs(hunterCantoState.y-505)<85){showHunterElvaneFromCanto();return;}
   if(hunterNearDarwin()){speakToHunterDarwin();return;}
@@ -4874,33 +5071,34 @@ function renderHunterCantoCamera(){
   const vr=view.getBoundingClientRect();const scale=Math.max(1.76,Math.min(2.20,vr.width/780));let tx=vr.width/2-hunterCantoState.x*scale,ty=vr.height/2-hunterCantoState.y*scale;const minX=vr.width-HUNTER_CANTO_WORLD_W*scale,minY=vr.height-HUNTER_CANTO_WORLD_H*scale;tx=Math.min(0,Math.max(minX,tx));ty=Math.min(0,Math.max(minY,ty));hunterCantoState.cam={scale,tx,ty};world.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${scale})`;player.style.left=`${hunterCantoState.x}px`;player.style.top=`${hunterCantoState.y}px`;player.style.backgroundPosition=`${-hunterCantoState.frame*30.78}px 0`;player.style.transform=`scaleX(${hunterCantoState.facing<0?-1:1})`;renderHunterDarwin();renderHunterRupert();
 }
 function hunterCantoLoop(ts){
-  if(!hunterCantoState?.running)return;const last=hunterCantoState.last||ts,dt=Math.min(.035,(ts-last)/1000||0);hunterCantoState.last=ts;updateHunterDarwin(dt);updateHunterRupert(dt);let dx=0,dy=0;
-  if(!hunterDialogueOpen()&&(hunterCantoKeys.has('arrowleft')||hunterCantoKeys.has('a')))dx--;if(!hunterDialogueOpen()&&(hunterCantoKeys.has('arrowright')||hunterCantoKeys.has('d')))dx++;if(!hunterDialogueOpen()&&(hunterCantoKeys.has('arrowup')||hunterCantoKeys.has('w')))dy--;if(!hunterDialogueOpen()&&(hunterCantoKeys.has('arrowdown')||hunterCantoKeys.has('s')))dy++;
-  if(dx||dy){hunterCantoState.target=null;const m=Math.hypot(dx,dy)||1;dx/=m;dy/=m;}else if(hunterCantoState.target){const vx=hunterCantoState.target.x-hunterCantoState.x,vy=hunterCantoState.target.y-hunterCantoState.y,d=Math.hypot(vx,vy);if(d<8)hunterCantoState.target=null;else{dx=vx/d;dy=vy/d;}}
-  let moving=false;if(dx||dy){const speed=71.4*dt;moving=hunterCantoTryMove(dx*speed,dy*speed);if(dx!==0)hunterCantoState.facing=dx<0?-1:1;if(!moving&&hunterCantoState.target)hunterCantoState.target=null;}
-  if(moving){hunterCantoState.anim=(hunterCantoState.anim||0)+dt*5.95;hunterCantoState.frame=Math.floor(hunterCantoState.anim)%10;}else{hunterCantoState.anim=0;hunterCantoState.frame=0;}
+  if(!hunterCantoState?.running)return;const last=hunterCantoState.last||ts,dt=Math.min(.035,(ts-last)/1000||0);hunterCantoState.last=ts;updateHunterDarwin(dt);updateHunterRupert(dt);hunterUpdateWildlife(dt);let dx=0,dy=0;const blocked=hunterDialogueOpen()||hunterWildlifeBlockingUiOpen();
+  if(!blocked&&(hunterCantoKeys.has('arrowleft')||hunterCantoKeys.has('a')))dx--;if(!blocked&&(hunterCantoKeys.has('arrowright')||hunterCantoKeys.has('d')))dx++;if(!blocked&&(hunterCantoKeys.has('arrowup')||hunterCantoKeys.has('w')))dy--;if(!blocked&&(hunterCantoKeys.has('arrowdown')||hunterCantoKeys.has('s')))dy++;
+  if(dx||dy){hunterCantoState.target=null;const m=Math.hypot(dx,dy)||1;dx/=m;dy/=m;}else if(!blocked&&hunterCantoState.target){const vx=hunterCantoState.target.x-hunterCantoState.x,vy=hunterCantoState.target.y-hunterCantoState.y,d=Math.hypot(vx,vy);if(d<8)hunterCantoState.target=null;else{dx=vx/d;dy=vy/d;}}
+  const careful=hunterCantoKeys.has('shift');hunterCantoState.careful=careful;if(careful&&(dx||dy))hunterCantoState.lastCarefulAt=performance.now();
+  let moving=false;if(dx||dy){const speed=71.4*(careful?.54:1)*dt;moving=hunterCantoTryMove(dx*speed,dy*speed);if(dx!==0)hunterCantoState.facing=dx<0?-1:1;if(!moving&&hunterCantoState.target)hunterCantoState.target=null;}
+  if(moving){hunterCantoState.anim=(hunterCantoState.anim||0)+dt*(careful?3.6:5.95);hunterCantoState.frame=Math.floor(hunterCantoState.anim)%10;}else{hunterCantoState.anim=0;hunterCantoState.frame=0;}
   renderHunterCantoCamera();updateHunterCantoHud();hunterCantoFrame=requestAnimationFrame(hunterCantoLoop);
 }
 function bindHunterCantoControls(){
   if(hunterCantoListenersBound)return;hunterCantoListenersBound=true;
-  document.addEventListener('keydown',e=>{if(!hunterCantoState?.running)return;const k=e.key.toLowerCase();if(hunterDialogueOpen()&&['e','enter',' '].includes(k)){e.preventDefault();if(!e.repeat)advanceHunterDialogue();return;}if(['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)inspectHunterCantoPoi();return;}hunterCantoKeys.add(k);}});
+  document.addEventListener('keydown',e=>{if(!hunterCantoState?.running)return;const k=e.key.toLowerCase();if(hunterDialogueOpen()&&['e','enter',' '].includes(k)){e.preventDefault();if(!e.repeat)advanceHunterDialogue();return;}if(k==='i'){e.preventDefault();if(!e.repeat)hunterToggleFieldPack();return;}if(k==='j'){e.preventDefault();if(!e.repeat)hunterToggleJournal();return;}if(k==='escape'&&hunterCloseTopWildlifeUi()){e.preventDefault();return;}if(['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d','shift','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)inspectHunterCantoPoi();return;}hunterCantoKeys.add(k);}});
   document.addEventListener('keyup',e=>{if(!hunterCantoState?.running)return;hunterCantoKeys.delete(e.key.toLowerCase());});
   window.addEventListener('blur',()=>hunterCantoKeys.clear());
 }
 async function startHunterCantoGame(){
-  ensureHunterCantoStyles();bindHunterCantoControls();populateHunterCantoMotes();
+  ensureHunterCantoStyles();ensureHunterWildlifeStyles();bindHunterCantoControls();populateHunterCantoMotes();
   const serial=++hunterCantoStartSerial;
-  const pending={x:HUNTER_CANTO_START.x,y:HUNTER_CANTO_START.y,facing:1,frame:0,anim:0,last:performance.now(),running:false,target:null,cam:{scale:1.90,tx:0,ty:0},discovered:hunterCantoDiscoveries()};
-  hunterCantoState=pending;hunterCantoKeys.clear();closeHunterDialogue();initHunterDarwin();initHunterRupert();cancelAnimationFrame(hunterCantoFrame);hunterCantoFrame=0;updateHunterCantoHud();renderHunterCantoCamera();
-  const ready=await ensureHunterCantoCollisionReady();
+  const pending={x:HUNTER_CANTO_START.x,y:HUNTER_CANTO_START.y,facing:1,frame:0,anim:0,last:performance.now(),running:false,target:null,cam:{scale:1.90,tx:0,ty:0},discovered:hunterCantoDiscoveries(),careful:false,lastCarefulAt:0};
+  hunterCantoState=pending;hunterCantoKeys.clear();closeHunterDialogue();hunterCloseTopWildlifeUi();initHunterDarwin();initHunterRupert();cancelAnimationFrame(hunterCantoFrame);hunterCantoFrame=0;updateHunterCantoHud();renderHunterCantoCamera();
+  const [ready]=await Promise.all([ensureHunterCantoCollisionReady(),hunterLoadWildlifeSave()]);
   if(serial!==hunterCantoStartSerial||hunterCantoState!==pending)return;
   if(!ready){if(typeof toast==='function')toast('Canto Plains pathing could not load. Please refresh.');return;}
   const spawn=hunterCantoNearestWalkable(HUNTER_CANTO_START.x,HUNTER_CANTO_START.y,220);
   if(!spawn){if(typeof toast==='function')toast('Canto Plains could not find a safe starting path.');return;}
-  pending.x=spawn.x;pending.y=spawn.y;pending.last=performance.now();pending.running=true;
+  pending.x=spawn.x;pending.y=spawn.y;pending.last=performance.now();pending.running=true;hunterGenerateExpedition();
   renderHunterCantoCamera();updateHunterCantoHud();hunterCantoFrame=requestAnimationFrame(hunterCantoLoop);
 }
-function stopHunterCantoGame(){hunterCantoStartSerial++;closeHunterDialogue();if(hunterCantoState)hunterCantoState.running=false;hunterCantoKeys.clear();cancelAnimationFrame(hunterCantoFrame);hunterCantoFrame=0;hunterRupertState=null;}
+function stopHunterCantoGame(){hunterCantoStartSerial++;closeHunterDialogue();hunterCloseTopWildlifeUi();if(hunterCantoState)hunterCantoState.running=false;hunterCantoKeys.clear();cancelAnimationFrame(hunterCantoFrame);hunterCantoFrame=0;hunterRupertState=null;hunterWildlifeState=null;const wl=document.getElementById('hunterWildlifeLayer'),fl=document.getElementById('hunterForageLayer');if(wl)wl.innerHTML='';if(fl)fl.innerHTML='';hunterQueueWildlifeSave();}
 function openHunterCantoPlains(){
   const elvane=document.getElementById('hunterElvaneView'),canto=document.getElementById('hunterCantoView');if(!elvane||!canto)return;
   stopHunterElvaneMusic();
@@ -5064,6 +5262,7 @@ function syncHunterExploreUnlocks(){
 }
 function ensureHunterMenuOverlay(){
   ensureHunterMenuStyles();
+  ensureHunterWildlifeStyles();
   ensureHunterCantoCollisionImage();
   let overlay=document.getElementById('hunterMenuOverlay');
   if(overlay) return overlay;
@@ -5110,23 +5309,30 @@ function ensureHunterMenuOverlay(){
             <div id="hunterCantoViewport" class="hunter-canto-viewport">
               <div id="hunterCantoWorld" class="hunter-canto-world">
                 <img class="hunter-canto-map" src="${HUNTER_CANTO_MAP_PATH}" alt="Canto Plains exploration area" />
+                <div id="hunterForageLayer" class="hunter-forage-layer" aria-label="Canto forage opportunities"></div>
+                <div id="hunterWildlifeLayer" class="hunter-wildlife-layer" aria-label="Canto wildlife opportunities"></div>
                 <div id="hunterCantoDarwin" class="hunter-canto-darwin" role="button" aria-label="Speak to Keeper Darwin"></div>
                 <div id="hunterCantoRupert" class="hunter-canto-rupert" aria-label="Rupert, Keeper Darwin's companion"></div>
                 <div id="hunterCantoPlayer" class="hunter-canto-player" aria-hidden="true"></div>
               </div>
               <div id="hunterCantoMotes" class="hunter-canto-motes"></div>
               <div class="hunter-canto-vignette"></div>
-              <div class="hunter-canto-hud"><strong>Canto Plains</strong><span id="hunterCantoZone">Castle Road Edge</span><span id="hunterCantoNotes" class="hunter-canto-notes">Field notes 0/6</span></div>
+              <div class="hunter-canto-hud"><strong>Canto Plains</strong><span id="hunterCantoZone">Castle Road Edge</span><span id="hunterCantoNotes" class="hunter-canto-notes">Field notes 0/6</span><span id="hunterCantoWildlife" class="hunter-canto-wildlife-line">Wildlife 0/20 · Pack 0/24</span><span id="hunterCantoConditions" class="hunter-canto-condition-line">daytime · clear</span><span id="hunterCantoQuest" class="hunter-canto-quest-line">Talk to Darwin for fieldwork</span></div>
               <button id="hunterCantoBack" type="button" class="hunter-canto-back">← Elvane</button>
               <div id="hunterCantoPrompt" class="hunter-canto-prompt"></div>
-              <div class="hunter-canto-help">WASD / arrows · click to walk · E to interact</div>
+              <div id="hunterWildlifeNotices" class="hunter-wildlife-notices"></div>
+              <div id="hunterEncounterPanel" class="hunter-wildlife-panel hunter-encounter-panel"><header><div><b id="hunterEncounterName">Wildlife Encounter</b><small id="hunterEncounterMeta"></small></div><button class="hunter-wildlife-close" data-hunter-wildlife-close="encounter" aria-label="Close">×</button></header><div class="hunter-trust-row"><label><span>Gain Trust</span><b id="hunterEncounterTrustLabel">Trust 0/50</b></label><div class="hunter-trust-bar"><i id="hunterEncounterTrustFill"></i></div></div><div id="hunterEncounterMessage" class="hunter-encounter-message">Take your time and read the animal's behaviour.</div><div id="hunterEncounterActions" class="hunter-encounter-actions"></div><div id="hunterEncounterFoods" class="hunter-encounter-foods"></div></div>
+              <div id="hunterFieldPackPanel" class="hunter-wildlife-panel hunter-side-panel"><header><div><b>Field Pack</b><small id="hunterFieldPackMeta">0/24 carried</small></div><button class="hunter-wildlife-close" data-hunter-wildlife-close="pack" aria-label="Close">×</button></header><div id="hunterFieldPackList" class="hunter-panel-scroll"></div></div>
+              <div class="hunter-canto-help">WASD / arrows · Shift careful step · E interact · I pack · J journal</div>
               <div id="hunterDialogueLayer" class="hunter-dialogue-layer"><div class="hunter-dialogue-box"><div id="hunterDialogueName" class="hunter-dialogue-name"></div><div id="hunterDialogueText" class="hunter-dialogue-text"></div><div id="hunterDialogueChoices" class="hunter-dialogue-choices"></div><div class="hunter-dialogue-continue">◆</div></div></div>
             </div>
           </div>
         </div>
+        <div id="hunterJournalPanel" class="hunter-wildlife-panel hunter-side-panel"><header><div><b>Wildlife Journal · Canto Plains</b><small id="hunterJournalMeta">0/20 species</small></div><button class="hunter-wildlife-close" data-hunter-wildlife-close="journal" aria-label="Close">×</button></header><div id="hunterJournalList" class="hunter-panel-scroll"></div></div>
       </div>
     </div>`;
   document.body.appendChild(overlay);
+  hunterBindWildlifeUi();
   populateHunterMenuEffects(document.getElementById('hunterMenuEffects'));
   populateHunterMenuEffects(document.getElementById('hunterExploreEffects'));
   populateHunterMenuEffects(document.getElementById('hunterElvaneEffects'));
@@ -5146,10 +5352,94 @@ function ensureHunterMenuOverlay(){
   syncHunterExploreUnlocks();
   if(!window.__hunterMenuEscBound){
     window.__hunterMenuEscBound=true;
-    document.addEventListener('keydown',e=>{ if(e.key!=='Escape'||!document.getElementById('hunterMenuOverlay')?.classList.contains('open'))return;if(document.getElementById('hunterCantoView')?.classList.contains('is-active')){e.preventDefault();showHunterElvaneFromCanto();return;}closeHunterMenu(); });
+    document.addEventListener('keydown',e=>{ if(e.key!=='Escape'||!document.getElementById('hunterMenuOverlay')?.classList.contains('open'))return;if(document.getElementById('hunterSettingsLayer')?.classList.contains('is-open')){e.preventDefault();closeHunterSettings();return;}if(document.getElementById('hunterCantoView')?.classList.contains('is-active')){e.preventDefault();if(hunterCloseTopWildlifeUi())return;showHunterElvaneFromCanto();return;}closeHunterMenu(); });
   }
   return overlay;
 }
+
+let hunterSettingsLayer=null;
+function ensureHunterSettingsLayer(){
+  const overlay=document.getElementById('hunterMenuOverlay');if(!overlay)return null;
+  if(hunterSettingsLayer&&hunterSettingsLayer.isConnected)return hunterSettingsLayer;
+  if(!document.getElementById('hunterSettingsPremiumStyle')){
+    const style=document.createElement('style');style.id='hunterSettingsPremiumStyle';style.textContent=`
+      #hunterMenuOverlay .hunter-settings-layer{position:absolute;inset:0;z-index:95;display:none;align-items:center;justify-content:center;padding:5%;background:rgba(2,7,6,.62);backdrop-filter:blur(5px);pointer-events:auto;}
+      #hunterMenuOverlay .hunter-settings-layer.is-open{display:flex;animation:hunterSettingsFade .16s ease-out both;}
+      #hunterMenuOverlay .hunter-settings-card{position:relative;width:min(560px,92%);padding:20px 22px 18px;border:1px solid rgba(212,169,75,.68);background:linear-gradient(180deg,rgba(12,35,31,.98),rgba(5,19,17,.985));box-shadow:0 24px 65px rgba(0,0,0,.58),inset 0 0 0 2px rgba(248,224,156,.055),inset 0 0 38px rgba(0,0,0,.28);color:#eadcb9;font-family:Georgia,serif;clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px);}
+      #hunterMenuOverlay .hunter-settings-card::before{content:'';position:absolute;inset:6px;border:1px solid rgba(183,137,49,.32);pointer-events:none;clip-path:inherit;}
+      #hunterMenuOverlay .hunter-settings-eyebrow{color:#9fb29b;font:800 9px system-ui,sans-serif;letter-spacing:1.6px;text-transform:uppercase;text-align:center;}
+      #hunterMenuOverlay .hunter-settings-title{margin:4px 0 3px;text-align:center;color:#f2d99a;font:800 25px Georgia,serif;letter-spacing:.5px;text-shadow:0 2px #020605;}
+      #hunterMenuOverlay .hunter-settings-sub{margin:0 auto 16px;max-width:430px;text-align:center;color:#aab9a7;font:600 11px/1.45 system-ui,sans-serif;}
+      #hunterMenuOverlay .hunter-settings-section{position:relative;margin-top:12px;padding:14px 14px 13px;border:1px solid rgba(199,159,72,.22);background:rgba(3,13,12,.43);}
+      #hunterMenuOverlay .hunter-settings-section strong{display:block;color:#e4cf96;font:800 14px Georgia,serif;letter-spacing:.2px;}
+      #hunterMenuOverlay .hunter-settings-section p{margin:5px 0 0;color:#9cae9d;font:600 10px/1.45 system-ui,sans-serif;}
+      #hunterMenuOverlay .hunter-settings-danger{border-color:rgba(147,69,49,.43);background:linear-gradient(180deg,rgba(48,19,16,.34),rgba(16,10,9,.42));}
+      #hunterMenuOverlay .hunter-settings-danger strong{color:#e7b38c;}
+      #hunterMenuOverlay .hunter-settings-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:15px;}
+      #hunterMenuOverlay .hunter-settings-btn{position:relative;min-width:132px;height:36px;padding:0 15px;border:0;clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,7px 100%,0 50%);background:linear-gradient(180deg,#234c46,#102e2b);color:#f2e1b7;font:800 12px Georgia,serif;letter-spacing:.18px;text-shadow:0 1px #08110f;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.28);transition:transform .12s ease,filter .12s ease;}
+      #hunterMenuOverlay .hunter-settings-btn::after{content:'';position:absolute;inset:2px;border:1px solid rgba(209,165,69,.58);clip-path:inherit;pointer-events:none;}
+      #hunterMenuOverlay .hunter-settings-btn:hover{filter:brightness(1.12);transform:translateY(-1px);}
+      #hunterMenuOverlay .hunter-settings-btn:active{transform:translateY(1px);}
+      #hunterMenuOverlay .hunter-settings-btn.is-danger{background:linear-gradient(180deg,#6a3027,#351713);color:#ffe2be;}
+      #hunterMenuOverlay .hunter-settings-btn.is-danger::after{border-color:rgba(225,143,83,.68);}
+      #hunterMenuOverlay .hunter-settings-confirm{display:none;margin-top:14px;padding:14px;border:1px solid rgba(208,116,72,.52);background:rgba(44,16,12,.54);box-shadow:inset 0 0 24px rgba(0,0,0,.22);}
+      #hunterMenuOverlay .hunter-settings-confirm.is-open{display:block;animation:hunterSettingsConfirm .16s ease-out both;}
+      #hunterMenuOverlay .hunter-settings-confirm b{display:block;color:#ffd3a6;font:800 14px Georgia,serif;}
+      #hunterMenuOverlay .hunter-settings-confirm span{display:block;margin-top:4px;color:#c7aa94;font:600 10px/1.45 system-ui,sans-serif;}
+      #hunterMenuOverlay .hunter-settings-resetting{opacity:.65;pointer-events:none;}
+      @keyframes hunterSettingsFade{from{opacity:0}to{opacity:1}}@keyframes hunterSettingsConfirm{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    `;document.head.appendChild(style);
+  }
+  const layer=document.createElement('div');layer.className='hunter-settings-layer';layer.id='hunterSettingsLayer';layer.innerHTML=`
+    <div class="hunter-settings-card" role="dialog" aria-modal="true" aria-labelledby="hunterSettingsTitle">
+      <div class="hunter-settings-eyebrow">Velmora Animal Centre</div>
+      <div class="hunter-settings-title" id="hunterSettingsTitle">Settings</div>
+      <p class="hunter-settings-sub">Level Hunter settings and save controls. More gameplay settings can be added here as the Animal Centre expands.</p>
+      <div class="hunter-settings-section">
+        <strong>Exploration Save</strong>
+        <p>Your wildlife journal, field inventory, Hunter progress, Centre animals, quests, Canto discoveries and regional progression are saved to your Level Hunter profile.</p>
+      </div>
+      <div class="hunter-settings-section hunter-settings-danger">
+        <strong>Reset Animal Centre Progress</strong>
+        <p>Start Level Hunter again from the beginning. This removes your Animal Centre exploration progress and cannot be undone.</p>
+        <div class="hunter-settings-actions"><button type="button" class="hunter-settings-btn is-danger" data-hunter-reset-arm>Reset progress</button></div>
+      </div>
+      <div class="hunter-settings-confirm" id="hunterSettingsConfirm">
+        <b>Are you sure?</b>
+        <span>This will permanently clear your Velmora Animal Centre save, including wildlife discoveries, journal research, inventory, quests, Centre animals and Elvane/Canto progression.</span>
+        <div class="hunter-settings-actions"><button type="button" class="hunter-settings-btn" data-hunter-reset-cancel>Keep my save</button><button type="button" class="hunter-settings-btn is-danger" data-hunter-reset-confirm>Yes, reset everything</button></div>
+      </div>
+      <div class="hunter-settings-actions"><button type="button" class="hunter-settings-btn" data-hunter-settings-close>Back</button></div>
+    </div>`;
+  layer.addEventListener('pointerdown',e=>{if(e.target===layer){e.preventDefault();closeHunterSettings();}});
+  layer.querySelector('[data-hunter-settings-close]')?.addEventListener('click',()=>{playHunterButtonSound();closeHunterSettings();});
+  layer.querySelector('[data-hunter-reset-arm]')?.addEventListener('click',()=>{playHunterButtonSound('locked');layer.querySelector('#hunterSettingsConfirm')?.classList.add('is-open');});
+  layer.querySelector('[data-hunter-reset-cancel]')?.addEventListener('click',()=>{playHunterButtonSound();layer.querySelector('#hunterSettingsConfirm')?.classList.remove('is-open');});
+  layer.querySelector('[data-hunter-reset-confirm]')?.addEventListener('click',async()=>{playHunterButtonSound('locked');await hunterResetAnimalCentreProgress(layer);});
+  overlay.appendChild(layer);hunterSettingsLayer=layer;return layer;
+}
+function openHunterSettings(){const layer=ensureHunterSettingsLayer();if(!layer)return;layer.querySelector('#hunterSettingsConfirm')?.classList.remove('is-open');layer.classList.add('is-open');}
+function closeHunterSettings(){const layer=document.getElementById('hunterSettingsLayer');if(layer){layer.classList.remove('is-open');layer.querySelector('#hunterSettingsConfirm')?.classList.remove('is-open');}}
+async function hunterResetAnimalCentreProgress(layer){
+  const card=layer?.querySelector('.hunter-settings-card');if(card?.classList.contains('hunter-settings-resetting'))return;
+  card?.classList.add('hunter-settings-resetting');clearTimeout(hunterWildlifeSaveTimer);hunterWildlifeSaveTimer=0;
+  stopHunterCantoGame();hunterCloseTopWildlifeUi?.();closeHunterDialogue();
+  try{localStorage.removeItem(hunterWildlifeStorageKey());}catch(_){ }
+  try{localStorage.removeItem(HUNTER_CANTO_DISCOVERY_KEY);}catch(_){ }
+  try{localStorage.removeItem(HUNTER_ELVANE_PROGRESS_KEY);}catch(_){ }
+  try{localStorage.removeItem(HUNTER_ADMIN_UNLOCK_KEY);}catch(_){ }
+  const freshSave=hunterWildlifeDefaultSave();
+  let remoteOk=true;
+  if(!hunterWildlifeServerDisabled&&typeof db!=='undefined'){
+    try{const user=(await db.auth.getUser()).data?.user;if(user){const payload={user_id:user.id,state:freshSave,updated_at:new Date().toISOString()};const {error}=await db.from(HUNTER_WILDLIFE_SERVER_TABLE).upsert(payload,{onConflict:'user_id'});if(error)throw error;}}catch(err){remoteOk=false;console.error('Level Hunter reset server save failed:',err);}
+  }
+  hunterWildlifePersistent=freshSave;hunterWildlifeState=null;if(hunterCantoState)hunterCantoState.discovered=new Set();
+  hunterWildlifeLocalSave();syncHunterExploreUnlocks();syncHunterElvaneUnlocks();showHunterMenuMain();closeHunterSettings();
+  card?.classList.remove('hunter-settings-resetting');
+  if(typeof toast==='function')toast(remoteOk?'Velmora Animal Centre progress reset. Your next visit starts from the beginning.':'Local Animal Centre progress reset. Server reset could not be confirmed — please try again while online.');
+}
+window.repoResetAnimalCentreProgress=hunterResetAnimalCentreProgress;
+
 function selectHunterMenuOption(button){
   if(!button)return;
   const found=HUNTER_MENU_HOTSPOTS.find(h=>h.id===button.dataset.hunterAction);
@@ -5158,6 +5448,8 @@ function selectHunterMenuOption(button){
   button.classList.remove('is-clicked');void button.offsetWidth;button.classList.add('is-clicked');
   setTimeout(()=>button.classList.remove('is-clicked'),340);
   if(found.id==='explore-velmora'){openHunterExploreMap();return;}
+  if(found.id==='wildlife-journal'){hunterLoadWildlifeSave().then(()=>hunterToggleJournal(true));return;}
+  if(found.id==='settings'){openHunterSettings();return;}
   if(typeof toast==='function') toast(`${found.label} selected.`);
 }
 function openHunterExploreMap(){
@@ -5209,6 +5501,7 @@ function openHunterMenu(){
   overlay.setAttribute('aria-hidden','false');
   document.body.classList.add('hunter-menu-open');
   showHunterMenuMain();
+  hunterLoadWildlifeSave().catch(()=>{});
   playHunterMenuAmbience();
 }
 function closeHunterMenu(){
@@ -14422,7 +14715,7 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
     wrap.className='qm-hat-trick-popup';
     wrap.setAttribute('aria-label',`${petName} has scored a hat trick`);
     const img=document.createElement('img');
-    img.src='assets/quidditch-hat-trick-popup.png';
+    img.src='assets/quidditch-hat-trick-popup.png?v=20260813-v16';
     img.alt='Hat Trick!';
     wrap.appendChild(img);
     pitch.appendChild(wrap);
@@ -14444,7 +14737,8 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
     }
     #quidditchModePitch .qm-hat-trick-popup img{
       display:block;width:100%;height:auto;object-fit:contain;
-      background:transparent!important;
+      background:transparent!important;border:0!important;outline:0!important;
+      box-shadow:none!important;border-radius:0!important;
     }
     #quidditchModePitch .qm-hat-trick-popup.is-visible{
       opacity:1;animation:qmHatTrickPop .42s cubic-bezier(.18,.8,.26,1.18) both,
@@ -16797,6 +17091,16 @@ qmShowSharedGoal=function(state){
   const CARD_BACK_ASSET='assets/quidditch-tcg/card-back.png';
   const PACK_SOUND_ASSET='assets/quidditch-tcg/pack-open.mp3';
   const CARD_CATALOG=[
+    {id:'wc2026_debbie_sorevia',name:'Debbie, Sorevia',image:'assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png',rarity:'full_art'},
+    {id:'wc2026_dopey_dom_drazhen',name:'Dopey Dom, Drazhen',image:'assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png',rarity:'full_art'},
+    {id:'wc2026_jenny_sorevia',name:'Jenny, Sorevia',image:'assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png',rarity:'full_art'},
+    {id:'wc2026_jud_belros',name:'JUD, Belros',image:'assets/quidditch-tcg/world-cup-2026/cards/jud-belros.png',rarity:'full_art'},
+    {id:'wc2026_mad_rager_nambara',name:'Mad Rager, Nambara',image:'assets/quidditch-tcg/world-cup-2026/cards/mad-rager-nambara.png',rarity:'full_art'},
+    {id:'wc2026_nimbler_2000_belros',name:'Nimbler 2000, Belros',image:'assets/quidditch-tcg/world-cup-2026/cards/nimbler-2000-belros.png',rarity:'full_art'},
+    {id:'wc2026_pipsqueak_vardesh',name:'Pipsqueak, Vardesh',image:'assets/quidditch-tcg/world-cup-2026/cards/pipsqueak-vardesh.png',rarity:'full_art'},
+    {id:'wc2026_soup_talune',name:'Soup, Talune',image:'assets/quidditch-tcg/world-cup-2026/cards/soup-talune.png',rarity:'full_art'},
+    {id:'wc2026_besquelcher_iskandar',name:'Besquelcher, Iskandar',image:'assets/quidditch-tcg/world-cup-2026/cards/besquelcher-iskandar.png',rarity:'full_art'},
+    {id:'wc2026_rocky_norveth',name:'Rocky, Norveth',image:'assets/quidditch-tcg/world-cup-2026/cards/rocky-norveth.png',rarity:'full_art'},
     {id:'soup',name:'Soup',image:'assets/quidditch-tcg/cards/soup.png'},
     {id:'besquelcher',name:'Besquelcher',image:'assets/quidditch-tcg/cards/besquelcher.png'},
     {id:'debbie',name:'Debbie',image:'assets/quidditch-tcg/cards/debbie.png'},
@@ -16936,7 +17240,7 @@ qmShowSharedGoal=function(state){
     {id:'drazhen_dopey_dom_full_art',name:'Drazhen: Dopey Dom — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/drazhen-dopey-dom.png',rarity:'full_art'},
     {id:'belros_jud_full_art',name:'Belros: JUD — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-jud.png',rarity:'full_art'},
     {id:'nambara_mad_rager_full_art',name:'Nambara: Mad Rager — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/nambara-mad-rager.png',rarity:'full_art'},
-    {id:'belros_nimbler_2000_full_art',name:'Belros: Nimbler 2000 — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-nimbler-2000.png',rarity:'full_art'}
+    {id:'belros_nimbler_2000_full_art',name:'Belros: Nimbler 2000 — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-nimbler-2000.png',rarity:'full_art'},
   ];
   const CARD_BY_ID=Object.fromEntries(CARD_CATALOG.map(card=>[card.id,card]));
   // Slot coordinates are normalised against the supplied marked-up binder
@@ -17066,9 +17370,19 @@ qmShowSharedGoal=function(state){
     const {data,error}=await db.rpc(rpc,args);
     if(error)throw error;
     const row=Array.isArray(data)?data[0]:data;
+    let worldCupCards=[];
+    try{
+      const eventRpc=isPublic?'get_public_world_cup_cards_2026':'get_my_world_cup_pack_event_state';
+      const eventArgs=isPublic?{p_username:requestedUsername}:{p_username:String(character?.username||'').trim()||null};
+      const eventResult=await db.rpc(eventRpc,eventArgs);
+      if(!eventResult?.error){
+        const eventRow=Array.isArray(eventResult?.data)?eventResult.data[0]:eventResult?.data;
+        worldCupCards=normaliseCards(eventRow?.cards);
+      }
+    }catch(_worldCupEventNotInstalled){}
     return {
       username:String(row?.username||username||character?.username||'Player'),
-      cards:normaliseCards(row?.cards),
+      cards:Array.from(new Set([...normaliseCards(row?.cards),...worldCupCards])),
       isPublic:Boolean(isPublic)
     };
   }
@@ -17753,7 +18067,18 @@ qmShowSharedGoal=function(state){
     ['world_cup_sorevia_special_full_art','Sorevia — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png'],
     ['world_cup_talune_special_full_art','Talune — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png'],
     ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
-    ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png']
+    ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png'],
+
+    ['wc2026_debbie_sorevia','Debbie, Sorevia — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png'],
+    ['wc2026_dopey_dom_drazhen','Dopey Dom, Drazhen — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png'],
+    ['wc2026_jenny_sorevia','Jenny, Sorevia — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png'],
+    ['wc2026_jud_belros','JUD, Belros — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/jud-belros.png'],
+    ['wc2026_mad_rager_nambara','Mad Rager, Nambara — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/mad-rager-nambara.png'],
+    ['wc2026_nimbler_2000_belros','Nimbler 2000, Belros — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/nimbler-2000-belros.png'],
+    ['wc2026_pipsqueak_vardesh','Pipsqueak, Vardesh — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/pipsqueak-vardesh.png'],
+    ['wc2026_soup_talune','Soup, Talune — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/soup-talune.png'],
+    ['wc2026_besquelcher_iskandar','Besquelcher, Iskandar — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/besquelcher-iskandar.png'],
+    ['wc2026_rocky_norveth','ROCKY, Norveth — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/rocky-norveth.png'],
   ];
   SPREAD_COUNT=Math.max(8,Math.ceil(catalog.length/SLOTS_PER_SPREAD));
   TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
@@ -18318,6 +18643,16 @@ qmShowSharedGoal=function(state){
   window.__repoTcgFavouriteCardFeatureInstalled=true;
 
   const catalogue=[
+    ['wc2026_debbie_sorevia','Debbie, Sorevia','assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png'],
+    ['wc2026_dopey_dom_drazhen','Dopey Dom, Drazhen','assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png'],
+    ['wc2026_jenny_sorevia','Jenny, Sorevia','assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png'],
+    ['wc2026_jud_belros','JUD, Belros','assets/quidditch-tcg/world-cup-2026/cards/jud-belros.png'],
+    ['wc2026_mad_rager_nambara','Mad Rager, Nambara','assets/quidditch-tcg/world-cup-2026/cards/mad-rager-nambara.png'],
+    ['wc2026_nimbler_2000_belros','Nimbler 2000, Belros','assets/quidditch-tcg/world-cup-2026/cards/nimbler-2000-belros.png'],
+    ['wc2026_pipsqueak_vardesh','Pipsqueak, Vardesh','assets/quidditch-tcg/world-cup-2026/cards/pipsqueak-vardesh.png'],
+    ['wc2026_soup_talune','Soup, Talune','assets/quidditch-tcg/world-cup-2026/cards/soup-talune.png'],
+    ['wc2026_besquelcher_iskandar','Besquelcher, Iskandar','assets/quidditch-tcg/world-cup-2026/cards/besquelcher-iskandar.png'],
+    ['wc2026_rocky_norveth','Rocky, Norveth','assets/quidditch-tcg/world-cup-2026/cards/rocky-norveth.png'],
     ['soup','Soup','assets/quidditch-tcg/cards/soup.png'],
     ['besquelcher','Besquelcher','assets/quidditch-tcg/cards/besquelcher.png'],
     ['debbie','Debbie','assets/quidditch-tcg/cards/debbie.png'],
@@ -20929,4 +21264,2119 @@ qmShowSharedGoal=function(state){
     setInterval(patchAll,1200);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
+/* ============================================================
+   LEVEL HUNTER · CANTO PLAINS WILDLIFE ART / CONTENT PASS
+   Uses supplied food, forage-node and wildlife-clue sprite sheets.
+   ============================================================ */
+const HUNTER_WILDLIFE_ART_ROOT='assets/level-hunter';
+const HUNTER_WILDLIFE_FOOD_ART={
+  canto_berries:'food/canto_red_berries.png', blueberries:'food/blueberries.png', cloudberries:'food/cloudberries.png', blackberries:'food/blackberries.png', rosehips:'food/rosehips.png', elderberries:'food/elderberries.png',
+  mixed_seeds:'food/mixed_seeds.png', sunflower_seeds:'food/sunflower_seeds.png', pumpkin_seeds:'food/pumpkin_seeds.png', acorn:'food/acorn.png', hazelnuts:'food/hazelnuts.png', grain:'food/field_grain.png',
+  carrot:'food/carrot.png', turnip:'food/turnip.png', radish:'food/radish.png', root_vegetables:'food/sweet_root.png', peas:'food/peas.png', garden_greens:'food/cabbage.png',
+  orchard_fruit:'food/apple.png', pear:'food/pear.png', plum:'food/plum.png', redcap_mushroom:'food/redcap_mushroom.png', brown_mushroom:'food/brown_mushroom.png', clover_sprigs:'food/meadow_herbs.png',
+  worms:'food/earthworm.png', grasshopper:'food/grasshopper.png', grub:'food/grub.png', basic_fish:'food/small_river_fish.png', river_trout:'food/river_trout.png', field_treat:'food/field_treat.png'
+};
+Object.assign(HUNTER_WILDLIFE_FOOD,{
+  blueberries:{name:'Blueberries',short:'BL',source:'Forage · hedge',description:'Sweet blue berries gathered from a Canto hedge.'},
+  cloudberries:{name:'Cloudberries',short:'CB',source:'Forage · damp meadow',description:'Soft golden berries that favour cooler damp ground.'},
+  blackberries:{name:'Blackberries',short:'BK',source:'Forage · bramble',description:'Dark bramble fruit found along woodland edges.'},
+  rosehips:{name:'Rosehips',short:'RH',source:'Forage · hedgerow',description:'Firm red hips from wild Canto roses.'},
+  elderberries:{name:'Elderberries',short:'EL',source:'Forage · woodland edge',description:'Tiny clustered berries from older hedge growth.'},
+  mixed_seeds:{name:'Mixed Meadow Seeds',short:'MS',source:'Forage · meadow',description:'A small handful of mixed meadow seeds.'},
+  pumpkin_seeds:{name:'Pumpkin Seeds',short:'PS',source:'Farm/vendor hook',description:'Large pale seeds suitable for several small animals.'},
+  acorn:{name:'Acorn',short:'AC',source:'Forage · woodland',description:'A fallen acorn from the Canto woodland.'},
+  hazelnuts:{name:'Hazelnuts',short:'HZ',source:'Forage · woodland edge',description:'Fresh nuts gathered beneath hedge trees.'},
+  carrot:{name:'Canto Carrot',short:'CA',source:'Forage · farm edge',description:'A crisp carrot gathered from permitted field margins.'},
+  turnip:{name:'Small Turnip',short:'TU',source:'Forage · farm edge',description:'A small turnip lifted from loose field-edge soil.'},
+  radish:{name:'Garden Radish',short:'RA',source:'Forage · village garden',description:'A peppery radish from a village-edge patch.'},
+  peas:{name:'Fresh Peas',short:'PE',source:'Forage · farm edge',description:'Tender peas collected from a field margin.'},
+  pear:{name:'Canto Pear',short:'PR',source:'Forage · orchard',description:'A ripe windfallen pear.'},
+  plum:{name:'Canto Plum',short:'PL',source:'Forage · orchard',description:'A sweet purple plum from the village edge.'},
+  redcap_mushroom:{name:'Redcap Mushroom',short:'RM',source:'Forage · woodland',description:'A bright woodland mushroom. Some wildlife investigates its scent.'},
+  brown_mushroom:{name:'Brown Field Mushroom',short:'BM',source:'Forage · meadow/woodland',description:'A common edible-looking field mushroom used as wildlife forage.'},
+  grasshopper:{name:'Grasshopper',short:'GH',source:'Forage · meadow',description:'A lively grasshopper gathered from long grass.'},
+  grub:{name:'Soft Grub',short:'GB',source:'Forage · soil/logs',description:'A pale grub found under loose soil and rotting wood.'},
+  river_trout:{name:'Small River Trout',short:'TR',source:'Fishing hook · river',description:'A small Canto river trout.'},
+  field_treat:{name:'Keeper Treat',short:'KT',source:'Quest/vendor hook',description:'A simple keeper biscuit for suitable animals.'}
+});
+for(const [id,rel] of Object.entries(HUNTER_WILDLIFE_FOOD_ART)){
+  if(HUNTER_WILDLIFE_FOOD[id]) HUNTER_WILDLIFE_FOOD[id].icon=`${HUNTER_WILDLIFE_ART_ROOT}/${rel}`;
+}
+
+// Give the 20 starter species broader, visibly supported food preferences.
+const HUNTER_CANTO_FOOD_PROFILE_PATCH={
+  sunmeadow_hare:{preferredFoods:['carrot'],likedFoods:['clover_sprigs','turnip','canto_berries'],neutralFoods:['garden_greens','grain'],dislikedFoods:['grasshopper'],hatedFoods:['basic_fish']},
+  canto_field_vole:{preferredFoods:['sunflower_seeds'],likedFoods:['mixed_seeds','grain','acorn'],neutralFoods:['canto_berries'],dislikedFoods:['clover_sprigs'],hatedFoods:['basic_fish']},
+  brambleback_hedgehog:{preferredFoods:['worms'],likedFoods:['grub','grasshopper','canto_berries'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  ambercrest_quail:{preferredFoods:['grain'],likedFoods:['mixed_seeds','sunflower_seeds','grasshopper'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish']},
+  brookfoot_otter_kit:{preferredFoods:['river_trout'],likedFoods:['basic_fish','grasshopper','worms'],neutralFoods:['canto_berries'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']},
+  clovershell_tortoise:{preferredFoods:['clover_sprigs'],likedFoods:['garden_greens','peas','orchard_fruit'],neutralFoods:['turnip'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  orchard_dormouse:{preferredFoods:['orchard_fruit'],likedFoods:['pear','plum','hazelnuts','sunflower_seeds'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish']},
+  reedtail_ferret:{preferredFoods:['basic_fish'],likedFoods:['river_trout','worms','grub'],neutralFoods:['grain'],dislikedFoods:['orchard_fruit'],hatedFoods:['clover_sprigs']},
+  furrow_mole:{preferredFoods:['worms'],likedFoods:['grub','grasshopper'],neutralFoods:['root_vegetables'],dislikedFoods:['canto_berries'],hatedFoods:['orchard_fruit']},
+  copperstripe_squirrel:{preferredFoods:['acorn'],likedFoods:['hazelnuts','sunflower_seeds','orchard_fruit'],neutralFoods:['grain'],dislikedFoods:['garden_greens'],hatedFoods:['basic_fish']},
+  bellflower_badger_cub:{preferredFoods:['grub'],likedFoods:['worms','blackberries','orchard_fruit'],neutralFoods:['root_vegetables'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']},
+  canto_grass_lizard:{preferredFoods:['grasshopper'],likedFoods:['grub','pond_insects'],neutralFoods:['canto_berries'],dislikedFoods:['grain'],hatedFoods:['garden_greens']},
+  meadowbell_lamb:{preferredFoods:['clover_sprigs'],likedFoods:['garden_greens','peas','carrot'],neutralFoods:['grain'],dislikedFoods:['orchard_fruit'],hatedFoods:['basic_fish']},
+  redbank_fox_kit:{preferredFoods:['field_treat'],likedFoods:['basic_fish','river_trout','grub'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']},
+  canal_duckling:{preferredFoods:['peas'],likedFoods:['grain','mixed_seeds','pond_insects'],neutralFoods:['clover_sprigs'],dislikedFoods:['orchard_fruit'],hatedFoods:['root_vegetables']},
+  dewdrop_frog:{preferredFoods:['grasshopper'],likedFoods:['grub','pond_insects'],neutralFoods:['worms'],dislikedFoods:['canto_berries'],hatedFoods:['grain']},
+  millstone_goat_kid:{preferredFoods:['carrot'],likedFoods:['garden_greens','turnip','clover_sprigs'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  honeywing_pipit:{preferredFoods:['mixed_seeds'],likedFoods:['grain','sunflower_seeds','grasshopper'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish']},
+  raincoil_snail:{preferredFoods:['garden_greens'],likedFoods:['clover_sprigs','peas','brown_mushroom'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  barnloft_owlet:{preferredFoods:['grub'],likedFoods:['grasshopper','worms','basic_fish'],neutralFoods:['field_treat'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']}
+};
+for(const species of HUNTER_CANTO_SPECIES){const patch=HUNTER_CANTO_FOOD_PROFILE_PATCH[species.speciesId];if(patch)Object.assign(species,patch);}
+
+const HUNTER_CANTO_FORAGE_ART={
+  berry:{full:'forage/berry_bush_full.png',empty:'forage/berry_bush_empty.png'},
+  herb:{full:'forage/herb_patch_full.png',empty:'forage/herb_patch_empty.png'},
+  mushroom:{full:'forage/mushroom_cluster_full.png',empty:'forage/mushroom_cluster_empty.png'},
+  fruit:{full:'forage/fallen_fruit_full.png',empty:'forage/fallen_fruit_empty.png'},
+  seed:{full:'forage/seed_flower_patch_full.png',empty:'forage/seed_flower_patch_empty.png'},
+  root:{full:'forage/root_patch_full.png',empty:'forage/root_patch_empty.png'},
+  insect:{full:'forage/insect_spot_full.png',empty:'forage/insect_spot_empty.png'},
+  fishing:{full:'forage/fishing_ripple_full.png',empty:'forage/fishing_ripple_empty.png'}
+};
+for(const v of Object.values(HUNTER_CANTO_FORAGE_ART)){v.full=`${HUNTER_WILDLIFE_ART_ROOT}/${v.full}`;v.empty=`${HUNTER_WILDLIFE_ART_ROOT}/${v.empty}`;}
+HUNTER_CANTO_FORAGE_NODES.splice(0,HUNTER_CANTO_FORAGE_NODES.length,
+  {id:'forage-clover',label:'Meadow Herb Patch',foodId:'clover_sprigs',type:'herb',x:725,y:405,min:2,max:4},
+  {id:'forage-berries',label:'Canto Berry Bush',foodId:'canto_berries',type:'berry',x:548,y:467,min:2,max:3},
+  {id:'forage-seeds',label:'Seed & Flower Patch',foodId:'sunflower_seeds',type:'seed',x:1185,y:350,min:2,max:4},
+  {id:'forage-grain',label:'Loose Field Grain',foodId:'grain',type:'seed',x:1305,y:565,min:2,max:4},
+  {id:'forage-roots',label:'Diggable Root Patch',foodId:'carrot',type:'root',x:1230,y:520,min:1,max:3},
+  {id:'forage-greens',label:'Garden Greens',foodId:'garden_greens',type:'herb',x:820,y:600,min:1,max:3},
+  {id:'forage-fruit',label:'Windfallen Orchard Fruit',foodId:'orchard_fruit',type:'fruit',x:665,y:690,min:1,max:3},
+  {id:'forage-worms',label:'Soft Riverbank Soil',foodId:'worms',type:'root',x:1080,y:645,min:2,max:4},
+  {id:'forage-insects',label:'Meadow Insect Spot',foodId:'grasshopper',type:'insect',x:925,y:845,min:1,max:3},
+  {id:'forage-mushrooms',label:'Woodland Mushroom Cluster',foodId:'brown_mushroom',type:'mushroom',x:505,y:855,min:1,max:2},
+  {id:'forage-nuts',label:'Woodland Seed Patch',foodId:'acorn',type:'seed',x:455,y:245,min:1,max:3},
+  {id:'forage-fishing',label:'River Ripple',foodId:'basic_fish',type:'fishing',x:1005,y:540,min:1,max:2}
+);
+
+const HUNTER_CANTO_CLUE_ART={
+  tracks:`${HUNTER_WILDLIFE_ART_ROOT}/clues/paw_tracks.png`, burrow:`${HUNTER_WILDLIFE_ART_ROOT}/clues/burrow.png`, nest:`${HUNTER_WILDLIFE_ART_ROOT}/clues/nest.png`,
+  ripples:`${HUNTER_WILDLIFE_ART_ROOT}/clues/reeds_ripples.png`, sound:`${HUNTER_WILDLIFE_ART_ROOT}/clues/feather.png`, rustle:`${HUNTER_WILDLIFE_ART_ROOT}/clues/rustling_bush.png`
+};
+function hunterClueAssetFor(op){
+  const id=op?.speciesId||'',method=op?.method||'';
+  if(method==='tracks'){
+    if(['sunmeadow_hare','canto_field_vole','raincoil_snail'].includes(id))return `${HUNTER_WILDLIFE_ART_ROOT}/clues/hare_tracks.png`;
+    if(['meadowbell_lamb','millstone_goat_kid'].includes(id))return `${HUNTER_WILDLIFE_ART_ROOT}/clues/hoof_tracks.png`;
+    if(['ambercrest_quail','honeywing_pipit','barnloft_owlet'].includes(id))return `${HUNTER_WILDLIFE_ART_ROOT}/clues/bird_tracks.png`;
+    return `${HUNTER_WILDLIFE_ART_ROOT}/clues/paw_tracks.png`;
+  }
+  if(method==='sound'){
+    if(id==='dewdrop_frog')return `${HUNTER_WILDLIFE_ART_ROOT}/clues/reeds_ripples.png`;
+    if(id==='copperstripe_squirrel')return `${HUNTER_WILDLIFE_ART_ROOT}/clues/broken_twig.png`;
+    return `${HUNTER_WILDLIFE_ART_ROOT}/clues/feather.png`;
+  }
+  if(method==='rustle')return id==='orchard_dormouse'?`${HUNTER_WILDLIFE_ART_ROOT}/clues/rustling_bush.png`:`${HUNTER_WILDLIFE_ART_ROOT}/clues/disturbed_grass.png`;
+  return HUNTER_CANTO_CLUE_ART[method]||`${HUNTER_WILDLIFE_ART_ROOT}/clues/disturbed_grass.png`;
+}
+
+function hunterWildlifeFoodIconHtml(id,cls='hunter-food-art'){
+  const f=HUNTER_WILDLIFE_FOOD[id];
+  return f?.icon?`<img class="${cls}" src="${f.icon}" alt="" draggable="false">`:`<i>${escapeHtml(f?.short||'?')}</i>`;
+}
+
+// Re-render world objects with the supplied proper pixel art instead of generic dots/glyphs.
+hunterRenderWildlifeWorld=function(force=false){
+  const layer=document.getElementById('hunterWildlifeLayer'),forageLayer=document.getElementById('hunterForageLayer');if(!layer||!forageLayer||!hunterWildlifeState)return;if(force){layer.innerHTML='';forageLayer.innerHTML='';}
+  for(const op of hunterWildlifeState.ops){
+    if(op.status==='befriended')continue;
+    let el=hunterWildlifeActorEl(op);
+    if(!el){el=document.createElement('span');el.dataset.hunterWildlifeId=op.id;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterInteractOpportunity(op.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterInteractOpportunity(op.id);}});layer.appendChild(el);}
+    const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+    if(op.revealed){
+      el.className='hunter-wildlife-actor';el.textContent='';
+      const size=species.size||18;el.style.width=`${size}px`;el.style.height=`${size}px`;el.style.marginLeft=`${-size/2}px`;el.style.marginTop=`${-size*.82}px`;el.style.backgroundImage=`url('${species.spriteReference}')`;el.style.backgroundSize=`${size*4}px ${size*4}px`;
+      const frame=op.frame||0,col=frame%4,row=Math.floor(frame/4);el.style.backgroundPosition=`${-col*size}px ${-row*size}px`;el.style.transform=`scaleX(${op.facing<0?-1:1})`;el.style.left=`${op.x}px`;el.style.top=`${op.y}px`;el.style.zIndex=String(5+Math.round(op.y/90));el.style.display=(op.hiddenUntil&&performance.now()<op.hiddenUntil)?'none':'';el.setAttribute('aria-label',species.name);
+    }else{
+      el.className='hunter-wildlife-clue';el.textContent='';el.style.left=`${op.homeX}px`;el.style.top=`${op.homeY}px`;el.style.backgroundImage=`url('${hunterClueAssetFor(op)}')`;el.style.display='';el.setAttribute('aria-label',HUNTER_CLUE_LABELS[op.method]||'Wildlife clue');
+    }
+  }
+  for(const node of hunterWildlifeState.forage){
+    let el=forageLayer.querySelector(`[data-hunter-forage-id="${node.id}"]`);
+    if(!el){el=document.createElement('span');el.className='hunter-forage-node';el.dataset.hunterForageId=node.id;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterForageNode(node.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterForageNode(node.id);}});forageLayer.appendChild(el);}
+    const art=HUNTER_CANTO_FORAGE_ART[node.type]||HUNTER_CANTO_FORAGE_ART.herb;
+    el.style.left=`${node.x}px`;el.style.top=`${node.y}px`;el.style.backgroundImage=`url('${node.collected?art.empty:art.full}')`;el.classList.toggle('is-collected',!!node.collected);el.setAttribute('aria-label',node.collected?`${node.label} already foraged`:node.label);
+  }
+};
+
+hunterRenderEncounterFoodPicker=function(){
+  const foods=document.getElementById('hunterEncounterFoods');if(!foods)return;
+  const entries=Object.keys(hunterWildlifePersistent?.inventory||{}).filter(id=>hunterFoodQty(id)>0&&HUNTER_WILDLIFE_FOOD[id]);
+  foods.innerHTML=entries.length?entries.map(id=>`<button type="button" data-hunter-offer-food="${id}">${hunterWildlifeFoodIconHtml(id)}<span>${escapeHtml(HUNTER_WILDLIFE_FOOD[id].name)}</span><b>×${hunterFoodQty(id)}</b></button>`).join(''):'<p>Your Field Pack has no food. Look for forage nodes around Canto Plains first.</p>';
+  foods.classList.add('is-open');
+};
+
+hunterRenderFieldPack=function(){
+  const list=document.getElementById('hunterFieldPackList'),meta=document.getElementById('hunterFieldPackMeta');if(!list||!hunterWildlifePersistent)return;
+  const cap=hunterWildlifePersistent.inventoryCapacity||24;if(meta)meta.textContent=`${hunterInventoryUsed()}/${cap} carried`;
+  const entries=Object.keys(HUNTER_WILDLIFE_FOOD).filter(id=>hunterFoodQty(id)>0);
+  list.innerHTML=entries.length?entries.map(id=>{const f=HUNTER_WILDLIFE_FOOD[id];return`<div class="hunter-pack-item">${hunterWildlifeFoodIconHtml(id)}<span><b>${escapeHtml(f.name)}</b><small>${escapeHtml(f.source)}</small></span><strong>×${hunterFoodQty(id)}</strong></div>`;}).join(''):'<div class="hunter-empty-panel">Your Field Pack is empty. Search Canto for berry bushes, seed patches, roots, insects, mushrooms and river ripples.</div>';
+};
+
+// Keep the tutorial flexible: the new carrot art is the hare's true favourite, while meadow herbs still progress the tutorial.
+const __hunterOfferFoodBase=hunterOfferFoodToEncounter;
+hunterOfferFoodToEncounter=function(foodId){
+  const beforeOp=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState?.activeEncounterId);
+  const q=hunterQuestState();
+  __hunterOfferFoodBase(foodId);
+  if(beforeOp?.speciesId==='sunmeadow_hare'&&q.status==='active'&&q.stage==='gain_trust'&&['carrot','clover_sprigs'].includes(foodId)&&beforeOp.trust>=HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare.centreRequirements.trust){hunterAdvanceDarwinQuest('trust','sunmeadow_hare');}
+};
+
+(function installHunterWildlifeArtStyles(){
+  if(document.getElementById('hunterWildlifeArtStyles'))return;const style=document.createElement('style');style.id='hunterWildlifeArtStyles';style.textContent=`
+  #hunterMenuOverlay .hunter-wildlife-clue{width:34px!important;height:30px!important;margin:-15px 0 0 -17px!important;border-radius:0!important;background-color:transparent!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;box-shadow:none!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.52)) drop-shadow(0 0 4px rgba(225,208,137,.18))!important;animation:hunterClueBreathe 2.2s ease-in-out infinite!important;color:transparent!important;}
+  #hunterMenuOverlay .hunter-wildlife-clue:hover{filter:drop-shadow(0 2px 2px rgba(0,0,0,.48)) drop-shadow(0 0 6px rgba(247,222,150,.52))!important;}
+  #hunterMenuOverlay .hunter-forage-node{width:44px!important;height:34px!important;margin:-22px 0 0 -22px!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.40));transition:filter .16s ease,transform .16s ease,opacity .2s ease!important;}
+  #hunterMenuOverlay .hunter-forage-node::after{content:'';position:absolute;inset:4px;border-radius:50%;background:radial-gradient(circle,rgba(245,225,151,.15),transparent 66%);opacity:.05;transition:opacity .16s ease;}
+  #hunterMenuOverlay .hunter-forage-node:hover{transform:translateY(-1px) scale(1.06);filter:drop-shadow(0 3px 3px rgba(0,0,0,.48)) drop-shadow(0 0 5px rgba(236,214,137,.38));}
+  #hunterMenuOverlay .hunter-forage-node:hover::after{opacity:.7}#hunterMenuOverlay .hunter-forage-node.is-collected{display:block!important;opacity:.62;filter:grayscale(.15) drop-shadow(0 2px 2px rgba(0,0,0,.30));cursor:default;}#hunterMenuOverlay .hunter-forage-node i{display:none!important;}
+  #hunterMenuOverlay .hunter-food-art{display:block!important;width:30px!important;height:30px!important;object-fit:contain!important;image-rendering:pixelated!important;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));}
+  #hunterMenuOverlay .hunter-encounter-foods button{grid-template-columns:34px 1fr auto!important;min-height:42px!important;}
+  #hunterMenuOverlay .hunter-encounter-foods button .hunter-food-art{width:30px!important;height:30px!important;}
+  #hunterMenuOverlay .hunter-pack-item{grid-template-columns:42px 1fr auto!important;min-height:48px!important;}#hunterMenuOverlay .hunter-pack-item .hunter-food-art{width:38px!important;height:38px!important;}
+  #hunterMenuOverlay .hunter-wildlife-actor{transition:filter .12s ease!important;}
+  @keyframes hunterClueBreathe{0%,100%{transform:scale(.92);opacity:.72}50%{transform:scale(1.04);opacity:1}}
+  `;document.head.appendChild(style);
+})();
+
+function hunterUpdateCantoWildlifeProgress(){
+  if(!hunterWildlifePersistent)return;
+  const poiCount=hunterCantoState?.discovered?.size ?? hunterCantoDiscoveries().size;
+  const poiPart=Math.min(.30,(poiCount/Math.max(1,HUNTER_CANTO_POIS.length))*.30);
+  const discovered=HUNTER_CANTO_SPECIES.filter(s=>hunterSpeciesRecord(s.speciesId).discovered).length;
+  const befriendedUnique=HUNTER_CANTO_SPECIES.filter(s=>(hunterSpeciesRecord(s.speciesId).befriendedCount||0)>0).length;
+  const speciesPart=Math.min(.38,(discovered/20)*.38);
+  const befriendPart=Math.min(.22,(befriendedUnique/8)*.22);
+  const questPart=hunterQuestState().status==='complete'?.10:0;
+  const total=Math.min(1,poiPart+speciesPart+befriendPart+questPart);
+  if(total>hunterElvaneProgress().east)setHunterElvaneCompletion('east',total);
+}
+const __hunterDiscoverSpeciesArtBase=hunterDiscoverSpecies;
+hunterDiscoverSpecies=function(op){const result=__hunterDiscoverSpeciesArtBase(op);hunterUpdateCantoWildlifeProgress();return result;};
+const __hunterBefriendEncounterArtBase=hunterBefriendEncounter;
+hunterBefriendEncounter=function(){__hunterBefriendEncounterArtBase();hunterUpdateCantoWildlifeProgress();};
+const __hunterAdvanceDarwinQuestArtBase=hunterAdvanceDarwinQuest;
+hunterAdvanceDarwinQuest=function(trigger,speciesId){__hunterAdvanceDarwinQuestArtBase(trigger,speciesId);hunterUpdateCantoWildlifeProgress();};
+
+
+/* ============================================================
+   LEVEL HUNTER · CANTO PLAINS PREMIUM GAMEPLAY POLISH PASS
+   World-first encounters, scarcity, authored ecology, physical food,
+   non-blocking interaction HUD, contextual actions and dev overlay.
+   ============================================================ */
+const HUNTER_PREMIUM_WILDLIFE_VERSION = 2;
+const HUNTER_PREMIUM_INTERACT_RANGE = 58;
+const HUNTER_PREMIUM_HUD_DROP_RANGE = 118;
+const HUNTER_PREMIUM_PLACED_FOOD_TTL = 45000;
+const HUNTER_PREMIUM_FORAGE_ACTIVE_MIN = 5;
+const HUNTER_PREMIUM_FORAGE_ACTIVE_MAX = 7;
+const HUNTER_PREMIUM_WILDLIFE_MIN = 3;
+const HUNTER_PREMIUM_WILDLIFE_MAX = 6;
+const HUNTER_PREMIUM_DEBUG_KEY = 'F8';
+let hunterPremiumDebugEnabled = false;
+let hunterPremiumStylesInstalled = false;
+// The starter tutorial uses meadow clover as a deliberately accessible favourite; carrot remains equally effective later.
+if(HUNTER_CANTO_SPECIES_BY_ID?.sunmeadow_hare){HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare.preferredFoods=['clover_sprigs','carrot'];HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare.likedFoods=['turnip','canto_berries','garden_greens'];}
+
+function hunterPremiumTutorialComplete(){ return hunterQuestState()?.status === 'complete'; }
+function hunterPremiumTutorialActive(){ return hunterQuestState()?.status === 'active'; }
+function hunterPremiumPlayerMoving(){ return !!hunterCantoState && (hunterCantoState.frame||0)!==0; }
+function hunterPremiumFoodDef(id){ return HUNTER_WILDLIFE_FOOD[id] || {name:id,icon:''}; }
+function hunterPremiumNow(){ return performance.now(); }
+function hunterPremiumStatusLabel(op){
+  const map={unaware:'Unaware',grazing:'Foraging',watching:'Alert',cautious:'Cautious',curious:'Curious',moving_away:'Moving away',interested:'Interested',approaching_food:'Approaching',sniffing:'Investigating',eating:'Eating',comfortable:'Comfortable',receptive:'Receptive',fled:'Gone quiet'};
+  return map[op?.behaviourState] || 'Cautious';
+}
+function hunterPremiumSpeciesSense(species){
+  const fear=Math.max(0,Math.min(1,Number(species.fearSensitivity)||0));
+  const curious=['Curious','Social','Calm','Confident'].includes(species.temperament);
+  return {
+    awarenessRadius: 44 + fear*34 + (curious?8:0),
+    dangerRadius: 18 + fear*19,
+    smellRadius: 58 + (species.temperament==='Food-driven'?28:0) + (curious?10:0),
+    preferredDistance: 30 + fear*23,
+    bravery: Math.max(.12,1-fear),
+    foodInterestDelay: 450 + fear*800
+  };
+}
+function hunterPremiumBuildClueChain(homeX,homeY,rng){
+  const pts=[]; const angle=rng()*Math.PI*2; const distances=[72,42,18];
+  for(const r of distances){
+    const sx=homeX+Math.cos(angle)*r, sy=homeY+Math.sin(angle)*r;
+    const p=hunterCantoNearestWalkable(sx,sy,58);
+    if(p && (!pts.length || Math.hypot(p.x-pts[pts.length-1].x,p.y-pts[pts.length-1].y)>12)) pts.push({x:p.x,y:p.y});
+  }
+  if(!pts.length){ const p=hunterCantoNearestWalkable(homeX,homeY,80); if(p)pts.push(p); }
+  return pts;
+}
+function hunterCreateOpportunity(species,anchor,method,rng,tutorial=false){
+  const sense=hunterPremiumSpeciesSense(species);
+  const op={id:`wild-${species.speciesId}-${Math.floor(rng()*1e9)}`,speciesId:species.speciesId,homeX:anchor.x,homeY:anchor.y,x:anchor.x,y:anchor.y,targetX:anchor.x,targetY:anchor.y,method,revealed:method==='visible',status:'active',trust:0,observed:false,approached:false,waitCount:0,frame:0,facing:rng()<.5?-1:1,idle:1+rng()*2.5,moveT:0,fearT:0,hiddenUntil:0,tutorial,habitat:anchor.habitat,
+    behaviourState:method==='visible'?'grazing':'unaware',stateSince:hunterPremiumNow(),calmT:0,closePressureT:0,observeKeys:{},lastObserveAt:0,nextFeedAt:0,foodInteractions:0,foodConsumed:0,placedFoodId:null,foodInterestAt:0,eatingUntil:0,pendingFood:null,...sense};
+  if(method!=='visible'){op.clueChain=hunterPremiumBuildClueChain(anchor.x,anchor.y,rng);op.clueIndex=0;}
+  return op;
+}
+function hunterPremiumValidAnchorForSpecies(species,used,rng){
+  const px=hunterCantoState?.x??HUNTER_CANTO_START.x,py=hunterCantoState?.y??HUNTER_CANTO_START.y;
+  const pool=HUNTER_CANTO_HABITAT_ANCHORS.filter(a=>species.habitats.includes(a.habitat)&&!used.has(a.id));
+  for(let tries=0;tries<pool.length*3;tries++){
+    const a=pool[Math.floor(rng()*pool.length)]; if(!a)break;
+    const spot=hunterCantoNearestWalkable(a.x,a.y,70); if(!spot)continue;
+    if(Math.hypot(spot.x-px,spot.y-py)<300)continue;
+    if(hunterCantoSolidAt?.(spot.x,spot.y))continue;
+    used.add(a.id); return {...a,x:spot.x,y:spot.y};
+  }
+  return null;
+}
+function hunterPremiumForageNodeValid(n){
+  if(!n)return false;
+  if(typeof hunterCantoSolidAt==='function'&&hunterCantoSolidAt(n.x,n.y))return false;
+  const near=hunterCantoNearestWalkable(n.x,n.y,52); if(!near)return false;
+  return Math.hypot(near.x-n.x,near.y-n.y)<=52;
+}
+function hunterPremiumChooseForage(rng,tutorialStage){
+  const valid=HUNTER_CANTO_FORAGE_NODES.filter(hunterPremiumForageNodeValid);
+  const chosen=[]; const tutorialNeedsClover=tutorialStage==='forage_clover'||tutorialStage==='gain_trust'||tutorialStage==='observe_hare';
+  if(tutorialNeedsClover){const c=valid.find(n=>n.foodId==='clover_sprigs'||n.foodId==='carrot');if(c)chosen.push(c);}
+  const count=Math.min(valid.length,HUNTER_PREMIUM_FORAGE_ACTIVE_MIN+Math.floor(rng()*(HUNTER_PREMIUM_FORAGE_ACTIVE_MAX-HUNTER_PREMIUM_FORAGE_ACTIVE_MIN+1)));
+  const pool=valid.filter(n=>!chosen.some(c=>c.id===n.id));
+  while(chosen.length<count&&pool.length){const i=Math.floor(rng()*pool.length);chosen.push(pool.splice(i,1)[0]);}
+  return chosen.map(n=>({...n,collected:false,active:true}));
+}
+function hunterGenerateExpedition(){
+  if(!hunterWildlifePersistent)return;
+  const conditions=hunterCantoConditions(),visits=(hunterWildlifePersistent.regionStats.canto.visits||0)+1;hunterWildlifePersistent.regionStats.canto.visits=visits;
+  const seed=hunterHashString(`${character?.username||'guest'}:${Date.now()}:${visits}:premium2`),rng=hunterMulberry32(seed),used=new Set(),ops=[]; const q=hunterQuestState();
+  // Before the ranger tutorial there is deliberately no ordinary wildlife.
+  if(q.status==='active'){
+    const hare=HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare;
+    const anchor={id:'tutorial-hare',habitat:'meadow',...(hunterCantoNearestWalkable(770,405,80)||{x:770,y:405})};
+    ops.push(hunterCreateOpportunity(hare,anchor,'visible',rng,true));
+  } else if(q.status==='complete'){
+    const count=HUNTER_PREMIUM_WILDLIFE_MIN+Math.floor(rng()*(HUNTER_PREMIUM_WILDLIFE_MAX-HUNTER_PREMIUM_WILDLIFE_MIN+1));
+    const rarityWeights={Common:54,Uncommon:29,Rare:14,'Very Rare':3}; const picked=new Set();
+    for(let slot=0;slot<count;slot++){
+      const candidates=HUNTER_CANTO_SPECIES.filter(s=>!picked.has(s.speciesId)).map(s=>({value:s,weight:(rarityWeights[s.rarityTier]||5)*hunterSpeciesConditionWeight(s,conditions)}));
+      const species=hunterWeightedPick(candidates,rng); if(!species)break;
+      const anchor=hunterPremiumValidAnchorForSpecies(species,used,rng); if(!anchor)continue;
+      picked.add(species.speciesId);
+      let method=hunterDiscoveryMethodFor(species,rng);
+      // Keep visible wildlife scarce: roughly one to three across the entire map.
+      const visibleCount=ops.filter(o=>o.revealed).length;
+      if(method==='visible' && visibleCount>=3){const habitat=anchor.habitat;method=(habitat==='riverbank'||habitat==='wetland')?'ripples':(habitat==='woodland'||habitat==='overgrown_grove')?'rustle':(habitat==='village_edge'||habitat==='ruins')?'sound':'tracks';}
+      ops.push(hunterCreateOpportunity(species,anchor,method,rng,false));
+    }
+  }
+  hunterWildlifeState={conditions,seed,ops,forage:hunterPremiumChooseForage(rng,q.stage),placedFoods:[],activeEncounterId:null,foodMode:null,ui:null,lastRender:0,premiumVersion:HUNTER_PREMIUM_WILDLIFE_VERSION};
+  hunterQueueWildlifeSave(); hunterPremiumEnsureWorldLayers(); hunterRenderWildlifeWorld(true); hunterRenderWildlifeHud(); hunterPremiumRenderDebug();
+}
+function hunterEnsureTutorialHare(){
+  if(!hunterWildlifeState||hunterQuestState().status!=='active')return;
+  if(hunterWildlifeState.ops.some(o=>o.speciesId==='sunmeadow_hare'&&o.status!=='befriended'))return;
+  const s=HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare,spot=hunterCantoNearestWalkable(770,405,80)||{x:770,y:405};
+  hunterWildlifeState.ops.push(hunterCreateOpportunity(s,{...spot,habitat:'meadow'},'visible',Math.random,true)); hunterRenderWildlifeWorld(true);
+}
+function hunterPremiumEnsureWorldLayers(){
+  const world=document.getElementById('hunterCantoWorld'); if(!world)return;
+  if(!document.getElementById('hunterPlacedFoodLayer')){const l=document.createElement('div');l.id='hunterPlacedFoodLayer';l.className='hunter-placed-food-layer';world.appendChild(l);}
+  if(!document.getElementById('hunterWildlifeDebugLayer')){const l=document.createElement('div');l.id='hunterWildlifeDebugLayer';l.className='hunter-wildlife-debug-layer';world.appendChild(l);}
+}
+function hunterPremiumFoodArt(id){return hunterPremiumFoodDef(id).icon||'';}
+function hunterPremiumRenderPlacedFoods(){
+  const layer=document.getElementById('hunterPlacedFoodLayer'); if(!layer||!hunterWildlifeState)return; const now=hunterPremiumNow();
+  hunterWildlifeState.placedFoods=(hunterWildlifeState.placedFoods||[]).filter(f=>!f.removed&&now-f.createdAt<HUNTER_PREMIUM_PLACED_FOOD_TTL);
+  layer.innerHTML=hunterWildlifeState.placedFoods.map(f=>`<span class="hunter-placed-food ${f.claimed?'is-claimed':''}" data-food-world-id="${f.id}" style="left:${f.x}px;top:${f.y}px;background-image:url('${hunterPremiumFoodArt(f.foodId)}')" aria-hidden="true"></span>`).join('');
+}
+function hunterPremiumCurrentCluePoint(op){return op?.clueChain?.[Math.min(op.clueIndex||0,Math.max(0,(op.clueChain?.length||1)-1))]||{x:op.homeX,y:op.homeY};}
+function hunterRenderWildlifeWorld(force=false){
+  const layer=document.getElementById('hunterWildlifeLayer'),forageLayer=document.getElementById('hunterForageLayer');if(!layer||!forageLayer||!hunterWildlifeState)return;hunterPremiumEnsureWorldLayers();if(force){layer.innerHTML='';forageLayer.innerHTML='';}
+  for(const op of hunterWildlifeState.ops){if(op.status==='befriended')continue;let el=hunterWildlifeActorEl(op);if(!el){el=document.createElement('span');el.dataset.hunterWildlifeId=op.id;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterInteractOpportunity(op.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterInteractOpportunity(op.id);}});layer.appendChild(el);}const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+    if(op.revealed){el.className=`hunter-wildlife-actor state-${op.behaviourState||'grazing'}`;const size=species.size||18;el.style.width=`${size}px`;el.style.height=`${size}px`;el.style.marginLeft=`${-size/2}px`;el.style.marginTop=`${-size*.82}px`;el.style.backgroundImage=`url('${species.spriteReference}')`;el.style.backgroundSize=`${size*4}px ${size*4}px`;const frame=op.frame||0,col=frame%4,row=Math.floor(frame/4);el.style.backgroundPosition=`${-col*size}px ${-row*size}px`;el.style.transform=`scaleX(${op.facing<0?-1:1})`;el.style.left=`${op.x}px`;el.style.top=`${op.y}px`;el.style.zIndex='7';el.style.display=(op.hiddenUntil&&hunterPremiumNow()<op.hiddenUntil)?'none':'';el.setAttribute('aria-label',species.name);
+    }else{const cp=hunterPremiumCurrentCluePoint(op);el.className='hunter-wildlife-clue';el.style.left=`${cp.x}px`;el.style.top=`${cp.y}px`;el.style.display='';el.style.backgroundImage=`url('${hunterClueAssetFor?.(op)||''}')`;el.setAttribute('aria-label',HUNTER_CLUE_LABELS[op.method]||'Wildlife clue');}}
+  for(const node of hunterWildlifeState.forage){let el=forageLayer.querySelector(`[data-hunter-forage-id="${node.id}"]`);if(!el){el=document.createElement('span');el.className='hunter-forage-node';el.dataset.hunterForageId=node.id;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterForageNode(node.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterForageNode(node.id);}});forageLayer.appendChild(el);}const art=HUNTER_CANTO_FORAGE_ART[node.type]||HUNTER_CANTO_FORAGE_ART.herb;el.style.left=`${node.x}px`;el.style.top=`${node.y}px`;el.style.backgroundImage=`url('${node.collected?art.empty:art.full}')`;el.classList.toggle('is-collected',!!node.collected);el.setAttribute('aria-label',node.collected?`${node.label} already foraged`:node.label);}
+  hunterPremiumRenderPlacedFoods(); hunterPremiumRenderDebug();
+}
+function hunterPremiumSetState(op,state){if(!op||op.behaviourState===state)return;op.behaviourState=state;op.stateSince=hunterPremiumNow();op.calmT=0; if(hunterWildlifeState?.activeEncounterId===op.id)hunterRenderEncounter();}
+function hunterPremiumFindPlacedFoodFor(op){
+  if(!hunterWildlifeState?.placedFoods?.length)return null;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+  let best=null,bd=Infinity;for(const f of hunterWildlifeState.placedFoods){if(f.removed||f.claimed&&f.claimed!==op.id)continue;const d=Math.hypot(op.x-f.x,op.y-f.y);if(d>op.smellRadius)continue;const pref=hunterSpeciesPreference(species,f.foodId);const interest={favorite:1,liked:.82,neutral:.34,disliked:.08,hated:0}[pref]??.25;if(interest<=0)continue;const score=d/(interest+.05);if(score<bd){bd=score;best=f;}}
+  return best;
+}
+function hunterPremiumPickSafeTarget(op,tx,ty,max=50){const p=hunterCantoNearestWalkable(tx,ty,max);return p||{x:op.homeX,y:op.homeY};}
+function hunterPremiumMoveOp(op,species,dt,speed){let vx=op.targetX-op.x,vy=op.targetY-op.y,dist=Math.hypot(vx,vy);if(dist<=1.1)return false;const step=Math.min(dist,speed*dt),nx=op.x+vx/dist*step,ny=op.y+vy/dist*step;if(hunterCantoCanStand(nx,ny)){op.x=nx;op.y=ny;if(Math.abs(vx)>.4)op.facing=vx<0?-1:1;return true;}op.targetX=op.x;op.targetY=op.y;return false;}
+function hunterPremiumApplyFoodResult(op,foodId,fromPlaced=false){
+  const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),pref=hunterSpeciesPreference(species,foodId),known=rec.foodPreferences?.[foodId];rec.foodPreferences=rec.foodPreferences||{};rec.foodPreferences[foodId]=pref;const food=hunterPremiumFoodDef(foodId);
+  let gain=0,msg=''; if(pref==='favorite'){gain=op.tutorial?62:22;msg=`It seems to love the ${food.name.toLowerCase()}.`;}else if(pref==='liked'){gain=14;msg=`It eats readily and looks a little calmer.`;}else if(pref==='neutral'){gain=2;msg=`It investigates the food, but shows little enthusiasm.`;}else if(pref==='disliked'){gain=-2;msg=`It sniffs the food and turns away.`;}else{gain=-7;msg=`It clearly wants nothing to do with that.`;}
+  op.foodInteractions=(op.foodInteractions||0)+1;op.foodConsumed=(op.foodConsumed||0)+(pref==='favorite'||pref==='liked'||pref==='neutral'?1:0);op.trust=Math.max(0,Math.min(100,op.trust+gain));rec.research=Math.min(100,(rec.research||0)+(known?1:4));
+  if(!known)hunterWildlifeNotice('NEW FOOD PREFERENCE LEARNED',`${species.name} · ${food.name}: ${hunterPreferenceLabel(pref)}`,'journal');
+  hunterEncounterMessage(msg);hunterQueueWildlifeSave();if(op.trust>=species.centreRequirements.trust)hunterAdvanceDarwinQuest('trust',species.speciesId);
+  if(pref==='hated'){hunterPremiumSetState(op,'moving_away');op.closePressureT=.5;}else if(op.trust>=species.centreRequirements.trust){hunterPremiumSetState(op,'receptive');}else hunterPremiumSetState(op,fromPlaced?'comfortable':'cautious');
+  hunterRenderEncounter();hunterRenderWildlifeHud();
+}
+function hunterUpdateWildlife(dt){
+  if(!hunterWildlifeState||!hunterCantoState?.running)return;const now=hunterPremiumNow();
+  for(const op of hunterWildlifeState.ops){if(op.status==='befriended'||!op.revealed)continue;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+    if(op.hiddenUntil){if(now<op.hiddenUntil)continue;op.hiddenUntil=0;op.status='active';op.x=op.homeX;op.y=op.homeY;op.trust=Math.max(0,op.trust-3);hunterPremiumSetState(op,'grazing');}
+    const pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y),moving=hunterPremiumPlayerMoving(),careful=!!hunterCantoState.careful; if(hunterWildlifeState.activeEncounterId===op.id&&pd>HUNTER_PREMIUM_HUD_DROP_RANGE){hunterCloseEncounter();}
+    // Awareness and pressure are physical, not button-driven.
+    if(pd<op.awarenessRadius&&['unaware','grazing','comfortable'].includes(op.behaviourState))hunterPremiumSetState(op,'watching');
+    if(op.behaviourState==='watching'){
+      if(!moving){op.calmT=(op.calmT||0)+dt;if(op.calmT>1.35)hunterPremiumSetState(op,['Curious','Social'].includes(species.temperament)?'curious':'cautious');}
+      else op.calmT=Math.max(0,(op.calmT||0)-dt*2);
+    }
+    if(pd<op.dangerRadius && moving && !careful && !['eating','receptive'].includes(op.behaviourState)){
+      op.closePressureT=(op.closePressureT||0)+dt; if(op.closePressureT>.55){
+        if(op.closePressureT>1.45&&species.fearSensitivity>.48){hunterWildlifeFlee(op,'It became nervous when you kept crowding it.');continue;}
+        const vx=op.x-hunterCantoState.x,vy=op.y-hunterCantoState.y,d=Math.hypot(vx,vy)||1;const t=hunterPremiumPickSafeTarget(op,op.x+vx/d*34,op.y+vy/d*34,70);op.targetX=t.x;op.targetY=t.y;hunterPremiumSetState(op,'moving_away');
+      }
+    }else op.closePressureT=Math.max(0,(op.closePressureT||0)-dt*.9);
+    const placed=hunterPremiumFindPlacedFoodFor(op);
+    if(placed&&!['eating','sniffing','approaching_food','receptive'].includes(op.behaviourState)&&now>op.nextFeedAt){
+      if(!op.foodInterestAt)op.foodInterestAt=now+op.foodInterestDelay;
+      if(now>=op.foodInterestAt && Math.hypot(hunterCantoState.x-placed.x,hunterCantoState.y-placed.y)>=op.preferredDistance*.7){placed.claimed=op.id;op.placedFoodId=placed.id;op.targetX=placed.x;op.targetY=placed.y;hunterPremiumSetState(op,'interested');}
+    } else if(!placed)op.foodInterestAt=0;
+    let isMoving=false;
+    if(op.behaviourState==='interested'){hunterPremiumSetState(op,'approaching_food');}
+    if(op.behaviourState==='approaching_food'){
+      const f=hunterWildlifeState.placedFoods.find(x=>x.id===op.placedFoodId&&!x.removed); if(!f){hunterPremiumSetState(op,'cautious');}
+      else{op.targetX=f.x;op.targetY=f.y;isMoving=hunterPremiumMoveOp(op,species,dt,9);if(Math.hypot(op.x-f.x,op.y-f.y)<4){hunterPremiumSetState(op,'sniffing');op.sniffUntil=now+650;}}
+    }else if(op.behaviourState==='sniffing'&&now>op.sniffUntil){hunterPremiumSetState(op,'eating');op.eatingUntil=now+1300;}
+    else if(op.behaviourState==='eating'&&now>op.eatingUntil){const f=hunterWildlifeState.placedFoods.find(x=>x.id===op.placedFoodId&&!x.removed);if(f){f.removed=true;hunterPremiumApplyFoodResult(op,f.foodId,true);}else hunterPremiumSetState(op,'cautious');op.placedFoodId=null;op.nextFeedAt=now+5000;}
+    else if(op.behaviourState==='moving_away'){isMoving=hunterPremiumMoveOp(op,species,dt,11);if(!isMoving||Math.hypot(op.targetX-op.x,op.targetY-op.y)<2)hunterPremiumSetState(op,'cautious');}
+    else if(['grazing','unaware','comfortable','cautious','curious'].includes(op.behaviourState)){
+      op.idle-=dt; if(op.idle<=0){op.idle=1.6+Math.random()*3.8;for(let t=0;t<8;t++){const a=Math.random()*Math.PI*2,r=6+Math.random()*20,nx=op.homeX+Math.cos(a)*r,ny=op.homeY+Math.sin(a)*r;if(hunterCantoCanStand(nx,ny)){op.targetX=nx;op.targetY=ny;break;}}}
+      if(Math.hypot(op.targetX-op.x,op.targetY-op.y)>1.3)isMoving=hunterPremiumMoveOp(op,species,dt,species.movementBehaviour?.includes('slow')?3.8:6.2);
+    }
+    op.moveT=(op.moveT||0)+dt;op.frame=isMoving?4+(Math.floor(op.moveT/.22)%4):(Math.floor(op.moveT/2.8)%2?0:2);
+  }
+  hunterRenderWildlifeWorld(false); if(hunterWildlifeState.activeEncounterId)hunterRenderEncounter();
+}
+function hunterWildlifeFlee(op,message){if(!op)return;op.status='fled';op.hiddenUntil=hunterPremiumNow()+(op.tutorial?15000:45000);op.fearT=0;op.closePressureT=0;op.targetX=op.homeX;op.targetY=op.homeY;hunterPremiumSetState(op,'fled');hunterCloseEncounter();hunterWildlifeNotice('WILDLIFE MOVED ON',message||'It has moved away for a while.','warning');}
+function hunterInteractOpportunity(id){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===id);if(!op||!hunterCantoState)return;const cp=op.revealed?{x:op.x,y:op.y}:hunterPremiumCurrentCluePoint(op);if(Math.hypot(hunterCantoState.x-cp.x,hunterCantoState.y-cp.y)>HUNTER_PREMIUM_INTERACT_RANGE){if(typeof toast==='function')toast('Move a little closer to investigate.');return;}
+  if(!op.revealed){
+    const chain=op.clueChain||[]; if((op.clueIndex||0)<chain.length-1){op.clueIndex++;hunterWildlifeNotice('NEW TRACK FOUND','The sign continues further ahead.','clue');hunterRenderWildlifeWorld(true);return;}
+    op.revealed=true;op.x=op.homeX;op.y=op.homeY;op.status='active';hunterPremiumSetState(op,'grazing');hunterWildlifeNotice('WILDLIFE NEARBY','The trail has led somewhere meaningful.','clue');hunterRenderWildlifeWorld(true);return;
+  }
+  hunterOpenAnimalEncounter(op.id);
+}
+// Encounter HUD and quick food selector are in-world overlays, not movement-blocking modals.
+function hunterWildlifeBlockingUiOpen(){return !!document.querySelector('#hunterJournalPanel.is-open');}
+function hunterOpenAnimalEncounter(id){const op=hunterWildlifeState?.ops.find(o=>o.id===id);if(!op)return;hunterWildlifeState.activeEncounterId=id;hunterWildlifeState.foodMode=null;const m=document.getElementById('hunterEncounterMessage');if(m)m.textContent='';document.getElementById('hunterEncounterPanel')?.classList.add('is-open');hunterRenderEncounter();}
+function hunterCloseEncounter(){const p=document.getElementById('hunterEncounterPanel');if(p)p.classList.remove('is-open');document.getElementById('hunterEncounterFoods')?.classList.remove('is-open');if(hunterWildlifeState){hunterWildlifeState.activeEncounterId=null;hunterWildlifeState.foodMode=null;}}
+function hunterPremiumObserveAvailable(op){const key=op.behaviourState||'unknown';return !op.observeKeys?.[key];}
+function hunterPremiumObserve(op){
+  op.observeKeys=op.observeKeys||{};const key=op.behaviourState||'unknown'; if(op.observeKeys[key]){hunterEncounterMessage('You have already learned what you can from this behaviour. Watch for a change.');hunterRenderEncounter();return;}
+  op.observeKeys[key]=true;const fresh=hunterDiscoverSpecies(op);const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],hint=species.researchHints?.[(Object.keys(op.observeKeys).length-1)%Math.max(1,species.researchHints?.length||1)];
+  hunterEncounterMessage(fresh?'You identify the animal while watching without disturbing it.':(hint||`You study its ${hunterPremiumStatusLabel(op).toLowerCase()} behaviour.`)); hunterQueueWildlifeSave();hunterRenderEncounter();
+}
+function hunterPremiumActionList(op,species){
+  const pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y),state=op.behaviourState||'cautious',actions=[];
+  if(hunterPremiumObserveAvailable(op))actions.push({id:'observe',label:'Observe',key:'1'});
+  if(!['eating','sniffing','approaching_food'].includes(state)){
+    actions.push({id:'place_food',label:'Place Food',key:actions.length+1});
+    if(pd<36 && ['curious','comfortable','receptive','cautious'].includes(state) && hunterPremiumNow()>=op.nextFeedAt)actions.push({id:'offer_food',label:'Offer Food',key:actions.length+1});
+  }
+  if(op.trust>=species.centreRequirements.trust&&['comfortable','receptive','cautious','curious'].includes(state))actions.push({id:'bring',label:'Bring to Centre',key:actions.length+1,ready:true});
+  actions.push({id:'close',label:'Leave',key:'Esc'}); return actions;
+}
+function hunterRenderEncounter(){
+  const panel=document.getElementById('hunterEncounterPanel');if(!panel||!hunterWildlifeState)return;const op=hunterWildlifeState.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op){panel.classList.remove('is-open');return;}const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),name=document.getElementById('hunterEncounterName'),meta=document.getElementById('hunterEncounterMeta'),actions=document.getElementById('hunterEncounterActions'),msg=document.getElementById('hunterEncounterMessage');
+  if(name)name.textContent=rec.discovered?species.name:'Unknown Canto Wildlife';if(meta)meta.textContent=`${hunterPremiumStatusLabel(op)} · ${species.temperament} · ${String(op.habitat||'canto').replace('_',' ')}`;
+  const trustRow=panel.querySelector('.hunter-trust-row');if(trustRow)trustRow.style.display='none';
+  if(msg&&!msg.textContent.trim())msg.textContent=op.behaviourState==='watching'?'It has noticed you. Your movement matters now.':'Watch what it does rather than forcing the encounter.';
+  if(actions){const list=hunterPremiumActionList(op,species);actions.innerHTML=list.map(a=>`<button type="button" class="${a.ready?'is-ready':''}" data-hunter-encounter-action="${a.id}"><kbd>${a.key}</kbd><span>${a.label}</span></button>`).join('');}
+  const foods=document.getElementById('hunterEncounterFoods');if(foods&&!hunterWildlifeState.foodMode){foods.innerHTML='';foods.classList.remove('is-open');}
+}
+function hunterEncounterAction(action){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;if(action==='close'){hunterCloseEncounter();return;}if(action==='observe'){hunterPremiumObserve(op);return;}if(action==='place_food'){hunterWildlifeState.foodMode='place';hunterRenderEncounterFoodPicker();return;}if(action==='offer_food'){hunterWildlifeState.foodMode='offer';hunterRenderEncounterFoodPicker();return;}if(action==='bring'){hunterBefriendEncounter();return;}
+}
+function hunterRenderEncounterFoodPicker(){
+  const foods=document.getElementById('hunterEncounterFoods');if(!foods)return;const entries=Object.keys(hunterWildlifePersistent?.inventory||{}).filter(id=>hunterFoodQty(id)>0&&HUNTER_WILDLIFE_FOOD[id]).slice(0,9);const mode=hunterWildlifeState?.foodMode||'place';
+  foods.innerHTML=entries.length?entries.map((id,idx)=>{const f=hunterPremiumFoodDef(id),known=hunterSpeciesRecord(hunterWildlifeState.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId)?.speciesId)?.foodPreferences?.[id];return`<button type="button" data-hunter-offer-food="${id}" title="${escapeHtml(f.name)}"><kbd>${idx+1}</kbd>${hunterWildlifeFoodIconHtml?.(id)||''}<span><b>${escapeHtml(f.name)}</b><small>${known?escapeHtml(hunterPreferenceLabel(known)):'Preference unknown'}</small></span><strong>×${hunterFoodQty(id)}</strong></button>`;}).join(''):'<p>Your Field Pack is empty. Explore and forage rather than forcing the encounter.</p>';
+  foods.dataset.mode=mode;foods.classList.add('is-open');
+}
+function hunterPremiumPlaceFood(op,foodId){
+  if(!hunterConsumeFood(foodId,1))return;const dx=op.x-hunterCantoState.x,dy=op.y-hunterCantoState.y,d=Math.hypot(dx,dy)||1;let x=hunterCantoState.x+dx/d*13,y=hunterCantoState.y+dy/d*13;const safe=hunterCantoNearestWalkable(x,y,28);if(safe){x=safe.x;y=safe.y;}
+  const f={id:`placed-${Date.now()}-${Math.floor(Math.random()*9999)}`,foodId,x,y,createdAt:hunterPremiumNow(),claimed:null,removed:false};hunterWildlifeState.placedFoods.push(f);hunterWildlifeState.foodMode=null;document.getElementById('hunterEncounterFoods')?.classList.remove('is-open');hunterEncounterMessage(`You place the ${hunterPremiumFoodDef(foodId).name.toLowerCase()} down and remain free to move away.`);hunterPremiumRenderPlacedFoods();hunterRenderEncounter();
+}
+function hunterPremiumOfferFood(op,foodId){
+  const now=hunterPremiumNow(),pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y);if(pd>38){hunterEncounterMessage('You are too far away to offer it by hand. Place the food instead.');return;}if(now<op.nextFeedAt||['eating','sniffing','approaching_food'].includes(op.behaviourState)){hunterEncounterMessage('Give it time to respond before offering anything else.');return;}if(!hunterConsumeFood(foodId,1))return;op.nextFeedAt=now+5200;op.pendingFood=foodId;hunterPremiumSetState(op,'eating');op.eatingUntil=now+1150;setTimeout(()=>{if(op.status!=='befriended'&&op.pendingFood===foodId){op.pendingFood=null;hunterPremiumApplyFoodResult(op,foodId,false);}},1180);hunterWildlifeState.foodMode=null;document.getElementById('hunterEncounterFoods')?.classList.remove('is-open');hunterEncounterMessage(`You hold out the ${hunterPremiumFoodDef(foodId).name.toLowerCase()}. It decides whether to accept.`);hunterRenderEncounter();
+}
+function hunterOfferFoodToEncounter(foodId){const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;const mode=hunterWildlifeState.foodMode||'place';if(mode==='offer')hunterPremiumOfferFood(op,foodId);else hunterPremiumPlaceFood(op,foodId);hunterRenderWildlifeHud();}
+function hunterBefriendEncounter(){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];if(op.trust<species.centreRequirements.trust||!['receptive','comfortable','cautious','curious'].includes(op.behaviourState)){hunterEncounterMessage('Its behaviour says it is not ready to travel with you yet.');return;}
+  const rec=hunterSpeciesRecord(op.speciesId);rec.discovered=true;rec.befriendedCount=(rec.befriendedCount||0)+1;rec.research=Math.min(100,(rec.research||0)+18);hunterWildlifePersistent.centreAnimals.push({id:`${op.speciesId}-${Date.now()}-${Math.floor(Math.random()*9999)}`,speciesId:op.speciesId,region:'canto',befriendedAt:new Date().toISOString()});hunterWildlifePersistent.hunterXp=(Number(hunterWildlifePersistent.hunterXp)||0)+(species.baseXpReward||0);hunterWildlifePersistent.regionStats.canto.befriended=(hunterWildlifePersistent.regionStats.canto.befriended||0)+1;op.status='befriended';hunterWildlifeNotice('ANIMAL BEFRIENDED',`${species.name} is ready for the Velmora Animal Centre.`,'befriend');hunterAdvanceDarwinQuest('befriend',species.speciesId);hunterQueueWildlifeSave();hunterCloseEncounter();hunterRenderWildlifeWorld(true);hunterRenderWildlifeHud();
+}
+function hunterForageNode(id){
+  const node=hunterWildlifeState?.forage.find(n=>n.id===id);if(!node||node.collected||!hunterCantoState)return;if(Math.hypot(hunterCantoState.x-node.x,hunterCantoState.y-node.y)>52){if(typeof toast==='function')toast('Move closer to gather here.');return;}const qty=node.min+Math.floor(Math.random()*(node.max-node.min+1)),added=hunterAddFood(node.foodId,qty);if(!added){hunterWildlifeNotice('FIELD PACK FULL','Make some room before gathering more.','warning');return;}node.collected=true;hunterWildlifeNotice('FORAGED',`${added} × ${hunterPremiumFoodDef(node.foodId).name}`,'food');hunterAdvanceDarwinQuest('forage',node.foodId);hunterRenderWildlifeWorld(false);hunterRenderWildlifeHud();
+}
+function hunterNearestWildlifeOpportunity(max=54){if(!hunterWildlifeState||!hunterCantoState)return null;let best=null,bd=max;for(const op of hunterWildlifeState.ops){if(op.status==='befriended'||(op.hiddenUntil&&hunterPremiumNow()<op.hiddenUntil))continue;const p=op.revealed?{x:op.x,y:op.y}:hunterPremiumCurrentCluePoint(op),d=Math.hypot(hunterCantoState.x-p.x,hunterCantoState.y-p.y);if(d<bd){best=op;bd=d;}}return best;}
+function hunterPremiumHandleNaturalStillness(){/* behaviour handled continuously in hunterUpdateWildlife */}
+function hunterPremiumQuickActionByIndex(index){
+  if(!hunterWildlifeState?.activeEncounterId)return false;const foods=document.getElementById('hunterEncounterFoods');if(foods?.classList.contains('is-open')){const btn=foods.querySelectorAll('[data-hunter-offer-food]')[index-1];if(btn){btn.click();return true;}}
+  const buttons=document.querySelectorAll('#hunterEncounterActions [data-hunter-encounter-action]');const btn=[...buttons].filter(b=>b.dataset.hunterEncounterAction!=='close')[index-1];if(btn){btn.click();return true;}return false;
+}
+function bindHunterCantoControls(){
+  if(hunterCantoListenersBound)return;hunterCantoListenersBound=true;
+  document.addEventListener('keydown',e=>{if(!hunterCantoState?.running)return;const k=e.key.toLowerCase();if(hunterDialogueOpen()&&['e','enter',' '].includes(k)){e.preventDefault();if(!e.repeat)advanceHunterDialogue();return;}if(k==='i'){e.preventDefault();if(!e.repeat)hunterToggleFieldPack();return;}if(k==='j'){e.preventDefault();if(!e.repeat)hunterToggleJournal();return;}if(e.key===HUNTER_PREMIUM_DEBUG_KEY&&typeof repoIsSiteAdmin==='function'&&repoIsSiteAdmin()&&typeof toaState!=='undefined'&&toaState.adminMode){e.preventDefault();hunterPremiumDebugEnabled=!hunterPremiumDebugEnabled;hunterPremiumRenderDebug(true);if(typeof toast==='function')toast(`Wildlife debug ${hunterPremiumDebugEnabled?'enabled':'disabled'}.`);return;}if(k==='escape'&&hunterCloseTopWildlifeUi()){e.preventDefault();return;}if(/^[1-9]$/.test(k)&&hunterPremiumQuickActionByIndex(Number(k))){e.preventDefault();return;}if(k==='o'){e.preventDefault();if(!e.repeat){const op=hunterNearestWildlifeOpportunity(92);if(op?.revealed){hunterOpenAnimalEncounter(op.id);hunterPremiumObserve(op);}}return;}if(['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d','shift','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)inspectHunterCantoPoi();return;}hunterCantoKeys.add(k);}});
+  document.addEventListener('keyup',e=>{if(!hunterCantoState?.running)return;hunterCantoKeys.delete(e.key.toLowerCase());});window.addEventListener('blur',()=>hunterCantoKeys.clear());
+}
+function hunterPremiumRenderDebug(force=false){
+  const layer=document.getElementById('hunterWildlifeDebugLayer');if(!layer)return;if(!hunterPremiumDebugEnabled){layer.innerHTML='';layer.style.display='none';return;}layer.style.display='block';if(!hunterWildlifeState)return;
+  const circles=hunterWildlifeState.ops.filter(o=>o.revealed&&o.status!=='befriended').map(o=>`<div class="wild-debug-animal" style="left:${o.x}px;top:${o.y}px;--r:${o.awarenessRadius}px"><b>${escapeHtml(HUNTER_CANTO_SPECIES_BY_ID[o.speciesId]?.name||o.speciesId)}</b><span>${escapeHtml(hunterPremiumStatusLabel(o))}</span></div>`).join('');
+  const anchors=HUNTER_CANTO_HABITAT_ANCHORS.map(a=>`<i class="wild-debug-anchor" style="left:${a.x}px;top:${a.y}px" title="${a.habitat}"></i>`).join('');const forage=(hunterWildlifeState.forage||[]).map(n=>`<i class="wild-debug-forage" style="left:${n.x}px;top:${n.y}px"></i>`).join('');layer.innerHTML=anchors+forage+circles;
+}
+function hunterPremiumInstallStyles(){
+  if(hunterPremiumStylesInstalled||document.getElementById('hunterPremiumWildlifeStyles'))return;hunterPremiumStylesInstalled=true;const s=document.createElement('style');s.id='hunterPremiumWildlifeStyles';s.textContent=`
+#hunterMenuOverlay .hunter-encounter-panel{left:50%!important;right:auto!important;bottom:16px!important;top:auto!important;transform:translateX(-50%)!important;width:min(620px,72vw)!important;padding:9px 12px 10px!important;border-radius:6px!important;background:linear-gradient(180deg,rgba(7,19,16,.94),rgba(4,10,9,.96))!important;border:1px solid rgba(203,163,73,.72)!important;box-shadow:0 10px 30px rgba(0,0,0,.36),inset 0 0 0 1px rgba(246,225,167,.05)!important;backdrop-filter:blur(5px)!important;pointer-events:auto!important;}
+#hunterMenuOverlay .hunter-encounter-panel::before{content:'';position:absolute;inset:3px;border:1px solid rgba(92,121,83,.25);pointer-events:none}
+#hunterMenuOverlay .hunter-encounter-panel header{padding:0 0 5px!important;border-bottom:1px solid rgba(190,154,71,.20)!important;align-items:center!important}#hunterMenuOverlay .hunter-encounter-panel header b{font-size:14px!important;letter-spacing:.3px}#hunterMenuOverlay .hunter-encounter-panel header small{font-size:8px!important;color:#9fb69f!important}
+#hunterMenuOverlay .hunter-trust-row{display:none!important}#hunterMenuOverlay .hunter-encounter-message{min-height:0!important;padding:6px 1px 4px!important;font:600 10px/1.35 system-ui,sans-serif!important;color:#d6d0b9!important}
+#hunterMenuOverlay .hunter-encounter-actions{display:flex!important;gap:5px!important;flex-wrap:wrap!important;align-items:center!important}#hunterMenuOverlay .hunter-encounter-actions button{display:flex!important;align-items:center!important;gap:5px!important;min-height:27px!important;padding:4px 8px!important;border-radius:3px!important;border:1px solid rgba(176,139,62,.38)!important;background:linear-gradient(180deg,rgba(31,52,40,.84),rgba(11,24,19,.88))!important;color:#e8d7aa!important;font:700 9px Georgia,serif!important;box-shadow:inset 0 1px rgba(255,255,255,.025)!important;transition:transform .14s ease,border-color .14s ease,filter .14s ease!important}#hunterMenuOverlay .hunter-encounter-actions button:hover{transform:translateY(-1px);border-color:rgba(224,186,96,.66)!important;filter:brightness(1.08)}#hunterMenuOverlay .hunter-encounter-actions button.is-ready{border-color:#c7a355!important;background:linear-gradient(180deg,rgba(65,86,48,.92),rgba(28,47,27,.94))!important}#hunterMenuOverlay .hunter-encounter-actions kbd,#hunterMenuOverlay .hunter-encounter-foods kbd{font:800 7px system-ui,sans-serif;color:#8cae9b;border:1px solid rgba(137,164,144,.27);padding:1px 3px;border-radius:2px;background:#08110e}
+#hunterMenuOverlay .hunter-encounter-foods{position:absolute!important;left:50%!important;bottom:calc(100% + 7px)!important;transform:translateX(-50%)!important;width:min(720px,78vw)!important;max-height:none!important;overflow:hidden!important;margin:0!important;padding:7px!important;border:1px solid rgba(197,158,71,.62)!important;background:linear-gradient(180deg,rgba(7,18,15,.96),rgba(4,10,8,.97))!important;box-shadow:0 10px 28px rgba(0,0,0,.38)!important;grid-template-columns:repeat(auto-fit,minmax(105px,1fr))!important;gap:4px!important;border-radius:5px!important}
+#hunterMenuOverlay .hunter-encounter-foods button{display:grid!important;grid-template-columns:14px 28px 1fr auto!important;align-items:center!important;gap:4px!important;min-height:38px!important;padding:4px 5px!important;border-radius:3px!important;background:rgba(23,40,31,.82)!important;border:1px solid rgba(167,132,60,.32)!important}#hunterMenuOverlay .hunter-encounter-foods button .hunter-food-art{width:26px!important;height:26px!important}#hunterMenuOverlay .hunter-encounter-foods button span b{display:block;font-size:8px;color:#e6d4aa}#hunterMenuOverlay .hunter-encounter-foods button span small{display:block;font:600 7px system-ui;color:#88a491;margin-top:1px}#hunterMenuOverlay .hunter-encounter-foods button strong{font-size:8px;color:#d8bd7c}
+#hunterMenuOverlay .hunter-placed-food-layer,#hunterMenuOverlay .hunter-wildlife-debug-layer{position:absolute;inset:0;pointer-events:none;z-index:6}#hunterMenuOverlay .hunter-placed-food{position:absolute;width:14px;height:14px;margin:-9px 0 0 -7px;background-size:contain;background-repeat:no-repeat;background-position:center;image-rendering:pixelated;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));animation:hunterPlacedFoodIn .18s ease-out}#hunterMenuOverlay .hunter-placed-food::after{content:'';position:absolute;left:50%;bottom:-2px;width:12px;height:3px;transform:translateX(-50%);border-radius:50%;background:rgba(0,0,0,.22)}
+#hunterMenuOverlay .hunter-wildlife-actor.state-watching{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45)) brightness(1.035)}#hunterMenuOverlay .hunter-wildlife-actor.state-interested,#hunterMenuOverlay .hunter-wildlife-actor.state-approaching_food{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45)) drop-shadow(0 0 2px rgba(231,205,128,.24))}
+#hunterMenuOverlay .hunter-wildlife-debug-layer{z-index:20;display:none}.wild-debug-anchor,.wild-debug-forage{position:absolute;width:5px;height:5px;margin:-2px;background:#e8c45a;border:1px solid #111}.wild-debug-forage{background:#62c879}.wild-debug-animal{position:absolute;width:calc(var(--r)*2);height:calc(var(--r)*2);margin:calc(var(--r)*-1);border:1px dashed rgba(255,120,80,.75);border-radius:50%;font:700 7px monospace;color:#fff}.wild-debug-animal b,.wild-debug-animal span{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,.72);padding:1px 3px}.wild-debug-animal b{top:45%}.wild-debug-animal span{top:55%;color:#f3d47e}
+@keyframes hunterPlacedFoodIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@media(max-width:760px){#hunterMenuOverlay .hunter-encounter-panel{width:calc(100vw - 30px)!important;bottom:8px!important}#hunterMenuOverlay .hunter-encounter-foods{width:calc(100vw - 24px)!important;grid-template-columns:repeat(2,1fr)!important}}
+`;document.head.appendChild(s);
+}
+// Extend the existing style/start lifecycle without replacing the rest of Canto.
+const hunterPremiumOriginalEnsureWildlifeStyles=ensureHunterWildlifeStyles;
+ensureHunterWildlifeStyles=function(){hunterPremiumOriginalEnsureWildlifeStyles?.();hunterPremiumInstallStyles();};
+const hunterPremiumOriginalStartCanto=startHunterCantoGame;
+startHunterCantoGame=async function(){const r=await hunterPremiumOriginalStartCanto();hunterPremiumEnsureWorldLayers();hunterPremiumInstallStyles();hunterRenderWildlifeWorld(true);return r;};
+
+/* ============================================================
+   LEVEL HUNTER · CANTO PLAINS MAJOR GAMEPLAY REDESIGN V3
+   Scarcer wildlife, premium contextual encounter UX, crouch,
+   authored forage, proper fishing activity, richer journal/satchel,
+   species archetypes and Darwin context help.
+   ============================================================ */
+const HUNTER_CANTO_V3_VERSION = 3;
+const HUNTER_V3_WILDLIFE_MIN = 2;
+const HUNTER_V3_WILDLIFE_MAX = 4;
+const HUNTER_V3_FORAGE_MIN = 3;
+const HUNTER_V3_FORAGE_MAX = 5;
+const HUNTER_V3_TUTORIAL_CLOVER_ID = 'forage-clover';
+const HUNTER_V3_ENCOUNTER_FOCUS_ZOOM = 1.19;
+const HUNTER_V3_NORMAL_SPEED = 71.4;
+const HUNTER_V3_CROUCH_SPEED_MULT = .43;
+const HUNTER_V3_CAREFUL_SPEED_MULT = .58;
+const HUNTER_V3_FISHING_ZONES = [
+  {id:'old-river-bank',label:'Old River Bank',x:1008,y:494,waterX:1030,waterY:515},
+  {id:'lower-stone-bank',label:'Lower Stone Bank',x:1105,y:651,waterX:1132,waterY:677},
+  {id:'reed-boardwalk',label:'Reed Boardwalk',x:925,y:899,waterX:944,waterY:920}
+];
+const HUNTER_V3_ARCHETYPES = {
+  sunmeadow_hare:{type:'shy_grazer',quirk:'ground_food_space',label:'Shy grazer'},
+  canto_field_vole:{type:'burrow',quirk:'stillness_emerge',label:'Burrow animal'},
+  brambleback_hedgehog:{type:'tracked',quirk:'curls_if_rushed',label:'Defensive forager'},
+  ambercrest_quail:{type:'bird',quirk:'ground_seed_only',label:'Ground bird'},
+  brookfoot_otter_kit:{type:'wetland',quirk:'fish_at_bank',label:'River-associated'},
+  clovershell_tortoise:{type:'shy_grazer',quirk:'two_good_decisions',label:'Slow grazer'},
+  orchard_dormouse:{type:'burrow',quirk:'fruit_near_cover',label:'Cover-dweller'},
+  reedtail_ferret:{type:'playful',quirk:'toss_and_follow',label:'Playful hunter'},
+  furrow_mole:{type:'burrow',quirk:'bait_soft_soil',label:'Burrow animal'},
+  copperstripe_squirrel:{type:'curious',quirk:'nut_toss',label:'Curious climber'},
+  bellflower_badger_cub:{type:'tracked',quirk:'multi_familiarity',label:'Tracked animal'},
+  canto_grass_lizard:{type:'shy_grazer',quirk:'crouch_side_approach',label:'Basking reptile'},
+  meadowbell_lamb:{type:'curious',quirk:'let_it_approach',label:'Social grazer'},
+  redbank_fox_kit:{type:'tracked',quirk:'multi_familiarity',label:'Wary tracker'},
+  canal_duckling:{type:'wetland',quirk:'toss_food',label:'Bank wanderer'},
+  dewdrop_frog:{type:'wetland',quirk:'still_and_insects',label:'Reed animal'},
+  millstone_goat_kid:{type:'playful',quirk:'play_then_feed',label:'Playful grazer'},
+  honeywing_pipit:{type:'bird',quirk:'seed_and_space',label:'Perching bird'},
+  raincoil_snail:{type:'tracked',quirk:'rain_trail',label:'Trail animal'},
+  barnloft_owlet:{type:'bird',quirk:'multiple_observations',label:'Cautious bird'}
+};
+let hunterV3FishingState = null;
+let hunterV3SatchelSelected = null;
+let hunterV3JournalSelected = null;
+let hunterV3StylesInstalled = false;
+let hunterV3Bound = false;
+
+function hunterV3Archetype(speciesId){return HUNTER_V3_ARCHETYPES[speciesId]||{type:'shy_grazer',quirk:'ground_food_space',label:'Wild animal'};}
+function hunterV3RequiredDecisions(species){
+  if(!species)return 3;
+  if(species.speciesId==='sunmeadow_hare')return 3;
+  return {Common:3,Uncommon:4,Rare:5,'Very Rare':6}[species.rarityTier]||4;
+}
+function hunterV3SpeciesFamiliarity(speciesId){const r=hunterSpeciesRecord(speciesId);return Math.max(0,Number(r.familiarity)||0);}
+function hunterV3SaveFamiliarity(speciesId,value){const r=hunterSpeciesRecord(speciesId);r.familiarity=Math.max(0,Math.min(3,Number(value)||0));hunterQueueWildlifeSave();}
+function hunterV3IsCrouched(){return !!hunterCantoState?.crouched;}
+function hunterV3SetCrouched(force){
+  if(!hunterCantoState)return;hunterCantoState.crouched=typeof force==='boolean'?force:!hunterCantoState.crouched;
+  hunterCantoState.target=null;
+  const prompt=document.getElementById('hunterCantoPrompt');
+  if(prompt){prompt.textContent=hunterCantoState.crouched?'Crouched · quieter movement':'Standing normally';prompt.classList.add('is-visible');setTimeout(()=>{if(hunterCantoState?.running)updateHunterCantoHud();},850);}
+  playHunterButtonSound?.();
+}
+function hunterV3ActionLocked(){return !!hunterCantoState?.actionLockUntil && performance.now()<hunterCantoState.actionLockUntil;}
+function hunterV3Commit(ms=520,cls='is-field-action'){
+  if(!hunterCantoState)return;hunterCantoState.actionLockUntil=performance.now()+ms;const p=document.getElementById('hunterCantoPlayer');if(p){p.classList.add(cls);setTimeout(()=>p.classList.remove(cls),ms+60);}
+}
+function hunterV3TutorialNeedsClover(){const q=hunterQuestState();return q.status==='active'&&['observe_hare','forage_clover','gain_trust'].includes(q.stage);}
+function hunterV3EnsureTutorialClover(){
+  if(!hunterWildlifeState||!hunterV3TutorialNeedsClover())return;
+  if(hunterFoodQty('clover_sprigs')>0)return;
+  let node=hunterWildlifeState.forage?.find(n=>n.foodId==='clover_sprigs'&&!n.collected);
+  if(node)return;
+  const base=HUNTER_CANTO_FORAGE_NODES.find(n=>n.id===HUNTER_V3_TUTORIAL_CLOVER_ID)||{id:HUNTER_V3_TUTORIAL_CLOVER_ID,label:'Meadow Clover',foodId:'clover_sprigs',type:'herb',x:725,y:405,min:1,max:2};
+  const forced={...base,type:base.type||'herb',min:1,max:2,collected:false,active:true,tutorialForced:true};
+  hunterWildlifeState.forage=hunterWildlifeState.forage||[];hunterWildlifeState.forage.unshift(forced);hunterRenderWildlifeWorld(true);
+}
+
+function hunterV3ForageCandidateValid(n){
+  if(!n||n.type==='fishing')return false;
+  if(typeof hunterCantoSolidAt==='function'&&hunterCantoSolidAt(n.x,n.y))return false;
+  const near=hunterCantoNearestWalkable(n.x,n.y,58);if(!near)return false;
+  return Math.hypot(near.x-n.x,near.y-n.y)<=56;
+}
+function hunterPremiumChooseForage(rng,tutorialStage){
+  const valid=HUNTER_CANTO_FORAGE_NODES.filter(hunterV3ForageCandidateValid);
+  const chosen=[];
+  if(hunterV3TutorialNeedsClover()||['observe_hare','forage_clover','gain_trust'].includes(tutorialStage)){
+    const clover=valid.find(n=>n.foodId==='clover_sprigs');if(clover)chosen.push(clover);
+  }
+  const count=Math.min(valid.length,HUNTER_V3_FORAGE_MIN+Math.floor(rng()*(HUNTER_V3_FORAGE_MAX-HUNTER_V3_FORAGE_MIN+1)));
+  const pool=valid.filter(n=>!chosen.some(c=>c.id===n.id));
+  while(chosen.length<count&&pool.length){const i=Math.floor(rng()*pool.length);chosen.push(pool.splice(i,1)[0]);}
+  return chosen.map(n=>({...n,min:Math.max(1,Math.min(2,n.min||1)),max:Math.max(1,Math.min(n.type==='seed'?3:2,n.max||2)),collected:false,active:true}));
+}
+function hunterV3FishingZonesForExpedition(rng){
+  if(hunterQuestState().status!=='complete')return [];
+  const pool=HUNTER_V3_FISHING_ZONES.map(z=>({...z}));const count=rng()<.45?1:2;const out=[];
+  while(out.length<count&&pool.length){out.push(pool.splice(Math.floor(rng()*pool.length),1)[0]);}
+  return out.map(z=>{const p=hunterCantoNearestWalkable(z.x,z.y,70)||{x:z.x,y:z.y};return{...z,x:p.x,y:p.y,active:true};});
+}
+function hunterV3DiscoveryMethod(species,rng,visibleUsed){
+  const arc=hunterV3Archetype(species.speciesId);
+  if(species.speciesId==='brookfoot_otter_kit')return 'fishing';
+  if(arc.type==='burrow')return 'burrow';
+  if(arc.type==='tracked')return 'tracks';
+  if(arc.type==='bird')return rng()<.55?'sound':'nest';
+  if(arc.type==='wetland')return rng()<.55?'ripples':'sound';
+  if(visibleUsed)return species.habitats.includes('woodland')?'rustle':'tracks';
+  return rng()<.42?'visible':(species.habitats.includes('woodland')?'rustle':'tracks');
+}
+function hunterV3SafeAnchor(species,used,rng){
+  const px=hunterCantoState?.x??HUNTER_CANTO_START.x,py=hunterCantoState?.y??HUNTER_CANTO_START.y;
+  const pool=HUNTER_CANTO_HABITAT_ANCHORS.filter(a=>species.habitats.includes(a.habitat)&&!used.has(a.id));
+  for(let t=0;t<pool.length*4;t++){
+    const a=pool[Math.floor(rng()*pool.length)];if(!a)break;
+    if(Math.hypot(a.x-px,a.y-py)<300)continue;
+    if(hunterCantoSolidAt?.(a.x,a.y))continue;
+    used.add(a.id);return {...a};
+  }
+  return null;
+}
+function hunterCreateOpportunity(species,anchor,method,rng,tutorial=false){
+  const sense=hunterPremiumSpeciesSense(species),arc=hunterV3Archetype(species.speciesId),familiarity=hunterV3SpeciesFamiliarity(species.speciesId);
+  const op={id:`wild-${species.speciesId}-${Math.floor(rng()*1e9)}`,speciesId:species.speciesId,homeX:anchor.x,homeY:anchor.y,x:anchor.x,y:anchor.y,targetX:anchor.x,targetY:anchor.y,method,revealed:method==='visible',status:'active',trust:Math.min(18,familiarity*5),observed:false,approached:false,waitCount:0,frame:0,facing:rng()<.5?-1:1,idle:1+rng()*2.5,moveT:0,fearT:0,hiddenUntil:0,tutorial,habitat:anchor.habitat,
+    behaviourState:method==='visible'?'grazing':'unaware',stateSince:hunterPremiumNow(),calmT:0,closePressureT:0,observeKeys:{},lastObserveAt:0,nextFeedAt:0,foodInteractions:0,foodConsumed:0,placedFoodId:null,foodInterestAt:0,eatingUntil:0,pendingFood:null,...sense,
+    archetype:arc.type,quirk:arc.quirk,archetypeLabel:arc.label,meaningfulActions:0,requiredDecisions:hunterV3RequiredDecisions(species),positioningSatisfied:false,foodStageSatisfied:false,finalInteraction:false,familiarity,encounterPhase:'understand',hintSeen:false,lastMeaningfulAt:0,fleeStartedAt:0,fleeTarget:null};
+  if(method!=='visible'&&method!=='fishing'){op.clueChain=hunterPremiumBuildClueChain(anchor.x,anchor.y,rng);op.clueIndex=0;}
+  if(method==='fishing')op.revealed=false;
+  return op;
+}
+function hunterGenerateExpedition(){
+  if(!hunterWildlifePersistent)return;
+  const conditions=hunterCantoConditions(),visits=(hunterWildlifePersistent.regionStats.canto.visits||0)+1;hunterWildlifePersistent.regionStats.canto.visits=visits;
+  const seed=hunterHashString(`${character?.username||'guest'}:${Date.now()}:${visits}:major-v3`),rng=hunterMulberry32(seed),used=new Set(),ops=[];const q=hunterQuestState();
+  if(q.status==='active'){
+    const hare=HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare;const a={id:'tutorial-hare',habitat:'meadow',x:770,y:405};used.add(a.id);ops.push(hunterCreateOpportunity(hare,a,'visible',rng,true));
+  }else if(q.status==='complete'){
+    const count=HUNTER_V3_WILDLIFE_MIN+Math.floor(rng()*(HUNTER_V3_WILDLIFE_MAX-HUNTER_V3_WILDLIFE_MIN+1));const picked=new Set();let visibleUsed=false;
+    const rarityWeights={Common:58,Uncommon:28,Rare:12,'Very Rare':2};
+    for(let i=0;i<count;i++){
+      const candidates=HUNTER_CANTO_SPECIES.filter(s=>!picked.has(s.speciesId)).map(s=>({value:s,weight:(rarityWeights[s.rarityTier]||4)*hunterSpeciesConditionWeight(s,conditions)}));
+      const s=hunterWeightedPick(candidates,rng);if(!s)break;const a=hunterV3SafeAnchor(s,used,rng);if(!a)continue;
+      const method=hunterV3DiscoveryMethod(s,rng,visibleUsed);if(method==='visible')visibleUsed=true;picked.add(s.speciesId);ops.push(hunterCreateOpportunity(s,a,method,rng,false));
+    }
+  }
+  hunterWildlifeState={conditions,seed,ops,forage:hunterPremiumChooseForage(rng,q.stage),fishingZones:hunterV3FishingZonesForExpedition(rng),placedFoods:[],activeEncounterId:null,foodMode:null,ui:null,lastRender:0,premiumVersion:HUNTER_CANTO_V3_VERSION};
+  hunterV3FishingState=null;hunterQueueWildlifeSave();hunterPremiumEnsureWorldLayers();hunterV3EnsureTutorialClover();hunterRenderWildlifeWorld(true);hunterRenderWildlifeHud();hunterPremiumRenderDebug();
+}
+
+const __hunterV3StartDarwinFieldworkBase=hunterStartDarwinFieldwork;
+hunterStartDarwinFieldwork=function(){__hunterV3StartDarwinFieldworkBase();hunterV3EnsureTutorialClover();};
+const __hunterV3AdvanceDarwinQuestBase=hunterAdvanceDarwinQuest;
+hunterAdvanceDarwinQuest=function(trigger,speciesId){__hunterV3AdvanceDarwinQuestBase(trigger,speciesId);hunterV3EnsureTutorialClover();};
+
+function hunterV3AnimalMoveAllowed(op,x,y){
+  if(x<25||x>HUNTER_CANTO_WORLD_W-25||y<25||y>HUNTER_CANTO_WORLD_H-25)return false;
+  if(hunterCantoSolidAt?.(x,y))return false;
+  // Wildlife moves only inside a small authored ecological pocket around its selected habitat anchor.
+  const radius=op.archetype==='wetland'?22:op.archetype==='playful'?30:26;
+  return Math.hypot(x-op.homeX,y-op.homeY)<=radius;
+}
+function hunterV3MoveOp(op,dt,speed){
+  const vx=op.targetX-op.x,vy=op.targetY-op.y,d=Math.hypot(vx,vy);if(d<1.1)return false;const step=Math.min(d,speed*dt),nx=op.x+vx/d*step,ny=op.y+vy/d*step;
+  if(hunterV3AnimalMoveAllowed(op,nx,ny)){op.x=nx;op.y=ny;if(Math.abs(vx)>.35)op.facing=vx<0?-1:1;return true;}op.targetX=op.x;op.targetY=op.y;return false;
+}
+function hunterV3MarkMeaningful(op,kind){
+  if(!op)return false;op.v3Actions=op.v3Actions||{};if(op.v3Actions[kind])return false;op.v3Actions[kind]=true;op.meaningfulActions=(op.meaningfulActions||0)+1;op.lastMeaningfulAt=hunterPremiumNow();return true;
+}
+function hunterV3FoodQuality(species,foodId){return hunterSpeciesPreference(species,foodId);}
+function hunterV3CanFinalInteract(op,species){
+  const enough=op.meaningfulActions>=op.requiredDecisions;
+  const foodOk=op.foodStageSatisfied||['curious','playful'].includes(op.archetype)&&op.foodConsumed>0;
+  const positionOk=op.positioningSatisfied||op.archetype==='curious'||op.archetype==='playful';
+  return enough&&foodOk&&positionOk&&['comfortable','cautious','curious','receptive'].includes(op.behaviourState);
+}
+function hunterV3EncounterGuidance(op,species){
+  const pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y),arc=op.archetype;
+  if(op.behaviourState==='fleeing')return 'It is bolting for cover. Chasing now will only make things worse.';
+  if(op.behaviourState==='hidden_burrow')return 'Something is inside. A little food near the entrance — followed by some distance — may coax it out.';
+  if(op.behaviourState==='watching')return hunterV3IsCrouched()?'You are low and quiet. Let it decide whether you are a threat.':'It is reading your movement. Crouching or backing away will make you less imposing.';
+  if(op.behaviourState==='moving_away')return 'It is creating space. Do not chase it.';
+  if(op.behaviourState==='interested'||op.behaviourState==='approaching_food')return 'Its attention is on the food. Give it room to investigate.';
+  if(op.behaviourState==='sniffing'||op.behaviourState==='eating')return 'Do nothing rash while it investigates the food.';
+  if(op.behaviourState==='comfortable')return hunterV3CanFinalInteract(op,species)?'It looks settled. A gentle final interaction may be possible.':'It is calmer, but you still need to read the encounter and make another good decision.';
+  if(op.behaviourState==='receptive')return 'It accepts your presence. You can now decide whether to bring it to the Centre.';
+  if(arc==='bird')return 'Keep your distance. Birds are far more willing to come down for food when the space beneath them feels safe.';
+  if(arc==='burrow')return 'The burrow is part of the encounter. Watch the entrance and use food rather than crowding it.';
+  if(arc==='wetland')return 'Watch the waterline and reeds. Movement at the bank matters as much as the food you carry.';
+  if(arc==='tracked')return 'This animal has already made you work to find it. Do not waste the encounter by rushing the last few metres.';
+  if(arc==='curious')return pd<32?'It is interested, but moving straight at it could interrupt that curiosity.':'Give it the chance to approach on its own terms.';
+  if(arc==='playful')return 'Its movement is part of the conversation. Let it investigate you before trying to finish the encounter.';
+  return 'Study its posture, choose a suitable food, and pay attention to how much space it wants.';
+}
+function hunterV3PhaseLabel(op){
+  if(op.behaviourState==='receptive')return 'READY';
+  if(op.foodStageSatisfied)return 'RESPOND';
+  if(op.meaningfulActions>0)return 'PREPARE';
+  return 'UNDERSTAND';
+}
+function hunterPremiumActionList(op,species){
+  const pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y),state=op.behaviourState||'cautious',actions=[];
+  if(hunterPremiumObserveAvailable(op))actions.push({id:'observe',label:'Observe',icon:'◉'});
+  if(!hunterV3IsCrouched()&&!['eating','sniffing'].includes(state))actions.push({id:'crouch',label:'Crouch',icon:'⌄'});
+  else if(hunterV3IsCrouched())actions.push({id:'stand',label:'Stand',icon:'⌃'});
+  if(['watching','moving_away','cautious','curious'].includes(state))actions.push({id:'back_away',label:'Give Space',icon:'←'});
+  if(!['eating','sniffing','approaching_food','fleeing'].includes(state)){
+    actions.push({id:'place_food',label:'Place Food',icon:'✦'});
+    if(pd<34&&['curious','comfortable','receptive'].includes(state)&&hunterPremiumNow()>=op.nextFeedAt)actions.push({id:'offer_food',label:'Offer Food',icon:'◇'});
+  }
+  if(hunterV3CanFinalInteract(op,species)&&state!=='receptive')actions.push({id:'gentle',label:'Gently Interact',icon:'♡',ready:true});
+  if(state==='receptive')actions.push({id:'bring',label:'Bring to Centre',icon:'⌂',ready:true});
+  actions.push({id:'close',label:'Leave',icon:'×'});
+  return actions.slice(0,6).map((a,i)=>({...a,key:a.id==='close'?'Esc':String(i+1)}));
+}
+function hunterV3ApproachAway(op){
+  const vx=hunterCantoState.x-op.x,vy=hunterCantoState.y-op.y,d=Math.hypot(vx,vy)||1;const target=hunterCantoNearestWalkable(hunterCantoState.x+vx/d*34,hunterCantoState.y+vy/d*34,48);
+  if(target)hunterCantoState.target=target;op.expectedSpace=true;hunterEncounterMessage('You deliberately give it space. Keep moving away until its posture softens.');
+}
+function hunterEncounterAction(action){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+  if(action==='close'){hunterCloseEncounter();return;}
+  if(action==='observe'){hunterPremiumObserve(op);hunterV3MarkMeaningful(op,`observe:${op.behaviourState}`);return;}
+  if(action==='crouch'){hunterV3SetCrouched(true);hunterEncounterMessage('You lower your profile and move more quietly.');hunterV3MarkMeaningful(op,'crouch');hunterRenderEncounter();return;}
+  if(action==='stand'){hunterV3SetCrouched(false);hunterEncounterMessage('You stand normally again.');hunterRenderEncounter();return;}
+  if(action==='back_away'){hunterV3ApproachAway(op);return;}
+  if(action==='place_food'){hunterWildlifeState.foodMode='place';hunterRenderEncounterFoodPicker();return;}
+  if(action==='offer_food'){hunterWildlifeState.foodMode='offer';hunterRenderEncounterFoodPicker();return;}
+  if(action==='gentle'){
+    if(!hunterV3CanFinalInteract(op,species)){hunterEncounterMessage('Its body language says this would be too soon.');return;}
+    hunterV3MarkMeaningful(op,'gentle');op.finalInteraction=true;hunterPremiumSetState(op,'receptive');hunterEncounterMessage('It allows the careful contact and no longer tries to create distance.');hunterQueueWildlifeSave();hunterRenderEncounter();return;
+  }
+  if(action==='bring'){hunterBefriendEncounter();return;}
+}
+function hunterRenderEncounter(){
+  const panel=document.getElementById('hunterEncounterPanel');if(!panel||!hunterWildlifeState)return;const op=hunterWildlifeState.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op){panel.classList.remove('is-open');return;}
+  const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),name=document.getElementById('hunterEncounterName'),meta=document.getElementById('hunterEncounterMeta'),actions=document.getElementById('hunterEncounterActions'),msg=document.getElementById('hunterEncounterMessage');
+  if(name)name.textContent=rec.discovered?species.name:'Unknown Canto Wildlife';if(meta)meta.textContent=`${hunterPremiumStatusLabel(op)} · ${op.archetypeLabel||hunterV3Archetype(op.speciesId).label}`;
+  panel.querySelector('.hunter-trust-row')?.style.setProperty('display','none','important');
+  let phase=panel.querySelector('.hunter-v3-phase');if(!phase){phase=document.createElement('div');phase.className='hunter-v3-phase';panel.querySelector('header')?.insertAdjacentElement('afterend',phase);}
+  phase.innerHTML=`<span class="is-current">${hunterV3PhaseLabel(op)}</span><i>SEARCH</i><i>READ</i><i>PREPARE</i><i>RESPOND</i><b>${Math.min(op.meaningfulActions,op.requiredDecisions)}/${op.requiredDecisions} good decisions</b>`;
+  if(msg)msg.textContent=hunterV3EncounterGuidance(op,species);
+  if(actions){const list=hunterPremiumActionList(op,species);actions.innerHTML=list.map(a=>`<button type="button" class="${a.ready?'is-ready':''}" data-hunter-encounter-action="${a.id}"><i>${a.icon||'·'}</i><span>${escapeHtml(a.label)}</span><kbd>${a.key}</kbd></button>`).join('');}
+  const foods=document.getElementById('hunterEncounterFoods');if(foods&&!hunterWildlifeState.foodMode){foods.innerHTML='';foods.classList.remove('is-open');}
+}
+function hunterPremiumObserve(op){
+  op.observeKeys=op.observeKeys||{};const key=op.behaviourState||'unknown';if(op.observeKeys[key]){hunterEncounterMessage('You have already read this behaviour. Wait for the animal to do something new.');hunterRenderEncounter();return;}
+  op.observeKeys[key]=true;hunterV3MarkMeaningful(op,`observe:${key}`);const fresh=hunterDiscoverSpecies(op),species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],hint=species.researchHints?.[(Object.keys(op.observeKeys).length-1)%Math.max(1,species.researchHints?.length||1)];
+  const rec=hunterSpeciesRecord(op.speciesId);rec.observations=(rec.observations||0)+1;rec.research=Math.min(100,(rec.research||0)+3);
+  hunterEncounterMessage(fresh?'FIELD NOTE ADDED — you identify the species without disturbing it.':(hint||`You learn something from its ${hunterPremiumStatusLabel(op).toLowerCase()} posture.`));hunterWildlifeNotice('FIELD NOTE ADDED',hint||`${species.name}: ${hunterPremiumStatusLabel(op)} behaviour observed.`,'journal');hunterQueueWildlifeSave();hunterRenderEncounter();
+}
+function hunterPremiumApplyFoodResult(op,foodId,fromPlaced=false){
+  const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),pref=hunterSpeciesPreference(species,foodId),known=rec.foodPreferences?.[foodId];rec.foodPreferences=rec.foodPreferences||{};rec.foodPreferences[foodId]=pref;const food=hunterPremiumFoodDef(foodId);
+  op.foodInteractions=(op.foodInteractions||0)+1;let msg='';
+  if(pref==='favorite'){
+    op.trust=Math.min(100,op.trust+(op.tutorial?28:14));op.foodConsumed++;op.foodStageSatisfied=true;hunterV3MarkMeaningful(op,'good_food');msg=`It clearly values the ${food.name.toLowerCase()}, but food alone has not finished the encounter.`;
+  }else if(pref==='liked'){
+    op.trust=Math.min(100,op.trust+9);op.foodConsumed++;op.foodStageSatisfied=true;hunterV3MarkMeaningful(op,'good_food');msg='It eats willingly. You have made progress, but its behaviour still matters.';
+  }else if(pref==='neutral'){
+    op.trust=Math.min(100,op.trust+2);op.foodConsumed++;msg='It eats without much enthusiasm. This probably is not the key to the encounter.';
+  }else if(pref==='disliked'){
+    op.trust=Math.max(0,op.trust-2);msg='It refuses the food and turns its attention away.';
+  }else{
+    op.trust=Math.max(0,op.trust-5);msg='It recoils from the offering and becomes more wary.';op.closePressureT=.5;
+  }
+  rec.research=Math.min(100,(rec.research||0)+(known?1:4));if(!known)hunterWildlifeNotice('FAVOURITE FOOD DISCOVERED'.replace('FAVOURITE',pref==='favorite'?'FAVOURITE':'FOOD'),'${species.name}'.replace('${species.name}',species.name)+` · ${food.name}: ${hunterPreferenceLabel(pref)}`,'journal');
+  hunterEncounterMessage(msg);hunterQueueWildlifeSave();
+  if(pref==='hated'){hunterPremiumSetState(op,'moving_away');}
+  else if(op.foodStageSatisfied){hunterPremiumSetState(op,'comfortable');}
+  else hunterPremiumSetState(op,'cautious');
+  hunterRenderEncounter();hunterRenderWildlifeHud();
+}
+function hunterBefriendEncounter(){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+  if(op.behaviourState!=='receptive'||!hunterV3CanFinalInteract(op,species)){hunterEncounterMessage('This animal has not completed its encounter sequence yet. Keep reading what it does.');return;}
+  const rec=hunterSpeciesRecord(op.speciesId);const familiarity=hunterV3SpeciesFamiliarity(op.speciesId);
+  if(['Rare','Very Rare'].includes(species.rarityTier)&&op.quirk==='multi_familiarity'&&familiarity<1){
+    hunterV3SaveFamiliarity(op.speciesId,familiarity+1);op.status='befriended';hunterWildlifeNotice('FAMILIARITY INCREASED',`${species.name} leaves calmly. A future encounter with this species will begin less wary.`,'journal');hunterCloseEncounter();hunterRenderWildlifeWorld(true);return;
+  }
+  rec.discovered=true;rec.befriendedCount=(rec.befriendedCount||0)+1;rec.research=Math.min(100,(rec.research||0)+18);hunterWildlifePersistent.centreAnimals.push({id:`${op.speciesId}-${Date.now()}-${Math.floor(Math.random()*9999)}`,speciesId:op.speciesId,region:'canto',befriendedAt:new Date().toISOString()});hunterWildlifePersistent.hunterXp=(Number(hunterWildlifePersistent.hunterXp)||0)+(species.baseXpReward||0);hunterWildlifePersistent.regionStats.canto.befriended=(hunterWildlifePersistent.regionStats.canto.befriended||0)+1;op.status='befriended';hunterWildlifeNotice('ANIMAL BEFRIENDED',`${species.name} is ready to travel back to the Velmora Animal Centre.`,'befriend');hunterAdvanceDarwinQuest('befriend',species.speciesId);hunterQueueWildlifeSave();hunterCloseEncounter();hunterRenderWildlifeWorld(true);hunterRenderWildlifeHud();
+}
+function hunterV3StartFlee(op,message){
+  if(!op||op.behaviourState==='fleeing')return;const vx=op.x-hunterCantoState.x,vy=op.y-hunterCantoState.y,d=Math.hypot(vx,vy)||1;op.targetX=op.homeX+vx/d*24;op.targetY=op.homeY+vy/d*24;op.fleeStartedAt=hunterPremiumNow();op.fleeMessage=message||'It panics and bolts for cover.';hunterPremiumSetState(op,'fleeing');hunterEncounterMessage(op.fleeMessage);hunterWildlifeState.activeEncounterId===op.id&&hunterRenderEncounter();
+}
+function hunterV3FinishFlee(op){op.status='fled';op.hiddenUntil=hunterPremiumNow()+(op.tutorial?18000:60000);op.closePressureT=0;op.fearT=0;hunterCloseEncounter();hunterWildlifeNotice('WILDLIFE FLED',op.fleeMessage||'It has gone to ground for a while.','warning');}
+function hunterUpdateWildlife(dt){
+  if(!hunterWildlifeState||!hunterCantoState?.running)return;const now=hunterPremiumNow();
+  for(const op of hunterWildlifeState.ops){if(op.status==='befriended'||!op.revealed)continue;const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+    if(op.hiddenUntil){if(now<op.hiddenUntil)continue;op.hiddenUntil=0;op.status='active';op.x=op.homeX;op.y=op.homeY;op.targetX=op.homeX;op.targetY=op.homeY;op.closePressureT=0;hunterPremiumSetState(op,'grazing');}
+    const pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y),moving=hunterPremiumPlayerMoving(),crouched=hunterV3IsCrouched(),careful=!!hunterCantoState.careful;
+    if(hunterWildlifeState.activeEncounterId===op.id&&pd>128)hunterCloseEncounter();
+    if(op.behaviourState==='fleeing'){
+      const moved=hunterV3MoveOp(op,dt,22);op.frame=4+(Math.floor(now/85)%4);if(now-op.fleeStartedAt>1250||!moved)hunterV3FinishFlee(op);continue;
+    }
+    if(pd<op.awarenessRadius*(crouched?.72:1)&&['unaware','grazing','comfortable'].includes(op.behaviourState))hunterPremiumSetState(op,'watching');
+    if(op.behaviourState==='watching'){
+      if(!moving||crouched){op.calmT=(op.calmT||0)+dt*(crouched?1.35:1);if(op.calmT>1.4){hunterV3MarkMeaningful(op,'calm_presence');hunterPremiumSetState(op,['Curious','Social','Calm'].includes(species.temperament)?'curious':'cautious');}}
+      else op.calmT=Math.max(0,(op.calmT||0)-dt*2);
+    }
+    const danger=op.dangerRadius*(crouched?.54:careful?.72:1);
+    if(pd<danger&&moving&&!['eating','sniffing','receptive'].includes(op.behaviourState)){
+      op.closePressureT=(op.closePressureT||0)+dt*(crouched?.38:careful?.65:1.2);
+      if(op.closePressureT>.20&&op.behaviourState!=='moving_away'){
+        const vx=op.x-hunterCantoState.x,vy=op.y-hunterCantoState.y,d=Math.hypot(vx,vy)||1;op.targetX=op.homeX+vx/d*20;op.targetY=op.homeY+vy/d*20;hunterPremiumSetState(op,'moving_away');
+      }
+      if(op.closePressureT>(op.tutorial?1.25:.72)&&species.fearSensitivity>.28){hunterV3StartFlee(op,'It became nervous because you kept closing the distance.');continue;}
+    }else op.closePressureT=Math.max(0,(op.closePressureT||0)-dt*.8);
+    if(op.expectedSpace&&pd>Math.max(42,op.preferredDistance)){op.expectedSpace=false;op.positioningSatisfied=true;hunterV3MarkMeaningful(op,'gave_space');if(op.behaviourState==='moving_away'||op.behaviourState==='watching')hunterPremiumSetState(op,'cautious');}
+    const placed=hunterPremiumFindPlacedFoodFor(op);
+    if(placed&&!['eating','sniffing','approaching_food','receptive','fleeing'].includes(op.behaviourState)&&now>op.nextFeedAt){
+      if(!op.foodInterestAt)op.foodInterestAt=now+op.foodInterestDelay;
+      if(now>=op.foodInterestAt&&Math.hypot(hunterCantoState.x-placed.x,hunterCantoState.y-placed.y)>=op.preferredDistance*.72){placed.claimed=op.id;op.placedFoodId=placed.id;op.targetX=placed.x;op.targetY=placed.y;hunterPremiumSetState(op,'interested');}
+    }else if(!placed)op.foodInterestAt=0;
+    let isMoving=false;
+    if(op.behaviourState==='interested')hunterPremiumSetState(op,'approaching_food');
+    if(op.behaviourState==='approaching_food'){
+      const f=hunterWildlifeState.placedFoods.find(x=>x.id===op.placedFoodId&&!x.removed);if(!f)hunterPremiumSetState(op,'cautious');else{op.targetX=f.x;op.targetY=f.y;const vx=f.x-op.x,vy=f.y-op.y,d=Math.hypot(vx,vy)||1;const step=Math.min(d,8.5*dt),nx=op.x+vx/d*step,ny=op.y+vy/d*step;if(!hunterCantoSolidAt?.(nx,ny)){op.x=nx;op.y=ny;isMoving=true;}if(Math.hypot(op.x-f.x,op.y-f.y)<4){hunterPremiumSetState(op,'sniffing');op.sniffUntil=now+750;}}
+    }else if(op.behaviourState==='sniffing'&&now>op.sniffUntil){hunterPremiumSetState(op,'eating');op.eatingUntil=now+1450;}
+    else if(op.behaviourState==='eating'&&now>op.eatingUntil){const f=hunterWildlifeState.placedFoods.find(x=>x.id===op.placedFoodId&&!x.removed);if(f){f.removed=true;hunterPremiumApplyFoodResult(op,f.foodId,true);}else hunterPremiumSetState(op,'cautious');op.placedFoodId=null;op.nextFeedAt=now+5200;}
+    else if(op.behaviourState==='moving_away'){isMoving=hunterV3MoveOp(op,dt,12);if(!isMoving||Math.hypot(op.targetX-op.x,op.targetY-op.y)<2)hunterPremiumSetState(op,'cautious');}
+    else if(['grazing','unaware','comfortable','cautious','curious'].includes(op.behaviourState)){
+      op.idle-=dt;if(op.idle<=0){op.idle=2+Math.random()*4;for(let t=0;t<8;t++){const a=Math.random()*Math.PI*2,r=5+Math.random()*18,nx=op.homeX+Math.cos(a)*r,ny=op.homeY+Math.sin(a)*r;if(hunterV3AnimalMoveAllowed(op,nx,ny)){op.targetX=nx;op.targetY=ny;break;}}}
+      if(Math.hypot(op.targetX-op.x,op.targetY-op.y)>1.3)isMoving=hunterV3MoveOp(op,dt,species.movementBehaviour?.includes('slow')?3.4:5.5);
+    }
+    if(op.foodStageSatisfied&&op.positioningSatisfied&&op.meaningfulActions>=op.requiredDecisions&&['comfortable','cautious','curious'].includes(op.behaviourState))hunterPremiumSetState(op,'comfortable');
+    op.moveT=(op.moveT||0)+dt;op.frame=isMoving?4+(Math.floor(op.moveT/.20)%4):(Math.floor(op.moveT/3)%2?0:2);
+  }
+  hunterRenderWildlifeWorld(false);if(hunterWildlifeState.activeEncounterId)hunterRenderEncounter();
+}
+
+const __hunterV3RenderWildlifeWorldBase=hunterRenderWildlifeWorld;
+hunterRenderWildlifeWorld=function(force=false){
+  __hunterV3RenderWildlifeWorldBase(force);
+  for(const op of hunterWildlifeState?.ops||[]){if(op.method==='fishing'&&!op.revealed){const el=hunterWildlifeActorEl(op);if(el)el.style.display='none';}}
+  hunterV3RenderFishingWorld();
+};
+
+function hunterV3ForagePickup(node,qty){
+  const added=hunterAddFood(node.foodId,qty);if(!added){hunterWildlifeNotice('FIELD SATCHEL FULL','Make room before gathering anything else.','warning');return false;}node.collected=true;hunterWildlifeNotice('FORAGED',`${hunterPremiumFoodDef(node.foodId).name} ×${added}`,'food');hunterAdvanceDarwinQuest('forage',node.foodId);hunterRenderWildlifeWorld(false);hunterRenderWildlifeHud();return true;
+}
+function hunterForageNode(id){
+  const node=hunterWildlifeState?.forage.find(n=>n.id===id);if(!node||node.collected||!hunterCantoState)return;if(Math.hypot(hunterCantoState.x-node.x,hunterCantoState.y-node.y)>54){toast?.('Move closer to gather here.');return;}
+  hunterCantoState.target=null;hunterV3Commit(620,'is-gathering');const qty=Math.max(1,Math.min(node.type==='seed'?3:2,node.min+Math.floor(Math.random()*(Math.max(node.min,node.max)-node.min+1))));
+  setTimeout(()=>{if(hunterCantoState?.running)hunterV3ForagePickup(node,qty);},470);
+}
+
+function hunterV3NearFishingZone(max=48){
+  if(!hunterWildlifeState?.fishingZones||!hunterCantoState)return null;let best=null,bd=max;for(const z of hunterWildlifeState.fishingZones){if(!z.active)continue;const d=Math.hypot(hunterCantoState.x-z.x,hunterCantoState.y-z.y);if(d<bd){best=z;bd=d;}}return best;
+}
+function hunterV3EnsureFishingUi(){
+  const view=document.getElementById('hunterCantoViewport'),world=document.getElementById('hunterCantoWorld');if(!view||!world)return;
+  if(!document.getElementById('hunterFishingPanel')){const p=document.createElement('div');p.id='hunterFishingPanel';p.className='hunter-fishing-panel';p.innerHTML='<header><b>RIVER FISHING</b><small id="hunterFishingSpotName"></small></header><div id="hunterFishingText">Find a marked bank to fish.</div><div class="hunter-fishing-meter"><i id="hunterFishingTension"></i><b id="hunterFishingSafe"></b></div><div id="hunterFishingActions"></div>';view.appendChild(p);}
+  if(!document.getElementById('hunterFishingWorld')){const w=document.createElement('div');w.id='hunterFishingWorld';w.className='hunter-fishing-world';w.innerHTML='<i class="hunter-fishing-rod"></i><i class="hunter-fishing-line"></i><i class="hunter-fishing-bobber"></i>';world.appendChild(w);}
+}
+function hunterV3RenderFishingWorld(){
+  hunterV3EnsureFishingUi();const w=document.getElementById('hunterFishingWorld');if(!w)return;const s=hunterV3FishingState;if(!s?.active||!['waiting','bite','reel'].includes(s.phase)){w.classList.remove('is-active','is-bite');return;}
+  w.classList.add('is-active');w.classList.toggle('is-bite',s.phase==='bite');const z=s.zone,b=w.querySelector('.hunter-fishing-bobber'),rod=w.querySelector('.hunter-fishing-rod'),line=w.querySelector('.hunter-fishing-line');
+  if(b){b.style.left=`${z.waterX}px`;b.style.top=`${z.waterY}px`;}
+  if(rod){rod.style.left=`${hunterCantoState.x+5}px`;rod.style.top=`${hunterCantoState.y-19}px`;}
+  if(line){const x1=hunterCantoState.x+7,y1=hunterCantoState.y-17,x2=z.waterX,y2=z.waterY,d=Math.hypot(x2-x1,y2-y1),a=Math.atan2(y2-y1,x2-x1)*180/Math.PI;line.style.left=`${x1}px`;line.style.top=`${y1}px`;line.style.width=`${d}px`;line.style.transform=`rotate(${a}deg)`;}
+}
+function hunterV3RenderFishingPanel(){
+  hunterV3EnsureFishingUi();const p=document.getElementById('hunterFishingPanel');if(!p)return;const s=hunterV3FishingState;if(!s?.active){p.classList.remove('is-open');return;}p.classList.add('is-open');document.getElementById('hunterFishingSpotName').textContent=s.zone.label;const text=document.getElementById('hunterFishingText'),actions=document.getElementById('hunterFishingActions'),meter=p.querySelector('.hunter-fishing-meter');
+  meter.classList.toggle('is-active',s.phase==='reel');
+  if(s.phase==='ready'){text.textContent='A deeper pocket of water lies within casting range.';actions.innerHTML='<button data-hunter-fishing="cast"><i>↗</i><span>Cast Line</span><kbd>E</kbd></button><button data-hunter-fishing="cancel"><span>Leave</span><kbd>Esc</kbd></button>';}
+  else if(s.phase==='casting'){text.textContent='You cast toward the deeper water…';actions.innerHTML='';}
+  else if(s.phase==='waiting'){text.textContent='The float settles. Watch the water — do not mash a Wait button.';actions.innerHTML='<button data-hunter-fishing="cancel"><span>Reel in</span><kbd>Esc</kbd></button>';}
+  else if(s.phase==='bite'){text.textContent='BITE — the float dips sharply!';actions.innerHTML='<button class="is-ready" data-hunter-fishing="hook"><i>!</i><span>HOOK</span><kbd>E</kbd></button>';}
+  else if(s.phase==='reel'){text.textContent='Hold SPACE to pull. Release it when the line strains. Keep tension in the safe band.';actions.innerHTML='<span class="hunter-fishing-help">SPACE · hold/release</span>';const t=document.getElementById('hunterFishingTension');if(t)t.style.left=`${Math.max(0,Math.min(1,s.tension))*100}%`;}
+}
+function hunterV3StartFishing(zone){
+  if(!zone||hunterV3FishingState?.active)return;hunterCloseEncounter();hunterV3FishingState={active:true,zone,phase:'ready',tension:.45,progress:0,stress:0,space:false,nextAt:0,biteUntil:0};hunterCantoState.target=null;hunterV3RenderFishingPanel();hunterV3RenderFishingWorld();
+}
+function hunterV3FishingAction(action){
+  const s=hunterV3FishingState;if(!s?.active)return;if(action==='cancel'){hunterV3FishingState=null;hunterV3RenderFishingPanel();hunterV3RenderFishingWorld();return;}
+  if(action==='cast'&&s.phase==='ready'){s.phase='casting';hunterV3Commit(700,'is-fishing');hunterV3RenderFishingPanel();setTimeout(()=>{if(!hunterV3FishingState?.active)return;s.phase='waiting';s.nextAt=performance.now()+1700+Math.random()*2600;hunterV3RenderFishingPanel();hunterV3RenderFishingWorld();},620);return;}
+  if(action==='hook'&&s.phase==='bite'){s.phase='reel';s.tension=.48;s.progress=0;s.stress=0;hunterV3RenderFishingPanel();return;}
+}
+function hunterV3FishingReward(){
+  const s=hunterV3FishingState;if(!s)return;const roll=Math.random();let detail='';
+  const aquatic=(hunterWildlifeState.ops||[]).find(o=>o.method==='fishing'&&!o.revealed&&o.status==='active');
+  if(aquatic&&roll<.20){aquatic.revealed=true;aquatic.x=aquatic.homeX;aquatic.y=aquatic.homeY;aquatic.behaviourState='watching';hunterWildlifeNotice('UNKNOWN WILDLIFE','Something unusual follows the line toward the bank.','clue');detail='Something stronger than an ordinary fish moves at the waterline.';hunterV3FishingState=null;hunterRenderWildlifeWorld(true);setTimeout(()=>hunterOpenAnimalEncounter(aquatic.id),450);return;}
+  if(roll<.70){const add=hunterAddFood('basic_fish',1);detail=add?'Small River Fish ×1':'Your satchel is full, so you release the catch.';}
+  else if(roll<.86){const add=hunterAddFood('pond_insects',1);detail=add?'Water Insects ×1':'Your satchel is full.';}
+  else{const add=hunterAddFood('worms',1);detail=add?'Riverbank Worm ×1':'Your satchel is full.';}
+  hunterWildlifeNotice('FISHING',detail,'food');hunterV3FishingState=null;hunterV3RenderFishingPanel();hunterV3RenderFishingWorld();hunterRenderWildlifeHud();
+}
+function hunterV3UpdateFishing(dt){
+  const s=hunterV3FishingState;if(!s?.active)return;const now=performance.now();
+  if(Math.hypot(hunterCantoState.x-s.zone.x,hunterCantoState.y-s.zone.y)>62){hunterV3FishingState=null;hunterV3RenderFishingPanel();hunterV3RenderFishingWorld();return;}
+  if(s.phase==='waiting'&&now>=s.nextAt){s.phase='bite';s.biteUntil=now+1450;hunterV3RenderFishingPanel();hunterV3RenderFishingWorld();}
+  else if(s.phase==='bite'&&now>s.biteUntil){s.phase='waiting';s.nextAt=now+1800+Math.random()*2200;hunterWildlifeNotice('MISSED BITE','The float settles again.','warning');hunterV3RenderFishingPanel();}
+  else if(s.phase==='reel'){
+    const pull=.12*Math.sin(now/270)+.05*Math.sin(now/93);s.tension+=((s.space?.50:-.28)+pull)*dt;s.tension=Math.max(0,Math.min(1,s.tension));const safe=s.tension>.28&&s.tension<.76;s.progress+=dt*(safe?.46:.06);s.stress=Math.max(0,s.stress+dt*(safe?-.55:.8));if(s.progress>=1){hunterV3FishingReward();return;}if(s.stress>1.55){hunterWildlifeNotice('LINE SLIPPED','The catch gets free.','warning');hunterV3FishingState=null;hunterV3RenderFishingPanel();hunterV3RenderFishingWorld();return;}hunterV3RenderFishingPanel();
+  }
+}
+
+function hunterV3SatchelCategory(id){const f=HUNTER_WILDLIFE_FOOD[id];const src=(f?.source||'').toLowerCase();if(id==='basic_fish'||id==='river_trout')return'Food';if(src.includes('forage'))return'Forage';return'Food';}
+function hunterRenderFieldPack(){
+  const list=document.getElementById('hunterFieldPackList'),meta=document.getElementById('hunterFieldPackMeta');if(!list||!hunterWildlifePersistent)return;const cap=hunterWildlifePersistent.inventoryCapacity||24,used=hunterInventoryUsed();if(meta)meta.textContent=`${used}/${cap} FIELD CAPACITY`;
+  const ids=Object.keys(HUNTER_WILDLIFE_FOOD).filter(id=>hunterFoodQty(id)>0);if(!hunterV3SatchelSelected||!ids.includes(hunterV3SatchelSelected))hunterV3SatchelSelected=ids[0]||null;
+  const selected=hunterV3SatchelSelected?HUNTER_WILDLIFE_FOOD[hunterV3SatchelSelected]:null;const known=[];if(selected){for(const s of HUNTER_CANTO_SPECIES){const p=hunterSpeciesRecord(s.speciesId).foodPreferences?.[hunterV3SatchelSelected];if(p&&['favorite','liked'].includes(p))known.push(`${s.name} — ${hunterPreferenceLabel(p)}`);}}
+  list.innerHTML=`<div class="hunter-satchel-shell"><div class="hunter-satchel-tabs"><b>FIELD SATCHEL</b><span>FOOD & FORAGE</span><i>${used}/${cap}</i></div><div class="hunter-satchel-body"><div class="hunter-satchel-grid">${ids.length?ids.map(id=>{const f=HUNTER_WILDLIFE_FOOD[id];return`<button class="hunter-satchel-slot ${id===hunterV3SatchelSelected?'is-selected':''}" data-hunter-satchel-item="${id}">${hunterWildlifeFoodIconHtml(id)}<b>×${hunterFoodQty(id)}</b><span>${escapeHtml(f.name)}</span></button>`;}).join(''):'<div class="hunter-empty-panel">Your field satchel is empty. Canto is intentionally sparse — useful forage should feel worth finding.</div>'}</div><aside class="hunter-satchel-detail">${selected?`${hunterWildlifeFoodIconHtml(hunterV3SatchelSelected,'hunter-food-art is-large')}<h3>${escapeHtml(selected.name)}</h3><b>×${hunterFoodQty(hunterV3SatchelSelected)}</b><p>${escapeHtml(selected.description||selected.source||'Field resource')}</p><small>KNOWN WILDLIFE PREFERENCES</small><ul>${known.length?known.slice(0,5).map(x=>`<li>${escapeHtml(x)}</li>`).join(''):'<li>Nothing recorded yet.</li>'}</ul>`:'<h3>Empty satchel</h3><p>Forage carefully and prepare for the animals you hope to find.</p>'}</aside></div></div>`;
+}
+function hunterV3JournalIndex(){
+  const discovered=HUNTER_CANTO_SPECIES.filter(s=>hunterSpeciesRecord(s.speciesId).discovered).length;return`<div class="hunter-journal-book"><div class="hunter-journal-bookhead"><span>CANTO PLAINS</span><b>${discovered} / 20 DISCOVERED</b></div><div class="hunter-journal-grid">${HUNTER_CANTO_SPECIES.map((s,idx)=>{const r=hunterSpeciesRecord(s.speciesId);return`<button class="hunter-journal-card ${r.discovered?'':'is-unknown'}" data-hunter-journal-species="${s.speciesId}"><i style="background-image:url('${r.discovered?s.spriteReference:''}')"></i><em>${String(idx+1).padStart(2,'0')}</em><b>${r.discovered?escapeHtml(s.name):'Undiscovered'}</b><small>${r.discovered?`${escapeHtml(s.rarityTier)} · ${Math.round(r.research||0)}% research`:'Unknown field record'}</small></button>`;}).join('')}</div></div>`;
+}
+function hunterV3JournalDetail(species){
+  const r=hunterSpeciesRecord(species.speciesId),foods=Object.entries(r.foodPreferences||{}),notes=(species.researchHints||[]).slice(0,Math.max(1,Math.ceil((r.research||0)/40)));
+  return`<div class="hunter-journal-detail"><button data-hunter-journal-back>← Canto index</button><div class="hunter-journal-spread"><section><div class="hunter-journal-portrait" style="background-image:url('${species.spriteReference}')"></div><h2>${escapeHtml(species.name)}</h2><p>${escapeHtml(species.specialBehaviour||'Field observations are still incomplete.')}</p></section><section><h3>FIELD NOTES</h3><dl><dt>Habitat</dt><dd>${escapeHtml(species.habitats.join(' · '))}</dd><dt>Activity</dt><dd>${escapeHtml(species.activeTimes.join(' · '))}</dd><dt>Temperament</dt><dd>${escapeHtml(species.temperament)}</dd><dt>Research</dt><dd>${Math.round(r.research||0)}%</dd><dt>Familiarity</dt><dd>${hunterV3SpeciesFamiliarity(species.speciesId)?'Recognises your presence':'Unfamiliar'}</dd></dl><h3>DIET KNOWLEDGE</h3><ul>${foods.length?foods.map(([id,p])=>`<li>${escapeHtml(HUNTER_WILDLIFE_FOOD[id]?.name||id)} <b>${escapeHtml(hunterPreferenceLabel(p))}</b></li>`).join(''):'<li>Unknown — observe, experiment or ask for local advice.</li>'}</ul><h3>NOTES</h3>${notes.map(n=>`<p>• ${escapeHtml(n)}</p>`).join('')}</section></div></div>`;
+}
+function hunterRenderJournal(){
+  const list=document.getElementById('hunterJournalList'),meta=document.getElementById('hunterJournalMeta');if(!list||!hunterWildlifePersistent)return;const discovered=HUNTER_CANTO_SPECIES.filter(s=>hunterSpeciesRecord(s.speciesId).discovered).length;if(meta)meta.textContent=`CANTO NATURALIST RECORD · ${discovered}/20`;
+  const s=hunterV3JournalSelected&&HUNTER_CANTO_SPECIES_BY_ID[hunterV3JournalSelected];list.innerHTML=s&&hunterSpeciesRecord(s.speciesId).discovered?hunterV3JournalDetail(s):hunterV3JournalIndex();
+}
+
+function hunterV3DarwinTip(){
+  const q=hunterQuestState(),op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState?.activeEncounterId)||hunterNearestWildlifeOpportunity(125),forage=hunterNearestForageNode(95),fish=hunterV3NearFishingZone(90);
+  if(q.status==='active'){
+    if(q.stage==='observe_hare')return 'Don\'t walk straight at the hare. Watch it first. If it freezes, that is information — not an invitation to rush it.';
+    if(q.stage==='forage_clover')return 'There is guaranteed meadow clover in this expedition. Look around the windmill meadow edges; I would never send a new keeper looking for something that isn\'t here.';
+    if(q.stage==='gain_trust')return 'Place the clover, then physically give the hare some room. Food gets its attention; your behaviour decides whether it trusts the situation.';
+    if(q.stage==='bring_hare')return 'If it is receptive, make one calm final interaction. Bringing it home should feel like the end of a sequence, not the result of one feeding.';
+  }
+  if(op){const s=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];if(!op.revealed)return `That sign belongs to a real encounter. Follow it carefully — it should lead somewhere meaningful, not to a random dead end.`;return `${s.name}: ${hunterV3EncounterGuidance(op,s)}`;}
+  if(forage)return `${forage.label} is useful because Canto forage is deliberately limited. Think about what you are looking for before you spend it.`;
+  if(fish)return 'This is one of Canto\'s proper fishing banks. Watch the float rather than clicking through a timer — a strange bite can become a wildlife encounter.';
+  if(hunterV3IsCrouched())return 'Crouching lowers your profile and makes your movement less threatening. It is especially useful for skittish animals and birds.';
+  return 'Let the map breathe. You are not supposed to find an animal every thirty seconds. Tracks, sounds and a good food patch can be just as important as a visible creature.';
+}
+function hunterV3DarwinTipDialogue(){showHunterDialogue('Keeper Darwin',hunterV3DarwinTip());}
+function speakToHunterDarwin(){
+  if(!hunterCantoState?.running)return;if(!hunterDarwinState)initHunterDarwin();if(!hunterRupertState)initHunterRupert();if(!hunterNearDarwin()){toast?.('Move a little closer to Keeper Darwin.');return;}hunterCantoState.target=null;const d=hunterDarwinState;d.spoken=true;
+  const tip=d.mode==='following'?{label:'Ask for a field tip',action:hunterV3DarwinTipDialogue}:null;
+  if(d.mode==='following')showHunterDialogue('Keeper Darwin',HUNTER_DARWIN_FOLLOWING_DIALOGUE,[tip,{label:'Stop following',action:()=>{startHunterDarwinReturning();showHunterDialogue('Keeper Darwin','All right. Rupert and I will head back to our usual patch by the castle road.');}},{label:'Canto fieldwork',action:hunterDarwinFieldworkDialogue},{label:'About Rupert',action:showHunterDarwinRupertDialogue}].filter(Boolean));
+  else if(d.mode==='returning')showHunterDialogue('Keeper Darwin',HUNTER_DARWIN_RETURNING_DIALOGUE,[{label:'Follow me',action:()=>{startHunterDarwinFollowing();showHunterDialogue('Keeper Darwin','Of course. Lead the way — Rupert and I will stay on the paths behind you.');}},{label:'Canto fieldwork',action:hunterDarwinFieldworkDialogue},{label:'About Rupert',action:showHunterDarwinRupertDialogue}]);
+  else showHunterDialogue('Keeper Darwin',HUNTER_DARWIN_DIALOGUE,[{label:'Follow me',action:()=>{startHunterDarwinFollowing();showHunterDialogue('Keeper Darwin','Of course. Lead the way — Rupert and I will stay on the paths behind you.');}},{label:'Canto fieldwork',action:hunterDarwinFieldworkDialogue},{label:'About Rupert',action:showHunterDarwinRupertDialogue}]);
+}
+
+function hunterV3CameraFocusPoint(){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState?.activeEncounterId&&o.revealed);if(!op)return null;return{x:(hunterCantoState.x*.58+op.x*.42),y:(hunterCantoState.y*.62+op.y*.38)};
+}
+function renderHunterCantoCamera(){
+  if(!hunterCantoState)return;const view=document.getElementById('hunterCantoViewport'),world=document.getElementById('hunterCantoWorld'),player=document.getElementById('hunterCantoPlayer');if(!view||!world||!player)return;
+  const vr=view.getBoundingClientRect(),base=Math.max(1.76,Math.min(2.20,vr.width/780)),focus=hunterV3CameraFocusPoint(),targetScale=base*(focus?HUNTER_V3_ENCOUNTER_FOCUS_ZOOM:1);hunterCantoState.v3Scale=(hunterCantoState.v3Scale||base)+(targetScale-(hunterCantoState.v3Scale||base))*.09;const scale=hunterCantoState.v3Scale;
+  const cx=focus?.x??hunterCantoState.x,cy=focus?.y??hunterCantoState.y;let tx=vr.width/2-cx*scale,ty=vr.height/2-cy*scale;const minX=vr.width-HUNTER_CANTO_WORLD_W*scale,minY=vr.height-HUNTER_CANTO_WORLD_H*scale;tx=Math.min(0,Math.max(minX,tx));ty=Math.min(0,Math.max(minY,ty));hunterCantoState.cam={scale,tx,ty};world.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${scale})`;
+  player.style.left=`${hunterCantoState.x}px`;player.style.top=`${hunterCantoState.y}px`;player.style.backgroundPosition=`${-hunterCantoState.frame*30.78}px 0`;player.style.transform=`scaleX(${hunterCantoState.facing<0?-1:1}) scaleY(${hunterV3IsCrouched()?.90:1}) translateY(${hunterV3IsCrouched()?2:0}px)`;player.classList.toggle('is-crouched',hunterV3IsCrouched());renderHunterDarwin();renderHunterRupert();hunterV3RenderFishingWorld();
+}
+function hunterCantoLoop(ts){
+  if(!hunterCantoState?.running)return;const last=hunterCantoState.last||ts,dt=Math.min(.035,(ts-last)/1000||0);hunterCantoState.last=ts;updateHunterDarwin(dt);updateHunterRupert(dt);hunterUpdateWildlife(dt);hunterV3UpdateFishing(dt);let dx=0,dy=0;const fishingLocks=!!hunterV3FishingState?.active&&['casting','waiting','bite','reel'].includes(hunterV3FishingState.phase);const blocked=hunterDialogueOpen()||hunterWildlifeBlockingUiOpen()||hunterV3ActionLocked()||fishingLocks;
+  if(!blocked&&(hunterCantoKeys.has('arrowleft')||hunterCantoKeys.has('a')))dx--;if(!blocked&&(hunterCantoKeys.has('arrowright')||hunterCantoKeys.has('d')))dx++;if(!blocked&&(hunterCantoKeys.has('arrowup')||hunterCantoKeys.has('w')))dy--;if(!blocked&&(hunterCantoKeys.has('arrowdown')||hunterCantoKeys.has('s')))dy++;
+  if(dx||dy){hunterCantoState.target=null;const m=Math.hypot(dx,dy)||1;dx/=m;dy/=m;}else if(!blocked&&hunterCantoState.target){const vx=hunterCantoState.target.x-hunterCantoState.x,vy=hunterCantoState.target.y-hunterCantoState.y,d=Math.hypot(vx,vy);if(d<8)hunterCantoState.target=null;else{dx=vx/d;dy=vy/d;}}
+  const careful=hunterCantoKeys.has('shift')||hunterV3IsCrouched();hunterCantoState.careful=careful;if(careful&&(dx||dy))hunterCantoState.lastCarefulAt=performance.now();let moving=false;
+  if(dx||dy){const mult=hunterV3IsCrouched()?HUNTER_V3_CROUCH_SPEED_MULT:(hunterCantoKeys.has('shift')?HUNTER_V3_CAREFUL_SPEED_MULT:1),speed=HUNTER_V3_NORMAL_SPEED*mult*dt;moving=hunterCantoTryMove(dx*speed,dy*speed);if(dx!==0)hunterCantoState.facing=dx<0?-1:1;if(!moving&&hunterCantoState.target)hunterCantoState.target=null;}
+  if(moving){hunterCantoState.anim=(hunterCantoState.anim||0)+dt*(hunterV3IsCrouched()?3.2:hunterCantoKeys.has('shift')?4.1:5.7);hunterCantoState.frame=Math.floor(hunterCantoState.anim)%10;}else{hunterCantoState.anim=0;hunterCantoState.frame=0;}
+  hunterCantoState.isMoving=moving;renderHunterCantoCamera();updateHunterCantoHud();hunterCantoFrame=requestAnimationFrame(hunterCantoLoop);
+}
+function hunterPremiumPlayerMoving(){return !!hunterCantoState?.isMoving;}
+
+function hunterV3ListenStart(){if(!hunterCantoState)return;hunterCantoState.listening=true;if(hunterCantoMusic)hunterCantoMusic.volume=.16;const view=document.getElementById('hunterCantoViewport');view?.classList.add('is-listening');}
+function hunterV3ListenStop(){if(!hunterCantoState)return;hunterCantoState.listening=false;if(hunterCantoMusic)hunterCantoMusic.volume=.35;document.getElementById('hunterCantoViewport')?.classList.remove('is-listening');}
+function hunterV3ListenHint(){
+  if(!hunterCantoState?.listening)return null;let best=null,bd=190;for(const op of hunterWildlifeState?.ops||[]){if(op.status!=='active')continue;const p=op.revealed?{x:op.x,y:op.y}:hunterPremiumCurrentCluePoint(op),d=Math.hypot(hunterCantoState.x-p.x,hunterCantoState.y-p.y);if(d<bd){bd=d;best={op,p};}}
+  if(!best)return 'You listen. Wind, water and distant farm sounds — nothing distinct nearby.';const dx=best.p.x-hunterCantoState.x,dy=best.p.y-hunterCantoState.y,dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'east':'west'):(dy>0?'south':'north');return `You focus on the ambience… something subtle carries from the ${dir}.`;
+}
+function bindHunterCantoControls(){
+  if(hunterCantoListenersBound)return;hunterCantoListenersBound=true;
+  document.addEventListener('keydown',e=>{if(!hunterCantoState?.running)return;const k=e.key.toLowerCase();if(hunterDialogueOpen()&&['e','enter',' '].includes(k)){e.preventDefault();if(!e.repeat)advanceHunterDialogue();return;}
+    if(e.key==='Control'){if(!e.repeat){e.preventDefault();hunterV3SetCrouched();}return;}
+    if(k==='l'){if(!e.repeat){e.preventDefault();hunterV3ListenStart();const h=hunterV3ListenHint();if(h)hunterWildlifeNotice('LISTEN',h,'clue');}return;}
+    if(k==='i'){e.preventDefault();if(!e.repeat)hunterToggleFieldPack();return;}if(k==='j'){e.preventDefault();if(!e.repeat)hunterToggleJournal();return;}
+    if(e.key===HUNTER_PREMIUM_DEBUG_KEY&&typeof repoIsSiteAdmin==='function'&&repoIsSiteAdmin()&&typeof toaState!=='undefined'&&toaState.adminMode){e.preventDefault();hunterPremiumDebugEnabled=!hunterPremiumDebugEnabled;hunterPremiumRenderDebug(true);toast?.(`Wildlife debug ${hunterPremiumDebugEnabled?'enabled':'disabled'}.`);return;}
+    if(k==='escape'){if(hunterV3FishingState?.active){e.preventDefault();hunterV3FishingAction('cancel');return;}if(hunterCloseTopWildlifeUi()){e.preventDefault();return;}}
+    if(hunterV3FishingState?.active){if(k==='e'&&!e.repeat){e.preventDefault();if(hunterV3FishingState.phase==='ready')hunterV3FishingAction('cast');else if(hunterV3FishingState.phase==='bite')hunterV3FishingAction('hook');return;}if(k===' '){e.preventDefault();hunterV3FishingState.space=true;return;}}
+    if(/^[1-9]$/.test(k)&&hunterPremiumQuickActionByIndex(Number(k))){e.preventDefault();return;}if(k==='o'){e.preventDefault();if(!e.repeat){const op=hunterNearestWildlifeOpportunity(92);if(op?.revealed){hunterOpenAnimalEncounter(op.id);hunterPremiumObserve(op);}}return;}
+    if(['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d','shift','e'].includes(k)){e.preventDefault();if(k==='e'){if(!e.repeat)inspectHunterCantoPoi();return;}hunterCantoKeys.add(k);}
+  });
+  document.addEventListener('keyup',e=>{if(!hunterCantoState?.running)return;const k=e.key.toLowerCase();hunterCantoKeys.delete(k);if(k==='l')hunterV3ListenStop();if(k===' '&&hunterV3FishingState?.active)hunterV3FishingState.space=false;});window.addEventListener('blur',()=>{hunterCantoKeys.clear();hunterV3ListenStop();if(hunterV3FishingState)hunterV3FishingState.space=false;});
+}
+function updateHunterCantoHud(){
+  if(!hunterCantoState)return;const zone=hunterCantoZoneAt(hunterCantoState.x,hunterCantoState.y),zoneEl=document.getElementById('hunterCantoZone'),notes=document.getElementById('hunterCantoNotes');if(zoneEl)zoneEl.textContent=zone.label;if(notes)notes.textContent=`Field notes ${hunterCantoState.discovered.size}/${HUNTER_CANTO_POIS.length}`;hunterRenderWildlifeHud();const help=document.querySelector('#hunterCantoView .hunter-canto-help');if(help)help.textContent='WASD / arrows · Shift careful · Ctrl crouch · E interact · O observe · L listen · I satchel · J journal';
+  const prompt=document.getElementById('hunterCantoPrompt');if(!prompt)return;if(hunterDialogueOpen()||hunterWildlifeBlockingUiOpen()){prompt.classList.remove('is-visible');return;}if(hunterV3FishingState?.active){prompt.classList.remove('is-visible');return;}
+  const wild=hunterNearestWildlifeOpportunity(),forage=hunterNearestForageNode(),fish=hunterV3NearFishingZone(),poi=hunterCantoNearestPoi();
+  if(wild){const s=HUNTER_CANTO_SPECIES_BY_ID[wild.speciesId];prompt.textContent=wild.revealed?`E · Focus on ${hunterSpeciesRecord(wild.speciesId).discovered?s.name:'wildlife'}`:`E · Inspect ${HUNTER_CLUE_LABELS[wild.method]||'wildlife sign'}`;prompt.classList.add('is-visible');}
+  else if(forage){prompt.textContent=`E · Gather ${forage.label}`;prompt.classList.add('is-visible');}
+  else if(fish){prompt.textContent='E · Fish this bank';prompt.classList.add('is-visible');}
+  else if(hunterNearVendorHook()){prompt.textContent='E · Canto Market Stall';prompt.classList.add('is-visible');}
+  else if(poi){prompt.textContent=hunterCantoState.discovered.has(poi.id)?`E · Revisit ${poi.label}`:`E · Inspect ${poi.label}`;prompt.classList.add('is-visible');}
+  else if(hunterCantoState.x<230&&Math.abs(hunterCantoState.y-505)<85){prompt.textContent='E · Return to Elvane';prompt.classList.add('is-visible');}
+  else if(hunterNearDarwin()){prompt.textContent='E · Speak to Keeper Darwin';prompt.classList.add('is-visible');}
+  else prompt.classList.remove('is-visible');
+}
+function inspectHunterCantoPoi(){
+  if(!hunterCantoState||hunterWildlifeBlockingUiOpen())return;const wild=hunterNearestWildlifeOpportunity();if(wild){hunterInteractOpportunity(wild.id);return;}const forage=hunterNearestForageNode();if(forage){hunterForageNode(forage.id);return;}const fish=hunterV3NearFishingZone();if(fish){hunterV3StartFishing(fish);return;}if(hunterNearVendorHook()){hunterOpenVendorHook();return;}const poi=hunterCantoNearestPoi();if(poi){playHunterButtonSound();const fresh=!hunterCantoState.discovered.has(poi.id);hunterCantoState.discovered.add(poi.id);if(fresh)saveHunterCantoDiscoveries(hunterCantoState.discovered);toast?.(`${poi.label}: ${poi.text}`);updateHunterCantoHud();return;}if(hunterCantoState.x<230&&Math.abs(hunterCantoState.y-505)<85){showHunterElvaneFromCanto();return;}if(hunterNearDarwin())speakToHunterDarwin();
+}
+
+function hunterV3BindUi(){
+  if(hunterV3Bound)return;hunterV3Bound=true;document.addEventListener('click',e=>{
+    const sat=e.target.closest?.('[data-hunter-satchel-item]');if(sat){hunterV3SatchelSelected=sat.dataset.hunterSatchelItem;hunterRenderFieldPack();return;}
+    const j=e.target.closest?.('[data-hunter-journal-species]');if(j){hunterV3JournalSelected=j.dataset.hunterJournalSpecies;hunterRenderJournal();return;}
+    if(e.target.closest?.('[data-hunter-journal-back]')){hunterV3JournalSelected=null;hunterRenderJournal();return;}
+    const fish=e.target.closest?.('[data-hunter-fishing]');if(fish){e.preventDefault();e.stopPropagation();hunterV3FishingAction(fish.dataset.hunterFishing);return;}
+  });
+}
+function hunterV3InstallStyles(){
+  if(hunterV3StylesInstalled||document.getElementById('hunterCantoMajorV3Styles'))return;hunterV3StylesInstalled=true;const s=document.createElement('style');s.id='hunterCantoMajorV3Styles';s.textContent=`
+#hunterMenuOverlay .hunter-encounter-panel{width:min(690px,76vw)!important;padding:0!important;overflow:visible!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;}
+#hunterMenuOverlay .hunter-encounter-panel::before{content:''!important;position:absolute!important;inset:0!important;border:1px solid #a6813b!important;background:linear-gradient(180deg,rgba(8,25,20,.97),rgba(4,13,10,.98))!important;box-shadow:0 16px 34px rgba(0,0,0,.48),inset 0 0 0 3px rgba(38,72,51,.45),inset 0 0 20px rgba(0,0,0,.34)!important;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)!important;z-index:-1!important;}
+#hunterMenuOverlay .hunter-encounter-panel header{padding:9px 13px 7px!important;border-bottom:1px solid rgba(205,166,77,.36)!important;background:linear-gradient(90deg,rgba(39,69,47,.50),transparent)!important;}#hunterMenuOverlay .hunter-encounter-panel header b{font:700 15px Georgia,serif!important;color:#f1ddb0!important;text-shadow:0 1px #000!important}#hunterMenuOverlay .hunter-encounter-panel header small{font:700 8px/1.2 system-ui!important;letter-spacing:1.1px!important;text-transform:uppercase!important;color:#9db39f!important;margin-top:2px!important}
+#hunterMenuOverlay .hunter-v3-phase{display:grid;grid-template-columns:auto repeat(4,max-content) 1fr;gap:6px;align-items:center;padding:5px 12px;border-bottom:1px solid rgba(174,139,65,.22);font:800 7px/1 system-ui;color:#667f6e;letter-spacing:.7px}.hunter-v3-phase span{padding:3px 6px;border:1px solid rgba(209,168,76,.62);background:#233f2b;color:#f0dca6}.hunter-v3-phase i{font-style:normal}.hunter-v3-phase b{text-align:right;color:#bba169;font-weight:700}
+#hunterMenuOverlay .hunter-encounter-message{padding:8px 13px 7px!important;min-height:32px!important;font:600 11px/1.45 Georgia,serif!important;color:#ddd3ba!important;letter-spacing:.05px!important}
+#hunterMenuOverlay .hunter-encounter-actions{padding:0 10px 10px!important;display:grid!important;grid-template-columns:repeat(auto-fit,minmax(105px,1fr))!important;gap:5px!important}#hunterMenuOverlay .hunter-encounter-actions button{position:relative!important;display:grid!important;grid-template-columns:18px 1fr 20px!important;align-items:center!important;gap:5px!important;min-height:34px!important;padding:5px 7px!important;border-radius:0!important;border:1px solid #715a2e!important;background:linear-gradient(180deg,#203d2d,#10241a)!important;color:#e9d6a6!important;font:700 9px Georgia,serif!important;box-shadow:inset 0 0 0 1px rgba(128,161,117,.14),0 2px 0 rgba(0,0,0,.2)!important;clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)!important}.hunter-encounter-actions button i{font-style:normal;color:#c8a65d;font-size:12px}.hunter-encounter-actions button kbd{justify-self:end!important}.hunter-encounter-actions button:hover{transform:translateY(-1px)!important;filter:brightness(1.13)!important;border-color:#c39a48!important}.hunter-encounter-actions button.is-ready{background:linear-gradient(180deg,#345536,#18361e)!important;border-color:#c9a44f!important;box-shadow:inset 0 0 10px rgba(216,190,103,.10),0 0 8px rgba(205,164,76,.12)!important}
+#hunterMenuOverlay .hunter-encounter-foods{bottom:calc(100% + 9px)!important;width:min(760px,82vw)!important;padding:8px!important;background:linear-gradient(180deg,rgba(9,25,19,.98),rgba(5,13,10,.99))!important;border:1px solid #9d7c3c!important;box-shadow:0 15px 35px rgba(0,0,0,.5),inset 0 0 0 2px rgba(50,84,59,.25)!important}.hunter-encounter-foods button{background:linear-gradient(180deg,#1d3528,#102319)!important;border-color:#69542c!important;clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)!important}.hunter-encounter-foods button:hover{border-color:#c49a4d!important;filter:brightness(1.1)}
+#hunterMenuOverlay .hunter-wildlife-actor.state-fleeing{filter:drop-shadow(0 2px 2px rgba(0,0,0,.5)) brightness(1.08)!important;animation:hunterWildlifeBolt .13s steps(2) infinite!important}@keyframes hunterWildlifeBolt{50%{transform:translateY(-1px) scaleX(var(--flip,1))}}
+#hunterMenuOverlay .hunter-canto-player.is-crouched{filter:drop-shadow(0 2px 2px rgba(0,0,0,.42)) saturate(.92)!important}.hunter-canto-player.is-gathering{animation:hunterGatherDip .58s ease!important}.hunter-canto-player.is-fishing{animation:hunterFishingCast .65s ease!important}@keyframes hunterGatherDip{45%{margin-top:-29px;transform:scaleY(.9)}}@keyframes hunterFishingCast{45%{transform:rotate(-4deg)}}
+#hunterMenuOverlay .hunter-canto-viewport.is-listening::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:25;background:radial-gradient(circle at 50% 50%,transparent 0 34%,rgba(3,12,10,.10) 68%,rgba(2,7,6,.24));animation:hunterListenPulse 1.4s ease-in-out infinite}@keyframes hunterListenPulse{50%{opacity:.68}}
+#hunterMenuOverlay .hunter-fishing-panel{position:absolute;left:50%;bottom:18px;z-index:32;transform:translate(-50%,12px);opacity:0;pointer-events:none;width:min(560px,68vw);padding:8px 10px 9px;border:1px solid #a27e39;background:linear-gradient(180deg,rgba(7,22,19,.97),rgba(3,12,10,.98));box-shadow:0 14px 32px rgba(0,0,0,.46),inset 0 0 0 2px rgba(47,80,58,.28);clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);transition:opacity .18s ease,transform .18s ease}.hunter-fishing-panel.is-open{opacity:1;transform:translate(-50%,0);pointer-events:auto}.hunter-fishing-panel header{display:flex;justify-content:space-between;border-bottom:1px solid rgba(201,160,70,.28);padding-bottom:5px}.hunter-fishing-panel header b{font:700 12px Georgia;color:#ead39c}.hunter-fishing-panel header small{font:700 8px system-ui;color:#8fa895;text-transform:uppercase}.hunter-fishing-panel #hunterFishingText{padding:7px 2px;color:#d6ceb8;font:600 10px/1.4 Georgia}.hunter-fishing-panel #hunterFishingActions{display:flex;gap:6px}.hunter-fishing-panel button{display:grid;grid-template-columns:18px 1fr 24px;align-items:center;gap:5px;min-width:135px;padding:6px 8px;border:1px solid #70582e;background:linear-gradient(180deg,#23422f,#102519);color:#e7d39f;font:700 9px Georgia}.hunter-fishing-panel button.is-ready{border-color:#d0a74f;background:linear-gradient(180deg,#3c5c36,#19391e)}.hunter-fishing-help{color:#b7a36e;font:700 8px system-ui;letter-spacing:.6px}.hunter-fishing-meter{display:none;position:relative;height:8px;margin:2px 0 8px;background:#08110e;border:1px solid #604d2a;overflow:hidden}.hunter-fishing-meter.is-active{display:block}.hunter-fishing-meter::after{content:'';position:absolute;left:28%;width:48%;top:0;bottom:0;background:rgba(84,137,84,.34);border-left:1px solid rgba(188,203,133,.3);border-right:1px solid rgba(188,203,133,.3)}#hunterFishingTension{position:absolute;z-index:2;top:-2px;width:3px;height:12px;background:#f1cf68;box-shadow:0 0 4px rgba(245,211,106,.65)}
+#hunterMenuOverlay .hunter-fishing-world{position:absolute;inset:0;z-index:8;display:none;pointer-events:none}.hunter-fishing-world.is-active{display:block}.hunter-fishing-rod{position:absolute;width:3px;height:28px;background:linear-gradient(90deg,#5a351c,#b77c36,#3b2517);transform-origin:bottom center;transform:rotate(32deg);border-radius:2px}.hunter-fishing-line{position:absolute;height:1px;background:rgba(225,226,200,.65);transform-origin:0 50%}.hunter-fishing-bobber{position:absolute;width:5px;height:6px;margin:-3px;background:linear-gradient(#f4e6bc 0 45%,#b54332 45% 100%);border:1px solid rgba(30,30,20,.7);border-radius:50%;box-shadow:0 0 0 2px rgba(130,190,180,.12)}.hunter-fishing-world.is-bite .hunter-fishing-bobber{animation:hunterBobberBite .2s steps(2) infinite}@keyframes hunterBobberBite{50%{transform:translateY(4px)}}
+#hunterMenuOverlay #hunterFieldPackPanel{width:min(760px,82vw)!important;max-height:76vh!important;background:linear-gradient(160deg,#12291e,#07130f)!important;border-color:#927238!important;box-shadow:0 20px 45px rgba(0,0,0,.55),inset 0 0 0 3px rgba(53,81,59,.22)!important}.hunter-satchel-shell{padding:5px}.hunter-satchel-tabs{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:7px 9px;background:linear-gradient(90deg,#284431,#182d21);border:1px solid #6c552e;color:#e6d09c}.hunter-satchel-tabs b{font:700 14px Georgia}.hunter-satchel-tabs span,.hunter-satchel-tabs i{font:700 8px system-ui;color:#92a991;font-style:normal;letter-spacing:.7px}.hunter-satchel-body{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(210px,.65fr);gap:8px;margin-top:8px}.hunter-satchel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;align-content:start}.hunter-satchel-slot{position:relative;min-height:82px;padding:7px 5px 5px;border:1px solid #5e4d2c;background:linear-gradient(145deg,#1d3226,#101f18);color:#ddc99c;clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}.hunter-satchel-slot.is-selected{border-color:#c79c49;background:linear-gradient(145deg,#315036,#172c1c);box-shadow:inset 0 0 12px rgba(213,181,92,.08)}.hunter-satchel-slot .hunter-food-art{width:42px!important;height:42px!important;margin:auto}.hunter-satchel-slot>b{position:absolute;right:5px;top:4px;font:700 9px system-ui;color:#f0daa1}.hunter-satchel-slot span{display:block;margin-top:3px;font:700 8px/1.15 Georgia}.hunter-satchel-detail{padding:12px;background:linear-gradient(180deg,#d8c18d,#bd9e64);border:3px double #5d4224;color:#332517;min-height:290px}.hunter-satchel-detail .hunter-food-art.is-large{width:70px!important;height:70px!important;margin:0 auto}.hunter-satchel-detail h3{text-align:center;margin:6px 0 1px;font:700 17px Georgia}.hunter-satchel-detail>b{display:block;text-align:center;color:#6a431d}.hunter-satchel-detail p{font:600 10px/1.45 Georgia}.hunter-satchel-detail small{display:block;margin-top:14px;font:700 8px system-ui;letter-spacing:.7px}.hunter-satchel-detail ul{padding-left:16px;font:600 9px/1.45 Georgia}
+#hunterMenuOverlay #hunterJournalPanel{width:min(980px,92vw)!important;max-height:86vh!important;background:#12251c!important;border-color:#927238!important;box-shadow:0 22px 55px rgba(0,0,0,.6),inset 0 0 0 3px rgba(54,83,59,.25)!important}.hunter-journal-book{padding:9px;background:linear-gradient(90deg,#d7bf86 0 49.6%,#a8844c 49.8% 50.2%,#d9c38e 50.4%);border:5px solid #49331d;box-shadow:inset 0 0 0 2px #a58142}.hunter-journal-bookhead{display:flex;justify-content:space-between;padding:5px 8px 9px;border-bottom:1px solid #8f6f3b;color:#3b2b19}.hunter-journal-bookhead span{font:700 18px Georgia}.hunter-journal-bookhead b{font:700 9px system-ui;letter-spacing:.8px}.hunter-journal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding-top:8px}.hunter-journal-card{position:relative;min-height:112px;padding:7px;border:1px solid rgba(89,62,31,.5);background:rgba(245,226,179,.50);color:#352616;text-align:left}.hunter-journal-card i{display:block;width:54px;height:54px;margin:0 auto 3px;background-size:216px 216px;background-position:0 0;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(0 2px 1px rgba(0,0,0,.22))}.hunter-journal-card em{position:absolute;left:5px;top:4px;font:700 7px system-ui;color:#8a6a3a}.hunter-journal-card b{display:block;text-align:center;font:700 10px Georgia}.hunter-journal-card small{display:block;text-align:center;font:600 7px/1.3 system-ui;color:#6e5737}.hunter-journal-card.is-unknown i{background:none}.hunter-journal-card.is-unknown i::after{content:'?';display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:#6a5b43;color:#c7b98d;font:700 26px Georgia;filter:grayscale(1)}.hunter-journal-detail>button{margin:4px 0 8px;padding:5px 8px;border:1px solid #74592f;background:#213b2c;color:#e6d19e;font:700 9px Georgia}.hunter-journal-spread{display:grid;grid-template-columns:.75fr 1.25fr;background:linear-gradient(90deg,#dbc58f 0 49.7%,#a47c42 49.9% 50.1%,#dfcb98 50.3%);border:5px solid #49331d;box-shadow:inset 0 0 0 2px #aa884d;min-height:480px;color:#3a2a18}.hunter-journal-spread section{padding:18px 22px}.hunter-journal-portrait{width:130px;height:130px;margin:0 auto;background-size:520px 520px;background-position:0 0;background-repeat:no-repeat;image-rendering:pixelated}.hunter-journal-spread h2{text-align:center;font:700 24px Georgia;margin:6px 0}.hunter-journal-spread h3{font:700 11px Georgia;letter-spacing:.8px;border-bottom:1px solid #9a7740;padding-bottom:4px}.hunter-journal-spread p,.hunter-journal-spread dd,.hunter-journal-spread li{font:600 10px/1.45 Georgia}.hunter-journal-spread dl{display:grid;grid-template-columns:100px 1fr;gap:4px}.hunter-journal-spread dt{font:700 9px system-ui;text-transform:uppercase;color:#76572d}.hunter-journal-spread dd{margin:0}.hunter-journal-spread ul{padding-left:17px}
+@media(max-width:850px){.hunter-satchel-body{grid-template-columns:1fr}.hunter-satchel-grid{grid-template-columns:repeat(3,1fr)}.hunter-journal-grid{grid-template-columns:repeat(2,1fr)}.hunter-journal-spread{grid-template-columns:1fr}.hunter-v3-phase{grid-template-columns:auto 1fr!important}.hunter-v3-phase i{display:none}}
+`;document.head.appendChild(s);
+}
+
+const __hunterV3StartCantoBase=startHunterCantoGame;
+startHunterCantoGame=async function(){const r=await __hunterV3StartCantoBase();hunterV3InstallStyles();hunterV3BindUi();hunterV3EnsureFishingUi();hunterV3EnsureTutorialClover();return r;};
+const __hunterV3StopCantoBase=stopHunterCantoGame;
+stopHunterCantoGame=function(){hunterV3FishingState=null;hunterV3ListenStop();document.getElementById('hunterFishingPanel')?.classList.remove('is-open');return __hunterV3StopCantoBase();};
+
+/* V3.1 — species-specific encounter actions + tutorial spacing + authored fishing ripples */
+function hunterV3RenderFishingZones(){
+  const world=document.getElementById('hunterCantoWorld');if(!world)return;let layer=document.getElementById('hunterFishingZoneLayer');if(!layer){layer=document.createElement('div');layer.id='hunterFishingZoneLayer';layer.className='hunter-fishing-zone-layer';world.appendChild(layer);}
+  const art=HUNTER_CANTO_FORAGE_ART?.fishing?.full||'';layer.innerHTML=(hunterWildlifeState?.fishingZones||[]).filter(z=>z.active).map(z=>`<i style="left:${z.waterX}px;top:${z.waterY}px;background-image:url('${art}')" aria-hidden="true"></i>`).join('');
+}
+const __hunterV31RenderWorldBase=hunterRenderWildlifeWorld;
+hunterRenderWildlifeWorld=function(force=false){__hunterV31RenderWorldBase(force);for(const op of hunterWildlifeState?.ops||[]){const el=hunterWildlifeActorEl(op);if(el&&((op.method==='fishing'&&!op.revealed)||op.behaviourState==='hidden_burrow'))el.style.display='none';}hunterV3RenderFishingZones();};
+
+function hunterPremiumPlaceFood(op,foodId){
+  if(!hunterConsumeFood(foodId,1))return;const dx=op.x-hunterCantoState.x,dy=op.y-hunterCantoState.y,d=Math.hypot(dx,dy)||1;let dist=hunterWildlifeState?.foodMode==='toss'?28:13,x=hunterCantoState.x+dx/d*dist,y=hunterCantoState.y+dy/d*dist;const safe=hunterCantoNearestWalkable(x,y,28);if(safe){x=safe.x;y=safe.y;}
+  const f={id:`placed-${Date.now()}-${Math.floor(Math.random()*9999)}`,foodId,x,y,createdAt:hunterPremiumNow(),claimed:null,removed:false};hunterWildlifeState.placedFoods.push(f);op.expectedSpace=true;op.foodInterestAt=0;hunterWildlifeState.foodMode=null;document.getElementById('hunterEncounterFoods')?.classList.remove('is-open');hunterV3Commit(hunterWildlifeState?.foodMode==='toss'?420:520,'is-field-action');hunterEncounterMessage(`You ${dist>20?'toss':'place'} the ${hunterPremiumFoodDef(foodId).name.toLowerCase()} and leave the next decision to the animal.`);hunterPremiumRenderPlacedFoods();hunterRenderEncounter();
+}
+function hunterOfferFoodToEncounter(foodId){const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;const mode=hunterWildlifeState.foodMode||'place';if(mode==='offer')hunterPremiumOfferFood(op,foodId);else hunterPremiumPlaceFood(op,foodId);hunterRenderWildlifeHud();}
+
+function hunterInteractOpportunity(id){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===id);if(!op||!hunterCantoState)return;if(op.method==='fishing'&&!op.revealed)return;const cp=op.revealed?{x:op.x,y:op.y}:hunterPremiumCurrentCluePoint(op);if(Math.hypot(hunterCantoState.x-cp.x,hunterCantoState.y-cp.y)>HUNTER_PREMIUM_INTERACT_RANGE){toast?.('Move a little closer to investigate.');return;}
+  if(!op.revealed){const chain=op.clueChain||[];if((op.clueIndex||0)<chain.length-1){op.clueIndex++;hunterWildlifeNotice('SIGN CONTINUES','The evidence carries on further ahead.','clue');hunterRenderWildlifeWorld(true);return;}op.revealed=true;op.x=op.homeX;op.y=op.homeY;op.status='active';if(op.archetype==='burrow'){hunterPremiumSetState(op,'hidden_burrow');hunterWildlifeNotice('ACTIVE BURROW','Something is using this burrow. Crowding the entrance will not help.','clue');}else{hunterPremiumSetState(op,'grazing');hunterWildlifeNotice('WILDLIFE NEARBY','The evidence has led to a real encounter.','clue');}hunterRenderWildlifeWorld(true);hunterOpenAnimalEncounter(op.id);return;}
+  hunterOpenAnimalEncounter(op.id);
+}
+function hunterV3BaseActions(op,species){
+  const state=op.behaviourState||'cautious',pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y),a=[];const add=(id,label,icon='·',ready=false)=>a.push({id,label,icon,ready});
+  if(state==='hidden_burrow'){add('inspect_burrow','Inspect Burrow','◌');add('place_food','Place Bait','✦');if(!hunterV3IsCrouched())add('crouch','Crouch','⌄');add('back_away','Give Space','←');add('close','Leave','×');return a;}
+  if(hunterPremiumObserveAvailable(op))add('observe','Observe','◉');
+  if(!hunterV3IsCrouched()&&!['eating','sniffing'].includes(state))add('crouch','Crouch','⌄');else if(hunterV3IsCrouched())add('stand','Stand','⌃');
+  if(op.archetype==='curious'){if(['watching','curious','cautious'].includes(state))add('stay_still','Stay Still','◇');if(pd<34&&['curious','comfortable','receptive'].includes(state))add('offer_food','Offer Food','♡');else add('place_food','Place Food','✦');}
+  else if(op.archetype==='playful'){if(['grazing','watching','curious','cautious'].includes(state))add('toss_food','Toss Food','↗');if(['curious','comfortable'].includes(state))add('let_approach','Let It Approach','◇');}
+  else if(op.archetype==='bird'){add('place_food','Place Food','✦');if(['watching','moving_away','cautious','curious'].includes(state))add('back_away','Give Space','←');}
+  else if(op.archetype==='wetland'){add('place_food','Place Bait','≈');if(['watching','moving_away','cautious'].includes(state))add('back_away','Give Space','←');}
+  else {if(['watching','moving_away','cautious','curious'].includes(state))add('back_away','Give Space','←');add('place_food','Place Food','✦');if(pd<34&&['curious','comfortable','receptive'].includes(state))add('offer_food','Offer Food','♡');}
+  if(hunterV3CanFinalInteract(op,species)&&state!=='receptive')add('gentle','Gently Interact','♡',true);if(state==='receptive')add('bring','Bring to Centre','⌂',true);add('close','Leave','×');return a;
+}
+function hunterPremiumActionList(op,species){const list=hunterV3BaseActions(op,species).slice(0,6);return list.map((a,i)=>({...a,key:a.id==='close'?'Esc':String(i+1)}));}
+const __hunterV31EncounterActionBase=hunterEncounterAction;
+hunterEncounterAction=function(action){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState.activeEncounterId);if(!op)return;
+  if(action==='inspect_burrow'){hunterV3MarkMeaningful(op,'inspect_burrow');op.hintSeen=true;hunterEncounterMessage('Fresh soil and tiny movement confirm the burrow is occupied. Bait and distance will be more useful than reaching inside.');hunterRenderEncounter();return;}
+  if(action==='stay_still'){op.expectedStill=true;hunterEncounterMessage('Stay physically still. The animal will react to what you do in the world, not to this button.');hunterRenderEncounter();return;}
+  if(action==='let_approach'){op.expectedStill=true;hunterEncounterMessage('Let it close the gap itself. Keep still and resist the urge to chase the interaction.');hunterRenderEncounter();return;}
+  if(action==='toss_food'){hunterWildlifeState.foodMode='toss';hunterRenderEncounterFoodPicker();return;}
+  __hunterV31EncounterActionBase(action);
+};
+const __hunterV31UpdateWildlifeBase=hunterUpdateWildlife;
+hunterUpdateWildlife=function(dt){
+  __hunterV31UpdateWildlifeBase(dt);if(!hunterWildlifeState||!hunterCantoState)return;
+  for(const op of hunterWildlifeState.ops){if(!op.revealed||op.status!=='active')continue;const pd=Math.hypot(hunterCantoState.x-op.x,hunterCantoState.y-op.y);
+    if(op.behaviourState==='hidden_burrow'){
+      const placed=hunterPremiumFindPlacedFoodFor(op);if(placed&&pd>42){op.placedFoodId=placed.id;op.positioningSatisfied=true;hunterV3MarkMeaningful(op,'burrow_space');op.behaviourState='interested';op.foodInterestAt=0;hunterWildlifeNotice('MOVEMENT AT THE BURROW','Something cautiously emerges toward the bait.','clue');}
+    }
+    if(op.expectedStill&&!hunterPremiumPlayerMoving()){
+      op.stillDecisionT=(op.stillDecisionT||0)+dt;if(op.stillDecisionT>1.5){op.expectedStill=false;op.positioningSatisfied=true;hunterV3MarkMeaningful(op,'stillness');if(op.archetype==='curious'||op.archetype==='playful'){const vx=hunterCantoState.x-op.x,vy=hunterCantoState.y-op.y,d=Math.hypot(vx,vy)||1;op.targetX=op.x+vx/d*Math.min(12,Math.max(0,d-24));op.targetY=op.y+vy/d*Math.min(12,Math.max(0,d-24));hunterPremiumSetState(op,'curious');}else if(op.behaviourState==='watching')hunterPremiumSetState(op,'cautious');hunterRenderEncounter();}}
+    else if(op.expectedStill)op.stillDecisionT=0;
+  }
+};
+
+(function installHunterV31Styles(){const s=document.createElement('style');s.id='hunterCantoMajorV31Styles';s.textContent=`#hunterMenuOverlay .hunter-fishing-zone-layer{position:absolute;inset:0;pointer-events:none;z-index:5}.hunter-fishing-zone-layer i{position:absolute;width:36px;height:28px;margin:-14px 0 0 -18px;background-size:contain;background-repeat:no-repeat;background-position:center;image-rendering:pixelated;opacity:.58;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));animation:hunterFishRipple 2.4s ease-in-out infinite}@keyframes hunterFishRipple{50%{opacity:.88;transform:scale(1.06)}}`;document.head.appendChild(s);})();
+
+/* V3.2 — small correctness fixes after integration */
+function hunterPremiumPlaceFood(op,foodId){
+  if(!hunterConsumeFood(foodId,1))return;const mode=hunterWildlifeState?.foodMode||'place';const dx=op.x-hunterCantoState.x,dy=op.y-hunterCantoState.y,d=Math.hypot(dx,dy)||1,dist=mode==='toss'?28:13;let x=hunterCantoState.x+dx/d*dist,y=hunterCantoState.y+dy/d*dist;const safe=hunterCantoNearestWalkable(x,y,28);if(safe){x=safe.x;y=safe.y;}
+  const f={id:`placed-${Date.now()}-${Math.floor(Math.random()*9999)}`,foodId,x,y,createdAt:hunterPremiumNow(),claimed:null,removed:false};hunterWildlifeState.placedFoods.push(f);op.expectedSpace=true;op.foodInterestAt=0;hunterWildlifeState.foodMode=null;document.getElementById('hunterEncounterFoods')?.classList.remove('is-open');hunterV3Commit(mode==='toss'?420:520,'is-field-action');hunterEncounterMessage(`You ${mode==='toss'?'toss':'place'} the ${hunterPremiumFoodDef(foodId).name.toLowerCase()} and leave the next decision to the animal.`);hunterPremiumRenderPlacedFoods();hunterRenderEncounter();
+}
+function hunterPremiumApplyFoodResult(op,foodId,fromPlaced=false){
+  const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],rec=hunterSpeciesRecord(op.speciesId),pref=hunterSpeciesPreference(species,foodId),known=rec.foodPreferences?.[foodId],food=hunterPremiumFoodDef(foodId);rec.foodPreferences=rec.foodPreferences||{};rec.foodPreferences[foodId]=pref;op.foodInteractions=(op.foodInteractions||0)+1;let msg='';
+  if(pref==='favorite'){op.trust=Math.min(100,op.trust+(op.tutorial?28:14));op.foodConsumed++;op.foodStageSatisfied=true;hunterV3MarkMeaningful(op,'good_food');msg=`It clearly values the ${food.name.toLowerCase()}, but food alone has not finished the encounter.`;}
+  else if(pref==='liked'){op.trust=Math.min(100,op.trust+9);op.foodConsumed++;op.foodStageSatisfied=true;hunterV3MarkMeaningful(op,'good_food');msg='It eats willingly. You have made progress, but its behaviour still matters.';}
+  else if(pref==='neutral'){op.trust=Math.min(100,op.trust+2);op.foodConsumed++;msg='It eats without much enthusiasm. This probably is not the key to the encounter.';}
+  else if(pref==='disliked'){op.trust=Math.max(0,op.trust-2);msg='It refuses the food and turns its attention away.';}
+  else{op.trust=Math.max(0,op.trust-5);msg='It recoils from the offering and becomes more wary.';op.closePressureT=.5;}
+  rec.research=Math.min(100,(rec.research||0)+(known?1:4));if(!known)hunterWildlifeNotice(pref==='favorite'?'FAVOURITE FOOD DISCOVERED':'FIELD NOTE ADDED',`${species.name} · ${food.name}: ${hunterPreferenceLabel(pref)}`,'journal');hunterEncounterMessage(msg);hunterQueueWildlifeSave();if(pref==='hated')hunterPremiumSetState(op,'moving_away');else if(op.foodStageSatisfied)hunterPremiumSetState(op,'comfortable');else hunterPremiumSetState(op,'cautious');hunterRenderEncounter();hunterRenderWildlifeHud();
+}
+
+
+/* ========================================================================== */
+/* LEVEL HUNTER — CANTO PREMIUM V4.3                                          */
+/* THE WINDMILL VISITOR · windmill scale + collision hotfix                   */
+/* ========================================================================== */
+const HUNTER_WINDMILL_QUEST_ID='darwin_windmill_visitor';
+const HUNTER_WINDMILL_FLOOR_1='assets/level-hunter/windmill-floor-1.png';
+const HUNTER_WINDMILL_FLOOR_2='assets/level-hunter/windmill-floor-2.png';
+const HUNTER_WINDMILL_WORLD_W=1536,HUNTER_WINDMILL_WORLD_H=1024;
+const HUNTER_WINDMILL_DOOR={x:806,y:405,r:42};
+const HUNTER_WINDMILL_REJECTED_FOOD_TTL=20000;
+const HUNTER_WINDMILL_VOLE_ID='canto_field_vole';
+const HUNTER_WINDMILL_QUEST_XP=120;
+let hunterWindmillState=null,hunterWindmillFrame=0,hunterWindmillKeys=new Set(),hunterWindmillBound=false,hunterWindmillAudio=null;
+
+function hunterWindmillQuest(){return hunterQuestState(HUNTER_WINDMILL_QUEST_ID);}
+function hunterWindmillFirstQuestDone(){return hunterQuestState('darwin_first_fieldwork').status==='complete';}
+function hunterWindmillNearExteriorDoor(){return !!hunterCantoState&&Math.hypot(hunterCantoState.x-HUNTER_WINDMILL_DOOR.x,hunterCantoState.y-HUNTER_WINDMILL_DOOR.y)<=HUNTER_WINDMILL_DOOR.r;}
+function hunterWindmillSetQuestStage(stage){const q=hunterWindmillQuest();q.status='active';q.stage=stage;q.updatedAt=Date.now();hunterQueueWildlifeSave();hunterRenderWildlifeHud?.();hunterWindmillRenderHud();}
+function hunterWindmillStartQuest(){
+  const q=hunterWindmillQuest();if(q.status==='complete')return q;
+  q.status='active';q.stage=q.stage&&q.stage!=='start'&&q.stage!=='not_started'?q.stage:'meet_windmill';q.startedAt=q.startedAt||new Date().toISOString();q.clues=q.clues||[];q.foodAttempts=q.foodAttempts||[];q.updatedAt=Date.now();hunterQueueWildlifeSave();hunterRenderWildlifeHud?.();return q;
+}
+function hunterWindmillNormalizeResume(){
+  const q=hunterWindmillQuest();if(q.status!=='active')return;
+  if(['give_space','stay_still','reach_out','ready_to_centre'].includes(q.stage)){
+    q.stage='place_bait';q.interruptedEncounter=true;q.updatedAt=Date.now();
+    if(hunterFoodQty('mixed_seeds')<1){const cap=hunterWildlifePersistent.inventoryCapacity||24,used=hunterInventoryUsed();if(cap-used<1)hunterWildlifePersistent.inventoryCapacity=cap+1;hunterAddFood('mixed_seeds',1);}else hunterQueueWildlifeSave();
+  }
+}
+function hunterWindmillObjective(){
+  const q=hunterWindmillQuest();
+  if(q.status==='complete')return 'Windmill fieldwork complete';
+  if(q.status!=='active')return 'Talk to Darwin · A new field assignment';
+  if(['meet_windmill','inspect_torn_sack','inspect_scattered_grain','go_upstairs'].includes(q.stage))return 'Investigate the Windmill';
+  if(['follow_tracks','find_hideout','place_bait'].includes(q.stage))return 'Find where the animal is hiding';
+  return 'Gain its trust';
+}
+
+const __hunterWindmillQuestObjectiveBase=hunterQuestObjectiveText;
+hunterQuestObjectiveText=function(){
+  const first=hunterQuestState('darwin_first_fieldwork');
+  if(first.status!=='complete')return __hunterWindmillQuestObjectiveBase();
+  return hunterWindmillObjective();
+};
+
+const __hunterWindmillDarwinDialogueBase=hunterDarwinFieldworkDialogue;
+hunterDarwinFieldworkDialogue=function(){
+  const first=hunterQuestState('darwin_first_fieldwork');if(first.status!=='complete'){__hunterWindmillDarwinDialogueBase();return;}
+  const q=hunterWindmillQuest();
+  if(q.status==='not_started'||q.stage==='start'){
+    showHunterDialogue('Keeper Darwin',"The miller has found grain across the floor three mornings running. Could be something hungry. Could be something clever.",[
+      {label:'Meet at the Windmill',action:()=>{hunterWindmillStartQuest();showHunterDialogue('Keeper Darwin',"I'll meet you inside. Don't start by looking for the animal — look for what it left behind.");}},
+      {label:'Not just yet',action:()=>closeHunterDialogue()}
+    ]);return;
+  }
+  if(q.status==='complete'){
+    showHunterDialogue('Keeper Darwin',"Nicely handled. You gave it enough room to make the last move itself. That's the trick with wildlife — the same rules rarely work twice. Something down by the water has been bothering me, but that can wait.");return;
+  }
+  const tips={
+    meet_windmill:"I'll meet you inside the old windmill. The miller swears he swept the floor yesterday.",
+    inspect_torn_sack:"Start with the damage, not the culprit. Size, height and the shape of a mark can tell you plenty.",
+    inspect_scattered_grain:"Good. Now compare what was left with what was taken. Animals are rarely tidy eaters.",
+    go_upstairs:"Those signs don't end down here. Have a look upstairs — carefully around the gearing.",
+    follow_tracks:"Dust is useful when you know where to look. Follow the cleanest little prints, not every scuff on the boards.",
+    find_hideout:"You've narrowed it down. Don't crowd the shelter; see if you can make the animal choose to come out.",
+    place_bait:"You know roughly what it has been picking from the grain. Put something suitable down, then think about where you are standing.",
+    give_space:"Food gets attention. Space earns the next decision.",
+    stay_still:"It's watching you now, not the food. That matters.",
+    reach_out:"Don't chase the last inch. Let it close the gap, then be gentle.",
+    ready_to_centre:"There you go. Didn't force a thing. You let it decide."
+  };
+  showHunterDialogue('Keeper Darwin',tips[q.stage]||`Current field task: ${hunterWindmillObjective()}. Take your time and read what the animal actually does.`);
+};
+
+const __hunterWindmillDarwinTipBase=hunterV3DarwinTip;
+hunterV3DarwinTip=function(){
+  if(hunterWindmillFirstQuestDone()){
+    const q=hunterWindmillQuest();if(q.status==='active'){
+      const tips={inspect_torn_sack:'The damaged sack is the cleanest place to start. You are looking for evidence, not a glowing quest marker.',inspect_scattered_grain:'Compare the grain sizes. What is missing is often more useful than what remains.',go_upstairs:'The trail continues upward. Use the stairs and keep clear of the central gearing.',follow_tracks:'The upper floor is dusty. Small paired prints should stand out near the storage side.',find_hideout:'You have the hiding area. Give it a little room before you expect anything to reveal itself.',place_bait:'Use the food clue, place bait on open floor, and remember that a vole has no reason to walk directly up to your boots.',give_space:'Physically back away. There is no Wait button because your position is part of the encounter.',stay_still:'Now do less. If you move too early it will edge back, but the whole encounter will not reset.',reach_out:'Once it chooses to come close, use the final Reach Out interaction.'};
+      if(tips[q.stage])return tips[q.stage];
+    }
+  }
+  return __hunterWindmillDarwinTipBase();
+};
+
+function hunterWindmillEnsureUi(){
+  const viewport=document.getElementById('hunterCantoViewport');if(!viewport)return null;
+  let overlay=document.getElementById('hunterWindmillOverlay');if(overlay)return overlay;
+  overlay=document.createElement('div');overlay.id='hunterWindmillOverlay';overlay.className='hunter-windmill-overlay';overlay.innerHTML=`
+    <div id="hunterWindmillWorld" class="hunter-windmill-world">
+      <div id="hunterWindmillBackdrop" class="hunter-windmill-backdrop"></div>
+      <div class="hunter-windmill-dust" aria-hidden="true">${Array.from({length:16},(_,i)=>`<i style="--i:${i};--x:${8+(i*37)%88}%;--y:${7+(i*53)%84}%"></i>`).join('')}</div>
+      <div id="hunterWindmillClues" class="hunter-windmill-clues"></div>
+      <div id="hunterWindmillFood" class="hunter-windmill-world-food"></div>
+      <div id="hunterWindmillAnimal" class="hunter-windmill-animal" aria-label="Canto Field Vole"></div>
+      <div id="hunterWindmillDarwin" class="hunter-windmill-darwin" aria-label="Keeper Darwin"></div>
+      <div id="hunterWindmillPlayer" class="hunter-windmill-player"></div>
+    </div>
+    <div class="hunter-windmill-vignette" aria-hidden="true"></div>
+    <div class="hunter-windmill-topbar"><div><small>CANTO PLAINS · INTERIOR</small><b id="hunterWindmillFloorLabel">OLD CANTO WINDMILL · LOWER MILL</b></div><span id="hunterWindmillQuestBeat"></span></div>
+    <div id="hunterWindmillNotice" class="hunter-windmill-notice"></div>
+    <div id="hunterWindmillPrompt" class="hunter-windmill-prompt"></div>
+    <div id="hunterWindmillFoodPicker" class="hunter-windmill-food-picker"></div>
+    <div id="hunterWindmillResident" class="hunter-windmill-resident"></div>
+    <div id="hunterWindmillQuestComplete" class="hunter-windmill-quest-complete"></div>`;
+  viewport.appendChild(overlay);hunterWindmillInstallStyles();hunterWindmillBindControls();return overlay;
+}
+
+function hunterWindmillInstallStyles(){
+  if(document.getElementById('hunterWindmillPremiumStyles'))return;const s=document.createElement('style');s.id='hunterWindmillPremiumStyles';s.textContent=`
+#hunterMenuOverlay .hunter-windmill-overlay{position:absolute;inset:0;z-index:38;display:none;overflow:hidden;background:#0b110d;opacity:0;transition:opacity .22s ease;isolation:isolate}#hunterMenuOverlay .hunter-windmill-overlay.is-active{display:block;opacity:1}.hunter-windmill-overlay.is-transitioning::after{content:'';position:absolute;inset:0;z-index:90;background:#070b08;animation:hunterWindmillFade .34s ease both;pointer-events:none}@keyframes hunterWindmillFade{0%,100%{opacity:0}48%,55%{opacity:1}}
+#hunterMenuOverlay .hunter-windmill-world{position:absolute;left:0;top:0;width:${HUNTER_WINDMILL_WORLD_W}px;height:${HUNTER_WINDMILL_WORLD_H}px;transform-origin:0 0;will-change:transform}.hunter-windmill-backdrop{position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:1536px 1024px;image-rendering:pixelated;filter:saturate(.98) contrast(1.025)}
+.hunter-windmill-vignette{position:absolute;inset:0;z-index:20;pointer-events:none;background:radial-gradient(ellipse at center,transparent 48%,rgba(2,6,4,.15) 78%,rgba(2,5,3,.36) 100%)}
+.hunter-windmill-player,.hunter-windmill-darwin{position:absolute;width:30.78px;height:36.55125px;margin-left:-15.39px;margin-top:-32.68px;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(0 3px 3px rgba(0,0,0,.46));transform-origin:50% 85%;z-index:14}.hunter-windmill-player{background-image:url('${HUNTER_CANTO_SPRITE_PATH}');background-size:307.8px 36.55125px}.hunter-windmill-darwin{width:30.618px;height:36.45px;margin-left:-15.309px;margin-top:-33.534px;background-image:url('${HUNTER_DARWIN_SPRITE_PATH}');background-size:91.854px 36.45px;z-index:12}
+.hunter-windmill-animal{position:absolute;width:18px;height:18px;margin:-13px 0 0 -9px;background-image:url('assets/level-hunter/animals-runtime/canto_field_vole-runtime.png');background-size:72px 72px;background-position:0 0;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5));z-index:13;opacity:0;transition:opacity .18s ease}.hunter-windmill-animal.is-visible{opacity:1}.hunter-windmill-animal.is-peeking{animation:hunterVolePeek .48s steps(2) infinite alternate}@keyframes hunterVolePeek{to{transform:translateY(-1px)}}.hunter-windmill-animal.is-eating{animation:hunterVoleNibble .18s steps(2) infinite}@keyframes hunterVoleNibble{50%{transform:translateY(1px) rotate(-1deg)}}
+.hunter-windmill-world-food{position:absolute;width:18px;height:18px;margin:-9px;background-size:contain;background-repeat:no-repeat;background-position:center;image-rendering:pixelated;z-index:11;filter:drop-shadow(0 2px 1px rgba(0,0,0,.4));display:none}.hunter-windmill-world-food.is-visible{display:block}.hunter-windmill-world-food.is-eating{animation:hunterWindmillFoodEat 1.25s ease forwards}@keyframes hunterWindmillFoodEat{0%{opacity:1;transform:scale(1)}65%{opacity:.62;transform:scale(.72)}100%{opacity:0;transform:scale(.25)}}
+.hunter-windmill-clues{position:absolute;inset:0;z-index:10;pointer-events:none}.hunter-windmill-clue{position:absolute;width:16px;height:12px;margin:-6px 0 0 -8px;opacity:.0;pointer-events:none}.hunter-windmill-clue.is-discovered{opacity:.32}.hunter-windmill-clue::after{content:'';position:absolute;inset:3px;border-radius:50%;background:rgba(227,202,137,.32);filter:blur(2px)}
+.hunter-windmill-dust{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:hidden}.hunter-windmill-dust i{position:absolute;left:var(--x);top:var(--y);width:2px;height:2px;background:rgba(241,221,170,.5);box-shadow:0 0 2px rgba(240,220,175,.3);animation:hunterWindmillDust calc(6s + var(--i)*.31s) ease-in-out infinite;animation-delay:calc(var(--i)*-.53s)}@keyframes hunterWindmillDust{0%,100%{transform:translate(0,0);opacity:.12}35%{transform:translate(10px,-14px);opacity:.58}70%{transform:translate(-5px,-25px);opacity:.22}}
+.hunter-windmill-topbar{position:absolute;left:18px;right:18px;top:14px;z-index:32;display:flex;align-items:flex-start;justify-content:space-between;pointer-events:none;text-shadow:0 2px 4px #000}.hunter-windmill-topbar>div{display:grid;gap:2px}.hunter-windmill-topbar small{font:800 7px/1 system-ui;letter-spacing:1.4px;color:#a7b4a0}.hunter-windmill-topbar b{font:700 13px/1.2 Georgia,serif;color:#f1dfb1}.hunter-windmill-topbar span{max-width:310px;padding:6px 9px;border:1px solid rgba(176,142,72,.52);background:rgba(7,18,13,.78);font:700 9px Georgia,serif;color:#e2d2a9;box-shadow:0 5px 15px rgba(0,0,0,.25)}
+.hunter-windmill-prompt{position:absolute;left:50%;bottom:18px;z-index:34;transform:translate(-50%,8px);opacity:0;pointer-events:none;padding:7px 11px;border:1px solid #91703a;background:linear-gradient(180deg,rgba(13,34,25,.96),rgba(5,17,12,.97));color:#edd9a7;font:700 10px Georgia,serif;box-shadow:0 9px 24px rgba(0,0,0,.4),inset 0 0 0 2px rgba(71,101,72,.25);transition:opacity .14s ease,transform .14s ease;clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)}.hunter-windmill-prompt.is-visible{opacity:1;transform:translate(-50%,0)}
+.hunter-windmill-notice{position:absolute;left:22px;bottom:24px;z-index:33;max-width:330px;padding:8px 10px;border-left:2px solid #b99048;background:rgba(6,19,13,.9);box-shadow:0 8px 20px rgba(0,0,0,.35);color:#d9cfb4;font:600 9px/1.4 Georgia;opacity:0;transform:translateY(8px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}.hunter-windmill-notice.is-visible{opacity:1;transform:none}.hunter-windmill-notice b{display:block;margin-bottom:2px;color:#eddaa7;font:800 8px system-ui;letter-spacing:.8px;text-transform:uppercase}
+.hunter-windmill-food-picker{position:absolute;left:50%;bottom:60px;z-index:72;display:none;width:min(630px,78vw);transform:translateX(-50%);padding:9px;border:1px solid #9a793b;background:linear-gradient(180deg,rgba(8,25,18,.99),rgba(4,13,9,.99));box-shadow:0 18px 42px rgba(0,0,0,.58),inset 0 0 0 2px rgba(58,88,61,.27)}.hunter-windmill-food-picker.is-open{display:block}.hunter-windmill-food-picker header{display:flex;justify-content:space-between;align-items:center;padding:2px 3px 8px;color:#ead7a6;font:700 11px Georgia;border-bottom:1px solid rgba(190,151,70,.25)}.hunter-windmill-food-picker header small{color:#90a390;font:700 7px system-ui;letter-spacing:.8px}.hunter-windmill-food-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:6px;padding-top:7px}.hunter-windmill-food-grid button{display:grid;grid-template-columns:32px 1fr;align-items:center;gap:7px;min-height:48px;padding:6px;border:1px solid #66522e;background:linear-gradient(180deg,#203c2b,#102219);color:#e6d4aa;text-align:left;font:700 9px Georgia}.hunter-windmill-food-grid button:hover{border-color:#c19a4c;filter:brightness(1.1)}.hunter-windmill-food-grid .hunter-food-art{width:30px!important;height:30px!important}.hunter-windmill-food-grid small{display:block;color:#8fa18e;font:700 7px system-ui;margin-top:2px}
+.hunter-windmill-resident,.hunter-windmill-quest-complete{position:absolute;inset:0;z-index:78;display:none;place-items:center;background:radial-gradient(circle at 50% 52%,rgba(13,33,23,.42),rgba(1,5,3,.83));backdrop-filter:blur(1.2px)}.hunter-windmill-resident.is-open,.hunter-windmill-quest-complete.is-open{display:grid}.hunter-windmill-card{width:min(540px,72vw);padding:18px 20px 16px;border:1px solid #b48b42;background:linear-gradient(155deg,#173426,#071710 74%);box-shadow:0 24px 70px rgba(0,0,0,.68),inset 0 0 0 3px rgba(75,108,73,.27);clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px);color:#dfd5bb;text-align:center}.hunter-windmill-card>small{display:block;font:800 8px system-ui;letter-spacing:2px;color:#c7a45b}.hunter-windmill-card h2{margin:5px 0 2px;font:700 26px Georgia;color:#f3dfad}.hunter-windmill-card h3{margin:0 0 12px;font:600 11px Georgia;color:#a8baa7}.hunter-windmill-resident-art{width:88px;height:88px;margin:5px auto 8px;background:url('assets/level-hunter/animals-runtime/canto_field_vole-runtime.png') 0 0/352px 352px no-repeat;image-rendering:pixelated;filter:drop-shadow(0 6px 5px rgba(0,0,0,.4))}.hunter-windmill-card dl{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin:12px 0;background:rgba(181,143,64,.22);border:1px solid rgba(181,143,64,.3)}.hunter-windmill-card dl>div{padding:8px;background:rgba(5,17,12,.85)}.hunter-windmill-card dt{font:800 7px system-ui;letter-spacing:.8px;color:#93a591;text-transform:uppercase}.hunter-windmill-card dd{margin:3px 0 0;font:700 10px Georgia;color:#e4d3a7}.hunter-windmill-card button{min-width:170px;margin-top:5px;padding:8px 13px;border:1px solid #c29a4c;background:linear-gradient(180deg,#355b37,#18381f);color:#f2dfa9;font:700 10px Georgia;box-shadow:0 3px 0 rgba(0,0,0,.28)}.hunter-windmill-card button:hover{filter:brightness(1.12);transform:translateY(-1px)}.hunter-windmill-reward-row{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:11px 0}.hunter-windmill-reward-row span{padding:5px 7px;border:1px solid rgba(180,143,65,.36);background:rgba(9,26,18,.7);font:700 8px system-ui;color:#cfbe91}
+.hunter-windmill-overlay.is-success .hunter-windmill-vignette{background:radial-gradient(circle at 50% 55%,transparent 28%,rgba(2,8,5,.35) 70%,rgba(1,4,2,.63))}
+@media(max-width:780px){.hunter-windmill-topbar{left:10px;right:10px;top:9px}.hunter-windmill-topbar span{max-width:210px}.hunter-windmill-card{width:min(620px,88vw)}.hunter-windmill-card h2{font-size:21px}.hunter-windmill-food-picker{width:88vw}}
+`;
+  document.head.appendChild(s);
+}
+
+function hunterWindmillBindControls(){
+  if(hunterWindmillBound)return;hunterWindmillBound=true;
+  document.addEventListener('keydown',e=>{
+    if(!hunterWindmillState?.active)return;const k=e.key.toLowerCase();
+    if(hunterDialogueOpen()&&['e','enter',' '].includes(k)){e.preventDefault();if(!e.repeat)advanceHunterDialogue();return;}
+    if(hunterWindmillModalOpen()){
+      if(k==='escape'&&document.getElementById('hunterWindmillFoodPicker')?.classList.contains('is-open')){e.preventDefault();hunterWindmillCloseFoodPicker();}return;
+    }
+    if(k==='i'){e.preventDefault();if(!e.repeat)hunterToggleFieldPack();return;}
+    if(k==='j'){e.preventDefault();if(!e.repeat)hunterToggleJournal();return;}
+    if(k==='escape'){e.preventDefault();if(document.getElementById('hunterFieldPackPanel')?.classList.contains('is-open')){hunterToggleFieldPack(false);return;}if(document.getElementById('hunterJournalPanel')?.classList.contains('is-open')){hunterToggleJournal(false);return;}if(hunterWindmillNear('door',48)&&hunterWindmillState.floor===1)hunterExitWindmill();return;}
+    if(k==='e'){e.preventDefault();if(!e.repeat)hunterWindmillInteract();return;}
+    if(['arrowleft','arrowright','arrowup','arrowdown','w','a','s','d','shift'].includes(k)){e.preventDefault();hunterWindmillKeys.add(k);}
+  });
+  document.addEventListener('keyup',e=>{if(!hunterWindmillState?.active)return;hunterWindmillKeys.delete(e.key.toLowerCase());});
+  document.addEventListener('click',e=>{
+    if(!hunterWindmillState?.active)return;
+    const food=e.target.closest?.('[data-windmill-food]');if(food){e.preventDefault();hunterWindmillPlaceFood(food.dataset.windmillFood);return;}
+    if(e.target.closest?.('[data-windmill-bring-centre]')){e.preventDefault();hunterWindmillBringToCentre();return;}
+    if(e.target.closest?.('[data-windmill-quest-continue]')){e.preventDefault();hunterWindmillCloseQuestComplete();return;}
+  });
+  window.addEventListener('blur',()=>hunterWindmillKeys.clear());
+}
+
+function hunterWindmillModalOpen(){return !!document.querySelector('#hunterWindmillResident.is-open,#hunterWindmillQuestComplete.is-open,#hunterWindmillFoodPicker.is-open')||document.getElementById('hunterFieldPackPanel')?.classList.contains('is-open')||document.getElementById('hunterJournalPanel')?.classList.contains('is-open');}
+function hunterWindmillDefaultRuntime(){
+  const q=hunterWindmillQuest();return{active:true,floor:1,x:768,y:786,facing:1,frame:0,anim:0,last:performance.now(),scale:1.14,camX:768,camY:650,transitioning:false,animal:{x:1032,y:312,homeX:1032,homeY:312,targetX:1032,targetY:312,visible:false,phase:q.stage==='place_bait'?'hidden':'hidden',frame:0,facing:-1},bait:null,stillT:0,startleAt:0,success:false,noticeTimer:0};
+}
+
+function hunterEnterWindmill(){
+  if(!hunterWindmillFirstQuestDone()){toast?.('Finish Darwin\'s first fieldwork lesson before exploring the mill.');return;}
+  hunterWindmillEnsureUi();const q=hunterWindmillQuest();if(q.status==='not_started'||q.stage==='start')hunterWindmillStartQuest();hunterWindmillNormalizeResume();
+  if(hunterCantoState)hunterCantoState.running=false;hunterCantoKeys?.clear?.();hunterV3ListenStop?.();hunterToggleFieldPack?.(false);hunterToggleJournal?.(false);hunterCloseEncounter?.();
+  hunterWindmillState=hunterWindmillDefaultRuntime();const overlay=document.getElementById('hunterWindmillOverlay');if(overlay){overlay.classList.add('is-active');overlay.style.display='block';overlay.style.opacity='1';overlay.style.pointerEvents='auto';}
+  hunterWindmillApplyFloor(1,true);hunterWindmillStartAmbience();hunterWindmillRenderAll();
+  cancelAnimationFrame(hunterWindmillFrame);hunterWindmillFrame=requestAnimationFrame(hunterWindmillLoop);
+  setTimeout(()=>{
+    const cq=hunterWindmillQuest();if(cq.stage==='meet_windmill'){
+      hunterWindmillSetQuestStage('inspect_torn_sack');showHunterDialogue('Keeper Darwin',"There you are. Grain on the floor three mornings running, and nobody has seen what's doing it. Don't start by looking for the animal. Look for what it left behind.");
+    }else if(cq.status==='active')showHunterDialogue('Keeper Darwin',`Back again? Good. ${hunterWindmillObjective()}. The signs will still be where you left them.`);
+  },380);
+}
+
+function hunterExitWindmill(){
+  if(!hunterWindmillState?.active)return;hunterWindmillState.active=false;cancelAnimationFrame(hunterWindmillFrame);hunterWindmillStopAmbience();hunterWindmillKeys.clear();closeHunterDialogue?.();const overlay=document.getElementById('hunterWindmillOverlay');if(overlay){overlay.classList.remove('is-active','is-success');overlay.style.display='';overlay.style.opacity='';overlay.style.pointerEvents='';}hunterWindmillCloseFoodPicker();
+  if(hunterCantoState){hunterCantoState.running=true;hunterCantoState.last=performance.now();hunterCantoState.x=HUNTER_WINDMILL_DOOR.x;hunterCantoState.y=HUNTER_WINDMILL_DOOR.y+16;cancelAnimationFrame(hunterCantoFrame);hunterCantoFrame=requestAnimationFrame(hunterCantoLoop);updateHunterCantoHud();}
+}
+
+function hunterWindmillApplyFloor(floor,instant=false){
+  if(!hunterWindmillState)return;const overlay=document.getElementById('hunterWindmillOverlay'),change=()=>{
+    hunterWindmillState.floor=floor;const bg=document.getElementById('hunterWindmillBackdrop');if(bg)bg.style.backgroundImage=`url('${floor===1?HUNTER_WINDMILL_FLOOR_1:HUNTER_WINDMILL_FLOOR_2}')`;
+    if(floor===1){hunterWindmillState.x=768;hunterWindmillState.y=786;hunterWindmillSetAudioFloor(1);}else{hunterWindmillState.x=768;hunterWindmillState.y=676;hunterWindmillSetAudioFloor(2);}hunterWindmillState.camX=hunterWindmillState.x;hunterWindmillState.camY=hunterWindmillState.y;
+    hunterWindmillRenderAll();
+  };
+  if(instant){change();return;}if(hunterWindmillState.transitioning)return;hunterWindmillState.transitioning=true;overlay?.classList.add('is-transitioning');setTimeout(change,155);setTimeout(()=>{hunterWindmillState.transitioning=false;overlay?.classList.remove('is-transitioning');},350);
+}
+
+function hunterWindmillCanStand(x,y,floor=hunterWindmillState?.floor||1){
+  if(x<290||x>1245||y<118||y>878)return false;
+  if(floor===1){
+    const main=((x-772)/374)**2+((y-510)/272)**2<=1;
+    const doorway=x>706&&x<832&&y>715&&y<845;
+    const stairPocket=x>700&&x<845&&y>126&&y<286;
+    if(!main&&!doorway&&!stairPocket)return false;
+    if(((x-766)/190)**2+((y-504)/146)**2<1)return false;
+    if(x<470&&y>250&&y<410)return false;
+    if(x>1008&&y>158&&y<430)return false;
+    if(x>1082&&y>446&&y<720)return false;
+    if(x<430&&y>395&&y<700)return false;
+    return true;
+  }
+  const main=((x-770)/314)**2+((y-446)/232)**2<=1;
+  const stairPocket=x>706&&x<835&&y>610&&y<770;
+  if(!main&&!stairPocket)return false;
+  if(((x-768)/148)**2+((y-438)/118)**2<1)return false;
+  if(x<496&&y>380&&y<628)return false;
+  if(x>1018&&y>392&&y<690)return false;
+  if(x>918&&y<248)return false;
+  if(x<618&&y<260)return false;
+  return true;
+}
+function hunterWindmillTryMove(dx,dy){
+  const s=hunterWindmillState;if(!s)return false;let moved=false;const nx=s.x+dx,ny=s.y+dy;if(hunterWindmillCanStand(nx,s.y)){s.x=nx;moved=true;}if(hunterWindmillCanStand(s.x,ny)){s.y=ny;moved=true;}return moved;
+}
+function hunterWindmillNear(kind,r=38){
+  if(!hunterWindmillState)return false;const s=hunterWindmillState,q=hunterWindmillQuest();const p={door:{x:768,y:833,f:1},stairs_up:{x:768,y:170,f:1},stairs_down:{x:768,y:716,f:2},torn:{x:510,y:292,f:1},grain:{x:594,y:354,f:1},tracks:{x:535,y:530,f:2},hideout:{x:1024,y:312,f:2},bait:{x:972,y:516,f:2},darwin:{x:s.floor===1?875:835,y:s.floor===1?748:690,f:s.floor}}[kind];if(!p||p.f!==s.floor)return false;return Math.hypot(s.x-p.x,s.y-p.y)<=r;
+}
+
+function hunterWindmillInteraction(){
+  const s=hunterWindmillState,q=hunterWindmillQuest();if(!s||s.transitioning)return null;
+  if(s.floor===1&&hunterWindmillNear('door',50))return{kind:'door',text:'E · Exit Windmill'};
+  if(s.floor===1&&hunterWindmillNear('stairs_up',45)&&['go_upstairs','follow_tracks','find_hideout','place_bait','give_space','stay_still','reach_out','ready_to_centre'].includes(q.stage))return{kind:'stairs_up',text:'E · Go Upstairs'};
+  if(s.floor===2&&hunterWindmillNear('stairs_down',45))return{kind:'stairs_down',text:'E · Go Downstairs'};
+  if(s.floor===1&&q.stage==='inspect_torn_sack'&&hunterWindmillNear('torn',48))return{kind:'torn',text:'E · Inspect Torn Sack'};
+  if(s.floor===1&&q.stage==='inspect_scattered_grain'&&hunterWindmillNear('grain',48))return{kind:'grain',text:'E · Inspect Scattered Grain'};
+  if(s.floor===2&&q.stage==='follow_tracks'&&hunterWindmillNear('tracks',50))return{kind:'tracks',text:'E · Inspect Tiny Tracks'};
+  if(s.floor===2&&q.stage==='find_hideout'&&hunterWindmillNear('hideout',52))return{kind:'hideout',text:'E · Inspect Sheltered Gap'};
+  if(s.floor===2&&q.stage==='place_bait'&&hunterWindmillNear('bait',58))return{kind:'bait',text:'E · Place Food'};
+  if(s.floor===2&&q.stage==='reach_out'&&s.animal?.visible&&Math.hypot(s.x-s.animal.x,s.y-s.animal.y)<38)return{kind:'reach',text:'E · Reach Out'};
+  if(hunterWindmillNear('darwin',42))return{kind:'darwin',text:'E · Speak to Keeper Darwin'};
+  return null;
+}
+
+function hunterWindmillInteract(){
+  if(!hunterWindmillState||hunterWindmillState.transitioning||hunterWindmillModalOpen())return;const a=hunterWindmillInteraction();if(!a)return;
+  playHunterButtonSound?.();
+  if(a.kind==='door'){hunterExitWindmill();return;}if(a.kind==='stairs_up'){const q=hunterWindmillQuest();if(q.stage==='go_upstairs')hunterWindmillSetQuestStage('follow_tracks');hunterWindmillApplyFloor(2);return;}if(a.kind==='stairs_down'){hunterWindmillApplyFloor(1);return;}if(a.kind==='darwin'){hunterDarwinFieldworkDialogue();return;}
+  if(a.kind==='torn')hunterWindmillInspectTorn();else if(a.kind==='grain')hunterWindmillInspectGrain();else if(a.kind==='tracks')hunterWindmillInspectTracks();else if(a.kind==='hideout')hunterWindmillInspectHideout();else if(a.kind==='bait')hunterWindmillOpenFoodPicker();else if(a.kind==='reach')hunterWindmillReachOut();
+}
+
+function hunterWindmillRememberClue(id){const q=hunterWindmillQuest();q.clues=q.clues||[];if(!q.clues.includes(id))q.clues.push(id);q.updatedAt=Date.now();hunterQueueWildlifeSave();}
+function hunterWindmillNotice(title,text,ms=3300){const el=document.getElementById('hunterWindmillNotice');if(!el)return;clearTimeout(hunterWindmillState?.noticeTimer);el.innerHTML=`<b>${escapeHtml(title)}</b>${escapeHtml(text)}`;el.classList.add('is-visible');if(hunterWindmillState)hunterWindmillState.noticeTimer=setTimeout(()=>el.classList.remove('is-visible'),ms);}
+function hunterWindmillInspectTorn(){hunterWindmillRememberClue('torn_sack');hunterWindmillNotice('FIELD NOTE ADDED','Small paired marks run along the stitching. Whatever opened this sack is very small.');hunterWindmillSetQuestStage('inspect_scattered_grain');showHunterDialogue('Keeper Darwin',"Good. Size tells us one thing. Now have a look at what it actually bothered to eat.");}
+function hunterWindmillInspectGrain(){
+  hunterWindmillRememberClue('scattered_grain');const q=hunterWindmillQuest();q.seedClue=true;const needed=Math.max(0,2-hunterFoodQty('mixed_seeds'));if(needed){const cap=hunterWildlifePersistent.inventoryCapacity||24,used=hunterInventoryUsed();if(cap-used<needed)hunterWildlifePersistent.inventoryCapacity=cap+(needed-(cap-used));hunterAddFood('mixed_seeds',needed);}
+  hunterSpeciesRecord(HUNTER_WINDMILL_VOLE_ID).research=Math.min(100,(hunterSpeciesRecord(HUNTER_WINDMILL_VOLE_ID).research||0)+3);hunterWindmillNotice('FIELD NOTE ADDED','Most large grain remains. The smallest meadow seeds have been picked out. Mixed Meadow Seeds ×2 added to your satchel.');hunterWindmillSetQuestStage('go_upstairs');showHunterDialogue('Keeper Darwin',"And now we know what it has been selecting. The trail doesn't end here — check the upper floor.");hunterQueueWildlifeSave();
+}
+function hunterWindmillInspectTracks(){hunterWindmillRememberClue('upper_tracks');hunterWindmillNotice('FIELD NOTE ADDED','Tiny paired prints cross the dusty boards toward a sheltered storage corner.');hunterWindmillSetQuestStage('find_hideout');showHunterDialogue('Keeper Darwin',"Tracks in the dust. That's useful. Anything stand out about where they're heading?");}
+function hunterWindmillInspectHideout(){
+  hunterWindmillRememberClue('sheltered_gap');hunterWindmillSetQuestStage('place_bait');const s=hunterWindmillState;if(s?.animal){s.animal.x=1025;s.animal.y=314;s.animal.visible=true;s.animal.phase='reveal';s.animal.revealUntil=performance.now()+900;s.animal.facing=-1;}
+  hunterWindmillNotice('MOVEMENT','Something small peers from the gap, sees you, and slips back out of sight.');showHunterDialogue('Keeper Darwin',"There. Don't follow it in. You know what it's been eating — see if you can give it a reason to come to you instead.");
+}
+
+function hunterWindmillOpenFoodPicker(){
+  if(hunterWindmillQuest().stage!=='place_bait')return;const picker=document.getElementById('hunterWindmillFoodPicker');if(!picker)return;const ids=Object.keys(HUNTER_WILDLIFE_FOOD).filter(id=>hunterFoodQty(id)>0);picker.innerHTML=`<header><b>FIELD SATCHEL · PLACE BAIT</b><small>ESC TO CLOSE</small></header><div class="hunter-windmill-food-grid">${ids.length?ids.map(id=>{const f=HUNTER_WILDLIFE_FOOD[id];return`<button type="button" data-windmill-food="${id}">${hunterWildlifeFoodIconHtml(id)}<span>${escapeHtml(f.name)}<small>×${hunterFoodQty(id)}</small></span></button>`;}).join(''):'<div class="hunter-empty-panel">No suitable food in your satchel.</div>'}</div>`;picker.classList.add('is-open');
+}
+function hunterWindmillCloseFoodPicker(){document.getElementById('hunterWindmillFoodPicker')?.classList.remove('is-open');}
+function hunterWindmillPlaceFood(foodId){
+  const q=hunterWindmillQuest(),s=hunterWindmillState;if(!s||q.stage!=='place_bait'||!hunterFoodQty(foodId))return;hunterWindmillCloseFoodPicker();if(!hunterConsumeFood(foodId,1))return;
+  const accepted=['sunflower_seeds','mixed_seeds'].includes(foodId),partial=foodId==='grain';q.foodAttempts=q.foodAttempts||[];q.foodAttempts.push({foodId,at:new Date().toISOString(),accepted});q.lastFoodUsed=foodId;hunterQueueWildlifeSave();
+  s.bait={foodId,x:972,y:516,createdAt:performance.now(),accepted,partial,state:'placed',expiresAt:performance.now()+HUNTER_WINDMILL_REJECTED_FOOD_TTL};
+  const food=document.getElementById('hunterWindmillFood');if(food){food.style.left=`${s.bait.x}px`;food.style.top=`${s.bait.y}px`;food.style.backgroundImage=`url('${hunterPremiumFoodArt(foodId)}')`;food.classList.add('is-visible');food.classList.remove('is-eating');}
+  if(accepted){hunterWindmillSetQuestStage('give_space');s.animal.phase='hidden_waiting';s.animal.visible=false;hunterWindmillNotice('BAIT PLACED','It is interested, but it will not come out with you standing over the food.');}
+  else if(partial){hunterWindmillNotice('IT NOTICES THE GRAIN','A nose appears for a moment, but the animal retreats. The clue suggested it was selecting something smaller.');setTimeout(()=>hunterWindmillRejectBait(false),1600);}
+  else{hunterWindmillNotice('BAIT REFUSED','It sniffs from cover and leaves the food alone. The bait will remain briefly before being cleared away.');setTimeout(()=>hunterWindmillRejectBait(false),1100);}
+}
+function hunterWindmillRejectBait(expired=true){const s=hunterWindmillState;if(!s?.bait||s.bait.accepted)return;if(expired||performance.now()>=s.bait.expiresAt){s.bait=null;document.getElementById('hunterWindmillFood')?.classList.remove('is-visible','is-eating');hunterWindmillNotice('TRY ANOTHER APPROACH','The rejected food is gone. Use what the grain clue told you.');}}
+
+function hunterWindmillUpdateAnimal(dt,moving){
+  const s=hunterWindmillState,q=hunterWindmillQuest(),a=s?.animal;if(!s||s.floor!==2||!a)return;const now=performance.now();
+  if(a.phase==='reveal'&&now>=a.revealUntil){a.visible=false;a.phase='hidden';}
+  if(q.stage==='give_space'&&s.bait?.accepted){
+    const distance=Math.hypot(s.x-s.bait.x,s.y-s.bait.y);if(distance>112&&a.phase==='hidden_waiting'){
+      a.visible=true;a.phase='emerging';a.x=1028;a.y=318;a.targetX=s.bait.x;a.targetY=s.bait.y;hunterWindmillNotice('WILDLIFE','It cautiously emerges, stopping to check where you are.');showHunterDialogue('Keeper Darwin','There. Give it room.');
+    }
+  }
+  if(a.phase==='emerging'){
+    const d=Math.hypot(a.targetX-a.x,a.targetY-a.y);if(d>3){const step=Math.min(d,45*dt);a.facing=a.targetX<a.x?-1:1;a.x+=(a.targetX-a.x)/d*step;a.y+=(a.targetY-a.y)/d*step;}else{a.phase='sniff';a.sniffUntil=now+780;}
+  }else if(a.phase==='sniff'&&now>=a.sniffUntil){a.phase='eating';a.eatUntil=now+1320;document.getElementById('hunterWindmillFood')?.classList.add('is-eating');hunterWindmillNotice('CANTO FIELD VOLE','It eats quickly, but it does not return to hiding.');}
+  else if(a.phase==='eating'&&now>=a.eatUntil){
+    s.bait=null;document.getElementById('hunterWindmillFood')?.classList.remove('is-visible','is-eating');a.phase='watch';a.x+=26;a.y-=10;a.targetX=a.x;a.targetY=a.y;hunterWindmillSetQuestStage('stay_still');s.stillT=0;hunterWindmillNotice('BEHAVIOUR CHANGED',"It's watching you now, not the food. Stay still and let it decide what happens next.");
+  }else if(q.stage==='stay_still'&&a.phase==='watch'){
+    if(moving){s.stillT=0;if(now-(s.startleAt||0)>800){s.startleAt=now;const hx=a.homeX-a.x,hy=a.homeY-a.y,d=Math.hypot(hx,hy)||1;a.x+=hx/d*11;a.y+=hy/d*11;hunterWindmillNotice('IT EDGES BACK','You moved while it was assessing you. It has not fled — give it another quiet moment.',1800);}}
+    else{s.stillT=(s.stillT||0)+dt;if(s.stillT>=2.0){hunterWindmillSetQuestStage('reach_out');a.phase='approach_player';hunterWindmillNotice('TRUST','It seems willing to come closer.');}}
+  }else if(a.phase==='approach_player'){
+    if(moving&&Math.hypot(s.x-a.x,s.y-a.y)<92){a.phase='watch';hunterWindmillSetQuestStage('stay_still');s.stillT=0;hunterWindmillNotice('TOO SOON','It pauses and backs off a little. Stay still until it chooses to close the gap again.',1800);return;}
+    const vx=s.x-a.x,vy=s.y-a.y,d=Math.hypot(vx,vy)||1,target=25;if(d>target){const step=Math.min(d-target,24*dt);a.facing=vx<0?-1:1;a.x+=vx/d*step;a.y+=vy/d*step;}else a.phase='ready';
+  }
+}
+
+function hunterWindmillReachOut(){
+  const s=hunterWindmillState,q=hunterWindmillQuest();if(!s||q.stage!=='reach_out'||!s.animal?.visible||Math.hypot(s.x-s.animal.x,s.y-s.animal.y)>40)return;
+  q.stage='ready_to_centre';q.updatedAt=Date.now();hunterQueueWildlifeSave();s.success=true;s.animal.phase='receptive';document.getElementById('hunterWindmillOverlay')?.classList.add('is-success');hunterWindmillLowerAmbience(true);hunterWindmillShowResidentCard();
+}
+function hunterWindmillShowResidentCard(){
+  const s=hunterWindmillState,wrap=document.getElementById('hunterWindmillResident');if(!s||!wrap)return;const used=s.bait?.foodId||hunterWindmillQuest().lastFoodUsed||'mixed_seeds',food=HUNTER_WILDLIFE_FOOD[used]?.name||'Field Seeds',count=(hunterWildlifePersistent.centreAnimals||[]).length;
+  wrap.innerHTML=`<div class="hunter-windmill-card"><small>NEW RESIDENT</small><div class="hunter-windmill-resident-art"></div><h2>Canto Field Vole</h2><h3>Successfully Befriended</h3><dl><div><dt>Found</dt><dd>Old Canto Windmill</dd></div><div><dt>Temperament</dt><dd>Curious</dd></div><div><dt>Food Used</dt><dd>${escapeHtml(food)}</dd></div><div><dt>Centre Residents</dt><dd>${count+1}</dd></div></dl><button type="button" data-windmill-bring-centre>Bring to Centre</button></div>`;wrap.classList.add('is-open');
+}
+function hunterWindmillBringToCentre(){
+  const q=hunterWindmillQuest();if(q.status==='complete')return;const rec=hunterSpeciesRecord(HUNTER_WINDMILL_VOLE_ID),used=q.lastFoodUsed||'mixed_seeds',species=HUNTER_CANTO_SPECIES_BY_ID[HUNTER_WINDMILL_VOLE_ID];
+  const already=(hunterWildlifePersistent.centreAnimals||[]).some(a=>a.questId===HUNTER_WINDMILL_QUEST_ID);if(!already){hunterWildlifePersistent.centreAnimals.push({id:`windmill-vole-${Date.now()}-${Math.floor(Math.random()*9999)}`,speciesId:HUNTER_WINDMILL_VOLE_ID,region:'canto',befriendedAt:new Date().toISOString(),foundLocation:'Old Canto Windmill',rescueLocation:'Old Canto Windmill',questId:HUNTER_WINDMILL_QUEST_ID,foodUsed:used,trait:'Curious',howFound:'Investigated disturbed grain stores inside the Old Canto Windmill'});rec.befriendedCount=(rec.befriendedCount||0)+1;hunterWildlifePersistent.regionStats.canto.befriended=(hunterWildlifePersistent.regionStats.canto.befriended||0)+1;}
+  rec.discovered=true;rec.research=Math.min(100,(rec.research||0)+22);rec.foodPreferences=rec.foodPreferences||{};rec.foodPreferences[used]=hunterSpeciesPreference(species,used);rec.behaviours=Array.from(new Set([...(rec.behaviours||[]),'Approaches after food is placed and the keeper gives it space.','Becomes receptive when the keeper remains still.']));
+  hunterWildlifePersistent.hunterXp=(Number(hunterWildlifePersistent.hunterXp)||0)+HUNTER_WINDMILL_QUEST_XP;const rs=hunterWildlifePersistent.regionStats.canto;rs.mainLocationsCompleted=Math.max(2,Number(rs.mainLocationsCompleted)||0);rs.windmillComplete=true;rs.discoveries=(rs.discoveries||0)+1;
+  q.status='complete';q.stage='complete';q.completedAt=new Date().toISOString();q.updatedAt=Date.now();if(hunterWindmillState?.animal)hunterWindmillState.animal.visible=false;hunterQueueWildlifeSave();document.getElementById('hunterWindmillResident')?.classList.remove('is-open');hunterWindmillShowQuestComplete();
+}
+function hunterWindmillShowQuestComplete(){const wrap=document.getElementById('hunterWindmillQuestComplete');if(!wrap)return;wrap.innerHTML=`<div class="hunter-windmill-card"><small>QUEST COMPLETE</small><h2>The Windmill Visitor</h2><h3>A quiet mystery in the Old Canto Windmill</h3><div class="hunter-windmill-reward-row"><span>Hunter XP +${HUNTER_WINDMILL_QUEST_XP}</span><span>Field Notes Updated</span><span>New Resident</span></div><dl><div><dt>Canto Plains</dt><dd>Main Locations · 2 / ?</dd></div><div><dt>Wildlife</dt><dd>Canto Field Vole</dd></div></dl><button type="button" data-windmill-quest-continue>Continue</button></div>`;wrap.classList.add('is-open');}
+function hunterWindmillCloseQuestComplete(){document.getElementById('hunterWindmillQuestComplete')?.classList.remove('is-open');document.getElementById('hunterWindmillOverlay')?.classList.remove('is-success');if(hunterWindmillState)hunterWindmillState.success=false;hunterWindmillLowerAmbience(false);showHunterDialogue('Keeper Darwin',"Nicely done. You noticed what it was eating, gave it space, and let it make the last move. That's the trick with wildlife — same rules rarely work twice. You should see what happens down by the water.");hunterWindmillRenderAll();}
+
+function hunterWindmillRenderClues(){
+  const layer=document.getElementById('hunterWindmillClues'),q=hunterWindmillQuest(),s=hunterWindmillState;if(!layer||!s)return;const defs=s.floor===1?[{id:'torn_sack',x:510,y:292},{id:'scattered_grain',x:594,y:354}]:[{id:'upper_tracks',x:535,y:530},{id:'sheltered_gap',x:1024,y:312}];layer.innerHTML=defs.map(d=>`<i class="hunter-windmill-clue ${(q.clues||[]).includes(d.id)?'is-discovered':''}" style="left:${d.x}px;top:${d.y}px"></i>`).join('');
+}
+function hunterWindmillRenderAnimal(){const s=hunterWindmillState,a=s?.animal,el=document.getElementById('hunterWindmillAnimal');if(!el||!a)return;const show=s.floor===2&&a.visible;el.classList.toggle('is-visible',show);el.classList.toggle('is-peeking',show&&['reveal','watch','ready','receptive'].includes(a.phase));el.classList.toggle('is-eating',show&&a.phase==='eating');el.style.left=`${a.x}px`;el.style.top=`${a.y}px`;const moving=['emerging','approach_player'].includes(a.phase),frame=moving?4+(Math.floor(performance.now()/180)%4):(a.phase==='eating'?8+(Math.floor(performance.now()/160)%4):0);const col=frame%4,row=Math.floor(frame/4);el.style.backgroundPosition=`${-col*18}px ${-row*18}px`;el.style.transform=`scaleX(${a.facing<0?-1:1})`;}
+function hunterWindmillRenderDarwin(){const s=hunterWindmillState,el=document.getElementById('hunterWindmillDarwin');if(!s||!el)return;el.style.display='block';el.style.left=`${s.floor===1?875:835}px`;el.style.top=`${s.floor===1?748:690}px`;const f=Math.floor(performance.now()/950)%3;el.style.backgroundPosition=`${-f*30.618}px 0`;el.style.transform=`scaleX(${s.x<(s.floor===1?875:835)?-1:1})`;}
+function hunterWindmillRenderHud(){
+  const s=hunterWindmillState;if(!s?.active)return;const floor=document.getElementById('hunterWindmillFloorLabel'),beat=document.getElementById('hunterWindmillQuestBeat'),prompt=document.getElementById('hunterWindmillPrompt');if(floor)floor.textContent=s.floor===1?'OLD CANTO WINDMILL · LOWER MILL':'OLD CANTO WINDMILL · UPPER GEAR FLOOR';if(beat)beat.textContent=hunterWindmillObjective();
+  if(prompt){const a=!hunterDialogueOpen()&&!hunterWindmillModalOpen()?hunterWindmillInteraction():null;prompt.textContent=a?.text||'';prompt.classList.toggle('is-visible',!!a);}
+}
+function hunterWindmillRenderCamera(){
+  const s=hunterWindmillState,world=document.getElementById('hunterWindmillWorld'),viewport=document.getElementById('hunterCantoViewport'),player=document.getElementById('hunterWindmillPlayer');if(!s||!world||!viewport||!player)return;const vr=viewport.getBoundingClientRect(),base=Math.max(1.02,Math.min(1.58,vr.width/700)),q=hunterWindmillQuest(),focusAnimal=s.floor===2&&s.animal?.visible&&['emerging','sniff','eating','watch','approach_player','ready','receptive'].includes(s.animal.phase);const targetScale=base*(focusAnimal?1.12:1);s.scale+=(targetScale-s.scale)*.085;const fx=focusAnimal?s.x*.6+s.animal.x*.4:s.x,fy=focusAnimal?s.y*.64+s.animal.y*.36:s.y;s.camX+=(fx-s.camX)*.10;s.camY+=(fy-s.camY)*.10;let tx=vr.width/2-s.camX*s.scale,ty=vr.height/2-s.camY*s.scale;const minX=vr.width-HUNTER_WINDMILL_WORLD_W*s.scale,minY=vr.height-HUNTER_WINDMILL_WORLD_H*s.scale;tx=Math.min(0,Math.max(minX,tx));ty=Math.min(0,Math.max(minY,ty));world.style.transform=`translate3d(${tx}px,${ty}px,0) scale(${s.scale})`;player.style.left=`${s.x}px`;player.style.top=`${s.y}px`;player.style.backgroundPosition=`${-s.frame*30.78}px 0`;const bodyScale=s.success?1.08:1.18;player.style.transform=`scaleX(${s.facing<0?-1:1}) scale(${bodyScale}) ${s.success?'translateY(3px) scaleY(.84)':''}`;hunterWindmillRenderAnimal();hunterWindmillRenderDarwin();
+}
+function hunterWindmillRenderAll(){hunterWindmillRenderClues();hunterWindmillRenderHud();hunterWindmillRenderCamera();}
+function hunterWindmillLoop(ts){
+  const s=hunterWindmillState;if(!s?.active)return;const dt=Math.min(.035,(ts-(s.last||ts))/1000||0);s.last=ts;let dx=0,dy=0;const blocked=hunterDialogueOpen()||hunterWindmillModalOpen()||s.transitioning||s.success;
+  if(!blocked&&(hunterWindmillKeys.has('arrowleft')||hunterWindmillKeys.has('a')))dx--;if(!blocked&&(hunterWindmillKeys.has('arrowright')||hunterWindmillKeys.has('d')))dx++;if(!blocked&&(hunterWindmillKeys.has('arrowup')||hunterWindmillKeys.has('w')))dy--;if(!blocked&&(hunterWindmillKeys.has('arrowdown')||hunterWindmillKeys.has('s')))dy++;
+  if(dx||dy){const m=Math.hypot(dx,dy)||1;dx/=m;dy/=m;}const careful=hunterWindmillKeys.has('shift'),speed=(careful?63:96)*dt;let moving=false;if(dx||dy){moving=hunterWindmillTryMove(dx*speed,dy*speed);if(dx)s.facing=dx<0?-1:1;}
+  if(moving){s.anim+=dt*(careful?4.2:6.0);s.frame=Math.floor(s.anim)%10;}else{s.anim=0;s.frame=0;}s.isMoving=moving;
+  if(s.bait&&!s.bait.accepted&&performance.now()>=s.bait.expiresAt)hunterWindmillRejectBait(true);hunterWindmillUpdateAnimal(dt,moving);hunterWindmillRenderCamera();hunterWindmillRenderHud();hunterWindmillFrame=requestAnimationFrame(hunterWindmillLoop);
+}
+
+function hunterWindmillStartAmbience(){
+  try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;hunterWindmillStopAmbience();const ctx=new AC(),master=ctx.createGain();master.gain.value=.38;master.connect(ctx.destination);const windGain=ctx.createGain(),gearGain=ctx.createGain();windGain.gain.value=.018;gearGain.gain.value=.010;windGain.connect(master);gearGain.connect(master);
+    const len=ctx.sampleRate*2,buf=ctx.createBuffer(1,len,ctx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*.35;const noise=ctx.createBufferSource();noise.buffer=buf;noise.loop=true;const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=560;noise.connect(filter);filter.connect(windGain);noise.start();
+    const osc=ctx.createOscillator();osc.type='triangle';osc.frequency.value=47;const low=ctx.createBiquadFilter();low.type='lowpass';low.frequency.value=120;osc.connect(low);low.connect(gearGain);osc.start();hunterWindmillAudio={ctx,master,windGain,gearGain,noise,osc,creakTimer:null};hunterWindmillScheduleCreak();hunterWindmillSetAudioFloor(hunterWindmillState?.floor||1);
+  }catch(_){hunterWindmillAudio=null;}
+}
+function hunterWindmillScheduleCreak(){const a=hunterWindmillAudio;if(!a?.ctx)return;clearTimeout(a.creakTimer);a.creakTimer=setTimeout(()=>{try{const t=a.ctx.currentTime,o=a.ctx.createOscillator(),g=a.ctx.createGain(),f=a.ctx.createBiquadFilter();o.type='sine';o.frequency.setValueAtTime(128,t);o.frequency.exponentialRampToValueAtTime(73,t+.42);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.010,t+.05);g.gain.exponentialRampToValueAtTime(.0001,t+.48);f.type='lowpass';f.frequency.value=650;o.connect(f);f.connect(g);g.connect(a.master);o.start(t);o.stop(t+.5);}catch(_){}hunterWindmillScheduleCreak();},4200+Math.random()*5200);}
+function hunterWindmillSetAudioFloor(floor){const a=hunterWindmillAudio;if(!a?.ctx)return;const t=a.ctx.currentTime;a.windGain.gain.cancelScheduledValues(t);a.gearGain.gain.cancelScheduledValues(t);a.windGain.gain.linearRampToValueAtTime(floor===2?.029:.015,t+.35);a.gearGain.gain.linearRampToValueAtTime(floor===2?.013:.010,t+.35);}
+function hunterWindmillLowerAmbience(lower){const a=hunterWindmillAudio;if(!a?.ctx)return;const t=a.ctx.currentTime;a.master.gain.cancelScheduledValues(t);a.master.gain.linearRampToValueAtTime(lower?.16:.38,t+.3);}
+function hunterWindmillStopAmbience(){const a=hunterWindmillAudio;if(!a)return;clearTimeout(a.creakTimer);try{a.noise?.stop();a.osc?.stop();a.ctx?.close?.();}catch(_){}hunterWindmillAudio=null;}
+
+/* Outdoor integration: the windmill door becomes a real destination without replacing index.html. */
+const __hunterWindmillHudBase=updateHunterCantoHud;
+updateHunterCantoHud=function(){__hunterWindmillHudBase();if(!hunterCantoState?.running||!hunterWindmillFirstQuestDone()||!hunterWindmillNearExteriorDoor()||hunterDialogueOpen()||hunterWildlifeBlockingUiOpen())return;const prompt=document.getElementById('hunterCantoPrompt');if(prompt){prompt.textContent='E · Enter Windmill';prompt.classList.add('is-visible');}};
+const __hunterWindmillInspectBase=inspectHunterCantoPoi;
+inspectHunterCantoPoi=function(){if(hunterCantoState?.running&&hunterWindmillFirstQuestDone()&&hunterWindmillNearExteriorDoor()&&!hunterWildlifeBlockingUiOpen()){hunterEnterWindmill();return;}__hunterWindmillInspectBase();};
+
+/* Make rejected food commit meaningful everywhere: it lasts about 20 seconds, not 45. */
+const __hunterWindmillPlacedFoodRenderBase=hunterPremiumRenderPlacedFoods;
+hunterPremiumRenderPlacedFoods=function(){if(hunterWildlifeState?.placedFoods){const now=hunterPremiumNow();hunterWildlifeState.placedFoods=hunterWildlifeState.placedFoods.filter(f=>f.removed||f.claimed||now-f.createdAt<HUNTER_WINDMILL_REJECTED_FOOD_TTL);}__hunterWindmillPlacedFoodRenderBase();};
+
+/* Record which accepted food actually mattered, so residents remember how they were befriended. */
+const __hunterWindmillApplyFoodBase=hunterPremiumApplyFoodResult;
+hunterPremiumApplyFoodResult=function(op,foodId,fromPlaced=false){const species=HUNTER_CANTO_SPECIES_BY_ID[op?.speciesId],pref=species?hunterSpeciesPreference(species,foodId):null;if(op&&['favorite','liked','neutral'].includes(pref))op.lastAcceptedFood=foodId;return __hunterWindmillApplyFoodBase(op,foodId,fromPlaced);};
+
+function hunterV4ResidentTrait(speciesId,seed=''){const traits=['Curious','Sleepy','Food-Loving','Nervous','Playful','Independent','Affectionate','Adventurous'];let h=0;for(const ch of `${speciesId}:${seed}`)h=(h*31+ch.charCodeAt(0))>>>0;return traits[h%traits.length];}
+function hunterV4LocationLabel(x,y){const z=hunterCantoZoneAt?.(x,y);return z?.label||'Canto Plains';}
+function hunterV4ShowGenericResident(species,resident,firstSpecies){
+  const viewport=document.getElementById('hunterCantoViewport');if(!viewport||document.getElementById('hunterV4ResidentToast'))return;const el=document.createElement('div');el.id='hunterV4ResidentToast';el.className='hunter-v4-resident-toast';const count=(hunterWildlifePersistent.centreAnimals||[]).length,food=resident.foodUsed&&HUNTER_WILDLIFE_FOOD[resident.foodUsed]?.name;el.innerHTML=`<div><small>${firstSpecies?'NEW SPECIES · NEW RESIDENT':'NEW RESIDENT'}</small><b>${escapeHtml(species.name)}</b><span>${food?`Befriended with ${escapeHtml(food)} · `:''}${escapeHtml(resident.trait||'Field resident')}</span><em>Centre Residents · ${count}</em></div>`;viewport.appendChild(el);requestAnimationFrame(()=>el.classList.add('is-open'));setTimeout(()=>{el.classList.remove('is-open');setTimeout(()=>el.remove(),260);},3600);
+}
+(function hunterV4InstallGenericResidentStyle(){if(document.getElementById('hunterV4ResidentStyle'))return;const s=document.createElement('style');s.id='hunterV4ResidentStyle';s.textContent=`#hunterMenuOverlay .hunter-v4-resident-toast{position:absolute;right:18px;top:54px;z-index:58;max-width:315px;opacity:0;transform:translateX(12px);transition:opacity .2s ease,transform .2s ease;pointer-events:none}.hunter-v4-resident-toast.is-open{opacity:1;transform:none}.hunter-v4-resident-toast>div{padding:10px 12px;border:1px solid #a27d3a;background:linear-gradient(150deg,rgba(19,49,34,.98),rgba(6,18,12,.98));box-shadow:0 12px 30px rgba(0,0,0,.5),inset 0 0 0 2px rgba(68,104,72,.24);clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)}.hunter-v4-resident-toast small,.hunter-v4-resident-toast b,.hunter-v4-resident-toast span,.hunter-v4-resident-toast em{display:block}.hunter-v4-resident-toast small{font:800 7px system-ui;letter-spacing:1.2px;color:#c7a45a}.hunter-v4-resident-toast b{margin:2px 0;font:700 16px Georgia;color:#f0dca9}.hunter-v4-resident-toast span{font:600 9px/1.4 Georgia;color:#c9c1aa}.hunter-v4-resident-toast em{margin-top:5px;font:700 7px system-ui;color:#8fa28f;font-style:normal}`;document.head.appendChild(s);})();
+
+/* Enrich normal residents after the existing final interaction; no duplicate animals are added. */
+const __hunterWindmillBefriendBase=hunterBefriendEncounter;
+hunterBefriendEncounter=function(){
+  const op=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState?.activeEncounterId),species=op&&HUNTER_CANTO_SPECIES_BY_ID[op.speciesId],before=(hunterWildlifePersistent?.centreAnimals||[]).length,wasDiscovered=species?!!hunterSpeciesRecord(species.speciesId).discovered:false,food=op?.lastAcceptedFood,loc=op?hunterV4LocationLabel(op.homeX??op.x,op.homeY??op.y):'Canto Plains';const result=__hunterWindmillBefriendBase();
+  if(species&&(hunterWildlifePersistent?.centreAnimals||[]).length>before){const resident=hunterWildlifePersistent.centreAnimals[hunterWildlifePersistent.centreAnimals.length-1];resident.foundLocation=resident.foundLocation||loc;resident.rescueLocation=resident.rescueLocation||loc;resident.foodUsed=resident.foodUsed||food||null;resident.trait=resident.trait||hunterV4ResidentTrait(species.speciesId,resident.id);resident.howFound=resident.howFound||`Befriended during a Canto Plains field encounter`;hunterQueueWildlifeSave();hunterV4ShowGenericResident(species,resident,!wasDiscovered);}
+  return result;
+};
+
+/* Debug-only interior geometry. Never shown to normal players. */
+window.repoHunterWindmillDebug=function(force){const overlay=document.getElementById('hunterWindmillOverlay');if(!overlay)return false;const allowed=typeof repoIsSiteAdmin==='function'?repoIsSiteAdmin():false;if(!allowed)return false;const on=typeof force==='boolean'?force:!overlay.classList.contains('is-debug');overlay.classList.toggle('is-debug',on);return on;};
+(function hunterWindmillDebugStyle(){const s=document.createElement('style');s.textContent=`#hunterMenuOverlay .hunter-windmill-overlay.is-debug .hunter-windmill-clue{opacity:1!important;background:#ffcf55!important;outline:1px solid #2a1600!important}.hunter-windmill-overlay.is-debug .hunter-windmill-world::after{content:'WINDMILL DEBUG · collision remains code-authored';position:absolute;left:650px;top:450px;padding:5px;background:#210;color:#ffd;border:1px solid #f90;font:700 8px monospace;z-index:99}`;document.head.appendChild(s);})();
+
+/* ============================================================
+   LEVEL HUNTER · CANTO PREMIUM V4.1
+   WINDMILL ENTRY HOTFIX
+   The outdoor HUD could correctly show "E · Enter Windmill" while
+   an older Canto interaction route still consumed the same E press.
+   This capture-phase entry bridge makes the visible prompt and the
+   actual transition use one shared condition, then enters directly.
+   ============================================================ */
+function hunterV41WindmillEntryAvailable(){
+  return !!(
+    hunterCantoState?.running &&
+    hunterWindmillFirstQuestDone?.() &&
+    hunterWindmillNearExteriorDoor?.() &&
+    !hunterDialogueOpen?.() &&
+    !hunterWildlifeBlockingUiOpen?.() &&
+    !hunterWindmillState?.active
+  );
+}
+
+function hunterV41EnterWindmillFromExterior(){
+  if(!hunterV41WindmillEntryAvailable())return false;
+  try{
+    const overlay=hunterWindmillEnsureUi?.();
+    if(!overlay){
+      toast?.('The Windmill interior could not open. Refresh once and try again.');
+      return false;
+    }
+    hunterEnterWindmill();
+    return !!hunterWindmillState?.active;
+  }catch(err){
+    console.error('[Level Hunter] Windmill entry failed:',err);
+    if(hunterCantoState)hunterCantoState.running=true;
+    toast?.('The Windmill entrance hit an error. Please refresh and try again.');
+    return false;
+  }
+}
+
+/* Run before older document-level Canto key handlers so the interaction
+   cannot be swallowed by a POI / wildlife / legacy E listener. */
+window.addEventListener('keydown',function hunterV41WindmillEntryKey(e){
+  if(e.repeat)return;
+  const k=String(e.key||'').toLowerCase();
+  if(k!=='e'&&k!=='enter')return;
+  if(!hunterV41WindmillEntryAvailable())return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+  hunterV41EnterWindmillFromExterior();
+},true);
+
+/* Keep the prompt driven by exactly the same gate as entry itself. */
+const __hunterV41WindmillHudBase=updateHunterCantoHud;
+updateHunterCantoHud=function(){
+  __hunterV41WindmillHudBase();
+  if(!hunterV41WindmillEntryAvailable())return;
+  const prompt=document.getElementById('hunterCantoPrompt');
+  if(prompt){
+    prompt.textContent='E · Enter Windmill';
+    prompt.classList.add('is-visible','is-windmill-entry');
+  }
+};
+
+/* Optional mouse fallback: the visible entry prompt can also be clicked. */
+(function hunterV41BindWindmillPromptClick(){
+  document.addEventListener('pointerdown',e=>{
+    const prompt=e.target?.closest?.('#hunterCantoPrompt.is-windmill-entry');
+    if(!prompt||!hunterV41WindmillEntryAvailable())return;
+    e.preventDefault();
+    e.stopPropagation();
+    hunterV41EnterWindmillFromExterior();
+  },true);
+  if(!document.getElementById('hunterV41WindmillEntryStyle')){
+    const s=document.createElement('style');
+    s.id='hunterV41WindmillEntryStyle';
+    s.textContent='#hunterCantoPrompt.is-windmill-entry{pointer-events:auto;cursor:pointer}';
+    document.head.appendChild(s);
+  }
+})();
+
+
+/* ============================================================
+   LEVEL HUNTER · CANTO PREMIUM V4.2
+   WINDMILL VISIBILITY FIX
+   Root cause: the base rule used #hunterMenuOverlay (ID specificity)
+   while the active rule did not, so display:none / opacity:0 won.
+   This rule deliberately matches/exceeds that specificity.
+   ============================================================ */
+(function hunterV42WindmillVisibilityFix(){
+  let s=document.getElementById('hunterV42WindmillVisibilityFix');
+  if(!s){
+    s=document.createElement('style');
+    s.id='hunterV42WindmillVisibilityFix';
+    s.textContent=`#hunterMenuOverlay .hunter-windmill-overlay.is-active{display:block!important;opacity:1!important;pointer-events:auto!important}`;
+    document.head.appendChild(s);
+  }
+})();
+
+
+// ============================================================
+// REPO SPORTS WORLD CUP 2026 — LIMITED EVENT V1.12
+// Client-only immersion polish: preserve the two-free / eight-watch progression and walkout,
+// keep Limited Event music continuous but ducked beneath the player-name VO during openings,
+// remove the artificial backing frame from revealed cards, slightly overscan the stadium backdrop,
+// and make the live ember/confetti atmosphere much more visible and celebratory around the World Cup event presentation.
+// ============================================================
+(function installRepoWorldCupLimitedEvent2026(){
+  if(window.__repoWorldCupPackEvent2026Installed)return;
+  window.__repoWorldCupPackEvent2026Installed=true;
+
+  const BARRY_ASSET='assets/quidditch-tcg/world-cup-2026/barry-suit.png';
+  const EVENT_MENU_BUTTON_ASSET='assets/quidditch-tcg/world-cup-2026/world-cup-menu-button.png';
+  const PACK_ASSET='assets/quidditch-tcg/world-cup-2026/pack.png';
+  const CARD_BACK_ASSET='assets/quidditch-tcg/world-cup-2026/card-back.png';
+  const EVENT_UI_CLICK_SOUND='assets/quidditch-tcg/world-cup-2026/event-ui-click.mp3';
+  const EVENT_PROGRESS_MUSIC='assets/quidditch-tcg/world-cup-2026/world-cup-progress-theme.mp3';
+  const PASSPORT_ASSET='assets/quidditch-tcg/world-cup-2026/passport.png';
+  const EVENT_FULLSCREEN_BG='assets/quidditch-tcg/world-cup-2026/limited-event-fullscreen-bg.png';
+  const PASSPORT_TICKETS=[
+    {key:'belros-zafran',label:'Belros vs Zafran',asset:'assets/quidditch-tcg/world-cup-2026/tickets/belros-zafran.png',pos:[5.45,31.45,9.65,15.05]},
+    {key:'iskandar-calvora',label:'Iskandar vs Calvora',asset:'assets/quidditch-tcg/world-cup-2026/tickets/iskandar-calvora.png',pos:[16.85,31.45,9.65,15.05]},
+    {key:'sorevia-lumerre',label:'Sorevia vs Lumerre',asset:'assets/quidditch-tcg/world-cup-2026/tickets/sorevia-lumerre.png',pos:[28.30,31.45,9.65,15.05]},
+    {key:'talune-kordesh',label:'Talune vs Kordesh',asset:'assets/quidditch-tcg/world-cup-2026/tickets/talune-kordesh.png',pos:[39.65,31.45,9.65,15.05]},
+    {key:'norveth-qasmir',label:'Norveth vs Qasmir',asset:'assets/quidditch-tcg/world-cup-2026/tickets/norveth-qasmir.png',pos:[5.45,48.05,9.65,15.05]},
+    {key:'nambara-elvane',label:'Nambara vs Elvane',asset:'assets/quidditch-tcg/world-cup-2026/tickets/nambara-elvane.png',pos:[16.85,48.05,9.65,15.05]},
+    {key:'drazhen-rovarn',label:'Drazhen vs Rovarn',asset:'assets/quidditch-tcg/world-cup-2026/tickets/drazhen-rovarn.png',pos:[28.30,48.05,9.65,15.05]},
+    {key:'vardesh-marovar',label:'Vardesh vs Marovar',asset:'assets/quidditch-tcg/world-cup-2026/tickets/vardesh-marovar.png',pos:[39.65,48.05,9.65,15.05]}
+  ];
+  const PASSPORT_TICKET_BY_KEY=Object.fromEntries(PASSPORT_TICKETS.map(t=>[t.key,t]));
+  // This is the currently installed World Cup mystery-set configuration. The UI is
+  // 12-card ready, but the two future cards are deliberately not invented or pullable
+  // until their real IDs/artwork/audio are installed.
+  const INSTALLED_EVENT_CARDS=[
+    {id:'wc2026_debbie_sorevia',playerId:'debbie',name:'Debbie, Sorevia',playerName:'DEBBIE',country:'sorevia',clue:'THE HEART',environment:'sorevia',image:'assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/debbie.mp3'},
+    {id:'wc2026_dopey_dom_drazhen',playerId:'dopey-dom',name:'Dopey Dom, Drazhen',playerName:'DOPEY DOM',country:'drazhen',clue:'THE WILDCARD',environment:'drazhen',image:'assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/dopey-dom.mp3'},
+    {id:'wc2026_jenny_sorevia',playerId:'jenny',name:'Jenny, Sorevia',playerName:'JENNY',country:'sorevia',clue:'THE GUARDIAN',environment:'sorevia',image:'assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/jenny.mp3'},
+    {id:'wc2026_jud_belros',playerId:'jud',name:'JUD, Belros',playerName:'JUD',country:'belros',clue:'THE VETERAN',environment:'belros',image:'assets/quidditch-tcg/world-cup-2026/cards/jud-belros.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/jud.mp3'},
+    {id:'wc2026_mad_rager_nambara',playerId:'mad-rager',name:'Mad Rager, Nambara',playerName:'MAD RAGER',country:'nambara',clue:'THE FORCE',environment:'nambara',image:'assets/quidditch-tcg/world-cup-2026/cards/mad-rager-nambara.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/mad-rager.mp3'},
+    {id:'wc2026_nimbler_2000_belros',playerId:'nimbler',name:'Nimbler 2000, Belros',playerName:'NIMBLER 2000',country:'belros',clue:'THE MENACE',environment:'belros',image:'assets/quidditch-tcg/world-cup-2026/cards/nimbler-2000-belros.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/nimbler-2000.mp3'},
+    {id:'wc2026_pipsqueak_vardesh',playerId:'pipsqueak',name:'Pipsqueak, Vardesh',playerName:'PIPSQUEAK',country:'vardesh',clue:'THE PRODIGY',environment:'vardesh',image:'assets/quidditch-tcg/world-cup-2026/cards/pipsqueak-vardesh.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/pipsqueak.mp3'},
+    {id:'wc2026_soup_talune',playerId:'soup',name:'Soup, Talune',playerName:'SOUP',country:'talune',clue:'THE FINISHER',environment:'talune',image:'assets/quidditch-tcg/world-cup-2026/cards/soup-talune.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/soup.mp3'},
+    {id:'wc2026_besquelcher_iskandar',playerId:'besquelcher',name:'Besquelcher, Iskandar',playerName:'BESQUELCHER',country:'iskandar',clue:'THE ENIGMA',environment:'iskandar',image:'assets/quidditch-tcg/world-cup-2026/cards/besquelcher-iskandar.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/besquelcher.mp3'},
+    {id:'wc2026_rocky_norveth',playerId:'rocky',name:'ROCKY, Norveth',playerName:'ROCKY',country:'norveth',clue:'THE ENFORCER',environment:'norveth',image:'assets/quidditch-tcg/world-cup-2026/cards/rocky-norveth.png',sound:'assets/quidditch-tcg/world-cup-2026/sounds/rocky.mp3'}
+  ];
+  // Optional future extension point: when the two real final cards are installed, the
+  // site can expose them here without changing the walkout engine.
+  const configuredExtraCards=Array.isArray(window.REPO_WORLD_CUP_TCG_EXTRA_CARDS_2026)?window.REPO_WORLD_CUP_TCG_EXTRA_CARDS_2026:[];
+  const EVENT_CARDS=[...INSTALLED_EVENT_CARDS,...configuredExtraCards].filter((c,i,a)=>c&&c.id&&a.findIndex(x=>x?.id===c.id)===i).slice(0,12);
+  const EVENT_CARD_BY_ID=Object.fromEntries(EVENT_CARDS.map(c=>[c.id,c]));
+  const EVENT_CARD_CAPACITY=12;
+  const COUNTRY_META={
+    belros:{name:'BELROS',flag:'assets/world-cup-flags-transparent/belros-flag.png'},
+    vardesh:{name:'VARDESH',flag:'assets/world-cup-flags-transparent/vardesh-flag.png'},
+    sorevia:{name:'SOREVIA',flag:'assets/world-cup-flags-transparent/sorevia-flag.png'},
+    iskandar:{name:'ISKANDAR',flag:'assets/world-cup-flags-transparent/iskandar-flag.png'},
+    nambara:{name:'NAMBARA',flag:'assets/world-cup-flags-transparent/nambara-flag.png'},
+    norveth:{name:'NORVETH',flag:'assets/world-cup-flags-transparent/norveth-flag.png'},
+    talune:{name:'TALUNE',flag:'assets/world-cup-flags-transparent/talune-flag.png'},
+    drazhen:{name:'DRAZHEN',flag:'assets/world-cup-flags-transparent/drazhen-flag.png'}
+  };
+  const WALKOUT_CROWD='assets/quidditch-crowd.mp3';
+  const WALKOUT_CROWD_LONG='assets/world-cup-game-v1/crowd-sfx/crowd-long.mp3';
+  const WALKOUT_GOAL_CHEER='assets/world-cup-game-v1/crowd-sfx/goal-cheer.mp3';
+  const WALKOUT_IMPACT='assets/world-cup-game-v1/match-sfx/miss-impact-3.mp3';
+  const TOTAL_PACKS=10,FREE_PACKS=2,MATCH_PACKS=8;
+  let eventState=null,stateLoaded=false,stateLoading=false,lastUser='',watchSession=null;
+  let passportState=[],passportLoading=false;
+  let claimBusy=false,openingPack=false,selectedPackId=null,heartbeatBusy=false,completionBusy=false,lastHeartbeatAt=0;
+  let eventProgressMusic=null,eventMusicFadeTimer=0,lastDiscoveredCardId='',packOpeningSilencedMusic=false;
+
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const currentUsername=()=>{try{return String(character?.username||'').trim()}catch(_){return ''}};
+  const rowOf=d=>Array.isArray(d)?d[0]:d;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const packCount=()=>Number(eventState?.total_packs_awarded||0);
+  const matchCount=()=>Number(eventState?.match_packs_earned||0);
+  const freeClaimed=()=>Boolean(eventState?.free_packs_claimed);
+  const unopenedCount=()=>Number(eventState?.unopened_packs||0);
+  const allCollected=()=>packCount()>=TOTAL_PACKS;
+  const discoveredCount=()=>new Set(eventState?.cards||[]).size;
+  const eventReady=()=>!!currentUsername();
+  const orderedPacks=()=>[...(Array.isArray(eventState?.packs)?eventState.packs:[])].sort((a,b)=>Number(a.ordinal||0)-Number(b.ordinal||0));
+  const roman=n=>['I','II','III','IV','V','VI','VII','VIII'][Math.max(0,Math.min(7,Number(n||1)-1))]||String(n||'');
+  function packSlotMeta(ord,pack=null){
+    const n=Number(ord||pack?.ordinal||0);
+    if(n===1)return{label:'WELCOME PACK',short:'WELCOME PACK',source:'FREE',final:false,detail:'Barry Suit World Cup welcome pack'};
+    if(n===2)return{label:'WORLD CUP PACK',short:'WORLD CUP PACK',source:'FREE',final:false,detail:'Complimentary World Cup pack'};
+    const matchIndex=Math.max(1,n-FREE_PACKS);
+    if(n===TOTAL_PACKS)return{label:'FINAL PACK',short:'FINAL PACK',source:`MATCH PACK ${roman(MATCH_PACKS)}`,final:true,detail:'The final World Cup Match Pack'};
+    return{label:`MATCH PACK ${roman(matchIndex)}`,short:`MATCH PACK ${roman(matchIndex)}`,source:'WATCH',final:false,detail:'Earned by watching a qualifying complete World Cup fixture'};
+  }
+
+  function playEventUiClick(){try{const a=new Audio(EVENT_UI_CLICK_SOUND);a.volume=.5;a.play().catch(()=>{})}catch(_){}}
+  function fadeEventProgressMusic(target=.5,{steps=9,interval=28}={}){
+    try{
+      if(!eventProgressMusic)return;
+      clearInterval(eventMusicFadeTimer);
+      const a=eventProgressMusic,start=Number.isFinite(a.volume)?a.volume:.5,end=clamp(target,0,1);let i=0;
+      eventMusicFadeTimer=setInterval(()=>{i++;const t=Math.min(1,i/Math.max(1,steps));a.volume=start+(end-start)*t;if(t>=1)clearInterval(eventMusicFadeTimer)},interval);
+    }catch(_){}
+  }
+  function startEventProgressMusic(){try{clearInterval(eventMusicFadeTimer);if(!eventProgressMusic){eventProgressMusic=new Audio(EVENT_PROGRESS_MUSIC);eventProgressMusic.loop=true;eventProgressMusic.preload='auto'}if(eventProgressMusic.paused){eventProgressMusic.volume=.5;eventProgressMusic.play().catch(()=>{})}else fadeEventProgressMusic(.5,{steps:10,interval:26})}catch(_){}}
+  function stopEventProgressMusic({fade=true}={}){try{if(!eventProgressMusic)return;clearInterval(eventMusicFadeTimer);if(!fade){eventProgressMusic.pause();eventProgressMusic.currentTime=0;eventProgressMusic.volume=.5;return}const a=eventProgressMusic,start=a.volume||.5;let i=0;eventMusicFadeTimer=setInterval(()=>{i++;a.volume=Math.max(0,start*(1-i/8));if(i>=8){clearInterval(eventMusicFadeTimer);a.pause();a.currentTime=0;a.volume=.5}},34)}catch(_){}}
+  function silenceEventMusicForPack(){
+    // V1.11: do not interrupt the World Cup theme. Keep the same playback position and
+    // smoothly duck it to a subdued broadcast-bed level beneath the 100% player-name VO.
+    try{
+      packOpeningSilencedMusic=true;
+      if(!eventProgressMusic){startEventProgressMusic()}
+      else if(eventProgressMusic.paused){eventProgressMusic.volume=.11;eventProgressMusic.play().catch(()=>{})}
+      fadeEventProgressMusic(.11,{steps:10,interval:24});
+    }catch(_){packOpeningSilencedMusic=false}
+  }
+  function restoreEventMusicAfterPack(){try{if(packOpeningSilencedMusic&&document.getElementById('repoWorldCupEventDialog')?.open){if(eventProgressMusic?.paused)startEventProgressMusic();else fadeEventProgressMusic(.5,{steps:12,interval:26})}}catch(_){}finally{packOpeningSilencedMusic=false}}
+  function playClaimSting(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const c=new AC(),m=c.createGain();m.gain.value=.13;m.connect(c.destination);[392,523.25,659.25,783.99].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+i*.09;o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.16,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.48);o.connect(g);g.connect(m);o.start(t);o.stop(t+.5)});setTimeout(()=>c.close().catch(()=>{}),1200)}catch(_){}}
+  function playPackTearSting(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const c=new AC(),m=c.createGain();m.gain.value=.1;m.connect(c.destination);[120,170,235].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),t=c.currentTime;o.type='sawtooth';o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*2.2,t+.45);g.gain.setValueAtTime(.12/(i+1),t);g.gain.exponentialRampToValueAtTime(.0001,t+.5);o.connect(g);g.connect(m);o.start(t);o.stop(t+.52)});setTimeout(()=>c.close().catch(()=>{}),800)}catch(_){}}
+  function playCardRevealSound(card){try{const a=new Audio(card.sound);a.volume=1;a.play().catch(()=>{})}catch(_){}}
+  function playWorldCupRevealSting(){
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+      const c=new AC(),master=c.createGain();master.gain.value=.11;master.connect(c.destination);
+      const now=c.currentTime;
+      [196,261.63,329.63,392].forEach((f,i)=>{
+        const o=c.createOscillator(),g=c.createGain(),t=now+i*.055;
+        o.type=i<2?'sawtooth':'triangle';o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.11,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.54);
+        o.connect(g);g.connect(master);o.start(t);o.stop(t+.58);
+      });
+      [1046.5,1318.51,1567.98,2093].forEach((f,i)=>{
+        const o=c.createOscillator(),g=c.createGain(),t=now+.24+i*.075;
+        o.type='triangle';o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.08,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+.34);
+        o.connect(g);g.connect(master);o.start(t);o.stop(t+.38);
+      });
+      setTimeout(()=>c.close().catch(()=>{}),1200);
+    }catch(_){}
+  }
+  function worldCupRevealFxMarkup(){
+    const sparks=Array.from({length:42},(_,i)=>{
+      const angle=(i/42)*Math.PI*2+(i%3)*.11;
+      const dist=94+(i%7)*15;
+      const x=Math.cos(angle)*dist,y=Math.sin(angle)*dist;
+      const delay=(i%11)*18;
+      return `<i class="repo-wc-reveal-particle" style="--x:${x.toFixed(1)}px;--y:${y.toFixed(1)}px;--d:${delay}ms;--s:${2+(i%3)}px"></i>`;
+    }).join('');
+    const fireworks=Array.from({length:4},(_,i)=>`<i class="repo-wc-firework repo-wc-firework-${i+1}"></i>`).join('');
+    return `<div class="repo-wc-reveal-fx" aria-hidden="true"><i class="repo-wc-stadium-flash"></i><i class="repo-wc-reveal-ring"></i>${fireworks}<div class="repo-wc-reveal-particles">${sparks}</div></div>`;
+  }
+
+  function normTeam(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
+  function passportTicketForMeta(meta={}){
+    const a=normTeam(meta.teamA),b=normTeam(meta.teamB);
+    if(!a||!b)return null;
+    return PASSPORT_TICKETS.find(t=>{const [x,y]=t.key.split('-');return(a===x&&b===y)||(a===y&&b===x)})||null;
+  }
+  function passportRows(){return Array.isArray(passportState)?passportState:[]}
+  function passportUnlockedKeys(){return new Set(passportRows().filter(r=>r?.unlocked_at||Number(r?.watched_seconds||0)>=600).map(r=>String(r.ticket_key||'')))}
+  async function refreshPassportState({silent=true}={}){
+    if(!currentUsername()){passportState=[];renderPassport();return passportState}
+    if(passportLoading)return passportState;
+    passportLoading=true;
+    try{
+      const {data,error}=await db.rpc('get_my_world_cup_passport_2026');
+      if(error)throw error;
+      passportState=Array.isArray(data)?data:(Array.isArray(data?.tickets)?data.tickets:[]);
+      renderPassport();
+      return passportState;
+    }catch(error){if(!silent)console.error('[WORLD CUP PASSPORT] state load failed',error);return passportState}
+    finally{passportLoading=false}
+  }
+  function passportMarkup(){
+    const unlocked=passportUnlockedKeys();
+    const tickets=PASSPORT_TICKETS.map(t=>{
+      if(!unlocked.has(t.key))return '';
+      const [l,top,w,h]=t.pos;
+      return `<img class="repo-wc-passport-ticket is-unlocked" src="${t.asset}" alt="${esc(t.label)} match ticket" title="${esc(t.label)} · attendance ticket unlocked" style="left:${l}%;top:${top}%;width:${w}%;height:${h}%">`;
+    }).join('');
+    const count=unlocked.size;
+    return `<div class="repo-wc-passport-art"><img class="repo-wc-passport-book" src="${PASSPORT_ASSET}" alt="Repo Sports World Cup Passport">${tickets}</div><div class="repo-wc-passport-meta"><b>${count} / 8 MATCH TICKETS</b><span>Attend at least 10 minutes of an eligible live fixture to stamp its ticket into your passport.</span></div>`;
+  }
+  function renderPassport(){const p=document.getElementById('repoWorldCupPassport');if(p)p.innerHTML=passportMarkup()}
+  function showPassportTicketUnlocked(ticket){
+    if(!ticket)return;
+    document.getElementById('repoWcPassportUnlock')?.remove();
+    const n=document.createElement('aside');n.id='repoWcPassportUnlock';n.className='repo-wc-passport-unlock';
+    n.innerHTML=`<img src="${ticket.asset}" alt=""><div><small>WORLD CUP PASSPORT</small><b>MATCH TICKET STAMPED</b><span>${esc(ticket.label)} · 10 minutes attended</span></div>`;
+    document.body.appendChild(n);requestAnimationFrame(()=>n.classList.add('is-visible'));setTimeout(()=>n.classList.remove('is-visible'),5200);setTimeout(()=>n.remove(),5800);
+  }
+  async function recordPassportHeartbeat(meta={}){
+    const ticket=passportTicketForMeta(meta);if(!ticket)return null;
+    try{
+      const {data,error}=await db.rpc('record_world_cup_passport_attendance_2026',{
+        p_ticket_key:ticket.key,
+        p_fixture_id:String(meta.fixtureId||''),
+        p_fixture_label:String(meta.label||ticket.label),
+        p_team_a:String(meta.teamA||''),
+        p_team_b:String(meta.teamB||''),
+        p_phase:String(meta.phase||'')
+      });
+      if(error)throw error;
+      const row=rowOf(data)||{};
+      const ix=passportState.findIndex(r=>String(r.ticket_key||'')===ticket.key);
+      const merged={ticket_key:ticket.key,fixture_id:String(meta.fixtureId||''),fixture_label:String(meta.label||ticket.label),team_a:String(meta.teamA||''),team_b:String(meta.teamB||''),...row};
+      if(ix>=0)passportState[ix]={...passportState[ix],...merged};else passportState.push(merged);
+      renderPassport();
+      if(row.just_unlocked)showPassportTicketUnlocked(ticket);
+      return row;
+    }catch(error){console.warn('[WORLD CUP PASSPORT] attendance heartbeat failed',error);return null}
+  }
+
+  function installStyles(){
+    if(document.getElementById('repoWorldCupLimitedEventStyles'))return;
+    const s=document.createElement('style');s.id='repoWorldCupLimitedEventStyles';s.textContent=`
+#repoWcTopRightLauncher{display:none!important;position:fixed;right:18px;top:76px;z-index:2147481500;width:60px;height:60px;padding:0;border:1px solid #e3b642;border-radius:50%;display:none;place-items:center;background:radial-gradient(circle at 38% 30%,#12396c 0,#071a38 62%,#030b19 100%);box-shadow:0 0 0 3px rgba(6,25,52,.86),0 0 0 4px rgba(226,180,63,.52),0 12px 30px rgba(0,0,0,.5);cursor:pointer;transition:transform .18s ease,filter .18s ease}#repoWcTopRightLauncher.is-visible{display:grid}#repoWcTopRightLauncher:hover{transform:translateY(-2px) scale(1.04);filter:brightness(1.08)}#repoWcTopRightLauncher img{width:52px;height:52px;border-radius:50%;object-fit:cover}.repo-wc-launch-badge{position:absolute;right:-4px;top:-5px;min-width:20px;height:20px;padding:0 5px;display:grid;place-items:center;border:2px solid #f3d16c;border-radius:999px;background:#c82c25;color:#fff;font:900 9px/1 system-ui;box-shadow:0 4px 9px rgba(0,0,0,.45)}
+#repoWorldCupBarryNotice{position:fixed;left:12px;top:70px;z-index:2147481400;width:96px;height:64px;display:none;padding:0!important;margin:0!important;border:0!important;outline:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;appearance:none;-webkit-appearance:none;cursor:pointer;overflow:visible;filter:drop-shadow(0 7px 10px rgba(0,0,0,.42));transform-origin:50% 50%;transition:transform .18s ease,filter .18s ease}#repoWorldCupBarryNotice.is-visible{display:block}#repoWorldCupBarryNotice img{display:block;width:100%;height:100%;object-fit:contain;background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;pointer-events:none;animation:repoWcMenuButtonIdle 4.2s ease-in-out infinite}#repoWorldCupBarryNotice::before{content:'';position:absolute;inset:17% 8% 15%;z-index:-1;border-radius:50%;background:radial-gradient(ellipse,rgba(71,151,255,.25),rgba(71,151,255,.08) 46%,transparent 72%);filter:blur(9px);opacity:.34;transition:opacity .18s ease,transform .18s ease}#repoWorldCupBarryNotice::after{content:'';position:absolute;left:12%;right:12%;bottom:3%;height:2px;border-radius:999px;background:linear-gradient(90deg,transparent,#66b5ff,transparent);opacity:0;transform:scaleX(.45);transition:opacity .18s ease,transform .18s ease}#repoWorldCupBarryNotice:hover{transform:translateY(-2px) scale(1.055);filter:drop-shadow(0 10px 14px rgba(0,0,0,.5)) drop-shadow(0 0 8px rgba(66,153,255,.24))}#repoWorldCupBarryNotice:hover::before{opacity:.72;transform:scale(1.05)}#repoWorldCupBarryNotice:hover::after{opacity:.8;transform:scaleX(1)}#repoWorldCupBarryNotice:active{transform:translateY(0) scale(.985)}#repoWorldCupBarryNotice:focus,#repoWorldCupBarryNotice:focus-visible{outline:0!important;box-shadow:none!important}#repoWorldCupBarryNotice.has-unopened::before{animation:repoWcMenuGlow 2.8s ease-in-out infinite}#repoWorldCupBarryNotice.is-complete::before{background:radial-gradient(ellipse,rgba(90,172,255,.3),rgba(55,116,205,.1) 48%,transparent 73%)}#repoWorldCupBarryNotice.is-loading img{opacity:.78}@keyframes repoWcMenuButtonIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}@keyframes repoWcMenuGlow{0%,100%{opacity:.25;transform:scale(.97)}50%{opacity:.72;transform:scale(1.04)}}
+.repo-wc-dialog{width:min(1050px,95vw);max-height:94vh;padding:0;border:0;background:transparent;color:#f7ecc9;overflow:visible;isolation:isolate}.repo-wc-dialog::backdrop{background-image:linear-gradient(rgba(1,7,20,.18),rgba(1,7,20,.30)),url('${EVENT_FULLSCREEN_BG}');background-position:center center;background-size:104% 104%;background-repeat:no-repeat;background-attachment:fixed;background-color:#020918;backdrop-filter:none}.repo-wc-event-ambient{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}.repo-wc-dialog-layout{position:relative;z-index:2}.repo-wc-ember-source{position:fixed;top:48%;width:12vw;min-width:95px;max-width:190px;height:27vh;min-height:180px;max-height:310px;pointer-events:none;filter:saturate(1.24) brightness(1.16)}.repo-wc-ember-source.is-left{left:1.1%}.repo-wc-ember-source.is-right{right:1.1%}.repo-wc-ember-source i{position:absolute;left:var(--x);bottom:var(--y);width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,#fffbe2 0 12%,#ffe275 24%,#ffae32 46%,#ff6228 72%,rgba(255,68,20,.04) 100%);box-shadow:0 0 7px #ffd15b,0 0 15px rgba(255,112,31,.82),0 0 26px rgba(255,78,18,.34);opacity:0;animation:repoWcEmberRise var(--dur) ease-out infinite;animation-delay:var(--delay);will-change:transform,opacity}.repo-wc-ember-source i:nth-child(3n){filter:blur(.25px)}.repo-wc-ember-source i:nth-child(5n){box-shadow:0 0 9px #fff4a6,0 0 21px #ff9c33,0 0 34px rgba(255,74,19,.46)}@keyframes repoWcEmberRise{0%{transform:translate3d(0,16px,0) scale(.48);opacity:0}7%{opacity:.98}48%{opacity:.82}78%{opacity:.48}100%{transform:translate3d(var(--dx),-225px,0) scale(.10);opacity:0}}.repo-wc-sky-confetti{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;filter:saturate(1.12)}.repo-wc-sky-confetti i{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);border-radius:1px;background:var(--c);opacity:0;box-shadow:0 0 4px rgba(255,255,255,.28),0 0 8px color-mix(in srgb,var(--c) 55%,transparent);animation:repoWcConfettiDrift var(--dur) linear infinite;animation-delay:var(--delay);will-change:transform,opacity}.repo-wc-sky-confetti i:nth-child(4n){filter:brightness(1.25)}.repo-wc-sky-confetti i:nth-child(7n){border-radius:50%}@keyframes repoWcConfettiDrift{0%{transform:translate3d(0,-24px,0) rotate(0deg);opacity:0}5%{opacity:.78}46%{opacity:.68}78%{opacity:.48}100%{transform:translate3d(var(--dx),78vh,0) rotate(var(--rot));opacity:0}}.repo-wc-shell{position:relative;min-height:610px;overflow:hidden;border:1px solid #d9ab38;border-radius:15px;background:radial-gradient(circle at 62% -10%,rgba(35,91,165,.30),transparent 37%),linear-gradient(155deg,rgba(8,26,55,.92) 0,rgba(6,19,43,.94) 54%,rgba(3,10,24,.95) 100%);backdrop-filter:blur(2px);box-shadow:0 28px 90px rgba(0,0,0,.72),inset 0 0 0 3px rgba(231,191,75,.09)}.repo-wc-shell::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.35;background-image:radial-gradient(circle,#d7a93b 1px,transparent 1.2px);background-size:53px 47px}.repo-wc-dialog-close{position:absolute;right:15px;top:14px;z-index:50;width:34px;height:34px;border:1px solid #e0b043;border-radius:50%;background:linear-gradient(#583719,#221406);color:#f5d87a;font:900 20px/1 Georgia;cursor:pointer}.repo-wc-dialog-close:hover{filter:brightness(1.18);transform:rotate(5deg)}
+.repo-wc-event-head{position:relative;z-index:2;display:grid;grid-template-columns:116px minmax(0,1fr) auto;gap:20px;align-items:center;padding:25px 28px 17px}.repo-wc-event-head>img{width:108px;height:108px;border-radius:50%;object-fit:cover;border:2px solid #e0b344;box-shadow:0 0 0 4px #0c3266,0 12px 28px rgba(0,0,0,.35)}.repo-wc-event-copy small{display:block;color:#e0b446;font:900 7px/1 system-ui;letter-spacing:2px}.repo-wc-event-copy h2{margin:5px 0 7px;color:#fff7dd;font:900 clamp(27px,3.4vw,49px)/.95 Georgia,serif;letter-spacing:-1px}.repo-wc-event-copy p{max-width:680px;margin:0;color:#c0cce0;font:600 10px/1.45 system-ui}.repo-wc-event-stats{display:grid;grid-template-columns:repeat(2,78px);gap:7px}.repo-wc-stat{padding:9px;border:1px solid rgba(221,174,59,.34);background:rgba(2,11,26,.65);text-align:center}.repo-wc-stat b{display:block;color:#f4d16a;font:900 20px/1 Georgia}.repo-wc-stat span{display:block;margin-top:3px;color:#8da9c5;font:800 6px/1.2 system-ui;letter-spacing:.7px}
+.repo-wc-menu-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.65fr);gap:14px;padding:0 24px 22px}.repo-wc-panel{border:1px solid rgba(204,158,49,.52);border-radius:10px;background:linear-gradient(145deg,rgba(5,19,41,.92),rgba(3,11,25,.95));box-shadow:inset 0 0 0 1px rgba(94,137,186,.08)}.repo-wc-panel-head{display:flex;justify-content:space-between;align-items:end;padding:12px 13px 9px;border-bottom:1px solid rgba(211,167,52,.22)}.repo-wc-panel-head b{color:#f3d576;font:900 13px/1 Georgia}.repo-wc-panel-head span{color:#9eb5ce;font:800 7px/1 system-ui;letter-spacing:.8px}
+.repo-wc-locker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:11px}.repo-wc-pack-slot{position:relative;min-height:156px;padding:7px 6px 8px;border:1px solid #23466c;border-radius:8px;background:linear-gradient(180deg,#0a2347,#06152d);overflow:hidden;text-align:center;color:#d9e7f5;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;cursor:default}.repo-wc-pack-slot.is-earned{cursor:pointer;border-color:#c89c32;background:radial-gradient(circle at 50% 35%,rgba(41,101,178,.45),transparent 56%),linear-gradient(#0a2347,#06152d)}.repo-wc-pack-slot.is-earned:hover{transform:translateY(-3px);border-color:#f0cb65;box-shadow:0 12px 25px rgba(0,0,0,.35),0 0 18px rgba(238,192,68,.15)}.repo-wc-pack-slot.is-opened{cursor:pointer;border-color:#567798}.repo-wc-pack-slot img{height:106px;max-width:88%;object-fit:contain;background:transparent!important}.repo-wc-pack-slot.is-locked img{filter:grayscale(.75) brightness(.28);opacity:.6}.repo-wc-pack-slot.is-earned:not(.is-opened) img{animation:repoWcPackFloat 2.8s ease-in-out infinite}@keyframes repoWcPackFloat{50%{transform:translateY(-4px)}}.repo-wc-slot-top{position:absolute;left:6px;top:5px;padding:3px 5px;border:1px solid rgba(229,190,76,.3);background:rgba(3,13,28,.8);color:#e7c45e;font:900 6px/1 system-ui;letter-spacing:.7px}.repo-wc-slot-state{display:block;margin-top:2px;color:#f3ddb0;font:900 8px/1.2 system-ui}.repo-wc-pack-slot.is-locked .repo-wc-slot-state{color:#758da7}.repo-wc-lock{position:absolute;right:7px;top:6px;color:#e7bd49;font-size:12px}.repo-wc-opened-card{height:106px!important;border-radius:5px;box-shadow:0 5px 12px rgba(0,0,0,.38)}
+.repo-wc-progress-wrap{padding:0 12px 12px}.repo-wc-progress-copy{display:flex;justify-content:space-between;color:#9eb4cb;font:800 7px/1 system-ui}.repo-wc-progress-copy b{color:#edc95e}.repo-wc-progress{height:8px;margin-top:7px;border:1px solid #315679;background:#041126;overflow:hidden}.repo-wc-progress i{display:block;height:100%;width:var(--p,0%);background:linear-gradient(90deg,#1c67c6,#d9aa32,#f0d66d);box-shadow:0 0 11px rgba(227,182,62,.35)}
+.repo-wc-side{padding:12px}.repo-wc-side-card{padding:12px;border:1px solid rgba(80,128,178,.34);background:rgba(5,18,38,.7);margin-bottom:9px}.repo-wc-side-card small{display:block;color:#d9ae40;font:900 6px/1 system-ui;letter-spacing:1.1px}.repo-wc-side-card h3{margin:5px 0 5px;color:#f5e6ba;font:900 17px/1.05 Georgia}.repo-wc-side-card p{margin:0;color:#9eb1c6;font:600 8px/1.45 system-ui}.repo-wc-card-set-panel{overflow:hidden}.repo-wc-mini-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:9px}.repo-wc-mini-card{position:relative;aspect-ratio:.64;border:1px solid #284a6c;background:linear-gradient(155deg,#081b38,#04101f);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(115,163,211,.04);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.repo-wc-mini-card img{width:100%;height:100%;object-fit:cover;display:block}.repo-wc-mini-card>span{position:absolute;left:0;right:0;bottom:0;padding:3px 2px;background:linear-gradient(transparent,rgba(1,8,18,.94));color:#8fa8c2;font:900 5px/1 system-ui;letter-spacing:.5px;text-align:center}.repo-wc-mini-card.is-undiscovered{display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,rgba(38,91,145,.14),transparent 43%),linear-gradient(155deg,#07172f,#030c1a);border-color:#274765}.repo-wc-mini-card.is-undiscovered::before{content:'';width:45%;height:61%;border-radius:48% 48% 34% 34%/31% 31% 22% 22%;background:radial-gradient(circle at 50% 25%,#07101b 0 18%,transparent 19%),linear-gradient(180deg,transparent 0 27%,#07101b 28% 100%);filter:drop-shadow(0 0 9px rgba(42,103,163,.22));opacity:.92}.repo-wc-mini-card.is-undiscovered::after{content:'?';position:absolute;inset:0;display:grid;place-items:center;color:rgba(101,145,187,.22);font:900 24px/1 Georgia;transform:translateY(-2px)}.repo-wc-mini-card.is-undiscovered>span{color:#69839d}.repo-wc-mini-card.is-revealed{border-color:#c89b35;box-shadow:0 0 12px rgba(220,170,56,.13)}.repo-wc-mini-card.is-revealed:hover{transform:translateY(-2px) scale(1.025);border-color:#efd06d;box-shadow:0 7px 14px rgba(0,0,0,.28),0 0 14px rgba(232,187,63,.18)}.repo-wc-mini-card.is-revealed>span{color:#f0d378}.repo-wc-mini-card.is-upcoming{display:grid;place-items:center;background:repeating-linear-gradient(135deg,#06142b 0,#06142b 7px,#081a33 7px,#081a33 14px);border-style:dashed;border-color:#355675}.repo-wc-future-card{width:25px;height:34px;display:grid;place-items:center;border:1px solid rgba(216,176,67,.35);color:#d6ad42;font:900 15px/1 Georgia;background:rgba(3,12,26,.75)}.repo-wc-mini-card.is-upcoming>span{color:#7188a0}
+.repo-wc-mini-card.is-new-discovery{z-index:4;animation:repoWcDiscoveryBurst 1.45s cubic-bezier(.18,.8,.18,1) both}.repo-wc-mini-card.is-new-discovery::after{content:'DISCOVERED';position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle,rgba(5,22,45,.08),rgba(4,16,34,.58));color:#fff3b0;font:900 7px/1 system-ui;letter-spacing:1px;text-shadow:0 0 7px #dfac32,0 1px 2px #000;animation:repoWcDiscoveredWord 1.45s ease both}.repo-wc-mini-card.is-new-discovery img{animation:repoWcDiscoveryColour 1.45s ease both}@keyframes repoWcDiscoveryBurst{0%{transform:scale(.78);filter:brightness(.25);box-shadow:0 0 0 rgba(255,205,77,0)}38%{transform:scale(1.12);filter:brightness(2);box-shadow:0 0 30px rgba(255,211,84,.72),0 0 52px rgba(72,160,255,.42)}68%{transform:scale(1.03);filter:brightness(1.25)}100%{transform:none;filter:none;box-shadow:0 0 13px rgba(220,170,56,.18)}}@keyframes repoWcDiscoveryColour{0%,18%{filter:grayscale(1) brightness(.12);opacity:.12}46%{filter:grayscale(.25) brightness(1.55);opacity:1}100%{filter:none;opacity:1}}@keyframes repoWcDiscoveredWord{0%,28%{opacity:0;transform:scale(.75)}42%,70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.06)}}
+.repo-wc-pack-slot.is-final{border-color:rgba(210,168,58,.82)!important;background:radial-gradient(circle at 50% 32%,rgba(224,174,53,.13),transparent 56%),linear-gradient(180deg,#12233a,#071321)!important;box-shadow:inset 0 0 0 1px rgba(255,220,115,.08),0 0 0 1px rgba(174,126,31,.16),0 8px 18px rgba(0,0,0,.28)!important}.repo-wc-pack-slot.is-final::after{content:'FINAL';position:absolute;right:7px;bottom:7px;padding:2px 4px;border:1px solid rgba(226,187,74,.42);background:rgba(5,13,26,.72);color:#d9b451;font:900 5px/1 system-ui;letter-spacing:.8px}.repo-wc-pack-slot.is-final.is-last-objective{animation:repoWcFinalObjective 2.7s ease-in-out infinite}.repo-wc-pack-slot.is-final.is-earned{border-color:#f0c85c!important;box-shadow:inset 0 0 0 1px rgba(255,232,150,.14),0 0 25px rgba(224,175,48,.28),0 10px 24px rgba(0,0,0,.34)!important}@keyframes repoWcFinalObjective{50%{border-color:#efc75a!important;box-shadow:inset 0 0 0 1px rgba(255,225,128,.12),0 0 22px rgba(217,169,45,.25),0 9px 20px rgba(0,0,0,.3)!important}}
+.repo-wc-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.repo-wc-toolbar button{height:31px;padding:0 11px;border:1px solid #54789b;background:linear-gradient(#17375c,#0a203d);color:#dbe8f5;font:900 7px/1 system-ui;letter-spacing:.7px;cursor:pointer}.repo-wc-toolbar button.primary{border-color:#d5a839;background:linear-gradient(#74481f,#40250e);color:#f5db88}.repo-wc-toolbar button:hover{filter:brightness(1.13);transform:translateY(-1px)}
+.repo-wc-free-stage{position:relative;z-index:2;display:grid;place-items:center;padding:10px 30px 32px}.repo-wc-free-row{display:flex;justify-content:center;align-items:end;height:240px}.repo-wc-free-row img{width:150px;background:transparent!important;filter:drop-shadow(0 18px 18px rgba(0,0,0,.35));transform:rotate(calc((var(--i) - 1)*10deg)) translateY(calc(abs(var(--i) - 1)*10px));margin:0 -9px}.repo-wc-claim-btn{margin-top:7px;min-width:310px;height:42px;border:1px solid #e2b441;background:linear-gradient(180deg,#875326,#4a2b10);color:#fff0b3;font:900 9px/1 system-ui;letter-spacing:1px;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.3)}.repo-wc-claim-btn:hover{filter:brightness(1.14);transform:translateY(-1px)}.repo-wc-free-note{margin-top:10px;color:#adc0d3;font:700 8px system-ui}
+.repo-wc-inline-overlay{position:absolute;inset:0;z-index:40;display:none;place-items:center;background:rgba(2,7,17,.88);backdrop-filter:blur(5px)}.repo-wc-inline-overlay.is-open{display:grid}.repo-wc-inline-card.is-final-pack-opening{border-color:#f0c65b!important;box-shadow:0 24px 70px rgba(0,0,0,.72),inset 0 0 0 2px rgba(255,225,126,.16),0 0 38px rgba(225,174,45,.2)!important}
+.repo-wc-inline-card{width:min(620px,80%);padding:20px;text-align:center;border:1px solid #dfb043;border-radius:12px;background:radial-gradient(circle at 50% 25%,rgba(29,76,139,.42),transparent 52%),linear-gradient(#081b39,#040d1e);box-shadow:0 22px 60px rgba(0,0,0,.65);position:relative}.repo-wc-inline-close{position:absolute;right:10px;top:10px;width:28px;height:28px;border:1px solid #c9a13e;border-radius:50%;background:#251508;color:#f4d77b;cursor:pointer}.repo-wc-inline-kicker{color:#d9ae42;font:900 7px system-ui;letter-spacing:1.3px}.repo-wc-inline-title{margin-top:5px;color:#fff1c7;font:900 28px/1 Georgia}.repo-wc-inline-meta{margin:6px auto 12px;max-width:470px;color:#9fb4c9;font:700 8px/1.35 system-ui}.repo-wc-opening-stage{height:260px;display:grid;place-items:center;perspective:900px}.repo-wc-opening-pack{height:230px;max-width:75%;object-fit:contain;background:transparent!important;filter:drop-shadow(0 18px 18px rgba(0,0,0,.42))}.repo-wc-opening-stage.is-opening .repo-wc-opening-pack{animation:repoWcPackOpen 1.3s ease-in-out infinite}@keyframes repoWcPackOpen{50%{transform:scale(1.04) rotate(-1deg);filter:drop-shadow(0 18px 24px rgba(235,191,67,.35))}}.repo-wc-card-flipper{width:150px;height:250px;position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.8,.2,1)}.repo-wc-card-flipper.is-revealed{transform:rotateY(180deg)}.repo-wc-card-face{position:absolute;inset:0;backface-visibility:hidden}.repo-wc-card-face img{width:100%;height:100%;object-fit:contain;background:transparent!important}.repo-wc-card-front{transform:rotateY(180deg)}.repo-wc-card-preview img{height:320px;max-width:75%;object-fit:contain}.repo-wc-open-message b{display:block;color:#f2d270;font:900 15px Georgia}.repo-wc-open-message small{display:block;margin-top:4px;color:#9eb3c9;font:700 8px system-ui}.repo-wc-actions{display:flex;justify-content:center;gap:8px;margin-top:12px}.repo-wc-actions button{height:34px;padding:0 14px;border:1px solid #54789b;background:#102c4e;color:#e5edf6;font:900 7px system-ui;letter-spacing:.7px;cursor:pointer}.repo-wc-actions .repo-wc-primary{border-color:#d4a536;background:linear-gradient(#7b4b22,#44270f);color:#f4dc8f}.repo-wc-actions button:hover{filter:brightness(1.13)}
+#repoWcWatchingChip{position:absolute;right:13px;top:13px;z-index:70;display:flex;align-items:center;gap:7px;padding:6px 9px;border:1px solid #d3a83d;background:rgba(4,16,35,.9);color:#f4dc8c}#repoWcWatchingChip img{width:28px;height:36px;object-fit:contain}#repoWcWatchingChip b,#repoWcWatchingChip small{display:block;font:900 7px/1.25 system-ui}#repoWcWatchingChip small{color:#9fb6cd;margin-top:2px}.repo-wc-match-reward{position:fixed;right:18px;top:154px;z-index:2147481550;width:300px;padding:13px;border:1px solid #dcb142;background:linear-gradient(145deg,#071b39,#040d1e);box-shadow:0 18px 50px rgba(0,0,0,.55);color:#f5e4ae;transform:translateX(340px);transition:transform .35s ease}.repo-wc-match-reward.is-visible{transform:none}.repo-wc-match-reward>img{float:left;width:55px;height:76px;object-fit:contain;margin-right:10px;background:transparent!important}.repo-wc-match-reward small,.repo-wc-match-reward b,.repo-wc-match-reward strong{display:block}.repo-wc-match-reward small{font:900 6px system-ui;color:#9fb5cc}.repo-wc-match-reward b{margin-top:3px;font:900 12px Georgia;color:#f3d476}.repo-wc-match-reward strong{margin-top:4px;font:900 9px system-ui}.repo-wc-match-reward button{margin-top:8px;height:29px;border:1px solid #d3a53a;background:#5c3516;color:#f6df94;font:900 7px system-ui;cursor:pointer}.repo-wc-complete-overlay{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:rgba(1,5,14,.9);opacity:0;transition:opacity .3s}.repo-wc-complete-overlay.is-visible{opacity:1}.repo-wc-complete-card{width:min(570px,86vw);padding:25px;text-align:center;border:1px solid #e1b541;background:linear-gradient(#0a2145,#050d1d);color:#f4df9a}.repo-wc-complete-card img{height:190px;background:transparent!important}.repo-wc-complete-card h2{margin:0;color:#f3cf61;font:900 50px Georgia}.repo-wc-complete-card h3{margin:3px 0 8px;font:900 19px Georgia}.repo-wc-complete-card p{color:#9eb4c9;font:700 9px/1.45 system-ui}.repo-wc-complete-card button{height:34px;margin:5px;padding:0 13px;border:1px solid #d8aa3b;background:#563115;color:#f2d986;font:900 7px system-ui;cursor:pointer}
+
+/* V1.5 broadcast-blue interaction pass — no brown pack/button chrome */
+.repo-wc-locker{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:11px}
+.repo-wc-pack-slot{min-height:128px;padding:7px 6px 8px;border:1px solid rgba(74,126,183,.55)!important;border-radius:7px!important;background:linear-gradient(180deg,rgba(9,36,72,.98),rgba(3,15,34,.98))!important;box-shadow:inset 0 0 0 1px rgba(133,185,235,.035),0 7px 16px rgba(0,0,0,.2)!important;color:#d9e8f6!important}
+.repo-wc-pack-slot::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(125deg,transparent 10%,rgba(111,187,255,.055) 42%,transparent 66%);transform:translateX(-120%);transition:transform .42s ease}
+.repo-wc-pack-slot.is-earned{border-color:#4c9fe8!important;background:radial-gradient(circle at 50% 34%,rgba(44,122,208,.34),transparent 58%),linear-gradient(180deg,#0a2c58,#04172f)!important;box-shadow:inset 0 0 0 1px rgba(118,192,255,.12),0 8px 18px rgba(0,0,0,.26),0 0 0 1px rgba(28,94,154,.25)!important}
+.repo-wc-pack-slot.is-earned:hover{transform:translateY(-3px);border-color:#8ecaff!important;box-shadow:inset 0 0 0 1px rgba(158,214,255,.18),0 12px 24px rgba(0,0,0,.34),0 0 18px rgba(65,151,232,.2)!important}
+.repo-wc-pack-slot.is-earned:hover::before{transform:translateX(120%)}
+.repo-wc-pack-slot.is-opened{border-color:#5b7897!important;background:linear-gradient(180deg,#0b2748,#06172c)!important}
+.repo-wc-pack-slot img{height:82px;max-width:86%}
+.repo-wc-opened-card{height:82px!important;border-radius:4px;box-shadow:0 5px 12px rgba(0,0,0,.38)}
+.repo-wc-slot-top{border:1px solid rgba(92,162,224,.3)!important;background:rgba(4,20,42,.82)!important;color:#b9dcf7!important;letter-spacing:.8px}
+.repo-wc-slot-state{color:#e8f4ff!important}
+.repo-wc-pack-slot.is-locked .repo-wc-slot-state{color:#617d99!important}
+.repo-wc-lock{color:#7394b5!important}
+.repo-wc-pack-slot:nth-child(9){grid-column:2}
+.repo-wc-pack-slot:nth-child(10){grid-column:3}
+.repo-wc-toolbar{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px}
+.repo-wc-toolbar button,.repo-wc-toolbar button.primary{position:relative;height:34px;padding:0 13px;border:1px solid #3e77ad!important;border-radius:5px;background:linear-gradient(180deg,#123a68,#082442)!important;color:#dbeeff!important;font:900 7px/1 system-ui;letter-spacing:.85px;box-shadow:inset 0 1px 0 rgba(170,215,255,.08),0 5px 12px rgba(0,0,0,.2);cursor:pointer;overflow:hidden}
+.repo-wc-toolbar button::after{content:'';position:absolute;left:-45%;top:0;width:30%;height:100%;background:linear-gradient(90deg,transparent,rgba(153,216,255,.16),transparent);transform:skewX(-18deg);transition:left .35s ease}
+.repo-wc-toolbar button:hover{filter:none!important;transform:translateY(-1px);border-color:#78b9ee!important;background:linear-gradient(180deg,#184b82,#0a2e54)!important}
+.repo-wc-toolbar button:hover::after{left:115%}
+.repo-wc-toolbar #repoWcRefreshButton{width:40px;padding:0;font-size:0}
+.repo-wc-toolbar #repoWcRefreshButton::before{content:'↻';font:900 16px/1 system-ui;color:#a8d6f9}
+.repo-wc-mini-card.is-reserved{display:grid;place-items:center;background:linear-gradient(155deg,#0a2445,#06182f);border:1px solid #365f87;box-shadow:inset 0 0 18px rgba(57,125,190,.09)}
+.repo-wc-mini-card.is-reserved .repo-wc-reserved-mark{font:900 19px/1 Georgia;color:#84bce8;text-shadow:0 0 10px rgba(76,153,220,.25)}
+.repo-wc-mini-card.is-reserved>span{color:#7ca5c8}
+
+
+/* V1.6 strict style isolation: the pack locker is NOT a HTML button, so site-wide
+   brown button hover rules cannot leak into the World Cup event. */
+.repo-wc-pack-slot{display:grid!important;grid-template-rows:1fr auto;align-items:center;justify-items:center;appearance:none!important;-webkit-appearance:none!important;outline:0!important;background:linear-gradient(180deg,#09284f,#04162f)!important;border:1px solid #3c78ae!important;box-shadow:inset 0 0 0 1px rgba(151,207,255,.05),0 8px 18px rgba(0,0,0,.24)!important}
+.repo-wc-pack-slot.is-earned{background:radial-gradient(circle at 50% 35%,rgba(43,126,220,.32),transparent 56%),linear-gradient(180deg,#0b315e,#05192f)!important;border-color:#4da3ed!important}
+.repo-wc-pack-slot.is-earned:hover,.repo-wc-pack-slot.is-earned:focus-visible{background:radial-gradient(circle at 50% 34%,rgba(67,154,245,.4),transparent 58%),linear-gradient(180deg,#0d3d72,#071f3c)!important;border-color:#95d3ff!important;box-shadow:inset 0 0 0 1px rgba(177,221,255,.16),0 12px 27px rgba(0,0,0,.38),0 0 22px rgba(62,158,244,.22)!important;transform:translateY(-3px)!important}
+.repo-wc-pack-slot.is-opened{background:linear-gradient(180deg,#0b294c,#06172c)!important;border-color:#607f9e!important}
+.repo-wc-inline-close,.repo-wc-dialog-close{background:linear-gradient(180deg,#123b68,#071d37)!important;border-color:#5b9ed7!important;color:#eaf6ff!important;box-shadow:0 6px 16px rgba(0,0,0,.28),inset 0 1px rgba(186,224,255,.09)!important}
+.repo-wc-actions button,.repo-wc-actions .repo-wc-primary,.repo-wc-claim-btn,.repo-wc-match-reward button,.repo-wc-complete-card button{background:linear-gradient(180deg,#174b82,#0a2b50)!important;border:1px solid #5ca3df!important;color:#e9f5ff!important;box-shadow:inset 0 1px rgba(192,226,255,.08),0 6px 14px rgba(0,0,0,.26)!important}
+.repo-wc-actions button:hover,.repo-wc-claim-btn:hover,.repo-wc-match-reward button:hover,.repo-wc-complete-card button:hover{background:linear-gradient(180deg,#1f609f,#0d3762)!important;border-color:#91d0ff!important;color:#fff!important;filter:none!important;transform:translateY(-1px)}
+.repo-wc-opening-stage{position:relative;overflow:visible;height:300px}
+.repo-wc-opening-stage.is-worldcup-reveal{isolation:isolate}
+.repo-wc-opening-stage.is-worldcup-reveal::before{content:'';position:absolute;left:50%;top:50%;width:430px;height:430px;z-index:-3;transform:translate(-50%,-50%);background:conic-gradient(from 5deg,transparent 0 8deg,rgba(77,171,255,.16) 8deg 18deg,transparent 18deg 34deg,rgba(255,211,87,.18) 34deg 44deg,transparent 44deg 65deg);filter:blur(1px);animation:repoWcBeamSpin 8s linear infinite}
+.repo-wc-opening-stage.is-worldcup-reveal::after{content:'';position:absolute;inset:8% 11%;z-index:-2;background:radial-gradient(circle at 50% 50%,rgba(255,241,172,.32),rgba(66,150,242,.12) 30%,transparent 67%);opacity:0;animation:repoWcRevealFlash 1.15s ease-out .18s both}
+.repo-wc-reveal-fx{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:visible}
+.repo-wc-stadium-flash{position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 34px 16px rgba(255,244,187,.82),0 0 90px 42px rgba(68,157,255,.26);opacity:0}
+.is-fireworks-live .repo-wc-stadium-flash{animation:repoWcStadiumFlash .8s ease-out both}
+.repo-wc-reveal-ring{position:absolute;left:50%;top:50%;width:140px;height:140px;border:2px solid rgba(255,215,83,.84);border-radius:50%;transform:translate(-50%,-50%) scale(.3);opacity:0;box-shadow:0 0 28px rgba(255,201,54,.38),inset 0 0 20px rgba(75,164,255,.22)}
+.is-fireworks-live .repo-wc-reveal-ring{animation:repoWcRevealRing 1.25s cubic-bezier(.1,.7,.2,1) both}
+.repo-wc-reveal-particles{position:absolute;left:50%;top:50%;width:1px;height:1px}
+.repo-wc-reveal-particle{position:absolute;left:0;top:0;width:var(--s);height:var(--s);background:#ffe16f;box-shadow:0 0 8px #ffd24c;transform:translate(-50%,-50%) rotate(45deg);opacity:0}
+.repo-wc-reveal-particle:nth-child(3n){background:#67bcff;box-shadow:0 0 8px #4aa7ff}.repo-wc-reveal-particle:nth-child(5n){background:#fff;box-shadow:0 0 8px #fff}
+.is-fireworks-live .repo-wc-reveal-particle{animation:repoWcParticleBurst 1.25s cubic-bezier(.12,.7,.22,1) var(--d) both}
+.repo-wc-firework{position:absolute;width:6px;height:6px;border-radius:50%;opacity:0;filter:drop-shadow(0 0 5px currentColor)}
+.repo-wc-firework::before,.repo-wc-firework::after{content:'';position:absolute;left:50%;top:50%;width:72px;height:2px;transform:translate(-50%,-50%);background:linear-gradient(90deg,transparent,currentColor,transparent);box-shadow:0 -18px currentColor,0 18px currentColor}
+.repo-wc-firework::after{transform:translate(-50%,-50%) rotate(45deg)}
+.repo-wc-firework-1{left:16%;top:28%;color:#ffda58}.repo-wc-firework-2{right:16%;top:24%;color:#57baff}.repo-wc-firework-3{left:21%;bottom:22%;color:#fff}.repo-wc-firework-4{right:20%;bottom:19%;color:#ffd14c}
+.is-fireworks-live .repo-wc-firework{animation:repoWcFireworkPop 1.15s ease-out both}.is-fireworks-live .repo-wc-firework-2{animation-delay:.12s}.is-fireworks-live .repo-wc-firework-3{animation-delay:.25s}.is-fireworks-live .repo-wc-firework-4{animation-delay:.34s}
+.repo-wc-card-flipper{z-index:8;filter:drop-shadow(0 16px 18px rgba(0,0,0,.52));transition:transform .86s cubic-bezier(.15,.78,.18,1),filter .55s ease}
+.repo-wc-card-flipper.is-revealed{filter:drop-shadow(0 18px 24px rgba(0,0,0,.6)) drop-shadow(0 0 18px rgba(255,207,69,.32));animation:repoWcCardVictory 1.05s ease-out .78s both}
+@keyframes repoWcParticleBurst{0%{opacity:0;transform:translate(-50%,-50%) rotate(45deg) scale(.4)}12%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(225deg) scale(.7)}}
+@keyframes repoWcRevealRing{0%{opacity:0;transform:translate(-50%,-50%) scale(.28)}16%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(2.35)}}
+@keyframes repoWcStadiumFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(6)}}
+@keyframes repoWcFireworkPop{0%{opacity:0;transform:scale(.15) rotate(-14deg)}22%{opacity:1}100%{opacity:0;transform:scale(1.35) rotate(8deg)}}
+@keyframes repoWcRevealFlash{0%{opacity:0;transform:scale(.7)}24%{opacity:1}100%{opacity:0;transform:scale(1.18)}}
+@keyframes repoWcBeamSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes repoWcCardVictory{0%{scale:1}42%{scale:1.075}100%{scale:1}}
+
+.repo-wc-dialog{width:min(1640px,96vw)}.repo-wc-dialog-layout{display:grid;grid-template-columns:minmax(720px,1fr) minmax(395px,510px);gap:14px;align-items:stretch;padding:7px;border:0;border-radius:17px;background:transparent;box-shadow:none;position:relative;overflow:visible}.repo-wc-dialog-layout::before{display:none!important}.repo-wc-passport{position:relative;z-index:1;align-self:stretch;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:15px 12px 12px;border:1px solid rgba(94,153,210,.42);border-radius:14px;background:radial-gradient(circle at 50% 25%,rgba(41,96,165,.18),transparent 42%),linear-gradient(160deg,rgba(8,28,61,.82),rgba(3,14,33,.86));backdrop-filter:blur(2px);box-shadow:inset 0 0 0 1px rgba(121,178,227,.04);filter:drop-shadow(0 20px 34px rgba(0,0,0,.48));transform:none}.repo-wc-passport-art{position:relative;width:100%;line-height:0;transition:transform .2s ease,filter .2s ease}.repo-wc-passport-art:hover{transform:translateY(-3px) scale(1.012);filter:drop-shadow(0 0 13px rgba(223,174,53,.18))}.repo-wc-passport-book{display:block;width:100%;height:auto;background:transparent!important;border:0!important;box-shadow:none!important}.repo-wc-passport-ticket{position:absolute;display:block;object-fit:fill;z-index:3;filter:drop-shadow(0 2px 2px rgba(0,0,0,.38));transform:scale(.91);transform-origin:center;opacity:0;animation:repoWcPassportStamp .72s cubic-bezier(.15,.85,.2,1) forwards}.repo-wc-passport-ticket:hover{z-index:5;transform:scale(.97);filter:drop-shadow(0 4px 5px rgba(0,0,0,.5)) drop-shadow(0 0 5px rgba(255,210,83,.3))}.repo-wc-passport-meta{margin:-8px auto 0;width:88%;padding:8px 11px;border-radius:8px;background:rgba(3,12,27,.82);box-shadow:0 8px 25px rgba(0,0,0,.32);text-align:center}.repo-wc-passport-meta b{display:block;color:#f0cf66;font:900 9px/1 system-ui;letter-spacing:.8px}.repo-wc-passport-meta span{display:block;margin-top:4px;color:#9db4cb;font:700 7px/1.35 system-ui}.repo-wc-passport-unlock{position:fixed;right:18px;bottom:20px;z-index:2147483000;display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center;width:300px;padding:10px 12px;border:1px solid #d9ae42;border-radius:10px;background:linear-gradient(145deg,#082044,#041126);box-shadow:0 18px 45px rgba(0,0,0,.55),0 0 20px rgba(61,134,222,.16);opacity:0;transform:translateY(20px);transition:opacity .24s ease,transform .24s ease}.repo-wc-passport-unlock.is-visible{opacity:1;transform:none}.repo-wc-passport-unlock img{width:50px;height:72px;object-fit:contain;background:transparent}.repo-wc-passport-unlock small{display:block;color:#d8ad3e;font:900 6px system-ui;letter-spacing:1px}.repo-wc-passport-unlock b{display:block;margin-top:2px;color:#fff0c2;font:900 12px Georgia}.repo-wc-passport-unlock span{display:block;margin-top:3px;color:#9db5cd;font:700 7px/1.3 system-ui}@keyframes repoWcPassportStamp{0%{opacity:0;transform:scale(1.16) rotate(-3deg);filter:brightness(1.8) drop-shadow(0 0 14px rgba(255,210,75,.7))}58%{opacity:1;transform:scale(.88) rotate(1deg)}100%{opacity:1;transform:scale(.91) rotate(0)}}
+.repo-wc-card-turn{width:150px;height:250px;position:relative;z-index:8;transform:perspective(900px) rotateY(0) scale(1);transform-origin:50% 50%;transition:transform .34s cubic-bezier(.2,.75,.2,1),filter .34s ease;filter:drop-shadow(0 16px 18px rgba(0,0,0,.52));will-change:transform}.repo-wc-card-turn.is-folded{transform:perspective(900px) rotateY(88deg) scale(.94);filter:drop-shadow(0 10px 12px rgba(0,0,0,.45))}.repo-wc-card-turn.is-front{filter:drop-shadow(0 18px 24px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(255,207,69,.36));animation:repoWcCardVictory 1.05s ease-out .36s both}.repo-wc-card-turn img{display:block;width:100%;height:100%;object-fit:contain;background:transparent!important;backface-visibility:hidden}
+@media(max-width:1280px){.repo-wc-dialog{width:min(1240px,99vw)}.repo-wc-dialog-layout{grid-template-columns:minmax(650px,1fr) minmax(350px,430px);gap:9px}.repo-wc-passport{padding:10px 8px}.repo-wc-passport-meta{width:94%}}
+@media(max-width:760px){#repoWorldCupBarryNotice{top:auto;bottom:12px;left:10px;width:96px;height:64px}#repoWcTopRightLauncher{display:none!important}.repo-wc-event-head{grid-template-columns:74px 1fr;padding:18px}.repo-wc-event-head>img{width:68px;height:68px}.repo-wc-event-stats{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}.repo-wc-menu-grid{grid-template-columns:1fr;padding:0 12px 14px}.repo-wc-locker{grid-template-columns:repeat(2,1fr)}.repo-wc-pack-slot:nth-child(9),.repo-wc-pack-slot:nth-child(10){grid-column:auto}.repo-wc-shell{min-height:unset}.repo-wc-dialog{max-height:96vh}.repo-wc-dialog-layout{grid-template-columns:1fr;overflow:auto;max-height:95vh;padding:5px}.repo-wc-passport{width:min(620px,94vw);margin:0 auto 12px;padding:12px}.repo-wc-event-copy h2{font-size:27px}}
+/* V1.9 — passport and controls stay entirely inside the World Cup navy visual language. */
+.repo-wc-toolbar button,.repo-wc-actions button,.repo-wc-claim-btn{border:1px solid #4b91cc!important;background:linear-gradient(180deg,#123e6d,#071f3d)!important;color:#e8f5ff!important;box-shadow:inset 0 1px rgba(193,228,255,.1),0 6px 15px rgba(0,0,0,.24)!important;border-radius:6px!important}.repo-wc-toolbar button.primary,.repo-wc-actions .repo-wc-primary{border-color:#72b7ed!important;background:linear-gradient(180deg,#16528a,#0a2b51)!important;color:#fff4c3!important}.repo-wc-toolbar button:hover,.repo-wc-actions button:hover,.repo-wc-claim-btn:hover{filter:brightness(1.15)!important;box-shadow:inset 0 1px rgba(218,239,255,.16),0 8px 18px rgba(0,0,0,.3),0 0 16px rgba(70,157,230,.16)!important}.repo-wc-passport-art{width:100%;max-width:510px;margin:auto}.repo-wc-passport-meta{margin:0 auto 0;width:92%;background:rgba(3,15,35,.88);border:1px solid rgba(72,132,192,.28)}
+/* Full bespoke World Cup walkout stage. */
+.repo-wc-inline-card.is-walkout-mode{width:min(760px,92%);padding:14px 16px 16px;background:linear-gradient(180deg,#050c18,#02060e);border-color:#386b9c;overflow:hidden}.repo-wc-opening-stage.is-walkout-stage{height:430px;overflow:hidden;border-radius:10px;background:#02050b;isolation:isolate}.repo-wc-walkout{--wc-accent:#e4b542;--wc-accent2:#4ca0ed;position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 84%,rgba(18,43,75,.58),transparent 48%),linear-gradient(#02050b,#05101e 72%,#02050b);perspective:1100px}.repo-wc-walkout.env-vardesh{--wc-accent:#dcefff;--wc-accent2:#77bfff}.repo-wc-walkout.env-belros{--wc-accent:#e3b64d;--wc-accent2:#4d9a65}.repo-wc-walkout.env-sorevia{--wc-accent:#f07d9d;--wc-accent2:#8c5adb}.repo-wc-walkout.env-iskandar{--wc-accent:#e6ba60;--wc-accent2:#b17743}.repo-wc-walkout.env-nambara{--wc-accent:#f0a847;--wc-accent2:#e85b37}.repo-wc-walkout.env-norveth{--wc-accent:#e9f2fb;--wc-accent2:#7e99b7}.repo-wc-walkout.env-talune{--wc-accent:#b8f5e9;--wc-accent2:#45bfc7}.repo-wc-walkout.env-drazhen{--wc-accent:#c37050;--wc-accent2:#7c2e2b}.repo-wc-walkout-stadium{position:absolute;inset:34% -4% -8%;opacity:.25;background:linear-gradient(90deg,transparent 0 4%,rgba(31,62,95,.7) 4% 5%,transparent 5% 18%,rgba(31,62,95,.65) 18% 19%,transparent 19% 81%,rgba(31,62,95,.65) 81% 82%,transparent 82% 95%,rgba(31,62,95,.7) 95% 96%,transparent 96%),radial-gradient(ellipse at 50% 100%,rgba(33,69,105,.85),transparent 62%);clip-path:polygon(0 33%,7% 17%,16% 27%,25% 12%,36% 24%,50% 5%,64% 24%,75% 12%,84% 27%,93% 17%,100% 33%,100% 100%,0 100%)}.repo-wc-walkout-crowd{position:absolute;left:-5%;right:-5%;bottom:-2%;height:26%;opacity:.38;background:radial-gradient(circle at 4px 7px,#101927 0 3px,transparent 3.5px) 0 0/13px 12px;mask-image:linear-gradient(transparent,#000 28%)}.repo-wc-walkout-logo{position:absolute;left:50%;top:47%;width:155px;height:155px;transform:translate(-50%,-50%);border:1px solid rgba(217,174,65,.12);border-radius:50%;opacity:.14;box-shadow:0 0 50px rgba(68,143,218,.12),inset 0 0 50px rgba(68,143,218,.08)}.repo-wc-walkout-light{position:absolute;top:-8%;width:17%;height:82%;transform-origin:50% 0;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(111,177,235,.06) 60%,transparent);filter:blur(2px);opacity:.5;transition:opacity .22s ease,transform .45s ease}.repo-wc-walkout-light.l1{left:6%;transform:rotate(19deg)}.repo-wc-walkout-light.l2{right:6%;transform:rotate(-19deg)}.repo-wc-walkout-light.l3{left:34%;transform:rotate(5deg)}.repo-wc-walkout-light.l4{right:34%;transform:rotate(-5deg)}.repo-wc-walkout.phase-blackout .repo-wc-walkout-light{opacity:.02}.repo-wc-walkout.phase-blackout .l1{transition-delay:.04s}.repo-wc-walkout.phase-blackout .l2{transition-delay:.16s}.repo-wc-walkout.phase-blackout .l3,.repo-wc-walkout.phase-blackout .l4{transition-delay:.28s}.repo-wc-walkout.phase-country .l1,.repo-wc-walkout.phase-country .l2{opacity:.23}.repo-wc-walkout.phase-build .repo-wc-walkout-light{opacity:.34;animation:repoWcSweep 1.2s ease-in-out infinite alternate}.repo-wc-walkout.phase-reveal .repo-wc-walkout-light{opacity:.8;filter:blur(1px)}@keyframes repoWcSweep{to{transform:rotate(calc(var(--r,0deg) + 9deg))}}
+.repo-wc-walkout-flag{position:absolute;left:50%;top:50%;width:90%;height:68%;max-width:90%;max-height:68%;object-fit:contain;object-position:center center;transform:translate(-50%,-50%) scale(.92);opacity:0;filter:saturate(1.1) brightness(.72) drop-shadow(0 0 28px color-mix(in srgb,var(--wc-accent2) 50%,transparent));transition:opacity .5s ease,transform .7s ease;z-index:1}.repo-wc-walkout.phase-country .repo-wc-walkout-flag,.repo-wc-walkout.phase-clue .repo-wc-walkout-flag,.repo-wc-walkout.phase-build .repo-wc-walkout-flag,.repo-wc-walkout.phase-reveal .repo-wc-walkout-flag{opacity:.24;transform:translate(-50%,-50%) scale(.98)}.repo-wc-walkout.phase-reveal .repo-wc-walkout-flag{opacity:.34}.repo-wc-walkout-card{position:absolute;left:50%;top:50%;width:172px;height:286px;z-index:8;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;transform:translate(-50%,-50%) translateY(38px) rotateX(3deg) rotateY(-4deg) scale(.9);transform-style:preserve-3d;filter:drop-shadow(0 22px 25px rgba(0,0,0,.66));transition:transform .72s cubic-bezier(.18,.8,.18,1),filter .45s ease}.repo-wc-walkout-card::before{content:'';position:absolute;inset:3px -4px -4px 3px;z-index:-1;border-radius:7px;background:#09101b;transform:translateZ(-7px);transition:opacity .18s ease}.repo-wc-walkout.phase-reveal .repo-wc-walkout-card::before{opacity:0!important}.repo-wc-walkout-card img{width:100%;height:100%;display:block;object-fit:contain;background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;backface-visibility:hidden}.repo-wc-walkout.phase-blackout .repo-wc-walkout-card{transform:translate(-50%,-50%) translateY(-8px) rotateX(2deg) rotateY(3deg) scale(.96);filter:drop-shadow(0 18px 24px rgba(0,0,0,.72)) drop-shadow(0 0 8px rgba(121,185,243,.12))}.repo-wc-walkout.phase-country .repo-wc-walkout-card,.repo-wc-walkout.phase-clue .repo-wc-walkout-card{transform:translate(-50%,-50%) translateY(12px) rotateX(1deg) rotateY(-2deg) scale(.99)}.repo-wc-walkout.phase-build .repo-wc-walkout-card{transform:translate(-50%,-50%) translateY(4px) rotateX(0) rotateY(1deg) scale(1.025);animation:repoWcMysteryTremor .22s linear infinite alternate}.repo-wc-walkout-card.is-edge{transform:translate(-50%,-50%) rotateY(89deg) scale(1.02)!important}.repo-wc-walkout.phase-reveal .repo-wc-walkout-card.is-front{transform:translate(-50%,-50%) rotateY(0) scale(1.08)!important;filter:drop-shadow(0 22px 26px rgba(0,0,0,.72)) drop-shadow(0 0 26px var(--wc-accent))}.repo-wc-walkout.phase-reveal .repo-wc-walkout-card.is-front:hover{transform:translate(-50%,-50%) rotateY(var(--px,0deg)) rotateX(var(--py,0deg)) scale(1.1)!important}@keyframes repoWcMysteryTremor{to{margin-left:.7px}}
+.repo-wc-walkout-country,.repo-wc-walkout-clue,.repo-wc-walkout-player{position:absolute;left:50%;z-index:11;transform:translateX(-50%) translateY(10px);opacity:0;text-align:center;text-shadow:0 3px 12px #000;transition:opacity .28s ease,transform .32s ease;pointer-events:none}.repo-wc-walkout-country{top:25px;color:#fff4c7;font:900 34px/.95 Georgia;letter-spacing:3px}.repo-wc-walkout-country small{display:block;margin-top:5px;color:var(--wc-accent);font:900 7px/1 system-ui;letter-spacing:2px}.repo-wc-walkout-clue{top:35px;color:#fff2bd;font:900 28px/1 Georgia;letter-spacing:2px}.repo-wc-walkout-clue small{display:block;margin-bottom:6px;color:#8fb6d8;font:900 6px/1 system-ui;letter-spacing:2px}.repo-wc-walkout-player{bottom:22px;color:#fff2bd;font:900 30px/1 Georgia;letter-spacing:2px}.repo-wc-walkout-player small{display:block;margin-top:5px;color:var(--wc-accent);font:900 8px/1 system-ui;letter-spacing:1.7px}.repo-wc-walkout.phase-country .repo-wc-walkout-country,.repo-wc-walkout.phase-clue .repo-wc-walkout-clue,.repo-wc-walkout.phase-reveal .repo-wc-walkout-player{opacity:1;transform:translateX(-50%) translateY(0)}
+.repo-wc-walkout-atmo{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}.repo-wc-walkout-atmo i{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--wc-accent);opacity:.42;animation:repoWcAtmo 3.2s linear infinite;animation-delay:var(--d)}.env-vardesh .repo-wc-walkout-atmo i,.env-norveth .repo-wc-walkout-atmo i{width:5px;height:5px;background:#eaf6ff;filter:blur(.3px)}.env-nambara .repo-wc-walkout-atmo i,.env-drazhen .repo-wc-walkout-atmo i{background:#ffac45;box-shadow:0 0 5px #ef643c}.env-talune .repo-wc-walkout-atmo i{background:#a9fff3;box-shadow:0 0 7px #4bcbd1}.env-sorevia .repo-wc-walkout-atmo i{background:#f08db8;box-shadow:0 0 7px #a95dde}@keyframes repoWcAtmo{0%{transform:translateY(35px) translateX(0);opacity:0}15%{opacity:.5}100%{transform:translateY(-390px) translateX(var(--drift));opacity:0}}
+.repo-wc-walkout-impact{position:absolute;left:50%;top:50%;width:22px;height:22px;border:2px solid var(--wc-accent);border-radius:50%;z-index:7;transform:translate(-50%,-50%) scale(.2);opacity:0}.repo-wc-walkout.phase-reveal .repo-wc-walkout-impact{animation:repoWcImpactRing .9s ease-out both}@keyframes repoWcImpactRing{0%{opacity:1;transform:translate(-50%,-50%) scale(.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(21)}}.repo-wc-walkout.phase-reveal::after{content:'';position:absolute;inset:-20%;z-index:6;background:conic-gradient(from 0deg,transparent 0 8deg,var(--wc-accent) 9deg 11deg,transparent 12deg 28deg,var(--wc-accent2) 29deg 31deg,transparent 32deg 55deg);opacity:.22;animation:repoWcRevealBeams 1.5s ease-out both}@keyframes repoWcRevealBeams{0%{transform:scale(.2) rotate(-25deg);opacity:0}20%{opacity:.38}100%{transform:scale(1.4) rotate(20deg);opacity:.08}}
+.repo-wc-walkout-fireworks{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0}.repo-wc-walkout.phase-reveal .repo-wc-walkout-fireworks{opacity:1}.repo-wc-walkout-fireworks i{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--wc-accent);box-shadow:0 -20px var(--wc-accent),14px -14px var(--wc-accent2),20px 0 var(--wc-accent),14px 14px var(--wc-accent2),0 20px var(--wc-accent),-14px 14px var(--wc-accent2),-20px 0 var(--wc-accent),-14px -14px var(--wc-accent2);animation:repoWcFirework 1.1s ease-out infinite}.repo-wc-walkout-fireworks i:nth-child(1){left:14%;top:27%;animation-delay:.06s}.repo-wc-walkout-fireworks i:nth-child(2){right:15%;top:23%;animation-delay:.26s}.repo-wc-walkout-fireworks i:nth-child(3){left:22%;bottom:23%;animation-delay:.46s}.repo-wc-walkout-fireworks i:nth-child(4){right:22%;bottom:20%;animation-delay:.66s}@keyframes repoWcFirework{0%{transform:scale(.1);opacity:0}16%{opacity:1}70%,100%{transform:scale(1.9);opacity:0}}
+.repo-wc-walkout-skip{position:absolute;right:11px;bottom:10px;z-index:20;padding:7px 9px;border:1px solid rgba(112,170,220,.5);border-radius:5px;background:rgba(3,14,30,.78);color:#9fc4e4;font:900 6px/1 system-ui;letter-spacing:.9px;cursor:pointer}.repo-wc-walkout-skip::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:0;background:#75bdf0}.repo-wc-walkout-skip.is-holding::after{animation:repoWcSkipHold .65s linear forwards}@keyframes repoWcSkipHold{to{width:100%}}.repo-wc-walkout-status{position:absolute;left:50%;bottom:7px;z-index:20;transform:translateX(-50%);color:#88a8c5;font:900 6px/1 system-ui;letter-spacing:1px;opacity:.8}.repo-wc-walkout-complete{animation:repoWcScreenKick .45s ease-out both}@keyframes repoWcScreenKick{0%{transform:translateX(0)}20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-1px)}100%{transform:none}}
+.repo-wc-discovery-line{margin-top:7px;color:#ffe59a!important;font:900 8px/1.25 system-ui!important;letter-spacing:.8px}.repo-wc-set-complete{position:fixed;inset:0;z-index:2147483600;display:grid;place-items:center;background:radial-gradient(circle,rgba(17,54,95,.78),rgba(1,5,13,.94));animation:repoWcSetCompleteIn .35s ease both}.repo-wc-set-complete-card{width:min(700px,88vw);padding:24px;text-align:center;border:1px solid #e5bb4d;border-radius:15px;background:linear-gradient(160deg,#0b2b55,#041329);box-shadow:0 30px 90px #000}.repo-wc-set-complete h2{margin:0;color:#ffe8a3;font:900 48px/1 Georgia}.repo-wc-set-complete h3{margin:5px 0;color:#fff;font:900 22px/1 Georgia}.repo-wc-set-complete p{color:#a9c4dc;font:700 9px system-ui}.repo-wc-set-complete button{padding:9px 18px;border:1px solid #68aee6;border-radius:6px;background:#0d3966;color:#fff2bf;font:900 8px system-ui}@keyframes repoWcSetCompleteIn{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.repo-wc-walkout *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.12s!important}.repo-wc-walkout.phase-build .repo-wc-walkout-card{animation:none!important}.repo-wc-walkout-complete{animation:none!important}.repo-wc-event-ambient *{animation:none!important;opacity:.08!important}}
+@media(max-width:700px){.repo-wc-inline-card.is-walkout-mode{width:94%;padding:10px}.repo-wc-opening-stage.is-walkout-stage{height:470px}.repo-wc-walkout-card{width:190px;height:316px}.repo-wc-walkout-country{top:24px;font-size:29px}.repo-wc-walkout-clue{top:33px;font-size:24px}.repo-wc-walkout-player{bottom:25px;font-size:25px}.repo-wc-walkout-flag{width:90%;height:64%;max-width:90%;max-height:64%}}
+`;
+    document.head.appendChild(s);
+  }
+
+  function defaultState(){return{free_packs_claimed:false,match_packs_earned:0,total_packs_awarded:0,unopened_packs:0,opened_packs:0,cards:[],packs:[],qualifying_fixtures:[]}}
+  function normaliseState(row){return{...defaultState(),...(row||{}),cards:Array.isArray(row?.cards)?row.cards:[],packs:Array.isArray(row?.packs)?row.packs:[],qualifying_fixtures:Array.isArray(row?.qualifying_fixtures)?row.qualifying_fixtures:[]}}
+  async function refreshState({silent=true}={}){const username=currentUsername();if(!username){eventState=null;passportState=[];stateLoaded=false;renderLaunchers();renderPassport();return null}if(stateLoading)return eventState;stateLoading=true;try{const [{data,error}]=await Promise.all([db.rpc('get_my_world_cup_pack_event_state',{p_username:username}),refreshPassportState({silent:true})]);if(error)throw error;eventState=normaliseState(rowOf(data));stateLoaded=true;renderLaunchers();if(document.getElementById('repoWorldCupEventDialog')?.open)renderEventMenu();return eventState}catch(error){if(!silent)console.error('[WORLD CUP LIMITED EVENT] state load failed',error);eventState=eventState||defaultState();stateLoaded=false;renderLaunchers();return eventState}finally{stateLoading=false}}
+
+  function syncEventMenuLauncherSize(left){if(!left)return;const ref=[document.getElementById('openAgility'),document.getElementById('openSlayer')].find(el=>el&&el.getBoundingClientRect().width>24&&el.getBoundingClientRect().height>20);if(ref){const r=ref.getBoundingClientRect();left.style.width=`${Math.round(r.width)}px`;left.style.height=`${Math.round(r.height)}px`}else{left.style.width='96px';left.style.height='64px'}}
+  function ensureLaunchers(){
+    installStyles();
+    // V1.9 deliberately has one launcher only. Remove the older duplicate circular Barry button.
+    document.getElementById('repoWcTopRightLauncher')?.remove();
+    let left=document.getElementById('repoWorldCupBarryNotice');
+    if(!left){left=document.createElement('button');left.id='repoWorldCupBarryNotice';left.type='button';left.setAttribute('aria-label','Open Repo Sports World Cup Limited Event menu');left.innerHTML=`<img src="${EVENT_MENU_BUTTON_ASSET}" alt="Repo Sports World Cup Menu">`;left.addEventListener('click',()=>{playEventUiClick();openEventDialog()});document.body.appendChild(left)}
+    syncEventMenuLauncherSize(left);if(!left.dataset.resizeBound){left.dataset.resizeBound='1';window.addEventListener('resize',()=>syncEventMenuLauncherSize(left),{passive:true})}
+    return{left};
+  }
+  function renderLaunchers(){const {left}=ensureLaunchers(),show=!!currentUsername();left.classList.toggle('is-visible',show);if(!show)return;if(!stateLoaded){left.classList.add('is-loading');return}left.classList.remove('is-loading');const unread=!freeClaimed()?FREE_PACKS:unopenedCount();left.classList.toggle('has-unopened',unread>0);left.classList.toggle('is-complete',allCollected())}
+
+  function eventAmbientFxMarkup(){
+    const ember=(side)=>Array.from({length:34},(_,i)=>{
+      const x=7+((i*31+(side==='right'?17:0))%86),y=(i*13)%34,s=3+(i%4),dx=-44+((i*23+(side==='right'?11:0))%89),dur=(2.15+(i%7)*.31).toFixed(2),delay=(-((i*0.31)+(side==='right'?.18:0))).toFixed(2);
+      return `<i style="--x:${x}%;--y:${y}px;--s:${s}px;--dx:${dx}px;--dur:${dur}s;--delay:${delay}s"></i>`;
+    }).join('');
+    const palette=['#ffd34f','#f5f8ff','#39a1ff','#ef5149','#78cf68','#ffc13a','#82b7ff'];
+    const confetti=Array.from({length:76},(_,i)=>{
+      const x=1+((i*37)%98),y=-14+((i*19)%42),w=3+(i%4),h=7+((i*7)%8),dx=-68+((i*23)%137),rot=`${220+((i*61)%610)}deg`,dur=(7.3+(i%9)*.57).toFixed(2),delay=(-((i*0.39)%8.6)).toFixed(2),c=palette[i%palette.length];
+      return `<i style="--x:${x}%;--y:${y}%;--w:${w}px;--h:${h}px;--dx:${dx}px;--rot:${rot};--dur:${dur}s;--delay:${delay}s;--c:${c}"></i>`;
+    }).join('');
+    return `<div class="repo-wc-event-ambient" aria-hidden="true"><div class="repo-wc-sky-confetti">${confetti}</div><div class="repo-wc-ember-source is-left">${ember('left')}</div><div class="repo-wc-ember-source is-right">${ember('right')}</div></div>`;
+  }
+  function ensureEventDialog(){let d=document.getElementById('repoWorldCupEventDialog');if(d)return d;d=document.createElement('dialog');d.id='repoWorldCupEventDialog';d.className='repo-wc-dialog';d.innerHTML=`${eventAmbientFxMarkup()}<div class="repo-wc-dialog-layout"><section class="repo-wc-shell" id="repoWorldCupEventShell"><button class="repo-wc-dialog-close" type="button" aria-label="Close">×</button><div id="repoWorldCupEventContent"></div></section><aside id="repoWorldCupPassport" class="repo-wc-passport" aria-label="World Cup Passport"></aside></div>`;document.body.appendChild(d);d.querySelector('.repo-wc-dialog-close').addEventListener('click',()=>{playEventUiClick();d.close()});d.addEventListener('click',e=>{if(e.target===d)d.close()});d.addEventListener('close',()=>{closeInlinePackOverlay();stopEventProgressMusic()});renderPassport();return d}
+  async function openEventDialog(){if(!currentUsername())return;startEventProgressMusic();if(!stateLoaded)await refreshState({silent:false});else await refreshPassportState({silent:true});const d=ensureEventDialog();renderEventMenu();renderPassport();if(!d.open)d.showModal()}
+
+  function headerMarkup(){const finalHunt=packCount()===TOTAL_PACKS-1&&!orderedPacks().some(p=>Number(p.ordinal||0)===TOTAL_PACKS);return `<div class="repo-wc-event-head"><img src="${BARRY_ASSET}" alt="Barry Suit"><div class="repo-wc-event-copy"><small>REPO SPORTS WORLD CUP · LIMITED EVENT · 2026</small><h2>${finalHunt?'ONE LAST PACK.':(freeClaimed()?'WATCH. COLLECT. OPEN.':'THE WORLD CUP HAS ARRIVED')}</h2><p>${freeClaimed()?(finalHunt?'You are 9 / 10. Watch one more qualifying complete World Cup fixture to unlock the gold-edged Final Pack.':`Two complimentary packs start the event. Eight qualifying complete live World Cup fixtures then unlock Match Packs I–VII and the visually distinct Final Pack.`):`Barry Suit has brought two complimentary World Cup packs: the Welcome Pack and one World Cup Pack. Eight match rewards complete the ten-pack Limited Event journey.`}</p></div><div class="repo-wc-event-stats"><div class="repo-wc-stat"><b>${packCount()}</b><span>PACKS / ${TOTAL_PACKS}</span></div><div class="repo-wc-stat"><b>${unopenedCount()}</b><span>UNOPENED</span></div><div class="repo-wc-stat"><b>${matchCount()}</b><span>WATCH / ${MATCH_PACKS}</span></div><div class="repo-wc-stat"><b>${discoveredCount()}</b><span>DISCOVERED / ${EVENT_CARD_CAPACITY}</span></div></div></div>`}
+
+  function lockerMarkup(){
+    const packs=orderedPacks(),byOrdinal=new Map(packs.map(p=>[Number(p.ordinal||0),p]));
+    const atFinalObjective=packCount()===TOTAL_PACKS-1&&!byOrdinal.has(TOTAL_PACKS);
+    const slots=Array.from({length:TOTAL_PACKS},(_,i)=>{
+      const ord=i+1,p=byOrdinal.get(ord),earned=!!p,opened=!!p?.opened_at,card=opened?EVENT_CARD_BY_ID[String(p.card_id||'')]:null,meta=packSlotMeta(ord,p),free=ord<=FREE_PACKS;
+      const tip=earned?(opened?`Discovered World Cup card: ${card?.name||'card'}`:(p.source==='match'?(p.fixture_label||meta.detail):meta.detail)):(free?`Claim your complimentary ${meta.label.toLowerCase()}`:(meta.final?'Watch one final qualifying complete World Cup fixture to unlock':'Watch a qualifying complete World Cup fixture to unlock'));
+      const state=opened?'DISCOVERED':(earned?(meta.final?'OPEN FINAL PACK':'CLICK TO OPEN'):(free?'WAITING TO CLAIM':(meta.final&&atFinalObjective?'ONE MATCH LEFT':'LOCKED')));
+      return `<div role="${earned?'button':'group'}" tabindex="${earned?'0':'-1'}" aria-disabled="${earned?'false':'true'}" class="repo-wc-pack-slot ${earned?'is-earned':'is-locked'} ${opened?'is-opened':''} ${meta.final?'is-final':''} ${meta.final&&atFinalObjective?'is-last-objective':''}" data-wc-slot="${ord}" title="${esc(tip)}"><span class="repo-wc-slot-top">${meta.label}</span>${!earned?'<span class="repo-wc-lock">◆</span>':''}${opened&&card?`<img class="repo-wc-opened-card" src="${card.image}" alt="Discovered World Cup card">`:`<img src="${PACK_ASSET}" alt="${esc(meta.label)}">`}<span class="repo-wc-slot-state">${state}</span></div>`
+    }).join('');
+    return `<div class="repo-wc-panel"><div class="repo-wc-panel-head"><b>WORLD CUP PACK LOCKER</b><span>${packCount()} / ${TOTAL_PACKS} EARNED · ${unopenedCount()} UNOPENED</span></div><div class="repo-wc-locker">${slots}</div><div class="repo-wc-progress-wrap"><div class="repo-wc-progress-copy"><span>QUALIFYING FIXTURES COMPLETED</span><b>${matchCount()} / ${MATCH_PACKS} WATCH PACKS EARNED</b></div><div class="repo-wc-progress" style="--p:${matchCount()/MATCH_PACKS*100}%"><i></i></div></div></div>`
+  }
+
+  function sideMarkup(){
+    const unlocked=new Set(eventState?.cards||[]),slots=[];
+    for(let i=0;i<EVENT_CARD_CAPACITY;i++){
+      const c=EVENT_CARDS[i],revealed=!!c&&unlocked.has(c.id);
+      if(revealed){
+        const fresh=c.id===lastDiscoveredCardId;
+        slots.push(`<div class="repo-wc-mini-card is-revealed ${fresh?'is-new-discovery':''}" title="${esc(c.name)}"><img src="${c.image}" alt="${esc(c.name)}"><span>DISCOVERED</span></div>`);
+      }else{
+        // Deliberately no player/country name, card id, or artwork URL before discovery.
+        slots.push(`<div class="repo-wc-mini-card is-undiscovered" aria-label="Undiscovered World Cup card"><span>UNDISCOVERED</span></div>`);
+      }
+    }
+    const cards=slots.join(''),last=orderedPacks().filter(p=>p.source==='match').slice(-1)[0],finalHunt=packCount()===TOTAL_PACKS-1&&!orderedPacks().some(p=>Number(p.ordinal||0)===TOTAL_PACKS);
+    return `<div class="repo-wc-panel repo-wc-side"><div class="repo-wc-side-card"><small>EVENT JOURNEY</small><h3>${finalHunt?'FINAL PACK':'2 FREE · 8 WATCH'}</h3><p>${finalHunt?'One qualifying complete live fixture remains. Finish it to unlock the visually distinct Final Pack.':'Welcome Pack + one World Cup Pack are complimentary. Match Packs I–VII follow, with the tenth slot reserved for the Final Pack.'}</p></div><div class="repo-wc-side-card repo-wc-card-set-panel"><small>SECRET WORLD CUP SET</small><h3>${unlocked.size} / ${EVENT_CARD_CAPACITY} DISCOVERED</h3><p>Undiscovered cards hide player, country and artwork. Pull one to reveal who is in the set.</p><div class="repo-wc-mini-cards">${cards}</div></div>${last?`<div class="repo-wc-side-card"><small>LATEST MATCH SOUVENIR</small><h3>${esc(last.fixture_label||last.fixture_id||'World Cup fixture')}</h3><p>${esc(last.stage||'Repo Sports World Cup')}</p></div>`:''}<div class="repo-wc-toolbar"><button type="button" class="primary" id="repoWcBinderButton">OPEN TCG BINDER</button><button type="button" id="repoWcRefreshButton" aria-label="Refresh event">REFRESH EVENT</button></div></div>`
+  }
+
+  function renderEventMenu(){const c=document.getElementById('repoWorldCupEventContent');if(!c)return;renderPassport();if(!freeClaimed()){c.innerHTML=headerMarkup()+`<div class="repo-wc-free-stage"><div class="repo-wc-free-row"><img style="--i:0" src="${PACK_ASSET}" alt="Welcome Pack"><img style="--i:1" src="${PACK_ASSET}" alt="World Cup Pack"></div><button id="repoWcClaimFree" class="repo-wc-claim-btn">CLAIM 2 FREE WORLD CUP PACKS</button><div class="repo-wc-free-note" id="repoWcClaimMessage">Welcome Pack + World Cup Pack · two complimentary packs per account · open them from this Limited Event Locker.</div></div>`;c.querySelector('#repoWcClaimFree')?.addEventListener('click',claimFreePacks);return}c.innerHTML=headerMarkup()+`<div class="repo-wc-menu-grid">${lockerMarkup()}${sideMarkup()}</div>`;c.querySelectorAll('[data-wc-slot]').forEach(slot=>{const activate=()=>{const ord=Number(slot.dataset.wcSlot),pack=orderedPacks().find(p=>Number(p.ordinal||0)===ord);if(!pack)return;if(pack.opened_at)showOpenedWorldCupCard(pack.card_id,pack.pack_id);else openWorldCupPackDialog(pack.pack_id)};slot.addEventListener('click',activate);slot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}})});c.querySelector('#repoWcBinderButton')?.addEventListener('click',()=>{stopEventProgressMusic();ensureEventDialog().close();openQuidditchTcgBinder?.()});c.querySelector('#repoWcRefreshButton')?.addEventListener('click',async()=>{playEventUiClick();await refreshState({silent:false});renderEventMenu()})}
+
+  async function claimFreePacks(){if(claimBusy||freeClaimed())return;const b=document.getElementById('repoWcClaimFree'),m=document.getElementById('repoWcClaimMessage');claimBusy=true;if(b){b.disabled=true;b.textContent='SECURING YOUR PACKS…'}try{const {data,error}=await db.rpc('claim_world_cup_free_packs',{p_username:currentUsername()});if(error)throw error;eventState=normaliseState(rowOf(data));stateLoaded=true;playClaimSting();renderLaunchers();await sleep(650);renderEventMenu()}catch(error){console.error('[WORLD CUP LIMITED EVENT] free claim failed',error);if(m)m.textContent=error?.message||'Could not claim packs.';if(b){b.disabled=false;b.textContent='TRY AGAIN'}}finally{claimBusy=false}}
+
+  function ensureInlinePackOverlay(){const shell=document.getElementById('repoWorldCupEventShell')||ensureEventDialog().querySelector('.repo-wc-shell');let o=document.getElementById('repoWcInlinePackOverlay');if(o)return o;o=document.createElement('div');o.id='repoWcInlinePackOverlay';o.className='repo-wc-inline-overlay';shell.appendChild(o);return o}
+  function closeInlinePackOverlay(){const o=document.getElementById('repoWcInlinePackOverlay');if(o){o.classList.remove('is-open');o.innerHTML=''}document.querySelector('.repo-wc-inline-card.is-walkout-mode')?.classList.remove('is-walkout-mode');selectedPackId=null;if(!openingPack)restoreEventMusicAfterPack()}
+  function selectedPack(){return orderedPacks().find(p=>String(p.pack_id)===String(selectedPackId))||null}
+  function renderClosedEventPack(packId){selectedPackId=String(packId||'');const p=selectedPack();if(!p||p.opened_at)return;const o=ensureInlinePackOverlay(),meta=packSlotMeta(Number(p.ordinal||0),p),detail=p.source==='match'?(p.fixture_label||p.fixture_id||meta.detail):meta.detail;o.innerHTML=`<div class="repo-wc-inline-card ${meta.final?'is-final-pack-opening':''}"><button class="repo-wc-inline-close" type="button">×</button><div class="repo-wc-inline-kicker">PACK ${Number(p.ordinal||0)} OF ${TOTAL_PACKS} · ${meta.label}</div><div class="repo-wc-inline-title">READY TO OPEN</div><div class="repo-wc-inline-meta">${esc(detail)}</div><div id="repoWcOpeningStage" class="repo-wc-opening-stage"><img class="repo-wc-opening-pack" src="${PACK_ASSET}" alt="World Cup pack"></div><div id="repoWcOpenMessage" class="repo-wc-open-message"><b>WORLD CUP TCG PACK</b><small>A mystery World Cup player card is waiting inside.</small></div><div id="repoWcOpenActions" class="repo-wc-actions"><button class="repo-wc-primary" id="repoWcOpenNow">OPEN THIS PACK</button><button id="repoWcOpenCancel">RETURN TO LOCKER</button></div></div>`;o.classList.add('is-open');o.querySelector('.repo-wc-inline-close')?.addEventListener('click',closeInlinePackOverlay);o.querySelector('#repoWcOpenCancel')?.addEventListener('click',closeInlinePackOverlay);o.querySelector('#repoWcOpenNow')?.addEventListener('click',openOneWorldCupPack)}
+  async function openWorldCupPackDialog(packId=null){if(!stateLoaded)await refreshState({silent:false});const id=packId||orderedPacks().find(p=>!p.opened_at)?.pack_id;if(!id){toast?.('No unopened World Cup packs in your Limited Event Locker.');return}renderClosedEventPack(id)}
+  function showOpenedWorldCupCard(cardId,packId=''){const card=EVENT_CARD_BY_ID[String(cardId||'')];if(!card)return;selectedPackId=String(packId||'');const p=selectedPack(),o=ensureInlinePackOverlay();o.innerHTML=`<div class="repo-wc-inline-card"><button class="repo-wc-inline-close" type="button">×</button><div class="repo-wc-inline-kicker">${p?`PACK ${Number(p.ordinal||0)} OF ${TOTAL_PACKS} · `:''}WORLD CUP CARD</div><div class="repo-wc-inline-title">${esc(card.name)}</div><div class="repo-wc-inline-meta">Already revealed · permanently stored in your TCG Binder.</div><div class="repo-wc-card-preview"><img src="${card.image}" alt="${esc(card.name)}"></div><div class="repo-wc-actions"><button class="repo-wc-primary" id="repoWcPreviewBinder">VIEW TCG BINDER</button><button id="repoWcPreviewBack">RETURN TO LOCKER</button></div></div>`;o.classList.add('is-open');o.querySelector('.repo-wc-inline-close')?.addEventListener('click',closeInlinePackOverlay);o.querySelector('#repoWcPreviewBack')?.addEventListener('click',closeInlinePackOverlay);o.querySelector('#repoWcPreviewBinder')?.addEventListener('click',()=>{closeInlinePackOverlay();stopEventProgressMusic();ensureEventDialog().close();openQuidditchTcgBinder?.()})}
+  function siteAudioMuted(){
+    try{
+      if(window.repoAudioMuted===true||window.soundMuted===true||window.isMuted===true)return true;
+      const master=document.querySelector('[data-repo-muted="true"],.repo-audio-muted,.is-muted[data-audio]');
+      return !!master;
+    }catch(_){return false}
+  }
+  function oneShot(path,volume=.5){
+    try{if(!path||siteAudioMuted())return null;const a=new Audio(path);a.preload='auto';a.volume=clamp(volume,0,1);a.play().catch(()=>{});return a}catch(_){return null}
+  }
+  function startWalkoutCrowd(){
+    try{if(siteAudioMuted())return null;const a=new Audio(WALKOUT_CROWD);a.loop=true;a.preload='auto';a.volume=.08;a.play().catch(()=>{});return a}catch(_){return null}
+  }
+  function fadeStopAudio(a,ms=320){
+    if(!a)return;try{const from=a.volume||0,start=performance.now();const tick=now=>{const t=clamp((now-start)/ms,0,1);a.volume=from*(1-t);if(t<1&&!a.paused)requestAnimationFrame(tick);else{a.pause();a.currentTime=0}};requestAnimationFrame(tick)}catch(_){try{a.pause()}catch(__){}}
+  }
+  function resolveExistingCountryAnnouncement(country){
+    // The current Quidditch build exposes no hard-coded country-voice file paths here.
+    // Reuse an already-registered/loaded announcer asset if the wider site has one;
+    // deliberately never invent a path such as /audio/belros.mp3.
+    const key=normTeam(country).replace(/\s+/g,'');
+    const reject=s=>/(theme|music|kit|anthem|ambient)/i.test(String(s||''));
+    try{
+      const maps=[window.repoSportsCountryAudio,window.worldCupCountryAudio,window.countrySounds,window.announcerCountryAudio,window.worldCupAnnouncerAudio].filter(Boolean);
+      for(const map of maps){
+        if(typeof map!=='object')continue;
+        for(const [k,v] of Object.entries(map)){
+          if(normTeam(k).replace(/\s+/g,'')!==key)continue;
+          if(v instanceof HTMLAudioElement)return v.cloneNode(true);
+          if(typeof v==='string'&&!reject(v))return new Audio(v);
+          if(v?.src&&!reject(v.src))return new Audio(v.src);
+        }
+      }
+      for(const el of document.querySelectorAll('audio')){
+        const hay=`${el.id} ${el.getAttribute('src')||''} ${el.dataset?.country||''} ${el.dataset?.team||''}`.toLowerCase();
+        if(hay.replace(/[^a-z0-9]/g,'').includes(key)&&!reject(hay))return el.cloneNode(true);
+      }
+    }catch(_){}
+    return null;
+  }
+  function playCountryAnnouncement(country){
+    const a=resolveExistingCountryAnnouncement(country);if(!a||siteAudioMuted())return null;
+    try{a.volume=.9;a.currentTime=0;a.play().catch(()=>{});return a}catch(_){return null}
+  }
+  function playPlayerAnnouncement(card){
+    // User-supplied player announcement clips are intentionally full-volume on reveal.
+    if(!card?.sound||siteAudioMuted())return null;
+    try{const a=new Audio(card.sound);a.preload='auto';a.volume=1;a.currentTime=0;a.play().catch(()=>{});return a}catch(_){return null}
+  }
+  function walkoutParticles(){
+    return Array.from({length:26},(_,i)=>`<i style="left:${4+(i*37)%92}%;bottom:${-4+(i*19)%31}px;--d:${-(i%13)*.23}s;--drift:${-20+(i*17)%41}px"></i>`).join('');
+  }
+  function walkoutMarkup(card){
+    const meta=COUNTRY_META[card.country]||{name:String(card.country||'WORLD CUP').toUpperCase(),flag:''};
+    const seen=(()=>{try{return localStorage.getItem('repo_wc_walkout_seen_v19_2026')==='1'}catch(_){return false}})();
+    return `<div class="repo-wc-walkout env-${esc(card.environment||card.country||'worldcup')}" id="repoWcWalkout">
+      <div class="repo-wc-walkout-stadium"></div><div class="repo-wc-walkout-crowd"></div><div class="repo-wc-walkout-logo"></div>
+      <i class="repo-wc-walkout-light l1"></i><i class="repo-wc-walkout-light l2"></i><i class="repo-wc-walkout-light l3"></i><i class="repo-wc-walkout-light l4"></i>
+      ${meta.flag?`<img class="repo-wc-walkout-flag" src="${meta.flag}" alt="">`:''}
+      <div class="repo-wc-walkout-atmo">${walkoutParticles()}</div><div class="repo-wc-walkout-fireworks"><i></i><i></i><i></i><i></i></div><i class="repo-wc-walkout-impact"></i>
+      <div class="repo-wc-walkout-country"><small>WORLD CUP NATION</small>${esc(meta.name)}</div>
+      <div class="repo-wc-walkout-clue"><small>PLAYER CLUE</small>${esc(card.clue||'WORLD CUP INTERNATIONAL')}</div>
+      <div class="repo-wc-walkout-player">${esc(card.playerName||String(card.name||'').split(',')[0].toUpperCase())}<small>${esc(meta.name)}</small></div>
+      <div class="repo-wc-walkout-card" id="repoWcWalkoutCard"><img id="repoWcWalkoutImage" src="${CARD_BACK_ASSET}" alt="World Cup mystery card back"></div>
+      ${seen?'<button type="button" class="repo-wc-walkout-skip" id="repoWcWalkoutSkip">HOLD TO SKIP</button>':''}
+      <div class="repo-wc-walkout-status" id="repoWcWalkoutStatus">WORLD CUP WALKOUT</div>
+    </div>`;
+  }
+  function bindWalkoutSkip(ctx){
+    const b=document.getElementById('repoWcWalkoutSkip');if(!b)return;
+    let timer=0;
+    const cancel=()=>{clearTimeout(timer);timer=0;b.classList.remove('is-holding')};
+    const start=()=>{if(ctx.done)return;cancel();b.classList.add('is-holding');timer=setTimeout(()=>{ctx.skip=true;b.textContent='SKIPPED';b.classList.remove('is-holding')},650)};
+    b.addEventListener('pointerdown',start);b.addEventListener('pointerup',cancel);b.addEventListener('pointerleave',cancel);b.addEventListener('pointercancel',cancel);
+  }
+  async function walkoutWait(ms,ctx){
+    const started=performance.now();while(performance.now()-started<ms){if(ctx.skip)return false;await sleep(35)}return true;
+  }
+  function immediateWalkoutReveal(card,ctx){
+    const w=document.getElementById('repoWcWalkout'),turn=document.getElementById('repoWcWalkoutCard'),img=document.getElementById('repoWcWalkoutImage');if(!w)return;
+    w.className=`repo-wc-walkout env-${card.environment||card.country||'worldcup'} phase-reveal repo-wc-walkout-complete`;
+    if(img){img.src=card.image;img.alt=card.name}turn?.classList.remove('is-edge');turn?.classList.add('is-front');ctx.revealed=true;
+  }
+  function cardParallax(){
+    const card=document.getElementById('repoWcWalkoutCard'),stage=document.getElementById('repoWcOpeningStage');if(!card||!stage||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const move=e=>{if(!card.classList.contains('is-front'))return;const r=stage.getBoundingClientRect(),x=clamp((e.clientX-r.left)/r.width,-1,1)-.5,y=clamp((e.clientY-r.top)/r.height,-1,1)-.5;card.style.setProperty('--px',`${x*7}deg`);card.style.setProperty('--py',`${y*-5}deg`)};
+    stage.addEventListener('pointermove',move,{passive:true});stage.addEventListener('pointerleave',()=>{card.style.setProperty('--px','0deg');card.style.setProperty('--py','0deg')},{passive:true});
+  }
+  async function playWorldCupWalkout(card,{isDuplicate=false}={}){
+    const stage=document.getElementById('repoWcOpeningStage'),message=document.getElementById('repoWcOpenMessage'),actions=document.getElementById('repoWcOpenActions');if(!stage||!message||!actions)return;
+    const ctx={skip:false,done:false,revealed:false};
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const timing=reduced?{blackout:250,country:700,clue:620,build:320,edge:160,reveal:650}:{blackout:850,country:1120,clue:1050,build:620,edge:300,reveal:1100};
+    stage.innerHTML=walkoutMarkup(card);stage.className='repo-wc-opening-stage is-walkout-stage';stage.closest('.repo-wc-inline-card')?.classList.add('is-walkout-mode');
+    message.innerHTML='<b>SOMETHING SPECIAL IS COMING</b><small>The stadium is going dark…</small>';actions.innerHTML='';
+    bindWalkoutSkip(ctx);const w=document.getElementById('repoWcWalkout'),turn=document.getElementById('repoWcWalkoutCard'),img=document.getElementById('repoWcWalkoutImage'),status=document.getElementById('repoWcWalkoutStatus');
+    // V1.11: the cinematic remains visual. The event theme stays continuous at a ducked level; player-name VO remains the only reveal SFX.
+    requestAnimationFrame(()=>w?.classList.add('phase-blackout'));
+    if(!await walkoutWait(timing.blackout,ctx)){immediateWalkoutReveal(card,ctx)}
+    if(!ctx.skip){w.className=`repo-wc-walkout env-${card.environment||card.country} phase-country`;if(status)status.textContent='WHICH COUNTRY?';message.innerHTML='<b>WHICH COUNTRY?</b><small>The first clue breaks through the blackout.</small>';if(!await walkoutWait(timing.country,ctx))immediateWalkoutReveal(card,ctx)}
+    if(!ctx.skip){w.className=`repo-wc-walkout env-${card.environment||card.country} phase-clue`;if(status)status.textContent='WHICH PLAYER?';message.innerHTML='<b>PLAYER CLUE</b><small>Now make your guess.</small>';if(!await walkoutWait(timing.clue,ctx))immediateWalkoutReveal(card,ctx)}
+    if(!ctx.skip){w.className=`repo-wc-walkout env-${card.environment||card.country} phase-build`;if(status)status.textContent='THE REVEAL IS BUILDING';message.innerHTML='<b>THE REVEAL IS BUILDING</b><small>The name is about to be called.</small>';if(!await walkoutWait(timing.build,ctx))immediateWalkoutReveal(card,ctx)}
+    if(!ctx.skip){
+      playPlayerAnnouncement(card);turn?.classList.add('is-edge');await walkoutWait(timing.edge,ctx);
+      if(img){img.src=card.image;img.alt=card.name}
+      turn?.classList.remove('is-edge');turn?.classList.add('is-front');w.className=`repo-wc-walkout env-${card.environment||card.country} phase-reveal repo-wc-walkout-complete`;ctx.revealed=true;if(status)status.textContent='REPO SPORTS WORLD CUP';
+      // No crowd, trumpet, impact, clap or celebration audio here — only the player-name clip above.
+      await walkoutWait(timing.reveal,ctx);
+    }
+    if(ctx.skip&&!ctx.revealed){playPlayerAnnouncement(card);immediateWalkoutReveal(card,ctx)}
+    ctx.done=true;cardParallax();
+    try{localStorage.setItem('repo_wc_walkout_seen_v19_2026','1')}catch(_){}
+    return {skipped:ctx.skip};
+  }
+  function showWorldCupSetComplete(){
+    document.getElementById('repoWcSetComplete')?.remove();const n=document.createElement('div');n.id='repoWcSetComplete';n.className='repo-wc-set-complete';n.innerHTML=`<div class="repo-wc-set-complete-card"><small style="color:#e2b848;font:900 8px system-ui;letter-spacing:1.5px">REPO SPORTS WORLD CUP · LIMITED EVENT</small><h2>12 / 12</h2><h3>WORLD CUP SET COMPLETE</h3><p>Every mystery card in the special World Cup collection has been discovered.</p><button type="button">RETURN TO COLLECTION</button></div>`;document.body.appendChild(n);n.querySelector('button')?.addEventListener('click',()=>n.remove());
+  }
+  async function openOneWorldCupPack(){
+    const p=selectedPack();
+    if(openingPack||!p||p.opened_at)return;
+    const stage=document.getElementById('repoWcOpeningStage'),message=document.getElementById('repoWcOpenMessage'),actions=document.getElementById('repoWcOpenActions');
+    if(!stage||!message||!actions)return;
+    openingPack=true;silenceEventMusicForPack();actions.innerHTML='';stage.className='repo-wc-opening-stage is-opening';message.innerHTML='<b>THE WORLD CUP PACK IS OPENING…</b><small>Your card is being securely determined before the walkout begins.</small>';
+    try{
+      const ownedBefore=new Set(eventState?.cards||[]),started=performance.now();
+      const {data,error}=await db.rpc('open_world_cup_pack_slot_2026',{p_pack_id:p.pack_id,p_username:currentUsername()});if(error)throw error;
+      const row=rowOf(data),card=EVENT_CARD_BY_ID[String(row?.card_id||'')];if(!card)throw new Error('The unlocked World Cup card asset is not installed in this build.');
+      const isDuplicate=Boolean(row?.is_duplicate)||ownedBefore.has(card.id);
+      const preload=[card.image,COUNTRY_META[card.country]?.flag].filter(Boolean).map(src=>{const i=new Image();i.src=src;return typeof i.decode==='function'?i.decode().catch(()=>{}):Promise.resolve()});
+      // Preload player VO as soon as the persisted result returns; playback remains user-audible only at the name phase.
+      try{const a=new Audio(card.sound);a.preload='auto';a.load()}catch(_){}
+      await Promise.all([sleep(Math.max(0,600-(performance.now()-started))),...preload]);
+      await playWorldCupWalkout(card,{isDuplicate});
+      const wasNew=!isDuplicate;lastDiscoveredCardId=wasNew?card.id:'';
+      await refreshState({silent:true});renderLaunchers();
+      const uniqueAfter=discoveredCount();
+      message.innerHTML=`<b>${wasNew?'NEW CARD DISCOVERED':'DUPLICATE'}</b><small>${esc(card.name)} · ${wasNew?`WORLD CUP SET UPDATED · ${uniqueAfter} / ${EVENT_CARD_CAPACITY} DISCOVERED`:'The full World Cup walkout still counts — this player was already discovered.'}</small><span class="repo-wc-discovery-line">CLICK BELOW WHEN YOU ARE READY TO CONTINUE</span>`;
+      actions.innerHTML='<button class="repo-wc-primary" id="repoWcReturnLocker">RETURN TO PACK LOCKER</button><button id="repoWcRevealBinder">VIEW TCG BINDER</button>';
+      actions.querySelector('#repoWcReturnLocker')?.addEventListener('click',()=>{openingPack=false;closeInlinePackOverlay();renderEventMenu();restoreEventMusicAfterPack()});
+      actions.querySelector('#repoWcRevealBinder')?.addEventListener('click',()=>{closeInlinePackOverlay();stopEventProgressMusic();ensureEventDialog().close();openQuidditchTcgBinder?.()});
+      if(wasNew&&uniqueAfter>=EVENT_CARD_CAPACITY)setTimeout(showWorldCupSetComplete,650);
+      setTimeout(()=>{if(lastDiscoveredCardId===card.id){lastDiscoveredCardId=''}},2200);
+    }catch(error){
+      console.error('[WORLD CUP LIMITED EVENT] exact slot open failed',error);stage.className='repo-wc-opening-stage';stage.closest('.repo-wc-inline-card')?.classList.remove('is-walkout-mode');stage.innerHTML=`<img class="repo-wc-opening-pack" src="${PACK_ASSET}" alt="World Cup pack">`;message.innerHTML=`<b>PACK COULD NOT OPEN</b><small>${esc(error?.message||'Please try again.')}</small>`;actions.innerHTML='<button class="repo-wc-primary" id="repoWcRetryOpen">TRY AGAIN</button><button id="repoWcRetryBack">RETURN TO LOCKER</button>';actions.querySelector('#repoWcRetryOpen')?.addEventListener('click',openOneWorldCupPack);actions.querySelector('#repoWcRetryBack')?.addEventListener('click',closeInlinePackOverlay);restoreEventMusicAfterPack();
+    }finally{openingPack=false;if(!document.getElementById('repoWcInlinePackOverlay')?.classList.contains('is-open'))restoreEventMusicAfterPack()}
+  }
+
+  function ensureWatchChip(){const root=document.getElementById('wcWorldCupBroadcast');if(!root)return null;let chip=document.getElementById('repoWcWatchingChip');if(chip)return chip;chip=document.createElement('div');chip.id='repoWcWatchingChip';chip.innerHTML=`<img src="${PACK_ASSET}" alt=""><span><b>WORLD CUP PACK</b><small>WATCH THE FULL FIXTURE TO EARN</small></span>`;root.appendChild(chip);return chip}
+  function removeWatchChip(){document.getElementById('repoWcWatchingChip')?.remove()}
+  function beginFixture(meta={}){if(!eventReady())return;watchSession={...meta,fixtureId:String(meta.fixtureId||''),startedAt:Number(meta.startedAt)||Date.now(),completed:false};lastHeartbeatAt=0;ensureWatchChip();heartbeatFixture({...meta,phase:'first',elapsedSeconds:Number(meta.elapsedSeconds)||0,force:true})}
+  async function heartbeatFixture(meta={}){if(!watchSession||heartbeatBusy)return;const now=performance.now();if(!meta.force&&now-lastHeartbeatAt<9000)return;lastHeartbeatAt=now;heartbeatBusy=true;const x={...watchSession,...meta};try{const packEligible=matchCount()<MATCH_PACKS&&!allCollected();if(packEligible){const {error}=await db.rpc('record_world_cup_fixture_watch_heartbeat',{p_fixture_id:String(x.fixtureId||''),p_fixture_label:String(x.label||''),p_team_a:String(x.teamA||''),p_team_b:String(x.teamB||''),p_stage:String(x.stage||'World Cup'),p_fixture_started_at:new Date(Number(x.startedAt)||Date.now()).toISOString(),p_match_elapsed_seconds:Math.max(0,Math.round(Number(x.elapsedSeconds)||0)),p_phase:String(x.phase||'')});if(error)throw error}const ticket=passportTicketForMeta(x),passport=ticket?await recordPassportHeartbeat(x):null;const small=ensureWatchChip()?.querySelector('small');if(small){if(ticket&&!passport?.unlocked_at){const sec=Math.min(600,Number(passport?.watched_seconds||0));small.textContent=`PASSPORT ${Math.floor(sec/60)}:${String(Math.floor(sec%60)).padStart(2,'0')} / 10:00 · KEEP WATCHING`;}else if(packEligible)small.textContent=Number(x.elapsedSeconds||0)>=900?'PACK NEARLY SECURED · KEEP WATCHING':'WATCH THE FULL FIXTURE TO EARN';else if(ticket)small.textContent='PASSPORT TICKET STAMPED · ENJOY THE MATCH';else small.textContent='WORLD CUP LIVE';}}catch(error){console.warn('[WORLD CUP LIMITED EVENT] heartbeat failed',error)}finally{heartbeatBusy=false}}
+  async function completeFixture(meta={}){if(!watchSession||watchSession.completed||completionBusy)return;completionBusy=true;watchSession.completed=true;const x={...watchSession,...meta};try{await heartbeatFixture({...x,phase:'fulltime',force:true});if(matchCount()<MATCH_PACKS&&!allCollected()){const {data,error}=await db.rpc('complete_world_cup_fixture_watch',{p_fixture_id:String(x.fixtureId||''),p_match_elapsed_seconds:Math.max(1080,Math.round(Number(x.elapsedSeconds)||1080))});if(error)throw error;const row=rowOf(data);await refreshState({silent:true});if(row?.awarded)showMatchReward(row,x)}else await refreshPassportState({silent:true})}catch(error){console.error('[WORLD CUP LIMITED EVENT] completion failed',error);watchSession.completed=false}finally{completionBusy=false;removeWatchChip()}}
+  function endFixture(){removeWatchChip();watchSession=null;lastHeartbeatAt=0;heartbeatBusy=false;completionBusy=false}
+  function showMatchReward(row,meta){const n=Number(row?.pack_number||packCount()),pm=packSlotMeta(n);let box=document.getElementById('repoWcMatchReward');box?.remove();box=document.createElement('aside');box.id='repoWcMatchReward';box.className=`repo-wc-match-reward ${pm.final?'is-final-reward':''}`;box.innerHTML=`<img src="${PACK_ASSET}" alt="${esc(pm.label)}"><small>MATCH COMPLETE · FULL FIXTURE WATCHED</small><b>${pm.final?'FINAL PACK UNLOCKED':`${pm.label} EARNED`}</b><strong>PACK ${n} OF ${TOTAL_PACKS}</strong><div style="font:700 8px/1.35 system-ui;color:#a9bfd5;margin-top:4px">${esc(meta.label||'Repo Sports World Cup fixture')}</div><button type="button">OPEN LIMITED EVENT</button>`;document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add('is-visible'));box.querySelector('button').addEventListener('click',()=>{box.remove();openEventDialog()});setTimeout(()=>box.classList.remove('is-visible'),9000);setTimeout(()=>box.remove(),9600);if(Number(row?.pack_number)>=TOTAL_PACKS||allCollected())setTimeout(showCompletionCelebration,1300)}
+  function showCompletionCelebration(){document.getElementById('repoWcCompletionOverlay')?.remove();const w=document.createElement('div');w.id='repoWcCompletionOverlay';w.className='repo-wc-complete-overlay';w.innerHTML=`<div class="repo-wc-complete-card"><img src="${PACK_ASSET}" alt="World Cup pack"><h2>${TOTAL_PACKS} / ${TOTAL_PACKS}</h2><h3>FINAL PACK UNLOCKED</h3><p>You reached 10 / 10. Your gold-edged Final Pack is waiting inside the Repo Sports World Cup Limited Event Locker.</p><button id="repoWcOpenFinal">OPEN LIMITED EVENT</button><button id="repoWcCompleteLater">LATER</button></div>`;document.body.appendChild(w);requestAnimationFrame(()=>w.classList.add('is-visible'));w.querySelector('#repoWcOpenFinal').addEventListener('click',()=>{w.remove();openEventDialog()});w.querySelector('#repoWcCompleteLater').addEventListener('click',()=>w.remove())}
+
+  // IMPORTANT: this event deliberately does not wrap or replace renderBank/loadBankAndPets.
+  // World Cup packs live only in the Limited Event Locker, leaving the ordinary Bank untouched.
+  window.RepoWorldCupPacks={beginFixture,heartbeatFixture,completeFixture,endFixture,refresh:refreshState,refreshPassport:refreshPassportState,openTracker:openEventDialog,openPack:openWorldCupPackDialog};
+  function accountWatcher(){const u=currentUsername();if(u!==lastUser){lastUser=u;eventState=null;passportState=[];stateLoaded=false;renderLaunchers();renderPassport();if(u)refreshState({silent:true})}}
+  installStyles();ensureLaunchers();accountWatcher();setInterval(accountWatcher,1200);setInterval(()=>{if(currentUsername())refreshState({silent:true})},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUsername())refreshState({silent:true})});
 })();

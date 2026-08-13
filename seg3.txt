@@ -1,0 +1,257 @@
+// REPO SPORTS — PTS COLUMN (3 PER WIN, 0 FOR DRAW/LOSS)
+// Adds the same points tally to the League Hub and the live V2 table without
+// replacing either renderer. This keeps later Repo Sports UI patches intact.
+// ============================================================
+(()=>{
+  const POINTS_PER_WIN=3;
+  function ensurePtsStyle(doc,live=false){
+    if(!doc||doc.getElementById(live?'repoSportsLivePtsStyle':'repoSportsHubPtsStyle'))return;
+    const style=doc.createElement('style');style.id=live?'repoSportsLivePtsStyle':'repoSportsHubPtsStyle';
+    if(live){
+      style.textContent=`
+        .wcg-v2-standings-head,.wcg-v2-standings-row{grid-template-columns:17px minmax(58px,1fr) 19px 16px 16px 19px 19px 22px 23px 31px!important;gap:2px!important}
+        .wcg-v2-standings-pts{font-weight:900;color:#f5cf67;text-align:center;font-size:8.5px;font-variant-numeric:tabular-nums}
+      `;
+    }else{
+      style.textContent=`
+        .repo-v2-standing-head,.repo-v2-standing-row{grid-template-columns:18px minmax(68px,1fr) 21px 18px 18px 22px 22px 26px 25px 37px!important;column-gap:2px!important}
+        .repo-v2-standing-pts{font-weight:900;color:#f3cf69;text-align:center;font-variant-numeric:tabular-nums}
+      `;
+    }
+    (doc.head||doc.documentElement).appendChild(style);
+  }
+  function patchHubStandings(){
+    const head=document.querySelector('.repo-v2-standings-panel .repo-v2-standing-head');
+    const body=document.getElementById('repoSportsV2HubStandings');
+    if(!head||!body)return;
+    ensurePtsStyle(document,false);
+    if(!head.querySelector('[data-repo-points]')){const cell=document.createElement('span');cell.dataset.repoPoints='1';cell.textContent='PTS';head.insertBefore(cell,head.lastElementChild);}
+    body.querySelectorAll('.repo-v2-standing-row').forEach(row=>{
+      let cell=row.querySelector('[data-repo-points]');
+      const children=[...row.children];const wins=Math.max(0,parseInt(children[3]?.textContent||'0',10)||0);
+      if(!cell){cell=document.createElement('span');cell.dataset.repoPoints='1';cell.className='repo-v2-standing-pts';row.insertBefore(cell,row.lastElementChild);}
+      cell.textContent=String(wins*POINTS_PER_WIN);
+    });
+  }
+  function patchLiveStandings(){
+    const frame=document.getElementById('repoSportsV2TestFrame');if(!frame)return;
+    let doc;try{doc=frame.contentDocument||frame.contentWindow?.document;}catch(_){return;}if(!doc)return;
+    const head=doc.querySelector('.wcg-v2-standings-head'),body=doc.getElementById('wcgStandingsRows');if(!head||!body)return;
+    ensurePtsStyle(doc,true);
+    if(!head.querySelector('[data-repo-points]')){const cell=doc.createElement('span');cell.dataset.repoPoints='1';cell.textContent='PTS';head.insertBefore(cell,head.lastElementChild);}
+    body.querySelectorAll('.wcg-v2-standings-row').forEach(row=>{
+      let cell=row.querySelector('[data-repo-points]');
+      const children=[...row.children];const wins=Math.max(0,parseInt(children[3]?.textContent||'0',10)||0);
+      if(!cell){cell=doc.createElement('span');cell.dataset.repoPoints='1';cell.className='wcg-v2-standings-pts';row.insertBefore(cell,row.lastElementChild);}
+      cell.textContent=String(wins*POINTS_PER_WIN);
+    });
+  }
+  function patchAll(){patchHubStandings();patchLiveStandings();}
+  function start(){
+    patchAll();
+    const frame=document.getElementById('repoSportsV2TestFrame');if(frame&&!frame.dataset.repoPtsBound){frame.dataset.repoPtsBound='1';frame.addEventListener('load',()=>setTimeout(patchLiveStandings,80));}
+    setInterval(patchAll,1200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+
+/* ============================================================
+   LEVEL HUNTER · CANTO PLAINS WILDLIFE ART / CONTENT PASS
+   Uses supplied food, forage-node and wildlife-clue sprite sheets.
+   ============================================================ */
+const HUNTER_WILDLIFE_ART_ROOT='assets/level-hunter';
+const HUNTER_WILDLIFE_FOOD_ART={
+  canto_berries:'food/canto_red_berries.png', blueberries:'food/blueberries.png', cloudberries:'food/cloudberries.png', blackberries:'food/blackberries.png', rosehips:'food/rosehips.png', elderberries:'food/elderberries.png',
+  mixed_seeds:'food/mixed_seeds.png', sunflower_seeds:'food/sunflower_seeds.png', pumpkin_seeds:'food/pumpkin_seeds.png', acorn:'food/acorn.png', hazelnuts:'food/hazelnuts.png', grain:'food/field_grain.png',
+  carrot:'food/carrot.png', turnip:'food/turnip.png', radish:'food/radish.png', root_vegetables:'food/sweet_root.png', peas:'food/peas.png', garden_greens:'food/cabbage.png',
+  orchard_fruit:'food/apple.png', pear:'food/pear.png', plum:'food/plum.png', redcap_mushroom:'food/redcap_mushroom.png', brown_mushroom:'food/brown_mushroom.png', clover_sprigs:'food/meadow_herbs.png',
+  worms:'food/earthworm.png', grasshopper:'food/grasshopper.png', grub:'food/grub.png', basic_fish:'food/small_river_fish.png', river_trout:'food/river_trout.png', field_treat:'food/field_treat.png'
+};
+Object.assign(HUNTER_WILDLIFE_FOOD,{
+  blueberries:{name:'Blueberries',short:'BL',source:'Forage · hedge',description:'Sweet blue berries gathered from a Canto hedge.'},
+  cloudberries:{name:'Cloudberries',short:'CB',source:'Forage · damp meadow',description:'Soft golden berries that favour cooler damp ground.'},
+  blackberries:{name:'Blackberries',short:'BK',source:'Forage · bramble',description:'Dark bramble fruit found along woodland edges.'},
+  rosehips:{name:'Rosehips',short:'RH',source:'Forage · hedgerow',description:'Firm red hips from wild Canto roses.'},
+  elderberries:{name:'Elderberries',short:'EL',source:'Forage · woodland edge',description:'Tiny clustered berries from older hedge growth.'},
+  mixed_seeds:{name:'Mixed Meadow Seeds',short:'MS',source:'Forage · meadow',description:'A small handful of mixed meadow seeds.'},
+  pumpkin_seeds:{name:'Pumpkin Seeds',short:'PS',source:'Farm/vendor hook',description:'Large pale seeds suitable for several small animals.'},
+  acorn:{name:'Acorn',short:'AC',source:'Forage · woodland',description:'A fallen acorn from the Canto woodland.'},
+  hazelnuts:{name:'Hazelnuts',short:'HZ',source:'Forage · woodland edge',description:'Fresh nuts gathered beneath hedge trees.'},
+  carrot:{name:'Canto Carrot',short:'CA',source:'Forage · farm edge',description:'A crisp carrot gathered from permitted field margins.'},
+  turnip:{name:'Small Turnip',short:'TU',source:'Forage · farm edge',description:'A small turnip lifted from loose field-edge soil.'},
+  radish:{name:'Garden Radish',short:'RA',source:'Forage · village garden',description:'A peppery radish from a village-edge patch.'},
+  peas:{name:'Fresh Peas',short:'PE',source:'Forage · farm edge',description:'Tender peas collected from a field margin.'},
+  pear:{name:'Canto Pear',short:'PR',source:'Forage · orchard',description:'A ripe windfallen pear.'},
+  plum:{name:'Canto Plum',short:'PL',source:'Forage · orchard',description:'A sweet purple plum from the village edge.'},
+  redcap_mushroom:{name:'Redcap Mushroom',short:'RM',source:'Forage · woodland',description:'A bright woodland mushroom. Some wildlife investigates its scent.'},
+  brown_mushroom:{name:'Brown Field Mushroom',short:'BM',source:'Forage · meadow/woodland',description:'A common edible-looking field mushroom used as wildlife forage.'},
+  grasshopper:{name:'Grasshopper',short:'GH',source:'Forage · meadow',description:'A lively grasshopper gathered from long grass.'},
+  grub:{name:'Soft Grub',short:'GB',source:'Forage · soil/logs',description:'A pale grub found under loose soil and rotting wood.'},
+  river_trout:{name:'Small River Trout',short:'TR',source:'Fishing hook · river',description:'A small Canto river trout.'},
+  field_treat:{name:'Keeper Treat',short:'KT',source:'Quest/vendor hook',description:'A simple keeper biscuit for suitable animals.'}
+});
+for(const [id,rel] of Object.entries(HUNTER_WILDLIFE_FOOD_ART)){
+  if(HUNTER_WILDLIFE_FOOD[id]) HUNTER_WILDLIFE_FOOD[id].icon=`${HUNTER_WILDLIFE_ART_ROOT}/${rel}`;
+}
+
+// Give the 20 starter species broader, visibly supported food preferences.
+const HUNTER_CANTO_FOOD_PROFILE_PATCH={
+  sunmeadow_hare:{preferredFoods:['carrot'],likedFoods:['clover_sprigs','turnip','canto_berries'],neutralFoods:['garden_greens','grain'],dislikedFoods:['grasshopper'],hatedFoods:['basic_fish']},
+  canto_field_vole:{preferredFoods:['sunflower_seeds'],likedFoods:['mixed_seeds','grain','acorn'],neutralFoods:['canto_berries'],dislikedFoods:['clover_sprigs'],hatedFoods:['basic_fish']},
+  brambleback_hedgehog:{preferredFoods:['worms'],likedFoods:['grub','grasshopper','canto_berries'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  ambercrest_quail:{preferredFoods:['grain'],likedFoods:['mixed_seeds','sunflower_seeds','grasshopper'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish']},
+  brookfoot_otter_kit:{preferredFoods:['river_trout'],likedFoods:['basic_fish','grasshopper','worms'],neutralFoods:['canto_berries'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']},
+  clovershell_tortoise:{preferredFoods:['clover_sprigs'],likedFoods:['garden_greens','peas','orchard_fruit'],neutralFoods:['turnip'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  orchard_dormouse:{preferredFoods:['orchard_fruit'],likedFoods:['pear','plum','hazelnuts','sunflower_seeds'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish']},
+  reedtail_ferret:{preferredFoods:['basic_fish'],likedFoods:['river_trout','worms','grub'],neutralFoods:['grain'],dislikedFoods:['orchard_fruit'],hatedFoods:['clover_sprigs']},
+  furrow_mole:{preferredFoods:['worms'],likedFoods:['grub','grasshopper'],neutralFoods:['root_vegetables'],dislikedFoods:['canto_berries'],hatedFoods:['orchard_fruit']},
+  copperstripe_squirrel:{preferredFoods:['acorn'],likedFoods:['hazelnuts','sunflower_seeds','orchard_fruit'],neutralFoods:['grain'],dislikedFoods:['garden_greens'],hatedFoods:['basic_fish']},
+  bellflower_badger_cub:{preferredFoods:['grub'],likedFoods:['worms','blackberries','orchard_fruit'],neutralFoods:['root_vegetables'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']},
+  canto_grass_lizard:{preferredFoods:['grasshopper'],likedFoods:['grub','pond_insects'],neutralFoods:['canto_berries'],dislikedFoods:['grain'],hatedFoods:['garden_greens']},
+  meadowbell_lamb:{preferredFoods:['clover_sprigs'],likedFoods:['garden_greens','peas','carrot'],neutralFoods:['grain'],dislikedFoods:['orchard_fruit'],hatedFoods:['basic_fish']},
+  redbank_fox_kit:{preferredFoods:['field_treat'],likedFoods:['basic_fish','river_trout','grub'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']},
+  canal_duckling:{preferredFoods:['peas'],likedFoods:['grain','mixed_seeds','pond_insects'],neutralFoods:['clover_sprigs'],dislikedFoods:['orchard_fruit'],hatedFoods:['root_vegetables']},
+  dewdrop_frog:{preferredFoods:['grasshopper'],likedFoods:['grub','pond_insects'],neutralFoods:['worms'],dislikedFoods:['canto_berries'],hatedFoods:['grain']},
+  millstone_goat_kid:{preferredFoods:['carrot'],likedFoods:['garden_greens','turnip','clover_sprigs'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  honeywing_pipit:{preferredFoods:['mixed_seeds'],likedFoods:['grain','sunflower_seeds','grasshopper'],neutralFoods:['canto_berries'],dislikedFoods:['root_vegetables'],hatedFoods:['basic_fish']},
+  raincoil_snail:{preferredFoods:['garden_greens'],likedFoods:['clover_sprigs','peas','brown_mushroom'],neutralFoods:['orchard_fruit'],dislikedFoods:['grain'],hatedFoods:['basic_fish']},
+  barnloft_owlet:{preferredFoods:['grub'],likedFoods:['grasshopper','worms','basic_fish'],neutralFoods:['field_treat'],dislikedFoods:['grain'],hatedFoods:['clover_sprigs']}
+};
+for(const species of HUNTER_CANTO_SPECIES){const patch=HUNTER_CANTO_FOOD_PROFILE_PATCH[species.speciesId];if(patch)Object.assign(species,patch);}
+
+const HUNTER_CANTO_FORAGE_ART={
+  berry:{full:'forage/berry_bush_full.png',empty:'forage/berry_bush_empty.png'},
+  herb:{full:'forage/herb_patch_full.png',empty:'forage/herb_patch_empty.png'},
+  mushroom:{full:'forage/mushroom_cluster_full.png',empty:'forage/mushroom_cluster_empty.png'},
+  fruit:{full:'forage/fallen_fruit_full.png',empty:'forage/fallen_fruit_empty.png'},
+  seed:{full:'forage/seed_flower_patch_full.png',empty:'forage/seed_flower_patch_empty.png'},
+  root:{full:'forage/root_patch_full.png',empty:'forage/root_patch_empty.png'},
+  insect:{full:'forage/insect_spot_full.png',empty:'forage/insect_spot_empty.png'},
+  fishing:{full:'forage/fishing_ripple_full.png',empty:'forage/fishing_ripple_empty.png'}
+};
+for(const v of Object.values(HUNTER_CANTO_FORAGE_ART)){v.full=`${HUNTER_WILDLIFE_ART_ROOT}/${v.full}`;v.empty=`${HUNTER_WILDLIFE_ART_ROOT}/${v.empty}`;}
+HUNTER_CANTO_FORAGE_NODES.splice(0,HUNTER_CANTO_FORAGE_NODES.length,
+  {id:'forage-clover',label:'Meadow Herb Patch',foodId:'clover_sprigs',type:'herb',x:725,y:405,min:2,max:4},
+  {id:'forage-berries',label:'Canto Berry Bush',foodId:'canto_berries',type:'berry',x:548,y:467,min:2,max:3},
+  {id:'forage-seeds',label:'Seed & Flower Patch',foodId:'sunflower_seeds',type:'seed',x:1185,y:350,min:2,max:4},
+  {id:'forage-grain',label:'Loose Field Grain',foodId:'grain',type:'seed',x:1305,y:565,min:2,max:4},
+  {id:'forage-roots',label:'Diggable Root Patch',foodId:'carrot',type:'root',x:1230,y:520,min:1,max:3},
+  {id:'forage-greens',label:'Garden Greens',foodId:'garden_greens',type:'herb',x:820,y:600,min:1,max:3},
+  {id:'forage-fruit',label:'Windfallen Orchard Fruit',foodId:'orchard_fruit',type:'fruit',x:665,y:690,min:1,max:3},
+  {id:'forage-worms',label:'Soft Riverbank Soil',foodId:'worms',type:'root',x:1080,y:645,min:2,max:4},
+  {id:'forage-insects',label:'Meadow Insect Spot',foodId:'grasshopper',type:'insect',x:925,y:845,min:1,max:3},
+  {id:'forage-mushrooms',label:'Woodland Mushroom Cluster',foodId:'brown_mushroom',type:'mushroom',x:505,y:855,min:1,max:2},
+  {id:'forage-nuts',label:'Woodland Seed Patch',foodId:'acorn',type:'seed',x:455,y:245,min:1,max:3},
+  {id:'forage-fishing',label:'River Ripple',foodId:'basic_fish',type:'fishing',x:1005,y:540,min:1,max:2}
+);
+
+const HUNTER_CANTO_CLUE_ART={
+  tracks:`${HUNTER_WILDLIFE_ART_ROOT}/clues/paw_tracks.png`, burrow:`${HUNTER_WILDLIFE_ART_ROOT}/clues/burrow.png`, nest:`${HUNTER_WILDLIFE_ART_ROOT}/clues/nest.png`,
+  ripples:`${HUNTER_WILDLIFE_ART_ROOT}/clues/reeds_ripples.png`, sound:`${HUNTER_WILDLIFE_ART_ROOT}/clues/feather.png`, rustle:`${HUNTER_WILDLIFE_ART_ROOT}/clues/rustling_bush.png`
+};
+function hunterClueAssetFor(op){
+  const id=op?.speciesId||'',method=op?.method||'';
+  if(method==='tracks'){
+    if(['sunmeadow_hare','canto_field_vole','raincoil_snail'].includes(id))return `${HUNTER_WILDLIFE_ART_ROOT}/clues/hare_tracks.png`;
+    if(['meadowbell_lamb','millstone_goat_kid'].includes(id))return `${HUNTER_WILDLIFE_ART_ROOT}/clues/hoof_tracks.png`;
+    if(['ambercrest_quail','honeywing_pipit','barnloft_owlet'].includes(id))return `${HUNTER_WILDLIFE_ART_ROOT}/clues/bird_tracks.png`;
+    return `${HUNTER_WILDLIFE_ART_ROOT}/clues/paw_tracks.png`;
+  }
+  if(method==='sound'){
+    if(id==='dewdrop_frog')return `${HUNTER_WILDLIFE_ART_ROOT}/clues/reeds_ripples.png`;
+    if(id==='copperstripe_squirrel')return `${HUNTER_WILDLIFE_ART_ROOT}/clues/broken_twig.png`;
+    return `${HUNTER_WILDLIFE_ART_ROOT}/clues/feather.png`;
+  }
+  if(method==='rustle')return id==='orchard_dormouse'?`${HUNTER_WILDLIFE_ART_ROOT}/clues/rustling_bush.png`:`${HUNTER_WILDLIFE_ART_ROOT}/clues/disturbed_grass.png`;
+  return HUNTER_CANTO_CLUE_ART[method]||`${HUNTER_WILDLIFE_ART_ROOT}/clues/disturbed_grass.png`;
+}
+
+function hunterWildlifeFoodIconHtml(id,cls='hunter-food-art'){
+  const f=HUNTER_WILDLIFE_FOOD[id];
+  return f?.icon?`<img class="${cls}" src="${f.icon}" alt="" draggable="false">`:`<i>${escapeHtml(f?.short||'?')}</i>`;
+}
+
+// Re-render world objects with the supplied proper pixel art instead of generic dots/glyphs.
+hunterRenderWildlifeWorld=function(force=false){
+  const layer=document.getElementById('hunterWildlifeLayer'),forageLayer=document.getElementById('hunterForageLayer');if(!layer||!forageLayer||!hunterWildlifeState)return;if(force){layer.innerHTML='';forageLayer.innerHTML='';}
+  for(const op of hunterWildlifeState.ops){
+    if(op.status==='befriended')continue;
+    let el=hunterWildlifeActorEl(op);
+    if(!el){el=document.createElement('span');el.dataset.hunterWildlifeId=op.id;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterInteractOpportunity(op.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterInteractOpportunity(op.id);}});layer.appendChild(el);}
+    const species=HUNTER_CANTO_SPECIES_BY_ID[op.speciesId];
+    if(op.revealed){
+      el.className='hunter-wildlife-actor';el.textContent='';
+      const size=species.size||18;el.style.width=`${size}px`;el.style.height=`${size}px`;el.style.marginLeft=`${-size/2}px`;el.style.marginTop=`${-size*.82}px`;el.style.backgroundImage=`url('${species.spriteReference}')`;el.style.backgroundSize=`${size*4}px ${size*4}px`;
+      const frame=op.frame||0,col=frame%4,row=Math.floor(frame/4);el.style.backgroundPosition=`${-col*size}px ${-row*size}px`;el.style.transform=`scaleX(${op.facing<0?-1:1})`;el.style.left=`${op.x}px`;el.style.top=`${op.y}px`;el.style.zIndex=String(5+Math.round(op.y/90));el.style.display=(op.hiddenUntil&&performance.now()<op.hiddenUntil)?'none':'';el.setAttribute('aria-label',species.name);
+    }else{
+      el.className='hunter-wildlife-clue';el.textContent='';el.style.left=`${op.homeX}px`;el.style.top=`${op.homeY}px`;el.style.backgroundImage=`url('${hunterClueAssetFor(op)}')`;el.style.display='';el.setAttribute('aria-label',HUNTER_CLUE_LABELS[op.method]||'Wildlife clue');
+    }
+  }
+  for(const node of hunterWildlifeState.forage){
+    let el=forageLayer.querySelector(`[data-hunter-forage-id="${node.id}"]`);
+    if(!el){el=document.createElement('span');el.className='hunter-forage-node';el.dataset.hunterForageId=node.id;el.setAttribute('role','button');el.setAttribute('tabindex','0');el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();hunterForageNode(node.id);});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();hunterForageNode(node.id);}});forageLayer.appendChild(el);}
+    const art=HUNTER_CANTO_FORAGE_ART[node.type]||HUNTER_CANTO_FORAGE_ART.herb;
+    el.style.left=`${node.x}px`;el.style.top=`${node.y}px`;el.style.backgroundImage=`url('${node.collected?art.empty:art.full}')`;el.classList.toggle('is-collected',!!node.collected);el.setAttribute('aria-label',node.collected?`${node.label} already foraged`:node.label);
+  }
+};
+
+hunterRenderEncounterFoodPicker=function(){
+  const foods=document.getElementById('hunterEncounterFoods');if(!foods)return;
+  const entries=Object.keys(hunterWildlifePersistent?.inventory||{}).filter(id=>hunterFoodQty(id)>0&&HUNTER_WILDLIFE_FOOD[id]);
+  foods.innerHTML=entries.length?entries.map(id=>`<button type="button" data-hunter-offer-food="${id}">${hunterWildlifeFoodIconHtml(id)}<span>${escapeHtml(HUNTER_WILDLIFE_FOOD[id].name)}</span><b>×${hunterFoodQty(id)}</b></button>`).join(''):'<p>Your Field Pack has no food. Look for forage nodes around Canto Plains first.</p>';
+  foods.classList.add('is-open');
+};
+
+hunterRenderFieldPack=function(){
+  const list=document.getElementById('hunterFieldPackList'),meta=document.getElementById('hunterFieldPackMeta');if(!list||!hunterWildlifePersistent)return;
+  const cap=hunterWildlifePersistent.inventoryCapacity||24;if(meta)meta.textContent=`${hunterInventoryUsed()}/${cap} carried`;
+  const entries=Object.keys(HUNTER_WILDLIFE_FOOD).filter(id=>hunterFoodQty(id)>0);
+  list.innerHTML=entries.length?entries.map(id=>{const f=HUNTER_WILDLIFE_FOOD[id];return`<div class="hunter-pack-item">${hunterWildlifeFoodIconHtml(id)}<span><b>${escapeHtml(f.name)}</b><small>${escapeHtml(f.source)}</small></span><strong>×${hunterFoodQty(id)}</strong></div>`;}).join(''):'<div class="hunter-empty-panel">Your Field Pack is empty. Search Canto for berry bushes, seed patches, roots, insects, mushrooms and river ripples.</div>';
+};
+
+// Keep the tutorial flexible: the new carrot art is the hare's true favourite, while meadow herbs still progress the tutorial.
+const __hunterOfferFoodBase=hunterOfferFoodToEncounter;
+hunterOfferFoodToEncounter=function(foodId){
+  const beforeOp=hunterWildlifeState?.ops.find(o=>o.id===hunterWildlifeState?.activeEncounterId);
+  const q=hunterQuestState();
+  __hunterOfferFoodBase(foodId);
+  if(beforeOp?.speciesId==='sunmeadow_hare'&&q.status==='active'&&q.stage==='gain_trust'&&['carrot','clover_sprigs'].includes(foodId)&&beforeOp.trust>=HUNTER_CANTO_SPECIES_BY_ID.sunmeadow_hare.centreRequirements.trust){hunterAdvanceDarwinQuest('trust','sunmeadow_hare');}
+};
+
+(function installHunterWildlifeArtStyles(){
+  if(document.getElementById('hunterWildlifeArtStyles'))return;const style=document.createElement('style');style.id='hunterWildlifeArtStyles';style.textContent=`
+  #hunterMenuOverlay .hunter-wildlife-clue{width:34px!important;height:30px!important;margin:-15px 0 0 -17px!important;border-radius:0!important;background-color:transparent!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;box-shadow:none!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.52)) drop-shadow(0 0 4px rgba(225,208,137,.18))!important;animation:hunterClueBreathe 2.2s ease-in-out infinite!important;color:transparent!important;}
+  #hunterMenuOverlay .hunter-wildlife-clue:hover{filter:drop-shadow(0 2px 2px rgba(0,0,0,.48)) drop-shadow(0 0 6px rgba(247,222,150,.52))!important;}
+  #hunterMenuOverlay .hunter-forage-node{width:44px!important;height:34px!important;margin:-22px 0 0 -22px!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.40));transition:filter .16s ease,transform .16s ease,opacity .2s ease!important;}
+  #hunterMenuOverlay .hunter-forage-node::after{content:'';position:absolute;inset:4px;border-radius:50%;background:radial-gradient(circle,rgba(245,225,151,.15),transparent 66%);opacity:.05;transition:opacity .16s ease;}
+  #hunterMenuOverlay .hunter-forage-node:hover{transform:translateY(-1px) scale(1.06);filter:drop-shadow(0 3px 3px rgba(0,0,0,.48)) drop-shadow(0 0 5px rgba(236,214,137,.38));}
+  #hunterMenuOverlay .hunter-forage-node:hover::after{opacity:.7}#hunterMenuOverlay .hunter-forage-node.is-collected{display:block!important;opacity:.62;filter:grayscale(.15) drop-shadow(0 2px 2px rgba(0,0,0,.30));cursor:default;}#hunterMenuOverlay .hunter-forage-node i{display:none!important;}
+  #hunterMenuOverlay .hunter-food-art{display:block!important;width:30px!important;height:30px!important;object-fit:contain!important;image-rendering:pixelated!important;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));}
+  #hunterMenuOverlay .hunter-encounter-foods button{grid-template-columns:34px 1fr auto!important;min-height:42px!important;}
+  #hunterMenuOverlay .hunter-encounter-foods button .hunter-food-art{width:30px!important;height:30px!important;}
+  #hunterMenuOverlay .hunter-pack-item{grid-template-columns:42px 1fr auto!important;min-height:48px!important;}#hunterMenuOverlay .hunter-pack-item .hunter-food-art{width:38px!important;height:38px!important;}
+  #hunterMenuOverlay .hunter-wildlife-actor{transition:filter .12s ease!important;}
+  @keyframes hunterClueBreathe{0%,100%{transform:scale(.92);opacity:.72}50%{transform:scale(1.04);opacity:1}}
+  `;document.head.appendChild(style);
+})();
+
+function hunterUpdateCantoWildlifeProgress(){
+  if(!hunterWildlifePersistent)return;
+  const poiCount=hunterCantoState?.discovered?.size ?? hunterCantoDiscoveries().size;
+  const poiPart=Math.min(.30,(poiCount/Math.max(1,HUNTER_CANTO_POIS.length))*.30);
+  const discovered=HUNTER_CANTO_SPECIES.filter(s=>hunterSpeciesRecord(s.speciesId).discovered).length;
+  const befriendedUnique=HUNTER_CANTO_SPECIES.filter(s=>(hunterSpeciesRecord(s.speciesId).befriendedCount||0)>0).length;
+  const speciesPart=Math.min(.38,(discovered/20)*.38);
+  const befriendPart=Math.min(.22,(befriendedUnique/8)*.22);
+  const questPart=hunterQuestState().status==='complete'?.10:0;
+  const total=Math.min(1,poiPart+speciesPart+befriendPart+questPart);
+  if(total>hunterElvaneProgress().east)setHunterElvaneCompletion('east',total);
+}
+const __hunterDiscoverSpeciesArtBase=hunterDiscoverSpecies;
+hunterDiscoverSpecies=function(op){const result=__hunterDiscoverSpeciesArtBase(op);hunterUpdateCantoWildlifeProgress();return result;};
+const __hunterBefriendEncounterArtBase=hunterBefriendEncounter;
+hunterBefriendEncounter=function(){__hunterBefriendEncounterArtBase();hunterUpdateCantoWildlifeProgress();};
+const __hunterAdvanceDarwinQuestArtBase=hunterAdvanceDarwinQuest;
+hunterAdvanceDarwinQuest=function(trigger,speciesId){__hunterAdvanceDarwinQuestArtBase(trigger,speciesId);hunterUpdateCantoWildlifeProgress();};
+
