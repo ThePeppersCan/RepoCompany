@@ -1,15 +1,26 @@
-REPO SPORTS WORLD CUP V1.19 — CONFETTI MOTION FIX
+REPO SPORTS WORLD CUP — FULL ARENA FLIGHT SPACE FIX
 
-Fixes the homepage middle-scene confetti appearing to pause/static briefly.
+REPLACE ONLY:
+- world-cup-quidditch-v1.js
 
-Changes:
-- confetti travel now uses continuous linear motion rather than an ease curve that decelerated to near-zero at keyframe waypoints
-- opacity transitions remain soft without interrupting movement
-- gust overlap is slightly tighter so the teaser feels continuously alive without becoming busy
-- confetti remains clipped to the middle character scene only
+FIXED
+- Crown of Vardesh Glacier keeps its original vertical flight envelope exactly.
+- Hestholm Fjord, Warmvein, Yrsa Varn, Basalt Coast and Treedesh Forest now use a deeper vertical flight envelope matching their artwork.
+- The lower red-lined area is no longer treated like an invisible floor.
+- Support riders deliberately rotate through the deeper lower lane so the extra space is actually used during normal play.
+- Defenders follow those runs naturally.
+- Bottom-edge steering/recovery now uses the active stadium's lower boundary rather than snapping riders back to Crown's old height.
+- Pass/interception containment uses the active arena's lower boundary too.
 
-Install:
-1. Replace your current script.js with the included script.js
-2. Hard refresh with Ctrl + Shift + R
+PRESERVED
+- Crown of Vardesh gameplay space unchanged.
+- Existing stadium standing-height corrections.
+- Crown and Hestholm stadium intro videos.
+- Stadium rotation.
+- 9-minute halves / 18-minute matches.
+- Current movement pace.
+- Shot outcome / scoring probability unchanged.
+- Pass, drive, action and penalty decision functions unchanged.
+- Club Quidditch untouched.
 
-No SQL or asset changes required.
+No CSS, assets, index.html, script.js or SQL need replacing.

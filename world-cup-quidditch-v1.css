@@ -4,9 +4,13 @@
    ============================================================ */
 #wcWorldCupBroadcast{
   position:fixed;inset:0;z-index:2147483300;display:none;place-items:center;
-  background:radial-gradient(circle at 50% 45%,#0c1828 0,#02060b 68%,#000 100%);
+  background:
+    linear-gradient(180deg,rgba(1,6,13,.72),rgba(1,4,10,.90)),
+    url('assets/world-cup-game-v1/world-cup-broadcast-backdrop.png') center center / cover no-repeat,
+    radial-gradient(circle at 50% 45%,#0c1828 0,#02060b 68%,#000 100%);
   color:#f8e8b2;font-family:Georgia,'Times New Roman',serif;overflow:hidden;
 }
+#wcWorldCupBroadcast::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(7,18,30,.10) 0,rgba(2,6,12,.44) 58%,rgba(0,0,0,.76) 100%);pointer-events:none}
 #wcWorldCupBroadcast.is-open{display:grid}
 #wcWorldCupBroadcast *{box-sizing:border-box}
 .wcg-shell{
@@ -563,3 +567,104 @@ img[src*="world-cup-flags-transparent"]{
   text-wrap:balance;
   padding:0 4px;
 }
+
+
+/* ============================================================
+   WORLD CUP HOTFIX — OPENING FILM VISIBILITY + FULLSCREEN BACKDROP
+   Final overrides: intentionally placed at EOF.
+   ============================================================ */
+#wcWorldCupBroadcast{
+  background:
+    linear-gradient(180deg,rgba(1,6,13,.10),rgba(1,4,10,.22)),
+    url('assets/world-cup-game-v1/world-cup-broadcast-backdrop.png') center center / cover no-repeat,
+    #020812 !important;
+}
+#wcWorldCupBroadcast::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 48%,rgba(0,0,0,0) 30%,rgba(0,0,0,.08) 62%,rgba(0,0,0,.30) 100%) !important;
+}
+#wcWorldCupBroadcast>.wcg-shell{z-index:1}
+
+/* The film sits inside the TV glass while the TV frame remains above it. */
+.wcg-opening-film{
+  position:absolute;
+  inset:1.7% 2.1% 5.2%;
+  z-index:89;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#000;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.wcg-opening-film.is-visible{
+  display:flex !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto;
+}
+.wcg-opening-film video{
+  position:absolute;
+  inset:0;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  display:block !important;
+  object-fit:contain;
+  object-position:center center;
+  background:#000;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+#wcgOpeningFilmSound{
+  position:absolute;
+  z-index:3;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  padding:8px 14px;
+  border:1px solid rgba(224,179,80,.82);
+  background:rgba(4,10,18,.90);
+  color:#ffe3a0;
+  font:900 10px/1 monospace;
+  letter-spacing:.12em;
+  cursor:pointer;
+}
+#wcgOpeningFilmSound[hidden]{display:none!important}
+
+/* While the opening film runs, it is the broadcast. Keep only the physical TV frame above it. */
+#wcWorldCupBroadcast.is-opening-film .wcg-canvas,
+#wcWorldCupBroadcast.is-opening-film .wcg-snow,
+#wcWorldCupBroadcast.is-opening-film .wcg-worldcup-atmosphere,
+#wcWorldCupBroadcast.is-opening-film .wcg-scorebar,
+#wcWorldCupBroadcast.is-opening-film .wcg-live-chip,
+#wcWorldCupBroadcast.is-opening-film .wcg-replay-sponsor,
+#wcWorldCupBroadcast.is-opening-film .wcg-worldcup-replay-sponsor,
+#wcWorldCupBroadcast.is-opening-film .wcg-worldcup-replay-bug,
+#wcWorldCupBroadcast.is-opening-film .wcg-worldcup-story-card,
+#wcWorldCupBroadcast.is-opening-film .wcg-worldcup-big-moment,
+#wcWorldCupBroadcast.is-opening-film .wcg-presentation,
+#wcWorldCupBroadcast.is-opening-film .wcg-event-banner,
+#wcWorldCupBroadcast.is-opening-film .wcg-commentator,
+#wcWorldCupBroadcast.is-opening-film .wcg-mini-stats,
+#wcWorldCupBroadcast.is-opening-film .wcg-controls,
+#wcWorldCupBroadcast.is-opening-film .wcg-admin-panel,
+#wcWorldCupBroadcast.is-opening-film .wcg-var-box,
+#wcWorldCupBroadcast.is-opening-film .wcg-overlay-card,
+#wcWorldCupBroadcast.is-opening-film .wcg-screen-effects{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#wcWorldCupBroadcast.is-opening-film .wcg-tv-frame{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+\n\n/* ============================================================\n   WORLD CUP — FULLSCREEN EVENT AMBIENCE BEHIND THE TV\n   Subtle snow, embers and occasional tournament confetti.\n   ============================================================ */\n#wcWorldCupBroadcast>.wcg-shell{position:relative;z-index:2}\n.wcg-backdrop-fx{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;contain:strict}\n.wcg-bg-snow,.wcg-bg-ember,.wcg-bg-confetti{position:absolute;display:block;pointer-events:none;will-change:transform,opacity}\n.wcg-bg-snow{left:var(--x);top:-5%;width:var(--size);height:var(--size);border-radius:50%;background:rgba(224,244,255,.88);box-shadow:0 0 4px rgba(179,226,255,.32);opacity:.35;animation:wcgBackdropSnow var(--dur) linear var(--delay) infinite}\n@keyframes wcgBackdropSnow{0%{transform:translate3d(0,-5vh,0);opacity:0}8%{opacity:.34}88%{opacity:.27}100%{transform:translate3d(var(--drift),108vh,0);opacity:0}}\n.wcg-bg-ember{left:var(--x);bottom:-4%;width:2px;height:2px;border-radius:50%;background:#ffb24b;box-shadow:0 0 5px rgba(255,137,38,.65),0 0 11px rgba(255,90,20,.22);opacity:0;animation:wcgBackdropEmber var(--dur) ease-out var(--delay) infinite}\n@keyframes wcgBackdropEmber{0%,12%{transform:translate3d(0,0,0) scale(.6);opacity:0}18%{opacity:.38}70%{opacity:.18}100%{transform:translate3d(var(--sway),-78vh,0) scale(.15);opacity:0}}\n.wcg-bg-confetti{left:var(--x);top:-6%;width:7px;height:3px;border-radius:1px;background:#d9aa4c;opacity:0;animation:wcgBackdropConfetti var(--dur) cubic-bezier(.22,.66,.4,1) var(--delay) infinite}\n.wcg-bg-confetti[data-tone="1"]{background:#4aa3d8}.wcg-bg-confetti[data-tone="2"]{background:#f2e4b0}\n@keyframes wcgBackdropConfetti{0%,70%{transform:translate3d(0,-8vh,0) rotate(0);opacity:0}73%{opacity:.56}86%{opacity:.42}96%,100%{transform:translate3d(var(--shift),112vh,0) rotate(var(--spin));opacity:0}}\n@media(prefers-reduced-motion:reduce){.wcg-backdrop-fx{display:none!important}}\n
