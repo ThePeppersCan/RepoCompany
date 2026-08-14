@@ -2323,7 +2323,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
         <small id="worldCupFixtureLockEyebrow">REPO SPORTS · WORLD CUP 2026</small>
         <h2 id="worldCupFixtureLockTitle">FIXTURE LOCKED</h2>
         <p id="worldCupFixtureLockDate">Friday 14th August · 9pm</p>
-        <div class="wc-fixture-lock-rule">LIVE ROOM OPENS 10 MINUTES BEFORE KICKOFF</div>
+        <div class="wc-fixture-lock-rule">LIVE ROOM OPENS 30 MINUTES BEFORE KICKOFF</div>
         <div id="worldCupFixtureLockCountdown" class="wc-fixture-lock-countdown" aria-live="polite">00D 00H 00M 00S</div>
         <button id="worldCupFixtureLockEnter" class="wc-fixture-lock-enter" type="button" hidden>ENTER LIVE ROOM</button>
         <button id="worldCupFixtureLockBack" class="wc-fixture-lock-back" type="button">BACK TO FIXTURES</button>
@@ -5134,6 +5134,102 @@ window.__QD_HOST__={
 </script>
 
 
+
+<style id="repoSportsWorldCupTournamentStateStyles">
+.world-cup-menu-leaderboard{position:absolute;z-index:12;right:1.35%;top:50%;transform:translateY(-50%);width:clamp(205px,13vw,272px);max-height:72vh;padding:10px 11px;border:1px solid rgba(219,176,79,.78);outline:1px solid rgba(3,10,16,.94);outline-offset:-5px;background:linear-gradient(180deg,rgba(8,25,39,.96),rgba(2,9,16,.95));box-shadow:0 14px 36px #000b,inset 0 0 24px rgba(71,137,177,.08);color:#efe5ca;text-shadow:0 1px #000;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease}
+.world-cup-tv-ident.is-event-open .world-cup-menu-leaderboard{opacity:1;visibility:visible;pointer-events:auto}
+.world-cup-menu-leaderboard header{text-align:center;padding:4px 4px 8px;border-bottom:1px solid rgba(216,171,75,.30)}
+.world-cup-menu-leaderboard header small{display:block;color:#83bad8;font:900 7px/1 monospace;letter-spacing:.18em}.world-cup-menu-leaderboard header b{display:block;margin-top:5px;color:#ffe2a0;font:900 17px/1 Georgia,serif;letter-spacing:.08em}.world-cup-menu-leaderboard header span{display:block;margin-top:5px;color:#839eae;font:800 6px/1 monospace;letter-spacing:.12em}
+.world-cup-menu-leaderboard section{margin-top:9px}.world-cup-menu-leaderboard h4{margin:0 0 5px;color:#d8ae56;font:900 7px/1 monospace;letter-spacing:.16em}.world-cup-menu-leader-list{display:grid;gap:2px}.world-cup-menu-leader-list>div{display:grid;grid-template-columns:17px minmax(0,1fr) 28px;gap:6px;align-items:center;padding:5px 6px;border-top:1px solid rgba(115,168,198,.11);background:rgba(255,255,255,.018)}.world-cup-menu-leader-list em{font:900 7px/1 monospace;font-style:normal;color:#7faec8;text-align:center}.world-cup-menu-leader-list span{min-width:0}.world-cup-menu-leader-list b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f8e8b8;font:900 8px/1 monospace}.world-cup-menu-leader-list small{display:block;margin-top:2px;color:#78a3bb;font:800 5px/1 monospace}.world-cup-menu-leader-list strong{color:#ffe091;font:900 15px/1 Georgia,serif;text-align:right}.world-cup-menu-leader-list p{margin:8px 0 4px;color:#7791a0;font:800 7px/1.3 monospace;text-align:center;letter-spacing:.08em}
+.wc-fixture-result-pill{position:absolute;z-index:8;right:1.8%;top:50%;transform:translateY(-50%);padding:2px 5px;border:1px solid rgba(229,186,83,.78);background:linear-gradient(180deg,rgba(26,55,62,.96),rgba(7,19,24,.96));box-shadow:0 2px 7px #000b;color:#ffe099;font:900 6px/1 monospace;letter-spacing:.06em;white-space:nowrap;pointer-events:none;text-shadow:0 1px #000}.world-cup-board-fixture-hotspot.is-complete::before{opacity:.36}.world-cup-board-fixture-hotspot.is-complete{cursor:default}
+.wc-fixture-choice.is-complete{filter:saturate(.78)}.wc-fixture-choice-result{grid-column:1/-1;color:#f0c965;font:900 7px/1 monospace;letter-spacing:.08em;text-align:center}
+.wc-live-start-button.is-real{border-color:#e2b04b!important;background:linear-gradient(180deg,#745019,#2a1807)!important;color:#ffe49e!important;box-shadow:0 0 15px rgba(223,171,61,.16),0 5px 14px #0009!important}.wc-live-start-button.is-test{margin-left:7px!important;border-color:#5e8faa!important;background:linear-gradient(180deg,#17384c,#07151f)!important;color:#cce8f5!important}.wc-live-host-action.is-dual{display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;flex-wrap:wrap!important}
+@media(max-width:1280px){.world-cup-menu-leaderboard{right:.6%;width:190px;padding:8px}.world-cup-menu-leaderboard header b{font-size:14px}}
+@media(max-width:980px){.world-cup-menu-leaderboard{position:fixed;right:10px;top:auto;bottom:12px;transform:none;width:190px;max-height:42vh;overflow:auto}}
+</style>
+<script id="repoSportsWorldCupTournamentStateScript">
+(() => {
+  const STORAGE_KEY='repo-world-cup-2026-real-state-v2';
+  const CHANNEL_NAME='repo-world-cup-2026-tournament-state';
+  const $=id=>document.getElementById(id);
+  const esc=value=>String(value??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+  const fresh=()=>({version:2,updatedAt:0,results:{},playerGoals:{},teamGoals:{}});
+  let state=fresh(),channel=null,subscribed=false,connectTimer=0,serverRefreshTimer=0,serverReady=false;
+  const currentName=()=>{try{return String(typeof character!=='undefined'&&character?.username||'Guest')}catch(_){return 'Guest'}};
+  const isHost=()=>currentName().trim().toLowerCase()==='catasthma';
+  function database(){try{return typeof db!=='undefined'?db:null}catch(_){return null}}
+  function normalise(raw){
+    const out=fresh();if(!raw||typeof raw!=='object')return out;out.updatedAt=Math.max(0,Number(raw.updatedAt)||0);
+    out.results=raw.results&&typeof raw.results==='object'?raw.results:{};out.playerGoals=raw.playerGoals&&typeof raw.playerGoals==='object'?raw.playerGoals:{};out.teamGoals=raw.teamGoals&&typeof raw.teamGoals==='object'?raw.teamGoals:{};return out;
+  }
+  function serverPayloadToState(payload){
+    const out=fresh();out.updatedAt=Date.now();
+    for(const r of Array.isArray(payload?.results)?payload.results:[]){
+      const id=String(r?.fixture_id||'');if(!id)continue;
+      out.results[id]={fixtureId:id,home:String(r.home_team||''),away:String(r.away_team||''),winner:String(r.winner_team||''),loser:String(r.loser_team||''),winnerSide:String(r.winner_side||''),scoreHome:Math.max(0,Number(r.score_home)||0),scoreAway:Math.max(0,Number(r.score_away)||0),shootoutHome:r.shootout_home==null?null:Math.max(0,Number(r.shootout_home)||0),shootoutAway:r.shootout_away==null?null:Math.max(0,Number(r.shootout_away)||0),fromShootout:!!r.from_shootout,completedAt:r.completed_at?Date.parse(r.completed_at):Date.now()};
+    }
+    for(const r of Array.isArray(payload?.players)?payload.players:[]){
+      const key=String(r?.player_id||r?.player_name||'unknown').trim().toLowerCase();out.playerGoals[key]={name:String(r?.player_name||'Unknown'),team:String(r?.team_name||''),goals:Math.max(0,Number(r?.goals)||0)};
+    }
+    for(const r of Array.isArray(payload?.teams)?payload.teams:[]){const name=String(r?.team_name||'');if(name)out.teamGoals[name]=Math.max(0,Number(r?.goals)||0)}
+    return out;
+  }
+  function load(){try{state=normalise(JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'))}catch(_){state=fresh()}}
+  function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(_){}}
+  function clone(){try{return structuredClone(state)}catch(_){return JSON.parse(JSON.stringify(state))}}
+  function resultFor(id){return state.results?.[String(id||'')]||null}
+  function isCompleted(id){return !!resultFor(id)}
+  function dispatch(){renderAll();try{window.dispatchEvent(new CustomEvent('repo-world-cup-tournament-state',{detail:clone()}))}catch(_){}}
+  function accept(next,force=false){const n=normalise(next);if(!force&&Number(n.updatedAt||0)<Number(state.updatedAt||0))return false;state=n;save();dispatch();return true}
+  async function refreshFromSupabase(force=true){
+    const d=database();if(!d?.rpc)return false;
+    try{
+      const {data,error}=await d.rpc('get_repo_world_cup_leaderboard_2026');if(error)throw error;
+      accept(serverPayloadToState(data||{}),force);serverReady=true;return true;
+    }catch(error){console.warn('[WORLD CUP] Supabase tournament leaderboard refresh failed; using cached state.',error);return false}
+  }
+  async function send(event,payload){if(!channel||!subscribed)return false;try{const r=await channel.send({type:'broadcast',event,payload});return r==='ok'||r===true||r?.status==='ok'}catch(_){return false}}
+  async function broadcast(){if(!isHost())return false;return send('state',{state:clone(),sentAt:Date.now()})}
+  function request(){void send('request',{name:currentName(),at:Date.now()});void refreshFromSupabase(true)}
+  function connect(){
+    if(channel)return;const d=database();if(!d?.channel){clearTimeout(connectTimer);connectTimer=setTimeout(connect,500);return}
+    const ch=d.channel(CHANNEL_NAME,{config:{broadcast:{self:false,ack:false}}});channel=ch;
+    ch.on('broadcast',{event:'state'},({payload})=>{if(payload?.state&&!serverReady)accept(payload.state,false)});
+    ch.on('broadcast',{event:'request'},()=>{if(isHost()||Number(state.updatedAt)>0)void send('state',{state:clone(),sentAt:Date.now()})});
+    ch.subscribe(status=>{subscribed=status==='SUBSCRIBED';if(subscribed){void refreshFromSupabase(true);if(isHost())void broadcast();else request()}});
+  }
+  function resultLabel(r){if(!r)return'';if(r.fromShootout&&r.shootoutHome!=null&&r.shootoutAway!=null)return `${r.winner} WIN · PENS ${r.shootoutHome}–${r.shootoutAway}`;return `${r.winner} WIN · ${r.scoreHome}–${r.scoreAway}`}
+  function renderFixtureResults(){
+    document.querySelectorAll('.world-cup-board-fixture-hotspot[data-fixture-id]').forEach(el=>{const r=resultFor(el.dataset.fixtureId);el.classList.toggle('is-complete',!!r);el.querySelector('.wc-fixture-result-pill')?.remove();if(!r)return;const pill=document.createElement('span');pill.className='wc-fixture-result-pill';pill.textContent=resultLabel(r).toUpperCase();el.appendChild(pill);el.setAttribute('aria-label',`${r.home} vs ${r.away} — final: ${resultLabel(r)}`)});
+  }
+  function ensureMenuLeaderboard(){
+    const hub=document.querySelector('.world-cup-event-hub');if(!hub)return null;let box=$('worldCupMenuLeaderboard');if(box)return box;box=document.createElement('aside');box.id='worldCupMenuLeaderboard';box.className='world-cup-menu-leaderboard';box.innerHTML='<header><small>REPO SPORTS WORLD CUP 2026</small><b>GOAL LEADERS</b><span>OFFICIAL SUPABASE RESULTS</span></header><section><h4>TOP SCORERS</h4><div id="worldCupMenuPlayerLeaders" class="world-cup-menu-leader-list"></div></section><section><h4>TOP SCORING TEAMS</h4><div id="worldCupMenuTeamLeaders" class="world-cup-menu-leader-list"></div></section>';hub.appendChild(box);return box;
+  }
+  function renderLeaderboard(){
+    ensureMenuLeaderboard();const p=$('worldCupMenuPlayerLeaders'),t=$('worldCupMenuTeamLeaders');if(!p||!t)return;
+    const players=Object.values(state.playerGoals||{}).map(x=>({name:String(x?.name||'Unknown'),team:String(x?.team||''),goals:Math.max(0,Number(x?.goals)||0)})).filter(x=>x.goals>0).sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name));
+    const teams=Object.entries(state.teamGoals||{}).map(([name,goals])=>({name,goals:Math.max(0,Number(goals)||0)})).filter(x=>x.goals>0).sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name));
+    p.innerHTML=players.length?players.slice(0,5).map((x,i)=>`<div><em>${i+1}</em><span><b>${esc(x.name)}</b><small>${esc(x.team)}</small></span><strong>${x.goals}</strong></div>`).join(''):'<p>NO OFFICIAL GOALS YET</p>';
+    t.innerHTML=teams.length?teams.slice(0,5).map((x,i)=>`<div><em>${i+1}</em><span><b>${esc(x.name)}</b></span><strong>${x.goals}</strong></div>`).join(''):'<p>NO OFFICIAL RESULTS YET</p>';
+  }
+  function renderAll(){renderFixtureResults();renderLeaderboard()}
+  async function commitResult(detail){
+    if(!isHost()||!detail?.realResult||!detail.fixtureId)return false;const id=String(detail.fixtureId);if(state.results[id])return false;
+    const d=database();if(!d?.rpc){console.warn('[WORLD CUP] Supabase unavailable; refusing to record official result only in browser.');return false}
+    const goals=(detail.playerGoals||[]).filter(row=>Math.max(0,Number(row?.goals)||0)>0).map((row,i)=>({event_key:String(row.playerId||row.name||i),player_id:String(row.playerId||row.name||'unknown').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-'),player_name:String(row.name||row.playerId||'Unknown'),team_name:String(row.team||''),goals:Math.max(0,Number(row.goals)||0)}));
+    try{
+      const {data,error}=await d.rpc('record_repo_world_cup_result_2026',{p_fixture_id:id,p_home_team:String(detail.home||''),p_away_team:String(detail.away||''),p_score_home:Math.max(0,Number(detail.scoreHome)||0),p_score_away:Math.max(0,Number(detail.scoreAway)||0),p_winner_team:String(detail.winner||''),p_loser_team:String(detail.loser||''),p_winner_side:String(detail.winnerSide||''),p_from_shootout:!!detail.fromShootout,p_shootout_home:detail.shootoutHome==null?null:Math.max(0,Number(detail.shootoutHome)||0),p_shootout_away:detail.shootoutAway==null?null:Math.max(0,Number(detail.shootoutAway)||0),p_goals:goals});
+      if(error)throw error;accept(serverPayloadToState(data||{}),true);void broadcast();return true;
+    }catch(error){console.error('[WORLD CUP] Official result was NOT saved to Supabase.',error);return false}
+  }
+  window.addEventListener('repo-world-cup-fulltime',async event=>{if(await commitResult(event.detail||{})){try{window.dispatchEvent(new CustomEvent('repo-world-cup-real-result-recorded',{detail:event.detail||{}}))}catch(_){}}});
+  document.addEventListener('click',event=>{if(event.target.closest('#openWorldCupEvent'))setTimeout(()=>{renderAll();void refreshFromSupabase(true);request()},250)},true);
+  window.addEventListener('repo-character-changed',()=>{setTimeout(()=>{void refreshFromSupabase(true);if(isHost())void broadcast();else request()},150)});
+  load();window.RepoSportsWorldCupTournament={getState:clone,getResult:resultFor,isCompleted,request,broadcast,commitResult,refresh:refreshFromSupabase,render:renderAll};renderAll();connect();void refreshFromSupabase(true);
+  serverRefreshTimer=setInterval(()=>{if(document.visibilityState==='visible')void refreshFromSupabase(true)},15000);
+})();
+</script>
+
 <script id="repoSportsWorldCupLiveLobbyScript">
 (() => {
   const $ = id => document.getElementById(id);
@@ -5183,6 +5279,8 @@ window.__QD_HOST__={
   let startInProgress = false;
   let clientKey = '';
   let matchStarted = false;
+  let matchReal = false;
+  let currentStartPayload = null;
   let selectedFixture = FIXTURES[0];
 
   const currentCharacter = () => {
@@ -5197,12 +5295,16 @@ window.__QD_HOST__={
   };
   const esc = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 
-  const ROOM_EARLY_MS = 10 * 60 * 1000;
+  const tournament=()=>window.RepoSportsWorldCupTournament||null;
+  const completedResult=fixture=>tournament()?.getResult?.(typeof fixture==='string'?fixture:fixture?.id)||null;
+  const fixtureCompleted=fixture=>!!completedResult(fixture);
+
+  const ROOM_EARLY_MS = 30 * 60 * 1000;
   let lockTimer = 0;
   let lockedFixture = null;
   const kickoffMs = fixture => Date.parse(fixture.kickoffIso);
   const roomOpenMs = fixture => kickoffMs(fixture) - ROOM_EARLY_MS;
-  const roomUnlocked = fixture => isHost() || Date.now() >= roomOpenMs(fixture);
+  const roomUnlocked = fixture => isHost() || (!fixtureCompleted(fixture) && Date.now() >= roomOpenMs(fixture));
   function countdownParts(ms){
     const total=Math.max(0,Math.ceil(ms/1000));
     const days=Math.floor(total/86400),hours=Math.floor((total%86400)/3600),mins=Math.floor((total%3600)/60),secs=total%60;
@@ -5210,7 +5312,13 @@ window.__QD_HOST__={
     return `${pad(days)}D ${pad(hours)}H ${pad(mins)}M ${pad(secs)}S`;
   }
   function updateLockPreview(){
-    const f=lockedFixture;if(!f)return;
+    const f=lockedFixture;if(!f)return;const result=completedResult(f);
+    if(result){
+      lockTitle.textContent=`${String(result.winner||'WINNER').toUpperCase()} WIN`;
+      lockDate.textContent=result.fromShootout?`${f.date} · FINAL · ${result.scoreHome}–${result.scoreAway} · PENS ${result.shootoutHome}–${result.shootoutAway}`:`${f.date} · FINAL · ${result.scoreHome}–${result.scoreAway}`;
+      lockCountdown.textContent='MATCH COMPLETE · ROOM LOCKED';lockEnter.hidden=true;return;
+    }
+    lockDate.textContent=`${f.date} · ${f.time} (UK)`;
     const remaining=roomOpenMs(f)-Date.now();
     if(remaining<=0){
       lockTitle.textContent='LIVE ROOM OPEN';
@@ -5245,7 +5353,8 @@ window.__QD_HOST__={
     fixtureGrid.replaceChildren();
     FIXTURES.forEach(fixture=>{
       const button=document.createElement('button');button.type='button';button.className='wc-fixture-choice';button.dataset.fixtureId=fixture.id;
-      button.innerHTML=`<img src="${flagFor(fixture.home)}" alt="${esc(fixture.home)} flag"><span class="wc-fixture-choice-team">${esc(fixture.home)}</span><span class="wc-fixture-choice-vs">VS</span><span class="wc-fixture-choice-team">${esc(fixture.away)}</span><img src="${flagFor(fixture.away)}" alt="${esc(fixture.away)} flag"><span class="wc-fixture-choice-meta"><span>${esc(fixture.date)}</span><span>${esc(fixture.time)}</span></span>`;
+      const result=completedResult(fixture);if(result)button.classList.add('is-complete');
+      button.innerHTML=`<img src="${flagFor(fixture.home)}" alt="${esc(fixture.home)} flag"><span class="wc-fixture-choice-team">${esc(fixture.home)}</span><span class="wc-fixture-choice-vs">VS</span><span class="wc-fixture-choice-team">${esc(fixture.away)}</span><img src="${flagFor(fixture.away)}" alt="${esc(fixture.away)} flag"><span class="wc-fixture-choice-meta"><span>${esc(fixture.date)}</span><span>${esc(fixture.time)}</span></span>${result?`<span class="wc-fixture-choice-result">${esc(result.winner)} WIN · ${result.fromShootout?`PENS ${result.shootoutHome}–${result.shootoutAway}`:`${result.scoreHome}–${result.scoreAway}`}</span>`:''}`;
       button.addEventListener('click',()=>requestFixture(fixture.id));fixtureGrid.appendChild(button);
     });
   }
@@ -5319,15 +5428,15 @@ window.__QD_HOST__={
   }
 
   function renderHostControl(){
-    hostAction.replaceChildren();
+    hostAction.replaceChildren();hostAction.classList.toggle('is-dual',isHost());
+    const result=completedResult(selectedFixture);
     if (isHost()){
-      const button=document.createElement('button');button.type='button';button.className='wc-live-start-button';
-      button.textContent=startInProgress?'STARTING…':matchStarted?'MATCH STARTED':`START ${selectedFixture.home.toUpperCase()} vs ${selectedFixture.away.toUpperCase()}`;
-      button.disabled=startInProgress||matchStarted;
-      button.addEventListener('click',startMatch);
-      hostAction.appendChild(button);
+      const real=document.createElement('button');real.type='button';real.className='wc-live-start-button is-real';
+      real.textContent=startInProgress?'STARTING…':matchStarted?(matchReal?'REAL MATCH STARTED':'MATCH STARTED'):(result?'REAL RESULT RECORDED':`START REAL · ${selectedFixture.home.toUpperCase()} vs ${selectedFixture.away.toUpperCase()}`);
+      real.disabled=startInProgress||matchStarted||!!result;real.addEventListener('click',()=>startMatch(true));hostAction.appendChild(real);
+      const test=document.createElement('button');test.type='button';test.className='wc-live-start-button is-test';test.textContent='START TEST MATCH';test.disabled=startInProgress||matchStarted;test.addEventListener('click',()=>startMatch(false));hostAction.appendChild(test);
     } else {
-      const wait=document.createElement('span');wait.className='wc-live-waiting-copy';wait.textContent=matchStarted?'Host has started the match':'Waiting for CatAsthma to start';hostAction.appendChild(wait);
+      const wait=document.createElement('span');wait.className='wc-live-waiting-copy';wait.textContent=result?`${result.winner} won · Room locked`:matchStarted?'Host has started the match':'Waiting for CatAsthma to start';hostAction.appendChild(wait);
     }
   }
 
@@ -5358,7 +5467,8 @@ window.__QD_HOST__={
       date:f.date,
       time:f.time,
       host:payload.host||'CatAsthma',
-      startedAt:Number(payload.startedAt)||Date.now()
+      startedAt:Number(payload.startedAt)||Date.now(),
+      realResult:payload.realResult===true
     };
     const gameplay=await waitForGameplayHook();
     const opened=await gameplay.open(detail);
@@ -5371,14 +5481,14 @@ window.__QD_HOST__={
   function markMatchStarted(payload={},detail=null){
     const f=fixtureById(payload.fixtureId||selectedFixture.id);
     selectedFixture=f;
-    matchStarted=true;
+    matchStarted=true;matchReal=payload.realResult===true;currentStartPayload={...payload,fixtureId:f.id,home:f.home,away:f.away};
     startInProgress=false;
-    banner.textContent=`${f.home.toUpperCase()} vs ${f.away.toUpperCase()} · STARTED BY ${String(payload.host||'CatAsthma').toUpperCase()}`;
+    banner.textContent=`${f.home.toUpperCase()} vs ${f.away.toUpperCase()} · ${matchReal?'REAL MATCH':'TEST MATCH'} · STARTED BY ${String(payload.host||'CatAsthma').toUpperCase()}`;
     banner.classList.add('is-started');
     addChat('WORLD CUP',`${payload.host||'CatAsthma'} started ${f.home} vs ${f.away}.`,true);
     renderFixture();
     renderHostControl();
-    const eventDetail=detail||{fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,host:payload.host||'CatAsthma',startedAt:payload.startedAt||Date.now()};
+    const eventDetail=detail||{fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,host:payload.host||'CatAsthma',startedAt:payload.startedAt||Date.now(),realResult:payload.realResult===true};
     try { window.dispatchEvent(new CustomEvent('repo-world-cup-live-start',{detail:eventDetail})); } catch (_) {}
   }
 
@@ -5403,10 +5513,11 @@ window.__QD_HOST__={
     }
   }
 
-  async function startMatch(){
+  async function startMatch(realResult=true){
     if(!isHost()||startInProgress||matchStarted)return;
+    if(realResult&&fixtureCompleted(selectedFixture))return;
     const f=selectedFixture;
-    const payload={host:'CatAsthma',fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,startedAt:Date.now()};
+    const payload={host:'CatAsthma',fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,startedAt:Date.now(),realResult:realResult===true};
     startInProgress=true;
     renderHostControl();
     try{
@@ -5426,6 +5537,7 @@ window.__QD_HOST__={
 
   async function joinLobby(){
     if (channel || opening) return;
+    if(!isHost()&&fixtureCompleted(selectedFixture)){openLockPreview(selectedFixture);return;}
     const c=currentCharacter();
     if (!c){ addChat('WORLD CUP','Sign in before entering the live test lobby.',true); return; }
     let database=null;
@@ -5438,12 +5550,14 @@ window.__QD_HOST__={
     ch.on('presence',{event:'sync'},renderPlayers);
     ch.on('broadcast',{event:'chat'},({payload})=>{ if(payload?.text) addChat(payload.name||'Player',payload.text,false); });
     ch.on('broadcast',{event:'start'},({payload})=>handleStart(payload||{}));
+    ch.on('broadcast',{event:'status-request'},()=>{if(isHost()&&matchStarted&&currentStartPayload)void sendBroadcast('start',currentStartPayload)});
     ch.subscribe(async status=>{
       if(status==='SUBSCRIBED'){
         subscribed=true;opening=false;
         try { await ch.track({clientKey,userId:String(c.id||''),name:currentName(),joinedAt:Date.now()}); } catch (error) { console.warn('[WC LIVE] presence track',error); }
         addChat('WORLD CUP',`${currentName()} joined the waiting room.`,true);
         renderPlayers();
+        if(!isHost())void sendBroadcast('status-request',{fixtureId:selectedFixture.id,name:currentName(),at:Date.now()});
       } else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
         subscribed=false;opening=false;renderPlayers();addChat('WORLD CUP','Lobby connection interrupted. Reopen the room to retry.',true);
       }
@@ -5460,12 +5574,12 @@ window.__QD_HOST__={
 
   async function openLobby(fixtureId=selectedFixture.id,fromGate=false){
     const requested=fixtureById(fixtureId);
-    if(!isHost() && !roomUnlocked(requested)){ openLockPreview(requested); return; }
+    if(!isHost() && (!roomUnlocked(requested)||fixtureCompleted(requested))){ openLockPreview(requested); return; }
     selectedFixture=requested;
     closeLockPreview();
     if(channel) await leaveLobby();
     closeFixturePicker(false);renderFixture();
-    matchStarted=false;startInProgress=false;banner.classList.remove('is-started');banner.textContent=`${selectedFixture.home} vs ${selectedFixture.away} · Waiting for CatAsthma to start`;
+    matchStarted=false;matchReal=false;currentStartPayload=null;startInProgress=false;banner.classList.remove('is-started');banner.textContent=`${selectedFixture.home} vs ${selectedFixture.away} · Waiting for CatAsthma to start`;
     chatLog.replaceChildren();
     overlay.classList.add('is-live-lobby-open');lobby.classList.add('is-open');lobby.setAttribute('aria-hidden','false');
     renderHostControl();renderPlayers();
@@ -5504,6 +5618,16 @@ window.__QD_HOST__={
   back.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();closeLobby();});
   back.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();back.click();}});
 
+  window.addEventListener('repo-world-cup-tournament-state',()=>{
+    renderFixturePicker();renderHostControl();
+    if(!lobby.classList.contains('is-open')||isHost())return;const result=completedResult(selectedFixture);if(!result)return;
+    banner.textContent=`FINAL · ${String(result.winner||'WINNER').toUpperCase()} WIN · ROOM LOCKED AFTER BROADCAST`;
+    const gameOpen=document.getElementById('wcWorldCupBroadcast')?.classList.contains('is-open');if(!gameOpen){void closeLobby(false);setTimeout(()=>openLockPreview(selectedFixture),80)}
+  });
+  window.addEventListener('repo-world-cup-broadcast-closed',event=>{
+    const id=String(event.detail?.fixtureId||selectedFixture.id);const f=fixtureById(id);if(isHost()||!fixtureCompleted(f))return;if(lobby.classList.contains('is-open'))void closeLobby(false);setTimeout(()=>openLockPreview(f),100);
+  });
+
   document.addEventListener('keydown',event=>{
     if(event.key!=='Escape')return;
     if(lockPreview.classList.contains('is-open')){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();closeLockPreview();return;}
@@ -5517,7 +5641,7 @@ window.__QD_HOST__={
   },true);
   window.addEventListener('repo-character-changed',()=>setTimeout(syncTuneButton,40));
   window.addEventListener('pagehide',()=>{leaveLobby();closeLockPreview();});
-  window.RepoSportsWorldCupLive={open:openLobby,request:requestFixture,choose:openFixturePicker,close:closeLobby,start:startMatch,sync:syncTuneButton,fixtures:FIXTURES,getSelected:()=>({...selectedFixture}),isUnlocked:roomUnlocked};
+  window.RepoSportsWorldCupLive={open:openLobby,request:requestFixture,choose:openFixturePicker,close:closeLobby,start:(real=true)=>startMatch(real),sync:syncTuneButton,fixtures:FIXTURES,getSelected:()=>({...selectedFixture}),isUnlocked:roomUnlocked};
   renderFixturePicker();renderFixture();syncTuneButton();
 })();
 </script>

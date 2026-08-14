@@ -667,4 +667,1088 @@ img[src*="world-cup-flags-transparent"]{
   opacity:1 !important;
   visibility:visible !important;
 }
-\n\n/* ============================================================\n   WORLD CUP — FULLSCREEN EVENT AMBIENCE BEHIND THE TV\n   Subtle snow, embers and occasional tournament confetti.\n   ============================================================ */\n#wcWorldCupBroadcast>.wcg-shell{position:relative;z-index:2}\n.wcg-backdrop-fx{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;contain:strict}\n.wcg-bg-snow,.wcg-bg-ember,.wcg-bg-confetti{position:absolute;display:block;pointer-events:none;will-change:transform,opacity}\n.wcg-bg-snow{left:var(--x);top:-5%;width:var(--size);height:var(--size);border-radius:50%;background:rgba(224,244,255,.88);box-shadow:0 0 4px rgba(179,226,255,.32);opacity:.35;animation:wcgBackdropSnow var(--dur) linear var(--delay) infinite}\n@keyframes wcgBackdropSnow{0%{transform:translate3d(0,-5vh,0);opacity:0}8%{opacity:.34}88%{opacity:.27}100%{transform:translate3d(var(--drift),108vh,0);opacity:0}}\n.wcg-bg-ember{left:var(--x);bottom:-4%;width:2px;height:2px;border-radius:50%;background:#ffb24b;box-shadow:0 0 5px rgba(255,137,38,.65),0 0 11px rgba(255,90,20,.22);opacity:0;animation:wcgBackdropEmber var(--dur) ease-out var(--delay) infinite}\n@keyframes wcgBackdropEmber{0%,12%{transform:translate3d(0,0,0) scale(.6);opacity:0}18%{opacity:.38}70%{opacity:.18}100%{transform:translate3d(var(--sway),-78vh,0) scale(.15);opacity:0}}\n.wcg-bg-confetti{left:var(--x);top:-6%;width:7px;height:3px;border-radius:1px;background:#d9aa4c;opacity:0;animation:wcgBackdropConfetti var(--dur) cubic-bezier(.22,.66,.4,1) var(--delay) infinite}\n.wcg-bg-confetti[data-tone="1"]{background:#4aa3d8}.wcg-bg-confetti[data-tone="2"]{background:#f2e4b0}\n@keyframes wcgBackdropConfetti{0%,70%{transform:translate3d(0,-8vh,0) rotate(0);opacity:0}73%{opacity:.56}86%{opacity:.42}96%,100%{transform:translate3d(var(--shift),112vh,0) rotate(var(--spin));opacity:0}}\n@media(prefers-reduced-motion:reduce){.wcg-backdrop-fx{display:none!important}}\n
+
+
+/* ============================================================
+   WORLD CUP — FULLSCREEN EVENT AMBIENCE BEHIND THE TV
+   Subtle snow, embers and occasional tournament confetti.
+   ============================================================ */
+#wcWorldCupBroadcast>.wcg-shell{position:relative;z-index:2}
+.wcg-backdrop-fx{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;contain:strict}
+.wcg-bg-snow,.wcg-bg-ember,.wcg-bg-confetti{position:absolute;display:block;pointer-events:none;will-change:transform,opacity}
+.wcg-bg-snow{left:var(--x);top:-5%;width:var(--size);height:var(--size);border-radius:50%;background:rgba(224,244,255,.88);box-shadow:0 0 4px rgba(179,226,255,.32);opacity:.35;animation:wcgBackdropSnow var(--dur) linear var(--delay) infinite}
+@keyframes wcgBackdropSnow{0%{transform:translate3d(0,-5vh,0);opacity:0}8%{opacity:.34}88%{opacity:.27}100%{transform:translate3d(var(--drift),108vh,0);opacity:0}}
+.wcg-bg-ember{left:var(--x);bottom:-4%;width:2px;height:2px;border-radius:50%;background:#ffb24b;box-shadow:0 0 5px rgba(255,137,38,.65),0 0 11px rgba(255,90,20,.22);opacity:0;animation:wcgBackdropEmber var(--dur) ease-out var(--delay) infinite}
+@keyframes wcgBackdropEmber{0%,12%{transform:translate3d(0,0,0) scale(.6);opacity:0}18%{opacity:.38}70%{opacity:.18}100%{transform:translate3d(var(--sway),-78vh,0) scale(.15);opacity:0}}
+.wcg-bg-confetti{left:var(--x);top:-6%;width:7px;height:3px;border-radius:1px;background:#d9aa4c;opacity:0;animation:wcgBackdropConfetti var(--dur) cubic-bezier(.22,.66,.4,1) var(--delay) infinite}
+.wcg-bg-confetti[data-tone="1"]{background:#4aa3d8}.wcg-bg-confetti[data-tone="2"]{background:#f2e4b0}
+@keyframes wcgBackdropConfetti{0%,70%{transform:translate3d(0,-8vh,0) rotate(0);opacity:0}73%{opacity:.56}86%{opacity:.42}96%,100%{transform:translate3d(var(--shift),112vh,0) rotate(var(--spin));opacity:0}}
+@media(prefers-reduced-motion:reduce){.wcg-backdrop-fx{display:none!important}}
+
+
+/* ============================================================
+   WORLD CUP — EXPLICIT REPLAY PRESENTATION
+   Branded start sting -> persistent slow-motion bug -> return-to-live sting.
+   ============================================================ */
+.wcg-worldcup-replay-sponsor{
+  position:absolute;inset:1.7% 2.1% 5.2%;z-index:188;
+  display:grid;place-items:center;pointer-events:none;
+  opacity:0;visibility:hidden;
+  background:radial-gradient(circle at 50% 45%,rgba(40,82,118,.34),rgba(2,8,15,.84) 55%,rgba(0,0,0,.94));
+  transition:opacity .12s ease,visibility .12s ease;
+}
+.wcg-worldcup-replay-sponsor.is-visible{opacity:1;visibility:visible}
+.wcg-worldcup-replay-sponsor>div{
+  min-width:min(660px,68%);padding:27px 48px 24px;text-align:center;
+  border:2px solid #d1a64c;outline:1px solid rgba(5,13,22,.95);outline-offset:-7px;
+  background:linear-gradient(180deg,rgba(12,31,47,.98),rgba(2,9,16,.98));
+  box-shadow:0 22px 70px #000,inset 0 0 34px rgba(80,151,196,.14),0 0 34px rgba(220,169,62,.11);
+  animation:wcWorldCupReplaySting .82s cubic-bezier(.18,.78,.2,1) both;
+}
+.wcg-worldcup-replay-sponsor img{display:block;width:min(190px,38%);max-height:56px;object-fit:contain;margin:0 auto 13px;filter:drop-shadow(0 4px 9px #000)}
+.wcg-worldcup-replay-sponsor span{display:block;color:#ffe3a0;font:900 clamp(22px,2.25vw,38px)/1 Georgia,serif;letter-spacing:.10em;text-shadow:0 3px #000}
+.wcg-worldcup-replay-sponsor span::before{content:'REPO SPORTS · WORLD CUP';display:block;margin-bottom:9px;color:#8dc5e4;font:900 8px/1 monospace;letter-spacing:.24em}
+@keyframes wcWorldCupReplaySting{0%{transform:scale(.86);filter:brightness(.75)}24%{transform:scale(1.045);filter:brightness(1.28)}100%{transform:scale(1);filter:brightness(1)}}
+
+.wcg-worldcup-replay-bug{
+  position:absolute;z-index:190;left:4.0%;top:12.0%;
+  display:flex;align-items:center;gap:10px;padding:8px 12px;
+  opacity:0;visibility:hidden;transform:translateY(-6px);
+  border:2px solid #d5a74a;background:linear-gradient(180deg,rgba(12,31,47,.98),rgba(2,9,15,.98));
+  box-shadow:0 8px 24px #000c,inset 0 0 18px rgba(83,155,198,.11);
+  transition:opacity .16s ease,transform .16s ease,visibility .16s ease;
+  pointer-events:none;text-shadow:0 2px #000;
+}
+.wcg-worldcup-replay-bug.is-visible{opacity:1;visibility:visible;transform:none}
+.wcg-worldcup-replay-bug::before{content:'';width:9px;height:9px;border-radius:50%;background:#e44b38;box-shadow:0 0 10px rgba(255,76,52,.8);animation:wcReplayPulse .9s ease-in-out infinite}
+.wcg-worldcup-replay-bug b{color:#ffe1a0;font:900 15px/1 Georgia,serif;letter-spacing:.12em}
+.wcg-worldcup-replay-bug span{padding-left:10px;border-left:1px solid rgba(218,176,81,.42);color:#a9d3e8;font:900 8px/1 monospace;letter-spacing:.13em}
+@keyframes wcReplayPulse{50%{opacity:.34;transform:scale(.82)}}
+
+#wcWorldCupBroadcast.is-replay-playback .wcg-shell::after{
+  content:'';position:absolute;inset:1.7% 2.1% 5.2%;z-index:186;pointer-events:none;
+  border:3px solid rgba(213,169,74,.72);
+  box-shadow:inset 0 58px 58px -38px rgba(0,0,0,.62),inset 0 -58px 58px -38px rgba(0,0,0,.62),inset 0 0 44px rgba(65,148,203,.10);
+}
+#wcWorldCupBroadcast.is-replay-playback .wcg-canvas{filter:saturate(.78) contrast(1.08) brightness(.92)}
+#wcWorldCupBroadcast.is-replay-playback .wcg-live-chip{opacity:.28}
+#wcWorldCupBroadcast.is-replay-playback .wcg-mini-stats{opacity:.16}
+#wcWorldCupBroadcast.is-replay-playback .wcg-commentator{opacity:.24}
+#wcWorldCupBroadcast.is-replay-transition .wcg-scorebar,
+#wcWorldCupBroadcast.is-replay-transition .wcg-live-chip,
+#wcWorldCupBroadcast.is-replay-transition .wcg-commentator,
+#wcWorldCupBroadcast.is-replay-transition .wcg-mini-stats{opacity:.18}
+
+@media(max-width:900px){
+  .wcg-worldcup-replay-sponsor>div{min-width:72%;padding:18px 26px}.wcg-worldcup-replay-sponsor span{font-size:20px}
+  .wcg-worldcup-replay-bug{left:3.2%;top:12.5%;padding:6px 8px}.wcg-worldcup-replay-bug b{font-size:11px}.wcg-worldcup-replay-bug span{font-size:6px}
+}
+@media(prefers-reduced-motion:reduce){.wcg-worldcup-replay-sponsor>div,.wcg-worldcup-replay-bug::before{animation:none!important}}
+
+
+/* ============================================================
+   WORLD CUP V40 — REPLAY VISIBILITY HARD RESET
+   Sponsor/bug physically do not occupy layout unless replay code opens them.
+   ============================================================ */
+.wcg-worldcup-replay-sponsor{display:none!important;opacity:0!important;visibility:hidden!important}
+.wcg-worldcup-replay-sponsor.is-visible{display:grid!important;opacity:1!important;visibility:visible!important}
+.wcg-worldcup-replay-bug{display:none!important;opacity:0!important;visibility:hidden!important}
+.wcg-worldcup-replay-bug.is-visible{display:flex!important;opacity:1!important;visibility:visible!important}
+
+/* ============================================================
+   WORLD CUP V40 — PROFESSIONAL HALF-TIME BROADCAST DESK
+   ============================================================ */
+.wcg-halftime-overlay{background:rgba(0,5,11,.73)!important;backdrop-filter:blur(4px)}
+.wcg-halftime-pro{
+  width:min(1050px,91%)!important;max-height:88%!important;overflow:auto!important;padding:0!important;
+  border:2px solid #cfa34a!important;outline:1px solid #06121d!important;outline-offset:-7px!important;
+  background:radial-gradient(circle at 50% -20%,rgba(48,112,154,.30),transparent 42%),linear-gradient(180deg,#10283b 0,#06121d 56%,#02080e 100%)!important;
+  box-shadow:0 28px 80px #000,inset 0 0 45px rgba(86,155,196,.11)!important;text-align:left!important
+}
+.wcg-halftime-pro-head{display:grid;grid-template-columns:112px 1fr 55px;align-items:center;gap:16px;padding:17px 22px 14px;border-bottom:1px solid rgba(213,168,76,.43);background:linear-gradient(90deg,rgba(6,20,32,.96),rgba(19,50,70,.87),rgba(5,17,27,.96))}
+.wcg-halftime-pro-head img{width:105px;height:31px;object-fit:contain;filter:drop-shadow(0 3px 5px #000)}
+.wcg-halftime-pro-head small{display:block;color:#84bedb;font:900 8px/1 monospace;letter-spacing:.20em}.wcg-halftime-pro-head h2{margin:5px 0 4px!important;color:#ffe09a!important;font:900 31px/1 Georgia,serif!important;letter-spacing:.09em!important}.wcg-halftime-pro-head span{color:#9ab8cb;font:800 8px/1 monospace;letter-spacing:.13em}.wcg-halftime-pro-head>b{justify-self:end;padding:6px 8px;border:1px solid #934135;background:#3b0f0b;color:#ffb49f;font:900 8px/1 monospace;letter-spacing:.16em}
+.wcg-halftime-scoreline{display:grid;grid-template-columns:1fr 210px 1fr;align-items:center;gap:18px;padding:13px 28px;background:rgba(1,8,14,.72);border-bottom:1px solid rgba(103,163,199,.20);text-align:center}
+.wcg-halftime-scoreline>div{display:flex;align-items:center;justify-content:center;gap:17px}.wcg-halftime-scoreline>div:last-child{flex-direction:row-reverse}.wcg-halftime-scoreline small{color:#f2d48a;font:900 17px/1 Georgia,serif;letter-spacing:.07em}.wcg-halftime-scoreline strong{color:#fff0b7;font:900 45px/1 Georgia,serif;text-shadow:0 3px #000}.wcg-halftime-scoreline>span{color:#78b4d2;font:900 8px/1.4 monospace;letter-spacing:.16em}
+.wcg-halftime-pro-stats{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;padding:14px 24px 12px}
+.wcg-halftime-pro-stats>div{display:grid;grid-template-columns:68px 1fr 68px;align-items:center;min-height:28px;border-bottom:1px solid rgba(110,166,197,.13);font:900 9px/1 monospace}.wcg-halftime-pro-stats b{color:#ffe09b;text-align:center;font-size:11px}.wcg-halftime-pro-stats span{color:#91afc1;text-align:center;letter-spacing:.09em}
+.wcg-halftime-pro-bottom{display:grid;grid-template-columns:1.05fr 1fr 1.25fr;gap:10px;padding:0 22px 13px}.wcg-halftime-feature,.wcg-halftime-barry{min-height:118px;padding:12px 13px;border:1px solid rgba(208,164,73,.28);background:linear-gradient(180deg,rgba(11,31,44,.82),rgba(3,12,19,.88));box-shadow:inset 0 0 18px rgba(66,134,175,.07)}
+.wcg-halftime-feature>small,.wcg-halftime-barry>small{display:block;margin-bottom:9px;color:#78badb;font:900 7px/1 monospace;letter-spacing:.15em}.wcg-halftime-feature>b{display:block;color:#ffe09a;font:900 19px/1 Georgia,serif;letter-spacing:.05em}.wcg-halftime-feature>p,.wcg-halftime-barry p{margin:7px 0 0!important;color:#d9d8ce;font:700 10px/1.42 Georgia,serif!important}.wcg-halftime-player{display:grid;grid-template-columns:70px 1fr;gap:11px;align-items:center}.wcg-halftime-player img{width:68px;height:82px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 4px 5px #000)}.wcg-halftime-player b{display:block;color:#ffe09a;font:900 17px/1 Georgia,serif}.wcg-halftime-player span{display:block;margin-top:4px;color:#80b6d3;font:900 7px/1 monospace;letter-spacing:.12em}.wcg-halftime-player p{margin:7px 0 0!important;color:#d7d6ca;font:800 8px/1.45 monospace!important}
+.wcg-halftime-pro-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 22px 14px;border-top:1px solid rgba(207,164,75,.27);background:rgba(1,7,12,.75)}.wcg-halftime-pro-foot>span{color:#799bb0;font:900 7px/1.3 monospace;letter-spacing:.10em}.wcg-halftime-pro-foot button{margin:0!important;min-width:205px!important;padding:9px 17px!important;border:1px solid #d2a64d!important;background:linear-gradient(180deg,#254c64,#0a1b27)!important;color:#ffe1a0!important;font:900 10px/1 Georgia,serif!important;letter-spacing:.08em!important;box-shadow:0 6px 16px #0009,inset 0 1px rgba(255,255,255,.08)!important}
+@media(max-width:900px){.wcg-halftime-pro{width:94%!important}.wcg-halftime-pro-head{grid-template-columns:78px 1fr 40px;padding:10px 13px}.wcg-halftime-pro-head img{width:75px}.wcg-halftime-pro-head h2{font-size:21px!important}.wcg-halftime-scoreline{grid-template-columns:1fr 115px 1fr;padding:8px 12px}.wcg-halftime-scoreline small{font-size:11px}.wcg-halftime-scoreline strong{font-size:30px}.wcg-halftime-pro-stats{padding:8px 12px;gap:0 10px}.wcg-halftime-pro-stats>div{grid-template-columns:45px 1fr 45px;font-size:6px}.wcg-halftime-pro-bottom{grid-template-columns:1fr 1fr;padding:0 12px 8px}.wcg-halftime-barry{grid-column:1/-1;min-height:70px}.wcg-halftime-feature{min-height:90px}.wcg-halftime-player{grid-template-columns:50px 1fr}.wcg-halftime-player img{width:48px;height:58px}.wcg-halftime-pro-foot{padding:8px 12px}.wcg-halftime-pro-foot button{min-width:150px!important}}
+
+
+/* =====================================================================
+   WORLD CUP V46 — SUPPLIED PREMIUM BROADCAST ART
+   Pure presentation layer: no gameplay/sync mechanics changed.
+   ===================================================================== */
+
+/* New team / score bar */
+.wcg-scorebar.wcg-scorebar-premium{
+  position:absolute;z-index:112;left:50%;top:1.55%;transform:translateX(-50%);
+  width:min(960px,72%);height:auto;aspect-ratio:1536/360;display:block!important;
+  background:none!important;border:0!important;box-shadow:none!important;overflow:visible;pointer-events:none;
+}
+.wcg-scorebar-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:0;pointer-events:none}
+.wcg-score-flag{position:absolute;z-index:3;top:27%;width:11.2%;height:47%;display:grid;place-items:center;overflow:hidden;border-radius:50%}
+.wcg-score-flag-home{left:1.1%}.wcg-score-flag-away{right:1.0%}
+.wcg-score-flag img{width:82%;height:72%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.72));image-rendering:auto}
+.wcg-score-team{position:absolute;z-index:4;top:31%;height:43%;display:flex;flex-direction:column;justify-content:center;color:#ffe7aa;text-shadow:0 2px 2px #000;min-width:0}
+.wcg-score-team-home{left:13.8%;width:19.2%;text-align:center}.wcg-score-team-away{right:13.8%;width:19.2%;text-align:center}
+.wcg-score-team>span{position:absolute;top:-18%;left:50%;transform:translateX(-50%);font:900 clamp(5px,.48vw,8px)/1 monospace;letter-spacing:.16em;color:#e5c06c;white-space:nowrap}
+.wcg-score-team>b{font:900 clamp(13px,1.2vw,19px)/1 Georgia,'Times New Roman',serif;letter-spacing:.065em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wcg-score-team>small{margin-top:8%;font:900 clamp(4.6px,.43vw,7px)/1.1 monospace;letter-spacing:.08em;color:#c9d8e6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wcg-scorebar-premium .wcg-team-goals{position:absolute;z-index:5;top:31.5%;width:7.0%;height:42%;display:grid;place-items:center;margin:0!important;padding:0!important;font:900 clamp(25px,2.5vw,41px)/1 Georgia,'Times New Roman',serif;color:#fff1bd;text-shadow:0 3px 4px #000,0 0 10px rgba(255,201,75,.25);background:none!important;border:0!important}
+.wcg-score-home-goals{left:33.0%}.wcg-score-away-goals{right:33.0%}
+.wcg-scorebar-premium .wcg-clock{position:absolute;z-index:5;left:40.8%;top:26%;width:18.4%;height:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+.wcg-scorebar-premium .wcg-clock b{font:900 clamp(19px,2.05vw,34px)/1 Georgia,'Times New Roman',serif;color:#fff1bd;letter-spacing:.05em;text-shadow:0 3px 4px #000}
+.wcg-scorebar-premium .wcg-clock span{margin-top:4px;font:900 clamp(5px,.55vw,8px)/1 monospace;color:#e4bd62;letter-spacing:.13em}
+.wcg-scorebar-premium .wcg-clock em{position:absolute;top:79%;left:50%;transform:translateX(-50%);width:155%;font:900 clamp(4.2px,.43vw,7px)/1 monospace;color:#8fe3ff;letter-spacing:.075em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-style:normal}
+/* LIVE is already part of the supplied score-frame artwork. */
+.wcg-live-chip{display:none!important}
+
+/* Barry — supplied frame + existing animated Barry sprites */
+.wcg-commentator.wcg-commentator-premium{
+  position:absolute!important;z-index:101!important;left:2.05%!important;bottom:4.5%!important;
+  width:min(650px,51%)!important;height:auto!important;aspect-ratio:1785/400!important;
+  display:block!important;background:none!important;border:0!important;box-shadow:none!important;overflow:visible!important;pointer-events:none;
+}
+.wcg-commentator-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:1;filter:drop-shadow(0 8px 12px rgba(0,0,0,.72))}
+.wcg-commentator-portrait{position:absolute;z-index:3;left:2.5%;top:9.8%;width:18.3%;height:81%;overflow:hidden;border-radius:50%;display:flex;align-items:flex-end;justify-content:center;background:radial-gradient(circle at 50% 38%,rgba(14,48,79,.35),rgba(1,11,22,.72) 72%)}
+.wcg-commentator-premium .wcg-barry{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;top:auto!important;width:94%!important;height:100%!important;max-height:none!important;object-fit:contain!important;object-position:center bottom!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.8));transform-origin:50% 80%}
+.wcg-commentator-heading{position:absolute;z-index:4;left:23.6%;top:13.1%;width:65.5%;height:14%;display:flex;align-items:center;gap:2.6%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 2px #000}
+.wcg-commentator-heading b{font:900 clamp(7px,.78vw,12px)/1 Georgia,'Times New Roman',serif;letter-spacing:.08em;color:#ffe4a0}
+.wcg-commentator-heading span{padding-left:2.4%;border-left:1px solid rgba(230,178,65,.75);font:900 clamp(4.5px,.48vw,7px)/1 monospace;letter-spacing:.09em;color:#edca79}
+.wcg-commentary-copy{position:absolute!important;z-index:4!important;left:25.2%!important;top:43%!important;width:65%!important;height:39%!important;margin:0!important;padding:0!important;color:#f7f0df!important;font:800 clamp(8px,.84vw,13px)/1.25 Georgia,'Times New Roman',serif!important;letter-spacing:0!important;text-shadow:0 2px 3px #000;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+
+/* Live stats — supplied art with dynamic values precisely occupying empty side boxes */
+.wcg-mini-stats.wcg-mini-stats-premium{
+  position:absolute!important;z-index:100!important;right:2.6%!important;bottom:4.8%!important;
+  width:min(285px,20.8%)!important;height:auto!important;aspect-ratio:1254/1045!important;padding:0!important;
+  border:0!important;background:none!important;box-shadow:none!important;color:#ffe6a2!important;pointer-events:none;overflow:visible;
+}
+.wcg-mini-stats-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:0;filter:drop-shadow(0 8px 13px rgba(0,0,0,.7))}
+.wcg-mini-stats-team{position:absolute;z-index:2;top:16.7%;width:28%;text-align:center;font:900 clamp(6px,.63vw,10px)/1 Georgia,'Times New Roman',serif;letter-spacing:.065em;color:#ffe6a2;text-shadow:0 2px 2px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wcg-mini-stats-team-home{left:6.5%}.wcg-mini-stats-team-away{right:6.5%}
+.wcg-mini-stats-values{position:absolute!important;z-index:3!important;left:7.4%!important;right:7.4%!important;top:35.2%!important;bottom:7.3%!important;display:grid!important;grid-template-rows:repeat(6,1fr)!important;gap:0!important;margin:0!important;padding:0!important;background:none!important}
+.wcg-mini-stats-values>div{display:grid;grid-template-columns:23% 1fr 23%;align-items:center;min-height:0}
+.wcg-mini-stats-values>div span{font:900 clamp(9px,1vw,15px)/1 Georgia,'Times New Roman',serif;color:#ffe6a2;text-shadow:0 2px 3px #000;text-align:center}
+.wcg-mini-stats-values>div span:first-child{grid-column:1}.wcg-mini-stats-values>div span:last-child{grid-column:3}
+
+/* Keep new premium broadcast pieces readable during the existing special states. */
+#wcWorldCupBroadcast[data-broadcast-state="REPLAY"] .wcg-mini-stats-premium{opacity:.16}
+#wcWorldCupBroadcast[data-broadcast-state="REPLAY"] .wcg-commentator-premium{opacity:.28}
+#wcWorldCupBroadcast.is-replay-transition .wcg-scorebar-premium{opacity:.22}
+#wcWorldCupBroadcast.is-opening-film .wcg-scorebar-premium,
+#wcWorldCupBroadcast.is-opening-film .wcg-commentator-premium,
+#wcWorldCupBroadcast.is-opening-film .wcg-mini-stats-premium{opacity:0!important}
+
+@media(max-width:1050px){
+  .wcg-scorebar.wcg-scorebar-premium{width:82%;top:1.8%}
+  .wcg-commentator.wcg-commentator-premium{width:58%;bottom:5.0%}
+  .wcg-mini-stats.wcg-mini-stats-premium{width:22%;right:2.8%}
+}
+@media(max-width:760px){
+  .wcg-scorebar.wcg-scorebar-premium{width:92%}
+  .wcg-score-team>small{display:none}
+  .wcg-commentator.wcg-commentator-premium{width:68%;bottom:5.5%}
+  .wcg-mini-stats.wcg-mini-stats-premium{display:none!important}
+}
+
+/* =====================================================================
+   WORLD CUP V47 — SCOREBAR / FLAG / LIVE-STATS ALIGNMENT FIX
+   Presentation-only correction pass requested from the live broadcast.
+   ===================================================================== */
+
+/* Scorebar: slightly smaller, and remove the inherited rectangular outline
+   from the old pre-artwork scorebar implementation. */
+.wcg-scorebar.wcg-scorebar-premium{
+  width:min(920px,68.5%)!important;
+  top:1.75%!important;
+  outline:0!important;
+  outline-offset:0!important;
+}
+
+/* Flags: use the real nation assets and keep them comfortably inside the
+   supplied circular/octagonal flag wells rather than touching the frame. */
+.wcg-score-flag{
+  top:26.2%!important;
+  width:11.15%!important;
+  height:47.8%!important;
+  padding:2.2%!important;
+  border-radius:50%!important;
+  background:transparent!important;
+}
+.wcg-score-flag-home{left:1.15%!important}.wcg-score-flag-away{right:1.05%!important}
+.wcg-score-flag img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.78))!important;
+}
+
+/* Team copy: lift the player line clear of the decorative rule. */
+.wcg-score-team{top:29.5%!important;height:40.5%!important;justify-content:flex-start!important;padding-top:5.5%!important}
+.wcg-score-team-home{left:13.9%!important;width:19.0%!important}.wcg-score-team-away{right:13.9%!important;width:19.0%!important}
+.wcg-score-team>b{font-size:clamp(12px,1.08vw,18px)!important;line-height:1!important}
+.wcg-score-team>small{
+  margin-top:5.2%!important;
+  font-size:clamp(4.8px,.43vw,6.8px)!important;
+  line-height:1!important;
+  color:#d7e2ec!important;
+  transform:translateY(-18%)!important;
+}
+
+/* Live scorer strip. It stays empty until somebody scores, then shows e.g.
+   JUD ×2 · BRAMBLE ×1. This also updates correctly after a VAR overturn. */
+.wcg-score-scorers{
+  position:absolute;z-index:6;top:62.1%;width:19%;margin:0;padding:0;
+  font:900 clamp(4.4px,.40vw,6.4px)/1 monospace;letter-spacing:.055em;
+  color:#f5d16f;text-shadow:0 2px 2px #000;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.wcg-score-scorers-home{left:13.9%}.wcg-score-scorers-away{right:13.9%}
+.wcg-score-scorers:empty{display:none}
+
+/* Clock/half label: make the clock a touch smaller and raise both the timer
+   and phase label away from the centre plaque. */
+.wcg-scorebar-premium .wcg-clock{top:23.5%!important;height:49%!important}
+.wcg-scorebar-premium .wcg-clock b{
+  font-size:clamp(18px,1.88vw,31px)!important;
+  transform:translateY(-13%)!important;
+  white-space:nowrap!important;
+}
+.wcg-scorebar-premium .wcg-clock span{
+  margin-top:2px!important;
+  font-size:clamp(5px,.51vw,7.6px)!important;
+  transform:translateY(-18%)!important;
+  white-space:nowrap!important;
+}
+.wcg-scorebar-premium .wcg-clock em{top:80.5%!important;width:150%!important}
+
+/* Live stats: team names slightly higher and farther toward their own sides. */
+.wcg-mini-stats-team{top:15.45%!important;width:27%!important}
+.wcg-mini-stats-team-home{left:4.7%!important}.wcg-mini-stats-team-away{right:4.7%!important}
+
+/* Numbers: a very small lift and size reduction so each value sits more
+   naturally in the supplied stat capsule. */
+.wcg-mini-stats-values{top:34.25%!important;bottom:8.15%!important}
+.wcg-mini-stats-values>div span{
+  font-size:clamp(8px,.90vw,14px)!important;
+  transform:translateY(-3%)!important;
+}
+
+@media(max-width:1050px){
+  .wcg-scorebar.wcg-scorebar-premium{width:78.5%!important;top:1.9%!important}
+}
+@media(max-width:760px){
+  .wcg-scorebar.wcg-scorebar-premium{width:89%!important}
+  .wcg-score-scorers{font-size:4.3px!important}
+}
+
+/* =====================================================================
+   WORLD CUP V48 — COMPACT SCOREBAR / BROADCAST EVENT STINGERS / TV VOLUME
+   Presentation polish plus a World Cup broadcast-local master volume.
+   ===================================================================== */
+
+/* Another restrained size reduction: keeps the artwork dominant without
+   eating so much of the live pitch. */
+.wcg-scorebar.wcg-scorebar-premium{
+  width:min(860px,64%)!important;
+  top:1.85%!important;
+}
+
+/* Team names sit decisively above the etched divider. Player names/scorers
+   remain below it in their own smaller broadcast line. */
+.wcg-score-team{
+  top:27.6%!important;
+  height:42%!important;
+  padding-top:4.4%!important;
+}
+.wcg-score-team>b{
+  transform:translateY(-24%)!important;
+  font-size:clamp(11.5px,1.03vw,17px)!important;
+}
+.wcg-score-team>small{
+  margin-top:4.5%!important;
+  transform:translateY(-11%)!important;
+}
+.wcg-score-scorers{top:62.7%!important}
+
+/* Nudge the clock up just enough to optically centre the digits in the
+   middle medallion; keep half/venue aligned beneath it. */
+.wcg-scorebar-premium .wcg-clock{top:22.7%!important;height:49%!important}
+.wcg-scorebar-premium .wcg-clock b{transform:translateY(-15%)!important}
+.wcg-scorebar-premium .wcg-clock span{transform:translateY(-17%)!important}
+
+/* Professional match-event stinger. It lives below and to the left of the
+   scorebar so it is visible without covering the central run of play. */
+.wcg-event-banner{
+  z-index:111!important;
+  left:2.65%!important;
+  top:22.8%!important;
+  transform:translateX(-16px) scale(.985)!important;
+  width:min(330px,31%)!important;
+  min-width:250px!important;
+  max-width:360px!important;
+  min-height:62px!important;
+  padding:10px 24px 10px 20px!important;
+  display:grid!important;
+  grid-template-columns:auto 1fr!important;
+  grid-template-rows:auto auto!important;
+  column-gap:11px!important;
+  align-items:center!important;
+  border:1px solid rgba(232,183,76,.86)!important;
+  border-left:4px solid #e3b24c!important;
+  border-radius:0!important;
+  clip-path:polygon(0 0,96% 0,100% 50%,96% 100%,0 100%)!important;
+  background:
+    linear-gradient(90deg,rgba(9,31,50,.98),rgba(2,11,20,.95) 72%,rgba(13,22,31,.93))!important;
+  color:#fff0bd!important;
+  text-align:left!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.62),inset 0 1px rgba(255,235,175,.09),0 0 18px rgba(224,173,63,.12)!important;
+  overflow:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.2,1)!important;
+}
+.wcg-event-banner::before{
+  content:'';position:absolute;left:0;top:0;width:100%;height:2px;
+  background:linear-gradient(90deg,#ffe59a,rgba(255,224,130,.16),transparent 82%);
+  opacity:.8;
+}
+.wcg-event-banner::after{
+  content:'RS';grid-row:1/3;grid-column:1;width:30px;height:30px;display:grid;place-items:center;
+  border:1px solid rgba(236,190,80,.7);transform:rotate(45deg);
+  background:linear-gradient(145deg,#0c2943,#04111e);color:#f6d579;
+  font:900 7px/1 monospace;letter-spacing:.05em;box-shadow:inset 0 0 0 2px rgba(0,0,0,.28);
+}
+.wcg-event-banner.is-visible{
+  opacity:1!important;
+  transform:translateX(0) scale(1)!important;
+  animation:wcgEventStingerIn .32s cubic-bezier(.16,.8,.25,1) both;
+}
+@keyframes wcgEventStingerIn{0%{opacity:0;transform:translateX(-28px) scale(.97)}70%{opacity:1;transform:translateX(4px) scale(1.008)}100%{opacity:1;transform:translateX(0) scale(1)}}
+.wcg-event-kicker{grid-column:2;display:block;color:#80bddc;font:900 clamp(5px,.48vw,7px)/1 monospace!important;letter-spacing:.14em;text-shadow:0 1px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wcg-event-title{grid-column:2;display:inline;color:#ffe7a1;font:900 clamp(13px,1.25vw,19px)/1 Georgia,'Times New Roman',serif!important;letter-spacing:.055em;text-shadow:0 2px 2px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wcg-event-detail{grid-column:2;display:block;margin-top:2px;color:#e7edf2;font:900 clamp(6px,.58vw,8.5px)/1 monospace!important;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wcg-event-banner[data-kind="foul"],.wcg-event-banner[data-kind="penalty"]{border-color:rgba(216,86,55,.92)!important;border-left-color:#e55b39!important;background:linear-gradient(90deg,rgba(54,16,15,.97),rgba(15,9,11,.96) 72%,rgba(28,13,15,.94))!important;box-shadow:0 9px 24px rgba(0,0,0,.64),0 0 20px rgba(226,71,40,.16)!important}
+.wcg-event-banner[data-kind="foul"] .wcg-event-kicker,.wcg-event-banner[data-kind="penalty"] .wcg-event-kicker{color:#f39a74!important}
+.wcg-event-banner[data-kind="var"]{border-color:rgba(83,177,232,.92)!important;border-left-color:#63c7ff!important;background:linear-gradient(90deg,rgba(8,39,61,.98),rgba(3,15,25,.96) 74%,rgba(7,26,39,.94))!important;box-shadow:0 9px 24px rgba(0,0,0,.64),0 0 20px rgba(67,170,238,.18)!important}
+.wcg-event-banner[data-kind="goal"]{border-color:rgba(238,193,82,.98)!important;border-left-color:#ffd364!important;box-shadow:0 9px 24px rgba(0,0,0,.64),0 0 23px rgba(255,202,76,.22)!important}
+#wcWorldCupBroadcast.is-goal-celebration .wcg-event-banner.is-visible{transform:translateX(0) scale(1.02)!important}
+
+/* Compact broadcast-local master volume. This only controls the World Cup
+   TV feed: crowd, match SFX, music, wind/VAR tones and stadium intro video. */
+.wcg-volume-control{
+  position:absolute;z-index:113;right:2.55%;top:21.2%;width:150px;height:28px;
+  display:grid;grid-template-columns:25px 1fr 24px;align-items:center;gap:6px;
+  padding:4px 8px;border:1px solid rgba(137,181,207,.30);border-radius:3px;
+  background:linear-gradient(180deg,rgba(5,21,34,.84),rgba(2,9,16,.80));
+  box-shadow:0 5px 14px rgba(0,0,0,.35);color:#a8c7d9;pointer-events:auto;
+  opacity:.72;transition:opacity .16s ease,background .16s ease;
+}
+.wcg-volume-control:hover,.wcg-volume-control:focus-within{opacity:1;background:linear-gradient(180deg,rgba(7,28,45,.96),rgba(2,10,18,.94))}
+.wcg-volume-control>span{font:900 6px/1 monospace;letter-spacing:.12em;color:#e6c66f;text-align:center}
+.wcg-volume-control>b{font:900 6px/1 monospace;color:#c7dce8;text-align:right}
+.wcg-volume-control input[type="range"]{width:100%;height:12px;margin:0;padding:0;accent-color:#d9ad4e;cursor:pointer;background:transparent}
+
+@media(max-width:1050px){
+  .wcg-scorebar.wcg-scorebar-premium{width:74%!important;top:1.95%!important}
+  .wcg-event-banner{top:23.3%!important;width:32%!important;min-width:225px!important}
+  .wcg-volume-control{right:2.2%;top:21.7%;width:135px}
+}
+@media(max-width:760px){
+  .wcg-scorebar.wcg-scorebar-premium{width:85%!important}
+  .wcg-event-banner{left:50%!important;top:23.5%!important;width:60%!important;min-width:220px!important;transform:translateX(-50%) scale(.985)!important}
+  .wcg-event-banner.is-visible{transform:translateX(-50%) scale(1)!important}
+  .wcg-volume-control{right:2.2%;top:auto;bottom:3.2%;width:128px;height:25px}
+}
+
+
+/* =====================================================================
+   WORLD CUP V49 — LINEUP FACING / SCORE COPY / FULL-FILL FLAGS / VOLUME DOCK
+   Presentation-only polish requested from the live broadcast screenshots.
+   ===================================================================== */
+
+/* STARTING SIX: the two sides now deliberately face into the matchup.
+   Home is staged toward centre-right; away is mirrored toward centre-left. */
+.wcg-lineup-side.is-belros .wcg-lineup-players img,
+.wcg-key-player.is-belros>img{
+  --wcg-intro-face:1!important;
+}
+.wcg-lineup-side.is-zafran .wcg-lineup-players img,
+.wcg-key-player.is-zafran>img{
+  --wcg-intro-face:-1!important;
+}
+
+/* SCOREBAR TEAM COPY: hide the baked divider at its old height, redraw it
+   slightly higher, then keep the squad names genuinely underneath it. */
+.wcg-score-team{
+  top:0!important;
+  height:100%!important;
+  padding:0!important;
+  display:block!important;
+  overflow:visible!important;
+}
+.wcg-score-team::before{
+  content:'';
+  position:absolute;
+  z-index:1;
+  left:3.5%;right:3.5%;top:57.7%;height:4.6%;
+  background:linear-gradient(180deg,rgba(8,34,59,.98),rgba(7,29,51,.98));
+  pointer-events:none;
+}
+.wcg-score-team::after{
+  content:'';
+  position:absolute;
+  z-index:2;
+  left:7%;right:7%;top:56.1%;height:1px;
+  background:linear-gradient(90deg,transparent 0,rgba(205,226,237,.78) 7%,rgba(205,226,237,.78) 93%,transparent 100%);
+  box-shadow:0 1px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+.wcg-score-team>span{
+  z-index:3!important;
+  top:27.8%!important;
+}
+.wcg-score-team>b{
+  position:absolute!important;
+  z-index:3!important;
+  left:0!important;top:39.0%!important;width:100%!important;
+  transform:none!important;
+  line-height:1!important;
+}
+.wcg-score-team>small{
+  position:absolute!important;
+  z-index:3!important;
+  left:1%!important;top:61.1%!important;width:98%!important;
+  margin:0!important;
+  transform:none!important;
+  line-height:1!important;
+}
+.wcg-score-scorers{
+  top:68.0%!important;
+}
+
+/* Flags now fill the complete circular broadcast well instead of appearing
+   as a small rectangular flag floating inside it. The parent remains the mask. */
+.wcg-score-flag{
+  padding:0!important;
+  overflow:hidden!important;
+  background:#061829!important;
+}
+.wcg-score-flag img{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:scale(1.055)!important;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.72))!important;
+}
+
+/* Master volume is a physical-TV control, not an on-screen graphic.
+   The root becomes a tiny TV stack and the slider is docked entirely below
+   the television frame. Backdrop particles remain absolutely positioned. */
+#wcWorldCupBroadcast.is-open{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:6px 0 5px!important;
+}
+#wcWorldCupBroadcast>.wcg-shell{
+  width:min(98vw,1672px,calc(177.68vh - 80px))!important;
+  max-height:none!important;
+  flex:0 0 auto!important;
+}
+#wcWorldCupBroadcast>.wcg-volume-control{
+  position:relative!important;
+  z-index:6!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  width:160px!important;height:27px!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  opacity:.78!important;
+}
+#wcWorldCupBroadcast>.wcg-volume-control:hover,
+#wcWorldCupBroadcast>.wcg-volume-control:focus-within{opacity:1!important}
+
+@media(max-width:760px){
+  #wcWorldCupBroadcast.is-open{gap:4px!important;padding:4px 0!important}
+  #wcWorldCupBroadcast>.wcg-shell{width:98vw!important}
+  #wcWorldCupBroadcast>.wcg-volume-control{width:142px!important;height:25px!important}
+  .wcg-score-team>small{top:61.8%!important}
+  .wcg-score-scorers{top:68.6%!important}
+}
+
+
+/* =====================================================================
+   OPENING NIGHT — BARRY BRAMBLE STUDIO INTRO
+   Added on top of the known-good V50 broadcast. No game/shell sizing rules
+   are changed here.
+   ===================================================================== */
+.wcg-barry-opening{
+  position:absolute;
+  inset:1.7% 2.1% 5.2%;
+  z-index:89;
+  display:none;
+  overflow:hidden;
+  background:#000;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.wcg-barry-opening.is-visible{
+  display:block;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.wcg-barry-opening-bg,
+.wcg-barry-opening-desk{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.wcg-barry-opening-bg{z-index:1}
+.wcg-barry-opening-desk{
+  z-index:5;
+  clip-path:inset(66.8% 0 0 0);
+  pointer-events:none;
+}
+.wcg-barry-opening-presenter{
+  position:absolute;
+  z-index:4;
+  left:50%;
+  bottom:23.2%;
+  width:16.4%;
+  height:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  pointer-events:none;
+}
+.wcg-barry-opening-presenter img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 10px 13px rgba(0,0,0,.38));
+}
+.wcg-barry-opening-vignette{
+  position:absolute;
+  inset:0;
+  z-index:7;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 44%,transparent 28%,rgba(1,6,12,.05) 62%,rgba(0,0,0,.30) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.10),transparent 18%,transparent 78%,rgba(0,0,0,.22));
+}
+.wcg-barry-opening-particles{
+  position:absolute;
+  inset:-8%;
+  z-index:3;
+  pointer-events:none;
+  opacity:.32;
+  background-image:
+    radial-gradient(circle,rgba(255,218,139,.95) 0 1px,transparent 1.7px),
+    radial-gradient(circle,rgba(137,218,255,.8) 0 1px,transparent 1.6px);
+  background-size:83px 91px,127px 109px;
+  background-position:13px 27px,61px 4px;
+  animation:wcgBarryStudioParticles 9s linear infinite;
+}
+@keyframes wcgBarryStudioParticles{
+  from{transform:translate3d(0,18px,0)}
+  to{transform:translate3d(12px,-34px,0)}
+}
+.wcg-barry-opening::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:20;
+  background:#000;
+  opacity:0;
+  pointer-events:none;
+}
+.wcg-barry-opening.is-visible::after{
+  animation:wcgBarryOpeningFadeFromBlack 2.2s ease-out both;
+}
+.wcg-barry-opening.is-fading-out::after{
+  animation:wcgBarryOpeningFadeToBlack 1.05s ease-in both!important;
+}
+@keyframes wcgBarryOpeningFadeFromBlack{
+  0%,12%{opacity:1}
+  100%{opacity:0}
+}
+@keyframes wcgBarryOpeningFadeToBlack{
+  from{opacity:0}
+  to{opacity:1}
+}
+#wcgBarryOpeningSound{
+  position:absolute;
+  z-index:30;
+  left:50%;
+  bottom:5%;
+  transform:translateX(-50%);
+  padding:8px 13px;
+  border:1px solid rgba(221,178,82,.86);
+  background:rgba(3,10,17,.92);
+  color:#ffe4a0;
+  font:900 9px/1 monospace;
+  letter-spacing:.11em;
+  cursor:pointer;
+}
+#wcgBarryOpeningSound[hidden]{display:none!important}
+
+/* Barry's studio is the TV feed for this short segment. The original V50
+   frame remains above it and every normal broadcast overlay is merely hidden. */
+#wcWorldCupBroadcast.is-barry-opening .wcg-canvas,
+#wcWorldCupBroadcast.is-barry-opening .wcg-snow,
+#wcWorldCupBroadcast.is-barry-opening .wcg-worldcup-atmosphere,
+#wcWorldCupBroadcast.is-barry-opening .wcg-scorebar,
+#wcWorldCupBroadcast.is-barry-opening .wcg-live-chip,
+#wcWorldCupBroadcast.is-barry-opening .wcg-worldcup-replay-sponsor,
+#wcWorldCupBroadcast.is-barry-opening .wcg-worldcup-replay-bug,
+#wcWorldCupBroadcast.is-barry-opening .wcg-worldcup-story-card,
+#wcWorldCupBroadcast.is-barry-opening .wcg-worldcup-big-moment,
+#wcWorldCupBroadcast.is-barry-opening .wcg-presentation,
+#wcWorldCupBroadcast.is-barry-opening .wcg-event-banner,
+#wcWorldCupBroadcast.is-barry-opening .wcg-commentator,
+#wcWorldCupBroadcast.is-barry-opening .wcg-mini-stats,
+#wcWorldCupBroadcast.is-barry-opening .wcg-controls,
+#wcWorldCupBroadcast.is-barry-opening .wcg-admin-panel,
+#wcWorldCupBroadcast.is-barry-opening .wcg-var-box,
+#wcWorldCupBroadcast.is-barry-opening .wcg-overlay-card,
+#wcWorldCupBroadcast.is-barry-opening .wcg-screen-effects{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#wcWorldCupBroadcast.is-barry-opening .wcg-tv-frame{
+  opacity:1!important;
+  visibility:visible!important;
+}
+@media(max-width:760px){
+  .wcg-barry-opening-presenter{width:19%;height:48%;bottom:24%}
+}
+
+/* =====================================================================
+   PRE-LIVE CONTROL PASS — synchronized half-time gate + World Cup leaders
+   ===================================================================== */
+.wcg-halftime-pro.is-gate .wcg-halftime-pro-stats,
+.wcg-halftime-pro.is-gate .wcg-halftime-pro-bottom{display:none!important}
+.wcg-halftime-pro.is-gate .wcg-halftime-scoreline{padding-top:24px!important;padding-bottom:24px!important}
+.wcg-halftime-pro.is-gate .wcg-halftime-pro-foot{padding-top:18px!important;padding-bottom:18px!important}
+.wcg-halftime-pro.is-gate .wcg-halftime-pro-foot>span{color:#b9d4e5!important;font-size:8px!important;letter-spacing:.13em!important}
+.wcg-halftime-pro.is-gate #wcgContinueHalf{min-width:220px!important;border-color:#e3b957!important;background:linear-gradient(180deg,#315e79,#0c2231)!important;box-shadow:0 0 20px rgba(224,177,67,.13),0 7px 18px #000a!important}
+
+.wcg-tournament-leaders{
+  position:absolute;
+  z-index:100;
+  right:3.15%;
+  top:17.4%;
+  width:220px;
+  padding:8px 9px 9px;
+  border:1px solid rgba(215,170,77,.72);
+  outline:1px solid rgba(3,10,17,.92);
+  outline-offset:-4px;
+  background:linear-gradient(180deg,rgba(7,25,39,.91),rgba(2,10,17,.88));
+  box-shadow:0 8px 20px rgba(0,0,0,.46),inset 0 0 20px rgba(70,139,180,.07);
+  color:#e9e2cd;
+  pointer-events:none;
+  text-shadow:0 1px #000;
+}
+.wcg-tournament-leaders header{padding:3px 5px 7px;border-bottom:1px solid rgba(214,169,75,.30);text-align:center}
+.wcg-tournament-leaders header small{display:block;color:#84bddb;font:900 6px/1 monospace;letter-spacing:.16em}
+.wcg-tournament-leaders header b{display:block;margin-top:4px;color:#ffe2a0;font:900 13px/1 Georgia,serif;letter-spacing:.08em}
+.wcg-tournament-leaders header span{display:block;margin-top:4px;color:#8faabd;font:800 5px/1 monospace;letter-spacing:.11em}
+.wcg-tournament-leaders section{margin-top:7px}
+.wcg-tournament-leaders h4{margin:0 0 4px;color:#d7ad55;font:900 6px/1 monospace;letter-spacing:.15em}
+.wcg-tournament-leader-list{display:grid;gap:2px}
+.wcg-tournament-leader-list>div{display:grid;grid-template-columns:15px 1fr 24px;gap:5px;align-items:center;min-height:24px;padding:3px 5px;border-top:1px solid rgba(111,163,193,.10);background:rgba(255,255,255,.018)}
+.wcg-tournament-leader-list em{font:900 7px/1 monospace;font-style:normal;color:#7faec8;text-align:center}
+.wcg-tournament-leader-list span{min-width:0}
+.wcg-tournament-leader-list b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f8e8b8;font:900 7px/1.05 monospace}
+.wcg-tournament-leader-list small{display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#79a4bd;font:800 5px/1 monospace}
+.wcg-tournament-leader-list strong{color:#ffe091;font:900 13px/1 Georgia,serif;text-align:right}
+.wcg-tournament-leader-list p{margin:6px 0 3px;color:#718fa2;font:800 6px/1.2 monospace;letter-spacing:.08em;text-align:center}
+#wcWorldCupBroadcast.is-opening-film .wcg-tournament-leaders{opacity:0!important;visibility:hidden!important}
+@media(max-width:1050px){.wcg-tournament-leaders{width:185px;right:2.7%;top:17.8%;padding:6px}.wcg-tournament-leader-list>div{min-height:21px}.wcg-tournament-leaders header b{font-size:11px}}
+@media(max-width:760px){.wcg-tournament-leaders{width:155px;right:2.3%;top:18.5%}.wcg-tournament-leader-list>div{grid-template-columns:12px 1fr 18px;gap:3px}.wcg-tournament-leader-list strong{font-size:10px}.wcg-tournament-leader-list b{font-size:6px}}
+
+/* =====================================================================
+   PRE-LIVE SIDECAR PASS — PROFESSIONAL WORLD CUP GOAL LEADERS
+   The leaderboard is a separate physical broadcast panel to the RIGHT of
+   the television. It never occupies pixels inside the TV glass.
+   ===================================================================== */
+#wcWorldCupBroadcast.is-open{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) clamp(220px,13vw,260px)!important;
+  grid-template-rows:1fr!important;
+  align-items:center!important;
+  justify-items:center!important;
+  gap:18px!important;
+  padding:10px 14px!important;
+}
+.wcg-tv-stack{
+  position:relative;
+  z-index:2;
+  width:100%;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+.wcg-tv-stack>.wcg-shell{
+  width:min(100%,1600px,calc(177.68vh - 80px))!important;
+  max-height:none!important;
+  flex:0 0 auto!important;
+}
+.wcg-tv-stack>.wcg-volume-control{
+  position:relative!important;
+  z-index:6!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  width:160px!important;
+  height:27px!important;
+  margin:0!important;
+  flex:0 0 auto!important;
+  opacity:.78!important;
+}
+.wcg-tv-stack>.wcg-volume-control:hover,
+.wcg-tv-stack>.wcg-volume-control:focus-within{opacity:1!important}
+
+#wcWorldCupBroadcast>.wcg-tournament-leaders{
+  position:relative!important;
+  z-index:8!important;
+  right:auto!important;
+  left:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  align-self:center!important;
+  justify-self:stretch!important;
+  width:100%!important;
+  max-width:260px!important;
+  min-width:0!important;
+  max-height:76vh!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid rgba(231,189,92,.78)!important;
+  outline:1px solid rgba(1,6,12,.96)!important;
+  outline-offset:-5px!important;
+  border-radius:2px!important;
+  background:
+    linear-gradient(90deg,rgba(218,169,68,.055) 1px,transparent 1px) 0 0/20px 100%,
+    radial-gradient(circle at 50% -8%,rgba(59,133,177,.20),transparent 34%),
+    linear-gradient(180deg,rgba(10,29,44,.985),rgba(3,12,20,.985) 62%,rgba(1,7,13,.99))!important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.58),
+    0 0 0 1px rgba(4,15,24,.95),
+    inset 0 0 0 4px rgba(2,9,15,.58),
+    inset 0 0 32px rgba(72,145,188,.075)!important;
+  color:#efe7d1!important;
+  text-shadow:0 1px 1px #000!important;
+  pointer-events:none!important;
+}
+#wcWorldCupBroadcast>.wcg-tournament-leaders::before{
+  content:'';
+  position:absolute;
+  z-index:0;
+  left:9px;right:9px;top:7px;height:3px;
+  background:linear-gradient(90deg,transparent,#b77c25 13%,#f2cf72 50%,#b77c25 87%,transparent);
+  box-shadow:0 0 9px rgba(239,191,82,.12);
+}
+#wcWorldCupBroadcast>.wcg-tournament-leaders::after{
+  content:'WC 26';
+  position:absolute;
+  z-index:0;
+  right:-7px;
+  bottom:21px;
+  color:#8bc5e4;
+  opacity:.028;
+  font:900 58px/.8 Georgia,serif;
+  letter-spacing:-.07em;
+  transform:rotate(-90deg) translateX(20%);
+  transform-origin:100% 100%;
+  pointer-events:none;
+}
+.wcg-tournament-leaders>*{position:relative;z-index:1}
+.wcg-tournament-leaders header{
+  padding:18px 13px 12px!important;
+  border-bottom:1px solid rgba(221,176,77,.34)!important;
+  background:linear-gradient(180deg,rgba(26,62,84,.28),rgba(3,15,24,.08))!important;
+  text-align:center!important;
+}
+.wcg-tournament-leaders header small{
+  display:block!important;
+  color:#87c4e5!important;
+  font:900 6px/1 monospace!important;
+  letter-spacing:.19em!important;
+}
+.wcg-leaderboard-title{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:8px;
+  margin-top:7px;
+}
+.wcg-leaderboard-title::before,
+.wcg-leaderboard-title::after{
+  content:'';
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(221,177,82,.72));
+}
+.wcg-leaderboard-title::after{transform:scaleX(-1)}
+.wcg-leaderboard-title i{
+  display:none;
+}
+.wcg-tournament-leaders header b{
+  display:block!important;
+  margin:0!important;
+  color:#ffe6a4!important;
+  font:900 clamp(16px,1.15vw,20px)/1 Georgia,'Times New Roman',serif!important;
+  letter-spacing:.075em!important;
+  white-space:nowrap;
+}
+.wcg-tournament-leaders header>span{
+  display:inline-block!important;
+  margin-top:8px!important;
+  padding:4px 7px 3px!important;
+  border:1px solid rgba(130,186,216,.20)!important;
+  background:rgba(5,23,35,.56)!important;
+  color:#90aec0!important;
+  font:900 5px/1 monospace!important;
+  letter-spacing:.14em!important;
+}
+.wcg-tournament-leaders section{
+  margin:0!important;
+  padding:11px 11px 8px!important;
+}
+.wcg-tournament-leaders section+section{
+  border-top:1px solid rgba(220,174,75,.19)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.012),transparent)!important;
+}
+.wcg-leaderboard-section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:0 2px 7px;
+  padding-bottom:6px;
+  border-bottom:1px solid rgba(112,170,201,.16);
+}
+.wcg-tournament-leaders h4{
+  margin:0!important;
+  color:#e5b95d!important;
+  font:900 7px/1 monospace!important;
+  letter-spacing:.16em!important;
+}
+.wcg-leaderboard-section-head>span{
+  color:#718fa2;
+  font:900 5px/1 monospace;
+  letter-spacing:.13em;
+}
+.wcg-tournament-leader-list{display:grid!important;gap:3px!important}
+.wcg-tournament-leader-list>.wcg-leader-row{
+  position:relative;
+  display:grid!important;
+  grid-template-columns:24px minmax(0,1fr) 31px!important;
+  gap:7px!important;
+  align-items:center!important;
+  min-height:34px!important;
+  padding:5px 7px 5px 5px!important;
+  border:1px solid rgba(96,149,180,.10)!important;
+  border-left:2px solid rgba(111,164,194,.20)!important;
+  background:linear-gradient(90deg,rgba(255,255,255,.028),rgba(255,255,255,.008))!important;
+}
+.wcg-tournament-leader-list>.wcg-leader-row.is-first{
+  border-color:rgba(218,175,81,.30)!important;
+  border-left-color:#e0b24f!important;
+  background:linear-gradient(90deg,rgba(151,100,25,.18),rgba(255,255,255,.018))!important;
+  box-shadow:inset 0 0 15px rgba(224,174,67,.035)!important;
+}
+.wcg-tournament-leader-list>.wcg-leader-row.is-second{border-left-color:#a9becb!important}
+.wcg-tournament-leader-list>.wcg-leader-row.is-third{border-left-color:#b77a46!important}
+.wcg-tournament-leader-list em{
+  display:grid!important;
+  place-items:center!important;
+  width:19px!important;
+  height:19px!important;
+  border:1px solid rgba(115,171,202,.24)!important;
+  border-radius:50%!important;
+  background:#061722!important;
+  color:#85b9d3!important;
+  font:900 7px/1 monospace!important;
+  font-style:normal!important;
+}
+.wcg-tournament-leader-list .is-first em{border-color:#d6a948!important;color:#ffe09a!important;background:#2c1d08!important}
+.wcg-tournament-leader-list .is-second em{border-color:#8aa6b6!important;color:#d4e4ec!important}
+.wcg-tournament-leader-list .is-third em{border-color:#a66f42!important;color:#e8bd91!important}
+.wcg-tournament-leader-list span{min-width:0!important}
+.wcg-tournament-leader-list b{
+  display:block!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#f7e9bd!important;
+  font:900 8px/1.05 monospace!important;
+  letter-spacing:.035em!important;
+}
+.wcg-tournament-leader-list small{
+  display:block!important;
+  margin-top:3px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#77a5bf!important;
+  font:800 5px/1 monospace!important;
+  letter-spacing:.07em!important;
+}
+.wcg-tournament-leader-list strong{
+  color:#ffe297!important;
+  font:900 17px/1 Georgia,serif!important;
+  text-align:right!important;
+}
+.wcg-tournament-leader-list p{
+  margin:8px 0 6px!important;
+  padding:10px 6px!important;
+  border:1px dashed rgba(119,165,191,.14)!important;
+  color:#718fa2!important;
+  font:800 6px/1.3 monospace!important;
+  letter-spacing:.09em!important;
+  text-align:center!important;
+}
+.wcg-tournament-leaders footer{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  padding:8px 12px 10px!important;
+  border-top:1px solid rgba(220,174,75,.22)!important;
+  background:rgba(1,7,12,.54)!important;
+}
+.wcg-tournament-leaders footer span{color:#718fa2;font:900 5px/1 monospace;letter-spacing:.11em}
+.wcg-tournament-leaders footer b{color:#d4ad58;font:900 6px/1 monospace;letter-spacing:.12em}
+
+#wcWorldCupBroadcast.is-opening-film>.wcg-tournament-leaders,
+#wcWorldCupBroadcast.is-barry-opening>.wcg-tournament-leaders{
+  opacity:0!important;
+  visibility:hidden!important;
+}
+
+@media(max-width:1450px){
+  #wcWorldCupBroadcast.is-open{grid-template-columns:minmax(0,1fr) 205px!important;gap:12px!important;padding:8px 9px!important}
+  #wcWorldCupBroadcast>.wcg-tournament-leaders{max-width:205px!important}
+  .wcg-tournament-leaders header{padding-left:9px!important;padding-right:9px!important}
+  .wcg-tournament-leaders header b{font-size:15px!important}
+  .wcg-tournament-leader-list>.wcg-leader-row{grid-template-columns:21px minmax(0,1fr) 26px!important;gap:5px!important;padding-left:4px!important;padding-right:5px!important}
+  .wcg-tournament-leader-list strong{font-size:14px!important}
+}
+@media(max-width:900px){
+  #wcWorldCupBroadcast.is-open{display:flex!important;flex-direction:column!important;padding:4px 0!important;gap:4px!important}
+  .wcg-tv-stack{width:98vw!important}
+  .wcg-tv-stack>.wcg-shell{width:98vw!important}
+  #wcWorldCupBroadcast>.wcg-tournament-leaders{display:none!important}
+  .wcg-tv-stack>.wcg-volume-control{width:142px!important;height:25px!important}
+}
+
+/* =====================================================================
+   LIVE HOTFIX — KEEP THE TV PERFECTLY CENTRED WITH THE LEADERBOARD OUTSIDE
+   The sidecar must never participate in layout sizing/centering. Reserve an
+   equal visual gutter on BOTH sides of the TV, then pin the leaderboard into
+   the right gutter. This keeps the original broadcast screen dead-centre.
+   ===================================================================== */
+#wcWorldCupBroadcast.is-open{
+  --wcg-sidecar-w:clamp(220px,13vw,260px);
+  --wcg-sidecar-gap:18px;
+  --wcg-side-edge:14px;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:6px 0 5px!important;
+}
+
+#wcWorldCupBroadcast.is-open>.wcg-tv-stack{
+  position:relative!important;
+  z-index:2!important;
+  width:min(
+    1672px,
+    calc(177.68vh - 80px),
+    calc(100vw - var(--wcg-sidecar-w) - var(--wcg-sidecar-w) - var(--wcg-sidecar-gap) - var(--wcg-sidecar-gap) - 28px)
+  )!important;
+  min-width:0!important;
+  margin:0 auto!important;
+  flex:0 0 auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+}
+
+#wcWorldCupBroadcast.is-open>.wcg-tv-stack>.wcg-shell{
+  width:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  flex:0 0 auto!important;
+}
+
+/* Sidecar is physically outside the centred TV and does not affect its X. */
+#wcWorldCupBroadcast.is-open>.wcg-tournament-leaders{
+  position:absolute!important;
+  z-index:8!important;
+  top:50%!important;
+  right:var(--wcg-side-edge)!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:translateY(-50%)!important;
+  width:var(--wcg-sidecar-w)!important;
+  max-width:var(--wcg-sidecar-w)!important;
+  align-self:auto!important;
+  justify-self:auto!important;
+  margin:0!important;
+}
+
+@media(max-width:1450px){
+  #wcWorldCupBroadcast.is-open{
+    --wcg-sidecar-w:205px;
+    --wcg-sidecar-gap:12px;
+    --wcg-side-edge:9px;
+  }
+  #wcWorldCupBroadcast.is-open>.wcg-tv-stack{
+    width:min(
+      1672px,
+      calc(177.68vh - 80px),
+      calc(100vw - var(--wcg-sidecar-w) - var(--wcg-sidecar-w) - var(--wcg-sidecar-gap) - var(--wcg-sidecar-gap) - 18px)
+    )!important;
+  }
+}
+
+@media(max-width:900px){
+  #wcWorldCupBroadcast.is-open{
+    display:flex!important;
+    padding:4px 0!important;
+    gap:4px!important;
+  }
+  #wcWorldCupBroadcast.is-open>.wcg-tv-stack{width:98vw!important}
+  #wcWorldCupBroadcast.is-open>.wcg-tournament-leaders{display:none!important}
+}
