@@ -1,42 +1,389 @@
 (() => {
-'use strict';
-const D=window.RepoDiverData;
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const rand=(a,b)=>a+Math.random()*(b-a);
-const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-class DiveEngine{
-  constructor(canvas,hooks={}){this.c=canvas;this.x=canvas.getContext('2d');this.h=hooks;this.keys=new Set();this.fish=[];this.loot=[];this.harpoons=[];this.particles=[];this.running=false;this.last=0;this.mouse={x:650,y:270};this.camera={x:0,y:0};this.pointerDown=false;this.bind();}
-  bind(){
-    this.kd=e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName))return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','e','tab'].includes(k)){e.preventDefault();this.keys.add(k)}if(k==='e')this.interact();if(k==='tab')this.h.inventory?.()};
-    this.ku=e=>this.keys.delete(e.key.toLowerCase());
-    this.mm=e=>{const r=this.c.getBoundingClientRect();this.mouse.x=(e.clientX-r.left)*this.c.width/r.width;this.mouse.y=(e.clientY-r.top)*this.c.height/r.height};
-    this.md=e=>{if(e.button===0){this.pointerDown=true;this.fire()}};this.mu=()=>this.pointerDown=false;
+  'use strict';
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = a => a[(Math.random() * a.length) | 0];
+  const rarityRank = r => window.RepoDiverData?.RARITY?.[r]?.rank || 1;
+
+  function weighted(list, weight) {
+    let total = list.reduce((s, x) => s + weight(x), 0);
+    let roll = Math.random() * total;
+    for (const x of list) {
+      roll -= weight(x);
+      if (roll <= 0) return x;
+    }
+    return list[0];
   }
-  attach(){window.addEventListener('keydown',this.kd);window.addEventListener('keyup',this.ku);this.c.addEventListener('mousemove',this.mm);this.c.addEventListener('mousedown',this.md);window.addEventListener('mouseup',this.mu)}
-  detach(){window.removeEventListener('keydown',this.kd);window.removeEventListener('keyup',this.ku);this.c.removeEventListener('mousemove',this.mm);this.c.removeEventListener('mousedown',this.md);window.removeEventListener('mouseup',this.mu)}
-  start(opts){this.biome=D.biomes[opts.biome];this.opts=opts;this.player={x:480,y:110,vx:0,vy:0,hp:100,oxygen:100,maxOxygen:100,weight:0,cap:14+4*((opts.equipment?.cargo||1)-1),boost:100,harpoonCd:0,invuln:0};this.world={w:1800,h:Math.max(1300,this.biome.maxDepth*7),surfaceY:90};this.catches=[];this.maxDepth=0;this.rescued=false;this.fish=[];this.loot=[];this.harpoons=[];this.particles=[];this.spawnWorld();this.running=true;this.last=performance.now();this.attach();this.frame=requestAnimationFrame(t=>this.loop(t));}
-  stop(){this.running=false;cancelAnimationFrame(this.frame);this.detach();this.keys.clear();}
-  spawnWorld(){const species=D.fish.filter(f=>f.biome===this.opts.biome);for(let i=0;i<44;i++){const f=species[Math.floor(Math.random()*species.length)];const min=140+(D.rarity[f.rarity].s-1)*260;this.fish.push({def:f,x:rand(100,this.world.w-100),y:rand(min,this.world.h-100),vx:rand(-35,35),vy:rand(-15,15),dir:Math.random()<.5?-1:1,hp:1+Math.floor(D.rarity[f.rarity].s*1.1),phase:rand(0,9),panic:0,size:rand(.86,1.2),pred:/shark|eel|kraken/.test(f.id)});}
-    for(let i=0;i<14;i++)this.loot.push({x:rand(100,this.world.w-100),y:rand(220,this.world.h-120),kind:Math.random()<.28?'air':'chest',used:false});}
-  loop(t){if(!this.running)return;const dt=Math.min(.033,(t-this.last)/1000||.016);this.last=t;this.update(dt);this.draw();this.frame=requestAnimationFrame(q=>this.loop(q));}
-  update(dt){const p=this.player;let ix=(this.keys.has('d')||this.keys.has('arrowright')?1:0)-(this.keys.has('a')||this.keys.has('arrowleft')?1:0),iy=(this.keys.has('s')||this.keys.has('arrowdown')?1:0)-(this.keys.has('w')||this.keys.has('arrowup')?1:0);const len=Math.hypot(ix,iy)||1;ix/=len;iy/=len;const boosting=this.keys.has('shift')&&p.boost>0&&Math.hypot(ix,iy)>.2;const sp=(boosting?250:155)*(1-Math.min(.28,p.weight/p.cap*.22));const smooth=1-Math.exp(-dt*7);p.vx+=(ix*sp-p.vx)*smooth;p.vy+=(iy*sp-p.vy)*smooth;p.x=clamp(p.x+p.vx*dt,20,this.world.w-20);p.y=clamp(p.y+p.vy*dt,55,this.world.h-20);if(boosting){p.boost=Math.max(0,p.boost-dt*32)}else p.boost=Math.min(100,p.boost+dt*16);p.harpoonCd=Math.max(0,p.harpoonCd-dt);p.invuln=Math.max(0,p.invuln-dt);
-    const depth=Math.max(0,(p.y-this.world.surfaceY)/7);this.maxDepth=Math.max(this.maxDepth,depth);const tank=Number(this.opts.equipment?.tank||1);const maxSec=72+25*(tank-1);p.oxygen=Math.max(0,p.oxygen-dt*(100/maxSec)*(boosting?1.45:1)*(1+Math.max(0,p.weight-p.cap*.7)/p.cap*.45));if(p.oxygen<=0){p.hp-=dt*16;if(p.hp<=0)this.rescue('oxygen');}
-    for(const f of this.fish){if(f.dead)continue;f.phase+=dt;const d=dist(f,p);if(d<110){f.panic=1.3;const dx=(f.x-p.x)/(d||1),dy=(f.y-p.y)/(d||1);f.vx+=dx*160*dt;f.vy+=dy*100*dt}else f.panic=Math.max(0,f.panic-dt);if(f.pred&&d<100&&p.invuln<=0){const dx=(p.x-f.x)/(d||1),dy=(p.y-f.y)/(d||1);p.vx+=dx*100;p.vy+=dy*100;p.hp-=8;p.oxygen=Math.max(0,p.oxygen-4);p.invuln=1;this.h.sound?.('hit')}
-      f.vx+=Math.sin(f.phase*.8)*9*dt;f.vy+=Math.cos(f.phase*.57)*6*dt;const max=48+(f.panic>0?60:0);const vl=Math.hypot(f.vx,f.vy)||1;if(vl>max){f.vx=f.vx/vl*max;f.vy=f.vy/vl*max}f.x+=f.vx*dt;f.y+=f.vy*dt;if(f.x<35||f.x>this.world.w-35)f.vx*=-1;if(f.y<125||f.y>this.world.h-35)f.vy*=-1;f.x=clamp(f.x,25,this.world.w-25);f.y=clamp(f.y,120,this.world.h-25);f.dir=f.vx<0?-1:1;}
-    for(const h of this.harpoons){if(h.dead)continue;h.x+=h.vx*dt;h.y+=h.vy*dt;h.life-=dt;if(h.life<=0)h.dead=true;for(const f of this.fish){if(f.dead||h.dead)continue;if(Math.hypot(h.x-f.x,h.y-f.y)<22*f.size){h.dead=true;f.hp-=Math.max(1,Number(this.opts.equipment?.harpoon||1)>=4?2:1);if(f.hp<=0)this.catchFish(f);else{f.panic=2;this.h.sound?.('hit')}}}}
-    this.harpoons=this.harpoons.filter(x=>!x.dead);this.particles.forEach(q=>{q.life-=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy-=6*dt});this.particles=this.particles.filter(q=>q.life>0);
-    this.camera.x=clamp(p.x-this.c.width*.5,0,this.world.w-this.c.width);this.camera.y=clamp(p.y-this.c.height*.43,0,this.world.h-this.c.height);this.h.hud?.({oxygen:p.oxygen,hp:p.hp,depth,weight:p.weight,cap:p.cap,boost:p.boost,maxDepth:this.maxDepth,catches:this.catches.length});}
-  fire(){if(!this.running||this.player.harpoonCd>0)return;const p=this.player,wx=this.mouse.x+this.camera.x,wy=this.mouse.y+this.camera.y,dx=wx-p.x,dy=wy-p.y,l=Math.hypot(dx,dy)||1,s=520;this.harpoons.push({x:p.x,y:p.y,vx:dx/l*s,vy:dy/l*s,life:.9});p.harpoonCd=Math.max(.28,.62-(Number(this.opts.equipment?.harpoon||1)-1)*.055);this.h.sound?.('harpoon')}
-  catchFish(f){if(this.player.weight+f.def.weight>this.player.cap){this.h.message?.('Cargo full — surface or drop something.');return}f.dead=true;const q=Math.random()<.12?3:Math.random()<.38?2:1;const variant=Math.random()<.006?'golden':Math.random()<.008?'crystal':'';const size=Math.round((f.size*100+Math.random()*18)*10)/10;this.catches.push({id:f.def.id,q,size,variant});this.player.weight+=f.def.weight;for(let i=0;i<10;i++)this.particles.push({x:f.x,y:f.y,vx:rand(-45,45),vy:rand(-35,35),life:rand(.25,.7),c:D.rarity[f.def.rarity].c});this.h.catch?.(f.def,q,size,variant);this.h.sound?.('catch')}
-  interact(){if(!this.running)return;const p=this.player;let n=this.loot.filter(x=>!x.used).sort((a,b)=>dist(a,p)-dist(b,p))[0];if(n&&dist(n,p)<55){n.used=true;if(n.kind==='air'){p.oxygen=Math.min(100,p.oxygen+34);this.h.message?.('Rune air vent restored oxygen.')}else{const gp=Math.floor(rand(25,100));this.h.treasure?.(gp);this.h.message?.(`Treasure found: ${gp} provisional GP`)}this.h.sound?.('treasure');return}if(p.y<115){this.surface()}}
-  surface(){this.stop();this.h.surface?.({catches:this.catches,maxDepth:this.maxDepth,rescued:false});}
-  rescue(reason){if(!this.running)return;this.rescued=true;const keep=Math.ceil(this.catches.length*.65);this.catches=this.catches.slice(0,keep);this.stop();this.h.rescue?.({reason,catches:this.catches,maxDepth:this.maxDepth,rescued:true});}
-  draw(){const ctx=this.x,c=this.c,cam=this.camera,p=this.player,b=this.biome;const g=ctx.createLinearGradient(0,0,0,c.height);g.addColorStop(0,b.water);g.addColorStop(1,b.deep);ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);const depth=Math.max(0,(cam.y-this.world.surfaceY)/7);ctx.globalAlpha=.17;for(let i=0;i<12;i++){ctx.fillStyle=i%2?'#fff':'#8de8ff';ctx.beginPath();ctx.ellipse(((i*173+performance.now()*.012)%1100)-70,80+(i*71)%440,70,8,0,0,6.28);ctx.fill()}ctx.globalAlpha=1;ctx.save();ctx.translate(-cam.x,-cam.y);this.drawWorld(ctx);for(const l of this.loot)if(!l.used)this.drawLoot(ctx,l);for(const f of this.fish)if(!f.dead)this.drawFish(ctx,f);for(const h of this.harpoons){ctx.strokeStyle='#e8eff2';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(h.x-10,h.y);ctx.lineTo(h.x+10,h.y);ctx.stroke()}for(const q of this.particles){ctx.globalAlpha=Math.max(0,q.life*1.8);ctx.fillStyle=q.c;ctx.fillRect(q.x,q.y,3,3)}ctx.globalAlpha=1;this.drawPlayer(ctx,p);ctx.restore();this.drawAim(ctx);}
-  drawWorld(ctx){const b=this.biome;ctx.fillStyle='rgba(0,0,0,.22)';for(let y=240;y<this.world.h;y+=210){for(let x=30+(y%130);x<this.world.w;x+=180){ctx.beginPath();ctx.ellipse(x,y+35,70,24,0,0,6.28);ctx.fill();ctx.fillStyle=b.accent+'55';ctx.fillRect(x-3,y-25,6,55);ctx.fillStyle='rgba(0,0,0,.22)'}}ctx.fillStyle='#0a2430';ctx.fillRect(0,this.world.h-42,this.world.w,42);ctx.fillStyle='#295c61';for(let x=0;x<this.world.w;x+=34)ctx.fillRect(x,this.world.h-50-Math.sin(x)*8,23,16);ctx.strokeStyle='rgba(255,255,255,.32)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,this.world.surfaceY);ctx.lineTo(this.world.w,this.world.surfaceY);ctx.stroke();}
-  drawFish(ctx,f){ctx.save();ctx.translate(f.x,f.y);ctx.scale(f.dir*f.size,f.size);const col=D.rarity[f.def.rarity].c;ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(0,0,18,10,0,0,6.28);ctx.fill();ctx.beginPath();ctx.moveTo(-15,0);ctx.lineTo(-30,-10);ctx.lineTo(-30,10);ctx.closePath();ctx.fill();ctx.fillStyle='#061821';ctx.fillRect(8,-3,3,3);if(f.def.rarity==='legendary'||f.def.rarity==='ancient'){ctx.globalAlpha=.28;ctx.strokeStyle=col;ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,23,0,6.28);ctx.stroke()}ctx.restore()}
-  drawLoot(ctx,l){ctx.save();ctx.translate(l.x,l.y);if(l.kind==='air'){ctx.strokeStyle='#7ff5ff';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,16,0,6.28);ctx.stroke();ctx.fillStyle='#b8ffff';ctx.fillRect(-3,-22,6,8)}else{ctx.fillStyle='#8e6335';ctx.fillRect(-17,-12,34,24);ctx.strokeStyle='#e0b75e';ctx.strokeRect(-17,-12,34,24);ctx.fillStyle='#e0b75e';ctx.fillRect(-3,-3,6,7)}ctx.restore()}
-  drawPlayer(ctx,p){ctx.save();ctx.translate(p.x,p.y);const ang=Math.atan2(p.vy,p.vx)*.12;ctx.rotate(ang);if(p.invuln>0&&Math.floor(p.invuln*12)%2)ctx.globalAlpha=.45;ctx.fillStyle='#243846';ctx.fillRect(-11,-14,22,28);ctx.fillStyle='#8fd9f0';ctx.fillRect(-8,-12,16,14);ctx.fillStyle='#d9b08c';ctx.fillRect(-7,-22,14,10);ctx.fillStyle='#425869';ctx.fillRect(-18,-11,8,18);ctx.fillStyle='#9cc9d9';ctx.fillRect(-21,-9,5,14);ctx.fillStyle='#f0d15b';ctx.fillRect(10,-5,25,3);ctx.fillStyle='#d9e8ed';ctx.fillRect(33,-7,8,7);ctx.restore()}
-  drawAim(ctx){const p=this.player,px=p.x-this.camera.x,py=p.y-this.camera.y,dx=this.mouse.x-px,dy=this.mouse.y-py,l=Math.hypot(dx,dy)||1;ctx.save();ctx.setLineDash([5,8]);ctx.strokeStyle='rgba(255,239,169,.7)';ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+dx/l*110,py+dy/l*110);ctx.stroke();ctx.restore()}
-}
-window.RepoDiverEngine=DiveEngine;
+
+  function cargoCap(equipment = {}) {
+    return 9 + (equipment.cargo || 1) * 5;
+  }
+
+  function cargoWeight(run) {
+    return (run?.catches || []).reduce((sum, item) => sum + Number(item.weight || 0), 0);
+  }
+
+  function canCarry(run, item, equipment) {
+    return cargoWeight(run) + Number(item?.weight || 0) <= cargoCap(equipment) + 0.0001;
+  }
+
+  function notice(run, text, type = 'info', seconds = 1.7) {
+    if (!run) return;
+    run.notice = { text, type, time: seconds };
+  }
+
+  function burst(run, x, y, amount = 12, color = '#c8ffff', force = 1) {
+    for (let i = 0; i < amount; i++) {
+      run.particles.push({
+        x, y,
+        vx: rand(-70, 70) * force,
+        vy: rand(-85, 30) * force,
+        life: rand(.28, .8),
+        color,
+        size: rand(1, 3)
+      });
+    }
+  }
+
+  function spawnFish(biome, level = 1, sonar = 1) {
+    const D = window.RepoDiverData;
+    const pool = D.fishForBiome(biome);
+    const rarityW = { common: 38, uncommon: 24, rare: 11, epic: 4.4, legendary: 1.35, mythic: .28 };
+    const src = weighted(pool, x => rarityW[x.rarity] * (1 + (sonar - 1) * (.06 * rarityRank(x.rarity))));
+    const rank = rarityRank(src.rarity);
+    const hp = Math.max(1, Math.ceil((rank - 1) / 2) + ((src.size || 1) > 1.25 ? 1 : 0));
+    const dir = Math.random() < .5 ? -1 : 1;
+    return {
+      ...src,
+      x: rand(80, 900),
+      y: rand(82, 485),
+      vx: dir * rand(.30, .62) * (src.speed || 1),
+      vy: rand(-.18, .18),
+      hp,
+      maxHp: hp,
+      phase: Math.random() * Math.PI * 2,
+      dodge: 0,
+      hooked: false,
+      hitFlash: 0
+    };
+  }
+
+  function createRun(opts) {
+    const D = window.RepoDiverData;
+    const biome = D.biome(opts.biome);
+    const fishCount = 15 + Math.min(12, Math.floor((opts.level || 1) / 3)) + Math.min(8, ((opts.equipment?.lure || 1) - 1));
+    const fish = Array.from({ length: fishCount }, () => spawnFish(biome.id, opts.level, opts.equipment?.sonar || 1));
+    const treasureCount = Math.max(1, Math.min(4, 1 + Math.floor(((opts.equipment?.salvage || 1) - 1) / 2)));
+    const sourceTreasures = D.treasuresForBiome(biome.id);
+    const treasures = Array.from({ length: treasureCount }, (_, i) => {
+      const t = sourceTreasures[i % Math.max(1, sourceTreasures.length)] || { id: biome.id + '_cache', name: 'Salvage Cache', rarity: 'rare', weight: 1.1 };
+      return { ...t, x: rand(125, 835), y: rand(300, 475), opened: false, phase: rand(0, 6.28) };
+    });
+
+    return {
+      biome,
+      level: opts.level || 1,
+      fish,
+      treasures,
+      player: { x: 105, y: 125, vx: 0, vy: 0, hp: 100, o2: 100, swimPhase: 0, aimAngle: 0 },
+      particles: [],
+      catches: [],
+      elapsed: 0,
+      maxDepth: 0,
+      shake: 0,
+      flash: 0,
+      done: false,
+      spawnTimer: rand(2.4, 4.5),
+      totalSpawned: fishCount,
+      notice: { text: 'CLICK TO FIRE HARPOON', type: 'info', time: 2.4 },
+      harpoon: {
+        cooldown: 0,
+        projectile: null,
+        hooked: null,
+        lastResult: 'ready'
+      }
+    };
+  }
+
+  function updateFish(run, dt, equipment) {
+    const p = run.player;
+    const projectile = run.harpoon.projectile;
+    for (const f of run.fish) {
+      if (f.hooked) continue;
+      f.phase += dt * (1.5 + (f.speed || 1));
+      f.hitFlash = Math.max(0, (f.hitFlash || 0) - dt * 5);
+      f.dodge = Math.max(0, (f.dodge || 0) - dt);
+
+      let targetSpeed = .34 + (f.speed || 1) * .38 + rarityRank(f.rarity) * .025;
+      const distanceToPlayer = Math.hypot(f.x - p.x, f.y - p.y);
+      const skittish = ['flee', 'aggressive', 'boss'].includes(f.temperament) || rarityRank(f.rarity) >= 4;
+      if (distanceToPlayer < (skittish ? 145 : 92)) {
+        const dx = (f.x - p.x) / (distanceToPlayer || 1);
+        const dy = (f.y - p.y) / (distanceToPlayer || 1);
+        f.vx += dx * dt * (skittish ? 1.35 : .42);
+        f.vy += dy * dt * (skittish ? .72 : .25);
+      }
+
+      if (projectile && rarityRank(f.rarity) >= 2) {
+        const pd = Math.hypot(f.x - projectile.x, f.y - projectile.y);
+        if (pd < 92 && f.dodge <= 0) {
+          const dx = (f.x - projectile.x) / (pd || 1);
+          const dy = (f.y - projectile.y) / (pd || 1);
+          const dodgeStrength = .55 + rarityRank(f.rarity) * .18;
+          f.vx += dx * dodgeStrength;
+          f.vy += dy * dodgeStrength * .65;
+          f.dodge = rand(.25, .6);
+        }
+      }
+
+      const speed = Math.hypot(f.vx, f.vy);
+      if (speed > targetSpeed) {
+        const scale = targetSpeed / speed;
+        f.vx *= scale;
+        f.vy *= scale;
+      }
+
+      f.x += f.vx * 72 * dt;
+      f.y += f.vy * 58 * dt + Math.sin(f.phase) * (2.2 + (f.size || 1)) * dt;
+      if (f.x < 42) { f.x = 42; f.vx = Math.abs(f.vx); }
+      if (f.x > 918) { f.x = 918; f.vx = -Math.abs(f.vx); }
+      if (f.y < 70) { f.y = 70; f.vy = Math.abs(f.vy); }
+      if (f.y > 492) { f.y = 492; f.vy = -Math.abs(f.vy); }
+
+      if (distanceToPlayer < 47 && ['aggressive', 'boss'].includes(f.temperament) && Math.random() < dt * .34) {
+        const suit = equipment?.suit || 1;
+        p.hp = clamp(p.hp - (4.5 + (f.size || 1) * 2.2) * (1 - (suit - 1) * .055), 0, 100);
+        run.shake = 7;
+        notice(run, `${f.name.toUpperCase()} STRUCK YOU`, 'danger', 1.2);
+      }
+    }
+  }
+
+  function resolveHarpoonHit(run, fish, equipment, projectile) {
+    fish.hitFlash = 1;
+    fish.hp -= 1;
+    run.shake = 3;
+    burst(run, fish.x, fish.y, 10, '#d8fbff', .75);
+
+    if (fish.hp > 0) {
+      const awayX = fish.x - run.player.x;
+      const awayY = fish.y - run.player.y;
+      const len = Math.hypot(awayX, awayY) || 1;
+      fish.vx += (awayX / len) * (.7 + rarityRank(fish.rarity) * .11);
+      fish.vy += (awayY / len) * .55;
+      run.harpoon.projectile = null;
+      run.harpoon.cooldown = .42;
+      run.harpoon.lastResult = 'resist';
+      notice(run, `${fish.name.toUpperCase()} RESISTS · ${fish.hp} HIT${fish.hp === 1 ? '' : 'S'} LEFT`, 'warning', 1.45);
+      return;
+    }
+
+    if (!canCarry(run, fish, equipment)) {
+      fish.hp = Math.max(1, fish.maxHp);
+      fish.vx *= -1.45;
+      fish.vy += rand(-.5, .5);
+      run.harpoon.projectile = null;
+      run.harpoon.cooldown = .55;
+      run.harpoon.lastResult = 'cargo-full';
+      notice(run, `CARGO FULL · ${fish.weight.toFixed(1)}KG NEEDED`, 'danger', 2);
+      return;
+    }
+
+    fish.hooked = true;
+    run.harpoon.projectile = null;
+    run.harpoon.hooked = {
+      fish,
+      startX: fish.x,
+      startY: fish.y,
+      progress: 0,
+      duration: clamp(.62 + (fish.size || 1) * .32 + rarityRank(fish.rarity) * .08 - (equipment?.harpoon || 1) * .035, .55, 1.65)
+    };
+    run.harpoon.lastResult = 'hooked';
+    notice(run, `HOOKED ${fish.name.toUpperCase()} · REELING`, 'success', 1.2);
+  }
+
+  function updateHarpoon(run, dt, equipment) {
+    const h = run.harpoon;
+    h.cooldown = Math.max(0, h.cooldown - dt);
+
+    if (h.projectile) {
+      const pr = h.projectile;
+      pr.x += pr.dx * pr.speed * dt;
+      pr.y += pr.dy * pr.speed * dt;
+      pr.travel += pr.speed * dt;
+
+      let hit = null;
+      let hitDistance = Infinity;
+      for (const f of run.fish) {
+        if (f.hooked) continue;
+        const d = Math.hypot(f.x - pr.x, f.y - pr.y);
+        const radius = 5.5 + (f.size || 1) * 6.8;
+        if (d < radius && d < hitDistance) { hit = f; hitDistance = d; }
+      }
+      if (hit) {
+        resolveHarpoonHit(run, hit, equipment, pr);
+      } else if (pr.travel >= pr.range || pr.x < 0 || pr.x > 960 || pr.y < 0 || pr.y > 540) {
+        burst(run, pr.x, pr.y, 5, '#9feaff', .5);
+        h.projectile = null;
+        h.cooldown = Math.max(h.cooldown, .36);
+        h.lastResult = 'miss';
+        notice(run, 'HARPOON MISSED', 'muted', .8);
+      }
+    }
+
+    if (h.hooked) {
+      const hook = h.hooked;
+      const fish = hook.fish;
+      hook.progress = clamp(hook.progress + dt / hook.duration, 0, 1);
+      const eased = 1 - Math.pow(1 - hook.progress, 2.5);
+      const wobble = Math.sin(run.elapsed * 22) * (1 - hook.progress) * 8;
+      fish.x = hook.startX + (run.player.x - hook.startX) * eased;
+      fish.y = hook.startY + (run.player.y - hook.startY) * eased + wobble;
+
+      if (hook.progress >= 1) {
+        if (!canCarry(run, fish, equipment)) {
+          fish.hooked = false;
+          fish.hp = Math.max(1, fish.maxHp);
+          fish.x += 45;
+          h.hooked = null;
+          h.cooldown = .6;
+          notice(run, 'CARGO FULL · CATCH RELEASED', 'danger', 1.8);
+        } else {
+          const stabilizer = equipment?.stabilizer || 1;
+          const qualityBonus = stabilizer >= 4 ? 1 : 0;
+          const q = clamp(1 + Math.floor(Math.random() * 2) + qualityBonus + (rarityRank(fish.rarity) >= 5 && Math.random() < .28 ? 1 : 0), 1, 4);
+          run.catches.push({ id: fish.id, q, kind: 'fish', name: fish.name, rarity: fish.rarity, weight: Number(fish.weight || 1) });
+          const index = run.fish.indexOf(fish);
+          if (index >= 0) run.fish.splice(index, 1);
+          burst(run, run.player.x + 10, run.player.y, 18, fish.color || '#d8fbff', 1);
+          run.flash = 1;
+          h.hooked = null;
+          h.cooldown = .55;
+          h.lastResult = 'caught';
+          notice(run, `LANDED ${fish.name.toUpperCase()} · ${Number(fish.weight || 0).toFixed(1)}KG · ★${q}`, 'success', 2.15);
+        }
+      }
+    }
+  }
+
+  function update(run, dt, input, equipment) {
+    if (run.done) return;
+    const p = run.player;
+    const fins = equipment?.fins || 1;
+    const boost = equipment?.boost || 1;
+    const tank = equipment?.tank || 1;
+    const suit = equipment?.suit || 1;
+    const pressure = equipment?.pressure || 1;
+    const med = equipment?.medkit || 1;
+
+    let ax = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+    let ay = (input.down ? 1 : 0) - (input.up ? 1 : 0);
+    const l = Math.hypot(ax, ay) || 1;
+    ax /= l; ay /= l;
+    const boosting = input.boost && p.o2 > 7;
+    const speed = (102 + fins * 8) * (boosting ? 1.42 + boost * .035 : 1);
+    p.vx += (ax * speed - p.vx) * Math.min(1, dt * 5.3);
+    p.vy += (ay * speed - p.vy) * Math.min(1, dt * 5.3);
+    p.x = clamp(p.x + p.vx * dt, 34, 926);
+    p.y = clamp(p.y + p.vy * dt, 45, 505);
+    p.swimPhase += dt * (3.7 + Math.hypot(p.vx, p.vy) / 55);
+
+    const depth = Math.round((p.y / 540) * run.biome.max_depth);
+    run.maxDepth = Math.max(run.maxDepth, depth);
+    let drain = (1.08 + (depth / run.biome.max_depth) * 1.0) * (1 - (tank - 1) * .055) * (1 - (pressure - 1) * .035);
+    if (boosting) drain *= 1.86;
+    p.o2 = clamp(p.o2 - dt * drain, 0, 100);
+    if (p.o2 <= 0) p.hp = clamp(p.hp - dt * (8 - (suit - 1) * .5), 0, 100);
+    if (med > 1 && p.hp < 100 && p.o2 > 20) p.hp = clamp(p.hp + dt * (med - 1) * .17, 0, 100);
+    if (p.hp <= 0) {
+      run.done = true;
+      notice(run, 'DIVER INCAPACITATED · EMERGENCY SURFACE', 'danger', 3);
+    }
+
+    updateFish(run, dt, equipment);
+    updateHarpoon(run, dt, equipment);
+
+    run.spawnTimer -= dt;
+    const capReached = cargoWeight(run) >= cargoCap(equipment) - .05;
+    if (run.spawnTimer <= 0 && run.fish.length < 20 && run.totalSpawned < 65 && !capReached) {
+      run.fish.push(spawnFish(run.biome.id, run.level, equipment?.sonar || 1));
+      run.totalSpawned++;
+      run.spawnTimer = rand(2.2, 4.4);
+    }
+
+    for (const t of run.treasures) t.phase += dt;
+    run.elapsed += dt;
+    run.shake = Math.max(0, run.shake - dt * 19);
+    run.flash = Math.max(0, run.flash - dt * 2.5);
+    if (run.notice) run.notice.time = Math.max(0, run.notice.time - dt);
+  }
+
+  function harpoon(run, target, equipment) {
+    if (!run || !target) return { ok: false, reason: 'no-run' };
+    const h = run.harpoon;
+    if (h.hooked) {
+      notice(run, 'REEL IN THE CURRENT CATCH FIRST', 'warning', .9);
+      return { ok: false, reason: 'reeling' };
+    }
+    if (h.projectile || h.cooldown > 0) return { ok: false, reason: 'cooldown' };
+
+    const p = run.player;
+    let dx = target.x - p.x;
+    let dy = target.y - p.y;
+    const len = Math.hypot(dx, dy) || 1;
+    dx /= len; dy /= len;
+    p.aimAngle = Math.atan2(dy, dx);
+
+    const level = equipment?.harpoon || 1;
+    const range = 165 + level * 22;
+    const speed = 560 + level * 26;
+    const muzzleX = p.x + Math.cos(p.aimAngle) * 25;
+    const muzzleY = p.y + Math.sin(p.aimAngle) * 25;
+    h.projectile = { x: muzzleX, y: muzzleY, dx, dy, speed, range, travel: 0, angle: p.aimAngle };
+    h.cooldown = .24;
+    h.lastResult = 'fired';
+    burst(run, muzzleX, muzzleY, 4, '#e5ffff', .35);
+    return { ok: true };
+  }
+
+  function interact(run, equipment) {
+    if (!run) return null;
+    const p = run.player;
+    let nearest = null;
+    let nearestDistance = Infinity;
+    for (const t of run.treasures) {
+      if (t.opened) continue;
+      const d = Math.hypot(t.x - p.x, t.y - p.y);
+      if (d < nearestDistance) { nearest = t; nearestDistance = d; }
+    }
+    if (!nearest || nearestDistance >= 68) {
+      notice(run, 'NO SALVAGE IN REACH', 'muted', .8);
+      return null;
+    }
+    if (!canCarry(run, nearest, equipment)) {
+      notice(run, `CARGO FULL · ${Number(nearest.weight || 0).toFixed(1)}KG NEEDED`, 'danger', 1.8);
+      return null;
+    }
+    nearest.opened = true;
+    const q = clamp(1 + Math.floor(Math.random() * 3) + ((equipment?.salvage || 1) > 3 ? 1 : 0), 1, 4);
+    run.catches.push({ id: nearest.id, q, kind: 'treasure', name: nearest.name, rarity: nearest.rarity, weight: Number(nearest.weight || 1) });
+    run.flash = 1;
+    burst(run, nearest.x, nearest.y, 20, '#ffd977', 1);
+    notice(run, `SALVAGE RECOVERED · ${nearest.name.toUpperCase()}`, 'success', 1.8);
+    return nearest;
+  }
+
+  window.RepoDiverEngine = {
+    createRun,
+    update,
+    harpoon,
+    interact,
+    clamp,
+    rand,
+    pick,
+    cargoCap,
+    cargoWeight,
+    canCarry
+  };
 })();
