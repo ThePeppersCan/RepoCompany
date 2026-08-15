@@ -2186,6 +2186,171 @@ button.qg-game-card{font:inherit;cursor:pointer}
 
   <!-- RepoSports player profile recovery: avatars + visible biographies v3 -->
   <link rel="stylesheet" href="world-cup-quidditch-v1.css?v=wc-game-v38-11-ref-ballhold">
+
+<style id="repoSportsWorldCupQuarterFinalDrawStyles">
+/* ============================================================
+   REPO SPORTS WORLD CUP — LIVE QUARTER FINAL DRAW
+   ============================================================ */
+.world-cup-qf-draw-button{
+  position:absolute!important;z-index:13!important;left:50%!important;top:calc(100% + 70px)!important;transform:translateX(-50%)!important;
+  min-width:clamp(248px,18vw,350px)!important;min-height:58px!important;padding:8px 24px 7px!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;
+  border:1px solid #d8ae4d!important;outline:1px solid rgba(83,159,209,.58)!important;outline-offset:-5px!important;border-radius:3px!important;
+  background:linear-gradient(180deg,#173d59 0%,#0a2236 48%,#050f1b 100%)!important;
+  color:#ffe29a!important;box-shadow:0 10px 25px #000b,inset 0 0 0 2px rgba(4,11,19,.88),inset 0 0 22px rgba(68,139,187,.15),0 0 16px rgba(214,163,56,.13)!important;
+  cursor:pointer!important;text-shadow:0 2px #000!important;transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important;
+}
+.world-cup-qf-draw-button[hidden]{display:none!important}
+.world-cup-qf-draw-button::before{content:'';position:absolute;left:13px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#ee4939;box-shadow:0 0 0 2px #64170f,0 0 11px rgba(255,75,55,.72);animation:wcQfLiveDot 1.25s ease-in-out infinite}
+.world-cup-qf-draw-button span{font:900 clamp(12px,1vw,17px)/1 Georgia,serif!important;letter-spacing:.08em!important}
+.world-cup-qf-draw-button small{color:#87b9d6!important;font:900 7px/1 Arial,sans-serif!important;letter-spacing:.17em!important}
+.world-cup-qf-draw-button:hover{filter:brightness(1.16)!important;transform:translateX(-50%) translateY(-2px)!important;box-shadow:0 13px 28px #000c,inset 0 0 0 2px rgba(4,11,19,.88),0 0 22px rgba(214,163,56,.23)!important}
+.world-cup-qf-draw-button:active{transform:translateX(-50%) scale(.985)!important}
+.world-cup-qf-draw-button:focus-visible{outline:2px solid #8dd3ff!important;outline-offset:3px!important}
+.world-cup-qf-draw-button.is-complete::before{background:#69d49a;box-shadow:0 0 0 2px #155d3e,0 0 10px rgba(92,220,151,.5)}
+@keyframes wcQfLiveDot{0%,100%{opacity:.6;transform:scale(.82)}50%{opacity:1;transform:scale(1.18)}}
+
+.world-cup-qf-draw-viewer{
+  position:absolute;inset:0;z-index:31;display:flex;align-items:center;justify-content:center;padding:2.2vw;
+  background:
+    radial-gradient(circle at 50% 36%,rgba(24,61,92,.58),rgba(1,5,10,.95) 68%),
+    linear-gradient(180deg,#06111e,#02060b);
+  opacity:0;visibility:hidden;pointer-events:none;transform:scale(.992);
+  transition:opacity .22s ease,transform .30s cubic-bezier(.2,.82,.25,1),visibility 0s linear .30s;
+  overflow:auto;
+}
+.world-cup-qf-draw-viewer.is-open{opacity:1;visibility:visible;pointer-events:auto;transform:scale(1);transition:opacity .22s ease,transform .30s cubic-bezier(.2,.82,.25,1),visibility 0s}
+.world-cup-tv-ident.is-qf-draw-open .world-cup-event-hub{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+.world-cup-tv-ident.is-qf-draw-open .world-cup-event-close{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+.wc-qf-draw-stage{
+  position:relative;width:min(1500px,96vw);min-height:min(840px,92vh);max-height:94vh;overflow:auto;
+  border:1px solid #d4a443;outline:1px solid rgba(91,162,211,.48);outline-offset:-7px;
+  background:
+    linear-gradient(180deg,rgba(10,29,47,.99),rgba(3,11,19,.995)),
+    radial-gradient(circle at 50% 0,rgba(87,157,204,.13),transparent 46%);
+  box-shadow:0 35px 90px #000,inset 0 0 52px rgba(73,136,179,.08);
+  color:#e8f2f5;
+}
+.wc-qf-draw-stage::before,.wc-qf-draw-stage::after{content:'';position:absolute;pointer-events:none;z-index:0}
+.wc-qf-draw-stage::before{inset:12px;border:1px solid rgba(218,173,73,.13)}
+.wc-qf-draw-stage::after{left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,transparent,#d7a846,#7dd0f0,#d7a846,transparent)}
+.wc-qf-draw-header{position:relative;z-index:1;text-align:center;padding:24px 24px 18px;border-bottom:1px solid rgba(213,168,69,.32);background:linear-gradient(180deg,rgba(24,55,78,.48),rgba(4,15,25,.1))}
+.wc-qf-draw-header small{display:block;color:#82b5d3;font:900 8px/1 Arial,sans-serif;letter-spacing:.22em}
+.wc-qf-draw-header h2{margin:8px 0 5px;color:#ffe3a0;font:900 clamp(28px,3.4vw,52px)/.95 Georgia,serif;letter-spacing:.09em;text-shadow:0 3px #000,0 0 18px rgba(214,163,55,.15)}
+.wc-qf-draw-header p{margin:0;color:#a1c2d3;font:800 9px/1.3 Arial,sans-serif;letter-spacing:.15em}
+.wc-qf-draw-body{position:relative;z-index:1;display:grid;grid-template-columns:minmax(270px,.72fr) minmax(0,2.28fr);min-height:650px}
+.wc-qf-admin-panel{padding:18px;border-right:1px solid rgba(212,166,66,.31);background:linear-gradient(180deg,rgba(5,19,31,.95),rgba(3,11,18,.98))}
+.wc-qf-admin-title{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding-bottom:11px;border-bottom:1px solid rgba(103,164,197,.24)}
+.wc-qf-admin-title small{grid-column:1/-1;color:#6fa9ca;font:900 7px/1 Arial,sans-serif;letter-spacing:.18em}
+.wc-qf-admin-title b{color:#f2db9d;font:900 14px/1 Georgia,serif;letter-spacing:.08em}
+.wc-qf-admin-title span{color:#89d4db;font:900 8px/1 Arial,sans-serif;letter-spacing:.08em}
+.wc-qf-team-selector{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.wc-qf-team-choice{
+  min-width:0;display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;align-items:center!important;gap:8px!important;
+  min-height:46px!important;margin:0!important;padding:6px 8px!important;border:1px solid rgba(88,143,158,.38)!important;border-radius:3px!important;
+  background:linear-gradient(180deg,#102a35,#091b24)!important;color:#cbdade!important;box-shadow:none!important;cursor:pointer!important;
+  font:800 8px/1.1 Arial,sans-serif!important;letter-spacing:.035em!important;text-align:left!important;
+}
+.wc-qf-team-choice img{width:32px;height:22px;object-fit:fill;image-rendering:pixelated;filter:drop-shadow(0 2px 2px #000)}
+.wc-qf-team-choice:hover:not(:disabled){border-color:#76c7d4!important;filter:brightness(1.09)!important}
+.wc-qf-team-choice.is-selected{border-color:#dfb14b!important;background:linear-gradient(180deg,#22404a,#102833)!important;color:#ffe2a1!important;box-shadow:inset 3px 0 #dfb14b!important}
+.wc-qf-team-choice:disabled{opacity:.58!important;cursor:default!important}
+.wc-qf-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.wc-qf-admin-actions button,.wc-qf-draw-footer button{
+  min-height:36px!important;margin:0!important;padding:8px 10px!important;border:1px solid rgba(92,154,171,.5)!important;border-radius:3px!important;
+  background:linear-gradient(180deg,#153744,#0b222c)!important;color:#e6f1f1!important;box-shadow:inset 0 1px rgba(255,255,255,.05),0 4px 10px #0006!important;
+  font:900 7px/1.15 Arial,sans-serif!important;letter-spacing:.08em!important;cursor:pointer!important;
+}
+.wc-qf-admin-actions button:hover:not(:disabled),.wc-qf-draw-footer button:hover:not(:disabled){border-color:#83d8df!important;filter:brightness(1.1)!important}
+.wc-qf-admin-actions button:disabled{opacity:.42!important;cursor:default!important}
+.wc-qf-admin-actions #wcQfLockQualifiers{border-color:#d8a541!important;color:#ffe1a0!important;background:linear-gradient(180deg,#3e3218,#171708)!important}
+.wc-qf-admin-actions #wcQfResetOfficial{border-color:#79494b!important;color:#d9a5a7!important}
+.wc-qf-admin-actions .is-test{border-color:#5f8fb2!important;color:#cfeaff!important}
+.wc-qf-admin-message{margin:10px 0 0;color:#829dac;font:700 8px/1.4 Arial,sans-serif}
+.wc-qf-admin-message.is-error{color:#e19a9a}
+.wc-qf-admin-message.is-ok{color:#83d2a3}
+
+.wc-qf-broadcast{display:grid;grid-template-rows:minmax(310px,1fr) auto;min-width:0;padding:18px 20px 20px}
+.wc-qf-countdown-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;text-align:center}
+.wc-qf-countdown-panel small{color:#7cb2cf;font:900 8px/1 Arial,sans-serif;letter-spacing:.23em}
+.wc-qf-countdown-panel strong{margin:18px 0 14px;color:#ffe09a;font:900 clamp(42px,6vw,86px)/.9 monospace;letter-spacing:.04em;text-shadow:0 4px #000,0 0 18px rgba(214,169,72,.15)}
+.wc-qf-countdown-panel h3{margin:0;color:#f2e8c7;font:900 clamp(22px,2.4vw,38px)/1 Georgia,serif;letter-spacing:.08em}
+.wc-qf-countdown-panel p{max-width:620px;margin:10px 0 0;color:#91adbd;font:800 9px/1.45 Arial,sans-serif;letter-spacing:.06em}
+.wc-qf-live-stage{position:relative;display:grid;grid-template-columns:minmax(260px,.82fr) minmax(360px,1.18fr);gap:20px;align-items:center;min-height:370px;padding:6px 8px 12px}
+.wc-qf-test-badge{position:absolute;z-index:8;left:50%;top:4px;transform:translateX(-50%);padding:5px 10px;border:1px solid #4c91b9;background:#071c2a;color:#9bdcff;font:900 7px/1 Arial,sans-serif;letter-spacing:.14em}
+.wc-qf-draw-machine{position:relative;width:min(330px,30vw);aspect-ratio:1;margin:auto;border:1px solid rgba(218,174,74,.55);border-radius:50%;background:radial-gradient(circle at 50% 45%,rgba(46,101,138,.34),rgba(2,8,14,.96) 64%);box-shadow:0 0 0 7px rgba(5,15,24,.9),0 0 0 8px rgba(215,169,68,.26),0 22px 48px #000c,inset 0 0 35px rgba(93,174,218,.14)}
+.wc-qf-draw-machine::before,.wc-qf-draw-machine::after{content:'';position:absolute;inset:7%;border:1px dashed rgba(126,194,218,.17);border-radius:50%}.wc-qf-draw-machine::after{inset:20%;border-style:solid;border-color:rgba(218,174,74,.18)}
+.wc-qf-flag-orbit{position:absolute;inset:0;animation:wcQfOrbit 7.4s linear infinite;will-change:transform}.wc-qf-flag-orbit.is-fast{animation-duration:2.35s}.wc-qf-flag-orbit.is-hyper{animation-duration:1.55s}
+.wc-qf-orbit-flag{position:absolute;left:50%;top:50%;width:54px;height:36px;margin:-18px -27px;transform:rotate(var(--a)) translateX(125px) rotate(calc(-1 * var(--a)));filter:drop-shadow(0 4px 5px #000);opacity:.86}
+.wc-qf-orbit-flag img{width:100%;height:100%;object-fit:fill;image-rendering:pixelated}
+.wc-qf-draw-core{position:absolute;left:50%;top:50%;width:41%;aspect-ratio:1;transform:translate(-50%,-50%);border:1px solid #d2a23e;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 37%,#173e5a,#061624 64%,#02070d);box-shadow:inset 0 0 25px rgba(96,177,218,.18),0 0 28px #0008;text-align:center}
+.wc-qf-draw-core span{color:#86bbd7;font:900 6px/1 Arial,sans-serif;letter-spacing:.14em}.wc-qf-draw-core b{margin-top:3px;color:#ffe09a;font:900 clamp(30px,3vw,48px)/1 Georgia,serif}.wc-qf-draw-core i{width:25%;height:2px;margin-top:5px;background:#d3a640;box-shadow:0 0 7px rgba(218,175,73,.5)}
+@keyframes wcQfOrbit{to{transform:rotate(360deg)}}
+.wc-qf-current-reveal{min-width:0;text-align:center}
+.wc-qf-current-reveal>small{display:block;margin-bottom:11px;color:#80b8d5;font:900 8px/1 Arial,sans-serif;letter-spacing:.18em}
+.wc-qf-reveal-card{position:relative;min-height:168px;display:grid;grid-template-columns:minmax(100px,34%) 1fr;align-items:center;gap:18px;padding:20px;border:1px solid #d6a644;background:linear-gradient(180deg,rgba(20,56,79,.95),rgba(6,19,31,.98));box-shadow:0 18px 42px #0009,inset 0 0 28px rgba(86,165,207,.09);overflow:hidden}
+.wc-qf-reveal-card::after{content:'';position:absolute;top:-40%;bottom:-40%;left:-30%;width:15%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,241,192,.24),transparent);opacity:0}
+.wc-qf-reveal-card.is-revealing{animation:wcQfCardReveal .65s cubic-bezier(.2,.82,.25,1) both}.wc-qf-reveal-card.is-revealing::after{animation:wcQfCardSheen .8s ease-out .05s both}
+@keyframes wcQfCardReveal{0%{opacity:0;transform:translateY(10px) scale(.96);filter:brightness(1.9)}100%{opacity:1;transform:none;filter:brightness(1)}}
+@keyframes wcQfCardSheen{0%{left:-30%;opacity:0}25%{opacity:.9}100%{left:120%;opacity:0}}
+.wc-qf-reveal-card img{width:100%;max-width:150px;justify-self:center;image-rendering:pixelated;filter:drop-shadow(0 8px 10px #000)}
+.wc-qf-reveal-card.is-stadium img{display:none}.wc-qf-reveal-card.is-stadium{grid-template-columns:1fr!important;text-align:center!important}.wc-qf-reveal-card.is-stadium>div{grid-column:1/-1!important;max-width:100%!important}.wc-qf-reveal-card.is-stadium b{font-size:clamp(28px,3.1vw,48px)!important;line-height:1.04!important;word-break:keep-all!important;overflow-wrap:normal!important}.wc-qf-reveal-card.is-stadium span,.wc-qf-reveal-card.is-stadium small{max-width:100%!important;word-break:keep-all!important;overflow-wrap:normal!important}
+.wc-qf-reveal-card span{display:block;color:#7eb4d1;font:900 8px/1 Arial,sans-serif;letter-spacing:.17em}.wc-qf-reveal-card b{display:block;margin-top:8px;color:#ffe2a0;font:900 clamp(25px,3vw,46px)/1 Georgia,serif;letter-spacing:.05em;text-shadow:0 2px #000}.wc-qf-reveal-card small{display:block;margin-top:8px;color:#9eb9c7;font:800 8px/1.3 Arial,sans-serif;letter-spacing:.08em}
+
+.wc-qf-bracket-shell{margin-top:12px;border:1px solid rgba(91,149,166,.34);background:rgba(2,9,15,.66)}
+.wc-qf-bracket-shell>header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:1px solid rgba(91,149,166,.28);background:#0b202a}.wc-qf-bracket-shell>header span{color:#f0dca3;font:900 10px/1 Georgia,serif;letter-spacing:.09em}.wc-qf-bracket-shell>header small{color:#6f96aa;font:900 6px/1 Arial,sans-serif;letter-spacing:.14em}
+.wc-qf-bracket{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(88,145,160,.16)}
+.wc-qf-match{display:grid;grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;gap:5px 8px;min-height:78px;padding:10px;background:linear-gradient(180deg,#0a1d25,#06141b)}
+.wc-qf-match-label{grid-column:1/-1;color:#6caac8;font:900 6px/1 Arial,sans-serif;letter-spacing:.16em}
+.wc-qf-team-slot{min-width:0;display:flex;align-items:center;gap:7px;color:#dbe7e5;font:900 9px/1.1 Arial,sans-serif;overflow:hidden}.wc-qf-team-slot img{width:34px;height:22px;object-fit:fill;image-rendering:pixelated}.wc-qf-team-slot span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wc-qf-team-slot.is-empty{color:#56717f}.wc-qf-vs{color:#cda449;font:900 7px/1 Georgia,serif;text-align:center}
+.wc-qf-stadium{grid-column:1/-1;padding-top:6px;border-top:1px solid rgba(91,145,160,.22);color:#85adbf;font:800 7px/1.2 Arial,sans-serif;letter-spacing:.07em}.wc-qf-stadium b{color:#efcb70;font-weight:900}
+.wc-qf-draw-footer{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px;border-top:1px solid rgba(211,165,66,.28);background:#06131c}.wc-qf-draw-footer span{color:#6f94a7;font:800 7px/1.3 Arial,sans-serif;letter-spacing:.11em}.wc-qf-draw-footer button{min-width:130px!important}
+.wc-qf-draw-close{position:absolute!important;z-index:35!important;right:clamp(12px,2vw,27px)!important;top:clamp(12px,2vw,27px)!important;width:44px!important;height:44px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:1px solid #9d7026!important;background:linear-gradient(180deg,#19394b,#081722)!important;color:#ffe099!important;font:900 25px/1 Georgia,serif!important;cursor:pointer!important;box-shadow:0 8px 20px #0009!important}.wc-qf-draw-close:hover{filter:brightness(1.18)!important}
+
+
+/* QF DRAW V2 · layout hardening + host start */
+.wc-qf-draw-stage{width:min(97vw,1480px)!important;max-height:min(95vh,920px)!important;overflow:auto!important}
+.wc-qf-draw-header{padding:18px 64px 14px!important;overflow:hidden!important}
+.wc-qf-draw-header h2{font-size:clamp(28px,4vw,58px)!important;line-height:.95!important;white-space:normal!important;overflow-wrap:anywhere!important}
+.wc-qf-draw-body{grid-template-columns:325px minmax(0,1fr)!important;min-height:0!important;align-items:start!important}
+.wc-qf-admin-panel{min-width:0!important;overflow:hidden!important;padding:16px!important;max-height:100%!important}
+.wc-qf-team-selector{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.wc-qf-team-choice{min-width:0!important;width:100%!important;padding:7px 8px!important;gap:7px!important;overflow:hidden!important}
+.wc-qf-team-choice img{width:30px!important;height:20px!important;object-fit:contain!important;flex:0 0 auto!important}
+.wc-qf-team-choice span{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.wc-qf-admin-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.wc-qf-admin-actions button{min-width:0!important;width:100%!important;white-space:normal!important;line-height:1.15!important;min-height:38px!important;padding:8px 7px!important}
+.wc-qf-admin-actions .is-start{grid-column:1/-1!important;border-color:#e1b34d!important;color:#fff0b7!important;background:linear-gradient(180deg,#594514,#201707)!important;box-shadow:inset 0 0 0 1px rgba(255,224,143,.16),0 0 18px rgba(221,173,65,.12)!important}
+.wc-qf-broadcast{display:grid!important;grid-template-columns:minmax(320px,1.1fr) minmax(390px,.92fr)!important;grid-template-rows:auto 1fr!important;align-items:start!important;gap:18px!important;min-width:0!important;padding:16px 18px 18px!important;overflow:hidden!important}
+.wc-qf-countdown-panel{grid-column:1/-1!important;min-height:280px!important;padding:18px!important}
+.wc-qf-countdown-panel strong{font-size:clamp(42px,5.2vw,76px)!important;max-width:100%!important;white-space:nowrap!important}
+.wc-qf-live-stage{grid-column:1!important;grid-row:2!important;position:relative!important;display:grid!important;grid-template-columns:minmax(260px,.78fr) minmax(320px,1.22fr)!important;gap:18px!important;align-items:center!important;min-height:355px!important;padding:10px 4px 10px!important;overflow:visible!important}
+.wc-qf-draw-machine{width:min(300px,23vw)!important;min-width:230px!important}
+.wc-qf-orbit-flag{width:50px!important;height:34px!important;margin:-17px -25px!important;transform:rotate(var(--a)) translateX(112px) rotate(calc(-1 * var(--a)))!important}
+.wc-qf-orbit-flag img,.wc-qf-reveal-card img,.wc-qf-team-slot img{object-fit:contain!important}
+.wc-qf-current-reveal{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+.wc-qf-current-reveal>small{white-space:normal!important;line-height:1.3!important;min-height:20px!important}
+.wc-qf-reveal-card{width:100%!important;max-width:100%!important;min-width:0!important;min-height:165px!important;grid-template-columns:minmax(84px,28%) minmax(0,1fr)!important;gap:14px!important;padding:16px!important;box-sizing:border-box!important}
+.wc-qf-reveal-card>div{min-width:0!important}
+.wc-qf-reveal-card b{font-size:clamp(24px,2.6vw,40px)!important;line-height:1.02!important;overflow-wrap:anywhere!important;word-break:normal!important}
+.wc-qf-reveal-card span,.wc-qf-reveal-card small{white-space:normal!important;overflow-wrap:anywhere!important}
+.wc-qf-bracket-shell{grid-column:2!important;grid-row:1 / span 2!important;position:static!important;display:flex!important;flex-direction:column!important;width:100%!important;max-width:100%!important;height:100%!important;min-height:520px!important;margin:0!important;inset:auto!important;transform:none!important;box-sizing:border-box!important;clear:both!important;overflow:hidden!important}
+.wc-qf-bracket-shell>header{position:static!important;min-width:0!important;padding:10px 12px!important}
+.wc-qf-bracket-shell>header span,.wc-qf-bracket-shell>header small{min-width:0!important;white-space:normal!important}
+.wc-qf-bracket-shell>header span{font-size:12px!important}.wc-qf-bracket-shell>header small{font-size:7px!important}
+.wc-qf-bracket{position:static!important;display:grid!important;grid-template-columns:1fr!important;width:100%!important;max-width:100%!important;inset:auto!important;transform:none!important;flex:1 1 auto!important}
+.wc-qf-match{position:relative!important;min-width:0!important;width:auto!important;overflow:hidden!important;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr)!important;min-height:108px!important;padding:14px 14px 12px!important;gap:8px 10px!important}
+.wc-qf-match-label{font-size:7px!important}.wc-qf-team-slot{min-width:0!important;overflow:hidden!important;font-size:10px!important}.wc-qf-team-slot img{width:36px!important;height:24px!important;flex:0 0 auto!important}.wc-qf-team-slot span{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}.wc-qf-vs{font-size:8px!important}.wc-qf-stadium{min-width:0!important;overflow-wrap:anywhere!important;font-size:7px!important}
+.wc-qf-draw-footer{position:sticky!important;bottom:0!important;z-index:20!important;min-width:0!important}
+@media(max-width:1180px){.wc-qf-broadcast{grid-template-columns:1fr!important;grid-template-rows:auto auto auto!important}.wc-qf-countdown-panel{grid-column:1!important}.wc-qf-live-stage{grid-column:1!important;grid-row:auto!important}.wc-qf-bracket-shell{grid-column:1!important;grid-row:auto!important;min-height:0!important}.wc-qf-bracket{grid-template-columns:repeat(2,minmax(0,1fr))!important}.wc-qf-match{min-height:96px!important}}
+@media(max-width:980px){
+  .world-cup-qf-draw-button{top:calc(100% + 62px)!important}
+  .wc-qf-draw-body{grid-template-columns:1fr!important}.wc-qf-admin-panel{border-right:0;border-bottom:1px solid rgba(212,166,66,.31)}.wc-qf-broadcast{padding:14px}.wc-qf-live-stage{grid-template-columns:1fr!important}.wc-qf-draw-machine{width:min(280px,60vw)}.wc-qf-orbit-flag{transform:rotate(var(--a)) translateX(104px) rotate(calc(-1 * var(--a)))}.wc-qf-bracket{grid-template-columns:1fr!important}
+}
+@media(max-width:620px){.wc-qf-team-selector{grid-template-columns:1fr}.wc-qf-admin-actions{grid-template-columns:1fr}.wc-qf-reveal-card{grid-template-columns:90px 1fr}.wc-qf-draw-stage{width:98vw}.wc-qf-draw-header{padding:18px 12px 14px}.wc-qf-broadcast{padding:10px}.world-cup-qf-draw-button{min-width:220px!important}}
+@media(prefers-reduced-motion:reduce){.world-cup-qf-draw-viewer,.wc-qf-flag-orbit,.wc-qf-reveal-card,.wc-qf-reveal-card::after,.world-cup-qf-draw-button::before{animation:none!important;transition:none!important}}
+</style>
+
 </head>
 <body>
   <audio id="signedOutNatureAudio" src="assets/signed-out-nature.mp3" preload="auto" loop aria-hidden="true"></audio>
@@ -2228,16 +2393,16 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <div class="world-cup-event-hub" aria-label="Repo Sports World Cup event information">
     <div class="world-cup-event-layout">
       <div class="world-cup-event-panel world-cup-event-panel-fixtures">
-        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-fixtures.png" alt="Repo Sports World Cup fixtures">
+        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-fixtures-20260815.png" alt="Repo Sports World Cup fixtures — Friday 14th and Saturday 15th August">
         <div class="world-cup-board-fixture-hotspots" aria-label="World Cup live fixtures">
           <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="belros-zafran" style="--x:11.8%;--y:35.0%;--w:76.5%;--h:5.1%" aria-label="Belros vs Zafran — Friday 14th August at 9pm"></span>
           <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="iskandar-calvora" style="--x:11.8%;--y:40.1%;--w:76.5%;--h:5.0%" aria-label="Iskandar vs Calvora — Friday 14th August at 9:30pm"></span>
           <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="sorevia-lumerre" style="--x:11.8%;--y:45.1%;--w:76.5%;--h:5.1%" aria-label="Sorevia vs Lumerre — Friday 14th August at 10pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="talune-kordesh" style="--x:11.8%;--y:55.7%;--w:76.5%;--h:5.0%" aria-label="Talune vs Kordesh — Saturday 15th August at 9pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="norveth-qasmir" style="--x:11.8%;--y:60.7%;--w:76.5%;--h:5.0%" aria-label="Norveth vs Qasmir — Saturday 15th August at 9:30pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="nambara-elvane" style="--x:11.8%;--y:65.7%;--w:76.5%;--h:5.0%" aria-label="Nambara vs Elvane — Saturday 15th August at 10pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="drazhen-rovarn" style="--x:11.8%;--y:75.2%;--w:76.5%;--h:5.0%" aria-label="Drazhen vs Rovarn — Sunday 16th August at 9pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="vardesh-marovar" style="--x:11.8%;--y:80.2%;--w:76.5%;--h:5.0%" aria-label="Vardesh vs Marovar — Sunday 16th August at 9pm"></span>
+          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="talune-kordesh" style="--x:11.8%;--y:55.0%;--w:76.5%;--h:4.7%" aria-label="Talune vs Kordesh — Saturday 15th August at 9pm"></span>
+          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="norveth-qasmir" style="--x:11.8%;--y:59.8%;--w:76.5%;--h:4.7%" aria-label="Norveth vs Qasmir — Saturday 15th August at 9:30pm"></span>
+          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="nambara-elvane" style="--x:11.8%;--y:64.6%;--w:76.5%;--h:4.7%" aria-label="Nambara vs Elvane — Saturday 15th August at 10pm"></span>
+          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="drazhen-rovarn" style="--x:11.8%;--y:69.4%;--w:76.5%;--h:4.7%" aria-label="Drazhen vs Rovarn — Saturday 15th August at 10:30pm"></span>
+          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="vardesh-marovar" style="--x:11.8%;--y:74.2%;--w:76.5%;--h:4.7%" aria-label="Vardesh vs Marovar — Saturday 15th August at 11pm"></span>
         </div>
         <span class="world-cup-fixture-nav-button world-cup-fixture-nav-button-guide" role="button" tabindex="0" aria-label="Welcome to Velmora" title="Welcome to Velmora">
           <img src="assets/repo-sports-world-cup-guide-button.png" alt="Welcome to Velmora">
@@ -2272,10 +2437,90 @@ button.qg-game-card{font:inherit;cursor:pointer}
           <span class="world-cup-country-hotspot" role="button" tabindex="0" style="--x:81.758%;--y:74.814%;--w:8.074%;--h:11.265%" aria-label="Iskandar" title="Iskandar"></span>
         </div>
         <button id="worldCupLiveTuneButton" class="world-cup-live-tune-button" type="button" hidden aria-label="Tune in live to the World Cup test lobby">TUNE IN! LIVE</button>
+        <button id="worldCupQuarterFinalDrawButton" class="world-cup-qf-draw-button" type="button" hidden aria-label="Open the live World Cup quarter-final draw">
+          <span>LIVE QUARTER FINAL DRAW</span>
+          <small id="worldCupQuarterFinalDrawButtonStatus">11:30PM · LIVE DRAW</small>
+        </button>
         <span class="world-cup-menu-sheen" aria-hidden="true"></span>
         <span class="world-cup-menu-particles" aria-hidden="true"></span>
       </div>
     </div>
+  </div>
+
+
+  <div id="worldCupQuarterFinalDrawViewer" class="world-cup-qf-draw-viewer" role="dialog" aria-modal="true" aria-label="Repo Sports World Cup live quarter-final draw" aria-hidden="true">
+    <div class="wc-qf-draw-stage">
+      <header class="wc-qf-draw-header">
+        <small>REPO SPORTS WORLD CUP 2026 · VARDESH</small>
+        <h2>QUARTER FINAL DRAW</h2>
+        <p id="wcQfDrawHeaderStatus">LIVE DRAW · SATURDAY 15TH AUGUST · 11:30PM UK</p>
+      </header>
+
+      <div class="wc-qf-draw-body">
+        <aside id="wcQfAdminPanel" class="wc-qf-admin-panel" hidden>
+          <div class="wc-qf-admin-title">
+            <small>HOST CONTROL</small>
+            <b>QUALIFIED TEAMS</b>
+            <span id="wcQfSelectedCount">0 / 8 SELECTED</span>
+          </div>
+          <div id="wcQfTeamSelector" class="wc-qf-team-selector"></div>
+          <div class="wc-qf-admin-actions">
+            <button id="wcQfUseWinners" type="button">USE RECORDED WINNERS</button>
+            <button id="wcQfLockQualifiers" type="button">LOCK 8 QUALIFIERS</button>
+            <button id="wcQfResetOfficial" type="button">RESET OFFICIAL SETUP</button>
+            <button id="wcQfRunTest" class="is-test" type="button">RUN TEST DRAW</button>
+            <button id="wcQfStartOfficial" class="is-start" type="button" hidden>START OFFICIAL DRAW</button>
+          </div>
+          <p id="wcQfAdminMessage" class="wc-qf-admin-message">Select the eight teams that reached the quarter finals.</p>
+        </aside>
+
+        <main class="wc-qf-broadcast">
+          <section id="wcQfCountdownPanel" class="wc-qf-countdown-panel">
+            <small id="wcQfCountdownEyebrow">LIVE DRAW OPENS</small>
+            <strong id="wcQfCountdown">00:00:00</strong>
+            <h3 id="wcQfCountdownTitle">QUARTER FINAL DRAW</h3>
+            <p id="wcQfCountdownCopy">The official draw begins at 11:30pm UK.</p>
+          </section>
+
+          <section id="wcQfLiveStage" class="wc-qf-live-stage" hidden>
+            <div id="wcQfTestBadge" class="wc-qf-test-badge" hidden>ADMIN TEST · NOT SAVED</div>
+            <div class="wc-qf-draw-machine" aria-hidden="true">
+              <div id="wcQfFlagOrbit" class="wc-qf-flag-orbit"></div>
+              <div class="wc-qf-draw-core">
+                <span>REPO SPORTS</span>
+                <b>QF</b>
+                <i></i>
+              </div>
+            </div>
+            <div class="wc-qf-current-reveal">
+              <small id="wcQfCurrentCue">THE DRAW IS ABOUT TO BEGIN</small>
+              <div id="wcQfRevealCard" class="wc-qf-reveal-card is-waiting">
+                <img id="wcQfRevealFlag" src="assets/world-cup-flags-transparent/vardesh-flag.png" alt="">
+                <div>
+                  <span id="wcQfRevealType">QUARTER FINAL DRAW</span>
+                  <b id="wcQfRevealName">STAND BY</b>
+                  <small id="wcQfRevealMeta">LIVE FROM VARDESH</small>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="wc-qf-bracket-shell">
+            <header>
+              <span>QUARTER FINAL BRACKET</span>
+              <small>TEAM · OPPONENT · HOST STADIUM</small>
+            </header>
+            <div id="wcQfBracket" class="wc-qf-bracket"></div>
+          </section>
+        </main>
+      </div>
+
+      <footer class="wc-qf-draw-footer">
+        <span id="wcQfFooterState">THE DRAW WILL BE SYNCHRONISED FOR EVERY VIEWER.</span>
+        <button id="wcQfCancelTest" type="button" hidden>CANCEL TEST</button>
+      </footer>
+    </div>
+    <button id="closeWorldCupQuarterFinalDraw" class="wc-qf-draw-close" type="button" aria-label="Return to World Cup hub">×</button>
   </div>
 
   <div id="worldCupLoreViewer" class="world-cup-lore-viewer" role="dialog" aria-modal="true" aria-label="World Cup lore" aria-hidden="true">
@@ -5386,8 +5631,8 @@ window.__QD_HOST__={
     {id:'talune-kordesh',home:'Talune',away:'Kordesh',date:'Saturday 15th August',time:'9pm',kickoffIso:'2026-08-15T21:00:00+01:00',teaser:'assets/world-cup-live-fixtures/talune-kordesh.png'},
     {id:'norveth-qasmir',home:'Norveth',away:'Qasmir',date:'Saturday 15th August',time:'9:30pm',kickoffIso:'2026-08-15T21:30:00+01:00',teaser:'assets/world-cup-live-fixtures/norveth-qasmir.png'},
     {id:'nambara-elvane',home:'Nambara',away:'Elvane',date:'Saturday 15th August',time:'10pm',kickoffIso:'2026-08-15T22:00:00+01:00',teaser:'assets/world-cup-live-fixtures/nambara-elvane.png'},
-    {id:'drazhen-rovarn',home:'Drazhen',away:'Rovarn',date:'Sunday 16th August',time:'9pm',kickoffIso:'2026-08-16T21:00:00+01:00',teaser:'assets/world-cup-live-fixtures/drazhen-rovarn.png'},
-    {id:'vardesh-marovar',home:'Vardesh',away:'Marovar',date:'Sunday 16th August',time:'9pm',kickoffIso:'2026-08-16T21:00:00+01:00',teaser:'assets/world-cup-live-fixtures/vardesh-marovar.png'}
+    {id:'drazhen-rovarn',home:'Drazhen',away:'Rovarn',date:'Saturday 15th August',time:'10:30pm',kickoffIso:'2026-08-15T22:30:00+01:00',teaser:'assets/world-cup-live-fixtures/drazhen-rovarn.png'},
+    {id:'vardesh-marovar',home:'Vardesh',away:'Marovar',date:'Saturday 15th August',time:'11pm',kickoffIso:'2026-08-15T23:00:00+01:00',teaser:'assets/world-cup-live-fixtures/vardesh-marovar.png'}
   ];
   const fixtureById = id => FIXTURES.find(f=>f.id===id) || FIXTURES[0];
   const flagFor = team => `assets/world-cup-flags-transparent/${String(team).toLowerCase().replace(/[^a-z0-9]+/g,'-')}.png`;
@@ -5419,7 +5664,7 @@ window.__QD_HOST__={
   const completedResult=fixture=>tournament()?.getResult?.(typeof fixture==='string'?fixture:fixture?.id)||null;
   const fixtureCompleted=fixture=>!!completedResult(fixture);
 
-  const ROOM_EARLY_MS = 30 * 60 * 1000;
+  const ROOM_EARLY_MS = 15 * 60 * 1000;
   let lockTimer = 0;
   let lockedFixture = null;
   const kickoffMs = fixture => Date.parse(fixture.kickoffIso);
@@ -7085,6 +7330,495 @@ window.__QD_HOST__={
 
   button.onclick=null;
   button.addEventListener('click',registerHarmonyClick,true);
+})();
+</script>
+
+
+<script id="repoSportsWorldCupQuarterFinalDrawScript">
+(() => {
+  const $=id=>document.getElementById(id);
+  const overlay=$('worldCupTvIdent');
+  const openButton=$('worldCupQuarterFinalDrawButton');
+  const openButtonStatus=$('worldCupQuarterFinalDrawButtonStatus');
+  const viewer=$('worldCupQuarterFinalDrawViewer');
+  const closeButton=$('closeWorldCupQuarterFinalDraw');
+  const adminPanel=$('wcQfAdminPanel');
+  const selector=$('wcQfTeamSelector');
+  const selectedCount=$('wcQfSelectedCount');
+  const useWinners=$('wcQfUseWinners');
+  const lockButton=$('wcQfLockQualifiers');
+  const resetButton=$('wcQfResetOfficial');
+  const testButton=$('wcQfRunTest');
+  const startButton=$('wcQfStartOfficial');
+  const cancelTest=$('wcQfCancelTest');
+  const adminMessage=$('wcQfAdminMessage');
+  const countdownPanel=$('wcQfCountdownPanel');
+  const countdownEyebrow=$('wcQfCountdownEyebrow');
+  const countdown=$('wcQfCountdown');
+  const countdownTitle=$('wcQfCountdownTitle');
+  const countdownCopy=$('wcQfCountdownCopy');
+  const liveStage=$('wcQfLiveStage');
+  const testBadge=$('wcQfTestBadge');
+  const orbit=$('wcQfFlagOrbit');
+  const cue=$('wcQfCurrentCue');
+  const revealCard=$('wcQfRevealCard');
+  const revealFlag=$('wcQfRevealFlag');
+  const revealType=$('wcQfRevealType');
+  const revealName=$('wcQfRevealName');
+  const revealMeta=$('wcQfRevealMeta');
+  const bracket=$('wcQfBracket');
+  const headerStatus=$('wcQfDrawHeaderStatus');
+  const footerState=$('wcQfFooterState');
+  if(!overlay||!openButton||!viewer||!closeButton||!selector||!bracket)return;
+
+  const TEAMS=['Vardesh','Lumerre','Kordesh','Nambara','Norveth','Zafran','Elvane','Qasmir','Calvora','Rovarn','Talune','Drazhen','Belros','Marovar','Sorevia','Iskandar'];
+  const STADIUMS=['Skallheim Grand Ice','Blackglass Crown Arena','Hestholm Fjord Ground','Yrsa Varn World Stadium','Warmvein Arena','Nyrgate Northern Lights Stadium'];
+  const OPEN_AT=Date.parse('2026-08-15T23:15:00+01:00');
+  const START_AT=Date.parse('2026-08-15T23:30:00+01:00');
+  const DRAW_END_MS=145000;
+  const FIXTURE_IDS=['belros-zafran','iskandar-calvora','sorevia-lumerre','talune-kordesh','norveth-qasmir','nambara-elvane','drazhen-rovarn','vardesh-marovar'];
+  const TIMELINE=[
+    {t:0,kind:'intro',cue:'LIVE FROM VARDESH · THE QUARTER FINAL DRAW'},
+    {t:12000,kind:'team',match:0,side:0},
+    {t:22000,kind:'team',match:0,side:1},
+    {t:32000,kind:'stadium',match:0},
+    {t:45000,kind:'team',match:1,side:0},
+    {t:55000,kind:'team',match:1,side:1},
+    {t:65000,kind:'stadium',match:1},
+    {t:78000,kind:'team',match:2,side:0},
+    {t:88000,kind:'team',match:2,side:1},
+    {t:98000,kind:'stadium',match:2},
+    {t:111000,kind:'team',match:3,side:0},
+    {t:121000,kind:'team',match:3,side:1},
+    {t:131000,kind:'stadium',match:3},
+    {t:141000,kind:'complete',cue:'THE QUARTER FINAL DRAW IS COMPLETE'}
+  ];
+  const slug=team=>String(team||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  const flagFor=team=>`assets/world-cup-flags-transparent/${slug(team)}-flag.png`;
+  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const currentCharacter=()=>{try{return typeof character!=='undefined'?character:null}catch(_){return null}};
+  const currentName=()=>String(currentCharacter()?.username||'Guest');
+  const officialHost=()=>['catasthma','admin'].includes(currentName().trim().toLowerCase());
+  const adminPreview=()=>{try{return officialHost()||(typeof toaState!=='undefined'&&!!toaState.adminMode)}catch(_){return officialHost()}};
+  const database=()=>{try{return typeof db!=='undefined'?db:null}catch(_){return null}};
+
+  let state={server_now_ms:Date.now(),open_at_ms:OPEN_AT,start_at_ms:START_AT,public_open:false,privileged:false,is_catasthma:false,locked:false,started:false,can_start:false,status:'setup',selected_teams:[],team_order:[],stadium_order:[],started_at_ms:null,version:0};
+  let serverOffset=0;
+  let selected=new Set();
+  let open=false;
+  let pollTimer=0;
+  let frame=0;
+  let lastTimelineKey='';
+  let lastBracketSignature='';
+  let lastOrbitSignature='';
+  let testMode=false;
+  let testStart=0;
+  let testTeams=[];
+  let testStadiums=[];
+  let spinBurstTimer=0;
+  let audioCtx=null;
+  const drawMusic=new Audio('assets/repo-sports-world-cup-qf-draw-suspense.mp3');
+  drawMusic.preload='auto';
+  drawMusic.volume=.5;
+  const worldCupMenuMusic=$('worldCupEventMusic');
+  let drawMusicMode='';
+  let drawMusicPrimed=false;
+  let worldCupMenuSuppressed=false;
+  let worldCupMenuWasPlaying=false;
+
+  function suppressWorldCupMenuMusic(){
+    if(!worldCupMenuMusic)return;
+    if(!worldCupMenuSuppressed){
+      worldCupMenuWasPlaying=!worldCupMenuMusic.paused;
+      worldCupMenuSuppressed=true;
+    }
+    try{worldCupMenuMusic.pause()}catch(_){}
+  }
+  function restoreWorldCupMenuMusic(){
+    if(!worldCupMenuSuppressed)return;
+    const shouldResume=worldCupMenuWasPlaying&&overlay.classList.contains('is-event-open');
+    worldCupMenuSuppressed=false;
+    worldCupMenuWasPlaying=false;
+    if(!worldCupMenuMusic||!shouldResume)return;
+    try{
+      const promise=worldCupMenuMusic.play();
+      promise?.catch?.(()=>{});
+    }catch(_){}
+  }
+
+  function now(){return Date.now()+serverOffset}
+  function formatCountdown(ms){
+    const total=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  function shuffle(arr){
+    const a=[...arr];
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+    return a;
+  }
+  function message(text,type=''){
+    adminMessage.textContent=text;
+    adminMessage.classList.toggle('is-error',type==='error');
+    adminMessage.classList.toggle('is-ok',type==='ok');
+  }
+  function stopDrawMusic(reset=true){
+    try{
+      drawMusic.pause();
+      if(reset)drawMusic.currentTime=0;
+    }catch(_){}
+    drawMusicMode='';
+  }
+  function primeDrawMusic(){
+    if(drawMusicPrimed)return;
+    try{
+      const previousVolume=drawMusic.volume;
+      drawMusic.volume=0;
+      const promise=drawMusic.play();
+      if(promise?.then)promise.then(()=>{
+        try{drawMusic.pause();drawMusic.currentTime=0;drawMusic.volume=.5;drawMusicPrimed=true}catch(_){}
+      }).catch(()=>{drawMusic.volume=previousVolume||.5});
+      else{drawMusic.pause();drawMusic.currentTime=0;drawMusic.volume=.5;drawMusicPrimed=true}
+    }catch(_){drawMusic.volume=.5}
+  }
+  function keepDrawMusicPlaying(elapsed,isTest=false){
+    const safeElapsed=Math.max(0,Number(elapsed)||0);
+    if(!open||safeElapsed>=141000){stopDrawMusic(true);restoreWorldCupMenuMusic();return}
+    suppressWorldCupMenuMusic();
+    const mode=isTest?'test':'official';
+    const targetSeconds=Math.max(0,safeElapsed/1000);
+    try{
+      drawMusic.volume=.5;
+      if(drawMusicMode!==mode){
+        drawMusic.pause();
+        drawMusic.currentTime=targetSeconds;
+        drawMusicMode=mode;
+      }else if(!isTest&&Number.isFinite(drawMusic.currentTime)&&Math.abs(drawMusic.currentTime-targetSeconds)>1.5){
+        drawMusic.currentTime=targetSeconds;
+      }
+      if(drawMusic.paused){
+        const promise=drawMusic.play();
+        promise?.catch?.(()=>{});
+      }
+    }catch(_){}
+  }
+  function tone(freq=440,duration=.12,gain=.025,delay=0,type='sine'){
+    try{
+      audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+      if(audioCtx.state==='suspended') audioCtx.resume?.();
+      const t=audioCtx.currentTime+delay,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+      o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+duration+.03);
+    }catch(_){}
+  }
+  function spinRoll(kind='team'){
+    const total=kind==='stadium'?6:8;
+    const base=kind==='stadium'?240:300;
+    const step=kind==='stadium'?.055:.045;
+    for(let i=0;i<total;i++) tone(base+(i*48),.045,.009+(i*0.0015),i*step,'triangle');
+    tone(kind==='stadium'?360:520,.11,.018,total*step+.01,'sine');
+  }
+  function setOrbitSpeed(mode='normal'){
+    clearTimeout(spinBurstTimer);
+    orbit.classList.remove('is-fast','is-hyper');
+    if(mode==='fast') orbit.classList.add('is-fast');
+    if(mode==='hyper') orbit.classList.add('is-hyper');
+  }
+  function burstOrbit(mode='hyper',duration=1200,kind='team'){
+    setOrbitSpeed(mode);
+    spinRoll(kind);
+    spinBurstTimer=setTimeout(()=>setOrbitSpeed('normal'),duration);
+  }
+  function revealTone(kind){
+    if(kind==='stadium'){tone(280,.16,.024,0,'triangle');tone(420,.18,.018,.08,'sine');return}
+    if(kind==='complete'){tone(330,.18,.024,0,'triangle');tone(440,.2,.025,.11,'triangle');tone(660,.35,.02,.23,'sine');return}
+    tone(420,.12,.022,0,'triangle');tone(610,.18,.018,.08,'sine');
+  }
+
+  function renderSelector(){
+    selector.innerHTML=TEAMS.map(team=>`<button class="wc-qf-team-choice${selected.has(team)?' is-selected':''}" type="button" data-team="${esc(team)}"${state.locked?' disabled':''}><img src="${flagFor(team)}" alt=""><span>${esc(team)}</span></button>`).join('');
+    selectedCount.textContent=`${selected.size} / 8 SELECTED`;
+    selector.querySelectorAll('.wc-qf-team-choice').forEach(btn=>btn.addEventListener('click',()=>{
+      if(state.locked)return;
+      const team=btn.dataset.team;
+      if(selected.has(team))selected.delete(team);
+      else if(selected.size<8)selected.add(team);
+      else{message('Eight teams are already selected. Remove one before adding another.','error');return}
+      renderSelector();renderAdminControls();
+    }));
+  }
+  function bracketRow(match,teams,stadiums,teamRevealLimit=99,stadiumRevealLimit=99){
+    const ai=match*2,bi=ai+1;
+    const a=teamRevealLimit>=ai?teams[ai]:null;
+    const b=teamRevealLimit>=bi?teams[bi]:null;
+    const stad=stadiumRevealLimit>=match?stadiums[match]:null;
+    const slot=team=>team?`<div class="wc-qf-team-slot"><img src="${flagFor(team)}" alt=""><span>${esc(team)}</span></div>`:`<div class="wc-qf-team-slot is-empty"><span>TO BE DRAWN</span></div>`;
+    return `<article class="wc-qf-match"><div class="wc-qf-match-label">QUARTER FINAL ${match+1}</div>${slot(a)}<div class="wc-qf-vs">VS</div>${slot(b)}<div class="wc-qf-stadium">${stad?`HOSTED AT <b>${esc(stad)}</b>`:'STADIUM TO BE DRAWN'}</div></article>`;
+  }
+  function renderBracket(teams=[],stadiums=[],teamRevealLimit=99,stadiumRevealLimit=99){
+    bracket.innerHTML=[0,1,2,3].map(i=>bracketRow(i,teams,stadiums,teamRevealLimit,stadiumRevealLimit)).join('');
+  }
+  function renderOrbit(teams){
+    const pool=(teams?.length?teams:TEAMS.slice(0,8)).slice(0,8);
+    const sig=pool.join('|');
+    if(sig===lastOrbitSignature) return;
+    lastOrbitSignature=sig;
+    orbit.innerHTML=pool.map((team,i)=>`<span class="wc-qf-orbit-flag" style="--a:${i*45}deg"><img src="${flagFor(team)}" alt=""></span>`).join('');
+  }
+
+  function timelineRevealIndex(elapsed){
+    let index=-1;
+    for(let i=0;i<TIMELINE.length;i++){if(elapsed>=TIMELINE[i].t)index=i;else break}
+    return index;
+  }
+  function bracketRevealState(elapsed){
+    let teamLimit=-1,stadiumLimit=-1;
+    for(const step of TIMELINE){
+      if(elapsed<step.t)break;
+      if(step.kind==='team')teamLimit=Math.max(teamLimit,step.match*2+step.side);
+      if(step.kind==='stadium')stadiumLimit=Math.max(stadiumLimit,step.match);
+    }
+    return {teamLimit,stadiumLimit};
+  }
+  function animateReveal(kind,name,match){
+    revealCard.classList.remove('is-revealing','is-stadium','is-waiting');void revealCard.offsetWidth;
+    revealCard.classList.toggle('is-stadium',kind==='stadium');
+    revealType.textContent=kind==='stadium'?`QUARTER FINAL ${match+1} · STADIUM`:`QUARTER FINAL ${match+1} · TEAM`;
+    revealName.textContent=name;
+    revealMeta.textContent=kind==='stadium'?'VARDESH 2026 HOST VENUE':'DRAWN FROM THE QUARTER FINAL POT';
+    if(kind!=='stadium'){revealFlag.src=flagFor(name);revealFlag.alt=`${name} flag`}
+    revealCard.classList.add('is-revealing');revealTone(kind);
+  }
+  function renderLive(elapsed,teams,stadiums,isTest=false){
+    const safeElapsed=Math.max(0,Math.min(DRAW_END_MS,Number(elapsed)||0));
+    countdownPanel.hidden=true;liveStage.hidden=false;testBadge.hidden=!isTest;cancelTest.hidden=!isTest;
+    keepDrawMusicPlaying(safeElapsed,isTest);
+    renderOrbit(teams);
+    const ti=timelineRevealIndex(safeElapsed),step=ti>=0?TIMELINE[ti]:TIMELINE[0];
+    const key=`${isTest?'t':'o'}:${ti}`;
+    if(key!==lastTimelineKey){
+      lastTimelineKey=key;
+      if(step.kind==='intro'){
+        setOrbitSpeed('normal');
+        cue.textContent=step.cue;
+        revealType.textContent='REPO SPORTS WORLD CUP';revealName.textContent='THE DRAW BEGINS';revealMeta.textContent='EIGHT TEAMS · FOUR QUARTER FINALS';
+        revealCard.classList.remove('is-stadium','is-revealing');revealCard.classList.add('is-waiting');
+      }else if(step.kind==='team'){
+        burstOrbit('hyper',1100,'team');
+        cue.textContent=`DRAWING ${step.side===0?'FIRST':'SECOND'} TEAM · QUARTER FINAL ${step.match+1}`;
+        animateReveal('team',teams[step.match*2+step.side],step.match);
+      }else if(step.kind==='stadium'){
+        burstOrbit('fast',950,'stadium');
+        cue.textContent=`DRAWING HOST VENUE · QUARTER FINAL ${step.match+1}`;
+        animateReveal('stadium',stadiums[step.match],step.match);
+      }else if(step.kind==='complete'){
+        setOrbitSpeed('normal');
+        cue.textContent=step.cue;revealType.textContent='OFFICIAL BRACKET';revealName.textContent='QUARTER FINALS CONFIRMED';revealMeta.textContent='REPO SPORTS WORLD CUP 2026';revealCard.classList.remove('is-stadium','is-waiting');revealCard.classList.add('is-revealing');revealTone('complete');
+      }
+    }
+    const revealState=bracketRevealState(safeElapsed);
+    const bracketSig=`${teams.join('|')}::${stadiums.join('|')}::T${revealState.teamLimit}:S${revealState.stadiumLimit}`;
+    if(bracketSig!==lastBracketSignature){
+      lastBracketSignature=bracketSig;
+      renderBracket(teams,stadiums,revealState.teamLimit,revealState.stadiumLimit);
+    }
+    footerState.textContent=isTest?'TEST MODE · NOTHING FROM THIS RUN IS SAVED':safeElapsed>=141000?'OFFICIAL QUARTER FINAL BRACKET CONFIRMED':'LIVE DRAW · SYNCHRONISED FOR EVERY VIEWER';
+  }
+
+  function renderCountdown(){
+    const n=now(),start=Number(state.start_at_ms)||START_AT,openAt=Number(state.open_at_ms)||OPEN_AT;
+    stopDrawMusic(true);
+    setOrbitSpeed('normal');
+    liveStage.hidden=true;countdownPanel.hidden=false;cancelTest.hidden=true;testBadge.hidden=true;
+    if(!state.locked){
+      countdownEyebrow.textContent=n<openAt?'HOST SETUP':'WAITING FOR QUALIFIERS';
+      countdown.textContent=n<start?formatCountdown(start-n):'WAITING';
+      countdownTitle.textContent='QUARTER FINAL DRAW';
+      countdownCopy.textContent=n<start?'The draw is scheduled for 11:30pm UK. Eight qualifiers must be locked first.':'The draw is waiting for the official eight qualified teams to be locked.';
+      renderBracket([],[], -1,-1);
+      return;
+    }
+    if(!state.started){
+      if(n<start){
+        countdownEyebrow.textContent='HOST START WINDOW OPENS IN';
+        countdown.textContent=formatCountdown(start-n);
+        countdownTitle.textContent='QUALIFIERS LOCKED';
+        countdownCopy.textContent='The pairings are sealed. At 11:30pm the room will wait for CatAsthma to start the official draw.';
+      }else{
+        countdownEyebrow.textContent='READY FOR HOST';
+        countdown.textContent='STAND BY';
+        countdownTitle.textContent='WAITING FOR CATASTHMA';
+        countdownCopy.textContent='The official draw will not begin automatically. CatAsthma must press START OFFICIAL DRAW so every viewer begins together.';
+      }
+      renderBracket([],[], -1,-1);
+      return;
+    }
+  }
+
+  function renderAdminControls(){
+    const canPreview=adminPreview();
+    adminPanel.hidden=!canPreview;
+    if(!canPreview)return;
+    const canOfficial=officialHost();
+    const isCat=String(currentName()).trim().toLowerCase()==='catasthma';
+    lockButton.hidden=!canOfficial;
+    resetButton.hidden=!canOfficial;
+    startButton.hidden=!isCat || !!state.started;
+    lockButton.disabled=state.locked||selected.size!==8||!!state.started;
+    resetButton.disabled=!state.locked||!!state.started;
+    useWinners.disabled=state.locked||!!state.started;
+    testButton.disabled=selected.size!==8;
+    startButton.disabled=!state.locked||!!state.started||now()<Number(state.start_at_ms||START_AT)||!state.can_start;
+    if(state.started)message('Official draw started by CatAsthma. This run is now synchronised for every viewer.','ok');
+    else if(state.locked&&now()>=Number(state.start_at_ms||START_AT)){
+      if(isCat)message('Everything is sealed and ready. Press START OFFICIAL DRAW when you want the live draw to begin.','ok');
+      else message('Everything is sealed. Waiting for CatAsthma to start the official draw.','ok');
+    }else if(state.locked)message('Official qualifiers locked. The room will wait for CatAsthma to start the draw at 11:30pm.','ok');
+    else if(!canOfficial)message('ADMIN PREVIEW · You can run a local test draw. CatAsthma or Admin can lock the official qualifiers.');
+    else message('Select eight qualifiers, or use the recorded winners, then lock the official draw.');
+  }
+
+  function renderButton(){
+    const n=now(),publicOpen=n>=Number(state.open_at_ms||OPEN_AT),priv=adminPreview()||!!state.privileged;
+    openButton.hidden=!(publicOpen||priv);
+    if(openButton.hidden)return;
+    openButton.classList.toggle('is-complete',state.status==='complete');
+    if(n<Number(state.open_at_ms||OPEN_AT)){
+      openButtonStatus.textContent='ADMIN PREVIEW · PUBLIC 11:15PM';
+    }else if(!state.locked){
+      openButtonStatus.textContent=n<Number(state.start_at_ms||START_AT)?`LIVE 11:30PM · ${formatCountdown(Number(state.start_at_ms||START_AT)-n)}`:'WAITING FOR QUALIFIERS';
+    }else if(!state.started&&n<Number(state.start_at_ms||START_AT)){
+      openButtonStatus.textContent=`HOST START 11:30PM · ${formatCountdown(Number(state.start_at_ms||START_AT)-n)}`;
+    }else if(!state.started){
+      openButtonStatus.textContent='READY · WAITING FOR CATASTHMA';
+    }else if(state.status==='live'){
+      openButtonStatus.textContent='LIVE NOW · DRAW IN PROGRESS';
+    }else{
+      openButtonStatus.textContent='DRAW COMPLETE · VIEW BRACKET';
+    }
+  }
+
+  function renderMain(){
+    renderButton();renderSelector();renderAdminControls();
+    const n=now(),scheduled=Number(state.start_at_ms)||START_AT,actualStart=Number(state.started_at_ms)||0;
+    if(state.started) headerStatus.textContent=state.status==='complete'?'OFFICIAL DRAW COMPLETE · REPO SPORTS WORLD CUP 2026':'OFFICIAL LIVE DRAW · STARTED BY CATASTHMA';
+    else if(n<scheduled) headerStatus.textContent='LIVE DRAW · SATURDAY 15TH AUGUST · 11:30PM UK';
+    else headerStatus.textContent='READY · WAITING FOR CATASTHMA TO START';
+    if(testMode){
+      renderLive(Math.max(0,Math.min(DRAW_END_MS,performance.now()-testStart)),testTeams,testStadiums,true);
+      return;
+    }
+    if(state.started&&actualStart&&state.team_order?.length===8&&state.stadium_order?.length===4){
+      renderLive(Math.max(0,Math.min(DRAW_END_MS,n-actualStart)),state.team_order,state.stadium_order,false);
+    }else{
+      lastBracketSignature='';
+      renderCountdown();
+    }
+  }
+
+  async function sync(force=false){
+    const d=database();
+    if(!d?.rpc){renderMain();return false}
+    try{
+      const {data,error}=await d.rpc('get_repo_world_cup_qf_draw_2026');if(error)throw error;
+      if(data&&typeof data==='object'){
+        state={...state,...data};
+        if(Number(data.server_now_ms))serverOffset=Number(data.server_now_ms)-Date.now();
+        if(state.locked)selected=new Set(Array.isArray(state.selected_teams)?state.selected_teams:[]);
+      }
+      renderMain();return true;
+    }catch(error){if(force)console.warn('[WORLD CUP QF DRAW] State refresh failed.',error);renderMain();return false}
+  }
+
+  function openViewer(){
+    if(openButton.hidden&&!adminPreview())return;
+    open=true;if(!state.started)primeDrawMusic();viewer.classList.add('is-open');viewer.setAttribute('aria-hidden','false');overlay.classList.add('is-qf-draw-open');lastTimelineKey='';
+    void sync(true);renderMain();try{closeButton.focus({preventScroll:true})}catch(_){}
+  }
+  function closeViewer(){
+    open=false;testMode=false;stopDrawMusic(true);restoreWorldCupMenuMusic();cancelAnimationFrame(frame);viewer.classList.remove('is-open');viewer.setAttribute('aria-hidden','true');overlay.classList.remove('is-qf-draw-open');lastTimelineKey='';try{openButton.focus({preventScroll:true})}catch(_){}
+  }
+
+  function winnersFromResults(){
+    const s=window.RepoSportsWorldCupTournament?.getState?.();
+    const winners=FIXTURE_IDS.map(id=>String(s?.results?.[id]?.winner||'')).filter(Boolean);
+    return [...new Set(winners)].filter(t=>TEAMS.includes(t));
+  }
+  useWinners.addEventListener('click',()=>{
+    const winners=winnersFromResults();
+    if(!winners.length){message('No recorded World Cup winners are available yet.','error');return}
+    selected=new Set(winners.slice(0,8));renderSelector();renderAdminControls();
+    message(winners.length===8?'All eight recorded winners selected. Review them before locking.':`${winners.length} recorded winner${winners.length===1?'':'s'} selected. Complete the remaining places manually.`,winners.length===8?'ok':'');
+  });
+
+  lockButton.addEventListener('click',async()=>{
+    if(!officialHost()||selected.size!==8)return;
+    if(!confirm('Lock these eight teams into the OFFICIAL quarter-final draw? Pairings and stadiums will be sealed on the server, but the live reveal will not begin until CatAsthma presses START OFFICIAL DRAW.'))return;
+    const d=database();if(!d?.rpc){message('Supabase is unavailable. The official draw was not changed.','error');return}
+    lockButton.disabled=true;message('Locking official qualifiers and sealing the draw...');
+    try{
+      const {data,error}=await d.rpc('set_repo_world_cup_qf_draw_qualifiers_2026',{p_teams:[...selected]});if(error)throw error;
+      state={...state,...data};if(Number(data?.server_now_ms))serverOffset=Number(data.server_now_ms)-Date.now();message('Official qualifiers locked. Pairings are sealed; CatAsthma will start the live draw at/after 11:30pm.','ok');renderMain();
+    }catch(error){console.error('[WORLD CUP QF DRAW] Lock failed.',error);message(String(error?.message||'Could not lock the official draw.'),'error');renderAdminControls()}
+  });
+  resetButton.addEventListener('click',async()=>{
+    if(!officialHost()||!state.locked)return;
+    if(!confirm('Reset the OFFICIAL quarter-final draw setup? This is available until CatAsthma starts the live draw.'))return;
+    const d=database();if(!d?.rpc)return;
+    try{
+      const {data,error}=await d.rpc('reset_repo_world_cup_qf_draw_2026');if(error)throw error;
+      state={...state,...data};selected.clear();message('Official setup reset. Select the corrected eight teams.','ok');renderMain();
+    }catch(error){console.error('[WORLD CUP QF DRAW] Reset failed.',error);message(String(error?.message||'Could not reset the official setup.'),'error')}
+  });
+
+  startButton.addEventListener('click',async()=>{
+    if(String(currentName()).trim().toLowerCase()!=='catasthma'||!state.locked||state.started)return;
+    if(now()<Number(state.start_at_ms||START_AT)){message('The official draw cannot start before 11:30pm UK.','error');return}
+    if(!confirm('START THE OFFICIAL QUARTER-FINAL DRAW NOW? This will synchronise the live reveal for every viewer and cannot be reset afterwards.'))return;
+    primeDrawMusic();
+    const d=database();if(!d?.rpc){message('Supabase is unavailable. The official draw was not started.','error');return}
+    startButton.disabled=true;message('Starting official live draw for every viewer...');
+    try{
+      const {data,error}=await d.rpc('start_repo_world_cup_qf_draw_2026');if(error)throw error;
+      state={...state,...data};if(Number(data?.server_now_ms))serverOffset=Number(data.server_now_ms)-Date.now();lastTimelineKey='';lastBracketSignature='';lastOrbitSignature='';message('OFFICIAL DRAW STARTED · Every viewer is now synchronised.','ok');renderMain();runFrame();
+    }catch(error){console.error('[WORLD CUP QF DRAW] Start failed.',error);message(String(error?.message||'Could not start the official draw.'),'error');renderAdminControls()}
+  });
+
+  testButton.addEventListener('click',()=>{
+    if(!adminPreview()||selected.size!==8)return;
+    testTeams=shuffle([...selected]);
+    testStadiums=shuffle(STADIUMS).slice(0,4);
+    testMode=true;testStart=performance.now();lastTimelineKey='';lastBracketSignature='';lastOrbitSignature='';renderMain();runFrame();
+  });
+  cancelTest.addEventListener('click',()=>{testMode=false;stopDrawMusic(true);restoreWorldCupMenuMusic();lastTimelineKey='';lastBracketSignature='';setOrbitSpeed('normal');renderMain()});
+
+  function runFrame(){
+    cancelAnimationFrame(frame);
+    const tick=()=>{
+      if(!open)return;
+      renderMain();
+      frame=requestAnimationFrame(tick);
+    };
+    frame=requestAnimationFrame(tick);
+  }
+
+  openButton.addEventListener('click',openViewer);
+  closeButton.addEventListener('click',closeViewer);
+  viewer.addEventListener('click',event=>{if(event.target===viewer)closeViewer()});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&viewer.classList.contains('is-open')){event.preventDefault();event.stopPropagation();closeViewer()}},true);
+  document.addEventListener('click',event=>{if(event.target.closest('#openWorldCupEvent'))setTimeout(()=>void sync(true),300)},true);
+  window.addEventListener('repo-world-cup-tournament-state',()=>{if(adminPreview()&&!state.locked)renderAdminControls()});
+  window.addEventListener('repo-world-cup-real-result-recorded',()=>{if(adminPreview()&&!state.locked)renderAdminControls()});
+  window.addEventListener('repo-character-changed',()=>setTimeout(()=>void sync(true),120));
+
+  renderBracket([],[],-1,-1);renderSelector();renderOrbit(TEAMS.slice(0,8));void sync(true);
+  clearInterval(pollTimer);pollTimer=setInterval(()=>{void sync(false)},5000);
+  setInterval(()=>{renderButton();if(open&&!testMode)renderMain()},1000);
+  window.RepoSportsWorldCupQuarterFinalDraw={
+    refresh:()=>sync(true),
+    open:openViewer,
+    getState:()=>JSON.parse(JSON.stringify(state)),
+    getPairings:()=>state.team_order?.length===8?Array.from({length:4},(_,i)=>({quarterFinal:i+1,teamA:state.team_order[i*2],teamB:state.team_order[i*2+1],stadium:state.stadium_order[i]})):[]
+  };
 })();
 </script>
 
