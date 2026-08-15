@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="repo-rooftops.css?v=repo-rooftops-20260810-2-0">
   <link rel="stylesheet" href="repoggle.css?v=repoggle-1">
   <link rel="stylesheet" href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260811-v38-16">
-  <link rel="stylesheet" href="assets/repo-diver/repo-diver.css?v=repo-diver-v5-soldout-flow-20260814-2342">
+  <link rel="stylesheet" href="assets/repo-diver/repo-diver.css?v=repo-diver-v8-fish-house-phase3-20260815-0136">
 <style id="repoDiverV4CriticalKitchen">
 #repoDiverDialog #rdRestaurantView:not(.hidden) .rd-rest-grid{display:grid;grid-template-columns:220px minmax(620px,1fr) 240px;gap:14px;height:calc(100% - 52px);min-height:600px;overflow:hidden}
 #repoDiverDialog #rdRestaurantView .rd-rest-scene{display:block;position:relative;min-width:620px;min-height:600px;height:100%;overflow:hidden}
@@ -3276,7 +3276,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <h3>LEVEL FISHING</h3>
   <p>Choose a Fishing activity. Repo Diver also trains Cooking during the evening restaurant phase.</p>
   <div class="fishing-activity-picker">
-    <button id="openRepoDiverActivity" class="fishing-activity-card" type="button"><span class="fishing-activity-art" aria-hidden="true"></span><span><strong>REPO DIVER</strong><small>Explore ten progressively deeper waters, discover 120 species and lost relics, upgrade your dive rig, then run a full evening service at the Repo Company Fish House.</small><em>120 SPECIES · 40-LEVEL CAREER · 10 BIOMES · FISH HOUSE MANAGEMENT</em></span></button>
+    <button id="openRepoDiverActivity" class="fishing-activity-card" type="button"><span class="fishing-activity-art" aria-hidden="true"></span><span><strong>REPO DIVER</strong><small>Explore ten progressively deeper waters, discover 120 species and lost relics, upgrade your dive rig, then run a staffed, evolving evening service at the Repo Company Fish House.</small><em>120 SPECIES · 40-LEVEL CAREER · 10 BIOMES · FISH HOUSE MANAGEMENT</em></span></button>
   </div>
 </dialog>
 
@@ -3284,36 +3284,79 @@ button.qg-game-card{font:inherit;cursor:pointer}
  <div class="rd-shell">
   <header class="rd-top"><div class="rd-brand"><span class="rd-brand-icon">⚓</span><div><h2>REPO DIVER</h2><small>FISHING &amp; COOKING ADVENTURE</small></div></div><div class="rd-top-meta"><span>DAY <b id="rdDay">1</b></span><span id="rdModeBadge">REWARDED</span></div><button id="rdClose" class="rd-close" type="button">×</button></header>
   <section id="rdHomeView" class="rd-view rd-home"><div id="rdHomeMain"><div class="rd-hero"><div class="rd-hero-main"><small>REPO COMPANY COASTAL OPERATIONS</small><h1>ONE MORE DIVE.</h1><p>Catch valuable fish, push your oxygen, return with cargo, then turn tonight's haul into GP at the Fish House.</p><div class="rd-home-actions"><button id="rdTabJournal">FISH JOURNAL</button><button id="rdTabUpgrades">EQUIPMENT</button></div></div><div class="rd-hero-stats"><div class="rd-stat"><small>RESTAURANT RANK</small><b id="rdRank">BRONZE</b></div><div class="rd-stat"><small>DEEPEST DIVE</small><b id="rdDeepest">0m</b></div><div class="rd-stat"><small>LOOP</small><b>DIVE → SERVE</b></div><div class="rd-stat"><small>SKILLS</small><b>🎣 + 🍳</b></div></div></div><div class="rd-section-title"><h3>CHOOSE DIVE AREA</h3><small>Deeper waters unlock as days progress.</small></div><div id="rdBiomes" class="rd-biomes"></div><p id="rdStatus" class="rd-status"></p></div><div id="rdJournalPanel" class="rd-panel hidden"><div class="rd-panel-head"><h3>FISH JOURNAL</h3><button data-rd-back>← BACK</button></div><div id="rdJournal" class="rd-journal"></div></div><div id="rdUpgradePanel" class="rd-panel hidden"><div class="rd-panel-head"><h3>DIVING EQUIPMENT</h3><button data-rd-back>← BACK</button></div><div id="rdUpgrades" class="rd-upgrades"></div></div></section>
-  <section id="rdDiveView" class="rd-view rd-dive hidden"><div class="rd-canvas-wrap"><canvas id="rdDiveCanvas" width="960" height="540" tabindex="0"></canvas><div class="rd-dive-hud"><div class="rd-meter"><small>OXYGEN</small><div class="bar"><i id="rdO2Fill"></i></div></div><div class="rd-meter hp"><small>HP</small><div class="bar"><i id="rdHpFill"></i></div></div><div class="rd-hudbox"><small>DEPTH</small><b id="rdDepth">0m</b></div><div class="rd-hudbox"><small>CARGO</small><b id="rdCargo">0/0kg</b></div><div class="rd-hudbox"><small>CATCH</small><b id="rdCatchCount">0</b></div></div><button id="rdExitDive" class="rd-exit-dive">SURFACE NOW</button><div id="rdFlash" class="rd-flash"></div><div id="rdInventory" class="rd-inventory hidden"></div><div class="rd-dive-help">WASD MOVE · MOUSE AIM · CLICK HARPOON · SHIFT BOOST · E INTERACT · TAB CARGO</div></div></section>
-  <section id="rdSurfaceView" class="rd-view rd-surface hidden"><div class="rd-surface-grid"><div class="rd-card"><h3>DIVE RESULTS</h3><p id="rdSurfaceNotice"></p><p>Maximum depth: <b id="rdSurfaceDepth">0m</b></p><div id="rdCatchList" class="rd-catch-list"></div></div><div class="rd-card"><h3>TONIGHT'S MENU</h3><p>Select up to four dishes. Every dish consumes fish you actually caught.</p><div id="rdRecipeChoices" class="rd-recipe-choices"></div><button id="rdOpenRestaurant" disabled>OPEN REPO COMPANY FISH HOUSE →</button></div></div></section>
+  <section id="rdDiveView" class="rd-view rd-dive hidden"><div class="rd-canvas-wrap"><canvas id="rdDiveCanvas" width="960" height="540" tabindex="0"></canvas><div class="rd-dive-zone"><small id="rdBiomeName">DIVE ZONE</small><b id="rdDepthBand">SUNLIT WATER</b></div><div class="rd-dive-hud"><div class="rd-meter"><small>OXYGEN</small><div class="bar"><i id="rdO2Fill"></i></div></div><div class="rd-meter hp"><small>HP</small><div class="bar"><i id="rdHpFill"></i></div></div><div class="rd-hudbox"><small>DEPTH</small><b id="rdDepth">0m</b></div><div class="rd-hudbox"><small>CARGO</small><b id="rdCargo">0/0kg</b></div><div class="rd-hudbox"><small>CATCH</small><b id="rdCatchCount">0</b></div><div class="rd-sonar"><small>SONAR</small><div class="bar"><i id="rdSonarFill"></i></div><b id="rdSonarLabel">Q · PING</b></div></div><div id="rdEventBanner" class="rd-event-banner"><b>EVENT</b><span></span></div><div id="rdFightPanel" class="rd-fight-panel hidden"><small>FISH ON THE LINE</small><b id="rdFightName">TROPHY FISH</b><div class="rd-fight-row"><span>TENSION</span><div class="rd-fight-track"><i id="rdTensionFill"></i></div></div><div class="rd-fight-row"><span>REEL</span><div class="rd-fight-track reel"><i id="rdReelFill"></i></div></div><em>HOLD / RELEASE SPACE · KEEP TENSION IN THE SAFE ZONE</em></div><div id="rdDiscoveryCard" class="rd-discovery-card"><small>NEW SPECIES DISCOVERED</small><b>FISH</b><span>RARITY</span><strong>0.00 KG</strong></div><button id="rdExitDive" class="rd-exit-dive">SURFACE NOW</button><div id="rdFlash" class="rd-flash"></div><div id="rdInventory" class="rd-inventory hidden"></div><div class="rd-dive-help">WASD MOVE · MOUSE AIM · CLICK HARPOON · SHIFT BOOST · Q SONAR · E SALVAGE · SPACE REEL</div></div></section>
+  <section id="rdSurfaceView" class="rd-view rd-surface hidden">
+   <div class="rd-surface-header"><div><small>THE REPO COMPANY FISH HOUSE</small><h2>BUILD TONIGHT'S SERVICE</h2><p>Your catch is tonight's inventory. Choose a focused menu, check the crew and set the room before opening.</p></div><div id="rdNightBrief" class="rd-night-brief"><b>EVENING BRIEF</b><span>Preparing service forecast…</span></div></div>
+   <div class="rd-surface-grid rd-surface-grid-v8">
+    <div class="rd-card rd-haul-card"><div class="rd-card-head"><h3>DIVE RESULTS</h3><span>Maximum depth <b id="rdSurfaceDepth">0m</b></span></div><p id="rdSurfaceNotice"></p><div id="rdCatchList" class="rd-catch-list"></div></div>
+    <div class="rd-card rd-menu-planner"><div class="rd-card-head"><div><small>PRE-SERVICE</small><h3>TONIGHT'S MENU</h3></div><strong id="rdMenuCapacity">0 / 3 SLOTS</strong></div><p>Every served plate consumes fish you actually caught. Different recipes attract different diners.</p><div id="rdRecipeChoices" class="rd-recipe-choices"></div></div>
+    <aside class="rd-card rd-service-setup">
+     <div class="rd-setup-block"><small>TONIGHT'S CREW</small><div id="rdCrewPreview" class="rd-crew-preview"></div></div>
+     <div class="rd-setup-block"><small>DINING ROOM STYLE</small><div id="rdThemeChoices" class="rd-theme-choices"></div></div>
+     <div class="rd-setup-block"><small>OPENING CHECK</small><div id="rdOpeningChecklist" class="rd-opening-checklist"></div></div>
+     <button id="rdOpenRestaurant" disabled>OPEN REPO COMPANY FISH HOUSE →</button>
+    </aside>
+   </div>
+  </section>
   <section id="rdRestaurantView" class="rd-view rd-restaurant hidden">
-   <div class="rd-rest-guide"><b>DINNER SERVICE</b><span><strong>1</strong> Pick a customer order</span><span><strong>2</strong> Cook it — click or press SPACE in the green zones</span><span><strong>3</strong> Click the green order/table to serve</span></div>
+   <div class="rd-rest-guide"><b>REPO COMPANY FISH HOUSE · LIVE SERVICE</b><span id="rdPhaseBanner">OPENING</span><span id="rdEventChip">NORMAL SERVICE</span><span><strong>1</strong> Read tickets</span><span><strong>2</strong> Prep · cook · plate</span><span><strong>3</strong> Serve before patience runs out</span></div>
    <div class="rd-rest-grid">
     <aside class="rd-rest-panel rd-kitchen-panel">
-     <div class="rd-panel-kicker">REPO COMPANY FISH HOUSE</div><h3>THE KITCHEN</h3>
-     <p class="rd-panel-help">Customers order from tonight's menu. Click an order on the right to cook specifically for them, or prep a spare dish below.</p>
+     <div class="rd-panel-kicker">BACK OF HOUSE</div><h3>THE KITCHEN</h3>
+     <p class="rd-panel-help">Tonight's fish stock is finite. Cook to order or prep a spare plate when the pass has room.</p>
      <div id="rdRestaurantMenu" class="rd-restaurant-menu"></div>
      <div class="rd-kitchen-stock"><b>READY COUNTER</b><div id="rdReadyCounter">No dishes ready.</div></div>
+     <div class="rd-crew-live"><b>ON SHIFT</b><div id="rdCrewLive"></div></div>
     </aside>
-    <main class="rd-rest-scene">
+    <main class="rd-rest-scene" id="rdRestaurantScene">
+     <div class="rd-room-wall"></div>
      <div class="rd-seaside-window"><i></i><i></i><i></i><span>THE REPO COAST</span></div>
-     <div class="rd-kitchen-backdrop"><div class="rd-shelf"><i></i><i></i><i></i><i></i></div><div class="rd-stove"><span></span><span></span><span></span></div><div class="rd-pass"><b>ORDER UP!</b></div></div>
+     <div class="rd-aquarium"><i></i><span>MARINE TROPHIES</span></div>
+     <div class="rd-kitchen-backdrop"><div class="rd-fridge-unit"></div><div class="rd-shelf"><i></i><i></i><i></i><i></i></div><div class="rd-stove"><span></span><span></span><span></span></div><div class="rd-prep-bench"></div><div class="rd-pass"><b>ORDER UP!</b></div></div>
      <div class="rd-rest-sign">REPO COMPANY <span>FISH HOUSE</span></div>
-     <div class="rd-dining-floor"><div class="rd-table t0"></div><div class="rd-table t1"></div><div class="rd-table t2"></div><div class="rd-table t3"></div><div class="rd-table t4"></div><div class="rd-table t5"></div><div id="rdCustomerScene" class="rd-customer-scene"></div></div>
+     <div class="rd-entrance"><i></i><span>ENTRANCE</span></div>
+     <div class="rd-host-stand"><span>HOST</span></div>
+     <div class="rd-dining-floor">
+      <div class="rd-table t0"></div><div class="rd-table t1"></div><div class="rd-table t2"></div><div class="rd-table t3"></div><div class="rd-table t4"></div><div class="rd-table t5"></div><div class="rd-table t6"></div><div class="rd-table t7"></div>
+     </div>
+     <div id="rdStaffScene" class="rd-staff-scene"></div>
+     <div id="rdCustomerScene" class="rd-customer-scene"></div>
+     <div id="rdSpecialNotice" class="rd-special-notice hidden"></div>
      <div id="rdCookPanel" class="rd-cook-panel hidden">
-      <small id="rdCookStage">PREP STAGE 1/2</small><h3 id="rdCookDish">Dish</h3><p id="rdCookInstruction">Stop the marker inside the green zone.</p>
-      <div class="rd-cook-station"><div class="rd-cook-board"><i></i><i></i><i></i></div><div class="rd-cook-pan">♨</div></div>
+      <small id="rdCookStage">PREP STAGE 1/3</small><h3 id="rdCookDish">Dish</h3><p id="rdCookInstruction">Stop the marker inside the green zone.</p>
+      <div class="rd-cook-station"><div class="rd-cook-board"><i></i><i></i><i></i></div><div class="rd-cook-pan">♨</div><div class="rd-plate-preview"><i></i><span>PLATE</span></div></div>
       <div class="rd-cook-track"><i id="rdCookSweet" class="rd-cook-sweet"></i><i id="rdCookNeedle" class="rd-cook-needle"></i></div>
       <div class="rd-cook-quality"><span>POOR</span><span>GOOD</span><span>GREAT</span><span>PERFECT</span></div>
       <button id="rdCookHit">HIT SPACE / CLICK</button>
      </div>
-     <div id="rdServiceToast" class="rd-service-toast">CUSTOMERS ARE ARRIVING…</div>
-     <div class="rd-rest-stats"><span>TIME <b id="rdServiceTime">70</b>s</span><span>SERVED <b id="rdServed">0</b></span><span>REVENUE <b id="rdServiceRevenue">0 GP</b></span></div>
+     <div id="rdServiceToast" class="rd-service-toast">THE DOORS ARE OPEN…</div>
+     <div class="rd-rest-stats"><span>TIME <b id="rdServiceTime">70</b>s</span><span>SERVED <b id="rdServed">0</b></span><span>ROOM <b id="rdRoomCount">0</b></span><span>FLOW <b id="rdServiceFlow">×1.0</b></span><span>EST. <b id="rdServiceRevenue">0 GP</b></span></div>
     </main>
-    <aside class="rd-rest-panel rd-orders-panel"><div class="rd-panel-kicker">DINING ROOM</div><h3>CUSTOMER ORDERS</h3><p class="rd-panel-help">Amber = needs cooking. Green = dish is ready. Click green again to serve.</p><div id="rdOrders" class="rd-orders"></div></aside>
+    <aside class="rd-rest-panel rd-orders-panel">
+     <div class="rd-panel-kicker">FRONT OF HOUSE</div><h3>CUSTOMER ORDERS</h3><p class="rd-panel-help">Amber = waiting. Green = plated and ready. VIP and critic tickets are marked.</p>
+     <div id="rdReservations" class="rd-reservations"></div>
+     <div id="rdOrders" class="rd-orders"></div>
+    </aside>
    </div>
   </section>
-  <section id="rdResultsView" class="rd-view rd-results hidden"><div class="rd-results-card"><small>DAY COMPLETE</small><h2>THE CATCH BECOMES DINNER</h2><div class="rd-result-grid"><div><small>FISH</small><b id="rdResultFish">0</b></div><div><small>DISHES</small><b id="rdResultDishes">0</b></div><div><small>PERFECT</small><b id="rdResultPerfect">0</b></div><div><small>REVENUE</small><b id="rdResultRevenue">0 GP</b></div></div><div id="rdResultReward" class="rd-reward">Saving rewards…</div><button id="rdResultsContinue">NEXT DAY</button></div></section>
+  <section id="rdResultsView" class="rd-view rd-results hidden">
+   <div class="rd-results-card rd-results-card-v8">
+    <small>SERVICE COMPLETE</small><h2>THE FISH HOUSE CLOSES FOR THE NIGHT</h2>
+    <div class="rd-result-grid rd-result-grid-v8">
+     <div><small>FISH LANDED</small><b id="rdResultFish">0</b></div>
+     <div><small>CUSTOMERS SERVED</small><b id="rdResultDishes">0</b></div>
+     <div><small>PERFECT DISHES</small><b id="rdResultPerfect">0</b></div>
+     <div><small>WALKOUTS</small><b id="rdResultWalkouts">0</b></div>
+     <div><small>AVG QUALITY</small><b id="rdResultQuality">★0.0</b></div>
+     <div><small>GROSS REVENUE</small><b id="rdResultRevenue">0 GP</b></div>
+     <div><small>STAFF WAGES</small><b id="rdResultWages">0 GP</b></div>
+     <div><small>REPUTATION</small><b id="rdResultRep">+0</b></div>
+    </div>
+    <div id="rdReviewCard" class="rd-review-card"><small>FISH HOUSE REVIEW</small><b>Tonight's diners are filing out.</b><p>Final review arrives after the books are closed.</p></div>
+    <div id="rdResultReward" class="rd-reward">Saving rewards…</div>
+    <button id="rdResultsContinue">NEXT DAY</button>
+   </div>
+  </section>
  </div>
 </dialog>
 
@@ -4007,9 +4050,9 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </script>
 
 <script src="assets/quidditch-survivor/quidditch-survivor.js?v=20260807-character-visible-1"></script>
-<script src="assets/repo-diver/data.js?v=repo-diver-v5-soldout-flow-20260814-2342"></script>
-<script src="assets/repo-diver/engine.js?v=repo-diver-v5-soldout-flow-20260814-2342"></script>
-<script src="assets/repo-diver/game.js?v=repo-diver-v5-soldout-flow-20260814-2342"></script>
+<script src="assets/repo-diver/data.js?v=repo-diver-v8-fish-house-phase3-20260815-0136"></script>
+<script src="assets/repo-diver/engine.js?v=repo-diver-v8-fish-house-phase3-20260815-0136"></script>
+<script src="assets/repo-diver/game.js?v=repo-diver-v8-fish-house-phase3-20260815-0136"></script>
 <script>
 window.__QD_HOST__={
   getCharacter:function(){try{return typeof character!=='undefined'?character:null;}catch(e){return null;}},
