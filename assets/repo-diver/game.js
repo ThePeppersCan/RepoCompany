@@ -1,10 +1,11 @@
 (() => {
   'use strict';
-  window.__REPO_DIVER_BUILD__='v9-living-world-visual-overhaul-20260815';
+  window.__REPO_DIVER_BUILD__='v10-final-endgame-audio-20260815';
 
   const $ = id => document.getElementById(id);
   const D = window.RepoDiverData;
   const E = window.RepoDiverEngine;
+  const A = window.RepoDiverAudio || {setScene(){},update(){},ui(){},setVolume(){},toggleMute(){return false},get volume(){return .58}};
 
   let profile = {
     day_number: 1,
@@ -29,9 +30,10 @@
   let discoveryTimer = 0;
   let restaurantTheme = 'harbour';
   let servicePreviewEvent = null;
-  let career = {chapter:1,relationships:{},boat:{hull:1,engine:1,sonar:1,storage:1,crane:1,lab:1},titles:['Rookie Diver'],active_title:'Rookie Diver',contract_status:[],research:{photos:0,observations:0},weather:{id:'clear',name:'CLEAR WATER',effect:'Balanced expedition conditions.'}};
+  let career = {chapter:1,relationships:{},boat:{hull:1,engine:1,sonar:1,storage:1,crane:1,lab:1},titles:['Rookie Diver'],active_title:'Rookie Diver',contract_status:[],research:{photos:0,observations:0},weather:{id:'clear',name:'CLEAR WATER',effect:'Balanced expedition conditions.'},endgame:{prestige_xp:0,descent_best:0,bosses:{},variants:{},materials:{scrap:0,alloy:0,crystal:0,shard:0,vent:0},crafted:{}},mastery:{}};
   let expeditionTime = 'day';
   let cameraBusy = false;
+  let expeditionMode='standard', expeditionModifier='balanced', expeditionHarpoon='precision', expeditionLure='balanced';
 
   const db = () => window.db || window.__QD_HOST__?.getDb?.();
   async function rpc(name, args = {}) {
@@ -45,6 +47,7 @@
   function show(id) {
     ['rdHomeView', 'rdDiveView', 'rdSurfaceView', 'rdRestaurantView', 'rdResultsView'].forEach(x => $(x)?.classList.add('hidden'));
     $(id)?.classList.remove('hidden');
+    try{A.setScene(id,run)}catch(_){}
   }
 
   function rankName(n) {
@@ -74,8 +77,8 @@
   function boatAverageLevel(){const b=career.boat||{};const vals=D.BOAT_UPGRADES.map(x=>Number(b[x.key]||1));return vals.reduce((a,v)=>a+v,0)/Math.max(1,vals.length)}
   function boatDisplayName(){const lv=boatAverageLevel();return lv>=4.6?'R.C. ABYSSWARD':lv>=3.5?'R.C. DEEPWAKE':lv>=2.3?'R.C. COASTAL VOYAGER':'R.C. TIDELINE'}
   function boatTierText(){return `Mk ${['I','II','III','IV','V','VI'][Math.max(0,Math.min(5,Math.floor(boatAverageLevel())-1))]}`}
-  function openHomePanel(id){['rdExpeditionPanel','rdQuestPanel','rdContractPanel','rdBoatPanel','rdResearchPanel'].forEach(x=>$(x)?.classList.add('hidden'));$(id)?.classList.remove('hidden');$('rdHarbourScene')?.classList.add('subpanel-open');document.querySelector('.rd-career-strip')?.classList.add('subpanel-open');document.querySelector('.rd-career-nav')?.classList.add('subpanel-open')}
-  function returnToHarbour(){['rdExpeditionPanel','rdQuestPanel','rdContractPanel','rdBoatPanel','rdResearchPanel'].forEach(x=>$(x)?.classList.add('hidden'));$('rdHarbourScene')?.classList.remove('subpanel-open');document.querySelector('.rd-career-strip')?.classList.remove('subpanel-open');document.querySelector('.rd-career-nav')?.classList.remove('subpanel-open')}
+  function openHomePanel(id){['rdExpeditionPanel','rdQuestPanel','rdContractPanel','rdBoatPanel','rdResearchPanel','rdEndgamePanel'].forEach(x=>$(x)?.classList.add('hidden'));$(id)?.classList.remove('hidden');$('rdHarbourScene')?.classList.add('subpanel-open');document.querySelector('.rd-career-strip')?.classList.add('subpanel-open');document.querySelector('.rd-career-nav')?.classList.add('subpanel-open')}
+  function returnToHarbour(){['rdExpeditionPanel','rdQuestPanel','rdContractPanel','rdBoatPanel','rdResearchPanel','rdEndgamePanel'].forEach(x=>$(x)?.classList.add('hidden'));$('rdHarbourScene')?.classList.remove('subpanel-open');document.querySelector('.rd-career-strip')?.classList.remove('subpanel-open');document.querySelector('.rd-career-nav')?.classList.remove('subpanel-open')}
   function chapterMetricLabel(ch){const current=Number(career.chapter_progress?.current||0),target=Number(career.chapter_progress?.target||ch?.target||1);return `${current.toLocaleString()} / ${target.toLocaleString()} ${String(ch?.metric||'progress').toUpperCase()}`}
   function renderCareerHub(){
     const weather=career.weather||D.WEATHER[0],ch=D.CAREER_CHAPTERS[Math.max(0,Math.min(39,(career.chapter||1)-1))];
@@ -92,23 +95,65 @@
   function renderQuestLog(){const el=$('rdQuestLog');if(!el)return;const active=Number(career.chapter||1);el.innerHTML=`<div class="rd-active-quest">${(()=>{const c=D.CAREER_CHAPTERS[active-1];if(!c)return '<h4>CAREER COMPLETE</h4><p>The harbour knows your name.</p>';const n=D.npc(c.giver);return `<small>ACTIVE STORY CHAPTER ${c.chapter}/40 · ${n.name}</small><h4>${c.title}</h4><p>${c.desc}</p><div class="rd-quest-progress"><i style="width:${Math.min(100,Number(career.chapter_progress?.pct||0))}%"></i></div><span>${chapterMetricLabel(c)}</span>${career.chapter_can_claim?`<button data-rd-claim-chapter="${c.chapter}">REPORT BACK TO ${n.name.toUpperCase()}</button>`:''}`})()}</div><div class="rd-chapter-list">${D.CAREER_CHAPTERS.map(c=>`<article class="${c.chapter<active?'done':c.chapter===active?'active':'locked'}"><span>${String(c.chapter).padStart(2,'0')}</span><div><b>${c.title}</b><small>${D.npc(c.giver).name} · ${c.desc}</small></div><em>${c.chapter<active?'COMPLETE':c.chapter===active?'ACTIVE':'LOCKED'}</em></article>`).join('')}</div>`}
   function renderContracts(){const el=$('rdContracts');if(!el)return;const states=career.contract_status||[];el.innerHTML=`<div class="rd-contract-intro"><b>THREE JOBS. ONE TIDE.</b><span>Contracts award modest skill XP + Fish House reputation — not piles of GP.</span></div><div class="rd-contract-grid">${states.map(st=>{const c=D.CONTRACTS.find(x=>x.id===st.id)||{name:st.id,desc:'Harbour contract',icon:'JOB'};return `<article class="${st.claimed?'claimed':st.claimable?'ready':''}"><i>${c.icon}</i><small>DAILY CONTRACT</small><h4>${c.name}</h4><p>${c.desc}</p><div class="rd-contract-progress"><i style="width:${Math.min(100,Number(st.current||0)/Math.max(1,Number(st.target||1))*100)}%"></i></div><b>${Number(st.current||0)} / ${Number(st.target||0)}</b>${st.claimed?'<button disabled>CLAIMED</button>':st.claimable?`<button data-rd-claim-contract="${st.id}">CLAIM CONTRACT</button>`:'<button disabled>IN PROGRESS</button>'}</article>`}).join('')}</div>`}
   function renderBoatView(){const el=$('rdBoatUpgrades');if(!el)return;const b=career.boat||{};el.innerHTML=`<div class="rd-boat-hero"><div class="rd-boat-art"><i class="boat-hull"></i><i class="boat-cabin"></i><i class="boat-mast"></i></div><div><small>YOUR EXPEDITION VESSEL</small><h3>${boatDisplayName()} <em>${boatTierText()}</em></h3><p>The boat grows with the career: better survey contacts, more salvage opportunities and a visibly more serious expedition operation.</p></div></div><div class="rd-boat-grid">${D.BOAT_UPGRADES.map(x=>{const lv=Number(b[x.key]||1),max=lv>=x.max;return `<article><small>VESSEL SYSTEM</small><h4>${x.name}</h4><p>${x.desc}</p><div class="rd-level-pips">${Array.from({length:x.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</div><button data-rd-boat-upgrade="${x.key}" ${max?'disabled':''}>${max?'MAXIMUM SPEC':`UPGRADE FROM LV ${lv}`}</button></article>`}).join('')}</div>`}
-  function achievementUnlocked(a,i){const s=profile.stats||{};const found=Object.keys(profile.fish_journal||{}).length;const tier=1+Math.floor(i/10);if(a.group==='EXPLORATION')return Number(s.deepest||0)>=tier*80;if(a.group==='MARINE LIFE')return found>=tier*15;if(a.group==='FISH HOUSE')return Number(profile.restaurant?.rank||1)>=Math.min(10,tier*2);if(a.group==='SALVAGE')return Number(s.treasures_found||0)>=tier*3;return Number(s.legendary_catches||0)>=tier}
+  function achievementUnlocked(a,i){
+    const s=profile.stats||{},found=Object.keys(profile.fish_journal||{}).length,tier=1+Math.floor((i%50)/10),eg=career.endgame||{};
+    if(a.group==='EXPLORATION')return Number(s.deepest||0)>=tier*80;
+    if(a.group==='MARINE LIFE')return found>=tier*15;
+    if(a.group==='FISH HOUSE')return Number(profile.restaurant?.rank||1)>=Math.min(10,tier*2);
+    if(a.group==='SALVAGE')return Number(s.treasures_found||0)>=tier*3;
+    if(a.group==='LEGENDARY')return Number(s.legendary_catches||0)>=tier;
+    const vt=Object.values(eg.variants||{}).reduce((a,v)=>a+Number(v||0),0),bosses=Object.values(eg.bosses||{}).reduce((a,v)=>a+Number(v||0),0),mastery=Object.values(career.mastery||{}).reduce((a,v)=>a+Number(v||0),0),px=Number(eg.prestige_xp||0);
+    if(a.group==='ENDGAME')return Number(profile.day_number||1)>=44+tier*5;
+    if(a.group==='BOSSES')return bosses>=tier;
+    if(a.group==='VARIANTS')return vt>=tier;
+    if(a.group==='MASTERY')return mastery>=tier*4;
+    if(a.group==='PRESTIGE')return px>=tier*900;
+    return false;
+  }
   function renderResearchView(){const el=$('rdResearch');if(!el)return;const photos=Number(career.research?.photos||0),observed=Number(career.research?.observations||0);el.innerHTML=`<div class="rd-research-summary"><article><small>CAMERA ARCHIVE</small><b>${photos}</b><span>field photographs</span></article><article><small>OBSERVED SPECIES</small><b>${observed}</b><span>documented subjects</span></article><article><small>LEGENDARY HUNTS</small><b>${D.LEGENDARY_HUNTS.filter(h=>profile.fish_journal?.[h.fish_id]).length} / ${D.LEGENDARY_HUNTS.length}</b><span>landed legends</span></article></div><h4 class="rd-research-heading">LEGENDARY HUNT FILES</h4><div class="rd-hunt-grid">${D.LEGENDARY_HUNTS.map(h=>{const b=D.biome(h.biome),caught=!!profile.fish_journal?.[h.fish_id],unlocked=(profile.day_number||1)>=b.unlock;return `<article class="${caught?'done':unlocked?'tracking':'locked'}"><small>${b.short}</small><h4>${h.name}</h4><ol>${h.stages.map((x,i)=>`<li class="${caught?'done':unlocked&&i<2?'active':''}">${x}</li>`).join('')}</ol><b>${caught?'LEGEND DOCUMENTED':unlocked?'CLUES AVAILABLE':'WATERS LOCKED'}</b></article>`}).join('')}</div><h4 class="rd-research-heading">CAREER ACHIEVEMENTS</h4><div class="rd-achievement-grid">${D.ACHIEVEMENTS.map((a,i)=>`<article class="${achievementUnlocked(a,i)?'done':''}"><small>${a.group}</small><b>${a.name}</b><span>${a.desc}</span><em>${achievementUnlocked(a,i)?'UNLOCKED':'IN PROGRESS'}</em></article>`).join('')}</div>`}
   function syncTimeToggle(){document.querySelectorAll('[data-rd-time]').forEach(b=>b.classList.toggle('selected',b.dataset.rdTime===expeditionTime))}
+
+  function endgameUnlocked(){return Number(profile.day_number||1)>=44||D.ENDGAME_BIOMES?.some(id=>profile.unlocked_biomes?.includes?.(id));}
+  function biomeMastery(id){const pool=D.fishForBiome(id),found=pool.filter(f=>profile.fish_journal?.[f.id]).length,boss=D.BOSSES?.[id]&&profile.fish_journal?.[D.BOSSES[id]];const depth=Math.min(1,Number(profile.stats?.deepest||0)/Math.max(1,D.biome(id).max_depth));const derived=Math.min(10,Math.floor((found/Math.max(1,pool.length))*6+(boss?2:0)+depth*2));return Math.max(derived,Number(career.mastery?.[id]||0));}
+  function prestigeInfo(){const found=Object.keys(profile.fish_journal||{}).length,ancient=D.FISH.filter(f=>f.rarity==='ancient'&&profile.fish_journal?.[f.id]).length,raw=Math.max(0,found-120)*22+ancient*450+Math.max(0,Number(profile.day_number||1)-40)*35;const xp=Math.max(raw,Number(career.endgame?.prestige_xp||0));const rank=Math.min(D.PRESTIGE_RANKS.length-1,Math.floor(xp/1800));return {xp,rank,name:D.PRESTIGE_RANKS[rank],next:(rank+1)*1800};}
+  function currentSeasonalEvent(){const events=D.SEASONAL_EVENTS||[];if(!events.length)return null;const week=Math.floor(Date.now()/604800000);return events[Math.abs(week)%events.length]||events[0]}
+  function endgameMaterials(){return {scrap:0,alloy:0,crystal:0,shard:0,vent:0,...(career.endgame?.materials||{})}}
+  function endgameCrafted(){return career.endgame?.crafted||{}}
+  function variantCount(){return Object.values(career.endgame?.variants||{}).reduce((a,v)=>a+Number(v||0),0)}
+  function bossCount(){return Object.values(career.endgame?.bosses||{}).reduce((a,v)=>a+Number(v||0),0)}
+  function completionInfo(){
+    const species=Object.keys(profile.fish_journal||{}).length,recipes=(profile.recipes||[]).length||D.RECIPES.filter(r=>r.unlock<=Number(profile.day_number||1)).length,bosses=Object.keys(D.BOSSES||{}).filter(id=>Number(career.endgame?.bosses?.[D.BOSSES[id]]||0)>0||!!profile.fish_journal?.[D.BOSSES[id]]).length,ach=D.ACHIEVEMENTS.filter(achievementUnlocked).length,mastery=Object.values(career.mastery||{}).reduce((a,v)=>a+Math.min(10,Number(v||0)),0),masteryMax=Math.max(1,(D.ENDGAME_BIOMES||[]).length*10);
+    const parts=[species/Math.max(1,D.FISH.length),recipes/Math.max(1,D.RECIPES.length),bosses/Math.max(1,Object.keys(D.BOSSES||{}).length),ach/Math.max(1,D.ACHIEVEMENTS.length),mastery/masteryMax];
+    return {species,recipes,bosses,ach,mastery,masteryMax,pct:Math.round(parts.reduce((a,v)=>a+Math.min(1,v),0)/parts.length*1000)/10};
+  }
+  function materialCostText(cost={}){return Object.entries(cost).map(([k,v])=>`${String(k).toUpperCase()} ${v}`).join(' · ')}
+  function renderEndgame(){
+    const el=$('rdEndgame');if(!el)return;const p=prestigeInfo(),advanced=D.ENDGAME_BIOMES||[],sighting=advanced[(new Date().getUTCDate()+new Date().getUTCMonth())%Math.max(1,advanced.length)],sightBoss=D.BOSSES?.[sighting],season=currentSeasonalEvent(),mats=endgameMaterials(),crafted=endgameCrafted(),comp=completionInfo();
+    const seasonActive=season?.biomes?.includes?.(sighting);
+    el.innerHTML=`<div class="rd-endgame-hero"><div><small>DEEP OPERATIONS</small><h3>THE WATER AFTER THE STORY</h3><p>Long-form expeditions, Ancient boss signatures, rare specimens, biome mastery and validated prestige records. Endgame rewards focus on progression and equipment rather than raw GP.</p></div><div class="rd-prestige"><small>MASTER DIVER PRESTIGE</small><b>${p.name}</b><span>${p.xp.toLocaleString()} PX · DESCENT PB ${Number(career.endgame?.descent_best||0)}M</span></div></div>
+    <div class="rd-endgame-summary"><article><small>REPO DIVER COMPLETION</small><b>${comp.pct}%</b><span>${comp.species}/${D.FISH.length} species · ${comp.recipes}/${D.RECIPES.length} recipes</span></article><article><small>ANCIENT BOSSES</small><b>${comp.bosses}/${Object.keys(D.BOSSES||{}).length}</b><span>${bossCount()} validated boss landings</span></article><article><small>RARE VARIANTS</small><b>${variantCount()}</b><span>Albino · melanistic · luminous · golden</span></article><article><small>ACHIEVEMENTS</small><b>${comp.ach}/${D.ACHIEVEMENTS.length}</b><span>${comp.mastery}/${comp.masteryMax} mastery points</span></article></div>
+    ${season?`<div class="rd-seasonal"><i></i><div><small>THIS WEEK · OCEAN CONDITION</small><b>${season.name}</b><span>${season.desc}</span></div><em>${season.biomes.map(id=>D.biome(id)?.short||id).join(' · ')}</em></div>`:''}
+    <div class="rd-sighting ${seasonActive?'season-active':''}"><i></i><div><small>RARE SIGHTING · TODAY</small><b>${D.biome(sighting)?.name||'UNKNOWN WATER'}</b><span>${D.fishById(sightBoss)?.name||'Ancient signature'} has been reported on expedition sonar.</span></div><button data-rd-sighting="${sighting}">PREPARE HUNT</button></div>
+    <div class="rd-loadout"><section><small>EXPEDITION TYPE</small><div>${[['standard','STANDARD'],['boss','ANCIENT HUNT'],['descent','THE DESCENT']].map(([id,n])=>`<button data-rd-mode="${id}" class="${expeditionMode===id?'selected':''}">${n}</button>`).join('')}</div></section><section><small>HARPOON HEAD</small><div>${D.HARPOON_LOADOUTS.map(x=>`<button data-rd-harpoon="${x.id}" class="${expeditionHarpoon===x.id?'selected':''}"><b>${x.name}</b><span>${x.desc}</span></button>`).join('')}</div></section><section><small>LURE</small><div>${D.LURES.map(x=>`<button data-rd-lure="${x.id}" class="${expeditionLure===x.id?'selected':''}"><b>${x.name}</b><span>${x.desc}</span></button>`).join('')}</div></section><section><small>CONDITIONS</small><div>${D.EXPEDITION_MODIFIERS.map(x=>`<button data-rd-modifier="${x.id}" class="${expeditionModifier===x.id?'selected':''}"><b>${x.name}</b><span>${x.desc}</span></button>`).join('')}</div></section></div>
+    <div class="rd-crafting"><header><div><small>EXPEDITION WORKSHOP</small><h4>SALVAGE CRAFTING</h4></div><div class="rd-material-wallet">${Object.entries(mats).map(([k,v])=>`<span><b>${String(k).toUpperCase()}</b>${Number(v)}</span>`).join('')}</div></header><div>${(D.CRAFTING||[]).map(x=>{const done=!!crafted[x.id];return `<article class="${done?'crafted':''}"><small>ADVANCED FIELD GEAR</small><h4>${x.name}</h4><p>${x.desc}</p><em>${done?'INSTALLED':materialCostText(x.cost)}</em><button data-rd-craft="${x.id}" ${done?'disabled':''}>${done?'INSTALLED':'CRAFT MODULE'}</button></article>`}).join('')}</div></div>
+    <div class="rd-endgame-grid">${advanced.map(id=>{const b=D.biome(id),open=(profile.day_number||1)>=b.unlock,m=biomeMastery(id),boss=D.fishById(D.BOSSES?.[id]),bossWins=Number(career.endgame?.bosses?.[boss?.id]||0),seasonal=season?.biomes?.includes?.(id);return `<article class="${open?'':'locked'} ${seasonal?'seasonal-water':''}" style="--rd-accent:${b.accent}"><small>${seasonal?'WEEKLY ACTIVE WATER':'ENDGAME WATER'} · ${b.max_depth}M</small><h4>${b.name}</h4><p>${b.mood}</p><div class="rd-mastery"><span>MASTERY ${m}/10</span><i><b style="width:${m*10}%"></b></i></div><footer><span>${boss?.name||'Ancient contact'}${bossWins?` · ${bossWins} LANDED`:''}</span><button data-rd-endgame-biome="${id}" ${open?'':'disabled'}>${open?'LAUNCH EXPEDITION':`DAY ${b.unlock}`}</button></footer></article>`}).join('')}</div>
+    <div class="rd-endgame-leaderboard"><div><small>VALIDATED EXPEDITION RECORDS</small><h4>DEEP OPS LEADERBOARD</h4></div><div id="rdEndgameLeaderboard"><span>Loading validated records…</span></div></div>`;loadEndgameLeaderboard();
+  }
+  async function loadEndgameLeaderboard(){const el=$('rdEndgameLeaderboard');if(!el)return;try{const rows=await rpc('repo_diver_get_endgame_leaderboard');el.innerHTML=(rows||[]).slice(0,10).map((x,i)=>`<article><b>#${i+1}</b><span>${x.username||'Diver'}</span><em>${String(x.mode||'standard').toUpperCase()} · ${D.biome(x.biome)?.short||x.biome}</em><strong>${Number(x.score||0).toLocaleString()}</strong><small>${Number(x.depth||0)}M</small></article>`).join('')||'<span>No validated endgame expeditions yet.</span>';}catch(e){el.innerHTML='<span>Leaderboard unavailable.</span>'}}
 
   function renderHome() {
     if (!$('rdHomeView')) return;
     $('rdDay').textContent = profile.day_number || 1;
     $('rdRank').textContent = rankName(profile.restaurant?.rank || 1);
     $('rdDeepest').textContent = Math.round(profile.stats?.deepest || 0) + 'm';
-    if($('rdStatus'))$('rdStatus').innerHTML = `<b>DIVER LEVEL ${Math.min(40, profile.day_number || 1)}/40</b> · ${Object.keys(profile.fish_journal || {}).length}/${D.FISH.length} species · ${Number(profile.stats?.total_revenue || 0).toLocaleString()} GP Fish House lifetime revenue`;
+    if($('rdStatus'))$('rdStatus').innerHTML = `<b>${profile.day_number<=40?`DIVER LEVEL ${profile.day_number}/40`:`MASTER DIVER · DAY ${profile.day_number}`}</b> · ${Object.keys(profile.fish_journal || {}).length}/${D.FISH.length} species · ${Number(profile.stats?.total_revenue || 0).toLocaleString()} GP Fish House lifetime revenue`;
     if($('rdBiomes'))$('rdBiomes').innerHTML = D.BIOMES.map((b, i) => {
       const open = (profile.day_number || 1) >= b.unlock;
       const discovered = D.fishForBiome(b.id).filter(f => profile.fish_journal?.[f.id]).length;
-      return `<button class="rd-biome ${open ? '' : 'locked'}" data-biome="${b.id}" style="--rd-accent:${b.accent};--rd-deep:${b.deep}"><span class="rd-biome-art"><i></i><em>${open ? 'EXPEDITION' : 'LOCKED'}</em></span><small>ZONE ${String(i + 1).padStart(2, '0')} · ${b.max_depth}M</small><h4>${b.name}</h4><p>${b.mood}</p><footer><span>${discovered}/12 SPECIES</span><b>${open ? (expeditionTime==='night'?'NIGHT DIVE':'ENTER WATER') : 'DAY ' + b.unlock}</b></footer></button>`;
+      return `<button class="rd-biome ${open ? '' : 'locked'}" data-biome="${b.id}" style="--rd-accent:${b.accent};--rd-deep:${b.deep}"><span class="rd-biome-art"><i></i><em>${open ? 'EXPEDITION' : 'LOCKED'}</em></span><small>ZONE ${String(i + 1).padStart(2, '0')} · ${b.max_depth}M</small><h4>${b.name}</h4><p>${b.mood}</p><footer><span>${discovered}/${D.fishForBiome(b.id).length} SPECIES</span><b>${open ? (expeditionTime==='night'?'NIGHT DIVE':'ENTER WATER') : 'DAY ' + b.unlock}</b></footer></button>`;
     }).join('');
     document.querySelectorAll('[data-biome]').forEach(btn => btn.onclick = () => { if (!btn.classList.contains('locked')) startDive(btn.dataset.biome); });
-    renderCareerHub();renderQuestLog();renderContracts();renderBoatView();renderResearchView();syncTimeToggle();renderJournal();renderUpgrades();
+    renderCareerHub();renderQuestLog();renderContracts();renderBoatView();renderResearchView();renderEndgame();syncTimeToggle();renderJournal();renderUpgrades();
   }
 
   function renderJournal() {
@@ -152,7 +197,8 @@
       $('rdStatus').textContent = e.message;
       return;
     }
-    run = E.createRun({ biome, level: profile.day_number, equipment: profile.equipment, timeOfDay: expeditionTime, weather: career.weather?.id || 'clear', boat: career.boat || {} });
+    const season=currentSeasonalEvent();
+    run = E.createRun({ biome, level: profile.day_number, equipment: profile.equipment, timeOfDay: expeditionTime, weather: career.weather?.id || 'clear', boat: career.boat || {}, mode:expeditionMode, modifier:expeditionModifier, loadout:{harpoonType:expeditionHarpoon,lure:expeditionLure}, crafted:endgameCrafted(), seasonal:season?.id||null });
     lastRecentCatchSerial = 0;
     show('rdDiveView');
     ensureDiveNotice();
@@ -169,10 +215,10 @@
       const visible=run.fish.filter(f=>!f.hidden&&!f.hooked);let target=null,best=9999;
       for(const f of visible){const d=Math.hypot(f.x-mouse.x,f.y-mouse.y);if(d<best){best=d;target=f}}
       if(!target||best>125){E.notice?.(run,'NO CLEAR SUBJECT IN FRAME','muted',1.2);return;}
-      const rank=D.RARITY[target.rarity]?.rank||1;const quality=Math.max(1,Math.min(4,Math.round(4-best/48)+(rank>=5?1:0)));
+      const rank=D.RARITY[target.rarity]?.rank||1;const dartBonus=endgameCrafted()?.research_dart?1:0;const quality=Math.max(1,Math.min(4,Math.round(4-best/48)+(rank>=5?1:0)+dartBonus));
       const r=await rpc('repo_diver_record_photo',{p_run_id:runId,p_fish_id:target.id,p_quality:quality});
       if(r?.research)career.research=r.research;else if(r)career.research=r;
-      run.flash=.45;run.shake=2;run.eventBanner={title:'MARINE PHOTO RECORDED',text:`${target.name.toUpperCase()} · ★${quality} FRAME`,type:'success',time:2.2,serial:(run.eventBanner?.serial||0)+1};
+      run.flash=.45;run.shake=2;run.eventBanner={title:'MARINE PHOTO RECORDED',text:`${target.name.toUpperCase()} · ★${quality} FRAME`,type:'success',time:2.2,serial:(run.eventBanner?.serial||0)+1};try{A.play?.('camera',{quality})}catch(_){}
     }catch(e){if(run)run.notice={text:e.message||'CAMERA FAILED',type:'warning',time:1.4};}
     finally{cameraBusy=false}
   }
@@ -182,6 +228,7 @@
     const dt = Math.min(.034, (t - last) / 1000 || .016);
     last = t;
     E.update(run, dt, input, profile.equipment);
+    try{A.update(run,dt)}catch(_){}
     updateParticles(dt);
     draw();
     hud();
@@ -277,6 +324,20 @@
       ctx.fillStyle='#17100d';ctx.fillRect(0,h-68,w,100);ctx.strokeStyle='#ff6e32';ctx.shadowColor='#ff5b24';ctx.shadowBlur=12;ctx.lineWidth=3;for(let i=0;i<11;i++){ctx.beginPath();ctx.moveTo(i*95,h);ctx.lineTo(i*95+35,h-34);ctx.lineTo(i*95+70,h-12);ctx.stroke();}ctx.shadowBlur=0;ctx.save();ctx.translate(-midP.x*.4,0);for(let i=0;i<8;i++){const x=i*130+40;ctx.fillStyle='#24201e';ctx.beginPath();ctx.moveTo(x-35,h-50);ctx.lineTo(x,h-130-(i%3)*22);ctx.lineTo(x+38,h-50);ctx.fill();ctx.fillStyle='rgba(255,120,52,.12)';ctx.beginPath();ctx.ellipse(x,h-135-(i%3)*22,28,60,0,0,Math.PI*2);ctx.fill();}ctx.restore();
     }else if(b.id==='ruins'){
       drawRuins(ctx,w,h,false);ctx.fillStyle='#172520';ctx.fillRect(0,h-52,w,80);ctx.save();ctx.translate(-midP.x*.35,0);ctx.fillStyle='#1c302e';ctx.beginPath();ctx.moveTo(365,h-55);ctx.lineTo(480,h-240);ctx.lineTo(595,h-55);ctx.fill();ctx.fillStyle='#0e1717';ctx.fillRect(446,h-142,68,88);ctx.restore();drawRuins(ctx,w,h,true);
+    }else if(b.id==='shattered'){
+      ctx.fillStyle='#0b171d';ctx.fillRect(0,h-50,w,70);ctx.save();ctx.translate(-midP.x*.5,0);ctx.fillStyle='#162b32';for(let i=0;i<8;i++){ctx.beginPath();ctx.moveTo(i*145-40,h);ctx.lineTo(i*145+30,h-170-(i%3)*45);ctx.lineTo(i*145+85,h);ctx.fill();}ctx.strokeStyle='#72aab3';ctx.globalAlpha=.22;for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(80+i*170,h-40);ctx.lineTo(140+i*170,h-170);ctx.stroke();}ctx.restore();
+    }else if(b.id==='cathedral'){
+      ctx.fillStyle='#161626';ctx.fillRect(0,h-55,w,80);ctx.save();ctx.translate(-midP.x*.3,0);ctx.strokeStyle='#4f4d6a';ctx.lineWidth=12;for(let i=0;i<6;i++){const x=90+i*170;ctx.beginPath();ctx.moveTo(x,h-55);ctx.lineTo(x,h-260);ctx.stroke();ctx.beginPath();ctx.arc(x+70,h-180,70,Math.PI,0);ctx.stroke();}ctx.fillStyle='rgba(185,150,255,.13)';for(let i=0;i<5;i++){ctx.fillRect(120+i*180,120,55,110);}ctx.restore();
+    }else if(b.id==='midnight'){
+      ctx.fillStyle='#010208';ctx.fillRect(0,h-45,w,60);ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#7a88ff';ctx.beginPath();ctx.ellipse(760,300,190,50,-.08,0,Math.PI*2);ctx.fill();ctx.restore();for(let i=0;i<44;i++){ctx.fillStyle=`rgba(100,180,255,${.08+(i%4)*.025})`;ctx.beginPath();ctx.arc((i*97+41)%w,70+(i*67)%420,1+(i%3)*.7,0,Math.PI*2);ctx.fill();}
+    }else if(b.id==='crossing'||b.id==='endless'){
+      ctx.fillStyle=b.id==='endless'?'#031424':'#071f31';ctx.fillRect(0,h-45,w,65);ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#8cdfff';for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse((i*290+120)%w,180+i*70,130+i*15,24+i*6,-.04,0,Math.PI*2);ctx.fill();}ctx.restore();drawLightRays(ctx,w,h,.045,'#8bdfff');
+    }else if(b.id==='citadel'){
+      drawRuins(ctx,w,h,false);ctx.save();ctx.translate(-midP.x*.25,0);ctx.fillStyle='#1a2f32';ctx.fillRect(305,h-245,350,195);ctx.fillStyle='#0c1718';ctx.beginPath();ctx.arc(480,h-50,110,Math.PI,0);ctx.fill();ctx.fillStyle='rgba(235,202,107,.17)';ctx.fillRect(448,h-210,64,105);ctx.restore();
+    }else if(b.id==='blackrift'){
+      ctx.fillStyle='#120707';ctx.fillRect(0,h-60,w,90);ctx.strokeStyle='#ff6545';ctx.lineWidth=3;ctx.shadowColor='#ff4d2e';ctx.shadowBlur=14;for(let i=0;i<9;i++){ctx.beginPath();ctx.moveTo(i*120,h);ctx.lineTo(i*120+45,h-60);ctx.lineTo(i*120+90,h-25);ctx.stroke();}ctx.shadowBlur=0;for(let i=0;i<7;i++){ctx.fillStyle='rgba(255,120,70,.11)';ctx.beginPath();ctx.ellipse(80+i*145,h-140-(i%3)*25,35,95,0,0,Math.PI*2);ctx.fill();}
+    }else if(b.id==='pale'){
+      ctx.fillStyle='#b5dce9';ctx.beginPath();ctx.moveTo(0,0);for(let x=0;x<=w;x+=90)ctx.lineTo(x,15+(x%180?22:45));ctx.lineTo(w,0);ctx.closePath();ctx.fill();ctx.save();ctx.translate(-midP.x*.4,0);ctx.fillStyle='#1c3948';for(let i=0;i<7;i++){ctx.beginPath();ctx.moveTo(i*160-30,h);ctx.lineTo(i*160+45,h-210-(i%2)*50);ctx.lineTo(i*160+125,h);ctx.fill();}ctx.restore();
     }
 
     // Fine suspended particles and bubbles.
@@ -316,8 +377,8 @@
   }
 
   function drawFish(ctx,f){
-    ctx.save();ctx.translate(f.x,f.y);const facing=f.vx<0?-1:1;ctx.scale(facing,1);if(f.hidden){ctx.globalAlpha=.16;}else if(f.rarity==='legendary'||f.rarity==='mythic'||f.sonarReveal>0){ctx.shadowColor=f.color;ctx.shadowBlur=f.legendary?24:f.rarity==='mythic'?18:9;}if(f.hitFlash>0)ctx.globalAlpha=Math.max(.25,.55+Math.sin(f.hitFlash*30)*.4);fishBody(ctx,f);
-    if(f.legendary){ctx.strokeStyle='#ffe48a';ctx.lineWidth=1.5;ctx.globalAlpha=.65+.25*Math.sin(run.elapsed*5);ctx.beginPath();ctx.arc(0,0,32*(f.visualScale||1),0,Math.PI*2);ctx.stroke();}
+    ctx.save();ctx.translate(f.x,f.y);const facing=f.vx<0?-1:1;ctx.scale(facing,1);if(f.hidden){ctx.globalAlpha=.16;}else if(['legendary','mythic','ancient'].includes(f.rarity)||f.sonarReveal>0){ctx.shadowColor=f.variant==='golden'?'#fff2a1':f.color;ctx.shadowBlur=f.boss?38:f.legendary?24:f.rarity==='mythic'?18:9;}if(f.variant==='albino')ctx.filter='brightness(1.45) saturate(.35)';else if(f.variant==='melanistic')ctx.filter='brightness(.58) saturate(.75)';else if(f.variant==='luminous')ctx.shadowBlur=Math.max(ctx.shadowBlur||0,22);else if(f.variant==='golden')ctx.filter='sepia(.45) saturate(1.8) brightness(1.15)';if(f.hitFlash>0)ctx.globalAlpha=Math.max(.25,.55+Math.sin(f.hitFlash*30)*.4);fishBody(ctx,f);
+    if(f.boss){ctx.strokeStyle='#fff0a0';ctx.lineWidth=3;ctx.globalAlpha=.7+.3*Math.sin(run.elapsed*4);ctx.beginPath();ctx.arc(0,0,38*(f.visualScale||1),0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}else if(f.legendary){ctx.strokeStyle='#ffe48a';ctx.lineWidth=1.5;ctx.globalAlpha=.65+.25*Math.sin(run.elapsed*5);ctx.beginPath();ctx.arc(0,0,32*(f.visualScale||1),0,Math.PI*2);ctx.stroke();}
     if(f.maxHp>1&&!f.hooked){const s=f.visualScale||1,barW=30*s;ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.fillStyle='rgba(0,0,0,.66)';ctx.fillRect(-barW/2,-17*s,barW,3);ctx.fillStyle='#7ff2d0';ctx.fillRect(-barW/2,-17*s,barW*(f.hp/f.maxHp),3);}
     ctx.restore();
   }
@@ -349,7 +410,7 @@
   }
 
   function drawVisibilityMask(ctx,w,h){
-    const id=run.biome.id,dr=depthRatio();if(!['abyssal','shipgrave','morytania'].includes(id)&&dr<.7)return;const lamp=profile.equipment?.lamp||1;const darkness=(id==='abyssal'?.84:id==='shipgrave'?.45:.38)+Math.max(0,dr-.55)*.22;const radius=105+lamp*35+(run.event.visibility-1)*90;const g=ctx.createRadialGradient(run.player.x,run.player.y,25,run.player.x,run.player.y,radius);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.55,`rgba(0,2,9,${darkness*.35})`);g.addColorStop(1,`rgba(0,2,9,${Math.min(.94,darkness)})`);ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    const id=run.biome.id,dr=depthRatio();if(!['abyssal','shipgrave','morytania','midnight','blackrift','cathedral'].includes(id)&&dr<.7)return;const lamp=profile.equipment?.lamp||1;const darkness=(id==='midnight'?.93:id==='abyssal'?.84:id==='shipgrave'?.45:id==='blackrift'?.62:.38)+Math.max(0,dr-.55)*.22;const radius=105+lamp*35+(run.event.visibility-1)*90;const g=ctx.createRadialGradient(run.player.x,run.player.y,25,run.player.x,run.player.y,radius);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.55,`rgba(0,2,9,${darkness*.35})`);g.addColorStop(1,`rgba(0,2,9,${Math.min(.94,darkness)})`);ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   }
 
   function draw(){
@@ -362,13 +423,16 @@
 
   function showCatchDiscovery(item){
     const card=$('rdDiscoveryCard');if(!card||!item)return;const fish=D.fishById(item.id);if(!fish)return;run._sessionSeen=run._sessionSeen||{};const prior=profile.fish_journal?.[item.id];const sessionPrior=run._sessionSeen[item.id];const isNew=!prior&&!sessionPrior;const oldBest=Math.max(Number(prior?.best_weight||0),Number(sessionPrior?.best||0));const isRecord=item.weight>oldBest+.005;run._sessionSeen[item.id]={best:Math.max(oldBest,item.weight)};
-    const title=isNew?'NEW SPECIES DISCOVERED':isRecord?'NEW PERSONAL RECORD':'CATCH LANDED';card.dataset.rarity=fish.rarity;card.innerHTML=`<small>${title}</small><b>${fish.name}</b><span>${fish.rarity.toUpperCase()} · ${D.biome(fish.biome).short}</span><strong>${Number(item.weight).toFixed(2)} KG · ★${item.q}</strong>`;card.classList.add('show');clearTimeout(discoveryTimer);discoveryTimer=setTimeout(()=>card.classList.remove('show'),isNew?3600:2200);
+    const variant=item.variant&&item.variant!=='normal'?` · ${String(item.variant).toUpperCase()}`:'';const title=fish.rarity==='ancient'?'ANCIENT SPECIMEN LANDED':isNew?'NEW SPECIES DISCOVERED':isRecord?'NEW PERSONAL RECORD':'CATCH LANDED';card.dataset.rarity=fish.rarity;card.innerHTML=`<small>${title}${variant}</small><b>${fish.name}</b><span>${fish.rarity.toUpperCase()} · ${D.biome(fish.biome).short}</span><strong>${Number(item.weight).toFixed(2)} KG · ★${item.q}</strong>`;card.classList.add('show');clearTimeout(discoveryTimer);discoveryTimer=setTimeout(()=>card.classList.remove('show'),isNew?3600:2200);
   }
 
   function hud(){
     if(!run)return;$('rdO2Fill').style.width=run.player.o2+'%';$('rdHpFill').style.width=run.player.hp+'%';const band=E.depthBand(run),depth=Math.round((run.player.y/540)*run.biome.max_depth);$('rdDepth').textContent=depth+'m';$('rdDepthBand')&&($('rdDepthBand').textContent=band.label);$('rdBiomeName')&&($('rdBiomeName').textContent=run.biome.short);
     const kg=E.cargoWeight(run),cap=E.cargoCap(profile.equipment);$('rdCargo').textContent=kg.toFixed(1)+'/'+cap+'kg';$('rdCargo')?.closest('.rd-hudbox')?.classList.toggle('rd-cargo-full',kg>=cap-.05);$('rdCatchCount').textContent=run.catches.filter(x=>x.kind==='fish').length;
     const sonarMax=Math.max(7,22-(profile.equipment?.sonar||1)*2.2),ready=Math.max(0,1-run.sonar.cooldown/sonarMax);if($('rdSonarFill'))$('rdSonarFill').style.width=(ready*100)+'%';if($('rdSonarLabel'))$('rdSonarLabel').textContent=run.sonar.cooldown>0?Math.ceil(run.sonar.cooldown)+'S':'Q · PING';
+    if(run.boss?.activeFish&&$('rdDepthBand'))$('rdDepthBand').textContent=`ANCIENT CONTACT · ${Math.max(0,run.boss.activeFish.hp)}/${run.boss.activeFish.maxHp} ARMOUR`;
+    if($('rdGearCondition'))$('rdGearCondition').textContent=`${Math.round(run.durability??100)}%`;
+    if($('rdDescentLayer')){$('rdDescentLayer').textContent=run.mode==='descent'?`L${Number(run.descent?.layer||1)}`:'—';$('rdDescentLayer').closest('.rd-hudbox')?.classList.toggle('hidden',run.mode!=='descent');}
     const n=ensureDiveNotice();if(n){const active=run.notice?.time>0;n.textContent=active?run.notice.text:(run.harpoon?.fight?'SPACE · CONTROL LINE TENSION':run.harpoon?.hooked?'REELING CATCH…':run.harpoon?.projectile?'HARPOON IN FLIGHT':'CLICK TO FIRE HARPOON');n.dataset.type=active?run.notice.type:'muted';n.classList.toggle('show',!!n.textContent);}
     const f=$('rdFightPanel');if(f){const fight=run.harpoon?.fight;f.classList.toggle('hidden',!fight);if(fight){$('rdFightName').textContent=fight.fish.name;$('rdTensionFill').style.width=(fight.tension*100)+'%';$('rdTensionFill').dataset.zone=fight.tension>.84?'high':fight.tension<.2?'low':'good';$('rdReelFill').style.width=(fight.progress*100)+'%';}}
     const ev=$('rdEventBanner');if(ev){const data=run.eventBanner,active=data&&data.time>0;ev.classList.toggle('show',!!active);if(active){ev.dataset.type=data.type;ev.querySelector('b').textContent=data.title;ev.querySelector('span').textContent=data.text||'';}}
@@ -446,7 +510,7 @@
     $('rdSurfaceDepth').textContent = run.maxDepth + 'm';
     $('rdSurfaceNotice').innerHTML = `Expedition recovered <b>${run.catches.filter(x => x.kind === 'fish').length} fish</b> and <b>${run.catches.filter(x => x.kind === 'treasure').length} treasures</b>. Cargo used: <b>${E.cargoWeight(run).toFixed(1)}/${E.cargoCap(profile.equipment)}kg</b>.`;
 
-    $('rdCatchList').innerHTML = run.catches.length ? run.catches.map(x => `<div class="rd-catch-row ${x.legendary ? 'legendary' : ''}"><span>${x.kind === 'treasure' ? '◆' : x.legendary ? '★' : '◈'} ${x.name}</span><small>${x.rarity} · ${Number(x.weight || 0).toFixed(2)}kg · ★${x.q}</small></div>`).join('') : '<p>No catches made. The sea wins this one.</p>';
+    $('rdCatchList').innerHTML = run.catches.length ? run.catches.map(x => `<div class="rd-catch-row ${x.legendary ? 'legendary' : ''}"><span>${x.kind === 'treasure' ? '◆' : x.legendary ? '★' : '◈'} ${x.name}</span><small>${x.rarity}${x.variant&&x.variant!=='normal'?' · '+String(x.variant).toUpperCase():''} · ${Number(x.weight || 0).toFixed(2)}kg · ★${x.q}</small></div>`).join('') : '<p>No catches made. The sea wins this one.</p>';
 
     selectedRecipes = [];
     const rec = D.recipesForCatches(run.catches, profile.day_number);
@@ -832,7 +896,7 @@
     const sweetWidth=Math.min(.34,.14+kitchen*.018+(headChef ? .015 : 0));
     service.cook={id,targetCustomerId,stage:1,stages:(r.complexity||r.tier||1)>=2?3:2,scores:[],needle:Math.random()*.18,dir:1,speed:(prepChef?1.04:1.16)+Math.random()*.20,sweetCenter:.34+Math.random()*.32,sweetWidth,ingredientQ:Number(ingredient.q||1)};
     $('rdCookPanel')?.classList.remove('hidden');updateCookPanel();renderRestaurantMenu();renderOrders(true);renderRestaurantScene(true);renderStaffScene(true);
-    $('rdServiceToast').textContent=`${r.name.toUpperCase()} · PREP STARTED`;
+    $('rdServiceToast').textContent=`${r.name.toUpperCase()} · PREP STARTED`;try{A.play?.('kitchen_start',{category:r.category})}catch(_){}
   }
 
   function updateCookPanel() {
@@ -848,7 +912,7 @@
 
   function hitCook() {
     if(!service?.cook)return;const c=service.cook,r=D.RECIPES.find(x=>x.id===c.id);
-    const half=c.sweetWidth/2,dist=Math.abs(c.needle-c.sweetCenter),normalized=Math.max(0,1-dist/Math.max(.001,half*2.2));c.scores.push(normalized);
+    const half=c.sweetWidth/2,dist=Math.abs(c.needle-c.sweetCenter),normalized=Math.max(0,1-dist/Math.max(.001,half*2.2));c.scores.push(normalized);try{A.play?.('kitchen_hit',{score:normalized,stage:c.stage})}catch(_){}
     if(c.stage<c.stages){
       c.stage++;c.needle=Math.random()<.5?.05:.95;c.dir=c.needle<.5?1:-1;c.speed+=c.stage===c.stages&&c.stages===3?.10:.16;c.sweetCenter=.28+Math.random()*.44;
       if(c.stage===c.stages&&c.stages===3)c.sweetWidth=Math.min(.36,c.sweetWidth+(profile.restaurant?.plating||1)*.012);
@@ -883,7 +947,7 @@
     service.served++;service.revenue+=earned;service.servedDishes.push({id:dish.id,quality:dish.quality,ingredient_q:dish.ingredientQ||1,special:customer.special||null});
     customer.stage='eating';customer.stageTime=1.9+customer.party*.28;customer.reaction=reactionForQuality(dish.quality,customer.special);customer.servedQuality=dish.quality;
     if(customer.special){service.specialServed={type:customer.special,quality:dish.quality,patience:customer.patience};showSpecialNotice(customer.special==='critic'?`CRITIC SERVED · ${customer.reaction}`:`VIP TABLE SERVED · ${customer.reaction}`)}
-    $('rdServiceToast').textContent=`TABLE ${customer.table+1} SERVED · ★${dish.quality} · ${customer.reaction}`;
+    $('rdServiceToast').textContent=`TABLE ${customer.table+1} SERVED · ★${dish.quality} · ${customer.reaction}`;try{A.play?.('serve',{quality:dish.quality,special:customer.special})}catch(_){}
     renderReadyCounter();renderRestaurantMenu();renderOrders(true);renderRestaurantScene(true);renderStaffScene(true);
     if($('rdServiceFlow'))$('rdServiceFlow').textContent='×'+service.flow.toFixed(1);
     return true;
@@ -906,7 +970,7 @@
     const patience=Math.min(125,100*Number(archetype.patience||1)*Number(service.event.patience||1)+hostBonus);
     const customer={uid:service.nextCustomer++,id,table:E.pick(free),patience,stage:'entering',stageTime:.9+Math.random()*.45,archetype,party,special,reaction:''};
     service.customers.push(customer);service.spawn=(4.4+Math.random()*3.1)*Number(service.event.spawn||1);
-    if(special)showSpecialNotice(special==='critic'?'FOOD CRITIC HAS ARRIVED':'VIP RESERVATION HAS ARRIVED');
+    if(special)showSpecialNotice(special==='critic'?'FOOD CRITIC HAS ARRIVED':'VIP RESERVATION HAS ARRIVED');try{A.play?.(special?'vip_arrive':'door',{special})}catch(_){}
     renderOrders(true);renderRestaurantScene(true);renderStaffScene(true);return true;
   }
 
@@ -931,7 +995,7 @@
       else if(c.stage==='leaving'&&c.stageTime<=0){service.customers.splice(i,1);changed=true}
       else if(c.stage==='waiting'){
         c.patience-=dt*patienceDrain;
-        if(c.patience<=0){releaseCustomerReservation(c.uid);c.stage='leaving';c.stageTime=.9;c.reaction='WALKOUT';service.lost++;changed=true;$('rdServiceToast').textContent=`TABLE ${c.table+1} WALKED OUT · SERVICE TOO SLOW`}
+        if(c.patience<=0){releaseCustomerReservation(c.uid);c.stage='leaving';c.stageTime=.9;c.reaction='WALKOUT';service.lost++;changed=true;$('rdServiceToast').textContent=`TABLE ${c.table+1} WALKED OUT · SERVICE TOO SLOW`;try{A.play?.('walkout')}catch(_){}}
       }
     }
     if(changed){renderReadyCounter();renderRestaurantMenu();renderOrders(true);renderRestaurantScene(true);renderStaffScene(true)}else updateOrderPatienceBars();
@@ -965,12 +1029,19 @@
     if($('rdResultWalkouts'))$('rdResultWalkouts').textContent=service.lost;if($('rdResultQuality'))$('rdResultQuality').textContent='★'+avg.toFixed(1);if($('rdResultWages'))$('rdResultWages').textContent='−'+service.wages.toLocaleString()+' GP';if($('rdResultRep'))$('rdResultRep').textContent='+'+serviceReputationEstimate();
     const review=nightReview();if($('rdReviewCard'))$('rdReviewCard').innerHTML=`<small>${service.specialServed?.type==='critic'?'CRITIC REVIEW':'FISH HOUSE REVIEW'}</small><b>${review.starText}</b><p>${review.line}</p>`;
     $('rdResultReward').textContent='Balancing the Fish House books…';
-    const catches=run.catches.map(x=>({id:x.id,q:x.q,w:Number(x.weight||0)}));const dishes=service.servedDishes.map(x=>({id:x.id,quality:x.quality,ingredient_q:x.ingredient_q||1}));
+    const catches=run.catches.map(x=>({id:x.id,q:x.q,w:Number(x.weight||0),variant:x.variant||'normal',boss:!!x.boss}));const dishes=service.servedDishes.map(x=>({id:x.id,quality:x.quality,ingredient_q:x.ingredient_q||1}));
     try{
       const r=await rpc('repo_diver_complete_day',{p_run_id:runId,p_catches:catches,p_dishes:dishes,p_max_depth:Math.round(run.maxDepth),p_customers:service.servedDishes.length});
       const wages=Number(r.staff_wages??service.wages??0),rep=Number(r.reputation_gained??serviceReputationEstimate()),gross=Number(r.service_gross_gp??service.revenue??0);
       if($('rdResultWages'))$('rdResultWages').textContent='−'+wages.toLocaleString()+' GP';if($('rdResultRep'))$('rdResultRep').textContent='+'+rep;if($('rdResultRevenue'))$('rdResultRevenue').textContent=gross.toLocaleString()+' GP';
       $('rdResultReward').innerHTML=`<b>+${(r.fishing_xp_awarded||0).toLocaleString()} Fishing XP</b> · <b>+${(r.cooking_xp_awarded||0).toLocaleString()} Cooking XP</b> · <b>+${(r.gp_awarded||0).toLocaleString()} GP NET</b>${r.restaurant_rank?` · <b>FISH HOUSE RANK ${r.restaurant_rank}</b>`:''}`;
+      const variants=catches.filter(x=>x.variant&&x.variant!=='normal').map(x=>({id:x.id,variant:x.variant}));
+      if(variants.length){try{await rpc('repo_diver_record_variants',{p_run_id:runId,p_variants:variants})}catch(err){console.warn('Variant log:',err?.message||err)}}
+      if(D.ENDGAME_BIOMES?.includes(run.biome.id)||expeditionMode!=='standard'){
+        const rarityScore=run.catches.reduce((a,x)=>a+(D.RARITY[x.rarity]?.rank||1)*85,0),bossId=run.boss?.caught?D.BOSSES?.[run.biome.id]:null,modifierRisk=D.EXPEDITION_MODIFIERS?.find(x=>x.id===expeditionModifier)?.risk||1;
+        const endScore=Math.min(250000,Math.round(run.maxDepth*16+rarityScore+(bossId?6500:0)+(expeditionMode==='descent'?run.maxDepth*7:0)+(modifierRisk-1)*900+(run.stats?.variants||0)*700));
+        try{const er=await rpc('repo_diver_submit_endgame_score',{p_run_id:runId,p_mode:expeditionMode,p_score:endScore,p_depth:Math.round(run.maxDepth),p_boss_id:bossId});const mg=er?.materials_gained||{};const mat=Object.entries(mg).filter(([,v])=>Number(v)>0).map(([k,v])=>`${String(k).toUpperCase()} +${v}`).join(' · ');$('rdResultReward').innerHTML+=` · <b>${Number(er?.score||endScore).toLocaleString()} EXPEDITION SCORE</b>${er?.mastery?` · <b>MASTERY ${er.mastery}/10</b>`:''}${mat?` · <b>${mat}</b>`:''}`;try{A.play?.(bossId?'boss_clear':'expedition_clear',{score:er?.score||endScore})}catch(_){}}catch(err){console.warn('Endgame score save:',err?.message||err)}
+      }
       await loadProfile();
     }catch(e){$('rdResultReward').textContent=e.message;service.finishStarted=false}
   }
@@ -995,7 +1066,7 @@
     const key = e.key.toLowerCase();
     const diving = run && !$('rdDiveView')?.classList.contains('hidden');
     const restaurantActive = !!service?.active;
-    const gameKeys = new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','q','c','e',' ','spacebar','tab']);
+    const gameKeys = new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','q','c','e','m',' ','spacebar','tab']);
     // Never let gameplay controls move the underlying RepoCompany page.
     if ((diving || restaurantActive) && gameKeys.has(key)) e.preventDefault();
     if (key === 'w' || key === 'arrowup') input.up = true;
@@ -1006,6 +1077,7 @@
     if (key === 'e' && diving) E.interact(run, profile.equipment);
     if (key === 'q' && diving) E.useSonar(run, profile.equipment);
     if (key === 'c' && diving) takePhoto();
+    if (key === 'm' && (diving || restaurantActive)) { const muted=A.toggleMute?.(); if($('rdAudioToggle'))$('rdAudioToggle').textContent=muted?'SOUND OFF':'SOUND ON'; if(run) E.notice?.(run,muted?'AUDIO MUTED':'AUDIO ENABLED','info',1); }
     if ((key === ' ' || key === 'spacebar') && diving && run?.harpoon?.fight) input.reel = true;
     else if ((key === ' ' || key === 'spacebar') && service?.active && service.cook) hitCook();
   }, {passive:false});
@@ -1037,11 +1109,21 @@
     $('rdCookHit')?.addEventListener('click', hitCook);
     $('rdResultsContinue')?.addEventListener('click', () => { show('rdHomeView'); loadProfile(); });
     $('rdClose')?.addEventListener('click', close);
+    $('rdAudioToggle')?.addEventListener('click',()=>{const muted=A.toggleMute?.();$('rdAudioToggle').textContent=muted?'SOUND OFF':'SOUND ON';});
+    $('rdAudioVolume')?.addEventListener('input',e=>A.setVolume?.(Number(e.target.value)/100));
+    if($('rdAudioVolume'))$('rdAudioVolume').value=Math.round((A.volume||.58)*100);
     $('rdTabJournal')?.addEventListener('click', () => { $('rdHomeMain').classList.add('hidden'); $('rdJournalPanel').classList.remove('hidden'); });
     $('rdTabUpgrades')?.addEventListener('click', () => { $('rdHomeMain').classList.add('hidden'); $('rdUpgradePanel').classList.remove('hidden'); });
     $('rdHomeView')?.addEventListener('click', async e => {
-      const hub=e.target.closest?.('[data-hub-action]');if(hub){const a=hub.dataset.hubAction;if(a==='expedition')openHomePanel('rdExpeditionPanel');else if(a==='quests'){renderQuestLog();openHomePanel('rdQuestPanel')}else if(a==='contracts'){renderContracts();openHomePanel('rdContractPanel')}else if(a==='boat'){renderBoatView();openHomePanel('rdBoatPanel')}else if(a==='research'){renderResearchView();openHomePanel('rdResearchPanel')}else if(a==='journal'){$('rdHomeMain').classList.add('hidden');$('rdJournalPanel').classList.remove('hidden')}else if(a==='equipment'){$('rdHomeMain').classList.add('hidden');$('rdUpgradePanel').classList.remove('hidden')}else if(a==='fishhouse')openHomePanel('rdExpeditionPanel');return;}
+      const hub=e.target.closest?.('[data-hub-action]');if(hub){const a=hub.dataset.hubAction;if(a==='expedition')openHomePanel('rdExpeditionPanel');else if(a==='quests'){renderQuestLog();openHomePanel('rdQuestPanel')}else if(a==='contracts'){renderContracts();openHomePanel('rdContractPanel')}else if(a==='boat'){renderBoatView();openHomePanel('rdBoatPanel')}else if(a==='research'){renderResearchView();openHomePanel('rdResearchPanel')}else if(a==='endgame'){renderEndgame();openHomePanel('rdEndgamePanel')}else if(a==='journal'){$('rdHomeMain').classList.add('hidden');$('rdJournalPanel').classList.remove('hidden')}else if(a==='equipment'){$('rdHomeMain').classList.add('hidden');$('rdUpgradePanel').classList.remove('hidden')}else if(a==='fishhouse')openHomePanel('rdExpeditionPanel');return;}
       const npc=e.target.closest?.('[data-rd-npc]');if(npc){openNpc(npc.dataset.rdNpc);return;}
+      const em=e.target.closest?.('[data-rd-mode]');if(em){expeditionMode=em.dataset.rdMode;renderEndgame();return;}
+      const eh=e.target.closest?.('[data-rd-harpoon]');if(eh){expeditionHarpoon=eh.dataset.rdHarpoon;renderEndgame();return;}
+      const el=e.target.closest?.('[data-rd-lure]');if(el){expeditionLure=el.dataset.rdLure;renderEndgame();return;}
+      const md=e.target.closest?.('[data-rd-modifier]');if(md){expeditionModifier=md.dataset.rdModifier;renderEndgame();return;}
+      const craft=e.target.closest?.('[data-rd-craft]');if(craft){craft.disabled=true;try{const cr=await rpc('repo_diver_craft_endgame_item',{p_item:craft.dataset.rdCraft});career.endgame={...(career.endgame||{}),materials:cr.materials||endgameMaterials(),crafted:cr.crafted||endgameCrafted()};try{A.play?.('craft')}catch(_){}renderEndgame()}catch(err){$('rdStatus').textContent=err.message;renderEndgame()}return;}
+      const eb=e.target.closest?.('[data-rd-endgame-biome]');if(eb&&!eb.disabled){startDive(eb.dataset.rdEndgameBiome);return;}
+      const sight=e.target.closest?.('[data-rd-sighting]');if(sight){expeditionMode='boss';renderEndgame();startDive(sight.dataset.rdSighting);return;}
       const time=e.target.closest?.('[data-rd-time]');if(time){expeditionTime=time.dataset.rdTime==='night'?'night':'day';syncTimeToggle();renderHome();openHomePanel('rdExpeditionPanel');return;}
       if(e.target.closest?.('[data-rd-harbour-back]')){returnToHarbour();return;}
       if(e.target.closest?.('[data-rd-npc-close]')){$('rdNpcDialogue')?.classList.add('hidden');return;}

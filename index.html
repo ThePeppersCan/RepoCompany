@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="repo-rooftops.css?v=repo-rooftops-20260810-2-0">
   <link rel="stylesheet" href="repoggle.css?v=repoggle-1">
   <link rel="stylesheet" href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260811-v38-16">
-  <link rel="stylesheet" href="assets/repo-diver/repo-diver.css?v=repo-diver-v9-living-world-visual-overhaul-20260815-0200">
+  <link rel="stylesheet" href="assets/repo-diver/repo-diver.css?v=repo-diver-v10-final-endgame-audio-20260815-0246">
 <style id="repoDiverV4CriticalKitchen">
 #repoDiverDialog #rdRestaurantView:not(.hidden) .rd-rest-grid{display:grid;grid-template-columns:220px minmax(620px,1fr) 240px;gap:14px;height:calc(100% - 52px);min-height:600px;overflow:hidden}
 #repoDiverDialog #rdRestaurantView .rd-rest-scene{display:block;position:relative;min-width:620px;min-height:600px;height:100%;overflow:hidden}
@@ -3276,13 +3276,13 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <h3>LEVEL FISHING</h3>
   <p>Choose a Fishing activity. Repo Diver also trains Cooking during the evening restaurant phase.</p>
   <div class="fishing-activity-picker">
-    <button id="openRepoDiverActivity" class="fishing-activity-card" type="button"><span class="fishing-activity-art" aria-hidden="true"></span><span><strong>REPO DIVER</strong><small>Explore ten progressively deeper waters, discover 120 species and lost relics, upgrade your dive rig, then run a staffed, evolving evening service at the Repo Company Fish House.</small><em>120 SPECIES · 40 STORY CHAPTERS · LIVING HARBOUR · FISH HOUSE CAREER</em></span></button>
+    <button id="openRepoDiverActivity" class="fishing-activity-card" type="button"><span class="fishing-activity-art" aria-hidden="true"></span><span><strong>REPO DIVER</strong><small>Explore 18 progressively deeper waters, discover 202 marine species, hunt Ancient boss creatures, master expeditions and run the evolving Repo Company Fish House.</small><em>202 SPECIES · 100 RECIPES · 100 ACHIEVEMENTS · DEEP OPS ENDGAME</em></span></button>
   </div>
 </dialog>
 
 <dialog id="repoDiverDialog" class="game-dialog">
  <div class="rd-shell">
-  <header class="rd-top"><div class="rd-brand"><span class="rd-brand-icon">⚓</span><div><h2>REPO DIVER</h2><small>FISHING &amp; COOKING ADVENTURE</small></div></div><div class="rd-top-meta"><span>DAY <b id="rdDay">1</b></span><span id="rdModeBadge">REWARDED</span></div><button id="rdClose" class="rd-close" type="button">×</button></header>
+  <header class="rd-top"><div class="rd-brand"><span class="rd-brand-icon">⚓</span><div><h2>REPO DIVER</h2><small>FISHING &amp; COOKING ADVENTURE</small></div></div><div class="rd-top-meta"><span>DAY <b id="rdDay">1</b></span><span id="rdModeBadge">REWARDED</span><div class="rd-audio-control"><button id="rdAudioToggle" type="button" aria-label="Toggle Repo Diver sound">SOUND ON</button><input id="rdAudioVolume" type="range" min="0" max="100" value="58" aria-label="Repo Diver volume"></div></div><button id="rdClose" class="rd-close" type="button">×</button></header>
   <section id="rdHomeView" class="rd-view rd-home rd-home-v9">
    <div id="rdHomeMain" class="rd-career-home">
     <div class="rd-career-strip">
@@ -3309,20 +3309,20 @@ button.qg-game-card{font:inherit;cursor:pointer}
       <button data-hub-action="quests"><i>◆</i><span><b>QUESTS</b><small>40-chapter career</small></span></button>
       <button data-hub-action="journal"><i>◈</i><span><b>JOURNAL</b><small>Fish &amp; records</small></span></button>
       <button data-hub-action="equipment"><i>⌁</i><span><b>EQUIPMENT</b><small>Dive &amp; Fish House</small></span></button>
-      <button data-hub-action="boat"><i>▲</i><span><b>VESSEL</b><small>Upgrade the Tideline</small></span></button>
+      <button data-hub-action="boat"><i>▲</i><span><b>VESSEL</b><small>Upgrade the Tideline</small></span></button><button data-hub-action="endgame"><i>◉</i><span><b>DEEP OPS</b><small>Bosses &amp; prestige</small></span></button>
     </nav>
     <section id="rdExpeditionPanel" class="rd-home-subpanel hidden"><div class="rd-subpanel-head"><div><small>EXPEDITION BOARD</small><h3>CHOOSE THE WATER</h3></div><button data-rd-harbour-back>BACK TO HARBOUR</button></div><div class="rd-time-toggle"><button data-rd-time="day" class="selected">☀ DAY DIVE</button><button data-rd-time="night">☾ NIGHT DIVE</button><span id="rdExpeditionWeather">Today's conditions apply to every expedition.</span></div><div id="rdBiomes" class="rd-biomes"></div></section>
     <section id="rdQuestPanel" class="rd-home-subpanel hidden"><div class="rd-subpanel-head"><div><small>CAREER LOG</small><h3>QUESTS &amp; STORY</h3></div><button data-rd-harbour-back>BACK TO HARBOUR</button></div><div id="rdQuestLog"></div></section>
     <section id="rdContractPanel" class="rd-home-subpanel hidden"><div class="rd-subpanel-head"><div><small>HARBOUR NOTICE BOARD</small><h3>DAILY CONTRACTS</h3></div><button data-rd-harbour-back>BACK TO HARBOUR</button></div><div id="rdContracts"></div></section>
     <section id="rdBoatPanel" class="rd-home-subpanel hidden"><div class="rd-subpanel-head"><div><small>R.C. TIDELINE</small><h3>VESSEL &amp; EXPEDITION SYSTEMS</h3></div><button data-rd-harbour-back>BACK TO HARBOUR</button></div><div id="rdBoatUpgrades"></div></section>
-    <section id="rdResearchPanel" class="rd-home-subpanel hidden"><div class="rd-subpanel-head"><div><small>MARINE INSTITUTE</small><h3>RESEARCH, HUNTS &amp; ACHIEVEMENTS</h3></div><button data-rd-harbour-back>BACK TO HARBOUR</button></div><div id="rdResearch"></div></section>
+    <section id="rdResearchPanel" class="rd-home-subpanel hidden"><div class="rd-subpanel-head"><div><small>MARINE INSTITUTE</small><h3>RESEARCH, HUNTS &amp; ACHIEVEMENTS</h3></div><button data-rd-harbour-back>BACK TO HARBOUR</button></div><div id="rdResearch"></div></section><section id="rdEndgamePanel" class="rd-home-subpanel hidden"><div class="rd-subpanel-head"><div><small>MASTER DIVER OPERATIONS</small><h3>ENDGAME EXPEDITIONS</h3></div><button data-rd-harbour-back>BACK TO HARBOUR</button></div><div id="rdEndgame"></div></section>
     <p id="rdStatus" class="rd-status"></p>
    </div>
    <div id="rdJournalPanel" class="rd-panel hidden"><div class="rd-panel-head"><h3>MARINE JOURNAL</h3><button data-rd-back>← HARBOUR</button></div><div id="rdJournal" class="rd-journal"></div></div>
    <div id="rdUpgradePanel" class="rd-panel hidden"><div class="rd-panel-head"><h3>EQUIPMENT &amp; FISH HOUSE UPGRADES</h3><button data-rd-back>← HARBOUR</button></div><div id="rdUpgrades" class="rd-upgrades"></div></div>
    <div id="rdNpcDialogue" class="rd-npc-dialogue hidden" aria-live="polite"><button type="button" class="rd-npc-close" data-rd-npc-close>×</button><div id="rdNpcPortrait" class="rd-npc-portrait"></div><div><small id="rdNpcRole">HARBOUR</small><h3 id="rdNpcName">NPC</h3><p id="rdNpcText"></p><div id="rdNpcActions"></div></div></div>
   </section>
-  <section id="rdDiveView" class="rd-view rd-dive hidden"><div class="rd-canvas-wrap"><canvas id="rdDiveCanvas" width="960" height="540" tabindex="0"></canvas><div class="rd-dive-zone"><small id="rdBiomeName">DIVE ZONE</small><b id="rdDepthBand">SUNLIT WATER</b></div><div class="rd-dive-hud"><div class="rd-meter"><small>OXYGEN</small><div class="bar"><i id="rdO2Fill"></i></div></div><div class="rd-meter hp"><small>HP</small><div class="bar"><i id="rdHpFill"></i></div></div><div class="rd-hudbox"><small>DEPTH</small><b id="rdDepth">0m</b></div><div class="rd-hudbox"><small>CARGO</small><b id="rdCargo">0/0kg</b></div><div class="rd-hudbox"><small>CATCH</small><b id="rdCatchCount">0</b></div><div class="rd-sonar"><small>SONAR</small><div class="bar"><i id="rdSonarFill"></i></div><b id="rdSonarLabel">Q · PING</b></div></div><div id="rdEventBanner" class="rd-event-banner"><b>EVENT</b><span></span></div><div id="rdFightPanel" class="rd-fight-panel hidden"><small>FISH ON THE LINE</small><b id="rdFightName">TROPHY FISH</b><div class="rd-fight-row"><span>TENSION</span><div class="rd-fight-track"><i id="rdTensionFill"></i></div></div><div class="rd-fight-row"><span>REEL</span><div class="rd-fight-track reel"><i id="rdReelFill"></i></div></div><em>HOLD / RELEASE SPACE · KEEP TENSION IN THE SAFE ZONE</em></div><div id="rdDiscoveryCard" class="rd-discovery-card"><small>NEW SPECIES DISCOVERED</small><b>FISH</b><span>RARITY</span><strong>0.00 KG</strong></div><button id="rdExitDive" class="rd-exit-dive">SURFACE NOW</button><div id="rdFlash" class="rd-flash"></div><div id="rdInventory" class="rd-inventory hidden"></div><div class="rd-dive-help">WASD MOVE · MOUSE AIM · CLICK HARPOON · SHIFT BOOST · Q SONAR · C CAMERA · E SALVAGE · SPACE REEL</div></div></section>
+  <section id="rdDiveView" class="rd-view rd-dive hidden"><div class="rd-canvas-wrap"><canvas id="rdDiveCanvas" width="960" height="540" tabindex="0"></canvas><div class="rd-dive-zone"><small id="rdBiomeName">DIVE ZONE</small><b id="rdDepthBand">SUNLIT WATER</b></div><div class="rd-dive-hud"><div class="rd-meter"><small>OXYGEN</small><div class="bar"><i id="rdO2Fill"></i></div></div><div class="rd-meter hp"><small>HP</small><div class="bar"><i id="rdHpFill"></i></div></div><div class="rd-hudbox"><small>DEPTH</small><b id="rdDepth">0m</b></div><div class="rd-hudbox"><small>CARGO</small><b id="rdCargo">0/0kg</b></div><div class="rd-hudbox"><small>CATCH</small><b id="rdCatchCount">0</b></div><div class="rd-hudbox rd-gearbox"><small>GEAR</small><b id="rdGearCondition">100%</b></div><div class="rd-hudbox rd-descentbox hidden"><small>DESCENT</small><b id="rdDescentLayer">—</b></div><div class="rd-sonar"><small>SONAR</small><div class="bar"><i id="rdSonarFill"></i></div><b id="rdSonarLabel">Q · PING</b></div></div><div id="rdEventBanner" class="rd-event-banner"><b>EVENT</b><span></span></div><div id="rdFightPanel" class="rd-fight-panel hidden"><small>FISH ON THE LINE</small><b id="rdFightName">TROPHY FISH</b><div class="rd-fight-row"><span>TENSION</span><div class="rd-fight-track"><i id="rdTensionFill"></i></div></div><div class="rd-fight-row"><span>REEL</span><div class="rd-fight-track reel"><i id="rdReelFill"></i></div></div><em>HOLD / RELEASE SPACE · KEEP TENSION IN THE SAFE ZONE</em></div><div id="rdDiscoveryCard" class="rd-discovery-card"><small>NEW SPECIES DISCOVERED</small><b>FISH</b><span>RARITY</span><strong>0.00 KG</strong></div><button id="rdExitDive" class="rd-exit-dive">SURFACE NOW</button><div id="rdFlash" class="rd-flash"></div><div id="rdInventory" class="rd-inventory hidden"></div><div class="rd-dive-help">WASD MOVE · MOUSE AIM · CLICK HARPOON · SHIFT BOOST · Q SONAR · C CAMERA · E SALVAGE · SPACE REEL · M AUDIO</div></div></section>
   <section id="rdSurfaceView" class="rd-view rd-surface hidden">
    <div class="rd-surface-header"><div><small>THE REPO COMPANY FISH HOUSE</small><h2>BUILD TONIGHT'S SERVICE</h2><p>Your catch is tonight's inventory. Choose a focused menu, check the crew and set the room before opening.</p></div><div id="rdNightBrief" class="rd-night-brief"><b>EVENING BRIEF</b><span>Preparing service forecast…</span></div></div>
    <div class="rd-surface-grid rd-surface-grid-v8">
@@ -4088,9 +4088,10 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </script>
 
 <script src="assets/quidditch-survivor/quidditch-survivor.js?v=20260807-character-visible-1"></script>
-<script src="assets/repo-diver/data.js?v=repo-diver-v9-living-world-visual-overhaul-20260815-0200"></script>
-<script src="assets/repo-diver/engine.js?v=repo-diver-v9-living-world-visual-overhaul-20260815-0200"></script>
-<script src="assets/repo-diver/game.js?v=repo-diver-v9-living-world-visual-overhaul-20260815-0200"></script>
+<script src="assets/repo-diver/data.js?v=repo-diver-v10-final-endgame-audio-20260815-0246"></script>
+<script src="assets/repo-diver/audio.js?v=repo-diver-v10-final-endgame-audio-20260815-0246"></script>
+<script src="assets/repo-diver/engine.js?v=repo-diver-v10-final-endgame-audio-20260815-0246"></script>
+<script src="assets/repo-diver/game.js?v=repo-diver-v10-final-endgame-audio-20260815-0246"></script>
 <script>
 window.__QD_HOST__={
   getCharacter:function(){try{return typeof character!=='undefined'?character:null;}catch(e){return null;}},

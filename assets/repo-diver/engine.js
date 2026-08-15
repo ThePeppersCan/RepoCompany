@@ -60,7 +60,8 @@
   function chooseFishSource(biome, level = 1, sonar = 1, opts = {}) {
     const D = window.RepoDiverData;
     const poolAll = D.fishForBiome(biome);
-    let pool = poolAll.filter(x => opts.allowMythic || x.rarity !== 'mythic');
+    let pool = poolAll.filter(x => (opts.allowAncient || x.rarity !== 'ancient') && (opts.allowMythic || x.rarity !== 'mythic'));
+    pool=pool.filter(x=>!x.conditions||((!x.conditions.weather||x.conditions.weather===opts.weather)&&(!x.conditions.time||x.conditions.time===opts.timeOfDay)));
     if (opts.behavior) pool = pool.filter(x => x.behavior === opts.behavior);
     if (opts.minRank) pool = pool.filter(x => rarityRank(x.rarity) >= opts.minRank);
     if (opts.maxRank) pool = pool.filter(x => rarityRank(x.rarity) <= opts.maxRank);
@@ -69,8 +70,8 @@
       const atDepth = pool.filter(x => r >= (x.depth_min ?? 0) - .08 && r <= (x.depth_max ?? 1) + .08);
       if (atDepth.length) pool = atDepth;
     }
-    if (!pool.length) pool = poolAll.filter(x => opts.allowMythic || x.rarity !== 'mythic');
-    const rarityW = { common: 43, uncommon: 27, rare: 11, epic: 3.8, legendary: .9, mythic: .01 };
+    if (!pool.length) pool = poolAll.filter(x => (opts.allowAncient || x.rarity !== 'ancient') && (opts.allowMythic || x.rarity !== 'mythic') && (!x.conditions||((!x.conditions.weather||x.conditions.weather===opts.weather)&&(!x.conditions.time||x.conditions.time===opts.timeOfDay))));
+    const rarityW = { common: 43, uncommon: 27, rare: 11, epic: 3.8, legendary: .9, mythic: .01, ancient:.0002 };
     return weighted(pool, x => {
       const depthMatch = opts.depthRatio == null ? 1 : (opts.depthRatio >= (x.depth_min ?? 0) && opts.depthRatio <= (x.depth_max ?? 1) ? 1.7 : .45);
       const sonarBoost = 1 + Math.max(0, sonar - 1) * (.045 * rarityRank(x.rarity));
@@ -93,6 +94,7 @@
     const hp = opts.legendary ? Math.max(5, hpBase + 2) : hpBase;
     const dir = Math.random() < .5 ? -1 : 1;
     const actualWeight = Number(rand(src.weight_min || src.weight*.78, src.weight_max || src.weight*1.34).toFixed(2));
+    let variant='normal';const vr=Math.random();if(vr<.0018)variant='golden';else if(vr<.0048)variant='luminous';else if(vr<.0095)variant='albino';else if(vr<.015)variant='melanistic';
     const visualScale = clamp((src.size || 1) * (.92 + (actualWeight / Math.max(.1, src.weight || 1)) * .09), .52, 2.8);
     const y = opts.y ?? depthYForFish(src);
     const x = opts.x ?? rand(75, 900);
@@ -108,7 +110,7 @@
       hidden:src.behavior==='ambush', burrow:src.behavior==='bottom' && Math.random()<.25,
       catchWeight:actualWeight, visualScale,
       groupId: opts.groupId ?? (src.behavior==='school' ? Math.floor(rand(1,99999)) : null),
-      legendary:!!opts.legendary,
+      legendary:!!opts.legendary,boss:!!opts.boss,variant,
       sonarReveal:0,
       attackCooldown:rand(.5,2.3)
     };
@@ -154,9 +156,10 @@
     const boat=opts.boat||{};
     const timeOfDay=opts.timeOfDay==='night'?'night':'day';
     const weather=opts.weather||'clear';
+    const mode=opts.mode||'standard',modifier=opts.modifier||'balanced',loadout=opts.loadout||{harpoonType:'precision',lure:'balanced'},crafted=opts.crafted||{},seasonal=opts.seasonal||null;
     const fishCount = 13 + Math.min(9, Math.floor((opts.level || 1) / 5)) + Math.min(5, ((equipment.lure || 1) - 1)) + Math.min(3,Math.floor(Math.max(0,(boat.sonar||1)-1)/2));
     const run = {
-      biome, level:opts.level||1, equipment, boat, timeOfDay, weather,
+      biome, level:opts.level||1, equipment, boat, timeOfDay, weather,mode,modifier,loadout,crafted,seasonal,
       fish:[], treasures:makeTreasures(biome,equipment,boat), hazards:makeHazards(biome.id),
       player:{x:105,y:95,vx:0,vy:0,hp:100,o2:100,swimPhase:0,aimAngle:0,damageFlash:0},
       particles:[], catches:[], elapsed:0,maxDepth:0,shake:0,flash:0,done:false,
@@ -164,12 +167,12 @@
       notice:{text:'EXPEDITION STARTED · DESCEND AND SCOUT THE WATER',type:'info',time:2.8},
       eventBanner:null,
       event:{timer:rand(24,38),active:null,time:0,used:0,currentForce:0,visibility:1},
-      legendary:{triggered:false,activeFish:null,caught:false},
+      legendary:{triggered:false,activeFish:null,caught:false},boss:{triggered:false,activeFish:null,caught:false,phase:'dormant',charge:0},
       sonar:{cooldown:0,pulse:0,radius:0,lastRadius:0},
       harpoon:{cooldown:0,projectile:null,hooked:null,fight:null,lastResult:'ready'},
       camera:{x:0,y:0,zoom:1,targetZoom:1},
-      stats:{shots:0,hits:0,misses:0,predatorHits:0,hazardsHit:0,sonars:0},
-      recentCatch:null
+      stats:{shots:0,hits:0,misses:0,predatorHits:0,hazardsHit:0,sonars:0,bossHits:0,ancientCaught:0,variants:0},
+      recentCatch:null,durability:100,descent:{layer:1,next:30},mystery:{time:0,kind:null}
     };
     for(let i=0;i<fishCount;i++){
       const f=spawnFish(biome.id,run.level,equipment.sonar||1,{depthRatio:rand(.05,.92),timeOfDay,weather});
@@ -177,6 +180,14 @@
     }
     // Ensure the opening water feels alive without dumping high-value fish at the player.
     if(run.fish.filter(f=>f.behavior==='school').length<3) spawnSchool(run,4,1,2);
+    if(modifier==='treasure_rich') run.treasures.push(...makeTreasures(biome,equipment,boat).slice(0,2));
+    if(modifier==='migration') spawnSchool(run,7,2,4);
+    if(modifier==='predator_territory'){for(let i=0;i<3;i++){const pf=spawnFish(biome.id,run.level,equipment.sonar||1,{behavior:'predator',minRank:3,maxRank:6,depthRatio:rand(.35,.95),timeOfDay,weather});if(pf)run.fish.push(pf);}}
+    if(seasonal==='tuna_run'&&['crossing','endless'].includes(biome.id))spawnSchool(run,10,3,6);
+    if(seasonal==='crystal_bloom'&&['crystal','cathedral'].includes(biome.id)){for(let i=0;i<5;i++){const rf=spawnFish(biome.id,run.level,equipment.sonar||1,{minRank:4,maxRank:6,depthRatio:rand(.45,.95),timeOfDay,weather});if(rf)run.fish.push(rf);}}
+    if(seasonal==='storm_season'&&['shattered','blackrift','crossing'].includes(biome.id))run.event.currentForce=35;
+    if(seasonal==='pale_migration'&&['fremennik','pale'].includes(biome.id))spawnSchool(run,8,2,5);
+    if(seasonal==='ruin_tide'&&['ruins','citadel'].includes(biome.id))run.treasures.push(...makeTreasures(biome,equipment,boat).slice(0,2));
     return run;
   }
 
@@ -276,11 +287,11 @@
       if(h.type==='pressure'&&b.id==='extreme'){p.hp=clamp(p.hp-dt*.18*h.power*(1-(pressure-1)*.12),0,100);}
       if(d<h.r&&h.hitCooldown<=0&&!['current','freeze','pressure'].includes(h.type)){
         let dmg=0;
-        if(h.type==='vent') dmg=5.5*(1-(thermal-1)*.13);
+        if(h.type==='vent') dmg=5.5*(1-(thermal-1)*.13)*(run.crafted?.thermal_matrix?.65:1);
         else if(h.type==='jelly') dmg=4.1;
         else if(h.type==='toxic') dmg=3.8;
         else if(h.type==='shard'||h.type==='coral'||h.type==='debris'||h.type==='rubble') dmg=4.8;
-        if(dmg>0){p.hp=clamp(p.hp-dmg*(1-(suit-1)*.045),0,100);p.damageFlash=1;h.hitCooldown=1.5;run.shake=5;run.stats.hazardsHit++;notice(run,`${scene.label} HAZARD`,'warning',.8);}
+        if(dmg>0){p.hp=clamp(p.hp-dmg*(1-(suit-1)*.045),0,100);p.damageFlash=1;h.hitCooldown=1.5;run.shake=5;run.stats.hazardsHit++;if(run.biome.max_depth>575)run.durability=clamp(run.durability-1.3,0,100);notice(run,`${scene.label} HAZARD`,'warning',.8);}
       }
     }
     if(run.event.currentForce){p.vx+=Math.sin(run.elapsed*.8)*run.event.currentForce*dt;p.vy+=Math.cos(run.elapsed*.55)*run.event.currentForce*.22*dt;}
@@ -293,12 +304,14 @@
     const stabilizer=equipment?.stabilizer||1;
     const qualityBonus=stabilizer>=4?1:0;
     const q=clamp(1+Math.floor(Math.random()*2)+qualityBonus+(rarityRank(fish.rarity)>=5&&Math.random()<.28?1:0),1,4);
-    const item={id:fish.id,q,kind:'fish',name:fish.name,rarity:fish.rarity,weight:Number(fish.catchWeight||fish.weight||1),baseWeight:Number(fish.weight||1),legendary:!!fish.legendary};
+    const item={id:fish.id,q,kind:'fish',name:fish.name,rarity:fish.rarity,weight:Number(fish.catchWeight||fish.weight||1),baseWeight:Number(fish.weight||1),legendary:!!fish.legendary,boss:!!fish.boss,variant:fish.variant||'normal'};
     run.catches.push(item);run.recentCatch={...item,serial:(run.recentCatch?.serial||0)+1};
     const index=run.fish.indexOf(fish);if(index>=0)run.fish.splice(index,1);
     burst(run,run.player.x+10,run.player.y,18,fish.color||'#d8fbff',1);run.flash=1;
     run.harpoon.hooked=null;run.harpoon.fight=null;run.harpoon.cooldown=.55;run.harpoon.lastResult='caught';
-    if(fish.legendary){run.legendary.caught=true;run.legendary.activeFish=null;banner(run,'LEGENDARY CATCH',`${fish.name.toUpperCase()} · ${item.weight.toFixed(2)}KG`,'legendary',4.5);}
+    if(fish.legendary){run.legendary.caught=true;run.legendary.activeFish=null;banner(run,fish.boss?'ANCIENT BOSS LANDED':'LEGENDARY CATCH',`${fish.name.toUpperCase()} · ${item.weight.toFixed(2)}KG`,fish.boss?'ancient':'legendary',fish.boss?6:4.5);}
+    if(fish.boss){run.boss.caught=true;run.boss.activeFish=null;run.stats.ancientCaught++;}
+    if(item.variant&&item.variant!=='normal')run.stats.variants++;
     notice(run,`LANDED ${fish.name.toUpperCase()} · ${item.weight.toFixed(2)}KG · ★${q}`,'success',2.15);return true;
   }
 
@@ -311,7 +324,7 @@
   }
 
   function resolveHarpoonHit(run,fish,equipment){
-    fish.hitFlash=1;fish.hp-=1;run.shake=3;run.stats.hits++;burst(run,fish.x,fish.y,10,'#d8fbff',.75);scatterNearby(run,fish,110,.5);
+    fish.hitFlash=1;const impact=run.loadout?.harpoonType==='heavy'?2:1;fish.hp-=impact;run.shake=fish.boss?7:3;run.stats.hits++;if(fish.boss)run.stats.bossHits++;burst(run,fish.x,fish.y,10,'#d8fbff',.75);scatterNearby(run,fish,110,.5);
     if(fish.hp>0){
       const awayX=fish.x-run.player.x,awayY=fish.y-run.player.y,len=Math.hypot(awayX,awayY)||1;
       fish.vx+=(awayX/len)*(.7+rarityRank(fish.rarity)*.11);fish.vy+=(awayY/len)*.55;
@@ -332,7 +345,7 @@
     if(input.reel){
       fight.tension+=dt*(.31+rank*.018+pull*.35);
       const sweet=fight.tension>.28&&fight.tension<.78?1:.38;
-      fight.progress+=dt*((.72+(equipment?.harpoon||1)*.05)/(1+rank*.10))*sweet*(fish.legendary?.58:1);
+      fight.progress+=dt*((.72+(equipment?.harpoon||1)*.05)/(1+rank*.10))*sweet*(fish.legendary?.58:1)*(run.loadout?.harpoonType==='barbed'?1.22:1)*(run.crafted?.reinforced_line?1.12:1);
       fight.slack=Math.max(0,fight.slack-dt*2);
     }else{
       fight.tension-=dt*(.22-pull*.10);
@@ -418,12 +431,34 @@
     banner(run,'LEGENDARY SIGNATURE',`${f.name.toUpperCase()} HAS ENTERED THE WATER`,'legendary',4.4);return true;
   }
 
+  function forceBoss(run){
+    if(!run||run.boss?.triggered)return false;const D=window.RepoDiverData,id=D.BOSSES?.[run.biome.id],src=D.fishById(id);if(!src)return false;
+    run.boss.triggered=true;run.boss.phase='arrival';const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{source:src,allowAncient:true,legendary:true,boss:true,x:870,y:clamp(run.player.y+rand(80,180),250,480),timeOfDay:run.timeOfDay,weather:run.weather});if(!f)return false;
+    f.maxHp=Math.max(9,Math.ceil((window.RepoDiverData.RARITY[src.rarity]?.rank||7)*1.7));f.hp=f.maxHp;f.visualScale=Math.max(3.15,f.visualScale*1.35);f.sonarReveal=999;f.behavior='legendary';f.boss=true;run.fish.push(f);run.boss.activeFish=f;run.boss.charge=2.5;run.boss.special=5.5;run.boss.style=({abyssal:'ambush',midnight:'ambush',pale:'freeze',fremennik:'freeze',blackrift:'vent',volcanic:'vent',shattered:'seismic',cathedral:'rubble',citadel:'rubble',ruins:'rubble',crossing:'charge',endless:'charge'}[run.biome.id]||'charge');run.camera.targetZoom=.79;scatterNearby(run,f,560,2.1);banner(run,'ANCIENT CONTACT',`${f.name.toUpperCase()} · BOSS-SCALE SIGNATURE`,'ancient',5.5);return true;
+  }
+
+  function updateBoss(run,dt){
+    const f=run.boss?.activeFish;if(!f||f.hooked||run.boss.caught)return;run.boss.charge-=dt;run.boss.special=(run.boss.special??5)-dt;
+    const style=run.boss.style||'charge',p=run.player;
+    if(run.boss.special<=0){
+      run.boss.special=style==='charge'?4.2:rand(5.4,8.2);
+      if(style==='ambush'){f.x=clamp(p.x+(Math.random()<.5?-1:1)*rand(150,240),80,880);f.y=clamp(p.y+rand(-100,100),110,480);run.event.visibility=Math.min(run.event.visibility,.48);scatterNearby(run,f,300,1.5);banner(run,'LIGHTS LOST','THE ANCIENT CREATURE VANISHED INTO THE DARK','danger',1.8);}
+      else if(style==='freeze'){p.vx*=.38;p.vy*=.38;p.o2=clamp(p.o2-4,0,100);banner(run,'FREEZE PULSE','ICE WATER LOCKS THE SUIT — BREAK AWAY','danger',1.8);}
+      else if(style==='vent'){run.shake=8;p.hp=clamp(p.hp-5*(run.crafted?.thermal_matrix?.65:1),0,100);run.durability=clamp(run.durability-3,0,100);banner(run,'THERMAL ERUPTION','THE RIFT FLASHES WHITE-HOT','danger',1.8);}
+      else if(style==='seismic'){p.vx+=rand(-120,120);p.vy+=rand(-65,65);run.shake=11;banner(run,'SEISMIC SHOCK','THE CANYON MOVES AROUND YOU','danger',1.7);}
+      else if(style==='rubble'){run.shake=9;const dmg=Math.random()<.55?6:0;if(dmg){p.hp=clamp(p.hp-dmg,0,100);run.durability=clamp(run.durability-2.5,0,100);}banner(run,'COLLAPSING RUINS',dmg?'DEBRIS STRUCK THE DIVE RIG':'DEBRIS MISSED — KEEP MOVING','danger',1.7);}
+    }
+    if(run.boss.charge<=0){run.boss.charge=style==='charge'?rand(2.5,4.4):rand(3.8,6.2);run.boss.phase='charge';const dx=p.x-f.x,dy=p.y-f.y,l=Math.hypot(dx,dy)||1,mult=style==='charge'?3.5:2.8;f.vx+=(dx/l)*mult;f.vy+=(dy/l)*(style==='charge'?2.5:2.0);run.shake=Math.max(run.shake,4);banner(run,'BOSS CHARGE','MOVE — THE CREATURE IS COMMITTING TO A LINE','danger',1.5);}
+    const d=dist(f,p);if(d<46*(f.visualScale/3.1)&&f.attackCooldown<=0){p.hp=clamp(p.hp-(11+f.visualScale*1.7),0,100);p.damageFlash=1;run.durability=clamp(run.durability-4.5,0,100);f.attackCooldown=1.5;run.shake=10;notice(run,'ANCIENT IMPACT · EVADE THE NEXT CHARGE','danger',1.4);}
+  }
+
   function updateEvents(run,dt){
     run.event.timer-=dt;
     if(run.event.active){run.event.time-=dt;if(run.event.time<=0){run.event.active=null;run.event.currentForce=0;run.event.visibility=1;run.event.timer=rand(28,46);}}
     else if(run.event.timer<=0)triggerEvent(run);
     if(run.eventBanner)run.eventBanner.time=Math.max(0,run.eventBanner.time-dt);
-    maybeLegendary(run);
+    if(run.mystery.time>0)run.mystery.time=Math.max(0,run.mystery.time-dt);else if(window.RepoDiverData.ENDGAME_BIOMES?.includes(run.biome.id)&&run.elapsed>22&&Math.random()<dt*.0012){run.mystery={time:6,kind:pick(['shadow','eye','signal'])};banner(run,'UNIDENTIFIED CONTACT',run.mystery.kind==='shadow'?'Something enormous passed beyond visual range.':run.mystery.kind==='eye'?'A reflective eye vanished beyond the lamp.':'Sonar returned a signal too large to classify.','mystery',3.2);}
+    if(run.mode==='boss'&&!run.boss.triggered&&run.elapsed>7)forceBoss(run);else if(window.RepoDiverData.ENDGAME_BIOMES?.includes(run.biome.id)&&!run.boss.triggered&&run.elapsed>55&&Math.random()<dt*.0025)forceBoss(run);else maybeLegendary(run);
   }
 
   function update(run,dt,input,equipment){
@@ -435,7 +470,16 @@
     const depth=Math.round((p.y/540)*run.biome.max_depth);run.maxDepth=Math.max(run.maxDepth,depth);const band=depthBand(run);
     let drain=(.92+band.risk*.24)*(1-(tank-1)*.055)*(1-(pressure-1)*.035);if(boosting)drain*=1.78;p.o2=clamp(p.o2-dt*drain,0,100);if(p.o2<=0)p.hp=clamp(p.hp-dt*(8-(suit-1)*.5),0,100);if(med>1&&p.hp<100&&p.o2>20)p.hp=clamp(p.hp+dt*(med-1)*.17,0,100);
     if(p.hp<=0){run.done=true;notice(run,'DIVER INCAPACITATED · EMERGENCY SURFACE','danger',3);banner(run,'EMERGENCY ASCENT','HP DEPLETED · EXPEDITION ABORTED','danger',3);}
-    updateFish(run,dt,equipment);applyHazards(run,dt,equipment);updateHarpoon(run,dt,input,equipment);updateEvents(run,dt);
+    updateFish(run,dt,equipment);updateBoss(run,dt);applyHazards(run,dt,equipment);updateHarpoon(run,dt,input,equipment);updateEvents(run,dt);
+    if(run.modifier==='rough_current'){p.vx+=Math.sin(run.elapsed*1.17)*dt*55;p.vy+=Math.cos(run.elapsed*.81)*dt*18;}
+    if(run.modifier==='low_visibility')run.event.visibility=Math.min(run.event.visibility,.66);
+    if(run.biome.max_depth>575&&band.id==='extreme'){const extra=Math.max(0,(run.biome.max_depth-575)/425);const seal=run.crafted?.pressure_seal?.72:1;p.o2=clamp(p.o2-dt*(.20+extra*.28)*(1-(pressure-1)*.06)*seal,0,100);if(pressure<4)p.hp=clamp(p.hp-dt*.07*extra*(4-pressure)*seal,0,100);}
+    if(run.mode==='descent'){
+      if(run.elapsed>=run.descent.next){run.descent.layer++;run.descent.next+=30;banner(run,`DESCENT LAYER ${run.descent.layer}`,`PRESSURE RISING · ${Math.round(run.maxDepth)}M BANKED`,'event',2.2);}
+      run.maxDepth=Math.max(run.maxDepth,Math.round((p.y/540)*run.biome.max_depth + run.elapsed*(1.25+run.descent.layer*.16)));
+      p.o2=clamp(p.o2-dt*Math.max(0,run.descent.layer-1)*.045,0,100);
+    }
+    if(run.durability<=0){p.hp=clamp(p.hp-dt*1.4,0,100);if(!run._durabilityWarn){run._durabilityWarn=true;banner(run,'EQUIPMENT FAILURE','EXPEDITION GEAR HAS REACHED 0% CONDITION','danger',3);}}
     run.sonar.cooldown=Math.max(0,run.sonar.cooldown-dt);if(run.sonar.pulse>0){run.sonar.pulse=Math.max(0,run.sonar.pulse-dt);run.sonar.lastRadius=run.sonar.radius;run.sonar.radius+=(300+(equipment?.sonar||1)*45)*dt;}
     run.spawnTimer-=dt;const capReached=cargoWeight(run)>=cargoCap(equipment)-.05;if(run.spawnTimer<=0&&run.fish.length<24&&run.totalSpawned<82&&!capReached){const f=spawnFish(run.biome.id,run.level,equipment?.sonar||1,{depthRatio:band.ratio,timeOfDay:run.timeOfDay,weather:run.weather});if(f){run.fish.push(f);run.totalSpawned++;}run.spawnTimer=rand(2.8,5.1);}
     for(const t of run.treasures)t.phase+=dt;run.elapsed+=dt;run.shake=Math.max(0,run.shake-dt*19);run.flash=Math.max(0,run.flash-dt*2.5);p.damageFlash=Math.max(0,p.damageFlash-dt*3);if(run.notice)run.notice.time=Math.max(0,run.notice.time-dt);
@@ -444,8 +488,8 @@
 
   function harpoon(run,target,equipment){
     if(!run||!target)return{ok:false,reason:'no-run'};const h=run.harpoon;if(h.fight){notice(run,'CONTROL THE LINE · SPACE TO REEL','warning',.9);return{ok:false,reason:'fight'};}if(h.hooked){notice(run,'REEL IN THE CURRENT CATCH FIRST','warning',.9);return{ok:false,reason:'reeling'};}if(h.projectile||h.cooldown>0)return{ok:false,reason:'cooldown'};
-    const p=run.player;let dx=target.x-p.x,dy=target.y-p.y,len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;p.aimAngle=Math.atan2(dy,dx);const level=equipment?.harpoon||1,range=155+level*21,speed=525+level*25,muzzleX=p.x+Math.cos(p.aimAngle)*25,muzzleY=p.y+Math.sin(p.aimAngle)*25;
-    h.projectile={x:muzzleX,y:muzzleY,dx,dy,speed,range,travel:0,angle:p.aimAngle};h.cooldown=.28;h.lastResult='fired';run.stats.shots++;burst(run,muzzleX,muzzleY,4,'#e5ffff',.35);scatterNearby(run,{x:muzzleX,y:muzzleY},72,.15);return{ok:true};
+    const p=run.player;let dx=target.x-p.x,dy=target.y-p.y,len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;p.aimAngle=Math.atan2(dy,dx);const level=equipment?.harpoon||1,precision=run.loadout?.harpoonType==='precision',heavy=run.loadout?.harpoonType==='heavy',range=(155+level*21)*(precision?1.18:heavy?.9:1),speed=(525+level*25)*(precision?1.15:heavy?.88:1),muzzleX=p.x+Math.cos(p.aimAngle)*25,muzzleY=p.y+Math.sin(p.aimAngle)*25;
+    h.projectile={x:muzzleX,y:muzzleY,dx,dy,speed,range,travel:0,angle:p.aimAngle};h.cooldown=heavy?.42:precision?.23:.28;h.lastResult='fired';run.stats.shots++;burst(run,muzzleX,muzzleY,4,'#e5ffff',.35);scatterNearby(run,{x:muzzleX,y:muzzleY},72,.15);return{ok:true};
   }
 
   function interact(run,equipment){
@@ -456,5 +500,5 @@
     nearest.opened=true;const q=clamp(1+Math.floor(Math.random()*3)+(salvage>3?1:0),1,4);run.catches.push({id:nearest.id,q,kind:'treasure',name:nearest.name,rarity:nearest.rarity,weight:Number(nearest.weight||1)});run.flash=1;burst(run,nearest.x,nearest.y,20,'#ffd977',1);notice(run,`SALVAGE RECOVERED · ${nearest.name.toUpperCase()}`,'success',1.8);return nearest;
   }
 
-  window.RepoDiverEngine={createRun,update,harpoon,interact,useSonar,triggerEvent,forceLegendary,depthBand,clamp,rand,pick,cargoCap,cargoWeight,canCarry,spawnFish,notice,banner};
+  window.RepoDiverEngine={createRun,update,harpoon,interact,useSonar,triggerEvent,forceLegendary,forceBoss,depthBand,clamp,rand,pick,cargoCap,cargoWeight,canCarry,spawnFish,notice,banner};
 })();
