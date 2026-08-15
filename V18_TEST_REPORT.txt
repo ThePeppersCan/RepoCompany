@@ -1,0 +1,49 @@
+V18.1 UI POLISH HOTFIX
+- NPC dialogue close button no longer overlaps names.
+- Tideboard re-anchored into the harbour scene.
+- Brown / bronze low-premium UI accents replaced with cooler premium teal panel controls on expedition and subpanel surfaces.
+
+REPO DIVER V18 — 1.0 GOLD MASTER CANDIDATE TEST REPORT
+Date: 2026-08-15
+
+NODE / ENGINE REGRESSION SUITES
+- V13 Living Ocean ecology: 20 passed / 0 failed
+- V14 Authored Expeditions & Archaeology: 28 passed / 0 failed
+- V15 The Deep Signal campaign: 40 passed / 0 failed
+- V16 Living Postgame: 50 passed / 0 failed
+- V18 Gold Master assertions: 50 passed / 0 failed
+TOTAL: 188 passed / 0 failed
+
+JAVASCRIPT SYNTAX
+- data.js: PASS (node --check)
+- engine.js: PASS (node --check)
+- audio.js: PASS (node --check)
+- game.js: PASS (node --check)
+
+STATIC PACKAGE CHECKS
+- index.html IDs: 1091 total / 1091 unique / 0 duplicates
+- Repo Diver local asset references: 5
+- Missing referenced Repo Diver assets: 0
+- Continuous loopNoise() helper/call occurrences in audio.js: 0
+- TCG Patch main-script cache reference preserved: PASS
+
+HARBOUR COLLISION / COMPOSITION REGRESSION
+Static fallback geometry checked at:
+- 720x500: Tideboard clears Legacy Hall and all default NPC slots
+- 960x600: Tideboard clears Legacy Hall and all default NPC slots
+- 1180x700: Tideboard clears Legacy Hall and all default NPC slots
+- 1366x768: Tideboard clears Legacy Hall and all default NPC slots
+- 1920x1080: Tideboard clears Legacy Hall and all default NPC slots
+
+Runtime protection also checks actual getBoundingClientRect() rectangles for:
+- Tideboard
+- harbour buildings
+- Tideline
+- NPC actors
+and relocates NPCs to safe slots after render and resize.
+
+BROWSER VISUAL TEST STATUS
+Chromium headless was attempted using a static harbour harness. The container Chromium/DBus runtime timed out before producing a trustworthy screenshot. Therefore this build is NOT claimed as a successful browser-automation visual test.
+
+PRODUCTION BACKEND
+See V18_BACKEND_AUDIT.txt.

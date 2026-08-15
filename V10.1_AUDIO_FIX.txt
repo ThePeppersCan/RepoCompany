@@ -1,0 +1,15 @@
+REPO DIVER V10.1 — CLEAN AMBIENCE HOTFIX
+
+Fixes the constant white-noise / hiss character of V10 ambient sound.
+
+Changes:
+- Removed continuously looping noise generators from dive ambience.
+- Removed continuous noise beds from harbour and Fish House ambience.
+- Replaced them with quiet low-frequency modulated tonal layers.
+- Reduced ambient bus gain from 0.62 to 0.34.
+- Reworked restaurant ambience into sparse plate/glass tonal details.
+- Reworked harbour ambience into occasional low wave swells rather than noise.
+- Preserved short impact/noise transients for harpoon hits, boss stingers and other events where noise is useful.
+- Cache version bumped so browsers fetch the new audio.js after deploy.
+
+No gameplay, economy, Supabase or Repo Diver progression changes.

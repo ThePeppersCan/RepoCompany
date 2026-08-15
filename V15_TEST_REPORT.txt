@@ -1,0 +1,43 @@
+REPO DIVER V15 — TEST REPORT
+Date: 2026-08-15
+
+NODE / ENGINE / STATIC CHECKS
+- V13 Living Ocean regression: 20 passed / 0 failed
+- V14 Authored Exploration regression under V15 cache: 28 passed / 0 failed
+- V15 Deep Signal campaign suite: 40 passed / 0 failed
+- Total explicit Node/static regression assertions: 88 passed / 0 failed
+- node --check data.js: PASS
+- node --check engine.js: PASS
+- node --check audio.js: PASS
+- node --check game.js: PASS
+
+HTML / PACKAGE STRUCTURE
+- HTML IDs: 1,071
+- Duplicate HTML IDs: 0
+- V15 Repo Diver cache-bust references: 5 / 5
+- Required campaign DOM IDs present: rdCampaignPanel, rdCampaign, rdCampaignObjective, rdCampaignRadio, rdStoryAssist
+- Main site TCG Patch cache reference preserved: script.js?v=tcg-patch-cards-20260815-v1
+
+LIVE SUPABASE VERIFICATION
+- Campaign missions: 25
+- Story artifacts: 12
+- Campaign tables: 5
+- Campaign RPCs: 5
+- Direct anon/authenticated grants on campaign tables: 0
+- Station Erebos campaign stages: 7
+- Below The Charted Depths minimum server depth: 420m
+- The Deep Signal minimum server depth: 520m
+
+ECONOMY REGRESSION
+- Fjord Haddock Seared: 68 GP
+- Longship Lobster Grill: 147 GP
+The intended reduced Repo Diver economy remains unchanged.
+
+AUDIO REGRESSION
+- Campaign radio/reveal/deep-signal/completion cues present.
+- loopNoise helper definitions: 1
+- active loopNoise invocations: 0
+- No continuous white-noise/radio-static bed added.
+
+BROWSER VISUAL TEST
+Attempted Chromium headless against the local build. Chromium timed out before DOM output because this execution environment cannot connect to its DBus/browser runtime. Therefore NO successful browser visual automation is claimed for V15.

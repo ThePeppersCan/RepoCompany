@@ -1,0 +1,55 @@
+REPO DIVER V12 TEST REPORT
+==========================
+Date: 2026-08-15
+Build: v12-shared-ocean-20260815
+
+STATIC / ENGINE TESTS
+- node --check audio.js: PASS
+- node --check data.js: PASS
+- node --check engine.js: PASS
+- node --check game.js: PASS
+- HTML IDs checked: 1,078
+- Duplicate HTML IDs: 0
+
+V12 NODE INTEGRATION CHECKS
+35 passed / 0 failed.
+
+Covered checks include:
+- Repo Diver data loads
+- 18 biomes / 202 fish / 100 recipes / 100 achievements retained
+- OLD IRONJAW named specimen spawns in Blackwater Rift only
+- named specimen ID/name preserved into run state
+- named specimen enlarged for special presentation
+- normal expedition spawning remains functional
+- Shared Ocean RPC wiring
+- catch publication occurs after normal complete-day claim
+- public profile + privacy wiring
+- featured Trophy Cabinet wiring
+- preset guestbook reaction wiring
+- 45-second community cache
+- community-service failure is non-blocking
+- physical harbour Tideboard exists
+- Shared Ocean panel exists
+- public diver profile card exists
+- all five Repo Diver assets carry V12 cache bust
+- Shared Ocean / Hall of Fame / Repo Tide CSS present
+- named-specimen in-water presentation present
+- historical tournament archive client wiring present
+- future first-discovery / first-Ancient legacy events supported
+- cosmetic RepoCompany Fish House visitor wiring present
+- four Shared Ocean prestige achievements wired
+- social audio hooks are short tonal cues
+- active scene sound system does not invoke the old continuous loopNoise bed
+
+PRODUCTION SUPABASE VERIFICATION
+- V12 shared tables created: 7 (records/activity/catches/tournament/named specimens/guestbook/first discoveries)
+- V12 shared RPCs verified: 9
+- Legacy species-weight record history seeded: 32 launch records
+- Active named sightings: 1
+- repo_diver_complete_day contains verified_catches server snapshot: PASS
+- repo_diver_publish_catches consumes the server snapshot for new runs: PASS
+- No anon/authenticated direct table grants on V12 shared tables: PASS
+- GP nerf retained: Fjord Haddock 68 GP / Longship Lobster 147 GP: PASS
+
+BROWSER TESTING
+A Chromium headless screenshot attempt was made, but Chromium timed out in this environment because of the local runtime/DBus setup and did not produce a trustworthy screenshot. Therefore this report does NOT claim an automated browser visual playthrough.

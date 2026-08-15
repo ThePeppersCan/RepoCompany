@@ -1,0 +1,53 @@
+REPO DIVER V14 TEST REPORT
+===========================
+
+JavaScript syntax
+- data.js: PASS
+- engine.js: PASS
+- game.js: PASS
+- audio.js: PASS
+
+V13 Living Ocean regression suite
+- 20 passed / 0 failed
+
+V14 authored-expedition integration suite
+- 28 passed / 0 failed
+
+V14 checks include:
+- 36 authored locations
+- 72 archaeology artifacts
+- 6 specialist tools
+- exactly 2 major sites per each of 18 biomes
+- 5 sequential chambers per site
+- artifact/site referential consistency
+- artifacts gated to stages 4/5
+- physical sites attached to engine runs
+- 3-tool specialist loadout cap
+- authored mission target preserved in run state
+- exploration-state/discovery/advance/recovery/identification RPC integration
+- physical site renderer present
+- authored interior renderer present
+- original E salvage fallback preserved
+- archaeology Journal/Research presentation present
+- location/mechanism/artifact sound cues present
+- no call to the continuous loopNoise ambience helper
+- all five Repo Diver assets V14 cache-busted
+- E help text updated to INTERACT / SALVAGE
+- all four location types represented
+- major campaign locations present
+
+HTML structure
+- 1,078 id attributes checked
+- 0 duplicate IDs
+
+Production Supabase verification
+- 36 location catalog rows
+- 72 artifact catalog rows
+- 5 V14 tables
+- 5 V14 RPCs
+- 0 direct anon/authenticated grants on V14 tables
+- Haddock Seared remains 68 GP
+- Longship Lobster Grill remains 147 GP
+
+Browser automation
+- NOT CLAIMED. These results are Node engine tests, syntax validation, static integration checks and direct production database verification.

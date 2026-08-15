@@ -1,0 +1,10 @@
+-- Repo Diver V13 reference only.
+-- Production migration already applied. Do not re-run when deploying the ZIP.
+-- New production objects:
+--   public.repo_diver_ecology_observations_2026
+--   public.repo_diver_tags_2026
+--   repo_diver_record_ecology_observation(uuid,text,text,integer)
+--   repo_diver_tag_creature(uuid,text)
+--   repo_diver_note_tag_return(uuid,bigint)
+--   repo_diver_get_ecology_state()
+-- Direct anon/authenticated table access is revoked; clients use SECURITY DEFINER RPCs.
