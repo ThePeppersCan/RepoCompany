@@ -17241,7 +17241,24 @@ qmShowSharedGoal=function(state){
     {id:'belros_jud_full_art',name:'Belros: JUD — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-jud.png',rarity:'full_art'},
     {id:'nambara_mad_rager_full_art',name:'Nambara: Mad Rager — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/nambara-mad-rager.png',rarity:'full_art'},
     {id:'belros_nimbler_2000_full_art',name:'Belros: Nimbler 2000 — Full Art',image:'assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-nimbler-2000.png',rarity:'full_art'},
-  ];
+      {id:'bijou_patch',name:'Bijou — Patch',image:'assets/quidditch-tcg/cards/patch/bijou-patch.png',rarity:'patch'},
+    {id:'besquelcher_patch',name:'Besquelcher — Patch',image:'assets/quidditch-tcg/cards/patch/besquelcher-patch.png',rarity:'patch'},
+    {id:'daska_patch',name:'Daska — Patch',image:'assets/quidditch-tcg/cards/patch/daska-patch.png',rarity:'patch'},
+    {id:'debbie_patch',name:'Debbie — Patch',image:'assets/quidditch-tcg/cards/patch/debbie-patch.png',rarity:'patch'},
+    {id:'fenn_patch',name:'Fenn — Patch',image:'assets/quidditch-tcg/cards/patch/fenn-patch.png',rarity:'patch'},
+    {id:'jenny_patch',name:'Jenny — Patch',image:'assets/quidditch-tcg/cards/patch/jenny-patch.png',rarity:'patch'},
+    {id:'jud_patch',name:'JUD — Patch',image:'assets/quidditch-tcg/cards/patch/jud-patch.png',rarity:'patch'},
+    {id:'mad_rager_patch',name:'Mad Rager — Patch',image:'assets/quidditch-tcg/cards/patch/mad-rager-patch.png',rarity:'patch'},
+    {id:'navi_patch',name:'Navi — Patch',image:'assets/quidditch-tcg/cards/patch/navi-patch.png',rarity:'patch'},
+    {id:'nimbler_2000_patch',name:'Nimbler 2000 — Patch',image:'assets/quidditch-tcg/cards/patch/nimbler-2000-patch.png',rarity:'patch'},
+    {id:'pipsqueak_patch',name:'Pipsqueak — Patch',image:'assets/quidditch-tcg/cards/patch/pipsqueak-patch.png',rarity:'patch'},
+    {id:'qimi_patch',name:'Qimi — Patch',image:'assets/quidditch-tcg/cards/patch/qimi-patch.png',rarity:'patch'},
+    {id:'rocky_patch',name:'ROCKY — Patch',image:'assets/quidditch-tcg/cards/patch/rocky-patch.png',rarity:'patch'},
+    {id:'soup_patch',name:'Soup — Patch',image:'assets/quidditch-tcg/cards/patch/soup-patch.png',rarity:'patch'},
+    {id:'varko_patch',name:'Varko — Patch',image:'assets/quidditch-tcg/cards/patch/varko-patch.png',rarity:'patch'},
+    {id:'vivi_patch',name:'Vivi — Patch',image:'assets/quidditch-tcg/cards/patch/vivi-patch.png',rarity:'patch'},
+    {id:'zizi_patch',name:'Zizi — Patch',image:'assets/quidditch-tcg/cards/patch/zizi-patch.png',rarity:'patch'},
+];
   const CARD_BY_ID=Object.fromEntries(CARD_CATALOG.map(card=>[card.id,card]));
   // Slot coordinates are normalised against the supplied marked-up binder
   // reference.  They sit inside the small blue diamond/triangle corners rather
@@ -17613,7 +17630,7 @@ qmShowSharedGoal=function(state){
     }
     const remaining=Math.max(0,revealDelay-(performance.now()-started));
     await Promise.all([new Promise(resolve=>setTimeout(resolve,remaining)),imageReady]);
-    const isMillennium=card.rarity==='millennium',isRival=card.rarity==='rival',isSignature=card.rarity==='signature';
+    const isMillennium=card.rarity==='millennium',isRival=card.rarity==='rival',isSignature=card.rarity==='signature',isPatch=card.rarity==='patch';
     const legendaryReveal=card.rarity==='legendary'||isMillennium;
     const platinumReveal=card.rarity==='platinum'||isRival;
     dialog.classList.toggle('is-legendary-reveal',legendaryReveal);
@@ -17626,7 +17643,7 @@ qmShowSharedGoal=function(state){
     playCardUnlockSound(isSignature||legendaryReveal||platinumReveal);
     requestAnimationFrame(()=>document.getElementById('tcgCardFlipper')?.classList.add('is-flipped'));
     const skillOne=skillLabel(row.skill_one),skillTwo=skillLabel(row.skill_two);
-    const rarityMessage=isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':'NEW CARD UNLOCKED'))));
+    const rarityMessage=isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':(isPatch?'PATCH CARD UNLOCKED':'NEW CARD UNLOCKED')))));
     message.innerHTML=`<b>${rarityMessage} — ${escapeHtml(card.name.toUpperCase())}</b><div class="tcg-xp-rewards"><span>+${Number(row.skill_one_xp||5000).toLocaleString('en-GB')} ${escapeHtml(skillOne)} XP</span><span>+${Number(row.skill_two_xp||10000).toLocaleString('en-GB')} ${escapeHtml(skillTwo)} XP</span></div><small>Added permanently to your Quidditch TCG Binder. Click outside to close.</small>`;
     bankState=bankState||{gp:Number(character?.gp||0),items:{}};
     bankState.items=row.bank_items||bankState.items||{};

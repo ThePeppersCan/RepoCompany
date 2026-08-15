@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  window.__REPO_DIVER_BUILD__='v8-fish-house-phase3-20260815';
+  window.__REPO_DIVER_BUILD__='v9-living-world-visual-overhaul-20260815';
 
   const $ = id => document.getElementById(id);
   const D = window.RepoDiverData;
@@ -29,6 +29,9 @@
   let discoveryTimer = 0;
   let restaurantTheme = 'harbour';
   let servicePreviewEvent = null;
+  let career = {chapter:1,relationships:{},boat:{hull:1,engine:1,sonar:1,storage:1,crane:1,lab:1},titles:['Rookie Diver'],active_title:'Rookie Diver',contract_status:[],research:{photos:0,observations:0},weather:{id:'clear',name:'CLEAR WATER',effect:'Balanced expedition conditions.'}};
+  let expeditionTime = 'day';
+  let cameraBusy = false;
 
   const db = () => window.db || window.__QD_HOST__?.getDb?.();
   async function rpc(name, args = {}) {
@@ -60,32 +63,52 @@
   }
 
   async function loadProfile() {
-    try { profile = await rpc('repo_diver_get_profile') || profile; }
-    catch (e) { console.warn(e); }
+    try {
+      const [p,c] = await Promise.all([rpc('repo_diver_get_profile'),rpc('repo_diver_get_career_state').catch(()=>null)]);
+      profile = p || profile;
+      if(c) career={...career,...c};
+    } catch (e) { console.warn(e); }
     renderHome();
   }
+
+  function boatAverageLevel(){const b=career.boat||{};const vals=D.BOAT_UPGRADES.map(x=>Number(b[x.key]||1));return vals.reduce((a,v)=>a+v,0)/Math.max(1,vals.length)}
+  function boatDisplayName(){const lv=boatAverageLevel();return lv>=4.6?'R.C. ABYSSWARD':lv>=3.5?'R.C. DEEPWAKE':lv>=2.3?'R.C. COASTAL VOYAGER':'R.C. TIDELINE'}
+  function boatTierText(){return `Mk ${['I','II','III','IV','V','VI'][Math.max(0,Math.min(5,Math.floor(boatAverageLevel())-1))]}`}
+  function openHomePanel(id){['rdExpeditionPanel','rdQuestPanel','rdContractPanel','rdBoatPanel','rdResearchPanel'].forEach(x=>$(x)?.classList.add('hidden'));$(id)?.classList.remove('hidden');$('rdHarbourScene')?.classList.add('subpanel-open');document.querySelector('.rd-career-strip')?.classList.add('subpanel-open');document.querySelector('.rd-career-nav')?.classList.add('subpanel-open')}
+  function returnToHarbour(){['rdExpeditionPanel','rdQuestPanel','rdContractPanel','rdBoatPanel','rdResearchPanel'].forEach(x=>$(x)?.classList.add('hidden'));$('rdHarbourScene')?.classList.remove('subpanel-open');document.querySelector('.rd-career-strip')?.classList.remove('subpanel-open');document.querySelector('.rd-career-nav')?.classList.remove('subpanel-open')}
+  function chapterMetricLabel(ch){const current=Number(career.chapter_progress?.current||0),target=Number(career.chapter_progress?.target||ch?.target||1);return `${current.toLocaleString()} / ${target.toLocaleString()} ${String(ch?.metric||'progress').toUpperCase()}`}
+  function renderCareerHub(){
+    const weather=career.weather||D.WEATHER[0],ch=D.CAREER_CHAPTERS[Math.max(0,Math.min(39,(career.chapter||1)-1))];
+    if($('rdWeatherName'))$('rdWeatherName').textContent=weather.name||'CLEAR WATER';if($('rdWeatherEffect'))$('rdWeatherEffect').textContent=weather.effect||'';
+    if($('rdMainQuest'))$('rdMainQuest').textContent=ch?.title||'CAREER COMPLETE';if($('rdMainQuestProgress'))$('rdMainQuestProgress').textContent=ch?`Chapter ${ch.chapter} / 40 · ${chapterMetricLabel(ch)}`:'All career chapters complete';
+    if($('rdCareerRep'))$('rdCareerRep').textContent=`${Number(profile.restaurant?.reputation_points||profile.stats?.restaurant_reputation||0).toLocaleString()} reputation`;
+    if($('rdBoatName'))$('rdBoatName').textContent=boatDisplayName();if($('rdBoatLevel'))$('rdBoatLevel').textContent=boatTierText();if($('rdActiveTitle'))$('rdActiveTitle').textContent=career.active_title||'Rookie Diver';
+    if($('rdSpeciesCount'))$('rdSpeciesCount').textContent=`${Object.keys(profile.fish_journal||{}).length} / ${D.FISH.length}`;
+    const harbour=$('rdHarbourScene');if(harbour)harbour.dataset.weather=weather.id||'clear';if($('rdHarbourBrief'))$('rdHarbourBrief').textContent=weather.desc||weather.effect||'The tide is waiting.';
+    const actorIds=['darro','mara','lyra','bram','cass','ivar'];const actors=$('rdHubNpcActors');if(actors)actors.innerHTML=actorIds.map((id,i)=>{const n=D.npc(id);return `<button type="button" class="rd-hub-npc n${i}" data-rd-npc="${id}" style="--npc:${n.tone}"><i class="head"></i><i class="hair"></i><i class="body"></i><i class="arm a"></i><i class="arm b"></i><i class="leg a"></i><i class="leg b"></i><span>${n.name}</span></button>`}).join('');
+    if($('rdExpeditionWeather'))$('rdExpeditionWeather').textContent=`${weather.name} · ${weather.effect}`;
+  }
+  function openNpc(id){const n=D.npc(id),ch=D.CAREER_CHAPTERS[Math.max(0,Math.min(39,(career.chapter||1)-1))],relevant=ch?.giver===id;const rel=Number(career.relationships?.[id]||0);const d=$('rdNpcDialogue');if(!d)return;d.classList.remove('hidden');$('rdNpcRole').textContent=`${n.role} · TRUST ${rel}`;$('rdNpcName').textContent=n.name;$('rdNpcPortrait').style.setProperty('--npc',n.tone);$('rdNpcPortrait').innerHTML='<i class="portrait-head"></i><i class="portrait-hair"></i><i class="portrait-body"></i>';$('rdNpcText').textContent=relevant?`${n.intro} Right now: ${ch.title}. ${ch.desc}`:n.intro;$('rdNpcActions').innerHTML=relevant&&career.chapter_can_claim?`<button data-rd-claim-chapter="${ch.chapter}">COMPLETE "${ch.title}"</button>`:`<span>${n.specialty}</span>`}
+  function renderQuestLog(){const el=$('rdQuestLog');if(!el)return;const active=Number(career.chapter||1);el.innerHTML=`<div class="rd-active-quest">${(()=>{const c=D.CAREER_CHAPTERS[active-1];if(!c)return '<h4>CAREER COMPLETE</h4><p>The harbour knows your name.</p>';const n=D.npc(c.giver);return `<small>ACTIVE STORY CHAPTER ${c.chapter}/40 · ${n.name}</small><h4>${c.title}</h4><p>${c.desc}</p><div class="rd-quest-progress"><i style="width:${Math.min(100,Number(career.chapter_progress?.pct||0))}%"></i></div><span>${chapterMetricLabel(c)}</span>${career.chapter_can_claim?`<button data-rd-claim-chapter="${c.chapter}">REPORT BACK TO ${n.name.toUpperCase()}</button>`:''}`})()}</div><div class="rd-chapter-list">${D.CAREER_CHAPTERS.map(c=>`<article class="${c.chapter<active?'done':c.chapter===active?'active':'locked'}"><span>${String(c.chapter).padStart(2,'0')}</span><div><b>${c.title}</b><small>${D.npc(c.giver).name} · ${c.desc}</small></div><em>${c.chapter<active?'COMPLETE':c.chapter===active?'ACTIVE':'LOCKED'}</em></article>`).join('')}</div>`}
+  function renderContracts(){const el=$('rdContracts');if(!el)return;const states=career.contract_status||[];el.innerHTML=`<div class="rd-contract-intro"><b>THREE JOBS. ONE TIDE.</b><span>Contracts award modest skill XP + Fish House reputation — not piles of GP.</span></div><div class="rd-contract-grid">${states.map(st=>{const c=D.CONTRACTS.find(x=>x.id===st.id)||{name:st.id,desc:'Harbour contract',icon:'JOB'};return `<article class="${st.claimed?'claimed':st.claimable?'ready':''}"><i>${c.icon}</i><small>DAILY CONTRACT</small><h4>${c.name}</h4><p>${c.desc}</p><div class="rd-contract-progress"><i style="width:${Math.min(100,Number(st.current||0)/Math.max(1,Number(st.target||1))*100)}%"></i></div><b>${Number(st.current||0)} / ${Number(st.target||0)}</b>${st.claimed?'<button disabled>CLAIMED</button>':st.claimable?`<button data-rd-claim-contract="${st.id}">CLAIM CONTRACT</button>`:'<button disabled>IN PROGRESS</button>'}</article>`}).join('')}</div>`}
+  function renderBoatView(){const el=$('rdBoatUpgrades');if(!el)return;const b=career.boat||{};el.innerHTML=`<div class="rd-boat-hero"><div class="rd-boat-art"><i class="boat-hull"></i><i class="boat-cabin"></i><i class="boat-mast"></i></div><div><small>YOUR EXPEDITION VESSEL</small><h3>${boatDisplayName()} <em>${boatTierText()}</em></h3><p>The boat grows with the career: better survey contacts, more salvage opportunities and a visibly more serious expedition operation.</p></div></div><div class="rd-boat-grid">${D.BOAT_UPGRADES.map(x=>{const lv=Number(b[x.key]||1),max=lv>=x.max;return `<article><small>VESSEL SYSTEM</small><h4>${x.name}</h4><p>${x.desc}</p><div class="rd-level-pips">${Array.from({length:x.max},(_,i)=>`<i class="${i<lv?'on':''}"></i>`).join('')}</div><button data-rd-boat-upgrade="${x.key}" ${max?'disabled':''}>${max?'MAXIMUM SPEC':`UPGRADE FROM LV ${lv}`}</button></article>`}).join('')}</div>`}
+  function achievementUnlocked(a,i){const s=profile.stats||{};const found=Object.keys(profile.fish_journal||{}).length;const tier=1+Math.floor(i/10);if(a.group==='EXPLORATION')return Number(s.deepest||0)>=tier*80;if(a.group==='MARINE LIFE')return found>=tier*15;if(a.group==='FISH HOUSE')return Number(profile.restaurant?.rank||1)>=Math.min(10,tier*2);if(a.group==='SALVAGE')return Number(s.treasures_found||0)>=tier*3;return Number(s.legendary_catches||0)>=tier}
+  function renderResearchView(){const el=$('rdResearch');if(!el)return;const photos=Number(career.research?.photos||0),observed=Number(career.research?.observations||0);el.innerHTML=`<div class="rd-research-summary"><article><small>CAMERA ARCHIVE</small><b>${photos}</b><span>field photographs</span></article><article><small>OBSERVED SPECIES</small><b>${observed}</b><span>documented subjects</span></article><article><small>LEGENDARY HUNTS</small><b>${D.LEGENDARY_HUNTS.filter(h=>profile.fish_journal?.[h.fish_id]).length} / ${D.LEGENDARY_HUNTS.length}</b><span>landed legends</span></article></div><h4 class="rd-research-heading">LEGENDARY HUNT FILES</h4><div class="rd-hunt-grid">${D.LEGENDARY_HUNTS.map(h=>{const b=D.biome(h.biome),caught=!!profile.fish_journal?.[h.fish_id],unlocked=(profile.day_number||1)>=b.unlock;return `<article class="${caught?'done':unlocked?'tracking':'locked'}"><small>${b.short}</small><h4>${h.name}</h4><ol>${h.stages.map((x,i)=>`<li class="${caught?'done':unlocked&&i<2?'active':''}">${x}</li>`).join('')}</ol><b>${caught?'LEGEND DOCUMENTED':unlocked?'CLUES AVAILABLE':'WATERS LOCKED'}</b></article>`}).join('')}</div><h4 class="rd-research-heading">CAREER ACHIEVEMENTS</h4><div class="rd-achievement-grid">${D.ACHIEVEMENTS.map((a,i)=>`<article class="${achievementUnlocked(a,i)?'done':''}"><small>${a.group}</small><b>${a.name}</b><span>${a.desc}</span><em>${achievementUnlocked(a,i)?'UNLOCKED':'IN PROGRESS'}</em></article>`).join('')}</div>`}
+  function syncTimeToggle(){document.querySelectorAll('[data-rd-time]').forEach(b=>b.classList.toggle('selected',b.dataset.rdTime===expeditionTime))}
 
   function renderHome() {
     if (!$('rdHomeView')) return;
     $('rdDay').textContent = profile.day_number || 1;
     $('rdRank').textContent = rankName(profile.restaurant?.rank || 1);
     $('rdDeepest').textContent = Math.round(profile.stats?.deepest || 0) + 'm';
-    $('rdStatus').innerHTML = `<b>DIVER LEVEL ${Math.min(40, profile.day_number || 1)}/40</b> · ${Object.keys(profile.fish_journal || {}).length}/${D.FISH.length} species discovered · ${(profile.stats?.total_revenue || 0).toLocaleString()} GP lifetime revenue`;
-
-    $('rdBiomes').innerHTML = D.BIOMES.map((b, i) => {
+    if($('rdStatus'))$('rdStatus').innerHTML = `<b>DIVER LEVEL ${Math.min(40, profile.day_number || 1)}/40</b> · ${Object.keys(profile.fish_journal || {}).length}/${D.FISH.length} species · ${Number(profile.stats?.total_revenue || 0).toLocaleString()} GP Fish House lifetime revenue`;
+    if($('rdBiomes'))$('rdBiomes').innerHTML = D.BIOMES.map((b, i) => {
       const open = (profile.day_number || 1) >= b.unlock;
       const discovered = D.fishForBiome(b.id).filter(f => profile.fish_journal?.[f.id]).length;
-      return `<button class="rd-biome ${open ? '' : 'locked'}" data-biome="${b.id}" style="--rd-accent:${b.accent};--rd-deep:${b.deep}">
-        <span class="rd-biome-art"><i></i><em>${open ? 'DIVE' : 'LOCKED'}</em></span>
-        <small>ZONE ${String(i + 1).padStart(2, '0')} · ${b.max_depth}M</small><h4>${b.name}</h4><p>${b.mood}</p>
-        <footer><span>${discovered}/12 SPECIES</span><b>${open ? 'ENTER WATER' : 'LEVEL ' + b.unlock}</b></footer>
-      </button>`;
+      return `<button class="rd-biome ${open ? '' : 'locked'}" data-biome="${b.id}" style="--rd-accent:${b.accent};--rd-deep:${b.deep}"><span class="rd-biome-art"><i></i><em>${open ? 'EXPEDITION' : 'LOCKED'}</em></span><small>ZONE ${String(i + 1).padStart(2, '0')} · ${b.max_depth}M</small><h4>${b.name}</h4><p>${b.mood}</p><footer><span>${discovered}/12 SPECIES</span><b>${open ? (expeditionTime==='night'?'NIGHT DIVE':'ENTER WATER') : 'DAY ' + b.unlock}</b></footer></button>`;
     }).join('');
-    document.querySelectorAll('[data-biome]').forEach(btn => btn.onclick = () => {
-      if (!btn.classList.contains('locked')) startDive(btn.dataset.biome);
-    });
-    renderJournal();
-    renderUpgrades();
+    document.querySelectorAll('[data-biome]').forEach(btn => btn.onclick = () => { if (!btn.classList.contains('locked')) startDive(btn.dataset.biome); });
+    renderCareerHub();renderQuestLog();renderContracts();renderBoatView();renderResearchView();syncTimeToggle();renderJournal();renderUpgrades();
   }
 
   function renderJournal() {
@@ -129,7 +152,7 @@
       $('rdStatus').textContent = e.message;
       return;
     }
-    run = E.createRun({ biome, level: profile.day_number, equipment: profile.equipment });
+    run = E.createRun({ biome, level: profile.day_number, equipment: profile.equipment, timeOfDay: expeditionTime, weather: career.weather?.id || 'clear', boat: career.boat || {} });
     lastRecentCatchSerial = 0;
     show('rdDiveView');
     ensureDiveNotice();
@@ -138,6 +161,20 @@
     raf = requestAnimationFrame(loop);
     const diveCanvas=$('rdDiveCanvas');
     if(diveCanvas){ try{ diveCanvas.focus({preventScroll:true}); }catch(_){ diveCanvas.focus(); } }
+  }
+
+  async function takePhoto(){
+    if(!run||cameraBusy||run.done)return;cameraBusy=true;
+    try{
+      const visible=run.fish.filter(f=>!f.hidden&&!f.hooked);let target=null,best=9999;
+      for(const f of visible){const d=Math.hypot(f.x-mouse.x,f.y-mouse.y);if(d<best){best=d;target=f}}
+      if(!target||best>125){E.notice?.(run,'NO CLEAR SUBJECT IN FRAME','muted',1.2);return;}
+      const rank=D.RARITY[target.rarity]?.rank||1;const quality=Math.max(1,Math.min(4,Math.round(4-best/48)+(rank>=5?1:0)));
+      const r=await rpc('repo_diver_record_photo',{p_run_id:runId,p_fish_id:target.id,p_quality:quality});
+      if(r?.research)career.research=r.research;else if(r)career.research=r;
+      run.flash=.45;run.shake=2;run.eventBanner={title:'MARINE PHOTO RECORDED',text:`${target.name.toUpperCase()} · ★${quality} FRAME`,type:'success',time:2.2,serial:(run.eventBanner?.serial||0)+1};
+    }catch(e){if(run)run.notice={text:e.message||'CAMERA FAILED',type:'warning',time:1.4};}
+    finally{cameraBusy=false}
   }
 
   function loop(t) {
@@ -958,7 +995,7 @@
     const key = e.key.toLowerCase();
     const diving = run && !$('rdDiveView')?.classList.contains('hidden');
     const restaurantActive = !!service?.active;
-    const gameKeys = new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','q','e',' ','spacebar','tab']);
+    const gameKeys = new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','q','c','e',' ','spacebar','tab']);
     // Never let gameplay controls move the underlying RepoCompany page.
     if ((diving || restaurantActive) && gameKeys.has(key)) e.preventDefault();
     if (key === 'w' || key === 'arrowup') input.up = true;
@@ -968,6 +1005,7 @@
     if (key === 'shift') input.boost = true;
     if (key === 'e' && diving) E.interact(run, profile.equipment);
     if (key === 'q' && diving) E.useSonar(run, profile.equipment);
+    if (key === 'c' && diving) takePhoto();
     if ((key === ' ' || key === 'spacebar') && diving && run?.harpoon?.fight) input.reel = true;
     else if ((key === ' ' || key === 'spacebar') && service?.active && service.cook) hitCook();
   }, {passive:false});
@@ -1001,10 +1039,21 @@
     $('rdClose')?.addEventListener('click', close);
     $('rdTabJournal')?.addEventListener('click', () => { $('rdHomeMain').classList.add('hidden'); $('rdJournalPanel').classList.remove('hidden'); });
     $('rdTabUpgrades')?.addEventListener('click', () => { $('rdHomeMain').classList.add('hidden'); $('rdUpgradePanel').classList.remove('hidden'); });
+    $('rdHomeView')?.addEventListener('click', async e => {
+      const hub=e.target.closest?.('[data-hub-action]');if(hub){const a=hub.dataset.hubAction;if(a==='expedition')openHomePanel('rdExpeditionPanel');else if(a==='quests'){renderQuestLog();openHomePanel('rdQuestPanel')}else if(a==='contracts'){renderContracts();openHomePanel('rdContractPanel')}else if(a==='boat'){renderBoatView();openHomePanel('rdBoatPanel')}else if(a==='research'){renderResearchView();openHomePanel('rdResearchPanel')}else if(a==='journal'){$('rdHomeMain').classList.add('hidden');$('rdJournalPanel').classList.remove('hidden')}else if(a==='equipment'){$('rdHomeMain').classList.add('hidden');$('rdUpgradePanel').classList.remove('hidden')}else if(a==='fishhouse')openHomePanel('rdExpeditionPanel');return;}
+      const npc=e.target.closest?.('[data-rd-npc]');if(npc){openNpc(npc.dataset.rdNpc);return;}
+      const time=e.target.closest?.('[data-rd-time]');if(time){expeditionTime=time.dataset.rdTime==='night'?'night':'day';syncTimeToggle();renderHome();openHomePanel('rdExpeditionPanel');return;}
+      if(e.target.closest?.('[data-rd-harbour-back]')){returnToHarbour();return;}
+      if(e.target.closest?.('[data-rd-npc-close]')){$('rdNpcDialogue')?.classList.add('hidden');return;}
+      const chapter=e.target.closest?.('[data-rd-claim-chapter]');if(chapter){chapter.disabled=true;try{career=await rpc('repo_diver_claim_career_chapter',{p_chapter:Number(chapter.dataset.rdClaimChapter)});await loadProfile();$('rdNpcDialogue')?.classList.add('hidden');openHomePanel('rdQuestPanel')}catch(err){$('rdStatus').textContent=err.message}finally{chapter.disabled=false}return;}
+      const contract=e.target.closest?.('[data-rd-claim-contract]');if(contract){contract.disabled=true;try{career=await rpc('repo_diver_claim_contract',{p_contract:contract.dataset.rdClaimContract});await loadProfile();openHomePanel('rdContractPanel')}catch(err){$('rdStatus').textContent=err.message}finally{contract.disabled=false}return;}
+      const boat=e.target.closest?.('[data-rd-boat-upgrade]');if(boat){boat.disabled=true;try{career=await rpc('repo_diver_buy_boat_upgrade',{p_upgrade:boat.dataset.rdBoatUpgrade});await loadProfile();openHomePanel('rdBoatPanel')}catch(err){$('rdStatus').textContent=err.message}finally{boat.disabled=false}return;}
+    });
     document.querySelectorAll('[data-rd-back]').forEach(b => b.onclick = () => {
       $('rdJournalPanel').classList.add('hidden');
       $('rdUpgradePanel').classList.add('hidden');
       $('rdHomeMain').classList.remove('hidden');
+      returnToHarbour();
     });
   });
 
@@ -1012,6 +1061,7 @@
   if (window.__REPO_DIVER_TEST_MODE__) {
     window.__RepoDiverTest = {
       getState: () => ({ profile, run, runId, selectedRecipes: [...selectedRecipes], service }),
+      loadProfile,
       setRun: value => { run = value; },
       setSelectedRecipes: value => { selectedRecipes = [...value]; },
       startDive,
@@ -1035,6 +1085,9 @@
       updateServicePhase,
       forceServiceTime: seconds => { if (service) service.time = seconds; },
       sonar: () => E.useSonar(run, profile.equipment),
+      takePhoto,
+      getCareer:()=>career,
+      renderCareerHub,renderQuestLog,renderContracts,renderBoatView,renderResearchView,
       forceEvent: key => E.triggerEvent(run, key),
       forceLegendary: () => E.forceLegendary(run),
       draw,

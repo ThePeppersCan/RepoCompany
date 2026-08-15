@@ -1,0 +1,15 @@
+Repo Diver V9 backend status
+============================
+Already applied to Supabase project:
+- repo_diver_career_2026 persistent career state
+- 40 server-side career chapter rules
+- server-backed daily contract state/claims
+- persistent vessel upgrade RPC
+- deterministic career weather state
+- repo_diver_photos_2026 marine photography log
+- server-validated repo_diver_record_photo RPC
+
+Verified after migration:
+- 40 career chapter rules present
+- marine photography RPC present
+- existing nerfed Fish House prices preserved (e.g. Fjord Haddock 68 GP, Longship Lobster 147 GP)

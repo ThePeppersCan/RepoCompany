@@ -1,0 +1,39 @@
+Repo Diver V9 Living World + Visual Overhaul
+Passed: 35
+Failed: 0
+
+PASS - 120 fish preserved :: 120
+PASS - 70 recipes preserved :: 70
+PASS - 40 story chapters installed :: 40
+PASS - 16 recurring NPCs installed :: 16
+PASS - 50 achievement definitions installed :: 50
+PASS - 10 legendary hunt chains installed :: 10
+PASS - each legendary hunt has six stages
+PASS - 6 vessel upgrades installed :: 6
+PASS - 6 contract templates installed :: 6
+PASS - night expedition state preserved :: night
+PASS - weather expedition state preserved :: storm
+PASS - boat state reaches expedition engine :: {"hull":2,"engine":2,"sonar":3,"storage":2,"crane":2,"lab":2}
+PASS - boat crane produces salvage opportunities :: 1
+PASS - cargo cap still rejects overweight catch
+PASS - physical harpoon still resolves into hook/fight/catch state :: fight
+PASS - game startDive creates expedition run
+PASS - career weather passed from game to engine :: storm
+PASS - career vessel passed from game to engine :: 3
+PASS - camera research RPC called :: 1
+PASS - camera updates career research :: {"photos":3,"observations":3,"best_photo":4}
+PASS - Fish House service starts after expedition
+PASS - restaurant stock finite and tied to catches :: 3
+PASS - customer physically created in service state :: entering
+PASS - prep/cook/plating produces ready meal :: 1
+PASS - serve click logic still succeeds
+PASS - served diner enters eating state :: eating
+PASS - diner progresses to leaving :: leaving
+PASS - leaving customer is removed / table frees
+PASS - complete day RPC fires once :: 1
+PASS - living harbour DOM installed
+PASS - camera control documented
+PASS - restaurant widened to world-first layout
+PASS - square button chrome explicitly removed from diners
+PASS - premium kitchen asset styling installed
+PASS - game build cache marker is V9

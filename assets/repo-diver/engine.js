@@ -74,7 +74,14 @@
     return weighted(pool, x => {
       const depthMatch = opts.depthRatio == null ? 1 : (opts.depthRatio >= (x.depth_min ?? 0) && opts.depthRatio <= (x.depth_max ?? 1) ? 1.7 : .45);
       const sonarBoost = 1 + Math.max(0, sonar - 1) * (.045 * rarityRank(x.rarity));
-      return rarityW[x.rarity] * sonarBoost * depthMatch;
+      const rank=rarityRank(x.rarity);
+      const nightBoost=opts.timeOfDay==='night' ? (rank>=4?1.32:rank===3?1.12:.90) : 1;
+      let weatherBoost=1;
+      if(opts.weather==='storm'&&rank>=4) weatherBoost*=1.22;
+      if(opts.weather==='aurora'&&biome==='fremennik'&&rank>=3) weatherBoost*=1.28;
+      if(opts.weather==='heat'&&['karamja','coral'].includes(biome)&&rank<=3) weatherBoost*=1.18;
+      if(opts.weather==='fog'&&rank>=3) weatherBoost*=1.08;
+      return rarityW[x.rarity] * sonarBoost * depthMatch * nightBoost * weatherBoost;
     });
   }
 
@@ -108,12 +115,12 @@
   }
 
   function spawnSchool(run, count = 6, minRank = 1, maxRank = 3) {
-    const src = chooseFishSource(run.biome.id, run.level, run.equipment?.sonar||1,{minRank,maxRank,depthRatio:depthBand(run).ratio});
+    const src = chooseFishSource(run.biome.id, run.level, run.equipment?.sonar||1,{minRank,maxRank,depthRatio:depthBand(run).ratio,timeOfDay:run.timeOfDay,weather:run.weather});
     if (!src) return;
     const gid = Math.floor(rand(100000,999999));
     const cx = rand(180,780), cy = clamp(run.player.y + rand(-100,100),75,480);
     for (let i=0;i<count;i++) {
-      const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{source:src,groupId:gid,x:cx+rand(-70,70),y:clamp(cy+rand(-35,35),65,490)});
+      const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{source:src,groupId:gid,x:cx+rand(-70,70),y:clamp(cy+rand(-35,35),65,490),timeOfDay:run.timeOfDay,weather:run.weather});
       if(f) run.fish.push(f);
     }
   }
@@ -129,10 +136,10 @@
     }));
   }
 
-  function makeTreasures(biome, equipment) {
+  function makeTreasures(biome, equipment, boat={}) {
     const D=window.RepoDiverData;
     const source=D.treasuresForBiome(biome.id);
-    const count=Math.max(1,Math.min(4,1+Math.floor(((equipment?.salvage||1)-1)/2)));
+    const count=Math.max(1,Math.min(5,1+Math.floor(((equipment?.salvage||1)-1)/2)+Math.floor(Math.max(0,(boat?.crane||1)-1)/2)));
     return Array.from({length:count},(_,i)=>{
       const t=source[i%Math.max(1,source.length)]||{id:biome.id+'_cache',name:'Salvage Cache',rarity:'rare',weight:1.1};
       const required=Math.max(1,Math.min(6,(rarityRank(t.rarity)-2)+Math.floor(biome.unlock/14)));
@@ -144,10 +151,13 @@
     const D = window.RepoDiverData;
     const biome = D.biome(opts.biome);
     const equipment=opts.equipment||{};
-    const fishCount = 13 + Math.min(9, Math.floor((opts.level || 1) / 5)) + Math.min(5, ((equipment.lure || 1) - 1));
+    const boat=opts.boat||{};
+    const timeOfDay=opts.timeOfDay==='night'?'night':'day';
+    const weather=opts.weather||'clear';
+    const fishCount = 13 + Math.min(9, Math.floor((opts.level || 1) / 5)) + Math.min(5, ((equipment.lure || 1) - 1)) + Math.min(3,Math.floor(Math.max(0,(boat.sonar||1)-1)/2));
     const run = {
-      biome, level:opts.level||1, equipment,
-      fish:[], treasures:makeTreasures(biome,equipment), hazards:makeHazards(biome.id),
+      biome, level:opts.level||1, equipment, boat, timeOfDay, weather,
+      fish:[], treasures:makeTreasures(biome,equipment,boat), hazards:makeHazards(biome.id),
       player:{x:105,y:95,vx:0,vy:0,hp:100,o2:100,swimPhase:0,aimAngle:0,damageFlash:0},
       particles:[], catches:[], elapsed:0,maxDepth:0,shake:0,flash:0,done:false,
       spawnTimer:rand(2.8,5), totalSpawned:0,
@@ -162,7 +172,7 @@
       recentCatch:null
     };
     for(let i=0;i<fishCount;i++){
-      const f=spawnFish(biome.id,run.level,equipment.sonar||1,{depthRatio:rand(.05,.92)});
+      const f=spawnFish(biome.id,run.level,equipment.sonar||1,{depthRatio:rand(.05,.92),timeOfDay,weather});
       if(f){run.fish.push(f);run.totalSpawned++;}
     }
     // Ensure the opening water feels alive without dumping high-value fish at the player.
@@ -380,14 +390,14 @@
     if(key==='migration')spawnSchool(run,7,1,3);
     if(key==='predator'){
       const pred=chooseFishSource(run.biome.id,run.level,run.equipment?.sonar||1,{behavior:'predator',minRank:3,depthRatio:depthBand(run).ratio})||chooseFishSource(run.biome.id,run.level,run.equipment?.sonar||1,{minRank:4,maxRank:5});
-      for(let i=0;i<2;i++){const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{source:pred,x:850+i*40,y:clamp(run.player.y+rand(-80,80),70,480)});if(f)run.fish.push(f);}
+      for(let i=0;i<2;i++){const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{source:pred,x:850+i*40,y:clamp(run.player.y+rand(-80,80),70,480),timeOfDay:run.timeOfDay,weather:run.weather});if(f)run.fish.push(f);}
     }
     if(key==='treasure_current'||key==='wreck_collapse'){
       const src=D.treasuresForBiome(run.biome.id)[1]||D.treasuresForBiome(run.biome.id)[0];if(src)run.treasures.push({...src,x:rand(260,780),y:clamp(run.player.y+rand(40,130),260,480),opened:false,phase:0,required:Math.max(1,Math.min(6,rarityRank(src.rarity)-1)),revealed:true});
     }
-    if(key==='bloom')for(let i=0;i<4;i++){const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{minRank:3,maxRank:5,depthRatio:depthBand(run).ratio});if(f){f.sonarReveal=def.duration;run.fish.push(f);}}
+    if(key==='bloom')for(let i=0;i<4;i++){const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{minRank:3,maxRank:5,depthRatio:depthBand(run).ratio,timeOfDay:run.timeOfDay,weather:run.weather});if(f){f.sonarReveal=def.duration;run.fish.push(f);}}
     if(key==='storm')run.event.currentForce=58;
-    if(key==='golden_hour'){run.event.visibility=1.28;for(let i=0;i<3;i++){const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{minRank:3,maxRank:5,depthRatio:depthBand(run).ratio});if(f)run.fish.push(f);}}
+    if(key==='golden_hour'){run.event.visibility=1.28;for(let i=0;i<3;i++){const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{minRank:3,maxRank:5,depthRatio:depthBand(run).ratio,timeOfDay:run.timeOfDay,weather:run.weather});if(f)run.fish.push(f);}}
     banner(run,def.name,def.desc,key==='predator'?'danger':'event',3.6);return key;
   }
 
@@ -403,7 +413,7 @@
     if(run.legendary.triggered)return false;
     const D=window.RepoDiverData,id=D.LEGENDARIES[run.biome.id],src=D.fishById(id);if(!src)return false;
     run.legendary.triggered=true;
-    const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{source:src,allowMythic:true,legendary:true,x:rand(700,880),y:rand(390,485)});
+    const f=spawnFish(run.biome.id,run.level,run.equipment?.sonar||1,{source:src,allowMythic:true,legendary:true,x:rand(700,880),y:rand(390,485),timeOfDay:run.timeOfDay,weather:run.weather});
     if(!f)return false;f.sonarReveal=999;run.fish.push(f);run.legendary.activeFish=f;scatterNearby(run,f,420,1.4);run.camera.targetZoom=.9;
     banner(run,'LEGENDARY SIGNATURE',`${f.name.toUpperCase()} HAS ENTERED THE WATER`,'legendary',4.4);return true;
   }
@@ -427,7 +437,7 @@
     if(p.hp<=0){run.done=true;notice(run,'DIVER INCAPACITATED · EMERGENCY SURFACE','danger',3);banner(run,'EMERGENCY ASCENT','HP DEPLETED · EXPEDITION ABORTED','danger',3);}
     updateFish(run,dt,equipment);applyHazards(run,dt,equipment);updateHarpoon(run,dt,input,equipment);updateEvents(run,dt);
     run.sonar.cooldown=Math.max(0,run.sonar.cooldown-dt);if(run.sonar.pulse>0){run.sonar.pulse=Math.max(0,run.sonar.pulse-dt);run.sonar.lastRadius=run.sonar.radius;run.sonar.radius+=(300+(equipment?.sonar||1)*45)*dt;}
-    run.spawnTimer-=dt;const capReached=cargoWeight(run)>=cargoCap(equipment)-.05;if(run.spawnTimer<=0&&run.fish.length<24&&run.totalSpawned<82&&!capReached){const f=spawnFish(run.biome.id,run.level,equipment?.sonar||1,{depthRatio:band.ratio});if(f){run.fish.push(f);run.totalSpawned++;}run.spawnTimer=rand(2.8,5.1);}
+    run.spawnTimer-=dt;const capReached=cargoWeight(run)>=cargoCap(equipment)-.05;if(run.spawnTimer<=0&&run.fish.length<24&&run.totalSpawned<82&&!capReached){const f=spawnFish(run.biome.id,run.level,equipment?.sonar||1,{depthRatio:band.ratio,timeOfDay:run.timeOfDay,weather:run.weather});if(f){run.fish.push(f);run.totalSpawned++;}run.spawnTimer=rand(2.8,5.1);}
     for(const t of run.treasures)t.phase+=dt;run.elapsed+=dt;run.shake=Math.max(0,run.shake-dt*19);run.flash=Math.max(0,run.flash-dt*2.5);p.damageFlash=Math.max(0,p.damageFlash-dt*3);if(run.notice)run.notice.time=Math.max(0,run.notice.time-dt);
     run.camera.targetZoom=run.harpoon.fight?(run.harpoon.fight.fish.legendary?.88:.94):(run.legendary.activeFish?.hooked?.9:1);run.camera.zoom+=(run.camera.targetZoom-run.camera.zoom)*Math.min(1,dt*2.8);run.camera.x+=(p.x-480-run.camera.x)*Math.min(1,dt*.8);run.camera.y+=(p.y-270-run.camera.y)*Math.min(1,dt*.55);
   }
@@ -446,5 +456,5 @@
     nearest.opened=true;const q=clamp(1+Math.floor(Math.random()*3)+(salvage>3?1:0),1,4);run.catches.push({id:nearest.id,q,kind:'treasure',name:nearest.name,rarity:nearest.rarity,weight:Number(nearest.weight||1)});run.flash=1;burst(run,nearest.x,nearest.y,20,'#ffd977',1);notice(run,`SALVAGE RECOVERED · ${nearest.name.toUpperCase()}`,'success',1.8);return nearest;
   }
 
-  window.RepoDiverEngine={createRun,update,harpoon,interact,useSonar,triggerEvent,forceLegendary,depthBand,clamp,rand,pick,cargoCap,cargoWeight,canCarry,spawnFish};
+  window.RepoDiverEngine={createRun,update,harpoon,interact,useSonar,triggerEvent,forceLegendary,depthBand,clamp,rand,pick,cargoCap,cargoWeight,canCarry,spawnFish,notice,banner};
 })();

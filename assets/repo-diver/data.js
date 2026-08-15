@@ -41,6 +41,64 @@ function staffForLevel(level=1){return STAFF.slice(0,Math.max(0,Math.min(STAFF.l
 function eventById(id){return SERVICE_EVENTS.find(x=>x.id===id)||SERVICE_EVENTS[0]}
 function customerById(id){return CUSTOMER_ARCHETYPES.find(x=>x.id===id)||CUSTOMER_ARCHETYPES[0]}
 
+
+
+// Repo Diver V9 living-world career data.
+const NPC_CAST=[
+ {id:'darro',name:'Captain Darro',role:'Veteran Diver',tone:'#70c9d8',home:'Harbour Steps',intro:'The sea rewards patience. It punishes tourists with expensive equipment.',sprite:'diver',specialty:'Depth & survival'},
+ {id:'mara',name:'Mara Venn',role:'Head Chef',tone:'#e5a866',home:'Fish House',intro:'Bring me something worth cooking and I will make the harbour talk about it.',sprite:'chef',specialty:'Cuisine & service'},
+ {id:'lyra',name:'Dr Lyra Vale',role:'Marine Researcher',tone:'#83d7be',home:'Marine Institute',intro:'A specimen tells us what it is. Behaviour tells us why it matters.',sprite:'researcher',specialty:'Research & photography'},
+ {id:'bram',name:'Bram Holt',role:'Fish House Manager',tone:'#d0b26a',home:'Fish House',intro:'Good food fills tables. A good room makes people remember the night.',sprite:'manager',specialty:'Restaurant growth'},
+ {id:'orin',name:'Orin Pike',role:'Equipment Engineer',tone:'#78a9d8',home:'Workshop',intro:'If you intend to go deeper, I would prefer the ocean not crush my customer.',sprite:'engineer',specialty:'Equipment'},
+ {id:'sella',name:'Sella Marr',role:'Harbour Master',tone:'#c49b72',home:'Harbour Office',intro:'Contracts are honest work. Mostly. The salvage people are less honest.',sprite:'harbour',specialty:'Contracts & permits'},
+ {id:'tomo',name:'Tomo Rin',role:'Prep Chef',tone:'#d89068',home:'Fish House',intro:'Mara says speed comes after technique. Mara has never watched twelve tickets land at once.',sprite:'chef',specialty:'Preparation'},
+ {id:'nessa',name:'Nessa Bloom',role:'Host',tone:'#cf91b7',home:'Fish House',intro:'People decide whether they like a restaurant before the first plate arrives.',sprite:'host',specialty:'Guests & VIPs'},
+ {id:'brin',name:'Brin Calder',role:'Server',tone:'#91b7d0',home:'Fish House',intro:'I can carry four plates. I can also carry five. We do not discuss the fifth.',sprite:'server',specialty:'Service'},
+ {id:'cass',name:'Cass Rook',role:'Rival Diver',tone:'#e3795f',home:'South Pier',intro:'Nothing personal. I just plan to beat every record with your name on it.',sprite:'rival',specialty:'Challenges'},
+ {id:'ivar',name:'Professor Ivar Quill',role:'Relic Curator',tone:'#b197d6',home:'Institute Annex',intro:'Fish die. Empires do too. Fortunately both leave interesting things behind.',sprite:'curator',specialty:'Artifacts & lore'},
+ {id:'vesa',name:'Vesa Crane',role:'Restaurant Critic',tone:'#d6b26d',home:'Visiting',intro:'I do not enjoy destroying restaurants. I enjoy not having to.',sprite:'critic',specialty:'Reviews'},
+ {id:'pella',name:'Old Pella',role:'Tidekeeper',tone:'#8fb5a8',home:'Breakwater',intro:'Deep water has stories. The trick is knowing which stories want you dead.',sprite:'sailor',specialty:'Legendary hunts'},
+ {id:'nilo',name:'Nilo Fen',role:'Fish Merchant',tone:'#79b68c',home:'Market',intro:'Fresh fish moves quickly. Strange fish moves even quicker if nobody asks questions.',sprite:'merchant',specialty:'Market'},
+ {id:'ren',name:'Ren Vargo',role:'Salvage Specialist',tone:'#aa956e',home:'Workshop',intro:'If it sank, someone once cared enough about it to lose it.',sprite:'salvager',specialty:'Wrecks'},
+ {id:'juno',name:'Juno Tide',role:'Aquarium Keeper',tone:'#6ecbc1',home:'Fish House',intro:'The aquarium is not decoration. It is bragging with better lighting.',sprite:'keeper',specialty:'Aquarium & trophies'}
+];
+const CAREER_CHAPTERS=[
+ ['A Fresh Start','darro','Make your first day count.','day',1],['The First Haul','mara','Complete another day and bring the Fish House fresh stock.','day',2],['Five Names in the Journal','lyra','Discover five marine species.','species',5],['A Room Worth Filling','bram','Raise the Fish House to rank 2.','rank',2],['Below the Sunlight','orin','Reach 80 metres.','depth',80],
+ ['Something in the Sand','sella','Recover two treasures.','treasures',2],['The Kelp Road','cass','Reach career day 8.','day',8],['Twenty Species','ivar','Record twenty species.','species',20],['The House Gets Noticed','vesa','Raise the Fish House to rank 3.','rank',3],['Into Gloomwater','pella','Reach 160 metres.','depth',160],
+ ['First Legend','darro','Land your first mythic creature.','legendary',1],['The Blackglass Ledger','mara','Reach career day 20.','day',20],['Wreck Rights','lyra','Recover six treasures.','treasures',6],['A Table for Pella','bram','Raise the Fish House to rank 4.','rank',4],['Pressure Lessons','orin','Reach 220 metres.','depth',220],
+ ['Prism Invitations','sella','Reach career day 16.','day',16],['The Rival’s Bet','cass','Reach 250 metres.','depth',250],['Thirty-Five Species','ivar','Discover 35 species.','species',35],['The Lost Bell','vesa','Recover 10 treasures.','treasures',10],['Abyssal Licence','pella','Reach 320 metres.','depth',320],
+ ['Night Water','darro','Reach career day 25.','day',25],['The Scar Watches Back','mara','Land three mythic creatures.','legendary',3],['Crystal Signal','lyra','Reach 390 metres.','depth',390],['The Curator’s Problem','bram','Recover 14 treasures.','treasures',14],['Fifty Species','orin','Discover fifty species.','species',50],
+ ['Brimstone Permit','sella','Reach career day 35.','day',35],['The Hot Current','cass','Reach 460 metres.','depth',460],['A Famous Table','ivar','Raise the Fish House to rank 7.','rank',7],['Seventy Species','vesa','Discover seventy species.','species',70],['The Ruins Open','pella','Reach career day 40.','day',40],
+ ['Glyphs Below','darro','Recover twenty treasures.','treasures',20],['The Leviathan Trail','mara','Land six mythic creatures.','legendary',6],['Harbour Festival','lyra','Serve 250 customers.','customers',250],['Master of the Pass','bram','Plate 80 perfect dishes.','perfect',80],['Ninety Species','orin','Discover ninety species.','species',90],
+ ['The Last Rivalry','sella','Reach 520 metres.','depth',520],['The Drowned Archive','cass','Recover 28 treasures.','treasures',28],['One Hundred and Ten','ivar','Discover 110 species.','species',110],['Legend of the Fish House','vesa','Reach Fish House rank 10.','rank',10],['Master of the Deep','pella','Discover all 120 marine species.','species',120]
+].map((x,i)=>({chapter:i+1,title:x[0],giver:x[1],desc:x[2],metric:x[3],target:x[4]}));
+const CONTRACTS=[
+ {id:'catch_five',name:'FRESH SUPPLY',desc:'Land five fish after accepting today’s board.',metric:'fish',target:5,icon:'FISH'},
+ {id:'two_species',name:'SURVEY SHIFT',desc:'Add two new species to the journal.',metric:'species',target:2,icon:'SCAN'},
+ {id:'deep_push',name:'DEPTH TEST',desc:'Improve your personal depth record by 20 metres.',metric:'depth',target:20,icon:'DEPTH'},
+ {id:'treasure_one',name:'SALVAGE CALL',desc:'Recover one treasure or relic.',metric:'treasures',target:1,icon:'RELIC'},
+ {id:'serve_eight',name:'DINNER SUPPLY',desc:'Serve eight Fish House customers.',metric:'customers',target:8,icon:'SERVE'},
+ {id:'perfect_two',name:'CHEF STANDARD',desc:'Serve two perfect dishes.',metric:'perfect',target:2,icon:'CHEF'}
+];
+const WEATHER=[
+ {id:'clear',name:'CLEAR WATER',effect:'Balanced expedition conditions.'},{id:'rain',name:'COASTAL RAIN',effect:'Surface light is softer; skittish fish notice you later.'},{id:'storm',name:'STORM FRONT',effect:'Harder currents with improved rare-creature activity.'},{id:'fog',name:'HARBOUR FOG',effect:'Reduced visibility makes sonar and research more valuable.'},{id:'aurora',name:'AURORA TIDE',effect:'Northern waters show increased rare activity.'},{id:'heat',name:'WARM CURRENT',effect:'Reef species are unusually active.'}
+];
+const BOAT_UPGRADES=[
+ {key:'hull',name:'Pressure Hull',max:6,base:4200,desc:'A tougher vessel built for severe offshore weather.'},{key:'engine',name:'Tide Engine',max:6,base:3800,desc:'Improves expedition reach and future route access.'},{key:'sonar',name:'Survey Sonar',max:6,base:4500,desc:'Adds more scouting contacts to expedition waters.'},{key:'storage',name:'Deck Storage',max:5,base:3200,desc:'Expands expedition preparation capacity.'},{key:'crane',name:'Salvage Crane',max:5,base:5200,desc:'Adds more salvage opportunities to dives.'},{key:'lab',name:'Research Bench',max:5,base:4800,desc:'Improves the vessel’s research capability.'}
+];
+const ACHIEVEMENTS=Array.from({length:50},(_,i)=>{
+ const groups=['EXPLORATION','MARINE LIFE','FISH HOUSE','SALVAGE','LEGENDARY'];const g=groups[i%groups.length];
+ const names=['First Descent','Clean Water','Journal Ink','Heavy Haul','No Damage','Perfect Plate','Busy Room','Deep Signal','Old Coin','Night Shift'];
+ return {id:'rd_v9_'+(i+1),group:g,name:names[i%names.length]+' '+(Math.floor(i/10)+1),desc:['Reach a new expedition milestone.','Record meaningful marine progress.','Build a stronger Fish House career.','Recover evidence from the drowned world.','Push toward legendary-water mastery.'][i%5]};
+});
+const LEGENDARY_HUNTS=BIOMES.map((b,i)=>{
+ const fish=FISH.find(f=>f.biome===b.id&&f.rarity==='mythic');
+ return {id:'hunt_'+b.id,biome:b.id,fish_id:fish?.id,name:fish?.name||'Unknown Legend',stages:[
+  'Find environmental evidence','Bring the clue to the Marine Institute','Prepare the recommended expedition gear','Track the creature with sonar','Survive the encounter','Land or document the legendary creature'
+ ]};
+});
+function npc(id){return NPC_CAST.find(x=>x.id===id)||NPC_CAST[0]}
+
 const RARITY={common:{label:'COMMON',rank:1},uncommon:{label:'UNCOMMON',rank:2},rare:{label:'RARE',rank:3},epic:{label:'EPIC',rank:4},legendary:{label:'LEGENDARY',rank:5},mythic:{label:'MYTHIC',rank:6}};
 const MILESTONES=Array.from({length:40},(_,i)=>{const level=i+1;const b=[...BIOMES].reverse().find(x=>level>=x.unlock)||BIOMES[0];return {level,title:level===40?'MASTER OF THE DEEP':level%5===0?'COASTAL LICENSE '+String(level/5):'DIVER LEVEL '+level,biome:b.id,reward:level%4===0?'New equipment tier':level%3===0?'Restaurant expansion':'Higher-value waters'};});
 function biome(id){return BIOMES.find(x=>x.id===id)||BIOMES[0]}
@@ -113,5 +171,5 @@ const LEGENDARIES=Object.fromEntries(BIOMES.map(b=>[b.id,FISH.find(f=>f.biome===
 function sceneForBiome(id){return BIOME_SCENES[id]||BIOME_SCENES.karamja}
 function fishById(id){return FISH.find(x=>x.id===id)}
 
-window.RepoDiverData={BIOMES,FISH,TREASURES,RECIPES,UPGRADES,RARITY,MILESTONES,BIOME_SCENES,EVENTS,LEGENDARIES,CUSTOMER_ARCHETYPES,STAFF,SERVICE_EVENTS,RESTAURANT_THEMES,biome,fishById,sceneForBiome,fishForBiome,treasuresForBiome,recipesForCatches,staffForLevel,eventById,customerById};
+window.RepoDiverData={BIOMES,FISH,TREASURES,RECIPES,UPGRADES,RARITY,MILESTONES,BIOME_SCENES,EVENTS,LEGENDARIES,CUSTOMER_ARCHETYPES,STAFF,SERVICE_EVENTS,RESTAURANT_THEMES,NPC_CAST,CAREER_CHAPTERS,CONTRACTS,WEATHER,BOAT_UPGRADES,ACHIEVEMENTS,LEGENDARY_HUNTS,biome,fishById,sceneForBiome,fishForBiome,treasuresForBiome,recipesForCatches,staffForLevel,eventById,customerById,npc};
 })();
