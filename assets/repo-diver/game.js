@@ -1168,7 +1168,12 @@
     const fishCounts = {};
     for (const x of run.catches.filter(x => x.kind === 'fish')) fishCounts[x.id] = (fishCounts[x.id] || 0) + 1;
     const maxMenu = menuCapacity();
-    $('rdRecipeChoices').innerHTML = rec.map(r => `<button data-recipe="${r.id}" data-category="${r.category || 'seared'}"><span class="rd-recipe-meta">${String(r.category || 'house').toUpperCase()} · COMPLEXITY ${r.complexity || r.tier || 1}</span><b>${r.name}</b><small>${Math.round(r.base_price*DIVER_GP_TUNING).toLocaleString()} GP base · ${fishCounts[r.fish_id] || 0} portions · ${String(r.appeal || 'local').toUpperCase()} APPEAL</small></button>`).join('') || '<p>Catch a menu-grade fish to open tonight.</p>';
+    $('rdRecipeChoices').innerHTML = rec.map(r => `<button data-recipe="${r.id}" data-category="${r.category || 'seared'}"><span class="rd-recipe-meta">${String(r.category || 'house').toUpperCase()} · COMPLEXITY ${r.complexity || r.tier || 1}</span><b>${r.name}</b><small>${Math.round(r.base_price*DIVER_GP_TUNING).toLocaleString()} GP base · ${fishCounts[r.fish_id] || 0} portions · ${String(r.appeal || 'local').toUpperCase()} APPEAL</small></button>`).join('') || '<p>No menu-grade fish are available for service. You can still bank the expedition and return to harbour.</p>';
+    const serviceButton=$('rdOpenRestaurant');
+    if(serviceButton){
+      serviceButton.dataset.emptyNight=rec.length?'false':'true';
+      serviceButton.textContent=rec.length?'OPEN REPO COMPANY FISH HOUSE →':'SAVE EXPEDITION & RETURN TO HARBOUR →';
+    }
     document.querySelectorAll('[data-recipe]').forEach(b => b.onclick = () => {
       const id = b.dataset.recipe;
       if (b.classList.contains('selected')) {
@@ -1182,10 +1187,11 @@
         b.classList.add('selected');
         selectedRecipes.push(id);
       }
-      $('rdOpenRestaurant').disabled = !selectedRecipes.length;
+      if(serviceButton)serviceButton.disabled = !selectedRecipes.length;
       renderSurfaceSetup();
     });
-    $('rdOpenRestaurant').disabled = true;
+    if(serviceButton)serviceButton.disabled = rec.length ? true : false;
+    if(!rec.length)$('rdSurfaceNotice').innerHTML += ' <b>No Fish House service is required tonight.</b> Saving the expedition still records depth, salvage, story progress and eligible rewards.';
     renderSurfaceSetup();
   }
 
@@ -1300,7 +1306,19 @@
       }).join('');
   }
 
+  function closeEmptyFishHouseNight() {
+    if(!run)return;
+    cancelAnimationFrame(serviceRaf);
+    service={
+      totalDuration:0,time:0,phase:'CLOSED',served:0,revenue:0,lost:0,customers:[],ready:[],servedDishes:[],stock:{},ingredientQuality:{},
+      active:false,closing:true,finishStarted:false,cook:null,crew:[],wages:0,event:null,specialPlan:null,specialSpawned:false,specialServed:null,
+      communityVisitorName:null,communityVisitorSpawned:false,crewCelebration:null,legacyNight:null,flow:1,streak:0,lastServeAt:0,soldOutReleased:0,emptyNight:true
+    };
+    finishDay();
+  }
+
   function startRestaurant() {
+    if($('rdOpenRestaurant')?.dataset.emptyNight==='true')return closeEmptyFishHouseNight();
     if (!selectedRecipes.length) return;
     cancelAnimationFrame(serviceRaf);
     show('rdRestaurantView');
@@ -1688,10 +1706,18 @@
 
   async function finishDay() {
     if(!service||service.finishStarted)return;service.finishStarted=true;cancelAnimationFrame(serviceRaf);show('rdResultsView');
+    const emptyNight=!!service.emptyNight,resultCard=$('rdResultsView')?.querySelector('.rd-results-card');
+    const resultKicker=resultCard?.querySelector(':scope > small'),resultTitle=resultCard?.querySelector(':scope > h2');
+    if(resultKicker)resultKicker.textContent=emptyNight?'EXPEDITION COMPLETE':'SERVICE COMPLETE';
+    if(resultTitle)resultTitle.textContent=emptyNight?'THE TIDELINE RETURNS TO HARBOUR':'THE FISH HOUSE CLOSES FOR THE NIGHT';
+    if($('rdResultsContinue'))$('rdResultsContinue').textContent=emptyNight?'RETURN TO HARBOUR':'NEXT DAY';
     const avg=service.servedDishes.length?service.servedDishes.reduce((a,b)=>a+b.quality,0)/service.servedDishes.length:0;
-    $('rdResultFish').textContent=run.catches.filter(x=>x.kind==='fish').length;$('rdResultDishes').textContent=service.servedDishes.length;$('rdResultPerfect').textContent=service.servedDishes.filter(x=>x.quality===4).length;$('rdResultRevenue').textContent=service.revenue.toLocaleString()+' GP';
-    if($('rdResultWalkouts'))$('rdResultWalkouts').textContent=service.lost;if($('rdResultQuality'))$('rdResultQuality').textContent='★'+avg.toFixed(1);if($('rdResultWages'))$('rdResultWages').textContent='−'+service.wages.toLocaleString()+' GP';if($('rdResultRep'))$('rdResultRep').textContent='+'+serviceReputationEstimate();
-    const review=nightReview();if($('rdReviewCard'))$('rdReviewCard').innerHTML=`<small>${service.specialServed?.type==='critic'?'CRITIC REVIEW':'FISH HOUSE REVIEW'}</small><b>${review.starText}</b><p>${review.line}</p>`;
+    $('rdResultFish').textContent=run.catches.filter(x=>x.kind==='fish').length;$('rdResultDishes').textContent=service.servedDishes.length;$('rdResultPerfect').textContent=service.servedDishes.filter(x=>x.quality===4).length;$('rdResultRevenue').textContent=Number(service.revenue||0).toLocaleString()+' GP';
+    if($('rdResultWalkouts'))$('rdResultWalkouts').textContent=service.lost||0;if($('rdResultQuality'))$('rdResultQuality').textContent=emptyNight?'—':'★'+avg.toFixed(1);if($('rdResultWages'))$('rdResultWages').textContent='−'+Number(service.wages||0).toLocaleString()+' GP';if($('rdResultRep'))$('rdResultRep').textContent=emptyNight?'—':'+'+serviceReputationEstimate();
+    if($('rdReviewCard')){
+      if(emptyNight)$('rdReviewCard').innerHTML='<small>NO SERVICE TONIGHT</small><b>Fish House stayed closed.</b><p>No menu-grade fish were landed. Your expedition, depth, salvage and progression are still being banked normally.</p>';
+      else{const review=nightReview();$('rdReviewCard').innerHTML=`<small>${service.specialServed?.type==='critic'?'CRITIC REVIEW':'FISH HOUSE REVIEW'}</small><b>${review.starText}</b><p>${review.line}</p>`;}
+    }
     $('rdResultReward').textContent='Balancing the Fish House books…';setSaveState('SAVING…','saving');
     const catches=run.catches.map(x=>({id:x.id,q:x.q,w:Number(x.weight||0),variant:x.variant||'normal',boss:!!x.boss,named_id:x.namedId||null}));const dishes=service.servedDishes.map(x=>({id:x.id,quality:x.quality,ingredient_q:x.ingredient_q||1}));
     const pendingPayload={run_id:runId,catches,dishes,max_depth:Math.round(run.maxDepth),customers:service.servedDishes.length};try{localStorage.setItem(PENDING_SAVE_KEY,JSON.stringify(pendingPayload))}catch(_){}

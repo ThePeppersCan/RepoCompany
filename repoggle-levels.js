@@ -253,7 +253,28 @@
   add('Death Rune Skull', 4, 8, 158000, 257000, () => [...circle(450,300,190,30), ...circle(380,285,55,10), ...circle(520,285,55,10), ...grid(360,405,5,2,45,45)], { targets: 25, powers: 2, armoured: 12, armouredTargets: true, explosive: 4, obstacles: [O.shield(380,285,75,0,.65,.4), O.shield(520,285,75,Math.PI,.65,-.4)], portals: portalPair(315,450,585,160), hint: 'The skull eyes open on a repeatable rhythm.' });
   add('Blood Rune Seal', 4, 8, 165000, 268000, () => [...circle(450,320,225,34), ...circle(450,320,145,24), ...line(310,180,590,460,12), ...line(590,180,310,460,12)], { targets: 26, powers: 2, armoured: 13, armouredTargets: true, explosive: 4, obstacles: [O.spinner(450,320,190,12,-.58,4)], portals: portalPair(230,320,670,320), hint: 'Use portals to strike opposite sides of the seal in one shot.' });
   add('Soul Spiral', 4, 8, 173000, 281000, () => moving([...spiral(450,320,35,245,4,52), ...circle(450,320,85,14)], 'orbit', 0, .2, 2), { targets: 27, powers: 2, armoured: 14, armouredTargets: true, explosive: 4, obstacles: [O.circle(450,320,32)], portals: portalPair(260,430,640,210), hint: 'Water Sight exposes the spiral’s first two rebounds.' });
-  add('Ancient Dragon', 4, 8, 182000, 295000, () => [...polyline([[180,340],[280,245],[390,300],[450,195],[510,300],[620,245],[720,340]],27), ...mirror(polyline([[430,330],[340,380],[275,470],[370,440]],26)), ...polyline([[420,355],[450,500],[480,355]],26)], { targets: 28, powers: 2, armoured: 14, armouredTargets: true, explosive: 5, obstacles: [O.shield(450,260,110,0,.6,.65)], portals: portalPair(235,430,665,190), hint: 'The dragon’s eye is protected; learn the shield timing.' });
+  add('Ancient Dragon', 4, 10, 176000, 286000, () => [
+    // Level 36 accessibility rebuild: keep the dragon silhouette, but every required rune now sits on an exposed rail.
+    // The old shield + crossed wing geometry could create effectively sealed pockets from the top-centre launcher.
+    ...arc(450,235,82,13,Math.PI*1.08,Math.PI*1.92),
+    ...polyline([[415,285],[350,255],[285,285],[220,245],[165,310]],31),
+    ...polyline([[485,285],[550,255],[615,285],[680,245],[735,310]],31),
+    ...polyline([[410,325],[360,355],[310,400],[235,445]],33),
+    ...polyline([[490,325],[540,355],[590,400],[665,445]],33),
+    ...line(420,335,420,470,6),
+    ...line(480,335,480,470,6),
+    ...polyline([[420,470],[450,515],[480,470]],27),
+    ...line(380,305,520,305,6)
+  ], {
+    targets: 24, powers: 2, armoured: 8, armouredTargets: false, explosive: 5,
+    // A short spinner creates timing pressure without sealing the dragon's head/eye behind a rotating shield.
+    obstacles: [O.spinner(450,365,92,9,.42,2)],
+    portals: [
+      ...portalPair(210,455,690,190),
+      ...portalPair(690,455,210,190).map((q,i)=>({...q,id:i?'d':'c',pair:i?'c':'d'}))
+    ],
+    hint: 'Both wings and the body have open launch lanes. Use either portal for the far wing; no required rune is sealed behind a shield.'
+  });
   add('Magical Prison', 4, 7, 190000, 308000, () => [...grid(245,190,9,7,52,48), ...circle(450,335,82,13)], { targets: 27, powers: 2, armoured: 15, armouredTargets: true, explosive: 5, obstacles: [O.rect(340,335,12,300,0), O.rect(450,335,12,300,0), O.rect(560,335,12,300,0), O.rect(450,260,320,12,0)], portals: portalPair(285,480,615,165), hint: 'Portal into the cells rather than forcing straight shots.' });
   add('Collapsing Altar', 4, 7, 199000, 323000, () => [...line(180,200,720,200,19), ...line(220,300,680,300,16), ...line(260,400,640,400,14), ...circle(450,485,70,10)], { targets: 28, powers: 2, armoured: 15, armouredTargets: true, explosive: 5, obstacles: [O.rect(330,250,170,11,.12), O.rect(570,350,170,11,-.12)], phases: [{ targetsRemaining: 20, shift: 'collapse1' }, { targetsRemaining: 10, shift: 'collapse2' }], hint: 'Each target group changes the altar. Pause and reassess.' });
   add('Rune Golem', 4, 7, 210000, 340000, () => [...circle(450,220,85,16), ...grid(350,300,5,4,50,50), ...line(350,475,280,520,4), ...line(550,475,620,520,4), ...line(340,315,230,370,5), ...line(560,315,670,370,5)], { targets: 30, powers: 2, armoured: 16, armouredTargets: true, explosive: 6, obstacles: [O.spinner(450,365,210,12,.48,2), O.shield(450,220,110,0,.7,-.5)], portals: portalPair(255,485,645,205), hint: 'Break the golem’s limbs to expose cleaner routes to its core.' });

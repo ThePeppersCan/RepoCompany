@@ -18087,6 +18087,24 @@ qmShowSharedGoal=function(state){
     ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
     ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png'],
 
+    ['bijou_patch','Bijou — Patch','assets/quidditch-tcg/cards/patch/bijou-patch.png'],
+    ['besquelcher_patch','Besquelcher — Patch','assets/quidditch-tcg/cards/patch/besquelcher-patch.png'],
+    ['daska_patch','Daska — Patch','assets/quidditch-tcg/cards/patch/daska-patch.png'],
+    ['debbie_patch','Debbie — Patch','assets/quidditch-tcg/cards/patch/debbie-patch.png'],
+    ['fenn_patch','Fenn — Patch','assets/quidditch-tcg/cards/patch/fenn-patch.png'],
+    ['jenny_patch','Jenny — Patch','assets/quidditch-tcg/cards/patch/jenny-patch.png'],
+    ['jud_patch','JUD — Patch','assets/quidditch-tcg/cards/patch/jud-patch.png'],
+    ['mad_rager_patch','Mad Rager — Patch','assets/quidditch-tcg/cards/patch/mad-rager-patch.png'],
+    ['navi_patch','Navi — Patch','assets/quidditch-tcg/cards/patch/navi-patch.png'],
+    ['nimbler_2000_patch','Nimbler 2000 — Patch','assets/quidditch-tcg/cards/patch/nimbler-2000-patch.png'],
+    ['pipsqueak_patch','Pipsqueak — Patch','assets/quidditch-tcg/cards/patch/pipsqueak-patch.png'],
+    ['qimi_patch','Qimi — Patch','assets/quidditch-tcg/cards/patch/qimi-patch.png'],
+    ['rocky_patch','ROCKY — Patch','assets/quidditch-tcg/cards/patch/rocky-patch.png'],
+    ['soup_patch','Soup — Patch','assets/quidditch-tcg/cards/patch/soup-patch.png'],
+    ['varko_patch','Varko — Patch','assets/quidditch-tcg/cards/patch/varko-patch.png'],
+    ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
+    ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
+
     ['wc2026_debbie_sorevia','Debbie, Sorevia — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png'],
     ['wc2026_dopey_dom_drazhen','Dopey Dom, Drazhen — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png'],
     ['wc2026_jenny_sorevia','Jenny, Sorevia — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png'],
@@ -18152,6 +18170,7 @@ qmShowSharedGoal=function(state){
     if(id.includes('_platinum'))return {key:'platinum',label:'PLATINUM'};
     if(id.includes('legendary'))return {key:'legendary',label:'LEGENDARY'};
     if(id.includes('full_art'))return {key:'fullart',label:'FULL ART'};
+    if(id.endsWith('_patch'))return {key:'patch',label:'PATCH'};
     return {key:'standard',label:'STANDARD'};
   };
   function firstRestoreSlot(cards){
@@ -18273,7 +18292,7 @@ qmShowSharedGoal=function(state){
     if(box&&box.dataset.storageManagerV2!=='1'){box.remove();box=null}
     if(!box){
       box=document.createElement('aside');box.id='repoTcgCardStorageDrawer';box.className='repo-binder-storage';box.dataset.storageManagerV2='1';box.dataset.storageFilter='all';box.setAttribute('aria-label','Hidden Cards');box.setAttribute('aria-hidden','true');
-      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN CARDS</strong><span class="repo-binder-storage-subtitle">Hidden cards remain in your collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Hidden Cards">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search stored cards…" aria-label="Search hidden cards"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Use RESTORE to place a card into the current spread. You can also drag a stored card directly onto a slot.</div>`;
+      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN CARDS</strong><span class="repo-binder-storage-subtitle">Hidden cards remain in your collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Hidden Cards">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search stored cards…" aria-label="Search hidden cards"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="patch" aria-pressed="false">PATCH</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Use RESTORE to place a card into the current spread. You can also drag a stored card directly onto a slot.</div>`;
       d.appendChild(box);
     }
     const setStorageOpen=open=>{
@@ -18795,7 +18814,7 @@ qmShowSharedGoal=function(state){
     ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
     ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
 ];
-  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
+  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
   window.repoTcgCardById=id=>cards[String(id||'').trim()]||null;
 
