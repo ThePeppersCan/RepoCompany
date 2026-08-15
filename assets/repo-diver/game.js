@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  window.__REPO_DIVER_BUILD__='v18-1.0-gold-candidate-20260815';
+  window.__REPO_DIVER_BUILD__='v18-1.1-deep-signal-quest-fix-20260816';
 
   const $ = id => document.getElementById(id);
   const D = window.RepoDiverData;
@@ -324,6 +324,55 @@
   function nearestMajorSite(){
     if(!run||run.interior)return null;let hit=null,best=9999;for(const s of run.sites||[]){const d=Math.hypot(s.x-run.player.x,s.y-run.player.y);if(d<best){best=d;hit=s}}return best<115?hit:null;
   }
+
+  // The first Deep Signal mission explicitly asks the player to FIND THE BUOY.
+  // V18 previously had the story text but no authored buoy entity, so the only
+  // visible target was the wreck itself. Keep this objective deterministic and
+  // independent of random world generation so every campaign run can progress.
+  function campaignFieldObjective(){
+    if(!run?.campaign||run.interior||run.campaign.replay||run.campaign.completed)return null;
+    const stage=Number(run.campaign.stage||0);
+    if(run.campaign.id==='signal_in_shallows'&&stage===0){
+      return {id:'deep_signal_buoy',x:355,y:220,radius:94,label:'DAMAGED SIGNAL BUOY',hint:'INSPECT THE REPEATING PULSE'};
+    }
+    return null;
+  }
+  function nearestCampaignFieldObjective(maxDistance=105){
+    const obj=campaignFieldObjective();if(!obj||!run?.player)return null;
+    return Math.hypot(obj.x-run.player.x,obj.y-run.player.y)<=maxDistance?obj:null;
+  }
+  async function activateCampaignFieldObjective(obj){
+    if(!obj||explorationBusy||campaignBusy||!run?.campaign||run.campaign.replay)return;
+    if(obj.id!=='deep_signal_buoy')return;
+    explorationBusy=true;
+    try{
+      const site=(run.sites||[]).find(s=>s.id===run.campaign.location_id);
+      if(!site)throw new Error('The Coral Lantern Wreck route could not be located.');
+      // Registering the nearby wreck here gives the authoritative campaign
+      // checkpoint a valid location-progress row without teleporting the player
+      // inside it. The player still has to swim to the wreck and explore it.
+      const r=await rpc('repo_diver_discover_location',{p_run_id:runId,p_location_id:site.id});
+      let st=(explorationState.locations||[]).find(x=>x.location_id===site.id);
+      if(!st){st={location_id:site.id};explorationState.locations.push(st)}
+      Object.assign(st,{discovered:true,stage:Number(r?.stage||st.stage||0),first_discovered_by:r?.first_discovered_by||st.first_discovered_by});
+      site.discovered=true;site.stage=Number(r?.stage||site.stage||0);
+      if(r?.new_discovery)explorationState.discovered_count=Number(explorationState.discovered_count||0)+1;
+      const before=Number(run.campaign.stage||0);
+      await syncCampaignCheckpoint(1);
+      if(Number(run.campaign.stage||0)>before){
+        run.campaignFieldObjectiveResolved=true;
+        run.ecology.landmark={id:'deep_signal_buoy',name:'DAMAGED SIGNAL BUOY',time:4.4};
+        E.banner?.(run,'SIGNAL BUOY LOCATED','PULSE MAPPED · CORAL LANTERN WRECK BEARING ACQUIRED','success',4.2);
+        campaignRadio('LYRA · TIDELINE','There. Same pulse, clean repeat. I have the wreck bearing now — move on it.',5200);
+        try{A.play?.('deep_signal')}catch(_){}
+      }
+    }catch(e){E.notice?.(run,e?.message||'SIGNAL BUOY INTERACTION FAILED','warning',2.2)}
+    finally{explorationBusy=false}
+  }
+  function interactCampaignFieldObjective(){
+    const obj=nearestCampaignFieldObjective();if(!obj)return false;
+    void activateCampaignFieldObjective(obj);return true;
+  }
   function toolAvailable(id){return !id||id==='none'||specialistTools.includes(id)}
   function interiorWildlife(){
     const pool=D.fishForBiome(run.biome.id).filter(f=>['eel','crustacean','jelly','seahorse','ray'].includes(f.archetype)||['bottom','ambush'].includes(f.behavior));
@@ -366,7 +415,16 @@
   function interactExploration(){
     if(!run)return false;
     if(run.interior){if(run.player.x<135){exitMajorSite();return true}void advanceInterior();return true}
-    const site=nearestMajorSite();if(site){void discoverAndEnterSite(site);return true}
+    if(interactCampaignFieldObjective())return true;
+    const site=nearestMajorSite();if(site){
+      // Mission 1 must actually resolve the authored buoy before the wreck can
+      // advance the story. This prevents the old accidental bypass.
+      if(run?.campaign?.id==='signal_in_shallows'&&!run.campaign.replay&&Number(run.campaign.stage||0)===0&&site.id===run.campaign.location_id){
+        E.banner?.(run,'FOLLOW THE SIGNAL FIRST','THE DAMAGED BUOY IS PULSING NORTH-WEST OF THE WRECK','event',2.6);
+        return true;
+      }
+      void discoverAndEnterSite(site);return true
+    }
     return false;
   }
 
@@ -593,7 +651,7 @@
     if(masterConfig){run.master={...masterConfig};run.masterStartedAt=run.elapsed||0;}
     if(campaignMissionId){const m=campaignMission(campaignMissionId);try{const cs=await rpc('repo_diver_begin_campaign_mission',{p_run_id:runId,p_mission_id:campaignMissionId});run.campaign={...m,...cs,id:campaignMissionId,title:cs?.title||m?.title||'THE DEEP SIGNAL',act:Number(m?.act||campaignState.act||1),stage:Number(cs?.stage||0),stage_count:Number(cs?.stage_count||m?.stage_count||1),type:cs?.type||m?.type||'site',location_id:cs?.location_id||m?.location_id||null,replay:!!(campaignReplay||cs?.replay),completed:false,sonarBaseline:null};run.campaignStartedAt=run.elapsed||0;}catch(e){$('rdStatus').textContent=e?.message||'CAMPAIGN LAUNCH FAILED';console.warn('Campaign launch:',e);}}
     for(const site of run.sites||[]){const st=explorationLocationState(site.id);site.discovered=!!st.discovered;site.completed=!!st.completed;site.stage=Number(st.stage||0);if(missionLocationId===site.id){site.x=600;site.y=330;run.ecology.landmark={id:'mission_site',name:site.name,time:4.2};}}
-    if(missionLocationId){const target=D.locationById(missionLocationId);if(target)E.banner?.(run,run.campaign?'STORY EXPEDITION':run.master?'MASTER EXPEDITION':'AUTHORED EXPEDITION',`${target.name} · LOCATE THE ENTRANCE AND PRESS E`,'event',4.2);}if(run.master&&!run.campaign){cinematic(run.master.title,`${String(run.master.difficulty||'veteran').toUpperCase()} · MASTER EXPEDITION`,1.8);E.banner?.(run,'MASTER OPERATION',masterObjectiveText(run.master),'event',4.2);try{A.play?.('campaign_reveal')}catch(_){}}if(run.campaign){cinematic(run.campaign.title,`${run.campaign.replay?'EXPEDITION ARCHIVE REPLAY':`ACT ${run.campaign.act} · ${campaignActName(run.campaign.act)}`}`,1.9);campaignRadio(campaignCrewName(run.campaign.crew?.[0]||'darro'),campaignDialogueFor(run.campaign.crew?.[0]||'darro',run.campaign));try{A.play?.('campaign_reveal')}catch(_){}}
+    if(missionLocationId){const target=D.locationById(missionLocationId);if(target){const firstBuoy=run?.campaign?.id==='signal_in_shallows'&&!run.campaign.replay&&Number(run.campaign.stage||0)===0;E.banner?.(run,run.campaign?'STORY EXPEDITION':run.master?'MASTER EXPEDITION':'AUTHORED EXPEDITION',firstBuoy?'DAMAGED SIGNAL BUOY · FOLLOW THE CYAN PULSE AND PRESS E':`${target.name} · LOCATE THE ENTRANCE AND PRESS E`,'event',4.2);}}if(run.master&&!run.campaign){cinematic(run.master.title,`${String(run.master.difficulty||'veteran').toUpperCase()} · MASTER EXPEDITION`,1.8);E.banner?.(run,'MASTER OPERATION',masterObjectiveText(run.master),'event',4.2);try{A.play?.('campaign_reveal')}catch(_){}}if(run.campaign){cinematic(run.campaign.title,`${run.campaign.replay?'EXPEDITION ARCHIVE REPLAY':`ACT ${run.campaign.act} · ${campaignActName(run.campaign.act)}`}`,1.9);campaignRadio(campaignCrewName(run.campaign.crew?.[0]||'darro'),campaignDialogueFor(run.campaign.crew?.[0]||'darro',run.campaign));try{A.play?.('campaign_reveal')}catch(_){}}
     if(run.ecology?.tagReturn?.tagId){rpc('repo_diver_note_tag_return',{p_run_id:runId,p_tag_id:run.ecology.tagReturn.tagId}).then(r=>{const t=(ecologyState.tags||[]).find(x=>Number(x.tag_id)===Number(r?.tag_id));if(t)t.sightings=Number(r?.sightings||t.sightings)}).catch(()=>{});}
     lastRecentCatchSerial = 0;
     show('rdDiveView');
@@ -894,6 +952,30 @@
     ctx.save();ctx.translate(inside.objective.x,inside.objective.y);ctx.shadowColor=pal.glow;ctx.shadowBlur=18;ctx.fillStyle=pal.accent;ctx.strokeStyle=pal.glow;ctx.lineWidth=2.4;ctx.beginPath();ctx.roundRect(-30,-24,60,48,8);ctx.fill();ctx.stroke();ctx.globalAlpha=.38+.25*Math.sin(run.elapsed*4);ctx.strokeRect(-38,-32,76,64);ctx.restore();
     ctx.save();ctx.fillStyle='rgba(2,8,12,.80)';ctx.beginPath();ctx.roundRect(18,18,360,66,8);ctx.fill();ctx.strokeStyle='rgba(160,220,215,.2)';ctx.stroke();ctx.fillStyle='#8eb4b2';ctx.font='700 9px ui-monospace,monospace';ctx.fillText(`${site.type.toUpperCase()} INTERIOR · STAGE ${Math.min(inside.stage+1,site.rooms.length)} / ${site.rooms.length}`,32,39);ctx.fillStyle='#e4f4ed';ctx.font='700 15px ui-monospace,monospace';ctx.fillText(site.name,32,59);ctx.fillStyle=pal.glow;ctx.font='700 9px ui-monospace,monospace';ctx.fillText(inside.completed?'PRIMARY ROUTE COMPLETE':room.name,32,75);ctx.restore();
   }
+  function drawCampaignFieldObjective(ctx){
+    const obj=campaignFieldObjective();if(!obj)return;
+    const pulse=.5+.5*Math.sin((run?.elapsed||0)*3.4),near=Math.hypot(obj.x-run.player.x,obj.y-run.player.y)<145;
+    ctx.save();ctx.translate(obj.x,obj.y);
+    // Sonar-like rings make the buoy findable without turning it into a giant UI marker.
+    ctx.strokeStyle=`rgba(92,235,242,${.25+.28*pulse})`;ctx.lineWidth=1.4;
+    for(let i=0;i<3;i++){ctx.globalAlpha=Math.max(.12,.72-i*.19);ctx.beginPath();ctx.arc(0,0,30+i*18+pulse*5,0,Math.PI*2);ctx.stroke()}
+    ctx.globalAlpha=1;ctx.shadowColor='#68edf2';ctx.shadowBlur=12+10*pulse;
+    // Tether / damaged antenna.
+    ctx.strokeStyle='#7f9a91';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,18);ctx.quadraticCurveTo(-8,55,7,92);ctx.stroke();
+    ctx.strokeStyle='#c7d4be';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(4,-18);ctx.lineTo(10,-39);ctx.lineTo(15,-28);ctx.stroke();
+    // Buoy body.
+    ctx.fillStyle='#a74b2e';ctx.strokeStyle='#e2b05d';ctx.lineWidth=2.2;ctx.beginPath();ctx.roundRect(-18,-18,36,36,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#e0b55c';ctx.fillRect(-18,-4,36,7);
+    ctx.fillStyle=pulse>.35?'#8ffff7':'#397d7f';ctx.beginPath();ctx.arc(5,-25,4.2,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;ctx.fillStyle='rgba(2,10,14,.86)';ctx.strokeStyle=near?'#9bf6ef':'rgba(102,190,190,.55)';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(-72,-72,144,25,5);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#d9fbf3';ctx.font='900 8px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText(obj.label,0,-57);
+    if(near){ctx.fillStyle='#ffe7a4';ctx.font='800 7px ui-monospace,monospace';ctx.fillText(inputMode==='gamepad'?'A · INSPECT':'E · INSPECT',0,61)}
+    ctx.restore();
+    if(settings.storyAssist){
+      ctx.save();ctx.strokeStyle='rgba(109,236,238,.45)';ctx.setLineDash([6,7]);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(run.player.x,run.player.y);ctx.lineTo(obj.x,obj.y);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+    }
+  }
+
   function drawCampaignSetpiece(ctx,w,h){const c=run?.campaign;if(!c)return;const stage=Number(c.stage||0);if(c.id==='silence_at_erebos'&&run.interior&&run.interior.site?.id==='station_erebos'&&stage>=5){ctx.save();ctx.fillStyle='#02070a';ctx.strokeStyle='rgba(114,210,217,.28)';ctx.lineWidth=6;ctx.fillRect(570,115,320,225);ctx.strokeRect(570,115,320,225);const t=(run.elapsed*.08)%1;ctx.globalAlpha=.18+.14*Math.sin(run.elapsed*.6);ctx.fillStyle='#9bd3dc';ctx.beginPath();ctx.ellipse(930-t*520,235,125,36,-.08,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='rgba(3,9,12,.88)';ctx.fillRect(575,305,310,30);ctx.fillStyle='#9cc9ca';ctx.font='700 9px ui-monospace,monospace';ctx.fillText('OBSERVATION DOME · EXTERNAL CONTACT',592,324);ctx.restore();}
     if(!run.interior&&c.crew?.includes?.('cass')){ctx.save();const rx=760+Math.sin(run.elapsed*.23)*80,ry=175+Math.sin(run.elapsed*.9)*18;ctx.translate(rx,ry);ctx.globalAlpha=.68;ctx.fillStyle='#203b43';ctx.strokeStyle='#8fc8cd';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(0,0,16,7,.08,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(18,-1,6,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='rgba(124,202,210,.5)';ctx.beginPath();ctx.moveTo(-16,0);ctx.lineTo(-34,7);ctx.lineTo(-46,3);ctx.stroke();ctx.fillStyle='rgba(5,13,17,.72)';ctx.fillRect(-35,15,76,18);ctx.fillStyle='#9bc8ca';ctx.font='700 7px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText('CASS ROOK · FIELD RIVAL',3,27);ctx.restore();}
     if(c.type!=='depth'&&c.type!=='finale')return;ctx.save();const intensity=Math.min(1,Math.max(0,(Number(run.maxDepth||0)-120)/420));ctx.fillStyle=`rgba(0,2,8,${.16+intensity*.48})`;ctx.fillRect(0,0,w,h);ctx.globalAlpha=.18+intensity*.34;ctx.fillStyle='#9ad9e8';for(let i=0;i<(settings.graphics==='balanced'?10:22);i++){const x=(i*173+run.elapsed*(4+i%3))%w,y=(i*97+run.elapsed*(16+i%4)*2)%h;ctx.fillRect(x,y,.7+(i%3)*.5,8+(i%4)*7)}ctx.globalAlpha=1;
@@ -904,7 +986,7 @@
 
   function draw(){
     const canvas=$('rdDiveCanvas'),ctx=canvas?.getContext('2d');if(!ctx||!run)return;const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);ctx.save();const shakeAmt=run.shake*Number(settings.shake??1);ctx.translate((Math.random()-.5)*shakeAmt,(Math.random()-.5)*shakeAmt);const z=run.camera?.zoom||1;ctx.translate(w/2,h/2);ctx.scale(z,z);ctx.translate(-w/2-(run.camera?.x||0)*.055,-h/2-(run.camera?.y||0)*.035);
-    if(run.interior){drawInterior(ctx,w,h);}else{drawEnvironment(ctx,w,h,run.biome);drawLivingOceanBackdrop(ctx,w,h);drawMajorSites(ctx);drawHazards(ctx);}drawCampaignSetpiece(ctx,w,h);
+    if(run.interior){drawInterior(ctx,w,h);}else{drawEnvironment(ctx,w,h,run.biome);drawLivingOceanBackdrop(ctx,w,h);drawMajorSites(ctx);drawHazards(ctx);}drawCampaignSetpiece(ctx,w,h);drawCampaignFieldObjective(ctx);
     for(const t of run.treasures){if(run.interior||t.opened)continue;const pulse=1+Math.sin(t.phase*3)*.06;ctx.save();ctx.translate(t.x,t.y);ctx.scale(pulse,pulse);ctx.shadowColor='#ffd96c';ctx.shadowBlur=t.revealed?20:7;ctx.fillStyle='#68451e';ctx.beginPath();ctx.roundRect(-14,-9,28,18,3);ctx.fill();ctx.strokeStyle=t.revealed?'#fff09b':'#d8aa55';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#d5a847';ctx.fillRect(-2,-9,4,18);if((profile.equipment?.salvage||1)<(t.required||1)){ctx.shadowBlur=0;ctx.fillStyle='#c7d5d7';ctx.font='7px ui-monospace,monospace';ctx.textAlign='center';ctx.fillText(`RIG ${t.required}`,0,-15);}ctx.restore();}
     for(const f of run.fish)drawFish(ctx,f);for(const p of run.particles){ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color||'#c8ffff';ctx.beginPath();ctx.arc(p.x,p.y,p.size||2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;drawHarpoon(ctx);drawSonar(ctx);drawDiver(ctx,run.player);drawAim(ctx);
     // Near-field particulate gives a real foreground layer without obscuring play.
@@ -930,7 +1012,7 @@
     if(run.boss?.activeFish&&$('rdDepthBand'))$('rdDepthBand').textContent=`ANCIENT CONTACT · ${Math.max(0,run.boss.activeFish.hp)}/${run.boss.activeFish.maxHp} ARMOUR`;
     const bossBar=$('rdBossBar'),boss=run.boss?.activeFish;if(bossBar){bossBar.classList.toggle('hidden',!boss);if(boss){$('rdBossName').textContent=boss.name;$('rdBossFill').style.width=`${Math.max(0,boss.hp/boss.maxHp*100)}%`;}}
     if(run.harpoon?.fight)contextTip('reel','HOLD / RELEASE TO MANAGE LINE TENSION','SPACE');else if(run.interior){const inside=run.interior,room=inside.site.rooms[Math.min(inside.stage,inside.site.rooms.length-1)],nearExit=run.player.x<145,nearObj=Math.hypot(run.player.x-inside.objective.x,run.player.y-inside.objective.y)<110;if(nearExit)contextTip('site_exit_'+inside.site.id,'RETURN TO OPEN WATER','E');else if(nearObj&&!inside.completed)contextTip('site_task_'+inside.site.id+'_'+inside.stage,`${(room?.task||'INTERACT').replaceAll('_',' ').toUpperCase()} · ${room?.tool&&room.tool!=='none'?(D.EXPLORATION_TOOLS?.find(x=>x.id===room.tool)?.name||room.tool.toUpperCase()):'NO TOOL REQUIRED'}`,'E');}
-    else if(nearestMajorSite())contextTip('major_site_'+nearestMajorSite().id,`${nearestMajorSite().discovered?'ENTER':'DISCOVER'} ${nearestMajorSite().name}`,'E');else if(run.recentCatch?.releaseUntil>run.elapsed&&!run.recentCatch?.released)contextTip('release','RELEASE THIS CATCH BACK INTO THE OCEAN','X');else if(run.sonar?.cooldown<=0&&run.elapsed>8)contextTip('sonar','SONAR IS READY — PING THE WATER','Q');else if(run.treasures?.some(t=>!t.opened&&Math.hypot(t.x-run.player.x,t.y-run.player.y)<95))contextTip('salvage','SALVAGE WITHIN REACH','E');
+    else if(nearestCampaignFieldObjective(135))contextTip('deep_signal_buoy','INSPECT THE DAMAGED SIGNAL BUOY',inputMode==='gamepad'?'A':'E');else if(nearestMajorSite())contextTip('major_site_'+nearestMajorSite().id,`${nearestMajorSite().discovered?'ENTER':'DISCOVER'} ${nearestMajorSite().name}`,'E');else if(run.recentCatch?.releaseUntil>run.elapsed&&!run.recentCatch?.released)contextTip('release','RELEASE THIS CATCH BACK INTO THE OCEAN','X');else if(run.sonar?.cooldown<=0&&run.elapsed>8)contextTip('sonar','SONAR IS READY — PING THE WATER','Q');else if(run.treasures?.some(t=>!t.opened&&Math.hypot(t.x-run.player.x,t.y-run.player.y)<95))contextTip('salvage','SALVAGE WITHIN REACH','E');
     if($('rdGearCondition'))$('rdGearCondition').textContent=`${Math.round(run.durability??100)}%`;
     if($('rdDescentLayer')){$('rdDescentLayer').textContent=run.mode==='descent'?`L${Number(run.descent?.layer||1)}`:'—';$('rdDescentLayer').closest('.rd-hudbox')?.classList.toggle('hidden',run.mode!=='descent');}
     if(tutorialState.move&&!tutorialState.harpoon&&run.elapsed>2&&run.fish?.some(x=>!x.hidden&&Math.hypot(x.x-run.player.x,x.y-run.player.y)<260))contextTip('harpoon','AIM WITH THE MOUSE · FIRE THE HARPOON','CLICK');
