@@ -415,7 +415,27 @@
     }catch(e){E.notice?.(run,e?.message||'SITE ACCESS FAILED','warning',1.8)}finally{explorationBusy=false}
   }
   async function advanceInterior(){
-    const inside=run?.interior;if(!inside||explorationBusy)return;const site=inside.site;if(inside.completed||inside.stage>=site.rooms.length){E.notice?.(run,'SITE EXPLORATION COMPLETE · RETURN TO THE ENTRANCE','success',1.5);return}
+    const inside=run?.interior;if(!inside||explorationBusy)return;const site=inside.site;if(inside.completed||inside.stage>=site.rooms.length){
+      // A completed archaeology route can still be an unfinished campaign route.
+      // The old site-campaign checkpoint RPC recorded checkpoint rows without
+      // advancing campaign_state.stage, so players could reach 5/5 here while
+      // the HUD remained stuck on MAP THE WRECK. Reconcile the story state
+      // before telling the player there is nothing left to do.
+      if(run?.campaign?.location_id===site.id&&!run.campaign.replay&&!run.campaign.completed){
+        explorationBusy=true;
+        try{
+          await catchUpCampaignSite(site);
+          if(run.campaign.completed){
+            E.banner?.(run,'MISSION COMPLETE',`${run.campaign.title} · WRECK MAPPED · RETURN TO THE TIDELINE`,'success',4.2);
+            campaignRadio('LYRA · TIDELINE','That is the full wreck mapped. The pulse is in the log and the route is clean. Bring the report home — we have our first real lead.',7600);
+          }else{
+            E.notice?.(run,`${campaignStageLabel(run.campaign,run.campaign.stage)} · STORY CHECKPOINT ${Number(run.campaign.stage||0)} / ${Number(run.campaign.stage_count||1)}`,'event',2.2);
+          }
+        }finally{explorationBusy=false}
+        return;
+      }
+      E.notice?.(run,'SITE EXPLORATION COMPLETE · RETURN TO THE ENTRANCE','success',1.5);return
+    }
     const room=site.rooms[Math.min(inside.stage,site.rooms.length-1)],tool=room?.tool||'none';if(!toolAvailable(tool)){const def=D.EXPLORATION_TOOLS?.find(x=>x.id===tool);E.banner?.(run,'SPECIALIST TOOL REQUIRED',`${def?.name||tool.toUpperCase()} · CHANGE LOADOUT AT THE HARBOUR`,'warning',2.4);return}
     if(Math.hypot(run.player.x-inside.objective.x,run.player.y-inside.objective.y)>95){E.notice?.(run,'MOVE CLOSER TO THE INTERACTION POINT','muted',.9);return}
     explorationBusy=true;inside.taskBusy=true;const label={enter:'SECURING ENTRY',cut:'CUTTING DEBRIS',power:'RESTORING POWER',scan:'SCANNING STRUCTURE',line:'SETTING DIVE LINE',align:'ALIGNING MECHANISM',artifact:'RECOVERING RELIC'}[room.task]||'WORKING';E.banner?.(run,label,`${room.name} · ${tool==='none'?'NO SPECIALIST TOOL':(D.EXPLORATION_TOOLS?.find(x=>x.id===tool)?.name||tool.toUpperCase())}`,'event',1.4);try{A.play?.('mechanism',{task:room.task,type:site.type})}catch(_){}
@@ -427,7 +447,19 @@
   }
   function interactExploration(){
     if(!run)return false;
-    if(run.interior){if(run.player.x<135){exitMajorSite();return true}void advanceInterior();return true}
+    if(run.interior){
+      if(run.player.x<135){
+        const site=run.interior.site;
+        // Leaving a completed story site is also a final reconciliation point.
+        // Do not allow an already-mapped wreck to strand the mission if an old
+        // client/server checkpoint mismatch exists.
+        if(run?.campaign?.location_id===site.id&&!run.campaign.replay&&!run.campaign.completed){
+          void catchUpCampaignSite(site).finally(()=>exitMajorSite());
+        }else exitMajorSite();
+        return true
+      }
+      void advanceInterior();return true
+    }
     if(interactCampaignFieldObjective())return true;
     const site=nearestMajorSite();if(site){
       // Mission 1 must actually resolve the authored buoy before the wreck can
