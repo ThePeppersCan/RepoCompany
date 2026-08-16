@@ -11261,3 +11261,680 @@ body.repo-logged-out #repoDashboardV20 .character-button{display:block!important
   86%{opacity:calc(var(--fx-opacity,.42) * .66)}
   100%{opacity:0;transform:translate3d(var(--fx-end-x,42px),var(--fx-end-y,330px),0) scale(.84)}
 }
+
+
+/* ======================================================================
+   REPO COMPANY V20.20 — STAINED-GLASS SANCTUARY CHARACTER SCENE
+   New supplied backdrop, six central step seats, side walk-ins and subtle
+   moving sunlight / air currents. All effects remain behind the characters.
+   ====================================================================== */
+#repoDashboardV20 #scene.sanctuary-scene{
+  background:#07100e!important;
+  isolation:isolate!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene>.tavern-lobby--sanctuary{
+  position:absolute!important;
+  inset:-2px!important;
+  width:calc(100% + 4px)!important;
+  height:calc(100% + 4px)!important;
+  overflow:hidden!important;
+  background:#07100e!important;
+  background-image:none!important;
+  isolation:isolate!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-backdrop{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  opacity:1!important;
+  z-index:0!important;
+  transform:scale(1.004)!important;
+  filter:saturate(.98) contrast(1.015) brightness(.985)!important;
+  pointer-events:none!important;
+}
+
+/* Warm window bloom plus a very soft diagonal shaft. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine{
+  position:absolute!important;
+  inset:0!important;
+  z-index:2!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  mix-blend-mode:screen!important;
+  background:
+    radial-gradient(ellipse at 50% 22%,rgba(255,220,145,.17) 0%,rgba(255,195,94,.075) 18%,transparent 42%),
+    radial-gradient(ellipse at 50% 61%,rgba(255,185,87,.055) 0%,transparent 39%)!important;
+  opacity:.82!important;
+  animation:repoSanctuarySunBreathe 8.5s ease-in-out infinite alternate!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine::before{
+  content:''!important;
+  position:absolute!important;
+  left:31%!important;
+  top:-18%!important;
+  width:34%!important;
+  height:116%!important;
+  background:linear-gradient(104deg,transparent 0 27%,rgba(255,232,176,.02) 35%,rgba(255,224,155,.09) 48%,rgba(255,239,200,.035) 60%,transparent 71%)!important;
+  filter:blur(9px)!important;
+  transform:rotate(-5deg)!important;
+  transform-origin:50% 0!important;
+  animation:repoSanctuaryRayShift 11s ease-in-out infinite alternate!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine::after{
+  content:''!important;
+  position:absolute!important;
+  left:8%!important;
+  right:8%!important;
+  bottom:11%!important;
+  height:13%!important;
+  background:radial-gradient(ellipse at 50% 50%,rgba(255,197,98,.08),transparent 68%)!important;
+  filter:blur(8px)!important;
+  opacity:.75!important;
+}
+
+/* Long, nearly transparent air ribbons make the room feel breezy. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze{
+  position:absolute!important;
+  inset:0!important;
+  z-index:3!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{
+  position:absolute!important;
+  left:-36%!important;
+  top:var(--y)!important;
+  width:var(--w)!important;
+  height:1px!important;
+  border-radius:999px!important;
+  background:linear-gradient(90deg,transparent,rgba(241,246,239,.24),rgba(255,229,178,.18),transparent)!important;
+  filter:blur(.35px)!important;
+  opacity:0!important;
+  transform:translate3d(0,0,0) rotate(-5deg)!important;
+  animation:repoSanctuaryBreeze var(--d) linear var(--delay) infinite!important;
+}
+
+/* Tiny lit dust/pollen flecks moving in the same air current. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+  position:absolute!important;
+  inset:0!important;
+  z-index:4!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  mix-blend-mode:screen!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit{
+  position:absolute!important;
+  left:var(--x)!important;
+  top:var(--y)!important;
+  width:var(--s)!important;
+  height:var(--s)!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(255,246,203,.92) 0 28%,rgba(255,199,92,.52) 55%,transparent 78%)!important;
+  box-shadow:0 0 3px rgba(255,215,132,.30)!important;
+  opacity:0!important;
+  animation:repoSanctuaryDust var(--d) ease-in-out var(--delay) infinite!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit.is-pale{
+  background:radial-gradient(circle,rgba(255,255,255,.92) 0 30%,rgba(224,239,235,.48) 58%,transparent 80%)!important;
+  box-shadow:0 0 3px rgba(235,245,241,.26)!important;
+}
+
+/* Guests remain the foreground subject. */
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest-layer{z-index:10!important;overflow:hidden!important}
+#repoDashboardV20 #scene.sanctuary-scene .tavern-lobby-vignette{
+  z-index:12!important;
+  box-shadow:inset 0 0 34px rgba(2,7,6,.24),inset 0 -18px 26px rgba(1,5,4,.13)!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-billboard-seated,
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-sanctuary-seated{
+  width:30.5%!important;
+  z-index:11!important;
+  animation:none!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-billboard-seated::before{display:none!important}
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-billboard-walking,
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-sanctuary-walking{
+  z-index:9!important;
+  animation:none!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest img{
+  filter:drop-shadow(0 4px 3px rgba(2,6,5,.58)) drop-shadow(0 0 2px rgba(255,210,126,.07))!important;
+}
+
+@keyframes repoSanctuarySunBreathe{
+  0%{opacity:.62;filter:brightness(.94)}
+  55%{opacity:.88;filter:brightness(1.05)}
+  100%{opacity:.74;filter:brightness(.99)}
+}
+@keyframes repoSanctuaryRayShift{
+  from{transform:translateX(-3%) rotate(-7deg);opacity:.55}
+  to{transform:translateX(5%) rotate(-2deg);opacity:.86}
+}
+@keyframes repoSanctuaryBreeze{
+  0%{opacity:0;transform:translate3d(0,8px,0) rotate(-5deg)}
+  12%{opacity:.32}
+  68%{opacity:.20}
+  100%{opacity:0;transform:translate3d(850px,var(--drift),0) rotate(-5deg)}
+}
+@keyframes repoSanctuaryDust{
+  0%{opacity:0;transform:translate3d(0,4px,0) scale(.55)}
+  16%{opacity:.55}
+  55%{opacity:.42}
+  100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(1.05)}
+}
+@media(prefers-reduced-motion:reduce){
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine::before,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit{animation:none!important}
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{display:none!important}
+}
+
+
+/* ======================================================================
+   REPO COMPANY V20.21 — SANCTUARY POSITION + ATMOSPHERE VISIBILITY
+   Lift seated guests onto the marked stone step, reduce their displayed size
+   by 5%, and make the stained-glass sunlight / moving air clearly readable.
+   ====================================================================== */
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-billboard-seated,
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-sanctuary-seated{
+  width:28.975%!important; /* exactly 5% smaller than V20.20's 30.5% */
+}
+
+/* More legible warm stained-glass bloom without washing out the artwork. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine{
+  background:
+    radial-gradient(ellipse at 50% 19%,rgba(255,235,177,.34) 0%,rgba(255,205,111,.18) 19%,rgba(255,176,74,.07) 37%,transparent 54%),
+    radial-gradient(ellipse at 50% 62%,rgba(255,204,116,.13) 0%,rgba(255,178,77,.045) 43%,transparent 64%)!important;
+  opacity:1!important;
+  filter:saturate(1.04)!important;
+}
+
+/* Three broad, soft shafts moving very slowly across the glass and floor. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine::before{
+  left:14%!important;
+  top:-25%!important;
+  width:68%!important;
+  height:135%!important;
+  background:linear-gradient(105deg,
+    transparent 0 13%,
+    rgba(255,242,204,.035) 18%,
+    rgba(255,226,163,.19) 23%,
+    rgba(255,245,214,.07) 29%,
+    transparent 35% 43%,
+    rgba(255,234,185,.035) 47%,
+    rgba(255,216,143,.145) 52%,
+    rgba(255,244,211,.05) 57%,
+    transparent 63% 71%,
+    rgba(255,229,172,.11) 77%,
+    transparent 84% 100%)!important;
+  filter:blur(6px)!important;
+  opacity:.92!important;
+  transform:rotate(-5deg)!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine::after{
+  left:4%!important;
+  right:4%!important;
+  bottom:7%!important;
+  height:19%!important;
+  background:radial-gradient(ellipse at 50% 50%,rgba(255,219,148,.19) 0%,rgba(255,182,79,.07) 43%,transparent 72%)!important;
+  filter:blur(7px)!important;
+  opacity:.95!important;
+}
+
+/* Air ribbons should now be visible at a glance, but remain soft and slow. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{
+  height:2px!important;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(231,244,238,.08) 15%,
+    rgba(244,251,246,.52) 46%,
+    rgba(255,229,181,.36) 63%,
+    transparent 100%)!important;
+  filter:blur(.45px) drop-shadow(0 0 2px rgba(255,240,205,.14))!important;
+}
+@keyframes repoSanctuaryBreeze{
+  0%{opacity:0;transform:translate3d(0,8px,0) rotate(-5deg)}
+  10%{opacity:.54}
+  58%{opacity:.40}
+  82%{opacity:.25}
+  100%{opacity:0;transform:translate3d(850px,var(--drift),0) rotate(-5deg)}
+}
+
+/* Lit pollen/dust becomes just visible enough to sell the moving sunlight. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit{
+  width:max(var(--s),2px)!important;
+  height:max(var(--s),2px)!important;
+  box-shadow:0 0 4px rgba(255,215,132,.48),0 0 8px rgba(255,190,91,.10)!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit.is-pale{
+  box-shadow:0 0 4px rgba(240,250,246,.52),0 0 7px rgba(220,239,233,.12)!important;
+}
+@keyframes repoSanctuaryDust{
+  0%{opacity:0;transform:translate3d(0,4px,0) scale(.55)}
+  14%{opacity:.78}
+  55%{opacity:.58}
+  88%{opacity:.32}
+  100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(1.08)}
+}
+
+
+/* ======================================================================
+   REPO COMPANY V20.22 — STEP ALIGNMENT + VISIBLE BREEZE + LEAF CURRENT
+   ====================================================================== */
+/* Guests are now anchored higher in JS so their boots land on the lower
+   sanctuary stone step rather than the scene frame. Size remains V20.21. */
+
+/* Make the wind read as actual soft ribbons rather than hairline streaks. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze{
+  z-index:6!important;
+  mix-blend-mode:screen!important;
+  opacity:1!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{
+  height:14px!important;
+  min-width:150px!important;
+  border-top:2px solid rgba(244,250,246,.58)!important;
+  border-radius:50% 60% 0 0!important;
+  background:linear-gradient(180deg,rgba(255,242,212,.055),transparent 62%)!important;
+  filter:drop-shadow(0 0 2px rgba(255,241,207,.30)) blur(.15px)!important;
+  opacity:0!important;
+  transform-origin:50% 50%!important;
+  animation:repoSanctuaryBreezeV22 var(--d) linear var(--delay) infinite!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i:nth-child(3n){
+  border-top-color:rgba(225,244,239,.48)!important;
+}
+@keyframes repoSanctuaryBreezeV22{
+  0%{opacity:0;transform:translate3d(0,5px,0) rotate(-4deg) scaleX(.92)}
+  8%{opacity:.72}
+  44%{opacity:.60;transform:translate3d(430px,calc(var(--drift) * .45),0) rotate(-2deg) scaleX(1.04)}
+  78%{opacity:.40}
+  100%{opacity:0;transform:translate3d(900px,var(--drift),0) rotate(-5deg) scaleX(.96)}
+}
+
+/* A sparse Autumn-Current-style leaf pass inside the sanctuary itself. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves{
+  position:absolute!important;
+  inset:0!important;
+  z-index:7!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf{
+  position:absolute!important;
+  left:var(--x)!important;
+  top:var(--y)!important;
+  width:calc(var(--s) + 3px)!important;
+  height:var(--s)!important;
+  border-radius:90% 10% 90% 10%!important;
+  opacity:0!important;
+  transform-origin:50% 50%!important;
+  background:linear-gradient(135deg,#f8ce63 0%,#ce6b28 58%,#74351b 100%)!important;
+  box-shadow:0 0 3px rgba(230,152,54,.28)!important;
+  animation:repoSanctuaryLeafFly var(--d) ease-in-out var(--delay) infinite!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf--rust{
+  background:linear-gradient(135deg,#e7a447 0%,#a84b27 60%,#54281e 100%)!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf--pale{
+  background:linear-gradient(135deg,#fffdf2 0%,#e9e3d2 60%,#a99c87 100%)!important;
+  box-shadow:0 0 3px rgba(255,248,227,.24)!important;
+}
+@keyframes repoSanctuaryLeafFly{
+  0%{opacity:0;transform:translate3d(-90px,-12px,0) rotate(0deg) scale(.72)}
+  10%{opacity:.72}
+  42%{opacity:.68;transform:translate3d(calc(var(--dx) + 245px),calc(var(--dy) * .35),0) rotate(calc(var(--spin) * .46)) scale(1)}
+  75%{opacity:.52}
+  100%{opacity:0;transform:translate3d(calc(var(--dx) + 680px),var(--dy),0) rotate(var(--spin)) scale(.86)}
+}
+
+/* Keep effects under the guest sprites but above the stained glass. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{z-index:5!important}
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest-layer{z-index:10!important}
+
+@media(prefers-reduced-motion:reduce){
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves{display:none!important}
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{animation:none!important}
+}
+
+
+/* ======================================================================
+   REPO COMPANY V20.23 — SEAT SCALE + ATMOSPHERE AUTHORITY
+   - seats lowered only a few pixels
+   - seated characters 10% smaller than V20.22
+   - sanctuary wind/leaves explicitly remain rendered (older reduced-motion
+     rules were hiding the parent layers entirely on some systems)
+   ====================================================================== */
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-billboard-seated,
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-sanctuary-seated{
+  width:26.0775%!important; /* V20.22 28.975% × 0.90 */
+}
+
+/* Final visibility owner: never let historic billboard/reduced-motion rules
+   collapse these requested scene layers. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+  display:block!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze{
+  opacity:1!important;
+  z-index:7!important;
+  mix-blend-mode:screen!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves{
+  opacity:1!important;
+  z-index:8!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+  opacity:1!important;
+  z-index:6!important;
+}
+
+/* Readable but restrained wind ribbons. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{
+  display:block!important;
+  visibility:visible!important;
+  height:18px!important;
+  min-width:180px!important;
+  border-top:2px solid rgba(247,251,247,.72)!important;
+  border-radius:50% 60% 0 0!important;
+  background:linear-gradient(180deg,rgba(255,246,224,.10),rgba(236,247,244,.035) 38%,transparent 74%)!important;
+  box-shadow:0 -1px 5px rgba(255,241,205,.20)!important;
+  filter:blur(.12px) drop-shadow(0 0 2px rgba(236,248,244,.30))!important;
+  opacity:0!important;
+  animation:repoSanctuaryBreezeV23 var(--d) linear var(--delay) infinite!important;
+  will-change:transform,opacity!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i:nth-child(2n){
+  border-top-color:rgba(224,242,239,.64)!important;
+  background:linear-gradient(180deg,rgba(226,245,241,.085),transparent 72%)!important;
+}
+@keyframes repoSanctuaryBreezeV23{
+  0%{opacity:0;transform:translate3d(-70px,5px,0) rotate(-4deg) scaleX(.92)}
+  7%{opacity:.76}
+  42%{opacity:.62;transform:translate3d(390px,var(--drift),0) rotate(-2deg) scaleX(1.05)}
+  78%{opacity:.42}
+  100%{opacity:0;transform:translate3d(980px,calc(var(--drift) + 8px),0) rotate(-5deg) scaleX(.96)}
+}
+
+/* Leaves are deliberately sparse, but large/opaque enough to actually read
+   against the detailed stained glass. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf{
+  display:block!important;
+  visibility:visible!important;
+  width:calc(var(--s) + 5px)!important;
+  height:calc(var(--s) + 1px)!important;
+  opacity:0!important;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.34))!important;
+  animation:repoSanctuaryLeafFlyV23 var(--d) ease-in-out var(--delay) infinite!important;
+  will-change:transform,opacity!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf--gold{
+  background:linear-gradient(135deg,#ffe083 0%,#d87a2e 58%,#71341a 100%)!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf--rust{
+  background:linear-gradient(135deg,#efb05a 0%,#ad512b 60%,#55291f 100%)!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf--pale{
+  background:linear-gradient(135deg,#fffef8 0%,#eee8da 58%,#aa9e8b 100%)!important;
+  box-shadow:0 0 4px rgba(255,250,235,.38)!important;
+}
+@keyframes repoSanctuaryLeafFlyV23{
+  0%{opacity:0;transform:translate3d(-110px,-8px,0) rotate(0deg) scale(.82)}
+  7%{opacity:.88}
+  43%{opacity:.80;transform:translate3d(300px,var(--dy),0) rotate(155deg) scale(1)}
+  78%{opacity:.62}
+  100%{opacity:0;transform:translate3d(790px,calc(var(--dy) + 16px),0) rotate(var(--spin)) scale(.88)}
+}
+
+/* Keep a little lit dust/pollen in the same air stream. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit{
+  display:block!important;
+  visibility:visible!important;
+  min-width:2px!important;
+  min-height:2px!important;
+  animation:repoSanctuaryDustV23 var(--d) ease-in-out var(--delay) infinite!important;
+}
+@keyframes repoSanctuaryDustV23{
+  0%{opacity:0;transform:translate3d(0,3px,0) scale(.6)}
+  12%{opacity:.82}
+  58%{opacity:.60}
+  88%{opacity:.28}
+  100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(1.08)}
+}
+
+/* User explicitly requested these scene animations. This final block is after
+   the legacy reduced-motion rules so they do not silently hide the effects. */
+@media(prefers-reduced-motion:reduce){
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+    display:block!important;
+  }
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{
+    animation:repoSanctuaryBreezeV23 calc(var(--d) * 1.35) linear var(--delay) infinite!important;
+  }
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf{
+    animation:repoSanctuaryLeafFlyV23 calc(var(--d) * 1.35) ease-in-out var(--delay) infinite!important;
+  }
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit{
+    animation:repoSanctuaryDustV23 calc(var(--d) * 1.35) ease-in-out var(--delay) infinite!important;
+  }
+}
+
+
+/* ======================================================================
+   REPO COMPANY V20.24 — LOWER STEP BASELINE + GUARANTEED SANCTUARY FX
+   ====================================================================== */
+/* V20.23 already owns the requested 10%-smaller seated character size.
+   Seat Y is corrected in JS; keep the scale unchanged here. */
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-billboard-seated,
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-sanctuary-seated{
+  width:26.0775%!important;
+}
+
+/* Make these scene-local layers impossible for earlier billboard / motion rules
+   to collapse. They remain below guests (z10) and above the backdrop. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+  display:block!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze{
+  z-index:7!important;
+  opacity:1!important;
+  mix-blend-mode:screen!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves{
+  z-index:8!important;
+  opacity:1!important;
+  mix-blend-mode:normal!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+  z-index:6!important;
+  opacity:1!important;
+  mix-blend-mode:screen!important;
+}
+
+/* Two broad curved currents ensure the breeze reads even between the smaller
+   individual ribbons. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze::before,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze::after{
+  content:''!important;
+  position:absolute!important;
+  left:-58%!important;
+  width:58%!important;
+  height:82px!important;
+  border-top:2px solid rgba(244,250,246,.56)!important;
+  border-radius:50%!important;
+  background:radial-gradient(ellipse at 50% 0,rgba(245,250,247,.055),transparent 66%)!important;
+  filter:blur(.25px) drop-shadow(0 0 3px rgba(245,248,242,.18))!important;
+  opacity:0!important;
+  will-change:transform,opacity!important;
+  animation:repoSanctuaryBroadWindV24 12.5s linear -3.2s infinite!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze::before{top:28%!important}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze::after{
+  top:61%!important;
+  border-top-color:rgba(229,244,241,.48)!important;
+  animation-duration:15.5s!important;
+  animation-delay:-10.4s!important;
+}
+@keyframes repoSanctuaryBroadWindV24{
+  0%{opacity:0;transform:translate3d(0,8px,0) rotate(-4deg) scaleX(.92)}
+  9%{opacity:.68}
+  50%{opacity:.48;transform:translate3d(760px,-5px,0) rotate(-1deg) scaleX(1.04)}
+  82%{opacity:.28}
+  100%{opacity:0;transform:translate3d(1550px,9px,0) rotate(-4deg) scaleX(.96)}
+}
+
+/* Individual ribbons are now deliberately readable against the detailed glass. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{
+  display:block!important;
+  visibility:visible!important;
+  height:20px!important;
+  min-width:190px!important;
+  border-top:2px solid rgba(248,252,249,.68)!important;
+  border-radius:50% 62% 0 0!important;
+  background:linear-gradient(180deg,rgba(247,252,249,.075),rgba(255,234,193,.035) 42%,transparent 76%)!important;
+  box-shadow:0 -1px 5px rgba(245,249,244,.16)!important;
+  filter:blur(.08px) drop-shadow(0 0 2px rgba(242,249,246,.24))!important;
+  animation-name:repoSanctuaryBreezeV24!important;
+  animation-duration:var(--d)!important;
+  animation-timing-function:linear!important;
+  animation-delay:var(--delay)!important;
+  animation-iteration-count:infinite!important;
+  animation-play-state:running!important;
+}
+@keyframes repoSanctuaryBreezeV24{
+  0%{opacity:0;transform:translate3d(-90px,4px,0) rotate(-4deg) scaleX(.92)}
+  8%{opacity:.76}
+  44%{opacity:.58;transform:translate3d(430px,calc(var(--drift) * .5),0) rotate(-2deg) scaleX(1.05)}
+  78%{opacity:.36}
+  100%{opacity:0;transform:translate3d(1020px,var(--drift),0) rotate(-5deg) scaleX(.96)}
+}
+
+/* Leaves: still sparse, but now clearly leaf-shaped and sufficiently opaque. */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf{
+  display:block!important;
+  visibility:visible!important;
+  width:calc(var(--s) + 8px)!important;
+  height:calc(var(--s) + 3px)!important;
+  border-radius:92% 8% 88% 12%!important;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.46))!important;
+  animation-name:repoSanctuaryLeafFlyV24!important;
+  animation-duration:var(--d)!important;
+  animation-timing-function:ease-in-out!important;
+  animation-delay:var(--delay)!important;
+  animation-iteration-count:infinite!important;
+  animation-play-state:running!important;
+}
+@keyframes repoSanctuaryLeafFlyV24{
+  0%{opacity:0;transform:translate3d(-130px,-10px,0) rotate(0deg) scale(.82)}
+  7%{opacity:.96}
+  42%{opacity:.88;transform:translate3d(330px,var(--dy),0) rotate(165deg) scale(1.03)}
+  77%{opacity:.72}
+  100%{opacity:0;transform:translate3d(860px,calc(var(--dy) + 18px),0) rotate(var(--spin)) scale(.9)}
+}
+
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit{
+  display:block!important;
+  visibility:visible!important;
+  animation-name:repoSanctuaryDustV24!important;
+  animation-duration:var(--d)!important;
+  animation-timing-function:ease-in-out!important;
+  animation-delay:var(--delay)!important;
+  animation-iteration-count:infinite!important;
+  animation-play-state:running!important;
+}
+@keyframes repoSanctuaryDustV24{
+  0%{opacity:0;transform:translate3d(0,3px,0) scale(.62)}
+  12%{opacity:.82}
+  58%{opacity:.58}
+  88%{opacity:.26}
+  100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) scale(1.08)}
+}
+
+/* IMPORTANT: previous builds attempted calc(var(--d) * 1.35) here. That time
+   multiplication is not reliably accepted by browsers, so the older
+   animation:none!important could win. The user explicitly wants these scene
+   effects, so this final rule uses the valid original duration directly. */
+@media(prefers-reduced-motion:reduce){
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+    display:block!important;
+    visibility:visible!important;
+  }
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze::before,
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze::after{
+    animation:repoSanctuaryBroadWindV24 15s linear -4s infinite!important;
+  }
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze>i{
+    animation:repoSanctuaryBreezeV24 var(--d) linear var(--delay) infinite!important;
+  }
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaf{
+    animation:repoSanctuaryLeafFlyV24 var(--d) ease-in-out var(--delay) infinite!important;
+  }
+  #repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust-bit{
+    animation:repoSanctuaryDustV24 var(--d) ease-in-out var(--delay) infinite!important;
+  }
+}
+
+
+/* ======================================================================
+   REPO COMPANY V20.25 — SANCTUARY EFFECT SYSTEM HARD RESET
+   The previous sanctuary effects were CSS-only and could be swallowed by the
+   legacy billboard cascade. Retire those nodes; V20.25 draws its atmosphere
+   with a dedicated JS/Web-Animations layer immediately below the guests.
+   ====================================================================== */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust{
+  display:none!important;
+}
+#repoDashboardV20 #scene.sanctuary-scene .repo-sanctuary-fx-v25{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+/* V20.26 — direct canvas sanctuary atmosphere */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-sunshine,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-breeze,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-leaves,
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-dust,
+#repoDashboardV20 #scene.sanctuary-scene .repo-sanctuary-fx-v25{display:none!important}
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-fx-canvas,
+#scene.sanctuary-scene .sanctuary-fx-canvas{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  display:block!important;visibility:visible!important;opacity:1!important;z-index:8!important;
+  pointer-events:none!important;background:transparent!important;transform:none!important;filter:none!important
+}
+#repoDashboardV20 #scene.sanctuary-scene .tavern-guest-layer{z-index:10!important}
+
+
+/* ======================================================================
+   REPO COMPANY V20.27 — PREMIUM SANCTUARY ATMOSPHERE
+   Cleaner presentation: gentle light, soft air currents and sparse leaves.
+   ====================================================================== */
+#repoDashboardV20 #scene.sanctuary-scene .sanctuary-fx-canvas,
+#scene.sanctuary-scene .sanctuary-fx-canvas{
+  opacity:.96!important;
+  mix-blend-mode:screen!important;
+}

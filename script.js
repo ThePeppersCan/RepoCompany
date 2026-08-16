@@ -8070,6 +8070,7 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   const seatTester=document.getElementById('tavernSeatTester');
   const lobby=document.getElementById('tavernLobby');
   const billboardMode=!!lobby?.classList?.contains('tavern-lobby--billboard');
+  const sanctuaryMode=!!lobby?.classList?.contains('tavern-lobby--sanctuary');
   // Presence must run on every page, even when that page does not render the tavern.
   // Only the visual renderer depends on #tavernGuestLayer.
   if(typeof db==='undefined')return;
@@ -8230,7 +8231,20 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   // Four forward-facing places on the sofa plus the two side-facing armchairs.
   // The supplied turning-seat frame gives the armchairs a side profile until
   // dedicated side-idle packs are added for each character.
-  const seats=billboardMode
+  const seats=sanctuaryMode
+    ? [
+        // Six central places mapped to the marked step positions in the new
+        // stained-glass sanctuary artwork. Keeping kind 'billboard' preserves
+        // the existing transparent-sprite calibration while the movement path
+        // below is now a simple side walk-in rather than a ladder climb.
+        {id:'sofa-left',kind:'billboard',x:20.0,y:85.7,scale:.96},
+        {id:'sofa-left-centre',kind:'billboard',x:32.9,y:85.6,scale:.96},
+        {id:'sofa-right-centre',kind:'billboard',x:46.2,y:85.6,scale:.96},
+        {id:'sofa-right',kind:'billboard',x:58.1,y:85.6,scale:.96},
+        {id:'armchair-left',kind:'billboard',x:68.9,y:85.6,scale:.96},
+        {id:'armchair-right',kind:'billboard',x:78.7,y:85.6,scale:.96}
+      ]
+    : billboardMode
     ? [
         // The anchor is intentionally ABOVE the visible platform line because
         // the supplied 512px sitting sprites include transparent padding.
@@ -8410,14 +8424,14 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     el.tabIndex=0;
     el.setAttribute('aria-label',`${definition.displayName} — hover for Repo Passport`);
     el.classList.toggle('is-side-seat',seat.kind==='armchair');
-    const img=document.createElement('img');img.alt=`${definition.displayName} relaxing at the billboard`;img.draggable=false;el.appendChild(img);layer.appendChild(el);
+    const img=document.createElement('img');img.alt=`${definition.displayName} relaxing in the sanctuary`;img.draggable=false;el.appendChild(img);layer.appendChild(el);
     if(definition.climbWidth)el.style.setProperty('--billboard-climb-width',definition.climbWidth);
     if(definition.walkWidth)el.style.setProperty('--billboard-walk-width',definition.walkWidth);
     if(billboardMode)el.classList.add('is-billboard-walking');
     if(name==='lemime')el.style.animation='none';
     // The entrance is derived from the server-owned seat, so every browser
     // shows the same character approaching from the same side.
-    const entrySide=billboardMode?'right':(seat.x<50?'left':'right');
+    const entrySide=sanctuaryMode?(seat.x<50?'left':'right'):(billboardMode?'right':(seat.x<50?'left':'right'));
     return {el,img,definition,seat,entrySide,frameTimer:null,leaving:false,motion:0,isSeated:false,testSeat:false};
   }
   function visualSeatPoint(actor){
@@ -8477,6 +8491,35 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   }
   async function enterGuest(actor){
     const motion=++actor.motion;actor.leaving=false;actor.el.classList.remove('is-idle');
+    if(sanctuaryMode){
+      const fromLeft=actor.entrySide==='left';
+      const seatPoint=visualSeatPoint(actor);
+      const walkY=89.6;
+      const entrance={x:fromLeft?-14:114,y:walkY};
+      const approach={x:seatPoint.x,y:walkY};
+      actor.el.classList.remove('is-billboard-seated','is-sanctuary-seated');
+      actor.el.classList.add('is-billboard-walking','is-sanctuary-walking');
+      face(actor,fromLeft?'right':'left');
+      setPoint(actor,entrance,true);
+      loopFrames(actor,actor.definition.walk,185);
+      requestAnimationFrame(()=>{actor.el.classList.add('is-present');walkTo(actor,entrance,approach);});
+      const duration=walkDuration(entrance,approach);
+      await wait(duration+35);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
+      stopAnimation(actor);
+      actor.el.classList.remove('is-billboard-walking','is-sanctuary-walking');
+      actor.isSeated=true;
+      face(actor,'right');
+      actor.el.style.transition='left 210ms ease-out,top 260ms ease-out,opacity 180ms ease';
+      setPoint(actor,seatPoint);
+      await wait(215);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
+      const sat=await playFramesOnce(actor,actor.definition.sit,105,motion);
+      if(!sat)return;
+      stopAnimation(actor);
+      setFrame(actor,actor.definition.sit[actor.definition.sit.length-1]);
+      actor.el.classList.add('is-idle','is-billboard-seated','is-sanctuary-seated');
+      actor.el.style.transition='';
+      return;
+    }
     if(billboardMode){
       const ladderEntry={x:104.5,y:88.3};
       const ladderBase={x:91.8,y:86.2};
@@ -8534,19 +8577,45 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   }
   function settleGuest(actor){
     ++actor.motion;actor.leaving=false;actor.isSeated=true;
-    actor.el.classList.remove('is-billboard-climbing','is-billboard-walking');
+    actor.el.classList.remove('is-billboard-climbing','is-billboard-walking','is-sanctuary-walking');
     actor.el.classList.add('is-present','is-idle');
     face(actor,billboardMode?'right':(actor.seat.kind==='armchair'?actor.seat.facing:'right'));
     setPoint(actor,visualSeatPoint(actor),true);
+    if(sanctuaryMode){stopAnimation(actor);setFrame(actor,actor.definition.sit[actor.definition.sit.length-1]);actor.el.classList.add('is-idle','is-billboard-seated','is-sanctuary-seated');return;}
     if(billboardMode){stopAnimation(actor);setFrame(actor,actor.definition.sit[actor.definition.sit.length-1]);actor.el.classList.add('is-idle','is-billboard-seated');return;}
     if(actor.seat.kind==='armchair'){setFrame(actor,armchairRestFrame(actor));return;}
     loopFrames(actor,forwardIdleFrames(actor.definition,actor.el?.dataset?.guest),guestKeyForIdle(actor)==='proco'?520:390);
   }
   async function leaveGuest(actor){
-    if(actor.leaving)return;const motion=++actor.motion;actor.leaving=true;actor.isSeated=false;stopAnimation(actor);
+    if(actor.leaving)return;const motion=++actor.motion;actor.leaving=true;if(!sanctuaryMode)actor.isSeated=false;stopAnimation(actor);
     actor.el.classList.remove('is-idle');
     if(actor.motion!==motion||!actor.el.isConnected)return;
     const seatPoint=visualSeatPoint(actor);
+    if(sanctuaryMode){
+      actor.el.classList.remove('is-billboard-seated','is-sanctuary-seated');
+      actor.isSeated=true;
+      face(actor,'right');
+      stopAnimation(actor);
+      for(const src of [...actor.definition.sit].reverse()){
+        if(actor.motion!==motion||!actor.el.isConnected)return;
+        setFrame(actor,src);
+        await wait(90);
+      }
+      if(actor.motion!==motion||!actor.el.isConnected)return;
+      actor.isSeated=false;
+      const exitLeft=actor.entrySide==='left';
+      const walkY=89.6;
+      const from={x:seatPoint.x,y:walkY};
+      const exit={x:exitLeft?-14:114,y:walkY};
+      setPoint(actor,from,true);
+      actor.el.classList.add('is-billboard-walking','is-sanctuary-walking');
+      face(actor,exitLeft?'left':'right');
+      loopFrames(actor,actor.definition.walk,185,1);
+      const duration=walkTo(actor,from,exit);
+      await wait(duration+30);if(actor.motion!==motion)return;
+      stopAnimation(actor);actor.el.remove();guests.delete(actor.el.dataset.guest);
+      return;
+    }
     if(billboardMode){
       const ladderTop={x:91.8,y:actor.definition.ladderTopY||47.7};
       const ledgeY=actor.definition.platformWalkY||46.1;
@@ -33311,4 +33380,414 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
   else build();
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.25 — SANCTUARY ATMOSPHERE (JS / WEB ANIMATIONS)
+// Hard replacement for the CSS-only effects. This intentionally uses unique
+// nodes, inline geometry and Element.animate() so old billboard CSS and motion
+// media rules cannot make the requested sunshine / wind / leaves disappear.
+// ============================================================================
+(function installRepoSanctuaryFxV25(){
+  if(window.__repoSanctuaryFxV25Installed)return;
+  window.__repoSanctuaryFxV25Installed=true;
+
+  const rand=(min,max)=>min+Math.random()*(max-min);
+  const px=n=>`${Math.round(n*100)/100}px`;
+
+  function important(el,name,value){
+    try{el.style.setProperty(name,value,'important');}catch(_){el.style[name]=value;}
+  }
+
+  function make(tag,className,parent){
+    const el=document.createElement(tag);
+    if(className)el.className=className;
+    parent.appendChild(el);
+    return el;
+  }
+
+  function animateLoop(el,keyframes,options){
+    try{
+      const animation=el.animate(keyframes,{...options,iterations:Infinity,fill:'both'});
+      animation.playbackRate=1;
+      return animation;
+    }catch(error){
+      console.warn('Sanctuary atmosphere animation unavailable:',error);
+      return null;
+    }
+  }
+
+  function build(){
+    return; // V20.26 canvas renderer replaces V20.25 DOM effects.
+    const scene=document.querySelector('#repoDashboardV20 #scene.sanctuary-scene');
+    const lobby=scene?.querySelector('.tavern-lobby--sanctuary');
+    const guests=lobby?.querySelector('#tavernGuestLayer');
+    if(!scene||!lobby||document.getElementById('repoSanctuaryFxV25'))return;
+
+    const fx=document.createElement('div');
+    fx.id='repoSanctuaryFxV25';
+    fx.className='repo-sanctuary-fx-v25';
+    fx.setAttribute('aria-hidden','true');
+    important(fx,'position','absolute');
+    important(fx,'inset','0');
+    important(fx,'z-index','9');
+    important(fx,'overflow','hidden');
+    important(fx,'pointer-events','none');
+    important(fx,'display','block');
+    important(fx,'visibility','visible');
+    important(fx,'opacity','1');
+    important(fx,'isolation','isolate');
+    if(guests)lobby.insertBefore(fx,guests); else lobby.appendChild(fx);
+
+    // Warm stained-glass bloom. This is intentionally visible even if every
+    // animation API is unavailable, so the scene can never look completely dead.
+    const glow=make('div','repo-sanctuary-v25-glow',fx);
+    important(glow,'position','absolute');
+    important(glow,'inset','0');
+    important(glow,'z-index','1');
+    important(glow,'pointer-events','none');
+    important(glow,'mix-blend-mode','screen');
+    important(glow,'background',
+      'radial-gradient(ellipse at 50% 12%,rgba(255,244,204,.34) 0%,rgba(255,214,139,.18) 18%,rgba(255,181,87,.07) 38%,transparent 58%),'+
+      'radial-gradient(ellipse at 50% 78%,rgba(255,210,128,.14) 0%,rgba(255,174,79,.045) 43%,transparent 67%)');
+    important(glow,'opacity','.92');
+    animateLoop(glow,[
+      {opacity:.72,filter:'brightness(.98)'},
+      {opacity:1,filter:'brightness(1.08)'},
+      {opacity:.80,filter:'brightness(1.01)'}
+    ],{duration:9000,direction:'alternate',easing:'ease-in-out'});
+
+    // Three broad shafts of glass-light, deliberately stronger than V20.24.
+    [
+      {left:'15%',width:'23%',rot:-9,opacity:.28,duration:14500,delay:-3000},
+      {left:'39%',width:'26%',rot:-4,opacity:.24,duration:17000,delay:-9000},
+      {left:'63%',width:'20%',rot:5,opacity:.20,duration:15500,delay:-6500}
+    ].forEach((cfg,i)=>{
+      const ray=make('div',`repo-sanctuary-v25-ray ray-${i+1}`,fx);
+      important(ray,'position','absolute');
+      important(ray,'z-index','2');
+      important(ray,'left',cfg.left);
+      important(ray,'top','-22%');
+      important(ray,'width',cfg.width);
+      important(ray,'height','138%');
+      important(ray,'transform-origin','50% 0');
+      important(ray,'pointer-events','none');
+      important(ray,'mix-blend-mode','screen');
+      important(ray,'background','linear-gradient(180deg,rgba(255,248,222,.23) 0%,rgba(255,228,171,.12) 31%,rgba(255,213,145,.055) 62%,transparent 100%)');
+      important(ray,'filter','blur(9px)');
+      important(ray,'opacity',String(cfg.opacity));
+      animateLoop(ray,[
+        {transform:`translate3d(-22px,0,0) rotate(${cfg.rot-2}deg)`,opacity:cfg.opacity*.72},
+        {transform:`translate3d(26px,3px,0) rotate(${cfg.rot+2}deg)`,opacity:cfg.opacity},
+        {transform:`translate3d(-10px,0,0) rotate(${cfg.rot}deg)`,opacity:cfg.opacity*.82}
+      ],{duration:cfg.duration,delay:cfg.delay,direction:'alternate',easing:'ease-in-out'});
+    });
+
+    // Moving wind ribbons. They are broad curves, not hairline streaks.
+    for(let i=0;i<10;i++){
+      const ribbon=make('div','repo-sanctuary-v25-wind',fx);
+      const top=11+(i*8.1)%72;
+      const width=rand(210,390);
+      const height=rand(52,86);
+      const warm=i%3===0;
+      important(ribbon,'position','absolute');
+      important(ribbon,'z-index','4');
+      important(ribbon,'left',px(-width-80));
+      important(ribbon,'top',`${top}%`);
+      important(ribbon,'width',px(width));
+      important(ribbon,'height',px(height));
+      important(ribbon,'border-top',`2px solid ${warm?'rgba(255,240,211,.48)':'rgba(233,248,245,.50)'}`);
+      important(ribbon,'border-radius','50%');
+      important(ribbon,'background',warm?'radial-gradient(ellipse at 50% 0,rgba(255,231,184,.075),transparent 66%)':'radial-gradient(ellipse at 50% 0,rgba(225,245,241,.075),transparent 66%)');
+      important(ribbon,'filter','blur(.15px) drop-shadow(0 0 3px rgba(244,250,244,.18))');
+      important(ribbon,'opacity','0');
+      important(ribbon,'will-change','transform,opacity');
+      const yShift=rand(-18,18);
+      animateLoop(ribbon,[
+        {transform:'translate3d(0,9px,0) rotate(-5deg) scaleX(.92)',opacity:0},
+        {transform:`translate3d(${rand(170,250)}px,${yShift*.25}px,0) rotate(-3deg) scaleX(1)`,opacity:.52,offset:.14},
+        {transform:`translate3d(${rand(590,710)}px,${yShift*.65}px,0) rotate(-1deg) scaleX(1.05)`,opacity:.40,offset:.58},
+        {transform:`translate3d(${rand(1080,1240)}px,${yShift}px,0) rotate(-5deg) scaleX(.96)`,opacity:0}
+      ],{duration:rand(11500,18000),delay:-rand(0,18000),easing:'linear'});
+    }
+
+    // Autumn-current leaves. Mostly gold/rust with a few cream/white leaves.
+    const palettes=[
+      ['#ffe18a','#d77a32','#713619'],
+      ['#efb45e','#a84f2b','#55291f'],
+      ['#fffef6','#eee8d9','#aa9f8c']
+    ];
+    for(let i=0;i<20;i++){
+      const leaf=make('div','repo-sanctuary-v25-leaf',fx);
+      const pale=i%5===0;
+      const palette=palettes[pale?2:(i%2)];
+      const size=rand(9,15);
+      const startY=rand(8,80);
+      important(leaf,'position','absolute');
+      important(leaf,'z-index','6');
+      important(leaf,'left',px(-35-rand(0,120)));
+      important(leaf,'top',`${startY}%`);
+      important(leaf,'width',px(size*1.35));
+      important(leaf,'height',px(size));
+      important(leaf,'border-radius','92% 8% 88% 12%');
+      important(leaf,'background',`linear-gradient(135deg,${palette[0]} 0%,${palette[1]} 58%,${palette[2]} 100%)`);
+      important(leaf,'box-shadow',pale?'0 0 4px rgba(255,250,235,.30)':'0 1px 2px rgba(0,0,0,.34)');
+      important(leaf,'opacity','0');
+      important(leaf,'will-change','transform,opacity');
+      const rise=rand(-34,34);
+      const spin=(Math.random()<.5?-1:1)*rand(250,620);
+      const travel=rand(980,1210);
+      animateLoop(leaf,[
+        {transform:'translate3d(0,0,0) rotate(0deg) scale(.80)',opacity:0},
+        {transform:`translate3d(${travel*.15}px,${rise*.15}px,0) rotate(${spin*.12}deg) scale(.96)`,opacity:.92,offset:.10},
+        {transform:`translate3d(${travel*.55}px,${rise*.62}px,0) rotate(${spin*.55}deg) scale(1.04)`,opacity:.82,offset:.56},
+        {transform:`translate3d(${travel}px,${rise}px,0) rotate(${spin}deg) scale(.88)`,opacity:0}
+      ],{duration:rand(10500,18000),delay:-rand(0,18000),easing:'ease-in-out'});
+    }
+
+    // Small lit motes make the air movement readable without turning it into snow.
+    for(let i=0;i<22;i++){
+      const mote=make('span','repo-sanctuary-v25-mote',fx);
+      const pale=i%4===0;
+      const size=rand(1.6,3.1);
+      important(mote,'position','absolute');
+      important(mote,'z-index','5');
+      important(mote,'left',`${rand(3,97)}%`);
+      important(mote,'top',`${rand(8,88)}%`);
+      important(mote,'width',px(size));
+      important(mote,'height',px(size));
+      important(mote,'border-radius','50%');
+      important(mote,'background',pale?'rgba(247,253,250,.92)':'rgba(255,220,146,.88)');
+      important(mote,'box-shadow',pale?'0 0 5px rgba(230,246,240,.50)':'0 0 5px rgba(255,203,113,.42)');
+      important(mote,'opacity','0');
+      const dx=rand(-28,48),dy=rand(-54,-18);
+      animateLoop(mote,[
+        {transform:'translate3d(0,5px,0) scale(.6)',opacity:0},
+        {opacity:.72,offset:.17},
+        {transform:`translate3d(${dx*.58}px,${dy*.56}px,0) scale(1)`,opacity:.52,offset:.62},
+        {transform:`translate3d(${dx}px,${dy}px,0) scale(.8)`,opacity:0}
+      ],{duration:rand(7500,14500),delay:-rand(0,14000),easing:'ease-in-out'});
+    }
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
+  else build();
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.27 — PREMIUM SANCTUARY ATMOSPHERE
+// Refined canvas pass: fewer, cleaner elements with stronger composition.
+// Characters and seating are untouched.
+// ============================================================================
+(function(){
+  if(window.__repoSanctuaryCanvasFxV2027Installed)return;
+  window.__repoSanctuaryCanvasFxV2027Installed=true;
+
+  const TAU=Math.PI*2;
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+  function boot(){
+    const canvas=document.getElementById('sanctuaryFxCanvas');
+    const lobby=canvas?.closest('.tavern-lobby--sanctuary');
+    if(!canvas||!lobby)return false;
+    const ctx=canvas.getContext('2d',{alpha:true});
+    if(!ctx)return false;
+
+    canvas.dataset.fxRunning='premium-v20.27';
+
+    let W=0,H=0,DPR=1,last=performance.now();
+    let leaves=[],motes=[],currents=[];
+
+    function resetLeaf(o,initial=false,index=0){
+      o.dir=index%4===0?-1:1;
+      o.x=initial?rnd(0,W):(o.dir>0?rnd(-55,-16):rnd(W+16,W+55));
+      o.y=rnd(H*.18,H*.72);
+      o.s=rnd(5.2,8.4);
+      o.vx=rnd(11,19)*o.dir;
+      o.baseVy=rnd(-1.3,1.7);
+      o.angle=rnd(0,TAU);
+      o.spin=rnd(-.55,.55);
+      o.phase=rnd(0,TAU);
+      o.sway=rnd(5,13);
+      o.alpha=rnd(.42,.62);
+      o.pale=index%5===0;
+      o.deep=!o.pale && index%3===0;
+      o.blur=index%7===0?1.1:0;
+    }
+
+    function resetMote(o,initial=false,index=0){
+      o.x=initial?rnd(0,W):rnd(-10,W+10);
+      o.y=initial?rnd(H*.08,H*.88):H+rnd(4,25);
+      o.r=rnd(.55,1.25);
+      o.vx=rnd(-1.4,2.2);
+      o.vy=-rnd(2.2,5.2);
+      o.phase=rnd(0,TAU);
+      o.alpha=rnd(.09,.19);
+      o.pale=index%3===0;
+    }
+
+    function resetCurrent(o,initial=false,index=0){
+      o.dir=index%3===0?-1:1;
+      o.x=initial?rnd(-W*.2,W):(o.dir>0?rnd(-W*.42,-W*.18):rnd(W*1.18,W*1.42));
+      o.y=rnd(H*.22,H*.72);
+      o.len=rnd(W*.28,W*.45);
+      o.amp=rnd(5,12);
+      o.vx=rnd(12,20)*o.dir;
+      o.phase=rnd(0,TAU);
+      o.alpha=rnd(.085,.145);
+      o.warm=index%3===1;
+      o.width=rnd(.7,1.15);
+    }
+
+    function resize(){
+      const r=lobby.getBoundingClientRect();
+      const w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));
+      if(w===W&&h===H)return;
+      W=w;H=h;DPR=Math.min(2,window.devicePixelRatio||1);
+      canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);
+      canvas.style.width=W+'px';canvas.style.height=H+'px';
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+
+      leaves=Array.from({length:10},(_,i)=>{const o={};resetLeaf(o,true,i);return o});
+      motes=Array.from({length:18},(_,i)=>{const o={};resetMote(o,true,i);return o});
+      currents=Array.from({length:5},(_,i)=>{const o={};resetCurrent(o,true,i);return o});
+    }
+
+    function drawLight(now){
+      ctx.save();
+      ctx.globalCompositeOperation='screen';
+
+      // Gentle daylight bloom from the rose window.
+      const breathe=.96+Math.sin(now*.00028)*.04;
+      let g=ctx.createRadialGradient(W*.505,H*.075,0,W*.505,H*.24,W*.50);
+      g.addColorStop(0,`rgba(255,247,218,${.22*breathe})`);
+      g.addColorStop(.22,`rgba(255,225,169,${.13*breathe})`);
+      g.addColorStop(.52,`rgba(255,201,127,${.045*breathe})`);
+      g.addColorStop(1,'rgba(255,190,110,0)');
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+      // Two elegant shafts instead of lots of bright beams.
+      const drift=Math.sin(now*.00012)*8;
+      const shafts=[
+        {x:W*.38+drift,w:W*.12,a:.105,rot:-5.2},
+        {x:W*.61-drift*.65,w:W*.10,a:.082,rot:4.4}
+      ];
+      shafts.forEach(s=>{
+        ctx.save();
+        ctx.translate(s.x,-H*.10);
+        ctx.rotate(s.rot*Math.PI/180);
+        ctx.filter='blur(5px)';
+        const lg=ctx.createLinearGradient(0,0,0,H*1.16);
+        lg.addColorStop(0,`rgba(255,252,236,${s.a})`);
+        lg.addColorStop(.46,`rgba(255,231,190,${s.a*.48})`);
+        lg.addColorStop(1,'rgba(255,218,168,0)');
+        ctx.fillStyle=lg;
+        ctx.beginPath();
+        ctx.moveTo(-s.w*.18,0);ctx.lineTo(s.w*.18,0);
+        ctx.lineTo(s.w*.64,H*1.18);ctx.lineTo(-s.w*.54,H*1.18);ctx.closePath();ctx.fill();
+        ctx.restore();
+      });
+
+      // Soft pool of light on the step area.
+      const floor=ctx.createRadialGradient(W*.5,H*.79,0,W*.5,H*.79,W*.42);
+      floor.addColorStop(0,'rgba(255,215,151,.055)');
+      floor.addColorStop(.55,'rgba(255,201,127,.020)');
+      floor.addColorStop(1,'rgba(255,190,110,0)');
+      ctx.fillStyle=floor;ctx.fillRect(0,H*.48,W,H*.52);
+      ctx.restore();
+    }
+
+    function drawCurrent(o,now,dt,index){
+      o.x+=o.vx*dt;
+      if((o.dir>0&&o.x-o.len>W+80)||(o.dir<0&&o.x+o.len<-80))resetCurrent(o,false,index);
+      const y=o.y+Math.sin(now*.00072+o.phase)*o.amp;
+      const x2=o.x+o.len*o.dir;
+
+      ctx.save();
+      ctx.globalCompositeOperation='screen';
+      ctx.filter='blur(2.2px)';
+      ctx.lineCap='round';
+      ctx.lineWidth=o.width;
+      ctx.strokeStyle=o.warm?`rgba(255,241,216,${o.alpha})`:`rgba(226,243,241,${o.alpha})`;
+      ctx.beginPath();
+      ctx.moveTo(o.x,y);
+      const c1=o.x+o.len*.28*o.dir,c2=o.x+o.len*.70*o.dir;
+      ctx.bezierCurveTo(c1,y-o.amp*.8,c2,y+o.amp*.75,x2,y+Math.sin(now*.0009+o.phase)*2.5);
+      ctx.stroke();
+
+      // Very faint parallel breath to make it feel like air rather than a line.
+      ctx.globalAlpha=.42;
+      ctx.lineWidth=.55;
+      ctx.translate(0,4.2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawLeaf(o,now,dt,index){
+      o.x+=o.vx*dt;
+      o.y+=o.baseVy*dt + Math.sin(now*.00105+o.phase)*.032*o.sway;
+      o.angle+=o.spin*dt;
+      if((o.dir>0&&o.x>W+28)||(o.dir<0&&o.x<-28)||o.y<-35||o.y>H+35)resetLeaf(o,false,index);
+
+      ctx.save();
+      ctx.translate(o.x,o.y);
+      ctx.rotate(o.angle + Math.sin(now*.00085+o.phase)*.22);
+      ctx.globalAlpha=o.alpha;
+      if(o.blur)ctx.filter=`blur(${o.blur}px)`;
+
+      const s=o.s;
+      const g=ctx.createLinearGradient(-s,0,s,0);
+      if(o.pale){
+        g.addColorStop(0,'#f7f3e8');g.addColorStop(.55,'#d8cfba');g.addColorStop(1,'#897c67');
+      }else if(o.deep){
+        g.addColorStop(0,'#d49b50');g.addColorStop(.56,'#8f472b');g.addColorStop(1,'#48291f');
+      }else{
+        g.addColorStop(0,'#e7bd67');g.addColorStop(.56,'#b96831');g.addColorStop(1,'#654024');
+      }
+      ctx.fillStyle=g;
+      ctx.beginPath();
+      ctx.moveTo(-s*.72,0);
+      ctx.quadraticCurveTo(-s*.14,-s*.45,s*.70,-s*.08);
+      ctx.quadraticCurveTo(s*.18,s*.42,-s*.72,0);
+      ctx.fill();
+
+      ctx.strokeStyle=o.pale?'rgba(103,93,75,.40)':'rgba(75,45,28,.48)';
+      ctx.lineWidth=.48;
+      ctx.beginPath();ctx.moveTo(-s*.55,0);ctx.lineTo(s*.55,-s*.03);ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawMote(o,now,dt,index){
+      o.x+=o.vx*dt;o.y+=o.vy*dt;
+      if(o.y<-8||o.x<-12||o.x>W+12)resetMote(o,false,index);
+      const shimmer=.55+.45*Math.sin(now*.00125+o.phase);
+      const a=o.alpha*(.52+.48*shimmer);
+      ctx.save();
+      ctx.globalCompositeOperation='screen';
+      ctx.fillStyle=o.pale?`rgba(247,252,249,${a})`:`rgba(255,224,170,${a})`;
+      ctx.shadowBlur=2.5;ctx.shadowColor=o.pale?'rgba(236,247,243,.28)':'rgba(255,213,150,.24)';
+      ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,TAU);ctx.fill();ctx.restore();
+    }
+
+    function frame(now){
+      resize();
+      const dt=clamp((now-last)/1000,0,.05);last=now;
+      ctx.clearRect(0,0,W,H);
+      drawLight(now);
+      currents.forEach((o,i)=>drawCurrent(o,now,dt,i));
+      motes.forEach((o,i)=>drawMote(o,now,dt,i));
+      leaves.forEach((o,i)=>drawLeaf(o,now,dt,i));
+      requestAnimationFrame(frame);
+    }
+
+    resize();requestAnimationFrame(frame);return true;
+  }
+
+  if(!boot()){
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+    else setTimeout(boot,0);
+  }
 })();
