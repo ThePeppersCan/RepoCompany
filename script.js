@@ -12089,9 +12089,10 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
   };
   const isZombieLocation = value => Object.prototype.hasOwnProperty.call(ZOMBIE_MAPS, value);
 
-  // V20.28 Endless Horde economy. Rewards are granted by SECURITY DEFINER RPCs,
-  // not by client-side GP edits. The server enforces sequential wave claims and
-  // a hard real-time payout ceiling so modified clients cannot print GP freely.
+  // V20.32 Endless Horde economy. Every completed wave is queued for an
+  // immediate SECURITY DEFINER RPC payout. The server enforces sequential and
+  // duplicate-safe claims while keeping only a high emergency anti-abuse ceiling,
+  // so normal gameplay is never several waves behind on GP.
   function hordeEconomyFor(s=combatState){
     if(!s?.zombie)return null;
     if(!s.hordeEconomy)s.hordeEconomy={runId:null,totalGp:0,queue:[],processing:false,retryTimer:null,startBusy:false,lastAwardedWave:0};
@@ -12099,9 +12100,12 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
   }
   function setHordeGpHud(s=combatState){
     const wrap=document.getElementById('combatGpEarnedWrap'),value=document.getElementById('combatGpEarned');
-    const active=Boolean(s?.zombie);
+    const active=Boolean(s?.zombie),eco=s?.hordeEconomy;
     if(wrap)wrap.classList.toggle('hidden',!active);
-    if(value)value.textContent=`${Number(s?.hordeEconomy?.totalGp||0).toLocaleString('en-GB')} GP`;
+    if(value){
+      const pending=Number(eco?.queue?.length||0);
+      value.textContent=`${Number(eco?.totalGp||0).toLocaleString('en-GB')} GP${pending?' · PAYING…':''}`;
+    }
   }
   function hordeRewardFlash(wave,row){
     const dialog=document.getElementById('combatDialog');if(!dialog)return;
@@ -12131,7 +12135,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
   function queueHordeWaveReward(s,wave){
     const eco=hordeEconomyFor(s);wave=Math.max(1,Math.floor(Number(wave)||0));if(!eco||!wave)return;
     if(wave<=eco.lastAwardedWave||eco.queue.includes(wave))return;
-    eco.queue.push(wave);eco.queue.sort((a,b)=>a-b);
+    eco.queue.push(wave);eco.queue.sort((a,b)=>a-b);setHordeGpHud(s);
     if(!eco.runId)startHordeRewardRun(s);else processHordeRewardQueue(s);
   }
   async function processHordeRewardQueue(s){
@@ -12143,7 +12147,12 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
         let data,error;
         try{({data,error}=await db.rpc('claim_endless_horde_wave_reward',{p_run_id:eco.runId,p_wave:wave}));}
         catch(requestError){error=requestError;}
-        if(error){console.warn('Endless Horde GP claim failed:',error);break;}
+        if(error){
+          console.warn('Endless Horde GP claim failed:',error);
+          clearTimeout(eco.retryTimer);
+          eco.retryTimer=setTimeout(()=>processHordeRewardQueue(s),1600);
+          break;
+        }
         const row=Array.isArray(data)?data[0]:data;
         if(row?.awarded){
           eco.queue.shift();eco.lastAwardedWave=wave;eco.totalGp=Number(row.total_run_gp||eco.totalGp||0);
@@ -12158,8 +12167,9 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
         if(row?.reason==='already_claimed'){
           eco.queue.shift();eco.lastAwardedWave=Math.max(eco.lastAwardedWave,Number(row.claimed_wave||wave));eco.totalGp=Number(row.total_run_gp||eco.totalGp||0);setHordeGpHud(s);continue;
         }
-        const retry=Math.max(1,Math.min(30,Number(row?.retry_after_seconds||2)));
-        clearTimeout(eco.retryTimer);eco.retryTimer=setTimeout(()=>processHordeRewardQueue(s),retry*1000+120);
+        const retry=Math.max(1,Math.min(10,Number(row?.retry_after_seconds||1)));
+        clearTimeout(eco.retryTimer);
+        eco.retryTimer=setTimeout(()=>processHordeRewardQueue(s),retry*1000+80);
         break;
       }
     }finally{eco.processing=false;}
@@ -12402,7 +12412,11 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     const hp=base[0]*scale.hp*(boss?1.35:1);s.enemies.push({type,x,y,hp,maxHp:hp,speed:base[1]*scale.speed,damage:base[2]*scale.damage,r:base[3],xp:base[4],hitCooldown:0});z.spawned++;
   }
   function beginNextZombieWave(s){
-    const z=s.zombie,clearedWave=z.wave;queueHordeWaveReward(s,clearedWave);z.wave++;z.waveKills=0;z.spawned=0;z.bossWave=z.wave%10===0;
+    const z=s.zombie,clearedWave=z.wave;
+    // The reward claim belongs to the wave that has just reached 100% completion.
+    // Queue it before changing z.wave so there is no off-by-one payout lag.
+    queueHordeWaveReward(s,clearedWave);
+    z.wave++;z.waveKills=0;z.spawned=0;z.bossWave=z.wave%10===0;
     z.spawnTarget=Math.min(120,7+Math.floor(z.wave*1.55)+(z.bossWave?1:0));z.waveTarget=z.spawnTarget;
     z.betweenWaves=z.wave%5===0?2.8:1.7;z.banner=`${z.bossWave?'BOSS ':''}WAVE ${z.wave}`;z.bannerLife=2.4;
     s.player.hp=Math.min(s.player.maxHp,s.player.hp+Math.max(5,Math.floor(s.player.maxHp*.055)));
