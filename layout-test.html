@@ -1,0 +1,151 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css?v=test"></head><body class="repo-dashboard-v20-active repo-dashboard-v20-desktop repo-logged-in"><div id="repoDashboardV20" class="repo-dashboard-shell-v20"><header class="repo-main-header">
+<div class="repo-header-centre">
+<div class="logo repo-logo-wrap"><img alt="Repo Company" class="repo-header-logo" src="assets/repo-company-logo-v2.png"/></div>
+<div class="character-box" id="characterBox">
+<button class="character-button hidden" id="createCharacter">LOG IN / CREATE ACCOUNT</button>
+<div class="signed-in-controls" id="signedInControls">
+<button aria-expanded="false" aria-haspopup="true" class="admin-button hidden" id="adminButton" type="button">ADMIN <span aria-hidden="true">▾</span></button>
+<button class="character-summary" id="characterSummary" type="button"><img class="repo-dash-avatar" src="assets/dialogue-catasthma-1.png"/>
+<b id="characterName">CatAsthma</b><span>Total level <strong id="totalLevel">708</strong></span>
+</button><div class="repo-dash-harmony-quick" id="repoDashHarmonyQuick"><strong id="repoDashHarmonyLevel">52</strong><span class="repo-dash-harmony-copy"><small>HARMONY LEVEL</small><i><b id="repoDashHarmonyFill" style="width:41%"></b></i><em id="repoDashHarmonyRemaining">11,421 XP to next level</em></span></div>
+<button class="header-quick-button bank-open-button" id="openBank" type="button"><img alt="" height="25" src="assets/gold-pieces.png" width="25"/><span>BANK</span></button>
+<button class="header-quick-button skills-open-button" disabled="" id="openSkills" type="button"><img alt="" height="25" src="assets/skills-icon.png" width="25"/><span>SKILLS</span></button>
+<button class="header-quick-button pets-open-button" disabled="" id="openPets" type="button"><img alt="" height="25" src="assets/pets-icon.png" width="25"/><span>PETS</span></button>
+<button aria-label="Repo Sports World Cup special event — coming soon" class="header-quick-button world-cup-event-tab" id="openWorldCupEvent" title="Repo Sports World Cup — Special Event" type="button">
+<span aria-hidden="true" class="world-cup-event-spark"></span>
+<img alt="Repo Sports World Cup" height="40" src="assets/repo-sports-world-cup-tab.png" width="72"/>
+</button>
+<button aria-label="Open Legacy Quidditch Mode" class="header-quick-button legacy-quidditch-tab" hidden="" id="openQuidditchMode" style="display:none!important" title="Legacy Quidditch Mode — results are not recorded" type="button">
+<img alt="Repo Sports Legacy Mode" height="46" src="assets/repo-sports-legacy-mode-tab.png" width="102"/>
+</button>
+<button aria-label="Open Quidditch TCG Binder" class="tcg-binder-nav-button" id="openTcgBinderQuick" title="Open Quidditch TCG Binder" type="button">
+<img alt="" height="36" src="assets/quidditch-tcg-binder/binder-nav-icon.png" width="31"/>
+</button>
+</div>
+</div>
+</div>
+</header><main>
+<section class="card stats harmony-card">
+<h2 class="harmony-heading"><img alt="" src="assets/harmony-logo.png"/><span>HARMONY LEVEL</span></h2>
+<div id="count">52</div>
+<p id="status">125,173 total Harmony XP</p>
+<div aria-label="Harmony progress" class="bar"><i id="fill" style="width:41%"></i></div>
+<div class="row"><span>To next level</span><b id="percent">11,421 XP remaining</b></div>
+<div aria-label="Harmony level unlocks" class="harmony-unlocks">
+<div class="harmony-unlocks-title">HARMONY UNLOCKS</div>
+<div aria-label="Harmony XP lamp unlocks" class="harmony-lamp-group">
+<div class="harmony-lamp-group-heading"><img alt="" src="assets/harmony-lamp-100k.png"/><span><b>HARMONY XP LAMPS</b><small>One-time lamps for any skill</small></span></div>
+<div class="harmony-lamp-levels">
+<div class="harmony-lamp-tier locked" id="harmonyLamp50Unlock"><span class="harmony-unlock-level">50</span><b>30K XP</b><strong id="harmonyLamp50State">LOCKED</strong></div>
+<div class="harmony-lamp-tier locked" id="harmonyLamp60Unlock"><span class="harmony-unlock-level">60</span><b>50K XP</b><strong id="harmonyLamp60State">LOCKED</strong></div>
+<div class="harmony-lamp-tier locked" id="harmonyLamp70Unlock"><span class="harmony-unlock-level">70</span><b>75K XP</b><strong id="harmonyLamp70State">LOCKED</strong></div>
+<div class="harmony-lamp-tier locked" id="harmonyLamp80Unlock"><span class="harmony-unlock-level">80</span><b>100K XP</b><strong id="harmonyLamp80State">LOCKED</strong></div>
+</div>
+</div>
+<div class="harmony-unlock locked" id="harmonyFredoUnlock">
+<span class="harmony-unlock-level">92</span>
+<img alt="Fredo the Friendly Otter" src="assets/pets/fredo_idle.png"/>
+<span class="harmony-unlock-copy"><b>Fredo the Friendly Otter</b><small>Shared pet for every adventurer</small></span>
+<strong id="harmonyFredoState">LOCKED</strong>
+</div>
+<div class="harmony-unlock locked" id="harmonyCapeUnlock">
+<span class="harmony-unlock-level">99</span>
+<img alt="Harmony skillcape" src="assets/harmony_skillcape.png"/>
+<span class="harmony-unlock-copy"><b>Harmony Skillcape</b><small>Equipable by every pet</small></span>
+<strong id="harmonyCapeState">LOCKED</strong>
+</div>
+</div>
+</section>
+<section class="scene tavern-scene billboard-scene" id="scene">
+<div aria-label="Animated Repo Company billboard lookout" class="tavern-lobby tavern-lobby--billboard" id="tavernLobby" role="img">
+<img alt="" class="tavern-lobby-base" src="assets/homepage-billboard/frame_01.png"/>
+<img alt="" class="tavern-lobby-frame" src="assets/homepage-billboard/frame_02.png"/>
+<img alt="" class="tavern-lobby-frame" src="assets/homepage-billboard/frame_03.png"/>
+<img alt="" class="tavern-lobby-frame" src="assets/homepage-billboard/frame_04.png"/>
+<img alt="" class="tavern-lobby-frame" src="assets/homepage-billboard/frame_05.png"/>
+<img alt="" class="tavern-lobby-frame" src="assets/homepage-billboard/frame_06.png"/>
+<img alt="" class="tavern-lobby-frame" src="assets/homepage-billboard/frame_07.png"/>
+<img alt="" class="tavern-lobby-frame" src="assets/homepage-billboard/frame_08.png"/>
+<div aria-hidden="true" class="billboard-mist-layer billboard-mist-layer--back">
+<span class="billboard-mist billboard-mist--a"></span>
+<span class="billboard-mist billboard-mist--b"></span>
+<span class="billboard-mist billboard-mist--c"></span>
+</div>
+<div aria-label="Repo Sports World Cup billboard advertisements" class="billboard-ad-layer" id="billboardAdLayer">
+<div class="billboard-ad-slide is-active" style="--ad-image:url('assets/homepage-billboard/ads/ad-01.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-01.png"/></div>
+<div class="billboard-ad-slide" style="--ad-image:url('assets/homepage-billboard/ads/ad-02.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-02.png"/></div>
+<div class="billboard-ad-slide" style="--ad-image:url('assets/homepage-billboard/ads/ad-03.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-03.png"/></div>
+<div class="billboard-ad-slide" style="--ad-image:url('assets/homepage-billboard/ads/ad-04.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-04.png"/></div>
+<div class="billboard-ad-slide" style="--ad-image:url('assets/homepage-billboard/ads/ad-05.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-05.png"/></div>
+<div class="billboard-ad-slide" style="--ad-image:url('assets/homepage-billboard/ads/ad-06.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-06.png"/></div>
+<div class="billboard-ad-slide" style="--ad-image:url('assets/homepage-billboard/ads/ad-07.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-07.png"/></div>
+<div class="billboard-ad-slide" style="--ad-image:url('assets/homepage-billboard/ads/ad-08.png')"><img alt="Repo Sports World Cup fixture advertisement" src="assets/homepage-billboard/ads/ad-08.png"/></div>
+<span aria-hidden="true" class="billboard-ad-scanlines"></span>
+<span aria-hidden="true" class="billboard-ad-sheen"></span>
+</div>
+<div aria-label="Repo Company tavern guests" class="tavern-guest-layer" id="tavernGuestLayer"></div>
+<div aria-hidden="true" class="billboard-mist-layer billboard-mist-layer--front">
+<span class="billboard-mist billboard-mist--d"></span>
+<span class="billboard-mist billboard-mist--e"></span>
+</div>
+<section aria-label="Tavern seat testing" class="tavern-seat-tester hidden" id="tavernSeatTester">
+<b>ADMIN · TAVERN SEATS</b>
+<div>
+<button data-tavern-seat="sofa-left" type="button">PERCH 1</button>
+<button data-tavern-seat="sofa-left-centre" type="button">PERCH 2</button>
+<button data-tavern-seat="sofa-right-centre" type="button">PERCH 3</button>
+<button data-tavern-seat="sofa-right" type="button">PERCH 4</button>
+<button data-tavern-seat="armchair-left" type="button">PERCH 5</button>
+<button data-tavern-seat="armchair-right" type="button">PERCH 6</button>
+</div>
+</section>
+<span aria-hidden="true" class="tavern-lobby-vignette"></span>
+</div>
+<button aria-label="Unmute tavern ambience" aria-pressed="false" class="tavern-sound-toggle" id="tavernSoundToggle" title="Unmute tavern ambience" type="button">
+<span aria-hidden="true">🔇</span>
+</button>
+<div aria-hidden="true" class="tavern-room"><span class="tavern-beam beam-one"></span><span class="tavern-beam beam-two"></span><span class="tavern-window"><i></i></span><span class="tavern-fireplace"><i></i><b></b></span><span class="tavern-shelf"><i></i><i></i><i></i></span><span class="tavern-rug"></span></div>
+<div class="poster p1">OLD SCHOOL</div><div class="poster p2">REPO COMPANY</div>
+<div class="monitor"><div aria-label="Character 1 playing Tombs of Amascut" class="screen game-screen monitor-toa" id="characterMonitor"><div class="monitor-game monitor-game-toa"><div class="game-title">TOMBS OF AMASCUT</div><div class="toa-room"><i class="toa-pillar p-a"></i><i class="toa-pillar p-b"></i><i class="toa-boss"></i><i class="toa-player"></i><i class="toa-hit">42</i></div><div class="toa-inventory"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="game-status">WARDENS · EXPERT MODE</div></div><div class="monitor-game monitor-game-stellaris"><div class="stellaris-top"><b>STELLARIS</b><span>⚡ 8K  ◆ 14K  ☄ 2K</span></div><div class="galaxy"><i class="orbit o1"></i><i class="orbit o2"></i><i class="orbit o3"></i><i class="star s1"></i><i class="star s2"></i><i class="star s3"></i><i class="fleet f1">▸▸▸</i><i class="fleet f2">▸▸</i></div><div class="stellaris-panel">UNITED EARTH FLEET<br/><span>Surveying unknown system…</span></div></div><div class="monitor-game monitor-game-isaac"><div class="isaac-title">THE BINDING OF ISAAC</div><div class="isaac-room"><i class="isaac-heart">♥♥♡</i><i class="isaac-boy"><b></b></i><i class="isaac-tear t1"></i><i class="isaac-tear t2"></i><i class="isaac-enemy e1"></i><i class="isaac-enemy e2"></i></div><div class="isaac-floor">BASEMENT II · 03:17</div></div><div class="monitor-game monitor-game-rdr2"><div class="rdr2-title">RED DEAD REDEMPTION II</div><div class="rdr2-landscape"><i class="rdr2-sun"></i><i class="rdr2-mountain m1"></i><i class="rdr2-mountain m2"></i><i class="rdr2-rider"><b></b></i><i class="rdr2-cactus c1"></i><i class="rdr2-cactus c2"></i></div><div class="rdr2-status">HEARTLANDS · WANTED: DEAD OR ALIVE</div></div><div class="monitor-game monitor-game-tlou"><div class="tlou-title">THE LAST OF US</div><div class="tlou-world"><i class="tlou-building b1"></i><i class="tlou-building b2"></i><i class="tlou-vine v1"></i><i class="tlou-vine v2"></i><i class="tlou-joel"></i><i class="tlou-ellie"></i><i class="tlou-spore s1"></i><i class="tlou-spore s2"></i></div><div class="tlou-status">PITTSBURGH · SURVIVE TOGETHER</div></div><div class="monitor-game monitor-game-dti"><div class="dti-top"><b>DRESS TO IMPRESS</b><span>ROBLOX</span></div><div class="dti-stage"><i class="dti-runway"></i><i class="dti-avatar"><b></b></i><i class="dti-judge j1"></i><i class="dti-judge j2"></i><i class="dti-star s1">★</i><i class="dti-star s2">★</i></div><div class="dti-status">THEME: OLD MONEY · 03:42</div></div></div><div class="stand"></div></div>
+<div class="desk"></div><div class="keyboard"></div><div class="chair"><div class="back"></div><div class="seat"></div><div class="base"></div></div>
+<div aria-label="Character typing at the computer" class="gamer character-one typing" id="gamer"><div class="cape"></div><div class="hairback"></div><div class="wizard-hat"><i></i></div><div class="hood"></div><div class="head"><div class="ear"></div><div class="nose"></div><div class="face-shadow"></div></div><div class="curls"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="neck"></div><div class="body"><div class="robe-panel"></div></div><div class="belly"></div><div class="arm arm-left"><div class="hand"></div></div><div class="arm arm-right"><div class="hand"><div aria-hidden="true" class="character-prop joint-prop"><span class="joint-stick"></span><span class="smoke smoke-one"></span><span class="smoke smoke-two"></span><span class="smoke smoke-three"></span></div><div aria-hidden="true" class="character-prop pepper-prop"><span class="can-top"></span><b>Dr<br/>Pepper</b></div><div aria-hidden="true" class="character-prop quiche-prop"><span class="quiche-crust"></span><span class="quiche-filling"><i></i><i></i><i></i></span><b>QUICHE</b></div><div aria-hidden="true" class="character-prop budweiser-prop"><span class="beer-neck"></span><span class="beer-cap"></span><span class="beer-label"><b>BUD</b><small>WEISER</small></span></div><div aria-hidden="true" class="character-prop vape-prop"><span class="vape-tank"><i></i></span><span class="vape-mouthpiece"></span><span class="vape-button"></span><span class="vape-glow"></span><span class="vape-smoke smoke-a"></span><span class="vape-smoke smoke-b"></span></div><div aria-hidden="true" class="character-prop energy-prop"><img alt="" src="assets/pink-energy-can-pixel.png"/></div></div></div><div class="leg one"></div><div class="leg two"></div></div>
+<button aria-label="Show the next adventurer at the desk" class="next-desk-character" id="nextDeskCharacter" title="Next adventurer" type="button"><span aria-hidden="true">›</span><small>NEXT ADVENTURER</small></button>
+<div class="level" id="level">HARMONY LEVEL: 1</div>
+<div aria-live="polite" class="resource-layer" id="resourceLayer"></div>
+</section>
+<section class="card actions harmony-actions">
+<h2>TRAIN HARMONY</h2>
+<button aria-label="Harmonize and gain three shared Harmony XP" class="xp-waste-button harmony-button" id="can" type="button"><span class="harmony-button-logo"><img alt="" src="assets/harmony-logo.png"/></span><strong>HARMONIZE</strong><em>+3 HARMONY XP</em><span aria-hidden="true" class="harmony-wave"></span></button>
+<label class="harmony-sound-toggle" title="Toggle the Harmonize sound"><input checked="" id="harmonySoundToggle" type="checkbox"/><span aria-hidden="true">♪</span><b>SOUND</b></label>
+<div aria-live="polite" class="daily-xp-board">
+<div class="daily-xp-heading">
+<span>DAILY LEADERBOARD</span>
+</div>
+<div class="daily-xp-list" id="dailyXpLeaderboard">
+<div class="daily-xp-empty">Loading today’s gains…</div>
+</div>
+</div>
+<div aria-live="polite" class="daily-xp-board global-xp-board">
+<div class="daily-xp-heading">
+<span>GLOBAL LEADERBOARD</span>
+</div>
+<div class="daily-xp-list" id="globalXpLeaderboard">
+<div class="daily-xp-empty">Loading total XP…</div>
+</div>
+</div>
+<button aria-label="Open full leaderboards" class="home-leaderboards-shortcut" id="openLeaderboardQuick" type="button">
+<img alt="" height="22" src="assets/leaderboard-icon.png" width="22"/>
+<span><b>LEADERBOARDS</b><small>VIEW ALL RANKINGS</small></span>
+<em aria-hidden="true">›</em>
+</button>
+</section>
+</main><section aria-label="Adventure menu" class="game-strip adventure-nav">
+<div class="nav-section training-nav">
+<div class="nav-section-heading"><span>TRAINING</span><small>Level your adventurer</small><span class="repo-dash-training-quick"><button>CONTINUE: FISHING</button><button>ALL SKILLS</button></span></div>
+<div class="nav-button-grid training-skill-grid"><section class="repo-dash-skill-group"><b>ADVENTURER'S WING</b><div></div></section><section class="repo-dash-skill-group"><b>GATHERER'S WING</b><div></div></section><section class="repo-dash-skill-group"><b>ARTISAN'S WING</b><div></div></section></div>
+</div>
+<div class="nav-section activities-nav">
+<div class="nav-section-heading"><span>OTHER</span><small>Clan tools, challenges and games</small></div>
+<div class="nav-button-grid activity-button-grid"><section class="repo-dash-skill-group"><b>GUILD SERVICES</b><div></div></section><section class="repo-dash-skill-group"><b>GAMES &amp; CHALLENGES</b><div></div></section></div>
+</div>
+</section><footer><strong class="repo-dash-today">TODAY IN VELMORA</strong><button class="repo-dash-ticker-item"><img src="assets/repo-sports-world-cup-tab.png"/><span><b>World Cup Knockouts</b><small>Open Repo Sports</small></span></button><button class="repo-dash-ticker-item"><img src="assets/wise-old-man.png"/><span><b>Daily Task</b><small>Wise Old Man Task</small></span></button><span class="repo-dash-ticker-item is-static"><img src="assets/harmony-logo.png"/><span><b>Harmony Bonus</b><small>+3 XP per harmonize</small></span></span><span class="repo-dash-ticker-item is-static"><img src="assets/quest-icon.png"/><span><b>Velmora News</b><small>Stay updated</small></span></span></footer></div></body></html>

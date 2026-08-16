@@ -1,18 +1,29 @@
-Repo Company V18.1 — V19.5 DEFINITIVE HIDDEN CARDS / BRUSH FIX
-================================================================
+Repo Company — V20.13 TRUE HARMONY + CASTLE ATMOSPHERE
+=========================================================
 
-Built directly from the current script.js + index.html you uploaded.
+Apply over V20.12.
 
 Replace:
 - /script.js
+- /style.css
 - /index.html
 
-No style.css replacement is required.
+Changes:
+1. Harmony bar
+   - The old HTML/CSS progress meter is removed.
+   - It is now an SVG bar whose fill rectangle width is set directly from the
+     real within-level Harmony percentage.
+   - Legacy CSS cannot stretch this SVG rectangle to 100%, which addresses the
+     persistent full-bar issue.
 
-Fix:
-- Hidden Cards open state is now written at the authoritative drawer-state function.
-- The entire Binder Style control is display:none while Hidden Cards is open.
-- The rule deliberately outranks the older V18.5 !important rule that was forcing
-  the paintbrush visible.
-- Closing Hidden Cards restores the brush automatically.
-- Drag-opening Hidden Cards is covered too.
+2. Homepage logo
+   - Lowered a tiny amount again so the stone plaque sits closer to the nav.
+
+3. Background atmosphere
+   - Four subtle animated flame glows aligned to the side braziers.
+   - Small rising ember particles around each fire.
+   - Slow, sparse wind/snow-like motes drifting across the castle backdrop.
+   - Effects sit behind the actual interface and are intentionally restrained.
+   - Respects prefers-reduced-motion.
+
+No image generation and no new art assets are required.

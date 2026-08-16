@@ -6240,6 +6240,7 @@ function partyPeteRefreshTestCard(){
   qmWatcherProfileCache.set(key,{...existing,username:character.username,equipped_watchcard_background:character.equipped_watchcard_background||null});
   if(qmState?.open&&qmState.liveState)qmRenderWatcherAccounts(qmState.liveState,true);
   if(qmOpenWatcherProfileName&&qmWatcherKey(qmOpenWatcherProfileName)===key)qmRefreshOpenWatcherProfile();
+  try{if(typeof renderRepoPassportPanel==='function')renderRepoPassportPanel()}catch(_){}
 }
 function partyPeteSetTestBackdrop(id){
   character.equipped_watchcard_background=id||null;
@@ -8405,7 +8406,9 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     if(immediate){void actor.el.offsetWidth;actor.el.style.transition='';}
   }
   function makeGuest(name,definition,seat){
-    const el=document.createElement('div');el.className='tavern-guest';el.dataset.guest=name;el.dataset.seat=seat.id;
+    const el=document.createElement('div');el.className='tavern-guest repo-passport-hover-target';el.dataset.guest=name;el.dataset.seat=seat.id;el.dataset.username=definition.displayName;
+    el.tabIndex=0;
+    el.setAttribute('aria-label',`${definition.displayName} — hover for Repo Passport`);
     el.classList.toggle('is-side-seat',seat.kind==='armchair');
     const img=document.createElement('img');img.alt=`${definition.displayName} relaxing at the billboard`;img.draggable=false;el.appendChild(img);layer.appendChild(el);
     if(definition.climbWidth)el.style.setProperty('--billboard-climb-width',definition.climbWidth);
@@ -17471,18 +17474,38 @@ qmShowSharedGoal=function(state){
       isPublic:Boolean(isPublic)
     };
   }
+  function publishOwnTcgCollection(){
+    window.__repoTcgOwnCollection={
+      username:String(ownCollection?.username||character?.username||''),
+      cards:normaliseCards(ownCollection?.cards),
+      loaded:Boolean(ownCollection?.loaded)
+    };
+    window.dispatchEvent(new CustomEvent('repo-tcg-own-collection-changed',{detail:window.__repoTcgOwnCollection}));
+  }
   async function refreshOwnTcgCollection({silent=false}={}){
     if(!character)return ownCollection;
     try{
       const collection=await fetchTcgCollection();
       ownCollection={...collection,loaded:true};
+      publishOwnTcgCollection();
       updateTcgAchievementRow();
       return ownCollection;
     }catch(error){
       if(!silent)console.error('Could not load Quidditch TCG collection.',error);
+      publishOwnTcgCollection();
       return ownCollection;
     }
   }
+  window.repoTcgRefreshOwnCollection=async function(){
+    const collection=await refreshOwnTcgCollection({silent:true});
+    publishOwnTcgCollection();
+    return window.__repoTcgOwnCollection;
+  };
+  window.repoTcgGetPublicCollection=async function(username){
+    const clean=String(username||'').trim();
+    if(!clean)return {username:'',cards:[]};
+    return fetchTcgCollection(clean);
+  };
 
   // ---------- Binder card layer ----------
   function enhanceBinderUi(){
@@ -17718,6 +17741,7 @@ qmShowSharedGoal=function(state){
     ensurePermanentAdminPackInLocalBank();
     const owned=normaliseCards(row.owned_cards);
     ownCollection={username:character?.username||'',cards:owned,loaded:true};
+    publishOwnTcgCollection();
     displayedCollection=displayedCollection.isPublic?displayedCollection:{...ownCollection,isPublic:false,loading:false,error:''};
     if(character){
       const oneKey=String(row.skill_one||'').replace(/_xp$/,'')+'_xp';
@@ -18909,11 +18933,14 @@ qmShowSharedGoal=function(state){
   function setCachedFavourite(username,cardId){
     const clean=cards[cardId]?cardId:null;
     favouriteByUser.set(key(username),clean);
+    window.__repoTcgFavouriteCardByUser=window.__repoTcgFavouriteCardByUser||{};
+    window.__repoTcgFavouriteCardByUser[key(username)]=clean;
     if(typeof qmWatcherProfileCache!=='undefined'){
       const cacheKey=typeof qmWatcherKey==='function'?qmWatcherKey(username):key(username);
       const existing=qmWatcherProfileCache.get(cacheKey)||{};
       qmWatcherProfileCache.set(cacheKey,{...existing,username,favourite_quidditch_tcg_card:clean});
     }
+    window.dispatchEvent(new CustomEvent('repo-tcg-favourite-changed',{detail:{username:String(username||''),cardId:clean}}));
     queueDecoration();
     if(typeof qmRefreshOpenWatcherProfile==='function')qmRefreshOpenWatcherProfile();
   }
@@ -18935,6 +18962,16 @@ qmShowSharedGoal=function(state){
       favouriteByUser.set(userKey,null);queueDecoration();return null;
     }finally{loadingUsers.delete(userKey)}
   }
+  window.repoTcgGetFavouriteCard=function(username){
+    const cardId=favouriteByUser.get(key(username))||null;
+    return cards[cardId]||null;
+  };
+  window.repoTcgLoadFavouriteCard=async function(username){
+    const cleanName=String(username||character?.username||'').trim();
+    if(!cleanName)return null;
+    const cardId=await loadFavourite(cleanName,{own:key(cleanName)===key(ownUsername())});
+    return cards[cardId]||null;
+  };
   async function saveFavourite(cardId,button){
     if(!isOwnBinder())return;
     const username=ownUsername();if(!username)return;
@@ -23639,23 +23676,23 @@ updateHunterCantoHud=function(){
 
 
 // ============================================================================
-// REPO SPORTS WORLD CUP 2026 — HOMEPAGE BILLBOARD KICK-OFF COUNTDOWN V1.18
-// Replaces the billboard creative with a real absolute countdown to the first
-// World Cup fixture: Friday 14 August 2026, 21:00 British Summer Time.
+// REPO SPORTS WORLD CUP 2026 — HOMEPAGE BILLBOARD QUARTER-FINAL COUNTDOWN V1.20
+// Homepage character-screen billboard countdown to the first Quarter-final:
+// Friday 21 August 2026, 21:00 British Summer Time.
 // The timestamp is stored as UTC so browser timezone settings cannot move it.
 // ============================================================================
 (() => {
-  if (window.__repoWorldCupKickoffBillboardV118) return;
-  window.__repoWorldCupKickoffBillboardV118 = true;
+  if (window.__repoWorldCupQuarterFinalBillboardV120) return;
+  window.__repoWorldCupQuarterFinalBillboardV120 = true;
 
-  // 21:00 BST = 20:00 UTC on 14 August 2026.
-  const KICKOFF_AT = Date.UTC(2026, 7, 14, 20, 0, 0);
+  // 21:00 BST = 20:00 UTC on 21 August 2026.
+  const KICKOFF_AT = Date.UTC(2026, 7, 21, 20, 0, 0);
   const SEGMENTS = Object.freeze({
     '0':'abcdef','1':'bc','2':'abdeg','3':'abcdg','4':'bcfg',
     '5':'acdfg','6':'acdefg','7':'abc','8':'abcdefg','9':'abcdfg'
   });
 
-  const styleId='repoWorldCupKickoffBillboardV118Styles';
+  const styleId='repoWorldCupQuarterFinalBillboardV120Styles';
   if (!document.getElementById(styleId)) {
     const style=document.createElement('style');
     style.id=styleId;
@@ -23742,6 +23779,11 @@ updateHunterCantoHud=function(){
         background:#ff2638;box-shadow:0 0 5px #ff2434,0 0 15px rgba(255,25,47,.7),0 0 28px rgba(255,0,31,.22);
       }
       .repo-wc-led-colon::before{top:27%}.repo-wc-led-colon::after{bottom:27%}
+      .repo-wc-led-units{
+        width:86%;max-width:620px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7.3%;
+        margin-top:-4px;color:#626975;font:800 clamp(5px,.46vw,7px)/1 Arial,sans-serif;
+        letter-spacing:.18em;text-align:center;text-transform:uppercase;
+      }
       .repo-wc-kickoff-meta{
         display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;text-transform:uppercase;
       }
@@ -23817,7 +23859,7 @@ updateHunterCantoHud=function(){
     billboard.setAttribute('aria-live','off');
     billboard.innerHTML=`
       <div class="repo-wc-kickoff-inner">
-        <div class="repo-wc-kickoff-kicker">Repo Sports World Cup · Kick-off in</div>
+        <div class="repo-wc-kickoff-kicker">Repo Sports World Cup · First Quarter-final in</div>
         <div class="repo-wc-led-clock" aria-hidden="true">
           <div class="repo-wc-led-pair" data-pair="hours"></div>
           <span class="repo-wc-led-colon"></span>
@@ -23825,7 +23867,8 @@ updateHunterCantoHud=function(){
           <span class="repo-wc-led-colon"></span>
           <div class="repo-wc-led-pair" data-pair="seconds"></div>
         </div>
-        <div class="repo-wc-kickoff-meta"><strong>Friday 14 August · 9:00 PM BST</strong><span>First World Cup fixture</span></div>
+        <div class="repo-wc-led-units" aria-hidden="true"><span id="repoWcUnitA">DAYS</span><span id="repoWcUnitB">HRS</span><span id="repoWcUnitC">MIN</span></div>
+        <div class="repo-wc-kickoff-meta"><strong>Friday 21 August · 9:00 PM BST</strong><span>First Quarter-final · Knockout Stage</span></div>
       </div>`;
 
     const digits=[];
@@ -23907,25 +23950,37 @@ updateHunterCantoHud=function(){
   const render=()=>{
     const billboard=document.getElementById('repoWorldCupKickoffBillboard');
     if(!billboard)return;
-    let remaining=Math.max(0,KICKOFF_AT-Date.now());
+    const remaining=Math.max(0,KICKOFF_AT-Date.now());
     const totalSeconds=Math.floor(remaining/1000);
-    // Keep the clock in HH:MM:SS; hours may exceed 24 if this patch is reused earlier.
-    const hours=Math.floor(totalSeconds/3600);
+    const totalHours=Math.floor(totalSeconds/3600);
+    const days=Math.floor(totalSeconds/86400);
+    const hours=Math.floor((totalSeconds%86400)/3600);
     const minutes=Math.floor((totalSeconds%3600)/60);
     const seconds=totalSeconds%60;
-    const hh=String(Math.min(hours,99)).padStart(2,'0');
-    const mm=String(minutes).padStart(2,'0');
-    const ss=String(seconds).padStart(2,'0');
-    const value=hh+mm+ss;
+    const unitA=document.getElementById('repoWcUnitA');
+    const unitB=document.getElementById('repoWcUnitB');
+    const unitC=document.getElementById('repoWcUnitC');
+    let value='000000';
+    if(remaining>=86400000){
+      value=String(Math.min(days,99)).padStart(2,'0')+String(hours).padStart(2,'0')+String(minutes).padStart(2,'0');
+      if(unitA)unitA.textContent='DAYS';
+      if(unitB)unitB.textContent='HRS';
+      if(unitC)unitC.textContent='MIN';
+    }else{
+      value=String(Math.min(totalHours,99)).padStart(2,'0')+String(minutes).padStart(2,'0')+String(seconds).padStart(2,'0');
+      if(unitA)unitA.textContent='HRS';
+      if(unitB)unitB.textContent='MIN';
+      if(unitC)unitC.textContent='SEC';
+    }
     billboard._repoDigits?.forEach((digit,i)=>setDigit(digit,value[i]||'0'));
-    billboard.setAttribute('aria-label',remaining>0?`World Cup kick-off in ${hours} hours ${minutes} minutes ${seconds} seconds`:'World Cup is live');
+    billboard.setAttribute('aria-label',remaining>0?`First World Cup Quarter-final in ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`:'First World Cup Quarter-final is live');
     if(remaining<=0){
       billboard.classList.add('is-live');
       const kicker=billboard.querySelector('.repo-wc-kickoff-kicker');
       const strong=billboard.querySelector('.repo-wc-kickoff-meta strong');
       const sub=billboard.querySelector('.repo-wc-kickoff-meta span');
-      if(kicker)kicker.textContent='Repo Sports World Cup';
-      if(strong)strong.textContent='WORLD CUP IS LIVE';
+      if(kicker)kicker.textContent='Repo Sports World Cup · Quarter-final';
+      if(strong)strong.textContent='QUARTER-FINAL IS LIVE';
       if(sub)sub.textContent='Kick-off · 9:00 PM BST';
     }
   };
@@ -32193,4 +32248,1067 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',settle,{once:true});
   else settle();
+})();
+
+
+// ============================================================
+// REPO COMPANY V20.0 — ONE-PAGE ADVENTURER DASHBOARD
+// Rehouses the existing homepage systems inside the supplied 1774×887
+// frame artwork. Existing IDs/buttons/scene nodes are MOVED, not cloned,
+// so all current functionality and live billboard behaviour remain intact.
+// ============================================================
+(function installRepoOnePageDashboardV200(){
+  if(window.__repoOnePageDashboardV200Installed)return;
+  window.__repoOnePageDashboardV200Installed=true;
+
+  const SHELL_W=1774,SHELL_H=887;
+  let shell=null,identityObserver=null,progressObserver=null;
+
+  const byId=id=>document.getElementById(id);
+
+  function ensureIdentityAvatar(){
+    const summary=byId('characterSummary');
+    if(!summary)return;
+    let avatar=summary.querySelector('.repo-dash-avatar');
+    if(!avatar){
+      avatar=document.createElement('img');
+      avatar.className='repo-dash-avatar';
+      avatar.alt='';
+      avatar.setAttribute('aria-hidden','true');
+      summary.prepend(avatar);
+    }
+    const name=byId('characterName')?.textContent||character?.username||'';
+    let src='assets/dialogue-placeholder-1.png';
+    try{if(typeof qmWatcherAvatarForName==='function')src=qmWatcherAvatarForName(name)||src;}catch(_){ }
+    avatar.src=src;
+  }
+
+  function ensureHarmonyQuick(){
+    const controls=byId('signedInControls');
+    const summary=byId('characterSummary');
+    if(!controls||!summary)return null;
+    let quick=byId('repoDashHarmonyQuick');
+    if(!quick){
+      quick=document.createElement('div');
+      quick.id='repoDashHarmonyQuick';
+      quick.className='repo-dash-harmony-quick';
+      quick.setAttribute('aria-label','Harmony level progress');
+      quick.innerHTML=`<strong id="repoDashHarmonyLevel">1</strong><span class="repo-dash-harmony-copy"><small>HARMONY LEVEL</small><svg class="repo-harmony-svg-meter" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="repoHarmonyGradient" x1="0" x2="1"><stop offset="0%" stop-color="#719b22"/><stop offset="58%" stop-color="#a8ad35"/><stop offset="100%" stop-color="#d4b75c"/></linearGradient></defs><rect class="repo-harmony-svg-track" x="0" y="0" width="100" height="8" rx="1"/><rect id="repoHarmonySvgFill" class="repo-harmony-svg-fill" x="0" y="0" width="0" height="8" rx="1" fill="url(#repoHarmonyGradient)"/></svg><em id="repoDashHarmonyRemaining">Loading…</em></span>`;
+      summary.insertAdjacentElement('afterend',quick);
+    }
+    return quick;
+  }
+
+  function syncHarmonyQuick(){
+    const quick=ensureHarmonyQuick();if(!quick)return;
+    let level=1,progress=0,remaining='';
+    try{
+      level=typeof harmonyLevelFromXp==='function'?harmonyLevelFromXp(count):Number(byId('count')?.textContent)||1;
+      const current=typeof xpForLevel==='function'?xpForLevel(level):0;
+      const next=level>=99?MAX_SKILL_XP:xpForLevel(level+1);
+      const totalHarmonyXp=Number(count)||0;
+      progress=level>=99?1:Math.max(0,Math.min(1,(totalHarmonyXp-current)/Math.max(1,next-current)));
+      remaining=level>=99?'MAX LEVEL':`${Math.max(0,next-(Number(count)||0)).toLocaleString('en-GB')} XP to next level`;
+    }catch(_){
+      level=Number(byId('count')?.textContent)||1;
+      remaining=byId('percent')?.textContent||'';
+      const width=parseFloat(byId('fill')?.style?.width)||0;progress=Math.max(0,Math.min(1,width/100));
+    }
+    byId('repoDashHarmonyLevel').textContent=String(level);
+    const pct=Math.max(0,Math.min(100,progress*100));
+    const meterFill=byId('repoHarmonySvgFill');
+    if(meterFill){
+      meterFill.setAttribute('width',pct.toFixed(2));
+    }
+    quick.dataset.harmonyProgress=pct.toFixed(2);
+    byId('repoDashHarmonyRemaining').textContent=remaining;
+  }
+
+  function makeGroup(label,ids){
+    const group=document.createElement('section');
+    group.className='repo-dash-skill-group';
+    group.innerHTML=`<b>${label}</b><div></div>`;
+    const holder=group.querySelector('div');
+    ids.forEach(id=>{const button=byId(id);if(button)holder.appendChild(button)});
+    return group;
+  }
+
+  function polishDashboardButtonLabels(){
+    const labels={
+      openAgility:'AGILITY',
+      openSlayer:'SLAYER',
+      openCombat:'COMBAT',
+      openSailing:'SAILING',
+      openFishing:'FISHING',
+      openRuneDle:'FARMING',
+      openMining:'MINING',
+      openHunter:'HUNTER',
+      openCooking:'COOKING',
+      openHerblore:'HERBLORE',
+      openRunecrafting:'RUNECRAFT',
+      openConstruction:'CONSTRUCT',
+      openWiseTask:'WISE OLD MAN',
+      openGrandExchange:'GRAND EXCHANGE',
+      openNpcContact:'NPC CONTACT',
+      openQuests:'QUESTS',
+      openQuidditchDirector:'QUIDDITCH',
+      openRepoSports:'REPO SPORTS',
+      openRaids:'RAIDS',
+      openAchievements:'ACHIEVEMENTS'
+    };
+    Object.entries(labels).forEach(([id,label])=>{
+      const button=byId(id);
+      if(!button)return;
+      const node=button.querySelector('.training-button-copy>span,.activity-button-copy>span');
+      if(node)node.textContent=label;
+      button.dataset.repoDashLabel=label;
+    });
+  }
+
+  function organiseAdventureNav(){
+    const training=document.querySelector('.training-nav .training-skill-grid');
+    if(training&&!training.dataset.repoDashGrouped){
+      training.dataset.repoDashGrouped='1';
+      const frag=document.createDocumentFragment();
+      frag.append(
+        makeGroup("ADVENTURER'S WING",['openAgility','openSlayer','openCombat','openSailing']),
+        makeGroup("GATHERER'S WING",['openFishing','openRuneDle','openMining','openHunter']),
+        makeGroup("ARTISAN'S WING",['openCooking','openHerblore','openRunecrafting','openConstruction'])
+      );
+      training.replaceChildren(frag);
+    }
+    const activities=document.querySelector('.activities-nav .activity-button-grid');
+    if(activities&&!activities.dataset.repoDashGrouped){
+      activities.dataset.repoDashGrouped='1';
+      const hiddenPetWars=byId('openPetWars');
+      const frag=document.createDocumentFragment();
+      frag.append(
+        makeGroup('GUILD SERVICES',['openWiseTask','openGrandExchange','openNpcContact','openQuests']),
+        makeGroup('GAMES & CHALLENGES',['openQuidditchDirector','openRepoSports','openRaids','openAchievements'])
+      );
+      if(hiddenPetWars)frag.appendChild(hiddenPetWars);
+      activities.replaceChildren(frag);
+    }
+
+    // V20.1: the temporary CONTINUE: FISHING / ALL SKILLS controls have
+    // been removed. The command deck now follows the supplied frame cleanly.
+    document.querySelector('.repo-dash-training-quick')?.remove();
+    polishDashboardButtonLabels();
+  }
+
+  function buildTicker(footer){
+    if(!footer||footer.dataset.repoDashTicker==='1')return;
+    footer.dataset.repoDashTicker='1';
+    footer.innerHTML=`
+      <strong class="repo-dash-today">TODAY IN VELMORA</strong>
+      <button type="button" class="repo-dash-ticker-item" data-repo-proxy="openWorldCupEvent"><img src="assets/repo-sports-world-cup-tab.png" alt=""><span><b>World Cup Knockouts</b><small>Open Repo Sports</small></span></button>
+      <button type="button" class="repo-dash-ticker-item" data-repo-proxy="openWiseTask"><img src="assets/wise-old-man.png" alt=""><span><b>Daily Task</b><small>Wise Old Man Task</small></span></button>
+      <span class="repo-dash-ticker-item is-static"><img src="assets/harmony-logo.png" alt=""><span><b>Harmony Bonus</b><small>+3 XP per harmonize</small></span></span>
+      <span id="repoVelmoraNewsTicker" class="repo-dash-ticker-item is-static repo-dash-news" aria-live="polite"><img src="assets/quest-icon.png" alt=""><span><b>Velmora News</b><small>Loading live realm updates…</small></span></span>`;
+  }
+
+  function createShell(){
+    if(shell?.isConnected)return shell;
+    const header=document.querySelector('body > .repo-main-header');
+    const main=document.querySelector('body > main');
+    const nav=document.querySelector('body > .game-strip.adventure-nav');
+    const footer=document.querySelector('body > footer');
+    if(!header||!main||!nav||!footer)return null;
+
+    shell=document.createElement('div');
+    shell.id='repoDashboardV20';
+    shell.className='repo-dashboard-shell-v20';
+    shell.setAttribute('aria-label','Repo Company Adventurer Dashboard');
+    header.before(shell);
+    shell.append(header,main,nav,footer);
+    document.body.classList.add('repo-dashboard-v20-active');
+    organiseAdventureNav();
+    buildTicker(footer);
+    ensureHarmonyQuick();
+    ensureIdentityAvatar();
+    syncHarmonyQuick();
+    fitShell();
+    return shell;
+  }
+
+  function fitShell(){
+    if(!shell?.isConnected)return;
+    const desktop=window.innerWidth>=860;
+    document.body.classList.toggle('repo-dashboard-v20-desktop',desktop);
+    if(!desktop){shell.style.removeProperty('--repo-dashboard-scale');return;}
+    const scale=Math.min(window.innerWidth/SHELL_W,window.innerHeight/SHELL_H);
+    shell.style.setProperty('--repo-dashboard-scale',String(Math.max(.52,scale)));
+  }
+
+  function syncDashboard(){
+    createShell();
+    ensureIdentityAvatar();
+    syncHarmonyQuick();
+  }
+
+  document.addEventListener('click',event=>{
+    const proxy=event.target.closest?.('[data-repo-proxy]');
+    if(!proxy)return;
+    const target=byId(proxy.dataset.repoProxy||'');
+    if(target&&target!==proxy){event.preventDefault();target.click();}
+  });
+
+  window.addEventListener('resize',fitShell,{passive:true});
+  window.addEventListener('repo-character-changed',()=>setTimeout(syncDashboard,20));
+
+  function boot(){
+    createShell();
+    const name=byId('characterName'),countNode=byId('count'),percent=byId('percent');
+    if(name&&!identityObserver){identityObserver=new MutationObserver(ensureIdentityAvatar);identityObserver.observe(name,{subtree:true,childList:true,characterData:true});}
+    if(!progressObserver){progressObserver=new MutationObserver(syncHarmonyQuick);if(countNode)progressObserver.observe(countNode,{subtree:true,childList:true,characterData:true});if(percent)progressObserver.observe(percent,{subtree:true,childList:true,characterData:true});}
+    setTimeout(syncDashboard,80);setTimeout(syncDashboard,350);setTimeout(syncDashboard,1000);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.4 — LIVE VELMORA NEWS TICKER
+// Uses only real data already recorded by the site:
+// - today's Supabase XP leaderboard
+// - official Repo Sports World Cup Round-of-16 results
+// - official tournament goal-leader state
+// ============================================================================
+(function installRepoVelmoraLiveNewsV204(){
+  if(window.__repoVelmoraLiveNewsV204Installed)return;
+  window.__repoVelmoraLiveNewsV204Installed=true;
+
+  const R16_IDS=new Set([
+    'belros-zafran','iskandar-calvora','sorevia-lumerre','talune-kordesh',
+    'norveth-qasmir','nambara-elvane','drazhen-rovarn','vardesh-marovar'
+  ]);
+  const DEFAULT_ICON='assets/quest-icon.png';
+  const XP_ICON='assets/harmony-logo.png';
+  const WC_ICON='assets/repo-sports-world-cup-tab.png';
+  let items=[],index=0,rotateTimer=0,refreshTimer=0,refreshBusy=false;
+
+  const safeNumber=value=>Math.max(0,Number(value)||0);
+  const compact=value=>safeNumber(value).toLocaleString('en-GB');
+  const sameLocalDay=timestamp=>{
+    if(!timestamp)return false;
+    const d=new Date(timestamp),n=new Date();
+    return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate();
+  };
+  const recentWeek=timestamp=>timestamp&&Date.now()-Number(timestamp)<=7*24*60*60*1000;
+  const shuffle=list=>{
+    const copy=[...list];
+    for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]]}
+    return copy;
+  };
+  function ticker(){return document.getElementById('repoVelmoraNewsTicker')}
+  function display(item,instant=false){
+    const box=ticker();if(!box||!item)return;
+    const apply=()=>{
+      const img=box.querySelector('img'),title=box.querySelector('b'),small=box.querySelector('small');
+      if(img)img.src=item.icon||DEFAULT_ICON;
+      if(title)title.textContent=item.title||'Velmora News';
+      if(small)small.textContent=item.detail||'';
+      box.title=[item.title,item.detail].filter(Boolean).join(' — ');
+      box.classList.remove('is-changing');
+    };
+    if(instant){apply();return}
+    box.classList.add('is-changing');
+    setTimeout(apply,150);
+  }
+  function rotate(){
+    if(!items.length)return;
+    index=(index+1)%items.length;
+    display(items[index]);
+  }
+  function fallbackXpFromDom(){
+    return [...document.querySelectorAll('#dailyXpLeaderboard .daily-xp-entry')].slice(0,5).map(row=>({
+      username:String(row.querySelector('.daily-xp-name')?.textContent||'').trim(),
+      xp_earned:safeNumber(String(row.querySelector('.daily-xp-total')?.textContent||'').replace(/[^0-9]/g,''))
+    })).filter(row=>row.username&&row.xp_earned>0);
+  }
+  async function dailyXpRows(){
+    try{
+      if(typeof db!=='undefined'&&db?.rpc){
+        const {data,error}=await db.rpc('get_daily_xp_leaderboard');
+        if(!error&&Array.isArray(data))return data.filter(row=>String(row?.username||'').trim().toLowerCase()!=='admin').slice(0,5);
+      }
+    }catch(_){}
+    return fallbackXpFromDom();
+  }
+  function worldCupItems(){
+    let state=null;
+    try{state=window.RepoSportsWorldCupTournament?.getState?.()}catch(_){}
+    if(!state)return [];
+    const results=Object.values(state.results||{}).filter(r=>R16_IDS.has(String(r?.fixtureId||'')));
+    results.sort((a,b)=>safeNumber(b.completedAt)-safeNumber(a.completedAt));
+    const recent=results.filter(r=>recentWeek(r.completedAt));
+    const use=recent.length?recent:results.slice(0,4);
+    const out=use.slice(0,5).map(r=>{
+      const when=sameLocalDay(r.completedAt)?'Today':recentWeek(r.completedAt)?'This week':'Recent World Cup';
+      const score=r.fromShootout&&r.shootoutHome!=null&&r.shootoutAway!=null
+        ?`${safeNumber(r.scoreHome)}–${safeNumber(r.scoreAway)} · pens ${safeNumber(r.shootoutHome)}–${safeNumber(r.shootoutAway)}`
+        :`${safeNumber(r.scoreHome)}–${safeNumber(r.scoreAway)}`;
+      return {
+        icon:WC_ICON,
+        title:`${r.home} ${score} ${r.away}`,
+        detail:`${when} · ${r.winner} won the Round of 16 tie`
+      };
+    });
+    if(results.length){
+      out.push({icon:WC_ICON,title:`World Cup · ${results.length}/8 R16 results recorded`,detail:results.length>=8?'Round of 16 complete · knockout stage rolls on':'Official live tournament state'});
+    }
+    const scorers=Object.values(state.playerGoals||{}).filter(p=>safeNumber(p?.goals)>0).sort((a,b)=>safeNumber(b.goals)-safeNumber(a.goals));
+    if(scorers[0])out.push({icon:WC_ICON,title:`${scorers[0].name} · ${safeNumber(scorers[0].goals)} World Cup goals`,detail:`${scorers[0].team||'Tournament'} · current recorded top scorer`});
+    return out;
+  }
+  async function refresh(){
+    if(refreshBusy)return;refreshBusy=true;
+    try{
+      const news=[];
+      const daily=await dailyXpRows();
+      daily.slice(0,5).forEach((row,rank)=>{
+        const xp=safeNumber(row?.xp_earned);
+        if(!xp)return;
+        const name=String(row?.username||'Adventurer').trim();
+        news.push({icon:XP_ICON,title:`${name} · ${compact(xp)} XP today`,detail:rank===0?'Today’s biggest recorded XP gain':`Daily XP leaderboard · rank #${rank+1}`});
+      });
+      if(daily.length>1){
+        const total=daily.reduce((sum,row)=>sum+safeNumber(row?.xp_earned),0);
+        if(total)news.push({icon:XP_ICON,title:`${compact(total)} XP earned by today’s top ${daily.length}`,detail:'Live daily leaderboard total'});
+      }
+      news.push(...worldCupItems());
+
+      // A genuinely live realm fallback, only used if the dynamic feeds are quiet.
+      if(news.length<3){
+        const level=String(document.getElementById('count')?.textContent||'').trim();
+        const remaining=String(document.getElementById('percent')?.textContent||'').trim();
+        if(level)news.push({icon:XP_ICON,title:`Realm Harmony · level ${level}`,detail:remaining||'Shared Harmony continues to grow'});
+      }
+      if(!news.length)news.push({icon:DEFAULT_ICON,title:'Velmora News',detail:'Waiting for today’s realm activity…'});
+
+      items=shuffle(news);
+      index=0;
+      display(items[0],true);
+    }finally{refreshBusy=false}
+  }
+  function boot(){
+    if(!ticker()){setTimeout(boot,120);return}
+    void refresh();
+    clearInterval(rotateTimer);rotateTimer=setInterval(rotate,7000);
+    clearInterval(refreshTimer);refreshTimer=setInterval(()=>void refresh(),60000);
+
+    // Refresh quickly whenever either source changes.
+    window.addEventListener('repo-world-cup-tournament-state',()=>setTimeout(()=>void refresh(),120));
+    const daily=document.getElementById('dailyXpLeaderboard');
+    if(daily)new MutationObserver(()=>setTimeout(()=>void refresh(),100)).observe(daily,{childList:true,subtree:true,characterData:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+
+
+// ============================================================
+// Repo Passport panel replacement for the left dashboard card
+// ============================================================
+(function installRepoPassportPanel(){
+  if(window.__repoPassportInstalled)return;
+  window.__repoPassportInstalled=true;
+
+  const REPO_PASSPORT_TITLES = [
+    "The Adventurer","The Wanderer","The Explorer","The Traveller","The Collector","The Veteran","The Rookie","The Regular","The Local","The Outsider",
+    "The Legend","The Champion","The Hero","The Villain","The Master","The Apprentice","The Expert","The Specialist","The Professional","The Amateur",
+    "The Chosen","The Forgotten","The Nameless","The Unknown","The Mysterious","The Watcher","The Wanderer","The Dreamer","The Lost","The Found",
+    "The Lucky","The Unlucky","The Blessed","The Cursed","The Golden","The Gilded","The Priceless","The Rare","The Ordinary","The Unusual",
+    "The Collector","The Hoarder","The Curator","The Trader","The Treasure Hunter","The Pack Rat","The Card Shark","The Binder Keeper","The Pack Ripper","The Lucky Pull",
+    "Animal Friend","Pet Collector","Creature Keeper","Beast Friend","The Tamer","The Beastmaster","The Pet Whisperer","Friend of Beasts","Wildlife Lover","Creature Collector",
+    "Harmony Seeker","Harmony Keeper","Harmony Master","Harmony Enjoyer","The Harmonious","XP Hunter","XP Addict","Level Chaser","Skill Enjoyer","The Grinder",
+    "RepoSports Fan","RepoSports Ultra","The Supporter","The Superfan","The Matchgoer","The Groundhopper","The Home End","The Away Day","The Neutral","The Glory Hunter",
+    "Professional Idiot","Certified Menace","Local Nuisance","Absolute Weapon","Questionable Individual","Mildly Concerning","Probably AFK","Definitely AFK","Here for the XP","Here for the Free Pack",
+    "The Goblin","The Gremlin","The Rat","The Menace","The Problem","The Main Character","The Side Character","The Final Boss","Repo Company Royalty","Just Happy to Be Here"
+  ];
+
+  const REPO_PASSPORT_AVATARS={
+    catasthma:'assets/repo-passport-avatars/CatAsthma.png',
+    covidpanda:'assets/repo-passport-avatars/CovidPanda.png',
+    emlux:'assets/repo-passport-avatars/Emlux.png',
+    kat:'assets/repo-passport-avatars/Kat.png',
+    proco:'assets/repo-passport-avatars/Proco.png',
+    smokedrope1028:'assets/repo-passport-avatars/Smokedrope1028.png'
+  };
+  const passportUserKey=name=>String(name||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+
+  const PASSPORT_SKILLS = [
+    ['harmony', 'Harmony', 'assets/harmony-logo.png', ()=>harmonyLevelFromXp(count), ()=>Number(count||0)],
+    ['agility', 'Agility', 'assets/agility-icon.webp', data=>levelFromXp(Number(data?.agility_xp)||0), data=>Number(data?.agility_xp)||0],
+    ['slayer', 'Slayer', 'assets/slayer-icon.png', data=>levelFromXp(Number(data?.slayer_xp)||0), data=>Number(data?.slayer_xp)||0],
+    ['combat', 'Combat', 'assets/combat-icon.png', data=>levelFromXp(Number(data?.combat_xp)||0), data=>Number(data?.combat_xp)||0],
+    ['sailing', 'Sailing', 'assets/sailing-icon.webp', data=>levelFromXp(Number(data?.sailing_xp)||0), data=>Number(data?.sailing_xp)||0],
+    ['fishing', 'Fishing', 'assets/level-fishing-icon.png', data=>levelFromXp(Number(data?.fishing_xp)||0), data=>Number(data?.fishing_xp)||0],
+    ['farming', 'Farming', 'assets/watering-can.png', data=>levelFromXp(Number(data?.farming_xp)||0), data=>Number(data?.farming_xp)||0],
+    ['mining', 'Mining', 'assets/mining-icon.png', data=>levelFromXp(Number(data?.mining_xp)||0), data=>Number(data?.mining_xp)||0],
+    ['hunter', 'Hunter', 'assets/level-hunter-icon.png', data=>levelFromXp(Number(data?.hunter_xp)||0), data=>Number(data?.hunter_xp)||0],
+    ['cooking', 'Cooking', 'assets/level-cooking-icon.png', data=>levelFromXp(Number(data?.cooking_xp)||0), data=>Number(data?.cooking_xp)||0],
+    ['herblore', 'Herblore', 'assets/level-herblore-icon.png', data=>levelFromXp(Number(data?.herblore_xp)||0), data=>Number(data?.herblore_xp)||0],
+    ['runecrafting', 'Runecrafting', 'assets/runecrafting-icon.png', data=>levelFromXp(Number(data?.runecrafting_xp)||0), data=>Number(data?.runecrafting_xp)||0],
+    ['construction', 'Construction', 'assets/level-construction-icon.png', data=>levelFromXp(Number(data?.construction_xp)||0), data=>Number(data?.construction_xp)||0]
+  ];
+
+  function passportEl(id){ return document.getElementById(id); }
+  function passportCurrentUsername(){
+    try{
+      return String(character?.username || character?.displayName || '').trim();
+    }catch(_){ return ''; }
+  }
+  function passportKeyFor(user, suffix){
+    return `repoPassport:${String(user||'guest').toLowerCase()}:${suffix}`;
+  }
+  function passportFormatMonthYear(value){
+    if(!value) return 'May 2024';
+    try{
+      const d = new Date(value);
+      if(Number.isNaN(d.getTime())) return 'May 2024';
+      return d.toLocaleDateString('en-GB', { month:'long', year:'numeric' });
+    }catch(_){ return 'May 2024'; }
+  }
+  function passportTotalExp(data = character){
+    if(!data) return Number(count || 0);
+    const skillKeys = ['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','construction_xp','herblore_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp'];
+    return skillKeys.reduce((sum,key)=>sum + (Number(data?.[key]) || 0), 0) + (Number(count) || 0);
+  }
+  function passportPetCount(){
+    try{
+      const names = petNamesState && typeof petNamesState === 'object' ? Object.keys(petNamesState).filter(Boolean) : [];
+      if(names.length) return names.length;
+    }catch(_){}
+    return 0;
+  }
+  function passportCardCount(){
+    try{
+      const own=window.__repoTcgOwnCollection;
+      if(Array.isArray(own?.cards))return own.cards.length;
+      const displayed=window.__repoTcgDisplayedCollection;
+      if(displayed&&!displayed.isPublic&&Array.isArray(displayed.cards))return displayed.cards.length;
+    }catch(_){}
+    return 0;
+  }
+  function passportCurrentTitle(user){
+    const key = passportKeyFor(user, 'title');
+    const stored = localStorage.getItem(key);
+    if(stored && REPO_PASSPORT_TITLES.includes(stored)) return stored;
+    return 'The Adventurer';
+  }
+  function passportPopulateTitleSelect(){
+    const select = passportEl('passportTitleSelect');
+    if(!select || select.dataset.ready === 'true') return;
+    REPO_PASSPORT_TITLES.forEach(title=>{
+      const option = document.createElement('option');
+      option.value = title;
+      option.textContent = title;
+      select.appendChild(option);
+    });
+    select.dataset.ready = 'true';
+    select.addEventListener('change', ()=>{
+      const user = passportCurrentUsername() || 'guest';
+      localStorage.setItem(passportKeyFor(user, 'title'), select.value);
+      renderRepoPassportPanel();
+      if(typeof toast === 'function') toast(`Title updated to ${select.value}.`, 2600);
+    });
+  }
+  function passportHighestSkill(data = character){
+    let best = PASSPORT_SKILLS[0];
+    let bestLevel = -1;
+    let bestXp = -1;
+    PASSPORT_SKILLS.forEach(([id,name,icon,levelFn,xpFn])=>{
+      const level = Number(levelFn(data) || 0);
+      const xp = Number(xpFn(data) || 0);
+      if(level > bestLevel || (level === bestLevel && xp > bestXp)){
+        best = [id,name,icon,level];
+        bestLevel = level;
+        bestXp = xp;
+      }
+    });
+    return { id:best[0], name:best[1], icon:best[2], level:best[3] || 1 };
+  }
+  function passportCurrentPet(){
+    try{
+      let petId = activePetState || null;
+      if(!petId){
+        const keys = petNamesState && typeof petNamesState === 'object' ? Object.keys(petNamesState).filter(Boolean) : [];
+        petId = keys[0] || null;
+      }
+      const meta = (petId && typeof PET_CATALOG !== 'undefined' ? PET_CATALOG[petId] : null) || null;
+      const petName = (petId && petNamesState && petNamesState[petId]) || meta?.name || 'No pet selected';
+      return {
+        image: meta?.image || 'assets/pets/fredo.png',
+        name: petName,
+        meta: meta?.source ? String(meta.source).replace(/\./g,'') : 'Pet collection'
+      };
+    }catch(_){
+      return { image:'assets/pets/fredo.png', name:'No pet selected', meta:'Pet collection' };
+    }
+  }
+  let passportFavouriteCardCache=null;
+  let passportFavouriteLoadingFor='';
+  function passportCurrentFavouriteCard(){
+    try{
+      const user=passportCurrentUsername();
+      const live=typeof window.repoTcgGetFavouriteCard==='function'?window.repoTcgGetFavouriteCard(user):null;
+      const card=live||passportFavouriteCardCache;
+      if(card){
+        const rarity=String(card.rarity||'').replace(/_/g,' ').toUpperCase()||'Collected card';
+        return {image:card.image||'assets/quidditch-tcg/card-back.png',name:card.name||'Favourite card',meta:rarity};
+      }
+    }catch(_){}
+    return {image:'assets/quidditch-tcg/card-back.png',name:'No favourite card',meta:'Set one in your binder'};
+  }
+  function passportEnsureFavouriteCard(user){
+    const clean=String(user||'').trim();
+    if(!clean||typeof window.repoTcgLoadFavouriteCard!=='function')return;
+    const cached=typeof window.repoTcgGetFavouriteCard==='function'?window.repoTcgGetFavouriteCard(clean):null;
+    if(cached){passportFavouriteCardCache=cached;return}
+    const userKey=passportUserKey(clean);
+    if(passportFavouriteLoadingFor===userKey)return;
+    passportFavouriteLoadingFor=userKey;
+    window.repoTcgLoadFavouriteCard(clean).then(card=>{
+      passportFavouriteCardCache=card||null;
+      passportFavouriteLoadingFor='';
+      renderRepoPassportPanel();
+    }).catch(()=>{passportFavouriteLoadingFor=''});
+  }
+  function passportGetWeekKey(date = new Date()){
+    const d = new Date(date);
+    const day = (d.getDay() + 6) % 7; // Monday = 0
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - day);
+    return d.toISOString().slice(0,10);
+  }
+  function passportWeeklyState(user, totalXp){
+    const storageKey = passportKeyFor(user, 'weeklyXpState');
+    const nowWeek = passportGetWeekKey();
+    let state;
+    try{
+      state = JSON.parse(localStorage.getItem(storageKey) || '{}') || {};
+    }catch(_){
+      state = {};
+    }
+    if(state.weekKey !== nowWeek){
+      state = { weekKey: nowWeek, weeklyXp: 0, lastTotalXp: Number(totalXp)||0, rewardClaimed: false, rewardInventory: Number(state?.rewardInventory || 0) || 0 };
+    }else{
+      const current = Number(totalXp) || 0;
+      const last = Number(state.lastTotalXp);
+      if(Number.isFinite(last) && current > last){
+        state.weeklyXp = Number(state.weeklyXp || 0) + (current - last);
+      }
+      state.lastTotalXp = current;
+      state.rewardInventory = Number(state.rewardInventory || 0) || 0;
+      state.rewardClaimed = Boolean(state.rewardClaimed);
+    }
+    localStorage.setItem(storageKey, JSON.stringify(state));
+    return { state, storageKey };
+  }
+  function passportRenderWeekly(user, totalXp){
+    const target = 1000000;
+    const data = passportWeeklyState(user, totalXp);
+    const state = data.state;
+    const progress = Math.max(0, Math.min(1, Number(state.weeklyXp || 0) / target));
+    const remaining = Math.max(0, target - Number(state.weeklyXp || 0));
+    const ready = Number(state.weeklyXp || 0) >= target;
+    const fill = passportEl('passportWeeklyFill');
+    const percent = passportEl('passportWeeklyPercent');
+    const line1 = passportEl('passportWeeklyXpLine');
+    const line2 = passportEl('passportWeeklyRemainingLine');
+    const rewardText = passportEl('passportWeeklyRewardText');
+    const claimBtn = passportEl('passportClaimWeeklyPack');
+    const resetLine = passportEl('passportWeeklyResetLine');
+    if(fill) fill.style.width = `${(progress * 100).toFixed(1)}%`;
+    if(percent) percent.textContent = `${Math.round(progress * 100)}%`;
+    if(line1) line1.textContent = `${Number(state.weeklyXp || 0).toLocaleString('en-GB')} / ${target.toLocaleString('en-GB')} XP`;
+    if(line2) line2.textContent = `${remaining.toLocaleString('en-GB')} XP remaining`;
+    if(resetLine) resetLine.textContent = `Resets Monday · ${Number(state.rewardInventory || 0).toLocaleString('en-GB')} unclaimed passport pack${Number(state.rewardInventory || 0) === 1 ? '' : 's'}`;
+    if(rewardText) rewardText.textContent = ready
+      ? (state.rewardClaimed ? 'Reward: 1x TCG Pack claimed this week' : 'Reward ready: 1x TCG Pack')
+      : 'Reward: 1x TCG Pack at 1,000,000 weekly XP';
+    if(claimBtn){
+      claimBtn.hidden = !(ready && !state.rewardClaimed);
+      claimBtn.onclick = ()=>{
+        const refreshed = passportWeeklyState(user, passportTotalExp()).state;
+        if(Number(refreshed.weeklyXp || 0) < target || refreshed.rewardClaimed) return;
+        refreshed.rewardClaimed = true;
+        refreshed.rewardInventory = Number(refreshed.rewardInventory || 0) + 1;
+        localStorage.setItem(passportKeyFor(user, 'weeklyXpState'), JSON.stringify(refreshed));
+        renderRepoPassportPanel();
+        if(typeof toast === 'function') toast('Weekly passport reward claimed: 1x TCG Pack.', 3400);
+      };
+    }
+  }
+  const passportWatchcardLoadState=new Map();
+  function passportEnsureOwnWatchcardBackdrop(user){
+    const clean=String(user||'').trim();
+    if(!clean||typeof qmRefreshWatcherProfiles!=='function')return;
+    const key=passportUserKey(clean);
+    let already=null;
+    try{already=typeof qmWatchcardBackdropForName==='function'?qmWatchcardBackdropForName(clean):null}catch(_){}
+    if(already)return;
+
+    const last=Number(passportWatchcardLoadState.get(key)||0);
+    if(Date.now()-last<12000)return;
+    passportWatchcardLoadState.set(key,Date.now());
+
+    qmRefreshWatcherProfiles([clean],true).then(()=>{
+      try{
+        const profile=typeof qmWatcherProfileCache!=='undefined'
+          ? qmWatcherProfileCache.get(typeof qmWatcherKey==='function'?qmWatcherKey(clean):key)
+          : null;
+        if(profile?.equipped_watchcard_background && character && passportUserKey(character.username)===key){
+          character.equipped_watchcard_background=profile.equipped_watchcard_background;
+        }
+      }catch(_){}
+      try{renderRepoPassportPanel()}catch(_){}
+    }).catch(()=>{});
+  }
+
+  function renderRepoPassportPanel(){
+    passportPopulateTitleSelect();
+    const user = passportCurrentUsername();
+    if(!user) return;
+
+    try{
+      if(!window.__repoTcgOwnCollection?.loaded&&typeof window.repoTcgRefreshOwnCollection==='function'){
+        window.repoTcgRefreshOwnCollection().catch(()=>{});
+      }
+    }catch(_){}
+    passportEnsureFavouriteCard(user);
+    try{
+      if(typeof refreshMyPetCosmetic === 'function' && !activePetState){
+        refreshMyPetCosmetic().catch(()=>{});
+      }
+    }catch(_){}
+
+    const totalLevel = typeof totalLevelForCharacter === 'function' ? totalLevelForCharacter(character) : 0;
+    const totalXp = passportTotalExp(character);
+    const title = passportCurrentTitle(user);
+    const select = passportEl('passportTitleSelect');
+    if(select && select.value !== title) select.value = title;
+
+    const avatar = passportEl('passportAvatarImage');
+    if(avatar){
+      const avatarSrc=REPO_PASSPORT_AVATARS[passportUserKey(user)]
+        ||character?.walk?.[0]
+        ||character?.idle?.[0]
+        ||character?.sit?.[character?.sit?.length-1]
+        ||avatar.getAttribute('src');
+      if(avatarSrc)avatar.src=avatarSrc;
+      avatar.alt=`${user} account avatar`;
+
+      const avatarFrame=avatar.closest('.passport-avatar-frame');
+      let ownBackdrop=null;
+      try{
+        ownBackdrop=(typeof partyPeteItem==='function'
+          ? partyPeteItem(character?.equipped_watchcard_background)
+          : null)
+          ||(typeof qmWatchcardBackdropForName==='function'
+            ? qmWatchcardBackdropForName(user)
+            : null);
+      }catch(_){}
+      if(avatarFrame){
+        avatarFrame.classList.toggle('has-watchcard-backdrop',Boolean(ownBackdrop));
+        if(ownBackdrop?.image){
+          avatarFrame.style.setProperty(
+            'background-image',
+            `linear-gradient(180deg,rgba(4,11,20,.05),rgba(4,11,20,.22)),url("${ownBackdrop.image}")`,
+            'important'
+          );
+          avatarFrame.style.setProperty('background-size','cover','important');
+          avatarFrame.style.setProperty('background-position','center center','important');
+        }else{
+          avatarFrame.style.removeProperty('background-image');
+        }
+      }
+      passportEnsureOwnWatchcardBackdrop(user);
+    }
+
+    const memberSinceText = character?.created_at || character?.createdAt || localStorage.getItem(passportKeyFor(user,'memberSince')) || '2024-05-01';
+    localStorage.setItem(passportKeyFor(user,'memberSince'), memberSinceText);
+
+    const setText = (id, value) => { const el = passportEl(id); if(el) el.textContent = value; };
+    setText('passportUsername', user);
+    setText('passportMemberSince', `Member since ${passportFormatMonthYear(memberSinceText)}`);
+    setText('passportPetsCount', passportPetCount().toLocaleString('en-GB'));
+    setText('passportCardsCount', passportCardCount().toLocaleString('en-GB'));
+    setText('passportTotalLevel', Number(totalLevel || 0).toLocaleString('en-GB'));
+    setText('passportTotalXp', Number(totalXp || 0).toLocaleString('en-GB'));
+
+    const pet = passportCurrentPet();
+    const petImg = passportEl('passportFavouritePetImage');
+    if(petImg) { petImg.src = pet.image; petImg.alt = pet.name; }
+    setText('passportFavouritePetName', pet.name);
+    setText('passportFavouritePetMeta', pet.meta);
+
+    const card = passportCurrentFavouriteCard();
+    const cardImg = passportEl('passportFavouriteCardImage');
+    if(cardImg) { cardImg.src = card.image; cardImg.alt = card.name; }
+    setText('passportFavouriteCardName', card.name);
+    setText('passportFavouriteCardMeta', card.meta);
+
+    const bestSkill = passportHighestSkill(character);
+    const skillImg = passportEl('passportFavouriteSkillImage');
+    if(skillImg){ skillImg.src = bestSkill.icon; skillImg.alt = bestSkill.name; }
+    setText('passportFavouriteSkillName', bestSkill.name);
+    setText('passportFavouriteSkillMeta', `Level ${Number(bestSkill.level || 1).toLocaleString('en-GB')}`);
+
+    passportRenderWeekly(user, totalXp);
+  }
+
+  const __repoPassportOriginalRender = typeof render === 'function' ? render : null;
+  if(__repoPassportOriginalRender){
+    render = function(){
+      const result = __repoPassportOriginalRender.apply(this, arguments);
+      try{ renderRepoPassportPanel(); }catch(error){ console.warn('Repo Passport render failed:', error); }
+      return result;
+    };
+  }
+
+  const __repoPassportOriginalRenderCharacter = typeof renderCharacter === 'function' ? renderCharacter : null;
+  if(__repoPassportOriginalRenderCharacter){
+    renderCharacter = function(){
+      const result = __repoPassportOriginalRenderCharacter.apply(this, arguments);
+      try{ renderRepoPassportPanel(); }catch(error){ console.warn('Repo Passport character render failed:', error); }
+      return result;
+    };
+  }
+
+  window.renderRepoPassportPanel = renderRepoPassportPanel;
+  window.addEventListener('repo-tcg-favourite-changed',event=>{
+    const changedUser=String(event?.detail?.username||'');
+    if(passportUserKey(changedUser)!==passportUserKey(passportCurrentUsername()))return;
+    const cardId=event?.detail?.cardId||null;
+    passportFavouriteCardCache=typeof window.repoTcgCardById==='function'?window.repoTcgCardById(cardId):null;
+    renderRepoPassportPanel();
+  });
+  window.addEventListener('repo-tcg-own-collection-changed',()=>renderRepoPassportPanel());
+  window.addEventListener('load', ()=>setTimeout(()=>{ try{ renderRepoPassportPanel(); }catch(_){ } }, 300));
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.9 — LIVE CHARACTER REPO PASSPORT HOVER
+// ============================================================================
+(function installRepoCharacterPassportHoverV209(){
+  if(window.__repoCharacterPassportHoverV209Installed)return;
+  window.__repoCharacterPassportHoverV209Installed=true;
+
+  const AVATARS={
+    catasthma:'assets/repo-passport-avatars/CatAsthma.png',
+    covidpanda:'assets/repo-passport-avatars/CovidPanda.png',
+    lemime:'assets/repo-passport-avatars/CovidPanda.png',
+    emlux:'assets/repo-passport-avatars/Emlux.png',
+    kat:'assets/repo-passport-avatars/Kat.png',
+    proco:'assets/repo-passport-avatars/Proco.png',
+    smokedrope1028:'assets/repo-passport-avatars/Smokedrope1028.png'
+  };
+  const normalise=name=>String(name||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+  const profileKey=name=>{
+    try{return typeof qmWatcherKey==='function'?qmWatcherKey(name):normalise(name)}catch(_){return normalise(name)}
+  };
+  const publicCollectionCache=new Map();
+  let hoverToken=0;
+  let activeGuest=null;
+
+  function esc(value){
+    if(typeof escapeHtml==='function')return escapeHtml(String(value??''));
+    return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function totalXp(profile={}){
+    const keys=['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','attack_xp','strength_xp','defence_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp'];
+    return keys.reduce((sum,key)=>sum+(Number(profile?.[key])||0),0)+(Number(typeof count!=='undefined'?count:0)||0);
+  }
+  function titleFor(name){
+    try{return localStorage.getItem(`repoPassport:${String(name||'').toLowerCase()}:title`)||'The Adventurer'}catch(_){return 'The Adventurer'}
+  }
+  function avatarFor(name){
+    const key=normalise(name);
+    return AVATARS[key]||AVATARS[key==='covidpanda'?'lemime':key]||'assets/dialogue-placeholder-1.png';
+  }
+  function ensurePopup(){
+    let popup=document.getElementById('repoCharacterPassportHover');
+    if(popup)return popup;
+    popup=document.createElement('aside');
+    popup.id='repoCharacterPassportHover';
+    popup.className='repo-character-passport-hover';
+    popup.setAttribute('aria-hidden','true');
+    document.body.appendChild(popup);
+    return popup;
+  }
+  function positionPopup(eventOrRect){
+    const popup=ensurePopup();
+    const isRect=eventOrRect&&typeof eventOrRect.right==='number'&&!('clientX' in eventOrRect);
+    const x=isRect?eventOrRect.right:Number(eventOrRect?.clientX)||0;
+    const y=isRect?eventOrRect.top:Number(eventOrRect?.clientY)||0;
+    const pad=12;
+    const width=popup.offsetWidth||320,height=popup.offsetHeight||330;
+    let left=x+18,top=y+12;
+    if(left+width>window.innerWidth-pad)left=x-width-18;
+    if(top+height>window.innerHeight-pad)top=window.innerHeight-height-pad;
+    popup.style.left=`${Math.max(pad,left)}px`;
+    popup.style.top=`${Math.max(pad,top)}px`;
+  }
+  function favouriteCard(profile){
+    const card=window.repoTcgCardById?.(profile?.favourite_quidditch_tcg_card)||null;
+    return card||null;
+  }
+  function renderLoading(name,eventOrRect){
+    const popup=ensurePopup();
+    popup.innerHTML=`<div class="repo-character-passport-loading"><b>REPO PASSPORT</b><strong>${esc(name)}</strong><span>Loading public legacy…</span></div>`;
+    popup.classList.add('is-visible');popup.setAttribute('aria-hidden','false');
+    positionPopup(eventOrRect);
+  }
+  function renderProfile(name,eventOrRect){
+    const popup=ensurePopup();
+    const profile=(typeof qmWatcherProfileCache!=='undefined'&&qmWatcherProfileCache.get)?qmWatcherProfileCache.get(profileKey(name)):null;
+    if(!profile){renderLoading(name,eventOrRect);return}
+    const skill=typeof qmWatcherSkillSummary==='function'?qmWatcherSkillSummary(profile):{totalLevel:0,highest:{label:'Unknown',image:'assets/skills-icon.png',level:1}};
+    const petName=profile?.top_pet_name||'No pet selected';
+    const petGoals=Number(profile?.top_pet_goals)||0;
+    const petImage=typeof qmPetImageForProfile==='function'?qmPetImageForProfile(profile):'assets/pets/free_cat.svg';
+    const card=favouriteCard(profile);
+    const collection=publicCollectionCache.get(profileKey(name));
+    const cardCount=Array.isArray(collection?.cards)?collection.cards.length:null;
+    const xp=totalXp(profile);
+    const title=titleFor(name);
+    popup.innerHTML=`
+      <div class="repo-hover-passport-head">
+        <span>REPO PASSPORT</span><small>PUBLIC LEGACY</small>
+      </div>
+      <div class="repo-hover-passport-identity">
+        <div class="repo-hover-passport-avatar"><img src="${esc(avatarFor(name))}" alt="${esc(name)} passport avatar"></div>
+        <div><strong>${esc(name)}</strong><b>${esc(title)}</b><small><i></i> Online · Global</small></div>
+      </div>
+      <div class="repo-hover-passport-stats">
+        <div><span>TOTAL LEVEL</span><b>${Number(skill.totalLevel||0).toLocaleString('en-GB')}</b></div>
+        <div><span>TOTAL EXP</span><b>${Number(xp||0).toLocaleString('en-GB')}</b></div>
+        <div><span>CARDS</span><b>${cardCount==null?'…':Number(cardCount).toLocaleString('en-GB')}</b></div>
+      </div>
+      <div class="repo-hover-passport-favourites">
+        <div class="repo-hover-favourite"><small>FAVOURITE PET</small><span><img src="${esc(petImage)}" alt=""><b>${esc(petName)}</b><em>${petGoals?`${petGoals.toLocaleString('en-GB')} goals`:'Pet collection'}</em></span></div>
+        <div class="repo-hover-favourite"><small>FAVOURITE CARD</small><span><img src="${esc(card?.image||'assets/quidditch-tcg/card-back.png')}" alt=""><b>${esc(card?.name||'No favourite card')}</b><em>${card?'Quidditch TCG':'Not selected'}</em></span></div>
+        <div class="repo-hover-favourite"><small>FAVOURITE SKILL</small><span><img src="${esc(skill.highest?.image||'assets/skills-icon.png')}" alt=""><b>${esc(skill.highest?.label||'Skill')}</b><em>Level ${Number(skill.highest?.level||1)}</em></span></div>
+      </div>`;
+
+    const hoverAvatar=popup.querySelector('.repo-hover-passport-avatar');
+    const backdrop=typeof qmWatchcardBackdropForName==='function'
+      ? qmWatchcardBackdropForName(name)
+      : (typeof partyPeteItem==='function'?partyPeteItem(profile?.equipped_watchcard_background):null);
+    if(hoverAvatar){
+      hoverAvatar.classList.toggle('has-watchcard-backdrop',Boolean(backdrop));
+      hoverAvatar.style.backgroundImage=backdrop
+        ? `linear-gradient(180deg,rgba(4,10,18,.10),rgba(4,10,18,.34)),url("${backdrop.image}")`
+        : '';
+    }
+
+    popup.classList.add('is-visible');popup.setAttribute('aria-hidden','false');
+    positionPopup(eventOrRect);
+  }
+  async function loadProfile(name,eventOrRect){
+    const token=++hoverToken;
+    renderLoading(name,eventOrRect);
+    try{
+      const jobs=[];
+      if(typeof qmRefreshWatcherProfiles==='function')jobs.push(qmRefreshWatcherProfiles([name],true));
+      if(typeof window.repoTcgGetPublicCollection==='function'&&!publicCollectionCache.has(profileKey(name))){
+        jobs.push(window.repoTcgGetPublicCollection(name).then(collection=>publicCollectionCache.set(profileKey(name),collection)).catch(()=>{}));
+      }
+      await Promise.all(jobs);
+    }catch(_){ }
+    if(token!==hoverToken||!activeGuest)return;
+    renderProfile(name,eventOrRect);
+  }
+  function hide(){
+    hoverToken++;
+    activeGuest=null;
+    const popup=document.getElementById('repoCharacterPassportHover');
+    if(popup){popup.classList.remove('is-visible');popup.setAttribute('aria-hidden','true')}
+  }
+
+  const alphaMasks=new Map();
+  function alphaMaskFor(img){
+    const src=img?.currentSrc||img?.src||'';
+    if(!src||!img.complete||!img.naturalWidth||!img.naturalHeight)return null;
+    if(alphaMasks.has(src))return alphaMasks.get(src);
+    try{
+      const canvas=document.createElement('canvas');
+      canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+      const ctx=canvas.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(img,0,0);
+      const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+      const mask={width:canvas.width,height:canvas.height,data};
+      alphaMasks.set(src,mask);
+      return mask;
+    }catch(_){
+      alphaMasks.set(src,false);
+      return false;
+    }
+  }
+  function opaqueNear(mask,x,y,radius=7){
+    if(!mask)return true;
+    const cx=Math.round(x),cy=Math.round(y);
+    const r=Math.max(1,Math.round(radius));
+    for(let yy=Math.max(0,cy-r);yy<=Math.min(mask.height-1,cy+r);yy+=2){
+      for(let xx=Math.max(0,cx-r);xx<=Math.min(mask.width-1,cx+r);xx+=2){
+        if(mask.data[((yy*mask.width+xx)*4)+3]>28)return true;
+      }
+    }
+    return false;
+  }
+  function guestAtPoint(clientX,clientY){
+    const scene=document.getElementById('scene');
+    const sceneRect=scene?.getBoundingClientRect();
+    if(!sceneRect||clientX<sceneRect.left||clientX>sceneRect.right||clientY<sceneRect.top||clientY>sceneRect.bottom)return null;
+
+    const guests=[...document.querySelectorAll('#tavernGuestLayer .tavern-guest[data-username].is-present')];
+    // Last drawn guest wins if two visible sprites genuinely overlap.
+    for(let i=guests.length-1;i>=0;i--){
+      const guest=guests[i];
+      const img=guest.querySelector('img');
+      if(!img)continue;
+      const guestStyle=getComputedStyle(guest);
+      if(guestStyle.display==='none'||guestStyle.visibility==='hidden'||Number(guestStyle.opacity)<.08)continue;
+      const rect=img.getBoundingClientRect();
+      if(rect.width<=0||rect.height<=0||clientX<rect.left||clientX>rect.right||clientY<rect.top||clientY>rect.bottom)continue;
+
+      const mask=alphaMaskFor(img);
+      if(mask===false){
+        // Safe fallback: a deliberately tight centre/body hitbox.
+        const px=(clientX-rect.left)/rect.width,py=(clientY-rect.top)/rect.height;
+        if(px>.22&&px<.78&&py>.10&&py<.94)return guest;
+        continue;
+      }
+      if(!mask)return null;
+
+      let nx=((clientX-rect.left)/rect.width)*mask.width;
+      const ny=((clientY-rect.top)/rect.height)*mask.height;
+      const facing=Number.parseFloat(getComputedStyle(img).getPropertyValue('--guest-facing'))||1;
+      if(facing<0)nx=mask.width-nx;
+      if(opaqueNear(mask,nx,ny))return guest;
+    }
+    return null;
+  }
+
+  document.addEventListener('pointermove',event=>{
+    const guest=guestAtPoint(event.clientX,event.clientY);
+    if(!guest){
+      if(activeGuest)hide();
+      return;
+    }
+    if(guest!==activeGuest){
+      activeGuest=guest;
+      void loadProfile(guest.dataset.username||'',event);
+      return;
+    }
+    positionPopup(event);
+  },true);
+  document.addEventListener('pointerleave',event=>{
+    if(activeGuest)hide();
+  },true);
+
+  // Keyboard focus remains available, but mouse activation is pixel-aware.
+  document.addEventListener('focusin',event=>{
+    const guest=event.target.closest?.('#tavernGuestLayer .tavern-guest[data-username]');
+    if(!guest)return;
+    activeGuest=guest;
+    void loadProfile(guest.dataset.username||'',guest.querySelector('img')?.getBoundingClientRect()||guest.getBoundingClientRect());
+  },true);
+  document.addEventListener('focusout',event=>{
+    if(event.target.closest?.('#tavernGuestLayer .tavern-guest[data-username]'))hide();
+  },true);
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.11 — COMPACT HEADER LOGOUT
+// ============================================================================
+(function installRepoHeaderLogoutV2011(){
+  if(window.__repoHeaderLogoutV2011Installed)return;
+  window.__repoHeaderLogoutV2011Installed=true;
+
+  function bind(){
+    const button=document.getElementById('repoLogoutQuick');
+    if(!button||button.dataset.repoLogoutBound==='1')return;
+    button.dataset.repoLogoutBound='1';
+    button.addEventListener('click',async()=>{
+      if(button.disabled)return;
+      button.disabled=true;
+      try{if(typeof playAuthClick==='function')playAuthClick()}catch(_){}
+      try{
+        await logoutAccount();
+        if(typeof toast==='function')toast('Logged out.',2200);
+      }catch(error){
+        console.error('Header logout failed.',error);
+        if(typeof toast==='function')toast('Could not log out. Try again.',2800);
+      }finally{
+        button.disabled=false;
+      }
+    });
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});
+  else bind();
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.19 — VISIBLE EMBER / SNOW BACKGROUND CURRENT
+// No anchored fire glows. Small warm ember-like and white snow-like particles
+// drift gently across the whole dashboard so the effect is actually visible.
+// ============================================================================
+(function installRepoCastleAtmosphereV2019(){
+  if(window.__repoCastleAtmosphereV2019Installed)return;
+  window.__repoCastleAtmosphereV2019Installed=true;
+
+  function build(){
+    const dash=document.getElementById('repoDashboardV20');
+    if(!dash)return;
+    document.getElementById('repoAtmosphereLayer')?.remove();
+
+    const layer=document.createElement('div');
+    layer.id='repoAtmosphereLayer';
+    layer.className='repo-atmosphere-layer';
+    layer.setAttribute('aria-hidden','true');
+
+    // 32 total particles keeps it subtle but unquestionably visible.
+    for(let i=0;i<32;i++){
+      const p=document.createElement('span');
+      const snow=(i%3===0 || i%7===0); // roughly 40% white/icy, 60% warm
+      p.className=`repo-current-particle ${snow?'is-snow':'is-ember'}`;
+
+      const x=2+((i*53)%96);
+      const y=2+((i*31)%88);
+      const size=snow ? 3+((i*5)%4) : 3+((i*7)%5);
+      const direction=(i%2===0?1:-1);
+      const midX=direction*(10+((i*13)%30));
+      const endX=direction*(24+((i*17)%58));
+      const midY=72+((i*19)%120);
+      const endY=190+((i*23)%210);
+      const duration=10+((i*7)%9);
+      const delay=-((i*11)%18);
+      const opacity=snow ? (.34+((i*3)%8)/100) : (.38+((i*5)%10)/100);
+
+      p.style.left=`${x}%`;
+      p.style.top=`${y}%`;
+      p.style.width=`${size}px`;
+      p.style.height=`${size}px`;
+      p.style.setProperty('--fx-mid-x',`${midX}px`);
+      p.style.setProperty('--fx-end-x',`${endX}px`);
+      p.style.setProperty('--fx-mid-y',`${midY}px`);
+      p.style.setProperty('--fx-end-y',`${endY}px`);
+      p.style.setProperty('--fx-duration',`${duration}s`);
+      p.style.setProperty('--fx-delay',`${delay}s`);
+      p.style.setProperty('--fx-opacity',String(opacity));
+      layer.appendChild(p);
+    }
+
+    dash.appendChild(layer);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build,{once:true});
+  else build();
 })();
