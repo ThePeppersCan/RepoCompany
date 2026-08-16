@@ -1944,24 +1944,128 @@ async function loadGlobalXpLeaderboard() {
   }
 }
 
-async function openLeaderboard() {
-  $('leaderboard').textContent = 'Loading...';
-  $('leaderboardDialog').showModal();
-  const { data, error } = await db.rpc('get_leaderboard');
-  if (error) {
-    console.error(error);
-    $('leaderboard').textContent = 'Leaderboard unavailable until the player stats SQL update has been run.';
-    return;
-  }
-  const visibleRows = leaderboardRowsWithoutAdmin(data);
-  if (!visibleRows.length) {
-    $('leaderboard').textContent = 'No characters yet.';
-    return;
-  }
-  $('leaderboard').innerHTML = visibleRows.map((row, index) => `<div><b>${index + 1}</b><button class="player-link" type="button" data-username="${escapeHtml(row.username)}">${escapeHtml(row.username)}</button><strong>${row.total_level}</strong></div>`).join('');
-  $('leaderboard').querySelectorAll('.player-link').forEach(button => {
-    button.addEventListener('click', () => openPlayerStats(button.dataset.username));
+const REPO_LEADERBOARD_AVATARS={
+  catasthma:'assets/repo-passport-avatars/CatAsthma.png',
+  covidpanda:'assets/repo-passport-avatars/CovidPanda.png',
+  lemime:'assets/repo-passport-avatars/CovidPanda.png',
+  emlux:'assets/repo-passport-avatars/Emlux.png',
+  kat:'assets/repo-passport-avatars/Kat.png',
+  proco:'assets/repo-passport-avatars/Proco.png',
+  smokedrope1028:'assets/repo-passport-avatars/Smokedrope1028.png'
+};
+function repoLeaderboardKey(name){return String(name||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
+function repoLeaderboardAvatar(name){
+  const key=repoLeaderboardKey(name);
+  if(REPO_LEADERBOARD_AVATARS[key])return REPO_LEADERBOARD_AVATARS[key];
+  try{if(typeof qmWatcherAvatarForName==='function')return qmWatcherAvatarForName(name)||'assets/dialogue-placeholder-1.png';}catch(_){ }
+  return 'assets/dialogue-placeholder-1.png';
+}
+function repoLeaderboardInitials(name){
+  const clean=String(name||'Adventurer').trim(),bits=clean.split(/\s+/).filter(Boolean);
+  const letters=bits.length>1?bits.slice(0,2).map(v=>v[0]):clean.slice(0,2).split('');
+  return letters.join('').toUpperCase();
+}
+function repoLeaderboardAvatarMarkup(name,size='row'){
+  const safe=escapeHtml(String(name||'Adventurer'));
+  return `<span class="repo-rank-avatar repo-rank-avatar-${size}"><span class="repo-rank-avatar-fallback">${escapeHtml(repoLeaderboardInitials(name))}</span><img src="${escapeHtml(repoLeaderboardAvatar(name))}" alt="${safe} profile picture" onerror="this.style.display='none';this.parentElement.classList.add('is-fallback')"></span>`;
+}
+function repoLeaderboardTimeout(promise,ms,label='Rankings request'){
+  let timer;
+  return Promise.race([
+    Promise.resolve(promise).finally(()=>clearTimeout(timer)),
+    new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(`${label} timed out`)),ms);})
+  ]);
+}
+async function repoLeaderboardTitles(rows){
+  const result=new Map(),names=rows.map(row=>String(row?.username||'').trim()).filter(Boolean);
+  if(!names.length)return result;
+  try{
+    const response=await repoLeaderboardTimeout(db.rpc('get_passport_titles',{p_usernames:names}),2200,'Player titles');
+    if(response?.error)throw response.error;
+    (response?.data||[]).forEach(row=>result.set(repoLeaderboardKey(row.username),String(row.passport_title||'The Adventurer')));
+  }catch(error){console.warn('Leaderboard titles unavailable:',error);}
+  return result;
+}
+function repoLeaderboardTitleFor(map,name){return map.get(repoLeaderboardKey(name))||'REPO COMPANY MEMBER';}
+function repoRankMedalClass(rank){return rank===1?'gold':rank===2?'silver':rank===3?'bronze':'standard';}
+function repoLeaderboardPodiumCard(row,rank,title){
+  const username=String(row?.username||'Adventurer'),safe=escapeHtml(username),key=repoLeaderboardKey(username);
+  const isYou=key===repoLeaderboardKey(character?.username||'');
+  return `<button type="button" class="repo-rank-podium-card rank-${repoRankMedalClass(rank)}${isYou?' is-you':''}" data-username="${safe}" aria-label="Open ${safe} profile">
+    <span class="repo-rank-podium-place"><i>#${rank}</i><small>${rank===1?'REALM LEADER':rank===2?'SECOND PLACE':'THIRD PLACE'}</small></span>
+    ${repoLeaderboardAvatarMarkup(username,'podium')}
+    <span class="repo-rank-podium-name">${safe}${isYou?'<em>YOU</em>':''}</span>
+    <span class="repo-rank-podium-title" data-rank-title-key="${key}">${escapeHtml(title)}</span>
+    <span class="repo-rank-podium-stat"><small>TOTAL LEVEL</small><b>${Number(row?.total_level||0).toLocaleString('en-GB')}</b></span>
+    <span class="repo-rank-open">OPEN PROFILE <b>›</b></span>
+  </button>`;
+}
+function repoLeaderboardRow(row,rank,title){
+  const username=String(row?.username||'Adventurer'),safe=escapeHtml(username),key=repoLeaderboardKey(username);
+  const isYou=key===repoLeaderboardKey(character?.username||'');
+  return `<button type="button" class="repo-rank-list-row${isYou?' is-you':''}" data-username="${safe}" aria-label="Open ${safe} profile">
+    <span class="repo-rank-list-position">${String(rank).padStart(2,'0')}</span>
+    ${repoLeaderboardAvatarMarkup(username,'row')}
+    <span class="repo-rank-list-player"><b>${safe}${isYou?'<em>YOU</em>':''}</b><small data-rank-title-key="${key}">${escapeHtml(title)}</small></span>
+    <span class="repo-rank-list-status"><i></i>RANKED</span>
+    <span class="repo-rank-list-level"><small>TOTAL LEVEL</small><strong>${Number(row?.total_level||0).toLocaleString('en-GB')}</strong></span>
+    <span class="repo-rank-list-open" aria-hidden="true">›</span>
+  </button>`;
+}
+function repoLeaderboardMarkup(rows,titles=new Map()){
+  const top=rows.slice(0,3);
+  const podium=top.map((row,i)=>{try{return repoLeaderboardPodiumCard(row,i+1,repoLeaderboardTitleFor(titles,row.username));}catch(error){console.warn('Podium row render failed',row,error);return repoLeaderboardRow(row,i+1,repoLeaderboardTitleFor(titles,row.username));}}).join('');
+  const rest=rows.slice(3).map((row,i)=>{try{return repoLeaderboardRow(row,i+4,repoLeaderboardTitleFor(titles,row.username));}catch(error){console.warn('Leaderboard row render failed',row,error);return '';}}).join('');
+  return `<section class="repo-rank-podium" aria-label="Top three players">${podium}</section>
+    <section class="repo-rank-list">
+      <header><span>RANK</span><span>PLAYER</span><span>STATUS</span><span>TOTAL LEVEL</span><span></span></header>
+      <div class="repo-rank-list-body">${rest||'<div class="repo-rank-list-empty">No additional ranked players.</div>'}</div>
+    </section>`;
+}
+function repoBindLeaderboardProfiles(board,dialog){
+  board.querySelectorAll('[data-username]').forEach(button=>button.addEventListener('click',()=>{
+    try{playClickSound();}catch(_){ }
+    const username=button.dataset.username;
+    dialog.close();setTimeout(()=>openPlayerStats(username),90);
+  }));
+}
+function repoApplyLeaderboardTitles(board,titles){
+  if(!board?.isConnected)return;
+  board.querySelectorAll('[data-rank-title-key]').forEach(node=>{
+    const value=titles.get(String(node.dataset.rankTitleKey||''));
+    if(value)node.textContent=value;
   });
+}
+async function openLeaderboard(){
+  const board=$('leaderboard'),dialog=$('leaderboardDialog'),updated=$('repoRankingsUpdated');
+  if(!board||!dialog)return;
+  board.innerHTML='<div class="repo-rankings-loading"><span></span><b>LOADING RANKINGS</b><small>Contacting the realm server…</small></div>';
+  if(updated)updated.textContent='SYNCING';
+  if(!dialog.open)dialog.showModal();
+  try{
+    const response=await repoLeaderboardTimeout(db.rpc('get_leaderboard'),6000,'Overall leaderboard');
+    if(response?.error)throw response.error;
+    const visibleRows=leaderboardRowsWithoutAdmin(response?.data||[]);
+    if(!visibleRows.length){
+      board.innerHTML='<div class="repo-rankings-empty"><b>NO RANKED PLAYERS</b><span>No adventurers have entered the rankings yet.</span></div>';
+      if(updated)updated.textContent='LIVE DATA';
+      return;
+    }
+
+    // Render the actual standings immediately. Titles are decoration and are
+    // deliberately fetched after render so a slow title RPC can never strand
+    // the whole leaderboard on a loading screen again.
+    board.innerHTML=repoLeaderboardMarkup(visibleRows,new Map());
+    repoBindLeaderboardProfiles(board,dialog);
+    if(updated)updated.textContent=`${visibleRows.length} PLAYERS · LIVE`;
+
+    repoLeaderboardTitles(visibleRows).then(titles=>repoApplyLeaderboardTitles(board,titles)).catch(()=>{});
+  }catch(error){
+    console.error('Overall leaderboard failed:',error);
+    board.innerHTML=`<div class="repo-rankings-empty repo-rankings-error"><b>RANKINGS CONNECTION LOST</b><span>${escapeHtml(String(error?.message||'The realm server did not respond.'))}</span><button type="button" id="repoRankingsRetry">RETRY</button></div>`;
+    board.querySelector('#repoRankingsRetry')?.addEventListener('click',openLeaderboard,{once:true});
+    if(updated)updated.textContent='OFFLINE';
+  }
 }
 
 async function loadAgilityLeaderboard() {

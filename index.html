@@ -7,7 +7,7 @@
 <title>Repo Company</title>
 <link href="favicon.png?v=repo-company-20260806-1" rel="icon" sizes="128x128" type="image/png"/>
 <link href="favicon.png?v=repo-company-20260806-1" rel="shortcut icon" type="image/png"/>
-<link href="style.css?v=v20-33-tcg-167-card-sync-20260816" rel="stylesheet"/>
+<link href="style.css?v=v20-36-realm-rankings-hard-fix-20260816" rel="stylesheet"/>
 <link href="repo-rooftops.css?v=repo-rooftops-20260810-2-0" rel="stylesheet"/>
 <link href="repoggle.css?v=repoggle-1" rel="stylesheet"/>
 <link href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260811-v38-16" rel="stylesheet"/>
@@ -4131,11 +4131,28 @@ button.qg-game-card{font:inherit;cursor:pointer}
 <section class="runedle-results"><div class="runedle-results-head"><h4>CURRENT CLAN FARM RUNS</h4><button id="runedleRefresh" type="button">REFRESH</button></div><div class="runedle-leaderboard" id="runedleLeaderboard">Loading…</div></section>
 <footer class="farm-run-footer">🌱 Don't forget your farm run!</footer>
 </dialog>
-<dialog class="game-dialog wide" id="leaderboardDialog">
-<button aria-label="Close" class="dialog-x" data-close="leaderboardDialog">×</button>
-<h3>OVERALL LEADERBOARD</h3>
-<p class="leaderboard-help">Click a username to view their stats.</p>
-<div class="leaderboard" id="leaderboard">Loading...</div>
+<dialog class="game-dialog wide repo-rankings-dialog" id="leaderboardDialog">
+<button aria-label="Close" class="dialog-x repo-rankings-close" data-close="leaderboardDialog">×</button>
+<section class="repo-rankings-shell">
+  <div class="repo-rankings-header">
+    <div class="repo-rankings-crest" aria-hidden="true"><img src="assets/harmony-logo.png" alt=""></div>
+    <div class="repo-rankings-title">
+      <small>REPO COMPANY · REALM LADDER</small>
+      <h3>OVERALL RANKINGS</h3>
+      <p>Total Level across Harmony and every trained skill.</p>
+    </div>
+    <div class="repo-rankings-live" aria-label="Live rankings"><i></i><span>LIVE</span><small>VELMORA</small></div>
+  </div>
+  <div class="repo-rankings-toolbar">
+    <span class="repo-rankings-mode" aria-current="page">OVERALL</span>
+    <span class="repo-rankings-scope">GLOBAL PLAYER LADDER</span>
+    <small id="repoRankingsUpdated">LIVE DATA</small>
+  </div>
+  <div class="repo-rankings-board" id="leaderboard">
+    <div class="repo-rankings-loading"><span></span><b>LOADING RANKINGS</b><small>Contacting the realm server…</small></div>
+  </div>
+  <div class="repo-rankings-footer"><span>SELECT A PLAYER TO OPEN THEIR REPO PASSPORT</span><i>RANKED BY TOTAL LEVEL</i></div>
+</section>
 </dialog>
 <dialog class="game-dialog wide" id="playerStatsDialog">
 <button aria-label="Close" class="dialog-x" data-close="playerStatsDialog">×</button>
@@ -4283,7 +4300,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </div>
 </dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=v20-33-tcg-167-card-sync-20260816"></script>
+<script src="script.js?v=v20-36-realm-rankings-hard-fix-20260816"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents

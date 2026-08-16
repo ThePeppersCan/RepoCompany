@@ -12052,3 +12052,320 @@ body.repo-logged-out > .repo-main-header.repo-auth-landing-header #createCharact
 }
 #characterDialog[open]{z-index:2147483000!important}
 #characterDialog::backdrop{background:rgba(1,6,10,.78)!important;backdrop-filter:blur(3px)}
+
+
+/* ======================================================================
+   REPO COMPANY V20.35 — MMORPG REALM RANKINGS
+   Dark steel / midnight UI. No parchment or brown panel treatment.
+   ====================================================================== */
+#leaderboardDialog.repo-rankings-dialog{
+  width:min(1060px,94vw)!important;max-width:none!important;max-height:92vh!important;margin:auto!important;padding:0!important;
+  border:1px solid #385162!important;border-radius:8px!important;background:#05090d!important;color:#dce7ee!important;
+  box-shadow:0 0 0 1px #05080b,0 0 0 3px rgba(90,127,150,.22),0 32px 110px rgba(0,0,0,.9)!important;
+  overflow:hidden!important;
+}
+#leaderboardDialog.repo-rankings-dialog::backdrop{
+  background:radial-gradient(circle at 50% 38%,rgba(15,34,46,.52),rgba(1,4,7,.92) 72%)!important;
+  backdrop-filter:blur(5px) brightness(.52)!important;
+}
+#leaderboardDialog .repo-rankings-shell{
+  position:relative;max-height:90vh;overflow:auto;padding:0 24px 18px;
+  background:
+    radial-gradient(circle at 50% -15%,rgba(72,128,158,.18),transparent 38%),
+    linear-gradient(180deg,#0a1118 0%,#071018 34%,#050b11 100%)!important;
+  scrollbar-color:#385568 #071018;scrollbar-width:thin;
+}
+#leaderboardDialog .repo-rankings-shell::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.36;
+  background-image:linear-gradient(rgba(119,165,190,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(119,165,190,.025) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+#leaderboardDialog .repo-rankings-close{
+  position:absolute!important;z-index:50!important;right:15px!important;top:15px!important;width:38px!important;height:38px!important;padding:0!important;margin:0!important;
+  display:grid!important;place-items:center!important;border:1px solid #41596a!important;border-radius:5px!important;
+  background:linear-gradient(180deg,#15232e,#091018)!important;color:#c8d7df!important;font:800 22px/1 Arial,sans-serif!important;
+  box-shadow:0 7px 18px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.035)!important;
+}
+#leaderboardDialog .repo-rankings-close:hover{background:#1c303e!important;border-color:#63859a!important;color:#fff!important}
+#leaderboardDialog .repo-rankings-header{
+  position:relative;z-index:2;display:grid;grid-template-columns:64px minmax(0,1fr) 86px;align-items:center;gap:16px;
+  min-height:116px;margin:0 -24px;padding:18px 64px 18px 24px;border-bottom:1px solid #263b49;
+  background:linear-gradient(90deg,rgba(14,28,38,.96),rgba(8,17,24,.98));
+  box-shadow:0 12px 26px rgba(0,0,0,.22);
+}
+#leaderboardDialog .repo-rankings-header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,#5b879e 28%,#d1b66b 50%,#5b879e 72%,transparent);opacity:.55}
+#leaderboardDialog .repo-rankings-crest{
+  width:58px;height:58px;border-radius:12px;display:grid;place-items:center;border:1px solid #3d5a6b;
+  background:linear-gradient(145deg,#102330,#081118);box-shadow:inset 0 0 20px rgba(94,154,184,.1),0 8px 22px rgba(0,0,0,.34);
+}
+#leaderboardDialog .repo-rankings-crest img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 4px #000)}
+#leaderboardDialog .repo-rankings-title small{display:block;margin-bottom:5px;color:#7192a4;font:800 8px/1.2 Arial,sans-serif;letter-spacing:2.1px}
+#leaderboardDialog .repo-rankings-title h3{margin:0!important;color:#eef5f8!important;font:800 clamp(28px,3.4vw,39px)/1 Arial,sans-serif!important;letter-spacing:.5px!important;text-shadow:0 2px 14px #000!important}
+#leaderboardDialog .repo-rankings-title p{margin:7px 0 0!important;color:#8da0ab!important;font:500 11px/1.35 Arial,sans-serif!important}
+#leaderboardDialog .repo-rankings-live{justify-self:end;width:68px;height:54px;border:1px solid #334e5f;border-radius:6px;display:grid;grid-template-columns:8px auto;grid-template-rows:1fr 1fr;align-items:center;justify-content:center;column-gap:6px;background:#08131b;box-shadow:inset 0 0 18px rgba(65,126,157,.08)}
+#leaderboardDialog .repo-rankings-live i{grid-row:1/3;width:7px;height:7px;border-radius:50%;background:#68c38a;box-shadow:0 0 8px rgba(104,195,138,.7)}
+#leaderboardDialog .repo-rankings-live span{align-self:end;color:#cce2eb;font:900 9px Arial,sans-serif;letter-spacing:1.2px}.repo-rankings-live small{align-self:start;color:#587585;font:800 6px Arial,sans-serif;letter-spacing:1px}
+#leaderboardDialog .repo-rankings-toolbar{
+  position:relative;z-index:2;height:48px;margin:0 -24px 18px;padding:0 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1d303c;background:rgba(5,12,18,.88)
+}
+#leaderboardDialog .repo-rankings-toolbar button{height:48px;margin:0;padding:0 15px;border:0;border-bottom:2px solid transparent;background:transparent;color:#718795;font:800 9px Arial,sans-serif;letter-spacing:1.4px;cursor:default}
+#leaderboardDialog .repo-rankings-toolbar button.active{color:#dbe8ee;border-bottom-color:#79a9c0}.repo-rankings-toolbar span{color:#4e6877;font:700 7px Arial,sans-serif;letter-spacing:1.3px}.repo-rankings-toolbar small{margin-left:auto;color:#66808e;font:700 7px Arial,sans-serif;letter-spacing:1.2px}
+#leaderboardDialog .repo-rankings-board{position:relative;z-index:2}
+#leaderboardDialog .repo-rankings-loading,#leaderboardDialog .repo-rankings-empty{min-height:420px;display:grid;place-content:center;justify-items:center;text-align:center;gap:8px;color:#8195a0;font-family:Arial,sans-serif}
+#leaderboardDialog .repo-rankings-loading span{width:34px;height:34px;border:2px solid rgba(105,151,174,.18);border-top-color:#76a8c0;border-radius:50%;animation:repoRankSpin .8s linear infinite}.repo-rankings-loading b,.repo-rankings-empty b{color:#d8e7ed;font:800 13px Arial,sans-serif;letter-spacing:1.7px}.repo-rankings-loading small,.repo-rankings-empty span{color:#6f8591;font:600 10px Arial,sans-serif}@keyframes repoRankSpin{to{transform:rotate(360deg)}}
+#leaderboardDialog .repo-rankings-error button{margin-top:8px;padding:9px 18px;border:1px solid #47677a;border-radius:4px;background:#10212c;color:#d8e8ef;font:800 9px Arial,sans-serif;letter-spacing:1px;cursor:pointer}.repo-rankings-error button:hover{background:#173244;border-color:#7093a6}
+
+#leaderboardDialog .repo-rank-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+#leaderboardDialog .repo-rank-podium-card{
+  position:relative;min-height:222px;padding:14px 14px 13px;display:flex;flex-direction:column;align-items:center;overflow:hidden;
+  border:1px solid #294351;border-radius:6px;background:linear-gradient(180deg,rgba(15,31,41,.96),rgba(7,16,23,.98));color:#dbe5ea;cursor:pointer;
+  box-shadow:0 10px 28px rgba(0,0,0,.26),inset 0 1px rgba(255,255,255,.02);transition:transform .15s ease,border-color .15s ease,background .15s ease;
+}
+#leaderboardDialog .repo-rank-podium-card::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 15%,rgba(91,153,184,.12),transparent 42%);pointer-events:none}
+#leaderboardDialog .repo-rank-podium-card:hover{transform:translateY(-3px);border-color:#51778c;background:linear-gradient(180deg,rgba(20,43,56,.98),rgba(8,18,26,.98))}
+#leaderboardDialog .repo-rank-podium-card.rank-gold{border-color:#8d7740;box-shadow:0 10px 30px rgba(0,0,0,.30),inset 0 1px rgba(255,241,192,.04)}
+#leaderboardDialog .repo-rank-podium-card.rank-gold::before{background:radial-gradient(circle at 50% 14%,rgba(214,184,99,.14),transparent 43%)}
+#leaderboardDialog .repo-rank-podium-card.is-you{box-shadow:inset 0 0 0 1px rgba(106,181,138,.25),0 10px 28px rgba(0,0,0,.25)}
+#leaderboardDialog .repo-rank-podium-place{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:#718897}.repo-rank-podium-place i{font:900 18px Arial,sans-serif;font-style:normal}.repo-rank-podium-place small{font:800 6px Arial,sans-serif;letter-spacing:1.3px}
+#leaderboardDialog .rank-gold .repo-rank-podium-place i{color:#e4c66f}.rank-silver .repo-rank-podium-place i{color:#becbd2}.rank-bronze .repo-rank-podium-place i{color:#b88b69}
+#leaderboardDialog .repo-rank-avatar{position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 35%,#1c3442,#08131a 72%);border:1px solid #365465}
+#leaderboardDialog .repo-rank-avatar-podium{z-index:2;width:88px;height:88px;margin:0 0 9px;border-radius:50%;box-shadow:0 0 0 4px #071117,0 0 0 5px #3c5b6d,0 8px 18px rgba(0,0,0,.42)}
+#leaderboardDialog .rank-gold .repo-rank-avatar-podium{box-shadow:0 0 0 4px #071117,0 0 0 5px #8d7740,0 8px 18px rgba(0,0,0,.42)}
+#leaderboardDialog .repo-rank-avatar-row{width:46px;height:46px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 2px #071117}
+#leaderboardDialog .repo-rank-avatar img{position:relative;z-index:2;width:100%;height:100%;object-fit:cover;object-position:center top;image-rendering:auto}.repo-rank-avatar-fallback{position:absolute;inset:0;z-index:1;display:grid;place-items:center;color:#839dab;font:900 15px Arial,sans-serif}.repo-rank-avatar.is-fallback img{display:none!important}
+#leaderboardDialog .repo-rank-podium-name{position:relative;z-index:2;max-width:100%;display:flex;align-items:center;gap:6px;color:#f0f5f7;font:800 16px/1.15 Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.repo-rank-podium-name em{padding:2px 4px;border:1px solid #466c58;border-radius:3px;color:#8fc6a4;font:800 6px Arial,sans-serif;letter-spacing:.8px;font-style:normal}
+#leaderboardDialog .repo-rank-podium-title{position:relative;z-index:2;margin-top:4px;max-width:100%;color:#78909d;font:600 8px Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#leaderboardDialog .repo-rank-podium-stat{position:relative;z-index:2;margin-top:12px;display:grid;text-align:center}.repo-rank-podium-stat small{color:#5f7784;font:800 6px Arial,sans-serif;letter-spacing:1.2px}.repo-rank-podium-stat b{margin-top:2px;color:#e4edf1;font:900 25px/1 Arial,sans-serif}.rank-gold .repo-rank-podium-stat b{color:#e5c873}
+#leaderboardDialog .repo-rank-open{position:relative;z-index:2;margin-top:auto;padding-top:10px;color:#69808d;font:800 6px Arial,sans-serif;letter-spacing:1px}.repo-rank-open b{font-size:12px;color:#8fb0c0}
+
+#leaderboardDialog .repo-rank-list{border:1px solid #223945;border-radius:6px;overflow:hidden;background:rgba(5,13,19,.80)}
+#leaderboardDialog .repo-rank-list>header{min-height:36px;padding:0 12px;display:grid;grid-template-columns:44px 56px minmax(170px,1fr) 110px 116px 22px;align-items:center;gap:10px;border-bottom:1px solid #253b48;background:#0c1821;color:#5f7b8a}
+#leaderboardDialog .repo-rank-list>header span{font:800 6px Arial,sans-serif;letter-spacing:1.3px}.repo-rank-list>header span:nth-child(2){grid-column:2/4}.repo-rank-list>header span:nth-child(3){grid-column:4}.repo-rank-list>header span:nth-child(4){grid-column:5;text-align:right}.repo-rank-list>header span:nth-child(5){grid-column:6}
+#leaderboardDialog .repo-rank-list-row{width:100%;min-height:62px;margin:0;padding:7px 12px;display:grid;grid-template-columns:44px 46px minmax(170px,1fr) 110px 116px 22px;align-items:center;gap:10px;border:0;border-bottom:1px solid rgba(48,73,86,.48);background:transparent;color:#dbe5ea;text-align:left;cursor:pointer;transition:background .12s ease,box-shadow .12s ease}
+#leaderboardDialog .repo-rank-list-row:last-child{border-bottom:0}.repo-rank-list-row:hover{background:linear-gradient(90deg,rgba(43,82,103,.25),rgba(20,42,55,.14));box-shadow:inset 3px 0 #648fa5}.repo-rank-list-row.is-you{background:rgba(49,91,70,.10);box-shadow:inset 3px 0 #5f9874}
+#leaderboardDialog .repo-rank-list-position{justify-self:center;color:#7d96a4;font:900 12px Arial,sans-serif}.repo-rank-list-player{min-width:0;display:flex;flex-direction:column;gap:3px}.repo-rank-list-player b{min-width:0;color:#e7eef1;font:800 12px Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.repo-rank-list-player b em{margin-left:6px;padding:2px 4px;border:1px solid #466c58;border-radius:3px;color:#8fc6a4;font:800 5px Arial,sans-serif;letter-spacing:.7px;font-style:normal}.repo-rank-list-player small{color:#718995;font:600 7px Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#leaderboardDialog .repo-rank-list-status{display:flex;align-items:center;gap:6px;color:#58727f;font:800 6px Arial,sans-serif;letter-spacing:1px}.repo-rank-list-status i{width:5px;height:5px;border-radius:50%;background:#557d90;box-shadow:0 0 6px rgba(85,125,144,.45)}
+#leaderboardDialog .repo-rank-list-level{text-align:right;display:flex;flex-direction:column}.repo-rank-list-level small{color:#526b77;font:800 5px Arial,sans-serif;letter-spacing:1px}.repo-rank-list-level strong{color:#d7e3e8;font:900 17px Arial,sans-serif}.repo-rank-list-open{justify-self:end;color:#537182;font:900 21px Arial,sans-serif;transition:transform .12s ease,color .12s ease}.repo-rank-list-row:hover .repo-rank-list-open{transform:translateX(2px);color:#94b5c4}
+#leaderboardDialog .repo-rank-list-empty{padding:22px;text-align:center;color:#667d89;font:600 9px Arial,sans-serif}
+#leaderboardDialog .repo-rankings-footer{position:relative;z-index:2;margin-top:13px;padding:0 2px;display:flex;justify-content:space-between;gap:12px;color:#4c6571;font:700 6px Arial,sans-serif;letter-spacing:1.2px}.repo-rankings-footer i{color:#526d7a;font-style:normal}
+@media(max-width:760px){
+  #leaderboardDialog .repo-rankings-shell{padding:0 12px 14px}.repo-rankings-header{grid-template-columns:50px 1fr!important;min-height:98px!important;margin:0 -12px!important;padding:14px 50px 14px 14px!important}.repo-rankings-crest{width:46px!important;height:46px!important}.repo-rankings-crest img{width:32px!important;height:32px!important}.repo-rankings-live{display:none!important}.repo-rankings-title h3{font-size:25px!important}.repo-rankings-toolbar{margin:0 -12px 12px!important;padding:0 12px!important}.repo-rankings-toolbar span{display:none}.repo-rank-podium{grid-template-columns:1fr!important}.repo-rank-podium-card{min-height:178px!important}.repo-rank-list>header{display:none!important}.repo-rank-list-row{grid-template-columns:30px 42px minmax(0,1fr) 80px 14px!important;gap:7px!important}.repo-rank-list-status{display:none!important}.repo-rank-avatar-row{width:40px!important;height:40px!important}.repo-rankings-footer{display:none!important}}
+
+
+/* ======================================================================
+   REPO COMPANY V20.36 — REALM LADDER HARD FIX
+   Final authority for the Overall Leaderboard. Intentionally avoids the
+   site's legacy brown game-dialog/header/button/footer rules.
+   ====================================================================== */
+#leaderboardDialog.repo-rankings-dialog{
+  width:min(1080px,94vw)!important;
+  max-width:none!important;
+  height:auto!important;
+  max-height:92vh!important;
+  padding:0!important;
+  margin:auto!important;
+  overflow:hidden!important;
+  border:1px solid #324959!important;
+  border-radius:12px!important;
+  outline:1px solid rgba(137,181,202,.08)!important;
+  background:#050a0f!important;
+  color:#dce8ee!important;
+  box-shadow:0 0 0 1px #020406,0 24px 100px rgba(0,0,0,.82),0 0 60px rgba(54,101,126,.09)!important;
+  font-family:Inter,Segoe UI,Arial,sans-serif!important;
+}
+#leaderboardDialog.repo-rankings-dialog::backdrop{
+  background:radial-gradient(circle at 50% 38%,rgba(23,47,60,.34),rgba(1,4,7,.92) 68%)!important;
+  backdrop-filter:blur(7px) brightness(.48)!important;
+}
+#leaderboardDialog .repo-rankings-shell{
+  position:relative!important;
+  display:block!important;
+  max-height:90vh!important;
+  min-height:620px!important;
+  padding:0 24px 18px!important;
+  overflow:auto!important;
+  background:
+    linear-gradient(180deg,rgba(18,31,40,.52),transparent 155px),
+    radial-gradient(circle at 50% -8%,rgba(78,142,172,.13),transparent 34%),
+    linear-gradient(180deg,#081018 0%,#060d13 46%,#050a0f 100%)!important;
+  border:0!important;
+  box-shadow:none!important;
+  color:#dce8ee!important;
+}
+#leaderboardDialog .repo-rankings-shell::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+  opacity:.5!important;
+  background-image:
+    linear-gradient(rgba(126,168,188,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(126,168,188,.018) 1px,transparent 1px)!important;
+  background-size:40px 40px!important;
+}
+#leaderboardDialog .repo-rankings-close{
+  position:absolute!important;z-index:100!important;right:16px!important;top:16px!important;
+  width:36px!important;height:36px!important;min-width:0!important;padding:0!important;margin:0!important;
+  display:grid!important;place-items:center!important;
+  border:1px solid #3d596a!important;border-radius:7px!important;
+  background:#0b161e!important;color:#cbdbe2!important;
+  font:800 22px/1 Segoe UI,Arial,sans-serif!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.34)!important;
+}
+#leaderboardDialog .repo-rankings-close:hover{background:#122532!important;border-color:#6d91a4!important;color:white!important}
+
+#leaderboardDialog .repo-rankings-header{
+  position:relative!important;z-index:2!important;
+  min-height:112px!important;
+  margin:0 -24px!important;
+  padding:18px 70px 18px 24px!important;
+  display:grid!important;
+  grid-template-columns:60px minmax(0,1fr) 76px!important;
+  gap:16px!important;align-items:center!important;
+  border:0!important;border-bottom:1px solid #263d4a!important;
+  border-radius:0!important;
+  background:linear-gradient(90deg,#0d1b24 0%,#09141c 58%,#081118 100%)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.24)!important;
+  color:#e8f0f4!important;
+}
+#leaderboardDialog .repo-rankings-header::after{
+  content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:-1px!important;height:2px!important;
+  background:linear-gradient(90deg,transparent 2%,#456d82 28%,#79a3b6 50%,#456d82 72%,transparent 98%)!important;
+  opacity:.62!important;
+}
+#leaderboardDialog .repo-rankings-crest{
+  width:56px!important;height:56px!important;display:grid!important;place-items:center!important;
+  border:1px solid #39576a!important;border-radius:12px!important;
+  background:radial-gradient(circle at 50% 40%,#142a38,#08131b 72%)!important;
+  box-shadow:inset 0 0 20px rgba(84,145,173,.10),0 8px 20px rgba(0,0,0,.3)!important;
+}
+#leaderboardDialog .repo-rankings-crest img{width:38px!important;height:38px!important;object-fit:contain!important;filter:drop-shadow(0 2px 4px #000)!important}
+#leaderboardDialog .repo-rankings-title{background:transparent!important;border:0!important;padding:0!important;margin:0!important}
+#leaderboardDialog .repo-rankings-title small{display:block!important;margin:0 0 5px!important;color:#6f94a7!important;font:800 8px/1.2 Segoe UI,Arial,sans-serif!important;letter-spacing:2px!important}
+#leaderboardDialog .repo-rankings-title h3{margin:0!important;padding:0!important;color:#eef5f8!important;background:transparent!important;border:0!important;font:800 clamp(28px,3.3vw,38px)/1 Segoe UI,Arial,sans-serif!important;letter-spacing:.3px!important;text-shadow:0 2px 12px #000!important}
+#leaderboardDialog .repo-rankings-title p{margin:7px 0 0!important;color:#8196a2!important;font:500 11px/1.35 Segoe UI,Arial,sans-serif!important}
+#leaderboardDialog .repo-rankings-live{
+  justify-self:end!important;width:68px!important;height:52px!important;padding:0!important;margin:0!important;
+  display:grid!important;grid-template-columns:8px auto!important;grid-template-rows:1fr 1fr!important;align-items:center!important;justify-content:center!important;column-gap:6px!important;
+  border:1px solid #2e4b5b!important;border-radius:7px!important;background:#07131b!important;box-shadow:inset 0 0 16px rgba(61,126,157,.08)!important;
+}
+#leaderboardDialog .repo-rankings-live i{grid-row:1/3!important;width:6px!important;height:6px!important;border-radius:50%!important;background:#70d19a!important;box-shadow:0 0 8px rgba(112,209,154,.75)!important}
+#leaderboardDialog .repo-rankings-live span{align-self:end!important;color:#d8e8ee!important;font:900 9px Segoe UI,Arial,sans-serif!important;letter-spacing:1px!important}
+#leaderboardDialog .repo-rankings-live small{align-self:start!important;color:#587887!important;font:800 6px Segoe UI,Arial,sans-serif!important;letter-spacing:.9px!important}
+
+#leaderboardDialog .repo-rankings-toolbar{
+  position:relative!important;z-index:2!important;
+  min-height:48px!important;height:48px!important;
+  margin:0 -24px 18px!important;padding:0 24px!important;
+  display:flex!important;align-items:center!important;gap:14px!important;
+  border:0!important;border-bottom:1px solid #1d303b!important;
+  background:#060d13!important;box-shadow:none!important;color:#78909d!important;
+}
+#leaderboardDialog .repo-rankings-mode{
+  height:48px!important;padding:0 3px!important;display:flex!important;align-items:center!important;
+  border:0!important;border-bottom:2px solid #73a2b8!important;
+  background:transparent!important;color:#d8e7ed!important;
+  font:800 9px Segoe UI,Arial,sans-serif!important;letter-spacing:1.4px!important;
+}
+#leaderboardDialog .repo-rankings-scope{color:#496675!important;font:700 7px Segoe UI,Arial,sans-serif!important;letter-spacing:1.2px!important}
+#leaderboardDialog #repoRankingsUpdated{margin-left:auto!important;color:#648390!important;font:700 7px Segoe UI,Arial,sans-serif!important;letter-spacing:1.1px!important}
+
+#leaderboardDialog .repo-rankings-board{position:relative!important;z-index:2!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#leaderboardDialog .repo-rankings-loading,#leaderboardDialog .repo-rankings-empty{
+  min-height:390px!important;display:grid!important;place-content:center!important;justify-items:center!important;text-align:center!important;gap:8px!important;
+  border:0!important;background:transparent!important;color:#8197a2!important;font-family:Segoe UI,Arial,sans-serif!important;box-shadow:none!important;
+}
+#leaderboardDialog .repo-rankings-loading span{width:32px!important;height:32px!important;border:2px solid rgba(112,157,179,.16)!important;border-top-color:#78a9bf!important;border-radius:50%!important;background:transparent!important;animation:repoRankSpin .8s linear infinite!important}
+#leaderboardDialog .repo-rankings-loading b,#leaderboardDialog .repo-rankings-empty b{color:#d9e6eb!important;font:800 13px Segoe UI,Arial,sans-serif!important;letter-spacing:1.5px!important}
+#leaderboardDialog .repo-rankings-loading small,#leaderboardDialog .repo-rankings-empty span{color:#6e8793!important;font:600 10px Segoe UI,Arial,sans-serif!important}
+#leaderboardDialog .repo-rankings-error button{
+  margin-top:8px!important;padding:9px 18px!important;border:1px solid #44677a!important;border-radius:5px!important;background:#0c1b25!important;color:#d9e8ef!important;font:800 9px Segoe UI,Arial,sans-serif!important;letter-spacing:1px!important;box-shadow:none!important
+}
+
+#leaderboardDialog .repo-rank-podium{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:0 0 16px!important;background:transparent!important;border:0!important}
+#leaderboardDialog .repo-rank-podium-card{
+  position:relative!important;min-height:226px!important;padding:14px!important;margin:0!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;overflow:hidden!important;
+  border:1px solid #294653!important;border-radius:8px!important;
+  background:linear-gradient(180deg,#0e202a 0%,#09151d 55%,#071018 100%)!important;
+  color:#dce7ec!important;cursor:pointer!important;text-align:center!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.025)!important;
+  transition:transform .15s ease,border-color .15s ease,background .15s ease!important;
+}
+#leaderboardDialog .repo-rank-podium-card:hover{transform:translateY(-3px)!important;border-color:#557d90!important;background:linear-gradient(180deg,#132b38,#09151d)!important}
+#leaderboardDialog .repo-rank-podium-card.rank-gold{border-color:#77683d!important;background:linear-gradient(180deg,#17262b 0%,#0a171d 56%,#071018 100%)!important}
+#leaderboardDialog .repo-rank-podium-card::before{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;background:radial-gradient(circle at 50% 12%,rgba(82,151,180,.11),transparent 43%)!important}
+#leaderboardDialog .repo-rank-podium-card.rank-gold::before{background:radial-gradient(circle at 50% 12%,rgba(205,184,112,.10),transparent 43%)!important}
+#leaderboardDialog .repo-rank-podium-place{position:relative!important;z-index:2!important;width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 10px!important;color:#718b98!important;background:transparent!important;border:0!important}
+#leaderboardDialog .repo-rank-podium-place i{font:900 18px Segoe UI,Arial,sans-serif!important;font-style:normal!important}
+#leaderboardDialog .repo-rank-podium-place small{font:800 6px Segoe UI,Arial,sans-serif!important;letter-spacing:1.2px!important}
+#leaderboardDialog .rank-gold .repo-rank-podium-place i{color:#d8c06f!important}
+#leaderboardDialog .rank-silver .repo-rank-podium-place i{color:#b9c7ce!important}
+#leaderboardDialog .rank-bronze .repo-rank-podium-place i{color:#ad8469!important}
+#leaderboardDialog .repo-rank-avatar{position:relative!important;display:grid!important;place-items:center!important;overflow:hidden!important;background:radial-gradient(circle at 50% 35%,#1a3544,#08131a 72%)!important;border:1px solid #36576a!important}
+#leaderboardDialog .repo-rank-avatar-podium{z-index:2!important;width:92px!important;height:92px!important;margin:0 0 10px!important;border-radius:50%!important;box-shadow:0 0 0 4px #071117,0 0 0 5px #3d6072,0 8px 18px rgba(0,0,0,.42)!important}
+#leaderboardDialog .rank-gold .repo-rank-avatar-podium{box-shadow:0 0 0 4px #071117,0 0 0 5px #77683d,0 8px 18px rgba(0,0,0,.42)!important}
+#leaderboardDialog .repo-rank-avatar-row{width:46px!important;height:46px!important;border-radius:50%!important;flex:0 0 auto!important;box-shadow:0 0 0 2px #071117!important}
+#leaderboardDialog .repo-rank-avatar img{position:relative!important;z-index:2!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center top!important;background:transparent!important;border:0!important;box-shadow:none!important}
+#leaderboardDialog .repo-rank-avatar-fallback{position:absolute!important;inset:0!important;z-index:1!important;display:grid!important;place-items:center!important;color:#809aa7!important;font:900 15px Segoe UI,Arial,sans-serif!important;background:transparent!important}
+#leaderboardDialog .repo-rank-podium-name{position:relative!important;z-index:2!important;max-width:100%!important;display:flex!important;align-items:center!important;gap:6px!important;color:#eef4f6!important;background:transparent!important;font:800 16px/1.15 Segoe UI,Arial,sans-serif!important}
+#leaderboardDialog .repo-rank-podium-title{position:relative!important;z-index:2!important;margin:4px 0 0!important;max-width:100%!important;color:#78939f!important;background:transparent!important;font:600 8px Segoe UI,Arial,sans-serif!important}
+#leaderboardDialog .repo-rank-podium-stat{position:relative!important;z-index:2!important;margin:12px 0 0!important;display:grid!important;background:transparent!important;border:0!important}
+#leaderboardDialog .repo-rank-podium-stat small{color:#5d7884!important;font:800 6px Segoe UI,Arial,sans-serif!important;letter-spacing:1.1px!important}
+#leaderboardDialog .repo-rank-podium-stat b{margin-top:2px!important;color:#dfe9ed!important;font:900 25px/1 Segoe UI,Arial,sans-serif!important}
+#leaderboardDialog .rank-gold .repo-rank-podium-stat b{color:#dcc473!important}
+#leaderboardDialog .repo-rank-open{position:relative!important;z-index:2!important;margin-top:auto!important;padding-top:10px!important;color:#66818e!important;background:transparent!important;font:800 6px Segoe UI,Arial,sans-serif!important;letter-spacing:1px!important}
+
+#leaderboardDialog .repo-rank-list{border:1px solid #223b48!important;border-radius:8px!important;overflow:hidden!important;background:#071018!important;box-shadow:0 8px 24px rgba(0,0,0,.18)!important}
+#leaderboardDialog .repo-rank-list>header{
+  min-height:36px!important;padding:0 12px!important;margin:0!important;display:grid!important;
+  grid-template-columns:44px 56px minmax(170px,1fr) 110px 116px 22px!important;align-items:center!important;gap:10px!important;
+  border:0!important;border-bottom:1px solid #263d49!important;background:#0b1922!important;color:#607d8b!important;box-shadow:none!important
+}
+#leaderboardDialog .repo-rank-list>header span{font:800 6px Segoe UI,Arial,sans-serif!important;letter-spacing:1.2px!important;background:transparent!important}
+#leaderboardDialog .repo-rank-list-row{
+  width:100%!important;min-height:64px!important;margin:0!important;padding:8px 12px!important;
+  display:grid!important;grid-template-columns:44px 46px minmax(170px,1fr) 110px 116px 22px!important;align-items:center!important;gap:10px!important;
+  border:0!important;border-bottom:1px solid rgba(50,78,91,.45)!important;border-radius:0!important;
+  background:#071018!important;color:#dce7ec!important;text-align:left!important;cursor:pointer!important;box-shadow:none!important
+}
+#leaderboardDialog .repo-rank-list-row:last-child{border-bottom:0!important}
+#leaderboardDialog .repo-rank-list-row:hover{background:#0d202a!important;box-shadow:inset 3px 0 #628da1!important}
+#leaderboardDialog .repo-rank-list-row.is-you{background:#0b1d1a!important;box-shadow:inset 3px 0 #5d9572!important}
+#leaderboardDialog .repo-rank-list-position{justify-self:center!important;color:#7894a0!important;font:900 12px Segoe UI,Arial,sans-serif!important;background:transparent!important}
+#leaderboardDialog .repo-rank-list-player{min-width:0!important;display:flex!important;flex-direction:column!important;gap:3px!important;background:transparent!important}
+#leaderboardDialog .repo-rank-list-player b{color:#e8f0f3!important;font:800 12px Segoe UI,Arial,sans-serif!important;background:transparent!important}
+#leaderboardDialog .repo-rank-list-player small{color:#708c98!important;font:600 7px Segoe UI,Arial,sans-serif!important;background:transparent!important}
+#leaderboardDialog .repo-rank-list-status{display:flex!important;align-items:center!important;gap:6px!important;color:#557481!important;font:800 6px Segoe UI,Arial,sans-serif!important;letter-spacing:1px!important;background:transparent!important}
+#leaderboardDialog .repo-rank-list-status i{width:5px!important;height:5px!important;border-radius:50%!important;background:#5c8699!important;box-shadow:0 0 6px rgba(92,134,153,.45)!important}
+#leaderboardDialog .repo-rank-list-level{text-align:right!important;display:flex!important;flex-direction:column!important;background:transparent!important}
+#leaderboardDialog .repo-rank-list-level small{color:#526f7b!important;font:800 5px Segoe UI,Arial,sans-serif!important;letter-spacing:1px!important}
+#leaderboardDialog .repo-rank-list-level strong{color:#dce8ed!important;font:900 17px Segoe UI,Arial,sans-serif!important}
+#leaderboardDialog .repo-rank-list-open{justify-self:end!important;color:#557789!important;font:900 21px Segoe UI,Arial,sans-serif!important;background:transparent!important}
+
+#leaderboardDialog .repo-rankings-footer{
+  position:relative!important;z-index:2!important;
+  min-height:38px!important;margin:13px 0 0!important;padding:0 12px!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;
+  border:1px solid #1f3440!important;border-radius:6px!important;
+  background:#071018!important;box-shadow:none!important;color:#4f6b78!important;
+  font:700 6px Segoe UI,Arial,sans-serif!important;letter-spacing:1.1px!important
+}
+#leaderboardDialog .repo-rankings-footer i{color:#587581!important;font-style:normal!important;background:transparent!important}
+
+@media(max-width:760px){
+  #leaderboardDialog .repo-rankings-shell{padding:0 12px 14px!important;min-height:0!important}
+  #leaderboardDialog .repo-rankings-header{grid-template-columns:48px minmax(0,1fr)!important;min-height:96px!important;margin:0 -12px!important;padding:14px 54px 14px 14px!important;gap:11px!important}
+  #leaderboardDialog .repo-rankings-crest{width:46px!important;height:46px!important}.repo-rankings-crest img{width:32px!important;height:32px!important}
+  #leaderboardDialog .repo-rankings-live{display:none!important}
+  #leaderboardDialog .repo-rankings-title h3{font-size:25px!important}
+  #leaderboardDialog .repo-rankings-toolbar{margin:0 -12px 12px!important;padding:0 12px!important}
+  #leaderboardDialog .repo-rankings-scope{display:none!important}
+  #leaderboardDialog .repo-rank-podium{grid-template-columns:1fr!important}
+  #leaderboardDialog .repo-rank-podium-card{min-height:176px!important}
+  #leaderboardDialog .repo-rank-list>header{display:none!important}
+  #leaderboardDialog .repo-rank-list-row{grid-template-columns:30px 42px minmax(0,1fr) 80px 14px!important;gap:7px!important}
+  #leaderboardDialog .repo-rank-list-status{display:none!important}
+  #leaderboardDialog .repo-rank-avatar-row{width:40px!important;height:40px!important}
+  #leaderboardDialog .repo-rankings-footer{display:none!important}
+}
