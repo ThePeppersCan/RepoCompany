@@ -1,15 +1,18 @@
-Repo Company V18.1 — V19.4 PATCH ONLY
-======================================
+Repo Company V18.1 — V19.5 DEFINITIVE HIDDEN CARDS / BRUSH FIX
+================================================================
 
-Apply over V19.3.
+Built directly from the current script.js + index.html you uploaded.
 
 Replace:
 - /script.js
 - /index.html
 
-Fixes:
-- World Cup event cards can now be selected as Favourite Card.
-- The Supabase favourite-card ownership check has been updated live so it
-  accepts cards owned through the World Cup event inventory as well as the
-  standard TCG collection.
-- Favourite icon updates immediately on click and rolls back if saving fails.
+No style.css replacement is required.
+
+Fix:
+- Hidden Cards open state is now written at the authoritative drawer-state function.
+- The entire Binder Style control is display:none while Hidden Cards is open.
+- The rule deliberately outranks the older V18.5 !important rule that was forcing
+  the paintbrush visible.
+- Closing Hidden Cards restores the brush automatically.
+- Drag-opening Hidden Cards is covered too.

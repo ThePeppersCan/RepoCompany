@@ -18256,6 +18256,12 @@ qmShowSharedGoal=function(state){
     const open=Boolean(box?.classList.contains('is-open'));
     if(launch){launch.setAttribute('aria-expanded',String(open));launch.title=open?'Close hidden cards':'View your hidden cards'}
     box?.setAttribute('aria-hidden',String(!open));
+
+    // V19.5: this is the authoritative drawer state used by the Binder Style
+    // control. Keep it in the same function that owns aria-hidden/expanded so
+    // every open path (click, drag/drop and close) updates it immediately.
+    const dialog=box?.closest('#quidditchTcgBinderDialog')||launch?.closest('#quidditchTcgBinderDialog');
+    if(dialog)dialog.dataset.repoStorageOpen=open?'true':'false';
   }
 
   function preview(){
@@ -32108,3 +32114,83 @@ updateHunterCantoHud=function(){
 // Backend favourite ownership now recognises World Cup event-card inventory as
 // valid ownership in addition to the normal TCG collection.
 window.__repoBinderFavouriteWorldCupFixV194=true;
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V19.5 DEFINITIVE HIDDEN CARDS / BRUSH FIX
+// V18.5 explicitly forced the paintbrush visible with a more-specific
+// !important selector. Hide the entire Binder Style control while the real
+// Hidden Cards drawer state is open, then restore it automatically on close.
+// ============================================================
+(function installRepoHiddenCardsBrushDefinitiveFixV195(){
+  if(window.__repoHiddenCardsBrushDefinitiveFixV195Installed)return;
+  window.__repoHiddenCardsBrushDefinitiveFixV195Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoHiddenCardsBrushDefinitiveFixV195Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog[data-binder-page^='open'][data-repo-storage-open='true'] #binderStyleControl.repo-binder-style-side-control,
+    #quidditchTcgBinderDialog[data-binder-page^='open'][data-repo-storage-open='true'] #binderStyleControl.repo-binder-style-side-control:hover,
+    #quidditchTcgBinderDialog[data-binder-page^='open'][data-repo-storage-open='true'] #binderStyleControl.repo-binder-style-side-control:focus-within{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+    }
+
+    #quidditchTcgBinderDialog[data-binder-page^='open'][data-repo-storage-open='true'] #binderStyleTrigger.repo-v184-brush-trigger,
+    #quidditchTcgBinderDialog[data-binder-page^='open'][data-repo-storage-open='true'] #binderStyleTrigger.repo-v184-brush-trigger > img.repo-v185-brush-image,
+    #quidditchTcgBinderDialog[data-binder-page^='open'][data-repo-storage-open='true'] #binderStyleTrigger .repo-v184-brush-art{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function syncFromActualDrawer(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const drawer=dialog?.querySelector('.repo-binder-storage');
+    if(!dialog)return;
+    const open=Boolean(drawer && !drawer.hidden && drawer.classList.contains('is-open'));
+    dialog.dataset.repoStorageOpen=open?'true':'false';
+  }
+
+  // Backup synchronisation for any legacy path that mutates drawer classes
+  // without calling syncStorageDrawerState directly.
+  function watchDrawer(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const drawer=dialog?.querySelector('.repo-binder-storage');
+    if(!drawer)return false;
+    if(drawer.dataset.repoBrushV195Observed==='1'){
+      syncFromActualDrawer();
+      return true;
+    }
+    drawer.dataset.repoBrushV195Observed='1';
+    new MutationObserver(syncFromActualDrawer).observe(drawer,{attributes:true,attributeFilter:['class','hidden','aria-hidden']});
+    syncFromActualDrawer();
+    return true;
+  }
+
+  const settle=()=>{
+    syncFromActualDrawer();
+    watchDrawer();
+    requestAnimationFrame(()=>{syncFromActualDrawer();watchDrawer();});
+  };
+
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch, #quidditchTcgBinderDialog .repo-binder-storage-close')){
+      [0,20,80].forEach(delay=>setTimeout(settle,delay));
+    }
+  },true);
+
+  document.addEventListener('dragenter',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch, #quidditchTcgBinderDialog .repo-binder-storage')){
+      [0,20].forEach(delay=>setTimeout(settle,delay));
+    }
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',settle,{once:true});
+  else settle();
+})();
