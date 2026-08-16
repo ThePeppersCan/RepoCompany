@@ -17499,6 +17499,7 @@ qmShowSharedGoal=function(state){
     {id:'zizi_patch',name:'Zizi — Patch',image:'assets/quidditch-tcg/cards/patch/zizi-patch.png',rarity:'patch'},
 ];
   const CARD_BY_ID=Object.fromEntries(CARD_CATALOG.map(card=>[card.id,card]));
+  window.REPO_TCG_CURRENT_CARD_COUNT=CARD_CATALOG.length;
   // Slot coordinates are normalised against the supplied marked-up binder
   // reference.  They sit inside the small blue diamond/triangle corners rather
   // than using the outer decorative frame, so every complete card stays inside
@@ -18346,6 +18347,15 @@ qmShowSharedGoal=function(state){
     ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
     ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png'],
 
+    ['vardesh_pipsqueak_full_art','Vardesh: Pipsqueak — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/vardesh-pipsqueak.png'],
+    ['norveth_rocky_full_art','Norveth: ROCKY — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/norveth-rocky.png'],
+    ['talune_soup_full_art','Talune: Soup — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/talune-soup.png'],
+    ['iskandar_besquelcher_full_art','Iskandar: Besquelcher — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/iskandar-besquelcher.png'],
+    ['sorevia_debbie_full_art','Sorevia: Debbie — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/sorevia-debbie.png'],
+    ['drazhen_dopey_dom_full_art','Drazhen: Dopey Dom — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/drazhen-dopey-dom.png'],
+    ['belros_jud_full_art','Belros: JUD — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-jud.png'],
+    ['nambara_mad_rager_full_art','Nambara: Mad Rager — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/nambara-mad-rager.png'],
+    ['belros_nimbler_2000_full_art','Belros: Nimbler 2000 — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-nimbler-2000.png'],
     ['bijou_patch','Bijou — Patch','assets/quidditch-tcg/cards/patch/bijou-patch.png'],
     ['besquelcher_patch','Besquelcher — Patch','assets/quidditch-tcg/cards/patch/besquelcher-patch.png'],
     ['daska_patch','Daska — Patch','assets/quidditch-tcg/cards/patch/daska-patch.png'],
@@ -19061,6 +19071,15 @@ qmShowSharedGoal=function(state){
     ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
     ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png']
   ,
+    ['vardesh_pipsqueak_full_art','Vardesh: Pipsqueak — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/vardesh-pipsqueak.png'],
+    ['norveth_rocky_full_art','Norveth: ROCKY — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/norveth-rocky.png'],
+    ['talune_soup_full_art','Talune: Soup — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/talune-soup.png'],
+    ['iskandar_besquelcher_full_art','Iskandar: Besquelcher — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/iskandar-besquelcher.png'],
+    ['sorevia_debbie_full_art','Sorevia: Debbie — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/sorevia-debbie.png'],
+    ['drazhen_dopey_dom_full_art','Drazhen: Dopey Dom — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/drazhen-dopey-dom.png'],
+    ['belros_jud_full_art','Belros: JUD — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-jud.png'],
+    ['nambara_mad_rager_full_art','Nambara: Mad Rager — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/nambara-mad-rager.png'],
+    ['belros_nimbler_2000_full_art','Belros: Nimbler 2000 — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-nimbler-2000.png'],
     ['bijou_patch','Bijou — Patch','assets/quidditch-tcg/cards/patch/bijou-patch.png'],
     ['besquelcher_patch','Besquelcher — Patch','assets/quidditch-tcg/cards/patch/besquelcher-patch.png'],
     ['daska_patch','Daska — Patch','assets/quidditch-tcg/cards/patch/daska-patch.png'],
@@ -23341,7 +23360,7 @@ updateHunterCantoHud=function(){
   const configuredExtraCards=Array.isArray(window.REPO_WORLD_CUP_TCG_EXTRA_CARDS_2026)?window.REPO_WORLD_CUP_TCG_EXTRA_CARDS_2026:[];
   const EVENT_CARDS=[...INSTALLED_EVENT_CARDS,...configuredExtraCards].filter((c,i,a)=>c&&c.id&&a.findIndex(x=>x?.id===c.id)===i).slice(0,12);
   const EVENT_CARD_BY_ID=Object.fromEntries(EVENT_CARDS.map(c=>[c.id,c]));
-  const EVENT_CARD_CAPACITY=12;
+  const EVENT_CARD_CAPACITY=EVENT_CARDS.length;
   const COUNTRY_META={
     belros:{name:'BELROS',flag:'assets/world-cup-flags-transparent/belros-flag.png'},
     vardesh:{name:'VARDESH',flag:'assets/world-cup-flags-transparent/vardesh-flag.png'},
