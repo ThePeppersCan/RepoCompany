@@ -12083,6 +12083,82 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
   };
   const isZombieLocation = value => Object.prototype.hasOwnProperty.call(ZOMBIE_MAPS, value);
 
+  // V20.28 Endless Horde economy. Rewards are granted by SECURITY DEFINER RPCs,
+  // not by client-side GP edits. The server enforces sequential wave claims and
+  // a hard real-time payout ceiling so modified clients cannot print GP freely.
+  function hordeEconomyFor(s=combatState){
+    if(!s?.zombie)return null;
+    if(!s.hordeEconomy)s.hordeEconomy={runId:null,totalGp:0,queue:[],processing:false,retryTimer:null,startBusy:false,lastAwardedWave:0};
+    return s.hordeEconomy;
+  }
+  function setHordeGpHud(s=combatState){
+    const wrap=document.getElementById('combatGpEarnedWrap'),value=document.getElementById('combatGpEarned');
+    const active=Boolean(s?.zombie);
+    if(wrap)wrap.classList.toggle('hidden',!active);
+    if(value)value.textContent=`${Number(s?.hordeEconomy?.totalGp||0).toLocaleString('en-GB')} GP`;
+  }
+  function hordeRewardFlash(wave,row){
+    const dialog=document.getElementById('combatDialog');if(!dialog)return;
+    let notice=document.getElementById('repoHordeRewardNotice');
+    if(!notice){notice=document.createElement('div');notice.id='repoHordeRewardNotice';notice.className='repo-horde-reward-notice';dialog.appendChild(notice);}
+    const amount=Number(row?.awarded_gp||0),bonus=Number(row?.bonus_gp||0);
+    notice.innerHTML=`<small>WAVE ${wave} CLEARED</small><b>+${amount.toLocaleString('en-GB')} GP</b>${bonus?`<em>includes +${bonus.toLocaleString('en-GB')} Horde bonus</em>`:'<em>banked immediately</em>'}`;
+    notice.classList.remove('show','bonus');if(bonus)notice.classList.add('bonus');void notice.offsetWidth;notice.classList.add('show');
+    clearTimeout(notice._timer);notice._timer=setTimeout(()=>notice.classList.remove('show'),2200);
+  }
+  async function startHordeRewardRun(s){
+    const eco=hordeEconomyFor(s);if(!eco||eco.startBusy||eco.runId||!character)return;
+    eco.startBusy=true;setHordeGpHud(s);
+    try{
+      const {data,error}=await db.rpc('start_endless_horde_reward_run',{p_map_id:s.zombie.map,p_weapon:s.weapon});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      eco.runId=row?.run_id||null;
+      if(Number.isFinite(Number(row?.current_gp))&&character)character.gp=Number(row.current_gp);
+      processHordeRewardQueue(s);
+    }catch(error){
+      console.warn('Endless Horde GP session could not start:',error);
+      const msg=String(error?.message||'');
+      if(/start_endless_horde_reward_run|schema cache|could not find/i.test(msg))toast('Horde GP rewards need the V20.28 Supabase migration.',4200);
+    }finally{eco.startBusy=false;}
+  }
+  function queueHordeWaveReward(s,wave){
+    const eco=hordeEconomyFor(s);wave=Math.max(1,Math.floor(Number(wave)||0));if(!eco||!wave)return;
+    if(wave<=eco.lastAwardedWave||eco.queue.includes(wave))return;
+    eco.queue.push(wave);eco.queue.sort((a,b)=>a-b);
+    if(!eco.runId)startHordeRewardRun(s);else processHordeRewardQueue(s);
+  }
+  async function processHordeRewardQueue(s){
+    const eco=hordeEconomyFor(s);if(!eco||eco.processing||!eco.runId||!eco.queue.length)return;
+    eco.processing=true;
+    try{
+      while(eco.queue.length&&eco.runId){
+        const wave=eco.queue[0];
+        let data,error;
+        try{({data,error}=await db.rpc('claim_endless_horde_wave_reward',{p_run_id:eco.runId,p_wave:wave}));}
+        catch(requestError){error=requestError;}
+        if(error){console.warn('Endless Horde GP claim failed:',error);break;}
+        const row=Array.isArray(data)?data[0]:data;
+        if(row?.awarded){
+          eco.queue.shift();eco.lastAwardedWave=wave;eco.totalGp=Number(row.total_run_gp||eco.totalGp||0);
+          if(character&&Number.isFinite(Number(row.new_gp)))character.gp=Number(row.new_gp);
+          if(bankState&&Number.isFinite(Number(row.new_gp)))bankState.gp=Number(row.new_gp);
+          if(typeof geState==='object'&&geState&&Number.isFinite(Number(row.new_gp)))geState.gp=Number(row.new_gp);
+          setHordeGpHud(s);hordeRewardFlash(wave,row);
+          s.particles?.push({x:s.player.x,y:s.player.y-42,text:`+${Number(row.awarded_gp||0).toLocaleString('en-GB')} GP`,life:1.05});
+          if(document.getElementById('bankDialog')?.open)renderBank();
+          continue;
+        }
+        if(row?.reason==='already_claimed'){
+          eco.queue.shift();eco.lastAwardedWave=Math.max(eco.lastAwardedWave,Number(row.claimed_wave||wave));eco.totalGp=Number(row.total_run_gp||eco.totalGp||0);setHordeGpHud(s);continue;
+        }
+        const retry=Math.max(1,Math.min(30,Number(row?.retry_after_seconds||2)));
+        clearTimeout(eco.retryTimer);eco.retryTimer=setTimeout(()=>processHordeRewardQueue(s),retry*1000+120);
+        break;
+      }
+    }finally{eco.processing=false;}
+  }
+
   function installZombieUi(){
     const first=document.querySelector('.combat-location-choice');
     if(!first||document.getElementById('endlessHordeSection'))return;
@@ -12092,7 +12168,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     const intro=document.getElementById('combatIntro')||normalHost.parentElement;
     const section=document.createElement('section');
     section.id='endlessHordeSection';section.className='endless-horde-section';
-    section.innerHTML=`<div class="combat-mode-tabs"><button type="button" id="standardCombatMode">STANDARD SURVIVAL</button><button type="button" id="endlessCombatMode" class="selected">ENDLESS HORDES</button></div><div class="endless-horde-head"><div><small>SEPARATE ENDLESS MODE</small><h3>☠ ENDLESS HORDES</h3><p>Choose a weapon and one of three unique endless worlds. Waves scale forever.</p></div></div><div class="endless-picker-block"><h4>CHOOSE YOUR WEAPON</h4><div class="endless-weapon-list"></div></div><div class="endless-map-list"></div><div class="endless-board-grid"><aside class="endless-leaderboard"><h4>VARROCK GRAVEYARD</h4><div id="endlessLeaderboardVarrock">Loading…</div></aside><aside class="endless-leaderboard"><h4>FALADOR CRYPTS</h4><div id="endlessLeaderboardFalador">Loading…</div></aside><aside class="endless-leaderboard"><h4>MORYTANIA BLOODMOON</h4><div id="endlessLeaderboardMorytania">Loading…</div></aside></div><button type="button" id="endlessStartRun" class="endless-start-run">START ENDLESS RUN</button>`;
+    section.innerHTML=`<div class="combat-mode-tabs"><button type="button" id="standardCombatMode">STANDARD SURVIVAL</button><button type="button" id="endlessCombatMode" class="selected">ENDLESS HORDES</button></div><div class="endless-horde-head"><div><small>SEPARATE ENDLESS MODE</small><h3>☠ ENDLESS HORDES</h3><p>Choose a weapon and one of three unique endless worlds. Waves scale forever — completed waves now bank GP as you survive.</p></div></div><div class="endless-picker-block"><h4>CHOOSE YOUR WEAPON</h4><div class="endless-weapon-list"></div></div><div class="endless-map-list"></div><div class="endless-board-grid"><aside class="endless-leaderboard"><h4>VARROCK GRAVEYARD</h4><div id="endlessLeaderboardVarrock">Loading…</div></aside><aside class="endless-leaderboard"><h4>FALADOR CRYPTS</h4><div id="endlessLeaderboardFalador">Loading…</div></aside><aside class="endless-leaderboard"><h4>MORYTANIA BLOODMOON</h4><div id="endlessLeaderboardMorytania">Loading…</div></aside></div><div class="endless-horde-economy"><img src="assets/gold-pieces.png" alt=""><span><b>HORDE PAYOUTS</b><small>300 → 500 → 750 → 1,000 → 1,250 GP per wave · +1,500 GP every 5th wave</small></span><strong>≈ 50K GP / HR</strong></div><button type="button" id="endlessStartRun" class="endless-start-run">START ENDLESS RUN</button>`;
     const mapList=section.querySelector('.endless-map-list');
     [
       ['zombie-varrock','🧟','Varrock Graveyard','Rotting townsfolk, plague rats, grave diggers and the Grave Titan.'],
@@ -12255,6 +12331,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
   const originalResetCombatGame=resetCombatGame;
   resetCombatGame=function(message){
     originalResetCombatGame(message);
+    if(!isZombieLocation(selectedCombatLocation)){const wrap=document.getElementById('combatGpEarnedWrap');if(wrap)wrap.classList.add('hidden');}
     if(isZombieLocation(selectedCombatLocation)){
       $('combatTime').textContent='∞';
       $('combatMessage').textContent=message||'Endless Zombie Mode — survive escalating waves, collect upgrades and push as far as possible.';
@@ -12274,6 +12351,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
       zombie:{wave:1,waveKills:0,waveTarget:8,spawned:0,spawnTarget:8,betweenWaves:1.6,banner:'WAVE 1',bannerLife:2.2,bossWave:false,map:selectedCombatLocation}
     };
     combatState.difficultyConfig=difficulty;
+    hordeEconomyFor(combatState);setHordeGpHud(combatState);startHordeRewardRun(combatState);
     combatRunning=true;combatPaused=false;combatStartedAt=performance.now();combatLast=combatStartedAt;
     $('combatIntro').classList.add('hidden');document.getElementById('endlessHordeSection')?.classList.add('hidden');$('combatUpgrade').classList.add('hidden');
     $('combatTime').textContent='∞';$('combatMessage').textContent=`WAVE 1 — ${ZOMBIE_MAPS[selectedCombatLocation].name}. Keep moving.`;
@@ -12318,7 +12396,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     const hp=base[0]*scale.hp*(boss?1.35:1);s.enemies.push({type,x,y,hp,maxHp:hp,speed:base[1]*scale.speed,damage:base[2]*scale.damage,r:base[3],xp:base[4],hitCooldown:0});z.spawned++;
   }
   function beginNextZombieWave(s){
-    const z=s.zombie;z.wave++;z.waveKills=0;z.spawned=0;z.bossWave=z.wave%10===0;
+    const z=s.zombie,clearedWave=z.wave;queueHordeWaveReward(s,clearedWave);z.wave++;z.waveKills=0;z.spawned=0;z.bossWave=z.wave%10===0;
     z.spawnTarget=Math.min(120,7+Math.floor(z.wave*1.55)+(z.bossWave?1:0));z.waveTarget=z.spawnTarget;
     z.betweenWaves=z.wave%5===0?2.8:1.7;z.banner=`${z.bossWave?'BOSS ':''}WAVE ${z.wave}`;z.bannerLife=2.4;
     s.player.hp=Math.min(s.player.maxHp,s.player.hp+Math.max(5,Math.floor(s.player.maxHp*.055)));
@@ -12374,7 +12452,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     s.orbs=s.orbs.filter(o=>!o.taken);s.slashes.forEach(x=>x.life-=dt);s.slashes=s.slashes.filter(x=>x.life>0);s.projectiles.forEach(x=>x.life-=dt);s.projectiles=s.projectiles.filter(x=>x.life>0);s.chains.forEach(x=>x.life-=dt);s.chains=s.chains.filter(x=>x.life>0);s.particles.forEach(x=>{x.life-=dt;x.y-=25*dt});s.particles=s.particles.filter(x=>x.life>0);
     if(s.runXp>=s.nextLevel){s.runXp-=s.nextLevel;s.runLevel++;s.nextLevel=Math.floor(s.nextLevel*1.29+3);showCombatUpgrade();}
     if(z.spawned>=z.spawnTarget&&s.enemies.length===0&&z.betweenWaves<=0)beginNextZombieWave(s);
-    $('combatTime').textContent=`W${z.wave}`;$('combatHealth').textContent=`${Math.max(0,Math.ceil(p.hp))} / ${p.maxHp}`;$('combatKills').textContent=`${s.kills} kills`;$('combatLevel').textContent=s.runLevel;$('combatXpFill').style.width=`${Math.min(100,s.runXp/s.nextLevel*100)}%`;
+    $('combatTime').textContent=`W${z.wave}`;$('combatHealth').textContent=`${Math.max(0,Math.ceil(p.hp))} / ${p.maxHp}`;$('combatKills').textContent=`${s.kills} kills`;$('combatLevel').textContent=s.runLevel;$('combatXpFill').style.width=`${Math.min(100,s.runXp/s.nextLevel*100)}%`;setHordeGpHud(s);
   };
 
   const originalKillCombatEnemy=killCombatEnemy;
@@ -12450,8 +12528,9 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     const {data,error}=await db.rpc('complete_combat_run',{p_survived:false,p_kills:s.kills,p_damage:Math.floor(s.damage),p_seconds:Math.floor(s.elapsed),p_difficulty:s.difficulty,p_weapon:s.weapon,p_location:'lumbridge'});
     if(error){console.error(error);$('combatMessage').textContent=`Wave ${z.wave} reached with ${s.kills} kills. XP could not be saved.`;return;}
     const r=data?.[0];if(r){['attack','strength','defence','magic','ranged'].forEach(skill=>character[`${skill}_xp`]=Number(r[`${skill}_xp`]||0));renderCharacter();}
-    $('combatMessage').textContent=`ZOMBIE RUN COMPLETE — Wave ${z.wave}, ${s.kills} kills, ${Math.floor(s.elapsed/60)}m ${Math.floor(s.elapsed%60)}s.`;
-    toast(`Wave ${z.wave} reached!`,3500);
+    const runGp=Number(s.hordeEconomy?.totalGp||0);
+    $('combatMessage').textContent=`ZOMBIE RUN COMPLETE — Wave ${z.wave}, ${s.kills} kills, ${Math.floor(s.elapsed/60)}m ${Math.floor(s.elapsed%60)}s · ${runGp.toLocaleString('en-GB')} GP banked.`;
+    toast(`Wave ${z.wave} reached · ${runGp.toLocaleString('en-GB')} GP earned!`,4200);
   };
 })();
 
