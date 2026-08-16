@@ -18935,6 +18935,10 @@ qmShowSharedGoal=function(state){
     const current=favouriteByUser.get(key(username))||null;
     const next=current===cardId?null:cardId;
     if(button)button.disabled=true;
+
+    // V19.4: update the icon immediately so favourite selection feels responsive.
+    // Supabase remains authoritative; on failure we restore the previous favourite.
+    setCachedFavourite(username,next);
     try{
       const {data,error}=await db.rpc('set_favourite_quidditch_tcg_card',{p_card_id:next});
       if(error)throw error;
@@ -18944,7 +18948,8 @@ qmShowSharedGoal=function(state){
       notify(saved?`${cards[saved].name} is now your favourite card.`:'Favourite card cleared.');
     }catch(error){
       console.error(error);
-      notify(error?.message||'Could not save favourite card. Run quidditch-tcg-favourite-card.sql in Supabase.');
+      setCachedFavourite(username,current);
+      notify(error?.message||'Could not save favourite card.');
     }finally{if(button?.isConnected)button.disabled=false;queueDecoration()}
   }
   function decorateBinderFavouriteButtons(){
@@ -32097,3 +32102,9 @@ updateHunterCantoHud=function(){
     bootObserver();
   }
 })();
+
+
+// REPO COMPANY V18.1 — V19.4
+// Backend favourite ownership now recognises World Cup event-card inventory as
+// valid ownership in addition to the normal TCG collection.
+window.__repoBinderFavouriteWorldCupFixV194=true;

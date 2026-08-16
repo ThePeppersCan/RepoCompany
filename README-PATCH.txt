@@ -1,15 +1,15 @@
-Repo Company V18.1 — V19.3 PATCH ONLY
+Repo Company V18.1 — V19.4 PATCH ONLY
 ======================================
 
-Apply over V19.2 / latest current binder build.
+Apply over V19.3.
 
 Replace:
 - /script.js
 - /index.html
 
-This patch:
-- reworks the binder favourite-card icon so it looks cleaner, properly centred,
-  and easier to click
-- keeps the favourite card click-target stable with extra interaction guards
-- hides the Binder Style paintbrush whenever Hidden Cards is open, so it no
-  longer overlays the storage drawer
+Fixes:
+- World Cup event cards can now be selected as Favourite Card.
+- The Supabase favourite-card ownership check has been updated live so it
+  accepts cards owned through the World Cup event inventory as well as the
+  standard TCG collection.
+- Favourite icon updates immediately on click and rolls back if saving fails.
