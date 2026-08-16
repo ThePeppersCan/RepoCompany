@@ -2498,18 +2498,58 @@ let quidditchTcgBinderPage=0;
 let quidditchTcgBinderAudio=null;
 let quidditchTcgBinderTurnTimer=null;
 let quidditchTcgBinderViewMusic=null;
+let quidditchTcgBinderViewMusicKey='default';
+let quidditchTcgBinderViewMusicSrc='';
+const QUIDDITCH_TCG_BINDER_MUSIC={
+  default:{label:'Binder Archive Ambience',src:'assets/quidditch-tcg-binder/binder-view-music.mp3',volume:.33},
+  vardesh:{label:'Vardesh Kit Theme',src:'assets/repo-sports-kit-vardesh-theme.mp3',volume:.33},
+  lumerre:{label:'Lumerre Kit Theme',src:'assets/repo-sports-kit-lumerre-theme.mp3',volume:.33},
+  kordesh:{label:'Kordesh Kit Theme',src:'assets/repo-sports-kit-kordesh-theme.mp3',volume:.33},
+  nambara:{label:'Nambara Kit Theme',src:'assets/repo-sports-kit-nambara-theme.mp3',volume:.33},
+  norveth:{label:'Norveth Kit Theme',src:'assets/repo-sports-kit-norveth-theme.mp3',volume:.33},
+  zafran:{label:'Zafran Kit Theme',src:'assets/repo-sports-kit-zafran-theme.mp3',volume:.33},
+  elvane:{label:'Elvane Kit Theme',src:'assets/repo-sports-kit-elvane-theme.mp3',volume:.33},
+  qasmir:{label:'Qasmir Kit Theme',src:'assets/repo-sports-kit-qasmir-theme.mp3',volume:.33},
+  calvora:{label:'Calvora Kit Theme',src:'assets/repo-sports-kit-calvora-theme.mp3',volume:.33},
+  rovarn:{label:'Rovarn Kit Theme',src:'assets/repo-sports-kit-rovarn-theme.mp3',volume:.33},
+  talune:{label:'Talune Kit Theme',src:'assets/repo-sports-kit-talune-theme.mp3',volume:.33},
+  drazhen:{label:'Drazhen Kit Theme',src:'assets/repo-sports-kit-drazhen-theme.mp3',volume:.33},
+  belros:{label:'Belros Kit Theme',src:'assets/repo-sports-kit-belros-theme.mp3',volume:.33},
+  marovar:{label:'Marovar Kit Theme',src:'assets/repo-sports-kit-marovar-theme.mp3',volume:.33},
+  sorevia:{label:'Sorevia Kit Theme',src:'assets/repo-sports-kit-sorevia-theme.mp3',volume:.33},
+  iskandar:{label:'Iskandar Kit Theme',src:'assets/repo-sports-kit-iskandar-theme.mp3',volume:.33}
+};
 
+function quidditchTcgBinderSetViewMusic(key,{restart=true}={}){
+  const next=Object.prototype.hasOwnProperty.call(QUIDDITCH_TCG_BINDER_MUSIC,String(key||'').toLowerCase())?String(key).toLowerCase():'default';
+  if(next===quidditchTcgBinderViewMusicKey&&quidditchTcgBinderViewMusic)return;
+  quidditchTcgBinderViewMusicKey=next;
+  try{
+    if(quidditchTcgBinderViewMusic){
+      quidditchTcgBinderViewMusic.pause();
+      quidditchTcgBinderViewMusic.currentTime=0;
+    }
+  }catch(_error){}
+  quidditchTcgBinderViewMusic=null;
+  quidditchTcgBinderViewMusicSrc='';
+  if(restart&&document.getElementById('quidditchTcgBinderDialog')?.open)quidditchTcgBinderStartViewMusic();
+}
 function quidditchTcgBinderStartViewMusic(){
   try{
-    if(!quidditchTcgBinderViewMusic){
-      quidditchTcgBinderViewMusic=new Audio('assets/quidditch-tcg-binder/binder-view-music.mp3');
+    const track=QUIDDITCH_TCG_BINDER_MUSIC[quidditchTcgBinderViewMusicKey]||QUIDDITCH_TCG_BINDER_MUSIC.default;
+    if(!quidditchTcgBinderViewMusic||quidditchTcgBinderViewMusicSrc!==track.src){
+      if(quidditchTcgBinderViewMusic){try{quidditchTcgBinderViewMusic.pause()}catch(_error){}}
+      quidditchTcgBinderViewMusic=new Audio(track.src);
       quidditchTcgBinderViewMusic.preload='auto';
       quidditchTcgBinderViewMusic.loop=true;
+      quidditchTcgBinderViewMusicSrc=track.src;
     }
-    quidditchTcgBinderViewMusic.volume=.38;
-    quidditchTcgBinderViewMusic.currentTime=0;
-    const playing=quidditchTcgBinderViewMusic.play();
-    if(playing?.catch)playing.catch(()=>{});
+    quidditchTcgBinderViewMusic.volume=window.repoBinderGetMusicVolume?window.repoBinderGetMusicVolume():Math.max(.28,Math.min(.35,Number(track.volume)||.33));
+    if(quidditchTcgBinderViewMusic.paused){
+      quidditchTcgBinderViewMusic.currentTime=0;
+      const playing=quidditchTcgBinderViewMusic.play();
+      if(playing?.catch)playing.catch(()=>{});
+    }
   }catch(_error){}
 }
 function quidditchTcgBinderStopViewMusic(){
@@ -2602,10 +2642,10 @@ function ensureQuidditchTcgBinderUi(){
       .quidditch-tcg-bank-button b{font-family:Georgia,serif;font-size:16px;letter-spacing:.07em;color:#ffe7a6;text-shadow:1px 1px #000}
       .quidditch-tcg-bank-button small{color:#aebbd1;font-size:11px}
       .quidditch-tcg-bank-button em{font-style:normal;font-weight:900;font-size:11px;letter-spacing:.1em;padding:8px 12px;border:1px solid #d1a54c;background:#2d2010;color:#ffdf8b;box-shadow:inset 0 0 8px #000}
-      .quidditch-tcg-binder-dialog{width:min(97vw,1480px);max-width:none;height:min(94vh,900px);max-height:none;padding:0;border:0;background:transparent;color:#f8dda0;overflow:visible;opacity:0;transform:scale(.985);transition:opacity .13s ease,transform .13s ease}
-      .quidditch-tcg-binder-dialog.binder-visible{opacity:1;transform:scale(1)}
+      .quidditch-tcg-binder-dialog{width:min(99vw,1740px);max-width:none;height:min(97vh,1040px);max-height:none;padding:0;border:0;background:transparent;color:#f8dda0;overflow:visible;opacity:0;transform:scale(.985);transition:opacity .13s ease,transform .13s ease}
+      .quidditch-tcg-binder-dialog.binder-visible{opacity:1;transform:scale(1.08)}
       .quidditch-tcg-binder-dialog::backdrop{background:rgba(2,5,10,.88);backdrop-filter:blur(3px)}
-      .quidditch-tcg-binder-shell{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;position:relative;padding:12px 14px 10px;border:3px solid #bd8731;outline:2px solid #101a28;outline-offset:-8px;background:radial-gradient(circle at 50% 25%,rgba(30,58,91,.92),rgba(4,9,16,.98) 72%);box-shadow:0 20px 70px #000,inset 0 0 0 1px #f0c45c,inset 0 0 70px rgba(29,64,110,.28)}
+      .quidditch-tcg-binder-shell{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;position:relative;padding:10px 12px 9px;border:3px solid #bd8731;outline:2px solid #101a28;outline-offset:-8px;background:radial-gradient(circle at 50% 25%,rgba(30,58,91,.92),rgba(4,9,16,.98) 72%);box-shadow:0 20px 70px #000,inset 0 0 0 1px #f0c45c,inset 0 0 70px rgba(29,64,110,.28)}
       .quidditch-tcg-binder-header{display:flex;justify-content:center;align-items:center;gap:12px;padding:5px 54px 7px;text-align:center;font-family:Georgia,serif;text-shadow:2px 2px #000}
       .quidditch-tcg-binder-header strong{font-size:clamp(17px,2vw,28px);letter-spacing:.08em;color:#f5d681}
       .quidditch-tcg-binder-header small{font-size:10px;letter-spacing:.19em;color:#8fb9ee}
@@ -2625,7 +2665,8 @@ function ensureQuidditchTcgBinderUi(){
       .quidditch-tcg-binder-status b{font-family:Georgia,serif;font-size:14px;letter-spacing:.12em;color:#f6d87e}
       .quidditch-tcg-binder-status small{font-size:10px;color:#9bb1ce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       @media(max-width:700px){
-        .quidditch-tcg-binder-dialog{width:99vw;height:min(91vh,760px)}
+        .quidditch-tcg-binder-dialog{width:99vw;height:min(94vh,800px)}
+        .quidditch-tcg-binder-dialog.binder-visible{transform:scale(1)}
         .quidditch-tcg-binder-shell{padding:8px}
         .quidditch-tcg-binder-header{padding:4px 42px 5px}.quidditch-tcg-binder-header small{display:none}
         .quidditch-tcg-binder-close{right:10px;top:10px;width:34px;height:34px}
@@ -4029,17 +4070,43 @@ if (harmonySoundToggle) {
     if (harmonySoundEnabled) playHarmonyEffect();
   });
 }
-$('can').onclick = async () => {
+const harmonyButton = $('can');
+let lastHarmonyActivationAt = 0;
+
+async function activateHarmony(source = 'pointer') {
+  if (!harmonyButton || harmonyButton.disabled || busy) return;
+  const now = performance.now();
+  if (now - lastHarmonyActivationAt < 180) return;
+  lastHarmonyActivationAt = now;
+
   if (harmonySoundEnabled) { playClickSound(); playHarmonyEffect(); }
   else {
-    const button=$('can');
-    button.classList.remove('harmonizing');
-    void button.offsetWidth;
-    button.classList.add('harmonizing');
-    setTimeout(()=>button.classList.remove('harmonizing'),520);
+    harmonyButton.classList.remove('harmonizing');
+    void harmonyButton.offsetWidth;
+    harmonyButton.classList.add('harmonizing');
+    setTimeout(()=>harmonyButton.classList.remove('harmonizing'),520);
   }
+
   await changeCount(3);
-};
+  if (source === 'pointer') harmonyButton.blur();
+}
+
+if (harmonyButton) {
+  harmonyButton.onclick = async event => {
+    if (event.detail === 0) {
+      event.preventDefault();
+      return;
+    }
+    await activateHarmony('pointer');
+  };
+
+  harmonyButton.addEventListener('keydown', async event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    if (event.repeat) return;
+    await activateHarmony('keyboard');
+  });
+}
 const confirmResetButton = $('confirm');
 if (confirmResetButton) confirmResetButton.onclick = () => resetCount();
 function setAuthMode(mode) {
@@ -17893,7 +17960,7 @@ qmShowSharedGoal=function(state){
   if(window.__repoTcgSevenSpreadBinderInstalled)return;
   window.__repoTcgSevenSpreadBinderInstalled=true;
 
-  const SLOTS_PER_SPREAD=18;
+  const SLOTS_PER_SPREAD=24;
   // V38.15: CARD_CATALOG lives inside the pack-system closure and is not
   // visible here. Initialise safely, then calculate from this binder's own
   // local catalog once that catalog has been declared below.
@@ -17905,11 +17972,11 @@ qmShowSharedGoal=function(state){
 
   const style=document.createElement('style');style.id='repoTcgSevenSpreadBinderStyles';style.textContent=`
     .repo-binder-spread-18,.repo-binder-spread-36,.repo-binder-spread-54{display:none!important}
-    .repo-binder-spread-126{position:relative;width:min(100%,1380px);aspect-ratio:1.92;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:2.35%;padding:2.7% 2.8%;border:3px solid #b77c24;outline:2px solid #08111d;outline-offset:-9px;background:linear-gradient(90deg,#071321 0 48.8%,#02060b 49.35% 50.65%,#071321 51.2% 100%);box-shadow:0 18px 42px #000,inset 0 0 0 2px #e2b343,inset 0 0 52px rgba(30,78,125,.32);contain:layout paint;z-index:4}
+    .repo-binder-spread-126{position:relative;width:min(100%,1380px);aspect-ratio:1.86;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:2.1%;padding:2.35% 2.45%;border:3px solid #b77c24;outline:2px solid #08111d;outline-offset:-9px;background:linear-gradient(90deg,#071321 0 48.8%,#02060b 49.35% 50.65%,#071321 51.2% 100%);box-shadow:0 18px 42px #000,inset 0 0 0 2px #e2b343,inset 0 0 52px rgba(30,78,125,.32);contain:layout paint;z-index:4}
     .repo-binder-spread-126[hidden]{display:none!important}
-    .repo-binder-page-126{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:2.7% 3.1%;min-width:0;min-height:0}
+    .repo-binder-page-126{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:2.15% 2.65%;min-width:0;min-height:0}
     .repo-binder-slot-126{position:relative;min-width:0;min-height:0;overflow:hidden;border:2px solid #bd8525;background:linear-gradient(145deg,#142a44,#081522);box-shadow:inset 0 0 0 2px #06101a,0 0 0 1px #e0b246;display:flex;align-items:center;justify-content:center}
-    .repo-binder-slot-126::after{content:'';position:absolute;right:0;bottom:0;width:0;height:0;border-left:10px solid transparent;border-top:10px solid transparent;border-right:10px solid #e5b53c;border-bottom:10px solid #e5b53c;pointer-events:none;opacity:.92}
+    .repo-binder-slot-126::after{content:'';position:absolute;right:0;bottom:0;width:0;height:0;border-left:8px solid transparent;border-top:8px solid transparent;border-right:8px solid #e5b53c;border-bottom:8px solid #e5b53c;pointer-events:none;opacity:.92}
     .repo-binder-slot-126 img{display:block;width:auto;height:auto;max-width:96%;max-height:97%;object-fit:contain;object-position:center;user-select:none;-webkit-user-drag:element;filter:drop-shadow(0 2px 3px #000)}
     .repo-binder-slot-126.is-drop{outline:3px solid #74caff;outline-offset:-5px;background:linear-gradient(145deg,#214a70,#0b2034)}
     #quidditchTcgBinderDialog[data-binder-page^='open'] #quidditchTcgBinderImage{display:none!important}
@@ -18148,7 +18215,7 @@ qmShowSharedGoal=function(state){
     }catch(error){console.warn('Binder public snapshot save skipped; local V3 binder remains authoritative.',error)}
     finally{snapshotBusy=false;if(snapshotQueued)queueOwnSnapshot()}
   }
-  function queueOwnSnapshot(){if(isPublicView()||typeof character==='undefined'||!character?.username)return;snapshotQueued=true;clearTimeout(snapshotTimer);snapshotTimer=setTimeout(flushOwnSnapshot,400)}
+  function queueOwnSnapshot(){if(isPublicView()||typeof character==='undefined'||!character?.username)return;snapshotQueued=true;clearTimeout(snapshotTimer);snapshotTimer=setTimeout(flushOwnSnapshot,110)}
   async function fetchPublicSnapshot(username){
     const name=String(username||'').trim(),lookup=name.toLowerCase();if(!name)return;
     publicSnapshots.set(lookup,{loaded:false,layout:[],storage:[]});
@@ -18160,7 +18227,7 @@ qmShowSharedGoal=function(state){
   const save=v=>{if(isPublicView())return;try{localStorage.setItem(key(),JSON.stringify(v.slice(0,TOTAL_SLOTS)))}catch(_){}queueOwnSnapshot()};
   const saveStorage=v=>{if(isPublicView())return;try{localStorage.setItem(storageKey(),JSON.stringify([...new Set(v.filter(id=>map[id]))]))}catch(_){}queueOwnSnapshot()};
   const owned=()=>{const out=[];for(const raw of current().cards||[]){const id=cleanId(raw);if(map[id]&&!out.includes(id))out.push(id)}return out};
-  const ordered=()=>{if(isPublicView()&&!publicSnapshot()?.loaded)return Array(TOTAL_SLOTS).fill(null);const stored=loadStorage(),have=owned().filter(id=>!stored.includes(id)),slots=Array(TOTAL_SLOTS).fill(null);load().slice(0,TOTAL_SLOTS).forEach((id,i)=>{if(have.includes(id)&&!slots.includes(id))slots[i]=id});for(const id of have){if(!slots.includes(id)){const e=slots.indexOf(null);if(e>=0)slots[e]=id}}return slots};
+  const ordered=()=>{if(isPublicView()&&!publicSnapshot()?.loaded)return Array(TOTAL_SLOTS).fill(null);const stored=loadStorage(),have=owned().filter(id=>!stored.includes(id)),slots=Array(TOTAL_SLOTS).fill(null);load().slice(0,TOTAL_SLOTS).forEach((id,i)=>{if(have.includes(id)&&!slots.includes(id))slots[i]=id});if(isPublicView())return slots;for(const id of have){if(!slots.includes(id)){const e=slots.indexOf(null);if(e>=0)slots[e]=id}}return slots};
   const spreadIndex=()=>{const key=String(document.getElementById('quidditchTcgBinderDialog')?.dataset.binderPage||'');const match=/^open(\d+)$/.exec(key);return match?Number(match[1])-1:-1};
   const storageCategory=id=>{
     if(id==='ltd_week_one_anniversary')return {key:'limited',label:'LIMITED'};
@@ -18252,7 +18319,7 @@ qmShowSharedGoal=function(state){
     let spread=stage.querySelector('.repo-binder-spread-126');
     if(!spread){
       spread=document.createElement('div');spread.className='repo-binder-spread-126';spread.innerHTML='<section class="repo-binder-page-126"></section><section class="repo-binder-page-126"></section>';
-      const pages=spread.children;for(let i=0;i<SLOTS_PER_SPREAD;i++){const slot=document.createElement('div');slot.className='repo-binder-slot-126';pages[i<9?0:1].appendChild(slot)}
+      const pages=spread.children;for(let i=0;i<SLOTS_PER_SPREAD;i++){const slot=document.createElement('div');slot.className='repo-binder-slot-126';pages[i<12?0:1].appendChild(slot)}
       stage.appendChild(spread);bind(spread);
     }
     let ambient=spread.querySelector('.repo-binder-ambient-particles');
@@ -18326,7 +18393,7 @@ qmShowSharedGoal=function(state){
       launch.addEventListener('dragleave',()=>launch.classList.remove('is-drop'));
       launch.addEventListener('drop',e=>{if(current().isPublic||activeDragFrom<0)return;e.preventDefault();const cards=ordered(),stored=loadStorage();if(activeDragCard&&!stored.includes(activeDragCard))stored.push(activeDragCard);if(activeDragFrom>=0)cards[activeDragFrom]=null;save(cards);saveStorage(stored);launch.classList.remove('is-drop');box.classList.remove('is-drop');finishDrag(spread);render()});
     }
-    if(!d.dataset.storageManagerCloseBound){d.dataset.storageManagerCloseBound='1';d.addEventListener('close',()=>{box.classList.remove('is-open','is-drop');syncStorageDrawerState(box,launch);document.body.classList.remove('repo-public-binder-open')})}
+    if(!d.dataset.storageManagerCloseBound){d.dataset.storageManagerCloseBound='1';d.addEventListener('close',()=>{box.classList.remove('is-open','is-drop');syncStorageDrawerState(box,launch);document.body.classList.remove('repo-public-binder-open');if(!current().isPublic)queueOwnSnapshot()})}
     updateDragEdges();requestAnimationFrame(positionStorage);return spread;
   }
   function renderStorage(){
@@ -19334,14 +19401,38 @@ qmShowSharedGoal=function(state){
     platinum:{label:'Platinum',hint:'Clean silver finish'},
     enchanted:{label:'Enchanted',hint:'Soft pulsing edge glow'}
   };
-  const DEFAULT_BINDER_STYLE={theme:'midnight',effect:'stardust',finish:'classic'};
+  const BINDER_MUSIC={
+    default:{label:'Archive Ambience',hint:'The original quiet binder soundtrack.',free:true},
+    vardesh:{label:'Vardesh Kit Theme',hint:"The music used while viewing Vardesh\'s World Cup kit.",team:'Vardesh'},
+    lumerre:{label:'Lumerre Kit Theme',hint:"The music used while viewing Lumerre\'s World Cup kit.",team:'Lumerre'},
+    kordesh:{label:'Kordesh Kit Theme',hint:"The music used while viewing Kordesh\'s World Cup kit.",team:'Kordesh'},
+    nambara:{label:'Nambara Kit Theme',hint:"The music used while viewing Nambara\'s World Cup kit.",team:'Nambara'},
+    norveth:{label:'Norveth Kit Theme',hint:"The music used while viewing Norveth\'s World Cup kit.",team:'Norveth'},
+    zafran:{label:'Zafran Kit Theme',hint:"The music used while viewing Zafran\'s World Cup kit.",team:'Zafran'},
+    elvane:{label:'Elvane Kit Theme',hint:"The music used while viewing Elvane\'s World Cup kit.",team:'Elvane'},
+    qasmir:{label:'Qasmir Kit Theme',hint:"The music used while viewing Qasmir\'s World Cup kit.",team:'Qasmir'},
+    calvora:{label:'Calvora Kit Theme',hint:"The music used while viewing Calvora\'s World Cup kit.",team:'Calvora'},
+    rovarn:{label:'Rovarn Kit Theme',hint:"The music used while viewing Rovarn\'s World Cup kit.",team:'Rovarn'},
+    talune:{label:'Talune Kit Theme',hint:"The music used while viewing Talune\'s World Cup kit.",team:'Talune'},
+    drazhen:{label:'Drazhen Kit Theme',hint:"The music used while viewing Drazhen\'s World Cup kit.",team:'Drazhen'},
+    belros:{label:'Belros Kit Theme',hint:"The music used while viewing Belros\'s World Cup kit.",team:'Belros'},
+    marovar:{label:'Marovar Kit Theme',hint:"The music used while viewing Marovar\'s World Cup kit.",team:'Marovar'},
+    sorevia:{label:'Sorevia Kit Theme',hint:"The music used while viewing Sorevia\'s World Cup kit.",team:'Sorevia'},
+    iskandar:{label:'Iskandar Kit Theme',hint:"The music used while viewing Iskandar\'s World Cup kit.",team:'Iskandar'}
+  };
+  const BINDER_MUSIC_PRICE=2000;
+  const BINDER_MUSIC_TEAM_KEYS=new Set(Object.keys(BINDER_MUSIC).filter(key=>key!=='default'));
+  const DEFAULT_BINDER_STYLE={theme:'midnight',effect:'stardust',finish:'classic',music:'default'};
   let binderStyle={...DEFAULT_BINDER_STYLE};
   let binderStyleContext={username:'',isPublic:false};
   let binderStyleLoadToken=0;
   let binderStyleSaveTimer=null;
   let binderLegendaryUnlocks=new Set();
+  let binderMusicUnlocks=new Set();
   let binderStyleGp=null;
   let binderLegendaryPurchaseBusy=false;
+  let binderMusicPurchaseBusy=false;
+  let binderMusicPreviewKey='';
   let binderLegendaryPreviewOriginal=null;
   let binderLegendaryPreviewEffect='';
 
@@ -19351,15 +19442,22 @@ qmShowSharedGoal=function(state){
   }
   function isLegendaryEffect(effect){return LEGENDARY_EFFECT_KEYS.has(String(effect||'').toLowerCase());}
   function canUseBinderEffect(effect){return !isLegendaryEffect(effect)||binderStyleContext.isPublic||binderLegendaryUnlocks.has(effect);}
+  function normaliseBinderMusicUnlocks(value){
+    const source=Array.isArray(value)?value:(typeof value==='string'?value.replace(/^\{|\}$/g,'').split(','):[]);
+    return new Set(source.map(item=>String(item||'').trim().toLowerCase()).filter(item=>BINDER_MUSIC_TEAM_KEYS.has(item)));
+  }
+  function canUseBinderMusic(music){music=String(music||'').toLowerCase();return music==='default'||binderStyleContext.isPublic||binderMusicUnlocks.has(music);}
 
   function normaliseBinderStyle(value){
     const theme=String(value?.theme||value?.binder_theme||'').trim().toLowerCase();
     const effect=String(value?.effect||value?.binder_effect||'').trim().toLowerCase();
     const finish=String(value?.finish||value?.binder_finish||'').trim().toLowerCase();
+    const music=String(value?.music||value?.binder_music||'').trim().toLowerCase();
     return {
       theme:Object.prototype.hasOwnProperty.call(BINDER_THEMES,theme)?theme:DEFAULT_BINDER_STYLE.theme,
       effect:Object.prototype.hasOwnProperty.call(BINDER_EFFECTS,effect)?effect:DEFAULT_BINDER_STYLE.effect,
-      finish:Object.prototype.hasOwnProperty.call(BINDER_FINISHES,finish)?finish:DEFAULT_BINDER_STYLE.finish
+      finish:Object.prototype.hasOwnProperty.call(BINDER_FINISHES,finish)?finish:DEFAULT_BINDER_STYLE.finish,
+      music:Object.prototype.hasOwnProperty.call(BINDER_MUSIC,music)?music:DEFAULT_BINDER_STYLE.music
     };
   }
   function binderStyleStorageKey(username){
@@ -19680,6 +19778,26 @@ qmShowSharedGoal=function(state){
     if(effectGrid){
       effectGrid.innerHTML=Object.entries(BINDER_EFFECTS).filter(([,item])=>!item.legendary).map(([key,item])=>`<button type="button" class="binder-style-choice${binderStyle.effect===key?' is-selected':''}" data-binder-effect-choice="${key}"><i class="binder-effect-preview effect-${key}"></i><span class="binder-style-choice-copy"><b>${item.label}</b><small>${item.hint}</small></span></button>`).join('');
     }
+    const musicGrid=document.getElementById('binderStyleMusicGrid');
+    const musicPrice=document.getElementById('binderStyleMusicPrice');
+    if(musicGrid){
+      musicGrid.innerHTML=Object.entries(BINDER_MUSIC).map(([key,item])=>{
+        const owned=key==='default'||binderMusicUnlocks.has(key);
+        const selected=binderStyle.music===key;
+        const previewing=binderMusicPreviewKey===key;
+        if(key==='default'){
+          return `<button type="button" class="binder-style-choice binder-music-choice${selected?' is-selected':''}" data-binder-music-choice="default"><i class="binder-music-preview">♫</i><span class="binder-style-choice-copy"><b>${item.label}</b><small>${item.hint}</small><small class="binder-style-owned">${selected?'PLAYING IN YOUR BINDER':'FREE · CLICK TO EQUIP'}</small></span></button>`;
+        }
+        const actions=owned
+          ? `<span class="binder-style-legendary-actions"><button type="button" data-binder-music-preview="${key}">${previewing?'STOP PREVIEW':'PREVIEW'}</button><button type="button" class="binder-style-preview-buy" data-binder-music-choice="${key}"${selected?' disabled':''}>${selected?'EQUIPPED':'EQUIP'}</button></span>`
+          : `<span class="binder-style-legendary-actions"><button type="button" data-binder-music-preview="${key}">${previewing?'STOP PREVIEW':'PREVIEW'}</button><button type="button" class="binder-style-preview-buy" data-binder-music-buy="${key}">BUY 2K</button></span>`;
+        return `<div class="binder-style-choice binder-music-choice is-team-theme${owned?' is-owned':' is-locked'}${selected?' is-selected':''}${previewing?' is-previewing':''}"><i class="binder-music-preview">${String(item.team||key).slice(0,1)}</i><span class="binder-style-choice-copy"><b>${item.label}</b><small>${item.hint}</small><small class="${owned?'binder-style-owned':'binder-style-price'}">${owned?(selected?'PLAYING IN YOUR BINDER':'OWNED · PERMANENT'):`${BINDER_MUSIC_PRICE.toLocaleString('en-GB')} GP · PERMANENT`}</small>${actions}</span></div>`;
+      }).join('');
+    }
+    if(musicPrice){
+      const balance=Number.isFinite(binderStyleGp)?`${Number(binderStyleGp).toLocaleString('en-GB')} GP BALANCE · `:'';
+      musicPrice.textContent=`${balance}${BINDER_MUSIC_PRICE.toLocaleString('en-GB')} GP EACH`;
+    }
     if(legendaryGrid){
       legendaryGrid.innerHTML=Object.entries(BINDER_EFFECTS).filter(([,item])=>item.legendary).map(([key,item])=>{
         const owned=binderLegendaryUnlocks.has(key);
@@ -19707,12 +19825,13 @@ qmShowSharedGoal=function(state){
       dialog.dataset.binderEffect=binderStyle.effect;
       dialog.dataset.binderFinish=binderStyle.finish;
     }
+    if(typeof quidditchTcgBinderSetViewMusic==='function')quidditchTcgBinderSetViewMusic(binderStyle.music,{restart:true});
     const theme=BINDER_THEMES[binderStyle.theme];
     const trigger=document.getElementById('binderStyleTrigger');
     if(trigger){
       trigger.style.setProperty('--binder-style-colour',theme.colour);
       trigger.style.setProperty('--binder-style-accent',theme.accent);
-      trigger.title=`Binder style: ${theme.label} · ${BINDER_EFFECTS[binderStyle.effect].label} · ${BINDER_FINISHES[binderStyle.finish].label}`;
+      trigger.title=`Binder style: ${theme.label} · ${BINDER_EFFECTS[binderStyle.effect].label} · ${BINDER_FINISHES[binderStyle.finish].label} · ${BINDER_MUSIC[binderStyle.music].label}`;
     }
     renderBinderStyleChoices();
   }
@@ -19739,6 +19858,7 @@ qmShowSharedGoal=function(state){
   }
 
   function setBinderStyleMenuOpen(open){
+    if(!open&&binderMusicPreviewKey)stopBinderMusicPreview(true);
     const menu=document.getElementById('binderStyleMenu');
     const trigger=document.getElementById('binderStyleTrigger');
     if(!menu||!trigger)return;
@@ -19777,7 +19897,7 @@ qmShowSharedGoal=function(state){
     }
     if(!document.getElementById('binderStyleControl')){
       const control=document.createElement('div');control.id='binderStyleControl';control.className='binder-style-control';
-      control.innerHTML=`<button type="button" id="binderStyleTrigger" class="binder-style-trigger" aria-expanded="false" aria-controls="binderStyleMenu"><i aria-hidden="true"></i><span>BINDER STYLE</span></button><section id="binderStyleMenu" class="binder-style-menu" hidden><div class="binder-style-menu-head"><strong>CUSTOMISE BINDER</strong><button type="button" class="binder-style-close" aria-label="Close binder style menu">×</button></div><span class="binder-style-section-title">COLOUR THEME</span><div id="binderStyleThemeGrid" class="binder-style-choice-grid"></div><span class="binder-style-section-title">BACKGROUND EFFECT</span><div id="binderStyleEffectGrid" class="binder-style-choice-grid"></div><div class="binder-style-legendary-head"><span class="binder-style-section-title">LEGENDARY ANIMATIONS</span><button type="button" id="binderStylePreviewStop" class="binder-style-preview-stop" hidden>STOP PREVIEW</button><span id="binderStyleBalance" class="binder-style-balance">10,000 GP EACH</span></div><div id="binderStyleLegendaryGrid" class="binder-style-choice-grid"></div><span class="binder-style-section-title">POCKET FINISH</span><div id="binderStyleFinishGrid" class="binder-style-choice-grid"></div><p id="binderStyleSaveStatus" class="binder-style-save-status">Choose a style to preview it instantly.</p></section>`;
+      control.innerHTML=`<button type="button" id="binderStyleTrigger" class="binder-style-trigger" aria-expanded="false" aria-controls="binderStyleMenu"><i aria-hidden="true"></i><span>BINDER STYLE</span></button><section id="binderStyleMenu" class="binder-style-menu" hidden><div class="binder-style-menu-head"><strong>CUSTOMISE BINDER</strong><button type="button" class="binder-style-close" aria-label="Close binder style menu">×</button></div><span class="binder-style-section-title">COLOUR THEME</span><div id="binderStyleThemeGrid" class="binder-style-choice-grid"></div><div class="binder-style-soundtrack-head"><span class="binder-style-section-title">BINDER SOUNDTRACK</span><span id="binderStyleMusicPrice" class="binder-style-balance">2,000 GP EACH</span></div><div id="binderStyleMusicGrid" class="binder-style-choice-grid binder-style-music-grid"></div><span class="binder-style-section-title">BACKGROUND EFFECT</span><div id="binderStyleEffectGrid" class="binder-style-choice-grid"></div><div class="binder-style-legendary-head"><span class="binder-style-section-title">LEGENDARY ANIMATIONS</span><button type="button" id="binderStylePreviewStop" class="binder-style-preview-stop" hidden>STOP PREVIEW</button><span id="binderStyleBalance" class="binder-style-balance">10,000 GP EACH</span></div><div id="binderStyleLegendaryGrid" class="binder-style-choice-grid"></div><span class="binder-style-section-title">POCKET FINISH</span><div id="binderStyleFinishGrid" class="binder-style-choice-grid"></div><p id="binderStyleSaveStatus" class="binder-style-save-status">Choose a style to preview it instantly.</p></section>`;
       status.appendChild(control);
       control.querySelector('#binderStyleTrigger')?.addEventListener('click',event=>{event.stopPropagation();const menu=document.getElementById('binderStyleMenu');setBinderStyleMenuOpen(Boolean(menu?.hidden));});
       control.querySelector('.binder-style-close')?.addEventListener('click',()=>setBinderStyleMenuOpen(false));
@@ -19786,6 +19906,9 @@ qmShowSharedGoal=function(state){
         const effectButton=event.target.closest('[data-binder-effect-choice]');
         const legendaryPreviewButton=event.target.closest('[data-binder-legendary-preview]');
         const legendaryBuyButton=event.target.closest('[data-binder-legendary-buy]');
+        const musicButton=event.target.closest('[data-binder-music-choice]');
+        const musicPreviewButton=event.target.closest('[data-binder-music-preview]');
+        const musicBuyButton=event.target.closest('[data-binder-music-buy]');
         const finishButton=event.target.closest('[data-binder-finish-choice]');
         const previewStopButton=event.target.closest('#binderStylePreviewStop');
         if(previewStopButton){stopLegendaryBinderPreview();return;}
@@ -19793,6 +19916,9 @@ qmShowSharedGoal=function(state){
         if(themeButton){stopLegendaryBinderPreview(true);binderStyle.theme=themeButton.dataset.binderThemeChoice;applyBinderStyle(binderStyle);queueBinderStyleSave();}
         if(effectButton){stopLegendaryBinderPreview(true);const nextEffect=effectButton.dataset.binderEffectChoice;if(canUseBinderEffect(nextEffect)){binderStyle.effect=nextEffect;applyBinderStyle(binderStyle);queueBinderStyleSave();}}
         if(legendaryBuyButton)purchaseLegendaryBinderEffect(legendaryBuyButton.dataset.binderLegendaryBuy,legendaryBuyButton);
+        if(musicPreviewButton){previewBinderMusic(musicPreviewButton.dataset.binderMusicPreview);return;}
+        if(musicButton){stopBinderMusicPreview(true);const nextMusic=String(musicButton.dataset.binderMusicChoice||'default').toLowerCase();if(canUseBinderMusic(nextMusic)){binderStyle.music=nextMusic;applyBinderStyle(binderStyle);queueBinderStyleSave();}}
+        if(musicBuyButton){stopBinderMusicPreview(true);purchaseBinderMusic(musicBuyButton.dataset.binderMusicBuy,musicBuyButton);}
         if(finishButton){stopLegendaryBinderPreview(true);binderStyle.finish=finishButton.dataset.binderFinishChoice;applyBinderStyle(binderStyle);queueBinderStyleSave();}
       });
     }
@@ -19845,12 +19971,68 @@ qmShowSharedGoal=function(state){
     }
   }
 
+  function previewBinderMusic(music){
+    music=String(music||'').toLowerCase();
+    if(binderStyleContext.isPublic||!BINDER_MUSIC_TEAM_KEYS.has(music))return;
+    if(binderMusicPreviewKey===music){stopBinderMusicPreview();return;}
+    binderMusicPreviewKey=music;
+    if(typeof quidditchTcgBinderSetViewMusic==='function')quidditchTcgBinderSetViewMusic(music,{restart:true});
+    setBinderStyleStatus(`PREVIEWING ${BINDER_MUSIC[music].label.toUpperCase()} · NO GP SPENT`);
+    renderBinderStyleChoices();
+  }
+
+  function stopBinderMusicPreview(silent=false){
+    if(!binderMusicPreviewKey)return;
+    binderMusicPreviewKey='';
+    if(typeof quidditchTcgBinderSetViewMusic==='function')quidditchTcgBinderSetViewMusic(binderStyle.music,{restart:true});
+    if(!silent)setBinderStyleStatus('MUSIC PREVIEW ENDED · YOUR EQUIPPED TRACK HAS BEEN RESTORED');
+    renderBinderStyleChoices();
+  }
+
+  async function purchaseBinderMusic(music,button){
+    music=String(music||'').toLowerCase();
+    if(!BINDER_MUSIC_TEAM_KEYS.has(music)||binderStyleContext.isPublic||binderMusicPurchaseBusy)return;
+    if(binderMusicUnlocks.has(music)){
+      binderStyle.music=music;applyBinderStyle(binderStyle);queueBinderStyleSave();return;
+    }
+    const item=BINDER_MUSIC[music];
+    const confirmed=window.confirm(`Unlock ${item.label} for ${BINDER_MUSIC_PRICE.toLocaleString('en-GB')} GP?\n\nThis permanently unlocks this team's World Cup kit-view soundtrack for your binder. Visitors will hear it too when it is equipped.`);
+    if(!confirmed)return;
+    binderMusicPurchaseBusy=true;
+    button?.classList.add('is-purchasing');
+    setBinderStyleStatus(`UNLOCKING ${item.label.toUpperCase()}…`);
+    try{
+      const {data,error}=await db.rpc('purchase_quidditch_binder_music',{p_music:music});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      binderMusicUnlocks=normaliseBinderMusicUnlocks(row?.unlocked_music||[...binderMusicUnlocks,music]);
+      if(Number.isFinite(Number(row?.gp))){binderStyleGp=Number(row.gp);if(typeof character==='object'&&character)character.gp=binderStyleGp;}
+      binderStyle.music=music;
+      applyBinderStyle(binderStyle);
+      writeLocalBinderStyle(binderStyleContext.username,binderStyle);
+      setBinderStyleStatus(`${item.label.toUpperCase()} UNLOCKED · ${BINDER_MUSIC_PRICE.toLocaleString('en-GB')} GP PAID`);
+      if(typeof toast==='function')toast(`${item.label} unlocked and equipped!`,4200);
+    }catch(error){
+      console.error('Binder soundtrack purchase failed.',error);
+      const message=String(error?.message||'Could not purchase this soundtrack.');
+      setBinderStyleStatus(message.toUpperCase(),true);
+      if(typeof toast==='function')toast(message,4200);
+    }finally{
+      binderMusicPurchaseBusy=false;
+      button?.classList.remove('is-purchasing');
+      renderBinderStyleChoices();
+    }
+  }
+
   async function saveBinderStyle(){
     if(binderStyleContext.isPublic||!binderStyleContext.username)return;
     writeLocalBinderStyle(binderStyleContext.username,binderStyle);
     setBinderStyleStatus('SAVING TO YOUR ACCOUNT…');
     try{
-      let response=await db.rpc('set_my_quidditch_binder_style_v3',{p_theme:binderStyle.theme,p_effect:binderStyle.effect,p_finish:binderStyle.finish});
+      let response=await db.rpc('set_my_quidditch_binder_style_v4',{p_theme:binderStyle.theme,p_effect:binderStyle.effect,p_finish:binderStyle.finish,p_music:binderStyle.music});
+      if(response?.error){
+        response=await db.rpc('set_my_quidditch_binder_style_v3',{p_theme:binderStyle.theme,p_effect:binderStyle.effect,p_finish:binderStyle.finish});
+      }
       if(response?.error&&!isLegendaryEffect(binderStyle.effect)){
         response=await db.rpc('set_my_quidditch_binder_style_v2',{p_theme:binderStyle.theme,p_effect:binderStyle.effect,p_finish:binderStyle.finish});
       }
@@ -19863,6 +20045,7 @@ qmShowSharedGoal=function(state){
       if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;
       if(row?.unlocked_effects)binderLegendaryUnlocks=normaliseLegendaryUnlocks(row.unlocked_effects);
+      if(row?.unlocked_music)binderMusicUnlocks=normaliseBinderMusicUnlocks(row.unlocked_music);
       if(Number.isFinite(Number(row?.gp)))binderStyleGp=Number(row.gp);
       if(row)applyBinderStyle(normaliseBinderStyle(row));
       writeLocalBinderStyle(binderStyleContext.username,binderStyle);
@@ -19877,13 +20060,15 @@ qmShowSharedGoal=function(state){
     writeLocalBinderStyle(binderStyleContext.username,binderStyle);
     setBinderStyleStatus('PREVIEWING…');
     clearTimeout(binderStyleSaveTimer);
-    binderStyleSaveTimer=setTimeout(saveBinderStyle,260);
+    binderStyleSaveTimer=setTimeout(saveBinderStyle,110);
   }
 
   async function loadBinderStyle(username,isPublic){
     const token=++binderStyleLoadToken;
     binderStyleContext={username:String(username||character?.username||'Player'),isPublic:Boolean(isPublic)};
     binderLegendaryUnlocks=new Set();
+    binderMusicUnlocks=new Set();
+    binderMusicPreviewKey='';
     binderStyleGp=null;
     binderLegendaryPreviewOriginal=null;binderLegendaryPreviewEffect='';
     binderStyle=isPublic?{...DEFAULT_BINDER_STYLE}:readLocalBinderStyle(binderStyleContext.username);
@@ -19894,8 +20079,12 @@ qmShowSharedGoal=function(state){
     setBinderStyleStatus(isPublic?'': 'LOADING SAVED STYLE…');
     try{
       const args=isPublic?{p_username:binderStyleContext.username}:undefined;
-      const rpcV3=isPublic?'get_public_quidditch_binder_style_v3':'get_my_quidditch_binder_style_v3';
-      let response=await db.rpc(rpcV3,args);
+      const rpcV4=isPublic?'get_public_quidditch_binder_style_v4':'get_my_quidditch_binder_style_v4';
+      let response=await db.rpc(rpcV4,args);
+      if(response?.error){
+        const rpcV3=isPublic?'get_public_quidditch_binder_style_v3':'get_my_quidditch_binder_style_v3';
+        response=await db.rpc(rpcV3,args);
+      }
       if(response?.error){
         const rpcV2=isPublic?'get_public_quidditch_binder_style_v2':'get_my_quidditch_binder_style_v2';
         response=await db.rpc(rpcV2,args);
@@ -19911,6 +20100,7 @@ qmShowSharedGoal=function(state){
       if(row){
         if(!isPublic){
           binderLegendaryUnlocks=normaliseLegendaryUnlocks(row.unlocked_effects||row.binder_legendary_effects||[]);
+          binderMusicUnlocks=normaliseBinderMusicUnlocks(row.unlocked_music||row.binder_music_unlocks||[]);
           if(Number.isFinite(Number(row.gp)))binderStyleGp=Number(row.gp);
         }
         applyBinderStyle(normaliseBinderStyle(row));
@@ -23740,4 +23930,8170 @@ updateHunterCantoHud=function(){
     if(attempts++<80)window.setTimeout(boot,250);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — OPEN-BOOK IMMERSIVE LAYOUT
+// Front cover is shown large and central with no surrounding modal box.
+// Clicking it opens a full open-binder spread using custom art and a
+// transparent plastic-pocket overlay while preserving each player's real
+// saved card arrangement / hidden-card logic.
+// ============================================================
+(function installRepoTcgImmersiveOpenBookBinder(){
+  if(window.__repoTcgImmersiveOpenBookBinderInstalled)return;
+  window.__repoTcgImmersiveOpenBookBinderInstalled=true;
+
+  const OPEN_BOOK_ASSET='assets/quidditch-tcg-binder/repo-binder-open-spread.png';
+  const POCKET_OVERLAY_ASSET='assets/quidditch-tcg-binder/repo-binder-pocket-overlay.png';
+  const SLOT_POSITIONS=[
+    {left:7.928,top:13.419,width:11.701,height:17.594},
+    {left:20.460,top:13.419,width:11.701,height:17.594},
+    {left:32.864,top:13.419,width:11.701,height:17.594},
+    {left:7.928,top:31.610,width:11.701,height:17.594},
+    {left:20.460,top:31.610,width:11.701,height:17.594},
+    {left:32.864,top:31.610,width:11.701,height:17.594},
+    {left:7.928,top:49.801,width:11.701,height:17.594},
+    {left:20.460,top:49.801,width:11.701,height:17.594},
+    {left:32.864,top:49.801,width:11.701,height:17.594},
+    {left:7.928,top:67.992,width:11.701,height:17.594},
+    {left:20.460,top:67.992,width:11.701,height:17.594},
+    {left:32.864,top:67.992,width:11.701,height:17.594},
+    {left:55.499,top:13.618,width:11.509,height:17.594},
+    {left:67.775,top:13.618,width:11.509,height:17.594},
+    {left:80.051,top:13.618,width:11.509,height:17.594},
+    {left:55.499,top:31.809,width:11.509,height:17.594},
+    {left:67.775,top:31.809,width:11.509,height:17.594},
+    {left:80.051,top:31.809,width:11.509,height:17.594},
+    {left:55.499,top:50.000,width:11.509,height:17.594},
+    {left:67.775,top:50.000,width:11.509,height:17.594},
+    {left:80.051,top:50.000,width:11.509,height:17.594},
+    {left:55.499,top:68.191,width:11.509,height:17.594},
+    {left:67.775,top:68.191,width:11.509,height:17.594},
+    {left:80.051,top:68.191,width:11.509,height:17.594}
+  ];
+
+  const style=document.createElement('style');
+  style.id='repoTcgImmersiveOpenBookBinderStyles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode{
+      width:min(99vw,1680px)!important;
+      height:min(97vh,1140px)!important;
+      padding:0!important;
+      background:transparent!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-shell{
+      grid-template-rows:minmax(0,1fr) auto!important;
+      padding:0!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-header{
+      display:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-stage{
+      min-height:0!important;
+      height:100%!important;
+      border:0!important;
+      background:transparent!important;
+      overflow:visible!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-stage::before{
+      display:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-close{
+      position:absolute!important;
+      top:18px!important;
+      right:18px!important;
+      width:42px!important;
+      height:42px!important;
+      z-index:50!important;
+      border:1px solid rgba(226,184,96,.84)!important;
+      background:linear-gradient(180deg,rgba(33,23,10,.92),rgba(10,7,3,.96))!important;
+      color:#ffe6b0!important;
+      box-shadow:0 8px 24px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,231,172,.18)!important;
+      backdrop-filter:blur(2px);
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-nav{
+      width:min(95vw,1080px)!important;
+      margin:10px auto 0!important;
+      padding:0 0 10px!important;
+      background:transparent!important;
+      gap:12px!important;
+      position:relative;
+      z-index:40!important;
+      grid-template-columns:minmax(128px,1fr) minmax(280px,2fr) minmax(128px,1fr)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-nav button{
+      min-height:42px!important;
+      border:1px solid rgba(215,170,77,.82)!important;
+      background:linear-gradient(180deg,rgba(43,28,11,.90),rgba(12,8,4,.93))!important;
+      color:#ffe2a0!important;
+      box-shadow:0 8px 24px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,231,172,.12)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-status{
+      padding:9px 16px!important;
+      border:1px solid rgba(215,170,77,.40)!important;
+      background:linear-gradient(180deg,rgba(13,18,26,.78),rgba(3,6,10,.84))!important;
+      box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 0 0 1px rgba(130,181,226,.09)!important;
+      border-radius:12px;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-status b{
+      font-size:13px!important;
+      letter-spacing:.14em!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-status small{
+      white-space:normal!important;
+      overflow:visible!important;
+      text-overflow:unset!important;
+      line-height:1.35!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode #quidditchTcgBinderImage{
+      width:min(88vw,1160px)!important;
+      height:auto!important;
+      max-height:89vh!important;
+      max-width:94vw!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 22px 34px rgba(0,0,0,.82))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='back'] #quidditchTcgBinderImage{
+      cursor:pointer!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126{
+      width:min(96vw,1564px)!important;
+      max-width:1564px!important;
+      height:auto!important;
+      aspect-ratio:1564 / 1006!important;
+      border:0!important;
+      outline:0!important;
+      padding:0!important;
+      display:block!important;
+      background:transparent url('${OPEN_BOOK_ASSET}') center/contain no-repeat!important;
+      box-shadow:0 22px 38px rgba(0,0,0,.72)!important;
+      overflow:visible!important;
+      isolation:isolate!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126::before,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126::after,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-premium-plaque,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-ambient-particles{
+      display:none!important;
+      content:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-126{
+      display:contents!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-slot-126{
+      position:absolute!important;
+      min-width:0!important;
+      min-height:0!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      z-index:4!important;
+      padding:0!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-slot-126::after{
+      display:none!important;
+      content:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-slot-126 img{
+      max-width:89%!important;
+      max-height:89%!important;
+      width:auto!important;
+      height:auto!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 7px 12px rgba(0,0,0,.55))!important;
+      transition:transform .14s ease,filter .14s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-slot-126:hover img,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-slot-126:focus-within img{
+      transform:translateY(-2px) scale(1.012)!important;
+      filter:drop-shadow(0 11px 16px rgba(0,0,0,.62))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-slot-126.is-drop{
+      border-radius:14px!important;
+      background:radial-gradient(circle,rgba(106,182,237,.18),rgba(106,182,237,0) 70%)!important;
+      box-shadow:0 0 0 2px rgba(106,182,237,.55),0 0 26px rgba(106,182,237,.28)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-pocket-overlay{
+      position:absolute;
+      inset:0;
+      z-index:8;
+      pointer-events:none;
+      background:transparent url('${POCKET_OVERLAY_ASSET}') center/contain no-repeat;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-launch{
+      top:22px!important;
+      right:74px!important;
+      z-index:45!important;
+      box-shadow:0 10px 24px rgba(0,0,0,.55)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-drag-edge{
+      z-index:15!important;
+      background:linear-gradient(180deg,rgba(15,18,23,.74),rgba(4,6,8,.74))!important;
+      box-shadow:0 10px 24px rgba(0,0,0,.45)!important;
+      backdrop-filter:blur(2px);
+    }
+    @media(max-width:900px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-nav{
+        width:min(96vw,760px)!important;
+        grid-template-columns:90px 1fr 90px!important;
+        gap:8px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-nav button{font-size:10px!important;min-height:38px!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-status{padding:7px 10px!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-launch{right:64px!important;top:18px!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode #quidditchTcgBinderImage{width:min(94vw,760px)!important;max-height:78vh!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126{width:min(98vw,1180px)!important}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function applySlotPositions(spread){
+    if(!spread)return;
+    const slots=[...spread.querySelectorAll('.repo-binder-slot-126')];
+    slots.forEach((slot,index)=>{
+      const pos=SLOT_POSITIONS[index];
+      if(!pos)return;
+      slot.style.left=`${pos.left}%`;
+      slot.style.top=`${pos.top}%`;
+      slot.style.width=`${pos.width}%`;
+      slot.style.height=`${pos.height}%`;
+    });
+    let overlay=spread.querySelector('.repo-binder-pocket-overlay');
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.className='repo-binder-pocket-overlay';
+      overlay.setAttribute('aria-hidden','true');
+      spread.appendChild(overlay);
+    }else if(overlay!==spread.lastElementChild){
+      spread.appendChild(overlay);
+    }
+  }
+
+  function enhanceBinder(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    dialog.classList.add('repo-binder-book-mode');
+    const spread=dialog.querySelector('.repo-binder-spread-126');
+    applySlotPositions(spread);
+  }
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){
+    const result=previousEnsure.apply(this,arguments);
+    requestAnimationFrame(enhanceBinder);
+    setTimeout(enhanceBinder,120);
+    return result;
+  };
+
+  const previousSetPage=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){
+    const result=previousSetPage.apply(this,arguments);
+    requestAnimationFrame(enhanceBinder);
+    setTimeout(enhanceBinder,120);
+    return result;
+  };
+
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){
+    const result=previousOpen.apply(this,arguments);
+    requestAnimationFrame(enhanceBinder);
+    setTimeout(enhanceBinder,120);
+    return result;
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>setTimeout(enhanceBinder,300),{once:true});
+  }else{
+    setTimeout(enhanceBinder,300);
+  }
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — PRESENTATION FIX V2
+// Clean cover-only landing view + user's BIND.png open spread.
+// ============================================================
+(function installRepoTcgBinderPresentationFixV2(){
+  if(window.__repoTcgBinderPresentationFixV2Installed)return;
+  window.__repoTcgBinderPresentationFixV2Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderPresentationFixV2Styles';
+  style.textContent=`
+    /* The customisation theme previously had more selector specificity than
+       book mode. Force the modal chrome completely transparent. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme] .quidditch-tcg-binder-shell,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-shell{
+      border:0!important;
+      outline:0!important;
+      padding:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme] .quidditch-tcg-binder-stage,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-stage{
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+
+    /* COVER VIEW: only the binder itself. No spread, footer, drawer or frame. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .repo-binder-spread-126,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .repo-binder-pocket-overlay,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .repo-binder-drag-edge,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .repo-binder-storage-launch,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .repo-binder-storage,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .binder-style-fx,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .binder-style-control,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-nav,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-close{
+      display:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-shell{
+      grid-template-rows:minmax(0,1fr)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-stage{
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      overflow:visible!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage{
+      display:block!important;
+      width:auto!important;
+      height:min(88vh,930px)!important;
+      max-width:min(78vw,780px)!important;
+      max-height:88vh!important;
+      object-fit:contain!important;
+      cursor:pointer!important;
+      transform-origin:50% 52%!important;
+      animation:repoBinderCoverIdle 5.2s ease-in-out infinite!important;
+      filter:drop-shadow(0 25px 34px rgba(0,0,0,.80)) drop-shadow(0 0 1px rgba(236,192,91,.45))!important;
+      transition:filter .25s ease,transform .25s cubic-bezier(.2,.8,.2,1)!important;
+      will-change:transform,filter;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage:hover{
+      animation-play-state:paused!important;
+      transform:translateY(-8px) scale(1.016) rotateY(-.65deg)!important;
+      filter:drop-shadow(0 31px 40px rgba(0,0,0,.86)) drop-shadow(0 0 12px rgba(219,172,69,.20)) drop-shadow(0 0 7px rgba(72,142,221,.13))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage:active{
+      transform:translateY(-3px) scale(1.007)!important;
+    }
+    @keyframes repoBinderCoverIdle{
+      0%,100%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-5px) scale(1.003)}
+    }
+
+    /* OPEN VIEW: make the user's supplied binder artwork the actual page surface. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+      display:block!important;
+      position:relative!important;
+      width:min(96vw,1564px)!important;
+      max-width:1564px!important;
+      aspect-ratio:1564 / 1006!important;
+      height:auto!important;
+      margin:auto!important;
+      padding:0!important;
+      border:0!important;
+      outline:0!important;
+      border-radius:0!important;
+      background-color:transparent!important;
+      background-image:url('assets/quidditch-tcg-binder/repo-binder-open-spread.png')!important;
+      background-position:center!important;
+      background-size:100% 100%!important;
+      background-repeat:no-repeat!important;
+      box-shadow:0 28px 44px rgba(0,0,0,.72)!important;
+      overflow:visible!important;
+      clip-path:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126::before,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126::after,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-premium-plaque,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-ambient-particles{
+      display:none!important;
+      content:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-page-126{
+      display:contents!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126{
+      background:transparent!important;
+      border:0!important;
+      outline:0!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126::after{
+      display:none!important;
+      content:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126 img{
+      width:auto!important;
+      height:auto!important;
+      max-width:96%!important;
+      max-height:97%!important;
+      object-fit:contain!important;
+      transform:scale(1.045)!important;
+      transform-origin:center!important;
+      filter:drop-shadow(0 7px 10px rgba(0,0,0,.56))!important;
+      transition:transform .15s ease,filter .15s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126:hover img{
+      transform:translateY(-2px) scale(1.065)!important;
+      filter:drop-shadow(0 10px 14px rgba(0,0,0,.64))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-pocket-overlay{
+      display:block!important;
+      position:absolute!important;
+      inset:0!important;
+      z-index:8!important;
+      pointer-events:none!important;
+      background-color:transparent!important;
+      background-image:url('assets/quidditch-tcg-binder/repo-binder-pocket-overlay.png')!important;
+      background-position:center!important;
+      background-size:100% 100%!important;
+      background-repeat:no-repeat!important;
+    }
+
+    /* Keep controls clean and detached from the artwork. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+      width:min(92vw,1040px)!important;
+      margin:10px auto 0!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-close{
+      display:block!important;
+      top:14px!important;
+      right:14px!important;
+    }
+
+    @media(max-width:900px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage{
+        height:min(82vh,760px)!important;
+        max-width:86vw!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+        width:min(98vw,1180px)!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126 img{
+        max-width:97%!important;
+        max-height:98%!important;
+      }
+    }
+    @media(prefers-reduced-motion:reduce){
+      #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage{
+        animation:none!important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function refreshPresentation(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    dialog.classList.add('repo-binder-book-mode');
+    const img=document.getElementById('quidditchTcgBinderImage');
+    if(img && !String(dialog.dataset.binderPage||'').startsWith('open')){
+      img.title='Open Quidditch TCG Binder';
+    }
+  }
+
+  const run=()=>{refreshPresentation();requestAnimationFrame(refreshPresentation);setTimeout(refreshPresentation,100)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);run();return result};
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);run();return result};
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — PRESENTATION / PAGE TURN / STYLE REWORK V3
+// - Removes every rectangular modal/spread border around the physical binder.
+// - Open pages turn by clicking the physical left/right binder edge.
+// - Reworks themes, effects and pocket finishes for the supplied BIND artwork.
+// ============================================================
+(function installRepoTcgBinderPresentationV3(){
+  if(window.__repoTcgBinderPresentationV3Installed)return;
+  window.__repoTcgBinderPresentationV3Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderPresentationV3Styles';
+  style.textContent=`
+    /* ----- No rectangular modal chrome at all ----- */
+    #quidditchTcgBinderDialog,
+    #quidditchTcgBinderDialog:focus,
+    #quidditchTcgBinderDialog:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:focus,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:focus-visible{
+      border:0!important;
+      outline:0!important;
+      outline-offset:0!important;
+      box-shadow:none!important;
+      background:transparent!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-shell,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme] .quidditch-tcg-binder-shell,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-stage,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme] .quidditch-tcg-binder-stage{
+      border:0!important;
+      outline:0!important;
+      box-shadow:none!important;
+      background:transparent!important;
+    }
+
+    /* Cover is physically isolated: no hidden shell outline can show around it. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']){
+      width:min(98vw,1500px)!important;
+      height:min(96vh,1020px)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-shell,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-stage{
+      width:100%!important;
+      height:100%!important;
+      min-height:0!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage{
+      filter:
+        drop-shadow(0 26px 34px rgba(0,0,0,.82))
+        drop-shadow(0 0 8px color-mix(in srgb,var(--bc-accent,#3b83d5) 18%,transparent))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage:hover{
+      filter:
+        drop-shadow(0 34px 42px rgba(0,0,0,.88))
+        drop-shadow(0 0 17px color-mix(in srgb,var(--bc-bright,#8fc9ff) 25%,transparent))
+        drop-shadow(0 0 6px rgba(228,183,82,.20))!important;
+    }
+
+    /* ----- The supplied binder art is the only open-page frame ----- */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-theme] .repo-binder-spread-126{
+      border:0!important;
+      outline:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      background-color:transparent!important;
+      background-image:url('assets/quidditch-tcg-binder/repo-binder-open-spread.png')!important;
+      background-position:center!important;
+      background-repeat:no-repeat!important;
+      background-size:100% 100%!important;
+      filter:
+        drop-shadow(0 25px 31px rgba(0,0,0,.68))
+        drop-shadow(0 0 10px color-mix(in srgb,var(--bc-accent,#3b83d5) 12%,transparent))!important;
+      overflow:visible!important;
+      clip-path:none!important;
+      isolation:isolate!important;
+    }
+
+    /* Old stage-wide effect layer is retired in book mode; all effects now live on the binder itself. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] > *,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-shell,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-stage{
+      outline:0!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .binder-style-fx{
+      display:none!important;
+    }
+
+    /* Theme colour is now a soft light on the leather instead of replacing the BIND art. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-theme-surface{
+      position:absolute;
+      inset:5.2% 2.9% 5.2% 2.9%;
+      z-index:2;
+      pointer-events:none;
+      overflow:hidden;
+      border-radius:20px;
+      background:
+        radial-gradient(ellipse at 22% 38%,color-mix(in srgb,var(--bc-accent,#3b83d5) 42%,transparent),transparent 54%),
+        radial-gradient(ellipse at 78% 62%,color-mix(in srgb,var(--bc-bright,#8fc9ff) 25%,transparent),transparent 55%),
+        linear-gradient(90deg,color-mix(in srgb,var(--bc-deep,#07101c) 18%,transparent),transparent 32% 68%,color-mix(in srgb,var(--bc-deep,#07101c) 18%,transparent));
+      mix-blend-mode:soft-light;
+      opacity:.82;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme='frost'] .repo-binder-theme-surface,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme='obsidian'] .repo-binder-theme-surface{opacity:.62}
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme='golden'] .repo-binder-theme-surface,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme='sunfire'] .repo-binder-theme-surface{opacity:.72}
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-theme='neon'] .repo-binder-theme-surface{opacity:.92;mix-blend-mode:color-dodge}
+
+    /* Cards remain above the leather tint and fill the supplied pockets naturally. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126{
+      z-index:4!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      filter:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126 img{
+      max-width:97%!important;
+      max-height:98%!important;
+      transform:scale(1.055)!important;
+      filter:drop-shadow(0 7px 10px rgba(0,0,0,.57))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126:hover img{
+      transform:translateY(-2px) scale(1.072)!important;
+    }
+
+    /* Pocket finish customisation now targets the real transparent plastic overlay. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-pocket-overlay{
+      z-index:9!important;
+      opacity:.94!important;
+      mix-blend-mode:normal!important;
+      transform:translateZ(0);
+      transition:filter .2s ease,opacity .2s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-finish='classic'] .repo-binder-pocket-overlay{
+      opacity:.92!important;
+      filter:sepia(.08) saturate(1.04) brightness(1.01) drop-shadow(0 0 2px rgba(218,176,78,.28))!important;
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-finish='crystal'] .repo-binder-pocket-overlay{
+      opacity:1!important;
+      filter:brightness(1.22) contrast(1.05) saturate(.72) drop-shadow(0 0 4px rgba(220,244,255,.58))!important;
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-finish='shadow'] .repo-binder-pocket-overlay{
+      opacity:.66!important;
+      filter:brightness(.68) contrast(1.16) saturate(.60)!important;
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-finish='platinum'] .repo-binder-pocket-overlay{
+      opacity:.97!important;
+      filter:grayscale(.78) brightness(1.18) contrast(1.08) drop-shadow(0 0 4px rgba(214,231,244,.42))!important;
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-finish='enchanted'] .repo-binder-pocket-overlay{
+      opacity:1!important;
+      filter:brightness(1.10) contrast(1.03) drop-shadow(0 0 5px color-mix(in srgb,var(--bc-bright,#8fc9ff) 55%,transparent))!important;
+      animation:repoBinderPlasticEnchanted 2.9s ease-in-out infinite!important;
+    }
+    @keyframes repoBinderPlasticEnchanted{
+      0%,100%{filter:brightness(1.06) contrast(1.02) drop-shadow(0 0 3px color-mix(in srgb,var(--bc-bright,#8fc9ff) 34%,transparent))}
+      50%{filter:brightness(1.17) contrast(1.05) drop-shadow(0 0 8px color-mix(in srgb,var(--bc-bright,#8fc9ff) 68%,transparent))}
+    }
+
+    /* All animation choices are clipped to the physical open binder. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-full-spread-fx{
+      inset:0!important;
+      z-index:7!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      overflow:hidden!important;
+      clip-path:inset(5.1% 2.8% 5.2% 2.8% round 18px)!important;
+      pointer-events:none!important;
+      isolation:isolate!important;
+    }
+
+    /* Standard effects rebuilt for the full supplied spread. */
+    #quidditchTcgBinderDialog[data-binder-effect='calm'] .repo-binder-full-spread-fx{opacity:0!important;background:none!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='stardust'] .repo-binder-full-spread-fx{opacity:.76!important;background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--bc-accent) 6%,transparent),transparent 65%)!important}
+    #quidditchTcgBinderDialog[data-binder-effect='stardust'] .repo-binder-full-spread-fx i{display:block!important;border-radius:50%;background:radial-gradient(circle,#fff 0 18%,var(--bc-bright) 30%,transparent 72%)!important;box-shadow:0 0 5px color-mix(in srgb,var(--bc-bright) 52%,transparent);animation:repoBinderV3Twinkle var(--d) ease-in-out var(--delay) infinite!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='aurora'] .repo-binder-full-spread-fx{opacity:.70!important;background:transparent!important}
+    #quidditchTcgBinderDialog[data-binder-effect='aurora'] .repo-binder-full-spread-fx::before{inset:-45%!important;background:conic-gradient(from 8deg,transparent 0 15%,color-mix(in srgb,var(--bc-bright) 27%,transparent) 22%,transparent 32% 49%,color-mix(in srgb,var(--bc-accent) 31%,transparent) 57%,transparent 68% 100%)!important;filter:blur(27px)!important;animation:repoBinderV3Aurora 12s ease-in-out infinite alternate!important}
+    #quidditchTcgBinderDialog[data-binder-effect='aurora'] .repo-binder-full-spread-fx::after{display:none!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='embers'] .repo-binder-full-spread-fx{opacity:.82!important;background:radial-gradient(ellipse at 50% 105%,rgba(163,54,10,.15),transparent 55%)!important}
+    #quidditchTcgBinderDialog[data-binder-effect='embers'] .repo-binder-full-spread-fx i{display:block!important;top:calc(100% + 8px)!important;border-radius:50%;background:radial-gradient(circle,#fff4b0 0 18%,#ff9c2f 38%,#e74616 60%,transparent 75%)!important;box-shadow:0 0 5px #ff7b21;animation:repoBinderV3Rise var(--d) ease-out var(--delay) infinite!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='goldfall'] .repo-binder-full-spread-fx{opacity:.75!important;background:none!important}
+    #quidditchTcgBinderDialog[data-binder-effect='goldfall'] .repo-binder-full-spread-fx i{display:block!important;top:-12px!important;border-radius:50%;background:radial-gradient(circle,#fff7c8 0 20%,#ffd45a 42%,#9c6614 66%,transparent 74%)!important;box-shadow:0 0 4px rgba(255,207,73,.58);animation:repoBinderV3Fall var(--d) linear var(--delay) infinite!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='moonmist'] .repo-binder-full-spread-fx{opacity:.70!important;background:transparent!important}
+    #quidditchTcgBinderDialog[data-binder-effect='moonmist'] .repo-binder-full-spread-fx::before,
+    #quidditchTcgBinderDialog[data-binder-effect='moonmist'] .repo-binder-full-spread-fx::after{width:72%!important;height:60%!important;border-radius:50%!important;background:radial-gradient(ellipse,color-mix(in srgb,var(--bc-bright) 20%,#d8e8ff44),transparent 69%)!important;filter:blur(32px)!important}
+    #quidditchTcgBinderDialog[data-binder-effect='moonmist'] .repo-binder-full-spread-fx::before{left:-20%!important;top:44%!important;animation:repoBinderV3MistLeft 11s ease-in-out infinite alternate!important}
+    #quidditchTcgBinderDialog[data-binder-effect='moonmist'] .repo-binder-full-spread-fx::after{left:48%!important;top:-8%!important;animation:repoBinderV3MistRight 13s ease-in-out infinite alternate!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='runes'] .repo-binder-full-spread-fx{opacity:.62!important;background:repeating-linear-gradient(90deg,transparent 0 86px,color-mix(in srgb,var(--bc-accent) 5%,transparent) 88px 89px)!important}
+    #quidditchTcgBinderDialog[data-binder-effect='runes'] .repo-binder-full-spread-fx::before{content:'ᚱ  ᛉ  ᚦ  ✦  ᚨ  ᛟ  ᛞ  ✧  ᚱ  ᛉ  ᚦ'!important;inset:-10% -18%!important;display:flex!important;align-items:center!important;justify-content:center!important;color:color-mix(in srgb,var(--bc-bright) 42%,transparent)!important;font:900 clamp(17px,2vw,30px)/2.9 Georgia,serif!important;letter-spacing:clamp(14px,2.3vw,34px)!important;text-align:center!important;text-shadow:0 0 9px var(--bc-accent)!important;animation:repoBinderV3Runes 16s linear infinite!important}
+    #quidditchTcgBinderDialog[data-binder-effect='runes'] .repo-binder-full-spread-fx::after{display:none!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='fireflies'] .repo-binder-full-spread-fx{opacity:.80!important;background:none!important}
+    #quidditchTcgBinderDialog[data-binder-effect='fireflies'] .repo-binder-full-spread-fx i{display:block!important;top:calc(100% + 5px)!important;border-radius:50%;background:radial-gradient(circle,#fffbd0 0 18%,#d9ff85 34%,#84d65e 51%,transparent 72%)!important;box-shadow:0 0 6px #dfff76;animation:repoBinderV3Firefly var(--d) ease-in-out var(--delay) infinite!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='comet'] .repo-binder-full-spread-fx{opacity:.88!important;background:none!important}
+    #quidditchTcgBinderDialog[data-binder-effect='comet'] .repo-binder-full-spread-fx::before{display:none!important}
+    #quidditchTcgBinderDialog[data-binder-effect='comet'] .repo-binder-full-spread-fx::after{inset:-70% -55%!important;background:linear-gradient(126deg,transparent 45%,rgba(255,255,255,.02) 47%,color-mix(in srgb,var(--bc-bright) 48%,transparent) 49%,rgba(255,255,255,.64) 50%,color-mix(in srgb,var(--bc-accent) 29%,transparent) 51%,transparent 54%)!important;animation:repoBinderV3Comet 8.5s ease-in-out infinite!important}
+
+    #quidditchTcgBinderDialog[data-binder-effect='ripple'] .repo-binder-full-spread-fx{opacity:.68!important;background:transparent!important}
+    #quidditchTcgBinderDialog[data-binder-effect='ripple'] .repo-binder-full-spread-fx::before{inset:-35%!important;background:repeating-radial-gradient(circle at 50% 50%,transparent 0 44px,color-mix(in srgb,var(--bc-bright) 16%,transparent) 46px 48px,transparent 51px 77px)!important;filter:blur(.4px)!important;animation:repoBinderV3Ripple 9s ease-in-out infinite!important}
+    #quidditchTcgBinderDialog[data-binder-effect='ripple'] .repo-binder-full-spread-fx::after{display:none!important}
+
+    @keyframes repoBinderV3Twinkle{0%,100%{opacity:.18;transform:scale(.55)}50%{opacity:.95;transform:translateY(-8px) scale(1.25)}}
+    @keyframes repoBinderV3Aurora{from{transform:translate(-5%,-3%) rotate(-5deg) scale(.94)}to{transform:translate(5%,4%) rotate(5deg) scale(1.07)}}
+    @keyframes repoBinderV3Rise{0%{transform:translateY(0) scale(.5);opacity:0}10%{opacity:.96}100%{transform:translate(var(--drift),-112vh) scale(1.18);opacity:0}}
+    @keyframes repoBinderV3Fall{0%{transform:translate(0,-10px) scale(.6);opacity:0}10%{opacity:.92}100%{transform:translate(var(--drift),105vh) scale(1.1);opacity:0}}
+    @keyframes repoBinderV3MistLeft{from{transform:translateX(-8%) scale(.94)}to{transform:translateX(16%) scale(1.08)}}
+    @keyframes repoBinderV3MistRight{from{transform:translateX(7%) scale(.96)}to{transform:translateX(-14%) scale(1.10)}}
+    @keyframes repoBinderV3Runes{to{transform:translateX(8%)}}
+    @keyframes repoBinderV3Firefly{0%{transform:translate(0,0) scale(.4);opacity:0}18%{opacity:.95}55%{transform:translate(calc(var(--drift) * .45),-45vh) scale(1.1)}100%{transform:translate(var(--drift),-94vh) scale(.55);opacity:0}}
+    @keyframes repoBinderV3Comet{0%,68%{transform:translateX(-42%) rotate(0);opacity:0}74%{opacity:1}88%,100%{transform:translateX(46%) rotate(0);opacity:0}}
+    @keyframes repoBinderV3Ripple{0%,100%{transform:scale(.87);opacity:.28}50%{transform:scale(1.12);opacity:.82}}
+
+    /* Existing legendary/full-spread effects stay enabled, but below the plastic layer. */
+    #quidditchTcgBinderDialog[data-binder-effect='inferno'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='celestial'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='dragonhoard'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='phoenix'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='voidrift'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='enchantedwilds'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='stormwind'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='smokeveil'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='autumnstream'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='tidalstream'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='dawnmist'] .repo-binder-full-spread-fx,
+    #quidditchTcgBinderDialog[data-binder-effect='nightrain'] .repo-binder-full-spread-fx{
+      z-index:7!important;
+    }
+
+    /* ----- Page navigation: no Previous / Next buttons ----- */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #quidditchTcgBinderPrev,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #quidditchTcgBinderNext{
+      display:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+      width:min(72vw,690px)!important;
+      grid-template-columns:minmax(0,1fr)!important;
+      margin:5px auto 0!important;
+      padding:0!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status{
+      width:auto!important;
+      min-width:0!important;
+      padding:7px 13px 8px!important;
+      border:1px solid color-mix(in srgb,var(--bc-accent,#3b83d5) 44%,rgba(207,166,74,.34))!important;
+      border-radius:10px!important;
+      background:linear-gradient(180deg,rgba(5,11,18,.82),rgba(2,6,10,.76))!important;
+      box-shadow:0 7px 22px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.025)!important;
+      backdrop-filter:blur(4px);
+    }
+
+    /* Invisible physical page-edge click zones. Only the hover cue appears. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone{
+      position:absolute;
+      top:7%;
+      bottom:7%;
+      width:6.4%;
+      z-index:31;
+      border:0;
+      outline:0;
+      padding:0;
+      margin:0;
+      background:transparent;
+      box-shadow:none;
+      cursor:pointer;
+      opacity:1;
+      overflow:visible;
+      -webkit-tap-highlight-color:transparent;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.left{left:2.7%;cursor:w-resize}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.right{right:2.7%;cursor:e-resize}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone::before{
+      content:'';
+      position:absolute;
+      top:10%;bottom:10%;
+      width:120%;
+      opacity:0;
+      transition:opacity .17s ease,transform .17s ease;
+      pointer-events:none;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.left::before{
+      left:-8%;
+      background:linear-gradient(90deg,color-mix(in srgb,var(--bc-bright,#8fc9ff) 16%,transparent),transparent);
+      transform:translateX(-5px);
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.right::before{
+      right:-8%;
+      background:linear-gradient(270deg,color-mix(in srgb,var(--bc-bright,#8fc9ff) 16%,transparent),transparent);
+      transform:translateX(5px);
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone::after{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      color:#f3d98b;
+      opacity:0;
+      font:900 clamp(26px,3vw,46px)/1 Georgia,serif;
+      text-shadow:0 2px 8px #000,0 0 10px color-mix(in srgb,var(--bc-bright,#8fc9ff) 30%,transparent);
+      transition:opacity .17s ease,transform .17s ease;
+      pointer-events:none;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.left::after{content:'‹';left:21%}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.right::after{content:'›';right:21%}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:hover::before,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:focus-visible::before{opacity:1;transform:translateX(0)}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:hover::after,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:focus-visible::after{opacity:.92}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:focus-visible{outline:0!important}
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126.repo-page-flip-left{
+      animation:repoBinderV3FlipLeft .20s ease-in both!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126.repo-page-flip-right{
+      animation:repoBinderV3FlipRight .20s ease-in both!important;
+    }
+    @keyframes repoBinderV3FlipLeft{0%{transform:perspective(1700px) rotateY(0) scale(1);opacity:1}100%{transform:perspective(1700px) rotateY(2.1deg) translateX(4px) scale(.996);opacity:.78}}
+    @keyframes repoBinderV3FlipRight{0%{transform:perspective(1700px) rotateY(0) scale(1);opacity:1}100%{transform:perspective(1700px) rotateY(-2.1deg) translateX(-4px) scale(.996);opacity:.78}}
+
+    /* Drag-to-other-spread helper remains available only while dragging. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not(.repo-binder-dragging) .repo-binder-drag-edge{display:none!important}
+    #quidditchTcgBinderDialog.repo-binder-book-mode.repo-binder-dragging .repo-binder-page-turn-zone{pointer-events:none!important;opacity:0!important}
+
+    /* Floating controls no longer suggest a surrounding rectangular frame. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch{
+      border-radius:7px!important;
+      box-shadow:0 7px 18px rgba(0,0,0,.38)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-close{
+      border-radius:8px!important;
+      box-shadow:0 7px 18px rgba(0,0,0,.40)!important;
+    }
+
+    @media(max-width:900px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone{width:8%;top:9%;bottom:9%}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.left{left:1.8%}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone.right{right:1.8%}
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{width:min(88vw,620px)!important}
+    }
+    @media(prefers-reduced-motion:reduce){
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126.repo-page-flip-left,
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-spread-126.repo-page-flip-right{animation:none!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-finish='enchanted'] .repo-binder-pocket-overlay{animation:none!important}
+    }
+  `;
+  document.head.appendChild(style);
+
+  let flipping=false;
+
+  function turnPage(direction){
+    if(flipping)return;
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const spread=dialog?.querySelector('.repo-binder-spread-126');
+    if(!dialog||!spread||!String(dialog.dataset.binderPage||'').startsWith('open'))return;
+    flipping=true;
+    const cls=direction<0?'repo-page-flip-left':'repo-page-flip-right';
+    spread.classList.remove('repo-page-flip-left','repo-page-flip-right');
+    void spread.offsetWidth;
+    spread.classList.add(cls);
+    setTimeout(()=>{
+      try{setQuidditchTcgBinderPage(quidditchTcgBinderPage+(direction<0?-1:1));}
+      finally{
+        spread.classList.remove('repo-page-flip-left','repo-page-flip-right');
+        flipping=false;
+        setTimeout(refreshBinderBookV3,20);
+      }
+    },155);
+  }
+
+  function ensureThemeSurface(spread){
+    if(!spread)return;
+    let surface=spread.querySelector(':scope > .repo-binder-theme-surface');
+    if(!surface){
+      surface=document.createElement('div');
+      surface.className='repo-binder-theme-surface';
+      surface.setAttribute('aria-hidden','true');
+      spread.insertBefore(surface,spread.firstChild);
+    }
+  }
+
+  function ensurePageTurnZones(spread){
+    if(!spread)return;
+    let left=spread.querySelector(':scope > .repo-binder-page-turn-zone.left');
+    let right=spread.querySelector(':scope > .repo-binder-page-turn-zone.right');
+    if(!left){
+      left=document.createElement('button');
+      left.type='button';
+      left.className='repo-binder-page-turn-zone left';
+      left.setAttribute('aria-label','Turn to previous binder spread');
+      left.title='Previous spread';
+      left.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();turnPage(-1)});
+      spread.appendChild(left);
+    }
+    if(!right){
+      right=document.createElement('button');
+      right.type='button';
+      right.className='repo-binder-page-turn-zone right';
+      right.setAttribute('aria-label','Turn to next binder spread');
+      right.title='Next spread';
+      right.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();turnPage(1)});
+      spread.appendChild(right);
+    }
+  }
+
+  function bindCoverOutsideClose(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const stage=dialog?.querySelector('.quidditch-tcg-binder-stage');
+    if(!dialog||!stage||stage.dataset.repoBinderCoverOutsideClose==='1')return;
+    stage.dataset.repoBinderCoverOutsideClose='1';
+    stage.addEventListener('click',event=>{
+      if(String(dialog.dataset.binderPage||'').startsWith('open'))return;
+      if(event.target===stage)closeQuidditchTcgBinder();
+    });
+  }
+
+  function refreshBinderBookV3(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    dialog.classList.add('repo-binder-book-mode');
+    dialog.style.border='0';
+    dialog.style.outline='0';
+    dialog.style.boxShadow='none';
+    dialog.style.background='transparent';
+    const spread=dialog.querySelector('.repo-binder-spread-126');
+    if(spread){
+      ensureThemeSurface(spread);
+      ensurePageTurnZones(spread);
+    }
+    bindCoverOutsideClose();
+  }
+
+  const run=()=>{refreshBinderBookV3();requestAnimationFrame(refreshBinderBookV3);setTimeout(refreshBinderBookV3,90);setTimeout(refreshBinderBookV3,260)};
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);run();return result};
+
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);run();return result};
+
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);run();return result};
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — INVISIBLE PAGE EDGES + HIDDEN CARD HOLDER V4
+// - Left/right page-turn hit areas are genuinely invisible.
+// - Replaces the tiny text Hidden Cards control with the supplied card-holder art.
+// - The holder is anchored beside the binder without moving the binder itself.
+// ============================================================
+(function installRepoTcgBinderControlsV4(){
+  if(window.__repoTcgBinderControlsV4Installed)return;
+  window.__repoTcgBinderControlsV4Installed=true;
+
+  const HIDDEN_HOLDER_ASSET='assets/quidditch-tcg-binder/hidden-cards-holder.png';
+  const style=document.createElement('style');
+  style.id='repoTcgBinderControlsV4Styles';
+  style.textContent=`
+    /* Page turning remains click-enabled, but there is NO visible button/rectangle. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:active,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:focus,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:focus-visible{
+      appearance:none!important;
+      -webkit-appearance:none!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      background-image:none!important;
+      box-shadow:none!important;
+      color:transparent!important;
+      text-shadow:none!important;
+      opacity:1!important;
+      filter:none!important;
+      border-radius:0!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone::before,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone::after{
+      content:none!important;
+      display:none!important;
+      opacity:0!important;
+      background:none!important;
+      box-shadow:none!important;
+    }
+    /* Retire the old drag-edge panels completely. Dragging cards still works normally. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-drag-edge,
+    #quidditchTcgBinderDialog.repo-binder-book-mode.repo-binder-dragging .repo-binder-drag-edge,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-drag-edge.available,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-drag-edge.is-hot{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+    }
+
+    /* The supplied holder artwork IS the Hidden Cards button. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      position:absolute!important;
+      left:auto!important;
+      right:-7.2%!important;
+      top:27.5%!important;
+      bottom:auto!important;
+      width:clamp(94px,7vw,124px)!important;
+      height:auto!important;
+      min-width:0!important;
+      max-width:none!important;
+      min-height:0!important;
+      aspect-ratio:684 / 1229!important;
+      margin:0!important;
+      padding:0!important;
+      z-index:42!important;
+      display:block!important;
+      overflow:visible!important;
+      appearance:none!important;
+      -webkit-appearance:none!important;
+      border:0!important;
+      outline:0!important;
+      border-radius:0!important;
+      background-color:transparent!important;
+      background-image:url('${HIDDEN_HOLDER_ASSET}')!important;
+      background-position:center!important;
+      background-repeat:no-repeat!important;
+      background-size:contain!important;
+      box-shadow:none!important;
+      color:transparent!important;
+      font-size:0!important;
+      line-height:0!important;
+      letter-spacing:0!important;
+      text-shadow:none!important;
+      cursor:pointer!important;
+      filter:drop-shadow(0 14px 18px rgba(0,0,0,.68))!important;
+      transform:translateZ(0) rotate(.35deg)!important;
+      transform-origin:50% 70%!important;
+      transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .18s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible{
+      border:0!important;
+      outline:0!important;
+      box-shadow:none!important;
+      background-color:transparent!important;
+      transform:translateY(-5px) scale(1.035) rotate(-.4deg)!important;
+      filter:drop-shadow(0 20px 22px rgba(0,0,0,.74)) drop-shadow(0 0 8px color-mix(in srgb,var(--bc-bright,#8fc9ff) 22%,transparent))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:active{
+      transform:translateY(-1px) scale(.985)!important;
+    }
+    /* Keep the live Hidden Cards count as a tiny badge without bringing back the old text button. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder > span{
+      position:absolute!important;
+      right:2px!important;
+      top:7px!important;
+      min-width:22px!important;
+      height:22px!important;
+      padding:0 5px!important;
+      box-sizing:border-box!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      border:1px solid rgba(230,190,94,.82)!important;
+      border-radius:999px!important;
+      background:rgba(4,9,15,.90)!important;
+      box-shadow:0 3px 9px rgba(0,0,0,.55),inset 0 0 0 1px rgba(112,173,221,.12)!important;
+      color:#ffe2a0!important;
+      font:900 10px/1 Georgia,serif!important;
+      letter-spacing:0!important;
+      text-shadow:0 1px 2px #000!important;
+      line-height:22px!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-public-binder='true'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      display:none!important;
+    }
+
+    @media(max-width:1700px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        right:-2.7%!important;
+        top:28%!important;
+        width:clamp(78px,6vw,98px)!important;
+      }
+    }
+    @media(max-width:1050px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        right:1.1%!important;
+        top:24%!important;
+        width:74px!important;
+        opacity:.96!important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function installHiddenHolder(){ return; }
+
+  function refreshV4(){
+    installHiddenHolder();
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    // Defensive cleanup in case a prior drag left old side-panels visible.
+    dialog.classList.remove('repo-binder-drag-hot');
+    dialog.querySelectorAll('.repo-binder-drag-edge').forEach(edge=>{
+      edge.classList.remove('available','is-hot');
+      edge.setAttribute('aria-hidden','true');
+    });
+  }
+
+  const run=()=>{refreshV4();requestAnimationFrame(refreshV4);setTimeout(refreshV4,80);setTimeout(refreshV4,240)};
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);run();return result};
+
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);run();return result};
+
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);run();return result};
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — RESPONSIVE FIT + CROSS-SPREAD DRAG V5
+// Fixes narrow/zoomed view clipping and restores drag-to-another-spread.
+// The visual left/right page-turn areas remain completely invisible.
+// ============================================================
+(function installRepoTcgBinderFitAndCrossSpreadDragV5(){
+  if(window.__repoTcgBinderFitAndCrossSpreadDragV5Installed)return;
+  window.__repoTcgBinderFitAndCrossSpreadDragV5Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderFitAndCrossSpreadDragV5Styles';
+  style.textContent=`
+    /* Use the whole top layer as safe layout space. Nothing is allowed to shove
+       the binder outside the viewport. The binder itself remains centred. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode{
+      width:100vw!important;
+      max-width:100vw!important;
+      height:100dvh!important;
+      max-height:100dvh!important;
+      margin:0!important;
+      inset:0!important;
+      padding:0!important;
+      overflow:visible!important;
+      box-sizing:border-box!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-shell{
+      width:100%!important;
+      height:100%!important;
+      min-width:0!important;
+      min-height:0!important;
+      box-sizing:border-box!important;
+      overflow:visible!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-stage{
+      width:100%!important;
+      max-width:100%!important;
+      min-width:0!important;
+      box-sizing:border-box!important;
+      overflow:visible!important;
+    }
+
+    /* Leave a real side gutter for the Hidden Cards holder. This prevents the
+       open binder from being cropped at either edge while keeping its centre. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+      width:min(84vw,1450px)!important;
+      max-width:84vw!important;
+      max-height:calc(100dvh - 128px)!important;
+      margin-inline:auto!important;
+      flex:0 0 auto!important;
+      transform-origin:center center!important;
+    }
+
+    /* Front/back covers also stay wholly within the viewport. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage{
+      max-width:min(88vw,1160px)!important;
+      max-height:88dvh!important;
+      margin-inline:auto!important;
+    }
+
+    /* The supplied Hidden Cards artwork sits OUTSIDE the right edge of the
+       binder, but inside the reserved gutter. It no longer gets clipped. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      left:calc(100% + 10px)!important;
+      right:auto!important;
+      top:27%!important;
+      width:clamp(64px,5.5vw,94px)!important;
+      max-width:7vw!important;
+      z-index:60!important;
+    }
+
+    /* Clicking page edges stays invisible. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:focus,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone:active{
+      border:0!important;
+      outline:0!important;
+      background:none!important;
+      box-shadow:none!important;
+      color:transparent!important;
+      opacity:1!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone::before,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-page-turn-zone::after{
+      content:none!important;
+      display:none!important;
+    }
+
+    /* V4 hid the legacy cross-page drag targets entirely. Restore their HIT
+       AREA only while a card is being dragged. They remain 100% invisible. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-drag-edge{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+      color:transparent!important;
+      font-size:0!important;
+      border:0!important;
+      outline:0!important;
+      background:none!important;
+      box-shadow:none!important;
+      backdrop-filter:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode.repo-binder-dragging .repo-binder-spread-126 > .repo-binder-drag-edge{
+      display:block!important;
+      visibility:visible!important;
+      opacity:0!important;
+      pointer-events:auto!important;
+      position:absolute!important;
+      top:5%!important;
+      bottom:5%!important;
+      width:10%!important;
+      z-index:40!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      cursor:grabbing!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode.repo-binder-dragging .repo-binder-spread-126 > .repo-binder-drag-edge.left{left:0!important;right:auto!important}
+    #quidditchTcgBinderDialog.repo-binder-book-mode.repo-binder-dragging .repo-binder-spread-126 > .repo-binder-drag-edge.right{right:0!important;left:auto!important}
+
+    /* During a drag, normal click-turn zones get out of the way so the invisible
+       drag targets receive dragover and can turn to the adjacent spread. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode.repo-binder-dragging .repo-binder-page-turn-zone{
+      pointer-events:none!important;
+    }
+
+    /* Keep the lower collection plaque readable and centered at every width. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+      width:min(76vw,690px)!important;
+      max-width:calc(100vw - 28px)!important;
+      margin:5px auto 0!important;
+      justify-self:center!important;
+      box-sizing:border-box!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status{
+      max-width:100%!important;
+      box-sizing:border-box!important;
+    }
+
+    @media(max-width:1100px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+        width:82vw!important;
+        max-width:82vw!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        left:calc(100% + 7px)!important;
+        width:58px!important;
+        max-width:7vw!important;
+        top:26%!important;
+      }
+    }
+    @media(max-width:760px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+        width:80vw!important;
+        max-width:80vw!important;
+        max-height:calc(100dvh - 112px)!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        left:calc(100% + 4px)!important;
+        width:46px!important;
+        max-width:8vw!important;
+        top:24%!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode.repo-binder-dragging .repo-binder-spread-126 > .repo-binder-drag-edge{width:13%!important}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function fitControlsToBinder(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const spread=dialog?.querySelector('.repo-binder-spread-126');
+    if(!dialog||!spread)return;
+
+    // Keep both existing drag targets attached to the physical binder. Their
+    // original event listeners remain intact, so the proven cross-page drag
+    // logic can operate without duplicating/splitting saved-layout state.
+    dialog.querySelectorAll('.repo-binder-drag-edge').forEach(edge=>{
+      if(edge.parentElement!==spread)spread.appendChild(edge);
+      edge.setAttribute('aria-hidden','true');
+      edge.style.removeProperty('display');
+      edge.style.removeProperty('visibility');
+      edge.style.removeProperty('opacity');
+      edge.style.removeProperty('pointer-events');
+    });
+
+    // V17.2: Hidden Cards is owned by the stable stage-level controller.
+    // Do not re-parent it into the animated spread during a page turn.
+  }
+
+  // Re-run after every page render because the older binder layers refresh
+  // classes/controls at different times. This is deliberately idempotent.
+  const refresh=()=>{
+    fitControlsToBinder();
+    requestAnimationFrame(fitControlsToBinder);
+    setTimeout(fitControlsToBinder,60);
+    setTimeout(fitControlsToBinder,220);
+  };
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);refresh();return result};
+
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);refresh();return result};
+
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);refresh();return result};
+
+  window.addEventListener('resize',refresh,{passive:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — CONTROL VISIBILITY + TRUE CENTERING V6
+// Regression fix after V5:
+// - closed cover is always truly viewport-centred
+// - Binder Style control is pinned safely inside the viewport
+// - supplied Hidden Cards holder is re-attached robustly and positioned
+//   beside the open binder without shifting the binder itself
+// - cross-spread drag/page-edge behaviour from V5 remains untouched
+// ============================================================
+(function installRepoTcgBinderControlVisibilityV6(){
+  if(window.__repoTcgBinderControlVisibilityV6Installed)return;
+  window.__repoTcgBinderControlVisibilityV6Installed=true;
+
+  const HIDDEN_HOLDER_ASSET='assets/quidditch-tcg-binder/hidden-cards-holder.png';
+  const style=document.createElement('style');
+  style.id='repoTcgBinderControlVisibilityV6Styles';
+  style.textContent=`
+    /* Make the native dialog a deterministic full-viewport layer. This fixes
+       the cover drifting left when earlier dialog sizing rules interact. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode{
+      position:fixed!important;
+      inset:0!important;
+      left:0!important;
+      top:0!important;
+      right:0!important;
+      bottom:0!important;
+      width:100vw!important;
+      max-width:100vw!important;
+      height:100dvh!important;
+      max-height:100dvh!important;
+      margin:0!important;
+      padding:0!important;
+      transform:none!important;
+      overflow:visible!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode.binder-visible{
+      transform:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .quidditch-tcg-binder-shell{
+      position:relative!important;
+      width:100vw!important;
+      height:100dvh!important;
+      min-width:0!important;
+      min-height:0!important;
+      margin:0!important;
+      padding:0!important;
+      overflow:visible!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+
+    /* CLOSED COVER — mathematically centred in the viewport. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-stage{
+      position:absolute!important;
+      inset:0!important;
+      width:100vw!important;
+      height:100dvh!important;
+      margin:0!important;
+      padding:0!important;
+      display:grid!important;
+      place-items:center!important;
+      align-items:center!important;
+      justify-content:center!important;
+      overflow:visible!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage{
+      position:relative!important;
+      inset:auto!important;
+      left:auto!important;
+      right:auto!important;
+      top:auto!important;
+      bottom:auto!important;
+      margin:0!important;
+      justify-self:center!important;
+      align-self:center!important;
+      max-width:min(76vw,780px)!important;
+      max-height:88dvh!important;
+    }
+
+    /* OPEN BINDER — reserve vertical room for the always-visible information /
+       customisation plaque rather than letting it fall below the screen. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-stage{
+      position:absolute!important;
+      inset:0 0 104px 0!important;
+      width:100vw!important;
+      height:auto!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      overflow:visible!important;
+      box-sizing:border-box!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+      width:min(82vw,calc((100dvh - 132px) * 1.554671968),1450px)!important;
+      max-width:min(82vw,1450px)!important;
+      max-height:calc(100dvh - 132px)!important;
+      margin:0 auto!important;
+      flex:0 0 auto!important;
+    }
+
+    /* Collection/Binder Style plaque is now an intentional floating control,
+       always inside the visible viewport. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+      position:absolute!important;
+      left:50%!important;
+      right:auto!important;
+      bottom:12px!important;
+      top:auto!important;
+      transform:translateX(-50%)!important;
+      width:min(680px,calc(100vw - 32px))!important;
+      max-width:calc(100vw - 32px)!important;
+      min-height:72px!important;
+      margin:0!important;
+      padding:0!important;
+      z-index:90!important;
+      display:grid!important;
+      grid-template-columns:minmax(0,1fr)!important;
+      overflow:visible!important;
+      pointer-events:auto!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status{
+      position:relative!important;
+      width:100%!important;
+      max-width:100%!important;
+      min-height:66px!important;
+      box-sizing:border-box!important;
+      overflow:visible!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleControl{
+      display:flex!important;
+      visibility:visible!important;
+      opacity:1!important;
+      position:relative!important;
+      z-index:94!important;
+      pointer-events:auto!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-public-binder='true'] #binderStyleControl{
+      display:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleTrigger{
+      display:inline-flex!important;
+      visibility:visible!important;
+      opacity:1!important;
+      pointer-events:auto!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleMenu{
+      z-index:120!important;
+      max-height:min(70dvh,650px)!important;
+    }
+
+    /* Hidden Cards holder. Position coordinates are supplied by JS from the
+       live binder rectangle, so this artwork can never silently disappear due
+       to an older right/left rule. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      position:absolute!important;
+      right:auto!important;
+      bottom:auto!important;
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      width:clamp(66px,5.3vw,92px)!important;
+      max-width:92px!important;
+      min-width:58px!important;
+      height:auto!important;
+      min-height:0!important;
+      aspect-ratio:684 / 1229!important;
+      margin:0!important;
+      padding:0!important;
+      z-index:88!important;
+      overflow:visible!important;
+      border:0!important;
+      outline:0!important;
+      border-radius:0!important;
+      background-color:transparent!important;
+      background-image:url('${HIDDEN_HOLDER_ASSET}')!important;
+      background-position:center!important;
+      background-repeat:no-repeat!important;
+      background-size:contain!important;
+      box-shadow:none!important;
+      color:transparent!important;
+      font-size:0!important;
+      line-height:0!important;
+      cursor:pointer!important;
+      pointer-events:auto!important;
+      filter:drop-shadow(0 13px 18px rgba(0,0,0,.68))!important;
+      transform:translateZ(0)!important;
+      transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .18s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible{
+      transform:translateY(-5px) scale(1.035)!important;
+      filter:drop-shadow(0 18px 22px rgba(0,0,0,.75)) drop-shadow(0 0 8px color-mix(in srgb,var(--bc-bright,#8fc9ff) 22%,transparent))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder > span{
+      display:flex!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-public-binder='true'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      display:none!important;
+    }
+
+    @media(max-width:900px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-stage{inset:0 0 96px 0!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+        width:min(79vw,calc((100dvh - 122px) * 1.554671968))!important;
+        max-width:79vw!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+        bottom:8px!important;
+        width:min(600px,calc(100vw - 20px))!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        width:58px!important;
+        min-width:52px!important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function robustHiddenHolder(dialog,spread){
+    if(!dialog||!spread)return null;
+    // The storage manager can clone/replace its launch button. Always reacquire
+    // the current live button and restore the artwork class rather than relying
+    // on an older DOM reference.
+    const launch=dialog.querySelector('.repo-binder-storage-launch');
+    if(!launch)return null;
+    launch.classList.add('repo-hidden-card-holder');
+    launch.setAttribute('aria-label','Hidden cards');
+    launch.setAttribute('title','Hidden Cards');
+    // Keep it as a dialog-level floating control. It must not affect binder
+    // centring or inherit transforms from the spread.
+    if(launch.parentElement!==dialog)dialog.appendChild(launch);
+    return launch;
+  }
+
+  function ensureStyleControlVisible(){
+    if(typeof ensureBinderCustomisationUi==='function'){
+      try{ensureBinderCustomisationUi()}catch(_error){}
+    }
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const control=document.getElementById('binderStyleControl');
+    if(!dialog||!control)return;
+    if(String(dialog.dataset.binderPage||'').startsWith('open')&&dialog.dataset.publicBinder!=='true'){
+      control.hidden=false;
+      control.style.removeProperty('display');
+    }
+  }
+
+  function positionHiddenHolder(){ return; }
+
+  function forceCoverCentre(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog||String(dialog.dataset.binderPage||'').startsWith('open'))return;
+    const stage=dialog.querySelector('.quidditch-tcg-binder-stage');
+    const image=document.getElementById('quidditchTcgBinderImage');
+    if(stage){
+      stage.style.setProperty('display','grid','important');
+      stage.style.setProperty('place-items','center','important');
+      stage.style.setProperty('inset','0','important');
+    }
+    if(image){
+      image.style.setProperty('margin','0','important');
+      image.style.setProperty('justify-self','center','important');
+      image.style.setProperty('align-self','center','important');
+    }
+  }
+
+  function refreshV6(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    ensureStyleControlVisible();
+    forceCoverCentre();
+    positionHiddenHolder();
+  }
+
+  const refresh=()=>{
+    refreshV6();
+    requestAnimationFrame(refreshV6);
+    setTimeout(refreshV6,45);
+    setTimeout(refreshV6,140);
+    setTimeout(refreshV6,320);
+  };
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);refresh();return result};
+
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);refresh();return result};
+
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);refresh();return result};
+
+  window.addEventListener('resize',refresh,{passive:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
+})();
+
+// ============================================================
+// QUIDDITCH TCG BINDER — HOLDER / CARD FIT / SOFT FX V7
+// - Hidden Cards holder is larger and plays the supplied shuffle SFX at 60%.
+// - Cards are contained neatly inside the physical plastic pockets.
+// - Tall / patch cards receive a slightly safer fit.
+// - Open-binder FX are alpha-masked to the supplied binder artwork so no
+//   harsh rectangular effect sheet can show beneath the physical binder.
+// ============================================================
+(function installRepoTcgBinderPolishV7(){
+  if(window.__repoTcgBinderPolishV7Installed)return;
+  window.__repoTcgBinderPolishV7Installed=true;
+
+  const HOLDER_SOUND='assets/quidditch-tcg-binder/hidden-cards-shuffle.mp3';
+  const BINDER_MASK='assets/quidditch-tcg-binder/repo-binder-open-spread.png';
+  let holderAudio=null;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderPolishV7Styles';
+  style.textContent=`
+    /* --- Hidden Cards: deliberately more substantial, still detached from binder. --- */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      width:clamp(86px,7.8vw,142px)!important;
+      max-width:142px!important;
+      min-width:86px!important;
+      height:auto!important;
+      aspect-ratio:684 / 1229!important;
+      transform-origin:center center!important;
+      filter:drop-shadow(0 15px 21px rgba(0,0,0,.72))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible{
+      transform:translateY(-6px) scale(1.045)!important;
+      filter:drop-shadow(0 21px 27px rgba(0,0,0,.78)) drop-shadow(0 0 10px color-mix(in srgb,var(--bc-bright,#8fc9ff) 26%,transparent))!important;
+    }
+
+    /* --- Card fit: the pocket is the hard boundary now. --- */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126{
+      overflow:hidden!important;
+      border-radius:4px!important;
+      clip-path:inset(0 round 4px)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126 > img[data-card-id]{
+      display:block!important;
+      width:auto!important;
+      height:auto!important;
+      max-width:95%!important;
+      max-height:95%!important;
+      object-fit:contain!important;
+      object-position:center!important;
+      transform:scale(1.012)!important;
+      transform-origin:center!important;
+      filter:drop-shadow(0 5px 8px rgba(0,0,0,.52))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126 > img[data-card-id$='_patch'],
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126 > img.repo-binder-card-tall{
+      max-width:92.5%!important;
+      max-height:92.5%!important;
+      transform:scale(1.005)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126:hover > img[data-card-id]{
+      transform:translateY(-1px) scale(1.024)!important;
+      filter:drop-shadow(0 7px 10px rgba(0,0,0,.58))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126:hover > img[data-card-id$='_patch'],
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-slot-126:hover > img.repo-binder-card-tall{
+      transform:translateY(-1px) scale(1.015)!important;
+    }
+
+    /* --- Effects: use the actual transparent binder PNG as the shape mask. --- */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-full-spread-fx{
+      inset:0!important;
+      clip-path:none!important;
+      border-radius:0!important;
+      overflow:hidden!important;
+      -webkit-mask-image:url('${BINDER_MASK}')!important;
+      mask-image:url('${BINDER_MASK}')!important;
+      -webkit-mask-size:100% 100%!important;
+      mask-size:100% 100%!important;
+      -webkit-mask-repeat:no-repeat!important;
+      mask-repeat:no-repeat!important;
+      -webkit-mask-position:center!important;
+      mask-position:center!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-theme-surface{
+      border-radius:34px!important;
+      box-shadow:none!important;
+      background-color:transparent!important;
+    }
+
+    /* Remove full rectangular washes from the few effects that previously
+       darkened/tinted the entire spread. The moving elements remain. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-effect='smokeveil'] .repo-binder-full-spread-fx{
+      background:radial-gradient(ellipse at 50% 58%,rgba(126,141,152,.13),transparent 68%)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-effect='tidalstream'] .repo-binder-full-spread-fx{
+      background:radial-gradient(ellipse at 50% 88%,rgba(0,127,164,.14),transparent 67%)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-effect='dawnmist'] .repo-binder-full-spread-fx{
+      background:radial-gradient(ellipse at 50% 70%,rgba(210,223,214,.10),transparent 70%)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-effect='nightrain'] .repo-binder-full-spread-fx{
+      background:radial-gradient(circle at 18% 12%,rgba(201,225,255,.10),transparent 29%)!important;
+    }
+
+    @media(max-width:900px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        width:clamp(76px,8.4vw,100px)!important;
+        min-width:76px!important;
+        max-width:100px!important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function playHolderSound(){
+    try{
+      if(!holderAudio){
+        holderAudio=new Audio(HOLDER_SOUND);
+        holderAudio.preload='auto';
+      }
+      holderAudio.pause();
+      holderAudio.currentTime=0;
+      holderAudio.volume=.60;
+      const result=holderAudio.play();
+      if(result?.catch)result.catch(()=>{});
+    }catch(_error){}
+  }
+
+  function annotateCards(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const spread=dialog?.querySelector('.repo-binder-spread-126');
+    if(!spread)return;
+    spread.querySelectorAll('.repo-binder-slot-126 > img[data-card-id]').forEach(img=>{
+      const classify=()=>{
+        if(!img.naturalWidth||!img.naturalHeight)return;
+        const ratio=img.naturalWidth/img.naturalHeight;
+        img.classList.toggle('repo-binder-card-tall',ratio<.72);
+      };
+      classify();
+      if(!img.complete&&img.dataset.repoFitBound!=='1'){
+        img.dataset.repoFitBound='1';
+        img.addEventListener('load',classify,{once:true});
+      }
+    });
+  }
+
+  function bindHolderSound(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog||dialog.dataset.repoHolderSoundV7==='1')return;
+    dialog.dataset.repoHolderSoundV7='1';
+    dialog.addEventListener('click',event=>{
+      const launch=event.target.closest?.('.repo-binder-storage-launch.repo-hidden-card-holder');
+      if(launch&&dialog.contains(launch))playHolderSound();
+    },true);
+  }
+
+  function positionLargerHolder(){ return; }
+
+  function refreshV7(){
+    bindHolderSound();
+    annotateCards();
+    positionLargerHolder();
+  }
+  const refresh=()=>{
+    refreshV7();
+    requestAnimationFrame(refreshV7);
+    setTimeout(refreshV7,55);
+    setTimeout(refreshV7,180);
+    setTimeout(refreshV7,360);
+  };
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);refresh();return result};
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);refresh();return result};
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);refresh();return result};
+
+  window.addEventListener('resize',refresh,{passive:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
+})();
+
+// ============================================================
+// QUIDDITCH TCG BINDER — SCALE / HOLDER / COVER CENTRING V8
+// User-requested visual correction after V7:
+// - closed front/back cover is visually centred against the real viewport
+// - open binder is approximately 20% larger for card readability
+// - Hidden Cards artwork is approximately 15% larger
+// - existing Binder Style, drag-between-spreads, storage and FX logic remain
+// ============================================================
+(function installRepoTcgBinderScaleAndCentreV8(){
+  if(window.__repoTcgBinderScaleAndCentreV8Installed)return;
+  window.__repoTcgBinderScaleAndCentreV8Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderScaleAndCentreV8Styles';
+  style.textContent=`
+    /* CLOSED COVER: the stage is a genuine viewport layer. Using the CSS
+       translate property keeps centring independent from the idle transform
+       animation used by the cover itself. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .quidditch-tcg-binder-stage{
+      position:fixed!important;
+      inset:0!important;
+      width:100vw!important;
+      height:100dvh!important;
+      min-width:100vw!important;
+      min-height:100dvh!important;
+      margin:0!important;
+      padding:0!important;
+      display:grid!important;
+      place-items:center!important;
+      overflow:visible!important;
+      transform:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #quidditchTcgBinderImage{
+      position:relative!important;
+      left:0!important;
+      right:auto!important;
+      top:0!important;
+      bottom:auto!important;
+      margin:0!important;
+      justify-self:center!important;
+      align-self:center!important;
+      translate:var(--repo-cover-centre-correction,0px) 0!important;
+    }
+
+    /* OPEN BINDER: V7 was deliberately conservative to keep everything on
+       screen. Increase the physical binder by about 20% while leaving its
+       centre fixed. Height remains the final safety limit. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-stage{
+      position:fixed!important;
+      inset:0 0 82px 0!important;
+      width:100vw!important;
+      height:auto!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      overflow:visible!important;
+      box-sizing:border-box!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+      width:min(98vw,calc((100dvh - 94px) * 1.554671968),1740px)!important;
+      max-width:min(98vw,1740px)!important;
+      max-height:calc(100dvh - 94px)!important;
+      margin:0 auto!important;
+      flex:0 0 auto!important;
+      transform-origin:center center!important;
+    }
+
+    /* Keep the lower collection/style plaque available but compact so the
+       extra space is given to the cards rather than UI chrome. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+      bottom:6px!important;
+      min-height:64px!important;
+      width:min(650px,calc(100vw - 28px))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status{
+      min-height:58px!important;
+      padding:7px 14px!important;
+    }
+
+    /* Hidden Cards artwork: +15% from V7. JS writes the same size after every
+       binder render so older storage-manager rules cannot shrink it again. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      width:clamp(99px,8.97vw,163px)!important;
+      min-width:99px!important;
+      max-width:163px!important;
+      height:auto!important;
+      aspect-ratio:684 / 1229!important;
+    }
+
+    @media(max-width:1100px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+        width:min(96vw,calc((100dvh - 90px) * 1.554671968))!important;
+        max-width:96vw!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        width:clamp(88px,9.4vw,126px)!important;
+        min-width:88px!important;
+        max-width:126px!important;
+      }
+    }
+    @media(max-width:760px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-stage{inset:0 0 76px 0!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-spread-126{
+        width:min(96vw,calc((100dvh - 84px) * 1.554671968))!important;
+        max-width:96vw!important;
+        max-height:calc(100dvh - 84px)!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        width:82px!important;
+        min-width:82px!important;
+        max-width:82px!important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function visuallyCentreCover(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const image=document.getElementById('quidditchTcgBinderImage');
+    if(!dialog||!image||String(dialog.dataset.binderPage||'').startsWith('open'))return;
+
+    // First remove the prior correction so we measure the browser's natural
+    // placement, then correct the actual rendered rectangle against viewport.
+    image.style.setProperty('--repo-cover-centre-correction','0px');
+    requestAnimationFrame(()=>{
+      if(String(dialog.dataset.binderPage||'').startsWith('open'))return;
+      const rect=image.getBoundingClientRect();
+      if(!rect.width)return;
+      const viewportW=document.documentElement.clientWidth||window.innerWidth;
+      const delta=(viewportW/2)-(rect.left+rect.width/2);
+      // Ignore sub-pixel noise. Clamp only as a corruption guard; ordinary
+      // corrections should be far below this.
+      const safe=Math.abs(delta)<.5?0:Math.max(-viewportW*.45,Math.min(viewportW*.45,delta));
+      image.style.setProperty('--repo-cover-centre-correction',`${safe.toFixed(2)}px`);
+    });
+  }
+
+  function positionV8HiddenHolder(){ return; }
+
+  function refreshV8(){
+    visuallyCentreCover();
+    positionV8HiddenHolder();
+  }
+  function refresh(){
+    refreshV8();
+    requestAnimationFrame(refreshV8);
+    setTimeout(refreshV8,70);
+    setTimeout(refreshV8,190);
+    setTimeout(refreshV8,380);
+  }
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);refresh();return result};
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);refresh();return result};
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);refresh();return result};
+
+  window.addEventListener('resize',refresh,{passive:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — HIDDEN CARDS DRAWER V9
+// - Hidden Cards holder artwork +5% from V8
+// - Drawer is always layered above the holder artwork
+// - Cleaner premium drawer presentation for search/filter/restore workflow
+// ============================================================
+(function installRepoTcgHiddenCardsDrawerV9(){
+  if(window.__repoTcgHiddenCardsDrawerV9Installed)return;
+  window.__repoTcgHiddenCardsDrawerV9Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgHiddenCardsDrawerV9Styles';
+  style.textContent=`
+    /* The holder remains a physical object beside the binder, but is 5% larger. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      width:clamp(104px,9.42vw,171px)!important;
+      min-width:104px!important;
+      max-width:171px!important;
+      z-index:118!important;
+    }
+
+    /* Drawer is a true top-layer panel inside the dialog, above holder + binder. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage{
+      position:fixed!important;
+      left:auto!important;
+      right:24px!important;
+      top:50%!important;
+      bottom:auto!important;
+      width:min(468px,calc(100vw - 48px))!important;
+      height:min(78dvh,760px)!important;
+      max-height:calc(100dvh - 48px)!important;
+      margin:0!important;
+      z-index:720!important;
+      display:grid!important;
+      grid-template-rows:auto auto auto minmax(0,1fr) auto!important;
+      overflow:hidden!important;
+      border:1px solid color-mix(in srgb,var(--bc-accent,#d3a44c) 88%,#71531f)!important;
+      outline:1px solid rgba(166,207,235,.18)!important;
+      outline-offset:-5px!important;
+      border-radius:12px!important;
+      background:
+        radial-gradient(ellipse at 45% -12%,color-mix(in srgb,var(--bc-bright,#a8d8f2) 12%,transparent),transparent 34%),
+        linear-gradient(180deg,color-mix(in srgb,var(--bc-mid,#16283a) 90%,#182431) 0%,color-mix(in srgb,var(--bc-deep,#06101a) 94%,#020508) 100%)!important;
+      box-shadow:
+        0 30px 90px rgba(0,0,0,.86),
+        0 0 0 1px rgba(0,0,0,.78),
+        inset 0 1px 0 rgba(255,242,190,.12),
+        inset 0 0 38px rgba(77,135,178,.08)!important;
+      opacity:0!important;
+      visibility:hidden!important;
+      pointer-events:none!important;
+      transform:translate3d(28px,-50%,0) scale(.985)!important;
+      transform-origin:100% 50%!important;
+      transition:opacity .18s ease,transform .24s cubic-bezier(.2,.82,.2,1),visibility 0s linear .24s!important;
+      color:#e8f0f6!important;
+      font-family:Arial,sans-serif!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage.is-open,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage.is-drop{
+      opacity:1!important;
+      visibility:visible!important;
+      pointer-events:auto!important;
+      transform:translate3d(0,-50%,0) scale(1)!important;
+      transition-delay:0s!important;
+    }
+
+    /* Header */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-head{
+      position:relative!important;
+      display:grid!important;
+      grid-template-columns:minmax(0,1fr) auto!important;
+      grid-template-rows:auto auto!important;
+      align-items:center!important;
+      gap:4px 12px!important;
+      min-height:74px!important;
+      padding:15px 58px 14px 18px!important;
+      box-sizing:border-box!important;
+      border:0!important;
+      border-bottom:1px solid rgba(206,166,78,.42)!important;
+      background:
+        linear-gradient(90deg,rgba(212,169,75,.08),transparent 27%,rgba(111,171,212,.06) 72%,transparent),
+        linear-gradient(180deg,rgba(37,55,72,.94),rgba(11,20,30,.96))!important;
+      box-shadow:inset 0 -1px 0 rgba(113,172,211,.10)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-head::before{
+      content:'✦';
+      position:absolute;
+      left:18px;
+      bottom:8px;
+      color:color-mix(in srgb,var(--bc-bright,#9bd5ff) 78%,#fff)!important;
+      font:700 7px/1 Georgia,serif;
+      text-shadow:0 0 7px color-mix(in srgb,var(--bc-bright,#9bd5ff) 48%,transparent);
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-head::after{
+      content:''!important;
+      position:absolute!important;
+      left:30px!important;
+      right:58px!important;
+      bottom:10px!important;
+      height:1px!important;
+      background:linear-gradient(90deg,color-mix(in srgb,var(--bc-accent,#d4a44c) 72%,transparent),rgba(128,187,224,.33),transparent)!important;
+      box-shadow:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-title{
+      grid-column:1!important;
+      grid-row:1!important;
+      color:#ffe3a0!important;
+      font:900 21px/1 Georgia,'Times New Roman',serif!important;
+      letter-spacing:.075em!important;
+      text-shadow:0 2px #000,0 0 10px rgba(231,193,103,.12)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-subtitle{
+      grid-column:1!important;
+      grid-row:2!important;
+      color:#8fb6d1!important;
+      font:800 9px/1.3 Arial,sans-serif!important;
+      letter-spacing:.075em!important;
+      text-transform:uppercase!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-count{
+      grid-column:2!important;
+      grid-row:1/3!important;
+      min-width:42px!important;
+      height:30px!important;
+      display:grid!important;
+      place-items:center!important;
+      padding:0 8px!important;
+      border:1px solid rgba(213,170,78,.58)!important;
+      border-radius:7px!important;
+      background:linear-gradient(180deg,#121f2d,#07101a)!important;
+      color:#ffe19a!important;
+      font:900 12px/1 Georgia,serif!important;
+      box-shadow:inset 0 0 0 1px rgba(123,183,221,.09),inset 0 0 11px rgba(0,0,0,.56)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-close{
+      position:absolute!important;
+      right:14px!important;
+      top:15px!important;
+      width:34px!important;
+      height:34px!important;
+      display:grid!important;
+      place-items:center!important;
+      padding:0!important;
+      border:1px solid rgba(213,170,78,.76)!important;
+      border-radius:7px!important;
+      outline:0!important;
+      background:linear-gradient(180deg,#3c2a12,#171006)!important;
+      color:#ffe5aa!important;
+      font:900 18px/1 Georgia,serif!important;
+      box-shadow:inset 0 0 0 1px rgba(255,235,178,.08),0 5px 12px rgba(0,0,0,.35)!important;
+      cursor:pointer!important;
+      transition:transform .15s ease,filter .15s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-close:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-close:focus-visible{
+      transform:translateY(-1px)!important;
+      filter:brightness(1.18)!important;
+      outline:1px solid color-mix(in srgb,var(--bc-bright,#8fc9ff) 55%,transparent)!important;
+    }
+
+    /* Search and filters */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-tools{
+      padding:14px 16px 13px!important;
+      border:0!important;
+      border-bottom:1px solid rgba(136,178,207,.13)!important;
+      background:rgba(3,9,15,.36)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-search{
+      width:100%!important;
+      height:43px!important;
+      box-sizing:border-box!important;
+      padding:0 14px!important;
+      border:1px solid rgba(207,166,77,.56)!important;
+      outline:0!important;
+      border-radius:7px!important;
+      background:linear-gradient(180deg,#102236,#08131f)!important;
+      color:#edf7fd!important;
+      font:700 11px/1 Arial,sans-serif!important;
+      letter-spacing:.02em!important;
+      box-shadow:inset 0 1px 0 rgba(148,198,230,.08),inset 0 0 12px rgba(0,0,0,.56)!important;
+      transition:border-color .15s ease,box-shadow .15s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-search::placeholder{color:#7895aa!important}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-search:focus{
+      border-color:color-mix(in srgb,var(--bc-bright,#81c9f4) 74%,#d4a64b)!important;
+      box-shadow:inset 0 0 12px rgba(0,0,0,.56),0 0 0 2px color-mix(in srgb,var(--bc-bright,#81c9f4) 10%,transparent)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-filters{
+      display:grid!important;
+      grid-template-columns:repeat(5,minmax(0,1fr))!important;
+      gap:6px!important;
+      margin-top:11px!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-filter{
+      min-width:0!important;
+      height:31px!important;
+      padding:0 4px!important;
+      border:1px solid rgba(178,142,63,.42)!important;
+      border-radius:5px!important;
+      background:linear-gradient(180deg,#1b2b3b,#0a1621)!important;
+      color:#91a9ba!important;
+      font:900 7.5px/1 Arial,sans-serif!important;
+      letter-spacing:.045em!important;
+      cursor:pointer!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+      transition:transform .12s ease,border-color .12s ease,color .12s ease,background .12s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-filter:hover{
+      transform:translateY(-1px)!important;
+      color:#edf8ff!important;
+      border-color:rgba(117,190,234,.62)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-filter[aria-pressed='true']{
+      color:#ffe4a1!important;
+      border-color:rgba(216,174,83,.88)!important;
+      background:linear-gradient(180deg,#5a431e,#21170a)!important;
+      box-shadow:inset 0 0 9px rgba(0,0,0,.45),0 0 10px rgba(112,180,221,.08)!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-results{
+      min-height:29px!important;
+      box-sizing:border-box!important;
+      display:flex!important;
+      align-items:center!important;
+      padding:8px 16px 6px!important;
+      color:#6f91a8!important;
+      font:900 7.5px/1.2 Arial,sans-serif!important;
+      letter-spacing:.10em!important;
+      text-transform:uppercase!important;
+      background:rgba(5,12,19,.56)!important;
+      border-bottom:1px solid rgba(134,178,207,.08)!important;
+    }
+
+    /* Stored card grid */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-list{
+      min-height:0!important;
+      padding:13px 14px 16px!important;
+      overflow:auto!important;
+      display:grid!important;
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      align-content:start!important;
+      gap:12px!important;
+      background:
+        linear-gradient(rgba(255,255,255,.009) 1px,transparent 1px) 0 0/100% 42px,
+        rgba(2,7,12,.17)!important;
+      scrollbar-width:thin!important;
+      scrollbar-color:#a6792f #07121c!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-list::-webkit-scrollbar{width:8px!important}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-list::-webkit-scrollbar-track{background:#07121c!important}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-list::-webkit-scrollbar-thumb{background:linear-gradient(#c3943f,#684818)!important;border:2px solid #07121c!important;border-radius:8px!important}
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card{
+      position:relative!important;
+      min-width:0!important;
+      padding:8px!important;
+      border:1px solid rgba(185,145,60,.45)!important;
+      border-radius:8px!important;
+      background:linear-gradient(155deg,#122536,#07131e 72%)!important;
+      box-shadow:inset 0 0 0 1px rgba(2,8,13,.66),0 7px 17px rgba(0,0,0,.28)!important;
+      cursor:grab!important;
+      transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card:hover{
+      transform:translateY(-2px)!important;
+      border-color:rgba(125,194,236,.64)!important;
+      box-shadow:inset 0 0 0 1px rgba(2,8,13,.66),0 11px 22px rgba(0,0,0,.38),0 0 12px rgba(111,184,229,.08)!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card-image{
+      min-height:174px!important;
+      padding:7px!important;
+      border-radius:5px!important;
+      background:radial-gradient(circle at 50% 22%,rgba(86,151,194,.12),transparent 48%),#050e17!important;
+      box-shadow:inset 0 0 0 1px rgba(131,177,206,.07)!important;
+      overflow:hidden!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card img{
+      max-width:100%!important;
+      max-height:176px!important;
+      filter:drop-shadow(0 4px 7px rgba(0,0,0,.72))!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card-badge{
+      left:7px!important;
+      top:7px!important;
+      padding:4px 6px!important;
+      border:1px solid rgba(211,176,91,.42)!important;
+      border-radius:4px!important;
+      background:rgba(3,10,16,.88)!important;
+      color:#d7be79!important;
+      font:900 7px/1 Arial,sans-serif!important;
+      letter-spacing:.07em!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card-name{
+      min-height:28px!important;
+      margin:8px 2px 6px!important;
+      color:#dceaf3!important;
+      font:900 10px/1.3 Georgia,serif!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-restore{
+      width:100%!important;
+      min-height:31px!important;
+      margin-top:auto!important;
+      padding:6px 7px!important;
+      border:1px solid rgba(194,148,57,.56)!important;
+      border-radius:5px!important;
+      background:linear-gradient(180deg,#4c3717,#1b1207)!important;
+      color:#f6d886!important;
+      font:900 8px/1 Arial,sans-serif!important;
+      letter-spacing:.07em!important;
+      cursor:pointer!important;
+      transition:filter .12s ease,transform .12s ease,border-color .12s ease!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-restore:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-restore:focus-visible{
+      transform:translateY(-1px)!important;
+      border-color:rgba(115,190,234,.70)!important;
+      filter:brightness(1.14)!important;
+      outline:0!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-empty{
+      grid-column:1/-1!important;
+      min-height:220px!important;
+      padding:32px 20px!important;
+      border:1px dashed rgba(116,171,207,.22)!important;
+      border-radius:9px!important;
+      background:radial-gradient(circle at 50% 40%,rgba(71,127,168,.08),transparent 52%),rgba(4,11,18,.35)!important;
+      color:#87a5b8!important;
+      font:900 11px/1.6 Arial,sans-serif!important;
+      letter-spacing:.08em!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-empty small{
+      display:block!important;
+      margin-top:8px!important;
+      color:#658197!important;
+      font:700 9px/1.5 Arial,sans-serif!important;
+      letter-spacing:.02em!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-help{
+      padding:10px 16px 12px!important;
+      border:0!important;
+      border-top:1px solid rgba(204,164,79,.18)!important;
+      background:linear-gradient(180deg,rgba(7,15,23,.94),rgba(3,8,13,.98))!important;
+      color:#6d899d!important;
+      font:800 8px/1.4 Arial,sans-serif!important;
+      letter-spacing:.035em!important;
+      text-align:center!important;
+    }
+
+    /* A little separation from the trigger art while the drawer is open. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-launch.repo-hidden-card-holder[aria-expanded='true']{
+      filter:drop-shadow(0 14px 20px rgba(0,0,0,.72)) brightness(.82)!important;
+    }
+
+    @media(max-width:1100px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        width:clamp(92px,9.87vw,132px)!important;
+        min-width:92px!important;
+        max-width:132px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage{
+        right:14px!important;
+        width:min(430px,calc(100vw - 28px))!important;
+        height:min(82dvh,720px)!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-filters{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+    }
+    @media(max-width:760px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+        width:86px!important;
+        min-width:86px!important;
+        max-width:86px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage{
+        right:8px!important;
+        width:calc(100vw - 16px)!important;
+        height:min(86dvh,690px)!important;
+        max-height:calc(100dvh - 18px)!important;
+        border-radius:9px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-title{font-size:18px!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-filters{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;padding:10px!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card-image{min-height:135px!important}
+      #quidditchTcgBinderDialog.repo-binder-book-mode .repo-binder-storage-card img{max-height:140px!important}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function positionV9Holder(){ return; }
+
+  function liftDrawer(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const box=dialog?.querySelector('.repo-binder-storage');
+    if(!dialog||!box)return;
+    // Keep the drawer as the last dialog child so it wins same-context paint
+    // ordering even in browsers with quirky top-layer z-index handling.
+    if(box.parentElement===dialog&&box!==dialog.lastElementChild)dialog.appendChild(box);
+  }
+
+  function refreshV9(){positionV9Holder();liftDrawer()}
+  const refresh=()=>{
+    refreshV9();
+    requestAnimationFrame(refreshV9);
+    setTimeout(refreshV9,80);
+    setTimeout(refreshV9,220);
+  };
+
+  // Capture clicks to lift the drawer before the legacy handler toggles it.
+  document.addEventListener('click',event=>{
+    const launch=event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch.repo-hidden-card-holder');
+    if(!launch)return;
+    liftDrawer();
+    requestAnimationFrame(liftDrawer);
+  },true);
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);refresh();return result};
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);refresh();return result};
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);refresh();return result};
+
+  window.addEventListener('resize',refresh,{passive:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
+})();
+
+// ============================================================
+// QUIDDITCH TCG BINDER — HIDDEN HOLDER POSITION V10
+// Keep the Hidden Cards holder tight to the binder's right edge and align
+// its top with the open binder instead of floating halfway down the page.
+// ============================================================
+(function installRepoTcgHiddenHolderPositionV10(){
+  if(window.__repoTcgHiddenHolderPositionV10Installed)return;
+  window.__repoTcgHiddenHolderPositionV10Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgHiddenHolderPositionV10Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      position:fixed!important;
+      margin:0!important;
+      transform-origin:50% 12%!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function positionHolderV10(){ return; }
+
+  function refreshV10(){
+    positionHolderV10();
+    requestAnimationFrame(positionHolderV10);
+    setTimeout(positionHolderV10,70);
+    setTimeout(positionHolderV10,180);
+    setTimeout(positionHolderV10,320);
+  }
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);refreshV10();return result};
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);refreshV10();return result};
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);refreshV10();return result};
+
+  window.addEventListener('resize',refreshV10,{passive:true});
+  window.addEventListener('scroll',refreshV10,{passive:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshV10,{once:true});else refreshV10();
+})();
+
+
+// ============================================================
+// QUIDDITCH TCG BINDER — HIDDEN HOLDER ANCHOR V11
+// V10 used viewport/fixed coordinates. The binder dialog itself is transformed,
+// which makes CSS fixed positioning use the transformed dialog as its containing
+// block in Chromium. Anchor the holder to the actual binder stage instead so it
+// truly sits beside the binder's top-right corner at every viewport size.
+// ============================================================
+(function installRepoTcgHiddenHolderAnchorV11(){
+  if(window.__repoTcgHiddenHolderAnchorV11Installed)return;
+  window.__repoTcgHiddenHolderAnchorV11Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgHiddenHolderAnchorV11Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-stage{
+      position:relative!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      position:absolute!important;
+      right:auto!important;
+      bottom:auto!important;
+      margin:0!important;
+      z-index:96!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  let holderObserver=null;
+  let observedSpread=null;
+
+  function holderWidth(viewportW){
+    let w=Math.max(104,Math.min(171,viewportW*.0942));
+    if(viewportW<=1100)w=Math.max(92,Math.min(132,viewportW*.0987));
+    if(viewportW<=760)w=86;
+    return w;
+  }
+
+  function positionHolderV11(){ return; }
+
+  function refreshV11(){
+    positionHolderV11();
+    requestAnimationFrame(positionHolderV11);
+    // Older binder patches schedule corrections up to ~320ms. Run after them
+    // as well so V11 remains the final authority on the holder position.
+    [70,180,340,480,700].forEach(delay=>setTimeout(positionHolderV11,delay));
+  }
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){const result=previousEnsure.apply(this,arguments);refreshV11();return result};
+  const previousSet=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){const result=previousSet.apply(this,arguments);refreshV11();return result};
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){const result=previousOpen.apply(this,arguments);refreshV11();return result};
+
+  window.addEventListener('resize',refreshV11,{passive:true});
+  window.addEventListener('scroll',positionHolderV11,{passive:true});
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch.repo-hidden-card-holder')){
+      requestAnimationFrame(positionHolderV11);
+      setTimeout(positionHolderV11,80);
+    }
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshV11,{once:true});else refreshV11();
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — HIDDEN CARDS HOLDER POSITION V12
+// Fine-tunes the holder so its visible top aligns with the binder top edge,
+// and brings it slightly closer to the binder.
+// ============================================================
+(function installRepoTcgHiddenHolderPositionV12(){
+  if(window.__repoTcgHiddenHolderPositionV12Installed)return;
+  window.__repoTcgHiddenHolderPositionV12Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgHiddenHolderPositionV12Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      position:absolute!important;
+      right:auto!important;
+      bottom:auto!important;
+      margin:0!important;
+      z-index:97!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  let holderObserverV12=null;
+  let observedSpreadV12=null;
+
+  function holderWidthV12(viewportW){
+    let w=Math.max(104,Math.min(171,viewportW*.0942));
+    if(viewportW<=1100)w=Math.max(92,Math.min(132,viewportW*.0987));
+    if(viewportW<=760)w=86;
+    return w;
+  }
+
+  function positionHolderV12(){ return; }
+
+  function refreshV12(){
+    positionHolderV12();
+    requestAnimationFrame(positionHolderV12);
+    [60,150,300,500,760].forEach(delay=>setTimeout(positionHolderV12,delay));
+  }
+
+  const previousEnsure=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){
+    const result=previousEnsure.apply(this,arguments);
+    refreshV12();
+    return result;
+  };
+  const previousSetPage=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){
+    const result=previousSetPage.apply(this,arguments);
+    refreshV12();
+    return result;
+  };
+  const previousOpen=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){
+    const result=previousOpen.apply(this,arguments);
+    refreshV12();
+    return result;
+  };
+
+  window.addEventListener('resize',refreshV12,{passive:true});
+  window.addEventListener('scroll',refreshV12,{passive:true});
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch.repo-hidden-card-holder')){
+      setTimeout(refreshV12,30);
+      setTimeout(refreshV12,180);
+    }
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshV12,320),{once:true});
+  else setTimeout(refreshV12,320);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — HIDDEN CARDS + BINDER STYLE SIDE CONTROL V13
+// - stabilises the Hidden Cards holder so it no longer jumps on page turns
+// - positions the holder closer to the binder and lower for better alignment
+// - moves Binder Style beneath the holder using the supplied icon artwork
+// - removes Binder Style from the lower plaque, leaving a clean page-info box
+// ============================================================
+(function installRepoTcgBinderSideControlV13(){
+  if(window.__repoTcgBinderSideControlV13Installed)return;
+  window.__repoTcgBinderSideControlV13Installed=true;
+
+  const STYLE_ICON_ASSET='assets/quidditch-tcg-binder/binder-style-icon.png';
+  const style=document.createElement('style');
+  style.id='repoTcgBinderSideControlV13Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-stage{
+      position:relative!important;
+      overflow:visible!important;
+    }
+
+    /* Clean lower plaque: page info only. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+      bottom:8px!important;
+      min-height:58px!important;
+      width:min(560px,calc(100vw - 44px))!important;
+      padding:0!important;
+      background:transparent!important;
+      border:none!important;
+      box-shadow:none!important;
+      outline:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status{
+      min-height:auto!important;
+      width:min(560px,calc(100vw - 44px))!important;
+      padding:10px 18px!important;
+      border:1px solid rgba(203,146,58,.86)!important;
+      outline:1px solid rgba(255,226,160,.18)!important;
+      outline-offset:-5px!important;
+      border-radius:8px!important;
+      background:linear-gradient(180deg,rgba(11,22,35,.96),rgba(6,13,22,.96))!important;
+      box-shadow:0 10px 26px rgba(0,0,0,.52), inset 0 0 0 1px rgba(255,210,120,.05)!important;
+      display:flex!important;
+      flex-direction:column!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:4px!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status b{
+      font-size:14px!important;
+      letter-spacing:.13em!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status small{
+      font-size:10px!important;
+      max-width:100%!important;
+      white-space:nowrap!important;
+      overflow:hidden!important;
+      text-overflow:ellipsis!important;
+    }
+
+    /* Side binder-style control. */
+    #binderStyleControl.repo-binder-style-side-control{
+      position:absolute!important;
+      left:0;top:0;
+      margin:0!important;
+      z-index:98!important;
+      display:block!important;
+      width:auto!important;
+      min-width:0!important;
+      overflow:visible!important;
+    }
+    #binderStyleControl.repo-binder-style-side-control[hidden]{display:none!important}
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger{
+      position:relative!important;
+      display:block!important;
+      width:82px!important;
+      height:82px!important;
+      min-height:82px!important;
+      padding:0!important;
+      border:none!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      outline:none!important;
+      overflow:hidden!important;
+      color:transparent!important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      background-image:url('${STYLE_ICON_ASSET}');
+      background-size:contain;
+      background-repeat:no-repeat;
+      background-position:center;
+      filter:drop-shadow(0 6px 12px rgba(0,0,0,.55));
+      transition:transform .16s ease, filter .16s ease;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:hover::before,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:focus-visible::before{
+      transform:translateY(-1px) scale(1.035);
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,.62)) brightness(1.06);
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:active::before{
+      transform:translateY(1px) scale(.988);
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger i,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger > span{
+      position:absolute!important;
+      width:1px!important;height:1px!important;
+      padding:0!important;margin:-1px!important;border:0!important;
+      overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;
+      white-space:nowrap!important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-menu{
+      left:auto!important;
+      right:calc(100% + 16px)!important;
+      bottom:-10px!important;
+      transform:none!important;
+      width:min(620px,72vw)!important;
+      max-height:min(74vh,680px)!important;
+      z-index:120!important;
+    }
+
+    /* Hidden Cards holder: closer to the binder and stable while page-turning. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      z-index:97!important;
+      transition:none!important;
+      animation:none!important;
+      will-change:auto!important;
+    }
+
+    @media(max-width:1100px){
+      #binderStyleControl.repo-binder-style-side-control .binder-style-trigger{
+        width:72px!important;height:72px!important;min-height:72px!important;
+      }
+      #binderStyleControl.repo-binder-style-side-control .binder-style-menu{
+        width:min(560px,80vw)!important;
+      }
+    }
+    @media(max-width:760px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-nav{
+        width:min(94vw,520px)!important;
+        bottom:8px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status{
+        width:min(94vw,520px)!important;
+        padding:9px 12px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .quidditch-tcg-binder-status small{
+        font-size:9px!important;
+      }
+      #binderStyleControl.repo-binder-style-side-control .binder-style-trigger{
+        width:64px!important;height:64px!important;min-height:64px!important;
+      }
+      #binderStyleControl.repo-binder-style-side-control .binder-style-menu{
+        right:auto!important;
+        left:50%!important;
+        bottom:calc(100% + 10px)!important;
+        transform:translateX(-50%)!important;
+        width:min(92vw,500px)!important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  let stabiliserRaf=0;
+  let stabiliserUntil=0;
+
+  function holderWidthV13(viewportW){
+    let w=Math.max(104,Math.min(171,viewportW*.0942));
+    if(viewportW<=1100)w=Math.max(92,Math.min(132,viewportW*.0987));
+    if(viewportW<=760)w=86;
+    return w;
+  }
+
+  function styleButtonSizeV13(viewportW){
+    if(viewportW<=760)return 64;
+    if(viewportW<=1100)return 72;
+    return 82;
+  }
+
+  function positionBinderSideControlsV13(){ return; }
+  function kickSideControlStabiliserV13(duration=560){
+    stabiliserUntil=performance.now()+duration;
+    if(stabiliserRaf)return;
+    const tick=()=>{
+      stabiliserRaf=0;
+      positionBinderSideControlsV13();
+      if(performance.now()<stabiliserUntil){
+        stabiliserRaf=requestAnimationFrame(tick);
+      }
+    };
+    stabiliserRaf=requestAnimationFrame(tick);
+  }
+
+  function decorateTriggerV13(){
+    const trigger=document.getElementById('binderStyleTrigger');
+    if(!trigger||trigger.dataset.repoDecoratedV13==='true')return;
+    trigger.dataset.repoDecoratedV13='true';
+    trigger.setAttribute('aria-label','Binder Style');
+    trigger.setAttribute('title','Binder Style');
+  }
+
+  function refreshBinderSideControlV13(){
+    decorateTriggerV13();
+    positionBinderSideControlsV13();
+    kickSideControlStabiliserV13(620);
+    [80,180,320,520,760].forEach(delay=>setTimeout(positionBinderSideControlsV13,delay));
+  }
+
+  const previousEnsureBinderUi=typeof ensureBinderCustomisationUi==='function'?ensureBinderCustomisationUi:null;
+  if(previousEnsureBinderUi){
+    ensureBinderCustomisationUi=function(){
+      const result=previousEnsureBinderUi.apply(this,arguments);
+      refreshBinderSideControlV13();
+      return result;
+    };
+  }
+  const previousEnsureTcgUi=ensureQuidditchTcgBinderUi;
+  ensureQuidditchTcgBinderUi=function(){
+    const result=previousEnsureTcgUi.apply(this,arguments);
+    refreshBinderSideControlV13();
+    return result;
+  };
+  const previousSetPage=setQuidditchTcgBinderPage;
+  setQuidditchTcgBinderPage=function(){
+    const result=previousSetPage.apply(this,arguments);
+    refreshBinderSideControlV13();
+    return result;
+  };
+  const previousOpenBinder=openQuidditchTcgBinder;
+  openQuidditchTcgBinder=function(){
+    const result=previousOpenBinder.apply(this,arguments);
+    refreshBinderSideControlV13();
+    return result;
+  };
+
+  window.addEventListener('resize',refreshBinderSideControlV13,{passive:true});
+  window.addEventListener('scroll',refreshBinderSideControlV13,{passive:true});
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch.repo-hidden-card-holder') ||
+       event.target.closest?.('#quidditchTcgBinderDialog #binderStyleControl.repo-binder-style-side-control')){
+      setTimeout(refreshBinderSideControlV13,24);
+      setTimeout(refreshBinderSideControlV13,160);
+    }
+  },true);
+  document.addEventListener('transitionend',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog'))refreshBinderSideControlV13();
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshBinderSideControlV13,320),{once:true});
+  else setTimeout(refreshBinderSideControlV13,320);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER STYLE ICON + HIDDEN CARD ANIMATION V14
+// - swaps in the supplied multi-colour paintbrush icon
+// - adds a magical click effect + soft sound for Binder Style
+// - aligns the Hidden Cards holder with the binder and keeps it stable on flips
+// - animates cards flying into / back out of Hidden Cards instead of teleporting
+// ============================================================
+(function installRepoTcgBinderInteractionPolishV14(){
+  if(window.__repoTcgBinderInteractionPolishV14Installed)return;
+  window.__repoTcgBinderInteractionPolishV14Installed=true;
+
+  const STYLE_ICON_ASSET='assets/quidditch-tcg-binder/binder-style-icon-v14.png';
+  const SLOTS_PER_SPREAD=24;
+  let stabiliserRaf=0;
+  let stabiliserUntil=0;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderInteractionPolishV14Styles';
+  style.textContent=`
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger{
+      isolation:isolate!important;
+      overflow:visible!important;
+      cursor:pointer!important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger::before{
+      background-image:url('${STYLE_ICON_ASSET}')!important;
+      filter:drop-shadow(0 8px 18px rgba(0,0,0,.62)) drop-shadow(0 0 12px rgba(89,176,255,.18))!important;
+      transition:transform .18s ease, filter .18s ease, opacity .18s ease!important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger::after{
+      content:'';
+      position:absolute;
+      inset:8%;
+      border-radius:50%;
+      opacity:0;
+      pointer-events:none;
+      background:radial-gradient(circle,rgba(255,237,173,.42) 0,rgba(102,193,255,.18) 28%,rgba(216,110,255,.14) 45%,transparent 72%);
+      transform:scale(.72);
+      transition:opacity .2s ease, transform .26s ease;
+      z-index:-1;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:hover::before,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:focus-visible::before{
+      transform:translateY(-2px) scale(1.04) rotate(-2.6deg)!important;
+      filter:drop-shadow(0 11px 20px rgba(0,0,0,.66)) drop-shadow(0 0 16px rgba(84,188,255,.26)) brightness(1.06)!important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:hover::after,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:focus-visible::after{
+      opacity:.88;transform:scale(1);
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger.repo-style-clicking::before{
+      transform:translateY(1px) scale(.97) rotate(1.5deg)!important;
+      filter:drop-shadow(0 5px 12px rgba(0,0,0,.55)) brightness(1.12) saturate(1.12)!important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger.repo-style-clicking::after{
+      opacity:1;transform:scale(1.18);
+      transition:none;
+    }
+    .repo-style-click-burst{
+      position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;z-index:2147483000;
+    }
+    .repo-style-click-burst .repo-style-burst-ring,
+    .repo-style-click-burst .repo-style-burst-ring-alt{
+      position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:50%;
+      border:2px solid rgba(255,219,130,.82);
+      box-shadow:0 0 0 1px rgba(127,202,255,.45) inset,0 0 16px rgba(124,195,255,.28);
+      animation:repoStyleBurstRing .58s cubic-bezier(.2,.7,.2,1) forwards;
+    }
+    .repo-style-click-burst .repo-style-burst-ring-alt{
+      left:-15px;top:-15px;width:30px;height:30px;border-color:rgba(109,196,255,.88);
+      animation-duration:.48s;
+    }
+    .repo-style-click-burst .repo-style-spark{
+      position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;
+      background:radial-gradient(circle,#fff9d7 0 25%,#73d0ff 45%,#7e5dff 70%,transparent 72%);
+      box-shadow:0 0 10px rgba(255,232,146,.6),0 0 16px rgba(83,188,255,.34);
+      animation:repoStyleSparkFly .64s ease-out forwards;
+      transform:rotate(var(--rot)) translateY(-2px);
+    }
+    @keyframes repoStyleBurstRing{0%{opacity:.92;transform:scale(.35)}100%{opacity:0;transform:scale(2.35)}}
+    @keyframes repoStyleSparkFly{0%{opacity:1;transform:rotate(var(--rot)) translateY(0) scale(1)}100%{opacity:0;transform:rotate(var(--rot)) translateY(calc(-34px - var(--dist))) scale(.2)}}
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      transition:none!important;
+      animation:none!important;
+      transform:translateZ(0)!important;
+      backface-visibility:hidden!important;
+      will-change:left,top!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:active{
+      transform:translateZ(0)!important;
+      transition:none!important;
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage{
+      transition:transform .22s cubic-bezier(.2,.78,.2,1), opacity .18s ease, visibility 0s linear .22s!important;
+    }
+    .repo-binder-slot-126.repo-v14-slot-pulse{
+      box-shadow:0 0 0 1px rgba(255,220,132,.68) inset,0 0 24px rgba(109,191,255,.36)!important;
+      animation:repoBinderSlotPulseV14 .74s ease-out 1;
+    }
+    @keyframes repoBinderSlotPulseV14{0%{transform:scale(.985)}38%{transform:scale(1.03)}100%{transform:scale(1)}}
+    .repo-tcg-transfer-ghost{
+      position:fixed;left:0;top:0;z-index:2147482500;pointer-events:none;
+      border-radius:10px;overflow:hidden;
+      box-shadow:0 18px 40px rgba(0,0,0,.54),0 0 18px rgba(103,189,239,.2);
+      transform-origin:top left;
+      will-change:transform,opacity;
+      background:transparent;
+    }
+    .repo-tcg-transfer-ghost img{
+      display:block;width:100%;height:100%;object-fit:contain;
+      filter:drop-shadow(0 6px 8px rgba(0,0,0,.5));
+    }
+    .repo-tcg-transfer-ghost::after{
+      content:'';position:absolute;inset:-10%;pointer-events:none;
+      background:radial-gradient(circle at 50% 50%,rgba(255,240,180,.2),transparent 55%);
+      mix-blend-mode:screen;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function currentCollection(){
+    try{return window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[],isPublic:false};}
+    catch(_){return {username:'guest',cards:[],isPublic:false};}
+  }
+  function owner(){return String(currentCollection().username||'guest').trim().toLowerCase();}
+  function isPublic(){return !!currentCollection().isPublic;}
+  function cleanId(raw){return String(raw||'').trim().toLowerCase().replaceAll('-','_');}
+  function layoutKey(){return `repo_tcg_binder_54_layout_${owner()}`;}
+  function storageKey(){return `repo_tcg_binder_storage_${owner()}`;}
+  function loadJson(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||'null');return v==null?fallback:v;}catch(_){return fallback;}}
+  function saveJson(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch(_){}}
+  function loadLayout(){const v=loadJson(layoutKey(),[]);return Array.isArray(v)?v:[];}
+  function loadStorage(){const v=loadJson(storageKey(),[]);return Array.isArray(v)?[...new Set(v.map(cleanId).filter(Boolean))]:[];}
+  function getOwned(){
+    const out=[];
+    for(const raw of currentCollection().cards||[]){const id=cleanId(raw);if(id&&!out.includes(id))out.push(id);}
+    return out;
+  }
+  function getSpreadCount(){
+    const hint=document.getElementById('quidditchTcgBinderHint')?.textContent||'';
+    const m=/Spread\s+\d+\s+of\s+(\d+)/i.exec(hint);
+    return m?Math.max(1,Number(m[1])||1):8;
+  }
+  function getTotalSlots(){return Math.max(SLOTS_PER_SPREAD*getSpreadCount(),loadLayout().length||0,192);}
+  function getCurrentSpreadIndex(){
+    const key=String(document.getElementById('quidditchTcgBinderDialog')?.dataset.binderPage||'');
+    const m=/^open(\d+)$/.exec(key);
+    return m?Math.max(0,(Number(m[1])||1)-1):-1;
+  }
+  function orderedLayout(){
+    const total=getTotalSlots();
+    const stored=loadStorage();
+    const have=getOwned().filter(id=>!stored.includes(id));
+    const slots=Array(total).fill(null);
+    loadLayout().slice(0,total).forEach((raw,i)=>{
+      const id=cleanId(raw);
+      if(id&&have.includes(id)&&!slots.includes(id))slots[i]=id;
+    });
+    for(const id of have){
+      if(!slots.includes(id)){
+        const empty=slots.indexOf(null);
+        if(empty>=0)slots[empty]=id;
+      }
+    }
+    return slots;
+  }
+  function persistState(cards,stored){
+    saveJson(layoutKey(),cards.slice(0,getTotalSlots()));
+    saveJson(storageKey(),[...new Set(stored.map(cleanId).filter(Boolean))]);
+    try{
+      if(typeof db!=='undefined'&&db?.rpc&&typeof character!=='undefined'&&character?.username){
+        db.rpc('set_my_quidditch_tcg_binder_layout',{p_username:String(character.username),p_layout:cards.slice(0,getTotalSlots()),p_storage:[...new Set(stored.map(cleanId).filter(Boolean))]}).catch?.(()=>{});
+      }
+    }catch(_){ }
+  }
+  function rerenderBinder(silent=true){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    const key=String(dialog.dataset.binderPage||'');
+    const m=/^open(\d+)$/.exec(key);
+    if(typeof setQuidditchTcgBinderPage==='function'&&m){
+      setQuidditchTcgBinderPage(Number(m[1]),{sound:!silent});
+    }else if(typeof ensureQuidditchTcgBinderUi==='function'){
+      ensureQuidditchTcgBinderUi();
+    }
+  }
+  function firstRestoreSlot(cards){
+    const idx=getCurrentSpreadIndex();
+    if(idx>=0){
+      const start=idx*SLOTS_PER_SPREAD;
+      for(let i=start;i<start+SLOTS_PER_SPREAD;i++)if(!cards[i])return i;
+    }
+    return cards.indexOf(null);
+  }
+  function slotElementByIndex(slotIndex){
+    return document.querySelector(`#quidditchTcgBinderDialog .repo-binder-slot-126[data-slot="${slotIndex}"]`);
+  }
+  function positionStableSideControlsV14(){ return; }
+  function kickStableSideControlsV14(duration=920){
+    stabiliserUntil=performance.now()+duration;
+    if(stabiliserRaf)return;
+    const tick=()=>{
+      stabiliserRaf=0;
+      positionStableSideControlsV14();
+      if(performance.now()<stabiliserUntil)stabiliserRaf=requestAnimationFrame(tick);
+    };
+    stabiliserRaf=requestAnimationFrame(tick);
+  }
+  function refreshStableSideControlsV14(){
+    positionStableSideControlsV14();
+    kickStableSideControlsV14(920);
+    [80,200,420,720].forEach(delay=>setTimeout(positionStableSideControlsV14,delay));
+  }
+
+  const _ensureCustomV14=typeof ensureBinderCustomisationUi==='function'?ensureBinderCustomisationUi:null;
+  if(_ensureCustomV14){
+    ensureBinderCustomisationUi=function(){const r=_ensureCustomV14.apply(this,arguments);refreshStableSideControlsV14();return r;};
+  }
+  const _ensureTcgV14=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(_ensureTcgV14){
+    ensureQuidditchTcgBinderUi=function(){const r=_ensureTcgV14.apply(this,arguments);refreshStableSideControlsV14();return r;};
+  }
+  const _setPageV14=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(_setPageV14){
+    setQuidditchTcgBinderPage=function(){const r=_setPageV14.apply(this,arguments);refreshStableSideControlsV14();return r;};
+  }
+  const _openBinderV14=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(_openBinderV14){
+    openQuidditchTcgBinder=function(){const r=_openBinderV14.apply(this,arguments);refreshStableSideControlsV14();return r;};
+  }
+
+  window.addEventListener('resize',refreshStableSideControlsV14,{passive:true});
+  window.addEventListener('scroll',refreshStableSideControlsV14,{passive:true});
+  document.addEventListener('transitionend',event=>{if(event.target.closest?.('#quidditchTcgBinderDialog'))refreshStableSideControlsV14();},true);
+
+  function playBrushSound(){
+    try{
+      const src='assets/quidditch-tcg-binder/binder-style-click-v173.mp3';
+      let audio=playBrushSound.audio;
+      if(!audio){
+        audio=playBrushSound.audio=new Audio(src);
+        audio.preload='auto';
+        audio.volume=.58;
+      }
+      audio.pause();
+      audio.currentTime=0;
+      const result=audio.play();
+      result?.catch?.(()=>{});
+    }catch(_){ }
+  }
+  function spawnBrushBurst(trigger){
+    const rect=trigger.getBoundingClientRect();
+    const burst=document.createElement('div');
+    burst.className='repo-style-click-burst';
+    burst.style.left=`${rect.left+rect.width/2}px`;
+    burst.style.top=`${rect.top+rect.height/2}px`;
+    burst.innerHTML='<span class="repo-style-burst-ring"></span><span class="repo-style-burst-ring-alt"></span>';
+    const sparkCount=7;
+    for(let i=0;i<sparkCount;i++){
+      const s=document.createElement('span');
+      s.className='repo-style-spark';
+      s.style.setProperty('--rot',`${Math.round((360/sparkCount)*i)}deg`);
+      s.style.setProperty('--dist',`${18+Math.round(Math.random()*18)}px`);
+      burst.appendChild(s);
+    }
+    document.body.appendChild(burst);
+    setTimeout(()=>burst.remove(),700);
+  }
+  function decorateBrushTrigger(){
+    const trigger=document.getElementById('binderStyleTrigger');
+    if(!trigger||trigger.dataset.repoStyleDecoratedV14==='true')return;
+    trigger.dataset.repoStyleDecoratedV14='true';
+    trigger.addEventListener('click',()=>{
+      trigger.classList.remove('repo-style-clicking');
+      void trigger.offsetWidth;
+      trigger.classList.add('repo-style-clicking');
+      setTimeout(()=>trigger.classList.remove('repo-style-clicking'),180);
+      playBrushSound();
+      spawnBrushBurst(trigger);
+    },true);
+  }
+
+  function cloneCardImageFromSource(sourceEl){
+    if(!sourceEl)return null;
+    if(sourceEl.matches?.('img'))return sourceEl.cloneNode(true);
+    const img=sourceEl.querySelector?.('img');
+    return img?img.cloneNode(true):null;
+  }
+  function animateCardFlight(sourceEl,targetEl,{duration=680,scaleTo=.74,rotate=0,onFinish}={}){
+    const img=cloneCardImageFromSource(sourceEl);
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!img||!targetEl||!dialog){onFinish?.();return;}
+
+    const sourceNode=sourceEl.matches?.('img')?sourceEl:(sourceEl.querySelector?.('img')||sourceEl);
+    const sourceRect=sourceNode.getBoundingClientRect();
+    const targetRect=targetEl.getBoundingClientRect();
+    const dialogRect=dialog.getBoundingClientRect();
+    if(!sourceRect.width||!sourceRect.height||!targetRect.width||!targetRect.height||!dialogRect.width||!dialogRect.height){
+      onFinish?.();return;
+    }
+
+    // <dialog> is in the browser top-layer. Convert viewport coordinates to
+    // dialog-local coordinates and render the flying card inside the dialog.
+    const scaleX=dialogRect.width/(dialog.offsetWidth||dialogRect.width||1);
+    const scaleY=dialogRect.height/(dialog.offsetHeight||dialogRect.height||1);
+    const sx=(sourceRect.left-dialogRect.left)/(scaleX||1);
+    const sy=(sourceRect.top-dialogRect.top)/(scaleY||1);
+    const sw=sourceRect.width/(scaleX||1);
+    const sh=sourceRect.height/(scaleY||1);
+    const tx=(targetRect.left-dialogRect.left)/(scaleX||1);
+    const ty=(targetRect.top-dialogRect.top)/(scaleY||1);
+    const tw=targetRect.width/(scaleX||1);
+    const th=targetRect.height/(scaleY||1);
+
+    const destScale=Math.min(1.08,Math.max(.28,(tw/sw)*scaleTo));
+    const destLeft=tx+(tw-sw*destScale)/2;
+    const destTop=ty+(th-sh*destScale)/2;
+    const dx=destLeft-sx;
+    const dy=destTop-sy;
+    const arc=Math.max(26,Math.min(72,Math.abs(dx)*.075+Math.abs(dy)*.045));
+
+    const ghost=document.createElement('div');
+    ghost.className='repo-tcg-transfer-ghost repo-tcg-transfer-ghost-v173';
+    ghost.style.setProperty('position','absolute','important');
+    ghost.style.setProperty('left',`${sx}px`,'important');
+    ghost.style.setProperty('top',`${sy}px`,'important');
+    ghost.style.setProperty('width',`${sw}px`,'important');
+    ghost.style.setProperty('height',`${sh}px`,'important');
+    ghost.style.setProperty('z-index','2147483500','important');
+    ghost.style.setProperty('pointer-events','none','important');
+    ghost.style.setProperty('transform-origin','top left','important');
+    ghost.style.setProperty('opacity','1','important');
+    ghost.appendChild(img);
+    dialog.appendChild(ghost);
+
+    // Show only the flying clone during the transfer. The original remains in
+    // the DOM until persistence completes, but is visually suppressed so this
+    // reads as one physical card moving rather than a duplicate/teleport.
+    const originalSourceOpacity=sourceNode.style.opacity;
+    const originalSourceTransition=sourceNode.style.transition;
+    sourceNode.style.setProperty('transition','none','important');
+    sourceNode.style.setProperty('opacity','0','important');
+
+    const animation=ghost.animate([
+      {
+        transform:'translate3d(0,0,0) scale(1) rotate(0deg)',
+        opacity:1,
+        offset:0
+      },
+      {
+        transform:`translate3d(${dx*.52}px,${dy*.48-arc}px,0) scale(${Math.max(destScale,0.82)}) rotate(${rotate*.45}deg)`,
+        opacity:1,
+        offset:.52
+      },
+      {
+        transform:`translate3d(${dx}px,${dy}px,0) scale(${destScale}) rotate(${rotate}deg)`,
+        opacity:.78,
+        offset:1
+      }
+    ],{
+      duration,
+      easing:'cubic-bezier(.18,.78,.18,1)',
+      fill:'forwards'
+    });
+
+    let finished=false;
+    const finish=()=>{
+      if(finished)return;
+      finished=true;
+      ghost.remove();
+      if(sourceNode?.isConnected){
+        if(originalSourceOpacity) sourceNode.style.setProperty('opacity',originalSourceOpacity);
+        else sourceNode.style.removeProperty('opacity');
+        if(originalSourceTransition) sourceNode.style.setProperty('transition',originalSourceTransition);
+        else sourceNode.style.removeProperty('transition');
+      }
+      onFinish?.();
+    };
+    animation.addEventListener('finish',finish,{once:true});
+    animation.addEventListener('cancel',finish,{once:true});
+    setTimeout(finish,duration+120);
+  }
+  function pulseSlot(slotIndex){
+    const slot=slotElementByIndex(slotIndex);
+    if(!slot)return;
+    slot.classList.remove('repo-v14-slot-pulse');
+    void slot.offsetWidth;
+    slot.classList.add('repo-v14-slot-pulse');
+    setTimeout(()=>slot.classList.remove('repo-v14-slot-pulse'),760);
+  }
+  function showToastV14(message){try{if(typeof showToast==='function')showToast(message);}catch(_){}}
+
+  const binderTransfersInFlightV176=new Set();
+
+  function playBinderCardTransferSoundV175(){
+    try{
+      // Create a fresh audio instance for every accepted transfer so rapid
+      // multi-card actions can overlap instead of cutting the previous sound off.
+      const audio=new Audio('assets/quidditch-tcg-binder/card-transfer-v175.mp3');
+      audio.preload='auto';
+      audio.volume=.88;
+      audio.play()?.catch?.(()=>{});
+      audio.addEventListener('ended',()=>{try{audio.remove?.();}catch(_){ }},{once:true});
+    }catch(_){ }
+  }
+
+  function findLiveStorageCardV175(id){
+    const clean=cleanId(id);
+    return [...document.querySelectorAll('#quidditchTcgBinderDialog .repo-binder-storage-card')]
+      .find(item=>cleanId(item.dataset.cardId||'')===clean)||null;
+  }
+
+  function hideCardWithAnimation(img){
+    if(isPublic())return;
+    const slotEl=img?.closest?.('.repo-binder-slot-126');
+    const slot=Number(slotEl?.dataset.slot);
+    const id=cleanId(img?.dataset.cardId||'');
+    if(!Number.isFinite(slot)||!id)return;
+
+    // Only block the exact same card while its own animation is running.
+    // Every other card remains immediately interactive.
+    if(binderTransfersInFlightV176.has(id))return;
+
+    const cards=orderedLayout();
+    if(cleanId(cards[slot]||'')!==id)return;
+
+    const stored=loadStorage();
+    const launch=document.querySelector('#quidditchTcgBinderDialog .repo-binder-storage-launch');
+    const source=img;
+    const label=img.alt||'Card';
+
+    binderTransfersInFlightV176.add(id);
+    playBinderCardTransferSoundV175();
+
+    // Start the visual flight FIRST. animateCardFlight creates a completely
+    // independent top-layer clone synchronously, so the real UI can rerender
+    // immediately afterwards without killing the animation.
+    if(source&&launch){
+      animateCardFlight(source,launch,{
+        duration:820,
+        scaleTo:.52,
+        rotate:8,
+        onFinish:()=>binderTransfersInFlightV176.delete(id)
+      });
+    }else{
+      setTimeout(()=>binderTransfersInFlightV176.delete(id),120);
+    }
+
+    // Commit immediately instead of waiting ~820ms for the animation.
+    // The next click therefore reads this new state straight away.
+    cards[slot]=null;
+    if(!stored.includes(id))stored.push(id);
+    persistState(cards,stored);
+    rerenderBinder(true);
+    refreshStableSideControlsV14();
+    showToastV14(`${label} added to Hidden Cards.`);
+  }
+
+  function restoreCardWithAnimation(storageCard){
+    if(isPublic())return;
+    const id=cleanId(storageCard?.dataset.cardId||'');
+    if(!id||binderTransfersInFlightV176.has(id))return;
+
+    const stored=loadStorage();
+    if(!stored.includes(id))return;
+
+    const cards=orderedLayout();
+    const target=firstRestoreSlot(cards);
+    if(target<0){
+      showToastV14('Your binder has no empty card slots.');
+      return;
+    }
+
+    const source=storageCard.querySelector?.('img')||storageCard;
+    const targetSlot=slotElementByIndex(target);
+    const label=storageCard.querySelector?.('.repo-binder-storage-card-name')?.textContent||'Card';
+
+    binderTransfersInFlightV176.add(id);
+    playBinderCardTransferSoundV175();
+
+    if(source&&targetSlot){
+      animateCardFlight(source,targetSlot,{
+        duration:840,
+        scaleTo:.96,
+        rotate:-6,
+        onFinish:()=>{
+          binderTransfersInFlightV176.delete(id);
+          pulseSlot(target);
+        }
+      });
+    }else{
+      setTimeout(()=>{
+        binderTransfersInFlightV176.delete(id);
+        pulseSlot(target);
+      },120);
+    }
+
+    // Commit immediately. Since JavaScript click handlers run sequentially,
+    // the next rapidly-clicked card sees this updated localStorage state and
+    // reserves the next available binder slot safely.
+    for(let i=0;i<cards.length;i++){
+      if(cleanId(cards[i]||'')===id&&i!==target)cards[i]=null;
+    }
+    cards[target]=id;
+    persistState(cards,stored.filter(x=>cleanId(x)!==id));
+    rerenderBinder(true);
+    refreshStableSideControlsV14();
+    showToastV14(`${label} restored to Spread ${Math.floor(target/SLOTS_PER_SPREAD)+1}.`);
+  }
+
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog #binderStyleTrigger'))decorateBrushTrigger();
+  },true);
+
+  document.addEventListener('contextmenu',event=>{
+    const img=event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-slot-126 img[data-card-id]');
+    if(!img||isPublic())return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    hideCardWithAnimation(img);
+  },true);
+  document.addEventListener('click',event=>{
+    const button=event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage [data-action="restore"]');
+    if(!button||isPublic())return;
+    const item=button.closest('.repo-binder-storage-card');
+    if(!item)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    restoreCardWithAnimation(item);
+  },true);
+  document.addEventListener('dblclick',event=>{
+    const item=event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage .repo-binder-storage-card');
+    if(!item||isPublic())return;
+    if(event.target.closest('button,input'))return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    restoreCardWithAnimation(item);
+  },true);
+
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch.repo-hidden-card-holder') ||
+       event.target.closest?.('#quidditchTcgBinderDialog #binderStyleControl.repo-binder-style-side-control')){
+      setTimeout(refreshStableSideControlsV14,24);
+      setTimeout(refreshStableSideControlsV14,180);
+    }
+  },true);
+
+  window.decorateBrushTrigger=decorateBrushTrigger;
+  window.refreshStableSideControlsV14=refreshStableSideControlsV14;
+  window.positionStableSideControlsV14=positionStableSideControlsV14;
+
+  window.__repoBinderPolishV14Api={decorateBrushTrigger,refreshStableSideControlsV14,positionStableSideControlsV14};
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{decorateBrushTrigger();setTimeout(refreshStableSideControlsV14,320);},{once:true});
+  else {decorateBrushTrigger();setTimeout(refreshStableSideControlsV14,320);}  
+})();
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER POLISH V15 RELIABILITY PASS
+// Ensures the Binder Style click FX work on the very first click and keeps
+// the Hidden Cards holder pinned throughout the full page-turn animation.
+// ============================================================
+(function installRepoTcgBinderPolishV15Reliability(){
+  if(window.__repoTcgBinderPolishV15ReliabilityInstalled)return;
+  window.__repoTcgBinderPolishV15ReliabilityInstalled=true;
+
+  function primeBinderStyleTrigger(){
+    try{
+      if(typeof window.decorateBrushTrigger==='function')window.decorateBrushTrigger();
+    }catch(_){ }
+  }
+
+  // pointerdown happens before click, so a dynamically-created Binder Style
+  // button is decorated in time for its *first* click to play the FX/sound.
+  document.addEventListener('pointerdown',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog #binderStyleTrigger')){
+      primeBinderStyleTrigger();
+    }
+  },true);
+
+  const observer=new MutationObserver(()=>{
+    if(document.getElementById('binderStyleTrigger'))primeBinderStyleTrigger();
+    try{
+      if(typeof window.refreshStableSideControlsV14==='function')window.refreshStableSideControlsV14();
+    }catch(_){ }
+  });
+  const startObserver=()=>{
+    try{observer.observe(document.body,{childList:true,subtree:true});}catch(_){ }
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
+  else startObserver();
+
+  // Keep reinforcing the side controls longer than the page-turn animation,
+  // preventing the Hidden Cards holder from visibly drifting/jumping mid-flip.
+  document.addEventListener('click',event=>{
+    if(!event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-page-tab, #quidditchTcgBinderDialog [data-binder-page], #quidditchTcgBinderDialog .repo-binder-spread-prev, #quidditchTcgBinderDialog .repo-binder-spread-next'))return;
+    let elapsed=0;
+    const timer=setInterval(()=>{
+      elapsed+=60;
+      try{if(typeof window.positionStableSideControlsV14==='function')window.positionStableSideControlsV14();}catch(_){ }
+      if(elapsed>=1560)clearInterval(timer);
+    },60);
+  },true);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER V16.2 POSITION + MENU FIX
+// - locks Hidden Cards holder + paintbrush to a constant stable location
+// - removes hover/press bobbing so they stop drifting up/down
+// - keeps the custom menu opening at the bottom centre of the binder dialog
+// ============================================================
+(function installRepoTcgBinderPositionAndMenuFixV162(){
+  if(window.__repoTcgBinderPositionAndMenuFixV162Installed)return;
+  window.__repoTcgBinderPositionAndMenuFixV162Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderPositionAndMenuFixV162Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:active{
+      transform:none !important;
+      translate:none !important;
+      transition:none !important;
+      animation:none !important;
+      margin:0 !important;
+    }
+    #binderStyleControl.repo-binder-style-side-control,
+    #binderStyleControl.repo-binder-style-side-control:hover,
+    #binderStyleControl.repo-binder-style-side-control:focus-within{
+      transform:none !important;
+      translate:none !important;
+      transition:none !important;
+      animation:none !important;
+      margin:0 !important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:hover,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:focus-visible,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:active,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger.repo-style-clicking{
+      transform:none !important;
+      translate:none !important;
+      transition:none !important;
+      animation:none !important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger::before,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:hover::before,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:focus-visible::before,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:active::before,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger.repo-style-clicking::before{
+      transform:none !important;
+      transition:none !important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger::after,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:hover::after,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger:focus-visible::after,
+    #binderStyleControl.repo-binder-style-side-control .binder-style-trigger.repo-style-clicking::after{
+      transition:none !important;
+    }
+    #binderStyleControl.repo-binder-style-side-control .binder-style-menu{
+      position:fixed !important;
+      left:50% !important;
+      right:auto !important;
+      bottom:38px !important;
+      top:auto !important;
+      transform:translateX(-50%) !important;
+      width:min(960px,calc(100vw - 120px)) !important;
+      max-width:960px !important;
+      max-height:min(70vh,680px) !important;
+      z-index:2147483200 !important;
+    }
+    @media(max-width:900px){
+      #binderStyleControl.repo-binder-style-side-control .binder-style-menu{
+        width:min(92vw,860px) !important;
+        bottom:26px !important;
+      }
+    }
+    @media(max-width:700px){
+      #binderStyleControl.repo-binder-style-side-control .binder-style-menu{
+        width:min(94vw,560px) !important;
+        bottom:18px !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  function positionSideControlsV162(){ return; }
+  function refreshSideControlsV162(){
+    positionSideControlsV162();
+    [40,120,240,420,760,1200].forEach(delay=>setTimeout(positionSideControlsV162,delay));
+  }
+
+  const _ensureCustom=typeof ensureBinderCustomisationUi==='function'?ensureBinderCustomisationUi:null;
+  if(_ensureCustom){
+    ensureBinderCustomisationUi=function(){const r=_ensureCustom.apply(this,arguments);refreshSideControlsV162();return r;};
+  }
+  const _ensureTcg=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(_ensureTcg){
+    ensureQuidditchTcgBinderUi=function(){const r=_ensureTcg.apply(this,arguments);refreshSideControlsV162();return r;};
+  }
+  const _setPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(_setPage){
+    setQuidditchTcgBinderPage=function(){const r=_setPage.apply(this,arguments);refreshSideControlsV162();return r;};
+  }
+  const _openBinder=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(_openBinder){
+    openQuidditchTcgBinder=function(){const r=_openBinder.apply(this,arguments);refreshSideControlsV162();return r;};
+  }
+
+  window.addEventListener('resize',refreshSideControlsV162,{passive:true});
+  window.addEventListener('scroll',refreshSideControlsV162,{passive:true});
+  document.addEventListener('transitionend',event=>{if(event.target.closest?.('#quidditchTcgBinderDialog'))refreshSideControlsV162();},true);
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-page-tab, #quidditchTcgBinderDialog [data-binder-page], #quidditchTcgBinderDialog .repo-binder-spread-prev, #quidditchTcgBinderDialog .repo-binder-spread-next, #quidditchTcgBinderDialog .repo-binder-storage-launch.repo-hidden-card-holder, #quidditchTcgBinderDialog #binderStyleTrigger')){
+      refreshSideControlsV162();
+    }
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshSideControlsV162,320),{once:true});
+  else setTimeout(refreshSideControlsV162,320);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER V16.3 CUSTOM MENU REDESIGN
+// - premium redesign for the customise binder menu
+// - fixes the oversized ugly close bar and improves layout/spacing/buttons
+// ============================================================
+(function installRepoTcgBinderCustomMenuRedesignV163(){
+  if(window.__repoTcgBinderCustomMenuRedesignV163Installed)return;
+  window.__repoTcgBinderCustomMenuRedesignV163Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderCustomMenuRedesignV163Styles';
+  style.textContent=`
+    #binderStyleMenu.binder-style-menu{
+      box-sizing:border-box !important;
+      padding:18px 18px 20px !important;
+      border:1px solid rgba(232,189,92,.95) !important;
+      outline:1px solid rgba(140,193,232,.26) !important;
+      outline-offset:-6px !important;
+      border-radius:8px !important;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(122,185,233,.12), transparent 28%),
+        radial-gradient(circle at 14% 8%, rgba(255,224,133,.08), transparent 18%),
+        linear-gradient(180deg, rgba(30,44,61,.98) 0%, rgba(9,15,24,.985) 100%) !important;
+      box-shadow:
+        0 26px 70px rgba(0,0,0,.72),
+        0 0 0 1px rgba(6,11,18,.96),
+        inset 0 0 0 1px rgba(255,239,184,.06),
+        inset 0 0 40px rgba(62,119,163,.08) !important;
+      color:#f5e7c2 !important;
+      backdrop-filter:blur(7px);
+      -webkit-backdrop-filter:blur(7px);
+      scrollbar-width:thin;
+      scrollbar-color:#d2a249 #0b1320;
+    }
+    #binderStyleMenu.binder-style-menu::-webkit-scrollbar{width:12px;height:12px}
+    #binderStyleMenu.binder-style-menu::-webkit-scrollbar-track{background:#0b1320;border-left:1px solid rgba(230,188,91,.16)}
+    #binderStyleMenu.binder-style-menu::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#e0b257,#8a541e);border:2px solid #0b1320;border-radius:999px}
+
+    #binderStyleMenu .binder-style-menu-head{
+      position:sticky !important;
+      top:-18px !important;
+      z-index:3 !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:space-between !important;
+      gap:14px !important;
+      margin:0 -18px 14px !important;
+      padding:16px 18px 14px !important;
+      border-bottom:1px solid rgba(232,189,92,.28) !important;
+      background:
+        linear-gradient(180deg, rgba(26,39,54,.98), rgba(14,22,33,.96)) !important;
+      box-shadow:0 8px 18px rgba(0,0,0,.22), inset 0 -1px 0 rgba(255,226,148,.08) !important;
+    }
+    #binderStyleMenu .binder-style-menu-head strong{
+      display:block !important;
+      margin:0 !important;
+      color:#f5de99 !important;
+      font:900 24px/1.02 Georgia, 'Times New Roman', serif !important;
+      letter-spacing:.08em !important;
+      text-transform:uppercase !important;
+      text-shadow:0 2px 10px rgba(0,0,0,.38) !important;
+    }
+    #binderStyleMenu button.binder-style-close{
+      flex:0 0 auto !important;
+      display:inline-flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      width:34px !important;
+      min-width:34px !important;
+      height:34px !important;
+      min-height:34px !important;
+      padding:0 !important;
+      border:1px solid rgba(236,191,94,.92) !important;
+      border-radius:999px !important;
+      background:linear-gradient(180deg, rgba(79,47,20,.96), rgba(29,17,8,.98)) !important;
+      box-shadow:inset 0 1px 0 rgba(255,236,182,.18), 0 4px 10px rgba(0,0,0,.35) !important;
+      color:#ffe6a6 !important;
+      font:900 20px/1 Georgia, serif !important;
+      line-height:1 !important;
+      cursor:pointer !important;
+      transition:filter .14s ease, transform .14s ease !important;
+    }
+    #binderStyleMenu button.binder-style-close:hover,
+    #binderStyleMenu button.binder-style-close:focus-visible{
+      filter:brightness(1.08) !important;
+      transform:translateY(-1px) !important;
+      outline:none !important;
+    }
+
+    #binderStyleMenu .binder-style-section-title{
+      display:block !important;
+      margin:16px 2px 10px !important;
+      color:#d6c59d !important;
+      font:900 11px/1 Georgia, 'Times New Roman', serif !important;
+      letter-spacing:.16em !important;
+      text-transform:uppercase !important;
+    }
+    #binderStyleMenu .binder-style-choice-grid{
+      display:grid !important;
+      grid-template-columns:repeat(3, minmax(0,1fr)) !important;
+      gap:10px !important;
+    }
+    #binderStyleMenu button.binder-style-choice{
+      display:grid !important;
+      grid-template-columns:42px minmax(0,1fr) !important;
+      align-items:center !important;
+      gap:10px !important;
+      min-height:72px !important;
+      width:100% !important;
+      padding:11px 12px !important;
+      border:1px solid rgba(226,177,78,.95) !important;
+      border-radius:4px !important;
+      background:
+        linear-gradient(180deg, rgba(114,72,28,.96) 0%, rgba(69,40,16,.98) 100%) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,234,179,.13),
+        inset 0 0 0 1px rgba(20,12,6,.58),
+        0 4px 10px rgba(0,0,0,.16) !important;
+      color:#f6e6c1 !important;
+      text-align:left !important;
+      cursor:pointer !important;
+      transition:transform .14s ease, filter .14s ease, box-shadow .14s ease !important;
+    }
+    #binderStyleMenu button.binder-style-choice:hover,
+    #binderStyleMenu button.binder-style-choice:focus-visible{
+      transform:translateY(-1px) !important;
+      filter:brightness(1.06) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,234,179,.18),
+        inset 0 0 0 1px rgba(20,12,6,.64),
+        0 7px 16px rgba(0,0,0,.22),
+        0 0 0 1px rgba(238,192,95,.18) !important;
+      outline:none !important;
+    }
+    #binderStyleMenu button.binder-style-choice.is-selected{
+      border-color:#ffe39b !important;
+      background:
+        linear-gradient(180deg, rgba(136,90,35,.98) 0%, rgba(82,50,20,.99) 100%) !important;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,228,152,.34),
+        0 0 0 1px rgba(255,228,152,.24),
+        0 0 22px rgba(129,197,241,.12) !important;
+    }
+    #binderStyleMenu .binder-style-choice-copy{
+      display:flex !important;
+      flex-direction:column !important;
+      align-items:flex-start !important;
+      justify-content:center !important;
+      min-width:0 !important;
+      gap:3px !important;
+    }
+    #binderStyleMenu .binder-style-choice-copy b{
+      display:block !important;
+      margin:0 !important;
+      color:#fff1cf !important;
+      font:900 13px/1.08 Georgia, serif !important;
+      letter-spacing:.02em !important;
+    }
+    #binderStyleMenu .binder-style-choice-copy small,
+    #binderStyleMenu .binder-style-owned{
+      display:block !important;
+      margin:0 !important;
+      color:#d8c399 !important;
+      font:700 10px/1.18 Georgia, serif !important;
+      letter-spacing:.02em !important;
+    }
+    #binderStyleMenu .binder-style-owned{color:#bfe1ff !important}
+
+    #binderStyleMenu .binder-theme-dot{
+      width:28px !important;
+      height:28px !important;
+      border-radius:999px !important;
+      box-shadow:inset 0 0 0 2px rgba(255,255,255,.18), 0 0 0 1px rgba(13,16,22,.8), 0 0 12px var(--choice-accent) !important;
+    }
+    #binderStyleMenu .binder-effect-preview{
+      width:32px !important;
+      height:32px !important;
+      border-radius:4px !important;
+      border:1px solid rgba(255,232,176,.18) !important;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.42) !important;
+    }
+
+    #binderStyleMenu .binder-style-legendary-head{
+      display:flex !important;
+      align-items:center !important;
+      justify-content:space-between !important;
+      gap:12px !important;
+      margin-top:4px !important;
+      flex-wrap:wrap !important;
+    }
+    #binderStyleMenu #binderStyleBalance,
+    #binderStyleMenu #binderStylePreviewStop{
+      display:inline-flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      min-height:30px !important;
+      padding:6px 10px !important;
+      border:1px solid rgba(226,177,78,.92) !important;
+      border-radius:999px !important;
+      background:linear-gradient(180deg, rgba(60,39,18,.95), rgba(24,16,8,.98)) !important;
+      color:#ffe3a3 !important;
+      font:800 10px/1 Georgia, serif !important;
+      letter-spacing:.09em !important;
+      text-transform:uppercase !important;
+    }
+
+    #binderStyleMenu #binderStyleSaveStatus{
+      margin:16px 0 0 !important;
+      padding:12px 14px !important;
+      border:1px solid rgba(140,193,232,.22) !important;
+      border-radius:4px !important;
+      background:linear-gradient(180deg, rgba(13,20,31,.96), rgba(7,11,18,.98)) !important;
+      color:#d9e7f5 !important;
+      font:800 11px/1.25 Georgia, serif !important;
+      letter-spacing:.03em !important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.03) !important;
+    }
+
+    @media(max-width:900px){
+      #binderStyleMenu.binder-style-menu{padding:16px 16px 18px !important}
+      #binderStyleMenu .binder-style-choice-grid{grid-template-columns:repeat(2, minmax(0,1fr)) !important}
+      #binderStyleMenu .binder-style-menu-head strong{font-size:20px !important}
+    }
+    @media(max-width:620px){
+      #binderStyleMenu.binder-style-menu{padding:14px 14px 16px !important}
+      #binderStyleMenu .binder-style-menu-head{top:-14px !important;margin:0 -14px 12px !important;padding:13px 14px 12px !important}
+      #binderStyleMenu .binder-style-choice-grid{grid-template-columns:1fr !important}
+      #binderStyleMenu button.binder-style-choice{min-height:66px !important}
+      #binderStyleMenu .binder-style-menu-head strong{font-size:18px !important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER V16.4 LUXURY ORNATE FANTASY MENU
+// - transforms the customise binder menu into a luxury ornate fantasy panel
+// - richer gold trim, jewelled accents, decorative framing and premium tiles
+// ============================================================
+(function installRepoTcgBinderLuxuryOrnateFantasyMenuV164(){
+  if(window.__repoTcgBinderLuxuryOrnateFantasyMenuV164Installed)return;
+  window.__repoTcgBinderLuxuryOrnateFantasyMenuV164Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderLuxuryOrnateFantasyMenuV164Styles';
+  style.textContent=`
+    #binderStyleMenu.binder-style-menu{
+      border:1px solid #e5bc67 !important;
+      outline:1px solid rgba(131,193,232,.34) !important;
+      outline-offset:-7px !important;
+      border-radius:10px !important;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(93,154,205,.16), transparent 26%),
+        radial-gradient(circle at 14% 9%, rgba(255,230,157,.10), transparent 16%),
+        radial-gradient(circle at 86% 13%, rgba(255,230,157,.08), transparent 15%),
+        linear-gradient(180deg, rgba(31,44,62,.985) 0%, rgba(11,17,28,.99) 56%, rgba(7,11,18,.995) 100%) !important;
+      box-shadow:
+        0 28px 76px rgba(0,0,0,.76),
+        0 0 0 2px rgba(10,16,24,.94),
+        inset 0 0 0 1px rgba(255,235,186,.08),
+        inset 0 0 52px rgba(69,120,168,.12),
+        0 0 24px rgba(224,182,88,.08) !important;
+      overflow:auto !important;
+    }
+    #binderStyleMenu.binder-style-menu::before,
+    #binderStyleMenu.binder-style-menu::after{
+      content:'';
+      position:sticky;
+      pointer-events:none;
+      z-index:4;
+      display:block;
+      width:0;height:0;
+    }
+    #binderStyleMenu.binder-style-menu::before{
+      top:0;left:0;
+      box-shadow:
+        26px 26px 0 0 transparent,
+        18px 18px 0 0 transparent;
+    }
+    #binderStyleMenu .binder-style-menu-head{
+      position:sticky !important;
+      top:-18px !important;
+      z-index:5 !important;
+      margin:0 -18px 18px !important;
+      padding:18px 18px 16px !important;
+      border-bottom:1px solid rgba(229,188,103,.32) !important;
+      background:
+        radial-gradient(circle at 50% -55%, rgba(255,235,167,.18), transparent 50%),
+        linear-gradient(180deg, rgba(41,58,80,.98), rgba(18,28,41,.97)) !important;
+      box-shadow:
+        0 10px 24px rgba(0,0,0,.24),
+        inset 0 -1px 0 rgba(255,230,150,.07),
+        inset 0 1px 0 rgba(255,243,203,.06) !important;
+    }
+    #binderStyleMenu .binder-style-menu-head strong{
+      position:relative !important;
+      display:flex !important;
+      align-items:center !important;
+      gap:12px !important;
+      color:#f6dc95 !important;
+      font:900 25px/1 Georgia, 'Times New Roman', serif !important;
+      letter-spacing:.11em !important;
+      text-transform:uppercase !important;
+      text-shadow:0 2px 12px rgba(0,0,0,.45), 0 0 10px rgba(229,188,103,.08) !important;
+    }
+    #binderStyleMenu .binder-style-menu-head strong::before,
+    #binderStyleMenu .binder-style-menu-head strong::after{
+      content:'✦';
+      color:#8ac0ea;
+      font-size:14px;
+      text-shadow:0 0 10px rgba(138,192,234,.45);
+    }
+    #binderStyleMenu button.binder-style-close{
+      width:38px !important;
+      min-width:38px !important;
+      height:38px !important;
+      min-height:38px !important;
+      border:1px solid #e7bf6a !important;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,243,204,.22), transparent 34%),
+        linear-gradient(180deg, rgba(97,58,24,.98), rgba(38,21,10,.99)) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,235,180,.22),
+        inset 0 -1px 0 rgba(0,0,0,.32),
+        0 6px 14px rgba(0,0,0,.34),
+        0 0 0 1px rgba(11,9,5,.56) !important;
+      color:#ffe5a5 !important;
+    }
+    #binderStyleMenu .binder-style-section-title{
+      position:relative !important;
+      margin:18px 4px 12px !important;
+      padding-left:18px !important;
+      color:#e2cfab !important;
+      font:900 11px/1 Georgia, 'Times New Roman', serif !important;
+      letter-spacing:.22em !important;
+      text-transform:uppercase !important;
+    }
+    #binderStyleMenu .binder-style-section-title::before{
+      content:'◆';
+      position:absolute;
+      left:0;
+      top:50%;
+      transform:translateY(-50%);
+      color:#78bce6;
+      font-size:10px;
+      text-shadow:0 0 8px rgba(120,188,230,.38);
+    }
+    #binderStyleMenu .binder-style-choice-grid{
+      gap:12px !important;
+    }
+    #binderStyleMenu button.binder-style-choice{
+      position:relative !important;
+      overflow:hidden !important;
+      min-height:78px !important;
+      border:1px solid #d9a953 !important;
+      border-radius:6px !important;
+      background:
+        linear-gradient(180deg, rgba(126,80,32,.98) 0%, rgba(85,52,22,.99) 52%, rgba(58,34,14,.995) 100%) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,235,185,.16),
+        inset 0 -1px 0 rgba(18,10,5,.42),
+        inset 0 0 0 1px rgba(255,226,150,.04),
+        0 7px 16px rgba(0,0,0,.20) !important;
+    }
+    #binderStyleMenu button.binder-style-choice::before{
+      content:'';
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(135deg, rgba(255,237,190,.12), transparent 18%),
+        linear-gradient(315deg, rgba(129,191,236,.08), transparent 22%);
+      opacity:.95;
+    }
+    #binderStyleMenu button.binder-style-choice::after{
+      content:'';
+      position:absolute;
+      inset:5px;
+      pointer-events:none;
+      border:1px solid rgba(255,231,169,.10);
+      border-radius:4px;
+    }
+    #binderStyleMenu button.binder-style-choice:hover,
+    #binderStyleMenu button.binder-style-choice:focus-visible{
+      transform:translateY(-2px) !important;
+      filter:brightness(1.055) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,238,189,.18),
+        inset 0 -1px 0 rgba(18,10,5,.42),
+        0 11px 22px rgba(0,0,0,.26),
+        0 0 0 1px rgba(227,188,103,.20),
+        0 0 18px rgba(120,188,230,.09) !important;
+    }
+    #binderStyleMenu button.binder-style-choice.is-selected{
+      border-color:#ffe6a5 !important;
+      background:
+        linear-gradient(180deg, rgba(149,97,41,.99) 0%, rgba(103,62,25,.995) 54%, rgba(69,40,17,.998) 100%) !important;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,232,170,.22),
+        0 0 0 1px rgba(255,224,148,.18),
+        0 0 24px rgba(120,188,230,.15),
+        0 9px 22px rgba(0,0,0,.28) !important;
+    }
+    #binderStyleMenu .binder-style-choice-copy b{
+      color:#fff3d0 !important;
+      font:900 14px/1.08 Georgia, serif !important;
+      letter-spacing:.015em !important;
+      text-shadow:0 1px 0 rgba(0,0,0,.25) !important;
+    }
+    #binderStyleMenu .binder-style-choice-copy small,
+    #binderStyleMenu .binder-style-owned{
+      color:#e0caa2 !important;
+      font:700 10px/1.18 Georgia, serif !important;
+    }
+    #binderStyleMenu .binder-style-owned{color:#b9def9 !important}
+    #binderStyleMenu .binder-theme-dot{
+      width:30px !important;
+      height:30px !important;
+      border:1px solid rgba(255,234,180,.20) !important;
+      box-shadow:
+        inset 0 0 0 2px rgba(255,255,255,.18),
+        0 0 0 1px rgba(14,15,20,.8),
+        0 0 14px var(--choice-accent) !important;
+    }
+    #binderStyleMenu .binder-effect-preview{
+      width:34px !important;
+      height:34px !important;
+      border:1px solid rgba(255,234,180,.22) !important;
+      border-radius:5px !important;
+      background-color:#09111b !important;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.42),0 0 10px rgba(0,0,0,.10) !important;
+    }
+    #binderStyleMenu .binder-style-legendary-head{
+      margin-top:8px !important;
+      padding:2px 0 2px !important;
+    }
+    #binderStyleMenu #binderStyleBalance,
+    #binderStyleMenu #binderStylePreviewStop{
+      border:1px solid #dbae58 !important;
+      background:
+        radial-gradient(circle at 35% 28%, rgba(255,241,200,.16), transparent 30%),
+        linear-gradient(180deg, rgba(72,45,20,.97), rgba(26,17,9,.99)) !important;
+      box-shadow:inset 0 1px 0 rgba(255,231,168,.12), 0 5px 12px rgba(0,0,0,.22) !important;
+      color:#ffe4a4 !important;
+    }
+    #binderStyleMenu #binderStyleSaveStatus{
+      border:1px solid rgba(225,184,89,.34) !important;
+      background:
+        linear-gradient(180deg, rgba(18,27,41,.98), rgba(8,12,18,.995)) !important;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.03),
+        inset 0 0 24px rgba(117,185,232,.05) !important;
+      color:#deecfb !important;
+    }
+    @media(max-width:900px){
+      #binderStyleMenu .binder-style-menu-head strong{font-size:22px !important}
+      #binderStyleMenu .binder-style-choice-grid{gap:10px !important}
+    }
+    @media(max-width:620px){
+      #binderStyleMenu .binder-style-menu-head strong{font-size:18px !important;letter-spacing:.08em !important}
+      #binderStyleMenu button.binder-style-choice{min-height:72px !important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER V16.6 TRUE SCROLL LOCK
+// Reverts the V16.5 fixed-position approach. The side controls remain absolute
+// to the stable binder stage while the modal/document are prevented from
+// scrolling. Only the Customise Binder panel and Hidden Cards drawer may scroll.
+// ============================================================
+(function installRepoTcgBinderTrueScrollLockV166(){
+  if(window.__repoTcgBinderTrueScrollLockV166Installed)return;
+  window.__repoTcgBinderTrueScrollLockV166Installed=true;
+
+  const ROOT_CLASS='repo-tcg-binder-scroll-locked';
+  let boundDialog=null;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderTrueScrollLockV166Styles';
+  style.textContent=`
+    html{scrollbar-gutter:stable}
+    html.${ROOT_CLASS},
+    html.${ROOT_CLASS} body{
+      overflow:hidden !important;
+      overscroll-behavior:none !important;
+    }
+    html.${ROOT_CLASS} #quidditchTcgBinderDialog{
+      overflow:hidden !important;
+      overscroll-behavior:none !important;
+    }
+    html.${ROOT_CLASS} #quidditchTcgBinderDialog .quidditch-tcg-binder-shell,
+    html.${ROOT_CLASS} #quidditchTcgBinderDialog .quidditch-tcg-binder-stage{
+      overscroll-behavior:none !important;
+    }
+    html.${ROOT_CLASS} #binderStyleMenu.binder-style-menu{
+      overflow-x:hidden !important;
+      overflow-y:auto !important;
+      overscroll-behavior:contain !important;
+      scrollbar-gutter:stable !important;
+      touch-action:pan-y !important;
+    }
+    html.${ROOT_CLASS} #quidditchTcgBinderDialog .repo-binder-storage{
+      overscroll-behavior:contain !important;
+    }
+
+    /* Side controls are deliberately NOT fixed. Fixed descendants of this
+       transformed modal acquire the modal as their containing block in Chromium
+       and visibly jump during scroll. Keep both anchored to the binder stage. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:active{
+      position:absolute !important;
+      transform:none !important;
+      translate:none !important;
+      transition:none !important;
+      animation:none !important;
+      margin:0 !important;
+    }
+    #binderStyleControl.repo-binder-style-side-control,
+    #binderStyleControl.repo-binder-style-side-control:hover,
+    #binderStyleControl.repo-binder-style-side-control:focus-within{
+      position:absolute !important;
+      transform:none !important;
+      translate:none !important;
+      transition:none !important;
+      animation:none !important;
+      margin:0 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function lock(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog?.open)return;
+    document.documentElement.classList.add(ROOT_CLASS);
+    bindDialog(dialog);
+  }
+  function unlock(){
+    document.documentElement.classList.remove(ROOT_CLASS);
+  }
+  function bindDialog(dialog){
+    if(!dialog||boundDialog===dialog)return;
+    boundDialog=dialog;
+    dialog.addEventListener('close',unlock);
+    dialog.addEventListener('cancel',()=>setTimeout(()=>{if(!dialog.open)unlock()},0));
+  }
+
+  // Do not let a wheel event on the modal's non-scrollable background escape to
+  // the page. Scrolling inside the menu/drawer remains native and smooth.
+  document.addEventListener('wheel',event=>{
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog?.open)return;
+    const scrollable=event.target.closest?.('#binderStyleMenu, .repo-binder-storage, .repo-binder-library-v179-body');
+    if(scrollable)return;
+    if(dialog.contains(event.target))event.preventDefault();
+  },{capture:true,passive:false});
+
+  // Stop scroll chaining at the top/bottom of the customise panel.
+  document.addEventListener('wheel',event=>{
+    const menu=event.target.closest?.('#binderStyleMenu');
+    if(!menu||menu.hidden)return;
+    const delta=Number(event.deltaY)||0;
+    const atTop=menu.scrollTop<=0;
+    const atBottom=Math.ceil(menu.scrollTop+menu.clientHeight)>=menu.scrollHeight;
+    if((delta<0&&atTop)||(delta>0&&atBottom))event.preventDefault();
+  },{capture:true,passive:false});
+
+  const oldOpen=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(oldOpen){
+    openQuidditchTcgBinder=function(){
+      const result=oldOpen.apply(this,arguments);
+      requestAnimationFrame(lock);
+      setTimeout(lock,80);
+      return result;
+    };
+  }
+  const oldClose=typeof closeQuidditchTcgBinder==='function'?closeQuidditchTcgBinder:null;
+  if(oldClose){
+    closeQuidditchTcgBinder=function(){
+      const result=oldClose.apply(this,arguments);
+      setTimeout(unlock,180);
+      return result;
+    };
+  }
+
+  const observer=new MutationObserver(()=>{
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    bindDialog(dialog);
+    if(dialog.open)lock();else unlock();
+  });
+  const start=()=>{
+    observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(dialog){bindDialog(dialog);if(dialog.open)lock();}
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.1 SAFE BINDER SIDE CONTROLS
+// Single positioning owner. No observers / intervals / mouse tracking.
+// ============================================================
+(function installRepoBinderSideControlsSafeV171(){
+  if(window.__repoBinderSideControlsSafeV171Installed)return;
+  window.__repoBinderSideControlsSafeV171Installed=true;
+
+  let scheduled=0;
+
+  const style=document.createElement('style');
+  style.id='repoBinderSideControlsSafeV171Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #binderStyleControl,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .repo-binder-storage-launch.repo-hidden-card-holder{
+      display:none!important;
+      visibility:hidden!important;
+      pointer-events:none!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:active{
+      position:absolute!important;
+      transform:none!important;
+      translate:none!important;
+      transition:none!important;
+      animation:none!important;
+      margin:0!important;
+      will-change:auto!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleControl.repo-binder-style-side-control,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleControl.repo-binder-style-side-control:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleControl.repo-binder-style-side-control:focus-within{
+      position:absolute!important;
+      transform:none!important;
+      translate:none!important;
+      transition:none!important;
+      animation:none!important;
+      margin:0!important;
+      will-change:auto!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleTrigger,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleTrigger:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleTrigger:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleTrigger:active,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'] #binderStyleTrigger.repo-style-clicking{
+      transform:none!important;
+      translate:none!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function getParts(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const stage=dialog?.querySelector('.quidditch-tcg-binder-stage');
+    const spread=stage?.querySelector('.repo-binder-spread-126');
+    const holder=dialog?.querySelector('.repo-binder-storage-launch');
+    const control=document.getElementById('binderStyleControl');
+    const trigger=document.getElementById('binderStyleTrigger');
+    return {dialog,stage,spread,holder,control,trigger};
+  }
+
+  function binderIsOpen(dialog){
+    return !!dialog && dialog.open && String(dialog.dataset.binderPage||'').startsWith('open');
+  }
+
+  function positionNow(){
+    const {dialog,stage,spread,holder,control,trigger}=getParts();
+    if(!dialog)return;
+
+    if(!binderIsOpen(dialog)){
+      if(holder){
+        holder.style.setProperty('display','none','important');
+        holder.style.setProperty('visibility','hidden','important');
+        holder.style.setProperty('pointer-events','none','important');
+      }
+      if(control){
+        control.style.setProperty('display','none','important');
+        control.style.setProperty('visibility','hidden','important');
+        control.style.setProperty('pointer-events','none','important');
+      }
+      return;
+    }
+
+    if(!stage||!spread||!holder||!control||!trigger)return;
+
+    holder.classList.add('repo-hidden-card-holder');
+    control.classList.add('repo-binder-style-side-control');
+    trigger.setAttribute('aria-label','Binder Style');
+    trigger.setAttribute('title','Binder Style');
+
+    if(holder.parentElement!==stage)stage.appendChild(holder);
+    if(control.parentElement!==stage)stage.appendChild(control);
+
+    const viewportW=document.documentElement.clientWidth||window.innerWidth||1440;
+    const stageW=stage.clientWidth||stage.offsetWidth||1;
+    const stageH=stage.clientHeight||stage.offsetHeight||1;
+    const spreadW=spread.offsetWidth||1;
+    const spreadH=spread.offsetHeight||1;
+    const spreadLeft=spread.offsetLeft || Math.max(0,(stageW-spreadW)/2);
+    const spreadTop=spread.offsetTop || Math.max(0,(stageH-spreadH)/2);
+
+    let holderW=Math.max(104,Math.min(170,viewportW*.094));
+    if(viewportW<=1100)holderW=Math.max(92,Math.min(132,viewportW*.099));
+    if(viewportW<=760)holderW=86;
+
+    const holderH=holderW*(1229/684);
+    const buttonSize=viewportW<=760?64:(viewportW<=1100?72:82);
+    const gapX=Math.max(8,Math.min(18,stageW*.009));
+
+    // This is the approved lower location from the user's screenshot.
+    const topNudge=68;
+    const buttonGap=14;
+
+    const holderLeft=Math.max(
+      4,
+      Math.min(Math.round(spreadLeft+spreadW+gapX),stageW-holderW-4)
+    );
+    const holderTop=Math.max(
+      4,
+      Math.min(Math.round(spreadTop+topNudge),stageH-holderH-buttonSize-buttonGap-12)
+    );
+    const buttonLeft=Math.max(
+      4,
+      Math.min(Math.round(holderLeft+(holderW-buttonSize)/2),stageW-buttonSize-4)
+    );
+    const buttonTop=Math.max(
+      4,
+      Math.min(Math.round(holderTop+holderH+buttonGap),stageH-buttonSize-4)
+    );
+
+    holder.style.setProperty('position','absolute','important');
+    holder.style.setProperty('left',holderLeft+'px','important');
+    holder.style.setProperty('top',holderTop+'px','important');
+    holder.style.setProperty('right','auto','important');
+    holder.style.setProperty('bottom','auto','important');
+    holder.style.setProperty('width',Math.round(holderW)+'px','important');
+    holder.style.setProperty('min-width',Math.round(holderW)+'px','important');
+    holder.style.setProperty('max-width',Math.round(holderW)+'px','important');
+    holder.style.setProperty('display','block','important');
+    holder.style.setProperty('visibility','visible','important');
+    holder.style.setProperty('pointer-events','auto','important');
+    holder.style.setProperty('opacity','1','important');
+    holder.style.setProperty('transform','none','important');
+    holder.style.setProperty('transition','none','important');
+    holder.style.setProperty('animation','none','important');
+
+    control.style.setProperty('position','absolute','important');
+    control.style.setProperty('left',buttonLeft+'px','important');
+    control.style.setProperty('top',buttonTop+'px','important');
+    control.style.setProperty('right','auto','important');
+    control.style.setProperty('bottom','auto','important');
+    control.style.setProperty('display',control.hidden?'none':'block','important');
+    control.style.setProperty('visibility',control.hidden?'hidden':'visible','important');
+    control.style.setProperty('pointer-events',control.hidden?'none':'auto','important');
+    control.style.setProperty('transform','none','important');
+    control.style.setProperty('transition','none','important');
+    control.style.setProperty('animation','none','important');
+  }
+
+  function settle(){
+    clearTimeout(scheduled);
+    positionNow();
+    // Older page/open code finishes in stages; win once after each stage,
+    // then stop. No permanent timer is left running.
+    [80,220,480,820,1250].forEach(delay=>setTimeout(positionNow,delay));
+  }
+
+  const oldOpen=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(oldOpen){
+    openQuidditchTcgBinder=function(){
+      const result=oldOpen.apply(this,arguments);
+      settle();
+      return result;
+    };
+  }
+
+  const oldSetPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(oldSetPage){
+    setQuidditchTcgBinderPage=function(){
+      // IMPORTANT: do not call settle()/positionNow while the physical page
+      // turn animation is running. Hidden Cards and the paintbrush retain the
+      // exact coordinates they already had for the entire flip.
+      const {stage,holder,control}=getParts();
+      const frozenHolder = holder ? {
+        left: holder.style.left,
+        top: holder.style.top,
+        width: holder.style.width
+      } : null;
+      const frozenControl = control ? {
+        left: control.style.left,
+        top: control.style.top
+      } : null;
+
+      const result=oldSetPage.apply(this,arguments);
+
+      // Old page-render code may touch inline styles. Reassert the SAME frozen
+      // coordinates without measuring the moving spread.
+      const keepFrozen=()=>{
+        const parts=getParts();
+        if(parts.stage&&parts.holder&&frozenHolder){
+          if(parts.holder.parentElement!==parts.stage)parts.stage.appendChild(parts.holder);
+          if(frozenHolder.left)parts.holder.style.setProperty('left',frozenHolder.left,'important');
+          if(frozenHolder.top)parts.holder.style.setProperty('top',frozenHolder.top,'important');
+          if(frozenHolder.width){
+            parts.holder.style.setProperty('width',frozenHolder.width,'important');
+            parts.holder.style.setProperty('min-width',frozenHolder.width,'important');
+            parts.holder.style.setProperty('max-width',frozenHolder.width,'important');
+          }
+          parts.holder.style.setProperty('position','absolute','important');
+          parts.holder.style.setProperty('transform','none','important');
+          parts.holder.style.setProperty('transition','none','important');
+          parts.holder.style.setProperty('animation','none','important');
+        }
+        if(parts.stage&&parts.control&&frozenControl){
+          if(parts.control.parentElement!==parts.stage)parts.stage.appendChild(parts.control);
+          if(frozenControl.left)parts.control.style.setProperty('left',frozenControl.left,'important');
+          if(frozenControl.top)parts.control.style.setProperty('top',frozenControl.top,'important');
+          parts.control.style.setProperty('position','absolute','important');
+          parts.control.style.setProperty('transform','none','important');
+          parts.control.style.setProperty('transition','none','important');
+          parts.control.style.setProperty('animation','none','important');
+        }
+      };
+
+      // These do NOT calculate a new location — they only reapply the exact
+      // pre-flip values in case an older renderer touched them.
+      requestAnimationFrame(keepFrozen);
+      [80,220,480,820,1250,1600].forEach(delay=>setTimeout(keepFrozen,delay));
+      return result;
+    };
+  }
+
+  window.addEventListener('resize',settle,{passive:true});
+
+  // Crucially: NO mousemove, pointermove, scroll, wheel, MutationObserver
+  // or permanent setInterval positioning logic.
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',settle,{once:true});
+  }else{
+    settle();
+  }
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.2 PAGE-FLIP VISUAL LOCK
+// ============================================================
+(function installRepoBinderPageFlipVisualLockV172(){
+  if(window.__repoBinderPageFlipVisualLockV172Installed)return;
+  window.__repoBinderPageFlipVisualLockV172Installed=true;
+  const s=document.createElement('style');
+  s.id='repoBinderPageFlipVisualLockV172Styles';
+  s.textContent=`
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:active{
+      transform:none!important;
+      translate:none!important;
+      animation:none!important;
+      transition:none!important;
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.3 BINDER INTERACTION POLISH
+// ============================================================
+(function installRepoTcgBinderInteractionPolishV173(){
+  if(window.__repoTcgBinderInteractionPolishV173Installed)return;
+  window.__repoTcgBinderInteractionPolishV173Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderInteractionPolishV173Styles';
+  style.textContent=`
+    /* Closed/front/back binder: never show either the old text launch button
+       or the artwork holder. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) .repo-binder-storage-launch,
+    #quidditchTcgBinderDialog.repo-binder-book-mode:not([data-binder-page^='open']) #binderStyleControl{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+    }
+
+    /* Hover preview = the card itself, not a square UI box around it. */
+    #quidditchTcgBinderDialog .repo-tcg-card-hover-preview{
+      width:clamp(245px,20vw,350px)!important;
+      height:auto!important;
+      max-height:80%!important;
+      aspect-ratio:.68!important;
+      padding:0!important;
+      border:0!important;
+      outline:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+      filter:none!important;
+      transform:none!important;
+      isolation:isolate;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-card-hover-preview::before,
+    #quidditchTcgBinderDialog .repo-tcg-card-hover-preview::after{
+      display:none!important;
+      content:none!important;
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-card-hover-preview.is-visible{
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-card-hover-preview img{
+      width:100%!important;
+      height:100%!important;
+      max-width:100%!important;
+      max-height:100%!important;
+      object-fit:contain!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      transform-origin:center center!important;
+      filter:drop-shadow(0 16px 24px rgba(0,0,0,.76)) drop-shadow(0 0 10px rgba(151,205,239,.10))!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-card-hover-preview.is-visible img{
+      animation:repoTcgPreviewCleanV173 .22s cubic-bezier(.16,.8,.2,1) both!important;
+    }
+    @keyframes repoTcgPreviewCleanV173{
+      0%{opacity:0;transform:translateY(8px) scale(.90) rotate(-.6deg);filter:blur(.7px) drop-shadow(0 8px 14px rgba(0,0,0,.62))}
+      68%{opacity:1;transform:translateY(-2px) scale(1.018) rotate(.15deg)}
+      100%{opacity:1;transform:translateY(0) scale(1) rotate(0);filter:drop-shadow(0 16px 24px rgba(0,0,0,.76)) drop-shadow(0 0 10px rgba(151,205,239,.10))}
+    }
+
+    /* The flight clone now lives inside the top-layer dialog. */
+    #quidditchTcgBinderDialog .repo-tcg-transfer-ghost-v173{
+      overflow:visible!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      transform-origin:top left!important;
+      will-change:transform,opacity!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-transfer-ghost-v173 img{
+      width:100%!important;
+      height:100%!important;
+      object-fit:contain!important;
+      border:0!important;
+      outline:0!important;
+      background:transparent!important;
+      filter:drop-shadow(0 14px 20px rgba(0,0,0,.72)) drop-shadow(0 0 12px rgba(116,194,242,.22))!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-transfer-ghost-v173::after{
+      content:''!important;
+      display:block!important;
+      position:absolute!important;
+      inset:-8%!important;
+      pointer-events:none!important;
+      border-radius:10px!important;
+      background:radial-gradient(circle,rgba(255,235,170,.18),rgba(102,189,244,.08) 42%,transparent 70%)!important;
+      mix-blend-mode:screen!important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.4 COVER + CARD TRANSFER HOTFIX
+// ============================================================
+(function installRepoTcgBinderV174CoverGuard(){
+  if(window.__repoTcgBinderV174CoverGuardInstalled)return;
+  window.__repoTcgBinderV174CoverGuardInstalled=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderV174CoverGuardStyles';
+  style.textContent=`
+    /* Absolute rule: a closed/front/back binder never shows Hidden Cards
+       in either its old text-button form or the artwork-holder form. */
+    #quidditchTcgBinderDialog:not([data-binder-page^='open']) .repo-binder-storage-launch,
+    #quidditchTcgBinderDialog[data-binder-page='front'] .repo-binder-storage-launch,
+    #quidditchTcgBinderDialog[data-binder-page='back'] .repo-binder-storage-launch{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function syncCoverLaunch(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    const open=String(dialog.dataset.binderPage||'').startsWith('open');
+    dialog.querySelectorAll('.repo-binder-storage-launch').forEach(launch=>{
+      if(!open){
+        launch.hidden=true;
+        launch.setAttribute('aria-hidden','true');
+      }else{
+        launch.hidden=false;
+        launch.removeAttribute('aria-hidden');
+      }
+    });
+  }
+
+  const dialog=document.getElementById('quidditchTcgBinderDialog');
+  if(dialog){
+    const observer=new MutationObserver(syncCoverLaunch);
+    observer.observe(dialog,{attributes:true,attributeFilter:['data-binder-page'],childList:true,subtree:true});
+  }
+  syncCoverLaunch();
+})();
+
+
+(function installRepoTcgBinderV174FlightPolish(){
+  if(window.__repoTcgBinderV174FlightPolishInstalled)return;
+  window.__repoTcgBinderV174FlightPolishInstalled=true;
+  const style=document.createElement('style');
+  style.id='repoTcgBinderV174FlightPolishStyles';
+  style.textContent=`
+    #quidditchTcgBinderDialog .repo-tcg-transfer-ghost-v173{
+      display:block!important;
+      visibility:visible!important;
+      opacity:1;
+      overflow:visible!important;
+      pointer-events:none!important;
+      transform-origin:top left!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-transfer-ghost-v173 img{
+      display:block!important;
+      opacity:1!important;
+      visibility:visible!important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.5 BINDER SOUND OVERRIDES
+// ============================================================
+(function installRepoTcgBinderSoundsV175(){
+  if(window.__repoTcgBinderSoundsV175Installed)return;
+  window.__repoTcgBinderSoundsV175Installed=true;
+
+  try{
+    if(typeof QUIDDITCH_TCG_BINDER_ASSETS==='object'&&QUIDDITCH_TCG_BINDER_ASSETS){
+      QUIDDITCH_TCG_BINDER_ASSETS.pageSound='assets/quidditch-tcg-binder/page-flip-v175.mp3';
+    }
+  }catch(_){ }
+
+  // Override every existing setQuidditchTcgBinderPage wrapper's sound call by
+  // replacing the shared sound function it already invokes.
+  quidditchTcgBinderPlayPageSound=function(){
+    try{
+      const src='assets/quidditch-tcg-binder/page-flip-v175.mp3';
+      let audio=quidditchTcgBinderPlayPageSound.audio;
+      if(!audio){
+        audio=quidditchTcgBinderPlayPageSound.audio=new Audio(src);
+        audio.preload='auto';
+      }
+      audio.volume=.60;
+      audio.pause();
+      audio.currentTime=0;
+      audio.play()?.catch?.(()=>{});
+    }catch(_){ }
+  };
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.6 PERMANENT COVER HIDDEN-CARDS GUARD
+// ============================================================
+(function installRepoTcgBinderCoverGuardV176(){
+  if(window.__repoTcgBinderCoverGuardV176Installed)return;
+  window.__repoTcgBinderCoverGuardV176Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoTcgBinderCoverGuardV176Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog[data-binder-page='front'] .repo-binder-storage-launch,
+    #quidditchTcgBinderDialog[data-binder-page='back'] .repo-binder-storage-launch,
+    #quidditchTcgBinderDialog:not([data-binder-page^='open']) .repo-binder-storage-launch{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  let observedDialog=null;
+  let observer=null;
+
+  function enforce(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+
+    const open=dialog.open && /^open\d+$/.test(String(dialog.dataset.binderPage||''));
+    dialog.querySelectorAll('.repo-binder-storage-launch').forEach(launch=>{
+      if(open){
+        launch.hidden=false;
+        launch.removeAttribute('aria-hidden');
+        launch.style.removeProperty('display');
+        launch.style.removeProperty('visibility');
+        launch.style.removeProperty('opacity');
+        launch.style.removeProperty('pointer-events');
+      }else{
+        launch.hidden=true;
+        launch.setAttribute('aria-hidden','true');
+        launch.style.setProperty('display','none','important');
+        launch.style.setProperty('visibility','hidden','important');
+        launch.style.setProperty('opacity','0','important');
+        launch.style.setProperty('pointer-events','none','important');
+      }
+    });
+
+    if(observedDialog!==dialog){
+      observer?.disconnect();
+      observedDialog=dialog;
+      observer=new MutationObserver(()=>queueMicrotask(enforce));
+      // Crucially, do NOT observe style/hidden attributes, so enforce() cannot
+      // create a feedback loop. Only react to page state and newly-created nodes.
+      observer.observe(dialog,{
+        childList:true,
+        subtree:true,
+        attributes:true,
+        attributeFilter:['data-binder-page','open']
+      });
+    }
+  }
+
+  const oldEnsure=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(oldEnsure){
+    ensureQuidditchTcgBinderUi=function(){
+      const result=oldEnsure.apply(this,arguments);
+      enforce();
+      requestAnimationFrame(enforce);
+      return result;
+    };
+  }
+
+  const oldSetPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(oldSetPage){
+    setQuidditchTcgBinderPage=function(){
+      const result=oldSetPage.apply(this,arguments);
+      enforce();
+      requestAnimationFrame(enforce);
+      setTimeout(enforce,140);
+      return result;
+    };
+  }
+
+  const oldOpen=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(oldOpen){
+    openQuidditchTcgBinder=function(){
+      const result=oldOpen.apply(this,arguments);
+      enforce();
+      requestAnimationFrame(enforce);
+      setTimeout(enforce,80);
+      setTimeout(enforce,220);
+      return result;
+    };
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',enforce,{once:true});
+  }else{
+    enforce();
+  }
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.7 BINDER LIBRARY + LEADERBOARD SHORTCUT
+// ============================================================
+(function installRepoBinderLibraryV177(){
+  if(window.__repoBinderLibraryV177Installed)return;
+  window.__repoBinderLibraryV177Installed=true;
+
+  let libraryLoading=false;
+
+  const style=document.createElement('style');
+  style.id='repoBinderLibraryV177Styles';
+  style.textContent=`
+    /* Homepage full-leaderboards shortcut. */
+    .home-leaderboards-shortcut{
+      width:calc(100% - 24px);
+      margin:12px auto 0;
+      min-height:48px;
+      display:grid;
+      grid-template-columns:28px minmax(0,1fr) 18px;
+      align-items:center;
+      gap:9px;
+      padding:8px 11px;
+      border:1px solid #bd8731;
+      outline:1px solid rgba(17,31,45,.92);
+      outline-offset:-4px;
+      border-radius:3px;
+      background:
+        radial-gradient(circle at 18% 0%,rgba(73,135,186,.18),transparent 36%),
+        linear-gradient(180deg,#17283c,#09121d);
+      box-shadow:0 5px 12px rgba(0,0,0,.28),inset 0 0 0 1px rgba(244,202,103,.08);
+      color:#f4dda3;
+      cursor:pointer;
+      text-align:left;
+      transition:transform .13s ease,filter .13s ease,box-shadow .13s ease;
+    }
+    .home-leaderboards-shortcut:hover,.home-leaderboards-shortcut:focus-visible{
+      transform:translateY(-1px);
+      filter:brightness(1.09);
+      box-shadow:0 7px 15px rgba(0,0,0,.34),0 0 14px rgba(73,142,207,.12),inset 0 0 0 1px rgba(244,202,103,.14);
+      outline:none;
+    }
+    .home-leaderboards-shortcut img{width:22px;height:22px;object-fit:contain;filter:drop-shadow(0 2px 2px #000)}
+    .home-leaderboards-shortcut span{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .home-leaderboards-shortcut b{font:900 11px/1 Georgia,serif;letter-spacing:.11em;color:#f6dc93}
+    .home-leaderboards-shortcut small{font:800 7px/1.1 monospace;letter-spacing:.11em;color:#8ca8bf}
+    .home-leaderboards-shortcut em{font:900 21px/1 Georgia,serif;font-style:normal;color:#e4bd65;text-align:center}
+
+    /* Binder Library button sits directly above COLLECTION PAGES. */
+    #repoBinderLibraryButton{
+      align-self:center;
+      min-height:25px!important;
+      height:25px!important;
+      margin:0 auto 4px!important;
+      padding:3px 12px!important;
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:7px!important;
+      border:1px solid #c69239!important;
+      border-radius:3px!important;
+      background:
+        radial-gradient(circle at 50% -40%,rgba(115,184,232,.21),transparent 60%),
+        linear-gradient(180deg,#1a3048,#0b1826)!important;
+      color:#f5dda0!important;
+      box-shadow:inset 0 0 0 1px rgba(247,214,132,.07),0 2px 6px rgba(0,0,0,.28)!important;
+      font:900 8px/1 Georgia,serif!important;
+      letter-spacing:.13em!important;
+      white-space:nowrap!important;
+    }
+    #repoBinderLibraryButton:hover,#repoBinderLibraryButton:focus-visible{
+      filter:brightness(1.12)!important;
+      box-shadow:inset 0 0 0 1px rgba(247,214,132,.13),0 0 13px rgba(87,166,219,.18)!important;
+      outline:none!important;
+    }
+    #repoBinderLibraryButton::before{
+      content:'◆';
+      color:#79bcea;
+      font-size:7px;
+    }
+    #quidditchTcgBinderDialog:not([data-binder-page^='open']) #repoBinderLibraryButton{
+      display:none!important;
+    }
+
+    /* Full in-binder Library overlay. */
+    .repo-binder-library-overlay{
+      position:absolute;
+      inset:0;
+      z-index:2147483100;
+      display:grid;
+      place-items:center;
+      padding:42px;
+      background:rgba(2,6,11,.78);
+      backdrop-filter:blur(5px);
+      -webkit-backdrop-filter:blur(5px);
+    }
+    .repo-binder-library-overlay[hidden]{display:none!important}
+    .repo-binder-library-card{
+      width:min(820px,86%);
+      max-height:min(76vh,720px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      border:1px solid #d5a64f;
+      outline:1px solid rgba(121,188,234,.25);
+      outline-offset:-6px;
+      border-radius:8px;
+      background:
+        radial-gradient(circle at 50% -10%,rgba(93,154,205,.14),transparent 30%),
+        linear-gradient(180deg,#1c2c40 0%,#0a121d 72%);
+      box-shadow:0 26px 70px rgba(0,0,0,.72),inset 0 0 0 1px rgba(255,232,171,.06);
+      color:#f4e3bb;
+    }
+    .repo-binder-library-head{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:14px;
+      align-items:center;
+      padding:18px 20px 15px;
+      border-bottom:1px solid rgba(213,166,79,.28);
+      background:linear-gradient(180deg,rgba(38,57,78,.96),rgba(20,31,45,.96));
+    }
+    .repo-binder-library-title small{
+      display:block;
+      color:#81b9de;
+      font:900 8px/1 monospace;
+      letter-spacing:.19em;
+      margin-bottom:5px;
+    }
+    .repo-binder-library-title strong{
+      display:block;
+      color:#f5d98d;
+      font:900 24px/1 Georgia,serif;
+      letter-spacing:.09em;
+    }
+    .repo-binder-library-title span{
+      display:block;
+      margin-top:7px;
+      color:#9fb1c2;
+      font:700 10px/1.35 Georgia,serif;
+    }
+    .repo-binder-library-close{
+      width:36px!important;
+      min-width:36px!important;
+      height:36px!important;
+      min-height:36px!important;
+      padding:0!important;
+      border:1px solid #d5a64f!important;
+      border-radius:999px!important;
+      background:linear-gradient(180deg,#563817,#211408)!important;
+      color:#ffe2a0!important;
+      font:900 20px/1 Georgia,serif!important;
+      cursor:pointer!important;
+    }
+    .repo-binder-library-body{
+      min-height:180px;
+      overflow:auto;
+      padding:14px 16px 18px;
+      scrollbar-width:thin;
+      scrollbar-color:#bb8738 #08111a;
+    }
+    .repo-binder-library-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:9px;
+    }
+    .repo-binder-library-person{
+      min-width:0;
+      min-height:62px;
+      display:grid;
+      grid-template-columns:42px minmax(0,1fr) auto;
+      gap:10px;
+      align-items:center;
+      padding:9px 10px;
+      border:1px solid rgba(194,146,61,.72);
+      border-radius:4px;
+      background:
+        linear-gradient(180deg,rgba(94,60,25,.76),rgba(39,25,12,.82));
+      box-shadow:inset 0 0 0 1px rgba(255,231,170,.035);
+      color:#f5e3bb;
+      cursor:pointer;
+      text-align:left;
+      transition:filter .12s ease,transform .12s ease,border-color .12s ease;
+    }
+    .repo-binder-library-person:hover,.repo-binder-library-person:focus-visible{
+      transform:translateY(-1px);
+      filter:brightness(1.08);
+      border-color:#f0c871;
+      outline:none;
+    }
+    .repo-binder-library-person img{
+      width:36px;
+      height:42px;
+      object-fit:contain;
+      filter:drop-shadow(0 3px 4px rgba(0,0,0,.55));
+    }
+    .repo-binder-library-person-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .repo-binder-library-person-copy b{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      color:#ffe7ad;
+      font:900 12px/1 Georgia,serif;
+      letter-spacing:.035em;
+    }
+    .repo-binder-library-person-copy small{
+      color:#9fb5c9;
+      font:800 7px/1 monospace;
+      letter-spacing:.10em;
+    }
+    .repo-binder-library-person em{
+      font:900 8px/1 Georgia,serif;
+      font-style:normal;
+      letter-spacing:.08em;
+      color:#e5c678;
+      white-space:nowrap;
+    }
+    .repo-binder-library-person.is-you{
+      border-color:#7fbce4;
+      box-shadow:inset 0 0 0 1px rgba(100,181,233,.12),0 0 13px rgba(81,154,205,.08);
+    }
+    .repo-binder-library-message{
+      padding:34px 16px;
+      text-align:center;
+      color:#aab9c6;
+      font:800 11px/1.5 Georgia,serif;
+    }
+    .repo-binder-library-message b{color:#f0d287}
+    @media(max-width:720px){
+      .repo-binder-library-overlay{padding:18px}
+      .repo-binder-library-card{width:96%;max-height:82vh}
+      .repo-binder-library-grid{grid-template-columns:1fr}
+      .repo-binder-library-title strong{font-size:19px}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function ensureLibraryUi(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return null;
+
+    const status=dialog.querySelector('.quidditch-tcg-binder-status');
+    if(status&&!document.getElementById('repoBinderLibraryButton')){
+      const button=document.createElement('button');
+      button.id='repoBinderLibraryButton';
+      button.type='button';
+      button.textContent='BINDER LIBRARY';
+      button.setAttribute('aria-label','Open Binder Library');
+      status.insertBefore(button,status.firstChild);
+      button.addEventListener('click',event=>{
+        event.stopPropagation();
+        openBinderLibraryV177();
+      });
+    }
+
+    let overlay=document.getElementById('repoBinderLibraryOverlay');
+    if(!overlay){
+      overlay=document.createElement('section');
+      overlay.id='repoBinderLibraryOverlay';
+      overlay.className='repo-binder-library-overlay';
+      overlay.hidden=true;
+      overlay.innerHTML=`
+        <div class="repo-binder-library-card" role="dialog" aria-modal="true" aria-label="Binder Library">
+          <header class="repo-binder-library-head">
+            <div class="repo-binder-library-title">
+              <small>REPO COMPANY · QUIDDITCH TCG</small>
+              <strong>BINDER LIBRARY</strong>
+              <span>Browse another adventurer's binder exactly as they have arranged and customised it.</span>
+            </div>
+            <button type="button" class="repo-binder-library-close" aria-label="Close Binder Library">×</button>
+          </header>
+          <div class="repo-binder-library-body">
+            <div id="repoBinderLibraryContent" class="repo-binder-library-message">Select Binder Library to load adventurers.</div>
+          </div>
+        </div>`;
+      dialog.querySelector('.quidditch-tcg-binder-shell')?.appendChild(overlay);
+
+      overlay.querySelector('.repo-binder-library-close')?.addEventListener('click',()=>closeBinderLibraryV177());
+      overlay.addEventListener('click',event=>{
+        if(event.target===overlay)closeBinderLibraryV177();
+      });
+    }
+    return overlay;
+  }
+
+  function closeBinderLibraryV177(){
+    const overlay=document.getElementById('repoBinderLibraryOverlay');
+    if(overlay)overlay.hidden=true;
+  }
+
+  async function loadBinderLibraryV177(){
+    const content=document.getElementById('repoBinderLibraryContent');
+    if(!content||libraryLoading)return;
+    libraryLoading=true;
+    content.className='repo-binder-library-message';
+    content.innerHTML='Loading the Binder Library…';
+
+    try{
+      const {data,error}=await db.rpc('get_leaderboard');
+      if(error)throw error;
+
+      const currentName=String(character?.username||'').trim();
+      const currentLower=currentName.toLowerCase();
+      const rows=(Array.isArray(data)?data:[])
+        .filter(row=>{
+          const name=String(row?.username||'').trim();
+          return name && name.toLowerCase()!=='admin';
+        })
+        .sort((a,b)=>{
+          const an=String(a?.username||'');
+          const bn=String(b?.username||'');
+          if(an.toLowerCase()===currentLower)return -1;
+          if(bn.toLowerCase()===currentLower)return 1;
+          return an.localeCompare(bn,undefined,{sensitivity:'base'});
+        });
+
+      if(!rows.length){
+        content.className='repo-binder-library-message';
+        content.innerHTML='<b>No public binders found yet.</b>';
+        return;
+      }
+
+      content.className='repo-binder-library-grid';
+      content.innerHTML=rows.map(row=>{
+        const username=String(row.username||'Adventurer');
+        const isYou=username.toLowerCase()===currentLower;
+        return `<button type="button" class="repo-binder-library-person${isYou?' is-you':''}" data-binder-library-user="${escapeHtml(username)}">
+          <img src="assets/quidditch-tcg-binder/binder-nav-icon.png" alt="">
+          <span class="repo-binder-library-person-copy">
+            <b>${escapeHtml(username)}</b>
+            <small>${isYou?'YOUR CURRENT BINDER':'PUBLIC COLLECTION'}</small>
+          </span>
+          <em>${isYou?'OPEN MINE':'VIEW BINDER'}</em>
+        </button>`;
+      }).join('');
+
+      content.querySelectorAll('[data-binder-library-user]').forEach(button=>{
+        button.addEventListener('click',()=>{
+          const username=String(button.dataset.binderLibraryUser||'').trim();
+          const isYou=username.toLowerCase()===String(character?.username||'').trim().toLowerCase();
+          closeBinderLibraryV177();
+
+          // Existing public-binder code already loads the selected user's
+          // Supabase layout AND their saved binder customisation.
+          if(isYou)openQuidditchTcgBinder();
+          else openQuidditchTcgBinder(username);
+        });
+      });
+    }catch(error){
+      console.warn('Binder Library could not load.',error);
+      content.className='repo-binder-library-message';
+      content.innerHTML='<b>Binder Library unavailable.</b><br>Could not load the adventurer list.';
+    }finally{
+      libraryLoading=false;
+    }
+  }
+
+  async function openBinderLibraryV177(){
+    const overlay=ensureLibraryUi();
+    if(!overlay)return;
+    overlay.hidden=false;
+    await loadBinderLibraryV177();
+  }
+
+  window.openBinderLibraryV177=openBinderLibraryV177;
+
+  const oldEnsure=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(oldEnsure){
+    ensureQuidditchTcgBinderUi=function(){
+      const result=oldEnsure.apply(this,arguments);
+      ensureLibraryUi();
+      return result;
+    };
+  }
+
+  const oldSetPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(oldSetPage){
+    setQuidditchTcgBinderPage=function(){
+      const result=oldSetPage.apply(this,arguments);
+      ensureLibraryUi();
+      return result;
+    };
+  }
+
+  // Homepage shortcut under Global Leaderboard.
+  const quickLeaderboard=document.getElementById('openLeaderboardQuick');
+  if(quickLeaderboard){
+    quickLeaderboard.addEventListener('click',()=>{
+      if(typeof openLeaderboard==='function')openLeaderboard();
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{
+      ensureLibraryUi();
+      const quick=document.getElementById('openLeaderboardQuick');
+      if(quick&&!quick.dataset.boundV177){
+        quick.dataset.boundV177='1';
+        quick.addEventListener('click',()=>{if(typeof openLeaderboard==='function')openLeaderboard();});
+      }
+    },{once:true});
+  }else{
+    ensureLibraryUi();
+  }
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.8 COMPACT HOMEPAGE LEADERBOARDS BUTTON
+// ============================================================
+(function installRepoCompactLeaderboardShortcutV178(){
+  if(window.__repoCompactLeaderboardShortcutV178Installed)return;
+  window.__repoCompactLeaderboardShortcutV178Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoCompactLeaderboardShortcutV178Styles';
+  style.textContent=`
+    /* Make the shortcut feel like a small footer control belonging to the
+       parchment leaderboard panel, rather than a separate oversized module. */
+    .home-leaderboards-shortcut{
+      box-sizing:border-box!important;
+      width:calc(100% - 40px)!important;
+      min-height:28px!important;
+      height:28px!important;
+      margin:7px auto 3px!important;
+      padding:0 9px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:7px!important;
+
+      border:1px solid rgba(112,73,27,.58)!important;
+      outline:0!important;
+      border-radius:2px!important;
+      background:
+        linear-gradient(180deg,rgba(235,217,167,.50),rgba(205,181,125,.42))!important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,248,220,.35),
+        0 1px 2px rgba(77,48,16,.14)!important;
+
+      color:#6f3a16!important;
+      text-align:center!important;
+      cursor:pointer!important;
+      transition:background .12s ease,border-color .12s ease,transform .12s ease!important;
+    }
+
+    .home-leaderboards-shortcut:hover,
+    .home-leaderboards-shortcut:focus-visible{
+      transform:translateY(-1px)!important;
+      filter:none!important;
+      border-color:rgba(116,66,20,.82)!important;
+      background:
+        linear-gradient(180deg,rgba(247,228,174,.72),rgba(213,184,121,.58))!important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,249,224,.46),
+        0 2px 4px rgba(77,48,16,.16)!important;
+      outline:none!important;
+    }
+
+    /* Remove the bright icon and secondary subtitle — these were what made
+       the shortcut visually dominate the leaderboard panel. */
+    .home-leaderboards-shortcut img,
+    .home-leaderboards-shortcut small{
+      display:none!important;
+    }
+
+    .home-leaderboards-shortcut span{
+      display:block!important;
+      min-width:0!important;
+    }
+
+    .home-leaderboards-shortcut b{
+      display:block!important;
+      color:#743816!important;
+      font:900 9px/1 Georgia,'Times New Roman',serif!important;
+      letter-spacing:.13em!important;
+      text-shadow:0 1px 0 rgba(255,237,190,.42)!important;
+      white-space:nowrap!important;
+    }
+
+    .home-leaderboards-shortcut em{
+      position:static!important;
+      width:auto!important;
+      color:#9a5b20!important;
+      font:900 13px/1 Georgia,serif!important;
+      font-style:normal!important;
+      line-height:1!important;
+      text-shadow:none!important;
+    }
+
+    @media(max-width:700px){
+      .home-leaderboards-shortcut{
+        width:calc(100% - 28px)!important;
+        height:27px!important;
+        min-height:27px!important;
+        margin-top:6px!important;
+      }
+      .home-leaderboards-shortcut b{font-size:8px!important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V17.9 BINDER LIBRARY PRO + EXACT PUBLIC BINDERS
+// - replaces the rough Binder Library list with a premium immersive browser
+// - intercepts the old button click so the upgraded menu always opens
+// - public binders now respect the exact saved slot layout / storage snapshot
+//   and sync the owner snapshot faster so friend views stay accurate
+// ============================================================
+(function installRepoBinderLibraryV179(){
+  if(window.__repoBinderLibraryV179Installed)return;
+  window.__repoBinderLibraryV179Installed=true;
+
+  let binderLibraryRows=[];
+  let binderLibraryLoading=false;
+  let binderLibrarySearch='';
+
+  const style=document.createElement('style');
+  style.id='repoBinderLibraryV179Styles';
+  style.textContent=`
+    .repo-binder-library-overlay.repo-binder-library-overlay-v179{
+      position:absolute!important;
+      inset:0!important;
+      z-index:2147483200!important;
+      display:grid!important;
+      place-items:center!important;
+      padding:28px!important;
+      background:
+        radial-gradient(circle at 50% -8%,rgba(106,169,219,.18),transparent 34%),
+        linear-gradient(180deg,rgba(2,8,15,.82),rgba(2,8,15,.88))!important;
+      backdrop-filter:blur(7px)!important;
+      -webkit-backdrop-filter:blur(7px)!important;
+    }
+    .repo-binder-library-overlay.repo-binder-library-overlay-v179[hidden]{display:none!important}
+    .repo-binder-library-v179-shell{
+      width:min(1080px,94%)!important;
+      max-height:min(84vh,900px)!important;
+      display:grid!important;
+      grid-template-rows:auto auto minmax(0,1fr) auto!important;
+      overflow:hidden!important;
+      border:1px solid #d8aa50!important;
+      border-radius:14px!important;
+      background:
+        linear-gradient(180deg,rgba(22,38,56,.98),rgba(9,17,28,.985) 36%,rgba(5,10,17,.99) 100%)!important;
+      box-shadow:
+        0 28px 90px rgba(0,0,0,.72),
+        inset 0 0 0 1px rgba(250,230,178,.08),
+        inset 0 0 44px rgba(87,158,209,.10)!important;
+      color:#f4e4bf!important;
+      position:relative!important;
+      isolation:isolate;
+    }
+    .repo-binder-library-v179-shell::before{
+      content:'';
+      position:absolute;
+      inset:9px;
+      border:1px solid rgba(218,179,91,.26);
+      border-radius:10px;
+      pointer-events:none;
+      box-shadow:inset 0 0 28px rgba(0,0,0,.34);
+    }
+    .repo-binder-library-v179-head{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:18px;
+      align-items:start;
+      padding:24px 24px 18px;
+      border-bottom:1px solid rgba(212,170,84,.22);
+      background:
+        linear-gradient(180deg,rgba(44,62,84,.92),rgba(20,31,45,.95)),
+        repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 80px);
+    }
+    .repo-binder-library-v179-title small{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:#88bddf;
+      font:900 9px/1 monospace;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+    }
+    .repo-binder-library-v179-title small::before{
+      content:'◆';
+      color:#e0bd6a;
+      font-size:10px;
+    }
+    .repo-binder-library-v179-title h2{
+      margin:9px 0 6px;
+      color:#f5d990;
+      font:900 clamp(26px,3.4vw,38px)/1 Georgia,serif;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      text-shadow:0 2px 0 rgba(0,0,0,.55);
+    }
+    .repo-binder-library-v179-title p{
+      margin:0;
+      max-width:760px;
+      color:#b2c1cf;
+      font:700 12px/1.45 Georgia,serif;
+    }
+    .repo-binder-library-v179-close{
+      width:42px!important;
+      min-width:42px!important;
+      height:42px!important;
+      border:1px solid #d4aa54!important;
+      border-radius:999px!important;
+      background:linear-gradient(180deg,#5d3b1a,#231507)!important;
+      color:#ffe29e!important;
+      font:900 22px/1 Georgia,serif!important;
+      cursor:pointer!important;
+      box-shadow:inset 0 0 0 1px rgba(255,239,196,.07),0 6px 14px rgba(0,0,0,.28)!important;
+    }
+    .repo-binder-library-v179-close:hover,.repo-binder-library-v179-close:focus-visible{filter:brightness(1.12)!important;outline:none!important}
+    .repo-binder-library-v179-toolbar{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(280px,380px);
+      gap:16px;
+      align-items:center;
+      padding:16px 24px 18px;
+      border-bottom:1px solid rgba(118,176,220,.12);
+      background:linear-gradient(180deg,rgba(8,17,28,.88),rgba(4,9,16,.94));
+    }
+    .repo-binder-library-v179-stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .repo-binder-library-v179-stat{
+      min-width:124px;
+      padding:10px 12px;
+      border:1px solid rgba(211,168,80,.22);
+      border-radius:10px;
+      background:linear-gradient(180deg,rgba(22,36,53,.92),rgba(11,19,30,.96));
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .repo-binder-library-v179-stat small{
+      display:block;
+      color:#7baed1;
+      font:900 8px/1 monospace;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .repo-binder-library-v179-stat b{
+      display:block;
+      color:#f8e0a4;
+      font:900 18px/1 Georgia,serif;
+    }
+    .repo-binder-library-v179-stat span{
+      display:block;
+      margin-top:4px;
+      color:#98a9b9;
+      font:700 10px/1.3 Arial,sans-serif;
+    }
+    .repo-binder-library-v179-searchwrap{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+    }
+    .repo-binder-library-v179-searchwrap label{
+      color:#88b8d8;
+      font:900 8px/1 monospace;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+    }
+    #repoBinderLibrarySearchV179{
+      width:100%;
+      height:42px;
+      box-sizing:border-box;
+      padding:0 14px;
+      border:1px solid rgba(209,164,77,.52);
+      border-radius:10px;
+      outline:1px solid rgba(120,178,222,.10);
+      outline-offset:-3px;
+      background:linear-gradient(180deg,#132537,#091421);
+      color:#ecf4fa;
+      font:700 12px/1 Arial,sans-serif;
+      box-shadow:inset 0 0 12px rgba(0,0,0,.58);
+    }
+    #repoBinderLibrarySearchV179::placeholder{color:#728ea4}
+    #repoBinderLibrarySearchV179:focus{border-color:#8bc8f0;outline-color:rgba(139,200,240,.36)}
+    .repo-binder-library-v179-body{
+      min-height:220px;
+      overflow:auto;
+      padding:18px 24px 24px;
+      scrollbar-width:thin;
+      scrollbar-color:#b58338 #07101a;
+    }
+    .repo-binder-library-v179-body::-webkit-scrollbar{width:10px}
+    .repo-binder-library-v179-body::-webkit-scrollbar-track{background:#07101a}
+    .repo-binder-library-v179-body::-webkit-scrollbar-thumb{background:linear-gradient(#d3ab5b,#7a5421);border:2px solid #07101a;border-radius:999px}
+
+    .repo-binder-library-v179-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+    .repo-binder-library-v179-entry{
+      --lib-accent:#c89b47;
+      --lib-bright:#f8df9d;
+      --lib-ink:#182535;
+      --lib-glow:rgba(96,167,219,.14);
+      min-width:0;
+      display:grid;
+      grid-template-columns:118px minmax(0,1fr) auto;
+      gap:16px;
+      align-items:center;
+      padding:16px;
+      border:1px solid color-mix(in srgb,var(--lib-accent) 78%,#f1d48f);
+      border-radius:16px;
+      background:
+        radial-gradient(circle at 82% 10%,color-mix(in srgb,var(--lib-glow) 78%,transparent),transparent 30%),
+        linear-gradient(180deg,rgba(255,255,255,.03),transparent 26%),
+        linear-gradient(145deg,color-mix(in srgb,var(--lib-ink) 92%,#21364b),rgba(10,18,27,.99) 78%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,236,183,.05),
+        inset 0 18px 24px rgba(255,255,255,.02),
+        0 10px 24px rgba(0,0,0,.28);
+      color:#f4e4bf;
+      cursor:pointer;
+      text-align:left;
+      transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,filter .16s ease,background .16s ease;
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .repo-binder-library-v179-entry::before{
+      content:'';
+      position:absolute;
+      inset:1px;
+      border-radius:14px;
+      border:1px solid rgba(255,231,178,.05);
+      pointer-events:none;
+      z-index:0;
+    }
+    .repo-binder-library-v179-entry::after{
+      content:'';
+      position:absolute;
+      inset:-25% auto -25% -18%;
+      width:42%;
+      background:linear-gradient(100deg,transparent,rgba(255,245,214,.08),transparent);
+      transform:rotate(10deg) translateX(-115%);
+      transition:transform .45s ease;
+      pointer-events:none;
+      z-index:0;
+    }
+    .repo-binder-library-v179-entry:hover,.repo-binder-library-v179-entry:focus-visible{
+      transform:translateY(-3px) scale(1.01);
+      border-color:color-mix(in srgb,var(--lib-bright) 88%,#fff7d4);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,236,183,.07),
+        0 18px 34px rgba(0,0,0,.34),
+        0 0 0 1px rgba(255,235,190,.04),
+        0 0 24px color-mix(in srgb,var(--lib-glow) 90%,transparent);
+      filter:brightness(1.05);
+      outline:none;
+    }
+    .repo-binder-library-v179-entry:hover::after,.repo-binder-library-v179-entry:focus-visible::after{transform:rotate(10deg) translateX(250%)}
+    .repo-binder-library-v179-entry.is-you{
+      border-color:#8acff4;
+      box-shadow:
+        inset 0 0 0 1px rgba(126,194,237,.14),
+        0 14px 28px rgba(0,0,0,.32),
+        0 0 24px rgba(87,163,219,.12);
+    }
+    .repo-binder-library-v179-artwrap{
+      position:relative;
+      z-index:1;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+    }
+    .repo-binder-library-v179-ribbon{
+      width:100%;
+      padding:5px 9px;
+      border:1px solid color-mix(in srgb,var(--lib-accent) 78%,#f3d48e);
+      border-radius:999px;
+      background:linear-gradient(180deg,rgba(72,46,19,.96),rgba(30,18,8,.98));
+      color:var(--lib-bright);
+      box-shadow:inset 0 0 0 1px rgba(255,240,197,.05);
+      font:900 8px/1 monospace;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      text-align:center;
+      white-space:nowrap;
+    }
+    .repo-binder-library-v179-art{
+      width:104px;
+      height:124px;
+      display:grid;
+      place-items:center;
+      border:1px solid color-mix(in srgb,var(--lib-accent) 74%,#eecb83);
+      border-radius:16px;
+      background:
+        radial-gradient(circle at 50% 16%,rgba(255,255,255,.08),transparent 28%),
+        linear-gradient(180deg,rgba(6,13,21,.98),color-mix(in srgb,var(--lib-ink) 82%,#0f1824));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,240,197,.05),
+        inset 0 -18px 24px rgba(0,0,0,.28),
+        0 12px 20px rgba(0,0,0,.26),
+        0 0 0 4px rgba(5,10,17,.36);
+      overflow:hidden;
+      position:relative;
+      transform-style:preserve-3d;
+      transition:transform .18s ease,box-shadow .18s ease;
+    }
+    .repo-binder-library-v179-entry:hover .repo-binder-library-v179-art,
+    .repo-binder-library-v179-entry:focus-visible .repo-binder-library-v179-art{
+      transform:translateY(-2px) rotate(-2deg);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,240,197,.08),
+        inset 0 -18px 24px rgba(0,0,0,.28),
+        0 16px 24px rgba(0,0,0,.32),
+        0 0 0 4px rgba(5,10,17,.36),
+        0 0 18px color-mix(in srgb,var(--lib-glow) 90%,transparent);
+    }
+    .repo-binder-library-v179-art::before{
+      content:'';
+      position:absolute;
+      inset:8px;
+      border:1px solid rgba(255,224,158,.16);
+      border-radius:12px;
+      pointer-events:none;
+    }
+    .repo-binder-library-v179-art img{
+      width:74px;
+      height:92px;
+      object-fit:contain;
+      filter:drop-shadow(0 8px 8px rgba(0,0,0,.58));
+      transform:translateY(2px);
+      position:relative;
+      z-index:1;
+    }
+    .repo-binder-library-v179-crest{
+      position:absolute;
+      right:8px;
+      bottom:8px;
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      border:1px solid color-mix(in srgb,var(--lib-accent) 82%,#f3d186);
+      background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.20),transparent 38%),linear-gradient(180deg,color-mix(in srgb,var(--lib-accent) 92%,#d09a35),color-mix(in srgb,var(--lib-accent) 60%,#503112));
+      color:#fff6d5;
+      font:900 10px/1 Georgia,serif;
+      letter-spacing:.06em;
+      box-shadow:0 3px 10px rgba(0,0,0,.35);
+      z-index:2;
+      text-transform:uppercase;
+    }
+    .repo-binder-library-v179-copy{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      position:relative;
+      z-index:1;
+    }
+    .repo-binder-library-v179-copy small{
+      color:#8fc0df;
+      font:900 8px/1 monospace;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+    }
+    .repo-binder-library-v179-copy b{
+      display:block;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      color:#ffe7ab;
+      font:900 21px/1.02 Georgia,serif;
+      letter-spacing:.03em;
+      text-shadow:0 1px 0 rgba(0,0,0,.55);
+    }
+    .repo-binder-library-v179-copy p{
+      margin:0;
+      color:#b4c0cb;
+      font:700 11px/1.5 Arial,sans-serif;
+      max-width:420px;
+    }
+    .repo-binder-library-v179-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:2px;
+    }
+    .repo-binder-library-v179-meta{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      justify-content:center;
+      gap:9px;
+      white-space:nowrap;
+      position:relative;
+      z-index:1;
+    }
+    .repo-binder-library-v179-chip{
+      padding:6px 10px;
+      border:1px solid color-mix(in srgb,var(--lib-accent) 72%,#d6aa57);
+      border-radius:999px;
+      background:rgba(6,13,20,.72);
+      color:color-mix(in srgb,var(--lib-bright) 88%,#e6ca81);
+      font:900 8px/1 monospace;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      box-shadow:inset 0 0 0 1px rgba(255,240,197,.03);
+    }
+    .repo-binder-library-v179-entry.is-you .repo-binder-library-v179-chip{border-color:rgba(117,191,240,.50);color:#cfe9fb}
+    .repo-binder-library-v179-action{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:3px;
+      padding-left:18px;
+      position:relative;
+    }
+    .repo-binder-library-v179-action::before{
+      content:'';
+      position:absolute;
+      left:0;
+      top:50%;
+      width:8px;
+      height:8px;
+      border-right:2px solid color-mix(in srgb,var(--lib-bright) 88%,#f7dda0);
+      border-bottom:2px solid color-mix(in srgb,var(--lib-bright) 88%,#f7dda0);
+      transform:translateY(-55%) rotate(-45deg);
+      opacity:.92;
+    }
+    .repo-binder-library-v179-action strong{
+      color:#fff1be;
+      font:900 11px/1 Georgia,serif;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+    .repo-binder-library-v179-action span{
+      color:#a9b8c7;
+      font:800 9px/1.3 Arial,sans-serif;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .repo-binder-library-v179-empty,
+    .repo-binder-library-v179-loading{
+      display:grid;
+      place-items:center;
+      min-height:260px;
+      padding:24px 18px;
+      border:1px dashed rgba(124,173,209,.28);
+      border-radius:12px;
+      background:rgba(8,16,26,.52);
+      color:#aab7c4;
+      text-align:center;
+      font:800 12px/1.6 Georgia,serif;
+    }
+    .repo-binder-library-v179-empty b,
+    .repo-binder-library-v179-loading b{display:block;color:#f2d48a;font-size:16px;margin-bottom:7px}
+    .repo-binder-library-v179-foot{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      padding:12px 24px 16px;
+      border-top:1px solid rgba(210,169,84,.18);
+      background:linear-gradient(180deg,rgba(5,10,16,.92),rgba(4,8,13,.98));
+      color:#90a3b3;
+      font:800 10px/1.35 Arial,sans-serif;
+    }
+    .repo-binder-library-v179-foot strong{color:#f0d286;font:900 10px/1 Georgia,serif;letter-spacing:.12em}
+    @media(max-width:980px){
+      .repo-binder-library-v179-toolbar{grid-template-columns:1fr}
+      .repo-binder-library-v179-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:720px){
+      .repo-binder-library-overlay.repo-binder-library-overlay-v179{padding:12px!important}
+      .repo-binder-library-v179-shell{width:100%!important;max-height:90vh!important}
+      .repo-binder-library-v179-head{padding:18px 16px 14px}
+      .repo-binder-library-v179-toolbar{padding:14px 16px 16px}
+      .repo-binder-library-v179-body{padding:14px 16px 18px}
+      .repo-binder-library-v179-foot{padding:12px 16px 14px;align-items:flex-start;flex-direction:column}
+      .repo-binder-library-v179-entry{grid-template-columns:92px minmax(0,1fr);align-items:start;padding:14px}
+      .repo-binder-library-v179-art{width:82px;height:102px;border-radius:14px}
+      .repo-binder-library-v179-art img{width:60px;height:76px}
+      .repo-binder-library-v179-ribbon{font-size:7px;letter-spacing:.14em;padding:4px 7px}
+      .repo-binder-library-v179-meta{grid-column:2;align-items:flex-start}
+      .repo-binder-library-v179-action{align-items:flex-start;padding-left:15px}
+      .repo-binder-library-v179-copy b{font-size:18px}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function currentUserName(){return String(character?.username||'').trim();}
+  function normalisedCurrentUser(){return currentUserName().toLowerCase();}
+
+  function ensureOverlay(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return null;
+    let overlay=document.getElementById('repoBinderLibraryOverlay');
+    if(!overlay){
+      overlay=document.createElement('section');
+      overlay.id='repoBinderLibraryOverlay';
+      dialog.querySelector('.quidditch-tcg-binder-shell')?.appendChild(overlay);
+    }
+    overlay.className='repo-binder-library-overlay repo-binder-library-overlay-v179';
+    overlay.hidden=false;
+    if(!overlay.querySelector('.repo-binder-library-v179-shell')){
+      overlay.innerHTML=`
+        <div class="repo-binder-library-v179-shell" role="dialog" aria-modal="true" aria-label="Binder Library">
+          <header class="repo-binder-library-v179-head">
+            <div class="repo-binder-library-v179-title">
+              <small>REPO COMPANY · QUIDDITCH TCG · SHARED COLLECTIONS</small>
+              <h2>BINDER LIBRARY</h2>
+              <p>Browse your friends' binders in a premium library view. Public binders load the owner's exact saved page arrangement, hidden-card state and binder style.</p>
+            </div>
+            <button type="button" class="repo-binder-library-v179-close" data-binder-close aria-label="Close Binder Library">×</button>
+          </header>
+          <section class="repo-binder-library-v179-toolbar">
+            <div id="repoBinderLibraryStatsV179" class="repo-binder-library-v179-stats"></div>
+            <div class="repo-binder-library-v179-searchwrap">
+              <label for="repoBinderLibrarySearchV179">Find an adventurer</label>
+              <input id="repoBinderLibrarySearchV179" type="search" placeholder="Search username…" autocomplete="off" spellcheck="false">
+            </div>
+          </section>
+          <div class="repo-binder-library-v179-body">
+            <div id="repoBinderLibraryContentV179" class="repo-binder-library-v179-loading"><div><b>Loading Binder Library…</b>Preparing public binders.</div></div>
+          </div>
+          <footer class="repo-binder-library-v179-foot">
+            <span><strong>TIP</strong> Your own binder is pinned first so you can instantly jump back to it.</span>
+            <span>Friend views use the owner's saved binder snapshot, not a rebuilt guess.</span>
+          </footer>
+        </div>`;
+    }
+    const input=overlay.querySelector('#repoBinderLibrarySearchV179');
+    if(input&&input.value!==binderLibrarySearch)input.value=binderLibrarySearch;
+    document.body.classList.add('repo-binder-library-open');
+    return overlay;
+  }
+
+  function closeOverlay(){
+    const overlay=document.getElementById('repoBinderLibraryOverlay');
+    if(overlay)overlay.hidden=true;
+    document.body.classList.remove('repo-binder-library-open');
+  }
+
+  function buildStats(rows){
+    const currentLower=normalisedCurrentUser();
+    const total=rows.length;
+    const own=rows.some(row=>String(row?.username||'').trim().toLowerCase()===currentLower)?1:0;
+    const friends=Math.max(0,total-own);
+    return [
+      {label:'Binders',value:String(total),hint:'Available to browse'},
+      {label:'Friends',value:String(friends),hint:'Other adventurers'},
+      {label:'View Mode',value:'EXACT',hint:'Saved layout + style'}
+    ];
+  }
+
+  function renderRows(){
+    const overlay=ensureOverlay();
+    if(!overlay)return;
+    const content=overlay.querySelector('#repoBinderLibraryContentV179');
+    const statsBox=overlay.querySelector('#repoBinderLibraryStatsV179');
+    if(!content||!statsBox)return;
+
+    const currentLower=normalisedCurrentUser();
+    const rows=binderLibraryRows.slice();
+    const stats=buildStats(rows);
+    statsBox.innerHTML=stats.map(item=>`<div class="repo-binder-library-v179-stat"><small>${item.label}</small><b>${item.value}</b><span>${item.hint}</span></div>`).join('');
+
+    const search=binderLibrarySearch.trim().toLowerCase();
+    const visible=rows.filter(row=>{
+      const username=String(row?.username||'').trim();
+      return username&&(!search||username.toLowerCase().includes(search));
+    });
+
+    if(binderLibraryLoading){
+      content.className='repo-binder-library-v179-loading';
+      content.innerHTML='<div><b>Loading Binder Library…</b>Preparing public binders.</div>';
+      return;
+    }
+
+    if(!rows.length){
+      content.className='repo-binder-library-v179-empty';
+      content.innerHTML='<div><b>No public binders found yet.</b>Create or save a binder first.</div>';
+      return;
+    }
+
+    if(!visible.length){
+      content.className='repo-binder-library-v179-empty';
+      content.innerHTML='<div><b>No binders match your search.</b>Try a different adventurer name.</div>';
+      return;
+    }
+
+
+    const LIBRARY_PALETTES=[
+      {accent:'#d2a553',bright:'#f8e0a4',ink:'#1a2636',glow:'rgba(210,165,83,.18)'},
+      {accent:'#7cbbe5',bright:'#e9f8ff',ink:'#173145',glow:'rgba(124,187,229,.18)'},
+      {accent:'#8d73dc',bright:'#ece2ff',ink:'#241d45',glow:'rgba(141,115,220,.18)'},
+      {accent:'#52b985',bright:'#ddffee',ink:'#153629',glow:'rgba(82,185,133,.18)'},
+      {accent:'#d06f5b',bright:'#ffe0d8',ink:'#3a1f1f',glow:'rgba(208,111,91,.18)'},
+      {accent:'#d79d35',bright:'#fff0c8',ink:'#322114',glow:'rgba(215,157,53,.18)'}
+    ];
+    const paletteFor=(name,isYou)=>{
+      if(isYou)return {accent:'#7cc6f0',bright:'#eaf8ff',ink:'#163247',glow:'rgba(87,163,219,.22)'};
+      const source=String(name||'');
+      let hash=0;
+      for(let i=0;i<source.length;i++)hash=(hash*31+source.charCodeAt(i))>>>0;
+      return LIBRARY_PALETTES[hash%LIBRARY_PALETTES.length];
+    };
+    const initialsFor=(name)=>String(name||'')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0,2)
+      .map(part=>part[0])
+      .join('')
+      .toUpperCase()||'RC';
+
+    content.className='repo-binder-library-v179-grid';
+    content.innerHTML=visible.map(row=>{
+      const username=String(row?.username||'Adventurer').trim();
+      const isYou=username.toLowerCase()===currentLower;
+      const palette=paletteFor(username,isYou);
+      const label=isYou?'Your Binder':'Friend Binder';
+      const eyebrow=isYou?'YOUR COLLECTION · LIVE':'FRIEND COLLECTION · READ ONLY';
+      const summary=isYou
+        ?'Jump straight back into your own binder with your saved cover, page arrangement and hidden-card storage intact.'
+        :'Open this adventurer\'s exact saved binder layout, hidden-card state and visual customisation.';
+      const actionTitle=isYou?'Open Mine':'Open Collection';
+      const actionHint=isYou?'Return to your collection':'View saved binder';
+      const chipOne=isYou?'Pinned · You':'Shared Collection';
+      return `<button type="button" class="repo-binder-library-v179-entry${isYou?' is-you':''}" data-binder-library-user="${escapeHtml(username)}" style="--lib-accent:${palette.accent};--lib-bright:${palette.bright};--lib-ink:${palette.ink};--lib-glow:${palette.glow};">
+        <span class="repo-binder-library-v179-artwrap">
+          <span class="repo-binder-library-v179-ribbon">${label}</span>
+          <span class="repo-binder-library-v179-art"><img src="assets/quidditch-tcg-binder/binder-nav-icon.png" alt=""><i class="repo-binder-library-v179-crest">${escapeHtml(initialsFor(username))}</i></span>
+        </span>
+        <span class="repo-binder-library-v179-copy">
+          <small>${eyebrow}</small>
+          <b>${escapeHtml(username)}</b>
+          <p>${summary}</p>
+          <span class="repo-binder-library-v179-tags">
+            <span class="repo-binder-library-v179-chip">${chipOne}</span>
+            <span class="repo-binder-library-v179-chip">Exact Layout</span>
+            <span class="repo-binder-library-v179-chip">Style Synced</span>
+          </span>
+        </span>
+        <span class="repo-binder-library-v179-meta">
+          <span class="repo-binder-library-v179-action"><strong>${actionTitle}</strong><span>${actionHint}</span></span>
+        </span>
+      </button>`;
+    }).join('');
+  }
+
+  async function loadRows(){
+    binderLibraryLoading=true;
+    renderRows();
+    try{
+      const {data,error}=await db.rpc('get_leaderboard');
+      if(error)throw error;
+      const currentLower=normalisedCurrentUser();
+      binderLibraryRows=(Array.isArray(data)?data:[])
+        .filter(row=>{
+          const name=String(row?.username||'').trim();
+          return name&&name.toLowerCase()!=='admin';
+        })
+        .sort((a,b)=>{
+          const an=String(a?.username||'').trim();
+          const bn=String(b?.username||'').trim();
+          const al=an.toLowerCase(),bl=bn.toLowerCase();
+          if(al===currentLower&&bl!==currentLower)return -1;
+          if(bl===currentLower&&al!==currentLower)return 1;
+          return an.localeCompare(bn,undefined,{sensitivity:'base'});
+        });
+    }catch(error){
+      console.warn('Binder Library could not load.',error);
+      binderLibraryRows=[];
+      const overlay=ensureOverlay();
+      const content=overlay?.querySelector('#repoBinderLibraryContentV179');
+      const statsBox=overlay?.querySelector('#repoBinderLibraryStatsV179');
+      if(statsBox)statsBox.innerHTML='';
+      if(content){
+        content.className='repo-binder-library-v179-empty';
+        content.innerHTML='<div><b>Binder Library unavailable.</b>Could not load the adventurer list.</div>';
+      }
+      binderLibraryLoading=false;
+      return;
+    }
+    binderLibraryLoading=false;
+    renderRows();
+  }
+
+  async function openOverlay(){
+    const overlay=ensureOverlay();
+    const body=overlay?.querySelector('.repo-binder-library-v179-body');
+    if(body)body.scrollTop=0;
+    renderRows();
+    await loadRows();
+    if(body)body.scrollTop=0;
+    requestAnimationFrame(()=>document.getElementById('repoBinderLibrarySearchV179')?.focus({preventScroll:true}));
+  }
+
+  document.addEventListener('click',event=>{
+    const openButton=event.target.closest('#repoBinderLibraryButton');
+    if(openButton){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openOverlay();
+      return;
+    }
+    const overlay=document.getElementById('repoBinderLibraryOverlay');
+    if(!overlay||overlay.hidden)return;
+    if(event.target===overlay||event.target.closest('[data-binder-close]')){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closeOverlay();
+      return;
+    }
+    const entry=event.target.closest('[data-binder-library-user]');
+    if(entry){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const username=String(entry.dataset.binderLibraryUser||'').trim();
+      const isYou=username.toLowerCase()===normalisedCurrentUser();
+      closeOverlay();
+      if(isYou)openQuidditchTcgBinder();
+      else openQuidditchTcgBinder(username);
+    }
+  },true);
+
+  document.addEventListener('input',event=>{
+    if(event.target?.id!=='repoBinderLibrarySearchV179')return;
+    binderLibrarySearch=String(event.target.value||'');
+    renderRows();
+  },true);
+
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&!document.getElementById('repoBinderLibraryOverlay')?.hidden){
+      event.preventDefault();
+      closeOverlay();
+    }
+  },true);
+
+  const oldWindowOpen=window.openBinderLibraryV177;
+  window.openBinderLibraryV177=function(){return openOverlay();};
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER LIBRARY OBSIDIAN ARCHIVE REDESIGN
+// Completely replaces the brown/orange Library presentation with a dark,
+// high-end archive UI. This is intentionally the final style authority.
+// ============================================================
+(function installRepoBinderLibraryObsidianArchiveV181(){
+  if(window.__repoBinderLibraryObsidianArchiveV181Installed)return;
+  window.__repoBinderLibraryObsidianArchiveV181Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoBinderLibraryObsidianArchiveV181Styles';
+  style.textContent=`
+    #repoBinderLibraryOverlay.repo-binder-library-overlay-v179{
+      padding:34px !important;
+      background:
+        radial-gradient(circle at 50% 0%,rgba(59,118,166,.18),transparent 34%),
+        radial-gradient(circle at 7% 76%,rgba(33,75,110,.12),transparent 30%),
+        rgba(2,7,12,.90) !important;
+      backdrop-filter:blur(10px) saturate(.88) !important;
+      -webkit-backdrop-filter:blur(10px) saturate(.88) !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-shell{
+      width:min(1160px,95%) !important;
+      max-height:min(88vh,920px) !important;
+      border:1px solid rgba(124,174,211,.58) !important;
+      outline:1px solid rgba(214,231,243,.08) !important;
+      outline-offset:-7px !important;
+      border-radius:16px !important;
+      background:
+        radial-gradient(circle at 72% -8%,rgba(65,125,171,.13),transparent 34%),
+        linear-gradient(180deg,#101b27 0%,#09121c 26%,#060c13 100%) !important;
+      box-shadow:
+        0 36px 100px rgba(0,0,0,.78),
+        0 0 0 1px rgba(0,0,0,.76),
+        inset 0 1px 0 rgba(255,255,255,.04),
+        inset 0 0 64px rgba(25,67,99,.08) !important;
+      color:#eaf2f8 !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-shell::before{
+      inset:9px !important;
+      border:1px solid rgba(133,185,221,.13) !important;
+      border-radius:11px !important;
+      box-shadow:inset 0 0 30px rgba(0,0,0,.40) !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-head{
+      padding:24px 26px 20px !important;
+      border-bottom:1px solid rgba(117,171,210,.25) !important;
+      background:
+        linear-gradient(90deg,rgba(18,36,52,.98),rgba(12,25,37,.98) 62%,rgba(10,20,30,.98)) !important;
+      box-shadow:inset 0 -1px 0 rgba(255,255,255,.025) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-title small{
+      color:#7fbce5 !important;
+      font:800 9px/1 monospace !important;
+      letter-spacing:.22em !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-title small::before{
+      color:#b7d8ef !important;
+      text-shadow:0 0 10px rgba(117,190,238,.42) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-title h2{
+      margin:8px 0 7px !important;
+      color:#f2f6f9 !important;
+      font:900 clamp(27px,3.5vw,40px)/1 Georgia,serif !important;
+      letter-spacing:.075em !important;
+      text-shadow:0 2px 14px rgba(0,0,0,.55) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-title p{
+      max-width:800px !important;
+      color:#aebfcb !important;
+      font:600 12px/1.48 Arial,sans-serif !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-close{
+      width:40px !important;
+      min-width:40px !important;
+      height:40px !important;
+      min-height:40px !important;
+      border:1px solid rgba(125,181,219,.56) !important;
+      background:linear-gradient(180deg,#182b3c,#09131d) !important;
+      color:#d9edf9 !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 6px 16px rgba(0,0,0,.34) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-close:hover,
+    #repoBinderLibraryOverlay .repo-binder-library-v179-close:focus-visible{
+      border-color:#9fd1f0 !important;
+      background:linear-gradient(180deg,#203b52,#0b1824) !important;
+      filter:none !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-toolbar{
+      grid-template-columns:minmax(0,1fr) minmax(300px,420px) !important;
+      gap:18px !important;
+      padding:15px 26px 17px !important;
+      border-bottom:1px solid rgba(112,165,204,.15) !important;
+      background:linear-gradient(180deg,#08121c,#060d15) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-stats{gap:9px !important}
+    #repoBinderLibraryOverlay .repo-binder-library-v179-stat{
+      min-width:116px !important;
+      padding:9px 11px !important;
+      border:1px solid rgba(119,169,205,.25) !important;
+      border-radius:8px !important;
+      background:linear-gradient(180deg,#132230,#0a151f) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 4px 10px rgba(0,0,0,.15) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-stat small{
+      color:#719fbe !important;
+      font:800 7px/1 monospace !important;
+      letter-spacing:.16em !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-stat b{
+      color:#edf6fb !important;
+      font:900 17px/1 Georgia,serif !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-stat span{
+      color:#8294a2 !important;
+      font:600 9px/1.25 Arial,sans-serif !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-searchwrap label{
+      color:#779fbb !important;
+      font:800 8px/1 monospace !important;
+      letter-spacing:.17em !important;
+    }
+    #repoBinderLibraryOverlay #repoBinderLibrarySearchV179{
+      height:40px !important;
+      padding:0 13px !important;
+      border:1px solid rgba(119,173,211,.38) !important;
+      outline:0 !important;
+      border-radius:8px !important;
+      background:linear-gradient(180deg,#111f2c,#09141e) !important;
+      color:#edf6fb !important;
+      box-shadow:inset 0 2px 8px rgba(0,0,0,.34) !important;
+      font:600 12px/1 Arial,sans-serif !important;
+    }
+    #repoBinderLibraryOverlay #repoBinderLibrarySearchV179::placeholder{color:#657e91 !important}
+    #repoBinderLibraryOverlay #repoBinderLibrarySearchV179:focus{
+      border-color:#75bde9 !important;
+      box-shadow:inset 0 2px 8px rgba(0,0,0,.34),0 0 0 2px rgba(91,163,209,.09) !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-body{
+      min-height:0 !important;
+      overflow-x:hidden !important;
+      overflow-y:auto !important;
+      padding:18px 26px 25px !important;
+      background:
+        radial-gradient(circle at 50% -20%,rgba(38,79,109,.08),transparent 36%),
+        #050b12 !important;
+      overscroll-behavior:contain !important;
+      touch-action:pan-y !important;
+      scrollbar-gutter:stable !important;
+      scrollbar-width:thin !important;
+      scrollbar-color:#557d99 #071019 !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-body::-webkit-scrollbar{width:10px !important}
+    #repoBinderLibraryOverlay .repo-binder-library-v179-body::-webkit-scrollbar-track{background:#071019 !important}
+    #repoBinderLibraryOverlay .repo-binder-library-v179-body::-webkit-scrollbar-thumb{
+      background:linear-gradient(180deg,#709ab7,#36566e) !important;
+      border:2px solid #071019 !important;
+      border-radius:999px !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+      gap:13px !important;
+    }
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry{
+      --lib-accent:#6faed6;
+      --lib-bright:#d9f1ff;
+      --lib-ink:#111e29;
+      --lib-glow:rgba(84,159,207,.14);
+      min-height:154px !important;
+      grid-template-columns:98px minmax(0,1fr) auto !important;
+      gap:14px !important;
+      padding:13px 14px !important;
+      border:1px solid rgba(113,159,192,.31) !important;
+      outline:0 !important;
+      border-radius:11px !important;
+      background:
+        linear-gradient(90deg,rgba(35,71,97,.08),transparent 34%),
+        linear-gradient(180deg,#101c27,#09131c) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.025),
+        inset 0 0 0 1px rgba(255,255,255,.012),
+        0 7px 18px rgba(0,0,0,.22) !important;
+      color:#e8f0f5 !important;
+      overflow:hidden !important;
+      filter:none !important;
+    }
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry::before{
+      inset:0 !important;
+      border-radius:10px !important;
+      border-left:3px solid var(--lib-accent) !important;
+      border-top:0 !important;
+      border-right:0 !important;
+      border-bottom:0 !important;
+      opacity:.75 !important;
+    }
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry::after{
+      display:none !important;
+      content:none !important;
+    }
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry:hover,
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry:focus-visible{
+      transform:translateY(-2px) !important;
+      border-color:rgba(132,196,236,.64) !important;
+      background:
+        linear-gradient(90deg,rgba(58,123,166,.12),transparent 38%),
+        linear-gradient(180deg,#142432,#0a1620) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 13px 26px rgba(0,0,0,.28),
+        0 0 20px rgba(56,125,169,.07) !important;
+      filter:none !important;
+    }
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry.is-you{
+      border-color:rgba(108,190,239,.62) !important;
+      background:
+        linear-gradient(90deg,rgba(53,124,169,.16),transparent 42%),
+        linear-gradient(180deg,#132535,#0a1620) !important;
+      box-shadow:inset 0 0 0 1px rgba(108,190,239,.05),0 9px 22px rgba(0,0,0,.24) !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-artwrap{
+      gap:6px !important;
+      align-items:center !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-ribbon{
+      width:auto !important;
+      min-width:72px !important;
+      padding:4px 8px !important;
+      border:1px solid rgba(111,168,205,.34) !important;
+      border-radius:999px !important;
+      background:#09131c !important;
+      color:#a9d3ec !important;
+      box-shadow:none !important;
+      font:800 7px/1 monospace !important;
+      letter-spacing:.13em !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-art{
+      width:82px !important;
+      height:102px !important;
+      border:1px solid color-mix(in srgb,var(--lib-accent) 62%,#6b8496) !important;
+      border-radius:10px !important;
+      background:
+        radial-gradient(circle at 50% 14%,rgba(90,160,208,.09),transparent 31%),
+        linear-gradient(180deg,#0b1620,#060c12) !important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.018),0 6px 14px rgba(0,0,0,.31) !important;
+      transform:none !important;
+    }
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry:hover .repo-binder-library-v179-art,
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry:focus-visible .repo-binder-library-v179-art{
+      transform:translateY(-1px) !important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.025),0 9px 18px rgba(0,0,0,.35),0 0 14px color-mix(in srgb,var(--lib-glow) 70%,transparent) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-art::before{
+      inset:5px !important;
+      border:1px solid rgba(139,186,218,.08) !important;
+      border-radius:7px !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-art img{
+      width:58px !important;
+      height:76px !important;
+      transform:none !important;
+      filter:drop-shadow(0 5px 6px rgba(0,0,0,.62)) !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-crest{
+      right:5px !important;
+      bottom:5px !important;
+      width:23px !important;
+      height:23px !important;
+      border:1px solid color-mix(in srgb,var(--lib-accent) 70%,#94b4c9) !important;
+      background:linear-gradient(180deg,color-mix(in srgb,var(--lib-accent) 36%,#1d3445),#0a141d) !important;
+      color:#eef8ff !important;
+      font:900 8px/1 Arial,sans-serif !important;
+      box-shadow:0 3px 8px rgba(0,0,0,.38) !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-copy{gap:5px !important}
+    #repoBinderLibraryOverlay .repo-binder-library-v179-copy small{
+      color:#7097b2 !important;
+      font:800 7px/1 monospace !important;
+      letter-spacing:.16em !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-copy b{
+      color:#f1f5f8 !important;
+      font:900 20px/1.05 Georgia,serif !important;
+      letter-spacing:.025em !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-copy p{
+      color:#a7b4bf !important;
+      font:600 10px/1.45 Arial,sans-serif !important;
+      max-width:390px !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-tags{
+      gap:5px !important;
+      margin-top:2px !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-chip{
+      padding:4px 7px !important;
+      border:1px solid rgba(107,155,188,.28) !important;
+      border-radius:5px !important;
+      background:#08121a !important;
+      color:#90b6ce !important;
+      box-shadow:none !important;
+      font:800 7px/1 monospace !important;
+      letter-spacing:.10em !important;
+    }
+    #repoBinderLibraryOverlay button.repo-binder-library-v179-entry.is-you .repo-binder-library-v179-chip{
+      border-color:rgba(109,190,238,.33) !important;
+      color:#bfe5fa !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-meta{
+      min-width:118px !important;
+      align-items:flex-end !important;
+      justify-content:center !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-action{
+      padding:9px 0 9px 14px !important;
+      border-left:1px solid rgba(117,163,193,.18) !important;
+      align-items:flex-end !important;
+      gap:4px !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-action::before{
+      left:auto !important;
+      right:-2px !important;
+      width:6px !important;
+      height:6px !important;
+      border-right:1px solid #8ec9ed !important;
+      border-bottom:1px solid #8ec9ed !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-action strong{
+      color:#dcecf6 !important;
+      font:900 9px/1 Georgia,serif !important;
+      letter-spacing:.10em !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-action span{
+      color:#6e899c !important;
+      font:700 8px/1.25 Arial,sans-serif !important;
+      letter-spacing:.05em !important;
+    }
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-empty,
+    #repoBinderLibraryOverlay .repo-binder-library-v179-loading{
+      border:1px dashed rgba(106,159,196,.25) !important;
+      background:#08121b !important;
+      color:#9fb0bd !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-empty b,
+    #repoBinderLibraryOverlay .repo-binder-library-v179-loading b{color:#e6f1f7 !important}
+
+    #repoBinderLibraryOverlay .repo-binder-library-v179-foot{
+      padding:10px 26px 13px !important;
+      border-top:1px solid rgba(111,163,200,.14) !important;
+      background:#050b11 !important;
+      color:#718594 !important;
+      font:600 9px/1.35 Arial,sans-serif !important;
+    }
+    #repoBinderLibraryOverlay .repo-binder-library-v179-foot strong{
+      color:#9ccae5 !important;
+      font:900 9px/1 Arial,sans-serif !important;
+      letter-spacing:.12em !important;
+    }
+
+    @media(max-width:980px){
+      #repoBinderLibraryOverlay .repo-binder-library-v179-toolbar{grid-template-columns:1fr !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-grid{grid-template-columns:1fr !important}
+    }
+    @media(max-width:720px){
+      #repoBinderLibraryOverlay.repo-binder-library-overlay-v179{padding:10px !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-shell{width:100% !important;max-height:92vh !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-head{padding:18px 16px 14px !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-toolbar{padding:12px 16px 14px !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-body{padding:12px 16px 18px !important}
+      #repoBinderLibraryOverlay button.repo-binder-library-v179-entry{
+        grid-template-columns:78px minmax(0,1fr) !important;
+        padding:12px !important;
+        min-height:138px !important;
+      }
+      #repoBinderLibraryOverlay .repo-binder-library-v179-art{width:68px !important;height:86px !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-art img{width:49px !important;height:64px !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-meta{grid-column:2 !important;align-items:flex-start !important;min-width:0 !important}
+      #repoBinderLibraryOverlay .repo-binder-library-v179-action{align-items:flex-start !important;border-left:0 !important;padding:2px 0 !important}
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER CUSTOMISER OBSIDIAN STUDIO V18.2
+// Clean high-end dark UI; removes brown tile treatment entirely.
+// ============================================================
+(function installBinderCustomiserObsidianStudioV182(){
+  if(window.__repoBinderCustomiserObsidianStudioV182Installed)return;
+  window.__repoBinderCustomiserObsidianStudioV182Installed=true;
+  const style=document.createElement('style');
+  style.id='repoBinderCustomiserObsidianStudioV182Styles';
+  style.textContent=`
+    #binderStyleMenu.binder-style-menu{
+      border:1px solid #8ca8bd !important;
+      outline:1px solid rgba(211,232,246,.10) !important;
+      outline-offset:-7px !important;
+      border-radius:12px !important;
+      background:
+        radial-gradient(circle at 50% -12%,rgba(80,149,201,.17),transparent 30%),
+        linear-gradient(180deg,#111e2c 0%,#09121c 45%,#060c13 100%) !important;
+      box-shadow:0 30px 90px rgba(0,0,0,.74),inset 0 0 0 1px rgba(255,255,255,.025),inset 0 0 45px rgba(67,130,179,.07) !important;
+      color:#dfeaf2 !important;
+      scrollbar-color:#68859a #08111a !important;
+    }
+    #binderStyleMenu.binder-style-menu::-webkit-scrollbar-track{background:#071019 !important;border-left:1px solid #1d2c38 !important}
+    #binderStyleMenu.binder-style-menu::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#7d9bb0,#465f72) !important;border:2px solid #071019 !important}
+    #binderStyleMenu .binder-style-menu-head{
+      border-bottom:1px solid #263c4c !important;
+      background:linear-gradient(180deg,#1a2b3c,#101b27) !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.28),inset 0 -1px 0 rgba(126,184,221,.05) !important;
+    }
+    #binderStyleMenu .binder-style-menu-head strong{
+      color:#e6edf2 !important;
+      text-shadow:0 2px 12px rgba(0,0,0,.48) !important;
+    }
+    #binderStyleMenu .binder-style-menu-head strong::before,
+    #binderStyleMenu .binder-style-menu-head strong::after{color:#78b8df !important;text-shadow:0 0 10px rgba(120,184,223,.34) !important}
+    #binderStyleMenu button.binder-style-close{
+      border-color:#6f8da2 !important;
+      background:linear-gradient(180deg,#203447,#101b27) !important;
+      color:#e6f2fa !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.30) !important;
+    }
+    #binderStyleMenu .binder-style-section-title{color:#a9bdcc !important}
+    #binderStyleMenu .binder-style-section-title::before{color:#6eb4df !important;text-shadow:0 0 8px rgba(110,180,223,.28) !important}
+    #binderStyleMenu .binder-style-choice-grid{gap:10px !important}
+    #binderStyleMenu button.binder-style-choice,
+    #binderStyleMenu .binder-style-choice{
+      border:1px solid #344b5c !important;
+      border-radius:8px !important;
+      background:
+        radial-gradient(circle at 12% 8%,rgba(95,157,201,.07),transparent 36%),
+        linear-gradient(180deg,#162433 0%,#0c1621 100%) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035),inset 0 0 0 1px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.16) !important;
+      color:#dde8ef !important;
+    }
+    #binderStyleMenu button.binder-style-choice::before,
+    #binderStyleMenu .binder-style-choice::before{background:linear-gradient(135deg,rgba(144,199,234,.06),transparent 24%) !important}
+    #binderStyleMenu button.binder-style-choice::after,
+    #binderStyleMenu .binder-style-choice::after{border-color:rgba(183,215,236,.035) !important}
+    #binderStyleMenu button.binder-style-choice:hover,
+    #binderStyleMenu button.binder-style-choice:focus-visible{
+      transform:translateY(-1px) !important;
+      filter:none !important;
+      border-color:#7199b5 !important;
+      background:linear-gradient(180deg,#1b3043,#0d1b28) !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 18px rgba(0,0,0,.23),0 0 18px rgba(75,145,194,.08) !important;
+    }
+    #binderStyleMenu button.binder-style-choice.is-selected,
+    #binderStyleMenu .binder-style-choice.is-selected{
+      border-color:#82bee3 !important;
+      background:
+        radial-gradient(circle at 10% 15%,rgba(84,173,229,.14),transparent 38%),
+        linear-gradient(180deg,#1a3348,#0c1b29) !important;
+      box-shadow:inset 0 0 0 1px rgba(137,201,240,.12),0 0 0 1px rgba(70,133,177,.10),0 0 18px rgba(82,166,219,.09) !important;
+    }
+    #binderStyleMenu .binder-style-choice-copy b{color:#e8f0f5 !important;text-shadow:none !important}
+    #binderStyleMenu .binder-style-choice-copy small{color:#8fa5b6 !important}
+    #binderStyleMenu .binder-style-owned{color:#8fd0f4 !important}
+    #binderStyleMenu .binder-style-price{color:#c0d0db !important}
+    #binderStyleMenu .binder-theme-dot{box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 0 0 1px #081019,0 0 10px var(--choice-accent) !important}
+    #binderStyleMenu .binder-effect-preview,
+    #binderStyleMenu .binder-finish-preview{
+      border-color:#425a6c !important;
+      background-color:#08111a !important;
+    }
+    #binderStyleMenu .binder-style-legendary-head,
+    #binderStyleMenu .binder-style-soundtrack-head{
+      display:flex !important;
+      align-items:center !important;
+      justify-content:space-between !important;
+      gap:12px !important;
+      flex-wrap:wrap !important;
+    }
+    #binderStyleMenu .binder-style-soundtrack-head .binder-style-section-title{margin-bottom:8px !important}
+    #binderStyleMenu #binderStyleBalance,
+    #binderStyleMenu #binderStyleMusicPrice,
+    #binderStyleMenu #binderStylePreviewStop{
+      border:1px solid #3d596d !important;
+      background:linear-gradient(180deg,#142535,#0b1621) !important;
+      color:#a9c8dc !important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035) !important;
+    }
+    #binderStyleMenu .binder-style-legendary-actions button{
+      border:1px solid #46667c !important;
+      background:linear-gradient(180deg,#1b3142,#0c1a26) !important;
+      color:#c8dce8 !important;
+      border-radius:5px !important;
+    }
+    #binderStyleMenu .binder-style-legendary-actions button:hover{border-color:#7eb6da !important;background:linear-gradient(180deg,#24455e,#102536) !important}
+    #binderStyleMenu .binder-style-choice.is-locked{opacity:.92 !important;border-style:solid !important;background:linear-gradient(180deg,#111d28,#09121a) !important}
+    #binderStyleMenu .binder-music-choice{min-height:88px !important}
+    #binderStyleMenu .binder-music-choice.is-world-cup{
+      border-color:#526f83 !important;
+      background:
+        radial-gradient(circle at 14% 20%,rgba(63,131,180,.12),transparent 34%),
+        linear-gradient(180deg,#172a39,#0a1722) !important;
+    }
+    #binderStyleMenu .binder-music-choice.is-world-cup.is-selected{border-color:#d1b45d !important;box-shadow:inset 0 0 0 1px rgba(223,193,104,.10),0 0 16px rgba(75,146,197,.08) !important}
+    #binderStyleMenu .binder-music-preview{
+      width:38px !important;height:38px !important;border-radius:8px !important;
+      display:grid !important;place-items:center !important;
+      border:1px solid #49667a !important;
+      background:linear-gradient(180deg,#1d3548,#0b1824) !important;
+      color:#9ed2ef !important;
+      font:900 18px/1 Georgia,serif !important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.025),0 4px 10px rgba(0,0,0,.24) !important;
+    }
+    #binderStyleMenu .binder-music-choice.is-world-cup .binder-music-preview{color:#e0c263 !important;border-color:#766c49 !important}
+    #binderStyleMenu #binderStyleSaveStatus{
+      border-color:#263f51 !important;
+      background:linear-gradient(180deg,#0d1924,#071019) !important;
+      color:#9fb7c7 !important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.018) !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — BINDER KIT THEME MUSIC STORE V18.3
+// 16 national kit-view soundtracks · 2,000 GP each · live preview
+// ============================================================
+(function installBinderKitMusicStoreV183(){
+  if(window.__repoBinderKitMusicStoreV183Installed)return;
+  window.__repoBinderKitMusicStoreV183Installed=true;
+  const style=document.createElement('style');
+  style.id='repoBinderKitMusicStoreV183Styles';
+  style.textContent=`
+    #binderStyleMenu .binder-style-music-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+    #binderStyleMenu .binder-music-choice{min-height:112px !important;grid-template-columns:46px minmax(0,1fr) !important;align-items:start !important}
+    #binderStyleMenu .binder-music-choice.is-team-theme{border-color:#34556c !important;background:radial-gradient(circle at 12% 18%,rgba(75,153,204,.10),transparent 34%),linear-gradient(180deg,#142838,#09151f) !important}
+    #binderStyleMenu .binder-music-choice.is-team-theme.is-selected{border-color:#7fc7ed !important;background:radial-gradient(circle at 12% 18%,rgba(84,177,231,.17),transparent 36%),linear-gradient(180deg,#183247,#0a1926) !important}
+    #binderStyleMenu .binder-music-choice.is-team-theme.is-previewing{border-color:#d4b75f !important;box-shadow:inset 0 0 0 1px rgba(226,194,103,.08),0 0 16px rgba(73,157,210,.10) !important}
+    #binderStyleMenu .binder-music-choice .binder-style-legendary-actions{margin-top:7px !important;display:flex !important;gap:6px !important;flex-wrap:wrap !important}
+    #binderStyleMenu .binder-music-choice .binder-style-legendary-actions button{min-height:28px !important;padding:5px 9px !important;font-size:8px !important;letter-spacing:.08em !important}
+    #binderStyleMenu .binder-music-choice .binder-style-legendary-actions button[disabled]{opacity:.55 !important;cursor:default !important}
+    #binderStyleMenu .binder-music-preview{width:40px !important;height:40px !important;border-radius:10px !important;font-size:15px !important;color:#a9dbf4 !important}
+    @media(max-width:760px){#binderStyleMenu .binder-style-music-grid{grid-template-columns:1fr !important}}
+  `;
+  document.head.appendChild(style);
+})();
+
+// ============================================================
+// REPO COMPANY V18.1 — V18.4 BINDER SIDE-CONTROL REGRESSION REPAIR
+// Restores the intended artwork controls after V18.3:
+// - Hidden Cards is always the artwork holder, never the fallback text button
+// - Binder Style is always the paintbrush artwork, never the fallback centre button
+// - built directly on V18.3; music store + knockout schedule remain untouched
+// ============================================================
+(function installRepoBinderControlRegressionRepairV184(){
+  if(window.__repoBinderControlRegressionRepairV184Installed)return;
+  window.__repoBinderControlRegressionRepairV184Installed=true;
+
+  const HOLDER_ASSET='assets/quidditch-tcg-binder/hidden-cards-holder.png';
+  const BRUSH_ASSET='assets/quidditch-tcg-binder/binder-style-icon-v14.png';
+  let resizeTimer=0;
+
+  const style=document.createElement('style');
+  style.id='repoBinderControlRegressionRepairV184Styles';
+  style.textContent=`
+    /* Closed/front/back cover: neither side control belongs here. */
+    #quidditchTcgBinderDialog:not([data-binder-page^='open']) .repo-binder-storage-launch,
+    #quidditchTcgBinderDialog:not([data-binder-page^='open']) #binderStyleControl{
+      display:none!important;
+      visibility:hidden!important;
+      opacity:0!important;
+      pointer-events:none!important;
+    }
+
+    /* Hidden Cards must be the artwork holder, not the old text button. */
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder{
+      position:absolute!important;
+      right:auto!important;
+      bottom:auto!important;
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      padding:0!important;
+      margin:0!important;
+      border:0!important;
+      outline:0!important;
+      border-radius:0!important;
+      background-color:transparent!important;
+      background-image:url('${HOLDER_ASSET}')!important;
+      background-repeat:no-repeat!important;
+      background-position:center!important;
+      background-size:contain!important;
+      box-shadow:none!important;
+      color:transparent!important;
+      font-size:0!important;
+      line-height:0!important;
+      text-indent:-9999px!important;
+      overflow:visible!important;
+      transform:none!important;
+      translate:none!important;
+      animation:none!important;
+      transition:none!important;
+      will-change:auto!important;
+      z-index:2147482100!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:hover,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:focus-visible,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder:active{
+      transform:none!important;
+      translate:none!important;
+      animation:none!important;
+      transition:none!important;
+      background-image:url('${HOLDER_ASSET}')!important;
+      box-shadow:none!important;
+      outline:none!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-page^='open'] .repo-binder-storage-launch.repo-hidden-card-holder > *{
+      position:absolute!important;
+      width:1px!important;
+      height:1px!important;
+      padding:0!important;
+      margin:-1px!important;
+      overflow:hidden!important;
+      clip:rect(0,0,0,0)!important;
+      clip-path:inset(50%)!important;
+      white-space:nowrap!important;
+      border:0!important;
+    }
+
+    /* Binder Style must be the supplied paintbrush artwork. */
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleControl.repo-binder-style-side-control{
+      position:absolute!important;
+      right:auto!important;
+      bottom:auto!important;
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      width:auto!important;
+      min-width:0!important;
+      margin:0!important;
+      padding:0!important;
+      overflow:visible!important;
+      transform:none!important;
+      translate:none!important;
+      z-index:2147482101!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleControl.repo-binder-style-side-control[hidden]{display:none!important}
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger{
+      position:relative!important;
+      display:block!important;
+      width:82px!important;
+      min-width:82px!important;
+      height:82px!important;
+      min-height:82px!important;
+      padding:0!important;
+      margin:0!important;
+      border:0!important;
+      outline:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+      color:transparent!important;
+      transform:none!important;
+      translate:none!important;
+      animation:none!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger::before,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger::after{
+      content:none!important;
+      display:none!important;
+    }
+    #binderStyleTrigger.repo-v184-brush-trigger > i,
+    #binderStyleTrigger.repo-v184-brush-trigger > span:not(.repo-v184-brush-art){
+      position:absolute!important;
+      width:1px!important;
+      height:1px!important;
+      padding:0!important;
+      margin:-1px!important;
+      overflow:hidden!important;
+      clip:rect(0,0,0,0)!important;
+      clip-path:inset(50%)!important;
+      white-space:nowrap!important;
+      border:0!important;
+    }
+    #binderStyleTrigger .repo-v184-brush-art{
+      position:absolute!important;
+      inset:0!important;
+      display:block!important;
+      width:100%!important;
+      height:100%!important;
+      background:url('${BRUSH_ASSET}') center/contain no-repeat!important;
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,.62)) drop-shadow(0 0 10px rgba(82,177,238,.18))!important;
+      pointer-events:none!important;
+      transform-origin:center!important;
+      transition:transform .16s ease,filter .16s ease!important;
+    }
+    #binderStyleTrigger.repo-v184-brush-trigger:hover .repo-v184-brush-art,
+    #binderStyleTrigger.repo-v184-brush-trigger:focus-visible .repo-v184-brush-art{
+      transform:translateY(-2px) scale(1.045) rotate(-2deg)!important;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,.66)) drop-shadow(0 0 14px rgba(82,177,238,.26)) brightness(1.05)!important;
+    }
+    #binderStyleTrigger.repo-v184-brush-trigger:active .repo-v184-brush-art{
+      transform:translateY(1px) scale(.97) rotate(1deg)!important;
+    }
+    @media(max-width:1100px){
+      #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger{width:72px!important;min-width:72px!important;height:72px!important;min-height:72px!important}
+    }
+    @media(max-width:760px){
+      #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger{width:64px!important;min-width:64px!important;height:64px!important;min-height:64px!important}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function parts(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const stage=dialog?.querySelector('.quidditch-tcg-binder-stage');
+    const spread=stage?.querySelector('.repo-binder-spread-126');
+    const holder=dialog?.querySelector('.repo-binder-storage-launch');
+    const control=document.getElementById('binderStyleControl');
+    const trigger=document.getElementById('binderStyleTrigger');
+    return {dialog,stage,spread,holder,control,trigger};
+  }
+
+  function isOpen(dialog){
+    return !!dialog&&dialog.open&&String(dialog.dataset.binderPage||'').startsWith('open');
+  }
+
+  function decorateOnly(){
+    const {dialog,stage,holder,control,trigger}=parts();
+    if(!dialog)return;
+    if(!isOpen(dialog)){
+      if(holder)holder.hidden=true;
+      if(control)control.hidden=true;
+      return;
+    }
+    if(holder){
+      holder.hidden=false;
+      holder.classList.add('repo-hidden-card-holder');
+      holder.setAttribute('aria-label','Hidden Cards');
+      holder.setAttribute('title','Hidden Cards');
+      if(stage&&holder.parentElement!==stage)stage.appendChild(holder);
+    }
+    if(control){
+      control.classList.add('repo-binder-style-side-control');
+      if(stage&&control.parentElement!==stage)stage.appendChild(control);
+      // Public binders keep customisation read-only/hidden as before.
+      const publicView=dialog.dataset.publicBinder==='true';
+      control.hidden=publicView;
+    }
+    if(trigger){
+      trigger.classList.add('repo-v184-brush-trigger');
+      trigger.setAttribute('aria-label','Customise Binder');
+      trigger.setAttribute('title','Customise Binder');
+      if(!trigger.querySelector('.repo-v184-brush-art')){
+        const art=document.createElement('span');
+        art.className='repo-v184-brush-art';
+        art.setAttribute('aria-hidden','true');
+        trigger.appendChild(art);
+      }
+    }
+  }
+
+  function positionControls(){
+    decorateOnly();
+    const {dialog,stage,spread,holder,control,trigger}=parts();
+    if(!isOpen(dialog)||!stage||!spread||!holder)return;
+
+    const viewportW=document.documentElement.clientWidth||window.innerWidth||1440;
+    const stageW=stage.clientWidth||stage.offsetWidth||1;
+    const stageH=stage.clientHeight||stage.offsetHeight||1;
+    const spreadW=spread.offsetWidth||1;
+    const spreadLeft=spread.offsetLeft||Math.max(0,(stageW-spreadW)/2);
+    const spreadTop=spread.offsetTop||Math.max(0,(stageH-(spread.offsetHeight||1))/2);
+
+    let holderW=Math.max(104,Math.min(170,viewportW*.094));
+    if(viewportW<=1100)holderW=Math.max(92,Math.min(132,viewportW*.099));
+    if(viewportW<=760)holderW=86;
+    const holderH=holderW*(1229/684);
+    const brushSize=viewportW<=760?64:(viewportW<=1100?72:82);
+    const gapX=Math.max(8,Math.min(18,stageW*.009));
+    const topNudge=68;
+    const brushGap=14;
+
+    const left=Math.max(4,Math.min(Math.round(spreadLeft+spreadW+gapX),stageW-holderW-4));
+    const top=Math.max(4,Math.min(Math.round(spreadTop+topNudge),stageH-holderH-brushSize-brushGap-12));
+    const brushLeft=Math.max(4,Math.min(Math.round(left+(holderW-brushSize)/2),stageW-brushSize-4));
+    const brushTop=Math.max(4,Math.min(Math.round(top+holderH+brushGap),stageH-brushSize-4));
+
+    holder.style.setProperty('left',left+'px','important');
+    holder.style.setProperty('top',top+'px','important');
+    holder.style.setProperty('width',Math.round(holderW)+'px','important');
+    holder.style.setProperty('min-width',Math.round(holderW)+'px','important');
+    holder.style.setProperty('max-width',Math.round(holderW)+'px','important');
+    holder.style.setProperty('height',Math.round(holderH)+'px','important');
+    holder.style.setProperty('min-height',Math.round(holderH)+'px','important');
+
+    if(control&&!control.hidden){
+      control.style.setProperty('left',brushLeft+'px','important');
+      control.style.setProperty('top',brushTop+'px','important');
+    }
+    if(trigger){
+      trigger.style.setProperty('width',brushSize+'px','important');
+      trigger.style.setProperty('min-width',brushSize+'px','important');
+      trigger.style.setProperty('height',brushSize+'px','important');
+      trigger.style.setProperty('min-height',brushSize+'px','important');
+    }
+  }
+
+  function settle(){
+    decorateOnly();
+    positionControls();
+    // UI creation can finish over several frames; these are finite repair passes,
+    // not a permanent timer/observer and do not follow mouse movement.
+    [50,140,300,620].forEach(delay=>setTimeout(positionControls,delay));
+  }
+
+  const oldEnsureCustom=typeof ensureBinderCustomisationUi==='function'?ensureBinderCustomisationUi:null;
+  if(oldEnsureCustom){
+    ensureBinderCustomisationUi=function(){
+      const result=oldEnsureCustom.apply(this,arguments);
+      settle();
+      return result;
+    };
+  }
+  const oldEnsureBinder=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(oldEnsureBinder){
+    ensureQuidditchTcgBinderUi=function(){
+      const result=oldEnsureBinder.apply(this,arguments);
+      settle();
+      return result;
+    };
+  }
+  const oldOpen=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(oldOpen){
+    openQuidditchTcgBinder=function(){
+      const result=oldOpen.apply(this,arguments);
+      settle();
+      return result;
+    };
+  }
+  const oldSetPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(oldSetPage){
+    setQuidditchTcgBinderPage=function(){
+      const before=parts();
+      const frozenHolder=before.holder?{left:before.holder.style.left,top:before.holder.style.top,width:before.holder.style.width,height:before.holder.style.height}:null;
+      const frozenControl=before.control?{left:before.control.style.left,top:before.control.style.top}:null;
+      const result=oldSetPage.apply(this,arguments);
+      decorateOnly();
+      // Keep the side artwork frozen throughout the physical page-turn animation.
+      const keepFrozen=()=>{
+        decorateOnly();
+        const now=parts();
+        if(now.holder&&frozenHolder){
+          if(frozenHolder.left)now.holder.style.setProperty('left',frozenHolder.left,'important');
+          if(frozenHolder.top)now.holder.style.setProperty('top',frozenHolder.top,'important');
+          if(frozenHolder.width){now.holder.style.setProperty('width',frozenHolder.width,'important');now.holder.style.setProperty('min-width',frozenHolder.width,'important');now.holder.style.setProperty('max-width',frozenHolder.width,'important');}
+          if(frozenHolder.height){now.holder.style.setProperty('height',frozenHolder.height,'important');now.holder.style.setProperty('min-height',frozenHolder.height,'important');}
+        }
+        if(now.control&&!now.control.hidden&&frozenControl){
+          if(frozenControl.left)now.control.style.setProperty('left',frozenControl.left,'important');
+          if(frozenControl.top)now.control.style.setProperty('top',frozenControl.top,'important');
+        }
+      };
+      keepFrozen();
+      [70,180,360,720,1200].forEach(delay=>setTimeout(keepFrozen,delay));
+      return result;
+    };
+  }
+
+  window.addEventListener('resize',()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer=setTimeout(positionControls,80);
+  },{passive:true});
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',settle,{once:true});
+  else settle();
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V18.5 PAINTBRUSH VISIBILITY HOTFIX
+// V18.4's brush artwork was being clipped to 1x1px by an older direct-child
+// span accessibility rule. Use a real IMG node so the old span rule cannot
+// hide the artwork while preserving the same clickable trigger/hitbox.
+// ============================================================
+(function installRepoBinderBrushVisibilityHotfixV185(){
+  if(window.__repoBinderBrushVisibilityHotfixV185Installed)return;
+  window.__repoBinderBrushVisibilityHotfixV185Installed=true;
+
+  const BRUSH_ASSET='assets/quidditch-tcg-binder/binder-style-icon-v14.png';
+
+  const style=document.createElement('style');
+  style.id='repoBinderBrushVisibilityHotfixV185Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger{
+      overflow:visible!important;
+      opacity:1!important;
+      visibility:visible!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger > img.repo-v184-brush-art.repo-v185-brush-image{
+      position:absolute!important;
+      inset:0!important;
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      width:100%!important;
+      height:100%!important;
+      min-width:100%!important;
+      min-height:100%!important;
+      max-width:none!important;
+      max-height:none!important;
+      padding:0!important;
+      margin:0!important;
+      border:0!important;
+      outline:0!important;
+      overflow:visible!important;
+      clip:auto!important;
+      clip-path:none!important;
+      white-space:normal!important;
+      object-fit:contain!important;
+      object-position:center!important;
+      background:none!important;
+      pointer-events:none!important;
+      transform:none!important;
+      transform-origin:center!important;
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,.62)) drop-shadow(0 0 10px rgba(82,177,238,.18))!important;
+      z-index:2!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger:hover > img.repo-v185-brush-image,
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger:focus-visible > img.repo-v185-brush-image{
+      transform:translateY(-2px) scale(1.045) rotate(-2deg)!important;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,.66)) drop-shadow(0 0 14px rgba(82,177,238,.26)) brightness(1.05)!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-page^='open'] #binderStyleTrigger.repo-v184-brush-trigger:active > img.repo-v185-brush-image{
+      transform:translateY(1px) scale(.97) rotate(1deg)!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function repairBrushImage(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const trigger=document.getElementById('binderStyleTrigger');
+    if(!dialog||!trigger)return;
+
+    trigger.classList.add('repo-v184-brush-trigger');
+    trigger.setAttribute('aria-label','Customise Binder');
+    trigger.setAttribute('title','Customise Binder');
+
+    // Remove the clipped SPAN version created by V18.4/older rules.
+    trigger.querySelectorAll('span.repo-v184-brush-art').forEach(node=>node.remove());
+
+    let image=trigger.querySelector('img.repo-v185-brush-image');
+    if(!image){
+      image=document.createElement('img');
+      image.className='repo-v184-brush-art repo-v185-brush-image';
+      image.alt='';
+      image.setAttribute('aria-hidden','true');
+      image.draggable=false;
+      trigger.appendChild(image);
+    }
+    if(image.getAttribute('src')!==BRUSH_ASSET)image.src=BRUSH_ASSET;
+  }
+
+  function settleBrush(){
+    repairBrushImage();
+    [40,120,280,600].forEach(delay=>setTimeout(repairBrushImage,delay));
+  }
+
+  const oldEnsureCustom=typeof ensureBinderCustomisationUi==='function'?ensureBinderCustomisationUi:null;
+  if(oldEnsureCustom){
+    ensureBinderCustomisationUi=function(){
+      const result=oldEnsureCustom.apply(this,arguments);
+      settleBrush();
+      return result;
+    };
+  }
+  const oldEnsureBinder=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(oldEnsureBinder){
+    ensureQuidditchTcgBinderUi=function(){
+      const result=oldEnsureBinder.apply(this,arguments);
+      settleBrush();
+      return result;
+    };
+  }
+  const oldOpen=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(oldOpen){
+    openQuidditchTcgBinder=function(){
+      const result=oldOpen.apply(this,arguments);
+      settleBrush();
+      return result;
+    };
+  }
+  const oldSetPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(oldSetPage){
+    setQuidditchTcgBinderPage=function(){
+      const result=oldSetPage.apply(this,arguments);
+      settleBrush();
+      return result;
+    };
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',settleBrush,{once:true});
+  else settleBrush();
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V18.6 REAL BINDER THEME RENDERER
+// The physical binder artwork is intentionally shared, but each colour theme
+// now produces a clearly different leather/page treatment instead of looking
+// like Midnight/default with a barely-visible tint.
+// ============================================================
+(function installRepoBinderThemeRendererV186(){
+  if(window.__repoBinderThemeRendererV186Installed)return;
+  window.__repoBinderThemeRendererV186Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoBinderThemeRendererV186Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog[data-binder-theme='midnight']{--repo-theme-a:#174b91;--repo-theme-b:#091b37;--repo-theme-c:#76b9f4;--repo-theme-opacity:.72;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='emerald']{--repo-theme-a:#167047;--repo-theme-b:#082b1d;--repo-theme-c:#76dda7;--repo-theme-opacity:.76;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='royal']{--repo-theme-a:#6837a7;--repo-theme-b:#241044;--repo-theme-c:#c89cff;--repo-theme-opacity:.77;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='crimson']{--repo-theme-a:#8d2938;--repo-theme-b:#350b14;--repo-theme-c:#f58f9c;--repo-theme-opacity:.78;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='frost']{--repo-theme-a:#9bb5c9;--repo-theme-b:#314250;--repo-theme-c:#e7f4ff;--repo-theme-opacity:.56;--repo-theme-blend:soft-light}
+    #quidditchTcgBinderDialog[data-binder-theme='golden']{--repo-theme-a:#9a6619;--repo-theme-b:#422607;--repo-theme-c:#ffd870;--repo-theme-opacity:.70;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='ocean']{--repo-theme-a:#087d8e;--repo-theme-b:#07323c;--repo-theme-c:#6be8f4;--repo-theme-opacity:.78;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='rose']{--repo-theme-a:#a34a74;--repo-theme-b:#3d152a;--repo-theme-c:#ffadd0;--repo-theme-opacity:.74;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='obsidian']{--repo-theme-a:#202832;--repo-theme-b:#080b10;--repo-theme-c:#8e9baa;--repo-theme-opacity:.72;--repo-theme-blend:multiply}
+    #quidditchTcgBinderDialog[data-binder-theme='sunfire']{--repo-theme-a:#bf4f12;--repo-theme-b:#4a1604;--repo-theme-c:#ffc45e;--repo-theme-opacity:.78;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='sapphire']{--repo-theme-a:#174ba5;--repo-theme-b:#071d4a;--repo-theme-c:#83bcff;--repo-theme-opacity:.80;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='amethyst']{--repo-theme-a:#8c3bbb;--repo-theme-b:#35104d;--repo-theme-c:#dda0ff;--repo-theme-opacity:.79;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='bloodmoon']{--repo-theme-a:#68182b;--repo-theme-b:#26040d;--repo-theme-c:#d95b73;--repo-theme-opacity:.82;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='jade']{--repo-theme-a:#236b55;--repo-theme-b:#0b2b22;--repo-theme-c:#a6cf72;--repo-theme-opacity:.76;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='copper']{--repo-theme-a:#985127;--repo-theme-b:#3b1a0b;--repo-theme-c:#e69a68;--repo-theme-opacity:.78;--repo-theme-blend:color}
+    #quidditchTcgBinderDialog[data-binder-theme='neon']{--repo-theme-a:#b22594;--repo-theme-b:#34154d;--repo-theme-c:#39e6ef;--repo-theme-opacity:.84;--repo-theme-blend:color}
+
+    /* Stronger leather/page colour pass. The tint is deliberately inset so
+       the gold hardware and outer frame keep their original material detail. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-theme] .repo-binder-theme-surface{
+      inset:4.7% 2.45% 4.8% 2.45%!important;
+      z-index:2!important;
+      display:block!important;
+      opacity:var(--repo-theme-opacity,.76)!important;
+      mix-blend-mode:var(--repo-theme-blend,color)!important;
+      background:
+        radial-gradient(ellipse at 22% 34%,var(--repo-theme-c) 0%,color-mix(in srgb,var(--repo-theme-a) 86%,transparent) 35%,transparent 62%),
+        radial-gradient(ellipse at 78% 66%,color-mix(in srgb,var(--repo-theme-c) 76%,var(--repo-theme-a)) 0%,color-mix(in srgb,var(--repo-theme-a) 82%,transparent) 40%,transparent 68%),
+        linear-gradient(90deg,var(--repo-theme-b),var(--repo-theme-a) 28%,var(--repo-theme-a) 72%,var(--repo-theme-b))!important;
+      background-color:transparent!important;
+      border-radius:30px!important;
+      pointer-events:none!important;
+      transition:background .18s ease,opacity .18s ease,filter .18s ease!important;
+      filter:saturate(1.13) contrast(1.03)!important;
+    }
+
+    /* A second material-light pass keeps the texture expensive rather than
+       looking like a flat colour rectangle. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-theme] .repo-binder-theme-surface::before{
+      content:''!important;
+      position:absolute!important;
+      inset:0!important;
+      display:block!important;
+      border-radius:inherit!important;
+      background:
+        linear-gradient(115deg,rgba(255,255,255,.09),transparent 17% 72%,rgba(255,255,255,.04)),
+        radial-gradient(ellipse at 50% 45%,transparent 38%,rgba(0,0,0,.26) 100%)!important;
+      mix-blend-mode:soft-light!important;
+      pointer-events:none!important;
+    }
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-theme] .repo-binder-theme-surface::after{
+      content:''!important;
+      position:absolute!important;
+      inset:0!important;
+      display:block!important;
+      border-radius:inherit!important;
+      box-shadow:
+        inset 0 0 52px color-mix(in srgb,var(--repo-theme-b) 76%,transparent),
+        inset 0 0 12px color-mix(in srgb,var(--repo-theme-c) 20%,transparent)!important;
+      pointer-events:none!important;
+    }
+
+    /* Special identities that need more than a straight hue. */
+    #quidditchTcgBinderDialog[data-binder-theme='frost'] .repo-binder-theme-surface{
+      filter:saturate(.38) brightness(1.10) contrast(1.02)!important;
+      background:
+        radial-gradient(ellipse at 24% 34%,rgba(224,242,255,.82),rgba(133,161,184,.34) 40%,transparent 67%),
+        radial-gradient(ellipse at 77% 65%,rgba(204,230,248,.62),rgba(86,111,132,.30) 42%,transparent 70%),
+        linear-gradient(90deg,rgba(34,47,58,.84),rgba(146,170,189,.54) 28% 72%,rgba(34,47,58,.84))!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-theme='obsidian'] .repo-binder-theme-surface{
+      opacity:.76!important;
+      filter:saturate(.18) brightness(.76) contrast(1.18)!important;
+      background:
+        radial-gradient(ellipse at 25% 36%,rgba(82,92,105,.52),transparent 58%),
+        radial-gradient(ellipse at 76% 64%,rgba(62,70,80,.42),transparent 58%),
+        linear-gradient(90deg,rgba(0,0,0,.86),rgba(41,47,56,.72) 28% 72%,rgba(0,0,0,.86))!important;
+    }
+    #quidditchTcgBinderDialog[data-binder-theme='neon'] .repo-binder-theme-surface{
+      opacity:.88!important;
+      filter:saturate(1.45) contrast(1.07)!important;
+      background:
+        radial-gradient(ellipse at 21% 32%,rgba(44,225,238,.92),rgba(20,100,139,.28) 35%,transparent 62%),
+        radial-gradient(ellipse at 79% 68%,rgba(239,58,195,.94),rgba(137,21,129,.34) 38%,transparent 66%),
+        linear-gradient(90deg,#17112d,#7e1c78 28%,#1e7294 72%,#17112d)!important;
+    }
+
+    /* Theme choice cards themselves should preview their identity instead of
+       all looking like the same dark button with a coloured dot. */
+    #binderStyleMenu [data-binder-theme-choice]{
+      --theme-card:var(--choice-colour,#3b83d5);
+      --theme-card-accent:var(--choice-accent,#8fc9ff);
+      background:
+        radial-gradient(circle at 8% 50%,color-mix(in srgb,var(--theme-card) 34%,transparent),transparent 31%),
+        linear-gradient(180deg,#172433,#0b141f)!important;
+      border-color:color-mix(in srgb,var(--theme-card) 55%,#65788b)!important;
+    }
+    #binderStyleMenu [data-binder-theme-choice]:hover,
+    #binderStyleMenu [data-binder-theme-choice].is-selected{
+      background:
+        radial-gradient(circle at 10% 50%,color-mix(in srgb,var(--theme-card) 52%,transparent),transparent 36%),
+        linear-gradient(180deg,color-mix(in srgb,var(--theme-card) 20%,#1b2b3d),#0b151f)!important;
+      border-color:color-mix(in srgb,var(--theme-card-accent) 78%,#8394a6)!important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.035),0 0 16px color-mix(in srgb,var(--theme-card) 20%,transparent)!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function wireThemePreviewVariables(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    dialog.querySelectorAll('#binderStyleMenu [data-binder-theme-choice]').forEach(button=>{
+      const dot=button.querySelector('.binder-theme-dot');
+      if(!dot)return;
+      const dotStyle=dot.getAttribute('style')||'';
+      const colour=/--choice-colour:\s*([^;]+)/i.exec(dotStyle)?.[1]?.trim();
+      const accent=/--choice-accent:\s*([^;]+)/i.exec(dotStyle)?.[1]?.trim();
+      if(colour)button.style.setProperty('--choice-colour',colour);
+      if(accent)button.style.setProperty('--choice-accent',accent);
+      if(colour)button.style.setProperty('--theme-card',colour);
+      if(accent)button.style.setProperty('--theme-card-accent',accent);
+    });
+  }
+
+  const oldRender=typeof renderBinderStyleChoices==='function'?renderBinderStyleChoices:null;
+  if(oldRender){
+    renderBinderStyleChoices=function(){
+      const result=oldRender.apply(this,arguments);
+      wireThemePreviewVariables();
+      requestAnimationFrame(wireThemePreviewVariables);
+      return result;
+    };
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wireThemePreviewVariables,{once:true});
+  else wireThemePreviewVariables();
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V18.7 BINDER THEME CLIP + KIT MUSIC FIX
+// - visual theme colour is masked to the physical binder artwork only
+// - removes the coloured glow/rectangle outside the binder silhouette
+// - binder soundtrack uses the exact <audio> sources used by World Cup kit view
+// ============================================================
+(function installRepoBinderThemeClipAndKitMusicV187(){
+  if(window.__repoBinderThemeClipAndKitMusicV187Installed)return;
+  window.__repoBinderThemeClipAndKitMusicV187Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoBinderThemeClipAndKitMusicV187Styles';
+  style.textContent=`
+    /* V18.6's colour layer was a rectangular DOM surface, so its colour could
+       show beyond the transparent edges of the physical binder PNG. Mask the
+       complete colour treatment with the SAME alpha artwork used by the spread. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-theme] .repo-binder-theme-surface{
+      inset:0!important;
+      border-radius:0!important;
+      -webkit-mask-image:url('assets/quidditch-tcg-binder/repo-binder-open-spread.png')!important;
+      -webkit-mask-repeat:no-repeat!important;
+      -webkit-mask-position:center!important;
+      -webkit-mask-size:100% 100%!important;
+      mask-image:url('assets/quidditch-tcg-binder/repo-binder-open-spread.png')!important;
+      mask-repeat:no-repeat!important;
+      mask-position:center!important;
+      mask-size:100% 100%!important;
+      mask-mode:alpha!important;
+    }
+
+    /* Never tint/glow the space surrounding the physical book. */
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page^='open'][data-binder-theme] .repo-binder-spread-126{
+      filter:drop-shadow(0 25px 31px rgba(0,0,0,.68))!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  const KIT_AUDIO_IDS={
+    vardesh:'worldCupVardeshKitAudio',
+    lumerre:'worldCupLumerreKitAudio',
+    kordesh:'worldCupKordeshKitAudio',
+    nambara:'worldCupNambaraKitAudio',
+    norveth:'worldCupNorvethKitAudio',
+    zafran:'worldCupZafranKitAudio',
+    elvane:'worldCupElvaneKitAudio',
+    qasmir:'worldCupQasmirKitAudio',
+    calvora:'worldCupCalvoraKitAudio',
+    rovarn:'worldCupRovarnKitAudio',
+    talune:'worldCupTaluneKitAudio',
+    drazhen:'worldCupDrazhenKitAudio',
+    belros:'worldCupBelrosKitAudio',
+    marovar:'worldCupMarovarKitAudio',
+    sorevia:'worldCupSoreviaKitAudio',
+    iskandar:'worldCupIskandarKitAudio'
+  };
+
+  function resolveKitTrackSource(key){
+    key=String(key||'default').trim().toLowerCase();
+    if(key==='default')return QUIDDITCH_TCG_BINDER_MUSIC.default.src;
+    const sourceAudio=document.getElementById(KIT_AUDIO_IDS[key]||'');
+    const source=sourceAudio?.currentSrc||sourceAudio?.src||sourceAudio?.getAttribute?.('src')||QUIDDITCH_TCG_BINDER_MUSIC[key]?.src||'';
+    return String(source||'').trim();
+  }
+
+  function stopBinderMusicInstance(){
+    try{
+      if(quidditchTcgBinderViewMusic){
+        quidditchTcgBinderViewMusic.pause();
+        quidditchTcgBinderViewMusic.currentTime=0;
+      }
+    }catch(_error){}
+    quidditchTcgBinderViewMusic=null;
+    quidditchTcgBinderViewMusicSrc='';
+  }
+
+  function createBinderMusicInstance(key){
+    const src=resolveKitTrackSource(key);
+    if(!src)return null;
+    const audio=new Audio(src);
+    audio.preload='auto';
+    audio.loop=true;
+    audio.volume=.33;
+    audio.dataset.repoBinderMusicKey=String(key||'default');
+    audio.addEventListener('error',()=>console.warn('[BINDER MUSIC] Could not load',key,src),{once:true});
+    quidditchTcgBinderViewMusic=audio;
+    quidditchTcgBinderViewMusicSrc=src;
+    return audio;
+  }
+
+  // Replace the original soundtrack controller. Team tracks are resolved from
+  // the actual World Cup kit-view audio elements, so preview/equip/public view
+  // all use precisely the same files as the kit screen rather than a fallback.
+  quidditchTcgBinderSetViewMusic=function(key,{restart=true}={}){
+    const requested=String(key||'default').trim().toLowerCase();
+    const next=Object.prototype.hasOwnProperty.call(QUIDDITCH_TCG_BINDER_MUSIC,requested)?requested:'default';
+    const wantedSrc=resolveKitTrackSource(next);
+    const currentKey=quidditchTcgBinderViewMusic?.dataset?.repoBinderMusicKey||'';
+    const sourceChanged=!quidditchTcgBinderViewMusic||currentKey!==next||quidditchTcgBinderViewMusicSrc!==wantedSrc;
+
+    quidditchTcgBinderViewMusicKey=next;
+    if(sourceChanged){
+      stopBinderMusicInstance();
+      createBinderMusicInstance(next);
+    }
+
+    if(restart&&document.getElementById('quidditchTcgBinderDialog')?.open){
+      quidditchTcgBinderStartViewMusic();
+    }
+  };
+
+  quidditchTcgBinderStartViewMusic=function(){
+    try{
+      const key=Object.prototype.hasOwnProperty.call(QUIDDITCH_TCG_BINDER_MUSIC,quidditchTcgBinderViewMusicKey)?quidditchTcgBinderViewMusicKey:'default';
+      const wantedSrc=resolveKitTrackSource(key);
+      const currentKey=quidditchTcgBinderViewMusic?.dataset?.repoBinderMusicKey||'';
+      if(!quidditchTcgBinderViewMusic||currentKey!==key||quidditchTcgBinderViewMusicSrc!==wantedSrc){
+        stopBinderMusicInstance();
+        createBinderMusicInstance(key);
+      }
+      const audio=quidditchTcgBinderViewMusic;
+      if(!audio)return;
+      audio.loop=true;
+      audio.volume=.33;
+      if(audio.paused){
+        const playing=audio.play();
+        if(playing?.catch)playing.catch(error=>console.warn('[BINDER MUSIC] Playback blocked/failed',key,error));
+      }
+    }catch(error){
+      console.warn('[BINDER MUSIC] Start failed',error);
+    }
+  };
+
+  quidditchTcgBinderStopViewMusic=function(){
+    stopBinderMusicInstance();
+  };
+
+  // Ensure the source table itself mirrors the exact live kit audio elements.
+  // This also helps any older binder code that still reads the table directly.
+  function syncMusicSourceTable(){
+    Object.keys(KIT_AUDIO_IDS).forEach(key=>{
+      const src=resolveKitTrackSource(key);
+      if(src&&QUIDDITCH_TCG_BINDER_MUSIC[key])QUIDDITCH_TCG_BINDER_MUSIC[key].src=src;
+      if(QUIDDITCH_TCG_BINDER_MUSIC[key])QUIDDITCH_TCG_BINDER_MUSIC[key].volume=.33;
+    });
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',syncMusicSourceTable,{once:true});
+  else syncMusicSourceTable();
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V18.8 DIRECT KIT SOUNDTRACK ENGINE
+// - uses the literal assets/repo-sports-kit-<team>-theme.mp3 files
+// - preview/equip hard-stops the old default binder ambience first
+// - one soundtrack engine only: no stacked default + team audio
+// ============================================================
+(function installRepoBinderDirectKitSoundtrackEngineV188(){
+  if(window.__repoBinderDirectKitSoundtrackEngineV188Installed)return;
+  window.__repoBinderDirectKitSoundtrackEngineV188Installed=true;
+
+  const EXACT_KIT_TRACKS={
+    vardesh:'assets/repo-sports-kit-vardesh-theme.mp3',
+    lumerre:'assets/repo-sports-kit-lumerre-theme.mp3',
+    kordesh:'assets/repo-sports-kit-kordesh-theme.mp3',
+    nambara:'assets/repo-sports-kit-nambara-theme.mp3',
+    norveth:'assets/repo-sports-kit-norveth-theme.mp3',
+    zafran:'assets/repo-sports-kit-zafran-theme.mp3',
+    elvane:'assets/repo-sports-kit-elvane-theme.mp3',
+    qasmir:'assets/repo-sports-kit-qasmir-theme.mp3',
+    calvora:'assets/repo-sports-kit-calvora-theme.mp3',
+    rovarn:'assets/repo-sports-kit-rovarn-theme.mp3',
+    talune:'assets/repo-sports-kit-talune-theme.mp3',
+    drazhen:'assets/repo-sports-kit-drazhen-theme.mp3',
+    belros:'assets/repo-sports-kit-belros-theme.mp3',
+    marovar:'assets/repo-sports-kit-marovar-theme.mp3',
+    sorevia:'assets/repo-sports-kit-sorevia-theme.mp3',
+    iskandar:'assets/repo-sports-kit-iskandar-theme.mp3'
+  };
+  const DEFAULT_TRACK='assets/quidditch-tcg-binder/binder-view-music.mp3';
+  const TARGET_VOLUME=.33;
+  let engine=null;
+
+  // Force the shared table to the literal filenames that already exist in /assets.
+  Object.entries(EXACT_KIT_TRACKS).forEach(([key,src])=>{
+    if(QUIDDITCH_TCG_BINDER_MUSIC[key]){
+      QUIDDITCH_TCG_BINDER_MUSIC[key].src=src;
+      QUIDDITCH_TCG_BINDER_MUSIC[key].volume=TARGET_VOLUME;
+    }
+  });
+  if(QUIDDITCH_TCG_BINDER_MUSIC.default){
+    QUIDDITCH_TCG_BINDER_MUSIC.default.src=DEFAULT_TRACK;
+    QUIDDITCH_TCG_BINDER_MUSIC.default.volume=TARGET_VOLUME;
+  }
+
+  function normaliseKey(key){
+    const candidate=String(key||'default').trim().toLowerCase();
+    return candidate==='default'||Object.prototype.hasOwnProperty.call(EXACT_KIT_TRACKS,candidate)?candidate:'default';
+  }
+  function sourceFor(key){
+    key=normaliseKey(key);
+    return key==='default'?DEFAULT_TRACK:EXACT_KIT_TRACKS[key];
+  }
+  function isBinderTrack(audio){
+    try{
+      const src=String(audio?.currentSrc||audio?.src||audio?.getAttribute?.('src')||'').toLowerCase();
+      return src.includes('binder-view-music.mp3') || /repo-sports-kit-[^/]+-theme\.mp3(?:$|[?#])/.test(src);
+    }catch(_){return false;}
+  }
+  function stopAudio(audio,clearSource=false){
+    if(!audio)return;
+    try{audio.pause();}catch(_){ }
+    try{audio.currentTime=0;}catch(_){ }
+    if(clearSource){
+      try{audio.removeAttribute?.('src');audio.load?.();}catch(_){ }
+    }
+  }
+  function hardStopEveryBinderTrack(except=null){
+    // Stop whichever detached Audio instance the older binder engine owns.
+    if(quidditchTcgBinderViewMusic && quidditchTcgBinderViewMusic!==except){
+      stopAudio(quidditchTcgBinderViewMusic);
+    }
+
+    // Stop the kit-view <audio> elements too. This prevents a kit theme or old
+    // default ambience from being left playing underneath the selected binder track.
+    document.querySelectorAll('audio').forEach(audio=>{
+      if(audio!==except&&isBinderTrack(audio))stopAudio(audio);
+    });
+
+    // Also stop any engine instance created by an earlier V18.8 switch.
+    if(engine&&engine!==except)stopAudio(engine);
+  }
+  function ensureEngine(){
+    if(engine)return engine;
+    engine=new Audio();
+    engine.preload='auto';
+    engine.loop=true;
+    engine.volume=TARGET_VOLUME;
+    engine.dataset.repoBinderSoundtrackEngine='v188';
+    engine.addEventListener('error',()=>{
+      console.warn('[BINDER MUSIC V18.8] Track failed to load:',engine?.dataset?.repoBinderMusicKey,engine?.src);
+    });
+    return engine;
+  }
+  function loadTrack(key,{play=false,restart=true}={}){
+    key=normaliseKey(key);
+    const src=sourceFor(key);
+    const audio=ensureEngine();
+
+    // Critical: stop the OLD default / previous team music before touching the
+    // new source. This is used for PREVIEW, EQUIP and public binder playback.
+    hardStopEveryBinderTrack(audio);
+
+    const currentKey=String(audio.dataset.repoBinderMusicKey||'');
+    const needsSource=currentKey!==key || !String(audio.src||'').toLowerCase().includes(src.toLowerCase());
+    if(needsSource){
+      stopAudio(audio);
+      audio.src=src;
+      audio.dataset.repoBinderMusicKey=key;
+      try{audio.load();}catch(_){ }
+    }else if(restart){
+      try{audio.currentTime=0;}catch(_){ }
+    }
+
+    audio.loop=true;
+    audio.volume=window.repoBinderGetMusicVolume?window.repoBinderGetMusicVolume():TARGET_VOLUME;
+    quidditchTcgBinderViewMusic=audio;
+    quidditchTcgBinderViewMusicKey=key;
+    quidditchTcgBinderViewMusicSrc=src;
+
+    if(play&&document.getElementById('quidditchTcgBinderDialog')?.open){
+      const result=audio.play();
+      if(result?.catch)result.catch(error=>console.warn('[BINDER MUSIC V18.8] Playback blocked/failed:',key,src,error));
+    }
+    return audio;
+  }
+
+  // All preview/equip code already calls this global function. Replacing it here
+  // therefore fixes both paths without touching the shop UI again.
+  quidditchTcgBinderSetViewMusic=function(key,{restart=true}={}){
+    const next=normaliseKey(key);
+    loadTrack(next,{play:true,restart});
+  };
+
+  quidditchTcgBinderStartViewMusic=function(){
+    const key=normaliseKey(quidditchTcgBinderViewMusicKey);
+    loadTrack(key,{play:true,restart:false});
+  };
+
+  quidditchTcgBinderStopViewMusic=function(){
+    hardStopEveryBinderTrack(null);
+    if(engine)stopAudio(engine);
+    quidditchTcgBinderViewMusic=null;
+    quidditchTcgBinderViewMusicSrc='';
+  };
+
+  // Extra safety when somebody clicks PREVIEW / EQUIP / BUY: kill the default
+  // ambience synchronously in the same user gesture before the existing handler
+  // asks the binder engine to start the selected team track.
+  document.addEventListener('pointerdown',event=>{
+    if(!event.target.closest?.('[data-binder-music-preview],[data-binder-music-choice],[data-binder-music-buy]'))return;
+    hardStopEveryBinderTrack(null);
+  },true);
+
+  // If the customiser closes during a preview, the existing code restores the
+  // equipped track via quidditchTcgBinderSetViewMusic(), which now uses this engine.
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V18.9 AUTHORITATIVE KIT SOUNDTRACK FIX
+// Root fixes:
+// 1) preview could be overwritten by a late applyBinderStyle(default) call.
+// 2) World Cup menu music could restart itself after the preview began.
+// 3) Use a clone of the SAME preloaded <audio> element used by the kit viewer.
+// ============================================================
+(function installRepoBinderAuthoritativeKitSoundtrackV189(){
+  if(window.__repoBinderAuthoritativeKitSoundtrackV189Installed)return;
+  window.__repoBinderAuthoritativeKitSoundtrackV189Installed=true;
+
+  const TEAM_AUDIO_IDS={
+    vardesh:'worldCupVardeshKitAudio',
+    lumerre:'worldCupLumerreKitAudio',
+    kordesh:'worldCupKordeshKitAudio',
+    nambara:'worldCupNambaraKitAudio',
+    norveth:'worldCupNorvethKitAudio',
+    zafran:'worldCupZafranKitAudio',
+    elvane:'worldCupElvaneKitAudio',
+    qasmir:'worldCupQasmirKitAudio',
+    calvora:'worldCupCalvoraKitAudio',
+    rovarn:'worldCupRovarnKitAudio',
+    talune:'worldCupTaluneKitAudio',
+    drazhen:'worldCupDrazhenKitAudio',
+    belros:'worldCupBelrosKitAudio',
+    marovar:'worldCupMarovarKitAudio',
+    sorevia:'worldCupSoreviaKitAudio',
+    iskandar:'worldCupIskandarKitAudio'
+  };
+  const DEFAULT_SRC='assets/quidditch-tcg-binder/binder-view-music.mp3';
+  const VOLUME=.33;
+  let activeAudio=null;
+  let activeKey='default';
+  let previewLockKey='';
+
+  function normaliseKey(value){
+    const key=String(value||'default').trim().toLowerCase();
+    return key==='default'||Object.prototype.hasOwnProperty.call(TEAM_AUDIO_IDS,key)?key:'default';
+  }
+
+  function sourceElementFor(key){
+    key=normaliseKey(key);
+    return key==='default'?null:document.getElementById(TEAM_AUDIO_IDS[key]);
+  }
+
+  function isRelevantMedia(audio){
+    try{
+      const src=String(audio?.currentSrc||audio?.src||audio?.getAttribute?.('src')||'').toLowerCase();
+      return src.includes('binder-view-music.mp3') ||
+             src.includes('repo-sports-world-cup-menu.mp3') ||
+             /repo-sports-kit-[^/]+-theme\.mp3(?:$|[?#])/.test(src);
+    }catch(_){return false;}
+  }
+
+  function stopAudio(audio){
+    if(!audio)return;
+    try{audio.pause();}catch(_){ }
+    try{audio.currentTime=0;}catch(_){ }
+  }
+
+  function stopEverythingExcept(except=null){
+    // Old binder engines can own detached Audio() objects.
+    if(typeof quidditchTcgBinderViewMusic!=='undefined' && quidditchTcgBinderViewMusic && quidditchTcgBinderViewMusic!==except){
+      stopAudio(quidditchTcgBinderViewMusic);
+    }
+    if(activeAudio&&activeAudio!==except)stopAudio(activeAudio);
+
+    // Stop the normal World Cup menu and every original kit-view audio element.
+    document.querySelectorAll('audio').forEach(audio=>{
+      if(audio!==except&&isRelevantMedia(audio))stopAudio(audio);
+    });
+  }
+
+  function makeTrack(key){
+    key=normaliseKey(key);
+    if(key==='default'){
+      const audio=new Audio(DEFAULT_SRC);
+      audio.dataset.repoBinderV189='default';
+      return audio;
+    }
+
+    // IMPORTANT: clone the exact DOM <audio> that the working kit viewer uses.
+    // This avoids any filename/path guessing and guarantees the same media source.
+    const source=sourceElementFor(key);
+    if(!source){
+      console.warn('[BINDER MUSIC V18.9] Missing kit audio element for',key);
+      return null;
+    }
+    const audio=source.cloneNode(true);
+    audio.removeAttribute('id');
+    audio.removeAttribute('aria-hidden');
+    const src=source.currentSrc||source.src||source.getAttribute('src');
+    if(src)audio.src=src;
+    audio.dataset.repoBinderV189=key;
+    return audio;
+  }
+
+  function playKey(key,{restart=true}={}){
+    key=normaliseKey(key);
+
+    // While a PREVIEW is active, nothing else (especially a delayed account
+    // style load containing "default") is allowed to steal audio focus.
+    if(previewLockKey && key!==previewLockKey){
+      return activeAudio;
+    }
+
+    const same=activeAudio&&activeKey===key;
+    if(!same){
+      stopEverythingExcept(null);
+      activeAudio=makeTrack(key);
+      activeKey=key;
+    }else{
+      stopEverythingExcept(activeAudio);
+      if(restart)try{activeAudio.currentTime=0}catch(_){ }
+    }
+
+    if(!activeAudio)return null;
+    activeAudio.loop=true;
+    activeAudio.volume=window.repoBinderGetMusicVolume?window.repoBinderGetMusicVolume():VOLUME;
+    window.__repoBinderTeamMusicActive=key!=='default';
+
+    // Make the rest of the existing binder code see this as its active music.
+    quidditchTcgBinderViewMusic=activeAudio;
+    quidditchTcgBinderViewMusicKey=key;
+    quidditchTcgBinderViewMusicSrc=String(activeAudio.currentSrc||activeAudio.src||'');
+
+    if(document.getElementById('quidditchTcgBinderDialog')?.open){
+      const result=activeAudio.play();
+      result?.catch?.(error=>console.warn('[BINDER MUSIC V18.9] Playback failed',key,activeAudio?.src,error));
+    }
+    return activeAudio;
+  }
+
+  // Capture the user's intention BEFORE the old customiser click handler runs.
+  document.addEventListener('click',event=>{
+    const preview=event.target.closest?.('[data-binder-music-preview]');
+    const choice=event.target.closest?.('[data-binder-music-choice]');
+    const buy=event.target.closest?.('[data-binder-music-buy]');
+    const close=event.target.closest?.('.binder-style-close');
+    const control=document.getElementById('binderStyleControl');
+
+    if(preview){
+      const key=normaliseKey(preview.dataset.binderMusicPreview);
+      previewLockKey=previewLockKey===key?'':key;
+      if(previewLockKey){
+        window.__repoBinderTeamMusicActive=true;
+        stopEverythingExcept(null);
+      }
+      return;
+    }
+    if(choice||buy||close||(previewLockKey&&control&&!control.contains(event.target))){
+      previewLockKey='';
+    }
+  },true);
+
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape')previewLockKey='';
+  },true);
+
+  // Final authoritative global controller used by preview, equip, account load
+  // and public binder playback.
+  quidditchTcgBinderSetViewMusic=function(key,{restart=true}={}){
+    playKey(normaliseKey(key),{restart});
+  };
+
+  quidditchTcgBinderStartViewMusic=function(){
+    const key=previewLockKey||normaliseKey(quidditchTcgBinderViewMusicKey);
+    playKey(key,{restart:false});
+  };
+
+  quidditchTcgBinderStopViewMusic=function(){
+    previewLockKey='';
+    stopEverythingExcept(null);
+    if(activeAudio)stopAudio(activeAudio);
+    activeAudio=null;
+    activeKey='default';
+    window.__repoBinderTeamMusicActive=false;
+    quidditchTcgBinderViewMusic=null;
+    quidditchTcgBinderViewMusicSrc='';
+  };
+
+  // If the World Cup menu track was already playing before PREVIEW, stop it now
+  // whenever the binder's selected soundtrack changes to a team theme.
+  document.addEventListener('click',event=>{
+    if(!event.target.closest?.('[data-binder-music-preview],[data-binder-music-choice],[data-binder-music-buy]'))return;
+    const menu=document.getElementById('worldCupEventMusic');
+    if(menu)stopAudio(menu);
+  },true);
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V19.2 BINDER SOUNDTRACK VOLUME CONTROL
+// Viewer-side volume preference. Applies to default ambience,
+// team theme previews, equipped themes, and public binder music.
+// ============================================================
+(function installRepoBinderVolumeSliderV192(){
+  if(window.__repoBinderVolumeSliderV192Installed)return;
+  window.__repoBinderVolumeSliderV192Installed=true;
+
+  const STORAGE_KEY='repoBinderSoundtrackVolumeV192';
+  const DEFAULT_VOLUME=.33;
+
+  function clampVolume(value){
+    const number=Number(value);
+    return Number.isFinite(number)?Math.max(0,Math.min(1,number)):DEFAULT_VOLUME;
+  }
+
+  function readVolume(){
+    try{
+      const saved=localStorage.getItem(STORAGE_KEY);
+      return saved===null?DEFAULT_VOLUME:clampVolume(saved);
+    }catch(_error){
+      return DEFAULT_VOLUME;
+    }
+  }
+
+  function saveVolume(value){
+    const next=clampVolume(value);
+    try{localStorage.setItem(STORAGE_KEY,String(next));}catch(_error){}
+    return next;
+  }
+
+  function applyVolume(value){
+    const next=saveVolume(value);
+
+    // The V18.9 authoritative engine publishes its active detached Audio()
+    // instance here, so this updates the currently playing preview/equipped
+    // theme instantly without touching the normal World Cup kit/menu audio.
+    try{
+      if(typeof quidditchTcgBinderViewMusic!=='undefined'&&quidditchTcgBinderViewMusic){
+        quidditchTcgBinderViewMusic.volume=next;
+      }
+    }catch(_error){}
+
+    const slider=document.getElementById('repoBinderVolumeSlider');
+    const valueLabel=document.getElementById('repoBinderVolumeValue');
+    const icon=document.getElementById('repoBinderVolumeIcon');
+    if(slider&&Number(slider.value)!==Math.round(next*100))slider.value=String(Math.round(next*100));
+    if(valueLabel)valueLabel.textContent=`${Math.round(next*100)}%`;
+    if(icon)icon.textContent=next<=0?'◌':next<.34?'◔':next<.67?'◑':'◕';
+
+    return next;
+  }
+
+  window.repoBinderGetMusicVolume=readVolume;
+  window.repoBinderSetMusicVolume=applyVolume;
+
+  const style=document.createElement('style');
+  style.id='repoBinderVolumeSliderV192Styles';
+  style.textContent=`
+    #repoBinderVolumeControl{
+      width:clamp(150px,16vw,206px);
+      height:25px;
+      margin:1px auto 4px;
+      padding:0 9px;
+      box-sizing:border-box;
+      display:flex;
+      align-items:center;
+      gap:7px;
+      border:1px solid rgba(102,151,184,.32);
+      border-radius:999px;
+      background:
+        linear-gradient(180deg,rgba(19,35,49,.78),rgba(7,17,26,.76));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 2px 7px rgba(0,0,0,.20);
+      backdrop-filter:blur(4px);
+      -webkit-backdrop-filter:blur(4px);
+      color:#a9cce0;
+      opacity:.88;
+      transition:opacity .14s ease,border-color .14s ease,box-shadow .14s ease;
+      position:relative;
+      z-index:8;
+    }
+    #repoBinderVolumeControl:hover,
+    #repoBinderVolumeControl:focus-within{
+      opacity:1;
+      border-color:rgba(126,190,224,.58);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.05),
+        0 0 10px rgba(76,155,202,.09);
+    }
+    #repoBinderVolumeIcon{
+      width:12px;
+      flex:0 0 12px;
+      text-align:center;
+      color:#8fc8e6;
+      font:900 11px/1 Georgia,serif;
+      text-shadow:0 0 6px rgba(94,183,229,.22);
+      user-select:none;
+    }
+    #repoBinderVolumeSlider{
+      flex:1 1 auto;
+      min-width:0;
+      height:12px;
+      margin:0;
+      padding:0;
+      appearance:none;
+      -webkit-appearance:none;
+      background:transparent;
+      cursor:pointer;
+      outline:none;
+    }
+    #repoBinderVolumeSlider::-webkit-slider-runnable-track{
+      height:3px;
+      border-radius:999px;
+      background:
+        linear-gradient(90deg,#6caed1 0 var(--repo-volume-pct,33%),rgba(107,137,157,.24) var(--repo-volume-pct,33%) 100%);
+      box-shadow:inset 0 1px 1px rgba(0,0,0,.42);
+    }
+    #repoBinderVolumeSlider::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      width:10px;
+      height:10px;
+      margin-top:-3.5px;
+      border:1px solid #b9d8e8;
+      border-radius:50%;
+      background:#dcebf2;
+      box-shadow:0 0 0 2px rgba(27,59,78,.84),0 0 7px rgba(113,191,230,.28);
+    }
+    #repoBinderVolumeSlider::-moz-range-track{
+      height:3px;
+      border:0;
+      border-radius:999px;
+      background:rgba(107,137,157,.24);
+      box-shadow:inset 0 1px 1px rgba(0,0,0,.42);
+    }
+    #repoBinderVolumeSlider::-moz-range-progress{
+      height:3px;
+      border-radius:999px;
+      background:#6caed1;
+    }
+    #repoBinderVolumeSlider::-moz-range-thumb{
+      width:10px;
+      height:10px;
+      border:1px solid #b9d8e8;
+      border-radius:50%;
+      background:#dcebf2;
+      box-shadow:0 0 0 2px rgba(27,59,78,.84),0 0 7px rgba(113,191,230,.28);
+    }
+    #repoBinderVolumeValue{
+      min-width:27px;
+      flex:0 0 27px;
+      text-align:right;
+      color:#8daabc;
+      font:800 7px/1 monospace;
+      letter-spacing:.02em;
+      font-variant-numeric:tabular-nums;
+      user-select:none;
+    }
+    #quidditchTcgBinderDialog:not([data-binder-page^='open']) #repoBinderVolumeControl{
+      display:none!important;
+    }
+    @media(max-width:700px){
+      #repoBinderVolumeControl{
+        width:142px;
+        height:23px;
+        padding-inline:7px;
+        gap:5px;
+      }
+      #repoBinderVolumeValue{min-width:24px;flex-basis:24px;font-size:6px}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function updateTrackFill(slider){
+    const pct=Math.max(0,Math.min(100,Number(slider?.value)||0));
+    slider?.style.setProperty('--repo-volume-pct',`${pct}%`);
+  }
+
+  function ensureControl(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const status=dialog?.querySelector('.quidditch-tcg-binder-status');
+    const label=document.getElementById('quidditchTcgBinderPageLabel');
+    if(!dialog||!status||!label)return null;
+
+    let control=document.getElementById('repoBinderVolumeControl');
+    if(!control){
+      control=document.createElement('label');
+      control.id='repoBinderVolumeControl';
+      control.setAttribute('aria-label','Binder soundtrack volume');
+      control.innerHTML=`
+        <span id="repoBinderVolumeIcon" aria-hidden="true">◔</span>
+        <input id="repoBinderVolumeSlider" type="range" min="0" max="100" step="1" aria-label="Binder soundtrack volume">
+        <span id="repoBinderVolumeValue">33%</span>
+      `;
+
+      // Put it immediately above the COLLECTION PAGES label/box.
+      status.insertBefore(control,label);
+
+      const slider=control.querySelector('#repoBinderVolumeSlider');
+      const initial=readVolume();
+      slider.value=String(Math.round(initial*100));
+      updateTrackFill(slider);
+      applyVolume(initial);
+
+      slider.addEventListener('pointerdown',event=>event.stopPropagation());
+      slider.addEventListener('click',event=>event.stopPropagation());
+      slider.addEventListener('input',event=>{
+        event.stopPropagation();
+        const next=clampVolume(Number(slider.value)/100);
+        updateTrackFill(slider);
+        applyVolume(next);
+      });
+      slider.addEventListener('change',event=>event.stopPropagation());
+    }else{
+      const slider=control.querySelector('#repoBinderVolumeSlider');
+      if(slider)updateTrackFill(slider);
+    }
+    return control;
+  }
+
+  // Keep the control present through the binder's heavily wrapped/rebuilt UI.
+  const oldEnsure=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(oldEnsure){
+    ensureQuidditchTcgBinderUi=function(){
+      const result=oldEnsure.apply(this,arguments);
+      ensureControl();
+      requestAnimationFrame(ensureControl);
+      return result;
+    };
+  }
+
+  const oldOpen=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(oldOpen){
+    openQuidditchTcgBinder=function(){
+      const result=oldOpen.apply(this,arguments);
+      ensureControl();
+      requestAnimationFrame(ensureControl);
+      setTimeout(ensureControl,80);
+      return result;
+    };
+  }
+
+  const oldPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(oldPage){
+    setQuidditchTcgBinderPage=function(){
+      const result=oldPage.apply(this,arguments);
+      ensureControl();
+      return result;
+    };
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',ensureControl,{once:true});
+  }else{
+    ensureControl();
+  }
+})();
+
+
+// ============================================================
+// REPO COMPANY V18.1 — V19.3 FAVOURITE ICON + BRUSH OVERLAY FIX
+// - cleaner favourite-card icon that is properly centred
+// - keeps favourite toggle interaction easy to hit
+// - hides the paintbrush while Hidden Cards is open so it never overlays
+// ============================================================
+(function installRepoBinderFavouritePolishAndBrushDrawerFixV193(){
+  if(window.__repoBinderFavouritePolishAndBrushDrawerFixV193Installed)return;
+  window.__repoBinderFavouritePolishAndBrushDrawerFixV193Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoBinderFavouritePolishAndBrushDrawerFixV193Styles';
+  style.textContent=`
+    /* Cleaner favourite marker on binder cards. */
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button,
+    #quidditchTcgBinderDialog .repo-tcg-public-favourite-badge{
+      right:8px!important;
+      top:8px!important;
+      left:auto!important;
+      width:28px!important;
+      height:28px!important;
+      min-width:28px!important;
+      min-height:28px!important;
+      padding:0!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      border-radius:50%!important;
+      box-sizing:border-box!important;
+      font-size:0!important;
+      line-height:0!important;
+      color:transparent!important;
+      text-indent:0!important;
+      overflow:hidden!important;
+      background:
+        radial-gradient(circle at 32% 26%,rgba(255,247,191,.96) 0 9%,rgba(255,231,154,.72) 10%,rgba(214,161,54,.86) 31%,rgba(79,46,11,.97) 73%,rgba(20,10,3,1) 100%)!important;
+      border:1px solid rgba(244,199,95,.94)!important;
+      box-shadow:
+        0 4px 10px rgba(0,0,0,.62),
+        inset 0 0 0 1px rgba(58,31,5,.78),
+        inset 0 1px 0 rgba(255,245,210,.16),
+        0 0 0 1px rgba(255,211,108,.18)!important;
+      z-index:64!important;
+      isolation:isolate!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button{
+      cursor:pointer!important;
+      opacity:.92!important;
+      transform:scale(.96)!important;
+      transition:transform .14s ease,filter .14s ease,opacity .14s ease,box-shadow .14s ease!important;
+      touch-action:manipulation!important;
+      -webkit-user-drag:none!important;
+      user-select:none!important;
+    }
+    #quidditchTcgBinderDialog .repo-binder-slot-126:hover .repo-tcg-favourite-card-button,
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button:focus-visible,
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button.is-active{
+      opacity:1!important;
+      transform:scale(1)!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button:hover,
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button:focus-visible{
+      filter:brightness(1.08)!important;
+      box-shadow:
+        0 5px 12px rgba(0,0,0,.68),
+        inset 0 0 0 1px rgba(58,31,5,.78),
+        inset 0 1px 0 rgba(255,245,210,.18),
+        0 0 0 1px rgba(255,211,108,.22),
+        0 0 12px rgba(119,189,233,.24)!important;
+      outline:2px solid rgba(123,201,244,.86)!important;
+      outline-offset:1px!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button::before,
+    #quidditchTcgBinderDialog .repo-tcg-public-favourite-badge::before{
+      content:'☆';
+      display:block!important;
+      position:relative!important;
+      top:-.5px!important;
+      color:#fff4bd!important;
+      font:900 15px/1 Georgia,serif!important;
+      text-shadow:
+        0 1px 1px rgba(32,15,0,.95),
+        0 0 8px rgba(255,212,82,.30)!important;
+      transform:translateZ(0)!important;
+      pointer-events:none!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-favourite-card-button.is-active::before,
+    #quidditchTcgBinderDialog .repo-tcg-public-favourite-badge::before{
+      content:'★'!important;
+      color:#fff6c8!important;
+      text-shadow:
+        0 1px 1px rgba(32,15,0,.98),
+        0 0 9px rgba(255,213,94,.36)!important;
+    }
+    #quidditchTcgBinderDialog .repo-tcg-public-favourite-badge{
+      opacity:1!important;
+      pointer-events:none!important;
+      animation:repoTcgFavouriteStarGlow 2.2s ease-in-out infinite!important;
+    }
+    #quidditchTcgBinderDialog .repo-binder-slot-126.is-favourite-card{
+      box-shadow:
+        inset 0 0 0 2px #06101a,
+        0 0 0 1px #f1c95e,
+        0 0 14px rgba(255,209,91,.34)!important;
+    }
+
+    /* When Hidden Cards is open, hide the paintbrush so it never overlaps the drawer. */
+    #quidditchTcgBinderDialog[data-repo-storage-open='true'] #binderStyleControl,
+    #quidditchTcgBinderDialog[data-repo-storage-open='true'] #binderStyleTrigger{
+      opacity:0!important;
+      visibility:hidden!important;
+      pointer-events:none!important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function syncHiddenCardsOverlayState(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog)return;
+    const storage=dialog.querySelector('.repo-binder-storage');
+    const isOpen=!!storage && !storage.hidden && (
+      storage.classList.contains('is-open') ||
+      storage.classList.contains('is-drop') ||
+      storage.getAttribute('aria-hidden')==='false'
+    );
+    dialog.dataset.repoStorageOpen=isOpen?'true':'false';
+  }
+
+  function scheduleSync(){
+    syncHiddenCardsOverlayState();
+    requestAnimationFrame(syncHiddenCardsOverlayState);
+  }
+
+  const oldEnsure=typeof ensureQuidditchTcgBinderUi==='function'?ensureQuidditchTcgBinderUi:null;
+  if(oldEnsure){
+    ensureQuidditchTcgBinderUi=function(){
+      const result=oldEnsure.apply(this,arguments);
+      scheduleSync();
+      setTimeout(syncHiddenCardsOverlayState,70);
+      return result;
+    };
+  }
+
+  const oldEnsureCustom=typeof ensureBinderCustomisationUi==='function'?ensureBinderCustomisationUi:null;
+  if(oldEnsureCustom){
+    ensureBinderCustomisationUi=function(){
+      const result=oldEnsureCustom.apply(this,arguments);
+      scheduleSync();
+      return result;
+    };
+  }
+
+  const oldOpen=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(oldOpen){
+    openQuidditchTcgBinder=function(){
+      const result=oldOpen.apply(this,arguments);
+      [0,60,180,420].forEach(delay=>setTimeout(syncHiddenCardsOverlayState,delay));
+      return result;
+    };
+  }
+
+  const oldPage=typeof setQuidditchTcgBinderPage==='function'?setQuidditchTcgBinderPage:null;
+  if(oldPage){
+    setQuidditchTcgBinderPage=function(){
+      const result=oldPage.apply(this,arguments);
+      [0,90,220,420].forEach(delay=>setTimeout(syncHiddenCardsOverlayState,delay));
+      return result;
+    };
+  }
+
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-binder-storage-launch, #quidditchTcgBinderDialog .repo-binder-storage-close, #quidditchTcgBinderDialog .repo-binder-storage')){
+      [0,40,140,260].forEach(delay=>setTimeout(syncHiddenCardsOverlayState,delay));
+    }
+  },true);
+
+  document.addEventListener('pointerup',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-tcg-favourite-card-button')){
+      event.stopPropagation();
+    }
+  },true);
+  document.addEventListener('mouseup',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-tcg-favourite-card-button')){
+      event.stopPropagation();
+    }
+  },true);
+  document.addEventListener('touchend',event=>{
+    if(event.target.closest?.('#quidditchTcgBinderDialog .repo-tcg-favourite-card-button')){
+      event.stopPropagation();
+    }
+  },true);
+
+  const bootObserver=()=>{
+    const bodyObserver=new MutationObserver(()=>syncHiddenCardsOverlayState());
+    bodyObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','aria-hidden','open','data-binder-page']});
+    syncHiddenCardsOverlayState();
+  };
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',bootObserver,{once:true});
+  }else{
+    bootObserver();
+  }
 })();

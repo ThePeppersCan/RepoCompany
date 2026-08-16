@@ -2393,17 +2393,8 @@ button.qg-game-card{font:inherit;cursor:pointer}
   <div class="world-cup-event-hub" aria-label="Repo Sports World Cup event information">
     <div class="world-cup-event-layout">
       <div class="world-cup-event-panel world-cup-event-panel-fixtures">
-        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-fixtures-20260815.png" alt="Repo Sports World Cup fixtures — Friday 14th and Saturday 15th August">
-        <div class="world-cup-board-fixture-hotspots" aria-label="World Cup live fixtures">
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="belros-zafran" style="--x:11.8%;--y:35.0%;--w:76.5%;--h:5.1%" aria-label="Belros vs Zafran — Friday 14th August at 9pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="iskandar-calvora" style="--x:11.8%;--y:40.1%;--w:76.5%;--h:5.0%" aria-label="Iskandar vs Calvora — Friday 14th August at 9:30pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="sorevia-lumerre" style="--x:11.8%;--y:45.1%;--w:76.5%;--h:5.1%" aria-label="Sorevia vs Lumerre — Friday 14th August at 10pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="talune-kordesh" style="--x:11.8%;--y:55.0%;--w:76.5%;--h:4.7%" aria-label="Talune vs Kordesh — Saturday 15th August at 9pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="norveth-qasmir" style="--x:11.8%;--y:59.8%;--w:76.5%;--h:4.7%" aria-label="Norveth vs Qasmir — Saturday 15th August at 9:30pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="nambara-elvane" style="--x:11.8%;--y:64.6%;--w:76.5%;--h:4.7%" aria-label="Nambara vs Elvane — Saturday 15th August at 10pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="drazhen-rovarn" style="--x:11.8%;--y:69.4%;--w:76.5%;--h:4.7%" aria-label="Drazhen vs Rovarn — Saturday 15th August at 10:30pm"></span>
-          <span class="world-cup-board-fixture-hotspot" role="button" tabindex="0" data-fixture-id="vardesh-marovar" style="--x:11.8%;--y:74.2%;--w:76.5%;--h:4.7%" aria-label="Vardesh vs Marovar — Saturday 15th August at 11pm"></span>
-        </div>
+        <img class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-knockout-fixtures-20260821.png" alt="Repo Sports World Cup knockout fixtures — Friday 21st August quarter-finals and Sunday 23rd August semi-finals">
+        <!-- V18.3: old Round-of-16 fixture hotspots removed for the knockout schedule artwork. -->
         <span class="world-cup-fixture-nav-button world-cup-fixture-nav-button-guide" role="button" tabindex="0" aria-label="Welcome to Velmora" title="Welcome to Velmora">
           <img src="assets/repo-sports-world-cup-guide-button.png" alt="Welcome to Velmora">
         </span>
@@ -2739,7 +2730,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 
   <section class="card actions harmony-actions">
     <h2>TRAIN HARMONY</h2>
-    <button id="can" class="xp-waste-button harmony-button" aria-label="Harmonize and gain three shared Harmony XP"><span class="harmony-button-logo"><img src="assets/harmony-logo.png" alt=""></span><strong>HARMONIZE</strong><em>+3 HARMONY XP</em><span class="harmony-wave" aria-hidden="true"></span></button>
+    <button id="can" type="button" class="xp-waste-button harmony-button" aria-label="Harmonize and gain three shared Harmony XP"><span class="harmony-button-logo"><img src="assets/harmony-logo.png" alt=""></span><strong>HARMONIZE</strong><em>+3 HARMONY XP</em><span class="harmony-wave" aria-hidden="true"></span></button>
     <label class="harmony-sound-toggle" title="Toggle the Harmonize sound"><input id="harmonySoundToggle" type="checkbox" checked><span aria-hidden="true">♪</span><b>SOUND</b></label>
     <div class="daily-xp-board" aria-live="polite">
       <div class="daily-xp-heading">
@@ -2757,6 +2748,11 @@ button.qg-game-card{font:inherit;cursor:pointer}
         <div class="daily-xp-empty">Loading total XP…</div>
       </div>
     </div>
+    <button id="openLeaderboardQuick" class="home-leaderboards-shortcut" type="button" aria-label="Open full leaderboards">
+      <img src="assets/leaderboard-icon.png" alt="" width="22" height="22">
+      <span><b>LEADERBOARDS</b><small>VIEW ALL RANKINGS</small></span>
+      <em aria-hidden="true">›</em>
+    </button>
   </section>
 </main>
 
@@ -4325,7 +4321,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=v18-1-patch-binder-harbour-repoggle36-20260816"></script>
+<script src="script.js?v=v19-3-favourite-icon-brush-overlay-fix-20260816"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -4770,6 +4766,7 @@ window.__QD_HOST__={
   };
 
   const startMenuMusic = () => {
+    if (window.__repoBinderTeamMusicActive) { stopAudio(menuMusic); return; }
     menuMusic.volume = 0.30;
     stopAudio(menuMusic);
     menuMusic.volume = 0.30;
@@ -4813,6 +4810,7 @@ window.__QD_HOST__={
   };
 
   const resumeWorldCupMenuMusic = () => {
+    if (window.__repoBinderTeamMusicActive) { stopAudio(menuMusic); return; }
     if (!overlay.classList.contains('is-event-open') || closing) return;
     menuMusic.volume = 0.30;
     const playPromise = menuMusic.play();
@@ -5185,6 +5183,7 @@ window.__QD_HOST__={
   };
 
   const resumeWorldCupMenuAfterTeams = () => {
+    if (window.__repoBinderTeamMusicActive) { try { menuMusic.pause(); menuMusic.currentTime=0; } catch (_) {} return; }
     if (!overlay.classList.contains('is-event-open') || closing || meetTeamsViewer.classList.contains('is-open')) return;
     try {
       menuMusic.volume=0.30;
@@ -5565,7 +5564,8 @@ window.__QD_HOST__={
   }
   function resultLabel(r){if(!r)return'';if(r.fromShootout&&r.shootoutHome!=null&&r.shootoutAway!=null)return `${r.winner} WIN · PENS ${r.shootoutHome}–${r.shootoutAway}`;return `${r.winner} WIN · ${r.scoreHome}–${r.scoreAway}`}
   function renderFixtureResults(){
-    document.querySelectorAll('.world-cup-board-fixture-hotspot[data-fixture-id]').forEach(el=>{const r=resultFor(el.dataset.fixtureId);el.classList.toggle('is-complete',!!r);el.querySelector('.wc-fixture-result-pill')?.remove();if(!r)return;const pill=document.createElement('span');pill.className='wc-fixture-result-pill';pill.textContent=resultLabel(r).toUpperCase();el.appendChild(pill);el.setAttribute('aria-label',`${r.home} vs ${r.away} — final: ${resultLabel(r)}`)});
+    document.querySelectorAll('.wc-fixture-result-pill').forEach(el=>el.remove());
+    document.querySelectorAll('.world-cup-board-fixture-hotspot').forEach(el=>el.classList.remove('is-complete'));
   }
   function ensureMenuLeaderboard(){
     const hub=document.querySelector('.world-cup-event-hub');if(!hub)return null;let box=$('worldCupMenuLeaderboard');if(box)return box;box=document.createElement('aside');box.id='worldCupMenuLeaderboard';box.className='world-cup-menu-leaderboard';box.innerHTML='<header><small>REPO SPORTS WORLD CUP 2026</small><b>GOAL LEADERS</b><span>OFFICIAL SUPABASE RESULTS</span></header><section><h4>TOP SCORERS</h4><div id="worldCupMenuPlayerLeaders" class="world-cup-menu-leader-list"></div></section><section><h4>TOP SCORING TEAMS</h4><div id="worldCupMenuTeamLeaders" class="world-cup-menu-leader-list"></div></section>';hub.appendChild(box);return box;
@@ -7435,6 +7435,7 @@ window.__QD_HOST__={
     try{worldCupMenuMusic.pause()}catch(_){}
   }
   function restoreWorldCupMenuMusic(){
+    if(window.__repoBinderTeamMusicActive){try{worldCupMenuMusic?.pause();if(worldCupMenuMusic)worldCupMenuMusic.currentTime=0}catch(_){}return;}
     if(!worldCupMenuSuppressed)return;
     const shouldResume=worldCupMenuWasPlaying&&overlay.classList.contains('is-event-open');
     worldCupMenuSuppressed=false;
