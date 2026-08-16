@@ -9513,19 +9513,21 @@ async function qmRefreshWatcherProfiles(names,force=false){
     const {data:petRows,error:petError}=await db.rpc('get_quidditch_watcher_profiles',{p_usernames:unique});
     if(petError)console.warn('Quidditch watcher pet profiles:',petError);
     const petByName=new Map((petRows||[]).map(row=>[qmWatcherKey(row.username),row]));
-    const [{data:backgroundRows,error:backgroundError},{data:favouriteRows,error:favouriteError},publicRows]=await Promise.all([db.rpc('get_watchcard_backgrounds',{p_usernames:unique}),db.rpc('get_favourite_quidditch_tcg_cards',{p_usernames:unique}),Promise.all(unique.map(async username=>{
+    const [{data:backgroundRows,error:backgroundError},{data:favouriteRows,error:favouriteError},{data:titleRows,error:titleError},publicRows]=await Promise.all([db.rpc('get_watchcard_backgrounds',{p_usernames:unique}),db.rpc('get_favourite_quidditch_tcg_cards',{p_usernames:unique}),db.rpc('get_passport_titles',{p_usernames:unique}),Promise.all(unique.map(async username=>{
       const {data,error}=await db.rpc('get_public_character',{p_username:username});
       if(error){console.warn(`Could not load ${username} skill profile:`,error);return null;}
       return data?.[0]?{username,...data[0]}:null;
     }))]);
     if(backgroundError)console.warn('Quidditch watchcard backgrounds:',backgroundError);
     if(favouriteError)console.warn('Quidditch favourite TCG cards:',favouriteError);
+    if(titleError)console.warn('Repo Passport public titles:',titleError);
     const backgroundByName=new Map((backgroundRows||[]).map(row=>[qmWatcherKey(row.username),row.equipped_watchcard_background]));
     const favouriteByName=new Map((favouriteRows||[]).map(row=>[qmWatcherKey(row.username),row.favourite_card]));
+    const titleByName=new Map((titleRows||[]).map(row=>[qmWatcherKey(row.username),row.passport_title||'The Adventurer']));
     for(const row of publicRows){
       if(!row)continue;
       const pet=petByName.get(qmWatcherKey(row.username))||{};
-      qmWatcherProfileCache.set(qmWatcherKey(row.username),{...pet,...row,equipped_watchcard_background:backgroundByName.get(qmWatcherKey(row.username))||null,favourite_quidditch_tcg_card:favouriteByName.get(qmWatcherKey(row.username))||null});
+      qmWatcherProfileCache.set(qmWatcherKey(row.username),{...pet,...row,equipped_watchcard_background:backgroundByName.get(qmWatcherKey(row.username))||null,favourite_quidditch_tcg_card:favouriteByName.get(qmWatcherKey(row.username))||null,passport_title:titleByName.get(qmWatcherKey(row.username))||'The Adventurer'});
     }
     // Keep pet-only cards usable if a public profile is temporarily unavailable.
     for(const row of petRows||[]){
@@ -9539,6 +9541,10 @@ async function qmRefreshWatcherProfiles(names,force=false){
     for(const row of favouriteRows||[]){
       const key=qmWatcherKey(row.username);
       qmWatcherProfileCache.set(key,{...(qmWatcherProfileCache.get(key)||{}),username:row.username,favourite_quidditch_tcg_card:row.favourite_card||null});
+    }
+    for(const row of titleRows||[]){
+      const key=qmWatcherKey(row.username);
+      qmWatcherProfileCache.set(key,{...(qmWatcherProfileCache.get(key)||{}),username:row.username,passport_title:row.passport_title||'The Adventurer'});
     }
     // Admin watchcard testing is deliberately local-only, so never let the
     // normal saved account value overwrite CatAsthma's temporary selection.
@@ -32775,6 +32781,10 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     "The Goblin","The Gremlin","The Rat","The Menace","The Problem","The Main Character","The Side Character","The Final Boss","Repo Company Royalty","Just Happy to Be Here"
   ];
 
+  const passportTitleServerCache = new Map();
+  let passportTitleSyncPromise = null;
+  const passportTitleUserKey = user=>String(user||'').trim().toLowerCase();
+
   const REPO_PASSPORT_AVATARS={
     catasthma:'assets/repo-passport-avatars/CatAsthma.png',
     covidpanda:'assets/repo-passport-avatars/CovidPanda.png',
@@ -32840,10 +32850,49 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     return 0;
   }
   function passportCurrentTitle(user){
+    const serverTitle=passportTitleServerCache.get(passportTitleUserKey(user));
+    if(serverTitle && REPO_PASSPORT_TITLES.includes(serverTitle)) return serverTitle;
     const key = passportKeyFor(user, 'title');
     const stored = localStorage.getItem(key);
     if(stored && REPO_PASSPORT_TITLES.includes(stored)) return stored;
     return 'The Adventurer';
+  }
+
+  async function passportSyncTitleFromServer(){
+    const user=passportCurrentUsername();
+    if(!user||!character)return;
+    if(passportTitleSyncPromise)return passportTitleSyncPromise;
+    const cacheKey=passportTitleUserKey(user);
+    const localKey=passportKeyFor(user,'title');
+    const localStored=localStorage.getItem(localKey);
+    const localTitle=localStored&&REPO_PASSPORT_TITLES.includes(localStored)?localStored:'The Adventurer';
+    passportTitleSyncPromise=(async()=>{
+      const {data,error}=await db.rpc('get_my_passport_title');
+      if(error){
+        console.warn('Repo Passport title could not be loaded from the server:',error);
+        return;
+      }
+      let serverTitle=String(Array.isArray(data)?(data[0]||''):data||'').trim();
+      if(!REPO_PASSPORT_TITLES.includes(serverTitle))serverTitle='The Adventurer';
+
+      // V20.29 migration path: old builds saved titles only in this browser.
+      // If this browser has a real choice and the server is still default,
+      // upload the existing choice once instead of silently losing it.
+      if(localTitle!=='The Adventurer'&&serverTitle==='The Adventurer'){
+        const saved=await db.rpc('set_my_passport_title_v2',{p_title:localTitle});
+        if(!saved.error){
+          serverTitle=localTitle;
+        }else{
+          console.warn('Existing Repo Passport title could not be migrated:',saved.error);
+        }
+      }
+
+      passportTitleServerCache.set(cacheKey,serverTitle);
+      localStorage.setItem(localKey,serverTitle);
+      if(character&&passportTitleUserKey(character.username)===cacheKey)character.passport_title=serverTitle;
+      try{renderRepoPassportPanel()}catch(_){ }
+    })().finally(()=>{passportTitleSyncPromise=null});
+    return passportTitleSyncPromise;
   }
   function passportPopulateTitleSelect(){
     const select = passportEl('passportTitleSelect');
@@ -32855,11 +32904,36 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       select.appendChild(option);
     });
     select.dataset.ready = 'true';
-    select.addEventListener('change', ()=>{
+    select.addEventListener('change', async()=>{
       const user = passportCurrentUsername() || 'guest';
-      localStorage.setItem(passportKeyFor(user, 'title'), select.value);
+      const nextTitle=select.value;
+      const cacheKey=passportTitleUserKey(user);
+      const previousTitle=passportCurrentTitle(user);
+      if(!REPO_PASSPORT_TITLES.includes(nextTitle))return;
+
+      localStorage.setItem(passportKeyFor(user,'title'),nextTitle);
+      passportTitleServerCache.set(cacheKey,nextTitle);
+      if(character&&passportTitleUserKey(character.username)===cacheKey)character.passport_title=nextTitle;
       renderRepoPassportPanel();
-      if(typeof toast === 'function') toast(`Title updated to ${select.value}.`, 2600);
+
+      const {data,error}=await db.rpc('set_my_passport_title_v2',{p_title:nextTitle});
+      if(error){
+        console.error('Repo Passport title sync failed:',error);
+        passportTitleServerCache.set(cacheKey,previousTitle);
+        localStorage.setItem(passportKeyFor(user,'title'),previousTitle);
+        if(character&&passportTitleUserKey(character.username)===cacheKey)character.passport_title=previousTitle;
+        renderRepoPassportPanel();
+        if(typeof toast==='function')toast('Title could not be synced. Please try again.',3600);
+        return;
+      }
+      const savedRow=Array.isArray(data)?data[0]:data;
+      const saved=String(savedRow?.passport_title||nextTitle).trim();
+      passportTitleServerCache.set(cacheKey,saved);
+      localStorage.setItem(passportKeyFor(user,'title'),saved);
+      if(character&&passportTitleUserKey(character.username)===cacheKey)character.passport_title=saved;
+      window.dispatchEvent(new CustomEvent('repo-passport-title-changed',{detail:{username:user,title:saved}}));
+      renderRepoPassportPanel();
+      if(typeof toast === 'function') toast(`Title updated to ${saved}.`, 2600);
     });
   }
   function passportHighestSkill(data = character){
@@ -33121,6 +33195,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     renderCharacter = function(){
       const result = __repoPassportOriginalRenderCharacter.apply(this, arguments);
       try{ renderRepoPassportPanel(); }catch(error){ console.warn('Repo Passport character render failed:', error); }
+      if(character)setTimeout(()=>{passportSyncTitleFromServer().catch(()=>{})},0);
       return result;
     };
   }
@@ -33134,7 +33209,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     renderRepoPassportPanel();
   });
   window.addEventListener('repo-tcg-own-collection-changed',()=>renderRepoPassportPanel());
-  window.addEventListener('load', ()=>setTimeout(()=>{ try{ renderRepoPassportPanel(); }catch(_){ } }, 300));
+  window.addEventListener('load', ()=>setTimeout(()=>{ try{ renderRepoPassportPanel(); passportSyncTitleFromServer().catch(()=>{}); }catch(_){ } }, 300));
 })();
 
 
@@ -33159,6 +33234,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     try{return typeof qmWatcherKey==='function'?qmWatcherKey(name):normalise(name)}catch(_){return normalise(name)}
   };
   const publicCollectionCache=new Map();
+  const publicPassportTitleCache=new Map();
   let hoverToken=0;
   let activeGuest=null;
 
@@ -33170,7 +33246,12 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     const keys=['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','attack_xp','strength_xp','defence_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp'];
     return keys.reduce((sum,key)=>sum+(Number(profile?.[key])||0),0)+(Number(typeof count!=='undefined'?count:0)||0);
   }
-  function titleFor(name){
+  function titleFor(name,profile=null){
+    const key=profileKey(name);
+    const directTitle=String(publicPassportTitleCache.get(key)||'').trim();
+    if(directTitle)return directTitle;
+    const serverTitle=String(profile?.passport_title||'').trim();
+    if(serverTitle)return serverTitle;
     try{return localStorage.getItem(`repoPassport:${String(name||'').toLowerCase()}:title`)||'The Adventurer'}catch(_){return 'The Adventurer'}
   }
   function avatarFor(name){
@@ -33222,7 +33303,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     const collection=publicCollectionCache.get(profileKey(name));
     const cardCount=Array.isArray(collection?.cards)?collection.cards.length:null;
     const xp=totalXp(profile);
-    const title=titleFor(name);
+    const title=titleFor(name,profile);
     popup.innerHTML=`
       <div class="repo-hover-passport-head">
         <span>REPO PASSPORT</span><small>PUBLIC LEGACY</small>
@@ -33262,10 +33343,42 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     try{
       const jobs=[];
       if(typeof qmRefreshWatcherProfiles==='function')jobs.push(qmRefreshWatcherProfiles([name],true));
+      jobs.push(db.rpc('get_public_passport_title',{p_username:name}).then(({data,error})=>{
+        if(error){console.warn('Repo Passport public title lookup:',error);return;}
+        const row=Array.isArray(data)?data[0]:data;
+        if(!row)return;
+        const key=profileKey(row.username||name);
+        const liveTitle=String(row.passport_title||'The Adventurer').trim()||'The Adventurer';
+        // V20.31: keep the title in its own direct cache so a stale watcher
+        // profile can never overwrite the live public Passport title.
+        publicPassportTitleCache.set(key,liveTitle);
+        const current=(typeof qmWatcherProfileCache!=='undefined'&&qmWatcherProfileCache.get)?(qmWatcherProfileCache.get(key)||{}):{};
+        if(typeof qmWatcherProfileCache!=='undefined'&&qmWatcherProfileCache.set){
+          qmWatcherProfileCache.set(key,{...current,username:row.username||name,passport_title:liveTitle});
+        }
+      }).catch(error=>console.warn('Repo Passport public title lookup:',error)));
       if(typeof window.repoTcgGetPublicCollection==='function'&&!publicCollectionCache.has(profileKey(name))){
         jobs.push(window.repoTcgGetPublicCollection(name).then(collection=>publicCollectionCache.set(profileKey(name),collection)).catch(()=>{}));
       }
       await Promise.all(jobs);
+      // Do one final authoritative read AFTER the larger profile refresh.
+      // This removes the race where the watcher-profile cache could finish last
+      // and put "The Adventurer" back over a title that was already fetched.
+      try{
+        const {data:liveTitleRows,error:liveTitleError}=await db.rpc('get_public_passport_title',{p_username:name});
+        if(!liveTitleError){
+          const liveRow=Array.isArray(liveTitleRows)?liveTitleRows[0]:liveTitleRows;
+          if(liveRow){
+            const key=profileKey(liveRow.username||name);
+            const liveTitle=String(liveRow.passport_title||'The Adventurer').trim()||'The Adventurer';
+            publicPassportTitleCache.set(key,liveTitle);
+            if(typeof qmWatcherProfileCache!=='undefined'&&qmWatcherProfileCache.set){
+              const current=qmWatcherProfileCache.get?.(key)||{};
+              qmWatcherProfileCache.set(key,{...current,username:liveRow.username||name,passport_title:liveTitle});
+            }
+          }
+        }else console.warn('Repo Passport final public title read:',liveTitleError);
+      }catch(error){console.warn('Repo Passport final public title read:',error);}
     }catch(_){ }
     if(token!==hoverToken||!activeGuest)return;
     renderProfile(name,eventOrRect);
@@ -33340,6 +33453,20 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     }
     return null;
   }
+
+  window.addEventListener('repo-passport-title-changed',event=>{
+    const changed=String(event?.detail?.username||'');
+    const title=String(event?.detail?.title||'The Adventurer');
+    const key=profileKey(changed);
+    publicPassportTitleCache.set(key,title);
+    if(qmWatcherProfileCache?.get){
+      const profile=qmWatcherProfileCache.get(key)||{username:changed};
+      qmWatcherProfileCache.set(key,{...profile,passport_title:title});
+    }
+    if(activeGuest&&normalise(activeGuest.dataset?.username||activeGuest.getAttribute?.('data-username')||'')===normalise(changed)){
+      try{renderProfile(changed,activeGuest.getBoundingClientRect())}catch(_){ }
+    }
+  });
 
   document.addEventListener('pointermove',event=>{
     const guest=guestAtPoint(event.clientX,event.clientY);
@@ -33869,4 +33996,123 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
     else setTimeout(boot,0);
   }
+})();
+
+// REPO COMPANY V20.29 — Repo Passport titles are now server-persisted and public.
+
+
+// ============================================================================
+// REPO COMPANY V20.30 — PASSPORT TITLE HARD SYNC
+// Independent of the Passport select's original listener. Any real title
+// selection is written to Supabase, read back, and public hover caches refresh.
+// This also migrates an existing non-default localStorage title on login/load.
+// ============================================================================
+(function installRepoPassportTitleHardSyncV2030(){
+  if(window.__repoPassportTitleHardSyncV2030Installed)return;
+  window.__repoPassportTitleHardSyncV2030Installed=true;
+  let syncing=false;
+  const keyFor=user=>`repoPassport:${String(user||'').trim().toLowerCase()}:title`;
+
+  async function writeTitle(title,{quiet=false}={}){
+    const username=String(character?.username||character?.displayName||'').trim();
+    title=String(title||'').trim();
+    if(!username||!title||syncing)return false;
+    syncing=true;
+    try{
+      localStorage.setItem(keyFor(username),title);
+      const {data,error}=await db.rpc('set_my_passport_title_v2',{p_title:title});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      const saved=String(row?.passport_title||'').trim();
+      if(!saved)throw new Error('Title save returned no value');
+
+      // Read it back from the server so this cannot silently look successful
+      // while other players still receive an old/default value.
+      const {data:verifyData,error:verifyError}=await db.rpc('get_my_passport_title');
+      if(verifyError)throw verifyError;
+      const verified=String(Array.isArray(verifyData)?verifyData[0]:verifyData||'').trim();
+      if(verified!==saved)throw new Error(`Title verification failed (${verified||'empty'})`);
+
+      localStorage.setItem(keyFor(username),verified);
+      if(character)character.passport_title=verified;
+      window.dispatchEvent(new CustomEvent('repo-passport-title-changed',{detail:{username,title:verified}}));
+      try{if(typeof qmRefreshWatcherProfiles==='function')await qmRefreshWatcherProfiles([username],true)}catch(_){ }
+      try{if(typeof renderRepoPassportPanel==='function')renderRepoPassportPanel()}catch(_){ }
+      return true;
+    }catch(error){
+      console.error('Repo Passport V20.30 title hard-sync failed:',error);
+      if(!quiet&&typeof toast==='function')toast('Title did not sync to the server. Please try again.',3600);
+      return false;
+    }finally{syncing=false;}
+  }
+
+  // Capture phase means this still runs even if an older/local listener is
+  // attached to the select or a future UI wrapper stops propagation.
+  document.addEventListener('change',event=>{
+    const select=event.target?.closest?.('#passportTitleSelect');
+    if(!select)return;
+    void writeTitle(select.value);
+  },true);
+
+  async function migrateLocalChoice(){
+    const username=String(character?.username||character?.displayName||'').trim();
+    if(!username)return;
+    let local='';
+    try{local=String(localStorage.getItem(keyFor(username))||'').trim()}catch(_){ }
+    if(!local||local==='The Adventurer')return;
+    try{
+      const {data,error}=await db.rpc('get_my_passport_title');
+      if(error)return;
+      const server=String(Array.isArray(data)?data[0]:data||'').trim();
+      if(!server||server==='The Adventurer')await writeTitle(local,{quiet:true});
+    }catch(_){ }
+  }
+
+  const kick=()=>setTimeout(()=>void migrateLocalChoice(),650);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',kick,{once:true});else kick();
+  window.addEventListener('repo-character-changed',kick);
+  window.addEventListener('load',kick,{once:true});
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.31 — SIGNED-OUT LANDING REPAIR
+// V20's dashboard builder moves the header into a transformed 1774x887 shell.
+// A position:fixed login landing inside that transformed parent is not viewport
+// fixed, which is why some users only saw the dashboard's grey/frame surface.
+// Keep the login masthead as a direct body child while signed out, then put it
+// back into the dashboard as soon as a character is loaded.
+// ============================================================================
+(function installRepoSignedOutLandingRepairV2031(){
+  if(window.__repoSignedOutLandingRepairV2031Installed)return;
+  window.__repoSignedOutLandingRepairV2031Installed=true;
+  let timer=0;
+
+  function repair(){
+    const body=document.body;
+    if(!body)return;
+    const dash=document.getElementById('repoDashboardV20');
+    const header=document.querySelector('.repo-main-header');
+    if(!header)return;
+    const signedOut=body.classList.contains('repo-logged-out')||!character;
+
+    if(signedOut){
+      if(dash&&dash.contains(header))dash.before(header);
+      header.classList.add('repo-auth-landing-header');
+      if(dash)dash.style.setProperty('display','none','important');
+    }else{
+      header.classList.remove('repo-auth-landing-header');
+      if(dash){
+        dash.style.removeProperty('display');
+        if(header.parentElement!==dash)dash.prepend(header);
+      }
+    }
+  }
+  function queue(){clearTimeout(timer);timer=setTimeout(repair,55);}
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',queue,{once:true});
+  else queue();
+  window.addEventListener('load',queue,{once:true});
+  window.addEventListener('repo-character-changed',queue);
+  new MutationObserver(queue).observe(document.body,{attributes:true,attributeFilter:['class']});
 })();

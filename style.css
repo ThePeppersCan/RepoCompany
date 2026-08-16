@@ -11972,3 +11972,83 @@ body.repo-logged-out #repoDashboardV20 .character-button{display:block!important
 #repoHordeRewardNotice.bonus{border-color:#a78032;box-shadow:0 8px 22px rgba(0,0,0,.44),0 0 14px rgba(222,174,61,.10),inset 0 0 0 1px rgba(248,219,130,.06)}
 #repoHordeRewardNotice.bonus b{color:#ffe08a}
 @media(max-width:720px){.endless-horde-economy{grid-template-columns:32px 1fr}.endless-horde-economy>strong{grid-column:1/-1;border-left:0;border-top:1px solid #574523;text-align:center;padding-top:7px}}
+
+
+/* ======================================================================
+   REPO COMPANY V20.31 — LOGIN LANDING FINAL AUTHORITY
+   Header is moved back to body while signed out, so it is genuinely viewport
+   fixed and can no longer inherit the scaled dashboard-shell coordinate space.
+   ====================================================================== */
+body.repo-logged-out > #repoDashboardV20{display:none!important}
+body.repo-logged-out > .repo-main-header.repo-auth-landing-header{
+  display:flex!important;
+  position:fixed!important;
+  inset:0!important;
+  z-index:100!important;
+  width:100vw!important;
+  height:100dvh!important;
+  min-height:100vh!important;
+  margin:0!important;
+  padding:clamp(18px,4vh,50px) 20px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  pointer-events:auto!important;
+  border:0!important;
+  background-color:#07131b!important;
+  background-image:
+    radial-gradient(circle at 50% 34%,rgba(62,101,126,.22),transparent 40%),
+    linear-gradient(180deg,rgba(4,12,18,.10),rgba(2,8,13,.42)),
+    url('assets/repo-signed-out-background.gif')!important;
+  background-position:center,center,center!important;
+  background-size:cover,cover,cover!important;
+  background-repeat:no-repeat!important;
+  transform:none!important;
+  box-shadow:inset 0 0 100px rgba(0,0,0,.34)!important;
+}
+body.repo-logged-out > .repo-main-header.repo-auth-landing-header .repo-header-centre{
+  position:relative!important;
+  z-index:2!important;
+  width:min(900px,96vw)!important;
+  height:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  transform:none!important;
+}
+body.repo-logged-out > .repo-main-header.repo-auth-landing-header .repo-logo-wrap{
+  position:relative!important;
+  inset:auto!important;
+  width:min(570px,70vw)!important;
+  height:auto!important;
+  transform:none!important;
+  pointer-events:none!important;
+}
+body.repo-logged-out > .repo-main-header.repo-auth-landing-header .repo-header-logo{
+  width:100%!important;height:auto!important;max-height:54vh!important;object-fit:contain!important
+}
+body.repo-logged-out > .repo-main-header.repo-auth-landing-header .character-box{
+  position:relative!important;
+  inset:auto!important;
+  width:100%!important;
+  height:auto!important;
+  margin:8px auto 0!important;
+  transform:none!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  pointer-events:auto!important;
+}
+body.repo-logged-out > .repo-main-header.repo-auth-landing-header #createCharacter{
+  display:block!important;
+  width:auto!important;
+  min-width:min(330px,88vw)!important;
+  height:auto!important;
+  margin:0 auto!important;
+  padding:13px 30px!important;
+  pointer-events:auto!important;
+}
+#characterDialog[open]{z-index:2147483000!important}
+#characterDialog::backdrop{background:rgba(1,6,10,.78)!important;backdrop-filter:blur(3px)}
