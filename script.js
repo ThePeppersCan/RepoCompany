@@ -2808,7 +2808,7 @@ function ensureQuidditchTcgBinderUi(){
     </section>`;
     document.body.append(dialog);
     dialog.querySelector('.quidditch-tcg-binder-close')?.addEventListener('click',closeQuidditchTcgBinder);
-    dialog.addEventListener('close',()=>dialog.classList.remove('binder-visible'));
+    dialog.addEventListener('close',()=>{dialog.classList.remove('binder-visible');});
     dialog.addEventListener('click',event=>{if(event.target===dialog)closeQuidditchTcgBinder()});
     dialog.addEventListener('cancel',event=>{event.preventDefault();closeQuidditchTcgBinder()});
     document.getElementById('quidditchTcgBinderPrev')?.addEventListener('click',()=>setQuidditchTcgBinderPage(quidditchTcgBinderPage-1));
@@ -17603,6 +17603,8 @@ qmShowSharedGoal=function(state){
     {id:'zizi_patch',name:'Zizi — Patch',image:'assets/quidditch-tcg/cards/patch/zizi-patch.png',rarity:'patch'},
 ];
   const CARD_BY_ID=Object.fromEntries(CARD_CATALOG.map(card=>[card.id,card]));
+  window.__repoTcgCardCatalog=CARD_CATALOG.map(card=>({...card}));
+  window.__repoTcgCardById=Object.fromEntries(window.__repoTcgCardCatalog.map(card=>[card.id,card]));
   window.REPO_TCG_CURRENT_CARD_COUNT=CARD_CATALOG.length;
   // Slot coordinates are normalised against the supplied marked-up binder
   // reference.  They sit inside the small blue diamond/triangle corners rather
@@ -34252,4 +34254,4206 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   window.addEventListener('load',queue,{once:true});
   window.addEventListener('repo-character-changed',queue);
   new MutationObserver(queue).observe(document.body,{attributes:true,attributeFilter:['class']});
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.39 — DUAL BINDER FOUNDATION
+// Starts cleanly from V20.36. This adds only a second physical binder shell.
+// There is deliberately NO grading, slab, submission, timer or backend logic.
+// ============================================================================
+(function installRepoDualBinderFoundationV2039(){
+  if(window.__repoDualBinderFoundationV2039Installed)return;
+  window.__repoDualBinderFoundationV2039Installed=true;
+
+  const RCG_COVER='assets/rcg/rcg-slab-binder-cover.png';
+  let mainObserver=null;
+
+  function ensureEmptyBinderDialog(){
+    let dialog=document.getElementById('repoEmptyRcgBinderDialog');
+    if(dialog)return dialog;
+
+    dialog=document.createElement('dialog');
+    dialog.id='repoEmptyRcgBinderDialog';
+    dialog.className='repo-empty-secondary-binder-dialog';
+    dialog.innerHTML=`<section class="repo-empty-secondary-binder-shell repo-empty-secondary-binder-shell-v2042">
+      <button type="button" class="repo-empty-secondary-binder-close" aria-label="Close RCG binder">×</button>
+      <header class="repo-empty-secondary-binder-header"><strong>RCG SLAB BINDER</strong><small>OFFICIAL COLLECTION · 9 SLABS PER PAGE</small></header>
+      <div class="repo-empty-secondary-binder-stage">
+        <div class="repo-empty-secondary-book repo-empty-secondary-book-v2042" aria-label="RCG Slab Binder">
+          <section class="repo-empty-secondary-page left repo-empty-secondary-page-v2042" aria-label="Left slab page">
+            <div class="repo-empty-secondary-page-head"><span>PAGE 1</span><small>RCG GRADED COLLECTION</small></div>
+            <div class="repo-empty-secondary-grid">
+              ${Array.from({length:9},(_,i)=>`<article class="repo-empty-secondary-slot" data-slot="${i+1}"><div class="repo-empty-secondary-slab"><div class="repo-empty-secondary-slab-label">RCG</div><div class="repo-empty-secondary-slab-window"></div><div class="repo-empty-secondary-slab-base">EMPTY SLOT ${i+1}</div></div></article>`).join('')}
+            </div>
+          </section>
+          <div class="repo-empty-secondary-spine"></div>
+          <section class="repo-empty-secondary-page right repo-empty-secondary-page-v2042" aria-label="Right slab page">
+            <div class="repo-empty-secondary-page-head"><span>PAGE 2</span><small>RCG GRADED COLLECTION</small></div>
+            <div class="repo-empty-secondary-grid">
+              ${Array.from({length:9},(_,i)=>`<article class="repo-empty-secondary-slot" data-slot="${i+10}"><div class="repo-empty-secondary-slab"><div class="repo-empty-secondary-slab-label">RCG</div><div class="repo-empty-secondary-slab-window"></div><div class="repo-empty-secondary-slab-base">EMPTY SLOT ${i+10}</div></div></article>`).join('')}
+            </div>
+          </section>
+        </div>
+      </div>
+      <footer class="repo-empty-secondary-binder-footer repo-empty-secondary-binder-footer-v2042">
+        <button type="button" class="repo-empty-secondary-return">◀ BINDER SHELF</button>
+        <span>EMPTY SLAB COLLECTION<small>Professional 9-slab pages ready for the collection system we add next.</small></span>
+        <i aria-hidden="true">18 VISIBLE POSITIONS · 9 PER PAGE</i>
+      </footer>
+    </section>`;
+    document.body.appendChild(dialog);
+
+    const close=(returnToShelf=false)=>{
+      dialog.classList.remove('is-opened','is-visible');
+      try{dialog.close()}catch(_error){}
+      try{window.repoRcgUpgradeCustomizerV2129?.stopMusic?.()}catch(_error){}
+      if(returnToShelf){
+        setTimeout(()=>{
+          try{openQuidditchTcgBinder();}catch(_error){}
+        },80);
+      }
+    };
+    dialog.querySelector('.repo-empty-secondary-binder-close')?.addEventListener('click',()=>close(false));
+    dialog.querySelector('.repo-empty-secondary-return')?.addEventListener('click',()=>close(true));
+    dialog.addEventListener('cancel',event=>{event.preventDefault();close(false)});
+    dialog.addEventListener('click',event=>{if(event.target===dialog)close(false)});
+    dialog.addEventListener('close',()=>dialog.classList.remove('is-opened','is-visible'));
+    return dialog;
+  }
+
+  function openEmptyRcgBinder(){
+    const main=document.getElementById('quidditchTcgBinderDialog');
+    if(main?.open){
+      try{closeQuidditchTcgBinder();}catch(_error){try{main.close()}catch(__error){}}
+    }
+    const dialog=ensureEmptyBinderDialog();
+    setTimeout(()=>{
+      if(!dialog.open)dialog.showModal();
+      requestAnimationFrame(()=>{
+        dialog.classList.add('is-visible');
+        requestAnimationFrame(()=>dialog.classList.add('is-opened'));
+      });
+      try{quidditchTcgBinderPlayPageSound?.()}catch(_error){}
+      try{window.repoRcgUpgradeCustomizerV2129?.playMusic?.()}catch(_error){}
+    },70);
+  }
+  window.openRepoEmptyRcgBinder=openEmptyRcgBinder;
+
+  function syncMainBinderFront(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const stage=dialog?.querySelector('.quidditch-tcg-binder-stage');
+    const image=document.getElementById('quidditchTcgBinderImage');
+    if(!dialog||!stage||!image)return;
+
+    let rcg=stage.querySelector('.repo-secondary-binder-cover');
+    if(!rcg){
+      rcg=document.createElement('button');
+      rcg.type='button';
+      rcg.className='repo-secondary-binder-cover';
+      rcg.setAttribute('aria-label','Open RCG Slab Binder');
+      rcg.title='Open RCG Slab Binder';
+      rcg.innerHTML=`<img src="${RCG_COVER}" alt="Repo Company RCG Slab Binder cover" draggable="false">`;
+      rcg.addEventListener('click',event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        openEmptyRcgBinder();
+      });
+      stage.appendChild(rcg);
+      const preload=new Image();preload.src=RCG_COVER;
+    }
+
+    image.setAttribute('aria-label','Open Quidditch TCG Binder');
+    image.title='Open Quidditch TCG Binder';
+
+    const front=String(dialog.dataset.binderPage||'')==='front';
+    const header=dialog.querySelector('.quidditch-tcg-binder-header strong');
+    const headerSmall=dialog.querySelector('.quidditch-tcg-binder-header small');
+    const label=document.getElementById('quidditchTcgBinderPageLabel');
+    const hint=document.getElementById('quidditchTcgBinderHint');
+    if(front){
+      if(header)header.textContent='COLLECTION BINDERS';
+      if(headerSmall)headerSmall.textContent='CHOOSE A COLLECTION';
+      if(label)label.textContent='BINDER SHELF';
+      if(hint)hint.textContent='Choose the Quidditch collection binder or the RCG Slab Binder.';
+    }else{
+      if(header)header.textContent='QUIDDITCH TCG BINDER';
+      if(headerSmall)headerSmall.textContent='OFFICIAL COLLECTION';
+    }
+
+    if(mainObserver?.__dialog!==dialog){
+      mainObserver?.disconnect?.();
+      mainObserver=new MutationObserver(()=>queueMicrotask(syncMainBinderFront));
+      mainObserver.__dialog=dialog;
+      mainObserver.observe(dialog,{attributes:true,attributeFilter:['data-binder-page'],childList:true,subtree:false});
+    }
+  }
+
+  try{
+    const previousEnsure=ensureQuidditchTcgBinderUi;
+    ensureQuidditchTcgBinderUi=function(){
+      const result=previousEnsure.apply(this,arguments);
+      syncMainBinderFront();
+      return result;
+    };
+  }catch(_error){}
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{
+      try{syncMainBinderFront()}catch(_error){}
+      ensureEmptyBinderDialog();
+    },{once:true});
+  }else{
+    try{syncMainBinderFront()}catch(_error){}
+    ensureEmptyBinderDialog();
+  }
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.40 — DUAL BINDER SHELF POSITION HARD FIX
+// V20.39's external CSS was being overridden by older dynamically-injected
+// binder centring rules. This final style is injected after every legacy binder
+// style and makes the two covers one physical, centred shelf row.
+// ============================================================================
+(function installRepoDualBinderShelfHardFixV2040(){
+  if(window.__repoDualBinderShelfHardFixV2040Installed)return;
+  window.__repoDualBinderShelfHardFixV2040Installed=true;
+
+  const style=document.createElement('style');
+  style.id='repoDualBinderShelfHardFixV2040Styles';
+  style.textContent=`
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .quidditch-tcg-binder-stage{
+      position:fixed!important;
+      inset:0!important;
+      width:100vw!important;
+      height:100dvh!important;
+      min-width:100vw!important;
+      min-height:100dvh!important;
+      margin:0!important;
+      padding:clamp(24px,3vh,42px) clamp(34px,4.5vw,84px)!important;
+      box-sizing:border-box!important;
+      display:flex!important;
+      flex-direction:row!important;
+      flex-wrap:nowrap!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:clamp(34px,5vw,86px)!important;
+      overflow:visible!important;
+      transform:none!important;
+      place-items:unset!important;
+      grid-template-columns:none!important;
+      grid-auto-flow:unset!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover{
+      position:relative!important;
+      inset:auto!important;
+      left:auto!important;
+      right:auto!important;
+      top:auto!important;
+      bottom:auto!important;
+      margin:0!important;
+      translate:none!important;
+      justify-self:auto!important;
+      align-self:auto!important;
+      flex:0 0 auto!important;
+      width:auto!important;
+      height:min(72dvh,720px)!important;
+      max-height:min(72dvh,720px)!important;
+      max-width:calc(50vw - 76px)!important;
+      box-sizing:border-box!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage{
+      display:block!important;
+      object-fit:contain!important;
+      animation:repoBinderCoverIdle 5.2s ease-in-out infinite!important;
+      transform-origin:50% 52%!important;
+      filter:drop-shadow(0 25px 34px rgba(0,0,0,.80)) drop-shadow(0 0 1px rgba(236,192,91,.45))!important;
+      transition:filter .25s ease,transform .25s cubic-bezier(.2,.8,.2,1)!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover{
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      padding:0!important;
+      border:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      outline:0!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover img{
+      display:block!important;
+      width:auto!important;
+      height:100%!important;
+      max-width:100%!important;
+      max-height:100%!important;
+      object-fit:contain!important;
+      animation:repoBinderCoverIdle 5.2s ease-in-out infinite!important;
+      transform-origin:50% 52%!important;
+      filter:drop-shadow(0 25px 34px rgba(0,0,0,.80)) drop-shadow(0 0 1px rgba(236,192,91,.45))!important;
+      transition:filter .25s ease,transform .25s cubic-bezier(.2,.8,.2,1)!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage:hover,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage:focus-visible,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover:hover img,
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover:focus-visible img{
+      animation-play-state:paused!important;
+      transform:translateY(-8px) scale(1.016) rotateY(-.65deg)!important;
+      filter:drop-shadow(0 31px 40px rgba(0,0,0,.86)) drop-shadow(0 0 12px rgba(219,172,69,.20)) drop-shadow(0 0 7px rgba(72,142,221,.13))!important;
+    }
+
+    #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover::after{
+      bottom:-7px!important;
+    }
+
+    @media(max-width:900px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .quidditch-tcg-binder-stage{
+        gap:18px!important;
+        padding:20px 14px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage,
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover{
+        height:min(65dvh,610px)!important;
+        max-height:min(65dvh,610px)!important;
+        max-width:calc(50vw - 24px)!important;
+      }
+    }
+
+    @media(max-width:560px){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .quidditch-tcg-binder-stage{
+        gap:8px!important;
+        padding:12px 7px!important;
+      }
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage,
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover{
+        height:min(56dvh,500px)!important;
+        max-height:min(56dvh,500px)!important;
+        max-width:calc(50vw - 11px)!important;
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] #quidditchTcgBinderImage,
+      #quidditchTcgBinderDialog.repo-binder-book-mode[data-binder-page='front'] .repo-secondary-binder-cover img{
+        animation:none!important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // If the binder UI is already alive, make sure V20.39's second cover exists.
+  const sync=()=>{ try{ window.openRepoEmptyRcgBinder && typeof syncMainBinderFront==='function' && syncMainBinderFront(); }catch(_error){} };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true});
+  else queueMicrotask(sync);
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.41 — TRUE DUAL-BINDER FRONT SHELF
+// Uses a dedicated front-only overlay rather than relying on the legacy stage
+// layout. This prevents old grid/centering rules from ever putting one binder
+// beneath the other.
+// ============================================================================
+(function installRepoTrueDualBinderShelfV2041(){
+  if(window.__repoTrueDualBinderShelfV2041Installed)return;
+  window.__repoTrueDualBinderShelfV2041Installed=true;
+
+  const RCG_COVER_V2041='assets/rcg/rcg-slab-binder-cover.png';
+  let shelfObserver=null;
+
+  function ensureShelf(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    const original=document.getElementById('quidditchTcgBinderImage');
+    if(!dialog||!original)return;
+
+    let shelf=dialog.querySelector('.repo-dual-binder-shelf-v2041');
+    if(!shelf){
+      shelf=document.createElement('div');
+      shelf.className='repo-dual-binder-shelf-v2041';
+      shelf.setAttribute('aria-label','Collection binders');
+      shelf.innerHTML=`
+        <button type="button" class="repo-dual-binder-choice-v2041 repo-dual-binder-choice-normal-v2041" aria-label="Open Quidditch TCG Binder" title="Open Quidditch TCG Binder">
+          <img alt="Repo Company Quidditch Card Collection Binder" draggable="false">
+        </button>
+        <button type="button" class="repo-dual-binder-choice-v2041 repo-dual-binder-choice-rcg-v2041" aria-label="Open RCG Slab Binder" title="Open RCG Slab Binder">
+          <img src="${RCG_COVER_V2041}" alt="Repo Company RCG Slab Binder" draggable="false">
+        </button>
+        <button type="button" class="repo-dual-binder-shop-cta-v2066" aria-label="Visit RCG Grading Shop" title="Visit RCG Grading Shop">
+          <img src="assets/rcg/rcg-grading-shop-cta.png" alt="Visit RCG Grading Shop — Submit, Grade, Collect" draggable="false">
+        </button>`;
+      dialog.appendChild(shelf);
+
+      shelf.querySelector('.repo-dual-binder-choice-normal-v2041')?.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();
+        const real=document.getElementById('quidditchTcgBinderImage');
+        if(real)real.click();
+      });
+      shelf.querySelector('.repo-dual-binder-choice-rcg-v2041')?.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();
+        if(typeof window.openRepoEmptyRcgBinder==='function')window.openRepoEmptyRcgBinder();
+      });
+      shelf.querySelector('.repo-dual-binder-shop-cta-v2066')?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();});
+      const preload=new Image();preload.src=RCG_COVER_V2041;
+      const preloadShop=new Image();preloadShop.src='assets/rcg/rcg-grading-shop-cta.png';
+    }
+
+    // Always mirror the real working binder cover asset rather than duplicating
+    // knowledge of whatever theme/front-cover code selected it.
+    const normalImg=shelf.querySelector('.repo-dual-binder-choice-normal-v2041 img');
+    const src=original.getAttribute('src')||original.src||'';
+    if(normalImg&&src&&normalImg.getAttribute('src')!==src)normalImg.setAttribute('src',src);
+
+    shelf.hidden=String(dialog.dataset.binderPage||'')!=='front';
+
+    if(!shelfObserver){
+      shelfObserver=new MutationObserver(()=>queueMicrotask(ensureShelf));
+      shelfObserver.observe(dialog,{attributes:true,attributeFilter:['data-binder-page']});
+    }
+  }
+
+  try{
+    const previousEnsure=ensureQuidditchTcgBinderUi;
+    ensureQuidditchTcgBinderUi=function(){
+      const result=previousEnsure.apply(this,arguments);
+      ensureShelf();
+      return result;
+    };
+  }catch(_error){}
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{ensureShelf();setTimeout(ensureShelf,300)},{once:true});
+  }else{
+    ensureShelf();setTimeout(ensureShelf,300);
+  }
+})();
+
+
+// ============================================================================
+// REPO COMPANY V20.43 — PROFESSIONAL RCG SLAB BINDER
+// Replaces the temporary empty brown slab binder with a cleaner binder-matched
+// blue/gold album. 15 spreads, 9 slabs per page, visual foundation only.
+// ============================================================================
+(function installRepoProfessionalRcgBinderV2043(){
+  if(window.__repoProfessionalRcgBinderV2043Installed)return;
+  window.__repoProfessionalRcgBinderV2043Installed=true;
+
+  const RCG_SLAB_TEMPLATE='assets/rcg/rcg-slab-template.png';
+  const RCG_SPREADS=15;
+  const SLOTS_PER_PAGE=9;
+  const SLOTS_PER_SPREAD=18;
+  let repoRcgSpread=1;
+  let repoRcgTurnTimer=null;
+  let repoRcgTheme='sapphire';
+  let repoRcgState={slabs:[],layout:[],slots:[]};
+  let repoRcgStateLoading=false;
+  let repoRcgLayoutSaving=false;
+  let repoRcgSelectedHiddenSlabId='';
+  const repoRcgThemeStorageKey='repo-rcg-binder-theme-v2046';
+
+  const repoRcgNormal=value=>String(value||'').trim();
+  const repoRcgEsc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const repoRcgCardMap=()=>window.__repoTcgCardById||Object.fromEntries((Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[]).map(card=>[card.id,card]));
+  const repoRcgTotalSlots=()=>RCG_SPREADS*SLOTS_PER_SPREAD;
+  const repoRcgNormalizeLayout=layout=>Array.from({length:repoRcgTotalSlots()},(_,index)=>{
+    const value=Array.isArray(layout)?layout[index]:null;
+    return typeof value==='string'&&repoRcgNormal(value)?repoRcgNormal(value):null;
+  });
+  const repoRcgSlabId=slab=>repoRcgNormal(slab?.slab_id||slab?.id||slab?.rcg_slab_id||'');
+  const repoRcgSlabById=id=>{
+    const wanted=repoRcgNormal(id);
+    if(!wanted)return null;
+    return (Array.isArray(repoRcgState?.slabs)?repoRcgState.slabs:[]).find(slab=>repoRcgSlabId(slab)===wanted)||null;
+  };
+  const repoRcgSlotSlab=(slotIndex,slabId='')=>{
+    const direct=Array.isArray(repoRcgState?.slots)?repoRcgState.slots[slotIndex]:null;
+    if(direct&&typeof direct==='object')return direct;
+    return slabId?repoRcgSlabById(slabId):null;
+  };
+  const repoRcgPlacedSlabIds=()=>new Set(repoRcgNormalizeLayout(repoRcgState?.layout).filter(Boolean));
+  const repoRcgHiddenSlabs=()=>{
+    const placed=repoRcgPlacedSlabIds();
+    return (Array.isArray(repoRcgState?.slabs)?repoRcgState.slabs:[]).filter(slab=>!placed.has(repoRcgSlabId(slab)));
+  };
+
+  function repoRcgNotify(message,duration=3200){
+    try{if(typeof showToast==='function'){showToast(message,duration);return}}catch(_){ }
+    try{if(typeof toast==='function'){toast(message,duration);return}}catch(_){ }
+    console.info('[RCG BINDER]',message);
+  }
+
+  function repoRcgSlabVisualMarkup(slab,{compact=false}={}){
+    const cards=repoRcgCardMap();
+    const card=cards[repoRcgNormal(slab?.card_id)]||null;
+    const name=card?.name||repoRcgNormal(slab?.card_id)||'RCG Graded Card';
+    const image=card?.image||'';
+    const grade=Number(slab?.grade)||'?';
+    const cert=repoRcgNormal(slab?.certification_number);
+    return `<div class="${compact?'repo-rcg-slot-slab-visual':'repo-rcg-hidden-slab-visual'}">
+      <div class="${compact?'repo-rcg-slot-slab-card-art':'repo-rcg-hidden-slab-card-art'}">${image?`<img src="${repoRcgEsc(image)}" alt="${repoRcgEsc(name)}" draggable="false">`:''}</div>
+      <img class="${compact?'repo-rcg-slot-slab-case':'repo-rcg-hidden-slab-case'}" src="${RCG_SLAB_TEMPLATE}" alt="" draggable="false">
+      <div class="${compact?'repo-rcg-slot-slab-grade':'repo-rcg-hidden-slab-grade'}"><b>RCG ${repoRcgEsc(grade)}</b><small>${repoRcgEsc(name)}</small></div>
+    </div>${compact?'':`<div class="repo-rcg-hidden-slab-meta"><strong>${repoRcgEsc(name)}</strong><span>RCG ${repoRcgEsc(grade)}</span><small>${cert?`CERT ${repoRcgEsc(cert)}`:'OFFICIAL GRADED SLAB'}</small></div>`}`;
+  }
+
+  function renderRepoRcgHiddenSlabs(){
+    const dialog=document.getElementById('repoRcgBinderDialog');
+    if(!dialog)return;
+    const panel=dialog.querySelector('#repoRcgHiddenPanel');
+    const list=dialog.querySelector('#repoRcgHiddenList');
+    const count=dialog.querySelector('#repoRcgHiddenCount');
+    const results=dialog.querySelector('#repoRcgHiddenResults');
+    const launchCount=dialog.querySelector('#repoRcgHiddenBtn .repo-rcg-hidden-count-badge');
+    const search=repoRcgNormal(dialog.querySelector('#repoRcgHiddenSearch')?.value).toLowerCase();
+    const filter=panel?.dataset.storageFilter||'all';
+    const hidden=repoRcgHiddenSlabs();
+    const cards=repoRcgCardMap();
+    const visible=hidden.filter(slab=>{
+      const grade=Number(slab?.grade)||0;
+      if(filter!=='all'&&String(grade)!==String(filter))return false;
+      if(!search)return true;
+      const card=cards[repoRcgNormal(slab?.card_id)]||null;
+      const name=String(card?.name||slab?.card_id||'').toLowerCase();
+      const cert=repoRcgNormal(slab?.certification_number).toLowerCase();
+      return name.includes(search)||`rcg ${grade}`.includes(search)||cert.includes(search);
+    }).sort((a,b)=>{
+      const aName=String(cards[repoRcgNormal(a?.card_id)]?.name||a?.card_id||'');
+      const bName=String(cards[repoRcgNormal(b?.card_id)]?.name||b?.card_id||'');
+      return ((Number(b?.grade)||0)-(Number(a?.grade)||0))||aName.localeCompare(bName);
+    });
+
+    if(count)count.textContent=String(hidden.length);
+    if(launchCount)launchCount.textContent=String(hidden.length);
+    if(results)results.textContent=hidden.length?`Showing ${visible.length} of ${hidden.length} hidden slabs`:'No slabs currently stored';
+    if(!list)return;
+    list.replaceChildren();
+
+    if(repoRcgStateLoading){
+      const empty=document.createElement('div');
+      empty.className='repo-binder-storage-empty';
+      empty.innerHTML='LOADING HIDDEN SLABS…<br><small>Checking your RCG graded collection.</small>';
+      list.appendChild(empty);
+      return;
+    }
+    if(!hidden.length){
+      const empty=document.createElement('div');
+      empty.className='repo-binder-storage-empty';
+      empty.innerHTML='NO HIDDEN SLABS<br><small>Right-click a displayed slab to put it away here.</small>';
+      list.appendChild(empty);
+      return;
+    }
+    if(!visible.length){
+      const empty=document.createElement('div');
+      empty.className='repo-binder-storage-empty';
+      empty.innerHTML='NO MATCHING SLABS<br><small>Try a different search or grade.</small>';
+      list.appendChild(empty);
+      return;
+    }
+
+    visible.forEach(slab=>{
+      const slabId=repoRcgSlabId(slab);
+      const card=cards[repoRcgNormal(slab?.card_id)]||null;
+      const name=card?.name||repoRcgNormal(slab?.card_id)||'RCG Slab';
+      const grade=Number(slab?.grade)||'?';
+      const cert=repoRcgNormal(slab?.certification_number);
+      const item=document.createElement('article');
+      item.className='repo-binder-storage-card repo-rcg-storage-slab-card';
+      item.dataset.slabId=slabId;
+      item.title='Double-click or use Restore to return this slab to the binder';
+      item.innerHTML=`<div class="repo-binder-storage-card-image repo-rcg-storage-slab-image">
+          <div class="repo-rcg-storage-slab-preview">${repoRcgSlabVisualMarkup(slab,{compact:true})}</div>
+          <span class="repo-binder-storage-card-badge">RCG ${repoRcgEsc(grade)}</span>
+        </div>
+        <strong class="repo-binder-storage-card-name">${repoRcgEsc(name)}</strong>
+        <small class="repo-rcg-storage-slab-cert">${cert?`CERT ${repoRcgEsc(cert)}`:'OFFICIAL RCG SLAB'}</small>
+        <button type="button" class="repo-binder-storage-restore" data-action="restore" ${repoRcgLayoutSaving?'disabled':''}>RESTORE TO BINDER</button>`;
+      list.appendChild(item);
+    });
+  }
+
+  async function loadRepoRcgBinderState(){
+    const dialog=document.getElementById('repoRcgBinderDialog');
+    if(!dialog)return repoRcgState;
+    if(repoRcgStateLoading)return repoRcgState;
+    repoRcgStateLoading=true;
+    renderRepoRcgHiddenSlabs();
+    try{
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('RCG backend unavailable');
+      const {data,error}=await db.rpc('get_my_rcg_slab_binder_view');
+      if(error)throw error;
+      const state=Array.isArray(data)?data[0]:data;
+      repoRcgState=state&&typeof state==='object'?state:{slabs:[],layout:[],slots:[]};
+      repoRcgState.layout=repoRcgNormalizeLayout(repoRcgState.layout);
+      repoRcgState.slabs=Array.isArray(repoRcgState.slabs)?repoRcgState.slabs:[];
+      repoRcgState.slots=Array.isArray(repoRcgState.slots)?repoRcgState.slots:[];
+    }catch(error){
+      console.warn('[RCG BINDER] could not load slab state',error);
+      repoRcgState={slabs:[],layout:[],slots:[]};
+    }finally{
+      repoRcgStateLoading=false;
+      renderRepoRcgHiddenSlabs();
+      renderRepoRcgBinderSpread();
+    }
+    return repoRcgState;
+  }
+
+  async function saveRepoRcgBinderLayout(nextLayout,{successMessage=''}={}){
+    if(repoRcgLayoutSaving)return false;
+    if(typeof db==='undefined'||!db?.rpc){repoRcgNotify('RCG binder backend unavailable');return false;}
+    const previous=repoRcgNormalizeLayout(repoRcgState?.layout);
+    const next=repoRcgNormalizeLayout(nextLayout);
+    repoRcgLayoutSaving=true;
+    repoRcgState.layout=next;
+    renderRepoRcgHiddenSlabs();
+    renderRepoRcgBinderSpread();
+    try{
+      const {data,error}=await db.rpc('set_my_rcg_slab_binder_layout',{p_layout:next});
+      if(error)throw error;
+      repoRcgState.layout=repoRcgNormalizeLayout(Array.isArray(data)?data:next);
+
+      // Card Binder style reliability: immediately read the authoritative state
+      // back from Supabase so restore/hide never exists only in the UI.
+      const {data:confirmed,error:confirmError}=await db.rpc('get_my_rcg_slab_binder_view');
+      if(confirmError)throw confirmError;
+      const confirmedState=Array.isArray(confirmed)?confirmed[0]:confirmed;
+      if(confirmedState&&typeof confirmedState==='object'){
+        repoRcgState=confirmedState;
+        repoRcgState.layout=repoRcgNormalizeLayout(repoRcgState.layout);
+        repoRcgState.slabs=Array.isArray(repoRcgState.slabs)?repoRcgState.slabs:[];
+        repoRcgState.slots=Array.isArray(repoRcgState.slots)?repoRcgState.slots:[];
+      }
+      if(successMessage)repoRcgNotify(successMessage);
+      return true;
+    }catch(error){
+      console.error('[RCG BINDER] layout save failed',error);
+      repoRcgState.layout=previous;
+      repoRcgNotify(String(error?.message||'Could not save slab binder layout').replace(/^Error:\s*/,''));
+      return false;
+    }finally{
+      repoRcgLayoutSaving=false;
+      renderRepoRcgHiddenSlabs();
+      renderRepoRcgBinderSpread();
+    }
+  }
+
+  function firstRepoRcgRestoreSlot(layout){
+    const next=repoRcgNormalizeLayout(layout);
+    const spreadStart=(Math.max(1,Math.min(RCG_SPREADS,Number(repoRcgSpread)||1))-1)*SLOTS_PER_SPREAD;
+    const spreadEnd=Math.min(next.length,spreadStart+SLOTS_PER_SPREAD);
+    for(let i=spreadStart;i<spreadEnd;i++)if(!next[i])return i;
+    return next.indexOf(null);
+  }
+
+  async function restoreRepoRcgHiddenSlab(slabId){
+    if(repoRcgLayoutSaving)return false;
+    slabId=repoRcgNormal(slabId);
+    const slab=repoRcgSlabById(slabId);
+    if(!slab)return false;
+    const next=repoRcgNormalizeLayout(repoRcgState?.layout);
+    if(next.includes(slabId)){
+      repoRcgNotify('That slab is already displayed in the binder.');
+      return false;
+    }
+    const target=firstRepoRcgRestoreSlot(next);
+    if(target<0){
+      repoRcgNotify('Your slab binder has no empty slots.');
+      return false;
+    }
+    next[target]=slabId;
+    const cards=repoRcgCardMap();
+    const name=cards[repoRcgNormal(slab?.card_id)]?.name||repoRcgNormal(slab?.card_id)||'Slab';
+    const saved=await saveRepoRcgBinderLayout(next,{successMessage:`${name} restored to Spread ${Math.floor(target/SLOTS_PER_SPREAD)+1}.`});
+    if(saved){
+      renderRepoRcgHiddenSlabs();
+      renderRepoRcgBinderSpread();
+    }
+    return saved;
+  }
+
+  async function hideRepoRcgSlab(absoluteSlot){
+    if(repoRcgLayoutSaving)return false;
+    const slotIndex=Math.max(0,Number(absoluteSlot||1)-1);
+    const next=repoRcgNormalizeLayout(repoRcgState?.layout);
+    const slabId=repoRcgNormal(next[slotIndex]);
+    if(!slabId)return false;
+    const slab=repoRcgSlabById(slabId);
+    next[slotIndex]=null;
+    const cards=repoRcgCardMap();
+    const name=cards[repoRcgNormal(slab?.card_id)]?.name||repoRcgNormal(slab?.card_id)||'Slab';
+    return saveRepoRcgBinderLayout(next,{successMessage:`${name} added to Hidden Slabs.`});
+  }
+
+  function handleRepoRcgBinderSlotClick(slot){
+    if(!slot||repoRcgLayoutSaving)return;
+    const slabId=repoRcgNormal(slot.dataset.slabId);
+    if(slabId){
+      repoRcgNotify('Right-click this slab to add it to Hidden Slabs.');
+      return;
+    }
+    const dialog=ensureRepoRcgBinderDialog();
+    const panel=dialog.querySelector('#repoRcgHiddenPanel');
+    if(panel&&!panel.classList.contains('is-open'))toggleRepoRcgPanel('repoRcgHiddenPanel');
+  }
+
+  window.repoRcgRefreshHiddenSlabs=()=>loadRepoRcgBinderState();
+  window.repoRcgRestoreHiddenSlab=restoreRepoRcgHiddenSlab;
+
+  function closeRepoRcgPanels(){
+    const dialog=document.getElementById('repoRcgBinderDialog');
+    if(!dialog)return;
+    dialog.querySelectorAll('.repo-rcg-side-panel.is-open,.repo-binder-storage.is-open').forEach(panel=>{
+      panel.classList.remove('is-open','is-drop');
+      panel.setAttribute('aria-hidden','true');
+      if(panel.id==='repoRcgHiddenPanel'){
+        panel.style.visibility='hidden';
+        panel.style.opacity='0';
+        panel.style.pointerEvents='none';
+        panel.style.transform='translateX(calc(100% + 34px))';
+      }
+    });
+    dialog.querySelectorAll('.repo-rcg-header-btn.is-active').forEach(btn=>btn.classList.remove('is-active'));
+  }
+
+  function toggleRepoRcgPanel(id){
+    const dialog=ensureRepoRcgBinderDialog();
+    const panel=dialog.querySelector(`#${id}`);
+    if(!panel)return;
+    const trigger=id==='repoRcgHiddenPanel'?dialog.querySelector('#repoRcgHiddenBtn'):dialog.querySelector('#repoRcgCustomizeBtn');
+    const willOpen=!panel.classList.contains('is-open');
+    closeRepoRcgPanels();
+    if(willOpen){
+      panel.hidden=false;
+      panel.classList.add('is-open');
+      panel.setAttribute('aria-hidden','false');
+      trigger?.classList.add('is-active');
+      if(id==='repoRcgHiddenPanel'){
+        panel.style.display='flex';
+        panel.style.visibility='visible';
+        panel.style.opacity='1';
+        panel.style.pointerEvents='auto';
+        panel.style.transform='translateX(0)';
+        renderRepoRcgHiddenSlabs();
+        requestAnimationFrame(()=>panel.querySelector('#repoRcgHiddenSearch')?.focus({preventScroll:true}));
+      }
+    }
+  }
+
+  function setRepoRcgTheme(theme){
+    const dialog=ensureRepoRcgBinderDialog();
+    const shell=dialog.querySelector('.repo-rcg-binder-shell');
+    repoRcgTheme=String(theme||'sapphire');
+    shell?.setAttribute('data-rcg-theme',repoRcgTheme);
+    dialog.querySelectorAll('.repo-rcg-theme-chip[data-rcg-theme]').forEach(btn=>btn.classList.toggle('is-active',(btn.dataset.rcgTheme||'')===repoRcgTheme));
+    try{localStorage.setItem(repoRcgThemeStorageKey,repoRcgTheme)}catch(_error){}
+  }
+
+  function loadRepoRcgTheme(){
+    try{repoRcgTheme=localStorage.getItem(repoRcgThemeStorageKey)||'sapphire'}catch(_error){repoRcgTheme='sapphire'}
+    setRepoRcgTheme(repoRcgTheme);
+  }
+
+  function ensureRepoRcgBinderDialog(){
+    let dialog=document.getElementById('repoRcgBinderDialog');
+    if(dialog)return dialog;
+    dialog=document.createElement('dialog');
+    dialog.id='repoRcgBinderDialog';
+    dialog.className='repo-rcg-binder-dialog';
+    dialog.innerHTML=`<section class="repo-rcg-binder-shell" data-rcg-theme="sapphire">
+      <button type="button" class="repo-rcg-binder-close" aria-label="Close RCG slab binder">×</button>
+      <div class="repo-rcg-binder-workspace">
+        <section class="repo-rcg-binder-main">
+          <header class="repo-rcg-binder-header">
+            <img class="repo-rcg-header-brand" src="assets/rcg/rcg-slab-archive-header.png" alt="RCG Slab Archive — Repo Company Grading · Official Graded Collection">
+          </header>
+          <div class="repo-rcg-binder-stage">
+            <div class="repo-rcg-book" id="repoRcgBinderBook" aria-label="Open RCG slab binder spread">
+              <button type="button" class="repo-rcg-hit-zone left" id="repoRcgHitPrev" aria-label="Previous slab pages"></button>
+              <button type="button" class="repo-rcg-hit-zone right" id="repoRcgHitNext" aria-label="Next slab pages"></button>
+              <section class="repo-rcg-page left" aria-label="Left slab page">
+                <div class="repo-rcg-page-head"><span>RCG SLAB PAGE</span><small class="repo-rcg-page-no" id="repoRcgPageNoLeft">PAGE 1</small></div>
+                <div class="repo-rcg-grid" id="repoRcgGridLeft"></div>
+              </section>
+              <div class="repo-rcg-spine"><i aria-hidden="true"></i></div>
+              <section class="repo-rcg-page right" aria-label="Right slab page">
+                <div class="repo-rcg-page-head"><span>RCG SLAB PAGE</span><small class="repo-rcg-page-no" id="repoRcgPageNoRight">PAGE 2</small></div>
+                <div class="repo-rcg-grid" id="repoRcgGridRight"></div>
+              </section>
+            </div>
+          </div>
+          <footer class="repo-rcg-binder-nav">
+            <button type="button" class="repo-rcg-shelf-btn" id="repoRcgBinderShelfBtn">◀ BINDER SHELF</button>
+            <span class="repo-rcg-binder-status"><b id="repoRcgBinderPageLabel">SLAB COLLECTION PAGES 1–2</b><small id="repoRcgBinderHint">Premium graded archive · Spread 1 of 15 · 9 slabs per page.</small></span>
+            <span class="repo-rcg-nav-buttons"><button type="button" id="repoRcgBinderPrev">◀ PREVIOUS</button><button type="button" id="repoRcgBinderNext">NEXT ▶</button></span>
+          </footer>
+        </section>
+        <aside class="repo-rcg-sidebar" aria-label="RCG slab binder tools">
+          <div class="repo-rcg-sidebar-actions">
+            <button type="button" class="repo-rcg-header-btn repo-rcg-hidden-image-btn" id="repoRcgHiddenBtn" aria-label="Hidden slabs"><img src="assets/repo-rcg-hidden-slabs-case.png" alt="Hidden slabs case" draggable="false"><span>HIDDEN SLABS</span><em class="repo-rcg-hidden-count-badge">0</em></button>
+            <button type="button" class="repo-rcg-header-btn" id="repoRcgCustomizeBtn">CUSTOMIZE BINDER</button>
+          </div>
+          <div class="repo-rcg-sidebar-panels">
+            <aside class="repo-binder-storage repo-rcg-hidden-cards-clone" id="repoRcgHiddenPanel" data-storage-filter="all" aria-label="Hidden Slabs" aria-hidden="true">
+              <div class="repo-binder-storage-head">
+                <strong class="repo-binder-storage-title">HIDDEN SLABS</strong>
+                <span class="repo-binder-storage-subtitle">Hidden slabs remain in your graded collection</span>
+                <span class="repo-binder-storage-count" id="repoRcgHiddenCount">0</span>
+                <button type="button" class="repo-binder-storage-close" data-panel-close="repoRcgHiddenPanel" aria-label="Close Hidden Slabs">×</button>
+              </div>
+              <div class="repo-binder-storage-tools">
+                <input class="repo-binder-storage-search" id="repoRcgHiddenSearch" type="search" placeholder="Search stored slabs…" aria-label="Search hidden slabs">
+                <div class="repo-binder-storage-filters" id="repoRcgHiddenFilters" role="group" aria-label="Filter hidden slabs by RCG grade">
+                  <button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button>
+                  <button type="button" class="repo-binder-storage-filter" data-storage-filter="10" aria-pressed="false">RCG 10</button>
+                  <button type="button" class="repo-binder-storage-filter" data-storage-filter="9" aria-pressed="false">RCG 9</button>
+                  <button type="button" class="repo-binder-storage-filter" data-storage-filter="8" aria-pressed="false">RCG 8</button>
+                </div>
+              </div>
+              <div class="repo-binder-storage-results" id="repoRcgHiddenResults" aria-live="polite"></div>
+              <div class="repo-binder-storage-list" id="repoRcgHiddenList"></div>
+              <div class="repo-binder-storage-help">Right-click a slab in the binder to hide it. Use RESTORE TO BINDER here to return it to the first empty slot on the spread you are viewing.</div>
+            </aside>
+            <aside class="repo-rcg-side-panel" id="repoRcgCustomizePanel" aria-hidden="true">
+              <div class="repo-rcg-panel-head"><b>CUSTOMIZE BINDER</b><button type="button" class="repo-rcg-panel-close" data-panel-close="repoRcgCustomizePanel">×</button></div>
+              <div class="repo-rcg-panel-body">
+                <p class="repo-rcg-panel-copy">Premium visual presets for your graded collection binder.</p>
+                <div class="repo-rcg-theme-grid">
+                  <button type="button" class="repo-rcg-theme-chip is-active" data-rcg-theme="sapphire"><span></span><b>SAPPHIRE VAULT</b><small>Deep navy with refined gold trim.</small></button>
+                  <button type="button" class="repo-rcg-theme-chip" data-rcg-theme="obsidian"><span></span><b>OBSIDIAN RESERVE</b><small>Darker luxury finish with restrained glow.</small></button>
+                  <button type="button" class="repo-rcg-theme-chip" data-rcg-theme="royal"><span></span><b>ROYAL REGALIA</b><small>Richer accenting for showcase pieces.</small></button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </aside>
+      </div>
+    </section>`;
+    document.body.append(dialog);
+
+    // Hidden Cards mechanics: the storage drawer lives at dialog level, not
+    // inside the narrow sidebar wrapper. This prevents it being clipped or
+    // blocked by the binder workspace and matches the normal card binder.
+    const hiddenDrawer=dialog.querySelector('#repoRcgHiddenPanel');
+    if(hiddenDrawer&&hiddenDrawer.parentElement!==dialog)dialog.appendChild(hiddenDrawer);
+
+    const close=(returnToShelf=false)=>{
+      closeRepoRcgPanels();
+      repoRcgSelectedHiddenSlabId='';
+      dialog.classList.remove('binder-visible');
+      // Slab-binder soundtrack belongs ONLY to the open slab archive. Stop it
+      // synchronously before the top-layer dialog closes or the front shelf opens.
+      try{window.repoRcgUpgradeCustomizerV2129?.stopMusic?.()}catch(_error){}
+      try{dialog.close()}catch(_error){}
+      try{quidditchTcgBinderStopViewMusic?.()}catch(_error){}
+      if(returnToShelf){setTimeout(()=>{try{openQuidditchTcgBinder?.()}catch(_error){}},80)}
+    };
+
+    dialog.querySelector('.repo-rcg-binder-close')?.addEventListener('click',()=>close(true));
+    dialog.querySelector('#repoRcgBinderShelfBtn')?.addEventListener('click',()=>close(true));
+    dialog.addEventListener('close',()=>dialog.classList.remove('binder-visible'));
+    dialog.addEventListener('click',event=>{if(event.target===dialog)close(false)});
+    dialog.addEventListener('cancel',event=>{event.preventDefault();close(false)});
+    dialog.addEventListener('keydown',event=>{
+      if(event.key==='ArrowLeft'){event.preventDefault();repoRcgGoPrevious()}
+      else if(event.key==='ArrowRight'){event.preventDefault();setRepoRcgBinderSpread(repoRcgSpread+1)}
+    });
+    dialog.querySelector('#repoRcgBinderPrev')?.addEventListener('click',()=>repoRcgGoPrevious());
+    dialog.querySelector('#repoRcgBinderNext')?.addEventListener('click',()=>setRepoRcgBinderSpread(repoRcgSpread+1));
+    dialog.querySelector('#repoRcgHitPrev')?.addEventListener('click',()=>repoRcgGoPrevious());
+    dialog.querySelector('#repoRcgHitNext')?.addEventListener('click',()=>setRepoRcgBinderSpread(repoRcgSpread+1));
+    dialog.addEventListener('click',event=>{
+      const hiddenTrigger=event.target.closest?.('#repoRcgHiddenBtn');
+      if(!hiddenTrigger)return;
+      event.preventDefault();
+      event.stopPropagation();
+      loadRepoRcgBinderState();
+      toggleRepoRcgPanel('repoRcgHiddenPanel');
+    },true);
+    dialog.querySelector('#repoRcgCustomizeBtn')?.addEventListener('click',()=>toggleRepoRcgPanel('repoRcgCustomizePanel'));
+    dialog.querySelectorAll('[data-panel-close]').forEach(btn=>btn.addEventListener('click',()=>closeRepoRcgPanels()));
+    dialog.querySelectorAll('.repo-rcg-theme-chip[data-rcg-theme]').forEach(btn=>btn.addEventListener('click',()=>setRepoRcgTheme(btn.dataset.rcgTheme||'sapphire')));
+    const hiddenList=dialog.querySelector('#repoRcgHiddenList');
+    hiddenList?.addEventListener('click',event=>{
+      const restore=event.target.closest('[data-action="restore"]');
+      const card=event.target.closest('.repo-binder-storage-card[data-slab-id]');
+      if(!restore||!card)return;
+      event.preventDefault();
+      event.stopPropagation();
+      restoreRepoRcgHiddenSlab(card.dataset.slabId||'');
+    });
+    hiddenList?.addEventListener('dblclick',event=>{
+      const card=event.target.closest('.repo-binder-storage-card[data-slab-id]');
+      if(!card||event.target.closest('button,input'))return;
+      event.preventDefault();
+      event.stopPropagation();
+      restoreRepoRcgHiddenSlab(card.dataset.slabId||'');
+    });
+    dialog.querySelector('#repoRcgHiddenSearch')?.addEventListener('input',()=>renderRepoRcgHiddenSlabs());
+    dialog.querySelector('#repoRcgHiddenFilters')?.addEventListener('click',event=>{
+      const button=event.target.closest('[data-storage-filter]');
+      const panel=dialog.querySelector('#repoRcgHiddenPanel');
+      if(!button||!panel)return;
+      panel.dataset.storageFilter=button.dataset.storageFilter||'all';
+      panel.querySelectorAll('[data-storage-filter]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn===button)));
+      renderRepoRcgHiddenSlabs();
+    });
+
+    ['Left','Right'].forEach(side=>{
+      const grid=dialog.querySelector(`#repoRcgGrid${side}`);
+      if(!grid)return;
+      for(let i=0;i<SLOTS_PER_PAGE;i++){
+        const slot=document.createElement('article');
+        slot.className='repo-rcg-slot';
+        slot.tabIndex=0;
+        slot.setAttribute('role','button');
+        slot.innerHTML=`<div class="repo-rcg-slot-inner"><div class="repo-rcg-slab-wrap"><img src="${RCG_SLAB_TEMPLATE}" alt="Empty RCG slab slot" draggable="false"><span class="repo-rcg-empty-note">EMPTY</span></div><div class="repo-rcg-slot-label">EMPTY SLOT</div></div>`;
+        slot.addEventListener('click',()=>handleRepoRcgBinderSlotClick(slot));
+        slot.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();handleRepoRcgBinderSlotClick(slot)}});
+        grid.appendChild(slot);
+      }
+      grid.addEventListener('contextmenu',event=>{
+        const slot=event.target.closest('.repo-rcg-slot[data-slab-id]');
+        const slabId=repoRcgNormal(slot?.dataset.slabId);
+        if(!slot||!slabId)return;
+        event.preventDefault();
+        event.stopPropagation();
+        hideRepoRcgSlab(Number(slot.dataset.slot||0));
+      });
+    });
+
+    const preload=new Image();preload.src=RCG_SLAB_TEMPLATE;
+    setTimeout(()=>loadRepoRcgTheme(),0);
+    return dialog;
+  }
+
+  function repoRcgReturnToShelf(){
+    const dialog=ensureRepoRcgBinderDialog();
+    dialog.classList.remove('binder-visible');
+    try{dialog.close()}catch(_error){}
+    try{window.repoRcgUpgradeCustomizerV2129?.stopMusic?.()}catch(_error){}
+    setTimeout(()=>{try{openQuidditchTcgBinder?.()}catch(_error){}},80);
+  }
+
+  function repoRcgGoPrevious(){
+    if((Number(repoRcgSpread)||1)<=1){
+      repoRcgReturnToShelf();
+      return;
+    }
+    setRepoRcgBinderSpread(repoRcgSpread-1);
+  }
+
+  function renderRepoRcgBinderSpread(){
+    const dialog=ensureRepoRcgBinderDialog();
+    const book=dialog.querySelector('#repoRcgBinderBook');
+    if(!dialog||!book)return;
+    const spread=Math.max(1,Math.min(RCG_SPREADS,Number(repoRcgSpread)||1));
+    repoRcgSpread=spread;
+    const leftPage=(spread*2)-1;
+    const rightPage=leftPage+1;
+    dialog.querySelector('#repoRcgPageNoLeft').textContent=`PAGE ${leftPage}`;
+    dialog.querySelector('#repoRcgPageNoRight').textContent=`PAGE ${rightPage}`;
+    const label=dialog.querySelector('#repoRcgBinderPageLabel');
+    if(label)label.textContent=`SLAB COLLECTION PAGES ${leftPage}–${rightPage}`;
+    const hint=dialog.querySelector('#repoRcgBinderHint');
+    const placedCount=repoRcgNormalizeLayout(repoRcgState?.layout).filter(Boolean).length;
+    if(hint)hint.textContent=`${placedCount} slabs displayed · right-click a displayed slab to add it to Hidden Slabs · use RESTORE TO BINDER to bring one back.`;
+    const prev=dialog.querySelector('#repoRcgBinderPrev');
+    const next=dialog.querySelector('#repoRcgBinderNext');
+    if(prev)prev.disabled=spread<=1;
+    if(next)next.disabled=spread>=RCG_SPREADS;
+
+    const layout=repoRcgNormalizeLayout(repoRcgState?.layout);
+    const slots=[...dialog.querySelectorAll('.repo-rcg-grid .repo-rcg-slot')];
+    slots.forEach((slot,index)=>{
+      const pageIndex=index<9?leftPage:rightPage;
+      const pageSlot=(index%9)+1;
+      const absolute=((spread-1)*SLOTS_PER_SPREAD)+index+1;
+      const slabId=repoRcgNormal(layout[absolute-1]);
+      const slab=slabId?repoRcgSlotSlab(absolute-1,slabId):null;
+      const wrap=slot.querySelector('.repo-rcg-slab-wrap');
+      const labelNode=slot.querySelector('.repo-rcg-slot-label');
+      slot.dataset.slot=String(absolute);
+      slot.dataset.slabId=slabId;
+      slot.classList.toggle('is-filled',Boolean(slab));
+      slot.classList.remove('is-place-target');
+      slot.classList.toggle('is-saving',repoRcgLayoutSaving);
+      if(labelNode)labelNode.textContent=slab?`PAGE ${pageIndex} · SLOT ${pageSlot} · RCG ${Number(slab.grade)||'?'}`:`PAGE ${pageIndex} · SLOT ${pageSlot}`;
+      if(wrap){
+        if(slab){
+          wrap.innerHTML=repoRcgSlabVisualMarkup(slab,{compact:true});
+          const card=repoRcgCardMap()[repoRcgNormal(slab?.card_id)];
+          slot.setAttribute('aria-label',`${card?.name||slab?.card_id||'RCG slab'} · RCG ${Number(slab?.grade)||'?'} · right-click to add to Hidden Slabs`);
+          slot.title='Right-click to add this slab to Hidden Slabs';
+        }else{
+          wrap.innerHTML=`<img class="repo-rcg-empty-slot-template" src="${RCG_SLAB_TEMPLATE}" alt="" draggable="false"><span class="repo-rcg-empty-note">EMPTY</span>`;
+          slot.setAttribute('aria-label',`Empty slab slot ${absolute}`);
+          slot.title='Empty slab slot';
+        }
+      }
+    });
+
+    book.setAttribute('aria-busy','true');
+    clearTimeout(repoRcgTurnTimer);
+    repoRcgTurnTimer=setTimeout(()=>book.removeAttribute('aria-busy'),130);
+  }
+
+  function openRepoRcgBinder(publicUsername=''){
+    const requestedPublicUser=String(publicUsername||'').trim();
+    try{window.repoRcgConstructedSlabBinderV2118?.setViewOwner?.(requestedPublicUser,{refresh:false});}catch(_error){}
+    const main=document.getElementById('quidditchTcgBinderDialog');
+    if(main?.open){
+      try{closeQuidditchTcgBinder?.()}catch(_error){try{main.close()}catch(__error){}}
+    }
+    const old=document.getElementById('repoEmptyRcgBinderDialog');
+    if(old?.open){try{old.close()}catch(_error){}}
+    const dialog=ensureRepoRcgBinderDialog();
+    renderRepoRcgBinderSpread();
+    if(!requestedPublicUser)loadRepoRcgBinderState();
+
+    // V21.40: open on the original click gesture, then hand audio ownership
+    // directly to the slab archive. Do not start the normal card-binder player.
+    if(!dialog.open)dialog.showModal();
+    requestAnimationFrame(()=>dialog.classList.add('binder-visible'));
+    try{quidditchTcgBinderPlayPageSound?.()}catch(_error){}
+    try{quidditchTcgBinderStopViewMusic?.()}catch(_error){}
+    if(requestedPublicUser){
+      try{window.repoRcgConstructedSlabBinderV2118?.refresh?.({force:true});}catch(_error){}
+    }else{
+      try{window.repoRcgUpgradeCustomizerV2129?.mount?.()}catch(_error){}
+      try{window.repoRcgUpgradeCustomizerV2129?.playMusic?.()}catch(_error){}
+    }
+  }
+
+  function setRepoRcgBinderSpread(next,{sound=true}={}){
+    const spread=Math.max(1,Math.min(RCG_SPREADS,Number(next)||1));
+    const changed=spread!==repoRcgSpread;
+    repoRcgSpread=spread;
+    renderRepoRcgBinderSpread();
+    if(changed&&sound){try{quidditchTcgBinderPlayPageSound?.()}catch(_error){}}
+  }
+
+  window.openRepoEmptyRcgBinder=openRepoRcgBinder;
+  window.openRepoRcgBinder=openRepoRcgBinder;
+
+  window.addEventListener('repo-rcg-slabs-changed',()=>loadRepoRcgBinderState());
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{ensureRepoRcgBinderDialog();},{once:true});
+  }else ensureRepoRcgBinderDialog();
+})();
+
+
+// ============================================================================
+// RCG GRADING SHOP v20.71 — CLEAN TOP-LAYER DIALOG
+// ============================================================================
+(function installRcgGradingShopV2071(){
+  if(window.__installRcgGradingShopV2071)return;
+  window.__installRcgGradingShopV2071=true;
+
+  const EXTERIOR_SRC='assets/rcg/rcg-grading-shop-exterior.png';
+  const INTERIOR_SRC='assets/rcg/rcg-grading-shop-interior.png';
+  const MUSIC_SRC='assets/rcg/rcg-grading-shop-theme.mp3';
+  const DOOR_SFX_SRC='assets/rcg/rcg-door-open-sfx.mp3';
+
+  let dialog=null;
+  let music=null;
+  let doorSfx=null;
+
+  function makeLeaves(count=14){
+    let html='';
+    for(let i=0;i<count;i++){
+      const left=(i*(100/count))+Math.random()*6;
+      const delay=(-(Math.random()*10)).toFixed(2);
+      const dur=(9+Math.random()*7).toFixed(2);
+      const drift=(-90+Math.random()*180).toFixed(0)+'px';
+      const scale=(0.85+Math.random()*0.7).toFixed(2);
+      html+=`<span class="repo-rcg-shop-leaf-v2071" style="left:${left.toFixed(2)}%;animation-duration:${dur}s;animation-delay:${delay}s;--leaf-drift:${drift};--leaf-scale:${scale}"></span>`;
+    }
+    return html;
+  }
+
+  function makeMotes(count=18){
+    let html='';
+    for(let i=0;i<count;i++){
+      const left=(Math.random()*100).toFixed(2);
+      const top=(Math.random()*100).toFixed(2);
+      const delay=(-(Math.random()*9)).toFixed(2);
+      const dur=(7+Math.random()*8).toFixed(2);
+      const driftX=(-26+Math.random()*52).toFixed(0)+'px';
+      const driftY=(18+Math.random()*34).toFixed(0)+'px';
+      const size=(2+Math.random()*3.2).toFixed(2)+'px';
+      const alpha=(0.22+Math.random()*0.36).toFixed(2);
+      html+=`<span class="repo-rcg-shop-mote-v2071" style="left:${left}%;top:${top}%;animation-duration:${dur}s;animation-delay:${delay}s;--mote-drift-x:${driftX};--mote-drift-y:${driftY};--mote-size:${size};--mote-alpha:${alpha}"></span>`;
+    }
+    return html;
+  }
+
+  function ensureDialog(){
+    if(dialog && document.body.contains(dialog))return dialog;
+
+    dialog=document.createElement('dialog');
+    dialog.className='repo-rcg-shop-dialog-v2071';
+    dialog.id='repoRcgGradingShopDialogV2071';
+    dialog.dataset.view='exterior';
+    dialog.innerHTML=`
+      <div class="repo-rcg-shop-stage-v2071" role="document">
+        <button type="button" class="repo-rcg-shop-back-v2071" aria-label="Back">← BACK</button>
+        <button type="button" class="repo-rcg-shop-close-v2071" aria-label="Close RCG grading shop">×</button>
+
+        <section class="repo-rcg-shop-scene-v2071 exterior is-active" data-scene="exterior" aria-label="RCG grading shop exterior">
+          <img class="repo-rcg-shop-bg-v2071" src="${EXTERIOR_SRC}" alt="RCG grading shop exterior" draggable="false">
+          <div class="repo-rcg-shop-atmo-v2071">
+            <div class="repo-rcg-shop-sunbeam-v2071"></div>
+            <div class="repo-rcg-shop-glow-v2071"></div>
+            <div class="repo-rcg-shop-particles-v2071"></div>
+            <div class="repo-rcg-shop-motes-v2071 exterior-motes">${makeMotes(18)}</div>
+          </div>
+          <div class="repo-rcg-shop-leaves-v2071">${makeLeaves(14)}</div>
+          <div class="repo-rcg-shop-door-hotspot-v2071" role="button" tabindex="0" aria-label="Enter the RCG grading shop"></div>
+        </section>
+
+        <section class="repo-rcg-shop-scene-v2071 interior" data-scene="interior" aria-label="RCG grading shop interior">
+          <img class="repo-rcg-shop-bg-v2071" src="${INTERIOR_SRC}" alt="RCG grading shop interior" draggable="false">
+          <div class="repo-rcg-shop-atmo-v2071">
+            <div class="repo-rcg-shop-sunbeam-v2071"></div>
+            <div class="repo-rcg-shop-glow-v2071"></div>
+            <div class="repo-rcg-shop-particles-v2071"></div>
+            <div class="repo-rcg-shop-motes-v2071 interior-motes">${makeMotes(42)}</div>
+          </div>
+          <div class="repo-rcg-interior-sunfx-v2080" aria-hidden="true">
+            <i class="repo-rcg-sun-ray-v2080 ray-a"></i>
+            <i class="repo-rcg-sun-ray-v2080 ray-b"></i>
+            <i class="repo-rcg-sun-ray-v2080 ray-c"></i>
+            <i class="repo-rcg-sun-pool-v2080 pool-a"></i>
+            <i class="repo-rcg-sun-pool-v2080 pool-b"></i>
+            <i class="repo-rcg-sun-glint-v2080"></i>
+          </div>
+        </section>
+      </div>`;
+
+    document.body.appendChild(dialog);
+
+    music=new Audio(MUSIC_SRC);
+    music.loop=true;
+    music.preload='auto';
+    music.volume=0.5;
+
+    doorSfx=new Audio(DOOR_SFX_SRC);
+    doorSfx.preload='auto';
+    doorSfx.volume=0.5;
+
+    dialog.querySelector('.repo-rcg-shop-close-v2071')?.addEventListener('click',closeShop);
+    dialog.querySelector('.repo-rcg-shop-back-v2071')?.addEventListener('click',()=>{
+      if(dialog?.dataset?.view==='interior') setView('exterior');
+      else closeShop();
+    });
+    const doorHotspot=dialog.querySelector('.repo-rcg-shop-door-hotspot-v2071');
+    const enterInterior=()=>{
+      try{
+        doorSfx.pause();
+        doorSfx.currentTime=0;
+        doorSfx.volume=0.5;
+        const p=doorSfx.play();
+        if(p && typeof p.catch==='function')p.catch(()=>{});
+      }catch(_err){}
+      setView('interior');
+    };
+    doorHotspot?.addEventListener('click',enterInterior);
+    doorHotspot?.addEventListener('keydown',event=>{
+      if(event.key==='Enter' || event.key===' ') {
+        event.preventDefault();
+        enterInterior();
+      }
+    });
+
+    dialog.addEventListener('cancel',event=>{
+      event.preventDefault();
+      closeShop();
+    });
+
+    return dialog;
+  }
+
+  function setView(view){
+    ensureDialog();
+    dialog.dataset.view=view;
+    dialog.querySelectorAll('.repo-rcg-shop-scene-v2071').forEach(scene=>{
+      scene.classList.toggle('is-active',scene.dataset.scene===view);
+    });
+    const back=dialog.querySelector('.repo-rcg-shop-back-v2071');
+    if(back){
+      back.style.setProperty('display','inline-flex','important');
+      back.style.setProperty('z-index','1000','important');
+      back.style.setProperty('left','14px','important');
+      back.style.setProperty('top','14px','important');
+      back.textContent='← BACK';
+    }
+  }
+
+  async function openShop(){
+    ensureDialog();
+
+    // V21.40: the grading shop owns the audio scene. Stop both binder players
+    // before its dedicated shop soundtrack begins.
+    try{window.repoRcgUpgradeCustomizerV2129?.stopMusic?.()}catch(_err){}
+    try{quidditchTcgBinderStopViewMusic?.()}catch(_err){}
+
+    setView('exterior');
+    if(!dialog.open)dialog.showModal();
+    document.body.classList.add('repo-rcg-shop-open');
+    try{
+      music.currentTime=0;
+      music.volume=0.5;
+      await music.play();
+    }catch(_err){}
+  }
+
+  function closeShop(){
+    if(!dialog)return;
+    if(dialog.open)dialog.close();
+    document.body.classList.remove('repo-rcg-shop-open');
+    setView('exterior');
+    if(music){
+      music.pause();
+      music.currentTime=0;
+    }
+  }
+
+  let rcgRevealMusicWasPlaying=false;
+  let rcgRevealMusicFadeTimer=null;
+
+  function fadeShopMusicTo(target,duration=260,onDone=null){
+    if(!music){if(typeof onDone==='function')onDone();return;}
+    try{clearInterval(rcgRevealMusicFadeTimer);}catch(_){ }
+    const start=Math.max(0,Math.min(1,Number(music.volume)||0));
+    const end=Math.max(0,Math.min(1,Number(target)||0));
+    const steps=12;
+    let step=0;
+    rcgRevealMusicFadeTimer=setInterval(()=>{
+      step++;
+      const p=Math.min(1,step/steps);
+      try{music.volume=start+(end-start)*p;}catch(_){ }
+      if(p>=1){
+        clearInterval(rcgRevealMusicFadeTimer);
+        rcgRevealMusicFadeTimer=null;
+        if(typeof onDone==='function')onDone();
+      }
+    },Math.max(12,Math.round(duration/steps)));
+  }
+
+  window.pauseRcgGradingShopMusicForReveal=()=>{
+    if(!music)return;
+    rcgRevealMusicWasPlaying=!music.paused;
+    if(!rcgRevealMusicWasPlaying)return;
+    fadeShopMusicTo(0,220,()=>{
+      try{music.pause();music.volume=0.5;}catch(_){ }
+    });
+  };
+
+  window.resumeRcgGradingShopMusicAfterReveal=()=>{
+    if(!music||!rcgRevealMusicWasPlaying)return;
+    rcgRevealMusicWasPlaying=false;
+    if(!dialog?.open)return;
+    try{
+      music.volume=0;
+      const p=music.play();
+      if(p&&typeof p.catch==='function')p.catch(()=>{});
+      fadeShopMusicTo(0.5,420);
+    }catch(_){ }
+  };
+
+  window.openRcgGradingShopV2071=openShop;
+  window.closeRcgGradingShopV2071=closeShop;
+
+  document.addEventListener('click',event=>{
+    const cta=event.target.closest('.repo-dual-binder-shop-cta-v2066');
+    if(!cta)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openShop();
+  },true);
+
+  const ext=new Image();ext.src=EXTERIOR_SRC;
+  const intImg=new Image();intImg.src=INTERIOR_SRC;
+})();
+
+
+// ============================================================================
+// RCG SHOP v20.77 — PERSISTENT LEFT-TO-RIGHT WIND LEAVES
+// Leaves cross the storefront horizontally like a steady breeze. The live
+// stream is preserved when leaving the shop, and each return is pre-seeded at
+// different points across the flight so the scene never has to "warm up".
+// ============================================================================
+(function installRcgExteriorWindLeavesV2077(){
+  if(window.__installRcgExteriorWindLeavesV2077)return;
+  window.__installRcgExteriorWindLeavesV2077=true;
+
+  let layer=null;
+  let streamTimer=null;
+
+  function getDialog(){
+    return document.getElementById('repoRcgGradingShopDialogV2071');
+  }
+
+  function ensureLayer(){
+    const dialog=getDialog();
+    if(!dialog)return null;
+    const exterior=dialog.querySelector('.repo-rcg-shop-scene-v2071.exterior');
+    if(!exterior)return null;
+    layer=exterior.querySelector('.repo-rcg-shop-live-leaves-v2076');
+    if(!layer){
+      layer=document.createElement('div');
+      layer.className='repo-rcg-shop-live-leaves-v2076';
+      layer.setAttribute('aria-hidden','true');
+      exterior.appendChild(layer);
+    }
+    return layer;
+  }
+
+  function isExteriorOpen(){
+    const dialog=getDialog();
+    return !!(dialog && dialog.open && dialog.dataset.view==='exterior');
+  }
+
+  function spawnWindLeaf(progress=null){
+    const host=ensureLayer();
+    if(!host)return null;
+
+    const leaf=document.createElement('span');
+    leaf.className='repo-rcg-shop-live-leaf-v2076';
+
+    const vw=Math.max(window.innerWidth||0,900);
+    const vh=Math.max(window.innerHeight||0,650);
+
+    // Always begin left of the viewport and leave beyond the right edge.
+    const startX=-120-Math.random()*180;
+    const endX=vw+110+Math.random()*190;
+
+    // Wind keeps the leaves mostly travelling sideways, with soft rising/falling arcs.
+    const baseY=vh*(0.13+Math.random()*0.68);
+    const arcA=-55+Math.random()*110;
+    const arcB=-70+Math.random()*140;
+    const arcC=-42+Math.random()*84;
+
+    const duration=7200+Math.random()*5200;
+    const rotation=-40+Math.random()*80;
+    const turns=260+Math.random()*500;
+    const width=13+Math.random()*10;
+    const height=8+Math.random()*6;
+
+    leaf.style.setProperty('--leaf-w',`${width.toFixed(1)}px`);
+    leaf.style.setProperty('--leaf-h',`${height.toFixed(1)}px`);
+    const tint=Math.random();
+    if(tint>.72)leaf.style.setProperty('--leaf-filter','hue-rotate(12deg) brightness(1.08)');
+    else if(tint<.23)leaf.style.setProperty('--leaf-filter','hue-rotate(-10deg) saturate(.86)');
+
+    host.appendChild(leaf);
+
+    const x1=startX+(endX-startX)*.24;
+    const x2=startX+(endX-startX)*.52;
+    const x3=startX+(endX-startX)*.78;
+    const anim=leaf.animate([
+      {transform:`translate3d(${startX}px,${baseY}px,0) rotate(${rotation}deg)`,opacity:0},
+      {offset:.055,transform:`translate3d(${startX+38}px,${baseY+arcA*.35}px,0) rotate(${rotation+38}deg)`,opacity:.76},
+      {offset:.24,transform:`translate3d(${x1}px,${baseY+arcA}px,0) rotate(${rotation+turns*.22}deg)`,opacity:.82},
+      {offset:.52,transform:`translate3d(${x2}px,${baseY+arcB}px,0) rotate(${rotation+turns*.53}deg)`,opacity:.78},
+      {offset:.78,transform:`translate3d(${x3}px,${baseY+arcC}px,0) rotate(${rotation+turns*.79}deg)`,opacity:.74},
+      {offset:.94,transform:`translate3d(${endX-42}px,${baseY+(arcC*.35)}px,0) rotate(${rotation+turns*.95}deg)`,opacity:.58},
+      {transform:`translate3d(${endX}px,${baseY}px,0) rotate(${rotation+turns}deg)`,opacity:0}
+    ],{
+      duration,
+      easing:'linear',
+      fill:'both'
+    });
+
+    // Pre-seeded leaves start midway through their route, making the stream look
+    // as though it has been running continuously even after leaving/re-entering.
+    if(Number.isFinite(progress)){
+      try{anim.currentTime=Math.max(.04,Math.min(.94,progress))*duration}catch(_error){}
+    }
+
+    anim.onfinish=()=>leaf.remove();
+    return leaf;
+  }
+
+  function seedActiveStream(){
+    const host=ensureLayer();
+    if(!host)return;
+    const existing=host.querySelectorAll('.repo-rcg-shop-live-leaf-v2076').length;
+    const target=11;
+    for(let i=existing;i<target;i++){
+      // Distributed progress avoids an empty scene followed by a slow spawn from one edge.
+      const progress=.08+Math.random()*.80;
+      spawnWindLeaf(progress);
+    }
+  }
+
+  function ensureStreamTimer(){
+    if(streamTimer)return;
+    streamTimer=setInterval(()=>{
+      if(!isExteriorOpen())return;
+      spawnWindLeaf();
+      // Small gusts occasionally carry a second leaf through close behind.
+      if(Math.random()>.61)setTimeout(()=>{if(isExteriorOpen())spawnWindLeaf()},150+Math.random()*330);
+    },720);
+  }
+
+  function sync(){
+    ensureStreamTimer();
+    if(isExteriorOpen())seedActiveStream();
+    // Intentionally do NOT clear the live layer when leaving the exterior.
+    // Any in-flight leaves are preserved, and a returning player is topped up
+    // immediately with mid-route leaves if some completed while away.
+  }
+
+  const observer=new MutationObserver(()=>requestAnimationFrame(sync));
+  const boot=()=>{
+    if(document.body){
+      observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open','data-view','class']});
+    }
+    document.addEventListener('click',()=>setTimeout(sync,20),true);
+    window.addEventListener('resize',()=>{if(isExteriorOpen())seedActiveStream()},{passive:true});
+    ensureStreamTimer();
+    sync();
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
+
+
+// ============================================================================
+// RCG SHOP v20.81 — INTERACTIVE SUBMIT A CARD DESK
+// Uses the supplied transparent RCG menu artwork as the foreground UI and
+// populates YOUR CARDS from the signed-in account's real TCG collection.
+// ============================================================================
+(function installRcgSubmitCardDeskV2081(){
+  if(window.__installRcgSubmitCardDeskV2081)return;
+  window.__installRcgSubmitCardDeskV2081=true;
+
+  const MENU_ART='assets/rcg/rcg-submit-card-menu.png';
+  const SUBMIT_SUCCESS_SFX='assets/rcg/rcg-submit-grading-success.wav';
+  const FALLBACK_FEE=10000;
+  const FALLBACK_ODDS={8:65,9:25,10:10};
+  const GUARANTEED_TEN_FALLBACK=[
+    'ltd_week_one_anniversary',
+    'wc2026_debbie_sorevia',
+    'wc2026_dopey_dom_drazhen',
+    'wc2026_jenny_sorevia',
+    'wc2026_jud_belros',
+    'wc2026_mad_rager_nambara',
+    'wc2026_nimbler_2000_belros',
+    'wc2026_pipsqueak_vardesh',
+    'wc2026_soup_talune',
+    'wc2026_besquelcher_iskandar',
+    'wc2026_rocky_norveth'
+  ];
+  let overlay=null;
+  let selectedId='';
+  let stagedId='';
+  let searchText='';
+  let sortMode='name';
+  let filterMode='all';
+  let rcgState=null;
+  let backendAvailable=true;
+  let submitting=false;
+  let menuMessage='';
+  let submitSuccessAudio=null;
+
+  const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const fmt=value=>Math.max(0,Number(value)||0).toLocaleString('en-GB');
+  const normal=id=>String(id||'').trim();
+  const dialog=()=>document.getElementById('repoRcgGradingShopDialogV2071');
+  const catalog=()=>Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[];
+  const byId=()=>window.__repoTcgCardById||Object.fromEntries(catalog().map(card=>[card.id,card]));
+  const currentCards=()=>{
+    const raw=Array.isArray(window.__repoTcgOwnCollection?.cards)?window.__repoTcgOwnCollection.cards:[];
+    const map=byId(),seen=new Set(),out=[];
+    raw.forEach(value=>{const id=normal(value);if(id&&map[id]&&!seen.has(id)){seen.add(id);out.push(map[id]);}});
+    return out;
+  };
+  const tier=card=>{
+    const id=String(card?.id||'').toLowerCase(),r=String(card?.rarity||'').toLowerCase();
+    if(r)return r.replaceAll('_',' ').toUpperCase();
+    if(id.includes('legendary'))return 'LEGENDARY';
+    if(id.includes('millennium'))return 'MILLENNIUM';
+    if(id.includes('signature'))return 'SIGNATURE';
+    if(id.includes('platinum'))return 'PLATINUM';
+    if(id.includes('full_art'))return 'FULL ART';
+    if(id.endsWith('_patch'))return 'PATCH';
+    return 'STANDARD';
+  };
+  const protectedSet=()=>new Set();
+  const activeOrders=()=>Array.isArray(rcgState?.active_orders)?rcgState.active_orders:[];
+  const pendingSet=()=>new Set(activeOrders().map(row=>normal(row?.card_id)).filter(Boolean));
+  const maxActiveOrders=()=>Math.max(1,Number(rcgState?.config?.max_active_orders)||50);
+  const hasSubmissionCapacity=()=>activeOrders().length<maxActiveOrders();
+  const fee=()=>Number(rcgState?.config?.fee)||FALLBACK_FEE;
+  const odds=()=>rcgState?.config?.odds||FALLBACK_ODDS;
+  const guaranteedTenSet=()=>new Set(
+    (Array.isArray(rcgState?.guaranteed_ten_cards)&&rcgState.guaranteed_ten_cards.length
+      ? rcgState.guaranteed_ten_cards
+      : GUARANTEED_TEN_FALLBACK).map(normal)
+  );
+  const isGuaranteedTen=id=>guaranteedTenSet().has(normal(id));
+  const oddsForCard=id=>isGuaranteedTen(id)?{8:0,9:0,10:100}:odds();
+  const isLocked=id=>pendingSet().has(id);
+  const canSubmit=()=>Boolean(stagedId)&&!isLocked(stagedId)&&hasSubmissionCapacity()&&!submitting;
+
+  function notify(message,duration=4200){
+    try{if(typeof showToast==='function'){showToast(message,duration);return}}catch(_){ }
+    try{if(typeof toast==='function'){toast(message,duration);return}}catch(_){ }
+    console.info('[RCG]',message);
+  }
+
+  function playRcgSubmitSuccessSound(){
+    try{
+      if(!submitSuccessAudio){
+        submitSuccessAudio=new Audio(SUBMIT_SUCCESS_SFX);
+        submitSuccessAudio.preload='auto';
+      }
+      submitSuccessAudio.pause();
+      submitSuccessAudio.currentTime=0;
+      submitSuccessAudio.volume=0.68;
+      const promise=submitSuccessAudio.play();
+      if(promise&&typeof promise.catch==='function')promise.catch(()=>{});
+    }catch(_){}
+  }
+
+  function playRcgSubmissionSuccess(card,row){
+    const frame=overlay?.querySelector('.repo-rcg-submit-frame-v2081');
+    if(!frame)return Promise.resolve();
+
+    frame.querySelector('.repo-rcg-submit-success-fx-v2093')?.remove();
+    frame.classList.remove('is-rcg-submitting-success-v2093');
+    void frame.offsetWidth;
+
+    const charged=Math.max(0,Number(row?.grading_fee)||fee());
+    const fx=document.createElement('div');
+    fx.className='repo-rcg-submit-success-fx-v2093';
+    fx.setAttribute('aria-hidden','true');
+    fx.innerHTML=`
+      <div class="repo-rcg-submit-success-glow-v2093"></div>
+      <div class="repo-rcg-submit-fee-charge-v2093">−${fmt(charged)} GP<small>GRADING FEE PAID</small></div>
+      <div class="repo-rcg-submit-received-v2093"><b>RCG RECEIVED</b><small>${esc(card?.name||'CARD')} · GRADING STARTED</small></div>
+      <div class="repo-rcg-submit-success-particles-v2093">
+        ${Array.from({length:20},(_,i)=>`<i style="--i:${i};--x:${(i*37)%100}%;--d:${(i%7)*.045}s"></i>`).join('')}
+      </div>`;
+    frame.appendChild(fx);
+    frame.classList.add('is-rcg-submitting-success-v2093');
+    playRcgSubmitSuccessSound();
+
+    return new Promise(resolve=>{
+      setTimeout(()=>{
+        frame.classList.remove('is-rcg-submitting-success-v2093');
+        fx.remove();
+        resolve();
+      },1450);
+    });
+  }
+
+  async function loadRcgState(){
+    backendAvailable=true;
+    if(typeof db==='undefined'||!db?.rpc){backendAvailable=false;rcgState=null;return null;}
+    try{
+      const {data,error}=await db.rpc('get_my_rcg_state');
+      if(error)throw error;
+      rcgState=Array.isArray(data)?data[0]:data;
+      return rcgState;
+    }catch(error){
+      backendAvailable=false;
+      rcgState=null;
+      console.warn('[RCG] grading state unavailable',error);
+      return null;
+    }
+  }
+
+  async function refreshCards(){
+    try{
+      if(typeof window.repoTcgRefreshOwnCollection==='function')await window.repoTcgRefreshOwnCollection();
+    }catch(error){console.warn('[RCG] card collection refresh failed',error);}
+  }
+
+  function ensureShopHotspots(){
+    const d=dialog();
+    const interior=d?.querySelector('.repo-rcg-shop-scene-v2071.interior');
+    if(!interior)return;
+    if(!interior.querySelector('.repo-rcg-submit-entry-v2081.sign')){
+      const sign=document.createElement('button');
+      sign.type='button';
+      sign.className='repo-rcg-submit-entry-v2081 sign';
+      sign.setAttribute('aria-label','Open RCG card submission desk');
+      sign.title='Submit a card for RCG grading';
+      interior.appendChild(sign);
+      sign.addEventListener('click',openDesk);
+    }
+    if(!interior.querySelector('.repo-rcg-submit-entry-v2081.box')){
+      const box=document.createElement('button');
+      box.type='button';
+      box.className='repo-rcg-submit-entry-v2081 box';
+      box.setAttribute('aria-label','Open RCG card submission desk');
+      box.title='Open submission box';
+      interior.appendChild(box);
+      box.addEventListener('click',openDesk);
+    }
+  }
+
+  function ensureOverlay(){
+    const d=dialog();
+    if(!d)return null;
+    if(overlay&&d.contains(overlay))return overlay;
+    overlay=document.createElement('section');
+    overlay.className='repo-rcg-submit-overlay-v2081';
+    overlay.id='repoRcgSubmitOverlayV2081';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.innerHTML=`
+      <div class="repo-rcg-submit-frame-v2081" role="dialog" aria-modal="true" aria-label="Submit a card to RCG grading">
+        <img class="repo-rcg-submit-art-v2081" src="${MENU_ART}" alt="RCG Submit a Card desk" draggable="false">
+
+        <input class="repo-rcg-submit-search-v2081" type="search" maxlength="60" autocomplete="off" aria-label="Search your cards" placeholder="Search cards...">
+        <button class="repo-rcg-submit-filter-v2081" type="button" aria-label="Filter cards" title="Filter cards"></button>
+        <button class="repo-rcg-submit-sort-v2081" type="button" aria-label="Sort cards" title="Sort cards"></button>
+        <div class="repo-rcg-submit-card-list-v2081" aria-label="Your cards"></div>
+
+        <button class="repo-rcg-selected-card-v2081" type="button" aria-label="Selected card. Click to place it for grading"></button>
+        <div class="repo-rcg-selected-info-v2081" aria-live="polite"></div>
+        <button class="repo-rcg-place-zone-v2081" type="button" aria-label="Place selected card here"></button>
+        <div class="repo-rcg-staged-card-v2081"></div>
+
+        <div class="repo-rcg-submit-fee-v2081">${fmt(FALLBACK_FEE)} GP</div>
+        <div class="repo-rcg-submit-status-v2081" aria-live="polite"></div>
+        <button class="repo-rcg-submit-cancel-v2081" type="button" aria-label="Cancel submission"></button>
+        <button class="repo-rcg-submit-confirm-v2081" type="button" disabled>SUBMIT FOR GRADING</button>
+        <button class="repo-rcg-submit-close-v2081" type="button" aria-label="Close submission menu"></button>
+      </div>`;
+    d.appendChild(overlay);
+
+    overlay.querySelector('.repo-rcg-submit-close-v2081')?.addEventListener('click',closeDesk);
+    overlay.querySelector('.repo-rcg-submit-cancel-v2081')?.addEventListener('click',closeDesk);
+
+    // V20.87: treat the supplied artwork itself as the Cancel / X buttons.
+    // This keeps the controls 100% invisible while making their hit areas reliable.
+    const templateFrame=overlay.querySelector('.repo-rcg-submit-frame-v2081');
+    if(templateFrame&&!templateFrame.dataset.rcgTemplateControls){
+      templateFrame.dataset.rcgTemplateControls='true';
+      templateFrame.addEventListener('click',event=>{
+        const rect=templateFrame.getBoundingClientRect();
+        if(!rect.width||!rect.height)return;
+        const px=((event.clientX-rect.left)/rect.width)*100;
+        const py=((event.clientY-rect.top)/rect.height)*100;
+
+        const inClose=px>=84.0&&px<=90.8&&py>=5.4&&py<=16.2;
+        const inCancel=px>=33.2&&px<=46.2&&py>=79.4&&py<=89.6;
+        if(inClose||inCancel){
+          event.preventDefault();
+          event.stopPropagation();
+          closeDesk();
+        }
+      },true);
+    }
+    overlay.querySelector('.repo-rcg-submit-search-v2081')?.addEventListener('input',event=>{searchText=String(event.target.value||'');renderCards();});
+    overlay.querySelector('.repo-rcg-submit-filter-v2081')?.addEventListener('click',()=>{
+      filterMode=filterMode==='all'?'standard':filterMode==='standard'?'special':'all';
+      renderCards();renderStatus();
+    });
+    overlay.querySelector('.repo-rcg-submit-sort-v2081')?.addEventListener('click',()=>{
+      sortMode=sortMode==='name'?'tier':'name';
+      renderCards();renderStatus();
+    });
+    overlay.querySelector('.repo-rcg-submit-confirm-v2081')?.addEventListener('click',submitStagedCard);
+
+    // Esc closes the submission menu first, not the whole grading shop.
+    d.addEventListener('cancel',event=>{
+      if(!overlay?.classList.contains('is-open'))return;
+      event.preventDefault();event.stopImmediatePropagation();closeDesk();
+    },true);
+    return overlay;
+  }
+
+  function filteredCards(){
+    const q=searchText.trim().toLowerCase();
+    let cards=currentCards().filter(card=>!q||String(card.name||'').toLowerCase().includes(q)||String(card.id||'').toLowerCase().includes(q));
+    if(filterMode==='standard')cards=cards.filter(card=>tier(card)==='STANDARD');
+    if(filterMode==='special')cards=cards.filter(card=>tier(card)!=='STANDARD');
+    cards.sort((a,b)=>sortMode==='tier'?(tier(a).localeCompare(tier(b))||String(a.name).localeCompare(String(b.name))):String(a.name).localeCompare(String(b.name)));
+    return cards;
+  }
+
+  function chooseCard(id){
+    id=normal(id);if(!byId()[id])return;
+    selectedId=id;
+
+    if(pendingSet().has(id)){
+      stagedId='';
+      menuMessage='THIS CARD IS ALREADY AT RCG';
+    }else if(!hasSubmissionCapacity()){
+      stagedId='';
+      menuMessage=`RCG DESK FULL · ${activeOrders().length}/${maxActiveOrders()} CARDS IN GRADING`;
+    }else{
+      stagedId=id;
+      menuMessage=isGuaranteedTen(id)
+        ? `GUARANTEED RCG 10 · ${fmt(fee())} GP GRADING FEE`
+        : `${fmt(fee())} GP GRADING FEE · READY TO SUBMIT`;
+    }
+
+    renderDesk();
+  }
+
+  function stageSelected(){
+    if(!selectedId)return;
+    if(pendingSet().has(selectedId)){menuMessage='THIS CARD IS ALREADY AT RCG';renderStatus();return;}
+    stagedId=selectedId;
+    menuMessage='CARD PLACED IN THE RCG SUBMISSION TRAY';
+    renderDesk();
+  }
+
+  function renderCards(){
+    const list=overlay?.querySelector('.repo-rcg-submit-card-list-v2081');if(!list)return;
+    const cards=filteredCards(),pending=pendingSet();
+    if(!window.__repoTcgOwnCollection?.loaded){list.innerHTML='<div class="repo-rcg-submit-empty-v2081">LOADING YOUR COLLECTION…</div>';return;}
+    if(!cards.length){list.innerHTML='<div class="repo-rcg-submit-empty-v2081">NO CARDS MATCH THIS VIEW</div>';return;}
+    list.innerHTML=cards.map(card=>{
+      const locked=pending.has(card.id);
+      const reason=pending.has(card.id)?'AT RCG':'';
+      return `<button type="button" class="repo-rcg-submit-card-v2081${selectedId===card.id?' is-selected':''}${locked?' is-locked':''}" data-card-id="${esc(card.id)}" title="${esc(card.name)}${reason?' · '+reason:''}"><img src="${esc(card.image)}" alt="${esc(card.name)}">${reason?`<span>${esc(reason)}</span>`:''}</button>`;
+    }).join('');
+    list.querySelectorAll('[data-card-id]').forEach(btn=>{
+      btn.addEventListener('click',()=>chooseCard(btn.dataset.cardId));
+    });
+  }
+
+  function renderSelection(){
+    const map=byId(),card=map[selectedId],staged=map[stagedId];
+    const selected=overlay?.querySelector('.repo-rcg-selected-card-v2081');
+    const info=overlay?.querySelector('.repo-rcg-selected-info-v2081');
+    const stage=overlay?.querySelector('.repo-rcg-staged-card-v2081');
+    if(selected)selected.innerHTML=card?`<img src="${esc(card.image)}" alt="${esc(card.name)}">`:'<span>SELECT<br>A CARD</span>';
+    if(stage)stage.innerHTML=staged?`<img src="${esc(staged.image)}" alt="${esc(staged.name)}">`:'';
+    if(info){
+      info.classList.toggle('is-guaranteed-ten',Boolean(card&&isGuaranteedTen(card.id)));
+      const o=oddsForCard(card?.id||'');
+      if(card){
+        const p8=Number(o?.[8]??o?.['8']??65),p9=Number(o?.[9]??o?.['9']??25),p10=Number(o?.[10]??o?.['10']??10);
+        const state=pendingSet().has(card.id)?'AT RCG':isGuaranteedTen(card.id)?'GUARANTEED RCG 10':'READY TO SUBMIT';
+        info.innerHTML=`
+          <div class="repo-rcg-parchment-name-v2083">${esc(card.name)}</div>
+          <div class="repo-rcg-parchment-tier-v2083">${esc(tier(card))}</div>
+          <div class="repo-rcg-parchment-eligibility-v2083">RCG ELIGIBILITY</div>
+          <div class="repo-rcg-parchment-odds-v2083">
+            <span><b>8</b><em>${p8}%</em></span>
+            <span><b>9</b><em>${p9}%</em></span>
+            <span><b>10</b><em>${p10}%</em></span>
+          </div>
+          <div class="repo-rcg-parchment-state-v2083">${state}</div>`;
+      }else{
+        info.innerHTML=`
+          <div class="repo-rcg-parchment-name-v2083">SELECT A CARD</div>
+          <div class="repo-rcg-parchment-tier-v2083">FROM YOUR COLLECTION</div>
+          <div class="repo-rcg-parchment-eligibility-v2083">RCG ELIGIBILITY</div>
+          <div class="repo-rcg-parchment-empty-v2083">CLICK A RAW CARD<br>TO PREPARE IT</div>
+          <div class="repo-rcg-parchment-state-v2083">RCG 8–10 ONLY</div>`;
+      }
+    }
+  }
+
+  function renderStatus(){
+    const feeNode=overlay?.querySelector('.repo-rcg-submit-fee-v2081');
+    const status=overlay?.querySelector('.repo-rcg-submit-status-v2081');
+    const confirm=overlay?.querySelector('.repo-rcg-submit-confirm-v2081');
+    if(feeNode){
+      feeNode.classList.toggle('is-fee-armed-v2093',Boolean(stagedId&&!isLocked(stagedId)));
+      feeNode.innerHTML=stagedId&&!isLocked(stagedId)
+        ? `<strong>−${fmt(fee())}</strong><small>GP · DEDUCTED ON SUBMIT</small>`
+        : `<strong>${fmt(fee())}</strong><small>GP · PER CARD</small>`;
+    }
+    let text=menuMessage;
+    if(!text&&!hasSubmissionCapacity())text=`RCG DESK FULL · ${activeOrders().length}/${maxActiveOrders()} CARDS IN GRADING`;
+    else if(!text&&!backendAvailable)text='RCG DESK READY · BACKEND STATUS UNAVAILABLE';
+    else if(!text)text=`${activeOrders().length} AT RCG · ${fmt(fee())} GP EACH · ${currentCards().length} CARDS AVAILABLE`;
+    if(status)status.textContent=text;
+    if(confirm){
+      confirm.disabled=!canSubmit();
+      confirm.textContent=submitting?'SECURING CARD…':'SUBMIT FOR GRADING';
+      confirm.classList.toggle('is-ready',canSubmit());
+    }
+  }
+
+  function renderDesk(){renderCards();renderSelection();renderStatus();}
+
+  async function openDesk(){
+    ensureShopHotspots();ensureOverlay();
+    if(!overlay)return;
+    selectedId='';stagedId='';searchText='';filterMode='all';sortMode='name';menuMessage='';
+    overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');
+    const search=overlay.querySelector('.repo-rcg-submit-search-v2081');if(search)search.value='';
+    renderDesk();
+    await Promise.allSettled([refreshCards(),loadRcgState()]);
+    renderDesk();
+  }
+
+  function closeDesk(){
+    if(!overlay)return;
+    overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');
+    selectedId='';stagedId='';menuMessage='';submitting=false;
+  }
+
+  async function submitStagedCard(){
+    if(!canSubmit())return;
+    const card=byId()[stagedId];if(!card)return;
+    if(typeof db==='undefined'||!db?.rpc){menuMessage='RCG BACKEND IS NOT AVAILABLE';renderStatus();return;}
+    submitting=true;menuMessage='SECURING YOUR CARD FOR RCG…';renderStatus();
+    try{
+      const {data,error}=await db.rpc('submit_rcg_grading',{p_card_id:stagedId});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      try{
+        if(typeof bankState!=='undefined'&&bankState&&Number.isFinite(Number(row?.new_gp)))bankState.gp=Number(row.new_gp);
+        if(typeof character!=='undefined'&&character&&Number.isFinite(Number(row?.new_gp)))character.gp=Number(row.new_gp);
+      }catch(_){ }
+      await Promise.allSettled([refreshCards(),loadRcgState()]);
+      await playRcgSubmissionSuccess(card,row);
+      notify(`${card.name} received by RCG · ${fmt(row?.grading_fee||fee())} GP grading fee paid · return due in five minutes.`,5600);
+      closeDesk();
+    }catch(error){
+      console.error('[RCG] submission failed',error);
+      menuMessage=String(error?.message||'Could not submit this card to RCG.').replace(/^Error:\s*/,'').toUpperCase();
+      submitting=false;renderStatus();
+    }
+  }
+
+  window.openRcgSubmitCardDeskV2081=openDesk;
+  window.closeRcgSubmitCardDeskV2081=closeDesk;
+
+  const observer=new MutationObserver(()=>{ensureShopHotspots();if(dialog())ensureOverlay();});
+  const start=()=>{
+    observer.observe(document.body,{childList:true,subtree:true});
+    ensureShopHotspots();if(dialog())ensureOverlay();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+
+  const preload=new Image();preload.src=MENU_ART;
+  try{
+    submitSuccessAudio=new Audio(SUBMIT_SUCCESS_SFX);
+    submitSuccessAudio.preload='auto';
+    submitSuccessAudio.volume=0.68;
+  }catch(_){}
+})();
+
+
+
+// ============================================================================
+// RCG INSPECTION DESK v21.03
+// Interior GRADING sign + central machine open a live grading queue menu.
+// Shows cards currently being graded, selected preview, and time left.
+// ============================================================================
+(function installRcgInspectionDeskV2103(){
+  if(window.__installRcgInspectionDeskV2103)return;
+  window.__installRcgInspectionDeskV2103=true;
+
+  const MENU_ART='assets/rcg/rcg-grading-inspection-menu.png';
+  const PAGE_SIZE=4;
+  const HOTSPOT_GLOW='0 0 18px rgba(55,225,230,.18), inset 0 0 12px rgba(62,231,235,.09)';
+
+  let overlay=null;
+  let rcgState=null;
+  let page=0;
+  let selectedOrderId='';
+  let message='';
+  let tickTimer=null;
+  let pollTimer=null;
+
+  const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const normal=value=>String(value??'').trim();
+  const dialog=()=>document.getElementById('repoRcgGradingShopDialogV2071');
+  const catalog=()=>Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[];
+  const cardMap=()=>window.__repoTcgCardById||Object.fromEntries(catalog().map(card=>[card.id,card]));
+  const activeOrders=()=>Array.isArray(rcgState?.active_orders)?rcgState.active_orders:[];
+  const totalPages=()=>Math.max(1,Math.ceil(activeOrders().length/PAGE_SIZE));
+  const visibleOrders=()=>activeOrders().slice(page*PAGE_SIZE,page*PAGE_SIZE+PAGE_SIZE);
+
+  function parseDateMaybe(value){
+    if(value==null||value==='')return NaN;
+    if(typeof value==='number'&&Number.isFinite(value)){
+      return value>1e12?value:value*1000;
+    }
+    const num=Number(value);
+    if(Number.isFinite(num)&&String(value).trim()!=='')return num>1e12?num:num*1000;
+    const parsed=Date.parse(String(value));
+    return Number.isFinite(parsed)?parsed:NaN;
+  }
+
+  function parseClockTextMs(text){
+    const raw=String(text||'').trim();
+    if(!raw)return NaN;
+    const m=raw.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+    if(!m)return NaN;
+    const a=Number(m[1]||0),b=Number(m[2]||0),c=Number(m[3]||0);
+    return m[3]!=null?((a*3600)+(b*60)+c)*1000:((a*60)+b)*1000;
+  }
+
+  function orderDurationMs(row){
+    const cfg=rcgState?.config||{};
+    const candidates=[
+      row?.grading_duration_ms,
+      row?.duration_ms,
+      row?.grading_duration_seconds!=null?Number(row.grading_duration_seconds)*1000:NaN,
+      row?.duration_seconds!=null?Number(row.duration_seconds)*1000:NaN,
+      cfg?.grading_duration_ms,
+      cfg?.duration_ms,
+      cfg?.grading_duration_seconds!=null?Number(cfg.grading_duration_seconds)*1000:NaN,
+      cfg?.duration_seconds!=null?Number(cfg.duration_seconds)*1000:NaN,
+      cfg?.grading_minutes!=null?Number(cfg.grading_minutes)*60000:NaN,
+      cfg?.duration_minutes!=null?Number(cfg.duration_minutes)*60000:NaN,
+      5*60*1000
+    ].map(Number);
+    return candidates.find(value=>Number.isFinite(value)&&value>0)||300000;
+  }
+
+  function remainingMs(row){
+    const msKeys=['remaining_ms','time_left_ms','ms_left'];
+    for(const key of msKeys){
+      const value=Number(row?.[key]);
+      if(Number.isFinite(value))return value;
+    }
+    const secKeys=['remaining_seconds','seconds_left','time_left_seconds','seconds_remaining'];
+    for(const key of secKeys){
+      const value=Number(row?.[key]);
+      if(Number.isFinite(value))return value*1000;
+    }
+    const clockKeys=['time_left_text','time_left','remaining_text'];
+    for(const key of clockKeys){
+      const value=parseClockTextMs(row?.[key]);
+      if(Number.isFinite(value))return value;
+    }
+    const readyKeys=['ready_at','ready_on','return_at','due_at','available_at','completes_at','complete_at','finishes_at','finish_at'];
+    for(const key of readyKeys){
+      const value=parseDateMaybe(row?.[key]);
+      if(Number.isFinite(value))return value-Date.now();
+    }
+    const startKeys=['started_at','created_at','submitted_at','inserted_at','ordered_at'];
+    for(const key of startKeys){
+      const start=parseDateMaybe(row?.[key]);
+      if(Number.isFinite(start))return start+orderDurationMs(row)-Date.now();
+    }
+    return NaN;
+  }
+
+  function formatRemaining(ms){
+    if(!Number.isFinite(ms))return 'CHECKING…';
+    if(ms<=0)return 'READY NOW';
+    const total=Math.max(0,Math.ceil(ms/1000));
+    const hours=Math.floor(total/3600);
+    const minutes=Math.floor((total%3600)/60);
+    const seconds=total%60;
+    return hours>0
+      ? `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`
+      : `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+  }
+
+  function orderName(row){
+    const card=cardMap()[normal(row?.card_id)];
+    return card?.name||normal(row?.card_name)||normal(row?.name)||normal(row?.card_id)||'UNKNOWN CARD';
+  }
+
+  function orderDisplayName(row){
+    const full=orderName(row);
+    const split=full.split(/\s+[—–]\s+/);
+    return (split[0]||full).trim();
+  }
+
+  function orderDisplayVariant(row){
+    const full=orderName(row);
+    const split=full.split(/\s+[—–]\s+/);
+    if(split.length>1)return split.slice(1).join(' — ').trim().toUpperCase();
+    return orderVariant(row);
+  }
+
+  function orderVariant(row){
+    const card=cardMap()[normal(row?.card_id)];
+    const raw=String(card?.rarity||row?.rarity||row?.variant||'STANDARD').replaceAll('_',' ');
+    return raw.toUpperCase();
+  }
+
+  function orderImage(row){
+    const card=cardMap()[normal(row?.card_id)];
+    return card?.image||row?.image_url||row?.card_image||'';
+  }
+
+  async function loadState(){
+    if(typeof db==='undefined'||!db?.rpc){
+      rcgState=null;
+      message='RCG BACKEND UNAVAILABLE';
+      return null;
+    }
+    try{
+      const {data,error}=await db.rpc('get_my_rcg_state');
+      if(error)throw error;
+      rcgState=Array.isArray(data)?data[0]:data;
+      return rcgState;
+    }catch(error){
+      console.warn('[RCG INSPECTION] state unavailable',error);
+      rcgState=null;
+      message=String(error?.message||'Could not load RCG grading queue').replace(/^Error:\s*/,'').toUpperCase();
+      return null;
+    }
+  }
+
+  function ensureHotspots(){
+    const d=dialog();
+    const interior=d?.querySelector('.repo-rcg-shop-scene-v2071.interior');
+    if(!interior)return;
+
+    if(!interior.querySelector('.repo-rcg-grading-entry-v2103.sign')){
+      const sign=document.createElement('button');
+      sign.type='button';
+      sign.className='repo-rcg-grading-entry-v2103 sign';
+      sign.setAttribute('aria-label','Open RCG grading inspection menu');
+      sign.title='View cards currently being graded';
+      interior.appendChild(sign);
+      sign.addEventListener('click',openDesk);
+    }
+
+    if(!interior.querySelector('.repo-rcg-grading-entry-v2103.machine')){
+      const machine=document.createElement('button');
+      machine.type='button';
+      machine.className='repo-rcg-grading-entry-v2103 machine';
+      machine.setAttribute('aria-label','Open RCG grading inspection menu from grading machine');
+      machine.title='Open the RCG grading inspection desk';
+      interior.appendChild(machine);
+      machine.addEventListener('click',openDesk);
+    }
+  }
+
+  function ensureOverlay(){
+    const d=dialog();
+    if(!d)return null;
+    if(overlay&&d.contains(overlay))return overlay;
+    overlay=document.createElement('div');
+    overlay.className='repo-rcg-inspection-overlay-v2103';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.innerHTML=`
+      <div class="repo-rcg-inspection-frame-v2103" role="dialog" aria-modal="true" aria-label="RCG inspection and current grading queue">
+        <img class="repo-rcg-inspection-art-v2103" src="${MENU_ART}" alt="RCG Inspection and currently grading menu" draggable="false">
+        <button type="button" class="repo-rcg-inspection-close-v2103" aria-label="Close grading inspection menu"></button>
+        <button type="button" class="repo-rcg-inspection-back-v2103" aria-label="Back to grading shop"></button>
+        <div class="repo-rcg-inspection-preview-v2103" aria-live="polite"></div>
+        <div class="repo-rcg-inspection-rows-v2103" aria-label="Cards currently being graded"></div>
+        <button type="button" class="repo-rcg-inspection-up-v2103" aria-label="Previous grading orders"></button>
+        <button type="button" class="repo-rcg-inspection-down-v2103" aria-label="Next grading orders"></button>
+        <div class="repo-rcg-inspection-scroll-thumb-v2103" aria-hidden="true"></div>
+        <div class="repo-rcg-inspection-status-v2103" aria-live="polite"></div>
+      </div>`;
+    d.appendChild(overlay);
+
+    const closeDeskBound=()=>closeDesk();
+    overlay.querySelector('.repo-rcg-inspection-close-v2103')?.addEventListener('click',closeDeskBound);
+    overlay.querySelector('.repo-rcg-inspection-back-v2103')?.addEventListener('click',closeDeskBound);
+    overlay.querySelector('.repo-rcg-inspection-up-v2103')?.addEventListener('click',()=>changePage(-1));
+    overlay.querySelector('.repo-rcg-inspection-down-v2103')?.addEventListener('click',()=>changePage(1));
+    overlay.addEventListener('click',event=>{if(event.target===overlay)closeDesk();});
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&overlay?.classList.contains('is-open')){
+        event.stopPropagation();
+        closeDesk();
+      }
+    });
+  }
+
+  function stopTimers(){
+    if(tickTimer){clearInterval(tickTimer);tickTimer=null;}
+    if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+  }
+
+  function startTimers(){
+    stopTimers();
+    tickTimer=setInterval(()=>{if(overlay?.classList.contains('is-open'))render();},1000);
+    pollTimer=setInterval(async()=>{
+      if(!overlay?.classList.contains('is-open'))return;
+      const currentSelection=selectedOrderId;
+      await loadState();
+      if(currentSelection&&activeOrders().some(row=>normal(row?.order_id)===currentSelection))selectedOrderId=currentSelection;
+      else if(!visibleOrders().some(row=>normal(row?.order_id)===selectedOrderId))selectedOrderId='';
+      render();
+    },15000);
+  }
+
+  function previewMarkup(row){
+    if(!row)return `
+      <div class="repo-rcg-inspection-empty-v2103">
+        <b>NO CARDS IN GRADING</b>
+        <small>Submitted cards will appear here while RCG is inspecting them.</small>
+      </div>`;
+    const image=orderImage(row);
+    const remaining=remainingMs(row);
+    const ready=Number.isFinite(remaining)&&remaining<=0;
+    const tone=ready?'is-ready':(Number.isFinite(remaining)&&remaining<=60000?'is-soon':'');
+    const name=orderName(row);
+    const displayName=orderDisplayName(row);
+    const variant=orderDisplayVariant(row);
+    return `
+      <div class="repo-rcg-inspection-preview-card-v2103 ${tone}">
+        <div class="repo-rcg-inspection-preview-glow-v2103"></div>
+        ${image?`<img src="${esc(image)}" alt="${esc(name)}" draggable="false">`:`<div class="repo-rcg-inspection-preview-fallback-v2103">RCG</div>`}
+      </div>
+      <div class="repo-rcg-inspection-preview-meta-v2103">
+        <b title="${esc(name)}">${esc(displayName)}</b>
+        <small>${esc(variant)} · ${ready?'READY FOR COLLECTION':'CURRENTLY GRADING'}</small>
+        <span>${esc(formatRemaining(remaining))}</span>
+      </div>`;
+  }
+
+  function rowMarkup(row,index){
+    const image=orderImage(row);
+    const name=orderName(row);
+    const displayName=orderDisplayName(row);
+    const variant=orderDisplayVariant(row);
+    const remaining=remainingMs(row);
+    const ready=Number.isFinite(remaining)&&remaining<=0;
+    const imminent=Number.isFinite(remaining)&&remaining>0&&remaining<=60000;
+    const orderId=normal(row?.order_id);
+    return `
+      <button type="button" class="repo-rcg-inspection-row-v2103 ${orderId===selectedOrderId?'is-selected':''} ${ready?'is-ready':''} ${imminent?'is-soon':''}" data-order-id="${esc(orderId)}" aria-label="${esc(name)} · ${esc(formatRemaining(remaining))} remaining">
+        <span class="repo-rcg-inspection-row-thumb-v2103">
+          ${image?`<img src="${esc(image)}" alt="${esc(name)}" draggable="false">`:'<i>RCG</i>'}
+        </span>
+        <span class="repo-rcg-inspection-row-name-v2103">
+          <b title="${esc(name)}">${esc(displayName)}</b>
+          <small title="${esc(variant)}">${esc(variant)}</small>
+        </span>
+        <span class="repo-rcg-inspection-row-time-v2103">
+          <strong>${esc(formatRemaining(remaining))}</strong>
+          <em>${ready?'READY':(imminent?'ALMOST DONE':'IN PROGRESS')}</em>
+        </span>
+      </button>`;
+  }
+
+  function render(){
+    if(!overlay)return;
+    const all=activeOrders();
+    page=Math.max(0,Math.min(totalPages()-1,page));
+    const visible=visibleOrders();
+
+    if(selectedOrderId&&!all.some(row=>normal(row?.order_id)===selectedOrderId))selectedOrderId='';
+    if(!selectedOrderId&&visible[0])selectedOrderId=normal(visible[0]?.order_id);
+
+    const rowsHost=overlay.querySelector('.repo-rcg-inspection-rows-v2103');
+    if(rowsHost){
+      rowsHost.innerHTML='';
+      for(let i=0;i<PAGE_SIZE;i++){
+        const row=visible[i]||null;
+        const slot=document.createElement('div');
+        slot.className=`repo-rcg-inspection-slot-v2103 slot-${i+1}`;
+        slot.innerHTML=row?rowMarkup(row,i):'<div class="repo-rcg-inspection-row-v2103 is-empty"><span class="repo-rcg-inspection-row-thumb-v2103 is-empty"><i>—</i></span><span class="repo-rcg-inspection-row-name-v2103"><b>EMPTY BAY</b><small>NO CARD CURRENTLY GRADING</small></span><span class="repo-rcg-inspection-row-time-v2103 is-empty"><strong>—</strong><em>WAITING</em></span></div>';
+        rowsHost.appendChild(slot);
+      }
+      rowsHost.querySelectorAll('.repo-rcg-inspection-row-v2103[data-order-id]').forEach(btn=>btn.addEventListener('click',()=>{selectedOrderId=btn.dataset.orderId||'';render();}));
+    }
+
+    const previewRow=all.find(row=>normal(row?.order_id)===selectedOrderId)||visible[0]||null;
+    const preview=overlay.querySelector('.repo-rcg-inspection-preview-v2103');
+    if(preview)preview.innerHTML=previewMarkup(previewRow);
+
+    const up=overlay.querySelector('.repo-rcg-inspection-up-v2103');
+    const down=overlay.querySelector('.repo-rcg-inspection-down-v2103');
+    if(up)up.disabled=page<=0;
+    if(down)down.disabled=page>=totalPages()-1;
+
+    const thumb=overlay.querySelector('.repo-rcg-inspection-scroll-thumb-v2103');
+    if(thumb){
+      const count=totalPages();
+      const trackTop=20.3, trackHeight=61.0;
+      const thumbHeight=Math.max(13,trackHeight/count);
+      const travel=Math.max(0,trackHeight-thumbHeight);
+      const pos=count<=1?0:(page/(count-1))*travel;
+      thumb.style.top=`${trackTop+pos}%`;
+      thumb.style.height=`${thumbHeight}%`;
+      thumb.style.opacity=count>1?'1':'0';
+    }
+
+    const status=overlay.querySelector('.repo-rcg-inspection-status-v2103');
+    if(status){
+      let text=message;
+      if(!text&&!all.length)text='NO CARDS ARE CURRENTLY BEING GRADED';
+      if(!text&&all.length){
+        const next=[...all].map(remainingMs).filter(value=>Number.isFinite(value)&&value>0).sort((a,b)=>a-b)[0];
+        text=`${all.length} CARD${all.length===1?'':'S'} IN RCG · ${Number.isFinite(next)?`NEXT FINISHES IN ${formatRemaining(next)}`:'TIMERS SYNCING…'}`;
+      }
+      status.textContent=text;
+    }
+  }
+
+  function changePage(delta){
+    const next=Math.max(0,Math.min(totalPages()-1,page+Number(delta||0)));
+    if(next===page)return;
+    page=next;
+    selectedOrderId='';
+    render();
+  }
+
+  async function openDesk(){
+    try{window.closeRcgSubmitCardDeskV2081?.()}catch(_){ }
+    try{window.closeRcgCollectDeskV2089?.()}catch(_){ }
+    ensureHotspots();
+    ensureOverlay();
+    if(!overlay)return;
+    // Keep the inspection menu in the shop dialog/top layer and above all other shop UI.
+    try{dialog()?.appendChild(overlay);}catch(_){ }
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden','false');
+    page=0;
+    selectedOrderId='';
+    message='LOADING RCG INSPECTION DESK…';
+    render();
+    await loadState();
+    message='';
+    render();
+    startTimers();
+  }
+
+  function closeDesk(){
+    stopTimers();
+    if(!overlay)return;
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden','true');
+    page=0;
+    selectedOrderId='';
+    message='';
+  }
+
+  window.openRcgInspectionDeskV2103=openDesk;
+  window.closeRcgInspectionDeskV2103=closeDesk;
+
+  const observer=new MutationObserver(()=>{ensureHotspots();if(dialog())ensureOverlay();});
+  const start=()=>{
+    observer.observe(document.body,{childList:true,subtree:true});
+    ensureHotspots();
+    if(dialog())ensureOverlay();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+
+  try{const img=new Image(); img.src=MENU_ART;}catch(_){ }
+})();
+
+// ============================================================================
+// RCG COLLECTION DESK v20.89
+// Interior COLLECT sign + scanner tray open a foreground collection menu.
+// The supplied artwork remains the visible UI; all controls are transparent.
+// ============================================================================
+(function installRcgCollectDeskV2089(){
+  if(window.__installRcgCollectDeskV2089)return;
+  window.__installRcgCollectDeskV2089=true;
+
+  const MENU_ART='assets/rcg/rcg-collect-menu.png';
+  const PAGE_SIZE=8;
+  const REVEAL_SCENES=[
+    'assets/rcg/rcg-collect-reveal-step-1.png',
+    'assets/rcg/rcg-collect-reveal-step-2.png',
+    'assets/rcg/rcg-collect-reveal-step-3.png',
+    'assets/rcg/rcg-collect-reveal-step-4.png'
+  ];
+  const REVEAL_FINAL_BACKDROP='assets/rcg/rcg-collect-reveal-final-backdrop.png';
+  const REVEAL_SLAB_TEMPLATE='assets/rcg/rcg-slab-template.png';
+  const REVEAL_TEAR_SOUND='assets/rcg/rcg-collect-reveal-tear.mp3';
+  const REVEAL_RISER_SOUND='assets/rcg/rcg-collect-reveal-riser.mp3';
+  const REVEAL_GRADE_SOUNDS={
+    8:'assets/rcg/rcg-reveal-grade-8.mp3',
+    9:'assets/rcg/rcg-reveal-grade-9.mp3',
+    10:'assets/rcg/rcg-reveal-grade-10.mp3'
+  };
+
+  let overlay=null;
+  let revealOverlay=null;
+  let rcgState=null;
+  let selectedOrderId='';
+  let page=0;
+  let busy=false;
+  let message='';
+  let revealTimers=[];
+  let revealRiserAudio=null;
+  let revealTearAudio=null;
+  let revealGradeAudio=null;
+  let revealFinalReady=false;
+  let revealResolver=null;
+
+  const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const normal=value=>String(value||'').trim();
+  const dialog=()=>document.getElementById('repoRcgGradingShopDialogV2071');
+  const catalog=()=>Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[];
+  const cardMap=()=>window.__repoTcgCardById||Object.fromEntries(catalog().map(card=>[card.id,card]));
+  const returns=()=>Array.isArray(rcgState?.returns)?rcgState.returns:[];
+  const pages=()=>Math.max(1,Math.ceil(returns().length/PAGE_SIZE));
+
+  const notify=(text,duration=4600)=>{
+    try{if(typeof showToast==='function'){showToast(text,duration);return}}catch(_){}
+    try{if(typeof toast==='function'){toast(text,duration);return}}catch(_){}
+    console.info('[RCG COLLECT]',text);
+  };
+
+  async function loadState(){
+    if(typeof db==='undefined'||!db?.rpc){
+      rcgState=null;
+      message='RCG BACKEND UNAVAILABLE';
+      return null;
+    }
+    try{
+      const {data,error}=await db.rpc('get_my_rcg_state');
+      if(error)throw error;
+      rcgState=Array.isArray(data)?data[0]:data;
+      return rcgState;
+    }catch(error){
+      console.warn('[RCG COLLECT] state unavailable',error);
+      rcgState=null;
+      message=String(error?.message||'Could not load RCG returns').toUpperCase();
+      return null;
+    }
+  }
+
+  function ensureInteriorHotspots(){
+    const d=dialog();
+    const interior=d?.querySelector('.repo-rcg-shop-scene-v2071.interior');
+    if(!interior)return;
+
+    if(!interior.querySelector('.repo-rcg-collect-entry-v2089.sign')){
+      const sign=document.createElement('button');
+      sign.type='button';
+      sign.className='repo-rcg-collect-entry-v2089 sign';
+      sign.setAttribute('aria-label','Open finished RCG slabs');
+      sign.title='Collect finished RCG slabs';
+      interior.appendChild(sign);
+      sign.addEventListener('click',openCollectDesk);
+    }
+
+    if(!interior.querySelector('.repo-rcg-collect-entry-v2089.scanner')){
+      const scanner=document.createElement('button');
+      scanner.type='button';
+      scanner.className='repo-rcg-collect-entry-v2089 scanner';
+      scanner.setAttribute('aria-label','Open finished RCG slabs from scanner');
+      scanner.title='Open RCG collection scanner';
+      interior.appendChild(scanner);
+      scanner.addEventListener('click',openCollectDesk);
+    }
+  }
+
+  function ensureOverlay(){
+    const d=dialog();
+    if(!d)return null;
+    if(overlay&&d.contains(overlay))return overlay;
+
+    overlay=document.createElement('section');
+    overlay.className='repo-rcg-collect-overlay-v2089';
+    overlay.id='repoRcgCollectOverlayV2089';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.innerHTML=`
+      <div class="repo-rcg-collect-frame-v2089" role="dialog" aria-modal="true" aria-label="Available RCG slabs to collect">
+        <img class="repo-rcg-collect-art-v2089" src="${MENU_ART}" alt="Available slabs to collect" draggable="false">
+
+        <button type="button" class="repo-rcg-collect-close-v2089" aria-label="Close collection menu"></button>
+        <button type="button" class="repo-rcg-collect-back-v2089" aria-label="Back to RCG shop"></button>
+
+        <div class="repo-rcg-collect-slots-v2089" aria-label="Finished RCG slabs">
+          ${Array.from({length:PAGE_SIZE},(_,index)=>`
+            <button type="button" class="repo-rcg-collect-slot-v2089 slot-${index+1}" data-slot="${index}" aria-label="Empty collection slot"></button>
+          `).join('')}
+        </div>
+
+        <button type="button" class="repo-rcg-collect-up-v2089" aria-label="Previous finished slabs"></button>
+        <button type="button" class="repo-rcg-collect-down-v2089" aria-label="Next finished slabs"></button>
+        <div class="repo-rcg-collect-scroll-thumb-v2089" aria-hidden="true"></div>
+
+        <div class="repo-rcg-collect-status-v2089" aria-live="polite"></div>
+        <button type="button" class="repo-rcg-collect-confirm-v2089" aria-label="Collect selected slab" disabled></button>
+      </div>`;
+
+    d.appendChild(overlay);
+
+    overlay.querySelector('.repo-rcg-collect-close-v2089')?.addEventListener('click',closeCollectDesk);
+    overlay.querySelector('.repo-rcg-collect-back-v2089')?.addEventListener('click',closeCollectDesk);
+    overlay.querySelector('.repo-rcg-collect-up-v2089')?.addEventListener('click',()=>changePage(-1));
+    overlay.querySelector('.repo-rcg-collect-down-v2089')?.addEventListener('click',()=>changePage(1));
+    overlay.querySelector('.repo-rcg-collect-confirm-v2089')?.addEventListener('click',collectSelected);
+
+    overlay.querySelectorAll('.repo-rcg-collect-slot-v2089').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const orderId=normal(btn.dataset.orderId);
+        if(!orderId)return;
+        selectedOrderId=selectedOrderId===orderId?'':orderId;
+        message=selectedOrderId?'SLAB SELECTED · READY TO COLLECT':'SELECT A FINISHED SLAB TO COLLECT';
+        render();
+      });
+    });
+
+    overlay.querySelector('.repo-rcg-collect-frame-v2089')?.addEventListener('wheel',event=>{
+      if(returns().length<=PAGE_SIZE)return;
+      const dir=event.deltaY>0?1:-1;
+      if((dir>0&&page<pages()-1)||(dir<0&&page>0)){
+        event.preventDefault();
+        changePage(dir);
+      }
+    },{passive:false});
+
+    d.addEventListener('cancel',event=>{
+      if(!overlay?.classList.contains('is-open'))return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closeCollectDesk();
+    },true);
+
+    return overlay;
+  }
+
+  function clearRevealTimers(){
+    while(revealTimers.length){
+      try{clearTimeout(revealTimers.pop())}catch(_){}
+    }
+  }
+
+  function stopRevealAudio(){
+    [revealRiserAudio,revealTearAudio,revealGradeAudio].forEach(audio=>{
+      if(!audio)return;
+      try{audio.pause();audio.currentTime=0;}catch(_){ }
+      try{audio.onended=null;}catch(_){ }
+    });
+    revealRiserAudio=null;
+    revealTearAudio=null;
+    revealGradeAudio=null;
+  }
+
+  function ensureRevealOverlay(){
+    const d=dialog();
+    if(!d)return null;
+    if(revealOverlay&&d.contains(revealOverlay))return revealOverlay;
+
+    revealOverlay=document.createElement('section');
+    revealOverlay.className='repo-rcg-reveal-overlay-v2096';
+    revealOverlay.id='repoRcgCollectRevealOverlayV2096';
+    revealOverlay.setAttribute('aria-hidden','true');
+    revealOverlay.innerHTML=`
+      <div class="repo-rcg-reveal-stage-v2096" role="dialog" aria-modal="true" aria-label="Opening collected RCG slab" tabindex="0">
+        <div class="repo-rcg-reveal-scene-v2096"></div>
+        <div class="repo-rcg-reveal-card-layer-v2096"></div>
+        <div class="repo-rcg-reveal-continue-v2096">CLICK ANYWHERE TO CONTINUE</div>
+      </div>`;
+
+    d.appendChild(revealOverlay);
+
+    const handleClose=()=>{
+      if(!revealFinalReady)return;
+      closeRevealOverlay(false);
+      if(typeof revealResolver==='function'){
+        const done=revealResolver;
+        revealResolver=null;
+        done();
+      }
+    };
+
+    revealOverlay.addEventListener('click',handleClose);
+    revealOverlay.addEventListener('keydown',event=>{
+      if(!revealFinalReady)return;
+      if(event.key==='Escape'||event.key==='Enter'||event.key===' '){
+        event.preventDefault();
+        handleClose();
+      }
+    });
+
+    return revealOverlay;
+  }
+
+  function setRevealScene(src){
+    const scene=revealOverlay?.querySelector('.repo-rcg-reveal-scene-v2096');
+    if(!scene)return;
+    scene.classList.remove('is-visible');
+    const apply=()=>{
+      scene.style.backgroundImage=`url('${src}')`;
+      requestAnimationFrame(()=>scene.classList.add('is-visible'));
+    };
+    const t=setTimeout(apply,90);
+    revealTimers.push(t);
+  }
+
+
+  function revealGradeValue(result,row){
+    const gradeNumber=Number(result?.grade||row?.grade||0);
+    return Math.max(0,Math.round(Number.isFinite(gradeNumber)?gradeNumber:0));
+  }
+
+  function playRevealGradeSound(grade){
+    const slabGrade=grade>=10?10:(grade>=9?9:8);
+    const src=REVEAL_GRADE_SOUNDS[slabGrade]||'';
+    if(!src)return;
+    try{
+      revealGradeAudio=new Audio(src);
+      revealGradeAudio.preload='auto';
+      revealGradeAudio.volume=1;
+      revealGradeAudio.play().catch(()=>{});
+    }catch(_){revealGradeAudio=null;}
+  }
+
+  function buildRevealCardMarkup(result,row,card){
+    const name=card?.name||row?.card_id||result?.card_id||'RCG Slab';
+    const image=card?.image||'';
+    const grade=revealGradeValue(result,row);
+    const cert=normal(result?.certification_number||row?.certification_number||'');
+    const variant=String(result?.card_variant||row?.card_set||card?.variant||'OFFICIAL GRADED RETURN').replace(/[_-]+/g,' ').trim();
+    const gradeTone=grade>=10?'grade-10':(grade>=9?'grade-9':'grade-8');
+    return `
+      <article class="repo-rcg-reveal-slab-v2096 ${gradeTone}">
+        <img class="repo-rcg-reveal-slab-template-v2099" src="${REVEAL_SLAB_TEMPLATE}" alt="RCG graded slab" draggable="false">
+        <div class="repo-rcg-reveal-slab-label-v2099">
+          <div class="repo-rcg-reveal-slab-name-v2099" title="${esc(name)}">${esc(name)}</div>
+          <div class="repo-rcg-reveal-slab-grade-v2099">RCG : ${esc(grade||'?')}</div>
+          <div class="repo-rcg-reveal-slab-subline-v2099">${esc(variant||'STANDARD')}</div>
+          <div class="repo-rcg-reveal-slab-cert-v2099">${cert?`CERT ${esc(cert)}`:'OFFICIAL RCG RETURN'}</div>
+          <div class="repo-rcg-reveal-slab-barcode-v2100" aria-hidden="true"></div>
+        </div>
+        <div class="repo-rcg-reveal-slab-window-v2099">
+          <div class="repo-rcg-reveal-card-art-v2100">
+            ${image?`<img src="${esc(image)}" alt="${esc(name)}" draggable="false">`:''}
+          </div>
+          <i class="repo-rcg-reveal-sheen-v2099" aria-hidden="true"></i>
+          <i class="repo-rcg-reveal-window-glass-v2100" aria-hidden="true"></i>
+        </div>
+        <i class="repo-rcg-reveal-grade-aura-v2100" aria-hidden="true"></i>
+        <i class="repo-rcg-reveal-burst-v2100" aria-hidden="true"></i>
+        <span class="repo-rcg-reveal-sparkles-v2100" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      </article>`;
+  }
+
+  function closeRevealOverlay(resolvePromise=true,{restoreDesk=true,restoreMusic=true}={}){
+    clearRevealTimers();
+    stopRevealAudio();
+    revealFinalReady=false;
+    if(revealOverlay){
+      revealOverlay.classList.remove('is-open','is-final');
+      revealOverlay.setAttribute('aria-hidden','true');
+      const layer=revealOverlay.querySelector('.repo-rcg-reveal-card-layer-v2096');
+      const continueHint=revealOverlay.querySelector('.repo-rcg-reveal-continue-v2096');
+      const scene=revealOverlay.querySelector('.repo-rcg-reveal-scene-v2096');
+      if(layer){layer.innerHTML='';layer.classList.remove('is-visible');}
+      if(continueHint)continueHint.classList.remove('is-visible');
+      if(scene){scene.classList.remove('is-visible');scene.style.backgroundImage='';}
+    }
+    if(restoreDesk&&overlay)overlay.classList.remove('is-cinematic-hidden-v2097');
+    if(restoreMusic){
+      try{window.resumeRcgGradingShopMusicAfterReveal?.()}catch(_){ }
+    }
+    if(resolvePromise&&typeof revealResolver==='function'){
+      const done=revealResolver;
+      revealResolver=null;
+      done();
+    }
+  }
+
+  function playCollectRevealSequence(result,row,card){
+    ensureRevealOverlay();
+    if(!revealOverlay)return Promise.resolve();
+
+    closeRevealOverlay(false,{restoreDesk:false,restoreMusic:false});
+    revealFinalReady=false;
+
+    if(overlay)overlay.classList.add('is-cinematic-hidden-v2097');
+    try{window.pauseRcgGradingShopMusicForReveal?.()}catch(_){ }
+
+    revealOverlay.classList.add('is-open');
+    revealOverlay.setAttribute('aria-hidden','false');
+    revealOverlay.querySelector('.repo-rcg-reveal-stage-v2096')?.focus?.();
+
+    setRevealScene(REVEAL_SCENES[0]);
+
+    try{
+      revealRiserAudio=new Audio(REVEAL_RISER_SOUND);
+      revealRiserAudio.preload='auto';
+      revealRiserAudio.volume=0.5;
+      revealRiserAudio.play().catch(()=>{});
+    }catch(_){revealRiserAudio=null;}
+
+    const queue=(delay,fn)=>{ const t=setTimeout(fn,delay); revealTimers.push(t); return t; };
+    queue(2200,()=>{
+      setRevealScene(REVEAL_SCENES[1]);
+      try{
+        revealTearAudio=new Audio(REVEAL_TEAR_SOUND);
+        revealTearAudio.preload='auto';
+        revealTearAudio.volume=0.74;
+        revealTearAudio.play().catch(()=>{});
+      }catch(_){revealTearAudio=null;}
+    });
+    queue(4450,()=>setRevealScene(REVEAL_SCENES[2]));
+    queue(6650,()=>setRevealScene(REVEAL_SCENES[3]));
+
+    return new Promise(resolve=>{
+      revealResolver=resolve;
+      let finished=false;
+      const finalize=()=>{
+        if(finished)return;
+        finished=true;
+        clearRevealTimers();
+        stopRevealAudio();
+        setRevealScene(REVEAL_FINAL_BACKDROP);
+        const layer=revealOverlay?.querySelector('.repo-rcg-reveal-card-layer-v2096');
+        const grade=revealGradeValue(result,row);
+        if(layer){
+          layer.innerHTML=buildRevealCardMarkup(result,row,card);
+          queue(100,()=>layer.classList.add('is-visible'));
+        }
+        queue(120,()=>playRevealGradeSound(grade));
+        revealOverlay?.classList.add('is-final');
+        const continueHint=revealOverlay?.querySelector('.repo-rcg-reveal-continue-v2096');
+        if(continueHint)queue(650,()=>continueHint.classList.add('is-visible'));
+        revealFinalReady=true;
+      };
+
+      queue(10450,finalize);
+      if(revealRiserAudio){
+        try{revealRiserAudio.onended=()=>queue(120,finalize);}catch(_){ }
+      }
+    });
+  }
+
+  function buildSlabPreview(row){
+    const card=cardMap()[normal(row?.card_id)];
+    const image=card?.image||'';
+    const name=card?.name||row?.card_id||'RCG Slab';
+    const variant=String(row?.card_variant||row?.card_set||'RCG').toUpperCase();
+    const plaqueLabel=row?'RCG Grade available':'';
+    return `
+      <span class="repo-rcg-return-card-v2089">
+        ${image?`<img src="${esc(image)}" alt="${esc(name)}" draggable="false">`:''}
+        <i class="repo-rcg-return-glass-v2089" aria-hidden="true"></i>
+        <b>RCG</b>
+        <small>GRADE SEALED</small>
+      </span>
+      <span class="repo-rcg-return-label-v2089">${esc(plaqueLabel)}</span>
+      <span class="repo-rcg-return-variant-v2089">${esc(variant)}</span>`;
+  }
+
+  function render(){
+    if(!overlay)return;
+    const list=returns();
+    const maxPage=pages()-1;
+    page=Math.max(0,Math.min(maxPage,page));
+
+    // If a selected order disappears after refresh, clear it.
+    if(selectedOrderId&&!list.some(row=>normal(row?.order_id)===selectedOrderId))selectedOrderId='';
+
+    const start=page*PAGE_SIZE;
+    const visible=list.slice(start,start+PAGE_SIZE);
+
+    overlay.querySelectorAll('.repo-rcg-collect-slot-v2089').forEach((btn,index)=>{
+      const row=visible[index]||null;
+      const orderId=normal(row?.order_id);
+      btn.dataset.orderId=orderId;
+      btn.classList.toggle('is-filled',Boolean(row));
+      btn.classList.toggle('is-selected',Boolean(orderId&&orderId===selectedOrderId));
+      btn.disabled=!row||busy;
+      btn.innerHTML=row?buildSlabPreview(row):'';
+      const card=row?cardMap()[normal(row.card_id)]:null;
+      btn.setAttribute('aria-label',row?`${card?.name||row.card_id||'Finished slab'}${orderId===selectedOrderId?' selected':''}`:'Empty collection slot');
+    });
+
+    const up=overlay.querySelector('.repo-rcg-collect-up-v2089');
+    const down=overlay.querySelector('.repo-rcg-collect-down-v2089');
+    if(up)up.disabled=busy||page<=0;
+    if(down)down.disabled=busy||page>=maxPage;
+
+    const confirm=overlay.querySelector('.repo-rcg-collect-confirm-v2089');
+    if(confirm){
+      confirm.disabled=busy||!selectedOrderId;
+      confirm.classList.toggle('is-ready',Boolean(selectedOrderId&&!busy));
+    }
+
+    const thumb=overlay.querySelector('.repo-rcg-collect-scroll-thumb-v2089');
+    if(thumb){
+      const count=pages();
+      const trackTop=24.2,trackHeight=52.0;
+      const thumbHeight=Math.max(12,trackHeight/count);
+      const travel=Math.max(0,trackHeight-thumbHeight);
+      const pos=count<=1?0:(page/(count-1))*travel;
+      thumb.style.top=`${trackTop+pos}%`;
+      thumb.style.height=`${thumbHeight}%`;
+      thumb.style.opacity=count>1?'1':'0';
+    }
+
+    const status=overlay.querySelector('.repo-rcg-collect-status-v2089');
+    if(status){
+      let text=message;
+      if(!text&&busy)text='COLLECTING SELECTED SLAB…';
+      if(!text&&!list.length)text='NO FINISHED SLABS WAITING · CHECK BACK WHEN GRADING IS COMPLETE';
+      if(!text&&list.length)text=`${list.length} FINISHED SLAB${list.length===1?'':'S'} WAITING · PAGE ${page+1} OF ${pages()}`;
+      status.textContent=text;
+    }
+  }
+
+  function changePage(delta){
+    if(busy)return;
+    const next=Math.max(0,Math.min(pages()-1,page+Number(delta||0)));
+    if(next===page)return;
+    page=next;
+    selectedOrderId='';
+    message='';
+    render();
+  }
+
+  async function openCollectDesk(){
+    try{window.closeRcgSubmitCardDeskV2081?.()}catch(_){}
+    ensureInteriorHotspots();
+    ensureOverlay();
+    if(!overlay)return;
+
+    selectedOrderId='';
+    page=0;
+    busy=false;
+    message='LOADING FINISHED RCG SLABS…';
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden','false');
+    render();
+
+    await loadState();
+    message='';
+    render();
+  }
+
+  function closeCollectDesk(){
+    if(!overlay)return;
+    closeRevealOverlay(false,{restoreDesk:false,restoreMusic:true});
+    overlay.classList.remove('is-open','is-cinematic-hidden-v2097');
+    overlay.setAttribute('aria-hidden','true');
+    selectedOrderId='';
+    page=0;
+    busy=false;
+    message='';
+  }
+
+  async function collectSelected(){
+    if(busy||!selectedOrderId)return;
+    const row=returns().find(item=>normal(item?.order_id)===selectedOrderId);
+    if(!row)return;
+    if(typeof db==='undefined'||!db?.rpc){
+      message='RCG BACKEND UNAVAILABLE';
+      render();
+      return;
+    }
+
+    busy=true;
+    message='PREPARING YOUR RCG SLAB REVEAL…';
+    render();
+
+    try{
+      const {data,error}=await db.rpc('reveal_rcg_return',{p_order_id:selectedOrderId});
+      if(error)throw error;
+      const result=Array.isArray(data)?data[0]:data;
+      const card=cardMap()[normal(result?.card_id||row.card_id)];
+      const grade=Number(result?.grade)||'';
+      const cert=String(result?.certification_number||'');
+
+      await playCollectRevealSequence(result,row,card);
+
+      selectedOrderId='';
+      await loadState();
+      try{
+        window.dispatchEvent(new CustomEvent('repo-rcg-slabs-changed',{detail:{
+          slab_id:result?.slab_id||'',
+          order_id:result?.order_id||row?.order_id||'',
+          card_id:result?.card_id||row?.card_id||'',
+          grade:result?.grade||''
+        }}));
+      }catch(_){}
+      busy=false;
+      message=grade?`COLLECTED · ${card?.name||row.card_id} · RCG ${grade}`:'SLAB COLLECTED';
+      render();
+      notify(`${card?.name||row.card_id} collected from RCG${grade?` · RCG ${grade}`:''}${cert?` · ${cert}`:''}`,5600);
+    }catch(error){
+      console.error('[RCG COLLECT] collection failed',error);
+      closeRevealOverlay(false,{restoreDesk:true,restoreMusic:true});
+      busy=false;
+      message=String(error?.message||'Could not collect this slab').replace(/^Error:\s*/,'').toUpperCase();
+      render();
+    }
+  }
+
+  window.openRcgCollectDeskV2089=openCollectDesk;
+  window.closeRcgCollectDeskV2089=closeCollectDesk;
+
+  [...REVEAL_SCENES,REVEAL_FINAL_BACKDROP,REVEAL_SLAB_TEMPLATE].forEach(src=>{ try{const img=new Image(); img.src=src;}catch(_){} });
+
+  const observer=new MutationObserver(()=>{
+    ensureInteriorHotspots();
+    if(dialog())ensureOverlay();
+  });
+
+  const start=()=>{
+    if(document.body)observer.observe(document.body,{childList:true,subtree:true});
+    ensureInteriorHotspots();
+    if(dialog())ensureOverlay();
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+
+  const preload=new Image();
+  preload.src=MENU_ART;
+})();
+
+
+// ============================================================================
+// RCG SLAB BINDER v21.18 — CONSTRUCTED BINDER
+// The binder itself is real HTML/CSS rather than a background image.
+// This removes all image-layer slot alignment issues.
+// ============================================================================
+(function installRcgConstructedSlabBinderV2118(){
+  if(window.__rcgConstructedSlabBinderV2118)return;
+  window.__rcgConstructedSlabBinderV2118=true;
+
+  const TOTAL_SLOTS=270;
+  const PER_PAGE=9;
+  const PER_SPREAD=18;
+  const TOTAL_SPREADS=15;
+  let spread=1;
+  let state={layout:Array(TOTAL_SLOTS).fill(null),slots:Array(TOTAL_SLOTS).fill(null),slabs:[]};
+  let loading=false;
+  let saving=false;
+  let mounted=false;
+  let drawer=null;
+  let lastRefresh=0;
+
+  const SLAB_MOVE_SOUND='assets/rcg/rcg-slab-move-flip.mp3';
+  const SLAB_MOVE_MS=820;
+  let persistTimer=null;
+  let persistInFlight=false;
+  let persistDirty=false;
+  let persistRevision=0;
+  const arrivingSlabs=new Set();
+  let activeDragFrom=-1;
+  let activeDragSlab='';
+  let dragTurnLockedUntil=0;
+  let hoverPreview=null;
+  let publicOwner='';
+  let publicStyle=null;
+  const isPublicView=()=>Boolean(publicOwner);
+
+  const normal=v=>String(v??'').trim();
+  const esc=v=>String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const dialog=()=>document.getElementById('repoRcgBinderDialog');
+  const cleanLayout=layout=>Array.from({length:TOTAL_SLOTS},(_,i)=>{
+    const v=Array.isArray(layout)?layout[i]:null;
+    return typeof v==='string'&&normal(v)?normal(v):null;
+  });
+  const slabId=s=>normal(s?.slab_id||s?.id);
+  const allCards=()=>Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[];
+  function cardMap(){
+    if(window.__repoTcgCardById)return window.__repoTcgCardById;
+    return Object.fromEntries(allCards().map(c=>[normal(c?.id),c]).filter(([id])=>id));
+  }
+  function resolveCard(slab){
+    const id=normal(slab?.card_id);
+    const exact=cardMap()[id];
+    if(exact)return exact;
+    const lower=id.toLowerCase();
+    return allCards().find(c=>normal(c?.id).toLowerCase()===lower)||null;
+  }
+  const pretty=id=>normal(id).replace(/^wc2026_/i,'').replace(/_/g,' ').replace(/\b\w/g,m=>m.toUpperCase());
+  const cardName=s=>resolveCard(s)?.name||pretty(s?.card_id)||'RCG Graded Card';
+  const cardImage=s=>resolveCard(s)?.image||resolveCard(s)?.image_url||'';
+  const bySlabId=()=>Object.fromEntries((state.slabs||[]).map(s=>[slabId(s),s]).filter(([id])=>id));
+
+  function normaliseState(raw){
+    const input=raw&&typeof raw==='object'?raw:{};
+    const layout=cleanLayout(input.layout);
+    const slabs=Array.isArray(input.slabs)?input.slabs:[];
+    const byId=Object.fromEntries(slabs.map(s=>[slabId(s),s]).filter(([id])=>id));
+    const incoming=Array.isArray(input.slots)?input.slots:[];
+    const slots=Array.from({length:TOTAL_SLOTS},(_,i)=>{
+      if(incoming[i]&&typeof incoming[i]==='object')return incoming[i];
+      return layout[i]?byId[layout[i]]||null:null;
+    });
+    return {layout,slots,slabs};
+  }
+
+  function toast(message){
+    try{ if(typeof showToast==='function'){showToast(message,3200);return;} }catch(_){ }
+    console.info('[RCG CONSTRUCTED BINDER]',message);
+  }
+
+  function hasPendingLayoutSave(){
+    if(isPublicView())return false;
+    return Boolean(persistTimer)||persistDirty||persistInFlight;
+  }
+
+  function playSlabMoveSound(){
+    try{
+      const audio=new Audio(SLAB_MOVE_SOUND);
+      audio.preload='auto';
+      audio.volume=0.60;
+      audio.play().catch(()=>{});
+    }catch(_){ }
+  }
+
+  function rectCenter(rect){
+    return {x:rect.left+(rect.width/2),y:rect.top+(rect.height/2)};
+  }
+
+  function targetForHiddenSlabs(){
+    const d=dialog();
+    return d?.querySelector('#repoRcgHiddenBtn')||d?.querySelector('.repo-rcg-sidebar')||d;
+  }
+
+  function visibleSlotForAbsolute(index){
+    const book=builtBook();
+    if(!book)return null;
+    const start=(spread-1)*PER_SPREAD;
+    const visibleIndex=index-start;
+    if(visibleIndex<0||visibleIndex>=PER_SPREAD)return null;
+    if(visibleIndex<PER_PAGE){
+      return book.querySelectorAll('.repo-rcg-v2118-page.left .repo-rcg-v2118-slot')[visibleIndex]||null;
+    }
+    return book.querySelectorAll('.repo-rcg-v2118-page.right .repo-rcg-v2118-slot')[visibleIndex-PER_PAGE]||null;
+  }
+
+  function animateSlabTransfer(sourceEl,targetEl,{direction='hide',slabIdValue=''}={}){
+    const d=dialog();
+    if(!sourceEl||!targetEl||!d)return Promise.resolve();
+
+    const sourceNode=sourceEl;
+    const from=sourceNode.getBoundingClientRect();
+    const to=targetEl.getBoundingClientRect();
+    const dialogRect=d.getBoundingClientRect();
+    if(!from.width||!from.height||!to.width||!to.height||!dialogRect.width||!dialogRect.height)return Promise.resolve();
+
+    // Same proven coordinate conversion used by the normal card binder.
+    // <dialog> is in the browser top-layer, so the flying slab must live
+    // inside that dialog instead of on document.body.
+    const scaleX=dialogRect.width/(d.offsetWidth||dialogRect.width||1);
+    const scaleY=dialogRect.height/(d.offsetHeight||dialogRect.height||1);
+    const sx=(from.left-dialogRect.left)/(scaleX||1)+(d.scrollLeft||0);
+    const sy=(from.top-dialogRect.top)/(scaleY||1)+(d.scrollTop||0);
+    const sw=from.width/(scaleX||1);
+    const sh=from.height/(scaleY||1);
+    const tx=(to.left-dialogRect.left)/(scaleX||1)+(d.scrollLeft||0);
+    const ty=(to.top-dialogRect.top)/(scaleY||1)+(d.scrollTop||0);
+    const tw=to.width/(scaleX||1);
+    const th=to.height/(scaleY||1);
+
+    const targetScale=direction==='hide'
+      ? Math.min(.42,Math.max(.20,Math.min(tw/sw,th/sh)*.72))
+      : Math.min(1.02,Math.max(.42,Math.min(tw/sw,th/sh)*.96));
+    const destLeft=tx+(tw-(sw*targetScale))/2;
+    const destTop=ty+(th-(sh*targetScale))/2;
+    const dx=destLeft-sx;
+    const dy=destTop-sy;
+    const arc=Math.max(28,Math.min(82,Math.abs(dx)*.07+Math.abs(dy)*.05));
+
+    // Neutral wrapper owns the movement. The inner slab clone is explicitly
+    // reset so its normal absolute slot positioning cannot cancel the flight.
+    const wrapper=document.createElement('div');
+    wrapper.className='repo-rcg-slab-flight-wrap-v2128';
+    wrapper.style.setProperty('position','absolute','important');
+    wrapper.style.setProperty('left',`${sx}px`,'important');
+    wrapper.style.setProperty('top',`${sy}px`,'important');
+    wrapper.style.setProperty('width',`${sw}px`,'important');
+    wrapper.style.setProperty('height',`${sh}px`,'important');
+    wrapper.style.setProperty('margin','0','important');
+    wrapper.style.setProperty('padding','0','important');
+    wrapper.style.setProperty('z-index','2147483500','important');
+    wrapper.style.setProperty('pointer-events','none','important');
+    wrapper.style.setProperty('transform-origin','top left','important');
+    wrapper.style.setProperty('will-change','transform,opacity,filter','important');
+
+    const clone=sourceNode.cloneNode(true);
+    clone.removeAttribute('data-slab-id');
+    clone.classList.remove('is-awaiting-arrival-v2124','is-arriving-v2124');
+    clone.style.setProperty('position','relative','important');
+    clone.style.setProperty('left','0','important');
+    clone.style.setProperty('top','0','important');
+    clone.style.setProperty('right','auto','important');
+    clone.style.setProperty('bottom','auto','important');
+    clone.style.setProperty('width','100%','important');
+    clone.style.setProperty('height','100%','important');
+    clone.style.setProperty('margin','0','important');
+    clone.style.setProperty('transform','none','important');
+    clone.style.setProperty('opacity','1','important');
+    clone.style.setProperty('filter','none','important');
+    clone.style.setProperty('pointer-events','none','important');
+    wrapper.appendChild(clone);
+    d.appendChild(wrapper);
+
+    const rotate=direction==='hide'?-5:4;
+    const midScale=direction==='hide'?Math.max(targetScale+.26,.72):Math.max(targetScale,.80);
+    let animation;
+    try{
+      animation=wrapper.animate([
+        {
+          transform:'translate3d(0,0,0) scale(1) rotate(0deg)',
+          opacity:1,
+          filter:'brightness(1) drop-shadow(0 9px 13px rgba(0,0,0,.28))',
+          offset:0
+        },
+        {
+          transform:`translate3d(${dx*.50}px,${dy*.45-arc}px,0) scale(${midScale}) rotate(${rotate*.45}deg)`,
+          opacity:1,
+          filter:'brightness(1.09) drop-shadow(0 16px 20px rgba(0,0,0,.34))',
+          offset:.50
+        },
+        {
+          transform:`translate3d(${dx}px,${dy}px,0) scale(${targetScale}) rotate(${rotate}deg)`,
+          opacity:direction==='hide'?.12:.92,
+          filter:'brightness(1.08) drop-shadow(0 4px 8px rgba(0,0,0,.16))',
+          offset:1
+        }
+      ],{
+        duration:SLAB_MOVE_MS,
+        easing:'cubic-bezier(.18,.78,.18,1)',
+        fill:'forwards'
+      });
+    }catch(_){
+      wrapper.remove();
+      if(direction==='restore'&&slabIdValue)arrivingSlabs.delete(slabIdValue);
+      return Promise.resolve();
+    }
+
+    return new Promise(resolve=>{
+      let finished=false;
+      const finish=()=>{
+        if(finished)return;
+        finished=true;
+        try{animation.cancel();}catch(_){ }
+        wrapper.remove();
+        if(direction==='restore'&&slabIdValue){
+          arrivingSlabs.delete(slabIdValue);
+          const live=d.querySelector(`.repo-rcg-v2118-slab[data-slab-id="${CSS.escape(slabIdValue)}"]`);
+          if(live){
+            live.classList.remove('is-awaiting-arrival-v2124');
+            live.classList.add('is-arriving-v2124');
+            setTimeout(()=>live.classList.remove('is-arriving-v2124'),460);
+          }
+        }
+        resolve();
+      };
+      animation.addEventListener('finish',finish,{once:true});
+      animation.addEventListener('cancel',finish,{once:true});
+      setTimeout(finish,SLAB_MOVE_MS+140);
+    });
+  }
+
+  function slabVisual(slab,{mini=false}={}){
+    const name=cardName(slab);
+    const image=cardImage(slab);
+    const grade=Number(slab?.grade)||'?';
+    const certRaw=normal(slab?.certification_number);
+    const cert=certRaw ? (certRaw.toUpperCase().startsWith('CERT ') ? certRaw : `CERT ${certRaw}`) : 'CERT RCG-2026-000000';
+    const gradeClass=Number(grade)>=10?'grade-10':(Number(grade)>=9?'grade-9':'grade-8');
+    const variant=normal(slab?.card_variant||slab?.card_set||'OFFICIAL GRADED CARD');
+    const arrivalClass=!mini&&arrivingSlabs.has(slabId(slab))?'is-awaiting-arrival-v2124':'';
+    return `<div class="repo-rcg-v2118-slab ${mini?'is-mini':''} ${gradeClass} ${arrivalClass}" data-slab-id="${esc(slabId(slab))}">
+      <div class="repo-rcg-v2118-clear-case" aria-hidden="true"></div>
+      <div class="repo-rcg-v2118-label">
+        <div class="repo-rcg-v2118-label-top">
+          <strong title="${esc(name)}">${esc(name)}</strong>
+          <b><span class="repo-rcg-v2118-grade-brand">RCG</span><span class="repo-rcg-v2118-grade-sep">:</span><span class="repo-rcg-v2118-grade-value">${esc(grade)}</span></b>
+        </div>
+        <em>${esc(variant)}</em>
+        <div class="repo-rcg-v2118-label-brand">
+          <span>RCG</span>
+          <small>REPO COMPANY GRADING</small>
+        </div>
+        <div class="repo-rcg-v2118-label-meta">
+          <i aria-hidden="true"></i>
+          <small>${esc(cert)}</small>
+        </div>
+      </div>
+      <div class="repo-rcg-v2118-card-window">${image?`<img src="${esc(image)}" alt="${esc(name)}" draggable="false">`:`<span>RCG</span>`}</div>
+      <div class="repo-rcg-v2118-glass" aria-hidden="true"></div>
+    </div>`;
+  }
+
+  function builtBook(){ return dialog()?.querySelector('#repoRcgConstructedBookV2118'); }
+
+  function positionBinderSidebar(){
+    const d=dialog();
+    const book=builtBook();
+    const workspace=d?.querySelector('.repo-rcg-binder-workspace');
+    const sidebar=d?.querySelector('.repo-rcg-sidebar');
+    if(!d||!book||!workspace||!sidebar)return;
+    const bookRect=book.getBoundingClientRect();
+    const workspaceRect=workspace.getBoundingClientRect();
+    const sidebarWidth=Math.max(120,sidebar.getBoundingClientRect().width||140);
+    const gap=14;
+    let left=(bookRect.right-workspaceRect.left)+gap;
+    const maxLeft=Math.max(8,workspaceRect.width-sidebarWidth-8);
+    left=Math.min(left,maxLeft);
+    const top=Math.max(0,bookRect.top-workspaceRect.top);
+    sidebar.style.setProperty('left',`${left}px`,'important');
+    sidebar.style.setProperty('right','auto','important');
+    sidebar.style.setProperty('top',`${top}px`,'important');
+    sidebar.style.setProperty('bottom','auto','important');
+    sidebar.style.setProperty('transform','none','important');
+  }
+
+  function ensureHoverPreview(){
+    const d=dialog(); if(!d)return null;
+    let preview=d.querySelector('#repoRcgSlabHoverPreviewV2138');
+    if(!preview){
+      preview=document.createElement('div');
+      preview.id='repoRcgSlabHoverPreviewV2138';
+      preview.className='repo-rcg-v2138-hover-preview';
+      preview.setAttribute('aria-hidden','true');
+      d.appendChild(preview);
+    }
+    hoverPreview=preview;
+    return preview;
+  }
+
+  function hideHoverPreview(){
+    const preview=hoverPreview||dialog()?.querySelector('#repoRcgSlabHoverPreviewV2138');
+    if(!preview)return;
+    preview.classList.remove('is-visible');
+    preview.setAttribute('aria-hidden','true');
+  }
+
+  function positionHoverPreview(clientX,clientY){
+    const d=dialog(),preview=ensureHoverPreview();
+    if(!d||!preview)return;
+    const rect=d.getBoundingClientRect();
+    const scaleX=rect.width/(d.offsetWidth||rect.width||1);
+    const scaleY=rect.height/(d.offsetHeight||rect.height||1);
+    const localX=(Number(clientX)-rect.left)/(scaleX||1)+(d.scrollLeft||0);
+    const localY=(Number(clientY)-rect.top)/(scaleY||1)+(d.scrollTop||0);
+    const dialogW=d.offsetWidth||rect.width/(scaleX||1);
+    const dialogH=d.offsetHeight||rect.height/(scaleY||1);
+    const w=preview.offsetWidth||310;
+    const h=preview.offsetHeight||458;
+    const margin=18,gap=24;
+    let left=localX+gap;
+    if(left+w>dialogW-margin)left=localX-w-gap;
+    left=Math.max(margin,Math.min(dialogW-w-margin,left));
+    let top=localY-(h/2);
+    top=Math.max(margin,Math.min(dialogH-h-margin,top));
+    preview.style.left=`${Math.round(left)}px`;
+    preview.style.top=`${Math.round(top)}px`;
+  }
+
+  function showHoverPreview(slabNode,event){
+    if(activeDragFrom>=0||!slabNode)return;
+    const id=normal(slabNode.dataset.slabId); if(!id)return;
+    const slab=(state.slabs||[]).find(item=>slabId(item)===id); if(!slab)return;
+    const preview=ensureHoverPreview(); if(!preview)return;
+    preview.innerHTML=slabVisual(slab);
+    preview.classList.add('is-visible');
+    preview.setAttribute('aria-hidden','false');
+    positionHoverPreview(event.clientX,event.clientY);
+  }
+
+  function finishSlabDrag(book){
+    activeDragFrom=-1;
+    activeDragSlab='';
+    dragTurnLockedUntil=0;
+    hideHoverPreview();
+    dialog()?.classList.remove('repo-rcg-v2138-dragging');
+    book?.querySelectorAll('.repo-rcg-v2118-slot.is-drop-target-v2138').forEach(el=>el.classList.remove('is-drop-target-v2138'));
+    book?.querySelectorAll('.repo-rcg-v2118-turn.is-drag-hot-v2138').forEach(el=>el.classList.remove('is-drag-hot-v2138'));
+  }
+
+  function turnDuringSlabDrag(direction,target){
+    if(activeDragFrom<0||Date.now()<dragTurnLockedUntil)return;
+    const nextSpread=spread+direction;
+    if(nextSpread<1||nextSpread>TOTAL_SPREADS)return;
+    dragTurnLockedUntil=Date.now()+650;
+    target?.classList.add('is-drag-hot-v2138');
+    setSpread(nextSpread);
+    setTimeout(()=>target?.classList.remove('is-drag-hot-v2138'),320);
+  }
+
+  function bindSlabDragAndPreview(book){
+    if(!book||book.dataset.rcgDragPreviewBoundV2138==='1')return;
+    book.dataset.rcgDragPreviewBoundV2138='1';
+
+    book.addEventListener('pointerover',event=>{
+      const slabNode=event.target.closest('.repo-rcg-v2118-slab[data-slab-id]');
+      if(!slabNode||activeDragFrom>=0)return;
+      if(event.relatedTarget&&slabNode.contains(event.relatedTarget))return;
+      showHoverPreview(slabNode,event);
+    });
+    book.addEventListener('pointermove',event=>{
+      if(activeDragFrom>=0)return;
+      const slabNode=event.target.closest('.repo-rcg-v2118-slab[data-slab-id]');
+      if(slabNode&&hoverPreview?.classList.contains('is-visible'))positionHoverPreview(event.clientX,event.clientY);
+    });
+    book.addEventListener('pointerout',event=>{
+      const slabNode=event.target.closest('.repo-rcg-v2118-slab[data-slab-id]');
+      if(!slabNode)return;
+      if(event.relatedTarget&&slabNode.contains(event.relatedTarget))return;
+      hideHoverPreview();
+    });
+    book.addEventListener('pointerleave',hideHoverPreview);
+
+    book.addEventListener('dragstart',event=>{
+      if(isPublicView()){event.preventDefault();return;}
+      const slabNode=event.target.closest('.repo-rcg-v2118-slab[data-slab-id]');
+      if(!slabNode)return;
+      const slot=slabNode.closest('.repo-rcg-v2118-slot[data-slot]');
+      const from=Number(slot?.dataset.slot||0)-1;
+      const id=normal(slabNode.dataset.slabId);
+      if(from<0||!id){event.preventDefault();return;}
+      activeDragFrom=from;
+      activeDragSlab=id;
+      hideHoverPreview();
+      dialog()?.classList.add('repo-rcg-v2138-dragging');
+      event.dataTransfer.effectAllowed='move';
+      event.dataTransfer.setData('text/plain',String(from));
+      event.dataTransfer.setData('application/x-repo-rcg-slab',id);
+      try{
+        const rect=slabNode.getBoundingClientRect();
+        event.dataTransfer.setDragImage(slabNode,rect.width/2,rect.height/2);
+      }catch(_){ }
+    });
+
+    book.addEventListener('dragover',event=>{
+      if(activeDragFrom<0)return;
+      const slot=event.target.closest('.repo-rcg-v2118-slot[data-slot]');
+      if(!slot)return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect='move';
+      book.querySelectorAll('.repo-rcg-v2118-slot.is-drop-target-v2138').forEach(el=>{if(el!==slot)el.classList.remove('is-drop-target-v2138');});
+      slot.classList.add('is-drop-target-v2138');
+    });
+    book.addEventListener('dragleave',event=>event.target.closest('.repo-rcg-v2118-slot')?.classList.remove('is-drop-target-v2138'));
+
+    book.addEventListener('drop',event=>{
+      if(activeDragFrom<0)return;
+      const slot=event.target.closest('.repo-rcg-v2118-slot[data-slot]');
+      if(!slot)return;
+      event.preventDefault();
+      event.stopPropagation();
+      const to=Number(slot.dataset.slot||0)-1;
+      if(to<0||to>=TOTAL_SLOTS||activeDragFrom===to){finishSlabDrag(book);return;}
+      const next=cleanLayout(state.layout);
+      const fromId=normal(next[activeDragFrom]);
+      if(!fromId||fromId!==activeDragSlab){finishSlabDrag(book);return;}
+      [next[activeDragFrom],next[to]]=[next[to],next[activeDragFrom]];
+      playSlabMoveSound();
+      applyLocalLayout(next);
+      const landing=visibleSlotForAbsolute(to);
+      landing?.classList.add('is-swap-land-v2138');
+      setTimeout(()=>landing?.classList.remove('is-swap-land-v2138'),420);
+      finishSlabDrag(book);
+    });
+    book.addEventListener('dragend',()=>finishSlabDrag(book));
+
+    book.querySelectorAll('.repo-rcg-v2118-turn').forEach(turn=>{
+      if(turn.dataset.rcgDragTurnBoundV2138==='1')return;
+      turn.dataset.rcgDragTurnBoundV2138='1';
+      const direction=turn.classList.contains('left')?-1:1;
+      turn.addEventListener('dragenter',event=>{if(activeDragFrom<0)return;event.preventDefault();turn.classList.add('is-drag-hot-v2138');});
+      turn.addEventListener('dragover',event=>{if(activeDragFrom<0)return;event.preventDefault();event.dataTransfer.dropEffect='move';turnDuringSlabDrag(direction,turn);});
+      turn.addEventListener('dragleave',()=>turn.classList.remove('is-drag-hot-v2138'));
+      turn.addEventListener('drop',event=>{if(activeDragFrom<0)return;event.preventDefault();turn.classList.remove('is-drag-hot-v2138');});
+    });
+  }
+
+  function makePage(side){
+    const page=document.createElement('section');
+    page.className=`repo-rcg-v2118-page ${side}`;
+    page.innerHTML=`<div class="repo-rcg-v2118-page-lining"><div class="repo-rcg-v2118-grid"></div><div class="repo-rcg-v2118-page-mark">RCG</div></div>`;
+    const grid=page.querySelector('.repo-rcg-v2118-grid');
+    for(let i=0;i<PER_PAGE;i++){
+      const slot=document.createElement('article');
+      slot.className='repo-rcg-v2118-slot';
+      slot.tabIndex=0;
+      slot.setAttribute('role','button');
+      slot.innerHTML=`<div class="repo-rcg-v2118-pocket"><div class="repo-rcg-v2118-pocket-highlight"></div></div>`;
+      grid.appendChild(slot);
+    }
+    return page;
+  }
+
+  function mountBinder(){
+    const d=dialog(); if(!d)return false;
+    const stage=d.querySelector('.repo-rcg-binder-stage'); if(!stage)return false;
+    const old=d.querySelector('#repoRcgBinderBook'); if(old)old.classList.add('repo-rcg-v2118-legacy-book-hidden');
+    let book=d.querySelector('#repoRcgConstructedBookV2118');
+    if(!book){
+      book=document.createElement('div');
+      book.id='repoRcgConstructedBookV2118';
+      book.className='repo-rcg-v2118-book';
+      book.setAttribute('aria-label','RCG slab binder spread');
+      book.appendChild(makePage('left'));
+      const spine=document.createElement('div');
+      spine.className='repo-rcg-v2118-spine';
+      spine.innerHTML=`<div class="repo-rcg-v2118-spine-plaque"><span>SLAB</span><span>ARCHIVE</span><i></i></div>`;
+      book.appendChild(spine);
+      book.appendChild(makePage('right'));
+      book.insertAdjacentHTML('beforeend','<button type="button" class="repo-rcg-v2118-turn left" aria-label="Previous slab pages"></button><button type="button" class="repo-rcg-v2118-turn right" aria-label="Next slab pages"></button>');
+      stage.appendChild(book);
+      book.querySelector('.repo-rcg-v2118-turn.left')?.addEventListener('click',()=>setSpread(spread-1));
+      book.querySelector('.repo-rcg-v2118-turn.right')?.addEventListener('click',()=>setSpread(spread+1));
+      book.addEventListener('contextmenu',event=>{
+        const slot=event.target.closest('.repo-rcg-v2118-slot[data-slot][data-slab-id]');
+        if(!slot)return;
+        event.preventDefault();event.stopPropagation();
+        if(isPublicView())return;
+        hideSlot(Number(slot.dataset.slot||0)-1);
+      });
+      book.addEventListener('keydown',event=>{
+        if(event.key!=='Enter'&&event.key!==' ')return;
+        const slot=event.target.closest('.repo-rcg-v2118-slot[data-slot][data-slab-id]');
+        if(!slot)return;
+        event.preventDefault();
+      });
+    }
+    bindSlabDragAndPreview(book);
+    ensureHoverPreview();
+    mounted=true;
+    ensureDrawer();
+    try{window.repoRcgUpgradeCustomizerV2129?.mount?.()}catch(_){ }
+    render();
+    requestAnimationFrame(positionBinderSidebar);
+    return true;
+  }
+
+  function setSpread(next){
+    const requested=Number(next);
+    if(Number.isFinite(requested)&&requested<1){
+      const d=dialog();
+      const closeButton=d?.querySelector('.repo-rcg-binder-close');
+      if(closeButton){
+        closeButton.click();
+      }else if(d){
+        try{d.close()}catch(_){ }
+        setTimeout(()=>{try{openQuidditchTcgBinder?.()}catch(_){ }},80);
+      }
+      return;
+    }
+    const n=Math.max(1,Math.min(TOTAL_SPREADS,Number(next)||1));
+    if(n===spread)return;
+    spread=n;
+    render();
+    try{quidditchTcgBinderPlayPageSound?.()}catch(_){ }
+  }
+
+  function render(){
+    const d=dialog(); const book=builtBook(); if(!d||!book)return;
+    const leftPage=(spread*2)-1,rightPage=leftPage+1;
+    const leftSlots=[...book.querySelectorAll('.repo-rcg-v2118-page.left .repo-rcg-v2118-slot')];
+    const rightSlots=[...book.querySelectorAll('.repo-rcg-v2118-page.right .repo-rcg-v2118-slot')];
+    const visible=[...leftSlots,...rightSlots];
+    const map=bySlabId();
+    const start=(spread-1)*PER_SPREAD;
+    visible.forEach((slot,i)=>{
+      const absolute=start+i;
+      const id=normal(state.layout[absolute]);
+      const slab=state.slots[absolute]||map[id]||null;
+      slot.dataset.slot=String(absolute+1);
+      slot.dataset.slabId=id;
+      slot.classList.toggle('is-filled',Boolean(id&&slab));
+      const pocket=slot.querySelector('.repo-rcg-v2118-pocket');
+      if(!pocket)return;
+      pocket.querySelector('.repo-rcg-v2118-slab')?.remove();
+      if(id&&slab){
+        pocket.insertAdjacentHTML('beforeend',slabVisual(slab));
+        const slabNode=pocket.querySelector('.repo-rcg-v2118-slab[data-slab-id]');
+        if(slabNode){
+          slabNode.draggable=!isPublicView();
+          slabNode.setAttribute('aria-grabbed','false');
+        }
+        slot.title=isPublicView()
+          ?`${cardName(slab)} · RCG ${Number(slab.grade)||'?'} · ${publicOwner}'s displayed slab`
+          :`${cardName(slab)} · RCG ${Number(slab.grade)||'?'} · drag to rearrange or move between spreads · right-click to hide`;
+        slot.setAttribute('aria-label',slot.title);
+      }else{
+        slot.title='Empty RCG slab slot';
+        slot.setAttribute('aria-label',`Empty slab slot ${absolute+1}`);
+      }
+    });
+    const pageLabel=d.querySelector('#repoRcgBinderPageLabel');
+    if(pageLabel)pageLabel.textContent=`SLAB COLLECTION PAGES ${leftPage}–${rightPage}`;
+    const hint=d.querySelector('#repoRcgBinderHint');
+    const placed=state.layout.filter(Boolean).length;
+    if(hint)hint.textContent=isPublicView()
+      ?`Viewing ${publicOwner}'s slab archive · ${placed} slabs displayed · read only.`
+      :`${placed} slabs displayed · drag to rearrange or swap · hold at a page edge to move between spreads · right-click to hide.`;
+    d.classList.toggle('repo-rcg-public-view-v2143',isPublicView());
+    const hiddenBtn=d.querySelector('#repoRcgHiddenBtn');
+    const customizeBtn=d.querySelector('#repoRcgCustomizeBtn');
+    if(hiddenBtn){hiddenBtn.hidden=isPublicView();hiddenBtn.style.display=isPublicView()?'none':'';}
+    if(customizeBtn){customizeBtn.hidden=isPublicView();customizeBtn.style.display=isPublicView()?'none':'';}
+    if(isPublicView())openDrawer(false);
+    const prev=d.querySelector('#repoRcgBinderPrev'); if(prev)prev.disabled=spread<=1;
+    const next=d.querySelector('#repoRcgBinderNext'); if(next)next.disabled=spread>=TOTAL_SPREADS;
+    const badge=d.querySelector('#repoRcgHiddenBtn .repo-rcg-hidden-count-badge'); if(badge)badge.textContent=String(hiddenSlabs().length);
+    renderDrawer();
+    requestAnimationFrame(positionBinderSidebar);
+  }
+
+  async function refresh({force=false}={}){
+    if(hasPendingLayoutSave())return state;
+    if(loading||typeof db==='undefined'||!db?.rpc)return state;
+    if(!force&&Date.now()-lastRefresh<700)return state;
+    loading=true;
+    try{
+      const response=isPublicView()
+        ?await db.rpc('get_public_rcg_slab_binder_view',{p_username:publicOwner})
+        :await db.rpc('get_my_rcg_slab_binder_view');
+      const {data,error}=response||{};
+      if(error)throw error;
+      const raw=Array.isArray(data)?data[0]:data;
+      state=normaliseState(raw);
+      publicStyle=isPublicView()&&raw?.style&&typeof raw.style==='object'?raw.style:null;
+      if(isPublicView()&&publicStyle){
+        try{window.repoRcgUpgradeCustomizerV2129?.applyExternalStyle?.(publicStyle,{music:true});}catch(_){ }
+      }
+      lastRefresh=Date.now();
+    }catch(error){
+      console.error('[RCG v21.43] refresh failed',error);
+      toast(String(error?.message||'Could not load slab binder').replace(/^Error:\s*/,''));
+    }finally{
+      loading=false;
+      render();
+    }
+    return state;
+  }
+
+  function queueLayoutPersist(){
+    if(isPublicView())return;
+    persistDirty=true;
+    persistRevision++;
+    if(persistTimer)clearTimeout(persistTimer);
+    persistTimer=setTimeout(()=>{persistTimer=null;flushLayoutPersist();},140);
+  }
+
+  async function flushLayoutPersist(){
+    if(isPublicView())return;
+    if(persistInFlight||!persistDirty||typeof db==='undefined'||!db?.rpc)return;
+    persistDirty=false;
+    persistInFlight=true;
+    const revision=persistRevision;
+    const snapshot=cleanLayout(state.layout);
+    let failed=false;
+    try{
+      const {error}=await db.rpc('set_my_rcg_slab_binder_layout',{p_layout:snapshot});
+      if(error)throw error;
+      // IMPORTANT v21.25: never replace the live local binder with the RPC return value.
+      // The RPC returns the JSON layout array itself; older code treated data[0] as the
+      // whole layout, temporarily turning every visible slot into null. The local snapshot
+      // is already the exact state the user just interacted with, so keep it rendered and
+      // let Supabase confirm it silently in the background.
+      lastRefresh=Date.now();
+    }catch(error){
+      failed=true;
+      console.error('[RCG v21.25] slab layout save failed',error);
+      toast(String(error?.message||'Could not save slab binder').replace(/^Error:\s*/,''));
+    }finally{
+      persistInFlight=false;
+      if(persistDirty){
+        queueMicrotask(flushLayoutPersist);
+      }else if(failed){
+        lastRefresh=0;
+        refresh({force:true});
+      }
+      renderDrawer();
+    }
+  }
+
+  function applyLocalLayout(next){
+    if(isPublicView())return;
+    state.layout=cleanLayout(next);
+    const map=bySlabId();
+    state.slots=state.layout.map(id=>id?map[id]||null:null);
+    render();
+    queueLayoutPersist();
+  }
+
+  function hiddenSlabs(){
+    if(isPublicView())return [];
+    const used=new Set(state.layout.filter(Boolean));
+    return (state.slabs||[]).filter(s=>!used.has(slabId(s)));
+  }
+
+  function category(slab){
+    const id=normal(slab?.card_id).toLowerCase();
+    if(id.includes('legendary'))return 'legendary';
+    if(id.includes('full_art'))return 'fullart';
+    if(id.includes('patch'))return 'patch';
+    if(id.includes('platinum'))return 'platinum';
+    return 'standard';
+  }
+
+  function ensureDrawer(){
+    const d=dialog(); if(!d)return null;
+    d.querySelector('#repoRcgSlabStorageDrawerV2116')?.remove();
+    const old=d.querySelector('#repoRcgHiddenPanel'); if(old){old.hidden=true;old.style.display='none';}
+    drawer=d.querySelector('#repoRcgStorageDrawerV2118');
+    if(drawer)return drawer;
+    drawer=document.createElement('aside');
+    drawer.id='repoRcgStorageDrawerV2118';
+    drawer.className='repo-binder-storage repo-rcg-v2118-storage';
+    drawer.dataset.storageFilter='all';
+    drawer.setAttribute('aria-hidden','true');
+    drawer.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN SLABS</strong><span class="repo-binder-storage-subtitle">Hidden slabs remain in your graded collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-v2118-close aria-label="Close Hidden Slabs">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search hidden slabs…"><div class="repo-binder-storage-filters"><button data-storage-filter="all" aria-pressed="true">ALL</button><button data-storage-filter="legendary">LEGENDARY</button><button data-storage-filter="fullart">FULL ART</button><button data-storage-filter="patch">PATCH</button><button data-storage-filter="platinum">PLATINUM</button><button data-storage-filter="standard">STANDARD</button></div></div><div class="repo-binder-storage-results"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Right-click a displayed slab to put it away. Use RESTORE TO BINDER to return it to this spread.</div>`;
+    d.appendChild(drawer);
+    drawer.querySelector('[data-v2118-close]')?.addEventListener('click',()=>openDrawer(false));
+    drawer.querySelector('.repo-binder-storage-search')?.addEventListener('input',renderDrawer);
+    drawer.querySelector('.repo-binder-storage-filters')?.addEventListener('click',event=>{
+      const btn=event.target.closest('[data-storage-filter]'); if(!btn)return;
+      drawer.dataset.storageFilter=btn.dataset.storageFilter||'all';
+      drawer.querySelectorAll('[data-storage-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));
+      renderDrawer();
+    });
+    drawer.querySelector('.repo-binder-storage-list')?.addEventListener('click',event=>{
+      const btn=event.target.closest('[data-action="restore"]');
+      const item=event.target.closest('[data-slab-id]');
+      if(!btn||!item)return;
+      event.preventDefault();event.stopPropagation();
+      restoreSlab(item.dataset.slabId||'');
+    });
+    return drawer;
+  }
+
+  function openDrawer(open){
+    if(isPublicView())open=false;
+    const panel=ensureDrawer(); if(!panel)return;
+    panel.classList.toggle('is-open',Boolean(open));
+    panel.setAttribute('aria-hidden',String(!open));
+    const btn=dialog()?.querySelector('#repoRcgHiddenBtn');
+    btn?.classList.toggle('is-active',Boolean(open));
+    btn?.setAttribute('aria-expanded',String(Boolean(open)));
+    if(open){
+      renderDrawer();
+      if(!hasPendingLayoutSave())refresh({force:true});
+    }
+  }
+
+  function renderDrawer(){
+    const panel=drawer||ensureDrawer(); if(!panel)return;
+    const all=hiddenSlabs();
+    const search=normal(panel.querySelector('.repo-binder-storage-search')?.value).toLowerCase();
+    const filter=panel.dataset.storageFilter||'all';
+    const visible=all.filter(s=>(filter==='all'||category(s)===filter)&&(!search||cardName(s).toLowerCase().includes(search)||normal(s.certification_number).toLowerCase().includes(search)));
+    const count=panel.querySelector('.repo-binder-storage-count'); if(count)count.textContent=String(all.length);
+    const results=panel.querySelector('.repo-binder-storage-results'); if(results)results.textContent=all.length?`Showing ${visible.length} of ${all.length} hidden slabs`:'No slabs currently stored';
+    const list=panel.querySelector('.repo-binder-storage-list'); if(!list)return;
+    list.replaceChildren();
+    if(!visible.length){
+      const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML=all.length?'NO MATCHING SLABS':'NO HIDDEN SLABS<br><small>Right-click a displayed slab to put it away.</small>';list.appendChild(empty);return;
+    }
+    visible.forEach(slab=>{
+      const item=document.createElement('article');
+      item.className='repo-binder-storage-card repo-rcg-v2118-storage-card';
+      item.dataset.slabId=slabId(slab);
+      item.innerHTML=`<div class="repo-binder-storage-card-image repo-rcg-v2118-storage-image">${slabVisual(slab,{mini:true})}<span class="repo-binder-storage-card-badge">RCG ${esc(Number(slab.grade)||'?')}</span></div><strong class="repo-binder-storage-card-name">${esc(cardName(slab))}</strong><button type="button" class="repo-binder-storage-restore" data-action="restore">RESTORE TO BINDER</button>`;
+      list.appendChild(item);
+    });
+  }
+
+  function firstEmptyOnSpread(){
+    const start=(spread-1)*PER_SPREAD,end=start+PER_SPREAD;
+    for(let i=start;i<end;i++)if(!state.layout[i])return i;
+    return state.layout.indexOf(null);
+  }
+
+  function restoreSlab(id){
+    if(isPublicView())return;
+    id=normal(id); if(!id)return;
+    if(state.layout.includes(id)){toast('That slab is already displayed.');return;}
+    const target=firstEmptyOnSpread(); if(target<0){toast('The slab binder is full.');return;}
+    const slab=(state.slabs||[]).find(s=>slabId(s)===id); if(!slab)return;
+
+    const sourceEl=drawer?.querySelector(`[data-slab-id="${CSS.escape(id)}"] .repo-rcg-v2118-slab`)||drawer?.querySelector(`[data-slab-id="${CSS.escape(id)}"]`);
+    const targetEl=visibleSlotForAbsolute(target)||builtBook();
+    arrivingSlabs.add(id);
+    playSlabMoveSound();
+    const flight=animateSlabTransfer(sourceEl,targetEl,{direction:'restore',slabIdValue:id});
+
+    const next=cleanLayout(state.layout); next[target]=id;
+    applyLocalLayout(next);
+    flight.catch(()=>{});
+  }
+
+  function hideSlot(index){
+    if(isPublicView())return;
+    if(index<0||index>=TOTAL_SLOTS)return;
+    const id=normal(state.layout[index]); if(!id)return;
+    const sourceEl=dialog()?.querySelector(`.repo-rcg-v2118-slot[data-slot="${index+1}"] .repo-rcg-v2118-slab`);
+    const targetEl=targetForHiddenSlabs();
+
+    playSlabMoveSound();
+    animateSlabTransfer(sourceEl,targetEl,{direction:'hide',slabIdValue:id}).catch(()=>{});
+    arrivingSlabs.delete(id);
+    const next=cleanLayout(state.layout); next[index]=null;
+    applyLocalLayout(next);
+  }
+
+  // Own the controls before legacy dialog listeners receive them.
+  document.addEventListener('click',event=>{
+    const d=dialog(); if(!d||!d.open)return;
+    const hidden=event.target.closest?.('#repoRcgHiddenBtn');
+    if(hidden){event.preventDefault();event.stopPropagation();if(!isPublicView())openDrawer(!drawer?.classList.contains('is-open'));return;}
+    const prev=event.target.closest?.('#repoRcgBinderPrev');
+    if(prev){event.preventDefault();event.stopPropagation();setSpread(spread-1);return;}
+    const next=event.target.closest?.('#repoRcgBinderNext');
+    if(next){event.preventDefault();event.stopPropagation();setSpread(spread+1);return;}
+  },true);
+
+  window.addEventListener('repo-rcg-slabs-changed',()=>{
+    lastRefresh=0;
+    if(!hasPendingLayoutSave())refresh({force:true});
+  });
+  window.addEventListener('resize',()=>requestAnimationFrame(positionBinderSidebar),{passive:true});
+
+  try{
+    const preloadMove=new Audio(SLAB_MOVE_SOUND);
+    preloadMove.preload='auto';
+    preloadMove.volume=.60;
+  }catch(_){ }
+
+  // IMPORTANT: only observe direct BODY children. The previous v21.18 observer watched
+  // the entire dialog subtree; renderDrawer() then mutated that subtree and recursively
+  // re-triggered mount/render forever, locking the whole site.
+  let bodyObserver=null;
+  function onBinderAvailable(){
+    const d=dialog();
+    if(!d)return;
+    mountBinder();
+    if(d.open){
+      lastRefresh=0;
+      refresh({force:true});
+    }
+  }
+
+  const start=()=>{
+    // The binder dialog is appended directly to <body>, so subtree observation is unnecessary.
+    bodyObserver=new MutationObserver(mutations=>{
+      for(const mutation of mutations){
+        if(mutation.type!=='childList')continue;
+        const added=[...mutation.addedNodes];
+        if(added.some(node=>node?.nodeType===1 && (node.id==='repoRcgBinderDialog' || node.querySelector?.('#repoRcgBinderDialog')))){
+          queueMicrotask(onBinderAvailable);
+          break;
+        }
+      }
+    });
+    bodyObserver.observe(document.body,{childList:true});
+    onBinderAvailable();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
+
+  // Lightweight open-state watchdog only. It never mutates the site unless the RCG binder
+  // dialog is actually open, and it does not observe our own drawer/slot mutations.
+  setInterval(()=>{
+    const d=dialog();
+    if(!d||!d.open)return;
+    if(!mounted || !builtBook())mountBinder();
+    if(!hasPendingLayoutSave()&&Date.now()-lastRefresh>5000)refresh();
+  },1000);
+
+  window.repoRcgConstructedSlabBinderV2118={
+    setViewOwner(username,{refresh:doRefresh=true}={}){
+      const next=normal(username);
+      const wasPublic=isPublicView();
+      publicOwner=next;
+      publicStyle=null;
+      spread=1;
+      lastRefresh=0;
+      activeDragFrom=-1;
+      activeDragSlab='';
+      openDrawer(false);
+      if(!next&&wasPublic){
+        try{window.repoRcgUpgradeCustomizerV2129?.restoreOwnStyle?.({music:true});}catch(_){ }
+      }
+      render();
+      if(doRefresh)return refresh({force:true});
+      return Promise.resolve(state);
+    },
+    refresh,
+    isPublicView,
+    getViewOwner:()=>publicOwner
+  };
+})();
+
+
+// ============================================================================
+// RCG SLAB BINDER v21.29 — CARD-BINDER UPGRADE CUSTOMIZER
+// Uses the same upgrade catalogue/unlocks as the normal TCG binder while
+// keeping the slab binder's selected style independent on this device.
+// ============================================================================
+(function installRcgUpgradeCustomizerV2129(){
+  if(window.repoRcgUpgradeCustomizerV2129)return;
+
+  const THEMES={
+    midnight:{label:'Midnight',colour:'#3b83d5',accent:'#8fc9ff'},
+    emerald:{label:'Emerald',colour:'#27855b',accent:'#92e8b7'},
+    royal:{label:'Royal Purple',colour:'#7650bd',accent:'#d0adff'},
+    crimson:{label:'Crimson',colour:'#a63f4b',accent:'#ffb3b8'},
+    frost:{label:'Frost Silver',colour:'#8399ad',accent:'#e5f2ff'},
+    golden:{label:'Golden Hour',colour:'#a56c16',accent:'#ffe28a'},
+    ocean:{label:'Ocean Teal',colour:'#168697',accent:'#8ef5ff'},
+    rose:{label:'Rose Quartz',colour:'#a84f78',accent:'#ffc1dc'},
+    obsidian:{label:'Obsidian',colour:'#4b5360',accent:'#d7dfeb'},
+    sunfire:{label:'Sunfire',colour:'#c65318',accent:'#ffd06f'},
+    sapphire:{label:'Sapphire Court',colour:'#2359a7',accent:'#a8d4ff'},
+    amethyst:{label:'Amethyst Arcana',colour:'#8b43b8',accent:'#efbdff'},
+    bloodmoon:{label:'Blood Moon',colour:'#7f2638',accent:'#ff9daa'},
+    jade:{label:'Jade Relic',colour:'#28775f',accent:'#d4e997'},
+    copper:{label:'Copper Forge',colour:'#9c572a',accent:'#ffc28f'},
+    neon:{label:'Neon Mirage',colour:'#b33b91',accent:'#6ef4ff'}
+  };
+  const EFFECTS={
+    calm:{label:'Calm',hint:'No moving background'},
+    stardust:{label:'Stardust',hint:'Slow drifting stars'},
+    aurora:{label:'Aurora',hint:'Soft magical ribbons'},
+    embers:{label:'Embers',hint:'Warm floating sparks'},
+    goldfall:{label:'Goldfall',hint:'Gentle golden dust'},
+    moonmist:{label:'Moon Mist',hint:'Slow rolling mist'},
+    runes:{label:'Rune Drift',hint:'Ancient symbols glide past'},
+    fireflies:{label:'Fireflies',hint:'Small lights rise gently'},
+    comet:{label:'Comet Trail',hint:'Occasional magical streak'},
+    ripple:{label:'Arcane Ripple',hint:'Slow rings of energy'},
+    inferno:{label:'Inferno Sovereign',hint:'Roaring flame crown and heatwave',legendary:true},
+    celestial:{label:'Celestial Tempest',hint:'Nebula storm, stars and lightning',legendary:true},
+    dragonhoard:{label:"Dragon's Hoard",hint:'Ancient gold, scales and treasure glints',legendary:true},
+    phoenix:{label:'Phoenix Rebirth',hint:'Blazing wings, ash and rebirth flare',legendary:true},
+    voidrift:{label:'Void Rift',hint:'A deep arcane vortex with crystal shards',legendary:true},
+    enchantedwilds:{label:'Enchanted Wilds',hint:'Living vines, leaves and spirit wisps',legendary:true},
+    stormwind:{label:'Tempest Wind',hint:'Silver wind ribbons sweep across both pages',legendary:true},
+    smokeveil:{label:'Wraithsmoke Veil',hint:'Layered smoke curls through every pocket',legendary:true},
+    autumnstream:{label:'Autumn Current',hint:'Golden leaves spiral across the full spread',legendary:true},
+    tidalstream:{label:'Tidal Stream',hint:'Flowing water ribbons and bright droplets',legendary:true},
+    dawnmist:{label:'Dawn Mist',hint:'Soft valley fog rolls between the cards',legendary:true},
+    nightrain:{label:'Midnight Rain',hint:'Night sky, rainfall and distant lightning',legendary:true}
+  };
+  const FINISHES={
+    classic:{label:'Classic Gold',hint:'Traditional gold pockets'},
+    crystal:{label:'Crystal Edge',hint:'Bright glass-like borders'},
+    shadow:{label:'Shadow Matte',hint:'Dark understated pockets'},
+    platinum:{label:'Platinum',hint:'Clean silver finish'},
+    enchanted:{label:'Enchanted',hint:'Soft pulsing edge glow'}
+  };
+  const MUSIC={
+    default:{label:'Archive Ambience',hint:'Original quiet binder soundtrack.',free:true},
+    vardesh:{label:'Vardesh Kit Theme',team:'Vardesh'}, lumerre:{label:'Lumerre Kit Theme',team:'Lumerre'},
+    kordesh:{label:'Kordesh Kit Theme',team:'Kordesh'}, nambara:{label:'Nambara Kit Theme',team:'Nambara'},
+    norveth:{label:'Norveth Kit Theme',team:'Norveth'}, zafran:{label:'Zafran Kit Theme',team:'Zafran'},
+    elvane:{label:'Elvane Kit Theme',team:'Elvane'}, qasmir:{label:'Qasmir Kit Theme',team:'Qasmir'},
+    calvora:{label:'Calvora Kit Theme',team:'Calvora'}, rovarn:{label:'Rovarn Kit Theme',team:'Rovarn'},
+    talune:{label:'Talune Kit Theme',team:'Talune'}, drazhen:{label:'Drazhen Kit Theme',team:'Drazhen'},
+    belros:{label:'Belros Kit Theme',team:'Belros'}, marovar:{label:'Marovar Kit Theme',team:'Marovar'},
+    sorevia:{label:'Sorevia Kit Theme',team:'Sorevia'}, iskandar:{label:'Iskandar Kit Theme',team:'Iskandar'}
+  };
+  const LEGENDARY_PRICE=10000;
+  const MUSIC_PRICE=2000;
+  const DEFAULT_STYLE={theme:'sapphire',effect:'stardust',finish:'classic',music:'default'};
+  const LEGENDARY_KEYS=new Set(Object.entries(EFFECTS).filter(([,v])=>v.legendary).map(([k])=>k));
+  const MUSIC_KEYS=new Set(Object.keys(MUSIC).filter(k=>k!=='default'));
+  let style={...DEFAULT_STYLE};
+  let unlockedEffects=new Set();
+  let unlockedMusic=new Set();
+  let gp=null;
+  let loadedFor='';
+  let menu=null;
+  let purchaseBusy=false;
+  let slabMusicAudio=null;
+  let slabMusicKey='';
+  let externalStyleMode=false;
+  let styleSaveTimer=null;
+
+  const dialog=()=>document.getElementById('repoRcgBinderDialog');
+  const normal=v=>String(v??'').trim();
+  const esc=v=>String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  function username(){return normal(window.character?.username||window.currentUser?.username||'Player')||'Player';}
+  function key(){return `repo_rcg_slab_binder_style_${username().toLowerCase()}`;}
+  function parseArray(value){
+    if(Array.isArray(value))return value.map(v=>normal(v).toLowerCase()).filter(Boolean);
+    if(typeof value==='string')return value.replace(/^\{|\}$/g,'').split(',').map(v=>normal(v).replace(/^"|"$/g,'').toLowerCase()).filter(Boolean);
+    return [];
+  }
+  function normaliseStyle(value){
+    const input=value&&typeof value==='object'?value:{};
+    const theme=normal(input.theme).toLowerCase();
+    const effect=normal(input.effect).toLowerCase();
+    const finish=normal(input.finish).toLowerCase();
+    const music=normal(input.music).toLowerCase();
+    return {
+      theme:THEMES[theme]?theme:DEFAULT_STYLE.theme,
+      effect:EFFECTS[effect]?effect:DEFAULT_STYLE.effect,
+      finish:FINISHES[finish]?finish:DEFAULT_STYLE.finish,
+      music:MUSIC[music]?music:DEFAULT_STYLE.music
+    };
+  }
+  function loadLocal(){
+    externalStyleMode=false;
+    try{style=normaliseStyle(JSON.parse(localStorage.getItem(key())||'{}'));}
+    catch(_){style={...DEFAULT_STYLE};}
+  }
+  function queueStyleSnapshot(){
+    if(externalStyleMode||typeof db==='undefined'||!db?.rpc)return;
+    clearTimeout(styleSaveTimer);
+    const snapshot={...style};
+    styleSaveTimer=setTimeout(async()=>{
+      try{
+        const {error}=await db.rpc('set_my_rcg_slab_binder_style',{p_style:snapshot});
+        if(error)throw error;
+      }catch(error){console.warn('[RCG STYLE V21.43] public style snapshot save skipped',error);}
+    },140);
+  }
+  function saveLocal(){
+    if(externalStyleMode)return;
+    try{localStorage.setItem(key(),JSON.stringify(style));}catch(_){ }
+    queueStyleSnapshot();
+  }
+  function canEffect(effect){return !LEGENDARY_KEYS.has(effect)||unlockedEffects.has(effect);}
+  function canMusic(music){return music==='default'||unlockedMusic.has(music);}
+  function status(text,error=false){
+    const el=menu?.querySelector('.repo-rcg-upgrade-status-v2129');
+    if(!el)return;el.textContent=text;el.classList.toggle('is-error',Boolean(error));
+  }
+
+  function stopSlabMusic({rewind=true,dispose=false}={}){
+    if(!slabMusicAudio)return;
+    try{slabMusicAudio.pause();}catch(_){ }
+    if(rewind)try{slabMusicAudio.currentTime=0;}catch(_){ }
+    if(dispose){
+      try{slabMusicAudio.removeAttribute?.('src');slabMusicAudio.load?.();}catch(_){ }
+      slabMusicAudio=null;
+      slabMusicKey='';
+    }
+  }
+
+  function playSlabMusic(musicKey=style.music,{restart=false}={}){
+    const d=dialog();
+    if(!d?.open)return null;
+    const keyValue=normal(musicKey).toLowerCase();
+    const safeKey=MUSIC[keyValue]?keyValue:'default';
+    const track=(typeof QUIDDITCH_TCG_BINDER_MUSIC!=='undefined'&&QUIDDITCH_TCG_BINDER_MUSIC[safeKey])
+      ?QUIDDITCH_TCG_BINDER_MUSIC[safeKey]
+      :(typeof QUIDDITCH_TCG_BINDER_MUSIC!=='undefined'?QUIDDITCH_TCG_BINDER_MUSIC.default:null);
+    if(!track?.src)return null;
+
+    // The slab archive owns its audio while it is open. Stop the normal binder
+    // player, but never change its selected soundtrack key.
+    try{quidditchTcgBinderStopViewMusic?.()}catch(_){ }
+
+    if(!slabMusicAudio||slabMusicKey!==safeKey||!String(slabMusicAudio.src||'').includes(String(track.src))){
+      stopSlabMusic();
+      slabMusicAudio=new Audio(track.src);
+      slabMusicAudio.preload='auto';
+      slabMusicAudio.loop=true;
+      slabMusicKey=safeKey;
+    }else if(restart){
+      try{slabMusicAudio.currentTime=0;}catch(_){ }
+    }
+
+    slabMusicAudio.volume=window.repoBinderGetMusicVolume?window.repoBinderGetMusicVolume():Math.max(.28,Math.min(.38,Number(track.volume)||.33));
+    if(slabMusicAudio.paused){
+      const playing=slabMusicAudio.play();
+      playing?.catch?.(error=>console.warn('[RCG SLAB MUSIC V21.30] playback failed',safeKey,error));
+    }
+    return slabMusicAudio;
+  }
+
+
+  function primeMusicFromGesture(){
+    if(!externalStyleMode)loadLocal();
+    const keyValue=normal(style.music).toLowerCase();
+    const safeKey=MUSIC[keyValue]?keyValue:'default';
+    const track=(typeof QUIDDITCH_TCG_BINDER_MUSIC!=='undefined'&&QUIDDITCH_TCG_BINDER_MUSIC[safeKey])
+      ?QUIDDITCH_TCG_BINDER_MUSIC[safeKey]
+      :(typeof QUIDDITCH_TCG_BINDER_MUSIC!=='undefined'?QUIDDITCH_TCG_BINDER_MUSIC.default:null);
+    if(!track?.src)return null;
+    try{quidditchTcgBinderStopViewMusic?.()}catch(_){ }
+    if(!slabMusicAudio||slabMusicKey!==safeKey||!String(slabMusicAudio.src||'').includes(String(track.src))){
+      stopSlabMusic({rewind:true,dispose:true});
+      slabMusicAudio=new Audio(track.src);
+      slabMusicAudio.preload='auto';
+      slabMusicAudio.loop=true;
+      slabMusicKey=safeKey;
+    }
+    slabMusicAudio.volume=window.repoBinderGetMusicVolume?window.repoBinderGetMusicVolume():Math.max(.28,Math.min(.38,Number(track.volume)||.33));
+    const playing=slabMusicAudio.play();
+    playing?.catch?.(error=>console.warn('[RCG SLAB MUSIC V21.43] gesture playback failed',safeKey,error));
+    return slabMusicAudio;
+  }
+
+  function ensureFx(){
+    const book=dialog()?.querySelector('#repoRcgConstructedBookV2118');
+    if(!book)return null;
+    const legacy=book.querySelector(':scope > .repo-rcg-upgrade-fx-v2129');
+    if(legacy)legacy.remove();
+    let fx=book.querySelector(':scope > .repo-binder-full-spread-fx.repo-rcg-parity-fx');
+    if(!fx){
+      fx=document.createElement('div');
+      fx.className='repo-binder-full-spread-fx repo-rcg-parity-fx';
+      fx.setAttribute('aria-hidden','true');
+      for(let index=0;index<72;index+=1){
+        const particle=document.createElement('i');
+        const x=1+((index*37)%98);
+        const y=2+((index*53)%95);
+        const size=index%9===0?7:index%5===0?5:index%3===0?3:2;
+        const duration=(4.3+(index%11)*0.63).toFixed(2);
+        const delay=(-((index*1.17)%13.7)).toFixed(2);
+        const drift=`${((index*31)%121)-60}px`;
+        particle.style.cssText=`--x:${x}%;--y:${y}%;--size:${size}px;--d:${duration}s;--delay:${delay}s;--drift:${drift}`;
+        fx.appendChild(particle);
+      }
+      book.appendChild(fx);
+    }
+    return fx;
+  }
+
+  function restartFx(){
+    const d=dialog();if(!d)return;
+    const book=d.querySelector('#repoRcgConstructedBookV2118');
+    if(!book)return;
+    book.querySelector(':scope > .repo-binder-full-spread-fx.repo-rcg-parity-fx')?.remove();
+    ensureFx();
+  }
+
+  function applyStyle({music=true,save=true}={}){
+    const d=dialog();if(!d)return;
+    d.dataset.rcgUpgradeTheme=style.theme;
+    d.dataset.rcgUpgradeEffect=style.effect;
+    d.dataset.rcgUpgradeFinish=style.finish;
+    const theme=THEMES[style.theme]||THEMES[DEFAULT_STYLE.theme]||{};
+    d.style.setProperty('--bc-accent',theme.colour||'#2359a7');
+    d.style.setProperty('--bc-bright',theme.accent||'#a8d4ff');
+    restartFx();
+    if(music){
+      try{playSlabMusic(style.music,{restart:true});}catch(_){ }
+    }
+    if(save)saveLocal();
+    renderChoices();
+  }
+
+  function applyExternalStyle(value,{music=true}={}){
+    externalStyleMode=true;
+    style=normaliseStyle(value);
+    applyStyle({music,save:false});
+  }
+  function restoreOwnStyle({music=true}={}){
+    loadLocal();
+    applyStyle({music,save:false});
+  }
+
+  async function loadUnlocks(force=false){
+    const user=username();
+    if(!force&&loadedFor===user)return;
+    loadedFor=user;
+    unlockedEffects=new Set();unlockedMusic=new Set();gp=null;
+    if(typeof db==='undefined'||!db?.rpc){renderChoices();return;}
+    try{
+      let response=await db.rpc('get_my_quidditch_binder_style_v4');
+      if(response?.error)response=await db.rpc('get_my_quidditch_binder_style_v3');
+      if(response?.error)response=await db.rpc('get_my_quidditch_binder_style_v2');
+      if(response?.error)response=await db.rpc('get_my_quidditch_binder_style');
+      if(response?.error)throw response.error;
+      const row=Array.isArray(response.data)?response.data[0]:response.data;
+      unlockedEffects=new Set(parseArray(row?.unlocked_effects||row?.binder_legendary_effects).filter(v=>LEGENDARY_KEYS.has(v)));
+      unlockedMusic=new Set(parseArray(row?.unlocked_music||row?.binder_music_unlocks).filter(v=>MUSIC_KEYS.has(v)));
+      if(Number.isFinite(Number(row?.gp)))gp=Number(row.gp);
+      // Never leave an unavailable paid selection active on this binder.
+      if(!canEffect(style.effect))style.effect='stardust';
+      if(!canMusic(style.music))style.music='default';
+      applyStyle();
+      status('UPGRADES SYNCED FROM YOUR CARD BINDER');
+    }catch(error){
+      console.warn('[RCG CUSTOMIZE] Could not load shared binder upgrades',error);
+      status('USING SAVED SLAB-BINDER STYLE · ACCOUNT UPGRADES COULD NOT SYNC',true);
+    }
+    renderChoices();
+  }
+
+  function themeChoice([k,v]){
+    return `<button type="button" class="repo-rcg-upgrade-choice-v2129${style.theme===k?' is-selected':''}" data-rcg-theme-choice="${k}"><i class="repo-rcg-theme-dot-v2129" style="--dot:${v.colour};--dot2:${v.accent}"></i><span><b>${esc(v.label)}</b><small>Colour theme</small></span></button>`;
+  }
+  function effectChoice([k,v]){
+    const selected=style.effect===k;
+    return `<button type="button" class="repo-rcg-upgrade-choice-v2129${selected?' is-selected':''}" data-rcg-effect-choice="${k}"><i class="repo-rcg-effect-swatch-v2129 effect-${k}"></i><span><b>${esc(v.label)}</b><small>${esc(v.hint)}</small></span></button>`;
+  }
+  function legendaryChoice([k,v]){
+    const owned=unlockedEffects.has(k),selected=style.effect===k;
+    if(owned)return `<button type="button" class="repo-rcg-upgrade-choice-v2129 is-legendary is-owned${selected?' is-selected':''}" data-rcg-effect-choice="${k}"><i class="repo-rcg-effect-swatch-v2129 effect-${k}"></i><span><b>${esc(v.label)}</b><small>${esc(v.hint)}</small><em>${selected?'EQUIPPED':'OWNED · CLICK TO EQUIP'}</em></span></button>`;
+    return `<div class="repo-rcg-upgrade-choice-v2129 is-legendary is-locked"><i class="repo-rcg-effect-swatch-v2129 effect-${k}"></i><span><b>${esc(v.label)}</b><small>${esc(v.hint)}</small><em>${LEGENDARY_PRICE.toLocaleString('en-GB')} GP · PERMANENT</em><button type="button" data-rcg-buy-effect="${k}">UNLOCK 10K</button></span></div>`;
+  }
+  function finishChoice([k,v]){
+    return `<button type="button" class="repo-rcg-upgrade-choice-v2129${style.finish===k?' is-selected':''}" data-rcg-finish-choice="${k}"><i class="repo-rcg-finish-swatch-v2129 finish-${k}"></i><span><b>${esc(v.label)}</b><small>${esc(v.hint)}</small></span></button>`;
+  }
+  function musicChoice([k,v]){
+    const owned=k==='default'||unlockedMusic.has(k),selected=style.music===k;
+    if(owned)return `<button type="button" class="repo-rcg-upgrade-choice-v2129 is-music is-owned${selected?' is-selected':''}" data-rcg-music-choice="${k}"><i class="repo-rcg-music-swatch-v2129">${esc(String(v.team||'A').slice(0,1))}</i><span><b>${esc(v.label)}</b><small>${k==='default'?'Original binder ambience':`${esc(v.team)} World Cup kit soundtrack`}</small><em>${selected?'PLAYING':'OWNED'}</em></span></button>`;
+    return `<div class="repo-rcg-upgrade-choice-v2129 is-music is-locked"><i class="repo-rcg-music-swatch-v2129">${esc(String(v.team||k).slice(0,1))}</i><span><b>${esc(v.label)}</b><small>${esc(v.team)} World Cup kit soundtrack</small><em>${MUSIC_PRICE.toLocaleString('en-GB')} GP · PERMANENT</em><button type="button" data-rcg-buy-music="${k}">UNLOCK 2K</button></span></div>`;
+  }
+
+  function renderChoices(){
+    if(!menu)return;
+    const themes=menu.querySelector('[data-rcg-upgrade-grid="themes"]');
+    const effects=menu.querySelector('[data-rcg-upgrade-grid="effects"]');
+    const legendary=menu.querySelector('[data-rcg-upgrade-grid="legendary"]');
+    const finishes=menu.querySelector('[data-rcg-upgrade-grid="finishes"]');
+    const music=menu.querySelector('[data-rcg-upgrade-grid="music"]');
+    if(themes)themes.innerHTML=Object.entries(THEMES).map(themeChoice).join('');
+    if(effects)effects.innerHTML=Object.entries(EFFECTS).filter(([,v])=>!v.legendary).map(effectChoice).join('');
+    if(legendary)legendary.innerHTML=Object.entries(EFFECTS).filter(([,v])=>v.legendary).map(legendaryChoice).join('');
+    if(finishes)finishes.innerHTML=Object.entries(FINISHES).map(finishChoice).join('');
+    if(music)music.innerHTML=Object.entries(MUSIC).map(musicChoice).join('');
+    const balance=menu.querySelector('.repo-rcg-upgrade-balance-v2129');
+    if(balance)balance.textContent=Number.isFinite(gp)?`${gp.toLocaleString('en-GB')} GP`:'SHARED ACCOUNT UPGRADES';
+  }
+
+  async function buyEffect(effect,button){
+    effect=normal(effect).toLowerCase();
+    if(!LEGENDARY_KEYS.has(effect)||purchaseBusy)return;
+    if(unlockedEffects.has(effect)){style.effect=effect;applyStyle();return;}
+    const item=EFFECTS[effect];
+    if(!window.confirm(`Unlock ${item.label} for ${LEGENDARY_PRICE.toLocaleString('en-GB')} GP?\n\nThis uses the same permanent upgrade unlock as your card binder.`))return;
+    purchaseBusy=true;button?.setAttribute('disabled','');status(`UNLOCKING ${item.label.toUpperCase()}…`);
+    try{
+      const {data,error}=await db.rpc('purchase_quidditch_binder_legendary_effect',{p_effect:effect});if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      unlockedEffects=new Set(parseArray(row?.unlocked_effects||[...unlockedEffects,effect]));unlockedEffects.add(effect);
+      if(Number.isFinite(Number(row?.gp)))gp=Number(row.gp);
+      style.effect=effect;applyStyle();status(`${item.label.toUpperCase()} UNLOCKED AND EQUIPPED`);
+      try{showToast?.(`${item.label} unlocked for both binder systems`,4200)}catch(_){ }
+    }catch(error){status(String(error?.message||'Could not unlock animation').toUpperCase(),true);}
+    finally{purchaseBusy=false;button?.removeAttribute('disabled');renderChoices();}
+  }
+
+  async function buyMusic(musicKey,button){
+    musicKey=normal(musicKey).toLowerCase();
+    if(!MUSIC_KEYS.has(musicKey)||purchaseBusy)return;
+    if(unlockedMusic.has(musicKey)){style.music=musicKey;applyStyle();return;}
+    const item=MUSIC[musicKey];
+    if(!window.confirm(`Unlock ${item.label} for ${MUSIC_PRICE.toLocaleString('en-GB')} GP?\n\nThis is the same permanent soundtrack unlock used by your card binder.`))return;
+    purchaseBusy=true;button?.setAttribute('disabled','');status(`UNLOCKING ${item.label.toUpperCase()}…`);
+    try{
+      const {data,error}=await db.rpc('purchase_rcg_slab_binder_music',{p_music:musicKey});if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      unlockedMusic=new Set(parseArray(row?.unlocked_music||[...unlockedMusic,musicKey]));unlockedMusic.add(musicKey);
+      if(Number.isFinite(Number(row?.gp)))gp=Number(row.gp);
+      style.music=musicKey;applyStyle();status(`${item.label.toUpperCase()} UNLOCKED AND EQUIPPED`);
+      try{showToast?.(`${item.label} unlocked for both binder systems`,4200)}catch(_){ }
+    }catch(error){status(String(error?.message||'Could not unlock soundtrack').toUpperCase(),true);}
+    finally{purchaseBusy=false;button?.removeAttribute('disabled');renderChoices();}
+  }
+
+  function ensureMenu(){
+    const d=dialog();if(!d)return null;
+    const old=d.querySelector('#repoRcgCustomizePanel');if(old){old.hidden=true;old.style.display='none';old.setAttribute('aria-hidden','true');}
+    menu=d.querySelector('#repoRcgUpgradeMenuV2129');
+    if(menu)return menu;
+    menu=document.createElement('section');
+    menu.id='repoRcgUpgradeMenuV2129';
+    menu.className='repo-rcg-upgrade-menu-v2129';
+    menu.setAttribute('aria-hidden','true');
+    menu.innerHTML=`<header><div><strong>CUSTOMISE SLAB BINDER</strong><small>Card-binder upgrades · RCG edition</small></div><span class="repo-rcg-upgrade-balance-v2129">SHARED ACCOUNT UPGRADES</span><button type="button" data-rcg-upgrade-close aria-label="Close customise binder">×</button></header>
+      <div class="repo-rcg-upgrade-scroll-v2129">
+        <h4>COLOUR THEME</h4><div class="repo-rcg-upgrade-grid-v2129" data-rcg-upgrade-grid="themes"></div>
+        <h4>BINDER SOUNDTRACK</h4><div class="repo-rcg-upgrade-grid-v2129" data-rcg-upgrade-grid="music"></div>
+        <h4>BACKGROUND EFFECT</h4><div class="repo-rcg-upgrade-grid-v2129" data-rcg-upgrade-grid="effects"></div>
+        <h4>LEGENDARY ANIMATIONS</h4><div class="repo-rcg-upgrade-grid-v2129" data-rcg-upgrade-grid="legendary"></div>
+        <h4>POCKET FINISH</h4><div class="repo-rcg-upgrade-grid-v2129" data-rcg-upgrade-grid="finishes"></div>
+      </div><footer><span class="repo-rcg-upgrade-status-v2129">Choose a style — changes preview instantly.</span><button type="button" data-rcg-upgrade-reset>RESET TO RCG DEFAULT</button></footer>`;
+    d.appendChild(menu);
+    menu.querySelector('[data-rcg-upgrade-close]')?.addEventListener('click',()=>open(false));
+    menu.querySelector('[data-rcg-upgrade-reset]')?.addEventListener('click',()=>{style={...DEFAULT_STYLE};applyStyle();status('RCG DEFAULT RESTORED');});
+    menu.addEventListener('click',event=>{
+      const theme=event.target.closest('[data-rcg-theme-choice]');if(theme){style.theme=theme.dataset.rcgThemeChoice;applyStyle({music:false});status(`${THEMES[style.theme].label.toUpperCase()} APPLIED`);return;}
+      const effect=event.target.closest('[data-rcg-effect-choice]');if(effect){const value=effect.dataset.rcgEffectChoice;if(canEffect(value)){style.effect=value;applyStyle({music:false});status(`${EFFECTS[value].label.toUpperCase()} APPLIED`);}return;}
+      const finish=event.target.closest('[data-rcg-finish-choice]');if(finish){style.finish=finish.dataset.rcgFinishChoice;applyStyle({music:false});status(`${FINISHES[style.finish].label.toUpperCase()} APPLIED`);return;}
+      const musicBtn=event.target.closest('[data-rcg-music-choice]');if(musicBtn){const value=musicBtn.dataset.rcgMusicChoice;if(canMusic(value)){style.music=value;applyStyle();status(`${MUSIC[value].label.toUpperCase()} EQUIPPED`);}return;}
+      const buyEffectBtn=event.target.closest('[data-rcg-buy-effect]');if(buyEffectBtn){buyEffect(buyEffectBtn.dataset.rcgBuyEffect,buyEffectBtn);return;}
+      const buyMusicBtn=event.target.closest('[data-rcg-buy-music]');if(buyMusicBtn){buyMusic(buyMusicBtn.dataset.rcgBuyMusic,buyMusicBtn);return;}
+    });
+    renderChoices();
+    return menu;
+  }
+
+  function open(openState=true){
+    const panel=ensureMenu();if(!panel)return;
+    const old=dialog()?.querySelector('#repoRcgCustomizePanel');if(old){old.hidden=true;old.style.display='none';}
+    panel.classList.toggle('is-open',Boolean(openState));
+    panel.setAttribute('aria-hidden',String(!openState));
+    dialog()?.querySelector('#repoRcgCustomizeBtn')?.classList.toggle('is-active',Boolean(openState));
+    if(openState){loadUnlocks();renderChoices();}
+  }
+
+  function mount(){
+    const d=dialog();if(!d)return;
+    externalStyleMode=false;
+    if(!d.dataset.rcgSlabMusicLifecycleBound){
+      d.dataset.rcgSlabMusicLifecycleBound='1';
+      const hardStop=()=>stopSlabMusic({rewind:true,dispose:true});
+      d.addEventListener('close',hardStop);
+      d.addEventListener('cancel',hardStop);
+    }
+    loadLocal();ensureMenu();applyStyle();loadUnlocks();
+  }
+
+  // Capture the existing button so the obsolete 3-theme panel never opens.
+  document.addEventListener('click',event=>{
+    const d=dialog();if(!d||!d.open)return;
+    const trigger=event.target.closest?.('#repoRcgCustomizeBtn');
+    if(!trigger)return;
+    event.preventDefault();event.stopPropagation();
+    open(!menu?.classList.contains('is-open'));
+  },true);
+
+  document.addEventListener('pointerdown',event=>{
+    const trigger=event.target.closest?.('.repo-secondary-binder-cover,.repo-dual-binder-choice-rcg-v2041');
+    if(!trigger)return;
+    try{primeMusicFromGesture();}catch(_){ }
+  },true);
+
+  window.repoRcgUpgradeCustomizerV2129={
+    mount,open,applyStyle,applyExternalStyle,restoreOwnStyle,primeMusicFromGesture,
+    playMusic:()=>playSlabMusic(style.music,{restart:false}),
+    stopMusic:()=>stopSlabMusic({rewind:true,dispose:true}),
+    getStyle:()=>({...style})
+  };
+})();
+
+// ============================================================================
+// RCG SLAB BINDER v21.43 — PUBLIC SLAB BINDER LIBRARY
+// Read-only shared slab layouts using the same saved snapshot model as card binders.
+// ============================================================================
+(function installRcgSlabBinderLibraryV2143(){
+  if(window.__repoRcgSlabBinderLibraryV2143)return;
+  window.__repoRcgSlabBinderLibraryV2143=true;
+
+  let rows=[];
+  let loading=false;
+  let search='';
+
+  const normal=v=>String(v??'').trim();
+  const esc=v=>String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const currentUser=()=>normal(window.character?.username||window.currentUser?.username||'');
+  const dialog=()=>document.getElementById('repoRcgBinderDialog');
+
+  function ensureButton(){
+    const d=dialog();
+    const status=d?.querySelector('.repo-rcg-binder-status');
+    if(!status)return null;
+    let button=status.querySelector('#repoRcgSlabBinderLibraryButtonV2143');
+    if(button)return button;
+    button=document.createElement('button');
+    button.type='button';
+    button.id='repoRcgSlabBinderLibraryButtonV2143';
+    button.className='repo-rcg-library-btn-v2143';
+    button.innerHTML='<span>SLAB BINDER LIBRARY</span><small>VIEW OTHER COLLECTIONS</small>';
+    button.setAttribute('aria-label','Open Slab Binder Library');
+    status.appendChild(button);
+    return button;
+  }
+
+  function ensureOverlay(){
+    const d=dialog();if(!d)return null;
+    let overlay=d.querySelector('#repoRcgBinderLibraryOverlayV2143');
+    if(overlay)return overlay;
+    overlay=document.createElement('section');
+    overlay.id='repoRcgBinderLibraryOverlayV2143';
+    overlay.className='repo-rcg-library-overlay-v2143';
+    overlay.hidden=true;
+    overlay.innerHTML=`<div class="repo-rcg-library-shell-v2143" role="dialog" aria-modal="true" aria-label="Slab Binder Library">
+      <header class="repo-rcg-library-head-v2143">
+        <div><small>RCG · REPO COMPANY GRADING · SHARED ARCHIVES</small><h2>SLAB BINDER LIBRARY</h2><p>Browse another player's exact displayed slab arrangement and saved binder style. Other players' archives are read-only.</p></div>
+        <button type="button" class="repo-rcg-library-close-v2143" data-rcg-library-close aria-label="Close Slab Binder Library">×</button>
+      </header>
+      <div class="repo-rcg-library-toolbar-v2143">
+        <div class="repo-rcg-library-stats-v2143" id="repoRcgLibraryStatsV2143"></div>
+        <label class="repo-rcg-library-search-v2143"><span>FIND AN ADVENTURER</span><input id="repoRcgLibrarySearchV2143" type="search" placeholder="Search username…" autocomplete="off" spellcheck="false"></label>
+      </div>
+      <div class="repo-rcg-library-grid-v2143" id="repoRcgLibraryGridV2143"></div>
+      <footer class="repo-rcg-library-foot-v2143"><span>Displayed slabs only — Hidden Slabs remain private.</span><span>Layouts and binder styling are loaded from the owner's saved RCG archive.</span></footer>
+    </div>`;
+    d.appendChild(overlay);
+    overlay.querySelector('[data-rcg-library-close]')?.addEventListener('click',close);
+    overlay.addEventListener('click',event=>{if(event.target===overlay)close();});
+    overlay.querySelector('#repoRcgLibrarySearchV2143')?.addEventListener('input',event=>{search=normal(event.target.value);render();});
+    overlay.addEventListener('click',event=>{
+      const entry=event.target.closest('[data-rcg-library-user]');
+      if(!entry)return;
+      event.preventDefault();event.stopPropagation();
+      const username=normal(entry.dataset.rcgLibraryUser);
+      if(!username)return;
+      close();
+      const mine=username.toLowerCase()===currentUser().toLowerCase();
+      try{window.openRepoRcgBinder?.(mine?'':username);}catch(error){console.warn('[RCG LIBRARY V21.43] open failed',error);}
+    });
+    return overlay;
+  }
+
+  function render(){
+    const overlay=ensureOverlay();if(!overlay)return;
+    const grid=overlay.querySelector('#repoRcgLibraryGridV2143');
+    const stats=overlay.querySelector('#repoRcgLibraryStatsV2143');
+    if(!grid||!stats)return;
+    const me=currentUser().toLowerCase();
+    const q=search.toLowerCase();
+    const visible=rows.filter(row=>!q||normal(row.username).toLowerCase().includes(q));
+    const total=rows.length;
+    const totalDisplayed=rows.reduce((sum,row)=>sum+(Number(row.displayed_count)||0),0);
+    stats.innerHTML=`<span><b>${total}</b><small>ARCHIVES</small></span><span><b>${totalDisplayed}</b><small>DISPLAYED SLABS</small></span><span><b>LIVE</b><small>EXACT LAYOUTS</small></span>`;
+    if(loading){grid.innerHTML='<div class="repo-rcg-library-message-v2143"><b>Loading Slab Binder Library…</b><span>Reading saved RCG archives.</span></div>';return;}
+    if(!rows.length){grid.innerHTML='<div class="repo-rcg-library-message-v2143"><b>No slab binders found yet.</b><span>Place a collected slab into a binder to publish its displayed archive.</span></div>';return;}
+    if(!visible.length){grid.innerHTML='<div class="repo-rcg-library-message-v2143"><b>No matching adventurers.</b><span>Try another username.</span></div>';return;}
+    grid.innerHTML=visible.map(row=>{
+      const username=normal(row.username)||'Adventurer';
+      const mine=username.toLowerCase()===me;
+      const count=Number(row.displayed_count)||0;
+      const initial=username.slice(0,2).toUpperCase();
+      return `<button type="button" class="repo-rcg-library-entry-v2143${mine?' is-you':''}" data-rcg-library-user="${esc(username)}">
+        <span class="repo-rcg-library-case-v2143"><img src="assets/repo-rcg-hidden-slabs-case.png" alt="" draggable="false"><i>${esc(initial)}</i></span>
+        <span class="repo-rcg-library-copy-v2143"><small>${mine?'YOUR RCG ARCHIVE':'PUBLIC RCG ARCHIVE'}</small><strong>${esc(username)}</strong><em>${count} DISPLAYED SLAB${count===1?'':'S'}</em><p>${mine?'Return to your live slab binder.':'View the owner’s exact saved slab placement in read-only mode.'}</p></span>
+        <span class="repo-rcg-library-open-v2143"><b>${mine?'OPEN MINE':'VIEW BINDER'}</b><small>${mine?'EDITABLE':'READ ONLY'}</small></span>
+      </button>`;
+    }).join('');
+  }
+
+  async function load(){
+    loading=true;render();
+    try{
+      const {data,error}=await db.rpc('list_public_rcg_slab_binders');
+      if(error)throw error;
+      rows=(Array.isArray(data)?data:[]).map(row=>({
+        username:normal(row?.username),
+        displayed_count:Number(row?.displayed_count)||0,
+        updated_at:row?.updated_at||''
+      })).filter(row=>row.username);
+      const me=currentUser();
+      if(me&&!rows.some(row=>row.username.toLowerCase()===me.toLowerCase()))rows.unshift({username:me,displayed_count:0,updated_at:''});
+      rows.sort((a,b)=>{
+        const al=a.username.toLowerCase(),bl=b.username.toLowerCase(),ml=me.toLowerCase();
+        if(al===ml&&bl!==ml)return -1;
+        if(bl===ml&&al!==ml)return 1;
+        return a.username.localeCompare(b.username,undefined,{sensitivity:'base'});
+      });
+    }catch(error){
+      console.warn('[RCG LIBRARY V21.43] load failed',error);
+      rows=[];
+    }finally{loading=false;render();}
+  }
+
+  async function open(){
+    const overlay=ensureOverlay();if(!overlay)return;
+    search='';
+    const input=overlay.querySelector('#repoRcgLibrarySearchV2143');if(input)input.value='';
+    overlay.hidden=false;
+    overlay.classList.add('is-open');
+    await load();
+    requestAnimationFrame(()=>input?.focus({preventScroll:true}));
+  }
+  function close(){const overlay=ensureOverlay();if(!overlay)return;overlay.classList.remove('is-open');overlay.hidden=true;}
+
+  document.addEventListener('click',event=>{
+    const button=event.target.closest?.('#repoRcgSlabBinderLibraryButtonV2143');
+    if(!button)return;
+    event.preventDefault();event.stopPropagation();open();
+  },true);
+
+  const observer=new MutationObserver(()=>{if(dialog()?.open){ensureButton();ensureOverlay();}});
+  if(document.body)observer.observe(document.body,{childList:true,subtree:false});
+  setInterval(()=>{if(dialog()?.open)ensureButton();},900);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{ensureButton();ensureOverlay();},{once:true});
+  else {ensureButton();ensureOverlay();}
+
+  window.repoRcgSlabBinderLibraryV2143={open,close,load};
 })();
