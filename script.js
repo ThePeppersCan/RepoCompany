@@ -34012,69 +34012,100 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       renderRepoPassportPanel();
     }).catch(()=>{passportFavouriteLoadingFor=''});
   }
-  function passportGetWeekKey(date = new Date()){
-    const d = new Date(date);
-    const day = (d.getDay() + 6) % 7; // Monday = 0
-    d.setHours(0,0,0,0);
-    d.setDate(d.getDate() - day);
-    return d.toISOString().slice(0,10);
+  const passportWeeklyServerCache={userKey:'',data:null,loading:false,loadedAt:0};
+  function passportWeeklyDefaultState(){
+    return {weekly_xp:0,target_xp:1000000,reward_claimed:false,quidditch_tcg_pack_count:0,week_start:'',next_reset_at:null};
   }
-  function passportWeeklyState(user, totalXp){
-    const storageKey = passportKeyFor(user, 'weeklyXpState');
-    const nowWeek = passportGetWeekKey();
-    let state;
+  async function passportRefreshWeeklyProgress(user,{force=false}={}){
+    const clean=String(user||'').trim();
+    if(!clean||typeof db==='undefined'||!db?.rpc)return passportWeeklyServerCache.data||passportWeeklyDefaultState();
+    const userKey=passportUserKey(clean);
+    const fresh=passportWeeklyServerCache.userKey===userKey&&passportWeeklyServerCache.data&&Date.now()-passportWeeklyServerCache.loadedAt<12000;
+    if(!force&&fresh)return passportWeeklyServerCache.data;
+    if(passportWeeklyServerCache.loading&&passportWeeklyServerCache.userKey===userKey)return passportWeeklyServerCache.data||passportWeeklyDefaultState();
+    passportWeeklyServerCache.loading=true;
+    passportWeeklyServerCache.userKey=userKey;
     try{
-      state = JSON.parse(localStorage.getItem(storageKey) || '{}') || {};
-    }catch(_){
-      state = {};
+      const {data,error}=await db.rpc('repo_passport_get_weekly_progress');
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      passportWeeklyServerCache.data={...passportWeeklyDefaultState(),...(row||{})};
+      passportWeeklyServerCache.loadedAt=Date.now();
+      try{localStorage.removeItem(passportKeyFor(clean,'weeklyXpState'))}catch(_){}
+      try{renderRepoPassportPanel()}catch(_){}
+      return passportWeeklyServerCache.data;
+    }catch(error){
+      console.warn('[REPO PASSPORT] Weekly XP refresh failed',error);
+      return passportWeeklyServerCache.data||passportWeeklyDefaultState();
+    }finally{
+      passportWeeklyServerCache.loading=false;
     }
-    if(state.weekKey !== nowWeek){
-      state = { weekKey: nowWeek, weeklyXp: 0, lastTotalXp: Number(totalXp)||0, rewardClaimed: false, rewardInventory: Number(state?.rewardInventory || 0) || 0 };
-    }else{
-      const current = Number(totalXp) || 0;
-      const last = Number(state.lastTotalXp);
-      if(Number.isFinite(last) && current > last){
-        state.weeklyXp = Number(state.weeklyXp || 0) + (current - last);
-      }
-      state.lastTotalXp = current;
-      state.rewardInventory = Number(state.rewardInventory || 0) || 0;
-      state.rewardClaimed = Boolean(state.rewardClaimed);
-    }
-    localStorage.setItem(storageKey, JSON.stringify(state));
-    return { state, storageKey };
   }
-  function passportRenderWeekly(user, totalXp){
-    const target = 1000000;
-    const data = passportWeeklyState(user, totalXp);
-    const state = data.state;
-    const progress = Math.max(0, Math.min(1, Number(state.weeklyXp || 0) / target));
-    const remaining = Math.max(0, target - Number(state.weeklyXp || 0));
-    const ready = Number(state.weeklyXp || 0) >= target;
-    const fill = passportEl('passportWeeklyFill');
-    const percent = passportEl('passportWeeklyPercent');
-    const line1 = passportEl('passportWeeklyXpLine');
-    const line2 = passportEl('passportWeeklyRemainingLine');
-    const rewardText = passportEl('passportWeeklyRewardText');
-    const claimBtn = passportEl('passportClaimWeeklyPack');
-    const resetLine = passportEl('passportWeeklyResetLine');
-    if(fill) fill.style.width = `${(progress * 100).toFixed(1)}%`;
-    if(percent) percent.textContent = `${Math.round(progress * 100)}%`;
-    if(line1) line1.textContent = `${Number(state.weeklyXp || 0).toLocaleString('en-GB')} / ${target.toLocaleString('en-GB')} XP`;
-    if(line2) line2.textContent = `${remaining.toLocaleString('en-GB')} XP remaining`;
-    if(resetLine) resetLine.textContent = `Resets Monday · ${Number(state.rewardInventory || 0).toLocaleString('en-GB')} unclaimed passport pack${Number(state.rewardInventory || 0) === 1 ? '' : 's'}`;
-    if(rewardText) rewardText.textContent = ready
-      ? (state.rewardClaimed ? 'Reward: 1x TCG Pack claimed this week' : 'Reward ready: 1x TCG Pack')
+  function passportRenderWeekly(user){
+    const userKey=passportUserKey(user);
+    const hasData=passportWeeklyServerCache.userKey===userKey&&passportWeeklyServerCache.data;
+    const state=hasData?passportWeeklyServerCache.data:passportWeeklyDefaultState();
+    const target=Math.max(1,Number(state.target_xp||1000000));
+    const weeklyXp=Math.max(0,Number(state.weekly_xp||0));
+    const progress=Math.max(0,Math.min(1,weeklyXp/target));
+    const remaining=Math.max(0,target-weeklyXp);
+    const ready=weeklyXp>=target;
+    const claimed=Boolean(state.reward_claimed);
+    const fill=passportEl('passportWeeklyFill');
+    const percent=passportEl('passportWeeklyPercent');
+    const line1=passportEl('passportWeeklyXpLine');
+    const line2=passportEl('passportWeeklyRemainingLine');
+    const rewardText=passportEl('passportWeeklyRewardText');
+    const claimBtn=passportEl('passportClaimWeeklyPack');
+    const resetLine=passportEl('passportWeeklyResetLine');
+
+    if(!hasData){
+      if(fill)fill.style.width='0%';
+      if(percent)percent.textContent='—';
+      if(line1)line1.textContent='Loading weekly XP…';
+      if(line2)line2.textContent='Weekly progress is synced from the server';
+      if(rewardText)rewardText.textContent='Reward: 1x TCG Pack at 1,000,000 weekly XP';
+      if(resetLine)resetLine.textContent='Resets Monday';
+      if(claimBtn)claimBtn.hidden=true;
+      passportRefreshWeeklyProgress(user).catch(()=>{});
+      return;
+    }
+
+    if(fill)fill.style.width=`${(progress*100).toFixed(1)}%`;
+    if(percent)percent.textContent=`${Math.round(progress*100)}%`;
+    if(line1)line1.textContent=`${weeklyXp.toLocaleString('en-GB')} / ${target.toLocaleString('en-GB')} XP`;
+    if(line2)line2.textContent=`${remaining.toLocaleString('en-GB')} XP remaining`;
+    if(resetLine)resetLine.textContent=`Resets Monday · ${Number(state.quidditch_tcg_pack_count||0).toLocaleString('en-GB')} TCG pack${Number(state.quidditch_tcg_pack_count||0)===1?'':'s'} in Bank`;
+    if(rewardText)rewardText.textContent=ready
+      ? (claimed?'Reward: 1x TCG Pack claimed this week':'Reward ready: 1x TCG Pack')
       : 'Reward: 1x TCG Pack at 1,000,000 weekly XP';
     if(claimBtn){
-      claimBtn.hidden = !(ready && !state.rewardClaimed);
-      claimBtn.onclick = ()=>{
-        const refreshed = passportWeeklyState(user, passportTotalExp()).state;
-        if(Number(refreshed.weeklyXp || 0) < target || refreshed.rewardClaimed) return;
-        refreshed.rewardClaimed = true;
-        refreshed.rewardInventory = Number(refreshed.rewardInventory || 0) + 1;
-        localStorage.setItem(passportKeyFor(user, 'weeklyXpState'), JSON.stringify(refreshed));
-        renderRepoPassportPanel();
-        if(typeof toast === 'function') toast('Weekly passport reward claimed: 1x TCG Pack.', 3400);
+      claimBtn.hidden=!(ready&&!claimed);
+      claimBtn.onclick=async()=>{
+        if(claimBtn.dataset.busy==='1')return;
+        claimBtn.dataset.busy='1';
+        claimBtn.disabled=true;
+        try{
+          const {data,error}=await db.rpc('repo_passport_claim_weekly_pack');
+          if(error)throw error;
+          const row=Array.isArray(data)?data[0]:data;
+          passportWeeklyServerCache.data={...state,...(row||{}),target_xp:target,reward_claimed:true};
+          passportWeeklyServerCache.loadedAt=Date.now();
+          try{
+            if(character&&row?.quidditch_tcg_pack_count!=null){
+              character.bank_items={...(character.bank_items||{}),quidditch_tcg_pack:Number(row.quidditch_tcg_pack_count)||0};
+            }
+          }catch(_){}
+          renderRepoPassportPanel();
+          if(typeof toast==='function')toast('Weekly passport reward claimed: 1x TCG Pack added to your Bank.',3400);
+        }catch(error){
+          console.warn('[REPO PASSPORT] Weekly reward claim failed',error);
+          if(typeof toast==='function')toast(error?.message||'Could not claim the weekly passport reward.',3400);
+          await passportRefreshWeeklyProgress(user,{force:true});
+        }finally{
+          claimBtn.dataset.busy='0';
+          claimBtn.disabled=false;
+        }
       };
     }
   }
@@ -34193,7 +34224,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     setText('passportFavouriteSkillName', bestSkill.name);
     setText('passportFavouriteSkillMeta', `Level ${Number(bestSkill.level || 1).toLocaleString('en-GB')}`);
 
-    passportRenderWeekly(user, totalXp);
+    passportRenderWeekly(user);
   }
 
   const __repoPassportOriginalRender = typeof render === 'function' ? render : null;
