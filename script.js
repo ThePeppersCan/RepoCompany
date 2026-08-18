@@ -19131,6 +19131,35 @@ qmShowSharedGoal=function(state){
     .repo-binder-storage-card-name{margin:7px 2px 5px;color:#dfedf6;font:900 10px/1.25 Georgia,serif;min-height:25px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .repo-binder-storage-restore{margin-top:auto;width:100%;padding:8px 5px;border:1px solid #b88a35;background:linear-gradient(#513a19,#211408);color:#ffe19a;font:900 9px/1 Georgia,serif;letter-spacing:.075em;cursor:pointer}
     .repo-binder-storage-restore:hover,.repo-binder-storage-restore:focus-visible{outline:2px solid #84c9f3;background:linear-gradient(#315d7d,#122a3f);color:#fff3c2}
+
+    .repo-binder-storage-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 13px 0;background:rgba(4,11,18,.46)}
+    .repo-binder-storage-tab{display:flex;align-items:center;justify-content:center;gap:6px;min-height:32px;border:1px solid rgba(164,130,55,.55);background:linear-gradient(#223649,#0a1723);color:#92aabd;font:900 9px/1 Arial,sans-serif;letter-spacing:.07em;cursor:pointer}
+    .repo-binder-storage-tab:hover{border-color:#78bfe9;color:#e8f6ff}
+    .repo-binder-storage-tab[aria-pressed='true']{border-color:#d0aa54;background:linear-gradient(#58441f,#1b150a);color:#ffe19a;box-shadow:inset 0 0 8px rgba(0,0,0,.62),0 0 10px rgba(102,181,231,.10)}
+    .repo-binder-storage-tab em{min-width:20px;padding:3px 5px;border:1px solid rgba(205,164,79,.45);background:#07111b;color:inherit;font:900 8px/1 Arial,sans-serif;font-style:normal}
+    .repo-binder-bulk-card{position:relative;min-width:0;display:flex;flex-direction:column;padding:7px;border:1px solid rgba(195,149,56,.75);background:linear-gradient(155deg,#13283a,#08131e 72%);box-shadow:inset 0 0 0 2px rgba(2,8,13,.72),0 6px 15px rgba(0,0,0,.36)}
+    .repo-binder-bulk-card .repo-binder-storage-card-image{min-height:112px!important;height:112px!important;padding:4px!important}
+    .repo-binder-bulk-card img{display:block!important;width:auto!important;height:auto!important;max-width:86px!important;max-height:104px!important;object-fit:contain!important;filter:drop-shadow(0 3px 5px #000)}
+    .repo-binder-bulk-quantity{position:absolute;right:5px;top:5px;padding:5px 7px;border:1px solid #d3aa50;background:rgba(7,14,22,.94);color:#ffe39a;font:900 9px/1 Arial,sans-serif;letter-spacing:.05em}
+    .repo-binder-bulk-meta{display:grid;grid-template-columns:1fr auto;gap:3px 8px;align-items:center;margin:0 2px 2px;padding:7px 8px;border:1px solid rgba(120,164,194,.2);background:rgba(2,8,13,.42);color:#8fb1c8;font:800 8px/1.3 Arial,sans-serif;letter-spacing:.045em}
+    .repo-binder-bulk-meta strong{color:#f0d58d;font-size:9px}.repo-binder-bulk-meta span{text-align:right;color:#c4d8e6}
+    .repo-binder-bulk-note{margin-top:auto;padding:7px 8px;border-top:1px solid rgba(205,164,79,.2);color:#7898ad;font:800 8px/1.35 Arial,sans-serif;text-align:center}
+    .repo-rcg-duplicate-group{grid-column:1/-1;border:1px solid rgba(195,149,56,.72);background:linear-gradient(155deg,#112438,#07121d 72%);box-shadow:inset 0 0 0 2px rgba(2,8,13,.72),0 7px 18px rgba(0,0,0,.38);overflow:hidden}
+    .repo-rcg-duplicate-group-head{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:10px 11px;border-bottom:1px solid rgba(205,164,79,.34);background:linear-gradient(180deg,rgba(58,77,94,.45),rgba(8,18,28,.62))}
+    .repo-rcg-duplicate-group-head strong{color:#f0e1ad;font:900 11px/1.2 Georgia,serif}.repo-rcg-duplicate-group-head span{color:#ffe19a;font:900 9px/1 Arial,sans-serif;letter-spacing:.06em}
+    .repo-rcg-duplicate-group-head small{grid-column:1/-1;color:#7899b0;font:800 8px/1.25 Arial,sans-serif;letter-spacing:.045em}
+    .repo-rcg-duplicate-slabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px}
+    .repo-rcg-duplicate-slab{min-width:0;padding:6px;border:1px solid rgba(125,168,196,.25);background:#06111b;display:flex;flex-direction:column;gap:5px;align-items:center;overflow:hidden}
+    .repo-rcg-duplicate-slab .repo-rcg-v2118-slab.is-mini,.repo-rcg-v2118-storage-image .repo-rcg-v2118-slab.is-mini{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:104px!important;height:152px!important;min-width:104px!important;min-height:152px!important;max-width:104px!important;max-height:152px!important;margin:0 auto!important;transform:none!important;transform-origin:center!important;overflow:hidden!important;flex:0 0 152px!important}
+    .repo-rcg-duplicate-slab .repo-rcg-v2118-slab.is-mini img,.repo-rcg-v2118-storage-image .repo-rcg-v2118-slab.is-mini img{max-width:none!important;max-height:none!important}
+    .repo-rcg-duplicate-slab .repo-rcg-v2118-card-window,.repo-rcg-v2118-storage-image .repo-rcg-v2118-card-window{overflow:hidden!important}
+    .repo-rcg-duplicate-slab .repo-rcg-v2118-card-window img,.repo-rcg-v2118-storage-image .repo-rcg-v2118-card-window img{width:100%!important;height:100%!important;object-fit:contain!important}
+    .repo-rcg-v2118-storage-image{min-height:164px!important;height:164px!important;padding:4px!important}
+    .repo-rcg-duplicate-status{display:flex;justify-content:space-between;gap:5px;align-items:center;padding:5px 6px;border:1px solid rgba(205,164,79,.22);background:rgba(3,8,13,.54);font:900 7px/1 Arial,sans-serif;letter-spacing:.05em;color:#98b4c7}
+    .repo-rcg-duplicate-status b{color:#f0d58d;font-size:8px}.repo-rcg-duplicate-status.is-displayed span{color:#8fd2a8}.repo-rcg-duplicate-status.is-hidden span{color:#d8bd79}
+    .repo-rcg-duplicate-restore{width:100%;padding:7px 5px;border:1px solid #b88a35;background:linear-gradient(#513a19,#211408);color:#ffe19a;font:900 8px/1 Georgia,serif;letter-spacing:.06em;cursor:pointer}
+    .repo-rcg-duplicate-restore:hover{outline:2px solid #84c9f3;background:linear-gradient(#315d7d,#122a3f)}
+
     .repo-binder-storage-help{padding:9px 13px 11px;border-top:1px solid rgba(205,164,79,.28);background:#050d15;color:#68869b;font:800 8px/1.35 Arial,sans-serif;text-align:center;letter-spacing:.045em}
     .repo-binder-storage-launch{position:absolute!important;left:auto!important;right:62px!important;top:15px!important;bottom:auto!important;z-index:55!important;width:96px!important;min-width:96px!important;max-width:96px!important;height:38px!important;min-height:38px!important;margin:0!important;padding:0 9px!important;box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;border:2px solid #bd8731!important;background:linear-gradient(#4f3517,#251507)!important;color:#ffe39a!important;font:900 10px/1 Georgia,serif!important;letter-spacing:.06em!important;text-align:center!important;white-space:nowrap!important;cursor:pointer;box-shadow:inset 0 0 10px #000}
     .repo-binder-storage-launch[hidden]{display:none!important}
@@ -19138,7 +19167,7 @@ qmShowSharedGoal=function(state){
     .repo-binder-storage-launch:hover,.repo-binder-storage-launch.is-drop,.repo-binder-storage-launch[aria-expanded='true']{filter:brightness(1.2);outline:2px solid #74caff}
     #quidditchTcgBinderDialog[data-public-binder='true'] .repo-binder-storage-launch{display:none!important}
     .repo-binder-storage.is-drop{border-color:#7ac9f7;box-shadow:0 22px 52px rgba(0,0,0,.82),0 0 24px rgba(105,194,247,.42),inset 0 0 0 4px rgba(3,8,14,.65)}
-    @media(max-width:760px){.repo-binder-storage-launch{right:52px!important;top:10px!important;width:78px!important;min-width:78px!important;max-width:78px!important;height:34px!important;min-height:34px!important;font-size:8px!important}.repo-binder-storage{right:8px;top:54px;bottom:10px;width:min(360px,88%)}#quidditchTcgBinderDialog .quidditch-tcg-binder-header{padding-left:42px!important;padding-right:138px!important}.repo-binder-storage-card-image{min-height:125px}.repo-binder-storage-card img{max-height:132px}}
+    @media(max-width:760px){.repo-rcg-duplicate-slab .repo-rcg-v2118-slab.is-mini,.repo-rcg-v2118-storage-image .repo-rcg-v2118-slab.is-mini{width:92px!important;height:134px!important;min-width:92px!important;min-height:134px!important;max-width:92px!important;max-height:134px!important;flex-basis:134px!important}.repo-binder-storage-launch{right:52px!important;top:10px!important;width:78px!important;min-width:78px!important;max-width:78px!important;height:34px!important;min-height:34px!important;font-size:8px!important}.repo-binder-storage{right:8px;top:54px;bottom:10px;width:min(360px,88%)}#quidditchTcgBinderDialog .quidditch-tcg-binder-header{padding-left:42px!important;padding-right:138px!important}.repo-binder-storage-card-image{min-height:125px}.repo-binder-storage-card img{max-height:132px}}
     body.repo-public-binder-open .repo-binder-storage{display:none!important}
     .repo-binder-drag-edge{position:absolute;top:7%;bottom:7%;width:8%;z-index:12;display:none;align-items:center;justify-content:center;border:2px dashed rgba(116,202,255,.72);background:rgba(10,40,67,.58);color:#d7efff;font:900 12px/1 Georgia,serif;letter-spacing:.08em;text-align:center;pointer-events:auto;backdrop-filter:blur(2px)}
     .repo-binder-drag-edge.left{left:1.2%}.repo-binder-drag-edge.right{right:1.2%}
@@ -19241,6 +19270,11 @@ qmShowSharedGoal=function(state){
   const save=v=>{if(isPublicView())return;try{localStorage.setItem(key(),JSON.stringify(v.slice(0,TOTAL_SLOTS)))}catch(_){}queueOwnSnapshot()};
   const saveStorage=v=>{if(isPublicView())return;try{localStorage.setItem(storageKey(),JSON.stringify([...new Set(v.filter(id=>map[id]))]))}catch(_){}queueOwnSnapshot()};
   const owned=()=>{const out=[];for(const raw of current().cards||[]){const id=cleanId(raw);if(map[id]&&!out.includes(id))out.push(id)}return out};
+
+  const rawCardCounts=()=>{const counts=new Map();for(const raw of current().cards||[]){const id=cleanId(raw);if(map[id])counts.set(id,(counts.get(id)||0)+1)}return counts};
+  const bulkCardGroups=()=>Array.from(rawCardCounts().entries()).filter(([,count])=>count>1).map(([id,count])=>({id,total:count,spares:count-1,card:map[id],category:storageCategory(id)}));
+  const bulkSpareCount=()=>bulkCardGroups().reduce((sum,row)=>sum+row.spares,0);
+
   const ordered=()=>{if(isPublicView()&&!publicSnapshot()?.loaded)return Array(TOTAL_SLOTS).fill(null);const stored=loadStorage(),have=owned().filter(id=>!stored.includes(id)),slots=Array(TOTAL_SLOTS).fill(null);load().slice(0,TOTAL_SLOTS).forEach((id,i)=>{if(have.includes(id)&&!slots.includes(id))slots[i]=id});if(isPublicView())return slots;for(const id of have){if(!slots.includes(id)){const e=slots.indexOf(null);if(e>=0)slots[e]=id}}return slots};
   const spreadIndex=()=>{const key=String(document.getElementById('quidditchTcgBinderDialog')?.dataset.binderPage||'');const match=/^open(\d+)$/.exec(key);return match?Number(match[1])-1:-1};
   const storageCategory=id=>{
@@ -19371,19 +19405,19 @@ qmShowSharedGoal=function(state){
     }
     let launch=d.querySelector('.repo-binder-storage-launch');
     if(!launch){
-      launch=document.createElement('button');launch.type='button';launch.className='repo-binder-storage-launch';launch.innerHTML='HIDDEN CARDS <span>(0)</span>';
+      launch=document.createElement('button');launch.type='button';launch.className='repo-binder-storage-launch';launch.innerHTML='CARD STORAGE <span>(0)</span>';
       d.querySelector('.quidditch-tcg-binder-shell')?.appendChild(launch);
     }
     if(launch.dataset.storageManagerV2!=='1'){
       const fresh=launch.cloneNode(true);launch.replaceWith(fresh);launch=fresh;launch.dataset.storageManagerV2='1';
     }
-    launch.setAttribute('aria-controls','repoTcgCardStorageDrawer');launch.setAttribute('aria-expanded','false');launch.title='View your hidden cards';
+    launch.setAttribute('aria-controls','repoTcgCardStorageDrawer');launch.setAttribute('aria-expanded','false');launch.title='View hidden cards and spare duplicate copies';
 
     let box=d.querySelector('.repo-binder-storage');
     if(box&&box.dataset.storageManagerV2!=='1'){box.remove();box=null}
     if(!box){
-      box=document.createElement('aside');box.id='repoTcgCardStorageDrawer';box.className='repo-binder-storage';box.dataset.storageManagerV2='1';box.dataset.storageFilter='all';box.setAttribute('aria-label','Hidden Cards');box.setAttribute('aria-hidden','true');
-      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN CARDS</strong><span class="repo-binder-storage-subtitle">Hidden cards remain in your collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Hidden Cards">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search stored cards…" aria-label="Search hidden cards"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="blacklabel" aria-pressed="false">BLACK LABEL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="offbroom" aria-pressed="false">OFF THE BROOM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="patch" aria-pressed="false">PATCH</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Use RESTORE to place a card into the current spread. You can also drag a stored card directly onto a slot.</div>`;
+      box=document.createElement('aside');box.id='repoTcgCardStorageDrawer';box.className='repo-binder-storage';box.dataset.storageManagerV2='1';box.dataset.storageFilter='all';box.dataset.storageView='hidden';box.setAttribute('aria-label','Card Storage');box.setAttribute('aria-hidden','true');
+      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">CARD STORAGE</strong><span class="repo-binder-storage-subtitle">Hidden cards and spare physical copies</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Card Storage">×</button></div><div class="repo-binder-storage-tabs" role="group" aria-label="Card storage view"><button type="button" class="repo-binder-storage-tab" data-storage-view="hidden" aria-pressed="true">HIDDEN CARDS <em data-tab-count="hidden">0</em></button><button type="button" class="repo-binder-storage-tab" data-storage-view="bulk" aria-pressed="false">BULK BOX <em data-tab-count="bulk">0</em></button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search card storage…" aria-label="Search card storage"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="blacklabel" aria-pressed="false">BLACK LABEL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="offbroom" aria-pressed="false">OFF THE BROOM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="promo" aria-pressed="false">PROMO</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="unfinished" aria-pressed="false">UNFINISHED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="patch" aria-pressed="false">PATCH</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Hidden Cards controls your binder display. Bulk Box shows spare raw copies kept for grading.</div>`;
       d.appendChild(box);
     }
     const setStorageOpen=open=>{
@@ -19394,6 +19428,9 @@ qmShowSharedGoal=function(state){
       box.dataset.storageManagerBound='1';
       box.querySelector('[data-storage-close]')?.addEventListener('click',()=>setStorageOpen(false));
       box.querySelector('.repo-binder-storage-search')?.addEventListener('input',renderStorage);
+
+      box.querySelector('.repo-binder-storage-tabs')?.addEventListener('click',e=>{const button=e.target.closest('[data-storage-view]');if(!button)return;box.dataset.storageView=button.dataset.storageView||'hidden';box.querySelectorAll('[data-storage-view]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));renderStorage()});
+
       box.querySelector('.repo-binder-storage-filters')?.addEventListener('click',e=>{
         const button=e.target.closest('[data-storage-filter]');if(!button)return;
         box.dataset.storageFilter=button.dataset.storageFilter||'all';
@@ -19424,12 +19461,35 @@ qmShowSharedGoal=function(state){
     const d=document.getElementById('quidditchTcgBinderDialog'),box=d?.querySelector('.repo-binder-storage');if(!d||!box)return;
     d.dataset.publicBinder=current().isPublic?'true':'false';document.body.classList.toggle('repo-public-binder-open',Boolean(current().isPublic)&&Boolean(d.open));positionStorage();
     const allStored=loadStorage().filter(id=>owned().includes(id));
+    const allBulk=bulkCardGroups();
+    const spareTotal=allBulk.reduce((sum,row)=>sum+row.spares,0);
+    const view=box.dataset.storageView||'hidden';
     const search=String(box.querySelector('.repo-binder-storage-search')?.value||'').trim().toLowerCase();
     const filter=box.dataset.storageFilter||'all';
-    const visible=allStored.filter(id=>{const card=map[id],category=storageCategory(id).key;return(!search||card.name.toLowerCase().includes(search))&&(filter==='all'||category===filter)}).sort((a,b)=>map[a].name.localeCompare(map[b].name));
     const list=box.querySelector('.repo-binder-storage-list'),count=box.querySelector('.repo-binder-storage-count'),launchCount=d.querySelector('.repo-binder-storage-launch span'),results=box.querySelector('.repo-binder-storage-results');
-    if(count)count.textContent=String(allStored.length);if(launchCount)launchCount.textContent=`(${allStored.length})`;if(results)results.textContent=allStored.length?`Showing ${visible.length} of ${allStored.length} stored cards`:'No cards currently stored';
+    const hiddenTab=box.querySelector('[data-tab-count="hidden"]'),bulkTab=box.querySelector('[data-tab-count="bulk"]');
+    if(hiddenTab)hiddenTab.textContent=String(allStored.length);if(bulkTab)bulkTab.textContent=String(spareTotal);
+    if(launchCount)launchCount.textContent=`(${allStored.length+spareTotal})`;
     list.replaceChildren();
+
+    if(view==='bulk'){
+      const visible=allBulk.filter(row=>(!search||row.card.name.toLowerCase().includes(search))&&(filter==='all'||row.category.key===filter)).sort((a,b)=>a.card.name.localeCompare(b.card.name));
+      if(count)count.textContent=String(spareTotal);
+      if(results)results.textContent=spareTotal?`${visible.length} duplicate card types · ${spareTotal} spare raw ${spareTotal===1?'copy':'copies'}`:'No duplicate raw cards in the Bulk Box';
+      const title=box.querySelector('.repo-binder-storage-title'),subtitle=box.querySelector('.repo-binder-storage-subtitle');if(title)title.textContent='BULK BOX';if(subtitle)subtitle.textContent='Spare raw copies remain available for RCG grading';
+      if(!allBulk.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='BULK BOX EMPTY<br><small>Special-card duplicates you pull will appear here automatically.</small>';list.appendChild(empty);return}
+      if(!visible.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='NO MATCHING DUPLICATES<br><small>Try a different search or rarity.</small>';list.appendChild(empty);return}
+      for(const row of visible){
+        const item=document.createElement('article');item.className='repo-binder-bulk-card';item.dataset.cardId=row.id;
+        item.innerHTML=`<div class="repo-binder-storage-card-image"><img src="${row.card.image}" alt="${row.card.name}"><span class="repo-binder-storage-card-badge">${row.category.label}</span><span class="repo-binder-bulk-quantity">+${row.spares} SPARE</span></div><strong class="repo-binder-storage-card-name">${row.card.name}</strong><div class="repo-binder-bulk-meta"><strong>TOTAL COPIES</strong><span>${row.total}</span><strong>IN BULK BOX</strong><span>${row.spares}</span></div><div class="repo-binder-bulk-note">Spare physical ${row.spares===1?'copy':'copies'} · available for RCG submission</div>`;
+        list.appendChild(item);
+      }
+      syncStorageDrawerState(box,d.querySelector('.repo-binder-storage-launch'));return;
+    }
+
+    const visible=allStored.filter(id=>{const card=map[id],category=storageCategory(id).key;return(!search||card.name.toLowerCase().includes(search))&&(filter==='all'||category===filter)}).sort((a,b)=>map[a].name.localeCompare(map[b].name));
+    if(count)count.textContent=String(allStored.length);if(results)results.textContent=allStored.length?`Showing ${visible.length} of ${allStored.length} hidden cards`:'No cards currently hidden';
+    const title=box.querySelector('.repo-binder-storage-title'),subtitle=box.querySelector('.repo-binder-storage-subtitle');if(title)title.textContent='HIDDEN CARDS';if(subtitle)subtitle.textContent='Hidden cards remain in your collection';
     if(!allStored.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='NO HIDDEN CARDS<br><small>Right-click a displayed card or drag one here to put it away.</small>';list.appendChild(empty);return}
     if(!visible.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='NO MATCHING CARDS<br><small>Try a different search or category.</small>';list.appendChild(empty);return}
     for(const id of visible){
@@ -19439,6 +19499,7 @@ qmShowSharedGoal=function(state){
     }
     syncStorageDrawerState(box,d.querySelector('.repo-binder-storage-launch'));
   }
+
   function render(){
     const d=document.getElementById('quidditchTcgBinderDialog'),spread=ensure();if(!d||!spread)return;
     const idx=spreadIndex();spread.hidden=idx<0;renderStorage();if(idx<0){updateDragEdges();return}
@@ -38469,6 +38530,15 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     return (state.slabs||[]).filter(s=>!used.has(slabId(s)));
   }
 
+  function duplicateSlabGroups(){
+    if(isPublicView())return [];
+    const groups=new Map();
+    for(const slab of state.slabs||[]){const id=normal(slab?.card_id);if(!id)continue;if(!groups.has(id))groups.set(id,[]);groups.get(id).push(slab)}
+    return Array.from(groups.entries()).filter(([,slabs])=>slabs.length>1).map(([cardId,slabs])=>({cardId,slabs:slabs.slice().sort((a,b)=>(Number(b.grade)||0)-(Number(a.grade)||0)),name:cardName(slabs[0])})).sort((a,b)=>a.name.localeCompare(b.name));
+  }
+  function duplicateSlabExtraCount(){return duplicateSlabGroups().reduce((sum,group)=>sum+group.slabs.length-1,0)}
+
+
   function category(slab){
     const id=normal(slab?.card_id).toLowerCase();
     if(id.includes('black_label'))return 'blacklabel';
@@ -38493,10 +38563,11 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     drawer.className='repo-binder-storage repo-rcg-v2118-storage';
     drawer.dataset.storageFilter='all';
     drawer.setAttribute('aria-hidden','true');
-    drawer.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN SLABS</strong><span class="repo-binder-storage-subtitle">Hidden slabs remain in your graded collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-v2118-close aria-label="Close Hidden Slabs">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search hidden slabs…"><div class="repo-binder-storage-filters"><button data-storage-filter="all" aria-pressed="true">ALL</button><button data-storage-filter="blacklabel">BLACK LABEL</button><button data-storage-filter="legendary">LEGENDARY</button><button data-storage-filter="platinum">PLATINUM</button><button data-storage-filter="promo">PROMO</button><button data-storage-filter="unfinished">UNFINISHED</button><button data-storage-filter="patch">PATCH</button><button data-storage-filter="offbroom">OFF THE BROOM</button><button data-storage-filter="fullart">FULL ART</button><button data-storage-filter="standard">STANDARD</button></div></div><div class="repo-binder-storage-results"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Right-click a displayed slab to put it away. Use RESTORE TO BINDER to return it to this spread.</div>`;
+    drawer.dataset.storageView='hidden';drawer.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">SLAB STORAGE</strong><span class="repo-binder-storage-subtitle">Hidden slabs and duplicate graded copies</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-v2118-close aria-label="Close Slab Storage">×</button></div><div class="repo-binder-storage-tabs" role="group" aria-label="Slab storage view"><button type="button" class="repo-binder-storage-tab" data-storage-view="hidden" aria-pressed="true">HIDDEN SLABS <em data-tab-count="hidden">0</em></button><button type="button" class="repo-binder-storage-tab" data-storage-view="duplicates" aria-pressed="false">DUPLICATES <em data-tab-count="duplicates">0</em></button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search slab storage…"><div class="repo-binder-storage-filters"><button data-storage-filter="all" aria-pressed="true">ALL</button><button data-storage-filter="blacklabel">BLACK LABEL</button><button data-storage-filter="legendary">LEGENDARY</button><button data-storage-filter="platinum">PLATINUM</button><button data-storage-filter="promo">PROMO</button><button data-storage-filter="unfinished">UNFINISHED</button><button data-storage-filter="patch">PATCH</button><button data-storage-filter="offbroom">OFF THE BROOM</button><button data-storage-filter="fullart">FULL ART</button><button data-storage-filter="standard">STANDARD</button></div></div><div class="repo-binder-storage-results"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Hidden Slabs manages binder storage. Duplicates groups multiple graded copies of the same card.</div>`;
     d.appendChild(drawer);
     drawer.querySelector('[data-v2118-close]')?.addEventListener('click',()=>openDrawer(false));
     drawer.querySelector('.repo-binder-storage-search')?.addEventListener('input',renderDrawer);
+    drawer.querySelector('.repo-binder-storage-tabs')?.addEventListener('click',event=>{const btn=event.target.closest('[data-storage-view]');if(!btn)return;drawer.dataset.storageView=btn.dataset.storageView||'hidden';drawer.querySelectorAll('[data-storage-view]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));renderDrawer()});
     drawer.querySelector('.repo-binder-storage-filters')?.addEventListener('click',event=>{
       const btn=event.target.closest('[data-storage-filter]'); if(!btn)return;
       drawer.dataset.storageFilter=btn.dataset.storageFilter||'all';
@@ -38529,16 +38600,49 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
   function renderDrawer(){
     const panel=drawer||ensureDrawer(); if(!panel)return;
-    const all=hiddenSlabs();
+    const allHidden=hiddenSlabs();
+    const duplicateGroups=duplicateSlabGroups();
+    const duplicateExtras=duplicateGroups.reduce((sum,g)=>sum+g.slabs.length-1,0);
     const search=normal(panel.querySelector('.repo-binder-storage-search')?.value).toLowerCase();
     const filter=panel.dataset.storageFilter||'all';
-    const visible=all.filter(s=>(filter==='all'||category(s)===filter)&&(!search||cardName(s).toLowerCase().includes(search)||normal(s.certification_number).toLowerCase().includes(search)));
-    const count=panel.querySelector('.repo-binder-storage-count'); if(count)count.textContent=String(all.length);
-    const results=panel.querySelector('.repo-binder-storage-results'); if(results)results.textContent=all.length?`Showing ${visible.length} of ${all.length} hidden slabs`:'No slabs currently stored';
-    const list=panel.querySelector('.repo-binder-storage-list'); if(!list)return;
+    const view=panel.dataset.storageView||'hidden';
+    const count=panel.querySelector('.repo-binder-storage-count'),results=panel.querySelector('.repo-binder-storage-results'),list=panel.querySelector('.repo-binder-storage-list'); if(!list)return;
+    const hiddenTab=panel.querySelector('[data-tab-count="hidden"]'),dupTab=panel.querySelector('[data-tab-count="duplicates"]');if(hiddenTab)hiddenTab.textContent=String(allHidden.length);if(dupTab)dupTab.textContent=String(duplicateExtras);
     list.replaceChildren();
+
+    if(view==='duplicates'){
+      const visibleGroups=duplicateGroups.filter(group=>{
+        const first=group.slabs[0],matchesFilter=filter==='all'||category(first)===filter;
+        const matchesSearch=!search||group.name.toLowerCase().includes(search)||group.slabs.some(s=>normal(s.certification_number).toLowerCase().includes(search));
+        return matchesFilter&&matchesSearch;
+      });
+      if(count)count.textContent=String(duplicateExtras);
+      if(results)results.textContent=duplicateGroups.length?`${visibleGroups.length} duplicate card groups · ${duplicateExtras} extra ${duplicateExtras===1?'slab':'slabs'}`:'No duplicate slabs in your graded collection';
+      const title=panel.querySelector('.repo-binder-storage-title'),subtitle=panel.querySelector('.repo-binder-storage-subtitle');if(title)title.textContent='DUPLICATE SLABS';if(subtitle)subtitle.textContent='Multiple RCG slabs of the same card grouped together';
+      if(!duplicateGroups.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='NO DUPLICATE SLABS<br><small>When you grade multiple copies of the same card, they will be grouped here.</small>';list.appendChild(empty);return}
+      if(!visibleGroups.length){const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML='NO MATCHING DUPLICATES<br><small>Try a different search or rarity.</small>';list.appendChild(empty);return}
+      const placed=new Set(state.layout.filter(Boolean));
+      visibleGroups.forEach(group=>{
+        const article=document.createElement('article');article.className='repo-rcg-duplicate-group';
+        const displayed=group.slabs.filter(s=>placed.has(slabId(s))).length,hidden=group.slabs.length-displayed;
+        article.innerHTML=`<div class="repo-rcg-duplicate-group-head"><strong>${esc(group.name)}</strong><span>×${group.slabs.length} SLABS</span><small>${displayed} displayed · ${hidden} stored · ${group.slabs.length-1} extra graded ${group.slabs.length-1===1?'copy':'copies'}</small></div><div class="repo-rcg-duplicate-slabs"></div>`;
+        const grid=article.querySelector('.repo-rcg-duplicate-slabs');
+        group.slabs.forEach(slab=>{
+          const id=slabId(slab),isDisplayed=placed.has(id),row=document.createElement('div');row.className='repo-rcg-duplicate-slab';row.dataset.slabId=id;
+          row.innerHTML=`${slabVisual(slab,{mini:true})}<div class="repo-rcg-duplicate-status ${isDisplayed?'is-displayed':'is-hidden'}"><b>RCG ${esc(Number(slab.grade)||'?')}</b><span>${isDisplayed?'ON DISPLAY':'STORED'}</span></div>${isDisplayed?'':`<button type="button" class="repo-rcg-duplicate-restore" data-action="restore">RESTORE TO BINDER</button>`}`;
+          grid.appendChild(row);
+        });
+        list.appendChild(article);
+      });
+      return;
+    }
+
+    const visible=allHidden.filter(s=>(filter==='all'||category(s)===filter)&&(!search||cardName(s).toLowerCase().includes(search)||normal(s.certification_number).toLowerCase().includes(search)));
+    if(count)count.textContent=String(allHidden.length);
+    if(results)results.textContent=allHidden.length?`Showing ${visible.length} of ${allHidden.length} hidden slabs`:'No slabs currently stored';
+    const title=panel.querySelector('.repo-binder-storage-title'),subtitle=panel.querySelector('.repo-binder-storage-subtitle');if(title)title.textContent='HIDDEN SLABS';if(subtitle)subtitle.textContent='Hidden slabs remain in your graded collection';
     if(!visible.length){
-      const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML=all.length?'NO MATCHING SLABS':'NO HIDDEN SLABS<br><small>Right-click a displayed slab to put it away.</small>';list.appendChild(empty);return;
+      const empty=document.createElement('div');empty.className='repo-binder-storage-empty';empty.innerHTML=allHidden.length?'NO MATCHING SLABS':'NO HIDDEN SLABS<br><small>Right-click a displayed slab to put it away.</small>';list.appendChild(empty);return;
     }
     visible.forEach(slab=>{
       const item=document.createElement('article');
