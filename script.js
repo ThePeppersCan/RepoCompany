@@ -8585,8 +8585,8 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     door?.addEventListener('click',enterInterior);
     door?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();enterInterior()}});
     const gregg=dialog.querySelector('.repo-foil-gregg-hotspot-v2204');
-    gregg?.addEventListener('click',openCounter);
-    gregg?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openCounter()}});
+    gregg?.addEventListener('click',()=>window.openGreggFableHubV2217?.()||openCounter());
+    gregg?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();window.openGreggFableHubV2217?.()||openCounter()}});
     dialog.querySelector('[data-foil-crack-close]')?.addEventListener('click',closeCounter);
     dialog.querySelector('#repoFoilCrackSearchV2204')?.addEventListener('input',event=>{searchText=String(event.target.value||'');renderCounter()});
     dialog.querySelector('#repoFoilCrackGridV2204')?.addEventListener('click',event=>{
@@ -8811,6 +8811,7 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   window.openFoilAndFableShopV2204=openShop;
   window.closeFoilAndFableShopV2204=closeShop;
   window.openGreggCrackingCounterV2204=openCounter;
+  window.closeGreggCrackingCounterV2204=closeCounter;
 
   const boot=()=>{ensureDialog();ensureLeafTimer()};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
@@ -39553,3 +39554,897 @@ document.head.appendChild(s)})();
 })();
 
 // V22.09 — KABOOM Platinum + Velmora: Off the Broom TCG expansion.
+
+// ============================================================================
+// V22.17 — FOIL & FABLE: FABLE VOUCHERS + GLOBAL DAILY CARD SHOP
+// Gregg now opens a three-service hub: crack slabs, global daily shop, sell slabs.
+// All currency, stock, daily purchase limits and slab sales are authoritative RPCs.
+// ============================================================================
+(function installFoilAndFableEconomyV2217(){
+  if(window.__repoFoilAndFableEconomyV2217)return;
+  window.__repoFoilAndFableEconomyV2217=true;
+
+  const HOST_ID='repoFoilAndFableDialogV2204';
+  const SLAB_TEMPLATE='assets/rcg/rcg-slab-template.png';
+  const fmt=value=>Math.max(0,Number(value)||0).toLocaleString('en-GB');
+  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const normal=value=>String(value??'').trim();
+  const cardMap=()=>window.__repoTcgCardById||Object.fromEntries((Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[]).map(card=>[normal(card?.id),card]));
+  const cardFor=id=>cardMap()[normal(id)]||null;
+  const cardName=id=>cardFor(id)?.name||normal(id).replaceAll('_',' ').replace(/\b\w/g,char=>char.toUpperCase())||'Unknown Card';
+  const cardImage=id=>cardFor(id)?.image||cardFor(id)?.image_url||'';
+  const rarityLabel=rarity=>({
+    standard:'STANDARD',full_art:'FULL ART',off_the_broom:'OFF THE BROOM',patch:'PATCH',unfinished:'UNFINISHED',promo:'PROMO',
+    platinum:'PLATINUM',rival:'RIVAL',legendary:'GOLD LEGENDARY',signature:'SIGNATURE',millennium:'MILLENNIUM',black_label:'BLACK LABEL'
+  })[normal(rarity)]||normal(rarity).replaceAll('_',' ').toUpperCase()||'CARD';
+  const rarityRank=rarity=>({standard:1,full_art:2,off_the_broom:3,patch:4,unfinished:5,promo:6,platinum:7,rival:8,legendary:9,signature:10,millennium:11,black_label:12})[normal(rarity)]||0;
+
+  let host=null;
+  let state=null;
+  let stateLoading=false;
+  let pollTimer=null;
+  let clockTimer=null;
+  let serverOffsetMs=0;
+  let nextRefreshMs=0;
+  let shopConfirmSlot=0;
+  let sellConfirmId='';
+  let sellSearch='';
+  let sellRarity='all';
+  let sellGrade='all';
+  let toastTimer=null;
+
+  const rpcData=data=>Array.isArray(data)?data[0]:data;
+  async function rpc(name,args={}){
+    if(typeof db==='undefined'||!db?.rpc)throw new Error('Foil & Fable backend unavailable.');
+    const {data,error}=await db.rpc(name,args);
+    if(error)throw error;
+    return rpcData(data);
+  }
+
+  function ticketMarkup(extra=''){
+    return `<span class="repo-fable-ticket-v2217 ${extra}" aria-hidden="true"><i>F</i></span>`;
+  }
+  function syncCharacterBalance(value){
+    const amount=Math.max(0,Number(value)||0);
+    try{if(typeof character!=='undefined'&&character)character.fable_vouchers=amount}catch(_){ }
+  }
+  function showToast(message,tone=''){
+    ensureUI();
+    const node=host?.querySelector('#repoFableToastV2217');if(!node)return;
+    node.textContent=normal(message);node.dataset.tone=normal(tone);node.classList.add('is-visible');
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>node.classList.remove('is-visible'),3200);
+  }
+
+  function injectStyles(){
+    if(document.getElementById('repoFableStylesV2217'))return;
+    const style=document.createElement('style');style.id='repoFableStylesV2217';
+    style.textContent=`
+      .repo-fable-overlay-v2217{position:absolute;inset:0;z-index:230;display:none;place-items:center;padding:20px;background:radial-gradient(circle at 50% 24%,rgba(28,34,48,.34),rgba(2,5,9,.93) 64%,#010204 100%);backdrop-filter:blur(4px);color:#f7e6b2;overflow:auto}
+      .repo-fable-overlay-v2217.is-open{display:grid;animation:repoFableFadeV2217 .2s ease-out}
+      @keyframes repoFableFadeV2217{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+      .repo-fable-shell-v2217{position:relative;width:min(1460px,96vw);max-height:94vh;border:3px solid #73521f;outline:2px solid #191005;background:linear-gradient(180deg,#121a20 0,#080d11 100%);box-shadow:0 28px 90px #000,0 0 0 1px #d3a33c inset,0 0 50px rgba(194,137,41,.12);overflow:hidden;font-family:"Courier New",monospace}
+      .repo-fable-shell-v2217:before{content:"";position:absolute;inset:7px;border:1px solid rgba(235,188,84,.2);pointer-events:none;z-index:20}
+      .repo-fable-close-v2217,.repo-fable-back-v2217{position:absolute;z-index:30;top:13px;border:1px solid #b88b37;background:#21170b;color:#ffe3a0;min-width:42px;height:38px;font:900 16px/1 monospace;cursor:pointer;box-shadow:inset 0 0 0 1px #000,0 4px 12px #000a}
+      .repo-fable-close-v2217{right:14px}.repo-fable-back-v2217{left:14px;padding:0 13px;font-size:11px}
+      .repo-fable-close-v2217:hover,.repo-fable-back-v2217:hover{filter:brightness(1.3);transform:translateY(-1px)}
+      .repo-fable-hub-head-v2217{display:grid;grid-template-columns:330px 1fr 150px;gap:14px;align-items:stretch;padding:20px 28px 12px;background:linear-gradient(180deg,#10171c,#090d10);border-bottom:3px solid #513814}
+      .repo-fable-balance-v2217{display:flex;align-items:center;gap:14px;padding:11px 18px;border:2px solid #6d5125;background:linear-gradient(135deg,#10191d,#10160f);box-shadow:inset 0 0 20px #000a,0 4px 0 #050403}
+      .repo-fable-wisp-v2217{position:relative;width:58px;height:58px;flex:none;border-radius:50% 50% 42% 42%;background:radial-gradient(circle at 50% 46%,#4a236f,#211036 62%,#08070c 63%);border:3px solid #9d6dbb;box-shadow:0 0 18px #7444ae88,inset 0 -10px 15px #0009}
+      .repo-fable-wisp-v2217:before,.repo-fable-wisp-v2217:after{content:"";position:absolute;top:26px;width:7px;height:10px;border-radius:50%;background:#65f6ff;box-shadow:0 0 9px #35d8ff}.repo-fable-wisp-v2217:before{left:17px}.repo-fable-wisp-v2217:after{right:17px}
+      .repo-fable-balance-copy-v2217 small{display:block;font:900 11px/1 monospace;letter-spacing:1.4px;color:#ecd68d}.repo-fable-balance-copy-v2217 b{display:flex;align-items:center;gap:9px;margin-top:7px;font:900 29px/1 Georgia,serif;color:#ffe6a1;text-shadow:0 2px #000}
+      .repo-fable-ticket-v2217{position:relative;display:inline-grid;place-items:center;width:35px;height:23px;flex:none;background:linear-gradient(#f5db8a,#c49335);border:2px solid #6f4a16;clip-path:polygon(0 18%,9% 18%,9% 0,91% 0,91% 18%,100% 18%,100% 82%,91% 82%,91% 100%,9% 100%,9% 82%,0 82%);filter:drop-shadow(0 2px 1px #0008)}
+      .repo-fable-ticket-v2217 i{font:900 13px/1 Georgia,serif;color:#57370b;font-style:normal;text-shadow:0 1px #ffeaaa}.repo-fable-ticket-v2217.is-small{width:26px;height:18px}.repo-fable-ticket-v2217.is-small i{font-size:10px}
+      .repo-fable-title-board-v2217{display:grid;place-items:center;text-align:center;padding:9px 30px;background:linear-gradient(180deg,#563617,#35200d);border:3px solid #785126;box-shadow:inset 0 0 0 2px #251408,0 5px 0 #090604;clip-path:polygon(2% 0,98% 0,100% 18%,98% 100%,2% 100%,0 82%,0 18%)}
+      .repo-fable-title-board-v2217 h2{margin:0;font:900 clamp(25px,3vw,47px)/1 Georgia,serif;letter-spacing:1px;color:#ffd766;text-shadow:0 3px #3e2007,2px 0 #3e2007,-2px 0 #3e2007}.repo-fable-title-board-v2217 p{margin:7px 0 0;color:#eadcc4;font:700 15px/1.1 monospace}
+      .repo-fable-crest-v2217{display:grid;place-items:center;background:linear-gradient(180deg,#291144,#140920);border:3px solid #8d6534;box-shadow:inset 0 0 0 2px #08040c,0 5px 0 #050304}.repo-fable-crest-v2217 b{font:900 68px/1 Georgia,serif;color:#f2c750;text-shadow:0 4px #70430f}.repo-fable-crest-v2217 b:before{content:"♛";display:block;font-size:22px;line-height:18px;text-align:center}
+      .repo-fable-service-grid-v2217{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;padding:14px 18px 16px;background:linear-gradient(180deg,#0b1014,#070a0d)}
+      .repo-fable-service-v2217{position:relative;min-height:560px;padding:19px 16px 17px;display:flex;flex-direction:column;align-items:stretch;border:3px solid #73521f;box-shadow:inset 0 0 0 2px #0a0805,0 5px 0 #030303,0 0 24px #0008;overflow:hidden}
+      .repo-fable-service-v2217:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 56%,var(--glow),transparent 48%),linear-gradient(180deg,rgba(255,255,255,.03),transparent 35%);pointer-events:none}
+      .repo-fable-service-v2217[data-tone="purple"]{--glow:#6b2b8f55;background:linear-gradient(180deg,#17101f,#0e0b16)}.repo-fable-service-v2217[data-tone="blue"]{--glow:#1c5b9855;background:linear-gradient(180deg,#0e1723,#0b111a)}.repo-fable-service-v2217[data-tone="green"]{--glow:#3b7b3055;background:linear-gradient(180deg,#101b12,#0a120c)}
+      .repo-fable-service-ribbon-v2217{position:relative;z-index:2;margin:-2px -7px 0;padding:13px 10px;text-align:center;border:3px solid #87642c;background:linear-gradient(180deg,var(--r1),var(--r2));box-shadow:inset 0 0 0 2px #160e09,0 5px 0 #080503;clip-path:polygon(4% 0,96% 0,100% 27%,96% 100%,4% 100%,0 73%,0 27%)}
+      .repo-fable-service-v2217[data-tone="purple"] .repo-fable-service-ribbon-v2217{--r1:#643379;--r2:#321740}.repo-fable-service-v2217[data-tone="blue"] .repo-fable-service-ribbon-v2217{--r1:#28577d;--r2:#17344f}.repo-fable-service-v2217[data-tone="green"] .repo-fable-service-ribbon-v2217{--r1:#396e31;--r2:#1d441d}
+      .repo-fable-service-ribbon-v2217 h3{margin:0;font:900 clamp(20px,2vw,34px)/1 Georgia,serif;letter-spacing:1px;color:#fff1c9;text-shadow:0 3px #160d08}.repo-fable-service-v2217>p{position:relative;z-index:2;min-height:50px;margin:14px 15px 0;text-align:center;color:#eadcc4;font:700 14px/1.45 monospace}
+      .repo-fable-service-art-v2217{position:relative;z-index:2;flex:1;min-height:280px;display:grid;place-items:center;margin:4px 0 8px}.repo-fable-service-art-v2217:after{content:"";position:absolute;width:70%;height:24%;bottom:7%;border-radius:50%;background:#0009;filter:blur(18px);z-index:-1}
+      .repo-fable-crack-art-v2217 img{width:min(205px,55%);filter:drop-shadow(0 15px 14px #000) drop-shadow(0 0 18px #8d51d1aa);transform:rotate(-5deg)}
+      .repo-fable-shop-preview-v2217{display:flex;align-items:center;justify-content:center;width:100%;height:100%;gap:4px}.repo-fable-shop-preview-v2217 .mini{position:relative;width:92px;aspect-ratio:.70;border:2px solid #8f7138;background:#14181d;box-shadow:0 8px 15px #000c;overflow:hidden}.repo-fable-shop-preview-v2217 .mini:nth-child(1){transform:translate(17px,16px) rotate(-9deg)}.repo-fable-shop-preview-v2217 .mini:nth-child(2){z-index:2;transform:translateY(-4px)}.repo-fable-shop-preview-v2217 .mini:nth-child(3){transform:translate(-17px,16px) rotate(9deg)}.repo-fable-shop-preview-v2217 .mini img{width:100%;height:100%;object-fit:cover}.repo-fable-shop-preview-v2217 .mini span{position:absolute;inset:auto 0 0;padding:5px;background:#071019dd;color:#f0d488;font:900 7px/1 monospace;text-align:center}
+      .repo-fable-sell-art-v2217{display:flex;align-items:center;justify-content:center;gap:20px;width:100%}.repo-fable-sell-art-v2217 img{width:145px;filter:drop-shadow(0 12px 14px #000);transform:rotate(-7deg)}.repo-fable-sell-art-v2217 .arrow{font:900 48px/1 Georgia,serif;color:#8bdd58;text-shadow:0 0 12px #55c02d}.repo-fable-ticket-stack-v2217{display:grid;gap:7px}.repo-fable-ticket-stack-v2217 .repo-fable-ticket-v2217:nth-child(2){transform:translateX(13px) rotate(5deg)}.repo-fable-ticket-stack-v2217 .repo-fable-ticket-v2217:nth-child(3){transform:translateX(-5px) rotate(-6deg)}
+      .repo-fable-service-btn-v2217{position:relative;z-index:2;width:100%;min-height:58px;border:3px solid #9c7430;background:linear-gradient(180deg,var(--b1),var(--b2));color:#fff0c8;font:900 22px/1 Georgia,serif;letter-spacing:1px;text-shadow:0 2px #150c05;cursor:pointer;box-shadow:inset 0 0 0 2px #100b08,0 5px 0 #030303}.repo-fable-service-v2217[data-tone="purple"] .repo-fable-service-btn-v2217{--b1:#703c87;--b2:#3b1c4c}.repo-fable-service-v2217[data-tone="blue"] .repo-fable-service-btn-v2217{--b1:#31658e;--b2:#193e5d}.repo-fable-service-v2217[data-tone="green"] .repo-fable-service-btn-v2217{--b1:#417c38;--b2:#215023}.repo-fable-service-btn-v2217:hover{filter:brightness(1.22);transform:translateY(-2px)}
+      .repo-fable-hub-foot-v2217{display:flex;justify-content:center;align-items:center;gap:17px;padding:12px;border-top:2px solid #493317;background:#0a0e11;color:#c79a48;font:900 16px/1 monospace;letter-spacing:2px}.repo-fable-admin-open-v2217{position:absolute;left:22px;bottom:9px;border:1px solid #886833;background:#16100b;color:#c9ae71;padding:7px 9px;font:900 8px/1 monospace;cursor:pointer}
+
+      .repo-fable-menu-shell-v2217{width:min(1410px,96vw);min-height:min(820px,92vh);display:flex;flex-direction:column;background:linear-gradient(180deg,#0c1217,#080c10);border:3px solid #7c5c28;box-shadow:0 30px 90px #000,0 0 0 2px #181005 inset;font-family:"Courier New",monospace;position:relative;overflow:hidden}
+      .repo-fable-menu-head-v2217{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:23px 78px 16px;border-bottom:3px solid #573d18;background:linear-gradient(180deg,#172029,#0d141a)}.repo-fable-menu-head-v2217 h2{margin:0;font:900 clamp(25px,3vw,42px)/1 Georgia,serif;color:#ffd96f;text-shadow:0 3px #3c2208}.repo-fable-menu-head-v2217 p{margin:7px 0 0;color:#cfc1a3;font:700 11px/1.3 monospace;letter-spacing:.6px}.repo-fable-menu-head-v2217 .repo-fable-balance-copy-v2217{padding:9px 15px;border:1px solid #795b29;background:#0d1513;min-width:230px}
+      .repo-fable-shop-meta-v2217{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px 22px;border-bottom:1px solid #513d20;background:#0b1014}.repo-fable-meta-pill-v2217{padding:9px 12px;text-align:center;border:1px solid #4a3a23;background:#10171c;color:#bfb295}.repo-fable-meta-pill-v2217 b{display:block;margin-top:3px;color:#ffe3a1;font:900 12px/1 monospace}.repo-fable-meta-pill-v2217[data-good="1"] b{color:#9de07c}
+      .repo-fable-shop-grid-v2217{flex:1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;padding:18px 18px 22px;align-items:start;overflow:auto}.repo-fable-shop-card-v2217{position:relative;min-width:0;padding:9px;border:2px solid #6d5128;background:linear-gradient(180deg,#131b21,#0a0f13);box-shadow:0 10px 20px #000b,inset 0 0 0 1px #21170c;cursor:pointer;color:#eadfbf;text-align:left}.repo-fable-shop-card-v2217:hover:not(:disabled){transform:translateY(-4px);filter:brightness(1.16);border-color:#c09139}.repo-fable-shop-card-v2217:disabled{cursor:not-allowed;opacity:.62}.repo-fable-shop-card-v2217[data-rank="12"]{border-color:#8e7b64;box-shadow:0 0 0 1px #000,0 0 30px rgba(120,120,120,.28),0 12px 24px #000}.repo-fable-shop-card-v2217[data-rank="11"]{border-color:#8d76b5}.repo-fable-shop-card-v2217[data-rank="10"],.repo-fable-shop-card-v2217[data-rank="9"]{border-color:#a98336}.repo-fable-shop-art-v2217{position:relative;width:100%;aspect-ratio:.70;background:#05080b;border:1px solid #342817;overflow:hidden}.repo-fable-shop-art-v2217 img{width:100%;height:100%;object-fit:cover;display:block}.repo-fable-shop-card-v2217[data-sold="1"] .repo-fable-shop-art-v2217 img{filter:grayscale(.8) brightness(.38)}.repo-fable-sold-stamp-v2217{position:absolute;inset:43% 5% auto;transform:rotate(-10deg);padding:8px;border:3px solid #b75c4b;color:#e88978;background:#230b08d9;font:900 clamp(17px,1.6vw,27px)/1 Georgia,serif;text-align:center;letter-spacing:2px;text-shadow:0 2px #000}.repo-fable-shop-rarity-v2217{display:block;margin-top:9px;color:#d9b65d;font:900 8px/1 monospace;letter-spacing:1.2px}.repo-fable-shop-card-v2217 h3{min-height:42px;margin:6px 0 7px;color:#f5e9c8;font:900 15px/1.15 Georgia,serif}.repo-fable-shop-price-v2217{display:flex;align-items:center;gap:6px;color:#ffe19a;font:900 15px/1 monospace}.repo-fable-shop-status-v2217{display:block;margin-top:8px;min-height:22px;padding:6px;border:1px solid #3c3020;background:#090d10;color:#8fca6a;font:900 8px/1.15 monospace;text-align:center}.repo-fable-shop-card-v2217[data-sold="1"] .repo-fable-shop-status-v2217{color:#dd7d6c}.repo-fable-shop-card-v2217[data-used="1"] .repo-fable-shop-status-v2217{color:#bda667}
+      .repo-fable-global-note-v2217{padding:10px 22px;border-top:1px solid #4f3b20;background:#10110d;color:#c9ad67;text-align:center;font:900 9px/1.2 monospace;letter-spacing:1px}
+
+      .repo-fable-sell-tools-v2217{display:grid;grid-template-columns:1fr 180px 150px;gap:8px;padding:12px 20px;border-bottom:1px solid #4f3a20;background:#0b1115}.repo-fable-sell-tools-v2217 input,.repo-fable-sell-tools-v2217 select,.repo-fable-admin-v2217 input{height:40px;border:1px solid #5e4827;background:#080d10;color:#f2dfaa;padding:0 11px;font:800 11px/1 monospace;outline:none}.repo-fable-sell-grid-v2217{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:10px;padding:15px 18px 20px;overflow:auto;align-content:start}.repo-fable-sell-card-v2217{position:relative;display:grid;grid-template-columns:66px 1fr;gap:10px;min-height:115px;padding:9px;border:1px solid #66502d;background:#10171b;color:#eadfbd;text-align:left;cursor:pointer}.repo-fable-sell-card-v2217:hover:not(:disabled){border-color:#c89b43;filter:brightness(1.12)}.repo-fable-sell-card-v2217:disabled{opacity:.46;cursor:not-allowed}.repo-fable-sell-thumb-v2217{position:relative;aspect-ratio:.70;background:#05070a;border:1px solid #342817;overflow:hidden}.repo-fable-sell-thumb-v2217 img{width:100%;height:100%;object-fit:cover}.repo-fable-sell-copy-v2217 h3{margin:0 0 5px;font:900 12px/1.12 Georgia,serif}.repo-fable-sell-copy-v2217 small{display:block;color:#ae9c74;font:800 7px/1.25 monospace}.repo-fable-sell-copy-v2217 b{display:flex;align-items:center;gap:5px;margin-top:8px;color:#aee982;font:900 12px/1 monospace}.repo-fable-grade-badge-v2217{position:absolute;right:5px;top:5px;padding:4px 5px;border:1px solid #9b7934;background:#171007e8;color:#ffe59c;font:900 8px/1 monospace}.repo-fable-protected-v2217{color:#d78570!important}
+      .repo-fable-empty-v2217{grid-column:1/-1;padding:55px 20px;text-align:center;color:#ab9e80;font:900 12px/1.5 monospace}
+
+      .repo-fable-confirm-v2217{position:absolute;inset:0;z-index:40;display:none;place-items:center;padding:25px;background:#020407de;backdrop-filter:blur(5px)}.repo-fable-confirm-v2217.is-open{display:grid}.repo-fable-confirm-box-v2217{width:min(620px,92vw);padding:18px;border:3px solid #987137;background:linear-gradient(180deg,#171e23,#0b0f12);box-shadow:0 20px 60px #000}.repo-fable-confirm-box-v2217 h3{margin:0;color:#ffe09a;font:900 26px/1 Georgia,serif}.repo-fable-confirm-card-v2217{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center;margin:17px 0;padding:12px;border:1px solid #4d3b21;background:#090e11}.repo-fable-confirm-card-v2217 img{width:100%;aspect-ratio:.70;object-fit:cover;border:1px solid #72582f}.repo-fable-confirm-card-v2217 b{display:block;color:#f4e4bb;font:900 18px/1.15 Georgia,serif}.repo-fable-confirm-card-v2217 small{display:block;margin-top:6px;color:#c2ae7a;font:800 9px/1.3 monospace}.repo-fable-confirm-price-v2217{display:flex;align-items:center;gap:7px;margin-top:13px;color:#aee982!important;font:900 18px/1 monospace!important}.repo-fable-confirm-actions-v2217{display:grid;grid-template-columns:1fr 1fr;gap:9px}.repo-fable-confirm-actions-v2217 button{height:48px;border:2px solid #76582a;background:#251b10;color:#ecd7a0;font:900 12px/1 monospace;cursor:pointer}.repo-fable-confirm-actions-v2217 button[data-confirm]{background:#315d2b;color:#e9ffd9;border-color:#70994d}.repo-fable-confirm-actions-v2217 button[data-confirm].is-danger{background:#693024;border-color:#aa624d}
+
+      .repo-fable-admin-v2217 .repo-fable-menu-shell-v2217{width:min(1000px,94vw)}.repo-fable-admin-main-v2217{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px;overflow:auto}.repo-fable-admin-box-v2217{padding:14px;border:1px solid #5e4828;background:#10171b}.repo-fable-admin-box-v2217 h3{margin:0 0 10px;color:#e9cb7a;font:900 14px/1 Georgia,serif}.repo-fable-admin-row-v2217{display:grid;grid-template-columns:1fr 140px auto;gap:7px}.repo-fable-admin-box-v2217 button{min-height:38px;border:1px solid #8c692e;background:#2e2111;color:#f1daa0;padding:0 12px;font:900 9px/1 monospace;cursor:pointer}.repo-fable-admin-output-v2217{margin-top:10px;max-height:260px;overflow:auto;padding:10px;background:#070b0e;border:1px solid #302719;color:#c7b995;font:800 8px/1.5 monospace}.repo-fable-admin-preview-v2217{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}.repo-fable-admin-preview-v2217 img{width:100%;aspect-ratio:.70;object-fit:cover}.repo-fable-admin-preview-v2217 small{display:block;color:#e4c56c;font-size:6px}
+      .repo-fable-toast-v2217{position:fixed;z-index:2147483647;left:50%;top:24px;transform:translate(-50%,-12px);max-width:min(620px,90vw);padding:11px 17px;border:2px solid #987238;background:#171107;color:#ffe1a0;box-shadow:0 9px 30px #000c;font:900 10px/1.35 monospace;opacity:0;pointer-events:none;transition:.2s}.repo-fable-toast-v2217.is-visible{opacity:1;transform:translate(-50%,0)}.repo-fable-toast-v2217[data-tone="error"]{border-color:#a64f43;color:#ffc0b5}.repo-fable-toast-v2217[data-tone="ok"]{border-color:#5d904c;color:#c9ffb1}
+      @media(max-width:1050px){.repo-fable-hub-head-v2217{grid-template-columns:240px 1fr 100px}.repo-fable-service-grid-v2217{grid-template-columns:1fr}.repo-fable-service-v2217{min-height:350px}.repo-fable-shop-grid-v2217{grid-template-columns:repeat(3,1fr)}.repo-fable-admin-main-v2217{grid-template-columns:1fr}}
+      @media(max-width:720px){.repo-fable-hub-head-v2217{grid-template-columns:1fr}.repo-fable-crest-v2217{display:none}.repo-fable-service-grid-v2217{padding:8px}.repo-fable-service-v2217{min-height:300px}.repo-fable-shop-grid-v2217{grid-template-columns:repeat(2,1fr)}.repo-fable-menu-head-v2217{grid-template-columns:1fr;padding:55px 18px 12px}.repo-fable-shop-meta-v2217{grid-template-columns:1fr}.repo-fable-sell-tools-v2217{grid-template-columns:1fr}.repo-fable-confirm-card-v2217{grid-template-columns:90px 1fr}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureUI(){
+    host=document.getElementById(HOST_ID);
+    if(!host)return null;
+    injectStyles();
+    if(host.querySelector('#repoFableHubV2217'))return host;
+
+    host.insertAdjacentHTML('beforeend',`
+      <section class="repo-fable-overlay-v2217 repo-fable-hub-v2217" id="repoFableHubV2217" aria-hidden="true">
+        <div class="repo-fable-shell-v2217">
+          <button type="button" class="repo-fable-close-v2217" data-fable-hub-close aria-label="Close Gregg's services">×</button>
+          <header class="repo-fable-hub-head-v2217">
+            <div class="repo-fable-balance-v2217">
+              <div class="repo-fable-wisp-v2217" aria-hidden="true"></div>
+              <div class="repo-fable-balance-copy-v2217"><small>FABLE VOUCHERS</small><b>${ticketMarkup()}<span data-fable-balance>0</span></b></div>
+            </div>
+            <div class="repo-fable-title-board-v2217"><div><h2>WELCOME TO FOIL &amp; FABLE</h2><p>Cards, treasures &amp; tales await...</p></div></div>
+            <div class="repo-fable-crest-v2217"><b>F</b></div>
+          </header>
+          <main class="repo-fable-service-grid-v2217">
+            <article class="repo-fable-service-v2217" data-tone="purple">
+              <div class="repo-fable-service-ribbon-v2217"><h3>CRACKING SLABS</h3></div>
+              <p>Gregg opens eligible RCG cases and returns the exact physical raw card.</p>
+              <div class="repo-fable-service-art-v2217 repo-fable-crack-art-v2217"><img src="${SLAB_TEMPLATE}" alt="RCG graded slab"></div>
+              <button type="button" class="repo-fable-service-btn-v2217" data-fable-service="crack">CRACK SLABS</button>
+            </article>
+            <article class="repo-fable-service-v2217" data-tone="blue">
+              <div class="repo-fable-service-ribbon-v2217"><h3>FABLE SHOP</h3></div>
+              <p>Five globally shared cards every day. One copy each. One purchase per player.</p>
+              <div class="repo-fable-service-art-v2217"><div class="repo-fable-shop-preview-v2217" id="repoFableHubShopPreviewV2217"></div></div>
+              <button type="button" class="repo-fable-service-btn-v2217" data-fable-service="shop">GO TO SHOP</button>
+            </article>
+            <article class="repo-fable-service-v2217" data-tone="green">
+              <div class="repo-fable-service-ribbon-v2217"><h3>SELL YOUR SLABS</h3></div>
+              <p>Trade graded RCG cards to Gregg and build your Fable Voucher balance.</p>
+              <div class="repo-fable-service-art-v2217 repo-fable-sell-art-v2217"><img src="${SLAB_TEMPLATE}" alt="RCG slab"><span class="arrow">→</span><div class="repo-fable-ticket-stack-v2217">${ticketMarkup()}${ticketMarkup()}${ticketMarkup()}</div></div>
+              <button type="button" class="repo-fable-service-btn-v2217" data-fable-service="sell">SELL SLABS</button>
+            </article>
+          </main>
+          <footer class="repo-fable-hub-foot-v2217"><span>TRADE</span><b>✦</b><span>UPGRADE</span><b>✦</b><span>REPEAT</span></footer>
+          <button type="button" class="repo-fable-admin-open-v2217" data-fable-service="admin" hidden>ADMIN TOOLS</button>
+        </div>
+      </section>
+
+      <section class="repo-fable-overlay-v2217 repo-fable-shop-v2217" id="repoFableShopV2217" aria-hidden="true">
+        <div class="repo-fable-menu-shell-v2217">
+          <button type="button" class="repo-fable-back-v2217" data-fable-back="shop">← GREGG</button>
+          <button type="button" class="repo-fable-close-v2217" data-fable-all-close>×</button>
+          <header class="repo-fable-menu-head-v2217">
+            <div><h2>GREGG'S DAILY FABLE SHOP</h2><p>FIVE CARDS · SHARED ACROSS VELMORA · WHEN IT'S GONE, IT'S GONE</p></div>
+            <div class="repo-fable-balance-copy-v2217"><small>FABLE VOUCHERS</small><b>${ticketMarkup('is-small')}<span data-fable-balance>0</span></b></div>
+          </header>
+          <div class="repo-fable-shop-meta-v2217">
+            <div class="repo-fable-meta-pill-v2217"><small>TODAY'S PURCHASE</small><b id="repoFablePurchaseStatusV2217">0 / 1</b></div>
+            <div class="repo-fable-meta-pill-v2217"><small>GLOBAL STOCK</small><b id="repoFableStockStatusV2217">5 / 5 AVAILABLE</b></div>
+            <div class="repo-fable-meta-pill-v2217"><small>STOCK REFRESHES IN</small><b id="repoFableCountdownV2217">--:--:--</b></div>
+          </div>
+          <div class="repo-fable-shop-grid-v2217" id="repoFableShopGridV2217"><div class="repo-fable-empty-v2217">GREGG IS CHECKING TODAY'S STOCK…</div></div>
+          <div class="repo-fable-global-note-v2217">GREGG'S STOCK IS SHARED ACROSS VELMORA · ONE GLOBAL COPY OF EACH CARD · EACH PLAYER MAY BUY ONE CARD PER DAY</div>
+          <div class="repo-fable-confirm-v2217" id="repoFableBuyConfirmV2217">
+            <div class="repo-fable-confirm-box-v2217"><h3>BUY FROM GREGG?</h3><div id="repoFableBuyConfirmBodyV2217"></div><div class="repo-fable-confirm-actions-v2217"><button type="button" data-fable-buy-cancel>CANCEL</button><button type="button" data-confirm data-fable-buy-confirm>BUY CARD</button></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="repo-fable-overlay-v2217 repo-fable-sell-v2217" id="repoFableSellV2217" aria-hidden="true">
+        <div class="repo-fable-menu-shell-v2217">
+          <button type="button" class="repo-fable-back-v2217" data-fable-back="sell">← GREGG</button>
+          <button type="button" class="repo-fable-close-v2217" data-fable-all-close>×</button>
+          <header class="repo-fable-menu-head-v2217">
+            <div><h2>SELL SLABS TO GREGG</h2><p>RCG GRADE + CARD RARITY DETERMINE THE FABLE VOUCHER OFFER</p></div>
+            <div class="repo-fable-balance-copy-v2217"><small>FABLE VOUCHERS</small><b>${ticketMarkup('is-small')}<span data-fable-balance>0</span></b></div>
+          </header>
+          <div class="repo-fable-sell-tools-v2217"><input id="repoFableSellSearchV2217" type="search" placeholder="Search card or certification…"><select id="repoFableSellRarityV2217"><option value="all">ALL RARITIES</option></select><select id="repoFableSellGradeV2217"><option value="all">ALL GRADES</option><option value="10">RCG 10</option><option value="9">RCG 9</option><option value="8">RCG 8</option></select></div>
+          <div class="repo-fable-sell-grid-v2217" id="repoFableSellGridV2217"><div class="repo-fable-empty-v2217">GREGG IS OPENING YOUR RCG LEDGER…</div></div>
+          <div class="repo-fable-global-note-v2217">SELLING IS PERMANENT · DISPLAYED SLABS ARE REMOVED CLEANLY FROM THE SLAB BINDER · WORLD CUP / EVENT SLABS ARE PROTECTED</div>
+          <div class="repo-fable-confirm-v2217" id="repoFableSellConfirmV2217"><div class="repo-fable-confirm-box-v2217"><h3>SELL TO GREGG?</h3><div id="repoFableSellConfirmBodyV2217"></div><div class="repo-fable-confirm-actions-v2217"><button type="button" data-fable-sell-cancel>CANCEL</button><button type="button" data-confirm class="is-danger" data-fable-sell-confirm>SELL SLAB</button></div></div></div>
+        </div>
+      </section>
+
+      <section class="repo-fable-overlay-v2217 repo-fable-admin-v2217" id="repoFableAdminV2217" aria-hidden="true">
+        <div class="repo-fable-menu-shell-v2217">
+          <button type="button" class="repo-fable-back-v2217" data-fable-back="admin">← GREGG</button><button type="button" class="repo-fable-close-v2217" data-fable-all-close>×</button>
+          <header class="repo-fable-menu-head-v2217"><div><h2>FOIL &amp; FABLE ADMIN</h2><p>SAFE ECONOMY TESTING · SERVER-AUTHORITATIVE CONTROLS</p></div></header>
+          <div class="repo-fable-admin-main-v2217">
+            <section class="repo-fable-admin-box-v2217"><h3>ADJUST FABLE VOUCHERS</h3><div class="repo-fable-admin-row-v2217"><input id="repoFableAdminUserV2217" placeholder="Username"><input id="repoFableAdminAmountV2217" type="number" step="1" placeholder="Amount"><button type="button" data-fable-admin-adjust>APPLY</button></div><div class="repo-fable-admin-output-v2217" id="repoFableAdminAdjustOutV2217">Use positive or negative values. Balances never go below zero.</div></section>
+            <section class="repo-fable-admin-box-v2217"><h3>DAILY STOCK TESTING</h3><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" data-fable-admin-preview>PREVIEW A 5-CARD ROLL</button><button type="button" data-fable-admin-reroll>REROLL UNSOLD LIVE SLOTS</button></div><div class="repo-fable-admin-output-v2217" id="repoFableAdminPreviewOutV2217">Sold slots are preserved. A forced reroll only replaces stock nobody has bought.</div></section>
+            <section class="repo-fable-admin-box-v2217" style="grid-column:1/-1"><h3>TRANSACTION HISTORY</h3><div class="repo-fable-admin-row-v2217"><input id="repoFableAdminHistoryUserV2217" placeholder="Username (blank = everybody)"><span></span><button type="button" data-fable-admin-history>LOAD HISTORY</button></div><div class="repo-fable-admin-output-v2217" id="repoFableAdminHistoryOutV2217">No history loaded.</div></section>
+          </div>
+        </div>
+      </section>
+      <div class="repo-fable-toast-v2217" id="repoFableToastV2217" role="status" aria-live="polite"></div>
+    `);
+
+    const gregg=host.querySelector('.repo-foil-gregg-hotspot-v2204');
+    if(gregg){gregg.setAttribute('aria-label','Speak to Gregg at Foil and Fable');const span=gregg.querySelector('span');if(span)span.innerHTML='<b>GREGG</b><small>CRACK · TRADE · FABLE SHOP</small>'}
+
+    host.querySelector('[data-fable-hub-close]')?.addEventListener('click',closeHub);
+    host.querySelectorAll('[data-fable-all-close]').forEach(btn=>btn.addEventListener('click',()=>{closeEconomyMenus();closeHub()}));
+    host.querySelectorAll('[data-fable-back]').forEach(btn=>btn.addEventListener('click',()=>{closeEconomyMenus();openHub()}));
+    host.querySelectorAll('[data-fable-service]').forEach(btn=>btn.addEventListener('click',()=>{
+      const action=btn.dataset.fableService;
+      if(action==='crack'){closeHub();window.openGreggCrackingCounterV2204?.();return}
+      if(action==='shop'){openShopMenu();return}
+      if(action==='sell'){openSellMenu();return}
+      if(action==='admin'){openAdminMenu();return}
+    }));
+    host.querySelector('#repoFableShopGridV2217')?.addEventListener('click',event=>{
+      const card=event.target.closest('[data-fable-shop-slot]');if(!card||card.disabled)return;
+      showBuyConfirm(Number(card.dataset.fableShopSlot)||0);
+    });
+    host.querySelector('[data-fable-buy-cancel]')?.addEventListener('click',hideBuyConfirm);
+    host.querySelector('[data-fable-buy-confirm]')?.addEventListener('click',()=>void buyConfirmed());
+    host.querySelector('#repoFableSellSearchV2217')?.addEventListener('input',event=>{sellSearch=normal(event.target.value).toLowerCase();renderSell()});
+    host.querySelector('#repoFableSellRarityV2217')?.addEventListener('change',event=>{sellRarity=normal(event.target.value)||'all';renderSell()});
+    host.querySelector('#repoFableSellGradeV2217')?.addEventListener('change',event=>{sellGrade=normal(event.target.value)||'all';renderSell()});
+    host.querySelector('#repoFableSellGridV2217')?.addEventListener('click',event=>{const card=event.target.closest('[data-fable-sell-id]');if(!card||card.disabled)return;showSellConfirm(card.dataset.fableSellId)});
+    host.querySelector('[data-fable-sell-cancel]')?.addEventListener('click',hideSellConfirm);
+    host.querySelector('[data-fable-sell-confirm]')?.addEventListener('click',()=>void sellConfirmed());
+    host.querySelector('[data-fable-admin-adjust]')?.addEventListener('click',()=>void adminAdjust());
+    host.querySelector('[data-fable-admin-preview]')?.addEventListener('click',()=>void adminPreview());
+    host.querySelector('[data-fable-admin-reroll]')?.addEventListener('click',()=>void adminReroll());
+    host.querySelector('[data-fable-admin-history]')?.addEventListener('click',()=>void adminHistory());
+
+    const crackClose=host.querySelector('[data-foil-crack-close]');
+    crackClose?.addEventListener('click',()=>setTimeout(()=>{if(host?.open)openHub()},0));
+    const back=host.querySelector('.repo-foil-back-v2204');
+    back?.addEventListener('click',event=>{
+      if(anyEconomyOpen())return;
+      const crack=host.querySelector('#repoFoilCrackOverlayV2204');
+      if(crack?.classList.contains('is-open')){
+        event.preventDefault();event.stopImmediatePropagation();window.closeGreggCrackingCounterV2204?.();openHub();
+      }
+    },true);
+    host.addEventListener('cancel',event=>{
+      if(anyEconomyOpen()){
+        event.preventDefault();event.stopImmediatePropagation();
+        if(isOpen('repoFableHubV2217'))closeHub();else{closeEconomyMenus();openHub()}
+      }
+    },true);
+    host.addEventListener('close',()=>{closeEconomyMenus();closeHub();stopPolling()});
+    return host;
+  }
+
+  function isOpen(id){return Boolean(host?.querySelector('#'+id)?.classList.contains('is-open'))}
+  function anyEconomyOpen(){return ['repoFableHubV2217','repoFableShopV2217','repoFableSellV2217','repoFableAdminV2217'].some(isOpen)}
+  function setOverlay(id,open){
+    const el=host?.querySelector('#'+id);if(!el)return;el.classList.toggle('is-open',!!open);el.setAttribute('aria-hidden',open?'false':'true');
+  }
+  function closeEconomyMenus(){setOverlay('repoFableShopV2217',false);setOverlay('repoFableSellV2217',false);setOverlay('repoFableAdminV2217',false);hideBuyConfirm();hideSellConfirm();stopPolling()}
+  function closeHub(){setOverlay('repoFableHubV2217',false)}
+  async function openHub(){
+    ensureUI();if(!host)return;
+    closeEconomyMenus();setOverlay('repoFableHubV2217',true);
+    await loadState({silent:!!state});renderHub();
+  }
+  async function openShopMenu(){
+    ensureUI();closeHub();setOverlay('repoFableSellV2217',false);setOverlay('repoFableAdminV2217',false);setOverlay('repoFableShopV2217',true);
+    await loadState();renderShop();startPolling();
+  }
+  async function openSellMenu(){
+    ensureUI();closeHub();setOverlay('repoFableShopV2217',false);setOverlay('repoFableAdminV2217',false);setOverlay('repoFableSellV2217',true);stopPolling();
+    await loadState();renderSell();
+  }
+  async function openAdminMenu(){
+    if(!state?.is_admin){showToast('Admin access required.','error');return}
+    closeHub();closeEconomyMenus();setOverlay('repoFableAdminV2217',true);
+  }
+
+  async function loadState({silent=false}={}){
+    if(stateLoading)return state;
+    stateLoading=true;
+    try{
+      const next=await rpc('repo_fable_get_state');
+      if(next&&typeof next==='object'){
+        state=next;syncCharacterBalance(state.fable_vouchers);
+        const server=Date.parse(state.server_now),refresh=Date.parse(state.next_refresh_at);
+        if(Number.isFinite(server))serverOffsetMs=server-Date.now();
+        if(Number.isFinite(refresh))nextRefreshMs=refresh;
+      }
+      renderAll();return state;
+    }catch(error){
+      console.error('[FOIL & FABLE V22.17] state failed',error);
+      if(!silent)showToast(String(error?.message||'Gregg could not open the Fable ledger.').replace(/^Error:\s*/,''),'error');
+      return state;
+    }finally{stateLoading=false}
+  }
+  function renderAll(){renderBalances();renderHub();renderShop();renderSell();renderAdminVisibility();updateCountdown()}
+  function renderBalances(){host?.querySelectorAll('[data-fable-balance]').forEach(node=>node.textContent=fmt(state?.fable_vouchers||0))}
+  function renderAdminVisibility(){const btn=host?.querySelector('[data-fable-service="admin"]');if(btn)btn.hidden=!state?.is_admin}
+
+  function renderHub(){
+    if(!host)return;renderBalances();renderAdminVisibility();
+    const preview=host.querySelector('#repoFableHubShopPreviewV2217');if(!preview)return;
+    const list=Array.isArray(state?.shop)?state.shop.slice(0,3):[];
+    if(!list.length){preview.innerHTML='<div style="color:#9db3c4;font:900 10px/1.4 monospace;text-align:center">TODAY\'S STOCK<br>LOADING…</div>';return}
+    preview.innerHTML=list.map(item=>{const img=cardImage(item.card_id);return `<div class="mini">${img?`<img src="${esc(img)}" alt="${esc(cardName(item.card_id))}">`:''}<span>${esc(item.sold?'SOLD':rarityLabel(item.rarity))}</span></div>`}).join('');
+  }
+
+  function renderShop(){
+    if(!host)return;renderBalances();
+    const grid=host.querySelector('#repoFableShopGridV2217');if(!grid)return;
+    const shop=Array.isArray(state?.shop)?state.shop:[];const used=!!state?.purchase_used;const balance=Number(state?.fable_vouchers)||0;
+    const available=shop.filter(item=>!item.sold).length;
+    const purchase=host.querySelector('#repoFablePurchaseStatusV2217');if(purchase){purchase.textContent=used?'1 / 1 · USED':'0 / 1 · AVAILABLE';purchase.parentElement.dataset.good=used?'0':'1'}
+    const stock=host.querySelector('#repoFableStockStatusV2217');if(stock)stock.textContent=`${available} / 5 AVAILABLE`;
+    if(!shop.length){grid.innerHTML='<div class="repo-fable-empty-v2217">GREGG IS CHECKING TODAY\'S STOCK…</div>';return}
+    grid.innerHTML=shop.map(item=>{
+      const name=cardName(item.card_id),image=cardImage(item.card_id),sold=!!item.sold,insufficient=balance<Number(item.price),disabled=sold||used||insufficient;
+      const status=sold?'SOLD OUT':used?'DAILY PURCHASE USED':insufficient?`NEED ${fmt(item.price-balance)} MORE`:'ONLY ONE AVAILABLE';
+      return `<button type="button" class="repo-fable-shop-card-v2217" data-fable-shop-slot="${Number(item.slot)||0}" data-rank="${rarityRank(item.rarity)}" data-sold="${sold?'1':'0'}" data-used="${used?'1':'0'}" ${disabled?'disabled':''}>
+        <div class="repo-fable-shop-art-v2217">${image?`<img src="${esc(image)}" alt="${esc(name)}" draggable="false">`:''}${sold?'<div class="repo-fable-sold-stamp-v2217">SOLD</div>':''}</div>
+        <span class="repo-fable-shop-rarity-v2217">${esc(rarityLabel(item.rarity))}</span><h3>${esc(name)}</h3>
+        <span class="repo-fable-shop-price-v2217">${ticketMarkup('is-small')}${fmt(item.price)}</span><span class="repo-fable-shop-status-v2217">${esc(status)}</span>
+      </button>`;
+    }).join('');
+  }
+
+  function showBuyConfirm(slot){
+    const item=(state?.shop||[]).find(row=>Number(row.slot)===Number(slot));if(!item||item.sold||state?.purchase_used)return;
+    shopConfirmSlot=Number(slot);const image=cardImage(item.card_id),name=cardName(item.card_id);
+    const body=host.querySelector('#repoFableBuyConfirmBodyV2217');if(body)body.innerHTML=`<div class="repo-fable-confirm-card-v2217">${image?`<img src="${esc(image)}" alt="${esc(name)}">`:''}<div><small>${esc(rarityLabel(item.rarity))}</small><b>${esc(name)}</b><small>THIS IS THE ONLY GLOBAL COPY IN GREGG'S SHOP TODAY.</small><span class="repo-fable-confirm-price-v2217">${ticketMarkup('is-small')}${fmt(item.price)} FABLE VOUCHERS</span></div></div><p style="color:#bcae8d;font:800 9px/1.5 monospace">You may buy only one card from Greggs today. Once purchased, this slot becomes SOLD OUT for every player.</p>`;
+    host.querySelector('#repoFableBuyConfirmV2217')?.classList.add('is-open');
+  }
+  function hideBuyConfirm(){shopConfirmSlot=0;host?.querySelector('#repoFableBuyConfirmV2217')?.classList.remove('is-open')}
+  async function buyConfirmed(){
+    const slot=shopConfirmSlot;if(!slot)return;const btn=host.querySelector('[data-fable-buy-confirm]');if(btn)btn.disabled=true;
+    try{
+      const receipt=await rpc('repo_fable_buy_daily_card',{p_slot:slot});hideBuyConfirm();
+      showToast(`${cardName(receipt.card_id)} bought for ${fmt(receipt.price)} Fable Vouchers.`,'ok');
+      syncCharacterBalance(receipt.new_balance);
+      await Promise.allSettled([window.repoTcgRefreshOwnCollection?.(),loadState()]);
+      renderShop();renderHub();
+    }catch(error){
+      hideBuyConfirm();showToast(String(error?.message||'Gregg could not complete that purchase.').replace(/^Error:\s*/,''),'error');await loadState({silent:true});renderShop();
+    }finally{if(btn)btn.disabled=false}
+  }
+
+  function populateSellRarityFilter(){
+    const select=host?.querySelector('#repoFableSellRarityV2217');if(!select)return;
+    const values=[...new Set((state?.slabs||[]).map(s=>normal(s.rarity)).filter(Boolean))].sort((a,b)=>rarityRank(a)-rarityRank(b));
+    const previous=sellRarity;select.innerHTML='<option value="all">ALL RARITIES</option>'+values.map(r=>`<option value="${esc(r)}">${esc(rarityLabel(r))}</option>`).join('');
+    if(values.includes(previous))select.value=previous;else{sellRarity='all';select.value='all'}
+  }
+  function renderSell(){
+    if(!host)return;renderBalances();populateSellRarityFilter();
+    const grid=host.querySelector('#repoFableSellGridV2217');if(!grid)return;
+    const slabs=Array.isArray(state?.slabs)?state.slabs:[];
+    const visible=slabs.filter(s=>{
+      const hay=`${cardName(s.card_id)} ${normal(s.certification_number)}`.toLowerCase();
+      if(sellSearch&&!hay.includes(sellSearch))return false;
+      if(sellRarity!=='all'&&normal(s.rarity)!==sellRarity)return false;
+      if(sellGrade!=='all'&&String(s.grade)!==sellGrade)return false;
+      return true;
+    });
+    if(!visible.length){grid.innerHTML=`<div class="repo-fable-empty-v2217">${slabs.length?'NO SLABS MATCH THESE FILTERS.':'NO RCG SLABS AVAILABLE.'}<br><small>Collect a graded return before selling to Gregg.</small></div>`;return}
+    grid.innerHTML=visible.map(s=>{
+      const name=cardName(s.card_id),img=cardImage(s.card_id),sellable=!!s.sellable;
+      return `<button type="button" class="repo-fable-sell-card-v2217" data-fable-sell-id="${esc(s.slab_id)}" ${sellable?'':'disabled'}>
+        <div class="repo-fable-sell-thumb-v2217">${img?`<img src="${esc(img)}" alt="${esc(name)}">`:''}<span class="repo-fable-grade-badge-v2217">RCG ${esc(s.grade)}</span></div>
+        <div class="repo-fable-sell-copy-v2217"><h3>${esc(name)}</h3><small>${esc(sellable?rarityLabel(s.rarity):(s.sell_block_reason||'PROTECTED'))}</small><small>${esc(normal(s.certification_number)||'RCG CERTIFICATION')}</small>${sellable?`<b>${ticketMarkup('is-small')}${fmt(s.sell_value)}</b>`:`<b class="repo-fable-protected-v2217">NOT FOR SALE</b>`}</div>
+      </button>`;
+    }).join('');
+  }
+  function showSellConfirm(id){
+    const slab=(state?.slabs||[]).find(row=>normal(row.slab_id)===normal(id));if(!slab||!slab.sellable)return;
+    sellConfirmId=normal(id);const img=cardImage(slab.card_id),name=cardName(slab.card_id);
+    const body=host.querySelector('#repoFableSellConfirmBodyV2217');if(body)body.innerHTML=`<div class="repo-fable-confirm-card-v2217">${img?`<img src="${esc(img)}" alt="${esc(name)}">`:''}<div><small>${esc(rarityLabel(slab.rarity))} · RCG ${esc(slab.grade)}</small><b>${esc(name)}</b><small>${esc(normal(slab.certification_number)||'OFFICIAL RCG SLAB')}</small><span class="repo-fable-confirm-price-v2217">${ticketMarkup('is-small')}+${fmt(slab.sell_value)} FABLE VOUCHERS</span></div></div><p style="color:#d8a18f;font:900 9px/1.5 monospace">THIS SALE IS PERMANENT. The exact slab will be removed. If it is displayed in your slab binder, its slot will be cleared automatically.</p>`;
+    host.querySelector('#repoFableSellConfirmV2217')?.classList.add('is-open');
+  }
+  function hideSellConfirm(){sellConfirmId='';host?.querySelector('#repoFableSellConfirmV2217')?.classList.remove('is-open')}
+  async function sellConfirmed(){
+    const slabId=sellConfirmId;if(!slabId)return;const slab=(state?.slabs||[]).find(row=>normal(row.slab_id)===slabId);const btn=host.querySelector('[data-fable-sell-confirm]');if(btn)btn.disabled=true;
+    try{
+      const receipt=await rpc('repo_fable_sell_slab',{p_slab_id:slabId});hideSellConfirm();
+      showToast(`${cardName(receipt.card_id)} sold for ${fmt(receipt.vouchers_received)} Fable Vouchers.`,'ok');syncCharacterBalance(receipt.new_balance);
+      window.dispatchEvent(new CustomEvent('repo-rcg-slabs-changed',{detail:{slabId,cardId:receipt.card_id,source:'foil-and-fable-sale'}}));
+      await Promise.allSettled([window.repoRcgConstructedSlabBinderV2118?.refresh?.({force:true}),loadState()]);renderSell();renderHub();
+    }catch(error){hideSellConfirm();showToast(String(error?.message||'Gregg could not buy that slab.').replace(/^Error:\s*/,''),'error');await loadState({silent:true});renderSell()}
+    finally{if(btn)btn.disabled=false}
+  }
+
+  function startPolling(){
+    stopPolling();clockTimer=setInterval(updateCountdown,1000);pollTimer=setInterval(()=>{if(isOpen('repoFableShopV2217'))void loadState({silent:true})},7000);updateCountdown();
+  }
+  function stopPolling(){clearInterval(pollTimer);clearInterval(clockTimer);pollTimer=null;clockTimer=null}
+  function updateCountdown(){
+    const node=host?.querySelector('#repoFableCountdownV2217');if(!node)return;
+    if(!nextRefreshMs){node.textContent='--:--:--';return}
+    const now=Date.now()+serverOffsetMs;let seconds=Math.max(0,Math.floor((nextRefreshMs-now)/1000));
+    const h=Math.floor(seconds/3600);seconds%=3600;const m=Math.floor(seconds/60),s=seconds%60;node.textContent=[h,m,s].map(n=>String(n).padStart(2,'0')).join(':');
+    if(h===0&&m===0&&s===0&&!stateLoading)setTimeout(()=>void loadState(),1100);
+  }
+
+  async function adminAdjust(){
+    const user=normal(host?.querySelector('#repoFableAdminUserV2217')?.value),amount=Number(host?.querySelector('#repoFableAdminAmountV2217')?.value||0),out=host?.querySelector('#repoFableAdminAdjustOutV2217');
+    if(!user||!Number.isFinite(amount)||!Number.isInteger(amount)||amount===0){if(out)out.textContent='Enter a username and a non-zero whole-number adjustment.';return}
+    try{const result=await rpc('repo_fable_admin_adjust',{p_username:user,p_amount:amount});if(out)out.textContent=`${result.username}: ${result.adjustment>=0?'+':''}${fmt(Math.abs(result.adjustment))} · NEW BALANCE ${fmt(result.new_balance)}`;await loadState({silent:true})}catch(error){if(out)out.textContent=String(error?.message||error)}
+  }
+  async function adminPreview(){
+    const out=host?.querySelector('#repoFableAdminPreviewOutV2217');if(out)out.textContent='ROLLING PREVIEW…';
+    try{const list=await rpc('repo_fable_admin_preview_shop');if(out)out.innerHTML=`<div class="repo-fable-admin-preview-v2217">${(Array.isArray(list)?list:[]).map(item=>{const img=cardImage(item.card_id);return `<div>${img?`<img src="${esc(img)}" alt="">`:''}<small>${esc(rarityLabel(item.rarity))}<br>${esc(cardName(item.card_id))}<br>${fmt(item.price)} FV</small></div>`}).join('')}</div>`}catch(error){if(out)out.textContent=String(error?.message||error)}
+  }
+  async function adminReroll(){
+    const out=host?.querySelector('#repoFableAdminPreviewOutV2217');
+    if(!window.confirm('Reroll today\'s UNSOLD Fable Shop slots? Sold slots and purchases will be preserved.'))return;
+    try{state=await rpc('repo_fable_admin_regenerate_today',{p_force:true});if(out)out.textContent='LIVE UNSOLD STOCK REROLLED. Sold slots were preserved.';renderAll()}catch(error){if(out)out.textContent=String(error?.message||error)}
+  }
+  async function adminHistory(){
+    const user=normal(host?.querySelector('#repoFableAdminHistoryUserV2217')?.value),out=host?.querySelector('#repoFableAdminHistoryOutV2217');if(out)out.textContent='LOADING…';
+    try{const list=await rpc('repo_fable_admin_history',{p_username:user||null,p_limit:50});if(out)out.innerHTML=(Array.isArray(list)?list:[]).map(row=>`<div style="padding:6px 0;border-bottom:1px solid #2d261c"><b>${esc(row.username)}</b> · ${esc(row.transaction_type)} · ${Number(row.amount)>=0?'+':''}${Number(row.amount).toLocaleString('en-GB')} FV · BAL ${fmt(row.balance_after)}${row.card_id?` · ${esc(cardName(row.card_id))}`:''}<br><small>${esc(new Date(row.created_at).toLocaleString('en-GB'))}</small></div>`).join('')||'NO TRANSACTIONS.'}catch(error){if(out)out.textContent=String(error?.message||error)}
+  }
+
+  window.openGreggFableHubV2217=openHub;
+  window.refreshFableEconomyV2217=()=>loadState();
+
+  const boot=()=>{
+    ensureUI();
+    const observer=new MutationObserver(()=>{if(!host||!document.body.contains(host))ensureUI()});
+    observer.observe(document.body,{childList:true});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+// ============================================================================
+// V22.18 — FOIL & FABLE AAA UI PASS + FABLE VOUCHER ART + UI SFX
+// Visual-only refinement over V22.17. Economy/RPC behaviour is unchanged.
+// ============================================================================
+(function installFoilAndFableAAAUiV2218(){
+  if(window.__repoFoilAndFableAAAUiV2218)return;
+  window.__repoFoilAndFableAAAUiV2218=true;
+
+  const VOUCHER_ICON='assets/foil-and-fable/fable-voucher-ticket.png';
+  const SFX_ROOT='assets/foil-and-fable/sfx/';
+  const SFX={
+    hover:SFX_ROOT+'ui-hover.wav',
+    click:SFX_ROOT+'ui-click.wav',
+    open:SFX_ROOT+'menu-open.wav',
+    select:SFX_ROOT+'item-select.wav',
+    confirm:SFX_ROOT+'confirm.wav',
+    purchase:SFX_ROOT+'purchase-success.wav',
+    sale:SFX_ROOT+'sale-success.wav',
+    error:SFX_ROOT+'ui-error.wav'
+  };
+  const audioCache=new Map();
+  let audioUnlocked=false;
+  let lastHoverAt=0;
+  let lastHoverEl=null;
+  const volumes={hover:.16,click:.24,open:.24,select:.28,confirm:.30,purchase:.34,sale:.34,error:.24};
+
+  function getAudio(kind){
+    if(audioCache.has(kind))return audioCache.get(kind);
+    try{
+      const a=new Audio(SFX[kind]);
+      a.preload='auto';
+      a.volume=volumes[kind]??.25;
+      audioCache.set(kind,a);
+      return a;
+    }catch(_){return null}
+  }
+  function play(kind,{restart=true}={}){
+    const a=getAudio(kind);if(!a)return;
+    try{
+      if(restart){a.pause();a.currentTime=0}
+      const p=a.play();p?.then?.(()=>{audioUnlocked=true}).catch?.(()=>{});
+    }catch(_){ }
+  }
+  function injectStyles(){
+    if(document.getElementById('repoFableStylesV2218'))return;
+    const style=document.createElement('style');
+    style.id='repoFableStylesV2218';
+    style.textContent=`
+      :root{
+        --ff18-ink:#070a0f;
+        --ff18-panel:#0d1219;
+        --ff18-panel2:#111923;
+        --ff18-line:rgba(225,197,139,.22);
+        --ff18-line-strong:rgba(232,201,137,.48);
+        --ff18-gold:#e6c477;
+        --ff18-gold-soft:#b99c5c;
+        --ff18-text:#f4efe3;
+        --ff18-muted:#aab3c0;
+        --ff18-purple:#9d79c9;
+        --ff18-blue:#6aa7d8;
+        --ff18-green:#75ba87;
+        --ff18-danger:#d47d72;
+      }
+
+      /* Full-screen presentation */
+      .repo-fable-overlay-v2217{
+        padding:28px!important;
+        background:
+          radial-gradient(circle at 50% 0%,rgba(112,93,151,.15),transparent 36%),
+          linear-gradient(180deg,rgba(2,4,8,.80),rgba(2,4,8,.94))!important;
+        backdrop-filter:blur(12px) saturate(.82)!important;
+      }
+      .repo-fable-overlay-v2217.is-open{animation:ff18OverlayIn .22s cubic-bezier(.2,.8,.2,1)!important}
+      @keyframes ff18OverlayIn{from{opacity:0;transform:scale(.992)}to{opacity:1;transform:none}}
+
+      /* Main Gregg hub */
+      .repo-fable-shell-v2217,
+      .repo-fable-menu-shell-v2217{
+        border:1px solid var(--ff18-line-strong)!important;
+        outline:0!important;
+        border-radius:14px!important;
+        background:
+          linear-gradient(180deg,rgba(18,25,35,.98),rgba(7,10,15,.99))!important;
+        box-shadow:0 34px 110px rgba(0,0,0,.72),0 0 0 1px rgba(255,255,255,.035) inset,0 0 55px rgba(130,104,166,.08)!important;
+        overflow:hidden!important;
+      }
+      .repo-fable-shell-v2217{width:min(1510px,96vw)!important;max-height:94vh!important}
+      .repo-fable-shell-v2217:before{display:none!important}
+      .repo-fable-menu-shell-v2217{width:min(1460px,96vw)!important;min-height:min(840px,92vh)!important}
+
+      .repo-fable-close-v2217,.repo-fable-back-v2217{
+        top:18px!important;
+        height:38px!important;
+        border:1px solid rgba(229,205,157,.20)!important;
+        border-radius:8px!important;
+        background:rgba(6,9,13,.72)!important;
+        color:#d9dfe7!important;
+        box-shadow:0 8px 22px rgba(0,0,0,.24)!important;
+        transition:transform .16s ease,border-color .16s ease,background .16s ease,color .16s ease!important;
+      }
+      .repo-fable-close-v2217{right:18px!important;width:38px!important;min-width:38px!important}
+      .repo-fable-back-v2217{left:18px!important;min-width:auto!important;padding:0 13px!important;font:800 10px/1 system-ui,sans-serif!important;letter-spacing:.8px!important}
+      .repo-fable-close-v2217:hover,.repo-fable-back-v2217:hover{
+        filter:none!important;transform:translateY(-1px)!important;background:rgba(23,29,38,.92)!important;border-color:rgba(230,196,119,.48)!important;color:#fff!important
+      }
+
+      .repo-fable-hub-head-v2217{
+        grid-template-columns:290px minmax(0,1fr) 112px!important;
+        gap:24px!important;
+        padding:26px 30px 22px!important;
+        background:linear-gradient(180deg,rgba(17,23,32,.96),rgba(10,14,20,.88))!important;
+        border-bottom:1px solid var(--ff18-line)!important;
+      }
+      .repo-fable-balance-v2217{
+        gap:13px!important;padding:12px 16px!important;border:1px solid rgba(230,196,119,.24)!important;border-radius:12px!important;
+        background:linear-gradient(135deg,rgba(19,25,34,.96),rgba(10,14,20,.96))!important;
+        box-shadow:0 10px 26px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.025)!important;
+      }
+      .repo-fable-wisp-v2217{
+        width:76px!important;height:50px!important;border:0!important;border-radius:0!important;flex:0 0 76px!important;
+        background:url('${VOUCHER_ICON}') center/contain no-repeat!important;
+        box-shadow:none!important;filter:drop-shadow(0 8px 12px rgba(0,0,0,.34))!important;
+      }
+      .repo-fable-wisp-v2217:before,.repo-fable-wisp-v2217:after{display:none!important}
+      .repo-fable-balance-copy-v2217 small{color:#aeb8c4!important;font:800 10px/1 system-ui,sans-serif!important;letter-spacing:1.35px!important}
+      .repo-fable-balance-copy-v2217 b{gap:9px!important;margin-top:7px!important;color:var(--ff18-text)!important;font:750 27px/1 system-ui,sans-serif!important;text-shadow:none!important}
+
+      /* User-supplied ticket is the single Fable Voucher icon everywhere. */
+      .repo-fable-ticket-v2217{
+        width:42px!important;height:27px!important;display:inline-block!important;flex:0 0 auto!important;
+        border:0!important;clip-path:none!important;background:url('${VOUCHER_ICON}') center/contain no-repeat!important;
+        filter:drop-shadow(0 4px 5px rgba(0,0,0,.35))!important;
+      }
+      .repo-fable-ticket-v2217 i{display:none!important}
+      .repo-fable-ticket-v2217.is-small{width:31px!important;height:20px!important}
+
+      .repo-fable-title-board-v2217{
+        padding:4px 24px!important;border:0!important;clip-path:none!important;background:transparent!important;box-shadow:none!important;
+      }
+      .repo-fable-title-board-v2217 h2{
+        color:#f3dfad!important;font:800 clamp(29px,3.1vw,50px)/1.02 Georgia,serif!important;letter-spacing:.5px!important;
+        text-shadow:0 3px 22px rgba(0,0,0,.55)!important;
+      }
+      .repo-fable-title-board-v2217 p{margin-top:9px!important;color:#9fa8b5!important;font:650 13px/1.15 system-ui,sans-serif!important;letter-spacing:.55px!important}
+      .repo-fable-crest-v2217{
+        border:1px solid rgba(174,133,214,.26)!important;border-radius:12px!important;background:linear-gradient(180deg,rgba(52,31,73,.55),rgba(17,14,24,.72))!important;
+        box-shadow:0 10px 28px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.035)!important;
+      }
+      .repo-fable-crest-v2217 b{font:800 58px/1 Georgia,serif!important;color:#e9cc7c!important;text-shadow:0 5px 18px rgba(0,0,0,.45)!important}
+      .repo-fable-crest-v2217 b:before{font-size:17px!important;line-height:17px!important;color:#e4bf66!important}
+
+      .repo-fable-service-grid-v2217{
+        gap:18px!important;padding:22px 24px 24px!important;background:
+          radial-gradient(circle at 50% 100%,rgba(84,100,120,.07),transparent 48%),
+          linear-gradient(180deg,#0b1017,#080b10)!important;
+      }
+      .repo-fable-service-v2217{
+        min-height:570px!important;padding:22px 20px 19px!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:14px!important;
+        background:linear-gradient(180deg,rgba(20,27,37,.92),rgba(9,13,19,.96))!important;
+        box-shadow:0 16px 36px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035)!important;
+        transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease!important;
+      }
+      .repo-fable-service-v2217:before{opacity:.78!important;background:radial-gradient(circle at 50% 54%,var(--ff18-service-glow),transparent 46%)!important}
+      .repo-fable-service-v2217[data-tone="purple"]{--ff18-accent:var(--ff18-purple);--ff18-service-glow:rgba(111,74,157,.22)}
+      .repo-fable-service-v2217[data-tone="blue"]{--ff18-accent:var(--ff18-blue);--ff18-service-glow:rgba(55,112,160,.20)}
+      .repo-fable-service-v2217[data-tone="green"]{--ff18-accent:var(--ff18-green);--ff18-service-glow:rgba(67,132,80,.20)}
+      .repo-fable-service-v2217:hover{transform:translateY(-4px)!important;border-color:color-mix(in srgb,var(--ff18-accent) 55%,transparent)!important;box-shadow:0 24px 50px rgba(0,0,0,.36),0 0 34px color-mix(in srgb,var(--ff18-accent) 11%,transparent)!important}
+      .repo-fable-service-ribbon-v2217{
+        margin:0!important;padding:0 0 14px!important;border:0!important;border-radius:0!important;clip-path:none!important;background:transparent!important;box-shadow:none!important;text-align:left!important;
+      }
+      .repo-fable-service-ribbon-v2217:after{content:"";display:block;width:42px;height:2px;margin-top:12px;background:var(--ff18-accent);box-shadow:0 0 14px color-mix(in srgb,var(--ff18-accent) 55%,transparent)}
+      .repo-fable-service-ribbon-v2217 h3{color:#f3efe8!important;font:750 clamp(24px,2.2vw,34px)/1.02 Georgia,serif!important;letter-spacing:.2px!important;text-shadow:none!important}
+      .repo-fable-service-v2217>p{min-height:44px!important;margin:0 0 8px!important;text-align:left!important;color:#a7b0bc!important;font:500 13px/1.5 system-ui,sans-serif!important}
+      .repo-fable-service-art-v2217{min-height:300px!important;margin:0 0 14px!important}
+      .repo-fable-service-art-v2217:after{height:17%!important;bottom:6%!important;opacity:.65!important}
+      .repo-fable-crack-art-v2217 img{width:min(230px,62%)!important;filter:drop-shadow(0 20px 18px rgba(0,0,0,.48)) drop-shadow(0 0 24px rgba(157,121,201,.28))!important;transform:rotate(-4deg)!important}
+      .repo-fable-shop-preview-v2217 .mini{width:106px!important;border:1px solid rgba(154,183,210,.24)!important;border-radius:7px!important;background:#080c12!important;box-shadow:0 18px 30px rgba(0,0,0,.40)!important}
+      .repo-fable-shop-preview-v2217 .mini span{padding:6px!important;background:linear-gradient(180deg,transparent,rgba(5,9,14,.96))!important;color:#d7dee7!important;font:750 7px/1 system-ui,sans-serif!important;letter-spacing:.6px!important}
+      .repo-fable-sell-art-v2217 img{width:158px!important;filter:drop-shadow(0 18px 18px rgba(0,0,0,.46))!important}
+      .repo-fable-sell-art-v2217 .arrow{font:500 42px/1 system-ui,sans-serif!important;color:var(--ff18-green)!important;text-shadow:0 0 18px rgba(117,186,135,.24)!important}
+      .repo-fable-ticket-stack-v2217{gap:4px!important}
+
+      .repo-fable-service-btn-v2217{
+        min-height:52px!important;border:1px solid color-mix(in srgb,var(--ff18-accent) 62%,#fff 0%)!important;border-radius:8px!important;
+        background:linear-gradient(180deg,color-mix(in srgb,var(--ff18-accent) 20%,#141a22),color-mix(in srgb,var(--ff18-accent) 10%,#0c1118))!important;
+        color:#f7f8fa!important;font:750 13px/1 system-ui,sans-serif!important;letter-spacing:1px!important;text-shadow:none!important;
+        box-shadow:inset 0 1px rgba(255,255,255,.05),0 9px 18px rgba(0,0,0,.20)!important;
+        transition:transform .15s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease!important;
+      }
+      .repo-fable-service-btn-v2217:hover{filter:none!important;transform:translateY(-1px)!important;background:linear-gradient(180deg,color-mix(in srgb,var(--ff18-accent) 30%,#18202b),color-mix(in srgb,var(--ff18-accent) 17%,#10161f))!important;box-shadow:0 12px 24px rgba(0,0,0,.28),0 0 22px color-mix(in srgb,var(--ff18-accent) 13%,transparent)!important}
+      .repo-fable-service-btn-v2217:active{transform:translateY(1px)!important}
+      .repo-fable-hub-foot-v2217{gap:14px!important;padding:11px!important;border-top:1px solid rgba(255,255,255,.06)!important;background:#080c11!important;color:#6f7a87!important;font:700 9px/1 system-ui,sans-serif!important;letter-spacing:2.2px!important}
+      .repo-fable-hub-foot-v2217 b{color:#b89b61!important;font-size:8px!important}
+      .repo-fable-admin-open-v2217{left:18px!important;bottom:10px!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:6px!important;background:#0b1016!important;color:#8f99a5!important;font:700 7px/1 system-ui,sans-serif!important;letter-spacing:.8px!important}
+
+      /* Shared submenu header */
+      .repo-fable-menu-head-v2217{
+        grid-template-columns:minmax(0,1fr) auto!important;gap:22px!important;align-items:center!important;padding:26px 78px 20px!important;
+        border-bottom:1px solid rgba(255,255,255,.07)!important;
+        background:linear-gradient(180deg,rgba(19,27,37,.96),rgba(10,15,21,.94))!important;
+      }
+      .repo-fable-menu-head-v2217 h2{color:#f1e5c7!important;font:780 clamp(26px,2.8vw,40px)/1.05 Georgia,serif!important;text-shadow:none!important;letter-spacing:.15px!important}
+      .repo-fable-menu-head-v2217 p{margin-top:8px!important;color:#8f9aa8!important;font:700 9px/1.3 system-ui,sans-serif!important;letter-spacing:1.3px!important}
+      .repo-fable-menu-head-v2217 .repo-fable-balance-copy-v2217{
+        min-width:225px!important;padding:11px 15px!important;border:1px solid rgba(230,196,119,.20)!important;border-radius:10px!important;background:rgba(7,11,16,.72)!important;
+      }
+
+      /* Daily shop */
+      .repo-fable-shop-meta-v2217{
+        grid-template-columns:repeat(3,1fr)!important;gap:1px!important;padding:0 22px!important;border:0!important;border-bottom:1px solid rgba(255,255,255,.06)!important;background:#090d13!important;
+      }
+      .repo-fable-meta-pill-v2217{
+        padding:14px 16px!important;border:0!important;border-right:1px solid rgba(255,255,255,.06)!important;background:transparent!important;color:#7f8996!important;text-align:left!important;
+      }
+      .repo-fable-meta-pill-v2217:last-child{border-right:0!important}
+      .repo-fable-meta-pill-v2217 small{font:700 8px/1 system-ui,sans-serif!important;letter-spacing:1.25px!important}
+      .repo-fable-meta-pill-v2217 b{margin-top:5px!important;color:#dfe5ec!important;font:750 12px/1 system-ui,sans-serif!important;letter-spacing:.2px!important}
+      .repo-fable-meta-pill-v2217[data-good="1"] b{color:#9ed2aa!important}
+      .repo-fable-shop-grid-v2217{
+        gap:14px!important;padding:22px 22px 26px!important;align-items:stretch!important;background:
+          radial-gradient(circle at 50% 100%,rgba(70,95,120,.06),transparent 48%),
+          #080c11!important;
+      }
+      .repo-fable-shop-card-v2217{
+        display:flex!important;flex-direction:column!important;min-height:0!important;padding:13px!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:12px!important;
+        background:linear-gradient(180deg,rgba(18,25,34,.94),rgba(9,13,18,.98))!important;
+        box-shadow:0 14px 30px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.025)!important;
+        color:var(--ff18-text)!important;text-align:left!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+      }
+      .repo-fable-shop-card-v2217:hover:not(:disabled){filter:none!important;transform:translateY(-6px) scale(1.006)!important;border-color:rgba(230,196,119,.50)!important;box-shadow:0 24px 44px rgba(0,0,0,.40),0 0 28px rgba(230,196,119,.08)!important}
+      .repo-fable-shop-card-v2217:disabled{opacity:.54!important;filter:saturate(.70)!important}
+      .repo-fable-shop-card-v2217[data-rank="9"],.repo-fable-shop-card-v2217[data-rank="10"]{border-color:rgba(226,183,88,.28)!important}
+      .repo-fable-shop-card-v2217[data-rank="11"]{border-color:rgba(157,121,201,.38)!important;box-shadow:0 16px 34px rgba(0,0,0,.31),0 0 26px rgba(157,121,201,.06)!important}
+      .repo-fable-shop-card-v2217[data-rank="12"]{border-color:rgba(215,219,224,.42)!important;box-shadow:0 16px 36px rgba(0,0,0,.34),0 0 36px rgba(220,225,230,.09)!important}
+      .repo-fable-shop-art-v2217{
+        border:1px solid rgba(255,255,255,.08)!important;border-radius:8px!important;background:#05080c!important;overflow:hidden!important;
+        box-shadow:0 14px 24px rgba(0,0,0,.30)!important;
+      }
+      .repo-fable-shop-art-v2217 img{transition:transform .25s ease,filter .25s ease!important}
+      .repo-fable-shop-card-v2217:hover:not(:disabled) .repo-fable-shop-art-v2217 img{transform:scale(1.015)!important}
+      .repo-fable-shop-rarity-v2217{
+        align-self:flex-start!important;margin-top:12px!important;padding:5px 7px!important;border:1px solid rgba(230,196,119,.18)!important;border-radius:999px!important;
+        background:rgba(230,196,119,.055)!important;color:#cbb777!important;font:750 7px/1 system-ui,sans-serif!important;letter-spacing:1.05px!important;
+      }
+      .repo-fable-shop-card-v2217 h3{min-height:41px!important;margin:8px 0 11px!important;color:#f1f3f5!important;font:700 14px/1.22 system-ui,sans-serif!important}
+      .repo-fable-shop-price-v2217{margin-top:auto!important;gap:7px!important;color:#f2dfa9!important;font:760 16px/1 system-ui,sans-serif!important}
+      .repo-fable-shop-status-v2217{
+        margin-top:10px!important;min-height:30px!important;padding:8px!important;border:0!important;border-radius:7px!important;
+        background:rgba(117,186,135,.09)!important;color:#9fd0a9!important;font:750 7px/1 system-ui,sans-serif!important;letter-spacing:.65px!important;
+      }
+      .repo-fable-shop-card-v2217[data-sold="1"] .repo-fable-shop-status-v2217{background:rgba(212,125,114,.09)!important;color:#d5968e!important}
+      .repo-fable-shop-card-v2217[data-used="1"] .repo-fable-shop-status-v2217{background:rgba(190,167,105,.08)!important;color:#bcae88!important}
+      .repo-fable-sold-stamp-v2217{
+        inset:42% 9% auto!important;transform:rotate(-7deg)!important;padding:10px!important;border:1px solid rgba(212,125,114,.65)!important;border-radius:7px!important;
+        background:rgba(51,15,15,.84)!important;color:#efaaa1!important;font:800 clamp(16px,1.5vw,24px)/1 system-ui,sans-serif!important;letter-spacing:2.5px!important;text-shadow:none!important;
+        box-shadow:0 10px 28px rgba(0,0,0,.35)!important;
+      }
+
+      /* Sell slabs */
+      .repo-fable-sell-tools-v2217{
+        grid-template-columns:minmax(280px,1fr) 210px 170px!important;gap:10px!important;padding:15px 22px!important;border:0!important;border-bottom:1px solid rgba(255,255,255,.06)!important;background:#090d13!important;
+      }
+      .repo-fable-sell-tools-v2217 input,.repo-fable-sell-tools-v2217 select,.repo-fable-admin-v2217 input{
+        height:43px!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:8px!important;background:#0c1219!important;color:#e6eaf0!important;padding:0 13px!important;
+        font:650 10px/1 system-ui,sans-serif!important;letter-spacing:.35px!important;box-shadow:inset 0 1px 3px rgba(0,0,0,.24)!important;
+      }
+      .repo-fable-sell-tools-v2217 input:focus,.repo-fable-sell-tools-v2217 select:focus,.repo-fable-admin-v2217 input:focus{border-color:rgba(230,196,119,.45)!important;box-shadow:0 0 0 3px rgba(230,196,119,.06)!important}
+      .repo-fable-sell-grid-v2217{
+        grid-template-columns:repeat(auto-fill,minmax(260px,1fr))!important;gap:13px!important;padding:20px 22px 24px!important;background:#080c11!important;
+      }
+      .repo-fable-sell-card-v2217{
+        grid-template-columns:92px minmax(0,1fr)!important;gap:14px!important;min-height:148px!important;padding:13px!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:11px!important;
+        background:linear-gradient(180deg,rgba(17,24,33,.96),rgba(9,13,18,.98))!important;color:#e9edf1!important;
+        box-shadow:0 12px 25px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.025)!important;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease!important;
+      }
+      .repo-fable-sell-card-v2217:hover:not(:disabled){filter:none!important;transform:translateY(-3px)!important;border-color:rgba(117,186,135,.44)!important;box-shadow:0 20px 34px rgba(0,0,0,.34),0 0 24px rgba(117,186,135,.06)!important}
+      .repo-fable-sell-card-v2217:disabled{opacity:.38!important;filter:saturate(.45)!important}
+      .repo-fable-sell-thumb-v2217{border:1px solid rgba(255,255,255,.08)!important;border-radius:7px!important;background:#05080c!important;box-shadow:0 10px 18px rgba(0,0,0,.30)!important}
+      .repo-fable-sell-copy-v2217{display:flex!important;flex-direction:column!important;min-width:0!important;padding:3px 0!important}
+      .repo-fable-sell-copy-v2217 h3{margin:0 34px 7px 0!important;color:#f1f3f5!important;font:700 13px/1.25 system-ui,sans-serif!important}
+      .repo-fable-sell-copy-v2217 small{margin-top:3px!important;color:#8f9aa7!important;font:650 7px/1.3 system-ui,sans-serif!important;letter-spacing:.55px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+      .repo-fable-sell-copy-v2217 b{margin-top:auto!important;gap:6px!important;color:#a9dcb4!important;font:760 14px/1 system-ui,sans-serif!important}
+      .repo-fable-grade-badge-v2217{right:8px!important;top:8px!important;padding:5px 7px!important;border:1px solid rgba(230,196,119,.25)!important;border-radius:999px!important;background:rgba(230,196,119,.07)!important;color:#e4ce91!important;font:760 7px/1 system-ui,sans-serif!important;letter-spacing:.5px!important}
+      .repo-fable-protected-v2217{color:#d79a91!important}
+
+      .repo-fable-global-note-v2217{
+        padding:11px 22px!important;border-top:1px solid rgba(255,255,255,.055)!important;background:#090d12!important;color:#717c89!important;
+        font:700 7px/1.25 system-ui,sans-serif!important;letter-spacing:1.15px!important;
+      }
+      .repo-fable-empty-v2217{color:#7f8a98!important;font:700 10px/1.5 system-ui,sans-serif!important;letter-spacing:.5px!important}
+
+      /* Confirmation panels */
+      .repo-fable-confirm-v2217{background:rgba(2,5,9,.82)!important;backdrop-filter:blur(14px)!important}
+      .repo-fable-confirm-box-v2217{
+        width:min(650px,92vw)!important;padding:22px!important;border:1px solid rgba(230,196,119,.30)!important;border-radius:15px!important;
+        background:linear-gradient(180deg,#141c25,#090e14)!important;box-shadow:0 32px 90px rgba(0,0,0,.62),inset 0 1px rgba(255,255,255,.03)!important;
+      }
+      .repo-fable-confirm-box-v2217 h3{color:#f2e4bd!important;font:760 26px/1 Georgia,serif!important;text-shadow:none!important}
+      .repo-fable-confirm-card-v2217{grid-template-columns:128px 1fr!important;gap:18px!important;margin:18px 0!important;padding:14px!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:11px!important;background:#0a1016!important}
+      .repo-fable-confirm-card-v2217 img{border:1px solid rgba(255,255,255,.10)!important;border-radius:7px!important;box-shadow:0 12px 26px rgba(0,0,0,.32)!important}
+      .repo-fable-confirm-card-v2217 b{color:#f0f2f5!important;font:720 17px/1.2 system-ui,sans-serif!important}
+      .repo-fable-confirm-card-v2217 small{color:#8d98a5!important;font:650 8px/1.35 system-ui,sans-serif!important;letter-spacing:.5px!important}
+      .repo-fable-confirm-price-v2217{color:#b9dcae!important;font:760 16px/1 system-ui,sans-serif!important}
+      .repo-fable-confirm-actions-v2217{gap:10px!important}
+      .repo-fable-confirm-actions-v2217 button{
+        height:48px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:8px!important;background:#111821!important;color:#d5dbe2!important;
+        font:750 10px/1 system-ui,sans-serif!important;letter-spacing:.85px!important;transition:transform .14s ease,border-color .14s ease,background .14s ease!important;
+      }
+      .repo-fable-confirm-actions-v2217 button:hover{transform:translateY(-1px)!important;border-color:rgba(255,255,255,.24)!important;background:#17212c!important}
+      .repo-fable-confirm-actions-v2217 button[data-confirm]{background:linear-gradient(180deg,#254331,#192f22)!important;color:#dff3e4!important;border-color:rgba(117,186,135,.45)!important}
+      .repo-fable-confirm-actions-v2217 button[data-confirm].is-danger{background:linear-gradient(180deg,#4e2925,#351c1a)!important;color:#f0d5d1!important;border-color:rgba(212,125,114,.50)!important}
+
+      /* Toasts */
+      .repo-fable-toast-v2217{
+        top:28px!important;padding:12px 17px!important;border:1px solid rgba(255,255,255,.13)!important;border-radius:9px!important;background:rgba(12,17,23,.96)!important;color:#e4e9ee!important;
+        box-shadow:0 16px 42px rgba(0,0,0,.42)!important;font:700 10px/1.35 system-ui,sans-serif!important;letter-spacing:.3px!important;
+      }
+      .repo-fable-toast-v2217[data-tone="error"]{border-color:rgba(212,125,114,.42)!important;color:#efb9b2!important}
+      .repo-fable-toast-v2217[data-tone="ok"]{border-color:rgba(117,186,135,.42)!important;color:#b9dfc1!important}
+
+      /* Admin follows the same visual language. */
+      .repo-fable-admin-box-v2217{padding:16px!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:10px!important;background:#0d141b!important}
+      .repo-fable-admin-box-v2217 h3{color:#e8d7ad!important;font:720 13px/1 Georgia,serif!important}
+      .repo-fable-admin-box-v2217 button{min-height:39px!important;border:1px solid rgba(230,196,119,.20)!important;border-radius:7px!important;background:#151c24!important;color:#dddfe3!important;font:700 8px/1 system-ui,sans-serif!important;letter-spacing:.6px!important}
+      .repo-fable-admin-output-v2217{border:1px solid rgba(255,255,255,.07)!important;border-radius:8px!important;background:#070b10!important;color:#98a4b0!important;font:650 8px/1.5 system-ui,sans-serif!important}
+
+      /* Cracking counter gets the same clean premium treatment. */
+      .repo-foil-crack-overlay-v2204{background:rgba(2,5,9,.84)!important;backdrop-filter:blur(12px)!important}
+      .repo-foil-counter-shell-v2204{border:1px solid rgba(230,196,119,.30)!important;border-radius:14px!important;background:linear-gradient(180deg,#121923,#080d13)!important;box-shadow:0 30px 90px rgba(0,0,0,.66)!important;overflow:hidden!important}
+      .repo-foil-counter-head-v2204{border-bottom:1px solid rgba(255,255,255,.07)!important;background:linear-gradient(180deg,#17202b,#0d141c)!important}
+      .repo-foil-counter-bar-v2204{border-bottom:1px solid rgba(255,255,255,.06)!important;background:#0a0f15!important}
+      .repo-foil-counter-main-v2204{background:#080c11!important}
+      .repo-foil-slab-library-v2204,.repo-foil-selected-v2204{border-color:rgba(255,255,255,.08)!important;background:#0d131a!important}
+      .repo-foil-slab-entry-v2204{border-color:rgba(255,255,255,.09)!important;border-radius:8px!important;background:#10171f!important;transition:transform .15s ease,border-color .15s ease!important}
+      .repo-foil-slab-entry-v2204:hover:not(:disabled){transform:translateY(-2px)!important;border-color:rgba(157,121,201,.42)!important}
+      .repo-foil-prepare-v2204,.repo-foil-confirm-v2204 button{border:1px solid rgba(157,121,201,.42)!important;border-radius:8px!important;background:linear-gradient(180deg,#322542,#21182d)!important;box-shadow:none!important;color:#f0e8f8!important}
+      .repo-foil-counter-foot-v2204{border-top:1px solid rgba(255,255,255,.07)!important;background:#090e14!important}
+
+      @media(max-width:1100px){
+        .repo-fable-hub-head-v2217{grid-template-columns:240px minmax(0,1fr) 92px!important}
+        .repo-fable-service-grid-v2217{grid-template-columns:1fr!important}
+        .repo-fable-service-v2217{min-height:390px!important}
+        .repo-fable-service-art-v2217{min-height:210px!important}
+        .repo-fable-shop-grid-v2217{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+      }
+      @media(max-width:760px){
+        .repo-fable-overlay-v2217{padding:10px!important}
+        .repo-fable-shell-v2217,.repo-fable-menu-shell-v2217{width:98vw!important;border-radius:10px!important}
+        .repo-fable-hub-head-v2217{grid-template-columns:1fr!important;padding:56px 16px 15px!important}
+        .repo-fable-balance-v2217{order:2!important}.repo-fable-title-board-v2217{order:1!important}.repo-fable-crest-v2217{display:none!important}
+        .repo-fable-service-grid-v2217{padding:12px!important}
+        .repo-fable-menu-head-v2217{grid-template-columns:1fr!important;padding:58px 16px 14px!important}
+        .repo-fable-menu-head-v2217 .repo-fable-balance-copy-v2217{min-width:0!important}
+        .repo-fable-shop-meta-v2217{grid-template-columns:1fr!important;padding:0 14px!important}
+        .repo-fable-meta-pill-v2217{border-right:0!important;border-bottom:1px solid rgba(255,255,255,.05)!important}
+        .repo-fable-shop-grid-v2217{grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:14px!important}
+        .repo-fable-sell-tools-v2217{grid-template-columns:1fr!important;padding:12px 14px!important}
+        .repo-fable-sell-grid-v2217{grid-template-columns:1fr!important;padding:14px!important}
+        .repo-fable-confirm-card-v2217{grid-template-columns:92px 1fr!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function isEconomyTarget(target){
+    return target?.closest?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204');
+  }
+  function bindAudio(){
+    if(document.documentElement.dataset.ff18AudioBound==='1')return;
+    document.documentElement.dataset.ff18AudioBound='1';
+
+    document.addEventListener('pointerdown',()=>{audioUnlocked=true},{once:true,capture:true});
+    document.addEventListener('pointerover',event=>{
+      const el=event.target?.closest?.('.repo-fable-service-btn-v2217,.repo-fable-shop-card-v2217:not(:disabled),.repo-fable-sell-card-v2217:not(:disabled),.repo-fable-back-v2217,.repo-fable-close-v2217,.repo-fable-confirm-actions-v2217 button,.repo-foil-slab-entry-v2204:not(:disabled),.repo-foil-prepare-v2204,.repo-foil-confirm-v2204 button');
+      if(!el||!isEconomyTarget(el)||el===lastHoverEl)return;
+      const now=performance.now();if(now-lastHoverAt<75)return;
+      lastHoverAt=now;lastHoverEl=el;if(audioUnlocked)play('hover');
+    },true);
+    document.addEventListener('pointerout',event=>{
+      const el=event.target?.closest?.('.repo-fable-service-btn-v2217,.repo-fable-shop-card-v2217,.repo-fable-sell-card-v2217,.repo-fable-back-v2217,.repo-fable-close-v2217,.repo-fable-confirm-actions-v2217 button,.repo-foil-slab-entry-v2204,.repo-foil-prepare-v2204,.repo-foil-confirm-v2204 button');
+      if(el===lastHoverEl&&!el?.contains?.(event.relatedTarget))lastHoverEl=null;
+    },true);
+    document.addEventListener('click',event=>{
+      const el=event.target?.closest?.('button');if(!el||!isEconomyTarget(el)||el.disabled)return;
+      if(el.matches('[data-fable-shop-slot],[data-fable-sell-id],.repo-foil-slab-entry-v2204')){play('select');return}
+      if(el.matches('[data-fable-buy-confirm],[data-fable-sell-confirm],[data-foil-confirm-crack]')){play('confirm');return}
+      play('click');
+    },true);
+  }
+
+  function observeUi(){
+    const knownOpen=new WeakMap();
+    const observer=new MutationObserver(mutations=>{
+      for(const mutation of mutations){
+        if(mutation.type==='attributes'&&mutation.attributeName==='class'){
+          const el=mutation.target;
+          if(el?.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')){
+            const open=el.classList.contains('is-open');
+            const was=knownOpen.get(el)||false;
+            if(open&&!was)play('open');
+            knownOpen.set(el,open);
+          }
+          if(el?.id==='repoFableToastV2217'&&el.classList.contains('is-visible')){
+            const text=(el.textContent||'').toLowerCase();
+            if(el.dataset.tone==='error')play('error');
+            else if(text.includes(' sold for '))play('sale');
+            else if(text.includes(' bought for '))play('purchase');
+          }
+        }
+        if(mutation.type==='childList'){
+          mutation.addedNodes.forEach(node=>{
+            if(node?.nodeType!==1)return;
+            const list=node.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')?[node]:[...(node.querySelectorAll?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')||[])];
+            list.forEach(el=>knownOpen.set(el,el.classList.contains('is-open')));
+          });
+        }
+      }
+    });
+    observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+  }
+
+  function polishExistingVoucherNodes(){
+    document.querySelectorAll('.repo-fable-ticket-v2217').forEach(el=>{
+      if(el.getAttribute('title')!=='Fable Voucher')el.setAttribute('title','Fable Voucher');
+    });
+    const gregg=document.querySelector('.repo-foil-gregg-hotspot-v2204 span');
+    if(gregg&&gregg.dataset.ff18Polished!=='1'){
+      gregg.dataset.ff18Polished='1';
+      gregg.innerHTML='<b>GREGG</b><small>CRACK SLABS · FABLE SHOP · SELL SLABS</small>';
+    }
+  }
+
+  function boot(){
+    injectStyles();bindAudio();observeUi();polishExistingVoucherNodes();
+    // V22.18.1: only revisit the polish pass when relevant UI nodes are actually added.
+    // Do not blindly rewrite Gregg's innerHTML from inside a childList observer: that
+    // creates a self-triggering MutationObserver loop and can freeze the whole page.
+    const observer=new MutationObserver(mutations=>{
+      let needsPolish=false;
+      outer: for(const mutation of mutations){
+        for(const node of mutation.addedNodes||[]){
+          if(node?.nodeType!==1)continue;
+          if(node.matches?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204,.repo-fable-overlay-v2217')||
+             node.querySelector?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204,.repo-fable-overlay-v2217')){
+            needsPolish=true;
+            break outer;
+          }
+        }
+      }
+      if(needsPolish)polishExistingVoucherNodes();
+    });
+    observer.observe(document.body,{subtree:true,childList:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
