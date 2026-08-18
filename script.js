@@ -18126,6 +18126,32 @@ qmShowSharedGoal=function(state){
   const CARD_BACK_ASSET='assets/quidditch-tcg/card-back.png';
   const PACK_SOUND_ASSET='assets/quidditch-tcg/pack-open.mp3';
   const CARD_CATALOG=[
+    {id:'besquelcher_black_label',name:'Besquelcher — Black Label',image:'assets/quidditch-tcg/cards/black-label/besquelcher-black-label.png',rarity:'black_label',set:'RCG Black Label'},
+    {id:'debbie_black_label',name:'Debbie — Black Label',image:'assets/quidditch-tcg/cards/black-label/debbie-black-label.png',rarity:'black_label',set:'RCG Black Label'},
+    {id:'nimbler_2000_black_label',name:'Nimbler 2K — Black Label',image:'assets/quidditch-tcg/cards/black-label/nimbler-2k-black-label.png',rarity:'black_label',set:'RCG Black Label'},
+    {id:'pipsqueak_black_label',name:'Pipsqueak — Black Label',image:'assets/quidditch-tcg/cards/black-label/pipsqueak-black-label.png',rarity:'black_label',set:'RCG Black Label'},
+    {id:'rocky_black_label',name:'ROCKY — Black Label',image:'assets/quidditch-tcg/cards/black-label/rocky-black-label.png',rarity:'black_label',set:'RCG Black Label'},
+    {id:'soup_black_label',name:'Soup — Black Label',image:'assets/quidditch-tcg/cards/black-label/soup-black-label.png',rarity:'black_label',set:'RCG Black Label'},
+    {id:'besquelcher_kaboom_platinum',name:'Besquelcher — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/besquelcher-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'debbie_kaboom_platinum',name:'Debbie — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/debbie-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'dopey_dom_kaboom_platinum',name:'Dopey Dom — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/dopey-dom-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'jenny_kaboom_platinum',name:'Jenny — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/jenny-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'jud_kaboom_platinum',name:'JUD — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/jud-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'mad_rager_kaboom_platinum',name:'Mad Rager — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/mad-rager-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'nimbler_2000_kaboom_platinum',name:'Nimbler 2000 — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/nimbler-2000-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'pipsqueak_kaboom_platinum',name:'Pipsqueak — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/pipsqueak-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'rocky_kaboom_platinum',name:'ROCKY — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/rocky-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'soup_kaboom_platinum',name:'Soup — KABOOM!',image:'assets/quidditch-tcg/cards/platinum/kaboom/soup-kaboom.png',rarity:'platinum',set:'KABOOM!'},
+    {id:'off_the_broom_besquelcher_hair_day',name:'Besquelcher — Hair Day',image:'assets/quidditch-tcg/cards/off-the-broom/besquelcher-hair-day.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_debbie_petals_before_practice',name:'Debbie — Petals Before Practice',image:'assets/quidditch-tcg/cards/off-the-broom/debbie-petals-before-practice.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_dopey_dom_breakfast_disaster',name:'Dopey Dom — Breakfast Disaster',image:'assets/quidditch-tcg/cards/off-the-broom/dopey-dom-breakfast-disaster.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_jenny_a_quiet_morning',name:'Jenny — A Quiet Morning',image:'assets/quidditch-tcg/cards/off-the-broom/jenny-a-quiet-morning.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_jud_gentle_giant',name:'JUD — Gentle Giant',image:'assets/quidditch-tcg/cards/off-the-broom/jud-gentle-giant.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_mad_rager_just_add_water',name:'Mad Rager — Just Add Water',image:'assets/quidditch-tcg/cards/off-the-broom/mad-rager-just-add-water.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_nimbler_2000_routine_maintenance',name:'Nimbler 2000 — Routine Maintenance',image:'assets/quidditch-tcg/cards/off-the-broom/nimbler-2000-routine-maintenance.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_pipsqueak_first_frost',name:'Pipsqueak — First Frost',image:'assets/quidditch-tcg/cards/off-the-broom/pipsqueak-first-frost.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_rocky_market_regular',name:'ROCKY — Market Regular',image:'assets/quidditch-tcg/cards/off-the-broom/rocky-market-regular.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
+    {id:'off_the_broom_soup_a_little_garden',name:'Soup — A Little Garden',image:'assets/quidditch-tcg/cards/off-the-broom/soup-a-little-garden.png',rarity:'off_the_broom',set:'Velmora: Off the Broom'},
     {id:'wc2026_debbie_sorevia',name:'Debbie, Sorevia',image:'assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png',rarity:'full_art'},
     {id:'wc2026_dopey_dom_drazhen',name:'Dopey Dom, Drazhen',image:'assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png',rarity:'full_art'},
     {id:'wc2026_jenny_sorevia',name:'Jenny, Sorevia',image:'assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png',rarity:'full_art'},
@@ -18670,7 +18696,7 @@ qmShowSharedGoal=function(state){
     ensurePermanentAdminPackInLocalBank();
     const quantity=Number(bankState?.items?.[PACK_ITEM_ID]||0);
     if(quantity<1){toast('You do not have a Quidditch TCG pack in your Bank.');return;}
-    const dialog=ensurePackDialog();packOpening=false;dialog.classList.remove('is-revealed','is-opening','is-legendary-reveal','is-platinum-reveal','is-millennium-reveal','is-rival-reveal','is-signature-reveal');renderClosedPackStage();
+    const dialog=ensurePackDialog();packOpening=false;dialog.classList.remove('is-revealed','is-opening','is-black-label-reveal','is-legendary-reveal','is-platinum-reveal','is-off-broom-reveal','is-millennium-reveal','is-rival-reveal','is-signature-reveal');renderClosedPackStage();
     if(!dialog.open)dialog.showModal();
   }
   async function openTcgPack(){
@@ -18701,22 +18727,24 @@ qmShowSharedGoal=function(state){
     }
     const remaining=Math.max(0,revealDelay-(performance.now()-started));
     await Promise.all([new Promise(resolve=>setTimeout(resolve,remaining)),imageReady]);
-    const isMillennium=card.rarity==='millennium',isRival=card.rarity==='rival',isSignature=card.rarity==='signature',isPatch=card.rarity==='patch';
+    const isBlackLabel=card.rarity==='black_label',isMillennium=card.rarity==='millennium',isRival=card.rarity==='rival',isSignature=card.rarity==='signature',isPatch=card.rarity==='patch',isOffBroom=card.rarity==='off_the_broom';
     const legendaryReveal=card.rarity==='legendary'||isMillennium;
     const platinumReveal=card.rarity==='platinum'||isRival;
+    dialog.classList.toggle('is-black-label-reveal',isBlackLabel);
     dialog.classList.toggle('is-legendary-reveal',legendaryReveal);
     dialog.classList.toggle('is-platinum-reveal',platinumReveal);
+    dialog.classList.toggle('is-off-broom-reveal',isOffBroom);
     dialog.classList.toggle('is-millennium-reveal',isMillennium);
     dialog.classList.toggle('is-rival-reveal',isRival);
     dialog.classList.toggle('is-signature-reveal',isSignature);
     dialog.classList.add('is-revealed');
-    playPackSound(isSignature?.36:(legendaryReveal?.38:(platinumReveal?.32:.24)));
-    playCardUnlockSound(isSignature||legendaryReveal||platinumReveal);
+    playPackSound(isBlackLabel?.46:(isSignature?.36:(legendaryReveal?.38:(platinumReveal?.32:(isOffBroom?.29:.24)))));
+    playCardUnlockSound(isBlackLabel||isSignature||legendaryReveal||platinumReveal||isOffBroom);
     requestAnimationFrame(()=>document.getElementById('tcgCardFlipper')?.classList.add('is-flipped'));
     const skillOne=skillLabel(row.skill_one),skillTwo=skillLabel(row.skill_two);
     const copyCount=(Array.isArray(row?.owned_cards)?row.owned_cards:[]).filter(id=>String(id||'')===card.id).length;
     const isDuplicate=copyCount>1&&String(card.rarity||'standard').toLowerCase()!=='standard';
-    const rarityMessage=isDuplicate?'DUPLICATE SPECIAL PULL':(isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':(isPatch?'PATCH CARD UNLOCKED':'NEW CARD UNLOCKED'))))));
+    const rarityMessage=isDuplicate?'DUPLICATE SPECIAL PULL':(isBlackLabel?'RCG BLACK LABEL UNLOCKED':(isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':(isPatch?'PATCH CARD UNLOCKED':(isOffBroom?'VELMORA: OFF THE BROOM UNLOCKED':'NEW CARD UNLOCKED'))))))));
     message.innerHTML=`<b>${rarityMessage} — ${escapeHtml(card.name.toUpperCase())}</b><div class="tcg-xp-rewards"><span>+${Number(row.skill_one_xp||5000).toLocaleString('en-GB')} ${escapeHtml(skillOne)} XP</span><span>+${Number(row.skill_two_xp||10000).toLocaleString('en-GB')} ${escapeHtml(skillTwo)} XP</span></div><small>${isDuplicate?`Physical raw copy #${copyCount} added to your collection.`:'Added permanently to your Quidditch TCG collection.'} Click outside to close.</small>`;
     bankState=bankState||{gp:Number(character?.gp||0),items:{}};
     bankState.items=row.bank_items||bankState.items||{};
@@ -18790,6 +18818,25 @@ qmShowSharedGoal=function(state){
       .public-tcg-binder-panel{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid #4778a6;background:linear-gradient(135deg,#10263d,#07111d);box-shadow:inset 0 0 18px #397ab633}.public-tcg-binder-panel div{display:flex;flex-direction:column;gap:3px}.public-tcg-binder-panel small{font-size:9px;letter-spacing:.15em;color:#76aee0}.public-tcg-binder-panel strong{font:900 14px/1.2 Georgia,serif;color:#f3d486}.public-tcg-binder-panel span{font-size:10px;color:#a9bbcc}.public-tcg-binder-panel button{border:1px solid #c5963d;background:linear-gradient(#513515,#281807);color:#ffe09a;font-weight:900;padding:9px 12px;cursor:pointer}.public-tcg-binder-panel button:disabled{opacity:.45;cursor:wait}
       @keyframes tcgPackReady{0%,100%{transform:rotate(-1deg) translateY(1px)}35%{transform:rotate(1.3deg) translateY(-3px)}70%{transform:rotate(-.5deg) translateY(-1px)}}@keyframes tcgCardBackShake{0%,100%{transform:rotateY(0) rotate(-.7deg) translateX(-1px)}50%{transform:rotateY(0) rotate(.8deg) translateX(1px)}}@keyframes tcgCardRevealed{0%,100%{transform:rotateY(180deg) rotate(-.35deg) translateY(0)}50%{transform:rotateY(180deg) rotate(.35deg) translateY(-3px)}}@keyframes tcgRevealFlash{0%{opacity:1;transform:scale(.78)}100%{opacity:0;transform:scale(1.12)}}@keyframes tcgUnlockRing{0%{opacity:0;transform:scale(.52) rotate(-8deg)}28%{opacity:1}100%{opacity:0;transform:scale(1.22) rotate(7deg)}}@keyframes tcgSparkleBurst{0%{opacity:0;transform:scale(.6) rotate(0)}45%{opacity:1}100%{transform:scale(1.15) rotate(9deg)}}@keyframes tcgSparkleDrift{to{background-position:20px 40px,-34px 48px,51px -30px,-20px -44px}}
 
+      
+      #quidditchTcgPackDialog.is-black-label-reveal::backdrop{background:radial-gradient(circle at 50% 42%,rgba(22,8,8,.84),rgba(0,0,0,.985) 72%);animation:tcgBlackBackdrop 1.8s ease-in-out infinite}
+      #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-shell{border-color:#3b3a42;outline-color:#120d10;background:radial-gradient(circle at 50% 38%,rgba(34,12,12,.55),rgba(2,2,4,.995) 70%);box-shadow:0 28px 120px #000,inset 0 0 0 2px #5a565e,inset 0 0 110px rgba(255,90,40,.12),0 0 40px rgba(255,80,26,.18);animation:tcgBlackLabelShell 2.6s ease-in-out infinite}
+      #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-shell header{border-bottom-color:rgba(180,92,58,.35);background:linear-gradient(180deg,rgba(18,16,21,.98),rgba(5,4,7,.98))!important}
+      #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-shell header strong{color:#f0e7df;text-shadow:0 0 10px rgba(255,120,78,.34),0 0 28px rgba(255,84,32,.18),2px 2px #000;letter-spacing:.11em}
+      #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-shell header small{color:#be8b77;text-shadow:0 0 8px rgba(255,98,46,.22)}
+      #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-stage::before{width:min(96%,580px);background:radial-gradient(circle,rgba(255,116,57,.18) 0 4%,rgba(92,24,16,.22) 18%,rgba(14,7,10,.28) 42%,transparent 74%);filter:blur(3px);animation:tcgBlackLabelAura 2.3s ease-in-out infinite}
+      #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-stage::after{background:radial-gradient(circle,rgba(255,211,182,.18) 0 3%,rgba(255,92,34,.18) 14%,rgba(0,0,0,0) 43%);animation:tcgBlackLabelFlash 1.05s ease-out forwards}
+      #quidditchTcgPackDialog.is-black-label-reveal .tcg-card-reveal::before{inset:-20%;border:1px solid rgba(255,204,186,.38);border-radius:14px;box-shadow:0 0 26px rgba(255,123,82,.35),0 0 72px rgba(138,37,18,.42),0 0 130px rgba(0,0,0,.95);animation:tcgBlackLabelRing 1.5s ease-out forwards}
+      #quidditchTcgPackDialog.is-black-label-reveal .tcg-card-reveal::after{content:'';position:absolute;z-index:-2;inset:-30%;pointer-events:none;background:radial-gradient(circle at 50% 50%,rgba(255,84,24,.20),transparent 26%),conic-gradient(from 0deg,transparent,rgba(255,120,74,.08),transparent,rgba(255,74,21,.18),transparent);filter:blur(6px);animation:tcgBlackLabelVeil 4.8s linear infinite}
+      #quidditchTcgPackDialog.is-black-label-reveal .tcg-card-sparkles{inset:-30%;opacity:1;background:radial-gradient(circle,rgba(255,245,236,.95) 0 2px,transparent 3px),radial-gradient(circle,rgba(255,126,73,.92) 0 2px,transparent 3px),radial-gradient(circle,rgba(117,23,9,.98) 0 2px,transparent 3px),radial-gradient(circle,rgba(255,204,187,.95) 0 2px,transparent 3px);background-size:39px 43px,61px 57px,85px 81px,53px 59px;animation:tcgBlackLabelSpark 1.1s ease-out,tcgSparkleDrift 1.7s linear infinite}
+      #quidditchTcgPackDialog.is-black-label-reveal .tcg-card-front{filter:drop-shadow(0 0 10px rgba(255,238,228,.34)) drop-shadow(0 0 26px rgba(255,98,44,.38)) drop-shadow(0 22px 26px #000)}
+      #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-message b{color:#f3e8e0;font-size:18px;text-shadow:0 0 10px rgba(255,127,82,.42),0 0 20px rgba(106,21,7,.36),2px 2px #000}
+
+      #quidditchTcgPackDialog.is-off-broom-reveal::backdrop{background:radial-gradient(circle at 50% 42%,rgba(92,73,42,.68),rgba(7,13,12,.96) 70%)}
+      #quidditchTcgPackDialog.is-off-broom-reveal .quidditch-tcg-pack-shell{border-color:#d8bd79;outline-color:#476353;background:radial-gradient(circle at 50% 42%,rgba(80,92,61,.42),rgba(8,18,16,.985) 72%);box-shadow:0 22px 100px #000,inset 0 0 0 2px #f0dfb0,inset 0 0 85px rgba(104,142,92,.28),0 0 45px rgba(211,177,100,.42)}
+      #quidditchTcgPackDialog.is-off-broom-reveal .quidditch-tcg-pack-shell header strong{color:#f3dfaa;text-shadow:0 0 9px #b6d0a5,2px 2px #000}
+      #quidditchTcgPackDialog.is-off-broom-reveal .tcg-card-front{filter:drop-shadow(0 0 9px #f5e7bd) drop-shadow(0 0 27px #7ea47b) drop-shadow(0 22px 24px #000)}
+      #quidditchTcgPackDialog.is-off-broom-reveal .quidditch-tcg-pack-message b{color:#f3dfaa;text-shadow:0 0 8px #6f9e74,2px 2px #000}
       #quidditchTcgPackDialog.is-platinum-reveal::backdrop{background:radial-gradient(circle at 50% 42%,rgba(110,150,190,.5),rgba(3,8,16,.96) 70%)}
       #quidditchTcgPackDialog.is-platinum-reveal .quidditch-tcg-pack-shell{border-color:#d9efff;outline-color:#567fa8;background:radial-gradient(circle at 50% 42%,rgba(83,126,168,.5),rgba(4,10,20,.98) 70%);box-shadow:0 22px 100px #000,inset 0 0 0 2px #f5fbff,inset 0 0 90px #75c8ff55,0 0 55px #bfeaff77}
       #quidditchTcgPackDialog.is-platinum-reveal .quidditch-tcg-pack-shell header strong{color:#eefaff;text-shadow:0 0 8px #fff,0 0 18px #75c8ff,2px 2px #000}
@@ -18823,6 +18870,15 @@ qmShowSharedGoal=function(state){
       @keyframes tcgLegendaryRing{0%{opacity:0;transform:scale(.35) rotate(-18deg)}30%{opacity:1}100%{opacity:.25;transform:scale(1.2) rotate(12deg)}}
       @keyframes tcgLegendarySpin{to{transform:rotate(360deg)}}
       @keyframes tcgLegendarySparkles{0%{opacity:0;transform:scale(.3)}55%{opacity:1;transform:scale(1.08)}100%{transform:scale(1)}}
+
+      
+      @keyframes tcgBlackBackdrop{50%{backdrop-filter:blur(7px) brightness(.92)}}
+      @keyframes tcgBlackLabelShell{50%{box-shadow:0 28px 120px #000,inset 0 0 0 2px #6a666f,inset 0 0 125px rgba(255,104,55,.18),0 0 52px rgba(255,101,48,.26)}}
+      @keyframes tcgBlackLabelAura{0%,100%{transform:translate(-50%,-50%) scale(.96);opacity:.46}50%{transform:translate(-50%,-50%) scale(1.07);opacity:.92}}
+      @keyframes tcgBlackLabelFlash{0%{opacity:.94;transform:scale(.64)}100%{opacity:0;transform:scale(1.15)}}
+      @keyframes tcgBlackLabelRing{0%{opacity:0;transform:scale(.32) rotate(-14deg)}35%{opacity:1}100%{opacity:.18;transform:scale(1.16) rotate(10deg)}}
+      @keyframes tcgBlackLabelVeil{to{transform:rotate(360deg)}}
+      @keyframes tcgBlackLabelSpark{0%{opacity:0;transform:scale(.28)}55%{opacity:1;transform:scale(1.1)}100%{transform:scale(1)}}
 
       @media(max-width:620px){.quidditch-tcg-pack-dialog{width:99vw;height:92vh}.quidditch-tcg-pack-shell{padding:9px}.tcg-pack-object,.tcg-card-reveal{height:min(66vh,560px)}.public-tcg-binder-panel{align-items:flex-start;flex-direction:column}}
     `;document.head.appendChild(style);
@@ -19768,6 +19824,32 @@ qmShowSharedGoal=function(state){
   window.__repoTcgFavouriteCardFeatureInstalled=true;
 
   const catalogue=[
+    ['besquelcher_kaboom_platinum','Besquelcher — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/besquelcher-kaboom.png'],
+    ['debbie_kaboom_platinum','Debbie — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/debbie-kaboom.png'],
+    ['dopey_dom_kaboom_platinum','Dopey Dom — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/dopey-dom-kaboom.png'],
+    ['jenny_kaboom_platinum','Jenny — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/jenny-kaboom.png'],
+    ['jud_kaboom_platinum','JUD — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/jud-kaboom.png'],
+    ['mad_rager_kaboom_platinum','Mad Rager — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/mad-rager-kaboom.png'],
+    ['nimbler_2000_kaboom_platinum','Nimbler 2000 — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/nimbler-2000-kaboom.png'],
+    ['pipsqueak_kaboom_platinum','Pipsqueak — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/pipsqueak-kaboom.png'],
+    ['rocky_kaboom_platinum','ROCKY — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/rocky-kaboom.png'],
+    ['soup_kaboom_platinum','Soup — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/soup-kaboom.png'],
+    ['besquelcher_black_label','Besquelcher — Black Label','assets/quidditch-tcg/cards/black-label/besquelcher-black-label.png'],
+    ['debbie_black_label','Debbie — Black Label','assets/quidditch-tcg/cards/black-label/debbie-black-label.png'],
+    ['nimbler_2000_black_label','Nimbler 2K — Black Label','assets/quidditch-tcg/cards/black-label/nimbler-2k-black-label.png'],
+    ['pipsqueak_black_label','Pipsqueak — Black Label','assets/quidditch-tcg/cards/black-label/pipsqueak-black-label.png'],
+    ['rocky_black_label','ROCKY — Black Label','assets/quidditch-tcg/cards/black-label/rocky-black-label.png'],
+    ['soup_black_label','Soup — Black Label','assets/quidditch-tcg/cards/black-label/soup-black-label.png'],
+    ['off_the_broom_besquelcher_hair_day','Besquelcher — Hair Day','assets/quidditch-tcg/cards/off-the-broom/besquelcher-hair-day.png'],
+    ['off_the_broom_debbie_petals_before_practice','Debbie — Petals Before Practice','assets/quidditch-tcg/cards/off-the-broom/debbie-petals-before-practice.png'],
+    ['off_the_broom_dopey_dom_breakfast_disaster','Dopey Dom — Breakfast Disaster','assets/quidditch-tcg/cards/off-the-broom/dopey-dom-breakfast-disaster.png'],
+    ['off_the_broom_jenny_a_quiet_morning','Jenny — A Quiet Morning','assets/quidditch-tcg/cards/off-the-broom/jenny-a-quiet-morning.png'],
+    ['off_the_broom_jud_gentle_giant','JUD — Gentle Giant','assets/quidditch-tcg/cards/off-the-broom/jud-gentle-giant.png'],
+    ['off_the_broom_mad_rager_just_add_water','Mad Rager — Just Add Water','assets/quidditch-tcg/cards/off-the-broom/mad-rager-just-add-water.png'],
+    ['off_the_broom_nimbler_2000_routine_maintenance','Nimbler 2000 — Routine Maintenance','assets/quidditch-tcg/cards/off-the-broom/nimbler-2000-routine-maintenance.png'],
+    ['off_the_broom_pipsqueak_first_frost','Pipsqueak — First Frost','assets/quidditch-tcg/cards/off-the-broom/pipsqueak-first-frost.png'],
+    ['off_the_broom_rocky_market_regular','ROCKY — Market Regular','assets/quidditch-tcg/cards/off-the-broom/rocky-market-regular.png'],
+    ['off_the_broom_soup_a_little_garden','Soup — A Little Garden','assets/quidditch-tcg/cards/off-the-broom/soup-a-little-garden.png'],
     ['wc2026_debbie_sorevia','Debbie, Sorevia','assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png'],
     ['wc2026_dopey_dom_drazhen','Dopey Dom, Drazhen','assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png'],
     ['wc2026_jenny_sorevia','Jenny, Sorevia','assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png'],
@@ -19911,7 +19993,7 @@ qmShowSharedGoal=function(state){
     ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
     ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
 ];
-  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
+  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
   window.repoTcgCardById=id=>cards[String(id||'').trim()]||null;
 
@@ -38424,8 +38506,10 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
   function category(slab){
     const id=normal(slab?.card_id).toLowerCase();
+    if(id.includes('black_label'))return 'blacklabel';
     if(id.includes('legendary'))return 'legendary';
     if(id.includes('full_art'))return 'fullart';
+    if(id.includes('off_the_broom'))return 'offbroom';
     if(id.includes('patch'))return 'patch';
     if(id.includes('platinum'))return 'platinum';
     return 'standard';
@@ -38442,7 +38526,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     drawer.className='repo-binder-storage repo-rcg-v2118-storage';
     drawer.dataset.storageFilter='all';
     drawer.setAttribute('aria-hidden','true');
-    drawer.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN SLABS</strong><span class="repo-binder-storage-subtitle">Hidden slabs remain in your graded collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-v2118-close aria-label="Close Hidden Slabs">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search hidden slabs…"><div class="repo-binder-storage-filters"><button data-storage-filter="all" aria-pressed="true">ALL</button><button data-storage-filter="legendary">LEGENDARY</button><button data-storage-filter="fullart">FULL ART</button><button data-storage-filter="patch">PATCH</button><button data-storage-filter="platinum">PLATINUM</button><button data-storage-filter="standard">STANDARD</button></div></div><div class="repo-binder-storage-results"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Right-click a displayed slab to put it away. Use RESTORE TO BINDER to return it to this spread.</div>`;
+    drawer.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN SLABS</strong><span class="repo-binder-storage-subtitle">Hidden slabs remain in your graded collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-v2118-close aria-label="Close Hidden Slabs">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search hidden slabs…"><div class="repo-binder-storage-filters"><button data-storage-filter="all" aria-pressed="true">ALL</button><button data-storage-filter="blacklabel">BLACK LABEL</button><button data-storage-filter="legendary">LEGENDARY</button><button data-storage-filter="platinum">PLATINUM</button><button data-storage-filter="patch">PATCH</button><button data-storage-filter="offbroom">OFF THE BROOM</button><button data-storage-filter="fullart">FULL ART</button><button data-storage-filter="standard">STANDARD</button></div></div><div class="repo-binder-storage-results"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Right-click a displayed slab to put it away. Use RESTORE TO BINDER to return it to this spread.</div>`;
     d.appendChild(drawer);
     drawer.querySelector('[data-v2118-close]')?.addEventListener('click',()=>openDrawer(false));
     drawer.querySelector('.repo-binder-storage-search')?.addEventListener('input',renderDrawer);
@@ -39350,3 +39434,5 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
+
+// V22.09 — KABOOM Platinum + Velmora: Off the Broom TCG expansion.
