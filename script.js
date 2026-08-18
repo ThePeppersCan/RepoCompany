@@ -18126,6 +18126,12 @@ qmShowSharedGoal=function(state){
   const CARD_BACK_ASSET='assets/quidditch-tcg/card-back.png';
   const PACK_SOUND_ASSET='assets/quidditch-tcg/pack-open.mp3';
   const CARD_CATALOG=[
+    {id:'childhood_drawing_besquelcher_patch',name:'Besquelcher — Childhood Drawing',image:'assets/quidditch-tcg/cards/patch/childhood-drawings/besquelcher-childhood-drawing.png',rarity:'patch',set:'Childhood Drawings'},
+    {id:'childhood_drawing_debbie_patch',name:'Debbie — Childhood Drawing',image:'assets/quidditch-tcg/cards/patch/childhood-drawings/debbie-childhood-drawing.png',rarity:'patch',set:'Childhood Drawings'},
+    {id:'childhood_drawing_nimbler_2000_patch',name:'Nimbler 2000 — Childhood Drawing',image:'assets/quidditch-tcg/cards/patch/childhood-drawings/nimbler-2000-childhood-drawing.png',rarity:'patch',set:'Childhood Drawings'},
+    {id:'childhood_drawing_pipsqueak_patch',name:'Pipsqueak — Childhood Drawing',image:'assets/quidditch-tcg/cards/patch/childhood-drawings/pipsqueak-childhood-drawing.png',rarity:'patch',set:'Childhood Drawings'},
+    {id:'childhood_drawing_rocky_patch',name:'ROCKY — Childhood Drawing',image:'assets/quidditch-tcg/cards/patch/childhood-drawings/rocky-childhood-drawing.png',rarity:'patch',set:'Childhood Drawings'},
+    {id:'childhood_drawing_soup_patch',name:'Soup — Childhood Drawing',image:'assets/quidditch-tcg/cards/patch/childhood-drawings/soup-childhood-drawing.png',rarity:'patch',set:'Childhood Drawings'},
     {id:'unfinished_besquelcher',name:'Besquelcher — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/besquelcher-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
     {id:'unfinished_debbie',name:'Debbie — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/debbie-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
     {id:'unfinished_nimbler_2000',name:'Nimbler 2000 — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/nimbler-2000-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
@@ -19775,6 +19781,12 @@ qmShowSharedGoal=function(state){
     ['pipsqueak_kaboom_platinum','Pipsqueak — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/pipsqueak-kaboom.png'],
     ['rocky_kaboom_platinum','ROCKY — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/rocky-kaboom.png'],
     ['soup_kaboom_platinum','Soup — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/soup-kaboom.png'],
+    ['childhood_drawing_besquelcher_patch','Besquelcher — Childhood Drawing','assets/quidditch-tcg/cards/patch/childhood-drawings/besquelcher-childhood-drawing.png'],
+    ['childhood_drawing_debbie_patch','Debbie — Childhood Drawing','assets/quidditch-tcg/cards/patch/childhood-drawings/debbie-childhood-drawing.png'],
+    ['childhood_drawing_nimbler_2000_patch','Nimbler 2000 — Childhood Drawing','assets/quidditch-tcg/cards/patch/childhood-drawings/nimbler-2000-childhood-drawing.png'],
+    ['childhood_drawing_pipsqueak_patch','Pipsqueak — Childhood Drawing','assets/quidditch-tcg/cards/patch/childhood-drawings/pipsqueak-childhood-drawing.png'],
+    ['childhood_drawing_rocky_patch','ROCKY — Childhood Drawing','assets/quidditch-tcg/cards/patch/childhood-drawings/rocky-childhood-drawing.png'],
+    ['childhood_drawing_soup_patch','Soup — Childhood Drawing','assets/quidditch-tcg/cards/patch/childhood-drawings/soup-childhood-drawing.png'],
     ['unfinished_besquelcher','Besquelcher — Unfinished','assets/quidditch-tcg/cards/unfinished/besquelcher-unfinished.png'],
     ['unfinished_debbie','Debbie — Unfinished','assets/quidditch-tcg/cards/unfinished/debbie-unfinished.png'],
     ['unfinished_nimbler_2000','Nimbler 2000 — Unfinished','assets/quidditch-tcg/cards/unfinished/nimbler-2000-unfinished.png'],
