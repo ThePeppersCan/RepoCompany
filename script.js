@@ -10634,15 +10634,19 @@ qmRenderFullTimeStats=function(state){
 
 
 // --- Quidditch presentation/timing and spectator Agility XP patch ---
-let qmWatchXpTimer=null;
-async function qmClaimSpectatorXp(){
-  // Watching XP is tied to having the Repo Sports broadcast open, not to one
-  // fragile live-state string. Line-up/full-time transitions must not silently
-  // stop the heartbeat. Hidden/background tabs are deliberately not rewarded.
-  if(!qmState.open||!character||document.hidden)return;
+let qmWatchXpTimer=null,qmWatchXpWorker=null,qmWatchXpFallback=null,qmWatchXpBackgroundBusy=false,qmWatchXpBackgroundGained=0;
+async function qmClaimSpectatorXp(backgroundOverride=null){
+  // V22.16: 400 Agility XP/minute while active and 200/minute while the Repo
+  // Sports window stays open in a background browser tab.
+  if(!qmState.open||!character)return;
+  const fromBackgroundWorker=backgroundOverride!==null;
+  const background=fromBackgroundWorker?!!backgroundOverride:document.hidden;
+  // Normal setInterval claims remain foreground-only. A Worker owns hidden-tab
+  // claims so browser timer throttling cannot silently stop XP.
+  if(document.hidden&&!fromBackgroundWorker)return;
   if(typeof db==='undefined'||!db?.rpc)return;
   try{
-    const {data,error}=await db.rpc('claim_quidditch_watch_xp_400');
+    const {data,error}=await db.rpc('claim_quidditch_watch_xp_v2',{p_background:background});
     if(error){
       console.warn('Quidditch watch XP:',error);
       const badge=$('qmAgilityWatch');
@@ -10654,30 +10658,67 @@ async function qmClaimSpectatorXp(){
     if(badge)delete badge.dataset.syncError;
     if(gained>0){
       character.agility_xp=Math.max(0,Number(character.agility_xp||0)+gained);
-      const drop=$('qmAgilityXpDrop');
-      if(drop){
-        const amount=drop.querySelector('b');if(amount)amount.textContent=`+${gained.toLocaleString('en-GB')}`;
-        drop.classList.remove('is-visible');void drop.offsetWidth;drop.classList.add('is-visible');
-        clearTimeout(drop.__qmWatchHide);drop.__qmWatchHide=setTimeout(()=>drop.classList.remove('is-visible'),2800);
+      if(background){
+        qmWatchXpBackgroundGained+=gained;
+      }else{
+        const drop=$('qmAgilityXpDrop');
+        if(drop){
+          const amount=drop.querySelector('b');if(amount)amount.textContent=`+${gained.toLocaleString('en-GB')}`;
+          drop.classList.remove('is-visible');void drop.offsetWidth;drop.classList.add('is-visible');
+          clearTimeout(drop.__qmWatchHide);drop.__qmWatchHide=setTimeout(()=>drop.classList.remove('is-visible'),2800);
+        }
+        badge?.classList.add('is-earned');
+        clearTimeout(badge?.__qmWatchPulse);if(badge)badge.__qmWatchPulse=setTimeout(()=>badge.classList.remove('is-earned'),1100);
+        renderCharacter?.();
       }
-      badge?.classList.add('is-earned');
-      clearTimeout(badge?.__qmWatchPulse);if(badge)badge.__qmWatchPulse=setTimeout(()=>badge.classList.remove('is-earned'),1100);
-      renderCharacter?.();
     }
   }catch(error){console.warn('Quidditch watch XP:',error);}
 }
+function qmBackgroundWatchXpTick(){
+  if(qmWatchXpBackgroundBusy||!document.hidden||!qmState?.open||!character)return;
+  qmWatchXpBackgroundBusy=true;
+  Promise.resolve(qmClaimSpectatorXp(true)).finally(()=>{qmWatchXpBackgroundBusy=false});
+}
+function qmStartWatchXpWorker(){
+  if(qmWatchXpWorker||qmWatchXpFallback)return;
+  try{
+    const source=`let timer=null;function start(){clearInterval(timer);timer=setInterval(()=>postMessage('tick'),2000)}onmessage=e=>{if(e.data==='stop'){clearInterval(timer);close()}};start();`;
+    const url=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
+    qmWatchXpWorker=new Worker(url);URL.revokeObjectURL(url);
+    qmWatchXpWorker.onmessage=event=>{if(event.data==='tick')qmBackgroundWatchXpTick();};
+    qmWatchXpWorker.onerror=()=>{
+      try{qmWatchXpWorker?.terminate()}catch(_){}
+      qmWatchXpWorker=null;
+      if(!qmWatchXpFallback)qmWatchXpFallback=setInterval(qmBackgroundWatchXpTick,2000);
+    };
+  }catch(_){qmWatchXpFallback=setInterval(qmBackgroundWatchXpTick,2000)}
+}
+function qmStopWatchXpWorker(){
+  try{qmWatchXpWorker?.postMessage('stop');qmWatchXpWorker?.terminate()}catch(_){}
+  qmWatchXpWorker=null;
+  if(qmWatchXpFallback){clearInterval(qmWatchXpFallback);qmWatchXpFallback=null}
+}
 function qmStartWatchXpHeartbeat(){
   clearInterval(qmWatchXpTimer);
-  qmClaimSpectatorXp();
+  qmClaimSpectatorXp(false);
   qmWatchXpTimer=setInterval(()=>{qmClaimSpectatorXp();},2000);
+  qmStartWatchXpWorker();
 }
 const qmOpenWithWatch=openQuidditchMode;
 openQuidditchMode=function(){qmOpenWithWatch();if(qmState.open)qmStartWatchXpHeartbeat();};
 const qmCloseWithWatch=closeQuidditchMode;
-closeQuidditchMode=function(){clearInterval(qmWatchXpTimer);qmWatchXpTimer=null;qmCloseWithWatch();};
+closeQuidditchMode=function(){clearInterval(qmWatchXpTimer);qmWatchXpTimer=null;qmStopWatchXpWorker();qmCloseWithWatch();};
 // Existing listeners captured the prior function, so bind a safe heartbeat too.
 $('quidditchModeButton')?.addEventListener('click',()=>setTimeout(()=>{if(qmState.open)qmStartWatchXpHeartbeat();},50));
 $('openQuidditchMode')?.addEventListener('click',()=>setTimeout(()=>{if(qmState.open)qmStartWatchXpHeartbeat();},50));
+document.addEventListener('visibilitychange',()=>{
+  if(!qmState?.open||!character)return;
+  void qmClaimSpectatorXp(document.hidden);
+  if(!document.hidden&&qmWatchXpBackgroundGained>0){
+    qmWatchXpBackgroundGained=0;
+    try{renderCharacter?.()}catch(_){}
+  }
+});
 // Safety net: every signed-in account with Quidditch Mode actually open keeps
 // an authoritative server heartbeat, regardless of which UI route opened it.
 setInterval(()=>{
@@ -18959,17 +19000,11 @@ qmShowSharedGoal=function(state){
   function correctWatchXpLabel(){
     const badge=document.getElementById('qmAgilityWatch');
     if(!badge)return;
-    const walker=document.createTreeWalker(badge,NodeFilter.SHOW_TEXT);
-    const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    for(const node of nodes){
-      const original=String(node.nodeValue||'');
-      const corrected=original
-        .replace(/\b450\b(?=\s*(?:AGILITY|XP|\/|PER|MIN))/gi,'400')
-        .replace(/\+450\b/gi,'+400');
-      if(corrected!==original)node.nodeValue=corrected;
-    }
+    const small=badge.querySelector('small');
+    if(small&&small.textContent!=='400 ACTIVE · 200 BACKGROUND / MIN')small.textContent='400 ACTIVE · 200 BACKGROUND / MIN';
     badge.dataset.xpPerMinute='400';
-    badge.setAttribute('aria-label','Match XP: 400 Agility XP per minute');
+    badge.dataset.backgroundXpPerMinute='200';
+    badge.setAttribute('aria-label','Match XP: 400 Agility XP per minute active, 200 per minute while tabbed out');
   }
 
   function restartWatchXpAnimation(gained){

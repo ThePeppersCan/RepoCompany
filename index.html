@@ -3210,9 +3210,9 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 <div class="quidditch-mode-team is-right"><b id="qmRightName">SLYTHERIN</b><strong id="qmRightScore">0</strong><small id="qmRightScorers">No scorers yet</small></div>
 </div>
 <div aria-label="Live pet Quidditch match" class="quidditch-mode-pitch" id="quidditchModePitch"></div>
-<div aria-label="Earn 400 Agility XP for every minute watched" class="qm-agility-watch" id="qmAgilityWatch">
+<div aria-label="Earn 400 Agility XP per minute while active, or 200 per minute while tabbed out" class="qm-agility-watch" id="qmAgilityWatch">
 <img alt="" src="assets/agility-icon.webp"/>
-<span><b>WATCH XP</b><small>+400 AGILITY / MIN</small></span>
+<span><b>WATCH XP</b><small>400 ACTIVE · 200 BACKGROUND / MIN</small></span>
 </div>
 <div aria-live="polite" class="qm-agility-xp-drop" id="qmAgilityXpDrop">
 <img alt="" src="assets/agility-icon.webp"/>
@@ -4585,7 +4585,7 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 </div>
 </dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=v22-15-5-newspaper-hover-cleanup-20260818"></script>
+<script src="script.js?v=v22-16-background-watch-xp-20260818"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -6932,28 +6932,28 @@ window.__QD_HOST__={
         };
       });
     },
-    async claimWatchXp(){
-      // Exact parity with the existing live RepoSports Quidditch mode.
-      // The existing server RPC remains authoritative over the 400 XP/min rate.
-      if(typeof character==='undefined'||!character)return{gained:0,rate_per_min:400,signed_in:false};
-      if(document.hidden)return{gained:0,rate_per_min:400,hidden:true,signed_in:true};
+    async claimWatchXp(options={}){
+      // V22.16: foreground watching remains 400 Agility XP/minute. If Repo
+      // Sports stays open while the browser tab is in the background, the
+      // authoritative server awards exactly half rate (200/minute).
+      const background=options?.background===undefined?document.hidden:!!options.background;
+      const rate=background?200:400;
+      if(typeof character==='undefined'||!character)return{gained:0,rate_per_min:rate,background,signed_in:false};
       if(typeof db==='undefined'||!db?.rpc)throw new Error('Quidditch watch XP service is not connected');
 
-      const{data,error}=await db.rpc('claim_quidditch_watch_xp_400');
+      const{data,error}=await db.rpc('claim_quidditch_watch_xp_v2',{p_background:background});
       if(error)throw error;
 
       const gained=Math.max(0,Number(Array.isArray(data)?data[0]:data)||0);
       if(gained>0){
         character.agility_xp=Math.max(0,Number(character.agility_xp||0)+gained);
-        // Do not rebuild the entire homepage character UI every 2 seconds while
-        // the full-screen broadcast is covering it. That periodic synchronous
-        // render was a direct source of the tiny recurring FPS hitch.
         repoV2DeferredCharacterRender=true;
       }
 
       return{
         gained,
-        rate_per_min:400,
+        rate_per_min:rate,
+        background,
         agility_xp:Math.max(0,Number(character.agility_xp||0)),
         signed_in:true
       };
@@ -7058,6 +7058,47 @@ window.__QD_HOST__={
       return row||{awarded:false,new_gp:Number(character?.gp||0)}
     }
   };
+  // V22.16 — hidden-tab watch XP heartbeat.
+  // Main-window timers are aggressively throttled in background tabs, so use a
+  // tiny Worker as the clock. It only claims while the live Repo Sports overlay
+  // is genuinely open and the top-level tab is hidden.
+  let repoV2BackgroundXpWorker=null,repoV2BackgroundXpFallback=0,repoV2BackgroundXpBusy=false;
+  const repoV2BroadcastIsOpen=()=>!!(o&&o.style.display==='block'&&f?.src&&f.src!=='about:blank');
+  async function repoV2BackgroundXpTick(){
+    if(repoV2BackgroundXpBusy||!document.hidden||!repoV2BroadcastIsOpen())return;
+    if(typeof character==='undefined'||!character)return;
+    repoV2BackgroundXpBusy=true;
+    try{await window.RepoSportsV2TestBridge?.claimWatchXp?.({background:true});}
+    catch(error){console.warn('Repo Sports background watch XP:',error)}
+    finally{repoV2BackgroundXpBusy=false}
+  }
+  function repoV2InstallBackgroundXpWorker(){
+    if(repoV2BackgroundXpWorker||repoV2BackgroundXpFallback)return;
+    try{
+      const source=`let timer=null;function start(){clearInterval(timer);timer=setInterval(()=>postMessage('tick'),2000)}onmessage=e=>{if(e.data==='stop'){clearInterval(timer);close()}};start();`;
+      const url=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
+      repoV2BackgroundXpWorker=new Worker(url);URL.revokeObjectURL(url);
+      repoV2BackgroundXpWorker.onmessage=event=>{if(event.data==='tick')void repoV2BackgroundXpTick();};
+      repoV2BackgroundXpWorker.onerror=()=>{
+        try{repoV2BackgroundXpWorker?.terminate()}catch(_){}
+        repoV2BackgroundXpWorker=null;
+        if(!repoV2BackgroundXpFallback)repoV2BackgroundXpFallback=setInterval(()=>void repoV2BackgroundXpTick(),2000);
+      };
+    }catch(_){repoV2BackgroundXpFallback=setInterval(()=>void repoV2BackgroundXpTick(),2000)}
+  }
+  repoV2InstallBackgroundXpWorker();
+  document.addEventListener('visibilitychange',()=>{
+    if(!repoV2BroadcastIsOpen())return;
+    // This closes the previous rate period immediately. The server charges the
+    // elapsed seconds using the PREVIOUS visibility mode, preventing tab-switch
+    // timing from converting background seconds into full-rate seconds.
+    Promise.resolve(window.RepoSportsV2TestBridge?.claimWatchXp?.({background:document.hidden})).catch(()=>{});
+    if(!document.hidden&&repoV2DeferredCharacterRender){
+      repoV2DeferredCharacterRender=false;
+      try{renderCharacter?.()}catch(_){}
+    }
+  });
+
   async function repoV2PushWatchParty(targetWindow,includeImmediateLocal=false){
     if(!targetWindow)return;
     const send=payload=>{
