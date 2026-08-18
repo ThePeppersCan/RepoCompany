@@ -20055,7 +20055,7 @@ qmShowSharedGoal=function(state){
     ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
     ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
 ];
-  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.includes('unfinished_')?'unfinished':id.includes('psycompany_promo')?'promo':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
+  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.startsWith('wc2026_')?'full_art':id.includes('unfinished_')?'unfinished':id.includes('psycompany_promo')?'promo':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
   window.repoTcgCardById=id=>cards[String(id||'').trim()]||null;
 
@@ -36578,6 +36578,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   const currentCards=()=>Array.from(new Map(currentCardEntries().map(entry=>[entry.cardId,entry.card])).values());
   const tier=card=>{
     const id=String(card?.id||'').toLowerCase(),r=String(card?.rarity||'').toLowerCase();
+    if(id.startsWith('wc2026_'))return 'WORLD CUP 2026';
     if(r)return r.replaceAll('_',' ').toUpperCase();
     if(id.includes('legendary'))return 'LEGENDARY';
     if(id.includes('millennium'))return 'MILLENNIUM';
