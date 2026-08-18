@@ -4252,49 +4252,402 @@ $('showRegister').onclick = () => { playAuthClick(); setAuthMode('register'); };
 $('characterSummary').onclick = openSkills;
 
 
-// ---- Achievement log ----
+// ---- REPO COMPANY V22 — DATA-DRIVEN ACHIEVEMENT LOG ----
 let achievementState={};
-const ACHIEVEMENTS={
-  cooking_serve_5:{group:'Gnome Kitchen Chaos',title:'Kitchen Table Service',description:'Serve 5 tables within Gnome Kitchen Chaos.',reward:'Chef\'s hat'}
+let achievementDashboard={legacy:{},state:{completed:{},unlocked_titles:[]},stats:{}};
+let achievementUi={category:'all',search:'',status:'all',reward:'all',sort:'default'};
+let achievementInitialSyncDone=false;
+const ACHIEVEMENT_POINTS_V22={easy:5,medium:10,hard:20,elite:35,legendary:50};
+const ACHIEVEMENT_TITLE_POOL_V22=[
+  'The Completionist','Seasoned Adventurer','Repo Veteran','Harmony Ascendant','Master of Many','Maxed Out','Gnome Gourmand','Roofmaster','Fight Caves Master','Inferno Survivor','Inferno Grandmaster','The Survivor','Bomb Disposal Expert','Certified Lunatic','Deep Diver','Master of the Depths','Rune-Dle Regular','Farm Oracle','Master Collector','Binder Curator','Pack Fiend','Ten Outta Ten','Archive Curator','Grade Chaser','RCG Royalty','World Cup Regular','Velmora Groundhopper','Dedicated Supporter','Questing Veteran','The Loremaster','Pet Wars Veteran','The Hoardmaster','Repo Royalty','Achievement Hunter','Slab Royalty','The Untouchable'
+];
+const ACHIEVEMENT_CATEGORY_V22={
+  meta:{label:'Account & Meta',icon:'✦'},skills:{label:'Skills & Harmony',icon:'✧'},minigames:{label:'Minigames',icon:'◆'},combat:{label:'Combat',icon:'⚔'},diver:{label:'Repo Diver',icon:'◈'},tcg:{label:'Quidditch TCG',icon:'▣'},rcg:{label:'RCG Grading',icon:'◇'},reposports:{label:'RepoSports',icon:'◉'},quests:{label:'Quests',icon:'⌘'},collections:{label:'Collections',icon:'▦'},secret:{label:'Secret',icon:'?'}
 };
-function renderAchievements(){
-  const done=!!achievementState?.cooking_serve_5;
-  const jadDone=!!achievementState?.jad_insane_complete;
-  const runeDleDone=!!achievementState?.runedle_success;
-  const infernoVeteran=!!achievementState?.combat_inferno_veteran;
-  const infernoInsane=!!achievementState?.combat_inferno_insane;
-  const lumbridgeVeteran=!!achievementState?.combat_lumbridge_veteran;
-  const lumbridgeInsane=!!achievementState?.combat_lumbridge_insane;
-  const row=$('achievementCookingServe5');
-  if(row){
-    row.classList.toggle('completed',done);
-    const check=row.querySelector('.achievement-check');
-    const status=row.querySelector('.achievement-status');
-    if(check)check.textContent=done?'✓':'○';
-    if(status)status.textContent=done?'COMPLETED':'NOT COMPLETE';
+const D=(id,category,name,description,difficulty,opts={})=>({id,category,name,description,difficulty,points:opts.points??ACHIEVEMENT_POINTS_V22[difficulty]??5,icon:opts.icon||ACHIEVEMENT_CATEGORY_V22[category]?.icon||'✦',...opts});
+const ACHIEVEMENT_DEFINITIONS_V22=[
+  D('meta_first_steps','meta','First Steps','Reach total level 50.','easy',{stat:'total_level',target:50}),
+  D('meta_finding_feet','meta','Finding Your Feet','Reach total level 250.','medium',{stat:'total_level',target:250,title:'Seasoned Adventurer'}),
+  D('meta_seasoned','meta','Seasoned Adventurer','Reach total level 500.','hard',{stat:'total_level',target:500}),
+  D('meta_repo_veteran','meta','Repo Veteran','Reach total level 750.','elite',{stat:'total_level',target:750,title:'Repo Veteran'}),
+  D('meta_millionaire_xp','meta','Millionaire’s Club','Earn 1,000,000 total account XP.','medium',{stat:'total_xp',target:1000000}),
+  D('meta_eight_figures','meta','Eight Figures','Earn 10,000,000 total account XP.','elite',{stat:'total_xp',target:10000000}),
+  D('meta_long_haul','meta','The Long Haul','Earn 25,000,000 total account XP.','legendary',{stat:'total_xp',target:25000000,title:'Repo Royalty'}),
+  D('meta_master_many','meta','Master of Many','Reach level 75 in 5 different skills.','elite',{stat:'skills_75',target:5,title:'Master of Many'}),
+  D('meta_maximum_effort','meta','Maximum Effort','Reach level 99 in any skill.','elite',{stat:'maxed_skills',target:1,title:'Maxed Out'}),
+  D('meta_completionist','meta','Repo Completionist','Complete every currently obtainable non-secret achievement.','legendary',{special:'completionist',title:'The Completionist'}),
+
+  D('skill_harmony_10','skills','Getting Along','Reach Harmony level 10.','easy',{stat:'harmony_level',target:10,icon:'♥'}),
+  D('skill_harmony_50','skills','Good Vibrations','Reach Harmony level 50.','hard',{stat:'harmony_level',target:50,icon:'♥'}),
+  D('skill_harmony_99','skills','Perfect Harmony','Reach Harmony level 99.','legendary',{stat:'harmony_level',target:99,title:'Harmony Ascendant',icon:'♥'}),
+  D('skill_agility_50','skills','Light on Your Feet','Reach level 50 Agility.','medium',{stat:'agility_level',target:50,icon:'assets/agility-icon.webp'}),
+  D('skill_slayer_50','skills','Slayer in Training','Reach level 50 Slayer.','medium',{stat:'slayer_level',target:50,icon:'assets/slayer-icon.png'}),
+  D('skill_fishing_50','skills','Seasoned Angler','Reach level 50 Fishing.','medium',{stat:'fishing_level',target:50,icon:'assets/level-fishing-icon.png'}),
+  D('skill_mining_50','skills','Rock Solid','Reach level 50 Mining.','medium',{stat:'mining_level',target:50,icon:'assets/mining-icon.png'}),
+  D('skill_farming_50','skills','Green Thumb','Reach level 50 Farming.','medium',{stat:'farming_level',target:50,icon:'assets/watering-can.png'}),
+  D('skill_cooking_50','skills','Kitchen Veteran','Reach level 50 Cooking.','medium',{stat:'cooking_level',target:50,icon:'assets/level-cooking-icon.png'}),
+  D('skill_runecrafting_50','skills','Rune Scholar','Reach level 50 Runecrafting.','medium',{stat:'runecrafting_level',target:50,icon:'assets/runecrafting-icon.png'}),
+  D('skill_sailing_50','skills','Sea Legs','Reach level 50 Sailing.','medium',{stat:'sailing_level',target:50,icon:'assets/sailing-icon.webp'}),
+  D('skill_three_99s','skills','Triple Crown','Reach level 99 in three skills.','legendary',{stat:'maxed_skills',target:3,title:'Master of Many'}),
+
+  D('cook_serve_5','minigames','Kitchen Table Service','Serve 5 tables within Gnome Kitchen Chaos.','easy',{legacy:'cooking_serve_5',legacyReward:"Chef's hat remains unlocked",stat:'cooking_best_orders',target:5,icon:'assets/cooking-icon-new.png'}),
+  D('cook_serve_10','minigames','Dinner Rush','Serve 10 tables in a Gnome Kitchen Chaos run.','medium',{stat:'cooking_best_orders',target:10,icon:'assets/cooking-icon-new.png'}),
+  D('cook_serve_20','minigames','Master Service','Serve 20 tables in a Gnome Kitchen Chaos run.','hard',{stat:'cooking_best_orders',target:20,icon:'assets/cooking-icon-new.png'}),
+  D('cook_score_5000','minigames','Five-Star Service','Reach a score of 5,000 in Gnome Kitchen Chaos.','elite',{stat:'cooking_best_score',target:5000,title:'Gnome Gourmand',icon:'assets/cooking-icon-new.png'}),
+  D('rooftop_first','minigames','First Lap','Complete your first Repo Rooftops run.','easy',{stat:'rooftop_runs',target:1,icon:'assets/agility-icon.webp'}),
+  D('rooftop_25','minigames','Roof Veteran','Complete 25 Repo Rooftops runs.','hard',{stat:'rooftop_runs',target:25,icon:'assets/agility-icon.webp'}),
+  D('rooftop_100','minigames','Roofmaster','Complete 100 Repo Rooftops runs.','legendary',{stat:'rooftop_runs',target:100,title:'Roofmaster',icon:'assets/agility-icon.webp'}),
+  D('rooftop_height_250','minigames','Above the City','Reach 250 metres on Repo Rooftops.','hard',{stat:'rooftop_best_height',target:250,icon:'assets/agility-icon.webp'}),
+  D('rooftop_skipper','minigames','Graceful Companion','Unlock all Graceful items to get Skipper!','legendary',{pet:true,manual:true,points:0,reward:'Skipper, the Repo Rooftops Agility pet. Graceful unlocks are coming later.',icon:'assets/pets/skipper_achievement.png'}),
+  D('gnome_ball_10','minigames','First Touch','Reach a Gnome Ball streak of 10.','easy',{stat:'gnome_ball_best',target:10,icon:'🏐'}),
+  D('gnome_ball_25','minigames','Hat Trick Energy','Reach a Gnome Ball streak of 25.','medium',{stat:'gnome_ball_best',target:25,icon:'🏐'}),
+  D('gnome_ball_50','minigames','Star Striker','Reach a Gnome Ball streak of 50.','hard',{stat:'gnome_ball_best',target:50,icon:'🏐'}),
+  D('gnome_ball_100','minigames','Gnome Ball Champion','Reach a Gnome Ball streak of 100.','legendary',{stat:'gnome_ball_best',target:100,icon:'🏐'}),
+  D('runedle_first','minigames','Patch Perfect','Complete a successful round of Rune-Dle.','easy',{legacy:'runedle_success',stat:'runedle_solved',target:1,legacyReward:'Odd Spectacles remain unlocked',icon:'assets/watering-can.png'}),
+  D('runedle_5','minigames','Green Fingers','Solve 5 Rune-Dles.','medium',{stat:'runedle_solved',target:5,icon:'assets/watering-can.png'}),
+  D('runedle_25','minigames','Rune-Dle Regular','Solve 25 Rune-Dles.','hard',{stat:'runedle_solved',target:25,title:'Rune-Dle Regular',icon:'assets/watering-can.png'}),
+  D('runedle_fast','minigames','Lucky Bastard','Solve a Rune-Dle in two guesses or fewer.','elite',{stat:'runedle_fast',target:1,title:'Farm Oracle',icon:'assets/watering-can.png'}),
+
+  D('jad_insane','combat','Fight Caves Master','Defeat the Jad Simulator on Insane difficulty.','elite',{legacy:'jad_insane_complete',legacyReward:'Fire cape remains unlocked',title:'Fight Caves Master',icon:'assets/slayer-icon.png'}),
+  D('combat_inferno_veteran','combat','Inferno Veteran','Complete Inferno on Easy, Medium and Hard difficulty.','elite',{legacy:'combat_inferno_veteran',legacyReward:'Infernal cape remains unlocked',title:'Inferno Survivor'}),
+  D('combat_inferno_insane','combat','Inferno Grandmaster','Complete Inferno on Insane difficulty.','legendary',{legacy:'combat_inferno_insane',legacyReward:'Infernal max cape remains unlocked',title:'Inferno Grandmaster'}),
+  D('combat_lumbridge_veteran','combat','Lumbridge Veteran','Complete Lumbridge on Easy, Medium and Hard difficulty.','hard',{legacy:'combat_lumbridge_veteran',legacyReward:'Bucket helm remains unlocked'}),
+  D('combat_lumbridge_insane','combat','Lumbridge Grandmaster','Complete Lumbridge on Insane difficulty.','elite',{legacy:'combat_lumbridge_insane',legacyReward:'Golden bucket helm remains unlocked'}),
+  D('horde_wave_10','combat','Still Standing','Reach wave 10 in Repo Combat Survival.','medium',{stat:'horde_best_wave',target:10,title:'The Survivor'}),
+  D('horde_wave_25','combat','The Survivor','Reach wave 25 in Repo Combat Survival.','hard',{stat:'horde_best_wave',target:25,title:'The Survivor'}),
+  D('horde_wave_50','combat','The Untouchable','Reach wave 50 in Repo Combat Survival.','legendary',{stat:'horde_best_wave',target:50,title:'The Untouchable'}),
+  D('horde_runs_25','combat','Back for More','Complete 25 Combat Survival runs.','hard',{stat:'horde_runs',target:25}),
+  D('goblin_first_win','combat','First Blood','Win a Goblin Bomb Party match.','easy',{stat:'goblin_wins',target:1}),
+  D('goblin_5_wins','combat','Bomb Disposal Expert','Win 5 Goblin Bomb Party matches.','medium',{stat:'goblin_wins',target:5,title:'Bomb Disposal Expert'}),
+  D('goblin_25_wins','combat','Last Goblin Standing','Win 25 Goblin Bomb Party matches.','elite',{stat:'goblin_wins',target:25}),
+  D('goblin_insane','combat','Certified Lunatic','Win a Goblin Bomb Party match on Insane.','elite',{stat:'goblin_insane_wins',target:1,title:'Certified Lunatic'}),
+  D('goblin_veteran','combat','Veteran Menace','Earn 5 Veteran wins in Goblin Bomb Party.','hard',{stat:'goblin_veteran_wins',target:5}),
+  D('goblin_elims_100','combat','Problem Solver','Record 100 Goblin Bomb eliminations.','hard',{stat:'goblin_eliminations',target:100}),
+
+  D('diver_first_day','diver','First Dive','Complete your first Repo Diver day.','easy',{stat:'diver_days',target:1,icon:'assets/sailing-icon.webp'}),
+  D('diver_day_10','diver','Deep Diver','Reach day 10 in Repo Diver.','medium',{stat:'diver_days',target:10,title:'Deep Diver',icon:'assets/sailing-icon.webp'}),
+  D('diver_day_25','diver','Veteran of the Depths','Reach day 25 in Repo Diver.','hard',{stat:'diver_days',target:25,icon:'assets/sailing-icon.webp'}),
+  D('diver_fish_10','diver','Marine Biologist','Discover 10 fish species.','medium',{stat:'diver_fish',target:10,icon:'assets/level-fishing-icon.png'}),
+  D('diver_fish_25','diver','Velmoran Ichthyologist','Discover 25 fish species.','hard',{stat:'diver_fish',target:25,icon:'assets/level-fishing-icon.png'}),
+  D('diver_fish_50','diver','Master of the Depths','Discover 50 fish species.','legendary',{stat:'diver_fish',target:50,title:'Master of the Depths',icon:'assets/level-fishing-icon.png'}),
+
+  D('tcg_first_pack','tcg','First Pull','Open your first Quidditch TCG pack.','easy',{stat:'tcg_opened',target:1,icon:'assets/quidditch-tcg/card-pack.png'}),
+  D('tcg_pack_10','tcg','Pack Fiend','Open 10 Quidditch TCG packs.','medium',{stat:'tcg_opened',target:10,title:'Pack Fiend',icon:'assets/quidditch-tcg/card-pack.png'}),
+  D('tcg_pack_50','tcg','Cardboard Addiction','Open 50 Quidditch TCG packs.','elite',{stat:'tcg_opened',target:50,icon:'assets/quidditch-tcg/card-pack.png'}),
+  D('tcg_cards_25','tcg','Card Collector','Own 25 unique cards.','medium',{stat:'tcg_unique',target:25}),
+  D('tcg_cards_50','tcg','Serious Collector','Own 50 unique cards.','hard',{stat:'tcg_unique',target:50}),
+  D('tcg_cards_100','tcg','Master Collector','Own 100 unique cards.','elite',{stat:'tcg_unique',target:100,title:'Master Collector'}),
+  D('tcg_cards_150','tcg','Complete the Collection','Own 150 unique Quidditch TCG cards.','legendary',{stat:'tcg_unique',target:150}),
+  D('tcg_binder_first','tcg','Binder Beginner','Place your first card into the binder.','easy',{stat:'tcg_displayed',target:1}),
+  D('tcg_binder_spread','tcg','Page Turner','Display 24 cards in your binder.','hard',{stat:'tcg_displayed',target:24,title:'Binder Curator'}),
+  D('tcg_favourite','tcg','Favourite','Set your first favourite card.','easy',{stat:'tcg_favourite_num',target:1}),
+
+  D('rcg_submit_first','rcg','Send It Off','Submit your first card for RCG grading.','easy',{stat:'rcg_submitted',target:1}),
+  D('rcg_submit_5','rcg','Grading Regular','Submit 5 cards for RCG grading.','medium',{stat:'rcg_submitted',target:5}),
+  D('rcg_submit_25','rcg','RCG Veteran','Submit 25 cards for RCG grading.','hard',{stat:'rcg_submitted',target:25}),
+  D('rcg_grade_8','rcg','RCG 8','Collect an RCG 8 slab.','easy',{stat:'rcg_grade8',target:1}),
+  D('rcg_grade_9','rcg','RCG 9','Collect an RCG 9 slab.','medium',{stat:'rcg_grade9',target:1}),
+  D('rcg_grade_10','rcg','Perfect Ten','Collect an RCG 10 slab.','elite',{stat:'rcg_grade10',target:1,title:'Ten Outta Ten'}),
+  D('rcg_first_slab','rcg','Archive Begins','Collect your first graded slab.','easy',{stat:'rcg_slabs',target:1}),
+  D('rcg_10_slabs','rcg','Slab Collector','Own 10 RCG slabs.','medium',{stat:'rcg_slabs',target:10}),
+  D('rcg_25_slabs','rcg','Archive Curator','Own 25 RCG slabs.','elite',{stat:'rcg_slabs',target:25,title:'Archive Curator'}),
+  D('rcg_full_spread','rcg','Full Spread','Display 18 slabs in the Slab Archive.','hard',{stat:'rcg_displayed',target:18,title:'Slab Royalty'}),
+  D('rcg_grade_chaser','rcg','Grade Chaser','Own 5 RCG 9 or RCG 10 slabs.','elite',{stat:'rcg_high_grades',target:5,title:'Grade Chaser'}),
+  D('rcg_royalty','rcg','RCG Royalty','Own 50 graded slabs.','legendary',{stat:'rcg_slabs',target:50,title:'RCG Royalty'}),
+
+  D('sports_matchgoer','reposports','Matchgoer','Watch your first tracked World Cup fixture.','easy',{stat:'world_cup_matches',target:1}),
+  D('sports_regular','reposports','World Cup Regular','Watch 3 tracked World Cup fixtures.','medium',{stat:'world_cup_matches',target:3,title:'World Cup Regular'}),
+  D('sports_dedicated','reposports','Dedicated Supporter','Watch 6 tracked World Cup fixtures.','hard',{stat:'world_cup_matches',target:6,title:'Dedicated Supporter'}),
+  D('sports_full_match','reposports','Full Ninety-ish','Complete a full tracked World Cup watch reward.','medium',{stat:'world_cup_completed',target:1}),
+  D('sports_groundhopper','reposports','Velmora Groundhopper','Complete 4 tracked World Cup fixtures.','elite',{stat:'world_cup_completed',target:4,title:'Velmora Groundhopper'}),
+
+  D('quest_first','quests','Quest Beginner','Complete your first quest.','easy',{stat:'quest_count',target:1}),
+  D('quest_3','quests','Adventurer','Complete 3 quests.','medium',{stat:'quest_count',target:3}),
+  D('quest_5','quests','Questing Veteran','Complete 5 quests.','hard',{stat:'quest_count',target:5,title:'Questing Veteran'}),
+  D('quest_10','quests','The Loremaster','Complete 10 quests.','legendary',{stat:'quest_count',target:10,title:'The Loremaster'}),
+
+  D('petwars_first','collections','Pet Wars Rookie','Complete a Pet Wars match.','easy',{stat:'petwars_matches',target:1,icon:'assets/pet-wars-icon-new.png'}),
+  D('petwars_win','collections','Battle Pet','Win a Pet Wars match.','medium',{stat:'petwars_wins',target:1,icon:'assets/pet-wars-icon-new.png'}),
+  D('petwars_10','collections','Pet Wars Veteran','Complete 10 Pet Wars matches.','hard',{stat:'petwars_matches',target:10,title:'Pet Wars Veteran',icon:'assets/pet-wars-icon-new.png'}),
+  D('collection_hoard','collections','The Hoardmaster','Own 100 TCG cards and 20 RCG slabs.','legendary',{special:'hoardmaster',title:'The Hoardmaster'}),
+
+  D('secret_big_bank','secret','Deep Pockets','Hold 5,000,000 GP at once.','elite',{secret:true,stat:'gp',target:5000000,title:'Achievement Hunter'}),
+  D('secret_pack_problem','secret','Send Help','Open 100 Quidditch TCG packs.','hard',{secret:true,stat:'tcg_opened',target:100}),
+  D('secret_slab_problem','secret','Plastic Problem','Own 75 RCG slabs.','hard',{secret:true,stat:'rcg_slabs',target:75}),
+  D('secret_roof_rat','secret','Roof Rat','Complete 250 Repo Rooftops runs.','hard',{secret:true,stat:'rooftop_runs',target:250}),
+  D('secret_goblin','secret','Goblin Menace','Record 500 Goblin Bomb eliminations.','hard',{secret:true,stat:'goblin_eliminations',target:500}),
+  D('secret_fish','secret','Fish Whisperer','Discover 75 fish species in Repo Diver.','elite',{secret:true,stat:'diver_fish',target:75}),
+  D('secret_repo_lifer','secret','Repo Lifer','Earn 50,000,000 total account XP.','legendary',{secret:true,stat:'total_xp',target:50000000,title:'Repo Royalty'})
+];
+
+// V22.07 — LONG-TERM ACHIEVEMENT & TITLE EXPANSION
+// Exactly 150 additional, fully data-driven milestones. Every entry uses a
+// stat already returned by get_my_achievement_dashboard_v2, so progress is
+// retrospective and no player has to repeat something they already achieved.
+const ACHIEVEMENT_EXPANSION_V2207=[];
+const addAchievementV2207=(id,category,name,description,difficulty,stat,target,title,icon)=>{
+  ACHIEVEMENT_EXPANSION_V2207.push(D(id,category,name,description,difficulty,{stat,target,title,...(icon?{icon}:{})}));
+};
+const difficultyForTargetV2207=(target,bands)=>target<=bands[0]?'easy':target<=bands[1]?'medium':target<=bands[2]?'hard':target<=bands[3]?'elite':'legendary';
+
+// 31 pack-opening milestones, extending all the way to a genuine 10,000-pack
+// prestige chase. Existing 1/10/50/100 achievements remain untouched.
+[
+  [2,'Double Rip','Freshly Ripped'],[3,'Three of a Kind','Three Pack Wonder'],[5,'Five Pack Fever','Five Pack Fever'],[7,'Lucky Seven Packs','Lucky Seven'],
+  [15,'Fifteen Foils Later','Pack Regular'],[20,'Twenty Deep','Twenty Deep'],[25,'Quarter-Century Ripper','Quarter-Century Ripper'],[30,'Thirty-Pack Stack','Thirty Pack Stack'],
+  [40,'Forty Foils Later','Forty Foils Later'],[60,'The Sixty Stack','Pack Counter'],[75,'Seventy-Five Sleeves','Seventy-Five Sleeves'],[125,'Beyond a Hundred','Beyond a Hundred'],
+  [150,'Pack Shelf Regular','Pack Shelf Regular'],[200,'Two Hundred Tears','Two Hundred Tears'],[250,'Quarter-Thousand Collector','Quarter-Thousand Collector'],[300,'The Packroom','Packroom Keeper'],
+  [400,'Four Hundred Foils','Four Hundred Foils'],[500,'Half-Thousand Ripper','Half-Thousand Ripper'],[600,'Cardboard Veteran','Cardboard Veteran'],[750,'Three-Quarter Hoarder','Three-Quarter Hoarder'],
+  [1000,'The Thousandth Tear','The Thousandth Tear'],[1250,'Pack Archive','Pack Archive Keeper'],[1500,'The Long Rip','The Long Rip'],[2000,'Two Thousand Deep','Two Thousand Deep'],
+  [2500,'Cardboard Tycoon','Cardboard Tycoon'],[3000,'The Packhouse','Packhouse Royalty'],[4000,'Foil and Paper Legend','Foil & Paper Legend'],[5000,'Five-Thousand Puller','Five-Thousand Puller'],
+  [6000,'The Endless Wrapper','The Endless Wrapper'],[7500,'Pack Grandmaster','Pack Grandmaster'],[10000,'Ten Thousand Packs','The Final Wrapper']
+].forEach(([target,name,title])=>addAchievementV2207(
+  `tcg_pack_v2207_${target}`,'tcg',name,`Open ${Number(target).toLocaleString('en-GB')} Quidditch TCG packs.`,
+  difficultyForTargetV2207(target,[7,25,75,250]),'tcg_opened',target,title,'assets/quidditch-tcg/card-pack.png'
+));
+
+// 12 collection and binder milestones.
+[
+  [75,'Collection Builder','Set Builder'],[110,'Triple-Figure Collection','Card Census Keeper'],[125,'Deep Collection','Deep Collection'],
+  [140,'Nearly Everything','The Near-Complete'],[160,'One-Sixty Club','Archive Elite'],[167,'The Current Archive','Keeper of 167']
+].forEach(([target,name,title])=>addAchievementV2207(`tcg_unique_v2207_${target}`,'tcg',name,`Own ${target} unique Quidditch TCG cards.`,difficultyForTargetV2207(target,[75,110,140,160]),'tcg_unique',target,title,'▣'));
+[
+  [6,'First Binder Row','Six-Slot Stylist'],[12,'Full Binder Page','Page Curator'],[36,'Three Pages Deep','Binder Architect'],
+  [48,'Double Spread','Double-Spread Curator'],[72,'Gallery Binder','Gallery Keeper'],[96,'Museum Binder','Binder Museum Director']
+].forEach(([target,name,title])=>addAchievementV2207(`tcg_display_v2207_${target}`,'tcg',name,`Display ${target} cards in your Quidditch TCG binder.`,difficultyForTargetV2207(target,[6,12,36,72]),'tcg_displayed',target,title,'▣'));
+
+// 42 late-level milestones: 75, 90 and 99 for every standard tracked skill.
+// These are intentionally title-heavy so each long grind has its own identity.
+[
+  ['woodcutting','Woodcutting','assets/tree.png',['Grove Keeper','Elderwood Warden','Lord of the Axe']],
+  ['mining','Mining','assets/mining-icon.png',['Deep Delver','Runite Prospector','Stone Sovereign']],
+  ['fishing','Fishing','assets/level-fishing-icon.png',['Tide Reader','Abyssal Angler','Master of the Shoals']],
+  ['agility','Agility','assets/agility-icon.webp',['Rooftop Runner','Skyline Ghost','The Uncatchable']],
+  ['slayer','Slayer','assets/slayer-icon.png',['Monster Hunter',"Beast's Bane",'Slayer Sovereign']],
+  ['attack','Attack','assets/combat-icon.png',['Blade Adept','Duelmaster','The Unerring Blade']],
+  ['strength','Strength','assets/combat-icon.png',['Ironblood','Titan-Born','The Unbreakable']],
+  ['defence','Defence','assets/combat-icon.png',['Shieldbearer','The Bastion','The Living Fortress']],
+  ['sailing','Sailing','assets/sailing-icon.webp',['Wayfinder','Storm Navigator','Admiral of Velmora']],
+  ['runecrafting','Runecrafting','assets/runecrafting-icon.png',['Rune Scribe','Leyline Keeper','Runelord']],
+  ['cooking','Cooking','assets/level-cooking-icon.png',['Head Chef','Banquet Master',"Velmora's Finest"]],
+  ['magic','Magic','assets/combat-icon.png',['Spellweaver','Archmage','Master of the Arcane']],
+  ['ranged','Ranged','assets/combat-icon.png',['Deadeye','Eagle Eye','The Perfect Shot']],
+  ['farming','Farming','assets/watering-can.png',['Harvest Keeper','Ancient Gardener','Lord of the Fields']]
+].forEach(([key,label,icon,titles])=>[75,90,99].forEach((target,index)=>addAchievementV2207(
+  `skill_${key}_v2207_${target}`,'skills',`${label} ${target}`,`Reach level ${target} ${label}.`,target===75?'hard':target===90?'elite':'legendary',`${key}_level`,target,titles[index],icon
+)));
+
+// 29 late-account milestones across total level, total XP and multi-skill mastery.
+[
+  [100,'A Proper Start','The Initiated'],[150,'Growing Account','The Developing'],[350,'Midgame Citizen','Velmoran Regular'],
+  [650,'High-Level Account','High-Level Adventurer'],[850,'Elite Account','The Established'],[1000,'Four Digits','The Four-Digit'],
+  [1150,'Beyond a Thousand','The Ascendant'],[1300,'Endgame Account','Endgame Royalty'],[1450,'Near Total Mastery','The Near-Maxed']
+].forEach(([target,name,title])=>addAchievementV2207(`meta_total_level_v2207_${target}`,'meta',name,`Reach total level ${target}.`,difficultyForTargetV2207(target,[150,350,850,1150]),'total_level',target,title,'✦'));
+[
+  [2500000,'Two and a Half Million','XP Investor'],[5000000,'Five Million Strong','Five-Million Veteran'],[15000000,'Fifteen Million XP','XP Hoarder'],
+  [35000000,'Thirty-Five Million XP','The Long Grinder'],[75000000,'Seventy-Five Million XP','XP Magnate'],[100000000,'One Hundred Million XP','Centurion of XP'],
+  [125000000,'One Hundred and Twenty-Five Million','The Experience Baron'],[175000000,'One Hundred and Seventy-Five Million','Experience Royalty']
+].forEach(([target,name,title])=>addAchievementV2207(`meta_total_xp_v2207_${target}`,'meta',name,`Earn ${Number(target).toLocaleString('en-GB')} total account XP.`,difficultyForTargetV2207(target,[5000000,15000000,35000000,100000000]),'total_xp',target,title,'✦'));
+[
+  [2,'Double Mastery','Double Master'],[5,'Five Skillcapes','Keeper of Five Capes'],[8,'Eight Skillcapes','The Octomaster'],
+  [10,'Ten Skillcapes','Tenfold Master'],[12,'Twelve Skillcapes','Master of Twelve'],[15,'Every Skill Mastered','The Fully Maxed']
+].forEach(([target,name,title])=>addAchievementV2207(`meta_maxed_v2207_${target}`,'meta',name,`Reach level 99 in ${target} skills.`,difficultyForTargetV2207(target,[2,5,8,12]),'maxed_skills',target,title,'✦'));
+[
+  [1,'First Serious Skill','Level-Seventy-Five'],[3,'Three Skilled','Triple Specialist'],[8,'Broad Expertise','Master of Eight'],
+  [10,'Tenfold Expertise','Tenfold Specialist'],[12,'Twelve at Seventy-Five','Twelvefold Expert'],[15,'Universal Expertise','Master of Every Discipline']
+].forEach(([target,name,title])=>addAchievementV2207(`meta_skills75_v2207_${target}`,'meta',name,`Reach level 75 in ${target} skills.`,difficultyForTargetV2207(target,[1,3,8,12]),'skills_75',target,title,'✦'));
+
+// 36 deeper RCG milestones covering submissions, archive growth, premium grades
+// and actually curating those slabs in the binder.
+[
+  [2,'Second Opinion','RCG Returner'],[10,'Ten Submissions','Grading Desk Regular'],[50,'Fifty Submissions','RCG Account Manager'],[75,'Seventy-Five Submissions','Slab Queue Veteran'],
+  [100,'Century of Submissions','The Hundredth Submission'],[150,'One-Fifty Submitted','RCG Power User'],[250,'Quarter-Thousand Submitted','Grading Magnate'],[500,'Five Hundred Submitted','Gregg Knows My Name']
+].forEach(([target,name,title])=>addAchievementV2207(`rcg_submit_v2207_${target}`,'rcg',name,`Submit ${target} cards for RCG grading.`,difficultyForTargetV2207(target,[2,10,50,150]),'rcg_submitted',target,title,'◇'));
+[
+  [2,'Two in the Archive','Twin Slabs'],[5,'Five Slab Shelf','Five-Case Collector'],[15,'Fifteen Slab Archive','Slab Shelf Keeper'],[35,'Thirty-Five Slabs','Certified Curator'],
+  [60,'Sixty Slabs','Acrylic Archivist'],[100,'Century of Slabs','The Slab Centurion'],[150,'One-Fifty Slabs','Museum of Plastic'],[250,'Quarter-Thousand Slabs','Acrylic Royalty']
+].forEach(([target,name,title])=>addAchievementV2207(`rcg_slabs_v2207_${target}`,'rcg',name,`Own ${target} RCG graded slabs.`,difficultyForTargetV2207(target,[5,15,35,100]),'rcg_slabs',target,title,'◇'));
+[
+  [2,'Perfect Pair','Perfect Pair'],[3,'Triple Tens','Triple Ten Club'],[5,'Five Perfect Grades','Five-Star Grader'],[10,'Ten Tens','Ten Out of Ten Tens'],
+  [15,'Fifteen Perfects','Perfect Archive Keeper'],[25,'Quarter-Century of Tens','Golden Label Baron'],[50,'Fifty Perfect Grades','Lord of Perfect Tens']
+].forEach(([target,name,title])=>addAchievementV2207(`rcg_grade10_v2207_${target}`,'rcg',name,`Own ${target} RCG 10 slabs.`,difficultyForTargetV2207(target,[2,3,5,15]),'rcg_grade10',target,title,'◇'));
+[
+  [5,'Five Near-Perfects','Nine Club Regular'],[10,'Ten RCG Nines','The Nine Collector'],[25,'Twenty-Five Nines','Near-Perfect Curator'],[50,'Fifty RCG Nines','Baron of Nines']
+].forEach(([target,name,title])=>addAchievementV2207(`rcg_grade9_v2207_${target}`,'rcg',name,`Own ${target} RCG 9 slabs.`,difficultyForTargetV2207(target,[5,10,25,25]),'rcg_grade9',target,title,'◇'));
+[
+  [10,'High-Grade Shelf','Premium Grade Collector'],[20,'Twenty Premium Slabs','High-Grade Archivist'],[50,'Fifty Premium Slabs','Elite Label Curator'],[100,'Hundred Premium Slabs','Premium Slab Royalty']
+].forEach(([target,name,title])=>addAchievementV2207(`rcg_high_v2207_${target}`,'rcg',name,`Own ${target} combined RCG 9 or RCG 10 slabs.`,difficultyForTargetV2207(target,[10,20,50,50]),'rcg_high_grades',target,title,'◇'));
+[
+  [1,'First Slab on Show','Slab Exhibitor'],[9,'Full Slab Page','Nine-Slot Curator'],[27,'Three Slab Pages','Archive Designer'],
+  [36,'Four Slab Pages','Grand Archive Designer'],[54,'Six Slab Pages','The Slab Gallerist']
+].forEach(([target,name,title])=>addAchievementV2207(`rcg_display_v2207_${target}`,'rcg',name,`Display ${target} slabs in your RCG binder.`,difficultyForTargetV2207(target,[1,9,27,36]),'rcg_displayed',target,title,'◇'));
+
+if(ACHIEVEMENT_EXPANSION_V2207.length!==150)console.error('[ACHIEVEMENTS V22.07] Expected 150 additions, found',ACHIEVEMENT_EXPANSION_V2207.length);
+ACHIEVEMENT_DEFINITIONS_V22.push(...ACHIEVEMENT_EXPANSION_V2207);
+ACHIEVEMENT_TITLE_POOL_V22.push(...ACHIEVEMENT_EXPANSION_V2207.map(def=>def.title).filter(Boolean));
+
+const ACHIEVEMENTS={};
+ACHIEVEMENT_DEFINITIONS_V22.forEach(a=>{ACHIEVEMENTS[a.id]={group:ACHIEVEMENT_CATEGORY_V22[a.category]?.label,title:a.name,description:a.description,reward:a.title||`${a.points} AP`}});
+
+function achievementStatsV22(){
+  const s={...(achievementDashboard?.stats||{})};
+  const xpKeys=['woodcutting','mining','fishing','agility','slayer','attack','strength','defence','sailing','runecrafting','cooking','magic','ranged','farming'];
+  const levels=xpKeys.map(k=>({key:k,xp:Number(s[`${k}_xp`]||character?.[`${k}_xp`]||0),level:typeof levelFromXp==='function'?levelFromXp(Number(s[`${k}_xp`]||character?.[`${k}_xp`]||0)):1}));
+  const harmonyXp=Number(typeof count!=='undefined'?count:0)||0;
+  const harmonyLevel=typeof harmonyLevelFromXp==='function'?harmonyLevelFromXp(harmonyXp):1;
+  s.total_xp=levels.reduce((n,x)=>n+x.xp,0)+harmonyXp;
+  s.total_level=levels.reduce((n,x)=>n+x.level,0)+harmonyLevel;
+  s.maxed_skills=levels.filter(x=>x.level>=99).length+(harmonyLevel>=99?1:0);
+  s.skills_75=levels.filter(x=>x.level>=75).length+(harmonyLevel>=75?1:0);
+  s.harmony_level=harmonyLevel;
+  levels.forEach(x=>{s[`${x.key}_level`]=x.level});
+  s.tcg_favourite_num=s.tcg_favourite?1:0;
+  s.rcg_high_grades=Number(s.rcg_grade9||0)+Number(s.rcg_grade10||0);
+  return s;
+}
+function achievementValueV22(def,stats){
+  if(def.manual)return 0;
+  if(def.special==='hoardmaster')return Math.min(Number(stats.tcg_unique||0)/100,Number(stats.rcg_slabs||0)/20);
+  if(def.special==='completionist'){
+    const eligible=ACHIEVEMENT_DEFINITIONS_V22.filter(a=>a.id!==def.id&&!a.secret&&!a.manual);
+    const complete=eligible.filter(a=>achievementCompleteV22(a,stats,true)).length;
+    return eligible.length?complete/eligible.length:0;
   }
-  const jadRow=$('achievementJadInsane');
-  if(jadRow){jadRow.classList.toggle('completed',jadDone);jadRow.querySelector('.achievement-check').textContent=jadDone?'✓':'○';jadRow.querySelector('.achievement-status').textContent=jadDone?'COMPLETE':'NOT COMPLETE';}
-  const runeRow=$('achievementRuneDleSuccess');
-  if(runeRow){runeRow.classList.toggle('completed',runeDleDone);runeRow.querySelector('.achievement-check').textContent=runeDleDone?'✓':'○';runeRow.querySelector('.achievement-status').textContent=runeDleDone?'COMPLETE':'NOT COMPLETE';}
-  [['achievementInfernoVeteran',infernoVeteran],['achievementInfernoInsane',infernoInsane],['achievementLumbridgeVeteran',lumbridgeVeteran],['achievementLumbridgeInsane',lumbridgeInsane]].forEach(([id,isDone])=>{const el=$(id);if(!el)return;el.classList.toggle('completed',isDone);el.querySelector('.achievement-check').textContent=isDone?'✓':'○';el.querySelector('.achievement-status').textContent=isDone?'COMPLETE':'NOT COMPLETE';});
+  return Number(stats[def.stat]||0);
+}
+function achievementTargetV22(def){return def.special?1:Number(def.target||1)}
+function achievementPersistedV22(id){return Boolean(achievementDashboard?.state?.completed?.[id])}
+function achievementCompleteV22(def,stats=achievementStatsV22(),ignorePersisted=false){
+  if(!ignorePersisted&&achievementPersistedV22(def.id))return true;
+  if(def.legacy&&Boolean(achievementState?.[def.legacy]||achievementDashboard?.legacy?.[def.legacy]))return true;
+  if(def.manual)return false;
+  return achievementValueV22(def,stats)>=achievementTargetV22(def);
+}
+function achievementProgressV22(def,stats=achievementStatsV22()){
+  if(achievementCompleteV22(def,stats))return 1;
+  const target=achievementTargetV22(def);if(!target)return 0;
+  return Math.max(0,Math.min(1,achievementValueV22(def,stats)/target));
+}
+function achievementDisplayValueV22(def,stats){
+  if(def.special==='hoardmaster')return `${Math.min(100,Number(stats.tcg_unique||0))}/100 cards · ${Math.min(20,Number(stats.rcg_slabs||0))}/20 slabs`;
+  if(def.special==='completionist')return `${Math.round(achievementProgressV22(def,stats)*100)}% of non-secret achievements`;
+  if(def.manual)return def.pet?'PET REWARD — ORIGINAL CONDITION UNCHANGED':'Tracked in activity';
+  const value=Math.min(achievementTargetV22(def),Math.floor(achievementValueV22(def,stats)));
+  return `${Number(value).toLocaleString('en-GB')} / ${Number(achievementTargetV22(def)).toLocaleString('en-GB')}`;
+}
+function achievementIconV22(def){
+  if(String(def.icon||'').includes('/'))return `<img src="${escapeHtml(def.icon)}" alt="">`;
+  return `<span>${escapeHtml(def.icon||'✦')}</span>`;
+}
+function achievementRewardTextV22(def){
+  if(def.pet)return def.reward||'Pet reward';
+  const bits=[`+${def.points} AP`];
+  if(def.title)bits.push(`Title: ${def.title}`);
+  if(def.legacyReward)bits.push(def.legacyReward);
+  return bits.join(' · ');
+}
+function achievementDifficultyRankV22(v){return({easy:1,medium:2,hard:3,elite:4,legendary:5})[v]||0}
+function achievementFilteredV22(stats){
+  let rows=ACHIEVEMENT_DEFINITIONS_V22.filter(def=>achievementUi.category==='all'||def.category===achievementUi.category);
+  const q=achievementUi.search.trim().toLowerCase();
+  if(q)rows=rows.filter(def=>`${def.name} ${def.description} ${def.title||''} ${ACHIEVEMENT_CATEGORY_V22[def.category]?.label||''}`.toLowerCase().includes(q));
+  if(achievementUi.status!=='all')rows=rows.filter(def=>{const done=achievementCompleteV22(def,stats),p=achievementProgressV22(def,stats);return achievementUi.status==='completed'?done:achievementUi.status==='incomplete'?!done:!done&&p>=.7});
+  if(achievementUi.reward!=='all')rows=rows.filter(def=>achievementUi.reward==='title'?!!def.title:achievementUi.reward==='pet'?!!def.pet:achievementUi.reward==='legacy'?!!def.legacyReward:def.points>0);
+  if(achievementUi.sort==='progress')rows.sort((a,b)=>achievementProgressV22(b,stats)-achievementProgressV22(a,stats));
+  else if(achievementUi.sort==='points')rows.sort((a,b)=>b.points-a.points);
+  else if(achievementUi.sort==='difficulty')rows.sort((a,b)=>achievementDifficultyRankV22(b.difficulty)-achievementDifficultyRankV22(a.difficulty));
+  else if(achievementUi.sort==='name')rows.sort((a,b)=>a.name.localeCompare(b.name));
+  else rows.sort((a,b)=>Number(achievementCompleteV22(a,stats))-Number(achievementCompleteV22(b,stats))||achievementDifficultyRankV22(b.difficulty)-achievementDifficultyRankV22(a.difficulty));
+  return rows;
+}
+function achievementTotalsV22(stats){
+  const obtainable=ACHIEVEMENT_DEFINITIONS_V22.filter(a=>!a.manual);
+  const completed=obtainable.filter(a=>achievementCompleteV22(a,stats));
+  const points=completed.reduce((n,a)=>n+a.points,0);
+  const max=obtainable.reduce((n,a)=>n+a.points,0);
+  const visibleTotal=obtainable.length;
+  const rarest=[...completed].sort((a,b)=>achievementDifficultyRankV22(b.difficulty)-achievementDifficultyRankV22(a.difficulty)||b.points-a.points)[0]||null;
+  return{completed,points,max,total:visibleTotal,percent:visibleTotal?completed.length/visibleTotal:0,rarest};
+}
+function achievementCategoryNavV22(stats){
+  const nav=$('achievementCategoryNav');if(!nav)return;
+  const cats=[['all',{label:'All Achievements',icon:'✦'}],...Object.entries(ACHIEVEMENT_CATEGORY_V22)];
+  nav.innerHTML=cats.map(([key,meta])=>{const defs=key==='all'?ACHIEVEMENT_DEFINITIONS_V22:ACHIEVEMENT_DEFINITIONS_V22.filter(a=>a.category===key);const done=defs.filter(a=>achievementCompleteV22(a,stats)).length;return `<button type="button" class="repo-ach-category ${achievementUi.category===key?'is-active':''}" data-ach-category="${key}"><i>${meta.icon}</i><span>${meta.label}<small>${done} / ${defs.length}</small></span></button>`}).join('');
+  nav.querySelectorAll('[data-ach-category]').forEach(btn=>btn.onclick=()=>{achievementUi.category=btn.dataset.achCategory;renderAchievements()});
+}
+function achievementFeaturedV22(stats){
+  const box=$('achievementFeatured');if(!box)return;
+  const incomplete=ACHIEVEMENT_DEFINITIONS_V22.filter(a=>!a.secret&&!a.manual&&!achievementCompleteV22(a,stats));
+  incomplete.sort((a,b)=>achievementProgressV22(b,stats)-achievementProgressV22(a,stats)||b.points-a.points);
+  const def=incomplete[0]||ACHIEVEMENT_DEFINITIONS_V22.find(a=>achievementCompleteV22(a,stats));
+  if(!def){box.innerHTML='';return}
+  const p=achievementProgressV22(def,stats);box.innerHTML=`<div class="repo-ach-feature-icon">${achievementIconV22(def)}</div><div class="repo-ach-feature-copy"><small>${achievementCompleteV22(def,stats)?'RECENT PRESTIGE':'NEAREST COMPLETION'}</small><strong>${escapeHtml(def.name)}</strong><span>${escapeHtml(def.description)}</span><div class="repo-ach-feature-bar"><i style="width:${Math.round(p*100)}%"></i></div></div><div class="repo-ach-feature-reward"><small>${String(def.difficulty).toUpperCase()}</small><b>${escapeHtml(achievementRewardTextV22(def))}</b></div>`;
+}
+function renderAchievements(){
+  const stats=achievementStatsV22();const totals=achievementTotalsV22(stats);const rows=achievementFilteredV22(stats);
   $('achievementLoginNotice')?.classList.toggle('hidden',!!character);
-  if($('achievementMessage'))$('achievementMessage').textContent=(done||jadDone||runeDleDone||infernoVeteran||infernoInsane||lumbridgeVeteran||lumbridgeInsane)?'Unlocked rewards are stored permanently in your Bank.':'Complete an achievement to tick it off permanently.';
+  if($('achievementPointsTotal'))$('achievementPointsTotal').textContent=totals.points.toLocaleString('en-GB');
+  if($('achievementPointsMax'))$('achievementPointsMax').textContent=`/ ${totals.max.toLocaleString('en-GB')} AP`;
+  if($('achievementCompletedTotal'))$('achievementCompletedTotal').textContent=`${totals.completed.length} / ${totals.total}`;
+  if($('achievementCompletionPercent'))$('achievementCompletionPercent').textContent=`${Math.round(totals.percent*100)}%`;
+  const ring=$('achievementCompletionRing');if(ring)ring.style.setProperty('--completion',`${Math.round(totals.percent*360)}deg`);
+  if($('achievementRarestLine'))$('achievementRarestLine').textContent=totals.rarest?`Rarest: ${totals.rarest.name}`:'No achievements yet';
+  achievementCategoryNavV22(stats);achievementFeaturedV22(stats);
+  const label=achievementUi.category==='all'?'ALL ACHIEVEMENTS':ACHIEVEMENT_CATEGORY_V22[achievementUi.category]?.label||'ACHIEVEMENTS';
+  if($('achievementSectionTitle'))$('achievementSectionTitle').textContent=label;
+  if($('achievementSectionEyebrow'))$('achievementSectionEyebrow').textContent=achievementUi.category==='all'?'ACCOUNT-WIDE PROGRESSION':'CATEGORY';
+  if($('achievementSectionCount'))$('achievementSectionCount').textContent=`${rows.length} achievement${rows.length===1?'':'s'}`;
+  const list=$('achievementGroups');if(list)list.innerHTML=rows.map(def=>{
+    const done=achievementCompleteV22(def,stats),progress=achievementProgressV22(def,stats),secret=def.secret&&!done;
+    const name=secret?'???':def.name,desc=secret?'Secret Achievement':def.description,reward=secret?'Reward hidden':achievementRewardTextV22(def);
+    return `<article class="repo-achievement-card ${done?'is-complete':''} ${progress>=.7&&!done?'is-near':''} ${def.secret?'is-secret':''}" data-achievement-id="${def.id}"><div class="repo-achievement-icon">${secret?'<span>?</span>':achievementIconV22(def)}</div><div class="repo-achievement-copy"><div class="repo-achievement-topline"><strong>${escapeHtml(name)}</strong><span class="repo-ach-difficulty is-${def.difficulty}">${String(def.difficulty).toUpperCase()}</span></div><p>${escapeHtml(desc)}</p><div class="repo-achievement-progress"><div><i style="width:${Math.round(progress*100)}%"></i></div><span>${done?'COMPLETED':escapeHtml(achievementDisplayValueV22(def,stats))}</span></div><small class="repo-achievement-reward">${escapeHtml(reward)}</small></div><div class="repo-achievement-points"><b>${done?'✓':def.points}</b><span>${done?'DONE':def.points?'AP':'PET'}</span></div></article>`;
+  }).join('');
+  $('achievementEmpty')?.classList.toggle('hidden',rows.length>0);
+  if($('achievementMessage'))$('achievementMessage').textContent=character?'Progress is synced from your live Repo Company account. Existing pet rewards remain unchanged.':'Log in to load account progression.';
+  window.__repoAchievementSummaryV22={points:totals.points,max:totals.max,completed:totals.completed.length,total:totals.total,rarest:totals.rarest?.name||'',unlockedTitles:[...new Set(totals.completed.map(a=>a.title).filter(Boolean))]};
+  window.__repoAchievementUnlockedTitlesV22=window.__repoAchievementSummaryV22.unlockedTitles;
+  try{window.repoPassportRefreshAchievementTitlesV22?.()}catch(_){ }
+}
+async function syncAchievementsV22({silent=true}={}){
+  if(!character)return;
+  const stats=achievementStatsV22();const before=achievementDashboard?.state?.completed||{};const totals=achievementTotalsV22(stats);const completed={...before};const newly=[];
+  totals.completed.forEach(def=>{if(!completed[def.id]){completed[def.id]=new Date().toISOString();newly.push(def)}});
+  const titles=[...new Set(totals.completed.map(a=>a.title).filter(Boolean))];
+  const {data,error}=await db.rpc('sync_my_achievement_state_v2',{p_completed:completed,p_titles:titles,p_points:totals.points,p_completed_count:totals.completed.length,p_total_count:totals.total,p_rarest:totals.rarest?.name||''});
+  if(!error&&data)achievementDashboard.state=data;
+  if(!silent&&newly.length){newly.slice(0,3).forEach((def,i)=>setTimeout(()=>repoAchievementUnlockToastV22(def),i*900));if(newly.length>3)setTimeout(()=>toast(`${newly.length} achievements completed. Open the Achievement Log to review them.`,4200),2800)}
 }
 async function loadAchievements(){
-  achievementState={};
+  achievementState={};achievementDashboard={legacy:{},state:{completed:{},unlocked_titles:[]},stats:{}};
   if(!character){renderAchievements();return;}
-  const {data,error}=await db.rpc('get_my_achievements');
-  if(error){console.error('Could not load achievements.',error);if($('achievementMessage'))$('achievementMessage').textContent='Could not load achievements. Run update-achievements.sql in Supabase.';renderAchievements();return;}
-  achievementState=data?.[0]?.achievements||{};
+  const {data,error}=await db.rpc('get_my_achievement_dashboard_v2');
+  if(error){console.error('Could not load achievement dashboard.',error);const legacy=await db.rpc('get_my_achievements');achievementState=legacy?.data?.[0]?.achievements||{};achievementDashboard.legacy=achievementState;renderAchievements();return;}
+  achievementDashboard=data||achievementDashboard;achievementState=achievementDashboard.legacy||{};
   renderAchievements();
+  await syncAchievementsV22({silent:!achievementInitialSyncDone});achievementInitialSyncDone=true;renderAchievements();
+}
+function repoAchievementUnlockToastV22(def){
+  let host=document.getElementById('repoAchievementUnlockV22');if(!host){host=document.createElement('div');host.id='repoAchievementUnlockV22';host.className='repo-achievement-unlock-v22';document.body.appendChild(host)}
+  host.innerHTML=`<div class="repo-achievement-unlock-crest">✓</div><div><small>ACHIEVEMENT COMPLETE</small><strong>${escapeHtml(def.name)}</strong><span>+${def.points} AP${def.title?` · TITLE: ${escapeHtml(def.title)}`:''}</span></div>`;host.classList.remove('is-showing');void host.offsetWidth;host.classList.add('is-showing');setTimeout(()=>host.classList.remove('is-showing'),3000);
+}
+function achievementBindUiV22(){
+  const search=$('achievementSearch');if(search&&!search.dataset.bound){search.dataset.bound='1';search.addEventListener('input',()=>{achievementUi.search=search.value;renderAchievements()})}
+  const status=$('achievementStatusFilter');if(status&&!status.dataset.bound){status.dataset.bound='1';status.addEventListener('change',()=>{achievementUi.status=status.value;renderAchievements()})}
+  const reward=$('achievementRewardFilter');if(reward&&!reward.dataset.bound){reward.dataset.bound='1';reward.addEventListener('change',()=>{achievementUi.reward=reward.value;renderAchievements()})}
+  const sort=$('achievementSort');if(sort&&!sort.dataset.bound){sort.dataset.bound='1';sort.addEventListener('change',()=>{achievementUi.sort=sort.value;renderAchievements()})}
+  const shortcut=$('achievementTitleShortcut');if(shortcut&&!shortcut.dataset.bound){shortcut.dataset.bound='1';shortcut.onclick=()=>{try{$('achievementsDialog').close()}catch(_){};const select=$('passportTitleSelect');select?.scrollIntoView({behavior:'smooth',block:'center'});select?.focus();toast('Achievement Titles are available in your Repo Passport title selector.',3300)}}
 }
 async function openAchievements(){
-  $('achievementsDialog').showModal();
+  const d=$('achievementsDialog');if(d&&!d.open)d.showModal();achievementBindUiV22();
   if(!character){renderAchievements();return;}
-  if($('achievementMessage'))$('achievementMessage').textContent='Loading achievement log…';
+  if($('achievementMessage'))$('achievementMessage').textContent='Reading account progression…';
   await loadAchievements();
 }
+window.repoAchievementRefreshV22=()=>loadAchievements();
+function repoRenderPassportAchievementSummaryV22(){
+  document.getElementById('passportAchievementSummaryV22')?.remove();
+}
+
 
 // ---- Gnome Kitchen Chaos (RuneScape-themed online cooking minigame) ----
 let cookingMode='solo', cookingRunning=false, cookingRAF=null, cookingLast=0, cookingState=null;
@@ -8049,6 +8402,420 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   });
 })();
 
+
+// ============================================================================
+// FOIL & FABLE v22.04 — EXPLORABLE SLAB-CRACKING SHOP
+// Binder shelf banner -> animated exterior -> shop interior -> Gregg's counter.
+// The only write is the authoritative crack_my_rcg_slab RPC; the ceremony runs
+// around that transaction and never pretends a crack succeeded before it did.
+// ============================================================================
+(function installFoilAndFableV2204(){
+  if(window.__repoFoilAndFableV2204)return;
+  window.__repoFoilAndFableV2204=true;
+
+  const ROOT='assets/foil-and-fable/';
+  const EXTERIOR_SRC=ROOT+'foil-and-fable-exterior.png';
+  const INTERIOR_SRC=ROOT+'foil-and-fable-interior.png';
+  const SLAB_TEMPLATE='assets/rcg/rcg-slab-template.png';
+  const MUSIC_SRC='assets/rcg/rcg-grading-shop-theme.mp3';
+  const DOOR_SRC='assets/rcg/rcg-door-open-sfx.mp3';
+  const SELECT_SRC='assets/rcg/rcg-slab-move-flip.mp3';
+  const FALLBACK_FEE=5000;
+
+  let dialog=null;
+  let music=null;
+  let doorSfx=null;
+  let selectSfx=null;
+  let workshopAudioContext=null;
+  let leafTimer=null;
+  let slabs=[];
+  let config={crack_fee:FALLBACK_FEE,max_cracks:3};
+  let selectedSlabId='';
+  let searchText='';
+  let confirmMode=false;
+  let loading=false;
+  let busy=false;
+  let menuMessage='';
+  let menuMessageTone='';
+
+  const normal=value=>String(value??'').trim();
+  const esc=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const cardMap=()=>window.__repoTcgCardById||Object.fromEntries((Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[]).map(card=>[normal(card?.id),card]));
+  const slabId=slab=>normal(slab?.slab_id||slab?.id);
+  const slabById=id=>slabs.find(slab=>slabId(slab)===normal(id))||null;
+  const cardFor=slab=>cardMap()[normal(slab?.card_id)]||null;
+  const cardName=slab=>cardFor(slab)?.name||normal(slab?.card_id).replaceAll('_',' ').replace(/\b\w/g,char=>char.toUpperCase())||'RCG Graded Card';
+  const cardImage=slab=>cardFor(slab)?.image||cardFor(slab)?.image_url||'';
+  const crackCount=slab=>Math.max(0,Number(slab?.crack_count)||0);
+  const isStandard=slab=>normal(slab?.card_set).toLowerCase()==='standard';
+  const isLocked=slab=>Boolean(slab?.crack_locked)||crackCount(slab)>=3;
+  const isEligible=slab=>Boolean(slabId(slab))&&!isStandard(slab)&&!isLocked(slab);
+  const crackFee=()=>Math.max(0,Number(config?.crack_fee)||FALLBACK_FEE);
+  const balance=()=>Math.max(0,Number(typeof character!=='undefined'&&character?character.gp:0)||0);
+  const fmt=value=>Math.max(0,Number(value)||0).toLocaleString('en-GB');
+
+  function makeAudio(src,volume){
+    try{const audio=new Audio(src);audio.preload='auto';audio.volume=volume;return audio}catch(_error){return null}
+  }
+  function play(audio,volume=null){
+    if(!audio)return;
+    try{audio.pause();audio.currentTime=0;if(Number.isFinite(volume))audio.volume=volume;const result=audio.play();result?.catch?.(()=>{})}catch(_error){}
+  }
+  function primeWorkshopAudio(){
+    try{
+      const Context=window.AudioContext||window.webkitAudioContext;
+      if(!Context)return null;
+      workshopAudioContext=workshopAudioContext||new Context();
+      workshopAudioContext.resume?.().catch?.(()=>{});
+      return workshopAudioContext;
+    }catch(_error){return null}
+  }
+  function playCaseCrack(){
+    const context=primeWorkshopAudio();if(!context)return;
+    try{
+      const now=context.currentTime;
+      const length=Math.max(1,Math.floor(context.sampleRate*.16));
+      const buffer=context.createBuffer(1,length,context.sampleRate);
+      const data=buffer.getChannelData(0);
+      for(let index=0;index<length;index++){
+        const progress=index/length;
+        data[index]=(Math.random()*2-1)*Math.pow(1-progress,3)*(index%17<3?1:.32);
+      }
+      const snap=context.createBufferSource();snap.buffer=buffer;
+      const filter=context.createBiquadFilter();filter.type='highpass';filter.frequency.setValueAtTime(900,now);filter.Q.value=.7;
+      const snapGain=context.createGain();snapGain.gain.setValueAtTime(.0001,now);snapGain.gain.exponentialRampToValueAtTime(.15,now+.006);snapGain.gain.exponentialRampToValueAtTime(.0001,now+.16);
+      snap.connect(filter).connect(snapGain).connect(context.destination);snap.start(now);snap.stop(now+.17);
+      const clamp=context.createOscillator();clamp.type='triangle';clamp.frequency.setValueAtTime(145,now);clamp.frequency.exponentialRampToValueAtTime(58,now+.09);
+      const clampGain=context.createGain();clampGain.gain.setValueAtTime(.055,now);clampGain.gain.exponentialRampToValueAtTime(.0001,now+.1);
+      clamp.connect(clampGain).connect(context.destination);clamp.start(now);clamp.stop(now+.11);
+    }catch(_error){}
+  }
+  function setMessage(message='',tone=''){
+    menuMessage=normal(message);menuMessageTone=normal(tone);renderMessage();
+  }
+  function renderMessage(){
+    const node=dialog?.querySelector('#repoFoilCrackMessageV2204');
+    if(!node)return;
+    node.textContent=menuMessage||'Gregg returns exactly one raw physical copy. Cracking is permanent.';
+    node.dataset.tone=menuMessageTone;
+  }
+
+  function makeMotes(count){
+    let html='';
+    for(let i=0;i<count;i++){
+      const x=(Math.random()*100).toFixed(2),y=(Math.random()*100).toFixed(2);
+      const size=(1.8+Math.random()*3.7).toFixed(2),duration=(7+Math.random()*8).toFixed(2),delay=(-Math.random()*10).toFixed(2);
+      const dx=(-30+Math.random()*60).toFixed(0),dy=(-48+Math.random()*30).toFixed(0);
+      html+=`<i class="repo-foil-mote-v2204" style="left:${x}%;top:${y}%;--s:${size}px;--d:${duration}s;--delay:${delay}s;--dx:${dx}px;--dy:${dy}px"></i>`;
+    }
+    return html;
+  }
+
+  function ensureDialog(){
+    if(dialog&&document.body.contains(dialog))return dialog;
+    dialog=document.createElement('dialog');
+    dialog.id='repoFoilAndFableDialogV2204';
+    dialog.className='repo-foil-shop-dialog-v2204';
+    dialog.dataset.view='exterior';
+    dialog.innerHTML=`<div class="repo-foil-stage-v2204" role="document">
+      <button type="button" class="repo-foil-back-v2204" aria-label="Back">← BACK</button>
+      <button type="button" class="repo-foil-close-v2204" aria-label="Close Foil and Fable">×</button>
+
+      <section class="repo-foil-scene-v2204 exterior is-active" data-scene="exterior" aria-label="Foil and Fable exterior">
+        <div class="repo-foil-scene-frame-v2204">
+          <img class="repo-foil-bg-v2204" src="${EXTERIOR_SRC}" alt="Foil and Fable trading card shop exterior" draggable="false">
+          <button type="button" class="repo-foil-door-hotspot-v2204" aria-label="Enter Foil and Fable"><span>ENTER FOIL &amp; FABLE</span></button>
+        </div>
+        <div class="repo-foil-exterior-atmo-v2204" aria-hidden="true"><i class="sun-a"></i><i class="sun-b"></i><i class="warm-pool"></i><span class="repo-foil-motes-v2204">${makeMotes(30)}</span></div>
+        <div class="repo-foil-leaf-layer-v2204" aria-hidden="true"></div>
+      </section>
+
+      <section class="repo-foil-scene-v2204 interior" data-scene="interior" aria-label="Inside Foil and Fable">
+        <div class="repo-foil-scene-frame-v2204">
+          <img class="repo-foil-bg-v2204" src="${INTERIOR_SRC}" alt="Inside Foil and Fable with Gregg behind the counter" draggable="false">
+          <button type="button" class="repo-foil-gregg-hotspot-v2204" aria-label="Speak to Gregg about cracking slabs"><span><b>GREGG</b><small>SLAB CRACKING · 5,000 GP</small></span></button>
+        </div>
+        <div class="repo-foil-interior-atmo-v2204" aria-hidden="true"><i class="ray ray-a"></i><i class="ray ray-b"></i><i class="ray ray-c"></i><i class="glint"></i><i class="pool pool-a"></i><i class="pool pool-b"></i><span class="repo-foil-motes-v2204">${makeMotes(44)}</span></div>
+      </section>
+
+      <section class="repo-foil-crack-overlay-v2204" id="repoFoilCrackOverlayV2204" aria-hidden="true">
+        <div class="repo-foil-counter-shell-v2204" role="dialog" aria-modal="true" aria-label="Gregg's slab cracking counter">
+          <header class="repo-foil-counter-head-v2204">
+            <div class="repo-foil-gregg-seal-v2204"><b>G</b><i></i></div>
+            <div><small>FOIL &amp; FABLE · CERTIFIED CASE REMOVAL</small><h2>GREGG'S SLAB WORKSHOP</h2><p>Professional case removal · 5,000 GP · physical-card lineage protected</p></div>
+            <button type="button" data-foil-crack-close aria-label="Close Gregg's counter">×</button>
+          </header>
+          <div class="repo-foil-counter-bar-v2204">
+            <span><small>YOUR BALANCE</small><b id="repoFoilCrackBalanceV2204">0 GP</b></span>
+            <span><small>GREGG'S FEE</small><b id="repoFoilCrackFeeV2204">5,000 GP</b></span>
+            <label><small>FIND A SLAB</small><input id="repoFoilCrackSearchV2204" type="search" placeholder="Search card or certification…" autocomplete="off" spellcheck="false"></label>
+          </div>
+          <div class="repo-foil-counter-main-v2204">
+            <section class="repo-foil-slab-library-v2204">
+              <header><div><b>YOUR GRADED ARCHIVE</b><small id="repoFoilCrackStatsV2204">LOADING ARCHIVE…</small></div><span>CHOOSE AN ELIGIBLE SLAB</span></header>
+              <div class="repo-foil-slab-grid-v2204" id="repoFoilCrackGridV2204"></div>
+            </section>
+            <aside class="repo-foil-selected-v2204" id="repoFoilCrackSelectedV2204"></aside>
+          </div>
+          <footer class="repo-foil-counter-foot-v2204">
+            <span><b>CRACK 1</b><small>RE-GRADE ALLOWED</small></span><i></i><span><b>CRACK 2</b><small>RE-GRADE ALLOWED</small></span><i></i><span><b>CRACK 3</b><small>ONE FINAL RE-GRADE</small></span><i></i><span class="locked"><b>FINAL SLAB</b><small>PERMANENTLY GRADE-LOCKED</small></span>
+            <p id="repoFoilCrackMessageV2204" data-tone=""></p>
+          </footer>
+        </div>
+        <div class="repo-foil-ceremony-v2204" id="repoFoilCeremonyV2204" aria-live="polite">
+          <div class="repo-foil-ceremony-light-v2204"></div>
+          <div class="repo-foil-ceremony-slab-v2204" id="repoFoilCeremonySlabV2204"></div>
+          <div class="repo-foil-shards-v2204" aria-hidden="true">${Array.from({length:18},(_,i)=>`<i style="--n:${i}"></i>`).join('')}</div>
+          <strong id="repoFoilCeremonyTitleV2204">GREGG IS PREPARING THE SLAB…</strong>
+          <small id="repoFoilCeremonyCopyV2204">Foil &amp; Fable · professional cracking service</small>
+        </div>
+      </section>
+    </div>`;
+    document.body.appendChild(dialog);
+
+    music=makeAudio(MUSIC_SRC,.42);
+    if(music){music.loop=true}
+    doorSfx=makeAudio(DOOR_SRC,.55);
+    selectSfx=makeAudio(SELECT_SRC,.42);
+
+    dialog.querySelector('.repo-foil-close-v2204')?.addEventListener('click',closeShop);
+    dialog.querySelector('.repo-foil-back-v2204')?.addEventListener('click',goBack);
+    const door=dialog.querySelector('.repo-foil-door-hotspot-v2204');
+    door?.addEventListener('click',enterInterior);
+    door?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();enterInterior()}});
+    const gregg=dialog.querySelector('.repo-foil-gregg-hotspot-v2204');
+    gregg?.addEventListener('click',openCounter);
+    gregg?.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openCounter()}});
+    dialog.querySelector('[data-foil-crack-close]')?.addEventListener('click',closeCounter);
+    dialog.querySelector('#repoFoilCrackSearchV2204')?.addEventListener('input',event=>{searchText=String(event.target.value||'');renderCounter()});
+    dialog.querySelector('#repoFoilCrackGridV2204')?.addEventListener('click',event=>{
+      const button=event.target.closest('[data-foil-slab-id]');if(!button||button.disabled||busy)return;selectSlab(button.dataset.foilSlabId);
+    });
+    dialog.querySelector('#repoFoilCrackSelectedV2204')?.addEventListener('click',event=>{
+      if(event.target.closest('[data-foil-prepare]')){confirmMode=true;setMessage('Gregg is ready. Confirm this irreversible crack.','warn');renderSelected();return}
+      if(event.target.closest('[data-foil-cancel-confirm]')){confirmMode=false;setMessage();renderSelected();return}
+      if(event.target.closest('[data-foil-confirm-crack]'))void crackSelected();
+    });
+    dialog.addEventListener('cancel',event=>{event.preventDefault();goBack()});
+    const exterior=new Image();exterior.src=EXTERIOR_SRC;
+    const interior=new Image();interior.src=INTERIOR_SRC;
+    const slab=new Image();slab.src=SLAB_TEMPLATE;
+    return dialog;
+  }
+
+  function setView(view){
+    ensureDialog();
+    dialog.dataset.view=view;
+    dialog.querySelectorAll('.repo-foil-scene-v2204').forEach(scene=>scene.classList.toggle('is-active',scene.dataset.scene===view));
+    const back=dialog.querySelector('.repo-foil-back-v2204');if(back)back.textContent=view==='interior'?'← STREET':'← BINDERS';
+    if(view==='exterior')seedLeaves();
+  }
+  function enterInterior(){
+    if(!dialog||dialog.dataset.view!=='exterior')return;
+    play(doorSfx,.55);
+    dialog.classList.add('is-entering-v2204');
+    setTimeout(()=>{dialog?.classList.remove('is-entering-v2204');setView('interior')},340);
+  }
+  function goBack(){
+    if(busy)return;
+    if(dialog?.querySelector('#repoFoilCrackOverlayV2204')?.classList.contains('is-open')){closeCounter();return}
+    if(dialog?.dataset.view==='interior'){setView('exterior');return}
+    closeShop();
+  }
+  async function openShop(){
+    ensureDialog();
+    try{window.repoRcgUpgradeCustomizerV2129?.stopMusic?.()}catch(_error){}
+    try{quidditchTcgBinderStopViewMusic?.()}catch(_error){}
+    setView('exterior');
+    if(!dialog.open)dialog.showModal();
+    document.body.classList.add('repo-foil-shop-open-v2204');
+    seedLeaves();ensureLeafTimer();
+    try{if(music){music.currentTime=0;music.volume=.42;await music.play()}}catch(_error){}
+  }
+  function closeShop(){
+    if(!dialog||busy)return;
+    closeCounter({force:true});
+    if(dialog.open)dialog.close();
+    document.body.classList.remove('repo-foil-shop-open-v2204');
+    setView('exterior');
+    try{music?.pause();if(music)music.currentTime=0}catch(_error){}
+  }
+
+  function eligibleSlabs(){return slabs.filter(isEligible)}
+  function slabVisual(slab,{large=false}={}){
+    const image=cardImage(slab),name=cardName(slab),grade=Number(slab?.grade)||'?';
+    const cert=normal(slab?.certification_number)||'RCG CERTIFICATION';
+    return `<div class="repo-foil-slab-v2204${large?' is-large':''}" data-grade="${esc(grade)}">
+      <div class="repo-foil-slab-art-v2204">${image?`<img src="${esc(image)}" alt="${esc(name)}" draggable="false">`:'<span>RCG</span>'}</div>
+      <img class="repo-foil-slab-case-v2204" src="${SLAB_TEMPLATE}" alt="" draggable="false">
+      <div class="repo-foil-slab-label-v2204"><b>RCG ${esc(grade)}</b><span>${esc(name)}</span><small>${esc(cert)}</small></div>
+    </div>`;
+  }
+  function renderCounter(){
+    if(!dialog)return;
+    const fee=crackFee();
+    const balanceNode=dialog.querySelector('#repoFoilCrackBalanceV2204');if(balanceNode)balanceNode.textContent=`${fmt(balance())} GP`;
+    const feeNode=dialog.querySelector('#repoFoilCrackFeeV2204');if(feeNode)feeNode.textContent=`${fmt(fee)} GP`;
+    const grid=dialog.querySelector('#repoFoilCrackGridV2204');
+    const stats=dialog.querySelector('#repoFoilCrackStatsV2204');
+    const q=searchText.trim().toLowerCase();
+    const visible=slabs.filter(slab=>!q||cardName(slab).toLowerCase().includes(q)||normal(slab?.certification_number).toLowerCase().includes(q));
+    if(stats)stats.textContent=loading?'LOADING ARCHIVE…':`${eligibleSlabs().length} READY · ${slabs.length} TOTAL SLABS`;
+    if(grid){
+      if(loading){grid.innerHTML='<div class="repo-foil-grid-message-v2204"><b>OPENING YOUR RCG ARCHIVE…</b><small>Gregg is checking the certification ledger.</small></div>'}
+      else if(!slabs.length){grid.innerHTML='<div class="repo-foil-grid-message-v2204"><b>NO COLLECTED SLABS YET</b><small>Collect a completed RCG return before visiting Gregg.</small></div>'}
+      else if(!visible.length){grid.innerHTML='<div class="repo-foil-grid-message-v2204"><b>NO MATCHING SLABS</b><small>Try another card name or certification.</small></div>'}
+      else grid.innerHTML=visible.map(slab=>{
+        const id=slabId(slab),standard=isStandard(slab),locked=isLocked(slab),eligible=isEligible(slab),selected=id===selectedSlabId;
+        const status=standard?'STANDARD · NOT ELIGIBLE':locked?'FINAL · GRADE LOCKED':`CRACK ${crackCount(slab)} / 3`;
+        const certification=normal(slab?.certification_number)||'RCG CERTIFIED';
+        return `<button type="button" class="repo-foil-slab-entry-v2204${selected?' is-selected':''}${eligible?'':' is-disabled'}" data-foil-slab-id="${esc(id)}" ${eligible?'':'disabled'} title="${esc(cardName(slab))} · ${esc(status)}">
+          ${slabVisual(slab)}<span class="repo-foil-slab-entry-meta-v2204"><small>${esc(certification)}</small><b>${esc(cardName(slab))}</b><em class="repo-foil-slab-entry-status-v2206">${esc(status)}</em></span>
+        </button>`;
+      }).join('');
+    }
+    renderSelected();renderMessage();
+  }
+  function renderSelected(){
+    const panel=dialog?.querySelector('#repoFoilCrackSelectedV2204');if(!panel)return;
+    const slab=slabById(selectedSlabId);
+    if(!slab){
+      panel.innerHTML=`<div class="repo-foil-gregg-intro-v2204"><span>G</span><small>FOIL &amp; FABLE PROPRIETOR</small><h3>“Pick the slab. I'll handle the case.”</h3><p>Gregg charges ${fmt(crackFee())} GP. The slab is destroyed, exactly one raw physical copy returns, and the crack count follows that card permanently.</p><ul><li>Standard slabs cannot be cracked</li><li>Three cracks maximum per physical copy</li><li>The slab after the final re-grade is permanently locked</li></ul></div>`;
+      return;
+    }
+    const next=crackCount(slab)+1,final=next>=3,afford=balance()>=crackFee();
+    panel.innerHTML=`<div class="repo-foil-selected-top-v2204"><div><small>SELECTED FOR CASE REMOVAL</small><b>${esc(cardName(slab))}</b><span>RCG ${Number(slab?.grade)||'?'} · ${esc(normal(slab?.certification_number)||'CERTIFIED SLAB')}</span></div><em>ELIGIBLE</em></div>
+      <div class="repo-foil-selected-visual-v2204">${slabVisual(slab,{large:true})}<i class="repo-foil-crack-line-v2204"></i></div>
+      <div class="repo-foil-selected-facts-v2204"><span><small>CURRENT LINEAGE</small><b>${crackCount(slab)} / 3 CRACKS</b></span><span><small>THIS SERVICE</small><b>CRACK ${next} OF 3</b></span><span><small>PRICE</small><b>${fmt(crackFee())} GP</b></span></div>
+      ${confirmMode?`<div class="repo-foil-confirm-v2204"><strong>${final?'FINAL CRACK WARNING':'CONFIRM PERMANENT CRACK'}</strong><p>${final?'After its one final re-grade, the resulting slab will be permanently grade-locked.':'This slab will be destroyed and exactly one raw copy will return to your collection.'}</p><div><button type="button" data-foil-cancel-confirm ${busy?'disabled':''}>CANCEL</button><button type="button" data-foil-confirm-crack ${busy||!afford?'disabled':''}>${busy?'GREGG IS WORKING…':'GREGG, CRACK IT · '+fmt(crackFee())+' GP'}</button></div></div>`:`<button type="button" class="repo-foil-prepare-v2204" data-foil-prepare ${busy||!afford?'disabled':''}><b>${afford?'PREPARE THIS SLAB':'NOT ENOUGH GP'}</b><small>${afford?`GREGG'S FEE · ${fmt(crackFee())} GP`:`YOU NEED ${fmt(Math.max(0,crackFee()-balance()))} MORE GP`}</small></button>`}`;
+  }
+  function selectSlab(id){
+    const slab=slabById(id);if(!slab||!isEligible(slab))return;
+    selectedSlabId=slabId(slab);confirmMode=false;play(selectSfx,.42);setMessage(`${cardName(slab)} · RCG ${Number(slab.grade)||'?'} selected for Gregg.`,'ok');renderCounter();
+  }
+
+  async function loadSlabs({silent=false}={}){
+    if(loading||typeof db==='undefined'||!db?.rpc)return;
+    loading=true;if(!silent)renderCounter();
+    try{
+      const {data,error}=await db.rpc('get_my_rcg_state');if(error)throw error;
+      const state=Array.isArray(data)?data[0]:data;
+      slabs=Array.isArray(state?.slabs)?state.slabs.filter(slab=>!slab?.is_cracked):[];
+      config=state?.config&&typeof state.config==='object'?state.config:{crack_fee:FALLBACK_FEE,max_cracks:3};
+      if(selectedSlabId&&!slabById(selectedSlabId)){selectedSlabId='';confirmMode=false}
+      if(!silent)setMessage(slabs.length?"Gregg's ledger is ready. Select an eligible slab.":'No collected slabs are ready for Gregg.');
+    }catch(error){
+      console.error('[FOIL & FABLE] slab ledger failed',error);slabs=[];selectedSlabId='';confirmMode=false;setMessage(String(error?.message||'Gregg could not open the RCG ledger.').replace(/^Error:\s*/,''),'error');
+    }finally{loading=false;renderCounter()}
+  }
+
+  function showCeremony(slab){
+    const ceremony=dialog?.querySelector('#repoFoilCeremonyV2204');if(!ceremony)return;
+    ceremony.className='repo-foil-ceremony-v2204 is-active is-preparing';
+    const slabNode=ceremony.querySelector('#repoFoilCeremonySlabV2204');if(slabNode)slabNode.innerHTML=slabVisual(slab,{large:true});
+    const title=ceremony.querySelector('#repoFoilCeremonyTitleV2204');if(title)title.textContent='GREGG IS PREPARING THE SLAB…';
+    const copy=ceremony.querySelector('#repoFoilCeremonyCopyV2204');if(copy)copy.textContent='Certification checked · cracking cradle locked';
+  }
+  function setCeremonyPhase(phase,title,copy){
+    const ceremony=dialog?.querySelector('#repoFoilCeremonyV2204');if(!ceremony)return;
+    ceremony.className=`repo-foil-ceremony-v2204 is-active ${phase}`;
+    const titleNode=ceremony.querySelector('#repoFoilCeremonyTitleV2204');if(titleNode)titleNode.textContent=title;
+    const copyNode=ceremony.querySelector('#repoFoilCeremonyCopyV2204');if(copyNode)copyNode.textContent=copy;
+  }
+  function hideCeremony(){
+    const ceremony=dialog?.querySelector('#repoFoilCeremonyV2204');if(!ceremony)return;ceremony.className='repo-foil-ceremony-v2204';
+    const slabNode=ceremony.querySelector('#repoFoilCeremonySlabV2204');if(slabNode)slabNode.replaceChildren();
+  }
+  async function crackSelected(){
+    if(busy)return;
+    const slab=slabById(selectedSlabId);if(!slab||!isEligible(slab)){setMessage('That slab is no longer eligible to crack.','error');await loadSlabs({silent:true});return}
+    if(balance()<crackFee()){setMessage(`You need ${fmt(crackFee())} GP for Gregg's service.`,'error');renderSelected();return}
+    if(typeof db==='undefined'||!db?.rpc){setMessage('The RCG cracking service is unavailable.','error');return}
+    busy=true;primeWorkshopAudio();renderSelected();showCeremony(slab);
+    try{
+      await delay(430);
+      setCeremonyPhase('is-cracking','GREGG IS OPENING THE CASE…','Pressure released · acrylic seal separating');playCaseCrack();
+      const request=db.rpc('crack_my_rcg_slab',{p_slab_id:slabId(slab)});
+      await delay(740);
+      const {data,error}=await request;if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      if(!row||normal(row.slab_id)!==slabId(slab)||!normal(row.raw_instance_id))throw new Error('RCG returned an invalid cracking receipt. Refresh before trying again.');
+      const newGp=Number(row.new_gp);
+      if(Number.isFinite(newGp)){
+        if(typeof character!=='undefined'&&character)character.gp=newGp;
+        if(typeof bankState!=='undefined'&&bankState)bankState.gp=newGp;
+      }
+      try{renderCharacter?.()}catch(_error){}
+      try{if(document.getElementById('bankDialog')?.open)renderBank?.()}catch(_error){}
+      setCeremonyPhase('is-success','CASE REMOVED — RAW COPY RETURNED',`${cardName(slab)} · crack ${Number(row.crack_count)||crackCount(slab)+1}/3 · ${fmt(row.fee||crackFee())} GP paid`);
+      window.dispatchEvent(new CustomEvent('repo-rcg-slabs-changed',{detail:{slabId:slabId(slab),cardId:normal(slab.card_id),crackCount:Number(row.crack_count)||crackCount(slab)+1,source:'foil-and-fable'}}));
+      await Promise.allSettled([
+        window.repoTcgRefreshOwnCollection?.(),
+        window.repoRcgConstructedSlabBinderV2118?.refresh?.({force:true})
+      ]);
+      await loadSlabs({silent:true});
+      await delay(1550);
+      selectedSlabId='';confirmMode=false;setMessage(`${cardName(slab)} returned as one raw physical copy. Gregg's receipt records crack ${Number(row.crack_count)||crackCount(slab)+1}/3.`,'ok');
+    }catch(error){
+      console.error('[FOIL & FABLE] crack failed',error);
+      setCeremonyPhase('is-error','GREGG STOPPED THE SERVICE',String(error?.message||'The slab was not cracked. No success was recorded.').replace(/^Error:\s*/,''));
+      setMessage(String(error?.message||'Gregg could not crack that slab.').replace(/^Error:\s*/,''),'error');
+      await loadSlabs({silent:true});await delay(1450);
+    }finally{busy=false;hideCeremony();renderCounter()}
+  }
+
+  async function openCounter(){
+    ensureDialog();
+    const overlay=dialog.querySelector('#repoFoilCrackOverlayV2204');
+    overlay?.classList.add('is-open');overlay?.setAttribute('aria-hidden','false');
+    selectedSlabId='';confirmMode=false;searchText='';menuMessage='';menuMessageTone='';
+    const search=dialog.querySelector('#repoFoilCrackSearchV2204');if(search)search.value='';
+    renderCounter();await loadSlabs();requestAnimationFrame(()=>search?.focus({preventScroll:true}));
+  }
+  function closeCounter({force=false}={}){
+    if(busy&&!force)return;
+    const overlay=dialog?.querySelector('#repoFoilCrackOverlayV2204');overlay?.classList.remove('is-open');overlay?.setAttribute('aria-hidden','true');
+    selectedSlabId='';confirmMode=false;searchText='';hideCeremony();
+  }
+
+  function isExteriorOpen(){return Boolean(dialog?.open&&dialog.dataset.view==='exterior')}
+  function spawnLeaf(progress=null){
+    if(!isExteriorOpen())return;
+    const layer=dialog.querySelector('.repo-foil-leaf-layer-v2204');if(!layer)return;
+    const leaf=document.createElement('i');
+    const vw=Math.max(window.innerWidth||0,900),vh=Math.max(window.innerHeight||0,620);
+    const start=-160-Math.random()*180,end=vw+120+Math.random()*210,y=vh*(.12+Math.random()*.70);
+    const width=12+Math.random()*11,height=7+Math.random()*7,duration=7600+Math.random()*5000,turns=320+Math.random()*620;
+    leaf.style.width=`${width}px`;leaf.style.height=`${height}px`;layer.appendChild(leaf);
+    const animation=leaf.animate([
+      {transform:`translate3d(${start}px,${y}px,0) rotate(-20deg)`,opacity:0},
+      {offset:.08,transform:`translate3d(${start+70}px,${y-22}px,0) rotate(30deg)`,opacity:.82},
+      {offset:.34,transform:`translate3d(${start+(end-start)*.34}px,${y+35}px,0) rotate(${turns*.34}deg)`,opacity:.88},
+      {offset:.66,transform:`translate3d(${start+(end-start)*.66}px,${y-42}px,0) rotate(${turns*.66}deg)`,opacity:.76},
+      {transform:`translate3d(${end}px,${y+12}px,0) rotate(${turns}deg)`,opacity:0}
+    ],{duration,easing:'linear',fill:'both'});
+    if(Number.isFinite(progress))try{animation.currentTime=Math.max(.05,Math.min(.92,progress))*duration}catch(_error){}
+    animation.onfinish=()=>leaf.remove();
+  }
+  function seedLeaves(){
+    if(!isExteriorOpen())return;
+    const layer=dialog.querySelector('.repo-foil-leaf-layer-v2204');if(!layer)return;
+    const missing=Math.max(0,12-layer.querySelectorAll('i').length);for(let i=0;i<missing;i++)spawnLeaf(.08+Math.random()*.80);
+  }
+  function ensureLeafTimer(){
+    if(leafTimer)return;
+    leafTimer=setInterval(()=>{if(!isExteriorOpen())return;spawnLeaf();if(Math.random()>.68)setTimeout(()=>spawnLeaf(),170+Math.random()*300)},760);
+  }
+
+  window.openFoilAndFableShopV2204=openShop;
+  window.closeFoilAndFableShopV2204=closeShop;
+  window.openGreggCrackingCounterV2204=openCounter;
+
+  const boot=()=>{ensureDialog();ensureLeafTimer()};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
 // Homepage environmental scene animation. In billboard mode every transition is a
 // true adjacent-frame dissolve: the current sky stays visible while the next sky
 // fades over it. This avoids exposing frame 1 between frames and removes the
@@ -9584,7 +10351,8 @@ function qmRenderWatcherProfile(name,x,y){
   const skillSummary=qmWatcherSkillSummary(profile);
   const backdrop=partyPeteItem(profile?.equipped_watchcard_background);
   const favouriteCard=window.repoTcgCardById?.(profile?.favourite_quidditch_tcg_card)||null;
-  const favouriteMarkup=favouriteCard?`<div class="qm-watcher-profile-favourite"><div class="qm-watcher-profile-favourite-art"><img src="${escapeHtml(favouriteCard.image)}" alt="${escapeHtml(favouriteCard.name)} favourite card"></div><div><small>FAVOURITE CARD</small><b>${escapeHtml(favouriteCard.name)}</b><span>Quidditch TCG Collection</span></div><i aria-hidden="true">★</i></div>`:'';
+  const favouriteIsSlab=Boolean(profile?.favourite_rcg_slab_id);
+  const favouriteMarkup=favouriteCard?`<div class="qm-watcher-profile-favourite${favouriteIsSlab?' is-rcg-slab':''}"><div class="qm-watcher-profile-favourite-art"><img src="${escapeHtml(favouriteCard.image)}" alt="${escapeHtml(favouriteCard.name)} favourite card">${favouriteIsSlab?`<em>RCG ${Number(profile?.favourite_rcg_grade)||'?'}</em>`:''}</div><div><small>FAVOURITE CARD</small><b>${escapeHtml(favouriteCard.name)}</b><span>${favouriteIsSlab?`RCG ${Number(profile?.favourite_rcg_grade)||'?'} · GRADED SLAB`:'Quidditch TCG Collection'}</span></div><i aria-hidden="true">★</i></div>`:'';
   card.classList.toggle('has-watchcard-background',!!backdrop);
   card.style.setProperty('--watchcard-profile-bg',backdrop?`url('${backdrop.image}')`:'none');
   const watcherKey=qmWatcherKey(name);
@@ -9626,12 +10394,12 @@ async function qmRefreshWatcherProfiles(names,force=false){
     if(favouriteError)console.warn('Quidditch favourite TCG cards:',favouriteError);
     if(titleError)console.warn('Repo Passport public titles:',titleError);
     const backgroundByName=new Map((backgroundRows||[]).map(row=>[qmWatcherKey(row.username),row.equipped_watchcard_background]));
-    const favouriteByName=new Map((favouriteRows||[]).map(row=>[qmWatcherKey(row.username),row.favourite_card]));
+    const favouriteByName=new Map((favouriteRows||[]).map(row=>[qmWatcherKey(row.username),row]));
     const titleByName=new Map((titleRows||[]).map(row=>[qmWatcherKey(row.username),row.passport_title||'The Adventurer']));
     for(const row of publicRows){
       if(!row)continue;
       const pet=petByName.get(qmWatcherKey(row.username))||{};
-      qmWatcherProfileCache.set(qmWatcherKey(row.username),{...pet,...row,equipped_watchcard_background:backgroundByName.get(qmWatcherKey(row.username))||null,favourite_quidditch_tcg_card:favouriteByName.get(qmWatcherKey(row.username))||null,passport_title:titleByName.get(qmWatcherKey(row.username))||'The Adventurer'});
+      qmWatcherProfileCache.set(qmWatcherKey(row.username),{...pet,...row,equipped_watchcard_background:backgroundByName.get(qmWatcherKey(row.username))||null,favourite_quidditch_tcg_card:favouriteByName.get(qmWatcherKey(row.username))?.favourite_card||null,favourite_rcg_slab_id:favouriteByName.get(qmWatcherKey(row.username))?.favourite_slab_id||null,favourite_rcg_grade:favouriteByName.get(qmWatcherKey(row.username))?.favourite_slab_grade||null,favourite_rcg_certification:favouriteByName.get(qmWatcherKey(row.username))?.favourite_slab_certification||null,passport_title:titleByName.get(qmWatcherKey(row.username))||'The Adventurer'});
     }
     // Keep pet-only cards usable if a public profile is temporarily unavailable.
     for(const row of petRows||[]){
@@ -9644,7 +10412,7 @@ async function qmRefreshWatcherProfiles(names,force=false){
     }
     for(const row of favouriteRows||[]){
       const key=qmWatcherKey(row.username);
-      qmWatcherProfileCache.set(key,{...(qmWatcherProfileCache.get(key)||{}),username:row.username,favourite_quidditch_tcg_card:row.favourite_card||null});
+      qmWatcherProfileCache.set(key,{...(qmWatcherProfileCache.get(key)||{}),username:row.username,favourite_quidditch_tcg_card:row.favourite_card||null,favourite_rcg_slab_id:row.favourite_slab_id||null,favourite_rcg_grade:row.favourite_slab_grade||null,favourite_rcg_certification:row.favourite_slab_certification||null});
     }
     for(const row of titleRows||[]){
       const key=qmWatcherKey(row.username);
@@ -17341,82 +18109,7 @@ qmShowSharedGoal=function(state){
 // Card ownership tracking will be connected later; until then it intentionally
 // remains incomplete while still appearing in the permanent achievement log.
 // ============================================================
-(function installQuidditchTcgAchievementPlaceholder(){
-  if(window.__repoQuidditchTcgAchievementPlaceholderInstalled)return;
-  window.__repoQuidditchTcgAchievementPlaceholderInstalled=true;
-
-  if(typeof ACHIEVEMENTS==='object'&&ACHIEVEMENTS){
-    ACHIEVEMENTS.quidditch_tcg_all_cards={
-      group:'Quidditch Mode',
-      title:'Complete the Collection',
-      description:'Unlock all the currently available Quidditch TCG cards.',
-      reward:'Achievement only'
-    };
-  }
-
-  const ensureRow=()=>{
-    const dialog=document.getElementById('achievementsDialog');
-    if(!dialog||document.getElementById('achievementQuidditchTcgAllCards'))return;
-    const references=[
-      'achievementLumbridgeInsane','achievementInfernoInsane','achievementRuneDleSuccess',
-      'achievementJadInsane','achievementCookingServe5'
-    ].map(id=>document.getElementById(id)).filter(Boolean);
-    const reference=references[0]||null;
-    const parent=reference?.parentElement||dialog.querySelector('.achievement-list,.achievements-list,[data-achievement-list]')||dialog.querySelector('section,main,form,div');
-    if(!parent)return;
-
-    const row=document.createElement(reference?.tagName||'article');
-    row.id='achievementQuidditchTcgAllCards';
-    row.className=`${reference?.className||'achievement-row'} repo-quidditch-tcg-achievement`.trim();
-    row.innerHTML=`
-      <span class="achievement-check" aria-hidden="true">○</span>
-      <div class="repo-achievement-copy">
-        <small>QUIDDITCH MODE</small>
-        <strong>Complete the Collection</strong>
-        <p>Unlock all the currently available Quidditch TCG cards.</p>
-        <em>Collection tracking coming soon</em>
-      </div>
-      <span class="achievement-status">NOT COMPLETE</span>`;
-    parent.appendChild(row);
-  };
-
-  if(!document.getElementById('repoQuidditchTcgAchievementStyles')){
-    const style=document.createElement('style');
-    style.id='repoQuidditchTcgAchievementStyles';
-    style.textContent=`
-      #achievementQuidditchTcgAllCards{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;margin-top:10px;padding:13px 14px;border:1px solid #35577a;background:linear-gradient(135deg,rgba(15,31,52,.96),rgba(8,16,29,.98));box-shadow:inset 0 0 0 1px rgba(92,151,213,.16);color:#d9e8f7}
-      #achievementQuidditchTcgAllCards .achievement-check{display:grid;place-items:center;width:28px;height:28px;border:2px solid #668bb2;border-radius:50%;color:#8fb8df;font:900 18px/1 Georgia,serif}
-      #achievementQuidditchTcgAllCards .repo-achievement-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
-      #achievementQuidditchTcgAllCards .repo-achievement-copy small{color:#75a8d8;font:800 9px/1.1 Georgia,serif;letter-spacing:.16em}
-      #achievementQuidditchTcgAllCards .repo-achievement-copy strong{color:#f3d58a;font:900 15px/1.15 Georgia,serif}
-      #achievementQuidditchTcgAllCards .repo-achievement-copy p{margin:0;color:#bdcad8;font-size:11px;line-height:1.3}
-      #achievementQuidditchTcgAllCards .repo-achievement-copy em{color:#7791aa;font-size:9px;font-style:normal;text-transform:uppercase;letter-spacing:.08em}
-      #achievementQuidditchTcgAllCards .achievement-status{padding:5px 7px;border:1px solid #435d77;background:#101c29;color:#8da5bb;font:800 9px/1 Georgia,serif;white-space:nowrap}
-      @media(max-width:620px){#achievementQuidditchTcgAllCards{grid-template-columns:auto 1fr}#achievementQuidditchTcgAllCards .achievement-status{grid-column:2;justify-self:start}}
-    `;
-    document.head.appendChild(style);
-  }
-
-  if(typeof renderAchievements==='function'){
-    const baseRenderAchievements=renderAchievements;
-    renderAchievements=function(){
-      ensureRow();
-      const result=baseRenderAchievements.apply(this,arguments);
-      const row=document.getElementById('achievementQuidditchTcgAllCards');
-      if(row){
-        row.classList.remove('completed');
-        const check=row.querySelector('.achievement-check');if(check)check.textContent='○';
-        const status=row.querySelector('.achievement-status');if(status)status.textContent='NOT COMPLETE';
-      }
-      return result;
-    };
-  }
-
-  const schedule=()=>[0,80,320,900].forEach(delay=>setTimeout(ensureRow,delay));
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});
-  else schedule();
-  new MutationObserver(ensureRow).observe(document.documentElement,{childList:true,subtree:true});
-})();
+(function installQuidditchTcgAchievementPlaceholder(){ window.__repoQuidditchTcgAchievementPlaceholderInstalled=true; })();
 
 // ============================================================
 // QUIDDITCH TCG PACKS + PERSISTENT COLLECTIONS
@@ -17625,7 +18318,7 @@ qmShowSharedGoal=function(state){
   const GE_PACK_ITEM={
     item_id:PACK_ITEM_ID,
     name:'Quidditch TCG Card Pack',
-    description:'Contains one guaranteed new Quidditch trading card. No duplicate cards.',
+    description:'Standard cards are duplicate-protected. Special cards can be pulled more than once.',
     price:PACK_PRICE,
     image_url:PACK_ASSET
   };
@@ -17642,6 +18335,14 @@ qmShowSharedGoal=function(state){
     for(const id of Array.isArray(cards)?cards:[]){
       const clean=String(id||'').trim();
       if(CARD_BY_ID[clean]&&!result.includes(clean))result.push(clean);
+    }
+    return result;
+  }
+  function normaliseCardCopies(cards){
+    const result=[];
+    for(const id of Array.isArray(cards)?cards:[]){
+      const clean=String(id||'').trim();
+      if(CARD_BY_ID[clean])result.push(clean);
     }
     return result;
   }
@@ -17743,16 +18444,20 @@ qmShowSharedGoal=function(state){
         worldCupCards=normaliseCards(eventRow?.cards);
       }
     }catch(_worldCupEventNotInstalled){}
+    const rawCopies=isPublic?normaliseCards(row?.cards):normaliseCardCopies(row?.cards);
+    const merged=isPublic
+      ?Array.from(new Set([...rawCopies,...worldCupCards]))
+      :[...rawCopies,...worldCupCards.filter(id=>!rawCopies.includes(id))];
     return {
       username:String(row?.username||username||character?.username||'Player'),
-      cards:Array.from(new Set([...normaliseCards(row?.cards),...worldCupCards])),
+      cards:merged,
       isPublic:Boolean(isPublic)
     };
   }
   function publishOwnTcgCollection(){
     window.__repoTcgOwnCollection={
       username:String(ownCollection?.username||character?.username||''),
-      cards:normaliseCards(ownCollection?.cards),
+      cards:normaliseCardCopies(ownCollection?.cards),
       loaded:Boolean(ownCollection?.loaded)
     };
     window.dispatchEvent(new CustomEvent('repo-tcg-own-collection-changed',{detail:window.__repoTcgOwnCollection}));
@@ -17889,7 +18594,7 @@ qmShowSharedGoal=function(state){
   const originalBankStandardItemSlot=bankStandardItemSlot;
   bankStandardItemSlot=function(id,qty){
     if(id!==PACK_ITEM_ID)return originalBankStandardItemSlot.apply(this,arguments);
-    return `<div class="bank-slot tcg-pack-bank-slot"><img src="${PACK_ASSET}" alt="Quidditch TCG Card Pack" class="bank-item-art tcg-pack-bank-art"><b>Quidditch TCG Card Pack</b><small>Contains one guaranteed new card.<br>No duplicates.</small><strong>${Number(qty).toLocaleString('en-GB')}</strong><button type="button" class="open-tcg-pack" data-open-tcg-pack>OPEN PACK</button></div>`;
+    return `<div class="bank-slot tcg-pack-bank-slot"><img src="${PACK_ASSET}" alt="Quidditch TCG Card Pack" class="bank-item-art tcg-pack-bank-art"><b>Quidditch TCG Card Pack</b><small>Standard cards: no duplicates.<br>Special cards can duplicate.</small><strong>${Number(qty).toLocaleString('en-GB')}</strong><button type="button" class="open-tcg-pack" data-open-tcg-pack>OPEN PACK</button></div>`;
   };
   function isPermanentAdminPackAccount(){
     return String(character?.username||'').trim().toLowerCase()==='admin';
@@ -17947,7 +18652,7 @@ qmShowSharedGoal=function(state){
     let dialog=document.getElementById('quidditchTcgPackDialog');
     if(dialog)return dialog;
     dialog=document.createElement('dialog');dialog.id='quidditchTcgPackDialog';dialog.className='quidditch-tcg-pack-dialog';
-    dialog.innerHTML=`<section class="quidditch-tcg-pack-shell"><button type="button" class="quidditch-tcg-pack-close" aria-label="Close pack opening">×</button><header><strong>QUIDDITCH TCG CARD PACK</strong><small>ONE GUARANTEED NEW CARD</small></header><div id="quidditchTcgPackStage" class="quidditch-tcg-pack-stage"></div><div id="quidditchTcgPackMessage" class="quidditch-tcg-pack-message"></div></section>`;
+    dialog.innerHTML=`<section class="quidditch-tcg-pack-shell"><button type="button" class="quidditch-tcg-pack-close" aria-label="Close pack opening">×</button><header><strong>QUIDDITCH TCG CARD PACK</strong><small>STANDARD DUPLICATE PROTECTION · SPECIAL DUPLICATES ENABLED</small></header><div id="quidditchTcgPackStage" class="quidditch-tcg-pack-stage"></div><div id="quidditchTcgPackMessage" class="quidditch-tcg-pack-message"></div></section>`;
     document.body.appendChild(dialog);
     dialog.querySelector('.quidditch-tcg-pack-close').addEventListener('click',()=>{if(!packOpening)dialog.close();});
     dialog.addEventListener('cancel',event=>{if(packOpening)event.preventDefault();});
@@ -17958,7 +18663,7 @@ qmShowSharedGoal=function(state){
     const stage=document.getElementById('quidditchTcgPackStage'),message=document.getElementById('quidditchTcgPackMessage');
     if(!stage||!message)return;
     stage.innerHTML=`<button type="button" class="tcg-pack-object" id="tcgPackObject"><img src="${PACK_ASSET}" alt="Quidditch TCG Card Pack"><span>CLICK THE PACK TO OPEN</span></button>`;
-    message.innerHTML='<b>One pack will be consumed when it opens.</b><small>You are guaranteed a card you do not already own.</small>';
+    message.innerHTML='<b>One pack will be consumed when it opens.</b><small>Standard cards never duplicate. Special rarities can be pulled multiple times.</small>';
     document.getElementById('tcgPackObject')?.addEventListener('click',openTcgPack);
   }
   function openTcgPackDialog(){
@@ -17976,7 +18681,7 @@ qmShowSharedGoal=function(state){
     const dialog=ensurePackDialog(),stage=document.getElementById('quidditchTcgPackStage'),message=document.getElementById('quidditchTcgPackMessage');
     dialog.classList.add('is-opening');playPackSound(.66);
     stage.innerHTML=`<div class="tcg-card-reveal"><div class="tcg-card-flipper" id="tcgCardFlipper"><div class="tcg-card-face tcg-card-back"><img src="${CARD_BACK_ASSET}" alt="Back of Quidditch trading card"></div><div class="tcg-card-face tcg-card-front"><img id="tcgRevealedCard" src="" alt=""></div></div><div class="tcg-card-sparkles" aria-hidden="true"></div></div>`;
-    message.innerHTML='<b>THE CARD IS CHOOSING YOU…</b><small>Hold on — your new card is being revealed.</small>';
+    message.innerHTML='<b>THE CARD IS CHOOSING YOU…</b><small>Standard pulls are duplicate-protected. Special pulls may be another physical copy.</small>';
     const started=performance.now();
     const revealDelay=3000+Math.random()*2000;
     const {data,error}=await db.rpc('open_quidditch_tcg_pack');
@@ -18009,12 +18714,14 @@ qmShowSharedGoal=function(state){
     playCardUnlockSound(isSignature||legendaryReveal||platinumReveal);
     requestAnimationFrame(()=>document.getElementById('tcgCardFlipper')?.classList.add('is-flipped'));
     const skillOne=skillLabel(row.skill_one),skillTwo=skillLabel(row.skill_two);
-    const rarityMessage=isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':(isPatch?'PATCH CARD UNLOCKED':'NEW CARD UNLOCKED')))));
-    message.innerHTML=`<b>${rarityMessage} — ${escapeHtml(card.name.toUpperCase())}</b><div class="tcg-xp-rewards"><span>+${Number(row.skill_one_xp||5000).toLocaleString('en-GB')} ${escapeHtml(skillOne)} XP</span><span>+${Number(row.skill_two_xp||10000).toLocaleString('en-GB')} ${escapeHtml(skillTwo)} XP</span></div><small>Added permanently to your Quidditch TCG Binder. Click outside to close.</small>`;
+    const copyCount=(Array.isArray(row?.owned_cards)?row.owned_cards:[]).filter(id=>String(id||'')===card.id).length;
+    const isDuplicate=copyCount>1&&String(card.rarity||'standard').toLowerCase()!=='standard';
+    const rarityMessage=isDuplicate?'DUPLICATE SPECIAL PULL':(isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':(isPatch?'PATCH CARD UNLOCKED':'NEW CARD UNLOCKED'))))));
+    message.innerHTML=`<b>${rarityMessage} — ${escapeHtml(card.name.toUpperCase())}</b><div class="tcg-xp-rewards"><span>+${Number(row.skill_one_xp||5000).toLocaleString('en-GB')} ${escapeHtml(skillOne)} XP</span><span>+${Number(row.skill_two_xp||10000).toLocaleString('en-GB')} ${escapeHtml(skillTwo)} XP</span></div><small>${isDuplicate?`Physical raw copy #${copyCount} added to your collection.`:'Added permanently to your Quidditch TCG collection.'} Click outside to close.</small>`;
     bankState=bankState||{gp:Number(character?.gp||0),items:{}};
     bankState.items=row.bank_items||bankState.items||{};
     ensurePermanentAdminPackInLocalBank();
-    const owned=normaliseCards(row.owned_cards);
+    const owned=normaliseCardCopies(row.owned_cards);
     ownCollection={username:character?.username||'',cards:owned,loaded:true};
     publishOwnTcgCollection();
     displayedCollection=displayedCollection.isPublic?displayedCollection:{...ownCollection,isPublic:false,loading:false,error:''};
@@ -18027,7 +18734,7 @@ qmShowSharedGoal=function(state){
     renderCharacter();
     if(document.getElementById('bankDialog')?.open)renderBank();
     renderBinderCards();updateTcgAchievementRow();
-    if(owned.length>=CARD_CATALOG.length)toast('Complete the Collection — every current Quidditch TCG card is unlocked!',6500);
+    if(normaliseCards(owned).length>=CARD_CATALOG.length)toast('Complete the Collection — every current Quidditch TCG card is unlocked!',6500);
     setTimeout(()=>{packOpening=false;dialog.classList.remove('is-opening');},760);
   }
 
@@ -19231,7 +19938,7 @@ qmShowSharedGoal=function(state){
     if(typeof qmWatcherProfileCache!=='undefined'){
       const cacheKey=typeof qmWatcherKey==='function'?qmWatcherKey(username):key(username);
       const existing=qmWatcherProfileCache.get(cacheKey)||{};
-      qmWatcherProfileCache.set(cacheKey,{...existing,username,favourite_quidditch_tcg_card:clean});
+      qmWatcherProfileCache.set(cacheKey,{...existing,username,favourite_quidditch_tcg_card:clean,favourite_rcg_slab_id:null,favourite_rcg_grade:null,favourite_rcg_certification:null});
     }
     window.dispatchEvent(new CustomEvent('repo-tcg-favourite-changed',{detail:{username:String(username||''),cardId:clean}}));
     queueDecoration();
@@ -19247,8 +19954,15 @@ qmShowSharedGoal=function(state){
         :await db.rpc('get_favourite_quidditch_tcg_cards',{p_usernames:[cleanName]});
       if(result?.error)throw result.error;
       const row=Array.isArray(result?.data)?result.data[0]:result?.data;
-      const favourite=cards[row?.favourite_card]?row.favourite_card:null;
+      const profileCard=cards[row?.favourite_card]?row.favourite_card:null;
+      const slabId=normal(row?.favourite_slab_id);
+      const favourite=slabId?null:profileCard;
       setCachedFavourite(row?.username||cleanName,favourite);
+      if(slabId&&typeof qmWatcherProfileCache!=='undefined'){
+        const cacheKey=typeof qmWatcherKey==='function'?qmWatcherKey(row?.username||cleanName):key(row?.username||cleanName);
+        const existing=qmWatcherProfileCache.get(cacheKey)||{};
+        qmWatcherProfileCache.set(cacheKey,{...existing,username:row?.username||cleanName,favourite_quidditch_tcg_card:profileCard,favourite_rcg_slab_id:slabId,favourite_rcg_grade:Number(row?.favourite_slab_grade)||null,favourite_rcg_certification:row?.favourite_slab_certification||null});
+      }
       return favourite;
     }catch(error){
       console.warn('Favourite Quidditch TCG card unavailable:',error);
@@ -32917,7 +33631,8 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     "Harmony Seeker","Harmony Keeper","Harmony Master","Harmony Enjoyer","The Harmonious","XP Hunter","XP Addict","Level Chaser","Skill Enjoyer","The Grinder",
     "RepoSports Fan","RepoSports Ultra","The Supporter","The Superfan","The Matchgoer","The Groundhopper","The Home End","The Away Day","The Neutral","The Glory Hunter",
     "Professional Idiot","Certified Menace","Local Nuisance","Absolute Weapon","Questionable Individual","Mildly Concerning","Probably AFK","Definitely AFK","Here for the XP","Here for the Free Pack",
-    "The Goblin","The Gremlin","The Rat","The Menace","The Problem","The Main Character","The Side Character","The Final Boss","Repo Company Royalty","Just Happy to Be Here"
+    "The Goblin","The Gremlin","The Rat","The Menace","The Problem","The Main Character","The Side Character","The Final Boss","Repo Company Royalty","Just Happy to Be Here",
+    ...ACHIEVEMENT_TITLE_POOL_V22
   ];
 
   const passportTitleServerCache = new Map();
@@ -33035,20 +33750,34 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   }
   function passportPopulateTitleSelect(){
     const select = passportEl('passportTitleSelect');
-    if(!select || select.dataset.ready === 'true') return;
-    REPO_PASSPORT_TITLES.forEach(title=>{
-      const option = document.createElement('option');
-      option.value = title;
-      option.textContent = title;
-      select.appendChild(option);
-    });
-    select.dataset.ready = 'true';
+    if(!select) return;
+    const unlocked=new Set(Array.isArray(window.__repoAchievementUnlockedTitlesV22)?window.__repoAchievementUnlockedTitlesV22:[]);
+    const selected=select.value||passportCurrentTitle(passportCurrentUsername());
+    const sig=[...unlocked].sort().join('|');
+    if(select.dataset.ready!=='true'||select.dataset.achievementSig!==sig){
+      select.innerHTML='';
+      const baseGroup=document.createElement('optgroup');baseGroup.label='BASE TITLES';
+      REPO_PASSPORT_TITLES.filter(title=>!ACHIEVEMENT_TITLE_POOL_V22.includes(title)).forEach(title=>{
+        const option=document.createElement('option');option.value=title;option.textContent=title;baseGroup.appendChild(option);
+      });
+      select.appendChild(baseGroup);
+      const achievementGroup=document.createElement('optgroup');achievementGroup.label='ACHIEVEMENT TITLES';
+      ACHIEVEMENT_TITLE_POOL_V22.forEach(title=>{
+        const option=document.createElement('option');option.value=title;const isUnlocked=unlocked.has(title)||selected===title;option.disabled=!isUnlocked;option.textContent=isUnlocked?title:`🔒 ${title}`;achievementGroup.appendChild(option);
+      });
+      select.appendChild(achievementGroup);
+      select.dataset.ready='true';select.dataset.achievementSig=sig;
+      if(REPO_PASSPORT_TITLES.includes(selected))select.value=selected;
+    }
+    if(select.dataset.changeBound==='true')return;
+    select.dataset.changeBound='true';
     select.addEventListener('change', async()=>{
       const user = passportCurrentUsername() || 'guest';
       const nextTitle=select.value;
       const cacheKey=passportTitleUserKey(user);
       const previousTitle=passportCurrentTitle(user);
       if(!REPO_PASSPORT_TITLES.includes(nextTitle))return;
+      if(ACHIEVEMENT_TITLE_POOL_V22.includes(nextTitle)&&!new Set(window.__repoAchievementUnlockedTitlesV22||[]).has(nextTitle))return;
 
       localStorage.setItem(passportKeyFor(user,'title'),nextTitle);
       passportTitleServerCache.set(cacheKey,nextTitle);
@@ -33075,6 +33804,9 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       if(typeof toast === 'function') toast(`Title updated to ${saved}.`, 2600);
     });
   }
+  window.repoPassportRefreshAchievementTitlesV22=()=>{
+    const select=passportEl('passportTitleSelect');if(select){select.dataset.ready='false';passportPopulateTitleSelect();const current=passportCurrentTitle(passportCurrentUsername());if(REPO_PASSPORT_TITLES.includes(current))select.value=current;}
+  };
   function passportHighestSkill(data = character){
     let best = PASSPORT_SKILLS[0];
     let bestLevel = -1;
@@ -33374,6 +34106,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   };
   const publicCollectionCache=new Map();
   const publicPassportTitleCache=new Map();
+  const publicAchievementCache=new Map();
   let hoverToken=0;
   let activeGuest=null;
 
@@ -33439,8 +34172,9 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     const petGoals=Number(profile?.top_pet_goals)||0;
     const petImage=typeof qmPetImageForProfile==='function'?qmPetImageForProfile(profile):'assets/pets/free_cat.svg';
     const card=favouriteCard(profile);
+    const favouriteIsSlab=Boolean(profile?.favourite_rcg_slab_id);
     const collection=publicCollectionCache.get(profileKey(name));
-    const cardCount=Array.isArray(collection?.cards)?collection.cards.length:null;
+    const cardCount=Array.isArray(collection?.cards)?new Set(collection.cards.map(id=>String(id||'').trim()).filter(Boolean)).size:null;
     const xp=totalXp(profile);
     const title=titleFor(name,profile);
     popup.innerHTML=`
@@ -33458,7 +34192,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       </div>
       <div class="repo-hover-passport-favourites">
         <div class="repo-hover-favourite"><small>FAVOURITE PET</small><span><img src="${esc(petImage)}" alt=""><b>${esc(petName)}</b><em>${petGoals?`${petGoals.toLocaleString('en-GB')} goals`:'Pet collection'}</em></span></div>
-        <div class="repo-hover-favourite"><small>FAVOURITE CARD</small><span><img src="${esc(card?.image||'assets/quidditch-tcg/card-back.png')}" alt=""><b>${esc(card?.name||'No favourite card')}</b><em>${card?'Quidditch TCG':'Not selected'}</em></span></div>
+        <div class="repo-hover-favourite"><small>FAVOURITE CARD</small><span><img src="${esc(card?.image||'assets/quidditch-tcg/card-back.png')}" alt=""><b>${esc(card?.name||'No favourite card')}</b><em>${card?(favouriteIsSlab?`RCG ${Number(profile?.favourite_rcg_grade)||'?'} · GRADED SLAB`:'Quidditch TCG'):'Not selected'}</em></span></div>
         <div class="repo-hover-favourite"><small>FAVOURITE SKILL</small><span><img src="${esc(skill.highest?.image||'assets/skills-icon.png')}" alt=""><b>${esc(skill.highest?.label||'Skill')}</b><em>Level ${Number(skill.highest?.level||1)}</em></span></div>
       </div>`;
 
@@ -34586,6 +35320,9 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
         </button>
         <button type="button" class="repo-dual-binder-shop-cta-v2066" aria-label="Visit RCG Grading Shop" title="Visit RCG Grading Shop">
           <img src="assets/rcg/rcg-grading-shop-cta.png" alt="Visit RCG Grading Shop — Submit, Grade, Collect" draggable="false">
+        </button>
+        <button type="button" class="repo-dual-binder-foil-cta-v2204" aria-label="Visit Foil and Fable" title="Visit Foil & Fable — Crack your slabs">
+          <img src="assets/foil-and-fable/foil-and-fable-cta.png" alt="Visit Foil and Fable — Crack your cards" draggable="false">
         </button>`;
       dialog.appendChild(shelf);
 
@@ -34599,8 +35336,13 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
         if(typeof window.openRepoEmptyRcgBinder==='function')window.openRepoEmptyRcgBinder();
       });
       shelf.querySelector('.repo-dual-binder-shop-cta-v2066')?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();});
+      shelf.querySelector('.repo-dual-binder-foil-cta-v2204')?.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();
+        try{window.openFoilAndFableShopV2204?.()}catch(error){console.warn('[FOIL & FABLE] could not open',error)}
+      });
       const preload=new Image();preload.src=RCG_COVER_V2041;
       const preloadShop=new Image();preloadShop.src='assets/rcg/rcg-grading-shop-cta.png';
+      const preloadFoil=new Image();preloadFoil.src='assets/foil-and-fable/foil-and-fable-cta.png';
     }
 
     // Always mirror the real working binder cover asset rather than duplicating
@@ -35654,7 +36396,9 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   ];
   let overlay=null;
   let selectedId='';
+  let selectedRawInstanceId='';
   let stagedId='';
+  let stagedRawInstanceId='';
   let searchText='';
   let sortMode='name';
   let filterMode='all';
@@ -35670,12 +36414,22 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   const dialog=()=>document.getElementById('repoRcgGradingShopDialogV2071');
   const catalog=()=>Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[];
   const byId=()=>window.__repoTcgCardById||Object.fromEntries(catalog().map(card=>[card.id,card]));
-  const currentCards=()=>{
-    const raw=Array.isArray(window.__repoTcgOwnCollection?.cards)?window.__repoTcgOwnCollection.cards:[];
-    const map=byId(),seen=new Set(),out=[];
-    raw.forEach(value=>{const id=normal(value);if(id&&map[id]&&!seen.has(id)){seen.add(id);out.push(map[id]);}});
+  const rawCopies=()=>Array.isArray(window.__repoTcgOwnCollection?.cards)?window.__repoTcgOwnCollection.cards.map(normal).filter(Boolean):[];
+  const crackedRaw=()=>Array.isArray(rcgState?.cracked_raw_cards)?rcgState.cracked_raw_cards:[];
+  const currentCardEntries=()=>{
+    const map=byId(),counts=new Map();
+    rawCopies().forEach(id=>counts.set(id,(counts.get(id)||0)+1));
+    const out=[];
+    for(const [id,total] of counts){
+      const card=map[id];if(!card||tier(card)==='STANDARD')continue;
+      const cracked=crackedRaw().filter(row=>normal(row?.card_id)===id);
+      cracked.forEach(row=>out.push({card,cardId:id,rawInstanceId:normal(row?.raw_instance_id),crackCount:Number(row?.crack_count)||0,copies:1,isCracked:true}));
+      const fresh=Math.max(0,total-cracked.length);
+      if(fresh>0)out.push({card,cardId:id,rawInstanceId:'',crackCount:0,copies:fresh,isCracked:false});
+    }
     return out;
   };
+  const currentCards=()=>Array.from(new Map(currentCardEntries().map(entry=>[entry.cardId,entry.card])).values());
   const tier=card=>{
     const id=String(card?.id||'').toLowerCase(),r=String(card?.rarity||'').toLowerCase();
     if(r)return r.replaceAll('_',' ').toUpperCase();
@@ -35701,8 +36455,8 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   );
   const isGuaranteedTen=id=>guaranteedTenSet().has(normal(id));
   const oddsForCard=id=>isGuaranteedTen(id)?{8:0,9:0,10:100}:odds();
-  const isLocked=id=>pendingSet().has(id);
-  const canSubmit=()=>Boolean(stagedId)&&!isLocked(stagedId)&&hasSubmissionCapacity()&&!submitting;
+  const isLocked=()=>false;
+  const canSubmit=()=>Boolean(stagedId)&&hasSubmissionCapacity()&&!submitting;
 
   function notify(message,duration=4200){
     try{if(typeof showToast==='function'){showToast(message,duration);return}}catch(_){ }
@@ -35857,7 +36611,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     }
     overlay.querySelector('.repo-rcg-submit-search-v2081')?.addEventListener('input',event=>{searchText=String(event.target.value||'');renderCards();});
     overlay.querySelector('.repo-rcg-submit-filter-v2081')?.addEventListener('click',()=>{
-      filterMode=filterMode==='all'?'standard':filterMode==='standard'?'special':'all';
+      filterMode=filterMode==='all'?'cracked':filterMode==='cracked'?'fresh':'all';
       renderCards();renderStatus();
     });
     overlay.querySelector('.repo-rcg-submit-sort-v2081')?.addEventListener('click',()=>{
@@ -35876,54 +36630,50 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
   function filteredCards(){
     const q=searchText.trim().toLowerCase();
-    let cards=currentCards().filter(card=>!q||String(card.name||'').toLowerCase().includes(q)||String(card.id||'').toLowerCase().includes(q));
-    if(filterMode==='standard')cards=cards.filter(card=>tier(card)==='STANDARD');
-    if(filterMode==='special')cards=cards.filter(card=>tier(card)!=='STANDARD');
-    cards.sort((a,b)=>sortMode==='tier'?(tier(a).localeCompare(tier(b))||String(a.name).localeCompare(String(b.name))):String(a.name).localeCompare(String(b.name)));
+    let cards=currentCardEntries().filter(entry=>!q||String(entry.card?.name||'').toLowerCase().includes(q)||String(entry.cardId||'').toLowerCase().includes(q));
+    if(filterMode==='cracked')cards=cards.filter(entry=>entry.isCracked);
+    if(filterMode==='fresh')cards=cards.filter(entry=>!entry.isCracked);
+    cards.sort((a,b)=>sortMode==='tier'?(tier(a.card).localeCompare(tier(b.card))||String(a.card?.name).localeCompare(String(b.card?.name))):String(a.card?.name).localeCompare(String(b.card?.name)));
     return cards;
   }
 
-  function chooseCard(id){
-    id=normal(id);if(!byId()[id])return;
-    selectedId=id;
-
-    if(pendingSet().has(id)){
-      stagedId='';
-      menuMessage='THIS CARD IS ALREADY AT RCG';
-    }else if(!hasSubmissionCapacity()){
-      stagedId='';
-      menuMessage=`RCG DESK FULL · ${activeOrders().length}/${maxActiveOrders()} CARDS IN GRADING`;
+  function chooseCard(id,rawInstanceId=''){
+    id=normal(id);rawInstanceId=normal(rawInstanceId);if(!byId()[id])return;
+    selectedId=id;selectedRawInstanceId=rawInstanceId;
+    stagedId=id;stagedRawInstanceId=rawInstanceId;
+    if(!hasSubmissionCapacity()){
+      stagedId='';stagedRawInstanceId='';menuMessage=`RCG DESK FULL · ${activeOrders().length}/${maxActiveOrders()} CARDS IN GRADING`;
     }else{
-      stagedId=id;
-      menuMessage=isGuaranteedTen(id)
-        ? `GUARANTEED RCG 10 · ${fmt(fee())} GP GRADING FEE`
-        : `${fmt(fee())} GP GRADING FEE · READY TO SUBMIT`;
+      const crack=crackedRaw().find(row=>normal(row?.raw_instance_id)===rawInstanceId);
+      const crackCount=Number(crack?.crack_count)||0;
+      menuMessage=crackCount>=3
+        ? `FINAL RE-GRADE · THIS NEXT SLAB WILL LOCK · ${fmt(fee())} GP`
+        : crackCount>0
+          ? `CRACKED COPY ${crackCount}/3 · ${fmt(fee())} GP GRADING FEE`
+          : isGuaranteedTen(id)?`GUARANTEED RCG 10 · ${fmt(fee())} GP GRADING FEE`:`${fmt(fee())} GP GRADING FEE · READY TO SUBMIT`;
     }
-
     renderDesk();
   }
 
   function stageSelected(){
     if(!selectedId)return;
-    if(pendingSet().has(selectedId)){menuMessage='THIS CARD IS ALREADY AT RCG';renderStatus();return;}
-    stagedId=selectedId;
+    stagedId=selectedId;stagedRawInstanceId=selectedRawInstanceId;
     menuMessage='CARD PLACED IN THE RCG SUBMISSION TRAY';
     renderDesk();
   }
 
   function renderCards(){
     const list=overlay?.querySelector('.repo-rcg-submit-card-list-v2081');if(!list)return;
-    const cards=filteredCards(),pending=pendingSet();
+    const entries=filteredCards();
     if(!window.__repoTcgOwnCollection?.loaded){list.innerHTML='<div class="repo-rcg-submit-empty-v2081">LOADING YOUR COLLECTION…</div>';return;}
-    if(!cards.length){list.innerHTML='<div class="repo-rcg-submit-empty-v2081">NO CARDS MATCH THIS VIEW</div>';return;}
-    list.innerHTML=cards.map(card=>{
-      const locked=pending.has(card.id);
-      const reason=pending.has(card.id)?'AT RCG':'';
-      return `<button type="button" class="repo-rcg-submit-card-v2081${selectedId===card.id?' is-selected':''}${locked?' is-locked':''}" data-card-id="${esc(card.id)}" title="${esc(card.name)}${reason?' · '+reason:''}"><img src="${esc(card.image)}" alt="${esc(card.name)}">${reason?`<span>${esc(reason)}</span>`:''}</button>`;
+    if(!entries.length){list.innerHTML='<div class="repo-rcg-submit-empty-v2081">NO GRADABLE CARDS MATCH THIS VIEW<br><small>STANDARD CARDS CANNOT BE GRADED</small></div>';return;}
+    list.innerHTML=entries.map(entry=>{
+      const card=entry.card;
+      const selected=selectedId===entry.cardId&&selectedRawInstanceId===entry.rawInstanceId;
+      const badge=entry.isCracked?`CRACK ${entry.crackCount}/3`:(entry.copies>1?`×${entry.copies}`:'');
+      return `<button type="button" class="repo-rcg-submit-card-v2081${selected?' is-selected':''}${entry.isCracked?' is-cracked-v2202':''}" data-card-id="${esc(entry.cardId)}" data-raw-instance-id="${esc(entry.rawInstanceId)}" title="${esc(card.name)}${entry.isCracked?` · Cracked ${entry.crackCount}/3`:entry.copies>1?` · ${entry.copies} raw copies`:''}"><img src="${esc(card.image)}" alt="${esc(card.name)}">${badge?`<span class="repo-rcg-copy-badge-v2202">${esc(badge)}</span>`:''}</button>`;
     }).join('');
-    list.querySelectorAll('[data-card-id]').forEach(btn=>{
-      btn.addEventListener('click',()=>chooseCard(btn.dataset.cardId));
-    });
+    list.querySelectorAll('[data-card-id]').forEach(btn=>btn.addEventListener('click',()=>chooseCard(btn.dataset.cardId,btn.dataset.rawInstanceId||'')));
   }
 
   function renderSelection(){
@@ -35936,9 +36686,11 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     if(info){
       info.classList.toggle('is-guaranteed-ten',Boolean(card&&isGuaranteedTen(card.id)));
       const o=oddsForCard(card?.id||'');
+      const cracked=crackedRaw().find(row=>normal(row?.raw_instance_id)===selectedRawInstanceId);
+      const crackCount=Number(cracked?.crack_count)||0;
       if(card){
         const p8=Number(o?.[8]??o?.['8']??65),p9=Number(o?.[9]??o?.['9']??25),p10=Number(o?.[10]??o?.['10']??10);
-        const state=pendingSet().has(card.id)?'AT RCG':isGuaranteedTen(card.id)?'GUARANTEED RCG 10':'READY TO SUBMIT';
+        const state=crackCount>=3?'FINAL RE-GRADE · SLAB LOCKS AFTER THIS':crackCount>0?`CRACKED RAW COPY · ${crackCount}/3`:isGuaranteedTen(card.id)?'GUARANTEED RCG 10':'READY TO SUBMIT';
         info.innerHTML=`
           <div class="repo-rcg-parchment-name-v2083">${esc(card.name)}</div>
           <div class="repo-rcg-parchment-tier-v2083">${esc(tier(card))}</div>
@@ -35973,7 +36725,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     let text=menuMessage;
     if(!text&&!hasSubmissionCapacity())text=`RCG DESK FULL · ${activeOrders().length}/${maxActiveOrders()} CARDS IN GRADING`;
     else if(!text&&!backendAvailable)text='RCG DESK READY · BACKEND STATUS UNAVAILABLE';
-    else if(!text)text=`${activeOrders().length} AT RCG · ${fmt(fee())} GP EACH · ${currentCards().length} CARDS AVAILABLE`;
+    else if(!text){const copies=currentCardEntries().reduce((sum,e)=>sum+Number(e.copies||1),0);text=`${activeOrders().length} AT RCG · ${fmt(fee())} GP EACH · ${copies} GRADABLE RAW COPIES`; }
     if(status)status.textContent=text;
     if(confirm){
       confirm.disabled=!canSubmit();
@@ -35987,7 +36739,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   async function openDesk(){
     ensureShopHotspots();ensureOverlay();
     if(!overlay)return;
-    selectedId='';stagedId='';searchText='';filterMode='all';sortMode='name';menuMessage='';
+    selectedId='';selectedRawInstanceId='';stagedId='';stagedRawInstanceId='';searchText='';filterMode='all';sortMode='name';menuMessage='';
     overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');
     const search=overlay.querySelector('.repo-rcg-submit-search-v2081');if(search)search.value='';
     renderDesk();
@@ -35998,7 +36750,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   function closeDesk(){
     if(!overlay)return;
     overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');
-    selectedId='';stagedId='';menuMessage='';submitting=false;
+    selectedId='';selectedRawInstanceId='';stagedId='';stagedRawInstanceId='';menuMessage='';submitting=false;
   }
 
   async function submitStagedCard(){
@@ -36007,7 +36759,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     if(typeof db==='undefined'||!db?.rpc){menuMessage='RCG BACKEND IS NOT AVAILABLE';renderStatus();return;}
     submitting=true;menuMessage='SECURING YOUR CARD FOR RCG…';renderStatus();
     try{
-      const {data,error}=await db.rpc('submit_rcg_grading',{p_card_id:stagedId});
+      const {data,error}=await db.rpc('submit_rcg_grading_v2',{p_card_id:stagedId,p_raw_instance_id:stagedRawInstanceId||null});
       if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;
       try{
@@ -38456,4 +39208,145 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   else {ensureButton();ensureOverlay();}
 
   window.repoRcgSlabBinderLibraryV2143={open,close,load};
+})();
+
+
+// ============================================================================
+// RCG v22.04 — FAVOURITE GRADED CARD + CRACK-LINEAGE BADGES
+// Slab cracking itself now lives exclusively at Gregg's Foil & Fable counter.
+// ============================================================================
+(function installRcgCrackAndFavouriteV2202(){
+  if(window.__repoRcgCrackFavouriteV2202)return;
+  window.__repoRcgCrackFavouriteV2202=true;
+  let meta=new Map();
+  let busy=false;
+  const normal=v=>String(v??'').trim();
+  const dialog=()=>document.getElementById('repoRcgBinderDialog');
+  const ownView=()=>!window.repoRcgConstructedSlabBinderV2118?.isPublicView?.();
+  const cardMap=()=>window.__repoTcgCardById||{};
+  const notify=(m,t=4200)=>{try{if(typeof showToast==='function')return showToast(m,t)}catch(_){}try{if(typeof toast==='function')return toast(m,t)}catch(_){}console.info('[RCG]',m)};
+  function slabName(s){return cardMap()[normal(s?.card_id)]?.name||normal(s?.card_id).replaceAll('_',' ')||'RCG slab'}
+  async function loadMeta(){
+    if(!ownView()||typeof db==='undefined'||!db?.rpc)return;
+    try{
+      const {data,error}=await db.rpc('get_my_rcg_state');if(error)throw error;
+      const state=Array.isArray(data)?data[0]:data;
+      meta=new Map((Array.isArray(state?.slabs)?state.slabs:[]).map(s=>[normal(s?.slab_id),s]));
+      decorate();updateCrackButton();
+    }catch(error){console.warn('[RCG v22.02] slab metadata unavailable',error)}
+  }
+  function ensureButton(){
+    // V22.04: cracking now belongs to Gregg at Foil & Fable. Remove the old
+    // binder-side utility button if an earlier cached render created it.
+    const btn=dialog()?.querySelector('#repoRcgCrackBtnV2202');
+    if(btn)btn.remove();
+    return null;
+  }
+  function updateCrackButton(){
+    ensureButton();
+  }
+  function decorate(){
+    const d=dialog(),book=d?.querySelector('#repoRcgConstructedBookV2118');if(!book)return;
+    const publicView=!ownView();
+    book.querySelectorAll('.repo-rcg-v2118-slab[data-slab-id]').forEach(node=>{
+      const id=normal(node.dataset.slabId),slab=meta.get(id);
+      node.classList.remove('is-crack-selected-v2202');
+      node.classList.toggle('is-crack-locked-v2202',Boolean(slab?.crack_locked)||Number(slab?.crack_count)>=3);
+      let fav=node.querySelector(':scope > .repo-rcg-favourite-slab-v2202');
+      if(publicView){fav?.remove();return;}
+      if(!fav){fav=document.createElement('button');fav.type='button';fav.className='repo-rcg-favourite-slab-v2202';fav.setAttribute('aria-label','Make this slab your favourite card');fav.draggable=false;node.appendChild(fav)}
+      const active=Boolean(slab?.is_favourite);fav.classList.toggle('is-active',active);
+      const favouriteText=active?'★':'☆';if(fav.textContent!==favouriteText)fav.textContent=favouriteText;
+      const favouriteTitle=active?'Favourite graded card — click to clear':'Make this graded slab your favourite card';if(fav.title!==favouriteTitle)fav.title=favouriteTitle;
+      if(Number(slab?.crack_count)>0&&!node.querySelector(':scope > .repo-rcg-crack-count-v2202')){const badge=document.createElement('span');badge.className='repo-rcg-crack-count-v2202';node.appendChild(badge)}
+      const badge=node.querySelector(':scope > .repo-rcg-crack-count-v2202');if(badge){const badgeText=slab?.crack_locked?'LOCKED':`CRACK ${Number(slab?.crack_count)||0}/3`;if(badge.textContent!==badgeText)badge.textContent=badgeText;const hideBadge=Number(slab?.crack_count)<=0;if(badge.hidden!==hideBadge)badge.hidden=hideBadge}
+    });
+  }
+  async function favourite(id,button){
+    if(busy||!ownView())return;const slab=meta.get(id);if(!slab)return;busy=true;button&&(button.disabled=true);
+    try{
+      const {error}=await db.rpc('set_my_rcg_favourite_slab',{p_slab_id:id});if(error)throw error;
+      const was=Boolean(slab.is_favourite);for(const value of meta.values())value.is_favourite=false;if(!was)slab.is_favourite=true;
+      decorate();
+      try{await window.repoTcgLoadFavouriteCard?.(String(character?.username||''))}catch(_){}
+      try{if(typeof qmRefreshWatcherProfiles==='function'&&character?.username)await qmRefreshWatcherProfiles([character.username],true)}catch(_){}
+      notify(was?'Favourite graded card cleared.':`${slabName(slab)} · RCG ${slab.grade} is now your favourite card.`);
+    }catch(error){notify(error?.message||'Could not update favourite slab.')}finally{busy=false;if(button?.isConnected)button.disabled=false;updateCrackButton()}
+  }
+  document.addEventListener('click',event=>{
+    const fav=event.target.closest?.('.repo-rcg-favourite-slab-v2202');
+    if(fav){event.preventDefault();event.stopPropagation();const node=fav.closest('.repo-rcg-v2118-slab[data-slab-id]');if(node)favourite(normal(node.dataset.slabId),fav);return;}
+  },true);
+  document.addEventListener('pointerdown',event=>{if(event.target.closest?.('.repo-rcg-favourite-slab-v2202'))event.stopPropagation()},true);
+  document.addEventListener('dragstart',event=>{if(event.target.closest?.('.repo-rcg-favourite-slab-v2202'))event.preventDefault()},true);
+  window.addEventListener('repo-rcg-slabs-changed',()=>setTimeout(loadMeta,120));
+  // V22.03 crash hotfix: V22.02 observed every mutation below <body> and then
+  // changed each slab's favourite-star text from inside that observer. Setting
+  // textContent creates another child-list mutation, so a binder containing a
+  // slab could enter a never-ending MutationObserver loop and freeze the page.
+  // Watch only the binder dialog, ignore mutations made inside a rendered slab,
+  // and coalesce genuine binder rebuilds into one decoration frame.
+  let bodyObserver=null;
+  let dialogObserver=null;
+  let observedDialog=null;
+  let decorateFrame=0;
+  function scheduleDecorate(){
+    if(decorateFrame)return;
+    decorateFrame=requestAnimationFrame(()=>{
+      decorateFrame=0;
+      if(!dialog()?.open)return;
+      ensureButton();
+      decorate();
+      updateCrackButton();
+    });
+  }
+  function bindDialogObserver(){
+    const d=dialog();
+    if(!d||d===observedDialog)return;
+    dialogObserver?.disconnect();
+    observedDialog=d;
+    dialogObserver=new MutationObserver(mutations=>{
+      let opened=false;
+      let binderRebuilt=false;
+      for(const mutation of mutations){
+        if(mutation.type==='attributes'){
+          if(mutation.target===d&&mutation.attributeName==='open'&&d.open)opened=true;
+          continue;
+        }
+        const target=mutation.target?.nodeType===1?mutation.target:mutation.target?.parentElement;
+        // Favourite buttons and crack badges are our own decorations. Their
+        // text/child changes must never schedule another decoration pass.
+        if(target?.closest?.('.repo-rcg-v2118-slab'))continue;
+        const changed=[...mutation.addedNodes,...mutation.removedNodes].some(node=>
+          node?.nodeType===1&&(
+            node.matches?.('#repoRcgConstructedBookV2118,.repo-rcg-v2118-slab')||
+            node.querySelector?.('#repoRcgConstructedBookV2118,.repo-rcg-v2118-slab')
+          )
+        );
+        if(changed)binderRebuilt=true;
+      }
+      if(opened){
+        scheduleDecorate();
+        void loadMeta();
+      }else if(binderRebuilt&&d.open){
+        scheduleDecorate();
+      }
+    });
+    dialogObserver.observe(d,{subtree:true,childList:true,attributes:true,attributeFilter:['open']});
+    if(d.open){scheduleDecorate();void loadMeta();}
+  }
+  const boot=()=>{
+    bodyObserver=new MutationObserver(mutations=>{
+      const addedDialog=mutations.some(mutation=>[...mutation.addedNodes].some(node=>
+        node?.nodeType===1&&(node.id==='repoRcgBinderDialog'||node.querySelector?.('#repoRcgBinderDialog'))
+      ));
+      if(addedDialog)bindDialogObserver();
+    });
+    // The binder dialog is a direct child of body; there is no reason to watch
+    // the rest of the site or any of the dialog's self-generated decorations.
+    bodyObserver.observe(document.body,{childList:true});
+    bindDialogObserver();
+    setInterval(()=>{if(dialog()?.open){bindDialogObserver();void loadMeta()}},4500);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

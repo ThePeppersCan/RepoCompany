@@ -7,7 +7,7 @@
 <title>Repo Company</title>
 <link href="favicon.png?v=repo-company-20260806-1" rel="icon" sizes="128x128" type="image/png"/>
 <link href="favicon.png?v=repo-company-20260806-1" rel="shortcut icon" type="image/png"/>
-<link href="style.css?v=v21-43-rcg-library-music-20260817" rel="stylesheet"/>
+<link href="style.css?v=v22-07-achievement-expansion-20260818" rel="stylesheet"/>
 <link href="repo-rooftops.css?v=repo-rooftops-20260810-2-0" rel="stylesheet"/>
 <link href="repoggle.css?v=repoggle-1" rel="stylesheet"/>
 <link href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260811-v38-16" rel="stylesheet"/>
@@ -3253,101 +3253,36 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </div>
 </section>
 </dialog>
-<dialog class="game-dialog achievements-dialog" id="achievementsDialog">
-<button aria-label="Close" class="dialog-x" data-close="achievementsDialog">×</button>
-<div class="achievement-heading">
-<img alt="Chef's hat" src="assets/chef_hat.png"/>
-<div><h3>ACHIEVEMENT LOG</h3><p>Achievements are grouped by minigame. Complete them once to unlock permanent rewards.</p></div>
-</div>
-<div class="achievement-login hidden" id="achievementLoginNotice">Log in to view and save your achievements.</div>
-<div class="achievement-groups" id="achievementGroups">
-<section class="achievement-group">
-<h4><img alt="" src="assets/cooking-icon-new.png"/> GNOME KITCHEN CHAOS</h4>
-<article class="achievement-entry" id="achievementCookingServe5">
-<div aria-hidden="true" class="achievement-check">○</div>
-<img alt="Chef's hat reward" class="achievement-reward-img" src="assets/chef_hat.png"/>
-<div class="achievement-copy"><strong>Kitchen Table Service</strong><span>Serve 5 tables within Gnome Kitchen Chaos.</span><small>Reward: Chef's hat added to your Bank inventory.</small></div>
-<b class="achievement-status">NOT COMPLETE</b>
-</article>
+<dialog class="game-dialog achievements-dialog repo-achievements-v22" id="achievementsDialog">
+<button aria-label="Close" class="dialog-x repo-achievements-close" data-close="achievementsDialog">×</button>
+<section class="repo-achievements-shell">
+  <div class="repo-achievements-header">
+    <div class="repo-achievements-emblem" aria-hidden="true"><img src="assets/achievement-log-icon.png" alt=""></div>
+    <div class="repo-achievements-titlecopy"><small>REPO COMPANY · ACCOUNT PROGRESSION</small><h2>ACHIEVEMENT LOG</h2><p>Master Velmora, collect prestige and unlock permanent Achievement Titles.</p></div>
+    <div class="repo-achievements-summary">
+      <div class="repo-achievements-ring" id="achievementCompletionRing"><strong id="achievementCompletionPercent">0%</strong><span>COMPLETE</span></div>
+      <div class="repo-achievements-summary-stat"><span>ACHIEVEMENT POINTS</span><strong id="achievementPointsTotal">0</strong><small id="achievementPointsMax">/ 0 AP</small></div>
+      <div class="repo-achievements-summary-stat"><span>COMPLETED</span><strong id="achievementCompletedTotal">0 / 0</strong><small id="achievementRarestLine">No achievements yet</small></div>
+    </div>
+  </div>
+  <div class="achievement-login hidden" id="achievementLoginNotice">Log in to view and save your achievements.</div>
+  <div class="repo-achievements-toolbar">
+    <label class="repo-achievements-search"><span>⌕</span><input id="achievementSearch" type="search" placeholder="Search achievements…" autocomplete="off"></label>
+    <select id="achievementStatusFilter"><option value="all">All progress</option><option value="incomplete">Incomplete</option><option value="completed">Completed</option><option value="almost">Almost complete</option></select>
+    <select id="achievementRewardFilter"><option value="all">All rewards</option><option value="title">Titles</option><option value="ap">Achievement Points</option><option value="legacy">Legacy rewards</option><option value="pet">Pet rewards</option></select>
+    <select id="achievementSort"><option value="default">Recommended</option><option value="progress">Completion %</option><option value="points">Achievement Points</option><option value="difficulty">Difficulty</option><option value="name">Name</option></select>
+  </div>
+  <div class="repo-achievements-layout">
+    <nav class="repo-achievements-sidebar" id="achievementCategoryNav"></nav>
+    <div class="repo-achievements-main">
+      <section class="repo-achievements-featured" id="achievementFeatured"></section>
+      <div class="repo-achievements-section-head"><div><small id="achievementSectionEyebrow">ALL ACHIEVEMENTS</small><h3 id="achievementSectionTitle">ALL</h3></div><span id="achievementSectionCount">0 achievements</span></div>
+      <div class="repo-achievements-list" id="achievementGroups"></div>
+      <div class="repo-achievements-empty hidden" id="achievementEmpty">No achievements match these filters.</div>
+    </div>
+  </div>
+  <div class="repo-achievements-footer"><span id="achievementMessage">Progress syncs automatically from your Repo Company account.</span><button type="button" id="achievementTitleShortcut">OPEN TITLE SELECTOR</button></div>
 </section>
-<section class="achievement-group">
-<h4><img alt="" src="assets/agility-icon.webp"/> ROOFTOP RUMBLE <small class="achievement-game-skill">AGILITY</small></h4>
-<article class="achievement-entry achievement-locked-future" id="achievementRooftopRumbleSkipper">
-<div aria-hidden="true" class="achievement-check">🔒</div>
-<span aria-label="Skipper pet reward" class="achievement-reward-img skipper-achievement-preview">
-<img alt="Skipper" src="assets/pets/skipper_achievement.png"/>
-</span>
-<div class="achievement-copy"><strong>Graceful Companion</strong><span>Unlock all Graceful items to get Skipper!</span><small>Reward: Skipper, the Repo Rooftops Agility pet. Graceful unlocks are coming later.</small></div>
-<b class="achievement-status">LOCKED</b>
-</article>
-</section>
-<section class="achievement-group achievement-coming">
-<h4>🏐 GNOME BALL</h4>
-<p>No achievements available yet.</p>
-</section>
-<section class="achievement-group">
-<h4><img alt="" src="assets/slayer-icon.png"/> JAD PRAYER-SWAP</h4>
-<article class="achievement-entry" id="achievementJadInsane">
-<div aria-hidden="true" class="achievement-check">○</div>
-<img alt="Fire cape reward" class="achievement-reward-img fire-cape-achievement-art" src="assets/fire_cape.png"/>
-<div class="achievement-copy"><strong>Fight Caves Master</strong><span>Defeat the Jad Simulator on Insane difficulty.</span><small>Reward: Fire cape added to your Bank inventory and equippable on pets.</small></div>
-<b class="achievement-status">NOT COMPLETE</b>
-</article>
-</section>
-<section class="achievement-group">
-<h4>⚔ REPO COMBAT SURVIVAL</h4>
-<article class="achievement-entry" id="achievementInfernoVeteran">
-<div aria-hidden="true" class="achievement-check">○</div>
-<img alt="Infernal cape reward" class="achievement-reward-img combat-cape-achievement-art" src="assets/infernal_cape.png"/>
-<div class="achievement-copy"><strong>Inferno Veteran</strong><span>Complete Inferno on Easy, Medium and Hard difficulty.</span><small>Reward: Infernal cape added to your Bank inventory and equippable on pets.</small></div>
-<b class="achievement-status">NOT COMPLETE</b>
-</article>
-<article class="achievement-entry" id="achievementInfernoInsane">
-<div aria-hidden="true" class="achievement-check">○</div>
-<img alt="Infernal max cape reward" class="achievement-reward-img combat-cape-achievement-art" src="assets/infernal_max_cape.png"/>
-<div class="achievement-copy"><strong>Inferno Grandmaster</strong><span>Complete Inferno on Insane difficulty.</span><small>Reward: Infernal max cape added to your Bank inventory and equippable on pets.</small></div>
-<b class="achievement-status">NOT COMPLETE</b>
-</article>
-<article class="achievement-entry" id="achievementLumbridgeVeteran">
-<div aria-hidden="true" class="achievement-check">○</div>
-<img alt="Bucket helm reward" class="achievement-reward-img bucket-achievement-art" src="assets/bucket_helm.png"/>
-<div class="achievement-copy"><strong>Lumbridge Veteran</strong><span>Complete Lumbridge on Easy, Medium and Hard difficulty.</span><small>Reward: Bucket helm added to your Bank inventory and equippable on pets.</small></div>
-<b class="achievement-status">NOT COMPLETE</b>
-</article>
-<article class="achievement-entry" id="achievementLumbridgeInsane">
-<div aria-hidden="true" class="achievement-check">○</div>
-<img alt="Golden bucket helm reward" class="achievement-reward-img bucket-achievement-art" src="assets/golden_bucket_helm.png"/>
-<div class="achievement-copy"><strong>Lumbridge Grandmaster</strong><span>Complete Lumbridge on Insane difficulty.</span><small>Reward: Golden bucket helm added to your Bank inventory and equippable on pets.</small></div>
-<b class="achievement-status">NOT COMPLETE</b>
-</article>
-</section>
-<section class="achievement-group achievement-coming">
-<h4><img alt="" src="assets/sailing-icon.webp"/> REPO COMPANY: HIGH SEAS</h4>
-<p>No achievements available yet.</p>
-</section>
-<section class="achievement-group">
-<h4><img alt="" src="assets/watering-can.png"/> RUNE-DLE</h4>
-<article class="achievement-entry" id="achievementRuneDleSuccess">
-<div aria-hidden="true" class="achievement-check">○</div>
-<img alt="Odd Spectacles reward" class="achievement-reward-img odd-spectacles-achievement-art" src="assets/odd_spectacles.png"/>
-<div class="achievement-copy"><strong>Patch Perfect</strong><span>Complete a successful round of Rune-Dle.</span><small>Reward: Odd Spectacles added to your Bank inventory and equippable on pets.</small></div>
-<b class="achievement-status">NOT COMPLETE</b>
-</article>
-</section>
-<section class="achievement-group achievement-coming">
-<h4><img alt="" src="assets/mining-icon.png"/> SHOOTING STAR</h4>
-<p>No achievements available yet.</p>
-</section>
-<section class="achievement-group achievement-coming">
-<h4><img alt="" src="assets/runecrafting-icon.png"/> RUNECRAFTING POOL</h4>
-<p>No achievements available yet.</p>
-</section>
-<section class="achievement-group achievement-coming">
-<h4><img alt="" src="assets/pet-wars-icon-new.png"/> PET WARS</h4>
-<p>No achievements available yet.</p>
-</section>
-</div>
-<p class="achievement-message" id="achievementMessage">Complete an achievement to tick it off permanently.</p>
 </dialog>
 <dialog class="game-dialog wide" id="skillsDialog">
 <button aria-label="Close" class="dialog-x" data-close="skillsDialog">×</button>
@@ -4300,7 +4235,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </div>
 </dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=v21-43-rcg-library-music-20260817"></script>
+<script src="script.js?v=v22-07-achievement-expansion-20260818"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
