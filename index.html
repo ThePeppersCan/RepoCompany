@@ -7,7 +7,7 @@
 <title>Repo Company</title>
 <link href="favicon.png?v=repo-company-20260806-1" rel="icon" sizes="128x128" type="image/png"/>
 <link href="favicon.png?v=repo-company-20260806-1" rel="shortcut icon" type="image/png"/>
-<link href="style.css?v=v22-14-1-duplicates-compact-wc-unique-20260818" rel="stylesheet"/>
+<link href="style.css?v=v22-15-5-newspaper-hover-cleanup-20260818" rel="stylesheet"/>
 <link href="repo-rooftops.css?v=repo-rooftops-20260810-2-0" rel="stylesheet"/>
 <link href="repoggle.css?v=repoggle-1" rel="stylesheet"/>
 <link href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260811-v38-16" rel="stylesheet"/>
@@ -2336,6 +2336,339 @@ button.qg-game-card{font:inherit;cursor:pointer}
 @media(max-width:620px){.wc-qf-team-selector{grid-template-columns:1fr}.wc-qf-admin-actions{grid-template-columns:1fr}.wc-qf-reveal-card{grid-template-columns:90px 1fr}.wc-qf-draw-stage{width:98vw}.wc-qf-draw-header{padding:18px 12px 14px}.wc-qf-broadcast{padding:10px}.world-cup-qf-draw-button{min-width:220px!important}}
 @media(prefers-reduced-motion:reduce){.world-cup-qf-draw-viewer,.wc-qf-flag-orbit,.wc-qf-reveal-card,.wc-qf-reveal-card::after,.world-cup-qf-draw-button::before{animation:none!important;transition:none!important}}
 </style>
+<style id="velmoraCrownNewspaperStyles">
+/* V22.15 — Velmora Crown newspaper teaser beneath the World Cup home button. */
+.signed-in-controls{overflow:visible!important}
+.world-cup-home-stack{
+  position:relative!important;
+  flex:0 0 108px!important;
+  width:108px!important;
+  min-width:108px!important;
+  height:47px!important;
+  min-height:47px!important;
+  overflow:visible!important;
+  z-index:46!important;
+}
+.world-cup-home-stack>.world-cup-event-tab{
+  width:108px!important;
+  min-width:108px!important;
+  margin:0!important;
+}
+.velmora-crown-newspaper-launcher{
+  position:absolute!important;
+  z-index:47!important;
+  left:50%!important;
+  top:50px!important;
+  width:82px!important;
+  height:82px!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:translateX(-50%) rotate(-2deg)!important;
+  cursor:pointer!important;
+  overflow:visible!important;
+  transition:transform .16s cubic-bezier(.2,.85,.25,1.15),filter .16s ease!important;
+}
+.velmora-crown-newspaper-launcher::before,
+.velmora-crown-newspaper-launcher::after{content:none!important;display:none!important}
+.velmora-crown-newspaper-launcher img{
+  display:block!important;
+  width:82px!important;
+  height:82px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  image-rendering:auto!important;
+  filter:drop-shadow(0 5px 4px rgba(0,0,0,.72))!important;
+  pointer-events:none!important;
+}
+.velmora-crown-newspaper-launcher:hover{
+  transform:translateX(-50%) translateY(-3px) rotate(1deg) scale(1.045)!important;
+  filter:brightness(1.035)!important;
+}
+.velmora-crown-newspaper-launcher:active{
+  transform:translateX(-50%) translateY(1px) rotate(-1deg) scale(.975)!important;
+}
+.velmora-crown-newspaper-launcher:focus-visible{
+  outline:2px solid #e0b54b!important;
+  outline-offset:3px!important;
+  border-radius:6px!important;
+}
+
+body.velmora-crown-newspaper-open{overflow:hidden!important}
+.velmora-crown-newspaper-viewer{
+  position:fixed!important;
+  inset:0!important;
+  z-index:100060!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:clamp(12px,2.2vw,34px)!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(30,38,55,.30),transparent 42%),
+    linear-gradient(rgba(0,0,0,.82),rgba(0,0,0,.95))!important;
+  backdrop-filter:blur(7px) brightness(.58)!important;
+  transition:opacity .26s ease,visibility 0s linear .26s!important;
+}
+.velmora-crown-newspaper-viewer.is-open{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity .26s ease!important;
+}
+.velmora-crown-billboard-stage{
+  position:relative!important;
+  width:min(98vw,1720px)!important;
+  max-height:96vh!important;
+  padding:clamp(12px,1.2vw,22px)!important;
+  perspective:1300px!important;
+  transform:translateY(8vh) scale(.86)!important;
+  opacity:0!important;
+  transition:transform .48s cubic-bezier(.16,.82,.22,1),opacity .28s ease!important;
+}
+.velmora-crown-newspaper-viewer.is-open .velmora-crown-billboard-stage{
+  transform:translateY(0) scale(1)!important;
+  opacity:1!important;
+}
+.velmora-crown-billboard{
+  position:relative!important;
+  width:100%!important;
+  max-height:94vh!important;
+  aspect-ratio:2048/1365!important;
+  padding:clamp(8px,.75vw,14px)!important;
+  border:clamp(5px,.55vw,9px) solid #2b271f!important;
+  outline:2px solid #987239!important;
+  outline-offset:-5px!important;
+  background:
+    linear-gradient(90deg,#211d17,#55452f 18%,#211d17 50%,#55452f 82%,#211d17)!important;
+  box-shadow:
+    0 28px 90px rgba(0,0,0,.92),
+    0 0 0 2px rgba(8,7,5,.95),
+    inset 0 0 0 2px rgba(213,169,86,.32),
+    inset 0 0 36px rgba(0,0,0,.72)!important;
+  transform:rotateX(4deg)!important;
+  transform-origin:50% 100%!important;
+  overflow:hidden!important;
+}
+.velmora-crown-newspaper-viewer.is-open .velmora-crown-billboard{
+  animation:velmoraCrownBillboardSettle .72s cubic-bezier(.18,.82,.22,1) both!important;
+}
+.velmora-crown-billboard::before,
+.velmora-crown-billboard::after{
+  content:""!important;
+  position:absolute!important;
+  z-index:5!important;
+  top:8px!important;
+  bottom:8px!important;
+  width:8px!important;
+  border-radius:999px!important;
+  background:repeating-radial-gradient(circle at 50% 10px,#f4d785 0 2px,#916727 2.5px 4px,transparent 4.5px 18px)!important;
+  opacity:.68!important;
+  pointer-events:none!important;
+}
+.velmora-crown-billboard::before{left:5px!important}
+.velmora-crown-billboard::after{right:5px!important}
+.velmora-crown-billboard-image{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:calc(94vh - 34px)!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  background:#bda476!important;
+  image-rendering:auto!important;
+  box-shadow:inset 0 0 24px rgba(0,0,0,.42)!important;
+}
+.velmora-crown-billboard-sheen{
+  position:absolute!important;
+  z-index:4!important;
+  inset:clamp(12px,1vw,20px)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.velmora-crown-billboard-sheen::before{
+  content:""!important;
+  position:absolute!important;
+  left:-40%!important;
+  top:-35%!important;
+  width:18%!important;
+  height:180%!important;
+  opacity:0!important;
+  background:linear-gradient(90deg,transparent,rgba(255,245,211,.19),transparent)!important;
+  transform:rotate(13deg)!important;
+}
+.velmora-crown-newspaper-viewer.is-open .velmora-crown-billboard-sheen::before{
+  animation:velmoraCrownBillboardSheen 1.18s ease-out .42s 1 both!important;
+}
+.velmora-crown-billboard-lamp{
+  position:absolute!important;
+  z-index:-1!important;
+  top:-8%!important;
+  width:34%!important;
+  height:42%!important;
+  opacity:.42!important;
+  pointer-events:none!important;
+  filter:blur(5px)!important;
+  background:conic-gradient(from 160deg at 50% 0,transparent 0 25%,rgba(255,222,150,.24) 29% 40%,transparent 44% 100%)!important;
+}
+.velmora-crown-billboard-lamp.is-left{left:-13%!important;transform:rotate(-14deg)!important}
+.velmora-crown-billboard-lamp.is-right{right:-13%!important;transform:scaleX(-1) rotate(-14deg)!important}
+.velmora-crown-newspaper-close{
+  position:absolute!important;
+  z-index:12!important;
+  right:clamp(2px,.45vw,8px)!important;
+  top:clamp(2px,.45vw,8px)!important;
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  min-height:42px!important;
+  padding:0!important;
+  border:2px solid #c69a45!important;
+  outline:1px solid #0a0907!important;
+  background:linear-gradient(180deg,#332c21,#16130f)!important;
+  color:#f3ddb0!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.72),inset 0 0 0 1px rgba(255,230,167,.15)!important;
+  font:900 27px/1 Georgia,serif!important;
+  cursor:pointer!important;
+  transition:transform .14s ease,filter .14s ease!important;
+}
+.velmora-crown-newspaper-close:hover{filter:brightness(1.18)!important;transform:scale(1.04)!important}
+.velmora-crown-newspaper-close:active{transform:scale(.95)!important}
+.velmora-crown-newspaper-close:focus-visible{outline:2px solid #ffe4a2!important;outline-offset:3px!important}
+@keyframes velmoraCrownBillboardSettle{
+  0%{transform:rotateX(9deg) rotateZ(-.8deg) scale(.96)}
+  62%{transform:rotateX(-1.2deg) rotateZ(.22deg) scale(1.006)}
+  100%{transform:rotateX(0) rotateZ(0) scale(1)}
+}
+@keyframes velmoraCrownBillboardSheen{
+  0%{left:-38%;opacity:0}
+  22%{opacity:.7}
+  100%{left:126%;opacity:0}
+}
+@media(max-width:760px){
+  .velmora-crown-newspaper-launcher{width:68px!important;height:68px!important;top:49px!important}
+  .velmora-crown-newspaper-launcher img{width:68px!important;height:68px!important}
+  .velmora-crown-billboard-stage{width:98vw!important;padding:6px!important}
+  .velmora-crown-billboard{padding:7px!important;border-width:5px!important}
+  .velmora-crown-newspaper-close{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;font-size:23px!important}
+}
+/* V22.15.2 — Dashboard clipping fix. The V20 dashboard deliberately clips
+   .character-box to the 60px command strip; the Crown teaser lives beneath the
+   World Cup button, so that clipping hid it completely. */
+#repoDashboardV20 .character-box{
+  overflow:visible!important;
+}
+#repoDashboardV20 .signed-in-controls{
+  overflow:visible!important;
+}
+#repoDashboardV20 .world-cup-home-stack{
+  overflow:visible!important;
+  isolation:visible!important;
+  z-index:80!important;
+}
+#repoDashboardV20 .velmora-crown-newspaper-launcher{
+  display:grid!important;
+  place-items:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  z-index:999!important;
+  top:52px!important;
+}
+#repoDashboardV20 .velmora-crown-newspaper-launcher img{
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+
+/* V22.15.3 — The Crown teaser belongs under the floating TOP-LEFT World Cup Menu
+   (#repoWorldCupBarryNotice), not under the header Repo Sports World Cup tab.
+   JS moves the launcher to <body>; these rules then anchor it to the viewport. */
+.velmora-crown-newspaper-launcher.is-world-cup-corner{
+  position:fixed!important;
+  left:var(--velmora-crown-left,60px)!important;
+  top:var(--velmora-crown-top,138px)!important;
+  z-index:2147481399!important;
+  display:none!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  width:82px!important;
+  height:82px!important;
+  transform:translateX(-50%) rotate(-2deg)!important;
+}
+.velmora-crown-newspaper-launcher.is-world-cup-corner.is-visible-under-world-cup{display:grid!important;place-items:center!important}
+.velmora-crown-newspaper-launcher.is-world-cup-corner:hover{transform:translateX(-50%) translateY(-3px) rotate(1deg) scale(1.045)!important}
+.velmora-crown-newspaper-launcher.is-world-cup-corner:active{transform:translateX(-50%) translateY(1px) rotate(-1deg) scale(.975)!important}
+.velmora-crown-newspaper-viewer{z-index:2147483000!important}
+@media(max-width:760px){
+  .velmora-crown-newspaper-launcher.is-world-cup-corner{
+    position:fixed!important;
+    left:var(--velmora-crown-left,58px)!important;
+    top:var(--velmora-crown-top,138px)!important;
+    width:68px!important;
+    height:68px!important;
+  }
+  .velmora-crown-newspaper-launcher.is-world-cup-corner img{width:68px!important;height:68px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .velmora-crown-newspaper-launcher,
+  .velmora-crown-newspaper-viewer,
+  .velmora-crown-billboard-stage,
+  .velmora-crown-billboard,
+  .velmora-crown-billboard-sheen::before{transition:none!important;animation:none!important}
+}
+</style>
+
+<style id="v22155-newspaper-hover-cleanup">
+
+/* V22.15.5 — isolate the Crown newspaper sprite from generic button hover skins. */
+html body .velmora-crown-newspaper-launcher,
+html body .velmora-crown-newspaper-launcher:hover,
+html body .velmora-crown-newspaper-launcher:active,
+html body .velmora-crown-newspaper-launcher:focus,
+html body .velmora-crown-newspaper-launcher.is-world-cup-corner,
+html body .velmora-crown-newspaper-launcher.is-world-cup-corner:hover,
+html body .velmora-crown-newspaper-launcher.is-world-cup-corner:active,
+html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-color:transparent!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  outline:0!important;
+  text-shadow:none!important;
+}
+html body .velmora-crown-newspaper-launcher:hover::before,
+html body .velmora-crown-newspaper-launcher:hover::after,
+html body .velmora-crown-newspaper-launcher.is-world-cup-corner:hover::before,
+html body .velmora-crown-newspaper-launcher.is-world-cup-corner:hover::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+}
+html body .velmora-crown-newspaper-launcher:focus-visible,
+html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
+  outline:2px solid #e0b54b!important;
+  outline-offset:3px!important;
+  border-radius:6px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+</style>
 </head>
 <body>
 <audio aria-hidden="true" id="signedOutNatureAudio" loop="" preload="auto" src="assets/signed-out-nature.mp3"></audio>
@@ -2352,10 +2685,15 @@ button.qg-game-card{font:inherit;cursor:pointer}
 <button class="header-quick-button bank-open-button" id="openBank" type="button"><img alt="" height="25" src="assets/gold-pieces.png" width="25"/><span>BANK</span></button>
 <button class="header-quick-button skills-open-button" disabled="" id="openSkills" type="button"><img alt="" height="25" src="assets/skills-icon.png" width="25"/><span>SKILLS</span></button>
 <button class="header-quick-button pets-open-button" disabled="" id="openPets" type="button"><img alt="" height="25" src="assets/pets-icon.png" width="25"/><span>PETS</span></button>
+<div class="world-cup-home-stack">
 <button aria-label="Repo Sports World Cup special event — coming soon" class="header-quick-button world-cup-event-tab" id="openWorldCupEvent" title="Repo Sports World Cup — Special Event" type="button">
 <span aria-hidden="true" class="world-cup-event-spark"></span>
 <img alt="Repo Sports World Cup" height="40" src="assets/repo-sports-world-cup-tab.png" width="72"/>
 </button>
+<button aria-label="Open The Velmora Crown newspaper" class="velmora-crown-newspaper-launcher" id="openVelmoraCrownNewspaper" title="The Velmora Crown — Coming September" type="button">
+<img alt="The Velmora Crown newspaper" src="assets/velmora-crown/velmora-crown-newspaper-button.png"/>
+</button>
+</div>
 <button aria-label="Open Legacy Quidditch Mode" class="header-quick-button legacy-quidditch-tab" hidden="" id="openQuidditchMode" style="display:none!important" title="Legacy Quidditch Mode — results are not recorded" type="button">
 <img alt="Repo Sports Legacy Mode" height="46" src="assets/repo-sports-legacy-mode-tab.png" width="102"/>
 </button>
@@ -2373,6 +2711,18 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </div>
 </div>
 </header>
+<div aria-hidden="true" aria-label="The Velmora Crown newspaper" aria-modal="true" class="velmora-crown-newspaper-viewer" id="velmoraCrownNewspaperViewer" role="dialog" tabindex="-1">
+  <div class="velmora-crown-billboard-stage">
+    <span aria-hidden="true" class="velmora-crown-billboard-lamp is-left"></span>
+    <span aria-hidden="true" class="velmora-crown-billboard-lamp is-right"></span>
+    <div class="velmora-crown-billboard">
+      <img alt="Repo Sports — The Velmora Crown illustrated newspaper spread" class="velmora-crown-billboard-image" src="assets/velmora-crown/velmora-crown-newspaper-spread.png"/>
+      <span aria-hidden="true" class="velmora-crown-billboard-sheen"></span>
+    </div>
+    <button aria-label="Close The Velmora Crown" class="velmora-crown-newspaper-close" id="closeVelmoraCrownNewspaper" type="button">×</button>
+  </div>
+  <audio aria-hidden="true" id="velmoraCrownNewspaperMusic" loop preload="auto" src="assets/velmora-crown/velmora-crown-newspaper-music.mp3"></audio>
+</div>
 <div aria-hidden="true" aria-label="Repo Sports World Cup" aria-modal="true" class="world-cup-tv-ident" id="worldCupTvIdent" role="dialog">
 <div aria-hidden="true" class="world-cup-tv-stage">
 <img alt="" class="world-cup-tv-image" src="assets/repo-sports-world-cup-tv.png"/>
@@ -4235,7 +4585,7 @@ button.qg-game-card{font:inherit;cursor:pointer}
 </div>
 </dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=v22-14-1-duplicates-compact-wc-unique-20260818"></script>
+<script src="script.js?v=v22-15-5-newspaper-hover-cleanup-20260818"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -4679,9 +5029,9 @@ window.__QD_HOST__={
 
   const startMenuMusic = () => {
     if (window.__repoBinderTeamMusicActive) { stopAudio(menuMusic); return; }
-    menuMusic.volume = 0.30;
+    menuMusic.volume = 0.075;
     stopAudio(menuMusic);
-    menuMusic.volume = 0.30;
+    menuMusic.volume = 0.075;
     const playPromise = menuMusic.play();
     if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
   };
@@ -4724,7 +5074,7 @@ window.__QD_HOST__={
   const resumeWorldCupMenuMusic = () => {
     if (window.__repoBinderTeamMusicActive) { stopAudio(menuMusic); return; }
     if (!overlay.classList.contains('is-event-open') || closing) return;
-    menuMusic.volume = 0.30;
+    menuMusic.volume = 0.075;
     const playPromise = menuMusic.play();
     if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
   };
@@ -5098,7 +5448,7 @@ window.__QD_HOST__={
     if (window.__repoBinderTeamMusicActive) { try { menuMusic.pause(); menuMusic.currentTime=0; } catch (_) {} return; }
     if (!overlay.classList.contains('is-event-open') || closing || meetTeamsViewer.classList.contains('is-open')) return;
     try {
-      menuMusic.volume=0.30;
+      menuMusic.volume=0.075;
       const playing=menuMusic.play();
       if(playing?.catch)playing.catch(()=>{});
     } catch (_) {}
@@ -7748,5 +8098,141 @@ window.__QD_HOST__={
   openBtn.addEventListener('click',()=>{stop();updatePreview();document.getElementById('adminDropdown')?.classList.add('hidden');document.getElementById('adminButton')?.setAttribute('aria-expanded','false');dialog.showModal?.()});closeBtn?.addEventListener('click',()=>{stop();dialog.close()});dialog.addEventListener('cancel',()=>stop());dialog.addEventListener('close',()=>stop());document.getElementById('adminRepoCommentatorPlay')?.addEventListener('click',play);document.getElementById('adminRepoCommentatorStop')?.addEventListener('click',stop);document.getElementById('adminRepoCommentatorRandom')?.addEventListener('click',randomise);[home,away,arena,template].forEach(el=>el.addEventListener('change',updatePreview));updatePreview();
 })();
 </script>
+<!-- V22.15.5: newspaper hover skin isolation; no brown hover box -->
+<!-- V22.15.4: replacement Crown spread, larger billboard, newspaper 30%, World Cup menu 7.5% -->
+<script id="velmoraCrownNewspaperScript">
+(()=>{
+  const openButton=document.getElementById('openVelmoraCrownNewspaper');
+  const viewer=document.getElementById('velmoraCrownNewspaperViewer');
+  const closeButton=document.getElementById('closeVelmoraCrownNewspaper');
+  const music=document.getElementById('velmoraCrownNewspaperMusic');
+  if(!openButton||!viewer||!closeButton||!music)return;
+
+  let previousFocus=null;
+  let audioFrame=0;
+  const clamp=v=>Math.max(0,Math.min(.3,Number(v)||0));
+  const cancelFade=()=>{if(audioFrame)cancelAnimationFrame(audioFrame);audioFrame=0};
+  const fadeMusic=(target,duration=420,stopAtEnd=false)=>{
+    cancelFade();
+    const from=Number.isFinite(music.volume)?music.volume:0;
+    const to=clamp(target);
+    const started=performance.now();
+    const tick=now=>{
+      const t=Math.min(1,(now-started)/Math.max(1,duration));
+      const eased=1-Math.pow(1-t,3);
+      try{music.volume=clamp(from+(to-from)*eased)}catch(_){}
+      if(t<1)audioFrame=requestAnimationFrame(tick);
+      else{
+        audioFrame=0;
+        if(stopAtEnd&&to<=.001){try{music.pause();music.currentTime=0;music.volume=.3}catch(_){}}
+      }
+    };
+    audioFrame=requestAnimationFrame(tick);
+  };
+
+  const startMusic=()=>{
+    cancelFade();
+    try{
+      music.pause();
+      music.currentTime=0;
+      music.volume=0;
+      const result=music.play();
+      result?.catch?.(()=>{});
+      fadeMusic(.3,620,false);
+    }catch(_){}
+  };
+  const stopMusic=()=>fadeMusic(0,320,true);
+
+  const open=()=>{
+    if(viewer.classList.contains('is-open'))return;
+    previousFocus=document.activeElement;
+    viewer.classList.add('is-open');
+    viewer.setAttribute('aria-hidden','false');
+    document.body.classList.add('velmora-crown-newspaper-open');
+    startMusic();
+    requestAnimationFrame(()=>closeButton.focus({preventScroll:true}));
+  };
+  const close=()=>{
+    if(!viewer.classList.contains('is-open'))return;
+    viewer.classList.remove('is-open');
+    viewer.setAttribute('aria-hidden','true');
+    document.body.classList.remove('velmora-crown-newspaper-open');
+    stopMusic();
+    try{previousFocus?.focus?.({preventScroll:true})}catch(_){}
+  };
+
+  openButton.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();open()});
+  closeButton.addEventListener('click',close);
+  viewer.addEventListener('click',event=>{if(event.target===viewer)close()});
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&viewer.classList.contains('is-open')){
+      event.preventDefault();event.stopPropagation();close();
+    }
+  },true);
+})();
+</script>
+
+<script id="velmoraCrownWorldCupCornerFix">
+/* V22.15.3 — physically mount the newspaper beneath the floating top-left
+   World Cup Menu button. This intentionally ignores the header World Cup tab. */
+(()=>{
+  const launcher=document.getElementById('openVelmoraCrownNewspaper');
+  if(!launcher)return;
+
+  // Escape the header/flex layout entirely so fixed positioning is relative to viewport.
+  if(launcher.parentElement!==document.body)document.body.appendChild(launcher);
+  launcher.classList.add('is-world-cup-corner');
+
+  let target=null;
+  let resizeObserver=null;
+  let attributeObserver=null;
+  let searchObserver=null;
+
+  const position=()=>{
+    if(!target||!target.isConnected)return;
+    const r=target.getBoundingClientRect();
+    const visible=target.classList.contains('is-visible')&&r.width>10&&r.height>10&&getComputedStyle(target).display!=='none';
+    launcher.classList.toggle('is-visible-under-world-cup',visible);
+    if(!visible)return;
+    // Centre the rolled newspaper under the actual WORLD CUP MENU sprite.
+    const left=r.left+(r.width/2);
+    const top=r.bottom+3;
+    launcher.style.setProperty('--velmora-crown-left',`${Math.round(left*10)/10}px`);
+    launcher.style.setProperty('--velmora-crown-top',`${Math.round(top*10)/10}px`);
+  };
+
+  const bind=button=>{
+    if(!button||button===target)return;
+    target=button;
+    searchObserver?.disconnect();
+    resizeObserver?.disconnect();
+    attributeObserver?.disconnect();
+    if('ResizeObserver' in window){
+      resizeObserver=new ResizeObserver(position);
+      resizeObserver.observe(target);
+    }
+    attributeObserver=new MutationObserver(position);
+    attributeObserver.observe(target,{attributes:true,attributeFilter:['class','style','hidden']});
+    position();
+    requestAnimationFrame(position);
+    setTimeout(position,120);
+    setTimeout(position,500);
+  };
+
+  const findTarget=()=>{
+    const button=document.getElementById('repoWorldCupBarryNotice');
+    if(button){bind(button);return true}
+    return false;
+  };
+
+  if(!findTarget()){
+    searchObserver=new MutationObserver(()=>findTarget());
+    searchObserver.observe(document.body,{childList:true,subtree:true});
+  }
+  window.addEventListener('resize',position,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(position,80),{passive:true});
+})();
+</script>
+
 </body>
 </html>

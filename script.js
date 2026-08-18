@@ -18582,7 +18582,7 @@ qmShowSharedGoal=function(state){
     layer.style.setProperty('transform','none','important');
   }
   function renderBinderCards(){
-    window.__repoTcgDisplayedCollection={username:displayedCollection.username,cards:normaliseCards(displayedCollection.cards),isPublic:displayedCollection.isPublic,loading:displayedCollection.loading,error:displayedCollection.error};
+    window.__repoTcgDisplayedCollection={username:displayedCollection.username,cards:displayedCollection.isPublic?normaliseCards(displayedCollection.cards):normaliseCardCopies(displayedCollection.cards),isPublic:displayedCollection.isPublic,loading:displayedCollection.loading,error:displayedCollection.error};
     const layer=document.getElementById('quidditchTcgBinderCards');
     const owner=document.getElementById('quidditchTcgBinderOwner');
     if(!layer)return;
@@ -18624,7 +18624,7 @@ qmShowSharedGoal=function(state){
     enhanceBinderUi();renderBinderCards();
     fetchTcgCollection(username||null).then(collection=>{
       displayedCollection={...collection,loading:false,error:''};
-      if(!username)ownCollection={...collection,loaded:true};
+      if(!username){ownCollection={...collection,loaded:true};publishOwnTcgCollection();}
       renderBinderCards();updateTcgAchievementRow();
     }).catch(error=>{
       console.error('Could not open Quidditch TCG binder.',error);
@@ -19229,7 +19229,7 @@ qmShowSharedGoal=function(state){
   SPREAD_COUNT=Math.max(8,Math.ceil(catalog.length/SLOTS_PER_SPREAD));
   TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   const map=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
-  const current=()=>window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[]};
+  const current=()=>{const shown=window.__repoTcgDisplayedCollection||{username:(typeof character!=='undefined'&&character?.username)||'guest',cards:[],isPublic:false};if(!shown.isPublic&&window.__repoTcgOwnCollection?.loaded)return {...shown,cards:Array.isArray(window.__repoTcgOwnCollection.cards)?window.__repoTcgOwnCollection.cards:shown.cards};return shown};
   const owner=()=>String(current().username||'guest').trim().toLowerCase();
   const isPublicView=()=>Boolean(current().isPublic);
   // Keep the previous key so every player's REAL multi-spread browser arrangement survives untouched.
@@ -36505,8 +36505,10 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   let overlay=null;
   let selectedId='';
   let selectedRawInstanceId='';
+  let selectedCopyToken='';
   let stagedId='';
   let stagedRawInstanceId='';
+  let stagedCopyToken='';
   let searchText='';
   let sortMode='name';
   let filterMode='all';
@@ -36531,9 +36533,9 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     for(const [id,total] of counts){
       const card=map[id];if(!card||tier(card)==='STANDARD')continue;
       const cracked=crackedRaw().filter(row=>normal(row?.card_id)===id);
-      cracked.forEach(row=>out.push({card,cardId:id,rawInstanceId:normal(row?.raw_instance_id),crackCount:Number(row?.crack_count)||0,copies:1,isCracked:true}));
+      cracked.forEach((row,index)=>out.push({card,cardId:id,rawInstanceId:normal(row?.raw_instance_id),copyToken:`cracked:${normal(row?.raw_instance_id)||index+1}`,copyIndex:index+1,totalCopies:cracked.length,crackCount:Number(row?.crack_count)||0,copies:1,isCracked:true}));
       const fresh=Math.max(0,total-cracked.length);
-      if(fresh>0)out.push({card,cardId:id,rawInstanceId:'',crackCount:0,copies:fresh,isCracked:false});
+      for(let index=0;index<fresh;index++)out.push({card,cardId:id,rawInstanceId:'',copyToken:`fresh:${id}:${index+1}`,copyIndex:index+1,totalCopies:fresh,crackCount:0,copies:1,isCracked:false});
     }
     return out;
   };
@@ -36745,12 +36747,12 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     return cards;
   }
 
-  function chooseCard(id,rawInstanceId=''){
-    id=normal(id);rawInstanceId=normal(rawInstanceId);if(!byId()[id])return;
-    selectedId=id;selectedRawInstanceId=rawInstanceId;
-    stagedId=id;stagedRawInstanceId=rawInstanceId;
+  function chooseCard(id,rawInstanceId='',copyToken=''){
+    id=normal(id);rawInstanceId=normal(rawInstanceId);copyToken=normal(copyToken);if(!byId()[id])return;
+    selectedId=id;selectedRawInstanceId=rawInstanceId;selectedCopyToken=copyToken;
+    stagedId=id;stagedRawInstanceId=rawInstanceId;stagedCopyToken=copyToken;
     if(!hasSubmissionCapacity()){
-      stagedId='';stagedRawInstanceId='';menuMessage=`RCG DESK FULL · ${activeOrders().length}/${maxActiveOrders()} CARDS IN GRADING`;
+      stagedId='';stagedRawInstanceId='';stagedCopyToken='';menuMessage=`RCG DESK FULL · ${activeOrders().length}/${maxActiveOrders()} CARDS IN GRADING`;
     }else{
       const crack=crackedRaw().find(row=>normal(row?.raw_instance_id)===rawInstanceId);
       const crackCount=Number(crack?.crack_count)||0;
@@ -36765,7 +36767,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
   function stageSelected(){
     if(!selectedId)return;
-    stagedId=selectedId;stagedRawInstanceId=selectedRawInstanceId;
+    stagedId=selectedId;stagedRawInstanceId=selectedRawInstanceId;stagedCopyToken=selectedCopyToken;
     menuMessage='CARD PLACED IN THE RCG SUBMISSION TRAY';
     renderDesk();
   }
@@ -36777,11 +36779,12 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     if(!entries.length){list.innerHTML='<div class="repo-rcg-submit-empty-v2081">NO GRADABLE CARDS MATCH THIS VIEW<br><small>STANDARD CARDS CANNOT BE GRADED</small></div>';return;}
     list.innerHTML=entries.map(entry=>{
       const card=entry.card;
-      const selected=selectedId===entry.cardId&&selectedRawInstanceId===entry.rawInstanceId;
-      const badge=entry.isCracked?`CRACK ${entry.crackCount}/3`:(entry.copies>1?`×${entry.copies}`:'');
-      return `<button type="button" class="repo-rcg-submit-card-v2081${selected?' is-selected':''}${entry.isCracked?' is-cracked-v2202':''}" data-card-id="${esc(entry.cardId)}" data-raw-instance-id="${esc(entry.rawInstanceId)}" title="${esc(card.name)}${entry.isCracked?` · Cracked ${entry.crackCount}/3`:entry.copies>1?` · ${entry.copies} raw copies`:''}"><img src="${esc(card.image)}" alt="${esc(card.name)}">${badge?`<span class="repo-rcg-copy-badge-v2202">${esc(badge)}</span>`:''}</button>`;
+      const selected=selectedId===entry.cardId&&selectedRawInstanceId===entry.rawInstanceId&&selectedCopyToken===entry.copyToken;
+      const badge=entry.isCracked?`CRACK ${entry.crackCount}/3`:(entry.totalCopies>1?`COPY ${entry.copyIndex}/${entry.totalCopies}`:'');
+      const titleSuffix=entry.isCracked?` · Cracked ${entry.crackCount}/3`:entry.totalCopies>1?` · Raw copy ${entry.copyIndex} of ${entry.totalCopies}`:'';
+      return `<button type="button" class="repo-rcg-submit-card-v2081${selected?' is-selected':''}${entry.isCracked?' is-cracked-v2202':''}" data-card-id="${esc(entry.cardId)}" data-raw-instance-id="${esc(entry.rawInstanceId)}" data-copy-token="${esc(entry.copyToken)}" title="${esc(card.name)}${esc(titleSuffix)}"><img src="${esc(card.image)}" alt="${esc(card.name)}">${badge?`<span class="repo-rcg-copy-badge-v2202">${esc(badge)}</span>`:''}</button>`;
     }).join('');
-    list.querySelectorAll('[data-card-id]').forEach(btn=>btn.addEventListener('click',()=>chooseCard(btn.dataset.cardId,btn.dataset.rawInstanceId||'')));
+    list.querySelectorAll('[data-card-id]').forEach(btn=>btn.addEventListener('click',()=>chooseCard(btn.dataset.cardId,btn.dataset.rawInstanceId||'',btn.dataset.copyToken||'')));
   }
 
   function renderSelection(){
@@ -36847,7 +36850,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   async function openDesk(){
     ensureShopHotspots();ensureOverlay();
     if(!overlay)return;
-    selectedId='';selectedRawInstanceId='';stagedId='';stagedRawInstanceId='';searchText='';filterMode='all';sortMode='name';menuMessage='';
+    selectedId='';selectedRawInstanceId='';selectedCopyToken='';stagedId='';stagedRawInstanceId='';stagedCopyToken='';searchText='';filterMode='all';sortMode='name';menuMessage='';
     overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');
     const search=overlay.querySelector('.repo-rcg-submit-search-v2081');if(search)search.value='';
     renderDesk();
@@ -36858,7 +36861,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   function closeDesk(){
     if(!overlay)return;
     overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');
-    selectedId='';selectedRawInstanceId='';stagedId='';stagedRawInstanceId='';menuMessage='';submitting=false;
+    selectedId='';selectedRawInstanceId='';selectedCopyToken='';stagedId='';stagedRawInstanceId='';stagedCopyToken='';menuMessage='';submitting=false;
   }
 
   async function submitStagedCard(){
@@ -36907,6 +36910,14 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
 // ============================================================================
 // RCG INSPECTION DESK v21.03
+
+// V22.15.1 — physical duplicate raw cards in RCG submission grid.
+(()=>{if(document.getElementById('repoRcgDuplicateCopyStylesV22151'))return;const s=document.createElement('style');s.id='repoRcgDuplicateCopyStylesV22151';s.textContent=`
+.repo-rcg-submit-card-v2081{position:relative!important}
+.repo-rcg-copy-badge-v2202{position:absolute!important;right:3px!important;top:3px!important;z-index:5!important;max-width:calc(100% - 6px)!important;padding:3px 5px!important;border:1px solid rgba(235,196,102,.85)!important;background:rgba(5,12,20,.94)!important;color:#ffe5a0!important;font:900 7px/1 Arial,sans-serif!important;letter-spacing:.035em!important;white-space:nowrap!important;box-shadow:0 1px 4px rgba(0,0,0,.7)!important;pointer-events:none!important}
+`;
+document.head.appendChild(s)})();
+
 // Interior GRADING sign + central machine open a live grading queue menu.
 // Shows cards currently being graded, selected preview, and time left.
 // ============================================================================
