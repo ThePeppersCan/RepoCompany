@@ -18126,6 +18126,18 @@ qmShowSharedGoal=function(state){
   const CARD_BACK_ASSET='assets/quidditch-tcg/card-back.png';
   const PACK_SOUND_ASSET='assets/quidditch-tcg/pack-open.mp3';
   const CARD_CATALOG=[
+    {id:'unfinished_besquelcher',name:'Besquelcher — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/besquelcher-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
+    {id:'unfinished_debbie',name:'Debbie — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/debbie-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
+    {id:'unfinished_nimbler_2000',name:'Nimbler 2000 — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/nimbler-2000-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
+    {id:'unfinished_pipsqueak',name:'Pipsqueak — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/pipsqueak-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
+    {id:'unfinished_rocky',name:'ROCKY — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/rocky-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
+    {id:'unfinished_soup',name:'Soup — Unfinished',image:'assets/quidditch-tcg/cards/unfinished/soup-unfinished.png',rarity:'unfinished',set:'RCG Unfinished'},
+    {id:'psycompany_promo_besquelcher',name:'Besquelcher — PSYCOMPANY Promo',image:'assets/quidditch-tcg/cards/psycompany-promos/besquelcher-psycompany-promo.png',rarity:'promo',set:'PSYCOMPANY Promos'},
+    {id:'psycompany_promo_debbie',name:'Debbie — PSYCOMPANY Promo',image:'assets/quidditch-tcg/cards/psycompany-promos/debbie-psycompany-promo.png',rarity:'promo',set:'PSYCOMPANY Promos'},
+    {id:'psycompany_promo_nimbler_2000',name:'Nimbler 2000 — PSYCOMPANY Promo',image:'assets/quidditch-tcg/cards/psycompany-promos/nimbler-2000-psycompany-promo.png',rarity:'promo',set:'PSYCOMPANY Promos'},
+    {id:'psycompany_promo_pipsqueak',name:'Pipsqueak — PSYCOMPANY Promo',image:'assets/quidditch-tcg/cards/psycompany-promos/pipsqueak-psycompany-promo.png',rarity:'promo',set:'PSYCOMPANY Promos'},
+    {id:'psycompany_promo_rocky',name:'ROCKY — PSYCOMPANY Promo',image:'assets/quidditch-tcg/cards/psycompany-promos/rocky-psycompany-promo.png',rarity:'promo',set:'PSYCOMPANY Promos'},
+    {id:'psycompany_promo_soup',name:'Soup — PSYCOMPANY Promo',image:'assets/quidditch-tcg/cards/psycompany-promos/soup-psycompany-promo.png',rarity:'promo',set:'PSYCOMPANY Promos'},
     {id:'besquelcher_black_label',name:'Besquelcher — Black Label',image:'assets/quidditch-tcg/cards/black-label/besquelcher-black-label.png',rarity:'black_label',set:'RCG Black Label'},
     {id:'debbie_black_label',name:'Debbie — Black Label',image:'assets/quidditch-tcg/cards/black-label/debbie-black-label.png',rarity:'black_label',set:'RCG Black Label'},
     {id:'nimbler_2000_black_label',name:'Nimbler 2K — Black Label',image:'assets/quidditch-tcg/cards/black-label/nimbler-2k-black-label.png',rarity:'black_label',set:'RCG Black Label'},
@@ -18696,7 +18708,7 @@ qmShowSharedGoal=function(state){
     ensurePermanentAdminPackInLocalBank();
     const quantity=Number(bankState?.items?.[PACK_ITEM_ID]||0);
     if(quantity<1){toast('You do not have a Quidditch TCG pack in your Bank.');return;}
-    const dialog=ensurePackDialog();packOpening=false;dialog.classList.remove('is-revealed','is-opening','is-black-label-reveal','is-legendary-reveal','is-platinum-reveal','is-off-broom-reveal','is-millennium-reveal','is-rival-reveal','is-signature-reveal');renderClosedPackStage();
+    const dialog=ensurePackDialog();packOpening=false;dialog.classList.remove('is-revealed','is-opening','is-black-label-reveal','is-promo-reveal','is-unfinished-reveal','is-legendary-reveal','is-platinum-reveal','is-off-broom-reveal','is-millennium-reveal','is-rival-reveal','is-signature-reveal');renderClosedPackStage();
     if(!dialog.open)dialog.showModal();
   }
   async function openTcgPack(){
@@ -18727,10 +18739,12 @@ qmShowSharedGoal=function(state){
     }
     const remaining=Math.max(0,revealDelay-(performance.now()-started));
     await Promise.all([new Promise(resolve=>setTimeout(resolve,remaining)),imageReady]);
-    const isBlackLabel=card.rarity==='black_label',isMillennium=card.rarity==='millennium',isRival=card.rarity==='rival',isSignature=card.rarity==='signature',isPatch=card.rarity==='patch',isOffBroom=card.rarity==='off_the_broom';
+    const isBlackLabel=card.rarity==='black_label',isPromo=card.rarity==='promo',isUnfinished=card.rarity==='unfinished',isMillennium=card.rarity==='millennium',isRival=card.rarity==='rival',isSignature=card.rarity==='signature',isPatch=card.rarity==='patch',isOffBroom=card.rarity==='off_the_broom';
     const legendaryReveal=card.rarity==='legendary'||isMillennium;
     const platinumReveal=card.rarity==='platinum'||isRival;
     dialog.classList.toggle('is-black-label-reveal',isBlackLabel);
+    dialog.classList.toggle('is-promo-reveal',isPromo);
+    dialog.classList.toggle('is-unfinished-reveal',isUnfinished);
     dialog.classList.toggle('is-legendary-reveal',legendaryReveal);
     dialog.classList.toggle('is-platinum-reveal',platinumReveal);
     dialog.classList.toggle('is-off-broom-reveal',isOffBroom);
@@ -18738,13 +18752,13 @@ qmShowSharedGoal=function(state){
     dialog.classList.toggle('is-rival-reveal',isRival);
     dialog.classList.toggle('is-signature-reveal',isSignature);
     dialog.classList.add('is-revealed');
-    playPackSound(isBlackLabel?.46:(isSignature?.36:(legendaryReveal?.38:(platinumReveal?.32:(isOffBroom?.29:.24)))));
-    playCardUnlockSound(isBlackLabel||isSignature||legendaryReveal||platinumReveal||isOffBroom);
+    playPackSound(isBlackLabel?.46:(isSignature?.36:(legendaryReveal?.38:(platinumReveal?.32:(isPromo?.30:(isUnfinished?.28:(isOffBroom?.29:.24)))))));
+    playCardUnlockSound(isBlackLabel||isSignature||legendaryReveal||platinumReveal||isPromo||isUnfinished||isOffBroom);
     requestAnimationFrame(()=>document.getElementById('tcgCardFlipper')?.classList.add('is-flipped'));
     const skillOne=skillLabel(row.skill_one),skillTwo=skillLabel(row.skill_two);
     const copyCount=(Array.isArray(row?.owned_cards)?row.owned_cards:[]).filter(id=>String(id||'')===card.id).length;
     const isDuplicate=copyCount>1&&String(card.rarity||'standard').toLowerCase()!=='standard';
-    const rarityMessage=isDuplicate?'DUPLICATE SPECIAL PULL':(isBlackLabel?'RCG BLACK LABEL UNLOCKED':(isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':(isPatch?'PATCH CARD UNLOCKED':(isOffBroom?'VELMORA: OFF THE BROOM UNLOCKED':'NEW CARD UNLOCKED'))))))));
+    const rarityMessage=isDuplicate?'DUPLICATE SPECIAL PULL':(isBlackLabel?'RCG BLACK LABEL UNLOCKED':(isSignature?'SIGNATURE CARD UNLOCKED':(isMillennium?'MILLENNIUM CARD UNLOCKED':(isRival?'RIVAL CARD UNLOCKED':(card.rarity==='legendary'?'GOLD LEGENDARY UNLOCKED':(card.rarity==='platinum'?'PLATINUM CARD UNLOCKED':(isPromo?'PSYCOMPANY PROMO UNLOCKED':(isUnfinished?'RCG UNFINISHED UNLOCKED':(isPatch?'PATCH CARD UNLOCKED':(isOffBroom?'VELMORA: OFF THE BROOM UNLOCKED':'NEW CARD UNLOCKED'))))))))));
     message.innerHTML=`<b>${rarityMessage} — ${escapeHtml(card.name.toUpperCase())}</b><div class="tcg-xp-rewards"><span>+${Number(row.skill_one_xp||5000).toLocaleString('en-GB')} ${escapeHtml(skillOne)} XP</span><span>+${Number(row.skill_two_xp||10000).toLocaleString('en-GB')} ${escapeHtml(skillTwo)} XP</span></div><small>${isDuplicate?`Physical raw copy #${copyCount} added to your collection.`:'Added permanently to your Quidditch TCG collection.'} Click outside to close.</small>`;
     bankState=bankState||{gp:Number(character?.gp||0),items:{}};
     bankState.items=row.bank_items||bankState.items||{};
@@ -18819,6 +18833,29 @@ qmShowSharedGoal=function(state){
       @keyframes tcgPackReady{0%,100%{transform:rotate(-1deg) translateY(1px)}35%{transform:rotate(1.3deg) translateY(-3px)}70%{transform:rotate(-.5deg) translateY(-1px)}}@keyframes tcgCardBackShake{0%,100%{transform:rotateY(0) rotate(-.7deg) translateX(-1px)}50%{transform:rotateY(0) rotate(.8deg) translateX(1px)}}@keyframes tcgCardRevealed{0%,100%{transform:rotateY(180deg) rotate(-.35deg) translateY(0)}50%{transform:rotateY(180deg) rotate(.35deg) translateY(-3px)}}@keyframes tcgRevealFlash{0%{opacity:1;transform:scale(.78)}100%{opacity:0;transform:scale(1.12)}}@keyframes tcgUnlockRing{0%{opacity:0;transform:scale(.52) rotate(-8deg)}28%{opacity:1}100%{opacity:0;transform:scale(1.22) rotate(7deg)}}@keyframes tcgSparkleBurst{0%{opacity:0;transform:scale(.6) rotate(0)}45%{opacity:1}100%{transform:scale(1.15) rotate(9deg)}}@keyframes tcgSparkleDrift{to{background-position:20px 40px,-34px 48px,51px -30px,-20px -44px}}
 
       
+
+
+      #quidditchTcgPackDialog.is-unfinished-reveal::backdrop{background:radial-gradient(circle at 50% 42%,rgba(101,110,135,.52),rgba(18,18,26,.965) 72%)}
+      #quidditchTcgPackDialog.is-unfinished-reveal .quidditch-tcg-pack-shell{border-color:#dcd2b7;outline-color:#8aa2ce;background:radial-gradient(circle at 50% 40%,rgba(206,197,171,.5),rgba(24,28,39,.99) 72%);box-shadow:0 22px 100px #000,inset 0 0 0 2px #efe7d2,inset 0 0 90px rgba(133,170,255,.14),0 0 40px rgba(189,176,137,.22)}
+      #quidditchTcgPackDialog.is-unfinished-reveal .quidditch-tcg-pack-shell header strong{color:#f0e7d8;text-shadow:0 0 8px rgba(255,251,237,.36),0 0 18px rgba(144,177,255,.2),2px 2px #000}
+      #quidditchTcgPackDialog.is-unfinished-reveal .quidditch-tcg-pack-shell header small{color:#b4c6ef}
+      #quidditchTcgPackDialog.is-unfinished-reveal .quidditch-tcg-pack-stage::before{width:min(94%,560px);background:radial-gradient(circle,rgba(250,244,223,.24) 0 5%,rgba(137,170,238,.18) 18%,rgba(75,86,126,.15) 42%,transparent 72%);filter:blur(3px);animation:tcgUnfinishedAura 2.3s ease-in-out infinite}
+      #quidditchTcgPackDialog.is-unfinished-reveal .tcg-card-reveal::before{inset:-18%;border:2px dashed rgba(173,196,255,.72);border-radius:16px;box-shadow:0 0 18px rgba(255,248,227,.26),0 0 42px rgba(113,149,235,.24),0 0 75px rgba(30,35,51,.55);animation:tcgUnfinishedDraft 1.2s ease-out forwards}
+      #quidditchTcgPackDialog.is-unfinished-reveal .tcg-card-reveal::after{content:'';position:absolute;z-index:-2;inset:-24%;pointer-events:none;background:repeating-linear-gradient(135deg,rgba(172,197,255,.09) 0 4px,transparent 4px 12px),radial-gradient(circle at 50% 50%,rgba(255,247,230,.10),transparent 56%);filter:blur(2px);animation:tcgUnfinishedLines 6s linear infinite}
+      #quidditchTcgPackDialog.is-unfinished-reveal .tcg-card-sparkles{inset:-24%;opacity:1;background:radial-gradient(circle,#f7f2e3 0 2px,transparent 3px),radial-gradient(circle,#aac3ff 0 2px,transparent 3px),radial-gradient(circle,#d6d2c4 0 2px,transparent 3px);background-size:46px 52px,72px 76px,98px 92px;animation:tcgUnfinishedSparkles 1s ease-out,tcgSparkleDrift 1.95s linear infinite}
+      #quidditchTcgPackDialog.is-unfinished-reveal .tcg-card-front{filter:drop-shadow(0 0 8px rgba(255,248,231,.4)) drop-shadow(0 0 20px rgba(133,171,255,.24)) drop-shadow(0 22px 24px #000)}
+      #quidditchTcgPackDialog.is-unfinished-reveal .quidditch-tcg-pack-message b{color:#efe7d2;text-shadow:0 0 8px rgba(255,247,230,.4),0 0 14px rgba(133,171,255,.24),2px 2px #000}
+
+      #quidditchTcgPackDialog.is-promo-reveal::backdrop{background:radial-gradient(circle at 50% 42%,rgba(92,66,131,.62),rgba(4,7,18,.965) 72%)}
+      #quidditchTcgPackDialog.is-promo-reveal .quidditch-tcg-pack-shell{border-color:#f4d98d;outline-color:#4f3f72;background:radial-gradient(circle at 50% 40%,rgba(116,76,159,.48),rgba(7,10,22,.99) 72%);box-shadow:0 22px 100px #000,inset 0 0 0 2px #fff3c2,inset 0 0 95px rgba(113,165,255,.24),0 0 48px rgba(226,152,255,.26)}
+      #quidditchTcgPackDialog.is-promo-reveal .quidditch-tcg-pack-shell header strong{color:#fff0bc;text-shadow:0 0 8px rgba(255,214,125,.65),0 0 18px rgba(150,116,255,.32),2px 2px #000}
+      #quidditchTcgPackDialog.is-promo-reveal .quidditch-tcg-pack-shell header small{color:#d8c7ff}
+      #quidditchTcgPackDialog.is-promo-reveal .quidditch-tcg-pack-stage::before{width:min(92%,530px);background:radial-gradient(circle,rgba(255,234,162,.28) 0 5%,rgba(142,103,223,.22) 18%,rgba(54,110,205,.16) 38%,transparent 70%);filter:blur(3px);animation:tcgPromoAura 2.1s ease-in-out infinite}
+      #quidditchTcgPackDialog.is-promo-reveal .tcg-card-reveal::before{inset:-17%;border:2px solid rgba(255,236,186,.76);border-radius:18px;box-shadow:0 0 18px rgba(255,236,174,.45),0 0 48px rgba(136,108,240,.35),0 0 84px rgba(82,160,255,.24);animation:tcgPromoRing 1.2s ease-out forwards}
+      #quidditchTcgPackDialog.is-promo-reveal .tcg-card-sparkles{inset:-23%;opacity:1;background:radial-gradient(circle,#fff8ea 0 2px,transparent 3px),radial-gradient(circle,#ffe184 0 2px,transparent 3px),radial-gradient(circle,#9cc7ff 0 2px,transparent 3px),radial-gradient(circle,#d6a1ff 0 2px,transparent 3px);background-size:42px 48px,64px 68px,90px 86px,58px 62px;animation:tcgPromoSparkles .95s ease-out,tcgSparkleDrift 1.85s linear infinite}
+      #quidditchTcgPackDialog.is-promo-reveal .tcg-card-front{filter:drop-shadow(0 0 9px rgba(255,242,205,.55)) drop-shadow(0 0 24px rgba(163,120,255,.28)) drop-shadow(0 22px 24px #000)}
+      #quidditchTcgPackDialog.is-promo-reveal .quidditch-tcg-pack-message b{color:#fff0c2;text-shadow:0 0 8px rgba(255,223,116,.6),0 0 14px rgba(144,110,255,.32),2px 2px #000}
+
       #quidditchTcgPackDialog.is-black-label-reveal::backdrop{background:radial-gradient(circle at 50% 42%,rgba(22,8,8,.84),rgba(0,0,0,.985) 72%);animation:tcgBlackBackdrop 1.8s ease-in-out infinite}
       #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-shell{border-color:#3b3a42;outline-color:#120d10;background:radial-gradient(circle at 50% 38%,rgba(34,12,12,.55),rgba(2,2,4,.995) 70%);box-shadow:0 28px 120px #000,inset 0 0 0 2px #5a565e,inset 0 0 110px rgba(255,90,40,.12),0 0 40px rgba(255,80,26,.18);animation:tcgBlackLabelShell 2.6s ease-in-out infinite}
       #quidditchTcgPackDialog.is-black-label-reveal .quidditch-tcg-pack-shell header{border-bottom-color:rgba(180,92,58,.35);background:linear-gradient(180deg,rgba(18,16,21,.98),rgba(5,4,7,.98))!important}
@@ -18872,6 +18909,17 @@ qmShowSharedGoal=function(state){
       @keyframes tcgLegendarySparkles{0%{opacity:0;transform:scale(.3)}55%{opacity:1;transform:scale(1.08)}100%{transform:scale(1)}}
 
       
+
+
+      @keyframes tcgUnfinishedAura{0%,100%{transform:translate(-50%,-50%) scale(.97);opacity:.48}50%{transform:translate(-50%,-50%) scale(1.05);opacity:.88}}
+      @keyframes tcgUnfinishedDraft{0%{opacity:0;transform:scale(.5) rotate(-7deg)}40%{opacity:1}100%{opacity:.18;transform:scale(1.13) rotate(4deg)}}
+      @keyframes tcgUnfinishedLines{to{transform:rotate(360deg)}}
+      @keyframes tcgUnfinishedSparkles{0%{opacity:0;transform:scale(.35)}55%{opacity:1;transform:scale(1.05)}100%{transform:scale(1)}}
+
+      @keyframes tcgPromoAura{0%,100%{transform:translate(-50%,-50%) scale(.96);opacity:.52}50%{transform:translate(-50%,-50%) scale(1.06);opacity:.92}}
+      @keyframes tcgPromoRing{0%{opacity:0;transform:scale(.46) rotate(-8deg)}35%{opacity:1}100%{opacity:.18;transform:scale(1.14) rotate(5deg)}}
+      @keyframes tcgPromoSparkles{0%{opacity:0;transform:scale(.35)}55%{opacity:1;transform:scale(1.06)}100%{transform:scale(1)}}
+
       @keyframes tcgBlackBackdrop{50%{backdrop-filter:blur(7px) brightness(.92)}}
       @keyframes tcgBlackLabelShell{50%{box-shadow:0 28px 120px #000,inset 0 0 0 2px #6a666f,inset 0 0 125px rgba(255,104,55,.18),0 0 52px rgba(255,101,48,.26)}}
       @keyframes tcgBlackLabelAura{0%,100%{transform:translate(-50%,-50%) scale(.96);opacity:.46}50%{transform:translate(-50%,-50%) scale(1.07);opacity:.92}}
@@ -19192,6 +19240,8 @@ qmShowSharedGoal=function(state){
   const storageCategory=id=>{
     if(id==='ltd_week_one_anniversary')return {key:'limited',label:'LIMITED'};
     if(id.includes('black_label'))return {key:'blacklabel',label:'BLACK LABEL'};
+    if(id.includes('psycompany_promo'))return {key:'promo',label:'PSYCOMPANY PROMO'};
+    if(id.includes('unfinished_'))return {key:'unfinished',label:'UNFINISHED'};
     if(id.includes('off_the_broom'))return {key:'offbroom',label:'OFF THE BROOM'};
     if(id.includes('_signature'))return {key:'signature',label:'SIGNATURE'};
     if(id.includes('_millennium'))return {key:'millennium',label:'MILLENNIUM'};
@@ -19725,6 +19775,18 @@ qmShowSharedGoal=function(state){
     ['pipsqueak_kaboom_platinum','Pipsqueak — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/pipsqueak-kaboom.png'],
     ['rocky_kaboom_platinum','ROCKY — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/rocky-kaboom.png'],
     ['soup_kaboom_platinum','Soup — KABOOM!','assets/quidditch-tcg/cards/platinum/kaboom/soup-kaboom.png'],
+    ['unfinished_besquelcher','Besquelcher — Unfinished','assets/quidditch-tcg/cards/unfinished/besquelcher-unfinished.png'],
+    ['unfinished_debbie','Debbie — Unfinished','assets/quidditch-tcg/cards/unfinished/debbie-unfinished.png'],
+    ['unfinished_nimbler_2000','Nimbler 2000 — Unfinished','assets/quidditch-tcg/cards/unfinished/nimbler-2000-unfinished.png'],
+    ['unfinished_pipsqueak','Pipsqueak — Unfinished','assets/quidditch-tcg/cards/unfinished/pipsqueak-unfinished.png'],
+    ['unfinished_rocky','ROCKY — Unfinished','assets/quidditch-tcg/cards/unfinished/rocky-unfinished.png'],
+    ['unfinished_soup','Soup — Unfinished','assets/quidditch-tcg/cards/unfinished/soup-unfinished.png'],
+    ['psycompany_promo_besquelcher','Besquelcher — PSYCOMPANY Promo','assets/quidditch-tcg/cards/psycompany-promos/besquelcher-psycompany-promo.png'],
+    ['psycompany_promo_debbie','Debbie — PSYCOMPANY Promo','assets/quidditch-tcg/cards/psycompany-promos/debbie-psycompany-promo.png'],
+    ['psycompany_promo_nimbler_2000','Nimbler 2000 — PSYCOMPANY Promo','assets/quidditch-tcg/cards/psycompany-promos/nimbler-2000-psycompany-promo.png'],
+    ['psycompany_promo_pipsqueak','Pipsqueak — PSYCOMPANY Promo','assets/quidditch-tcg/cards/psycompany-promos/pipsqueak-psycompany-promo.png'],
+    ['psycompany_promo_rocky','ROCKY — PSYCOMPANY Promo','assets/quidditch-tcg/cards/psycompany-promos/rocky-psycompany-promo.png'],
+    ['psycompany_promo_soup','Soup — PSYCOMPANY Promo','assets/quidditch-tcg/cards/psycompany-promos/soup-psycompany-promo.png'],
     ['besquelcher_black_label','Besquelcher — Black Label','assets/quidditch-tcg/cards/black-label/besquelcher-black-label.png'],
     ['debbie_black_label','Debbie — Black Label','assets/quidditch-tcg/cards/black-label/debbie-black-label.png'],
     ['nimbler_2000_black_label','Nimbler 2K — Black Label','assets/quidditch-tcg/cards/black-label/nimbler-2k-black-label.png'],
@@ -19884,7 +19946,7 @@ qmShowSharedGoal=function(state){
     ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
     ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
 ];
-  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
+  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.includes('unfinished_')?'unfinished':id.includes('psycompany_promo')?'promo':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
   window.repoTcgCardById=id=>cards[String(id||'').trim()]||null;
 
@@ -38398,6 +38460,8 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   function category(slab){
     const id=normal(slab?.card_id).toLowerCase();
     if(id.includes('black_label'))return 'blacklabel';
+    if(id.includes('psycompany_promo'))return 'promo';
+    if(id.includes('unfinished_'))return 'unfinished';
     if(id.includes('legendary'))return 'legendary';
     if(id.includes('full_art'))return 'fullart';
     if(id.includes('off_the_broom'))return 'offbroom';
@@ -38417,7 +38481,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     drawer.className='repo-binder-storage repo-rcg-v2118-storage';
     drawer.dataset.storageFilter='all';
     drawer.setAttribute('aria-hidden','true');
-    drawer.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN SLABS</strong><span class="repo-binder-storage-subtitle">Hidden slabs remain in your graded collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-v2118-close aria-label="Close Hidden Slabs">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search hidden slabs…"><div class="repo-binder-storage-filters"><button data-storage-filter="all" aria-pressed="true">ALL</button><button data-storage-filter="blacklabel">BLACK LABEL</button><button data-storage-filter="legendary">LEGENDARY</button><button data-storage-filter="platinum">PLATINUM</button><button data-storage-filter="patch">PATCH</button><button data-storage-filter="offbroom">OFF THE BROOM</button><button data-storage-filter="fullart">FULL ART</button><button data-storage-filter="standard">STANDARD</button></div></div><div class="repo-binder-storage-results"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Right-click a displayed slab to put it away. Use RESTORE TO BINDER to return it to this spread.</div>`;
+    drawer.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN SLABS</strong><span class="repo-binder-storage-subtitle">Hidden slabs remain in your graded collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-v2118-close aria-label="Close Hidden Slabs">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search hidden slabs…"><div class="repo-binder-storage-filters"><button data-storage-filter="all" aria-pressed="true">ALL</button><button data-storage-filter="blacklabel">BLACK LABEL</button><button data-storage-filter="legendary">LEGENDARY</button><button data-storage-filter="platinum">PLATINUM</button><button data-storage-filter="promo">PROMO</button><button data-storage-filter="unfinished">UNFINISHED</button><button data-storage-filter="patch">PATCH</button><button data-storage-filter="offbroom">OFF THE BROOM</button><button data-storage-filter="fullart">FULL ART</button><button data-storage-filter="standard">STANDARD</button></div></div><div class="repo-binder-storage-results"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Right-click a displayed slab to put it away. Use RESTORE TO BINDER to return it to this spread.</div>`;
     d.appendChild(drawer);
     drawer.querySelector('[data-v2118-close]')?.addEventListener('click',()=>openDrawer(false));
     drawer.querySelector('.repo-binder-storage-search')?.addEventListener('input',renderDrawer);
