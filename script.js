@@ -19136,124 +19136,13 @@ qmShowSharedGoal=function(state){
     @media(prefers-reduced-motion:reduce){.repo-binder-spread-126::before,.repo-binder-spread-126::after,.repo-binder-ambient-particles i{animation:none!important}.repo-binder-ambient-particles{display:none}}
   `;document.head.appendChild(style);
 
-  const catalog=[
-    ['soup','Soup','assets/quidditch-tcg/cards/soup.png'],['besquelcher','Besquelcher','assets/quidditch-tcg/cards/besquelcher.png'],['debbie','Debbie','assets/quidditch-tcg/cards/debbie.png'],['dopey_dom','Dopey Dom','assets/quidditch-tcg/cards/dopey-dom.png'],['jud','Jud','assets/quidditch-tcg/cards/jud.png'],['mad_rager','Mad Rager','assets/quidditch-tcg/cards/mad-rager.png'],['mod_ash','Mod Ash','assets/quidditch-tcg/cards/mod-ash.png'],['nimbler_2000','Nimbler 2000','assets/quidditch-tcg/cards/nimbler-2000.png'],['rocky','Rocky','assets/quidditch-tcg/cards/rocky.png'],
-    ['rocky_full_art','Rocky — Special Full Art','assets/quidditch-tcg/cards/full-art/rocky-special.png'],['soup_full_art','Soup — Special Full Art','assets/quidditch-tcg/cards/full-art/soup-special.png'],['nimbler_2000_full_art','Nimbler 2000 — Special Full Art','assets/quidditch-tcg/cards/full-art/nimbler-special.png'],['debbie_full_art','Debbie — Special Full Art','assets/quidditch-tcg/cards/full-art/debbie-special.png'],['besquelcher_full_art','Besquelcher — Special Full Art','assets/quidditch-tcg/cards/full-art/besquelcher-special.png'],['changing_room_full_art','Changing Room — Special Full Art','assets/quidditch-tcg/cards/full-art/changing-room-special.png'],['barry_bramble_full_art','Barry Bramble — Special Full Art','assets/quidditch-tcg/cards/full-art/barry-bramble-special.png'],['golden_snitch_rising_full_art','Golden Snitch Rising — Event Full Art','assets/quidditch-tcg/cards/full-art/golden-snitch-rising.png'],['healers_bench_full_art','Healer’s Bench — Special Full Art','assets/quidditch-tcg/cards/full-art/healers-bench.png'],['matchday_tunnel_full_art','Matchday Tunnel — Special Full Art','assets/quidditch-tcg/cards/full-art/matchday-tunnel.png'],['reposports_castle_arena_full_art','RepoSports Castle Arena — Location Full Art','assets/quidditch-tcg/cards/full-art/reposports-castle-arena.png'],
-    ['rocky_legendary_full_art','Rocky — Gold Legendary Full Art','assets/quidditch-tcg/cards/legendary/rocky-legendary.png'],['debbie_legendary_full_art','Debbie — Gold Legendary Full Art','assets/quidditch-tcg/cards/legendary/debbie-legendary.png'],['soup_legendary_full_art','Soup — Gold Legendary Full Art','assets/quidditch-tcg/cards/legendary/soup-legendary.png'],['besquelcher_legendary_full_art','Besquelcher — Gold Legendary Full Art','assets/quidditch-tcg/cards/legendary/besquelcher-legendary.png'],['proco_legendary_full_art','Proco — Legendary Full Art','assets/quidditch-tcg/cards/legendary/proco-legendary.png'],['emlux_legendary_full_art','Emlux — Legendary Full Art','assets/quidditch-tcg/cards/legendary/emlux-legendary.png'],['catasthma_legendary_full_art','CatAsthma — Legendary Full Art','assets/quidditch-tcg/cards/legendary/catasthma-legendary.png'],['covidpanda_legendary_full_art','CovidPanda — Legendary Full Art','assets/quidditch-tcg/cards/legendary/covidpanda-legendary.png'],['smokedrope1028_legendary_full_art','SmokedRope1028 — Legendary Full Art','assets/quidditch-tcg/cards/legendary/smokedrope1028-legendary.png'],['nimbler_2000_legendary_full_art','Nimbler 2000 — Gold Legendary Full Art','assets/quidditch-tcg/cards/legendary/nimbler-2000-legendary.png'],['boomstick','BOOMSTICK!','assets/quidditch-tcg/cards/standard/boomstick.png'],['barrys_tip_jar','Barry’s Tip Jar','assets/quidditch-tcg/cards/standard/barrys-tip-jar.png'],['changing_room_champions_standard','Changing Room Champions','assets/quidditch-tcg/cards/standard/changing-room-champions.png'],['morytania_marsh_arena_standard','Morytania Marsh Arena','assets/quidditch-tcg/cards/standard/morytania-marsh-arena.png'],['mos_le_harmless_skycourt_standard','Mos Le’Harmless Skycourt','assets/quidditch-tcg/cards/standard/mos-le-harmless-skycourt.png'],['camelot_crown_arena_standard','Camelot Crown Arena','assets/quidditch-tcg/cards/standard/camelot-crown-arena.png'],['forbidden_forest_flightground_standard','Forbidden Forest Flightground','assets/quidditch-tcg/cards/standard/forbidden-forest-flightground.png'],['tzhaar_dragonfire_stadium_standard','TzHaar Dragonfire Stadium','assets/quidditch-tcg/cards/standard/tzhaar-dragonfire-stadium.png'],['gnome_stronghold_canopy_pitch_standard','Gnome Stronghold Canopy Pitch','assets/quidditch-tcg/cards/standard/gnome-stronghold-canopy-pitch.png'],['burrow_hill_quidditch_ground_standard','Burrow Hill Quidditch Ground','assets/quidditch-tcg/cards/standard/burrow-hill-quidditch-ground.png'],['caerphilly_storm_grounds_standard','Caerphilly Storm Grounds','assets/quidditch-tcg/cards/standard/caerphilly-storm-grounds.png'],['keldagrim_stoneworks_stadium_standard','Keldagrim Stoneworks Stadium','assets/quidditch-tcg/cards/standard/keldagrim-stoneworks-stadium.png'],['shi_wayward_shot','SHI…','assets/quidditch-tcg/cards/standard/shi-wayward-shot.png'],['swiped_rocky','Swiped!','assets/quidditch-tcg/cards/standard/swiped-rocky.png'],['trollweiss_quidditch_grounds_standard','Trollweiss Quidditch Grounds','assets/quidditch-tcg/cards/standard/trollweiss-quidditch-grounds.png'],['var_match_review','VAR','assets/quidditch-tcg/cards/standard/var-match-review.png'],['besquelcher_1000_club_platinum','Besquelcher — 1000 Club','assets/quidditch-tcg/cards/platinum/besquelcher-1000-club.png'],['barry_mod_ash_deadly_duo_platinum','Barry Bramble & Mod Ash — Deadly Duo','assets/quidditch-tcg/cards/platinum/barry-mod-ash-deadly-duo.png'],['besquelcher_jud_deadly_duo_platinum','Besquelcher & Jud — Deadly Duo','assets/quidditch-tcg/cards/platinum/besquelcher-jud-deadly-duo.png'],['rocky_debbie_deadly_duo_platinum','Rocky & Debbie — Deadly Duo','assets/quidditch-tcg/cards/platinum/rocky-debbie-deadly-duo.png'],['soup_nimbler_deadly_duo_platinum','Soup & Nimbler 2000 — Deadly Duo','assets/quidditch-tcg/cards/platinum/soup-nimbler-deadly-duo.png'],['debbie_1000_club_platinum','Debbie — 1000 Club','assets/quidditch-tcg/cards/platinum/debbie-1000-club.png'],['mod_ash_1000_club_platinum','Mod Ash — 1000 Club','assets/quidditch-tcg/cards/platinum/mod-ash-1000-club.png'],['rocky_1000_club_platinum','Rocky — 1000 Club','assets/quidditch-tcg/cards/platinum/rocky-1000-club.png'],['soup_1000_club_platinum','Soup — 1000 Club','assets/quidditch-tcg/cards/platinum/soup-1000-club.png'],['ltd_week_one_anniversary','1 Week Anniversary — LTD Edition','assets/quidditch-tcg/cards/limited/ltd-one-week-anniversary.png'],
-    ['repo_company_legendary_full_art','Repo Company — Gold Legendary','assets/quidditch-tcg/cards/legendary/repo-company-legendary.png'],
-    ['besquelcher_millennium','Besquelcher — Millennium','assets/quidditch-tcg/cards/millennium/besquelcher-millennium.png'],
-    ['debbie_millennium','Debbie — Millennium','assets/quidditch-tcg/cards/millennium/debbie-millennium.png'],
-    ['mod_ash_millennium','Mod Ash — Millennium','assets/quidditch-tcg/cards/millennium/mod-ash-millennium.png'],
-    ['rocky_millennium','Rocky — Millennium','assets/quidditch-tcg/cards/millennium/rocky-millennium.png'],
-    ['soup_millennium','Soup — Millennium','assets/quidditch-tcg/cards/millennium/soup-millennium.png'],
-    ['jud_debbie_rival','Jud & Debbie — Rival','assets/quidditch-tcg/cards/rival/jud-debbie-rival.png'],
-    ['nimbler_besquelcher_rival','Nimbler 2000 & Besquelcher — Rival','assets/quidditch-tcg/cards/rival/nimbler-besquelcher-rival.png'],
-    ['rocky_mod_ash_rival','Rocky & Mod Ash — Rival','assets/quidditch-tcg/cards/rival/rocky-mod-ash-rival.png'],
-    ['practice_makes_perfect_standard','Practice Makes Perfect','assets/quidditch-tcg/cards/standard/practice-makes-perfect.png'],
-    ['snitch_senses_standard','Snitch Senses','assets/quidditch-tcg/cards/standard/snitch-senses.png'],
-    ['team_photo_standard','Team Photo!','assets/quidditch-tcg/cards/standard/team-photo.png'],
-    ['show_some_love_standard','Show Some Love!','assets/quidditch-tcg/cards/standard/show-some-love.png'],
-    ['snitch_stuck_again_standard','Snitch Stuck Again','assets/quidditch-tcg/cards/standard/snitch-stuck-again.png'],
-    ['post_game_feast_standard','Post-Game Feast','assets/quidditch-tcg/cards/standard/post-game-feast.png'],
-    ['repo_sports_world_cup_standard','Repo Sports World Cup','assets/quidditch-tcg/cards/standard/repo-sports-world-cup.png'],
-    ['halftime_hangout_standard','Halftime Hangout','assets/quidditch-tcg/cards/standard/halftime-hangout.png'],
-    ['broom_shop_myth_standard','The Broom Shop Myth','assets/quidditch-tcg/cards/standard/broom-shop-myth.png'],
-    ['barrys_burger_cart_standard','Barry’s Burger Cart','assets/quidditch-tcg/cards/standard/barrys-burger-cart.png'],
-    ['back_in_the_day_barry_full_art','Back in the Day Barry — Full Art','assets/quidditch-tcg/cards/full-art/back-in-the-day-barry.png'],
-    ['berry_bramble_full_art','Berry Bramble — The Apprentice — Full Art','assets/quidditch-tcg/cards/full-art/berry-bramble-full-art.png'],
-    ['jenny_full_art','Jenny — Full Art','assets/quidditch-tcg/cards/full-art/jenny-full-art.png'],
-    ['jenny_rookie_full_art','Jenny — Rookie — Full Art','assets/quidditch-tcg/cards/full-art/jenny-rookie-full-art.png'],
-    ['rocky_signature','Rocky — Signature','assets/quidditch-tcg/cards/signature/rocky-signature.png'],
-    ['debbie_signature','Debbie — Signature','assets/quidditch-tcg/cards/signature/debbie-signature.png'],
-    ['jud_signature','Jud — Signature','assets/quidditch-tcg/cards/signature/jud-signature.png'],
-    ['mod_ash_signature','Mod Ash — Signature','assets/quidditch-tcg/cards/signature/mod-ash-signature.png'],
-    ['nimbler_2000_signature','Nimbler 2000 — Signature','assets/quidditch-tcg/cards/signature/nimbler-2000-signature.png'],
-    ['soup_signature','Soup — Signature','assets/quidditch-tcg/cards/signature/soup-signature.png'],
-    ['besquelcher_signature','Besquelcher — Signature','assets/quidditch-tcg/cards/signature/besquelcher-signature.png'],
-    ['back_from_retirement_standard','Back from Retirement','assets/quidditch-tcg/cards/standard/back-from-retirement.png'],
-    ['binder_flex_standard','Binder Flex','assets/quidditch-tcg/cards/standard/binder-flex.png'],
-    ['verdant_whisper_standard','Verdant Whisper','assets/quidditch-tcg/cards/standard/verdant-whisper.png'],
-    ['frostbound_arc_standard','Frostbound Arc','assets/quidditch-tcg/cards/standard/frostbound-arc.png'],
-    ['cinder_spite_standard','Cinder Spite','assets/quidditch-tcg/cards/standard/cinder-spite.png'],
-    ['amethyst_reign_standard','Amethyst Reign','assets/quidditch-tcg/cards/standard/amethyst-reign.png'],
-    ['starweave_comet_standard','Starweave Comet','assets/quidditch-tcg/cards/standard/starweave-comet.png'],
-    ['gravemark_glider_standard','Gravemark Glider','assets/quidditch-tcg/cards/standard/gravemark-glider.png'],
-    ['moonlit_hush_standard','Moonlit Hush','assets/quidditch-tcg/cards/standard/moonlit-hush.png'],
-    ['cat_on_the_pitch_standard','Cat on the Pitch','assets/quidditch-tcg/cards/standard/cat-on-the-pitch.png'],
-    ['keepers_dream_standard','Keepers Dream','assets/quidditch-tcg/cards/standard/keepers-dream.png'],
-    ['keepers_nightmare_standard',"Keeper's Nightmare",'assets/quidditch-tcg/cards/standard/keepers-nightmare.png'],
-    ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png'],
-    ['world_cup_belros_full_art','Belros — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/belros.png'],
-    ['world_cup_calvora_full_art','Calvora — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/calvora.png'],
-    ['world_cup_drazhen_full_art','Drazhen — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png'],
-    ['world_cup_elvane_full_art','Elvane — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/elvane.png'],
-    ['world_cup_iskandar_full_art','Iskandar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png'],
-    ['world_cup_kordesh_full_art','Kordesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png'],
-    ['world_cup_lumerre_full_art','Lumerre — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png'],
-    ['world_cup_marovar_full_art','Marovar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/marovar.png'],
-    ['world_cup_nambara_full_art','Nambara — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/nambara.png'],
-    ['world_cup_norveth_full_art','Norveth — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/norveth.png'],
-    ['world_cup_qasmir_full_art','Qasmir — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png'],
-    ['world_cup_rovarn_full_art','Rovarn — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png'],
-    ['world_cup_sorevia_full_art','Sorevia — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png'],
-    ['world_cup_talune_full_art','Talune — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/talune.png'],
-    ['world_cup_vardesh_full_art','Vardesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png'],
-    ['world_cup_zafran_full_art','Zafran — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/zafran.png'],
-    ['world_cup_belros_special_full_art','Belros — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png'],
-    ['world_cup_calvora_special_full_art','Calvora — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png'],
-    ['world_cup_drazhen_special_full_art','Drazhen — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png'],
-    ['world_cup_elvane_special_full_art','Elvane — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/elvane.png'],
-    ['world_cup_iskandar_special_full_art','Iskandar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/iskandar.png'],
-    ['world_cup_kordesh_special_full_art','Kordesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/kordesh.png'],
-    ['world_cup_lumerre_special_full_art','Lumerre — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/lumerre.png'],
-    ['world_cup_marovar_special_full_art','Marovar — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/marovar.png'],
-    ['world_cup_nambara_special_full_art','Nambara — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/nambara.png'],
-    ['world_cup_norveth_special_full_art','Norveth — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/norveth.png'],
-    ['world_cup_qasmir_special_full_art','Qasmir — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/qasmir.png'],
-    ['world_cup_rovarn_special_full_art','Rovarn — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/rovarn.png'],
-    ['world_cup_sorevia_special_full_art','Sorevia — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/sorevia.png'],
-    ['world_cup_talune_special_full_art','Talune — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/talune.png'],
-    ['world_cup_vardesh_special_full_art','Vardesh — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/vardesh.png'],
-    ['world_cup_zafran_special_full_art','Zafran — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/zafran.png'],
-
-    ['vardesh_pipsqueak_full_art','Vardesh: Pipsqueak — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/vardesh-pipsqueak.png'],
-    ['norveth_rocky_full_art','Norveth: ROCKY — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/norveth-rocky.png'],
-    ['talune_soup_full_art','Talune: Soup — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/talune-soup.png'],
-    ['iskandar_besquelcher_full_art','Iskandar: Besquelcher — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/iskandar-besquelcher.png'],
-    ['sorevia_debbie_full_art','Sorevia: Debbie — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/sorevia-debbie.png'],
-    ['drazhen_dopey_dom_full_art','Drazhen: Dopey Dom — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/drazhen-dopey-dom.png'],
-    ['belros_jud_full_art','Belros: JUD — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-jud.png'],
-    ['nambara_mad_rager_full_art','Nambara: Mad Rager — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/nambara-mad-rager.png'],
-    ['belros_nimbler_2000_full_art','Belros: Nimbler 2000 — Full Art','assets/quidditch-tcg/cards/full-art/repo-sports-stars/belros-nimbler-2000.png'],
-    ['bijou_patch','Bijou — Patch','assets/quidditch-tcg/cards/patch/bijou-patch.png'],
-    ['besquelcher_patch','Besquelcher — Patch','assets/quidditch-tcg/cards/patch/besquelcher-patch.png'],
-    ['daska_patch','Daska — Patch','assets/quidditch-tcg/cards/patch/daska-patch.png'],
-    ['debbie_patch','Debbie — Patch','assets/quidditch-tcg/cards/patch/debbie-patch.png'],
-    ['fenn_patch','Fenn — Patch','assets/quidditch-tcg/cards/patch/fenn-patch.png'],
-    ['jenny_patch','Jenny — Patch','assets/quidditch-tcg/cards/patch/jenny-patch.png'],
-    ['jud_patch','JUD — Patch','assets/quidditch-tcg/cards/patch/jud-patch.png'],
-    ['mad_rager_patch','Mad Rager — Patch','assets/quidditch-tcg/cards/patch/mad-rager-patch.png'],
-    ['navi_patch','Navi — Patch','assets/quidditch-tcg/cards/patch/navi-patch.png'],
-    ['nimbler_2000_patch','Nimbler 2000 — Patch','assets/quidditch-tcg/cards/patch/nimbler-2000-patch.png'],
-    ['pipsqueak_patch','Pipsqueak — Patch','assets/quidditch-tcg/cards/patch/pipsqueak-patch.png'],
-    ['qimi_patch','Qimi — Patch','assets/quidditch-tcg/cards/patch/qimi-patch.png'],
-    ['rocky_patch','ROCKY — Patch','assets/quidditch-tcg/cards/patch/rocky-patch.png'],
-    ['soup_patch','Soup — Patch','assets/quidditch-tcg/cards/patch/soup-patch.png'],
-    ['varko_patch','Varko — Patch','assets/quidditch-tcg/cards/patch/varko-patch.png'],
-    ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
-    ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
-
-    ['wc2026_debbie_sorevia','Debbie, Sorevia — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/debbie-sorevia.png'],
-    ['wc2026_dopey_dom_drazhen','Dopey Dom, Drazhen — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/dopey-dom-drazhen.png'],
-    ['wc2026_jenny_sorevia','Jenny, Sorevia — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/jenny-sorevia.png'],
-    ['wc2026_jud_belros','JUD, Belros — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/jud-belros.png'],
-    ['wc2026_mad_rager_nambara','Mad Rager, Nambara — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/mad-rager-nambara.png'],
-    ['wc2026_nimbler_2000_belros','Nimbler 2000, Belros — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/nimbler-2000-belros.png'],
-    ['wc2026_pipsqueak_vardesh','Pipsqueak, Vardesh — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/pipsqueak-vardesh.png'],
-    ['wc2026_soup_talune','Soup, Talune — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/soup-talune.png'],
-    ['wc2026_besquelcher_iskandar','Besquelcher, Iskandar — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/besquelcher-iskandar.png'],
-    ['wc2026_rocky_norveth','ROCKY, Norveth — World Cup 2026','assets/quidditch-tcg/world-cup-2026/cards/rocky-norveth.png'],
-  ];
+  // V22.10.2: use the pack system's master catalogue instead of maintaining a
+  // second hard-coded binder list. The duplicate list had remained at 167
+  // cards, which is why the binder counter ignored KABOOM, Off the Broom and
+  // Black Label even though those cards were already installed elsewhere.
+  const catalog=(Array.isArray(window.__repoTcgCardCatalog)?window.__repoTcgCardCatalog:[])
+    .map(card=>[String(card?.id||''),String(card?.name||''),String(card?.image||'')])
+    .filter(([id,,image])=>id&&image);
   SPREAD_COUNT=Math.max(8,Math.ceil(catalog.length/SLOTS_PER_SPREAD));
   TOTAL_SLOTS=SPREAD_COUNT*SLOTS_PER_SPREAD;
   const map=Object.fromEntries(catalog.map(([id,name,image])=>[id,{id,name,image}]));
@@ -19302,6 +19191,8 @@ qmShowSharedGoal=function(state){
   const spreadIndex=()=>{const key=String(document.getElementById('quidditchTcgBinderDialog')?.dataset.binderPage||'');const match=/^open(\d+)$/.exec(key);return match?Number(match[1])-1:-1};
   const storageCategory=id=>{
     if(id==='ltd_week_one_anniversary')return {key:'limited',label:'LIMITED'};
+    if(id.includes('black_label'))return {key:'blacklabel',label:'BLACK LABEL'};
+    if(id.includes('off_the_broom'))return {key:'offbroom',label:'OFF THE BROOM'};
     if(id.includes('_signature'))return {key:'signature',label:'SIGNATURE'};
     if(id.includes('_millennium'))return {key:'millennium',label:'MILLENNIUM'};
     if(id.includes('_rival'))return {key:'rival',label:'RIVAL'};
@@ -19436,7 +19327,7 @@ qmShowSharedGoal=function(state){
     if(box&&box.dataset.storageManagerV2!=='1'){box.remove();box=null}
     if(!box){
       box=document.createElement('aside');box.id='repoTcgCardStorageDrawer';box.className='repo-binder-storage';box.dataset.storageManagerV2='1';box.dataset.storageFilter='all';box.setAttribute('aria-label','Hidden Cards');box.setAttribute('aria-hidden','true');
-      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN CARDS</strong><span class="repo-binder-storage-subtitle">Hidden cards remain in your collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Hidden Cards">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search stored cards…" aria-label="Search hidden cards"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="patch" aria-pressed="false">PATCH</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Use RESTORE to place a card into the current spread. You can also drag a stored card directly onto a slot.</div>`;
+      box.innerHTML=`<div class="repo-binder-storage-head"><strong class="repo-binder-storage-title">HIDDEN CARDS</strong><span class="repo-binder-storage-subtitle">Hidden cards remain in your collection</span><span class="repo-binder-storage-count">0</span><button type="button" class="repo-binder-storage-close" data-storage-close aria-label="Close Hidden Cards">×</button></div><div class="repo-binder-storage-tools"><input class="repo-binder-storage-search" type="search" placeholder="Search stored cards…" aria-label="Search hidden cards"><div class="repo-binder-storage-filters" role="group" aria-label="Filter stored cards"><button type="button" class="repo-binder-storage-filter" data-storage-filter="all" aria-pressed="true">ALL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="blacklabel" aria-pressed="false">BLACK LABEL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="offbroom" aria-pressed="false">OFF THE BROOM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="limited" aria-pressed="false">LIMITED</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="signature" aria-pressed="false">SIGNATURE</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="millennium" aria-pressed="false">MILLENNIUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="rival" aria-pressed="false">RIVAL</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="platinum" aria-pressed="false">PLATINUM</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="legendary" aria-pressed="false">LEGENDARY</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="fullart" aria-pressed="false">FULL ART</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="patch" aria-pressed="false">PATCH</button><button type="button" class="repo-binder-storage-filter" data-storage-filter="standard" aria-pressed="false">STANDARD</button></div></div><div class="repo-binder-storage-results" aria-live="polite"></div><div class="repo-binder-storage-list"></div><div class="repo-binder-storage-help">Use RESTORE to place a card into the current spread. You can also drag a stored card directly onto a slot.</div>`;
       d.appendChild(box);
     }
     const setStorageOpen=open=>{
