@@ -1,0 +1,15 @@
+V29.1 QA
+
+Completed:
+- node --check adventures-v7-1.js: PASS
+- ZIP integrity: PASS
+- index references unique v29.1 JS/CSS filenames
+- verified closed drawer has visibility:hidden + pointer-events:none
+- verified open drawer restores visibility + pointer-events
+- verified creator layout/body have min-height:0 + overflow-y:auto
+- verified main world column has overflow-y:auto
+- verified character buttons map to data-va="talk-npc"
+- verified Phase 7 greeting RPC exists live before building fallback
+
+Not claimed:
+- full deployed-browser visual playthrough
