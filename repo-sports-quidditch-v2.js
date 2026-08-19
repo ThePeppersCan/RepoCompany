@@ -46,6 +46,10 @@
   // team creates chances, never a hidden success multiplier. Player attributes are
   // normalised by team aggregate so Belros and Zafran begin every match 50/50.
   const FAIR_MATCH = true;
+  // V22.20.1 — player-level goal parity. Team fairness was already 50/50, but fixed
+  // attacker/defender/support roles were creating very different career goal rates.
+  // Roles still shape passing/defending behaviour; scoring opportunity and finishing are neutral.
+  const PLAYER_GOAL_PARITY = true;
   const FAIRNESS = Object.freeze({
     teamWinBias:0,            // never choose or weight a winner before play
     rubberBand:false,         // scoreline may change tactics, never execution odds
@@ -729,7 +733,7 @@
     phase:'closed', introElapsed:0, matchTime:0, speed:1, half:1, firstKickoff:'belros',
     possession:'belros', carrier:null, lastPasser:null, zone:.18, passesSinceShot:0,
     actionTimer:2.4, delay:null, special:null, ball:{x:.5,y:.5,flight:null,visible:true},
-    score:{belros:0,zafran:0}, shootout:null, shootoutRecoveryElapsed:0,
+    score:{belros:0,zafran:0}, shootout:null,
     teamStats:{}, playerStats:{}, camera:{x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'LIVE_BROADCAST'},
     eventBannerTimer:0, celebration:null, reactionHistory:{},reactionSerial:0,refReaction:null,varContext:null, channel:null, subscribed:false,
     lastTs:0, raf:0, loreUsed:new Set(), introCue:-1, audioUnlocked:false, crowdBase:.18, crowdBoost:0,
@@ -748,16 +752,7 @@
 
   const FIXED_SIM_DT=1/30;
   function simNow(){return state.syncMode?state.simClockMs:performance.now()}
-  // SERVER-AUTHORITATIVE SYNC GUARD
-  // Never let a browser free-run far beyond the last Supabase sample. Background
-  // tabs are explicitly frozen and resume only after a fresh server sync arrives.
-  const SYNC_MAX_LOCAL_PROJECTION_SECONDS=1.25;
-  function syncTargetElapsed(){
-    const anchor=Math.max(0,Number(state.syncAnchorElapsed)||0);
-    if(!state.syncRunning||document.hidden)return anchor;
-    const projected=anchor+Math.max(0,(performance.now()-state.syncAnchorPerf)/1000);
-    return Math.min(projected,anchor+SYNC_MAX_LOCAL_PROJECTION_SECONDS);
-  }
+  function syncTargetElapsed(){return Math.max(0,state.syncAnchorElapsed+(state.syncRunning?(performance.now()-state.syncAnchorPerf)/1000:0))}
 
   function blankTeamStats(){return {shots:0,onTarget:0,missedChances:0,passes:0,completed:0,interceptions:0,rebounds:0,fouls:0,penalties:0,var:0,possession:0,turnovers:0,counterattacks:0,presses:0,tacklesAttempted:0,tacklesWon:0}}
   function resetStats(){
@@ -1276,24 +1271,6 @@
 
   document.addEventListener('visibilitychange',()=>{
     if(state.open&&!document.hidden)requestV2WatchXp();
-    if(!state.open||!state.syncMode)return;
-    const now=performance.now();
-    if(document.hidden){
-      // Freeze on the exact simulation tick already rendered. Do not allow a
-      // throttled/background browser to keep projecting the match on its own.
-      state.syncAnchorElapsed=Math.max(0,state.engineElapsed);
-      state.syncAnchorPerf=now;
-      state.syncRunning=false;
-    }else{
-      // Stay frozen until the parent supplies the next authoritative elapsed
-      // sample. The normal live sync poll will then deterministically catch up.
-      state.syncAnchorElapsed=Math.max(0,state.engineElapsed);
-      state.syncAnchorPerf=now;
-      state.syncRunning=false;
-      try{
-        if(window.parent&&window.parent!==window)window.parent.postMessage({type:'repo-sports-v2-sync-request',matchSerial:state.liveSerial},'*');
-      }catch(_){}
-    }
   });
 
   // ==========================================================
@@ -2260,10 +2237,10 @@
     const groundY=fixtureGroundY();
     const belrosX=[.27,.34,.41], zafranX=[.73,.66,.59];
     const roleProfile=role=>{
-      const base={personality:'tactical',speed:.93,accel:.93,turn:.93,passing:.90,catching:.90,shooting:.86,interception:.88,awareness:.91,positioning:.91,reaction:.91,anticipation:.91,decision:.91,composure:.91,aggression:.82,stamina:.94,recovery:.92};
-      if(role==='attacker')Object.assign(base,{personality:'aggressive',speed:.97,accel:.97,turn:.96,shooting:.95,interception:.78,positioning:.87,aggression:.90});
-      else if(role==='defender')Object.assign(base,{personality:'tactical',speed:.90,accel:.90,shooting:.72,interception:.97,awareness:.97,positioning:.98,anticipation:.97,composure:.95});
-      else Object.assign(base,{personality:'creative',speed:.93,accel:.93,passing:.97,catching:.94,shooting:.84,interception:.84,awareness:.94,decision:.96});
+      const base={personality:'tactical',speed:.93,accel:.93,turn:.93,passing:.90,catching:.90,shooting:.88,interception:.88,awareness:.91,positioning:.91,reaction:.91,anticipation:.91,decision:.91,composure:.91,aggression:.82,stamina:.94,recovery:.92};
+      if(role==='attacker')Object.assign(base,{personality:'aggressive',shooting:.88,interception:.78,positioning:.87,aggression:.90});
+      else if(role==='defender')Object.assign(base,{personality:'tactical',shooting:.88,interception:.97,awareness:.97,positioning:.98,anticipation:.97,composure:.95});
+      else Object.assign(base,{personality:'creative',passing:.97,catching:.94,shooting:.88,interception:.84,awareness:.94,decision:.96});
       return base;
     };
     const profiles={};
@@ -2276,8 +2253,9 @@
       return {player:p,team,x,y:groundY,vx:0,vy:0,ax:0,ay:0,tx:x,ty:groundY,
         facing:teamMeta[team].attack,dir:-teamMeta[team].attack,bank:0,celebrate:0,intent:'shape',mark:null,currentThreat:null,
         personality:a.personality,presentationPersonality:getPlayerPersonality(p),personalityHistory:{},attributes:a,form:0,fatigue:0,mistakes:0,recentSuccess:0,
-        maxSpeed:(p.role==='attacker'?.205:p.role==='defender'?.19:.198)*(0.88+a.speed*.16),
-        accel:(p.role==='attacker'?.74:.68)*(0.86+a.accel*.20),turnRate:(p.role==='attacker'?5.6:5.0)*(0.85+a.turn*.22),
+        // Equal movement envelope prevents a fixed role from receiving more scoring access.
+        maxSpeed:.198*(0.88+a.speed*.16),
+        accel:.70*(0.86+a.accel*.20),turnRate:5.2*(0.85+a.turn*.22),
         wander:(i-1)*.37,decisionNoise:(state.simRand?.()||.5)-.5,decisionClock:.05+(state.simRand?.()||.5)*.12,
         recoveryTarget:null,lastIntent:'shape',lastDecisionAt:0,edgeStall:0,hoverTime:0,flowSign:i%2?1:-1,flowPhase:(state.simRand?.()||.5)*Math.PI*2,desiredTx:x,desiredTy:groundY,tacticalRole:'SHAPE',responsibility:'SHAPE',supportTarget:null,pressing:false,smoothedTurn:0,locomotionChangedAt:0,packCrowdTime:0,packDisperseTime:0,packDisperseTarget:null,
         reactionState:'idle',reactionUntil:0,reactionMeta:{},microReactionClock:2+visualRandom()*5,animState:'IDLE',animPriority:0,animUntil:0,animElapsed:0,animMeta:{},idlePhase:(state.simRand?.()||.5)*Math.PI*2,motionHeading:teamMeta[team].attack>0?0:Math.PI,motionAccel:0,turnMagnitude:0,faceCandidate:0,faceCandidateTime:0};
@@ -2315,7 +2293,9 @@
     if(state.possession===team&&carrier){
       tt.responsibilities[carrier.player.id]='BALL_CARRIER';carrier.tacticalRole='BALL_CARRIER';carrier.responsibility='BALL_CARRIER';
       const off=players.filter(e=>e!==carrier);
-      const runner=off.slice().sort((a,b)=>((b.player.role==='attacker'?1:.35)+(b.attributes?.speed||0))-((a.player.role==='attacker'?1:.35)+(a.attributes?.speed||0)))[0]||off[0];
+      // Goal opportunity must not be attached permanently to the ATTACKER label.
+      // The seeded match RNG gives either off-ball teammate the same runner chance.
+      const runner=off.length?off[Math.floor((state.simRand?.()||Math.random())*off.length)]:off[0];
       const support=off.find(e=>e!==runner)||off[0];
       if(runner){const role=tt.state==='BUILDUP'?'WIDTH':'RUNNER';tt.responsibilities[runner.player.id]=role;runner.tacticalRole=role;runner.responsibility=role}
       if(support){const role='SUPPORT';tt.responsibilities[support.player.id]=role;support.tacticalRole=role;support.responsibility=role}
@@ -2673,14 +2653,14 @@
 
   function chooseShotOutcome(shooter,penalty=false){
     const a=shooter.attributes||{},speed=Math.hypot(shooter.vx,shooter.vy),defenders=teamEntities(other(shooter.team)),pressure=Math.min(...defenders.map(d=>dist2(shooter,d))),goalX=shooter.team==='belros'?.91:.09,distGoal=Math.abs(goalX-shooter.x);
-    const shooting=executionSkill(a,'shooting'),composure=executionSkill(a,'composure');
+    const shooting=PLAYER_GOAL_PARITY ? .90 : executionSkill(a,'shooting'),composure=PLAYER_GOAL_PARITY ? .91 : executionSkill(a,'composure');
     const pressurePenalty=clamp((.16-pressure)*.72,0,.10),distancePenalty=clamp((distGoal-.18)*.18,0,.055),motionPenalty=clamp(speed-.13,0,.08)*.22;
     if(penalty){
       // Same formula for both teams: skill creates probability, never certainty.
       const quality=.58+.16*shooting+.08*composure+(shooter.form||0)*.55+fairNoise(.018),r=state.simRand();
       return r<clamp(quality,.61,.82)?'goal':r<.88?'save':r<.95?'post':'miss';
     }
-    const roleBoost=shooter.player.role==='attacker'?.020:shooter.player.role==='defender'?-.012:0;
+    const roleBoost=0; // V22.20.1: no hidden role multiplier on goal conversion.
     const quality=.065*shooting+.040*composure+(shooter.form||0)*.10+fairNoise(.014);
     // V2 four-and-a-half-minute format: a very small symmetric finishing bump so the longer
     // standard rotation produces a little more scoring without becoming goal-heavy.
@@ -3178,7 +3158,7 @@
     const players=teamEntities(team);
     const shooter=shootout&&state.shootout
       ?players[(state.shootout.attempts[team]||0)%Math.max(1,players.length)]
-      :(players.find(e=>e.player.role==='attacker')||players[0]);
+      :(players[Math.floor((state.simRand?.()||Math.random())*Math.max(1,players.length))]||players[0]);
     state.special={type:'penalty',elapsed:0,team,shooter,shootout,shot:false};
     const dir=teamMeta[team].attack;shooter.tx=team==='belros'?.72:.28;shooter.ty=.52;setPlayerAnim(shooter,'DECELERATING',.55,ANIM_PRIORITY.DECELERATING,{setPiece:true});teamEntities(team).filter(e=>e!==shooter).forEach((e,i)=>{e.tx=.5-dir*.08;e.ty=.39+i*.24;setPlayerAnim(e,'IDLE',1.35,ANIM_PRIORITY.IDLE,{setPiece:true})});teamEntities(other(team)).forEach((e,i)=>{e.tx=.5+dir*.08;e.ty=.39+i*.12});state.ref.tx=.5;state.ref.ty=.42;state.camera.tx=team==='belros'?.535:.465;state.camera.ty=.52;state.camera.tz=1.06;showBanner(shootout?'SHOOTOUT PENALTY':`PENALTY · ${teamMeta[team].name}`,'danger',2.0);eventLine('penalty',{team:teamMeta[team].name,pet:shooter.player.name},shooter.player,.06);audio.ensure();audio.play(audio.whistle,.55);
   }
@@ -3302,35 +3282,23 @@
 
   function beginShootout(){
     if(state.phase==='shootout'||state.phase==='fulltime')return;
-    // A late regulation shot can finish on the same fixed tick as the clock.
-    // Never start penalties unless the settled regulation score is still level.
-    if(state.score.belros!==state.score.zafran){finishMatch(false);return;}
     const first=state.simRand()<.5?'belros':'zafran',second=other(first);
     state.phase='shootout';
     state.shootout={score:{belros:0,zafran:0},attempts:{belros:0,zafran:0},turn:0,order:[first,second],round:0};
-    state.shootoutRecoveryElapsed=0;state.chanceBuild=null;state.special=null;state.celebration=null;
-    state.ball.flight=null;state.carrier=null;state.ball.visible=false;
-    state.delay={t:2.0,cb:shootoutNext};
+    state.special=null;state.delay={t:2.0,cb:shootoutNext};
     setBroadcastState('PENALTY_SHOOTOUT');
     showBanner('PENALTY SHOOTOUT','var',2.4);
     say(`Four minutes thirty cannot separate them. ${teamMeta[first].name} won the toss and will take the first penalty.`);
     audio.ensure();audio.startMatchMusic();audio.play(audio.whistle,.6);
   }
   function shootoutNext(){
-    const so=state.shootout;if(!so||state.phase!=='shootout')return;
-    if(state.score.belros!==state.score.zafran){finishMatch(false);return;}
-    const team=so.order[so.turn%2];const attemptsA=so.attempts.belros,attemptsB=so.attempts.zafran;
+    const so=state.shootout;if(!so)return;const team=so.order[so.turn%2];const attemptsA=so.attempts.belros,attemptsB=so.attempts.zafran;
     if(attemptsA>=3&&attemptsB>=3&&attemptsA===attemptsB&&so.score.belros!==so.score.zafran){finishMatch(true);return}
     if(attemptsA>=3&&attemptsB>=3&&Math.abs(attemptsA-attemptsB)===0&&so.score.belros===so.score.zafran){/* sudden death continues */}
-    state.shootoutRecoveryElapsed=0;
-    try{startPenalty(team,true)}catch(error){
-      console.error('[Repo Sports Quidditch] recovered shootout setup error',error);
-      const players=teamEntities(team),shooter=players[(so.attempts[team]||0)%Math.max(1,players.length)]||players[0];
-      if(shooter)resolveShootoutPenalty(team,false,shooter);else finishMatch(true);
-    }
+    startPenalty(team,true);
   }
   function resolveShootoutPenalty(team,scored,shooter){
-    const so=state.shootout;if(!so)return;state.shootoutRecoveryElapsed=0;so.attempts[team]++;if(scored){so.score[team]++;audio.ensure();audio.play(audio.goal,.68);audio.goalCelebration();audio.crowdHit(.32);showBanner(`PENALTY SCORED · ${shooter.player.name}`,'',1.8);say(`${shooter.player.name} scores in the shootout. ${so.score.belros}-${so.score.zafran} on penalties.`)}else{showBanner(`PENALTY MISSED · ${shooter.player.name}`,'danger',1.8);say(`${shooter.player.name} cannot convert. The shootout remains ${so.score.belros}-${so.score.zafran}.`)}
+    const so=state.shootout;if(!so)return;so.attempts[team]++;if(scored){so.score[team]++;audio.ensure();audio.play(audio.goal,.68);audio.goalCelebration();audio.crowdHit(.32);showBanner(`PENALTY SCORED · ${shooter.player.name}`,'',1.8);say(`${shooter.player.name} scores in the shootout. ${so.score.belros}-${so.score.zafran} on penalties.`)}else{showBanner(`PENALTY MISSED · ${shooter.player.name}`,'danger',1.8);say(`${shooter.player.name} cannot convert. The shootout remains ${so.score.belros}-${so.score.zafran}.`)}
     so.turn++;
     const a=so.attempts.belros,b=so.attempts.zafran,sa=so.score.belros,sb=so.score.zafran;
     // Early mathematical finish during first three each.
@@ -4259,37 +4227,11 @@
     else if(state.phase==='first'||state.phase==='second'){
       const liveDt=scaledDt*LIVE_TEMPO;
       if(!state.special&&!state.celebration){state.matchTime+=scaledDt;if(state.possession&&state.teamStats[state.possession])state.teamStats[state.possession].possession+=scaledDt;if(state.carrier?.player?.id&&state.playerStats[state.carrier.player.id])state.playerStats[state.carrier.player.id].possession+=scaledDt}
-      // Let an in-flight shot, awarded set piece, replay or celebration settle
-      // before the final-whistle decision. Previously a shot could score after
-      // beginShootout(), producing a 3-2 regulation score with PENS 0-0 and no
-      // valid next action.
-      if(state.phase==='first'&&state.matchTime>=MATCH_SECONDS){
-        state.matchTime=MATCH_SECONDS;
-        const settled=!state.special&&!state.celebration&&!state.delay&&!state.ball.flight&&!state.chanceBuild&&!state.replay&&!state.replayIntro&&!state.replayOutro;
-        if(settled){if(state.score.belros===state.score.zafran)beginShootout();else finishMatch(false)}
-      }
+      if(state.phase==='first'&&state.matchTime>=MATCH_SECONDS){state.matchTime=MATCH_SECONDS;if(state.score.belros===state.score.zafran)beginShootout();else finishMatch(false)}
       if((state.phase==='first'||state.phase==='second')&&!state.celebration){updateMatchFlowDirector(liveDt);updateFlight(liveDt);updateDelay(liveDt);if(state.special?.type==='var')updateVar(liveDt);else if(state.special?.type==='penalty')updatePenalty(liveDt);if(!state.special&&!state.delay&&!state.ball.flight){state.actionTimer-=liveDt;if(state.actionTimer<=0)nextAction()}}
     }else if(state.phase==='halftime')updateHalftimePresentation(rawDt);
     else if(state.phase==='secondcountdown')updateSecondHalfCountdown(rawDt);
-    else if(state.phase==='shootout'){
-      if(state.score.belros!==state.score.zafran){finishMatch(false)}
-      else{
-        const so=state.shootout,before=so?`${so.attempts.belros}:${so.attempts.zafran}`:'';
-        updateFlight(scaledDt);updateDelay(scaledDt);if(state.special?.type==='penalty')updatePenalty(scaledDt);
-        const after=so?`${so.attempts.belros}:${so.attempts.zafran}`:'';
-        if(before!==after)state.shootoutRecoveryElapsed=0;
-        else state.shootoutRecoveryElapsed+=scaledDt;
-        const active=!!(state.ball.flight||state.delay||state.special);
-        if(!active&&state.shootoutRecoveryElapsed>=.75){state.shootoutRecoveryElapsed=0;shootoutNext()}
-        else if(active&&state.shootoutRecoveryElapsed>=8){
-          // Last-resort local recovery: resolve an interrupted attempt as a miss
-          // so one broken animation can never hold the global channel forever.
-          const team=so?.order?.[Number(so?.turn||0)%2],players=team?teamEntities(team):[],shooter=players[(so?.attempts?.[team]||0)%Math.max(1,players.length)]||players[0];
-          state.ball.flight=null;state.special=null;state.delay=null;state.carrier=null;state.ball.visible=false;state.shootoutRecoveryElapsed=0;
-          if(team&&shooter)resolveShootoutPenalty(team,false,shooter);else finishMatch(true);
-        }
-      }
-    }
+    else if(state.phase==='shootout'){updateFlight(scaledDt);updateDelay(scaledDt);if(state.special?.type==='penalty')updatePenalty(scaledDt)}
     else if(state.phase==='fulltime')updateFulltimePresentation(rawDt);
     const entityDt=(state.phase==='first'||state.phase==='second')&&!state.celebration?scaledDt*LIVE_TEMPO:scaledDt;
     updateEntities(entityDt);syncHeldBallToCarrier();captureReplayFrame(rawDt);updateBroadcastDirector(rawDt);updateCamera(rawDt);
@@ -4362,7 +4304,7 @@
       state.commentaryRand=mulberry32(state.seed^0xc2b2ae35);
       state.phase='intro';state.introElapsed=0;
       state.matchTime=0;state.speed=1;state.half=1;state.firstKickoff='belros';state.score={belros:0,zafran:0};
-      state.shootout=null;state.shootoutRecoveryElapsed=0;state.special=null;state.delay=null;state.celebration=null;state.reactionHistory={};state.reactionSerial=0;state.refReaction=null;state.varContext=null;state.actionTimer=2.5;
+      state.shootout=null;state.special=null;state.delay=null;state.celebration=null;state.reactionHistory={};state.reactionSerial=0;state.refReaction=null;state.varContext=null;state.actionTimer=2.5;
       state.ball={x:.5,y:.5,vx:0,vy:0,speed:0,direction:0,flight:null,visible:true,state:'HELD',owner:null,previousOwner:null,currentOwner:null,intendedReceiver:null,predictedDestination:null,lastTouchedBy:null};
       state.pendingPass=null;state.possessionChangedAt=simNow();state.loreUsed=new Set();state.introCue=-1;state.presentationKey='';state.broadcastState='PRE_MATCH';state.broadcastSequence={state:'fixtureIntro',elapsed:0,serial:1,frozen:true,skipped:false};
       state.halftimeElapsed=0;state.halftimeReady=false;state.halftimeWaitSlide=-1;state.secondCountdown=0;state.fulltimeElapsed=0;state.fulltimeData=null;state.events=[];state.kickoffToss=null;state.kickoffMount=null;state.kickoffReceiver=null;state.prematchAudioFailed=false;
@@ -4419,13 +4361,7 @@
     state.syncAnchorPerf=now;
     state.syncRunning=running;
 
-    // A returning/slow browser must catch up to the authoritative server sample
-    // immediately rather than spending several visible seconds running behind.
-    // Fixed-step simulation keeps the result deterministic and identical to every
-    // other viewer using the same serial/seed. Hidden tabs remain frozen.
-    const behindBy=serverElapsed-state.engineElapsed;
-    if(!document.hidden&&behindBy>.12)catchUpTo(serverElapsed,36000);
-    else if(state.headless)catchUpTo(syncTargetElapsed(),36000);
+    if(state.headless)catchUpTo(syncTargetElapsed(),36000);
     return true;
   }
 

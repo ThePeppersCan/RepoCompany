@@ -206,7 +206,7 @@ function harmonyLevelFromXp(xp) {
 
 function totalLevelForCharacter(data = character) {
   if (!data) return harmonyLevelFromXp(count);
-  const skills = ['woodcutting','mining','fishing','agility','slayer','attack','strength','defence','sailing','runecrafting','cooking','magic','ranged','farming'];
+  const skills = ['woodcutting','mining','fishing','agility','slayer','attack','strength','defence','sailing','runecrafting','cooking','magic','ranged','farming','firemaking','herblore','construction'];
   return skills.reduce((sum, skill) => sum + levelFromXp(Number(data[`${skill}_xp`]) || 0), 0) + harmonyLevelFromXp(count);
 }
 
@@ -627,6 +627,9 @@ async function openSkills() {
     ranged: { label:'Ranged', image:'assets/ranged-icon.png', branch:'combat' },
     slayer: { label:'Slayer', image:'assets/slayer-icon.png', branch:'combat' },
     cooking: { label:'Cooking', image:'assets/cooking-icon-new.png', branch:'artisan' },
+    firemaking: { label:'Firemaking', image:'assets/fire-rune.webp', branch:'artisan' },
+    herblore: { label:'Herblore', image:'assets/level-herblore-icon.png', branch:'artisan' },
+    construction: { label:'Construction', image:'assets/level-construction-icon.png', branch:'artisan' },
     runecrafting: { label:'Runecrafting', image:'assets/runecrafting-icon.png', branch:'artisan' },
     agility: { label:'Agility', image:'assets/agility-icon.webp', branch:'adventure' },
     sailing: { label:'Sailing', image:'assets/sailing-icon.webp', branch:'adventure' }
@@ -33502,7 +33505,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       openGrandExchange:'GRAND EXCHANGE',
       openNpcContact:'NPC CONTACT',
       openQuests:'QUESTS',
-      openQuidditchDirector:'QUIDDITCH',
+      openReparty:'REPARTY',
       openRepoSports:'REPO SPORTS',
       openRaids:'RAIDS',
       openAchievements:'ACHIEVEMENTS'
@@ -33535,7 +33538,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       const frag=document.createDocumentFragment();
       frag.append(
         makeGroup('GUILD SERVICES',['openWiseTask','openGrandExchange','openNpcContact','openQuests']),
-        makeGroup('GAMES & CHALLENGES',['openQuidditchDirector','openRepoSports','openRaids','openAchievements'])
+        makeGroup('GAMES & CHALLENGES',['openReparty','openRepoSports','openRaids','openAchievements'])
       );
       if(hiddenPetWars)frag.appendChild(hiddenPetWars);
       activities.replaceChildren(frag);
@@ -33804,6 +33807,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     ['mining', 'Mining', 'assets/mining-icon.png', data=>levelFromXp(Number(data?.mining_xp)||0), data=>Number(data?.mining_xp)||0],
     ['hunter', 'Hunter', 'assets/level-hunter-icon.png', data=>levelFromXp(Number(data?.hunter_xp)||0), data=>Number(data?.hunter_xp)||0],
     ['cooking', 'Cooking', 'assets/level-cooking-icon.png', data=>levelFromXp(Number(data?.cooking_xp)||0), data=>Number(data?.cooking_xp)||0],
+    ['firemaking', 'Firemaking', 'assets/fire-rune.webp', data=>levelFromXp(Number(data?.firemaking_xp)||0), data=>Number(data?.firemaking_xp)||0],
     ['herblore', 'Herblore', 'assets/level-herblore-icon.png', data=>levelFromXp(Number(data?.herblore_xp)||0), data=>Number(data?.herblore_xp)||0],
     ['runecrafting', 'Runecrafting', 'assets/runecrafting-icon.png', data=>levelFromXp(Number(data?.runecrafting_xp)||0), data=>Number(data?.runecrafting_xp)||0],
     ['construction', 'Construction', 'assets/level-construction-icon.png', data=>levelFromXp(Number(data?.construction_xp)||0), data=>Number(data?.construction_xp)||0]
@@ -33828,7 +33832,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   }
   function passportTotalExp(data = character){
     if(!data) return Number(count || 0);
-    const skillKeys = ['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','construction_xp','herblore_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp'];
+    const skillKeys = ['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','construction_xp','herblore_xp','firemaking_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp'];
     return skillKeys.reduce((sum,key)=>sum + (Number(data?.[key]) || 0), 0) + (Number(count) || 0);
   }
   function passportPetCount(){

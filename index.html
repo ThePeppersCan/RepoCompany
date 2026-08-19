@@ -8,6 +8,7 @@
 <link href="favicon.png?v=repo-company-20260806-1" rel="icon" sizes="128x128" type="image/png"/>
 <link href="favicon.png?v=repo-company-20260806-1" rel="shortcut icon" type="image/png"/>
 <link href="style.css?v=v22-15-5-newspaper-hover-cleanup-20260818" rel="stylesheet"/>
+<link href="reparty-v1.css?v=v22-22-gameplay-rebuild-20260819" rel="stylesheet"/>
 <link href="repo-rooftops.css?v=repo-rooftops-20260810-2-0" rel="stylesheet"/>
 <link href="repoggle.css?v=repoggle-1" rel="stylesheet"/>
 <link href="assets/goblin-bomb-party/goblin-bomb-party.css?v=20260811-v38-16" rel="stylesheet"/>
@@ -3172,7 +3173,7 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 <!-- Legacy compatibility stub: the main site still initialises Pet Wars by looking up #openPetWars.
            Keep that element present but permanently hidden so its old listener cannot collide with Director. -->
 <button aria-hidden="true" hidden="" id="openPetWars" style="display:none!important" tabindex="-1" type="button"></button>
-<button class="quidditch-director-open-button other-quidditch-open-button" id="openQuidditchDirector" title="Repo Company: Quidditch Games"><img alt="" height="32" src="assets/quidditch-mode-icon.png" style="width:32px;height:32px;object-fit:contain" width="32"/><span class="activity-button-copy"><small>PLAY</small><span>QUIDDITCH GAMES</span></span></button>
+<button class="reparty-open-button other-quidditch-open-button" id="openReparty" title="Play Reparty" type="button"><span aria-hidden="true" class="reparty-home-icon"><b>RP</b></span><span class="activity-button-copy"><small>PLAY</small><span>REPARTY</span></span></button>
 <button class="other-quidditch-open-button" id="openRepoSports" title="Open Repo Sports" type="button"><img alt="Repo Sports" height="21" src="assets/repo-sports-logo.png" style="width:42px;height:21px;object-fit:contain" width="42"/><span class="activity-button-copy"><small>OPEN</small><span>REPO SPORTS</span></span></button>
 <button class="raids-open-button" id="openRaids"><img alt="" src="assets/raids-icon.png"/><span class="activity-button-copy"><small>OPEN</small><span>RAIDS</span></span></button>
 <button class="npc-contact-open-button" id="openNpcContact"><img alt="" height="24" src="assets/npc-contact-icon.png" width="24"/><span class="activity-button-copy"><small>OPEN</small><span>NPC CONTACT</span></span></button>
@@ -4585,7 +4586,8 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 </div>
 </dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=v22-18-3-passport-weekly-xp-20260818"></script>
+<script src="script.js?v=v22-19-reparty-20260818"></script>
+<script src="reparty-v1.js?v=v22-22-gameplay-rebuild-20260819"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -7180,7 +7182,7 @@ window.__QD_HOST__={
     h.id='repoSportsV2GlobalHostFrame';h.tabIndex=-1;h.setAttribute('aria-hidden','true');
     h.style.cssText='position:fixed!important;width:1px!important;height:1px!important;left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;border:0!important';
     h.addEventListener('load',()=>setTimeout(()=>repoV2PushLiveState(h.contentWindow),30));
-    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-shootout-recovery-20260818';
+    h.src='repo-sports-quidditch-v2-test.html?headless=1&v=repo-sports-player-parity-20260819';
     document.body.appendChild(h);
   }
   function repoV2NormalizeLiveRow(row){
@@ -7510,7 +7512,7 @@ window.__QD_HOST__={
     f.addEventListener('load',()=>setTimeout(markFrameReady,35),{once:true});
     playRepoV2LaunchSound(serial,()=>{stingFinished=true;revealLive();});
     void repoV2FetchLiveState();
-    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-shootout-recovery-20260818';
+    f.src='repo-sports-quidditch-v2-test.html?v=repo-sports-player-parity-20260819';
     repoV2EnsureHostFrame();
     revealTimer=setTimeout(markFrameReady,2200);
   }

@@ -1,0 +1,29 @@
+REPO SPORTS PLAYER PARITY QA — V22.20.1
+
+ROOT CAUSE CONFIRMED
+The previous engine guaranteed TEAM 50/50 fairness, but not PLAYER scoring parity.
+Fixed-role attackers had four goal advantages: higher shooting, faster movement, attacker-weighted runner selection, +2.0 percentage-point goal conversion boost, and automatic normal penalties.
+
+PATCH ASSERTIONS
+- role-specific goal conversion boost removed
+- normal penalty taker no longer hard-coded to attacker
+- advanced runner no longer hard-coded/weighted toward attacker
+- shooting used for scoring is role-neutral
+- movement envelope used for scoring access is role-neutral
+- defensive/passing role identity remains
+- JavaScript syntax: PASS (node --check)
+
+STATISTICAL SELECTION QA (1,000,000 samples)
+Runner share by player slot: 33.370% / 33.351% / 33.279%
+Penalty share by player slot: 33.309% / 33.394% / 33.297%
+Expected target: 33.333% each
+
+FINISHING PARITY QA
+Attacker goal probability in identical context: 0.336300
+Defender goal probability in identical context: 0.336300
+Support goal probability in identical context: 0.336300
+Difference: 0.000000
+
+IMPORTANT
+This patch fixes FUTURE match generation. It deliberately does NOT rewrite existing all-time career totals.
+Historical totals already contain matches played under the biased role model.

@@ -1,0 +1,52 @@
+REPARTY V22.22 — GAMEPLAY QA
+19 August 2026
+
+TEST METHOD
+- Chromium headless browser, 1440x960 viewport.
+- Production Reparty JS/CSS loaded into a controlled test page.
+- Production-compatible mocked Supabase RPC contract.
+- Real keyboard/pointer/button inputs exercised for each mode.
+- Each game was allowed to transition through the normal Reparty lifecycle:
+  open -> live round -> instructions -> gameplay -> score submission -> results -> reward claim.
+- JavaScript page errors and browser console errors were captured.
+
+END-TO-END RESULTS
+1. Goblin Bomb Party ........ PASS
+2. Potion Panic ............. PASS
+3. Fishing Frenzy ........... PASS
+4. Chopping Frenzy .......... PASS
+5. Builder Blitz ............ PASS
+6. Minecart Mayhem .......... PASS
+7. Rooftop Rush ............. PASS
+8. Chicken Chase ............ PASS
+9. Treasure Tiles ........... PASS
+10. Goblin Says ............. PASS
+11. Gold Rush ............... PASS
+12. Don't Wake the Troll .... PASS
+
+TOTAL: 12 / 12 PASS
+
+FOR EVERY MODE
+- live gameplay screen rendered
+- real gameplay input was accepted
+- no captured JavaScript runtime error
+- reparty_submit_score was called
+- results screen activated
+- reparty_get_round_results completed
+- reparty_claim_reward completed
+
+GOBLIN BOMB SPECIFIC
+- Anti-return logic is implemented at both eligibility and AI-target-selection level.
+- A recipient stores the previous passer as noReturnTo for 1.9 seconds.
+- A direct reverse transfer inside that protection window is rejected.
+- Bomb transfer has an explicit flight state so possession does not teleport.
+
+STATIC CHECKS
+- reparty-v1.js: node --check PASS
+- reparty-v1.css: opening/closing brace balance PASS
+- index.html cache bust updated to v22-22-gameplay-rebuild-20260819
+- No Supabase migration included.
+- Existing GP prize balancing remains unchanged.
+
+NOTE
+These tests verify browser/runtime integrity and the full Reparty scoring/reward lifecycle. They are not a claim that a browser pixel-art game has the asset budget of a literal AAA console title; V22.22 specifically targets much deeper, more polished party-game mechanics within the site's existing technology and art direction.

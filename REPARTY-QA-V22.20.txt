@@ -1,0 +1,64 @@
+REPARTY V22.20 — BROWSER QA REPORT
+19 August 2026
+
+TEST ENVIRONMENT
+- Chromium 144
+- 1440x960 browser viewport
+- Reparty frontend injected with mocked production-compatible Supabase RPC responses
+- Runtime errors and unhandled promise rejections captured
+- Simulated mouse + keyboard gameplay input
+- Screenshot captured during live gameplay for every game
+- Forced normal server transition into results after gameplay window
+
+FULL ROUND PIPELINE VALIDATED FOR EVERY GAME
+open Reparty
+-> join
+-> receive live round state
+-> initialise game
+-> accept gameplay input
+-> submit score / participation
+-> transition to results
+-> fetch placements
+-> claim GP + XP
+-> render reward result
+
+REQUIRED RPCS VERIFIED DURING EACH TEST
+- reparty_join
+- reparty_get_state
+- reparty_submit_score
+- reparty_get_round_results
+- reparty_claim_reward
+
+RESULTS
+1. Goblin Bomb Party ........ PASS
+2. Potion Panic ............. PASS
+3. Fishing Frenzy ........... PASS
+4. Chopping Frenzy .......... PASS
+5. Builder Blitz ............ PASS
+6. Minecart Mayhem .......... PASS
+7. Rooftop Rush ............. PASS
+8. Chicken Chase ............ PASS
+9. Treasure Tiles ........... PASS
+10. Goblin Says ............. PASS
+11. Gold Rush ............... PASS
+12. Don't Wake the Troll .... PASS
+
+TOTAL: 12 / 12 PASS
+
+For all twelve tests:
+- no captured JavaScript runtime errors
+- score submission occurred
+- results endpoint occurred
+- reward claim occurred
+- results UI became active
+- mocked #3 reward rendered as +4,250 GP plus the correct skill XP
+- live-game screenshot rendered successfully at 1440x960
+
+ADDITIONAL STATIC CHECKS
+- reparty-v1.js passed Node syntax validation
+- Reparty CSS opening/closing brace count validated
+- exactly one homepage openReparty trigger is present
+- V22.20 CSS/JS cache-bust references confirmed in index.html
+
+NOTE
+This QA validates frontend gameplay/lifecycle logic against the same RPC contract used by the live Reparty backend. It deliberately does not grant real GP or XP during QA testing.
