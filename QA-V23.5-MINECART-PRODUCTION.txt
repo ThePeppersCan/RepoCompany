@@ -1,0 +1,33 @@
+REPARTY V23.5 — MINECART MAYHEM PART 2 QA
+
+STATIC / PACKAGE QA
+- node --check reparty-v1.js: PASS
+- PNG decode/verify: PASS (6/6)
+- OGG decode/duration via ffprobe: PASS (16/16)
+- All referenced Minecart V23.5 asset filenames exist: PASS
+- Minecart production assets total: 22 files
+
+ISOLATION QA
+Compared V23.4 and V23.5 function bodies:
+- gameBomb: identical
+- gamePotion: identical
+- gameFishing: identical
+- gameChop: identical
+- gameBuilder: identical
+- gameMinecart: changed (expected)
+- gameRooftop: identical
+- gameChicken: identical
+- gameTiles: identical
+- gameSays: identical
+- gameGold: identical
+- gameTroll: identical
+
+FILES CHANGED / ADDED
+- reparty-v1.js
+- index.html (Reparty JS cache key only)
+- assets/reparty/minecart-v23-5/*
+- README-V23.5-MINECART-PRODUCTION.txt
+- QA-V23.5-MINECART-PRODUCTION.txt
+
+LIVE-BROWSER QA
+Not claimed for this pass. The available managed browser in this environment is currently blocking local/localhost pages, so this package was validated by syntax, file integrity, audio decoding, asset decoding and function-isolation checks rather than falsely claiming an end-to-end browser run.

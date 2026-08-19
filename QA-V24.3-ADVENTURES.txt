@@ -1,0 +1,11 @@
+V24.3 QA NOTES
+
+Checks completed:
+- adventures-v22.js syntax checked with node --check.
+- index.html references adventures-v22.css and adventures-v22.js.
+- No SQL / backend changes included.
+- Save & Exit remains isolated from generic site .back styling.
+- Travel / processing / banner / dialogue / dice interaction code added front-end only.
+
+Not completed here:
+- full deployed browser playthrough.

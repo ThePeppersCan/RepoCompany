@@ -1,0 +1,49 @@
+REPARTY V23.0 — QA REPORT
+=========================
+
+SYNTAX
+node --check reparty-v1.js: PASS
+
+ROUND PACING / EARLY FINISH
+Individual game functions contain zero finishGame() calls: {'gameBomb': 0, 'gamePotion': 0, 'gameFishing': 0, 'gameChop': 0, 'gameBuilder': 0, 'gameMinecart': 0, 'gameRooftop': 0, 'gameChicken': 0, 'gameTiles': 0, 'gameSays': 0, 'gameGold': 0, 'gameTroll': 0}
+PASS: True
+Only the server live->results transition or server live timer expiry submits the round. Game-specific elimination/failure states now recover/reset/continue rather than leaving a dead arena.
+
+INSTRUCTIONS
+Normal 38-second live-round test:
+- At 3.3 seconds: V23 instruction screen still visible, gameplay canvas hidden.
+- At 7.0 seconds: countdown complete, canvas visible, game running, 31.0 seconds remained.
+PASS.
+
+12-GAME ACTIVE PLAY
+All 12 games mounted in Chromium, accepted game-specific input, remained active (not prematurely finished), produced an active-play screenshot, and submitted through reparty_submit_score.
+Page/runtime errors: 0.
+
+RESULT + REWARD LIFECYCLE
+All 12 game IDs independently passed: active game -> score submit -> six-player result render -> reparty_claim_reward.
+PASS: True
+Runtime errors: 0.
+
+GOBLIN BOMB ANTI-RETURN
+Targeted physical-pass test trace: 9 throws/passes.
+Immediate reversed passes inside 2.2 seconds: 0.
+PASS: True
+
+FISHING DIRECTION
+Traced spawns: 5
+All traced fish spawned beyond the right edge and travelled left: True
+
+25-ROUND ENDURANCE
+Consecutive accelerated mount/play/input/cleanup cycles without refresh: 25
+Every local game scope cleared: True
+Final cleanup state: {'scopeNull': True, 'fx': 0}
+
+ISOLATION
+index.html diff against V22.25 changes only the two Reparty cache-buster URLs.
+No Repo Sports JS, Repo Sports CSS, Repo Sports test wrapper, World Cup logic, TCG logic, Binder logic, RCG logic, Passport logic or Animal Centre logic is included in this patch.
+
+VISUAL QA
+REPARTY-V23-12-GAME-QA.jpg contains an active-play capture of all 12 games.
+
+LIMITATION
+V23 substantially rebuilds mechanics, pacing, AI and feedback inside the existing browser/canvas architecture. It does not pretend to ship the asset budget, bespoke animation library, recorded soundtrack or dedicated network physics server of a commercial AAA studio. The target of this pass is a much stronger small premium party-game feel inside Velmora.

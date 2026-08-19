@@ -1,0 +1,13 @@
+V28.0 QA
+
+Completed:
+- node --check on adventures-v6.js
+- ZIP integrity
+- rollback QA: rent, shop buy, storage deposit/withdraw, work, crafting, home rest
+- rollback QA: buy cottage, three upgrades, display item, decoration
+- rollback QA: Canto Crossing -> Ossa Mere public transport
+- Phase 6 tables are Adventure-only and direct authenticated/anon table access is revoked
+
+Not claimed:
+- full deployed-browser visual playthrough
+- 10,000 live transaction simulation

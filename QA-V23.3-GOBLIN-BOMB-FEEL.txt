@@ -1,0 +1,51 @@
+REPARTY V23.3 — GOBLIN BOMB PARTY PART THREE QA
+
+STATIC / REGRESSION
+- node --check reparty-v1.js: PASS
+- index.html differs from V23.2 only by Reparty V23.3 cache-busters: PASS
+- 11 other Reparty minigame function bodies compared to V23.2: unchanged
+  Potion Panic: same
+  Fishing Frenzy: same
+  Chopping Frenzy: same
+  Builder Blitz: same
+  Minecart Mayhem: same
+  Rooftop Rush: same
+  Chicken Chase: same
+  Treasure Tiles: same
+  Goblin Says: same
+  Gold Rush: same
+  Don't Wake the Troll: same
+- No Repo Sports/World Cup gameplay files included in patch: PASS
+
+FEEL MODEL
+- Time to 50% run speed: ~0.117 sec
+- Time to 80% run speed: ~0.200 sec
+- Time to 90% run speed: ~0.233 sec
+- Approx sustained velocity under full input after drag: ~216.5 px/sec
+- 92 px throw: 0.180 sec
+- 150 px throw: 0.240 sec
+- 220 px throw: 0.352 sec
+- 302 px throw: 0.470 sec
+
+HEAT INTERACTION MODEL (10,000 samples per state)
+- 6 alive: ~6.62 bomb interactions per typical fuse
+- 5 alive: ~6.20
+- 4 alive: ~5.79
+- 3 alive: ~5.37
+- 2 alive: ~4.95
+Goal: enough exchanges to create mind-games without the bomb feeling sluggish.
+
+BOT TARGET FAIRNESS / ANTI-RETURN MODEL
+- 300,000 total target-selection decisions across 6 personality styles
+- Protected immediate-return selections: 0
+- Largest target-label selection spread within any personality: 0.78 percentage points
+- No human-specific target weighting exists.
+
+PART THREE BUG/QUALITY FIXES
+- Bot hold threshold is now chosen once on receipt instead of randomized every update frame.
+- Keyboard repeat can no longer repeatedly fire Space throw input.
+- Dodge score is now earned only by a genuine bomb near-miss during dash.
+- Consecutive heat starter repeat is prevented while 3+ contestants remain.
+- First heat has no arena modifier.
+- Explosion / winner moments explicitly duck music.
+- Winner camera target is preserved by the dynamic camera controller.

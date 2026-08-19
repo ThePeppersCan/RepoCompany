@@ -1,0 +1,14 @@
+V24.4 QA NOTES
+
+Static checks:
+- adventures-v23.js passed node --check.
+- index.html references adventures-v23.css + adventures-v23.js.
+- Patch contains only Adventures frontend files + documentation.
+
+Backend Phase 2.3:
+- 41 local activity catalogue rows.
+- 10/10 current Canto locations have local content.
+- Server RPC validates login, current location, cooldown, stat/DC roll and one-time rewards.
+- Internal catalogue has no direct authenticated table access.
+
+No SQL needs to be run by the site owner; backend migrations are already live.
