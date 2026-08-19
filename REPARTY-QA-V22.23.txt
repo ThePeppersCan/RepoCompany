@@ -1,0 +1,34 @@
+V22.23 focused QA results
+
+Chromium viewport: 1440x960
+Runtime errors: 0
+
+SELECTOR SPOILER TEST
+Before lock-in:
+  top skill: ???
+  selector skill: XP ???
+  game name: ???
+PASS
+
+After lock-in:
+  top skill: Construction
+  selector skill: Construction
+  game name: BUILDER BLITZ
+PASS
+
+BUILDER BLITZ INTERACTION TEST
+- Blueprint preview rendered.
+- Waited through study phase.
+- Selected material using mouse palette.
+- Clicked multiple build cells.
+- Changed material with mouse.
+- Submitted using on-canvas SUBMIT BUILD button.
+- Score updated to SCORE 11.
+- No page/runtime errors.
+PASS
+
+FISHING DIRECTION TEST
+- Spawn implementation fixed to x = right edge + offset.
+- Direction fixed to -1 (right-to-left).
+- Active browser screenshot showed fish entering at right boundary.
+PASS
