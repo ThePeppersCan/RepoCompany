@@ -1,0 +1,332 @@
+[
+  {
+    "breedId": "vardesh",
+    "displayName": "Vardesh",
+    "sourceSheet": "01 Vardesh Baby Dragon Animations.png",
+    "sheetSize": [
+      1254,
+      1254
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "lumerre",
+    "displayName": "Lumerre",
+    "sourceSheet": "02_Lumerre_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1404,
+      1124
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "kordesh",
+    "displayName": "Kordesh",
+    "sourceSheet": "03_Kordesh_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "nambara",
+    "displayName": "Nambara",
+    "sourceSheet": "04_Nambara_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1254,
+      1254
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "norveth",
+    "displayName": "Norveth",
+    "sourceSheet": "05_Norveth_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "zafran",
+    "displayName": "Zafran",
+    "sourceSheet": "06_Zafran_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "elvane",
+    "displayName": "Elvane",
+    "sourceSheet": "07_Elvane_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "qasmir",
+    "displayName": "Qasmir",
+    "sourceSheet": "08_Qasmir_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "calvora",
+    "displayName": "Calvora",
+    "sourceSheet": "09_Calvora_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "rovarn",
+    "displayName": "Rovarn",
+    "sourceSheet": "10_Rovarn_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "talune",
+    "displayName": "Talune",
+    "sourceSheet": "11_Talune_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "drazhen",
+    "displayName": "Drazhen",
+    "sourceSheet": "12_Drazhen_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "belros",
+    "displayName": "Belros",
+    "sourceSheet": "13_Belros_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "marovar",
+    "displayName": "Marovar",
+    "sourceSheet": "14_Marovar_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "sorevia",
+    "displayName": "Sorevia",
+    "sourceSheet": "15_Sorevia_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "iskandar",
+    "displayName": "Iskandar",
+    "sourceSheet": "16_Iskandar_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "blackglass-coast",
+    "displayName": "Blackglass Coast",
+    "sourceSheet": "17_Blackglass_Coast_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "skallheim",
+    "displayName": "Skallheim",
+    "sourceSheet": "18_Skallheim_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "hestholm-fjord",
+    "displayName": "Hestholm Fjord",
+    "sourceSheet": "19_Hestholm_Fjord_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "nyrgate-aurora",
+    "displayName": "Nyrgate Aurora",
+    "sourceSheet": "20_Nyrgate_Aurora_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "warmvein-krellhaven",
+    "displayName": "Warmvein / Krellhaven",
+    "sourceSheet": "21_Warmvein_Krellhaven_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "aurelia",
+    "displayName": "Aurelia",
+    "sourceSheet": "22_Aurelia_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "orsanne",
+    "displayName": "Orsanne",
+    "sourceSheet": "23_Orsanne_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "saint-ciro",
+    "displayName": "Saint Ciro",
+    "sourceSheet": "24_Saint_Ciro_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "marenza",
+    "displayName": "Marenza",
+    "sourceSheet": "25_Marenza_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "grand-khor",
+    "displayName": "Grand Khor",
+    "sourceSheet": "26_Grand_Khor_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "rova-end",
+    "displayName": "Rova End",
+    "sourceSheet": "27_Rova_End_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "zafir-row",
+    "displayName": "Zafir Row",
+    "sourceSheet": "28_Zafir_Row_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "ossa-mere",
+    "displayName": "Ossa Mere",
+    "sourceSheet": "29_Ossa_Mere_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  },
+  {
+    "breedId": "ashwick-cinderbank",
+    "displayName": "Ashwick / Cinderbank",
+    "sourceSheet": "30_Ashwick_Cinderbank_Baby_Dragon_Animations.png",
+    "sheetSize": [
+      1256,
+      1256
+    ],
+    "frameCount": 16,
+    "fallbacks": []
+  }
+]

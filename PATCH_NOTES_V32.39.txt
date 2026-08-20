@@ -1,0 +1,6 @@
+V32.39 Dragonbound pet hover + starter-home music
+- Fixed pet hover identity so it no longer depends only on browser hit-testing through the zero-size actor wrapper; pointer position is now checked directly against the live sprite bounds.
+- Hover card shows the dragon avatar, chosen name and live age above the dragon.
+- Added the supplied Nature Dreamscape track to every starter home at 30% volume.
+- Home music loops while the player is in any starter house and pauses when leaving the house or during the dedicated hatch reveal.
+- Added autoplay retry on user interaction for browsers that block audio until a click/tap.

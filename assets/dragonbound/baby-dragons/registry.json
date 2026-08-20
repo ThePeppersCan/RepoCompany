@@ -1,0 +1,5402 @@
+{
+  "vardesh": {
+    "breedId": "vardesh",
+    "displayName": "Vardesh",
+    "sourceSheet": "01 Vardesh Baby Dragon Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.78,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.408,
+      "sleepiness": 0.722,
+      "playfulness": 0.617,
+      "flightLikelihood": 0.47,
+      "walkingSpeedMultiplier": 0.979
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/vardesh/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "lumerre": {
+    "breedId": "lumerre",
+    "displayName": "Lumerre",
+    "sourceSheet": "02_Lumerre_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.64,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.576,
+      "sleepiness": 0.598,
+      "playfulness": 0.591,
+      "flightLikelihood": 0.533,
+      "walkingSpeedMultiplier": 0.971
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/lumerre/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "kordesh": {
+    "breedId": "kordesh",
+    "displayName": "Kordesh",
+    "sourceSheet": "03_Kordesh_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.605,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.441,
+      "sleepiness": 0.393,
+      "playfulness": 0.688,
+      "flightLikelihood": 0.551,
+      "walkingSpeedMultiplier": 1.042
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/kordesh/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "nambara": {
+    "breedId": "nambara",
+    "displayName": "Nambara",
+    "sourceSheet": "04_Nambara_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.559,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.505,
+      "sleepiness": 0.64,
+      "playfulness": 0.361,
+      "flightLikelihood": 0.425,
+      "walkingSpeedMultiplier": 1.058
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nambara/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "norveth": {
+    "breedId": "norveth",
+    "displayName": "Norveth",
+    "sourceSheet": "05_Norveth_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.612,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.688,
+      "sleepiness": 0.389,
+      "playfulness": 0.446,
+      "flightLikelihood": 0.462,
+      "walkingSpeedMultiplier": 1.019
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/norveth/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "zafran": {
+    "breedId": "zafran",
+    "displayName": "Zafran",
+    "sourceSheet": "06_Zafran_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.78,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.409,
+      "sleepiness": 0.412,
+      "playfulness": 0.376,
+      "flightLikelihood": 0.316,
+      "walkingSpeedMultiplier": 0.994
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafran/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "elvane": {
+    "breedId": "elvane",
+    "displayName": "Elvane",
+    "sourceSheet": "07_Elvane_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.623,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.731,
+      "sleepiness": 0.673,
+      "playfulness": 0.591,
+      "flightLikelihood": 0.468,
+      "walkingSpeedMultiplier": 1.008
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/elvane/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "qasmir": {
+    "breedId": "qasmir",
+    "displayName": "Qasmir",
+    "sourceSheet": "08_Qasmir_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.692,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.533,
+      "sleepiness": 0.6,
+      "playfulness": 0.636,
+      "flightLikelihood": 0.612,
+      "walkingSpeedMultiplier": 1.062
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/qasmir/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "calvora": {
+    "breedId": "calvora",
+    "displayName": "Calvora",
+    "sourceSheet": "09_Calvora_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.694,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.752,
+      "sleepiness": 0.636,
+      "playfulness": 0.499,
+      "flightLikelihood": 0.336,
+      "walkingSpeedMultiplier": 1.035
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/calvora/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "rovarn": {
+    "breedId": "rovarn",
+    "displayName": "Rovarn",
+    "sourceSheet": "10_Rovarn_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.778,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.656,
+      "sleepiness": 0.408,
+      "playfulness": 0.515,
+      "flightLikelihood": 0.567,
+      "walkingSpeedMultiplier": 0.971
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rovarn/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "talune": {
+    "breedId": "talune",
+    "displayName": "Talune",
+    "sourceSheet": "11_Talune_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.574,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.488,
+      "sleepiness": 0.532,
+      "playfulness": 0.541,
+      "flightLikelihood": 0.504,
+      "walkingSpeedMultiplier": 0.979
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/talune/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "drazhen": {
+    "breedId": "drazhen",
+    "displayName": "Drazhen",
+    "sourceSheet": "12_Drazhen_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.554,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.396,
+      "sleepiness": 0.705,
+      "playfulness": 0.594,
+      "flightLikelihood": 0.443,
+      "walkingSpeedMultiplier": 0.958
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/drazhen/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "belros": {
+    "breedId": "belros",
+    "displayName": "Belros",
+    "sourceSheet": "13_Belros_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.642,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.465,
+      "sleepiness": 0.498,
+      "playfulness": 0.494,
+      "flightLikelihood": 0.451,
+      "walkingSpeedMultiplier": 0.938
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/belros/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "marovar": {
+    "breedId": "marovar",
+    "displayName": "Marovar",
+    "sourceSheet": "14_Marovar_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.648,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.531,
+      "sleepiness": 0.53,
+      "playfulness": 0.496,
+      "flightLikelihood": 0.426,
+      "walkingSpeedMultiplier": 1.048
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marovar/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "sorevia": {
+    "breedId": "sorevia",
+    "displayName": "Sorevia",
+    "sourceSheet": "15_Sorevia_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.579,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.542,
+      "sleepiness": 0.547,
+      "playfulness": 0.52,
+      "flightLikelihood": 0.453,
+      "walkingSpeedMultiplier": 1.069
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/sorevia/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "iskandar": {
+    "breedId": "iskandar",
+    "displayName": "Iskandar",
+    "sourceSheet": "16_Iskandar_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.552,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.683,
+      "sleepiness": 0.463,
+      "playfulness": 0.599,
+      "flightLikelihood": 0.329,
+      "walkingSpeedMultiplier": 1.056
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/iskandar/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "blackglass-coast": {
+    "breedId": "blackglass-coast",
+    "displayName": "Blackglass Coast",
+    "sourceSheet": "17_Blackglass_Coast_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.571,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.675,
+      "sleepiness": 0.587,
+      "playfulness": 0.474,
+      "flightLikelihood": 0.334,
+      "walkingSpeedMultiplier": 1.064
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/blackglass-coast/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "skallheim": {
+    "breedId": "skallheim",
+    "displayName": "Skallheim",
+    "sourceSheet": "18_Skallheim_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.605,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.704,
+      "sleepiness": 0.427,
+      "playfulness": 0.507,
+      "flightLikelihood": 0.537,
+      "walkingSpeedMultiplier": 0.923
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/skallheim/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "hestholm-fjord": {
+    "breedId": "hestholm-fjord",
+    "displayName": "Hestholm Fjord",
+    "sourceSheet": "19_Hestholm_Fjord_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.64,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.614,
+      "sleepiness": 0.48,
+      "playfulness": 0.699,
+      "flightLikelihood": 0.492,
+      "walkingSpeedMultiplier": 1.077
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/hestholm-fjord/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "nyrgate-aurora": {
+    "breedId": "nyrgate-aurora",
+    "displayName": "Nyrgate Aurora",
+    "sourceSheet": "20_Nyrgate_Aurora_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.614,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.738,
+      "sleepiness": 0.669,
+      "playfulness": 0.578,
+      "flightLikelihood": 0.447,
+      "walkingSpeedMultiplier": 0.986
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/nyrgate-aurora/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "warmvein-krellhaven": {
+    "breedId": "warmvein-krellhaven",
+    "displayName": "Warmvein / Krellhaven",
+    "sourceSheet": "21_Warmvein_Krellhaven_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.78,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.662,
+      "sleepiness": 0.595,
+      "playfulness": 0.501,
+      "flightLikelihood": 0.376,
+      "walkingSpeedMultiplier": 0.949
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/warmvein-krellhaven/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "aurelia": {
+    "breedId": "aurelia",
+    "displayName": "Aurelia",
+    "sourceSheet": "22_Aurelia_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.544,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.696,
+      "sleepiness": 0.551,
+      "playfulness": 0.381,
+      "flightLikelihood": 0.542,
+      "walkingSpeedMultiplier": 0.931
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/aurelia/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "orsanne": {
+    "breedId": "orsanne",
+    "displayName": "Orsanne",
+    "sourceSheet": "23_Orsanne_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.571,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.509,
+      "sleepiness": 0.496,
+      "playfulness": 0.449,
+      "flightLikelihood": 0.372,
+      "walkingSpeedMultiplier": 1.006
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/orsanne/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "saint-ciro": {
+    "breedId": "saint-ciro",
+    "displayName": "Saint Ciro",
+    "sourceSheet": "24_Saint_Ciro_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.78,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.609,
+      "sleepiness": 0.745,
+      "playfulness": 0.471,
+      "flightLikelihood": 0.529,
+      "walkingSpeedMultiplier": 0.954
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/saint-ciro/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "marenza": {
+    "breedId": "marenza",
+    "displayName": "Marenza",
+    "sourceSheet": "25_Marenza_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.629,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.419,
+      "sleepiness": 0.739,
+      "playfulness": 0.641,
+      "flightLikelihood": 0.497,
+      "walkingSpeedMultiplier": 1.0
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/marenza/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "grand-khor": {
+    "breedId": "grand-khor",
+    "displayName": "Grand Khor",
+    "sourceSheet": "26_Grand_Khor_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.607,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.475,
+      "sleepiness": 0.539,
+      "playfulness": 0.569,
+      "flightLikelihood": 0.546,
+      "walkingSpeedMultiplier": 1.024
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/grand-khor/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "rova-end": {
+    "breedId": "rova-end",
+    "displayName": "Rova End",
+    "sourceSheet": "27_Rova_End_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.78,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.534,
+      "sleepiness": 0.385,
+      "playfulness": 0.585,
+      "flightLikelihood": 0.373,
+      "walkingSpeedMultiplier": 0.997
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/rova-end/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "zafir-row": {
+    "breedId": "zafir-row",
+    "displayName": "Zafir Row",
+    "sourceSheet": "28_Zafir_Row_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.611,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.424,
+      "sleepiness": 0.76,
+      "playfulness": 0.678,
+      "flightLikelihood": 0.545,
+      "walkingSpeedMultiplier": 1.043
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/zafir-row/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "ossa-mere": {
+    "breedId": "ossa-mere",
+    "displayName": "Ossa Mere",
+    "sourceSheet": "29_Ossa_Mere_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.489,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.589,
+      "sleepiness": 0.401,
+      "playfulness": 0.563,
+      "flightLikelihood": 0.321,
+      "walkingSpeedMultiplier": 0.926
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ossa-mere/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  },
+  "ashwick-cinderbank": {
+    "breedId": "ashwick-cinderbank",
+    "displayName": "Ashwick / Cinderbank",
+    "sourceSheet": "30_Ashwick_Cinderbank_Baby_Dragon_Animations.png",
+    "nativeFacing": "right",
+    "renderedScale": 0.604,
+    "footAnchor": {
+      "x": 0.5,
+      "y": 0.92
+    },
+    "collisionRadius": 26,
+    "personality": {
+      "curiosity": 0.537,
+      "sleepiness": 0.621,
+      "playfulness": 0.673,
+      "flightLikelihood": 0.319,
+      "walkingSpeedMultiplier": 0.946
+    },
+    "animations": {
+      "idle": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-00.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "look": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-00.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-01.webp",
+            "durationMs": 560,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "sit": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-02.webp",
+            "durationMs": 900,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "rest": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-03.webp",
+            "durationMs": 1100,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "sleep": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-04.webp",
+            "durationMs": 1200,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "walk": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-05.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-06.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-07.webp",
+            "durationMs": 185,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "takeOff": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-12.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-13.webp",
+            "durationMs": 170,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      },
+      "fly": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-08.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-09.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-10.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-11.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-13.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-14.webp",
+            "durationMs": 145,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": true
+      },
+      "land": {
+        "frames": [
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-14.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          },
+          {
+            "src": "assets/dragonbound/baby-dragons/ashwick-cinderbank/frame-15.webp",
+            "durationMs": 190,
+            "anchorX": 0.5,
+            "anchorY": 0.92
+          }
+        ],
+        "loop": false
+      }
+    }
+  }
+}

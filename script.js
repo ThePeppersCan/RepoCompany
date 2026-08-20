@@ -18324,22 +18324,22 @@ qmShowSharedGoal=function(state){
     {id:'keepers_dream_standard',name:'Keepers Dream',image:'assets/quidditch-tcg/cards/standard/keepers-dream.png',rarity:'standard'},
     {id:'keepers_nightmare_standard',name:"Keeper's Nightmare",image:'assets/quidditch-tcg/cards/standard/keepers-nightmare.png',rarity:'standard'},
     {id:'mash_and_grab_standard',name:'Mash and Grab',image:'assets/quidditch-tcg/cards/standard/mash-and-grab.png',rarity:'standard'},
-    {id:'world_cup_belros_full_art',name:'Belros — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/belros.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_calvora_full_art',name:'Calvora — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/calvora.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_drazhen_full_art',name:'Drazhen — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_elvane_full_art',name:'Elvane — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/elvane.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_iskandar_full_art',name:'Iskandar — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_kordesh_full_art',name:'Kordesh — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_lumerre_full_art',name:'Lumerre — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_marovar_full_art',name:'Marovar — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/marovar.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_nambara_full_art',name:'Nambara — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/nambara.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_norveth_full_art',name:'Norveth — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/norveth.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_qasmir_full_art',name:'Qasmir — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_rovarn_full_art',name:'Rovarn — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_sorevia_full_art',name:'Sorevia — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_talune_full_art',name:'Talune — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/talune.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_vardesh_full_art',name:'Vardesh — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
-    {id:'world_cup_zafran_full_art',name:'Zafran — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/zafran.png?v=wc-flags-corrected-20260819-1',rarity:'full_art'},
+    {id:'world_cup_belros_full_art',name:'Belros — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/belros.png',rarity:'full_art'},
+    {id:'world_cup_calvora_full_art',name:'Calvora — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/calvora.png',rarity:'full_art'},
+    {id:'world_cup_drazhen_full_art',name:'Drazhen — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png',rarity:'full_art'},
+    {id:'world_cup_elvane_full_art',name:'Elvane — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/elvane.png',rarity:'full_art'},
+    {id:'world_cup_iskandar_full_art',name:'Iskandar — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png',rarity:'full_art'},
+    {id:'world_cup_kordesh_full_art',name:'Kordesh — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png',rarity:'full_art'},
+    {id:'world_cup_lumerre_full_art',name:'Lumerre — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png',rarity:'full_art'},
+    {id:'world_cup_marovar_full_art',name:'Marovar — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/marovar.png',rarity:'full_art'},
+    {id:'world_cup_nambara_full_art',name:'Nambara — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/nambara.png',rarity:'full_art'},
+    {id:'world_cup_norveth_full_art',name:'Norveth — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/norveth.png',rarity:'full_art'},
+    {id:'world_cup_qasmir_full_art',name:'Qasmir — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png',rarity:'full_art'},
+    {id:'world_cup_rovarn_full_art',name:'Rovarn — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png',rarity:'full_art'},
+    {id:'world_cup_sorevia_full_art',name:'Sorevia — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png',rarity:'full_art'},
+    {id:'world_cup_talune_full_art',name:'Talune — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/talune.png',rarity:'full_art'},
+    {id:'world_cup_vardesh_full_art',name:'Vardesh — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png',rarity:'full_art'},
+    {id:'world_cup_zafran_full_art',name:'Zafran — Velmora World Cup Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup/zafran.png',rarity:'full_art'},
     {id:'world_cup_belros_special_full_art',name:'Belros — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png',rarity:'full_art'},
     {id:'world_cup_calvora_special_full_art',name:'Calvora — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png',rarity:'full_art'},
     {id:'world_cup_drazhen_special_full_art',name:'Drazhen — RepoSports World Cup Special Full Art',image:'assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png',rarity:'full_art'},
@@ -19998,22 +19998,22 @@ qmShowSharedGoal=function(state){
     ['keepers_dream_standard','Keepers Dream','assets/quidditch-tcg/cards/standard/keepers-dream.png'],
     ['keepers_nightmare_standard',"Keeper's Nightmare",'assets/quidditch-tcg/cards/standard/keepers-nightmare.png'],
     ['mash_and_grab_standard','Mash and Grab','assets/quidditch-tcg/cards/standard/mash-and-grab.png'],
-    ['world_cup_belros_full_art','Belros — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/belros.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_calvora_full_art','Calvora — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/calvora.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_drazhen_full_art','Drazhen — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_elvane_full_art','Elvane — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/elvane.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_iskandar_full_art','Iskandar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_kordesh_full_art','Kordesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_lumerre_full_art','Lumerre — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_marovar_full_art','Marovar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/marovar.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_nambara_full_art','Nambara — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/nambara.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_norveth_full_art','Norveth — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/norveth.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_qasmir_full_art','Qasmir — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_rovarn_full_art','Rovarn — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_sorevia_full_art','Sorevia — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_talune_full_art','Talune — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/talune.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_vardesh_full_art','Vardesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png?v=wc-flags-corrected-20260819-1'],
-    ['world_cup_zafran_full_art','Zafran — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/zafran.png?v=wc-flags-corrected-20260819-1'],
+    ['world_cup_belros_full_art','Belros — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/belros.png'],
+    ['world_cup_calvora_full_art','Calvora — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/calvora.png'],
+    ['world_cup_drazhen_full_art','Drazhen — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/drazhen.png'],
+    ['world_cup_elvane_full_art','Elvane — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/elvane.png'],
+    ['world_cup_iskandar_full_art','Iskandar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/iskandar.png'],
+    ['world_cup_kordesh_full_art','Kordesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/kordesh.png'],
+    ['world_cup_lumerre_full_art','Lumerre — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/lumerre.png'],
+    ['world_cup_marovar_full_art','Marovar — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/marovar.png'],
+    ['world_cup_nambara_full_art','Nambara — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/nambara.png'],
+    ['world_cup_norveth_full_art','Norveth — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/norveth.png'],
+    ['world_cup_qasmir_full_art','Qasmir — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/qasmir.png'],
+    ['world_cup_rovarn_full_art','Rovarn — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/rovarn.png'],
+    ['world_cup_sorevia_full_art','Sorevia — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/sorevia.png'],
+    ['world_cup_talune_full_art','Talune — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/talune.png'],
+    ['world_cup_vardesh_full_art','Vardesh — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/vardesh.png'],
+    ['world_cup_zafran_full_art','Zafran — Velmora World Cup Full Art','assets/quidditch-tcg/cards/full-art/world-cup/zafran.png'],
     ['world_cup_belros_special_full_art','Belros — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/belros.png'],
     ['world_cup_calvora_special_full_art','Calvora — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/calvora.png'],
     ['world_cup_drazhen_special_full_art','Drazhen — RepoSports World Cup Special Full Art','assets/quidditch-tcg/cards/full-art/world-cup-special/drazhen.png'],
@@ -33505,7 +33505,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       openGrandExchange:'GRAND EXCHANGE',
       openNpcContact:'NPC CONTACT',
       openQuests:'QUESTS',
-      openReparty:'REPARTY',
+      openDragonbound:'DRAGONBOUND',
       openRepoSports:'REPO SPORTS',
       openRaids:'RAIDS',
       openAchievements:'ACHIEVEMENTS'
@@ -33538,7 +33538,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       const frag=document.createDocumentFragment();
       frag.append(
         makeGroup('GUILD SERVICES',['openWiseTask','openGrandExchange','openNpcContact','openQuests']),
-        makeGroup('GAMES & CHALLENGES',['openReparty','openRepoSports','openRaids','openAchievements'])
+        makeGroup('GAMES & CHALLENGES',['openDragonbound','openRepoSports','openRaids','openAchievements'])
       );
       if(hiddenPetWars)frag.appendChild(hiddenPetWars);
       activities.replaceChildren(frag);
@@ -40483,4 +40483,3363 @@ document.head.appendChild(s)})();
     observer.observe(document.body,{subtree:true,childList:true});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})();
+
+
+/* V30.0 — Velmora: Dragonbound cinematic menu launcher. */
+(function(){
+  const DRAGONBOUND_AUDIO='assets/dragonbound/dragonbound-menu.mp3';
+  const DRAGONBOUND_NEW_GAME_AUDIO='assets/dragonbound/dragonbound-new-game-theme.mp3';
+  const DRAGONBOUND_VALLEY_AUDIO='assets/dragonbound/dragonbound-valley-theme.mp3';
+  const DRAGONBOUND_DIALOGUE_AUDIO='assets/dragonbound/dragonbound-dialogue-type.mp3';
+  const DRAGONBOUND_MAELITH_VIDEO='assets/dragonbound/dragonbound-maelith-flight.mp4';
+  const DRAGONBOUND_ADOPTION_IMAGE='assets/dragonbound/dragonbound-adoption-centre.png';
+  const DRAGONBOUND_ADOPTION_INTERIOR_IMAGE='assets/dragonbound/dragonbound-adoption-interior.png';
+  const DRAGONBOUND_ADOPTION_EXTERIOR_AUDIO='assets/dragonbound/dragonbound-adoption-exterior-ambience.mp3';
+  const DRAGONBOUND_ADOPTION_INTERIOR_AUDIO='assets/dragonbound/dragonbound-adoption-interior-music.mp3';
+  const DRAGONBOUND_BONNIE_MENU_IMAGE='assets/dragonbound/dragonbound-bonnie-menu.png';
+  const DRAGONBOUND_ADOPT_EGG_MENU_IMAGE='assets/dragonbound/dragonbound-adopt-egg-menu.png';
+  const DRAGONBOUND_STUDY_IMAGE='assets/dragonbound/dragonbound-study-your-dragon.png';
+  const DRAGONBOUND_RULES_IMAGE='assets/dragonbound/dragonbound-rules-book.png';
+  const DRAGONBOUND_ESTATE_EXTERIOR_IMAGE='assets/dragonbound/estate/dragonbound-estate-exterior.png';
+  const DRAGONBOUND_ESTATE_INTERIOR_IMAGE='assets/dragonbound/estate/dragonbound-estate-interior.png';
+  const DRAGONBOUND_ESTATE_INTERIOR_AUDIO='assets/dragonbound/estate/dragonbound-estate-interior-music.mp3';
+  const DRAGONBOUND_PROPERTY_BOARD_IMAGE='assets/dragonbound/property/dragonbound-property-board.png';
+  const DRAGONBOUND_ADOPTION_OPEN_AUDIO='assets/dragonbound/adoption/dragonbound-adoption-open.mp3';
+  const DRAGONBOUND_ADOPTION_REVEAL_AUDIO='assets/dragonbound/adoption/dragonbound-egg-reveal.mp3';
+  const DRAGONBOUND_ADOPTION_BASKET_FOREGROUND='assets/dragonbound/adoption/dragonbound-adopt-basket-foreground.png';
+  const DRAGONBOUND_ADOPTION_FRAMES=[
+    'assets/dragonbound/adoption/frames/01_basket_closed.png',
+    'assets/dragonbound/adoption/frames/02_hands_reaching.png',
+    'assets/dragonbound/adoption/frames/03_hands_touching.png',
+    'assets/dragonbound/adoption/frames/04_basket_shake.png',
+    'assets/dragonbound/adoption/frames/05_lid_barely_open.png'
+  ];
+  const DRAGONBOUND_EGG_POOL=[
+    ['Vardesh','assets/dragonbound/eggs/01_Vardesh_Dragon_Egg.png'],
+    ['Lumerre','assets/dragonbound/eggs/02_Lumerre_Dragon_Egg.png'],
+    ['Kordesh','assets/dragonbound/eggs/03_Kordesh_Dragon_Egg.png'],
+    ['Nambara','assets/dragonbound/eggs/04_Nambara_Dragon_Egg.png'],
+    ['Norveth','assets/dragonbound/eggs/05_Norveth_Dragon_Egg.png'],
+    ['Zafran','assets/dragonbound/eggs/06_Zafran_Dragon_Egg.png'],
+    ['Elvane','assets/dragonbound/eggs/07_Elvane_Dragon_Egg.png'],
+    ['Qasmir','assets/dragonbound/eggs/08_Qasmir_Dragon_Egg.png'],
+    ['Calvora','assets/dragonbound/eggs/09_Calvora_Dragon_Egg.png'],
+    ['Rovarn','assets/dragonbound/eggs/10_Rovarn_Dragon_Egg.png'],
+    ['Talune','assets/dragonbound/eggs/11_Talune_Dragon_Egg.png'],
+    ['Drazhen','assets/dragonbound/eggs/12_Drazhen_Dragon_Egg.png'],
+    ['Belros','assets/dragonbound/eggs/13_Belros_Dragon_Egg.png'],
+    ['Marovar','assets/dragonbound/eggs/14_Marovar_Dragon_Egg.png'],
+    ['Sorevia','assets/dragonbound/eggs/15_Sorevia_Dragon_Egg.png'],
+    ['Iskandar','assets/dragonbound/eggs/16_Iskandar_Dragon_Egg.png'],
+    ['Blackglass Coast','assets/dragonbound/eggs/17_Blackglass_Coast_Dragon_Egg.png'],
+    ['Skallheim','assets/dragonbound/eggs/18_Skallheim_Dragon_Egg.png'],
+    ['Hestholm Fjord','assets/dragonbound/eggs/19_Hestholm_Fjord_Dragon_Egg.png'],
+    ['Nyrgate Aurora','assets/dragonbound/eggs/20_Nyrgate_Aurora_Dragon_Egg.png'],
+    ['Warmvein / Krellhaven','assets/dragonbound/eggs/21_Warmvein_Krellhaven_Dragon_Egg.png'],
+    ['Aurelia','assets/dragonbound/eggs/22_Aurelia_Dragon_Egg.png'],
+    ['Orsanne','assets/dragonbound/eggs/23_Orsanne_Dragon_Egg.png'],
+    ['Saint Ciro','assets/dragonbound/eggs/24_Saint_Ciro_Dragon_Egg.png'],
+    ['Marenza','assets/dragonbound/eggs/25_Marenza_Dragon_Egg.png'],
+    ['Grand Khor','assets/dragonbound/eggs/26_Grand_Khor_Dragon_Egg.png'],
+    ['Rova End','assets/dragonbound/eggs/27_Rova_End_Dragon_Egg.png'],
+    ['Zafir Row','assets/dragonbound/eggs/28_Zafir_Row_Dragon_Egg.png'],
+    ['Ossa Mere','assets/dragonbound/eggs/29_Ossa_Mere_Dragon_Egg.png'],
+    ['Ashwick / Cinderbank','assets/dragonbound/eggs/30_Ashwick_Cinderbank_Dragon_Egg.png']
+  ].map(([name,src])=>({name,src}));
+  const DRAGONBOUND_PROPERTY_FLAGS=[
+    {country:'Vardesh',x:9.1,y:24.0,w:6.3,h:10.5},
+    {country:'Lumerre',x:24.7,y:22.8,w:6.4,h:10.4},
+    {country:'Kordesh',x:35.2,y:24.0,w:6.5,h:10.5},
+    {country:'Nambara',x:51.0,y:24.3,w:6.6,h:10.5},
+    {country:'Norveth',x:7.7,y:39.0,w:6.2,h:10.4},
+    {country:'Zafran',x:18.3,y:40.5,w:6.2,h:10.4},
+    {country:'Elvane',x:30.4,y:41.8,w:6.2,h:10.4},
+    {country:'Qasmir',x:45.6,y:38.6,w:6.4,h:10.6},
+    {country:'Calvora',x:59.0,y:45.2,w:6.5,h:10.5},
+    {country:'Talune',x:9.3,y:57.0,w:6.3,h:10.4},
+    {country:'Drazhen',x:22.0,y:58.4,w:6.2,h:10.5},
+    {country:'Belros',x:32.2,y:60.4,w:6.3,h:10.5},
+    {country:'Rovarn',x:41.9,y:54.8,w:6.4,h:10.5},
+    {country:'Marovar',x:51.6,y:54.6,w:6.4,h:10.5},
+    {country:'Sorevia',x:38.6,y:69.6,w:6.2,h:10.4},
+    {country:'Iskandar',x:57.8,y:68.6,w:6.4,h:10.5}
+  ];
+  const DRAGONBOUND_PROPERTY_LISTINGS={
+    Vardesh:[
+      {id:'vardesh-hestholm-fjord-starter',name:'Hestholm Fjord Starter',area:'Hestholm Fjord',price:'FREE',starter:true,thumb:'assets/dragonbound/property/thumbs/vardesh-hestholm-fjord-starter.webp',full:'assets/dragonbound/property/starters/vardesh-hestholm-fjord-starter.png'},
+      {id:'vardesh-hrafnvik-cliff-street',name:'Hrafnvik Cliff Street House',area:'Hrafnvik',price:'30,000 GP',thumb:'assets/dragonbound/property/thumbs/vardesh-hrafnvik-cliff-street.webp'},
+      {id:'vardesh-blackglass-coast',name:'Blackglass Coast House',area:'Blackglass Coast',price:'50,000 GP',thumb:'assets/dragonbound/property/thumbs/vardesh-blackglass-coast.webp'},
+      {id:'vardesh-warmvein-mansion',name:'Warmvein Geothermal Mansion',area:'Warmvein',price:'75,000 GP',thumb:'assets/dragonbound/property/thumbs/vardesh-warmvein-mansion.webp'},
+      {id:'vardesh-varns-rest-master',name:"Varn's Rest Master Home",area:"Varn's Rest",price:'100,000 GP',thumb:'assets/dragonbound/property/thumbs/vardesh-varns-rest-master.webp'}
+    ],
+    Lumerre:[
+      {id:'lumerre-greenhollow-starter',name:'Greenhollow Starter Cottage',area:'Greenhollow',price:'FREE',starter:true,thumb:'assets/dragonbound/property/thumbs/lumerre-greenhollow-starter.webp',full:'assets/dragonbound/property/starters/lumerre-greenhollow-starter.png'},
+      {id:'lumerre-eldonvale-river',name:'Eldonvale River House',area:'Eldonvale',price:'30,000 GP',thumb:'assets/dragonbound/property/thumbs/lumerre-eldonvale-river.webp'},
+      {id:'lumerre-sylvar-canopy',name:'Sylvar Canopy House',area:'Sylvar',price:'50,000 GP',thumb:'assets/dragonbound/property/thumbs/lumerre-sylvar-canopy.webp'},
+      {id:'lumerre-valbrier-mansion',name:'Valbrier Flower Hill Mansion',area:'Valbrier',price:'75,000 GP',thumb:'assets/dragonbound/property/thumbs/lumerre-valbrier-mansion.webp'},
+      {id:'lumerre-verdelume-master',name:'Verdelume Master Home',area:'Verdelume',price:'100,000 GP',thumb:'assets/dragonbound/property/thumbs/lumerre-verdelume-master.webp'}
+    ],
+    Nambara:[
+      {id:'nambara-naskor-edge-starter',name:'Naskor Edge Starter',area:'Naskor Edge',price:'FREE',starter:true,thumb:'assets/dragonbound/property/thumbs/nambara-naskor-edge-starter.webp',full:'assets/dragonbound/property/starters/nambara-naskor-edge-starter.png'},
+      {id:'nambara-canal-quarter',name:'Canal Quarter House',area:'Canal Quarter',price:'30,000 GP',thumb:'assets/dragonbound/property/thumbs/nambara-canal-quarter.webp'},
+      {id:'nambara-lantern-market',name:'Lantern Market House',area:'Lantern Market',price:'50,000 GP',thumb:'assets/dragonbound/property/thumbs/nambara-lantern-market.webp'},
+      {id:'nambara-wetland-mansion',name:'Wetland Mansion',area:'Nambara Wetlands',price:'75,000 GP',thumb:'assets/dragonbound/property/thumbs/nambara-wetland-mansion.webp'},
+      {id:'nambara-lantern-terrace-master',name:'Lantern Terrace Master Home',area:'Lantern Terrace',price:'100,000 GP',thumb:'assets/dragonbound/property/thumbs/nambara-lantern-terrace-master.webp'}
+    ],
+    Norveth:[
+      {id:'norveth-varka-fell-starter',name:'Varka Fell Starter',area:'Varka Fell',price:'FREE',starter:true,thumb:'assets/dragonbound/property/thumbs/norveth-varka-fell-starter.webp',full:'assets/dragonbound/property/starters/norveth-varka-fell-starter.png'},
+      {id:'norveth-pine-valley',name:'Pine Valley House',area:'Pine Valley',price:'30,000 GP',thumb:'assets/dragonbound/property/thumbs/norveth-pine-valley.webp'},
+      {id:'norveth-varka-fell-lodge',name:'Varka Fell Lodge',area:'Varka Fell',price:'50,000 GP',thumb:'assets/dragonbound/property/thumbs/norveth-varka-fell-lodge.webp'},
+      {id:'norveth-skarholt-mansion',name:'Skarholt Mansion',area:'Skarholt',price:'75,000 GP',thumb:'assets/dragonbound/property/thumbs/norveth-skarholt-mansion.webp'},
+      {id:'norveth-master-manor',name:'Norveth Master Manor',area:'High Norveth',price:'100,000 GP',thumb:'assets/dragonbound/property/thumbs/norveth-master-manor.webp'}
+    ],
+    Elvane:[
+      {id:'elvane-canto-plains-starter',name:'Canto Plains Starter Cottage',area:'Canto Plains',price:'FREE',starter:true,thumb:'assets/dragonbound/property/thumbs/elvane-canto-plains-starter.webp',full:'assets/dragonbound/property/starters/elvane-canto-plains-starter.png'},
+      {id:'elvane-willowmere-creek',name:'Willowmere Creek House',area:'Willowmere',price:'30,000 GP',thumb:'assets/dragonbound/property/thumbs/elvane-willowmere-creek.webp'},
+      {id:'elvane-ossa-mere-orchard',name:'Ossa Mere Orchard House',area:'Ossa Mere',price:'50,000 GP',thumb:'assets/dragonbound/property/thumbs/elvane-ossa-mere-orchard.webp'},
+      {id:'elvane-alderfen-garden',name:'Alderfen Garden Lodge',area:'Alderfen',price:'75,000 GP',thumb:'assets/dragonbound/property/thumbs/elvane-alderfen-garden.webp'},
+      {id:'elvane-elderbough-estate',name:'Elderbough Estate',area:'Elderbough',price:'100,000 GP',thumb:'assets/dragonbound/property/thumbs/elvane-elderbough-estate.webp'}
+    ]
+  };
+  const DRAGONBOUND_EGG_STUDY={
+    'Vardesh':{
+      profile:'A dense, cold-running shell with slate-blue ridges. It gives three faint taps before strong weather fronts and settles fastest beside wool, stone and a low hearth.',
+      foundIn:'High Vardesh valleys, wind-cut passes, cliff barns and abandoned watch huts above the fjords.',
+      dragonType:'Fjord Gale · Hearthguard',
+      history:[
+        'Vardeshi keepers say these eggs are never truly lost; they are “waiting out the weather.” Shepherds once carried found eggs into storm shelters and left three bowls nearby — water, salt and warm milk — to see which one the hatchling nudged first. The choice was believed to hint at whether it would bond most strongly to travel, home or herd.',
+        'The shell is unusually sensitive to pressure changes. Old mountain families still treat a resting Vardesh egg as a living storm glass: when its inner tapping speeds up, shutters are closed, washing is brought in and every sensible goat is persuaded indoors.'
+      ],
+      threats:'Sudden dry heat can craze the shell. Keep it away from forge walls, repeated hard knocking and exposed cliff drafts once the internal tapping becomes regular.'
+    },
+    'Lumerre':{
+      profile:'Warm ivory shell with pearly seams that seem brighter after music or conversation. It is one of the few eggs known to rock gently toward familiar voices.',
+      foundIn:'Lumerre vineyard terraces, riverside gardens, old theatre lofts and the warm stone courtyards around village squares.',
+      dragonType:'Sunvine · Chorus-Bonded',
+      history:[
+        'Lumerrean families traditionally refuse to incubate these eggs in silence. A found egg is placed somewhere people naturally gather — a kitchen, rehearsal room or courtyard — and allowed to learn the rhythm of a household before it ever sees the world. Travelling musicians used to claim that an egg which “kept time” with a chorus would hatch unusually confident around crowds.',
+        'During the Lantern Weeks, children still leave folded paper songs near known nesting places. Most are terrible. The dragons, apparently, have always been very forgiving critics.'
+      ],
+      threats:'Long isolation can make the egg unusually still. Avoid sharp temperature drops, constant mechanical noise and moving it repeatedly between unfamiliar homes.'
+    },
+    'Kordesh':{
+      profile:'Exceptionally heavy for its size, with a shell that feels more like polished stone than scale. A healthy egg answers slow rhythmic knocks with a deeper pulse from inside.',
+      foundIn:'Kordesh mountain roads, caravan rest-houses, old gate towers and caves overlooking the Iron Route.',
+      dragonType:'Ironback · Passwarden',
+      history:[
+        'Kordeshi road crews once kept discovered eggs beside toll fires until a licensed keeper could arrive. The custom created a superstition: travellers began touching two fingers to the shell before dangerous crossings for luck. Some eggs started tapping back, and the gesture survives on the Iron Route even where dragons have not nested for generations.',
+        'An old surveyor’s journal describes one egg being carried for eleven days after a landslide. It remained silent until the caravan finally reached safe ground, then drummed so loudly against its crate that everyone in camp woke up laughing.'
+      ],
+      threats:'Do not test the shell by dropping, striking or rolling it; its weight invites bad ideas. Prolonged damp can soften the natural mineral seal around the lower ridges.'
+    },
+    'Nambara':{
+      profile:'A humid-loving egg with velvet-dark pores that bead with clean water before rain. It often rotates a few degrees overnight to face the loudest living part of a room.',
+      foundIn:'Nambara canopy hollows, monsoon shrines, giant root systems and raised huts close to seasonal floodwater.',
+      dragonType:'Raincall · Canopy Seeker',
+      history:[
+        'Nambaran naturalists insist the egg is listening long before it hatches. In rainforest villages, found eggs were once placed near open shutters during the first rain of each week so they could “learn the forest’s name.” Keepers recorded different tapping patterns for frogs, drums, thunder and human laughter.',
+        'One famous Nest record tells of an egg that refused every prepared bed until Bonnie’s predecessor put a dripping fern beside it. It rolled directly into the fern pot and stayed there for six days.'
+      ],
+      threats:'Dry indoor heat is the main danger. Never soak the shell directly; steady humidity is safer than flooding, and stagnant water around the base can encourage shell-mould.'
+    },
+    'Norveth':{
+      profile:'Cool, quiet and slow to react during daylight. After dusk the shell warms slightly and faint internal movement becomes easier to feel with a resting palm.',
+      foundIn:'Norveth snow forests, moonlit ridges, abandoned hunting lodges and sheltered hollows beneath old pines.',
+      dragonType:'Snowveil · Nightwatch',
+      history:[
+        'Norvethi folklore calls these “late listeners.” Families were warned never to assume a motionless egg had failed; some remain nearly silent for weeks, then become active only after sunset. Night watchmen began volunteering to sit incubation duty and developed elaborate tea rituals around the job.',
+        'A northern saying — “quiet as a Norveth egg at noon” — is still used for suspiciously well-behaved children. The second half of the proverb, usually omitted by parents, is “…and twice as troublesome after midnight.”'
+      ],
+      threats:'Rapid warming can distress the embryo. Avoid hot baths, fireplaces and bright heat lamps; gradual temperature changes and a cool, stable sleeping place are preferred.'
+    },
+    'Zafran':{
+      profile:'Dry, warm shell with fine sand-like flecks that hold heat long after sunset. When comfortable, it produces a low vibration more felt in the fingertips than heard.',
+      foundIn:'Zafran dune wells, shaded caravan courts, ruined observatories and rock shelves above desert trade roads.',
+      dragonType:'Dune Ember · Wayfinder',
+      history:[
+        'Caravan keepers once wrapped these eggs in layered saddlecloth and carried them near the centre of a convoy, never at the front. The belief was that an unhoused hatchling should hear many footsteps before deciding which one to follow. Merchants later turned the practice into a ceremonial “first journey” around the courtyard before adoption.',
+        'Some Zafran eggs subtly warm on the side facing a familiar route. Cartographers dismiss the idea as keeper imagination. Caravan drivers do not.'
+      ],
+      threats:'Cold stone floors can pull heat from the shell too quickly. Fine desert sand is harmless, but wet grit trapped in the seams can abrade the protective outer layer.'
+    },
+    'Elvane':{
+      profile:'A softly textured egg that readily gathers harmless moss and lichen. Its pulse is strongest after rainfall and often settles when surrounded by growing plants.',
+      foundIn:'Elvane woodland clearings, Canto meadow edges, hollow trees and the overgrown foundations of forgotten cottages.',
+      dragonType:'Mossheart · Grovekeeper',
+      history:[
+        'Elvane villagers traditionally leave a newly found egg exactly where it is for one full sunrise while checking the area for a returning parent. If none appears, a ring of fresh herbs is placed around it before the egg is moved. The ritual was practical — crushed herbs revealed footprints — but eventually became part of local dragon lore.',
+        'Keepers swear Elvane eggs dislike neat gardens. At the Second Nest they consistently roll toward the most overgrown corner, which Bonnie regards as excellent judgement.'
+      ],
+      threats:'Avoid chemical plant feeds, strong perfumes and stripping natural moss from the shell. The growth is usually protective; remove only anything a keeper identifies as harmful.'
+    },
+    'Qasmir':{
+      profile:'Smooth glassy shell with shifting lines beneath the surface. In a quiet room it can make tiny bell-like ticks as the temperature changes.',
+      foundIn:'Qasmir salt flats, shaded courtyards, wind towers, desert glass fields and the upper rooms of old observatories.',
+      dragonType:'Glasswind · Mirage Reader',
+      history:[
+        'Qasmiri scholars spent centuries arguing over whether the moving lines on these eggs predict weather, direction or mood. No theory has survived contact with enough eggs. The only dependable observation is that the patterns become more complex when the egg is carried somewhere it has never been.',
+        'A famous astronomer once mapped one shell every evening for a year and produced what she believed was a star chart. Her apprentice later noticed it matched the floor plan of the kitchen where the egg was kept.'
+      ],
+      threats:'The shell tolerates heat but dislikes sudden glare. Keep away from magnifying glass experiments, concentrated sunlight and severe temperature swings between desert day and night.'
+    },
+    'Calvora':{
+      profile:'A lively warm egg with coppery seams and frequent little kicks. Activity often increases around cooking fires, morning sunlight and the smell of toasted grain.',
+      foundIn:'Calvora hillside towns, warm sea cliffs, bakery roofs, old bathhouses and sheltered volcanic stone terraces.',
+      dragonType:'Cindercrest · Hearthrunner',
+      history:[
+        'Calvoran egg keepers developed a habit of recording “first kicks” on kitchen walls, which is why some very respectable inns have dates and names scratched behind their ovens. The eggs gained a reputation for becoming active whenever breakfast started, leading to the local claim that no Calvoran dragon has ever willingly missed a meal.',
+        'During coastal festivals, adopted eggs are carried once around the household table before being returned to their nest — a symbolic promise that there will always be a place for them there.'
+      ],
+      threats:'Overheating is easier than many new keepers expect. The shell should feel pleasantly warm, never hot; keep clear of open flames, oven ledges and prolonged direct sun.'
+    },
+    'Rovarn':{
+      profile:'A waxy, water-resistant shell with slow rolling movements. Healthy eggs often tilt toward running water and become noticeably calmer near reed beds or fountains.',
+      foundIn:'Rovarn marsh islands, reed houses, river locks, peat banks and low ruins exposed when seasonal water recedes.',
+      dragonType:'Marshcoil · Reedstalker',
+      history:[
+        'Rovarn boat families used shallow cradle-baskets that could float beside a moored home without ever letting the egg touch open water. The practice supposedly taught hatchlings the sound of the current before their first journey. Modern keepers sensibly keep the basket on dry ground, but many still place a bowl of moving water nearby.',
+        'An old lockkeeper named every egg he encountered after the gate number where it was found. This worked wonderfully until Gate Seven produced four eggs in the same spring.'
+      ],
+      threats:'Waterproof does not mean aquatic. Never submerge the egg, and avoid stagnant marsh water, sudden chilling after dampness and unsecured surfaces where the egg could roll.'
+    },
+    'Talune':{
+      profile:'A light, fragrant shell whose scent changes subtly with temperature — usually grass, blossom or rain-soaked soil. It responds quickly to gentle touch.',
+      foundIn:'Talune flower fields, orchard lanes, walled gardens, stream meadows and abandoned shepherd shelters.',
+      dragonType:'Bloomtide · Garden Warden',
+      history:[
+        'Talune estate records mention “garden eggs” long before formal dragon keeping existed. Groundskeepers would find them tucked beside warm compost heaps or under flowering hedges and mark the spot with a ribbon until a keeper arrived. Different ribbon colours eventually became a village code for how active the egg seemed.',
+        'The belief that Talune eggs hatch sooner near blooming flowers has never been proven. This has not stopped generations of keepers from spending unreasonable amounts of money on spring bulbs.'
+      ],
+      threats:'Strong pesticides, smoke and synthetic fragrances can overwhelm the porous shell. Avoid overhandling during periods of rapid rocking, when the hatchling may be repositioning.'
+    },
+    'Drazhen':{
+      profile:'Dark, ash-dusted shell with long periods of complete stillness followed by sudden powerful movement. Warmth collects deep inside rather than on the surface.',
+      foundIn:'Drazhen ruin fields, cooled lava shelves, old fortress cellars and ash valleys sheltered from the strongest winds.',
+      dragonType:'Ashmaw · Ruin Sentinel',
+      history:[
+        'Drazhen eggs are responsible for one of the oldest mistakes in dragon keeping: declaring a silent egg empty. Archaeologists have uncovered viable eggs in sealed chambers where no one expected life to remain. The modern seven-check rule — warmth, weight, resonance, seam, scent, pulse and patience — was written largely because of them.',
+        'Among ruin wardens, gifting an empty Drazhen shell fragment is a symbol of endurance. Taking one from a living egg is, naturally, a very good way to be thrown out of the profession.'
+      ],
+      threats:'Do not force activity with extra heat or vibration. Ash-packed seams should be brushed only lightly, and a long quiet phase should be assessed by a keeper rather than disturbed.'
+    },
+    'Belros':{
+      profile:'Stone-toned shell with remarkable resonance. A soft spoken word near one side can sometimes be felt as a faint vibration on the opposite side.',
+      foundIn:'Belros quarry caves, bell towers, mine shelters, echoing ravines and dry chambers behind worked stone.',
+      dragonType:'Bellstone · Cavern Listener',
+      history:[
+        'Belros miners once used a practical test when an egg was found underground: everyone stopped work. If the shell answered distant hammering, the tunnel was cleared and the egg removed before mining resumed. Over time this became the “quiet minute,” a tradition still observed in several quarries whenever dragon signs are discovered.',
+        'Bellmakers became especially fond of Belros eggs because some seem to react differently to each note. One workshop kept a chart of favourite bells. The egg’s favourite was, inconveniently, the largest one.'
+      ],
+      threats:'Heavy impact and sustained industrial vibration are dangerous despite the shell’s stony feel. Keep away from active blasting, machinery and places with repeated deep resonance.'
+    },
+    'Marovar':{
+      profile:'Salt-flecked shell with a slow rocking rhythm that often matches nearby tides. It smells faintly of clean sea air even after days indoors.',
+      foundIn:'Marovar harbour walls, sea caves, warehouse lofts, tidal steps and sheltered islands just beyond busy ports.',
+      dragonType:'Tideforge · Dockwarden',
+      history:[
+        'Dockworkers historically reported Marovar eggs before cargo, storms or even wages — partly out of respect and partly because an unattended dragon egg could stop a whole quay. Harbour masters developed numbered “egg flags” so crews could warn one another without causing a crowd.',
+        'The tradition of giving a newly adopted Marovar egg a tiny brass ship tag began as paperwork. Keepers liked it, hatchlings kept stealing the tags, and now nobody remembers which part was official.'
+      ],
+      threats:'Salt crust should never be scraped with metal. Avoid full seawater immersion, unsecured dock edges and rapid movement from cold harbour air into strong indoor heat.'
+    },
+    'Sorevia':{
+      profile:'Surprisingly light shell with delicate internal movement. On calm days it may shift by itself on soft bedding as though reacting to air currents nobody else can feel.',
+      foundIn:'Sorevia high meadows, windmills, hill chapels, cloud farms and lofts open to long stretches of sky.',
+      dragonType:'Cloudpetal · Meadow Soarer',
+      history:[
+        'Sorevian farmers used broad straw nests because smaller baskets had a habit of ending up several inches from where they were left. Keepers blamed uneven floors until the same thing happened on stone. The accepted explanation now is simple: the hatchlings are restless long before hatching.',
+        'A children’s game called “Where’s the Egg?” began from this behaviour. The real version is less charming at three in the morning, according to every Sorevian keeper Bonnie has ever met.'
+      ],
+      threats:'Use a deep stable nest and never leave the egg on a high ledge. Strong fans, open windows during gales and loose bedding can encourage dangerous rolling.'
+    },
+    'Iskandar':{
+      profile:'Dark shell traced with tiny points that appear to shift over several nights. It becomes warmest under clear skies and unusually still during heavy cloud.',
+      foundIn:'Iskandar desert plateaus, oasis libraries, rooftop observatories and old pilgrim shelters far from city light.',
+      dragonType:'Starwell · Night Oracle',
+      history:[
+        'Iskandari observers have copied the tiny points on these shells for hundreds of years. Some maps resemble constellations; others resemble nothing at all. Keepers now think the pattern is partly biological and partly responsive to light, but that has not reduced the number of prophecies written about particularly dramatic eggs.',
+        'One royal archive contains a prediction that an Iskandar hatchling would “open the western gate.” It eventually learned to unlatch a pantry. Technically, the prophecy was accurate.'
+      ],
+      threats:'Constant bright light can disrupt the shell’s natural night cycle. Avoid sudden chilling after sunset and do not paint, mark or trace directly onto the shell.'
+    },
+    'Blackglass Coast':{
+      profile:'Glossy near-black shell that flashes with brief internal sparks during storms. The surface is smooth but not brittle, despite its glasslike appearance.',
+      foundIn:'The Blackglass Coast of Vardesh, storm caves, basalt shelves and ruined lookout towers facing the northern sea.',
+      dragonType:'Obsidian Gale · Stormbreaker',
+      history:[
+        'Blackglass eggs were once treated as bad omens because they were most often discovered after violent coastal storms. Modern records suggest the opposite: adults appear to choose exceptionally sheltered cracks that only become visible once waves clear the debris. Finding an egg after a storm therefore became a sign that something fragile had survived.',
+        'Coast wardens still hang a black ribbon and a copper bell near a recovered egg. The ribbon warns visitors; the bell lets the egg hear the weather without being placed anywhere near it.'
+      ],
+      threats:'Electrical storms can make the egg dangerously active. Keep indoors during lightning, away from exposed metal, wet stone and anyone who suggests “seeing what happens” with static charge.'
+    },
+    'Skallheim':{
+      profile:'An ice-cold egg with pale mineral seams that form temporary frost patterns. It may remain almost motionless until exposed to true winter air.',
+      foundIn:'Skallheim ice valleys, glacier caves, snow-buried shrines and deep stone stores below northern settlements.',
+      dragonType:'Frostcrown · Icebound Sentinel',
+      history:[
+        'Skallheim keepers learned early that warmth is not always kindness. The oldest incubation rooms are built half underground, with thick doors and no fireplace at all. Eggs are checked by touch, weight and frost pattern rather than by trying to warm them into movement.',
+        'Local families carve tiny wooden suns and hang them above the nest as a promise: the hatchling will meet summer in its own time. Bonnie keeps one above every Skallheim egg that reaches the Second Nest.'
+      ],
+      threats:'Heat shock is the greatest risk. Never thaw surface frost with hot water, breath or flame; allow it to melt naturally and keep the environment cool and stable.'
+    },
+    'Hestholm Fjord':{
+      profile:'Blue-grey shell with a deep internal slosh that is normal for the type. It reacts strongly to distant horns, boat knocks and the low vibration of moving water.',
+      foundIn:'Hestholm Fjord sea caves, boathouses, cliff steps, seal beaches and sheltered ledges just above the high-tide line.',
+      dragonType:'Brinewing · Fjord Diver',
+      history:[
+        'Hestholm fishers once believed these eggs had to hear the harbour horn every morning or they would hatch “without a sense of home.” There is no evidence for this, but eggs raised near familiar harbour sounds do often become calmer when those sounds return.',
+        'One adoption ledger records an egg that rocked violently whenever a particular fishing boat arrived. The keeper later discovered the boat’s cook had been sneaking it bits of smoked herring through the window — before it had even hatched.'
+      ],
+      threats:'Do not mistake the internal liquid sound for damage. Never shake the egg to check it, and keep it away from incoming tides, slippery rock and concentrated salt deposits.'
+    },
+    'Nyrgate Aurora':{
+      profile:'Iridescent shell whose colour bands slowly travel across the surface in darkness. Activity increases beneath aurora light but remains gentle and rhythmic.',
+      foundIn:'Nyrgate rooftops, northern observatories, snowfields beyond the city lamps and old towers with clear views of the aurora.',
+      dragonType:'Aurora · Lumenweaver',
+      history:[
+        'Nyrgate scholars once locked an egg in a windowless room to prove its colours came from stored daylight. The egg went dull, the scholars became miserable, and the caretaker quietly moved it back beneath the night sky. Its bands returned within an hour. The experiment was never repeated.',
+        'Today, adopted Nyrgate eggs are often given a “first lights” evening: no ceremony, no crowd, just one trusted person sitting nearby while the aurora moves overhead.'
+      ],
+      threats:'Continuous artificial light can flatten the shell’s natural cycle. Avoid bright lamps overnight, sudden heat and reflective enclosures that trap glare around the egg.'
+    },
+    'Warmvein / Krellhaven':{
+      profile:'A deep warm egg with slow, powerful pulses that can be felt through thick cloth. The seams brighten slightly near worked metal or geothermal stone.',
+      foundIn:'Warmvein geothermal tunnels, Krellhaven forge districts, mineral springs and sealed chambers behind old furnace works.',
+      dragonType:'Forgepulse · Magma Burrower',
+      history:[
+        'Warmvein miners originally mistook the first recorded eggs for strange ore deposits because they stayed hot after being removed from the rock. Krellhaven smiths quickly learned better when one began knocking in time with a hammer. The association with workshops has survived ever since.',
+        'Responsible smithies now keep found eggs in a quiet side room, not beside the forge. The old phrase “give it heat and a hammer” has been replaced by Bonnie’s preferred version: “give it warmth and leave the hammer alone.”'
+      ],
+      threats:'Direct forge heat can overcook the outer membrane even when the shell seems comfortable. Keep away from molten metal, hammer benches and sealed boxes that cannot vent warmth.'
+    },
+    'Aurelia':{
+      profile:'A bright, finely patterned egg that responds to voices from several directions at once. It tends to become more active in busy but calm social spaces.',
+      foundIn:'Aurelia civic gardens, academy roofs, old courtyards, public bath terraces and the quiet upper floors of crowded neighbourhoods.',
+      dragonType:'Gilded Chorus · Civic Companion',
+      history:[
+        'Aurelian records contain more communal incubations than anywhere else in Velmora. Neighbours would take turns sitting with a recovered egg so it learned the voices of an entire street before adoption. The practice became less formal over time, but many homes still invite friends to read aloud near a newly adopted egg.',
+        'One municipal archive lists an egg as an official meeting attendee for six consecutive weeks because nobody knew which department was responsible for moving it.'
+      ],
+      threats:'Crowds are fine; chaos is not. Avoid shouting directly over the nest, constant handling by visitors and moving the egg from one social space to another without a quiet recovery period.'
+    },
+    'Orsanne':{
+      profile:'Softly perfumed shell, commonly carrying notes of pear skin, herbs and wet bark. It rests best in woven natural fibres and becomes active around dawn.',
+      foundIn:'Orsanne orchards, herb terraces, cider barns, misty lanes and dry hollows beneath ancient fruit trees.',
+      dragonType:'Mistbloom · Orchard Keeper',
+      history:[
+        'Orsanne orchard workers used to place any found egg in an empty harvest basket and leave one piece of fruit beside it — not for eating, but so the scent of the orchard travelled with the egg. Modern keepers still favour woven baskets, though Bonnie strongly objects to the old habit of balancing them on carts.',
+        'The first fallen blossom of spring is sometimes tucked beside an adopted egg as a local wish for patience. If the egg eats it after hatching, tradition says the wish worked.'
+      ],
+      threats:'Fermenting fruit produces more heat and gas than an incubation nest needs. Keep the egg away from active cider vats, mouldy straw and strong chemical cleaners.'
+    },
+    'Saint Ciro':{
+      profile:'Golden-warm shell with a clear single tap often heard near sunrise. It is unusually tolerant of gentle handling but dislikes being completely covered.',
+      foundIn:'Saint Ciro monastery roofs, sun courts, bell gardens, cliff chapels and warm stone alcoves overlooking Calvora.',
+      dragonType:'Sunbell · Sanctuary Guardian',
+      history:[
+        'Caretakers around Saint Ciro traditionally opened shutters at dawn so recovered eggs received the first light of day. The timing mattered less than the routine: the same person, the same greeting and the same bell heard in the distance. Eggs raised this way became famous for recognising daily schedules.',
+        'Monastery records mention one egg tapping exactly three minutes before breakfast for a month. The monks called it miraculous until they discovered the kitchen staff began chopping vegetables at the same time every morning.'
+      ],
+      threats:'Do not place directly in harsh midday sun. Heavy blankets can trap too much heat and block airflow; use light covers only when needed and keep a regular day-night rhythm.'
+    },
+    'Marenza':{
+      profile:'Smooth blue-green shell with a waxed sheen and gentle side-to-side movement. It seems soothed by footsteps, boat creaks and the repeated rhythm of canal traffic.',
+      foundIn:'Marenza canal houses, bridge cellars, garden docks, covered markets and dry ledges inside old water gates.',
+      dragonType:'Canalwake · Watercourt Companion',
+      history:[
+        'Marenzan households once passed recovered eggs between canal districts by padded handcart, with each bridge keeper signing a tag tied to the basket. Those tags became cherished adoption keepsakes and are still copied for ceremonial first journeys today.',
+        'The eggs are famous for sleeping through noise that would wake anything else, then becoming immediately active when the room goes silent. Bonnie says this is because Marenza dragons are born suspicious of peace and quiet.'
+      ],
+      threats:'Water gates and canal edges are obvious hazards. Less obvious is wax buildup: never polish the natural sheen, and keep the shell away from slippery oils or damp enclosed crates.'
+    },
+    'Grand Khor':{
+      profile:'Hard-ridged shell that reacts strongly to floor vibration. It is calm during steady travel and noticeably restless when a journey stops unexpectedly.',
+      foundIn:'Grand Khor caravan forts, mountain road stations, stone viaducts and sheltered camps along the Iron Route.',
+      dragonType:'Ironroute · Caravan Warden',
+      history:[
+        'Grand Khor eggs have travelled more miles before hatching than almost any other recorded type. Route wardens developed suspended cradle-boxes that absorbed wagon jolts while preserving the steady vibration the eggs seemed to enjoy. The best boxes became family heirlooms.',
+        'An old drivers’ superstition says a Grand Khor egg that goes completely quiet knows the road ahead is blocked. Modern surveys find no proof, but experienced drivers still check the map when it happens.'
+      ],
+      threats:'Abrupt heavy impacts are not the same as steady travel. Secure the nest during transport, avoid machinery floors and never use vibration deliberately to “wake” a quiet egg.'
+    },
+    'Rova End':{
+      profile:'Dark marsh-toned shell dotted with tiny pale pores that glow faintly in very low light. It often becomes active just before fog forms.',
+      foundIn:'Rova End fens, peat footpaths, lantern posts, abandoned ferry huts and raised patches of dry ground deep in the marsh.',
+      dragonType:'Fenlight · Mire Guide',
+      history:[
+        'Rova End ferrymen used covered lanterns to mark discovered eggs during fog, creating lines of lights across the fens that travellers sometimes mistook for roads. The confusion gave rise to dozens of ghost stories and at least one deeply embarrassed tax inspector.',
+        'Keepers later noticed the egg’s own pale pores brighten slightly in darkness. Local children call them “borrowed stars,” and families traditionally dim the room for a few minutes each evening to see them.'
+      ],
+      threats:'Peat water is acidic and should not contact the shell for long. Keep away from bog edges, smoke-heavy lanterns and completely sealed darkness without a normal day-night cycle.'
+    },
+    'Zafir Row':{
+      profile:'Warm, lively shell with a faint spicy scent that changes around cooking. It often drums quick uneven rhythms when markets, music or conversation are nearby.',
+      foundIn:'Zafir Row rooftop gardens, spice markets, storeroom rafters, awnings and warm courtyards above busy streets.',
+      dragonType:'Spicewind · Rooftop Skimmer',
+      history:[
+        'Zafir Row merchants became experts at spotting eggs because hatchlings had an unfortunate habit of nesting near warm spice stores. A chalk symbol — half egg, half weather vane — was used to mark a building until a keeper arrived. Variations of it still decorate market signs today.',
+        'Bonnie’s notes describe these as “incorrigible eavesdroppers before they have ears.” An egg may remain quiet all morning, then begin tapping the moment somebody starts gossiping nearby.'
+      ],
+      threats:'Strong spice dust can clog shell pores. Keep away from open sacks of fine powder, greasy kitchen smoke, unsecured balconies and prolonged direct rooftop sun.'
+    },
+    'Ossa Mere':{
+      profile:'Pale lake-toned shell with tiny breathing pores that can whistle softly when air moves across them. Its motion is slow, deliberate and strongly tied to water sounds.',
+      foundIn:'Ossa Mere reed islands, lakeside boathouses, fishing gardens, old piers and dry nests hidden above the waterline.',
+      dragonType:'Reedwhisper · Lakekeeper',
+      history:[
+        'Ossa Mere keepers once identified healthy eggs by sitting absolutely still beside the reeds and listening for a faint whistle. The sound is simply air passing across the shell, but the tradition evolved into the “quiet watch,” a peaceful hour observed before an egg is moved from where it was found.',
+        'There is a local belief that the first person to hear an Ossa Mere egg whistle will always be recognised by the hatchling. Bonnie calls it unproven and then immediately admits she always listens first.'
+      ],
+      threats:'Never block or oil the shell pores. Avoid full submersion, muddy water, reed fires and nests close enough to the lake that a rising level could reach them.'
+    },
+    'Ashwick / Cinderbank':{
+      profile:'Soot-dark shell with ember-red warmth deep beneath the surface. It pulses in a steady rhythm around smithing, engines and other repetitive workshop sounds.',
+      foundIn:'Ashwick yards, Cinderbank foundries, coal sheds, disused engine houses and warm brick tunnels beneath industrial districts.',
+      dragonType:'Coalheart · Foundry Familiar',
+      history:[
+        'Ashwick and Cinderbank both claim the first proper care rules for these eggs, and neither side is likely to surrender the argument. What is certain is that factory crews learned to stop work around a newly found egg until it could be moved safely. The resulting “egg bell” became an early workplace safety signal.',
+        'Recovered shells were once mounted above workshops as lucky charms. Modern conservation rules ended that practice, so smiths now hang carved wooden copies instead — usually larger, shinier and considerably less accurate.'
+      ],
+      threats:'Soot on the outside is harmless in small amounts; hot ash is not. Keep away from furnaces, moving machinery, coal dust clouds and any surface that vibrates hard enough to rattle the nest.'
+    }
+  };
+  const DRAGONBOUND_ADOPTION_OPEN_DURATION=5564;
+  const DRAGONBOUND_ADOPTION_REVEAL_DURATION=2926;
+  const DRAGONBOUND_HOME_DOPPY_FRAMES=[
+    'assets/dragonbound/home/doppy-frame-1.png',
+    'assets/dragonbound/home/doppy-frame-2.png',
+    'assets/dragonbound/home/doppy-frame-3.png'
+  ];
+  const DRAGONBOUND_HOME_EGG_BASKET='assets/dragonbound/home/egg-basket.png';
+  const DRAGONBOUND_HOME_SIDEBAR_BUTTONS='assets/dragonbound/home/home-sidebar-buttons.png';
+  const DRAGONBOUND_HOME_REVEAL_MUSIC='assets/dragonbound/home/dragon-reveal-custom.mp3';
+  const DRAGONBOUND_HOME_OPEN_BAG_AUDIO='assets/dragonbound/home/open-bag.mp3';
+  const DRAGONBOUND_HOME_BASKET_OPEN_FRAMES=[
+    'assets/dragonbound/home/basket-open-frames/01_closed.png',
+    'assets/dragonbound/home/basket-open-frames/02_unlocking.png',
+    'assets/dragonbound/home/basket-open-frames/03_straps_removed.png',
+    'assets/dragonbound/home/basket-open-frames/04_lid_lifting.png',
+    'assets/dragonbound/home/basket-open-frames/05_quilt_corner.png',
+    'assets/dragonbound/home/basket-open-frames/06_hidden_reach.png'
+  ];
+  const DRAGONBOUND_HOME_REVEAL_DURATION=5094;
+  const DRAGONBOUND_ONE_AND_DONE_RESET_KEY='dragonboundOneAndDoneResetV1';
+  const DRAGONBOUND_EGG_LOCK_KEY='dragonboundLockedEggV1';
+  const DRAGONBOUND_NAMED_DRAGON_KEY='dragonboundNamedDragonV2';
+  const DRAGONBOUND_STARTER_HOUSE_KEY='dragonboundSelectedStarterHouseV2';
+  const DRAGONBOUND_DRAGON_REVEALS={
+    'Vardesh':'assets/dragonbound/reveals/01_Vardesh_POV.png',
+    'Lumerre':'assets/dragonbound/reveals/02_Lumerre_POV.png',
+    'Kordesh':'assets/dragonbound/reveals/03_Kordesh_POV.png',
+    'Nambara':'assets/dragonbound/reveals/04_Nambara_POV.png',
+    'Norveth':'assets/dragonbound/reveals/05_Norveth_POV.png',
+    'Zafran':'assets/dragonbound/reveals/06_Zafran_POV.png',
+    'Elvane':'assets/dragonbound/reveals/07_Elvane_POV.png',
+    'Qasmir':'assets/dragonbound/reveals/08_Qasmir_POV.png',
+    'Calvora':'assets/dragonbound/reveals/09_Calvora_POV.png',
+    'Rovarn':'assets/dragonbound/reveals/10_Rovarn_POV.png',
+    'Talune':'assets/dragonbound/reveals/11_Talune_POV.png',
+    'Drazhen':'assets/dragonbound/reveals/12_Drazhen_POV.png',
+    'Belros':'assets/dragonbound/reveals/13_Belros_POV.png',
+    'Marovar':'assets/dragonbound/reveals/14_Marovar_POV.png',
+    'Sorevia':'assets/dragonbound/reveals/15_Sorevia_POV.png',
+    'Iskandar':'assets/dragonbound/reveals/16_Iskandar_POV.png',
+    'Blackglass Coast':'assets/dragonbound/reveals/17_Blackglass_Coast_POV.png',
+    'Skallheim':'assets/dragonbound/reveals/18_Skallheim_POV.png',
+    'Hestholm Fjord':'assets/dragonbound/reveals/19_Hestholm_Fjord_POV.png',
+    'Nyrgate Aurora':'assets/dragonbound/reveals/20_Nyrgate_Aurora_POV.png',
+    'Warmvein / Krellhaven':'assets/dragonbound/reveals/21_Warmvein_Krellhaven_POV.png',
+    'Aurelia':'assets/dragonbound/reveals/22_Aurelia_POV.png',
+    'Orsanne':'assets/dragonbound/reveals/23_Orsanne_POV.png',
+    'Saint Ciro':'assets/dragonbound/reveals/24_Saint_Ciro_POV.png',
+    'Marenza':'assets/dragonbound/reveals/25_Marenza_POV.png',
+    'Grand Khor':'assets/dragonbound/reveals/26_Grand_Khor_POV.png',
+    'Rova End':'assets/dragonbound/reveals/27_Rova_End_POV.png',
+    'Zafir Row':'assets/dragonbound/reveals/28_Zafir_Row_POV.png',
+    'Ossa Mere':'assets/dragonbound/reveals/29_Ossa_Mere_POV.png',
+    'Ashwick / Cinderbank':'assets/dragonbound/reveals/30_Ashwick_Cinderbank_POV.png'
+  };
+  const DRAGONBOUND_PROLOGUE_PAGES=[
+    `<p class="narration">The traveller stumbles through the forest, each step slower than the last.</p><p class="spoken">“Four days…”</p><p class="spoken">“Four days without a road, a roof, or another living soul.”</p>`,
+    `<p class="narration">His stomach twists with hunger. He opens his satchel and finds only crumbs and an empty waterskin.</p><p class="spoken">“And now I’ve run out of food as well.”</p>`,
+    `<p class="narration">He reaches a cluster of moss-covered rocks and eases himself down beside them.</p><p class="spoken">“I wanted a new life.”</p><p class="narration">A tired laugh escapes him.</p><p class="spoken">“I just never thought it would begin like this.”</p>`,
+    `<p class="narration">He leans back against the cold stone and lets his eyes close.</p><p class="spoken">“Just a moment.”</p><p class="spoken">“Then I’ll get up and keep walking.”</p>`,
+    `<p class="narration">The forest falls strangely quiet.</p><p class="narration">A soft current of air brushes across his face.</p><p class="spoken">“Wind?”</p>`,
+    `<p class="narration">He opens his eyes. The canopy above him is completely still.</p><p class="narration">Another breeze passes over him, warmer this time, carrying the faint scent of rain, flowers, and distant woodsmoke.</p><p class="spoken">“That isn’t coming from the forest.”</p>`,
+    `<p class="narration">He turns toward the rocks.</p><p class="narration">Behind them stands a wall of ivy, roots, and wet leaves so thick it should be solid.</p><p class="narration">Yet the vines move gently, as if something behind them is breathing.</p><p class="spoken">“There’s something back there.”</p>`,
+    `<p class="narration">As he reaches toward the ivy, a strange feeling settles beneath his ribs.</p><p class="narration">Not pain. Not fear.</p><p class="narration">Recognition.</p><p class="spoken">“What was that?”</p>`,
+    `<p class="narration">He slowly parts the vines.</p><p class="narration">A narrow crack opens between the stones, filled with darkness.</p><p class="spoken">“No path. No footprints…”</p><p class="spoken">“How long has this been here?”</p>`,
+    `<p class="narration">Far inside, a faint teal marking flickers across the rock.</p><p class="narration">The warm breeze returns, carrying that distant scent of smoke.</p><p class="spoken">“Smoke means fire.”</p><p class="spoken">“And fire means people.”</p>`,
+    `<p class="narration">He glances back at the empty road behind him.</p><p class="spoken">“Or it means I’ve finally lost my mind.”</p><p class="narration">The darkness ahead seems to breathe, waiting.</p>`,
+    `<p class="narration">He tightens the strap of his satchel and squares his shoulders.</p><p class="spoken">“Well…”</p><p class="spoken">“I came looking for somewhere new.”</p><p class="narration">He slips through the opening and steps into the passage.</p><p class="spoken">“Let’s see where this goes.”</p><p class="narration">The vines draw shut behind him.</p>`
+  ];
+  const DRAGONBOUND_CAVE_PAGES=[
+    `<p class="spoken">“Easy… what happened? I remember pulling back the vines and following the passage, but everything after that is gone. How long was I unconscious? And why does it feel as though I’ve travelled much farther than I walked?”</p>`,
+    `<p class="spoken">“That marking is the same as the one at the entrance. That strange feeling has returned too—warm, somewhere beneath my ribs. It isn’t pulling me forward. It feels more like something ahead already knows I’m here… and is waiting.”</p>`,
+    `<p class="spoken">“Is that sunlight? It can’t be. I should still be beneath the forest, yet there’s a stone path ahead. I can hear running water, birds… even a bell. Someone must live here. Wherever this cave has brought me, it isn’t the other side of the hill—and it isn’t anywhere I’ve ever known.”</p>`,
+    `<p class="spoken">“All right. Find the people, find some food, and then work out what this place is.”</p>`
+  ];
+  const DRAGONBOUND_SECOND_NEST_PAGES=[
+    `<p class="narration">The path ends beneath the roots of an enormous ancient tree. Warm light spills from tiny windows carved into its trunk. Somewhere beyond the doors, something gives a soft, muffled chirp.</p>`,
+    `<p class="speaker">NARRATOR</p><p class="spoken">The Second Nest.</p><p class="spoken">For generations, young dragons without a home have been brought here from every corner of Velmora.</p>`,
+    `<p class="spoken">Some are found abandoned.</p><p class="spoken">Some are surrendered by keepers who can no longer care for them.</p><p class="spoken">And some simply… arrive.</p><p class="spoken">Nobody has ever quite worked out how.</p>`,
+    `<p class="narration">You look up at the enormous egg mounted above the doorway.</p><p class="speaker">NARRATOR</p><p class="spoken">The people who run the Nest have only one rule:</p><p class="spoken">You do not choose a dragon.</p><p class="spoken">You give one the chance to choose you.</p>`
+  ];
+  const DRAGONBOUND_BONNIE_INTRO_PAGES=[
+    `<p class="narration">The room is impossibly cosy. Shelves overflow with blankets, feeding bottles, brushes, old dragon-care books and little wooden nameplates.</p><p class="narration">Behind the counter, an elderly woman is carefully repairing a tiny knitted dragon blanket.</p><p class="narration">She looks up.</p>`,
+    `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Oh!</p><p class="spoken">Well, you’re certainly not the postman.</p><p class="narration">She peers at you over her spectacles.</p>`,
+    `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">And you’ve got that look about you.</p><p class="speaker">YOU</p><p class="spoken">What look?</p>`,
+    `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">The terrified one.</p><p class="narration">She smiles.</p><p class="spoken">First egg?</p><p class="speaker">YOU</p><p class="spoken">First egg.</p>`,
+    `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Thought so.</p><p class="spoken">I’m Bonnie Bramble.</p><p class="spoken">Welcome to the Second Nest.</p>`
+  ];
+  const DRAGONBOUND_MIRA_HOME_PAGES=[
+    `<p class="speaker">MIRA HEARTHVALE</p><p class="spoken">Well then… look at you. Homeowner.</p>`,
+    `<p class="speaker">MIRA HEARTHVALE</p><p class="spoken">It might feel a little empty right now, but that’s half the fun. This place is yours to shape however you like.</p><p class="spoken">If you want to make it a bit more homely, pop back over to <strong>Bonnie’s Adoption Centre</strong>. She’s started stocking furniture, decorations, pet comforts and all sorts of little things for the house.</p>`,
+    `<p class="speaker">MIRA HEARTHVALE</p><p class="spoken">Once you own some furniture, open <strong>Build Mode</strong> while you’re at home.</p>`,
+    `<p class="speaker">MIRA HEARTHVALE</p><p class="spoken">From there, you can pick things up, move them around, rotate them and find the perfect spot. Changed your mind? Just put the item away and it’ll be safely stored until you want it again.</p><p class="spoken">And don’t worry about getting everything perfect straight away. Homes have a habit of growing with their owners.</p>`,
+    `<p class="speaker">MIRA HEARTHVALE</p><p class="spoken">Before long, you’ll also be able to keep an eye on your pet’s needs from here — things like their mood, hunger and other little quirks.</p><p class="spoken">That part of the system isn’t quite ready yet, though. Velmora’s finest minds are apparently still arguing over what counts as ‘too many treats’.</p>`,
+    `<p class="speaker">MIRA HEARTHVALE</p><p class="spoken">For now, make yourself comfortable. Explore your new home, visit Bonnie when you fancy furnishing the place…</p><p class="spoken">…and when you’re ready, start making it feel like somewhere you and your dragon actually belong.</p>`,
+    `<p class="speaker">MIRA HEARTHVALE</p><p class="spoken">Welcome home.</p>`
+  ];
+  const DRAGONBOUND_DOPPY_HOME_PAGES=[
+    `<p class="spoken">There’s a soft thump outside the front door… followed by the faint flutter of wings.</p><p class="speaker">DOPPY</p><p class="spoken">Delivery for the new Dragonbound!</p>`,
+    `<p class="speaker">DOPPY</p><p class="spoken">Bonnie sent me over with your egg. Don’t worry — I’ve been very careful with it.</p>`,
+    `<p class="speaker">DOPPY</p><p class="spoken">It’ll be waiting just outside your door in one of our specialized egg baskets. They’re padded, temperature-safe and built to keep even the fussiest eggs snug until you’re ready to open it.</p><p class="spoken">So there’s no need to rush. Your little passenger is perfectly safe in there.</p>`,
+    `<p class="speaker">DOPPY</p><p class="spoken">When you’re ready… bring the basket inside and see who Bonnie’s sent home with you.</p>`,
+    `<p class="speaker">DOPPY</p><p class="spoken">And if you’ve got any questions about the egg, its care, or what happens next, head back to Bonnie’s Adoption Centre. Bonnie knows more about eggs than anyone I’ve ever met.</p>`,
+    `<p class="speaker">DOPPY</p><p class="spoken">Right! Another delivery waiting for me.</p><p class="spoken">Doppy gives an enthusiastic flap of his wings.</p>`,
+    `<p class="speaker">DOPPY</p><p class="spoken">Good luck, Dragonbound. I’ve got a good feeling about this one.</p><p class="spoken">With another rush of wings, Doppy disappears down the road for his next delivery.</p>`
+  ];
+  const DRAGONBOUND_BONNIE_CHAT_TOPICS={
+    secondNest:[
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Ahh. She’s older than she looks.</p><p class="spoken">Well… actually, she looks extremely old, so perhaps that isn’t saying much.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">The Second Nest was founded when the original dragon sanctuary could no longer keep up with the number of eggs being found across Velmora.</p><p class="spoken">Back then this was just an ancient tree, a mountain path and one very stubborn dragon keeper with a hammer.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Over the years, we built around the roots.</p><p class="spoken">Or perhaps the roots built around us.</p><p class="spoken">I’m still not entirely sure.</p><p class="spoken">Either way, every dragon that leaves through those doors becomes part of its story.</p>`
+    ],
+    eggs:[
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Oh, everywhere.</p><p class="spoken">You’d be amazed where people find them.</p><p class="spoken">Mountain caves. Old barns. Riverbanks. Chimneys.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">We once had one arrive in a fishing boat.</p><p class="spoken">Nobody knew how it got there.</p><p class="spoken">The fisherman certainly didn’t.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Some are brought here by travellers. Some come from sanctuaries elsewhere in Velmora.</p><p class="spoken">A few are simply left outside my door with a note.</p><p class="spoken">And every so often...</p><p class="narration">Bonnie lowers her voice.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">...an egg appears that nobody remembers bringing in at all.</p><p class="spoken">Those ones are usually trouble.</p>`
+    ],
+    adopting:[
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Very simple.</p><p class="spoken">You provide the home.</p><p class="spoken">The Nest provides the egg.</p><p class="spoken">And the dragon provides several years of chaos.</p><p class="narration">She smiles.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">You won't know exactly what you're taking home.</p><p class="spoken">That's rather the point.</p><p class="spoken">Every egg deserves the same chance, whether there's a common little woodland dragon inside...</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">...or something nobody in Velmora has seen for a hundred years.</p><p class="spoken">You give an egg a home.</p><p class="spoken">Then we find out who you've brought home together.</p>`
+    ],
+    keeper:[
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Patience.</p><p class="spoken">More patience.</p><p class="spoken">A sturdy pair of boots.</p><p class="spoken">And ideally furniture you aren't particularly attached to.</p><p class="narration">She laughs.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Dragons aren't pets in the usual sense.</p><p class="spoken">They have moods. Favourites. Fears.</p><p class="spoken">Some want to follow you everywhere.</p><p class="spoken">Some would happily sleep for three days and pretend you don't exist.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Learn what your dragon likes.</p><p class="spoken">Learn what it doesn't.</p><p class="spoken">Take care of it, and it'll take care of you.</p><p class="spoken">Well...</p><p class="spoken">Most of the time.</p>`
+    ],
+    bonnie:[
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Me?</p><p class="spoken">Oh, there's nothing terribly exciting about me.</p><p class="spoken">I've spent most of my life looking after creatures that bite, scratch, breathe fire or occasionally do all three at once.</p><p class="spoken">Wouldn't change it for the world.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">I've watched hundreds of dragons hatch in this room.</p><p class="spoken">And I've watched hundreds of nervous new keepers walk through that door pretending they weren't nervous.</p><p class="narration">She looks at you knowingly.</p>`,
+      `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">They all had that same expression you're wearing now.</p><p class="spoken">Don't worry, dear.</p><p class="spoken">You'll do fine.</p><p class="spoken">Just...</p><p class="spoken">perhaps don't wear anything flammable for the first few days.</p>`
+    ]
+  };
+  const DRAGONBOUND_MAELITH_PAGES=[
+    `<p class="narration">The ancient dragon lowers her great head. Her golden eyes settle upon the keeper standing on the bridge.</p><p class="spoken">“Do not kneel.</p><p class="spoken">The age in which dragons demanded such things ended long ago.</p><p class="spoken">I am Maelith. The eldest among my kind call me Crownwing. The youngest call me Grandmother.</p><p class="spoken">To the dragons of Velmora, I am Queen.</p><p class="spoken">But I did not win that title through fire.”</p>`,
+    `<p class="narration">She looks across the peaceful Canto Plains.</p><p class="spoken">“Hundreds of years before your first breath, these skies were divided between warring broods.</p><p class="spoken">Dragon fought dragon for mountains, nesting grounds and dominion over the clouds.</p><p class="spoken">The peoples of Velmora chose sides, and friendship slowly became servitude.”</p>`,
+    `<p class="spoken">“Saddles became shackles. Bonds were forced where none had been freely given.</p><p class="spoken">We called those years the Wars of the Broken Sky.</p><p class="spoken">By their end, entire valleys had burned. Rivers had changed course.</p><p class="spoken">Eggs lay cold in nests whose guardians would never return.”</p>`,
+    `<p class="narration">Maelith’s damaged horn catches the dying sunlight.</p><p class="spoken">“I received this wound in the final battle.</p><p class="spoken">I could have answered it with greater fire.</p><p class="spoken">Instead, upon this bridge, I lowered my wings.”</p>`,
+    `<p class="spoken">“One dragon followed. Then another.</p><p class="spoken">Before the sun returned, every surviving brood had joined us.</p><p class="spoken">Together, dragons and people formed the First Accord:</p><p class="spoken">No dragon would ever again be owned.</p><p class="spoken">No egg would ever be taken.</p>`,
+    `<p class="spoken">“And no bond would exist unless it had been chosen by both hearts.”</p><p class="narration">The runes along the bridge begin to glow softly.</p><p class="spoken">“That promise has held for centuries.</p><p class="spoken">I do not command every dragon in Velmora. I listen to them.”</p>`,
+    `<p class="spoken">“I settle the quarrels between ancient broods, guard the nesting grounds and remind those who have forgotten what our anger once cost this world.</p><p class="spoken">That is why the Adoption Centre exists.</p><p class="spoken">The eggs waiting there are not possessions. They have been entrusted to us by dragon broods from across Velmora.”</p>`,
+    `<p class="spoken">“Some carry the frost of Vardesh. Some the green waters of Elvane.</p><p class="spoken">Others hold the heat of Iskandar, the winds of Canto, or strange gifts belonging to places you have yet to see.</p><p class="spoken">Each contains a life waiting to begin.</p><p class="spoken">You may feel drawn toward one. It must also feel drawn toward you.”</p>`,
+    `<p class="narration">Maelith leans closer, her voice becoming warm and almost grandmotherly.</p><p class="spoken">“You will give your dragon food, shelter and a home worth returning to.</p><p class="spoken">You will watch it stumble.</p><p class="spoken">You will watch it soar.”</p>`,
+    `<p class="spoken">“And through every kindness, every mistake and every adventure, the creature inside that shell will become something no other dragon could have been.</p><p class="spoken">Not because you commanded it.</p><p class="spoken">Because you grew together.”</p>`,
+    `<p class="narration">The Dragon Queen slowly raises her head as the last sunlight disappears behind the plains.</p><p class="spoken">“Peace is not merely the absence of war, little keeper.</p><p class="spoken">It is a promise renewed by every new bond.</p><p class="spoken">Go now. Your part in that promise is waiting inside its shell.”</p>`,
+    `<p class="narration">Maelith closes her eyes. Then, with one thunderous sweep of her wings, she vaults into the sky and disappears into the fiery heavens, rising to watch over her sons and daughters across Velmora.</p>`
+  ];
+
+  function buildDragonboundOverlay(){
+    if(document.getElementById('dragonboundOverlay')) return document.getElementById('dragonboundOverlay');
+    const overlay=document.createElement('div');
+    overlay.id='dragonboundOverlay';
+    overlay.className='dragonbound-overlay';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.innerHTML=`
+      <div class="dragonbound-shell" role="dialog" aria-modal="true" aria-label="Velmora: Dragonbound main menu preview">
+        <button type="button" class="dragonbound-close" id="closeDragonboundOverlay" aria-label="Close Velmora: Dragonbound">×</button>
+        <div class="dragonbound-scene">
+          <div class="dragonbound-bg dragonbound-bg-far"></div>
+          <div class="dragonbound-bg dragonbound-bg-mid"></div>
+          <div class="dragonbound-bg dragonbound-bg-foreground"></div>
+          <div class="dragonbound-haze"></div>
+          <div class="dragonbound-sun"></div>
+          <div class="dragonbound-breezes"></div>
+          <div class="dragonbound-leaves"></div>
+          <div class="dragonbound-particles"></div>
+          <div class="dragonbound-frame-glow"></div>
+          <div class="dragonbound-vignette"></div>
+          <div class="dragonbound-title-shine" aria-hidden="true"></div>
+        </div>
+        <div class="dragonbound-menu-actions" aria-label="Dragonbound menu">
+          <div class="dragonbound-menu-action" data-dragonbound-action="new-game" role="button" tabindex="0" aria-label="New Game"></div>
+          <div class="dragonbound-menu-action" data-dragonbound-action="load-game" role="button" tabindex="0" aria-label="Load Game"></div>
+          <div class="dragonbound-menu-action" data-dragonbound-action="rules" role="button" tabindex="0" aria-label="Rules"></div>
+        </div>
+        <div class="dragonbound-menu-feedback" aria-live="polite"></div>
+        <div class="dragonbound-rules-overlay" aria-hidden="true">
+          <div class="dragonbound-rules-backdrop"></div>
+          <div class="dragonbound-rules-panel" role="dialog" aria-modal="true" aria-label="Dragonbound rules and keeper's guide">
+            <button class="dragonbound-rules-close" type="button" aria-label="Close Dragonbound rules">×</button>
+            <div class="dragonbound-rules-shine" aria-hidden="true"></div>
+            <img class="dragonbound-rules-image" alt="Dragonbound rules and keeper's guide">
+          </div>
+        </div>
+        <div class="dragonbound-new-game-stage" aria-hidden="true">
+          <div class="dragonbound-new-game-image dragonbound-new-game-image--forest"></div>
+          <div class="dragonbound-new-game-image dragonbound-new-game-image--cave"></div>
+          <div class="dragonbound-new-game-image dragonbound-new-game-image--valley"></div>
+          <div class="dragonbound-new-game-image dragonbound-new-game-image--adoption"></div>
+          <div class="dragonbound-new-game-image dragonbound-new-game-image--adoption-interior"></div>
+          <div class="dragonbound-new-game-image dragonbound-new-game-image--estate-exterior"></div>
+          <div class="dragonbound-new-game-image dragonbound-new-game-image--estate-interior"></div>
+          <video class="dragonbound-new-game-video" playsinline preload="auto"></video>
+          <div class="dragonbound-adoption-effects" aria-hidden="true">
+            <div class="dragonbound-adoption-winds"></div>
+            <div class="dragonbound-adoption-leaves"></div>
+            <div class="dragonbound-adoption-particles"></div>
+          </div>
+          <button class="dragonbound-adoption-door-hotspot" type="button" aria-label="Enter the Dragon Adoption Centre"></button>
+          <div class="dragonbound-adoption-interior-effects" aria-hidden="true">
+            <div class="dragonbound-adoption-interior-depth"></div>
+            <div class="dragonbound-adoption-interior-haze"></div>
+            <div class="dragonbound-adoption-interior-shine"></div>
+            <div class="dragonbound-fire-embers"></div>
+            <div class="dragonbound-adoption-dust"></div>
+          </div>
+          <button class="dragonbound-bonnie-hotspot" type="button" aria-label="Speak to Bonnie Bramble"></button>
+          <div class="dragonbound-estate-exterior-effects" aria-hidden="true">
+            <div class="dragonbound-estate-exterior-winds"></div>
+            <div class="dragonbound-estate-exterior-leaves"></div>
+            <div class="dragonbound-estate-exterior-particles"></div>
+            <div class="dragonbound-estate-exterior-glow"></div>
+          </div>
+          <button class="dragonbound-estate-door-hotspot" type="button" aria-label="Enter Velmora Hearth and Key"></button>
+          <div class="dragonbound-estate-interior-effects" aria-hidden="true">
+            <div class="dragonbound-estate-interior-sunshafts"></div>
+            <div class="dragonbound-estate-interior-fireglow"></div>
+            <div class="dragonbound-estate-fire-embers"></div>
+            <div class="dragonbound-estate-interior-dust"></div>
+          </div>
+          <button class="dragonbound-mira-hotspot" type="button" aria-label="Speak to Mira Hearthvale"></button>
+          <div class="dragonbound-property-overlay" aria-hidden="true">
+            <div class="dragonbound-property-backdrop"></div>
+            <div class="dragonbound-property-shell" role="dialog" aria-modal="true" aria-label="Velmora Hearth and Key property board">
+              <div class="dragonbound-property-frame"></div>
+              <div class="dragonbound-property-flag-hotspots" aria-label="Select a country"></div>
+              <div class="dragonbound-property-list-panel" aria-live="polite"></div>
+              <button class="dragonbound-property-back" type="button" aria-label="Back to Mira Hearthvale"></button>
+            </div>
+          </div>
+          <div class="dragonbound-property-confirm" aria-hidden="true">
+            <div class="dragonbound-property-confirm-backdrop"></div>
+            <div class="dragonbound-property-confirm-panel" role="dialog" aria-modal="true" aria-labelledby="dragonboundPropertyConfirmTitle">
+              <p class="dragonbound-property-confirm-kicker">VELMORA HEARTH &amp; KEY</p>
+              <p class="dragonbound-property-confirm-title" id="dragonboundPropertyConfirmTitle">Make this your starter home?</p>
+              <img class="dragonbound-property-confirm-image" alt="">
+              <div class="dragonbound-property-confirm-copy"></div>
+              <div class="dragonbound-property-confirm-actions">
+                <button class="dragonbound-property-confirm-button dragonbound-property-confirm-button--yes" type="button">Yes — this is my home</button>
+                <button class="dragonbound-property-confirm-button dragonbound-property-confirm-button--no" type="button">Keep looking</button>
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-home-scene" aria-hidden="true">
+            <div class="dragonbound-home-world">
+              <div class="dragonbound-home-image"></div>
+              <div class="dragonbound-baby-dragon-layer" aria-hidden="true"></div>
+            </div>
+            <div class="dragonbound-home-light"></div>
+            <div class="dragonbound-home-vignette"></div>
+            <div class="dragonbound-home-sidebar" aria-hidden="true">
+              <img class="dragonbound-home-sidebar-image" alt="Home menu buttons">
+              <button class="dragonbound-home-sidebar-hotspot dragonbound-home-sidebar-hotspot--travel" type="button" aria-label="Travel around Velmora"></button>
+            </div>
+            <div class="dragonbound-home-delivery" aria-hidden="true">
+              <img class="dragonbound-home-doppy" alt="Doppy the Dropper Dragon">
+            </div>
+            <div class="dragonbound-home-basket-wrap" role="button" tabindex="-1" aria-label="Open delivered egg basket" aria-hidden="true">
+              <img class="dragonbound-home-basket" alt="Specialized egg basket">
+            </div>
+          </div>
+          <button class="dragonbound-location-return-home" type="button" aria-label="Return to your house">
+            <span class="dragonbound-location-return-home-icon" aria-hidden="true">⌂</span>
+            <span>Return Home</span>
+          </button>
+          <div class="dragonbound-travel-menu" aria-hidden="true">
+            <div class="dragonbound-travel-menu-backdrop"></div>
+            <div class="dragonbound-travel-menu-panel" role="dialog" aria-modal="true" aria-labelledby="dragonboundTravelMenuTitle">
+              <button class="dragonbound-travel-menu-close" type="button" aria-label="Close travel menu">×</button>
+              <p class="dragonbound-travel-menu-kicker">VELMORA TRAVEL</p>
+              <h2 class="dragonbound-travel-menu-title" id="dragonboundTravelMenuTitle">Where would you like to go?</h2>
+              <p class="dragonbound-travel-menu-copy">Choose a familiar stop. You can return home at any time.</p>
+              <div class="dragonbound-travel-menu-grid">
+                <button class="dragonbound-travel-destination dragonbound-travel-destination--adoption" type="button" data-dragonbound-travel="adoption">
+                  <span class="dragonbound-travel-destination-preview" aria-hidden="true"></span>
+                  <span class="dragonbound-travel-destination-text"><strong>Bonnie's Adoption Centre</strong><small>Study your dragon, speak with Bonnie and visit the Adoption Centre.</small></span>
+                  <span class="dragonbound-travel-destination-arrow" aria-hidden="true">›</span>
+                </button>
+                <button class="dragonbound-travel-destination dragonbound-travel-destination--estate" type="button" data-dragonbound-travel="estate">
+                  <span class="dragonbound-travel-destination-preview" aria-hidden="true"></span>
+                  <span class="dragonbound-travel-destination-text"><strong>Velmora Hearth &amp; Key</strong><small>Return to Mira and browse the estate agent's property board.</small></span>
+                  <span class="dragonbound-travel-destination-arrow" aria-hidden="true">›</span>
+                </button>
+                <button class="dragonbound-travel-destination dragonbound-travel-destination--home" type="button" data-dragonbound-travel="home">
+                  <span class="dragonbound-travel-destination-preview dragonbound-travel-destination-preview--home" aria-hidden="true"></span>
+                  <span class="dragonbound-travel-destination-text"><strong>Your Home</strong><small>Head back to your house and your dragon.</small></span>
+                  <span class="dragonbound-travel-destination-arrow" aria-hidden="true">›</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-home-basket-confirm" aria-hidden="true">
+            <div class="dragonbound-home-basket-confirm-backdrop"></div>
+            <div class="dragonbound-home-basket-confirm-panel" role="dialog" aria-modal="true" aria-labelledby="dragonboundHomeBasketConfirmTitle">
+              <p class="dragonbound-home-basket-confirm-kicker">SPECIAL DELIVERY</p>
+              <p class="dragonbound-home-basket-confirm-title" id="dragonboundHomeBasketConfirmTitle">Open your egg basket?</p>
+              <p class="dragonbound-home-basket-confirm-copy">Are you sure you want to open this?</p>
+              <div class="dragonbound-home-basket-confirm-actions">
+                <button class="dragonbound-home-basket-confirm-button dragonbound-home-basket-confirm-button--yes" type="button">Yes — open it</button>
+                <button class="dragonbound-home-basket-confirm-button dragonbound-home-basket-confirm-button--no" type="button">Not yet</button>
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-home-hatch-reveal" aria-hidden="true">
+            <div class="dragonbound-home-hatch-opening" aria-hidden="true">
+              <div class="dragonbound-home-hatch-opening-glow"></div>
+              <img class="dragonbound-home-hatch-opening-image" alt="Opening your Dragonbound egg basket">
+              <div class="dragonbound-home-hatch-opening-shimmer"></div>
+            </div>
+            <div class="dragonbound-home-hatch-result" aria-hidden="true">
+              <div class="dragonbound-home-hatch-stars" aria-hidden="true"></div>
+              <div class="dragonbound-home-hatch-result-card">
+                <p class="dragonbound-home-hatch-kicker">YOUR DRAGON HAS HATCHED</p>
+                <div class="dragonbound-home-hatch-portrait-wrap">
+                  <div class="dragonbound-home-hatch-portrait-glow"></div>
+                  <img class="dragonbound-home-hatch-portrait" alt="">
+                </div>
+                <h2 class="dragonbound-home-hatch-type"></h2>
+                <p class="dragonbound-home-hatch-origin"></p>
+                <div class="dragonbound-home-hatch-name-form">
+                  <label for="dragonboundHomeDragonName">What will you call them?</label>
+                  <div class="dragonbound-home-hatch-name-row">
+                    <input id="dragonboundHomeDragonName" class="dragonbound-home-hatch-name-input" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Enter a name…">
+                    <button class="dragonbound-home-hatch-name-submit" type="button">Choose name</button>
+                  </div>
+                  <p class="dragonbound-home-hatch-name-feedback" aria-live="polite"></p>
+                </div>
+                <div class="dragonbound-home-hatch-named" aria-hidden="true">
+                  <p class="dragonbound-home-hatch-named-copy"></p>
+                  <button class="dragonbound-home-hatch-continue" type="button">Welcome home</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-bonnie-menu-overlay" aria-hidden="true">
+            <div class="dragonbound-bonnie-menu-backdrop"></div>
+            <div class="dragonbound-bonnie-menu-shell">
+              <button class="dragonbound-bonnie-menu-close" type="button" aria-label="Close Bonnie Bramble menu"></button>
+              <div class="dragonbound-bonnie-menu-frame"></div>
+              <div class="dragonbound-bonnie-menu-shine"></div>
+              <div class="dragonbound-bonnie-menu-motes"></div>
+              <button class="dragonbound-bonnie-menu-action dragonbound-bonnie-menu-action--adopt" type="button" aria-label="Adopt an Egg"></button>
+              <button class="dragonbound-bonnie-menu-action dragonbound-bonnie-menu-action--study" type="button" aria-label="Study your Dragon"></button>
+              <button class="dragonbound-bonnie-menu-action dragonbound-bonnie-menu-action--shop" type="button" aria-label="Shop"></button>
+            </div>
+            <div class="dragonbound-bonnie-chat-wrap">
+              <button class="dragonbound-bonnie-chat-launch" type="button">Have a chat with Bonnie</button>
+              <div class="dragonbound-bonnie-chat-options" aria-hidden="true">
+                <button class="dragonbound-bonnie-chat-option" type="button" data-bonnie-topic="secondNest">Tell me about the Second Nest.</button>
+                <button class="dragonbound-bonnie-chat-option" type="button" data-bonnie-topic="eggs">Where do all the eggs come from?</button>
+                <button class="dragonbound-bonnie-chat-option" type="button" data-bonnie-topic="adopting">How does adopting an egg work?</button>
+                <button class="dragonbound-bonnie-chat-option" type="button" data-bonnie-topic="keeper">What makes a good dragon keeper?</button>
+                <button class="dragonbound-bonnie-chat-option" type="button" data-bonnie-topic="bonnie">Tell me about yourself, Bonnie.</button>
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-adopt-menu-overlay" aria-hidden="true">
+            <div class="dragonbound-adopt-menu-backdrop"></div>
+            <div class="dragonbound-adopt-menu-shell">
+              <button class="dragonbound-adopt-menu-close" type="button" aria-label="Close Adopt an Egg menu"></button>
+              <div class="dragonbound-adopt-menu-frame"></div>
+              <div class="dragonbound-adopt-menu-glow"></div>
+              <div class="dragonbound-adopt-menu-motes"></div>
+              <img class="dragonbound-adopt-menu-egg" alt="" aria-hidden="true">
+              <img class="dragonbound-adopt-menu-foreground" alt="" aria-hidden="true">
+              <button class="dragonbound-adopt-menu-action dragonbound-adopt-menu-action--confirm" type="button" aria-label="Give an Egg a Home"></button>
+              <button class="dragonbound-adopt-menu-action dragonbound-adopt-menu-action--back" type="button" aria-label="Back"></button>
+            </div>
+          </div>
+          <div class="dragonbound-study-overlay" aria-hidden="true">
+            <div class="dragonbound-study-backdrop"></div>
+            <div class="dragonbound-study-shell" role="dialog" aria-modal="true" aria-label="Study your Dragon egg guide">
+              <div class="dragonbound-study-frame"></div>
+              <div class="dragonbound-study-sheen" aria-hidden="true"></div>
+              <div class="dragonbound-study-list" role="listbox" aria-label="Dragon egg types"></div>
+              <img class="dragonbound-study-egg" alt="" aria-hidden="true">
+              <div class="dragonbound-study-name"></div>
+              <div class="dragonbound-study-profile"></div>
+              <div class="dragonbound-study-found"></div>
+              <div class="dragonbound-study-type"></div>
+              <div class="dragonbound-study-history"></div>
+              <div class="dragonbound-study-threats"></div>
+              <button class="dragonbound-study-back" type="button" aria-label="Back to Bonnie Bramble"></button>
+            </div>
+          </div>
+          <div class="dragonbound-estate-prompt" aria-hidden="true">
+            <div class="dragonbound-estate-prompt-backdrop"></div>
+            <div class="dragonbound-estate-prompt-panel" role="dialog" aria-modal="true" aria-labelledby="dragonboundEstatePromptTitle">
+              <p class="dragonbound-estate-prompt-speaker" id="dragonboundEstatePromptTitle">BONNIE BRAMBLE</p>
+              <div class="dragonbound-estate-prompt-copy"></div>
+              <div class="dragonbound-estate-prompt-actions">
+                <button class="dragonbound-estate-prompt-button dragonbound-estate-prompt-button--stay" type="button">Stay a little longer</button>
+                <button class="dragonbound-estate-prompt-button dragonbound-estate-prompt-button--go" type="button">Okay let’s go now</button>
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-adopt-confirmation" aria-hidden="true">
+            <div class="dragonbound-adopt-confirmation-backdrop"></div>
+            <div class="dragonbound-adopt-confirmation-panel" role="dialog" aria-modal="true" aria-labelledby="dragonboundAdoptConfirmTitle">
+              <div class="dragonbound-adopt-confirmation-knot" aria-hidden="true"></div>
+              <p class="dragonbound-adopt-confirmation-title" id="dragonboundAdoptConfirmTitle">Adopt an Egg</p>
+              <p class="dragonbound-adopt-confirmation-copy">Are you sure you want to adopt your first egg?</p>
+              <div class="dragonbound-adopt-confirmation-actions">
+                <button class="dragonbound-adopt-confirmation-button dragonbound-adopt-confirmation-button--yes" type="button">Yes</button>
+                <button class="dragonbound-adopt-confirmation-button dragonbound-adopt-confirmation-button--no" type="button">No</button>
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-adoption-roll" aria-hidden="true">
+            <div class="dragonbound-adoption-roll-stage">
+              <div class="dragonbound-adoption-roll-opening">
+                <img class="dragonbound-adoption-roll-frame" alt="Opening the adoption basket">
+              </div>
+              <div class="dragonbound-adoption-roll-reveal" aria-hidden="true">
+                <div class="dragonbound-adoption-roll-menu-art"></div>
+                <div class="dragonbound-adoption-roll-glow"></div>
+                <img class="dragonbound-adoption-roll-egg" alt="">
+                <img class="dragonbound-adoption-roll-foreground" alt="" aria-hidden="true">
+              </div>
+            </div>
+          </div>
+          <div class="dragonbound-video-continue" aria-hidden="true"></div>
+          <div class="dragonbound-dialogue" aria-live="polite" aria-hidden="true">
+            <div class="dragonbound-dialogue-head">
+              <span class="dragonbound-dialogue-title">Prologue</span>
+              <span class="dragonbound-dialogue-progress">1 / 1</span>
+            </div>
+            <div class="dragonbound-dialogue-body"></div>
+            <div class="dragonbound-dialogue-footer">
+              <span class="dragonbound-dialogue-prompt"></span>
+              <button class="dragonbound-dialogue-next" type="button">Continue</button>
+            </div>
+          </div>
+          <div class="dragonbound-dialogue-end-note" aria-hidden="true">Entered the passage</div>
+        </div>
+        <div class="dragonbound-blackout" aria-hidden="true"></div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const breezeHolder=overlay.querySelector('.dragonbound-breezes');
+    const breezeConfigs=[
+      {top:'18%',dur:11,delay:-1.4,w:'46%',h:'2px',o:.56,rot:-5},
+      {top:'27%',dur:14,delay:-3.8,w:'58%',h:'3px',o:.42,rot:-3},
+      {top:'38%',dur:10,delay:-2.2,w:'41%',h:'2px',o:.62,rot:-7},
+      {top:'49%',dur:16,delay:-6.2,w:'65%',h:'4px',o:.26,rot:-2},
+      {top:'58%',dur:12,delay:-4.1,w:'52%',h:'2px',o:.44,rot:-6},
+      {top:'68%',dur:15,delay:-8.6,w:'48%',h:'3px',o:.3,rot:-4},
+      {top:'79%',dur:13,delay:-5.4,w:'56%',h:'2px',o:.38,rot:-5}
+    ];
+    breezeConfigs.forEach(cfg=>{
+      const line=document.createElement('span');
+      line.className='dragonbound-breeze';
+      line.style.top=cfg.top;
+      line.style.setProperty('--dur', `${cfg.dur}s`);
+      line.style.setProperty('--delay', `${cfg.delay}s`);
+      line.style.setProperty('--w', cfg.w);
+      line.style.setProperty('--h', cfg.h);
+      line.style.setProperty('--o', cfg.o);
+      line.style.setProperty('--rot', `${cfg.rot}deg`);
+      line.style.setProperty('--blur', `${Math.random()*0.8}px`);
+      breezeHolder.appendChild(line);
+    });
+
+    const leafPalettes=[
+      ['#f0c677','#abc96b','#5f8b51'],
+      ['#e8ba67','#8db064','#587f48'],
+      ['#f3d08a','#c7bf72','#7b9a58'],
+      ['#d9ab63','#9cbe69','#628e58']
+    ];
+    const leafHolder=overlay.querySelector('.dragonbound-leaves');
+    const leafCount=28;
+    for(let i=0;i<leafCount;i++){
+      const leaf=document.createElement('span');
+      leaf.className='dragonbound-leaf';
+      const palette=leafPalettes[Math.floor(Math.random()*leafPalettes.length)];
+      const size=10 + Math.random()*14;
+      const x=-8 + Math.random()*112;
+      leaf.style.setProperty('--x', `${x}%`);
+      leaf.style.setProperty('--top', `${-12 + Math.random()*18}%`);
+      leaf.style.setProperty('--dur', `${8 + Math.random()*8}s`);
+      leaf.style.setProperty('--delay', `${-Math.random()*12}s`);
+      leaf.style.setProperty('--size', `${size}px`);
+      leaf.style.setProperty('--alpha', (0.45 + Math.random()*0.4).toFixed(2));
+      leaf.style.setProperty('--scale', (0.76 + Math.random()*0.5).toFixed(2));
+      leaf.style.setProperty('--drift1', `${(-8 + Math.random()*18).toFixed(1)}vw`);
+      leaf.style.setProperty('--drift2', `${(-12 + Math.random()*24).toFixed(1)}vw`);
+      leaf.style.setProperty('--drift3', `${(-16 + Math.random()*30).toFixed(1)}vw`);
+      leaf.style.setProperty('--drift4', `${(-20 + Math.random()*40).toFixed(1)}vw`);
+      leaf.style.setProperty('--rotEnd', `${360 + Math.random()*280}deg`);
+      leaf.style.setProperty('--leaf-a', palette[0]);
+      leaf.style.setProperty('--leaf-b', palette[1]);
+      leaf.style.setProperty('--leaf-c', palette[2]);
+      leafHolder.appendChild(leaf);
+    }
+
+    const particleHolder=overlay.querySelector('.dragonbound-particles');
+    const particleCount=40;
+    for(let i=0;i<particleCount;i++){
+      const mote=document.createElement('span');
+      mote.className='dragonbound-particle';
+      const size=(1.5 + Math.random()*5.5).toFixed(2);
+      mote.style.setProperty('--x', `${Math.random()*100}%`);
+      mote.style.setProperty('--y', `${8 + Math.random()*78}%`);
+      mote.style.setProperty('--size', `${size}px`);
+      mote.style.setProperty('--alpha', (0.18 + Math.random()*0.45).toFixed(2));
+      mote.style.setProperty('--blur', `${Math.random()*1.4}px`);
+      mote.style.setProperty('--dur', `${7 + Math.random()*12}s`);
+      mote.style.setProperty('--delay', `${-Math.random()*10}s`);
+      mote.style.setProperty('--dx1', `${(-14 + Math.random()*28).toFixed(1)}px`);
+      mote.style.setProperty('--dx2', `${(-18 + Math.random()*36).toFixed(1)}px`);
+      mote.style.setProperty('--dx3', `${(-12 + Math.random()*24).toFixed(1)}px`);
+      particleHolder.appendChild(mote);
+    }
+
+    const audio=document.createElement('audio');
+    audio.id='dragonboundMenuAudio';
+    audio.preload='auto';
+    audio.loop=true;
+    audio.src=DRAGONBOUND_AUDIO;
+    audio.volume=0.25;
+    document.body.appendChild(audio);
+
+    const newGameAudio=document.createElement('audio');
+    newGameAudio.id='dragonboundNewGameAudio';
+    newGameAudio.preload='auto';
+    newGameAudio.loop=true;
+    newGameAudio.src=DRAGONBOUND_NEW_GAME_AUDIO;
+    newGameAudio.volume=0.4;
+    document.body.appendChild(newGameAudio);
+
+    const valleyAudio=document.createElement('audio');
+    valleyAudio.id='dragonboundValleyAudio';
+    valleyAudio.preload='auto';
+    valleyAudio.loop=true;
+    valleyAudio.src=DRAGONBOUND_VALLEY_AUDIO;
+    valleyAudio.volume=0.4;
+    document.body.appendChild(valleyAudio);
+
+    const adoptionExteriorAudio=document.createElement('audio');
+    adoptionExteriorAudio.id='dragonboundAdoptionExteriorAudio';
+    adoptionExteriorAudio.preload='auto';
+    adoptionExteriorAudio.loop=true;
+    adoptionExteriorAudio.src=DRAGONBOUND_ADOPTION_EXTERIOR_AUDIO;
+    adoptionExteriorAudio.volume=0.5;
+    document.body.appendChild(adoptionExteriorAudio);
+
+    const adoptionInteriorAudio=document.createElement('audio');
+    adoptionInteriorAudio.id='dragonboundAdoptionInteriorAudio';
+    adoptionInteriorAudio.preload='auto';
+    adoptionInteriorAudio.loop=true;
+    adoptionInteriorAudio.src=DRAGONBOUND_ADOPTION_INTERIOR_AUDIO;
+    adoptionInteriorAudio.volume=0.6;
+    document.body.appendChild(adoptionInteriorAudio);
+
+    const adoptionOpenAudio=document.createElement('audio');
+    adoptionOpenAudio.id='dragonboundAdoptionOpenAudio';
+    adoptionOpenAudio.preload='auto';
+    adoptionOpenAudio.src=DRAGONBOUND_ADOPTION_OPEN_AUDIO;
+    adoptionOpenAudio.volume=0.92;
+    document.body.appendChild(adoptionOpenAudio);
+
+    const adoptionRevealAudio=document.createElement('audio');
+    adoptionRevealAudio.id='dragonboundAdoptionRevealAudio';
+    adoptionRevealAudio.preload='auto';
+    adoptionRevealAudio.src=DRAGONBOUND_ADOPTION_REVEAL_AUDIO;
+    adoptionRevealAudio.volume=0.96;
+    document.body.appendChild(adoptionRevealAudio);
+
+    const estateInteriorAudio=document.createElement('audio');
+    estateInteriorAudio.id='dragonboundEstateInteriorAudio';
+    estateInteriorAudio.preload='auto';
+    estateInteriorAudio.loop=true;
+    estateInteriorAudio.src=DRAGONBOUND_ESTATE_INTERIOR_AUDIO;
+    estateInteriorAudio.volume=0.5;
+    document.body.appendChild(estateInteriorAudio);
+
+    const homeRevealMusicAudio=document.createElement('audio');
+    homeRevealMusicAudio.id='dragonboundHomeRevealMusicAudio';
+    homeRevealMusicAudio.preload='auto';
+    homeRevealMusicAudio.src=DRAGONBOUND_HOME_REVEAL_MUSIC;
+    homeRevealMusicAudio.volume=0.5;
+    document.body.appendChild(homeRevealMusicAudio);
+
+    const homeBagOpenAudio=document.createElement('audio');
+    homeBagOpenAudio.id='dragonboundHomeBagOpenAudio';
+    homeBagOpenAudio.preload='auto';
+    homeBagOpenAudio.src=DRAGONBOUND_HOME_OPEN_BAG_AUDIO;
+    homeBagOpenAudio.volume=0.82;
+    document.body.appendChild(homeBagOpenAudio);
+
+    const dialogueTypeAudios=Array.from({length:4},(_,index)=>{
+      const node=document.createElement('audio');
+      node.id=`dragonboundDialogueTypeAudio${index+1}`;
+      node.preload='auto';
+      node.src=DRAGONBOUND_DIALOGUE_AUDIO;
+      node.volume=0.24;
+      document.body.appendChild(node);
+      return node;
+    });
+
+    const closeBtn=overlay.querySelector('#closeDragonboundOverlay');
+    const blackout=overlay.querySelector('.dragonbound-blackout');
+    const newGameStage=overlay.querySelector('.dragonbound-new-game-stage');
+    const feedback=overlay.querySelector('.dragonbound-menu-feedback');
+    const rulesOverlay=overlay.querySelector('.dragonbound-rules-overlay');
+    const rulesImage=overlay.querySelector('.dragonbound-rules-image');
+    const rulesClose=overlay.querySelector('.dragonbound-rules-close');
+    const dialoguePanel=overlay.querySelector('.dragonbound-dialogue');
+    const dialogueBody=overlay.querySelector('.dragonbound-dialogue-body');
+    const dialogueTitle=overlay.querySelector('.dragonbound-dialogue-title');
+    const dialogueProgress=overlay.querySelector('.dragonbound-dialogue-progress');
+    const dialogueNext=overlay.querySelector('.dragonbound-dialogue-next');
+    const dialogueEndNote=overlay.querySelector('.dragonbound-dialogue-end-note');
+    const newGameVideo=overlay.querySelector('.dragonbound-new-game-video');
+    const videoContinuePrompt=overlay.querySelector('.dragonbound-video-continue');
+    const adoptionLeavesHolder=overlay.querySelector('.dragonbound-adoption-leaves');
+    const adoptionParticlesHolder=overlay.querySelector('.dragonbound-adoption-particles');
+    const adoptionWindsHolder=overlay.querySelector('.dragonbound-adoption-winds');
+    const adoptionDoorHotspot=overlay.querySelector('.dragonbound-adoption-door-hotspot');
+    const fireEmbersHolder=overlay.querySelector('.dragonbound-fire-embers');
+    const adoptionDustHolder=overlay.querySelector('.dragonbound-adoption-dust');
+    const bonnieHotspot=overlay.querySelector('.dragonbound-bonnie-hotspot');
+    const estateExteriorLeavesHolder=overlay.querySelector('.dragonbound-estate-exterior-leaves');
+    const estateExteriorParticlesHolder=overlay.querySelector('.dragonbound-estate-exterior-particles');
+    const estateExteriorWindsHolder=overlay.querySelector('.dragonbound-estate-exterior-winds');
+    const estateDoorHotspot=overlay.querySelector('.dragonbound-estate-door-hotspot');
+    const estateFireEmbersHolder=overlay.querySelector('.dragonbound-estate-fire-embers');
+    const estateInteriorDustHolder=overlay.querySelector('.dragonbound-estate-interior-dust');
+    const miraHotspot=overlay.querySelector('.dragonbound-mira-hotspot');
+    const propertyOverlay=overlay.querySelector('.dragonbound-property-overlay');
+    const propertyFrame=overlay.querySelector('.dragonbound-property-frame');
+    const propertyFlagHotspots=overlay.querySelector('.dragonbound-property-flag-hotspots');
+    const propertyListPanel=overlay.querySelector('.dragonbound-property-list-panel');
+    const propertyBack=overlay.querySelector('.dragonbound-property-back');
+    const propertyConfirm=overlay.querySelector('.dragonbound-property-confirm');
+    const propertyConfirmImage=overlay.querySelector('.dragonbound-property-confirm-image');
+    const propertyConfirmCopy=overlay.querySelector('.dragonbound-property-confirm-copy');
+    const propertyConfirmYes=overlay.querySelector('.dragonbound-property-confirm-button--yes');
+    const propertyConfirmNo=overlay.querySelector('.dragonbound-property-confirm-button--no');
+    const homeScene=overlay.querySelector('.dragonbound-home-scene');
+    const homeWorld=overlay.querySelector('.dragonbound-home-world');
+    const homeImage=overlay.querySelector('.dragonbound-home-image');
+    const babyDragonLayer=overlay.querySelector('.dragonbound-baby-dragon-layer');
+    const homeSidebar=overlay.querySelector('.dragonbound-home-sidebar');
+    const homeSidebarImage=overlay.querySelector('.dragonbound-home-sidebar-image');
+    const homeTravelHotspot=overlay.querySelector('.dragonbound-home-sidebar-hotspot--travel');
+    const travelMenu=overlay.querySelector('.dragonbound-travel-menu');
+    const travelMenuClose=overlay.querySelector('.dragonbound-travel-menu-close');
+    const travelDestinations=[...overlay.querySelectorAll('[data-dragonbound-travel]')];
+    const travelHomePreview=overlay.querySelector('.dragonbound-travel-destination-preview--home');
+    const locationReturnHome=overlay.querySelector('.dragonbound-location-return-home');
+    const homeDelivery=overlay.querySelector('.dragonbound-home-delivery');
+    const homeDoppy=overlay.querySelector('.dragonbound-home-doppy');
+    const homeBasketWrap=overlay.querySelector('.dragonbound-home-basket-wrap');
+    const homeBasket=overlay.querySelector('.dragonbound-home-basket');
+    const homeBasketConfirm=overlay.querySelector('.dragonbound-home-basket-confirm');
+    const homeBasketConfirmYes=overlay.querySelector('.dragonbound-home-basket-confirm-button--yes');
+    const homeBasketConfirmNo=overlay.querySelector('.dragonbound-home-basket-confirm-button--no');
+    const homeHatchReveal=overlay.querySelector('.dragonbound-home-hatch-reveal');
+    const homeHatchOpening=overlay.querySelector('.dragonbound-home-hatch-opening');
+    const homeHatchOpeningImage=overlay.querySelector('.dragonbound-home-hatch-opening-image');
+    const homeHatchResult=overlay.querySelector('.dragonbound-home-hatch-result');
+    const homeHatchStars=overlay.querySelector('.dragonbound-home-hatch-stars');
+    const homeHatchPortrait=overlay.querySelector('.dragonbound-home-hatch-portrait');
+    const homeHatchType=overlay.querySelector('.dragonbound-home-hatch-type');
+    const homeHatchOrigin=overlay.querySelector('.dragonbound-home-hatch-origin');
+    const homeHatchNameForm=overlay.querySelector('.dragonbound-home-hatch-name-form');
+    const homeHatchNameInput=overlay.querySelector('.dragonbound-home-hatch-name-input');
+    const homeHatchNameSubmit=overlay.querySelector('.dragonbound-home-hatch-name-submit');
+    const homeHatchNameFeedback=overlay.querySelector('.dragonbound-home-hatch-name-feedback');
+    const homeHatchNamed=overlay.querySelector('.dragonbound-home-hatch-named');
+    const homeHatchNamedCopy=overlay.querySelector('.dragonbound-home-hatch-named-copy');
+    const homeHatchContinue=overlay.querySelector('.dragonbound-home-hatch-continue');
+    const bonnieMenuOverlay=overlay.querySelector('.dragonbound-bonnie-menu-overlay');
+    const bonnieMenuFrame=overlay.querySelector('.dragonbound-bonnie-menu-frame');
+    const bonnieMenuMotes=overlay.querySelector('.dragonbound-bonnie-menu-motes');
+    const bonnieMenuClose=overlay.querySelector('.dragonbound-bonnie-menu-close');
+    const bonnieMenuActions=[...overlay.querySelectorAll('.dragonbound-bonnie-menu-action')];
+    const bonnieChatLaunch=overlay.querySelector('.dragonbound-bonnie-chat-launch');
+    const bonnieChatOptions=overlay.querySelector('.dragonbound-bonnie-chat-options');
+    const bonnieChatOptionButtons=[...overlay.querySelectorAll('.dragonbound-bonnie-chat-option')];
+    const adoptMenuOverlay=overlay.querySelector('.dragonbound-adopt-menu-overlay');
+    const adoptMenuFrame=overlay.querySelector('.dragonbound-adopt-menu-frame');
+    const adoptMenuMotes=overlay.querySelector('.dragonbound-adopt-menu-motes');
+    const adoptMenuClose=overlay.querySelector('.dragonbound-adopt-menu-close');
+    const adoptMenuActions=[...overlay.querySelectorAll('.dragonbound-adopt-menu-action')];
+    const adoptMenuEgg=overlay.querySelector('.dragonbound-adopt-menu-egg');
+    const adoptMenuForeground=overlay.querySelector('.dragonbound-adopt-menu-foreground');
+    const studyMenuOverlay=overlay.querySelector('.dragonbound-study-overlay');
+    const studyMenuFrame=overlay.querySelector('.dragonbound-study-frame');
+    const studyMenuList=overlay.querySelector('.dragonbound-study-list');
+    const studyMenuEgg=overlay.querySelector('.dragonbound-study-egg');
+    const studyMenuName=overlay.querySelector('.dragonbound-study-name');
+    const studyMenuProfile=overlay.querySelector('.dragonbound-study-profile');
+    const studyMenuFound=overlay.querySelector('.dragonbound-study-found');
+    const studyMenuType=overlay.querySelector('.dragonbound-study-type');
+    const studyMenuHistory=overlay.querySelector('.dragonbound-study-history');
+    const studyMenuThreats=overlay.querySelector('.dragonbound-study-threats');
+    const studyMenuBack=overlay.querySelector('.dragonbound-study-back');
+    const estatePrompt=overlay.querySelector('.dragonbound-estate-prompt');
+    const estatePromptCopy=overlay.querySelector('.dragonbound-estate-prompt-copy');
+    const estatePromptStay=overlay.querySelector('.dragonbound-estate-prompt-button--stay');
+    const estatePromptGo=overlay.querySelector('.dragonbound-estate-prompt-button--go');
+    const adoptConfirmation=overlay.querySelector('.dragonbound-adopt-confirmation');
+    const adoptConfirmationYes=overlay.querySelector('.dragonbound-adopt-confirmation-button--yes');
+    const adoptConfirmationNo=overlay.querySelector('.dragonbound-adopt-confirmation-button--no');
+    const adoptionRoll=overlay.querySelector('.dragonbound-adoption-roll');
+    const adoptionRollFrame=overlay.querySelector('.dragonbound-adoption-roll-frame');
+    const adoptionRollReveal=overlay.querySelector('.dragonbound-adoption-roll-reveal');
+    const adoptionRollMenuArt=overlay.querySelector('.dragonbound-adoption-roll-menu-art');
+    const adoptionRollEgg=overlay.querySelector('.dragonbound-adoption-roll-egg');
+    const adoptionRollForeground=overlay.querySelector('.dragonbound-adoption-roll-foreground');
+    const menuActions=[...overlay.querySelectorAll('.dragonbound-menu-action')];
+
+    if(rulesImage) rulesImage.src=DRAGONBOUND_RULES_IMAGE;
+
+    if(fireEmbersHolder){
+      for(let i=0;i<24;i++){
+        const ember=document.createElement('span');
+        ember.className='dragonbound-fire-ember';
+        ember.style.setProperty('--x', `${8 + Math.random()*84}%`);
+        ember.style.setProperty('--delay', `${-Math.random()*3.5}s`);
+        ember.style.setProperty('--dur', `${2.2 + Math.random()*2.6}s`);
+        ember.style.setProperty('--size', `${1.5 + Math.random()*3.2}px`);
+        ember.style.setProperty('--drift', `${-12 + Math.random()*24}px`);
+        fireEmbersHolder.appendChild(ember);
+      }
+    }
+
+    if(adoptionDustHolder){
+      for(let i=0;i<28;i++){
+        const mote=document.createElement('span');
+        mote.className='dragonbound-adoption-dust-mote';
+        mote.style.setProperty('--x', `${Math.random()*100}%`);
+        mote.style.setProperty('--y', `${Math.random()*100}%`);
+        mote.style.setProperty('--size', `${1.4 + Math.random()*4.2}px`);
+        mote.style.setProperty('--dur', `${8 + Math.random()*8}s`);
+        mote.style.setProperty('--delay', `${-Math.random()*10}s`);
+        adoptionDustHolder.appendChild(mote);
+      }
+    }
+
+    if(bonnieMenuFrame){
+      bonnieMenuFrame.style.backgroundImage=`url('${DRAGONBOUND_BONNIE_MENU_IMAGE}')`;
+    }
+    if(bonnieMenuMotes){
+      for(let i=0;i<22;i++){
+        const mote=document.createElement('span');
+        mote.className='dragonbound-bonnie-menu-mote';
+        mote.style.setProperty('--x', `${Math.random()*100}%`);
+        mote.style.setProperty('--y', `${Math.random()*100}%`);
+        mote.style.setProperty('--size', `${1.6 + Math.random()*5.4}px`);
+        mote.style.setProperty('--dur', `${5 + Math.random()*8}s`);
+        mote.style.setProperty('--delay', `${-Math.random()*8}s`);
+        bonnieMenuMotes.appendChild(mote);
+      }
+    }
+    if(adoptMenuFrame){
+      adoptMenuFrame.style.backgroundImage=`url('${DRAGONBOUND_ADOPT_EGG_MENU_IMAGE}')`;
+    }
+    if(studyMenuFrame) studyMenuFrame.style.backgroundImage=`url('${DRAGONBOUND_STUDY_IMAGE}')`;
+    const estateExteriorImage=overlay.querySelector('.dragonbound-new-game-image--estate-exterior');
+    const estateInteriorImage=overlay.querySelector('.dragonbound-new-game-image--estate-interior');
+    if(estateExteriorImage) estateExteriorImage.style.backgroundImage=`url('${DRAGONBOUND_ESTATE_EXTERIOR_IMAGE}')`;
+    if(estateInteriorImage) estateInteriorImage.style.backgroundImage=`url('${DRAGONBOUND_ESTATE_INTERIOR_IMAGE}')`;
+    if(propertyFrame) propertyFrame.style.backgroundImage=`url('${DRAGONBOUND_PROPERTY_BOARD_IMAGE}')`;
+    if(adoptMenuForeground) adoptMenuForeground.src=DRAGONBOUND_ADOPTION_BASKET_FOREGROUND;
+    if(adoptionRollMenuArt) adoptionRollMenuArt.style.backgroundImage=`url('${DRAGONBOUND_ADOPT_EGG_MENU_IMAGE}')`;
+    if(adoptionRollForeground) adoptionRollForeground.src=DRAGONBOUND_ADOPTION_BASKET_FOREGROUND;
+    DRAGONBOUND_ADOPTION_FRAMES.forEach(src=>{ const img=new Image(); img.src=src; });
+    if(adoptMenuMotes){
+      for(let i=0;i<26;i++){
+        const mote=document.createElement('span');
+        mote.className='dragonbound-adopt-menu-mote';
+        mote.style.setProperty('--x', `${Math.random()*100}%`);
+        mote.style.setProperty('--y', `${Math.random()*100}%`);
+        mote.style.setProperty('--size', `${1.8 + Math.random()*4.8}px`);
+        mote.style.setProperty('--dur', `${6 + Math.random()*8}s`);
+        mote.style.setProperty('--delay', `${-Math.random()*8}s`);
+        adoptMenuMotes.appendChild(mote);
+      }
+    }
+
+    const adoptionBreezeConfigs=[
+      {top:'16%',dur:10,delay:-2.4,w:'36%',h:'2px',o:.24,rot:-6},
+      {top:'34%',dur:12,delay:-4.1,w:'44%',h:'2px',o:.18,rot:-4},
+      {top:'58%',dur:11,delay:-3.2,w:'40%',h:'2px',o:.22,rot:-5},
+      {top:'77%',dur:13,delay:-5.6,w:'48%',h:'3px',o:.14,rot:-3}
+    ];
+    adoptionBreezeConfigs.forEach(cfg=>{
+      const line=document.createElement('span');
+      line.className='dragonbound-adoption-breeze';
+      line.style.top=cfg.top;
+      line.style.setProperty('--dur', `${cfg.dur}s`);
+      line.style.setProperty('--delay', `${cfg.delay}s`);
+      line.style.setProperty('--w', cfg.w);
+      line.style.setProperty('--h', cfg.h);
+      line.style.setProperty('--o', cfg.o);
+      line.style.setProperty('--rot', `${cfg.rot}deg`);
+      adoptionWindsHolder.appendChild(line);
+    });
+    for(let i=0;i<18;i++){
+      const leaf=document.createElement('span');
+      leaf.className='dragonbound-adoption-leaf';
+      const palette=leafPalettes[Math.floor(Math.random()*leafPalettes.length)];
+      const size=8 + Math.random()*12;
+      leaf.style.setProperty('--x', `${Math.random()*100}%`);
+      leaf.style.setProperty('--top', `${-6 + Math.random()*20}%`);
+      leaf.style.setProperty('--dur', `${10 + Math.random()*10}s`);
+      leaf.style.setProperty('--delay', `${-Math.random()*12}s`);
+      leaf.style.setProperty('--size', `${size}px`);
+      leaf.style.setProperty('--alpha', (0.32 + Math.random()*0.3).toFixed(2));
+      leaf.style.setProperty('--drift1', `${(-5 + Math.random()*12).toFixed(1)}vw`);
+      leaf.style.setProperty('--drift2', `${(-8 + Math.random()*18).toFixed(1)}vw`);
+      leaf.style.setProperty('--drift3', `${(-10 + Math.random()*24).toFixed(1)}vw`);
+      leaf.style.setProperty('--rotEnd', `${280 + Math.random()*220}deg`);
+      leaf.style.setProperty('--leaf-a', palette[0]);
+      leaf.style.setProperty('--leaf-b', palette[1]);
+      leaf.style.setProperty('--leaf-c', palette[2]);
+      adoptionLeavesHolder.appendChild(leaf);
+    }
+    for(let i=0;i<34;i++){
+      const mote=document.createElement('span');
+      mote.className='dragonbound-adoption-particle';
+      const size=(1.5 + Math.random()*4.8).toFixed(2);
+      mote.style.setProperty('--x', `${Math.random()*100}%`);
+      mote.style.setProperty('--y', `${8 + Math.random()*82}%`);
+      mote.style.setProperty('--size', `${size}px`);
+      mote.style.setProperty('--dur', `${5 + Math.random()*6}s`);
+      mote.style.setProperty('--delay', `${-Math.random()*7}s`);
+      adoptionParticlesHolder.appendChild(mote);
+    }
+    const estateBreezeConfigs=[
+      {top:'14%',dur:12,delay:-1.2,w:'32%',h:'2px',o:.18,rot:-8},
+      {top:'31%',dur:11,delay:-3.8,w:'40%',h:'2px',o:.14,rot:-5},
+      {top:'52%',dur:14,delay:-5.1,w:'36%',h:'2px',o:.17,rot:-4},
+      {top:'72%',dur:13,delay:-2.7,w:'42%',h:'3px',o:.12,rot:-3}
+    ];
+    estateBreezeConfigs.forEach(cfg=>{
+      const line=document.createElement('span');
+      line.className='dragonbound-estate-breeze';
+      line.style.top=cfg.top;
+      line.style.setProperty('--dur', `${cfg.dur}s`);
+      line.style.setProperty('--delay', `${cfg.delay}s`);
+      line.style.setProperty('--w', cfg.w);
+      line.style.setProperty('--h', cfg.h);
+      line.style.setProperty('--o', cfg.o);
+      line.style.setProperty('--rot', `${cfg.rot}deg`);
+      estateExteriorWindsHolder.appendChild(line);
+    });
+    for(let i=0;i<16;i++){
+      const leaf=document.createElement('span');
+      leaf.className='dragonbound-estate-leaf';
+      const palette=leafPalettes[Math.floor(Math.random()*leafPalettes.length)];
+      const size=8 + Math.random()*11;
+      leaf.style.setProperty('--x', `${Math.random()*100}%`);
+      leaf.style.setProperty('--top', `${-8 + Math.random()*20}%`);
+      leaf.style.setProperty('--dur', `${12 + Math.random()*11}s`);
+      leaf.style.setProperty('--delay', `${-Math.random()*11}s`);
+      leaf.style.setProperty('--size', `${size}px`);
+      leaf.style.setProperty('--alpha', (0.24 + Math.random()*0.24).toFixed(2));
+      leaf.style.setProperty('--drift1', `${(-6 + Math.random()*12).toFixed(1)}vw`);
+      leaf.style.setProperty('--drift2', `${(-8 + Math.random()*18).toFixed(1)}vw`);
+      leaf.style.setProperty('--drift3', `${(-10 + Math.random()*24).toFixed(1)}vw`);
+      leaf.style.setProperty('--rotEnd', `${260 + Math.random()*240}deg`);
+      leaf.style.setProperty('--leaf-a', palette[0]);
+      leaf.style.setProperty('--leaf-b', palette[1]);
+      leaf.style.setProperty('--leaf-c', palette[2]);
+      estateExteriorLeavesHolder.appendChild(leaf);
+    }
+    for(let i=0;i<24;i++){
+      const mote=document.createElement('span');
+      mote.className='dragonbound-estate-particle';
+      mote.style.setProperty('--x', `${Math.random()*100}%`);
+      mote.style.setProperty('--y', `${10 + Math.random()*75}%`);
+      mote.style.setProperty('--size', `${(1.4 + Math.random()*4).toFixed(2)}px`);
+      mote.style.setProperty('--dur', `${6 + Math.random()*7}s`);
+      mote.style.setProperty('--delay', `${-Math.random()*8}s`);
+      estateExteriorParticlesHolder.appendChild(mote);
+    }
+    for(let i=0;i<22;i++){
+      const ember=document.createElement('span');
+      ember.className='dragonbound-estate-fire-ember';
+      ember.style.setProperty('--x', `${8 + Math.random()*84}%`);
+      ember.style.setProperty('--size', `${2 + Math.random()*5}px`);
+      ember.style.setProperty('--dur', `${2.6 + Math.random()*2.6}s`);
+      ember.style.setProperty('--delay', `${-Math.random()*3.4}s`);
+      estateFireEmbersHolder.appendChild(ember);
+    }
+    for(let i=0;i<26;i++){
+      const mote=document.createElement('span');
+      mote.className='dragonbound-estate-dust-mote';
+      mote.style.setProperty('--x', `${Math.random()*100}%`);
+      mote.style.setProperty('--y', `${Math.random()*100}%`);
+      mote.style.setProperty('--size', `${1.4 + Math.random()*3.8}px`);
+      mote.style.setProperty('--dur', `${7 + Math.random()*7}s`);
+      mote.style.setProperty('--delay', `${-Math.random()*9}s`);
+      estateInteriorDustHolder.appendChild(mote);
+    }
+
+    newGameVideo.src=DRAGONBOUND_MAELITH_VIDEO;
+    newGameVideo.preload='auto';
+    newGameVideo.setAttribute('playsinline','');
+    newGameVideo.setAttribute('webkit-playsinline','');
+    newGameVideo.controls=false;
+    newGameVideo.draggable=false;
+    newGameVideo.volume=1;
+    let feedbackTimer=0;
+    let transitionTimerA=0;
+    let transitionTimerB=0;
+    let transitionTimerC=0;
+    let transitionTimerD=0;
+    let transitionTimerE=0;
+    let dialogueIndex=0;
+    let dialogueMode='menu';
+    let lastAdvanceAt=0;
+    let dialogueTyping=false;
+    let dialogueTypingTimer=0;
+    let dialogueTypingToken=0;
+    let dialogueCurrentHtml='';
+    let dialogueSequence='forest';
+    let dialoguePages=DRAGONBOUND_PROLOGUE_PAGES;
+    let bonnieChatReturnToMenu=false;
+    let bonnieChatOptionsOpen=false;
+    let dialogueTypePulseTimer=0;
+    let dialogueTypePulseIndex=0;
+    let videoContinueReady=false;
+    let videoProgressUnlocked=false;
+    let videoUnlockTimeout=0;
+    let adoptionConfirmationOpen=false;
+    let adoptionRolling=false;
+    let adoptionClaimPending=false;
+    let selectedAdoptionEgg=null;
+    let adoptionRollToken=0;
+    let adoptionFrameTimers=[];
+    let adoptionRevealFallbackTimer=0;
+    let adoptionOpenFallbackTimer=0;
+    let adoptionBonnieTimer=0;
+    let selectedStudyEggName='';
+    let studyEstatePromptTimer=0;
+    let studyEstatePromptDismissed=false;
+    let estateJourneyStarted=false;
+    let selectedPropertyCountry='';
+    let pendingStarterProperty=null;
+    let selectedStarterHome=null;
+    let doppyFrameTimer=0;
+    let doppyArrivalTimer=0;
+    let doppyDepartureTimer=0;
+    let doppyFootstepTimer=0;
+    let doppyFootstepStopTimer=0;
+    let doppyMotionAnimation=null;
+    let homeDeliveryFinished=false;
+    let homeBasketReady=false;
+    let homeBasketOpened=false;
+    let homeHatchTimer=0;
+    let homeHatchFrameTimers=[];
+    let selectedDragonName='';
+
+    const dragonboundCurrentUsername=()=>{
+      try{
+        const fromCharacter=(typeof character!=='undefined'&&character?.username)?String(character.username):'';
+        const fromPassport=document.getElementById('passportUsername')?.textContent||'';
+        return String(fromCharacter||fromPassport||'guest').trim();
+      }catch(_e){return 'guest';}
+    };
+    const dragonboundAccountSlug=()=>dragonboundCurrentUsername().toLowerCase().replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'')||'guest';
+    const dragonboundIsAdminTester=()=>dragonboundCurrentUsername().trim().toLowerCase()==='admin';
+    const dragonboundScopedKey=base=>`${base}:${dragonboundAccountSlug()}`;
+    const clearLegacyDragonboundOwnershipOnce=()=>{
+      try{
+        if(localStorage.getItem(DRAGONBOUND_ONE_AND_DONE_RESET_KEY)==='1') return;
+        const remove=[];
+        for(let i=0;i<localStorage.length;i++){
+          const key=localStorage.key(i)||'';
+          if(key==='dragonboundNamedDragon' || key.startsWith('dragonboundNamedDragonV') || key.startsWith('dragonboundLockedEggV') || key.startsWith('dragonboundBabyDragonStateV') || key.startsWith('dragonboundBabyHouseMovementV')) remove.push(key);
+        }
+        remove.forEach(key=>localStorage.removeItem(key));
+        localStorage.setItem(DRAGONBOUND_ONE_AND_DONE_RESET_KEY,'1');
+        window.dispatchEvent(new CustomEvent('dragonbound:dragon-cleared'));
+      }catch(_e){}
+    };
+    const lockedEggForCurrentAccount=()=>{
+      if(dragonboundIsAdminTester()) return null;
+      try{
+        const raw=localStorage.getItem(dragonboundScopedKey(DRAGONBOUND_EGG_LOCK_KEY));
+        if(!raw) return null;
+        const saved=JSON.parse(raw);
+        const name=typeof saved==='string'?saved:saved?.name;
+        return DRAGONBOUND_EGG_POOL.find(item=>item.name===name)||null;
+      }catch(_e){return null;}
+    };
+    const persistLockedEgg=(egg)=>{
+      if(!egg || dragonboundIsAdminTester()) return;
+      try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_EGG_LOCK_KEY),JSON.stringify({name:egg.name,lockedAt:Date.now()}));}catch(_e){}
+    };
+    const restoreLockedEgg=()=>{
+      const egg=lockedEggForCurrentAccount();
+      if(egg) selectedAdoptionEgg=egg;
+      return egg;
+    };
+    const namedDragonForCurrentAccount=()=>{
+      try{return JSON.parse(localStorage.getItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY))||'null');}catch(_e){return null;}
+    };
+    const ensureAdoptionLockNotice=()=>{
+      const shell=adoptMenuOverlay?.querySelector('.dragonbound-adopt-menu-shell');
+      if(!shell) return null;
+      let notice=shell.querySelector('.dragonbound-adopt-lock-notice');
+      if(!notice){
+        notice=document.createElement('div');
+        notice.className='dragonbound-adopt-lock-notice';
+        notice.setAttribute('aria-live','polite');
+        shell.appendChild(notice);
+      }
+      return notice;
+    };
+    const syncAdoptionOneAndDoneUI=()=>{
+      const locked=restoreLockedEgg();
+      const confirm=adoptMenuOverlay?.querySelector('.dragonbound-adopt-menu-action--confirm');
+      const notice=ensureAdoptionLockNotice();
+      const admin=dragonboundIsAdminTester();
+      adoptMenuOverlay?.classList.toggle('is-one-and-done-locked',!!locked&&!admin);
+      adoptMenuOverlay?.classList.toggle('is-admin-reroll',admin);
+      if(confirm){
+        confirm.disabled=!!locked&&!admin;
+        confirm.setAttribute('aria-disabled',confirm.disabled?'true':'false');
+        confirm.setAttribute('aria-label',admin?'Give an Egg a Home — Admin reroll':locked?'Your Dragonbound egg is already chosen':'Give an Egg a Home');
+      }
+      if(notice){
+        notice.classList.toggle('is-visible',admin||!!locked);
+        notice.classList.toggle('is-admin',admin);
+        notice.textContent=admin?'ADMIN TEST MODE · UNLIMITED EGG REROLLS':locked?`YOUR EGG IS LOCKED IN · ${locked.name.toUpperCase()}`:'';
+      }
+      return locked;
+    };
+    let dragonboundProfileHydration=null;
+    let dragonboundHydratedAccount='';
+    const saveStarterHouseLocally=houseId=>{
+      try{
+        if(houseId) localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_STARTER_HOUSE_KEY),houseId);
+      }catch(_e){}
+    };
+    const readStarterHouseLocally=()=>{
+      try{
+        const scoped=localStorage.getItem(dragonboundScopedKey(DRAGONBOUND_STARTER_HOUSE_KEY));
+        if(scoped) return scoped;
+        const legacy=localStorage.getItem('dragonboundSelectedStarterHouse')||'';
+        if(legacy){saveStarterHouseLocally(legacy);if(dragonboundAccountSlug()!=='guest')localStorage.removeItem('dragonboundSelectedStarterHouse');return legacy;}
+      }catch(_e){}
+      return '';
+    };
+    const hydrateDragonboundProfile=async({force=false}={})=>{
+      const account=dragonboundAccountSlug();
+      const userId=(typeof character!=='undefined'&&character?.user_id)?character.user_id:null;
+      if(!userId || account==='guest') return null;
+      if(!force && dragonboundHydratedAccount===account) return null;
+      if(dragonboundProfileHydration) return dragonboundProfileHydration;
+      dragonboundProfileHydration=(async()=>{
+        try{
+          const {data,error}=await db.from('dragonbound_profiles').select('locked_egg,dragon_name,breed_id,dragon_hatched_at,starter_house_id').eq('user_id',userId).maybeSingle();
+          if(error) throw error;
+          if(data){
+            if(data.locked_egg && !dragonboundIsAdminTester()){
+              const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===data.locked_egg);
+              if(egg){persistLockedEgg(egg);selectedAdoptionEgg=egg;}
+            }
+            if(data.starter_house_id){
+              saveStarterHouseLocally(data.starter_house_id);
+            }
+            if(data.dragon_name && data.breed_id){
+              const ownerUsername=dragonboundCurrentUsername();
+              const identity={id:`dragon-${account}-${data.breed_id}`,breedId:data.breed_id,name:data.dragon_name,eggName:data.locked_egg||'',ownerUsername,hatchedAt:data.dragon_hatched_at?Date.parse(data.dragon_hatched_at):Date.now()};
+              try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),JSON.stringify(identity));}catch(_e){}
+              window.dispatchEvent(new CustomEvent('dragonbound:dragon-named',{detail:identity}));
+            }
+          }
+          dragonboundHydratedAccount=account;
+          syncAdoptionOneAndDoneUI();
+          return data||null;
+        }catch(error){
+          console.warn('[Dragonbound] Could not hydrate account profile.',error);
+          return null;
+        }finally{dragonboundProfileHydration=null;}
+      })();
+      return dragonboundProfileHydration;
+    };
+    const claimDragonboundEggServer=async(candidate)=>{
+      if(!candidate) return null;
+      const {data,error}=await db.rpc('dragonbound_claim_egg',{p_egg_name:candidate.name});
+      if(error) throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===row?.locked_egg)||null;
+      if(!egg) throw new Error('Dragonbound returned an unknown egg.');
+      if(!row?.is_admin) persistLockedEgg(egg);
+      return {egg,isAdmin:!!row?.is_admin};
+    };
+    const persistStarterHouseServer=async houseId=>{
+      const userId=(typeof character!=='undefined'&&character?.user_id)?character.user_id:null;
+      if(!userId || !houseId) return;
+      const {error}=await db.rpc('dragonbound_set_starter_house',{p_house_id:houseId});
+      if(error) console.warn('[Dragonbound] Could not save starter house.',error);
+    };
+    const persistNamedDragonServer=async identity=>{
+      const userId=(typeof character!=='undefined'&&character?.user_id)?character.user_id:null;
+      if(!userId || !identity) return;
+      const {data,error}=await db.rpc('dragonbound_name_dragon',{p_dragon_name:identity.name,p_breed_id:identity.breedId});
+      if(error){console.warn('[Dragonbound] Could not save named dragon.',error);return null;}
+      return Array.isArray(data)?data[0]:data;
+    };
+
+    clearLegacyDragonboundOwnershipOnce();
+    window.addEventListener('repo-character-changed',()=>{dragonboundHydratedAccount='';void hydrateDragonboundProfile({force:true});});
+
+    if(homeSidebarImage) homeSidebarImage.src=DRAGONBOUND_HOME_SIDEBAR_BUTTONS;
+    if(homeBasket) homeBasket.src=DRAGONBOUND_HOME_EGG_BASKET;
+    if(homeHatchOpeningImage) homeHatchOpeningImage.src=DRAGONBOUND_HOME_BASKET_OPEN_FRAMES[0];
+    DRAGONBOUND_HOME_BASKET_OPEN_FRAMES.forEach(src=>{const img=new Image();img.src=src;});
+    if(homeHatchStars){
+      for(let i=0;i<42;i++){
+        const star=document.createElement('span');
+        star.className='dragonbound-home-hatch-star';
+        star.style.setProperty('--x',`${6+Math.random()*88}%`);
+        star.style.setProperty('--y',`${4+Math.random()*88}%`);
+        star.style.setProperty('--size',`${1.5+Math.random()*4.2}px`);
+        star.style.setProperty('--delay',`${-Math.random()*4}s`);
+        star.style.setProperty('--dur',`${2.4+Math.random()*3.8}s`);
+        homeHatchStars.appendChild(star);
+      }
+    }
+
+    window.dispatchEvent(new CustomEvent('dragonbound:engine-attach',{detail:{stage:newGameStage,homeScene,world:homeWorld,layer:babyDragonLayer}}));
+
+    const stopDialogueTypeAudio=()=>{
+      clearInterval(dialogueTypePulseTimer);
+      dialogueTypePulseTimer=0;
+      dialogueTypeAudios.forEach(node=>{
+        try{node.pause();node.currentTime=0;node.volume=0.24}catch(_e){}
+      });
+    };
+    const startDialogueTypeAudio=()=>{
+      stopDialogueTypeAudio();
+      const pulse=()=>{
+        const node=dialogueTypeAudios[dialogueTypePulseIndex % dialogueTypeAudios.length];
+        dialogueTypePulseIndex+=1;
+        try{
+          node.pause();
+          node.currentTime=0;
+          node.volume=0.24;
+          const p=node.play();
+          if(p&&typeof p.catch==='function')p.catch(()=>{});
+        }catch(_e){}
+      };
+      pulse();
+      dialogueTypePulseTimer=setInterval(pulse, 96);
+    };
+    const cancelDialogueTyping=()=>{
+      dialogueTypingToken+=1;
+      dialogueTyping=false;
+      clearTimeout(dialogueTypingTimer);
+      dialogueBody.classList.remove('is-typing');
+      stopDialogueTypeAudio();
+    };
+    const finishDialogueTyping=()=>{
+      if(!dialogueTyping)return false;
+      cancelDialogueTyping();
+      dialogueBody.innerHTML=dialogueCurrentHtml;
+      return true;
+    };
+    const typeDialoguePage=(html)=>{
+      cancelDialogueTyping();
+      dialogueCurrentHtml=html;
+      dialogueBody.innerHTML='';
+      const source=document.createElement('div');
+      source.innerHTML=html;
+      const paragraphs=Array.from(source.querySelectorAll('p')).map(p=>({
+        className:p.className||'',
+        text:p.textContent||''
+      }));
+      if(!paragraphs.length){
+        dialogueBody.innerHTML=html;
+        return;
+      }
+      dialogueTyping=true;
+      dialogueBody.classList.add('is-typing');
+      const token=++dialogueTypingToken;
+      startDialogueTypeAudio();
+      let paragraphIndex=0;
+      let characterIndex=0;
+      let current=document.createElement('p');
+      current.className=paragraphs[0].className;
+      dialogueBody.appendChild(current);
+      const tick=()=>{
+        if(token!==dialogueTypingToken||!dialogueTyping)return;
+        const paragraph=paragraphs[paragraphIndex];
+        if(characterIndex<paragraph.text.length){
+          const ch=paragraph.text.charAt(characterIndex++);
+          current.textContent+=ch;
+          const delay=/[.!?]/.test(ch)?82:/[,;:\u2026]/.test(ch)?48:22;
+          dialogueTypingTimer=setTimeout(tick,delay);
+          return;
+        }
+        paragraphIndex+=1;
+        characterIndex=0;
+        if(paragraphIndex>=paragraphs.length){
+          dialogueTyping=false;
+          dialogueBody.classList.remove('is-typing');
+          stopDialogueTypeAudio();
+          return;
+        }
+        current=document.createElement('p');
+        current.className=paragraphs[paragraphIndex].className;
+        dialogueBody.appendChild(current);
+        dialogueTypingTimer=setTimeout(tick,105);
+      };
+      tick();
+    };
+    const setDialoguePage=(index)=>{
+      const total=dialoguePages.length;
+      dialogueIndex=Math.max(0,Math.min(index,total-1));
+      applyDialoguePresentation();
+      dialogueProgress.textContent=`${dialogueIndex+1} / ${total}`;
+      dialoguePanel.setAttribute('aria-hidden','false');
+      dialoguePanel.classList.add('is-visible');
+      const isLast=dialogueIndex===total-1;
+      let nextLabel='Continue';
+      if(isLast){
+        if(dialogueSequence==='forest') nextLabel='Enter Cave';
+        else if(dialogueSequence==='cave') nextLabel='Step Forward';
+        else if(dialogueSequence==='adoption-exterior') nextLabel='Approach the Door';
+        else if(dialogueSequence==='adoption-interior') nextLabel='Meet Bonnie';
+        else if(dialogueSequence==='mira-home') nextLabel='Settle In';
+        else if(dialogueSequence==='doppy-home') nextLabel='See You Soon';
+        else nextLabel='Continue';
+      }
+      dialogueNext.textContent=nextLabel;
+      typeDialoguePage(dialoguePages[dialogueIndex]);
+    };
+    const clearDialogue=()=>{
+      cancelDialogueTyping();
+      dialoguePanel.classList.remove('is-visible');
+      dialoguePanel.setAttribute('aria-hidden','true');
+      dialogueBody.innerHTML='';
+      dialogueProgress.textContent='';
+      dialogueCurrentHtml='';
+      dialogueNext.textContent='Continue';
+    };
+    const applyDialoguePresentation=()=>{
+      dialoguePanel.classList.remove('dragonbound-dialogue--maelith','dragonbound-dialogue--adoption','dragonbound-dialogue--bonnie','dragonbound-dialogue--mira','dragonbound-dialogue--doppy');
+      let title='Prologue';
+      if(dialogueSequence==='cave') title='The Passage';
+      if(dialogueSequence==='adoption-exterior'){
+        title='The Second Nest';
+        dialoguePanel.classList.add('dragonbound-dialogue--adoption');
+      }
+      if(dialogueSequence==='adoption-interior'){
+        title='';
+        dialoguePanel.classList.add('dragonbound-dialogue--bonnie');
+      }
+      if(dialogueSequence==='bonnie-chat'){
+        title='Bonnie Bramble';
+        dialoguePanel.classList.add('dragonbound-dialogue--bonnie');
+      }
+      if(dialogueSequence==='adoption-result'){
+        title='Bonnie Bramble';
+        dialoguePanel.classList.add('dragonbound-dialogue--bonnie');
+      }
+      if(dialogueSequence==='mira-home'){
+        title='';
+        dialoguePanel.classList.add('dragonbound-dialogue--mira');
+      }
+      if(dialogueSequence==='doppy-home'){
+        title='';
+        dialoguePanel.classList.add('dragonbound-dialogue--doppy');
+      }
+      if(dialogueSequence==='maelith'){
+        title='Maelith, the Crownwing';
+        dialoguePanel.classList.add('dragonbound-dialogue--maelith');
+      }
+      if(dialogueTitle) dialogueTitle.textContent=title;
+    };
+    const fadeAudio=(node,target,duration=700)=>{
+      if(!node)return;
+      const from=Number(node.volume)||0;
+      const steps=Math.max(1,Math.round(duration/50));
+      let step=0;
+      const timer=setInterval(()=>{
+        step+=1;
+        const p=Math.min(1,step/steps);
+        node.volume=Math.max(0,Math.min(1,from+(target-from)*p));
+        if(p>=1)clearInterval(timer);
+      },50);
+      return timer;
+    };
+    const showFeedback=(text)=>{
+      clearTimeout(feedbackTimer);
+      feedback.textContent=text;
+      feedback.classList.add('is-visible');
+      feedbackTimer=setTimeout(()=>feedback.classList.remove('is-visible'),1500);
+    };
+    const closeRulesOverlay=()=>{
+      rulesOverlay?.classList.remove('is-visible');
+      rulesOverlay?.setAttribute('aria-hidden','true');
+    };
+    const openRulesOverlay=()=>{
+      if(!rulesOverlay || overlay.classList.contains('is-new-game')) return;
+      rulesOverlay.classList.add('is-visible');
+      rulesOverlay.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>rulesClose?.focus({preventScroll:true}));
+    };
+    const stopDoppyFootsteps=()=>{
+      clearInterval(doppyFootstepTimer);
+      clearTimeout(doppyFootstepStopTimer);
+      doppyFootstepTimer=0;
+      doppyFootstepStopTimer=0;
+    };
+    const playDoppyFootstep=()=>{
+      try{
+        const Ctx=window.AudioContext||window.webkitAudioContext;
+        if(!Ctx) return;
+        const ctx=window.__dragonboundDoppyStepCtx || (window.__dragonboundDoppyStepCtx=new Ctx());
+        if(ctx.state==='suspended') ctx.resume();
+        const start=ctx.currentTime;
+        const osc=ctx.createOscillator();
+        const toneGain=ctx.createGain();
+        const toneFilter=ctx.createBiquadFilter();
+        toneFilter.type='lowpass';
+        toneFilter.frequency.setValueAtTime(220,start);
+        osc.type='triangle';
+        osc.frequency.setValueAtTime(92,start);
+        osc.frequency.exponentialRampToValueAtTime(58,start+.1);
+        toneGain.gain.setValueAtTime(0.0001,start);
+        toneGain.gain.exponentialRampToValueAtTime(0.034,start+.014);
+        toneGain.gain.exponentialRampToValueAtTime(0.0001,start+.16);
+        osc.connect(toneFilter).connect(toneGain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start+.17);
+        const buffer=ctx.createBuffer(1, Math.floor(ctx.sampleRate*.12), ctx.sampleRate);
+        const data=buffer.getChannelData(0);
+        for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.02));
+        const noise=ctx.createBufferSource();
+        const noiseFilter=ctx.createBiquadFilter();
+        const noiseGain=ctx.createGain();
+        noise.buffer=buffer;
+        noiseFilter.type='lowpass';
+        noiseFilter.frequency.setValueAtTime(460,start);
+        noiseGain.gain.setValueAtTime(0.0001,start);
+        noiseGain.gain.exponentialRampToValueAtTime(0.024,start+.008);
+        noiseGain.gain.exponentialRampToValueAtTime(0.0001,start+.1);
+        noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+        noise.start(start+.01);
+        noise.stop(start+.11);
+      }catch(_e){}
+    };
+    const startDoppyFootsteps=(duration=2250,stepMs=290)=>{
+      stopDoppyFootsteps();
+      playDoppyFootstep();
+      doppyFootstepTimer=setInterval(playDoppyFootstep,stepMs);
+      doppyFootstepStopTimer=setTimeout(()=>stopDoppyFootsteps(),duration);
+    };
+
+    const playEstateDoorSound=()=>{
+      try{
+        const Ctx=window.AudioContext||window.webkitAudioContext;
+        if(!Ctx) return;
+        const ctx=window.__dragonboundEstateDoorCtx || (window.__dragonboundEstateDoorCtx=new Ctx());
+        if(ctx.state==='suspended') ctx.resume();
+        const start=ctx.currentTime;
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        osc.type='sawtooth';
+        osc.frequency.setValueAtTime(128,start);
+        osc.frequency.exponentialRampToValueAtTime(74,start+.34);
+        gain.gain.setValueAtTime(0.0001,start);
+        gain.gain.exponentialRampToValueAtTime(0.042,start+.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001,start+.42);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start+.44);
+        const buffer=ctx.createBuffer(1, Math.floor(ctx.sampleRate*.22), ctx.sampleRate);
+        const data=buffer.getChannelData(0);
+        for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.038));
+        const noise=ctx.createBufferSource();
+        const filter=ctx.createBiquadFilter();
+        const clickGain=ctx.createGain();
+        noise.buffer=buffer;
+        filter.type='bandpass';
+        filter.frequency.setValueAtTime(940,start);
+        clickGain.gain.setValueAtTime(0.0001,start);
+        clickGain.gain.exponentialRampToValueAtTime(0.038,start+.012);
+        clickGain.gain.exponentialRampToValueAtTime(0.0001,start+.09);
+        noise.connect(filter).connect(clickGain).connect(ctx.destination);
+        noise.start(start+.02);
+        noise.stop(start+.11);
+      }catch(_e){}
+    };
+    const clearStudyEstatePromptTimer=()=>{
+      clearTimeout(studyEstatePromptTimer);
+      studyEstatePromptTimer=0;
+    };
+    const setBonnieChatOptionsOpen=(open)=>{
+      bonnieChatOptionsOpen=!!open;
+      if(!bonnieChatOptions) return;
+      bonnieChatOptions.classList.toggle('is-visible', bonnieChatOptionsOpen);
+      bonnieChatOptions.setAttribute('aria-hidden', bonnieChatOptionsOpen ? 'false' : 'true');
+      bonnieChatLaunch?.classList.toggle('is-active', bonnieChatOptionsOpen);
+    };
+    const closeBonnieMenu=()=>{
+      bonnieMenuOverlay?.classList.remove('is-visible');
+      bonnieMenuOverlay?.setAttribute('aria-hidden','true');
+      setBonnieChatOptionsOpen(false);
+    };
+    const closeEstatePrompt=()=>{
+      estatePrompt?.classList.remove('is-visible');
+      estatePrompt?.setAttribute('aria-hidden','true');
+    };
+    const scheduleStudyEstatePrompt=()=>{
+      clearStudyEstatePromptTimer();
+      closeEstatePrompt();
+      if(studyEstatePromptDismissed || estateJourneyStarted) return;
+      if(!studyMenuOverlay?.classList.contains('is-visible')) return;
+      if(!selectedAdoptionEgg || selectedStudyEggName!==selectedAdoptionEgg.name) return;
+      studyEstatePromptTimer=setTimeout(()=>{
+        if(studyEstatePromptDismissed || estateJourneyStarted) return;
+        if(!studyMenuOverlay?.classList.contains('is-visible')) return;
+        if(!selectedAdoptionEgg || selectedStudyEggName!==selectedAdoptionEgg.name) return;
+        const article=eggWithArticle(selectedAdoptionEgg.name);
+        const ownedHome=resolveOwnedStarterHome();
+        if(namedDragonForCurrentAccount() && !dragonboundIsAdminTester()) return;
+        if(estatePromptGo) estatePromptGo.dataset.destination=ownedHome?'home':'estate';
+        if(estatePromptCopy){
+          estatePromptCopy.innerHTML=ownedHome
+            ? `<p>It looks like your egg is super duper close to cracking! I’ll get ${article} safely into one of our hatching rooms, then have a <strong>Dropper Dragon</strong> bring them straight to your current home.</p><p>Your keys are already registered, so there’s no need to visit Hearth &amp; Key again unless you fancy swapping starter homes.</p>`
+            : `<p>It looks like your egg is super duper close to cracking! I will safely take ${article} to our hatching rooms and have our <strong>Dropper Dragons</strong> carefully drop them at your house.</p><p>Oh! You don’t have a house here yet, do you? You should go visit the estate agents in the rich side of Belros called <strong>Velmora Hearth &amp; Key</strong>.</p>`;
+        }
+        estatePrompt?.classList.add('is-visible');
+        estatePrompt?.setAttribute('aria-hidden','false');
+        requestAnimationFrame(()=>estatePromptGo?.focus({preventScroll:true}));
+      },2350);
+    };
+    const setAdoptedEggInMenu=(egg,{animate=false}={})=>{
+      selectedAdoptionEgg=egg||null;
+      if(!adoptMenuEgg) return;
+      adoptMenuEgg.classList.remove('is-visible','is-arriving','is-alive');
+      if(!egg){
+        adoptMenuEgg.removeAttribute('src');
+        adoptMenuEgg.alt='';
+        adoptMenuEgg.setAttribute('aria-hidden','true');
+        return;
+      }
+      adoptMenuEgg.src=egg.src;
+      adoptMenuEgg.alt=`${egg.name} Dragon Egg`;
+      adoptMenuEgg.setAttribute('aria-hidden','false');
+      void adoptMenuEgg.offsetWidth;
+      adoptMenuEgg.classList.add('is-visible','is-alive');
+      if(animate) adoptMenuEgg.classList.add('is-arriving');
+    };
+    const closeAdoptionConfirmation=()=>{
+      adoptionConfirmationOpen=false;
+      adoptConfirmation?.classList.remove('is-visible');
+      adoptConfirmation?.setAttribute('aria-hidden','true');
+    };
+    const openAdoptionConfirmation=async()=>{
+      if(adoptionRolling || dialogueMode!=='adoption-interior') return;
+      await hydrateDragonboundProfile({force:true});
+      const locked=syncAdoptionOneAndDoneUI();
+      if(locked && !dragonboundIsAdminTester()){
+        setAdoptedEggInMenu(locked);
+        showFeedback(`${locked.name} is already your Dragonbound egg.`);
+        return;
+      }
+      adoptionConfirmationOpen=true;
+      adoptConfirmation?.classList.add('is-visible');
+      adoptConfirmation?.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>adoptConfirmationYes?.focus({preventScroll:true}));
+    };
+    const clearAdoptionFrameTimers=()=>{
+      adoptionFrameTimers.forEach(clearTimeout);
+      adoptionFrameTimers=[];
+      clearTimeout(adoptionOpenFallbackTimer);
+      clearTimeout(adoptionRevealFallbackTimer);
+      clearTimeout(adoptionBonnieTimer);
+      adoptionOpenFallbackTimer=0;
+      adoptionRevealFallbackTimer=0;
+      adoptionBonnieTimer=0;
+    };
+    const stopAdoptionRollAudio=()=>{
+      [adoptionOpenAudio,adoptionRevealAudio].forEach(node=>{
+        try{node.pause();node.currentTime=0}catch(_e){}
+      });
+    };
+    const hideAdoptionRoll=()=>{
+      adoptionRoll?.classList.remove('is-visible','is-revealing');
+      adoptionRoll?.setAttribute('aria-hidden','true');
+      adoptionRollReveal?.setAttribute('aria-hidden','true');
+      if(adoptionRollFrame) adoptionRollFrame.classList.remove('is-frame-changing');
+      if(adoptionRollEgg){
+        adoptionRollEgg.classList.remove('is-visible');
+        adoptionRollEgg.removeAttribute('src');
+        adoptionRollEgg.alt='';
+      }
+    };
+    const eggWithArticle=name=>`${/^[aeiou]/i.test(String(name||'').trim())?'an':'a'} ${name} egg`;
+    const renderStudyEgg=(egg)=>{
+      if(!egg) return;
+      selectedStudyEggName=egg.name;
+      const study=DRAGONBOUND_EGG_STUDY[egg.name]||{};
+      if(studyMenuEgg){
+        studyMenuEgg.src=egg.src;
+        studyMenuEgg.alt=`${egg.name} Dragon Egg`;
+        studyMenuEgg.setAttribute('aria-hidden','false');
+      }
+      if(studyMenuName) studyMenuName.textContent=`${egg.name} Dragon Egg`;
+      if(studyMenuProfile) studyMenuProfile.textContent=study.profile||'Bonnie has not finished this field note yet.';
+      if(studyMenuFound) studyMenuFound.textContent=study.foundIn||'Recorded across Velmora.';
+      if(studyMenuType) studyMenuType.textContent=study.dragonType||'Unclassified';
+      if(studyMenuHistory) studyMenuHistory.innerHTML=(study.history||[]).map(text=>`<p>${text}</p>`).join('');
+      if(studyMenuThreats) studyMenuThreats.textContent=study.threats||'No special risks recorded beyond normal dragon-egg care.';
+      studyMenuList?.querySelectorAll('.dragonbound-study-list-item').forEach(button=>{
+        const active=button.dataset.eggName===egg.name;
+        button.classList.toggle('is-selected',active);
+        button.setAttribute('aria-selected',active?'true':'false');
+        button.classList.toggle('is-yours',!!selectedAdoptionEgg && button.dataset.eggName===selectedAdoptionEgg.name);
+      });
+      if(studyMenuOverlay?.classList.contains('is-visible')) scheduleStudyEstatePrompt();
+    };
+    const buildStudyList=()=>{
+      if(!studyMenuList || studyMenuList.childElementCount) return;
+      DRAGONBOUND_EGG_POOL.forEach((egg,index)=>{
+        const button=document.createElement('button');
+        button.type='button';
+        button.className='dragonbound-study-list-item';
+        button.dataset.eggName=egg.name;
+        button.setAttribute('role','option');
+        button.setAttribute('aria-selected','false');
+        button.innerHTML=`<span>${egg.name}</span><small>Dragon Egg</small>`;
+        button.addEventListener('click',event=>{
+          event.preventDefault();
+          event.stopPropagation();
+          renderStudyEgg(egg);
+        });
+        studyMenuList.appendChild(button);
+      });
+    };
+    const closeStudyMenu=()=>{
+      clearStudyEstatePromptTimer();
+      closeEstatePrompt();
+      studyMenuOverlay?.classList.remove('is-visible');
+      studyMenuOverlay?.setAttribute('aria-hidden','true');
+    };
+    const openStudyMenu=async()=>{
+      if(dialogueMode!=='adoption-interior' || adoptionRolling) return;
+      await hydrateDragonboundProfile({force:true});
+      restoreLockedEgg();
+      closeBonnieMenu();
+      closeAdoptEggMenu();
+      studyEstatePromptDismissed=false;
+      buildStudyList();
+      const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===(selectedAdoptionEgg?.name||selectedStudyEggName))||DRAGONBOUND_EGG_POOL[0];
+      renderStudyEgg(egg);
+      studyMenuOverlay?.classList.add('is-visible');
+      studyMenuOverlay?.setAttribute('aria-hidden','false');
+      scheduleStudyEstatePrompt();
+      requestAnimationFrame(()=>{
+        const active=studyMenuList?.querySelector('.dragonbound-study-list-item.is-selected');
+        active?.scrollIntoView({block:'nearest'});
+      });
+    };
+    const startAdoptionBonnieDialogue=(egg)=>{
+      if(!egg || dialogueMode!=='adoption-interior') return;
+      closeAdoptEggMenu();
+      closeStudyMenu();
+      const article=eggWithArticle(egg.name);
+      dialogueMode='dialogue';
+      dialogueSequence='adoption-result';
+      dialoguePages=[
+        `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Oh, wow — ${article}!</p><p class="spoken">There’s a restless little heartbeat in that shell already. I’d say somebody is rather keen to meet you.</p>`,
+        `<p class="speaker">BONNIE BRAMBLE</p><p class="spoken">Go and have a look in <strong>Study your Dragon</strong> on my menu. I’ve written down everything we know about eggs like yours — where they’re found, what sort of dragon may be waiting inside, old stories, and the things a new keeper ought to watch for.</p>`
+      ];
+      dialogueIndex=0;
+      setDialoguePage(0);
+    };
+    const finishAdoptionReveal=(token)=>{
+      if(token!==adoptionRollToken || !adoptionRolling) return;
+      clearTimeout(adoptionRevealFallbackTimer);
+      adoptionRevealFallbackTimer=0;
+      adoptionRolling=false;
+      hideAdoptionRoll();
+      openAdoptEggMenu();
+      setAdoptedEggInMenu(selectedAdoptionEgg,{animate:true});
+      fadeAudio(adoptionInteriorAudio,0.6,650);
+      clearTimeout(adoptionBonnieTimer);
+      adoptionBonnieTimer=setTimeout(()=>{
+        adoptionBonnieTimer=0;
+        startAdoptionBonnieDialogue(selectedAdoptionEgg);
+      },1250);
+    };
+    const beginAdoptionReveal=(token,egg)=>{
+      if(token!==adoptionRollToken || !adoptionRolling || adoptionRoll?.classList.contains('is-revealing')) return;
+      clearTimeout(adoptionOpenFallbackTimer);
+      adoptionOpenFallbackTimer=0;
+      adoptionFrameTimers.forEach(clearTimeout);
+      adoptionFrameTimers=[];
+      adoptionRoll?.classList.add('is-revealing');
+      adoptionRollReveal?.setAttribute('aria-hidden','false');
+      if(adoptionRollEgg){
+        adoptionRollEgg.src=egg.src;
+        adoptionRollEgg.alt=`${egg.name} Dragon Egg`;
+        adoptionRollEgg.classList.remove('is-visible');
+        requestAnimationFrame(()=>requestAnimationFrame(()=>adoptionRollEgg.classList.add('is-visible')));
+      }
+      try{
+        adoptionRevealAudio.pause();
+        adoptionRevealAudio.currentTime=0;
+        adoptionRevealAudio.volume=0.96;
+        const p=adoptionRevealAudio.play();
+        if(p&&typeof p.catch==='function')p.catch(()=>{});
+      }catch(_e){}
+      const onRevealEnded=()=>finishAdoptionReveal(token);
+      adoptionRevealAudio.addEventListener('ended',onRevealEnded,{once:true});
+      adoptionRevealFallbackTimer=setTimeout(onRevealEnded,DRAGONBOUND_ADOPTION_REVEAL_DURATION+450);
+    };
+    const startAdoptionRoll=async()=>{
+      if(adoptionRolling || adoptionClaimPending || dialogueMode!=='adoption-interior' || !DRAGONBOUND_EGG_POOL.length) return;
+      adoptionClaimPending=true;
+      await hydrateDragonboundProfile({force:true});
+      const existing=lockedEggForCurrentAccount();
+      if(existing && !dragonboundIsAdminTester()){
+        closeAdoptionConfirmation();
+        selectedAdoptionEgg=existing;
+        openAdoptEggMenu();
+        setAdoptedEggInMenu(existing);
+        syncAdoptionOneAndDoneUI();
+        showFeedback(`${existing.name} is already your Dragonbound egg.`);
+        adoptionClaimPending=false;
+        return;
+      }
+      const candidate=DRAGONBOUND_EGG_POOL[Math.floor(Math.random()*DRAGONBOUND_EGG_POOL.length)];
+      let claim=null;
+      try{claim=await claimDragonboundEggServer(candidate);}catch(error){
+        console.error('[Dragonbound] Egg claim failed.',error);
+        showFeedback('Your egg could not be verified. Please try again.');
+        adoptionClaimPending=false;
+        return;
+      }
+      const egg=claim?.egg||candidate;
+      closeAdoptionConfirmation();
+      closeAdoptEggMenu();
+      adoptionRolling=true;
+      adoptionClaimPending=false;
+      const token=++adoptionRollToken;
+      selectedAdoptionEgg=egg;
+      if(!claim?.isAdmin) persistLockedEgg(egg);
+      const preloadEgg=new Image();
+      preloadEgg.src=egg.src;
+      clearAdoptionFrameTimers();
+      stopAdoptionRollAudio();
+      adoptionRoll?.classList.remove('is-revealing');
+      adoptionRoll?.classList.add('is-visible');
+      adoptionRoll?.setAttribute('aria-hidden','false');
+      adoptionRollReveal?.setAttribute('aria-hidden','true');
+      if(adoptionRollFrame){
+        adoptionRollFrame.src=DRAGONBOUND_ADOPTION_FRAMES[0];
+        adoptionRollFrame.classList.remove('is-frame-changing');
+      }
+      fadeAudio(adoptionInteriorAudio,0.12,450);
+      const frameTimes=[0,980,2110,3330,4510];
+      DRAGONBOUND_ADOPTION_FRAMES.forEach((src,index)=>{
+        if(index===0) return;
+        adoptionFrameTimers.push(setTimeout(()=>{
+          if(token!==adoptionRollToken || !adoptionRolling || !adoptionRollFrame) return;
+          adoptionRollFrame.classList.add('is-frame-changing');
+          setTimeout(()=>{
+            if(token!==adoptionRollToken || !adoptionRolling || !adoptionRollFrame) return;
+            adoptionRollFrame.src=src;
+            adoptionRollFrame.classList.remove('is-frame-changing');
+          },70);
+        },frameTimes[index]));
+      });
+      try{
+        adoptionOpenAudio.pause();
+        adoptionOpenAudio.currentTime=0;
+        adoptionOpenAudio.volume=0.92;
+        const p=adoptionOpenAudio.play();
+        if(p&&typeof p.catch==='function')p.catch(()=>{});
+      }catch(_e){}
+      const onOpenEnded=()=>beginAdoptionReveal(token,egg);
+      adoptionOpenAudio.addEventListener('ended',onOpenEnded,{once:true});
+      adoptionOpenFallbackTimer=setTimeout(onOpenEnded,DRAGONBOUND_ADOPTION_OPEN_DURATION+500);
+    };
+    const closeAdoptEggMenu=()=>{
+      adoptMenuOverlay?.classList.remove('is-visible','is-egg-reveal');
+      adoptMenuOverlay?.setAttribute('aria-hidden','true');
+    };
+    const openAdoptEggMenu=()=>{
+      if(dialogueMode!=='adoption-interior' || adoptionRolling) return;
+      const locked=syncAdoptionOneAndDoneUI();
+      if(locked) selectedAdoptionEgg=locked;
+      closeBonnieMenu();
+      closeStudyMenu();
+      adoptMenuOverlay?.classList.add('is-visible');
+      adoptMenuOverlay?.setAttribute('aria-hidden','false');
+      setAdoptedEggInMenu(selectedAdoptionEgg);
+      syncAdoptionOneAndDoneUI();
+      void hydrateDragonboundProfile({force:true}).then(()=>{
+        if(!adoptMenuOverlay?.classList.contains('is-visible')) return;
+        const serverLocked=syncAdoptionOneAndDoneUI();
+        if(serverLocked) setAdoptedEggInMenu(serverLocked);
+      });
+    };
+    const openBonnieMenu=()=>{
+      if(dialogueMode!=='adoption-interior' || !newGameStage.classList.contains('is-adoption-interior')) return;
+      closeAdoptEggMenu();
+      closeStudyMenu();
+      bonnieMenuOverlay?.classList.add('is-visible');
+      bonnieMenuOverlay?.setAttribute('aria-hidden','false');
+      setBonnieChatOptionsOpen(false);
+    };
+    const renderPropertyListings=(country)=>{
+      selectedPropertyCountry=country||'';
+      propertyFlagHotspots?.querySelectorAll('.dragonbound-property-flag-hotspot').forEach(button=>{
+        const active=button.dataset.country===selectedPropertyCountry;
+        button.classList.toggle('is-selected',active);
+        button.setAttribute('aria-pressed',active?'true':'false');
+      });
+      if(!propertyListPanel) return;
+      const listings=DRAGONBOUND_PROPERTY_LISTINGS[country]||[];
+      if(!listings.length){
+        propertyListPanel.innerHTML=`<div class="dragonbound-property-empty"><strong>${country}</strong><span>No public listings are ready here yet.</span><small>Mira is still waiting for the regional ledgers to arrive at Hearth &amp; Key.</small></div>`;
+        return;
+      }
+      propertyListPanel.innerHTML=`<div class="dragonbound-property-country-title">${country}</div><div class="dragonbound-property-card-list"></div>`;
+      const list=propertyListPanel.querySelector('.dragonbound-property-card-list');
+      listings.forEach((property,index)=>{
+        const card=document.createElement('button');
+        card.type='button';
+        card.className=`dragonbound-property-card ${property.starter?'is-starter':'is-locked'}`;
+        card.dataset.propertyId=property.id;
+        card.disabled=!property.starter;
+        const currentHome=resolveOwnedStarterHome();
+        const isCurrent=!!currentHome&&currentHome.id===property.id;
+        const starterStatus=isCurrent?'CURRENT HOME':currentHome?'SWAP HOME':'CHOOSE';
+        card.innerHTML=`<img src="${property.thumb}" alt=""><span class="dragonbound-property-card-copy"><strong>${property.name}</strong><small>${property.area}</small><em>${property.starter?'FREE STARTER HOME':`LOCKED · ${property.price}`}</em></span><span class="dragonbound-property-card-status">${property.starter?starterStatus:'🔒'}</span>`;
+        if(property.starter){
+          card.addEventListener('click',event=>{
+            event.preventDefault();event.stopPropagation();openPropertyConfirmation(property);
+          });
+        }
+        list.appendChild(card);
+      });
+    };
+    const buildPropertyFlags=()=>{
+      if(!propertyFlagHotspots || propertyFlagHotspots.childElementCount) return;
+      DRAGONBOUND_PROPERTY_FLAGS.forEach(flag=>{
+        const button=document.createElement('button');
+        button.type='button';
+        button.className='dragonbound-property-flag-hotspot';
+        button.dataset.country=flag.country;
+        button.setAttribute('aria-label',`View ${flag.country} properties`);
+        button.setAttribute('aria-pressed','false');
+        button.style.left=`${flag.x}%`;
+        button.style.top=`${flag.y}%`;
+        button.style.width=`${flag.w}%`;
+        button.style.height=`${flag.h}%`;
+        button.addEventListener('click',event=>{
+          event.preventDefault();event.stopPropagation();renderPropertyListings(flag.country);
+        });
+        propertyFlagHotspots.appendChild(button);
+      });
+    };
+    const closePropertyConfirmation=()=>{
+      pendingStarterProperty=null;
+      propertyConfirm?.classList.remove('is-visible');
+      propertyConfirm?.setAttribute('aria-hidden','true');
+    };
+    const openPropertyConfirmation=(property)=>{
+      if(!property?.starter) return;
+      pendingStarterProperty=property;
+      if(propertyConfirmImage){propertyConfirmImage.src=property.thumb;propertyConfirmImage.alt=property.name;}
+      const existingHome=resolveOwnedStarterHome();
+      const swapping=!!existingHome;
+      if(propertyConfirmCopy) propertyConfirmCopy.innerHTML=`<strong>${property.name}</strong><span>${property.area}, ${selectedPropertyCountry}</span><em>Starter price: <b>FREE</b></em><p>${swapping?'This will become your active starter home. You can swap between starter homes whenever you like.':'Mira will register the keys in your name immediately. You can move in now.'}</p>`;
+      propertyConfirm?.classList.add('is-visible');
+      propertyConfirm?.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>propertyConfirmYes?.focus({preventScroll:true}));
+    };
+    const closePropertyBoard=()=>{
+      closePropertyConfirmation();
+      propertyOverlay?.classList.remove('is-visible');
+      propertyOverlay?.setAttribute('aria-hidden','true');
+    };
+    const openPropertyBoard=()=>{
+      if(dialogueMode!=='estate-interior') return;
+      buildPropertyFlags();
+      closePropertyConfirmation();
+      propertyOverlay?.classList.add('is-visible');
+      propertyOverlay?.setAttribute('aria-hidden','false');
+      if(!selectedPropertyCountry && propertyListPanel){
+        propertyListPanel.innerHTML=`<div class="dragonbound-property-empty"><strong>Choose a Country</strong><span>Select a flag on the map to open Mira's property ledger.</span><small>Starter homes are currently free. Larger homes are visible for a sneak peek, but remain locked for now.</small></div>`;
+      }
+    };
+    const moveIntoStarterHome=(property)=>{
+      if(!property?.starter || !property.full) return;
+      const hadHomeBefore=!!resolveOwnedStarterHome();
+      selectedStarterHome=property;
+      newGameStage.dataset.dragonboundHouseId=property.id;
+      newGameStage.classList.add('has-owned-home');
+      saveStarterHouseLocally(property.id);
+      void persistStarterHouseServer(property.id);
+      window.dispatchEvent(new CustomEvent('dragonbound:house-selected',{detail:{houseId:property.id}}));
+      closePropertyConfirmation();
+      closePropertyBoard();
+      closeBonnieMenu();
+      setBonnieChatOptionsOpen(false);
+      bonnieChatReturnToMenu=false;
+      dialogueMode='transition';
+      blackout.classList.add('is-black');
+      fadeAudio(estateInteriorAudio,0,500);
+      transitionTimerD=setTimeout(()=>{
+        try{estateInteriorAudio.pause();estateInteriorAudio.currentTime=0;estateInteriorAudio.volume=0.5}catch(_e){}
+        if(homeImage) homeImage.style.backgroundImage=`url('${property.full}')`;
+        if(!hadHomeBefore) resetHomeDeliveryScene();
+        homeScene?.classList.add('is-visible');
+        homeScene?.setAttribute('aria-hidden','false');
+        newGameStage.classList.add('is-home');
+        newGameStage.classList.remove('is-estate-interior','is-estate-exterior','is-adoption','is-adoption-interior','is-video','is-valley','is-cave');
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          dialogueMode='home';
+          if(hadHomeBefore){
+            showHomeSidebar();
+            return;
+          }
+          setTimeout(()=>{
+            if(newGameStage.classList.contains('is-home')) startMiraHomeDialogue();
+          },220);
+        },220);
+      },720);
+    };
+    const goToEstateExterior=()=>{
+      estateJourneyStarted=true;
+      clearStudyEstatePromptTimer();
+      closeEstatePrompt();
+      closeStudyMenu();
+      closeBonnieMenu();
+      closeAdoptEggMenu();
+      closeAdoptionConfirmation();
+      clearDialogue();
+      dialogueMode='transition';
+      if(bonnieHotspot){ bonnieHotspot.disabled=true; bonnieHotspot.style.pointerEvents='none'; }
+      if(estateDoorHotspot){ estateDoorHotspot.disabled=true; estateDoorHotspot.style.pointerEvents='none'; }
+      blackout.classList.add('is-black');
+      fadeAudio(adoptionInteriorAudio,0,420);
+      transitionTimerD=setTimeout(()=>{
+        try{adoptionInteriorAudio.pause();adoptionInteriorAudio.currentTime=0;adoptionInteriorAudio.volume=0.6}catch(_e){}
+        try{estateInteriorAudio.pause();estateInteriorAudio.currentTime=0;estateInteriorAudio.volume=0.5}catch(_e){}
+        newGameStage.classList.remove('is-adoption','is-adoption-interior','is-estate-interior','is-video','is-valley','is-cave','is-home');
+        newGameStage.classList.add('is-estate-exterior');
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          dialogueMode='estate-exterior';
+          if(estateDoorHotspot){ estateDoorHotspot.disabled=false; estateDoorHotspot.style.pointerEvents='auto'; }
+        },180);
+      },540);
+    };
+    const enterEstateAgent=()=>{
+      if(dialogueMode!=='estate-exterior' || !newGameStage.classList.contains('is-estate-exterior')) return;
+      clearDialogue();
+      closeBonnieMenu();
+      closeEstatePrompt();
+      if(estateDoorHotspot){ estateDoorHotspot.disabled=true; estateDoorHotspot.style.pointerEvents='none'; }
+      playEstateDoorSound();
+      dialogueMode='transition';
+      blackout.classList.add('is-black');
+      transitionTimerD=setTimeout(()=>{
+        newGameStage.classList.remove('is-estate-exterior','is-adoption','is-adoption-interior','is-video','is-valley','is-cave','is-home');
+        newGameStage.classList.add('is-estate-interior');
+        estateInteriorAudio.volume=0;
+        const p=estateInteriorAudio.play();
+        if(p&&typeof p.catch==='function')p.catch(()=>{});
+        fadeAudio(estateInteriorAudio,0.5,900);
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          dialogueMode='estate-interior';
+        },180);
+      },430);
+    };
+    const resetDragonboundScene=()=>{
+      clearTimeout(transitionTimerA);clearTimeout(transitionTimerB);clearTimeout(transitionTimerC);clearTimeout(transitionTimerD);clearTimeout(transitionTimerE);clearTimeout(feedbackTimer);clearTimeout(videoUnlockTimeout);
+      overlay.classList.remove('is-new-game');
+      blackout.classList.remove('is-black');
+      newGameStage.classList.remove('is-active','is-revealed','is-cave','is-valley','is-video','is-adoption','is-adoption-interior','is-estate-exterior','is-estate-interior','is-home','has-owned-home');
+      newGameStage.setAttribute('aria-hidden','true');
+      feedback.classList.remove('is-visible');
+      closeRulesOverlay();
+      closeTravelMenu();
+      dialoguePanel.classList.remove('dragonbound-dialogue--maelith','dragonbound-dialogue--mira','dragonbound-dialogue--doppy');
+      dialogueEndNote.classList.remove('is-visible');
+      dialogueEndNote.setAttribute('aria-hidden','true');
+      videoContinueReady=false;
+      videoProgressUnlocked=false;
+      videoContinuePrompt.classList.remove('is-visible');
+      videoContinuePrompt.setAttribute('aria-hidden','true');
+      clearDialogue();
+      dialogueMode='menu';
+      dialogueIndex=0;
+      dialogueSequence='forest';
+      dialoguePages=DRAGONBOUND_PROLOGUE_PAGES;
+      bonnieChatReturnToMenu=false;
+      bonnieChatOptionsOpen=false;
+      adoptionConfirmationOpen=false;
+      adoptionRolling=false;
+      adoptionClaimPending=false;
+      selectedAdoptionEgg=null;
+      studyEstatePromptDismissed=false;
+      estateJourneyStarted=false;
+      selectedPropertyCountry='';
+      pendingStarterProperty=null;
+      selectedStarterHome=null;
+      adoptionRollToken+=1;
+      clearAdoptionFrameTimers();
+      stopAdoptionRollAudio();
+      closeAdoptionConfirmation();
+      hideAdoptionRoll();
+      setAdoptedEggInMenu(null);
+      try{newGameAudio.pause();newGameAudio.currentTime=0;newGameAudio.volume=0.4}catch(_e){}
+      try{valleyAudio.pause();valleyAudio.currentTime=0;valleyAudio.volume=0.4}catch(_e){}
+      try{newGameVideo.pause();newGameVideo.currentTime=0;newGameVideo.volume=1;}catch(_e){}
+      try{adoptionExteriorAudio.pause();adoptionExteriorAudio.currentTime=0;adoptionExteriorAudio.volume=0.5}catch(_e){}
+      try{adoptionInteriorAudio.pause();adoptionInteriorAudio.currentTime=0;adoptionInteriorAudio.volume=0.6}catch(_e){}
+      try{adoptionOpenAudio.pause();adoptionOpenAudio.currentTime=0;adoptionOpenAudio.volume=0.92}catch(_e){}
+      try{adoptionRevealAudio.pause();adoptionRevealAudio.currentTime=0;adoptionRevealAudio.volume=0.96}catch(_e){}
+      stopDialogueTypeAudio();
+      closeBonnieMenu();
+      closeAdoptEggMenu();
+      closeStudyMenu();
+      closeEstatePrompt();
+      closePropertyBoard();
+      homeScene?.classList.remove('is-visible');
+      homeScene?.setAttribute('aria-hidden','true');
+      resetHomeDeliveryScene();
+      if(homeImage) homeImage.style.backgroundImage='';
+      clearStudyEstatePromptTimer();
+      clearTimeout(adoptionBonnieTimer);
+      adoptionBonnieTimer=0;
+      selectedStudyEggName='';
+      if(bonnieHotspot){ bonnieHotspot.disabled=false; bonnieHotspot.style.pointerEvents=''; }
+      if(estateDoorHotspot){ estateDoorHotspot.disabled=false; estateDoorHotspot.style.pointerEvents=''; }
+      try{estateInteriorAudio.pause();estateInteriorAudio.currentTime=0;estateInteriorAudio.volume=0.5}catch(_e){}
+    };
+    const showCaveScene=()=>{
+      dialogueMode='transition';
+      blackout.classList.add('is-black');
+      clearDialogue();
+      dialogueEndNote.classList.remove('is-visible');
+      transitionTimerD=setTimeout(()=>{
+        newGameStage.classList.add('is-cave');
+        newGameStage.classList.remove('is-valley');
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          dialogueMode='dialogue';
+          dialogueSequence='cave';
+          dialoguePages=DRAGONBOUND_CAVE_PAGES;
+          dialogueIndex=0;
+          setDialoguePage(0);
+        },180);
+      },700);
+    };
+    const revealValleyScene=()=>{
+      dialogueMode='transition';
+      blackout.classList.add('is-black');
+      clearDialogue();
+      fadeAudio(newGameAudio,0,520);
+      transitionTimerD=setTimeout(()=>{
+        try{newGameAudio.pause();newGameAudio.currentTime=0;newGameAudio.volume=0.4}catch(_e){}
+        newGameStage.classList.add('is-valley');
+        newGameStage.classList.remove('is-cave');
+        valleyAudio.volume=0;
+        const p=valleyAudio.play();
+        if(p&&typeof p.catch==='function')p.catch(()=>{});
+        fadeAudio(valleyAudio,0.3,1100);
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          dialogueMode='dialogue';
+          dialogueSequence='maelith';
+          dialoguePages=DRAGONBOUND_MAELITH_PAGES;
+          dialogueIndex=0;
+          setDialoguePage(0);
+        },220);
+      },720);
+    };
+    const startAdoptionExteriorDialogue=()=>{
+      dialogueMode='dialogue';
+      dialogueSequence='adoption-exterior';
+      dialoguePages=DRAGONBOUND_SECOND_NEST_PAGES;
+      dialogueIndex=0;
+      setDialoguePage(0);
+    };
+    const startBonnieIntroDialogue=()=>{
+      dialogueMode='dialogue';
+      dialogueSequence='adoption-interior';
+      dialoguePages=DRAGONBOUND_BONNIE_INTRO_PAGES;
+      dialogueIndex=0;
+      setDialoguePage(0);
+    };
+    const startBonnieChat=topic=>{
+      const pages=DRAGONBOUND_BONNIE_CHAT_TOPICS[topic];
+      if(!pages) return;
+      bonnieChatReturnToMenu=true;
+      closeBonnieMenu();
+      dialogueMode='dialogue';
+      dialogueSequence='bonnie-chat';
+      dialoguePages=pages;
+      dialogueIndex=0;
+      setDialoguePage(0);
+    };
+    const stopDoppyFrameCycle=()=>{
+      clearInterval(doppyFrameTimer);
+      doppyFrameTimer=0;
+    };
+    const startDoppyFrameCycle=()=>{
+      stopDoppyFrameCycle();
+      if(!homeDoppy) return;
+      let frameIndex=0;
+      homeDoppy.src=DRAGONBOUND_HOME_DOPPY_FRAMES[0];
+      doppyFrameTimer=setInterval(()=>{
+        frameIndex=(frameIndex+1)%DRAGONBOUND_HOME_DOPPY_FRAMES.length;
+        homeDoppy.src=DRAGONBOUND_HOME_DOPPY_FRAMES[frameIndex];
+      },235);
+    };
+    const cancelDoppyMotion=()=>{
+      try{doppyMotionAnimation?.cancel?.();}catch(_e){}
+      doppyMotionAnimation=null;
+      if(homeDelivery) homeDelivery.style.transform='';
+    };
+    const showHomeSidebar=()=>{
+      homeSidebar?.classList.add('is-visible');
+      homeSidebar?.setAttribute('aria-hidden','false');
+    };
+    const hideHomeSidebar=()=>{
+      homeSidebar?.classList.remove('is-visible');
+      homeSidebar?.setAttribute('aria-hidden','true');
+    };
+    const resolveOwnedStarterHome=()=>{
+      if(selectedStarterHome?.starter && selectedStarterHome?.full) return selectedStarterHome;
+      let id=newGameStage.dataset.dragonboundHouseId||'';
+      if(!id) id=readStarterHouseLocally();
+      if(!id) return null;
+      const property=Object.values(DRAGONBOUND_PROPERTY_LISTINGS).flat().find(item=>item.id===id && item.starter) || null;
+      if(property){selectedStarterHome=property;newGameStage.dataset.dragonboundHouseId=property.id;}
+      return property;
+    };
+    const closeTravelMenu=()=>{
+      travelMenu?.classList.remove('is-visible');
+      travelMenu?.setAttribute('aria-hidden','true');
+    };
+    const openTravelMenu=()=>{
+      if(!newGameStage.classList.contains('is-home')) return;
+      const property=resolveOwnedStarterHome();
+      if(!property) return;
+      if(travelHomePreview && property.full) travelHomePreview.style.backgroundImage=`linear-gradient(180deg,rgba(3,13,16,.05),rgba(3,13,16,.38)),url('${property.full}')`;
+      travelMenu?.classList.add('is-visible');
+      travelMenu?.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>travelMenuClose?.focus({preventScroll:true}));
+    };
+    const stopTravelLocationAudio=()=>{
+      [adoptionExteriorAudio,adoptionInteriorAudio,estateInteriorAudio].forEach(audio=>{try{audio.pause();audio.currentTime=0;}catch(_e){}});
+      try{adoptionExteriorAudio.volume=.5;adoptionInteriorAudio.volume=.6;estateInteriorAudio.volume=.5;}catch(_e){}
+    };
+    const prepareTravelTransition=()=>{
+      closeTravelMenu();
+      closeBonnieMenu();
+      closeAdoptEggMenu();
+      closeStudyMenu();
+      closeEstatePrompt();
+      closePropertyBoard();
+      closeAdoptionConfirmation();
+      clearStudyEstatePromptTimer();
+      clearDialogue();
+      dialogueMode='transition';
+      hideHomeSidebar();
+      blackout.classList.add('is-black');
+    };
+    const travelToOwnedHome=({deliverEgg=false}={})=>{
+      const property=resolveOwnedStarterHome();
+      if(!property) return;
+      if(deliverEgg) resetHomeDeliveryScene();
+      prepareTravelTransition();
+      fadeAudio(adoptionExteriorAudio,0,280);fadeAudio(adoptionInteriorAudio,0,280);fadeAudio(estateInteriorAudio,0,280);
+      transitionTimerD=setTimeout(()=>{
+        stopTravelLocationAudio();
+        if(homeImage) homeImage.style.backgroundImage=`url('${property.full}')`;
+        newGameStage.dataset.dragonboundHouseId=property.id;
+        window.dispatchEvent(new CustomEvent('dragonbound:house-selected',{detail:{houseId:property.id}}));
+        newGameStage.classList.remove('is-estate-interior','is-estate-exterior','is-adoption','is-adoption-interior','is-video','is-valley','is-cave');
+        newGameStage.classList.add('is-home','has-owned-home');
+        homeScene?.classList.add('is-visible');
+        homeScene?.setAttribute('aria-hidden','false');
+        if(bonnieHotspot){bonnieHotspot.disabled=false;bonnieHotspot.style.pointerEvents='';}
+        if(estateDoorHotspot){estateDoorHotspot.disabled=false;estateDoorHotspot.style.pointerEvents='';}
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          dialogueMode='home';
+          if(deliverEgg && selectedAdoptionEgg && (!namedDragonForCurrentAccount() || dragonboundIsAdminTester())){
+            hideHomeSidebar();
+            setTimeout(()=>{if(newGameStage.classList.contains('is-home'))startDoppyArrival();},320);
+          }else showHomeSidebar();
+        },180);
+      },460);
+    };
+    const travelToAdoptionCentre=()=>{
+      if(!resolveOwnedStarterHome()) return;
+      prepareTravelTransition();
+      homeScene?.classList.remove('is-visible');homeScene?.setAttribute('aria-hidden','true');
+      transitionTimerD=setTimeout(()=>{
+        stopTravelLocationAudio();
+        newGameStage.classList.remove('is-home','is-adoption-interior','is-estate-interior','is-estate-exterior','is-video','is-valley','is-cave');
+        newGameStage.classList.add('is-adoption','has-owned-home');
+        if(adoptionDoorHotspot){adoptionDoorHotspot.disabled=false;adoptionDoorHotspot.style.pointerEvents='auto';}
+        if(bonnieHotspot){bonnieHotspot.disabled=false;bonnieHotspot.style.pointerEvents='';}
+        adoptionExteriorAudio.volume=0;
+        const p=adoptionExteriorAudio.play();if(p&&typeof p.catch==='function')p.catch(()=>{});
+        fadeAudio(adoptionExteriorAudio,.5,700);
+        transitionTimerE=setTimeout(()=>{blackout.classList.remove('is-black');dialogueMode='adoption';},180);
+      },460);
+    };
+    const travelToEstateAgents=()=>{
+      if(!resolveOwnedStarterHome()) return;
+      prepareTravelTransition();
+      homeScene?.classList.remove('is-visible');homeScene?.setAttribute('aria-hidden','true');
+      transitionTimerD=setTimeout(()=>{
+        stopTravelLocationAudio();
+        newGameStage.classList.remove('is-home','is-adoption','is-adoption-interior','is-estate-interior','is-video','is-valley','is-cave');
+        newGameStage.classList.add('is-estate-exterior','has-owned-home');
+        if(estateDoorHotspot){estateDoorHotspot.disabled=false;estateDoorHotspot.style.pointerEvents='auto';}
+        transitionTimerE=setTimeout(()=>{blackout.classList.remove('is-black');dialogueMode='estate-exterior';},180);
+      },460);
+    };
+    const setHomeBasketReady=(ready)=>{
+      homeBasketReady=!!ready && !homeBasketOpened;
+      if(!homeBasketWrap) return;
+      homeBasketWrap.classList.toggle('is-ready',homeBasketReady);
+      homeBasketWrap.tabIndex=homeBasketReady?0:-1;
+      homeBasketWrap.setAttribute('aria-disabled',homeBasketReady?'false':'true');
+    };
+    const closeHomeBasketConfirmation=()=>{
+      homeBasketConfirm?.classList.remove('is-visible');
+      homeBasketConfirm?.setAttribute('aria-hidden','true');
+    };
+    const resetHomeHatchReveal=()=>{
+      clearTimeout(homeHatchTimer);
+      homeHatchTimer=0;
+      homeHatchFrameTimers.forEach(clearTimeout);
+      homeHatchFrameTimers=[];
+      try{homeRevealMusicAudio.pause();homeRevealMusicAudio.currentTime=0;}catch(_e){}
+      try{homeBagOpenAudio.pause();homeBagOpenAudio.currentTime=0;}catch(_e){}
+      homeHatchReveal?.classList.remove('is-visible','is-opening','is-result');
+      homeHatchReveal?.setAttribute('aria-hidden','true');
+      homeHatchOpening?.setAttribute('aria-hidden','true');
+      homeHatchResult?.setAttribute('aria-hidden','true');
+      if(homeHatchPortrait){homeHatchPortrait.removeAttribute('src');homeHatchPortrait.alt='';}
+      if(homeHatchType) homeHatchType.textContent='';
+      if(homeHatchOrigin) homeHatchOrigin.textContent='';
+      if(homeHatchNameInput) homeHatchNameInput.value='';
+      if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='';
+      homeHatchNameForm?.classList.remove('is-hidden');
+      homeHatchNamed?.classList.remove('is-visible');
+      homeHatchNamed?.setAttribute('aria-hidden','true');
+    };
+    const resetHomeDeliveryScene=()=>{
+      clearTimeout(doppyArrivalTimer);
+      clearTimeout(doppyDepartureTimer);
+      cancelDoppyMotion();
+      stopDoppyFrameCycle();
+      stopDoppyFootsteps();
+      if(homeDelivery){
+        homeDelivery.classList.remove('is-visible','is-arriving','is-arrived','is-departing');
+        homeDelivery.setAttribute('aria-hidden','true');
+        homeDelivery.style.opacity='';
+        homeDelivery.style.visibility='';
+        homeDelivery.style.transform='';
+      }
+      if(homeDoppy){
+        homeDoppy.removeAttribute('src');
+        homeDoppy.style.transform='';
+      }
+      if(homeBasketWrap){
+        homeBasketWrap.classList.remove('is-visible','is-dropping','is-ready');
+        homeBasketWrap.setAttribute('aria-hidden','true');
+        homeBasketWrap.tabIndex=-1;
+      }
+      closeHomeBasketConfirmation();
+      resetHomeHatchReveal();
+      hideHomeSidebar();
+      homeDeliveryFinished=false;
+      homeBasketReady=false;
+      homeBasketOpened=false;
+      selectedDragonName='';
+    };
+    const startDoppyHomeDialogue=()=>{
+      clearDialogue();
+      dialogueMode='dialogue';
+      dialogueSequence='doppy-home';
+      dialoguePages=DRAGONBOUND_DOPPY_HOME_PAGES;
+      dialogueIndex=0;
+      setDialoguePage(0);
+    };
+    const startDoppyDeparture=()=>{
+      if(!homeDelivery || !homeDoppy) return;
+      clearTimeout(doppyDepartureTimer);
+      cancelDoppyMotion();
+      homeDelivery.classList.remove('is-arriving','is-arrived','is-departing');
+      homeDelivery.classList.add('is-visible');
+      homeDelivery.setAttribute('aria-hidden','false');
+      homeDoppy.style.transform='scaleX(1)';
+      startDoppyFrameCycle();
+      startDoppyFootsteps(2550,300);
+      const keyframes=[
+        {transform:'translate3d(0,0,0)',offset:0},
+        {transform:'translate3d(28%,2px,0)',offset:.24},
+        {transform:'translate3d(58%,-3px,0)',offset:.5},
+        {transform:'translate3d(92%,2px,0)',offset:.76},
+        {transform:'translate3d(132%,4px,0)',offset:1}
+      ];
+      try{
+        doppyMotionAnimation=homeDelivery.animate(keyframes,{duration:2700,easing:'linear',fill:'forwards'});
+        doppyMotionAnimation.onfinish=()=>{
+          stopDoppyFrameCycle();
+          stopDoppyFootsteps();
+          doppyMotionAnimation=null;
+          homeDelivery.classList.remove('is-visible');
+          homeDelivery.setAttribute('aria-hidden','true');
+          homeDelivery.style.transform='';
+          setHomeBasketReady(true);
+        };
+      }catch(_e){
+        doppyDepartureTimer=setTimeout(()=>{
+          stopDoppyFrameCycle();
+          stopDoppyFootsteps();
+          homeDelivery.classList.remove('is-visible');
+          homeDelivery.setAttribute('aria-hidden','true');
+          setHomeBasketReady(true);
+        },2700);
+      }
+    };
+    const startDoppyArrival=()=>{
+      if(!newGameStage.classList.contains('is-home') || !homeDelivery || !homeDoppy) return;
+      clearTimeout(doppyArrivalTimer);
+      cancelDoppyMotion();
+      clearDialogue();
+      dialogueMode='transition';
+      hideHomeSidebar();
+      setHomeBasketReady(false);
+      homeDelivery.classList.remove('is-departing','is-arrived','is-arriving');
+      homeDelivery.classList.add('is-visible');
+      homeDelivery.setAttribute('aria-hidden','false');
+      homeDoppy.style.transform='scaleX(-1)';
+      startDoppyFrameCycle();
+      startDoppyFootsteps(2550,300);
+      if(homeBasketWrap){
+        homeBasketWrap.classList.remove('is-visible','is-dropping','is-ready');
+        homeBasketWrap.setAttribute('aria-hidden','true');
+      }
+      const keyframes=[
+        {transform:'translate3d(132%,4px,0)',offset:0},
+        {transform:'translate3d(96%,1px,0)',offset:.2},
+        {transform:'translate3d(66%,-3px,0)',offset:.43},
+        {transform:'translate3d(34%,2px,0)',offset:.7},
+        {transform:'translate3d(0,0,0)',offset:1}
+      ];
+      const finishArrival=()=>{
+        cancelDoppyMotion();
+        stopDoppyFrameCycle();
+        stopDoppyFootsteps();
+        homeDelivery.classList.add('is-arrived','is-visible');
+        homeDelivery.setAttribute('aria-hidden','false');
+        homeDoppy.style.transform='scaleX(-1)';
+        homeDoppy.src=DRAGONBOUND_HOME_DOPPY_FRAMES[1];
+        if(homeBasketWrap){
+          homeBasketWrap.classList.add('is-visible','is-dropping');
+          homeBasketWrap.setAttribute('aria-hidden','false');
+        }
+        setTimeout(()=>{
+          homeBasketWrap?.classList.remove('is-dropping');
+          startDoppyHomeDialogue();
+        },480);
+      };
+      try{
+        doppyMotionAnimation=homeDelivery.animate(keyframes,{duration:2700,easing:'linear',fill:'forwards'});
+        doppyMotionAnimation.onfinish=finishArrival;
+      }catch(_e){
+        doppyArrivalTimer=setTimeout(finishArrival,2700);
+      }
+    };
+    const openHomeBasketConfirmation=()=>{
+      if(!homeBasketReady || homeBasketOpened || !selectedAdoptionEgg) return;
+      homeBasketConfirm?.classList.add('is-visible');
+      homeBasketConfirm?.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>homeBasketConfirmYes?.focus({preventScroll:true}));
+    };
+    const showHomeDragonReveal=()=>{
+      if(!selectedAdoptionEgg) return;
+      const portrait=DRAGONBOUND_DRAGON_REVEALS[selectedAdoptionEgg.name];
+      if(homeHatchPortrait && portrait){
+        homeHatchPortrait.src=portrait;
+        homeHatchPortrait.alt=`Newly hatched ${selectedAdoptionEgg.name} dragon`;
+      }
+      if(homeHatchType) homeHatchType.textContent=`${selectedAdoptionEgg.name} Dragon`;
+      if(homeHatchOrigin) homeHatchOrigin.textContent=`Hatched from your ${selectedAdoptionEgg.name} egg`;
+      try{
+        homeRevealMusicAudio.pause();homeRevealMusicAudio.currentTime=0;homeRevealMusicAudio.volume=.5;
+        const p=homeRevealMusicAudio.play();if(p&&typeof p.catch==='function')p.catch(()=>{});
+      }catch(_e){}
+      homeHatchReveal?.classList.remove('is-opening');
+      homeHatchReveal?.classList.add('is-result');
+      homeHatchOpening?.setAttribute('aria-hidden','true');
+      homeHatchResult?.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>setTimeout(()=>homeHatchNameInput?.focus({preventScroll:true}),420));
+    };
+    const startHomeBasketOpening=()=>{
+      if(!homeBasketReady || homeBasketOpened || !selectedAdoptionEgg) return;
+      homeBasketOpened=true;
+      setHomeBasketReady(false);
+      closeHomeBasketConfirmation();
+      homeBasketWrap?.classList.add('is-opening');
+      homeHatchReveal?.classList.add('is-visible','is-opening');
+      homeHatchReveal?.setAttribute('aria-hidden','false');
+      homeHatchOpening?.setAttribute('aria-hidden','false');
+      homeHatchResult?.setAttribute('aria-hidden','true');
+      homeHatchFrameTimers.forEach(clearTimeout);
+      homeHatchFrameTimers=[];
+      if(homeHatchOpeningImage){
+        homeHatchOpeningImage.classList.remove('is-playing','is-frame-changing');
+        homeHatchOpeningImage.src=DRAGONBOUND_HOME_BASKET_OPEN_FRAMES[0];
+        void homeHatchOpeningImage.offsetWidth;
+        homeHatchOpeningImage.classList.add('is-playing');
+        const frameTimes=[0,720,1490,2380,3350,4250];
+        DRAGONBOUND_HOME_BASKET_OPEN_FRAMES.forEach((src,index)=>{
+          if(index===0) return;
+          homeHatchFrameTimers.push(setTimeout(()=>{
+            if(!homeHatchOpeningImage || !homeHatchReveal?.classList.contains('is-opening')) return;
+            homeHatchOpeningImage.classList.add('is-frame-changing');
+            setTimeout(()=>{
+              if(!homeHatchOpeningImage || !homeHatchReveal?.classList.contains('is-opening')) return;
+              homeHatchOpeningImage.src=src;
+              homeHatchOpeningImage.classList.remove('is-frame-changing');
+            },55);
+          },frameTimes[index]));
+        });
+      }
+      try{
+        homeBagOpenAudio.pause();homeBagOpenAudio.currentTime=0;homeBagOpenAudio.volume=.82;
+        const p=homeBagOpenAudio.play();if(p&&typeof p.catch==='function')p.catch(()=>{});
+      }catch(_e){}
+      clearTimeout(homeHatchTimer);
+      homeHatchTimer=setTimeout(()=>{
+        homeHatchFrameTimers.forEach(clearTimeout);
+        homeHatchFrameTimers=[];
+        homeHatchTimer=0;
+        homeBasketWrap?.classList.remove('is-opening','is-visible');
+        homeBasketWrap?.setAttribute('aria-hidden','true');
+        showHomeDragonReveal();
+      },DRAGONBOUND_HOME_REVEAL_DURATION);
+    };
+    const submitHomeDragonName=()=>{
+      if(!homeHatchNameInput || !selectedAdoptionEgg) return;
+      const name=homeHatchNameInput.value.trim().replace(/\s+/g,' ');
+      if(name.length<2){
+        if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='Give your dragon a name with at least 2 characters.';
+        homeHatchNameInput.focus();
+        return;
+      }
+      if(!/^[A-Za-z0-9À-ÖØ-öø-ÿ'’ -]+$/.test(name)){
+        if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='Use letters, numbers, spaces, apostrophes or hyphens.';
+        homeHatchNameInput.focus();
+        return;
+      }
+      selectedDragonName=name;
+      const breedId=(window.DragonboundBreedIdForEgg?window.DragonboundBreedIdForEgg(selectedAdoptionEgg.name):selectedAdoptionEgg.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));
+      const ownerUsername=dragonboundCurrentUsername();
+      const ownerSlug=dragonboundAccountSlug();
+      const dragonIdentity={id:`dragon-${ownerSlug}-${breedId}`,breedId,name,eggName:selectedAdoptionEgg.name,ownerUsername,hatchedAt:Date.now()};
+      try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),JSON.stringify(dragonIdentity));}catch(_e){}
+      void persistNamedDragonServer(dragonIdentity);
+      window.dispatchEvent(new CustomEvent('dragonbound:dragon-named',{detail:dragonIdentity}));
+      if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='';
+      homeHatchNameForm?.classList.add('is-hidden');
+      if(homeHatchNamedCopy) homeHatchNamedCopy.innerHTML=`Meet <strong>${name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong>, your ${selectedAdoptionEgg.name} dragon.`;
+      homeHatchNamed?.classList.add('is-visible');
+      homeHatchNamed?.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>homeHatchContinue?.focus({preventScroll:true}));
+    };
+    const finishHomeHatchReveal=()=>{
+      if(!selectedDragonName) return;
+      try{homeRevealMusicAudio.pause();homeRevealMusicAudio.currentTime=0;}catch(_e){}
+      homeHatchReveal?.classList.remove('is-visible','is-result');
+      homeHatchReveal?.setAttribute('aria-hidden','true');
+      dialogueMode='home';
+      showHomeSidebar();
+    };
+    const startMiraHomeDialogue=()=>{
+      clearDialogue();
+      dialogueMode='dialogue';
+      dialogueSequence='mira-home';
+      dialoguePages=DRAGONBOUND_MIRA_HOME_PAGES;
+      dialogueIndex=0;
+      setDialoguePage(0);
+    };
+    const showAdoptionScene=()=>{
+      dialogueMode='transition';
+      blackout.classList.add('is-black');
+      videoContinueReady=false;
+      videoProgressUnlocked=false;
+      videoContinuePrompt.classList.remove('is-visible');
+      videoContinuePrompt.setAttribute('aria-hidden','true');
+      transitionTimerD=setTimeout(()=>{
+        try{newGameVideo.pause();newGameVideo.currentTime=0;}catch(_e){}
+        newGameStage.classList.add('is-adoption');
+        newGameStage.classList.remove('is-video','is-valley','is-cave','is-adoption-interior');
+        adoptionExteriorAudio.volume=0;
+        const ap=adoptionExteriorAudio.play();
+        if(ap&&typeof ap.catch==='function')ap.catch(()=>{});
+        fadeAudio(adoptionExteriorAudio,0.5,900);
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          startAdoptionExteriorDialogue();
+        },180);
+      },520);
+    };
+    const enterAdoptionCentre=()=>{
+      if(dialogueMode!=='adoption') return;
+      dialogueMode='transition';
+      blackout.classList.add('is-black');
+      fadeAudio(adoptionExteriorAudio,0,520);
+      transitionTimerD=setTimeout(()=>{
+        try{adoptionExteriorAudio.pause();adoptionExteriorAudio.currentTime=0;adoptionExteriorAudio.volume=0.5}catch(_e){}
+        closeBonnieMenu();
+        closeAdoptEggMenu();
+        newGameStage.classList.add('is-adoption-interior');
+        newGameStage.classList.remove('is-adoption','is-video','is-valley','is-cave');
+        adoptionInteriorAudio.volume=0;
+        const ip=adoptionInteriorAudio.play();
+        if(ip&&typeof ip.catch==='function')ip.catch(()=>{});
+        fadeAudio(adoptionInteriorAudio,0.6,1100);
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          if(newGameStage.classList.contains('has-owned-home')){
+            clearDialogue();
+            dialogueMode='adoption-interior';
+          }else{
+            startBonnieIntroDialogue();
+          }
+        },190);
+      },560);
+    };
+    const unlockVideoContinue=()=>{
+      if(videoProgressUnlocked)return;
+      videoProgressUnlocked=true;
+      videoContinueReady=true;
+      videoContinuePrompt.classList.add('is-visible');
+      videoContinuePrompt.setAttribute('aria-hidden','false');
+    };
+    const startMaelithVideo=()=>{
+      dialogueMode='transition';
+      blackout.classList.add('is-black');
+      clearDialogue();
+      dialoguePanel.classList.remove('is-visible');
+      videoContinueReady=false;
+      videoProgressUnlocked=false;
+      videoContinuePrompt.classList.remove('is-visible');
+      videoContinuePrompt.setAttribute('aria-hidden','true');
+      fadeAudio(valleyAudio,0,700);
+      clearTimeout(videoUnlockTimeout);
+      transitionTimerD=setTimeout(()=>{
+        try{valleyAudio.pause();valleyAudio.currentTime=0;valleyAudio.volume=0.4}catch(_e){}
+        newGameStage.classList.add('is-video');
+        newGameStage.classList.remove('is-adoption','is-valley','is-cave','is-adoption-interior');
+        try{
+          newGameVideo.pause();
+          newGameVideo.currentTime=0;
+          newGameVideo.volume=1;
+          const p=newGameVideo.play();
+          if(p&&typeof p.catch==='function')p.catch(()=>{});
+        }catch(_e){}
+        videoUnlockTimeout=setTimeout(unlockVideoContinue, 25000);
+        transitionTimerE=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          dialogueMode='flight-video';
+        },160);
+      },620);
+    };
+
+    const concludeMaelithSequence=()=>{
+      startMaelithVideo();
+    };
+    const advanceDialogue=()=>{
+      if(dialogueMode!=='dialogue') return;
+      const now=Date.now();
+      if(now-lastAdvanceAt<160) return;
+      lastAdvanceAt=now;
+      if(finishDialogueTyping()) return;
+      if(dialogueIndex>=dialoguePages.length-1){
+        if(dialogueSequence==='forest'){
+          showCaveScene();
+        }else if(dialogueSequence==='cave'){
+          revealValleyScene();
+        }else if(dialogueSequence==='adoption-exterior'){
+          clearDialogue();
+          dialogueMode='adoption';
+        }else if(dialogueSequence==='adoption-interior'){
+          clearDialogue();
+          dialogueMode='adoption-interior';
+        }else if(dialogueSequence==='bonnie-chat'){
+          clearDialogue();
+          dialogueMode='adoption-interior';
+          if(bonnieChatReturnToMenu){
+            bonnieChatReturnToMenu=false;
+            openBonnieMenu();
+          }
+        }else if(dialogueSequence==='adoption-result'){
+          clearDialogue();
+          dialogueMode='adoption-interior';
+          openBonnieMenu();
+        }else if(dialogueSequence==='mira-home'){
+          clearDialogue();
+          startDoppyArrival();
+        }else if(dialogueSequence==='doppy-home'){
+          clearDialogue();
+          dialogueMode='home';
+          homeDeliveryFinished=true;
+          setHomeBasketReady(true);
+          showHomeSidebar();
+          startDoppyDeparture();
+        }else{
+          concludeMaelithSequence();
+        }
+        return;
+      }
+      setDialoguePage(dialogueIndex+1);
+    };
+    const continueFlightVideo=()=>{
+      if(dialogueMode!=='flight-video' || !videoContinueReady) return;
+      showAdoptionScene();
+    };
+    const startDialogueSequence=()=>{
+      dialogueMode='dialogue';
+      dialogueSequence='forest';
+      dialoguePages=DRAGONBOUND_PROLOGUE_PAGES;
+      dialogueIndex=0;
+      setDialoguePage(0);
+    };
+    const startNewGame=()=>{
+      if(overlay.classList.contains('is-new-game'))return;
+      overlay.classList.add('is-new-game');
+      blackout.classList.add('is-black');
+      fadeAudio(audio,0,560);
+      transitionTimerA=setTimeout(()=>{
+        try{audio.pause();audio.currentTime=0;audio.volume=0.25}catch(_e){}
+        newGameStage.classList.add('is-active');
+        newGameStage.setAttribute('aria-hidden','false');
+        newGameAudio.volume=0;
+        const p=newGameAudio.play();
+        if(p&&typeof p.catch==='function')p.catch(()=>{});
+        transitionTimerB=setTimeout(()=>{
+          newGameStage.classList.add('is-revealed');
+          blackout.classList.remove('is-black');
+          fadeAudio(newGameAudio,0.4,1100);
+          transitionTimerC=setTimeout(startDialogueSequence, 700);
+        },160);
+      },720);
+    };
+    const close=()=>{
+      window.dispatchEvent(new CustomEvent('dragonbound:house-closed'));
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden','true');
+      document.body.classList.remove('dragonbound-menu-open');
+      fadeAudio(audio,0,300);
+      fadeAudio(newGameAudio,0,300);
+      fadeAudio(valleyAudio,0,300);
+      fadeAudio(adoptionExteriorAudio,0,300);
+      fadeAudio(adoptionInteriorAudio,0,300);
+      fadeAudio(estateInteriorAudio,0,300);
+      setTimeout(()=>{
+        try{audio.pause();audio.currentTime=0;audio.volume=0.25}catch(_e){}
+        try{newGameAudio.pause();newGameAudio.currentTime=0;newGameAudio.volume=0.4}catch(_e){}
+        try{valleyAudio.pause();valleyAudio.currentTime=0;valleyAudio.volume=0.4}catch(_e){}
+        stopDialogueTypeAudio();
+        resetDragonboundScene();
+      },340);
+    };
+    const open=()=>{
+      resetDragonboundScene();
+      void hydrateDragonboundProfile({force:true});
+      try{
+        const savedHouse=readStarterHouseLocally();
+        if(savedHouse) window.dispatchEvent(new CustomEvent('dragonbound:house-selected',{detail:{houseId:savedHouse}}));
+      }catch(_e){}
+      document.querySelectorAll('.repo-character-passport-hover,#repoCharacterPassportHover').forEach(card=>{
+        card.classList.remove('is-visible');
+        card.style.opacity='0';
+        card.style.visibility='hidden';
+      });
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden','false');
+      document.body.classList.add('dragonbound-menu-open');
+      audio.volume=0;
+      const playPromise=audio.play();
+      fadeAudio(audio,0.25,900);
+      if(playPromise&&typeof playPromise.catch==='function')playPromise.catch(()=>{});
+    };
+
+    overlay.querySelectorAll('.dragonbound-menu-action').forEach(button=>{
+      const activate=()=>{
+        const action=button.dataset.dragonboundAction;
+        if(action==='new-game'){ closeRulesOverlay(); startNewGame(); return; }
+        if(action==='load-game'){ showFeedback('No Dragonbound save to load yet'); return; }
+        if(action==='rules'){ openRulesOverlay(); return; }
+      };
+      button.addEventListener('click',activate);
+      button.addEventListener('keydown',event=>{
+        if(event.key==='Enter' || event.key===' '){
+          event.preventDefault();
+          activate();
+        }
+      });
+    });
+
+    rulesClose?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      closeRulesOverlay();
+    });
+    rulesOverlay?.addEventListener('click', event=>{
+      if(event.target===rulesOverlay || event.target.closest('.dragonbound-rules-backdrop')) closeRulesOverlay();
+    });
+
+    dialogueNext.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      advanceDialogue();
+    });
+    dialoguePanel.addEventListener('click', event=>{
+      const actionable=event.target.closest('button');
+      if(actionable) return;
+      advanceDialogue();
+    });
+    newGameStage.addEventListener('click', event=>{
+      if(event.target.closest('.dragonbound-bonnie-hotspot') || event.target.closest('.dragonbound-estate-door-hotspot') || event.target.closest('.dragonbound-mira-hotspot') || event.target.closest('.dragonbound-bonnie-menu-shell') || event.target.closest('.dragonbound-bonnie-chat-wrap') || event.target.closest('.dragonbound-adopt-menu-shell') || event.target.closest('.dragonbound-adopt-confirmation') || event.target.closest('.dragonbound-adoption-roll') || event.target.closest('.dragonbound-study-shell') || event.target.closest('.dragonbound-estate-prompt-panel') || event.target.closest('.dragonbound-property-shell') || event.target.closest('.dragonbound-property-confirm-panel') || event.target.closest('.dragonbound-home-basket-wrap') || event.target.closest('.dragonbound-home-basket-confirm-panel') || event.target.closest('.dragonbound-home-hatch-reveal')) return;
+      if(dialogueMode==='dialogue'){
+        if(event.target.closest('.dragonbound-dialogue-next')) return;
+        advanceDialogue();
+        return;
+      }
+      if(dialogueMode==='flight-video'){
+        continueFlightVideo();
+      }
+    });
+
+    bonnieHotspot?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      if(dialogueMode!=='adoption-interior' || !newGameStage.classList.contains('is-adoption-interior')) return;
+      openBonnieMenu();
+    });
+    bonnieMenuClose?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      closeBonnieMenu();
+    });
+    bonnieChatLaunch?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      if(dialogueMode!=='adoption-interior' || !newGameStage.classList.contains('is-adoption-interior') || !bonnieMenuOverlay?.classList.contains('is-visible')) return;
+      setBonnieChatOptionsOpen(!bonnieChatOptionsOpen);
+    });
+    bonnieChatOptionButtons.forEach(button=>{
+      button.addEventListener('click', event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        if(dialogueMode!=='adoption-interior' || !newGameStage.classList.contains('is-adoption-interior') || !bonnieMenuOverlay?.classList.contains('is-visible')) return;
+        startBonnieChat(button.dataset.bonnieTopic || '');
+      });
+    });
+    bonnieMenuActions.forEach(button=>{
+      button.addEventListener('click', event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        const kind=[...button.classList].find(name=>name.startsWith('dragonbound-bonnie-menu-action--'))?.replace('dragonbound-bonnie-menu-action--','')||'';
+        if(kind==='adopt'){
+          openAdoptEggMenu();
+        }else if(kind==='study'){
+          openStudyMenu();
+        }else if(kind==='shop'){
+          showFeedback("Bonnie's shop is coming soon");
+        }
+      });
+    });
+    bonnieMenuOverlay?.addEventListener('click', event=>{
+      if(event.target===bonnieMenuOverlay || event.target.closest('.dragonbound-bonnie-menu-backdrop')) closeBonnieMenu();
+    });
+    studyMenuBack?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      closeStudyMenu();
+      openBonnieMenu();
+    });
+    studyMenuOverlay?.addEventListener('click', event=>{
+      if(event.target===studyMenuOverlay || event.target.closest('.dragonbound-study-backdrop')){
+        closeStudyMenu();
+        openBonnieMenu();
+      }
+    });
+    estatePromptStay?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      studyEstatePromptDismissed=true;
+      clearStudyEstatePromptTimer();
+      closeEstatePrompt();
+    });
+    estatePromptGo?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      if(estatePromptGo.dataset.destination==='home') travelToOwnedHome({deliverEgg:true});
+      else goToEstateExterior();
+    });
+    estatePrompt?.addEventListener('click', event=>{
+      if(event.target===estatePrompt || event.target.closest('.dragonbound-estate-prompt-backdrop')){
+        studyEstatePromptDismissed=true;
+        clearStudyEstatePromptTimer();
+        closeEstatePrompt();
+      }
+    });
+    adoptMenuClose?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      if(adoptionBonnieTimer) return;
+      closeAdoptEggMenu();
+      openBonnieMenu();
+    });
+    adoptMenuActions.forEach(button=>{
+      button.addEventListener('click', event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        const kind=[...button.classList].find(name=>name.startsWith('dragonbound-adopt-menu-action--'))?.replace('dragonbound-adopt-menu-action--','')||'';
+        if(adoptionRolling || adoptionBonnieTimer) return;
+        if(kind==='back'){
+          closeAdoptEggMenu();
+          openBonnieMenu();
+        }else if(kind==='confirm'){
+          openAdoptionConfirmation();
+        }
+      });
+    });
+    adoptMenuOverlay?.addEventListener('click', event=>{
+      if(adoptionRolling || adoptionConfirmationOpen || adoptionBonnieTimer) return;
+      if(event.target===adoptMenuOverlay || event.target.closest('.dragonbound-adopt-menu-backdrop')){
+        closeAdoptEggMenu();
+        openBonnieMenu();
+      }
+    });
+    adoptConfirmationYes?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      startAdoptionRoll();
+    });
+    adoptConfirmationNo?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      closeAdoptionConfirmation();
+    });
+    adoptConfirmation?.addEventListener('click', event=>{
+      event.stopPropagation();
+      if(event.target===adoptConfirmation || event.target.closest('.dragonbound-adopt-confirmation-backdrop')) closeAdoptionConfirmation();
+    });
+    adoptionRoll?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+    });
+    adoptionDoorHotspot?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      enterAdoptionCentre();
+    });
+    estateDoorHotspot?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      enterEstateAgent();
+    }, true);
+    miraHotspot?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      openPropertyBoard();
+    });
+    propertyBack?.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();closePropertyBoard();
+    });
+    propertyOverlay?.addEventListener('click', event=>{
+      if(event.target===propertyOverlay || event.target.closest('.dragonbound-property-backdrop')) closePropertyBoard();
+    });
+    propertyConfirmYes?.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();
+      if(pendingStarterProperty) moveIntoStarterHome(pendingStarterProperty);
+    });
+    propertyConfirmNo?.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();closePropertyConfirmation();
+    });
+    homeTravelHotspot?.addEventListener('click', event=>{
+      event.preventDefault();event.stopImmediatePropagation();openTravelMenu();
+    },true);
+    travelMenuClose?.addEventListener('click', event=>{event.preventDefault();event.stopPropagation();closeTravelMenu();});
+    travelMenu?.addEventListener('click', event=>{
+      if(event.target===travelMenu || event.target.closest('.dragonbound-travel-menu-backdrop')) closeTravelMenu();
+    });
+    travelDestinations.forEach(button=>button.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();
+      const destination=button.dataset.dragonboundTravel;
+      if(destination==='adoption') travelToAdoptionCentre();
+      else if(destination==='estate') travelToEstateAgents();
+      else if(destination==='home'){if(newGameStage.classList.contains('is-home')) closeTravelMenu();else travelToOwnedHome();}
+    }));
+    locationReturnHome?.addEventListener('click', event=>{event.preventDefault();event.stopImmediatePropagation();travelToOwnedHome();},true);
+
+    newGameStage.addEventListener('click', event=>{
+      if(!newGameStage.classList.contains('is-home') || !homeBasketWrap || homeBasketOpened) return;
+      const rect=homeBasketWrap.getBoundingClientRect();
+      if(rect.width<=0 || rect.height<=0) return;
+      const x=event.clientX;
+      const y=event.clientY;
+      const inside=x>=rect.left && x<=rect.right && y>=rect.top && y<=rect.bottom;
+      if(!inside) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if(!homeBasketReady && homeDeliveryFinished) setHomeBasketReady(true);
+      openHomeBasketConfirmation();
+    }, true);
+
+    homeBasketWrap?.addEventListener('click', event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if(!newGameStage.classList.contains('is-home')) return;
+      if(!homeBasketReady && homeDeliveryFinished && !homeBasketOpened) setHomeBasketReady(true);
+      openHomeBasketConfirmation();
+    }, true);
+    homeBasketWrap?.addEventListener('keydown', event=>{
+      if(event.key==='Enter' || event.key===' '){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if(!newGameStage.classList.contains('is-home')) return;
+        if(!homeBasketReady && homeDeliveryFinished && !homeBasketOpened) setHomeBasketReady(true);
+        openHomeBasketConfirmation();
+      }
+    }, true);
+    homeBasketConfirmYes?.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();startHomeBasketOpening();
+    });
+    homeBasketConfirmNo?.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();closeHomeBasketConfirmation();
+    });
+    homeBasketConfirm?.addEventListener('click', event=>{
+      if(event.target===homeBasketConfirm || event.target.closest('.dragonbound-home-basket-confirm-backdrop')) closeHomeBasketConfirmation();
+    });
+    homeHatchNameSubmit?.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();submitHomeDragonName();
+    });
+    homeHatchNameInput?.addEventListener('keydown', event=>{
+      if(event.key==='Enter'){event.preventDefault();event.stopPropagation();submitHomeDragonName();}
+    });
+    homeHatchContinue?.addEventListener('click', event=>{
+      event.preventDefault();event.stopPropagation();finishHomeHatchReveal();
+    });
+    propertyConfirm?.addEventListener('click', event=>{
+      if(event.target===propertyConfirm || event.target.closest('.dragonbound-property-confirm-backdrop')) closePropertyConfirmation();
+    });
+
+    newGameVideo.addEventListener('dragstart', event=>event.preventDefault());
+    newGameVideo.addEventListener('selectstart', event=>event.preventDefault());
+    newGameVideo.addEventListener('timeupdate', ()=>{
+      if(!videoProgressUnlocked && newGameVideo.currentTime >= 25){
+        unlockVideoContinue();
+      }
+    });
+    newGameVideo.addEventListener('ended', ()=>{
+      unlockVideoContinue();
+    });
+    closeBtn.addEventListener('click', event=>{
+      if(adoptionRolling){ event.preventDefault(); event.stopPropagation(); return; }
+      close();
+    });
+    overlay.addEventListener('click', event=>{
+      if(event.target===overlay && !adoptionRolling && !adoptionConfirmationOpen) close();
+    });
+    document.addEventListener('keydown', event=>{
+      if(event.key==='Escape' && overlay.classList.contains('is-open')){
+        if(adoptionRolling) return;
+        if(rulesOverlay?.classList.contains('is-visible')){ closeRulesOverlay(); return; }
+        if(travelMenu?.classList.contains('is-visible')){ closeTravelMenu(); return; }
+        if(adoptionConfirmationOpen){ closeAdoptionConfirmation(); return; }
+        if(homeBasketConfirm?.classList.contains('is-visible')){ closeHomeBasketConfirmation(); return; }
+        if(propertyConfirm?.classList.contains('is-visible')){ closePropertyConfirmation(); return; }
+        if(propertyOverlay?.classList.contains('is-visible')){ closePropertyBoard(); return; }
+        if(estatePrompt?.classList.contains('is-visible')){ studyEstatePromptDismissed=true; clearStudyEstatePromptTimer(); closeEstatePrompt(); return; }
+        if(studyMenuOverlay?.classList.contains('is-visible')){ closeStudyMenu(); openBonnieMenu(); return; }
+        if(adoptMenuOverlay?.classList.contains('is-visible')){ closeAdoptEggMenu(); openBonnieMenu(); return; }
+        if(bonnieMenuOverlay?.classList.contains('is-visible')){ closeBonnieMenu(); return; }
+        close(); return;
+      }
+      if(!overlay.classList.contains('is-open')) return;
+      if(dialogueMode==='dialogue' && (event.key===' ' || event.key==='Enter')){
+        event.preventDefault();
+        advanceDialogue();
+        return;
+      }
+      if(dialogueMode==='flight-video'){
+        event.preventDefault();
+        continueFlightVideo();
+      }
+    });
+
+    overlay.openDragonbound=open;
+    overlay.closeDragonbound=close;
+    return overlay;
+  }
+
+  function bindDragonboundLauncher(){
+    const button=document.getElementById('openDragonbound');
+    if(!button) return;
+    const overlay=buildDragonboundOverlay();
+    button.addEventListener('click', event=>{
+      event.preventDefault();
+      overlay.openDragonbound();
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', bindDragonboundLauncher, {once:true});
+  }else{
+    bindDragonboundLauncher();
+  }
 })();

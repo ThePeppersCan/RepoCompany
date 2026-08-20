@@ -1,0 +1,12 @@
+V32.40 Dragonbound walk sprite + biome weather fix
+- Cleaned all 90 baby-dragon walking frames (30 breeds x 3 walk frames) while preserving original frame dimensions and anchors.
+- Removes accidental neighboring sprite-sheet fragments that were appearing as a second dragon/tail/extra sprite during walking.
+- Added a defensive one-sprite-only CSS rule so duplicate sprite img nodes can never render simultaneously.
+- Added outdoor-only weather layers for all five starter homes. Weather cycles every ~55-95 seconds and is biome-specific.
+  Vardesh: snow / fjord mist.
+  Norveth: light snow / mountain mist / cold wind motes.
+  Nambara: warm motes / fireflies / night breeze.
+  Lumerre: pollen / drifting leaves / sun motes.
+  Elvane: drifting leaves / forest motes / occasional soft rain.
+- Weather is spawned only in exterior zones around the cutaway house, not across the indoor floor areas.
+- Existing 30% starter-home music, pet hover card, navigation and behaviour are preserved.

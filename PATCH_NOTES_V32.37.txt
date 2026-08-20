@@ -1,0 +1,9 @@
+V32.37 — Dragonbound Travel Menu
+
+- Home Travel button is now a clickable hotspot over the existing Travel artwork.
+- Added a clean Velmora travel menu with three destinations: Bonnie's Adoption Centre, Velmora Hearth & Key, and Your Home.
+- Travel uses short blackout transitions and preserves the selected house/dragon state.
+- Returning to the Adoption Centre after owning a house skips the first-time Bonnie introduction.
+- Adoption Centre and Estate Agent exterior/interior scenes show a clean Return Home control once a starter home has been purchased.
+- Return Home restores the correct starter house and baby-dragon engine without replaying Mira/Doppy onboarding.
+- No brown hover buttons were added.

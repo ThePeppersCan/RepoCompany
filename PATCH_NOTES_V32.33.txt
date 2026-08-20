@@ -1,0 +1,9 @@
+V32.33 baby dragon navigation tidy pass
+- Increased baby dragon render size by 10% from the previous hotfix.
+- Reset saved house movement positions again (V3) so the new navigation pass applies cleanly.
+- Completed a navigation tidy pass across all five starter houses: Norveth, Nambara, Lumerre, Elvane and Vardesh.
+- Tightened safe navigation nodes so dragons prefer interior floor lanes instead of hugging walls.
+- Reduced target jitter so wandering stays closer to those safe lanes.
+- Tightened/centralised flight zones in every starter house so short hops stay inside open floor space.
+- Improved off-floor recovery so a dragon snaps to the nearest safe node rather than a random one.
+- Added extra collision shaping where needed to keep dragons off awkward door/wall edges.
