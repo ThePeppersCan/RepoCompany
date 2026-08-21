@@ -1,0 +1,50 @@
+V32.65 — Dragonbound Proximity, Iskandar Facing + Performance Fix
+=================================================================
+
+FIXED — DRAGON SAYING IT IS USING FURNITURE FROM ACROSS THE ROOM
+- Removed the old furniture-interaction fallback that could choose an unrelated
+  navigation node when the real bath/toy/bed approach points were blocked.
+- A dragon now chooses only a reachable approach point directly beside the
+  furnishing it wants to use.
+- Added a second proximity check when the interaction actually begins, so labels
+  such as "Having a wash" cannot start unless the dragon is genuinely close to
+  that bath/furnishing.
+- Wash interactions prefer the front-side approach point before side/back points.
+
+FIXED — ISKANDAR WALKING BACKWARDS
+- Fixed Iskandar at the baby animation registry/source level.
+- Iskandar's supplied sprites naturally face RIGHT, unlike what the old registry
+  metadata claimed. Its native-facing definition is now corrected.
+- Removed the V32.64 CSS/DOM workaround rather than stacking another visual flip.
+- Other baby dragon breeds are untouched.
+
+FIXED — WEBSITE LAG INTRODUCED BY V32.64
+- Removed dragonbound-hotfix-v32-64.js from the page entirely.
+- That compatibility script watched essentially the whole DOM for mutations,
+  repeatedly scanned large parts of the page, and also rescanned every 700ms.
+- The V32.65 fixes now live in the real Dragonbound engine/CSS, so there is no
+  global MutationObserver or periodic full-page scan.
+
+FIXED — HATCH GENDER ANNOUNCEMENT VISIBILITY
+- The proper gender system was already generating/persisting the gender and the
+  reveal already had a dedicated gender element.
+- The real issue was layout: the naming panel was pulled upward by -80px/-62px
+  and could cover the origin/gender/nature lines.
+- Removed that overlap and slightly capped portrait height so MALE/FEMALE / the
+  existing "IT'S A BOY/GIRL" reveal content can actually be seen cleanly.
+
+PRESERVED
+- V32.63 World Cup quarter-final rooms, fixtures, rosters, times and invisible
+  fixture hotspots.
+- V32.51 individual Dragonbound personality system.
+- V32.60/V32.61 furniture systems and UI.
+- Existing Dragonbound ownership, names, gender and personality data.
+
+DATABASE
+- No Supabase migration required.
+
+FILES CHANGED
+- index.html
+- style.css
+- dragonbound-baby-engine.js
+- PATCH_NOTES_V32.65.txt

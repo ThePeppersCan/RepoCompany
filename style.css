@@ -30048,3 +30048,40 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 .dragonbound-personality-debug-head button:focus-visible{background:rgba(26,72,65,.72)!important;border-color:rgba(216,225,172,.48)!important}
 .dragonbound-personality-debug pre{margin:0;padding:10px 11px;max-height:calc(72vh - 37px);overflow:auto;white-space:pre-wrap;font:700 9px/1.42 ui-monospace,SFMono-Regular,Consolas,monospace;color:#bcd0b7}
 .dragonbound-personality-debug.is-collapsed pre{display:none}
+
+
+/* V32.65 — Dragonbound hatch reveal visibility hotfix.
+   The gender node already exists and is populated by the V32.49/V32.51 flow.
+   Keep the portrait dominant, but stop the naming panel from covering the
+   origin/gender/nature copy on desktop and mobile. */
+.dragonbound-home-hatch-gender{
+  position:relative!important;
+  z-index:12!important;
+  min-height:22px!important;
+  margin:-5px 0 8px!important;
+}
+.dragonbound-home-hatch-nature-hint{
+  position:relative!important;
+  z-index:11!important;
+  margin:0 0 9px!important;
+}
+.dragonbound-home-hatch-name-form,
+.dragonbound-home-hatch-named{
+  margin:0 auto!important;
+}
+@media(min-width:821px){
+  .dragonbound-home-hatch-portrait-wrap{
+    height:min(62vh,700px)!important;
+    max-height:62vh!important;
+  }
+}
+@media(max-width:820px){
+  .dragonbound-home-hatch-portrait-wrap{
+    height:min(52vh,500px)!important;
+    max-height:52vh!important;
+  }
+  .dragonbound-home-hatch-name-form,
+  .dragonbound-home-hatch-named{
+    margin:0 auto!important;
+  }
+}
