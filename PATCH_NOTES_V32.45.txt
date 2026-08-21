@@ -1,0 +1,12 @@
+V32.45 — Upstairs Floor + Facing Hotfix
+
+- Fixed upstairs navigation across all 5 starter homes so baby dragons walk on the actual upstairs floor instead of the back wall.
+- Re-tuned upstairs walkable zones, navigation nodes, spawn points, rest/sleep zones and stair exits for:
+  * Norveth / Varka Fell Starter
+  * Nambara / Naskor Edge Starter
+  * Lumerre / Greenhollow Starter
+  * Elvane / Canto Plains Starter
+  * Vardesh / Hestholm Fjord Starter
+- Improved facing logic so dragons only flip direction when horizontal movement is meaningful, preventing backward-looking movement during stair and near-vertical pathing.
+- If a saved dragon position becomes invalid after the nav hotfix, the dragon now respawns on a valid spawn point for the same floor instead of always dropping downstairs.
+- Cache-buster updated so the site pulls the corrected baby engine immediately.

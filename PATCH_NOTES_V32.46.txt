@@ -1,0 +1,7 @@
+V32.46 — Baby Facing + Marovar Sprite Cleanup
+
+- Flipped baby dragon visual facing so movement animations now face the same direction the dragon is actually travelling.
+- Applied this as a global baby-dragon animation orientation fix across the site.
+- Rebuilt all 16 Marovar baby dragon frames from the original source sheet.
+- Fixed Marovar frame corruption where sprites were cut off, half missing, or showing stray parts from neighbouring frames.
+- Updated cache-buster so the corrected baby engine and Marovar assets load immediately.

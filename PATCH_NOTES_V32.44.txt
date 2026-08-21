@@ -1,0 +1,9 @@
+V32.44 — Baby Dragon Scale + Norveth Sprite Cleanup
+
+- Increased every baby dragon sprite by another 10% from V32.43.
+- Rebuilt all 16 Norveth baby dragon animation frames directly from the original source sheet.
+- Removed the pale/white one-pixel external halo from Norveth sprites while retaining internal silver/ice highlights.
+- Removed the old clipped/dirty frame extraction rather than applying a CSS filter.
+- Re-encoded Norveth frames as lossless WebP with a clean transparent background to prevent matte/alpha edge bleed while scaling.
+- The cleanup covers idle, look, sit, rest, sleep, walking, take-off, flying and landing frames.
+- Updated the browser cache token so the cleaned Norveth frames and new dragon scale are loaded immediately.
