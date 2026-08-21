@@ -107,21 +107,29 @@
   }
   function mulberry32(seed){return function(){let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
 
-  // Six World Cup stadiums.  The opener is fixed to the Crown of Vardesh Glacier.
-  // All later fixtures use one shared deterministic shuffle so every watcher sees
-  // the same arena while the tournament still gets a varied stadium rotation.
+  // Six canonical Vardesh-host World Cup stadiums. Round-of-16 fixtures retain
+  // their deterministic legacy rotation. Quarter-finals use the official draw
+  // assignments so every watcher sees the exact stadium announced on the bracket.
   const WORLD_CUP_ARENAS = Object.freeze({
-    'crown-of-vardesh-glacier':{id:'crown-of-vardesh-glacier',name:'CROWN OF VARDESH GLACIER',shortName:'the Glacier',src:BASE+'stadiums/crown-of-vardesh-glacier.png',ambience:'aurora',standingOffsetPx:0},
+    // Existing arena artwork IDs are retained to avoid breaking deployed assets;
+    // display names now use the canonical World Cup venue names.
+    'crown-of-vardesh-glacier':{id:'crown-of-vardesh-glacier',name:'BLACKGLASS CROWN ARENA',shortName:'Blackglass Crown',src:BASE+'stadiums/crown-of-vardesh-glacier.png',ambience:'aurora',standingOffsetPx:0},
     'warmvein':{id:'warmvein',name:'WARMVEIN ARENA',shortName:'Warmvein',src:BASE+'stadiums/warmvein.png',ambience:'embers',standingOffsetPx:104},
     'yrsa-varn':{id:'yrsa-varn',name:'YRSA VARN WORLD STADIUM',shortName:'Yrsa Varn',src:BASE+'stadiums/yrsa-varn.png',ambience:'indoor',standingOffsetPx:110},
-    'basalt-coast':{id:'basalt-coast',name:'BASALT COAST ARENA',shortName:'Basalt Coast',src:BASE+'stadiums/basalt-coast.png',ambience:'blizzard',standingOffsetPx:106},
-    'hestholm-fjord':{id:'hestholm-fjord',name:'HESTHOLM FJORD ARENA',shortName:'Hestholm Fjord',src:BASE+'stadiums/hestholm-fjord-arena.png',ambience:'daylight',standingOffsetPx:114},
-    'treedesh-forest':{id:'treedesh-forest',name:'TREEDESH FOREST ARENA',shortName:'Treedesh Forest',src:BASE+'stadiums/treedesh-forest.png',ambience:'aurora-forest',standingOffsetPx:102}
+    'basalt-coast':{id:'basalt-coast',name:'SKALLHEIM GRAND ICE',shortName:'Skallheim Grand Ice',src:BASE+'stadiums/basalt-coast.png',ambience:'blizzard',standingOffsetPx:106},
+    'hestholm-fjord':{id:'hestholm-fjord',name:'HESTHOLM FJORD GROUND',shortName:'Hestholm Fjord',src:BASE+'stadiums/hestholm-fjord-arena.png',ambience:'daylight',standingOffsetPx:114},
+    'treedesh-forest':{id:'treedesh-forest',name:'NYRGATE NORTHERN LIGHTS STADIUM',shortName:'Nyrgate Northern Lights',src:BASE+'stadiums/treedesh-forest.png',ambience:'aurora-forest',standingOffsetPx:102}
   });
-  const WORLD_CUP_FIXTURE_ORDER = Object.freeze([
+  const WORLD_CUP_ROUND16_FIXTURE_ORDER = Object.freeze([
     'belros-zafran','iskandar-calvora','sorevia-lumerre','talune-kordesh',
     'norveth-qasmir','nambara-elvane','drazhen-rovarn','vardesh-marovar'
   ]);
+  const WORLD_CUP_QUARTER_FINAL_ARENAS = Object.freeze({
+    'qf-zafran-rovarn':'warmvein',
+    'qf-nambara-lumerre':'treedesh-forest',
+    'qf-talune-iskandar':'basalt-coast',
+    'qf-marovar-norveth':'hestholm-fjord'
+  });
   // ROUND OF 16 · REPOSPORTS EXPERIENCE EDGE
   // Countries fielding a current/main RepoSports League pet get a deliberately
   // modest 10% finishing boost in the opening Round-of-16 fixtures only.
@@ -130,7 +138,7 @@
   const WORLD_CUP_ROUND16_REPOSPORTS_WIN_BOOST = 1.10;
   function round16RepoSportsBoost(team){
     const fixtureId=String(state?.fixtureId||'').trim().toLowerCase();
-    if(!WORLD_CUP_FIXTURE_ORDER.includes(fixtureId))return 1;
+    if(!WORLD_CUP_ROUND16_FIXTURE_ORDER.includes(fixtureId))return 1;
     const nation=String(teamMeta?.[team]?.name||'').trim().toLowerCase();
     return WORLD_CUP_MAIN_REPOSPORTS_TEAMS.has(nation)?WORLD_CUP_ROUND16_REPOSPORTS_WIN_BOOST:1;
   }
@@ -167,7 +175,7 @@
     const rand=mulberry32(hashSeed('REPO SPORTS WORLD CUP 2026 · STADIUM ROTATION'));
     const all=Object.keys(WORLD_CUP_ARENAS),nonOpener=all.filter(id=>id!=='crown-of-vardesh-glacier');
     let bag=shuffledArenaIds(nonOpener,rand),last='crown-of-vardesh-glacier';
-    for(const fixtureId of WORLD_CUP_FIXTURE_ORDER.slice(1)){
+    for(const fixtureId of WORLD_CUP_ROUND16_FIXTURE_ORDER.slice(1)){
       if(!bag.length){bag=shuffledArenaIds(all,rand);if(bag[0]===last&&bag.length>1)[bag[0],bag[1]]=[bag[1],bag[0]]}
       const arenaId=bag.shift();map[fixtureId]=arenaId;last=arenaId;
     }
@@ -176,6 +184,8 @@
   const WORLD_CUP_FIXTURE_ARENAS = buildWorldCupArenaAssignments();
   function arenaForFixture(fixtureId){
     const id=String(fixtureId||'').trim().toLowerCase();
+    const quarterFinalArena=WORLD_CUP_QUARTER_FINAL_ARENAS[id];
+    if(quarterFinalArena&&WORLD_CUP_ARENAS[quarterFinalArena])return WORLD_CUP_ARENAS[quarterFinalArena];
     if(id==='belros-zafran')return WORLD_CUP_ARENAS['crown-of-vardesh-glacier'];
     const assigned=WORLD_CUP_FIXTURE_ARENAS[id];if(assigned)return WORLD_CUP_ARENAS[assigned];
     const all=Object.keys(WORLD_CUP_ARENAS),idx=hashSeed('WC-ARENA|'+id)%all.length;
@@ -327,9 +337,9 @@
     commentary.intro=[
       `Good evening from ${activeArena().name}. ${teamMeta.belros.name} meet ${teamMeta.zafran.name} on the World Cup stage.`,
       'The stands are full and World Cup Quidditch is nearly here.',
-      `${teamMeta.belros.name} against ${teamMeta.zafran.name}. Six players, one frozen arena, and nowhere to hide.`,
+      `${teamMeta.belros.name} against ${teamMeta.zafran.name}. Six players, one World Cup arena, and nowhere to hide.`,
       'No Golden Snitch tonight. Goals, defending, discipline and decision-making settle this one.',
-      'The temperature is brutal. The atmosphere is not. Welcome to the Repo Sports World Cup.'
+      'The atmosphere is immense. Welcome to the Repo Sports World Cup.'
     ];
     commentary.kickoff=[
       `The whistle goes — ${teamMeta.belros.name} and ${teamMeta.zafran.name} are airborne at ${activeArena().name}!`,
@@ -346,7 +356,7 @@
       'The aurora is out, the stands are full, and I have been told the tea is technically still drinkable. World Cup Quidditch is nearly here.',
       'Belros against Zafran: history and force against patience and design. This should be a fascinating collision of ideas.',
       'No Golden Snitch tonight. This match will be decided by goals, defending, discipline and whatever the referee decides VAR was invented for.',
-      'The temperature is brutal. The atmosphere is not. Welcome to the Repo Sports World Cup.'
+      'The atmosphere is immense. Welcome to the Repo Sports World Cup.'
     ],
     kickoff:[
       'The whistle goes — Belros and Zafran are airborne!',
@@ -1248,7 +1258,7 @@
     else if(remaining>20){setBroadcastState('PRE_MATCH');showPresentation('pre-lineups','STARTING SIX','LINEUPS',`<div class="wcg-lineups">${lineupMarkup('belros')}${lineupMarkup('zafran')}</div>`,'PLAYERS ARE ON THE PITCH','lineups')}
     else if(remaining>15){setBroadcastState('PRE_MATCH');showPresentation('pre-key','ONES TO WATCH','KEY PLAYERS',`<div class="wcg-key-grid">${keyPlayerMarkup(homeKey,'belros')}${keyPlayerMarkup(awayKey,'zafran')}</div>`,'WORLD CUP SQUADS · LIVE FIXTURE','keys')}
     else if(remaining>10){setBroadcastState('PRE_MATCH');showPresentation('pre-facts','MATCH FACTS',`${teamMeta.belros.name} vs ${teamMeta.zafran.name}`,'<div class="wcg-facts"><span><b>18</b> MINUTES</span><span><b>6</b> PLAYERS</span><span><b>0</b> GOLDEN SNITCH</span></div>','REPO SPORTS WORLD CUP','facts')}
-    else if(remaining>5){setBroadcastState('PRE_MATCH');showPresentation('pre-arena','LIVE FROM VARDESH',activeArena().name,'<p class="wcg-arena-copy">Frozen stands. Full crowd. Whistleworth has the Quaffle and both teams are set.</p>','MUSIC BUILDING · KICKOFF NEXT','arena')}
+    else if(remaining>5){setBroadcastState('PRE_MATCH');showPresentation('pre-arena','LIVE FROM VARDESH',activeArena().name,'<p class="wcg-arena-copy">Packed stands. Full crowd. Whistleworth has the Quaffle and both teams are set.</p>','MUSIC BUILDING · KICKOFF NEXT','arena')}
     else {const n=Math.max(1,Math.ceil(remaining));setBroadcastState('KICKOFF_COUNTDOWN');showPresentation(`pre-count-${n}`,'KICKOFF',String(n),'<div class="wcg-count-copy">WHISTLEWORTH READY · QUAFFLE IN HAND</div>','QUILL ON!','countdown')}
   }
   function kickoffReadyTarget(e){
@@ -2288,7 +2298,7 @@
     const slug=value=>String(value||'team').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     const date=new Date(started).toISOString().slice(0,10);
     const fixtureId=String(opts.fixtureId||f.id||f.fixture_id||f.fixtureId||f.match_id||f.matchId||f.slug||`${slug(teamA)}-${slug(teamB)}`);
-    return {fixtureId,label:String(f.label||f.name||f.title||`${teamA} vs ${teamB}`),teamA,teamB,stage:String(f.stage||f.round||f.tournament_stage||'Group Stage'),startedAt:started,elapsedSeconds:0,date};
+    return {fixtureId,label:String(f.label||f.name||f.title||`${teamA} vs ${teamB}`),teamA,teamB,stage:String(opts.stage||f.stage||f.round||f.tournament_stage||'Group Stage'),startedAt:started,elapsedSeconds:0,date};
   }
 
   function setSpeed(speed,broadcast=false){state.speed=speed===4?4:1;const b=$('wcgSpeed');if(b)b.textContent=state.speed===1?'TEST SPEED ×4':'RETURN TO ×1';if(broadcast&&isHost())sendMatch('speed',{speed:state.speed})}
@@ -2317,5 +2327,5 @@
   }
 
   window.RepoSportsWorldCupGameplay={open:openBroadcast,close:closeBroadcast,syncStatus:()=>({fixtureId:state.fixtureId,role:isHost()?'AUTHORITATIVE_HOST':'SYNCHRONIZED_VIEWER',subscribed:!!state.subscribed,hasAuthority:!!state.syncHasAuthority,lastSnapshotMs:state.syncLastReceivedAt?Date.now()-state.syncLastReceivedAt:null,seq:state.syncRemote?.seq||state.syncSeq,phase:state.phase,matchTime:state.matchTime,score:{...state.score},clockOffsetMs:Math.round(state.syncClockOffsetMs||0),realResult:!!state.realResultArmed,presentation:state.remoteReplayTimeline?'REPLAY':state.remoteCelebrationTimeline?'CELEBRATION':'LIVE'})};
-  window.addEventListener('repo-world-cup-live-start',e=>{const d=e.detail||{};openBroadcast({fixtureId:d.fixtureId,fixture:d.fixture,home:d.home,away:d.away,host:d.host,startedAt:d.startedAt})});
+  window.addEventListener('repo-world-cup-live-start',e=>{const d=e.detail||{};openBroadcast({fixtureId:d.fixtureId,fixture:d.fixture,home:d.home,away:d.away,arena:d.arena,arenaId:d.arenaId,stage:d.stage,host:d.host,startedAt:d.startedAt,realResult:d.realResult===true})});
 })();

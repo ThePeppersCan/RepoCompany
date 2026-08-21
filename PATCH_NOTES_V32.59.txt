@@ -1,0 +1,59 @@
+V32.59 — Dragonbound Furniture Floor Depth + Dragon Interaction Hotfix
+
+WHAT THIS FIXES
+- Re-authored Hestholm furniture placement in actual 1536x1024 source-image coordinates.
+- Previous patches mixed guessed viewport coordinates with source-image coordinates. This is why furniture could appear in walls while the real wooden floor was still rejected.
+- Downstairs now uses the actual visible wooden floor from the back boards through to the front lip.
+- Upstairs now includes the real right-hand landing immediately above the staircase.
+- Pointer height inside each room is remapped across the full visible floor depth, so moving the cursor down now visibly moves the furnishing toward the front of the floor instead of leaving it stuck against the back wall.
+- Left/right placement bounds now follow the room rather than extending into the outer wall/window area.
+
+DRAGON + FURNITURE DEPTH
+- Furniture and dragons no longer live in separate forced z-index layers.
+- They now share depth sorting based on their floor Y position.
+- A dragon in front of furniture renders in front; a dragon genuinely behind a furnishing can be occluded naturally.
+- This removes the previous behaviour where furniture always rendered over the dragon regardless of where each stood.
+
+DRAGON FURNITURE INTERACTIONS
+- The existing personality system now actually consumes placed furniture from the furniture interaction provider.
+- Added personality-aware furniture action scoring.
+- Beds / sleepable furniture can attract tired or sleepy dragons.
+- Toys / playable furniture can attract playful or stimulation-hungry dragons.
+- Baths / washable or inspectable furniture can be investigated.
+- Furniture Inspector, Toy Obsessed, Professional Napper, Tiny Menace and Snob traits alter furniture interest.
+- The first furniture interaction receives a small discovery boost so a newly furnished house does not feel dead.
+- Furniture interactions have cooldowns and recent-use penalties so dragons do not spam the same object.
+- Dragons walk to a safe approach point beside the furnishing instead of walking directly through its collision box.
+- Interactions reuse current baby animations: sleep for beds, look/play for toys, investigate for baths.
+- Furniture interaction observations are written into the existing bounded personality memory system.
+- Favourite furniture can naturally form after repeated use.
+- Furniture Inspector / Toy Obsessed discovery rules now use real furniture interaction counts.
+
+COLLISION
+- Furniture collision is now floor-aware.
+- Upstairs furniture no longer blocks matching X/Y coordinates downstairs, and vice versa.
+- Dragon pathfinding uses the correct room's furniture collision only.
+
+TESTS COMPLETED
+- node --check passed: dragonbound-furniture.js
+- node --check passed: dragonbound-baby-engine.js
+- CSS parsed with 0 syntax errors.
+- Hestholm placement projection tests passed for:
+  * upstairs right-hand landing
+  * upstairs front-right floor
+  * downstairs middle floor
+  * downstairs front/lower floor
+  * left wall guard
+- Visual source-image QA performed against the actual Hestholm starter artwork; authored floor overlays match the visible wooden floors and include the upper stair landing.
+- Interaction approach geometry tested against the current saved bed/bath positions and a downstairs toy position; valid reachable approach points were found for all three.
+
+FILES CHANGED
+- index.html
+- dragonbound-furniture.js
+- dragonbound-furniture.css
+- dragonbound-baby-engine.js
+- PATCH_NOTES_V32.59.txt
+
+DATABASE
+- No new Supabase migration is required for V32.59.
+- Existing furniture ownership, positions, sizes and personality data remain intact.

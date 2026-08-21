@@ -1,0 +1,10 @@
+V32.50 — Dragonbound Upstairs Floor Alignment Hotfix
+
+Fixes included:
+- Lowered the upstairs walk baselines on all current starter homes so dragons stand on the visible second-floor planks rather than hovering above them.
+- Shifted upstairs navigation nodes, spawn points, resting zones, sleeping zones, flight zones and stair exits together so autonomous movement still matches the new floor height.
+- Softened the global baby dragon foot anchor very slightly so sprites sit more naturally on the surface across houses.
+
+Touched files:
+- dragonbound-baby-engine.js
+- PATCH_NOTES_V32.50.txt

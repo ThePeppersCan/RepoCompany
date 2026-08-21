@@ -1,0 +1,179 @@
+V32.51 — DRAGONBOUND INDIVIDUAL PERSONALITY SYSTEM
+=================================================
+
+CORE RESULT
+-----------
+Every hatched dragon now receives a permanent, server-generated individual personality. Breed only supplies a small bias. The individual dragon's hidden stats, quirks, needs, memory, preferences and recent behaviour now drive what it chooses to do in the house.
+
+LIVE SUPABASE CHANGES — ALREADY APPLIED
+---------------------------------------
+- Added versioned Dragonbound personality data to dragonbound_profiles:
+  * personality JSONB
+  * dragon_traits JSONB
+  * dragon_preferences JSONB
+  * dragon_memory JSONB
+  * personality_version
+  * personality_generated_at
+- Added an extreme-biased server personality generator so profiles do not all cluster around average values.
+- Added 12 permanent hidden core stats:
+  energy, curiosity, affection, independence, bravery, playfulness, mischief, stubbornness, sociability, appetite, sleepiness, intelligence.
+- Breed tendencies are intentionally small nudges only.
+- Each dragon receives 2–4 compatible permanent quirks.
+- Personality generation is idempotent for normal accounts: retries do not reroll the dragon.
+- Admin fresh hatch/name testing deliberately receives a fresh profile.
+- dragonbound_name_dragon now finalises personality in the same server-side hatch/name transaction.
+- If personality generation fails, hatch finalisation fails rather than creating a local-only dragon.
+- Added authenticated dragonbound_save_behaviour RPC for bounded memory/preferences/discovered-trait saves.
+- Personality generator/helper RPCs are not executable by normal authenticated or anon clients.
+- dragonbound_profiles still has SELECT-own RLS only; direct client writes remain unavailable.
+
+EXISTING DRAGONS
+----------------
+Backfilled all currently hatched dragons without changing name, breed, gender, hatch time, egg or house.
+Verified live after migration:
+- 3 hatched dragons
+- 0 missing personalities
+- all 3 have valid 2–4 trait assignments
+
+AUTONOMOUS BEHAVIOUR BRAIN
+--------------------------
+Replaced simple action-weight selection with a utility scoring layer:
+
+base behaviour
++ subtle breed tendency
++ permanent individual stats
++ permanent quirks
++ runtime needs
++ current weather/context
++ preferred floor / learned locations
++ behavioural memory
++ recent-action repetition penalties
+= final action score
+
+Personality now visibly changes at least:
+- walking frequency
+- walking speed slightly (kept within baby-dragon pace)
+- destination variety
+- exploration tendency
+- looking frequency/duration
+- sitting
+- resting
+- sleeping frequency/duration
+- stair desire
+- flight desire
+- preferred floor
+- repeated/favourite sleeping locations
+- short, cooldown-protected zoomies for suitable personalities
+
+ANTI-SPAM / NATURALISM
+----------------------
+- Recent-action penalties prevent looping the same action.
+- Stair cooldowns remain enforced.
+- Flight cooldowns remain enforced, with Little Pilot/Grounded-style modifiers still bounded.
+- Zoomies have a long cooldown and only occur for sufficiently energetic/playful dragons.
+- Sleep can be strongly favoured without allowing the dragon to spend effectively all of its time asleep.
+- Navigation remains authoritative: personality never bypasses floor polygons, blocked zones, stairs or flight zones.
+- Flight decisions can now walk the dragon naturally to a valid flight zone before take-off instead of simply failing if it was standing a few pixels outside the zone.
+
+INTERNAL NEEDS
+--------------
+Added lightweight runtime needs:
+- rest
+- stimulation
+- social
+- hunger
+- comfort
+
+They change gradually and influence behaviour decisions. They are periodically persisted as a compact snapshot rather than written every frame.
+
+BEHAVIOURAL MEMORY & PREFERENCES
+--------------------------------
+Added bounded memory for:
+- recent actions
+- activity counts
+- floor visits
+- visited locations
+- sleep locations
+- observation counters
+- learned preferred floor
+- favourite sleep spot
+
+Memory does not grow indefinitely. Locations are trimmed to the most useful entries.
+Creature-of-Habit/Routine-style dragons learn favourite locations faster; Explorer-style dragons resist forming location habits and prefer less-visited destinations.
+
+TRAIT DISCOVERY
+---------------
+Permanent quirks are hidden at hatch.
+Observation counters gradually reveal them through actual behaviour.
+Study Your Dragon now adds an OBSERVED NATURE section for the player's hatched dragon:
+- initially: Still learning…
+- later: discovered traits plus a short Bonnie-style observation
+
+The normal player never sees the raw 0–100 personality numbers.
+The baby hover remains compact: Name, Age, Gender, then one discovered Observed Nature line when available.
+
+HATCH REVEAL
+------------
+The existing gender reveal remains intact.
+Added the subtle line:
+"Every dragon is born with a nature entirely their own. Only time will reveal who they become."
+The complete personality is deliberately NOT exposed on hatch.
+
+FURNITURE / FUTURE SYSTEM HOOK
+------------------------------
+Added DragonboundFurniturePersonalityScore(tags, meta) so future furniture can expose tags such as:
+- sleepable
+- comfortable
+- playable
+- inspectable
+- food
+- warm
+- window
+- hideable
+- climbable
+- noisy
+- expensive
+
+The personality engine can already score these using the dragon's stats, needs and quirks. This lets furniture interactions plug into the same brain without rewriting personality logic.
+
+ADMIN PERSONALITY INSPECTOR
+---------------------------
+Username exactly Admin gets an in-house PERSONALITY BRAIN debug panel showing:
+- hidden core stats
+- assigned quirks
+- discovered quirks
+- current needs
+- current top action scores
+- 60-minute accelerated simulation button
+
+Normal accounts do not get the inspector and the global debug API is gated to Admin.
+
+SIMULATION / QA
+---------------
+Added accelerated personality simulation support for Admin.
+It produces percentages for idle, looking, walking, explore, sitting, resting, sleeping, stairs, flight and zoomies.
+
+Static QA performed:
+- script.js: node --check PASS
+- dragonbound-baby-engine.js: node --check PASS
+- live Supabase migration: PASS
+- current dragon backfill: 3/3 PASS
+- missing personalities among hatched dragons: 0
+- assigned trait count validation: 3/3 PASS
+- RLS checked: SELECT-own only on dragonbound_profiles
+- personality generator/helper execution blocked for authenticated/anon
+- behaviour save RPC enabled for authenticated only
+- multiple generated personality samples checked for strong highs/lows and 2–4 quirks
+
+FILES CHANGED
+-------------
+- index.html
+- script.js
+- style.css
+- dragonbound-baby-engine.js
+- supabase-v32.51-dragonbound-personality.sql
+
+IMPORTANT
+---------
+The Supabase migration has already been applied to the live project. The SQL file is included for source control/reference.
+This ZIP intentionally contains changed files only and does not repackage the large unchanged Dragonbound asset folders.

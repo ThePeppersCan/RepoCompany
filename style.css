@@ -29028,6 +29028,24 @@ button[data-repo-dash-label="DRAGONBOUND"] .activity-button-copy>span{
   font:600 13px/1.4 Georgia,serif;
   text-align:center;
 }
+.dragonbound-home-hatch-gender{
+  grid-column:2;
+  justify-self:center;
+  margin:-8px 0 18px;
+  padding:6px 13px;
+  border:1px solid rgba(229,199,126,.34);
+  border-radius:999px;
+  background:rgba(6,29,31,.72);
+  color:#f0d898;
+  font:900 11px/1 Georgia,serif;
+  letter-spacing:.12em;
+  text-align:center;
+  text-transform:uppercase;
+  box-shadow:0 6px 18px rgba(0,0,0,.22),inset 0 0 0 1px rgba(255,255,255,.025);
+}
+.dragonbound-home-hatch-gender.is-male,
+.dragonbound-home-hatch-gender.is-female{color:#f3d998;border-color:rgba(231,199,122,.52)}
+.dragonbound-home-hatch-gender.is-error{color:#dca99f;border-color:rgba(211,139,126,.42)}
 .dragonbound-home-hatch-name-form{
   grid-column:2;
   align-self:start;
@@ -29338,6 +29356,10 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
   grid-column:auto!important;
   margin:6px 0 14px!important;
   font-size:13px!important;
+}
+.dragonbound-home-hatch-gender{
+  grid-column:auto!important;
+  margin:-7px 0 12px!important;
 }
 .dragonbound-home-hatch-portrait-wrap{
   grid-column:auto!important;
@@ -29726,12 +29748,18 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
   font:700 9px/1.1 Georgia,serif;
   letter-spacing:.03em;
 }
+.dragonbound-baby-hover-gender{
+  color:#d8c58f;
+  font:800 8px/1.1 Georgia,serif;
+  letter-spacing:.055em;
+}
 @media(max-width:720px){
   .dragonbound-baby-hover-card{grid-template-columns:30px auto;min-width:116px;padding:6px 8px 6px 7px;gap:7px}
   .dragonbound-baby-hover-avatar{width:30px;height:30px}
   .dragonbound-baby-hover-avatar img{width:38px;height:38px}
   .dragonbound-baby-hover-name{font-size:10px;max-width:105px}
   .dragonbound-baby-hover-age{font-size:8px}
+  .dragonbound-baby-hover-gender{font-size:7px}
 }
 
 
@@ -29939,3 +29967,84 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 .dragonbound-menu-actions .dragonbound-menu-action.is-save-ready{
   cursor:pointer!important;
 }
+
+/* V32.51 — individual Dragonbound personality system */
+.dragonbound-baby-hover-nature{
+  display:none;
+  max-width:142px;
+  overflow:hidden;
+  color:#a9c8bd;
+  font:700 7px/1.15 Georgia,serif;
+  letter-spacing:.035em;
+  text-overflow:ellipsis;
+}
+.dragonbound-baby-hover-nature.is-visible{display:block}
+@media(max-width:720px){.dragonbound-baby-hover-nature{max-width:112px;font-size:6.5px}}
+
+.dragonbound-study-observed-nature{
+  margin-top:.9em!important;
+  padding:.72em .78em!important;
+  border:1px solid rgba(92,116,76,.32);
+  border-radius:7px;
+  background:rgba(49,76,59,.065);
+}
+.dragonbound-study-observed-nature>span{
+  display:block;
+  margin-bottom:.45em;
+  color:#31573d;
+  font-weight:900;
+  letter-spacing:.11em;
+}
+
+.dragonbound-home-hatch-nature-hint{
+  position:relative;
+  z-index:8;
+  max-width:480px;
+  margin:-4px 0 5px!important;
+  color:#9fbab3;
+  font:600 10px/1.35 Georgia,serif;
+  text-align:center;
+  letter-spacing:.02em;
+  opacity:.88;
+}
+
+.dragonbound-personality-debug{
+  position:absolute;
+  right:16px;
+  top:16px;
+  z-index:1400;
+  width:min(330px,42vw);
+  max-height:72vh;
+  overflow:hidden;
+  border:1px solid rgba(183,210,166,.42);
+  border-radius:12px;
+  background:linear-gradient(155deg,rgba(4,22,24,.96),rgba(6,14,18,.97));
+  box-shadow:0 14px 36px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.025);
+  color:#d8e2c4;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  pointer-events:auto;
+}
+.dragonbound-personality-debug-head{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 9px;
+  border-bottom:1px solid rgba(183,210,166,.16);
+  background:rgba(39,76,66,.18);
+}
+.dragonbound-personality-debug-head strong{margin-right:auto;font-size:10px;letter-spacing:.12em;color:#e8d69a}
+.dragonbound-personality-debug-head button{
+  appearance:none;
+  border:1px solid rgba(185,208,159,.26)!important;
+  border-radius:7px!important;
+  background:rgba(16,50,48,.56)!important;
+  box-shadow:none!important;
+  color:#d7e6ca!important;
+  padding:4px 7px!important;
+  font:800 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace!important;
+  cursor:pointer;
+}
+.dragonbound-personality-debug-head button:hover,
+.dragonbound-personality-debug-head button:focus-visible{background:rgba(26,72,65,.72)!important;border-color:rgba(216,225,172,.48)!important}
+.dragonbound-personality-debug pre{margin:0;padding:10px 11px;max-height:calc(72vh - 37px);overflow:auto;white-space:pre-wrap;font:700 9px/1.42 ui-monospace,SFMono-Regular,Consolas,monospace;color:#bcd0b7}
+.dragonbound-personality-debug.is-collapsed pre{display:none}

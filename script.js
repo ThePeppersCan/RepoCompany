@@ -41225,6 +41225,8 @@ document.head.appendChild(s)})();
                 </div>
                 <h2 class="dragonbound-home-hatch-type"></h2>
                 <p class="dragonbound-home-hatch-origin"></p>
+                <p class="dragonbound-home-hatch-gender" aria-live="polite"></p>
+                <p class="dragonbound-home-hatch-nature-hint">Every dragon is born with a nature entirely their own. Only time will reveal who they become.</p>
                 <div class="dragonbound-home-hatch-name-form">
                   <label for="dragonboundHomeDragonName">What will you call them?</label>
                   <div class="dragonbound-home-hatch-name-row">
@@ -41573,6 +41575,7 @@ document.head.appendChild(s)})();
     const homeHatchPortrait=overlay.querySelector('.dragonbound-home-hatch-portrait');
     const homeHatchType=overlay.querySelector('.dragonbound-home-hatch-type');
     const homeHatchOrigin=overlay.querySelector('.dragonbound-home-hatch-origin');
+    const homeHatchGender=overlay.querySelector('.dragonbound-home-hatch-gender');
     const homeHatchNameForm=overlay.querySelector('.dragonbound-home-hatch-name-form');
     const homeHatchNameInput=overlay.querySelector('.dragonbound-home-hatch-name-input');
     const homeHatchNameSubmit=overlay.querySelector('.dragonbound-home-hatch-name-submit');
@@ -41865,6 +41868,8 @@ document.head.appendChild(s)})();
     let homeHatchTimer=0;
     let homeHatchFrameTimers=[];
     let selectedDragonName='';
+    let selectedDragonGender='';
+    let homeDragonGenderPromise=null;
 
     const dragonboundCurrentUsername=()=>{
       try{
@@ -41875,6 +41880,41 @@ document.head.appendChild(s)})();
     };
     const dragonboundAccountSlug=()=>dragonboundCurrentUsername().toLowerCase().replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'')||'guest';
     const dragonboundIsAdminTester=()=>dragonboundCurrentUsername().trim().toLowerCase()==='admin';
+    const normaliseDragonGender=value=>{
+      const gender=String(value||'').trim().toLowerCase();
+      return gender==='male'||gender==='female'?gender:'';
+    };
+    const dragonGenderDisplay=gender=>normaliseDragonGender(gender)==='female'?'Female':normaliseDragonGender(gender)==='male'?'Male':'';
+    const dragonGenderRevealCopy=gender=>normaliseDragonGender(gender)==='female'?"It's a girl — FEMALE":normaliseDragonGender(gender)==='male'?"It's a boy — MALE":'';
+    const DRAGONBOUND_TRAIT_OBSERVATIONS={
+      'Professional Napper':'Your dragon has shown an unusually serious commitment to finding time for a nap.',
+      'Zoomies':'Sudden bursts of energy seem to arrive with very little warning.',
+      'Coward':'Unfamiliar situations make this dragon noticeably cautious.',
+      'Fearless':'New places and strange situations rarely seem to put this dragon off.',
+      'Tiny Menace':'Curiosity and mischief appear to be working together rather too effectively.',
+      'Velcro Baby':'This dragon seems happiest when familiar company is close by.',
+      'Explorer':'Your dragon rarely seems satisfied visiting the same place twice.',
+      'Independent Spirit':'This dragon is perfectly content inventing its own plans.',
+      'Introvert':'Quiet familiar spaces seem to suit this dragon best.',
+      'Social Butterfly':'This dragon appears unusually interested in whatever everyone else is doing.',
+      'Creature of Habit':'Your dragon keeps returning to familiar places and routines.',
+      'Little Pilot':'Taking to the air seems to come very naturally to this dragon.',
+      'Grounded':'Despite having wings, this dragon appears much happier keeping its feet on the floor.',
+      'Food Goblin':'Anything connected to food receives an impressive amount of attention.',
+      'Watcher':'Your dragon spends a surprising amount of time simply watching the world.',
+      'Gentle Soul':'Calm, quiet behaviour seems to come naturally to this dragon.',
+      'Couch Potato':'Comfort is clearly being treated as a very high priority.',
+      'Furniture Inspector':'New surroundings are subjected to a thorough little inspection.',
+      'Toy Obsessed':'Play seems to occupy a rather large part of this dragon’s thoughts.',
+      'Routine Lover':'Once this dragon finds a routine it likes, it tends to stick with it.',
+      'Restless':'Sitting still for too long does not appear to be this dragon’s strong point.',
+      'Attention Seeker':'This dragon has developed a knack for making sure it gets noticed.',
+      'Night Owl':'Long stretches of wakefulness seem to suit this dragon.',
+      'Deep Sleeper':'Once asleep, this dragon takes the job extremely seriously.',
+      'Adventurous':'New routes and unfamiliar corners hold a strong appeal.',
+      'Patient':'This dragon is unusually comfortable waiting and watching.'
+    };
+    const dragonboundEscapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const dragonboundScopedKey=base=>`${base}:${dragonboundAccountSlug()}`;
     const clearLegacyDragonboundOwnershipOnce=()=>{
       try{
@@ -42001,7 +42041,7 @@ document.head.appendChild(s)})();
         try{
           // RLS already restricts this table to auth.uid(), so do not depend on
           // get_my_character() exposing user_id (it intentionally does not).
-          const {data,error}=await db.from('dragonbound_profiles').select('locked_egg,dragon_name,breed_id,dragon_hatched_at,starter_house_id').maybeSingle();
+          const {data,error}=await db.from('dragonbound_profiles').select('locked_egg,dragon_name,breed_id,gender,dragon_hatched_at,starter_house_id,personality,dragon_traits,dragon_preferences,dragon_memory,personality_version,personality_generated_at').maybeSingle();
           if(error) throw error;
           dragonboundLastProfile=data||null;
           if(data){
@@ -42035,6 +42075,12 @@ document.head.appendChild(s)})();
                   data.dragon_name=pending.name;
                   data.breed_id=pending.breedId;
                   data.dragon_hatched_at=syncRow?.hatched_at||new Date(Number(pending.hatchedAt)||Date.now()).toISOString();
+                  try{
+                    const {data:repairedProfile,error:repairedError}=await db.from('dragonbound_profiles').select('locked_egg,dragon_name,breed_id,gender,dragon_hatched_at,starter_house_id,personality,dragon_traits,dragon_preferences,dragon_memory,personality_version,personality_generated_at').maybeSingle();
+                    if(repairedError) throw repairedError;
+                    if(repairedProfile) Object.assign(data,repairedProfile);
+                    data.gender=normaliseDragonGender(data.gender||pending.gender);
+                  }catch(_profileError){data.gender=normaliseDragonGender(pending.gender);}
                   dragonboundLastProfile={...data};
                 }catch(syncError){
                   console.warn('[Dragonbound] Pending local hatch could not be repaired yet.',syncError);
@@ -42044,7 +42090,7 @@ document.head.appendChild(s)})();
 
             if(data.dragon_name && data.breed_id){
               const ownerUsername=dragonboundCurrentUsername();
-              const identity={id:`dragon-${account}-${data.breed_id}`,breedId:data.breed_id,name:data.dragon_name,eggName:data.locked_egg||'',ownerUsername,hatchedAt:data.dragon_hatched_at?Date.parse(data.dragon_hatched_at):Date.now()};
+              const identity={id:`dragon-${account}-${data.breed_id}`,breedId:data.breed_id,name:data.dragon_name,eggName:data.locked_egg||'',ownerUsername,gender:normaliseDragonGender(data.gender),hatchedAt:data.dragon_hatched_at?Date.parse(data.dragon_hatched_at):Date.now(),personality:data.personality||null,traits:data.dragon_traits||{},preferences:data.dragon_preferences||{},memory:data.dragon_memory||{},personalityVersion:Number(data.personality_version||1)};
               try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),JSON.stringify(identity));}catch(_e){}
               window.dispatchEvent(new CustomEvent('dragonbound:dragon-named',{detail:identity}));
             }
@@ -42085,18 +42131,29 @@ document.head.appendChild(s)})();
     const persistNamedDragonServer=async identity=>{
       if(!identity || dragonboundAccountSlug()==='guest') return {localOnly:true};
       const {data,error}=await db.rpc('dragonbound_name_dragon',{p_dragon_name:identity.name,p_breed_id:identity.breedId});
-      if(error){
-        console.warn('[Dragonbound] Could not save named dragon.',error);
-        throw error;
-      }
+      if(error){console.warn('[Dragonbound] Could not save named dragon.',error);throw error;}
       const row=Array.isArray(data)?data[0]:data;
-      dragonboundLastProfile={...(dragonboundLastProfile||{}),dragon_name:identity.name,breed_id:identity.breedId,dragon_hatched_at:row?.hatched_at||new Date().toISOString()};
+      const {data:profile,error:profileError}=await db.from('dragonbound_profiles').select('locked_egg,dragon_name,breed_id,gender,dragon_hatched_at,starter_house_id,personality,dragon_traits,dragon_preferences,dragon_memory,personality_version,personality_generated_at').maybeSingle();
+      if(profileError) throw profileError;
+      if(!profile?.personality || !profile?.dragon_traits) throw new Error('Dragonbound personality was not finalised by the server.');
+      dragonboundLastProfile={...profile,gender:normaliseDragonGender(profile.gender)||normaliseDragonGender(identity.gender)};
       syncDragonboundMainMenuSaveState(dragonboundLastProfile);
-      return row||{};
+      return {...(row||{}),...profile};
     };
 
     clearLegacyDragonboundOwnershipOnce();
     window.addEventListener('repo-character-changed',()=>{dragonboundHydratedAccount='';dragonboundLastProfile=null;syncDragonboundMainMenuSaveState(null);void hydrateDragonboundProfile({force:true});});
+    let dragonboundBehaviourSaveQueue=Promise.resolve();
+    window.addEventListener('dragonbound:behaviour-memory-save',event=>{
+      const detail=event.detail||{};if(dragonboundAccountSlug()==='guest'||!detail.memory)return;
+      dragonboundBehaviourSaveQueue=dragonboundBehaviourSaveQueue.catch(()=>{}).then(async()=>{
+        const {data,error}=await db.rpc('dragonbound_save_behaviour',{p_memory:detail.memory,p_preferences:detail.preferences||{},p_discovered_traits:Array.isArray(detail.discoveredTraits)?detail.discoveredTraits:[]});
+        if(error){console.warn('[Dragonbound] Behaviour memory save failed.',error);return;}
+        const row=Array.isArray(data)?data[0]:data;if(!row)return;
+        dragonboundLastProfile={...(dragonboundLastProfile||{}),dragon_memory:row.dragon_memory,dragon_preferences:row.dragon_preferences,dragon_traits:row.dragon_traits};
+        const local=namedDragonForCurrentAccount();if(local){const updated={...local,memory:row.dragon_memory,preferences:row.dragon_preferences,traits:row.dragon_traits};try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),JSON.stringify(updated));}catch(_e){}}
+      });
+    });
 
     if(homeSidebarImage) homeSidebarImage.src=DRAGONBOUND_HOME_SIDEBAR_BUTTONS;
     if(homeBasket) homeBasket.src=DRAGONBOUND_HOME_EGG_BASKET;
@@ -42518,7 +42575,16 @@ document.head.appendChild(s)})();
       if(studyMenuProfile) studyMenuProfile.textContent=study.profile||'Bonnie has not finished this field note yet.';
       if(studyMenuFound) studyMenuFound.textContent=study.foundIn||'Recorded across Velmora.';
       if(studyMenuType) studyMenuType.textContent=study.dragonType||'Unclassified';
-      if(studyMenuHistory) studyMenuHistory.innerHTML=(study.history||[]).map(text=>`<p>${text}</p>`).join('');
+      if(studyMenuHistory){
+        const history=(study.history||[]).map(text=>`<p>${text}</p>`);
+        const isOwnHatched=!!(dragonboundLastProfile?.dragon_name&&dragonboundLastProfile?.breed_id&&dragonboundLastProfile?.locked_egg===egg.name);
+        if(isOwnHatched){
+          const discovered=Array.isArray(dragonboundLastProfile?.dragon_traits?.discovered)?dragonboundLastProfile.dragon_traits.discovered:[];
+          const observation=discovered.length?discovered.map(trait=>`<strong>${dragonboundEscapeHtml(trait)}</strong> — ${dragonboundEscapeHtml(DRAGONBOUND_TRAIT_OBSERVATIONS[trait]||'A distinctive part of this dragon’s nature has begun to reveal itself.')}`).join('<br><br>'):'<strong>Still learning…</strong><br>Spend time with your dragon at home. Bonnie’s notes will fill in as its habits reveal themselves.';
+          history.push(`<p class="dragonbound-study-observed-nature"><span>OBSERVED NATURE</span>${observation}</p>`);
+        }
+        studyMenuHistory.innerHTML=history.join('');
+      }
       if(studyMenuThreats) studyMenuThreats.textContent=study.threats||'No special risks recorded beyond normal dragon-egg care.';
       studyMenuList?.querySelectorAll('.dragonbound-study-list-item').forEach(button=>{
         const active=button.dataset.eggName===egg.name;
@@ -43170,6 +43236,9 @@ document.head.appendChild(s)})();
       if(homeHatchPortrait){homeHatchPortrait.removeAttribute('src');homeHatchPortrait.alt='';}
       if(homeHatchType) homeHatchType.textContent='';
       if(homeHatchOrigin) homeHatchOrigin.textContent='';
+      if(homeHatchGender){homeHatchGender.textContent='';homeHatchGender.classList.remove('is-male','is-female','is-error');}
+      selectedDragonGender='';
+      homeDragonGenderPromise=null;
       if(homeHatchNameInput) homeHatchNameInput.value='';
       if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='';
       homeHatchNameForm?.classList.remove('is-hidden');
@@ -43205,6 +43274,8 @@ document.head.appendChild(s)})();
       homeBasketReady=false;
       homeBasketOpened=false;
       selectedDragonName='';
+      selectedDragonGender='';
+      homeDragonGenderPromise=null;
     };
     const startDoppyHomeDialogue=()=>{
       clearDialogue();
@@ -43307,7 +43378,26 @@ document.head.appendChild(s)})();
       homeBasketConfirm?.setAttribute('aria-hidden','false');
       requestAnimationFrame(()=>homeBasketConfirmYes?.focus({preventScroll:true}));
     };
-    const showHomeDragonReveal=()=>{
+    const ensureHomeDragonGender=()=>{
+      if(selectedDragonGender) return Promise.resolve(selectedDragonGender);
+      if(homeDragonGenderPromise) return homeDragonGenderPromise;
+      homeDragonGenderPromise=(async()=>{
+        if(dragonboundAccountSlug()==='guest'){
+          selectedDragonGender=Math.random()<.5?'male':'female';
+          return selectedDragonGender;
+        }
+        const {data,error}=await db.rpc('dragonbound_reveal_gender');
+        if(error) throw error;
+        const row=Array.isArray(data)?data[0]:data;
+        const gender=normaliseDragonGender(row?.dragon_gender);
+        if(!gender) throw new Error('Dragonbound did not return a valid dragon gender.');
+        selectedDragonGender=gender;
+        dragonboundLastProfile={...(dragonboundLastProfile||{}),gender};
+        return gender;
+      })().finally(()=>{homeDragonGenderPromise=null;});
+      return homeDragonGenderPromise;
+    };
+    const showHomeDragonReveal=async()=>{
       if(!selectedAdoptionEgg) return;
       const portrait=DRAGONBOUND_DRAGON_REVEALS[selectedAdoptionEgg.name];
       if(homeHatchPortrait && portrait){
@@ -43316,6 +43406,25 @@ document.head.appendChild(s)})();
       }
       if(homeHatchType) homeHatchType.textContent=`${selectedAdoptionEgg.name} Dragon`;
       if(homeHatchOrigin) homeHatchOrigin.textContent=`Hatched from your ${selectedAdoptionEgg.name} egg`;
+      if(homeHatchGender){homeHatchGender.textContent='Discovering gender…';homeHatchGender.classList.remove('is-male','is-female','is-error');}
+      let revealGender='';
+      for(let attempt=0;attempt<3&&!revealGender;attempt++){
+        try{revealGender=await ensureHomeDragonGender();}
+        catch(error){
+          console.warn('[Dragonbound] Gender reveal attempt failed.',error);
+          if(attempt<2) await new Promise(resolve=>setTimeout(resolve,450*(attempt+1)));
+        }
+      }
+      if(homeHatchGender){
+        homeHatchGender.classList.remove('is-male','is-female','is-error');
+        if(revealGender){
+          homeHatchGender.textContent=dragonGenderRevealCopy(revealGender);
+          homeHatchGender.classList.add(revealGender==='female'?'is-female':'is-male');
+        }else{
+          homeHatchGender.textContent='Gender registration unavailable — please try again.';
+          homeHatchGender.classList.add('is-error');
+        }
+      }
       try{
         homeRevealMusicAudio.pause();homeRevealMusicAudio.currentTime=0;homeRevealMusicAudio.volume=.5;
         const p=homeRevealMusicAudio.play();if(p&&typeof p.catch==='function')p.catch(()=>{});
@@ -43331,6 +43440,7 @@ document.head.appendChild(s)})();
       homeBasketOpened=true;
       setHomeBasketReady(false);
       closeHomeBasketConfirmation();
+      void ensureHomeDragonGender().catch(error=>console.warn('[Dragonbound] Gender assignment will retry at reveal.',error));
       homeBasketWrap?.classList.add('is-opening');
       homeHatchReveal?.classList.add('is-visible','is-opening');
       homeHatchReveal?.setAttribute('aria-hidden','false');
@@ -43386,10 +43496,19 @@ document.head.appendChild(s)})();
         return;
       }
 
+      let gender=selectedDragonGender;
+      if(!gender){
+        try{gender=await ensureHomeDragonGender();}
+        catch(error){
+          console.warn('[Dragonbound] Gender could not be confirmed before naming.',error);
+          if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='Your dragon’s gender could not be registered yet. Please try again.';
+          return;
+        }
+      }
       const breedId=(window.DragonboundBreedIdForEgg?window.DragonboundBreedIdForEgg(selectedAdoptionEgg.name):selectedAdoptionEgg.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));
       const ownerUsername=dragonboundCurrentUsername();
       const ownerSlug=dragonboundAccountSlug();
-      const dragonIdentity={id:`dragon-${ownerSlug}-${breedId}`,breedId,name,eggName:selectedAdoptionEgg.name,ownerUsername,hatchedAt:Date.now()};
+      const dragonIdentity={id:`dragon-${ownerSlug}-${breedId}`,breedId,name,eggName:selectedAdoptionEgg.name,ownerUsername,gender,hatchedAt:Date.now()};
 
       homeDragonNameSaving=true;
       if(homeHatchNameSubmit){homeHatchNameSubmit.disabled=true;homeHatchNameSubmit.setAttribute('aria-disabled','true');}
@@ -43398,16 +43517,22 @@ document.head.appendChild(s)})();
 
       try{
         const saved=await persistNamedDragonServer(dragonIdentity);
-        if(saved?.hatched_at){
-          const parsed=Date.parse(saved.hatched_at);
+        if(saved?.hatched_at||saved?.dragon_hatched_at){
+          const parsed=Date.parse(saved.hatched_at||saved.dragon_hatched_at);
           if(Number.isFinite(parsed)) dragonIdentity.hatchedAt=parsed;
         }
+        dragonIdentity.gender=normaliseDragonGender(saved?.gender||gender)||gender;
+        dragonIdentity.personality=saved?.personality||null;
+        dragonIdentity.traits=saved?.dragon_traits||{};
+        dragonIdentity.preferences=saved?.dragon_preferences||{};
+        dragonIdentity.memory=saved?.dragon_memory||{};
+        dragonIdentity.personalityVersion=Number(saved?.personality_version||1);
         selectedDragonName=name;
         try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),JSON.stringify(dragonIdentity));}catch(_e){}
         window.dispatchEvent(new CustomEvent('dragonbound:dragon-named',{detail:dragonIdentity}));
         if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='';
         homeHatchNameForm?.classList.add('is-hidden');
-        if(homeHatchNamedCopy) homeHatchNamedCopy.innerHTML=`Meet <strong>${name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong>, your ${selectedAdoptionEgg.name} dragon.`;
+        if(homeHatchNamedCopy) homeHatchNamedCopy.innerHTML=`Meet <strong>${name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong>, your ${dragonGenderDisplay(dragonIdentity.gender).toLowerCase()} ${selectedAdoptionEgg.name} dragon.`;
         homeHatchNamed?.classList.add('is-visible');
         homeHatchNamed?.setAttribute('aria-hidden','false');
         requestAnimationFrame(()=>homeHatchContinue?.focus({preventScroll:true}));

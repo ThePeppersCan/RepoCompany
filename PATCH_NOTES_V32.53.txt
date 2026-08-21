@@ -1,0 +1,65 @@
+V32.53 — Dragonbound Furniture Placement Overhaul
+
+This patch fixes the V32.52 furniture placement problems reported in the starter houses.
+
+PLACEMENT
+- Furniture no longer uses the baby-dragon navigation lanes as its buildable floor area.
+- Each of the five current starter homes now has dedicated furniture placement zones covering the usable upstairs/downstairs floor bands.
+- Placement is continuous inside those zones; it is not a tiny set of snap points.
+- Collision spacing is much less aggressive, so multiple furnishings can coexist in one room while still preventing obvious stacking.
+- A new furnishing starts at a valid open floor position instead of appearing at the top-left corner.
+- The ghost follows normal mouse movement.
+- Click-to-place and drag/release-to-place are both supported.
+
+SIZE
+- All world furniture is dramatically smaller by default (roughly 54% of the previous V32.52 render scale before per-item resizing).
+- New placement controls: Smaller / Larger with a live percentage readout.
+- Resize range: 55%–160%.
+- Furniture size is persistent in Supabase and survives reloads/devices.
+- Existing furniture defaults to the new 100% size, which is already much smaller than V32.52.
+
+TURNING
+- Removed the old image rotation behaviour that could turn sprites upside down.
+- "Rotate" is now "Turn" and mirrors the furniture left/right, which is appropriate for the supplied front-facing 2D furniture art.
+- Existing non-zero rotations are normalised server-side.
+
+BUILD VS SHOP
+- The house Build button now opens OWNED FURNITURE ONLY.
+- There is no Shop tab or "Open Furniture Shop" escape from Build.
+- Furniture can only be bought/claimed through Bonnie's Shop at the Adoption Centre.
+- Bonnie's Shop opens shop-only mode and cannot be used to place furniture there.
+
+EDIT ROOM
+- Existing placed items can be selected and:
+  - Move
+  - Turn left/right
+  - Resize smaller/larger
+  - Put Away
+- Put Away continues to return the copy to Build Inventory.
+
+DATABASE
+- Added persistent scale to dragonbound_house_furniture.
+- Added authenticated-only dragonbound_place_furniture_v2 and dragonbound_move_furniture_v2 RPCs.
+- Scale is server validated from 0.55 to 1.60.
+- V2 placement stores rotation=0 and direction left/right.
+- Existing least-privilege/RLS model remains intact.
+
+QA COMPLETED
+- dragonbound-furniture.js passes node --check.
+- dragonbound-furniture.css parses with 0 tinycss2 errors.
+- Static checks confirm Build exposes no Shop API/path and resize/turn/drag controls are present.
+- Placement geometry was tested across all five starter homes; the largest free test bed has multiple continuous valid positions on each floor rather than only one/two points.
+- Example Hestholm downstairs test accepts bed anchors across x=.32 through x=.68 on the floor band.
+- Bed + bath + toy coexistence geometry was validated at separate positions in the same downstairs room.
+- Emerald Canopy Bed renders at about 147px wide on a 1458px desktop at default size, versus roughly 272px in V32.52.
+- Live Supabase V2 place -> move -> turn -> resize was tested inside a rolled-back transaction and returned rotation=0, direction=right, scale=1.30 correctly.
+- Live permissions verified: authenticated can call V2 placement/move; anon cannot.
+
+FILES CHANGED
+- index.html
+- dragonbound-furniture.js
+- dragonbound-furniture.css
+- supabase-v32.53-dragonbound-furniture-placement.sql
+- PATCH_NOTES_V32.53.txt
+
+Supabase migration has already been applied live.

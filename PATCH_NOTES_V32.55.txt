@@ -1,0 +1,54 @@
+V32.55 — Dragonbound Furniture Room Placement + Transparency QA
+
+PLACEMENT FIXES
+- Reworked furniture targeting so the player no longer has to hit a razor-thin strip of floor pixels.
+- The cursor may now move anywhere inside the visible upstairs/downstairs room interior; furniture is projected down onto that room's authored wooden floor band.
+- Hestholm Fjord starter upstairs placement was widened to include the right-hand side of the room.
+- Hestholm Fjord starter downstairs floor band was corrected and widened so the full lower room can be furnished.
+- Roof/garden/outside regions remain invalid.
+- The room-selection logic handles the small overlap between room hit areas by choosing the nearest actual floor.
+- Edge projection now accounts for the furnishing footprint/scale so snapping to a room edge does not immediately fail validation.
+- New furniture now starts at 70% scale by default; existing saved sizes are preserved and can still be resized 55%–160%.
+- Build remains OWNED FURNITURE ONLY. Furniture can still only be bought/claimed through Bonnie's Adoption Centre shop.
+
+FURNITURE ART QA
+- Corrected transparency on 17 supplied furniture sprites.
+- Removed large white/near-white generated background holes from canopy beds, tables/benches, cart furniture, rope training pieces and other affected items.
+- Removed several detached generation fragments sitting at the far edges of affected PNGs.
+- Preserved intentional pale/white object details such as pillows, towels, porcelain and the training mirror surface.
+
+Corrected assets:
+- bed-00.png
+- bed-05.png
+- bed-06.png
+- cottage-01.png
+- cottage-03.png
+- cottage-05.png
+- cottage-09.png
+- health-00.png
+- health-01.png
+- kitchen-02.png
+- kitchen-05.png
+- kitchen-06.png
+- toy-01.png
+- toy-02.png
+- training-02.png
+- training-05.png
+- training-07.png
+
+TESTING
+- dragonbound-furniture.js passes node --check.
+- Geometry smoke tests passed for Hestholm upstairs-right, downstairs-center and downstairs-right placement.
+- Roof and garden coordinates correctly remain invalid.
+- Placement zones were overlaid against the actual 1536×1024 Hestholm source art to verify both floor bands line up with the visible wooden floors.
+- Corrected sprite alpha was reviewed on a checkerboard before/after pass; intentional white furnishings were retained.
+
+DATABASE
+- No Supabase migration required for V32.55.
+- Existing inventory, ownership, placements, directions and saved resize values are preserved.
+
+CHANGED FILES ONLY
+- index.html
+- dragonbound-furniture.js
+- PATCH_NOTES_V32.55.txt
+- 17 corrected assets under assets/dragonbound/furniture/

@@ -1,0 +1,30 @@
+V32.61 — Dragonbound Furniture Controls + Shop/Inventory UI Overhaul
+
+Placement controls
+- R now turns/flips the furniture currently being held.
+- Mouse wheel now resizes held furniture in 5% increments (wheel up = larger, wheel down = smaller).
+- Existing Q/E and +/- shortcuts remain available.
+- Placement HUD and footer show the new shortcuts.
+
+Shop / Build Inventory UX
+- Rebuilt the furniture browser into a clean cool-green/obsidian Dragonbound interface; removed the brown-heavy presentation.
+- Furniture is shown as a proper multi-column tile gallery rather than one long card strip.
+- Added paginated browsing (15/12/8 items per page depending on screen width) so the 160-item catalogue is manageable.
+- Category controls are now a compact horizontal grid rather than a tall left rail.
+- Added robust wheel routing and explicit overflow/overscroll handling for the furniture gallery and item inspector.
+- Free starter gifts are surfaced first in Featured shop sorting.
+
+New free starter gifts
+- Round Dragon Nest Bed — FREE
+- Baby-Dragon Bath Tub — FREE
+- Stuffed Wyvern Toy — FREE
+
+Previous test freebies are now normal paid catalogue items. Anyone who already claimed them keeps them.
+
+Files changed
+- index.html
+- dragonbound-furniture.js
+- dragonbound-furniture.css
+- FURNITURE_CATALOG_V32.61.json
+- PATCH_NOTES_V32.61.txt
+- supabase-v32.61-furniture-starter-gifts.sql

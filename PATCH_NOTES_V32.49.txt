@@ -1,0 +1,31 @@
+V32.49 — Dragon Gender System
+
+LIVE DATABASE
+- Added persistent `gender` to Dragonbound profiles, constrained to male/female.
+- Existing dragons were locked to the requested genders:
+  * CatAsthma — September — Rova End — MALE
+  * Emlux — Turi — Marovar — FEMALE
+  * CovidPanda — NighLight — Norveth — MALE
+- New dragons receive a 50/50 random gender when their hatch reveal begins.
+- Gender is persisted server-side and cannot change for a normal player's existing dragon.
+- Admin test hatches receive a fresh random gender each reveal.
+- Naming has a server-side fallback so older clients cannot produce a hatched dragon without a gender.
+- Fresh egg claims after a manual account reset clear any stale gender from the previous dragon.
+
+SITE
+- Hatch reveal now announces the baby's gender with “IT'S A BOY — MALE” or “IT'S A GIRL — FEMALE”.
+- Gender assignment is started during the basket-opening animation so the reveal normally appears immediately.
+- If the gender RPC is temporarily unavailable, the reveal retries automatically and naming retries again before save.
+- Dragon identities hydrated from Supabase now include gender.
+- Hovering a baby dragon now shows, in order:
+  * Dragon name
+  * Live age
+  * Gender · Male / Gender · Female
+- Existing local dragon identities are refreshed from the authoritative server profile on load.
+
+FILES
+- index.html
+- script.js
+- dragonbound-baby-engine.js
+- style.css
+- supabase-v32.49-dragonbound-gender.sql

@@ -1,0 +1,28 @@
+V32.54 — Dragonbound Furniture Floor Input Hotfix
+
+ROOT CAUSE
+V32.53 was listening for furniture placement on the home scene while the actual house world intentionally has pointer-events disabled during normal play. Blank wooden floor pixels therefore did not reliably generate placement events. On top of that, the house world uses a CSS breathing/zoom transform, so raw transformed screen coordinates were being fed into the untransformed house-coordinate mapper.
+
+FIXES
+- Added a dedicated transparent furniture placement hit-surface covering the real house world.
+- The surface is pointer-active ONLY while placing/moving furniture.
+- Pointer move/down/up/cancel now bind directly to this placement surface instead of the passive home scene.
+- Mouse coordinates are converted from the transformed surface rectangle back into the world’s untransformed pixel space before house-coordinate conversion.
+- Pointer capture now belongs to the placement surface, so drag/release remains reliable.
+- Existing V32.53 broad upstairs/downstairs floor zones remain unchanged.
+- Existing resize controls, left/right Turn control, free placement, collision checks, Build-only owned inventory, and Bonnie-only shop access remain unchanged.
+- No database migration is required for V32.54.
+
+TESTING COMPLETED
+- dragonbound-furniture.js passes node --check.
+- dragonbound-furniture.css parses with zero CSS syntax errors.
+- Headless Chromium interaction test confirms the transparent placement surface receives pointer input even though its parent world is pointer-disabled.
+- Tested transformed coordinate mapping at 1083x543 and 1536x1024 viewports.
+- Verified both upstairs and downstairs source-floor points map back to the correct room and are accepted as valid placement positions.
+- Verified an actual pointer click commits a downstairs furniture placement successfully in the browser test harness with zero page errors.
+
+CHANGED FILES ONLY
+- index.html
+- dragonbound-furniture.js
+- dragonbound-furniture.css
+- PATCH_NOTES_V32.54.txt
