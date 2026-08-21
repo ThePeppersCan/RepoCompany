@@ -1,0 +1,10 @@
+V32.43 — Dragonbound server-authoritative reset hotfix
+
+- Fixes admin egg resets not appearing in a player browser.
+- Supabase is now authoritative for locked egg ownership during profile hydration.
+- If the live Dragonbound profile has locked_egg = NULL, the account-scoped local browser egg lock is removed automatically.
+- Clears selectedAdoptionEgg in memory after a server reset.
+- If the Adopt an Egg menu is already open, the old egg visual and LOCKED notice are removed after hydration.
+- Cache version bumped so browsers fetch the updated script.
+
+CatAsthma's live profile was verified before this patch: locked_egg = NULL, no dragon, no house. The lingering Norveth notice was stale localStorage from the old client.

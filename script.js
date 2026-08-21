@@ -41903,6 +41903,11 @@ document.head.appendChild(s)})();
       if(!egg || dragonboundIsAdminTester()) return;
       try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_EGG_LOCK_KEY),JSON.stringify({name:egg.name,lockedAt:Date.now()}));}catch(_e){}
     };
+    const clearLockedEggForCurrentAccount=()=>{
+      if(dragonboundIsAdminTester()) return;
+      try{localStorage.removeItem(dragonboundScopedKey(DRAGONBOUND_EGG_LOCK_KEY));}catch(_e){}
+      selectedAdoptionEgg=null;
+    };
     const restoreLockedEgg=()=>{
       const egg=lockedEggForCurrentAccount();
       if(egg) selectedAdoptionEgg=egg;
@@ -42000,9 +42005,16 @@ document.head.appendChild(s)})();
           if(error) throw error;
           dragonboundLastProfile=data||null;
           if(data){
-            if(data.locked_egg && !dragonboundIsAdminTester()){
-              const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===data.locked_egg);
-              if(egg){persistLockedEgg(egg);selectedAdoptionEgg=egg;}
+            if(!dragonboundIsAdminTester()){
+              if(data.locked_egg){
+                const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===data.locked_egg);
+                if(egg){persistLockedEgg(egg);selectedAdoptionEgg=egg;}
+                else clearLockedEggForCurrentAccount();
+              }else{
+                // Supabase is authoritative. If an admin reset the account's egg,
+                // remove any stale browser lock left from before that reset.
+                clearLockedEggForCurrentAccount();
+              }
             }
             if(data.starter_house_id){
               saveStarterHouseLocally(data.starter_house_id);
@@ -42676,6 +42688,7 @@ document.head.appendChild(s)})();
         if(!adoptMenuOverlay?.classList.contains('is-visible')) return;
         const serverLocked=syncAdoptionOneAndDoneUI();
         if(serverLocked) setAdoptedEggInMenu(serverLocked);
+        else setAdoptedEggInMenu(null);
       });
     };
     const openBonnieMenu=()=>{
