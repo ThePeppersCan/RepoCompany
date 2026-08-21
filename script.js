@@ -42019,6 +42019,29 @@ document.head.appendChild(s)})();
             if(data.starter_house_id){
               saveStarterHouseLocally(data.starter_house_id);
             }
+
+            // Recovery path for the old hatch-sync bug: if the browser already has a
+            // named dragon that matches the account's locked egg, but Supabase never
+            // received the hatch/name RPC, repair the server record automatically.
+            if(!data.dragon_name && !data.breed_id && data.locked_egg){
+              const pending=namedDragonForCurrentAccount();
+              const locked=DRAGONBOUND_EGG_POOL.find(item=>item.name===data.locked_egg);
+              const expectedBreed=locked?(window.DragonboundBreedIdForEgg?window.DragonboundBreedIdForEgg(locked.name):locked.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')):'';
+              if(pending?.name && pending?.breedId && expectedBreed && pending.breedId===expectedBreed){
+                try{
+                  const {data:syncData,error:syncError}=await db.rpc('dragonbound_name_dragon',{p_dragon_name:pending.name,p_breed_id:pending.breedId});
+                  if(syncError) throw syncError;
+                  const syncRow=Array.isArray(syncData)?syncData[0]:syncData;
+                  data.dragon_name=pending.name;
+                  data.breed_id=pending.breedId;
+                  data.dragon_hatched_at=syncRow?.hatched_at||new Date(Number(pending.hatchedAt)||Date.now()).toISOString();
+                  dragonboundLastProfile={...data};
+                }catch(syncError){
+                  console.warn('[Dragonbound] Pending local hatch could not be repaired yet.',syncError);
+                }
+              }
+            }
+
             if(data.dragon_name && data.breed_id){
               const ownerUsername=dragonboundCurrentUsername();
               const identity={id:`dragon-${account}-${data.breed_id}`,breedId:data.breed_id,name:data.dragon_name,eggName:data.locked_egg||'',ownerUsername,hatchedAt:data.dragon_hatched_at?Date.parse(data.dragon_hatched_at):Date.now()};
@@ -42060,13 +42083,16 @@ document.head.appendChild(s)})();
       syncDragonboundMainMenuSaveState(dragonboundLastProfile);
     };
     const persistNamedDragonServer=async identity=>{
-      if(!identity || dragonboundAccountSlug()==='guest') return;
+      if(!identity || dragonboundAccountSlug()==='guest') return {localOnly:true};
       const {data,error}=await db.rpc('dragonbound_name_dragon',{p_dragon_name:identity.name,p_breed_id:identity.breedId});
-      if(error){console.warn('[Dragonbound] Could not save named dragon.',error);return null;}
+      if(error){
+        console.warn('[Dragonbound] Could not save named dragon.',error);
+        throw error;
+      }
       const row=Array.isArray(data)?data[0]:data;
       dragonboundLastProfile={...(dragonboundLastProfile||{}),dragon_name:identity.name,breed_id:identity.breedId,dragon_hatched_at:row?.hatched_at||new Date().toISOString()};
       syncDragonboundMainMenuSaveState(dragonboundLastProfile);
-      return row;
+      return row||{};
     };
 
     clearLegacyDragonboundOwnershipOnce();
@@ -43345,8 +43371,9 @@ document.head.appendChild(s)})();
         showHomeDragonReveal();
       },DRAGONBOUND_HOME_REVEAL_DURATION);
     };
-    const submitHomeDragonName=()=>{
-      if(!homeHatchNameInput || !selectedAdoptionEgg) return;
+    let homeDragonNameSaving=false;
+    const submitHomeDragonName=async()=>{
+      if(homeDragonNameSaving || !homeHatchNameInput || !selectedAdoptionEgg) return;
       const name=homeHatchNameInput.value.trim().replace(/\s+/g,' ');
       if(name.length<2){
         if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='Give your dragon a name with at least 2 characters.';
@@ -43358,20 +43385,43 @@ document.head.appendChild(s)})();
         homeHatchNameInput.focus();
         return;
       }
-      selectedDragonName=name;
+
       const breedId=(window.DragonboundBreedIdForEgg?window.DragonboundBreedIdForEgg(selectedAdoptionEgg.name):selectedAdoptionEgg.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));
       const ownerUsername=dragonboundCurrentUsername();
       const ownerSlug=dragonboundAccountSlug();
       const dragonIdentity={id:`dragon-${ownerSlug}-${breedId}`,breedId,name,eggName:selectedAdoptionEgg.name,ownerUsername,hatchedAt:Date.now()};
-      try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),JSON.stringify(dragonIdentity));}catch(_e){}
-      void persistNamedDragonServer(dragonIdentity);
-      window.dispatchEvent(new CustomEvent('dragonbound:dragon-named',{detail:dragonIdentity}));
-      if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='';
-      homeHatchNameForm?.classList.add('is-hidden');
-      if(homeHatchNamedCopy) homeHatchNamedCopy.innerHTML=`Meet <strong>${name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong>, your ${selectedAdoptionEgg.name} dragon.`;
-      homeHatchNamed?.classList.add('is-visible');
-      homeHatchNamed?.setAttribute('aria-hidden','false');
-      requestAnimationFrame(()=>homeHatchContinue?.focus({preventScroll:true}));
+
+      homeDragonNameSaving=true;
+      if(homeHatchNameSubmit){homeHatchNameSubmit.disabled=true;homeHatchNameSubmit.setAttribute('aria-disabled','true');}
+      homeHatchNameInput.disabled=true;
+      if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='Registering your dragon with Bonnie…';
+
+      try{
+        const saved=await persistNamedDragonServer(dragonIdentity);
+        if(saved?.hatched_at){
+          const parsed=Date.parse(saved.hatched_at);
+          if(Number.isFinite(parsed)) dragonIdentity.hatchedAt=parsed;
+        }
+        selectedDragonName=name;
+        try{localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),JSON.stringify(dragonIdentity));}catch(_e){}
+        window.dispatchEvent(new CustomEvent('dragonbound:dragon-named',{detail:dragonIdentity}));
+        if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='';
+        homeHatchNameForm?.classList.add('is-hidden');
+        if(homeHatchNamedCopy) homeHatchNamedCopy.innerHTML=`Meet <strong>${name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong>, your ${selectedAdoptionEgg.name} dragon.`;
+        homeHatchNamed?.classList.add('is-visible');
+        homeHatchNamed?.setAttribute('aria-hidden','false');
+        requestAnimationFrame(()=>homeHatchContinue?.focus({preventScroll:true}));
+      }catch(error){
+        console.error('[Dragonbound] Dragon naming save failed.',error);
+        if(homeHatchNameFeedback) homeHatchNameFeedback.textContent='Your dragon could not be saved to your account. Please try again — your name has not been lost.';
+        homeHatchNameInput.disabled=false;
+        if(homeHatchNameSubmit){homeHatchNameSubmit.disabled=false;homeHatchNameSubmit.setAttribute('aria-disabled','false');}
+        homeHatchNameInput.focus();
+        homeDragonNameSaving=false;
+        return;
+      }
+
+      homeDragonNameSaving=false;
     };
     const finishHomeHatchReveal=()=>{
       if(!selectedDragonName) return;
