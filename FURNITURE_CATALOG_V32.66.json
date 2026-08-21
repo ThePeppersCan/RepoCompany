@@ -1,0 +1,4424 @@
+[
+  {
+    "item_id": "cottage-0",
+    "name": "Hearthstone Fireplace",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Rare",
+    "price": 180,
+    "sprite_path": "assets/dragonbound/furniture/cottage-00.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ]
+  },
+  {
+    "item_id": "cottage-1",
+    "name": "Mosswood Rocking Chair",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 215,
+    "sprite_path": "assets/dragonbound/furniture/cottage-01.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "comfortable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-2",
+    "name": "Fernrest Sofa",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 250,
+    "sprite_path": "assets/dragonbound/furniture/cottage-02.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "comfortable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-3",
+    "name": "Cottage Tea Table",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 285,
+    "sprite_path": "assets/dragonbound/furniture/cottage-03.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-4",
+    "name": "Keeper’s Bookcase",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 320,
+    "sprite_path": "assets/dragonbound/furniture/cottage-04.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-5",
+    "name": "Mossstitch Workbench",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Crafted",
+    "price": 355,
+    "sprite_path": "assets/dragonbound/furniture/cottage-05.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "comfortable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-6",
+    "name": "Warden’s Coat Stand",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 390,
+    "sprite_path": "assets/dragonbound/furniture/cottage-06.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-7",
+    "name": "Oldwood Longcase Clock",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/cottage-07.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-8",
+    "name": "Scribe’s Writing Desk",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 460,
+    "sprite_path": "assets/dragonbound/furniture/cottage-08.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-9",
+    "name": "Meadow Tea Trolley",
+    "category": "Kitchen",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 495,
+    "sprite_path": "assets/dragonbound/furniture/cottage-09.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-10",
+    "name": "Traveller’s Storage Chest",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Crafted",
+    "price": 530,
+    "sprite_path": "assets/dragonbound/furniture/cottage-10.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-11",
+    "name": "Dragon Nesting Cushions",
+    "category": "Beds",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 565,
+    "sprite_path": "assets/dragonbound/furniture/cottage-11.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "cottage-12",
+    "name": "Clay Wash Cabinet",
+    "category": "Bath",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 600,
+    "sprite_path": "assets/dragonbound/furniture/cottage-12.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "hideable",
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "cottage-13",
+    "name": "Cottage Pantry",
+    "category": "Kitchen",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 635,
+    "sprite_path": "assets/dragonbound/furniture/cottage-13.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "cottage-14",
+    "name": "Glowwick Floor Lamp",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 670,
+    "sprite_path": "assets/dragonbound/furniture/cottage-14.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ]
+  },
+  {
+    "item_id": "cottage-15",
+    "name": "Hallway Storage Bench",
+    "category": "Living",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Crafted",
+    "price": 705,
+    "sprite_path": "assets/dragonbound/furniture/cottage-15.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm starter-house craftsmanship in oak, moss green and aged brass.",
+    "tags": [
+      "comfortable",
+      "hideable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "bed-0",
+    "name": "Emerald Canopy Bed",
+    "category": "Beds",
+    "collection_name": "Royal Velmora",
+    "rarity": "Epic",
+    "price": 250,
+    "sprite_path": "assets/dragonbound/furniture/bed-00.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "A grand draped bed sized for broad-winged companions.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "bed-1",
+    "name": "Marenza Captain’s Bed",
+    "category": "Beds",
+    "collection_name": "Marenza Coast",
+    "rarity": "Rare",
+    "price": 315,
+    "sprite_path": "assets/dragonbound/furniture/bed-01.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "Sea-blue timber and a sturdy captain’s frame.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "bed-2",
+    "name": "Guildmaster’s Rest",
+    "category": "Beds",
+    "collection_name": "Guildhall",
+    "rarity": "Rare",
+    "price": 380,
+    "sprite_path": "assets/dragonbound/furniture/bed-02.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "Reinforced oak, banners and deep red upholstery.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "bed-3",
+    "name": "Amethyst Dream Bed",
+    "category": "Beds",
+    "collection_name": "Arcane Scholar",
+    "rarity": "Epic",
+    "price": 445,
+    "sprite_path": "assets/dragonbound/furniture/bed-03.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "Crystal-lit rest with a calm arcane glow.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "bed-4",
+    "name": "Vardesh Fur Bed",
+    "category": "Beds",
+    "collection_name": "Vardesh North",
+    "rarity": "Crafted",
+    "price": 510,
+    "sprite_path": "assets/dragonbound/furniture/bed-04.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "Cold-climate timber layered with thick woven furs.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "bed-5",
+    "name": "Zafir Mosaic Canopy",
+    "category": "Beds",
+    "collection_name": "Zafir",
+    "rarity": "Epic",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/bed-05.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "Turquoise mosaic panels and breathable desert linen.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "bed-6",
+    "name": "Autumn Storage Bed",
+    "category": "Beds",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Crafted",
+    "price": 640,
+    "sprite_path": "assets/dragonbound/furniture/bed-06.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "Warm autumn quilting with useful built-in drawers.",
+    "tags": [
+      "comfortable",
+      "hideable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "bed-7",
+    "name": "Blackglass Ember Bed",
+    "category": "Beds",
+    "collection_name": "Blackglass",
+    "rarity": "Epic",
+    "price": 705,
+    "sprite_path": "assets/dragonbound/furniture/bed-07.png",
+    "footprint_w": 4,
+    "footprint_h": 2,
+    "clearance": "Wide",
+    "description": "Heatproof ironwork and a banked ember glow.",
+    "tags": [
+      "comfortable",
+      "sleepable"
+    ]
+  },
+  {
+    "item_id": "kitchen-0",
+    "name": "Azure Baker’s Range",
+    "category": "Kitchen",
+    "collection_name": "Marenza Coast",
+    "rarity": "Rare",
+    "price": 340,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-00.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A compact blue-tile oven for cottage kitchens.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "kitchen-1",
+    "name": "Crimson Guild Range",
+    "category": "Kitchen",
+    "collection_name": "Guildhall",
+    "rarity": "Rare",
+    "price": 405,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-01.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A heavy guild range with hanging copper pans.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "kitchen-2",
+    "name": "Cottage Butler Sink",
+    "category": "Kitchen",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 470,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-02.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Deep ceramic basin with dragon-safe rounded corners.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "kitchen-3",
+    "name": "Arcane Preserves Bench",
+    "category": "Kitchen",
+    "collection_name": "Arcane Scholar",
+    "rarity": "Epic",
+    "price": 535,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-03.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Potion storage disguised as a practical pantry bench.",
+    "tags": [
+      "comfortable",
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "kitchen-4",
+    "name": "Aurelia Prep Counter",
+    "category": "Kitchen",
+    "collection_name": "Aurelia",
+    "rarity": "Crafted",
+    "price": 600,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-04.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Bright prep counter for fruit, feed and daily meals.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "kitchen-5",
+    "name": "Frostkeep Pantry",
+    "category": "Kitchen",
+    "collection_name": "Vardesh North",
+    "rarity": "Rare",
+    "price": 665,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-05.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Insulated pantry for chilled fish and medicines.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "kitchen-6",
+    "name": "Zafir Spice Dresser",
+    "category": "Kitchen",
+    "collection_name": "Zafir",
+    "rarity": "Rare",
+    "price": 730,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-06.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Carved turquoise cabinet for spices and preserves.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "kitchen-7",
+    "name": "Terracotta Bread Oven",
+    "category": "Kitchen",
+    "collection_name": "Zafir",
+    "rarity": "Crafted",
+    "price": 795,
+    "sprite_path": "assets/dragonbound/furniture/kitchen-07.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Wood-fired oven with an accessible low hearth.",
+    "tags": [
+      "food",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "bath-0",
+    "name": "Meadow Washstand",
+    "category": "Bath",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 430,
+    "sprite_path": "assets/dragonbound/furniture/bath-00.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A compact wash station for smaller starter rooms.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "bath-1",
+    "name": "Marenza Tile Bath",
+    "category": "Bath",
+    "collection_name": "Marenza Coast",
+    "rarity": "Rare",
+    "price": 495,
+    "sprite_path": "assets/dragonbound/furniture/bath-01.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Salt-resistant blue tile and a deep bathing bowl.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "bath-2",
+    "name": "Vardesh Copper Tub",
+    "category": "Bath",
+    "collection_name": "Vardesh North",
+    "rarity": "Crafted",
+    "price": 560,
+    "sprite_path": "assets/dragonbound/furniture/bath-02.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Hammered copper that holds warmth through winter.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "bath-3",
+    "name": "Rosewater Vanity",
+    "category": "Bath",
+    "collection_name": "Royal Velmora",
+    "rarity": "Rare",
+    "price": 625,
+    "sprite_path": "assets/dragonbound/furniture/bath-03.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Polished grooming vanity with secure storage.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "bath-4",
+    "name": "Rainfall Wash Arch",
+    "category": "Bath",
+    "collection_name": "Elven Verdant",
+    "rarity": "Epic",
+    "price": 690,
+    "sprite_path": "assets/dragonbound/furniture/bath-04.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Gentle overhead rinse with leaf-filtered water.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "bath-5",
+    "name": "Steamroom Bench",
+    "category": "Bath",
+    "collection_name": "Vardesh North",
+    "rarity": "Crafted",
+    "price": 755,
+    "sprite_path": "assets/dragonbound/furniture/bath-05.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A sturdy bench for warming and towel-drying.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "bath-6",
+    "name": "Wing-Dry Towel Rack",
+    "category": "Bath",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 820,
+    "sprite_path": "assets/dragonbound/furniture/bath-06.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Wide rack positioned clear of tails and wings.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "bath-7",
+    "name": "Deep Dragon Wash Basin",
+    "category": "Bath",
+    "collection_name": "Zafir",
+    "rarity": "Rare",
+    "price": 885,
+    "sprite_path": "assets/dragonbound/furniture/bath-07.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Low-sided basin for safe step-in washing.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ]
+  },
+  {
+    "item_id": "training-0",
+    "name": "Beginner Jump Rail",
+    "category": "Training",
+    "collection_name": "Starter Training",
+    "rarity": "Common",
+    "price": 520,
+    "sprite_path": "assets/dragonbound/furniture/training-00.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Low breakaway rail for safe first jumps.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "training-1",
+    "name": "Balance Beam",
+    "category": "Training",
+    "collection_name": "Starter Training",
+    "rarity": "Common",
+    "price": 585,
+    "sprite_path": "assets/dragonbound/furniture/training-01.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Broad timber beam with a non-slip top.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "training-2",
+    "name": "Target Bell Stand",
+    "category": "Training",
+    "collection_name": "Guildhall",
+    "rarity": "Crafted",
+    "price": 650,
+    "sprite_path": "assets/dragonbound/furniture/training-02.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A clear bell target for focus exercises.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "training-3",
+    "name": "Weave Pole Set",
+    "category": "Training",
+    "collection_name": "Starter Training",
+    "rarity": "Common",
+    "price": 715,
+    "sprite_path": "assets/dragonbound/furniture/training-03.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Flexible weave poles on a stable floor strip.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "training-4",
+    "name": "Wing Stretch Frame",
+    "category": "Training",
+    "collection_name": "Care & Recovery",
+    "rarity": "Rare",
+    "price": 780,
+    "sprite_path": "assets/dragonbound/furniture/training-04.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Padded frame for guided shoulder and wing movement.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "training-5",
+    "name": "Climbing Ramp",
+    "category": "Training",
+    "collection_name": "Vardesh North",
+    "rarity": "Crafted",
+    "price": 845,
+    "sprite_path": "assets/dragonbound/furniture/training-05.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A grippy incline for claws of every size.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "training-6",
+    "name": "Endurance Treadwheel",
+    "category": "Training",
+    "collection_name": "Blackglass",
+    "rarity": "Epic",
+    "price": 910,
+    "sprite_path": "assets/dragonbound/furniture/training-06.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Controlled resistance training with safety stops.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "training-7",
+    "name": "Guild Agility Course",
+    "category": "Training",
+    "collection_name": "Guildhall",
+    "rarity": "Rare",
+    "price": 975,
+    "sprite_path": "assets/dragonbound/furniture/training-07.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A modular obstacle set for confident dragons.",
+    "tags": [
+      "climbable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-0",
+    "name": "Treat Puzzle Chest",
+    "category": "Toys",
+    "collection_name": "Playful Nursery",
+    "rarity": "Crafted",
+    "price": 610,
+    "sprite_path": "assets/dragonbound/furniture/toy-00.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Sliding panels hide small treats without sharp edges.",
+    "tags": [
+      "hideable",
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-1",
+    "name": "Rope Tug Post",
+    "category": "Toys",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/toy-01.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A replaceable rope toy fixed to a weighted base.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-2",
+    "name": "Rolling Feed Ball",
+    "category": "Toys",
+    "collection_name": "Playful Nursery",
+    "rarity": "Common",
+    "price": 740,
+    "sprite_path": "assets/dragonbound/furniture/toy-02.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Dispenses feed as it rolls across the floor.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-3",
+    "name": "Chime Mobile",
+    "category": "Toys",
+    "collection_name": "Elven Verdant",
+    "rarity": "Rare",
+    "price": 805,
+    "sprite_path": "assets/dragonbound/furniture/toy-03.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Soft chimes reward gentle nose and paw touches.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-4",
+    "name": "Scent Trail Board",
+    "category": "Toys",
+    "collection_name": "Care & Recovery",
+    "rarity": "Crafted",
+    "price": 870,
+    "sprite_path": "assets/dragonbound/furniture/toy-04.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Reusable scent cups encourage calm exploration.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-5",
+    "name": "Burrow Blanket",
+    "category": "Toys",
+    "collection_name": "Cozy Cottage",
+    "rarity": "Common",
+    "price": 935,
+    "sprite_path": "assets/dragonbound/furniture/toy-05.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Layered blankets for digging, hiding and nesting.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-6",
+    "name": "Treasure Sorter",
+    "category": "Toys",
+    "collection_name": "Zafir",
+    "rarity": "Rare",
+    "price": 1000,
+    "sprite_path": "assets/dragonbound/furniture/toy-06.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Colour-and-shape puzzle with oversized pieces.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "toy-7",
+    "name": "Enrichment Activity Tree",
+    "category": "Toys",
+    "collection_name": "Royal Velmora",
+    "rarity": "Epic",
+    "price": 1065,
+    "sprite_path": "assets/dragonbound/furniture/toy-07.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A premium multi-level play and puzzle station.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ]
+  },
+  {
+    "item_id": "health-0",
+    "name": "Padded Examination Table",
+    "category": "Care",
+    "collection_name": "Starter Care",
+    "rarity": "Common",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/health-00.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A stable padded surface with open access on both sides.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "health-1",
+    "name": "Low Care Bench",
+    "category": "Care",
+    "collection_name": "Starter Care",
+    "rarity": "Common",
+    "price": 765,
+    "sprite_path": "assets/dragonbound/furniture/health-01.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Low step-up care bench for young or recovering dragons.",
+    "tags": [
+      "comfortable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "health-2",
+    "name": "Dragon Weighing Scale",
+    "category": "Care",
+    "collection_name": "Starter Care",
+    "rarity": "Crafted",
+    "price": 830,
+    "sprite_path": "assets/dragonbound/furniture/health-02.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Wide platform with an easy-to-read brass dial.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "health-3",
+    "name": "Balance Care Scale",
+    "category": "Care",
+    "collection_name": "Starter Care",
+    "rarity": "Rare",
+    "price": 895,
+    "sprite_path": "assets/dragonbound/furniture/health-03.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Counterweight scale for precise health checks.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "health-4",
+    "name": "Wall Medicine Cabinet",
+    "category": "Care",
+    "collection_name": "Starter Care",
+    "rarity": "Common",
+    "price": 960,
+    "sprite_path": "assets/dragonbound/furniture/health-04.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Lockable shelves for tonics, wraps and salves.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "health-5",
+    "name": "Tall Remedy Cabinet",
+    "category": "Care",
+    "collection_name": "Care & Recovery",
+    "rarity": "Crafted",
+    "price": 1025,
+    "sprite_path": "assets/dragonbound/furniture/health-05.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Tall organised storage for a complete care room.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "health-6",
+    "name": "Bandage Trolley",
+    "category": "Care",
+    "collection_name": "Starter Care",
+    "rarity": "Crafted",
+    "price": 1090,
+    "sprite_path": "assets/dragonbound/furniture/health-06.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Mobile wraps and dressing station with locking wheels.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "health-7",
+    "name": "Healer’s Supply Cart",
+    "category": "Care",
+    "collection_name": "Care & Recovery",
+    "rarity": "Rare",
+    "price": 1155,
+    "sprite_path": "assets/dragonbound/furniture/health-07.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A larger supply cart for long recovery sessions.",
+    "tags": [
+      "inspectable"
+    ]
+  },
+  {
+    "item_id": "starter-01-round-dragon-nest-bed",
+    "name": "Round Dragon Nest Bed",
+    "category": "Beds",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 0,
+    "sprite_path": "assets/dragonbound/furniture/starter-01-round-dragon-nest-bed.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: round dragon nest bed.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "sleepable"
+    ],
+    "sort_order": 2001
+  },
+  {
+    "item_id": "starter-02-tail-channel-bed",
+    "name": "Tail Channel Bed",
+    "category": "Beds",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 145,
+    "sprite_path": "assets/dragonbound/furniture/starter-02-tail-channel-bed.png",
+    "footprint_w": 4,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: tail channel bed.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "sleepable"
+    ],
+    "sort_order": 2002
+  },
+  {
+    "item_id": "starter-03-heated-sleeping-slab",
+    "name": "Heated Sleeping Slab",
+    "category": "Beds",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 160,
+    "sprite_path": "assets/dragonbound/furniture/starter-03-heated-sleeping-slab.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: heated sleeping slab.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "sleepable",
+      "warm"
+    ],
+    "sort_order": 2003
+  },
+  {
+    "item_id": "starter-04-hanging-cocoon-hammock",
+    "name": "Hanging Cocoon Hammock",
+    "category": "Beds",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 260,
+    "sprite_path": "assets/dragonbound/furniture/starter-04-hanging-cocoon-hammock.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: hanging cocoon hammock.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "sleepable"
+    ],
+    "sort_order": 2004
+  },
+  {
+    "item_id": "starter-05-low-food-bowl",
+    "name": "Low Food Bowl",
+    "category": "Feeding",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 140,
+    "sprite_path": "assets/dragonbound/furniture/starter-05-low-food-bowl.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: low food bowl.",
+    "tags": [
+      "feeding",
+      "food",
+      "inspectable"
+    ],
+    "sort_order": 2005
+  },
+  {
+    "item_id": "starter-06-low-water-trough",
+    "name": "Low Water Trough",
+    "category": "Feeding",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 150,
+    "sprite_path": "assets/dragonbound/furniture/starter-06-low-water-trough.png",
+    "footprint_w": 4,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: low water trough.",
+    "tags": [
+      "drink",
+      "hydration",
+      "inspectable"
+    ],
+    "sort_order": 2006
+  },
+  {
+    "item_id": "starter-07-baby-dragon-bath-tub",
+    "name": "Baby-Dragon Bath Tub",
+    "category": "Bath",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 0,
+    "sprite_path": "assets/dragonbound/furniture/starter-07-baby-dragon-bath-tub.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: baby-dragon bath tub.",
+    "tags": [
+      "groomable",
+      "inspectable",
+      "washable"
+    ],
+    "sort_order": 2007
+  },
+  {
+    "item_id": "starter-08-sand-cleaning-pit",
+    "name": "Sand Cleaning Pit",
+    "category": "Bath",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 265,
+    "sprite_path": "assets/dragonbound/furniture/starter-08-sand-cleaning-pit.png",
+    "footprint_w": 4,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: sand cleaning pit.",
+    "tags": [
+      "diggable",
+      "groomable",
+      "inspectable",
+      "sandbath",
+      "washable"
+    ],
+    "sort_order": 2008
+  },
+  {
+    "item_id": "starter-09-grooming-brush-post",
+    "name": "Grooming Brush Post",
+    "category": "Care",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 185,
+    "sprite_path": "assets/dragonbound/furniture/starter-09-grooming-brush-post.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: grooming brush post.",
+    "tags": [
+      "groomable",
+      "inspectable"
+    ],
+    "sort_order": 2009
+  },
+  {
+    "item_id": "starter-10-scale-polishing-station",
+    "name": "Scale Polishing Station",
+    "category": "Care",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 200,
+    "sprite_path": "assets/dragonbound/furniture/starter-10-scale-polishing-station.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: scale polishing station.",
+    "tags": [
+      "groomable",
+      "inspectable"
+    ],
+    "sort_order": 2010
+  },
+  {
+    "item_id": "starter-11-dragon-toilet-litter-station",
+    "name": "Dragon Toilet Litter Station",
+    "category": "Care",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 210,
+    "sprite_path": "assets/dragonbound/furniture/starter-11-dragon-toilet-litter-station.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: dragon toilet litter station.",
+    "tags": [
+      "inspectable",
+      "toilet"
+    ],
+    "sort_order": 2011
+  },
+  {
+    "item_id": "starter-12-wall-towel-rail",
+    "name": "Wall Towel Rail",
+    "category": "Bath",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 310,
+    "sprite_path": "assets/dragonbound/furniture/starter-12-wall-towel-rail.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: wall towel rail.",
+    "tags": [
+      "groomable",
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 2012
+  },
+  {
+    "item_id": "starter-13-winged-wall-mirror",
+    "name": "Winged Wall Mirror",
+    "category": "Decor",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 235,
+    "sprite_path": "assets/dragonbound/furniture/starter-13-winged-wall-mirror.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: winged wall mirror.",
+    "tags": [
+      "inspectable",
+      "mirror",
+      "wall-mounted"
+    ],
+    "sort_order": 2013
+  },
+  {
+    "item_id": "starter-14-wooden-toy-chest",
+    "name": "Wooden Toy Chest",
+    "category": "Storage",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 245,
+    "sprite_path": "assets/dragonbound/furniture/starter-14-wooden-toy-chest.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: wooden toy chest.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 2014
+  },
+  {
+    "item_id": "starter-15-wooden-chew-ring-stack",
+    "name": "Wooden Chew Ring Stack",
+    "category": "Toys",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 260,
+    "sprite_path": "assets/dragonbound/furniture/starter-15-wooden-chew-ring-stack.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: wooden chew ring stack.",
+    "tags": [
+      "chewable",
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 2015
+  },
+  {
+    "item_id": "starter-16-treat-puzzle-ball",
+    "name": "Treat Puzzle Ball",
+    "category": "Toys",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 360,
+    "sprite_path": "assets/dragonbound/furniture/starter-16-treat-puzzle-ball.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: treat puzzle ball.",
+    "tags": [
+      "food",
+      "inspectable",
+      "playable",
+      "puzzle"
+    ],
+    "sort_order": 2016
+  },
+  {
+    "item_id": "starter-17-rope-tug-post",
+    "name": "Rope Tug Post",
+    "category": "Toys",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 280,
+    "sprite_path": "assets/dragonbound/furniture/starter-17-rope-tug-post.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: rope tug post.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "tug"
+    ],
+    "sort_order": 2017
+  },
+  {
+    "item_id": "starter-18-stuffed-wyvern-toy",
+    "name": "Stuffed Wyvern Toy",
+    "category": "Toys",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 0,
+    "sprite_path": "assets/dragonbound/furniture/starter-18-stuffed-wyvern-toy.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: stuffed wyvern toy.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 2018
+  },
+  {
+    "item_id": "starter-19-miniature-treasure-hoard",
+    "name": "Miniature Treasure Hoard",
+    "category": "Toys",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 305,
+    "sprite_path": "assets/dragonbound/furniture/starter-19-miniature-treasure-hoard.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: miniature treasure hoard.",
+    "tags": [
+      "hoardable",
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 2019
+  },
+  {
+    "item_id": "starter-20-baby-dragon-exercise-wheel",
+    "name": "Baby-Dragon Exercise Wheel",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 455,
+    "sprite_path": "assets/dragonbound/furniture/starter-20-baby-dragon-exercise-wheel.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: baby-dragon exercise wheel.",
+    "tags": [
+      "exercise",
+      "inspectable",
+      "playable",
+      "training"
+    ],
+    "sort_order": 2020
+  },
+  {
+    "item_id": "starter-21-low-balance-beam",
+    "name": "Low Balance Beam",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/starter-21-low-balance-beam.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: low balance beam.",
+    "tags": [
+      "agility",
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 2021
+  },
+  {
+    "item_id": "starter-22-claw-scratching-log",
+    "name": "Claw Scratching Log",
+    "category": "Care",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 340,
+    "sprite_path": "assets/dragonbound/furniture/starter-22-claw-scratching-log.png",
+    "footprint_w": 4,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: claw scratching log.",
+    "tags": [
+      "inspectable",
+      "scratchable"
+    ],
+    "sort_order": 2022
+  },
+  {
+    "item_id": "starter-23-baby-dragon-agility-hoop",
+    "name": "Baby-Dragon Agility Hoop",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 400,
+    "sprite_path": "assets/dragonbound/furniture/starter-23-baby-dragon-agility-hoop.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: baby-dragon agility hoop.",
+    "tags": [
+      "agility",
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 2023
+  },
+  {
+    "item_id": "starter-24-short-climbing-ramp",
+    "name": "Short Climbing Ramp",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 500,
+    "sprite_path": "assets/dragonbound/furniture/starter-24-short-climbing-ramp.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: short climbing ramp.",
+    "tags": [
+      "climbable",
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 2024
+  },
+  {
+    "item_id": "starter-25-roaring-practice-target",
+    "name": "Roaring Practice Target",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/starter-25-roaring-practice-target.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: roaring practice target.",
+    "tags": [
+      "inspectable",
+      "roarable"
+    ],
+    "sort_order": 2025
+  },
+  {
+    "item_id": "starter-26-roaring-practice-horn",
+    "name": "Roaring Practice Horn",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 435,
+    "sprite_path": "assets/dragonbound/furniture/starter-26-roaring-practice-horn.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: roaring practice horn.",
+    "tags": [
+      "inspectable",
+      "roarable"
+    ],
+    "sort_order": 2026
+  },
+  {
+    "item_id": "starter-27-flame-practice-brazier",
+    "name": "Flame Practice Brazier",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 445,
+    "sprite_path": "assets/dragonbound/furniture/starter-27-flame-practice-brazier.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: flame practice brazier.",
+    "tags": [
+      "fire-practice",
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 2027
+  },
+  {
+    "item_id": "starter-28-soot-proof-practice-dummy",
+    "name": "Soot Proof Practice Dummy",
+    "category": "Training",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 550,
+    "sprite_path": "assets/dragonbound/furniture/starter-28-soot-proof-practice-dummy.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: soot proof practice dummy.",
+    "tags": [
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 2028
+  },
+  {
+    "item_id": "starter-29-velmora-mountain-painting",
+    "name": "Velmora Mountain Painting",
+    "category": "Decor",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/starter-29-velmora-mountain-painting.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: velmora mountain painting.",
+    "tags": [
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 2029
+  },
+  {
+    "item_id": "starter-30-flying-dragon-painting",
+    "name": "Flying Dragon Painting",
+    "category": "Decor",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 440,
+    "sprite_path": "assets/dragonbound/furniture/starter-30-flying-dragon-painting.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: flying dragon painting.",
+    "tags": [
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 2030
+  },
+  {
+    "item_id": "starter-31-wall-growth-chart",
+    "name": "Wall Growth Chart",
+    "category": "Decor",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 450,
+    "sprite_path": "assets/dragonbound/furniture/starter-31-wall-growth-chart.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: wall growth chart.",
+    "tags": [
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 2031
+  },
+  {
+    "item_id": "starter-32-dragon-care-bookshelf",
+    "name": "Dragon Care Bookshelf",
+    "category": "Storage",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 550,
+    "sprite_path": "assets/dragonbound/furniture/starter-32-dragon-care-bookshelf.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: dragon care bookshelf.",
+    "tags": [
+      "inspectable",
+      "reading"
+    ],
+    "sort_order": 2032
+  },
+  {
+    "item_id": "starter-33-tail-handle-wardrobe",
+    "name": "Tail Handle Wardrobe",
+    "category": "Storage",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/starter-33-tail-handle-wardrobe.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: tail handle wardrobe.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ],
+    "sort_order": 2033
+  },
+  {
+    "item_id": "starter-34-low-storage-cabinet",
+    "name": "Low Storage Cabinet",
+    "category": "Storage",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 485,
+    "sprite_path": "assets/dragonbound/furniture/starter-34-low-storage-cabinet.png",
+    "footprint_w": 4,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: low storage cabinet.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ],
+    "sort_order": 2034
+  },
+  {
+    "item_id": "starter-35-scale-pattern-floor-rug",
+    "name": "Scale Pattern Floor Rug",
+    "category": "Decor",
+    "collection_name": "Starter Essentials",
+    "rarity": "Common",
+    "price": 500,
+    "sprite_path": "assets/dragonbound/furniture/starter-35-scale-pattern-floor-rug.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: scale pattern floor rug.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "restable"
+    ],
+    "sort_order": 2035
+  },
+  {
+    "item_id": "starter-36-warm-floor-lantern",
+    "name": "Warm Floor Lantern",
+    "category": "Decor",
+    "collection_name": "Starter Essentials",
+    "rarity": "Crafted",
+    "price": 600,
+    "sprite_path": "assets/dragonbound/furniture/starter-36-warm-floor-lantern.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A practical Dragonbound starter furnishing designed for young dragons: warm floor lantern.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 2036
+  },
+  {
+    "item_id": "exp-01-living-moss-nest-bed",
+    "name": "Living Moss Nest Bed",
+    "category": "Beds",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Common",
+    "price": 380,
+    "sprite_path": "assets/dragonbound/furniture/exp-01-living-moss-nest-bed.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A wildwood nature furnishing for Dragonbound homes: living moss nest bed.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "nature",
+      "sleepable"
+    ],
+    "sort_order": 3001
+  },
+  {
+    "item_id": "exp-02-hollow-log-hideaway",
+    "name": "Hollow Log Hideaway",
+    "category": "Nature",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Crafted",
+    "price": 590,
+    "sprite_path": "assets/dragonbound/furniture/exp-02-hollow-log-hideaway.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A wildwood nature furnishing for Dragonbound homes: hollow log hideaway.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ],
+    "sort_order": 3002
+  },
+  {
+    "item_id": "exp-03-leaf-canopy-daybed",
+    "name": "Leaf Canopy Daybed",
+    "category": "Beds",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Common",
+    "price": 435,
+    "sprite_path": "assets/dragonbound/furniture/exp-03-leaf-canopy-daybed.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A wildwood nature furnishing for Dragonbound homes: leaf canopy daybed.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "nature",
+      "sleepable"
+    ],
+    "sort_order": 3003
+  },
+  {
+    "item_id": "exp-04-mushroom-floor-lamp",
+    "name": "Mushroom Floor Lamp",
+    "category": "Decor",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Rare",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/exp-04-mushroom-floor-lamp.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A wildwood nature furnishing for Dragonbound homes: mushroom floor lamp.",
+    "tags": [
+      "inspectable",
+      "nature",
+      "warm"
+    ],
+    "sort_order": 3004
+  },
+  {
+    "item_id": "exp-05-vine-climbing-trellis",
+    "name": "Vine Climbing Trellis",
+    "category": "Nature",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Crafted",
+    "price": 670,
+    "sprite_path": "assets/dragonbound/furniture/exp-05-vine-climbing-trellis.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A wildwood nature furnishing for Dragonbound homes: vine climbing trellis.",
+    "tags": [
+      "climbable",
+      "inspectable",
+      "nature"
+    ],
+    "sort_order": 3005
+  },
+  {
+    "item_id": "exp-06-indoor-pebble-pond",
+    "name": "Indoor Pebble Pond",
+    "category": "Nature",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Rare",
+    "price": 930,
+    "sprite_path": "assets/dragonbound/furniture/exp-06-indoor-pebble-pond.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A wildwood nature furnishing for Dragonbound homes: indoor pebble pond.",
+    "tags": [
+      "drink",
+      "inspectable",
+      "nature",
+      "washable"
+    ],
+    "sort_order": 3006
+  },
+  {
+    "item_id": "exp-07-flower-and-herb-planter",
+    "name": "Flower and Herb Planter",
+    "category": "Nature",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Common",
+    "price": 550,
+    "sprite_path": "assets/dragonbound/furniture/exp-07-flower-and-herb-planter.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A wildwood nature furnishing for Dragonbound homes: flower and herb planter.",
+    "tags": [
+      "inspectable",
+      "nature",
+      "sniffable"
+    ],
+    "sort_order": 3007
+  },
+  {
+    "item_id": "exp-08-tree-stump-feeding-table",
+    "name": "Tree Stump Feeding Table",
+    "category": "Feeding",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Epic",
+    "price": 1315,
+    "sprite_path": "assets/dragonbound/furniture/exp-08-tree-stump-feeding-table.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A wildwood nature furnishing for Dragonbound homes: tree stump feeding table.",
+    "tags": [
+      "feeding",
+      "food",
+      "inspectable"
+    ],
+    "sort_order": 3008
+  },
+  {
+    "item_id": "exp-09-woven-willow-toy-basket",
+    "name": "Woven Willow Toy Basket",
+    "category": "Toys",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Common",
+    "price": 605,
+    "sprite_path": "assets/dragonbound/furniture/exp-09-woven-willow-toy-basket.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A wildwood nature furnishing for Dragonbound homes: woven willow toy basket.",
+    "tags": [
+      "inspectable",
+      "nature",
+      "playable"
+    ],
+    "sort_order": 3009
+  },
+  {
+    "item_id": "exp-10-pressed-leaf-wall-art",
+    "name": "Pressed Leaf Wall Art",
+    "category": "Decor",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Crafted",
+    "price": 810,
+    "sprite_path": "assets/dragonbound/furniture/exp-10-pressed-leaf-wall-art.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A wildwood nature furnishing for Dragonbound homes: pressed leaf wall art.",
+    "tags": [
+      "inspectable",
+      "nature",
+      "wall-mounted"
+    ],
+    "sort_order": 3010
+  },
+  {
+    "item_id": "exp-11-branch-resting-perch",
+    "name": "Branch Resting Perch",
+    "category": "Nature",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Common",
+    "price": 660,
+    "sprite_path": "assets/dragonbound/furniture/exp-11-branch-resting-perch.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A wildwood nature furnishing for Dragonbound homes: branch resting perch.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "nature",
+      "perchable",
+      "restable"
+    ],
+    "sort_order": 3011
+  },
+  {
+    "item_id": "exp-12-indoor-grass-digging-patch",
+    "name": "Indoor Grass Digging Patch",
+    "category": "Nature",
+    "collection_name": "Wildwood Nature",
+    "rarity": "Rare",
+    "price": 1100,
+    "sprite_path": "assets/dragonbound/furniture/exp-12-indoor-grass-digging-patch.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A wildwood nature furnishing for Dragonbound homes: indoor grass digging patch.",
+    "tags": [
+      "diggable",
+      "inspectable",
+      "nature"
+    ],
+    "sort_order": 3012
+  },
+  {
+    "item_id": "exp-13-rose-canopy-nest-bed",
+    "name": "Rose Canopy Nest Bed",
+    "category": "Beds",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Crafted",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/exp-13-rose-canopy-nest-bed.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: rose canopy nest bed.",
+    "tags": [
+      "comfortable",
+      "expensive",
+      "inspectable",
+      "sleepable"
+    ],
+    "sort_order": 3013
+  },
+  {
+    "item_id": "exp-14-heart-scale-vanity-table",
+    "name": "Heart Scale Vanity Table",
+    "category": "Living",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Rare",
+    "price": 960,
+    "sprite_path": "assets/dragonbound/furniture/exp-14-heart-scale-vanity-table.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: heart scale vanity table.",
+    "tags": [
+      "expensive",
+      "inspectable"
+    ],
+    "sort_order": 3014
+  },
+  {
+    "item_id": "exp-15-oval-wing-dressing-mirror",
+    "name": "Oval Wing Dressing Mirror",
+    "category": "Decor",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Common",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/exp-15-oval-wing-dressing-mirror.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: oval wing dressing mirror.",
+    "tags": [
+      "expensive",
+      "inspectable",
+      "mirror"
+    ],
+    "sort_order": 3015
+  },
+  {
+    "item_id": "exp-16-pastel-wing-handle-wardrobe",
+    "name": "Pastel Wing Handle Wardrobe",
+    "category": "Storage",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Epic",
+    "price": 1345,
+    "sprite_path": "assets/dragonbound/furniture/exp-16-pastel-wing-handle-wardrobe.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: pastel wing handle wardrobe.",
+    "tags": [
+      "expensive",
+      "hideable",
+      "inspectable"
+    ],
+    "sort_order": 3016
+  },
+  {
+    "item_id": "exp-17-ribbon-trimmed-toy-chest",
+    "name": "Ribbon Trimmed Toy Chest",
+    "category": "Toys",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Common",
+    "price": 490,
+    "sprite_path": "assets/dragonbound/furniture/exp-17-ribbon-trimmed-toy-chest.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: ribbon trimmed toy chest.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 3017
+  },
+  {
+    "item_id": "exp-18-flower-shaped-floor-rug",
+    "name": "Flower Shaped Floor Rug",
+    "category": "Decor",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Crafted",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/exp-18-flower-shaped-floor-rug.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: flower shaped floor rug.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "nature",
+      "restable"
+    ],
+    "sort_order": 3018
+  },
+  {
+    "item_id": "exp-19-moon-stars-night-light",
+    "name": "Moon Stars Night Light",
+    "category": "Living",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Common",
+    "price": 550,
+    "sprite_path": "assets/dragonbound/furniture/exp-19-moon-stars-night-light.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: moon stars night light.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 3019
+  },
+  {
+    "item_id": "exp-20-jewel-display-pedestal",
+    "name": "Jewel Display Pedestal",
+    "category": "Decor",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Rare",
+    "price": 1125,
+    "sprite_path": "assets/dragonbound/furniture/exp-20-jewel-display-pedestal.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: jewel display pedestal.",
+    "tags": [
+      "expensive",
+      "inspectable"
+    ],
+    "sort_order": 3020
+  },
+  {
+    "item_id": "exp-21-tasseled-dragon-floor-cushion",
+    "name": "Tasseled Dragon Floor Cushion",
+    "category": "Living",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Crafted",
+    "price": 785,
+    "sprite_path": "assets/dragonbound/furniture/exp-21-tasseled-dragon-floor-cushion.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: tasseled dragon floor cushion.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "restable"
+    ],
+    "sort_order": 3021
+  },
+  {
+    "item_id": "exp-22-dragon-treat-party-table",
+    "name": "Dragon Treat Party Table",
+    "category": "Feeding",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Rare",
+    "price": 1040,
+    "sprite_path": "assets/dragonbound/furniture/exp-22-dragon-treat-party-table.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: dragon treat party table.",
+    "tags": [
+      "feeding",
+      "food",
+      "inspectable"
+    ],
+    "sort_order": 3022
+  },
+  {
+    "item_id": "exp-23-cloud-shaped-bookshelf",
+    "name": "Cloud Shaped Bookshelf",
+    "category": "Storage",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Common",
+    "price": 660,
+    "sprite_path": "assets/dragonbound/furniture/exp-23-cloud-shaped-bookshelf.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: cloud shaped bookshelf.",
+    "tags": [
+      "inspectable",
+      "reading"
+    ],
+    "sort_order": 3023
+  },
+  {
+    "item_id": "exp-24-flower-moon-wall-garland",
+    "name": "Flower Moon Wall Garland",
+    "category": "Decor",
+    "collection_name": "Moonpetal Collection",
+    "rarity": "Epic",
+    "price": 1430,
+    "sprite_path": "assets/dragonbound/furniture/exp-24-flower-moon-wall-garland.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A moonpetal collection furnishing for Dragonbound homes: flower moon wall garland.",
+    "tags": [
+      "inspectable",
+      "nature",
+      "wall-mounted"
+    ],
+    "sort_order": 3024
+  },
+  {
+    "item_id": "exp-25-riveted-iron-dragon-bunk",
+    "name": "Riveted Iron Dragon Bunk",
+    "category": "Beds",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Common",
+    "price": 380,
+    "sprite_path": "assets/dragonbound/furniture/exp-25-riveted-iron-dragon-bunk.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: riveted iron dragon bunk.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "sleepable"
+    ],
+    "sort_order": 3025
+  },
+  {
+    "item_id": "exp-26-dark-leather-dragon-lounger",
+    "name": "Dark Leather Dragon Lounger",
+    "category": "Living",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Crafted",
+    "price": 590,
+    "sprite_path": "assets/dragonbound/furniture/exp-26-dark-leather-dragon-lounger.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: dark leather dragon lounger.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "restable"
+    ],
+    "sort_order": 3026
+  },
+  {
+    "item_id": "exp-27-heavy-ironbound-storage-chest",
+    "name": "Heavy Ironbound Storage Chest",
+    "category": "Storage",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Common",
+    "price": 435,
+    "sprite_path": "assets/dragonbound/furniture/exp-27-heavy-ironbound-storage-chest.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: heavy ironbound storage chest.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ],
+    "sort_order": 3027
+  },
+  {
+    "item_id": "exp-28-barrel-hydration-station",
+    "name": "Barrel Hydration Station",
+    "category": "Feeding",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Rare",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/exp-28-barrel-hydration-station.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: barrel hydration station.",
+    "tags": [
+      "drink",
+      "hydration",
+      "inspectable"
+    ],
+    "sort_order": 3028
+  },
+  {
+    "item_id": "exp-29-protected-forge-heat-lamp",
+    "name": "Protected Forge Heat Lamp",
+    "category": "Decor",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Crafted",
+    "price": 670,
+    "sprite_path": "assets/dragonbound/furniture/exp-29-protected-forge-heat-lamp.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: protected forge heat lamp.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 3029
+  },
+  {
+    "item_id": "exp-30-crossed-shield-wall-display",
+    "name": "Crossed Shield Wall Display",
+    "category": "Decor",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Rare",
+    "price": 930,
+    "sprite_path": "assets/dragonbound/furniture/exp-30-crossed-shield-wall-display.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: crossed shield wall display.",
+    "tags": [
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 3030
+  },
+  {
+    "item_id": "exp-31-race-trophy-and-medal-shelf",
+    "name": "Race Trophy and Medal Shelf",
+    "category": "Storage",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Common",
+    "price": 690,
+    "sprite_path": "assets/dragonbound/furniture/exp-31-race-trophy-and-medal-shelf.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: race trophy and medal shelf.",
+    "tags": [
+      "expensive",
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 3031
+  },
+  {
+    "item_id": "exp-32-stone-and-iron-tool-cabinet",
+    "name": "Stone and Iron Tool Cabinet",
+    "category": "Storage",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Epic",
+    "price": 1315,
+    "sprite_path": "assets/dragonbound/furniture/exp-32-stone-and-iron-tool-cabinet.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: stone iron tool cabinet.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ],
+    "sort_order": 3032
+  },
+  {
+    "item_id": "exp-33-velmora-map-table",
+    "name": "Velmora Map Table",
+    "category": "Living",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Common",
+    "price": 605,
+    "sprite_path": "assets/dragonbound/furniture/exp-33-velmora-map-table.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: velmora map table.",
+    "tags": [
+      "inspectable"
+    ],
+    "sort_order": 3033
+  },
+  {
+    "item_id": "exp-34-heavy-chain-tug-post",
+    "name": "Heavy Chain Tug Post",
+    "category": "Toys",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Crafted",
+    "price": 810,
+    "sprite_path": "assets/dragonbound/furniture/exp-34-heavy-chain-tug-post.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: heavy chain tug post.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "tug"
+    ],
+    "sort_order": 3034
+  },
+  {
+    "item_id": "exp-35-boulder-scratching-pillar",
+    "name": "Boulder Scratching Pillar",
+    "category": "Care",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Common",
+    "price": 660,
+    "sprite_path": "assets/dragonbound/furniture/exp-35-boulder-scratching-pillar.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: boulder scratching pillar.",
+    "tags": [
+      "inspectable",
+      "scratchable"
+    ],
+    "sort_order": 3035
+  },
+  {
+    "item_id": "exp-36-black-iron-floor-lantern",
+    "name": "Black Iron Floor Lantern",
+    "category": "Decor",
+    "collection_name": "Ironkeep Collection",
+    "rarity": "Rare",
+    "price": 1100,
+    "sprite_path": "assets/dragonbound/furniture/exp-36-black-iron-floor-lantern.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A ironkeep collection furnishing for Dragonbound homes: black iron floor lantern.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 3036
+  },
+  {
+    "item_id": "exp-37-claw-safe-dragon-treadmill",
+    "name": "Claw Safe Dragon Treadmill",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Crafted",
+    "price": 650,
+    "sprite_path": "assets/dragonbound/furniture/exp-37-claw-safe-dragon-treadmill.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A dragon training hall furnishing for Dragonbound homes: claw safe dragon treadmill.",
+    "tags": [
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 3037
+  },
+  {
+    "item_id": "exp-38-wing-resistance-pulley",
+    "name": "Wing Resistance Pulley",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Rare",
+    "price": 910,
+    "sprite_path": "assets/dragonbound/furniture/exp-38-wing-resistance-pulley.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A dragon training hall furnishing for Dragonbound homes: wing resistance pulley.",
+    "tags": [
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 3038
+  },
+  {
+    "item_id": "exp-39-stone-dumbbell-rack",
+    "name": "Stone Dumbbell Rack",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Common",
+    "price": 525,
+    "sprite_path": "assets/dragonbound/furniture/exp-39-stone-dumbbell-rack.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A dragon training hall furnishing for Dragonbound homes: stone dumbbell rack.",
+    "tags": [
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 3039
+  },
+  {
+    "item_id": "exp-40-tail-strength-cable-machine",
+    "name": "Tail Strength Cable Machine",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Epic",
+    "price": 1295,
+    "sprite_path": "assets/dragonbound/furniture/exp-40-tail-strength-cable-machine.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A dragon training hall furnishing for Dragonbound homes: tail strength cable machine.",
+    "tags": [
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 3040
+  },
+  {
+    "item_id": "exp-41-wall-climbing-panel",
+    "name": "Wall Climbing Panel",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Common",
+    "price": 580,
+    "sprite_path": "assets/dragonbound/furniture/exp-41-wall-climbing-panel.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A dragon training hall furnishing for Dragonbound homes: wall climbing panel.",
+    "tags": [
+      "climbable",
+      "exercise",
+      "inspectable",
+      "training",
+      "wall-mounted"
+    ],
+    "sort_order": 3041
+  },
+  {
+    "item_id": "exp-42-protected-hover-practice-fan",
+    "name": "Protected Hover Practice Fan",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Crafted",
+    "price": 1120,
+    "sprite_path": "assets/dragonbound/furniture/exp-42-protected-hover-practice-fan.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A dragon training hall furnishing for Dragonbound homes: protected hover practice fan.",
+    "tags": [
+      "exercise",
+      "flight-practice",
+      "inspectable",
+      "noisy",
+      "training"
+    ],
+    "sort_order": 3042
+  },
+  {
+    "item_id": "exp-43-padded-punching-bag",
+    "name": "Padded Punching Bag",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Common",
+    "price": 640,
+    "sprite_path": "assets/dragonbound/furniture/exp-43-padded-punching-bag.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A dragon training hall furnishing for Dragonbound homes: padded punching bag.",
+    "tags": [
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 3043
+  },
+  {
+    "item_id": "exp-44-agility-weave-poles",
+    "name": "Agility Weave Poles",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Rare",
+    "price": 1075,
+    "sprite_path": "assets/dragonbound/furniture/exp-44-agility-weave-poles.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A dragon training hall furnishing for Dragonbound homes: agility weave poles.",
+    "tags": [
+      "agility",
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 3044
+  },
+  {
+    "item_id": "exp-45-wobble-balance-board",
+    "name": "Wobble Balance Board",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Crafted",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/exp-45-wobble-balance-board.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A dragon training hall furnishing for Dragonbound homes: wobble balance board.",
+    "tags": [
+      "agility",
+      "exercise",
+      "inspectable",
+      "training"
+    ],
+    "sort_order": 3045
+  },
+  {
+    "item_id": "exp-46-dragon-stretching-mat",
+    "name": "Dragon Stretching Mat",
+    "category": "Training",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Rare",
+    "price": 1130,
+    "sprite_path": "assets/dragonbound/furniture/exp-46-dragon-stretching-mat.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A dragon training hall furnishing for Dragonbound homes: dragon stretching mat.",
+    "tags": [
+      "comfortable",
+      "exercise",
+      "inspectable",
+      "restable",
+      "training"
+    ],
+    "sort_order": 3046
+  },
+  {
+    "item_id": "exp-47-recovery-ice-bath",
+    "name": "Recovery Ice Bath",
+    "category": "Bath",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Common",
+    "price": 660,
+    "sprite_path": "assets/dragonbound/furniture/exp-47-recovery-ice-bath.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A dragon training hall furnishing for Dragonbound homes: recovery ice bath.",
+    "tags": [
+      "care",
+      "groomable",
+      "inspectable",
+      "washable"
+    ],
+    "sort_order": 3047
+  },
+  {
+    "item_id": "exp-48-gym-hydration-and-towel-station",
+    "name": "Gym Hydration and Towel Station",
+    "category": "Feeding",
+    "collection_name": "Dragon Training Hall",
+    "rarity": "Epic",
+    "price": 1480,
+    "sprite_path": "assets/dragonbound/furniture/exp-48-gym-hydration-and-towel-station.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A dragon training hall furnishing for Dragonbound homes: gym hydration towel station.",
+    "tags": [
+      "drink",
+      "hydration",
+      "inspectable"
+    ],
+    "sort_order": 3048
+  },
+  {
+    "item_id": "exp-49-tail-gap-dragon-sofa",
+    "name": "Tail Gap Dragon Sofa",
+    "category": "Living",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Common",
+    "price": 380,
+    "sprite_path": "assets/dragonbound/furniture/exp-49-tail-gap-dragon-sofa.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: tail gap dragon sofa.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "restable"
+    ],
+    "sort_order": 3049
+  },
+  {
+    "item_id": "exp-50-round-drawer-side-table",
+    "name": "Round Drawer Side Table",
+    "category": "Living",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Crafted",
+    "price": 590,
+    "sprite_path": "assets/dragonbound/furniture/exp-50-round-drawer-side-table.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: round drawer side table.",
+    "tags": [
+      "inspectable"
+    ],
+    "sort_order": 3050
+  },
+  {
+    "item_id": "exp-51-low-dining-and-feeding-table",
+    "name": "Low Dining and Feeding Table",
+    "category": "Feeding",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Common",
+    "price": 435,
+    "sprite_path": "assets/dragonbound/furniture/exp-51-low-dining-and-feeding-table.png",
+    "footprint_w": 4,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: low dining feeding table.",
+    "tags": [
+      "feeding",
+      "food",
+      "inspectable"
+    ],
+    "sort_order": 3051
+  },
+  {
+    "item_id": "exp-52-dragon-tail-floor-lamp",
+    "name": "Dragon Tail Floor Lamp",
+    "category": "Decor",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Rare",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/exp-52-dragon-tail-floor-lamp.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: dragon tail floor lamp.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 3052
+  },
+  {
+    "item_id": "exp-53-dragon-egg-wall-clock",
+    "name": "Dragon Egg Wall Clock",
+    "category": "Decor",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Crafted",
+    "price": 670,
+    "sprite_path": "assets/dragonbound/furniture/exp-53-dragon-egg-wall-clock.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: dragon egg wall clock.",
+    "tags": [
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 3053
+  },
+  {
+    "item_id": "exp-54-wall-flat-curtains",
+    "name": "Wall Flat Curtains",
+    "category": "Decor",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Rare",
+    "price": 930,
+    "sprite_path": "assets/dragonbound/furniture/exp-54-wall-flat-curtains.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: wall flat curtains.",
+    "tags": [
+      "inspectable",
+      "wall-mounted",
+      "window"
+    ],
+    "sort_order": 3054
+  },
+  {
+    "item_id": "exp-55-harness-and-rain-cape-rack",
+    "name": "Harness and Rain Cape Rack",
+    "category": "Storage",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Common",
+    "price": 550,
+    "sprite_path": "assets/dragonbound/furniture/exp-55-harness-and-rain-cape-rack.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: harness and rain cape rack.",
+    "tags": [
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 3055
+  },
+  {
+    "item_id": "exp-56-dragon-medicine-cabinet",
+    "name": "Dragon Medicine Cabinet",
+    "category": "Care",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Epic",
+    "price": 1315,
+    "sprite_path": "assets/dragonbound/furniture/exp-56-dragon-medicine-cabinet.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: dragon medicine cabinet.",
+    "tags": [
+      "care",
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 3056
+  },
+  {
+    "item_id": "exp-57-blanket-and-laundry-basket",
+    "name": "Blanket and Laundry Basket",
+    "category": "Storage",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Common",
+    "price": 605,
+    "sprite_path": "assets/dragonbound/furniture/exp-57-blanket-and-laundry-basket.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: blanket laundry basket.",
+    "tags": [
+      "hideable",
+      "inspectable"
+    ],
+    "sort_order": 3057
+  },
+  {
+    "item_id": "exp-58-dragon-wing-fireplace-guard",
+    "name": "Dragon Wing Fireplace Guard",
+    "category": "Living",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Crafted",
+    "price": 810,
+    "sprite_path": "assets/dragonbound/furniture/exp-58-dragon-wing-fireplace-guard.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: dragon wing fireplace guard.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 3058
+  },
+  {
+    "item_id": "exp-59-mismatched-floor-cushions",
+    "name": "Mismatched Floor Cushions",
+    "category": "Living",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Common",
+    "price": 660,
+    "sprite_path": "assets/dragonbound/furniture/exp-59-mismatched-floor-cushions.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: mismatched floor cushions.",
+    "tags": [
+      "comfortable",
+      "inspectable",
+      "restable"
+    ],
+    "sort_order": 3059
+  },
+  {
+    "item_id": "exp-60-toy-and-supplies-shelf",
+    "name": "Toy and Supplies Shelf",
+    "category": "Toys",
+    "collection_name": "Keeper’s Everyday",
+    "rarity": "Rare",
+    "price": 1100,
+    "sprite_path": "assets/dragonbound/furniture/exp-60-toy-and-supplies-shelf.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "A keeper’s everyday furnishing for Dragonbound homes: toy and supplies shelf.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 3060
+  },
+  {
+    "item_id": "exp2-001-gilded-royal-nest-throne",
+    "name": "Gilded Royal Nest Throne",
+    "category": "Beds",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Epic",
+    "price": 950,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/01_gilded_royal_nest_throne.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Gilded Royal Nest Throne, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "expensive"
+    ],
+    "sort_order": 4001
+  },
+  {
+    "item_id": "exp2-002-burgundy-velvet-dragon-chaise",
+    "name": "Burgundy Velvet Dragon Chaise",
+    "category": "Living",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/02_burgundy_velvet_dragon_chaise.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Burgundy Velvet Dragon Chaise, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "expensive"
+    ],
+    "sort_order": 4002
+  },
+  {
+    "item_id": "exp2-003-marble-gold-feeding-station",
+    "name": "Marble Gold Feeding Station",
+    "category": "Feeding",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/03_marble_gold_feeding_station.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Marble Gold Feeding Station, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "food",
+      "expensive"
+    ],
+    "sort_order": 4003
+  },
+  {
+    "item_id": "exp2-004-crown-egg-stained-glass-panel",
+    "name": "Crown Egg Stained-Glass Panel",
+    "category": "Decor",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/04_crown_egg_stained_glass_panel.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Crown Egg Stained-Glass Panel, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "expensive",
+      "wall-mounted"
+    ],
+    "sort_order": 4004
+  },
+  {
+    "item_id": "exp2-005-royal-dragon-crest-tapestry",
+    "name": "Royal Dragon-Crest Tapestry",
+    "category": "Decor",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/05_royal_dragon_crest_tapestry.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Royal Dragon-Crest Tapestry, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "expensive",
+      "wall-mounted"
+    ],
+    "sort_order": 4005
+  },
+  {
+    "item_id": "exp2-006-ornate-treasure-cabinet",
+    "name": "Ornate Treasure Cabinet",
+    "category": "Storage",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Epic",
+    "price": 950,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/06_ornate_treasure_cabinet.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Ornate Treasure Cabinet, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "hoardable",
+      "expensive"
+    ],
+    "sort_order": 4006
+  },
+  {
+    "item_id": "exp2-007-padded-royal-room-divider",
+    "name": "Padded Royal Room Divider",
+    "category": "Decor",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/07_padded_royal_room_divider.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Padded Royal Room Divider, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "expensive"
+    ],
+    "sort_order": 4007
+  },
+  {
+    "item_id": "exp2-008-crown-wings-luxury-rug",
+    "name": "Crown Wings Luxury Rug",
+    "category": "Decor",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/08_crown_wings_luxury_rug.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Crown Wings Luxury Rug, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "expensive"
+    ],
+    "sort_order": 4008
+  },
+  {
+    "item_id": "exp2-009-velvet-rope-egg-pedestal",
+    "name": "Velvet Rope Egg Pedestal",
+    "category": "Decor",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/09_velvet_rope_egg_pedestal.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Velvet Rope Egg Pedestal, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "expensive"
+    ],
+    "sort_order": 4009
+  },
+  {
+    "item_id": "exp2-010-crystal-chandelier-fixture",
+    "name": "Crystal Chandelier Fixture",
+    "category": "Decor",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Epic",
+    "price": 950,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/10_crystal_chandelier_fixture.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Crystal Chandelier Fixture, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "expensive",
+      "wall-mounted"
+    ],
+    "sort_order": 4010
+  },
+  {
+    "item_id": "exp2-011-caged-warming-lamp-cushion",
+    "name": "Caged Warming Lamp Cushion",
+    "category": "Beds",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Rare",
+    "price": 700,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/11_caged_warming_lamp_cushion.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Caged Warming Lamp Cushion, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "warm",
+      "expensive"
+    ],
+    "sort_order": 4011
+  },
+  {
+    "item_id": "exp2-012-race-ribbon-display-case",
+    "name": "Race Ribbon Display Case",
+    "category": "Storage",
+    "collection_name": "Royal & Luxury",
+    "rarity": "Epic",
+    "price": 950,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/12_race_ribbon_display_case.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Race Ribbon Display Case, part of the Dragonbound Royal & Luxury collection.",
+    "tags": [
+      "inspectable",
+      "hoardable",
+      "expensive"
+    ],
+    "sort_order": 4012
+  },
+  {
+    "item_id": "exp2-013-hovering-rune-sleep-cushion",
+    "name": "Hovering Rune Sleep Cushion",
+    "category": "Beds",
+    "collection_name": "Magical Study",
+    "rarity": "Rare",
+    "price": 650,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/13_hovering_rune_sleep_cushion.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Hovering Rune Sleep Cushion, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable"
+    ],
+    "sort_order": 4013
+  },
+  {
+    "item_id": "exp2-014-crystal-resonance-toy",
+    "name": "Crystal Resonance Toy",
+    "category": "Toys",
+    "collection_name": "Magical Study",
+    "rarity": "Crafted",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/14_crystal_resonance_toy.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Crystal Resonance Toy, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4014
+  },
+  {
+    "item_id": "exp2-015-rune-learning-board",
+    "name": "Rune Learning Board",
+    "category": "Training",
+    "collection_name": "Magical Study",
+    "rarity": "Crafted",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/15_rune_learning_board.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Rune Learning Board, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "training",
+      "wall-mounted"
+    ],
+    "sort_order": 4015
+  },
+  {
+    "item_id": "exp2-016-potion-herb-cabinet",
+    "name": "Potion Herb Cabinet",
+    "category": "Storage",
+    "collection_name": "Magical Study",
+    "rarity": "Crafted",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/16_potion_herb_cabinet.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Potion Herb Cabinet, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "sniffable"
+    ],
+    "sort_order": 4016
+  },
+  {
+    "item_id": "exp2-017-spellbook-lectern",
+    "name": "Spellbook Lectern",
+    "category": "Living",
+    "collection_name": "Magical Study",
+    "rarity": "Crafted",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/17_spellbook_lectern.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Spellbook Lectern, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "reading"
+    ],
+    "sort_order": 4017
+  },
+  {
+    "item_id": "exp2-018-crystal-mana-fountain",
+    "name": "Crystal Mana Fountain",
+    "category": "Nature",
+    "collection_name": "Magical Study",
+    "rarity": "Rare",
+    "price": 650,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/18_crystal_mana_fountain.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Crystal Mana Fountain, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable"
+    ],
+    "sort_order": 4018
+  },
+  {
+    "item_id": "exp2-019-star-projector-lantern",
+    "name": "Star Projector Lantern",
+    "category": "Decor",
+    "collection_name": "Magical Study",
+    "rarity": "Crafted",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/19_star_projector_lantern.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Star Projector Lantern, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "wall-mounted"
+    ],
+    "sort_order": 4019
+  },
+  {
+    "item_id": "exp2-020-padded-rune-crawl-tunnel",
+    "name": "Padded Rune Crawl Tunnel",
+    "category": "Toys",
+    "collection_name": "Magical Study",
+    "rarity": "Crafted",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/20_padded_rune_crawl_tunnel.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Padded Rune Crawl Tunnel, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "climbable",
+      "hideable"
+    ],
+    "sort_order": 4020
+  },
+  {
+    "item_id": "exp2-021-enchanted-dragon-music-box",
+    "name": "Enchanted Dragon Music Box",
+    "category": "Toys",
+    "collection_name": "Magical Study",
+    "rarity": "Crafted",
+    "price": 475,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/21_enchanted_dragon_music_box.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Enchanted Dragon Music Box, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "noisy"
+    ],
+    "sort_order": 4021
+  },
+  {
+    "item_id": "exp2-022-scrying-basin",
+    "name": "Scrying Basin",
+    "category": "Living",
+    "collection_name": "Magical Study",
+    "rarity": "Rare",
+    "price": 650,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/22_scrying_basin.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Scrying Basin, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable"
+    ],
+    "sort_order": 4022
+  },
+  {
+    "item_id": "exp2-023-magical-crystal-terrarium",
+    "name": "Magical Crystal Terrarium",
+    "category": "Nature",
+    "collection_name": "Magical Study",
+    "rarity": "Rare",
+    "price": 650,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/23_magical_crystal_terrarium.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Magical Crystal Terrarium, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "nature"
+    ],
+    "sort_order": 4023
+  },
+  {
+    "item_id": "exp2-024-rune-heating-stone-platform",
+    "name": "Rune Heating Stone Platform",
+    "category": "Living",
+    "collection_name": "Magical Study",
+    "rarity": "Rare",
+    "price": 650,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/24_rune_heating_stone_platform.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Rune Heating Stone Platform, part of the Dragonbound Magical Study collection.",
+    "tags": [
+      "inspectable",
+      "warm"
+    ],
+    "sort_order": 4024
+  },
+  {
+    "item_id": "exp2-025-heated-massage-nest",
+    "name": "Heated Massage Nest",
+    "category": "Care",
+    "collection_name": "Spa & Care",
+    "rarity": "Rare",
+    "price": 625,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/25_heated_massage_nest.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Heated Massage Nest, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "warm"
+    ],
+    "sort_order": 4025
+  },
+  {
+    "item_id": "exp2-026-rainfall-rinse-arch",
+    "name": "Rainfall Rinse Arch",
+    "category": "Bath",
+    "collection_name": "Spa & Care",
+    "rarity": "Rare",
+    "price": 625,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/26_rainfall_rinse_arch.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Rainfall Rinse Arch, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ],
+    "sort_order": 4026
+  },
+  {
+    "item_id": "exp2-027-scale-scrub-bath",
+    "name": "Scale Scrub Bath",
+    "category": "Bath",
+    "collection_name": "Spa & Care",
+    "rarity": "Rare",
+    "price": 625,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/27_scale_scrub_bath.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Scale Scrub Bath, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ],
+    "sort_order": 4027
+  },
+  {
+    "item_id": "exp2-028-mineral-mud-bathing-pit",
+    "name": "Mineral Mud Bathing Pit",
+    "category": "Bath",
+    "collection_name": "Spa & Care",
+    "rarity": "Rare",
+    "price": 625,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/28_mineral_mud_bathing_pit.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Mineral Mud Bathing Pit, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "washable",
+      "sandbath"
+    ],
+    "sort_order": 4028
+  },
+  {
+    "item_id": "exp2-029-enclosed-steam-bench",
+    "name": "Enclosed Steam Bench",
+    "category": "Bath",
+    "collection_name": "Spa & Care",
+    "rarity": "Rare",
+    "price": 625,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/29_enclosed_steam_bench.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Enclosed Steam Bench, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "washable"
+    ],
+    "sort_order": 4029
+  },
+  {
+    "item_id": "exp2-030-towel-warming-cabinet",
+    "name": "Towel Warming Cabinet",
+    "category": "Storage",
+    "collection_name": "Spa & Care",
+    "rarity": "Crafted",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/30_towel_warming_cabinet.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Towel Warming Cabinet, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "warm",
+      "groomable"
+    ],
+    "sort_order": 4030
+  },
+  {
+    "item_id": "exp2-031-claw-filing-station",
+    "name": "Claw Filing Station",
+    "category": "Care",
+    "collection_name": "Spa & Care",
+    "rarity": "Crafted",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/31_claw_filing_station.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Claw Filing Station, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "groomable"
+    ],
+    "sort_order": 4031
+  },
+  {
+    "item_id": "exp2-032-horn-polishing-stand",
+    "name": "Horn Polishing Stand",
+    "category": "Care",
+    "collection_name": "Spa & Care",
+    "rarity": "Crafted",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/32_horn_polishing_stand.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Horn Polishing Stand, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "groomable"
+    ],
+    "sort_order": 4032
+  },
+  {
+    "item_id": "exp2-033-tail-soaking-trough",
+    "name": "Tail Soaking Trough",
+    "category": "Bath",
+    "collection_name": "Spa & Care",
+    "rarity": "Crafted",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/33_tail_soaking_trough.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Tail Soaking Trough, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "washable"
+    ],
+    "sort_order": 4033
+  },
+  {
+    "item_id": "exp2-034-warm-air-drying-fan",
+    "name": "Warm-Air Drying Fan",
+    "category": "Care",
+    "collection_name": "Spa & Care",
+    "rarity": "Crafted",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/34_warm_air_drying_fan.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Warm-Air Drying Fan, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "groomable"
+    ],
+    "sort_order": 4034
+  },
+  {
+    "item_id": "exp2-035-spa-privacy-screen",
+    "name": "Spa Privacy Screen",
+    "category": "Decor",
+    "collection_name": "Spa & Care",
+    "rarity": "Crafted",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/35_spa_privacy_screen.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Spa Privacy Screen, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable"
+    ],
+    "sort_order": 4035
+  },
+  {
+    "item_id": "exp2-036-wheeled-grooming-cart",
+    "name": "Wheeled Grooming Cart",
+    "category": "Care",
+    "collection_name": "Spa & Care",
+    "rarity": "Crafted",
+    "price": 425,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/36_wheeled_grooming_cart.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Wheeled Grooming Cart, part of the Dragonbound Spa & Care collection.",
+    "tags": [
+      "inspectable",
+      "groomable"
+    ],
+    "sort_order": 4036
+  },
+  {
+    "item_id": "exp2-037-dragon-ball-pit",
+    "name": "Dragon Ball Pit",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Rare",
+    "price": 525,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/37_dragon_ball_pit.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Dragon Ball Pit, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4037
+  },
+  {
+    "item_id": "exp2-038-sleeping-dragon-crawl-tunnel",
+    "name": "Sleeping Dragon Crawl Tunnel",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Common",
+    "price": 275,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/38_sleeping_dragon_crawl_tunnel.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Sleeping Dragon Crawl Tunnel, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "climbable",
+      "hideable"
+    ],
+    "sort_order": 4038
+  },
+  {
+    "item_id": "exp2-039-baby-dragon-seesaw",
+    "name": "Baby-Dragon Seesaw",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Common",
+    "price": 275,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/39_baby_dragon_seesaw.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Baby-Dragon Seesaw, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "exercise",
+      "training",
+      "agility"
+    ],
+    "sort_order": 4039
+  },
+  {
+    "item_id": "exp2-040-indoor-scale-slide",
+    "name": "Indoor Scale Slide",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Common",
+    "price": 275,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/40_indoor_scale_slide.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Indoor Scale Slide, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "exercise",
+      "training",
+      "agility",
+      "climbable"
+    ],
+    "sort_order": 4040
+  },
+  {
+    "item_id": "exp2-041-castle-building-block-tray",
+    "name": "Castle Building-Block Tray",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Common",
+    "price": 275,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/41_castle_building_block_tray.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Castle Building-Block Tray, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4041
+  },
+  {
+    "item_id": "exp2-042-dragon-music-corner",
+    "name": "Dragon Music Corner",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Common",
+    "price": 275,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/42_dragon_music_corner.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Dragon Music Corner, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "noisy"
+    ],
+    "sort_order": 4042
+  },
+  {
+    "item_id": "exp2-043-sliding-puzzle-feeder",
+    "name": "Sliding Puzzle Feeder",
+    "category": "Feeding",
+    "collection_name": "Toys & Play",
+    "rarity": "Common",
+    "price": 275,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/43_sliding_puzzle_feeder.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Sliding Puzzle Feeder, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "puzzle",
+      "playable",
+      "food"
+    ],
+    "sort_order": 4043
+  },
+  {
+    "item_id": "exp2-044-dragon-puppet-theatre",
+    "name": "Dragon Puppet Theatre",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Rare",
+    "price": 525,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/44_dragon_puppet_theatre.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Dragon Puppet Theatre, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4044
+  },
+  {
+    "item_id": "exp2-045-treasure-hunt-maze-table",
+    "name": "Treasure-Hunt Maze Table",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Rare",
+    "price": 525,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/45_treasure_hunt_maze_table.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Treasure-Hunt Maze Table, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "puzzle",
+      "hoardable"
+    ],
+    "sort_order": 4045
+  },
+  {
+    "item_id": "exp2-046-magical-fish-bubble-maker",
+    "name": "Magical Fish Bubble Maker",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Rare",
+    "price": 525,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/46_magical_fish_bubble_maker.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Magical Fish Bubble Maker, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4046
+  },
+  {
+    "item_id": "exp2-047-rocking-wyvern-toy",
+    "name": "Rocking Wyvern Toy",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Common",
+    "price": 275,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/47_rocking_wyvern_toy.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Rocking Wyvern Toy, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4047
+  },
+  {
+    "item_id": "exp2-048-miniature-dragon-bowling-lane",
+    "name": "Miniature Dragon Bowling Lane",
+    "category": "Toys",
+    "collection_name": "Toys & Play",
+    "rarity": "Rare",
+    "price": 525,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/48_miniature_dragon_bowling_lane.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Miniature Dragon Bowling Lane, part of the Dragonbound Toys & Play collection.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4048
+  },
+  {
+    "item_id": "exp2-049-vardesh-fjord-ice-cooling-bed",
+    "name": "Vardesh Fjord-Ice Cooling Bed",
+    "category": "Beds",
+    "collection_name": "Velmora Regional",
+    "rarity": "Epic",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/49_vardesh_fjord_ice_cooling_bed.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Vardesh Fjord-Ice Cooling Bed, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "nature"
+    ],
+    "sort_order": 4049
+  },
+  {
+    "item_id": "exp2-050-lumerre-silk-lounging-canopy",
+    "name": "Lumerre Silk Lounging Canopy",
+    "category": "Living",
+    "collection_name": "Velmora Regional",
+    "rarity": "Rare",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/50_lumerre_silk_lounging_canopy.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Lumerre Silk Lounging Canopy, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable"
+    ],
+    "sort_order": 4050
+  },
+  {
+    "item_id": "exp2-051-kordesh-stone-feeding-altar",
+    "name": "Kordesh Stone Feeding Altar",
+    "category": "Feeding",
+    "collection_name": "Velmora Regional",
+    "rarity": "Rare",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/51_kordesh_stone_feeding_altar.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Kordesh Stone Feeding Altar, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "food"
+    ],
+    "sort_order": 4051
+  },
+  {
+    "item_id": "exp2-052-nambara-woven-reed-basket",
+    "name": "Nambara Woven-Reed Basket",
+    "category": "Storage",
+    "collection_name": "Velmora Regional",
+    "rarity": "Rare",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/52_nambara_woven_reed_basket.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Nambara Woven-Reed Basket, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "nature"
+    ],
+    "sort_order": 4052
+  },
+  {
+    "item_id": "exp2-053-norveth-fur-warming-den",
+    "name": "Norveth Fur Warming Den",
+    "category": "Beds",
+    "collection_name": "Velmora Regional",
+    "rarity": "Rare",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/53_norveth_fur_warming_den.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Norveth Fur Warming Den, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "warm"
+    ],
+    "sort_order": 4053
+  },
+  {
+    "item_id": "exp2-054-zafran-sun-mosaic-fountain",
+    "name": "Zafran Sun-Mosaic Fountain",
+    "category": "Nature",
+    "collection_name": "Velmora Regional",
+    "rarity": "Epic",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/54_zafran_sun_mosaic_fountain.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Zafran Sun-Mosaic Fountain, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "drink",
+      "hydration",
+      "nature"
+    ],
+    "sort_order": 4054
+  },
+  {
+    "item_id": "exp2-055-elvane-living-willow-bookshelf",
+    "name": "Elvane Living-Willow Bookshelf",
+    "category": "Nature",
+    "collection_name": "Velmora Regional",
+    "rarity": "Epic",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/55_elvane_living_willow_bookshelf.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Elvane Living-Willow Bookshelf, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "reading",
+      "nature"
+    ],
+    "sort_order": 4055
+  },
+  {
+    "item_id": "exp2-056-qasmir-star-lantern-screen",
+    "name": "Qasmir Star-Lantern Screen",
+    "category": "Decor",
+    "collection_name": "Velmora Regional",
+    "rarity": "Rare",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/56_qasmir_star_lantern_screen.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Qasmir Star-Lantern Screen, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable"
+    ],
+    "sort_order": 4056
+  },
+  {
+    "item_id": "exp2-057-calvora-tiled-sun-couch",
+    "name": "Calvora Tiled Sun Couch",
+    "category": "Living",
+    "collection_name": "Velmora Regional",
+    "rarity": "Rare",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/57_calvora_tiled_sun_couch.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Calvora Tiled Sun Couch, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable"
+    ],
+    "sort_order": 4057
+  },
+  {
+    "item_id": "exp2-058-talune-shell-driftwood-rocker",
+    "name": "Talune Shell Driftwood Rocker",
+    "category": "Living",
+    "collection_name": "Velmora Regional",
+    "rarity": "Rare",
+    "price": 675,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/58_talune_shell_driftwood_rocker.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Talune Shell Driftwood Rocker, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "nature"
+    ],
+    "sort_order": 4058
+  },
+  {
+    "item_id": "exp2-059-drazhen-volcanic-warming-rock",
+    "name": "Drazhen Volcanic Warming Rock",
+    "category": "Nature",
+    "collection_name": "Velmora Regional",
+    "rarity": "Epic",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/59_drazhen_volcanic_warming_rock.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Drazhen Volcanic Warming Rock, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable",
+      "warm",
+      "nature"
+    ],
+    "sort_order": 4059
+  },
+  {
+    "item_id": "exp2-060-iskandar-celestial-map-cabinet",
+    "name": "Iskandar Celestial Map Cabinet",
+    "category": "Storage",
+    "collection_name": "Velmora Regional",
+    "rarity": "Epic",
+    "price": 875,
+    "sprite_path": "assets/dragonbound/furniture/v3266/expansion-two/60_iskandar_celestial_map_cabinet.png",
+    "footprint_w": 1,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Iskandar Celestial Map Cabinet, part of the Dragonbound Velmora Regional collection.",
+    "tags": [
+      "inspectable"
+    ],
+    "sort_order": 4060
+  },
+  {
+    "item_id": "personality-001-shy-dragon-hideaway",
+    "name": "Shy Dragon Hideaway",
+    "category": "Beds",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/01_shy_dragon_hideaway.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Shy Dragon Hideaway, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "hideable",
+      "comfortable",
+      "sleepable"
+    ],
+    "sort_order": 4101
+  },
+  {
+    "item_id": "personality-002-mischief-cupboard",
+    "name": "Mischief Cupboard",
+    "category": "Storage",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/02_mischief_cupboard.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Mischief Cupboard, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "hoardable",
+      "playable"
+    ],
+    "sort_order": 4102
+  },
+  {
+    "item_id": "personality-003-treasure-sorting-table",
+    "name": "Treasure Sorting Table",
+    "category": "Storage",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/03_treasure_sorting_table.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Treasure Sorting Table, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "puzzle",
+      "playable",
+      "hoardable"
+    ],
+    "sort_order": 4103
+  },
+  {
+    "item_id": "personality-004-book-reading-nest",
+    "name": "Book Reading Nest",
+    "category": "Beds",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/04_book_reading_nest.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Book Reading Nest, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "reading"
+    ],
+    "sort_order": 4104
+  },
+  {
+    "item_id": "personality-005-painting-easel-messy-paint-tray",
+    "name": "Painting Easel & Messy Paint Tray",
+    "category": "Living",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/05_painting_easel_and_messy_paint_tray.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Painting Easel & Messy Paint Tray, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4105
+  },
+  {
+    "item_id": "personality-006-improvisation-music-nook",
+    "name": "Improvisation Music Nook",
+    "category": "Toys",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/06_improvisation_music_nook.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Improvisation Music Nook, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "noisy"
+    ],
+    "sort_order": 4106
+  },
+  {
+    "item_id": "personality-007-digging-fossil-box",
+    "name": "Digging & Fossil Box",
+    "category": "Training",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/07_digging_and_fossil_box.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Digging & Fossil Box, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "diggable",
+      "playable"
+    ],
+    "sort_order": 4107
+  },
+  {
+    "item_id": "personality-008-window-watching-perch",
+    "name": "Window Watching Perch",
+    "category": "Living",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/08_window_watching_perch.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Window Watching Perch, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "perchable",
+      "window"
+    ],
+    "sort_order": 4108
+  },
+  {
+    "item_id": "personality-009-double-cuddle-nest",
+    "name": "Double Cuddle Nest",
+    "category": "Beds",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/09_double_cuddle_nest.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Double Cuddle Nest, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable"
+    ],
+    "sort_order": 4109
+  },
+  {
+    "item_id": "personality-010-social-play-table",
+    "name": "Social Play Table",
+    "category": "Toys",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/10_social_play_table.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Social Play Table, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "playable"
+    ],
+    "sort_order": 4110
+  },
+  {
+    "item_id": "personality-011-solo-puzzle-station",
+    "name": "Solo Puzzle Station",
+    "category": "Toys",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/11_solo_puzzle_station.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Solo Puzzle Station, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "puzzle",
+      "playable"
+    ],
+    "sort_order": 4111
+  },
+  {
+    "item_id": "personality-012-indoor-flying-launch-perch",
+    "name": "Indoor Flying Launch Perch",
+    "category": "Training",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/12_indoor_flying_launch_perch.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Indoor Flying Launch Perch, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "exercise",
+      "training",
+      "agility",
+      "climbable",
+      "perchable",
+      "flight-practice"
+    ],
+    "sort_order": 4112
+  },
+  {
+    "item_id": "personality-013-fire-breathing-experiment-bench",
+    "name": "Fire-Breathing Experiment Bench",
+    "category": "Training",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/13_fire_breathing_experiment_bench.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Fire-Breathing Experiment Bench, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "fire-practice",
+      "training"
+    ],
+    "sort_order": 4113
+  },
+  {
+    "item_id": "personality-014-water-splashing-pool",
+    "name": "Water Splashing Pool",
+    "category": "Bath",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/14_water_splashing_pool.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Water Splashing Pool, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "washable",
+      "playable"
+    ],
+    "sort_order": 4114
+  },
+  {
+    "item_id": "personality-015-snack-stealing-pantry",
+    "name": "Snack Stealing Pantry",
+    "category": "Feeding",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/15_snack_stealing_pantry.png",
+    "footprint_w": 1,
+    "footprint_h": 2,
+    "clearance": "Tall",
+    "description": "Snack Stealing Pantry, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "food",
+      "hoardable"
+    ],
+    "sort_order": 4115
+  },
+  {
+    "item_id": "personality-016-collectible-display-shelves",
+    "name": "Collectible Display Shelves",
+    "category": "Storage",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/16_collectible_display_shelves.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Collectible Display Shelves, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "hoardable",
+      "wall-mounted"
+    ],
+    "sort_order": 4116
+  },
+  {
+    "item_id": "personality-017-sulking-corner-cushion",
+    "name": "Sulking Corner Cushion",
+    "category": "Beds",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/17_sulking_corner_cushion.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Sulking Corner Cushion, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable",
+      "hideable"
+    ],
+    "sort_order": 4117
+  },
+  {
+    "item_id": "personality-018-zoomies-track-markers",
+    "name": "Zoomies Track Markers",
+    "category": "Training",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/18_zoomies_track_markers.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Zoomies Track Markers, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "exercise",
+      "training",
+      "agility"
+    ],
+    "sort_order": 4118
+  },
+  {
+    "item_id": "personality-019-nap-anywhere-blanket-pile",
+    "name": "Nap Anywhere Blanket Pile",
+    "category": "Beds",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Crafted",
+    "price": 375,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/19_nap_anywhere_blanket_pile.png",
+    "footprint_w": 3,
+    "footprint_h": 1,
+    "clearance": "Wide",
+    "description": "Nap Anywhere Blanket Pile, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "comfortable",
+      "restable",
+      "sleepable"
+    ],
+    "sort_order": 4119
+  },
+  {
+    "item_id": "personality-020-comfort-toy-basket",
+    "name": "Comfort Toy Basket",
+    "category": "Toys",
+    "collection_name": "Personality & Behaviour",
+    "rarity": "Rare",
+    "price": 575,
+    "sprite_path": "assets/dragonbound/furniture/v3266/personality-behaviour/20_comfort_toy_basket.png",
+    "footprint_w": 2,
+    "footprint_h": 1,
+    "clearance": "Standard",
+    "description": "Comfort Toy Basket, designed to give different baby-dragon personalities something distinctive to interact with.",
+    "tags": [
+      "inspectable",
+      "playable",
+      "comfortable"
+    ],
+    "sort_order": 4120
+  }
+]

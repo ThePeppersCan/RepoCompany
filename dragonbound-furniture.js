@@ -2,7 +2,7 @@
 (()=>{
   'use strict';
 
-  const VERSION='v32-61-furniture-ui-input-polish-20260821';
+  const VERSION='v32-66-furniture-expansion-20260821';
   const CATEGORIES=['All','Living','Beds','Feeding','Kitchen','Bath','Training','Toys','Care','Nature','Decor','Storage'];
   const CATEGORY_ICONS={All:'✦',Living:'⌂',Beds:'▰',Feeding:'◉',Kitchen:'♨',Bath:'≋',Training:'⚔',Toys:'◆',Care:'+',Nature:'♧',Decor:'✧',Storage:'▣'};
   const RARITY_ORDER={Common:0,Crafted:1,Rare:2,Epic:3};
@@ -230,7 +230,7 @@
     async loadLocalCatalog(){
       if(this.localCatalogCache)return this.localCatalogCache;
       try{
-        const res=await fetch(`FURNITURE_CATALOG_V32.61.json?v=${VERSION}`,{cache:'no-store'});if(!res.ok)throw new Error('catalog');
+        const res=await fetch(`FURNITURE_CATALOG_V32.66.json?v=${VERSION}`,{cache:'no-store'});if(!res.ok)throw new Error('catalog');
         const raw=await res.json();
         this.localCatalogCache=(Array.isArray(raw)?raw:[]).map(i=>({itemId:i.item_id,name:i.name,category:i.category,collection:i.collection_name,rarity:i.rarity,price:Number(i.price||0),sprite:i.sprite_path,footprintW:Number(i.footprint_w||2),footprintH:Number(i.footprint_h||1),clearance:i.clearance,description:i.description,tags:Array.isArray(i.tags)?i.tags:[],sortOrder:Number(i.sort_order||0)}));
       }catch(_e){this.localCatalogCache=[];}
