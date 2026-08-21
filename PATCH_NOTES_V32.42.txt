@@ -1,0 +1,59 @@
+VELMORA: DRAGONBOUND — V32.42
+ADOPTION + LOAD GAME HOTFIX
+========================================
+
+1. COVIDPANDA / "YES" ADOPTION FIX
+-----------------------------------
+The problem was server-side, not the visible Yes button.
+
+The Dragonbound egg RPC had a PostgreSQL PL/pgSQL ambiguity:
+  column reference "locked_egg" is ambiguous
+
+That meant a normal player could press Yes, but the server rejected the egg claim before the animation started.
+
+Fixed:
+- Qualified the dragonbound_profiles table alias in dragonbound_claim_egg().
+- Re-tested the full claim -> starter house -> hatch/name flow as an authenticated normal account inside a rolled-back transaction.
+- CovidPanda was NOT assigned a test egg during testing; their account is still clean and can make their real one-and-done roll.
+- Added visible "Bonnie is registering your egg…" state so the button no longer looks dead while waiting for the server.
+- If an actual server error happens in future, the confirmation box now shows a retry message instead of silently appearing to do nothing.
+
+IMPORTANT: The Supabase RPC hotfix is already LIVE. The SQL file in this patch is backup/reference only.
+
+2. LOAD GAME NOW WORKS
+----------------------
+Dragonbound now recognises an account save when it has any of:
+- a chosen/locked egg
+- a starter house
+- a named/hatched dragon
+
+Load Game behavior:
+- House present -> loads directly into the current starter home.
+- House + unhatched egg -> loads home and resumes Doppy/egg delivery so progress cannot become stranded.
+- Egg but no house -> resumes at Bonnie's Adoption Centre instead of replaying the whole prologue.
+- Pet/dragon but no house (recovery state) -> loads at Hearth & Key so a starter home can be selected.
+
+3. NEW GAME IS BLOCKED FOR EXISTING NORMAL SAVES
+------------------------------------------------
+For normal accounts:
+- Once Dragonbound progress exists, New Game is no longer a second route into the onboarding flow.
+- New Game becomes disabled for that save and clicking its hotspot gives: "You already have a Dragonbound save — use Load Game."
+- Load Game becomes the continuation route.
+
+For Admin:
+- New Game remains available even with a save.
+- Unlimited egg rerolls remain intact.
+- Load Game also works when Admin has a saved house/dragon.
+
+4. ACCOUNT PROFILE HYDRATION FIX
+--------------------------------
+V32.41 expected character.user_id in the browser character object, but get_my_character() intentionally does not return user_id.
+That prevented Dragonbound from hydrating server-side house/egg/pet progress into the menu.
+
+V32.42 now reads dragonbound_profiles directly under its existing RLS owner policy, so each authenticated player can only hydrate their own row and Load Game can reliably detect the save.
+
+Starter-house and named-dragon RPC saves also no longer depend on character.user_id being exposed client-side.
+
+5. CACHE BUMP
+-------------
+index.html now requests the V32.42 script/style cache key so browsers do not keep running the old V32.41 JavaScript.

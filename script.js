@@ -41308,6 +41308,7 @@ document.head.appendChild(s)})();
               <div class="dragonbound-adopt-confirmation-knot" aria-hidden="true"></div>
               <p class="dragonbound-adopt-confirmation-title" id="dragonboundAdoptConfirmTitle">Adopt an Egg</p>
               <p class="dragonbound-adopt-confirmation-copy">Are you sure you want to adopt your first egg?</p>
+              <p class="dragonbound-adopt-confirmation-status" aria-live="polite"></p>
               <div class="dragonbound-adopt-confirmation-actions">
                 <button class="dragonbound-adopt-confirmation-button dragonbound-adopt-confirmation-button--yes" type="button">Yes</button>
                 <button class="dragonbound-adopt-confirmation-button dragonbound-adopt-confirmation-button--no" type="button">No</button>
@@ -41612,6 +41613,7 @@ document.head.appendChild(s)})();
     const adoptConfirmation=overlay.querySelector('.dragonbound-adopt-confirmation');
     const adoptConfirmationYes=overlay.querySelector('.dragonbound-adopt-confirmation-button--yes');
     const adoptConfirmationNo=overlay.querySelector('.dragonbound-adopt-confirmation-button--no');
+    const adoptConfirmationStatus=overlay.querySelector('.dragonbound-adopt-confirmation-status');
     const adoptionRoll=overlay.querySelector('.dragonbound-adoption-roll');
     const adoptionRollFrame=overlay.querySelector('.dragonbound-adoption-roll-frame');
     const adoptionRollReveal=overlay.querySelector('.dragonbound-adoption-roll-reveal');
@@ -41942,6 +41944,7 @@ document.head.appendChild(s)})();
     };
     let dragonboundProfileHydration=null;
     let dragonboundHydratedAccount='';
+    let dragonboundLastProfile=null;
     const saveStarterHouseLocally=houseId=>{
       try{
         if(houseId) localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_STARTER_HOUSE_KEY),houseId);
@@ -41956,16 +41959,46 @@ document.head.appendChild(s)})();
       }catch(_e){}
       return '';
     };
+    const dragonboundHasPlayableSave=(profile=dragonboundLastProfile)=>{
+      if(profile?.starter_house_id || profile?.locked_egg || profile?.dragon_name || profile?.breed_id) return true;
+      return !!(readStarterHouseLocally() || lockedEggForCurrentAccount() || namedDragonForCurrentAccount());
+    };
+    const syncDragonboundMainMenuSaveState=(profile=dragonboundLastProfile)=>{
+      const hasSave=dragonboundHasPlayableSave(profile);
+      const admin=dragonboundIsAdminTester();
+      const newGameAction=menuActions.find(button=>button.dataset.dragonboundAction==='new-game');
+      const loadGameAction=menuActions.find(button=>button.dataset.dragonboundAction==='load-game');
+      const newBlocked=hasSave&&!admin;
+      if(newGameAction){
+        newGameAction.classList.toggle('is-save-disabled',newBlocked);
+        newGameAction.setAttribute('aria-disabled',newBlocked?'true':'false');
+        newGameAction.setAttribute('tabindex',newBlocked?'-1':'0');
+        newGameAction.title=newBlocked?'A Dragonbound save already exists. Use Load Game.':'Start a new Dragonbound game';
+      }
+      if(loadGameAction){
+        loadGameAction.classList.toggle('is-save-disabled',!hasSave);
+        loadGameAction.classList.toggle('is-save-ready',hasSave);
+        loadGameAction.setAttribute('aria-disabled',hasSave?'false':'true');
+        loadGameAction.setAttribute('tabindex',hasSave?'0':'-1');
+        loadGameAction.title=hasSave?'Continue your Dragonbound save':'No Dragonbound save yet';
+      }
+      return hasSave;
+    };
     const hydrateDragonboundProfile=async({force=false}={})=>{
       const account=dragonboundAccountSlug();
-      const userId=(typeof character!=='undefined'&&character?.user_id)?character.user_id:null;
-      if(!userId || account==='guest') return null;
-      if(!force && dragonboundHydratedAccount===account) return null;
+      if(account==='guest') return null;
+      if(!force && dragonboundHydratedAccount===account){
+        syncDragonboundMainMenuSaveState(dragonboundLastProfile);
+        return dragonboundLastProfile;
+      }
       if(dragonboundProfileHydration) return dragonboundProfileHydration;
       dragonboundProfileHydration=(async()=>{
         try{
-          const {data,error}=await db.from('dragonbound_profiles').select('locked_egg,dragon_name,breed_id,dragon_hatched_at,starter_house_id').eq('user_id',userId).maybeSingle();
+          // RLS already restricts this table to auth.uid(), so do not depend on
+          // get_my_character() exposing user_id (it intentionally does not).
+          const {data,error}=await db.from('dragonbound_profiles').select('locked_egg,dragon_name,breed_id,dragon_hatched_at,starter_house_id').maybeSingle();
           if(error) throw error;
+          dragonboundLastProfile=data||null;
           if(data){
             if(data.locked_egg && !dragonboundIsAdminTester()){
               const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===data.locked_egg);
@@ -41983,10 +42016,12 @@ document.head.appendChild(s)})();
           }
           dragonboundHydratedAccount=account;
           syncAdoptionOneAndDoneUI();
+          syncDragonboundMainMenuSaveState(data||null);
           return data||null;
         }catch(error){
           console.warn('[Dragonbound] Could not hydrate account profile.',error);
-          return null;
+          syncDragonboundMainMenuSaveState(dragonboundLastProfile);
+          return dragonboundLastProfile;
         }finally{dragonboundProfileHydration=null;}
       })();
       return dragonboundProfileHydration;
@@ -41998,25 +42033,32 @@ document.head.appendChild(s)})();
       const row=Array.isArray(data)?data[0]:data;
       const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===row?.locked_egg)||null;
       if(!egg) throw new Error('Dragonbound returned an unknown egg.');
-      if(!row?.is_admin) persistLockedEgg(egg);
+      if(!row?.is_admin){
+        persistLockedEgg(egg);
+        dragonboundLastProfile={...(dragonboundLastProfile||{}),locked_egg:egg.name};
+      }
+      syncDragonboundMainMenuSaveState(dragonboundLastProfile);
       return {egg,isAdmin:!!row?.is_admin};
     };
     const persistStarterHouseServer=async houseId=>{
-      const userId=(typeof character!=='undefined'&&character?.user_id)?character.user_id:null;
-      if(!userId || !houseId) return;
+      if(!houseId || dragonboundAccountSlug()==='guest') return;
       const {error}=await db.rpc('dragonbound_set_starter_house',{p_house_id:houseId});
-      if(error) console.warn('[Dragonbound] Could not save starter house.',error);
+      if(error){console.warn('[Dragonbound] Could not save starter house.',error);return;}
+      dragonboundLastProfile={...(dragonboundLastProfile||{}),starter_house_id:houseId};
+      syncDragonboundMainMenuSaveState(dragonboundLastProfile);
     };
     const persistNamedDragonServer=async identity=>{
-      const userId=(typeof character!=='undefined'&&character?.user_id)?character.user_id:null;
-      if(!userId || !identity) return;
+      if(!identity || dragonboundAccountSlug()==='guest') return;
       const {data,error}=await db.rpc('dragonbound_name_dragon',{p_dragon_name:identity.name,p_breed_id:identity.breedId});
       if(error){console.warn('[Dragonbound] Could not save named dragon.',error);return null;}
-      return Array.isArray(data)?data[0]:data;
+      const row=Array.isArray(data)?data[0]:data;
+      dragonboundLastProfile={...(dragonboundLastProfile||{}),dragon_name:identity.name,breed_id:identity.breedId,dragon_hatched_at:row?.hatched_at||new Date().toISOString()};
+      syncDragonboundMainMenuSaveState(dragonboundLastProfile);
+      return row;
     };
 
     clearLegacyDragonboundOwnershipOnce();
-    window.addEventListener('repo-character-changed',()=>{dragonboundHydratedAccount='';void hydrateDragonboundProfile({force:true});});
+    window.addEventListener('repo-character-changed',()=>{dragonboundHydratedAccount='';dragonboundLastProfile=null;syncDragonboundMainMenuSaveState(null);void hydrateDragonboundProfile({force:true});});
 
     if(homeSidebarImage) homeSidebarImage.src=DRAGONBOUND_HOME_SIDEBAR_BUTTONS;
     if(homeBasket) homeBasket.src=DRAGONBOUND_HOME_EGG_BASKET;
@@ -42361,8 +42403,24 @@ document.head.appendChild(s)})();
       adoptMenuEgg.classList.add('is-visible','is-alive');
       if(animate) adoptMenuEgg.classList.add('is-arriving');
     };
+    const setAdoptionConfirmationBusy=(busy)=>{
+      if(adoptConfirmationYes){
+        adoptConfirmationYes.disabled=!!busy;
+        adoptConfirmationYes.textContent=busy?'Choosing…':'Yes';
+      }
+      if(adoptConfirmationNo) adoptConfirmationNo.disabled=!!busy;
+      adoptConfirmation?.classList.toggle('is-pending',!!busy);
+    };
+    const setAdoptionConfirmationStatus=(message='',kind='')=>{
+      if(!adoptConfirmationStatus) return;
+      adoptConfirmationStatus.textContent=message;
+      adoptConfirmationStatus.classList.toggle('is-visible',!!message);
+      adoptConfirmationStatus.classList.toggle('is-error',kind==='error');
+    };
     const closeAdoptionConfirmation=()=>{
       adoptionConfirmationOpen=false;
+      setAdoptionConfirmationBusy(false);
+      setAdoptionConfirmationStatus('');
       adoptConfirmation?.classList.remove('is-visible');
       adoptConfirmation?.setAttribute('aria-hidden','true');
     };
@@ -42375,6 +42433,8 @@ document.head.appendChild(s)})();
         showFeedback(`${locked.name} is already your Dragonbound egg.`);
         return;
       }
+      setAdoptionConfirmationBusy(false);
+      setAdoptionConfirmationStatus('');
       adoptionConfirmationOpen=true;
       adoptConfirmation?.classList.add('is-visible');
       adoptConfirmation?.setAttribute('aria-hidden','false');
@@ -42529,6 +42589,8 @@ document.head.appendChild(s)})();
     const startAdoptionRoll=async()=>{
       if(adoptionRolling || adoptionClaimPending || dialogueMode!=='adoption-interior' || !DRAGONBOUND_EGG_POOL.length) return;
       adoptionClaimPending=true;
+      setAdoptionConfirmationBusy(true);
+      setAdoptionConfirmationStatus('Bonnie is registering your egg…');
       await hydrateDragonboundProfile({force:true});
       const existing=lockedEggForCurrentAccount();
       if(existing && !dragonboundIsAdminTester()){
@@ -42545,8 +42607,10 @@ document.head.appendChild(s)})();
       let claim=null;
       try{claim=await claimDragonboundEggServer(candidate);}catch(error){
         console.error('[Dragonbound] Egg claim failed.',error);
-        showFeedback('Your egg could not be verified. Please try again.');
         adoptionClaimPending=false;
+        setAdoptionConfirmationBusy(false);
+        setAdoptionConfirmationStatus('The Nest could not register your egg. Please click Yes again.','error');
+        showFeedback('Your egg could not be verified. Please try again.');
         return;
       }
       const egg=claim?.egg||candidate;
@@ -43455,6 +43519,86 @@ document.head.appendChild(s)})();
       dialogueIndex=0;
       setDialoguePage(0);
     };
+    const loadDragonboundGame=async()=>{
+      if(overlay.classList.contains('is-new-game')) return;
+      const profile=await hydrateDragonboundProfile({force:true});
+      const hasSave=syncDragonboundMainMenuSaveState(profile);
+      if(!hasSave){
+        showFeedback('No Dragonbound save found yet. Start a New Game first.');
+        return;
+      }
+
+      restoreLockedEgg();
+      const property=resolveOwnedStarterHome();
+      const locked=lockedEggForCurrentAccount();
+      const dragon=namedDragonForCurrentAccount();
+
+      overlay.classList.add('is-new-game');
+      blackout.classList.add('is-black');
+      fadeAudio(audio,0,420);
+      transitionTimerA=setTimeout(()=>{
+        try{audio.pause();audio.currentTime=0;audio.volume=0.25}catch(_e){}
+        newGameStage.classList.add('is-active','is-revealed');
+        newGameStage.setAttribute('aria-hidden','false');
+        newGameStage.classList.remove('is-cave','is-valley','is-video','is-adoption','is-adoption-interior','is-estate-exterior','is-estate-interior','is-home','has-owned-home');
+
+        if(property){
+          // Backfill any starter home that was saved locally by V32.41 before
+          // the profile hydration user-id bug was fixed.
+          saveStarterHouseLocally(property.id);
+          if(profile?.starter_house_id!==property.id) void persistStarterHouseServer(property.id);
+          newGameStage.dataset.dragonboundHouseId=property.id;
+          newGameStage.classList.add('is-home','has-owned-home');
+          if(homeImage) homeImage.style.backgroundImage=`url('${property.full}')`;
+          homeScene?.classList.add('is-visible');
+          homeScene?.setAttribute('aria-hidden','false');
+          window.dispatchEvent(new CustomEvent('dragonbound:house-selected',{detail:{houseId:property.id}}));
+          dialogueMode='home';
+          transitionTimerB=setTimeout(()=>{
+            blackout.classList.remove('is-black');
+            if(locked && !dragon && !dragonboundIsAdminTester()){
+              resetHomeDeliveryScene();
+              hideHomeSidebar();
+              setTimeout(()=>{if(newGameStage.classList.contains('is-home')) startDoppyArrival();},320);
+            }else{
+              showHomeSidebar();
+            }
+          },220);
+          return;
+        }
+
+        homeScene?.classList.remove('is-visible');
+        homeScene?.setAttribute('aria-hidden','true');
+        if(locked && !dragon){
+          selectedAdoptionEgg=locked;
+          newGameStage.classList.add('is-adoption-interior');
+          adoptionInteriorAudio.volume=0;
+          const p=adoptionInteriorAudio.play();
+          if(p&&typeof p.catch==='function')p.catch(()=>{});
+          fadeAudio(adoptionInteriorAudio,0.6,850);
+          dialogueMode='adoption-interior';
+          transitionTimerB=setTimeout(()=>{
+            blackout.classList.remove('is-black');
+            openBonnieMenu();
+          },220);
+          return;
+        }
+
+        // A pet without a current starter house is an abnormal but recoverable
+        // state: load directly at Hearth & Key so the player can pick a home.
+        newGameStage.classList.add('is-estate-interior');
+        estateInteriorAudio.volume=0;
+        const p=estateInteriorAudio.play();
+        if(p&&typeof p.catch==='function')p.catch(()=>{});
+        fadeAudio(estateInteriorAudio,0.5,850);
+        dialogueMode='estate-interior';
+        transitionTimerB=setTimeout(()=>{
+          blackout.classList.remove('is-black');
+          showFeedback('Choose a starter home to continue your Dragonbound save.');
+        },220);
+      },520);
+    };
+
     const startNewGame=()=>{
       if(overlay.classList.contains('is-new-game'))return;
       overlay.classList.add('is-new-game');
@@ -43496,7 +43640,8 @@ document.head.appendChild(s)})();
     };
     const open=()=>{
       resetDragonboundScene();
-      void hydrateDragonboundProfile({force:true});
+      syncDragonboundMainMenuSaveState(dragonboundLastProfile);
+      void hydrateDragonboundProfile({force:true}).then(profile=>syncDragonboundMainMenuSaveState(profile));
       try{
         const savedHouse=readStarterHouseLocally();
         if(savedHouse) window.dispatchEvent(new CustomEvent('dragonbound:house-selected',{detail:{houseId:savedHouse}}));
@@ -43516,10 +43661,19 @@ document.head.appendChild(s)})();
     };
 
     overlay.querySelectorAll('.dragonbound-menu-action').forEach(button=>{
-      const activate=()=>{
+      const activate=async()=>{
         const action=button.dataset.dragonboundAction;
-        if(action==='new-game'){ closeRulesOverlay(); startNewGame(); return; }
-        if(action==='load-game'){ showFeedback('No Dragonbound save to load yet'); return; }
+        if(action==='new-game'){
+          closeRulesOverlay();
+          const profile=await hydrateDragonboundProfile({force:true});
+          if(!dragonboundIsAdminTester() && syncDragonboundMainMenuSaveState(profile)){
+            showFeedback('You already have a Dragonbound save — use Load Game.');
+            return;
+          }
+          startNewGame();
+          return;
+        }
+        if(action==='load-game'){ await loadDragonboundGame(); return; }
         if(action==='rules'){ openRulesOverlay(); return; }
       };
       button.addEventListener('click',activate);

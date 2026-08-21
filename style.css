@@ -29902,3 +29902,40 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 .dragonbound-adopt-menu-overlay.is-admin-reroll .dragonbound-adopt-menu-action--confirm{
   filter:drop-shadow(0 0 8px rgba(103,188,168,.18));
 }
+
+/* V32.42 — Dragonbound adoption + save/load hotfix */
+.dragonbound-adopt-confirmation-status{
+  position:relative;
+  min-height:0;
+  margin:0 auto;
+  max-width:390px;
+  color:#d9c99e;
+  font:600 13px/1.35 Georgia,serif;
+  letter-spacing:.015em;
+  opacity:0;
+  transform:translateY(-3px);
+  transition:opacity .16s ease,transform .16s ease,margin .16s ease;
+}
+.dragonbound-adopt-confirmation-status.is-visible{
+  margin-top:13px;
+  opacity:.92;
+  transform:translateY(0);
+}
+.dragonbound-adopt-confirmation-status.is-error{color:#ffd3bd;}
+.dragonbound-adopt-confirmation.is-pending .dragonbound-adopt-confirmation-button{cursor:wait;}
+.dragonbound-adopt-confirmation-button:disabled{
+  opacity:.58;
+  transform:none!important;
+  cursor:wait;
+}
+.dragonbound-menu-actions .dragonbound-menu-action.is-save-disabled{
+  cursor:not-allowed!important;
+}
+.dragonbound-menu-actions .dragonbound-menu-action.is-save-disabled::before,
+.dragonbound-menu-actions .dragonbound-menu-action.is-save-disabled::after{
+  opacity:0!important;
+  transform:none!important;
+}
+.dragonbound-menu-actions .dragonbound-menu-action.is-save-ready{
+  cursor:pointer!important;
+}
