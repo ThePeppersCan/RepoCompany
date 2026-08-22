@@ -1,8 +1,8 @@
-/* Velmora Dragonbound — furniture placement + build inventory V32.76 */
+/* Velmora Dragonbound — furniture placement + build inventory V32.84 */
 (()=>{
   'use strict';
 
-  const VERSION='v32-76-furniture-stability-depth-fix-20260822';
+  const VERSION='v32-84-furniture-variety-90-store-20260822';
   const CATEGORIES=['All','Living','Beds','Feeding','Kitchen','Bath','Training','Toys','Care','Nature','Decor','Storage'];
   const CATEGORY_ICONS={All:'✦',Living:'⌂',Beds:'▰',Feeding:'◉',Kitchen:'♨',Bath:'≋',Training:'⚔',Toys:'◆',Care:'+',Nature:'♧',Decor:'✧',Storage:'▣'};
   const RARITY_ORDER={Common:0,Crafted:1,Rare:2,Epic:3};
