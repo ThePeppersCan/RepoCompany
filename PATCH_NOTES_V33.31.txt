@@ -1,0 +1,7 @@
+Velmora Bedroom V33.31 — Travel Style + Time Persistence Hotfix
+
+- Removed the brown button / hover styling bleeding onto the travel-map hotspots.
+- Travel hotspots now stay visually transparent and only the dark label cards react.
+- Dragonbound time now persists properly per account and continues from the last saved timestamp.
+- Closing Dragonbound or reloading the site no longer resets the clock back to the earlier time.
+- Time also keeps moving while the wider site is open, instead of only while the Dragonbound scene is visible.

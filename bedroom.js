@@ -1112,7 +1112,7 @@
     ensureTransitionVeil();
     transitionVeil.classList.add('is-active');
     await wait(820);
-    const info=window.VelmoraDayCycle?.sleepToMorning?.()||{day:1,formatted:'7:00 AM'};
+    const info=await Promise.resolve(window.VelmoraDayCycle?.sleepToMorning?.()||{day:1,formatted:'7:00 AM'});
     const stand=safeStandPointForPlacement(placement,item);
     state.player._actionToken='';state.player.pose='idle';sleepingPlacementId='';activeInteractionPlacementId='';actionTimer=0;
     state.player.x=stand.x;state.player.y=stand.y;state.player.dir=placement.flipped?'right':'left';
@@ -1197,8 +1197,12 @@
         }
       }
     }
+    if(sheet.id==='covidpanda'&&player.pose!=='sleep'){
+      renderY=clamp(renderY+0.006,.08,.94);
+    }
     playerEl.style.left=`${renderX*100}%`;
     playerEl.style.top=`${renderY*100}%`;
+    playerEl.dataset.sheetId=sheet.id;
     // Keep the keeper above bedroom furniture. The previous y-only depth test let tall
     // furniture cover the character even when they were visibly standing in front.
     if(player.pose==='sleep'&&sleepingPlacementId){

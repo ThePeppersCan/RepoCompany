@@ -1,0 +1,5 @@
+Velmora Bedroom V33.32 — CovidPanda Keeper Hotfix
+
+- Added a targeted render tweak for the CovidPanda bedroom keeper.
+- Gave the sprite a small vertical nudge and slight Y-scale correction so the lower body / legs read properly in-room.
+- Applied the fix across idle and interaction poses without affecting other account keepers.

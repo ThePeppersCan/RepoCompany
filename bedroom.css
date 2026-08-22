@@ -868,3 +868,18 @@ body.velmora-bedroom-open .dragonbound-home-treats-confirm{opacity:0!important;p
   .velmora-bedroom-player.is-bathing{width:6.6%!important}
   .velmora-bedroom-player.is-washing,.velmora-bedroom-player.is-using{width:6.9%!important}
 }
+
+
+/* V33.32 — covidpanda keeper leg visibility hotfix */
+.velmora-bedroom-player[data-sheet-id="covidpanda"] img{
+  transform:translateY(2%) scaleY(1.085)!important;
+  transform-origin:50% 0%!important;
+}
+.velmora-bedroom-player[data-sheet-id="covidpanda"].is-sleeping img,
+.velmora-bedroom-player[data-sheet-id="covidpanda"].is-sitting img,
+.velmora-bedroom-player[data-sheet-id="covidpanda"].is-bathing img,
+.velmora-bedroom-player[data-sheet-id="covidpanda"].is-washing img,
+.velmora-bedroom-player[data-sheet-id="covidpanda"].is-using img{
+  transform:scaleY(1.06)!important;
+  transform-origin:50% 8%!important;
+}

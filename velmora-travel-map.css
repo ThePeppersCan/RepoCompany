@@ -1,0 +1,26 @@
+
+.dragonbound-travel-menu-panel .dragonbound-travel-menu-kicker,
+.dragonbound-travel-menu-panel .dragonbound-travel-menu-title,
+.dragonbound-travel-menu-panel .dragonbound-travel-menu-copy{position:relative;z-index:2}
+.dragonbound-travel-menu-panel .dragonbound-travel-menu-grid.velmora-travel-map-grid{display:block;padding:0;margin-top:10px}
+.velmora-travel-map-wrap{position:relative;width:min(100%,1080px);margin:0 auto;border-radius:28px;overflow:hidden;border:1px solid rgba(235,213,168,.18);box-shadow:0 18px 42px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.04);background:linear-gradient(180deg,rgba(13,25,34,.92),rgba(8,16,23,.96))}
+.velmora-travel-map-image{display:block;width:100%;height:auto;image-rendering:auto;user-select:none;-webkit-user-drag:none}
+.velmora-travel-map-sheen{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),rgba(255,255,255,0) 36%),linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 26%,rgba(6,13,20,.04) 100%)}
+.velmora-travel-map-hotspot{position:absolute;display:flex;align-items:flex-end;justify-content:flex-start;background:transparent !important;border:0 !important;padding:0;cursor:pointer;z-index:3;color:#fff;text-align:left;appearance:none;-webkit-appearance:none;box-shadow:none !important;outline:none;text-decoration:none}
+.velmora-travel-map-hotspot:focus-visible .velmora-travel-map-label,.velmora-travel-map-hotspot:hover .velmora-travel-map-label{transform:translateY(-2px);box-shadow:0 14px 28px rgba(0,0,0,.38), inset 0 0 0 1px rgba(255,255,255,.1);border-color:rgba(255,228,176,.4)}
+.velmora-travel-map-hotspot[data-closed='1']{filter:saturate(.84)}
+.velmora-travel-map-hotspot[data-closed='1'] .velmora-travel-map-label{background:rgba(36,22,26,.88);border-color:rgba(255,192,192,.18)}
+.velmora-travel-map-hotspot::before{content:'';position:absolute;inset:6% 5%;border-radius:22px;background:radial-gradient(circle at center,rgba(255,255,255,.10),rgba(255,255,255,0) 70%);opacity:0;transition:opacity .22s ease}
+.velmora-travel-map-hotspot:hover::before,.velmora-travel-map-hotspot:focus-visible::before{opacity:1}
+.velmora-travel-map-label{margin:0 0 10px 10px;max-width:84%;padding:10px 12px 10px 12px;border-radius:16px;background:rgba(8,18,26,.84);backdrop-filter:blur(5px);border:1px solid rgba(255,255,255,.10);box-shadow:0 12px 24px rgba(0,0,0,.28);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.velmora-travel-map-label strong{display:block;font:900 15px/1.05 Georgia,serif;letter-spacing:.02em;color:#f7ead0}
+.velmora-travel-map-label small{display:block;margin-top:3px;font:700 11px/1.25 'Trebuchet MS',Arial,sans-serif;color:#d6dde8}
+.velmora-travel-map-pill{display:inline-flex;align-items:center;justify-content:center;margin-top:7px;padding:3px 8px;border-radius:999px;background:rgba(17,74,45,.85);border:1px solid rgba(170,255,205,.12);font:800 10px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#dff7ea}
+.velmora-travel-map-pill.is-closed{background:rgba(64,21,24,.92);border-color:rgba(255,182,182,.2);color:#ffe5e5}
+.velmora-travel-map-legend{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:14px 8px 4px;color:#d7dfeb;font:700 12px/1.4 'Trebuchet MS',Arial,sans-serif}
+.velmora-travel-map-legend b{color:#f6e4bc;letter-spacing:.06em}
+@media (max-width:920px){.velmora-travel-map-label strong{font-size:13px}.velmora-travel-map-label small{font-size:10px}.velmora-travel-map-pill{font-size:9px;padding:3px 7px}}
+@media (max-width:700px){.velmora-travel-map-label{margin:0 0 8px 8px;padding:8px 10px;border-radius:14px}.velmora-travel-map-label strong{font-size:11px}.velmora-travel-map-label small{display:none}.velmora-travel-map-legend{flex-direction:column;align-items:flex-start;font-size:11px}}
+
+.velmora-travel-map-hotspot:hover,.velmora-travel-map-hotspot:focus,.velmora-travel-map-hotspot:focus-visible,.velmora-travel-map-hotspot:active{background:transparent !important;border-color:transparent !important;box-shadow:none !important;outline:none;color:#fff}
+.velmora-travel-map-hotspot:hover .velmora-travel-map-label,.velmora-travel-map-hotspot:focus .velmora-travel-map-label,.velmora-travel-map-hotspot:focus-visible .velmora-travel-map-label,.velmora-travel-map-hotspot:active .velmora-travel-map-label{background:rgba(8,18,26,.90)}
