@@ -1,0 +1,9 @@
+Velmora Bedroom V33.13 — Sleep Mattress Anchor Fix
+
+- Corrects sleep angle to follow the bed long axis.
+- Standard bed: head at the upper-right pillow, feet toward lower-left.
+- Flipped bed: mirrored equivalent.
+- Moves sleeper substantially higher onto the mattress.
+- Slightly increases sleep pose size.
+- Sleep depth follows the bed layer.
+- Cache-busters updated.

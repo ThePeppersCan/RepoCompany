@@ -1,0 +1,4 @@
+Velmora Bedroom V33.14
+- Inverted sleeper orientation 180 degrees relative to V33.13.
+- Moved sleeper slightly lower on the mattress.
+- Updated cache-busting version strings in index.html.

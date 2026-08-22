@@ -1,0 +1,20 @@
+Velmora Bedroom V33.23 — Avatar Account + Position Fix
+
+FIXED
+- Avatar no longer appears on the Dragonbound title/menu screen.
+- Avatar now anchors to the actual visible Dragon Training / Commands launcher.
+- Avatar sits centred immediately above the Commands button.
+- Removed the old whole-overlay/sidebar fallback that caused the avatar to appear at the top of the screen.
+- My Bedroom retains a quiet lower-left fallback because Commands are hidden there.
+
+EXACT ACCOUNT MAPPING
+- CatAsthma -> male brown hoodie
+- Emlux -> female blonde mauve
+- Kat -> female brunette white
+- CovidPanda -> male masked white
+- Proco -> female red warrior
+- SmokedRope1028 -> female hooded assassin
+
+PRESERVED
+- Subtle idle/command/talking/petting/sleeping avatar animation behaviour.
+- V33.21 bedroom sleep/bed-exit behaviour and all bedroom/pet functionality.

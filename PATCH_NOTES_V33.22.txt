@@ -1,0 +1,5 @@
+Velmora Bedroom V33.22
+- Added a circular animated account avatar HUD designed to sit above the Dragonbound command button in the bottom-left.
+- Each account now gets its appropriate shoulder-up animated portrait.
+- Portrait animation reacts subtly to commands, talking/interacting, petting, relaxing in the bedroom, and sleeping.
+- Widget follows the command area when present and falls back to a fixed lower-left HUD position.

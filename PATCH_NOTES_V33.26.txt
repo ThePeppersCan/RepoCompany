@@ -1,0 +1,8 @@
+Velmora V33.26 — Day Cycle Load Hotfix
+
+Critical fix
+- Removed the MutationObserver attribute loop that could freeze the entire site during startup.
+- Replaced 60fps full-DOM day-cycle scanning with a lightweight 250ms timer.
+- Closed-location scanning now runs only when the in-game minute changes or Dragonbound DOM content changes.
+- Fixed game-time accumulation so 1 in-game minute actually advances every 3 real seconds.
+- Preserves V33.25 day/night visuals, clock, shop hours and overnight bedroom sleep.

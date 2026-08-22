@@ -1,0 +1,4 @@
+Velmora Bedroom V33.21
+- Pressing any non-modifier key while sleeping now gets the keeper out of bed.
+- Keeps the V33.20 stable single-frame sleep pose.
+- Bed-only interactions remain intact.

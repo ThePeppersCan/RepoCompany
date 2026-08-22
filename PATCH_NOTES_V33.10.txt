@@ -1,0 +1,13 @@
+Velmora Bedroom V33.10 — 22 Aug 2026
+
+- Added all 96 supplied transparent furniture sprites to the Free Furniture Shop.
+- Added new shop categories: Mirrors, Kitchen, Bathing, Training & Toys, Health & Utility.
+- All 96 pieces can be placed, moved, resized, flipped, put away, and interacted with using the existing bedroom controls.
+- Expanded player interaction text for new furniture categories.
+- Expanded ambient pet furniture awareness for suitable new beds, seating, tables, rugs, storage, training and utility furniture.
+- Reworked pet click UI into a small temporary popover instead of a large persistent card.
+- Pet popover auto-closes, closes when clicking away, and only expands the name input when Name is selected.
+- Removed the browser/generic focus square around clicked pets.
+- Recalibrated dog sizes; Golden Retriever and German Shepherd are substantially larger, with Dalmatian/Husky/Border Collie/Poodle adjusted between small and large breeds.
+- Preserved V33.09 bed sleeping orientation fix.
+- Updated bedroom JS/CSS cache busters to V33.10.

@@ -1,0 +1,5 @@
+Velmora Bedroom V33.17
+- Fixed sleep sprite flip order.
+- Previous build mirrored the keeper before rotation, which made the sleep pose appear upside down.
+- This build rotates first, then mirrors the final pose on screen.
+- Furniture interaction fixes from V33.16 remain intact.

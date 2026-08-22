@@ -1,0 +1,14 @@
+Velmora Bedroom / Dragonbound V33.25 — Day Cycle
+
+Added
+- Global Velmora day cycle: 1 in-game hour = 3 real minutes.
+- Clean white bottom-right clock inside Dragonbound showing time, day number, and phase.
+- Sunrise / day / sunset / night scene tinting.
+- Closure logic for Adoption Centre, Estate Agents, and Racing Grounds outside 8:00 AM–6:00 PM.
+- Closed travel destinations get a subtle Closed badge and a toast if clicked while shut.
+- Beds in My Bedroom now support sleeping overnight after 6:00 PM (and before 7:00 AM), fading to black and advancing to the next day at 7:00 AM.
+
+Behaviour
+- Sleeping overnight returns the keeper to standing beside the bed at 7:00 AM.
+- Shops open at 8:00 AM.
+- Daytime bed resting still works as before.

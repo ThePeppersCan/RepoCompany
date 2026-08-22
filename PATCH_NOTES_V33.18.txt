@@ -1,0 +1,5 @@
+Velmora Bedroom V33.18
+- Rotated the sleeping keeper onto the bed axis for standard beds.
+- Standard bed: angle changed to 45deg with a slight rightward nudge.
+- Flipped bed: mirrored to 315deg.
+- All V33.16 interaction fixes and V33.15 collision fixes retained.

@@ -1,0 +1,5 @@
+Velmora Bedroom V33.24
+
+- Moved the account avatar HUD slightly higher above the Dragon Training / Commands button.
+- Increased the avatar HUD by approximately 5%.
+- Kept the V33.23 exact account-to-avatar mappings and main-menu visibility fix unchanged.

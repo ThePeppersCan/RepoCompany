@@ -1,0 +1,29 @@
+VELMORA MY BEDROOM V33.08 — PETS + SLEEP ALIGNMENT
+
+CHANGED
+- Corrected keeper sleeping orientation: sleep sprite is mirrored and moved higher/toward the pillow on sideways beds.
+- Added Pets button to My Bedroom.
+- Added all 20 supplied pets (10 cats + 10 dogs).
+- Exactly one active bedroom pet per account/browser profile.
+- Pets have NO needs, stats, bond or upkeep. They are flavour companions only.
+- Pet walks around the authored room floor autonomously.
+- Pet can idle, wander, sleep, and use beds, pet nests, tables, desks, vanities, trunks, chairs, stools, rugs, scratching/perch furniture and feeding furniture.
+- Pet pauses/unmounts safely while Edit Room is active.
+- Pet selection + last position are account-scoped in localStorage under velmoraBedroomPet:v1:<username>.
+- Existing bedroom server persistence is untouched.
+- Future Pet Care label is now Pet Care in the furniture shop.
+
+FILES
+- index.html
+- bedroom.js
+- bedroom.css
+- assets/bedroom/pets/<20 breed folders>/<12 transparent PNG frames>
+
+PET ASSET PREP
+- Sliced supplied 4x3 sprite sheets into idle/walk/sleep frames.
+- Used a stable per-breed crop across all 12 frames to prevent animation jitter.
+- Preserved transparent alpha and saved transparent PNG.
+
+TESTS
+- JavaScript syntax check must pass before delivery.
+- 20 pet folders / 240 frames expected.

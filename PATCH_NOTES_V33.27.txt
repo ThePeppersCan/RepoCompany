@@ -1,0 +1,13 @@
+Velmora Dragonbound V33.27 — Day Cycle Layout Fix
+
+CRITICAL FIX
+- Removed the day-cycle CSS rule that changed #dragonboundOverlay to position:relative.
+- Removed the runtime fallback that also changed the Dragonbound overlay's position.
+- Dragonbound keeps its original fullscreen/fixed layout again.
+
+POLISH
+- Time clock and sunrise/day/sunset/night overlay are hidden on the Dragonbound title menu.
+- The in-game clock no longer advances while sitting on New Game / Load Game / Rules.
+- Day cycle resumes when the player enters the actual Dragonbound world.
+
+All V33.26 timing, opening-hours and overnight-sleep logic is retained.
