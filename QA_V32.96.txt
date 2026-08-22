@@ -1,0 +1,25 @@
+V32.96 QA REPORT
+
+Automated / static checks actually run:
+PASS — dragonbound-baby-engine.js parses with node --check.
+PASS — dragonbound-furniture.js parses with node --check.
+PASS — script.js parses with node --check.
+PASS — 330-item furniture catalog parses as valid JSON.
+PASS — V32.96 journal CSS addition has balanced braces.
+PASS — V32.96 furniture CSS addition has balanced braces.
+PASS — mount interaction path places the actor at mountTarget and renders before the interaction state frame begins.
+PASS — gradual furniture care call remains in beginFurnitureUse.
+PASS — skill cooldown logic remains present.
+PASS — baby growth art cap remains GROWTH_ART_STAGE_CAP=2 (Growing Baby).
+PASS — Edit Room placement elements have direct pointer-drag entry logic.
+PASS — direct drag uses a movement threshold rather than turning every click into a move.
+PASS — valid direct-drag release calls the existing server-backed move commit path.
+PASS — invalid/cancelled direct-drag release restores Edit Room without mutating the saved placement.
+PASS — normal-play furniture click still calls commandDragonToFurniture.
+PASS — Edit Room CTA markup and larger CTA styling are present.
+PASS — right journal page now owns the vertical scrolling flow and Little Memories no longer has a clipped nested max-height.
+PASS — V32.96 cache-busting references are present in index.html.
+
+Not claimed:
+- No interactive browser renderer is available in this workspace, so I did not claim pixel-perfect visual/browser testing of the screenshots.
+- No live Supabase changes were required or made in this patch.

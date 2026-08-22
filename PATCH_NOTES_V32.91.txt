@@ -1,0 +1,24 @@
+V32.91 — My Dragon Journal + Faster Dragon Bites
+
+MY DRAGON / DRAGONBOUND BOOK
+- The Dragonbound Book button on the home sidebar is now a real clickable button.
+- Opens a full My Dragon keeper journal with a polished two-page profile spread.
+- Shows identity: name, breed, gender, age, hatch date, egg origin and dragon type.
+- Shows live care: Hunger, Hygiene, Energy, Fun, current mood and Bond relationship stage.
+- Shows personality archetype, discovered traits and hidden ??? personality slots.
+- Shows favourite overall furniture, bed/rest item, toy/play item, feeding/drinking item, preferred area and favourite activity.
+- Shows habits formed from actual behaviour, such as regular napping, bath enjoyment, training, exploring, routines, Early Riser / Night Owl and food/water preferences.
+- Shows life stats: pets, Dragon Bites eaten, baths, naps, toy plays, training sessions, furniture uses, flights, zoomies and favourite-item uses.
+- Adds a Little Memories timeline. Existing hatch/Bond data is surfaced, and new firsts, trait reveals, favourites and milestones are recorded going forward.
+- The journal live-refreshes once per second while open.
+- Study Your Dragon now adds a special My Dragon · Life Journal entry for a hatched dragon, so the same profile can be opened from Bonnie's menu.
+
+MEMORY TRACKING
+- New life-history fields are saved inside the existing Dragonbound memory JSON, so no database migration is required.
+- Tracks pet count and Dragon Bites eaten from this build onward.
+- Records first pet, first furniture nap, first bath, first play session, first training session, first home snack, trait reveals, Bond milestones and new favourite furniture.
+- Favourite furniture now reflects the most-used tracked furnishing instead of whichever item happened to reach three uses most recently.
+
+DRAGON BITES
+- Treat-chase movement speed has been doubled again: 4x normal walking speed while actively running to a thrown Dragon Bite.
+- Normal roaming speed is unchanged and resets immediately after reaching each treat.

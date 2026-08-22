@@ -1,0 +1,84 @@
+V32.92 — Dragon Growth, Skills & Training Progression
+
+NEW: SIX PERMANENT DRAGON SKILLS
+- Flying
+- Agility
+- Strength
+- Fire Control
+- Intelligence
+- Confidence
+- Skills use persistent XP, a visible 0–100 level and readable ranks:
+  Untrained → Beginner → Developing → Capable → Skilled → Talented → Exceptional → Masterful.
+- Higher levels require increasingly more XP. Skills never decay.
+
+ORGANIC / GRADUAL TRAINING
+- Skill XP is earned continuously while the dragon is actually performing the activity.
+- Interrupting a session early only keeps the XP earned during the elapsed time.
+- Beds, baths, toys and feeding retain V32.90's gradual need-restoration model.
+- Sleeping/bathing do not grant unrelated skill XP.
+- Normal indoor flight gives tiny Flying + Confidence experience.
+- Zoomies give a tiny Agility gain.
+- Stairs give an extremely small Agility / Confidence gain.
+- Exploring a genuinely new house location gives Confidence once; repeatedly walking the same route cannot farm it.
+
+FURNITURE → SKILL MAPPING
+- The complete furniture catalog is interpreted dynamically from tags, category and furnishing name.
+- Flight/launch/landing equipment → Flying (+ some Agility).
+- Balance, weave, climbing, hurdles, ramps, sprint and obstacle furniture → Agility.
+- Weights, resistance, sleds, cables, lifting and punching equipment → Strength.
+- Fire-practice furniture → Fire Control.
+- Puzzles, sorting, navigation, learning boards and reading → Intelligence.
+- New/challenging/noisy/training experiences can contribute small Confidence gains.
+- Push Weight Platform is explicitly treated as training despite its legacy comfort/sleep tags.
+- Recovery Stretch Nest remains primarily recovery furniture rather than a skill grinder.
+
+PERSONALITY / NATURAL TALENT
+- Personality core stats subtly modify learning speed.
+- Little Athlete, Little Pilot, Explorer/Adventurous, Fearless, Coward, Couch Potato,
+  Toy Obsessed, Furniture Inspector and Food Goblin can influence relevant learning.
+- Learning modifiers are deliberately modest (normally ~0.80x–1.28x), so no dragon is locked out of a skill.
+
+ANTI-SPAM TRAINING FATIGUE
+- Repeating the exact same furnishing shortly after using it gives reduced SKILL XP only.
+- Care restoration is never reduced by skill fatigue.
+- Switching to a different training item avoids the same-item penalty.
+- A proper sleep/rest session recovers training fatigue faster.
+
+GROWTH STAGES
+- Newly Hatched: day 0–2
+- Baby: day 2–7
+- Growing Baby: day 7–18
+- Young Dragon: day 18–35
+- Juvenile: day 35+
+- Age is the dominant factor. Care/Bond only give a tiny progress nudge.
+- No adult stage has been added.
+- Growth applies subtle uniform sprite scaling only and does not change navigation/collision geometry.
+- Later growth stages receive tiny movement confidence increases; Dragon Bites excited chase speed remains separate.
+- Higher Flying skill slightly improves the size/smoothness of safe indoor flight routes while staying inside flight zones.
+
+MY DRAGON JOURNAL
+- Added a full Growth & Skills section.
+- Shows current growth stage and progress toward the next stage.
+- Shows all six skill levels, ranks and progress to the next rank.
+- Natural aptitude flavour notes only appear after enough personality has been observed.
+- Skill rank-ups, first flight, first puzzle, first fire practice, first training and growth changes feed into Little Memories.
+
+PERSISTENCE / BACKWARD COMPATIBILITY
+- Skills, XP, fatigue and growth metadata live inside the SAME dragon_memory behaviour snapshot as Needs and Bond.
+- Existing local/newest-Supabase timestamp merge remains the single persistence strategy.
+- No extra database table or SQL migration is required.
+- Existing dragons get conservative starting skill XP from recorded life history, capped around early progression so old saves are not over-rewarded.
+
+ADMIN
+- Added DragonboundSkillDebug.inspect()
+- Added DragonboundSkillDebug.set({ flying: 50, agility: 40, ... }) for admin testing only.
+
+UNCHANGED / RETAINED
+- Persistent Needs/Bond system
+- gradual beds/baths/play/feeding
+- personality/favourites/routines
+- My Dragon journal and Study Your Dragon integration
+- Dragon Bites + 4x excited treat chase
+- petting/cooldowns
+- furniture store, placement and direct furniture interactions
+- house visits/read-only visitor behaviour

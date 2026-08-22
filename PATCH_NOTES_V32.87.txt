@@ -1,0 +1,21 @@
+Velmora Dragonbound — V32.87
+============================
+Needs stability / relaxed pacing
+- Fixed Dragon Bites causing live needs to appear to reset. The GP balance refresh was firing repo-character-changed, rehydrating Dragonbound from an older server snapshot. Treat purchases now update GP without rebuilding the dragon actor.
+- Needs now decay using slow per-hour rates rather than the previous overly aggressive per-minute rates.
+- Offline decay uses those same forgiving rates and is capped to 8 hours, so returning after a day away is not punishing.
+- Approximate base decay: Hunger ~2.4–3.1 points/hour, Energy ~2.1–2.7/hour, Fun ~2.0–2.7/hour, Hygiene ~1.35/hour. Social/Comfort are slower still.
+- Treats are now treats rather than a full meal: each bite gives a modest Hunger/Fun improvement without touching unrelated bars.
+- Natural sleep/rest/play/washing still restores the need it logically affects; there are no blanket resets.
+
+Part 2 — Bond / relationship progression
+- Formalised Bond 1–100 into relationship milestones: New Companion, Familiar, Trusting, Attached, Best Friend, Dragonbound.
+- Bond never decays.
+- Bond grows gently from petting, guided care, Dragon Bites and relaxed time together; progression is intentionally not grind-heavy.
+- At Trusting (40+) the dragon can run toward the front of the room to greet you when you return home (20-minute greeting cooldown).
+- At higher bond, pet reactions become more affectionate and Dragon Bites are noticed faster.
+- Stronger bond reduces social-need decay, making well-bonded dragons less demanding.
+- The Dragon Care HUD now shows Bond level, relationship stage, the current relationship note and the next milestone.
+- Hovering the dragon also shows its current Bond stage.
+- Bond milestones fire a small celebration/toast and are saved in existing dragon memory; no database migration is required.
+- Existing favourite-furniture memory is surfaced as relationship metadata when available.

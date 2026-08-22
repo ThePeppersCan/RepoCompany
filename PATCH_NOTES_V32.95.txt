@@ -1,0 +1,41 @@
+V32.95 — Dragon Daily Life, Mischief & Personality Moments
+22 Aug 2026
+
+DAILY LIFE ENGINE
+- Added low-frequency autonomous daily-life moments driven by personality, mood, needs, weather, favourites, routines and available furniture.
+- Added independent per-event cooldowns plus a randomized global event cooldown so moments do not fire on a predictable timer.
+- Added strong anti-repeat weighting using the dragon's recent event history.
+- Urgent Hunger, Energy, Hygiene and Fun always outrank optional personality moments.
+- Added autonomous moments for toy carrying, ball chasing, hoarding, cupboard mischief, unfamiliar furniture investigation, window watching, cosy naps, splashy baths, food checking, training, flight practice, quiet hiding, zoomies and curious wandering.
+- Autonomous training goes through the existing physical interaction and skill systems. Per-skill XP cooldowns and repeated-item fatigue are NOT bypassed.
+- Added small in-world moment captions rather than popup quests.
+
+PERSONALITY / ROUTINES
+- Personality traits now strongly weight compatible daily-life moments (Toy Obsessed, Hoarder, Tiny Menace, Splash Addict, Little Athlete, Little Pilot, Professional Napper, Coward, Explorer, etc.).
+- Dragons gradually form time-of-day routine tendencies from what they actually repeat instead of receiving a fixed scripted schedule.
+- Newly placed furniture is tracked as unfamiliar; existing furniture is safely seeded as already known when upgrading to V32.95.
+- Daily-life behaviour contributes to existing observation counters and trait discovery.
+- Newly discovered traits now get a small tasteful in-world "Learned" notification and remain recorded in Little Memories.
+- Return-after-away flavour reacts gently to current care/Bond without guilt or punishment.
+- Mood history, event counts, routines, recent events and last meaningful moment are stored inside the existing dragon_memory snapshot.
+
+KEEPER JOURNAL
+- Added a readable Daily Life section with current mood, current time-period routine, most common mood, most common activity and recent meaningful moment.
+- Added Life Moments to the compact life-stat grid.
+- Preserved the V32.93 readability overhaul; meaningful text remains comfortably readable rather than shrinking to 6–8px.
+
+CLICKABLE SKILL CARDS
+- All six skill cards are now real clickable Dragonbound-styled controls.
+- Clicking Flying / Agility / Strength / Fire Control / Intelligence / Confidence opens an inline "How to train this" panel.
+- The panel explains the skill, current recovery state and passive training rules.
+- It lists up to six relevant furnishings the current account ACTUALLY OWNS, prioritising items already placed in the home.
+- The furniture system now exposes a read-only owned-item catalog to the journal so the guide covers the full live 330-item catalog, including newer furniture packs.
+- If no relevant training furniture is owned, the panel says so rather than inventing an item.
+
+GROWTH / ECONOMY SAFETY
+- The existing baby-era growth art lock remains unchanged: Newly Hatched -> Baby -> Growing Baby only. Young Dragon / Juvenile / adult artwork is NOT activated.
+- Skill XP cooldowns, Keeper Mark milestone rewards, needs persistence, Bond persistence, Dragon Bites 4x excited chase and V32.94 bed/bath mount fixes are retained.
+- No new Supabase migration is required for V32.95.
+
+ADMIN
+- Added DragonboundLifeDebug.inspect() and DragonboundLifeDebug.trigger(type) for admin-only daily-life testing.

@@ -1,0 +1,9 @@
+Dragonbound V32.87 QA
+- JavaScript syntax: dragonbound-baby-engine.js PASS
+- JavaScript syntax: script.js PASS
+- Treat purchase no longer calls renderCharacter(), preventing Dragonbound actor rehydration during GP-only updates.
+- Online needs use dt/3600 (hour-based) rather than dt/60 (minute-based).
+- Offline needs catch-up capped at 8 hours.
+- Bond stages installed at 0 / 20 / 40 / 60 / 80 / 95.
+- Bond does not contain any decay path.
+- Trusting+ greeting path and high-bond treat-recognition logic installed.

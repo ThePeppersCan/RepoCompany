@@ -1,8 +1,8 @@
-/* Velmora Dragonbound — furniture placement + build inventory V32.84 */
+/* Velmora Dragonbound — furniture placement + build inventory V32.97 */
 (()=>{
   'use strict';
 
-  const VERSION='v32-84-furniture-variety-90-store-20260822';
+  const VERSION='v32-97-sims-needs-marks-20260822';
   const CATEGORIES=['All','Living','Beds','Feeding','Kitchen','Bath','Training','Toys','Care','Nature','Decor','Storage'];
   const CATEGORY_ICONS={All:'✦',Living:'⌂',Beds:'▰',Feeding:'◉',Kitchen:'♨',Bath:'≋',Training:'⚔',Toys:'◆',Care:'+',Nature:'♧',Decor:'✧',Storage:'▣'};
   const RARITY_ORDER={Common:0,Crafted:1,Rare:2,Epic:3};
@@ -95,7 +95,9 @@ function cleanupFurnitureSpriteData(sourceImg){
       this.loading=false;this.localCatalogCache=null;this.placementMode=null;this.editMode=false;this.selectedPlacementId=null;this.purchaseInFlight=new Set();
       this.ghost=null;this.ghostRoom='';this.ghostPoint=null;this.ghostValid=false;this.ghostDirection='right';this.ghostScale=DEFAULT_SCALE;
       this.pointerDown=false;this.pointerId=null;this.pointerStart=null;this.savingPlacement=false;
+      this.directDrag=null;this.suppressPlacementClickUntil=0;
       this.boundMove=e=>this.onPointerMove(e);this.boundDown=e=>this.onPointerDown(e);this.boundUp=e=>this.onPointerUp(e);this.boundKey=e=>this.onKey(e);this.boundWheel=e=>this.onWheel(e);
+      this.boundEditDragMove=e=>this.onEditDragMove(e);this.boundEditDragEnd=e=>this.onEditDragEnd(e);
       this.furnitureSpriteCleanupObserver=null;
       this.boundResize=()=>{this.renderPlacements();if(this.overlay?.classList.contains('is-visible'))this.renderGridAndInspector();};
       document.addEventListener('keydown',this.boundKey);
@@ -106,7 +108,7 @@ function cleanupFurnitureSpriteData(sourceImg){
       window.addEventListener('dragonbound:dragon-cleared',()=>this.exitBuildModes());
       window.dragonboundFurnitureCollisionProvider=()=>this.collisionPolys();
       window.dragonboundFurnitureInteractionProvider=()=>this.interactionSnapshot();
-      window.DragonboundFurniture={open:()=>this.openBuild(),edit:()=>this.enterEditMode(),refresh:()=>this.refresh(true,true),state:()=>this.debugState(),command:placementId=>this.commandDragonToFurniture(placementId)};
+      window.DragonboundFurniture={open:()=>this.openBuild(),edit:()=>this.enterEditMode(),refresh:()=>this.refresh(true,true),state:()=>this.debugState(),ownedItems:()=>this.ownedCatalog(),command:placementId=>this.commandDragonToFurniture(placementId)};
       queueMicrotask(()=>{this.attachExisting();this.watchFurnitureSprites();this.enhanceFurnitureImages(document);});
     }
 
@@ -226,7 +228,7 @@ watchFurnitureSprites(){
           <div class="dragonbound-build-body">
             <nav class="dragonbound-build-categories" aria-label="Furniture categories"></nav>
             <main class="dragonbound-build-main">
-              <div class="dragonbound-build-heading"><div><small data-build-eyebrow>FURNITURE VAULT</small><h2 data-build-title>Owned Furniture</h2></div><button type="button" class="dragonbound-build-edit-room">Edit Room</button></div>
+              <div class="dragonbound-build-heading"><div><small data-build-eyebrow>FURNITURE VAULT</small><h2 data-build-title>Owned Furniture</h2></div><button type="button" class="dragonbound-build-edit-room"><span class="dragonbound-build-edit-room-icon" aria-hidden="true">✦</span><span><strong>Edit Room</strong><small>Drag furniture to move it</small></span></button></div>
               <div class="dragonbound-build-controls">
                 <label class="dragonbound-build-search"><span>⌕</span><input data-build-search type="search" placeholder="Search furniture or collection…" autocomplete="off"></label>
                 <select data-build-rarity aria-label="Filter rarity"><option value="All">All rarities</option><option>Common</option><option>Crafted</option><option>Rare</option><option>Epic</option></select>
@@ -263,7 +265,7 @@ watchFurnitureSprites(){
       const hud=document.createElement('div');hud.className='dragonbound-build-placement-hud';hud.setAttribute('aria-hidden','true');
       hud.innerHTML=`<div><small>BUILD MODE · PLACE FURNITURE</small><strong data-place-name>Furniture</strong><span data-place-room>R · turn &nbsp;•&nbsp; Mouse wheel · resize</span></div><div class="dragonbound-build-placement-actions"><button type="button" data-place-turn>↔ Turn</button><button type="button" data-place-smaller>− Smaller</button><span class="dragonbound-build-size-readout" data-place-size>100%</span><button type="button" data-place-larger>+ Larger</button><button type="button" data-place-cancel>Cancel</button></div>`;
       this.homeScene.appendChild(hud);
-      hud.querySelector('[data-place-cancel]').addEventListener('click',()=>this.cancelPlacement(true));
+      hud.querySelector('[data-place-cancel]').addEventListener('click',()=>this.cancelCurrentPlacement());
       hud.querySelector('[data-place-turn]').addEventListener('click',()=>this.turnGhost());
       hud.querySelector('[data-place-smaller]').addEventListener('click',()=>this.resizeGhost(-SCALE_STEP));
       hud.querySelector('[data-place-larger]').addEventListener('click',()=>this.resizeGhost(SCALE_STEP));
@@ -273,7 +275,7 @@ watchFurnitureSprites(){
     ensureEditHud(){
       if(this.editHud?.isConnected)return;
       const hud=document.createElement('div');hud.className='dragonbound-build-edit-hud';hud.setAttribute('aria-hidden','true');
-      hud.innerHTML=`<div class="dragonbound-build-edit-summary"><small>BUILD MODE · EDIT ROOM</small><strong data-edit-title>Click a placed furnishing</strong><span data-edit-copy>Move, turn, resize or put furniture back into your Build Inventory.</span></div><div class="dragonbound-build-edit-actions"><button type="button" data-edit-inventory>Inventory</button><button type="button" data-edit-move disabled>Move</button><button type="button" data-edit-turn disabled>↔ Turn</button><button type="button" data-edit-smaller disabled>− Smaller</button><span class="dragonbound-build-size-readout" data-edit-size>—</span><button type="button" data-edit-larger disabled>+ Larger</button><button type="button" data-edit-store disabled>Put Away</button><button type="button" data-edit-done>Done</button></div>`;
+      hud.innerHTML=`<div class="dragonbound-build-edit-summary"><small>BUILD MODE · EDIT ROOM</small><strong data-edit-title>Drag any placed furnishing</strong><span data-edit-copy>Click to select · drag to move · release to place. Turn, resize or put items away from here.</span></div><div class="dragonbound-build-edit-actions"><button type="button" data-edit-inventory>Inventory</button><button type="button" data-edit-move disabled>Move</button><button type="button" data-edit-turn disabled>↔ Turn</button><button type="button" data-edit-smaller disabled>− Smaller</button><span class="dragonbound-build-size-readout" data-edit-size>—</span><button type="button" data-edit-larger disabled>+ Larger</button><button type="button" data-edit-store disabled>Put Away</button><button type="button" data-edit-done>Done</button></div>`;
       this.homeScene.appendChild(hud);
       hud.querySelector('[data-edit-inventory]').addEventListener('click',()=>{this.exitEditMode();this.openBuild();});
       hud.querySelector('[data-edit-move]').addEventListener('click',()=>this.moveSelectedPlacement());
@@ -431,9 +433,36 @@ watchFurnitureSprites(){
       this.notify(this.isWallItem(item)?'Move inside a room wall area; this decoration mounts to the wall. Click or release to place it.':'Move anywhere inside the room; the furnishing snaps down onto that room’s wooden floor. Click or release to place it.');
     }
 
-    moveSelectedPlacement(){
-      const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;const item=this.catalog.get(p.itemId);if(!item)return;this.exitEditMode(false);this.placementMode={type:'move',itemId:p.itemId,placementId:p.placementId};this.ghostDirection=p.direction==='left'?'left':'right';this.ghostScale=clamp(Number(p.scale||DEFAULT_SCALE),MIN_SCALE,MAX_SCALE);this.showPlacementHud(item.name);this.createGhost(item);this.homeScene?.classList.add('is-build-placing');this.bindPlacementPointers();this.setGhostPoint([p.x,p.y],p.roomId,true);this.renderGhost();
+    startMovePlacement(p,{bindSurface=true,direct=false}={}){
+      if(!p)return false;const item=this.catalog.get(p.itemId);if(!item)return false;
+      this.editMode=false;this.homeScene?.classList.remove('is-build-editing');this.editHud?.classList.remove('is-visible');this.editHud?.setAttribute('aria-hidden','true');
+      this.placementMode={type:'move',itemId:p.itemId,placementId:p.placementId,returnToEdit:true,direct:!!direct};
+      this.ghostDirection=p.direction==='left'?'left':'right';this.ghostScale=clamp(Number(p.scale||DEFAULT_SCALE),MIN_SCALE,MAX_SCALE);this.showPlacementHud(item.name);this.createGhost(item);this.homeScene?.classList.add('is-build-placing');if(direct)this.homeScene?.classList.add('is-build-direct-dragging');
+      if(bindSurface)this.bindPlacementPointers();this.setGhostPoint([p.x,p.y],p.roomId,true);this.renderGhost();
+      const source=this.layer?.querySelector?.(`[data-placement-id="${CSS.escape(String(p.placementId||''))}"]`);source?.classList.add('is-direct-drag-source');
+      return true;
     }
+    moveSelectedPlacement(){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;this.startMovePlacement(p,{bindSurface:true,direct:false});}
+    beginEditDrag(e,placementId){
+      if(!this.editMode||this.placementMode||this.savingPlacement||e.button!==0)return;
+      const p=this.placements.find(x=>x.placementId===placementId);if(!p)return;
+      this.selectPlacement(placementId);this.directDrag={placementId,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,started:false};
+      document.addEventListener('pointermove',this.boundEditDragMove,true);document.addEventListener('pointerup',this.boundEditDragEnd,true);document.addEventListener('pointercancel',this.boundEditDragEnd,true);
+    }
+    clearEditDrag(){document.removeEventListener('pointermove',this.boundEditDragMove,true);document.removeEventListener('pointerup',this.boundEditDragEnd,true);document.removeEventListener('pointercancel',this.boundEditDragEnd,true);this.directDrag=null;}
+    onEditDragMove(e){
+      const d=this.directDrag;if(!d||e.pointerId!==d.pointerId)return;const dx=e.clientX-d.startX,dy=e.clientY-d.startY;
+      if(!d.started&&Math.hypot(dx,dy)>=6){const p=this.placements.find(x=>x.placementId===d.placementId);if(!p)return this.clearEditDrag();d.started=this.startMovePlacement(p,{bindSurface:false,direct:true});if(d.started)this.suppressPlacementClickUntil=Date.now()+500;}
+      if(d.started){e.preventDefault();e.stopPropagation();this.onPointerMove(e);}
+    }
+    onEditDragEnd(e){
+      const d=this.directDrag;if(!d||e.pointerId!==d.pointerId)return;const wasStarted=!!d.started,id=d.placementId,cancelled=e.type==='pointercancel';this.clearEditDrag();
+      if(!wasStarted)return;
+      e.preventDefault();e.stopPropagation();
+      if(!cancelled){this.onPointerMove(e);if(this.ghostValid){this.commitPlacement();return;}}
+      const hadRoom=!!this.ghostRoom;this.cancelPlacement(false);this.enterEditMode();this.selectPlacement(id);this.notify(cancelled?'Move cancelled — the furnishing was put back.':hadRoom?'That spot is occupied — the furnishing was put back.':'That is outside the buildable floor — the furnishing was put back.','error');
+    }
+    cancelCurrentPlacement(){const mode=this.placementMode?{...this.placementMode}:null;this.cancelPlacement(false);if(mode?.returnToEdit){this.enterEditMode();if(mode.placementId)this.selectPlacement(mode.placementId);}else this.openBuild();}
 
     bindPlacementPointers(){const surface=this.ensurePlacementSurface();if(!surface)return;surface.addEventListener('pointermove',this.boundMove,true);surface.addEventListener('pointerdown',this.boundDown,true);surface.addEventListener('pointerup',this.boundUp,true);surface.addEventListener('pointercancel',this.boundUp,true);}
     unbindPlacementPointers(){const surface=this.placementSurface;surface?.removeEventListener('pointermove',this.boundMove,true);surface?.removeEventListener('pointerdown',this.boundDown,true);surface?.removeEventListener('pointerup',this.boundUp,true);surface?.removeEventListener('pointercancel',this.boundUp,true);this.pointerDown=false;this.pointerId=null;this.pointerStart=null;}
@@ -591,16 +620,16 @@ watchFurnitureSprites(){
         else ({data,error}=await dbc.rpc('dragonbound_move_furniture_v2',{p_placement_id:mode.placementId,p_room_id:room,p_x:p[0],p_y:p[1],p_direction:direction,p_scale:scale}));
         if(error)throw error;const saved={...data,x:Number(data.x),y:Number(data.y),rotation:0,direction:data.direction==='left'?'left':'right',scale:clamp(Number(data.scale||scale),MIN_SCALE,MAX_SCALE)};
         if(mode.type==='new'){const inv=this.inventory.get(mode.itemId);if(inv)inv.available=Math.max(0,inv.available-1);this.placements.push(saved);}else{const idx=this.placements.findIndex(x=>x.placementId===mode.placementId);if(idx>=0)this.placements[idx]={...this.placements[idx],...saved};}
-        this.syncState();this.renderPlacements();this.cancelPlacement(false);window.dispatchEvent(new CustomEvent('dragonbound:furniture-changed',{detail:{houseId:this.houseId}}));this.notify(mode.type==='new'?`${item.name} placed.`:`${item.name} moved.`);this.enterEditMode(mode.itemId);
+        this.syncState();this.renderPlacements();this.cancelPlacement(false);window.dispatchEvent(new CustomEvent('dragonbound:furniture-changed',{detail:{houseId:this.houseId}}));this.notify(mode.type==='new'?`${item.name} placed.`:`${item.name} moved.`);this.enterEditMode(mode.itemId,saved.placementId||mode.placementId||'');
       }catch(err){this.notify(err?.message||'Could not save furniture placement.','error');}finally{this.savingPlacement=false;this.placementHud?.classList.remove('is-saving');}
     }
 
-    cancelPlacement(reopen=false){this.unbindPlacementPointers();this.homeScene?.classList.remove('is-build-placing');this.placementHud?.classList.remove('is-visible','is-invalid','is-saving');this.placementHud?.setAttribute('aria-hidden','true');this.ghost?.remove();this.ghost=null;this.ghostPoint=null;this.ghostRoom='';this.ghostValid=false;this.placementMode=null;this.savingPlacement=false;if(reopen)this.openBuild();}
+    cancelPlacement(reopen=false){this.unbindPlacementPointers();this.layer?.querySelectorAll?.('.is-direct-drag-source').forEach(el=>el.classList.remove('is-direct-drag-source'));this.homeScene?.classList.remove('is-build-placing','is-build-direct-dragging');this.placementHud?.classList.remove('is-visible','is-invalid','is-saving');this.placementHud?.setAttribute('aria-hidden','true');this.ghost?.remove();this.ghost=null;this.ghostPoint=null;this.ghostRoom='';this.ghostValid=false;this.placementMode=null;this.savingPlacement=false;if(reopen)this.openBuild();}
 
-    enterEditMode(filterItemId=''){this.context='build';this.close();this.cancelPlacement(false);this.editMode=true;this.selectedPlacementId='';this.homeScene?.classList.add('is-build-editing');this.editHud?.classList.add('is-visible');this.editHud?.setAttribute('aria-hidden','false');this.renderPlacements();if(filterItemId){const p=this.placements.find(x=>x.itemId===filterItemId);if(p)this.selectPlacement(p.placementId);}else this.updateEditHud();this.notify(this.placements.length?'Click a furnishing to edit it.':'There is no furniture placed in this room yet.');}
-    exitEditMode(render=true){this.editMode=false;this.selectedPlacementId='';this.homeScene?.classList.remove('is-build-editing');this.editHud?.classList.remove('is-visible');this.editHud?.setAttribute('aria-hidden','true');if(render)this.renderPlacements();}
+    enterEditMode(filterItemId='',selectPlacementId=''){this.context='build';this.close();this.cancelPlacement(false);this.editMode=true;this.selectedPlacementId='';this.homeScene?.classList.add('is-build-editing');this.editHud?.classList.add('is-visible');this.editHud?.setAttribute('aria-hidden','false');this.renderPlacements();if(selectPlacementId){const exact=this.placements.find(x=>x.placementId===selectPlacementId);if(exact)this.selectPlacement(exact.placementId);else this.updateEditHud();}else if(filterItemId){const p=this.placements.find(x=>x.itemId===filterItemId);if(p)this.selectPlacement(p.placementId);else this.updateEditHud();}else this.updateEditHud();this.notify(this.placements.length?'Drag a furnishing to move it, or click once to edit it.':'There is no furniture placed in this room yet.');}
+    exitEditMode(render=true){if(this.directDrag)this.clearEditDrag();this.editMode=false;this.selectedPlacementId='';this.homeScene?.classList.remove('is-build-editing');this.editHud?.classList.remove('is-visible');this.editHud?.setAttribute('aria-hidden','true');if(render)this.renderPlacements();}
     selectPlacement(id){if(!this.editMode)return;this.selectedPlacementId=id;this.renderPlacements();this.updateEditHud();}
-    updateEditHud(){if(!this.editHud)return;const p=this.placements.find(x=>x.placementId===this.selectedPlacementId),item=p&&this.catalog.get(p.itemId);this.editHud.querySelector('[data-edit-title]').textContent=item?.name||'Click a placed furnishing';this.editHud.querySelector('[data-edit-copy]').textContent=item?`Ground floor · ${item.collection}`:'Move, turn, resize or put furniture back into your Build Inventory.';['move','turn','smaller','larger','store'].forEach(k=>{const b=this.editHud.querySelector(`[data-edit-${k}]`);if(b)b.disabled=!p;});const size=this.editHud.querySelector('[data-edit-size]');if(size)size.textContent=p?`${Math.round(Number(p.scale||1)*100)}%`:'—';}
+    updateEditHud(){if(!this.editHud)return;const p=this.placements.find(x=>x.placementId===this.selectedPlacementId),item=p&&this.catalog.get(p.itemId);this.editHud.querySelector('[data-edit-title]').textContent=item?.name||'Click a placed furnishing';this.editHud.querySelector('[data-edit-copy]').textContent=item?`Ground floor · ${item.collection} · drag it directly to move`:'Drag furniture directly, or click once to select it for turn, resize or storage.';['move','turn','smaller','larger','store'].forEach(k=>{const b=this.editHud.querySelector(`[data-edit-${k}]`);if(b)b.disabled=!p;});const size=this.editHud.querySelector('[data-edit-size]');if(size)size.textContent=p?`${Math.round(Number(p.scale||1)*100)}%`:'—';}
     async updateSelectedAppearance(patch,message){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;const dbc=this.db();const next={direction:patch.direction??p.direction??'right',scale:clamp(Number(patch.scale??p.scale??DEFAULT_SCALE),MIN_SCALE,MAX_SCALE)};try{const {data,error}=await dbc.rpc('dragonbound_move_furniture_v2',{p_placement_id:p.placementId,p_room_id:p.roomId,p_x:p.x,p_y:p.y,p_direction:next.direction,p_scale:next.scale});if(error)throw error;Object.assign(p,data,{x:Number(data.x),y:Number(data.y),rotation:0,direction:data.direction==='left'?'left':'right',scale:clamp(Number(data.scale||next.scale),MIN_SCALE,MAX_SCALE)});this.syncState();this.renderPlacements();this.updateEditHud();window.dispatchEvent(new CustomEvent('dragonbound:furniture-changed',{detail:{houseId:this.houseId}}));if(message)this.notify(message);}catch(err){this.notify(err?.message||'Could not update furniture.','error');}}
     turnSelectedPlacement(){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;this.updateSelectedAppearance({direction:p.direction==='left'?'right':'left'},'Furniture turned.');}
     resizeSelectedPlacement(delta){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;const next=clamp(Math.round((Number(p.scale||1)+delta)*100)/100,MIN_SCALE,MAX_SCALE),item=this.catalog.get(p.itemId);if(item&&!this.validPlacement([Number(p.x),Number(p.y)],p.roomId,item,p.placementId,next)){this.notify('That size would overlap another furnishing or the room edge.','error');return;}this.updateSelectedAppearance({scale:next},`Furniture size · ${Math.round(next*100)}%`);}
@@ -639,16 +668,16 @@ syncPlacementImage(img,item){
       this.notify(result?.reason||'Your dragon cannot reach that furnishing right now.','error');return false;
     }
     renderPlacements(){
-      const layer=this.ensureLayer();if(!layer)return;const keep=new Set();for(const p of this.placements){const item=this.catalog.get(p.itemId);if(!item)continue;let el=layer.querySelector(`[data-placement-id="${CSS.escape(p.placementId)}"]`);if(!el){el=document.createElement('button');el.type='button';el.className='dragonbound-furniture-placement';el.dataset.placementId=p.placementId;el.innerHTML='<img alt=""><span class="dragonbound-furniture-edit-ring"></span>';el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(this.editMode){this.selectPlacement(el.dataset.placementId);return;}if(!this.placementMode)this.commandDragonToFurniture(el.dataset.placementId);});layer.appendChild(el);const img=el.querySelector('img');img.addEventListener('load',()=>this.positionPlacementById(el.dataset.placementId));}keep.add(p.placementId);el.dataset.itemId=p.itemId;el.classList.toggle('is-selected',p.placementId===this.selectedPlacementId);el.setAttribute('aria-label',this.editMode?`Edit ${item.name}`:`Ask your dragon to interact with ${item.name}`);el.title=this.editMode?`Edit ${item.name}`:`Click to send your dragon to ${item.name}`;const img=el.querySelector('img');this.syncPlacementImage(img,item);img.alt=item.name;img.title=el.title;this.cleanFurnitureImage(img);this.positionPlacement(el,p,item);}
+      const layer=this.ensureLayer();if(!layer)return;const keep=new Set();for(const p of this.placements){const item=this.catalog.get(p.itemId);if(!item)continue;let el=layer.querySelector(`[data-placement-id="${CSS.escape(p.placementId)}"]`);if(!el){el=document.createElement('button');el.type='button';el.className='dragonbound-furniture-placement';el.dataset.placementId=p.placementId;el.innerHTML='<img alt=""><span class="dragonbound-furniture-edit-ring"></span>';el.addEventListener('pointerdown',e=>{if(this.editMode){e.preventDefault();e.stopPropagation();this.beginEditDrag(e,el.dataset.placementId);}});el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(Date.now()<this.suppressPlacementClickUntil)return;if(this.editMode){this.selectPlacement(el.dataset.placementId);return;}if(!this.placementMode)this.commandDragonToFurniture(el.dataset.placementId);});layer.appendChild(el);const img=el.querySelector('img');img.addEventListener('load',()=>this.positionPlacementById(el.dataset.placementId));}keep.add(p.placementId);el.dataset.itemId=p.itemId;el.classList.toggle('is-selected',p.placementId===this.selectedPlacementId);el.setAttribute('aria-label',this.editMode?`Edit ${item.name}`:`Ask your dragon to interact with ${item.name}`);el.title=this.editMode?`Edit ${item.name}`:`Click to send your dragon to ${item.name}`;const img=el.querySelector('img');this.syncPlacementImage(img,item);img.alt=item.name;img.title=el.title;this.cleanFurnitureImage(img);this.positionPlacement(el,p,item);}
       layer.querySelectorAll('.dragonbound-furniture-placement').forEach(el=>{if(!keep.has(el.dataset.placementId))el.remove();});
     }
     positionPlacement(el,p,item){if(!el||!this.world)return;const engine=window.DragonboundBabyEngine;const xy=engine?.toPixels?engine.toPixels([p.x,p.y]):{x:p.x*this.world.clientWidth,y:p.y*this.world.clientHeight};el.style.left=xy.x+'px';el.style.top=xy.y+'px';el.style.zIndex=this.placementDepthOrder(p,item);const img=el.querySelector('img');this.sizeWorldImage(img,item,p.scale);const flip=p.direction==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;el.dataset.roomId=p.roomId;el.dataset.scale=String(p.scale||1);el.dataset.wallMounted=this.isWallItem(item)?'1':'0';}
 
     collisionPolys(){return this.placements.flatMap(p=>{const item=this.catalog.get(p.itemId);if(this.isWallItem(item))return[];return[{floorId:p.roomId,poly:this.placementPoly(p,item,p.scale),placementId:p.placementId,itemId:p.itemId}];});}
-    interactionSnapshot(){return this.placements.map(p=>{const item=this.catalog.get(p.itemId),wallMounted=this.isWallItem(item);return{placementId:p.placementId,itemId:p.itemId,roomId:p.roomId,x:Number(p.x),y:Number(p.y),direction:p.direction||'right',scale:Number(p.scale||1),footprintW:Number(item?.footprintW||2),footprintH:Number(item?.footprintH||1),halfWidth:this.itemHalfWidth(item,p.scale),depth:wallMounted?0:this.itemDepth(item,p.scale),wallMounted,tags:item?.tags||[],name:item?.name||p.itemId,category:item?.category||'',collection:item?.collection||'',personalityScore:typeof window.DragonboundFurniturePersonalityScore==='function'?window.DragonboundFurniturePersonalityScore(item?.tags||[],{roomId:p.roomId,x:p.x,y:p.y,itemId:p.itemId,wallMounted}):0};});}
+    interactionSnapshot(){return this.placements.map(p=>{const item=this.catalog.get(p.itemId),wallMounted=this.isWallItem(item);return{placementId:p.placementId,itemId:p.itemId,roomId:p.roomId,x:Number(p.x),y:Number(p.y),direction:p.direction||'right',scale:Number(p.scale||1),footprintW:Number(item?.footprintW||2),footprintH:Number(item?.footprintH||1),halfWidth:this.itemHalfWidth(item,p.scale),depth:wallMounted?0:this.itemDepth(item,p.scale),wallMounted,tags:item?.tags||[],name:item?.name||p.itemId,category:item?.category||'',collection:item?.collection||'',sprite:item?.sprite||'',price:Number(item?.price||0),rarity:item?.rarity||'',personalityScore:typeof window.DragonboundFurniturePersonalityScore==='function'?window.DragonboundFurniturePersonalityScore(item?.tags||[],{roomId:p.roomId,x:p.x,y:p.y,itemId:p.itemId,wallMounted}):0};});}
     syncState(){this.state.inventory=[...this.inventory].map(([itemId,v])=>({itemId,...v}));this.state.placements=this.placements.map(p=>({...p}));this.render();}
 
-    exitBuildModes(){this.close();this.cancelPlacement(false);this.exitEditMode(false);}
+    exitBuildModes(){if(this.directDrag)this.clearEditDrag();this.close();this.cancelPlacement(false);this.exitEditMode(false);}
     onWheel(e){
       if(this.placementMode&&!this.isBuildControlTarget(e.target)){
         if(Math.abs(Number(e.deltaY||0))<1)return;
@@ -664,10 +693,11 @@ syncPlacementImage(img,item){
     }
     onKey(e){
       const tag=document.activeElement?.tagName;if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
-      if(e.key==='Escape'){if(this.placementMode){e.preventDefault();this.cancelPlacement(true);return;}if(this.editMode){e.preventDefault();this.exitEditMode();return;}if(this.overlay?.classList.contains('is-visible')){e.preventDefault();this.close();return;}}
+      if(e.key==='Escape'){if(this.directDrag){e.preventDefault();const id=this.directDrag.placementId;this.clearEditDrag();this.cancelPlacement(false);this.enterEditMode();if(id)this.selectPlacement(id);return;}if(this.placementMode){e.preventDefault();this.cancelCurrentPlacement();return;}if(this.editMode){e.preventDefault();this.exitEditMode();return;}if(this.overlay?.classList.contains('is-visible')){e.preventDefault();this.close();return;}}
       if(e.key.toLowerCase()==='b'&&this.homeScene?.classList.contains('is-visible')){e.preventDefault();if(this.overlay?.classList.contains('is-visible'))this.close();else this.openBuild();}
       if((e.key.toLowerCase()==='r'||e.key.toLowerCase()==='q'||e.key.toLowerCase()==='e')&&this.placementMode){e.preventDefault();this.turnGhost();}if((e.key==='-'||e.key==='_')&&this.placementMode){e.preventDefault();this.resizeGhost(-SCALE_STEP);}if((e.key==='+'||e.key==='=')&&this.placementMode){e.preventDefault();this.resizeGhost(SCALE_STEP);}
     }
+    ownedCatalog(){return this.state.catalog.filter(item=>Number(this.inventory.get(item.itemId)?.owned||0)>0).map(item=>{const inv=this.inventory.get(item.itemId)||{};return{...item,owned:Number(inv.owned||0),available:Number(inv.available||0),placed:this.placements.some(p=>p.itemId===item.itemId)};});}
     debugState(){return{houseId:this.houseId,context:this.context,balance:this.state.balance,catalogCount:this.state.catalog.length,inventory:Object.fromEntries(this.inventory),placements:this.placements.map(p=>({...p})),mode:this.placementMode,ghost:{room:this.ghostRoom,point:this.ghostPoint,valid:this.ghostValid,direction:this.ghostDirection,scale:this.ghostScale},editMode:this.editMode};}
   }
 

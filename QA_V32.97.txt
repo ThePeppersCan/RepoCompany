@@ -1,0 +1,16 @@
+V32.97 QA — Sims-style Needs + 2,000 Mark Gift
+
+PASS — Sims-style thresholds defined
+PASS — Target care ranges defined
+PASS — Needs seek lowest low bar
+PASS — Low need targets matching furniture
+PASS — Optional life events yield to care
+PASS — Furniture care capped below 100%
+PASS — Gradual furniture care retained
+PASS — Baby art growth cap retained
+PASS — Skill cooldowns retained
+PASS — 24h decay remains casual — Energy≈46%, Hunger≈38%, Fun≈46%, Hygiene≈68%
+PASS — Typical autonomous session does not need 100% — Hunger≈80%, Hygiene≈88%, Energy≈80%, Fun≈80%
+PASS — Furniture catalog parses — 330 items
+
+Live Supabase grant verification is recorded separately in deployment: 8 current Dragonbound wallets, +2,000 Keeper Marks each.

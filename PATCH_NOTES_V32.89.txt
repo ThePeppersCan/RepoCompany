@@ -1,0 +1,24 @@
+V32.89 — Persistent Needs + Casual Daily Care Balance
+
+Fixes
+- Fixed Dragonbound needs reverting/resetting after a page reload.
+- Behaviour/needs/bond are now written to a synchronous browser snapshot before the async Supabase save is attempted.
+- Reload hydration compares the local and server behaviour timestamps and keeps whichever is newer.
+- If the browser has the newer snapshot, Dragonbound restores it immediately and repairs Supabase in the background.
+- Reload / beforeunload now explicitly saves behaviour as well as movement.
+
+Care balance
+- Needs now decay slightly faster while the game is active than V32.87.
+- Offline care is balanced around checking in roughly once a day or every other day.
+- The first 18 hours away count normally; further offline decay runs at only 35% speed and stops accumulating after 42 hours.
+- Offline catch-up cannot push any normal care bar below 12%.
+- Low needs have no destructive consequence: dragons become Grumpy, Sulking, Restless, Hungry, Scruffy, Sleepy or Bored instead.
+
+Bond
+- Bond still grows from good care and spending relaxed time together.
+- If several needs stay genuinely low, bond can now drift down very slowly.
+- Online low-care bond loss is only a few tenths per hour.
+- Offline neglect loss is capped at 1.5 Bond even after a long absence.
+- Normal/moderate care does not reduce Bond.
+
+No database migration is required; this uses the existing Dragonbound behaviour memory save RPC.

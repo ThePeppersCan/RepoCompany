@@ -1,0 +1,34 @@
+V32.96 — Journal Polish, Mount Stability & Build Mode Dragging
+
+Journal polish
+- Reworked the clickable Growth & Skills cards into light parchment journal panels instead of heavy brown button styling.
+- Added clearer hover/selected states and a more integrated training-help treatment.
+- Kept the larger V32.93 readability sizing.
+- Reworked the right journal page to use one natural outer scroll flow.
+- Little Memories now gets dedicated vertical room and no longer relies on a nested clipped scroll region, so opening training help cannot push the scrapbook under the bottom edge.
+
+Furniture interaction mount stability
+- Fixed mount-style interactions beginning visibly at the floor approach point before snapping onto the furnishing.
+- Beds, baths, sand baths, perches, hiding/rest surfaces and other mounted interactions resolve their final mount coordinates before the first interaction frame is rendered.
+- The settle delay still happens and gradual care / gradual skill progress still waits for the real interaction period; this is a visual-position fix, not instant stat gain.
+
+Build Inventory / Edit Room
+- Made Edit Room the primary, larger call-to-action in Owned Furniture with a clear “Drag furniture to move it” sublabel.
+- Added direct click-and-drag repositioning in Edit Room.
+- A normal click still selects furniture for turn / resize / Put Away.
+- Dragging 6px or more starts direct move mode; release on a valid location saves the move.
+- Invalid/outside drops revert safely to the original server-saved placement.
+- Escape / pointer cancellation also returns the item safely and restores Edit Room.
+- Outside Edit Room, furniture click behaviour remains unchanged and continues to command the dragon to interact with the furnishing.
+- Existing Move button is retained as a secondary option, but it is no longer required for normal repositioning.
+
+Preserved
+- Needs/Bond/skills persistence and gradual care.
+- Per-skill XP cooldowns and training fatigue.
+- Keeper Mark skill milestone rewards.
+- Daily Life / personality moments.
+- Dragon Bites 4x excited chase.
+- Baby-era growth art cap at Growing Baby.
+- Existing furniture placement, depth ordering and house visiting behaviour.
+
+No Supabase migration is required for V32.96.
