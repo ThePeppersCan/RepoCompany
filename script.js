@@ -40560,6 +40560,11 @@ document.head.appendChild(s)})();
   const DRAGONBOUND_ADOPTION_OPEN_AUDIO='assets/dragonbound/adoption/dragonbound-adoption-open.mp3';
   const DRAGONBOUND_ADOPTION_REVEAL_AUDIO='assets/dragonbound/adoption/dragonbound-egg-reveal.mp3';
   const DRAGONBOUND_ADOPTION_BASKET_FOREGROUND='assets/dragonbound/adoption/dragonbound-adopt-basket-foreground.png';
+  const DRAGONBOUND_TREATS_BUTTON_IMAGE='assets/dragonbound/treats/dragon-bites-closed.png';
+  const DRAGONBOUND_TREATS_OPEN_IMAGE='assets/dragonbound/treats/dragon-bites-open.png';
+  const DRAGONBOUND_TREAT_IMAGE='assets/dragonbound/treats/dragon-bite-treat.png';
+  const DRAGONBOUND_TREAT_SHAKE_AUDIO='assets/dragonbound/audio/dragon-treats-shake.mp3';
+  const DRAGONBOUND_TREAT_COST=200;
   const DRAGONBOUND_ADOPTION_FRAMES=[
     'assets/dragonbound/adoption/frames/01_basket_closed.png',
     'assets/dragonbound/adoption/frames/02_hands_reaching.png',
@@ -41724,6 +41729,248 @@ document.head.appendChild(s)})();
     const adoptionRollEgg=overlay.querySelector('.dragonbound-adoption-roll-egg');
     const adoptionRollForeground=overlay.querySelector('.dragonbound-adoption-roll-foreground');
     const menuActions=[...overlay.querySelectorAll('.dragonbound-menu-action')];
+
+    let dragonTreatsBusy=false;
+    let dragonTreatCooldownTimer=0;
+    let dragonTreatShakeAudio=null;
+    let dragonTreatCrunchAudio=null;
+    let dragonTreatAbortToken=0;
+    const DRAGON_TREAT_COOLDOWN_KEY='dragonboundTreatCooldownUntil';
+
+    const homeTreatButton=homeSidebar?document.createElement('button'):null;
+    const homeTreatConfirm=document.createElement('div');
+    homeTreatConfirm.className='dragonbound-home-treats-confirm';
+    homeTreatConfirm.setAttribute('aria-hidden','true');
+    homeTreatConfirm.innerHTML=`
+      <div class="dragonbound-home-treats-confirm-backdrop"></div>
+      <div class="dragonbound-home-treats-confirm-panel" role="dialog" aria-modal="true" aria-labelledby="dragonboundHomeTreatsTitle">
+        <p class="dragonbound-home-treats-confirm-kicker">DRAGON BITES</p>
+        <h2 class="dragonbound-home-treats-confirm-title" id="dragonboundHomeTreatsTitle">Treat your dragon?</h2>
+        <p class="dragonbound-home-treats-confirm-copy">Would you like to spend 200 GP on a pouch of Dragon Bites? We'll toss a few around the room for your little dragon to chase down.</p>
+        <div class="dragonbound-home-treats-confirm-actions">
+          <button class="dragonbound-home-treats-confirm-button dragonbound-home-treats-confirm-button--yes" type="button">Yes — 200 GP</button>
+          <button class="dragonbound-home-treats-confirm-button dragonbound-home-treats-confirm-button--no" type="button">Not right now</button>
+        </div>
+      </div>`;
+    overlay.appendChild(homeTreatConfirm);
+    const homeTreatConfirmYes=homeTreatConfirm.querySelector('.dragonbound-home-treats-confirm-button--yes');
+    const homeTreatConfirmNo=homeTreatConfirm.querySelector('.dragonbound-home-treats-confirm-button--no');
+    const homeTreatConfirmCopy=homeTreatConfirm.querySelector('.dragonbound-home-treats-confirm-copy');
+
+    const homeTreatStage=homeScene?document.createElement('div'):null;
+    let homeTreatBagWrap=null;
+    let homeTreatBagImage=null;
+    let homeTreatStatus=null;
+    let homeTreatGround=null;
+    if(homeTreatStage){
+      homeTreatStage.className='dragonbound-home-treat-stage';
+      homeTreatStage.setAttribute('aria-hidden','true');
+      homeTreatStage.innerHTML=`
+        <div class="dragonbound-home-treat-bag-wrap"><img class="dragonbound-home-treat-bag-image" alt="Dragon Bites treats"></div>
+        <div class="dragonbound-home-treat-status" aria-live="polite"></div>`;
+      homeScene.appendChild(homeTreatStage);
+      homeTreatBagWrap=homeTreatStage.querySelector('.dragonbound-home-treat-bag-wrap');
+      homeTreatBagImage=homeTreatStage.querySelector('.dragonbound-home-treat-bag-image');
+      homeTreatStatus=homeTreatStage.querySelector('.dragonbound-home-treat-status');
+    }
+    if(homeWorld){
+      homeTreatGround=document.createElement('div');
+      homeTreatGround.className='dragonbound-home-treat-ground';
+      homeTreatGround.setAttribute('aria-hidden','true');
+      homeWorld.appendChild(homeTreatGround);
+    }
+    if(homeTreatButton){
+      homeTreatButton.type='button';
+      homeTreatButton.className='dragonbound-home-treats-trigger';
+      homeTreatButton.setAttribute('aria-label','Buy Dragon Bites treats for your dragon');
+      homeTreatButton.innerHTML=`<img src="${DRAGONBOUND_TREATS_BUTTON_IMAGE}" alt="Dragon Bites Embercrunch Treats"><span class="dragonbound-home-treats-cooldown" aria-live="polite"></span>`;
+      homeSidebar.appendChild(homeTreatButton);
+    }
+
+    try{dragonTreatShakeAudio=new Audio(DRAGONBOUND_TREAT_SHAKE_AUDIO);dragonTreatShakeAudio.preload='auto';dragonTreatShakeAudio.volume=.60;}catch(_error){dragonTreatShakeAudio=null;}
+    try{dragonTreatCrunchAudio=new Audio('assets/dragonbound/audio/dragon-treat-crunch.mp3');dragonTreatCrunchAudio.preload='auto';dragonTreatCrunchAudio.volume=.60;}catch(_error){dragonTreatCrunchAudio=null;}
+    [DRAGONBOUND_TREATS_BUTTON_IMAGE,DRAGONBOUND_TREATS_OPEN_IMAGE,DRAGONBOUND_TREAT_IMAGE].forEach(src=>{const img=new Image();img.src=src;});
+
+    function dragonTreatDelay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+    function dragonTreatToast(message,duration=3600){try{if(typeof toast==='function')toast(message,duration);}catch(_error){}}
+    function dragonTreatBalance(){
+      const fromCharacter=typeof character!=='undefined'&&character&&Number.isFinite(Number(character.gp))?Number(character.gp):NaN;
+      if(Number.isFinite(fromCharacter)) return Math.max(0,fromCharacter);
+      const fromBank=typeof bankState!=='undefined'&&bankState&&Number.isFinite(Number(bankState.gp))?Number(bankState.gp):0;
+      return Math.max(0,fromBank);
+    }
+    function syncDragonTreatBalance(newGp){
+      const value=Math.max(0,Number(newGp)||0);
+      try{if(typeof character!=='undefined'&&character)character.gp=value;}catch(_error){}
+      try{if(typeof bankState!=='undefined'&&bankState)bankState.gp=value;}catch(_error){}
+      try{renderCharacter?.();}catch(_error){}
+      try{if(document.getElementById('bankDialog')?.open)renderBank?.();}catch(_error){}
+    }
+    function activeDragonTreatActor(){
+      const engine=window.DragonboundBabyEngine;
+      if(!engine?.actor||!newGameStage.classList.contains('is-home')||newGameStage.classList.contains('is-visiting-house')) return null;
+      return engine.actor;
+    }
+    function dragonTreatTraitList(actor){
+      return [...(Array.isArray(actor?.assignedTraits)?actor.assignedTraits:[]),...(Array.isArray(actor?.discoveredTraits)?actor.discoveredTraits:[])].map(v=>String(v||'').trim().toLowerCase()).filter(Boolean);
+    }
+    function dragonTreatLazyProfile(actor){
+      const traits=dragonTreatTraitList(actor),lowEnergy=Number(actor?.coreStats?.energy||50)<40;
+      return traits.some(trait=>trait.includes('couch potato')||trait.includes('professional napper')||trait.includes('deep sleeper')||trait.includes('fussy sleeper'))||lowEnergy;
+    }
+    function dragonTreatFoodProfile(actor){
+      const traits=dragonTreatTraitList(actor),appetite=Number(actor?.coreStats?.appetite||50);
+      return traits.some(trait=>trait.includes('food goblin')||trait.includes('greedy'))||appetite>66;
+    }
+    function formatTreatCooldown(ms){const total=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(total/60),s=total%60;return `${m}:${String(s).padStart(2,'0')}`;}
+    function getTreatCooldownUntil(){try{return Number(localStorage.getItem(DRAGON_TREAT_COOLDOWN_KEY)||0)||0;}catch(_){return 0;}}
+    function setTreatCooldownUntil(value){const until=Number(new Date(value).getTime())||Number(value)||0;try{localStorage.setItem(DRAGON_TREAT_COOLDOWN_KEY,String(until));}catch(_){ }syncTreatCooldownUi();}
+    function syncTreatCooldownUi(){
+      if(!homeTreatButton)return;
+      const remain=Math.max(0,getTreatCooldownUntil()-Date.now()),badge=homeTreatButton.querySelector('.dragonbound-home-treats-cooldown');
+      homeTreatButton.classList.toggle('is-cooling-down',remain>0);
+      homeTreatButton.disabled=remain>0||dragonTreatsBusy;
+      homeTreatButton.setAttribute('aria-label',remain>0?`Dragon Bites available in ${formatTreatCooldown(remain)}`:'Buy Dragon Bites treats for your dragon');
+      if(badge)badge.textContent=remain>0?formatTreatCooldown(remain):'';
+    }
+    dragonTreatCooldownTimer=setInterval(syncTreatCooldownUi,1000);syncTreatCooldownUi();
+
+    function resetDragonTreatStage(){
+      dragonTreatAbortToken++;
+      dragonTreatsBusy=false;
+      homeTreatStage?.classList.remove('is-visible','is-open');
+      homeTreatStage?.setAttribute('aria-hidden','true');
+      homeTreatBagWrap?.classList.remove('is-shaking','is-opened');
+      if(homeTreatBagImage)homeTreatBagImage.src=DRAGONBOUND_TREATS_BUTTON_IMAGE;
+      if(homeTreatStatus)homeTreatStatus.textContent='';
+      if(homeTreatGround)homeTreatGround.replaceChildren();
+      const actor=activeDragonTreatActor();
+      actor?.el?.classList.remove('is-treat-excited','is-treat-chewing');
+      syncTreatCooldownUi();
+    }
+    function openDragonTreatConfirm(){
+      if(dragonTreatsBusy)return;
+      const remain=Math.max(0,getTreatCooldownUntil()-Date.now());
+      if(remain>0){dragonTreatToast(`Dragon Bites will be ready again in ${formatTreatCooldown(remain)}.`);syncTreatCooldownUi();return;}
+      const actor=activeDragonTreatActor();
+      if(!actor){dragonTreatToast('Your dragon needs to be home before you can feed them treats.');return;}
+      const name=actor?.dragon?.name||'your dragon';
+      if(homeTreatConfirmCopy)homeTreatConfirmCopy.textContent=`Would you like to spend ${DRAGONBOUND_TREAT_COST.toLocaleString('en-GB')} GP on Dragon Bites for ${name}? We'll toss 3 or 4 treats around the room for them to chase and crunch up.`;
+      homeTreatConfirm.classList.add('is-visible');homeTreatConfirm.setAttribute('aria-hidden','false');
+      requestAnimationFrame(()=>homeTreatConfirmYes?.focus({preventScroll:true}));
+    }
+    function closeDragonTreatConfirm(){homeTreatConfirm.classList.remove('is-visible');homeTreatConfirm.setAttribute('aria-hidden','true');}
+
+    function playTreatCrunch(){
+      if(!dragonTreatCrunchAudio)return;
+      try{dragonTreatCrunchAudio.pause();dragonTreatCrunchAudio.currentTime=0;dragonTreatCrunchAudio.volume=.60;dragonTreatCrunchAudio.play()?.catch?.(()=>{});}catch(_error){}
+    }
+    function worldPixelDistance(a,b){
+      const engine=window.DragonboundBabyEngine;if(!engine?.toPixels)return Infinity;
+      const p=engine.toPixels(a),q=engine.toPixels(b);return Math.hypot(p.x-q.x,p.y-q.y);
+    }
+    function buildDragonTreatRoute(count){
+      const engine=window.DragonboundBabyEngine,actor=engine?.actor;if(!engine?.map||!actor)return[];
+      const floorId=actor.floorId||'downstairs',floor=engine.map.floors.find(f=>f.id===floorId),candidates=[];
+      (floor?.navigationNodes||[]).forEach(p=>{if(engine.isWalkable(floorId,p))candidates.push(p.slice());});
+      for(let y=.60;y<=.735;y+=.027)for(let x=.28;x<=.76;x+=.055){const p=[+x.toFixed(3),+y.toFixed(3)];if(engine.isWalkable(floorId,p))candidates.push(p);}
+      let from=actor.pos.slice(),route=[];
+      for(let i=0;i<count;i++){
+        const scored=candidates.map(p=>({p,d:worldPixelDistance(from,p),fromDragon:worldPixelDistance(actor.pos,p),path:engine.findPath(floorId,from,p)}))
+          .filter(v=>v.path.length&&v.d>125&&v.fromDragon>90&&!route.some(old=>worldPixelDistance(old,v.p)<100))
+          .sort((a,b)=>b.d-a.d);
+        const pool=scored.slice(0,Math.min(8,scored.length));
+        const pick=pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
+        if(!pick)break;
+        route.push(pick.p.slice());from=pick.p.slice();
+      }
+      return route;
+    }
+    function createDragonTreatPiece(targetPoint,index){
+      if(!homeTreatGround||!homeTreatBagWrap||!homeWorld)return null;
+      const engine=window.DragonboundBabyEngine,worldRect=homeWorld.getBoundingClientRect(),bagRect=homeTreatBagWrap.getBoundingClientRect(),target=engine?.toPixels?.(targetPoint);
+      if(!target)return null;
+      const originX=bagRect.left-worldRect.left+bagRect.width*.62,originY=bagRect.top-worldRect.top+bagRect.height*.68;
+      const piece=document.createElement('img');piece.className='dragonbound-home-treat-piece';piece.src=DRAGONBOUND_TREAT_IMAGE;piece.alt='';piece.setAttribute('aria-hidden','true');
+      piece.style.left=`${originX}px`;piece.style.top=`${originY}px`;piece.style.setProperty('--dx',`${target.x-originX}px`);piece.style.setProperty('--dy',`${target.y-originY}px`);piece.style.setProperty('--rot',`${(-30+Math.random()*60).toFixed(1)}deg`);piece.style.zIndex=String(950000+index);
+      homeTreatGround.appendChild(piece);piece.addEventListener('animationend',()=>piece.classList.add('is-landed'),{once:true});return piece;
+    }
+    function spawnDragonTreatCrunchBurst(target){
+      if(!homeTreatGround)return;
+      const point=window.DragonboundBabyEngine?.toPixels?.(target);if(!point)return;
+      const burst=document.createElement('span');burst.className='dragonbound-home-treat-crunch-burst';burst.style.left=`${point.x}px`;burst.style.top=`${point.y}px`;burst.innerHTML='<b>CRUNCH!</b><i></i><i></i><i></i><i></i><i></i>';
+      homeTreatGround.appendChild(burst);setTimeout(()=>burst.remove(),850);
+    }
+    function waitForDragonAtTreat(actor,target,token,maxMs=16000){
+      return new Promise(resolve=>{
+        const started=Date.now();
+        const timer=setInterval(()=>{
+          if(token!==dragonTreatAbortToken||!actor?.el?.isConnected){clearInterval(timer);resolve(false);return;}
+          const arrived=worldPixelDistance(actor.pos,target)<68;
+          if(arrived||Date.now()-started>maxMs){clearInterval(timer);resolve(arrived);}
+        },120);
+      });
+    }
+    async function runSingleDragonTreat(target,index,total,token){
+      if(token!==dragonTreatAbortToken)return false;
+      const actor=activeDragonTreatActor();if(!actor)return false;
+      const name=actor.dragon?.name||'Your dragon',lazy=dragonTreatLazyProfile(actor),foodDriven=dragonTreatFoodProfile(actor);
+      const piece=createDragonTreatPiece(target,index);if(!piece)return false;
+      if(homeTreatStatus)homeTreatStatus.textContent=`Treat ${index+1} of ${total} — tossed across the room…`;
+      await dragonTreatDelay(900);
+      if(token!==dragonTreatAbortToken)return false;
+      try{if(typeof actor.finishFurnitureUse==='function')actor.finishFurnitureUse();actor.commandedFurniture=null;actor.furniturePlan=null;actor.path=[];actor.pathIndex=0;actor.pauseUntil=0;actor.setState('looking',lazy?950:600);}catch(_error){}
+      actor.el?.classList.add('is-treat-excited');setTimeout(()=>actor.el?.classList.remove('is-treat-excited'),1600);
+      if(homeTreatStatus)homeTreatStatus.textContent=lazy?`${name} notices it… and takes their time.`:`${name} spots it and gets excited!`;
+      await dragonTreatDelay(lazy?950:(foodDriven?500:700));
+      if(token!==dragonTreatAbortToken)return false;
+      const ok=actor.startWalk(target.slice(),'walking');
+      if(!ok){piece.classList.add('is-eaten');await dragonTreatDelay(350);piece.remove();return false;}
+      actor.walkSpeedBoost=2.0;
+      if(homeTreatStatus)homeTreatStatus.textContent=`${name} bolts over to the treat!`;
+      const arrived=await waitForDragonAtTreat(actor,target,token,lazy?19000:15000);
+      if(token!==dragonTreatAbortToken)return false;
+      if(!arrived){piece.classList.add('is-eaten');await dragonTreatDelay(350);piece.remove();return false;}
+      try{actor.path=[];actor.pathIndex=0;actor.walkSpeedBoost=1;actor.setState('sitting',950);actor.nextDecision=performance.now()+1150;actor.needs.hunger=Math.max(0,Number(actor.needs?.hunger||0)-14);actor.needs.social=Math.max(0,Number(actor.needs?.social||0)-2);actor.behaviourDirty=true;}catch(_error){}
+      actor.el?.classList.add('is-treat-chewing');playTreatCrunch();spawnDragonTreatCrunchBurst(target);piece.classList.add('is-eaten');
+      if(homeTreatStatus)homeTreatStatus.textContent=`Crunch! ${name} gobbles it up.`;
+      await dragonTreatDelay(900);actor.el?.classList.remove('is-treat-chewing');piece.remove();
+      return true;
+    }
+    async function purchaseDragonTreats(){
+      if(typeof db==='undefined'||!db?.rpc)throw new Error('Dragon Bites could not reach the server.');
+      const {data,error}=await db.rpc('dragonbound_buy_treats');if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;if(!row||!Number.isFinite(Number(row.new_gp)))throw new Error('Dragon Bites returned an invalid purchase receipt.');
+      syncDragonTreatBalance(Number(row.new_gp));setTreatCooldownUntil(row.cooldown_until||Date.now()+120000);return row;
+    }
+    async function startDragonTreatSequence(){
+      const actor=activeDragonTreatActor();if(dragonTreatsBusy||!actor||!homeTreatStage||!homeTreatBagWrap||!homeTreatBagImage||!homeTreatGround)return;
+      if(dragonTreatBalance()<DRAGONBOUND_TREAT_COST){closeDragonTreatConfirm();dragonTreatToast(`You need ${DRAGONBOUND_TREAT_COST.toLocaleString('en-GB')} GP to buy Dragon Bites.`);return;}
+      const count=Math.random()<.48?4:3,route=buildDragonTreatRoute(count);
+      if(route.length<3){closeDragonTreatConfirm();dragonTreatToast('There is not enough clear floor space for a treat chase right now.',4200);return;}
+      dragonTreatsBusy=true;syncTreatCooldownUi();closeDragonTreatConfirm();
+      try{await purchaseDragonTreats();}catch(error){
+        dragonTreatsBusy=false;syncTreatCooldownUi();
+        const message=String(error?.message||'Dragon Bites could not be purchased.').replace(/^Error:\s*/,'');
+        const seconds=Number(message.match(/in\s+(\d+)\s+seconds?/i)?.[1]||0);if(seconds>0)setTreatCooldownUntil(Date.now()+seconds*1000);
+        dragonTreatToast(message,4500);return;
+      }
+      const token=++dragonTreatAbortToken;
+      homeTreatGround.replaceChildren();homeTreatStage.classList.add('is-visible');homeTreatStage.setAttribute('aria-hidden','false');homeTreatBagImage.src=DRAGONBOUND_TREATS_BUTTON_IMAGE;homeTreatBagWrap.classList.add('is-shaking');
+      if(homeTreatStatus)homeTreatStatus.textContent='Shaking up a fresh pouch of Dragon Bites…';
+      if(dragonTreatShakeAudio){try{dragonTreatShakeAudio.pause();dragonTreatShakeAudio.currentTime=0;dragonTreatShakeAudio.volume=.60;dragonTreatShakeAudio.play()?.catch?.(()=>{});}catch(_error){}}
+      await dragonTreatDelay(1000);if(token!==dragonTreatAbortToken)return;
+      homeTreatBagWrap.classList.remove('is-shaking');homeTreatBagWrap.classList.add('is-opened');homeTreatStage.classList.add('is-open');homeTreatBagImage.src=DRAGONBOUND_TREATS_OPEN_IMAGE;
+      if(homeTreatStatus)homeTreatStatus.textContent=`Let's make ${actor.dragon?.name||'your dragon'} work for these…`;
+      await dragonTreatDelay(450);
+      for(let i=0;i<route.length;i++){
+        if(token!==dragonTreatAbortToken)break;
+        await runSingleDragonTreat(route[i],i,route.length,token);
+        if(i<route.length-1)await dragonTreatDelay(550);
+      }
+      if(token===dragonTreatAbortToken){if(homeTreatStatus)homeTreatStatus.textContent=`All gone! ${actor.dragon?.name||'Your dragon'} cleaned up every Dragon Bite.`;await dragonTreatDelay(1400);}
+      if(token===dragonTreatAbortToken)resetDragonTreatStage();
+    }
 
     if(rulesImage) rulesImage.src=DRAGONBOUND_RULES_IMAGE;
 
@@ -44221,6 +44468,10 @@ document.head.appendChild(s)})();
     propertyConfirmNo?.addEventListener('click', event=>{
       event.preventDefault();event.stopPropagation();closePropertyConfirmation();
     });
+    homeTreatButton?.addEventListener('click', event=>{event.preventDefault();event.stopPropagation();openDragonTreatConfirm();});
+    homeTreatConfirmYes?.addEventListener('click', event=>{event.preventDefault();event.stopPropagation();startDragonTreatSequence();});
+    homeTreatConfirmNo?.addEventListener('click', event=>{event.preventDefault();event.stopPropagation();closeDragonTreatConfirm();});
+    homeTreatConfirm?.addEventListener('click', event=>{if(event.target===homeTreatConfirm||event.target.closest('.dragonbound-home-treats-confirm-backdrop'))closeDragonTreatConfirm();});
     homeTravelHotspot?.addEventListener('click', event=>{
       event.preventDefault();event.stopImmediatePropagation();openTravelMenu();
     },true);

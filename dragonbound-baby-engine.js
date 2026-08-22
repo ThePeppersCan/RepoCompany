@@ -454,12 +454,12 @@ stopBathAudio(){
       if(!meta||meta.wallMounted)return null;const x=Number(meta.x),y=Number(meta.y);if(!Number.isFinite(x)||!Number.isFinite(y))return null;
       const fpH=Math.max(1,Number(meta.footprintH||1)),scale=clamp(Number(meta.scale||1),.55,1.6);
       let lift=0;
-      if(kind==='sleep')lift=Math.min(.050, (.020+.006*fpH)*scale);
-      else if(kind==='wash')lift=Math.min(.044, (.020+.005*fpH)*scale);
-      else if(kind==='sandbath')lift=Math.min(.034, (.016+.005*fpH)*scale);
-      else if(kind==='perch')lift=Math.min(.046, (.028+.007*fpH)*scale);
-      else if(kind==='hide')lift=Math.min(.040, (.022+.006*fpH)*scale);
-      else if(kind==='rest')lift=Math.min(.040, (.022+.006*fpH)*scale);
+      if(kind==='sleep')lift=Math.min(.034, (.014+.0045*fpH)*scale);
+      else if(kind==='wash')lift=Math.min(.030, (.013+.004*fpH)*scale);
+      else if(kind==='sandbath')lift=Math.min(.026, (.012+.004*fpH)*scale);
+      else if(kind==='perch')lift=Math.min(.034, (.018+.005*fpH)*scale);
+      else if(kind==='hide')lift=Math.min(.030, (.015+.0045*fpH)*scale);
+      else if(kind==='rest')lift=Math.min(.030, (.015+.0045*fpH)*scale);
       if(!lift)return null;
       return [x,y-lift];
     }
@@ -594,7 +594,7 @@ stopBathAudio(){
         if(t>=this.stateUntil){this.finishFurnitureUse();this.setState('looking',rand(2200,4800));this.nextDecision=t+rand(3500,8000);}
       }else this.decide(t);this.render();
     }
-    render(force=false){if(!this.el||!this.img)return;const xy=this.engine.toPixels(this.pos);this.el.style.left=xy.x+'px';this.el.style.top=xy.y+'px';const depthY=this.furnitureMounted&&Number.isFinite(this.furnitureDepthY)?Math.max(this.pos[1],this.furnitureDepthY):this.pos[1];const base=Math.round(depthY*100000);const actorLayer=100000+base*10+(this.furnitureMounted?9:7);this.el.style.zIndex=String(actorLayer);const scale=this.engine.sourceScale()*this.def.renderedScale*RENDER_SCALE_MULTIPLIER;const nw=this.img.naturalWidth||220,nh=this.img.naturalHeight||220;this.img.style.width=(nw*scale)+'px';this.el.style.setProperty('--dragon-tooltip-lift',Math.max(44,nh*scale*.92+12)+'px');const flip=this.facing===this.def.nativeFacing?1:-1;const anchorY=.985;this.img.style.transform=`translate(-50%,-${(anchorY*100).toFixed(1)}%) scaleX(${flip})`;this.el.dataset.state=this.state;this.el.dataset.floor=this.floorId;}
+    render(force=false){if(!this.el||!this.img)return;const xy=this.engine.toPixels(this.pos);this.el.style.left=xy.x+'px';this.el.style.top=xy.y+'px';const depthY=this.furnitureMounted&&Number.isFinite(this.furnitureDepthY)?Math.max(this.pos[1],this.furnitureDepthY):this.pos[1];const base=Math.round(depthY*100000);const actorLayer=100000+base*10+(this.furnitureMounted?28:7);this.el.style.zIndex=String(actorLayer);const scale=this.engine.sourceScale()*this.def.renderedScale*RENDER_SCALE_MULTIPLIER;const nw=this.img.naturalWidth||220,nh=this.img.naturalHeight||220;this.img.style.width=(nw*scale)+'px';this.el.style.setProperty('--dragon-tooltip-lift',Math.max(44,nh*scale*.92+12)+'px');const flip=this.facing===this.def.nativeFacing?1:-1;const anchorY=.985;this.img.style.transform=`translate(-50%,-${(anchorY*100).toFixed(1)}%) scaleX(${flip})`;this.el.dataset.state=this.state;this.el.dataset.floor=this.floorId;}
     snapshot(){const savePos=this.furnitureMounted&&Array.isArray(this.furnitureExitPos)?this.furnitureExitPos:this.pos;return{dragonId:this.dragon.id,houseId:this.map.houseId,floorId:this.floorId,normalizedX:savePos[0],normalizedY:savePos[1],facing:this.facing,restingState:['idle','sitting','resting','sleeping'].includes(this.state)?this.state:'idle',lastStairUseAt:this.lastStairUse,lastFlightAt:this.lastFlight};}
   }
 

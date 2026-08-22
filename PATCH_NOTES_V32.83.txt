@@ -1,0 +1,7 @@
+Repo Sports / Dragonbound V32.83
+
+- Dragon Bites chase speed is now exactly 2x normal walking speed.
+- The 2x excitement boost applies only while the dragon is running to a thrown Dragon Bite.
+- Normal roaming, furniture movement and other walking speeds are unchanged.
+- Speed resets to normal immediately after each treat is reached/eaten.
+- Preserves V32.82 sequential 3–4 treat chase, crunch effect, 2-minute cooldown and persistent 200 GP charge.

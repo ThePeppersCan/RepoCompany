@@ -1,0 +1,13 @@
+Repo Sports / Dragonbound V32.82
+
+- Dragon Bites button is now attached directly beneath the four top-left home buttons.
+- Treat packet is smaller and no longer inherits the brown generic button hover/background.
+- Treat feeding is now a proper 3-or-4-stage chase sequence: one treat is thrown to a distant clear floor point, the dragon notices it, runs over, eats it, then the next treat is thrown elsewhere in the room.
+- Lazy / low-energy dragons move more slowly to treats; food-driven dragons react faster and run harder.
+- Added supplied plastic-crunch sound at 60% each time a treat is eaten.
+- Added a small chew reaction while each treat is crunched.
+- Treat floor coordinates now use the same world coordinate system as dragon navigation, fixing treats failing to appear / route correctly.
+- Dragon Bites now have a real 2-minute cooldown with a visible countdown on the packet.
+- 200 GP purchase is now server-authoritative and persistent instead of client-only.
+- Added live Supabase cooldown/purchase RPC and included the SQL migration in this build.
+- Retains the V32.81 mounted furniture/bed layering improvements.

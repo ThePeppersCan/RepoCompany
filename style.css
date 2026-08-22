@@ -30155,3 +30155,224 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 @keyframes dragonboundPetWiggle{from{filter:brightness(1);margin-top:0}to{filter:brightness(1.08);margin-top:-3px}}
 @media(max-width:720px){.dragonbound-baby-hover-pet{font-size:6.5px}}
 @media(prefers-reduced-motion:reduce){.dragonbound-baby-pet-love i,.dragonbound-baby-pet-love b,.dragonbound-baby-actor.is-being-petted>.dragonbound-baby-sprite{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* Dragonbound — Dragon Bites treats button + feeding animation */
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:hover,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus-visible,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:active,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:disabled{
+  position:absolute!important;
+  left:18%!important;
+  top:calc(100% + 14px)!important;
+  width:64%!important;
+  height:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:none!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  -webkit-tap-highlight-color:transparent!important;
+  cursor:pointer!important;
+  opacity:1;
+  pointer-events:auto;
+  transform:none!important;
+  overflow:visible!important;
+  z-index:12!important;
+}
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger::before,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger::after{content:none!important;display:none!important;background:none!important;box-shadow:none!important}
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 9px 13px rgba(0,0,0,.34));
+  pointer-events:none!important;
+}
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:hover img,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus-visible img{filter:drop-shadow(0 11px 17px rgba(0,0,0,.42)) brightness(1.03);transform:translateY(-2px) scale(1.015)}
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger.is-cooling-down img{opacity:.56;filter:grayscale(.12) brightness(.82) drop-shadow(0 7px 11px rgba(0,0,0,.30))}
+.dragonbound-home-treats-cooldown{
+  position:absolute;
+  left:50%;
+  bottom:-5px;
+  transform:translate(-50%,100%);
+  min-width:42px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid rgba(217,190,107,.42);
+  background:rgba(7,20,22,.92);
+  color:#f2df9f;
+  font:800 10px/1 "Nunito",system-ui,sans-serif;
+  letter-spacing:.4px;
+  text-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.32);
+  pointer-events:none;
+}
+.dragonbound-home-treats-cooldown:empty{display:none}
+.dragonbound-new-game-stage.is-visiting-house .dragonbound-home-sidebar .dragonbound-home-treats-trigger,
+.dragonbound-home-scene.is-build-editing .dragonbound-home-sidebar .dragonbound-home-treats-trigger,
+.dragonbound-home-scene.is-build-placing .dragonbound-home-sidebar .dragonbound-home-treats-trigger{opacity:0!important;pointer-events:none!important}
+@media(max-width:720px){
+  .dragonbound-home-sidebar .dragonbound-home-treats-trigger,
+  .dragonbound-home-sidebar .dragonbound-home-treats-trigger:hover,
+  .dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus,
+  .dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus-visible,
+  .dragonbound-home-sidebar .dragonbound-home-treats-trigger:active,
+  .dragonbound-home-sidebar .dragonbound-home-treats-trigger:disabled{top:calc(100% + 10px)!important;left:19%!important;width:62%!important}
+}
+
+.dragonbound-home-treats-confirm{
+  position:absolute;
+  inset:0;
+  z-index:48;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s ease;
+}
+.dragonbound-home-treats-confirm.is-visible{opacity:1;pointer-events:auto}
+.dragonbound-home-treats-confirm-backdrop{position:absolute;inset:0;background:rgba(6,12,18,.72);backdrop-filter:blur(3px)}
+.dragonbound-home-treats-confirm-panel{
+  position:relative;
+  width:min(92vw,520px);
+  padding:28px 28px 24px;
+  border-radius:28px;
+  border:1px solid rgba(228,198,109,.52);
+  background:linear-gradient(180deg,rgba(18,32,36,.98),rgba(9,18,22,.98));
+  box-shadow:0 24px 56px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.05);
+  color:#f4ead2;
+  text-align:center;
+}
+.dragonbound-home-treats-confirm-kicker{margin:0 0 10px;font:800 12px/1.1 "Cinzel",serif;letter-spacing:2.1px;color:#d9b96f}
+.dragonbound-home-treats-confirm-title{margin:0;font:700 clamp(28px,3vw,38px)/1.04 "Cinzel",serif;color:#fff5d7}
+.dragonbound-home-treats-confirm-copy{margin:14px 0 0;font:500 15px/1.58 "Nunito",system-ui,sans-serif;color:rgba(243,238,227,.92)}
+.dragonbound-home-treats-confirm-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:22px}
+.dragonbound-home-treats-confirm-button{
+  min-width:min(100%,230px);
+  padding:13px 20px;
+  border-radius:999px;
+  border:1px solid rgba(229,194,102,.45);
+  background:linear-gradient(180deg,#1d413a,#112622);
+  color:#fff4d1;
+  font:700 14px/1.15 "Nunito",system-ui,sans-serif;
+  cursor:pointer;
+  transition:transform .18s ease,filter .18s ease,background .18s ease;
+}
+.dragonbound-home-treats-confirm-button:hover,.dragonbound-home-treats-confirm-button:focus-visible{transform:translateY(-1px);filter:brightness(1.06);outline:0}
+.dragonbound-home-treats-confirm-button--no{background:linear-gradient(180deg,#21313b,#14202a);border-color:rgba(173,194,214,.22);color:#dfe7f0}
+
+.dragonbound-home-treat-stage{
+  position:absolute;
+  inset:0;
+  z-index:22;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .24s ease;
+}
+.dragonbound-home-treat-stage.is-visible{opacity:1}
+.dragonbound-home-treat-bag-wrap{
+  position:absolute;
+  left:15.4%;
+  top:46.8%;
+  width:min(14.4vw,136px);
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 18px 24px rgba(0,0,0,.42));
+}
+.dragonbound-home-treat-stage.is-open .dragonbound-home-treat-bag-wrap{top:48.0%}
+.dragonbound-home-treat-bag-wrap.is-shaking{animation:dragonboundTreatShake .82s ease-in-out both}
+.dragonbound-home-treat-bag-wrap.is-opened{animation:dragonboundTreatBagSettle .36s ease both}
+.dragonbound-home-treat-bag-image{display:block;width:100%;height:auto}
+.dragonbound-home-treat-ground{position:absolute;inset:0;overflow:visible;z-index:999999;pointer-events:none}
+.dragonbound-home-treat-status{
+  position:absolute;
+  left:50%;
+  bottom:13.5%;
+  transform:translateX(-50%);
+  min-width:min(86vw,390px);
+  max-width:min(86vw,500px);
+  padding:12px 18px;
+  border-radius:999px;
+  background:rgba(7,17,22,.78);
+  border:1px solid rgba(227,197,110,.36);
+  color:#f4ebd5;
+  text-align:center;
+  font:700 14px/1.3 "Nunito",system-ui,sans-serif;
+  box-shadow:0 12px 26px rgba(0,0,0,.32);
+}
+.dragonbound-home-treat-piece{
+  position:absolute;
+  width:28px;
+  height:28px;
+  object-fit:contain;
+  transform:translate(0,0) rotate(0deg) scale(.92);
+  opacity:0;
+  transform-origin:center;
+  animation:dragonboundTreatFling .88s cubic-bezier(.19,.84,.2,1) forwards;
+  filter:drop-shadow(0 8px 9px rgba(0,0,0,.34));
+}
+.dragonbound-home-treat-piece.is-landed{animation:none;opacity:1;transform:translate(var(--dx),var(--dy)) rotate(var(--rot,0deg)) scale(1)}
+.dragonbound-home-treat-piece.is-eaten{transition:transform .24s ease,opacity .24s ease;opacity:0;transform:translate(var(--dx),var(--dy)) scale(.55)}
+.dragonbound-baby-actor.is-treat-excited{animation:dragonboundTreatExcited .65s ease-in-out 3}
+.dragonbound-baby-actor.is-treat-chewing>.dragonbound-baby-sprite{animation:dragonboundTreatChew .18s ease-in-out 5 alternate;transform-origin:50% 90%}
+@media (max-width:860px){
+  .dragonbound-home-treats-trigger,
+  .dragonbound-home-treats-trigger:hover,
+  .dragonbound-home-treats-trigger:focus,
+  .dragonbound-home-treats-trigger:focus-visible,
+  .dragonbound-home-treats-trigger:active{top:calc(1.8% + min(13vw,68px) * 4 + 2vh);width:min(21vw,112px)}
+  .dragonbound-home-treat-bag-wrap{left:17%;top:44.8%;width:min(24vw,128px)}
+  .dragonbound-home-treat-status{bottom:11.5%;font-size:13px;min-width:min(90vw,340px)}
+  .dragonbound-home-treat-piece{width:22px;height:22px}
+}
+
+@keyframes dragonboundTreatShake{
+  0%,100%{transform:translate(-50%,-50%) rotate(0deg)}
+  12%{transform:translate(-48.8%,-50%) rotate(-4deg)}
+  24%{transform:translate(-51.8%,-49.6%) rotate(5deg)}
+  36%{transform:translate(-48.6%,-50.4%) rotate(-5deg)}
+  48%{transform:translate(-51.7%,-49.8%) rotate(4deg)}
+  60%{transform:translate(-49.2%,-50.2%) rotate(-3deg)}
+  76%{transform:translate(-50.8%,-49.8%) rotate(2deg)}
+}
+@keyframes dragonboundTreatBagSettle{
+  0%{transform:translate(-50%,-50%) scale(.96)}
+  100%{transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes dragonboundTreatFling{
+  0%{opacity:0;transform:translate(0,0) rotate(0deg) scale(.84)}
+  12%{opacity:1}
+  62%{opacity:1;transform:translate(var(--dx),calc(var(--dy) - 50px)) rotate(var(--rot)) scale(1.04)}
+  100%{opacity:1;transform:translate(var(--dx),var(--dy)) rotate(var(--rot,0deg)) scale(1)}
+}
+@keyframes dragonboundTreatExcited{
+  0%,100%{transform:translate3d(var(--dragon-x,0),var(--dragon-y,0),0)}
+  25%{transform:translate3d(var(--dragon-x,0),calc(var(--dragon-y,0) - 3px),0)}
+  50%{transform:translate3d(var(--dragon-x,0),var(--dragon-y,0),0) scale(1.03)}
+  75%{transform:translate3d(var(--dragon-x,0),calc(var(--dragon-y,0) - 2px),0)}
+}
+
+@keyframes dragonboundTreatChew{from{filter:brightness(1);margin-top:0}to{filter:brightness(1.08);margin-top:-2px}}
+.dragonbound-home-treat-crunch-burst{position:absolute;width:0;height:0;z-index:999999;pointer-events:none}
+.dragonbound-home-treat-crunch-burst b{position:absolute;left:0;top:-25px;transform:translateX(-50%);color:#ffe9a0;font:900 10px/1 "Nunito",system-ui,sans-serif;text-shadow:0 2px 3px rgba(0,0,0,.65);animation:dragonboundTreatCrunchLabel .72s ease-out forwards;white-space:nowrap}
+.dragonbound-home-treat-crunch-burst i{position:absolute;left:-2px;top:-4px;width:5px;height:5px;border-radius:50%;background:#e7a430;box-shadow:0 1px 2px rgba(0,0,0,.45);animation:dragonboundTreatCrumb .62s ease-out forwards}
+.dragonbound-home-treat-crunch-burst i:nth-of-type(1){--cx:-18px;--cy:-14px}.dragonbound-home-treat-crunch-burst i:nth-of-type(2){--cx:16px;--cy:-17px}.dragonbound-home-treat-crunch-burst i:nth-of-type(3){--cx:-14px;--cy:8px}.dragonbound-home-treat-crunch-burst i:nth-of-type(4){--cx:19px;--cy:5px}.dragonbound-home-treat-crunch-burst i:nth-of-type(5){--cx:4px;--cy:-24px}
+@keyframes dragonboundTreatCrumb{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--cx),var(--cy)) scale(.55)}}
+@keyframes dragonboundTreatCrunchLabel{0%{opacity:0;transform:translate(-50%,6px) scale(.82)}20%,60%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-10px) scale(.92)}}
