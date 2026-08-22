@@ -1,0 +1,5 @@
+Repo Sports / Dragonbound V32.75
+
+- Ran a furniture sprite cleanup pass to remove leftover white background-removal specks from imported assets.
+- Added runtime furniture sprite cleanup so any furniture image loaded by the build is auto-cleaned in the browser, including starter furniture sprites and shop/build previews.
+- Covers placed furniture, build inventory cards, inspector previews, and placement ghosts.

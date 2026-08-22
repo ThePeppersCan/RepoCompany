@@ -1,0 +1,10 @@
+Repo Sports / Dragonbound V32.78 — Keeper House Visits
+
+- Added “Visit Other Keepers” to the Dragonbound Travel menu.
+- Added a searchable keeper-home browser showing keeper name, dragon name/breed and furniture count.
+- Visiting a keeper loads their actual starter house and their saved furniture placements at the exact saved x/y/scale/direction values.
+- Added a read-only public-house preview API with authenticated-only access; no visitor can edit another player's house or dragon data.
+- Visitor dragons are live local previews: they use the real baby-dragon animation set and walk around independently in the owner's house while avoiding placed furniture.
+- Visiting pauses your own home's dragon simulation until you return, so your own home state is not accidentally changed.
+- Added “Other homes” and “Return Home” controls while visiting.
+- All V32.77 layering, bath, furniture and starter-house fixes are preserved.

@@ -1,8 +1,8 @@
-/* Velmora Dragonbound — furniture placement + build inventory V32.61 */
+/* Velmora Dragonbound — furniture placement + build inventory V32.76 */
 (()=>{
   'use strict';
 
-  const VERSION='v32-66-furniture-expansion-20260821';
+  const VERSION='v32-76-furniture-stability-depth-fix-20260822';
   const CATEGORIES=['All','Living','Beds','Feeding','Kitchen','Bath','Training','Toys','Care','Nature','Decor','Storage'];
   const CATEGORY_ICONS={All:'✦',Living:'⌂',Beds:'▰',Feeding:'◉',Kitchen:'♨',Bath:'≋',Training:'⚔',Toys:'◆',Care:'+',Nature:'♧',Decor:'✧',Storage:'▣'};
   const RARITY_ORDER={Common:0,Crafted:1,Rare:2,Epic:3};
@@ -10,63 +10,80 @@
   const MIN_SCALE=.55,MAX_SCALE=1.60,SCALE_STEP=.10,WHEEL_SCALE_STEP=.05,DEFAULT_SCALE=.70;
   // Furniture has its own broad room-floor placement zones. These deliberately do NOT reuse
   // the baby dragon walk lanes: walk lanes are narrow navigation corridors, not buildable floor area.
-  const FURNITURE_PLACEMENT_ZONES={
-    'norveth-varka-fell-starter':{
-      upstairs:[[[.31,.485],[.69,.485],[.69,.535],[.31,.535]]],
-      downstairs:[[[.33,.715],[.69,.715],[.69,.785],[.33,.785]]]
-    },
-    'nambara-naskor-edge-starter':{
-      upstairs:[[[.39,.405],[.72,.405],[.72,.475],[.39,.475]]],
-      downstairs:[[[.40,.665],[.72,.665],[.72,.775],[.40,.775]]]
-    },
-    'lumerre-greenhollow-starter':{
-      upstairs:[[[.40,.455],[.69,.455],[.69,.535],[.40,.535]]],
-      downstairs:[[[.39,.665],[.69,.665],[.69,.765],[.39,.765]]]
-    },
-    'elvane-canto-plains-starter':{
-      upstairs:[[[.48,.385],[.73,.385],[.73,.455],[.48,.455]]],
-      downstairs:[[[.48,.615],[.73,.615],[.73,.715],[.48,.715]]]
-    },
-    'vardesh-hestholm-fjord-starter':{
-      // V32.59: these are SOURCE-IMAGE floor coordinates, authored against the 1536×1024
-      // Hestholm artwork. Previous patches accidentally mixed viewport-space guesses with source-space
-      // coordinates, which is why furniture could sit in walls while still refusing the real floor.
-      // The upstairs includes the narrow landing immediately above the staircase.
-      upstairs:[
-        [[.292,.474],[.684,.474],[.684,.525],[.292,.525]],
-        [[.668,.482],[.732,.482],[.732,.525],[.668,.525]]
-      ],
-      // The downstairs anchor may travel right to the visible front lip of the wooden boards.
-      downstairs:[[[.286,.675],[.688,.675],[.688,.748],[.286,.748]]]
-    }
-  };
+
+
+const FURNITURE_PLACEMENT_ZONES={
+  'norveth-varka-fell-starter':{downstairs:[[[.225,.550],[.775,.550],[.805,.742],[.195,.742]]]},
+  'nambara-naskor-edge-starter':{downstairs:[[[.225,.550],[.775,.550],[.805,.742],[.195,.742]]]},
+  'lumerre-greenhollow-starter':{downstairs:[[[.248,.550],[.740,.550],[.785,.742],[.218,.742]]]},
+  'elvane-canto-plains-starter':{downstairs:[[[.248,.550],[.742,.550],[.785,.742],[.218,.742]]]},
+  'vardesh-hestholm-fjord-starter':{downstairs:[[[.225,.550],[.775,.550],[.805,.742],[.195,.742]]]}
+};
+const FURNITURE_WALL_BOUNDS={
+  'norveth-varka-fell-starter':{downstairs:{minX:.255,maxX:.745,minY:.395,maxY:.535}},
+  'nambara-naskor-edge-starter':{downstairs:{minX:.255,maxX:.745,minY:.395,maxY:.535}},
+  'lumerre-greenhollow-starter':{downstairs:{minX:.275,maxX:.720,minY:.395,maxY:.535}},
+  'elvane-canto-plains-starter':{downstairs:{minX:.275,maxX:.720,minY:.395,maxY:.535}},
+  'vardesh-hestholm-fjord-starter':{downstairs:{minX:.255,maxX:.745,minY:.395,maxY:.535}}
+};
+
+
 
   // Pointer hit areas are intentionally larger than the actual furniture foot zones.
   // This keeps the cursor stable near Hestholm's stair landing and removes the upstairs/downstairs flicker there.
-  const FURNITURE_ROOM_HIT_ZONES={
-    'vardesh-hestholm-fjord-starter':{
-      // Large interaction regions. Pointer height inside each room is remapped onto the real floor depth
-      // instead of being clamped to a single back-wall line.
-      upstairs:[[[.250,.300],[.755,.300],[.755,.585],[.250,.585]]],
-      downstairs:[[[.245,.555],[.720,.555],[.720,.805],[.245,.805]]]
-    }
-  };
+  const FURNITURE_ROOM_HIT_ZONES={};
 
   // Architecture that should never accept furniture. Rather than invalidating the whole right side,
   // the preview is gently pushed off these small stair cut-outs onto the nearest usable floor.
-  const FURNITURE_EXCLUSION_ZONES={
-    'vardesh-hestholm-fjord-starter':{
-      // Do not exclude the upstairs landing: that exclusion was the source of the right-side snapping/jitter.
-      // Only the vertical stair body above the downstairs floor is excluded; the visible wooden floor itself remains usable.
-      upstairs:[],
-      downstairs:[]
-    }
-  };
+  const FURNITURE_EXCLUSION_ZONES={};
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const pointInPoly=(p,poly)=>{let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=Number(poly[i][0]),yi=Number(poly[i][1]),xj=Number(poly[j][0]),yj=Number(poly[j][1]);const hit=((yi>p[1])!==(yj>p[1]))&&(p[0]<(xj-xi)*(p[1]-yi)/((yj-yi)||1e-9)+xi);if(hit)inside=!inside;}return inside;};
+  const horizontalRangeAtY=(poly,y)=>{const xs=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],y1=Number(a[1]),y2=Number(b[1]),x1=Number(a[0]),x2=Number(b[0]);if(Math.abs(y2-y1)<1e-9){if(Math.abs(Number(y)-y1)<1e-6)xs.push(x1,x2);continue;}if(Number(y)<Math.min(y1,y2)-1e-9||Number(y)>Math.max(y1,y2)+1e-9)continue;const t=(Number(y)-y1)/(y2-y1);if(t>=-1e-9&&t<=1+1e-9)xs.push(x1+(x2-x1)*t);}if(xs.length<2)return null;xs.sort((a,b)=>a-b);return[xs[0],xs[xs.length-1]];};
   const escapeHtml=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const money=n=>Number(n||0).toLocaleString('en-GB');
   const normaliseRotation=n=>{n=((Number(n)||0)%360+360)%360;return [0,90,180,270].includes(n)?n:0;};
+
+const FURNITURE_SPRITE_CLEAN_CACHE=new Map();
+const isFurnitureSpriteSrc=src=>/assets\/dragonbound\/furniture\//.test(String(src||''));
+function cleanupFurnitureSpriteData(sourceImg){
+  try{
+    const canvas=document.createElement('canvas');
+    canvas.width=sourceImg.naturalWidth||sourceImg.width||1;
+    canvas.height=sourceImg.naturalHeight||sourceImg.height||1;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    if(!ctx)return null;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(sourceImg,0,0);
+    const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+    const d=imageData.data,w=canvas.width,h=canvas.height;
+    const idx=(x,y)=>((y*w)+x)*4;
+    const bright=(i)=>d[i+3]>0&&Math.min(d[i],d[i+1],d[i+2])>=215&&((d[i]+d[i+1]+d[i+2])/3)>=228;
+    const seen=new Uint8Array(w*h);
+    const qx=[],qy=[];
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+      const p=y*w+x,di=p*4;if(seen[p]||!bright(di))continue;
+      let head=0,tail=0;qx[tail]=x;qy[tail]=y;tail++;seen[p]=1;
+      const pts=[];let area=0,trans=0,dark=0,neigh=0,edge=false;
+      while(head<tail){
+        const cx=qx[head],cy=qy[head];head++;pts.push(cy*w+cx);area++;
+        if(cx===0||cy===0||cx===w-1||cy===h-1)edge=true;
+        for(let ny=Math.max(0,cy-1);ny<=Math.min(h-1,cy+1);ny++)for(let nx=Math.max(0,cx-1);nx<=Math.min(w-1,cx+1);nx++){
+          if(nx===cx&&ny===cy)continue;
+          const np=ny*w+nx,ni=np*4;
+          neigh++;
+          if(d[ni+3]===0)trans++; else if(((d[ni]+d[ni+1]+d[ni+2])/3)<205)dark++;
+          if(!seen[np]&&bright(ni)){seen[np]=1;qx[tail]=nx;qy[tail]=ny;tail++;}
+        }
+      }
+      const transRatio=neigh?trans/neigh:0,darkRatio=neigh?dark/neigh:0;
+      if(area<=36&&(transRatio>=0.18||edge)&&darkRatio<=0.55){
+        for(const p2 of pts){const i2=p2*4;d[i2]=0;d[i2+1]=0;d[i2+2]=0;d[i2+3]=0;}
+      }
+    }
+    ctx.putImageData(imageData,0,0);
+    return canvas.toDataURL('image/png');
+  }catch(_){return null;}
+}
 
   class DragonboundFurnitureSystem{
     constructor(){
@@ -75,10 +92,11 @@
       this.houseId='';this.state={balance:0,catalog:[],inventory:[],placements:[]};
       this.inventory=new Map();this.catalog=new Map();this.placements=[];
       this.context='build';this.tab='owned';this.category='All';this.query='';this.rarity='All';this.sort='featured';this.selectedId='';this.page=1;this.lastWheelScaleAt=0;
-      this.loading=false;this.localCatalogCache=null;this.placementMode=null;this.editMode=false;this.selectedPlacementId=null;
+      this.loading=false;this.localCatalogCache=null;this.placementMode=null;this.editMode=false;this.selectedPlacementId=null;this.purchaseInFlight=new Set();
       this.ghost=null;this.ghostRoom='';this.ghostPoint=null;this.ghostValid=false;this.ghostDirection='right';this.ghostScale=DEFAULT_SCALE;
       this.pointerDown=false;this.pointerId=null;this.pointerStart=null;this.savingPlacement=false;
       this.boundMove=e=>this.onPointerMove(e);this.boundDown=e=>this.onPointerDown(e);this.boundUp=e=>this.onPointerUp(e);this.boundKey=e=>this.onKey(e);this.boundWheel=e=>this.onWheel(e);
+      this.furnitureSpriteCleanupObserver=null;
       this.boundResize=()=>{this.renderPlacements();if(this.overlay?.classList.contains('is-visible'))this.renderGridAndInspector();};
       document.addEventListener('keydown',this.boundKey);
       document.addEventListener('wheel',this.boundWheel,{passive:false,capture:true});
@@ -88,9 +106,53 @@
       window.addEventListener('dragonbound:dragon-cleared',()=>this.exitBuildModes());
       window.dragonboundFurnitureCollisionProvider=()=>this.collisionPolys();
       window.dragonboundFurnitureInteractionProvider=()=>this.interactionSnapshot();
-      window.DragonboundFurniture={open:()=>this.openBuild(),edit:()=>this.enterEditMode(),refresh:()=>this.refresh(true,true),state:()=>this.debugState()};
-      queueMicrotask(()=>this.attachExisting());
+      window.DragonboundFurniture={open:()=>this.openBuild(),edit:()=>this.enterEditMode(),refresh:()=>this.refresh(true,true),state:()=>this.debugState(),command:placementId=>this.commandDragonToFurniture(placementId)};
+      queueMicrotask(()=>{this.attachExisting();this.watchFurnitureSprites();this.enhanceFurnitureImages(document);});
     }
+
+
+enhanceFurnitureImages(scope){
+  const root=scope&&typeof scope.querySelectorAll==='function'?scope:document;
+  root.querySelectorAll?.('img').forEach(img=>this.cleanFurnitureImage(img));
+}
+
+cleanFurnitureImage(img){
+  if(!img||img.dataset.furnitureSpriteClean==='done'||img.dataset.furnitureSpriteClean==='busy')return;
+  const raw=img.getAttribute('src')||img.src||'';
+  if(!isFurnitureSpriteSrc(raw))return;
+  const abs=img.src||raw;
+  if(FURNITURE_SPRITE_CLEAN_CACHE.has(abs)){
+    const cached=FURNITURE_SPRITE_CLEAN_CACHE.get(abs);
+    img.dataset.furnitureSpriteClean='done';
+    if(cached&&cached!==abs&&img.src!==cached)img.src=cached;
+    return;
+  }
+  img.dataset.furnitureSpriteClean='busy';
+  const source=new Image();
+  source.decoding='async';
+  source.onload=()=>{
+    const cleaned=cleanupFurnitureSpriteData(source)||abs;
+    FURNITURE_SPRITE_CLEAN_CACHE.set(abs,cleaned);
+    if(img.isConnected){img.dataset.furnitureSpriteClean='done';if(cleaned&&cleaned!==abs&&img.src!==cleaned)img.src=cleaned;}
+  };
+  source.onerror=()=>{FURNITURE_SPRITE_CLEAN_CACHE.set(abs,abs);if(img.isConnected)img.dataset.furnitureSpriteClean='done';};
+  source.src=abs;
+}
+
+watchFurnitureSprites(){
+  if(this.furnitureSpriteCleanupObserver||!window.MutationObserver)return;
+  this.furnitureSpriteCleanupObserver=new MutationObserver(mutations=>{
+    for(const mut of mutations){
+      if(mut.type==='attributes'&&mut.target?.tagName==='IMG')this.cleanFurnitureImage(mut.target);
+      mut.addedNodes?.forEach(node=>{
+        if(node?.nodeType!==1)return;
+        if(node.tagName==='IMG')this.cleanFurnitureImage(node);
+        this.enhanceFurnitureImages(node);
+      });
+    }
+  });
+  this.furnitureSpriteCleanupObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src']});
+}
 
     db(){try{return typeof db!=='undefined'?db:null;}catch(_e){return null;}}
     attachExisting(){
@@ -246,7 +308,7 @@
       try{
         const [rpc,localCatalog]=await Promise.all([dbc.rpc('dragonbound_get_furniture_state',{p_house_id:this.houseId||null}),this.loadLocalCatalog()]);const {data,error}=rpc;if(error)throw error;
         this.state=data||{};this.state.balance=Number(this.state.balance||0);const serverCatalog=Array.isArray(this.state.catalog)?this.state.catalog:[],serverById=new Map(serverCatalog.map(i=>[i.itemId,i]));this.state.catalog=(serverCatalog.length?serverCatalog:localCatalog).map(i=>({...i,price:Number(i.price||0),sortOrder:Number(i.sortOrder||0)}));this.state.inventory=Array.isArray(this.state.inventory)?this.state.inventory:[];this.state.placements=Array.isArray(this.state.placements)?this.state.placements:[];
-        this.catalog=new Map(this.state.catalog.map(i=>[i.itemId,i]));this.inventory=new Map(this.state.inventory.map(i=>[i.itemId,{owned:Number(i.owned||0),available:Number(i.available||0)}]));this.placements=this.state.placements.map(p=>({...p,x:Number(p.x),y:Number(p.y),rotation:0,direction:p.direction==='left'?'left':'right',scale:clamp(Number(p.scale||DEFAULT_SCALE),MIN_SCALE,MAX_SCALE)}));
+        this.catalog=new Map(this.state.catalog.map(i=>[i.itemId,i]));this.inventory=new Map(this.state.inventory.map(i=>[i.itemId,{owned:Number(i.owned||0),available:Number(i.available||0)}]));this.placements=this.state.placements.map(p=>{const oldRoom=String(p.roomId||'downstairs');let x=clamp(Number(p.x),.225,.775),y=Number(p.y);if(oldRoom==='upstairs')y=.585+clamp((y-.35)/.22,0,1)*.11;else y=clamp(y,.575,.715);return{...p,roomId:'downstairs',x,y,rotation:0,direction:p.direction==='left'?'left':'right',scale:clamp(Number(p.scale||DEFAULT_SCALE),MIN_SCALE,MAX_SCALE)};});
         if(!this.selectedId||!this.catalog.has(this.selectedId))this.selectedId=this.state.catalog[0]?.itemId||'';
         this.renderPlacements();this.render();window.dispatchEvent(new CustomEvent('dragonbound:furniture-changed',{detail:{houseId:this.houseId}}));return true;
       }catch(err){if(showErrors)this.notify(err?.message||'Could not load Build Inventory.','error');return false;}finally{this.loading=false;this.render();}
@@ -310,6 +372,8 @@
       grid.scrollTop=0;
       grid.querySelectorAll('[data-item-id]').forEach(b=>b.addEventListener('click',()=>{this.selectedId=b.dataset.itemId;this.renderGridAndInspector();}));
       this.renderInspector(this.catalog.get(this.selectedId)||pageItems[0]||items[0]);
+      this.enhanceFurnitureImages(grid);
+      this.enhanceFurnitureImages(this.overlay.querySelector('.dragonbound-build-inspector'));
     }
 
     renderInspector(item){
@@ -335,9 +399,27 @@
     }
 
     async purchase(itemId){
-      const dbc=this.db();if(!dbc)return;const item=this.catalog.get(itemId);if(!item)return;
-      try{this.setBusy(true);const {data,error}=await dbc.rpc('dragonbound_purchase_furniture',{p_item_id:itemId});if(error)throw error;this.state.balance=Number(data.balance||0);this.inventory.set(itemId,{owned:Number(data.owned||0),available:Number(data.available||0)});this.state.inventory=[...this.inventory].map(([id,v])=>({itemId:id,...v}));this.notify(data.alreadyClaimed?'You already claimed that free furnishing.':`${item.name} added to your Build Inventory.`);this.render();}
-      catch(err){this.notify(err?.message||'Purchase failed.','error');}finally{this.setBusy(false);}
+      const dbc=this.db();if(!dbc)return;const item=this.catalog.get(itemId);if(!item||this.purchaseInFlight.has(itemId))return;
+      this.purchaseInFlight.add(itemId);
+      try{
+        this.setBusy(true);
+        const {data,error}=await dbc.rpc('dragonbound_purchase_furniture',{p_item_id:itemId});if(error)throw error;
+        const row=Array.isArray(data)?data[0]:data;if(!row||typeof row!=='object')throw new Error('The shop did not return a valid purchase receipt.');
+        this.state.balance=Number(row.balance||0);
+        this.inventory.set(itemId,{owned:Number(row.owned||0),available:Number(row.available||0)});
+        this.state.inventory=[...this.inventory].map(([id,v])=>({itemId:id,...v}));
+        const balance=this.overlay?.querySelector('[data-build-balance]');if(balance)balance.textContent=money(this.state.balance);
+        // Keep the successful purchase update deliberately small. Rebuilding the
+        // entire shop shell here used to combine badly with other global UI
+        // observers and could make the page appear to crash after clicking Buy.
+        this.renderGridAndInspector();
+        this.notify(row.alreadyClaimed?'You already claimed that free furnishing.':`${item.name} added to your Build Inventory.`);
+      }catch(err){
+        console.error('Dragonbound furniture purchase failed:',err);
+        this.notify(err?.message||'Purchase failed.','error');
+      }finally{
+        this.purchaseInFlight.delete(itemId);this.setBusy(false);
+      }
     }
 
     setBusy(busy){this.loading=busy;this.overlay?.classList.toggle('is-busy',busy);}
@@ -345,7 +427,7 @@
     beginPlaceItem(itemId){
       const inv=this.inventory.get(itemId);if(!inv||inv.available<1)return;const item=this.catalog.get(itemId);if(!item)return;
       this.close();this.exitEditMode(false);this.placementMode={type:'new',itemId};this.ghostDirection='right';this.ghostScale=DEFAULT_SCALE;this.showPlacementHud(item.name);this.createGhost(item);this.homeScene?.classList.add('is-build-placing');this.bindPlacementPointers();
-      const start=this.findOpenPoint('downstairs',item,'')||this.findOpenPoint('upstairs',item,'');if(start)this.setGhostPoint(start.p,start.room,true);this.renderGhost();
+      const start=this.findOpenPoint('downstairs',item,'');if(start)this.setGhostPoint(start.p,start.room,true);this.renderGhost();
       this.notify(this.isWallItem(item)?'Move inside a room wall area; this decoration mounts to the wall. Click or release to place it.':'Move anywhere inside the room; the furnishing snaps down onto that room’s wooden floor. Click or release to place it.');
     }
 
@@ -359,7 +441,7 @@
 
     showPlacementHud(name){this.ensurePlacementHud();this.placementHud.querySelector('[data-place-name]').textContent=name;this.placementHud.querySelector('[data-place-room]').textContent='R · turn • Mouse wheel · resize';this.updatePlacementSizeReadout();this.placementHud.classList.add('is-visible');this.placementHud.setAttribute('aria-hidden','false');}
     updatePlacementSizeReadout(){const el=this.placementHud?.querySelector('[data-place-size]');if(el)el.textContent=`${Math.round(this.ghostScale*100)}%`;}
-    createGhost(item){this.ghost?.remove();const g=document.createElement('div');g.className='dragonbound-furniture-ghost';g.innerHTML=`<img src="${escapeHtml(item.sprite)}?v=${VERSION}" alt="">`;this.ensureLayer().appendChild(g);this.ghost=g;g.querySelector('img').addEventListener('load',()=>this.renderGhost());}
+    createGhost(item){this.ghost?.remove();const g=document.createElement('div');g.className='dragonbound-furniture-ghost';g.innerHTML=`<img src="${escapeHtml(item.sprite)}?v=${VERSION}" alt="">`;this.ensureLayer().appendChild(g);this.ghost=g;const ghostImg=g.querySelector('img');ghostImg.addEventListener('load',()=>this.renderGhost());this.cleanFurnitureImage(ghostImg);}
     turnGhost(){if(!this.placementMode)return;this.ghostDirection=this.ghostDirection==='left'?'right':'left';this.renderGhost();}
     resizeGhost(delta){if(!this.placementMode)return;this.ghostScale=clamp(Math.round((this.ghostScale+delta)*100)/100,MIN_SCALE,MAX_SCALE);this.updatePlacementSizeReadout();const item=this.catalog.get(this.placementMode.itemId);if(this.ghostPoint&&this.ghostRoom)this.ghostValid=this.validPlacement(this.ghostPoint,this.ghostRoom,item,this.placementMode.placementId,this.ghostScale);this.setGhostPoint(this.ghostPoint,this.ghostRoom,this.ghostValid);this.renderGhost();}
 
@@ -380,7 +462,7 @@
     onPointerMove(e){if(!this.placementMode||this.savingPlacement)return;const raw=this.eventPoint(e);if(!raw){this.setGhostPoint(this.ghostPoint,'',false);return;}const item=this.catalog.get(this.placementMode.itemId),room=this.roomForPoint(raw),p=room?this.projectPointToRoom(raw,room,item,this.ghostScale):raw,valid=!!room&&this.validPlacement(p,room,item,this.placementMode.placementId,this.ghostScale);this.setGhostPoint(p,room||'',valid);this.renderGhost();}
     onPointerDown(e){if(!this.placementMode||this.savingPlacement||this.isBuildControlTarget(e.target))return;const p=this.eventPoint(e);if(!p)return;e.preventDefault();e.stopPropagation();this.pointerDown=true;this.pointerId=e.pointerId;this.pointerStart=[e.clientX,e.clientY];this.onPointerMove(e);try{this.placementSurface?.setPointerCapture?.(e.pointerId);}catch(_e){}}
     onPointerUp(e){if(!this.placementMode||this.savingPlacement||!this.pointerDown||this.pointerId!==e.pointerId)return;this.pointerDown=false;try{this.placementSurface?.releasePointerCapture?.(e.pointerId);}catch(_e){}if(this.isBuildControlTarget(e.target))return;e.preventDefault();e.stopPropagation();this.onPointerMove(e);if(this.ghostValid)this.commitPlacement();else this.notify(this.ghostRoom?'That spot is occupied — move it a little further away.':'Click anywhere on the visible wooden floor to place it.','error');}
-    setGhostPoint(p,room,valid){if(p)this.ghostPoint=p;this.ghostRoom=room||'';this.ghostValid=!!valid;if(this.placementHud){const item=this.catalog.get(this.placementMode?.itemId),surface=this.isWallItem(item)?'wall':'floor';this.placementHud.querySelector('[data-place-room]').textContent=room?(valid?`${room==='upstairs'?'Upstairs':'Downstairs'} ${surface} · click or release to place`:`${room==='upstairs'?'Upstairs':'Downstairs'} ${surface} · too close to another furnishing`):`Move onto the visible upstairs or downstairs ${surface}`;this.placementHud.classList.toggle('is-invalid',!valid);}}
+    setGhostPoint(p,room,valid){if(p)this.ghostPoint=p;this.ghostRoom=room||'';this.ghostValid=!!valid;if(this.placementHud){const item=this.catalog.get(this.placementMode?.itemId),surface=this.isWallItem(item)?'wall':'floor';this.placementHud.querySelector('[data-place-room]').textContent=room?(valid?`Ground floor ${surface} · click or release to place`:`Ground floor ${surface} · too close to another furnishing`):`Move onto the visible ground-floor ${surface}`;this.placementHud.classList.toggle('is-invalid',!valid);}}
 
     roomZones(room){const custom=FURNITURE_PLACEMENT_ZONES[this.houseId]?.[room];if(custom?.length)return custom;const map=window.DragonboundHouseNavigationRegistry?.[this.houseId],floor=map?.floors?.find(f=>f.id===room);return floor?.walkableZones||[];}
     roomHitZones(room){
@@ -397,9 +479,7 @@
     exclusionZones(room){return FURNITURE_EXCLUSION_ZONES[this.houseId]?.[room]||[];}
     isWallItem(item){return Array.isArray(item?.tags)&&item.tags.includes('wall-mounted');}
     wallBounds(room){
-      if(this.houseId==='vardesh-hestholm-fjord-starter'){
-        return room==='upstairs'?{minX:.295,maxX:.724,minY:.315,maxY:.465}:{minX:.290,maxX:.682,minY:.585,maxY:.665};
-      }
+      const authored=FURNITURE_WALL_BOUNDS[this.houseId]?.[room];if(authored)return{...authored};
       const zones=this.roomZones(room),hits=this.roomHitZones(room);if(!zones.length)return null;
       const xs=zones.flatMap(poly=>poly.map(q=>Number(q[0]))),ys=zones.flatMap(poly=>poly.map(q=>Number(q[1])));
       const hitYs=(hits||[]).flatMap(poly=>poly.map(q=>Number(q[1])));
@@ -419,27 +499,7 @@
       }
       return out;
     }
-    roomForPoint(p){
-      // Hestholm has a visually open stair landing. Treat the house as two broad horizontal rooms
-      // instead of allowing tiny polygon boundaries to fight over the pointer near the stairs.
-      if(this.houseId==='vardesh-hestholm-fjord-starter'){
-        const x=Number(p[0]),y=Number(p[1]);
-        if(x<.235||x>.765||y<.285||y>.820)return'';
-        // Use a stable source-space split. The visible stair landing belongs to upstairs until the
-        // cursor is clearly below the upper floor lip; no hysteresis from the previous room is needed.
-        return y<.585?'upstairs':'downstairs';
-      }
-      const candidates=[];
-      for(const room of ['upstairs','downstairs']){
-        if(!this.roomHitZones(room).some(poly=>pointInPoly(p,poly)))continue;
-        const zones=this.roomZones(room);
-        let best=Infinity;
-        for(const poly of zones){const ys=poly.map(q=>Number(q[1]));const cy=(Math.min(...ys)+Math.max(...ys))/2;best=Math.min(best,Math.abs(Number(p[1])-cy));}
-        candidates.push([room,best]);
-      }
-      candidates.sort((a,b)=>a[1]-b[1]);
-      return candidates[0]?.[0]||'';
-    }
+    roomForPoint(p){return this.roomHitZones('downstairs').some(poly=>pointInPoly(p,poly))?'downstairs':'';}
     projectPointToRoom(p,room,item,scale=DEFAULT_SCALE){
       const zones=this.roomZones(room);if(!zones.length)return p.slice();
       if(this.isWallItem(item)){
@@ -447,7 +507,7 @@
         const hw=this.itemHalfWidth(item,scale),pad=Math.max(.004,Math.min(.018,hw*.42));
         return[clamp(Number(p[0]),b.minX+pad,b.maxX-pad),clamp(Number(p[1]),b.minY,b.maxY)];
       }
-      if(this.houseId==='vardesh-hestholm-fjord-starter'){
+      if(false){
         const x=Number(p[0]),y=Number(p[1]),hw=this.itemHalfWidth(item,scale),d=this.itemDepth(item,scale);
         const marginX=Math.max(.0035,Math.min(.012,hw*.22));
         if(room==='upstairs'){
@@ -464,7 +524,8 @@
         const fy=.684+t*(.744-.684);
         return [clamp(x,.290+marginX,.684-marginX),clamp(fy,.681+Math.min(.006,d*.22),.744)];
       }
-      // Prefer a zone whose horizontal span contains the pointer; otherwise use the nearest zone.
+      // Project the cursor onto the actual perspective floor polygon instead of onto its bounding box.
+      // This is what lets furniture reach the back boards near the wall while still respecting the angled side walls.
       let best=zones[0],bestScore=Infinity;
       for(const poly of zones){
         const xs=poly.map(q=>Number(q[0])),ys=poly.map(q=>Number(q[1])),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
@@ -472,13 +533,13 @@
         const dy=Number(p[1])<minY?minY-Number(p[1]):Number(p[1])>maxY?Number(p[1])-maxY:0;
         const score=dx*1.35+dy;if(score<bestScore){bestScore=score;best=poly;}
       }
-      const xs=best.map(q=>Number(q[0])),ys=best.map(q=>Number(q[1])),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
-      const hw=this.itemHalfWidth(item,scale),d=this.itemDepth(item,scale),marginX=Math.min(.018,hw*.38)+.002,marginY=Math.min(.012,d*.45)+.002;
-      const bottomInset=.006;
-      const projected=[clamp(Number(p[0]),minX+marginX,maxX-marginX),clamp(Number(p[1]),minY+marginY,maxY-bottomInset)];
-      // Hestholm's upstairs landing is intentionally continuous buildable floor. Do not auto-nudge there.
-      if(this.houseId==='vardesh-hestholm-fjord-starter'&&room==='upstairs')return projected;
-      return this.nudgeOutOfExclusions(projected,room,item,scale);
+      const ys=best.map(q=>Number(q[1])),minY=Math.min(...ys),maxY=Math.max(...ys);
+      const hw=this.itemHalfWidth(item,scale),d=this.itemDepth(item,scale),marginX=Math.min(.018,hw*.38)+.002,marginY=Math.min(.010,d*.38)+.0015,bottomInset=.004;
+      const y=clamp(Number(p[1]),minY+marginY,maxY-bottomInset);
+      const range=horizontalRangeAtY(best,y)||[Math.min(...best.map(q=>Number(q[0]))),Math.max(...best.map(q=>Number(q[0])))];
+      const left=range[0]+marginX,right=range[1]-marginX;
+      const x=left<=right?clamp(Number(p[0]),left,right):(range[0]+range[1])/2;
+      return this.nudgeOutOfExclusions([x,y],room,item,scale);
     }
     itemHalfWidth(item,scale=DEFAULT_SCALE){return (.010+Number(item?.footprintW||2)*.0065)*clamp(Number(scale||1),MIN_SCALE,MAX_SCALE);}
     itemDepth(item,scale=DEFAULT_SCALE){return (.007+Number(item?.footprintH||1)*.0055)*clamp(Number(scale||1),MIN_SCALE,MAX_SCALE);}
@@ -501,15 +562,9 @@
       const hw=this.itemHalfWidth(item,scale),d=this.itemDepth(item,scale);
       // Keep only a light edge margin. Furniture placement is intentionally much freer than dragon navigation.
       const zone=this.roomZones(room).find(poly=>pointInPoly(p,poly));if(zone){
-        const xs=zone.map(q=>Number(q[0])),ys=zone.map(q=>Number(q[1]));
-        if(this.houseId==='vardesh-hestholm-fjord-starter'){
-          // The point has already been projected onto an authored floor surface. Only reject truly
-          // outside points; do not re-apply the large edge margins that previously killed the stair landing.
-          const marginX=Math.max(.0025,Math.min(.009,hw*.18)),marginTop=Math.max(.002,Math.min(.005,d*.18)),marginBottom=.002;
-          if(p[0]<Math.min(...xs)+marginX||p[0]>Math.max(...xs)-marginX||p[1]<Math.min(...ys)+marginTop||p[1]>Math.max(...ys)-marginBottom)return false;
-        }else{
-          const marginX=Math.min(.018,hw*.38),marginY=Math.min(.012,d*.45);if(p[0]<Math.min(...xs)+marginX||p[0]>Math.max(...xs)-marginX||p[1]<Math.min(...ys)+marginY||p[1]>Math.max(...ys)-.006)return false;
-        }
+        const ys=zone.map(q=>Number(q[1])),minY=Math.min(...ys),maxY=Math.max(...ys),marginX=Math.min(.018,hw*.38),marginY=Math.min(.010,d*.38);
+        if(p[1]<minY+marginY||p[1]>maxY-.004)return false;
+        const range=horizontalRangeAtY(zone,Number(p[1]));if(!range||p[0]<range[0]+marginX||p[0]>range[1]-marginX)return false;
       }
       for(const existing of this.placements){if(existing.placementId===ignoreId||existing.roomId!==room)continue;const other=this.catalog.get(existing.itemId),otherScale=Number(existing.scale||DEFAULT_SCALE);const minDx=(hw+this.itemHalfWidth(other,otherScale))*.76+.004,minDy=(Math.max(d,this.itemDepth(other,otherScale))*.72)+.004;if(Math.abs(Number(existing.x)-p[0])<minDx&&Math.abs(Number(existing.y)-p[1])<minDy)return false;}
       return true;
@@ -545,18 +600,49 @@
     enterEditMode(filterItemId=''){this.context='build';this.close();this.cancelPlacement(false);this.editMode=true;this.selectedPlacementId='';this.homeScene?.classList.add('is-build-editing');this.editHud?.classList.add('is-visible');this.editHud?.setAttribute('aria-hidden','false');this.renderPlacements();if(filterItemId){const p=this.placements.find(x=>x.itemId===filterItemId);if(p)this.selectPlacement(p.placementId);}else this.updateEditHud();this.notify(this.placements.length?'Click a furnishing to edit it.':'There is no furniture placed in this room yet.');}
     exitEditMode(render=true){this.editMode=false;this.selectedPlacementId='';this.homeScene?.classList.remove('is-build-editing');this.editHud?.classList.remove('is-visible');this.editHud?.setAttribute('aria-hidden','true');if(render)this.renderPlacements();}
     selectPlacement(id){if(!this.editMode)return;this.selectedPlacementId=id;this.renderPlacements();this.updateEditHud();}
-    updateEditHud(){if(!this.editHud)return;const p=this.placements.find(x=>x.placementId===this.selectedPlacementId),item=p&&this.catalog.get(p.itemId);this.editHud.querySelector('[data-edit-title]').textContent=item?.name||'Click a placed furnishing';this.editHud.querySelector('[data-edit-copy]').textContent=item?`${p.roomId==='upstairs'?'Upstairs':'Downstairs'} · ${item.collection}`:'Move, turn, resize or put furniture back into your Build Inventory.';['move','turn','smaller','larger','store'].forEach(k=>{const b=this.editHud.querySelector(`[data-edit-${k}]`);if(b)b.disabled=!p;});const size=this.editHud.querySelector('[data-edit-size]');if(size)size.textContent=p?`${Math.round(Number(p.scale||1)*100)}%`:'—';}
+    updateEditHud(){if(!this.editHud)return;const p=this.placements.find(x=>x.placementId===this.selectedPlacementId),item=p&&this.catalog.get(p.itemId);this.editHud.querySelector('[data-edit-title]').textContent=item?.name||'Click a placed furnishing';this.editHud.querySelector('[data-edit-copy]').textContent=item?`Ground floor · ${item.collection}`:'Move, turn, resize or put furniture back into your Build Inventory.';['move','turn','smaller','larger','store'].forEach(k=>{const b=this.editHud.querySelector(`[data-edit-${k}]`);if(b)b.disabled=!p;});const size=this.editHud.querySelector('[data-edit-size]');if(size)size.textContent=p?`${Math.round(Number(p.scale||1)*100)}%`:'—';}
     async updateSelectedAppearance(patch,message){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;const dbc=this.db();const next={direction:patch.direction??p.direction??'right',scale:clamp(Number(patch.scale??p.scale??DEFAULT_SCALE),MIN_SCALE,MAX_SCALE)};try{const {data,error}=await dbc.rpc('dragonbound_move_furniture_v2',{p_placement_id:p.placementId,p_room_id:p.roomId,p_x:p.x,p_y:p.y,p_direction:next.direction,p_scale:next.scale});if(error)throw error;Object.assign(p,data,{x:Number(data.x),y:Number(data.y),rotation:0,direction:data.direction==='left'?'left':'right',scale:clamp(Number(data.scale||next.scale),MIN_SCALE,MAX_SCALE)});this.syncState();this.renderPlacements();this.updateEditHud();window.dispatchEvent(new CustomEvent('dragonbound:furniture-changed',{detail:{houseId:this.houseId}}));if(message)this.notify(message);}catch(err){this.notify(err?.message||'Could not update furniture.','error');}}
     turnSelectedPlacement(){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;this.updateSelectedAppearance({direction:p.direction==='left'?'right':'left'},'Furniture turned.');}
     resizeSelectedPlacement(delta){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;const next=clamp(Math.round((Number(p.scale||1)+delta)*100)/100,MIN_SCALE,MAX_SCALE),item=this.catalog.get(p.itemId);if(item&&!this.validPlacement([Number(p.x),Number(p.y)],p.roomId,item,p.placementId,next)){this.notify('That size would overlap another furnishing or the room edge.','error');return;}this.updateSelectedAppearance({scale:next},`Furniture size · ${Math.round(next*100)}%`);}
     async storeSelectedPlacement(){const p=this.placements.find(x=>x.placementId===this.selectedPlacementId);if(!p)return;const item=this.catalog.get(p.itemId);if(!confirm(`Put ${item?.name||'this furnishing'} back into your Build Inventory?`))return;const dbc=this.db();try{const {data,error}=await dbc.rpc('dragonbound_store_furniture',{p_placement_id:p.placementId});if(error)throw error;this.placements=this.placements.filter(x=>x.placementId!==p.placementId);const inv=this.inventory.get(p.itemId);if(inv)inv.available=Number(data.available??Math.min(inv.owned,inv.available+1));this.selectedPlacementId='';this.syncState();this.renderPlacements();this.updateEditHud();window.dispatchEvent(new CustomEvent('dragonbound:furniture-changed',{detail:{houseId:this.houseId}}));this.notify(`${item?.name||'Furniture'} returned to inventory.`);}catch(err){this.notify(err?.message||'Could not put furniture away.','error');}}
 
     sizeWorldImage(img,item,displayScale=DEFAULT_SCALE){if(!img||!item)return;const natural=img.naturalWidth||160;const worldScale=window.DragonboundBabyEngine?.sourceScale?.()||Math.max(.5,this.world.clientWidth/1536);const userScale=clamp(Number(displayScale||DEFAULT_SCALE),MIN_SCALE,MAX_SCALE);img.style.width=Math.max(28,Math.min(245,natural*worldScale*.42*userScale))+'px';}
+
+placementDepthOrder(p,item){
+  const wall=this.isWallItem(item);const py=Number(p?.y||0),px=Number(p?.x||0);
+  const base=Math.round(py*100000);
+  const tie=Math.round(px*100);
+  return String(100000+base*10+(wall?0:5)+Math.max(0,Math.min(9,tie%10)));
+}
+positionPlacementById(placementId){
+  const layer=this.ensureLayer();if(!layer)return;
+  const el=layer.querySelector(`[data-placement-id="${CSS.escape(String(placementId||''))}"]`);if(!el)return;
+  const p=this.placements.find(x=>x.placementId===placementId);if(!p)return;
+  const item=this.catalog.get(p.itemId);if(!item)return;
+  this.positionPlacement(el,p,item);
+}
+syncPlacementImage(img,item){
+  if(!img||!item)return;
+  const desired=`${item.sprite}?v=${VERSION}`;
+  if(img.dataset.rawSrc!==desired){
+    img.dataset.rawSrc=desired;
+    delete img.dataset.furnitureSpriteClean;
+    img.src=desired;
+  }
+}
+
+    commandDragonToFurniture(placementId){
+      if(this.editMode||this.placementMode)return false;
+      const p=this.placements.find(x=>x.placementId===placementId),item=p&&this.catalog.get(p.itemId);if(!p||!item)return false;
+      const result=window.DragonboundBabyEngine?.commandFurnitureInteraction?.(placementId);
+      if(result?.ok){const dragonName=window.DragonboundBabyEngine?.actor?.dragon?.name||'Your dragon';this.notify(`${dragonName} is heading to ${item.name}.`);return true;}
+      this.notify(result?.reason||'Your dragon cannot reach that furnishing right now.','error');return false;
+    }
     renderPlacements(){
-      const layer=this.ensureLayer();if(!layer)return;const keep=new Set();for(const p of this.placements){const item=this.catalog.get(p.itemId);if(!item)continue;let el=layer.querySelector(`[data-placement-id="${CSS.escape(p.placementId)}"]`);if(!el){el=document.createElement('button');el.type='button';el.className='dragonbound-furniture-placement';el.dataset.placementId=p.placementId;el.innerHTML='<img alt=""><span class="dragonbound-furniture-edit-ring"></span>';el.addEventListener('click',e=>{if(!this.editMode)return;e.preventDefault();e.stopPropagation();this.selectPlacement(el.dataset.placementId);});layer.appendChild(el);const img=el.querySelector('img');img.addEventListener('load',()=>this.positionPlacement(el,p,item));}keep.add(p.placementId);el.classList.toggle('is-selected',p.placementId===this.selectedPlacementId);el.setAttribute('aria-label',item.name);const img=el.querySelector('img');if(!img.src.includes(item.sprite))img.src=`${item.sprite}?v=${VERSION}`;img.alt=item.name;this.positionPlacement(el,p,item);}
+      const layer=this.ensureLayer();if(!layer)return;const keep=new Set();for(const p of this.placements){const item=this.catalog.get(p.itemId);if(!item)continue;let el=layer.querySelector(`[data-placement-id="${CSS.escape(p.placementId)}"]`);if(!el){el=document.createElement('button');el.type='button';el.className='dragonbound-furniture-placement';el.dataset.placementId=p.placementId;el.innerHTML='<img alt=""><span class="dragonbound-furniture-edit-ring"></span>';el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(this.editMode){this.selectPlacement(el.dataset.placementId);return;}if(!this.placementMode)this.commandDragonToFurniture(el.dataset.placementId);});layer.appendChild(el);const img=el.querySelector('img');img.addEventListener('load',()=>this.positionPlacementById(el.dataset.placementId));}keep.add(p.placementId);el.dataset.itemId=p.itemId;el.classList.toggle('is-selected',p.placementId===this.selectedPlacementId);el.setAttribute('aria-label',this.editMode?`Edit ${item.name}`:`Ask your dragon to interact with ${item.name}`);el.title=this.editMode?`Edit ${item.name}`:`Click to send your dragon to ${item.name}`;const img=el.querySelector('img');this.syncPlacementImage(img,item);img.alt=item.name;img.title=el.title;this.cleanFurnitureImage(img);this.positionPlacement(el,p,item);}
       layer.querySelectorAll('.dragonbound-furniture-placement').forEach(el=>{if(!keep.has(el.dataset.placementId))el.remove();});
     }
-    positionPlacement(el,p,item){if(!el||!this.world)return;const engine=window.DragonboundBabyEngine;const xy=engine?.toPixels?engine.toPixels([p.x,p.y]):{x:p.x*this.world.clientWidth,y:p.y*this.world.clientHeight};el.style.left=xy.x+'px';el.style.top=xy.y+'px';el.style.zIndex=String(1000+Math.round(Number(p.y)*10000));const img=el.querySelector('img');this.sizeWorldImage(img,item,p.scale);const flip=p.direction==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;el.dataset.roomId=p.roomId;el.dataset.scale=String(p.scale||1);el.dataset.wallMounted=this.isWallItem(item)?'1':'0';}
+    positionPlacement(el,p,item){if(!el||!this.world)return;const engine=window.DragonboundBabyEngine;const xy=engine?.toPixels?engine.toPixels([p.x,p.y]):{x:p.x*this.world.clientWidth,y:p.y*this.world.clientHeight};el.style.left=xy.x+'px';el.style.top=xy.y+'px';el.style.zIndex=this.placementDepthOrder(p,item);const img=el.querySelector('img');this.sizeWorldImage(img,item,p.scale);const flip=p.direction==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;el.dataset.roomId=p.roomId;el.dataset.scale=String(p.scale||1);el.dataset.wallMounted=this.isWallItem(item)?'1':'0';}
 
     collisionPolys(){return this.placements.flatMap(p=>{const item=this.catalog.get(p.itemId);if(this.isWallItem(item))return[];return[{floorId:p.roomId,poly:this.placementPoly(p,item,p.scale),placementId:p.placementId,itemId:p.itemId}];});}
     interactionSnapshot(){return this.placements.map(p=>{const item=this.catalog.get(p.itemId),wallMounted=this.isWallItem(item);return{placementId:p.placementId,itemId:p.itemId,roomId:p.roomId,x:Number(p.x),y:Number(p.y),direction:p.direction||'right',scale:Number(p.scale||1),footprintW:Number(item?.footprintW||2),footprintH:Number(item?.footprintH||1),halfWidth:this.itemHalfWidth(item,p.scale),depth:wallMounted?0:this.itemDepth(item,p.scale),wallMounted,tags:item?.tags||[],name:item?.name||p.itemId,category:item?.category||'',collection:item?.collection||'',personalityScore:typeof window.DragonboundFurniturePersonalityScore==='function'?window.DragonboundFurniturePersonalityScore(item?.tags||[],{roomId:p.roomId,x:p.x,y:p.y,itemId:p.itemId,wallMounted}):0};});}

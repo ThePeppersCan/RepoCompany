@@ -1,0 +1,26 @@
+V32.67 — TCG BINDER FAVOURITE CARD HOTFIX
+===========================================
+
+FIXED
+- Favourite-card stars in the Quidditch TCG binder are clickable again.
+- Favourite selection now saves on the initial primary pointer press, so a binder slot re-render cannot delete the button between press and click.
+- The follow-up synthetic click is suppressed for the same card to prevent an accidental immediate toggle-off.
+- Binder slot re-renders now explicitly request the favourite-star decorations again on the next animation frame.
+- Removed the old unconditional once-per-second binder slot rebuild. The safety sync now only re-renders when the visible card IDs are actually out of sync with the saved layout.
+
+BACKEND CHECK
+- Live Supabase favourite RPCs were inspected and are present.
+- A signed-in-user simulation was run inside a rolled-back transaction: setting and reading a favourite card succeeds server-side.
+- No live favourite-card data was changed by the test.
+
+PRESERVED
+- V32.66 Dragonbound walking-direction fixes.
+- V32.66 80-furniture expansion.
+- V32.66 Keeper Marks grant/database state.
+- Quarter-final setup and all unrelated site systems.
+
+FILES CHANGED / INCLUDED
+- script.js
+- index.html (cache-buster only for script.js)
+- PATCH_NOTES_V32.67.txt
+- all cumulative V32.66 patch files/assets remain included in this ZIP.

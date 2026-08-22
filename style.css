@@ -30085,3 +30085,73 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
     margin:0 auto!important;
   }
 }
+
+
+/* V32.78 — visit other Dragonbound keepers */
+.dragonbound-travel-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.dragonbound-travel-destination--keepers .dragonbound-travel-destination-preview{background-image:linear-gradient(180deg,rgba(2,12,14,.03),rgba(2,12,14,.38)),url('assets/dragonbound/property/starters/lumerre-greenhollow-starter.png');background-position:center 67%}
+.dragonbound-house-visits{position:absolute;inset:0;z-index:151;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease,visibility 0s linear .2s}
+.dragonbound-house-visits.is-visible{opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s}
+.dragonbound-house-visits-backdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(17,49,48,.28),rgba(1,7,10,.88) 72%);backdrop-filter:blur(8px)}
+.dragonbound-house-visits-browser{position:absolute;left:50%;top:50%;width:min(1040px,94vw);max-height:min(820px,91vh);transform:translate(-50%,-50%);box-sizing:border-box;padding:28px 30px 30px;border:1px solid rgba(225,195,119,.55);border-radius:22px;background:linear-gradient(145deg,rgba(10,37,36,.99),rgba(4,18,22,.995));box-shadow:0 32px 100px rgba(0,0,0,.65);overflow:auto}
+.dragonbound-house-visits-browser[aria-hidden="true"]{display:none}
+.dragonbound-house-visits-browser::before{content:"";position:absolute;left:8%;right:8%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(239,209,138,.85),transparent)}
+.dragonbound-house-visits-close{position:absolute;right:18px;top:15px;z-index:3;width:36px;height:36px;padding:0!important;border:1px solid rgba(220,188,108,.42)!important;border-radius:50%!important;background:rgba(7,25,28,.72)!important;background-image:none!important;box-shadow:none!important;color:#e7cb86!important;font:700 24px/32px Georgia,serif!important;cursor:pointer}
+.dragonbound-house-visits-kicker{margin:0 0 6px;color:#88b8ad;font:800 10px/1.2 Georgia,serif;letter-spacing:.24em;text-align:center}
+.dragonbound-house-visits-browser h2{margin:0;color:#efd18a;font:800 clamp(25px,2.3vw,38px)/1.08 Georgia,serif;text-align:center}
+.dragonbound-house-visits-copy{margin:9px auto 18px;max-width:690px;color:#a9bfba;font:600 12px/1.5 Georgia,serif;text-align:center}
+.dragonbound-house-visits-search{display:flex;align-items:center;gap:9px;width:min(520px,100%);height:42px;margin:0 auto 10px;padding:0 13px;border:1px solid rgba(108,168,146,.3);border-radius:12px;background:#071a18;color:#91b9ae;box-sizing:border-box}
+.dragonbound-house-visits-search input{flex:1;min-width:0;border:0!important;background:transparent!important;box-shadow:none!important;color:#dce8e2!important;font:700 12px Georgia,serif!important;outline:none!important}
+.dragonbound-house-visits-status{min-height:20px;margin:0 0 8px;color:#8faea6;font:700 10px/20px Georgia,serif;text-align:center}
+.dragonbound-house-visits-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dragonbound-house-visit-card{position:relative;display:grid;grid-template-columns:150px minmax(0,1fr);min-height:116px;padding:0!important;overflow:hidden;border:1px solid rgba(185,155,83,.3)!important;border-radius:15px!important;background:linear-gradient(180deg,#0b2c28,#071d1e)!important;background-image:none!important;box-shadow:0 10px 24px rgba(0,0,0,.2)!important;text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease,filter .16s ease}
+.dragonbound-house-visit-card:hover,.dragonbound-house-visit-card:focus-visible{transform:translateY(-2px);border-color:rgba(235,207,139,.75)!important;filter:brightness(1.07)}
+.dragonbound-house-visit-card-image{display:block;background-position:center 66%;background-size:cover;border-right:1px solid rgba(225,193,113,.2)}
+.dragonbound-house-visit-card-copy{display:flex;flex-direction:column;justify-content:center;padding:13px 42px 13px 15px;min-width:0}
+.dragonbound-house-visit-card-copy strong{color:#efd18a;font:800 15px/1.2 Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dragonbound-house-visit-card-copy b{margin-top:6px;color:#c6ddd5;font:700 12px/1.2 Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dragonbound-house-visit-card-copy small{margin-top:5px;color:#87a89f;font:700 9px/1.35 Georgia,serif}
+.dragonbound-house-visit-card-arrow{position:absolute;right:12px;bottom:10px;color:#d8bd79;font:700 10px Georgia,serif}
+.dragonbound-house-visits-empty{grid-column:1/-1;padding:42px 20px;border:1px dashed rgba(127,171,155,.24);border-radius:15px;color:#8da79f;font:700 12px Georgia,serif;text-align:center}
+.dragonbound-house-visit-preview{position:absolute;inset:0;display:none;overflow:hidden;background:#050a0b}
+.dragonbound-house-visits.is-previewing .dragonbound-house-visit-preview{display:block}
+.dragonbound-house-visit-preview[aria-hidden="true"]{display:none!important}
+.dragonbound-house-visit-world{position:absolute;inset:0;transform-origin:50% 50%;animation:dragonboundHouseVisitBreath 18s ease-in-out infinite;pointer-events:none}
+@keyframes dragonboundHouseVisitBreath{0%,100%{transform:scale(1.075) translate3d(0,0,0)}50%{transform:scale(1.092) translate3d(0,-.25%,0)}}
+.dragonbound-house-visit-image,.dragonbound-house-visit-light,.dragonbound-house-visit-vignette{position:absolute;inset:0;pointer-events:none}
+.dragonbound-house-visit-image{background-position:center center;background-size:cover;background-repeat:no-repeat;filter:saturate(1.02) contrast(1.015) brightness(.99)}
+.dragonbound-house-visit-light{z-index:40;background:radial-gradient(circle at 50% 42%,rgba(248,215,149,.08),transparent 53%);mix-blend-mode:screen}
+.dragonbound-house-visit-vignette{z-index:41;box-shadow:inset 0 0 110px rgba(0,0,0,.30)}
+.dragonbound-house-visit-furniture,.dragonbound-house-visit-dragon-layer{position:absolute;inset:0;z-index:auto;overflow:visible;pointer-events:none}
+.dragonbound-house-visit-furnishing,.dragonbound-house-visit-dragon{position:absolute;width:0;height:0;pointer-events:none;isolation:auto}
+.dragonbound-house-visit-furnishing img{position:absolute;left:0;top:0;height:auto;max-width:none!important;transform-origin:50% 96%;filter:drop-shadow(0 5px 4px rgba(0,0,0,.28));image-rendering:auto}
+.dragonbound-house-visit-dragon-sprite{position:absolute;left:0;top:0;height:auto!important;max-width:none!important;image-rendering:pixelated;image-rendering:crisp-edges;transform-origin:50% 98.5%;filter:drop-shadow(0 7px 6px rgba(0,0,0,.3))}
+.dragonbound-house-visit-plaque{position:absolute;left:50%;top:3.2%;z-index:70;min-width:250px;max-width:56vw;transform:translateX(-50%);padding:9px 18px 10px;border:1px solid rgba(225,195,119,.48);border-radius:14px;background:linear-gradient(180deg,rgba(6,32,32,.91),rgba(4,21,25,.93));box-shadow:0 10px 30px rgba(0,0,0,.34);text-align:center;pointer-events:none}
+.dragonbound-house-visit-plaque small{display:block;color:#86b4a8;font:800 8px Georgia,serif;letter-spacing:.22em}
+.dragonbound-house-visit-plaque strong{display:block;margin-top:3px;color:#efd18a;font:800 16px/1.2 Georgia,serif}
+.dragonbound-house-visit-plaque span{display:block;margin-top:3px;color:#aec7c0;font:700 9px Georgia,serif}
+.dragonbound-house-visit-list-button,.dragonbound-house-visit-home-button{position:absolute;top:3.2%;z-index:72;min-height:38px;padding:0 14px!important;border:1px solid rgba(225,195,119,.5)!important;border-radius:999px!important;background:linear-gradient(180deg,rgba(8,37,39,.94),rgba(5,23,28,.96))!important;background-image:none!important;box-shadow:0 10px 25px rgba(0,0,0,.32)!important;color:#efd18a!important;font:800 11px/1 Georgia,serif!important;cursor:pointer}
+.dragonbound-house-visit-list-button{left:3.3%}.dragonbound-house-visit-home-button{right:3.3%}
+.dragonbound-house-visit-list-button:hover,.dragonbound-house-visit-home-button:hover{filter:brightness(1.09)}
+.dragonbound-new-game-stage.is-visiting-house .dragonbound-home-sidebar{opacity:0!important;pointer-events:none!important}
+@media(max-width:780px){.dragonbound-travel-menu-grid{grid-template-columns:1fr!important}.dragonbound-house-visits-browser{width:95vw;padding:24px 16px 18px}.dragonbound-house-visits-grid{grid-template-columns:1fr}.dragonbound-house-visit-card{grid-template-columns:112px minmax(0,1fr)}.dragonbound-house-visit-plaque{top:9%;max-width:76vw}.dragonbound-house-visit-list-button,.dragonbound-house-visit-home-button{top:2%;font-size:9px!important;min-height:34px;padding:0 10px!important}}
+@media(prefers-reduced-motion:reduce){.dragonbound-house-visit-world{animation:none!important;transform:scale(1.075)!important}.dragonbound-house-visits,.dragonbound-house-visit-card{transition-duration:.01ms!important}}
+
+
+/* V32.79 — pet your baby dragon */
+.dragonbound-baby-sprite.is-pet-ready{cursor:pointer!important;}
+.dragonbound-baby-hover-pet{
+  display:block;margin-top:2px;padding-top:4px;border-top:1px solid rgba(225,197,121,.16);
+  color:#8ca9a4;font:800 7px/1.15 Georgia,serif;letter-spacing:.045em;
+}
+.dragonbound-baby-hover-pet.is-ready{color:#f1b5bd;text-shadow:0 0 7px rgba(240,117,143,.18)}
+.dragonbound-baby-pet-love{position:absolute;left:0;top:calc(-1 * var(--dragon-tooltip-lift,78px) + 28px);z-index:998;width:0;height:0;pointer-events:none;}
+.dragonbound-baby-pet-love i{position:absolute;left:-7px;top:0;color:#ff8da5;font:900 17px/1 Georgia,serif;text-shadow:0 2px 3px rgba(0,0,0,.5);opacity:0;animation:dragonboundPetHeart 1.65s ease-out forwards;}
+.dragonbound-baby-pet-love i:nth-child(2){left:8px;animation-delay:.14s;font-size:12px}.dragonbound-baby-pet-love i:nth-child(3){left:-22px;animation-delay:.27s;font-size:11px}.dragonbound-baby-pet-love i:nth-child(4){left:18px;animation-delay:.4s;font-size:9px}
+.dragonbound-baby-pet-love b{position:absolute;left:0;top:18px;transform:translateX(-50%);padding:3px 7px;border-radius:999px;background:rgba(7,28,31,.88);border:1px solid rgba(244,162,177,.38);color:#ffd4dc;font:800 7px/1 Georgia,serif;white-space:nowrap;opacity:0;animation:dragonboundPetLabel 1.45s ease-out .1s forwards;}
+.dragonbound-baby-actor.is-being-petted>.dragonbound-baby-sprite{animation:dragonboundPetWiggle .32s ease-in-out 4 alternate;}
+@keyframes dragonboundPetHeart{0%{opacity:0;transform:translate(-50%,8px) scale(.6) rotate(-8deg)}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-45px) scale(1.18) rotate(9deg)}}
+@keyframes dragonboundPetLabel{0%{opacity:0;transform:translate(-50%,5px) scale(.9)}18%,68%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-5px) scale(.96)}}
+@keyframes dragonboundPetWiggle{from{filter:brightness(1);margin-top:0}to{filter:brightness(1.08);margin-top:-3px}}
+@media(max-width:720px){.dragonbound-baby-hover-pet{font-size:6.5px}}
+@media(prefers-reduced-motion:reduce){.dragonbound-baby-pet-love i,.dragonbound-baby-pet-love b,.dragonbound-baby-actor.is-being-petted>.dragonbound-baby-sprite{animation-duration:.01ms!important;animation-iteration-count:1!important}}

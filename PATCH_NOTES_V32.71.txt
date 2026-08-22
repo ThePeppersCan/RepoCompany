@@ -1,0 +1,29 @@
+Repo Sports / Dragonbound V32.71
+================================
+
+FURNITURE INTERACTIONS
+- Fixed the root cause of legacy furniture only showing "Investigating ...".
+- The 64 original furniture catalogue entries had no semantic interaction tags in the live database.
+- Live catalogue now has interaction tags on all 240 furniture entries (0 blank-tag rows).
+- Added a defensive client-side interaction classifier so future/legacy furniture can infer sensible actions from category/name/item ID even if tags are missing.
+- Beds resolve to sleep/rest interactions.
+- Baths/wash furniture resolve to wash interactions.
+- Training furniture resolves to training/climbing/play interactions.
+- Toys resolve to play interactions.
+- Feeding/kitchen furniture resolves to eating/drinking interactions.
+- Scratch/groom/toilet/fire/warm/reading/etc. keywords resolve to their matching actions.
+- Physical V32.70 bath/bed/scratch positioning and effects remain in place; fixing classification means those states are now actually reached.
+
+MOVEMENT SPEED
+- Baby-dragon ground movement is now exactly 2x the V32.70 speed.
+- Stair approach and visible staircase traversal are also 2x faster.
+- Walk-cycle playback is 2x faster to match the faster travel speed and avoid foot-sliding.
+- Flight speed is unchanged.
+
+PRESERVED
+- V32.70 physical furniture interactions and Rova End facing fix.
+- V32.69 purchase/click-to-command and cross-floor furniture routing.
+- V32.68 grounding fix.
+- V32.67 TCG binder favourite hotfix.
+- V32.66 furniture expansion / Keeper Marks.
+- Quarter-final setup.

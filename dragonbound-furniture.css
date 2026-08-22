@@ -138,3 +138,37 @@
 .dragonbound-build-edit-actions button[data-edit-store]{background:#2b2526!important;border-color:rgba(173,101,88,.30)!important}
 @media(max-width:1250px){.dragonbound-build-body{grid-template-columns:minmax(0,1fr) 300px!important}.dragonbound-build-categories{grid-template-columns:repeat(6,minmax(0,1fr))!important}.dragonbound-build-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.dragonbound-build-card{min-height:145px!important}}
 @media(max-width:960px){.dragonbound-build-panel{height:98vh!important}.dragonbound-build-body{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;grid-template-areas:"cats" "main"!important}.dragonbound-build-inspector{display:none!important}.dragonbound-build-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.dragonbound-build-topbar{grid-template-columns:1fr auto auto!important}.dragonbound-build-tabs{display:none!important}.dragonbound-build-wallet{min-width:auto!important}.dragonbound-build-categories{grid-template-columns:repeat(6,minmax(0,1fr))!important}.dragonbound-build-controls{grid-template-columns:1fr 130px!important}.dragonbound-build-controls select[data-build-sort]{display:none!important}}
+
+/* V32.69 — click placed furniture during normal play to command the baby dragon. */
+.dragonbound-home-scene:not(.is-build-editing):not(.is-build-placing) .dragonbound-furniture-placement img{pointer-events:auto!important;cursor:pointer!important}
+.dragonbound-home-scene:not(.is-build-editing):not(.is-build-placing) .dragonbound-furniture-placement img:hover{filter:drop-shadow(0 5px 4px rgba(0,0,0,.28)) drop-shadow(0 0 7px rgba(229,201,107,.48))!important}
+.dragonbound-home-scene:not(.is-build-editing):not(.is-build-placing) .dragonbound-furniture-placement:focus-visible .dragonbound-furniture-edit-ring{display:block!important;border-style:solid!important;border-color:rgba(229,201,107,.92)!important}
+
+
+/* V32.70 — furniture-use staging. Dragons visibly get onto beds/baths and use action furniture. */
+.dragonbound-baby-actor[data-furniture-kind="wash"]::before{
+  content:"";position:absolute;left:50%;top:-7px;width:66px;height:28px;transform:translate(-50%,-50%);z-index:4;
+  border-radius:50%;pointer-events:none;opacity:.97;
+  background:
+    radial-gradient(circle at 16% 30%,rgba(255,255,255,.95) 0 2px,rgba(255,255,255,.25) 2.2px,transparent 3.4px),
+    radial-gradient(circle at 31% 64%,rgba(255,255,255,.94) 0 3px,rgba(255,255,255,.26) 3.2px,transparent 4.5px),
+    radial-gradient(circle at 47% 26%,rgba(255,255,255,.92) 0 2.4px,rgba(255,255,255,.22) 2.6px,transparent 3.8px),
+    radial-gradient(circle at 62% 68%,rgba(255,255,255,.96) 0 3.2px,rgba(255,255,255,.28) 3.4px,transparent 4.8px),
+    radial-gradient(circle at 78% 36%,rgba(255,255,255,.9) 0 2.2px,rgba(255,255,255,.2) 2.4px,transparent 3.5px),
+    radial-gradient(circle at 86% 62%,rgba(255,255,255,.88) 0 1.8px,rgba(255,255,255,.18) 2px,transparent 3px),
+    radial-gradient(circle at 10% 72%,rgba(225,251,255,.92) 0 2px,transparent 3px),
+    radial-gradient(circle at 72% 18%,rgba(225,251,255,.9) 0 2px,transparent 3px),
+    radial-gradient(ellipse at center,rgba(106,209,241,.72) 0 38%,rgba(54,162,213,.56) 55%,rgba(34,120,176,.25) 70%,transparent 79%);
+  box-shadow:0 2px 10px rgba(43,166,216,.42);animation:dragonboundBathSplash .85s ease-in-out infinite alternate;
+}
+.dragonbound-baby-actor[data-furniture-kind="sandbath"]::before{
+  content:"";position:absolute;left:50%;top:-2px;width:55px;height:18px;transform:translate(-50%,-50%);z-index:4;border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(222,190,126,.65),rgba(150,112,62,.32) 58%,transparent 74%);filter:blur(.2px);animation:dragonboundSandPuff .8s ease-in-out infinite alternate;
+}
+.dragonbound-baby-actor[data-furniture-kind="scratch"][data-furniture-facing="right"]{animation:dragonboundScratchAttackRight .42s ease-in-out infinite alternate;}
+.dragonbound-baby-actor[data-furniture-kind="scratch"][data-furniture-facing="left"]{animation:dragonboundScratchAttackLeft .42s ease-in-out infinite alternate;}
+.dragonbound-baby-actor[data-furniture-kind="sleep"] .dragonbound-baby-sprite{filter:drop-shadow(0 3px 4px rgba(0,0,0,.24));}
+@keyframes dragonboundBathSplash{from{transform:translate(-50%,-50%) scale(.9,.84);opacity:.74}50%{transform:translate(-50%,-56%) scale(1.02,1.03);opacity:.95}to{transform:translate(-50%,-60%) scale(1.14,1.1);opacity:1}}
+@keyframes dragonboundSandPuff{from{transform:translate(-50%,-50%) scale(.88);opacity:.45}to{transform:translate(-50%,-53%) scale(1.12);opacity:.78}}
+@keyframes dragonboundScratchAttackRight{from{transform:translateX(-2px)}to{transform:translateX(6px)}}
+@keyframes dragonboundScratchAttackLeft{from{transform:translateX(2px)}to{transform:translateX(-6px)}}
