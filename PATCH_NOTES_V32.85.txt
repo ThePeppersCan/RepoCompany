@@ -1,0 +1,8 @@
+Repo Sports / Dragonbound V32.85
+
+- Fixed Repo Passport favourite-card display when the favourite is an RCG graded slab rather than a raw TCG card.
+- Favourite cache now keeps a separate display record for raw-card and slab favourites.
+- RCG slab favourites show the underlying card artwork, card name, and "RCG <grade> · GRADED SLAB" metadata on the homepage Repo Passport.
+- Favourite updates are now applied atomically, preventing the passport from briefly clearing the favourite when switching to a slab.
+- Existing raw-card favourite behaviour is preserved.
+- Built on V32.84, retaining the 90-item Dragonbound furniture store integration and V32.83 treat-chase behaviour.

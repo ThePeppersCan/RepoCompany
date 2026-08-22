@@ -20078,6 +20078,10 @@ qmShowSharedGoal=function(state){
   window.repoTcgCardById=id=>cards[String(id||'').trim()]||null;
 
   const favouriteByUser=new Map();
+  // Keeps the displayable favourite separate from the raw-card favourite. A graded
+  // RCG slab intentionally clears favouriteByUser, but still needs to appear in
+  // Repo Passport and public profile surfaces using its underlying card art.
+  const favouriteDisplayByUser=new Map();
   const favouriteLoadedUsers=new Set();
   const loadingUsers=new Set();
   let decorationQueued=false;
@@ -20096,19 +20100,46 @@ qmShowSharedGoal=function(state){
   // V32.67: expose a lightweight refresh hook so binder re-renders can
   // restore favourite controls immediately without polling or DOM churn.
   window.repoTcgRefreshFavouriteButtons=queueDecoration;
-  function setCachedFavourite(username,cardId){
+  function setCachedFavourite(username,cardId,displayMeta={}){
     const clean=cards[cardId]?cardId:null;
     const userKey=key(username);
+    const slabId=normal(displayMeta?.slabId);
+    const slabCardId=cards[displayMeta?.cardId]?displayMeta.cardId:null;
+    const displayCardId=slabId?slabCardId:clean;
+    const display=displayCardId?{
+      cardId:displayCardId,
+      card:cards[displayCardId]||null,
+      isSlab:Boolean(slabId),
+      slabId:slabId||null,
+      grade:slabId?(Number(displayMeta?.grade)||null):null,
+      certification:slabId?normal(displayMeta?.certification)||null:null
+    }:null;
     favouriteLoadedUsers.add(userKey);
-    favouriteByUser.set(userKey,clean);
+    favouriteByUser.set(userKey,slabId?null:clean);
+    favouriteDisplayByUser.set(userKey,display);
     window.__repoTcgFavouriteCardByUser=window.__repoTcgFavouriteCardByUser||{};
-    window.__repoTcgFavouriteCardByUser[key(username)]=clean;
+    window.__repoTcgFavouriteCardByUser[userKey]=slabId?null:clean;
+    window.__repoTcgFavouriteDisplayByUser=window.__repoTcgFavouriteDisplayByUser||{};
+    window.__repoTcgFavouriteDisplayByUser[userKey]=display;
     if(typeof qmWatcherProfileCache!=='undefined'){
-      const cacheKey=typeof qmWatcherKey==='function'?qmWatcherKey(username):key(username);
+      const cacheKey=typeof qmWatcherKey==='function'?qmWatcherKey(username):userKey;
       const existing=qmWatcherProfileCache.get(cacheKey)||{};
-      qmWatcherProfileCache.set(cacheKey,{...existing,username,favourite_quidditch_tcg_card:clean,favourite_rcg_slab_id:null,favourite_rcg_grade:null,favourite_rcg_certification:null});
+      qmWatcherProfileCache.set(cacheKey,{
+        ...existing,
+        username,
+        favourite_quidditch_tcg_card:displayCardId,
+        favourite_rcg_slab_id:slabId||null,
+        favourite_rcg_grade:slabId?(Number(displayMeta?.grade)||null):null,
+        favourite_rcg_certification:slabId?(normal(displayMeta?.certification)||null):null
+      });
     }
-    window.dispatchEvent(new CustomEvent('repo-tcg-favourite-changed',{detail:{username:String(username||''),cardId:clean}}));
+    window.dispatchEvent(new CustomEvent('repo-tcg-favourite-changed',{detail:{
+      username:String(username||''),
+      cardId:displayCardId,
+      slabId:slabId||null,
+      grade:slabId?(Number(displayMeta?.grade)||null):null,
+      isSlab:Boolean(slabId)
+    }}));
     queueDecoration();
     if(typeof qmRefreshOpenWatcherProfile==='function')qmRefreshOpenWatcherProfile();
   }
@@ -20127,12 +20158,12 @@ qmShowSharedGoal=function(state){
       const profileCard=cards[row?.favourite_card]?row.favourite_card:null;
       const slabId=normal(row?.favourite_slab_id);
       const favourite=slabId?null:profileCard;
-      setCachedFavourite(row?.username||cleanName,favourite);
-      if(slabId&&typeof qmWatcherProfileCache!=='undefined'){
-        const cacheKey=typeof qmWatcherKey==='function'?qmWatcherKey(row?.username||cleanName):key(row?.username||cleanName);
-        const existing=qmWatcherProfileCache.get(cacheKey)||{};
-        qmWatcherProfileCache.set(cacheKey,{...existing,username:row?.username||cleanName,favourite_quidditch_tcg_card:profileCard,favourite_rcg_slab_id:slabId,favourite_rcg_grade:Number(row?.favourite_slab_grade)||null,favourite_rcg_certification:row?.favourite_slab_certification||null});
-      }
+      setCachedFavourite(row?.username||cleanName,favourite,{
+        slabId,
+        cardId:profileCard,
+        grade:Number(row?.favourite_slab_grade)||null,
+        certification:row?.favourite_slab_certification||null
+      });
       return favourite;
     }catch(error){
       console.warn('Favourite Quidditch TCG card unavailable:',error);
@@ -20144,6 +20175,11 @@ qmShowSharedGoal=function(state){
   window.repoTcgGetFavouriteCard=function(username){
     const cardId=favouriteByUser.get(key(username))||null;
     return cards[cardId]||null;
+  };
+  window.repoTcgGetFavouriteDisplay=function(username){
+    const display=favouriteDisplayByUser.get(key(username))||null;
+    if(!display?.card)return null;
+    return {...display,card:display.card};
   };
   window.repoTcgLoadFavouriteCard=async function(username,options={}){
     const cleanName=String(username||character?.username||'').trim();
@@ -34041,29 +34077,54 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   function passportCurrentFavouriteCard(){
     try{
       const user=passportCurrentUsername();
+      const display=typeof window.repoTcgGetFavouriteDisplay==='function'?window.repoTcgGetFavouriteDisplay(user):null;
+      if(display?.card){
+        const card=display.card;
+        const rarity=String(card.rarity||'').replace(/_/g,' ').toUpperCase()||'Collected card';
+        return {
+          image:card.image||'assets/quidditch-tcg/card-back.png',
+          name:card.name||'Favourite card',
+          meta:display.isSlab?`RCG ${Number(display.grade)||'?'} · GRADED SLAB`:rarity,
+          isSlab:Boolean(display.isSlab),
+          grade:display.grade||null
+        };
+      }
       const live=typeof window.repoTcgGetFavouriteCard==='function'?window.repoTcgGetFavouriteCard(user):null;
       const card=live||passportFavouriteCardCache;
       if(card){
         const rarity=String(card.rarity||'').replace(/_/g,' ').toUpperCase()||'Collected card';
-        return {image:card.image||'assets/quidditch-tcg/card-back.png',name:card.name||'Favourite card',meta:rarity};
+        return {image:card.image||'assets/quidditch-tcg/card-back.png',name:card.name||'Favourite card',meta:rarity,isSlab:false,grade:null};
+      }
+      // Fallback for an RCG favourite already present in the shared public profile
+      // cache before the favourite-card module has finished its own load.
+      const cacheKey=typeof qmWatcherKey==='function'?qmWatcherKey(user):passportUserKey(user);
+      const profile=typeof qmWatcherProfileCache!=='undefined'?qmWatcherProfileCache.get(cacheKey):null;
+      if(profile?.favourite_rcg_slab_id&&profile?.favourite_quidditch_tcg_card){
+        const slabCard=typeof window.repoTcgCardById==='function'?window.repoTcgCardById(profile.favourite_quidditch_tcg_card):null;
+        if(slabCard)return {image:slabCard.image||'assets/quidditch-tcg/card-back.png',name:slabCard.name||'Favourite card',meta:`RCG ${Number(profile?.favourite_rcg_grade)||'?'} · GRADED SLAB`,isSlab:true,grade:Number(profile?.favourite_rcg_grade)||null};
       }
     }catch(_){}
-    return {image:'assets/quidditch-tcg/card-back.png',name:'No favourite card',meta:'Set one in your binder'};
+    return {image:'assets/quidditch-tcg/card-back.png',name:'No favourite card',meta:'Set one in your binder',isSlab:false,grade:null};
   }
   function passportEnsureFavouriteCard(user){
     const clean=String(user||'').trim();
     if(!clean||typeof window.repoTcgLoadFavouriteCard!=='function')return;
+    const display=typeof window.repoTcgGetFavouriteDisplay==='function'?window.repoTcgGetFavouriteDisplay(clean):null;
+    if(display?.card){passportFavouriteCardCache=display.card;return}
     const cached=typeof window.repoTcgGetFavouriteCard==='function'?window.repoTcgGetFavouriteCard(clean):null;
     if(cached){passportFavouriteCardCache=cached;return}
-    // A loaded account with no favourite is a valid cached result. Previously
-    // null meant both 'not loaded' and 'no favourite', causing the passport to
-    // start another RPC after every render and then render again on completion.
-    if(typeof window.repoTcgFavouriteLoaded==='function'&&window.repoTcgFavouriteLoaded(clean)){passportFavouriteCardCache=null;return}
+    // Loaded with no raw favourite may still mean an RCG slab is the favourite.
+    // The display cache above handles that; only stop here when no display exists.
+    if(typeof window.repoTcgFavouriteLoaded==='function'&&window.repoTcgFavouriteLoaded(clean)){
+      passportFavouriteCardCache=null;
+      return;
+    }
     const userKey=passportUserKey(clean);
     if(passportFavouriteLoadingFor===userKey)return;
     passportFavouriteLoadingFor=userKey;
     window.repoTcgLoadFavouriteCard(clean).then(card=>{
-      passportFavouriteCardCache=card||null;
+      const loadedDisplay=typeof window.repoTcgGetFavouriteDisplay==='function'?window.repoTcgGetFavouriteDisplay(clean):null;
+      passportFavouriteCardCache=loadedDisplay?.card||card||null;
       passportFavouriteLoadingFor='';
       renderRepoPassportPanel();
     }).catch(()=>{passportFavouriteLoadingFor=''});
@@ -34270,7 +34331,11 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
 
     const card = passportCurrentFavouriteCard();
     const cardImg = passportEl('passportFavouriteCardImage');
-    if(cardImg) { cardImg.src = card.image; cardImg.alt = card.name; }
+    if(cardImg) {
+      cardImg.src = card.image;
+      cardImg.alt = card.isSlab?`${card.name} — RCG ${Number(card.grade)||'?'} graded slab`:card.name;
+      cardImg.closest('.passport-favourite-card, .passport-favourite-value, .passport-favourite')?.classList.toggle('is-rcg-slab-favourite',Boolean(card.isSlab));
+    }
     setText('passportFavouriteCardName', card.name);
     setText('passportFavouriteCardMeta', card.meta);
 
@@ -34306,8 +34371,9 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   window.addEventListener('repo-tcg-favourite-changed',event=>{
     const changedUser=String(event?.detail?.username||'');
     if(passportUserKey(changedUser)!==passportUserKey(passportCurrentUsername()))return;
+    const display=typeof window.repoTcgGetFavouriteDisplay==='function'?window.repoTcgGetFavouriteDisplay(changedUser):null;
     const cardId=event?.detail?.cardId||null;
-    passportFavouriteCardCache=typeof window.repoTcgCardById==='function'?window.repoTcgCardById(cardId):null;
+    passportFavouriteCardCache=display?.card||(typeof window.repoTcgCardById==='function'?window.repoTcgCardById(cardId):null);
     renderRepoPassportPanel();
   });
   window.addEventListener('repo-tcg-own-collection-changed',()=>renderRepoPassportPanel());
