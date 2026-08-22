@@ -1,0 +1,23 @@
+Dragonbound V33.00 — Command Menu Hotfix & Premium Training UI
+22 August 2026
+
+FIXED
+- Fixed the Commands launcher being visible but not clickable.
+- Root cause: the Dragonbound home scene intentionally uses pointer-events:none and the new launcher did not opt back into pointer hit testing.
+- The launcher now explicitly uses pointer-events:auto and stops the home scene from swallowing its click.
+- Command overlay creation is now independent from launcher creation, so losing/recreating one DOM node cannot strand the other.
+- Command overlay is mounted to document.body and uses a fixed viewport layer, avoiding home-scene overflow / stacking-context problems.
+- Command menu automatically closes when home commands are no longer valid (Build Mode / visiting / leaving the home).
+- Relaxed the brittle stage-class dependency: own-home visibility + active actor is now the authoritative open condition, with visit/build safety guards retained.
+
+UI POLISH
+- Replaced the chunky brown-looking launcher with a premium dark-teal Dragonbound training control.
+- Added a custom line-signal training icon, restrained gold/green accents, clearer typography and a small directional affordance.
+- Added proper hover/focus/pressed states while avoiding generic browser-button styling.
+- Kept the launcher compact so it does not dominate the room scene.
+
+UNCHANGED
+- Command learning/proficiency, Bond/personality modifiers and anti-spam cooldowns.
+- Sims-style needs and V32.98 3x decay.
+- Daily Life, furniture interactions, Build Mode dragging and baby-era growth lock.
+- No Supabase migration required.

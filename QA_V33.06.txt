@@ -1,0 +1,9 @@
+V33.06 QA
+- bedroom.js passes node syntax check.
+- 6 exact account mappings verified.
+- 120 isolated keeper frames generated (20 per account).
+- every keeper frame has visible alpha content.
+- continuous character clamp no longer calls furniture snap().
+- hover cleanup override present.
+- index.html cache bust updated to V33.06.
+- no Supabase schema change required.

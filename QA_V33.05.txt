@@ -1,0 +1,7 @@
+QA checklist
+- bedroom.js syntax checked with node -c
+- six keeper sheets copied into assets/bedroom/keepers/
+- hover override appended to bedroom.css
+- right-click put-away handler added for edit mode
+- player movement loop added (WASD/arrow keys)
+- interaction prompt + E interaction added

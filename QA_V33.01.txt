@@ -1,0 +1,35 @@
+Dragonbound V33.01 QA Report
+Date: 2026-08-22
+
+AUTOMATED / STATIC CHECKS
+PASS — node --check script.js
+PASS — node --check dragonbound-baby-engine.js
+PASS — node --check dragonbound-furniture.js
+PASS — node --check dragonbound-commands.js
+PASS — FURNITURE_CATALOG_V32.66.json parses successfully
+PASS — furniture catalog contains 330 items
+PASS — command script version bumped to v33-01-command-ux-hotfix-20260822
+PASS — launcher is mounted to document.body rather than the home scene
+PASS — pointer capture + movement tolerance is present on launcher
+PASS — accepted normal commands auto-close the command menu
+PASS — Go to Furniture closes after a target is selected
+PASS — live listening/queue HUD exists
+PASS — queued-next-command feedback exists
+PASS — command-specific action status text exists
+PASS — launcher/menu CSS replaced with premium dark-teal treatment
+PASS — index.html cache-busts V33.01 command CSS and JS
+
+MANUAL BROWSER CHECKS TO DO FIRST ON DEPLOY
+1. Click the Commands launcher rapidly and from different parts of the button; confirm every deliberate click opens/closes once with no flicker or missed hit.
+2. Confirm launcher remains visually attached to the bottom-left of each starter house at 1920x1080 and 1366x768.
+3. Select Come Here. Confirm menu closes immediately and the top-centre feedback says the dragon is listening.
+4. Issue a command while the dragon is in an unsafe flight/stair transition. Confirm COMMAND QUEUED appears and the cue starts when safe.
+5. Open Commands while one cue is active and select a second. Confirm NEXT · <command> appears and only one pending command is retained.
+6. Select Go to Furniture. Confirm chooser stays open until a furnishing is selected, then closes.
+7. Click a locked command. Confirm the menu stays open and the requirement remains readable.
+8. Check Commands & Tricks visual quality at common desktop resolutions and confirm no brown-card regression or overlapping launcher typography.
+9. Enter Build Mode / Travel / another Keeper's house and confirm launcher/HUD hide and command state cleans up correctly.
+10. Re-test Fetch, Go to Bed, Bath Time, Tiny Flame and Fly to Perch for physical behaviour regressions.
+
+LIMITATION
+No interactive browser renderer was available for reliable visual QA in this environment, so visual browser testing is not claimed. The release was validated through syntax, data, targeted static checks and package integrity.

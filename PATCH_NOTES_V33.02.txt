@@ -1,0 +1,44 @@
+V33.02 — MY BEDROOM / HUMAN KEEPER ROOM
+=========================================
+
+PATCH TYPE
+- Small overlay patch for V33.01+.
+- This is NOT a full 60–70 MB project archive.
+- Overlay these files onto the existing site.
+
+WHAT'S NEW
+- Added the supplied My Bedroom button to the Dragonbound home sidebar area.
+- My Bedroom opens a completely separate human/keeper bedroom screen.
+- Dragonbound dragons are deliberately excluded from this room and cannot use its furniture.
+- Added all 4 supplied room designs, all FREE:
+  * Nordic Timber
+  * Lakeside Stone
+  * Terracotta Artisan
+  * Midnight Dragon
+- Added a bedroom-only Free Furniture Shop containing all 36 supplied sprites.
+- No Keeper Marks and no GP are charged.
+- Furniture can be placed multiple times, selected, flipped, put away and directly dragged while Edit Room is active.
+- Rugs render below furniture and do not block other pieces.
+- Wall-style furniture is constrained to a safe strip near the back wall.
+- Placement uses a hidden snap grid, floor bounds and simple footprint overlap rejection.
+- Room selection and furniture placement auto-save.
+
+FUTURE CAT / DOG PREPARATION
+- The 4 supplied dragon_nest assets are exposed as Future Pet Care "Pet Nest" items.
+- Feeding Station and Scratching Perch are also in Future Pet Care.
+- They are decorative/reserved right now; no dragon enters the bedroom.
+- Metadata is kept separate so a future bedroom cat/dog can use these without touching Dragonbound's dragon AI.
+
+PERSISTENCE
+- Local fallback key: velmoraBedroom:v1:<username>
+- Live Supabase table: public.player_bedrooms
+- Live RPCs:
+  * get_my_bedroom()
+  * save_my_bedroom(p_room_id, p_placements)
+- Saved placement shape:
+  { id, assetId, x, y, flipped, scale }
+- Room save is completely separate from Dragonbound dragon memory/furniture/wallets.
+
+LIVE BACKEND
+- Migration velmora_v3302_player_bedroom applied successfully to project hvdrwmjieguurxvrgzfu.
+- No existing balances, dragons or furniture were modified.

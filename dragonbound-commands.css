@@ -1,0 +1,245 @@
+/* Dragonbound V33.01 — Command UX hotfix + premium training presentation */
+
+/* --------------------------------------------------------------------------
+   Floating launcher
+   Kept on document.body rather than inside the home scene so house pointer,
+   transform and overflow rules cannot steal the click target.
+   -------------------------------------------------------------------------- */
+.dragonbound-command-button{
+  position:fixed!important;
+  z-index:2147480900!important;
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr) 16px!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:190px!important;
+  min-width:190px!important;
+  height:56px!important;
+  margin:0!important;
+  padding:7px 10px 7px 8px!important;
+  border:1px solid rgba(218,196,128,.36)!important;
+  border-radius:12px!important;
+  background:rgba(5,27,26,.94)!important;
+  box-shadow:0 14px 32px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.045),0 0 0 1px rgba(89,133,112,.06)!important;
+  color:#f0e4c4!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  text-align:left!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  transform:translateZ(0)!important;
+  transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,background .14s ease!important;
+}
+.dragonbound-command-button::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:3px;
+  background:linear-gradient(180deg,rgba(226,202,126,.18),#d9bd6f 52%,rgba(123,169,143,.24));
+  pointer-events:none;
+}
+.dragonbound-command-button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(105deg,transparent 0 66%,rgba(255,255,255,.035) 67%,transparent 88%);
+  pointer-events:none;
+}
+.dragonbound-command-button:hover,
+.dragonbound-command-button:focus-visible{
+  transform:translateY(-1px)!important;
+  border-color:rgba(232,205,127,.65)!important;
+  background:rgba(7,35,33,.97)!important;
+  box-shadow:0 17px 38px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055),0 0 0 2px rgba(111,161,136,.06)!important;
+  outline:none!important;
+}
+.dragonbound-command-button:active{transform:translateY(0) scale(.992)!important}
+.dragonbound-command-button[disabled]{opacity:.45!important;pointer-events:none!important;cursor:default!important}
+.dragonbound-command-button.is-command-active{border-color:rgba(118,186,151,.58)!important;box-shadow:0 15px 34px rgba(0,0,0,.44),0 0 0 2px rgba(82,156,121,.08),inset 0 1px 0 rgba(255,255,255,.05)!important}
+.dragonbound-command-button.is-command-queued{border-color:rgba(214,183,101,.58)!important}
+.dragonbound-command-button-icon{
+  position:relative;
+  z-index:1;
+  display:grid!important;
+  place-items:center!important;
+  width:36px!important;
+  height:36px!important;
+  margin:0!important;
+  border:1px solid rgba(205,186,127,.18)!important;
+  border-radius:9px!important;
+  background:rgba(255,255,255,.035)!important;
+  color:#d8be73!important;
+}
+.dragonbound-command-button-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+.dragonbound-command-button.is-command-active .dragonbound-command-button-icon{color:#9bcbb2!important;border-color:rgba(137,196,163,.28)!important}
+.dragonbound-command-button-copy{position:relative;z-index:1;min-width:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:3px!important;margin:0!important}
+.dragonbound-command-button-copy small{display:block!important;margin:0!important;color:#8db3a2!important;font:850 7.5px/1 "Nunito",system-ui,sans-serif!important;letter-spacing:.15em!important;text-transform:uppercase!important;white-space:nowrap!important}
+.dragonbound-command-button-copy strong{display:block!important;margin:0!important;color:#f1e4c2!important;font:800 16px/1 Georgia,serif!important;letter-spacing:.005em!important;text-transform:none!important;text-shadow:0 1px 1px rgba(0,0,0,.35)!important;white-space:nowrap!important}
+.dragonbound-command-button-arrow{position:relative;z-index:1;display:grid!important;place-items:center!important;width:16px!important;height:30px!important;margin:0!important;color:#cdb36c!important;font:500 24px/1 Georgia,serif!important;opacity:.72!important;transition:transform .14s ease,opacity .14s ease!important}
+.dragonbound-command-button:hover .dragonbound-command-button-arrow{transform:translateX(2px);opacity:1!important}
+
+/* --------------------------------------------------------------------------
+   Immediate command feedback — this is deliberately outside the menu.
+   -------------------------------------------------------------------------- */
+.dragonbound-command-live-hud{
+  position:fixed!important;
+  z-index:2147481000!important;
+  min-height:58px;
+  padding:8px 12px 8px 10px;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  border:1px solid rgba(217,195,129,.28);
+  border-radius:13px;
+  background:rgba(5,25,24,.94);
+  box-shadow:0 15px 36px rgba(0,0,0,.44),inset 0 1px 0 rgba(255,255,255,.045);
+  color:#eadfbe;
+  pointer-events:none;
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+  animation:dragonCommandHudIn .16s ease both;
+}
+.dragonbound-command-live-hud[hidden]{display:none!important}
+.dragonbound-command-live-hud.is-listening{border-color:rgba(127,190,158,.4)}
+.dragonbound-command-live-hud.is-success{border-color:rgba(154,202,166,.44)}
+.dragonbound-command-live-pulse{display:flex;align-items:center;justify-content:center;gap:3px;width:38px;height:38px;border:1px solid rgba(137,190,164,.16);border-radius:50%;background:rgba(104,163,134,.07)}
+.dragonbound-command-live-pulse i{display:block;width:3px;height:11px;border-radius:99px;background:#90bea7;opacity:.72;animation:dragonCommandListen .9s ease-in-out infinite alternate}
+.dragonbound-command-live-pulse i:nth-child(2){height:18px;animation-delay:.12s}.dragonbound-command-live-pulse i:nth-child(3){height:8px;animation-delay:.24s}
+.dragonbound-command-live-hud.is-success .dragonbound-command-live-pulse i{animation:none;height:4px;background:#b9d5b9}.dragonbound-command-live-hud.is-success .dragonbound-command-live-pulse i:nth-child(2){height:13px;transform:rotate(40deg);transform-origin:bottom}.dragonbound-command-live-hud.is-success .dragonbound-command-live-pulse i:nth-child(1){height:7px;transform:rotate(-42deg);transform-origin:bottom}
+.dragonbound-command-live-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+.dragonbound-command-live-copy small{font:850 7.5px/1 "Nunito",system-ui,sans-serif;letter-spacing:.14em;color:#86ad9c;text-transform:uppercase}
+.dragonbound-command-live-copy strong{font:800 15px/1.06 Georgia,serif;color:#f0e4c3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dragonbound-command-live-copy>span{font:750 9.5px/1.2 "Nunito",system-ui,sans-serif;color:#b7c5b9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dragonbound-command-live-next{max-width:118px;padding:5px 7px;border-radius:7px;background:rgba(215,188,111,.08);color:#d8c17d;font:850 7.5px/1.15 "Nunito",system-ui,sans-serif;letter-spacing:.07em;text-align:center;text-transform:uppercase}
+
+/* --------------------------------------------------------------------------
+   Overlay + premium command panel
+   -------------------------------------------------------------------------- */
+body.dragonbound-command-menu-open{overflow:hidden}
+.dragonbound-command-overlay{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147481200!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:clamp(16px,3vh,32px) clamp(12px,3vw,36px)!important;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .16s ease,visibility .16s ease;
+}
+.dragonbound-command-overlay.is-visible{opacity:1;visibility:visible;pointer-events:auto!important}
+.dragonbound-command-backdrop{position:absolute;inset:0;background:rgba(1,9,10,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.dragonbound-command-panel{
+  position:relative;
+  width:min(860px,94vw);
+  max-height:min(780px,91vh);
+  overflow:auto;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(196,176,116,.35) transparent;
+  border:1px solid rgba(194,176,119,.28);
+  border-radius:20px;
+  background:linear-gradient(180deg,#0a2321 0%,#071b1a 56%,#061716 100%);
+  box-shadow:0 28px 90px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.045),inset 0 0 0 1px rgba(93,137,116,.05);
+  padding:20px;
+  color:#e9dfc3;
+}
+.dragonbound-command-panel::before{content:"";position:absolute;left:20px;right:20px;top:0;height:2px;background:linear-gradient(90deg,transparent,rgba(218,191,111,.72),rgba(107,160,134,.55),transparent);opacity:.78;pointer-events:none}
+.dragonbound-command-panel-head{display:grid;grid-template-columns:48px minmax(0,1fr) 40px;gap:13px;align-items:start;padding:5px 2px 16px;border-bottom:1px solid rgba(205,190,141,.11)}
+.dragonbound-command-panel-mark{display:grid;place-items:center;width:46px;height:46px;border:1px solid rgba(210,188,120,.2);border-radius:12px;background:rgba(255,255,255,.03);color:#d9bc69}
+.dragonbound-command-panel-mark svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+.dragonbound-command-panel-head>div{min-width:0;padding-top:1px}
+.dragonbound-command-panel-head small{display:block;margin:0 0 4px;color:#83aa99;font:850 8px/1 "Nunito",system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.dragonbound-command-panel-head h2{margin:0;color:#f2e5c5;font:800 clamp(25px,3vw,34px)/1 Georgia,serif;letter-spacing:-.015em}.dragonbound-command-panel-head h2 span{color:#a6b9a9;font-weight:500}
+.dragonbound-command-panel-head p{margin:6px 0 0;color:#a9bbb0;font:700 10.5px/1.35 "Nunito",system-ui,sans-serif}
+.dragonbound-command-panel-head [data-command-close]{display:grid;place-items:center;width:36px;height:36px;margin:0;border:1px solid rgba(208,188,125,.2);border-radius:10px;background:rgba(255,255,255,.025);color:#d8c17a;font:500 23px/1 Georgia,serif;cursor:pointer;transition:background .13s ease,border-color .13s ease,transform .13s ease}
+.dragonbound-command-panel-head [data-command-close]:hover{background:rgba(214,190,116,.08);border-color:rgba(226,201,126,.4);transform:translateY(-1px)}
+
+.dragonbound-command-status{display:flex;align-items:center;gap:10px;min-height:54px;margin:14px 0 12px;padding:8px 10px;border:1px solid rgba(132,176,154,.13);border-radius:11px;background:rgba(95,145,120,.055)}
+.dragonbound-command-status-avatar,.dragonbound-command-status-dot{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(178,196,173,.16);background:rgba(255,255,255,.035);color:#d5c381;font:800 15px/1 Georgia,serif}
+.dragonbound-command-status-dot{position:relative;font-size:0}.dragonbound-command-status-dot::before{content:"";width:8px;height:8px;border-radius:50%;background:#91bea6;box-shadow:0 0 0 5px rgba(121,183,151,.09);animation:dragonCommandDot 1s ease-in-out infinite alternate}
+.dragonbound-command-status>div{min-width:0;display:grid;grid-template-columns:auto 1fr;column-gap:8px;row-gap:2px;align-items:baseline}.dragonbound-command-status>div small{grid-column:1/-1;color:#7fa997;font:850 7.5px/1 "Nunito",system-ui,sans-serif;letter-spacing:.13em}.dragonbound-command-status>div strong{color:#eadfbe;font:800 13px/1.1 Georgia,serif}.dragonbound-command-status>div span{min-width:0;color:#a8bbb0;font:700 9.5px/1.2 "Nunito",system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dragonbound-command-section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:14px 2px 8px}.dragonbound-command-section-head span{color:#cdbb86;font:900 8px/1 "Nunito",system-ui,sans-serif;letter-spacing:.17em}.dragonbound-command-section-head small{color:#718f82;font:700 8.5px/1.1 "Nunito",system-ui,sans-serif;text-align:right}
+
+.dragonbound-command-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dragonbound-command-card{
+  position:relative;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) 14px;
+  gap:9px;
+  align-items:center;
+  min-height:94px;
+  padding:10px;
+  border:1px solid rgba(198,213,204,.09);
+  border-radius:11px;
+  background:rgba(255,255,255,.026);
+  color:#e8ddbd;
+  cursor:pointer;
+  text-align:left;
+  overflow:hidden;
+  transition:transform .13s ease,border-color .13s ease,background .13s ease,box-shadow .13s ease;
+}
+.dragonbound-command-card::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:2px;border-radius:99px;background:#cbb16b;opacity:.28}
+.dragonbound-command-card:hover{transform:translateY(-2px);border-color:rgba(219,196,126,.29);background:rgba(108,151,128,.07);box-shadow:0 10px 24px rgba(0,0,0,.2)}
+.dragonbound-command-card:focus-visible{outline:2px solid rgba(145,190,166,.44);outline-offset:2px}
+.dragonbound-command-card.is-locked{cursor:default;opacity:.48;filter:saturate(.72)}.dragonbound-command-card.is-locked:hover{transform:none;border-color:rgba(198,213,204,.09);background:rgba(255,255,255,.026);box-shadow:none}.dragonbound-command-card.is-locked::before{background:#809087;opacity:.18}
+.dragonbound-command-card.is-mastered::before{background:#8fc3a5;opacity:.7}
+.dragonbound-command-card-icon{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(198,190,145,.14);border-radius:9px;background:rgba(255,255,255,.03);color:#d7c17d;font:800 13px/1 Georgia,serif}
+.dragonbound-command-card-copy{min-width:0;display:flex;flex-direction:column;gap:5px}
+.dragonbound-command-card-top{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}.dragonbound-command-card-top strong{min-width:0;color:#efe3c4;font:850 11.5px/1.1 "Nunito",system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dragonbound-command-card-top em{flex:none;padding:3px 5px;border:1px solid rgba(128,173,151,.15);border-radius:999px;background:rgba(103,153,128,.07);color:#8eb39f;font:850 6.8px/1 "Nunito",system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;font-style:normal}
+.dragonbound-command-card-copy>small{min-height:22px;color:#94a99d;font:700 8.5px/1.28 "Nunito",system-ui,sans-serif;overflow-wrap:anywhere}
+.dragonbound-command-progress{display:block;width:100%;height:3px;border-radius:99px;background:rgba(225,221,190,.075);overflow:hidden}.dragonbound-command-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#668f78,#b8a968)}
+.dragonbound-command-card-copy>b{color:#817e69;font:800 7.4px/1.15 "Nunito",system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dragonbound-command-card-arrow{color:#7d9b8d;font:500 19px/1 Georgia,serif;opacity:.56;transition:transform .13s ease,opacity .13s ease}.dragonbound-command-card:hover .dragonbound-command-card-arrow{transform:translateX(2px);opacity:.95}
+.dragonbound-command-card.is-locked .dragonbound-command-card-arrow{opacity:.12}
+
+.dragonbound-command-panel>footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:10px 2px 1px;border-top:1px solid rgba(205,190,141,.1)}.dragonbound-command-panel>footer>span{color:#7f998d;font:700 8.5px/1.3 "Nunito",system-ui,sans-serif}.dragonbound-command-panel [data-command-cancel]{flex:none;padding:7px 9px;border:1px solid rgba(202,170,113,.18);border-radius:8px;background:rgba(202,170,113,.045);color:#d7bf87;font:800 8px/1 "Nunito",system-ui,sans-serif;cursor:pointer}.dragonbound-command-panel [data-command-cancel]:hover{border-color:rgba(217,188,127,.38);background:rgba(202,170,113,.08)}
+
+/* Furniture chooser used by Go to Furniture. */
+.dragonbound-command-furniture-picker{position:absolute;inset:74px 18px 18px;z-index:4;padding:16px;border:1px solid rgba(207,187,124,.2);border-radius:14px;background:rgba(5,24,23,.985);box-shadow:0 18px 48px rgba(0,0,0,.48);overflow:auto}.dragonbound-command-furniture-picker[hidden]{display:none!important}.dragonbound-command-furniture-picker>div:first-child{display:flex;justify-content:space-between;align-items:center}.dragonbound-command-furniture-picker>div:first-child strong{font:800 18px/1 Georgia,serif;color:#eee0bc}.dragonbound-command-furniture-picker>div:first-child button{width:32px;height:32px;border:1px solid rgba(208,188,125,.2);border-radius:8px;background:rgba(255,255,255,.03);color:#d9c17a;cursor:pointer}.dragonbound-command-furniture-picker>p{margin:7px 0 12px;color:#91a99d;font:700 9.5px/1.3 "Nunito",system-ui,sans-serif}.dragonbound-command-furniture-picker>div:last-child{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.dragonbound-command-furniture-picker [data-picker-placement]{display:flex;flex-direction:column;gap:3px;padding:9px;border:1px solid rgba(197,211,203,.09);border-radius:9px;background:rgba(255,255,255,.025);color:#e8ddbd;text-align:left;cursor:pointer}.dragonbound-command-furniture-picker [data-picker-placement]:hover{border-color:rgba(220,193,123,.3);background:rgba(104,153,129,.07)}.dragonbound-command-furniture-picker [data-picker-placement] span{font:800 9.5px/1.15 "Nunito",system-ui,sans-serif}.dragonbound-command-furniture-picker [data-picker-placement] small{font:700 8px/1 "Nunito",system-ui,sans-serif;color:#819f91;text-transform:capitalize}
+
+/* In-world text / reaction FX */
+.dragonbound-command-float{position:absolute;left:50%;bottom:calc(var(--dragon-tooltip-lift,70px) + 8px);transform:translateX(-50%);z-index:999999;max-width:220px;padding:6px 9px;border:1px solid rgba(215,192,132,.24);border-radius:9px;background:rgba(5,26,25,.94);box-shadow:0 8px 20px rgba(0,0,0,.3);color:#ebdfc1;font:800 9px/1.22 "Nunito",system-ui,sans-serif;text-align:center;white-space:nowrap;pointer-events:none;animation:dragonCommandFloat 2.6s ease both}.dragonbound-command-float.is-success{border-color:rgba(137,196,163,.4);color:#d9eddf}.dragonbound-command-float.is-soft{color:#c8c0a6}.dragonbound-command-float.is-command{color:#e5cc84}
+.dragonbound-command-reaction{position:absolute;left:50%;bottom:calc(var(--dragon-tooltip-lift,70px) - 12px);z-index:999990;width:70px;height:55px;transform:translateX(-50%);pointer-events:none}.dragonbound-command-reaction--roar b{position:absolute;left:45px;top:6px;font:900 10px/1 "Nunito",system-ui,sans-serif;color:#e8c978;animation:dragonRoarWord 1.2s ease both}.dragonbound-command-reaction--roar i{position:absolute;left:43px;top:22px;width:18px;height:1px;background:#d6bf83;box-shadow:5px 5px #d6bf83,7px -5px #d6bf83;animation:dragonRoarLine 1s ease both}.dragonbound-command-reaction--flame i,.dragonbound-command-reaction--smoke i{position:absolute;left:43px;top:24px;width:9px;height:13px;border-radius:60% 40% 65% 35%;background:radial-gradient(circle at 50% 70%,#f4d679 0 28%,#df8449 29% 68%,transparent 70%);transform:rotate(18deg);animation:dragonTinyFlame 1.25s ease both}.dragonbound-command-reaction--flame i:nth-child(2){left:51px;top:19px;animation-delay:.12s}.dragonbound-command-reaction--flame i:nth-child(3){left:57px;top:26px;animation-delay:.22s}.dragonbound-command-reaction--smoke i{background:rgba(194,202,193,.55);border-radius:50%;filter:blur(.5px)}
+
+/* Journal training section — preserve the readable parchment treatment. */
+.dragonbound-my-dragon-commands{margin-top:12px;padding-top:11px;border-top:1px solid rgba(98,66,35,.15)}
+.dragonbound-journal-command-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:7px 0}.dragonbound-journal-command-summary>span{display:flex;flex-direction:column;gap:2px;padding:7px 8px;border:1px solid rgba(79,61,37,.13);border-radius:7px;background:rgba(255,249,225,.26)}.dragonbound-journal-command-summary small{font:800 8.5px/1 "Nunito",system-ui,sans-serif;letter-spacing:.06em;color:#79694c}.dragonbound-journal-command-summary strong{font:800 15px/1 Georgia,serif;color:#3e3525}
+.dragonbound-journal-command-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.dragonbound-journal-command-card{display:grid;grid-template-columns:28px 1fr;gap:7px;align-items:center;min-height:68px;padding:7px 8px;border:1px solid rgba(78,61,37,.14);border-radius:8px;background:rgba(255,250,228,.34);color:#433a2a;text-align:left;cursor:pointer;transition:border-color .14s ease,transform .14s ease,background .14s ease}.dragonbound-journal-command-card:hover,.dragonbound-journal-command-card.is-selected{transform:translateY(-1px);border-color:rgba(72,108,83,.4);background:rgba(235,245,227,.48)}.dragonbound-journal-command-card.is-locked{opacity:.68}.dragonbound-journal-command-card>span{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:rgba(68,92,69,.09);font:800 13px/1 Georgia,serif;color:#4d6b54}.dragonbound-journal-command-card>div{min-width:0;display:flex;flex-direction:column;gap:3px}.dragonbound-journal-command-card strong{font:850 10.5px/1.05 "Nunito",system-ui,sans-serif;color:#423a2c}.dragonbound-journal-command-card small{font:700 8.5px/1.2 "Nunito",system-ui,sans-serif;color:#71644e;overflow-wrap:anywhere}.dragonbound-journal-command-card i{height:3px;border-radius:99px;background:rgba(71,62,43,.12);overflow:hidden}.dragonbound-journal-command-card i em{display:block;height:100%;background:#617d66}.dragonbound-journal-command-card b{font:800 8px/1.1 "Nunito",system-ui,sans-serif;color:#7b6948}.dragonbound-journal-command-detail{margin-top:7px;padding:9px 10px;border-left:3px solid rgba(70,102,76,.52);border-radius:0 7px 7px 0;background:rgba(226,238,218,.32)}.dragonbound-journal-command-detail>small{font:900 8px/1 "Nunito",system-ui,sans-serif;letter-spacing:.09em;color:#708068}.dragonbound-journal-command-detail h4{margin:4px 0 4px;font:800 14px/1 Georgia,serif;color:#3f3828}.dragonbound-journal-command-detail p{margin:0 0 7px;font:700 9.5px/1.35 "Nunito",system-ui,sans-serif;color:#655a46}.dragonbound-journal-command-detail>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.dragonbound-journal-command-detail>div span{display:flex;flex-direction:column;gap:2px;font:700 8.5px/1.25 "Nunito",system-ui,sans-serif;color:#695d47}.dragonbound-journal-command-detail>div b{font-size:8px;color:#4b654f;text-transform:uppercase;letter-spacing:.05em}
+
+@keyframes dragonCommandHudIn{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes dragonCommandListen{from{transform:scaleY(.55);opacity:.45}to{transform:scaleY(1);opacity:1}}
+@keyframes dragonCommandDot{from{opacity:.5;transform:scale(.8)}to{opacity:1;transform:scale(1.08)}}
+@keyframes dragonCommandFloat{0%{opacity:0;transform:translate(-50%,6px)}12%,72%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-8px)}}
+@keyframes dragonRoarWord{0%{opacity:0;transform:scale(.7)}25%{opacity:1;transform:scale(1.08)}100%{opacity:0;transform:translate(12px,-5px)}}
+@keyframes dragonRoarLine{0%{opacity:0;transform:scaleX(.2)}20%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:translateX(14px)}}
+@keyframes dragonTinyFlame{0%{opacity:0;transform:scale(.4) rotate(18deg)}25%{opacity:1;transform:scale(1) rotate(18deg)}100%{opacity:0;transform:translate(18px,-9px) scale(.5) rotate(18deg)}}
+
+@media(max-width:900px){
+  .dragonbound-command-panel{padding:16px}
+  .dragonbound-command-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dragonbound-command-furniture-picker>div:last-child{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dragonbound-journal-command-detail>div{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .dragonbound-command-button{width:174px!important;min-width:174px!important;height:52px!important;grid-template-columns:32px minmax(0,1fr) 14px!important}
+  .dragonbound-command-button-icon{width:32px!important;height:32px!important}
+  .dragonbound-command-button-copy strong{font-size:14px!important}
+  .dragonbound-command-button-copy small{font-size:6.8px!important}
+  .dragonbound-command-panel-head{grid-template-columns:40px minmax(0,1fr) 34px}.dragonbound-command-panel-mark{width:38px;height:38px}
+  .dragonbound-command-grid{grid-template-columns:1fr}
+  .dragonbound-command-card{min-height:82px}
+  .dragonbound-command-furniture-picker>div:last-child{grid-template-columns:1fr}
+  .dragonbound-journal-command-grid{grid-template-columns:1fr}
+  .dragonbound-command-live-next{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragonbound-command-button,.dragonbound-command-card,.dragonbound-journal-command-card,.dragonbound-command-float,.dragonbound-command-live-hud,.dragonbound-command-live-pulse i,.dragonbound-command-status-dot::before,.dragonbound-command-reaction *{animation:none!important;transition:none!important}
+}
+.dragonbound-command-button[hidden]{display:none!important}

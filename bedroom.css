@@ -1,0 +1,746 @@
+/* Velmora — My Bedroom V33.02 */
+.velmora-bedroom-launcher,
+.velmora-bedroom-launcher:hover,
+.velmora-bedroom-launcher:focus,
+.velmora-bedroom-launcher:focus-visible,
+.velmora-bedroom-launcher:active{
+  position:absolute!important;left:calc(100% + 8px)!important;top:2%!important;width:67%!important;height:auto!important;
+  min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;
+  background:transparent!important;background-image:none!important;box-shadow:none!important;appearance:none!important;-webkit-appearance:none!important;
+  z-index:28!important;cursor:pointer!important;overflow:visible!important;pointer-events:auto!important;transform:none!important;
+}
+.velmora-bedroom-launcher::before,.velmora-bedroom-launcher::after{display:none!important;content:none!important}
+.velmora-bedroom-launcher img{display:block;width:100%;height:auto;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 10px 12px rgba(0,0,0,.38));transition:transform .16s ease,filter .16s ease;pointer-events:none}
+.velmora-bedroom-launcher:hover img,.velmora-bedroom-launcher:focus-visible img{transform:translateY(-3px) scale(1.025);filter:drop-shadow(0 13px 16px rgba(0,0,0,.46)) brightness(1.04)}
+.velmora-bedroom-launcher:active img{transform:translateY(0) scale(.985)}
+.dragonbound-home-scene.is-build-editing .velmora-bedroom-launcher,.dragonbound-home-scene.is-build-placing .velmora-bedroom-launcher,.dragonbound-new-game-stage.is-visiting-house .velmora-bedroom-launcher{opacity:0!important;pointer-events:none!important}
+@media(max-width:720px){.velmora-bedroom-launcher,.velmora-bedroom-launcher:hover,.velmora-bedroom-launcher:focus,.velmora-bedroom-launcher:focus-visible,.velmora-bedroom-launcher:active{left:calc(100% + 5px)!important;width:58%!important;top:3%!important}}
+
+body.velmora-bedroom-open{overflow:hidden!important}
+.velmora-bedroom-overlay{position:fixed;inset:0;z-index:100006;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(1,11,12,.42);backdrop-filter:blur(7px);font-family:"Nunito",system-ui,sans-serif;color:#e9eee8}
+.velmora-bedroom-overlay.is-visible{display:flex}
+.velmora-bedroom-backdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,rgba(20,62,54,.23),rgba(1,8,9,.88) 67%,rgba(1,5,7,.97));}
+.velmora-bedroom-app{position:relative;width:min(1480px,97vw);height:min(930px,95vh);min-height:620px;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden;border:1px solid rgba(218,189,103,.35);border-radius:22px;background:linear-gradient(180deg,#0b2924 0,#071d1a 13%,#041411 100%);box-shadow:0 32px 90px rgba(0,0,0,.62),inset 0 1px rgba(255,255,255,.04)}
+.velmora-bedroom-app::before{content:"";position:absolute;inset:8px;border:1px solid rgba(105,157,137,.16);border-radius:15px;pointer-events:none;z-index:9}
+.velmora-bedroom-topbar{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:92px;padding:14px 20px 14px 26px;border-bottom:1px solid rgba(217,188,102,.24);background:linear-gradient(180deg,rgba(13,49,42,.96),rgba(7,29,25,.96))}
+.velmora-bedroom-brand{min-width:220px}.velmora-bedroom-brand small{display:block;margin-bottom:3px;color:#c7aa59;font:900 9px/1.1 system-ui,sans-serif;letter-spacing:.18em}.velmora-bedroom-brand h2{margin:0;color:#f4ecd6;font:800 30px/1 Georgia,serif;letter-spacing:.01em}.velmora-bedroom-brand span{display:block;margin-top:4px;color:#89a89a;font:700 11px/1.15 system-ui,sans-serif}
+.velmora-bedroom-actions{display:flex;align-items:stretch;gap:8px}.velmora-bedroom-action{min-width:142px;min-height:58px;display:grid;grid-template-columns:30px 1fr;grid-template-rows:1fr 1fr;align-items:center;column-gap:8px;padding:8px 12px;border:1px solid rgba(111,162,142,.22);border-radius:11px;background:linear-gradient(180deg,#123a31,#0b2b25);color:#e7eee8;box-shadow:inset 0 1px rgba(255,255,255,.025);cursor:pointer;text-align:left;transition:.15s ease}.velmora-bedroom-action>span{grid-row:1/3;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:rgba(3,17,15,.42);border:1px solid rgba(226,195,105,.22);color:#e8cc76;font:900 15px/1 Georgia,serif}.velmora-bedroom-action b{align-self:end;font:900 11px/1.05 system-ui,sans-serif;letter-spacing:.02em}.velmora-bedroom-action small{align-self:start;color:#87a598;font:750 8.5px/1.1 system-ui,sans-serif}.velmora-bedroom-action:hover,.velmora-bedroom-action:focus-visible{outline:0;border-color:rgba(224,195,106,.54);background:linear-gradient(180deg,#185040,#10392f);transform:translateY(-1px)}.velmora-bedroom-action--shop{border-color:rgba(224,195,106,.42);background:linear-gradient(180deg,#1f5946,#123c32)}.velmora-bedroom-action--edit.is-active{background:linear-gradient(180deg,#715526,#453516);border-color:#ddbd61;color:#fff0bd}.velmora-bedroom-close{width:48px;height:48px;min-width:48px;border:1px solid rgba(224,195,106,.44);border-radius:50%;background:#183a32;color:#f3da8f;font:800 25px/1 Georgia,serif;cursor:pointer;box-shadow:0 7px 18px rgba(0,0,0,.2)}.velmora-bedroom-close:hover,.velmora-bedroom-close:focus-visible{outline:0;background:#285a4a;border-color:#e7c66d}
+
+.velmora-bedroom-main{min-height:0;display:grid;grid-template-rows:minmax(0,1fr) auto;position:relative;z-index:2}.velmora-bedroom-stage-wrap{min-height:0;display:grid;place-items:center;padding:18px 24px 8px;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(35,93,76,.12),transparent 56%)}
+.velmora-bedroom-stage{position:relative;width:min(1180px,100%);aspect-ratio:680/513;max-height:100%;user-select:none;touch-action:none;filter:drop-shadow(0 22px 26px rgba(0,0,0,.32))}
+.velmora-bedroom-room{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;image-rendering:auto}
+.velmora-bedroom-placements{position:absolute;inset:0;pointer-events:none}.velmora-bedroom-placement{position:absolute;width:var(--item-width);height:1px;padding:0;margin:0;border:0;background:transparent;overflow:visible;pointer-events:auto;cursor:default;appearance:none;transform:translate(-50%,0)}.velmora-bedroom-placement img{position:absolute;left:50%;bottom:0;width:100%;height:auto;display:block;pointer-events:none;transform:translateX(-50%) scale(var(--item-scale,1));transform-origin:50% 100%;filter:drop-shadow(0 5px 5px rgba(0,0,0,.25));image-rendering:auto}.velmora-bedroom-placement.is-flipped img{transform:translateX(-50%) scaleX(-1) scale(var(--item-scale,1))}.velmora-bedroom-placement-ring{position:absolute;left:50%;bottom:-6px;width:92%;height:18px;transform:translateX(-50%);border:1px dashed transparent;border-radius:50%;pointer-events:none}.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement{cursor:grab}.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement:active{cursor:grabbing}.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement:hover .velmora-bedroom-placement-ring,.velmora-bedroom-placement.is-selected .velmora-bedroom-placement-ring{border-color:rgba(235,206,116,.78);background:rgba(225,196,102,.08);box-shadow:0 0 13px rgba(225,196,102,.22)}
+.velmora-bedroom-placement-ghost{position:absolute;width:var(--item-width);height:1px;transform:translate(-50%,0);pointer-events:none}.velmora-bedroom-placement-ghost img{position:absolute;left:50%;bottom:0;width:100%;height:auto;transform:translateX(-50%);transform-origin:50% 100%;opacity:.72;filter:drop-shadow(0 5px 6px rgba(0,0,0,.32));}.velmora-bedroom-placement-ghost.is-flipped img{transform:translateX(-50%) scaleX(-1)}.velmora-bedroom-placement-ghost::after{content:"";position:absolute;left:50%;bottom:-8px;width:90%;height:20px;transform:translateX(-50%);border-radius:50%;border:2px solid}.velmora-bedroom-placement-ghost.is-valid::after{border-color:#71d8a7;background:rgba(72,195,137,.18);box-shadow:0 0 16px rgba(77,212,148,.25)}.velmora-bedroom-placement-ghost.is-invalid::after{border-color:#e16f64;background:rgba(216,79,69,.15);box-shadow:0 0 16px rgba(217,81,68,.22)}
+.velmora-bedroom-room-plaque{position:absolute;left:3.6%;bottom:5.2%;z-index:900;min-width:170px;padding:8px 12px;border:1px solid rgba(218,190,103,.38);border-radius:9px;background:rgba(5,28,24,.88);box-shadow:0 8px 18px rgba(0,0,0,.3);pointer-events:none}.velmora-bedroom-room-plaque small{display:block;color:#a1b5ab;font:800 7.5px/1.1 system-ui,sans-serif;letter-spacing:.14em}.velmora-bedroom-room-plaque strong{display:block;margin-top:2px;color:#f0dfaa;font:800 13px/1.05 Georgia,serif}.velmora-bedroom-room-plaque span{display:block;margin-top:3px;color:#78998b;font:750 8.5px/1.1 system-ui,sans-serif}
+.velmora-bedroom-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:56px;padding:9px 26px 13px;border-top:1px solid rgba(99,151,132,.15);background:rgba(3,15,14,.38)}.velmora-bedroom-footer>div{display:flex;flex-direction:column;gap:2px}.velmora-bedroom-footer b{color:#d9e3dc;font:850 10px/1.1 system-ui,sans-serif}.velmora-bedroom-footer span{color:#779487;font:700 9px/1.2 system-ui,sans-serif}.velmora-bedroom-footer>[data-bedroom-save]{padding:6px 9px;border:1px solid rgba(103,153,135,.16);border-radius:999px;color:#98afa4;white-space:nowrap}
+
+.velmora-bedroom-drawer{position:absolute;z-index:60;right:14px;top:104px;bottom:14px;width:min(720px,calc(100% - 28px));display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;transform:translateX(calc(100% + 28px));opacity:0;pointer-events:none;transition:transform .22s ease,opacity .18s ease;border:1px solid rgba(218,190,103,.3);border-radius:16px;background:linear-gradient(180deg,#0a2a24,#061a17 58%,#041411);box-shadow:-22px 22px 52px rgba(0,0,0,.48);overflow:hidden}.velmora-bedroom-drawer.is-visible{transform:translateX(0);opacity:1;pointer-events:auto}.velmora-bedroom-drawer>header{display:flex;justify-content:space-between;gap:18px;padding:20px 21px 15px;border-bottom:1px solid rgba(107,158,140,.16);background:linear-gradient(180deg,rgba(21,67,55,.58),rgba(7,30,26,.2))}.velmora-bedroom-drawer>header small{color:#ceb061;font:900 8px/1 system-ui,sans-serif;letter-spacing:.17em}.velmora-bedroom-drawer>header h3{margin:4px 0 5px;color:#f4eddc;font:800 25px/1 Georgia,serif}.velmora-bedroom-drawer>header p{margin:0;color:#90a99e;font:700 10px/1.35 system-ui,sans-serif}.velmora-bedroom-drawer>header button{width:38px;height:38px;min-width:38px;border:1px solid rgba(216,188,102,.34);border-radius:50%;background:#12362e;color:#efd88d;font:800 20px/1 Georgia,serif;cursor:pointer}.velmora-bedroom-drawer>header button:hover{background:#1e5042}
+.velmora-bedroom-shop-controls{padding:12px 15px 8px;border-bottom:1px solid rgba(96,143,127,.12)}.velmora-bedroom-shop-controls label{height:39px;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid rgba(104,155,137,.2);border-radius:9px;background:#061d19}.velmora-bedroom-shop-controls label span{color:#80a293}.velmora-bedroom-shop-controls input{width:100%;border:0;outline:0;background:transparent;color:#e6eee8;font:750 10px/1 system-ui,sans-serif}.velmora-bedroom-shop-controls input::placeholder{color:#68877a}.velmora-bedroom-shop-controls nav{display:flex;gap:5px;margin-top:8px;overflow-x:auto;padding-bottom:2px}.velmora-bedroom-shop-controls nav button{flex:0 0 auto;padding:6px 9px;border:1px solid rgba(103,154,136,.16);border-radius:999px;background:#0a2923;color:#8fa99e;font:800 8px/1 system-ui,sans-serif;cursor:pointer}.velmora-bedroom-shop-controls nav button.is-active,.velmora-bedroom-shop-controls nav button:hover{border-color:rgba(220,191,104,.46);background:#183e34;color:#ecd99b}
+.velmora-bedroom-shop-grid{min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:12px 14px 16px;align-content:start}.velmora-bedroom-shop-card{min-width:0;display:grid;grid-template-rows:112px auto 38px;border:1px solid rgba(101,151,134,.16);border-radius:12px;background:linear-gradient(180deg,#0a2923,#071e1a);overflow:hidden}.velmora-bedroom-shop-card.is-future-pet{border-color:rgba(116,146,174,.22)}.velmora-bedroom-shop-image{display:grid;place-items:center;min-height:0;padding:8px;background:radial-gradient(circle at 50% 75%,rgba(79,132,110,.15),transparent 58%)}.velmora-bedroom-shop-image img{display:block;max-width:90%;max-height:96px;object-fit:contain;filter:drop-shadow(0 6px 6px rgba(0,0,0,.3))}.velmora-bedroom-shop-card-copy{min-width:0;padding:8px 10px 9px}.velmora-bedroom-shop-card-copy small{display:block;color:#9e8e57;font:900 7px/1 system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase}.velmora-bedroom-shop-card-copy strong{display:block;min-height:27px;margin-top:4px;color:#e7ece7;font:850 11px/1.2 system-ui,sans-serif}.velmora-bedroom-shop-card-copy span{display:block;margin-top:2px;color:#719083;font:700 8px/1.2 system-ui,sans-serif}.velmora-bedroom-shop-card>button{display:flex;align-items:center;justify-content:space-between;padding:0 10px;border:0;border-top:1px solid rgba(105,155,137,.15);background:#123b31;color:#e9efe9;cursor:pointer}.velmora-bedroom-shop-card>button:hover{background:#1d5645}.velmora-bedroom-shop-card>button b{font:900 9px/1 system-ui,sans-serif}.velmora-bedroom-shop-card>button small{padding:3px 6px;border-radius:999px;background:rgba(226,198,108,.12);color:#e8cf7d;font:900 7px/1 system-ui,sans-serif}.velmora-bedroom-drawer>footer{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:10px 16px;border-top:1px solid rgba(101,151,134,.13);background:#051814;color:#758f84;font:700 8.5px/1.25 system-ui,sans-serif}.velmora-bedroom-drawer>footer b{color:#e2c96f;font:900 10px/1 system-ui,sans-serif}
+.velmora-bedroom-empty{grid-column:1/-1;padding:28px;text-align:center;color:#819b8f;border:1px dashed rgba(109,158,141,.2);border-radius:10px}
+
+.velmora-bedroom-room-drawer{grid-template-rows:auto minmax(0,1fr)}.velmora-bedroom-room-grid{min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:15px}.velmora-bedroom-room-card{padding:0;border:1px solid rgba(104,155,137,.2);border-radius:12px;background:#071f1b;color:#e8eee9;overflow:hidden;text-align:left;cursor:pointer;transition:.15s ease}.velmora-bedroom-room-card:hover{transform:translateY(-2px);border-color:rgba(218,189,103,.48);background:#0a2a24}.velmora-bedroom-room-card.is-active{border-color:#d9bd68;box-shadow:0 0 0 2px rgba(217,189,104,.1)}.velmora-bedroom-room-card img{display:block;width:100%;aspect-ratio:680/513;object-fit:cover;background:#051410}.velmora-bedroom-room-card>span{display:block;padding:10px 11px 12px}.velmora-bedroom-room-card small{display:block;color:#bca55e;font:900 7px/1 system-ui,sans-serif;letter-spacing:.12em}.velmora-bedroom-room-card strong{display:block;margin-top:4px;color:#f0eadb;font:800 14px/1.1 Georgia,serif}.velmora-bedroom-room-card em{display:block;margin-top:4px;color:#809c8f;font:700 8.5px/1.3 system-ui,sans-serif;font-style:normal}
+
+.velmora-bedroom-editbar{position:absolute;z-index:58;left:50%;bottom:68px;width:min(820px,calc(100% - 36px));min-height:62px;transform:translate(-50%,18px);display:flex;align-items:center;justify-content:space-between;gap:18px;padding:9px 11px 9px 16px;border:1px solid rgba(222,193,104,.45);border-radius:13px;background:rgba(5,29,25,.95);box-shadow:0 16px 35px rgba(0,0,0,.44);opacity:0;pointer-events:none;transition:.15s ease}.velmora-bedroom-editbar[aria-hidden="false"]{opacity:1;pointer-events:auto;transform:translate(-50%,0)}.velmora-bedroom-editbar>div:first-child{display:flex;flex-direction:column;gap:2px}.velmora-bedroom-editbar small{color:#c5ab60;font:900 7px/1 system-ui,sans-serif;letter-spacing:.15em}.velmora-bedroom-editbar strong{color:#eff0e9;font:850 11px/1.15 system-ui,sans-serif}.velmora-bedroom-editbar span{color:#78968a;font:700 8px/1.2 system-ui,sans-serif}.velmora-bedroom-editbar-actions{display:flex;gap:6px}.velmora-bedroom-editbar-actions button{min-height:38px;padding:0 12px;border:1px solid rgba(108,160,141,.23);border-radius:8px;background:#123a31;color:#dbe8e1;font:850 9px/1 system-ui,sans-serif;cursor:pointer}.velmora-bedroom-editbar-actions button:hover:not(:disabled){border-color:rgba(222,193,104,.5);background:#1b5041;color:#f3e5b4}.velmora-bedroom-editbar-actions button:disabled{opacity:.35;cursor:default}.velmora-bedroom-editbar-actions [data-bedroom-done]{background:#245f4d;border-color:rgba(225,196,105,.42);color:#f3e5b4}
+.velmora-bedroom-toast{position:absolute;z-index:100;left:50%;top:112px;transform:translate(-50%,-10px);max-width:min(460px,86%);padding:8px 13px;border:1px solid rgba(220,192,105,.38);border-radius:999px;background:rgba(5,31,26,.95);box-shadow:0 10px 24px rgba(0,0,0,.35);color:#ecdfb1;font:850 9px/1.2 system-ui,sans-serif;opacity:0;pointer-events:none;transition:.16s ease}.velmora-bedroom-toast.is-visible{opacity:1;transform:translate(-50%,0)}.velmora-bedroom-toast[data-tone="warn"]{border-color:rgba(223,111,93,.5);color:#f0c2b8}
+
+@media(max-width:1050px){.velmora-bedroom-app{width:98vw;height:97vh}.velmora-bedroom-topbar{min-height:80px;padding:10px 14px 10px 18px}.velmora-bedroom-brand h2{font-size:24px}.velmora-bedroom-action{min-width:116px}.velmora-bedroom-action small{display:none}.velmora-bedroom-stage-wrap{padding:10px 10px 5px}.velmora-bedroom-shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.velmora-bedroom-drawer{top:90px}.velmora-bedroom-toast{top:96px}}
+@media(max-width:760px){.velmora-bedroom-overlay{padding:0}.velmora-bedroom-app{width:100vw;height:100vh;border:0;border-radius:0;min-height:0}.velmora-bedroom-app::before{display:none}.velmora-bedroom-topbar{gap:8px}.velmora-bedroom-brand span{display:none}.velmora-bedroom-actions{gap:4px}.velmora-bedroom-action{min-width:46px;width:46px;padding:6px;display:grid;place-items:center}.velmora-bedroom-action>span{grid-row:auto;width:28px;height:28px}.velmora-bedroom-action b,.velmora-bedroom-action small{display:none}.velmora-bedroom-close{width:42px;height:42px;min-width:42px}.velmora-bedroom-footer{padding:8px 12px}.velmora-bedroom-footer>[data-bedroom-save]{display:none}.velmora-bedroom-drawer{right:6px;top:76px;bottom:6px;width:calc(100% - 12px)}.velmora-bedroom-shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:8px}.velmora-bedroom-shop-card{grid-template-rows:94px auto 36px}.velmora-bedroom-room-grid{grid-template-columns:1fr}.velmora-bedroom-editbar{bottom:58px;flex-direction:column;align-items:stretch;gap:7px;width:calc(100% - 16px)}.velmora-bedroom-editbar-actions{justify-content:flex-end}.velmora-bedroom-room-plaque{left:2%;bottom:2%;min-width:130px}}
+@media(prefers-reduced-motion:reduce){.velmora-bedroom-launcher img,.velmora-bedroom-drawer,.velmora-bedroom-action,.velmora-bedroom-room-card,.velmora-bedroom-toast,.velmora-bedroom-editbar{transition:none!important}}
+
+/* ============================================================
+   V33.03 — Bedroom scene presentation + placement/shop fixes
+   ============================================================ */
+
+/* My Bedroom now takes the old Dragon Bites slot. It is an image/role button,
+   deliberately not a <button>, so generic site hover skins cannot paint a box. */
+.velmora-bedroom-launcher,
+.velmora-bedroom-launcher:hover,
+.velmora-bedroom-launcher:focus,
+.velmora-bedroom-launcher:focus-visible,
+.velmora-bedroom-launcher:active{
+  position:absolute!important;
+  left:24%!important;
+  top:calc(100% + 10px)!important;
+  width:52%!important;
+  height:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.34))!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  z-index:15!important;
+  opacity:1!important;
+  object-fit:contain!important;
+  transform:none!important;
+  transition:filter .16s ease,transform .16s ease!important;
+  -webkit-tap-highlight-color:transparent!important;
+  user-select:none!important;
+}
+.velmora-bedroom-launcher:hover,
+.velmora-bedroom-launcher:focus-visible{
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 11px 15px rgba(0,0,0,.42)) brightness(1.045)!important;
+  transform:translateY(-2px) scale(1.018)!important;
+}
+.velmora-bedroom-launcher:active{transform:translateY(0) scale(.985)!important}
+.velmora-bedroom-launcher::before,.velmora-bedroom-launcher::after{content:none!important;display:none!important}
+
+/* Dragon Bites moves directly underneath the bedroom launcher. */
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:hover,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus-visible,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:active,
+.dragonbound-home-sidebar .dragonbound-home-treats-trigger:disabled{
+  left:20%!important;
+  top:calc(100% + 148px)!important;
+  width:60%!important;
+}
+
+/* A real black scene transition sits above every Dragonbound control. */
+.velmora-bedroom-transition{
+  position:fixed;
+  inset:0;
+  z-index:100500;
+  background:#000;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .38s ease,visibility 0s linear .38s;
+}
+.velmora-bedroom-transition.is-active{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition:opacity .38s ease,visibility 0s linear 0s;
+}
+
+/* Bedroom is a scene, not a boxed modal. */
+body.velmora-bedroom-open{overflow:hidden!important;background:#020707!important}
+body.velmora-bedroom-open .dragonbound-command-float,
+body.velmora-bedroom-open .dragonbound-command-live-hud,
+body.velmora-bedroom-open .dragonbound-home-sidebar,
+body.velmora-bedroom-open .dragonbound-home-treats-confirm{opacity:0!important;pointer-events:none!important}
+
+.velmora-bedroom-overlay{
+  position:fixed!important;
+  inset:0!important;
+  z-index:100006!important;
+  display:block!important;
+  padding:0!important;
+  background:#020909!important;
+  backdrop-filter:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:opacity .42s ease,visibility 0s linear .42s!important;
+  overflow:hidden!important;
+}
+.velmora-bedroom-overlay.is-visible{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:opacity .42s ease,visibility 0s linear 0s!important;
+}
+.velmora-bedroom-backdrop{
+  position:absolute!important;
+  inset:0!important;
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(15,53,47,.34),rgba(1,9,9,.92) 72%),
+    #020909!important;
+  pointer-events:none!important;
+}
+.velmora-bedroom-app{
+  position:absolute!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  display:block!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.velmora-bedroom-app::before,.velmora-bedroom-app::after{display:none!important;content:none!important}
+
+/* Floating controls: small, readable, and out of the room art. */
+.velmora-bedroom-topbar{
+  position:absolute!important;
+  z-index:70!important;
+  left:50%!important;
+  top:18px!important;
+  width:min(1240px,calc(100vw - 40px))!important;
+  min-height:68px!important;
+  transform:translateX(-50%)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:20px!important;
+  padding:10px 11px 10px 18px!important;
+  border:1px solid rgba(190,169,100,.22)!important;
+  border-radius:17px!important;
+  background:linear-gradient(180deg,rgba(5,29,27,.91),rgba(3,20,19,.88))!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.26),inset 0 1px rgba(255,255,255,.035)!important;
+  backdrop-filter:blur(12px)!important;
+}
+.velmora-bedroom-brand{min-width:235px!important;padding:0 4px!important}
+.velmora-bedroom-brand small{margin:0 0 3px!important;color:#92b6a8!important;font:900 8px/1 system-ui,sans-serif!important;letter-spacing:.18em!important}
+.velmora-bedroom-brand h2{margin:0!important;color:#f3ead1!important;font:800 22px/1.05 Georgia,serif!important;letter-spacing:.01em!important}
+.velmora-bedroom-brand span{margin-top:4px!important;color:#789a8d!important;font:750 9px/1.1 system-ui,sans-serif!important}
+.velmora-bedroom-actions{display:flex!important;align-items:center!important;gap:6px!important}
+.velmora-bedroom-action{
+  min-width:122px!important;
+  min-height:46px!important;
+  grid-template-columns:24px 1fr!important;
+  column-gap:7px!important;
+  padding:6px 10px!important;
+  border:1px solid rgba(104,158,139,.24)!important;
+  border-radius:10px!important;
+  background:rgba(8,44,38,.84)!important;
+  color:#e7eee8!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+.velmora-bedroom-action>span{width:23px!important;height:23px!important;border-radius:7px!important;background:#071f1c!important;color:#dfc46f!important}
+.velmora-bedroom-action b{font:900 10px/1.05 system-ui,sans-serif!important}
+.velmora-bedroom-action small{color:#7f9d90!important;font:750 7.5px/1.05 system-ui,sans-serif!important}
+.velmora-bedroom-action:hover,.velmora-bedroom-action:focus-visible{
+  outline:0!important;
+  border-color:rgba(218,192,105,.48)!important;
+  background:rgba(12,61,50,.94)!important;
+  box-shadow:0 7px 17px rgba(0,0,0,.18)!important;
+}
+.velmora-bedroom-action--shop{background:rgba(14,68,55,.94)!important;border-color:rgba(218,192,105,.33)!important}
+.velmora-bedroom-action--edit.is-active{background:#6b5425!important;border-color:#dfc268!important;color:#fff2bf!important}
+.velmora-bedroom-close{
+  width:42px!important;height:42px!important;min-width:42px!important;
+  border:1px solid rgba(214,190,109,.3)!important;border-radius:50%!important;
+  background:rgba(7,36,31,.92)!important;color:#ead587!important;
+  box-shadow:none!important;
+}
+.velmora-bedroom-close:hover,.velmora-bedroom-close:focus-visible{background:#12483c!important;border-color:#ddc067!important}
+
+/* The room itself is the hero. No footer frame or room plaque. */
+.velmora-bedroom-main{position:absolute!important;inset:0!important;display:block!important;z-index:2!important;min-height:0!important}
+.velmora-bedroom-stage-wrap{
+  position:absolute!important;inset:0!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:86px 20px 16px!important;
+  overflow:hidden!important;
+  background:transparent!important;
+}
+.velmora-bedroom-stage{
+  position:relative!important;
+  width:min(1320px,96vw,112vh)!important;
+  max-width:none!important;
+  max-height:calc(100vh - 102px)!important;
+  aspect-ratio:680/513!important;
+  filter:drop-shadow(0 28px 40px rgba(0,0,0,.38))!important;
+  touch-action:none!important;
+  user-select:none!important;
+}
+.velmora-bedroom-room{width:100%!important;height:100%!important;object-fit:contain!important}
+.velmora-bedroom-footer,.velmora-bedroom-room-plaque{display:none!important}
+
+/* Furniture remains anchored to the room image and is easy to grab in edit mode. */
+.velmora-bedroom-placements{position:absolute!important;inset:0!important;pointer-events:none!important}
+.velmora-bedroom-placement{
+  pointer-events:auto!important;
+  min-width:22px!important;
+  min-height:18px!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  outline:0!important;
+  touch-action:none!important;
+}
+.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement{cursor:grab!important}
+.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement:active{cursor:grabbing!important}
+.velmora-bedroom-placement-ring{bottom:-7px!important;height:20px!important}
+.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement:hover .velmora-bedroom-placement-ring,
+.velmora-bedroom-placement.is-selected .velmora-bedroom-placement-ring{
+  border-color:rgba(232,207,125,.9)!important;
+  background:rgba(224,196,103,.09)!important;
+}
+.velmora-bedroom-placement-ghost::after{border-width:1.5px!important}
+.velmora-bedroom-placement-ghost.is-valid::after{border-color:#75d7ac!important;background:rgba(69,184,131,.14)!important}
+
+/* Drawers float above the full-screen room instead of living inside a fake app box. */
+.velmora-bedroom-drawer{
+  position:fixed!important;
+  z-index:100070!important;
+  right:22px!important;
+  top:104px!important;
+  bottom:22px!important;
+  width:min(900px,calc(100vw - 44px))!important;
+  max-width:none!important;
+  display:grid!important;
+  grid-template-rows:auto auto minmax(0,1fr) auto!important;
+  border:1px solid rgba(199,177,102,.24)!important;
+  border-radius:18px!important;
+  background:linear-gradient(180deg,rgba(6,35,30,.985),rgba(3,22,19,.99))!important;
+  box-shadow:-24px 28px 70px rgba(0,0,0,.55)!important;
+  backdrop-filter:blur(16px)!important;
+  overflow:hidden!important;
+}
+.velmora-bedroom-drawer>header{
+  min-height:96px!important;
+  padding:18px 20px 14px!important;
+  border-bottom:1px solid rgba(109,156,139,.14)!important;
+  background:rgba(11,54,45,.58)!important;
+}
+.velmora-bedroom-drawer>header h3{font-size:25px!important;color:#f3ecd9!important}
+.velmora-bedroom-drawer>header p{font-size:10px!important;color:#8ca99b!important}
+.velmora-bedroom-drawer>header button{background:#0c3a31!important;border-color:rgba(214,188,101,.32)!important}
+.velmora-bedroom-drawer>header button:hover{background:#175447!important}
+
+.velmora-bedroom-shop-controls{padding:12px 14px 10px!important;background:rgba(4,26,23,.74)!important}
+.velmora-bedroom-shop-controls label{
+  height:42px!important;
+  border:1px solid rgba(105,157,139,.24)!important;
+  background:#061f1b!important;
+  box-shadow:none!important;
+}
+.velmora-bedroom-shop-controls input,
+.velmora-bedroom-shop-controls input:hover,
+.velmora-bedroom-shop-controls input:focus{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  color:#edf2ed!important;
+  -webkit-text-fill-color:#edf2ed!important;
+  font:750 11px/1.2 system-ui,sans-serif!important;
+}
+.velmora-bedroom-shop-controls input::placeholder{color:#68897b!important;-webkit-text-fill-color:#68897b!important}
+.velmora-bedroom-shop-controls nav{gap:6px!important;margin-top:10px!important}
+.velmora-bedroom-shop-controls nav button{
+  min-height:28px!important;
+  padding:0 10px!important;
+  border:1px solid rgba(105,155,137,.18)!important;
+  background:#082821!important;
+  color:#91aa9f!important;
+  box-shadow:none!important;
+}
+.velmora-bedroom-shop-controls nav button.is-active,
+.velmora-bedroom-shop-controls nav button:hover{background:#174c3e!important;color:#f0d990!important;border-color:rgba(220,192,105,.5)!important}
+
+/* Fix the collapsed-card bug: every item gets a real, selectable card with visible copy/action. */
+.velmora-bedroom-shop-grid{
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-auto-rows:220px!important;
+  gap:10px!important;
+  padding:12px 14px 18px!important;
+  align-content:start!important;
+  align-items:stretch!important;
+}
+.velmora-bedroom-shop-card{
+  min-width:0!important;
+  min-height:220px!important;
+  height:220px!important;
+  display:grid!important;
+  grid-template-rows:116px minmax(0,1fr) 42px!important;
+  padding:0!important;
+  margin:0!important;
+  border:1px solid rgba(100,151,133,.18)!important;
+  border-radius:13px!important;
+  background:linear-gradient(180deg,#0a2c25,#061f1b)!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  cursor:pointer!important;
+  color:inherit!important;
+  transform:none!important;
+}
+.velmora-bedroom-shop-card:hover,.velmora-bedroom-shop-card:focus-visible{
+  outline:0!important;
+  border-color:rgba(220,193,107,.52)!important;
+  background:linear-gradient(180deg,#104136,#082a24)!important;
+  box-shadow:0 10px 22px rgba(0,0,0,.2)!important;
+  transform:translateY(-1px)!important;
+}
+.velmora-bedroom-shop-image{
+  min-height:116px!important;
+  height:116px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:9px!important;
+  overflow:hidden!important;
+  background:radial-gradient(circle at 50% 75%,rgba(80,139,114,.18),transparent 60%)!important;
+}
+.velmora-bedroom-shop-image img{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:92%!important;
+  max-height:104px!important;
+  object-fit:contain!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.velmora-bedroom-shop-card-copy{display:block!important;min-height:0!important;padding:8px 10px 7px!important;overflow:hidden!important}
+.velmora-bedroom-shop-card-copy small{display:block!important;color:#b29a58!important;font:900 7px/1 system-ui,sans-serif!important}
+.velmora-bedroom-shop-card-copy strong{display:block!important;min-height:0!important;margin-top:4px!important;color:#edf1ec!important;font:850 11px/1.12 system-ui,sans-serif!important}
+.velmora-bedroom-shop-card-copy span{display:block!important;margin-top:4px!important;color:#78998b!important;font:700 8px/1.2 system-ui,sans-serif!important}
+.velmora-bedroom-shop-place{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  min-height:42px!important;
+  padding:0 10px!important;
+  border-top:1px solid rgba(105,155,137,.16)!important;
+  background:#104337!important;
+  color:#e9eee8!important;
+}
+.velmora-bedroom-shop-place b{font:900 9px/1 system-ui,sans-serif!important}
+.velmora-bedroom-shop-place small{padding:4px 7px!important;border-radius:999px!important;background:rgba(225,195,101,.13)!important;color:#ecd27c!important;font:900 7px/1 system-ui,sans-serif!important}
+.velmora-bedroom-drawer>footer{background:#041a17!important;color:#7e9a8e!important}
+
+/* Room selector gets the same cleaner floating-sheet treatment. */
+.velmora-bedroom-room-drawer{grid-template-rows:auto minmax(0,1fr)!important;width:min(780px,calc(100vw - 44px))!important}
+.velmora-bedroom-room-grid{padding:14px!important;gap:10px!important}
+.velmora-bedroom-room-card{background:#082821!important;border-color:rgba(104,155,137,.2)!important;box-shadow:none!important}
+.velmora-bedroom-room-card:hover{background:#0d3a30!important;border-color:rgba(218,189,103,.48)!important}
+
+/* Editing controls sit above the room as a compact bottom floating bar. */
+.velmora-bedroom-editbar{
+  position:fixed!important;
+  z-index:100065!important;
+  left:50%!important;
+  bottom:22px!important;
+  width:min(790px,calc(100vw - 36px))!important;
+  min-height:60px!important;
+  border:1px solid rgba(218,192,106,.34)!important;
+  border-radius:14px!important;
+  background:rgba(4,31,27,.95)!important;
+  backdrop-filter:blur(14px)!important;
+  box-shadow:0 18px 44px rgba(0,0,0,.4)!important;
+}
+.velmora-bedroom-editbar-actions button{background:#0d3c32!important;border-color:rgba(106,159,140,.24)!important;box-shadow:none!important}
+.velmora-bedroom-editbar-actions [data-bedroom-done]{background:#1c6751!important}
+.velmora-bedroom-toast{position:fixed!important;top:100px!important;z-index:100090!important;background:rgba(4,35,30,.96)!important}
+
+@media(max-width:1050px){
+  .velmora-bedroom-topbar{top:10px!important;width:calc(100vw - 20px)!important;min-height:60px!important;padding:8px 9px 8px 13px!important}
+  .velmora-bedroom-brand{min-width:170px!important}.velmora-bedroom-brand h2{font-size:18px!important}
+  .velmora-bedroom-action{min-width:104px!important;min-height:42px!important}.velmora-bedroom-action small{display:none!important}
+  .velmora-bedroom-stage-wrap{padding:74px 8px 8px!important}.velmora-bedroom-stage{width:min(98vw,112vh)!important;max-height:calc(100vh - 82px)!important}
+  .velmora-bedroom-drawer{top:82px!important;right:10px!important;bottom:10px!important;width:min(840px,calc(100vw - 20px))!important}
+  .velmora-bedroom-shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:204px!important}.velmora-bedroom-shop-card{height:204px!important;min-height:204px!important;grid-template-rows:104px minmax(0,1fr) 40px!important}.velmora-bedroom-shop-image{height:104px!important;min-height:104px!important}.velmora-bedroom-shop-image img{max-height:92px!important}
+}
+@media(max-width:760px){
+  .velmora-bedroom-launcher,.velmora-bedroom-launcher:hover,.velmora-bedroom-launcher:focus,.velmora-bedroom-launcher:focus-visible,.velmora-bedroom-launcher:active{left:25%!important;top:calc(100% + 8px)!important;width:50%!important}
+  .dragonbound-home-sidebar .dragonbound-home-treats-trigger,.dragonbound-home-sidebar .dragonbound-home-treats-trigger:hover,.dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus,.dragonbound-home-sidebar .dragonbound-home-treats-trigger:focus-visible,.dragonbound-home-sidebar .dragonbound-home-treats-trigger:active,.dragonbound-home-sidebar .dragonbound-home-treats-trigger:disabled{left:20%!important;top:calc(100% + 116px)!important;width:60%!important}
+  .velmora-bedroom-topbar{left:6px!important;right:6px!important;top:6px!important;width:auto!important;transform:none!important;border-radius:13px!important}
+  .velmora-bedroom-brand{min-width:0!important;flex:1 1 auto!important}.velmora-bedroom-brand span{display:none!important}.velmora-bedroom-brand small{font-size:6.5px!important}.velmora-bedroom-brand h2{font-size:16px!important}
+  .velmora-bedroom-actions{flex:0 0 auto!important}.velmora-bedroom-action{min-width:40px!important;width:40px!important;min-height:40px!important;padding:5px!important;display:grid!important;place-items:center!important}.velmora-bedroom-action>span{grid-row:auto!important;width:26px!important;height:26px!important}.velmora-bedroom-action b,.velmora-bedroom-action small{display:none!important}.velmora-bedroom-close{width:38px!important;height:38px!important;min-width:38px!important}
+  .velmora-bedroom-stage-wrap{padding:64px 2px 4px!important}.velmora-bedroom-stage{width:min(100vw,104vh)!important;max-height:calc(100vh - 68px)!important}
+  .velmora-bedroom-drawer{top:58px!important;right:4px!important;bottom:4px!important;width:calc(100vw - 8px)!important;border-radius:13px!important}
+  .velmora-bedroom-shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:194px!important;gap:7px!important;padding:8px!important}.velmora-bedroom-shop-card{height:194px!important;min-height:194px!important;grid-template-rows:96px minmax(0,1fr) 38px!important}.velmora-bedroom-shop-image{height:96px!important;min-height:96px!important}.velmora-bedroom-shop-image img{max-height:84px!important}
+  .velmora-bedroom-room-grid{grid-template-columns:1fr!important}.velmora-bedroom-editbar{bottom:8px!important;width:calc(100vw - 12px)!important}
+  .velmora-bedroom-toast{top:66px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .velmora-bedroom-transition,.velmora-bedroom-overlay{transition-duration:.01ms!important}
+}
+
+
+/* =========================================================
+   V33.04 — edit-mode hitboxes, direct resize/flip, home CTA
+   ========================================================= */
+
+.velmora-bedroom-action--home{
+  background:linear-gradient(180deg,rgba(17,78,62,.98),rgba(9,48,40,.96))!important;
+  border-color:rgba(221,194,105,.44)!important;
+  color:#f5edd4!important;
+}
+.velmora-bedroom-action--home>span{
+  background:#0b3028!important;
+  color:#efd781!important;
+}
+.velmora-bedroom-action--home:hover,
+.velmora-bedroom-action--home:focus-visible{
+  background:linear-gradient(180deg,rgba(25,100,79,.99),rgba(12,62,51,.98))!important;
+  border-color:rgba(238,211,121,.68)!important;
+}
+
+/* The old placement buttons only had a tiny ~18px hit strip at the floor anchor.
+   In edit mode the button now wraps the full visible sprite, so every part of
+   the furniture can be clicked, selected and dragged reliably. */
+.velmora-bedroom-placements{
+  pointer-events:none!important;
+}
+.velmora-bedroom-overlay.is-editing .velmora-bedroom-placements{
+  pointer-events:auto!important;
+}
+.velmora-bedroom-placement{
+  height:auto!important;
+  min-height:0!important;
+  pointer-events:none!important;
+  transform:translate(-50%,-100%) scale(var(--item-scale,1))!important;
+  transform-origin:50% 100%!important;
+}
+.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement{
+  pointer-events:auto!important;
+}
+.velmora-bedroom-placement img{
+  position:relative!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  height:auto!important;
+  display:block!important;
+  transform:none!important;
+  transform-origin:50% 100%!important;
+  pointer-events:none!important;
+}
+.velmora-bedroom-placement.is-flipped img{
+  transform:scaleX(-1)!important;
+}
+.velmora-bedroom-placement.is-selected{
+  filter:drop-shadow(0 0 7px rgba(235,207,116,.42))!important;
+}
+.velmora-bedroom-placement-ring{
+  left:50%!important;
+  bottom:-7px!important;
+  width:92%!important;
+}
+.velmora-bedroom-overlay.is-editing .velmora-bedroom-placement:hover .velmora-bedroom-placement-ring,
+.velmora-bedroom-placement.is-selected .velmora-bedroom-placement-ring{
+  border-color:#efd57e!important;
+  background:rgba(229,199,105,.12)!important;
+  box-shadow:0 0 0 2px rgba(239,213,126,.10),0 0 18px rgba(229,199,105,.28)!important;
+}
+
+/* Drag ghost uses the same bottom-centre anchor and current scale as the real item. */
+.velmora-bedroom-placement-ghost{
+  height:auto!important;
+  min-height:0!important;
+  transform:translate(-50%,-100%) scale(var(--item-scale,1))!important;
+  transform-origin:50% 100%!important;
+}
+.velmora-bedroom-placement-ghost img{
+  position:relative!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  height:auto!important;
+  display:block!important;
+  transform:none!important;
+  transform-origin:50% 100%!important;
+}
+.velmora-bedroom-placement-ghost.is-flipped img{
+  transform:scaleX(-1)!important;
+}
+
+/* Make the editing instructions impossible to miss. */
+.velmora-bedroom-editbar [data-bedroom-edit-help]{
+  color:#9db5aa!important;
+  font-size:8.5px!important;
+  letter-spacing:.01em!important;
+}
+.velmora-bedroom-editbar [data-bedroom-edit-name]{
+  color:#f3ecd7!important;
+}
+.velmora-bedroom-editbar-actions [data-bedroom-flip]:not(:disabled){
+  border-color:rgba(226,198,108,.42)!important;
+  color:#f0d986!important;
+}
+
+@media(max-width:1180px){
+  .velmora-bedroom-action{min-width:104px!important}
+  .velmora-bedroom-action--home{min-width:100px!important}
+}
+
+/* V33.05 — hover cleanup + keeper movement + interaction prompt */
+.velmora-bedroom-placement,
+.velmora-bedroom-placement:hover,
+.velmora-bedroom-placement:focus,
+.velmora-bedroom-placement:focus-visible,
+.velmora-bedroom-placement:active{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+.velmora-bedroom-shop-card,
+.velmora-bedroom-shop-card:hover,
+.velmora-bedroom-shop-card:focus,
+.velmora-bedroom-shop-card:focus-visible,
+.velmora-bedroom-shop-card:active{
+  background:linear-gradient(180deg,#0a2923,#071e1a)!important;
+  box-shadow:none!important;
+  outline:none!important;
+}
+.velmora-bedroom-shop-card:hover,.velmora-bedroom-shop-card:focus-visible{
+  border-color:rgba(127,183,159,.34)!important;
+  transform:translateY(-1px)!important;
+}
+.velmora-bedroom-shop-card[role="button"]{cursor:pointer!important}
+
+.velmora-bedroom-player{
+  position:absolute;
+  width:8%;
+  aspect-ratio:1/1.28;
+  transform:translate(-50%,-86%);
+  transform-origin:50% 100%;
+  background-repeat:no-repeat;
+  image-rendering:auto;
+  pointer-events:none;
+  filter:drop-shadow(0 6px 6px rgba(0,0,0,.28));
+}
+.velmora-bedroom-player.is-flipped{
+  transform:translate(-50%,-86%) scaleX(-1);
+}
+.velmora-bedroom-interaction-hint{
+  position:absolute;
+  transform:translate(-50%,-100%);
+  min-width:120px;
+  max-width:180px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(232,206,119,.42);
+  background:rgba(6,25,21,.92);
+  color:#f3ead2;
+  text-align:center;
+  font:800 9px/1.15 system-ui,sans-serif;
+  letter-spacing:.02em;
+  box-shadow:0 10px 20px rgba(0,0,0,.24);
+  pointer-events:none;
+  z-index:2500;
+}
+.velmora-bedroom-interaction-hint::after{
+  content:'';
+  position:absolute;
+  left:50%; bottom:-5px;
+  width:8px; height:8px;
+  background:rgba(6,25,21,.92);
+  border-right:1px solid rgba(232,206,119,.42);
+  border-bottom:1px solid rgba(232,206,119,.42);
+  transform:translateX(-50%) rotate(45deg);
+}
+@media(max-width:760px){
+  .velmora-bedroom-player{width:11%!important}
+  .velmora-bedroom-interaction-hint{font-size:8px!important;min-width:96px!important}
+}
+
+/* V33.06 — exact account keeper mapping + continuous movement + clean frames */
+.velmora-bedroom-placement::before,
+.velmora-bedroom-placement::after,
+.velmora-bedroom-placement:hover::before,
+.velmora-bedroom-placement:hover::after,
+.velmora-bedroom-placement:focus::before,
+.velmora-bedroom-placement:focus::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+}
+.velmora-bedroom-placement,
+.velmora-bedroom-placement:hover,
+.velmora-bedroom-placement:focus,
+.velmora-bedroom-placement:focus-visible,
+.velmora-bedroom-placement:active{
+  background-color:transparent!important;
+  background-image:none!important;
+}
+.velmora-bedroom-player{
+  width:7.4%!important;
+  height:auto!important;
+  aspect-ratio:auto!important;
+  background:none!important;
+  transform:translate(-50%,-100%)!important;
+  filter:none!important;
+  overflow:visible!important;
+}
+.velmora-bedroom-player img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:none!important;
+  pointer-events:none!important;
+  image-rendering:auto!important;
+  filter:drop-shadow(0 5px 5px rgba(0,0,0,.26))!important;
+}
+.velmora-bedroom-player.is-flipped{
+  transform:translate(-50%,-100%) scaleX(-1)!important;
+}
+.velmora-bedroom-player.is-sleeping{
+  width:11.4%!important;
+}
+@media(max-width:760px){
+  .velmora-bedroom-player{width:9.5%!important}
+  .velmora-bedroom-player.is-sleeping{width:14%!important}
+}
+
+/* V33.07 — keeper scale, furniture hover hard reset, sleep placement/depth */
+.velmora-bedroom-placement,
+.velmora-bedroom-placement:hover,
+.velmora-bedroom-placement:focus,
+.velmora-bedroom-placement:focus-visible,
+.velmora-bedroom-placement:active,
+.velmora-bedroom-placement[role="button"],
+.velmora-bedroom-placement[role="button"]:hover,
+.velmora-bedroom-placement[role="button"]:focus,
+.velmora-bedroom-placement[role="button"]:active{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  outline:none!important;
+  border:0!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+}
+.velmora-bedroom-placement::before,
+.velmora-bedroom-placement::after,
+.velmora-bedroom-placement:hover::before,
+.velmora-bedroom-placement:hover::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+}
+
+/* Requested 25% reduction from the V33.06 keeper scale. */
+.velmora-bedroom-player{
+  width:5.55%!important;
+  z-index:8000!important;
+}
+.velmora-bedroom-player.is-sleeping{
+  width:8.55%!important;
+  z-index:8200!important;
+  transform:translate(-50%,-50%) rotate(var(--bedroom-sleep-angle,135deg))!important;
+  transform-origin:50% 50%!important;
+}
+.velmora-bedroom-player.is-sleeping img{
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.22))!important;
+}
+@media(max-width:760px){
+  .velmora-bedroom-player{width:7.125%!important}
+  .velmora-bedroom-player.is-sleeping{width:10.5%!important}
+}

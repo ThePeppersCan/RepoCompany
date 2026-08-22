@@ -1,0 +1,33 @@
+V33.03 QA — My Bedroom Polish / Placement / Shop
+
+STATIC QA COMPLETED
+[PASS] bedroom.js JavaScript syntax (node --check)
+[PASS] browser-script bootstrap executes with mocked DOM globals
+[PASS] bedroom.css brace balance
+[PASS] index.html points to V33.03 bedroom.css cache key
+[PASS] index.html points to V33.03 bedroom.js cache key
+[PASS] supplied bedroom door MP3 copied into assets/bedroom/audio
+[PASS] audio volume is explicitly set to 0.75 in the launcher flow
+[PASS] transition veil is fixed and above the bedroom/Dragonbound UI
+[PASS] Bedroom overlay is appended to document.body for true viewport presentation
+[PASS] Bedroom launcher no longer uses an HTML button element
+[PASS] Dragon Bites CSS is overridden to sit below My Bedroom
+[PASS] furniture placement uses room-floor constraints
+[PASS] placement snap reduced from 2% to 0.5%
+[PASS] collision-box rejection disabled so intentional furniture overlap is possible
+[PASS] shop cards have explicit desktop/mobile row heights and overflow scrolling
+[PASS] whole furniture card receives placement click/keyboard action
+
+FIRST LIVE VISUAL CHECKS RECOMMENDED
+1. Home scene: My Bedroom is smaller in the old Dragon Bites position; Dragon Bites is directly below.
+2. Hover My Bedroom: no rectangular brown background appears.
+3. Click My Bedroom: door sound starts at 75%, screen fades to black, then bedroom fades in.
+4. Bedroom fills the viewport and no longer appears inside the old framed app box.
+5. Open Furniture: verify 36 assets can be scrolled, seen and clicked.
+6. Place beds, rugs, tables and plants across front/back/side floor areas.
+7. Place wardrobe/bookshelf/hanging lamp and verify wall placement clamps sensibly.
+8. Enter Edit Room and freely drag existing furniture across the floor.
+9. Verify overlapping decor is allowed where desired.
+10. Change all four room shells and confirm existing placements remain inside valid floor space.
+
+No browser visual runner was available here, so visual QA is not claimed.

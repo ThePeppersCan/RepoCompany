@@ -1,0 +1,26 @@
+Velmora My Bedroom V33.04 — Editor Reliability, Resize/Flip Controls & Sprite Cleanup
+
+What changed
+- Fixed edit-mode furniture selection. Placed furniture now uses the full visible sprite as its pointer hitbox instead of a tiny strip at the floor anchor.
+- Direct drag-to-move remains active in Edit Room and can be started from anywhere on the visible furnishing.
+- Added mouse-wheel resize for the currently selected/hovered furnishing while Edit Room is active.
+  - Scroll up: larger
+  - Scroll down: smaller
+  - Saved range: 50%–185%
+- Added R-key flip for the selected furnishing. The existing Flip button remains as a clickable fallback.
+- Placement boundary clamping now accounts for resized furniture, reducing edge overflow after scaling.
+- Added a clear Main House button to the bedroom top bar.
+- Returning to the main house uses the same black scene-transition veil rather than abruptly dropping out of the bedroom.
+- Cleaned all 36 bedroom furniture sprites with a conservative neutral-white matte cleanup pass.
+  - 25 sprites contained removable white/fringe pixels.
+  - The obvious white holes in Planter 02 Tree and Chair 01 Timber are removed.
+  - Original sprite dimensions and filenames are preserved.
+- Updated Edit Room guidance to explicitly show: drag to move, mouse wheel resize, R to flip.
+
+Persistence
+- No database migration required.
+- Existing placement x/y, flip and scale fields are reused.
+- Existing bedroom saves remain compatible.
+
+Patch installation
+Copy the patch contents over the existing site, preserving the included folder structure.

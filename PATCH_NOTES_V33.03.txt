@@ -1,0 +1,52 @@
+V33.03 — My Bedroom Scene Polish, Placement Fixes & Furniture Shop Repair
+22 August 2026
+
+SMALL PATCH ONLY
+- This patch is designed to be applied over V33.02 / the current site.
+- It does NOT contain the full ~60MB project.
+
+CHANGES
+1. My Bedroom launcher
+- Moved into the previous Dragon Bites slot beneath the main home sidebar.
+- Reduced the Bedroom artwork size.
+- Dragon Bites now sits directly underneath it.
+- Launcher is now an image-role control rather than a normal HTML button so global button hover skins cannot create the brown rectangular hover background.
+- Keyboard Enter/Space still works.
+
+2. Bedroom transition + audio
+- Pressing My Bedroom now starts a genuine fade-to-black scene transition.
+- The supplied door-opening sound plays immediately from the user click at 75% volume.
+- Bedroom state loads while the screen is black, then the black veil fades away to reveal the room.
+
+3. Bedroom presentation overhaul
+- Removed the framed/boxed modal presentation.
+- My Bedroom now occupies the full viewport as its own scene.
+- The room artwork is the main visual focus.
+- Removed the bottom boxed footer and room plaque from the scene.
+- Controls are now a compact floating glass/teal toolbar rather than a large brown menu header.
+- Dragonbound Commands/home controls are hidden while inside the bedroom.
+
+4. Furniture placement rewrite
+- Placement now uses the actual cut-away floor footprint instead of broad rejection boxes.
+- Placement snaps at only 0.5%, making movement feel effectively free rather than grid-heavy.
+- Floor furniture is clamped naturally into valid floor space rather than failing if the pointer is slightly outside the floor.
+- Wall-backed furniture automatically settles into the safe rear-wall strip and can slide freely left/right.
+- Furniture overlap is intentionally allowed for decorating (rug under bed, bedside touching bed, plant behind furniture, etc.).
+- Existing saved placements are gently clamped back into the valid room area when a room loads/changes.
+- Dragging existing furniture uses the same placement rules.
+
+5. Free Furniture Shop repair
+- Fixed the collapsed furniture-card layout seen in the supplied screenshot.
+- Cards now have a guaranteed usable height and scroll correctly.
+- Furniture image, category, name, future-pet note and FREE placement action are always visible.
+- The entire furniture card is clickable/selectable, not only a tiny Place button.
+- Search field styling is force-reset so global site input styling cannot turn it into the beige strip shown in the screenshot.
+- All 36 supplied bedroom/pet-future assets remain available.
+
+PERSISTENCE
+- No Supabase schema changes required.
+- Existing V33.02 player_bedrooms persistence is retained.
+
+FUTURE PET NOTE
+- Dragon remains excluded from My Bedroom.
+- Future Pet Care furniture remains reserved for the eventual bedroom cat/dog.

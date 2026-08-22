@@ -1,0 +1,50 @@
+Dragonbound V33.01 — Command Launcher Reliability, Premium Command UI & Listening Feedback
+Date: 2026-08-22
+
+WHAT CHANGED
+
+1. COMMANDS BUTTON RELIABILITY
+- Moved the Commands launcher out of the pointer-disabled/transformed home scene and mounted it to document.body.
+- The launcher now tracks the visible home scene using getBoundingClientRect, so it still sits at the bottom-left of the house without inheriting house pointer/overflow rules.
+- Replaced ordinary click handling with a pointer-capture press/release path and a small movement tolerance.
+- Prevents accidental double-toggle from the synthetic click that follows a pointer interaction.
+- Added touch-action and explicit hit-testing safeguards.
+
+2. COMMAND LAUNCHER REDESIGN
+- Removed the overlapping/cheap-looking launcher presentation.
+- New compact dark-teal Keeper Training control with restrained gold/green accents.
+- Clearer typography and spacing.
+- Launcher changes to LISTENING / COMMAND QUEUED while a cue is active or waiting.
+
+3. COMMAND MENU REDESIGN
+- Removed the large brown card treatment.
+- Rebuilt the Commands & Tricks panel as a premium dark Keeper-training interface.
+- Cleaner header, dragon status strip, command hierarchy and subtle progression indicators.
+- Command cards now use restrained borders, compact status chips and quieter progress bars.
+- Locked commands are clearly secondary without looking like broken buttons.
+- Existing command requirements, proficiency, cooldowns and success calculations are unchanged.
+
+4. AUTO-CLOSE AFTER COMMAND SELECTION
+- Selecting a valid normal command now immediately closes the menu.
+- The player no longer has to manually close the panel after choosing Come Here, Sit, Stay, Go to Bed, Eat, Bath Time, Fetch, Drop It, Roar, Tiny Flame or Fly to Perch.
+- Go to Furniture keeps the panel open only long enough to choose the furniture target, then closes automatically.
+- Locked/unavailable commands leave the menu open so the requirement can still be read.
+
+5. DRAGON LISTENING / QUEUE FEEDBACK
+- Added a dedicated in-house command feedback HUD outside the menu.
+- Immediately shows which command was issued and that the dragon is listening.
+- Updates as the dragon understands and performs the cue, e.g. Coming to you…, Fetching a toy…, Heading to bed…
+- If a command must wait for a safe moment, the HUD clearly shows COMMAND QUEUED.
+- If another command is queued behind the current one, the HUD shows NEXT · <command>.
+- Brief completion / still-learning feedback appears when the command finishes.
+
+PRESERVED
+- Command proficiency and anti-spam learning cooldowns.
+- Bond/personality/needs/skill influences.
+- Physical Fetch, furniture use and flight behaviour.
+- Sims-style needs logic and V32.98 3x needs decay.
+- Skill cooldowns and Keeper Mark milestone rewards.
+- Daily Life system.
+- Build Mode drag-to-move.
+- Baby-era growth lock.
+- Existing persistence model; no Supabase schema change required.

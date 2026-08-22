@@ -1,0 +1,21 @@
+V33.06 — Bedroom Keeper Mapping + Movement/Sprite Fix
+
+Fixes
+- CatAsthma is now explicitly mapped to the CatAsthma brown-hoodie sprite sheet.
+- Proco is explicitly mapped to Proco's horned-helmet/crimson sprite sheet.
+- Exact account mappings added for covidpanda, emlux, kat, Proco, SmokedRope1028 and CatAsthma.
+- Removed username-hash assignment for those six known accounts.
+- Fixed WASD movement being rounded to the furniture placement grid every frame, which made the keeper appear trapped near the entrance.
+- Keeper movement is now continuous across the full valid room floor and slightly faster.
+- Rebuilt all keeper animations into individual frame PNGs instead of CSS slicing the complete sheet.
+- Removed neighbouring-frame bleed that could show stray legs/feet above the keeper while walking.
+- Kept E interaction prompts and furniture interactions.
+- Reinforced transparent hover styling for placed furniture, including global button pseudo-element overrides.
+
+Controls
+WASD / Arrow keys: walk
+E: interact with nearby furniture
+Edit Room: drag furniture
+Mouse wheel: resize selected furniture
+R: flip selected furniture
+Right click: put selected furniture away

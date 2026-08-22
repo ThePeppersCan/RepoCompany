@@ -1,0 +1,26 @@
+Dragonbound V33.00 QA
+
+STATIC / CODE QA
+- dragonbound-commands.js: syntax check passed.
+- dragonbound-baby-engine.js: syntax check passed.
+- dragonbound-furniture.js: syntax check passed.
+- script.js: syntax check passed.
+- Furniture catalog JSON parsed successfully.
+- Commands launcher explicitly restores pointer-events:auto under the pointer-disabled home scene.
+- Click handler prevents/stops propagation before toggling the menu.
+- Command overlay is fixed to document.body and no longer depends on the home scene's pointer/overflow stack.
+- Overlay has a viewport-level z-index and a visible-state pointer-events override.
+- Build Mode and visiting safety guards remain present.
+- Cache-bust updated to V33.00 in index.html.
+- ZIP integrity verified.
+
+FIRST LIVE CHECK
+1. Open the player's own Dragonbound house.
+2. Hover the Commands launcher: it should use the new dark-teal/gold premium treatment.
+3. Click Commands: Commands & Tricks should open immediately.
+4. Close via X, backdrop and Escape.
+5. Enter Build Mode: launcher should disappear and any open command menu should close.
+6. Visit another Keeper: no active command access.
+7. Run Come Here and one furniture command to confirm existing command execution still works.
+
+No interactive browser visual QA is claimed from this environment.

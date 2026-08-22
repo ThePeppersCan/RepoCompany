@@ -1,0 +1,12 @@
+V33.07 QA
+- node -c bedroom.js: PASS
+- index cache-bust updated to V33.07: PASS
+- furniture placed elements no longer use HTML button tags: PASS
+- interaction prompt suppressed while pose != idle: PASS
+- explicit left/right idle cells corrected: PASS
+- sleep target uses selected bed placement + scale + flip state: PASS
+- sleep transform aligns to unflipped/flipped isometric bed direction: PASS
+- keeper scale reduced exactly 25% from desktop V33.06 (7.4% -> 5.55%): PASS
+- player z-layer elevated above furniture: PASS
+
+Browser visual QA was not run in this environment. Bed placement should be checked once live on all four bed sprites and both flipped states.
