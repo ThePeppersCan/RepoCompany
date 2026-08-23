@@ -1,0 +1,9 @@
+Velmora patch V33.34 — Easier dragon petting
+
+- Added a larger invisible interaction hitbox around the baby dragon sprite.
+- Hovering that area now shows a very subtle soft outline rather than a large UI box.
+- When petting is ready, a tiny ♥ PET chip appears near the dragon.
+- Existing dragon identity hover card remains intact and now says you can click anywhere around the dragon to pet.
+- Hitbox automatically scales with dragon sprite/growth size.
+- Pet cooldown, bond rewards, sounds and animations are unchanged.
+- Patch-only: dragonbound-baby-engine.js + index.html.

@@ -1,0 +1,8 @@
+Velmora patch V33.40 — Dragon Racing button + music hotfix
+
+- Fixed the missing Dragon Racing home-sidebar button by targeting the actual .dragonbound-home-sidebar directly instead of trying to discover image-only buttons by label text.
+- Dragon Racing now occupies a dedicated slot directly below My Bedroom.
+- Dragon Bites is moved down one slot so Racing sits between My Bedroom and Dragon Bites.
+- The Racing button uses the supplied DRACER artwork and stays transparent/subtle on hover.
+- Replaced the Track Select menu music with the supplied Dream Island track at 50% volume.
+- Patch-only; no unrelated assets included.

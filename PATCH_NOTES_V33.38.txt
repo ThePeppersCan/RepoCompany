@@ -1,0 +1,9 @@
+Velmora V33.38 — Training Panel Cleanup
+
+- Replaced the five chunky skill buttons in Dragon Care with slim integrated skill rows.
+- Removed the inherited brown/gold global button skin entirely by no longer using HTML buttons there.
+- Added a subtle teal hover/focus treatment, thin XP bars and compact level badges.
+- Kept each skill clickable to open its existing training detail panel.
+- Added Enter/Space keyboard activation for the new rows.
+- No training balance, XP, fatigue, personality, Bond or save data changed.
+- Patch-only: modified files only.

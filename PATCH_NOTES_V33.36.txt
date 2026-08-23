@@ -1,0 +1,23 @@
+Velmora Dragonbound V33.36 — Dragon Daily Life V1
+
+Patch-only update.
+
+Implemented:
+- Dragon routines now use the existing Velmora in-game clock: morning, active day, evening wind-down and night.
+- Personality-weighted personal wake times after 7 AM.
+- Stronger evening/night bed seeking and much longer night sleep than daytime naps.
+- New occasional keeper-approach behaviour driven by Affection, Bond, Independence and traits, with anti-spam cooldowns.
+- Petting now causes a personality-sensitive short reaction/linger instead of immediately returning to random AI.
+- Furniture choice now considers familiarity, favourite furniture, favourite categories, curiosity/bravery and time of day.
+- New furniture can be investigated gradually rather than treated exactly like known furniture.
+- Added persistent observed-behaviour discoveries: Early Riser, Heavy Sleeper, Creature of Habit, Keeper's Shadow, Curious Nose, Quiet Observer, Playful Spark and Evening Nester.
+- Added Observed Behaviours to the existing Dragon Care HUD.
+- All Daily Life evidence/discoveries/wake scheduling stays inside the existing per-dragon memory save.
+- Added admin-only DragonDailyLifeDebug inspect/forceDecision/explainDecision/setRoutinePhase/clearCooldowns/inspectDiscoveries.
+
+Preserved:
+- Existing personality/core stats and assigned traits.
+- Bond, needs, skills, memories and favourites.
+- Existing furniture mounts/collision/dragon sprites.
+- Existing petting hitbox and bond-text fixes.
+- No database migration required.

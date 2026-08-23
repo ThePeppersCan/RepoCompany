@@ -1,0 +1,11 @@
+Velmora patch V33.46 — Track details + course avatars
+
+- Reworked Track Details into three clean areas: Difficulty, Setting, and Access.
+- Difficulty now has a compact visual difficulty meter.
+- Setting shows the location plus course style without text overflow.
+- Access now uses the supplied Dragon Racing icon and shows "Dragon Racing Level: X".
+- Required levels increase by 8 per course: 1, 9, 17, 25, 33, 41, 49, 57, 65.
+- No course is locked yet; this is selection/display only.
+- Replaced the tiny track-list squares with the supplied 64px course avatar artwork.
+- Kept large Track Preview artwork from V33.45 unchanged.
+- Patch includes only modified files plus the 9 small course-avatar images and compact Dragon Racing icon.

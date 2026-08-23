@@ -1,0 +1,14 @@
+Velmora patch V33.41 — Dragon Racing fullscreen + invisible hotspot cleanup
+
+- Dragon Racing scenes now use a fullscreen presentation.
+- Exterior, race desk and track select art now fill the full modal instead of sitting inside smaller framed panels.
+- Stadium entrance and Bolt Bramble interactions now use invisible hotspot buttons with only a subtle glow on hover/focus.
+- Removed visible brown hotspot boxes/hover blocks from the racing scenes.
+- Back/close controls restyled away from the brown treatment.
+- Dream Island menu music volume reduced by another 25% from the prior patch (now quieter).
+
+Patch-only contents:
+- index.html
+- dragon-racing-ui.css
+- dragon-racing-ui.js
+- PATCH_NOTES_V33.41.txt

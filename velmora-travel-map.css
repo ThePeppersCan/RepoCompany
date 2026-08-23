@@ -6,7 +6,7 @@
 .velmora-travel-map-wrap{position:relative;width:min(100%,1080px);margin:0 auto;border-radius:28px;overflow:hidden;border:1px solid rgba(235,213,168,.18);box-shadow:0 18px 42px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.04);background:linear-gradient(180deg,rgba(13,25,34,.92),rgba(8,16,23,.96))}
 .velmora-travel-map-image{display:block;width:100%;height:auto;image-rendering:auto;user-select:none;-webkit-user-drag:none}
 .velmora-travel-map-sheen{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),rgba(255,255,255,0) 36%),linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 26%,rgba(6,13,20,.04) 100%)}
-.velmora-travel-map-hotspot{position:absolute;display:flex;align-items:flex-end;justify-content:flex-start;background:transparent !important;border:0 !important;padding:0;cursor:pointer;z-index:3;color:#fff;text-align:left;appearance:none;-webkit-appearance:none;box-shadow:none !important;outline:none;text-decoration:none}
+.velmora-travel-map-hotspot{all:unset;position:absolute;display:flex;align-items:flex-end;justify-content:flex-start;padding:0;cursor:pointer;z-index:3;color:#fff;text-align:left;box-shadow:none !important;outline:none;text-decoration:none;font:inherit}
 .velmora-travel-map-hotspot:focus-visible .velmora-travel-map-label,.velmora-travel-map-hotspot:hover .velmora-travel-map-label{transform:translateY(-2px);box-shadow:0 14px 28px rgba(0,0,0,.38), inset 0 0 0 1px rgba(255,255,255,.1);border-color:rgba(255,228,176,.4)}
 .velmora-travel-map-hotspot[data-closed='1']{filter:saturate(.84)}
 .velmora-travel-map-hotspot[data-closed='1'] .velmora-travel-map-label{background:rgba(36,22,26,.88);border-color:rgba(255,192,192,.18)}
@@ -24,3 +24,7 @@
 
 .velmora-travel-map-hotspot:hover,.velmora-travel-map-hotspot:focus,.velmora-travel-map-hotspot:focus-visible,.velmora-travel-map-hotspot:active{background:transparent !important;border-color:transparent !important;box-shadow:none !important;outline:none;color:#fff}
 .velmora-travel-map-hotspot:hover .velmora-travel-map-label,.velmora-travel-map-hotspot:focus .velmora-travel-map-label,.velmora-travel-map-hotspot:focus-visible .velmora-travel-map-label,.velmora-travel-map-hotspot:active .velmora-travel-map-label{background:rgba(8,18,26,.90)}
+
+.velmora-travel-map-hotspot,.velmora-travel-map-hotspot *{box-sizing:border-box}
+.velmora-travel-map-hotspot::after{content:none !important;display:none !important}
+.velmora-travel-map-hotspot[role="button"]{user-select:none;-webkit-user-select:none}
