@@ -1,0 +1,31 @@
+Velmora patch V33.47 — Velmora City Circuit playable V1
+
+Implemented the first playable Dragon Racing course using the supplied Velmora City Circuit artwork.
+
+Included:
+- Track Select ENTER RACE control and compact race confirmation.
+- Velmora City Circuit only launches; later courses remain preview/select only.
+- Fullscreen camera-follow race world using the supplied circuit artwork.
+- Manually defined closed centreline following the pale city roadway.
+- 15 ordered checkpoints, 3 laps and 6 racers (player + 5 AI).
+- Player uses their current Dragonbound dragon breed/name; AI uses existing baby-dragon assets.
+- W/Up accelerate, S/Down brake, A/D lane steering and Space boost.
+- Smooth course-relative movement, lateral overtaking, AI line changes and light separation.
+- Compact race HUD: position, lap, time and boost.
+- Countdown, lap/final-lap notices, results, race again, track select and leave flow.
+- Per-dragon/account City Circuit best time, best lap, races, wins and podium stats.
+- Dragon Racing progression record safely initialises at Level 1.
+- Existing training levels provide only small race modifiers.
+- Admin-only DragonRacingDebug path/checkpoint/racer tools.
+- Menu music fades out into the race and resumes on Track Select.
+
+IMPORTANT: Dragon Racing XP is intentionally DISABLED in this build. Finishing a race records times/results only and grants no XP.
+
+Patch-only contents:
+- index.html
+- dragon-racing-ui.css
+- dragon-racing-ui.js
+- dragon-racing-race.css
+- dragon-racing-race.js
+- dragon-racing-assets/velmora-city-circuit.webp
+- PATCH_NOTES_V33.47.txt

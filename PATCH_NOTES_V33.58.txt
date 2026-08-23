@@ -1,0 +1,24 @@
+Velmora Dragon Racing — Patch V33.58
+===================================
+
+Patch-only update.
+
+What changed
+------------
+- Added a gentler broadcast-style camera sway / drift during racing.
+- Strengthened the pack-follow logic so the camera holds onto the main racing cluster better.
+- Reduced how often the camera breaks away from the action.
+- Added a clean screen-space sky overlay for ambience.
+- Added slow-moving cloud layers spread across the upper half of the race presentation.
+- Added occasional hot-air / airship fly-bys that stay mostly out of the way.
+
+Included files
+--------------
+- dragon-racing-race.js
+- dragon-racing-airship-1.png
+- dragon-racing-airship-2.png
+- dragon-racing-airship-3.png
+- dragon-racing-airship-4.png
+- dragon-racing-airship-5.png
+- dragon-racing-airship-6.png
+- dragon-racing-cloud-1.png through dragon-racing-cloud-11.png

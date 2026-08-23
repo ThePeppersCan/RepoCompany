@@ -1,0 +1,16 @@
+Velmora Dragon Racing — Patch V33.61
+===================================
+
+Patch-only update.
+
+Changes
+-------
+- Removed the procedural cloud system completely.
+- Removed the cloud overlay and cloud animation code.
+- Cleans up any old sky/cloud style tag if it is still present.
+- Keeps the current immersive camera, pack-follow behaviour, race atmosphere, confetti and other racing systems unchanged.
+
+Included files
+--------------
+- dragon-racing-race.js
+- PATCH_NOTES_V33.61.txt

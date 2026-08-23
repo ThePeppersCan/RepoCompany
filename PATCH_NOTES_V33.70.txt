@@ -1,0 +1,15 @@
+V33.70 — Nambara race-facing hotfix
+
+Files included:
+- dragon-racing-race.js
+
+Fix:
+- Nambara is now treated as a left-facing source breed during Dragon Racing.
+- This stops Nambara racers appearing to fly backwards on the City Circuit.
+
+Preserved:
+- V33.69 Keeper Mark rewards and results visibility
+- Existing Iskandar, Nyrgate Aurora, Rova End, and Calvora sprite overrides
+- Race RNG, camera, audio, UI, results, and XP behaviour
+
+Dragon Racing XP remains disabled.

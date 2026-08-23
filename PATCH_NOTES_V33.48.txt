@@ -1,0 +1,18 @@
+Velmora patch V33.48 — City Circuit autonomous spectator race
+
+- Race view is now centred and professionally contained on all aspect ratios.
+- The whole circuit remains visible so the race reads like a clean spectator event.
+- Removed manual W/A/S/D/arrow/Space racing controls and the boost/control HUD.
+- Every dragon, including the player's dragon, now races fully autonomously.
+- All six racers use the same racing AI model and the same core speed range.
+- Per-race luck is the dominant result factor, so any dragon can win.
+- Training/personality only apply a tiny player bias (fractions of a percent) and cannot create a major advantage.
+- Added small autonomous line changes, overtakes, surges, mistakes and boost bursts so positions can change naturally.
+- Preserved 3 laps, checkpoints, results, best times and no Dragon Racing XP rewards.
+- No XP is granted in this patch.
+
+Patch-only contents:
+- index.html
+- dragon-racing-race.css
+- dragon-racing-race.js
+- PATCH_NOTES_V33.48.txt

@@ -1,0 +1,42 @@
+V33.66 — Full Dragon Racing Sprite QA
+
+Registered breeds audited: 30
+
+Race-safe profiles:
+- Vardesh (vardesh) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Lumerre (lumerre) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Kordesh (kordesh) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Nambara (nambara) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Norveth (norveth) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Zafran (zafran) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Elvane (elvane) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Qasmir (qasmir) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Calvora (calvora) | facing=right | fly=8,9,8,9 | takeoff=12,13 | land=14,15 | restricted: excludes non-flight contamination seen in race
+- Rovarn (rovarn) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Talune (talune) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Drazhen (drazhen) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Belros (belros) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Marovar (marovar) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Sorevia (sorevia) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Iskandar (iskandar) | facing=left | fly=8,9,10,9 | takeoff=12,13 | land=14,15 | restricted + left-facing race override
+- Blackglass Coast (blackglass-coast) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Skallheim (skallheim) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Hestholm Fjord (hestholm-fjord) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Nyrgate Aurora (nyrgate-aurora) | facing=left | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | left-facing race override from visual QA
+- Warmvein / Krellhaven (warmvein-krellhaven) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Aurelia (aurelia) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Orsanne (orsanne) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Saint Ciro (saint-ciro) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Marenza (marenza) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Grand Khor (grand-khor) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Rova End (rova-end) | facing=left | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | left-facing source breed
+- Zafir Row (zafir-row) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Ossa Mere (ossa-mere) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+- Ashwick / Cinderbank (ashwick-cinderbank) | facing=right | fly=8,9,10,11,10,9 | takeoff=12,13 | land=14,15 | standard clean flight loop
+
+Global safeguards:
+- Race flight loops never use transition/landing frames 13 or 14.
+- Each registered breed now has an explicit race-facing profile instead of relying blindly on home-engine metadata.
+- Missing/broken image files fall back safely to the breed idle frame rather than leaving a broken racer.
+- Known visual exceptions are preserved: Iskandar left-facing, Nyrgate Aurora left-facing, Rova End left-facing, Calvora restricted flight loop.
+- No race balance, RNG, audio, results, camera, or XP changes.

@@ -1,0 +1,19 @@
+Velmora patch V33.49 — City Circuit TV / flight / audio pass
+
+- Velmora City Circuit is now presented inside a centred broadcast-style TV bezel rather than floating on the dark page.
+- HUD is contained cleanly inside the race screen.
+- Racers now use the actual Dragonbound animation definitions: idle -> short running takeoff -> takeOff -> full fly loop -> land -> short landing run.
+- The previous truncated frame 8/9/10 race loop was removed; the complete flying sequence is used during the race.
+- Facing is now derived from each breed's Dragonbound native-facing metadata and the track tangent.
+- Added the supplied City Circuit soundtrack at exactly 45% volume while the race is active.
+- Added both supplied wing-flap clips as occasional ambient race sounds at randomized 5–10% volume.
+- Wing ambience only starts after takeoff and is spaced out so it remains subtle.
+- All racing remains fully autonomous and Dragon Racing XP remains disabled.
+
+Patch-only contents:
+- index.html
+- dragon-racing-race.js
+- dragon-racing-race.css
+- dragon-racing-assets/audio/velmora-city-circuit.mp3
+- dragon-racing-assets/audio/wing-flap-01.mp3
+- dragon-racing-assets/audio/wing-flap-02.mp3

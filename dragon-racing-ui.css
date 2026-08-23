@@ -873,3 +873,102 @@ html body #dragonRacingModal .dragon-racing-close{padding:0!important;width:46px
   #dragonRacingModal .dragon-racing-access-lockup{grid-template-columns:32px minmax(0,1fr)!important;gap:8px!important}
   #dragonRacingModal .dragon-racing-access-lockup img{width:32px!important;height:32px!important}
 }
+
+
+/* =========================================================
+   V33.47 — Track Select race entry + confirmation
+   ========================================================= */
+#dragonRacingModal .dragon-racing-track-enter{
+  position:absolute;left:50.1%;bottom:2.35%;width:26.4%;height:5.2%;z-index:14;
+  pointer-events:auto;display:flex;align-items:center;justify-content:center;gap:2.2%;
+  padding:0 1.4%;box-sizing:border-box;overflow:hidden;cursor:pointer;outline:none;
+  border:1px solid rgba(117,201,225,.34);border-radius:3px;
+  background:linear-gradient(180deg,rgba(16,42,54,.88),rgba(7,24,33,.94));
+  box-shadow:0 0 0 1px rgba(255,255,255,.025) inset,0 7px 18px rgba(0,0,0,.22),0 0 14px rgba(68,166,197,.07);
+  color:#edf8fb;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease,filter .14s ease;
+}
+#dragonRacingModal .dragon-racing-track-enter:hover,#dragonRacingModal .dragon-racing-track-enter:focus-visible{
+  transform:translateY(-1px);border-color:rgba(145,226,244,.66);box-shadow:0 0 0 1px rgba(255,255,255,.035) inset,0 9px 22px rgba(0,0,0,.25),0 0 19px rgba(73,184,218,.14);filter:brightness(1.04)
+}
+#dragonRacingModal .dragon-racing-track-enter span{font:900 clamp(8px,.7vw,13px)/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.13em;white-space:nowrap}
+#dragonRacingModal .dragon-racing-track-enter small{max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8faab4;font:800 clamp(6px,.46vw,9px)/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.025em}
+#dragonRacingModal .dragon-racing-track-confirm{position:absolute;inset:0;z-index:40;display:grid;place-items:center;pointer-events:none;background:rgba(5,11,16,0);opacity:0;transition:opacity .18s ease,background .18s ease}
+#dragonRacingModal .dragon-racing-track-confirm.is-visible{pointer-events:auto;opacity:1;background:rgba(5,11,16,.34);backdrop-filter:blur(2px)}
+#dragonRacingModal .dragon-racing-track-confirm-card{width:36%;min-width:360px;max-width:560px;padding:2.25% 2.35%;box-sizing:border-box;border:1px solid rgba(113,198,222,.38);border-radius:10px;background:linear-gradient(180deg,rgba(7,26,34,.97),rgba(4,16,23,.985));box-shadow:0 24px 70px rgba(0,0,0,.48),0 0 0 1px rgba(255,255,255,.025) inset,0 0 30px rgba(63,161,193,.08);transform:translateY(10px) scale(.985);transition:transform .2s ease}
+#dragonRacingModal .dragon-racing-track-confirm.is-visible .dragon-racing-track-confirm-card{transform:translateY(0) scale(1)}
+#dragonRacingModal .dragon-racing-track-confirm-card>small{display:block;color:#7fb8ca;font:900 clamp(7px,.52vw,10px)/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.17em}
+#dragonRacingModal .dragon-racing-track-confirm-card>strong{display:block;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f4f0e7;font:800 clamp(18px,1.5vw,28px)/1.05 Georgia,serif;text-shadow:0 2px 8px rgba(0,0,0,.45)}
+#dragonRacingModal .dragon-racing-track-confirm-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+#dragonRacingModal .dragon-racing-track-confirm-meta span{min-width:0;padding:10px 12px;border:1px solid rgba(130,160,171,.13);border-radius:6px;background:rgba(255,255,255,.025);overflow:hidden}
+#dragonRacingModal .dragon-racing-track-confirm-meta b{display:block;color:#738c97;font:900 8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.12em}
+#dragonRacingModal .dragon-racing-track-confirm-meta em{display:block;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e8eef0;font:800 12px/1.1 'Trebuchet MS',Arial,sans-serif;font-style:normal}
+#dragonRacingModal .dragon-racing-track-confirm-card p{margin:15px 0 0;color:#9aadb4;font:700 11px/1.35 'Trebuchet MS',Arial,sans-serif}
+#dragonRacingModal .dragon-racing-track-confirm-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+#dragonRacingModal .dragon-racing-track-confirm-actions>div{padding:10px 16px;border-radius:5px;border:1px solid rgba(118,198,221,.3);background:rgba(8,35,46,.82);color:#eaf6f8;font:900 10px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.09em;cursor:pointer;outline:none;transition:.14s ease}
+#dragonRacingModal .dragon-racing-track-confirm-actions>div:hover,#dragonRacingModal .dragon-racing-track-confirm-actions>div:focus-visible{border-color:rgba(151,229,247,.62);background:rgba(11,47,60,.94);box-shadow:0 0 15px rgba(73,185,216,.12)}
+#dragonRacingModal .dragon-racing-track-confirm-actions>div.is-disabled{opacity:.38;cursor:not-allowed;filter:saturate(.45)}
+@media(max-width:900px){#dragonRacingModal .dragon-racing-track-enter small{display:none}#dragonRacingModal .dragon-racing-track-confirm-card{width:54%;min-width:320px}}
+
+
+/* V33.52 — keep Track Select bottom controls safely above OS taskbars. */
+#dragonRacingModal .dragon-racing-track-prev,
+#dragonRacingModal .dragon-racing-track-next{
+  bottom:6.25%!important;
+}
+#dragonRacingModal .dragon-racing-track-enter{
+  bottom:5.95%!important;
+}
+#dragonRacingModal .dragon-racing-menu-audio{
+  bottom:max(52px,5.8vh)!important;
+}
+@media(max-height:760px){
+  #dragonRacingModal .dragon-racing-track-prev,
+  #dragonRacingModal .dragon-racing-track-next{bottom:7.1%!important}
+  #dragonRacingModal .dragon-racing-track-enter{bottom:6.8%!important}
+}
+
+
+/* =========================================================
+   V33.69 — Track Details Keeper Mark earning rate
+   ========================================================= */
+#dragonRacingModal .dragon-racing-access-lockup{
+  grid-template-columns:clamp(34px,3vw,52px) minmax(0,1fr) minmax(118px,42%)!important;
+}
+#dragonRacingModal .dragon-racing-access-main{min-width:0!important}
+#dragonRacingModal .dragon-racing-track-reward-rate{
+  min-width:0!important;
+  align-self:stretch!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  padding-left:12px!important;
+  border-left:1px solid rgba(149,180,188,.10)!important;
+}
+#dragonRacingModal .dragon-racing-track-reward-rate small{
+  display:block!important;
+  margin:0 0 4px!important;
+  color:#8c9da2!important;
+  font:900 clamp(5.5px,.43vw,8px)/1 'Trebuchet MS',Arial,sans-serif!important;
+  letter-spacing:.13em!important;
+  white-space:nowrap!important;
+}
+#dragonRacingModal .dragon-racing-track-reward-rate strong{
+  color:#a7b3b4!important;
+  font:900 clamp(8px,.7vw,13px)/1.05 'Trebuchet MS',Arial,sans-serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#dragonRacingModal .dragon-racing-track-reward-rate.is-live strong{color:#ead17f!important;text-shadow:0 2px 7px rgba(0,0,0,.25)!important}
+#dragonRacingModal .dragon-racing-track-reward-rate span{
+  margin-top:3px!important;
+  color:#748a92!important;
+  font:700 clamp(5.5px,.43vw,8px)/1 'Trebuchet MS',Arial,sans-serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+@media(max-width:900px){
+  #dragonRacingModal .dragon-racing-access-lockup{grid-template-columns:32px minmax(0,1fr) minmax(100px,40%)!important}
+  #dragonRacingModal .dragon-racing-track-reward-rate{padding-left:8px!important}
+}

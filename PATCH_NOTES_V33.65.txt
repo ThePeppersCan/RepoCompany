@@ -1,0 +1,12 @@
+V33.65 — Dragon Racing Nyrgate/Aurora facing hotfix
+
+Files included:
+- dragon-racing-race.js
+
+Fixes:
+- Corrected the Nyrgate / Aurora race dragon type so it no longer flies backwards in races.
+- Keeps the previous Iskandar and Calvora race sprite fixes intact.
+
+Notes:
+- Focused race sprite presentation hotfix only.
+- No changes to audio, UI, results, XP, or race logic.

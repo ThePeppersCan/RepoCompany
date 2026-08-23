@@ -1,0 +1,16 @@
+Velmora patch V33.50 — City Circuit audio balance
+
+- City Circuit music reduced by 20% relative to the previous 45% mix:
+  45% -> 36%.
+- Wing flap ambience made clearly more audible:
+  randomized roughly 14% to 22% volume.
+- Wing flap events occur a little more often while dragons are airborne.
+- Added the supplied stadium crowd ambience as a constant loop at 10% during the race.
+- Crowd audio stops and resets cleanly when leaving/restarting the race.
+- Dragon Racing XP remains disabled.
+
+Patch-only contents:
+- dragon-racing-race.js
+- index.html
+- dragon-racing-assets/audio/stadium-crowd.mp3
+- PATCH_NOTES_V33.50.txt

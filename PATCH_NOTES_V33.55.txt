@@ -1,0 +1,30 @@
+Velmora Dragon Racing — Patch V33.55
+===================================
+
+This patch only includes the modified files.
+
+Changes
+-------
+1) Dramatically upgraded results screen.
+   - Cleaner, more premium end-of-race presentation.
+   - Better hierarchy, nicer stat cards, improved final standings board.
+   - Player row highlighted more cleanly.
+
+2) Race music no longer cuts out when results appear.
+   - Countdown / transient race sounds stop.
+   - Main race music and crowd continue on the finish screen.
+
+3) Opponent variety widened.
+   - The race now builds from the full available baby-dragon registry where possible.
+   - Recent racers are avoided so you do not keep seeing the same 5 over and over.
+   - Existing recurring named rivals are still kept in the pool.
+
+4) Crowd atmosphere improved.
+   - Extra confetti / celebratory bursts around trackside crowd areas.
+   - Scene feels busier and more event-like.
+
+Included files
+--------------
+- dragon-racing-race.js
+- dragon-racing-race.css
+- PATCH_NOTES_V33.55.txt

@@ -1,6 +1,6 @@
 (function(){
-  if(window.__dragonRacingUiV3346)return;
-  window.__dragonRacingUiV3346=true;
+  if(window.__dragonRacingUiV3369)return;
+  window.__dragonRacingUiV3369=true;
 
   const ASSET_BASE='dragon-racing-assets';
   const state={scene:'exterior',audio:null,observer:null,mo:null,selectedTrackIndex:0,syncTrackUi:null};
@@ -9,7 +9,7 @@
   const TRACK_AVATAR_BASE=`${ASSET_BASE}/course-avatars`;
   const DRAGON_RACING_ICON=`${ASSET_BASE}/dragon-racing-icon.png`;
   const TRACKS=[
-    {id:'velmora_city_circuit',name:'Velmora City Circuit',file:'velmora_city_circuit_preview.png',avatar:'velmora_city_circuit_64.png',region:'Velmora City',style:'City Circuit',difficulty:'Easy',difficultyRank:1,level:1},
+    {id:'velmora_city_circuit',name:'Velmora City Circuit',file:'velmora_city_circuit_preview.png',avatar:'velmora_city_circuit_64.png',region:'Velmora City',style:'City Circuit',difficulty:'Easy',difficultyRank:1,level:1,marksPerHour:1500},
     {id:'canto_meadow_circuit',name:'Canto Meadow Circuit',file:'canto_meadow_circuit_preview.png',avatar:'canto_meadow_circuit_64.png',region:'Canto Meadows',style:'Open Circuit',difficulty:'Easy–Medium',difficultyRank:2,level:9},
     {id:'greenwater_canopy_arena',name:'Greenwater Canopy Arena',file:'greenwater_canopy_arena_preview.png',avatar:'greenwater_canopy_arena_64.png',region:'Greenwater',style:'Forest Arena',difficulty:'Medium',difficultyRank:3,level:17},
     {id:'talune_greenwater_canopy',name:'Talune Greenwater Canopy',file:'talune_greenwater_canopy_preview.png',avatar:'talune_greenwater_canopy_64.png',region:'Talune',style:'Canopy Circuit',difficulty:'Medium',difficultyRank:3,level:25},
@@ -21,6 +21,20 @@
   ];
 
   const escHtml=value=>String(value??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+
+  const roundedMarksPerHour=value=>{
+    const n=Math.max(0,Number(value)||0);
+    return n?Math.round(n/50)*50:0;
+  };
+  const rewardInfoForTrack=track=>{
+    try{
+      const live=window.DragonRacingRace?.getRewardInfo?.(track.id);
+      if(live?.averageMarksPerHour)return live;
+    }catch(_e){}
+    if(track?.marksPerHour)return {averageMarksPerHour:Number(track.marksPerHour)||0};
+    return null;
+  };
+
 
   const trackRowHtml=(track,index)=>`<div class="dragon-racing-track-row${index===state.selectedTrackIndex?' is-selected':''}" role="button" tabindex="0" data-track-index="${index}" aria-label="Select ${escHtml(track.name)}"><span class="dragon-racing-track-thumb"><img src="${TRACK_AVATAR_BASE}/${track.avatar}" alt="" aria-hidden="true"></span><span class="dragon-racing-track-copy"><strong>${escHtml(track.name)}</strong><small>${escHtml(track.region)} · ${escHtml(track.difficulty)}</small></span><em>LV. ${track.level}</em></div>`;
 
@@ -44,7 +58,14 @@
     const setting=ui.querySelector('[data-track-detail="region"]');
     if(setting){setting.innerHTML=`<div class="dragon-racing-detail-heading">SETTING</div><div class="dragon-racing-detail-primary"><strong>${escHtml(track.region)}</strong><span>${escHtml(track.style)}</span></div>`;}
     const access=ui.querySelector('[data-track-detail="access"]');
-    if(access){access.innerHTML=`<div class="dragon-racing-access-lockup"><img src="${DRAGON_RACING_ICON}" alt="" aria-hidden="true"><div><div class="dragon-racing-detail-heading">ACCESS</div><strong>Dragon Racing Level: ${track.level}</strong><span>Required course level</span></div></div>`;}
+    if(access){
+      const rewardInfo=rewardInfoForTrack(track),marksPerHour=roundedMarksPerHour(rewardInfo?.averageMarksPerHour);
+      const rewardRate=marksPerHour?`≈ ${marksPerHour.toLocaleString('en-GB')} Marks / hr`:'Reward rate TBA';
+      const rewardSub=marksPerHour?'Average base race payout':'Available when course rewards launch';
+      access.innerHTML=`<div class="dragon-racing-access-lockup"><img src="${DRAGON_RACING_ICON}" alt="" aria-hidden="true"><div class="dragon-racing-access-main"><div class="dragon-racing-detail-heading">ACCESS</div><strong>Dragon Racing Level: ${track.level}</strong><span>Required course level</span></div><div class="dragon-racing-track-reward-rate${marksPerHour?' is-live':''}"><small>REWARD RATE</small><strong>${rewardRate}</strong><span>${rewardSub}</span></div></div>`;
+    }
+    const enterNote=ui.querySelector('[data-track-enter-note]');
+    if(enterNote)enterNote.textContent=`${track.name} · Lv. ${track.level}`;
     ui.dataset.trackId=track.id;
   };
 
@@ -105,6 +126,63 @@
     }
   };
 
+  const formatRaceTime=ms=>{
+    const value=Math.max(0,Number(ms)||0),minutes=Math.floor(value/60000),seconds=Math.floor((value%60000)/1000),hundredths=Math.floor((value%1000)/10);
+    return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(hundredths).padStart(2,'0')}`;
+  };
+
+  const closeRaceConfirm=modal=>{
+    const confirm=modal?.querySelector('.dragon-racing-track-confirm');
+    if(!confirm)return;
+    confirm.classList.remove('is-visible');
+    confirm.setAttribute('aria-hidden','true');
+  };
+
+  const openRaceConfirm=modal=>{
+    const track=TRACKS[state.selectedTrackIndex]||TRACKS[0],confirm=modal?.querySelector('.dragon-racing-track-confirm');
+    if(!confirm)return;
+    const player=window.DragonRacingRace?.getPlayerInfo?.()||{};
+    const progression=window.DragonRacingRace?.getProgression?.()||{level:1};
+    const stats=window.DragonRacingRace?.getTrackStats?.(track.id)||{};
+    const name=confirm.querySelector('[data-race-confirm-name]');if(name)name.textContent=track.name;
+    const diff=confirm.querySelector('[data-race-confirm-difficulty]');if(diff)diff.textContent=track.difficulty;
+    const level=confirm.querySelector('[data-race-confirm-level]');if(level)level.textContent=`Dragon Racing Lv. ${track.level}`;
+    const best=confirm.querySelector('[data-race-confirm-best]');if(best)best.textContent=stats.bestTimeMs?formatRaceTime(stats.bestTimeMs):'—';
+    const note=confirm.querySelector('[data-race-confirm-note]');
+    if(note){
+      if(track.id!=='velmora_city_circuit')note.textContent='Race course not yet available. You can still preview this course.';
+      else if(Number(progression.level||1)<track.level)note.textContent=`Requires Dragon Racing Lv. ${track.level}.`;
+      else note.textContent=`${player.name||'Your dragon'} is ready for the Velmora City Circuit.`;
+    }
+    const enter=confirm.querySelector('[data-race-confirm-enter]');
+    if(enter){
+      enter.classList.toggle('is-disabled',track.id!=='velmora_city_circuit'||Number(progression.level||1)<track.level);
+      enter.setAttribute('aria-disabled',enter.classList.contains('is-disabled')?'true':'false');
+    }
+    confirm.classList.add('is-visible');
+    confirm.setAttribute('aria-hidden','false');
+  };
+
+  const startSelectedRace=modal=>{
+    const track=TRACKS[state.selectedTrackIndex]||TRACKS[0];
+    if(track.id!=='velmora_city_circuit'){
+      const note=modal?.querySelector('[data-race-confirm-note]');if(note)note.textContent='Race course not yet available. You can still preview this course.';
+      return false;
+    }
+    const progression=window.DragonRacingRace?.getProgression?.()||{level:1};
+    if(Number(progression.level||1)<track.level)return false;
+    closeRaceConfirm(modal);
+    window.DragonRacingRace?.start?.(track);
+    return true;
+  };
+
+  const fadeMenuAudioTo=(target=.30,duration=500)=>{
+    const audio=state.audio;if(!audio)return;
+    const from=Number(audio.volume)||0,to=Math.max(0,Math.min(1,Number(target)||0)),start=performance.now();
+    const step=now=>{const p=Math.min(1,(now-start)/Math.max(1,duration)),v=from+(to-from)*p;audio.volume=v;if(p<1)requestAnimationFrame(step);else if(to<=.001){try{audio.pause();}catch(_e){}}};
+    requestAnimationFrame(step);
+  };
+
   const ensureModal=()=>{
     let modal=document.getElementById('dragonRacingModal');
     if(modal)return modal;
@@ -131,7 +209,7 @@
             <div class="dragon-racing-hotspot" id="dragonRacingBoltHotspot" role="button" tabindex="0" aria-label="Speak to Bolt Bramble" style="left:33%;top:40%;width:28%;height:42%"></div>
           </section>
           <section class="dragon-racing-scene" data-scene="menu">
-            <div class="dragon-racing-menu-shell"><img alt="Dragon racing track select" src="${ASSET_BASE}/track-select.png"/><div class="dragon-racing-menu-fx" aria-hidden="true"></div><div class="dragon-racing-menu-shine" aria-hidden="true"></div><div class="dragon-racing-menu-glints" aria-hidden="true"><i class="dragon-racing-menu-glint"></i><i class="dragon-racing-menu-glint"></i><i class="dragon-racing-menu-glint"></i><i class="dragon-racing-menu-glint"></i></div><div class="dragon-racing-menu-vignette" aria-hidden="true"></div><div class="dragon-racing-track-ui"><div class="dragon-racing-track-list"></div><div class="dragon-racing-race-style" data-track-race-style></div><div class="dragon-racing-track-preview"><img class="dragon-racing-track-preview-img" alt=""><div class="dragon-racing-track-preview-shade"></div><strong class="dragon-racing-track-preview-name"></strong></div><div class="dragon-racing-track-detail-grid"><div class="dragon-racing-track-detail dragon-racing-track-detail--difficulty" data-track-detail="difficulty"></div><div class="dragon-racing-track-detail dragon-racing-track-detail--setting" data-track-detail="region"></div><div class="dragon-racing-track-detail dragon-racing-track-detail--access" data-track-detail="access"></div></div><div class="dragon-racing-track-prev" role="button" tabindex="0" aria-label="Previous track"></div><div class="dragon-racing-track-next" role="button" tabindex="0" aria-label="Next track"></div></div></div>
+            <div class="dragon-racing-menu-shell"><img alt="Dragon racing track select" src="${ASSET_BASE}/track-select.png"/><div class="dragon-racing-menu-fx" aria-hidden="true"></div><div class="dragon-racing-menu-shine" aria-hidden="true"></div><div class="dragon-racing-menu-glints" aria-hidden="true"><i class="dragon-racing-menu-glint"></i><i class="dragon-racing-menu-glint"></i><i class="dragon-racing-menu-glint"></i><i class="dragon-racing-menu-glint"></i></div><div class="dragon-racing-menu-vignette" aria-hidden="true"></div><div class="dragon-racing-track-ui"><div class="dragon-racing-track-list"></div><div class="dragon-racing-race-style" data-track-race-style></div><div class="dragon-racing-track-preview"><img class="dragon-racing-track-preview-img" alt=""><div class="dragon-racing-track-preview-shade"></div><strong class="dragon-racing-track-preview-name"></strong></div><div class="dragon-racing-track-detail-grid"><div class="dragon-racing-track-detail dragon-racing-track-detail--difficulty" data-track-detail="difficulty"></div><div class="dragon-racing-track-detail dragon-racing-track-detail--setting" data-track-detail="region"></div><div class="dragon-racing-track-detail dragon-racing-track-detail--access" data-track-detail="access"></div></div><div class="dragon-racing-track-enter" role="button" tabindex="0" aria-label="Enter selected race"><span>ENTER RACE</span><small data-track-enter-note>Velmora City Circuit · Lv. 1</small></div><div class="dragon-racing-track-prev" role="button" tabindex="0" aria-label="Previous track"></div><div class="dragon-racing-track-next" role="button" tabindex="0" aria-label="Next track"></div><div class="dragon-racing-track-confirm" aria-hidden="true"><div class="dragon-racing-track-confirm-card"><small>RACE ENTRY</small><strong data-race-confirm-name>Velmora City Circuit</strong><div class="dragon-racing-track-confirm-meta"><span><b>DIFFICULTY</b><em data-race-confirm-difficulty>Easy</em></span><span><b>REQUIRED</b><em data-race-confirm-level>Dragon Racing Lv. 1</em></span><span><b>LAPS</b><em>3</em></span><span><b>BEST TIME</b><em data-race-confirm-best>—</em></span></div><p data-race-confirm-note>Your dragon is ready for the Velmora City Circuit.</p><div class="dragon-racing-track-confirm-actions"><div role="button" tabindex="0" data-race-confirm-enter>ENTER RACE</div><div role="button" tabindex="0" data-race-confirm-back>BACK</div></div></div></div></div></div>
             <div class="dragon-racing-menu-audio"><b>NOW PLAYING</b><span>Dream Island · 30% volume</span></div>
           </section>
         </div>
@@ -180,17 +258,23 @@
     window.addEventListener('resize',syncTrackUiGeometry,{passive:true});
     trackUi?.addEventListener('click',event=>{
       const row=event.target.closest('.dragon-racing-track-row');
-      if(row){selectTrack(modal,Number(row.dataset.trackIndex));return;}
-      if(event.target.closest('.dragon-racing-track-prev')){cycleTrack(modal,-1);return;}
-      if(event.target.closest('.dragon-racing-track-next')){cycleTrack(modal,1);return;}
+      if(row){closeRaceConfirm(modal);selectTrack(modal,Number(row.dataset.trackIndex));return;}
+      if(event.target.closest('.dragon-racing-track-prev')){closeRaceConfirm(modal);cycleTrack(modal,-1);return;}
+      if(event.target.closest('.dragon-racing-track-next')){closeRaceConfirm(modal);cycleTrack(modal,1);return;}
+      if(event.target.closest('.dragon-racing-track-enter')){openRaceConfirm(modal);return;}
+      if(event.target.closest('[data-race-confirm-back]')){closeRaceConfirm(modal);return;}
+      if(event.target.closest('[data-race-confirm-enter]')){if(!event.target.closest('[data-race-confirm-enter]').classList.contains('is-disabled'))startSelectedRace(modal);return;}
     });
     trackUi?.addEventListener('keydown',event=>{
       const row=event.target.closest('.dragon-racing-track-row');
-      if(row&&(event.key==='Enter'||event.key===' ')){event.preventDefault();selectTrack(modal,Number(row.dataset.trackIndex));return;}
-      if(event.target.closest('.dragon-racing-track-prev')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();cycleTrack(modal,-1);return;}
-      if(event.target.closest('.dragon-racing-track-next')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();cycleTrack(modal,1);return;}
-      if(event.key==='ArrowUp'||event.key==='ArrowLeft'){event.preventDefault();cycleTrack(modal,-1);}
-      if(event.key==='ArrowDown'||event.key==='ArrowRight'){event.preventDefault();cycleTrack(modal,1);}
+      if(row&&(event.key==='Enter'||event.key===' ')){event.preventDefault();closeRaceConfirm(modal);selectTrack(modal,Number(row.dataset.trackIndex));return;}
+      if(event.target.closest('.dragon-racing-track-prev')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();closeRaceConfirm(modal);cycleTrack(modal,-1);return;}
+      if(event.target.closest('.dragon-racing-track-next')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();closeRaceConfirm(modal);cycleTrack(modal,1);return;}
+      if(event.target.closest('.dragon-racing-track-enter')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openRaceConfirm(modal);return;}
+      if(event.target.closest('[data-race-confirm-back]')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();closeRaceConfirm(modal);return;}
+      if(event.target.closest('[data-race-confirm-enter]')&&(event.key==='Enter'||event.key===' ')){event.preventDefault();if(!event.target.closest('[data-race-confirm-enter]').classList.contains('is-disabled'))startSelectedRace(modal);return;}
+      if(event.key==='ArrowUp'||event.key==='ArrowLeft'){event.preventDefault();closeRaceConfirm(modal);cycleTrack(modal,-1);}
+      if(event.key==='ArrowDown'||event.key==='ArrowRight'){event.preventDefault();closeRaceConfirm(modal);cycleTrack(modal,1);}
     });
 
     modal.querySelector('#dragonRacingClose').addEventListener('click',closeModal);
@@ -207,6 +291,9 @@
     document.addEventListener('keydown',e=>{
       if(!modal.classList.contains('is-visible'))return;
       if(e.key==='Escape'){
+        const confirm=modal.querySelector('.dragon-racing-track-confirm');
+        if(confirm?.classList.contains('is-visible')){closeRaceConfirm(modal);return;}
+        if(window.DragonRacingRace?.isActive?.()){window.DragonRacingRace.exitToTrackSelect();return;}
         if(state.scene==='menu')showScene('desk');
         else if(state.scene==='desk')showScene('exterior');
         else closeModal();
@@ -255,14 +342,17 @@
     const modal=ensureModal();
     modal.classList.add('is-visible');
     document.body.classList.add('dragon-racing-modal-open');
+    window.dispatchEvent(new CustomEvent('dragonracing:visibility',{detail:{open:true}}));
     showScene('exterior');
   }
 
   function closeModal(){
+    if(window.DragonRacingRace?.isActive?.())window.DragonRacingRace.stop?.();
     const modal=document.getElementById('dragonRacingModal');
     if(!modal)return;
     modal.classList.remove('is-visible');
     document.body.classList.remove('dragon-racing-modal-open');
+    window.dispatchEvent(new CustomEvent('dragonracing:visibility',{detail:{open:false}}));
     if(state.audio&&!state.audio.paused){
       try{state.audio.pause();state.audio.currentTime=0;}catch(_e){}
     }
@@ -314,5 +404,5 @@
   };
 
   startWatching();
-  window.DragonRacingUi={open:openModal,close:closeModal,showScene,getSelectedTrack:()=>({...TRACKS[state.selectedTrackIndex]}),tracks:()=>TRACKS.map(track=>({...track}))};
+  window.DragonRacingUi={open:openModal,close:closeModal,showScene,getSelectedTrack:()=>({...TRACKS[state.selectedTrackIndex]}),tracks:()=>TRACKS.map(track=>({...track})),fadeMenuAudioOut:(duration=650)=>fadeMenuAudioTo(0,duration),restoreMenuAudio:(duration=450)=>{ensureAudio();try{const p=state.audio.play();if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(_e){}fadeMenuAudioTo(.30,duration);},closeRaceConfirm:()=>closeRaceConfirm(document.getElementById('dragonRacingModal'))};
 })();

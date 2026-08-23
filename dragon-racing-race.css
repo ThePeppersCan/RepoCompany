@@ -1,0 +1,1012 @@
+
+/* Velmora Dragon Racing — City Circuit TV / flight / audio V33.49 */
+#dragonRacingModal.is-race-active .dragon-racing-header,
+#dragonRacingModal.is-race-active>.dragon-racing-shell>.dragon-racing-back,
+#dragonRacingModal.is-race-active>.dragon-racing-shell>.dragon-racing-close{opacity:0!important;pointer-events:none!important}
+.dragon-race-game{position:absolute;inset:0;z-index:80;overflow:hidden;background:#07131a;color:#f4f8f9;font-family:'Trebuchet MS',Arial,sans-serif;opacity:0;transition:opacity .28s ease}
+.dragon-race-game.is-visible{opacity:1}
+.dragon-race-viewport{position:absolute;inset:0;overflow:hidden;background:#061018}
+.dragon-race-world{position:absolute;left:0;top:0;width:1536px;height:1024px;transform-origin:0 0;will-change:transform}
+.dragon-race-world-bg{position:absolute;inset:0;width:1536px;height:1024px;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.dragon-race-world::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 45%,transparent 52%,rgba(1,6,9,.16) 100%)}
+.dragon-race-atmosphere{position:absolute;inset:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen;opacity:.55}
+.dragon-race-atmosphere i{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,221,154,.55);box-shadow:0 0 8px rgba(255,183,91,.28);animation:dragonRaceDrift var(--d,7s) ease-in-out infinite alternate;animation-delay:var(--delay,0s)}
+@keyframes dragonRaceDrift{from{transform:translate3d(0,0,0);opacity:.25}to{transform:translate3d(var(--dx,18px),var(--dy,-10px),0);opacity:.8}}
+.dragon-race-racer{position:absolute;left:0;top:0;width:52px;height:52px;transform:translate(-50%,-68%);transform-origin:50% 70%;will-change:left,top,transform;z-index:10;pointer-events:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.48))}
+.dragon-race-racer img{display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto;transform-origin:50% 55%}
+.dragon-race-racer.is-flipped img{transform:scaleX(-1)}
+.dragon-race-racer.is-player{width:58px;height:58px;z-index:20;filter:drop-shadow(0 5px 6px rgba(0,0,0,.52)) drop-shadow(0 0 7px rgba(104,218,241,.28))}
+.dragon-race-racer.is-player::after{content:'';position:absolute;left:50%;top:73%;width:35px;height:12px;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(124,221,241,.58);box-shadow:0 0 12px rgba(98,205,230,.22);opacity:.78}
+.dragon-race-racer-tag{position:absolute;left:50%;bottom:100%;transform:translate(-50%,-3px);padding:2px 5px;border-radius:999px;background:rgba(3,15,21,.72);border:1px solid rgba(190,231,239,.18);color:#eef8fa;font:800 7px/1 'Trebuchet MS',Arial,sans-serif;white-space:nowrap;text-shadow:0 1px 2px #000}
+.dragon-race-hud{position:absolute;inset:0;z-index:120;pointer-events:none}
+.dragon-race-hud-top{position:absolute;left:18px;right:18px;top:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.dragon-race-hud-cluster{display:flex;gap:8px;align-items:stretch}
+.dragon-race-hud-box{min-width:92px;padding:8px 11px 9px;border-radius:9px;border:1px solid rgba(146,205,222,.24);background:linear-gradient(180deg,rgba(5,22,29,.86),rgba(4,15,21,.88));box-shadow:0 10px 25px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.025) inset;backdrop-filter:blur(6px)}
+.dragon-race-hud-box small{display:block;color:#7997a4;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.14em}
+.dragon-race-hud-box b{display:block;margin-top:4px;color:#f2f5f4;font:900 18px/1 Georgia,serif;letter-spacing:.02em}
+.dragon-race-hud-box.is-position b{color:#f4d985}
+.dragon-race-hud-dragon{display:flex;align-items:center;gap:9px;min-width:170px}
+.dragon-race-hud-dragon img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.45))}
+.dragon-race-hud-dragon span{min-width:0}.dragon-race-hud-dragon strong{display:block;max-width:135px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f2f5f3;font:800 13px/1.05 Georgia,serif}.dragon-race-hud-dragon em{display:block;margin-top:4px;color:#7d99a5;font:800 7px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.1em}
+.dragon-race-boost{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:min(360px,50vw);padding:8px 12px 10px;border:1px solid rgba(138,203,221,.22);border-radius:10px;background:rgba(4,17,23,.82);box-shadow:0 10px 25px rgba(0,0,0,.26);backdrop-filter:blur(6px)}
+.dragon-race-boost-head{display:flex;justify-content:space-between;gap:12px;color:#809ca8;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.13em}.dragon-race-boost-head b{color:#dbeef2;font:900 8px/1 'Trebuchet MS',Arial,sans-serif}.dragon-race-boost-track{height:7px;margin-top:6px;border-radius:999px;background:rgba(103,128,138,.18);overflow:hidden;box-shadow:0 0 0 1px rgba(178,205,214,.08) inset}.dragon-race-boost-fill{display:block;width:100%;height:100%;transform-origin:0 50%;background:linear-gradient(90deg,#2b8eb1,#55d1e5 65%,#d6f7fb);box-shadow:0 0 12px rgba(75,201,227,.3);transition:transform .08s linear}
+.dragon-race-controls{position:absolute;right:20px;bottom:21px;padding:7px 10px;border-radius:8px;background:rgba(4,17,23,.66);border:1px solid rgba(139,190,205,.15);color:#7e99a4;font:800 7px/1.4 'Trebuchet MS',Arial,sans-serif;letter-spacing:.06em;text-align:right}
+.dragon-race-countdown{position:absolute;inset:0;z-index:150;display:grid;place-items:center;pointer-events:none}.dragon-race-countdown b{color:#fff5d9;font:900 clamp(72px,10vw,156px)/1 Georgia,serif;text-shadow:0 6px 28px rgba(0,0,0,.72),0 0 28px rgba(247,189,82,.28);transform:scale(.8);opacity:0}.dragon-race-countdown.is-pop b{animation:dragonRaceCountPop .72s cubic-bezier(.2,.8,.2,1) both}@keyframes dragonRaceCountPop{0%{transform:scale(.7);opacity:0}18%{transform:scale(1.08);opacity:1}72%{transform:scale(1);opacity:1}100%{transform:scale(1.08);opacity:0}}
+.dragon-race-lap-banner{position:absolute;left:50%;top:19%;z-index:145;transform:translateX(-50%) translateY(-8px);padding:9px 20px;border-radius:999px;border:1px solid rgba(224,203,142,.3);background:rgba(5,20,27,.78);color:#f6e4ad;font:900 14px/1 Georgia,serif;letter-spacing:.08em;opacity:0;transition:opacity .18s ease,transform .18s ease;pointer-events:none}.dragon-race-lap-banner.is-visible{opacity:1;transform:translateX(-50%) translateY(0)}
+.dragon-race-exit{position:absolute;right:18px;top:76px;z-index:135;pointer-events:auto;cursor:pointer;padding:8px 11px;border-radius:999px;border:1px solid rgba(158,206,220,.2);background:rgba(4,15,21,.68);color:#b7cbd2;font:900 8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.08em;backdrop-filter:blur(5px)}
+.dragon-race-exit:hover,.dragon-race-exit:focus-visible{border-color:rgba(201,236,246,.46);color:#edf7f9;outline:none}
+.dragon-race-results{position:absolute;inset:0;z-index:180;display:none;align-items:center;justify-content:center;padding:28px;background:rgba(2,8,12,.66);backdrop-filter:blur(8px)}
+.dragon-race-results.is-visible{display:flex}
+.dragon-race-results-card{width:min(720px,90vw);max-height:86vh;overflow:auto;padding:26px;border:1px solid rgba(131,204,224,.32);border-radius:18px;background:linear-gradient(180deg,rgba(6,25,33,.97),rgba(3,14,20,.985));box-shadow:0 28px 90px rgba(0,0,0,.54),0 0 0 1px rgba(255,255,255,.025) inset}
+.dragon-race-results-card>small{color:#79aabd;font:900 8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.17em}.dragon-race-results-card h2{margin:7px 0 0;color:#f3ead4;font:900 30px/1 Georgia,serif}.dragon-race-result-position{margin-top:15px;color:#f3d37b;font:900 48px/1 Georgia,serif}.dragon-race-result-times{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.dragon-race-result-times span{flex:1 1 150px;padding:10px 12px;border-radius:8px;border:1px solid rgba(140,173,184,.13);background:rgba(255,255,255,.025)}.dragon-race-result-times b{display:block;color:#748e99;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.12em}.dragon-race-result-times em{display:block;margin-top:5px;color:#edf2f2;font:800 14px/1 Georgia,serif;font-style:normal}.dragon-race-standings{margin-top:18px;display:grid;gap:5px}.dragon-race-standing{display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;background:rgba(255,255,255,.025);border:1px solid rgba(145,173,183,.08)}.dragon-race-standing.is-player{border-color:rgba(91,191,220,.28);background:rgba(68,160,190,.07)}.dragon-race-standing b{color:#d7bb6d;font:900 13px/1 Georgia,serif}.dragon-race-standing span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e7edef;font:800 11px/1 'Trebuchet MS',Arial,sans-serif}.dragon-race-standing em{color:#8fa3aa;font:800 10px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal}.dragon-race-results-note{margin-top:13px;color:#718993;font:700 9px/1.35 'Trebuchet MS',Arial,sans-serif}.dragon-race-results-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}.dragon-race-results-actions>div{padding:10px 14px;border-radius:6px;border:1px solid rgba(116,197,221,.28);background:rgba(9,36,47,.84);color:#eaf6f8;font:900 9px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.08em;cursor:pointer;outline:none}.dragon-race-results-actions>div:hover,.dragon-race-results-actions>div:focus-visible{border-color:rgba(150,228,247,.58);background:rgba(11,48,61,.96);box-shadow:0 0 15px rgba(75,183,213,.12)}
+.dragon-race-debug-svg{position:absolute;inset:0;width:1536px;height:1024px;z-index:60;pointer-events:none;display:none;overflow:visible}.dragon-race-game.is-debug-path .dragon-race-debug-svg{display:block}.dragon-race-debug-svg polyline{fill:none;stroke:#46e0ff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px #003b48)}.dragon-race-debug-svg circle{fill:#ffd157;stroke:#101820;stroke-width:2}
+@media(max-width:760px){.dragon-race-hud-top{left:10px;right:10px;top:10px}.dragon-race-hud-box{min-width:70px;padding:7px 8px}.dragon-race-hud-box b{font-size:14px}.dragon-race-hud-dragon{display:none}.dragon-race-controls{display:none}.dragon-race-boost{bottom:12px;width:56vw}.dragon-race-exit{top:62px;right:10px}}
+@media(prefers-reduced-motion:reduce){.dragon-race-atmosphere i,.dragon-race-countdown.is-pop b{animation:none!important}}
+
+
+/* =========================================================
+   V33.48 — centred spectator presentation + autonomous race
+   ========================================================= */
+.dragon-race-viewport{
+  display:block!important;
+  background:radial-gradient(circle at 50% 45%,#0b1a22 0%,#061118 52%,#030a0f 100%)!important;
+}
+.dragon-race-world{
+  left:0!important;
+  top:0!important;
+  border:1px solid rgba(166,207,217,.15)!important;
+  border-radius:5px!important;
+  overflow:hidden!important;
+  box-shadow:0 28px 78px rgba(0,0,0,.46),0 0 0 1px rgba(255,255,255,.018) inset!important;
+}
+.dragon-race-world::after{
+  background:radial-gradient(circle at 50% 45%,transparent 57%,rgba(1,6,9,.12) 100%)!important;
+}
+.dragon-race-hud-top{
+  left:50%!important;
+  right:auto!important;
+  top:18px!important;
+  width:min(94vw,calc(150vh - 60px))!important;
+  transform:translateX(-50%)!important;
+}
+.dragon-race-hud-box{
+  border-color:rgba(151,204,218,.2)!important;
+  background:linear-gradient(180deg,rgba(5,21,28,.84),rgba(3,14,19,.88))!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.022) inset!important;
+}
+.dragon-race-hud-dragon{min-width:180px!important}
+.dragon-race-boost,.dragon-race-controls{display:none!important}
+.dragon-race-exit{
+  right:max(22px,calc((100vw - min(94vw,calc(150vh - 60px)))/2 + 2px))!important;
+  top:74px!important;
+  border-color:rgba(158,206,220,.18)!important;
+  background:rgba(4,15,21,.58)!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.2)!important;
+}
+.dragon-race-racer-tag{
+  background:rgba(3,15,21,.65)!important;
+  border-color:rgba(190,231,239,.14)!important;
+  box-shadow:0 3px 9px rgba(0,0,0,.2)!important;
+}
+.dragon-race-racer.is-player{
+  filter:drop-shadow(0 5px 6px rgba(0,0,0,.52)) drop-shadow(0 0 8px rgba(104,218,241,.18))!important;
+}
+.dragon-race-racer.is-player::after{
+  border-color:rgba(124,221,241,.38)!important;
+  box-shadow:0 0 10px rgba(98,205,230,.14)!important;
+  opacity:.62!important;
+}
+.dragon-race-auto-badge{
+  position:absolute;
+  left:50%;
+  bottom:18px;
+  z-index:135;
+  transform:translateX(-50%);
+  padding:7px 13px 8px;
+  border-radius:999px;
+  border:1px solid rgba(135,197,214,.16);
+  background:rgba(4,17,23,.58);
+  color:#8aa5af;
+  font:900 7px/1 'Trebuchet MS',Arial,sans-serif;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  box-shadow:0 8px 22px rgba(0,0,0,.2);
+  backdrop-filter:blur(6px);
+  pointer-events:none;
+}
+.dragon-race-auto-badge b{color:#dcecef;font-weight:900}
+@media(max-width:760px){
+  .dragon-race-hud-top{width:calc(100vw - 20px)!important;top:10px!important}
+  .dragon-race-auto-badge{bottom:10px;font-size:6px}
+  .dragon-race-exit{right:10px!important;top:66px!important}
+}
+
+
+/* =========================================================
+   V33.49 — broadcast TV presentation + true flight animation
+   ========================================================= */
+.dragon-race-game{
+  background:
+    radial-gradient(circle at 50% 43%,rgba(24,53,63,.42),transparent 42%),
+    linear-gradient(180deg,#071219 0%,#03090d 100%)!important;
+}
+.dragon-race-viewport{
+  inset:auto!important;
+  left:50%!important;
+  top:50%!important;
+  width:min(92vw,calc(86vh * 1.5))!important;
+  height:auto!important;
+  aspect-ratio:3/2!important;
+  transform:translate(-50%,-50%)!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  border:10px solid #07151c!important;
+  border-radius:18px!important;
+  outline:1px solid rgba(150,208,223,.26)!important;
+  background:#020609!important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.035) inset,
+    0 0 0 5px rgba(1,7,10,.9),
+    0 22px 74px rgba(0,0,0,.58),
+    0 0 48px rgba(66,151,174,.08)!important;
+}
+.dragon-race-viewport::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:127;
+  pointer-events:none;
+  border-radius:8px;
+  box-shadow:
+    inset 0 0 0 1px rgba(190,231,240,.11),
+    inset 0 0 26px rgba(0,0,0,.34),
+    inset 0 0 0 3px rgba(0,0,0,.22);
+}
+.dragon-race-tv-glass{
+  position:absolute;
+  inset:0;
+  z-index:118;
+  pointer-events:none;
+  background:
+    linear-gradient(108deg,rgba(255,255,255,.035) 0%,rgba(255,255,255,0) 24%,rgba(255,255,255,.018) 48%,rgba(255,255,255,0) 68%),
+    repeating-linear-gradient(180deg,rgba(255,255,255,.008) 0 1px,rgba(0,0,0,0) 1px 4px);
+  mix-blend-mode:screen;
+  opacity:.55;
+}
+.dragon-race-world{
+  left:0!important;
+  top:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.dragon-race-hud{z-index:130!important}
+.dragon-race-hud-top{
+  left:14px!important;
+  right:14px!important;
+  top:14px!important;
+  width:auto!important;
+  transform:none!important;
+}
+.dragon-race-hud-box{
+  border-color:rgba(145,204,221,.24)!important;
+  background:linear-gradient(180deg,rgba(4,18,25,.86),rgba(3,12,17,.9))!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.025) inset!important;
+}
+.dragon-race-exit{
+  right:16px!important;
+  top:70px!important;
+  background:rgba(3,14,19,.62)!important;
+}
+.dragon-race-auto-badge{
+  bottom:12px!important;
+  border-color:rgba(132,200,217,.16)!important;
+  background:rgba(3,14,19,.62)!important;
+  color:#839ca5!important;
+}
+.dragon-race-racer.is-flying::before{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:83%;
+  width:54%;
+  height:13%;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:rgba(0,0,0,.24);
+  filter:blur(3px);
+  opacity:.6;
+  pointer-events:none;
+}
+.dragon-race-racer.is-flying img{
+  filter:drop-shadow(0 5px 4px rgba(0,0,0,.22));
+}
+.dragon-race-racer.is-taking-off img,.dragon-race-racer.is-landing img{
+  filter:drop-shadow(0 4px 4px rgba(0,0,0,.28));
+}
+@media(max-width:760px){
+  .dragon-race-viewport{width:min(96vw,calc(82vh * 1.5))!important;border-width:6px!important;border-radius:12px!important}
+  .dragon-race-hud-top{left:8px!important;right:8px!important;top:8px!important}
+  .dragon-race-exit{right:8px!important;top:60px!important}
+  .dragon-race-auto-badge{bottom:7px!important}
+}
+
+
+/* V33.52 — when the race view is hidden it must not sit over Track Select. */
+#dragonRacingModal .dragon-race-game{
+  pointer-events:none!important;
+  visibility:hidden;
+}
+#dragonRacingModal .dragon-race-game.is-visible{
+  pointer-events:auto!important;
+  visibility:visible;
+}
+
+
+/* =========================================================
+   V33.53 — live broadcast ceremony + camera director
+   ========================================================= */
+.dragon-race-world{will-change:transform!important}
+.dragon-race-hud-top,.dragon-race-auto-badge{transition:opacity .28s ease,transform .28s ease}
+.dragon-race-game[data-race-phase="setup"] .dragon-race-hud-top,
+.dragon-race-game[data-race-phase="setup"] .dragon-race-auto-badge,
+.dragon-race-game[data-race-phase="ceremony"] .dragon-race-hud-top,
+.dragon-race-game[data-race-phase="ceremony"] .dragon-race-auto-badge,
+.dragon-race-game[data-race-phase="countdown"] .dragon-race-hud-top,
+.dragon-race-game[data-race-phase="countdown"] .dragon-race-auto-badge{opacity:0!important;transform:translateY(-7px)!important}
+.dragon-race-broadcast-title{position:absolute;left:50%;top:16%;z-index:148;transform:translate(-50%,-10px);min-width:min(620px,72%);padding:13px 28px 15px;text-align:center;border-top:1px solid rgba(238,207,128,.58);border-bottom:1px solid rgba(112,188,208,.32);background:linear-gradient(90deg,rgba(3,13,18,0),rgba(4,18,25,.86) 18%,rgba(4,18,25,.9) 82%,rgba(3,13,18,0));box-shadow:0 13px 34px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .3s ease,transform .3s ease}
+.dragon-race-broadcast-title.is-visible{opacity:1;transform:translate(-50%,0)}
+.dragon-race-broadcast-title small{display:block;color:#8fb7c2;font:900 8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.24em}
+.dragon-race-broadcast-title b{display:block;margin-top:6px;color:#f6e9c8;font:900 clamp(23px,3.1vw,46px)/1 Georgia,serif;letter-spacing:.035em;text-shadow:0 4px 18px rgba(0,0,0,.56)}
+.dragon-race-broadcast-title em{display:block;margin-top:7px;color:#e3c36d;font:900 11px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.24em}
+.dragon-race-start-lights{position:absolute;left:50%;top:14.5%;z-index:151;display:flex;gap:10px;transform:translateX(-50%) translateY(-6px);padding:9px 13px;border-radius:999px;border:1px solid rgba(142,201,216,.18);background:rgba(2,12,17,.74);box-shadow:0 12px 28px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;backdrop-filter:blur(6px)}
+.dragon-race-start-lights.is-visible{opacity:1;transform:translateX(-50%) translateY(0)}
+.dragon-race-start-lights i{display:block;width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,233,176,.18);background:#10191d;box-shadow:inset 0 2px 5px rgba(0,0,0,.7)}
+.dragon-race-start-lights i.is-on{background:radial-gradient(circle at 40% 35%,#fff2b7 0 12%,#eab34a 22%,#985f13 70%);border-color:#ffd980;box-shadow:0 0 16px rgba(240,184,68,.5),inset 0 1px 3px rgba(255,245,207,.45)}
+.dragon-race-start-lights.is-go i{background:radial-gradient(circle at 40% 35%,#dffff6 0 12%,#59d5b6 26%,#176b5d 72%);border-color:#8ce9d2;box-shadow:0 0 17px rgba(77,222,183,.48)}
+.dragon-race-countdown{place-items:center!important;padding-top:2%}
+.dragon-race-countdown b{font-size:clamp(68px,8vw,130px)!important;color:#fff1ca!important;text-shadow:0 7px 26px rgba(0,0,0,.8),0 0 34px rgba(238,180,65,.28)!important}
+.dragon-race-camera-cut{position:absolute;inset:0;z-index:146;background:rgba(4,13,18,.22);opacity:0;pointer-events:none}
+.dragon-race-camera-cut.is-active{animation:dragonRaceBroadcastCut .18s ease-out both}
+@keyframes dragonRaceBroadcastCut{0%{opacity:0}35%{opacity:.28}100%{opacity:0}}
+.dragon-race-game[data-race-phase="ceremony"] .dragon-race-racer-tag,
+.dragon-race-game[data-race-phase="countdown"] .dragon-race-racer-tag{opacity:.8}
+.dragon-race-game[data-race-phase="ceremony"] .dragon-race-racer img{animation:dragonRaceGridReady 1.8s ease-in-out infinite alternate}
+@keyframes dragonRaceGridReady{from{transform:translateY(0)}to{transform:translateY(-1.5px)}}
+.dragon-race-racer.is-flipped img{transform:scaleX(-1)}
+.dragon-race-game[data-race-phase="ceremony"] .dragon-race-racer.is-flipped img{animation:dragonRaceGridReadyFlip 1.8s ease-in-out infinite alternate}
+@keyframes dragonRaceGridReadyFlip{from{transform:scaleX(-1) translateY(0)}to{transform:scaleX(-1) translateY(-1.5px)}}
+@media(max-width:760px){.dragon-race-broadcast-title{top:18%;min-width:78%;padding:10px 16px 12px}.dragon-race-start-lights{top:17%;gap:7px}.dragon-race-start-lights i{width:14px;height:14px}}
+@media(prefers-reduced-motion:reduce){.dragon-race-camera-cut.is-active,.dragon-race-game[data-race-phase="ceremony"] .dragon-race-racer img,.dragon-race-game[data-race-phase="ceremony"] .dragon-race-racer.is-flipped img{animation:none!important}}
+
+
+/* =========================================================
+   V33.54 — steadier broadcast follow camera + live atmosphere
+   ========================================================= */
+.dragon-race-atmosphere{
+  inset:-2% -2% 0!important;
+  mix-blend-mode:screen!important;
+  opacity:.92!important;
+}
+.dragon-race-sun-glow,
+.dragon-race-sun-rays,
+.dragon-race-sparkles,
+.dragon-race-fly-flags,
+.dragon-race-confetti-field{position:absolute;inset:0;pointer-events:none}
+.dragon-race-sun-glow{
+  background:radial-gradient(circle at 82% 18%,rgba(255,236,164,.34) 0 6%,rgba(255,194,92,.16) 10%,rgba(255,194,92,0) 28%);
+  opacity:.95;
+  animation:dragonRaceSunPulse 10s ease-in-out infinite;
+}
+.dragon-race-sun-rays{
+  background:
+    radial-gradient(circle at 80% 18%,rgba(255,255,255,.08),rgba(255,255,255,0) 18%),
+    conic-gradient(from 215deg at 82% 18%,rgba(255,214,140,.12),rgba(255,255,255,0) 15deg,rgba(255,214,140,.08) 28deg,rgba(255,255,255,0) 42deg,rgba(255,214,140,.06) 55deg,rgba(255,255,255,0) 72deg,rgba(255,214,140,.05) 88deg,rgba(255,255,255,0) 112deg,rgba(255,214,140,.04) 140deg,rgba(255,255,255,0) 175deg);
+  opacity:.46;
+  filter:blur(.6px);
+  animation:dragonRaceSunSweep 18s linear infinite;
+}
+.dragon-race-spark{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,229,164,.58);box-shadow:0 0 10px rgba(255,186,91,.32);animation:dragonRaceSparkDrift var(--d,7s) ease-in-out infinite alternate;animation-delay:var(--delay,0s)}
+.dragon-race-fly-flag{position:absolute;width:32px;height:20px;opacity:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));animation:dragonRaceFlagFloat var(--d,14s) linear infinite;animation-delay:var(--delay,0s)}
+.dragon-race-fly-flag::before{content:'';position:absolute;left:4px;top:1px;width:2px;height:18px;border-radius:999px;background:rgba(255,248,224,.62)}
+.dragon-race-fly-flag::after{content:'';position:absolute;left:6px;top:3px;width:20px;height:11px;background:var(--flag,#f4c44d);border-top:2px solid var(--trim,#fff4cf);border-bottom:2px solid rgba(255,255,255,.1);clip-path:polygon(0 0,100% 10%,75% 50%,100% 100%,0 100%);border-radius:1px;transform-origin:0 50%;animation:dragonRaceFlagWave 1.1s ease-in-out infinite alternate}
+.dragon-race-confetti{position:absolute;width:6px;height:10px;border-radius:1px;opacity:0;box-shadow:0 0 6px rgba(255,255,255,.18);animation:dragonRaceConfetti var(--d,10s) linear infinite;animation-delay:var(--delay,0s)}
+@keyframes dragonRaceSparkDrift{from{transform:translate3d(0,0,0);opacity:.18}to{transform:translate3d(var(--dx,18px),var(--dy,-10px),0);opacity:.82}}
+@keyframes dragonRaceSunPulse{0%,100%{transform:scale(1);opacity:.88}50%{transform:scale(1.035);opacity:1}}
+@keyframes dragonRaceSunSweep{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(5deg) scale(1.02)}100%{transform:rotate(0deg) scale(1)}}
+@keyframes dragonRaceFlagFloat{0%{transform:translate3d(0,0,0) rotate(-2deg);opacity:0}10%{opacity:.58}50%{transform:translate3d(var(--travel,110px),var(--lift,-16px),0) rotate(var(--sway,4deg));opacity:.78}85%{opacity:.48}100%{transform:translate3d(calc(var(--travel,110px) * 1.85),0,0) rotate(calc(var(--sway,4deg) * -.55));opacity:0}}
+@keyframes dragonRaceFlagWave{from{transform:skewY(-3deg) scaleY(.98)}to{transform:skewY(3deg) scaleY(1.02)}}
+@keyframes dragonRaceConfetti{0%,10%{transform:translate3d(0,-10px,0) rotate(0deg);opacity:0}14%{opacity:0}18%{opacity:.75}70%{opacity:.72}100%{transform:translate3d(var(--x,24px),var(--fall,90%),0) rotate(var(--rot,540deg));opacity:0}}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-sun-glow,.dragon-race-sun-rays,.dragon-race-spark,.dragon-race-fly-flag,.dragon-race-fly-flag::after,.dragon-race-confetti{animation:none!important}
+}
+
+
+/* =========================================================
+   V33.55 — premium results screen + broader AI pool + livelier crowd
+   ========================================================= */
+.dragon-race-atmosphere{opacity:.96!important}
+.dragon-race-crowd-bursts{position:absolute;inset:0;pointer-events:none}
+.dragon-race-crowd-burst{position:absolute;width:1px;height:1px;opacity:.78;animation:dragonRaceBurstPulse var(--d,10s) ease-in-out infinite;animation-delay:var(--delay,0s)}
+.dragon-race-crowd-burst-piece{position:absolute;left:0;top:0;width:6px;height:10px;border-radius:2px;box-shadow:0 0 7px rgba(255,255,255,.16);opacity:0;animation:dragonRaceBurstPiece var(--d,10s) ease-in-out infinite;animation-delay:var(--delay,0s)}
+@keyframes dragonRaceBurstPulse{0%,15%,100%{opacity:0}18%,40%{opacity:.95}60%{opacity:.55}80%{opacity:0}}
+@keyframes dragonRaceBurstPiece{0%,14%,100%{transform:translate3d(0,0,0) rotate(0deg) scale(.6);opacity:0}18%{opacity:.88}55%{opacity:.8}100%{transform:translate3d(var(--x,24px),var(--y,-36px),0) rotate(var(--rot,360deg)) scale(1.02);opacity:0}}
+.dragon-race-results{
+  background:radial-gradient(circle at 50% 20%,rgba(11,39,50,.28),rgba(2,8,12,.78) 48%,rgba(2,8,12,.88) 100%)!important;
+  backdrop-filter:blur(10px)!important;
+}
+.dragon-race-results-card{
+  width:min(860px,92vw)!important;
+  max-height:88vh!important;
+  padding:28px 28px 24px!important;
+  border-radius:24px!important;
+  border:1px solid rgba(144,217,236,.26)!important;
+  background:
+    linear-gradient(180deg,rgba(8,33,44,.98),rgba(4,18,26,.992)),
+    radial-gradient(circle at 18% 0%,rgba(255,212,103,.09),rgba(255,212,103,0) 28%),
+    radial-gradient(circle at 88% 12%,rgba(83,191,215,.1),rgba(83,191,215,0) 30%)!important;
+  box-shadow:0 32px 120px rgba(0,0,0,.56),0 0 0 1px rgba(255,255,255,.028) inset,0 0 40px rgba(73,179,206,.08)!important;
+  position:relative;
+  overflow:auto;
+}
+.dragon-race-results-card::before{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,0) 26%,rgba(255,255,255,0) 72%,rgba(255,221,151,.04));
+}
+.dragon-race-results-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;position:relative;z-index:1}
+.dragon-race-results-titlewrap{min-width:0;flex:1 1 auto}
+.dragon-race-results-kicker{display:block;color:#88b7c5;font:900 9px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.dragon-race-results-card h2{margin:8px 0 0!important;color:#f4ead2!important;font:900 clamp(34px,4vw,46px)/.96 Georgia,serif!important}
+.dragon-race-result-subtitle{margin:10px 0 0;color:#a7c1cb;font:700 13px/1.5 'Trebuchet MS',Arial,sans-serif}
+.dragon-race-result-position-badge{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;min-width:150px;padding:14px 16px 16px;border-radius:18px;border:1px solid rgba(236,202,116,.32);background:linear-gradient(180deg,rgba(39,30,8,.35),rgba(15,22,27,.18));box-shadow:0 16px 28px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.02) inset}
+.dragon-race-result-position-value{color:#f5d57f;font:900 clamp(34px,4vw,58px)/.9 Georgia,serif;letter-spacing:.02em}
+.dragon-race-result-position-label{color:#d7c18d;font:900 8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.dragon-race-result-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:22px;position:relative;z-index:1}
+.dragon-race-result-stat{padding:13px 14px 14px;border-radius:14px;border:1px solid rgba(145,181,191,.12);background:linear-gradient(180deg,rgba(255,255,255,.038),rgba(255,255,255,.018));box-shadow:0 8px 18px rgba(0,0,0,.18)}
+.dragon-race-result-stat.is-accent{border-color:rgba(236,205,122,.24);background:linear-gradient(180deg,rgba(246,205,93,.08),rgba(255,255,255,.02))}
+.dragon-race-result-stat b{display:block;color:#7f9da8;font:900 8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.dragon-race-result-stat em{display:block;margin-top:7px;color:#f0f5f5;font:900 22px/1 Georgia,serif;font-style:normal}
+.dragon-race-result-stat small{display:block;margin-top:8px;color:#91aab3;font:700 10px/1.35 'Trebuchet MS',Arial,sans-serif}
+.dragon-race-results-board{margin-top:18px;border-radius:18px;border:1px solid rgba(137,180,191,.14);background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));box-shadow:0 10px 28px rgba(0,0,0,.18);overflow:hidden;position:relative;z-index:1}
+.dragon-race-results-board-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(140,181,191,.1);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.012))}
+.dragon-race-results-board-head span{color:#edf2e9;font:900 18px/1 Georgia,serif}
+.dragon-race-results-board-head em{color:#7fa0ac;font:900 8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.14em;font-style:normal;text-transform:uppercase}
+.dragon-race-standings{margin-top:0!important;display:grid;gap:0!important;padding:8px}
+.dragon-race-standing{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;background:transparent;border:1px solid transparent;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+.dragon-race-standing + .dragon-race-standing{margin-top:4px}
+.dragon-race-standing:hover{background:rgba(255,255,255,.025);border-color:rgba(137,180,191,.12)}
+.dragon-race-standing.is-player{border-color:rgba(90,202,229,.28);background:linear-gradient(180deg,rgba(69,164,190,.1),rgba(69,164,190,.045));box-shadow:0 6px 18px rgba(23,98,124,.14)}
+.dragon-race-standing.is-winner:not(.is-player){background:linear-gradient(180deg,rgba(244,209,106,.08),rgba(244,209,106,.03));border-color:rgba(236,205,122,.18)}
+.dragon-race-standing-rank{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;border:1px solid rgba(214,187,108,.22);background:rgba(244,209,106,.08);color:#f0cf78;font:900 16px/1 Georgia,serif}
+.dragon-race-standing-info{min-width:0;display:grid;gap:4px}
+.dragon-race-standing-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#edf4f5;font:800 13px/1.1 'Trebuchet MS',Arial,sans-serif}
+.dragon-race-standing-note{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#88a3ad;font:700 10px/1 'Trebuchet MS',Arial,sans-serif}
+.dragon-race-standing-time{color:#d6e7eb;font:800 12px/1 Georgia,serif;font-style:normal;padding-left:8px}
+.dragon-race-results-note{margin-top:14px!important;color:#89a0aa!important;font:700 10px/1.45 'Trebuchet MS',Arial,sans-serif!important;position:relative;z-index:1}
+.dragon-race-results-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px!important;flex-wrap:wrap;position:relative;z-index:1}
+.dragon-race-results-actions>div{padding:12px 16px!important;border-radius:12px!important;border:1px solid rgba(123,192,211,.2)!important;background:linear-gradient(180deg,rgba(10,37,48,.92),rgba(6,24,32,.96))!important;color:#eaf7f8!important;font:900 10px/1 'Trebuchet MS',Arial,sans-serif!important;letter-spacing:.1em!important;cursor:pointer;outline:none;box-shadow:0 8px 18px rgba(0,0,0,.18);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}
+.dragon-race-results-actions>div.is-primary{border-color:rgba(236,205,122,.34)!important;background:linear-gradient(180deg,rgba(58,48,17,.9),rgba(27,24,13,.96))!important;color:#f6edd6!important}
+.dragon-race-results-actions>div:hover,.dragon-race-results-actions>div:focus-visible{transform:translateY(-1px);border-color:rgba(171,226,240,.5)!important;background:linear-gradient(180deg,rgba(13,48,60,.98),rgba(8,28,38,.98))!important;box-shadow:0 14px 24px rgba(0,0,0,.25),0 0 18px rgba(75,183,213,.12)!important}
+.dragon-race-results-actions>div.is-primary:hover,.dragon-race-results-actions>div.is-primary:focus-visible{border-color:rgba(245,220,143,.54)!important;background:linear-gradient(180deg,rgba(82,67,23,.96),rgba(38,32,16,.98))!important}
+@media(max-width:840px){
+  .dragon-race-results-hero{flex-direction:column;align-items:flex-start}
+  .dragon-race-result-position-badge{align-items:flex-start;min-width:0;width:100%}
+  .dragon-race-result-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  .dragon-race-results-card{padding:22px 18px 18px!important}
+  .dragon-race-result-stats{grid-template-columns:1fr}
+  .dragon-race-standing{grid-template-columns:34px minmax(0,1fr)}
+  .dragon-race-standing-time{grid-column:2;justify-self:start;padding-left:0}
+  .dragon-race-results-board-head{flex-direction:column;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-crowd-burst,.dragon-race-crowd-burst-piece{animation:none!important}
+}
+
+
+/* =========================================================
+   V33.62 — flight motion + speed bursts + broadcast tags/order
+   ========================================================= */
+.dragon-race-racer-sprite-wrap{
+  position:absolute;
+  inset:0;
+  transform:translateY(var(--flight-bob,0px)) rotate(var(--flight-bank,0deg)) skewX(var(--flight-lean,0deg));
+  transform-origin:50% 68%;
+  will-change:transform;
+}
+.dragon-race-racer-sprite-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 55%;}
+.dragon-race-speed-trail{
+  position:absolute;
+  left:50%;
+  top:49%;
+  z-index:-1;
+  width:54px;
+  height:24px;
+  opacity:0;
+  pointer-events:none;
+  transform-origin:100% 50%;
+  transition:opacity .14s ease;
+  filter:blur(.2px);
+}
+.dragon-race-speed-trail i{position:absolute;right:0;height:1px;border-radius:999px;background:linear-gradient(90deg,rgba(208,244,250,0),rgba(208,244,250,.42));box-shadow:0 0 5px rgba(128,220,238,.16);transform-origin:100% 50%;}
+.dragon-race-speed-trail i:nth-child(1){top:4px;width:42px;opacity:.72}
+.dragon-race-speed-trail i:nth-child(2){top:12px;width:54px;opacity:.52}
+.dragon-race-speed-trail i:nth-child(3){top:20px;width:34px;opacity:.36}
+.dragon-race-racer.is-speeding .dragon-race-speed-trail{opacity:.72;animation:dragonRaceSpeedPulse .42s ease-in-out infinite alternate}
+@keyframes dragonRaceSpeedPulse{from{filter:blur(.2px);opacity:.46}to{filter:blur(.55px);opacity:.78}}
+
+/* Compact in-world broadcast tags. */
+.dragon-race-racer-tag{
+  left:50%!important;
+  bottom:96%!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  max-width:112px!important;
+  min-height:16px!important;
+  padding:3px 6px 3px 4px!important;
+  border-radius:999px!important;
+  border:1px solid color-mix(in srgb,var(--racer-accent,#9cc5d1) 34%,rgba(174,210,220,.12))!important;
+  background:linear-gradient(180deg,rgba(4,18,24,.86),rgba(3,12,17,.88))!important;
+  box-shadow:0 5px 12px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.018) inset!important;
+  color:#edf7f8!important;
+  font:800 7px/1 'Trebuchet MS',Arial,sans-serif!important;
+  text-shadow:none!important;
+  transform:translate(calc(-50% + var(--tag-x,0px)),calc(-3px + var(--tag-y,0px)))!important;
+  transition:transform .18s ease,opacity .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+  backdrop-filter:blur(5px);
+  overflow:hidden;
+}
+.dragon-race-racer-marker{width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:var(--racer-accent,#9cc5d1);box-shadow:0 0 7px color-mix(in srgb,var(--racer-accent,#9cc5d1) 60%,transparent)}
+.dragon-race-racer-tag>b{display:grid;place-items:center;flex:0 0 13px;width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.055);color:#dfeef1;font:900 7px/1 Georgia,serif}
+.dragon-race-racer-tag>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eef6f7}
+.dragon-race-racer-tag>em{flex:0 0 auto;margin-left:1px;padding:2px 4px;border-radius:999px;border:1px solid rgba(240,206,111,.28);background:rgba(240,206,111,.09);color:#f4d982;font:900 5px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.08em}
+.dragon-race-racer.is-player .dragon-race-racer-tag{border-color:rgba(111,216,238,.5)!important;box-shadow:0 5px 13px rgba(0,0,0,.26),0 0 12px rgba(87,195,222,.13)!important}
+
+/* Small live order strip; rows use transform for smooth overtakes. */
+.dragon-race-live-leaderboard{
+  position:absolute;
+  right:14px;
+  top:118px;
+  z-index:138;
+  width:172px;
+  height:196px;
+  padding:9px 9px 10px;
+  border-radius:13px;
+  border:1px solid rgba(145,204,220,.18);
+  background:linear-gradient(180deg,rgba(4,18,24,.82),rgba(3,13,18,.76));
+  box-shadow:0 12px 30px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.018) inset;
+  backdrop-filter:blur(7px);
+  pointer-events:none;
+}
+.dragon-race-live-leaderboard-head{height:20px;display:flex;align-items:center;justify-content:space-between;padding:0 4px;border-bottom:1px solid rgba(147,191,202,.1)}
+.dragon-race-live-leaderboard-head span{color:#b7cdd4;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.15em}
+.dragon-race-live-leaderboard-head em{color:#698b98;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.12em}
+.dragon-race-live-leaderboard-list{position:relative;height:168px;margin-top:5px;overflow:hidden}
+.dragon-race-live-row{
+  position:absolute;
+  left:0;right:0;top:0;
+  height:26px;
+  display:grid;
+  grid-template-columns:20px 7px minmax(0,1fr) 12px;
+  align-items:center;
+  gap:5px;
+  padding:0 6px;
+  border-radius:8px;
+  border:1px solid transparent;
+  background:rgba(255,255,255,.014);
+  transition:transform .32s cubic-bezier(.2,.75,.2,1),background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.dragon-race-live-row.is-player{border-color:rgba(96,203,229,.28);background:linear-gradient(90deg,rgba(65,163,190,.105),rgba(65,163,190,.035));box-shadow:0 0 12px rgba(60,166,196,.08)}
+.dragon-race-live-rank{display:grid;place-items:center;width:18px;height:18px;border-radius:6px;background:rgba(255,255,255,.04);color:#e9d08a;font:900 9px/1 Georgia,serif}
+.dragon-race-live-marker{width:5px;height:5px;border-radius:50%;background:var(--racer-accent,#8ebfca);box-shadow:0 0 7px color-mix(in srgb,var(--racer-accent,#8ebfca) 55%,transparent)}
+.dragon-race-live-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e7f0f2;font:800 8px/1 'Trebuchet MS',Arial,sans-serif}
+.dragon-race-live-change{justify-self:end;color:#84d99b;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;opacity:.9}
+.dragon-race-live-row.is-down .dragon-race-live-change{color:#e68b7f}
+.dragon-race-live-row.is-up{background:linear-gradient(90deg,rgba(89,190,116,.09),rgba(255,255,255,.012))}
+.dragon-race-live-row.is-down{background:linear-gradient(90deg,rgba(214,105,92,.075),rgba(255,255,255,.012))}
+
+.dragon-race-game[data-race-phase="setup"] .dragon-race-live-leaderboard,
+.dragon-race-game[data-race-phase="ceremony"] .dragon-race-live-leaderboard,
+.dragon-race-game[data-race-phase="countdown"] .dragon-race-live-leaderboard{opacity:0;transform:translateY(-4px)}
+.dragon-race-live-leaderboard{transition:opacity .25s ease,transform .25s ease}
+
+@media(max-width:760px){
+  .dragon-race-live-leaderboard{right:8px;top:102px;width:148px;height:178px;padding:7px}
+  .dragon-race-live-leaderboard-list{height:150px}
+  .dragon-race-live-row{height:24px;grid-template-columns:18px 6px minmax(0,1fr) 10px;padding:0 4px;gap:4px}
+  .dragon-race-racer-tag{max-width:94px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-racer-sprite-wrap,.dragon-race-speed-trail,.dragon-race-live-row,.dragon-race-racer-tag{transition:none!important;animation:none!important}
+}
+
+
+/* =========================================================
+   V33.63 — official result broadcast + minimal live overlays
+   ========================================================= */
+
+/* Less UI, more race: slim in-world identifiers. */
+.dragon-race-racer-tag{
+  gap:3px!important;
+  max-width:88px!important;
+  min-height:13px!important;
+  padding:2px 5px 2px 4px!important;
+  border:0!important;
+  border-left:2px solid var(--racer-accent,#9cc5d1)!important;
+  border-radius:4px!important;
+  background:rgba(2,12,17,.68)!important;
+  box-shadow:0 3px 8px rgba(0,0,0,.2)!important;
+  backdrop-filter:blur(3px)!important;
+  font:800 6.5px/1 'Trebuchet MS',Arial,sans-serif!important;
+  transform:translate(calc(-50% + var(--tag-x,0px)),calc(-2px + var(--tag-y,0px)))!important;
+}
+.dragon-race-racer-marker{display:none!important}
+.dragon-race-racer-tag>b{
+  display:block!important;width:auto!important;height:auto!important;flex:0 0 auto!important;
+  border-radius:0!important;background:none!important;color:var(--racer-accent,#a9d3dc)!important;
+  font:900 6.5px/1 Georgia,serif!important;
+}
+.dragon-race-racer-tag>span{font-size:6.5px!important;color:#e8f0f1!important}
+.dragon-race-racer-tag>em{
+  margin-left:0!important;padding:0!important;border:0!important;background:none!important;
+  color:#e8ca75!important;font:900 4.5px/1 'Trebuchet MS',Arial,sans-serif!important;letter-spacing:.06em!important;
+}
+.dragon-race-racer.is-player .dragon-race-racer-tag{
+  border-left-color:#6fd8ee!important;
+  box-shadow:0 3px 8px rgba(0,0,0,.2),0 0 0 1px rgba(239,207,116,.08)!important;
+}
+
+/* Minimal live order strip. */
+.dragon-race-live-leaderboard{
+  right:12px!important;top:112px!important;width:126px!important;height:140px!important;
+  padding:5px 6px 6px!important;border-radius:7px!important;
+  border:1px solid rgba(145,204,220,.1)!important;
+  background:rgba(3,14,19,.58)!important;
+  box-shadow:0 7px 18px rgba(0,0,0,.17)!important;
+  backdrop-filter:blur(4px)!important;
+}
+.dragon-race-live-leaderboard-head{height:14px!important;padding:0 2px!important;border-bottom:1px solid rgba(147,191,202,.07)!important}
+.dragon-race-live-leaderboard-head span{color:#8faab3!important;font:900 6px/1 'Trebuchet MS',Arial,sans-serif!important;letter-spacing:.14em!important}
+.dragon-race-live-leaderboard-head em{display:none!important}
+.dragon-race-live-leaderboard-list{height:120px!important;margin-top:2px!important}
+.dragon-race-live-row{
+  height:19px!important;grid-template-columns:12px 3px minmax(0,1fr) 7px!important;gap:3px!important;
+  padding:0 2px!important;border-radius:3px!important;border:0!important;background:transparent!important;
+  box-shadow:none!important;transition:transform .3s cubic-bezier(.2,.72,.2,1),background .16s ease!important;
+}
+.dragon-race-live-row.is-player{background:linear-gradient(90deg,rgba(80,182,207,.08),transparent 92%)!important}
+.dragon-race-live-rank{display:block!important;width:auto!important;height:auto!important;border-radius:0!important;background:none!important;color:#c5d5d9!important;font:900 7px/1 Georgia,serif!important;text-align:center}
+.dragon-race-live-marker{width:3px!important;height:3px!important;box-shadow:none!important}
+.dragon-race-live-name{font:800 7px/1 'Trebuchet MS',Arial,sans-serif!important;color:#dbe8ea!important}
+.dragon-race-live-change{font-size:5px!important}
+.dragon-race-live-row.is-up,.dragon-race-live-row.is-down{background:rgba(255,255,255,.025)!important}
+
+/* Results stay integrated with the race footage rather than replacing it. */
+.dragon-race-results{
+  padding:22px!important;
+  background:linear-gradient(180deg,rgba(2,8,12,.36),rgba(2,8,12,.72))!important;
+  backdrop-filter:blur(5px)!important;
+}
+.dragon-race-results.is-visible .dragon-race-results-card{animation:dragonRaceResultReveal .52s cubic-bezier(.16,.78,.22,1) both}
+@keyframes dragonRaceResultReveal{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+
+.dragon-race-results-card{
+  width:min(900px,92vw)!important;
+  max-height:min(82vh,720px)!important;
+  overflow:auto!important;
+  padding:20px 22px 18px!important;
+  border-radius:15px!important;
+  border:1px solid rgba(145,202,216,.2)!important;
+  background:
+    linear-gradient(180deg,rgba(5,23,31,.92),rgba(3,14,20,.95)),
+    radial-gradient(circle at 82% 0%,rgba(93,194,216,.08),transparent 33%)!important;
+  box-shadow:0 28px 90px rgba(0,0,0,.46),0 0 0 1px rgba(255,255,255,.018) inset!important;
+}
+.dragon-race-results-card::before{display:none!important}
+.dragon-race-results-card.is-first{border-color:rgba(236,207,126,.28)!important}
+.dragon-race-results-card.is-second{border-color:rgba(194,214,220,.24)!important}
+.dragon-race-results-card.is-third{border-color:rgba(211,157,107,.24)!important}
+
+.dragon-race-result-topline{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:9px;border-bottom:1px solid rgba(148,191,201,.09)}
+.dragon-race-result-topline span{color:#9bb6bf;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.17em}
+.dragon-race-result-topline em{color:#627f89;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.14em}
+
+.dragon-race-result-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 2px 12px}
+.dragon-race-result-dragon{display:flex;align-items:center;gap:12px;min-width:0}
+.dragon-race-result-dragon>img{width:56px;height:56px;object-fit:contain;flex:0 0 56px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.34))}
+.dragon-race-result-dragon>div{min-width:0}
+.dragon-race-result-dragon small{display:block;color:#718e98;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.14em}
+.dragon-race-result-dragon h2{margin:5px 0 0!important;color:#f0f4f3!important;font:900 28px/1 Georgia,serif!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:440px}
+.dragon-race-result-dragon p{margin:6px 0 0;color:#9db2b9;font:800 10px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.04em}
+.dragon-race-result-place{display:grid;justify-items:end;gap:4px;flex:0 0 auto;padding-left:18px;border-left:1px solid rgba(151,191,200,.09)}
+.dragon-race-result-place strong{color:#e9cf83;font:900 46px/.88 Georgia,serif;letter-spacing:.01em;text-shadow:0 3px 14px rgba(0,0,0,.28)}
+.is-second .dragon-race-result-place strong{color:#d7e0e0}
+.is-third .dragon-race-result-place strong{color:#d7a16f}
+.is-standard .dragon-race-result-place strong{color:#d9e4e5}
+.dragon-race-result-place span{color:#7d979f;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.16em}
+
+.dragon-race-result-achievements{display:flex;gap:6px;flex-wrap:wrap;margin:-1px 0 11px 68px}
+.dragon-race-result-achievements span{padding:4px 7px;border-radius:999px;border:1px solid rgba(232,203,119,.18);background:rgba(232,203,119,.055);color:#d9c382;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.1em}
+
+.dragon-race-result-metrics{display:grid;grid-template-columns:1.15fr 1fr 1fr .72fr .88fr;gap:0;border-top:1px solid rgba(145,186,196,.09);border-bottom:1px solid rgba(145,186,196,.09)}
+.dragon-race-result-metric{min-width:0;padding:10px 12px;background:transparent!important;border:0!important;border-right:1px solid rgba(145,186,196,.07)!important;border-radius:0!important;box-shadow:none!important}
+.dragon-race-result-metric:last-child{border-right:0!important}
+.dragon-race-result-metric b{display:block;color:#6f8b95;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.13em}
+.dragon-race-result-metric em{display:block;margin-top:5px;color:#e7eeee;font:900 17px/1 Georgia,serif;font-style:normal;white-space:nowrap}
+.dragon-race-result-metric.is-primary em{color:#f0d588}
+.dragon-race-result-metric small{display:block;margin-top:5px;color:#779199;font:700 7px/1.2 'Trebuchet MS',Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.dragon-race-result-lower{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(210px,.8fr);gap:14px;margin-top:13px}
+.dragon-race-classification,.dragon-race-result-notes{min-width:0;border:1px solid rgba(141,180,190,.09);border-radius:9px;background:rgba(255,255,255,.012);overflow:hidden}
+.dragon-race-classification>header,.dragon-race-result-notes>header{height:29px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border-bottom:1px solid rgba(141,180,190,.075);color:#9fb5bc;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.12em}
+.dragon-race-classification>header em{color:#5f7c86;font:900 5px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.12em}
+.dragon-race-classification-list{padding:5px}
+.dragon-race-classification-row{height:28px;display:grid;grid-template-columns:18px 4px minmax(0,1fr) 72px;align-items:center;gap:6px;padding:0 7px;border-radius:5px;opacity:0;animation:dragonRaceRowReveal .28s ease forwards;animation-delay:calc(150ms + var(--reveal,0ms))}
+@keyframes dragonRaceRowReveal{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+.dragon-race-classification-row.is-player{background:linear-gradient(90deg,rgba(74,177,202,.075),transparent)}
+.dragon-race-classification-row.is-winner{background:linear-gradient(90deg,rgba(224,193,104,.055),transparent)}
+.dragon-race-classification-row>b{color:#9fb2b7;font:900 8px/1 Georgia,serif;text-align:center}
+.dragon-race-classification-row.is-winner>b{color:#e2c86f}
+.dragon-race-classification-row>i{width:3px;height:3px;border-radius:50%;background:var(--racer-accent,#8fb9c3)}
+.dragon-race-classification-row>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#dce7e8;font:800 8px/1 'Trebuchet MS',Arial,sans-serif}
+.dragon-race-classification-row>span small{margin-left:5px;color:#d9c67f;font:900 5px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.07em}
+.dragon-race-classification-row>em{justify-self:end;color:#a8bec4;font:800 8px/1 Georgia,serif;font-style:normal;white-space:nowrap}
+.dragon-race-classification-row.is-winner>em{color:#e6d493}
+
+.dragon-race-result-notes>div{padding:8px 10px 9px}
+.dragon-race-result-notes p{display:grid;grid-template-columns:5px minmax(0,1fr);gap:7px;align-items:start;margin:0;padding:7px 0;border-bottom:1px solid rgba(141,180,190,.055);opacity:0;animation:dragonRaceRowReveal .3s ease forwards;animation-delay:calc(180ms + var(--reveal,0ms))}
+.dragon-race-result-notes p:last-child{border-bottom:0}
+.dragon-race-result-notes p>i{width:3px;height:3px;margin-top:4px;border-radius:50%;background:#78b8c7}
+.dragon-race-result-notes p>span{color:#9fb4bb;font:700 8px/1.4 'Trebuchet MS',Arial,sans-serif}
+
+.dragon-race-result-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:13px}
+.dragon-race-result-footer>small{color:#536f79;font:900 5.5px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.11em}
+.dragon-race-result-footer .dragon-race-results-actions{margin:0!important;gap:6px!important}
+.dragon-race-result-footer .dragon-race-results-actions>div{padding:8px 11px!important;border-radius:5px!important;border:1px solid rgba(128,191,207,.15)!important;background:rgba(8,30,39,.72)!important;box-shadow:none!important;font:900 7px/1 'Trebuchet MS',Arial,sans-serif!important;letter-spacing:.09em!important}
+.dragon-race-result-footer .dragon-race-results-actions>div.is-primary{border-color:rgba(227,201,124,.22)!important;background:rgba(63,52,19,.46)!important;color:#efe4c2!important}
+.dragon-race-result-footer .dragon-race-results-actions>div:hover,.dragon-race-result-footer .dragon-race-results-actions>div:focus-visible{transform:none!important;border-color:rgba(166,216,229,.36)!important;background:rgba(10,39,49,.84)!important;box-shadow:0 0 12px rgba(76,181,205,.07)!important}
+
+/* Hide obsolete V33.55 result components when old markup is not in use. */
+.dragon-race-results-hero,.dragon-race-result-stats,.dragon-race-results-board,.dragon-race-results-note{display:none}
+
+@media(max-width:760px){
+  .dragon-race-live-leaderboard{right:7px!important;top:98px!important;width:112px!important;height:130px!important;padding:4px 5px!important}
+  .dragon-race-live-leaderboard-list{height:114px!important}
+  .dragon-race-racer-tag{max-width:76px!important}
+  .dragon-race-result-metrics{grid-template-columns:repeat(3,1fr)}
+  .dragon-race-result-metric{border-bottom:1px solid rgba(145,186,196,.06)!important}
+  .dragon-race-result-lower{grid-template-columns:1fr}
+  .dragon-race-result-notes{display:none}
+  .dragon-race-result-dragon h2{max-width:250px;font-size:23px!important}
+}
+@media(max-height:760px) and (min-width:761px){
+  .dragon-race-results-card{padding:15px 18px 14px!important;max-height:88vh!important}
+  .dragon-race-result-hero{padding:9px 2px 8px}
+  .dragon-race-result-dragon>img{width:46px;height:46px;flex-basis:46px}
+  .dragon-race-result-dragon h2{font-size:24px!important}
+  .dragon-race-result-place strong{font-size:39px}
+  .dragon-race-result-metric{padding:8px 10px}
+  .dragon-race-result-metric em{font-size:15px}
+  .dragon-race-classification-row{height:24px}
+  .dragon-race-result-lower{margin-top:9px}
+  .dragon-race-result-footer{margin-top:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-results.is-visible .dragon-race-results-card,.dragon-race-classification-row,.dragon-race-result-notes p{animation:none!important;opacity:1!important}
+}
+
+
+
+/* =========================================================
+   V33.67 — race compositing + pack readability pass
+   ========================================================= */
+.dragon-race-viewport{
+  --focus-x:50%;
+  --focus-y:50%;
+  --focus-rx:32%;
+  --focus-ry:28%;
+}
+
+.dragon-race-world-bg{
+  filter:contrast(1.035) saturate(1.028) brightness(.988) sepia(.028);
+}
+
+.dragon-race-world::after{
+  background:
+    radial-gradient(circle at 50% 46%,rgba(255,255,255,0) 0 56%,rgba(3,10,14,.10) 86%,rgba(2,7,10,.18) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.085));
+}
+
+.dragon-race-cinematic-pass{
+  position:absolute;
+  inset:0;
+  z-index:117;
+  pointer-events:none;
+}
+.dragon-race-cinematic-pass::before,
+.dragon-race-cinematic-pass::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.dragon-race-cinematic-pass::before{
+  background:
+    radial-gradient(circle at 74% 18%,rgba(255,212,136,.095) 0 7%,rgba(255,212,136,.032) 16%,rgba(255,212,136,0) 32%),
+    linear-gradient(180deg,rgba(255,244,224,.022),rgba(255,255,255,0) 24%),
+    linear-gradient(180deg,rgba(4,9,12,.02),rgba(2,7,10,.065));
+  mix-blend-mode:soft-light;
+  opacity:.98;
+}
+.dragon-race-cinematic-pass::after{
+  background:radial-gradient(ellipse calc(var(--focus-rx) + 78px) calc(var(--focus-ry) + 62px) at var(--focus-x) var(--focus-y),rgba(255,255,255,0) 0 42%,rgba(7,14,18,.018) 62%,rgba(4,9,13,.06) 100%);
+  -webkit-backdrop-filter:blur(.95px) saturate(.992) brightness(.985);
+  backdrop-filter:blur(.95px) saturate(.992) brightness(.985);
+  -webkit-mask-image:radial-gradient(ellipse calc(var(--focus-rx) + 86px) calc(var(--focus-ry) + 72px) at var(--focus-x) var(--focus-y),rgba(0,0,0,0) 0 46%,rgba(0,0,0,.22) 66%,rgba(0,0,0,.78) 100%);
+  mask-image:radial-gradient(ellipse calc(var(--focus-rx) + 86px) calc(var(--focus-ry) + 72px) at var(--focus-x) var(--focus-y),rgba(0,0,0,0) 0 46%,rgba(0,0,0,.22) 66%,rgba(0,0,0,.78) 100%);
+  opacity:.92;
+}
+
+.dragon-race-tv-glass{
+  background:
+    linear-gradient(108deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,0) 24%,rgba(255,255,255,.014) 48%,rgba(255,255,255,0) 68%),
+    repeating-linear-gradient(180deg,rgba(255,255,255,.006) 0 1px,rgba(0,0,0,0) 1px 4px),
+    linear-gradient(180deg,rgba(255,255,255,.012),rgba(0,0,0,.02));
+  opacity:.5;
+}
+
+.dragon-race-hud-box,
+.dragon-race-live-leaderboard,
+.dragon-race-racer-tag,
+.dragon-race-auto-badge,
+.dragon-race-exit{
+  box-shadow:0 10px 26px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.02) inset!important;
+}
+
+@media(max-width:760px){
+  .dragon-race-cinematic-pass::after{
+    -webkit-backdrop-filter:blur(.72px) saturate(.994) brightness(.988);
+    backdrop-filter:blur(.72px) saturate(.994) brightness(.988);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-cinematic-pass::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+}
+
+
+/* =========================================================
+   V33.68 — City Circuit Keeper Mark race rewards
+   ========================================================= */
+.dragon-race-reward-strip{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-top:11px;
+  padding:9px 12px 10px;
+  border-top:1px solid rgba(229,202,122,.14);
+  border-bottom:1px solid rgba(118,184,200,.10);
+  background:linear-gradient(90deg,rgba(229,202,122,.045),rgba(81,178,201,.025) 60%,transparent);
+}
+.dragon-race-reward-copy{min-width:0;display:grid;gap:3px}
+.dragon-race-reward-copy small{color:#d8bd70;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.16em}
+.dragon-race-reward-copy strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#dce7e8;font:800 8px/1.25 'Trebuchet MS',Arial,sans-serif}
+.dragon-race-reward-copy em{color:#718d96;font:800 6px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.05em}
+.dragon-race-reward-strip>b{flex:0 0 auto;color:#f0d483;font:900 24px/1 Georgia,serif;text-shadow:0 3px 12px rgba(0,0,0,.24)}
+@media(max-width:760px){
+  .dragon-race-reward-strip{margin-top:8px;padding:8px 9px;gap:10px}
+  .dragon-race-reward-strip>b{font-size:20px}
+  .dragon-race-reward-copy strong{white-space:normal}
+}
+
+
+/* =========================================================
+   V33.69 — obvious Keeper Mark payout + per-racer earnings
+   ========================================================= */
+.dragon-race-reward-strip{
+  position:relative;
+  display:grid!important;
+  grid-template-columns:44px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:12px!important;
+  margin-top:12px!important;
+  padding:11px 14px!important;
+  border:1px solid rgba(232,202,111,.24)!important;
+  border-radius:9px!important;
+  background:
+    radial-gradient(circle at 7% 50%,rgba(240,205,102,.12),transparent 23%),
+    linear-gradient(90deg,rgba(74,56,17,.52),rgba(8,35,43,.62) 58%,rgba(7,27,34,.58))!important;
+  box-shadow:0 9px 26px rgba(0,0,0,.18),0 0 0 1px rgba(255,255,255,.018) inset!important;
+  overflow:hidden;
+}
+.dragon-race-reward-strip::after{
+  content:'';position:absolute;inset:-60% -20%;pointer-events:none;
+  background:linear-gradient(110deg,transparent 42%,rgba(255,237,177,.08) 49%,transparent 56%);
+  transform:translateX(-65%);opacity:0;
+}
+.dragon-race-reward-strip.is-awarded{border-color:rgba(240,207,109,.48)!important;box-shadow:0 11px 34px rgba(0,0,0,.22),0 0 24px rgba(224,188,75,.085),0 0 0 1px rgba(255,255,255,.025) inset!important}
+.dragon-race-reward-strip.is-awarded::after{animation:dragonRaceRewardShine .8s ease-out .12s 1}
+@keyframes dragonRaceRewardShine{0%{opacity:0;transform:translateX(-65%)}22%{opacity:1}100%{opacity:0;transform:translateX(70%)}}
+.dragon-race-reward-medallion{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid rgba(238,207,111,.42);background:radial-gradient(circle at 35% 28%,#dfc16e,#7b5c18 74%);
+  box-shadow:0 5px 12px rgba(0,0,0,.26),0 0 0 3px rgba(229,197,93,.055);
+}
+.dragon-race-reward-medallion>b{color:#122a30;font:900 18px/1 Georgia,serif;text-shadow:0 1px rgba(255,255,255,.22)}
+.dragon-race-reward-copy{gap:4px!important}
+.dragon-race-reward-copy small{color:#e3ca80!important;font-size:6.5px!important;letter-spacing:.18em!important}
+.dragon-race-reward-copy strong{color:#f1f5f3!important;font-size:9px!important;white-space:normal!important}
+.dragon-race-reward-copy em{color:#91aab1!important;font-size:6.5px!important}
+.dragon-race-reward-total{display:grid;justify-items:end;gap:2px;min-width:92px}
+.dragon-race-reward-total>b{color:#f3d77e;font:900 29px/.9 Georgia,serif;text-shadow:0 3px 12px rgba(0,0,0,.28)}
+.dragon-race-reward-total>span{color:#aa9560;font:900 5.5px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.16em;white-space:nowrap}
+.dragon-race-reward-strip.is-awarded .dragon-race-reward-total>b{animation:dragonRaceRewardPop .52s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dragonRaceRewardPop{0%{transform:scale(.86);opacity:.35}65%{transform:scale(1.06);opacity:1}100%{transform:scale(1);opacity:1}}
+.dragon-race-reward-strip.is-error{border-color:rgba(195,112,90,.22)!important;filter:saturate(.75)}
+
+.dragon-race-classification-row{
+  grid-template-columns:18px 4px minmax(0,1fr) 68px 66px!important;
+}
+.dragon-race-classification-marks{
+  justify-self:end;display:flex;align-items:baseline;justify-content:flex-end;gap:3px;min-width:62px;
+  color:#d9c47f;font-style:normal;white-space:nowrap;
+}
+.dragon-race-classification-marks>b{color:#e6cf88;font:900 8px/1 Georgia,serif}
+.dragon-race-classification-marks>small{color:#7c8e8f;font:900 4.8px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.08em}
+.dragon-race-classification-row.is-player .dragon-race-classification-marks>b{color:#f0d777}
+.dragon-race-classification-marks.has-bonus>b{color:#f6df83;text-shadow:0 0 8px rgba(233,200,94,.16)}
+.dragon-race-classification-marks.has-bonus::after{content:'+';margin-left:1px;color:#9e8c58;font:900 6px/1 Georgia,serif}
+
+@media(max-width:760px){
+  .dragon-race-reward-strip{grid-template-columns:36px minmax(0,1fr) auto!important;padding:9px 10px!important;gap:9px!important}
+  .dragon-race-reward-medallion{width:34px;height:34px}
+  .dragon-race-reward-total{min-width:76px}
+  .dragon-race-reward-total>b{font-size:23px}
+  .dragon-race-classification-row{grid-template-columns:16px 3px minmax(0,1fr) 58px 56px!important;gap:4px!important;padding:0 5px!important}
+  .dragon-race-classification-marks{min-width:52px}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-reward-strip.is-awarded::after,.dragon-race-reward-strip.is-awarded .dragon-race-reward-total>b{animation:none!important}
+}
+
+
+/* =========================================================
+   V33.71 — dragon grounding + depth pass
+   ========================================================= */
+.dragon-race-racer{
+  filter:none!important;
+}
+
+.dragon-race-flight-shadow{
+  position:absolute;
+  left:50%;
+  top:97%;
+  z-index:-3;
+  width:34px;
+  height:9px;
+  border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(4,8,10,.72) 0%,rgba(4,8,10,.50) 43%,rgba(4,8,10,.16) 72%,rgba(4,8,10,0) 100%);
+  opacity:var(--shadow-opacity,.32);
+  filter:blur(var(--shadow-blur,4px));
+  transform:translate(calc(-50% + var(--shadow-x,0px)),var(--shadow-y,4px)) rotate(var(--shadow-angle,0deg)) scaleX(var(--shadow-stretch,1.04));
+  transform-origin:50% 50%;
+  pointer-events:none;
+  will-change:transform,filter,opacity;
+}
+.dragon-race-racer.is-player .dragon-race-flight-shadow{
+  width:38px;
+  height:10px;
+}
+
+/* Replace the old floating pseudo-shadow with the grounded world shadow. */
+.dragon-race-racer.is-flying::before{display:none!important}
+
+/* Very restrained warm/cool edge wrap so sprites inherit some City Circuit light. */
+.dragon-race-racer .dragon-race-racer-sprite-wrap img{
+  filter:
+    drop-shadow(-.7px -1px .35px rgba(255,218,158,.16))
+    drop-shadow(.8px 1.5px 1.2px rgba(7,27,36,.24))
+    saturate(1.018)
+    brightness(1.008)!important;
+}
+.dragon-race-racer.is-taking-off .dragon-race-racer-sprite-wrap img,
+.dragon-race-racer.is-landing .dragon-race-racer-sprite-wrap img{
+  filter:
+    drop-shadow(-.6px -.8px .3px rgba(255,218,158,.14))
+    drop-shadow(.7px 1.4px 1.15px rgba(7,27,36,.25))
+    saturate(1.014)
+    brightness(1.006)!important;
+}
+.dragon-race-racer:not(.is-flying):not(.is-taking-off):not(.is-landing) .dragon-race-racer-sprite-wrap img{
+  filter:
+    drop-shadow(-.5px -.7px .25px rgba(255,218,158,.12))
+    drop-shadow(.7px 1.2px 1px rgba(7,27,36,.28))
+    saturate(1.012)!important;
+}
+
+/* Keep the player's identifier subtle; depth now comes from lighting/shadow instead of glow. */
+.dragon-race-racer.is-player{
+  filter:drop-shadow(0 0 5px rgba(104,218,241,.12))!important;
+}
+
+@media(max-width:760px){
+  .dragon-race-flight-shadow{width:30px;height:8px}
+  .dragon-race-racer.is-player .dragon-race-flight-shadow{width:34px;height:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-flight-shadow{will-change:auto}
+}
+
+
+/* =========================================================
+   V33.72 — race drama: overtakes, lead changes, final lap
+   ========================================================= */
+.dragon-race-event-callout{
+  position:absolute;
+  left:50%;
+  top:25%;
+  z-index:144;
+  min-width:170px;
+  max-width:min(360px,62vw);
+  transform:translate(-50%,-5px) scale(.985);
+  display:grid;
+  justify-items:center;
+  gap:3px;
+  padding:7px 15px 8px;
+  border:1px solid rgba(130,183,196,.16);
+  border-radius:7px;
+  background:linear-gradient(180deg,rgba(5,20,27,.82),rgba(4,15,21,.72));
+  box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px rgba(255,255,255,.018) inset;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .16s ease,transform .18s ease,border-color .18s ease;
+  -webkit-backdrop-filter:blur(3px);
+  backdrop-filter:blur(3px);
+}
+.dragon-race-event-callout.is-visible{opacity:1;transform:translate(-50%,0) scale(1)}
+.dragon-race-event-callout small{
+  color:#88a7b1;
+  font:900 5.8px/1 'Trebuchet MS',Arial,sans-serif;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.dragon-race-event-callout b{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#e8f0ef;
+  font:900 11px/1.08 Georgia,serif;
+  letter-spacing:.025em;
+  text-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+.dragon-race-event-callout.is-leader{border-color:rgba(238,202,101,.28);background:linear-gradient(180deg,rgba(38,31,12,.84),rgba(8,21,26,.76))}
+.dragon-race-event-callout.is-leader small,.dragon-race-event-callout.is-final small,.dragon-race-event-callout.is-photo small{color:#e5ca79}
+.dragon-race-event-callout.is-final{
+  border-color:rgba(239,205,104,.34);
+  box-shadow:0 10px 28px rgba(0,0,0,.25),0 0 20px rgba(224,185,72,.055);
+}
+.dragon-race-event-callout.is-final b{color:#f4df9d}
+.dragon-race-event-callout.is-photo{border-color:rgba(112,213,234,.32);background:linear-gradient(180deg,rgba(7,35,43,.86),rgba(5,18,24,.78))}
+.dragon-race-event-callout.is-photo b{color:#d9f5fb;letter-spacing:.06em}
+
+/* Final lap gets a tiny broadcast lift, not a new visual effect layer. */
+.dragon-race-game.is-final-lap .dragon-race-hud-cluster .dragon-race-hud-box:nth-child(2){
+  border-color:rgba(232,199,96,.28)!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.23),0 0 14px rgba(224,185,72,.045),0 0 0 1px rgba(255,255,255,.02) inset!important;
+}
+.dragon-race-game.is-final-lap .dragon-race-hud-cluster .dragon-race-hud-box:nth-child(2) small{color:#c9ad62!important}
+.dragon-race-game.is-final-lap .dragon-race-hud-cluster .dragon-race-hud-box:nth-child(2) b{color:#f2d989!important}
+
+.dragon-race-game.is-photo-finish .dragon-race-live-leaderboard{opacity:.82}
+
+@media(max-width:760px){
+  .dragon-race-event-callout{top:24%;min-width:148px;max-width:68vw;padding:6px 11px 7px}
+  .dragon-race-event-callout b{font-size:9px}
+  .dragon-race-event-callout small{font-size:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-event-callout{transition:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+}

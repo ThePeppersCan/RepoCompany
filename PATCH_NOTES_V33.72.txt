@@ -1,0 +1,12 @@
+V33.72 — Dragon Racing Drama Pass
+
+Adds restrained live race drama without changing race balance.
+
+- Detects settled overtakes instead of reacting to frame-by-frame rank flicker.
+- Calls out meaningful overtakes, big moves, and lead changes in a compact VRN-style graphic.
+- Adds a proper Final Lap moment with a small camera/crowd lift.
+- Final straight now has a subtle extra camera push-in.
+- Photo finishes hold the finish camera long enough to read before results appear.
+- Race Notes can include recorded overtake / lead-change totals.
+- Keeps Keeper Mark rewards, V33.71 grounding/depth, all sprite-facing fixes, audio balance, and current RNG intact.
+- Dragon Racing XP remains disabled.

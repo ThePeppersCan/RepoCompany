@@ -1,0 +1,27 @@
+Velmora Dragon Racing — Patch V33.63
+===================================
+
+Patch-only update.
+
+Results overhaul
+----------------
+- Rebuilt the end-of-race screen as an official VRN classification broadcast.
+- Keeps race music and crowd ambience alive underneath the result.
+- Adds a short cinematic breathing window after the finish before the result appears.
+- Player dragon, finishing position and result status now form the main hero moment.
+- Adds Finish Time, Best Lap, Personal Best, Grid and Positions Gained/Lost.
+- Final classification shows winner's full time and gaps-to-winner for the rest of the field.
+- Adds factual Race Notes generated from the actual race result.
+- Adds genuine First Win / First Podium / Personal Best / Best Lap badges only when earned.
+- Keeps Dragon Racing XP disabled.
+
+Live race UI cleanup
+--------------------
+- Nameplates reduced to slim, low-profile broadcast identifiers.
+- Live leaderboard reduced substantially in width/height and visual weight.
+- Overtake row movement remains smooth, but the panel is much less intrusive.
+
+Modified files
+--------------
+- dragon-racing-race.js
+- dragon-racing-race.css

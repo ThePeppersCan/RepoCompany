@@ -1,0 +1,12 @@
+Velmora Dragon Racing V33.69 — Keeper Mark reward visibility
+
+- Track Details now shows an estimated Keeper Marks / hour rate.
+- Velmora City Circuit displays ≈1,500 Marks/hr, based on the current six finishing-position payouts and ~2:02 race cycle.
+- Unreleased tracks show Reward rate TBA until their payouts exist.
+- Final classification now shows the Marks earned by every racer.
+- Player classification row updates to the exact server-awarded total when PB/daily/win bonuses apply.
+- Race reward panel is substantially more prominent and animates once the server confirms the payout.
+- Keeper Mark balance still refreshes immediately after payout.
+- Dragon Racing XP remains disabled.
+
+Patch-only: 4 modified files, no large assets.

@@ -1,0 +1,10 @@
+Velmora patch V33.51 — Stadium crowd volume tweak
+
+- Reduced constant City Circuit stadium crowd ambience from 10% to 7%.
+- No other race audio, racing logic, flight animation, results, or progression behaviour changed.
+- Dragon Racing XP remains disabled.
+
+Patch-only contents:
+- dragon-racing-race.js
+- index.html
+- PATCH_NOTES_V33.51.txt
