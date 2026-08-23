@@ -18446,6 +18446,8 @@ qmShowSharedGoal=function(state){
     {id:'varko_patch',name:'Varko — Patch',image:'assets/quidditch-tcg/cards/patch/varko-patch.png',rarity:'patch'},
     {id:'vivi_patch',name:'Vivi — Patch',image:'assets/quidditch-tcg/cards/patch/vivi-patch.png',rarity:'patch'},
     {id:'zizi_patch',name:'Zizi — Patch',image:'assets/quidditch-tcg/cards/patch/zizi-patch.png',rarity:'patch'},
+    {id:'rovarn_world_cup_champions_2026',name:'Rovarn — World Cup Winners 2026',image:'assets/quidditch-tcg/cards/limited/rovarn-world-cup-champions-2026.png',rarity:'promo',set:'World Cup Champions 2026'},
+    {id:'rovarn_after_party_2026',name:'Rovarn — After Party 2026',image:'assets/quidditch-tcg/cards/limited/rovarn-after-party-2026.png',rarity:'promo',set:'World Cup Champions 2026'},
 ];
   const CARD_BY_ID=Object.fromEntries(CARD_CATALOG.map(card=>[card.id,card]));
   window.__repoTcgCardCatalog=CARD_CATALOG.map(card=>({...card}));
@@ -45451,4 +45453,105 @@ window.repoEndlessCombatPerf=()=>{
   window.addEventListener('dragonbound:home-visible',queueDecorate);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',queueDecorate,{once:true});else queueDecorate();
   window.DragonboundCommandUiRefresh=()=>decorateCommandMenu();
+})();
+
+
+// ============================================================
+// ROVARN WORLD CUP CHAMPIONS 2026 — LIMITED EDITION TWO-CARD PACK
+// One celebration pack per account. Opening atomically consumes the pack
+// and permanently unlocks both championship cards.
+// ============================================================
+(function installRovarnChampionsLtdPack(){
+  if(window.__repoRovarnChampionsLtdPackInstalled)return;
+  window.__repoRovarnChampionsLtdPackInstalled=true;
+  const ITEM_ID='quidditch_tcg_ltd_rovarn_champions_pack';
+  const CARD_ONE='rovarn_world_cup_champions_2026';
+  const CARD_TWO='rovarn_after_party_2026';
+  const CARD_ONE_ASSET='assets/quidditch-tcg/cards/limited/rovarn-world-cup-champions-2026.png';
+  const CARD_TWO_ASSET='assets/quidditch-tcg/cards/limited/rovarn-after-party-2026.png';
+  const BACK_ASSET='assets/quidditch-tcg/ltd/ltd-card-back.png';
+  const OPEN_SOUND='assets/quidditch-tcg/pack-open.mp3';
+  let opening=false;
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  const quantity=()=>Number(bankState?.items?.[ITEM_ID]||0);
+
+  const previousBankStandardItemSlot=bankStandardItemSlot;
+  bankStandardItemSlot=function(id,qty){
+    if(id!==ITEM_ID)return previousBankStandardItemSlot.apply(this,arguments);
+    return `<div class="bank-slot rovarn-champions-bank-slot">
+      <div class="rovarn-champions-mini-pack" aria-hidden="true"><i>R</i><b>WORLD<br>CUP</b><span>2026</span></div>
+      <b>Rovarn Champions LTD Pack</b>
+      <small>World Cup winners celebration.<br>Contains both exclusive Rovarn cards.</small>
+      <strong>${Number(qty).toLocaleString('en-GB')}</strong>
+      <button type="button" class="open-rovarn-champions-pack" data-open-rovarn-champions-pack>OPEN LTD PACK</button>
+    </div>`;
+  };
+
+  function ensureDialog(){
+    let d=document.getElementById('repoRovarnChampionsPackDialog');
+    if(d)return d;
+    d=document.createElement('dialog');
+    d.id='repoRovarnChampionsPackDialog';d.className='repo-rovarn-champions-dialog';
+    d.innerHTML=`<section class="repo-rovarn-champions-shell">
+      <button class="repo-rovarn-champions-close" type="button" aria-label="Close">×</button>
+      <header><small>REPO SPORTS · WORLD CUP 2026</small><strong>ROVARN — WORLD CHAMPIONS</strong><em>LIMITED EDITION TWO-CARD PACK</em></header>
+      <div class="repo-rovarn-champions-stage" id="repoRovarnChampionsStage"></div>
+      <div class="repo-rovarn-champions-message" id="repoRovarnChampionsMessage"></div>
+    </section>`;
+    document.body.appendChild(d);
+    d.querySelector('.repo-rovarn-champions-close')?.addEventListener('click',()=>{if(!opening)d.close()});
+    d.addEventListener('cancel',e=>{if(opening)e.preventDefault()});
+    d.addEventListener('click',e=>{if(e.target===d&&!opening)d.close()});
+    return d;
+  }
+
+  function renderPack(){
+    const stage=document.getElementById('repoRovarnChampionsStage'),msg=document.getElementById('repoRovarnChampionsMessage');if(!stage||!msg)return;
+    stage.innerHTML=`<button class="repo-rovarn-big-pack" id="repoRovarnBigPack" type="button"><span class="foil"></span><i>R</i><strong>ROVARN</strong><b>WORLD CHAMPIONS</b><em>2026 · LTD</em><small>CLICK TO BREAK THE SEAL</small></button>`;
+    msg.innerHTML='<strong>TWO EXCLUSIVE CARDS INSIDE</strong><small>Both cards are permanently added to your TCG Binder.</small>';
+    document.getElementById('repoRovarnBigPack')?.addEventListener('click',openPack);
+  }
+  function openDialog(){if(quantity()<1){toast('You do not have the Rovarn World Champions LTD pack in your Bank.');return}const d=ensureDialog();opening=false;d.classList.remove('is-opening','is-revealed');renderPack();if(!d.open)d.showModal();}
+
+  async function openPack(){
+    if(opening)return;opening=true;
+    try{const a=new Audio(OPEN_SOUND);a.volume=.65;a.play().catch(()=>{})}catch(_){}
+    const d=ensureDialog(),stage=document.getElementById('repoRovarnChampionsStage'),msg=document.getElementById('repoRovarnChampionsMessage');
+    d.classList.add('is-opening');
+    stage.innerHTML=`<div class="rovarn-dual-reveal">
+      <div class="rovarn-card-wrap first"><div class="rovarn-card-flip" id="rovarnChampCardOne"><div class="face back"><img src="${BACK_ASSET}" alt="Limited Edition card back"></div><div class="face front"><img src="${CARD_ONE_ASSET}" alt="Rovarn World Cup Winners 2026 card"></div></div></div>
+      <div class="rovarn-seal-count"><small>SEAL BREAKS IN</small><strong id="rovarnChampCountdown">3</strong></div>
+      <div class="rovarn-card-wrap second"><div class="rovarn-card-flip" id="rovarnChampCardTwo"><div class="face back"><img src="${BACK_ASSET}" alt="Limited Edition card back"></div><div class="face front"><img src="${CARD_TWO_ASSET}" alt="Rovarn After Party 2026 card"></div></div></div>
+    </div>`;
+    msg.innerHTML='<strong>THE CHAMPIONSHIP CARDS ARE SEALED…</strong><small>Securing both cards to your account.</small>';
+    const claimPromise=db.rpc('open_rovarn_world_champions_pack_2026');
+    for(let n=3;n>=1;n--){const c=document.getElementById('rovarnChampCountdown');if(c)c.textContent=n;await sleep(1000)}
+    let response;try{response=await claimPromise}catch(error){response={data:null,error}}
+    const row=Array.isArray(response?.data)?response.data[0]:response?.data;
+    if(response?.error||!row){console.error('Rovarn LTD pack failed',response?.error);opening=false;d.classList.remove('is-opening');renderPack();const m=document.getElementById('repoRovarnChampionsMessage');if(m)m.innerHTML=`<strong>PACK COULD NOT OPEN</strong><small>${escapeHtml(response?.error?.message||'Please try again.')}</small>`;return}
+    bankState=bankState||{gp:Number(character?.gp||0),items:{}};bankState.items=row.bank_items||bankState.items||{};
+    if(character)character.bank_items=row.bank_items||character.bank_items||{};
+    const owned=Array.isArray(row.owned_cards)?row.owned_cards:[CARD_ONE,CARD_TWO];
+    if(window.__repoTcgOwnCollection&&!window.__repoTcgOwnCollection.isPublic){window.__repoTcgOwnCollection={...window.__repoTcgOwnCollection,cards:owned,loaded:true};}
+    if(window.__repoTcgDisplayedCollection&&!window.__repoTcgDisplayedCollection.isPublic){window.__repoTcgDisplayedCollection={...window.__repoTcgDisplayedCollection,cards:owned};}
+    d.classList.add('is-revealed');
+    document.getElementById('rovarnChampCardOne')?.classList.add('flipped');
+    await sleep(520);document.getElementById('rovarnChampCardTwo')?.classList.add('flipped');
+    msg.innerHTML='<strong>WORLD CHAMPIONS LTD SET UNLOCKED</strong><small>Rovarn — World Cup Winners 2026 + Rovarn — After Party 2026 are now in your Binder.</small>';
+    if(document.getElementById('bankDialog')?.open&&typeof renderBank==='function')renderBank();
+    if(typeof window.repoTcgRefreshOwnCollection==='function'){try{const refresh=window.repoTcgRefreshOwnCollection();refresh?.catch?.(()=>{})}catch(_){}}
+    toast('Rovarn World Champions LTD set unlocked — 2 cards added!',6000);
+    setTimeout(()=>{opening=false;d.classList.remove('is-opening')},1200);
+  }
+
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-open-rovarn-champions-pack]');if(!b)return;e.preventDefault();e.stopPropagation();openDialog();});
+  const style=document.createElement('style');style.id='repoRovarnChampionsLtdStyles';style.textContent=`
+    .rovarn-champions-bank-slot{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 25%,#78170f 0,#210706 54%,#050202 100%)!important;border-color:#e5b33f!important;box-shadow:inset 0 0 30px #c21d183c,0 0 12px #e5ad3538!important}.rovarn-champions-bank-slot::before{content:'';position:absolute;inset:-55%;background:conic-gradient(transparent,#ffcf4930,transparent 18%,#a5070730,transparent 38%,#fff0a522,transparent 56%);animation:rovarnBankSpin 8s linear infinite;pointer-events:none}.rovarn-champions-bank-slot>*{position:relative;z-index:1}.rovarn-champions-mini-pack{width:74px;height:104px;margin:1px auto 5px;display:grid;place-content:center;text-align:center;border:2px solid #e7b642;outline:1px solid #380503;outline-offset:-5px;background:linear-gradient(145deg,#a51613,#340604 55%,#090202);box-shadow:0 5px 9px #000,0 0 15px #d58c2755;transform:rotate(-2deg);animation:rovarnPackFloat 2s ease-in-out infinite}.rovarn-champions-mini-pack i{font:900 31px/1 Georgia,serif;color:#ffd96a;text-shadow:2px 2px #000}.rovarn-champions-mini-pack b{font:900 10px/1 Georgia,serif;color:#fff0ae}.rovarn-champions-mini-pack span{font:900 8px/1 Georgia,serif;color:#e6b03e;letter-spacing:.14em}.open-rovarn-champions-pack{border:1px solid #f1c75d!important;background:linear-gradient(#8d2318,#351006)!important;color:#fff0ae!important;font:900 9px/1 Georgia,serif!important;letter-spacing:.07em;padding:7px 8px!important;cursor:pointer}.open-rovarn-champions-pack:hover{filter:brightness(1.2)}
+    .repo-rovarn-champions-dialog{width:min(96vw,980px);height:min(94vh,850px);padding:0;border:0;background:transparent;color:#ffe9a6;overflow:visible}.repo-rovarn-champions-dialog::backdrop{background:radial-gradient(circle at 50% 42%,rgba(121,17,10,.6),rgba(3,1,1,.96) 72%);backdrop-filter:blur(7px)}.repo-rovarn-champions-shell{height:100%;position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:14px 17px 17px;border:2px solid #e8ba49;outline:1px solid #5d130d;outline-offset:-7px;background:radial-gradient(circle at 50% 44%,#5c110dd9,#150504 58%,#030101);box-shadow:0 26px 100px #000,inset 0 0 0 1px #ffdf78,inset 0 0 90px #b8171736,0 0 54px #e1a63c55;overflow:hidden}.repo-rovarn-champions-shell::before{content:'';position:absolute;inset:-70%;background:conic-gradient(from 20deg,transparent,#ffda5d18,transparent 12%,#ac17171c,transparent 28%,#fff2a018,transparent 45%);animation:rovarnShellSpin 18s linear infinite;pointer-events:none}.repo-rovarn-champions-shell>*{position:relative;z-index:1}.repo-rovarn-champions-shell header{text-align:center;display:flex;flex-direction:column;gap:4px;padding:8px 52px 12px;border-bottom:1px solid #d8a93f88}.repo-rovarn-champions-shell header small{font:800 8px/1 Georgia,serif;letter-spacing:.2em;color:#dca83e}.repo-rovarn-champions-shell header strong{font:900 clamp(20px,3.8vw,34px)/1 Georgia,serif;letter-spacing:.07em;color:#fff0a0;text-shadow:0 0 10px #e42d20,2px 2px #000}.repo-rovarn-champions-shell header em{font:800 9px/1 Georgia,serif;font-style:normal;letter-spacing:.18em;color:#e3b954}.repo-rovarn-champions-close{position:absolute;right:17px;top:15px;z-index:8;width:38px;height:38px;border:1px solid #efc45b!important;background:linear-gradient(#7b1a12,#2c0704)!important;color:#fff0a6;font:900 23px/1 Georgia,serif;cursor:pointer}.repo-rovarn-champions-stage{display:grid;place-items:center;min-height:0;padding:10px;overflow:visible}.repo-rovarn-champions-message{min-height:72px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.repo-rovarn-champions-message strong{font:900 14px/1.2 Georgia,serif;letter-spacing:.08em;color:#ffe18c}.repo-rovarn-champions-message small{font-size:10px;color:#c9a86d}
+    .repo-rovarn-big-pack{position:relative;width:min(48vw,330px);aspect-ratio:2/3;border:2px solid #f0c45d!important;outline:1px solid #3a0705!important;outline-offset:-7px!important;background:linear-gradient(155deg,#b51d18,#3b0705 55%,#090202)!important;box-shadow:0 22px 25px #000,0 0 38px #d69b3544!important;color:#ffe9a0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;cursor:pointer;overflow:hidden;animation:rovarnPackFloat 1.9s ease-in-out infinite}.repo-rovarn-big-pack .foil{position:absolute;inset:-45%;background:linear-gradient(112deg,transparent 42%,#fff3b080 49%,transparent 56%);transform:translateX(-80%) rotate(9deg);animation:rovarnFoil 2.7s ease-in-out infinite}.repo-rovarn-big-pack i{font:900 80px/1 Georgia,serif;color:#ffd35a;text-shadow:0 0 13px #f5b52a,4px 4px #210000}.repo-rovarn-big-pack strong{font:900 29px/1 Georgia,serif;letter-spacing:.12em}.repo-rovarn-big-pack b{font:900 16px/1 Georgia,serif;letter-spacing:.08em;color:#ffc94f}.repo-rovarn-big-pack em{font:900 11px/1 Georgia,serif;font-style:normal;letter-spacing:.18em}.repo-rovarn-big-pack small{position:absolute;bottom:5%;padding:7px 11px;border:1px solid #f0c45d;background:#260605e8;font:900 9px/1 Georgia,serif;letter-spacing:.1em}.repo-rovarn-big-pack:hover{filter:brightness(1.15);animation:rovarnPackShake .14s linear infinite}
+    .rovarn-dual-reveal{width:100%;height:100%;display:grid;grid-template-columns:1fr 110px 1fr;align-items:center;gap:14px;perspective:1500px}.rovarn-card-wrap{position:relative;height:min(66vh,610px);aspect-ratio:2/3;justify-self:center}.rovarn-card-flip{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.16,.8,.2,1.08);animation:rovarnCardHover 1.5s ease-in-out infinite}.rovarn-card-flip.flipped{transform:rotateY(180deg);animation:rovarnCardFloat 2s ease-in-out infinite}.rovarn-card-flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;filter:drop-shadow(0 18px 18px #000)}.rovarn-card-flip .face img{width:100%;height:100%;object-fit:contain;display:block}.rovarn-card-flip .front{transform:rotateY(180deg);filter:drop-shadow(0 0 10px #fff2b0) drop-shadow(0 0 28px #e7a326) drop-shadow(0 18px 18px #000)}.rovarn-seal-count{width:100px;height:100px;border:2px solid #f2cf69;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(circle,#64130de8,#170403f5);box-shadow:0 0 0 5px #4e0b08aa,0 0 30px #e1a12f}.rovarn-seal-count small{font:900 7px/1 Georgia,serif;letter-spacing:.1em;color:#d7ae51}.rovarn-seal-count strong{font:900 45px/1 Georgia,serif;color:#fff1a2;text-shadow:0 0 10px #ffc83c}.repo-rovarn-champions-dialog.is-revealed .rovarn-seal-count{opacity:0;transform:scale(1.5);transition:.5s}.repo-rovarn-champions-dialog.is-revealed .repo-rovarn-champions-shell{box-shadow:0 26px 110px #000,inset 0 0 0 2px #fff0a1,inset 0 0 100px #c91f174d,0 0 78px #eebd4c88}
+    @keyframes rovarnBankSpin{to{transform:rotate(360deg)}}@keyframes rovarnShellSpin{to{transform:rotate(360deg)}}@keyframes rovarnPackFloat{50%{transform:translateY(-6px) rotate(.5deg)}}@keyframes rovarnFoil{0%,25%{transform:translateX(-80%) rotate(9deg)}65%,100%{transform:translateX(80%) rotate(9deg)}}@keyframes rovarnPackShake{0%{transform:translate(-2px,0) rotate(-1deg)}50%{transform:translate(2px,-1px) rotate(1deg)}100%{transform:translate(-2px,0) rotate(-1deg)}}@keyframes rovarnCardHover{50%{transform:translateY(-4px) rotate(.2deg)}}@keyframes rovarnCardFloat{0%,100%{transform:rotateY(180deg) translateY(0)}50%{transform:rotateY(180deg) translateY(-5px)}}
+    @media(max-width:720px){.repo-rovarn-champions-dialog{width:99vw;height:96vh}.rovarn-dual-reveal{grid-template-columns:1fr 56px 1fr;gap:5px}.rovarn-card-wrap{height:min(52vh,430px)}.rovarn-seal-count{width:54px;height:54px}.rovarn-seal-count small{display:none}.rovarn-seal-count strong{font-size:28px}.repo-rovarn-big-pack{width:min(75vw,300px)}}
+  `;document.head.appendChild(style);
+  [CARD_ONE_ASSET,CARD_TWO_ASSET,BACK_ASSET].forEach(src=>{const i=new Image();i.src=src});
 })();
