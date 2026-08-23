@@ -1,16 +1,16 @@
 (function(){
-  if(window.__dragonRacingUiV3369)return;
-  window.__dragonRacingUiV3369=true;
+  if(window.__dragonRacingUiV3377)return;
+  window.__dragonRacingUiV3377=true;
 
   const ASSET_BASE='dragon-racing-assets';
-  const state={scene:'exterior',audio:null,observer:null,mo:null,selectedTrackIndex:0,syncTrackUi:null};
+  const state={scene:'exterior',audio:null,observer:null,selectedTrackIndex:0,syncTrackUi:null};
 
   const TRACK_PREVIEW_BASE=`${ASSET_BASE}/track-previews`;
   const TRACK_AVATAR_BASE=`${ASSET_BASE}/course-avatars`;
   const DRAGON_RACING_ICON=`${ASSET_BASE}/dragon-racing-icon.png`;
   const TRACKS=[
     {id:'velmora_city_circuit',name:'Velmora City Circuit',file:'velmora_city_circuit_preview.png',avatar:'velmora_city_circuit_64.png',region:'Velmora City',style:'City Circuit',difficulty:'Easy',difficultyRank:1,level:1,marksPerHour:1500},
-    {id:'canto_meadow_circuit',name:'Canto Meadow Circuit',file:'canto_meadow_circuit_preview.png',avatar:'canto_meadow_circuit_64.png',region:'Canto Meadows',style:'Open Circuit',difficulty:'Easy–Medium',difficultyRank:2,level:9},
+    {id:'canto_meadow_circuit',name:'Canto Meadow Circuit',file:'canto_meadow_circuit_preview.png',avatar:'canto_meadow_circuit_64.png',region:'Canto Meadows',style:'Open Circuit',difficulty:'Easy–Medium',difficultyRank:2,level:9,earlyAccess:true},
     {id:'greenwater_canopy_arena',name:'Greenwater Canopy Arena',file:'greenwater_canopy_arena_preview.png',avatar:'greenwater_canopy_arena_64.png',region:'Greenwater',style:'Forest Arena',difficulty:'Medium',difficultyRank:3,level:17},
     {id:'talune_greenwater_canopy',name:'Talune Greenwater Canopy',file:'talune_greenwater_canopy_preview.png',avatar:'talune_greenwater_canopy_64.png',region:'Talune',style:'Canopy Circuit',difficulty:'Medium',difficultyRank:3,level:25},
     {id:'sunfire_oasis_arena',name:'Sunfire Oasis Arena',file:'sunfire_oasis_arena_preview.png',avatar:'sunfire_oasis_arena_64.png',region:'Sunfire Oasis',style:'Oasis Arena',difficulty:'Medium–Hard',difficultyRank:4,level:33},
@@ -19,6 +19,10 @@
     {id:'iskara_crown_arena',name:'Iskara Crown Arena',file:'iskara_crown_arena_preview.png',avatar:'iskara_crown_arena_64.png',region:'Iskara',style:'Crown Arena',difficulty:'Hard',difficultyRank:4,level:57},
     {id:'qasira_moon_orbit',name:'Qasira Moon Orbit',file:'qasira_moon_orbit_preview.png',avatar:'qasira_moon_orbit_64.png',region:'Qasira',style:'Aerial Orbit',difficulty:'Expert',difficultyRank:5,level:65}
   ];
+
+  const PLAYABLE_TRACK_IDS=new Set(['velmora_city_circuit','canto_meadow_circuit']);
+  const trackIsPlayable=track=>Boolean(track&&PLAYABLE_TRACK_IDS.has(track.id));
+  const trackIsUnlocked=(track,progression)=>Boolean(trackIsPlayable(track)&&(track.earlyAccess||Number(progression?.level||1)>=Number(track.level||1)));
 
   const escHtml=value=>String(value??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
 
@@ -62,7 +66,9 @@
       const rewardInfo=rewardInfoForTrack(track),marksPerHour=roundedMarksPerHour(rewardInfo?.averageMarksPerHour);
       const rewardRate=marksPerHour?`≈ ${marksPerHour.toLocaleString('en-GB')} Marks / hr`:'Reward rate TBA';
       const rewardSub=marksPerHour?'Average base race payout':'Available when course rewards launch';
-      access.innerHTML=`<div class="dragon-racing-access-lockup"><img src="${DRAGON_RACING_ICON}" alt="" aria-hidden="true"><div class="dragon-racing-access-main"><div class="dragon-racing-detail-heading">ACCESS</div><strong>Dragon Racing Level: ${track.level}</strong><span>Required course level</span></div><div class="dragon-racing-track-reward-rate${marksPerHour?' is-live':''}"><small>REWARD RATE</small><strong>${rewardRate}</strong><span>${rewardSub}</span></div></div>`;
+      const accessLine=track.earlyAccess?`Preseason access · Future Lv. ${track.level}`:`Dragon Racing Level: ${track.level}`;
+      const accessSub=track.earlyAccess?'Level requirement activates with Dragon Racing XP':'Required course level';
+      access.innerHTML=`<div class="dragon-racing-access-lockup"><img src="${DRAGON_RACING_ICON}" alt="" aria-hidden="true"><div class="dragon-racing-access-main"><div class="dragon-racing-detail-heading">ACCESS</div><strong>${accessLine}</strong><span>${accessSub}</span></div><div class="dragon-racing-track-reward-rate${marksPerHour?' is-live':''}"><small>REWARD RATE</small><strong>${rewardRate}</strong><span>${rewardSub}</span></div></div>`;
     }
     const enterNote=ui.querySelector('[data-track-enter-note]');
     if(enterNote)enterNote.textContent=`${track.name} · Lv. ${track.level}`;
@@ -150,13 +156,14 @@
     const best=confirm.querySelector('[data-race-confirm-best]');if(best)best.textContent=stats.bestTimeMs?formatRaceTime(stats.bestTimeMs):'—';
     const note=confirm.querySelector('[data-race-confirm-note]');
     if(note){
-      if(track.id!=='velmora_city_circuit')note.textContent='Race course not yet available. You can still preview this course.';
+      if(!trackIsPlayable(track))note.textContent='Race course not yet available. You can still preview this course.';
+      else if(track.earlyAccess)note.textContent=`${player.name||'Your dragon'} is cleared for Canto preseason racing. Dragon Racing XP remains disabled.`;
       else if(Number(progression.level||1)<track.level)note.textContent=`Requires Dragon Racing Lv. ${track.level}.`;
-      else note.textContent=`${player.name||'Your dragon'} is ready for the Velmora City Circuit.`;
+      else note.textContent=`${player.name||'Your dragon'} is ready for the ${track.name}.`;
     }
     const enter=confirm.querySelector('[data-race-confirm-enter]');
     if(enter){
-      enter.classList.toggle('is-disabled',track.id!=='velmora_city_circuit'||Number(progression.level||1)<track.level);
+      enter.classList.toggle('is-disabled',!trackIsUnlocked(track,progression));
       enter.setAttribute('aria-disabled',enter.classList.contains('is-disabled')?'true':'false');
     }
     confirm.classList.add('is-visible');
@@ -165,12 +172,11 @@
 
   const startSelectedRace=modal=>{
     const track=TRACKS[state.selectedTrackIndex]||TRACKS[0];
-    if(track.id!=='velmora_city_circuit'){
-      const note=modal?.querySelector('[data-race-confirm-note]');if(note)note.textContent='Race course not yet available. You can still preview this course.';
+    const progression=window.DragonRacingRace?.getProgression?.()||{level:1};
+    if(!trackIsUnlocked(track,progression)){
+      const note=modal?.querySelector('[data-race-confirm-note]');if(note)note.textContent=trackIsPlayable(track)?`Requires Dragon Racing Lv. ${track.level}.`:'Race course not yet available. You can still preview this course.';
       return false;
     }
-    const progression=window.DragonRacingRace?.getProgression?.()||{level:1};
-    if(Number(progression.level||1)<track.level)return false;
     closeRaceConfirm(modal);
     window.DragonRacingRace?.start?.(track);
     return true;
@@ -387,19 +393,19 @@
     return true;
   };
 
-  const boot=throttle(()=>{
-    const ready=makeSidebarButton();
-    if(ready&&state.mo){state.mo.disconnect();state.mo=null;}
-  },120);
+  // V33.73 performance recovery: do not watch every DOM mutation on the whole site.
+  // The Dragonbound sidebar is created on demand, so a short event-driven retry burst
+  // when Dragonbound opens is enough and costs nothing while other games are running.
+  const boot=throttle(()=>makeSidebarButton(),120);
+  const bootBurst=()=>{
+    [0,80,220,520,1000].forEach(delay=>setTimeout(boot,delay));
+  };
   const startWatching=()=>{
     boot();
-    if(!document.getElementById('dragonRacingSidebarButton')&&!state.mo){
-      state.mo=new MutationObserver(boot);
-      state.mo.observe(document.body,{childList:true,subtree:true});
-    }
     document.addEventListener('click',e=>{
-      if(e.target?.closest?.('#openDragonbound'))setTimeout(boot,80);
+      if(e.target?.closest?.('#openDragonbound'))bootBurst();
     },true);
+    window.addEventListener('dragonbound:opened',bootBurst,{passive:true});
     window.addEventListener('load',boot,{once:true});
   };
 

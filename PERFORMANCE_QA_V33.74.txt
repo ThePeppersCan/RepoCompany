@@ -1,0 +1,27 @@
+V33.74 Performance QA summary
+
+Source base:
+- Library script(20260823-014057).js
+- Output deployment filename: script.js
+
+Static checks:
+- JavaScript syntax: PASS (node --check)
+- Recent documentElement childList+subtree observer count after patch: 0
+- Combat canvas resolution: unchanged (760x430 solo)
+
+Expected wins during solo Endless Hordes:
+- Near-zero HUD DOM churn when values are unchanged.
+- Static background tiles/decor are rendered once instead of reconstructed every frame.
+- Fewer short-lived JS arrays / garbage collections during dense waves.
+- Less per-enemy string/regex work during rendering.
+- No hidden Horde flame image animation while outside the Horde menu.
+- No duplicate combat animation frame from repeated starts.
+
+Regression boundaries:
+- No wave formulas changed.
+- No enemy stats changed.
+- No weapon formulas changed.
+- No reward/XP/GP formulas changed.
+- No map visuals intentionally changed.
+- No canvas resolution changed.
+- No Dragon Racing files touched.

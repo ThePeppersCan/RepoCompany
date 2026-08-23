@@ -30760,3 +30760,434 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
   .dragonbound-my-dragon-page--right{padding-bottom:28px!important}
   .dragonbound-my-dragon-memories{min-height:160px!important}
 }
+
+/* =========================================================
+   Dragonbound V33.80 — The Living Dragon keeper journal
+   A field-guide / scrapbook treatment: clean parchment, ink and sage.
+   No generic site button skin is allowed to leak into journal tabs.
+   ========================================================= */
+.dragonbound-my-dragon-page--right{
+  padding:18px 20px 28px!important;
+  gap:0!important;
+  overflow:hidden!important;
+  background:
+    linear-gradient(90deg,rgba(109,86,45,.035) 0 1px,transparent 1px 100%),
+    linear-gradient(160deg,#f6efdd 0%,#ebe1c7 100%)!important;
+}
+.dragonbound-journal-tabs{
+  position:relative;z-index:4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+  margin:-2px 2px 12px;padding:0 4px 8px;border-bottom:1px solid rgba(79,68,44,.19);
+  flex:0 0 auto!important;
+}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button{
+  appearance:none!important;-webkit-appearance:none!important;position:relative!important;display:block!important;width:100%!important;
+  min-height:47px!important;margin:0!important;padding:8px 7px 7px!important;border:0!important;border-radius:8px 8px 3px 3px!important;
+  background:transparent!important;background-image:none!important;box-shadow:none!important;text-shadow:none!important;
+  color:#75664d!important;cursor:pointer!important;transform:none!important;outline:none!important;
+  transition:background .16s ease,color .16s ease,transform .16s ease!important;
+}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button::before{
+  content:"";position:absolute;left:12%;right:12%;bottom:-9px;height:2px;border-radius:99px;background:#69806a;opacity:0;transform:scaleX(.35);transition:opacity .16s ease,transform .16s ease;
+}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button span{display:block;color:inherit!important;font:900 12px/1.05 Georgia,serif!important;letter-spacing:.2px!important;text-transform:none!important}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button small{display:block;margin-top:4px;color:inherit!important;font:800 8.8px/1 "Nunito",system-ui,sans-serif!important;letter-spacing:.35px!important;opacity:.68;text-transform:uppercase!important}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button:hover{background:rgba(93,112,82,.07)!important;color:#4d654f!important;transform:translateY(-1px)!important}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button.is-active{background:linear-gradient(180deg,rgba(92,117,87,.12),rgba(92,117,87,.035))!important;color:#405a45!important}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button.is-active::before{opacity:.9;transform:scaleX(1)}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button:focus-visible{outline:2px solid rgba(73,108,79,.54)!important;outline-offset:2px!important}
+
+.dragonbound-journal-panel{position:relative;flex:1 1 auto!important;min-height:0!important;overflow-y:auto;overflow-x:hidden;padding:1px 7px 22px 3px;scrollbar-width:thin;scrollbar-color:rgba(92,73,40,.28) transparent}
+.dragonbound-journal-panel[hidden]{display:none!important}
+.dragonbound-journal-panel.is-active{display:block!important;animation:dragonboundJournalPageIn .18s ease both}
+.dragonbound-journal-panel::-webkit-scrollbar{width:5px}.dragonbound-journal-panel::-webkit-scrollbar-thumb{background:rgba(92,73,40,.25);border-radius:99px}
+@keyframes dragonboundJournalPageIn{from{opacity:.2;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+.dragonbound-personality-titlecard{
+  position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:1px 0 13px;padding:13px 15px 12px 17px;
+  border:1px solid rgba(80,101,72,.2);border-radius:11px;background:linear-gradient(120deg,rgba(225,235,207,.72),rgba(249,243,222,.52));
+  box-shadow:inset 3px 0 0 rgba(86,119,88,.42),inset 0 1px 0 rgba(255,255,255,.72);
+}
+.dragonbound-personality-titlecard::after{content:"✦";position:absolute;right:11px;top:8px;color:rgba(91,109,75,.16);font:700 18px/1 Georgia,serif}
+.dragonbound-personality-titlecard small{display:block;margin-bottom:4px;color:#8a724a;font:900 9.5px/1 "Nunito",system-ui,sans-serif;letter-spacing:1.15px}
+.dragonbound-personality-titlecard strong{display:block;color:#405443;font:700 clamp(18px,1.35vw,24px)/1.05 Georgia,serif}
+.dragonbound-personality-titlecard>span{max-width:145px;padding-right:13px;color:#796a52;font:800 10.5px/1.25 "Nunito",system-ui,sans-serif;text-align:right}
+
+.dragonbound-my-dragon-personality{margin-bottom:13px!important;padding:13px 14px!important;border:1px solid rgba(91,70,33,.13)!important;border-radius:10px!important;background:rgba(255,251,240,.42)!important}
+.dragonbound-my-dragon-traits{display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin-top:10px!important}
+.dragonbound-my-dragon-traits span{position:relative!important;padding:6px 10px!important;border-radius:999px!important}
+.dragonbound-my-dragon-traits .is-revealed{border:1px solid rgba(72,104,75,.26)!important;background:rgba(104,131,95,.11)!important;color:#435e48!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.55)!important}
+.dragonbound-my-dragon-traits .is-hidden{border:1px dashed rgba(112,92,56,.24)!important;background:rgba(125,102,62,.035)!important;color:#9d8c6d!important;letter-spacing:1px!important}
+.dragonbound-personality-observation{margin-top:11px;padding:9px 11px 9px 13px;border-left:2px solid rgba(95,116,80,.46);background:linear-gradient(90deg,rgba(104,126,88,.07),transparent 80%);border-radius:4px}
+.dragonbound-personality-observation small{display:block;margin-bottom:4px;color:#806b48;font:900 9.5px/1.1 "Nunito",system-ui,sans-serif;letter-spacing:.85px}
+.dragonbound-personality-observation p{margin:0!important;color:#625847!important;font:700 11.5px/1.42 "Nunito",system-ui,sans-serif!important}
+.dragonbound-personality-observation strong{color:#49614d}
+
+.dragonbound-personality-book-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.dragonbound-personality-book-card{min-width:0;padding:12px 13px;border:1px solid rgba(91,70,33,.13);border-radius:10px;background:rgba(255,252,242,.44);box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.dragonbound-personality-book-card .dragonbound-my-dragon-section-title{margin-bottom:9px}
+.dragonbound-personality-quirks{display:grid;gap:7px}
+.dragonbound-personality-quirks article{display:grid;grid-template-columns:23px 1fr;gap:8px;align-items:start;padding:7px 0;border-bottom:1px dashed rgba(92,73,43,.13)}
+.dragonbound-personality-quirks article:last-child{border-bottom:0}
+.dragonbound-personality-quirks article>i{display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:rgba(92,119,84,.1);color:#61785f;font:900 9px/1 Georgia,serif;font-style:normal}
+.dragonbound-personality-quirks strong{display:block;color:#493c2c;font:900 11.5px/1.2 "Nunito",system-ui,sans-serif}
+.dragonbound-personality-quirks span{display:block;margin-top:2px;color:#756955;font:700 10.6px/1.35 "Nunito",system-ui,sans-serif}
+.dragonbound-personality-undiscovered{display:flex;align-items:center;gap:10px;padding:10px;border:1px dashed rgba(103,84,52,.2);border-radius:8px;color:#80745e}
+.dragonbound-personality-undiscovered>b{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:50%;background:rgba(98,119,84,.08);color:#7e8c71;font:700 14px/1 Georgia,serif}
+.dragonbound-personality-undiscovered>span{font:800 10.8px/1.25 "Nunito",system-ui,sans-serif}.dragonbound-personality-undiscovered small{display:block;margin-top:3px;font-size:9.7px;font-weight:700;opacity:.76}
+.dragonbound-personality-relationship strong{display:inline-block;margin-bottom:5px;padding:4px 8px;border-radius:999px;background:rgba(92,120,86,.1);color:#49634d;font:900 11px/1 "Nunito",system-ui,sans-serif}
+.dragonbound-personality-relationship p{margin:0;color:#5f5545;font:700 11.5px/1.42 "Nunito",system-ui,sans-serif}.dragonbound-personality-relationship small{display:block;margin-top:8px;padding-top:7px;border-top:1px dashed rgba(91,70,33,.14);color:#8a795d;font:800 9.8px/1.3 "Nunito",system-ui,sans-serif}
+
+.dragonbound-personality-now{display:grid;grid-template-columns:minmax(150px,.8fr) 1.2fr;gap:12px;align-items:center;padding:11px 13px;border:1px solid rgba(101,81,45,.14);border-radius:9px;background:linear-gradient(110deg,rgba(227,213,170,.14),rgba(255,250,236,.4))}
+.dragonbound-personality-now small{display:block;color:#8a7046;font:900 9.3px/1 "Nunito",system-ui,sans-serif;letter-spacing:.8px}.dragonbound-personality-now strong{display:block;margin-top:4px;color:#4c603f;font:800 12px/1.25 Georgia,serif}.dragonbound-personality-now p{margin:0;padding-left:12px;border-left:1px solid rgba(91,70,33,.14);color:#726652;font:700 10.8px/1.4 "Nunito",system-ui,sans-serif}
+
+.dragonbound-personality-book-grid--preferences{margin:11px 0}
+.dragonbound-personality-preference-list{display:grid;gap:6px}
+.dragonbound-personality-preference-list span{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:7px;background:rgba(255,252,242,.52);color:#5f5648;font:800 10.8px/1.25 "Nunito",system-ui,sans-serif}
+.dragonbound-personality-preference-list span i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;font:900 9px/1 "Nunito",system-ui,sans-serif;font-style:normal}
+.dragonbound-personality-preference-list.is-comfort span i{background:rgba(98,130,94,.12);color:#557358}.dragonbound-personality-preference-list.is-dislike span i{background:rgba(146,105,77,.1);color:#91694f}
+.dragonbound-personality-preference-list em{display:block;padding:9px;color:#8c806b;font:italic 10.8px/1.35 Georgia,serif}
+
+.dragonbound-journal-panel[data-dragon-journal-panel="scrapbook"] .dragonbound-my-dragon-recent-moment{margin:2px 0 12px;padding:12px 14px;border-left:3px solid rgba(91,119,84,.52);background:rgba(95,119,83,.065)}
+.dragonbound-journal-panel[data-dragon-journal-panel="scrapbook"] .dragonbound-my-dragon-memories{min-height:0!important;padding:13px 14px 18px!important;border:1px solid rgba(91,70,33,.13);border-radius:10px;background:rgba(255,252,242,.4)}
+.dragonbound-journal-panel[data-dragon-journal-panel="scrapbook"] .dragonbound-my-dragon-memory-list article{position:relative;padding-left:9px!important}
+.dragonbound-journal-panel[data-dragon-journal-panel="scrapbook"] .dragonbound-my-dragon-memory-list article::before{content:"";position:absolute;left:0;top:15px;width:4px;height:4px;border-radius:50%;background:rgba(78,111,78,.48)}
+
+/* Tiny emotional tells belong to the dragon, not the HUD. They are sparse and self-removing. */
+.dragonbound-baby-actor{overflow:visible!important}
+.dragonbound-personality-expression{position:absolute;left:50%;top:calc(-1 * var(--dragon-tooltip-lift,78px) + 20px);z-index:999;display:flex;align-items:center;gap:5px;transform:translateX(-50%);pointer-events:none;white-space:nowrap;animation:dragonboundPersonalityTell 2.7s ease both}
+.dragonbound-personality-expression>b{display:grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border:1px solid rgba(229,202,131,.38);border-radius:999px;background:rgba(10,31,31,.91);box-shadow:0 5px 14px rgba(0,0,0,.24);color:#f0dca4;font:900 12px/1 Georgia,serif;text-shadow:none}
+.dragonbound-personality-expression>small{max-width:120px;padding:5px 7px;border:1px solid rgba(225,198,128,.27);border-radius:6px;background:rgba(10,31,31,.88);color:#eadab0;font:800 8.5px/1.15 "Nunito",system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis}
+.dragonbound-personality-expression.is-discovery>b{border-color:rgba(204,178,94,.55);color:#ffe49a;box-shadow:0 0 15px rgba(224,189,86,.12),0 5px 14px rgba(0,0,0,.24)}
+@keyframes dragonboundPersonalityTell{0%{opacity:0;transform:translate(-50%,6px) scale(.92)}12%,72%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-8px) scale(.96)}}
+
+@media(max-width:900px){
+  .dragonbound-my-dragon-page--right{padding:14px 13px 23px!important}
+  .dragonbound-journal-tabs{position:sticky;top:0;z-index:7;margin:0 0 10px;padding:4px 2px 8px;background:linear-gradient(180deg,#efe5cc 72%,rgba(239,229,204,.86) 88%,rgba(239,229,204,0))}
+  .dragonbound-journal-panel{overflow:visible;padding-right:2px}
+  .dragonbound-personality-book-grid{grid-template-columns:1fr}
+  .dragonbound-personality-titlecard{align-items:flex-start}.dragonbound-personality-titlecard>span{max-width:110px}
+}
+@media(max-width:680px){
+  .dragonbound-my-dragon-page--right{overflow:visible!important}
+  .dragonbound-journal-tabs{grid-template-columns:repeat(4,1fr);gap:2px}
+  .dragonbound-my-dragon-overlay .dragonbound-journal-tabs button{min-height:42px!important;padding:7px 3px!important}
+  .dragonbound-my-dragon-overlay .dragonbound-journal-tabs button span{font-size:10.5px!important}.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button small{display:none}
+  .dragonbound-personality-now{grid-template-columns:1fr}.dragonbound-personality-now p{padding:8px 0 0;border-left:0;border-top:1px solid rgba(91,70,33,.14)}
+  .dragonbound-personality-titlecard strong{font-size:18px}.dragonbound-personality-titlecard>span{font-size:9.5px}
+}
+@media(prefers-reduced-motion:reduce){.dragonbound-journal-panel.is-active,.dragonbound-personality-expression{animation:none!important}.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button{transition:none!important}}
+
+/* =====================================================================
+   V33.81 — Household Bonds + Velmoran Calendar
+   ===================================================================== */
+.dragonbound-journal-tabs{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button{min-width:0!important;padding:8px 4px!important}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button span{font-size:10.8px!important}
+.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button small{font-size:7.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Bonds journal — ink and parchment, not dashboard cards. */
+.dragonbound-social-journal,.dragonbound-calendar-journal{display:grid;gap:12px;color:#4d402f}
+.dragonbound-social-lead{display:grid;grid-template-columns:1fr 70px;gap:16px;align-items:center;padding:14px 16px;border-top:1px solid rgba(88,71,43,.22);border-bottom:1px solid rgba(88,71,43,.22);background:linear-gradient(90deg,rgba(87,109,79,.075),rgba(255,255,255,.04) 48%,rgba(142,114,65,.05))}
+.dragonbound-social-lead small,.dragonbound-social-section-head small,.dragonbound-social-routines-book>small{display:block;color:#92794d;font:900 7.7px/1.2 "Nunito",system-ui,sans-serif;letter-spacing:1.15px;text-transform:uppercase}
+.dragonbound-social-lead strong{display:block;margin:3px 0 4px;color:#405b48;font:700 21px/1 Georgia,serif}
+.dragonbound-social-lead p{margin:0;max-width:540px;color:#675b49;font:700 9px/1.45 "Nunito",system-ui,sans-serif}
+.dragonbound-social-seal{width:60px;height:60px;display:grid;place-items:center;position:relative;border:2px solid rgba(72,99,74,.42);border-radius:50%;background:radial-gradient(circle,#f1e5c8 55%,#d7c39a);box-shadow:inset 0 0 0 4px rgba(255,255,255,.25),0 3px 9px rgba(68,47,22,.12);color:#496750;font:900 16px/1 Georgia,serif}
+.dragonbound-social-seal i{position:absolute;inset:7px;border:1px dashed rgba(72,99,74,.35);border-radius:50%}
+.dragonbound-social-section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;padding:2px 2px 6px;border-bottom:1px solid rgba(91,73,44,.18)}
+.dragonbound-social-section-head>span{color:#4f402c;font:700 15px/1.1 Georgia,serif}
+.dragonbound-social-section-head small{text-align:right;letter-spacing:.4px;font-size:7px}
+.dragonbound-social-list{display:grid;gap:7px}
+.dragonbound-social-list article{position:relative;display:grid;grid-template-columns:58px 1fr auto;gap:11px;align-items:center;padding:9px 10px;border-bottom:1px dashed rgba(103,82,47,.22);background:linear-gradient(90deg,rgba(255,255,255,.16),rgba(120,102,68,.025));min-height:72px}
+.dragonbound-social-list article:last-child{border-bottom:0}
+.dragonbound-social-portrait{width:56px;height:56px;display:grid;place-items:center;position:relative;border:1px solid rgba(90,77,53,.25);border-radius:50%;background:radial-gradient(circle at 50% 42%,#f4ead1 0 57%,#d9c7a3 100%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.28)}
+.dragonbound-social-portrait::after{content:'';position:absolute;inset:4px;border:1px dashed rgba(74,100,76,.2);border-radius:50%}
+.dragonbound-social-portrait img{width:84%;height:84%;object-fit:contain;image-rendering:pixelated;position:relative;z-index:1}
+.dragonbound-social-copy{min-width:0}
+.dragonbound-social-copy>small{display:block;color:#9c8051;font:900 6.7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.9px}
+.dragonbound-social-copy>strong{display:inline-block;margin-top:2px;color:#493c2d;font:700 14px/1.05 Georgia,serif}
+.dragonbound-social-copy>b{display:inline-block;margin-left:7px;color:#4d6a51;font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.55px;text-transform:uppercase}
+.dragonbound-social-copy>p{margin:4px 0 0;color:#746551;font:700 8.4px/1.35 "Nunito",system-ui,sans-serif}
+.dragonbound-social-invite{align-self:center;padding:7px 9px;border-top:1px solid rgba(75,105,80,.34);border-bottom:1px solid rgba(75,105,80,.34);color:#48634d;background:rgba(79,107,83,.055);font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.75px;white-space:nowrap;cursor:pointer;transition:background .15s ease,color .15s ease}
+.dragonbound-social-invite:hover,.dragonbound-social-invite:focus-visible{background:rgba(79,107,83,.12);color:#2f5038;outline:none}.dragonbound-social-controls{display:flex;flex-wrap:wrap;align-self:center;justify-content:flex-start;gap:6px}.dragonbound-social-toggle{align-self:center;padding:7px 9px;border-top:1px solid rgba(82,78,54,.28);border-bottom:1px solid rgba(82,78,54,.28);color:#5b4c39;background:rgba(123,109,82,.055);font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.75px;white-space:nowrap;cursor:pointer;transition:background .15s ease,color .15s ease}.dragonbound-social-toggle:hover,.dragonbound-social-toggle:focus-visible{background:rgba(123,109,82,.12);color:#40311e;outline:none}.dragonbound-social-toggle.is-off{color:#6e5d45;background:rgba(119,108,84,.09)}
+.dragonbound-social-routines-book,.dragonbound-habits-social-note{padding:10px 12px 8px;border-left:2px solid rgba(87,111,88,.32);background:linear-gradient(90deg,rgba(87,111,88,.06),transparent)}
+.dragonbound-social-routines-book p,.dragonbound-habits-social-note p{margin:4px 0;color:#685b49;font:700 8.4px/1.35 "Nunito",system-ui,sans-serif}
+.dragonbound-habits-social-note{margin-top:10px}
+.dragonbound-social-empty{padding:18px 15px;text-align:center;border:1px dashed rgba(100,81,48,.24);background:rgba(255,255,255,.12)}
+.dragonbound-social-empty strong{display:block;color:#5b4b35;font:700 13px/1.2 Georgia,serif}.dragonbound-social-empty span{display:block;margin-top:5px;color:#806f58;font:700 8.2px/1.35 "Nunito",system-ui,sans-serif}.dragonbound-social-empty.is-small{padding:12px}
+
+/* Calendar page inside the Keeper Journal. */
+.dragonbound-calendar-today{display:grid;grid-template-columns:64px 1fr auto;gap:13px;align-items:center;padding:13px 14px;border-top:2px solid color-mix(in srgb,var(--event-accent,#71815d) 55%,transparent);border-bottom:1px solid rgba(95,76,44,.22);background:linear-gradient(100deg,color-mix(in srgb,var(--event-accent,#71815d) 10%,transparent),rgba(255,255,255,.08))}
+.dragonbound-calendar-today>img{width:58px;height:58px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 3px rgba(56,40,24,.15))}
+.dragonbound-calendar-day-number{width:58px;height:58px;display:grid;place-items:center;border:1px solid rgba(95,76,44,.3);background:#efe3c5;color:#5a4931;font:700 28px/1 Georgia,serif;box-shadow:inset 0 0 0 4px rgba(255,255,255,.22)}
+.dragonbound-calendar-today small{display:block;color:#94784a;font:900 7px/1.1 "Nunito",system-ui,sans-serif;letter-spacing:1px}
+.dragonbound-calendar-today strong{display:block;margin:3px 0;color:#4a3c2d;font:700 19px/1 Georgia,serif}
+.dragonbound-calendar-today p{margin:0;max-width:470px;color:#6e604e;font:700 8.5px/1.4 "Nunito",system-ui,sans-serif}
+.dragonbound-calendar-open-full{padding:8px 10px;border-top:1px solid rgba(73,99,76,.38);border-bottom:1px solid rgba(73,99,76,.38);color:#45604b;background:rgba(76,104,80,.05);font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.75px;white-space:nowrap;cursor:pointer}
+.dragonbound-calendar-open-full:hover,.dragonbound-calendar-open-full:focus-visible{background:rgba(76,104,80,.12);outline:none}
+.dragonbound-calendar-journal-grid{display:grid;grid-template-columns:1fr 1.08fr;gap:18px}
+.dragonbound-calendar-journal-grid>section{min-width:0}
+.dragonbound-calendar-upcoming-row{display:grid;grid-template-columns:38px 1fr;gap:9px;align-items:center;padding:7px 2px;border-bottom:1px dashed rgba(92,74,43,.18)}
+.dragonbound-calendar-upcoming-row img{width:34px;height:34px;object-fit:contain;image-rendering:pixelated}.dragonbound-calendar-upcoming-row strong{display:block;color:#584632;font:700 10px/1.15 Georgia,serif}.dragonbound-calendar-upcoming-row span{display:block;margin-top:2px;color:#8a7455;font:800 7.3px/1.2 "Nunito",system-ui,sans-serif}
+.dragonbound-calendar-memory{padding:7px 2px;border-bottom:1px dashed rgba(92,74,43,.18)}.dragonbound-calendar-memory time{display:block;color:#9b7e4d;font:900 6.5px/1 "Nunito",system-ui,sans-serif;letter-spacing:.6px;text-transform:uppercase}.dragonbound-calendar-memory strong{display:block;margin-top:2px;color:#5a4732;font:700 10px/1.15 Georgia,serif}.dragonbound-calendar-memory p{margin:2px 0 0;color:#756551;font:700 7.6px/1.3 "Nunito",system-ui,sans-serif}
+
+/* Small home-calendar tab: deliberately not a <button> to avoid site-wide button skins. */
+.velmora-calendar-launcher{position:absolute;z-index:5200;right:18px;bottom:18px;top:auto;width:126px;min-height:58px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:7px;padding:7px 9px 7px 7px;border:1px solid rgba(60,46,27,.62);border-radius:4px 4px 8px 4px;background:linear-gradient(180deg,#f3e4bd,#d9c08d);box-shadow:0 5px 13px rgba(15,11,7,.3),inset 0 0 0 2px rgba(255,255,255,.22);color:#4d3926;cursor:pointer;transform:rotate(.35deg);transition:transform .16s ease,filter .16s ease;isolation:isolate}
+.velmora-calendar-launcher::before{content:'';position:absolute;inset:3px;border:1px dashed rgba(107,78,39,.26);pointer-events:none}.velmora-calendar-launcher:hover,.velmora-calendar-launcher:focus-visible{transform:rotate(0) translateY(-1px);filter:brightness(1.035);outline:2px solid rgba(224,190,111,.5);outline-offset:2px}.velmora-calendar-launcher>img{width:32px;height:32px;object-fit:contain;image-rendering:pixelated;z-index:1}.velmora-calendar-launcher>span:not(.velmora-calendar-pin){min-width:0;display:grid;grid-template-columns:auto 1fr;column-gap:5px;align-items:baseline;z-index:1}.velmora-calendar-launcher small{grid-column:1/-1;color:#81663e;font:900 6px/1 "Nunito",system-ui,sans-serif;letter-spacing:.7px}.velmora-calendar-launcher strong{color:#4a3827;font:700 19px/1 Georgia,serif}.velmora-calendar-launcher em{overflow:hidden;color:#5d4b36;font:700 7px/1.15 "Nunito",system-ui,sans-serif;font-style:normal;white-space:nowrap;text-overflow:ellipsis}.velmora-calendar-pin{position:absolute!important;left:50%;top:-5px;width:9px;height:9px;border-radius:50%;background:#a37b3d;box-shadow:0 1px 0 #544020,0 2px 4px rgba(0,0,0,.25);transform:translateX(-50%)}
+
+/* Full 31-day calendar. */
+.velmora-calendar-overlay{position:fixed;z-index:21000;inset:0;display:grid;place-items:center;padding:24px;background:rgba(5,13,13,0);pointer-events:none;opacity:0;transition:opacity .18s ease}.velmora-calendar-overlay.is-visible{pointer-events:auto;opacity:1}.velmora-calendar-backdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(14,31,30,.62),rgba(3,10,11,.88));backdrop-filter:blur(3px)}
+.velmora-calendar-book{position:relative;width:min(1080px,94vw);height:min(760px,92vh);overflow:hidden;padding:26px 28px 22px;border:2px solid #6b4e2c;border-radius:11px;background:linear-gradient(90deg,#e9d8af 0,#f5e8c9 4%,#efe0bc 49.5%,#d9c497 50%,#f0dfb9 51%,#f5e8cb 96%,#e3cf9f 100%);box-shadow:0 28px 70px rgba(0,0,0,.55),inset 0 0 0 3px rgba(255,255,255,.24),inset 0 0 42px rgba(118,84,37,.14);color:#493a28;transform:translateY(8px) scale(.99);transition:transform .2s ease}.velmora-calendar-overlay.is-visible .velmora-calendar-book{transform:none}.velmora-calendar-book::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(90deg,rgba(77,53,24,.16),rgba(255,255,255,.38),rgba(77,53,24,.12));box-shadow:0 0 13px rgba(65,42,19,.12)}.velmora-calendar-book::after{content:'';position:absolute;inset:10px;border:1px solid rgba(105,76,39,.18);border-radius:7px;pointer-events:none}
+.velmora-calendar-ribbon{position:absolute;right:42px;top:0;padding:8px 15px 12px;background:#4c6a50;color:#f0dfaf;clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:1.3px;z-index:2}.velmora-calendar-heading{height:76px;display:flex;align-items:start;justify-content:space-between;gap:20px;padding:0 12px 11px;border-bottom:1px solid rgba(92,68,35,.2);position:relative;z-index:1}.velmora-calendar-heading small{color:#927244;font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:1.3px}.velmora-calendar-heading h2{margin:4px 0 2px;color:#483722;font:700 30px/1 Georgia,serif;text-shadow:0 1px rgba(255,255,255,.5)}.velmora-calendar-heading p{margin:0;color:#806b4b;font:700 8.2px/1.3 "Nunito",system-ui,sans-serif}.velmora-calendar-cycle{text-align:right;padding-right:94px}.velmora-calendar-cycle strong{display:block;color:#4f694f;font:700 25px/1 Georgia,serif}.velmora-calendar-cycle span{display:block;margin-top:3px;color:#886e48;font:800 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.4px}
+.velmora-calendar-layout{height:calc(100% - 132px);display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.8fr);gap:26px;padding:15px 12px 8px;position:relative;z-index:1}.velmora-calendar-grid-wrap{min-width:0}.velmora-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;height:calc(100% - 32px)}
+.velmora-calendar-day{position:relative;min-width:0;min-height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 3px;border:1px solid rgba(99,72,38,.2);background:rgba(255,249,226,.33);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);cursor:pointer;transition:background .12s ease,transform .12s ease,border-color .12s ease}.velmora-calendar-day:hover,.velmora-calendar-day:focus-visible{background:rgba(255,250,230,.66);border-color:rgba(86,101,70,.42);transform:translateY(-1px);outline:none}.velmora-calendar-day b{position:absolute;left:5px;top:4px;color:#725b3d;font:700 9px/1 Georgia,serif}.velmora-calendar-day img{width:34px;height:34px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 2px rgba(65,45,25,.12))}.velmora-calendar-day small{width:100%;margin-top:2px;overflow:hidden;color:#65523a;font:800 6.1px/1.05 "Nunito",system-ui,sans-serif;text-align:center;text-overflow:ellipsis;white-space:nowrap}.velmora-calendar-day em{position:absolute;right:4px;top:4px;color:#4f6d52;font:900 5.7px/1 "Nunito",system-ui,sans-serif;font-style:normal;letter-spacing:.4px}.velmora-calendar-day-mark{color:rgba(100,78,46,.19);font:700 24px/1 Georgia,serif}.velmora-calendar-day.is-major{background:color-mix(in srgb,var(--event-accent) 10%,#f5e8c7)}.velmora-calendar-day.is-tradition{background:color-mix(in srgb,var(--event-accent) 7%,#f5e8c7)}.velmora-calendar-day.is-today{border:2px solid #5f7d5e;box-shadow:inset 0 0 0 3px rgba(99,126,92,.1),0 2px 8px rgba(65,83,61,.13)}.velmora-calendar-day.is-selected{outline:2px solid rgba(189,144,60,.54);outline-offset:-4px}
+.velmora-calendar-legend{height:27px;display:flex;align-items:center;gap:18px;padding:7px 3px 0;color:#7e6949;font:800 6.3px/1 "Nunito",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.45px}.velmora-calendar-legend span{display:flex;align-items:center;gap:5px}.velmora-calendar-legend i{width:8px;height:8px;border-radius:2px;background:#869879}.velmora-calendar-legend i.is-major{background:#c59a4c}.velmora-calendar-legend i.is-tradition{background:#71818d}.velmora-calendar-legend i.is-minor{background:#78945e}
+.velmora-calendar-detail{align-self:stretch;position:relative;padding:23px 20px 18px;border-left:1px solid rgba(95,69,34,.18);background:linear-gradient(90deg,rgba(255,255,255,.1),rgba(116,91,53,.035));text-align:center}.velmora-calendar-detail-icon{width:98px;height:98px;margin:2px auto 12px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--event-accent) 40%,#735c38);border-radius:50%;background:radial-gradient(circle,#f8edcf 52%,color-mix(in srgb,var(--event-accent) 13%,#e3cfa2));box-shadow:inset 0 0 0 5px rgba(255,255,255,.23)}.velmora-calendar-detail-icon img{width:72px;height:72px;object-fit:contain;image-rendering:pixelated}.velmora-calendar-detail>small{color:#9b7846;font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:1px}.velmora-calendar-detail h3{margin:5px 0 9px;color:#493a28;font:700 23px/1.05 Georgia,serif}.velmora-calendar-detail>p{margin:0 auto;max-width:300px;color:#71614b;font:700 9px/1.5 "Nunito",system-ui,sans-serif}.velmora-calendar-detail-note{margin-top:17px;padding:10px 5px;border-top:1px solid rgba(94,70,38,.16);border-bottom:1px solid rgba(94,70,38,.16)}.velmora-calendar-detail-note span,.velmora-calendar-detail-note em{display:block;color:#6c5a43;font:800 7px/1.3 "Nunito",system-ui,sans-serif}.velmora-calendar-detail-note em{margin-top:3px;color:#4e6d53;font-style:normal}.velmora-calendar-quiet-seal{width:86px;height:86px;margin:7px auto 16px;display:grid;place-items:center;border:1px solid rgba(83,105,77,.35);border-radius:50%;background:radial-gradient(circle,#eee1bf,#dbc79a);box-shadow:inset 0 0 0 5px rgba(255,255,255,.2)}.velmora-calendar-quiet-seal span{color:#60765b;font:700 30px/1 Georgia,serif}
+.velmora-calendar-upcoming{height:52px;display:flex;align-items:center;gap:12px;padding:6px 12px 0;border-top:1px solid rgba(93,68,34,.18);position:relative;z-index:1}.velmora-calendar-upcoming>strong{color:#4f6047;font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:1px;white-space:nowrap}.velmora-calendar-upcoming>div{display:grid;grid-template-columns:28px 1fr;gap:5px;align-items:center;min-width:145px}.velmora-calendar-upcoming img{width:26px;height:26px;object-fit:contain;image-rendering:pixelated}.velmora-calendar-upcoming b{display:block;color:#5b4831;font:700 8.5px/1 Georgia,serif}.velmora-calendar-upcoming small{display:block;margin-top:2px;color:#8d7451;font:800 6px/1 "Nunito",system-ui,sans-serif}.velmora-calendar-close{position:absolute;right:18px;top:15px;z-index:4;width:28px;height:28px;display:grid;place-items:center;border:1px solid rgba(84,62,32,.32);border-radius:50%;background:rgba(247,232,195,.8);color:#655039;font:700 18px/1 Georgia,serif;cursor:pointer}.velmora-calendar-close:hover,.velmora-calendar-close:focus-visible{background:#f8eccd;outline:2px solid rgba(80,105,79,.35)}
+
+/* Festival entry notice. */
+.velmora-festival-announcement{position:absolute;z-index:13200;left:50%;top:72px;width:min(510px,72vw);display:grid;grid-template-columns:74px 1fr;gap:13px;align-items:center;padding:13px 17px 13px 12px;border:1px solid rgba(88,65,33,.58);border-radius:6px;background:linear-gradient(180deg,rgba(246,231,194,.97),rgba(218,195,145,.98));box-shadow:0 14px 32px rgba(0,0,0,.36),inset 0 0 0 2px rgba(255,255,255,.22);pointer-events:none;opacity:0;transform:translate(-50%,-14px);transition:opacity .28s ease,transform .28s ease;color:#4b3b28}.velmora-festival-announcement.is-visible{opacity:1;transform:translate(-50%,0)}.velmora-festival-announcement img{width:68px;height:68px;object-fit:contain;image-rendering:pixelated}.velmora-festival-announcement small{display:block;color:#88683d;font:900 6.8px/1 "Nunito",system-ui,sans-serif;letter-spacing:1.1px}.velmora-festival-announcement strong{display:block;margin:4px 0;color:#493724;font:700 22px/1 Georgia,serif}.velmora-festival-announcement p{margin:0;color:#6c5940;font:700 8.6px/1.35 "Nunito",system-ui,sans-serif}
+.dragonbound-social-notice{position:absolute;z-index:13150;right:22px;bottom:92px;width:250px;padding:10px 12px;border-left:3px solid #64816a;background:linear-gradient(90deg,rgba(244,232,200,.96),rgba(224,207,166,.96));box-shadow:0 7px 20px rgba(0,0,0,.28);pointer-events:none;opacity:0;transform:translateX(8px);transition:opacity .2s ease,transform .2s ease}.dragonbound-social-notice.is-visible{opacity:1;transform:none}.dragonbound-social-notice small{display:block;color:#75876e;font:900 6px/1 "Nunito",system-ui,sans-serif;letter-spacing:.9px}.dragonbound-social-notice strong{display:block;margin:3px 0;color:#4e4232;font:700 12px/1.15 Georgia,serif}.dragonbound-social-notice span{display:block;color:#74634d;font:700 7.5px/1.3 "Nunito",system-ui,sans-serif}
+
+/* Lightweight household pet visitor. */
+.dragonbound-social-pet-visitor{position:absolute;z-index:300;transform:translate(-50%,-88%);transform-origin:50% 100%;pointer-events:none;will-change:left,top;filter:drop-shadow(0 3px 2px rgba(34,25,17,.2))}.dragonbound-social-pet-visitor img{display:block;width:100%;height:auto;image-rendering:pixelated;transform-origin:50% 100%}.dragonbound-social-pet-visitor.is-flipped img{transform:scaleX(-1)}.dragonbound-social-pet-visitor span{position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);padding:2px 5px;border:1px solid rgba(42,32,22,.45);border-radius:8px;background:rgba(239,226,194,.86);color:#4c3d2c;font:800 5.5px/1 "Nunito",system-ui,sans-serif;white-space:nowrap;opacity:.72}.dragonbound-social-pet-visitor.is-sleeping span{opacity:.42}
+
+/* Festival layers: pure CSS, small element counts. */
+.velmora-festival-layer{position:absolute;z-index:170;inset:0;overflow:hidden;pointer-events:none;isolation:isolate}.velmora-festival-layer i{position:absolute}.velmora-event-warmth,.velmora-event-starhearth-warmth,.velmora-event-moonwash,.velmora-event-frost{position:absolute;inset:0}.velmora-event-warmth{background:radial-gradient(circle at 82% 35%,rgba(255,184,74,.13),transparent 30%),linear-gradient(180deg,transparent 55%,rgba(255,179,73,.055));mix-blend-mode:screen}.velmora-event-starhearth-warmth{background:radial-gradient(circle at 50% 62%,rgba(255,185,83,.11),transparent 45%);mix-blend-mode:screen}.velmora-event-moonwash{background:linear-gradient(145deg,rgba(95,118,164,.075),transparent 50%)}.velmora-event-frost{box-shadow:inset 0 0 34px rgba(169,219,236,.12)}
+.velmora-event-leaf{left:var(--x);top:var(--y);width:9px;height:6px;border-radius:8px 0 8px 0;background:#779b4d;opacity:.3;animation:velmoraLeafFloat var(--d) ease-in-out infinite;animation-delay:var(--delay)}.velmora-event-mote,.velmora-event-star,.velmora-event-frostspark,.velmora-event-heartglint{left:var(--x);top:var(--y);width:3px;height:3px;border-radius:50%;background:#f3c96b;box-shadow:0 0 8px rgba(255,198,91,.5);opacity:.25;animation:velmoraEventMote var(--d) ease-in-out infinite;animation-delay:var(--delay)}.velmora-event-star{width:4px;height:4px;background:#f7d56f;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}.velmora-event-frostspark{background:#d8f2ff;box-shadow:0 0 8px rgba(168,224,246,.45)}.velmora-event-heartglint{width:6px;height:6px;border-radius:50% 50% 45% 45%;background:#d9828e;box-shadow:none;opacity:.18}.velmora-event-lanterns i{top:8%;width:10px;height:15px;border:2px solid rgba(79,50,24,.5);border-radius:2px;background:rgba(241,171,64,.38);box-shadow:0 0 12px rgba(255,174,64,.22)}.velmora-event-lanterns i:nth-child(1){left:17%}.velmora-event-lanterns i:nth-child(2){left:52%;top:5%}.velmora-event-lanterns i:nth-child(3){right:15%;top:12%}.velmora-event-lanterns.is-starhearth i{background:rgba(243,181,65,.44)}
+.velmora-event-bunting{position:absolute;left:25%;right:18%;top:7%;height:20px;border-top:2px solid rgba(61,71,43,.35);transform:rotate(-1deg)}.velmora-event-bunting i{position:relative;display:inline-block!important;width:8px;height:11px;margin-left:26px;clip-path:polygon(0 0,100% 0,50% 100%);background:#b95249;opacity:.55}.velmora-event-bunting i:nth-child(2n){background:#4e8b76}.velmora-event-bunting i:nth-child(3n){background:#d6aa45}
+.velmora-event-star-garland,.velmora-event-feast-garland{position:absolute;left:10%;right:10%;top:4%;height:24px;border-top:3px solid rgba(60,86,48,.37);border-radius:50%}.velmora-event-star-garland::before,.velmora-event-star-garland::after{content:'✦';position:absolute;top:-8px;color:rgba(236,190,78,.72);font-size:13px;text-shadow:0 0 8px rgba(241,183,68,.32)}.velmora-event-star-garland::before{left:29%}.velmora-event-star-garland::after{right:25%}.velmora-event-star-garland.is-full{border-top-color:rgba(51,90,48,.5)}.velmora-event-feast-garland{border-top-color:rgba(97,107,55,.25)}
+.velmora-event-footprints i{width:12px;height:8px;border-radius:50%;background:rgba(105,72,44,.13);transform:rotate(28deg)}.velmora-event-footprints i:nth-child(1){left:22%;bottom:16%}.velmora-event-footprints i:nth-child(2){left:28%;bottom:21%}.velmora-event-footprints i:nth-child(3){left:34%;bottom:25%}
+@keyframes velmoraLeafFloat{0%,100%{transform:translate3d(-8px,-4px,0) rotate(-8deg);opacity:.1}50%{transform:translate3d(24px,12px,0) rotate(34deg);opacity:.42}}
+@keyframes velmoraEventMote{0%,100%{transform:translate3d(0,5px,0) scale(.7);opacity:.08}50%{transform:translate3d(8px,-10px,0) scale(1);opacity:.48}}
+
+@media(max-width:900px){
+  .dragonbound-journal-tabs{grid-template-columns:repeat(3,1fr)!important;gap:2px!important}
+  .dragonbound-my-dragon-overlay .dragonbound-journal-tabs button{min-height:37px!important;padding:5px 2px!important}.dragonbound-my-dragon-overlay .dragonbound-journal-tabs button small{display:none!important}
+  .dragonbound-calendar-journal-grid{grid-template-columns:1fr}.dragonbound-calendar-today{grid-template-columns:50px 1fr}.dragonbound-calendar-today>img,.dragonbound-calendar-day-number{width:46px;height:46px}.dragonbound-calendar-open-full{grid-column:1/-1;justify-self:start}
+  .velmora-calendar-book{width:96vw;height:92vh;padding:20px 16px}.velmora-calendar-layout{grid-template-columns:1fr;overflow:auto;height:calc(100% - 132px)}.velmora-calendar-detail{border-left:0;border-top:1px solid rgba(95,69,34,.18)}.velmora-calendar-grid{min-height:520px}.velmora-calendar-upcoming{overflow-x:auto}.velmora-calendar-ribbon{display:none}.velmora-calendar-cycle{padding-right:36px}
+  .velmora-calendar-day small{display:none}.velmora-calendar-day{min-height:62px}.velmora-calendar-day img{width:29px;height:29px}
+}
+@media(max-width:680px){
+  .velmora-calendar-launcher{right:10px;bottom:10px;top:auto;width:102px;min-height:48px;grid-template-columns:27px 1fr;padding:5px}.velmora-calendar-launcher>img{width:26px;height:26px}.velmora-calendar-launcher strong{font-size:15px}.velmora-calendar-launcher em{font-size:6px}
+  .dragonbound-social-list article{grid-template-columns:48px 1fr}.dragonbound-social-portrait{width:46px;height:46px}.dragonbound-social-controls{grid-column:1/-1;justify-self:start}.dragonbound-social-invite,.dragonbound-social-toggle{justify-self:start}.dragonbound-social-lead{grid-template-columns:1fr 54px}.dragonbound-social-seal{width:50px;height:50px}
+  .velmora-festival-announcement{top:54px;width:88vw;grid-template-columns:52px 1fr}.velmora-festival-announcement img{width:48px;height:48px}.velmora-festival-announcement strong{font-size:16px}
+  .velmora-calendar-heading h2{font-size:23px}.velmora-calendar-heading p{display:none}.velmora-calendar-cycle strong{font-size:20px}.velmora-calendar-grid{grid-template-columns:repeat(5,minmax(0,1fr));min-height:560px}.velmora-calendar-day{min-height:56px}.velmora-calendar-book::before{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .velmora-calendar-overlay,.velmora-calendar-book,.velmora-festival-announcement,.dragonbound-social-notice,.velmora-calendar-launcher{transition:none!important}
+  .velmora-event-leaf,.velmora-event-mote,.velmora-event-star,.velmora-event-frostspark,.velmora-event-heartglint{animation:none!important}
+}
+.velmora-calendar-mini-day{width:30px;height:30px;display:grid;place-items:center;border:1px solid rgba(91,67,34,.34);background:rgba(255,250,225,.35);color:#53694e;font:700 15px/1 Georgia,serif;z-index:1}
+.dragonbound-calendar-anniversary{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid rgba(143,104,155,.24);border-bottom:1px solid rgba(143,104,155,.24);background:linear-gradient(90deg,rgba(137,104,158,.075),rgba(255,255,255,.04))}.dragonbound-calendar-anniversary img{width:44px;height:44px;object-fit:contain;image-rendering:pixelated}.dragonbound-calendar-anniversary small{display:block;color:#8a6c94;font:900 6.5px/1 "Nunito",system-ui,sans-serif;letter-spacing:.8px}.dragonbound-calendar-anniversary strong{display:block;margin:2px 0;color:#584560;font:700 11px/1.15 Georgia,serif}.dragonbound-calendar-anniversary span{display:block;color:#766675;font:700 7.4px/1.3 "Nunito",system-ui,sans-serif}
+#dragonboundOverlay:has(.dragonbound-my-dragon-overlay.is-visible) .velmora-festival-layer *,#dragonboundOverlay:has(.dragonbound-travel-menu.is-visible) .velmora-festival-layer *,#dragonboundOverlay:has(.velmora-calendar-overlay.is-visible) .velmora-festival-layer *{animation-play-state:paused!important}
+.dragonbound-social-seal>b{position:relative;z-index:1;color:#496750;font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.9px}
+.dragonbound-social-favourite{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline;padding:8px 11px;border-left:2px solid rgba(180,143,68,.36);background:linear-gradient(90deg,rgba(193,155,78,.07),transparent)}.dragonbound-social-favourite small{color:#9a7a46;font:900 6.4px/1 "Nunito",system-ui,sans-serif;letter-spacing:.8px}.dragonbound-social-favourite strong{color:#59462f;font:700 11px/1.05 Georgia,serif}.dragonbound-social-favourite span{grid-column:1/-1;margin-top:3px;color:#786750;font:700 7.4px/1.3 "Nunito",system-ui,sans-serif}
+
+
+/* =====================================================================
+   Dragonbound V33.83 — pet visit polish + journal scroll reliability
+   ===================================================================== */
+.dragonbound-social-pet-visitor{z-index:3600!important}
+.dragonbound-social-pet-visitor span{font-size:6.2px!important;padding:3px 6px!important;background:rgba(243,233,205,.94)!important;box-shadow:0 2px 6px rgba(27,18,9,.12)}
+
+.dragonbound-my-dragon-page--right{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.dragonbound-journal-panel,
+.dragonbound-journal-panel.is-active,
+.dragonbound-journal-panel[data-dragon-journal-panel="life"]{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding-right:8px!important;
+  padding-bottom:30px!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.dragonbound-journal-panel[data-dragon-journal-panel="life"] .dragonbound-my-dragon-growth{margin-bottom:16px!important}
+.dragonbound-journal-panel::-webkit-scrollbar{width:7px!important}
+.dragonbound-journal-panel::-webkit-scrollbar-thumb{background:rgba(84,107,79,.34)!important;border-radius:999px!important}
+
+/* =====================================================================
+   Dragonbound V33.84 — Commands & Tricks complete visual redesign
+   The live command overlay is mounted on document.body, not #dragonboundOverlay.
+   These selectors intentionally outrank the legacy command stylesheet.
+   ===================================================================== */
+body .dragonbound-command-ui-v3384{
+  position:relative!important;
+  overflow:hidden!important;
+  border:1px solid rgba(164,201,177,.34)!important;
+  border-radius:24px!important;
+  background:
+    radial-gradient(circle at 18% 0%,rgba(76,126,106,.17),transparent 32%),
+    linear-gradient(180deg,#082b2d 0%,#061f23 54%,#05181d 100%)!important;
+  background-image:
+    radial-gradient(circle at 18% 0%,rgba(76,126,106,.17),transparent 32%),
+    linear-gradient(180deg,#082b2d 0%,#061f23 54%,#05181d 100%)!important;
+  box-shadow:0 30px 90px rgba(0,0,0,.58),inset 0 0 0 1px rgba(242,224,174,.035)!important;
+  color:#eee6d2!important;
+}
+body .dragonbound-command-ui-v3384::before{
+  content:""!important;
+  position:absolute!important;inset:0!important;pointer-events:none!important;
+  background:linear-gradient(110deg,rgba(255,255,255,.018),transparent 34%,rgba(107,162,137,.025) 68%,transparent)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+body .dragonbound-command-ui-v3384-header{
+  position:relative!important;
+  margin:0!important;
+  padding:20px 24px 18px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(171,199,165,.24)!important;
+  background:
+    linear-gradient(90deg,rgba(21,77,70,.94),rgba(12,57,61,.90) 52%,rgba(9,42,49,.94))!important;
+  background-image:
+    linear-gradient(90deg,rgba(21,77,70,.94),rgba(12,57,61,.90) 52%,rgba(9,42,49,.94))!important;
+  box-shadow:inset 0 -1px 0 rgba(218,195,128,.12)!important;
+  color:#f2e7cc!important;
+}
+body .dragonbound-command-ui-v3384-header::after{
+  content:""!important;position:absolute!important;left:24px!important;bottom:-1px!important;width:110px!important;height:2px!important;
+  background:linear-gradient(90deg,#b8cda8,rgba(184,205,168,0))!important;
+}
+body .dragonbound-command-ui-v3384-header *{text-shadow:none!important}
+body .dragonbound-command-ui-v3384-header small,
+body .dragonbound-command-ui-v3384-header [class*="kicker"]{color:#9bc1a6!important;letter-spacing:.14em!important}
+body .dragonbound-command-ui-v3384-header h1,
+body .dragonbound-command-ui-v3384-header h2,
+body .dragonbound-command-ui-v3384-header h3,
+body .dragonbound-command-ui-v3384-header strong{color:#fff2d5!important;text-shadow:none!important}
+
+body .dragonbound-command-ui-v3384-dragonbar{
+  margin:14px 18px 16px!important;
+  padding:12px 15px!important;
+  border:1px solid rgba(121,164,144,.24)!important;
+  border-radius:14px!important;
+  background:linear-gradient(90deg,rgba(9,56,56,.86),rgba(7,43,47,.72))!important;
+  background-image:linear-gradient(90deg,rgba(9,56,56,.86),rgba(7,43,47,.72))!important;
+  box-shadow:inset 3px 0 0 rgba(121,167,134,.38)!important;
+  color:#eee4c8!important;
+}
+body .dragonbound-command-ui-v3384-dragonbar *{text-shadow:none!important}
+body .dragonbound-command-ui-v3384-dragonbar small{color:#83aa9b!important}
+body .dragonbound-command-ui-v3384-dragonbar strong{color:#f4e9ca!important}
+
+body .dragonbound-command-ui-v3384-cuehead{
+  color:#a6bdb2!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;
+}
+body .dragonbound-command-ui-v3384-cuehead *{text-shadow:none!important}
+
+body .dragonbound-command-ui-v3384-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+  align-items:stretch!important;
+}
+
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card,
+body .dragonbound-command-ui-v3384 [role="button"].dragonbound-command-ui-v3384-card{
+  appearance:none!important;-webkit-appearance:none!important;
+  position:relative!important;
+  min-height:92px!important;
+  padding:12px 13px!important;
+  border:1px solid rgba(116,153,133,.30)!important;
+  border-radius:13px!important;
+  background:
+    linear-gradient(145deg,rgba(17,63,58,.98),rgba(10,45,47,.98))!important;
+  background-image:
+    linear-gradient(145deg,rgba(17,63,58,.98),rgba(10,45,47,.98))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 5px 14px rgba(0,0,0,.16)!important;
+  color:#efe8d5!important;
+  text-shadow:none!important;
+  outline:none!important;
+  transform:none!important;
+  filter:none!important;
+  opacity:1!important;
+  transition:transform .14s ease,border-color .14s ease,background .14s ease,box-shadow .14s ease!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card::before,
+body .dragonbound-command-ui-v3384 [role="button"].dragonbound-command-ui-v3384-card::before{
+  content:""!important;position:absolute!important;left:0!important;top:10px!important;bottom:10px!important;width:3px!important;
+  border-radius:0 4px 4px 0!important;background:#6f9d7c!important;opacity:.65!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card:hover,
+body .dragonbound-command-ui-v3384 [role="button"].dragonbound-command-ui-v3384-card:hover{
+  transform:translateY(-2px)!important;
+  border-color:rgba(151,194,161,.52)!important;
+  background:linear-gradient(145deg,rgba(22,78,68,.99),rgba(12,54,55,.99))!important;
+  background-image:linear-gradient(145deg,rgba(22,78,68,.99),rgba(12,54,55,.99))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 9px 20px rgba(0,0,0,.22)!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card:focus-visible{outline:2px solid rgba(164,205,173,.64)!important;outline-offset:2px!important}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card *{text-shadow:none!important}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card strong,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card b{color:#f6edd7!important;text-shadow:none!important}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card small,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card span{color:#a8bcb1!important;text-shadow:none!important}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card [class*="progress"],
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card i{
+  border-color:rgba(122,158,137,.18)!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card [class*="progress"]>*,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card i>em,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card i>span{
+  background:#7ea27f!important;background-image:none!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-ready-v3384{
+  border-color:rgba(151,190,142,.42)!important;
+  background:linear-gradient(145deg,rgba(26,79,62,.99),rgba(13,58,51,.99))!important;
+  background-image:linear-gradient(145deg,rgba(26,79,62,.99),rgba(13,58,51,.99))!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-learning-v3384::before{background:#c2a565!important;opacity:.72!important}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-locked-v3384,
+body .dragonbound-command-ui-v3384 [role="button"].dragonbound-command-ui-v3384-card.is-locked-v3384{
+  border-color:rgba(103,117,109,.18)!important;
+  background:linear-gradient(145deg,rgba(25,39,39,.92),rgba(18,31,32,.92))!important;
+  background-image:linear-gradient(145deg,rgba(25,39,39,.92),rgba(18,31,32,.92))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018)!important;
+  color:#7f8e87!important;
+  opacity:.72!important;
+  filter:none!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-locked-v3384::before{background:#65736b!important;opacity:.26!important}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-locked-v3384 strong,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-locked-v3384 b{color:#8f9d96!important}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-locked-v3384 small,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-locked-v3384 span{color:#657870!important}
+
+body .dragonbound-command-ui-v3384-foot{
+  margin-top:14px!important;
+  padding:10px 13px!important;
+  border:1px solid rgba(119,155,136,.20)!important;
+  border-left:3px solid rgba(124,163,139,.62)!important;
+  background:rgba(5,37,39,.76)!important;
+  background-image:none!important;
+  color:#9db7aa!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+}
+body .dragonbound-command-ui-v3384-foot *{color:inherit!important;text-shadow:none!important}
+
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-close,
+body .dragonbound-command-ui-v3384 [role="button"].dragonbound-command-ui-v3384-close{
+  appearance:none!important;-webkit-appearance:none!important;
+  border:1px solid rgba(150,184,159,.34)!important;
+  border-radius:11px!important;
+  background:rgba(7,42,43,.88)!important;background-image:none!important;
+  color:#e9dec3!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;
+  text-shadow:none!important;
+  filter:none!important;
+}
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-close:hover{background:#124e49!important;border-color:rgba(178,210,184,.52)!important}
+
+@media(max-width:980px){body .dragonbound-command-ui-v3384-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:680px){body .dragonbound-command-ui-v3384-grid{grid-template-columns:1fr!important}}

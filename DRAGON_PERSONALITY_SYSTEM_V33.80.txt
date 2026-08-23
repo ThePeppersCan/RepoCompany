@@ -1,0 +1,115 @@
+DRAGONBOUND V33.80 — PERSONALITY SYSTEM REFERENCE
+
+1. ARCHITECTURE
+The expanded personality universe is stored per dragon and versioned. It contains stable seeded axes, innate/secondary traits, discovered traits, quirks/discovered quirks, observations, furniture relationships, dislikes, habits, recent activity, transition history and relationship metadata.
+
+The engine is deliberately layered:
+- core numeric tendencies create nuance;
+- named traits make those tendencies readable to players;
+- quirks are narrower recurring behaviours;
+- habits emerge from repeated transitions/actions;
+- favourites/dislikes come from lived furniture interactions;
+- discovery determines what the keeper is allowed to know.
+
+2. TRAIT UNIVERSE
+V33.80 ships with 133 possible expanded traits. Families include:
+- Energy
+- Rhythm
+- Social
+- Keeper Bond
+- Curiosity
+- Play
+- Food
+- Training
+- Sleep
+- Cleanliness
+- Emotion
+- Courage
+- Environment
+- Routine
+
+A dragon receives a small subset, not all traits. The same breed can therefore produce substantially different individuals.
+
+3. QUIRKS
+V33.80 ships with 51 possible quirks. Quirks are intentionally specific and smaller than traits: repeated bedtime routes, favourite-window behaviour, post-meal naps, private training preference and similar recognisable pet-like patterns.
+
+Quirks remain hidden until enough relevant evidence exists.
+
+4. PERSISTENCE / MIGRATION
+Existing dragons are upgraded lazily. If a valid V33.80 personality universe is absent, one is generated once from a stable per-dragon seed and saved into the existing dragon behaviour memory structure.
+
+Once generated, reload/travel/reopen uses the saved universe rather than rerolling it.
+
+Existing legacy Dragonbound traits and observations are preserved and merged into player-facing discovery where appropriate.
+
+5. DISCOVERY
+The player is not shown the complete generated personality.
+
+Observed evidence is built from real behaviour counters and transitions. Innate/core traits normally require less evidence than secondary traits. The engine also rate-limits discovery so several traits cannot dump onto the screen at once.
+
+The journal therefore moves from uncertainty -> observation -> confirmed nature over time.
+
+6. BEHAVIOUR
+The expanded universe adds weights to the existing autonomous action scorer. It does not replace movement/pathfinding or furniture action execution.
+
+An action can be influenced by:
+- care need urgency
+- personality traits
+- current mood
+- Bond/relationship
+- recent actions
+- furniture familiarity/favourite status
+- routine/time context
+- available furniture
+- randomness
+
+Traits bias choices; they do not create hard absolute rules.
+
+7. FURNITURE RELATIONSHIPS
+Furniture gains an individual relationship record after the dragon notices/uses it. Familiarity progresses from noticed toward familiar/liked based on actual use.
+
+These records support emergent favourites and preference presentation in the Book. Stored favourite objects are not supposed to be forgotten simply because the house is redecorated.
+
+8. HABITS / TRANSITIONS
+Recent activity and transitions are bounded. Repeated meaningful sequences can become habits. This is intentionally softer than a fixed schedule: a routine raises probabilities rather than ordering the dragon through a script.
+
+9. RELATIONSHIP
+Bond changes trust/comfort, not the dragon's identity. A highly bonded independent dragon remains independent; it simply has a secure relationship with the keeper.
+
+Greeting and interaction flavour can reflect attachment, sociability, confidence, energy and current Bond.
+
+10. JOURNAL PRESENTATION
+The keeper journal is divided into four clean sections:
+- Nature
+- Habits
+- Life
+- Scrapbook
+
+The design intentionally reads like a premium Velmoran keeper field journal rather than an analytics dashboard. Hidden knowledge is presented as unknown/under observation rather than guessed.
+
+11. MEMORY LIMITS
+Recent personality activity and life history are capped. Furniture data is created only for encountered objects. This prevents normal long-term play from generating an endlessly growing save snapshot.
+
+12. PERFORMANCE MODEL
+Personality logic is event/decision driven, not frame driven. The patch adds no MutationObserver and no permanent high-frequency personality interval. The existing animation/movement renderer remains responsible for visual motion.
+
+13. ADMIN DEBUG
+DragonPersonalityDebug.profile()
+Returns the current dragon, breed, axes, assigned/discovered traits, quirks, habits, recent activity and transitions.
+
+DragonPersonalityDebug.explainNextAction()
+Returns current action score ordering plus relevant care/recent context. Intended for understanding why the dragon is choosing something.
+
+DragonPersonalityDebug.forceThink()
+Forces one decision cycle for testing. Admin-only.
+
+14. IMPORTANT PRESERVATION RULES
+Future work should not:
+- regenerate personality every load;
+- expose all hidden traits instantly;
+- convert traits into huge reward/XP advantages;
+- make a trait objectively bad;
+- turn habits into rigid schedules;
+- run personality scoring every animation frame;
+- add body-wide MutationObservers for the Book;
+- replace existing sleep placement/alignment as part of personality work.

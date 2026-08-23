@@ -1,0 +1,20 @@
+Velmora Dragonbound — V33.84 Commands & Tricks Redesign
+
+ROOT CAUSE FIX
+- V33.83 styled the command menu as though it lived inside #dragonboundOverlay.
+- The command system actually mounts its overlay directly to document.body, so those selectors could never apply.
+- V33.84 targets the real body-mounted command panel and decorates it when the command UI is opened.
+- The V33.83 broad DOM observer has been removed; this version is event-driven to preserve the site performance work.
+
+VISUAL REDESIGN
+- Removed the muddy brown header/card treatment.
+- New deep teal / forest-green Keeper Training shell.
+- Active commands use dark green-teal cards with sage/gold micro-accents.
+- Locked commands use quiet charcoal-green cards rather than brown disabled blocks.
+- Current Dragon strip, close control, footer and cue hierarchy are all restyled consistently.
+- Command behaviour, proficiency, unlocks, cooldowns and response logic are unchanged.
+
+FILES
+- script.js
+- style.css
+- PATCH_NOTES_V33.84.txt

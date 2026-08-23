@@ -1,0 +1,28 @@
+VELMORA / DRAGONBOUND — V33.79
+CANTO MEADOW FESTIVAL CROWD AMBIENCE PASS
+
+CANTO ONLY
+- Slightly richer crowd bed: 8% base crowd ambience instead of City's 7%.
+- Crowd swells now scale from each track's own base volume.
+- Canto's start, final lap, final straight and photo-finish crowd lifts are therefore a touch livelier without becoming loud.
+- Added tiny crowd-side festival flags at selected scenery positions.
+- Added very sparse warm festival glints around the crowd/scenery.
+- Existing Canto floating leaves and sun motes are preserved.
+- Existing Canto music remains 40%.
+
+PERFORMANCE / RESTRAINT
+- Only a handful of small CSS-animated elements were added.
+- No JavaScript per-frame particle system was introduced.
+- No new MutationObservers, intervals or RAF loops.
+- Effects sit in the scenery atmosphere layer and do not block input.
+
+UNCHANGED
+- City Circuit crowd ambience remains 7% and its event peaks remain effectively unchanged.
+- Race logic, camera, AI, Marks, payouts, results and timing are unchanged.
+- Dragon sprite facing fixes are unchanged.
+- Dragon Racing XP remains disabled.
+
+FILES
+- dragon-racing-race.js
+- dragon-racing-race.css
+- PATCH_NOTES_V33.79.txt

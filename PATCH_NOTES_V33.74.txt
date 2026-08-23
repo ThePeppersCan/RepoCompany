@@ -1,0 +1,52 @@
+V33.74 — Endless Combat Performance Recovery
+
+Goal
+- Recover FPS in Endless Hordes and reduce recent site-wide overhead without changing gameplay, balance, visuals, rewards, controls, audio, enemy counts, wave scaling, or canvas resolution.
+
+Main findings fixed
+1. Endless Horde HUD was rewriting multiple DOM nodes every animation frame even when nothing had changed.
+   - Wave, HP, kills, run level, XP bar and GP display are now change-driven/cached.
+   - Multiplayer Horde HUD gets the same no-op protection.
+
+2. Several recent document-wide MutationObservers were listening to every child-list mutation across the entire page.
+   - Endless Combat's frame-by-frame HUD text changes could wake these observers constantly.
+   - Replaced recent broad observers with targeted/bounded click/setup hooks.
+   - Horde logo observer no longer watches the entire Combat dialog subtree.
+   - Admin/test functionality remains event-driven and available.
+
+3. Horde backdrop was rebuilding the entire tiled floor/decor grid every frame.
+   - Static map artwork is now cached to an offscreen canvas per map/size.
+   - Animated fog and all visible borders remain live and visually unchanged.
+
+4. Endless update loop generated avoidable garbage every frame.
+   - Removed repeated enemy-array copies for movement/venom loops.
+   - Replaced repeated filter() cleanup arrays with in-place compaction for orbs/effects.
+   - Replaced hot Math.hypot proximity tests with squared-distance checks where direction length is not required.
+   - Nearby weapon target searches no longer allocate full filtered arrays.
+
+5. Horde enemy drawing repeatedly re-ran string prefix/regex classification for every enemy every frame.
+   - Visual classification is now cached by enemy type.
+   - Actual enemy artwork/drawing logic is unchanged.
+
+6. Duplicate/idle background work.
+   - Endless start now cancels any stale combat RAF before creating the active loop.
+   - Endless finish cancels and clears the RAF handle.
+   - Removed one duplicate Horde flame animation interval.
+   - Remaining flame animation now stops completely while the Horde menu is hidden/closed and resumes through the existing menu-open hooks.
+
+Checked but intentionally NOT changed
+- Combat canvas remains 760x430 in normal solo combat. No resolution downgrade.
+- Enemy/wave caps, spawn rates, damage, movement, XP, GP and upgrade balance are unchanged.
+- Damage numbers/particles are Canvas-rendered, not DOM nodes; their existing lifetimes remain intact.
+- XP/heal orbs remain persistent gameplay objects until collected; they were not deleted/capped to fake a performance improvement.
+- No graphical effects were removed from the active Endless run.
+- Standard Survival logic was not rebalanced or rewritten.
+
+Owner diagnostic
+Run this in the console during a Horde run if FPS ever degrades over time:
+  repoEndlessCombatPerf()
+It returns read-only counts for enemies, orbs, particles, projectiles, slashes, chains, explosions and canvas size.
+
+QA
+- node --check passed.
+- No documentElement-wide childList+subtree observers remain from the recent blocks patched here.

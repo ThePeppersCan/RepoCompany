@@ -1,0 +1,12 @@
+Velmora Dragonbound Patch V33.83
+
+Included changes
+- Fixed household pet visit naming again with a broader bedroom-pet lookup, so custom nicknames carry into the dragon home more reliably.
+- Raised visiting bedroom pets above furnishings to stop them clipping underneath house furniture.
+- Reinforced scrolling on the My Dragon > Life journal page so longer Growth & Skills content can be scrolled properly.
+- Added a runtime visual refresh for the Commands & Tricks menu, swapping the muddy brown treatment for a cleaner teal-and-parchment Dragonbound style.
+
+Files
+- dragonbound-calendar-social.js
+- script.js
+- style.css

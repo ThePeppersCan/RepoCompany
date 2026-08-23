@@ -243,3 +243,348 @@ body.dragonbound-command-menu-open{overflow:hidden}
   .dragonbound-command-button,.dragonbound-command-card,.dragonbound-journal-command-card,.dragonbound-command-float,.dragonbound-command-live-hud,.dragonbound-command-live-pulse i,.dragonbound-command-status-dot::before,.dragonbound-command-reaction *{animation:none!important;transition:none!important}
 }
 .dragonbound-command-button[hidden]{display:none!important}
+
+/* ==========================================================================\n   V33.85 — COMMANDS & TRICKS: OPEN TRAINING BOARD\n   A genuine no-box rebuild. This deliberately overrides both the old brown\n   button skin and the temporary V33.84 wrapper treatment.\n   ========================================================================== */
+body .dragonbound-command-overlay{
+  background:transparent!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-backdrop{
+  background:
+    radial-gradient(ellipse at 50% 44%,rgba(9,52,48,.26) 0%,rgba(2,18,20,.74) 44%,rgba(0,7,9,.92) 100%)!important;
+  backdrop-filter:blur(9px) saturate(.88)!important;
+  -webkit-backdrop-filter:blur(9px) saturate(.88)!important;
+}
+
+/* No outer card / no giant framed box. */
+body .dragonbound-command-overlay .dragonbound-command-panel,
+body .dragonbound-command-ui-v3384.dragonbound-command-panel{
+  width:min(980px,94vw)!important;
+  max-height:min(820px,92vh)!important;
+  padding:0 18px 14px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  color:#eef0dd!important;
+  isolation:isolate!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel::before,
+body .dragonbound-command-ui-v3384.dragonbound-command-panel::before{
+  content:none!important;
+  display:none!important;
+}
+
+/* Header becomes an open title strip instead of a brown banner. */
+body .dragonbound-command-overlay .dragonbound-command-panel-head,
+body .dragonbound-command-ui-v3384 .dragonbound-command-panel-head,
+body .dragonbound-command-ui-v3384-header{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:52px minmax(0,1fr) 42px!important;
+  gap:14px!important;
+  align-items:center!important;
+  margin:0 0 8px!important;
+  padding:18px 0 17px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(184,210,187,.22)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel-head::before{
+  content:""!important;
+  position:absolute!important;
+  left:66px!important;
+  right:52px!important;
+  bottom:-1px!important;
+  height:1px!important;
+  background:linear-gradient(90deg,rgba(196,170,102,.8),rgba(128,177,147,.46),transparent)!important;
+  pointer-events:none!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel-head::after,
+body .dragonbound-command-ui-v3384-header::after{content:none!important;display:none!important}
+body .dragonbound-command-overlay .dragonbound-command-panel-mark{
+  width:48px!important;
+  height:48px!important;
+  border:1px solid rgba(177,201,180,.24)!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(118,165,139,.12),rgba(255,255,255,.015))!important;
+  box-shadow:0 0 24px rgba(83,142,118,.08)!important;
+  color:#d8c27a!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel-head small{
+  margin:0 0 5px!important;
+  color:#8eb6a4!important;
+  font-size:8px!important;
+  letter-spacing:.19em!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel-head h2{
+  margin:0!important;
+  color:#f5edd7!important;
+  font:800 clamp(28px,3vw,38px)/.96 Georgia,serif!important;
+  letter-spacing:-.025em!important;
+  text-shadow:0 2px 18px rgba(0,0,0,.28)!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel-head h2 span{color:#91aa9d!important;font-weight:400!important}
+body .dragonbound-command-overlay .dragonbound-command-panel-head p{
+  margin:7px 0 0!important;
+  color:#9eb5a9!important;
+  font-size:10px!important;
+  letter-spacing:.01em!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel-head [data-command-close],
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-close{
+  width:38px!important;
+  height:38px!important;
+  padding:0!important;
+  border:1px solid rgba(171,200,182,.26)!important;
+  border-radius:50%!important;
+  background:rgba(9,43,42,.56)!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  color:#e6d79f!important;
+  font:500 22px/1 Georgia,serif!important;
+  text-shadow:none!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel-head [data-command-close]:hover{
+  border-color:rgba(219,195,120,.6)!important;
+  background:rgba(18,65,59,.72)!important;
+  transform:rotate(4deg)!important;
+}
+
+/* Current dragon is a line in the interface, not another card. */
+body .dragonbound-command-overlay .dragonbound-command-status,
+body .dragonbound-command-ui-v3384-dragonbar{
+  min-height:52px!important;
+  margin:0!important;
+  padding:10px 2px 12px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(144,176,157,.14)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-status-avatar,
+body .dragonbound-command-overlay .dragonbound-command-status-dot{
+  width:36px!important;
+  height:36px!important;
+  flex-basis:36px!important;
+  border:1px solid rgba(176,204,184,.22)!important;
+  background:rgba(92,142,119,.07)!important;
+  color:#e2cc83!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-status>div small{color:#7fae9a!important}
+body .dragonbound-command-overlay .dragonbound-command-status>div strong{color:#eee5cc!important;font-size:13px!important}
+body .dragonbound-command-overlay .dragonbound-command-status>div span{color:#91a99e!important}
+
+body .dragonbound-command-overlay .dragonbound-command-section-head,
+body .dragonbound-command-ui-v3384-cuehead{
+  margin:17px 0 9px!important;
+  padding:0 2px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-section-head span{color:#d8c27e!important;font-size:8px!important;letter-spacing:.2em!important}
+body .dragonbound-command-overlay .dragonbound-command-section-head small{color:#78988a!important;font-size:8.5px!important}
+
+/* 12 commands become one clean training matrix, not twelve brown boxes. */
+body .dragonbound-command-overlay .dragonbound-command-grid,
+body .dragonbound-command-ui-v3384-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:0!important;
+  border-top:1px solid rgba(151,181,162,.13)!important;
+  border-left:1px solid rgba(151,181,162,.08)!important;
+  background:rgba(3,28,29,.12)!important;
+}
+body .dragonbound-command-overlay button.dragonbound-command-card,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:38px minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  column-gap:11px!important;
+  row-gap:0!important;
+  align-items:center!important;
+  min-height:112px!important;
+  margin:0!important;
+  padding:15px 14px!important;
+  border:0!important;
+  border-right:1px solid rgba(151,181,162,.13)!important;
+  border-bottom:1px solid rgba(151,181,162,.13)!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  color:#edf0df!important;
+  text-shadow:none!important;
+  opacity:1!important;
+  filter:none!important;
+  overflow:hidden!important;
+  transform:none!important;
+}
+body .dragonbound-command-overlay button.dragonbound-command-card::before,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card::before{
+  content:""!important;
+  position:absolute!important;
+  inset:auto 14px 0 14px!important;
+  height:2px!important;
+  width:auto!important;
+  border:0!important;
+  border-radius:99px!important;
+  background:linear-gradient(90deg,#c5a85e,rgba(110,164,133,.7),transparent)!important;
+  opacity:.25!important;
+}
+body .dragonbound-command-overlay button.dragonbound-command-card::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  background:radial-gradient(circle at 18% 50%,rgba(110,171,141,.12),transparent 45%)!important;
+  opacity:0!important;
+  transition:opacity .16s ease!important;
+  pointer-events:none!important;
+}
+body .dragonbound-command-overlay button.dragonbound-command-card:hover,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card:hover{
+  transform:none!important;
+  border-color:rgba(166,202,180,.22)!important;
+  background:rgba(83,139,113,.075)!important;
+  background-image:none!important;
+  box-shadow:inset 0 0 28px rgba(87,147,119,.045)!important;
+}
+body .dragonbound-command-overlay button.dragonbound-command-card:hover::after{opacity:1!important}
+body .dragonbound-command-overlay button.dragonbound-command-card:focus-visible{outline:1px solid rgba(197,177,105,.68)!important;outline-offset:-2px!important}
+
+body .dragonbound-command-overlay .dragonbound-command-card-icon{
+  grid-column:1!important;
+  grid-row:1 / span 2!important;
+  width:36px!important;
+  height:36px!important;
+  border:1px solid rgba(164,197,177,.19)!important;
+  border-radius:50%!important;
+  background:rgba(104,155,129,.065)!important;
+  box-shadow:none!important;
+  color:#dac477!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-card-copy{
+  grid-column:2!important;
+  min-width:0!important;
+  gap:5px!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-card-top{gap:6px!important}
+body .dragonbound-command-overlay .dragonbound-command-card-top strong{
+  color:#f0e7cf!important;
+  font-size:11px!important;
+  letter-spacing:.005em!important;
+  text-shadow:none!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-card-top em{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#8eb4a0!important;
+  font-size:6.5px!important;
+  letter-spacing:.09em!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-card-copy>small{
+  min-height:20px!important;
+  color:#8ea69a!important;
+  font-size:8.4px!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-progress{
+  height:2px!important;
+  margin-top:1px!important;
+  border-radius:99px!important;
+  background:rgba(181,194,178,.12)!important;
+  overflow:hidden!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-progress i{
+  display:block!important;
+  height:100%!important;
+  border-radius:99px!important;
+  background:linear-gradient(90deg,#77a98d,#c3ab62)!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-card-copy>b{
+  color:#7f9188!important;
+  font-size:7px!important;
+  letter-spacing:.02em!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-card-arrow{display:none!important}
+
+/* Locked commands should recede, not become ugly disabled brown tiles. */
+body .dragonbound-command-overlay button.dragonbound-command-card.is-locked,
+body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-card.is-locked-v3384{
+  background:transparent!important;
+  border-color:rgba(135,153,144,.09)!important;
+  opacity:.38!important;
+  filter:grayscale(.22)!important;
+  cursor:default!important;
+}
+body .dragonbound-command-overlay button.dragonbound-command-card.is-locked:hover{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body .dragonbound-command-overlay button.dragonbound-command-card.is-locked::before{background:#71857a!important;opacity:.12!important}
+body .dragonbound-command-overlay button.dragonbound-command-card.is-mastered::before{background:linear-gradient(90deg,#8ec7a2,#d9c06c,transparent)!important;opacity:.8!important}
+
+/* Footer is just a quiet line of guidance. */
+body .dragonbound-command-overlay .dragonbound-command-panel>footer,
+body .dragonbound-command-ui-v3384-foot{
+  margin:12px 0 0!important;
+  padding:10px 2px 0!important;
+  border:0!important;
+  border-top:1px solid rgba(151,181,162,.11)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#789287!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel>footer>span{color:#789287!important}
+body .dragonbound-command-overlay .dragonbound-command-panel [data-command-cancel]{
+  border:0!important;
+  border-bottom:1px solid rgba(209,182,108,.4)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#cfb775!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-panel [data-command-cancel]:hover{background:transparent!important;color:#f0d78f!important}
+
+/* Keep the furniture chooser readable without turning it into the old brown UI. */
+body .dragonbound-command-overlay .dragonbound-command-furniture-picker{
+  border:1px solid rgba(151,184,163,.2)!important;
+  border-radius:14px!important;
+  background:rgba(4,29,29,.985)!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.5)!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-furniture-picker [data-picker-placement]{
+  border:1px solid rgba(151,184,163,.14)!important;
+  background:rgba(255,255,255,.018)!important;
+  color:#e8e5cf!important;
+}
+body .dragonbound-command-overlay .dragonbound-command-furniture-picker [data-picker-placement]:hover{background:rgba(99,157,129,.08)!important;border-color:rgba(197,179,111,.34)!important}
+
+@media(max-width:980px){
+  body .dragonbound-command-overlay .dragonbound-command-grid,
+  body .dragonbound-command-ui-v3384-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:760px){
+  body .dragonbound-command-overlay .dragonbound-command-grid,
+  body .dragonbound-command-ui-v3384-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:520px){
+  body .dragonbound-command-overlay .dragonbound-command-panel{padding:0 10px 10px!important}
+  body .dragonbound-command-overlay .dragonbound-command-grid,
+  body .dragonbound-command-ui-v3384-grid{grid-template-columns:1fr!important}
+  body .dragonbound-command-overlay button.dragonbound-command-card{min-height:86px!important}
+}

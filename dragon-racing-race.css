@@ -3,7 +3,7 @@
 #dragonRacingModal.is-race-active .dragon-racing-header,
 #dragonRacingModal.is-race-active>.dragon-racing-shell>.dragon-racing-back,
 #dragonRacingModal.is-race-active>.dragon-racing-shell>.dragon-racing-close{opacity:0!important;pointer-events:none!important}
-.dragon-race-game{position:absolute;inset:0;z-index:80;overflow:hidden;background:#07131a;color:#f4f8f9;font-family:'Trebuchet MS',Arial,sans-serif;opacity:0;transition:opacity .28s ease}
+.dragon-race-game{position:absolute;inset:0;z-index:80;overflow:hidden;background:#07131a;color:#f4f8f9;font-family:'Trebuchet MS',Arial,sans-serif;opacity:0;transition:opacity .28s ease;contain:layout paint style}
 .dragon-race-game.is-visible{opacity:1}
 .dragon-race-viewport{position:absolute;inset:0;overflow:hidden;background:#061018}
 .dragon-race-world{position:absolute;left:0;top:0;width:1536px;height:1024px;transform-origin:0 0;will-change:transform}
@@ -741,12 +741,9 @@
   opacity:.98;
 }
 .dragon-race-cinematic-pass::after{
-  background:radial-gradient(ellipse calc(var(--focus-rx) + 78px) calc(var(--focus-ry) + 62px) at var(--focus-x) var(--focus-y),rgba(255,255,255,0) 0 42%,rgba(7,14,18,.018) 62%,rgba(4,9,13,.06) 100%);
-  -webkit-backdrop-filter:blur(.95px) saturate(.992) brightness(.985);
-  backdrop-filter:blur(.95px) saturate(.992) brightness(.985);
-  -webkit-mask-image:radial-gradient(ellipse calc(var(--focus-rx) + 86px) calc(var(--focus-ry) + 72px) at var(--focus-x) var(--focus-y),rgba(0,0,0,0) 0 46%,rgba(0,0,0,.22) 66%,rgba(0,0,0,.78) 100%);
-  mask-image:radial-gradient(ellipse calc(var(--focus-rx) + 86px) calc(var(--focus-ry) + 72px) at var(--focus-x) var(--focus-y),rgba(0,0,0,0) 0 46%,rgba(0,0,0,.22) 66%,rgba(0,0,0,.78) 100%);
-  opacity:.92;
+  /* V33.73: same restrained pack focus without a full-screen live backdrop blur. */
+  background:radial-gradient(ellipse calc(var(--focus-rx) + 78px) calc(var(--focus-ry) + 62px) at var(--focus-x) var(--focus-y),rgba(255,255,255,0) 0 43%,rgba(6,13,17,.018) 61%,rgba(4,9,13,.075) 82%,rgba(2,7,10,.12) 100%);
+  opacity:.86;
 }
 
 .dragon-race-tv-glass{
@@ -765,14 +762,8 @@
   box-shadow:0 10px 26px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.02) inset!important;
 }
 
-@media(max-width:760px){
-  .dragon-race-cinematic-pass::after{
-    -webkit-backdrop-filter:blur(.72px) saturate(.994) brightness(.988);
-    backdrop-filter:blur(.72px) saturate(.994) brightness(.988);
-  }
-}
 @media(prefers-reduced-motion:reduce){
-  .dragon-race-cinematic-pass::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .dragon-race-cinematic-pass::after{opacity:.72}
 }
 
 
@@ -888,42 +879,34 @@
   height:9px;
   border-radius:50%;
   background:radial-gradient(ellipse at center,rgba(4,8,10,.72) 0%,rgba(4,8,10,.50) 43%,rgba(4,8,10,.16) 72%,rgba(4,8,10,0) 100%);
-  opacity:var(--shadow-opacity,.32);
-  filter:blur(var(--shadow-blur,4px));
-  transform:translate(calc(-50% + var(--shadow-x,0px)),var(--shadow-y,4px)) rotate(var(--shadow-angle,0deg)) scaleX(var(--shadow-stretch,1.04));
+  opacity:.32;
+  filter:blur(2.4px);
+  transform:translate(-50%,4px) scaleX(1.04);
   transform-origin:50% 50%;
   pointer-events:none;
-  will-change:transform,filter,opacity;
+  will-change:transform,opacity;
 }
 .dragon-race-racer.is-player .dragon-race-flight-shadow{
   width:38px;
   height:10px;
 }
+.dragon-race-racer.is-flying .dragon-race-flight-shadow{filter:blur(3.6px)}
+.dragon-race-racer.is-taking-off .dragon-race-flight-shadow,
+.dragon-race-racer.is-landing .dragon-race-flight-shadow{filter:blur(3px)}
 
 /* Replace the old floating pseudo-shadow with the grounded world shadow. */
 .dragon-race-racer.is-flying::before{display:none!important}
 
 /* Very restrained warm/cool edge wrap so sprites inherit some City Circuit light. */
 .dragon-race-racer .dragon-race-racer-sprite-wrap img{
-  filter:
-    drop-shadow(-.7px -1px .35px rgba(255,218,158,.16))
-    drop-shadow(.8px 1.5px 1.2px rgba(7,27,36,.24))
-    saturate(1.018)
-    brightness(1.008)!important;
+  filter:saturate(1.014) brightness(1.006)!important;
 }
 .dragon-race-racer.is-taking-off .dragon-race-racer-sprite-wrap img,
 .dragon-race-racer.is-landing .dragon-race-racer-sprite-wrap img{
-  filter:
-    drop-shadow(-.6px -.8px .3px rgba(255,218,158,.14))
-    drop-shadow(.7px 1.4px 1.15px rgba(7,27,36,.25))
-    saturate(1.014)
-    brightness(1.006)!important;
+  filter:saturate(1.012) brightness(1.004)!important;
 }
 .dragon-race-racer:not(.is-flying):not(.is-taking-off):not(.is-landing) .dragon-race-racer-sprite-wrap img{
-  filter:
-    drop-shadow(-.5px -.7px .25px rgba(255,218,158,.12))
-    drop-shadow(.7px 1.2px 1px rgba(7,27,36,.28))
-    saturate(1.012)!important;
+  filter:saturate(1.01)!important;
 }
 
 /* Keep the player's identifier subtle; depth now comes from lighting/shadow instead of glow. */
@@ -962,8 +945,6 @@
   opacity:0;
   pointer-events:none;
   transition:opacity .16s ease,transform .18s ease,border-color .18s ease;
-  -webkit-backdrop-filter:blur(3px);
-  backdrop-filter:blur(3px);
 }
 .dragon-race-event-callout.is-visible{opacity:1;transform:translate(-50%,0) scale(1)}
 .dragon-race-event-callout small{
@@ -1009,4 +990,154 @@
 }
 @media(prefers-reduced-motion:reduce){
   .dragon-race-event-callout{transition:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+}
+
+
+/* =========================================================
+   V33.78 — Canto Meadow leaf atmosphere + dedicated music
+   ========================================================= */
+.dragon-race-atmosphere.is-canto{
+  mix-blend-mode:screen!important;
+  opacity:.9!important;
+}
+.dragon-race-atmosphere.is-canto .dragon-race-sun-glow{
+  background:radial-gradient(circle at 76% 16%,rgba(255,241,178,.34) 0 5%,rgba(255,210,116,.16) 10%,rgba(255,210,116,0) 30%);
+  opacity:.92;
+}
+.dragon-race-atmosphere.is-canto .dragon-race-sun-rays{
+  background:
+    radial-gradient(circle at 76% 16%,rgba(255,255,255,.08),rgba(255,255,255,0) 18%),
+    conic-gradient(from 200deg at 76% 16%,rgba(255,214,140,.08),rgba(255,255,255,0) 18deg,rgba(255,214,140,.05) 36deg,rgba(255,255,255,0) 52deg,rgba(255,214,140,.04) 74deg,rgba(255,255,255,0) 100deg,rgba(255,214,140,.03) 132deg,rgba(255,255,255,0) 164deg);
+  opacity:.38;
+}
+.dragon-race-sun-motes,
+.dragon-race-leaf-stream{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.dragon-race-sun-mote{
+  position:absolute;
+  width:var(--size,3px);
+  height:var(--size,3px);
+  border-radius:50%;
+  background:rgba(255,239,182,.78);
+  box-shadow:0 0 10px rgba(255,213,118,.32);
+  opacity:0;
+  animation:dragonRaceCantoMote var(--d,7s) ease-in-out infinite;
+  animation-delay:var(--delay,0s);
+}
+.dragon-race-leaf{
+  position:absolute;
+  width:14px;
+  height:9px;
+  border-radius:14px 0 14px 0;
+  background:var(--leaf,#d98b2b);
+  box-shadow:0 1px 4px rgba(0,0,0,.14);
+  transform-origin:50% 50%;
+  opacity:0;
+  filter:saturate(1.04) brightness(1.03);
+  animation:dragonRaceCantoLeaf var(--d,18s) linear infinite;
+  animation-delay:var(--delay,0s);
+}
+.dragon-race-leaf::after{
+  content:'';
+  position:absolute;
+  left:6px;
+  top:1px;
+  width:1px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(255,247,221,.34);
+  transform:rotate(16deg);
+}
+@keyframes dragonRaceCantoMote{
+  0%{transform:translate3d(0,0,0) scale(.82);opacity:0}
+  12%{opacity:.36}
+  50%{transform:translate3d(var(--dx,12px),var(--dy,-14px),0) scale(1);opacity:.72}
+  100%{transform:translate3d(calc(var(--dx,12px) * 1.5),calc(var(--dy,-14px) * 1.6),0) scale(.92);opacity:0}
+}
+@keyframes dragonRaceCantoLeaf{
+  0%{transform:translate3d(0,0,0) rotate(-18deg) scale(var(--scale,.85));opacity:0}
+  8%{opacity:.72}
+  25%{transform:translate3d(24vw,-6px,0) rotate(18deg) scale(var(--scale,.85))}
+  50%{transform:translate3d(52vw,8px,0) rotate(calc(var(--rot,260deg) * .36)) scale(var(--scale,.85));opacity:.68}
+  75%{transform:translate3d(82vw,-3px,0) rotate(calc(var(--rot,260deg) * .72)) scale(var(--scale,.85))}
+  100%{transform:translate3d(calc(112vw + var(--travel,34px)),var(--driftY,0),0) rotate(var(--rot,260deg)) scale(var(--scale,.85));opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-sun-mote,.dragon-race-leaf{animation:none!important;opacity:.28}
+}
+
+
+/* =========================================================
+   V33.79 — Canto Meadow festival crowd ambience pass
+   ========================================================= */
+.dragon-race-canto-crowd-detail{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.dragon-race-canto-crowd-flag{
+  position:absolute;
+  width:18px;
+  height:11px;
+  opacity:.38;
+  transform-origin:50% 100%;
+  animation:dragonRaceCantoCrowdBob var(--d,3.1s) ease-in-out infinite alternate;
+  animation-delay:var(--delay,0s);
+}
+.dragon-race-canto-crowd-flag::before{
+  content:'';
+  position:absolute;
+  left:8px;
+  top:1px;
+  width:1px;
+  height:10px;
+  border-radius:999px;
+  background:rgba(255,248,224,.5);
+}
+.dragon-race-canto-crowd-flag i,
+.dragon-race-canto-crowd-flag b{
+  position:absolute;
+  top:1px;
+  width:6px;
+  height:5px;
+  clip-path:polygon(0 0,100% 16%,72% 50%,100% 84%,0 100%);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.16));
+  transform-origin:0 50%;
+  animation:dragonRaceCantoFlagFlutter .9s ease-in-out infinite alternate;
+}
+.dragon-race-canto-crowd-flag i{left:9px;background:var(--flag-a,#d98b2b)}
+.dragon-race-canto-crowd-flag b{left:2px;top:5px;background:var(--flag-b,#95b857);transform:scaleX(-1);animation-direction:alternate-reverse}
+.dragon-race-canto-festival-glint{
+  position:absolute;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:rgba(255,241,185,.7);
+  box-shadow:0 0 7px rgba(255,218,128,.26);
+  opacity:0;
+  animation:dragonRaceCantoFestivalGlint var(--d,8s) ease-in-out infinite;
+  animation-delay:var(--delay,0s);
+}
+.dragon-race-atmosphere.is-canto .dragon-race-crowd-burst{opacity:.68}
+.dragon-race-atmosphere.is-canto .dragon-race-crowd-burst-piece{
+  width:5px;
+  height:8px;
+  border-radius:3px;
+  box-shadow:0 0 5px rgba(255,255,255,.12);
+}
+@keyframes dragonRaceCantoCrowdBob{
+  from{transform:translate3d(0,1px,0) rotate(-1.4deg);opacity:.3}
+  to{transform:translate3d(0,-2px,0) rotate(1.4deg);opacity:.46}
+}
+@keyframes dragonRaceCantoFlagFlutter{
+  from{transform:skewY(-4deg) scaleX(.94)}
+  to{transform:skewY(4deg) scaleX(1.03)}
+}
+@keyframes dragonRaceCantoFestivalGlint{
+  0%,72%,100%{transform:translate3d(0,0,0) scale(.7);opacity:0}
+  78%{opacity:.48}
+  85%{transform:translate3d(4px,-5px,0) scale(1);opacity:.68}
+  92%{opacity:.18}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-canto-crowd-flag,
+  .dragon-race-canto-crowd-flag i,
+  .dragon-race-canto-crowd-flag b,
+  .dragon-race-canto-festival-glint{animation:none!important}
+  .dragon-race-canto-crowd-flag{opacity:.3}
 }

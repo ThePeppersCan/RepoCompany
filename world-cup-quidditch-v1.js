@@ -16,9 +16,9 @@
   const WORLD_CUP_STADIUM_INTROS = Object.freeze({
     'crown-of-vardesh-glacier':{src:BASE+'BUILDUPBELROS.mp4',duration:22.3},
     'hestholm-fjord':{src:BASE+'hestholm-intro.mp4',duration:22.3},
-    'warmvein':{src:BASE+'warmvein-intro.mp4',duration:22.3},
+    'warmvein':{src:BASE+'warmvein-intro.mp4?v=sf-20260823-v2',duration:27.961267},
     'yrsa-varn':{src:BASE+'yrsa-varn-intro.mp4',duration:22.3},
-    'treedesh-forest':{src:BASE+'treedesh-intro.mp4',duration:22.3},
+    'treedesh-forest':{src:BASE+'treedesh-intro.mp4?v=sf-20260823-v2',duration:30.296933},
     'basalt-coast':{src:BASE+'basalt-coast-intro.mp4',duration:22.3}
   });
   const WORLD_CUP_BARRY_OPENING_DURATION = 29.648875;
@@ -114,11 +114,11 @@
     // Existing arena artwork IDs are retained to avoid breaking deployed assets;
     // display names now use the canonical World Cup venue names.
     'crown-of-vardesh-glacier':{id:'crown-of-vardesh-glacier',name:'BLACKGLASS CROWN ARENA',shortName:'Blackglass Crown',src:BASE+'stadiums/crown-of-vardesh-glacier.png',ambience:'aurora',standingOffsetPx:0},
-    'warmvein':{id:'warmvein',name:'WARMVEIN ARENA',shortName:'Warmvein',src:BASE+'stadiums/warmvein.png',ambience:'embers',standingOffsetPx:104},
+    'warmvein':{id:'warmvein',name:'SKYHOLD GRAND SUMMIT',shortName:'Skyhold Grand Summit',src:BASE+'stadiums/warmvein.png?v=sf-20260823-v2',ambience:'daylight',standingOffsetPx:104},
     'yrsa-varn':{id:'yrsa-varn',name:'YRSA VARN WORLD STADIUM',shortName:'Yrsa Varn',src:BASE+'stadiums/yrsa-varn.png',ambience:'indoor',standingOffsetPx:110},
     'basalt-coast':{id:'basalt-coast',name:'SKALLHEIM GRAND ICE',shortName:'Skallheim Grand Ice',src:BASE+'stadiums/basalt-coast.png',ambience:'blizzard',standingOffsetPx:106},
     'hestholm-fjord':{id:'hestholm-fjord',name:'HESTHOLM FJORD GROUND',shortName:'Hestholm Fjord',src:BASE+'stadiums/hestholm-fjord-arena.png',ambience:'daylight',standingOffsetPx:114},
-    'treedesh-forest':{id:'treedesh-forest',name:'NYRGATE NORTHERN LIGHTS STADIUM',shortName:'Nyrgate Northern Lights',src:BASE+'stadiums/treedesh-forest.png',ambience:'aurora-forest',standingOffsetPx:102}
+    'treedesh-forest':{id:'treedesh-forest',name:'FROSTPINE TIMBER ARENA',shortName:'Frostpine Timber Arena',src:BASE+'stadiums/treedesh-forest.png?v=sf-20260823-v2',ambience:'daylight',standingOffsetPx:102}
   });
   const WORLD_CUP_ROUND16_FIXTURE_ORDER = Object.freeze([
     'belros-zafran','iskandar-calvora','sorevia-lumerre','talune-kordesh',
@@ -129,6 +129,10 @@
     'qf-nambara-lumerre':'treedesh-forest',
     'qf-talune-iskandar':'basalt-coast',
     'qf-marovar-norveth':'hestholm-fjord'
+  });
+  const WORLD_CUP_SEMI_FINAL_ARENAS = Object.freeze({
+    'sf-rovarn-marovar':'warmvein',
+    'sf-talune-lumerre':'treedesh-forest'
   });
   // ROUND OF 16 · REPOSPORTS EXPERIENCE EDGE
   // Countries fielding a current/main RepoSports League pet get a deliberately
@@ -184,6 +188,8 @@
   const WORLD_CUP_FIXTURE_ARENAS = buildWorldCupArenaAssignments();
   function arenaForFixture(fixtureId){
     const id=String(fixtureId||'').trim().toLowerCase();
+    const semiFinalArena=WORLD_CUP_SEMI_FINAL_ARENAS[id];
+    if(semiFinalArena&&WORLD_CUP_ARENAS[semiFinalArena])return WORLD_CUP_ARENAS[semiFinalArena];
     const quarterFinalArena=WORLD_CUP_QUARTER_FINAL_ARENAS[id];
     if(quarterFinalArena&&WORLD_CUP_ARENAS[quarterFinalArena])return WORLD_CUP_ARENAS[quarterFinalArena];
     if(id==='belros-zafran')return WORLD_CUP_ARENAS['crown-of-vardesh-glacier'];

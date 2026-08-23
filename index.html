@@ -912,6 +912,9 @@ button.qg-game-card{font:inherit;cursor:pointer}
     .world-cup-fixture-nav-button.is-clicked{
       animation:worldCupFooterButtonClick .25s steps(2,end) 1;
     }
+    /* V33.86: the supplied semi-final poster has its own clean footer artwork.
+       Hide the legacy image buttons on the fixture panel so nothing is drawn over it. */
+    .world-cup-event-panel-fixtures .world-cup-fixture-nav-button{display:none!important}
     @keyframes worldCupFooterButtonWiggle{
       0%,100%{transform:translate3d(0,0,0) rotate(0deg)}
       22%{transform:translate3d(-2px,0,0) rotate(-.45deg)}
@@ -2140,6 +2143,18 @@ button.qg-game-card{font:inherit;cursor:pointer}
   .wc-live-match-banner{position:absolute;left:37.8%;right:7.7%;bottom:9.4%;min-height:30px;display:flex;align-items:center;justify-content:center;color:#7ea4bf;font:800 clamp(7px,.62vw,10px)/1 Arial,sans-serif;letter-spacing:.10em;text-transform:uppercase;pointer-events:none;text-shadow:0 1px #000}
   .wc-live-match-banner.is-started{color:#ffe098;text-shadow:0 1px #000,0 0 8px rgba(255,192,59,.2)}
 
+  .wc-live-free-pack{position:absolute;z-index:8;right:6.9%;bottom:15.2%;width:clamp(168px,15.8%,264px);min-height:clamp(38px,5.6vw,54px);display:grid;grid-template-columns:auto 1fr;align-items:center;gap:clamp(7px,.7vw,11px);padding:clamp(5px,.55vw,8px) clamp(9px,.85vw,14px);box-sizing:border-box;border:1px solid #d8a541;outline:1px solid rgba(8,17,27,.95);outline-offset:-4px;background:linear-gradient(180deg,rgba(71,47,17,.97),rgba(21,12,5,.98));box-shadow:0 8px 18px rgba(0,0,0,.52),inset 0 0 16px rgba(223,173,64,.12);color:#ffe4a2;cursor:pointer;text-align:left;transition:transform .14s ease,filter .14s ease,opacity .14s ease}
+  .wc-live-free-pack:hover:not(:disabled){filter:brightness(1.18);transform:translateY(-1px)}
+  .wc-live-free-pack:active:not(:disabled){transform:translateY(1px)}
+  .wc-live-free-pack:focus-visible{outline:2px solid #85c9f1;outline-offset:2px}
+  .wc-live-free-pack img{width:clamp(29px,2.55vw,42px);height:clamp(29px,2.55vw,42px);object-fit:contain;filter:drop-shadow(0 3px 4px #000)}
+  .wc-live-free-pack span{display:grid;gap:3px;min-width:0}
+  .wc-live-free-pack b{display:block;color:#ffe09a;font:900 clamp(8px,.68vw,11px)/1 Georgia,serif;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+  .wc-live-free-pack small{display:block;color:#9fb7c8;font:800 clamp(5px,.48vw,8px)/1.15 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+  .wc-live-free-pack.is-claimed{border-color:#4c8b67;background:linear-gradient(180deg,rgba(25,68,48,.97),rgba(7,25,18,.98));cursor:default;filter:none}
+  .wc-live-free-pack.is-claimed b{color:#bff0c9}.wc-live-free-pack.is-claimed small{color:#7eb491}
+  .wc-live-free-pack.is-busy{opacity:.68;cursor:wait}
+
   @media(max-width:760px){
     .world-cup-live-lobby{padding:1vw}.world-cup-live-lobby-stage{width:99vw}
     .wc-live-player{padding:4px 5px;gap:4px}.wc-live-chat-log{padding:3px}.wc-live-chat-form{gap:3px}.wc-live-chat-input,.wc-live-chat-send{height:23px}
@@ -2760,12 +2775,10 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 <div aria-label="Repo Sports World Cup event information" class="world-cup-event-hub">
 <div class="world-cup-event-layout">
 <div class="world-cup-event-panel world-cup-event-panel-fixtures">
-<img alt="Repo Sports World Cup quarter-final fixtures — Friday 21st August" class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-quarter-finals-20260821.png"/>
-<div aria-label="Friday 21st August World Cup quarter-final live rooms" class="world-cup-board-fixture-hotspots">
-<button aria-label="Zafran vs Rovarn — 9pm at Warmvein Arena" class="world-cup-board-fixture-hotspot" data-fixture-id="qf-zafran-rovarn" style="--x:4.3%;--y:39.2%;--w:91.4%;--h:13.7%" type="button">Zafran vs Rovarn</button>
-<button aria-label="Nambara vs Lumerre — 9:30pm at Nyrgate Northern Lights Stadium" class="world-cup-board-fixture-hotspot" data-fixture-id="qf-nambara-lumerre" style="--x:4.3%;--y:52.8%;--w:91.4%;--h:13.7%" type="button">Nambara vs Lumerre</button>
-<button aria-label="Talune vs Iskandar — 10pm at Skallheim Grand Ice" class="world-cup-board-fixture-hotspot" data-fixture-id="qf-talune-iskandar" style="--x:4.3%;--y:66.4%;--w:91.4%;--h:13.7%" type="button">Talune vs Iskandar</button>
-<button aria-label="Marovar vs Norveth — 10:30pm at Hestholm Fjord Ground" class="world-cup-board-fixture-hotspot" data-fixture-id="qf-marovar-norveth" style="--x:4.3%;--y:80.0%;--w:91.4%;--h:14.4%" type="button">Marovar vs Norveth</button>
+<img alt="Repo Sports World Cup semi-finals — Sunday 23rd August" class="world-cup-event-art world-cup-event-fixtures" src="assets/repo-sports-world-cup-semi-finals-20260823.png?v=v33-86-semis-20260823"/>
+<div aria-label="Sunday 23rd August World Cup semi-final live rooms" class="world-cup-board-fixture-hotspots">
+<button aria-label="Rovarn vs Marovar — 9pm at Warmvein Arena" class="world-cup-board-fixture-hotspot" data-fixture-id="sf-rovarn-marovar" style="--x:3.2%;--y:28.0%;--w:45.8%;--h:58.0%" type="button">Rovarn vs Marovar</button>
+<button aria-label="Talune vs Lumerre — 9:30pm at Nyrgate Northern Lights Stadium" class="world-cup-board-fixture-hotspot" data-fixture-id="sf-talune-lumerre" style="--x:50.8%;--y:28.0%;--w:46.0%;--h:58.0%" type="button">Talune vs Lumerre</button>
 </div>
 <span aria-label="Welcome to Velmora" class="world-cup-fixture-nav-button world-cup-fixture-nav-button-guide" role="button" tabindex="0" title="Welcome to Velmora">
 <img alt="Welcome to Velmora" src="assets/repo-sports-world-cup-guide-button.png"/>
@@ -2799,7 +2812,7 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 <span aria-label="Sorevia" class="world-cup-country-hotspot" role="button" style="--x:54.545%;--y:74.495%;--w:8.074%;--h:11.371%" tabindex="0" title="Sorevia"></span>
 <span aria-label="Iskandar" class="world-cup-country-hotspot" role="button" style="--x:81.758%;--y:74.814%;--w:8.074%;--h:11.265%" tabindex="0" title="Iskandar"></span>
 </div>
-<button aria-label="Tune in live to the World Cup quarter-finals" class="world-cup-live-tune-button" hidden="" id="worldCupLiveTuneButton" type="button">TUNE IN! LIVE</button>
+<button aria-label="Tune in live to the World Cup semi-finals" class="world-cup-live-tune-button" hidden="" id="worldCupLiveTuneButton" type="button">TUNE IN! LIVE</button>
 <button aria-label="Open the live World Cup quarter-final draw" class="world-cup-qf-draw-button" hidden="" id="worldCupQuarterFinalDrawButton" type="button">
 <span>LIVE QUARTER FINAL DRAW</span>
 <small id="worldCupQuarterFinalDrawButtonStatus">11:30PM · LIVE DRAW</small>
@@ -2951,6 +2964,7 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 </div>
 </section>
 <div class="wc-live-match-banner" id="worldCupLiveMatchBanner">Waiting for the host · CatAsthma controls the start</div>
+<button aria-label="Claim one free Quidditch TCG pack for this semi-final" class="wc-live-free-pack" id="worldCupLiveFreePack" type="button"><img alt="" src="assets/quidditch-tcg/card-pack.png"/><span><b>FREE TCG PACK</b><small>CLAIM 1 · THIS GAME</small></span></button>
 <span aria-label="Back to World Cup hub" class="wc-live-back-hit" id="worldCupLiveBack" role="button" tabindex="0" title="Back to World Cup hub"></span>
 </div>
 </div>
@@ -5909,6 +5923,7 @@ window.__QD_HOST__={
   const chatLog = $('worldCupLiveChatLog');
   const back = $('worldCupLiveBack');
   const banner = $('worldCupLiveMatchBanner');
+  const freePack = $('worldCupLiveFreePack');
   const menuMusic = $('worldCupEventMusic');
   const lockPreview = $('worldCupFixtureLockPreview');
   const lockTeaser = $('worldCupFixtureLockTeaser');
@@ -5917,13 +5932,11 @@ window.__QD_HOST__={
   const lockCountdown = $('worldCupFixtureLockCountdown');
   const lockEnter = $('worldCupFixtureLockEnter');
   const lockBack = $('worldCupFixtureLockBack');
-  if (!overlay || !tuneButton || !lobby || !fixturePicker || !fixtureGrid || !fixturePickerClose || !fixtureDisplay || !playerList || !hostAction || !chatForm || !chatInput || !chatLog || !back || !banner || !lockPreview || !lockTeaser || !lockTitle || !lockDate || !lockCountdown || !lockEnter || !lockBack) return;
+  if (!overlay || !tuneButton || !lobby || !fixturePicker || !fixtureGrid || !fixturePickerClose || !fixtureDisplay || !playerList || !hostAction || !chatForm || !chatInput || !chatLog || !back || !banner || !freePack || !lockPreview || !lockTeaser || !lockTitle || !lockDate || !lockCountdown || !lockEnter || !lockBack) return;
 
   const FIXTURES = [
-    {id:'qf-zafran-rovarn',home:'Zafran',away:'Rovarn',date:'Friday 21st August',time:'9pm',kickoffIso:'2026-08-21T21:00:00+01:00',arena:'Warmvein Arena',arenaId:'warmvein',stage:'Quarter Final',teaser:'assets/world-cup-live-fixtures/qf-zafran-rovarn.png'},
-    {id:'qf-nambara-lumerre',home:'Nambara',away:'Lumerre',date:'Friday 21st August',time:'9:30pm',kickoffIso:'2026-08-21T21:30:00+01:00',arena:'Nyrgate Northern Lights Stadium',arenaId:'nyrgate-northern-lights',stage:'Quarter Final',teaser:'assets/world-cup-live-fixtures/qf-nambara-lumerre.png'},
-    {id:'qf-talune-iskandar',home:'Talune',away:'Iskandar',date:'Friday 21st August',time:'10pm',kickoffIso:'2026-08-21T22:00:00+01:00',arena:'Skallheim Grand Ice',arenaId:'skallheim-grand-ice',stage:'Quarter Final',teaser:'assets/world-cup-live-fixtures/qf-talune-iskandar.png'},
-    {id:'qf-marovar-norveth',home:'Marovar',away:'Norveth',date:'Friday 21st August',time:'10:30pm',kickoffIso:'2026-08-21T22:30:00+01:00',arena:'Hestholm Fjord Ground',arenaId:'hestholm-fjord',stage:'Quarter Final',teaser:'assets/world-cup-live-fixtures/qf-marovar-norveth.png'}
+    {id:'sf-rovarn-marovar',home:'Rovarn',away:'Marovar',date:'Sunday 23rd August',time:'9pm',kickoffIso:'2026-08-23T21:00:00+01:00',arena:'Skyhold Grand Summit',arenaId:'warmvein',stage:'Semi-Final',teaser:'assets/repo-sports-world-cup-semi-finals-20260823.png?v=v33-86-semis-20260823'},
+    {id:'sf-talune-lumerre',home:'Talune',away:'Lumerre',date:'Sunday 23rd August',time:'9:30pm',kickoffIso:'2026-08-23T21:30:00+01:00',arena:'Frostpine Timber Arena',arenaId:'treedesh-forest',stage:'Semi-Final',teaser:'assets/repo-sports-world-cup-semi-finals-20260823.png?v=v33-86-semis-20260823'}
   ];
   const fixtureById = id => FIXTURES.find(f=>f.id===id) || FIXTURES[0];
   const flagFor = team => `assets/world-cup-flags-transparent/${String(team).toLowerCase().replace(/[^a-z0-9]+/g,'-')}-flag.png`;
@@ -5938,6 +5951,54 @@ window.__QD_HOST__={
   let matchReal = false;
   let currentStartPayload = null;
   let selectedFixture = FIXTURES[0];
+  let freePackBusy = false;
+  const freePackClaims = new Set();
+
+  function setFreePackUi(){
+    const claimed=freePackClaims.has(selectedFixture.id);
+    freePack.disabled=freePackBusy||claimed;
+    freePack.classList.toggle('is-busy',freePackBusy);
+    freePack.classList.toggle('is-claimed',claimed);
+    const title=freePack.querySelector('b'),sub=freePack.querySelector('small');
+    if(title)title.textContent=claimed?'PACK CLAIMED ✓':(freePackBusy?'CLAIMING…':'FREE TCG PACK');
+    if(sub)sub.textContent=claimed?'1 PACK ADDED TO BANK':'CLAIM 1 · THIS GAME';
+    freePack.setAttribute('aria-label',claimed?'Free TCG pack already claimed for this semi-final':'Claim one free Quidditch TCG pack for this semi-final');
+  }
+  async function refreshFreePackClaims(){
+    let database=null;try{database=typeof db!=='undefined'?db:null}catch(_){}
+    if(!database?.rpc){setFreePackUi();return}
+    try{
+      const {data,error}=await database.rpc('get_my_world_cup_waiting_pack_claims_2026');
+      if(error)throw error;
+      freePackClaims.clear();
+      const rows=Array.isArray(data)?data:(Array.isArray(data?.claims)?data.claims:[]);
+      rows.forEach(id=>freePackClaims.add(String(id)));
+    }catch(error){console.warn('[WC LIVE] could not load waiting-room pack claims',error)}
+    setFreePackUi();
+  }
+  async function claimWaitingRoomPack(){
+    if(freePackBusy||freePackClaims.has(selectedFixture.id))return;
+    const c=currentCharacter();if(!c){addChat('WORLD CUP','Sign in before claiming your free TCG pack.',true);return}
+    let database=null;try{database=typeof db!=='undefined'?db:null}catch(_){}
+    if(!database?.rpc){addChat('WORLD CUP','Pack claim service is unavailable.',true);return}
+    freePackBusy=true;setFreePackUi();
+    try{
+      const {data,error}=await database.rpc('claim_world_cup_waiting_pack_2026',{p_fixture_id:selectedFixture.id});
+      if(error)throw error;
+      const row=Array.isArray(data)?data[0]:data;
+      freePackClaims.add(selectedFixture.id);
+      const qty=Number(row?.quantity??row?.quidditch_tcg_pack_count);
+      try{if(typeof bankState!=='undefined'&&bankState?.items)bankState.items.quidditch_tcg_pack=Number.isFinite(qty)?qty:Number(bankState.items.quidditch_tcg_pack||0)+1}catch(_){}
+      try{if(typeof character!=='undefined'&&character){character.bank_items=character.bank_items||{};character.bank_items.quidditch_tcg_pack=Number.isFinite(qty)?qty:Number(character.bank_items.quidditch_tcg_pack||0)+1}}catch(_){}
+      addChat('WORLD CUP',`Free TCG pack claimed for ${selectedFixture.home} vs ${selectedFixture.away}. Check your bank!`,true);
+      try{if(typeof renderBank==='function')renderBank()}catch(_){}
+    }catch(error){
+      console.error('[WC LIVE] free pack claim failed',error);
+      const msg=String(error?.message||'Could not claim the pack.');
+      if(/already claimed/i.test(msg)){freePackClaims.add(selectedFixture.id);addChat('WORLD CUP','You already claimed this game’s free TCG pack.',true)}
+      else addChat('WORLD CUP',msg,true);
+    }finally{freePackBusy=false;setFreePackUi()}
+  }
 
   const currentCharacter = () => {
     try { return typeof character !== 'undefined' ? character : null; }
@@ -6028,8 +6089,8 @@ window.__QD_HOST__={
 
   function renderFixture(){
     const f=selectedFixture;
-    fixtureDisplay.innerHTML=`<div class="wc-live-fixture-summary"><span class="wc-live-fixture-summary-kicker">WORLD CUP QUARTER FINAL</span><b class="wc-live-fixture-summary-match">${esc(f.home)} vs ${esc(f.away)}</b><span class="wc-live-fixture-summary-time">${esc(f.date)} · ${esc(f.time)}</span></div>`;
-    if(roomName)roomName.textContent=`QF · ${f.home} vs ${f.away} · ${f.arena||'World Cup Arena'}`;
+    fixtureDisplay.innerHTML=`<div class="wc-live-fixture-summary"><span class="wc-live-fixture-summary-kicker">WORLD CUP SEMI-FINAL</span><b class="wc-live-fixture-summary-match">${esc(f.home)} vs ${esc(f.away)}</b><span class="wc-live-fixture-summary-time">${esc(f.date)} · ${esc(f.time)}</span></div>`;
+    if(roomName)roomName.textContent=`SF · ${f.home} vs ${f.away} · ${f.arena||'World Cup Arena'}`;
   }
 
   function currentPublicLiveFixture(){
@@ -6046,7 +6107,7 @@ window.__QD_HOST__={
     tuneButton.setAttribute('aria-hidden',show?'false':'true');
     if(adminPicker){
       tuneButton.textContent='TUNE IN! LIVE';
-      tuneButton.setAttribute('aria-label','Choose a live World Cup quarter-final room');
+      tuneButton.setAttribute('aria-label','Choose a live World Cup semi-final room');
     }else if(liveFixture){
       tuneButton.textContent=`TUNE IN · ${liveFixture.home.toUpperCase()} vs ${liveFixture.away.toUpperCase()}`;
       tuneButton.setAttribute('aria-label',`Enter ${liveFixture.home} vs ${liveFixture.away} live waiting room`);
@@ -6138,7 +6199,7 @@ window.__QD_HOST__={
       time:f.time,
       arena:f.arena,
       arenaId:f.arenaId,
-      stage:f.stage||'Quarter Final',
+      stage:f.stage||'Semi-Final',
       host:payload.host||'CatAsthma',
       startedAt:Number(payload.startedAt)||Date.now(),
       realResult:payload.realResult===true
@@ -6161,7 +6222,7 @@ window.__QD_HOST__={
     addChat('WORLD CUP',`${payload.host||'CatAsthma'} started ${f.home} vs ${f.away}.`,true);
     renderFixture();
     renderHostControl();
-    const eventDetail=detail||{fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,arena:f.arena,arenaId:f.arenaId,stage:f.stage||'Quarter Final',host:payload.host||'CatAsthma',startedAt:payload.startedAt||Date.now(),realResult:payload.realResult===true};
+    const eventDetail=detail||{fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,arena:f.arena,arenaId:f.arenaId,stage:f.stage||'Semi-Final',host:payload.host||'CatAsthma',startedAt:payload.startedAt||Date.now(),realResult:payload.realResult===true};
     try { window.dispatchEvent(new CustomEvent('repo-world-cup-live-start',{detail:eventDetail})); } catch (_) {}
   }
 
@@ -6190,7 +6251,7 @@ window.__QD_HOST__={
     if(!isHost()||startInProgress||matchStarted)return;
     if(realResult&&fixtureCompleted(selectedFixture))return;
     const f=selectedFixture;
-    const payload={host:'CatAsthma',fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,arena:f.arena,arenaId:f.arenaId,stage:f.stage||'Quarter Final',startedAt:Date.now(),realResult:realResult===true};
+    const payload={host:'CatAsthma',fixtureId:f.id,fixture:`${f.home} vs ${f.away}`,home:f.home,away:f.away,date:f.date,time:f.time,arena:f.arena,arenaId:f.arenaId,stage:f.stage||'Semi-Final',startedAt:Date.now(),realResult:realResult===true};
     startInProgress=true;
     renderHostControl();
     try{
@@ -6255,7 +6316,8 @@ window.__QD_HOST__={
     matchStarted=false;matchReal=false;currentStartPayload=null;startInProgress=false;banner.classList.remove('is-started');banner.textContent=`${selectedFixture.home} vs ${selectedFixture.away} · ${selectedFixture.arena||'World Cup Arena'} · Waiting for CatAsthma to start`;
     chatLog.replaceChildren();
     overlay.classList.add('is-live-lobby-open');lobby.classList.add('is-open');lobby.setAttribute('aria-hidden','false');
-    renderHostControl();renderPlayers();
+    renderHostControl();renderPlayers();setFreePackUi();
+    void refreshFreePackClaims();
     await joinLobby();
     try { chatInput.focus({preventScroll:true}); } catch (_) {}
   }
@@ -6288,6 +6350,7 @@ window.__QD_HOST__={
   lockEnter.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(lockedFixture&&roomUnlocked(lockedFixture)){const id=lockedFixture.id;closeLockPreview();openLobby(id,true);}});
   tuneButton.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(adminTestEnabled())openFixturePicker();else{const live=currentPublicLiveFixture();if(live)requestFixture(live.id);}});
   fixturePickerClose.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();closeFixturePicker(true);});
+  freePack.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();void claimWaitingRoomPack();});
   back.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();closeLobby();});
   back.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();back.click();}});
 
@@ -6312,14 +6375,14 @@ window.__QD_HOST__={
     if(event.target.closest('#adminButton,#adminToggleTesting')) setTimeout(syncTuneButton,80);
     if(event.target.closest('#closeWorldCupEvent')){leaveLobby();closeFixturePicker(false);closeLockPreview();}
   },true);
-  window.addEventListener('repo-character-changed',()=>setTimeout(syncTuneButton,40));
+  window.addEventListener('repo-character-changed',()=>setTimeout(()=>{syncTuneButton();if(lobby.classList.contains('is-open'))void refreshFreePackClaims()},40));
   window.addEventListener('pagehide',()=>{leaveLobby();closeLockPreview();});
   setInterval(syncTuneButton,15000);
   window.RepoSportsWorldCupLive={open:openLobby,request:requestFixture,choose:openFixturePicker,close:closeLobby,start:(real=true)=>startMatch(real),sync:syncTuneButton,fixtures:FIXTURES,getSelected:()=>({...selectedFixture}),isUnlocked:roomUnlocked};
   renderFixturePicker();renderFixture();syncTuneButton();
 })();
 </script>
-<script src="world-cup-quidditch-v1.js?v=wc-qf-live-20260821-v3262"></script>
+<script src="world-cup-quidditch-v1.js?v=wc-sf-live-20260823-v3387"></script>
 <style id="repoSportsV2LaunchStyles">
 #repoSportsV2TestOverlay{position:fixed;inset:0;z-index:2147483000;background:#01050a;display:none;overflow:hidden}
 #repoSportsV2TestFrame{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transition:opacity .36s ease}

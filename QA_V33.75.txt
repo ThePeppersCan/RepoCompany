@@ -1,0 +1,34 @@
+V33.75 QA
+
+Static JavaScript syntax:
+- node --check script.js: PASS
+
+Observer audit:
+- document.body subtree observers before: 9
+- document.body subtree observers after: 0
+- document.documentElement subtree observers after: 0
+
+Patch scope:
+- script.js only
+- no index.html
+- no CSS
+- no images/audio/assets
+- no database migrations
+- no Dragon Racing files
+
+Protected systems:
+- V33.74 Endless Combat optimisations retained
+- Dragon Racing XP remains untouched/disabled
+- Dragonbound bedroom sleep placement/frame untouched
+- Keeper Marks / TCG / RCG / World Cup reward formulas untouched
+
+Manual smoke-test order recommended:
+1. Fresh homepage for 1–2 minutes.
+2. Open/close TCG Binder twice, including Hidden Cards and a style preview.
+3. Open RCG shop exterior/interior, Submit, Inspection and Collection menus.
+4. Open Foil & Fable, go exterior → interior → exterior → close.
+5. Run Endless Hordes for 10–15 minutes.
+6. Exit Combat and check homepage smoothness.
+7. Open Dragonbound, house, treats/profile, then close.
+8. Run one Dragon Racing City Circuit race (V33.73+ race files remain separate).
+9. Return homepage and run RepoPerformanceDebug.quickCheck() on the site-admin account.

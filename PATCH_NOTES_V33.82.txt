@@ -1,0 +1,6 @@
+Velmora Patch V33.82 — Calendar & Pet Visit Polish
+
+- Moved the Velmoran calendar launcher to the bottom-right of the dragon home scene.
+- Fixed household pet visits so custom pet nicknames are used reliably in the dragon home scene.
+- Added visit controls in the Bonds panel: Invite to Home / Send Home, and Allow Visits / Do Not Bring.
+- Disabling visits now suppresses auto festival visits and sends an active visitor home.

@@ -1,0 +1,31 @@
+V33.73 — Site + Dragon Racing Performance Recovery
+
+Reason:
+The recent Dragon Racing stack had accumulated two types of avoidable cost:
+1) dragon-racing-ui.js kept a document.body subtree MutationObserver alive until the Dragonbound sidebar existed. On the homepage / other games that meant unrelated DOM changes could repeatedly wake the racing UI bootstrap.
+2) the race presentation used several expensive per-frame compositing operations (full-viewport backdrop blur/mask, dynamic shadow filter values, 60fps HUD DOM writes, and non-critical race-story/camera-decision work every frame).
+
+Changes:
+- Removed the broad Dragon Racing body MutationObserver completely.
+- Dragon Racing sidebar injection is now event-driven with a short bounded retry burst when Dragonbound opens.
+- Removed the full-screen live backdrop blur/mask from the V33.67 pack-focus pass; visually similar radial focus is retained using gradients only.
+- Dynamic dragon shadows keep their movement/opacity but update at ~30fps and use state-based static blur rather than changing CSS filter values every frame.
+- Simplified per-dragon environmental light filters to avoid stacked drop-shadow compositing on every moving sprite.
+- HUD text/layout updates are capped at 20fps (still visually smooth for race time/position text).
+- Overtake/lead-change detection and camera mode decisions are sampled at ~11fps; actual camera movement remains requestAnimationFrame-smooth.
+- Dynamic pack-focus CSS variables update ~12fps instead of every frame.
+- Camera layout reads now happen before child DOM writes in the frame, reducing forced synchronous layout risk.
+- Added CSS containment to the race game.
+
+Preserved:
+- V33.69 Keeper Mark rewards and results visibility.
+- V33.70 Nambara facing fix.
+- V33.71 grounding/depth appearance.
+- V33.72 overtakes, lead changes, final-lap and photo-finish drama.
+- Existing race RNG, times, rewards, audio, camera zoom targets and progression balance.
+- Dragon Racing XP remains disabled.
+
+Files:
+- dragon-racing-ui.js
+- dragon-racing-race.js
+- dragon-racing-race.css

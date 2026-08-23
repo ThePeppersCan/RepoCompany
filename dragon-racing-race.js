@@ -1,18 +1,48 @@
 (function(){
   'use strict';
-  if(window.__dragonRacingRaceV3372)return;
-  window.__dragonRacingRaceV3372=true;
+  if(window.__dragonRacingRaceV3379)return;
+  window.__dragonRacingRaceV3379=true;
 
-  const WORLD_W=1536,WORLD_H=1024,ASSET='dragon-racing-assets/velmora-city-circuit.webp',LAPS=3,RACER_COUNT=6;
-  const RACE_MUSIC='dragon-racing-assets/audio/velmora-city-circuit.mp3';
+  const WORLD_W=1536,WORLD_H=1024,RACER_COUNT=6;
+  const DEFAULT_TRACK_ID='velmora_city_circuit';
+  const SHARED_RACE_MUSIC='dragon-racing-assets/audio/velmora-city-circuit.mp3';
+  const CANTO_RACE_MUSIC='dragon-racing-assets/audio/canto-meadow-race.mp3';
   const WING_SOUNDS=['dragon-racing-assets/audio/wing-flap-01.mp3','dragon-racing-assets/audio/wing-flap-02.mp3'];
   const CROWD_SOUND='dragon-racing-assets/audio/stadium-crowd.mp3';
   const COUNTDOWN_SOUND='dragon-racing-assets/audio/city-circuit-countdown.mp3';
-  const RACE_MUSIC_VOLUME=.36,CROWD_VOLUME=.07,COUNTDOWN_VOLUME=.45,RACE_NUMBER=1;
+  const DEFAULT_RACE_MUSIC_VOLUME=.36,CROWD_VOLUME=.07,COUNTDOWN_VOLUME=.45,RACE_NUMBER=1;
   const CITY_CIRCUIT_MARKS=[75,60,52,45,40,35];
-  const CITY_CIRCUIT_ESTIMATED_CYCLE_MS=122000;
-  const CITY_CIRCUIT_AVG_BASE_MARKS=CITY_CIRCUIT_MARKS.reduce((sum,v)=>sum+v,0)/CITY_CIRCUIT_MARKS.length;
-  const CITY_CIRCUIT_AVG_MARKS_PER_HOUR=Math.round(CITY_CIRCUIT_AVG_BASE_MARKS*(3600000/CITY_CIRCUIT_ESTIMATED_CYCLE_MS));
+  const CANTO_MEADOW_MARKS=[85,68,58,50,44,39];
+  const TRACK_CONFIGS={
+    velmora_city_circuit:{
+      id:'velmora_city_circuit',name:'Velmora City Circuit',shortName:'VELMORA CITY CIRCUIT',
+      asset:'dragon-racing-assets/velmora-city-circuit.webp',laps:3,marks:CITY_CIRCUIT_MARKS,estimatedCycleMs:122000,
+      music:SHARED_RACE_MUSIC,musicVolume:DEFAULT_RACE_MUSIC_VOLUME,crowdVolume:.07,paceMultiplier:1,cameraZoomMultiplier:1,roadBase:44,roadDepth:18,
+      checkpoints:[.055,.12,.185,.25,.315,.38,.445,.51,.575,.64,.705,.77,.835,.9,.955],
+      controlPoints:[
+        [329,630],[365,660],[420,706],[490,754],[575,793],[670,818],[770,820],[870,800],
+        [970,758],[1060,704],[1145,637],[1220,566],[1280,500],[1310,438],[1302,380],
+        [1268,335],[1215,302],[1150,276],[1080,252],[1005,226],[930,202],[850,181],
+        [775,169],[705,176],[650,195],[605,222],[565,252],[520,280],[466,306],
+        [408,330],[350,353],[304,382],[270,418],[247,458],[238,500],[242,542],
+        [258,578],[285,608],[329,630]
+      ]
+    },
+    canto_meadow_circuit:{
+      id:'canto_meadow_circuit',name:'Canto Meadow Circuit',shortName:'CANTO MEADOW CIRCUIT',
+      asset:'dragon-racing-assets/canto-meadow-circuit.webp',laps:3,marks:CANTO_MEADOW_MARKS,estimatedCycleMs:122000,
+      music:CANTO_RACE_MUSIC,musicVolume:.40,crowdVolume:.08,paceMultiplier:1.012,cameraZoomMultiplier:.965,roadBase:50,roadDepth:20,
+      checkpoints:[.055,.12,.185,.25,.315,.38,.445,.51,.575,.64,.705,.77,.835,.9,.955],
+      controlPoints:[
+        [260,650],[300,682],[360,715],[440,758],[530,795],[630,824],[740,842],[850,844],
+        [960,826],[1060,790],[1145,742],[1220,690],[1280,635],[1320,580],[1338,525],
+        [1330,474],[1300,430],[1260,394],[1205,360],[1140,329],[1070,300],[995,270],
+        [920,240],[845,210],[775,188],[710,181],[650,190],[600,212],[560,245],[535,282],
+        [505,315],[462,345],[415,370],[360,397],[315,425],[280,458],[255,495],[238,535],
+        [230,575],[235,612],[248,635],[260,650]
+      ]
+    }
+  };
   const COUNTDOWN_CUES=[{at:0,label:'3',lights:1},{at:1312,label:'2',lights:2},{at:2446,label:'1',lights:3},{at:3829,label:'GO!',lights:4}];
   const TAKEOFF_RUN_MS=720,TAKEOFF_MS=420,LAND_MS=390,LAND_RUN_MS=720;
   const FALLBACK_ANIMS={idle:[0],walk:[5,6,7],takeOff:[12,13],fly:[8,9,10,11,10,9],land:[14,15]};
@@ -32,7 +62,7 @@
     'belros':{facing:'right',fly:[8, 9, 10, 11, 10, 9],takeOff:[12, 13],land:[14, 15]},
     'marovar':{facing:'right',fly:[8, 9, 10, 11, 10, 9],takeOff:[12, 13],land:[14, 15]},
     'sorevia':{facing:'right',fly:[8, 9, 10, 11, 10, 9],takeOff:[12, 13],land:[14, 15]},
-    'iskandar':{facing:'left',fly:[8, 9, 10, 9],takeOff:[12, 13],land:[14, 15]},
+    'iskandar':{facing:'left',groundFacing:'right',airFacing:'left',takeOffFacing:'left',landFacing:'left',fly:[8, 9, 10, 9],takeOff:[12, 13],land:[14, 15]},
     'blackglass-coast':{facing:'right',fly:[8, 9, 10, 11, 10, 9],takeOff:[12, 13],land:[14, 15]},
     'skallheim':{facing:'right',fly:[8, 9, 10, 11, 10, 9],takeOff:[12, 13],land:[14, 15]},
     'hestholm-fjord':{facing:'right',fly:[8, 9, 10, 11, 10, 9],takeOff:[12, 13],land:[14, 15]},
@@ -49,10 +79,6 @@
     'ashwick-cinderbank':{facing:'right',fly:[8, 9, 10, 11, 10, 9],takeOff:[12, 13],land:[14, 15]},
   };
   const RACE_SAFE_DEFAULT_PROFILE={facing:'right',fly:[8,9,10,11,10,9],takeOff:[12,13],land:[14,15]};
-  const CHECKPOINTS=[.055,.12,.185,.25,.315,.38,.445,.51,.575,.64,.705,.77,.835,.9,.955];
-  const CONTROL_POINTS=[
-    [329,630],[365,660],[420,706],[490,754],[575,793],[670,818],[770,820],[870,800],[970,758],[1060,704],[1145,637],[1220,566],[1280,500],[1310,438],[1302,380],[1268,335],[1215,302],[1150,276],[1080,252],[1005,226],[930,202],[850,181],[775,169],[705,176],[650,195],[605,222],[565,252],[520,280],[466,306],[408,330],[350,353],[304,382],[270,418],[247,458],[238,500],[242,542],[258,578],[285,608],[329,630]
-  ];
   const AI_POOL=[
     {id:'mica',name:'Mica',breed:'lumerre',personality:'Smooth and consistent',style:'smooth'},
     {id:'pip',name:'Pip',breed:'kordesh',personality:'Energetic overtaker',style:'overtaker'},
@@ -73,7 +99,16 @@
   const lerp=(a,b,t)=>a+(b-a)*t;
   const normKey=v=>String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'guest';
   const now=()=>performance.now();
-  const state={phase:'closed',game:null,viewport:null,world:null,racers:[],player:null,raf:0,lastT:0,raceStartedAt:0,finishAt:0,keys:{up:false,down:false,left:false,right:false,boost:false},camera:{x:WORLD_W/2,y:WORLD_H/2,zoom:1,targetX:WORLD_W/2,targetY:WORLD_H/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''},samples:[],totalLength:0,debugPath:false,countdownToken:0,resultOrder:[],lapBannerTimer:0,raceMusic:null,wingAudio:[],crowdAudio:null,countdownAudio:null,nextWingAt:0,sequenceTimers:[],audioFadeToken:0,aiStatsPersisted:false,nextHudLayoutAt:0,rewardRunId:0,raceRewardSessionId:'',raceRewardPromise:null,raceRewardClaim:null,raceOrderIds:[],pendingOrderKey:'',pendingOrderAt:0,lastLeaderId:'',lastRaceEventAt:0,raceEventTimer:0,raceStory:{overtakes:0,leadChanges:0},finalLapDramaStarted:false,photoFinishHoldUntil:0,finishRevealTimer:0};
+  const state={trackId:DEFAULT_TRACK_ID,phase:'closed',game:null,viewport:null,world:null,racers:[],player:null,raf:0,lastT:0,raceStartedAt:0,finishAt:0,keys:{up:false,down:false,left:false,right:false,boost:false},camera:{x:WORLD_W/2,y:WORLD_H/2,zoom:1,targetX:WORLD_W/2,targetY:WORLD_H/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''},samples:[],totalLength:0,debugPath:false,countdownToken:0,resultOrder:[],lapBannerTimer:0,raceMusic:null,wingAudio:[],crowdAudio:null,countdownAudio:null,nextWingAt:0,sequenceTimers:[],audioFadeToken:0,aiStatsPersisted:false,nextHudLayoutAt:0,nextHudTickAt:0,nextRaceStoryAt:0,nextCameraEvalAt:0,nextFocusAt:0,rewardRunId:0,raceRewardSessionId:'',raceRewardPromise:null,raceRewardClaim:null,raceOrderIds:[],pendingOrderKey:'',pendingOrderAt:0,lastLeaderId:'',lastRaceEventAt:0,raceEventTimer:0,raceStory:{overtakes:0,leadChanges:0},finalLapDramaStarted:false,photoFinishHoldUntil:0,finishRevealTimer:0};
+
+  function activeTrack(){return TRACK_CONFIGS[state.trackId]||TRACK_CONFIGS[DEFAULT_TRACK_ID];}
+  function activeMusicVolume(){const v=Number(activeTrack().musicVolume);return Number.isFinite(v)&&v>=0?v:DEFAULT_RACE_MUSIC_VOLUME;}
+  function activeCrowdVolume(){const v=Number(activeTrack().crowdVolume);return Number.isFinite(v)&&v>=0?v:CROWD_VOLUME;}
+  function crowdTarget(lift=0){return clamp(activeCrowdVolume()+Number(lift||0),0,.16);}
+  function trackById(id){return TRACK_CONFIGS[id]||null;}
+  function activeLaps(){return Math.max(1,Number(activeTrack().laps)||3);}
+  function activeCheckpoints(){return activeTrack().checkpoints||TRACK_CONFIGS[DEFAULT_TRACK_ID].checkpoints;}
+  function activeControlPoints(){return activeTrack().controlPoints||TRACK_CONFIGS[DEFAULT_TRACK_ID].controlPoints;}
 
   function currentAccount(){
     try{if(typeof character!=='undefined'&&character?.username)return normKey(character.username);}catch(_e){}
@@ -88,7 +123,7 @@
     const dbc=raceDb();
     if(!dbc)return null;
     try{
-      const {data,error}=await dbc.rpc('dragonbound_start_race_reward',{p_track_id:'velmora_city_circuit'});
+      const {data,error}=await dbc.rpc('dragonbound_start_race_reward',{p_track_id:state.trackId});
       if(error)throw error;
       const row=Array.isArray(data)?data[0]:data;
       if(state.rewardRunId!==runId)return null;
@@ -99,18 +134,17 @@
       return null;
     }
   }
-  function marksForPosition(position){
-    const index=Math.max(0,Math.min(CITY_CIRCUIT_MARKS.length-1,(Number(position)||1)-1));
-    return CITY_CIRCUIT_MARKS[index];
+  function marksForPosition(position,trackId=state.trackId){
+    const track=trackById(trackId)||activeTrack(),payouts=track.marks||CITY_CIRCUIT_MARKS;
+    const index=Math.max(0,Math.min(payouts.length-1,(Number(position)||1)-1));
+    return Number(payouts[index])||0;
   }
-  function getRewardInfo(trackId='velmora_city_circuit'){
-    if(trackId!=='velmora_city_circuit')return null;
-    return {
-      payouts:[...CITY_CIRCUIT_MARKS],
-      averageBaseMarksPerRace:CITY_CIRCUIT_AVG_BASE_MARKS,
-      estimatedCycleMs:CITY_CIRCUIT_ESTIMATED_CYCLE_MS,
-      averageMarksPerHour:CITY_CIRCUIT_AVG_MARKS_PER_HOUR
-    };
+  function getRewardInfo(trackId=state.trackId){
+    const track=trackById(trackId);
+    if(!track)return null;
+    const payouts=[...(track.marks||[])],averageBaseMarksPerRace=payouts.reduce((sum,v)=>sum+Number(v||0),0)/Math.max(1,payouts.length);
+    const estimatedCycleMs=Math.max(1,Number(track.estimatedCycleMs)||122000);
+    return {payouts,averageBaseMarksPerRace,estimatedCycleMs,averageMarksPerHour:Math.round(averageBaseMarksPerRace*(3600000/estimatedCycleMs))};
   }
 
   function rewardBreakdownText(reward){
@@ -180,7 +214,7 @@
   }
   function saveData(data){try{localStorage.setItem(saveKey(),JSON.stringify({...data,lastSavedAt:Date.now()}));}catch(_e){}}
   function getProgression(){const s=loadSave();return {level:s.level,xp:s.xp};}
-  function getTrackStats(id='velmora_city_circuit'){const s=loadSave();return {...(s.tracks?.[id]||{})};}
+  function getTrackStats(id=state.trackId||DEFAULT_TRACK_ID){const s=loadSave();return {...(s.tracks?.[id]||{})};}
   function spriteSrc(breed,frame=8){return `assets/dragonbound/baby-dragons/${breed}/frame-${String(frame).padStart(2,'0')}.webp`;}
   function registryBreed(breed){return window.DragonboundBabyRegistry?.[breed]||null;}
   function registryFrameLookup(breed){
@@ -219,7 +253,17 @@
     if(Array.isArray(frames)&&frames.length)return frames.map(f=>({src:f.src,durationMs:Math.max(80,Number(f.durationMs)||145)}));
     return (FALLBACK_ANIMS[key]||FALLBACK_ANIMS.idle).map(frame=>({src:spriteSrc(breed,frame),durationMs:key==='walk'?185:key==='takeOff'?170:key==='land'?190:key==='fly'?145:900}));
   }
-  function nativeFacingRight(breed){return raceBreedProfile(breed).facing!=='left';}
+  function nativeFacingRight(breed,motion='fly'){
+    const profile=raceBreedProfile(breed);
+    // V33.76: some source sheets use a different native direction for ground and air frames.
+    // Iskandar's walk/idle frames face right, while its race flight/transition frames face left.
+    let facing=profile.facing;
+    if(motion==='walk'||motion==='idle')facing=profile.groundFacing||profile.facing;
+    else if(motion==='takeOff')facing=profile.takeOffFacing||profile.airFacing||profile.facing;
+    else if(motion==='land')facing=profile.landFacing||profile.airFacing||profile.facing;
+    else if(motion==='fly')facing=profile.airFacing||profile.facing;
+    return facing!=='left';
+  }
   function installRaceSpriteSafety(r){
     if(!r?.img)return;
     r.img.addEventListener('error',()=>{
@@ -231,7 +275,7 @@
   function raceSpriteQaReport(){
     return Object.keys(RACE_BREED_PROFILES).map(breed=>{
       const p=raceBreedProfile(breed),registry=registryBreed(breed);
-      return {breed,displayName:registry?.displayName||breed,facing:p.facing,flyFrames:[...p.fly],takeOffFrames:[...p.takeOff],landFrames:[...p.land],registryFacing:String(registry?.nativeFacing||''),registered:!!registry};
+      return {breed,displayName:registry?.displayName||breed,facing:p.facing,groundFacing:p.groundFacing||p.facing,airFacing:p.airFacing||p.facing,takeOffFacing:p.takeOffFacing||p.airFacing||p.facing,landFacing:p.landFacing||p.airFacing||p.facing,flyFrames:[...p.fly],takeOffFrames:[...p.takeOff],landFrames:[...p.land],registryFacing:String(registry?.nativeFacing||''),registered:!!registry};
     });
   }
   function racerMotionState(r,t){
@@ -248,9 +292,14 @@
     return'fly';
   }
   function ensureRaceAudio(){
-    if(!state.raceMusic){state.raceMusic=new Audio(RACE_MUSIC);state.raceMusic.loop=true;state.raceMusic.preload='auto';state.raceMusic.volume=RACE_MUSIC_VOLUME;}
+    const wantedMusic=activeTrack().music||SHARED_RACE_MUSIC;
+    if(!state.raceMusic||state.raceMusic.dataset?.trackSrc!==wantedMusic){
+      try{state.raceMusic?.pause();}catch(_e){}
+      state.raceMusic=new Audio(wantedMusic);state.raceMusic.loop=true;state.raceMusic.preload='auto';state.raceMusic.volume=activeMusicVolume();
+      try{state.raceMusic.dataset.trackSrc=wantedMusic;}catch(_e){}
+    }
     if(!state.wingAudio.length)state.wingAudio=WING_SOUNDS.map(src=>{const a=new Audio(src);a.preload='auto';return a;});
-    if(!state.crowdAudio){state.crowdAudio=new Audio(CROWD_SOUND);state.crowdAudio.loop=true;state.crowdAudio.preload='auto';state.crowdAudio.volume=CROWD_VOLUME;}
+    if(!state.crowdAudio){state.crowdAudio=new Audio(CROWD_SOUND);state.crowdAudio.loop=true;state.crowdAudio.preload='auto';state.crowdAudio.volume=activeCrowdVolume();}
     if(!state.countdownAudio){state.countdownAudio=new Audio(COUNTDOWN_SOUND);state.countdownAudio.preload='auto';state.countdownAudio.volume=COUNTDOWN_VOLUME;}
   }
   function fadeAudio(audio,target,ms=500){
@@ -259,9 +308,9 @@
   }
   function startRaceAudio(){
     ensureRaceAudio();
-    const a=state.raceMusic;a.volume=.23;
+    const a=state.raceMusic;a.volume=Math.max(.18,activeMusicVolume()*.64);
     try{a.currentTime=0;const p=a.play();if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(_e){}
-    const crowd=state.crowdAudio;crowd.volume=CROWD_VOLUME;
+    const crowd=state.crowdAudio;crowd.volume=activeCrowdVolume();
     try{crowd.currentTime=0;const p=crowd.play();if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(_e){}
     state.nextWingAt=now()+5000+Math.random()*5000;
   }
@@ -307,7 +356,7 @@
     ];
   }
   function buildSamples(){
-    const pts=CONTROL_POINTS.slice(0,-1),raw=[];
+    const pts=activeControlPoints().slice(0,-1),raw=[];
     for(let i=0;i<pts.length;i++){
       const p0=pts[(i-1+pts.length)%pts.length],p1=pts[i],p2=pts[(i+1)%pts.length],p3=pts[(i+2)%pts.length];
       for(let s=0;s<10;s++)raw.push(catmull(p0,p1,p2,p3,s/10));
@@ -319,7 +368,7 @@
     const p=mod1(progress),samples=state.samples,n=samples.length,idx=p*n,i=Math.floor(idx)%n,f=idx-Math.floor(idx),a=samples[i],b=samples[(i+1)%n],prev=samples[(i-1+n)%n],next=samples[(i+2)%n];
     const x=lerp(a[0],b[0],f),y=lerp(a[1],b[1],f),tx=next[0]-prev[0],ty=next[1]-prev[1],mag=Math.hypot(tx,ty)||1,nx=-ty/mag,ny=tx/mag;
     const tx2=(b[0]-a[0]),ty2=(b[1]-a[1]),ang=Math.atan2(ty2,tx2);
-    const halfWidth=44+(y/WORLD_H)*18;
+    const track=activeTrack(),halfWidth=(Number(track.roadBase)||44)+(y/WORLD_H)*(Number(track.roadDepth)||18);
     const prevAng=Math.atan2(a[1]-prev[1],a[0]-prev[0]),nextAng=Math.atan2(next[1]-b[1],next[0]-b[0]);
     let da=Math.abs(nextAng-prevAng);if(da>Math.PI)da=2*Math.PI-da;const curvature=clamp(da/.55,0,1);
     return {x,y,nx,ny,ang,halfWidth,curvature};
@@ -327,6 +376,26 @@
   function worldPoint(racer){const p=pointAt(racer.distance);return {...p,x:p.x+p.nx*p.halfWidth*racer.lateral,y:p.y+p.ny*p.halfWidth*racer.lateral};}
 
   function makeAtmosphere(){
+    const confettiColors=['#f4ce63','#ef6559','#5eb7e2','#73c686','#ffffff','#c481ff'];
+    const burstPoints=[
+      {left:18,top:32},{left:71,top:22},{left:22,top:61},{left:78,top:58},{left:57,top:76}
+    ];
+    const bursts=burstPoints.map((p,idx)=>`<div class="dragon-race-crowd-burst" style="left:${p.left}%;top:${p.top}%;--delay:${-(idx*2.1)}s;--d:${8.5+(idx%3)*1.8}s">${Array.from({length:10},(_,i)=>`<span class="dragon-race-crowd-burst-piece" style="--x:${-34+(i*7)}px;--y:${-16-(i%5)*8}px;--rot:${180+i*36}deg;background:${confettiColors[(i+idx)%confettiColors.length]}"></span>`).join('')}</div>`).join('');
+    if(activeTrack().id==='canto_meadow_circuit'){
+      const leafPalette=['#d98b2b','#b24f2f','#e7b44d','#95b857','#c7663d','#7fa84d'];
+      const leafs=Array.from({length:10},(_,i)=>{
+        const color=leafPalette[i%leafPalette.length];
+        const left=-8-(i%3)*5;
+        const top=10+(i*7)%74;
+        return `<span class="dragon-race-leaf" style="left:${left}%;top:${top}%;--delay:${-(i*1.85)}s;--d:${17+(i%4)*2.5}s;--driftY:${-18+(i%5)*9}px;--rot:${170+(i%4)*70}deg;--scale:${.72+(i%4)*.09};--travel:${28+(i%4)*9}px;--leaf:${color};"></span>`;
+      }).join('');
+      const motes=Array.from({length:20},(_,i)=>`<i class="dragon-race-sun-mote" style="left:${8+(i*9)%82}%;top:${12+(i*13)%70}%;--d:${6.2+(i%5)*1.35}s;--delay:${-(i*.75)}s;--dx:${8+(i%4)*6}px;--dy:${-10-(i%5)*5}px;--size:${2+(i%3)}px"></i>`).join('');
+      const crowdFlags=[
+        [15,27],[32,17],[50,13],[70,16],[86,31],[88,60],[73,76],[48,79],[27,72]
+      ].map((p,i)=>`<span class="dragon-race-canto-crowd-flag" style="left:${p[0]}%;top:${p[1]}%;--delay:${-(i*.72)}s;--d:${2.8+(i%3)*.45}s;--flag-a:${leafPalette[(i+1)%leafPalette.length]};--flag-b:${leafPalette[(i+3)%leafPalette.length]}"><i></i><b></b></span>`).join('');
+      const festivalGlints=Array.from({length:8},(_,i)=>`<i class="dragon-race-canto-festival-glint" style="left:${12+(i*11)%78}%;top:${20+(i*19)%59}%;--delay:${-(i*1.15)}s;--d:${7+(i%4)*1.4}s"></i>`).join('');
+      return `<div class="dragon-race-sun-glow is-canto"></div><div class="dragon-race-sun-rays is-canto"></div><div class="dragon-race-sun-motes">${motes}</div><div class="dragon-race-leaf-stream">${leafs}</div><div class="dragon-race-canto-crowd-detail">${crowdFlags}${festivalGlints}</div><div class="dragon-race-crowd-bursts">${bursts}</div>`;
+    }
     const palette=[
       {flag:'#d85e4f',trim:'#ffe3a7'},{flag:'#f2bf53',trim:'#fff3c8'},{flag:'#56a9d9',trim:'#eefaff'},
       {flag:'#74c07f',trim:'#eef9e7'},{flag:'#9b73d9',trim:'#faf0ff'},{flag:'#d95f9d',trim:'#fff1f7'}
@@ -336,22 +405,17 @@
       const color=palette[i%palette.length];
       return `<span class="dragon-race-fly-flag" style="left:${4+i*9.2}%;top:${13+(i%5)*8}%;--d:${13+(i%4)*2.4}s;--delay:${-(i*1.6)}s;--travel:${115+(i%3)*24}px;--lift:${-10-(i%4)*4}px;--sway:${2+(i%3)*1.8}deg;--flag:${color.flag};--trim:${color.trim};"></span>`;
     }).join('');
-    const confettiColors=['#f4ce63','#ef6559','#5eb7e2','#73c686','#ffffff','#c481ff'];
     const confetti=Array.from({length:24},(_,i)=>{
       const c=confettiColors[i%confettiColors.length];
       return `<span class="dragon-race-confetti" style="left:${5+(i*3.7)%90}%;top:${-12-(i%4)*3}%;--x:${-28+(i%7)*9}px;--fall:${86+(i%4)*5}%;--rot:${420+(i%5)*110}deg;--delay:${-(i*0.8)}s;--d:${11+(i%5)*1.4}s;background:${c};"></span>`;
     }).join('');
-    const burstPoints=[
-      {left:18,top:32},{left:71,top:22},{left:22,top:61},{left:78,top:58},{left:57,top:76}
-    ];
-    const bursts=burstPoints.map((p,idx)=>`<div class="dragon-race-crowd-burst" style="left:${p.left}%;top:${p.top}%;--delay:${-(idx*2.1)}s;--d:${8.5+(idx%3)*1.8}s">${Array.from({length:10},(_,i)=>`<span class="dragon-race-crowd-burst-piece" style="--x:${-34+(i*7)}px;--y:${-16-(i%5)*8}px;--rot:${180+i*36}deg;background:${confettiColors[(i+idx)%confettiColors.length]}"></span>`).join('')}</div>`).join('');
     return `<div class="dragon-race-sun-glow"></div><div class="dragon-race-sun-rays"></div><div class="dragon-race-sparkles">${sparkles}</div><div class="dragon-race-fly-flags">${flags}</div><div class="dragon-race-confetti-field">${confetti}</div><div class="dragon-race-crowd-bursts">${bursts}</div>`;
   }
 
 
   function debugSvg(){
     const pts=state.samples.filter((_,i)=>i%3===0).map(p=>`${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-    const cps=CHECKPOINTS.map((p,i)=>{const q=pointAt(p);return `<circle cx="${q.x}" cy="${q.y}" r="7"><title>CP ${i+1}</title></circle>`}).join('');
+    const cps=activeCheckpoints().map((p,i)=>{const q=pointAt(p);return `<circle cx="${q.x}" cy="${q.y}" r="7"><title>CP ${i+1}</title></circle>`}).join('');
     return `<svg class="dragon-race-debug-svg" viewBox="0 0 ${WORLD_W} ${WORLD_H}"><polyline points="${pts}"></polyline>${cps}</svg>`;
   }
 
@@ -360,9 +424,11 @@
     document.getElementById('dragon-race-sky-styles')?.remove();
     const shell=document.querySelector('#dragonRacingModal .dragon-racing-shell');if(!shell)return null;
     let game=shell.querySelector('.dragon-race-game');
-    if(game){game.querySelector('.dragon-race-sky-overlay')?.remove();state.game=game;state.viewport=game.querySelector('.dragon-race-viewport');state.world=game.querySelector('.dragon-race-world');return game;}
+    if(game&&game.dataset.trackId!==activeTrack().id){game.remove();game=null;}if(game){game.querySelector('.dragon-race-sky-overlay')?.remove();state.game=game;state.viewport=game.querySelector('.dragon-race-viewport');state.world=game.querySelector('.dragon-race-world');return game;}
     game=document.createElement('div');game.className='dragon-race-game';
-    game.innerHTML=`<div class="dragon-race-viewport"><div class="dragon-race-world"><img class="dragon-race-world-bg" src="${ASSET}" alt="Velmora City Circuit"><div class="dragon-race-atmosphere">${makeAtmosphere()}</div>${debugSvg()}<div class="dragon-race-racers"></div></div><div class="dragon-race-cinematic-pass" aria-hidden="true"></div><div class="dragon-race-tv-glass" aria-hidden="true"></div><div class="dragon-race-hud"><div class="dragon-race-hud-top"><div class="dragon-race-hud-cluster"><div class="dragon-race-hud-box is-position"><small>POSITION</small><b data-race-position>— / 6</b></div><div class="dragon-race-hud-box"><small>LAP</small><b data-race-lap>1 / 3</b></div><div class="dragon-race-hud-box"><small>TIME</small><b data-race-time>00:00.00</b></div></div><div class="dragon-race-hud-box dragon-race-hud-dragon"><img data-race-player-icon alt=""><span><strong data-race-player-name>Your Dragon</strong><em>VELMORA CITY CIRCUIT</em></span></div></div><div class="dragon-race-auto-badge"><b>LIVE AUTONOMOUS RACE</b> · Velmora Racing Network</div><div class="dragon-race-live-leaderboard" aria-label="Live race order"><div class="dragon-race-live-leaderboard-head"><span>ORDER</span><em>VRN</em></div><div class="dragon-race-live-leaderboard-list"></div></div><div class="dragon-race-lap-banner"></div><div class="dragon-race-event-callout" aria-live="polite"><small data-race-event-kicker></small><b data-race-event-text></b></div><div class="dragon-race-exit" role="button" tabindex="0">EXIT RACE</div></div><div class="dragon-race-broadcast-title"><small>LIVE FROM VELMORA</small><b>VELMORA CITY CIRCUIT</b><em>RACE ${RACE_NUMBER}</em></div><div class="dragon-race-start-lights" aria-hidden="true"><i></i><i></i><i></i></div><div class="dragon-race-camera-cut" aria-hidden="true"></div><div class="dragon-race-countdown"><b></b></div></div><div class="dragon-race-results"><div class="dragon-race-results-card"></div></div>`;
+    const track=activeTrack();
+    game.dataset.trackId=track.id;
+    game.innerHTML=`<div class="dragon-race-viewport"><div class="dragon-race-world"><img class="dragon-race-world-bg" src="${track.asset}" alt="${escapeRaceText(track.name)}"><div class="dragon-race-atmosphere ${track.id==='canto_meadow_circuit'?'is-canto':''}">${makeAtmosphere()}</div>${debugSvg()}<div class="dragon-race-racers"></div></div><div class="dragon-race-cinematic-pass" aria-hidden="true"></div><div class="dragon-race-tv-glass" aria-hidden="true"></div><div class="dragon-race-hud"><div class="dragon-race-hud-top"><div class="dragon-race-hud-cluster"><div class="dragon-race-hud-box is-position"><small>POSITION</small><b data-race-position>— / 6</b></div><div class="dragon-race-hud-box"><small>LAP</small><b data-race-lap>1 / ${activeLaps()}</b></div><div class="dragon-race-hud-box"><small>TIME</small><b data-race-time>00:00.00</b></div></div><div class="dragon-race-hud-box dragon-race-hud-dragon"><img data-race-player-icon alt=""><span><strong data-race-player-name>Your Dragon</strong><em>${track.shortName}</em></span></div></div><div class="dragon-race-auto-badge"><b>LIVE AUTONOMOUS RACE</b> · Velmora Racing Network</div><div class="dragon-race-live-leaderboard" aria-label="Live race order"><div class="dragon-race-live-leaderboard-head"><span>ORDER</span><em>VRN</em></div><div class="dragon-race-live-leaderboard-list"></div></div><div class="dragon-race-lap-banner"></div><div class="dragon-race-event-callout" aria-live="polite"><small data-race-event-kicker></small><b data-race-event-text></b></div><div class="dragon-race-exit" role="button" tabindex="0">EXIT RACE</div></div><div class="dragon-race-broadcast-title"><small>LIVE FROM VELMORA</small><b>${track.shortName}</b><em>RACE ${RACE_NUMBER}</em></div><div class="dragon-race-start-lights" aria-hidden="true"><i></i><i></i><i></i></div><div class="dragon-race-camera-cut" aria-hidden="true"></div><div class="dragon-race-countdown"><b></b></div></div><div class="dragon-race-results"><div class="dragon-race-results-card"></div></div>`;
     shell.appendChild(game);state.game=game;state.viewport=game.querySelector('.dragon-race-viewport');state.world=game.querySelector('.dragon-race-world');
     const exit=game.querySelector('.dragon-race-exit');bindAction(exit,()=>exitToTrackSelect());
     return game;
@@ -428,7 +494,7 @@
     const raceLuck=(Math.random()-.5)*.064; // ±3.2%
     const style=identity?.style||'neutral';
     return {
-      base:.0265*(1+raceLuck+extraBias),raceLuck,extraBias,style,
+      base:.0265*(Number(activeTrack().paceMultiplier)||1)*(1+raceLuck+extraBias),raceLuck,extraBias,style,
       targetLane:(Math.random()-.5)*(style==='cautious'?.45:.72),laneAt:0,surge:0,surgeAt:0,
       mistake:style==='smooth'?.47:style==='cautious'?.44:Math.random(),boost:100,boostUntil:0,boostCooldown:700+Math.random()*1800
     };
@@ -504,7 +570,7 @@
       holder.appendChild(el);r.el=el;r.img=el.querySelector('img');r.spriteWrap=el.querySelector('.dragon-race-racer-sprite-wrap');r.shadow=el.querySelector('.dragon-race-flight-shadow');r.tag=el.querySelector('.dragon-race-racer-tag');r.trail=el.querySelector('.dragon-race-speed-trail');
       r.raceSpriteProfile=raceBreedProfile(r.breed);el.dataset.raceBreed=r.breed;el.dataset.raceFacing=r.raceSpriteProfile.facing;installRaceSpriteSafety(r);
       const altitudeSeed=((index*37)%9)-4;
-      r.visual={bank:0,lean:0,lastLateral:r.lateral,lastSpeed:0,lastAt:0,bobPhase:Math.random()*Math.PI*2,altitudeBias:altitudeSeed*.42};
+      r.visual={bank:0,lean:0,lastLateral:r.lateral,lastSpeed:0,lastAt:0,bobPhase:Math.random()*Math.PI*2,altitudeBias:altitudeSeed*.42,nextShadowAt:0};
     });
     initLeaderboard();
     const hudImg=state.game.querySelector('[data-race-player-icon]');if(hudImg)hudImg.src=playerInfo.sprite;
@@ -594,7 +660,7 @@
     state.finalLapDramaStarted=true;
     state.game?.classList.add('is-final-lap');
     showRaceEvent('FINAL LAP',`${leader?.name||'THE LEADER'} LEADS THE FIELD`,'final',true);
-    if(state.crowdAudio)fadeAudio(state.crowdAudio,.085,780);
+    if(state.crowdAudio)fadeAudio(state.crowdAudio,crowdTarget(.015),780);
   }
   function triggerPhotoFinish(a,b,t){
     if(state.camera.photoFinishDone)return;
@@ -603,7 +669,7 @@
     state.game?.classList.add('is-photo-finish');
     setCameraMode('photoFinish',1900,true,[a.id,b.id]);
     showRaceEvent('PHOTO FINISH',`${a.name} · ${b.name}`,'photo',true);
-    if(state.crowdAudio)fadeAudio(state.crowdAudio,.095,260);
+    if(state.crowdAudio)fadeAudio(state.crowdAudio,crowdTarget(.025),260);
   }
   function scheduleResultsReveal(){
     clearTimeout(state.finishRevealTimer);
@@ -630,14 +696,14 @@
   function setStartingLights(count){const lights=state.game?.querySelector('.dragon-race-start-lights');if(!lights)return;lights.classList.add('is-visible');lights.classList.toggle('is-go',count>=4);[...lights.querySelectorAll('i')].forEach((el,i)=>el.classList.toggle('is-on',i<count&&count<4));}
   function beginCountdown(token=state.countdownToken){
     if(token!==state.countdownToken)return;setPhase('countdown');
-    const el=state.game.querySelector('.dragon-race-countdown'),b=el.querySelector('b');setStartingLights(0);ensureRaceAudio();fadeAudio(state.raceMusic,RACE_MUSIC_VOLUME*.70,420);playCountdownAudio();
+    const el=state.game.querySelector('.dragon-race-countdown'),b=el.querySelector('b');setStartingLights(0);ensureRaceAudio();fadeAudio(state.raceMusic,activeMusicVolume()*.70,420);playCountdownAudio();
     COUNTDOWN_CUES.forEach((cue,index)=>queueSequence(()=>{
       if(state.phase!=='countdown')return;b.textContent=cue.label;el.classList.remove('is-pop');void el.offsetWidth;el.classList.add('is-pop');setStartingLights(cue.lights);
       if(index===COUNTDOWN_CUES.length-1){
         setPhase('racing');state.raceStartedAt=now();state.racers.forEach(r=>{r.lapStartedAt=state.raceStartedAt;r.takeoffDelay=Math.random()*400;});
         state.camera.nextDecisionAt=state.raceStartedAt+2200;state.camera.nextEventAt=state.raceStartedAt+5000;setCameraMode('follow',0,false);
-        fadeAudio(state.raceMusic,RACE_MUSIC_VOLUME,1000);
-        if(state.crowdAudio){state.crowdAudio.volume=.10;queueSequence(()=>{if(state.crowdAudio)state.crowdAudio.volume=CROWD_VOLUME;},900,token);}
+        fadeAudio(state.raceMusic,activeMusicVolume(),1000);
+        if(state.crowdAudio){state.crowdAudio.volume=crowdTarget(.03);queueSequence(()=>{if(state.crowdAudio)state.crowdAudio.volume=activeCrowdVolume();},900,token);}
         queueSequence(()=>{b.textContent='';el.classList.remove('is-pop');state.game?.querySelector('.dragon-race-start-lights')?.classList.remove('is-visible','is-go');},850,token);
       }
     },cue.at,token));
@@ -695,11 +761,11 @@
     r.distance+=r.speed*dt;
   }
   function updateCheckpointAndLap(r,t){
-    if(r.finished||r.distance<0)return;const completed=Math.floor(Math.max(0,r.distance));const frac=mod1(r.distance);while(r.nextCp<CHECKPOINTS.length&&frac>=CHECKPOINTS[r.nextCp]&&completed===r.lastLapCross){r.nextCp++;}
+    if(r.finished||r.distance<0)return;const completed=Math.floor(Math.max(0,r.distance));const frac=mod1(r.distance);while(r.nextCp<activeCheckpoints().length&&frac>=activeCheckpoints()[r.nextCp]&&completed===r.lastLapCross){r.nextCp++;}
     if(completed>r.lastLapCross){
-      if(r.nextCp>=CHECKPOINTS.length){const lapMs=t-r.lapStartedAt;r.bestLapMs=!r.bestLapMs?lapMs:Math.min(r.bestLapMs,lapMs);r.lapStartedAt=t;r.lastLapCross=completed;r.nextCp=0;if(r.isPlayer&&completed<LAPS&&completed!==LAPS-1)showLapBanner(`LAP ${completed+1} / ${LAPS}`);}else{r.lastLapCross=completed;r.nextCp=0;}
+      if(r.nextCp>=activeCheckpoints().length){const lapMs=t-r.lapStartedAt;r.bestLapMs=!r.bestLapMs?lapMs:Math.min(r.bestLapMs,lapMs);r.lapStartedAt=t;r.lastLapCross=completed;r.nextCp=0;if(r.isPlayer&&completed<activeLaps()&&completed!==activeLaps()-1)showLapBanner(`LAP ${completed+1} / ${activeLaps()}`);}else{r.lastLapCross=completed;r.nextCp=0;}
     }
-    if(r.distance>=LAPS&&!r.finished){
+    if(r.distance>=activeLaps()&&!r.finished){
       r.finished=true;r.finishMs=t-state.raceStartedAt;r.finishAnimAt=t;state.resultOrder.push(r);
       if(state.resultOrder.length===2&&!state.camera.photoFinishDone){const gap=Math.abs(state.resultOrder[1].finishMs-state.resultOrder[0].finishMs);if(gap<=250)triggerPhotoFinish(state.resultOrder[0],state.resultOrder[1],t);}
       if(r.isPlayer)onPlayerFinish(t);
@@ -709,12 +775,12 @@
 
   function renderRacer(r,t){
     const p=worldPoint(r),motion=racerMotionState(r,t),lift=motion==='fly'?-77:motion==='takeOff'||motion==='land'?-73:-68;
-    const visual=r.visual||(r.visual={bank:0,lean:0,lastLateral:r.lateral,lastSpeed:r.speed||0,lastAt:t,bobPhase:Math.random()*Math.PI*2,altitudeBias:0});
+    const visual=r.visual||(r.visual={bank:0,lean:0,lastLateral:r.lateral,lastSpeed:r.speed||0,lastAt:t,bobPhase:Math.random()*Math.PI*2,altitudeBias:0,nextShadowAt:0});
     const perspectiveScale=.69+(p.y/WORLD_H)*.42;
     const altitudeOffset=motion==='fly'?visual.altitudeBias:motion==='takeOff'||motion==='land'?visual.altitudeBias*.42:0;
     r.el.style.left=`${p.x}px`;r.el.style.top=`${p.y}px`;r.el.style.transform=`translate(-50%,${lift}%) translateY(${altitudeOffset.toFixed(2)}px) scale(${perspectiveScale.toFixed(3)})`;r.el.style.zIndex=String(20+Math.round(p.y/9)+(r.isPlayer?20:0));
     r.el.classList.toggle('is-flying',motion==='fly');r.el.classList.toggle('is-taking-off',motion==='takeOff');r.el.classList.toggle('is-landing',motion==='land');
-    const movingRight=Math.cos(p.ang)>=0,nativeRight=nativeFacingRight(r.breed);r.el.classList.toggle('is-flipped',movingRight!==nativeRight);
+    const movingRight=Math.cos(p.ang)>=0,nativeRight=nativeFacingRight(r.breed,motion);r.el.classList.toggle('is-flipped',movingRight!==nativeRight);
 
     const visualDt=clamp((t-(visual.lastAt||t))/1000,.001,.05),before=pointAt(r.distance-.006),after=pointAt(r.distance+.006);
     const signedTurn=normalizeAngle(after.ang-before.ang),laneVelocity=(r.lateral-visual.lastLateral)/visualDt,baseSpeed=Math.max(.0001,r.ai?.base||.0265),speedRatio=(r.speed||0)/baseSpeed;
@@ -724,23 +790,19 @@
     visual.lean=lerp(visual.lean,leanTarget,clamp(visualDt*4.2,0,1));
     const bob=motion==='fly'?Math.sin(t/235+visual.bobPhase)*1.35:0;
     if(r.spriteWrap){r.spriteWrap.style.setProperty('--flight-bank',`${visual.bank.toFixed(2)}deg`);r.spriteWrap.style.setProperty('--flight-lean',`${visual.lean.toFixed(2)}deg`);r.spriteWrap.style.setProperty('--flight-bob',`${bob.toFixed(2)}px`);}
-    if(r.shadow){
+    if(r.shadow&&t>=(visual.nextShadowAt||0)){
       const airborne=motion==='fly',transitioning=motion==='takeOff'||motion==='land';
       const lag=airborne?5.2+Math.max(0,speedRatio-1)*18:transitioning?3.2:1.6;
       const shadowX=-Math.cos(p.ang)*lag,shadowY=-Math.sin(p.ang)*lag+4.2;
       const speedStretch=clamp(1.02+Math.max(0,speedRatio-1)*2.8,1.02,1.16);
-      const heightSoftness=airborne?4.2+Math.max(0,-altitudeOffset)*.24:transitioning?3.0:2.0;
       const shadowOpacity=airborne?.30:transitioning?.36:.40;
-      r.shadow.style.setProperty('--shadow-x',`${shadowX.toFixed(2)}px`);
-      r.shadow.style.setProperty('--shadow-y',`${shadowY.toFixed(2)}px`);
-      r.shadow.style.setProperty('--shadow-angle',`${(p.ang*180/Math.PI).toFixed(1)}deg`);
-      r.shadow.style.setProperty('--shadow-stretch',speedStretch.toFixed(3));
-      r.shadow.style.setProperty('--shadow-blur',`${heightSoftness.toFixed(2)}px`);
-      r.shadow.style.setProperty('--shadow-opacity',shadowOpacity.toFixed(2));
+      r.shadow.style.transform=`translate(calc(-50% + ${shadowX.toFixed(2)}px),${shadowY.toFixed(2)}px) rotate(${(p.ang*180/Math.PI).toFixed(1)}deg) scaleX(${speedStretch.toFixed(3)})`;
+      r.shadow.style.opacity=shadowOpacity.toFixed(2);
+      visual.nextShadowAt=t+32;
     }
     visual.lastLateral=r.lateral;visual.lastSpeed=r.speed||0;visual.lastAt=t;
 
-    const finalPush=r.distance>=LAPS-.14,bursting=t<(r.ai?.boostUntil||0)||(r.ai?.surge||0)>.0105||speedRatio>1.032;
+    const finalPush=r.distance>=activeLaps()-.14,bursting=t<(r.ai?.boostUntil||0)||(r.ai?.surge||0)>.0105||speedRatio>1.032;
     const speedFx=motion==='fly'&&(finalPush||bursting);
     r.el.classList.toggle('is-speeding',speedFx);
     if(r.trail)r.trail.style.transform=`translate(-100%,-50%) rotate(${(p.ang*180/Math.PI).toFixed(1)}deg)`;
@@ -752,7 +814,7 @@
     else if(current?.src&&!r.img.getAttribute('src'))r.img.src=current.src;
   }
   function standings(){return state.racers.slice().sort((a,b)=>{if(a.finished&&b.finished)return a.finishMs-b.finishMs;if(a.finished)return-1;if(b.finished)return 1;return b.distance-a.distance;});}
-  function updateHud(t){const order=standings(),rank=Math.max(1,order.findIndex(r=>r.isPlayer)+1),p=state.player;const pos=state.game.querySelector('[data-race-position]'),lap=state.game.querySelector('[data-race-lap]'),time=state.game.querySelector('[data-race-time]');if(pos)pos.textContent=`${rank} / ${RACER_COUNT}`;if(lap)lap.textContent=`${Math.min(LAPS,Math.floor(Math.max(0,p.distance))+1)} / ${LAPS}`;if(time)time.textContent=formatTime(state.raceStartedAt?t-state.raceStartedAt:0);if(t>=state.nextHudLayoutAt){updateLeaderboard(order,t);updateNameplates(order);state.nextHudLayoutAt=t+90;}}
+  function updateHud(t){if(t<(state.nextHudTickAt||0))return;state.nextHudTickAt=t+50;const order=standings(),rank=Math.max(1,order.findIndex(r=>r.isPlayer)+1),p=state.player;const pos=state.game.querySelector('[data-race-position]'),lap=state.game.querySelector('[data-race-lap]'),time=state.game.querySelector('[data-race-time]');if(pos)pos.textContent=`${rank} / ${RACER_COUNT}`;if(lap)lap.textContent=`${Math.min(activeLaps(),Math.floor(Math.max(0,p.distance))+1)} / ${activeLaps()}`;if(time)time.textContent=formatTime(state.raceStartedAt?t-state.raceStartedAt:0);if(t>=state.nextHudLayoutAt){updateLeaderboard(order,t);updateNameplates(order);state.nextHudLayoutAt=t+90;}}
   function racerById(id){return state.racers.find(r=>r.id===id)||null;}
   function meanWorld(racers){const pts=(racers||[]).filter(Boolean).map(worldPoint);if(!pts.length)return{x:WORLD_W/2,y:WORLD_H/2};return{x:pts.reduce((s,p)=>s+p.x,0)/pts.length,y:pts.reduce((s,p)=>s+p.y,0)/pts.length};}
 
@@ -814,8 +876,8 @@
     const cam=state.camera,order=standings(),active=order.filter(r=>!r.finished);
     if(!active.length)return;
     const leader=active[0],leaderLap=Math.floor(Math.max(0,leader.distance))+1;
-    if(!cam.finalLapShown&&leaderLap>=LAPS){cam.finalLapShown=true;startFinalLapDrama(leader,t);setCameraMode('finalLeader',2200,true,[leader.id]);cam.nextEventAt=t+5900;return;}
-    if(!cam.finalStraightShown&&leader.distance>=LAPS-0.13){cam.finalStraightShown=true;setCameraMode('finalStraight',5200,false);if(state.crowdAudio)fadeAudio(state.crowdAudio,.092,520);cam.nextEventAt=t+7000;return;}
+    if(!cam.finalLapShown&&leaderLap>=activeLaps()){cam.finalLapShown=true;startFinalLapDrama(leader,t);setCameraMode('finalLeader',2200,true,[leader.id]);cam.nextEventAt=t+5900;return;}
+    if(!cam.finalStraightShown&&leader.distance>=activeLaps()-0.13){cam.finalStraightShown=true;setCameraMode('finalStraight',5200,false);if(state.crowdAudio)fadeAudio(state.crowdAudio,crowdTarget(.022),520);cam.nextEventAt=t+7000;return;}
     if(cam.eventUntil&&t<cam.eventUntil)return;
     if(cam.eventUntil&&t>=cam.eventUntil){cam.eventUntil=0;cam.mode='follow';cam.subjectIds=[];}
     if(t<cam.nextDecisionAt)return;
@@ -828,14 +890,14 @@
     }
     if(battle&&battleGap<.0058){setCameraMode('closeBattle',3800,false,battle.map(r=>r.id));cam.nextEventAt=t+9000;return;}
     const spread=active.length>1?Math.max(...active.map(r=>r.distance))-Math.min(...active.map(r=>r.distance)):0;
-    if(spread>.26&&leaderLap<3&&Math.random()<.08){setCameraMode('widePack',1650,false);cam.nextEventAt=t+9800;return;}
+    if(spread>.26&&leaderLap<activeLaps()&&Math.random()<.08){setCameraMode('widePack',1650,false);cam.nextEventAt=t+9800;return;}
     if(Math.random()<.035){setCameraMode('panAhead',1900,false);cam.nextEventAt=t+9800;return;}
     cam.mode='follow';
     cam.nextEventAt=t+4600;
   }
   function updateCamera(dt,t){
     if(!state.viewport||!state.world)return;
-    const width=Math.max(1,state.viewport.clientWidth),height=Math.max(1,state.viewport.clientHeight),baseScale=Math.min(width/WORLD_W,height/WORLD_H),target=cameraTarget(t),cam=state.camera;
+    const width=Math.max(1,state.viewport.clientWidth),height=Math.max(1,state.viewport.clientHeight),baseScale=Math.min(width/WORLD_W,height/WORLD_H),target=cameraTarget(t),cam=state.camera;target.zoom*=Number(activeTrack().cameraZoomMultiplier)||1;
     const posEase=1-Math.exp(-dt*(cam.mode==='ceremonyWide'?1.05:cam.mode==='grid'?1.6:2.16));
     const zoomEase=1-Math.exp(-dt*(cam.mode==='follow'?1.6:1.68));
     const driftStrength=(state.phase==='racing'||state.phase==='player_finished') ? (cam.mode==='follow' ? 1 : (cam.mode==='closeBattle' ? .9 : (cam.mode==='panAhead' ? .75 : (cam.mode==='widePack' ? .55 : .45)))) : 0;
@@ -849,12 +911,14 @@
     x=clamp(x,width-worldW,0);
     y=clamp(y,height-worldH,0);
     state.world.style.transform=`translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${scale.toFixed(4)})`;
-    updateViewportFocus(width,height,scale,x,y);
+    updateViewportFocus(width,height,scale,x,y,t);
   }
 
 
-  function updateViewportFocus(width,height,scale,offsetX,offsetY){
+  function updateViewportFocus(width,height,scale,offsetX,offsetY,t){
     if(!state.viewport)return;
+    if(t<(state.nextFocusAt||0))return;
+    state.nextFocusAt=t+84;
     let focusX=width*.5,focusY=height*.5,focusRx=width*.29,focusRy=height*.26;
     if(state.phase==='racing'||state.phase==='player_finished'){
       const order=standings();
@@ -879,7 +943,7 @@
 
   function onPlayerFinish(t){state.phase='player_finished';state.finishAt=t;const p=state.player,rank=standings().findIndex(r=>r.isPlayer)+1;persistResult(p,rank);showLapBanner(`${ordinal(rank)} PLACE · FINISH`);scheduleResultsReveal();}
   function persistResult(player,rank){
-    const data=loadSave(),tracks=data.tracks||(data.tracks={}),s=tracks.velmora_city_circuit||(tracks.velmora_city_circuit={races:0,wins:0,podiums:0,bestTimeMs:0,bestLapMs:0});s.races=(Number(s.races)||0)+1;if(rank===1)s.wins=(Number(s.wins)||0)+1;if(rank<=3)s.podiums=(Number(s.podiums)||0)+1;if(!s.bestTimeMs||player.finishMs<s.bestTimeMs)s.bestTimeMs=Math.round(player.finishMs);if(player.bestLapMs&&(!s.bestLapMs||player.bestLapMs<s.bestLapMs))s.bestLapMs=Math.round(player.bestLapMs);s.lastFinishPosition=rank;s.lastFinishTimeMs=Math.round(player.finishMs);s.updatedAt=Date.now();data.level=Math.max(1,Number(data.level)||1);data.xp=Math.max(0,Number(data.xp)||0);saveData(data);
+    const data=loadSave(),tracks=data.tracks||(data.tracks={}),trackId=state.trackId||DEFAULT_TRACK_ID,s=tracks[trackId]||(tracks[trackId]={races:0,wins:0,podiums:0,bestTimeMs:0,bestLapMs:0});s.races=(Number(s.races)||0)+1;if(rank===1)s.wins=(Number(s.wins)||0)+1;if(rank<=3)s.podiums=(Number(s.podiums)||0)+1;if(!s.bestTimeMs||player.finishMs<s.bestTimeMs)s.bestTimeMs=Math.round(player.finishMs);if(player.bestLapMs&&(!s.bestLapMs||player.bestLapMs<s.bestLapMs))s.bestLapMs=Math.round(player.bestLapMs);s.lastFinishPosition=rank;s.lastFinishTimeMs=Math.round(player.finishMs);s.updatedAt=Date.now();data.level=Math.max(1,Number(data.level)||1);data.xp=Math.max(0,Number(data.xp)||0);saveData(data);
     // V33.47 intentionally does NOT grant Dragon Racing XP yet.
   }
   function persistAiResults(order){
@@ -891,15 +955,15 @@
     state.game?.classList.remove('is-final-lap','is-photo-finish');
     hideRaceEvent();
     stopTransientRaceAudio(true);
-    fadeAudio(state.raceMusic,RACE_MUSIC_VOLUME*.92,700);
-    if(state.crowdAudio)fadeAudio(state.crowdAudio,CROWD_VOLUME,500);
+    fadeAudio(state.raceMusic,activeMusicVolume()*.92,700);
+    if(state.crowdAudio)fadeAudio(state.crowdAudio,activeCrowdVolume(),500);
 
     const elapsed=now()-state.raceStartedAt;
     for(const r of state.racers){
       if(r.finished)continue;
-      const remaining=Math.max(0,LAPS-r.distance),projected=remaining/Math.max(.021,r.speed||.024)*1000;
+      const remaining=Math.max(0,activeLaps()-r.distance),projected=remaining/Math.max(.021,r.speed||.024)*1000;
       r.finished=true;r.finishMs=elapsed+projected;
-      if(!r.bestLapMs)r.bestLapMs=Math.max(1,r.finishMs/LAPS);
+      if(!r.bestLapMs)r.bestLapMs=Math.max(1,r.finishMs/activeLaps());
     }
 
     const results=state.game.querySelector('.dragon-race-results');
@@ -910,7 +974,7 @@
     const leader=order[0]||p;
     const playerInfo=getPlayerInfo();
     const previous={...(state.preRaceTrackStats||{})};
-    const current=getTrackStats();
+    const current=getTrackStats(state.trackId);
     const startPosition=Math.max(1,(Number(p.slot)||0)+1);
     const positionDelta=startPosition-rank;
     const quickestLap=Math.min(...order.map(r=>Number(r.bestLapMs)||Infinity).filter(Number.isFinite));
@@ -964,7 +1028,7 @@
         <div class="dragon-race-result-dragon">
           <img src="${escapeRaceText(playerInfo.sprite)}" alt="">
           <div>
-            <small>VELMORA CITY CIRCUIT</small>
+            <small>${escapeRaceText(activeTrack().shortName)}</small>
             <h2>${escapeRaceText(p.name)}</h2>
             <p>${status}</p>
           </div>
@@ -1012,18 +1076,18 @@
 
     results.classList.remove('is-visible');
     requestAnimationFrame(()=>results.classList.add('is-visible'));
-    bindAction(card.querySelector('[data-race-again]'),()=>start({id:'velmora_city_circuit'}));
+    bindAction(card.querySelector('[data-race-again]'),()=>start({id:state.trackId}));
     bindAction(card.querySelector('[data-race-track-select]'),()=>exitToTrackSelect());
     bindAction(card.querySelector('[data-race-leave]'),()=>{stop();window.DragonRacingUi?.close?.();});
     const rewardRunId=state.rewardRunId;
     void claimRaceReward(rank,p.finishMs,p.bestLapMs,card,rewardRunId);
   }
 
-  function loop(t){if(!state.game||state.phase==='closed')return;state.raf=requestAnimationFrame(loop);const dt=Math.min(.05,Math.max(0,(t-state.lastT)/1000)||.016);state.lastT=t;if(state.phase==='racing'||state.phase==='player_finished'){for(const r of state.racers){if(r.finished)continue;autoRacerUpdate(r,dt,t);updateCheckpointAndLap(r,t);}separateRacers();detectRaceEvents(t);maybePlayWingSound(t);evaluateCamera(t);}for(const r of state.racers)renderRacer(r,t);updateHud(t);updateCamera(dt,t);}
+  function loop(t){if(!state.game||state.phase==='closed')return;state.raf=requestAnimationFrame(loop);const dt=Math.min(.05,Math.max(0,(t-state.lastT)/1000)||.016);state.lastT=t;if(state.phase==='racing'||state.phase==='player_finished'){for(const r of state.racers){if(r.finished)continue;autoRacerUpdate(r,dt,t);updateCheckpointAndLap(r,t);}separateRacers();if(t>=(state.nextRaceStoryAt||0)){detectRaceEvents(t);state.nextRaceStoryAt=t+90;}maybePlayWingSound(t);if(t>=(state.nextCameraEvalAt||0)){evaluateCamera(t);state.nextCameraEvalAt=t+90;}}updateCamera(dt,t);for(const r of state.racers)renderRacer(r,t);updateHud(t);}
 
-  function start(track={id:'velmora_city_circuit'}){
-    if(track.id&&track.id!=='velmora_city_circuit')return false;stop(false);const progression=loadSave();saveData(progression);state.preRaceTrackStats=getTrackStats();if(!state.samples.length)buildSamples();const game=ensureGame();if(!game)return false;
-    document.getElementById('dragonRacingModal')?.classList.add('is-race-active');game.querySelector('.dragon-race-results')?.classList.remove('is-visible');game.classList.toggle('is-debug-path',state.debugPath);createRacers();setPhase('setup');state.resultOrder=[];state.finishAt=0;state.aiStatsPersisted=false;state.nextHudLayoutAt=0;state.raceOrderIds=[];state.pendingOrderKey='';state.pendingOrderAt=0;state.lastLeaderId='';state.lastRaceEventAt=0;state.raceStory={overtakes:0,leadChanges:0};state.finalLapDramaStarted=false;state.photoFinishHoldUntil=0;clearTimeout(state.finishRevealTimer);state.finishRevealTimer=0;clearTimeout(state.raceEventTimer);state.raceEventTimer=0;game.classList.remove('is-final-lap','is-photo-finish');hideRaceEvent();state.camera={x:WORLD_W/2,y:WORLD_H/2,zoom:1,targetX:WORLD_W/2,targetY:WORLD_H/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''};state.keys={up:false,down:false,left:false,right:false,boost:false};const rewardRunId=++state.rewardRunId;state.raceRewardSessionId='';state.raceRewardClaim=null;state.raceRewardPromise=beginRaceRewardSession(rewardRunId);game.classList.add('is-visible');window.DragonRacingUi?.fadeMenuAudioOut?.(650);startRaceAudio();state.lastT=now();if(state.raf)cancelAnimationFrame(state.raf);state.raf=requestAnimationFrame(loop);queueSequence(()=>{if(state.phase==='setup')startCeremony();},320,state.countdownToken);return true;
+  function start(track={id:DEFAULT_TRACK_ID}){
+    const requested=trackById(track?.id||DEFAULT_TRACK_ID);if(!requested)return false;stop(false);state.trackId=requested.id;state.samples=[];state.totalLength=0;const progression=loadSave();saveData(progression);state.preRaceTrackStats=getTrackStats(state.trackId);buildSamples();const game=ensureGame();if(!game)return false;
+    document.getElementById('dragonRacingModal')?.classList.add('is-race-active');game.querySelector('.dragon-race-results')?.classList.remove('is-visible');game.classList.toggle('is-debug-path',state.debugPath);createRacers();setPhase('setup');state.resultOrder=[];state.finishAt=0;state.aiStatsPersisted=false;state.nextHudLayoutAt=0;state.nextHudTickAt=0;state.nextRaceStoryAt=0;state.nextCameraEvalAt=0;state.nextFocusAt=0;state.raceOrderIds=[];state.pendingOrderKey='';state.pendingOrderAt=0;state.lastLeaderId='';state.lastRaceEventAt=0;state.raceStory={overtakes:0,leadChanges:0};state.finalLapDramaStarted=false;state.photoFinishHoldUntil=0;clearTimeout(state.finishRevealTimer);state.finishRevealTimer=0;clearTimeout(state.raceEventTimer);state.raceEventTimer=0;game.classList.remove('is-final-lap','is-photo-finish');hideRaceEvent();state.camera={x:WORLD_W/2,y:WORLD_H/2,zoom:1,targetX:WORLD_W/2,targetY:WORLD_H/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''};state.keys={up:false,down:false,left:false,right:false,boost:false};const rewardRunId=++state.rewardRunId;state.raceRewardSessionId='';state.raceRewardClaim=null;state.raceRewardPromise=beginRaceRewardSession(rewardRunId);game.classList.add('is-visible');window.DragonRacingUi?.fadeMenuAudioOut?.(650);startRaceAudio();state.lastT=now();if(state.raf)cancelAnimationFrame(state.raf);state.raf=requestAnimationFrame(loop);queueSequence(()=>{if(state.phase==='setup')startCeremony();},320,state.countdownToken);return true;
   }
   function stop(remove=false){
     state.countdownToken++;clearSequenceTimers();state.audioFadeToken++;if(state.raf){cancelAnimationFrame(state.raf);state.raf=0;}clearTimeout(state.lapBannerTimer);state.lapBannerTimer=0;clearTimeout(state.raceEventTimer);state.raceEventTimer=0;clearTimeout(state.finishRevealTimer);state.finishRevealTimer=0;stopRaceAudio(true);setPhase('closed');state.keys={up:false,down:false,left:false,right:false,boost:false};document.getElementById('dragonRacingModal')?.classList.remove('is-race-active');
@@ -1042,9 +1106,9 @@
     showPath(on=true){if(!admin())return false;state.debugPath=on!==false;state.game?.classList.toggle('is-debug-path',state.debugPath);return state.debugPath;},
     showCheckpoints(on=true){return this.showPath(on);},
     setLap(lap=1){if(!admin()||!state.player)return null;state.player.distance=Math.max(0,Number(lap)-1)+mod1(state.player.distance);return state.player.distance;},
-    teleportToCheckpoint(index=0){if(!admin()||!state.player)return null;const i=clamp(Math.floor(index),0,CHECKPOINTS.length-1);state.player.distance=Math.floor(Math.max(0,state.player.distance))+CHECKPOINTS[i];state.player.nextCp=i+1;return state.player.distance;},
+    teleportToCheckpoint(index=0){if(!admin()||!state.player)return null;const i=clamp(Math.floor(index),0,activeCheckpoints().length-1);state.player.distance=Math.floor(Math.max(0,state.player.distance))+activeCheckpoints()[i];state.player.nextCp=i+1;return state.player.distance;},
     setSpeed(value=.025){if(!admin()||!state.player)return null;state.player.speed=clamp(value,0,.06);return state.player.speed;},
-    finishRace(){if(!admin()||!state.player)return false;state.player.distance=LAPS+.001;updateCheckpointAndLap(state.player,now());if(!state.player.finished){state.player.finished=true;state.player.finishMs=now()-state.raceStartedAt;onPlayerFinish(now());}return true;},
+    finishRace(){if(!admin()||!state.player)return false;state.player.distance=activeLaps()+.001;updateCheckpointAndLap(state.player,now());if(!state.player.finished){state.player.finished=true;state.player.finishMs=now()-state.raceStartedAt;onPlayerFinish(now());}return true;},
     camera(){if(!admin())return null;return{mode:state.camera.mode,x:+state.camera.x.toFixed(1),y:+state.camera.y.toFixed(1),zoom:+state.camera.zoom.toFixed(3),eventUntil:state.camera.eventUntil,subjects:[...state.camera.subjectIds]};},
     forceCamera(mode='follow'){if(!admin())return false;const valid=['follow','closeBattle','widePack','panAhead','finalLeader','finalStraight','photoFinish','grid','ceremonyWide'];if(!valid.includes(mode))return false;let subjects=[];if(mode==='closeBattle')subjects=standings().slice(0,2).map(r=>r.id);setCameraMode(mode,4000,true,subjects);return true;},
     inspectAiPool(){if(!admin())return null;const saved=loadSave().aiPool||{};return expandedAiPool().map(r=>({...r,stats:{races:0,wins:0,podiums:0,bestFinish:0,...(saved[r.id]||{})}}));},

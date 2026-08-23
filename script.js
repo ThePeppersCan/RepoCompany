@@ -8325,7 +8325,16 @@ resourceWatchdogTimer = setInterval(() => {
 
 loadDailyXpLeaderboard();
 loadGlobalXpLeaderboard();
-setInterval(()=>{loadDailyXpLeaderboard();loadGlobalXpLeaderboard();},30000);
+// V33.75: leaderboard polling is useful while the page is visible, but should not
+// consume network/DOM work in a background tab.
+setInterval(()=>{
+  if(document.hidden)return;
+  loadDailyXpLeaderboard();
+  loadGlobalXpLeaderboard();
+},30000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden){loadDailyXpLeaderboard();loadGlobalXpLeaderboard();}
+},{passive:true});
 keepCoreAdventureButtonsEnabled();
 window.addEventListener('load', keepCoreAdventureButtonsEnabled);
 
@@ -8612,7 +8621,8 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     dialog.dataset.view=view;
     dialog.querySelectorAll('.repo-foil-scene-v2204').forEach(scene=>scene.classList.toggle('is-active',scene.dataset.scene===view));
     const back=dialog.querySelector('.repo-foil-back-v2204');if(back)back.textContent=view==='interior'?'← STREET':'← BINDERS';
-    if(view==='exterior')seedLeaves();
+    if(view==='exterior'){seedLeaves();if(dialog.open)ensureLeafTimer();}
+    else stopLeafTimer();
   }
   function enterInterior(){
     if(!dialog||dialog.dataset.view!=='exterior')return;
@@ -8639,6 +8649,7 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   function closeShop(){
     if(!dialog||busy)return;
     closeCounter({force:true});
+    stopLeafTimer();
     if(dialog.open)dialog.close();
     document.body.classList.remove('repo-foil-shop-open-v2204');
     setView('exterior');
@@ -8806,9 +8817,18 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
     const layer=dialog.querySelector('.repo-foil-leaf-layer-v2204');if(!layer)return;
     const missing=Math.max(0,12-layer.querySelectorAll('i').length);for(let i=0;i<missing;i++)spawnLeaf(.08+Math.random()*.80);
   }
+  function stopLeafTimer(){
+    if(!leafTimer)return;
+    clearInterval(leafTimer);
+    leafTimer=null;
+  }
   function ensureLeafTimer(){
-    if(leafTimer)return;
-    leafTimer=setInterval(()=>{if(!isExteriorOpen())return;spawnLeaf();if(Math.random()>.68)setTimeout(()=>spawnLeaf(),170+Math.random()*300)},760);
+    if(leafTimer||!isExteriorOpen())return;
+    leafTimer=setInterval(()=>{
+      if(!isExteriorOpen()){stopLeafTimer();return;}
+      spawnLeaf();
+      if(Math.random()>.68)setTimeout(()=>{if(isExteriorOpen())spawnLeaf()},170+Math.random()*300);
+    },760);
   }
 
   window.openFoilAndFableShopV2204=openShop;
@@ -8816,7 +8836,7 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   window.openGreggCrackingCounterV2204=openCounter;
   window.closeGreggCrackingCounterV2204=closeCounter;
 
-  const boot=()=>{ensureDialog();ensureLeafTimer()};
+  const boot=()=>{ensureDialog()};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
 
@@ -12208,13 +12228,20 @@ qmSetPredictionUi=function(state){
     setTimeout(()=>{refreshStatus(true);loadLifetimeTips();forceButtonClickable();},700);
     // Lightweight safety sync only. No MutationObserver and no high-frequency
     // attribute feedback loop. This also clears a stale native disabled state.
+    const barryUiActive=()=>!document.hidden&&Boolean(typeof qmState!=='undefined'&&qmState?.open);
     setInterval(()=>{
+      if(!barryUiActive())return;
       const matchId=displayedMatchId();
       if(matchId!==knownMatchId){resetForMatch(matchId);if(matchId)refreshStatus(true)}
       else forceButtonClickable();
     },1000);
-    setInterval(()=>refreshStatus(false),5000);
-    setInterval(loadLifetimeTips,30000);
+    setInterval(()=>{if(barryUiActive())refreshStatus(false)},5000);
+    setInterval(()=>{if(barryUiActive())loadLifetimeTips()},30000);
+    // V33.75: keep first-open behaviour immediate without a permanent body observer.
+    document.addEventListener('click',event=>{
+      if(!event.target.closest?.('#quidditchModeButton,#openQuidditchMode'))return;
+      setTimeout(()=>{if(barryUiActive()){forceButtonClickable();refreshStatus(true);loadLifetimeTips()}},80);
+    },true);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
@@ -13015,13 +13042,15 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     if(!s.hordeEconomy)s.hordeEconomy={runId:null,totalGp:0,queue:[],processing:false,retryTimer:null,startBusy:false,lastAwardedWave:0};
     return s.hordeEconomy;
   }
+  let hordeGpHudWrap=null,hordeGpHudValue=null,hordeGpHudLastActive=null,hordeGpHudLastKey='';
   function setHordeGpHud(s=combatState){
-    const wrap=document.getElementById('combatGpEarnedWrap'),value=document.getElementById('combatGpEarned');
+    if(!hordeGpHudWrap?.isConnected)hordeGpHudWrap=document.getElementById('combatGpEarnedWrap');
+    if(!hordeGpHudValue?.isConnected)hordeGpHudValue=document.getElementById('combatGpEarned');
     const active=Boolean(s?.zombie),eco=s?.hordeEconomy;
-    if(wrap)wrap.classList.toggle('hidden',!active);
-    if(value){
-      const pending=Number(eco?.queue?.length||0);
-      value.textContent=`${Number(eco?.totalGp||0).toLocaleString('en-GB')} GP${pending?' · PAYING…':''}`;
+    if(hordeGpHudWrap&&(hordeGpHudLastActive!==active||hordeGpHudWrap.classList.contains('hidden')===active)){hordeGpHudWrap.classList.toggle('hidden',!active);hordeGpHudLastActive=active;}
+    if(hordeGpHudValue){
+      const pending=Number(eco?.queue?.length||0),total=Number(eco?.totalGp||0),key=`${total}|${pending}`;
+      const text=`${total.toLocaleString('en-GB')} GP${pending?' · PAYING…':''}`;if(key!==hordeGpHudLastKey||hordeGpHudValue.textContent!==text){hordeGpHudValue.textContent=text;hordeGpHudLastKey=key;}
     }
   }
   function hordeRewardFlash(wave,row){
@@ -13285,6 +13314,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     };
     combatState.difficultyConfig=difficulty;
     hordeEconomyFor(combatState);setHordeGpHud(combatState);startHordeRewardRun(combatState);
+    if(combatFrame){cancelAnimationFrame(combatFrame);combatFrame=null;}
     combatRunning=true;combatPaused=false;combatStartedAt=performance.now();combatLast=combatStartedAt;
     $('combatIntro').classList.add('hidden');document.getElementById('endlessHordeSection')?.classList.add('hidden');$('combatUpgrade').classList.add('hidden');
     $('combatTime').textContent='∞';$('combatMessage').textContent=`WAVE 1 — ${ZOMBIE_MAPS[selectedCombatLocation].name}. Keep moving.`;
@@ -13341,6 +13371,26 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     playRepoCombatWaveSound();
   }
 
+  const hordeHudCache={time:'',health:'',kills:'',level:'',xp:''};
+  let hordeHudTimeEl=null,hordeHudHealthEl=null,hordeHudKillsEl=null,hordeHudLevelEl=null,hordeHudXpEl=null;
+  function syncHordeHud(s,z,p){
+    if(!hordeHudTimeEl?.isConnected)hordeHudTimeEl=document.getElementById('combatTime');
+    if(!hordeHudHealthEl?.isConnected)hordeHudHealthEl=document.getElementById('combatHealth');
+    if(!hordeHudKillsEl?.isConnected)hordeHudKillsEl=document.getElementById('combatKills');
+    if(!hordeHudLevelEl?.isConnected)hordeHudLevelEl=document.getElementById('combatLevel');
+    if(!hordeHudXpEl?.isConnected)hordeHudXpEl=document.getElementById('combatXpFill');
+    const time=`W${z.wave}`,health=`${Math.max(0,Math.ceil(p.hp))} / ${p.maxHp}`,kills=`${s.kills} kills`,level=String(s.runLevel),xp=`${Math.min(100,s.runXp/s.nextLevel*100)}%`;
+    if(hordeHudTimeEl&&(time!==hordeHudCache.time||hordeHudTimeEl.textContent!==time)){hordeHudTimeEl.textContent=time;hordeHudCache.time=time;}
+    if(hordeHudHealthEl&&(health!==hordeHudCache.health||hordeHudHealthEl.textContent!==health)){hordeHudHealthEl.textContent=health;hordeHudCache.health=health;}
+    if(hordeHudKillsEl&&(kills!==hordeHudCache.kills||hordeHudKillsEl.textContent!==kills)){hordeHudKillsEl.textContent=kills;hordeHudCache.kills=kills;}
+    if(hordeHudLevelEl&&(level!==hordeHudCache.level||hordeHudLevelEl.textContent!==level)){hordeHudLevelEl.textContent=level;hordeHudCache.level=level;}
+    if(hordeHudXpEl&&(xp!==hordeHudCache.xp||hordeHudXpEl.style.width!==xp)){hordeHudXpEl.style.width=xp;hordeHudCache.xp=xp;}
+    setHordeGpHud(s);
+  }
+  function hordeCompactTaken(list){let write=0;for(let read=0;read<list.length;read++){const item=list[read];if(!item.taken)list[write++]=item;}list.length=write;}
+  function hordeDecayVisuals(list,dt,rise=0){let write=0;for(let read=0;read<list.length;read++){const item=list[read];item.life-=dt;if(rise)item.y-=rise*dt;if(item.life>0)list[write++]=item;}list.length=write;}
+  function hordeTargetsNear(enemies,cx,cy,radius,limit,skip=null){const out=[],r2=radius*radius;for(let i=0;i<enemies.length&&out.length<limit;i++){const e=enemies[i];if(e===skip)continue;const dx=e.x-cx,dy=e.y-cy;if(dx*dx+dy*dy<r2)out.push(e);}return out;}
+
   const originalUpdateCombat=updateCombat;
   updateCombat=function(dt,now){
     if(!combatState?.zombie) return originalUpdateCombat(dt,now);
@@ -13355,41 +13405,41 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     if(dx||dy){const len=Math.hypot(dx,dy);p.x+=dx/len*p.speed*dt;p.y+=dy/len*p.speed*dt;p.x=Math.max(20,Math.min(740,p.x));p.y=Math.max(24,Math.min(406,p.y));}
     if(z.betweenWaves>0){z.betweenWaves-=dt;}
     else if(z.spawned<z.spawnTarget){s.spawnClock-=dt;if(s.spawnClock<=0){spawnZombieEnemy();s.spawnClock=zombieWaveStats(s).spawn;}}
-    let nearest=null,nearestD=Infinity;
-    for(const e of [...s.enemies]){
-      const ex=p.x-e.x,ey=p.y-e.y,d=Math.hypot(ex,ey)||1;e.x+=ex/d*e.speed*dt;e.y+=ey/d*e.speed*dt;
-      if(d<nearestD){nearestD=d;nearest=e;}e.hitCooldown-=dt;
-      if(d<p.r+e.r+2&&e.hitCooldown<=0){const hit=Math.max(1,Math.round(e.damage-p.armour));p.hp-=hit;e.hitCooldown=.75;s.particles.push({x:p.x,y:p.y,text:`-${hit}`,life:.7});if(p.hp<=0)return finishCombat(false);}
+    let nearest=null,nearestD2=Infinity;
+    for(let i=0;i<s.enemies.length;i++){
+      const e=s.enemies[i],ex=p.x-e.x,ey=p.y-e.y,d2=ex*ex+ey*ey,d=Math.sqrt(d2)||1;e.x+=ex/d*e.speed*dt;e.y+=ey/d*e.speed*dt;
+      if(d2<nearestD2){nearestD2=d2;nearest=e;}e.hitCooldown-=dt;
+      const contact=p.r+e.r+2;
+      if(d2<contact*contact&&e.hitCooldown<=0){const hit=Math.max(1,Math.round(e.damage-p.armour));p.hp-=hit;e.hitCooldown=.75;s.particles.push({x:p.x,y:p.y,text:`-${hit}`,life:.7});if(p.hp<=0)return finishCombat(false);}
     }
-    if(nearest&&nearestD<=p.range&&now-p.lastAttack>=p.attackRate*1000){
+    if(nearest&&nearestD2<=p.range*p.range&&now-p.lastAttack>=p.attackRate*1000){
       p.lastAttack=now;
-      if(s.weapon==='sword'){s.enemies.filter(e=>Math.hypot(e.x-nearest.x,e.y-nearest.y)<46).slice(0,3).forEach((t,i)=>damageCombatEnemy(t,p.damage*(i?.7:1)));s.slashes.push({x:nearest.x,y:nearest.y,life:.18,kind:'sword'});}
+      if(s.weapon==='sword'){hordeTargetsNear(s.enemies,nearest.x,nearest.y,46,3).forEach((t,i)=>damageCombatEnemy(t,p.damage*(i?.7:1)));s.slashes.push({x:nearest.x,y:nearest.y,life:.18,kind:'sword'});}
       else if(s.weapon==='dharok'){const missing=Math.max(0,1-p.hp/p.maxHp),mult=1+missing*1.75;damageCombatEnemy(nearest,p.damage*mult);s.slashes.push({x:nearest.x,y:nearest.y,life:.25,kind:'dharok'});}
       else if(s.weapon==='bow'){damageCombatEnemy(nearest,p.damage);s.projectiles.push({x1:p.x,y1:p.y,x2:nearest.x,y2:nearest.y,life:.16,kind:'arrow'});}
       else if(s.weapon==='blowpipe'){damageCombatEnemy(nearest,p.damage);nearest.venom=Math.min(10,(nearest.venom||0)+1);nearest.venomClock=Math.min(nearest.venomClock??.65,.65);s.projectiles.push({x1:p.x,y1:p.y,x2:nearest.x,y2:nearest.y,life:.16,maxLife:.16,kind:'dart'});}
-      else if(s.weapon==='shadow'){damageCombatEnemy(nearest,p.damage);s.enemies.filter(e=>e!==nearest&&Math.hypot(e.x-nearest.x,e.y-nearest.y)<52).slice(0,2).forEach(t=>damageCombatEnemy(t,p.damage*.28));s.chains.push({x1:p.x,y1:p.y,x2:nearest.x,y2:nearest.y,life:.16,kind:'shadow'});}
-      else{let from={x:p.x,y:p.y};[nearest,...s.enemies.filter(e=>e!==nearest&&Math.hypot(e.x-nearest.x,e.y-nearest.y)<105).slice(0,2)].forEach((t,i)=>{damageCombatEnemy(t,p.damage*(1-i*.22));s.chains.push({x1:from.x,y1:from.y,x2:t.x,y2:t.y,life:.22,kind:'air'});from=t;});}
+      else if(s.weapon==='shadow'){damageCombatEnemy(nearest,p.damage);hordeTargetsNear(s.enemies,nearest.x,nearest.y,52,2,nearest).forEach(t=>damageCombatEnemy(t,p.damage*.28));s.chains.push({x1:p.x,y1:p.y,x2:nearest.x,y2:nearest.y,life:.16,kind:'shadow'});}
+      else{let from={x:p.x,y:p.y};const targets=[nearest,...hordeTargetsNear(s.enemies,nearest.x,nearest.y,105,2,nearest)];targets.forEach((t,i)=>{damageCombatEnemy(t,p.damage*(1-i*.22));s.chains.push({x1:from.x,y1:from.y,x2:t.x,y2:t.y,life:.22,kind:'air'});from=t;});}
     }
-    for(const e of [...s.enemies])if(e.venom){e.venomClock=(e.venomClock??.65)-dt;if(e.venomClock<=0){e.venomClock=1.05;damageCombatEnemy(e,Math.max(1,Math.ceil(e.venom*.55)));}}
-    for(const orb of s.orbs){
-      const d=Math.hypot(p.x-orb.x,p.y-orb.y);
-      if(d<90){orb.x+=(p.x-orb.x)*dt*5;orb.y+=(p.y-orb.y)*dt*5;}
-      if(d<p.r+8){
+    for(let i=0;i<s.enemies.length;){
+      const e=s.enemies[i];
+      if(e.venom){e.venomClock=(e.venomClock??.65)-dt;if(e.venomClock<=0){e.venomClock=1.05;damageCombatEnemy(e,Math.max(1,Math.ceil(e.venom*.55)));}}
+      if(s.enemies[i]===e)i++;
+    }
+    const pickupR2=(p.r+8)*(p.r+8);
+    for(let i=0;i<s.orbs.length;i++){
+      const orb=s.orbs[i],ox=p.x-orb.x,oy=p.y-orb.y,d2=ox*ox+oy*oy;
+      if(d2<8100){orb.x+=ox*dt*5;orb.y+=oy*dt*5;}
+      if(d2<pickupR2){
         orb.taken=true;
-        if(orb.heal){
-          p.hp=Math.min(p.maxHp,p.hp+orb.heal);
-          playRepoCombatHealOrbSound();
-        }else{
-          s.runXp+=orb.value;
-          playRepoCombatXpOrbSound();
-          tryRepoCombatRareDrop();
-        }
+        if(orb.heal){p.hp=Math.min(p.maxHp,p.hp+orb.heal);playRepoCombatHealOrbSound();}
+        else{s.runXp+=orb.value;playRepoCombatXpOrbSound();tryRepoCombatRareDrop();}
       }
     }
-    s.orbs=s.orbs.filter(o=>!o.taken);s.slashes.forEach(x=>x.life-=dt);s.slashes=s.slashes.filter(x=>x.life>0);s.projectiles.forEach(x=>x.life-=dt);s.projectiles=s.projectiles.filter(x=>x.life>0);s.chains.forEach(x=>x.life-=dt);s.chains=s.chains.filter(x=>x.life>0);s.particles.forEach(x=>{x.life-=dt;x.y-=25*dt});s.particles=s.particles.filter(x=>x.life>0);
+    hordeCompactTaken(s.orbs);hordeDecayVisuals(s.slashes,dt);hordeDecayVisuals(s.projectiles,dt);hordeDecayVisuals(s.chains,dt);hordeDecayVisuals(s.particles,dt,25);
     if(s.runXp>=s.nextLevel){s.runXp-=s.nextLevel;s.runLevel++;s.nextLevel=Math.floor(s.nextLevel*1.29+3);showCombatUpgrade();}
     if(z.spawned>=z.spawnTarget&&s.enemies.length===0&&z.betweenWaves<=0)beginNextZombieWave(s);
-    $('combatTime').textContent=`W${z.wave}`;$('combatHealth').textContent=`${Math.max(0,Math.ceil(p.hp))} / ${p.maxHp}`;$('combatKills').textContent=`${s.kills} kills`;$('combatLevel').textContent=s.runLevel;$('combatXpFill').style.width=`${Math.min(100,s.runXp/s.nextLevel*100)}%`;setHordeGpHud(s);
+    syncHordeHud(s,z,p);
   };
 
   const originalKillCombatEnemy=killCombatEnemy;
@@ -13400,40 +13450,54 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     s.particles.push({x:enemy.x,y:enemy.y,text:enemy.type==='zombie-abomination'?'BOSS DOWN':'+XP',life:.8});
   };
 
-  const originalDrawCombatBackdrop=drawCombatBackdrop;
-  drawCombatBackdrop=function(ctx,w,h){
-    const location=combatState?.location||selectedCombatLocation;if(!isZombieLocation(location))return originalDrawCombatBackdrop(ctx,w,h);
-    const m=ZOMBIE_MAPS[location],t=performance.now()/1000;ctx.fillStyle=m.floor[0];ctx.fillRect(0,0,w,h);
+  const hordeBackdropCache=new Map();
+  function hordeStaticBackdrop(location,w,h){
+    const key=`${location}:${w}x${h}`;let layer=hordeBackdropCache.get(key);if(layer)return layer;
+    layer=document.createElement('canvas');layer.width=w;layer.height=h;const ctx=layer.getContext('2d'),m=ZOMBIE_MAPS[location];
+    ctx.fillStyle=m.floor[0];ctx.fillRect(0,0,w,h);
     for(let x=0;x<w;x+=40)for(let y=0;y<h;y+=40){ctx.fillStyle=((x+y)/40)%2?m.floor[1]:m.floor[2];ctx.fillRect(x,y,40,40);ctx.strokeStyle='#0005';ctx.strokeRect(x,y,40,40)}
     if(location==='zombie-varrock'){ctx.fillStyle='#384137';for(let x=55;x<w;x+=135){ctx.fillRect(x,45,26,58);ctx.fillRect(x-8,40,42,10);ctx.fillStyle='#65705f';ctx.fillRect(x+8,54,10,18);ctx.fillStyle='#384137';}}
     if(location==='zombie-falador'){ctx.fillStyle='#4d4d5d';for(let x=45;x<w;x+=150){ctx.fillRect(x,55,65,18);ctx.fillRect(x+12,33,41,25);ctx.fillStyle='#24242e';ctx.fillRect(x+27,42,12,16);ctx.fillStyle='#4d4d5d';}}
     if(location==='zombie-morytania'){ctx.fillStyle='#29383e';for(let x=35;x<w;x+=155){ctx.fillRect(x,48,78,46);ctx.fillStyle='#4f6b73';ctx.beginPath();ctx.moveTo(x-8,50);ctx.lineTo(x+39,18);ctx.lineTo(x+88,50);ctx.fill();ctx.fillStyle='#29383e';}}
+    hordeBackdropCache.set(key,layer);return layer;
+  }
+  const originalDrawCombatBackdrop=drawCombatBackdrop;
+  drawCombatBackdrop=function(ctx,w,h){
+    const location=combatState?.location||selectedCombatLocation;if(!isZombieLocation(location))return originalDrawCombatBackdrop(ctx,w,h);
+    const m=ZOMBIE_MAPS[location],t=performance.now()/1000;ctx.drawImage(hordeStaticBackdrop(location,w,h),0,0);
     ctx.globalAlpha=.08+.035*Math.sin(t*.45);ctx.fillStyle=m.fog;for(let i=0;i<5;i++){ctx.beginPath();ctx.ellipse((i*190+t*18)%950-90,90+i*70,150,28,0,0,7);ctx.fill()}ctx.globalAlpha=1;
     ctx.fillStyle=m.floor[3];ctx.fillRect(0,0,w,12);ctx.fillRect(0,h-12,w,12);ctx.fillRect(0,0,12,h);ctx.fillRect(w-12,0,12,h);
   };
 
+  const hordeEnemyVisualCache=new Map(),hordeBossTypes=new Set(['grave-titan','bone-colossus','vampyre-lord']);
+  function hordeEnemyVisual(type){
+    type=String(type);if(hordeEnemyVisualCache.has(type))return hordeEnemyVisualCache.get(type);
+    const horde=['zombie-','grave-','plague-','rotting-','crypt-','skeleton-','bone-','swamp-','blood-','bog-','banshee','vampyre-'].some(prefix=>type.startsWith(prefix));
+    const v=horde?{bone:/crypt|skeleton|bone/.test(type),swamp:/swamp|bog/.test(type),blood:/blood|vampyre/.test(type),spirit:/banshee|wraith/.test(type),small:/rat|leech/.test(type),leech:/leech/.test(type),armoured:/guard|knight|horror|titan|colossus|lord/.test(type),staff:/digger|wraith|banshee/.test(type),boss:hordeBossTypes.has(type)}:null;
+    hordeEnemyVisualCache.set(type,v);return v;
+  }
   const originalDrawCombatEnemy=drawCombatEnemy;
   drawCombatEnemy=function(ctx,e){
-    const hordeTypes=['zombie-','grave-','plague-','rotting-','crypt-','skeleton-','bone-','swamp-','blood-','bog-','banshee','vampyre-'];
-    if(!hordeTypes.some(p=>String(e.type).startsWith(p)))return originalDrawCombatEnemy(ctx,e);
-    ctx.save();ctx.translate(e.x,e.y);const boss=['grave-titan','bone-colossus','vampyre-lord'].includes(e.type);ctx.scale(boss?1.35:1,boss?1.35:1);
+    const visual=hordeEnemyVisual(e.type);if(!visual)return originalDrawCombatEnemy(ctx,e);
+    ctx.save();ctx.translate(e.x,e.y);ctx.scale(visual.boss?1.35:1,visual.boss?1.35:1);
     let body='#687b48',head='#80945b',eye='#d8e76c';
-    if(/crypt|skeleton|bone/.test(e.type)){body='#c3c0ad';head='#ddd9c6';eye='#67d8ff'}
-    if(/swamp|bog/.test(e.type)){body='#496c60';head='#6c9481';eye='#ffdb68'}
-    if(/blood|vampyre/.test(e.type)){body='#6d2431';head='#b8a0a0';eye='#ff3e55'}
-    if(/banshee|wraith/.test(e.type)){body='#6c5684';head='#b7a4ca';eye='#d9a7ff'}
-    if(/rat|leech/.test(e.type)){ctx.scale(.75,.75);body=/leech/.test(e.type)?'#8b1830':'#635548';head=body}
+    if(visual.bone){body='#c3c0ad';head='#ddd9c6';eye='#67d8ff'}
+    if(visual.swamp){body='#496c60';head='#6c9481';eye='#ffdb68'}
+    if(visual.blood){body='#6d2431';head='#b8a0a0';eye='#ff3e55'}
+    if(visual.spirit){body='#6c5684';head='#b7a4ca';eye='#d9a7ff'}
+    if(visual.small){ctx.scale(.75,.75);body=visual.leech?'#8b1830':'#635548';head=body}
     ctx.fillStyle=body;ctx.fillRect(-10,-14,20,23);ctx.fillStyle=head;ctx.fillRect(-8,-23,16,11);ctx.fillStyle=eye;ctx.fillRect(-5,-19,3,3);ctx.fillRect(3,-19,3,3);
-    ctx.fillStyle=/crypt|skeleton|bone/.test(e.type)?'#777467':'#443029';ctx.fillRect(-12,9,9,15);ctx.fillRect(3,9,9,15);
-    if(/guard|knight|horror|titan|colossus|lord/.test(e.type)){ctx.fillStyle=body;ctx.fillRect(-18,-10,8,22);ctx.fillRect(10,-10,8,22)}
-    if(/digger|wraith|banshee/.test(e.type)){ctx.strokeStyle='#b587d8';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(10,10);ctx.lineTo(20,-22);ctx.stroke()}
-    ctx.fillStyle='#360b0b';ctx.fillRect(-14,-e.r-8,28,4);ctx.fillStyle=boss?'#d9b13c':'#79a747';ctx.fillRect(-14,-e.r-8,28*Math.max(0,e.hp/e.maxHp),4);ctx.restore();
+    ctx.fillStyle=visual.bone?'#777467':'#443029';ctx.fillRect(-12,9,9,15);ctx.fillRect(3,9,9,15);
+    if(visual.armoured){ctx.fillStyle=body;ctx.fillRect(-18,-10,8,22);ctx.fillRect(10,-10,8,22)}
+    if(visual.staff){ctx.strokeStyle='#b587d8';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(10,10);ctx.lineTo(20,-22);ctx.stroke()}
+    ctx.fillStyle='#360b0b';ctx.fillRect(-14,-e.r-8,28,4);ctx.fillStyle=visual.boss?'#d9b13c':'#79a747';ctx.fillRect(-14,-e.r-8,28*Math.max(0,e.hp/e.maxHp),4);ctx.restore();
   };
 
+  let hordeCanvasEl=null,hordeCanvasCtx=null;
   const originalDrawCombat=drawCombat;
   drawCombat=function(){
     originalDrawCombat();
-    const s=combatState;if(!s?.zombie)return;const c=$('combatCanvas'),ctx=c.getContext('2d'),z=s.zombie;
+    const s=combatState;if(!s?.zombie)return;if(!hordeCanvasEl?.isConnected){hordeCanvasEl=document.getElementById('combatCanvas');hordeCanvasCtx=hordeCanvasEl?.getContext('2d')||null;}const c=hordeCanvasEl,ctx=hordeCanvasCtx,z=s.zombie;if(!c||!ctx)return;
     const hordeCx=c.width/2;ctx.fillStyle='#080b08cc';ctx.fillRect(hordeCx-94,17,188,36);ctx.strokeStyle=z.bossWave?'#e2b448':'#769d65';ctx.lineWidth=2;ctx.strokeRect(hordeCx-94,17,188,36);ctx.fillStyle=z.bossWave?'#ffe184':'#d9f2ce';ctx.font='bold 17px Arial';ctx.textAlign='center';ctx.fillText(`${z.bossWave?'BOSS ':''}WAVE ${z.wave}`,hordeCx,40);ctx.textAlign='left';
     if(z.bannerLife>0){ctx.globalAlpha=Math.min(1,z.bannerLife);ctx.fillStyle='#000b';ctx.fillRect(hordeCx-160,c.height/2-35,320,70);ctx.fillStyle='#f2df9b';ctx.font='bold 31px Georgia';ctx.textAlign='center';ctx.fillText(z.banner,hordeCx,c.height/2+10);ctx.textAlign='left';ctx.globalAlpha=1;}
   };
@@ -13441,7 +13505,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
   const originalFinishCombat=finishCombat;
   finishCombat=async function(survived){
     if(!combatState?.zombie)return originalFinishCombat(survived);
-    if(!combatRunning)return;stopCombatMusic(500);combatRunning=false;cancelAnimationFrame(combatFrame);
+    if(!combatRunning)return;stopCombatMusic(500);combatRunning=false;cancelAnimationFrame(combatFrame);combatFrame=null;
     const s=combatState,z=s.zombie;document.getElementById('endlessHordeSection')?.classList.remove('hidden');
     const upgradeGroups=[];
     const upgradeIndex=new Map();
@@ -13787,7 +13851,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
       flameImgs.forEach((img,i)=>{img.src=src;img.style.transform=`${i?'scaleX(-1) ':''}translateY(${i?2:0}px)`;});
       frame=frame%8+1;
     };
-    animate();setInterval(animate,120);
+    animate(); // Final Horde flame restorer below owns the live animation loop.
   }
   function install(){
     const section=document.getElementById('endlessHordeSection');
@@ -14498,7 +14562,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     const dialog=document.getElementById('combatDialog');
     if(dialog){
       const observer=new MutationObserver(scheduleEnsure);
-      observer.observe(dialog,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+      observer.observe(dialog,{attributes:true,attributeFilter:['class']});
     }
   };
 
@@ -14546,8 +14610,8 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     };
     paint();
     if(!flameTimer)flameTimer=setInterval(()=>{
-      const current=document.querySelector('#endlessHordeSection .repo-horde-logo-wrap');
-      if(!current){clearInterval(flameTimer);flameTimer=null;return;}
+      const section=document.getElementById('endlessHordeSection'),current=section?.querySelector('.repo-horde-logo-wrap'),dialog=document.getElementById('combatDialog');
+      if(!current||!dialog?.open||section.classList.contains('hidden')){clearInterval(flameTimer);flameTimer=null;return;}
       restoreHordeFlames();
     },120);
     return true;
@@ -14737,8 +14801,7 @@ if(!document.getElementById('repoRareDropStyles')){const style=document.createEl
     });
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply,{once:true}); else apply();
-  const observer=new MutationObserver(apply);
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#combatButton,#openCombat,[data-combat-menu]'))setTimeout(apply,0);});
   const style=document.createElement('style');
   style.textContent=`
     .combat-weapon-choice[data-weapon="shadow"] .tumekens-shadow-card-art{
@@ -15048,7 +15111,7 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
     if(allButton?.parentElement)allButton.parentElement.appendChild(button);else panel.appendChild(button);
   };
   ensureAdminButton();setTimeout(ensureAdminButton,120);setTimeout(ensureAdminButton,600);
-  const adminObserver=new MutationObserver(ensureAdminButton);adminObserver.observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#adminButton,#adminToggleTesting,#qmAdminSpecialTester'))setTimeout(ensureAdminButton,0);});
 
   const abortPenalty=()=>{clearTimers();window.qmCancelBarrySetPiece?.();removePenaltyNodes();penalty.active=false;penalty.test=false;qmState.busy=false;};
   window.qmAbortPenaltyEvent=abortPenalty;
@@ -15766,7 +15829,7 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
     else panel.appendChild(button);
   };
   ensureAdminButton();setTimeout(ensureAdminButton,120);setTimeout(ensureAdminButton,650);
-  new MutationObserver(ensureAdminButton).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#adminButton,#adminToggleTesting,#qmAdminSpecialTester'))setTimeout(ensureAdminButton,0);});
 
   const abortSnitch=()=>{
     clearTimers();window.qmStopBarrySnitchFlybys?.();window.qmCancelBarrySetPiece?.();removeSnitchNodes();
@@ -15967,7 +16030,7 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
   ensureHatTrickAdminButton();
   setTimeout(ensureHatTrickAdminButton,140);
   setTimeout(ensureHatTrickAdminButton,700);
-  new MutationObserver(ensureHatTrickAdminButton).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#adminButton,#adminToggleTesting,#qmAdminSpecialTester'))setTimeout(ensureHatTrickAdminButton,0);});
 })();
 
 /* Cherrybloom Charm admin preview button. Visual-only: it temporarily mounts
@@ -16006,7 +16069,7 @@ window.qmNaturalQuidditchSetPiece=qmNaturalQuidditchSetPiece;
   ensureCherrybloomAdminButton();
   setTimeout(ensureCherrybloomAdminButton,120);
   setTimeout(ensureCherrybloomAdminButton,700);
-  new MutationObserver(ensureCherrybloomAdminButton).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#adminButton,#adminToggleTesting,#qmAdminSpecialTester'))setTimeout(ensureCherrybloomAdminButton,0);});
 })();
 
 /* PANDA rare nametag scoring special. The panda rises from behind the plaque,
@@ -16143,7 +16206,7 @@ qmShowSharedGoal=function(state){
   ensurePandaAdminButton();
   setTimeout(ensurePandaAdminButton,120);
   setTimeout(ensurePandaAdminButton,700);
-  new MutationObserver(ensurePandaAdminButton).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#adminButton,#adminToggleTesting,#qmAdminSpecialTester'))setTimeout(ensurePandaAdminButton,0);});
 })();
 
 
@@ -16303,8 +16366,7 @@ qmShowSharedGoal=function(state){
   enhanceAdminSpecialTester();
   setTimeout(enhanceAdminSpecialTester,120);
   setTimeout(enhanceAdminSpecialTester,700);
-  const observer=new MutationObserver(enhanceAdminSpecialTester);
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#adminButton,#adminToggleTesting,#qmAdminSpecialTester'))setTimeout(enhanceAdminSpecialTester,0);});
 })();
 
 /* === REPO HORDE MODE: DEEP BUILD UPGRADES + 1/100 GOLDEN RARES === */
@@ -16764,11 +16826,12 @@ qmShowSharedGoal=function(state){
     if(!isRepoHordeRun())return previousHordeUpdateCombat(dt,now);
     const s=combatState,h=ensureRepoHordeBuild(),p=s.player,z=s.zombie;
     if(h.pickupRadius>90){
+      const radius2=h.pickupRadius*h.pickupRadius;
       for(const orb of s.orbs){
-        const d=Math.hypot(p.x-orb.x,p.y-orb.y);
-        if(d<h.pickupRadius&&d>18){
+        const dx=p.x-orb.x,dy=p.y-orb.y,d2=dx*dx+dy*dy;
+        if(d2<radius2&&d2>324){
           const pull=Math.min(.26,dt*(4+(h.pickupRadius-90)/35));
-          orb.x+=(p.x-orb.x)*pull;orb.y+=(p.y-orb.y)*pull;
+          orb.x+=dx*pull;orb.y+=dy*pull;
         }
       }
     }
@@ -17095,7 +17158,7 @@ qmShowSharedGoal=function(state){
     for(let i=0;i<6;i++)value+=MH_ALPHABET[Math.floor(Math.random()*MH_ALPHABET.length)];
     return value;
   }
-  function mhSetText(id,text){const node=document.getElementById(id);if(node)node.textContent=text;}
+  function mhSetText(id,text){const node=document.getElementById(id);if(node){const value=String(text);if(node.textContent!==value)node.textContent=value;}}
   function mhShow(node,visible,display='block'){
     if(!node)return;
     node.classList.toggle('hidden',!visible);
@@ -17850,8 +17913,8 @@ qmShowSharedGoal=function(state){
   function mhUpdateHud(){
     const s=combatState;if(!s?.players)return;
     const host=s.players[0],guest=s.players[1];mhSetText('combatTime',`W${s.zombie.wave}`);mhSetText('combatHealth',`${Math.ceil(host.hp)}/${host.maxHp} | ${Math.ceil(guest.hp)}/${guest.maxHp}`);mhSetText('combatKills',`${s.kills} kills`);mhSetText('combatLevel',s.runLevel);
-    const fill=document.getElementById('combatXpFill');if(fill)fill.style.width=`${Math.min(100,s.runXp/s.nextLevel*100)}%`;
-    const banner=document.getElementById('mhRunBanner');if(banner){banner.classList.toggle('paused',combatPaused);banner.querySelector('span').innerHTML=`<b>MULTIPLAYER HORDE</b> • ${combatPaused?'WAITING FOR BOTH UPGRADES':'LIVE'} • ${MH_MAPS[s.location]?.name||'Horde'}`;}
+    const fill=document.getElementById('combatXpFill'),xpWidth=`${Math.min(100,s.runXp/s.nextLevel*100)}%`;if(fill&&fill.style.width!==xpWidth)fill.style.width=xpWidth;
+    const banner=document.getElementById('mhRunBanner');if(banner){banner.classList.toggle('paused',combatPaused);const span=banner.querySelector('span'),html=`<b>MULTIPLAYER HORDE</b> • ${combatPaused?'WAITING FOR BOTH UPGRADES':'LIVE'} • ${MH_MAPS[s.location]?.name||'Horde'}`;if(span&&span.innerHTML!==html)span.innerHTML=html;}
   }
   function mhHostLoop(now){
     if(!mh.active||!mhIsHostRun())return;
@@ -18062,7 +18125,7 @@ qmShowSharedGoal=function(state){
     let attempts=0;const timer=setInterval(()=>{attempts++;if(mhEnsureUi()||attempts>120)clearInterval(timer);},100);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mhInstallLoop);else mhInstallLoop();
-  new MutationObserver(()=>mhEnsureUi()).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#combatButton,#openCombat,#combatModeSwitcherSafe,[data-combat-menu]'))setTimeout(()=>mhEnsureUi(),0);});
 })();
 
 
@@ -18143,7 +18206,7 @@ qmShowSharedGoal=function(state){
   }
   document.addEventListener('click',e=>{if(e.target.closest('#adminButton,#adminToggleTesting'))setTimeout(ensureSoloAdminButton,80);});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(ensureSoloAdminButton,200));else setTimeout(ensureSoloAdminButton,200);
-  new MutationObserver(ensureSoloAdminButton).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('click',event=>{if(event.target.closest('#adminButton,#adminToggleTesting'))setTimeout(ensureSoloAdminButton,0);});
 
   const style=document.createElement('style');style.textContent=`#mhDuoRunCard[popover]{margin:0!important;position:fixed!important;left:var(--mh-duo-left,12px)!important;top:var(--mh-duo-top,12px)!important;right:auto!important;bottom:auto!important;z-index:2147483647!important}#adminForceSoloPetCompanion{border:1px solid #dcecff!important;background:linear-gradient(180deg,#5f6d79,#28313a)!important;color:#f6fbff!important;box-shadow:0 0 10px #d9efff55!important}`;document.head.appendChild(style);
 })();
@@ -22324,6 +22387,20 @@ qmShowSharedGoal=function(state){
     originalEffect: ''
   };
   let ensureFxFrame = 0;
+  let previewObserver = null;
+
+  function startPreviewObserver(){
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(!dialog||previewObserver)return;
+    // V33.75: preview FX only need mutation tracking while a preview is active.
+    // Watching the entire document forever caused unrelated games to wake this code.
+    previewObserver=new MutationObserver(()=>{if(previewState.active)ensurePreviewEffectLayers();});
+    previewObserver.observe(dialog,{childList:true,subtree:true});
+  }
+  function stopPreviewObserver(){
+    previewObserver?.disconnect();
+    previewObserver=null;
+  }
 
   function makeFullSpreadFx(spread) {
     if (!spread || spread.querySelector(':scope > .repo-binder-full-spread-fx')) return;
@@ -22378,6 +22455,7 @@ qmShowSharedGoal=function(state){
     if (!previewState.active) previewState.originalEffect = dialog.dataset.binderEffect || 'stardust';
     previewState.active = true;
     previewState.effect = effect;
+    startPreviewObserver();
     dialog.dataset.binderEffect = effect;
     dialog.dataset.binderPreviewActive = 'true';
     ensurePreviewEffectLayers();
@@ -22398,6 +22476,7 @@ qmShowSharedGoal=function(state){
     previewState.active = false;
     previewState.effect = '';
     previewState.originalEffect = '';
+    stopPreviewObserver();
     markPreviewButton('');
     if (!silent) setPreviewStatus('PREVIEW ENDED · YOUR EQUIPPED EFFECT HAS BEEN RESTORED');
   }
@@ -22436,11 +22515,8 @@ qmShowSharedGoal=function(state){
     if (event.key === 'Escape' && previewState.active) stopReliableBinderPreview({ silent: true });
   }, true);
 
-  const observer = new MutationObserver(() => {
-    if (previewState.active) ensurePreviewEffectLayers();
-  });
-  if (document.body) observer.observe(document.body, { childList: true, subtree: true });
-  else document.addEventListener('DOMContentLoaded', () => observer.observe(document.body, { childList: true, subtree: true }), { once: true });
+  // V33.75: no permanent body-wide preview observer. startPreviewObserver()
+  // is attached to the binder dialog only for the duration of an active preview.
 })();
 
 
@@ -22792,7 +22868,18 @@ qmShowSharedGoal=function(state){
   function start(){
     patchAll();
     const frame=document.getElementById('repoSportsV2TestFrame');if(frame&&!frame.dataset.repoPtsBound){frame.dataset.repoPtsBound='1';frame.addEventListener('load',()=>setTimeout(patchLiveStandings,80));}
-    setInterval(patchAll,1200);
+    // V33.75: keep the same visible update cadence, but do not scan standings
+    // rows while Repo Sports is absent or the tab is hidden.
+    setInterval(()=>{
+      if(document.hidden)return;
+      const hub=document.querySelector('.repo-v2-standings-panel');
+      const frame=document.getElementById('repoSportsV2TestFrame');
+      if(!hub&&!frame)return;
+      const hubVisible=Boolean(hub&&hub.offsetParent!==null);
+      const frameVisible=Boolean(frame&&frame.offsetParent!==null);
+      if(!hubVisible&&!frameVisible)return;
+      patchAll();
+    },1200);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
@@ -24909,7 +24996,13 @@ updateHunterCantoHud=function(){
   // World Cup packs live only in the Limited Event Locker, leaving the ordinary Bank untouched.
   window.RepoWorldCupPacks={beginFixture,heartbeatFixture,completeFixture,endFixture,refresh:refreshState,refreshPassport:refreshPassportState,openTracker:openEventDialog,openPack:openWorldCupPackDialog};
   function accountWatcher(){const u=currentUsername();if(u!==lastUser){lastUser=u;eventState=null;passportState=[];stateLoaded=false;renderLaunchers();renderPassport();if(u)refreshState({silent:true})}}
-  installStyles();ensureLaunchers();accountWatcher();setInterval(accountWatcher,1200);setInterval(()=>{if(currentUsername())refreshState({silent:true})},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUsername())refreshState({silent:true})});
+  installStyles();ensureLaunchers();accountWatcher();
+  // V33.75: account state does not need polling while the tab is hidden. Character
+  // changes still update immediately through the site's existing account event.
+  setInterval(()=>{if(!document.hidden)accountWatcher()},1200);
+  window.addEventListener('repo-character-changed',accountWatcher);
+  setInterval(()=>{if(!document.hidden&&currentUsername())refreshState({silent:true})},60000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&currentUsername()){accountWatcher();refreshState({silent:true})}});
 })();
 
 
@@ -28689,17 +28782,22 @@ updateHunterCantoHud=function(){
     }
   },true);
 
-  const observer=new MutationObserver(()=>{
-    if(document.getElementById('binderStyleTrigger'))primeBinderStyleTrigger();
-    try{
-      if(typeof window.refreshStableSideControlsV14==='function')window.refreshStableSideControlsV14();
-    }catch(_){ }
-  });
+  // V33.75: this used to observe every DOM insertion on the entire site.
+  // Prime once and reinforce on binder open/page actions instead.
   const startObserver=()=>{
-    try{observer.observe(document.body,{childList:true,subtree:true});}catch(_){ }
+    primeBinderStyleTrigger();
+    try{window.refreshStableSideControlsV14?.();}catch(_){ }
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
   else startObserver();
+  const priorOpenForV15=typeof openQuidditchTcgBinder==='function'?openQuidditchTcgBinder:null;
+  if(priorOpenForV15){
+    openQuidditchTcgBinder=function(){
+      const result=priorOpenForV15.apply(this,arguments);
+      [0,80,220].forEach(delay=>setTimeout(startObserver,delay));
+      return result;
+    };
+  }
 
   // Keep reinforcing the side controls longer than the page-turn animation,
   // preventing the Hidden Cards holder from visibly drifting/jumping mid-flip.
@@ -29425,14 +29523,9 @@ updateHunterCantoHud=function(){
     };
   }
 
-  const observer=new MutationObserver(()=>{
-    const dialog=document.getElementById('quidditchTcgBinderDialog');
-    if(!dialog)return;
-    bindDialog(dialog);
-    if(dialog.open)lock();else unlock();
-  });
   const start=()=>{
-    observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
+    // V33.75: open/close wrappers already own scroll-lock lifecycle; do not watch
+    // every open attribute mutation beneath <body>.
     const dialog=document.getElementById('quidditchTcgBinderDialog');
     if(dialog){bindDialog(dialog);if(dialog.open)lock();}
   };
@@ -33353,6 +33446,7 @@ updateHunterCantoHud=function(){
   if(oldOpen){
     openQuidditchTcgBinder=function(){
       const result=oldOpen.apply(this,arguments);
+      bootObserver();
       [0,60,180,420].forEach(delay=>setTimeout(syncHiddenCardsOverlayState,delay));
       return result;
     };
@@ -33389,9 +33483,18 @@ updateHunterCantoHud=function(){
     }
   },true);
 
+  let hiddenCardsObserver=null;
+  let hiddenCardsObservedDialog=null;
   const bootObserver=()=>{
-    const bodyObserver=new MutationObserver(()=>syncHiddenCardsOverlayState());
-    bodyObserver.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','aria-hidden','open','data-binder-page']});
+    const dialog=document.getElementById('quidditchTcgBinderDialog');
+    if(dialog&&dialog!==hiddenCardsObservedDialog){
+      hiddenCardsObserver?.disconnect();
+      hiddenCardsObservedDialog=dialog;
+      // V33.75: only the binder can affect this state; unrelated Combat/Dragonbound
+      // mutations must not wake the Hidden Cards synchroniser.
+      hiddenCardsObserver=new MutationObserver(()=>syncHiddenCardsOverlayState());
+      hiddenCardsObserver.observe(dialog,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','aria-hidden','open','data-binder-page']});
+    }
     syncHiddenCardsOverlayState();
   };
 
@@ -33832,8 +33935,15 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   function boot(){
     if(!ticker()){setTimeout(boot,120);return}
     void refresh();
-    clearInterval(rotateTimer);rotateTimer=setInterval(rotate,7000);
-    clearInterval(refreshTimer);refreshTimer=setInterval(()=>void refresh(),60000);
+    clearInterval(rotateTimer);rotateTimer=setInterval(()=>{
+      const box=ticker();
+      if(document.hidden||!box||!box.isConnected||box.offsetParent===null)return;
+      rotate();
+    },7000);
+    clearInterval(refreshTimer);refreshTimer=setInterval(()=>{
+      if(!document.hidden)void refresh();
+    },60000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden){void refresh();}}, {passive:true});
 
     // Refresh quickly whenever either source changes.
     window.addEventListener('repo-world-cup-tournament-state',()=>setTimeout(()=>void refresh(),120));
@@ -36631,10 +36741,15 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     }
   }
 
+  function stopStreamTimer(){
+    if(!streamTimer)return;
+    clearInterval(streamTimer);
+    streamTimer=null;
+  }
   function ensureStreamTimer(){
-    if(streamTimer)return;
+    if(streamTimer||!isExteriorOpen())return;
     streamTimer=setInterval(()=>{
-      if(!isExteriorOpen())return;
+      if(!isExteriorOpen()){stopStreamTimer();return;}
       spawnWindLeaf();
       // Small gusts occasionally carry a second leaf through close behind.
       if(Math.random()>.61)setTimeout(()=>{if(isExteriorOpen())spawnWindLeaf()},150+Math.random()*330);
@@ -36642,21 +36757,29 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   }
 
   function sync(){
-    ensureStreamTimer();
-    if(isExteriorOpen())seedActiveStream();
-    // Intentionally do NOT clear the live layer when leaving the exterior.
-    // Any in-flight leaves are preserved, and a returning player is topped up
-    // immediately with mid-route leaves if some completed while away.
+    if(isExteriorOpen()){ensureStreamTimer();seedActiveStream();}
+    else stopStreamTimer();
+    // In-flight leaves are preserved exactly as before; only future spawning stops
+    // while the exterior is closed.
   }
 
-  const observer=new MutationObserver(()=>requestAnimationFrame(sync));
+  let rcgExteriorObserver=null;
+  let rcgExteriorObservedDialog=null;
+  function bindExteriorObserver(){
+    const d=getDialog();
+    if(!d||d===rcgExteriorObservedDialog)return Boolean(d);
+    rcgExteriorObserver?.disconnect();
+    rcgExteriorObservedDialog=d;
+    // V33.75: observe the RCG dialog itself, not every class/view/open mutation site-wide.
+    rcgExteriorObserver=new MutationObserver(()=>requestAnimationFrame(sync));
+    rcgExteriorObserver.observe(d,{attributes:true,attributeFilter:['open','data-view','class']});
+    return true;
+  }
   const boot=()=>{
-    if(document.body){
-      observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open','data-view','class']});
-    }
-    document.addEventListener('click',()=>setTimeout(sync,20),true);
+    bindExteriorObserver();
+    document.addEventListener('click',()=>setTimeout(()=>{bindExteriorObserver();sync();},20),true);
     window.addEventListener('resize',()=>{if(isExteriorOpen())seedActiveStream()},{passive:true});
-    ensureStreamTimer();
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)stopStreamTimer();else sync();},{passive:true});
     sync();
   };
 
@@ -37081,10 +37204,25 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   window.openRcgSubmitCardDeskV2081=openDesk;
   window.closeRcgSubmitCardDeskV2081=closeDesk;
 
-  const observer=new MutationObserver(()=>{ensureShopHotspots();if(dialog())ensureOverlay();});
+  let submitDeskObserver=null;
+  let submitDeskObservedDialog=null;
+  function bindSubmitDeskObserver(){
+    const root=dialog();
+    if(!root)return false;
+    if(root!==submitDeskObservedDialog){
+      submitDeskObserver?.disconnect();
+      submitDeskObservedDialog=root;
+      // V33.75: submission desk mutations are local to the RCG dialog.
+      submitDeskObserver=new MutationObserver(()=>{ensureShopHotspots();ensureOverlay();});
+      submitDeskObserver.observe(root,{childList:true,subtree:true});
+    }
+    ensureShopHotspots();ensureOverlay();
+    return true;
+  }
   const start=()=>{
-    observer.observe(document.body,{childList:true,subtree:true});
-    ensureShopHotspots();if(dialog())ensureOverlay();
+    if(bindSubmitDeskObserver())return;
+    const finder=new MutationObserver(()=>{if(bindSubmitDeskObserver())finder.disconnect();});
+    finder.observe(document.body,{childList:true});
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 
@@ -37488,11 +37626,25 @@ document.head.appendChild(s)})();
   window.openRcgInspectionDeskV2103=openDesk;
   window.closeRcgInspectionDeskV2103=closeDesk;
 
-  const observer=new MutationObserver(()=>{ensureHotspots();if(dialog())ensureOverlay();});
+  let inspectionDeskObserver=null;
+  let inspectionDeskObservedDialog=null;
+  function bindInspectionDeskObserver(){
+    const root=dialog();
+    if(!root)return false;
+    if(root!==inspectionDeskObservedDialog){
+      inspectionDeskObserver?.disconnect();
+      inspectionDeskObservedDialog=root;
+      // V33.75: keep inspection setup inside the RCG dialog only.
+      inspectionDeskObserver=new MutationObserver(()=>{ensureHotspots();ensureOverlay();});
+      inspectionDeskObserver.observe(root,{childList:true,subtree:true});
+    }
+    ensureHotspots();ensureOverlay();
+    return true;
+  }
   const start=()=>{
-    observer.observe(document.body,{childList:true,subtree:true});
-    ensureHotspots();
-    if(dialog())ensureOverlay();
+    if(bindInspectionDeskObserver())return;
+    const finder=new MutationObserver(()=>{if(bindInspectionDeskObserver())finder.disconnect();});
+    finder.observe(document.body,{childList:true});
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
@@ -38040,15 +38192,26 @@ document.head.appendChild(s)})();
 
   [...REVEAL_SCENES,REVEAL_FINAL_BACKDROP,REVEAL_SLAB_TEMPLATE].forEach(src=>{ try{const img=new Image(); img.src=src;}catch(_){} });
 
-  const observer=new MutationObserver(()=>{
-    ensureInteriorHotspots();
-    if(dialog())ensureOverlay();
-  });
+  let collectDeskObserver=null;
+  let collectDeskObservedDialog=null;
+  function bindCollectDeskObserver(){
+    const root=dialog();
+    if(!root)return false;
+    if(root!==collectDeskObservedDialog){
+      collectDeskObserver?.disconnect();
+      collectDeskObservedDialog=root;
+      // V33.75: collection desk setup is scoped to the RCG shop dialog.
+      collectDeskObserver=new MutationObserver(()=>{ensureInteriorHotspots();ensureOverlay();});
+      collectDeskObserver.observe(root,{childList:true,subtree:true});
+    }
+    ensureInteriorHotspots();ensureOverlay();
+    return true;
+  }
 
   const start=()=>{
-    if(document.body)observer.observe(document.body,{childList:true,subtree:true});
-    ensureInteriorHotspots();
-    if(dialog())ensureOverlay();
+    if(bindCollectDeskObserver())return;
+    const finder=new MutationObserver(()=>{if(bindCollectDeskObserver())finder.disconnect();});
+    finder.observe(document.body,{childList:true});
   };
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
@@ -39557,11 +39720,24 @@ document.head.appendChild(s)})();
     event.preventDefault();event.stopPropagation();open();
   },true);
 
-  const observer=new MutationObserver(()=>{if(dialog()?.open){ensureButton();ensureOverlay();}});
+  let libraryDialogObserver=null;
+  let libraryObservedDialog=null;
+  function bindLibraryDialog(){
+    const d=dialog();if(!d)return false;
+    if(d!==libraryObservedDialog){
+      libraryDialogObserver?.disconnect();
+      libraryObservedDialog=d;
+      // V33.75: rebuild the Library button only when the RCG binder itself changes.
+      libraryDialogObserver=new MutationObserver(()=>{if(d.open){ensureButton();ensureOverlay();}});
+      libraryDialogObserver.observe(d,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
+    }
+    if(d.open){ensureButton();ensureOverlay();}
+    return true;
+  }
+  const observer=new MutationObserver(()=>{if(bindLibraryDialog())observer.disconnect();});
   if(document.body)observer.observe(document.body,{childList:true,subtree:false});
-  setInterval(()=>{if(dialog()?.open)ensureButton();},900);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{ensureButton();ensureOverlay();},{once:true});
-  else {ensureButton();ensureOverlay();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{bindLibraryDialog();ensureButton();ensureOverlay();},{once:true});
+  else {bindLibraryDialog();ensureButton();ensureOverlay();}
 
   window.repoRcgSlabBinderLibraryV2143={open,close,load};
 })();
@@ -40539,33 +40715,47 @@ document.head.appendChild(s)})();
 
   function observeUi(){
     const knownOpen=new WeakMap();
-    const observer=new MutationObserver(mutations=>{
-      for(const mutation of mutations){
-        if(mutation.type==='attributes'&&mutation.attributeName==='class'){
-          const el=mutation.target;
-          if(el?.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')){
-            const open=el.classList.contains('is-open');
-            const was=knownOpen.get(el)||false;
+    const observed=new WeakSet();
+    const bindNode=el=>{
+      if(!el||observed.has(el))return;
+      observed.add(el);
+      if(el.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')){
+        const open=el.classList.contains('is-open');
+        if(open)play('open');
+        knownOpen.set(el,open);
+      }
+      const attrObserver=new MutationObserver(mutations=>{
+        for(const mutation of mutations){
+          if(mutation.type!=='attributes'||mutation.attributeName!=='class')continue;
+          const target=mutation.target;
+          if(target.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')){
+            const open=target.classList.contains('is-open');
+            const was=knownOpen.get(target)||false;
             if(open&&!was)play('open');
-            knownOpen.set(el,open);
+            knownOpen.set(target,open);
           }
-          if(el?.id==='repoFableToastV2217'&&el.classList.contains('is-visible')){
-            const text=(el.textContent||'').toLowerCase();
-            if(el.dataset.tone==='error')play('error');
+          if(target.id==='repoFableToastV2217'&&target.classList.contains('is-visible')){
+            const text=(target.textContent||'').toLowerCase();
+            if(target.dataset.tone==='error')play('error');
             else if(text.includes(' sold for '))play('sale');
             else if(text.includes(' bought for '))play('purchase');
           }
         }
-        if(mutation.type==='childList'){
-          mutation.addedNodes.forEach(node=>{
-            if(node?.nodeType!==1)return;
-            const list=node.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')?[node]:[...(node.querySelectorAll?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204')||[])];
-            list.forEach(el=>knownOpen.set(el,el.classList.contains('is-open')));
-          });
-        }
-      }
+      });
+      attrObserver.observe(el,{attributes:true,attributeFilter:['class']});
+    };
+    const discover=root=>{
+      if(root?.nodeType!==1)return;
+      if(root.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204,#repoFableToastV2217'))bindNode(root);
+      root.querySelectorAll?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204,#repoFableToastV2217').forEach(bindNode);
+    };
+    document.querySelectorAll('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204,#repoFableToastV2217').forEach(bindNode);
+    // V33.75: only discover top-level overlay additions. Attribute changes are
+    // watched on the exact Fable nodes, not on every element in the site.
+    const finder=new MutationObserver(mutations=>{
+      mutations.forEach(mutation=>mutation.addedNodes.forEach(discover));
     });
-    observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    finder.observe(document.body,{childList:true});
   }
 
   function polishExistingVoucherNodes(){
@@ -40584,21 +40774,28 @@ document.head.appendChild(s)})();
     // V22.18.1: only revisit the polish pass when relevant UI nodes are actually added.
     // Do not blindly rewrite Gregg's innerHTML from inside a childList observer: that
     // creates a self-triggering MutationObserver loop and can freeze the whole page.
-    const observer=new MutationObserver(mutations=>{
-      let needsPolish=false;
-      outer: for(const mutation of mutations){
+    const polishedRoots=new WeakSet();
+    const bindPolishRoot=root=>{
+      if(!root||polishedRoots.has(root))return;
+      polishedRoots.add(root);
+      const observer=new MutationObserver(mutations=>{
+        const relevant=mutations.some(m=>[...(m.addedNodes||[])].some(node=>node?.nodeType===1&&(node.matches?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204')||node.querySelector?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204'))));
+        if(relevant)polishExistingVoucherNodes();
+      });
+      observer.observe(root,{subtree:true,childList:true});
+    };
+    document.querySelectorAll('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204').forEach(bindPolishRoot);
+    const finder=new MutationObserver(mutations=>{
+      for(const mutation of mutations){
         for(const node of mutation.addedNodes||[]){
           if(node?.nodeType!==1)continue;
-          if(node.matches?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204,.repo-fable-overlay-v2217')||
-             node.querySelector?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204,.repo-fable-overlay-v2217')){
-            needsPolish=true;
-            break outer;
-          }
+          if(node.matches?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204'))bindPolishRoot(node);
+          node.querySelectorAll?.('.repo-fable-overlay-v2217,.repo-foil-crack-overlay-v2204').forEach(bindPolishRoot);
+          if(node.matches?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204')||node.querySelector?.('.repo-fable-ticket-v2217,.repo-foil-gregg-hotspot-v2204'))polishExistingVoucherNodes();
         }
       }
-      if(needsPolish)polishExistingVoucherNodes();
     });
-    observer.observe(document.body,{subtree:true,childList:true});
+    finder.observe(document.body,{childList:true});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
@@ -41309,12 +41506,45 @@ document.head.appendChild(s)})();
                   <div class="dragonbound-my-dragon-bond"><div><span>Bond</span><strong data-dragon-profile-bond>0 · New Companion</strong></div><i><em data-dragon-profile-bond-bar></em></i><small data-dragon-profile-bond-note>Still getting to know you.</small></div>
                 </section>
                 <section class="dragonbound-my-dragon-page dragonbound-my-dragon-page--right">
-                  <div class="dragonbound-my-dragon-personality"><div class="dragonbound-my-dragon-section-title"><span>Personality</span><small data-dragon-profile-archetype>Individual</small></div><p data-dragon-profile-personality-copy></p><div class="dragonbound-my-dragon-traits" data-dragon-profile-traits></div></div>
-                  <div class="dragonbound-my-dragon-favourites"><div class="dragonbound-my-dragon-section-title"><span>Favourites & Habits</span><small>Formed naturally over time</small></div><div class="dragonbound-my-dragon-favourite-grid" data-dragon-profile-favourites></div><div class="dragonbound-my-dragon-habits" data-dragon-profile-habits></div></div>
-                  <div class="dragonbound-my-dragon-daily-life"><div class="dragonbound-my-dragon-section-title"><span>Daily Life</span><small>Little routines that belong to this dragon</small></div><div class="dragonbound-my-dragon-daily-grid" data-dragon-profile-daily-life></div><div class="dragonbound-my-dragon-recent-moment" data-dragon-profile-recent-moment><small>RECENT MOMENT</small><p>Still waiting for the next little adventure.</p></div></div>
-                  <div class="dragonbound-my-dragon-growth"><div class="dragonbound-my-dragon-section-title"><span>Growth & Skills</span><small>Practice becomes ability</small></div><div class="dragonbound-my-dragon-growth-head"><div><small>GROWTH STAGE</small><strong data-dragon-profile-growth-stage>Baby</strong><span data-dragon-profile-growth-copy>Growing at their own pace.</span></div><b data-dragon-profile-growth-percent>0%</b></div><i class="dragonbound-my-dragon-growth-bar"><em data-dragon-profile-growth-bar></em></i><div class="dragonbound-my-dragon-skills" data-dragon-profile-skills></div><div class="dragonbound-my-dragon-aptitudes" data-dragon-profile-aptitudes></div><div class="dragonbound-skill-help-panel" data-dragon-profile-skill-help hidden><button type="button" class="dragonbound-skill-help-close" data-dragon-profile-skill-help-close aria-label="Close training help">×</button><small>HOW TO TRAIN THIS</small><h3 data-dragon-profile-skill-help-title>Agility</h3><p data-dragon-profile-skill-help-copy></p><div class="dragonbound-skill-help-owned" data-dragon-profile-skill-help-owned></div><span class="dragonbound-skill-help-note" data-dragon-profile-skill-help-note></span></div></div>
-                  <div class="dragonbound-my-dragon-life"><div class="dragonbound-my-dragon-section-title"><span>Life Stats</span><small>The little things add up</small></div><div class="dragonbound-my-dragon-stat-grid" data-dragon-profile-stats></div></div>
-                  <div class="dragonbound-my-dragon-memories"><div class="dragonbound-my-dragon-section-title"><span>Little Memories</span><small>A growing scrapbook</small></div><div class="dragonbound-my-dragon-memory-list" data-dragon-profile-memories></div></div>
+                  <nav class="dragonbound-journal-tabs" role="tablist" aria-label="Dragon journal sections">
+                    <button type="button" role="tab" data-dragon-journal-tab="nature" aria-selected="true"><span>Nature</span><small>Who they are</small></button>
+                    <button type="button" role="tab" data-dragon-journal-tab="habits" aria-selected="false"><span>Habits</span><small>What they love</small></button>
+                    <button type="button" role="tab" data-dragon-journal-tab="bonds" aria-selected="false"><span>Bonds</span><small>Who they trust</small></button>
+                    <button type="button" role="tab" data-dragon-journal-tab="life" aria-selected="false"><span>Life</span><small>Growth & training</small></button>
+                    <button type="button" role="tab" data-dragon-journal-tab="calendar" aria-selected="false"><span>Calendar</span><small>Velmoran days</small></button>
+                    <button type="button" role="tab" data-dragon-journal-tab="scrapbook" aria-selected="false"><span>Scrapbook</span><small>Your story</small></button>
+                  </nav>
+                  <div class="dragonbound-journal-panel is-active" data-dragon-journal-panel="nature" role="tabpanel">
+                    <div class="dragonbound-personality-titlecard"><div><small>KEEPER'S DESCRIPTION</small><strong data-dragon-profile-descriptor>Still Becoming Themselves</strong></div><span data-dragon-profile-together>Together today</span></div>
+                    <div class="dragonbound-my-dragon-personality"><div class="dragonbound-my-dragon-section-title"><span>Personality</span><small data-dragon-profile-archetype>Individual</small></div><p data-dragon-profile-personality-copy></p><div class="dragonbound-my-dragon-traits" data-dragon-profile-traits></div><div class="dragonbound-personality-observation" data-dragon-profile-observation><small>BONNIE'S MARGIN NOTE</small><p>Keep watching what they choose when nobody tells them what to do.</p></div></div>
+                    <div class="dragonbound-personality-book-grid">
+                      <section class="dragonbound-personality-book-card"><div class="dragonbound-my-dragon-section-title"><span>Known Quirks</span><small>Little things that are uniquely theirs</small></div><div class="dragonbound-personality-quirks" data-dragon-profile-quirks></div></section>
+                      <section class="dragonbound-personality-book-card"><div class="dragonbound-my-dragon-section-title"><span>Your Relationship</span><small>Trust never erases personality</small></div><div class="dragonbound-personality-relationship" data-dragon-profile-relationship></div></section>
+                    </div>
+                    <div class="dragonbound-personality-now"><div><small>CURRENT OBSESSION</small><strong data-dragon-profile-obsession>Still choosing</strong></div><p data-dragon-profile-keeper-note>Keep watching the little choices.</p></div>
+                  </div>
+                  <div class="dragonbound-journal-panel" data-dragon-journal-panel="habits" role="tabpanel" hidden>
+                    <div class="dragonbound-my-dragon-favourites"><div class="dragonbound-my-dragon-section-title"><span>Favourites & Habits</span><small>Formed naturally from real choices</small></div><div class="dragonbound-my-dragon-favourite-grid" data-dragon-profile-favourites></div><div class="dragonbound-my-dragon-habits" data-dragon-profile-habits></div></div>
+                    <div class="dragonbound-personality-book-grid dragonbound-personality-book-grid--preferences">
+                      <section class="dragonbound-personality-book-card"><div class="dragonbound-my-dragon-section-title"><span>Comforts</span><small>Things they gravitate toward</small></div><div class="dragonbound-personality-preference-list is-comfort" data-dragon-profile-comforts></div></section>
+                      <section class="dragonbound-personality-book-card"><div class="dragonbound-my-dragon-section-title"><span>Known Dislikes</span><small>Strong opinions, politely recorded</small></div><div class="dragonbound-personality-preference-list is-dislike" data-dragon-profile-dislikes></div></section>
+                    </div>
+                    <div class="dragonbound-my-dragon-daily-life"><div class="dragonbound-my-dragon-section-title"><span>Daily Life</span><small>Soft routines, never a fixed schedule</small></div><div class="dragonbound-my-dragon-daily-grid" data-dragon-profile-daily-life></div></div>
+                  </div>
+                  <div class="dragonbound-journal-panel" data-dragon-journal-panel="bonds" role="tabpanel" hidden>
+                    <div class="dragonbound-social-journal" data-dragon-profile-bonds></div>
+                  </div>
+                  <div class="dragonbound-journal-panel" data-dragon-journal-panel="life" role="tabpanel" hidden>
+                    <div class="dragonbound-my-dragon-growth"><div class="dragonbound-my-dragon-section-title"><span>Growth & Skills</span><small>Practice becomes ability</small></div><div class="dragonbound-my-dragon-growth-head"><div><small>GROWTH STAGE</small><strong data-dragon-profile-growth-stage>Baby</strong><span data-dragon-profile-growth-copy>Growing at their own pace.</span></div><b data-dragon-profile-growth-percent>0%</b></div><i class="dragonbound-my-dragon-growth-bar"><em data-dragon-profile-growth-bar></em></i><div class="dragonbound-my-dragon-skills" data-dragon-profile-skills></div><div class="dragonbound-my-dragon-aptitudes" data-dragon-profile-aptitudes></div><div class="dragonbound-skill-help-panel" data-dragon-profile-skill-help hidden><button type="button" class="dragonbound-skill-help-close" data-dragon-profile-skill-help-close aria-label="Close training help">×</button><small>HOW TO TRAIN THIS</small><h3 data-dragon-profile-skill-help-title>Agility</h3><p data-dragon-profile-skill-help-copy></p><div class="dragonbound-skill-help-owned" data-dragon-profile-skill-help-owned></div><span class="dragonbound-skill-help-note" data-dragon-profile-skill-help-note></span></div></div>
+                    <div class="dragonbound-my-dragon-life"><div class="dragonbound-my-dragon-section-title"><span>Life Stats</span><small>The little things add up</small></div><div class="dragonbound-my-dragon-stat-grid" data-dragon-profile-stats></div></div>
+                  </div>
+                  <div class="dragonbound-journal-panel" data-dragon-journal-panel="calendar" role="tabpanel" hidden>
+                    <div class="dragonbound-calendar-journal" data-dragon-profile-calendar></div>
+                  </div>
+                  <div class="dragonbound-journal-panel" data-dragon-journal-panel="scrapbook" role="tabpanel" hidden>
+                    <div class="dragonbound-my-dragon-recent-moment" data-dragon-profile-recent-moment><small>RECENT MOMENT</small><p>Still waiting for the next little adventure.</p></div>
+                    <div class="dragonbound-my-dragon-memories"><div class="dragonbound-my-dragon-section-title"><span>Keeper Scrapbook</span><small>Milestones, discoveries and the stories worth keeping</small></div><div class="dragonbound-my-dragon-memory-list" data-dragon-profile-memories></div></div>
+                  </div>
                 </section>
               </div>
               <div class="dragonbound-my-dragon-empty" data-dragon-profile-empty hidden><strong>No dragon lives here yet.</strong><span>When your egg hatches, this journal will begin filling itself in.</span></div>
@@ -41757,6 +41987,17 @@ document.head.appendChild(s)})();
     const myDragonArchetype=overlay.querySelector('[data-dragon-profile-archetype]');
     const myDragonPersonalityCopy=overlay.querySelector('[data-dragon-profile-personality-copy]');
     const myDragonTraits=overlay.querySelector('[data-dragon-profile-traits]');
+    const myDragonDescriptor=overlay.querySelector('[data-dragon-profile-descriptor]');
+    const myDragonTogether=overlay.querySelector('[data-dragon-profile-together]');
+    const myDragonObservation=overlay.querySelector('[data-dragon-profile-observation]');
+    const myDragonQuirks=overlay.querySelector('[data-dragon-profile-quirks]');
+    const myDragonRelationship=overlay.querySelector('[data-dragon-profile-relationship]');
+    const myDragonObsession=overlay.querySelector('[data-dragon-profile-obsession]');
+    const myDragonKeeperNote=overlay.querySelector('[data-dragon-profile-keeper-note]');
+    const myDragonComforts=overlay.querySelector('[data-dragon-profile-comforts]');
+    const myDragonDislikes=overlay.querySelector('[data-dragon-profile-dislikes]');
+    const myDragonJournalTabs=Array.from(overlay.querySelectorAll('[data-dragon-journal-tab]'));
+    const myDragonJournalPanels=Array.from(overlay.querySelectorAll('[data-dragon-journal-panel]'));
     const myDragonFavourites=overlay.querySelector('[data-dragon-profile-favourites]');
     const myDragonHabits=overlay.querySelector('[data-dragon-profile-habits]');
     const myDragonDailyLife=overlay.querySelector('[data-dragon-profile-daily-life]');
@@ -41966,7 +42207,14 @@ document.head.appendChild(s)})();
       homeTreatButton.setAttribute('aria-label',remain>0?`Dragon Bites available in ${formatTreatCooldown(remain)}`:'Buy Dragon Bites treats for your dragon');
       if(badge)badge.textContent=remain>0?formatTreatCooldown(remain):'';
     }
-    dragonTreatCooldownTimer=setInterval(syncTreatCooldownUi,1000);syncTreatCooldownUi();
+    // V33.75: keep the cooldown clock exact, but only touch its DOM while
+    // Dragonbound is actually open and visible.
+    dragonTreatCooldownTimer=setInterval(()=>{
+      if(document.hidden||!overlay?.classList.contains('is-open'))return;
+      syncTreatCooldownUi();
+    },1000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&overlay?.classList.contains('is-open'))syncTreatCooldownUi();},{passive:true});
+    syncTreatCooldownUi();
 
     function resetDragonTreatStage(){
       dragonTreatAbortToken++;
@@ -42054,7 +42302,7 @@ document.head.appendChild(s)})();
       if(token!==dragonTreatAbortToken)return false;
       try{if(typeof actor.finishFurnitureUse==='function')actor.finishFurnitureUse();actor.commandedFurniture=null;actor.furniturePlan=null;actor.path=[];actor.pathIndex=0;actor.pauseUntil=0;actor.setState('looking',lazy?950:600);}catch(_error){}
       actor.el?.classList.add('is-treat-excited');setTimeout(()=>actor.el?.classList.remove('is-treat-excited'),1600);
-      if(homeTreatStatus)homeTreatStatus.textContent=lazy?`${name} notices it… and takes their time.`:`${name} spots it and gets excited!`;
+      const personalityTreatReaction=actor.personalityReaction?.('treat')||'';if(homeTreatStatus)homeTreatStatus.textContent=personalityTreatReaction|| (lazy?`${name} notices it… and takes their time.`:`${name} spots it and gets excited!`);
       await dragonTreatDelay(bond>=80?(lazy?650:260):bond>=60?(lazy?780:(foodDriven?360:500)):(lazy?950:(foodDriven?500:700)));
       if(token!==dragonTreatAbortToken)return false;
       const ok=actor.startWalk(target.slice(),'walking');
@@ -42064,9 +42312,9 @@ document.head.appendChild(s)})();
       const arrived=await waitForDragonAtTreat(actor,target,token,lazy?19000:15000);
       if(token!==dragonTreatAbortToken)return false;
       if(!arrived){piece.classList.add('is-eaten');await dragonTreatDelay(350);piece.remove();return false;}
-      try{actor.path=[];actor.pathIndex=0;actor.walkSpeedBoost=1;actor.setState('sitting',950);actor.nextDecision=performance.now()+1150;if(typeof actor.applyCareBenefit==='function'){actor.applyCareBenefit('hunger',6);actor.applyCareBenefit('fun',2);actor.applyCareBenefit('social',1);actor.addBond?.(.15);}else{actor.needs.hunger=Math.max(0,Number(actor.needs?.hunger||0)-6);actor.needs.social=Math.max(0,Number(actor.needs?.social||0)-1);actor.behaviourDirty=true;}const obs=actor.memory?.observationCounters||(actor.memory.observationCounters={});obs.dragonBitesEaten=(Number(obs.dragonBitesEaten)||0)+1;actor.rememberLifeEvent?.('treat','First Dragon Bite',`${name} discovered just how exciting Dragon Bites are.`,'first-dragon-bite');actor.behaviourDirty=true;window.DragonboundBabyEngine?.saveBehaviourLocal?.();}catch(_error){}
+      try{actor.path=[];actor.pathIndex=0;actor.walkSpeedBoost=1;actor.setState('sitting',950);actor.nextDecision=performance.now()+1150;if(typeof actor.applyCareBenefit==='function'){actor.applyCareBenefit('hunger',6);actor.applyCareBenefit('fun',2);actor.applyCareBenefit('social',1);actor.addBond?.(.15);}else{actor.needs.hunger=Math.max(0,Number(actor.needs?.hunger||0)-6);actor.needs.social=Math.max(0,Number(actor.needs?.social||0)-1);actor.behaviourDirty=true;}const obs=actor.memory?.observationCounters||(actor.memory.observationCounters={});obs.dragonBitesEaten=(Number(obs.dragonBitesEaten)||0)+1;actor.noteUniverseActivity?.('treat');actor.rememberLifeEvent?.('treat','First Dragon Bite',`${name} discovered just how exciting Dragon Bites are.`,'first-dragon-bite');actor.behaviourDirty=true;window.DragonboundBabyEngine?.saveBehaviourLocal?.();}catch(_error){}
       actor.el?.classList.add('is-treat-chewing');playTreatCrunch();spawnDragonTreatCrunchBurst(target);piece.classList.add('is-eaten');
-      if(homeTreatStatus)homeTreatStatus.textContent=`Crunch! ${name} gobbles it up.`;
+      if(homeTreatStatus)homeTreatStatus.textContent=actor.hasTrait?.('Foodie')?`Crunch! ${name} savours every bit.`:`Crunch! ${name} gobbles it up.`;
       await dragonTreatDelay(900);actor.el?.classList.remove('is-treat-chewing');piece.remove();
       return true;
     }
@@ -42394,6 +42642,7 @@ document.head.appendChild(s)})();
       'Adventurous':'New routes and unfamiliar corners hold a strong appeal.',
       'Patient':'This dragon is unusually comfortable waiting and watching.'
     };
+    const dragonProfileTraitObservation=trait=>DRAGONBOUND_TRAIT_OBSERVATIONS[trait]||window.DragonboundPersonalityUniverseRegistry?.traits?.[trait]?.note||'A distinctive part of this dragon’s nature has begun to reveal itself.';
     const dragonboundEscapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const dragonboundScopedKey=base=>`${base}:${dragonboundAccountSlug()}`;
     const clearLegacyDragonboundOwnershipOnce=()=>{
@@ -42725,7 +42974,13 @@ document.head.appendChild(s)})();
     const registerDragonboundSkillRewardBaseline=async()=>{const actor=window.DragonboundBabyEngine?.actor;if(!actor||dragonboundAccountSlug()==='guest')return null;const registered=dragonboundSkillRewardState.registered||{};if(Object.keys(actor.skills||{}).every(k=>registered?.[k]===true))return dragonboundSkillRewardState;const levels=Object.fromEntries(Object.entries(actor.skills||{}).map(([k,v])=>[k,Number(v?.level||0)]));try{const {data,error}=await db.rpc('dragonbound_register_skill_reward_baseline',{p_levels:levels});if(error)throw error;if(data){dragonboundSkillRewardState.baselines=data.baselines||dragonboundSkillRewardState.baselines||{};dragonboundSkillRewardState.registered=data.registered||{};}return data;}catch(err){console.warn('[Dragonbound] Could not register skill-reward baseline.',err);return null;}};
     const scanDragonboundSkillRewards=async()=>{const actor=window.DragonboundBabyEngine?.actor;if(!actor||dragonboundAccountSlug()==='guest')return;await registerDragonboundSkillRewardBaseline();const registered=dragonboundSkillRewardState.registered||{};if(!Object.keys(actor.skills||{}).every(k=>registered?.[k]===true))return;const claimed=new Set((dragonboundSkillRewardState.claimed||[]).map(v=>`${v.skill}:${Number(v.milestone)}`)),baselines=dragonboundSkillRewardState.baselines||{},steps=Object.keys(DRAGONBOUND_SKILL_MARK_REWARDS).map(Number).sort((a,b)=>a-b);for(const skill of Object.keys(actor.skills||{})){const level=Number(actor.skills?.[skill]?.level||0),baseline=Number(baselines?.[skill]||0);for(const milestone of steps){if(milestone<=Math.floor(baseline)||milestone>level||claimed.has(`${skill}:${milestone}`))continue;await claimDragonboundSkillReward({skill,milestone});return;}}};
     window.DragonboundSkillRewardDebug={inspect:()=>typeof structuredClone==='function'?structuredClone(dragonboundSkillRewardState):JSON.parse(JSON.stringify(dragonboundSkillRewardState)),state:()=>typeof structuredClone==='function'?structuredClone(dragonboundSkillRewardState):JSON.parse(JSON.stringify(dragonboundSkillRewardState)),refresh:refreshDragonboundSkillRewardState,register:registerDragonboundSkillRewardBaseline,scan:scanDragonboundSkillRewards};
-    void refreshDragonboundSkillRewardState().then(()=>scanDragonboundSkillRewards());setInterval(()=>void scanDragonboundSkillRewards(),12000);
+    void refreshDragonboundSkillRewardState().then(()=>scanDragonboundSkillRewards());
+    // V33.75: the event-driven reward path remains immediate; this periodic safety
+    // scan should not perform background RPC work while Dragonbound is closed.
+    setInterval(()=>{
+      if(document.hidden||!overlay?.classList.contains('is-open'))return;
+      void scanDragonboundSkillRewards();
+    },12000);
 
     if(homeSidebarImage) homeSidebarImage.src=DRAGONBOUND_HOME_SIDEBAR_BUTTONS;
     if(homeBasket) homeBasket.src=DRAGONBOUND_HOME_EGG_BASKET;
@@ -43153,7 +43408,7 @@ document.head.appendChild(s)})();
         if(isOwnHatched){
           const assigned=Array.isArray(dragonboundLastProfile?.dragon_traits?.assigned)?dragonboundLastProfile.dragon_traits.assigned:[];
           const discovered=Array.isArray(dragonboundLastProfile?.dragon_traits?.discovered)?dragonboundLastProfile.dragon_traits.discovered:[];
-          const observation=discovered.length?discovered.map(trait=>`<strong>${dragonboundEscapeHtml(trait)}</strong> — ${dragonboundEscapeHtml(DRAGONBOUND_TRAIT_OBSERVATIONS[trait]||'A distinctive part of this dragon’s nature has begun to reveal itself.')}`).join('<br><br>'):'<strong>Still learning…</strong><br>Spend time with your dragon at home. Bonnie’s notes will fill in as its habits reveal themselves.';
+          const observation=discovered.length?discovered.map(trait=>`<strong>${dragonboundEscapeHtml(trait)}</strong> — ${dragonboundEscapeHtml(dragonProfileTraitObservation(trait))}`).join('<br><br>'):'<strong>Still learning…</strong><br>Spend time with your dragon at home. Bonnie’s notes will fill in as its habits reveal themselves.';
           history.push(`<p class="dragonbound-study-observed-nature"><span>OBSERVED NATURE</span>${observation}</p>`);
           const formed=dragonboundLastProfile?.dragon_preferences?.formed||{};
           const favouriteFurniture=formed?.favouriteFurniture?.name||'';
@@ -43704,6 +43959,7 @@ document.head.appendChild(s)})();
     const showHomeSidebar=()=>{
       homeSidebar?.classList.add('is-visible');
       homeSidebar?.setAttribute('aria-hidden','false');
+      try{window.dispatchEvent(new CustomEvent('dragonbound:home-visible'));}catch(_e){}
     };
     const hideHomeSidebar=()=>{
       homeSidebar?.classList.remove('is-visible');
@@ -43789,19 +44045,28 @@ document.head.appendChild(s)})();
     };
     const dragonProfileSkillHelpCopy=key=>({flying:'Builds through real flying practice. Launch perches and landing/wing equipment are the strongest home trainers.',agility:'Builds through weaving, balancing, climbing, sprinting and obstacle work.',strength:'Builds through resistance, pushing, pulling, weights and some climbing/digging equipment.',fireControl:'Builds through careful flame-control furniture. This trains precision, not raw destructive power.',intelligence:'Builds through puzzles, sorting, reading, navigation and learning furniture.',confidence:'Builds mostly through successful new experiences. Challenging training furniture can help, but repeating the same safe activity gives very little.'}[key]||'Practice this skill through relevant activities and furniture.');
     const dragonProfileSkillPassiveNote=key=>({flying:'Normal indoor flights can also give tiny Flying progress when the passive-flight cooldown is ready.',agility:'Zoomies and stairs can give tiny passive Agility progress, with their own cooldowns.',strength:'Strength mainly comes from proper equipment rather than passive wandering.',fireControl:'Fire Control only grows through proper controlled practice.',intelligence:'Basic inspection can give a tiny amount, but puzzles and learning furniture are far better.',confidence:'Exploring genuinely new places, flying and completing unfamiliar challenges also build Confidence slowly.'}[key]||'');
+    const dragonProfileUniverseFallback=(memory,bond=0,hatchedAt=0)=>{
+      const u=memory?.personalityUniverse||{},registry=window.DragonboundPersonalityUniverseRegistry||{},knownTraits=Array.isArray(u.discoveredTraits)?u.discoveredTraits:[],quirks=Array.isArray(u.quirks)?u.quirks:[],knownQuirks=quirks.filter(q=>u.discoveredQuirks?.includes?.(q.id)).map(q=>registry.quirks?.[q.id]||q),habits=Object.values(u.habits||{}).sort((a,b)=>Number(b.evidence||0)-Number(a.evidence||0)),recent=Array.isArray(u.recentActivity)?u.recentActivity:[],last=recent[recent.length-1];
+      const traitNames=[...(u.innateTraits||[]),...(u.secondaryTraits||[])],comforts=[];if(traitNames.some(v=>['Nap Lover','Heavy Sleeper','Bed Loyalist','Cosy Corner Lover','Sunbather'].includes(v)))comforts.push('Cosy sleeping spots');if(traitNames.some(v=>['Water Baby','Bath Lover','Rain Lover'].includes(v)))comforts.push('Water and bath time');if(traitNames.some(v=>['Playful','Toy Obsessed','Puzzle Lover'].includes(v)))comforts.push('Playtime');if(traitNames.some(v=>['Garden Lover','Explorer','Plant Inspector'].includes(v)))comforts.push('Natural spaces');if(traitNames.some(v=>['Affectionate','Cuddlebug','Shadow'].includes(v)))comforts.push('Familiar company');
+      const dislikes=[];if(traitNames.includes('Bath Hater'))dislikes.push('Bath time');if(traitNames.includes('Suspicious of New Food'))dislikes.push('Unfamiliar food');if(traitNames.includes('Shy'))dislikes.push('Noisy, busy spaces');if(traitNames.includes('Reluctant Trainee'))dislikes.push('Being rushed into training');
+      return{version:Number(u.version||0),title:String(u.descriptor||'Still Becoming Themselves'),knownTraits,hiddenTraits:Math.max(0,traitNames.length-knownTraits.length),tentative:String(u.observations?.tentativeTrait||''),knownQuirks,hiddenQuirks:Math.max(0,quirks.length-knownQuirks.length),habits,comforts:comforts.slice(0,5),dislikes:dislikes.slice(0,5),relationship:bond>=80?'Deeply trusting, but still unmistakably themselves':bond>=60?'Comfortable and secure around you':bond>=40?'Beginning to trust your routines':'Still learning what life with you feels like',currentObsession:String(last?.name||'Still choosing'),keeperNote:'Keep watching the little choices — the journal only records what your dragon actually shows you.',togetherDays:hatchedAt?Math.max(0,Math.floor((Date.now()-Number(hatchedAt))/86400000)):0,axes:{...(u.axes||{})}};
+    };
     const dragonProfileSource=()=>{
       const actor=window.DragonboundBabyEngine?.actor||null,local=namedDragonForCurrentAccount()||{},profile=dragonboundLastProfile||{};
       const dragon=actor?.dragon||local||{},name=actor?.dragon?.name||local.name||profile.dragon_name||'',breedId=actor?.dragon?.breedId||local.breedId||profile.breed_id||'',eggName=actor?.dragon?.eggName||local.eggName||profile.locked_egg||'',gender=normaliseDragonGender(actor?.dragon?.gender||local.gender||profile.gender),hatchedAt=Number(actor?.dragon?.hatchedAt||local.hatchedAt)||Date.parse(String(profile.dragon_hatched_at||''))||0;
       const memory=actor?.memory||local.memory||profile.dragon_memory||{},preferences=actor?.preferences||local.preferences||profile.dragon_preferences||{},personality=actor?.dragon?.personality||local.personality||profile.personality||{};
-      const assigned=Array.isArray(actor?.assignedTraits)?actor.assignedTraits:(Array.isArray(local?.traits?.assigned)?local.traits.assigned:(Array.isArray(profile?.dragon_traits?.assigned)?profile.dragon_traits.assigned:[]));
-      const discovered=Array.isArray(actor?.discoveredTraits)?actor.discoveredTraits:(Array.isArray(local?.traits?.discovered)?local.traits.discovered:(Array.isArray(profile?.dragon_traits?.discovered)?profile.dragon_traits.discovered:[]));
+      const legacyAssigned=Array.isArray(actor?.assignedTraits)?actor.assignedTraits:(Array.isArray(local?.traits?.assigned)?local.traits.assigned:(Array.isArray(profile?.dragon_traits?.assigned)?profile.dragon_traits.assigned:[]));
+      const legacyDiscovered=Array.isArray(actor?.discoveredTraits)?actor.discoveredTraits:(Array.isArray(local?.traits?.discovered)?local.traits.discovered:(Array.isArray(profile?.dragon_traits?.discovered)?profile.dragon_traits.discovered:[]));
       const care=actor?.careStats?actor.careStats():dragonProfileCareFromMemory(memory),bond=Math.max(0,Math.min(100,Number(actor?.bond??memory?.bond??18)||0)),mood=actor?.moodSummary?actor.moodSummary():dragonProfileMoodFallback(care),registry=window.DragonboundBabyRegistry?.[breedId],portrait=actor?.def?.animations?.idle?.frames?.[0]?.src||registry?.animations?.idle?.frames?.[0]?.src||DRAGONBOUND_EGG_POOL.find(e=>e.name===eggName)?.src||'';
+      const universe=actor?.personalityUniverseSummary?.()||dragonProfileUniverseFallback(memory,bond,hatchedAt),universeRaw=actor?.personalityUniverse||memory?.personalityUniverse||{},assigned=[...new Set([...legacyAssigned,...(universeRaw.innateTraits||[]),...(universeRaw.secondaryTraits||[])])],discovered=[...new Set([...legacyDiscovered,...(universe.knownTraits||[])])];
       const skills=actor?.skills||memory?.skills||{},growth=actor?.growthInfo?actor.growthInfo():dragonProfileGrowthFallback(hatchedAt);
-      return{hasDragon:!!(name&&breedId),actor,local,profile,dragon,name,breedId,breedName:registry?.displayName||eggName||String(breedId).replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),eggName,gender,hatchedAt,memory,preferences,personality,assigned,discovered,care,bond,mood,portrait,skills,growth};
+      return{hasDragon:!!(name&&breedId),actor,local,profile,dragon,name,breedId,breedName:registry?.displayName||eggName||String(breedId).replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),eggName,gender,hatchedAt,memory,preferences,personality,assigned,discovered,care,bond,mood,portrait,skills,growth,universe,universeRaw};
     };
     let dragonProfileSelectedSkill='';
+    let dragonProfileSelectedTab='nature';
+    const syncDragonJournalTab=()=>{const allowed=new Set(['nature','habits','bonds','life','calendar','scrapbook']);if(!allowed.has(dragonProfileSelectedTab))dragonProfileSelectedTab='nature';myDragonJournalTabs.forEach(tab=>{const active=tab.dataset.dragonJournalTab===dragonProfileSelectedTab;tab.classList.toggle('is-active',active);tab.setAttribute('aria-selected',active?'true':'false');tab.tabIndex=active?0:-1;});myDragonJournalPanels.forEach(panel=>{const active=panel.dataset.dragonJournalPanel===dragonProfileSelectedTab;panel.classList.toggle('is-active',active);panel.hidden=!active;});};
     const renderMyDragonProfile=()=>{
-      const src=dragonProfileSource(),book=myDragonOverlay?.querySelector('.dragonbound-my-dragon-book');if(!book)return;
+      const src=dragonProfileSource(),book=myDragonOverlay?.querySelector('.dragonbound-my-dragon-book');if(!book)return;syncDragonJournalTab();
       book.classList.toggle('is-empty',!src.hasDragon);if(myDragonEmpty)myDragonEmpty.hidden=src.hasDragon;
       if(!src.hasDragon){if(myDragonName)myDragonName.textContent='My Dragon';if(myDragonSubtitle)myDragonSubtitle.textContent='Your keeper journal will begin when your first dragon hatches.';return;}
       const study=DRAGONBOUND_EGG_STUDY[src.eggName]||{},stage=dragonProfileBondStage(src.bond),obs=src.memory?.observationCounters||{},affinity=Object.entries(src.memory?.furnitureAffinity||{}).map(([id,v])=>({id,...(v||{}),count:Number(v?.count||0)})).sort((a,b)=>b.count-a.count),overall=affinity[0]||null,bed=dragonProfilePickAffinity(src.memory,['sleep','rest','perch']),toy=dragonProfilePickAffinity(src.memory,['play','puzzle','scratch','dig']),feeding=dragonProfilePickAffinity(src.memory,['eat','drink']),activity=Object.entries(src.memory?.activityCounts||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0))[0];
@@ -43811,12 +44076,17 @@ document.head.appendChild(s)})();
       if(myDragonMood)myDragonMood.textContent=src.mood;if(myDragonMoodCopy)myDragonMoodCopy.textContent=dragonProfileMoodCopy(src.mood);
       if(myDragonCare)myDragonCare.innerHTML=[['hunger','Hunger'],['hygiene','Hygiene'],['energy','Energy'],['fun','Fun']].map(([key,label])=>{const v=Math.max(0,Math.min(100,Number(src.care[key])||0));return`<div class="dragonbound-my-dragon-care-row" data-level="${v<=20?'critical':v<=45?'low':v<=70?'mid':'good'}"><span>${label}</span><i><em style="width:${v}%"></em></i><b>${Math.round(v)}%</b></div>`;}).join('');
       if(myDragonBond)myDragonBond.textContent=`${Math.round(src.bond)} · ${stage.name}`;if(myDragonBondBar)myDragonBondBar.style.width=`${src.bond}%`;if(myDragonBondNote)myDragonBondNote.textContent=stage.note;
-      const archetype=String(src.personality?.archetype||'Individual');if(myDragonArchetype)myDragonArchetype.textContent=archetype;
-      if(myDragonPersonalityCopy){const names=src.discovered.slice(0,3);myDragonPersonalityCopy.textContent=names.length?`${src.name} is showing a ${names.map(v=>v.toLowerCase()).join(names.length>1?', ':'')} streak. Their habits are becoming more distinct the longer you live together.`:`${src.name}'s personality is still unfolding. Watch what they choose to do on their own and more of their nature will reveal itself.`;}
-      if(myDragonTraits){const discoveredSet=new Set(src.discovered),slotTarget=Math.min(6,Math.max(4,src.assigned.length||0)),slots=[];src.assigned.forEach(t=>{if(discoveredSet.has(t)&&slots.length<slotTarget)slots.push({name:t,revealed:true});});while(slots.length<slotTarget)slots.push({name:'???',revealed:false});myDragonTraits.innerHTML=slots.map(t=>`<span class="${t.revealed?'is-revealed':'is-hidden'}">${dragonboundEscapeHtml(t.name)}</span>`).join('');}
+      const universe=src.universe||{},archetype=String(universe.title||src.personality?.archetype||'Individual');if(myDragonArchetype)myDragonArchetype.textContent='Observed nature';if(myDragonDescriptor)myDragonDescriptor.textContent=archetype;if(myDragonTogether)myDragonTogether.textContent=Number(universe.togetherDays||0)>0?`Together for ${Number(universe.togetherDays)} day${Number(universe.togetherDays)===1?'':'s'}`:'Your story is just beginning';
+      if(myDragonPersonalityCopy){const names=src.discovered.slice(0,4);myDragonPersonalityCopy.textContent=names.length?`${src.name} is beginning to show a ${names.map(v=>v.toLowerCase()).join(names.length>1?', ':'')} side. These notes are based on the choices they actually make around home.`:`${src.name}'s personality is still unfolding. The journal will only confirm traits after you have genuinely seen enough evidence.`;}
+      if(myDragonTraits){const discoveredSet=new Set(src.discovered),slotTarget=Math.min(8,Math.max(6,Math.min(8,src.assigned.length||6))),slots=[];src.assigned.forEach(t=>{if(discoveredSet.has(t)&&slots.length<slotTarget)slots.push({name:t,revealed:true});});while(slots.length<slotTarget)slots.push({name:'???',revealed:false});myDragonTraits.innerHTML=slots.map(t=>`<span class="${t.revealed?'is-revealed':'is-hidden'}"${t.revealed?` title="${dragonboundEscapeHtml(dragonProfileTraitObservation(t.name))}"`:''}>${dragonboundEscapeHtml(t.name)}</span>`).join('');}
+      if(myDragonObservation){const tentative=String(universe.tentative||'');myDragonObservation.innerHTML=tentative?`<small>UNCONFIRMED OBSERVATION</small><p>${dragonboundEscapeHtml(src.name)} may be <strong>${dragonboundEscapeHtml(tentative.toLowerCase())}</strong>. Bonnie's notes need a little more evidence before calling it a trait.</p>`:`<small>BONNIE'S MARGIN NOTE</small><p>${dragonboundEscapeHtml(universe.keeperNote||'Keep watching what they choose when nobody tells them what to do.')}</p>`;}
+      if(myDragonQuirks){const quirks=Array.isArray(universe.knownQuirks)?universe.knownQuirks:[];myDragonQuirks.innerHTML=quirks.length?quirks.slice(0,5).map(q=>`<article><i>✦</i><div><strong>${dragonboundEscapeHtml(q.label||q.name||'Little quirk')}</strong><span>${dragonboundEscapeHtml(q.note||'A little habit has become hard to miss.')}</span></div></article>`).join(''):`<div class="dragonbound-personality-undiscovered"><b>?</b><span>No quirks confirmed yet.<small>Odd little habits take longer to be sure about.</small></span></div>`;}
+      if(myDragonRelationship)myDragonRelationship.innerHTML=`<strong>${dragonboundEscapeHtml(stage.name)}</strong><p>${dragonboundEscapeHtml(universe.relationship||stage.note)}</p><small>${Math.round(src.bond)} bond · trust changes comfort, not who they are.</small>`;
+      if(myDragonObsession)myDragonObsession.textContent=universe.currentObsession||'Still choosing';if(myDragonKeeperNote)myDragonKeeperNote.textContent=universe.keeperNote||'Keep watching the little choices.';
       const preferredFloor=src.preferences?.preferredFloor==='upstairs'?'Upstairs':'Downstairs',favItems=[['Overall',overall?.name||src.preferences?.formed?.favouriteFurniture?.name||'Still choosing'],['Bed / Rest',bed?.name||'Still choosing'],['Toy / Play',toy?.name||'Still choosing'],['Food / Drink',feeding?.name||'Still choosing'],['Favourite area',preferredFloor],['Favourite activity',activity?dragonProfileActivityLabel(activity[0]):'Still deciding']];
       if(myDragonFavourites)myDragonFavourites.innerHTML=favItems.map(([label,value])=>`<div><small>${dragonboundEscapeHtml(label)}</small><strong>${dragonboundEscapeHtml(value)}</strong></div>`).join('');
-      const habits=[];if(src.preferences?.formed?.favouriteSleepSpot)habits.push(`${preferredFloor} sleeper`);if(Number(obs.bedSleeps||0)+Number(obs.sleepSessions||0)>=3)habits.push('Regular napper');if(Number(obs.bathUses||0)>=2)habits.push('Enjoys bath time');if(Number(obs.trainingUses||0)>=2)habits.push('Likes training');if(Number(obs.toyPlays||0)+Number(obs.puzzleUses||0)>=3)habits.push('Playful routine');if(Number(obs.newLocationsVisited||0)>=5)habits.push('Likes exploring');if(Number(obs.sameSleepSpotVisits||0)>=3)habits.push('Creature of habit');if(src.discovered.includes('Early Riser'))habits.push('Early riser');if(src.discovered.includes('Night Owl'))habits.push('Night owl');if(src.discovered.includes('Food Goblin')||src.discovered.includes('Greedy'))habits.push('Always notices food');if(src.discovered.includes('Splash Addict'))habits.push('Water obsessed');if(src.discovered.includes('Little Athlete'))habits.push('Little athlete');if(!habits.length)habits.push('Still forming routines');if(myDragonHabits)myDragonHabits.innerHTML=habits.slice(0,7).map(h=>`<span>${dragonboundEscapeHtml(h)}</span>`).join('');
+      const habits=[];(Array.isArray(universe.habits)?universe.habits:[]).forEach(h=>{if(h?.label)habits.push(h.label);});if(src.preferences?.formed?.favouriteSleepSpot)habits.push(`${preferredFloor} sleeper`);if(Number(obs.bedSleeps||0)+Number(obs.sleepSessions||0)>=3)habits.push('Regular napper');if(Number(obs.bathUses||0)>=2)habits.push('Enjoys bath time');if(Number(obs.trainingUses||0)>=2)habits.push('Likes training');if(Number(obs.toyPlays||0)+Number(obs.puzzleUses||0)>=3)habits.push('Playful routine');if(Number(obs.newLocationsVisited||0)>=5)habits.push('Likes exploring');if(Number(obs.sameSleepSpotVisits||0)>=3)habits.push('Creature of habit');if(src.discovered.includes('Early Riser'))habits.push('Early riser');if(src.discovered.includes('Night Owl'))habits.push('Night owl');if(src.discovered.includes('Food Goblin')||src.discovered.includes('Greedy')||src.discovered.includes('Treat Obsessed'))habits.push('Always notices food');if(src.discovered.includes('Splash Addict')||src.discovered.includes('Water Baby'))habits.push('Water enthusiast');if(src.discovered.includes('Little Athlete')||src.discovered.includes('Natural Athlete'))habits.push('Little athlete');const uniqueHabits=[...new Set(habits)];if(!uniqueHabits.length)uniqueHabits.push('Still forming routines');if(myDragonHabits)myDragonHabits.innerHTML=uniqueHabits.slice(0,9).map(h=>`<span>${dragonboundEscapeHtml(h)}</span>`).join('');if(myDragonComforts){const vals=Array.isArray(universe.comforts)?universe.comforts:[];myDragonComforts.innerHTML=vals.length?vals.map(v=>`<span><i>♥</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>Still learning what feels like home.</em>';}if(myDragonDislikes){const vals=Array.isArray(universe.dislikes)?universe.dislikes:[];myDragonDislikes.innerHTML=vals.length?vals.map(v=>`<span><i>×</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>No strong dislikes confirmed yet.</em>';}
+
       const daily=src.memory?.dailyLife||{},hour=new Date().getHours(),period=hour>=6&&hour<11?'morning':hour>=11&&hour<17?'day':hour>=17&&hour<22?'evening':'night',routineRows=Object.entries(daily?.routineCounts?.[period]||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0)),formedRoutineKey=period==='morning'?'preferredMorningActivity':period==='evening'?'preferredEveningActivity':period==='night'?'preferredNightActivity':'preferredDayActivity',favouriteRoutine=routineRows[0]?.[0]||src.preferences?.formed?.[formedRoutineKey]||'',moodRows=Object.entries(daily?.moodCounts||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0)),commonMood=moodRows[0]?.[0]||src.mood;
       if(myDragonDailyLife){const dailyCards=[['Current mood',src.mood],[`Usual ${period}`,favouriteRoutine?dragonProfileLifeLabel(favouriteRoutine):'Still forming'],['Most common mood',commonMood],['Most common activity',activity?dragonProfileActivityLabel(activity[0]):'Still deciding']];myDragonDailyLife.innerHTML=dailyCards.map(([label,value])=>`<div><small>${dragonboundEscapeHtml(label)}</small><strong>${dragonboundEscapeHtml(value)}</strong></div>`).join('');}
       if(myDragonRecentMoment){const recent=daily?.lastMeaningfulMoment||{},when=recent.at?dragonProfileDate(recent.at):'';myDragonRecentMoment.innerHTML=recent?.detail?`<small>RECENT MOMENT${when?` · ${dragonboundEscapeHtml(when)}`:''}</small><strong>${dragonboundEscapeHtml(recent.label||dragonProfileLifeLabel(recent.type))}</strong><p>${dragonboundEscapeHtml(recent.detail)}</p>`:'<small>RECENT MOMENT</small><p>Still waiting for the next little adventure.</p>'; }
@@ -43830,15 +44100,17 @@ document.head.appendChild(s)})();
       if(myDragonSkillHelp){const key=dragonProfileSelectedSkill,valid=DRAGONBOUND_PROFILE_SKILLS.includes(key);myDragonSkillHelp.hidden=!valid;if(valid){const examples=dragonProfileOwnedSkillExamples(src,key),cooldown=dragonProfileSkillCooldown(src,key);if(myDragonSkillHelpTitle)myDragonSkillHelpTitle.textContent=DRAGONBOUND_PROFILE_SKILL_LABELS[key]||key;if(myDragonSkillHelpCopy)myDragonSkillHelpCopy.textContent=dragonProfileSkillHelpCopy(key);if(myDragonSkillHelpOwned)myDragonSkillHelpOwned.innerHTML=examples.length?examples.map(item=>`<div><strong>${dragonboundEscapeHtml(item.name)}</strong><span>${item.placed?'Placed in your home':'Owned in Build Inventory'}${item.owned>1?` · ×${item.owned}`:''}</span></div>`).join(''):`<div class="is-empty"><strong>No matching training furniture owned yet</strong><span>Bonnie's furniture shop may have something suitable.</span></div>`;if(myDragonSkillHelpNote)myDragonSkillHelpNote.textContent=`${dragonProfileSkillPassiveNote(key)} ${cooldown.ready?'This skill is ready to earn XP now.':`${dragonProfileFormatCooldown(cooldown.remainingMs)} — practice is still allowed, but it will not award more XP until recovery finishes.`}`;}}
       const lifeMomentCount=Object.values(src.memory?.dailyLife?.eventCounts||{}).reduce((sum,v)=>sum+(Number(v)||0),0),lifeStats=[['Pets',Number(obs.petsReceived||0)],['Dragon Bites',Number(obs.dragonBitesEaten||0)],['Baths',Number(obs.bathUses||0)],['Naps',Number(obs.bedSleeps||0)+Number(obs.sleepSessions||0)],['Objects carried',Number(obs.objectsCarried||0)],['Toy plays',Number(obs.toyPlays||0)+Number(obs.puzzleUses||0)],['Training',Number(obs.trainingUses||0)],['Furniture uses',Number(obs.furnitureInteractions||0)],['Flights',Number(obs.flightsTaken||0)],['Life moments',lifeMomentCount]];
       if(myDragonStats)myDragonStats.innerHTML=lifeStats.map(([label,value])=>`<div><strong>${Number(value).toLocaleString('en-GB')}</strong><small>${dragonboundEscapeHtml(label)}</small></div>`).join('');
-      const memories=[];const seen=new Set();const add=(entry)=>{if(!entry?.title||seen.has(entry.title))return;seen.add(entry.title);memories.push(entry);};(Array.isArray(src.memory?.lifeHistory)?src.memory.lifeHistory:[]).forEach(add);Object.entries(src.memory?.bondMilestones||{}).forEach(([level,at])=>{const st=DRAGONBOUND_PROFILE_BOND_STAGES.find(s=>String(s.min)===String(level));if(st)add({title:`Reached ${st.name}`,detail:st.note,at:Number(at)||0,type:'bond'});});Object.entries(src.memory?.traitDiscoveredAt||{}).forEach(([trait,at])=>add({title:`Discovered: ${trait}`,detail:DRAGONBOUND_TRAIT_OBSERVATIONS[trait]||'A new part of their nature revealed itself.',at:Number(at)||0,type:'trait'}));if(src.hatchedAt)add({title:'Hatched into the world',detail:`${src.name} joined your Dragonbound life.`,at:src.hatchedAt,type:'hatch'});memories.sort((a,b)=>Number(b.at||0)-Number(a.at||0));
-      if(myDragonMemories)myDragonMemories.innerHTML=memories.length?memories.slice(0,7).map(m=>`<article><time>${dragonProfileDate(m.at)}</time><div><strong>${dragonboundEscapeHtml(m.title)}</strong><span>${dragonboundEscapeHtml(m.detail||'')}</span></div></article>`).join(''):'<p class="dragonbound-my-dragon-memory-empty">Keep spending time together and this scrapbook will fill itself in.</p>';
+      const memories=[];const seen=new Set();const add=(entry)=>{if(!entry?.title||seen.has(entry.title))return;seen.add(entry.title);memories.push(entry);};(Array.isArray(src.memory?.lifeHistory)?src.memory.lifeHistory:[]).forEach(add);Object.entries(src.memory?.bondMilestones||{}).forEach(([level,at])=>{const st=DRAGONBOUND_PROFILE_BOND_STAGES.find(s=>String(s.min)===String(level));if(st)add({title:`Reached ${st.name}`,detail:st.note,at:Number(at)||0,type:'bond'});});Object.entries(src.memory?.traitDiscoveredAt||{}).forEach(([trait,at])=>add({title:`Discovered: ${trait}`,detail:dragonProfileTraitObservation(trait),at:Number(at)||0,type:'trait'}));if(src.hatchedAt)add({title:'Hatched into the world',detail:`${src.name} joined your Dragonbound life.`,at:src.hatchedAt,type:'hatch'});memories.sort((a,b)=>Number(b.at||0)-Number(a.at||0));
+      if(myDragonMemories)myDragonMemories.innerHTML=memories.length?memories.slice(0,14).map(m=>`<article><time>${dragonProfileDate(m.at)}</time><div><strong>${dragonboundEscapeHtml(m.title)}</strong><span>${dragonboundEscapeHtml(m.detail||'')}</span></div></article>`).join(''):'<p class="dragonbound-my-dragon-memory-empty">Keep spending time together and this scrapbook will fill itself in.</p>';
+      try{window.DragonboundSocialCalendar?.renderJournal?.(src);}catch(_e){}
     };
     let myDragonProfileTimer=0;
+    myDragonJournalTabs.forEach(tab=>tab.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();const next=String(tab.dataset.dragonJournalTab||'nature');if(!['nature','habits','bonds','life','calendar','scrapbook'].includes(next))return;dragonProfileSelectedTab=next;syncDragonJournalTab();}));
     myDragonSkills?.addEventListener('click',event=>{const card=event.target.closest('[data-skill]');if(!card)return;const key=String(card.dataset.skill||'');if(!DRAGONBOUND_PROFILE_SKILLS.includes(key))return;event.preventDefault();event.stopPropagation();dragonProfileSelectedSkill=dragonProfileSelectedSkill===key?'':key;renderMyDragonProfile();});
     myDragonSkillHelpClose?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();dragonProfileSelectedSkill='';renderMyDragonProfile();});
     const closeMyDragonProfile=()=>{clearInterval(myDragonProfileTimer);myDragonProfileTimer=0;dragonProfileSelectedSkill='';myDragonOverlay?.classList.remove('is-visible');myDragonOverlay?.setAttribute('aria-hidden','true');};
     const openMyDragonProfile=async({fromStudy=false}={})=>{
-      if(fromStudy)closeStudyMenu();closeTravelMenu();renderMyDragonProfile();myDragonOverlay?.classList.add('is-visible');myDragonOverlay?.setAttribute('aria-hidden','false');
+      dragonProfileSelectedTab='nature';if(fromStudy)closeStudyMenu();closeTravelMenu();renderMyDragonProfile();myDragonOverlay?.classList.add('is-visible');myDragonOverlay?.setAttribute('aria-hidden','false');
       clearInterval(myDragonProfileTimer);myDragonProfileTimer=setInterval(()=>{if(myDragonOverlay?.classList.contains('is-visible'))renderMyDragonProfile();},1000);
       requestAnimationFrame(()=>myDragonClose?.focus({preventScroll:true}));
       if(!window.DragonboundBabyEngine?.actor&&!namedDragonForCurrentAccount()?.name){try{await hydrateDragonboundProfile({force:false});renderMyDragonProfile();}catch(_e){}}
@@ -44975,4 +45247,208 @@ document.head.appendChild(s)})();
   }else{
     bindDragonboundLauncher();
   }
+})();
+
+
+/* === V33.74 ENDLESS HORDE PERFORMANCE DIAGNOSTICS (read-only) === */
+window.repoEndlessCombatPerf=()=>{
+  const s=(typeof combatState!=='undefined'&&combatState?.zombie)?combatState:null;
+  return {
+    active:Boolean(typeof combatRunning!=='undefined'&&combatRunning&&s),
+    paused:Boolean(typeof combatPaused!=='undefined'&&combatPaused),
+    wave:Number(s?.zombie?.wave||0),
+    enemies:Number(s?.enemies?.length||0),
+    orbs:Number(s?.orbs?.length||0),
+    particles:Number(s?.particles?.length||0),
+    projectiles:Number(s?.projectiles?.length||0),
+    slashes:Number(s?.slashes?.length||0),
+    chains:Number(s?.chains?.length||0),
+    explosions:Number(s?.repoHordeExplosions?.length||0),
+    canvas:s?`${document.getElementById('combatCanvas')?.width||0}x${document.getElementById('combatCanvas')?.height||0}`:'inactive'
+  };
+};
+
+
+// ============================================================
+// V33.75 — SITE PERFORMANCE GUARD / READ-ONLY OWNER DIAGNOSTICS
+// No global timer/RAF monkey-patching. This only reports known runtime state.
+// ============================================================
+(function installRepoPerformanceDebugV3375(){
+  if(window.RepoPerformanceDebug?.version==='33.75')return;
+  const safeCount=value=>Array.isArray(value)?value.length:0;
+  const admin=()=>typeof repoIsSiteAdmin==='function'?Boolean(repoIsSiteAdmin()):false;
+  const visible=id=>{const el=document.getElementById(id);return Boolean(el&&(el.open||el.classList.contains('is-open')||el.classList.contains('is-visible')||el.getAttribute('aria-hidden')==='false'));};
+  const snapshot=()=>{
+    if(!admin())return {version:'33.75',available:false,reason:'admin-only'};
+    const combat=typeof combatState!=='undefined'&&combatState?combatState:null;
+    const dragonOverlay=document.getElementById('dragonboundOverlay');
+    const racingModal=document.getElementById('dragonRacingModal');
+    return {
+      version:'33.75',
+      visibility:document.visibilityState,
+      pageHidden:document.hidden,
+      combat:{
+        running:typeof combatRunning!=='undefined'?Boolean(combatRunning):false,
+        paused:typeof combatPaused!=='undefined'?Boolean(combatPaused):false,
+        raf:typeof combatFrame!=='undefined'?Number(combatFrame||0):0,
+        location:combat?.location||'',
+        enemies:safeCount(combat?.enemies),
+        projectiles:safeCount(combat?.projectiles),
+        particles:safeCount(combat?.particles),
+        orbs:safeCount(combat?.orbs),
+        slashes:safeCount(combat?.slashes),
+        chains:safeCount(combat?.chains),
+        explosions:safeCount(combat?.repoHordeExplosions)
+      },
+      dragonbound:{open:Boolean(dragonOverlay?.classList.contains('is-open')),homeVisible:Boolean(dragonOverlay?.querySelector('.dragonbound-home-scene.is-visible')),treatCooldownTimer:typeof dragonTreatCooldownTimer!=='undefined'?Boolean(dragonTreatCooldownTimer):false},
+      dragonRacing:{open:Boolean(racingModal?.classList.contains('is-open')||racingModal?.getAttribute('aria-hidden')==='false'),active:Boolean(racingModal?.classList.contains('is-race-active'))},
+      binder:{open:visible('quidditchTcgBinderDialog')},
+      rcg:{binderOpen:visible('repoRcgBinderDialog')},
+      fable:{shopOpen:visible('repoFableShopV2217')},
+      knownIntervals:{
+        resourceWatchdog:typeof resourceWatchdogTimer!=='undefined'?Boolean(resourceWatchdogTimer):false,
+        miningAfk:typeof miningAfkPoll!=='undefined'?Boolean(miningAfkPoll):false,
+        miningLive:typeof miningLivePoll!=='undefined'?Boolean(miningLivePoll):false,
+        petRoom:typeof petRoomSwitchTimer!=='undefined'?Boolean(petRoomSwitchTimer):false,
+        petWar:typeof petWarPollTimer!=='undefined'?Boolean(petWarPollTimer):false,
+        quidditchLive:typeof qmState!=='undefined'?Boolean(qmState?.livePoll):false
+      }
+    };
+  };
+  const quickCheck=()=>{
+    const state=snapshot(),warnings=[];
+    if(!state.available&&state.reason==='admin-only')return {state,warnings:['Admin only.']};
+    if(!state.combat.running&&state.combat.raf)warnings.push('Combat RAF exists while combatRunning=false.');
+    if(document.hidden&&state.combat.running)warnings.push('Combat is still logically running in a hidden tab; browser RAF throttling may apply.');
+    if(!state.dragonbound.open&&state.dragonbound.homeVisible)warnings.push('Dragonbound home reports visible while Dragonbound overlay is closed.');
+    if(!warnings.length)warnings.push('No obvious managed lifecycle conflict detected.');
+    return {state,warnings};
+  };
+  window.RepoPerformanceGuard={version:'33.75',snapshot};
+  window.RepoPerformanceDebug={version:'33.75',snapshot,quickCheck};
+})();
+
+
+/* V33.81 — Household Bonds + Velmoran Calendar loader (bounded, no observer). */
+(()=>{
+  if(window.__dragonboundSocialCalendarLoaderV3381)return;
+  window.__dragonboundSocialCalendarLoaderV3381=true;
+  const load=()=>{
+    if(document.querySelector('script[data-dragonbound-social-calendar="v33.81"]'))return;
+    const el=document.createElement('script');
+    el.src='dragonbound-calendar-social.js?v=33.81';el.defer=true;el.dataset.dragonboundSocialCalendar='v33.81';
+    (document.head||document.documentElement).appendChild(el);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
+})();
+
+/* =====================================================================
+   Dragonbound V33.84 — Commands & Tricks visual redesign hook
+   The command system mounts its overlay directly to document.body, so the
+   styling hook is deliberately body-level and event-driven (no DOM observer).
+   ===================================================================== */
+(function(){
+  'use strict';
+  if(window.__dragonboundCommandRefreshV3384)return;
+  window.__dragonboundCommandRefreshV3384=true;
+
+  const COMMAND_NAMES=['Come Here','Sit','Stay','Go to Bed','Eat','Bath Time','Fetch','Drop It','Go to Furniture','Roar','Tiny Flame','Fly to Perch'];
+  const normal=v=>String(v||'').replace(/\s+/g,' ').trim();
+
+  function findCommandShell(){
+    const headings=[...document.querySelectorAll('h1,h2,h3,h4,strong,div,span')].filter(el=>/commands\s*&\s*tricks/i.test(normal(el.textContent)));
+    for(const heading of headings){
+      let node=heading;
+      for(let i=0;i<8&&node&&node!==document.body;i++,node=node.parentElement){
+        const txt=normal(node.textContent);
+        const buttons=node.querySelectorAll?.('button,[role="button"]')||[];
+        if(/current\s*dragon/i.test(txt)&&/your\s*cues/i.test(txt)&&buttons.length>=8)return node;
+      }
+    }
+    return null;
+  }
+
+  function smallestContainer(el,predicate,max=6){
+    let node=el;
+    for(let i=0;i<max&&node;i++,node=node.parentElement){
+      if(predicate(node))return node;
+    }
+    return el?.parentElement||el||null;
+  }
+
+  function decorateCommandMenu(){
+    const shell=findCommandShell();
+    if(!shell)return false;
+    shell.classList.add('dragonbound-command-ui-v3384');
+
+    const heading=[...shell.querySelectorAll('h1,h2,h3,h4,strong,div,span')].find(el=>/commands\s*&\s*tricks/i.test(normal(el.textContent)));
+    if(heading){
+      const header=smallestContainer(heading,node=>{
+        const t=normal(node.textContent),n=node.querySelectorAll?.('button,[role="button"]')?.length||0;
+        return /keeper\s*training/i.test(t)&&/commands\s*&\s*tricks/i.test(t)&&n<=2;
+      });
+      header?.classList.add('dragonbound-command-ui-v3384-header');
+    }
+
+    const current=[...shell.querySelectorAll('small,strong,span,div,p')].find(el=>/^current\s*dragon$/i.test(normal(el.textContent)));
+    if(current){
+      const bar=smallestContainer(current,node=>{
+        const t=normal(node.textContent),n=node.querySelectorAll?.('button,[role="button"]')?.length||0;
+        return /current\s*dragon/i.test(t)&&/bond/i.test(t)&&n===0;
+      });
+      bar?.classList.add('dragonbound-command-ui-v3384-dragonbar');
+    }
+
+    const cueLabel=[...shell.querySelectorAll('small,strong,span,div,p')].find(el=>/^your\s*cues$/i.test(normal(el.textContent)));
+    if(cueLabel){
+      const row=smallestContainer(cueLabel,node=>/understanding improves/i.test(normal(node.textContent)));
+      row?.classList.add('dragonbound-command-ui-v3384-cuehead');
+    }
+
+    const allButtons=[...shell.querySelectorAll('button,[role="button"]')];
+    allButtons.forEach(btn=>{
+      const txt=normal(btn.textContent);
+      const aria=normal(btn.getAttribute('aria-label'));
+      if((txt==='×'||/^close/i.test(aria))&&!COMMAND_NAMES.some(n=>txt.includes(n))){btn.classList.add('dragonbound-command-ui-v3384-close');return;}
+      const isCommand=COMMAND_NAMES.some(name=>txt.toLowerCase().includes(name.toLowerCase()))||/\b(practice|ready|locked)\b/i.test(txt);
+      if(!isCommand)return;
+      btn.classList.add('dragonbound-command-ui-v3384-card');
+      btn.classList.toggle('is-locked-v3384',btn.disabled||/\blocked\b|required\./i.test(txt));
+      btn.classList.toggle('is-ready-v3384',!/\blocked\b|required\./i.test(txt)&&/\bready\b/i.test(txt));
+      btn.classList.toggle('is-learning-v3384',!/\blocked\b|required\./i.test(txt)&&/\blearning\b|practice/i.test(txt));
+    });
+
+    const cards=[...shell.querySelectorAll('.dragonbound-command-ui-v3384-card')];
+    if(cards.length){
+      let grid=cards[0].parentElement;
+      while(grid&&grid!==shell){
+        if(grid.querySelectorAll('.dragonbound-command-ui-v3384-card').length>=Math.min(6,cards.length))break;
+        grid=grid.parentElement;
+      }
+      grid?.classList.add('dragonbound-command-ui-v3384-grid');
+    }
+
+    const foot=[...shell.querySelectorAll('small,span,p,div')].find(el=>/learning recovery pauses proficiency xp/i.test(normal(el.textContent)));
+    if(foot){
+      const box=smallestContainer(foot,node=>normal(node.textContent).length<180,4);
+      box?.classList.add('dragonbound-command-ui-v3384-foot');
+    }
+    return true;
+  }
+
+  function queueDecorate(){
+    requestAnimationFrame(()=>{decorateCommandMenu();setTimeout(decorateCommandMenu,40);});
+  }
+
+  document.addEventListener('pointerup',event=>{
+    const t=event.target?.closest?.('[class*="dragonbound-command"],[data-command],[aria-label*="Command" i]');
+    if(t)queueDecorate();
+  },true);
+  document.addEventListener('click',event=>{
+    const txt=normal(event.target?.textContent);
+    if(/commands?/i.test(txt)||event.target?.closest?.('[class*="dragonbound-command"]'))queueDecorate();
+  },true);
+  window.addEventListener('dragonbound:home-visible',queueDecorate);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',queueDecorate,{once:true});else queueDecorate();
+  window.DragonboundCommandUiRefresh=()=>decorateCommandMenu();
 })();

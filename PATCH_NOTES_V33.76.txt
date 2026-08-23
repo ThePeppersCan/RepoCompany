@@ -1,0 +1,31 @@
+VELMORA V33.76 — ISKANDAR GROUND-FACING HOTFIX
+
+Problem
+- Iskandar could run backwards during the pre-takeoff / post-landing ground run in Dragon Racing.
+- Its race flight frames had previously been correctly identified as natively left-facing, but the renderer used that same orientation for every animation state.
+- Iskandar's ground walk/idle frames are natively right-facing, so applying the flight orientation to them reversed the run cycle.
+
+Fix
+- Added motion-specific native-facing support to the race renderer.
+- Iskandar now uses:
+  * walk / idle: RIGHT native facing
+  * takeoff: LEFT native facing
+  * flight: LEFT native facing
+  * landing: LEFT native facing
+- All other breeds continue to use their existing single race-facing profile unless a future state-specific override is explicitly defined.
+
+Preserved
+- Existing Iskandar flight-direction fix.
+- Nambara, Nyrgate Aurora and Rova End facing fixes.
+- Calvora safe flight frames.
+- V33.71 grounding/depth.
+- V33.72 race drama.
+- V33.73 performance recovery.
+- Keeper Mark payouts/results.
+- Camera, RNG, audio, race path and timings.
+- Dragon Racing XP remains disabled.
+
+Files changed
+- dragon-racing-race.js
+
+No assets, CSS, main-site script or index.html changed.
