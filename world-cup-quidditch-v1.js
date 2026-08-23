@@ -19,8 +19,14 @@
     'warmvein':{src:BASE+'warmvein-intro.mp4?v=sf-20260823-v2',duration:27.961267},
     'yrsa-varn':{src:BASE+'yrsa-varn-intro.mp4',duration:22.3},
     'treedesh-forest':{src:BASE+'treedesh-intro.mp4?v=sf-20260823-v2',duration:30.296933},
+    'celestine-crown-citadel':{src:BASE+'celestine-crown-intro.mp4?v=final-20260823-v1',duration:37.066667},
     'basalt-coast':{src:BASE+'basalt-coast-intro.mp4',duration:22.3}
   });
+  const WORLD_CUP_FINAL_VICTORY_FILMS = Object.freeze({
+    rovarn:{src:BASE+'rovarn-world-champions.mp4?v=final-20260823-v1',duration:30.663967},
+    talune:{src:BASE+'talune-world-champions.mp4?v=final-20260823-v1',duration:46.780067}
+  });
+  const WORLD_CUP_FINAL_VICTORY_START = 3;
   const WORLD_CUP_BARRY_OPENING_DURATION = 29.648875;
   const WORLD_CUP_BARRY_OPENING_AUDIO = BASE+'barry-opening-night.mp3';
   const WORLD_CUP_BARRY_OPENING_BACKDROP = BASE+'world-cup-opening-studio.png';
@@ -118,7 +124,8 @@
     'yrsa-varn':{id:'yrsa-varn',name:'YRSA VARN WORLD STADIUM',shortName:'Yrsa Varn',src:BASE+'stadiums/yrsa-varn.png',ambience:'indoor',standingOffsetPx:110},
     'basalt-coast':{id:'basalt-coast',name:'SKALLHEIM GRAND ICE',shortName:'Skallheim Grand Ice',src:BASE+'stadiums/basalt-coast.png',ambience:'blizzard',standingOffsetPx:106},
     'hestholm-fjord':{id:'hestholm-fjord',name:'HESTHOLM FJORD GROUND',shortName:'Hestholm Fjord',src:BASE+'stadiums/hestholm-fjord-arena.png',ambience:'daylight',standingOffsetPx:114},
-    'treedesh-forest':{id:'treedesh-forest',name:'FROSTPINE TIMBER ARENA',shortName:'Frostpine Timber Arena',src:BASE+'stadiums/treedesh-forest.png?v=sf-20260823-v2',ambience:'daylight',standingOffsetPx:102}
+    'treedesh-forest':{id:'treedesh-forest',name:'FROSTPINE TIMBER ARENA',shortName:'Frostpine Timber Arena',src:BASE+'stadiums/treedesh-forest.png?v=sf-20260823-v2',ambience:'daylight',standingOffsetPx:102},
+    'celestine-crown-citadel':{id:'celestine-crown-citadel',name:'CELESTINE CROWN CITADEL',shortName:'Celestine Crown Citadel',src:BASE+'stadiums/celestine-crown-citadel.png?v=wc-final-20260823-v3388',ambience:'aurora',standingOffsetPx:108}
   });
   const WORLD_CUP_ROUND16_FIXTURE_ORDER = Object.freeze([
     'belros-zafran','iskandar-calvora','sorevia-lumerre','talune-kordesh',
@@ -133,6 +140,9 @@
   const WORLD_CUP_SEMI_FINAL_ARENAS = Object.freeze({
     'sf-rovarn-marovar':'warmvein',
     'sf-talune-lumerre':'treedesh-forest'
+  });
+  const WORLD_CUP_FINAL_ARENAS = Object.freeze({
+    'final-rovarn-talune':'celestine-crown-citadel'
   });
   // ROUND OF 16 · REPOSPORTS EXPERIENCE EDGE
   // Countries fielding a current/main RepoSports League pet get a deliberately
@@ -188,6 +198,8 @@
   const WORLD_CUP_FIXTURE_ARENAS = buildWorldCupArenaAssignments();
   function arenaForFixture(fixtureId){
     const id=String(fixtureId||'').trim().toLowerCase();
+    const finalArena=WORLD_CUP_FINAL_ARENAS[id];
+    if(finalArena&&WORLD_CUP_ARENAS[finalArena])return WORLD_CUP_ARENAS[finalArena];
     const semiFinalArena=WORLD_CUP_SEMI_FINAL_ARENAS[id];
     if(semiFinalArena&&WORLD_CUP_ARENAS[semiFinalArena])return WORLD_CUP_ARENAS[semiFinalArena];
     const quarterFinalArena=WORLD_CUP_QUARTER_FINAL_ARENAS[id];
@@ -500,7 +512,9 @@
     cameraDirector:{shot:'MAIN',timer:0,lastShot:'',cutSerial:0},
     broadcast:null,bigMomentTimer:0,arena:null,ambienceId:'crown-of-vardesh-glacier',
     barryOpeningActive:false,barryOpeningDone:false,openingFilmOriginAt:0,
-    openingFilmActive:false,openingFilmDone:false,openingFilmMutedFallback:false,openingFilmSrc:'',openingFilmDuration:0,gameplayStartedAt:0,gameplayAssetsReady:false,gameplayAssetsFailed:false,realResultArmed:false,realResultReported:false,
+    openingFilmActive:false,openingFilmDone:false,openingFilmMutedFallback:false,openingFilmSrc:'',openingFilmDuration:0,
+    victoryFilmActive:false,victoryFilmMutedFallback:false,victoryFilmSrc:'',victoryFilmDuration:0,victoryFilmWinner:'',
+    gameplayStartedAt:0,gameplayAssetsReady:false,gameplayAssetsFailed:false,realResultArmed:false,realResultReported:false,
     syncRole:'viewer',syncSeq:0,syncEventSeq:0,syncPresentationSeq:0,syncLastSentAt:0,syncLastReceivedAt:0,syncHasAuthority:false,syncSendBusy:false,
     syncRemote:null,syncRemoteTargets:null,syncClockBase:0,syncClockSentAt:0,syncClockRunning:false,syncClockOffsetMs:0,syncClockOffsetReady:false,syncClockOffsetSamples:[],syncLastFlightKind:'',remoteReplayFrame:null,remoteReplayFrameSmooth:null,remoteReplayStatus:'',remoteReplayLabel:'',syncLastEventSeq:0,syncLastPresentationSeq:0,
     remoteCelebrationTimeline:null,remoteReplayTimeline:null,syncCelebrationTimeline:null,syncReplayTimeline:null
@@ -526,6 +540,7 @@
         <button id="wcgBarryOpeningSound" type="button" hidden>CLICK FOR SOUND</button>
       </div>
       <div id="wcgOpeningFilm" class="wcg-opening-film" aria-hidden="true"><video id="wcgOpeningFilmVideo" playsinline preload="auto"></video><button id="wcgOpeningFilmSound" type="button" hidden>CLICK FOR SOUND</button></div>
+      <div id="wcgVictoryFilm" class="wcg-victory-film" aria-hidden="true"><video id="wcgVictoryFilmVideo" playsinline preload="auto"></video><button id="wcgVictoryFilmSound" type="button" hidden>CLICK FOR SOUND</button></div>
       <canvas id="wcgCanvas" class="wcg-canvas" width="${W}" height="${H}"></canvas>
       <div id="wcgSnow" class="wcg-snow" aria-hidden="true"></div>
       <div id="wcgWorldCupAtmosphere" class="wcg-worldcup-atmosphere" data-arena="crown-of-vardesh-glacier" aria-hidden="true"><i class="wcg-atmos-aurora"></i><i class="wcg-atmos-mist"></i></div>
@@ -618,6 +633,7 @@
       const f=document.createElement('i');const r=(i*37)%101;f.style.left=`${r}%`;f.style.animationDuration=`${7+(i%9)*.7}s`;f.style.animationDelay=`-${(i%13)*.7}s`;f.style.setProperty('--drift',`${-22+(i%11)*4}px`);if(i%5===0){f.style.width='3px';f.style.height='3px';f.style.opacity='.75'}snow.appendChild(f);
     }
     $('wcgOpeningFilmSound')?.addEventListener('click',()=>{const v=$('wcgOpeningFilmVideo');if(!v)return;v.muted=false;audio.setElementVolume(v,1);state.openingFilmMutedFallback=false;$('wcgOpeningFilmSound').hidden=true;v.play()?.catch?.(()=>{})});
+    $('wcgVictoryFilmSound')?.addEventListener('click',()=>{const v=$('wcgVictoryFilmVideo');if(!v)return;v.muted=false;audio.setElementVolume(v,1);state.victoryFilmMutedFallback=false;$('wcgVictoryFilmSound').hidden=true;v.play()?.catch?.(()=>{})});
     $('wcgBarryOpeningSound')?.addEventListener('click',()=>{const a=$('wcgBarryOpeningAudio');if(!a)return;a.muted=false;audio.setElementVolume(a,.92);$('wcgBarryOpeningSound').hidden=true;const elapsed=barryOpeningWallElapsed();try{a.currentTime=clamp(elapsed,0,Math.max(0,WORLD_CUP_BARRY_OPENING_DURATION-.08))}catch(_){}a.play()?.catch?.(()=>{})});
     $('wcgContinueHalf').addEventListener('click',advanceHalftimeControl);
     $('wcgReturnLobby').addEventListener('click',()=>closeBroadcast(true));
@@ -706,6 +722,7 @@
       const all=[this.crowd,this.whistle,this.goal,this.goalCheer,this.prematch,this.worldCupTrack1,this.worldCupTrack2,...(this.clubMatchTracks||[]),...(this.intercepts||[]),...(this.shots||[]),...(this.rebounds||[])];
       all.forEach(a=>{if(a&&Number.isFinite(a.__wcgBaseVolume))this.setElementVolume(a,a.__wcgBaseVolume)});
       const video=$('wcgOpeningFilmVideo');if(video&&Number.isFinite(video.__wcgBaseVolume))this.setElementVolume(video,video.__wcgBaseVolume);
+      const victoryVideo=$('wcgVictoryFilmVideo');if(victoryVideo&&Number.isFinite(victoryVideo.__wcgBaseVolume))this.setElementVolume(victoryVideo,victoryVideo.__wcgBaseVolume);
       const barryOpening=$('wcgBarryOpeningAudio');if(barryOpening&&Number.isFinite(barryOpening.__wcgBaseVolume))this.setElementVolume(barryOpening,barryOpening.__wcgBaseVolume);
       if(this.windGain)try{this.windGain.gain.value=.018*this.masterVolume}catch(_){};this.syncVolumeUi();
     },
@@ -1314,7 +1331,48 @@
   }
   function updateSecondHalfCountdown(dt){state.secondCountdown=Math.max(0,state.secondCountdown-dt);const n=Math.max(1,Math.ceil(state.secondCountdown));showPresentation(`second-${n}`,'SECOND HALF',String(n),'<div class="wcg-count-copy">PLAYERS SET · WHISTLEWORTH READY</div>','PLAY!','countdown');if(state.secondCountdown<=0){hidePresentation();if(isHost()){beginKickoff(other(state.firstKickoff),true);void sendAuthoritativeSnapshot(true)}}}
   function fulltimeMomentMarkup(){const ev=bestEvent(null);return `<p class="wcg-moment-copy">${eventDescription(ev)}</p>`}
-  function updateFulltimePresentation(dt){state.fulltimeElapsed+=dt;const data=state.fulltimeData;if(!data)return;const t=state.fulltimeElapsed;if(t<3){showPresentation('full-score','FULL TIME',scoreLine(),`<div class="wcg-half-big">${teamMeta[data.winner].name} ${data.fromShootout?'WIN ON PENALTIES':'WIN'}</div>`,`FINAL WHISTLE · ${activeArena().name}`,'fulltime')}else if(t<6){const p=data.mvp,s=state.playerStats[p.id];showPresentation('full-mvp','PLAYER OF THE MATCH',p.name,`<div class="wcg-player-half"><img src="${p.standing}" alt=""><p>${s.goals} GOALS · ${s.assists} ASSISTS · ${s.interceptions} INTERCEPTIONS</p></div>`,'MATCH IMPACT · LIVE STATS','player')}else if(t<9){showPresentation('full-moment','MATCH MOMENT',bestEvent()?.type.toUpperCase()||'FINAL WHISTLE',fulltimeMomentMarkup(),'THE MOMENT THAT DEFINED THE MATCH','moment')}else if(!$('wcgFulltime').classList.contains('is-open')){hidePresentation();populateFulltimePanel(data);$('wcgFulltime').classList.add('is-open');setBroadcastState('POST_MATCH');if(!state.packRewardHandled){state.packRewardHandled=true;setTimeout(()=>window.RepoWorldCupPacks?.completeFixture({...state.packFixture,phase:'fulltime',elapsedSeconds:Math.max(MATCH_SECONDS,state.matchTime)}),1700)}}}
+  function victoryFilmForWinner(data){
+    if(String(state.fixtureId||'')!=='final-rovarn-talune'||!data?.winner)return null;
+    const nation=String(teamMeta?.[data.winner]?.countryKey||teamMeta?.[data.winner]?.name||'').trim().toLowerCase();
+    return WORLD_CUP_FINAL_VICTORY_FILMS[nation]||null;
+  }
+  function stopWorldCupVictoryFilm(){
+    const wrap=$('wcgVictoryFilm'),video=$('wcgVictoryFilmVideo'),sound=$('wcgVictoryFilmSound');
+    if(video){try{video.pause()}catch(_){}video.playbackRate=1;video.onended=null;video.onerror=null}
+    if(sound)sound.hidden=true;
+    wrap?.classList.remove('is-visible');wrap?.setAttribute('aria-hidden','true');$('wcWorldCupBroadcast')?.classList.remove('is-victory-film');
+    state.victoryFilmActive=false;state.victoryFilmMutedFallback=false;state.victoryFilmSrc='';state.victoryFilmDuration=0;state.victoryFilmWinner='';
+  }
+  function syncWorldCupVictoryFilm(data,t){
+    const film=victoryFilmForWinner(data);if(!film)return false;
+    const elapsed=Math.max(0,t-WORLD_CUP_FINAL_VICTORY_START),duration=Math.max(.1,Number(film.duration)||1);
+    if(elapsed>=duration){if(state.victoryFilmActive)stopWorldCupVictoryFilm();return false}
+    const wrap=$('wcgVictoryFilm'),video=$('wcgVictoryFilmVideo'),sound=$('wcgVictoryFilmSound');if(!wrap||!video)return false;
+    const winnerNation=String(teamMeta?.[data.winner]?.countryKey||'').toLowerCase();
+    if(!state.victoryFilmActive||state.victoryFilmSrc!==film.src){
+      state.victoryFilmActive=true;state.victoryFilmMutedFallback=false;state.victoryFilmSrc=film.src;state.victoryFilmDuration=duration;state.victoryFilmWinner=winnerNation;
+      wrap.classList.add('is-visible');wrap.setAttribute('aria-hidden','false');$('wcWorldCupBroadcast')?.classList.add('is-victory-film');if(sound)sound.hidden=true;
+      video.src=film.src;video.preload='auto';video.playsInline=true;video.muted=false;audio.setElementVolume(video,1);video.playbackRate=1;
+      const playAligned=()=>{if(!state.victoryFilmActive)return;try{if(Math.abs((video.currentTime||0)-elapsed)>.12)video.currentTime=clamp(elapsed,0,Math.max(0,duration-.08))}catch(_){}const p=video.play();p?.catch?.(()=>{if(!state.victoryFilmActive)return;video.muted=true;state.victoryFilmMutedFallback=true;if(sound)sound.hidden=false;video.play()?.catch?.(()=>{})})};
+      video.onloadedmetadata=playAligned;video.oncanplay=()=>{if(video.paused)playAligned()};video.onerror=()=>{console.warn('[WORLD CUP] Winner film could not play.',film.src);stopWorldCupVictoryFilm()};
+      try{video.load()}catch(_){};playAligned();
+    }else if(video.readyState>=1){
+      const drift=(Number(video.currentTime)||0)-elapsed;
+      if(Math.abs(drift)>.34){try{video.currentTime=clamp(elapsed,0,Math.max(0,duration-.08))}catch(_){}}
+      else if(drift>.10)video.playbackRate=.985;else if(drift<-.10)video.playbackRate=1.015;else video.playbackRate=1;
+      if(video.paused){const p=video.play();p?.catch?.(()=>{video.muted=true;state.victoryFilmMutedFallback=true;if(sound)sound.hidden=false;video.play()?.catch?.(()=>{})})}
+    }
+    return true;
+  }
+  function updateFulltimePresentation(dt){
+    state.fulltimeElapsed+=dt;const data=state.fulltimeData;if(!data)return;const t=state.fulltimeElapsed,film=victoryFilmForWinner(data),filmEnd=WORLD_CUP_FINAL_VICTORY_START+(film?Math.max(.1,Number(film.duration)||1):0);
+    if(t<3){if(state.victoryFilmActive)stopWorldCupVictoryFilm();showPresentation('full-score','FULL TIME',scoreLine(),`<div class="wcg-half-big">${teamMeta[data.winner].name} ${data.fromShootout?'WIN ON PENALTIES':'WIN'}</div>`,`FINAL WHISTLE · ${activeArena().name}`,'fulltime')}
+    else if(film&&t<filmEnd){hidePresentation();$('wcgFulltime')?.classList.remove('is-open');syncWorldCupVictoryFilm(data,t);setBroadcastState('CHAMPIONS')}
+    else if(film){if(!$('wcgFulltime').classList.contains('is-open')){if(state.victoryFilmActive)stopWorldCupVictoryFilm();hidePresentation();populateFulltimePanel(data);$('wcgFulltime').classList.add('is-open');setBroadcastState('POST_MATCH');if(!state.packRewardHandled){state.packRewardHandled=true;setTimeout(()=>window.RepoWorldCupPacks?.completeFixture({...state.packFixture,phase:'fulltime',elapsedSeconds:Math.max(MATCH_SECONDS,state.matchTime)}),1700)}}}
+    else if(t<6){showPresentation('full-mvp','PLAYER OF THE MATCH',data.mvp.name,`<div class="wcg-player-half"><img src="${data.mvp.standing}" alt=""><p>${state.playerStats[data.mvp.id].goals} GOALS · ${state.playerStats[data.mvp.id].assists} ASSISTS · ${state.playerStats[data.mvp.id].interceptions} INTERCEPTIONS</p></div>`,'MATCH IMPACT · LIVE STATS','player')}
+    else if(t<9){showPresentation('full-moment','MATCH MOMENT',bestEvent()?.type.toUpperCase()||'FINAL WHISTLE',fulltimeMomentMarkup(),'THE MOMENT THAT DEFINED THE MATCH','moment')}
+    else if(!$('wcgFulltime').classList.contains('is-open')){hidePresentation();populateFulltimePanel(data);$('wcgFulltime').classList.add('is-open');setBroadcastState('POST_MATCH');if(!state.packRewardHandled){state.packRewardHandled=true;setTimeout(()=>window.RepoWorldCupPacks?.completeFixture({...state.packFixture,phase:'fulltime',elapsedSeconds:Math.max(MATCH_SECONDS,state.matchTime)}),1700)}}
+  }
   function worldCupTournamentBaseState(){
     try{return window.RepoSportsWorldCupTournament?.getState?.()||{results:{},playerGoals:{},teamGoals:{}}}catch(_){return {results:{},playerGoals:{},teamGoals:{}}}
   }
@@ -2313,9 +2371,9 @@
   async function openBroadcast(opts={}){
     if(state.open||state.opening)return;state.opening=true;createUi();configureFixtureTeams(opts);applyFixtureUiLabels();
     state.open=true;state.opening=false;state.startedAt=Number(opts.startedAt)||Date.now();state.seed=hashSeed(`${state.startedAt}|${state.fixtureId}|${teamMeta.belros.name} vs ${teamMeta.zafran.name}|WC2026`);state.simRand=mulberry32(state.seed);state.visualRand=mulberry32(state.seed^0x9e3779b9);
-    state.packFixture=wcPackFixtureMeta(opts);state.gameplayStartedAt=state.startedAt;state.phase='intro';state.introElapsed=0;state.matchTime=0;state.speed=1;state.half=1;state.firstKickoff='belros';state.score={belros:0,zafran:0};state.shootout=null;state.special=null;state.delay=null;state.celebration=null;state.varContext=null;state.actionTimer=2.5;state.ball={x:.5,y:.5,flight:null,visible:true};state.pendingPass=null;state.possessionChangedAt=performance.now();state.loreUsed=new Set();state.introCue=-1;state.presentationKey='';state.broadcastState='PRE_MATCH';state.halftimeElapsed=0;state.halftimeReady=false;state.halftimeGateReady=false;state.secondCountdown=0;state.fulltimeElapsed=0;state.fulltimeData=null;state.events=[];state.kickoffToss=null;state.kickoffReceiver=null;state.prematchAudioFailed=false;state.packRewardHandled=false;state.packHeartbeatAt=0;state.replay=null;state.replayIntro=null;state.replayOutro=null;state.replayBuffer=[];state.replayCaptureAccum=0;state.lastReplayAt=-999;state.storyGraphicTimer=34;state.storyGraphicUntil=0;state.storyGraphicIndex=0;state.bigMomentTimer=0;state.cameraDirector={shot:'MAIN',timer:3.4,lastShot:'',cutSerial:0};state.broadcast={barryPriority:0,barryUntil:0,barryState:'NEUTRAL',reactionTimer:0,talkTimer:0,speakTimer:0,speaking:false,queue:null,lastSpokenAt:0,lastPhaseCommentAt:0,phaseSeen:'',crowdLevel:.09};state.camera={x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'PRE_MATCH'};state.lastTs=0;state.crowdBoost=0;state.movementPulse=.1;state.director={phase:'BUILD-UP',momentum:{belros:0,zafran:0},pressure:{belros:0,zafran:0},recent:[],pulse:0};state.matchFlow=null;state.teamTactics=null;state.tacticalPulse=0;state.chanceBuild=null;state.barryOpeningActive=false;state.barryOpeningDone=false;state.openingFilmOriginAt=state.startedAt;state.openingFilmActive=false;state.openingFilmDone=false;state.openingFilmMutedFallback=false;state.openingFilmSrc='';state.openingFilmDuration=0;state.gameplayAssetsReady=false;state.gameplayAssetsFailed=false;state.realResultArmed=!!opts.realResult;state.realResultReported=false;audio.musicSequenceStarted=false;audio.currentMusic=null;audio.currentMusicIndex=-1;audio.currentMusicType='';state.syncRole=isHost()?'host':'viewer';state.syncSeq=0;state.syncEventSeq=0;state.syncPresentationSeq=0;state.syncLastSentAt=0;state.syncLastReceivedAt=0;state.syncHasAuthority=isHost();state.syncSendBusy=false;state.syncRemote=null;state.syncRemoteTargets=null;state.syncClockBase=0;state.syncClockSentAt=0;state.syncClockRunning=false;state.syncClockOffsetMs=0;state.syncClockOffsetReady=false;state.syncClockOffsetSamples=[];state.syncLastFlightKind='';state.remoteReplayFrame=null;state.remoteReplayFrameSmooth=null;state.remoteReplayStatus='';state.remoteReplayLabel='';state.syncLastEventSeq=0;state.syncLastPresentationSeq=0;state.remoteCelebrationTimeline=null;state.remoteReplayTimeline=null;state.syncCelebrationTimeline=null;state.syncReplayTimeline=null;
+    state.packFixture=wcPackFixtureMeta(opts);state.gameplayStartedAt=state.startedAt;state.phase='intro';state.introElapsed=0;state.matchTime=0;state.speed=1;state.half=1;state.firstKickoff='belros';state.score={belros:0,zafran:0};state.shootout=null;state.special=null;state.delay=null;state.celebration=null;state.varContext=null;state.actionTimer=2.5;state.ball={x:.5,y:.5,flight:null,visible:true};state.pendingPass=null;state.possessionChangedAt=performance.now();state.loreUsed=new Set();state.introCue=-1;state.presentationKey='';state.broadcastState='PRE_MATCH';state.halftimeElapsed=0;state.halftimeReady=false;state.halftimeGateReady=false;state.secondCountdown=0;state.fulltimeElapsed=0;state.fulltimeData=null;state.events=[];state.kickoffToss=null;state.kickoffReceiver=null;state.prematchAudioFailed=false;state.packRewardHandled=false;state.packHeartbeatAt=0;state.replay=null;state.replayIntro=null;state.replayOutro=null;state.replayBuffer=[];state.replayCaptureAccum=0;state.lastReplayAt=-999;state.storyGraphicTimer=34;state.storyGraphicUntil=0;state.storyGraphicIndex=0;state.bigMomentTimer=0;state.cameraDirector={shot:'MAIN',timer:3.4,lastShot:'',cutSerial:0};state.broadcast={barryPriority:0,barryUntil:0,barryState:'NEUTRAL',reactionTimer:0,talkTimer:0,speakTimer:0,speaking:false,queue:null,lastSpokenAt:0,lastPhaseCommentAt:0,phaseSeen:'',crowdLevel:.09};state.camera={x:.5,y:.5,zoom:1,tx:.5,ty:.5,tz:1,shake:0,vx:0,vy:0,vz:0,mode:'PRE_MATCH'};state.lastTs=0;state.crowdBoost=0;state.movementPulse=.1;state.director={phase:'BUILD-UP',momentum:{belros:0,zafran:0},pressure:{belros:0,zafran:0},recent:[],pulse:0};state.matchFlow=null;state.teamTactics=null;state.tacticalPulse=0;state.chanceBuild=null;state.barryOpeningActive=false;state.barryOpeningDone=false;state.openingFilmOriginAt=state.startedAt;state.openingFilmActive=false;state.openingFilmDone=false;state.openingFilmMutedFallback=false;state.openingFilmSrc='';state.openingFilmDuration=0;state.victoryFilmActive=false;state.victoryFilmMutedFallback=false;state.victoryFilmSrc='';state.victoryFilmDuration=0;state.victoryFilmWinner='';state.gameplayAssetsReady=false;state.gameplayAssetsFailed=false;state.realResultArmed=!!opts.realResult;state.realResultReported=false;audio.musicSequenceStarted=false;audio.currentMusic=null;audio.currentMusicIndex=-1;audio.currentMusicType='';state.syncRole=isHost()?'host':'viewer';state.syncSeq=0;state.syncEventSeq=0;state.syncPresentationSeq=0;state.syncLastSentAt=0;state.syncLastReceivedAt=0;state.syncHasAuthority=isHost();state.syncSendBusy=false;state.syncRemote=null;state.syncRemoteTargets=null;state.syncClockBase=0;state.syncClockSentAt=0;state.syncClockRunning=false;state.syncClockOffsetMs=0;state.syncClockOffsetReady=false;state.syncClockOffsetSamples=[];state.syncLastFlightKind='';state.remoteReplayFrame=null;state.remoteReplayFrameSmooth=null;state.remoteReplayStatus='';state.remoteReplayLabel='';state.syncLastEventSeq=0;state.syncLastPresentationSeq=0;state.remoteCelebrationTimeline=null;state.remoteReplayTimeline=null;state.syncCelebrationTimeline=null;state.syncReplayTimeline=null;
     resetStats();createEntities();stopWorldCupMenuAudio();
-    const root=$('wcWorldCupBroadcast');root.classList.add('is-open');root.setAttribute('aria-hidden','false');window.RepoWorldCupPacks?.beginFixture({...state.packFixture,phase:'intro',elapsedSeconds:state.matchTime});$('wcgHalftime').classList.remove('is-open');$('wcgFulltime').classList.remove('is-open');hidePresentation();$('wcgVar').classList.remove('is-open','is-decision');hideWorldCupStoryCard();hideWorldCupBigMoment();$('wcgReplayBug')?.classList.remove('is-visible');$('wcgReplaySponsor')?.classList.remove('is-visible');root.classList.remove('is-replay-transition','is-replay-playback');resetBarryVisual();const atmos=$('wcgWorldCupAtmosphere');if(atmos)atmos.dataset.arena=state.ambienceId;const admin=adminEnabled();$('wcgSpeed').hidden=!admin;$('wcgSkipHalf').hidden=!admin;$('wcgAdminEvents').hidden=!admin;$('wcgAdminPanel').hidden=true;setSpeed(1,false);
+    const root=$('wcWorldCupBroadcast');root.classList.add('is-open');root.setAttribute('aria-hidden','false');window.RepoWorldCupPacks?.beginFixture({...state.packFixture,phase:'intro',elapsedSeconds:state.matchTime});$('wcgHalftime').classList.remove('is-open');$('wcgFulltime').classList.remove('is-open');stopWorldCupVictoryFilm();hidePresentation();$('wcgVar').classList.remove('is-open','is-decision');hideWorldCupStoryCard();hideWorldCupBigMoment();$('wcgReplayBug')?.classList.remove('is-visible');$('wcgReplaySponsor')?.classList.remove('is-visible');root.classList.remove('is-replay-transition','is-replay-playback');resetBarryVisual();const atmos=$('wcgWorldCupAtmosphere');if(atmos)atmos.dataset.arena=state.ambienceId;const admin=adminEnabled();$('wcgSpeed').hidden=!admin;$('wcgSkipHalf').hidden=!admin;$('wcgAdminEvents').hidden=!admin;$('wcgAdminPanel').hidden=true;setSpeed(1,false);
     // Do not block the host's parent-page START broadcast on gameplay-image loading.
     // The 22.3s opening film gives all viewers the same wall-clock lead-in while assets preload in parallel.
     preload().then(()=>{state.gameplayAssetsReady=true;if(!state.barryOpeningActive&&!state.openingFilmActive&&state.phase==='intro')render()}).catch(error=>{state.gameplayAssetsFailed=true;console.error('[WORLD CUP] Gameplay assets failed to load',error)});
@@ -2329,7 +2387,7 @@
   }
 
   async function closeBroadcast(broadcastClose=false){
-    if(!state.open)return;if(broadcastClose&&isHost())await sendMatch('close',{host:'CatAsthma'});window.RepoWorldCupPacks?.endFixture();stopWorldCupOpeningFilm();state.open=false;cancelAnimationFrame(state.raf);state.phase='closed';setBroadcastState('CLOSED');hidePresentation();hideWorldCupStoryCard();hideWorldCupBigMoment();stopBarryTalking();clearTimeout(state.broadcast?.reactionTimer);state.replay=null;state.replayIntro=null;state.replayOutro=null;state.remoteCelebrationTimeline=null;state.remoteReplayTimeline=null;state.remoteReplayFrameSmooth=null;audio.stop();await leaveMatchChannel();const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open','is-replay-transition','is-replay-playback');root?.setAttribute('aria-hidden','true');try{window.dispatchEvent(new CustomEvent('repo-world-cup-broadcast-closed',{detail:{fixtureId:state.fixtureId,realResult:!!state.realResultArmed}}))}catch(_){}restoreWorldCupMenuAudio();
+    if(!state.open)return;if(broadcastClose&&isHost())await sendMatch('close',{host:'CatAsthma'});window.RepoWorldCupPacks?.endFixture();stopWorldCupOpeningFilm();stopWorldCupVictoryFilm();state.open=false;cancelAnimationFrame(state.raf);state.phase='closed';setBroadcastState('CLOSED');hidePresentation();hideWorldCupStoryCard();hideWorldCupBigMoment();stopBarryTalking();clearTimeout(state.broadcast?.reactionTimer);state.replay=null;state.replayIntro=null;state.replayOutro=null;state.remoteCelebrationTimeline=null;state.remoteReplayTimeline=null;state.remoteReplayFrameSmooth=null;audio.stop();await leaveMatchChannel();const root=$('wcWorldCupBroadcast');root?.classList.remove('is-open','is-replay-transition','is-replay-playback');root?.setAttribute('aria-hidden','true');try{window.dispatchEvent(new CustomEvent('repo-world-cup-broadcast-closed',{detail:{fixtureId:state.fixtureId,realResult:!!state.realResultArmed}}))}catch(_){}restoreWorldCupMenuAudio();
   }
 
   window.RepoSportsWorldCupGameplay={open:openBroadcast,close:closeBroadcast,syncStatus:()=>({fixtureId:state.fixtureId,role:isHost()?'AUTHORITATIVE_HOST':'SYNCHRONIZED_VIEWER',subscribed:!!state.subscribed,hasAuthority:!!state.syncHasAuthority,lastSnapshotMs:state.syncLastReceivedAt?Date.now()-state.syncLastReceivedAt:null,seq:state.syncRemote?.seq||state.syncSeq,phase:state.phase,matchTime:state.matchTime,score:{...state.score},clockOffsetMs:Math.round(state.syncClockOffsetMs||0),realResult:!!state.realResultArmed,presentation:state.remoteReplayTimeline?'REPLAY':state.remoteCelebrationTimeline?'CELEBRATION':'LIVE'})};
