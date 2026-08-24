@@ -18461,6 +18461,16 @@ qmShowSharedGoal=function(state){
     {id:'dragonbound_crossover_september_platinum',name:'September — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/september.png',rarity:'platinum',set:'Dragonbound Crossover'},
     {id:'dragonbound_crossover_nightlight_platinum',name:'Nightlight — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/nightlight.png',rarity:'platinum',set:'Dragonbound Crossover'},
     {id:'dragonbound_crossover_starter_dragons_platinum',name:'Starter Dragons — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/starter-dragons.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_first_day_of_school_platinum',name:'First Day of School — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/first-day-of-school.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_nap_time_platinum',name:'Nap Time — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/nap-time.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_first_flight_platinum',name:'First Flight — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/first-flight.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'rego_besquelcher',name:'Besquelcher — REGO',image:'assets/quidditch-tcg/cards/platinum/rego/besquelcher.png',rarity:'platinum',set:'REGO'},
+    {id:'rego_jud',name:'JUD — REGO',image:'assets/quidditch-tcg/cards/platinum/rego/jud.png',rarity:'platinum',set:'REGO'},
+    {id:'rego_pipsqueak',name:'Pipsqueak — REGO',image:'assets/quidditch-tcg/cards/platinum/rego/pipsqueak.png',rarity:'platinum',set:'REGO'},
+    {id:'rego_nimbler_2k',name:'Nimbler 2K — REGO',image:'assets/quidditch-tcg/cards/platinum/rego/nimbler-2k.png',rarity:'platinum',set:'REGO'},
+    {id:'rego_soup',name:'Soup — REGO',image:'assets/quidditch-tcg/cards/platinum/rego/soup.png',rarity:'platinum',set:'REGO'},
+    {id:'rego_rocky',name:'ROCKY — REGO',image:'assets/quidditch-tcg/cards/platinum/rego/rocky.png',rarity:'platinum',set:'REGO'},
+    {id:'rego_debbie',name:'Debbie — REGO',image:'assets/quidditch-tcg/cards/platinum/rego/debbie.png',rarity:'platinum',set:'REGO'},
     {id:'rovarn_world_cup_champions_2026',name:'Rovarn — World Cup Winners 2026',image:'assets/quidditch-tcg/cards/limited/rovarn-world-cup-champions-2026.png',rarity:'promo',set:'World Cup Champions 2026'},
     {id:'rovarn_after_party_2026',name:'Rovarn — After Party 2026',image:'assets/quidditch-tcg/cards/limited/rovarn-after-party-2026.png',rarity:'promo',set:'World Cup Champions 2026'},
 ];
@@ -20166,6 +20176,16 @@ qmShowSharedGoal=function(state){
     ['dragonbound_crossover_september_platinum','September — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/september.png'],
     ['dragonbound_crossover_nightlight_platinum','Nightlight — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/nightlight.png'],
     ['dragonbound_crossover_starter_dragons_platinum','Starter Dragons — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/starter-dragons.png'],
+    ['dragonbound_crossover_first_day_of_school_platinum','First Day of School — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/first-day-of-school.png'],
+    ['dragonbound_crossover_nap_time_platinum','Nap Time — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/nap-time.png'],
+    ['dragonbound_crossover_first_flight_platinum','First Flight — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/first-flight.png'],
+    ['rego_besquelcher','Besquelcher — REGO','assets/quidditch-tcg/cards/platinum/rego/besquelcher.png'],
+    ['rego_jud','JUD — REGO','assets/quidditch-tcg/cards/platinum/rego/jud.png'],
+    ['rego_pipsqueak','Pipsqueak — REGO','assets/quidditch-tcg/cards/platinum/rego/pipsqueak.png'],
+    ['rego_nimbler_2k','Nimbler 2K — REGO','assets/quidditch-tcg/cards/platinum/rego/nimbler-2k.png'],
+    ['rego_soup','Soup — REGO','assets/quidditch-tcg/cards/platinum/rego/soup.png'],
+    ['rego_rocky','ROCKY — REGO','assets/quidditch-tcg/cards/platinum/rego/rocky.png'],
+    ['rego_debbie','Debbie — REGO','assets/quidditch-tcg/cards/platinum/rego/debbie.png'],
 ];
   const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.startsWith('wc2026_')?'full_art':id.includes('unfinished_')?'unfinished':id.includes('psycompany_promo')?'promo':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
