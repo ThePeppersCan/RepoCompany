@@ -18447,6 +18447,20 @@ qmShowSharedGoal=function(state){
     {id:'varko_patch',name:'Varko — Patch',image:'assets/quidditch-tcg/cards/patch/varko-patch.png',rarity:'patch'},
     {id:'vivi_patch',name:'Vivi — Patch',image:'assets/quidditch-tcg/cards/patch/vivi-patch.png',rarity:'patch'},
     {id:'zizi_patch',name:'Zizi — Patch',image:'assets/quidditch-tcg/cards/patch/zizi-patch.png',rarity:'patch'},
+
+    {id:'world_cup_2026_tuli_players_player_platinum',name:"Tuli — Players’ Player",image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-players-player.png',rarity:'platinum',set:'World Cup Honours 2026'},
+    {id:'world_cup_2026_tuli_top_goalscorer_platinum',name:'Tuli — World Cup Top Goalscorer',image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-top-goalscorer.png',rarity:'platinum',set:'World Cup Honours 2026'},
+    {id:'world_cup_2026_frey_fan_favourite_platinum',name:'Frey — Fan Favourite',image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/frey-fan-favourite.png',rarity:'platinum',set:'World Cup Honours 2026'},
+    {id:'world_cup_2026_kassi_fan_favourite_platinum',name:'Kassi — Fan Favourite',image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/kassi-fan-favourite.png',rarity:'platinum',set:'World Cup Honours 2026'},
+    {id:'world_cup_2026_maro_fan_villain_platinum',name:'Maro — Fan Villain',image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/maro-fan-villain.png',rarity:'platinum',set:'World Cup Honours 2026'},
+    {id:'world_cup_2026_saffi_fan_villain_platinum',name:'Saffi — Fan Villain',image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/saffi-fan-villain.png',rarity:'platinum',set:'World Cup Honours 2026'},
+    {id:'dragonbound_crossover_turi_platinum',name:'Turi — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/turi.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_opal_platinum',name:'Opal — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/opal.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_wally_platinum',name:'Wally — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/wally.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_pipsqueak_junior_platinum',name:'Pipsqueak Junior — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/pipsqueak-junior.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_september_platinum',name:'September — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/september.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_nightlight_platinum',name:'Nightlight — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/nightlight.png',rarity:'platinum',set:'Dragonbound Crossover'},
+    {id:'dragonbound_crossover_starter_dragons_platinum',name:'Starter Dragons — Dragonbound Crossover',image:'assets/quidditch-tcg/cards/platinum/dragonbound-crossover/starter-dragons.png',rarity:'platinum',set:'Dragonbound Crossover'},
     {id:'rovarn_world_cup_champions_2026',name:'Rovarn — World Cup Winners 2026',image:'assets/quidditch-tcg/cards/limited/rovarn-world-cup-champions-2026.png',rarity:'promo',set:'World Cup Champions 2026'},
     {id:'rovarn_after_party_2026',name:'Rovarn — After Party 2026',image:'assets/quidditch-tcg/cards/limited/rovarn-after-party-2026.png',rarity:'promo',set:'World Cup Champions 2026'},
 ];
@@ -20138,6 +20152,20 @@ qmShowSharedGoal=function(state){
     ['varko_patch','Varko — Patch','assets/quidditch-tcg/cards/patch/varko-patch.png'],
     ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
     ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
+
+    ['world_cup_2026_tuli_players_player_platinum',"Tuli — Players’ Player",'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-players-player.png'],
+    ['world_cup_2026_tuli_top_goalscorer_platinum','Tuli — World Cup Top Goalscorer','assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-top-goalscorer.png'],
+    ['world_cup_2026_frey_fan_favourite_platinum','Frey — Fan Favourite','assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/frey-fan-favourite.png'],
+    ['world_cup_2026_kassi_fan_favourite_platinum','Kassi — Fan Favourite','assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/kassi-fan-favourite.png'],
+    ['world_cup_2026_maro_fan_villain_platinum','Maro — Fan Villain','assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/maro-fan-villain.png'],
+    ['world_cup_2026_saffi_fan_villain_platinum','Saffi — Fan Villain','assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/saffi-fan-villain.png'],
+    ['dragonbound_crossover_turi_platinum','Turi — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/turi.png'],
+    ['dragonbound_crossover_opal_platinum','Opal — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/opal.png'],
+    ['dragonbound_crossover_wally_platinum','Wally — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/wally.png'],
+    ['dragonbound_crossover_pipsqueak_junior_platinum','Pipsqueak Junior — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/pipsqueak-junior.png'],
+    ['dragonbound_crossover_september_platinum','September — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/september.png'],
+    ['dragonbound_crossover_nightlight_platinum','Nightlight — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/nightlight.png'],
+    ['dragonbound_crossover_starter_dragons_platinum','Starter Dragons — Dragonbound Crossover','assets/quidditch-tcg/cards/platinum/dragonbound-crossover/starter-dragons.png'],
 ];
   const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.startsWith('wc2026_')?'full_art':id.includes('unfinished_')?'unfinished':id.includes('psycompany_promo')?'promo':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
