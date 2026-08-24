@@ -2,7 +2,7 @@
 (()=>{
   'use strict';
 
-  const VERSION='v32-97-sims-needs-marks-20260822';
+  const VERSION='v34-01-house-depth-20260824';
   const CATEGORIES=['All','Living','Beds','Feeding','Kitchen','Bath','Training','Toys','Care','Nature','Decor','Storage'];
   const CATEGORY_ICONS={All:'✦',Living:'⌂',Beds:'▰',Feeding:'◉',Kitchen:'♨',Bath:'≋',Training:'⚔',Toys:'◆',Care:'+',Nature:'♧',Decor:'✧',Storage:'▣'};
   const RARITY_ORDER={Common:0,Crafted:1,Rare:2,Epic:3};
@@ -108,7 +108,17 @@ function cleanupFurnitureSpriteData(sourceImg){
       window.addEventListener('dragonbound:dragon-cleared',()=>this.exitBuildModes());
       window.dragonboundFurnitureCollisionProvider=()=>this.collisionPolys();
       window.dragonboundFurnitureInteractionProvider=()=>this.interactionSnapshot();
-      window.DragonboundFurniture={open:()=>this.openBuild(),edit:()=>this.enterEditMode(),refresh:()=>this.refresh(true,true),state:()=>this.debugState(),ownedItems:()=>this.ownedCatalog(),command:placementId=>this.commandDragonToFurniture(placementId)};
+      window.DragonboundFurniture={
+        open:()=>this.openBuild(),
+        edit:()=>this.enterEditMode(),
+        refresh:()=>this.refresh(true,true),
+        state:()=>this.debugState(),
+        ownedItems:()=>this.ownedCatalog(),
+        command:placementId=>this.commandDragonToFurniture(placementId),
+        setInteractionMask:(placementId,active,kind='')=>this.setInteractionMask(placementId,active,kind),
+        renderProfile:itemOrId=>this.renderProfile(typeof itemOrId==='string'?this.catalog.get(itemOrId):itemOrId),
+        depthForPlacement:(placementId)=>this.depthDebugForPlacement(placementId)
+      };
       queueMicrotask(()=>{this.attachExisting();this.watchFurnitureSprites();this.enhanceFurnitureImages(document);});
     }
 
@@ -507,6 +517,60 @@ watchFurnitureSprites(){
     }
     exclusionZones(room){return FURNITURE_EXCLUSION_ZONES[this.houseId]?.[room]||[];}
     isWallItem(item){return Array.isArray(item?.tags)&&item.tags.includes('wall-mounted');}
+    isFloorCovering(item){
+      const tags=new Set(Array.isArray(item?.tags)?item.tags.map(v=>String(v).toLowerCase()):[]);
+      if(tags.has('floor-covering')||tags.has('floor covering')||tags.has('rug')||tags.has('carpet')||tags.has('mat'))return true;
+      if(this.isWallItem(item))return false;
+      const text=`${item?.itemId||''} ${item?.name||''} ${item?.category||''}`.toLowerCase();
+      return /\b(rug|carpet|floor\s*mat|training\s*mat|stretching\s*mat|welcome\s*mat|runner|floor\s*cloth|floor\s*covering)\b/.test(text);
+    }
+    stableDepthTie(value=''){
+      const s=String(value||'');let h=2166136261;
+      for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+      return Math.abs(h>>>0)%2;
+    }
+    renderProfile(item){
+      if(!item)return{type:'normal_floor_object',frontMaskTop:null,interactionKind:'inspect'};
+      const wallMounted=this.isWallItem(item),floorCovering=this.isFloorCovering(item),kind=this.interactionKindForItem(item),tags=new Set(Array.isArray(item?.tags)?item.tags.map(v=>String(v).toLowerCase()):[]),text=`${item?.itemId||''} ${item?.name||''} ${item?.category||''}`.toLowerCase();
+      if(wallMounted)return{type:'wall_object',frontMaskTop:null,interactionKind:kind};
+      if(floorCovering)return{type:'floor_covering',frontMaskTop:null,interactionKind:kind};
+      let frontMaskTop=null;
+      if(kind==='wash'||kind==='sandbath'||tags.has('washable')||tags.has('sandbath'))frontMaskTop=.57;
+      else if(kind==='sleep'&&/\b(bed|nest|cot|crib|hammock|sleeping\s*pod|sleeping\s*basket|sleeping\s*den)\b/.test(text))frontMaskTop=.68;
+      else if(kind==='hide'&&/\b(hide|hideout|den|cave|tent|covered\s*basket)\b/.test(text))frontMaskTop=.58;
+      else if(kind==='rest'&&/\b(sofa|couch|armchair|chair|beanbag|cushion|lounger|resting\s*nest)\b/.test(text))frontMaskTop=.77;
+      return{type:frontMaskTop==null?'normal_floor_object':'interaction_container',frontMaskTop,interactionKind:kind};
+    }
+    furnitureBaseAnchorY(p,item){
+      // Placement Y is authored as the object's floor-contact point. Keeping the anchor at
+      // that exact point means resizing/flipping changes the sprite footprint without moving
+      // the floor contact underneath it.
+      const y=Number(p?.y);
+      return Number.isFinite(y)?clamp(y,0,1):0;
+    }
+    worldDepthForY(y,bias=5,tie=0){
+      const base=Math.round(clamp(Number(y)||0,0,1)*100000);
+      return 100000+base*10+Number(bias||0)+Math.max(0,Math.min(7,Number(tie||0)));
+    }
+    placementDepthOrder(p,item){
+      const profile=this.renderProfile(item),y=this.furnitureBaseAnchorY(p,item),tie=this.stableDepthTie(p?.placementId||p?.itemId||`${p?.x||0}:${p?.y||0}`);
+      // Floor planes and wall art are intentionally outside the dynamic actor/furniture Y band.
+      // This guarantees rugs never rise above a dragon and wall art never jumps in front of one.
+      if(profile.type==='floor_covering')return String(70000+Math.round(y*1000)+tie);
+      if(profile.type==='wall_object')return String(85000+Math.round(y*1000)+tie);
+      return String(this.worldDepthForY(y,4,tie));
+    }
+    frontMaskDepthOrder(p,item){
+      const y=this.furnitureBaseAnchorY(p,item),tie=this.stableDepthTie(p?.placementId||p?.itemId||'');
+      // Mounted dragons use bias 8. A container lip at 9 sits just above the mounted body,
+      // while even a tiny lower floor-anchor still outranks the whole interaction naturally.
+      return String(this.worldDepthForY(y,9,0));
+    }
+    depthDebugForPlacement(placementId){
+      const p=this.placements.find(v=>String(v.placementId)===String(placementId));if(!p)return null;
+      const item=this.catalog.get(p.itemId),profile=this.renderProfile(item);
+      return{placementId:p.placementId,itemId:p.itemId,renderType:profile.type,anchorY:this.furnitureBaseAnchorY(p,item),depth:Number(this.placementDepthOrder(p,item)),frontMaskDepth:profile.frontMaskTop==null?null:Number(this.frontMaskDepthOrder(p,item)),frontMaskTop:profile.frontMaskTop};
+    }
     wallBounds(room){
       const authored=FURNITURE_WALL_BOUNDS[this.houseId]?.[room];if(authored)return{...authored};
       const zones=this.roomZones(room),hits=this.roomHitZones(room);if(!zones.length)return null;
@@ -595,7 +659,7 @@ watchFurnitureSprites(){
         if(p[1]<minY+marginY||p[1]>maxY-.004)return false;
         const range=horizontalRangeAtY(zone,Number(p[1]));if(!range||p[0]<range[0]+marginX||p[0]>range[1]-marginX)return false;
       }
-      for(const existing of this.placements){if(existing.placementId===ignoreId||existing.roomId!==room)continue;const other=this.catalog.get(existing.itemId),otherScale=Number(existing.scale||DEFAULT_SCALE);const minDx=(hw+this.itemHalfWidth(other,otherScale))*.76+.004,minDy=(Math.max(d,this.itemDepth(other,otherScale))*.72)+.004;if(Math.abs(Number(existing.x)-p[0])<minDx&&Math.abs(Number(existing.y)-p[1])<minDy)return false;}
+      for(const existing of this.placements){if(existing.placementId===ignoreId||existing.roomId!==room)continue;const other=this.catalog.get(existing.itemId);if(this.isFloorCovering(item)||this.isFloorCovering(other))continue;const otherScale=Number(existing.scale||DEFAULT_SCALE);const minDx=(hw+this.itemHalfWidth(other,otherScale))*.76+.004,minDy=(Math.max(d,this.itemDepth(other,otherScale))*.72)+.004;if(Math.abs(Number(existing.x)-p[0])<minDx&&Math.abs(Number(existing.y)-p[1])<minDy)return false;}
       return true;
     }
     findOpenPoint(room,item,ignoreId=''){
@@ -609,7 +673,9 @@ watchFurnitureSprites(){
       const zones=this.roomZones(room);for(const poly of zones){const xs=poly.map(q=>q[0]),ys=poly.map(q=>q[1]),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);const candidates=[];for(let y=maxY-.018;y>=minY+.018;y-=.026)for(let x=minX+.025;x<=maxX-.025;x+=.035)candidates.push([x,y]);candidates.sort((a,b)=>Math.abs(a[0]-(minX+maxX)/2)-Math.abs(b[0]-(minX+maxX)/2));for(const p of candidates)if(pointInPoly(p,poly)&&this.validPlacement(p,room,item,ignoreId,this.ghostScale))return{room,p};}return null;}
 
     renderGhost(){
-      if(!this.ghost||!this.ghostPoint)return;const engine=window.DragonboundBabyEngine;const xy=engine?.toPixels?engine.toPixels(this.ghostPoint):{x:this.ghostPoint[0]*this.world.clientWidth,y:this.ghostPoint[1]*this.world.clientHeight};this.ghost.style.left=xy.x+'px';this.ghost.style.top=xy.y+'px';this.ghost.classList.toggle('is-valid',!!this.ghostValid);this.ghost.classList.toggle('is-invalid',!this.ghostValid);const img=this.ghost.querySelector('img'),item=this.catalog.get(this.placementMode?.itemId);this.ghost.classList.toggle('is-wall-mounted',this.isWallItem(item));this.sizeWorldImage(img,item,this.ghostScale);const flip=this.ghostDirection==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;
+      if(!this.ghost||!this.ghostPoint)return;const engine=window.DragonboundBabyEngine;const xy=engine?.toPixels?engine.toPixels(this.ghostPoint):{x:this.ghostPoint[0]*this.world.clientWidth,y:this.ghostPoint[1]*this.world.clientHeight};this.ghost.style.left=xy.x+'px';this.ghost.style.top=xy.y+'px';this.ghost.classList.toggle('is-valid',!!this.ghostValid);this.ghost.classList.toggle('is-invalid',!this.ghostValid);
+      const img=this.ghost.querySelector('img'),item=this.catalog.get(this.placementMode?.itemId),profile=this.renderProfile(item),ghostPlacement={placementId:`ghost:${this.placementMode?.placementId||this.placementMode?.itemId||''}`,itemId:this.placementMode?.itemId||'',x:this.ghostPoint[0],y:this.ghostPoint[1]};
+      this.ghost.classList.toggle('is-wall-mounted',this.isWallItem(item));this.ghost.dataset.renderType=profile.type;this.ghost.style.zIndex=this.placementDepthOrder(ghostPlacement,item);this.sizeWorldImage(img,item,this.ghostScale);const flip=this.ghostDirection==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;
     }
 
     async commitPlacement(){
@@ -637,12 +703,6 @@ watchFurnitureSprites(){
 
     sizeWorldImage(img,item,displayScale=DEFAULT_SCALE){if(!img||!item)return;const natural=img.naturalWidth||160;const worldScale=window.DragonboundBabyEngine?.sourceScale?.()||Math.max(.5,this.world.clientWidth/1536);const userScale=clamp(Number(displayScale||DEFAULT_SCALE),MIN_SCALE,MAX_SCALE);img.style.width=Math.max(28,Math.min(245,natural*worldScale*.42*userScale))+'px';}
 
-placementDepthOrder(p,item){
-  const wall=this.isWallItem(item);const py=Number(p?.y||0),px=Number(p?.x||0);
-  const base=Math.round(py*100000);
-  const tie=Math.round(px*100);
-  return String(100000+base*10+(wall?0:5)+Math.max(0,Math.min(9,tie%10)));
-}
 positionPlacementById(placementId){
   const layer=this.ensureLayer();if(!layer)return;
   const el=layer.querySelector(`[data-placement-id="${CSS.escape(String(placementId||''))}"]`);if(!el)return;
@@ -668,13 +728,119 @@ syncPlacementImage(img,item){
       this.notify(result?.reason||'Your dragon cannot reach that furnishing right now.','error');return false;
     }
     renderPlacements(){
-      const layer=this.ensureLayer();if(!layer)return;const keep=new Set();for(const p of this.placements){const item=this.catalog.get(p.itemId);if(!item)continue;let el=layer.querySelector(`[data-placement-id="${CSS.escape(p.placementId)}"]`);if(!el){el=document.createElement('button');el.type='button';el.className='dragonbound-furniture-placement';el.dataset.placementId=p.placementId;el.innerHTML='<img alt=""><span class="dragonbound-furniture-edit-ring"></span>';el.addEventListener('pointerdown',e=>{if(this.editMode){e.preventDefault();e.stopPropagation();this.beginEditDrag(e,el.dataset.placementId);}});el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(Date.now()<this.suppressPlacementClickUntil)return;if(this.editMode){this.selectPlacement(el.dataset.placementId);return;}if(!this.placementMode)this.commandDragonToFurniture(el.dataset.placementId);});layer.appendChild(el);const img=el.querySelector('img');img.addEventListener('load',()=>this.positionPlacementById(el.dataset.placementId));}keep.add(p.placementId);el.dataset.itemId=p.itemId;el.classList.toggle('is-selected',p.placementId===this.selectedPlacementId);el.setAttribute('aria-label',this.editMode?`Edit ${item.name}`:`Ask your dragon to interact with ${item.name}`);el.title=this.editMode?`Edit ${item.name}`:`Click to send your dragon to ${item.name}`;const img=el.querySelector('img');this.syncPlacementImage(img,item);img.alt=item.name;img.title=el.title;this.cleanFurnitureImage(img);this.positionPlacement(el,p,item);}
+      const layer=this.ensureLayer();if(!layer)return;const keep=new Set(),keepMasks=new Set();
+      for(const p of this.placements){
+        const item=this.catalog.get(p.itemId);if(!item)continue;
+        let el=layer.querySelector(`.dragonbound-furniture-placement[data-placement-id="${CSS.escape(p.placementId)}"]`);
+        if(!el){
+          el=document.createElement('button');el.type='button';el.className='dragonbound-furniture-placement';el.dataset.placementId=p.placementId;el.innerHTML='<img alt=""><span class="dragonbound-furniture-edit-ring"></span>';
+          el.addEventListener('pointerdown',e=>{if(this.editMode){e.preventDefault();e.stopPropagation();this.beginEditDrag(e,el.dataset.placementId);}});
+          el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(Date.now()<this.suppressPlacementClickUntil)return;if(this.editMode){this.selectPlacement(el.dataset.placementId);return;}if(!this.placementMode)this.commandDragonToFurniture(el.dataset.placementId);});
+          layer.appendChild(el);const img=el.querySelector('img');img.addEventListener('load',()=>this.positionPlacementById(el.dataset.placementId));
+        }
+        keep.add(p.placementId);el.dataset.itemId=p.itemId;el.classList.toggle('is-selected',p.placementId===this.selectedPlacementId);el.setAttribute('aria-label',this.editMode?`Edit ${item.name}`:`Ask your dragon to interact with ${item.name}`);el.title=this.editMode?`Edit ${item.name}`:`Click to send your dragon to ${item.name}`;
+        const img=el.querySelector('img');this.syncPlacementImage(img,item);img.alt=item.name;img.title=el.title;this.cleanFurnitureImage(img);this.positionPlacement(el,p,item);
+        const profile=this.renderProfile(item);
+        if(profile.frontMaskTop!=null){
+          keepMasks.add(p.placementId);
+          let mask=layer.querySelector(`.dragonbound-furniture-front-mask[data-placement-id="${CSS.escape(p.placementId)}"]`);
+          if(!mask){mask=document.createElement('div');mask.className='dragonbound-furniture-front-mask';mask.dataset.placementId=p.placementId;mask.setAttribute('aria-hidden','true');mask.innerHTML='<img alt="">';layer.appendChild(mask);}
+          const maskImg=mask.querySelector('img');this.syncPlacementImage(maskImg,item);this.cleanFurnitureImage(maskImg);this.positionFrontMask(mask,p,item,profile);
+          mask.classList.toggle('is-active',el.classList.contains('is-dragon-occupied'));
+          mask.dataset.interactionKind=el.classList.contains('is-dragon-occupied')?(el.dataset.activeInteractionKind||profile.interactionKind||''):'';
+        }
+      }
       layer.querySelectorAll('.dragonbound-furniture-placement').forEach(el=>{if(!keep.has(el.dataset.placementId))el.remove();});
+      layer.querySelectorAll('.dragonbound-furniture-front-mask').forEach(el=>{if(!keepMasks.has(el.dataset.placementId))el.remove();});
     }
-    positionPlacement(el,p,item){if(!el||!this.world)return;const engine=window.DragonboundBabyEngine;const xy=engine?.toPixels?engine.toPixels([p.x,p.y]):{x:p.x*this.world.clientWidth,y:p.y*this.world.clientHeight};el.style.left=xy.x+'px';el.style.top=xy.y+'px';el.style.zIndex=this.placementDepthOrder(p,item);const img=el.querySelector('img');this.sizeWorldImage(img,item,p.scale);const flip=p.direction==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;el.dataset.roomId=p.roomId;el.dataset.scale=String(p.scale||1);el.dataset.wallMounted=this.isWallItem(item)?'1':'0';}
+    positionPlacement(el,p,item){
+      if(!el||!this.world)return;const engine=window.DragonboundBabyEngine,profile=this.renderProfile(item),anchorY=this.furnitureBaseAnchorY(p,item),xy=engine?.toPixels?engine.toPixels([p.x,p.y]):{x:p.x*this.world.clientWidth,y:p.y*this.world.clientHeight};
+      el.style.left=xy.x+'px';el.style.top=xy.y+'px';el.style.zIndex=this.placementDepthOrder(p,item);
+      const img=el.querySelector('img');this.sizeWorldImage(img,item,p.scale);const flip=p.direction==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;
+      el.dataset.roomId=p.roomId;el.dataset.scale=String(p.scale||1);el.dataset.wallMounted=this.isWallItem(item)?'1':'0';el.dataset.floorCovering=this.isFloorCovering(item)?'1':'0';el.dataset.renderType=profile.type;el.dataset.depthAnchorY=anchorY.toFixed(6);el.dataset.hasFrontMask=profile.frontMaskTop==null?'0':'1';
+      const mask=this.layer?.querySelector?.(`.dragonbound-furniture-front-mask[data-placement-id="${CSS.escape(String(p.placementId||''))}"]`);if(mask)this.positionFrontMask(mask,p,item,profile);
+    }
+    positionFrontMask(mask,p,item,profile=this.renderProfile(item)){
+      if(!mask||profile.frontMaskTop==null||!this.world)return;
+      const engine=window.DragonboundBabyEngine,xy=engine?.toPixels?engine.toPixels([p.x,p.y]):{x:p.x*this.world.clientWidth,y:p.y*this.world.clientHeight};
+      mask.style.left=xy.x+'px';mask.style.top=xy.y+'px';mask.style.zIndex=this.frontMaskDepthOrder(p,item);mask.style.setProperty('--dragon-front-mask-top',`${Math.round(profile.frontMaskTop*1000)/10}%`);
+      mask.dataset.renderType='foreground_mask_object';mask.dataset.roomId=p.roomId;mask.dataset.scale=String(p.scale||1);
+      const img=mask.querySelector('img');this.sizeWorldImage(img,item,p.scale);const flip=p.direction==='left'?-1:1;img.style.transform=`translate(-50%,-96%) scaleX(${flip})`;
+    }
+    setInteractionMask(placementId,active,kind=''){
+      const id=String(placementId||'');if(!id||!this.layer)return false;
+      const selector=CSS.escape(id),source=this.layer.querySelector(`.dragonbound-furniture-placement[data-placement-id="${selector}"]`),mask=this.layer.querySelector(`.dragonbound-furniture-front-mask[data-placement-id="${selector}"]`);
+      if(source){source.dataset.activeInteractionKind=active?String(kind||''):'';}
+      if(!mask)return false;
+      mask.classList.toggle('is-active',!!active);mask.dataset.interactionKind=active?String(kind||''):'';
+      return true;
+    }
 
-    collisionPolys(){return this.placements.flatMap(p=>{const item=this.catalog.get(p.itemId);if(this.isWallItem(item))return[];return[{floorId:p.roomId,poly:this.placementPoly(p,item,p.scale),placementId:p.placementId,itemId:p.itemId}];});}
-    interactionSnapshot(){return this.placements.map(p=>{const item=this.catalog.get(p.itemId),wallMounted=this.isWallItem(item);return{placementId:p.placementId,itemId:p.itemId,roomId:p.roomId,x:Number(p.x),y:Number(p.y),direction:p.direction||'right',scale:Number(p.scale||1),footprintW:Number(item?.footprintW||2),footprintH:Number(item?.footprintH||1),halfWidth:this.itemHalfWidth(item,p.scale),depth:wallMounted?0:this.itemDepth(item,p.scale),wallMounted,tags:item?.tags||[],name:item?.name||p.itemId,category:item?.category||'',collection:item?.collection||'',sprite:item?.sprite||'',price:Number(item?.price||0),rarity:item?.rarity||'',personalityScore:typeof window.DragonboundFurniturePersonalityScore==='function'?window.DragonboundFurniturePersonalityScore(item?.tags||[],{roomId:p.roomId,x:p.x,y:p.y,itemId:p.itemId,wallMounted}):0};});}
+    collisionPolys(){return this.placements.flatMap(p=>{const item=this.catalog.get(p.itemId);if(this.isWallItem(item)||this.isFloorCovering(item))return[];return[{floorId:p.roomId,poly:this.placementPoly(p,item,p.scale),placementId:p.placementId,itemId:p.itemId}];});}
+
+    interactionKindForItem(item){
+      const tags=new Set(Array.isArray(item?.tags)?item.tags:[]),text=`${item?.name||''} ${item?.itemId||''} ${item?.category||''}`.toLowerCase(),training=tags.has('training')||String(item?.category||'').toLowerCase()==='training';
+      if(tags.has('fire-practice'))return'fire';
+      if(tags.has('roarable'))return'roar';
+      if(training&&!/recovery|restorative|stretch nest/.test(text)&&/weight|dumbbell|resistance|sled|push|pull|strength|heavy|cable|lifting|punch|treadmill|sprint|agility|weave|balance|hurdle|landing target|climb|pegboard|roller|obstacle|jump|exercise wheel|stretch ring/.test(text))return'exercise';
+      if(tags.has('sleepable'))return'sleep';
+      if(tags.has('food'))return tags.has('puzzle')?'puzzle':'eat';
+      if(tags.has('drink')||tags.has('hydration'))return'drink';
+      if(tags.has('sandbath'))return'sandbath';
+      if(tags.has('washable'))return'wash';
+      if(tags.has('groomable'))return'groom';
+      if(tags.has('scratchable'))return'scratch';
+      if(tags.has('diggable'))return'dig';
+      if(tags.has('climbable'))return'climb';
+      if(tags.has('exercise')||tags.has('training')||tags.has('agility'))return'exercise';
+      if(tags.has('playable')||tags.has('tug')||tags.has('chewable')||tags.has('hoardable'))return'play';
+      if(tags.has('hideable'))return'hide';
+      if(tags.has('perchable'))return'perch';
+      if(tags.has('reading'))return'read';
+      if(tags.has('mirror'))return'mirror';
+      if(tags.has('sniffable'))return'sniff';
+      if(tags.has('toilet'))return'toilet';
+      if(tags.has('restable')||tags.has('comfortable'))return'rest';
+      if(tags.has('warm'))return'warm';
+      if(tags.has('window'))return'watch';
+      return'inspect';
+    }
+
+    interactionProfile(p,item){
+      if(!p||!item)return null;
+      const wallMounted=this.isWallItem(item),floorCovering=this.isFloorCovering(item),kind=this.interactionKindForItem(item),x=Number(p.x),y=Number(p.y),scale=clamp(Number(p.scale||DEFAULT_SCALE),MIN_SCALE,MAX_SCALE),hw=this.itemHalfWidth(item,scale),depth=wallMounted?0:this.itemDepth(item,scale),dir=p.direction==='left'?'left':'right';
+      if(!Number.isFinite(x)||!Number.isFinite(y))return null;
+      const gapX=Math.max(.014,Math.min(.028,.011+hw*.52)),gapY=Math.max(.012,Math.min(.024,.010+depth*.70));
+      const faceToward=(px)=>px<x?'right':px>x?'left':dir;
+      const point=(px,py,slot,priority=0,facing=faceToward(px))=>({x:Number(px.toFixed(6)),y:Number(py.toFixed(6)),slot,priority,facing});
+      const front=point(x,y+depth+gapY,'front',100,dir),rear=point(x,y-depth-gapY,'rear',25,dir),left=point(x-hw-gapX,y-Math.min(depth*.25,.008),'left',65,'right'),right=point(x+hw+gapX,y-Math.min(depth*.25,.008),'right',65,'left');
+      const nearSide=dir==='left'?right:left,farSide=dir==='left'?left:right;
+      let approaches=[front,nearSide,farSide,rear],mount=false,use=null;
+      const sideKinds=new Set(['eat','drink','puzzle','groom','scratch','read','mirror','sniff','toilet']);
+      const mountKinds=new Set(['sleep','rest','wash','sandbath','perch','hide']);
+      if(wallMounted){approaches=[front,left,right];}
+      else if(sideKinds.has(kind)){approaches=[{...nearSide,priority:100},{...farSide,priority:72},{...front,priority:52},rear];}
+      else if(kind==='play'){approaches=[{...nearSide,priority:92},{...front,priority:82},{...farSide,priority:62},rear];}
+      else if(kind==='exercise'||kind==='roar'||kind==='fire'||kind==='climb'||kind==='dig'){approaches=[{...front,priority:100},{...nearSide,priority:80},{...farSide,priority:72},rear];}
+      if(mountKinds.has(kind)&&!wallMounted){
+        mount=true;
+        const fpH=Math.max(1,Number(item?.footprintH||1));
+        let lift=Math.max(depth*.72,.010);
+        if(kind==='sleep')lift=Math.min(.038,Math.max(lift,(.014+.0045*fpH)*scale));
+        else if(kind==='wash')lift=Math.min(.034,Math.max(lift,(.013+.0040*fpH)*scale));
+        else if(kind==='sandbath')lift=Math.min(.030,Math.max(lift,(.012+.0040*fpH)*scale));
+        else if(kind==='perch')lift=Math.min(.038,Math.max(lift,(.018+.0050*fpH)*scale));
+        else if(kind==='hide')lift=Math.min(.034,Math.max(lift,(.015+.0045*fpH)*scale));
+        else if(kind==='rest')lift=Math.min(.034,Math.max(lift,(.015+.0045*fpH)*scale));
+        // Beds, baths, cushions and rugs all get an explicit occupancy anchor.
+        // A tiny direction-aware X offset keeps flipped asymmetric sprites visually centred.
+        const xBias=floorCovering?0:(dir==='left'?-1:1)*Math.min(hw*.08,.0045);
+        use={x:Number((x+xBias).toFixed(6)),y:Number((y-lift).toFixed(6)),facing:dir,mounted:true};
+      }
+      return{version:2,kind,mount,wallMounted,floorCovering,use,approaches:approaches.filter(a=>Number.isFinite(a.x)&&Number.isFinite(a.y)).sort((a,b)=>Number(b.priority||0)-Number(a.priority||0))};
+    }
+
+    interactionSnapshot(){return this.placements.map(p=>{const item=this.catalog.get(p.itemId),wallMounted=this.isWallItem(item),interaction=this.interactionProfile(p,item),render=this.renderProfile(item);return{placementId:p.placementId,itemId:p.itemId,roomId:p.roomId,x:Number(p.x),y:Number(p.y),direction:p.direction||'right',scale:Number(p.scale||1),footprintW:Number(item?.footprintW||2),footprintH:Number(item?.footprintH||1),halfWidth:this.itemHalfWidth(item,p.scale),depth:wallMounted?0:this.itemDepth(item,p.scale),wallMounted,floorCovering:this.isFloorCovering(item),renderType:render.type,depthAnchorY:this.furnitureBaseAnchorY(p,item),frontMaskTop:render.frontMaskTop,tags:item?.tags||[],name:item?.name||p.itemId,category:item?.category||'',collection:item?.collection||'',sprite:item?.sprite||'',price:Number(item?.price||0),rarity:item?.rarity||'',interaction,personalityScore:typeof window.DragonboundFurniturePersonalityScore==='function'?window.DragonboundFurniturePersonalityScore(item?.tags||[],{roomId:p.roomId,x:p.x,y:p.y,itemId:p.itemId,wallMounted}):0};});}
     syncState(){this.state.inventory=[...this.inventory].map(([itemId,v])=>({itemId,...v}));this.state.placements=this.placements.map(p=>({...p}));this.render();}
 
     exitBuildModes(){if(this.directDrag)this.clearEditDrag();this.close();this.cancelPlacement(false);this.exitEditMode(false);}

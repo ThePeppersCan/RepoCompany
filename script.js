@@ -206,7 +206,7 @@ function harmonyLevelFromXp(xp) {
 
 function totalLevelForCharacter(data = character) {
   if (!data) return harmonyLevelFromXp(count);
-  const skills = ['woodcutting','mining','fishing','agility','slayer','attack','strength','defence','sailing','runecrafting','cooking','magic','ranged','farming','firemaking','herblore','construction'];
+  const skills = ['woodcutting','mining','fishing','agility','slayer','attack','strength','defence','sailing','runecrafting','cooking','magic','ranged','farming','firemaking','herblore','construction','dragon_racing'];
   return skills.reduce((sum, skill) => sum + levelFromXp(Number(data[`${skill}_xp`]) || 0), 0) + harmonyLevelFromXp(count);
 }
 
@@ -436,6 +436,7 @@ async function loadCharacter() {
   }
   character = data?.[0] || null;
   if(character){
+    try{const {data:racingData,error:racingError}=await db.rpc('get_my_dragon_racing_progression');if(racingError)console.warn('Could not load Dragon Racing XP.',racingError);else{const racing=Array.isArray(racingData)?racingData[0]:racingData;character.dragon_racing_xp=Math.max(0,Number(racing?.xp)||0);}}catch(racingError){console.warn('Could not load Dragon Racing XP.',racingError);}
     await loadQuestProfile();
     await loadAchievements();
     await loadPersistentPetLoadout();
@@ -632,7 +633,8 @@ async function openSkills() {
     construction: { label:'Construction', image:'assets/level-construction-icon.png', branch:'artisan' },
     runecrafting: { label:'Runecrafting', image:'assets/runecrafting-icon.png', branch:'artisan' },
     agility: { label:'Agility', image:'assets/agility-icon.webp', branch:'adventure' },
-    sailing: { label:'Sailing', image:'assets/sailing-icon.webp', branch:'adventure' }
+    sailing: { label:'Sailing', image:'assets/sailing-icon.webp', branch:'adventure' },
+    dragon_racing: { label:'Dragon Racing', image:'dragon-racing-assets/dragon-racing-icon.png', branch:'adventure' }
   };
 
   const branchDefinitions = [
@@ -3803,13 +3805,14 @@ async function openPlayerStats(username) {
   $('playerStatsTitle').textContent = `${profileName.toUpperCase()} · SKILL TREE`;
   $('playerStatsBody').textContent = 'Loading...';
   if (!$('playerStatsDialog').open) $('playerStatsDialog').showModal();
-  const { data, error } = await db.rpc('get_public_character', { p_username: profileName });
+  const [{data,error},{data:racingData,error:racingError}] = await Promise.all([db.rpc('get_public_character',{p_username:profileName}),db.rpc('get_public_dragon_racing_progression',{p_username:profileName})]);
   if (error || !data?.[0]) {
     console.error(error);
     $('playerStatsBody').textContent = 'Could not load this player. Run the player stats SQL update.';
     return;
   }
-  const row=data[0];
+  const row={...data[0],dragon_racing_xp:Math.max(0,Number((Array.isArray(racingData)?racingData[0]:racingData)?.xp)||0)};
+  if(racingError)console.warn('Could not load public Dragon Racing XP.',racingError);
   const skillDefinitions={
     woodcutting:{label:'Woodcutting',image:'assets/tree.png',branch:'gathering'},
     mining:{label:'Mining',image:'assets/runite-rocks.png',branch:'gathering'},
@@ -3824,7 +3827,8 @@ async function openPlayerStats(username) {
     cooking:{label:'Cooking',image:'assets/cooking-icon-new.png',branch:'artisan'},
     runecrafting:{label:'Runecrafting',image:'assets/runecrafting-icon.png',branch:'artisan'},
     agility:{label:'Agility',image:'assets/agility-icon.webp',branch:'adventure'},
-    sailing:{label:'Sailing',image:'assets/sailing-icon.webp',branch:'adventure'}
+    sailing:{label:'Sailing',image:'assets/sailing-icon.webp',branch:'adventure'},
+    dragon_racing:{label:'Dragon Racing',image:'dragon-racing-assets/dragon-racing-icon.png',branch:'adventure'}
   };
   const branchDefinitions=[
     {key:'gathering',label:'Gathering',symbol:'◆',blurb:'Resources & cultivation'},
@@ -4495,7 +4499,7 @@ ACHIEVEMENT_DEFINITIONS_V22.forEach(a=>{ACHIEVEMENTS[a.id]={group:ACHIEVEMENT_CA
 
 function achievementStatsV22(){
   const s={...(achievementDashboard?.stats||{})};
-  const xpKeys=['woodcutting','mining','fishing','agility','slayer','attack','strength','defence','sailing','runecrafting','cooking','magic','ranged','farming'];
+  const xpKeys=['woodcutting','mining','fishing','agility','slayer','attack','strength','defence','sailing','runecrafting','cooking','magic','ranged','farming','dragon_racing'];
   const levels=xpKeys.map(k=>({key:k,xp:Number(s[`${k}_xp`]||character?.[`${k}_xp`]||0),level:typeof levelFromXp==='function'?levelFromXp(Number(s[`${k}_xp`]||character?.[`${k}_xp`]||0)):1}));
   const harmonyXp=Number(typeof count!=='undefined'?count:0)||0;
   const harmonyLevel=typeof harmonyLevelFromXp==='function'?harmonyLevelFromXp(harmonyXp):1;
@@ -10411,9 +10415,11 @@ async function qmRefreshWatcherProfiles(names,force=false){
     if(petError)console.warn('Quidditch watcher pet profiles:',petError);
     const petByName=new Map((petRows||[]).map(row=>[qmWatcherKey(row.username),row]));
     const [{data:backgroundRows,error:backgroundError},{data:favouriteRows,error:favouriteError},{data:titleRows,error:titleError},publicRows]=await Promise.all([db.rpc('get_watchcard_backgrounds',{p_usernames:unique}),db.rpc('get_favourite_quidditch_tcg_cards',{p_usernames:unique}),db.rpc('get_passport_titles',{p_usernames:unique}),Promise.all(unique.map(async username=>{
-      const {data,error}=await db.rpc('get_public_character',{p_username:username});
+      const [{data,error},{data:racingData,error:racingError}]=await Promise.all([db.rpc('get_public_character',{p_username:username}),db.rpc('get_public_dragon_racing_progression',{p_username:username})]);
       if(error){console.warn(`Could not load ${username} skill profile:`,error);return null;}
-      return data?.[0]?{username,...data[0]}:null;
+      if(racingError)console.warn(`Could not load ${username} Dragon Racing XP:`,racingError);
+      const racing=Array.isArray(racingData)?racingData[0]:racingData;
+      return data?.[0]?{username,...data[0],dragon_racing_xp:Math.max(0,Number(racing?.xp)||0)}:null;
     }))]);
     if(backgroundError)console.warn('Quidditch watchcard backgrounds:',backgroundError);
     if(favouriteError)console.warn('Quidditch favourite TCG cards:',favouriteError);
@@ -10471,7 +10477,8 @@ function qmWatcherSkillSummary(profile={}){
     ['Sailing','assets/sailing-icon.webp','sailing_xp'],
     ['Runecrafting','assets/runecrafting-icon.png','runecrafting_xp'],
     ['Cooking','assets/cooking-icon-new.png','cooking_xp'],
-    ['Farming','assets/watering-can.png','farming_xp']
+    ['Farming','assets/watering-can.png','farming_xp'],
+    ['Dragon Racing','dragon-racing-assets/dragon-racing-icon.png','dragon_racing_xp']
   ].map(([label,image,key])=>({label,image,level:levelFromXp(Number(profile[key])||0)}));
   const highest=personalSkills.reduce((best,skill)=>skill.level>best.level?skill:best,personalSkills[0]);
   const harmonyLevel=harmonyLevelFromXp(Number(count)||0);
@@ -18447,6 +18454,20 @@ qmShowSharedGoal=function(state){
     {id:'varko_patch',name:'Varko — Patch',image:'assets/quidditch-tcg/cards/patch/varko-patch.png',rarity:'patch'},
     {id:'vivi_patch',name:'Vivi — Patch',image:'assets/quidditch-tcg/cards/patch/vivi-patch.png',rarity:'patch'},
     {id:'zizi_patch',name:'Zizi — Patch',image:'assets/quidditch-tcg/cards/patch/zizi-patch.png',rarity:'patch'},
+    {id:'fable_meal_toy_besquelcher_patch',name:'Besquelcher — Fable Meal Toy',image:'assets/quidditch-tcg/cards/patch/fable-meal-toys/besquelcher.png',rarity:'patch',set:'Fable Meal Toys'},
+    {id:'fable_meal_toy_jud_patch',name:'JUD — Fable Meal Toy',image:'assets/quidditch-tcg/cards/patch/fable-meal-toys/jud.png',rarity:'patch',set:'Fable Meal Toys'},
+    {id:'fable_meal_toy_pipsqueak_patch',name:'Pipsqueak — Fable Meal Toy',image:'assets/quidditch-tcg/cards/patch/fable-meal-toys/pipsqueak.png',rarity:'patch',set:'Fable Meal Toys'},
+    {id:'fable_meal_toy_nimbler_2k_patch',name:'Nimbler 2K — Fable Meal Toy',image:'assets/quidditch-tcg/cards/patch/fable-meal-toys/nimbler-2k.png',rarity:'patch',set:'Fable Meal Toys'},
+    {id:'fable_meal_toy_rocky_patch',name:'ROCKY — Fable Meal Toy',image:'assets/quidditch-tcg/cards/patch/fable-meal-toys/rocky.png',rarity:'patch',set:'Fable Meal Toys'},
+    {id:'fable_meal_toy_soup_patch',name:'Soup — Fable Meal Toy',image:'assets/quidditch-tcg/cards/patch/fable-meal-toys/soup.png',rarity:'patch',set:'Fable Meal Toys'},
+    {id:'fable_meal_toy_debbie_patch',name:'Debbie — Fable Meal Toy',image:'assets/quidditch-tcg/cards/patch/fable-meal-toys/debbie.png',rarity:'patch',set:'Fable Meal Toys'},
+    {id:'claymora_besquelcher_promo',name:'Besquelcher — Midnight Baker',image:'assets/quidditch-tcg/cards/promo/claymora/besquelcher.png',rarity:'promo',set:'Claymora'},
+    {id:'claymora_jud_promo',name:'JUD — Village Toymaker',image:'assets/quidditch-tcg/cards/promo/claymora/jud.png',rarity:'promo',set:'Claymora'},
+    {id:'claymora_pipsqueak_promo',name:'Pipsqueak — Lighthouse Keeper',image:'assets/quidditch-tcg/cards/promo/claymora/pipsqueak.png',rarity:'promo',set:'Claymora'},
+    {id:'claymora_rocky_promo',name:'ROCKY — Parcel Postie',image:'assets/quidditch-tcg/cards/promo/claymora/rocky.png',rarity:'promo',set:'Claymora'},
+    {id:'claymora_nimbler_2k_promo',name:'Nimbler 2K — Clockmaker',image:'assets/quidditch-tcg/cards/promo/claymora/nimbler-2k.png',rarity:'promo',set:'Claymora'},
+    {id:'claymora_soup_promo',name:'Soup — Tea Gardener',image:'assets/quidditch-tcg/cards/promo/claymora/soup.png',rarity:'promo',set:'Claymora'},
+    {id:'claymora_debbie_promo',name:'Debbie — Village Florist',image:'assets/quidditch-tcg/cards/promo/claymora/debbie.png',rarity:'promo',set:'Claymora'},
 
     {id:'world_cup_2026_tuli_players_player_platinum',name:"Tuli — Players’ Player",image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-players-player.png',rarity:'platinum',set:'World Cup Honours 2026'},
     {id:'world_cup_2026_tuli_top_goalscorer_platinum',name:'Tuli — World Cup Top Goalscorer',image:'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-top-goalscorer.png',rarity:'platinum',set:'World Cup Honours 2026'},
@@ -20162,6 +20183,20 @@ qmShowSharedGoal=function(state){
     ['varko_patch','Varko — Patch','assets/quidditch-tcg/cards/patch/varko-patch.png'],
     ['vivi_patch','Vivi — Patch','assets/quidditch-tcg/cards/patch/vivi-patch.png'],
     ['zizi_patch','Zizi — Patch','assets/quidditch-tcg/cards/patch/zizi-patch.png'],
+    ['fable_meal_toy_besquelcher_patch','Besquelcher — Fable Meal Toy','assets/quidditch-tcg/cards/patch/fable-meal-toys/besquelcher.png'],
+    ['fable_meal_toy_jud_patch','JUD — Fable Meal Toy','assets/quidditch-tcg/cards/patch/fable-meal-toys/jud.png'],
+    ['fable_meal_toy_pipsqueak_patch','Pipsqueak — Fable Meal Toy','assets/quidditch-tcg/cards/patch/fable-meal-toys/pipsqueak.png'],
+    ['fable_meal_toy_nimbler_2k_patch','Nimbler 2K — Fable Meal Toy','assets/quidditch-tcg/cards/patch/fable-meal-toys/nimbler-2k.png'],
+    ['fable_meal_toy_rocky_patch','ROCKY — Fable Meal Toy','assets/quidditch-tcg/cards/patch/fable-meal-toys/rocky.png'],
+    ['fable_meal_toy_soup_patch','Soup — Fable Meal Toy','assets/quidditch-tcg/cards/patch/fable-meal-toys/soup.png'],
+    ['fable_meal_toy_debbie_patch','Debbie — Fable Meal Toy','assets/quidditch-tcg/cards/patch/fable-meal-toys/debbie.png'],
+    ['claymora_besquelcher_promo','Besquelcher — Midnight Baker','assets/quidditch-tcg/cards/promo/claymora/besquelcher.png'],
+    ['claymora_jud_promo','JUD — Village Toymaker','assets/quidditch-tcg/cards/promo/claymora/jud.png'],
+    ['claymora_pipsqueak_promo','Pipsqueak — Lighthouse Keeper','assets/quidditch-tcg/cards/promo/claymora/pipsqueak.png'],
+    ['claymora_rocky_promo','ROCKY — Parcel Postie','assets/quidditch-tcg/cards/promo/claymora/rocky.png'],
+    ['claymora_nimbler_2k_promo','Nimbler 2K — Clockmaker','assets/quidditch-tcg/cards/promo/claymora/nimbler-2k.png'],
+    ['claymora_soup_promo','Soup — Tea Gardener','assets/quidditch-tcg/cards/promo/claymora/soup.png'],
+    ['claymora_debbie_promo','Debbie — Village Florist','assets/quidditch-tcg/cards/promo/claymora/debbie.png'],
 
     ['world_cup_2026_tuli_players_player_platinum',"Tuli — Players’ Player",'assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-players-player.png'],
     ['world_cup_2026_tuli_top_goalscorer_platinum','Tuli — World Cup Top Goalscorer','assets/quidditch-tcg/cards/platinum/world-cup-2026-honours/tuli-top-goalscorer.png'],
@@ -20187,7 +20222,7 @@ qmShowSharedGoal=function(state){
     ['rego_rocky','ROCKY — REGO','assets/quidditch-tcg/cards/platinum/rego/rocky.png'],
     ['rego_debbie','Debbie — REGO','assets/quidditch-tcg/cards/platinum/rego/debbie.png'],
 ];
-  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.startsWith('wc2026_')?'full_art':id.includes('unfinished_')?'unfinished':id.includes('psycompany_promo')?'promo':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
+  const rarityFromId=(id,image='')=>id==='ltd_week_one_anniversary'?'limited':id.startsWith('wc2026_')?'full_art':id.includes('unfinished_')?'unfinished':id.includes('psycompany_promo')?'promo':id.startsWith('claymora_')?'promo':id.includes('black_label')?'black_label':id.includes('off_the_broom')?'off_the_broom':id.endsWith('_patch')?'patch':id.includes('signature')?'signature':id.includes('millennium')?'millennium':id.includes('rival')?'rival':id.includes('platinum')?'platinum':id.includes('legendary')?'legendary':(id.includes('full_art')||image.includes('/full-art/'))?'full_art':'standard';
   const cards=Object.fromEntries(catalogue.map(([id,name,image])=>[id,{id,name,image,rarity:rarityFromId(id,image)}]));
   window.repoTcgCardById=id=>cards[String(id||'').trim()]||null;
 
@@ -34055,7 +34090,8 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     ['firemaking', 'Firemaking', 'assets/fire-rune.webp', data=>levelFromXp(Number(data?.firemaking_xp)||0), data=>Number(data?.firemaking_xp)||0],
     ['herblore', 'Herblore', 'assets/level-herblore-icon.png', data=>levelFromXp(Number(data?.herblore_xp)||0), data=>Number(data?.herblore_xp)||0],
     ['runecrafting', 'Runecrafting', 'assets/runecrafting-icon.png', data=>levelFromXp(Number(data?.runecrafting_xp)||0), data=>Number(data?.runecrafting_xp)||0],
-    ['construction', 'Construction', 'assets/level-construction-icon.png', data=>levelFromXp(Number(data?.construction_xp)||0), data=>Number(data?.construction_xp)||0]
+    ['construction', 'Construction', 'assets/level-construction-icon.png', data=>levelFromXp(Number(data?.construction_xp)||0), data=>Number(data?.construction_xp)||0],
+    ['dragon_racing', 'Dragon Racing', 'dragon-racing-assets/dragon-racing-icon.png', data=>levelFromXp(Number(data?.dragon_racing_xp)||0), data=>Number(data?.dragon_racing_xp)||0]
   ];
 
   function passportEl(id){ return document.getElementById(id); }
@@ -34077,7 +34113,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
   }
   function passportTotalExp(data = character){
     if(!data) return Number(count || 0);
-    const skillKeys = ['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','construction_xp','herblore_xp','firemaking_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp'];
+    const skillKeys = ['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','construction_xp','herblore_xp','firemaking_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp','dragon_racing_xp'];
     return skillKeys.reduce((sum,key)=>sum + (Number(data?.[key]) || 0), 0) + (Number(count) || 0);
   }
   function passportPetCount(){
@@ -34573,7 +34609,7 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
     return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
   function totalXp(profile={}){
-    const keys=['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','attack_xp','strength_xp','defence_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp'];
+    const keys=['woodcutting_xp','mining_xp','fishing_xp','agility_xp','slayer_xp','attack_xp','strength_xp','defence_xp','sailing_xp','runecrafting_xp','cooking_xp','magic_xp','ranged_xp','farming_xp','dragon_racing_xp'];
     return keys.reduce((sum,key)=>sum+(Number(profile?.[key])||0),0)+(Number(typeof count!=='undefined'?count:0)||0);
   }
   function titleFor(name,profile=null){
@@ -42363,7 +42399,7 @@ document.head.appendChild(s)})();
       const arrived=await waitForDragonAtTreat(actor,target,token,lazy?19000:15000);
       if(token!==dragonTreatAbortToken)return false;
       if(!arrived){piece.classList.add('is-eaten');await dragonTreatDelay(350);piece.remove();return false;}
-      try{actor.path=[];actor.pathIndex=0;actor.walkSpeedBoost=1;actor.setState('sitting',950);actor.nextDecision=performance.now()+1150;if(typeof actor.applyCareBenefit==='function'){actor.applyCareBenefit('hunger',6);actor.applyCareBenefit('fun',2);actor.applyCareBenefit('social',1);actor.addBond?.(.15);}else{actor.needs.hunger=Math.max(0,Number(actor.needs?.hunger||0)-6);actor.needs.social=Math.max(0,Number(actor.needs?.social||0)-1);actor.behaviourDirty=true;}const obs=actor.memory?.observationCounters||(actor.memory.observationCounters={});obs.dragonBitesEaten=(Number(obs.dragonBitesEaten)||0)+1;actor.noteUniverseActivity?.('treat');actor.rememberLifeEvent?.('treat','First Dragon Bite',`${name} discovered just how exciting Dragon Bites are.`,'first-dragon-bite');actor.behaviourDirty=true;window.DragonboundBabyEngine?.saveBehaviourLocal?.();}catch(_error){}
+      try{actor.path=[];actor.pathIndex=0;actor.walkSpeedBoost=1;actor.setState('sitting',950);actor.nextDecision=performance.now()+1150;if(typeof actor.applyCareBenefit==='function'){actor.applyCareBenefit('hunger',6);actor.applyCareBenefit('fun',2);actor.applyCareBenefit('social',1);actor.addBond?.(.15);}else{actor.needs.hunger=Math.max(0,Number(actor.needs?.hunger||0)-6);actor.needs.social=Math.max(0,Number(actor.needs?.social||0)-1);actor.behaviourDirty=true;}const obs=actor.memory?.observationCounters||(actor.memory.observationCounters={});obs.dragonBitesEaten=(Number(obs.dragonBitesEaten)||0)+1;actor.noteUniverseActivity?.('treat');actor.maybeShowDragonThought?.('treat');actor.rememberLifeEvent?.('treat','First Dragon Bite',`${name} discovered just how exciting Dragon Bites are.`,'first-dragon-bite');actor.behaviourDirty=true;window.DragonboundBabyEngine?.saveBehaviourLocal?.();}catch(_error){}
       actor.el?.classList.add('is-treat-chewing');playTreatCrunch();spawnDragonTreatCrunchBurst(target);piece.classList.add('is-eaten');
       if(homeTreatStatus)homeTreatStatus.textContent=actor.hasTrait?.('Foodie')?`Crunch! ${name} savours every bit.`:`Crunch! ${name} gobbles it up.`;
       await dragonTreatDelay(900);actor.el?.classList.remove('is-treat-chewing');piece.remove();
@@ -42837,6 +42873,19 @@ document.head.appendChild(s)})();
           if(error) throw error;
           dragonboundLastProfile=data||null;
           if(data){
+            // V33.96: signature personality is server-owned and permanent. Repair any
+            // older hatched profile that does not yet have its 2-3 signature traits.
+            if(data.dragon_name&&data.breed_id&&data.dragon_hatched_at){
+              const existingSignature=Array.isArray(data?.dragon_traits?.signature)?data.dragon_traits.signature:[];
+              if(existingSignature.length<2||existingSignature.length>3){
+                try{
+                  const {data:signatureData,error:signatureError}=await db.rpc('dragonbound_ensure_my_personality_v2');
+                  if(signatureError)throw signatureError;
+                  const signature=Array.isArray(signatureData)?signatureData:[];
+                  if(signature.length>=2)data.dragon_traits={...(data.dragon_traits||{}),signature:signature.slice(0,3),signatureVersion:2};
+                }catch(signatureError){console.warn('[Dragonbound] Signature personality could not be hydrated yet.',signatureError);}
+              }
+            }
             if(!dragonboundIsAdminTester()){
               if(data.locked_egg){
                 const egg=DRAGONBOUND_EGG_POOL.find(item=>item.name===data.locked_egg);
@@ -42893,7 +42942,8 @@ document.head.appendChild(s)})();
                 const serverTraits=data.dragon_traits||{},localTraits=localCandidate.traits||{};
                 const assigned=Array.isArray(serverTraits.assigned)&&serverTraits.assigned.length?serverTraits.assigned:(Array.isArray(localTraits.assigned)?localTraits.assigned:[]);
                 const discovered=[...new Set([...(Array.isArray(serverTraits.discovered)?serverTraits.discovered:[]),...(Array.isArray(localTraits.discovered)?localTraits.discovered:[])])].slice(0,20);
-                data.dragon_traits={...serverTraits,...localTraits,assigned,discovered};
+                const signature=Array.isArray(serverTraits.signature)&&serverTraits.signature.length>=2?serverTraits.signature:(Array.isArray(localTraits.signature)?localTraits.signature:[]);
+                data.dragon_traits={...serverTraits,...localTraits,assigned,discovered,signature:signature.slice(0,3)};
                 db.rpc('dragonbound_save_behaviour',{p_memory:data.dragon_memory,p_preferences:data.dragon_preferences||{},p_discovered_traits:discovered}).then(({data:repairData,error:repairError})=>{
                   if(repairError){console.warn('[Dragonbound] Newer local care snapshot could not be repaired to Supabase yet.',repairError);return;}
                   const repairRow=Array.isArray(repairData)?repairData[0]:repairData;if(repairRow)dragonboundLastProfile={...(dragonboundLastProfile||data),dragon_memory:repairRow.dragon_memory,dragon_preferences:repairRow.dragon_preferences,dragon_traits:repairRow.dragon_traits};
@@ -44102,16 +44152,47 @@ document.head.appendChild(s)})();
       const dislikes=[];if(traitNames.includes('Bath Hater'))dislikes.push('Bath time');if(traitNames.includes('Suspicious of New Food'))dislikes.push('Unfamiliar food');if(traitNames.includes('Shy'))dislikes.push('Noisy, busy spaces');if(traitNames.includes('Reluctant Trainee'))dislikes.push('Being rushed into training');
       return{version:Number(u.version||0),title:String(u.descriptor||'Still Becoming Themselves'),knownTraits,hiddenTraits:Math.max(0,traitNames.length-knownTraits.length),tentative:String(u.observations?.tentativeTrait||''),knownQuirks,hiddenQuirks:Math.max(0,quirks.length-knownQuirks.length),habits,comforts:comforts.slice(0,5),dislikes:dislikes.slice(0,5),relationship:bond>=80?'Deeply trusting, but still unmistakably themselves':bond>=60?'Comfortable and secure around you':bond>=40?'Beginning to trust your routines':'Still learning what life with you feels like',currentObsession:String(last?.name||'Still choosing'),keeperNote:'Keep watching the little choices — the journal only records what your dragon actually shows you.',togetherDays:hatchedAt?Math.max(0,Math.floor((Date.now()-Number(hatchedAt))/86400000)):0,axes:{...(u.axes||{})}};
     };
+    const DRAGONBOUND_SIGNATURE_TRAIT_COPY={
+      'Lazy':'loves taking life at an unhurried pace and gravitates toward cosy places',
+      'Energetic':'is rarely still for long and is always looking for something to do',
+      'Curious':'cannot resist investigating new furniture, corners and little changes',
+      'Mischievous':'has a harmless troublesome streak and likes getting into things',
+      'Clingy':'likes staying close to their keeper and checks in often',
+      'Independent':'is happiest making their own choices and exploring at their own pace',
+      'Food Obsessed':'takes a very serious interest in snacks and feeding spots',
+      'Sleepy':'rarely turns down a good nap or a comfortable place to curl up',
+      'Playful':'is drawn to toys, games and anything that looks entertaining',
+      'Brave':'approaches unfamiliar things with confidence',
+      'Shy':'prefers familiar, quieter spaces until they feel secure',
+      'Competitive':'takes training and racing unusually seriously',
+      'Stubborn':'sometimes needs a moment before deciding that your idea was theirs too',
+      'Affectionate':'actively seeks warmth, company and attention from their keeper',
+      'Clean':'notices when they could do with a wash earlier than most dragons',
+      'Messy':'is quite content getting grubby before deciding a wash is necessary',
+      'Easily Excited':'gets swept up in treats, play and exciting moments very quickly',
+      'Calm':'moves through home life in a steady, relaxed way',
+      'Adventurous':'is naturally drawn toward exploring, climbing and new experiences'
+    };
+    const dragonProfileSignatureDescription=(name,traits=[])=>{
+      const clean=[...new Set((Array.isArray(traits)?traits:[]).filter(Boolean))].slice(0,3);
+      if(!clean.length)return`${name}'s core personality is still being recorded.`;
+      const bits=clean.map(t=>DRAGONBOUND_SIGNATURE_TRAIT_COPY[t]).filter(Boolean);
+      if(!bits.length)return`${name} has a distinct ${clean.map(v=>v.toLowerCase()).join(', ')} personality.`;
+      if(bits.length===1)return`${name} ${bits[0]}.`;
+      if(bits.length===2)return`${name} ${bits[0]}, but also ${bits[1]}.`;
+      return`${name} ${bits[0]}; ${bits[1]}; and ${bits[2]}.`;
+    };
     const dragonProfileSource=()=>{
       const actor=window.DragonboundBabyEngine?.actor||null,local=namedDragonForCurrentAccount()||{},profile=dragonboundLastProfile||{};
       const dragon=actor?.dragon||local||{},name=actor?.dragon?.name||local.name||profile.dragon_name||'',breedId=actor?.dragon?.breedId||local.breedId||profile.breed_id||'',eggName=actor?.dragon?.eggName||local.eggName||profile.locked_egg||'',gender=normaliseDragonGender(actor?.dragon?.gender||local.gender||profile.gender),hatchedAt=Number(actor?.dragon?.hatchedAt||local.hatchedAt)||Date.parse(String(profile.dragon_hatched_at||''))||0;
       const memory=actor?.memory||local.memory||profile.dragon_memory||{},preferences=actor?.preferences||local.preferences||profile.dragon_preferences||{},personality=actor?.dragon?.personality||local.personality||profile.personality||{};
       const legacyAssigned=Array.isArray(actor?.assignedTraits)?actor.assignedTraits:(Array.isArray(local?.traits?.assigned)?local.traits.assigned:(Array.isArray(profile?.dragon_traits?.assigned)?profile.dragon_traits.assigned:[]));
       const legacyDiscovered=Array.isArray(actor?.discoveredTraits)?actor.discoveredTraits:(Array.isArray(local?.traits?.discovered)?local.traits.discovered:(Array.isArray(profile?.dragon_traits?.discovered)?profile.dragon_traits.discovered:[]));
+      const signatureTraits=Array.isArray(actor?.signatureTraits)&&actor.signatureTraits.length?actor.signatureTraits:(Array.isArray(local?.traits?.signature)&&local.traits.signature.length?local.traits.signature:(Array.isArray(profile?.dragon_traits?.signature)?profile.dragon_traits.signature:[]));
       const care=actor?.careStats?actor.careStats():dragonProfileCareFromMemory(memory),bond=Math.max(0,Math.min(100,Number(actor?.bond??memory?.bond??18)||0)),mood=actor?.moodSummary?actor.moodSummary():dragonProfileMoodFallback(care),registry=window.DragonboundBabyRegistry?.[breedId],portrait=actor?.def?.animations?.idle?.frames?.[0]?.src||registry?.animations?.idle?.frames?.[0]?.src||DRAGONBOUND_EGG_POOL.find(e=>e.name===eggName)?.src||'';
       const universe=actor?.personalityUniverseSummary?.()||dragonProfileUniverseFallback(memory,bond,hatchedAt),universeRaw=actor?.personalityUniverse||memory?.personalityUniverse||{},assigned=[...new Set([...legacyAssigned,...(universeRaw.innateTraits||[]),...(universeRaw.secondaryTraits||[])])],discovered=[...new Set([...legacyDiscovered,...(universe.knownTraits||[])])];
       const skills=actor?.skills||memory?.skills||{},growth=actor?.growthInfo?actor.growthInfo():dragonProfileGrowthFallback(hatchedAt);
-      return{hasDragon:!!(name&&breedId),actor,local,profile,dragon,name,breedId,breedName:registry?.displayName||eggName||String(breedId).replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),eggName,gender,hatchedAt,memory,preferences,personality,assigned,discovered,care,bond,mood,portrait,skills,growth,universe,universeRaw};
+      return{hasDragon:!!(name&&breedId),actor,local,profile,dragon,name,breedId,breedName:registry?.displayName||eggName||String(breedId).replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),eggName,gender,hatchedAt,memory,preferences,personality,signatureTraits:signatureTraits.slice(0,3),assigned,discovered,care,bond,mood,portrait,skills,growth,universe,universeRaw};
     };
     let dragonProfileSelectedSkill='';
     let dragonProfileSelectedTab='nature';
@@ -44120,22 +44201,29 @@ document.head.appendChild(s)})();
       const src=dragonProfileSource(),book=myDragonOverlay?.querySelector('.dragonbound-my-dragon-book');if(!book)return;syncDragonJournalTab();
       book.classList.toggle('is-empty',!src.hasDragon);if(myDragonEmpty)myDragonEmpty.hidden=src.hasDragon;
       if(!src.hasDragon){if(myDragonName)myDragonName.textContent='My Dragon';if(myDragonSubtitle)myDragonSubtitle.textContent='Your keeper journal will begin when your first dragon hatches.';return;}
-      const study=DRAGONBOUND_EGG_STUDY[src.eggName]||{},stage=dragonProfileBondStage(src.bond),obs=src.memory?.observationCounters||{},affinity=Object.entries(src.memory?.furnitureAffinity||{}).map(([id,v])=>({id,...(v||{}),count:Number(v?.count||0)})).sort((a,b)=>b.count-a.count),overall=affinity[0]||null,bed=dragonProfilePickAffinity(src.memory,['sleep','rest','perch']),toy=dragonProfilePickAffinity(src.memory,['play','puzzle','scratch','dig']),feeding=dragonProfilePickAffinity(src.memory,['eat','drink']),activity=Object.entries(src.memory?.activityCounts||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0))[0];
+      const study=DRAGONBOUND_EGG_STUDY[src.eggName]||{},stage=dragonProfileBondStage(src.bond),obs=src.memory?.observationCounters||{},formed=src.preferences?.formed||{},favByKind=formed.favouritesByKind||{},overall=formed.favouriteFurniture||null,bed=favByKind.bed||null,toy=favByKind.toy||null,feeding=favByKind.feeding||null,activity=Object.entries(src.memory?.activityCounts||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0))[0],floorChoice=Object.entries(src.memory?.floorVisits||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0))[0];
       if(myDragonName)myDragonName.textContent=src.name;if(myDragonSubtitle)myDragonSubtitle.textContent=`${src.breedName} · ${src.gender?dragonGenderDisplay(src.gender):'Gender unknown'} · ${dragonProfileAge(src.hatchedAt)}`;
       if(myDragonPortrait){myDragonPortrait.src=src.portrait;myDragonPortrait.alt=`${src.name}, ${src.breedName} baby dragon`;}
       if(myDragonIdentity)myDragonIdentity.innerHTML=[['Breed',src.breedName],['Gender',src.gender?dragonGenderDisplay(src.gender):'Unknown'],['Age',dragonProfileAge(src.hatchedAt)],['Hatched',dragonProfileDate(src.hatchedAt)],['Egg origin',study.foundIn||'Velmora'],['Dragon type',study.dragonType||src.breedName]].map(([k,v])=>`<div><small>${dragonboundEscapeHtml(k)}</small><strong>${dragonboundEscapeHtml(v)}</strong></div>`).join('');
       if(myDragonMood)myDragonMood.textContent=src.mood;if(myDragonMoodCopy)myDragonMoodCopy.textContent=dragonProfileMoodCopy(src.mood);
       if(myDragonCare)myDragonCare.innerHTML=[['hunger','Hunger'],['hygiene','Hygiene'],['energy','Energy'],['fun','Fun']].map(([key,label])=>{const v=Math.max(0,Math.min(100,Number(src.care[key])||0));return`<div class="dragonbound-my-dragon-care-row" data-level="${v<=20?'critical':v<=45?'low':v<=70?'mid':'good'}"><span>${label}</span><i><em style="width:${v}%"></em></i><b>${Math.round(v)}%</b></div>`;}).join('');
       if(myDragonBond)myDragonBond.textContent=`${Math.round(src.bond)} · ${stage.name}`;if(myDragonBondBar)myDragonBondBar.style.width=`${src.bond}%`;if(myDragonBondNote)myDragonBondNote.textContent=stage.note;
-      const universe=src.universe||{},archetype=String(universe.title||src.personality?.archetype||'Individual');if(myDragonArchetype)myDragonArchetype.textContent='Observed nature';if(myDragonDescriptor)myDragonDescriptor.textContent=archetype;if(myDragonTogether)myDragonTogether.textContent=Number(universe.togetherDays||0)>0?`Together for ${Number(universe.togetherDays)} day${Number(universe.togetherDays)===1?'':'s'}`:'Your story is just beginning';
-      if(myDragonPersonalityCopy){const names=src.discovered.slice(0,4);myDragonPersonalityCopy.textContent=names.length?`${src.name} is beginning to show a ${names.map(v=>v.toLowerCase()).join(names.length>1?', ':'')} side. These notes are based on the choices they actually make around home.`:`${src.name}'s personality is still unfolding. The journal will only confirm traits after you have genuinely seen enough evidence.`;}
-      if(myDragonTraits){const discoveredSet=new Set(src.discovered),slotTarget=Math.min(8,Math.max(6,Math.min(8,src.assigned.length||6))),slots=[];src.assigned.forEach(t=>{if(discoveredSet.has(t)&&slots.length<slotTarget)slots.push({name:t,revealed:true});});while(slots.length<slotTarget)slots.push({name:'???',revealed:false});myDragonTraits.innerHTML=slots.map(t=>`<span class="${t.revealed?'is-revealed':'is-hidden'}"${t.revealed?` title="${dragonboundEscapeHtml(dragonProfileTraitObservation(t.name))}"`:''}>${dragonboundEscapeHtml(t.name)}</span>`).join('');}
+      const universe=src.universe||{},archetype=String(universe.title||src.personality?.archetype||'Individual');if(myDragonArchetype)myDragonArchetype.textContent='Core personality';if(myDragonDescriptor)myDragonDescriptor.textContent=archetype;if(myDragonTogether)myDragonTogether.textContent=Number(universe.togetherDays||0)>0?`Together for ${Number(universe.togetherDays)} day${Number(universe.togetherDays)===1?'':'s'}`:'Your story is just beginning';
+      if(myDragonPersonalityCopy)myDragonPersonalityCopy.textContent=dragonProfileSignatureDescription(src.name,src.signatureTraits);
+      if(myDragonTraits){const signature=src.signatureTraits.slice(0,3),observed=src.discovered.filter(t=>!signature.includes(t)).slice(0,3);myDragonTraits.innerHTML=[...signature.map(t=>`<span class="is-signature" title="Permanent core personality trait">${dragonboundEscapeHtml(t)}</span>`),...observed.map(t=>`<span class="is-observed" title="${dragonboundEscapeHtml(dragonProfileTraitObservation(t))}">${dragonboundEscapeHtml(t)}</span>`)].join('');}
       if(myDragonObservation){const tentative=String(universe.tentative||'');myDragonObservation.innerHTML=tentative?`<small>UNCONFIRMED OBSERVATION</small><p>${dragonboundEscapeHtml(src.name)} may be <strong>${dragonboundEscapeHtml(tentative.toLowerCase())}</strong>. Bonnie's notes need a little more evidence before calling it a trait.</p>`:`<small>BONNIE'S MARGIN NOTE</small><p>${dragonboundEscapeHtml(universe.keeperNote||'Keep watching what they choose when nobody tells them what to do.')}</p>`;}
       if(myDragonQuirks){const quirks=Array.isArray(universe.knownQuirks)?universe.knownQuirks:[];myDragonQuirks.innerHTML=quirks.length?quirks.slice(0,5).map(q=>`<article><i>✦</i><div><strong>${dragonboundEscapeHtml(q.label||q.name||'Little quirk')}</strong><span>${dragonboundEscapeHtml(q.note||'A little habit has become hard to miss.')}</span></div></article>`).join(''):`<div class="dragonbound-personality-undiscovered"><b>?</b><span>No quirks confirmed yet.<small>Odd little habits take longer to be sure about.</small></span></div>`;}
       if(myDragonRelationship)myDragonRelationship.innerHTML=`<strong>${dragonboundEscapeHtml(stage.name)}</strong><p>${dragonboundEscapeHtml(universe.relationship||stage.note)}</p><small>${Math.round(src.bond)} bond · trust changes comfort, not who they are.</small>`;
       if(myDragonObsession)myDragonObsession.textContent=universe.currentObsession||'Still choosing';if(myDragonKeeperNote)myDragonKeeperNote.textContent=universe.keeperNote||'Keep watching the little choices.';
-      const preferredFloor=src.preferences?.preferredFloor==='upstairs'?'Upstairs':'Downstairs',favItems=[['Overall',overall?.name||src.preferences?.formed?.favouriteFurniture?.name||'Still choosing'],['Bed / Rest',bed?.name||'Still choosing'],['Toy / Play',toy?.name||'Still choosing'],['Food / Drink',feeding?.name||'Still choosing'],['Favourite area',preferredFloor],['Favourite activity',activity?dragonProfileActivityLabel(activity[0]):'Still deciding']];
-      if(myDragonFavourites)myDragonFavourites.innerHTML=favItems.map(([label,value])=>`<div><small>${dragonboundEscapeHtml(label)}</small><strong>${dragonboundEscapeHtml(value)}</strong></div>`).join('');
+      const preferredFloor=src.preferences?.preferredFloor==='upstairs'?'Upstairs':'Downstairs',confirmedFloor=floorChoice&&Number(floorChoice[1]||0)>=4?`${floorChoice[0]==='upstairs'?'Upstairs':'Downstairs'}`:'Still choosing',confirmedActivity=activity&&Number(activity[1]||0)>=5?dragonProfileActivityLabel(activity[0]):'Still choosing',favItems=[
+        {label:'Favourite Place',value:overall?.name||'Still choosing',evidence:overall?.count?`Chosen ${Number(overall.count)} times`:''},
+        {label:'Favourite Bed',value:bed?.name||'Still choosing',evidence:bed?.count?`Chosen ${Number(bed.count)} times`:''},
+        {label:'Favourite Toy',value:toy?.name||'Still choosing',evidence:toy?.count?`Chosen ${Number(toy.count)} times`:''},
+        {label:'Favourite Feeding Spot',value:feeding?.name||'Still choosing',evidence:feeding?.count?`Chosen ${Number(feeding.count)} times`:''},
+        {label:'Favourite Floor',value:confirmedFloor,evidence:confirmedFloor!=='Still choosing'?`Visited ${Number(floorChoice?.[1]||0)} times`:''},
+        {label:'Favourite Activity',value:confirmedActivity,evidence:confirmedActivity!=='Still choosing'?`Observed ${Number(activity?.[1]||0)} times`:''}
+      ];
+      if(myDragonFavourites)myDragonFavourites.innerHTML=favItems.map(item=>{const confirmed=item.value!=='Still choosing';return`<div class="${confirmed?'is-confirmed':'is-forming'}"><small>${dragonboundEscapeHtml(item.label)}</small><strong>${dragonboundEscapeHtml(item.value)}</strong><em>${confirmed&&item.evidence?dragonboundEscapeHtml(item.evidence):'Still forming naturally'}</em></div>`;}).join('');
       const habits=[];(Array.isArray(universe.habits)?universe.habits:[]).forEach(h=>{if(h?.label)habits.push(h.label);});if(src.preferences?.formed?.favouriteSleepSpot)habits.push(`${preferredFloor} sleeper`);if(Number(obs.bedSleeps||0)+Number(obs.sleepSessions||0)>=3)habits.push('Regular napper');if(Number(obs.bathUses||0)>=2)habits.push('Enjoys bath time');if(Number(obs.trainingUses||0)>=2)habits.push('Likes training');if(Number(obs.toyPlays||0)+Number(obs.puzzleUses||0)>=3)habits.push('Playful routine');if(Number(obs.newLocationsVisited||0)>=5)habits.push('Likes exploring');if(Number(obs.sameSleepSpotVisits||0)>=3)habits.push('Creature of habit');if(src.discovered.includes('Early Riser'))habits.push('Early riser');if(src.discovered.includes('Night Owl'))habits.push('Night owl');if(src.discovered.includes('Food Goblin')||src.discovered.includes('Greedy')||src.discovered.includes('Treat Obsessed'))habits.push('Always notices food');if(src.discovered.includes('Splash Addict')||src.discovered.includes('Water Baby'))habits.push('Water enthusiast');if(src.discovered.includes('Little Athlete')||src.discovered.includes('Natural Athlete'))habits.push('Little athlete');const uniqueHabits=[...new Set(habits)];if(!uniqueHabits.length)uniqueHabits.push('Still forming routines');if(myDragonHabits)myDragonHabits.innerHTML=uniqueHabits.slice(0,9).map(h=>`<span>${dragonboundEscapeHtml(h)}</span>`).join('');if(myDragonComforts){const vals=Array.isArray(universe.comforts)?universe.comforts:[];myDragonComforts.innerHTML=vals.length?vals.map(v=>`<span><i>♥</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>Still learning what feels like home.</em>';}if(myDragonDislikes){const vals=Array.isArray(universe.dislikes)?universe.dislikes:[];myDragonDislikes.innerHTML=vals.length?vals.map(v=>`<span><i>×</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>No strong dislikes confirmed yet.</em>';}
 
       const daily=src.memory?.dailyLife||{},hour=new Date().getHours(),period=hour>=6&&hour<11?'morning':hour>=11&&hour<17?'day':hour>=17&&hour<22?'evening':'night',routineRows=Object.entries(daily?.routineCounts?.[period]||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0)),formedRoutineKey=period==='morning'?'preferredMorningActivity':period==='evening'?'preferredEveningActivity':period==='night'?'preferredNightActivity':'preferredDayActivity',favouriteRoutine=routineRows[0]?.[0]||src.preferences?.formed?.[formedRoutineKey]||'',moodRows=Object.entries(daily?.moodCounts||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0)),commonMood=moodRows[0]?.[0]||src.mood;

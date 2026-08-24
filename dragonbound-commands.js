@@ -35,7 +35,7 @@
 
   function stageFor(xp){xp=clamp(xp);if(xp>=80)return STAGES[4];if(xp>=50)return STAGES[3];if(xp>=25)return STAGES[2];if(xp>0)return STAGES[1];return STAGES[0];}
   function stageProgress(xp){xp=clamp(xp);const s=stageFor(xp);if(s.name==='Mastered')return 100;if(s.name==='Unknown')return 0;return clamp(((xp-s.min)/(s.max-s.min+.001))*100);}
-  function traitSet(a){return new Set([...(a?.assignedTraits||[]),...(a?.discoveredTraits||[])]);}
+  function traitSet(a){return new Set([...(a?.signatureTraits||[]),...(a?.assignedTraits||[]),...(a?.discoveredTraits||[])]);}
   function care(a){try{return a?.careStats?.()||{};}catch(_){return {};}}
   function floorFurniture(a){try{return (window.dragonboundFurnitureInteractionProvider?.()||[]).filter(x=>x&&x.roomId===a?.floorId);}catch(_){return [];}}
   function kindOf(a,m){try{return a?.furnitureKind?.(m)||'';}catch(_){return '';}}
@@ -80,11 +80,13 @@
     const def=DEF[key];if(def?.skills?.length){const avg=def.skills.reduce((sum,k)=>sum+skillLevel(a,k),0)/def.skills.length;p+=(avg-20)*.00065;}
     if(Math.min(Number(c.hunger??100),Number(c.energy??100),Number(c.fun??100),Number(c.hygiene??100))<25)p-=.16;
     const mood=String(a?.moodSummary?.()||'');if(mood==='Grumpy'||mood==='Sulking')p-=.08;if(mood==='Excited'||mood==='Proud')p+=.025;
-    if(key==='comeHere'){if(traits.has('Velcro Baby'))p+=.12;if(traits.has('Independent Spirit'))p-=.08;}
-    if(key==='stay'){if(traits.has('Patient'))p+=.09;if(traits.has('Impatient'))p-=.08;}
-    if(key==='fetch'){if(traits.has('Toy Obsessed'))p+=.12;if(traits.has('Hoarder'))p-=.035;}
-    if(key==='goToBed'&&traits.has('Professional Napper'))p+=.14;
-    if(key==='bathTime'){if(traits.has('Splash Addict'))p+=.15;if(traits.has('Coward'))p-=.07;}
+    if(key==='comeHere'){if(traits.has('Velcro Baby'))p+=.12;if(traits.has('Clingy')||traits.has('Affectionate'))p+=.055;if(traits.has('Independent Spirit'))p-=.08;if(traits.has('Independent'))p-=.035;}
+    if(key==='stay'){if(traits.has('Patient'))p+=.09;if(traits.has('Impatient'))p-=.08;if(traits.has('Calm'))p+=.035;}
+    if(key==='fetch'){if(traits.has('Toy Obsessed'))p+=.12;if(traits.has('Playful'))p+=.055;if(traits.has('Hoarder'))p-=.035;}
+    if(key==='goToBed'){if(traits.has('Professional Napper'))p+=.14;if(traits.has('Sleepy')||traits.has('Lazy'))p+=.06;}
+    if(key==='eat'&&traits.has('Food Obsessed'))p+=.075;
+    if(key==='bathTime'){if(traits.has('Splash Addict'))p+=.15;if(traits.has('Clean'))p+=.07;if(traits.has('Messy'))p-=.035;if(traits.has('Coward'))p-=.07;}
+    if(traits.has('Stubborn'))p-=.022;
     if(['fetch','stay'].includes(key)&&traits.has('Little Athlete'))p+=.025;
     if(key==='flyToPerch'){if(traits.has('Little Pilot'))p+=.14;if(traits.has('Fearless'))p+=.06;if(traits.has('Coward'))p-=.12;}
     if(key==='tinyFlame'){if(traits.has('Fearless'))p+=.05;if(traits.has('Coward'))p-=.06;}
@@ -210,14 +212,14 @@
       if(key==='dropIt'&&a.physicalInteraction?.flags?.carryable){/* Drop It is the one command allowed to interrupt an active carry. */}
       else if(this.unsafeBusy(a)){this.pending={key,opts};this.notice(`${def.label} — waiting for a safe moment`,'soft');this.syncHud();return true;}
       if(a.currentLifeEvent){try{if(String(a.state).startsWith('furniture'))a.finishFurnitureUse?.();a.path=[];a.finishDailyLifeEvent?.();a.setState?.('looking',900);}catch(_){ }}
-      const e=ensureState(a).entries[key],s=stageFor(e.xp),traits=traitSet(a);let delay=s.name==='Unknown'?1600+Math.random()*1200:s.name==='Learning'?1300+Math.random()*900:s.name==='Familiar'?850+Math.random()*750:s.name==='Reliable'?450+Math.random()*550:300+Math.random()*450;if(traits.has('Impatient'))delay*=.82;if(key==='comeHere'&&traits.has('Velcro Baby'))delay*=.72;
-      const id=`${now()}-${Math.random()}`;this.active={id,key,opts,startedAt:now(),phase:'reacting',label:`${a.dragon?.name||'Your dragon'} is listening…`};this.hudFlash=null;a.path=[];a.stateUntil=0;a.nextDecision=now()+Math.max(4000,delay+3000);a.setState?.('looking',delay+250);this.notice(`${def.label}…`,'command');this.render();this.syncHud();setTimeout(()=>{if(this.active?.id!==id)return;this.decideActive();},delay);return true;
+      const e=ensureState(a).entries[key],s=stageFor(e.xp),traits=traitSet(a);let delay=s.name==='Unknown'?1600+Math.random()*1200:s.name==='Learning'?1300+Math.random()*900:s.name==='Familiar'?850+Math.random()*750:s.name==='Reliable'?450+Math.random()*550:300+Math.random()*450;if(traits.has('Impatient'))delay*=.82;if(traits.has('Stubborn'))delay*=1.24;if(traits.has('Lazy'))delay*=1.10;if(traits.has('Energetic')||traits.has('Easily Excited'))delay*=.91;if(key==='comeHere'&&traits.has('Velcro Baby'))delay*=.72;if(key==='comeHere'&&(traits.has('Clingy')||traits.has('Affectionate')))delay*=.82;
+      const id=`${now()}-${Math.random()}`;this.active={id,key,opts,startedAt:now(),phase:'reacting',label:`${a.dragon?.name||'Your dragon'} is listening…`};this.hudFlash=null;a.path=[];a.stateUntil=0;a.nextDecision=now()+Math.max(4000,delay+3000);a.setState?.('looking',delay+250);this.notice(`${def.label}…`,'command');a.maybeShowDragonThought?.('command',{key,label:def.label});this.render();this.syncHud();setTimeout(()=>{if(this.active?.id!==id)return;this.decideActive();},delay);return true;
     }
     decideActive(){
       const a=this.getActor(),cmd=this.active;if(!a||!cmd)return this.cancel();const key=cmd.key,chance=successChance(a,key),success=Math.random()<chance;if(!success){recordAttempt(a,key,false,'Still learning');this.performFailure(key,cmd.opts);return;}
       const ok=this.executeSuccess(key,cmd.opts);if(ok===false){recordAttempt(a,key,false,'Could not perform safely');this.notice('Couldn’t quite work that one out.','soft');this.finish(false);return;}recordAttempt(a,key,true,'Understood');cmd.phase='performing';cmd.label=this.actionPhrase(key);cmd.seenAction=false;cmd.performStartedAt=now();this.notice(this.successPhrase(key),'success');this.render();this.syncHud();
     }
-    successPhrase(key){const a=this.actor,traits=traitSet(a);if(key==='eat'&&(traits.has('Food Goblin')||traits.has('Greedy')))return'Immediately understood!';if(key==='bathTime'&&traits.has('Splash Addict'))return'Bath time! ♥';if(key==='goToBed'&&traits.has('Professional Napper'))return'Best command ever.';return['Got it!','Good dragon!','Understood!','Nice!'][Math.floor(Math.random()*4)];}
+    successPhrase(key){const a=this.actor,traits=traitSet(a);if(key==='eat'&&(traits.has('Food Obsessed')||traits.has('Food Goblin')||traits.has('Greedy')))return'Immediately understood!';if(key==='bathTime'&&traits.has('Splash Addict'))return'Bath time! ♥';if(key==='goToBed'&&traits.has('Professional Napper'))return'Best command ever.';return['Got it!','Good dragon!','Understood!','Nice!'][Math.floor(Math.random()*4)];}
     actionPhrase(key){return({comeHere:'Coming to you…',sit:'Settling into a sit…',stay:'Staying put…',goToBed:'Heading to bed…',eat:'Going to eat…',bathTime:'Heading for a wash…',fetch:'Fetching a toy…',dropIt:'Dropping it…',goToFurniture:'Going to the furniture…',roar:'Getting ready to roar…',tinyFlame:'Concentrating on a tiny flame…',flyToPerch:'Preparing to fly…'})[key]||'Understood — doing it now…';}
     performFailure(key,opts){
       const a=this.getActor();if(!a)return this.finish(false);const traits=traitSet(a);let text='Still learning…';if(this.active){this.active.label='Still learning this cue…';this.syncHud();}

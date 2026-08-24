@@ -209,3 +209,60 @@
   .dragonbound-build-edit-room-icon{width:30px;height:30px;flex-basis:30px}
   .dragonbound-build-edit-room strong{font-size:12px!important}.dragonbound-build-edit-room small{font-size:8px!important}
 }
+
+/* V34.01 — unified 2.5D house depth + interaction container masking */
+.dragonbound-home-world .dragonbound-furniture-layer,
+.dragonbound-home-world .dragonbound-baby-dragon-layer{
+  z-index:auto!important;
+  isolation:auto!important;
+}
+.dragonbound-furniture-placement[data-render-type="floor_covering"]{
+  pointer-events:none!important;
+}
+.dragonbound-home-scene:not(.is-build-editing):not(.is-build-placing) .dragonbound-furniture-placement[data-render-type="floor_covering"] img{
+  pointer-events:auto!important;
+}
+.dragonbound-furniture-placement[data-render-type="wall_object"]{
+  isolation:auto!important;
+}
+.dragonbound-furniture-front-mask{
+  position:absolute!important;
+  width:0!important;
+  height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  display:none;
+  isolation:auto!important;
+}
+.dragonbound-furniture-front-mask.is-active{display:block}
+.dragonbound-furniture-front-mask>img{
+  position:absolute;
+  left:0;
+  top:0;
+  height:auto;
+  max-width:none!important;
+  transform-origin:50% 96%;
+  clip-path:inset(var(--dragon-front-mask-top,68%) 0 0 0);
+  pointer-events:none!important;
+  image-rendering:auto;
+  filter:drop-shadow(0 5px 4px rgba(0,0,0,.28));
+  will-change:transform,width;
+}
+/* Keep build selection readable without changing the object's actual world depth. */
+.dragonbound-home-scene.is-build-editing .dragonbound-furniture-placement.is-selected>img{
+  filter:drop-shadow(0 5px 4px rgba(0,0,0,.28)) drop-shadow(0 0 8px rgba(229,201,107,.72))!important;
+}
+.dragonbound-home-scene.is-build-editing .dragonbound-furniture-placement.is-selected .dragonbound-furniture-edit-ring{
+  z-index:2;
+}
+/* The placement ghost now receives a live world-depth z-index from JS. Its glow keeps it readable
+   even when the correct preview position is behind a lower piece of furniture. */
+.dragonbound-furniture-ghost[data-render-type="floor_covering"] img{opacity:.84}
+.dragonbound-furniture-ghost[data-render-type="wall_object"] img{opacity:.82}

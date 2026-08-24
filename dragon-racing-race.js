@@ -1,7 +1,7 @@
 (function(){
   'use strict';
-  if(window.__dragonRacingRaceV3379)return;
-  window.__dragonRacingRaceV3379=true;
+  if(window.__dragonRacingRaceV3395)return;
+  window.__dragonRacingRaceV3395=true;
 
   const WORLD_W=1536,WORLD_H=1024,RACER_COUNT=6;
   const DEFAULT_TRACK_ID='velmora_city_circuit';
@@ -13,10 +13,12 @@
   const DEFAULT_RACE_MUSIC_VOLUME=.36,CROWD_VOLUME=.07,COUNTDOWN_VOLUME=.45,RACE_NUMBER=1;
   const CITY_CIRCUIT_MARKS=[75,60,52,45,40,35];
   const CANTO_MEADOW_MARKS=[85,68,58,50,44,39];
+  const CITY_CIRCUIT_GP=[3000,2600,2300,2100,1900,1700];
+  const CANTO_MEADOW_GP=[3800,3300,3000,2700,2400,2200];
   const TRACK_CONFIGS={
     velmora_city_circuit:{
       id:'velmora_city_circuit',name:'Velmora City Circuit',shortName:'VELMORA CITY CIRCUIT',
-      asset:'dragon-racing-assets/velmora-city-circuit.webp',laps:3,marks:CITY_CIRCUIT_MARKS,estimatedCycleMs:122000,
+      asset:'dragon-racing-assets/velmora-city-circuit.webp',laps:3,marks:CITY_CIRCUIT_MARKS,gp:CITY_CIRCUIT_GP,estimatedCycleMs:122000,
       music:SHARED_RACE_MUSIC,musicVolume:DEFAULT_RACE_MUSIC_VOLUME,crowdVolume:.07,paceMultiplier:1,cameraZoomMultiplier:1,roadBase:44,roadDepth:18,
       checkpoints:[.055,.12,.185,.25,.315,.38,.445,.51,.575,.64,.705,.77,.835,.9,.955],
       controlPoints:[
@@ -30,7 +32,7 @@
     },
     canto_meadow_circuit:{
       id:'canto_meadow_circuit',name:'Canto Meadow Circuit',shortName:'CANTO MEADOW CIRCUIT',
-      asset:'dragon-racing-assets/canto-meadow-circuit.webp',laps:3,marks:CANTO_MEADOW_MARKS,estimatedCycleMs:122000,
+      asset:'dragon-racing-assets/canto-meadow-circuit.webp',laps:3,marks:CANTO_MEADOW_MARKS,gp:CANTO_MEADOW_GP,estimatedCycleMs:122000,
       music:CANTO_RACE_MUSIC,musicVolume:.40,crowdVolume:.08,paceMultiplier:1.012,cameraZoomMultiplier:.965,roadBase:50,roadDepth:20,
       checkpoints:[.055,.12,.185,.25,.315,.38,.445,.51,.575,.64,.705,.77,.835,.9,.955],
       controlPoints:[
@@ -99,6 +101,9 @@
   const lerp=(a,b,t)=>a+(b-a)*t;
   const normKey=v=>String(v||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'guest';
   const now=()=>performance.now();
+  const RACING_MAX_XP=13034431;
+  function racingXpForLevel(level){const target=Math.max(1,Math.min(99,Math.floor(Number(level)||1)));if(target<=1)return 0;let points=0;for(let lvl=1;lvl<target;lvl++)points+=Math.floor(lvl+300*Math.pow(2,lvl/7));return Math.floor(points/4);}
+  function racingLevelFromXp(xp){const value=Math.max(0,Math.min(RACING_MAX_XP,Number(xp)||0));for(let level=2;level<=99;level++)if(value<racingXpForLevel(level))return level-1;return 99;}
   const state={trackId:DEFAULT_TRACK_ID,phase:'closed',game:null,viewport:null,world:null,racers:[],player:null,raf:0,lastT:0,raceStartedAt:0,finishAt:0,keys:{up:false,down:false,left:false,right:false,boost:false},camera:{x:WORLD_W/2,y:WORLD_H/2,zoom:1,targetX:WORLD_W/2,targetY:WORLD_H/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''},samples:[],totalLength:0,debugPath:false,countdownToken:0,resultOrder:[],lapBannerTimer:0,raceMusic:null,wingAudio:[],crowdAudio:null,countdownAudio:null,nextWingAt:0,sequenceTimers:[],audioFadeToken:0,aiStatsPersisted:false,nextHudLayoutAt:0,nextHudTickAt:0,nextRaceStoryAt:0,nextCameraEvalAt:0,nextFocusAt:0,rewardRunId:0,raceRewardSessionId:'',raceRewardPromise:null,raceRewardClaim:null,raceOrderIds:[],pendingOrderKey:'',pendingOrderAt:0,lastLeaderId:'',lastRaceEventAt:0,raceEventTimer:0,raceStory:{overtakes:0,leadChanges:0},finalLapDramaStarted:false,photoFinishHoldUntil:0,finishRevealTimer:0};
 
   function activeTrack(){return TRACK_CONFIGS[state.trackId]||TRACK_CONFIGS[DEFAULT_TRACK_ID];}
@@ -142,9 +147,9 @@
   function getRewardInfo(trackId=state.trackId){
     const track=trackById(trackId);
     if(!track)return null;
-    const payouts=[...(track.marks||[])],averageBaseMarksPerRace=payouts.reduce((sum,v)=>sum+Number(v||0),0)/Math.max(1,payouts.length);
+    const payouts=[...(track.marks||[])],gpPayouts=[...(track.gp||[])],averageBaseMarksPerRace=payouts.reduce((sum,v)=>sum+Number(v||0),0)/Math.max(1,payouts.length),averageGpPerRace=gpPayouts.reduce((sum,v)=>sum+Number(v||0),0)/Math.max(1,gpPayouts.length);
     const estimatedCycleMs=Math.max(1,Number(track.estimatedCycleMs)||122000);
-    return {payouts,averageBaseMarksPerRace,estimatedCycleMs,averageMarksPerHour:Math.round(averageBaseMarksPerRace*(3600000/estimatedCycleMs))};
+    return {payouts,gpPayouts,averageBaseMarksPerRace,averageGpPerRace,estimatedCycleMs,averageMarksPerHour:Math.round(averageBaseMarksPerRace*(3600000/estimatedCycleMs)),averageGpPerHour:Math.round(averageGpPerRace*(3600000/estimatedCycleMs))};
   }
 
   function rewardBreakdownText(reward){
@@ -154,6 +159,8 @@
     if(Number(b.bestLap)>0)parts.push(`Best lap +${Number(b.bestLap).toLocaleString('en-GB')}`);
     if(Number(b.firstRaceToday)>0)parts.push(`First race +${Number(b.firstRaceToday).toLocaleString('en-GB')}`);
     if(Number(b.firstWinToday)>0)parts.push(`First win +${Number(b.firstWinToday).toLocaleString('en-GB')}`);
+    if(Number(reward?.gpAwarded)>0)parts.push(`+${Number(reward.gpAwarded).toLocaleString('en-GB')} GP`);
+    if(Number(reward?.xpAwarded)>0)parts.push(`Racing +${Number(reward.xpAwarded).toLocaleString('en-GB')} XP`);
     return parts.join(' · ');
   }
   function animateRewardNumber(el,total){
@@ -164,8 +171,8 @@
   }
   async function claimRaceReward(rank,finishMs,bestLapMs,card,runId){
     const status=card?.querySelector('[data-race-reward-status]'),totalEl=card?.querySelector('[data-race-reward-total]'),balanceEl=card?.querySelector('[data-race-reward-balance]'),rewardCard=card?.querySelector('[data-race-reward-card]'),rewardKicker=card?.querySelector('[data-race-reward-kicker]');
-    const dbc=raceDb();
-    if(!dbc){if(status)status.textContent='Keeper Mark rewards require a signed-in connection.';return null;}
+    const dbc=raceDb(),beforeProgress=getProgression();
+    if(!dbc){if(status)status.textContent='Race rewards require a signed-in connection.';return null;}
     try{
       const sessionId=state.raceRewardSessionId||await state.raceRewardPromise;
       if(!sessionId||state.rewardRunId!==runId){if(status)status.textContent='Race reward could not be verified.';return null;}
@@ -176,9 +183,10 @@
       state.raceRewardClaim=reward;
       if(status)status.textContent=rewardBreakdownText(reward)||'Finish reward';
       animateRewardNumber(totalEl,reward.totalMarks);
-      if(balanceEl)balanceEl.textContent=`New balance · ${Number(reward.balance||0).toLocaleString('en-GB')} Marks`;
+      const progression=syncProgressionCache(reward.dragonRacingXp,reward.dragonRacingLevel,reward.nextLevelXp);
+      if(balanceEl)balanceEl.textContent=`${Number(reward.balance||0).toLocaleString('en-GB')} Marks · ${Number(reward.gpBalance||0).toLocaleString('en-GB')} GP · Dragon Racing Lv. ${progression.level} · ${progression.xp.toLocaleString('en-GB')} XP`;
       if(rewardCard){rewardCard.classList.remove('is-pending');rewardCard.classList.add('is-awarded');}
-      if(rewardKicker)rewardKicker.textContent='KEEPER MARKS AWARDED';
+      if(rewardKicker)rewardKicker.textContent='MARKS + GP + DRAGON RACING XP';
       const playerMarks=card?.querySelector('[data-race-marks-racer="player"]');
       if(playerMarks){
         const value=playerMarks.querySelector('b');
@@ -186,12 +194,17 @@
         playerMarks.classList.toggle('has-bonus',Number(reward.totalMarks||0)>marksForPosition(rank));
         playerMarks.title=Number(reward.totalMarks||0)>marksForPosition(rank)?'Includes your race bonuses':'Finish-position reward';
       }
+      try{if(typeof character!=='undefined'&&character&&reward.gpBalance!=null)character.gp=Number(reward.gpBalance)||0;}catch(_e){}
       try{window.DragonboundFurniture?.refresh?.(false,true);}catch(_e){}
       try{window.dispatchEvent(new CustomEvent('dragonbound:keeper-marks-changed',{detail:{source:'dragon-racing',marks:Number(reward.totalMarks||0),balance:Number(reward.balance||0)}}));}catch(_e){}
+      try{window.dispatchEvent(new CustomEvent('dragon-racing:progression-changed',{detail:{source:'race-complete',xpAwarded:Number(reward.xpAwarded||0),xp:progression.xp,level:progression.level,previousLevel:Number(beforeProgress.level)||1}}));}catch(_e){}
+      try{window.dispatchEvent(new CustomEvent('dragonbound:race-finished',{detail:{source:'dragon-racing',trackId:String(state.trackId||''),finishPosition:Math.max(1,Math.min(6,Number(rank)||6)),won:Number(rank)===1,xpAwarded:Number(reward.xpAwarded||0),gpAwarded:Number(reward.gpAwarded||0),at:Date.now()}}));}catch(_e){}
+      if(progression.level>Number(beforeProgress.level||1)){try{if(typeof toast==='function')toast(`Dragon Racing Level ${progression.level}!`,4200);}catch(_e){}if(Number(beforeProgress.level||1)<9&&progression.level>=9){try{if(typeof toast==='function')setTimeout(()=>toast('Canto Meadow Circuit unlocked!',4800),700);}catch(_e){}}}
+      try{if(typeof renderCharacter==='function')renderCharacter();}catch(_e){}
       return reward;
     }catch(err){
-      console.warn('[Dragon Racing] Keeper Mark reward claim failed.',err);
-      if(status)status.textContent='Keeper Mark reward unavailable for this race.';
+      console.warn('[Dragon Racing] Race reward claim failed.',err);
+      if(status)status.textContent='Race rewards unavailable for this race.';
       if(totalEl)totalEl.textContent='—';
       if(balanceEl)balanceEl.textContent='';
       if(rewardCard){rewardCard.classList.remove('is-pending');rewardCard.classList.add('is-error');}
@@ -213,7 +226,9 @@
     data.level=Math.max(1,Number(data.level)||1);data.xp=Math.max(0,Number(data.xp)||0);return data;
   }
   function saveData(data){try{localStorage.setItem(saveKey(),JSON.stringify({...data,lastSavedAt:Date.now()}));}catch(_e){}}
-  function getProgression(){const s=loadSave();return {level:s.level,xp:s.xp};}
+  function syncProgressionCache(xp,serverLevel=0,nextLevelXp=0){const value=Math.max(0,Math.min(RACING_MAX_XP,Number(xp)||0)),level=Math.max(1,Number(serverLevel)||racingLevelFromXp(value));const s=loadSave();s.xp=value;s.level=level;saveData(s);try{if(typeof character!=='undefined'&&character)character.dragon_racing_xp=value;}catch(_e){}return{xp:value,level,nextLevelXp:Number(nextLevelXp)||racingXpForLevel(Math.min(99,level+1))};}
+  function getProgression(){let accountXp=NaN;try{if(typeof character!=='undefined'&&character)accountXp=Number(character.dragon_racing_xp);}catch(_e){}const s=loadSave(),xp=Number.isFinite(accountXp)?Math.max(0,accountXp):Math.max(0,Number(s.xp)||0),level=racingLevelFromXp(xp);return{level,xp,nextLevelXp:level>=99?RACING_MAX_XP:racingXpForLevel(level+1)};}
+  async function refreshProgression(){const dbc=raceDb();if(!dbc)return getProgression();try{const {data,error}=await dbc.rpc('get_my_dragon_racing_progression');if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row)return getProgression();return syncProgressionCache(row.xp,row.level,row.nextLevelXp);}catch(err){console.warn('[Dragon Racing] Could not refresh account racing XP.',err);return getProgression();}}
   function getTrackStats(id=state.trackId||DEFAULT_TRACK_ID){const s=loadSave();return {...(s.tracks?.[id]||{})};}
   function spriteSrc(breed,frame=8){return `assets/dragonbound/baby-dragons/${breed}/frame-${String(frame).padStart(2,'0')}.webp`;}
   function registryBreed(breed){return window.DragonboundBabyRegistry?.[breed]||null;}
@@ -944,7 +959,7 @@
   function onPlayerFinish(t){state.phase='player_finished';state.finishAt=t;const p=state.player,rank=standings().findIndex(r=>r.isPlayer)+1;persistResult(p,rank);showLapBanner(`${ordinal(rank)} PLACE · FINISH`);scheduleResultsReveal();}
   function persistResult(player,rank){
     const data=loadSave(),tracks=data.tracks||(data.tracks={}),trackId=state.trackId||DEFAULT_TRACK_ID,s=tracks[trackId]||(tracks[trackId]={races:0,wins:0,podiums:0,bestTimeMs:0,bestLapMs:0});s.races=(Number(s.races)||0)+1;if(rank===1)s.wins=(Number(s.wins)||0)+1;if(rank<=3)s.podiums=(Number(s.podiums)||0)+1;if(!s.bestTimeMs||player.finishMs<s.bestTimeMs)s.bestTimeMs=Math.round(player.finishMs);if(player.bestLapMs&&(!s.bestLapMs||player.bestLapMs<s.bestLapMs))s.bestLapMs=Math.round(player.bestLapMs);s.lastFinishPosition=rank;s.lastFinishTimeMs=Math.round(player.finishMs);s.updatedAt=Date.now();data.level=Math.max(1,Number(data.level)||1);data.xp=Math.max(0,Number(data.xp)||0);saveData(data);
-    // V33.47 intentionally does NOT grant Dragon Racing XP yet.
+    // Account Dragon Racing XP is granted server-side when the verified race reward is claimed.
   }
   function persistAiResults(order){
     if(state.aiStatsPersisted)return;state.aiStatsPersisted=true;const data=loadSave();data.aiPool=data.aiPool||{};
@@ -1051,7 +1066,7 @@
 
       <div class="dragon-race-reward-strip is-pending" data-race-reward-card>
         <div class="dragon-race-reward-medallion" aria-hidden="true"><b>M</b></div>
-        <div class="dragon-race-reward-copy"><small data-race-reward-kicker>RACE REWARD</small><strong data-race-reward-status>Verifying Keeper Mark reward…</strong><em data-race-reward-balance></em></div>
+        <div class="dragon-race-reward-copy"><small data-race-reward-kicker>RACE REWARD</small><strong data-race-reward-status>Verifying Keeper Marks + GP + Dragon Racing XP…</strong><em data-race-reward-balance></em></div>
         <div class="dragon-race-reward-total"><b data-race-reward-total>…</b><span>KEEPER MARKS</span></div>
       </div>
 
@@ -1070,7 +1085,7 @@
       </div>
 
       <div class="dragon-race-result-footer">
-        <small>KEEPER MARKS AWARDED · DRAGON RACING XP DISABLED</small>
+        <small>KEEPER MARKS + GP + DRAGON RACING XP AWARDED</small>
         <div class="dragon-race-results-actions"><div class="is-primary" role="button" tabindex="0" data-race-again>RACE AGAIN</div><div role="button" tabindex="0" data-race-track-select>TRACK SELECT</div><div role="button" tabindex="0" data-race-leave>LEAVE RACEWAY</div></div>
       </div>`;
 
@@ -1100,7 +1115,7 @@
 
 
   function admin(){return currentAccount()==='admin';}
-  window.DragonRacingRace={start,stop,exitToTrackSelect,isActive,getPlayerInfo,getProgression,getTrackStats,getRewardInfo,formatTime};
+  window.DragonRacingRace={start,stop,exitToTrackSelect,isActive,getPlayerInfo,getProgression,refreshProgression,getTrackStats,getRewardInfo,formatTime};
   window.DragonRacingDebug={
     inspect(){if(!admin())return null;return{phase:state.phase,player:state.player?{distance:state.player.distance,lateral:state.player.lateral,speed:state.player.speed,boost:state.player.boost,finished:state.player.finished,auto:true,raceLuck:state.player.ai?.raceLuck||0,tinyBias:state.player.ai?.extraBias||0,motion:racerMotionState(state.player,now())}:null,progression:getProgression(),stats:getTrackStats(),raceStory:{...state.raceStory},finalLap:state.finalLapDramaStarted};},
     showPath(on=true){if(!admin())return false;state.debugPath=on!==false;state.game?.classList.toggle('is-debug-path',state.debugPath);return state.debugPath;},

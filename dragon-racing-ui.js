@@ -1,6 +1,6 @@
 (function(){
-  if(window.__dragonRacingUiV3377)return;
-  window.__dragonRacingUiV3377=true;
+  if(window.__dragonRacingUiV3395)return;
+  window.__dragonRacingUiV3395=true;
 
   const ASSET_BASE='dragon-racing-assets';
   const state={scene:'exterior',audio:null,observer:null,selectedTrackIndex:0,syncTrackUi:null};
@@ -9,20 +9,20 @@
   const TRACK_AVATAR_BASE=`${ASSET_BASE}/course-avatars`;
   const DRAGON_RACING_ICON=`${ASSET_BASE}/dragon-racing-icon.png`;
   const TRACKS=[
-    {id:'velmora_city_circuit',name:'Velmora City Circuit',file:'velmora_city_circuit_preview.png',avatar:'velmora_city_circuit_64.png',region:'Velmora City',style:'City Circuit',difficulty:'Easy',difficultyRank:1,level:1,marksPerHour:1500},
-    {id:'canto_meadow_circuit',name:'Canto Meadow Circuit',file:'canto_meadow_circuit_preview.png',avatar:'canto_meadow_circuit_64.png',region:'Canto Meadows',style:'Open Circuit',difficulty:'Easy–Medium',difficultyRank:2,level:9,earlyAccess:true},
-    {id:'greenwater_canopy_arena',name:'Greenwater Canopy Arena',file:'greenwater_canopy_arena_preview.png',avatar:'greenwater_canopy_arena_64.png',region:'Greenwater',style:'Forest Arena',difficulty:'Medium',difficultyRank:3,level:17},
-    {id:'talune_greenwater_canopy',name:'Talune Greenwater Canopy',file:'talune_greenwater_canopy_preview.png',avatar:'talune_greenwater_canopy_64.png',region:'Talune',style:'Canopy Circuit',difficulty:'Medium',difficultyRank:3,level:25},
-    {id:'sunfire_oasis_arena',name:'Sunfire Oasis Arena',file:'sunfire_oasis_arena_preview.png',avatar:'sunfire_oasis_arena_64.png',region:'Sunfire Oasis',style:'Oasis Arena',difficulty:'Medium–Hard',difficultyRank:4,level:33},
-    {id:'skarholt_aurora_circuit',name:'Skarholt Aurora Circuit',file:'skarholt_aurora_circuit_preview.png',avatar:'skarholt_aurora_circuit_64.png',region:'Skarholt',style:'Aurora Circuit',difficulty:'Hard',difficultyRank:4,level:41},
-    {id:'hollowfire_citadel_circuit',name:'Hollowfire Citadel Circuit',file:'hollowfire_citadel_circuit_preview.png',avatar:'hollowfire_citadel_circuit_64.png',region:'Hollowfire Citadel',style:'Citadel Circuit',difficulty:'Hard',difficultyRank:4,level:49},
-    {id:'iskara_crown_arena',name:'Iskara Crown Arena',file:'iskara_crown_arena_preview.png',avatar:'iskara_crown_arena_64.png',region:'Iskara',style:'Crown Arena',difficulty:'Hard',difficultyRank:4,level:57},
-    {id:'qasira_moon_orbit',name:'Qasira Moon Orbit',file:'qasira_moon_orbit_preview.png',avatar:'qasira_moon_orbit_64.png',region:'Qasira',style:'Aerial Orbit',difficulty:'Expert',difficultyRank:5,level:65}
+    {id:'velmora_city_circuit',name:'Velmora City Circuit',file:'velmora_city_circuit_preview.png',avatar:'velmora_city_circuit_64.png',region:'Velmora City',style:'City Circuit',difficulty:'Easy',difficultyRank:1,level:1,gpPerHour:67000},
+    {id:'canto_meadow_circuit',name:'Canto Meadow Circuit',file:'canto_meadow_circuit_preview.png',avatar:'canto_meadow_circuit_64.png',region:'Canto Meadows',style:'Open Circuit',difficulty:'Easy–Medium',difficultyRank:2,level:9,gpPerHour:86000},
+    {id:'greenwater_canopy_arena',name:'Greenwater Canopy Arena',file:'greenwater_canopy_arena_preview.png',avatar:'greenwater_canopy_arena_64.png',region:'Greenwater',style:'Forest Arena',difficulty:'Medium',difficultyRank:3,level:17,gpPerHour:100000},
+    {id:'talune_greenwater_canopy',name:'Talune Greenwater Canopy',file:'talune_greenwater_canopy_preview.png',avatar:'talune_greenwater_canopy_64.png',region:'Talune',style:'Canopy Circuit',difficulty:'Medium',difficultyRank:3,level:25,gpPerHour:110000},
+    {id:'sunfire_oasis_arena',name:'Sunfire Oasis Arena',file:'sunfire_oasis_arena_preview.png',avatar:'sunfire_oasis_arena_64.png',region:'Sunfire Oasis',style:'Oasis Arena',difficulty:'Medium–Hard',difficultyRank:4,level:33,gpPerHour:120000},
+    {id:'skarholt_aurora_circuit',name:'Skarholt Aurora Circuit',file:'skarholt_aurora_circuit_preview.png',avatar:'skarholt_aurora_circuit_64.png',region:'Skarholt',style:'Aurora Circuit',difficulty:'Hard',difficultyRank:4,level:41,gpPerHour:130000},
+    {id:'hollowfire_citadel_circuit',name:'Hollowfire Citadel Circuit',file:'hollowfire_citadel_circuit_preview.png',avatar:'hollowfire_citadel_circuit_64.png',region:'Hollowfire Citadel',style:'Citadel Circuit',difficulty:'Hard',difficultyRank:4,level:49,gpPerHour:138000},
+    {id:'iskara_crown_arena',name:'Iskara Crown Arena',file:'iskara_crown_arena_preview.png',avatar:'iskara_crown_arena_64.png',region:'Iskara',style:'Crown Arena',difficulty:'Hard',difficultyRank:4,level:57,gpPerHour:145000},
+    {id:'qasira_moon_orbit',name:'Qasira Moon Orbit',file:'qasira_moon_orbit_preview.png',avatar:'qasira_moon_orbit_64.png',region:'Qasira',style:'Aerial Orbit',difficulty:'Expert',difficultyRank:5,level:65,gpPerHour:150000}
   ];
 
   const PLAYABLE_TRACK_IDS=new Set(['velmora_city_circuit','canto_meadow_circuit']);
   const trackIsPlayable=track=>Boolean(track&&PLAYABLE_TRACK_IDS.has(track.id));
-  const trackIsUnlocked=(track,progression)=>Boolean(trackIsPlayable(track)&&(track.earlyAccess||Number(progression?.level||1)>=Number(track.level||1)));
+  const trackIsUnlocked=(track,progression)=>Boolean(trackIsPlayable(track)&&Number(progression?.level||1)>=Number(track.level||1));
 
   const escHtml=value=>String(value??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
 
@@ -33,9 +33,9 @@
   const rewardInfoForTrack=track=>{
     try{
       const live=window.DragonRacingRace?.getRewardInfo?.(track.id);
-      if(live?.averageMarksPerHour)return live;
+      if(live?.averageGpPerHour)return live;
     }catch(_e){}
-    if(track?.marksPerHour)return {averageMarksPerHour:Number(track.marksPerHour)||0};
+    if(track?.gpPerHour)return {averageGpPerHour:Number(track.gpPerHour)||0};
     return null;
   };
 
@@ -46,6 +46,7 @@
     const ui=modal?.querySelector('.dragon-racing-track-ui');
     if(!ui)return;
     const track=TRACKS[state.selectedTrackIndex]||TRACKS[0];
+    const progression=window.DragonRacingRace?.getProgression?.()||{level:1,xp:0,nextLevelXp:83};
     const list=ui.querySelector('.dragon-racing-track-list');
     if(list)list.innerHTML=TRACKS.map(trackRowHtml).join('');
     const preview=ui.querySelector('.dragon-racing-track-preview-img');
@@ -63,12 +64,13 @@
     if(setting){setting.innerHTML=`<div class="dragon-racing-detail-heading">SETTING</div><div class="dragon-racing-detail-primary"><strong>${escHtml(track.region)}</strong><span>${escHtml(track.style)}</span></div>`;}
     const access=ui.querySelector('[data-track-detail="access"]');
     if(access){
-      const rewardInfo=rewardInfoForTrack(track),marksPerHour=roundedMarksPerHour(rewardInfo?.averageMarksPerHour);
-      const rewardRate=marksPerHour?`≈ ${marksPerHour.toLocaleString('en-GB')} Marks / hr`:'Reward rate TBA';
-      const rewardSub=marksPerHour?'Average base race payout':'Available when course rewards launch';
-      const accessLine=track.earlyAccess?`Preseason access · Future Lv. ${track.level}`:`Dragon Racing Level: ${track.level}`;
-      const accessSub=track.earlyAccess?'Level requirement activates with Dragon Racing XP':'Required course level';
-      access.innerHTML=`<div class="dragon-racing-access-lockup"><img src="${DRAGON_RACING_ICON}" alt="" aria-hidden="true"><div class="dragon-racing-access-main"><div class="dragon-racing-detail-heading">ACCESS</div><strong>${accessLine}</strong><span>${accessSub}</span></div><div class="dragon-racing-track-reward-rate${marksPerHour?' is-live':''}"><small>REWARD RATE</small><strong>${rewardRate}</strong><span>${rewardSub}</span></div></div>`;
+      const rewardInfo=rewardInfoForTrack(track),marksPerHour=roundedMarksPerHour(rewardInfo?.averageMarksPerHour),gpPerHour=Math.max(0,Math.round(Number(rewardInfo?.averageGpPerHour)||0));
+      const rewardRate=gpPerHour?`≈ ${gpPerHour.toLocaleString('en-GB')} GP / hr`:'Reward rate TBA';
+      const rewardSub=gpPerHour?(trackIsPlayable(track)?`${marksPerHour?`≈ ${marksPerHour.toLocaleString('en-GB')} Marks / hr · `:''}average across finishes`:'Projected higher-level payout'):'Available when course rewards launch';
+      const playerLevel=Math.max(1,Number(progression.level)||1),playerXp=Math.max(0,Number(progression.xp)||0),unlocked=trackIsUnlocked(track,progression);
+      const accessLine=!trackIsPlayable(track)?`Future course · Lv. ${track.level}`:unlocked?`Unlocked · Lv. ${track.level}`:`Requires Dragon Racing Lv. ${track.level}`;
+      const accessSub=`Your Dragon Racing · Lv. ${playerLevel} · ${playerXp.toLocaleString('en-GB')} XP`;
+      access.innerHTML=`<div class="dragon-racing-access-lockup"><img src="${DRAGON_RACING_ICON}" alt="" aria-hidden="true"><div class="dragon-racing-access-main"><div class="dragon-racing-detail-heading">ACCESS</div><strong>${accessLine}</strong><span>${accessSub}</span></div><div class="dragon-racing-track-reward-rate${gpPerHour?' is-live':''}"><small>REWARD RATE</small><strong>${rewardRate}</strong><span>${rewardSub}</span></div></div>`;
     }
     const enterNote=ui.querySelector('[data-track-enter-note]');
     if(enterNote)enterNote.textContent=`${track.name} · Lv. ${track.level}`;
@@ -157,8 +159,7 @@
     const note=confirm.querySelector('[data-race-confirm-note]');
     if(note){
       if(!trackIsPlayable(track))note.textContent='Race course not yet available. You can still preview this course.';
-      else if(track.earlyAccess)note.textContent=`${player.name||'Your dragon'} is cleared for Canto preseason racing. Dragon Racing XP remains disabled.`;
-      else if(Number(progression.level||1)<track.level)note.textContent=`Requires Dragon Racing Lv. ${track.level}.`;
+      else if(Number(progression.level||1)<track.level)note.textContent=`Requires Dragon Racing Lv. ${track.level}. Complete races to earn Dragon Racing XP.`;
       else note.textContent=`${player.name||'Your dragon'} is ready for the ${track.name}.`;
     }
     const enter=confirm.querySelector('[data-race-confirm-enter]');
@@ -174,7 +175,7 @@
     const track=TRACKS[state.selectedTrackIndex]||TRACKS[0];
     const progression=window.DragonRacingRace?.getProgression?.()||{level:1};
     if(!trackIsUnlocked(track,progression)){
-      const note=modal?.querySelector('[data-race-confirm-note]');if(note)note.textContent=trackIsPlayable(track)?`Requires Dragon Racing Lv. ${track.level}.`:'Race course not yet available. You can still preview this course.';
+      const note=modal?.querySelector('[data-race-confirm-note]');if(note)note.textContent=trackIsPlayable(track)?`Requires Dragon Racing Lv. ${track.level}. Complete races to earn XP.`:'Race course not yet available. You can still preview this course.';
       return false;
     }
     closeRaceConfirm(modal);
@@ -339,6 +340,8 @@
     if(name==='menu'){
       ensureAudio();
       renderTrackSelect(modal);
+      const refresh=window.DragonRacingRace?.refreshProgression?.();
+      if(refresh&&typeof refresh.then==='function')refresh.then(()=>{if(state.scene==='menu')renderTrackSelect(modal);}).catch(()=>{});
       requestAnimationFrame(()=>state.syncTrackUi?.());
     }
     syncAudio();
@@ -410,5 +413,6 @@
   };
 
   startWatching();
+  window.addEventListener('dragon-racing:progression-changed',()=>{const modal=document.getElementById('dragonRacingModal');if(modal&&state.scene==='menu')renderTrackSelect(modal);},{passive:true});
   window.DragonRacingUi={open:openModal,close:closeModal,showScene,getSelectedTrack:()=>({...TRACKS[state.selectedTrackIndex]}),tracks:()=>TRACKS.map(track=>({...track})),fadeMenuAudioOut:(duration=650)=>fadeMenuAudioTo(0,duration),restoreMenuAudio:(duration=450)=>{ensureAudio();try{const p=state.audio.play();if(p&&typeof p.catch==='function')p.catch(()=>{});}catch(_e){}fadeMenuAudioTo(.30,duration);},closeRaceConfirm:()=>closeRaceConfirm(document.getElementById('dragonRacingModal'))};
 })();

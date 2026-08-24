@@ -30495,7 +30495,7 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 .dragonbound-my-dragon-care-bars{display:grid;gap:6px}.dragonbound-my-dragon-care-row{display:grid;grid-template-columns:58px 1fr 35px;align-items:center;gap:7px}.dragonbound-my-dragon-care-row>span{font:900 8px/1 "Nunito",system-ui,sans-serif;color:#66523a}.dragonbound-my-dragon-care-row>i{height:7px;border-radius:99px;background:rgba(73,56,32,.13);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.09)}.dragonbound-my-dragon-care-row>i>em{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6e8d69,#b0a35a);transition:width .45s ease}.dragonbound-my-dragon-care-row[data-level="low"]>i>em{filter:saturate(.78)}.dragonbound-my-dragon-care-row[data-level="critical"]>i>em{filter:saturate(.55) brightness(.85)}.dragonbound-my-dragon-care-row>b{font:900 8px/1 "Nunito",system-ui,sans-serif;color:#66523a;text-align:right}
 .dragonbound-my-dragon-bond{grid-column:1/3;align-self:end;padding:10px 11px;border:1px solid rgba(120,75,82,.18);border-radius:10px;background:linear-gradient(90deg,rgba(157,105,113,.08),rgba(245,237,218,.25))}.dragonbound-my-dragon-bond>div{display:flex;justify-content:space-between;gap:10px;align-items:center}.dragonbound-my-dragon-bond>div span{font:900 8px/1 "Nunito",system-ui,sans-serif;letter-spacing:1px;color:#7b5960;text-transform:uppercase}.dragonbound-my-dragon-bond>div strong{font:800 10px/1 "Nunito",system-ui,sans-serif;color:#784f57}.dragonbound-my-dragon-bond>i{display:block;height:7px;margin:7px 0 5px;border-radius:99px;background:rgba(103,67,75,.13);overflow:hidden}.dragonbound-my-dragon-bond>i>em{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#9e6a78,#d59aa1)}.dragonbound-my-dragon-bond>small{display:block;color:#806e65;font:700 8px/1.25 "Nunito",system-ui,sans-serif}
 .dragonbound-my-dragon-personality p{margin:0 0 8px;color:#645744;font:700 9px/1.42 "Nunito",system-ui,sans-serif}.dragonbound-my-dragon-traits{display:flex;flex-wrap:wrap;gap:5px}.dragonbound-my-dragon-traits span{padding:5px 8px;border:1px solid rgba(91,69,33,.2);border-radius:999px;background:rgba(255,250,236,.55);color:#604a2f;font:900 7.5px/1 "Nunito",system-ui,sans-serif;white-space:nowrap}.dragonbound-my-dragon-traits span.is-hidden{opacity:.52;border-style:dashed;letter-spacing:1px}
-.dragonbound-my-dragon-favourite-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dragonbound-my-dragon-favourite-grid>div{min-width:0;padding:7px 8px;border:1px solid rgba(103,81,42,.13);border-radius:8px;background:rgba(255,250,236,.42)}
+.dragonbound-my-dragon-favourite-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.dragonbound-my-dragon-favourite-grid>div{min-width:0;padding:7px 8px;border:1px solid rgba(103,81,42,.13);border-radius:8px;background:rgba(255,250,236,.42)}.dragonbound-my-dragon-favourite-grid>div.is-confirmed{border-color:rgba(151,111,39,.28);background:linear-gradient(145deg,rgba(255,251,235,.78),rgba(246,231,191,.42));box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}.dragonbound-my-dragon-favourite-grid>div.is-forming{opacity:.76}.dragonbound-my-dragon-favourite-grid>div>em{display:block;margin-top:4px;color:#9b8055;font:700 7px/1.2 "Nunito",system-ui,sans-serif;font-style:normal;letter-spacing:.2px}.dragonbound-my-dragon-favourite-grid>div.is-confirmed>strong::after{content:' ♥';color:#b47758;font-size:.86em}
 .dragonbound-my-dragon-habits{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.dragonbound-my-dragon-habits span{padding:4px 7px;border-radius:6px;background:rgba(54,89,75,.09);border:1px solid rgba(54,89,75,.14);color:#50644f;font:800 7px/1 "Nunito",system-ui,sans-serif}
 
 /* Dragonbound V32.92 — Growth & Skills journal */
@@ -30572,7 +30572,7 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 .dragonbound-my-dragon-section-title>span{font-size:clamp(17px,1.05vw,20px)!important;line-height:1.1!important}
 .dragonbound-my-dragon-section-title>small{font-size:clamp(10.5px,.68vw,12px)!important;line-height:1.25!important}
 .dragonbound-my-dragon-identity small,.dragonbound-my-dragon-favourite-grid small{font-size:clamp(10.5px,.68vw,12px)!important;line-height:1.15!important;letter-spacing:.55px!important;margin-bottom:4px!important}
-.dragonbound-my-dragon-identity strong,.dragonbound-my-dragon-favourite-grid strong{font-size:clamp(12px,.78vw,14px)!important;line-height:1.28!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+.dragonbound-my-dragon-identity strong,.dragonbound-my-dragon-favourite-grid strong{font-size:clamp(12px,.78vw,14px)!important;line-height:1.28!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}.dragonbound-my-dragon-favourite-grid>div>em{font-size:clamp(9.5px,.58vw,11px)!important;line-height:1.25!important}
 .dragonbound-my-dragon-identity>div,.dragonbound-my-dragon-favourite-grid>div{padding:9px 10px!important;min-height:50px}
 .dragonbound-my-dragon-mood small{font-size:11px!important;line-height:1.1!important}.dragonbound-my-dragon-mood strong{font-size:clamp(18px,1.25vw,22px)!important}.dragonbound-my-dragon-mood span{font-size:12px!important;line-height:1.35!important}
 .dragonbound-my-dragon-care-row>span,.dragonbound-my-dragon-care-row>b{font-size:11.5px!important;line-height:1.15!important}.dragonbound-my-dragon-care-row{grid-template-columns:64px 1fr 42px!important;gap:9px!important;margin-bottom:7px!important}
@@ -31191,3 +31191,128 @@ body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-close:hov
 
 @media(max-width:980px){body .dragonbound-command-ui-v3384-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:680px){body .dragonbound-command-ui-v3384-grid{grid-template-columns:1fr!important}}
+/* V33.96 · permanent Dragon Personality signature traits */
+.dragonbound-my-dragon-traits .is-signature{
+  border:1px solid rgba(76,110,82,.38)!important;
+  background:linear-gradient(180deg,rgba(235,244,226,.92),rgba(213,229,199,.72))!important;
+  color:#35563e!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 3px rgba(66,83,54,.08)!important;
+  font-weight:950!important;
+}
+.dragonbound-my-dragon-traits .is-signature::before{content:'◆';font-size:6px;margin-right:5px;color:#9b7f43;vertical-align:1px}
+.dragonbound-my-dragon-traits .is-observed{
+  border:1px solid rgba(112,92,56,.18)!important;
+  background:rgba(255,250,236,.42)!important;
+  color:#75664d!important;
+  font-weight:850!important;
+}
+
+
+/* Dragonbound V34.00 — object-specific furniture use states.
+   Long interactions should read as intentional activities, not a frozen sprite waiting
+   for a timer. These are deliberately tiny motions so the original pixel art stays intact. */
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="perch"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="hide"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="warm"]>.dragonbound-baby-sprite{
+  animation:dragonboundPhysicalBreathe 2.45s ease-in-out infinite;
+}
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="groom"]>.dragonbound-baby-sprite{
+  animation:dragonboundPhysicalGroom .85s ease-in-out infinite alternate;
+}
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="scratch"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="dig"]>.dragonbound-baby-sprite{
+  animation:dragonboundPhysicalScratch .48s ease-in-out infinite alternate;
+}
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="fire"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="roar"]>.dragonbound-baby-sprite{
+  animation:dragonboundPhysicalPractice .66s ease-in-out infinite alternate;
+}
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="watch"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="read"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="mirror"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="sniff"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="inspect"]>.dragonbound-baby-sprite,
+.dragonbound-baby-actor.is-physical-engaged[data-physical-kind="toilet"]>.dragonbound-baby-sprite{
+  animation:dragonboundPhysicalInspect 1.35s ease-in-out infinite alternate;
+}
+@keyframes dragonboundPhysicalGroom{from{margin-top:0;filter:brightness(1)}to{margin-top:2px;filter:brightness(1.025)}}
+@keyframes dragonboundPhysicalScratch{from{margin-top:1px;filter:brightness(1)}to{margin-top:-3px;filter:brightness(1.035)}}
+@keyframes dragonboundPhysicalPractice{from{margin-top:1px;filter:brightness(1)}to{margin-top:-3px;filter:brightness(1.06)}}
+@keyframes dragonboundPhysicalInspect{from{margin-top:0;filter:brightness(1)}to{margin-top:-1.5px;filter:brightness(1.025)}}
+
+/* V34.02 — subtle Dragonbound thought/activity text.
+   One lightweight overlay follows the dragon; it is deliberately separate from world depth. */
+.dragonbound-dragon-thought{
+  position:absolute;
+  left:50%;
+  top:calc(-1 * var(--dragon-tooltip-lift,78px) + 8px);
+  z-index:1004;
+  max-width:178px;
+  transform:translateX(calc(-50% + var(--dragon-thought-shift-x,0px)));
+  pointer-events:none;
+  white-space:normal;
+  text-align:center;
+  opacity:0;
+  animation:dragonboundThoughtIn .2s ease-out forwards;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.28));
+}
+.dragonbound-dragon-thought-copy{
+  position:relative;
+  display:block;
+  padding:6px 9px 7px;
+  border:1px solid rgba(225,203,146,.34);
+  border-radius:7px;
+  background:linear-gradient(180deg,rgba(10,31,31,.94),rgba(6,22,24,.93));
+  color:#f3e6bd;
+  font:800 9px/1.25 "Nunito",system-ui,sans-serif;
+  letter-spacing:.01em;
+  text-shadow:0 1px 0 rgba(0,0,0,.45);
+  box-shadow:inset 0 1px rgba(255,255,255,.035),0 3px 8px rgba(0,0,0,.22);
+}
+.dragonbound-dragon-thought-copy:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-5px;
+  width:8px;
+  height:8px;
+  transform:translateX(-50%) rotate(45deg);
+  border-right:1px solid rgba(225,203,146,.28);
+  border-bottom:1px solid rgba(225,203,146,.28);
+  background:rgba(6,22,24,.94);
+}
+.dragonbound-baby-actor.is-thought-below .dragonbound-dragon-thought{
+  top:15px;
+}
+.dragonbound-baby-actor.is-thought-below .dragonbound-dragon-thought-copy:after{
+  top:-5px;
+  bottom:auto;
+  border:0;
+  border-left:1px solid rgba(225,203,146,.28);
+  border-top:1px solid rgba(225,203,146,.28);
+}
+.dragonbound-dragon-thought.is-favourite .dragonbound-dragon-thought-copy,
+.dragonbound-dragon-thought.is-favourite .dragonbound-dragon-thought-copy:after{
+  border-color:rgba(239,192,111,.45);
+}
+.dragonbound-dragon-thought.is-favourite .dragonbound-dragon-thought-copy{color:#ffe1aa}
+.dragonbound-dragon-thought.is-race .dragonbound-dragon-thought-copy{border-color:rgba(218,190,112,.52);color:#fff0b5}
+.dragonbound-dragon-thought.is-new-furniture .dragonbound-dragon-thought-copy{border-color:rgba(153,205,188,.45);color:#dbf1df}
+.dragonbound-dragon-thought.is-warm .dragonbound-dragon-thought-copy{color:#ffd9cf}
+.dragonbound-dragon-thought.is-excited .dragonbound-dragon-thought-copy{color:#fff0a8}
+.dragonbound-dragon-thought.is-sleepy .dragonbound-dragon-thought-copy{color:#d9e3cf}
+.dragonbound-dragon-thought.is-curious .dragonbound-dragon-thought-copy{color:#d9f0df}
+.dragonbound-dragon-thought.is-sulking .dragonbound-dragon-thought-copy{color:#ddd2bf}
+.dragonbound-dragon-thought.is-leaving{animation:dragonboundThoughtOut .18s ease-in forwards}
+@keyframes dragonboundThoughtIn{
+  from{opacity:0;transform:translateX(calc(-50% + var(--dragon-thought-shift-x,0px))) translateY(4px)}
+  to{opacity:1;transform:translateX(calc(-50% + var(--dragon-thought-shift-x,0px))) translateY(0)}
+}
+@keyframes dragonboundThoughtOut{
+  from{opacity:1}
+  to{opacity:0;transform:translateX(calc(-50% + var(--dragon-thought-shift-x,0px))) translateY(-3px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .dragonbound-dragon-thought,.dragonbound-dragon-thought.is-leaving{animation:none!important;opacity:1}
+}
+
