@@ -2,7 +2,7 @@
 (()=>{
   'use strict';
 
-  const VERSION='v34-01-house-depth-20260824';
+  const VERSION='v34-05-1-starter-houses-20260824';
   const CATEGORIES=['All','Living','Beds','Feeding','Kitchen','Bath','Training','Toys','Care','Nature','Decor','Storage'];
   const CATEGORY_ICONS={All:'✦',Living:'⌂',Beds:'▰',Feeding:'◉',Kitchen:'♨',Bath:'≋',Training:'⚔',Toys:'◆',Care:'+',Nature:'♧',Decor:'✧',Storage:'▣'};
   const RARITY_ORDER={Common:0,Crafted:1,Rare:2,Epic:3};
@@ -17,14 +17,24 @@ const FURNITURE_PLACEMENT_ZONES={
   'nambara-naskor-edge-starter':{downstairs:[[[.225,.550],[.775,.550],[.805,.742],[.195,.742]]]},
   'lumerre-greenhollow-starter':{downstairs:[[[.248,.550],[.740,.550],[.785,.742],[.218,.742]]]},
   'elvane-canto-plains-starter':{downstairs:[[[.248,.550],[.742,.550],[.785,.742],[.218,.742]]]},
-  'vardesh-hestholm-fjord-starter':{downstairs:[[[.225,.550],[.775,.550],[.805,.742],[.195,.742]]]}
+  'vardesh-hestholm-fjord-starter':{downstairs:[[[.225,.550],[.775,.550],[.805,.742],[.195,.742]]]},
+  'sorevia-lakeside-starter':{downstairs:[[[0.215,0.555],[0.785,0.555],[0.815,0.750],[0.185,0.750]]]},
+  'iskandar-moonlit-starter':{downstairs:[[[0.215,0.520],[0.785,0.520],[0.812,0.742],[0.188,0.742]]]},
+  'drazhen-ashlands-starter':{downstairs:[[[0.225,0.550],[0.775,0.550],[0.805,0.742],[0.195,0.742]]]},
+  'rovarn-redstone-starter':{downstairs:[[[0.220,0.550],[0.780,0.550],[0.810,0.742],[0.190,0.742]]]},
+  'marovar-crescent-starter':{downstairs:[[[0.220,0.550],[0.780,0.550],[0.810,0.742],[0.190,0.742]]]}
 };
 const FURNITURE_WALL_BOUNDS={
   'norveth-varka-fell-starter':{downstairs:{minX:.255,maxX:.745,minY:.395,maxY:.535}},
   'nambara-naskor-edge-starter':{downstairs:{minX:.255,maxX:.745,minY:.395,maxY:.535}},
   'lumerre-greenhollow-starter':{downstairs:{minX:.275,maxX:.720,minY:.395,maxY:.535}},
   'elvane-canto-plains-starter':{downstairs:{minX:.275,maxX:.720,minY:.395,maxY:.535}},
-  'vardesh-hestholm-fjord-starter':{downstairs:{minX:.255,maxX:.745,minY:.395,maxY:.535}}
+  'vardesh-hestholm-fjord-starter':{downstairs:{minX:.255,maxX:.745,minY:.395,maxY:.535}},
+  'sorevia-lakeside-starter':{downstairs:{minX:0.245,maxX:0.755,minY:0.395,maxY:0.555}},
+  'iskandar-moonlit-starter':{downstairs:{minX:0.245,maxX:0.755,minY:0.350,maxY:0.515}},
+  'drazhen-ashlands-starter':{downstairs:{minX:0.255,maxX:0.745,minY:0.385,maxY:0.550}},
+  'rovarn-redstone-starter':{downstairs:{minX:0.250,maxX:0.750,minY:0.385,maxY:0.550}},
+  'marovar-crescent-starter':{downstairs:{minX:0.250,maxX:0.750,minY:0.385,maxY:0.550}}
 };
 
 

@@ -30490,6 +30490,15 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 .dragonbound-my-dragon-identity strong,.dragonbound-my-dragon-favourite-grid strong{display:block;overflow:hidden;color:#3e3324;font:800 10px/1.18 "Nunito",system-ui,sans-serif;text-overflow:ellipsis;white-space:nowrap}
 .dragonbound-my-dragon-mood{align-self:start;padding:9px 12px;border-left:3px solid #99723e;border-radius:8px;background:rgba(94,72,35,.07)}
 .dragonbound-my-dragon-mood small{display:block;color:#85683d;font:900 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:1.2px}.dragonbound-my-dragon-mood strong{display:block;margin:4px 0 2px;color:#4a3524;font:700 18px/1 Georgia,serif}.dragonbound-my-dragon-mood span{display:block;color:#6e604c;font:700 8.5px/1.35 "Nunito",system-ui,sans-serif}
+/* V34.03 — several-hour mood tinting. Kept intentionally subtle: the story stays part of the journal, not a status alarm. */
+.dragonbound-my-dragon-mood{position:relative;transition:border-color .3s ease,background .3s ease,box-shadow .3s ease}
+.dragonbound-my-dragon-mood::after{content:"SEVERAL-HOUR MOOD";position:absolute;right:10px;top:9px;color:rgba(111,86,48,.48);font:900 6px/1 "Nunito",system-ui,sans-serif;letter-spacing:.65px}
+.dragonbound-my-dragon-mood[data-mood="bouncy"],.dragonbound-my-dragon-mood[data-mood="playful"],.dragonbound-my-dragon-mood[data-mood="restless"]{border-left-color:#b77a39;background:linear-gradient(100deg,rgba(190,132,55,.11),rgba(255,250,236,.18))}
+.dragonbound-my-dragon-mood[data-mood="sleepy"],.dragonbound-my-dragon-mood[data-mood="relaxed"]{border-left-color:#6c8295;background:linear-gradient(100deg,rgba(95,124,145,.10),rgba(255,250,236,.18))}
+.dragonbound-my-dragon-mood[data-mood="cuddly"]{border-left-color:#a76c78;background:linear-gradient(100deg,rgba(174,105,121,.10),rgba(255,250,236,.18))}
+.dragonbound-my-dragon-mood[data-mood="curious"],.dragonbound-my-dragon-mood[data-mood="focused"],.dragonbound-my-dragon-mood[data-mood="proud"]{border-left-color:#7b8960;background:linear-gradient(100deg,rgba(104,135,91,.10),rgba(255,250,236,.18))}
+.dragonbound-my-dragon-mood[data-mood="grumpy"],.dragonbound-my-dragon-mood[data-mood="nervous"]{border-left-color:#806d7e;background:linear-gradient(100deg,rgba(115,92,119,.09),rgba(255,250,236,.18))}
+.dragonbound-my-dragon-mood[data-mood="hungry"]{border-left-color:#a36f45;background:linear-gradient(100deg,rgba(158,102,55,.10),rgba(255,250,236,.18))}
 .dragonbound-my-dragon-care{grid-column:1/3;min-width:0}.dragonbound-my-dragon-section-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid rgba(91,70,33,.18)}
 .dragonbound-my-dragon-section-title>span{color:#4d3927;font:700 16px/1 Georgia,serif}.dragonbound-my-dragon-section-title>small{color:#92774c;font:800 7px/1 "Nunito",system-ui,sans-serif;letter-spacing:.5px;text-align:right}
 .dragonbound-my-dragon-care-bars{display:grid;gap:6px}.dragonbound-my-dragon-care-row{display:grid;grid-template-columns:58px 1fr 35px;align-items:center;gap:7px}.dragonbound-my-dragon-care-row>span{font:900 8px/1 "Nunito",system-ui,sans-serif;color:#66523a}.dragonbound-my-dragon-care-row>i{height:7px;border-radius:99px;background:rgba(73,56,32,.13);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.09)}.dragonbound-my-dragon-care-row>i>em{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6e8d69,#b0a35a);transition:width .45s ease}.dragonbound-my-dragon-care-row[data-level="low"]>i>em{filter:saturate(.78)}.dragonbound-my-dragon-care-row[data-level="critical"]>i>em{filter:saturate(.55) brightness(.85)}.dragonbound-my-dragon-care-row>b{font:900 8px/1 "Nunito",system-ui,sans-serif;color:#66523a;text-align:right}
@@ -30611,6 +30620,20 @@ html body #repoDashboardV20 #openDragonbound .activity-button-copy>span{
 .dragonbound-life-moment.is-happy{color:#f4d4ad;border-color:rgba(238,179,127,.38)}
 .dragonbound-life-moment.is-grumpy{color:#dfc0a0;border-color:rgba(189,132,84,.38)}
 @keyframes dragonboundLifeMoment{0%{opacity:0;transform:translate(-50%,5px) scale(.96)}12%,75%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-5px) scale(.98)}}
+
+/* Dragonbound V34.04 — temporary daily preferences / mini pet events */
+.dragonbound-my-dragon-today{margin:12px 0;padding:13px 14px;border:1px solid rgba(91,70,33,.14);border-radius:10px;background:linear-gradient(145deg,rgba(116,92,61,.045),rgba(255,250,236,.4))}
+.dragonbound-my-dragon-today-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.dragonbound-my-dragon-today-card{min-width:0;padding:9px 10px;border:1px solid rgba(91,70,33,.12);border-radius:8px;background:rgba(255,250,236,.52)}
+.dragonbound-my-dragon-today-card:only-child{grid-column:1/-1}
+.dragonbound-my-dragon-today-card>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:center;margin-bottom:4px}
+.dragonbound-my-dragon-today-card small{grid-column:1;color:#8a7046;font:900 10px/1.15 "Nunito",system-ui,sans-serif;letter-spacing:.55px;text-transform:uppercase;white-space:nowrap}
+.dragonbound-my-dragon-today-card strong{grid-column:1;display:block;color:#4e3b29;font:900 12.5px/1.25 "Nunito",system-ui,sans-serif;overflow-wrap:anywhere}
+.dragonbound-my-dragon-today-card span{grid-column:2;grid-row:1/3;align-self:center;color:#8b7657;font:800 9.8px/1.2 "Nunito",system-ui,sans-serif;white-space:nowrap}
+.dragonbound-my-dragon-today-card p{margin:5px 0 0;color:#665a48;font:700 11.3px/1.38 "Nunito",system-ui,sans-serif}
+.dragonbound-my-dragon-today-card.is-quiet{background:rgba(255,250,236,.34);border-style:dashed}
+.dragonbound-my-dragon-today-card.is-quiet strong{color:#6e604d}
+@media(max-width:900px){.dragonbound-my-dragon-today-list{grid-template-columns:1fr}.dragonbound-my-dragon-today-card:only-child{grid-column:auto}}
 
 .dragonbound-my-dragon-daily-life{margin:12px 0;padding:13px 14px;border:1px solid rgba(91,70,33,.14);border-radius:10px;background:linear-gradient(145deg,rgba(93,119,89,.05),rgba(255,250,236,.36))}
 .dragonbound-my-dragon-daily-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -31316,3 +31339,18 @@ body .dragonbound-command-ui-v3384 button.dragonbound-command-ui-v3384-close:hov
   .dragonbound-dragon-thought,.dragonbound-dragon-thought.is-leaving{animation:none!important;opacity:1}
 }
 
+
+/* =====================================================================
+   V34.05 — Bond Behaviours & Keeper Relationship
+   Relationship feedback lives in the keeper journal; behaviour remains
+   personality-led and uses the existing bond value rather than a new stat.
+   ===================================================================== */
+.dragonbound-keeper-relationship-journal{display:grid;gap:12px;margin-bottom:12px}
+.dragonbound-keeper-relationship-card{padding:14px 15px;border:1px solid rgba(91,70,33,.16);border-radius:11px;background:linear-gradient(145deg,rgba(255,251,239,.78),rgba(238,226,199,.44));box-shadow:inset 0 1px 0 rgba(255,255,255,.65);color:#504331}
+.dragonbound-keeper-relationship-card>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px dashed rgba(91,70,33,.16)}
+.dragonbound-keeper-relationship-card>header div{display:grid;gap:3px}.dragonbound-keeper-relationship-card>header small,.dragonbound-keeper-relationship-card footer small,.dragonbound-keeper-relationship-grid small{color:#8a7046;font:900 9px/1.15 "Nunito",system-ui,sans-serif;letter-spacing:.65px;text-transform:uppercase}
+.dragonbound-keeper-relationship-card>header strong{color:#4e3a2b;font:900 17px/1.1 Georgia,serif}.dragonbound-keeper-relationship-card>header b{padding:5px 8px;border:1px solid rgba(126,83,92,.17);border-radius:999px;background:rgba(155,102,113,.08);color:#7a5660;font:900 10px/1 "Nunito",system-ui,sans-serif;white-space:nowrap}
+.dragonbound-keeper-relationship-card>p{margin:10px 0 12px;color:#625745;font:700 11.7px/1.46 "Nunito",system-ui,sans-serif}
+.dragonbound-keeper-relationship-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dragonbound-keeper-relationship-grid article{min-width:0;padding:9px 10px;border:1px solid rgba(91,70,33,.11);border-radius:8px;background:rgba(255,250,236,.48)}.dragonbound-keeper-relationship-grid strong{display:block;margin-top:4px;color:#4f4434;font:850 11px/1.32 "Nunito",system-ui,sans-serif;overflow-wrap:anywhere}
+.dragonbound-keeper-relationship-card>footer{display:grid;gap:4px;margin-top:10px;padding-top:9px;border-top:1px dashed rgba(91,70,33,.16)}.dragonbound-keeper-relationship-card>footer span{color:#6c5d49;font:750 10.7px/1.38 "Nunito",system-ui,sans-serif}
+@media(max-width:760px){.dragonbound-keeper-relationship-grid{grid-template-columns:1fr}.dragonbound-keeper-relationship-card{padding:12px}}
