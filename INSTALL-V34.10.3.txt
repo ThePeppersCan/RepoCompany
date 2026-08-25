@@ -1,0 +1,23 @@
+DRAGONBOUND V34.10.3 — CAREER BUTTONS + ACCOUNT BRIDGE FIX
+
+Install this over V34.10.2.
+
+1. Extract the ZIP into the root of your existing website.
+2. Keep the folders exactly as supplied.
+3. Allow all three existing files to be overwritten:
+   - dragonbound-career-launcher.js
+   - dragonbound-career-mode/index.html
+   - dragonbound-career-mode/career.js
+4. Upload/publish the overwritten files, then hard-refresh with Ctrl+F5.
+
+What this fixes
+- Career Mode no longer reads properties directly from a cross-origin/null-origin
+  parent frame.
+- The signed-in website account is handed to the Career iframe through a
+  source-validated, per-launch message bridge, so account saves can load and save.
+- Clicking a sponsor card now opens its contract confirmation reliably. The old
+  focus handler rebuilt the card before the browser could finish the click.
+- House audio remains paused while Career Mode is open.
+- The Dragonbound house avatar/UI stays behind the full-screen Career overlay.
+
+No career.css replacement is needed for this patch.

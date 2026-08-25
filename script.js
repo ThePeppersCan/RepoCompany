@@ -41647,6 +41647,7 @@ document.head.appendChild(s)})();
                   </div>
                   <div class="dragonbound-journal-panel" data-dragon-journal-panel="scrapbook" role="tabpanel" hidden>
                     <div class="dragonbound-my-dragon-recent-moment" data-dragon-profile-recent-moment><small>RECENT MOMENT</small><p>Still waiting for the next little adventure.</p></div>
+                    <div class="dragonbound-my-dragon-house-moments"><div class="dragonbound-my-dragon-section-title"><span>Recent Moments</span><small>Little incidents worth remembering</small></div><div class="dragonbound-my-dragon-house-moment-list" data-dragon-profile-house-moments><em>Nothing chaotic enough to write down yet.</em></div></div>
                     <div class="dragonbound-my-dragon-memories"><div class="dragonbound-my-dragon-section-title"><span>Keeper Scrapbook</span><small>Milestones, discoveries and the stories worth keeping</small></div><div class="dragonbound-my-dragon-memory-list" data-dragon-profile-memories></div></div>
                   </div>
                 </section>
@@ -42097,6 +42098,7 @@ document.head.appendChild(s)})();
     const myDragonQuirks=overlay.querySelector('[data-dragon-profile-quirks]');
     const myDragonRelationship=overlay.querySelector('[data-dragon-profile-relationship]');
     const myDragonKeeperRelationship=overlay.querySelector('[data-dragon-profile-keeper-relationship]');
+    const myDragonBonds=overlay.querySelector('[data-dragon-profile-bonds]');
     const myDragonObsession=overlay.querySelector('[data-dragon-profile-obsession]');
     const myDragonKeeperNote=overlay.querySelector('[data-dragon-profile-keeper-note]');
     const myDragonComforts=overlay.querySelector('[data-dragon-profile-comforts]');
@@ -42108,6 +42110,7 @@ document.head.appendChild(s)})();
     const myDragonToday=overlay.querySelector('[data-dragon-profile-today]');
     const myDragonDailyLife=overlay.querySelector('[data-dragon-profile-daily-life]');
     const myDragonRecentMoment=overlay.querySelector('[data-dragon-profile-recent-moment]');
+    const myDragonHouseMoments=overlay.querySelector('[data-dragon-profile-house-moments]');
     const myDragonGrowthStage=overlay.querySelector('[data-dragon-profile-growth-stage]');
     const myDragonGrowthCopy=overlay.querySelector('[data-dragon-profile-growth-copy]');
     const myDragonGrowthPercent=overlay.querySelector('[data-dragon-profile-growth-percent]');
@@ -42418,7 +42421,7 @@ document.head.appendChild(s)})();
       const arrived=await waitForDragonAtTreat(actor,target,token,lazy?19000:15000);
       if(token!==dragonTreatAbortToken)return false;
       if(!arrived){piece.classList.add('is-eaten');await dragonTreatDelay(350);piece.remove();return false;}
-      try{actor.path=[];actor.pathIndex=0;actor.walkSpeedBoost=1;actor.setState('sitting',950);actor.nextDecision=performance.now()+1150;if(typeof actor.applyCareBenefit==='function'){actor.applyCareBenefit('hunger',6);actor.applyCareBenefit('fun',2);actor.applyCareBenefit('social',1);actor.addBond?.(.15);}else{actor.needs.hunger=Math.max(0,Number(actor.needs?.hunger||0)-6);actor.needs.social=Math.max(0,Number(actor.needs?.social||0)-1);actor.behaviourDirty=true;}const obs=actor.memory?.observationCounters||(actor.memory.observationCounters={});obs.dragonBitesEaten=(Number(obs.dragonBitesEaten)||0)+1;actor.noteKeeperRelationship?.('treat',{label:'Dragon Bites together'});actor.noteUniverseActivity?.('treat');actor.maybeShowDragonThought?.('treat');actor.rememberLifeEvent?.('treat','First Dragon Bite',`${name} discovered just how exciting Dragon Bites are.`,'first-dragon-bite');actor.behaviourDirty=true;window.DragonboundBabyEngine?.saveBehaviourLocal?.();}catch(_error){}
+      try{actor.path=[];actor.pathIndex=0;actor.walkSpeedBoost=1;actor.setState('sitting',950);actor.nextDecision=performance.now()+1150;if(typeof actor.applyCareBenefit==='function'){actor.applyCareBenefit('hunger',6);actor.applyCareBenefit('fun',2);actor.applyCareBenefit('social',1);actor.addBond?.(.15);}else{actor.needs.hunger=Math.max(0,Number(actor.needs?.hunger||0)-6);actor.needs.social=Math.max(0,Number(actor.needs?.social||0)-1);actor.behaviourDirty=true;}const obs=actor.memory?.observationCounters||(actor.memory.observationCounters={});obs.dragonBitesEaten=(Number(obs.dragonBitesEaten)||0)+1;actor.noteKeeperRelationship?.('treat',{label:'Dragon Bites together'});actor.noteUniverseActivity?.('treat');actor.maybeShowDragonThought?.('treat');actor.openRoutineTrigger?.('keeper_treat',{durationMs:65000,source:'treat'});actor.rememberLifeEvent?.('treat','First Dragon Bite',`${name} discovered just how exciting Dragon Bites are.`,'first-dragon-bite');actor.behaviourDirty=true;window.DragonboundBabyEngine?.saveBehaviourLocal?.();}catch(_error){}
       actor.el?.classList.add('is-treat-chewing');playTreatCrunch();spawnDragonTreatCrunchBurst(target);piece.classList.add('is-eaten');
       if(homeTreatStatus)homeTreatStatus.textContent=actor.hasTrait?.('Foodie')?`Crunch! ${name} savours every bit.`:`Crunch! ${name} gobbles it up.`;
       await dragonTreatDelay(900);actor.el?.classList.remove('is-treat-chewing');piece.remove();
@@ -42841,6 +42844,10 @@ document.head.appendChild(s)})();
     let dragonboundDailyPreferencesRefreshTimer=0;
     let dragonboundFurniturePreferenceRefreshTimer=0;
     let dragonboundLastDailyPreferences={version:1,preferences:[],nextChangeAt:null};
+    let dragonboundLastLearnedRoutines={version:1,routines:[]};
+    let dragonboundRoutineObservationQueue=[];
+    let dragonboundRoutineFlushTimer=0;
+    let dragonboundRoutineSaveInFlight=false;
     const dragonboundMoodExpiryMs=mood=>{const parsed=Date.parse(String(mood?.expiresAt||''));return Number.isFinite(parsed)?parsed:0;};
     const scheduleDragonboundMoodRefresh=mood=>{
       clearTimeout(dragonboundMoodRefreshTimer);dragonboundMoodRefreshTimer=0;
@@ -42900,6 +42907,32 @@ document.head.appendChild(s)})();
         return applyDragonboundDailyPreferences(payload,{announce});
       }catch(error){console.warn('[Dragonbound] Daily preferences could not be refreshed yet.',error);return dragonboundLastDailyPreferences;}
     };
+
+    const normaliseDragonboundLearnedRoutines=raw=>{
+      const src=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{},rows=Array.isArray(src.routines)?src.routines:[],parse=v=>{const n=Date.parse(String(v||''));return Number.isFinite(n)?n:0;};
+      return{version:Number(src.version||1),routines:rows.map(row=>({key:String(row?.key||''),category:String(row?.category||''),trigger:String(row?.trigger||''),response:String(row?.response||''),targetPlacementId:String(row?.targetPlacementId||''),targetItemId:String(row?.targetItemId||''),targetName:String(row?.targetName||'').slice(0,90),targetHouseId:String(row?.targetHouseId||''),observations:Math.max(0,Number(row?.observations)||0),successes:Math.max(0,Number(row?.successes)||0),confidence:Math.max(0,Math.min(1,Number(row?.confidence)||0)),status:String(row?.status||'forming'),firstObservedAt:parse(row?.firstObservedAt),lastObservedAt:parse(row?.lastObservedAt),recognisedAt:parse(row?.recognisedAt),establishedAt:parse(row?.establishedAt)})).filter(row=>row.key&&row.trigger&&row.response).slice(0,50)};
+    };
+    const applyDragonboundLearnedRoutines=(payload,{announce=false}={})=>{
+      const before=new Set((dragonboundLastLearnedRoutines?.routines||[]).filter(r=>['recognized','established'].includes(r.status)).map(r=>r.key)),next=normaliseDragonboundLearnedRoutines(payload),newlyVisible=next.routines.some(r=>['recognized','established'].includes(r.status)&&!before.has(r.key));
+      dragonboundLastLearnedRoutines=next;if(dragonboundLastProfile&&typeof dragonboundLastProfile==='object')dragonboundLastProfile.dragon_learned_routines=next;
+      window.dispatchEvent(new CustomEvent('dragonbound:learned-routines-updated',{detail:{routines:next,announce:!!announce&&newlyVisible}}));return next;
+    };
+    const refreshDragonboundLearnedRoutinesServer=async({announce=false}={})=>{
+      if(dragonboundAccountSlug()==='guest')return dragonboundLastLearnedRoutines;
+      try{const {data,error}=await db.rpc('dragonbound_get_learned_routines');if(error)throw error;const payload=Array.isArray(data)?data[0]:data;if(!payload||typeof payload!=='object')return dragonboundLastLearnedRoutines;return applyDragonboundLearnedRoutines(payload,{announce});}
+      catch(error){console.warn('[Dragonbound] Learned routines could not be refreshed yet.',error);return dragonboundLastLearnedRoutines;}
+    };
+    const scheduleDragonboundRoutineFlush=(delay=45000)=>{if(dragonboundRoutineFlushTimer||dragonboundAccountSlug()==='guest')return;dragonboundRoutineFlushTimer=setTimeout(()=>{dragonboundRoutineFlushTimer=0;void flushDragonboundRoutineObservations();},Math.max(800,delay));};
+    const flushDragonboundRoutineObservations=async()=>{
+      if(dragonboundRoutineSaveInFlight||dragonboundAccountSlug()==='guest'||!dragonboundRoutineObservationQueue.length)return;
+      dragonboundRoutineSaveInFlight=true;const batch=dragonboundRoutineObservationQueue.splice(0,20);
+      try{const {data,error}=await db.rpc('dragonbound_record_routine_observations',{p_events:batch});if(error)throw error;const payload=Array.isArray(data)?data[0]:data;if(payload)applyDragonboundLearnedRoutines(payload,{announce:true});}
+      catch(error){console.warn('[Dragonbound] Routine observations will retry later.',error);dragonboundRoutineObservationQueue=[...batch,...dragonboundRoutineObservationQueue].slice(-40);}
+      finally{dragonboundRoutineSaveInFlight=false;if(dragonboundRoutineObservationQueue.length)scheduleDragonboundRoutineFlush(dragonboundRoutineObservationQueue.length>=20?1200:35000);}
+    };
+    const dragonboundRoutineCategoryLabel=row=>{const t=String(row?.trigger||''),map={wake:'WAKE-UP',bedtime:'BEDTIME',eat:'AFTER EATING',drink:'AFTER DRINKING',bath:'AFTER BATH',play:'AFTER PLAYING',training:'AFTER TRAINING',keeper_return:'KEEPER GREETING',keeper_pet:'AFTER A CUDDLE',keeper_treat:'AFTER TREATS',race_win:'WINNING RITUAL',race_loss:'POST-RACE',unsettled:'SAFE PLACE'};if(t.startsWith('period:'))return`${t.split(':')[1].toUpperCase()} ROUTINE`;return map[t]||'LITTLE RITUAL';};
+    const dragonboundRoutineTitle=row=>{const t=String(row?.trigger||''),map={wake:'Wake-up Routine',bedtime:'Bedtime Ritual',eat:'After Eating',drink:'After Drinking',bath:'After Bath',play:'After Playing',training:'After Training',keeper_return:'Keeper Greeting',keeper_pet:'After a Cuddle',keeper_treat:'After Treats',race_win:'Winning Ritual',race_loss:'Race Ritual',unsettled:'Safe Place'};if(t.startsWith('period:'))return`${t.split(':')[1].replace(/^./,m=>m.toUpperCase())} Routine`;return map[t]||'Little Ritual';};
+    const dragonboundRoutineStory=(row,name='Your dragon')=>{const target=String(row?.targetName||''),response=String(row?.response||''),resp={sleep:'settles down to sleep',rest:'finds somewhere comfortable to rest',sit:'sits quietly for a while',explore:'goes exploring',training:'looks for some practice',play:target?`goes looking for ${target}`:'looks for something to play with',eat:'checks the food',drink:'goes for a drink',bath:'looks for a wash',window:target?`checks ${target}`:'looks out at the world',hide:target?`retreats to ${target}`:'finds a quiet hiding place',inspect:target?`checks ${target}`:'goes to inspect something'}[response]||`chooses ${response.replace(/_/g,' ')}`;const t=String(row?.trigger||'');if(t==='bedtime')return`${name} usually ${resp} before settling down for the night.`;if(t==='wake')return`${name} usually ${resp} after waking up.`;if(t==='eat')return`${name} often ${resp} after eating.`;if(t==='drink')return`${name} often ${resp} after a drink.`;if(t==='bath')return`${name} usually ${resp} after a bath.`;if(t==='play')return`${name} tends to ${resp} after playing.`;if(t==='training')return`${name} usually ${resp} after training.`;if(t==='race_loss')return`${name} often ${resp} after a disappointing race.`;if(t==='race_win')return`${name} often ${resp} after winning a race.`;if(t==='keeper_return')return`${name} has developed a familiar little ritual when you come home: ${resp}.`;if(t==='unsettled')return`When ${name} feels unsettled, they usually ${resp}.`;if(t.startsWith('period:'))return`${name} often ${resp} during the ${t.split(':')[1]}.`;return`${name} has started repeating the same little routine: ${resp}.`;};
 
     const saveStarterHouseLocally=houseId=>{
       try{
@@ -42974,6 +43007,8 @@ document.head.appendChild(s)})();
               if(mood)data.dragon_mood=mood;
               const dailyPreferences=await refreshDragonboundDailyPreferencesServer({announce:false});
               data.dragon_daily_preferences=dailyPreferences;
+              const learnedRoutines=await refreshDragonboundLearnedRoutinesServer({announce:false});
+              data.dragon_learned_routines=learnedRoutines;
             }
             if(!dragonboundIsAdminTester()){
               if(data.locked_egg){
@@ -43039,7 +43074,7 @@ document.head.appendChild(s)})();
                 }).catch(()=>{});
               }
               const ownerUsername=dragonboundCurrentUsername();
-              const identity={id:`dragon-${account}-${data.breed_id}`,breedId:data.breed_id,name:data.dragon_name,eggName:data.locked_egg||'',ownerUsername,gender:normaliseDragonGender(data.gender),hatchedAt:data.dragon_hatched_at?Date.parse(data.dragon_hatched_at):Date.now(),personality:data.personality||null,traits:data.dragon_traits||{},preferences:data.dragon_preferences||{},memory:data.dragon_memory||{},mood:data.dragon_mood||{},dailyPreferences:data.dragon_daily_preferences||dragonboundLastDailyPreferences,personalityVersion:Number(data.personality_version||1)};
+              const identity={id:`dragon-${account}-${data.breed_id}`,breedId:data.breed_id,name:data.dragon_name,eggName:data.locked_egg||'',ownerUsername,gender:normaliseDragonGender(data.gender),hatchedAt:data.dragon_hatched_at?Date.parse(data.dragon_hatched_at):Date.now(),personality:data.personality||null,traits:data.dragon_traits||{},preferences:data.dragon_preferences||{},memory:data.dragon_memory||{},mood:data.dragon_mood||{},dailyPreferences:data.dragon_daily_preferences||dragonboundLastDailyPreferences,learnedRoutines:data.dragon_learned_routines||dragonboundLastLearnedRoutines,personalityVersion:Number(data.personality_version||1)};
               try{
                 const encoded=JSON.stringify(identity);
                 localStorage.setItem(dragonboundScopedKey(DRAGONBOUND_NAMED_DRAGON_KEY),encoded);
@@ -43075,11 +43110,11 @@ document.head.appendChild(s)})();
       return {egg,isAdmin:!!row?.is_admin};
     };
     const persistStarterHouseServer=async houseId=>{
-      if(!houseId || dragonboundAccountSlug()==='guest') return;
+      if(!houseId || dragonboundAccountSlug()==='guest') return true;
       const {error}=await db.rpc('dragonbound_set_starter_house',{p_house_id:houseId});
-      if(error){console.warn('[Dragonbound] Could not save starter house.',error);return;}
+      if(error){console.warn('[Dragonbound] Could not save starter house.',error);return false;}
       dragonboundLastProfile={...(dragonboundLastProfile||{}),starter_house_id:houseId};
-      syncDragonboundMainMenuSaveState(dragonboundLastProfile);
+      syncDragonboundMainMenuSaveState(dragonboundLastProfile);return true;
     };
     const persistNamedDragonServer=async identity=>{
       if(!identity || dragonboundAccountSlug()==='guest') return {localOnly:true};
@@ -43092,14 +43127,21 @@ document.head.appendChild(s)})();
       dragonboundLastProfile={...profile,gender:normaliseDragonGender(profile.gender)||normaliseDragonGender(identity.gender)};
       const mood=await refreshDragonboundMoodServer({announce:true});if(mood)profile.dragon_mood=mood;
       const dailyPreferences=await refreshDragonboundDailyPreferencesServer({announce:true});profile.dragon_daily_preferences=dailyPreferences;
-      dragonboundLastProfile={...(dragonboundLastProfile||profile),dragon_mood:mood||profile.dragon_mood||{},dragon_daily_preferences:dailyPreferences};
+      const learnedRoutines=await refreshDragonboundLearnedRoutinesServer({announce:false});profile.dragon_learned_routines=learnedRoutines;
+      dragonboundLastProfile={...(dragonboundLastProfile||profile),dragon_mood:mood||profile.dragon_mood||{},dragon_daily_preferences:dailyPreferences,dragon_learned_routines:learnedRoutines};
       syncDragonboundMainMenuSaveState(dragonboundLastProfile);
-      return {...(row||{}),...profile,dragon_mood:mood||profile.dragon_mood||{},dragon_daily_preferences:dailyPreferences};
+      return {...(row||{}),...profile,dragon_mood:mood||profile.dragon_mood||{},dragon_daily_preferences:dailyPreferences,dragon_learned_routines:learnedRoutines};
     };
 
     clearLegacyDragonboundOwnershipOnce();
-    window.addEventListener('repo-character-changed',()=>{clearTimeout(dragonboundMoodRefreshTimer);dragonboundMoodRefreshTimer=0;clearTimeout(dragonboundDailyPreferencesRefreshTimer);dragonboundDailyPreferencesRefreshTimer=0;clearTimeout(dragonboundFurniturePreferenceRefreshTimer);dragonboundFurniturePreferenceRefreshTimer=0;dragonboundLastDailyPreferences={version:1,preferences:[],nextChangeAt:null};dragonboundHydratedAccount='';dragonboundLastProfile=null;syncDragonboundMainMenuSaveState(null);void hydrateDragonboundProfile({force:true});});
-    window.addEventListener('dragonbound:furniture-changed',()=>{if(dragonboundAccountSlug()==='guest')return;clearTimeout(dragonboundFurniturePreferenceRefreshTimer);dragonboundFurniturePreferenceRefreshTimer=setTimeout(()=>{dragonboundFurniturePreferenceRefreshTimer=0;void refreshDragonboundDailyPreferencesServer({announce:false});},650);});
+    window.addEventListener('repo-character-changed',()=>{clearTimeout(dragonboundMoodRefreshTimer);dragonboundMoodRefreshTimer=0;clearTimeout(dragonboundDailyPreferencesRefreshTimer);dragonboundDailyPreferencesRefreshTimer=0;clearTimeout(dragonboundFurniturePreferenceRefreshTimer);dragonboundFurniturePreferenceRefreshTimer=0;dragonboundLastDailyPreferences={version:1,preferences:[],nextChangeAt:null};dragonboundLastLearnedRoutines={version:1,routines:[]};dragonboundRoutineObservationQueue=[];clearTimeout(dragonboundRoutineFlushTimer);dragonboundRoutineFlushTimer=0;dragonboundHydratedAccount='';dragonboundLastProfile=null;syncDragonboundMainMenuSaveState(null);void hydrateDragonboundProfile({force:true});});
+    window.addEventListener('dragonbound:furniture-changed',()=>{if(dragonboundAccountSlug()==='guest')return;clearTimeout(dragonboundFurniturePreferenceRefreshTimer);dragonboundFurniturePreferenceRefreshTimer=setTimeout(()=>{dragonboundFurniturePreferenceRefreshTimer=0;void refreshDragonboundDailyPreferencesServer({announce:false});void refreshDragonboundLearnedRoutinesServer({announce:false});},650);});
+    window.addEventListener('dragonbound:routine-observation',event=>{
+      if(dragonboundAccountSlug()==='guest')return;const d=event.detail||{},trigger=String(d.trigger||''),response=String(d.response||'');if(!trigger||!response)return;
+      const entry={trigger,response,targetPlacementId:String(d.targetPlacementId||''),targetItemId:String(d.targetItemId||''),targetName:String(d.targetName||'').slice(0,90),houseId:String(d.houseId||''),autonomous:d.autonomous!==false,at:Number(d.at)||Date.now()};dragonboundRoutineObservationQueue.push(entry);dragonboundRoutineObservationQueue=dragonboundRoutineObservationQueue.slice(-40);scheduleDragonboundRoutineFlush(dragonboundRoutineObservationQueue.length>=12?1200:45000);
+    });
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&dragonboundRoutineObservationQueue.length)void flushDragonboundRoutineObservations();});
+    window.addEventListener('pagehide',()=>{if(dragonboundRoutineObservationQueue.length)void flushDragonboundRoutineObservations();});
     let dragonboundBehaviourSaveQueue=Promise.resolve();
     window.addEventListener('dragonbound:behaviour-memory-save',event=>{
       const detail=event.detail||{};if(dragonboundAccountSlug()==='guest'||!detail.memory)return;
@@ -43194,6 +43236,7 @@ document.head.appendChild(s)})();
     }
 
     window.dispatchEvent(new CustomEvent('dragonbound:engine-attach',{detail:{stage:newGameStage,homeScene,world:homeWorld,layer:babyDragonLayer}}));
+    setTimeout(()=>dragonboundResumeActivePlaydate(),1800);
 
     const stopDialogueTypeAudio=()=>{
       clearInterval(dialogueTypePulseTimer);
@@ -43916,15 +43959,16 @@ document.head.appendChild(s)})();
         propertyListPanel.innerHTML=`<div class="dragonbound-property-empty"><strong>Choose a Country</strong><span>Select a flag on the map to open Mira's property ledger.</span><small>Starter homes are currently free. Larger homes are visible for a sneak peek, but remain locked for now.</small></div>`;
       }
     };
-    const moveIntoStarterHome=(property)=>{
+    const moveIntoStarterHome=async(property)=>{
       if(!property?.starter || !property.full) return;
-      const hadHomeBefore=!!resolveOwnedStarterHome();
+      const hadHomeBefore=!!resolveOwnedStarterHome(),previousHouse=resolveOwnedStarterHome()?.id||'';
+      const saved=await persistStarterHouseServer(property.id);if(saved===false){return;}
       selectedStarterHome=property;
       newGameStage.dataset.dragonboundHouseId=property.id;
       newGameStage.classList.add('has-owned-home');
       saveStarterHouseLocally(property.id);
-      void persistStarterHouseServer(property.id);
-      window.dispatchEvent(new CustomEvent('dragonbound:house-selected',{detail:{houseId:property.id}}));
+      window.dispatchEvent(new CustomEvent('dragonbound:house-selected',{detail:{houseId:property.id,previousHouseId:previousHouse,furniturePacked:!!previousHouse&&previousHouse!==property.id}}));
+      setTimeout(()=>{try{window.DragonboundFurniture?.refresh?.();}catch(_e){}void refreshDragonboundDailyPreferencesServer({announce:false});void refreshDragonboundLearnedRoutinesServer({announce:false});},500);
       closePropertyConfirmation();
       closePropertyBoard();
       closeBonnieMenu();
@@ -44287,8 +44331,8 @@ document.head.appendChild(s)})();
       const signatureTraits=Array.isArray(actor?.signatureTraits)&&actor.signatureTraits.length?actor.signatureTraits:(Array.isArray(local?.traits?.signature)&&local.traits.signature.length?local.traits.signature:(Array.isArray(profile?.dragon_traits?.signature)?profile.dragon_traits.signature:[]));
       const care=actor?.careStats?actor.careStats():dragonProfileCareFromMemory(memory),bond=Math.max(0,Math.min(100,Number(actor?.bond??memory?.bond??18)||0)),mood=actor?.moodSummary?actor.moodSummary():dragonProfileMoodFallback(care),dailyMood=actor?.dailyMood?.name?actor.dailyMood:(local?.mood?.name?local.mood:(profile.dragon_mood||{})),dailyPreferences=actor?.dailyPreferencesState?.version?actor.dailyPreferencesState:(local?.dailyPreferences?.version?normaliseDragonboundDailyPreferences(local.dailyPreferences):(profile.dragon_daily_preferences||dragonboundLastDailyPreferences)),registry=window.DragonboundBabyRegistry?.[breedId],portrait=actor?.def?.animations?.idle?.frames?.[0]?.src||registry?.animations?.idle?.frames?.[0]?.src||DRAGONBOUND_EGG_POOL.find(e=>e.name===eggName)?.src||'';
       const universe=actor?.personalityUniverseSummary?.()||dragonProfileUniverseFallback(memory,bond,hatchedAt),universeRaw=actor?.personalityUniverse||memory?.personalityUniverse||{},assigned=[...new Set([...legacyAssigned,...(universeRaw.innateTraits||[]),...(universeRaw.secondaryTraits||[])])],discovered=[...new Set([...legacyDiscovered,...(universe.knownTraits||[])])];
-      const keeperRelationship=actor?.keeperRelationshipSummary?.()||dragonProfileKeeperRelationshipFallback(name,bond,memory),skills=actor?.skills||memory?.skills||{},growth=actor?.growthInfo?actor.growthInfo():dragonProfileGrowthFallback(hatchedAt);
-      return{hasDragon:!!(name&&breedId),actor,local,profile,dragon,name,breedId,breedName:registry?.displayName||eggName||String(breedId).replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),eggName,gender,hatchedAt,memory,preferences,personality,signatureTraits:signatureTraits.slice(0,3),assigned,discovered,care,bond,mood,dailyMood,dailyPreferences:normaliseDragonboundDailyPreferences(dailyPreferences),portrait,skills,growth,universe,universeRaw,keeperRelationship};
+      const keeperRelationship=actor?.keeperRelationshipSummary?.()||dragonProfileKeeperRelationshipFallback(name,bond,memory),learnedRoutines=actor?.learnedRoutinesState?.version?actor.learnedRoutinesState:(local?.learnedRoutines?.version?normaliseDragonboundLearnedRoutines(local.learnedRoutines):(profile.dragon_learned_routines||dragonboundLastLearnedRoutines)),skills=actor?.skills||memory?.skills||{},growth=actor?.growthInfo?actor.growthInfo():dragonProfileGrowthFallback(hatchedAt);
+      return{hasDragon:!!(name&&breedId),actor,local,profile,dragon,name,breedId,breedName:registry?.displayName||eggName||String(breedId).replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),eggName,gender,hatchedAt,memory,preferences,personality,signatureTraits:signatureTraits.slice(0,3),assigned,discovered,care,bond,mood,dailyMood,dailyPreferences:normaliseDragonboundDailyPreferences(dailyPreferences),learnedRoutines:normaliseDragonboundLearnedRoutines(learnedRoutines),portrait,skills,growth,universe,universeRaw,keeperRelationship};
     };
     let dragonProfileSelectedSkill='';
     let dragonProfileSelectedTab='nature';
@@ -44321,12 +44365,15 @@ document.head.appendChild(s)})();
         {label:'Favourite Activity',value:confirmedActivity,evidence:confirmedActivity!=='Still choosing'?`Observed ${Number(activity?.[1]||0)} times`:''}
       ];
       if(myDragonFavourites)myDragonFavourites.innerHTML=favItems.map(item=>{const confirmed=item.value!=='Still choosing';return`<div class="${confirmed?'is-confirmed':'is-forming'}"><small>${dragonboundEscapeHtml(item.label)}</small><strong>${dragonboundEscapeHtml(item.value)}</strong><em>${confirmed&&item.evidence?dragonboundEscapeHtml(item.evidence):'Still forming naturally'}</em></div>`;}).join('');
-      const habits=[];(Array.isArray(universe.habits)?universe.habits:[]).forEach(h=>{if(h?.label)habits.push(h.label);});if(src.preferences?.formed?.favouriteSleepSpot)habits.push(`${preferredFloor} sleeper`);if(Number(obs.bedSleeps||0)+Number(obs.sleepSessions||0)>=3)habits.push('Regular napper');if(Number(obs.bathUses||0)>=2)habits.push('Enjoys bath time');if(Number(obs.trainingUses||0)>=2)habits.push('Likes training');if(Number(obs.toyPlays||0)+Number(obs.puzzleUses||0)>=3)habits.push('Playful routine');if(Number(obs.newLocationsVisited||0)>=5)habits.push('Likes exploring');if(Number(obs.sameSleepSpotVisits||0)>=3)habits.push('Creature of habit');if(src.discovered.includes('Early Riser'))habits.push('Early riser');if(src.discovered.includes('Night Owl'))habits.push('Night owl');if(src.discovered.includes('Food Goblin')||src.discovered.includes('Greedy')||src.discovered.includes('Treat Obsessed'))habits.push('Always notices food');if(src.discovered.includes('Splash Addict')||src.discovered.includes('Water Baby'))habits.push('Water enthusiast');if(src.discovered.includes('Little Athlete')||src.discovered.includes('Natural Athlete'))habits.push('Little athlete');const uniqueHabits=[...new Set(habits)];if(!uniqueHabits.length)uniqueHabits.push('Still forming routines');if(myDragonHabits)myDragonHabits.innerHTML=uniqueHabits.slice(0,9).map(h=>`<span>${dragonboundEscapeHtml(h)}</span>`).join('');if(myDragonComforts){const vals=Array.isArray(universe.comforts)?universe.comforts:[];myDragonComforts.innerHTML=vals.length?vals.map(v=>`<span><i>♥</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>Still learning what feels like home.</em>';}if(myDragonDislikes){const vals=Array.isArray(universe.dislikes)?universe.dislikes:[];myDragonDislikes.innerHTML=vals.length?vals.map(v=>`<span><i>×</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>No strong dislikes confirmed yet.</em>';}
+      const learnedVisible=(src.learnedRoutines?.routines||[]).filter(r=>['recognized','established'].includes(r.status)).sort((a,b)=>(b.status==='established')-(a.status==='established')||Number(b.confidence||0)-Number(a.confidence||0)||Number(b.successes||0)-Number(a.successes||0)).slice(0,9);
+      if(myDragonHabits){if(learnedVisible.length){myDragonHabits.innerHTML=learnedVisible.map(r=>`<article class="dragonbound-learned-routine ${r.status==='established'?'is-established':'is-recognised'}"><small>${dragonboundEscapeHtml(dragonboundRoutineCategoryLabel(r))}</small><strong>${dragonboundEscapeHtml(dragonboundRoutineTitle(r))}</strong><span>${dragonboundEscapeHtml(dragonboundRoutineStory(r,src.name))}</span></article>`).join('');}else myDragonHabits.innerHTML='<span>Still forming routines</span>';}
+      if(myDragonComforts){const vals=Array.isArray(universe.comforts)?universe.comforts:[];myDragonComforts.innerHTML=vals.length?vals.map(v=>`<span><i>♥</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>Still learning what feels like home.</em>';}if(myDragonDislikes){const vals=Array.isArray(universe.dislikes)?universe.dislikes:[];myDragonDislikes.innerHTML=vals.length?vals.map(v=>`<span><i>×</i>${dragonboundEscapeHtml(v)}</span>`).join(''):'<em>No strong dislikes confirmed yet.</em>';}
 
       const daily=src.memory?.dailyLife||{},hour=new Date().getHours(),period=hour>=6&&hour<11?'morning':hour>=11&&hour<17?'day':hour>=17&&hour<22?'evening':'night',routineRows=Object.entries(daily?.routineCounts?.[period]||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0)),formedRoutineKey=period==='morning'?'preferredMorningActivity':period==='evening'?'preferredEveningActivity':period==='night'?'preferredNightActivity':'preferredDayActivity',favouriteRoutine=routineRows[0]?.[0]||src.preferences?.formed?.[formedRoutineKey]||'',moodRows=Object.entries(daily?.moodCounts||{}).sort((a,b)=>Number(b[1]||0)-Number(a[1]||0)),commonMood=moodRows[0]?.[0]||src.mood;
       if(myDragonToday){const today=Array.isArray(src.dailyPreferences?.preferences)?src.dailyPreferences.preferences:[],remaining=dragonProfileDailyPreferenceRemaining(src.dailyPreferences);myDragonToday.innerHTML=today.length?today.map((pref,index)=>`<article class="dragonbound-my-dragon-today-card" data-preference-type="${dragonboundEscapeHtml(pref.type||'')}"><div><small>${index===0?"TODAY'S QUIRK":'ALSO TODAY'}</small><strong>${dragonboundEscapeHtml(pref.label||'Little Change')}</strong><span>${dragonboundEscapeHtml(remaining)}</span></div><p>${dragonboundEscapeHtml(pref.story||'A small change of routine has caught their attention.')}</p></article>`).join(''):`<article class="dragonbound-my-dragon-today-card is-quiet"><div><small>TODAY</small><strong>Nothing unusual</strong><span>${dragonboundEscapeHtml(remaining)}</span></div><p>${dragonboundEscapeHtml(`${src.name} seems content to simply be themselves for a while.`)}</p></article>`;}
       if(myDragonDailyLife){const dailyCards=[['Current mood',persistentMoodName],['Right now',src.mood],['Mood changes',dragonProfileMoodRemaining(src.dailyMood)],[`Usual ${period}`,favouriteRoutine?dragonProfileLifeLabel(favouriteRoutine):'Still forming'],['Most common care mood',commonMood],['Most common activity',activity?dragonProfileActivityLabel(activity[0]):'Still deciding']];myDragonDailyLife.innerHTML=dailyCards.map(([label,value])=>`<div><small>${dragonboundEscapeHtml(label)}</small><strong>${dragonboundEscapeHtml(value)}</strong></div>`).join('');}
       if(myDragonRecentMoment){const recent=daily?.lastMeaningfulMoment||{},when=recent.at?dragonProfileDate(recent.at):'';myDragonRecentMoment.innerHTML=recent?.detail?`<small>RECENT MOMENT${when?` · ${dragonboundEscapeHtml(when)}`:''}</small><strong>${dragonboundEscapeHtml(recent.label||dragonProfileLifeLabel(recent.type))}</strong><p>${dragonboundEscapeHtml(recent.detail)}</p>`:'<small>RECENT MOMENT</small><p>Still waiting for the next little adventure.</p>'; }
+      if(myDragonHouseMoments){const moments=(Array.isArray(daily?.recentMoments)?daily.recentMoments:[]).slice().sort((a,b)=>Number(b?.at||0)-Number(a?.at||0)).slice(0,12);myDragonHouseMoments.innerHTML=moments.length?moments.map(moment=>{const when=moment?.at?dragonProfileDate(moment.at):'';return`<article><div><small>${when?dragonboundEscapeHtml(when):'AT HOME'}</small><strong>${dragonboundEscapeHtml(moment?.title||'A Little Moment')}</strong></div><p>${dragonboundEscapeHtml(moment?.detail||'A small bit of dragon chaos worth remembering.')}</p>${moment?.targetName?`<span>${dragonboundEscapeHtml(moment.targetName)}</span>`:''}</article>`;}).join(''):'<em>Nothing chaotic enough to write down yet.</em>'; }
       const growth=src.growth||dragonProfileGrowthFallback(src.hatchedAt),growthPercent=Math.max(0,Math.min(100,Number(growth.progress)||0));
       if(myDragonGrowthStage)myDragonGrowthStage.textContent=growth.name||'Baby';
       if(myDragonGrowthPercent)myDragonGrowthPercent.textContent=`${Math.round(growthPercent)}%`;
@@ -44343,12 +44390,12 @@ document.head.appendChild(s)})();
       try{window.DragonboundSocialCalendar?.renderJournal?.(src);}catch(_e){}
     };
     let myDragonProfileTimer=0;
-    myDragonJournalTabs.forEach(tab=>tab.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();const next=String(tab.dataset.dragonJournalTab||'nature');if(!['nature','habits','bonds','life','calendar','scrapbook'].includes(next))return;dragonProfileSelectedTab=next;syncDragonJournalTab();}));
+    myDragonJournalTabs.forEach(tab=>tab.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();const next=String(tab.dataset.dragonJournalTab||'nature');if(!['nature','habits','bonds','life','calendar','scrapbook'].includes(next))return;dragonProfileSelectedTab=next;syncDragonJournalTab();if(next==='bonds')dragonboundLoadSocialRelationships().then(()=>renderDragonboundSocialJournal());}));
     myDragonSkills?.addEventListener('click',event=>{const card=event.target.closest('[data-skill]');if(!card)return;const key=String(card.dataset.skill||'');if(!DRAGONBOUND_PROFILE_SKILLS.includes(key))return;event.preventDefault();event.stopPropagation();dragonProfileSelectedSkill=dragonProfileSelectedSkill===key?'':key;renderMyDragonProfile();});
     myDragonSkillHelpClose?.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();dragonProfileSelectedSkill='';renderMyDragonProfile();});
     const closeMyDragonProfile=()=>{clearInterval(myDragonProfileTimer);myDragonProfileTimer=0;dragonProfileSelectedSkill='';myDragonOverlay?.classList.remove('is-visible');myDragonOverlay?.setAttribute('aria-hidden','true');};
     const openMyDragonProfile=async({fromStudy=false}={})=>{
-      dragonProfileSelectedTab='nature';if(fromStudy)closeStudyMenu();closeTravelMenu();renderMyDragonProfile();myDragonOverlay?.classList.add('is-visible');myDragonOverlay?.setAttribute('aria-hidden','false');
+      dragonProfileSelectedTab='nature';if(fromStudy)closeStudyMenu();closeTravelMenu();renderMyDragonProfile();myDragonOverlay?.classList.add('is-visible');myDragonOverlay?.setAttribute('aria-hidden','false');dragonboundLoadSocialRelationships().then(()=>renderDragonboundSocialJournal());
       clearInterval(myDragonProfileTimer);myDragonProfileTimer=setInterval(()=>{if(myDragonOverlay?.classList.contains('is-visible'))renderMyDragonProfile();},1000);
       requestAnimationFrame(()=>myDragonClose?.focus({preventScroll:true}));
       if(!window.DragonboundBabyEngine?.actor&&!namedDragonForCurrentAccount()?.name){try{await hydrateDragonboundProfile({force:false});renderMyDragonProfile();}catch(_e){}}
@@ -44360,6 +44407,15 @@ document.head.appendChild(s)})();
     let dragonboundHouseVisitRaf=0;
     let dragonboundHouseVisitActor=null;
     let dragonboundHouseVisitPreviewData=null;
+    let dragonboundHouseVisitCompanionRaf=0;
+    let dragonboundHouseVisitCompanion=null;
+    let dragonboundSocialRelationshipsCache=[];
+    let dragonboundSocialRelationshipsLoadedAt=0;
+    let dragonboundActivePlaydate=null;
+    let dragonboundPlaydateGuest=null;
+    let dragonboundPlaydateGuestRaf=0;
+    let dragonboundPlaydateEventTimer=0;
+    let dragonboundPlaydateUi=null;
 
     const dragonboundVisitClamp=(n,a,b)=>Math.max(a,Math.min(b,n));
     const dragonboundVisitPointInPoly=(p,poly)=>{let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=Number(poly[i][0]),yi=Number(poly[i][1]),xj=Number(poly[j][0]),yj=Number(poly[j][1]);const hit=((yi>p[1])!==(yj>p[1]))&&(p[0]<(xj-xi)*(p[1]-yi)/((yj-yi)||1e-9)+xi);if(hit)inside=!inside;}return inside;};
@@ -44394,12 +44450,139 @@ document.head.appendChild(s)})();
       }
       throw lastError||new Error('Could not contact the house visitor service.');
     };
+    const dragonboundSocialNormaliseId=value=>String(value||'').trim();
+    const dragonboundSocialRelationshipFor=keeperId=>{
+      const id=dragonboundSocialNormaliseId(keeperId),found=dragonboundSocialRelationshipsCache.find(row=>dragonboundSocialNormaliseId(row?.otherUserId)===id);
+      return found||{otherUserId:id,relationshipType:'Stranger',meetingCount:0,friendship:0,rivalry:0,nervousness:0,trust:0,favouriteSharedActivity:''};
+    };
+    const dragonboundLoadSocialRelationships=async(force=false)=>{
+      if(!force&&Date.now()-dragonboundSocialRelationshipsLoadedAt<45000)return dragonboundSocialRelationshipsCache;
+      try{
+        const data=await dragonboundVisitRpc('dragonbound_get_social_relationships');
+        dragonboundSocialRelationshipsCache=Array.isArray(data)?data:[];
+        dragonboundSocialRelationshipsLoadedAt=Date.now();
+      }catch(err){console.warn('[Dragonbound Social] relationship load failed',err);}
+      return dragonboundSocialRelationshipsCache;
+    };
+    const dragonboundRecordSocialInteraction=async(otherUserId,type)=>{
+      const id=dragonboundSocialNormaliseId(otherUserId);if(!id)return null;
+      try{
+        const rel=await dragonboundVisitRpc('dragonbound_record_social_interaction',{p_other_user_id:id,p_interaction_type:String(type||'greeting')});
+        if(rel){const i=dragonboundSocialRelationshipsCache.findIndex(row=>dragonboundSocialNormaliseId(row?.otherUserId)===id);if(i>=0)dragonboundSocialRelationshipsCache[i]=rel;else dragonboundSocialRelationshipsCache.push(rel);dragonboundSocialRelationshipsLoadedAt=Date.now();}
+        return rel;
+      }catch(err){console.warn('[Dragonbound Social] interaction was not recorded',err);return null;}
+    };
+    const dragonboundSocialTraitList=dragon=>{
+      const traits=dragon?.traits||{},personality=dragon?.personality||{},out=[];
+      ['assigned','signature','discovered'].forEach(k=>Array.isArray(traits?.[k])&&out.push(...traits[k]));
+      if(Array.isArray(personality?.signatureTraits))out.push(...personality.signatureTraits);
+      if(Array.isArray(personality?.traits))out.push(...personality.traits);
+      return [...new Set(out.map(v=>String(v||'').trim()).filter(Boolean))];
+    };
+    const dragonboundSocialHasTrait=(dragon,...names)=>{const hay=dragonboundSocialTraitList(dragon).map(v=>v.toLowerCase());return names.some(name=>hay.includes(String(name).toLowerCase()));};
+    const dragonboundSocialDescription=(rel,dragonName='This dragon',otherName='their friend')=>{
+      const label=String(rel?.relationshipType||'Stranger'),activity=String(rel?.favouriteSharedActivity||'').trim();
+      if(label==='Best Friend')return `${dragonName} clearly knows ${otherName} well now${activity?`, especially when it comes to ${activity.toLowerCase()}`:''}.`;
+      if(label==='Close Friend')return `${dragonName} relaxes noticeably around ${otherName}${activity?` and often ends up ${activity.toLowerCase()}`:''}.`;
+      if(label==='Playmate')return `${dragonName} seems to have decided ${otherName} is excellent company for causing a little chaos.`;
+      if(label==='Competitive Rival'||label==='Rival')return `${dragonName} and ${otherName} have a habit of turning perfectly ordinary activities into a competition.`;
+      if(label==='Nervous Around')return `${dragonName} still keeps a careful eye on ${otherName}, although familiarity can change that over time.`;
+      if(label==='Friend')return `${dragonName} is comfortable around ${otherName} and increasingly chooses to spend time nearby.`;
+      if(label==='Familiar'||label==='Curious About')return `${dragonName} recognises ${otherName} now, but their relationship is still taking shape.`;
+      return `${dragonName} has not spent enough time with ${otherName} to know what to make of them yet.`;
+    };
+    const renderDragonboundSocialJournal=()=>{
+      if(!myDragonBonds)return;
+      const src=dragonProfileSource(),rows=dragonboundSocialRelationshipsCache.slice().sort((a,b)=>Number(b?.friendship||0)+Number(b?.rivalry||0)-Number(a?.friendship||0)-Number(a?.rivalry||0));
+      if(!rows.length){myDragonBonds.innerHTML=`<section class="dragonbound-social-empty"><small>FRIENDS &amp; RIVALS</small><strong>No dragon friends yet</strong><p>${dragonboundEscapeHtml(src.name||'Your dragon')} will remember other dragons after house visits and playdates.</p></section>`;return;}
+      myDragonBonds.innerHTML=`<div class="dragonbound-social-journal-head"><div><small>FRIENDS &amp; RIVALS</small><strong>Dragon Social Life</strong></div><span>${rows.length} known dragon${rows.length===1?'':'s'}</span></div><div class="dragonbound-social-list">${rows.slice(0,12).map(rel=>{const other=rel.dragonName||'Another dragon',label=rel.relationshipType||'Familiar',met=rel.firstMetAt?dragonProfileDate(rel.firstMetAt):'Recently',activity=rel.favouriteSharedActivity||'Still discovering';return `<article class="dragonbound-social-card" data-social-label="${dragonboundEscapeHtml(label)}"><div class="dragonbound-social-card-top"><div><small>${dragonboundEscapeHtml(rel.username||'Keeper')}</small><strong>${dragonboundEscapeHtml(other)}</strong></div><b>${dragonboundEscapeHtml(label)}</b></div><p>${dragonboundEscapeHtml(dragonboundSocialDescription(rel,src.name||'Your dragon',other))}</p><div class="dragonbound-social-card-meta"><span>First met · ${dragonboundEscapeHtml(met)}</span><span>${dragonboundEscapeHtml(activity)}</span></div><button type="button" data-social-invite="${dragonboundEscapeHtml(rel.otherUserId)}">Invite over</button></article>`;}).join('')}</div>`;
+      myDragonBonds.querySelectorAll('[data-social-invite]').forEach(btn=>btn.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();dragonboundStartPlaydate(btn.dataset.socialInvite);}));
+    };
+    const dragonboundEnsurePlaydateUi=()=>{
+      if(dragonboundPlaydateUi?.isConnected)return dragonboundPlaydateUi;
+      const el=document.createElement('div');el.className='dragonbound-playdate-strip';el.setAttribute('aria-hidden','true');el.innerHTML='<div><small>PLAYDATE</small><strong data-playdate-name>Guest dragon</strong><span data-playdate-status>Settling in…</span></div><button type="button" data-playdate-end>End playdate</button>';
+      homeScene?.appendChild(el);el.querySelector('[data-playdate-end]')?.addEventListener('click',()=>dragonboundEndPlaydate('ended-by-keeper'));
+      dragonboundPlaydateUi=el;return el;
+    };
+    const dragonboundPlaydateThought=(text,duration=3200)=>{
+      const guest=dragonboundPlaydateGuest;if(!guest?.el)return;let bubble=guest.el.querySelector('.dragonbound-social-thought');if(!bubble){bubble=document.createElement('span');bubble.className='dragonbound-social-thought';guest.el.appendChild(bubble);}bubble.textContent=String(text||'');bubble.classList.add('is-visible');clearTimeout(guest.thoughtTimer);guest.thoughtTimer=setTimeout(()=>bubble?.classList.remove('is-visible'),duration);
+    };
+    const dragonboundSocialWeightedEvent=(guest,rel)=>{
+      const local=dragonProfileSource(),localDragonSocial={personality:local.personality||{},traits:{assigned:local.assigned||[],signature:local.signatureTraits||[],discovered:local.discovered||[]}},g=guest?.profile||{},mood=String(local.dailyMood?.name||local.mood||'').toLowerCase(),label=String(rel?.relationshipType||'Stranger');
+      const pool=[['calm_proximity',4],['play',3],['chase',2],['shared_nap',2],['window_watch',2],['training',2],['food_negotiation',1],['follow',2]];
+      const bump=(id,n)=>{const row=pool.find(x=>x[0]===id);if(row)row[1]+=n;};
+      if(dragonboundSocialHasTrait(localDragonSocial,'Playful','Energetic')||dragonboundSocialHasTrait(g,'Playful','Energetic')||['bouncy','playful','restless'].includes(mood)){bump('play',5);bump('chase',4);}
+      if(dragonboundSocialHasTrait(localDragonSocial,'Competitive')||dragonboundSocialHasTrait(g,'Competitive'))bump('training',5);
+      if(dragonboundSocialHasTrait(localDragonSocial,'Food Obsessed')||dragonboundSocialHasTrait(g,'Food Obsessed')||mood==='hungry')bump('food_negotiation',6);
+      if(dragonboundSocialHasTrait(localDragonSocial,'Lazy','Sleepy','Calm')||dragonboundSocialHasTrait(g,'Lazy','Sleepy','Calm')||['sleepy','relaxed'].includes(mood))bump('shared_nap',5);
+      if(label==='Playmate'||label==='Best Friend'||label==='Close Friend'){bump('play',4);bump('chase',3);bump('calm_proximity',3);}
+      if(label==='Competitive Rival'||label==='Rival'){pool.push(['rival_challenge',8]);bump('training',4);}
+      if(label==='Nervous Around'||dragonboundSocialHasTrait(localDragonSocial,'Shy')||dragonboundSocialHasTrait(g,'Shy'))pool.push(['nervous_retreat',5]);
+      let total=pool.reduce((a,b)=>a+b[1],0),r=Math.random()*total;for(const row of pool){r-=row[1];if(r<=0)return row[0];}return'calm_proximity';
+    };
+    const dragonboundPlaydateEventCopy=(type,guestName)=>({
+      greeting:['Hello there',`${guestName} has arrived.`,'greeting'],play:['Play time',`${guestName} wants to play.`,'play'],chase:['The Great Chase',`${guestName} has started a chase.`,'chase'],shared_nap:['Nap Pact',`${guestName} is settling down nearby.`,'shared_nap'],training:['Show-Off',`${guestName} is getting competitive.`,'training'],rival_challenge:['Rival Challenge',`${guestName} has apparently made this a contest.`,'rival_challenge'],food_negotiation:['Food Negotiations',`${guestName} has found the feeding area.`,'food_negotiation'],window_watch:['Window Watch',`${guestName} is enjoying a quiet moment.`,'window_watch'],follow:['Follow the Leader',`${guestName} has decided to tag along.`,'follow'],nervous_retreat:['Keeping a Little Distance',`${guestName} is taking things slowly.`,'nervous_retreat'],calm_proximity:['Keeping Company',`${guestName} is happy just being nearby.`,'calm_proximity']}[type]||['Playdate',`${guestName} is exploring the house.`,type]);
+    const dragonboundRunPlaydateEvent=()=>{
+      const guest=dragonboundPlaydateGuest,owner=window.DragonboundBabyEngine?.actor;if(!guest||!owner||!dragonboundActivePlaydate)return;
+      if(owner.carePriorityNeed?.()||owner.commandedFurniture||owner.pendingMoveMode?.startsWith('command')){guest.nextSocialAt=performance.now()+20000;return;}
+      const rel=dragonboundActivePlaydate.relationship||dragonboundSocialRelationshipFor(dragonboundActivePlaydate.guestUserId),type=dragonboundSocialWeightedEvent(guest,rel),copy=dragonboundPlaydateEventCopy(type,guest.profile?.name||'Your guest');
+      guest.eventType=type;guest.eventUntil=performance.now()+(type==='shared_nap'?12000:8000);guest.nextSocialAt=performance.now()+120000+Math.random()*240000;
+      const map=window.DragonboundBabyEngine?.map,engine=window.DragonboundBabyEngine;if(!map||owner.floorId!=='downstairs')return;
+      const nodes=(map.floors?.find(f=>f.id==='downstairs')?.navigationNodes||[]).filter(p=>engine.isWalkable?.('downstairs',p));if(!nodes.length)return;
+      let target=owner.pos?.slice?.()||nodes[Math.floor(Math.random()*nodes.length)].slice();
+      if(type==='nervous_retreat'){target=nodes.slice().sort((a,b)=>Math.hypot((b[0]-owner.pos[0])*map.width,(b[1]-owner.pos[1])*map.height)-Math.hypot((a[0]-owner.pos[0])*map.width,(a[1]-owner.pos[1])*map.height))[0]||target;dragonboundPlaydateThought('I’ll watch from here…');}
+      else if(type==='chase'){target=nodes[Math.floor(Math.random()*nodes.length)].slice();guest.speedBoost=1.35;dragonboundPlaydateThought('Catch me!');}
+      else if(type==='food_negotiation'){dragonboundPlaydateThought('Snacks?');}
+      else if(type==='rival_challenge'||type==='training'){dragonboundPlaydateThought(type==='rival_challenge'?'You again.':'Watch this.');}
+      else if(type==='shared_nap'){dragonboundPlaydateThought('This spot is good.');}
+      else if(type==='play'){dragonboundPlaydateThought('Play?');}
+      else if(type==='greeting'){dragonboundPlaydateThought('Hello!');}
+      const near=[dragonboundVisitClamp(target[0]+(Math.random()-.5)*.05,.08,.92),dragonboundVisitClamp(target[1]+(Math.random()-.5)*.025,.10,.90)];
+      const path=engine.findPath?.('downstairs',guest.pos,near)||[];if(path.length){guest.path=path;guest.pathIndex=0;guest.state='walk';}
+      if(['play','chase','training','rival_challenge','calm_proximity','shared_nap','follow'].includes(type)){const ownerTarget=[dragonboundVisitClamp(near[0]+(Math.random()-.5)*.04,.08,.92),dragonboundVisitClamp(near[1]+.018,.10,.90)];owner.startWalk?.(ownerTarget,'social-playdate');}
+      if(dragonboundPlaydateUi){dragonboundPlaydateUi.querySelector('[data-playdate-status]').textContent=copy[0];}
+      owner.maybeShowDragonThought?.('social',{kind:type,otherName:guest.profile?.name||'the other dragon',relationship:rel.relationshipType||''});
+      if(['chase','shared_nap','rival_challenge','play','hide_seek','food_negotiation'].includes(type)){const ownerName=dragonProfileSource().name||'Your dragon',guestName=guest.profile?.name||'their friend',detail=type==='chase'?`${ownerName} and ${guestName} tore around the house until both eventually remembered how tired they were.`:type==='shared_nap'?`${ownerName} and ${guestName} quietly settled down beside one another.`:type==='rival_challenge'?`${ownerName} and ${guestName} managed to turn an ordinary playdate into a competition.`:type==='food_negotiation'?`${ownerName} and ${guestName} somehow both ended up negotiating with the feeding area.`:`${ownerName} and ${guestName} spent a while playing together.`;owner.recordSocialMoment?.(type,copy[0],detail,guestName);}
+      dragonboundRecordSocialInteraction(dragonboundActivePlaydate.guestUserId,copy[2]).then(updated=>{if(updated)dragonboundActivePlaydate.relationship=updated;renderDragonboundSocialJournal();});
+    };
+    const dragonboundStopHomePlaydateGuest=()=>{
+      if(dragonboundPlaydateGuestRaf)cancelAnimationFrame(dragonboundPlaydateGuestRaf);dragonboundPlaydateGuestRaf=0;clearTimeout(dragonboundPlaydateEventTimer);dragonboundPlaydateEventTimer=0;
+      if(dragonboundPlaydateGuest?.thoughtTimer)clearTimeout(dragonboundPlaydateGuest.thoughtTimer);dragonboundPlaydateGuest?.el?.remove();dragonboundPlaydateGuest=null;
+      if(dragonboundPlaydateUi){dragonboundPlaydateUi.classList.remove('is-visible');dragonboundPlaydateUi.setAttribute('aria-hidden','true');}
+    };
+    const dragonboundStartHomePlaydateGuest=(session,preview)=>{
+      dragonboundStopHomePlaydateGuest();if(!session||!preview?.dragon||!homeWorld)return;
+      const engine=window.DragonboundBabyEngine,map=engine?.map,def=window.DragonboundBabyRegistry?.[preview.dragon.breedId];if(!engine||!map||!def)return;
+      const layer=document.createElement('div');layer.className='dragonbound-playdate-guest';const img=document.createElement('img');img.className='dragonbound-playdate-guest-sprite';img.alt=preview.dragon.name||def.displayName;layer.appendChild(img);homeWorld.appendChild(layer);
+      const owner=engine.actor,floor=map.floors?.find(f=>f.id==='downstairs'),nodes=(floor?.navigationNodes||[]).filter(p=>engine.isWalkable?.('downstairs',p));let spawn=(map.spawnPoints||[]).map(x=>x.p).find(p=>engine.isWalkable?.('downstairs',p))||nodes[0]||[.5,.68];if(owner?.floorId==='downstairs'&&nodes.length)spawn=nodes.slice().sort((a,b)=>Math.hypot((b[0]-owner.pos[0])*map.width,(b[1]-owner.pos[1])*map.height)-Math.hypot((a[0]-owner.pos[0])*map.width,(a[1]-owner.pos[1])*map.height))[0]||spawn;
+      const guest={el:layer,img,def,profile:preview.dragon,pos:spawn.slice(),facing:def.nativeFacing||'right',state:'idle',path:[],pathIndex:0,frameIndex:0,frameAt:0,animName:'',stateUntil:performance.now()+1800,nextSocialAt:performance.now()+2500,eventType:'greeting',eventUntil:performance.now()+7000,speedBoost:1};dragonboundPlaydateGuest=guest;
+      const ui=dragonboundEnsurePlaydateUi();ui.querySelector('[data-playdate-name]').textContent=`${preview.dragon.name} · ${session.relationship?.relationshipType||'Visitor'}`;ui.querySelector('[data-playdate-status]').textContent='Arriving at your home…';ui.classList.add('is-visible');ui.setAttribute('aria-hidden','false');
+      const animFor=()=>guest.state==='walk'?'walk':guest.state==='sleep'?'sleep':guest.state==='rest'?'rest':guest.state==='sit'?'sit':'idle';
+      const setFrame=t=>{const name=animFor(),anim=guest.def.animations?.[name]||guest.def.animations?.idle;if(!anim?.frames?.length)return;if(guest.animName!==name){guest.animName=name;guest.frameIndex=0;guest.frameAt=0;}const frame=anim.frames[guest.frameIndex%anim.frames.length];if(guest.img.dataset.src!==frame.src){guest.img.src=frame.src;guest.img.dataset.src=frame.src;}const duration=Number(frame.durationMs||500)/(name==='walk'?1.5:1);if(!guest.frameAt)guest.frameAt=t+duration;if(t>=guest.frameAt){guest.frameIndex=(guest.frameIndex+1)%anim.frames.length;guest.frameAt=0;}};
+      const render=()=>{const q=engine.toPixels?.(guest.pos);if(!q)return;guest.el.style.left=q.x+'px';guest.el.style.top=q.y+'px';guest.el.style.zIndex=String(100000+Math.round(guest.pos[1]*100000)*10+8);const source=Math.max(homeWorld.clientWidth/map.width,homeWorld.clientHeight/map.height),scale=source*Number(def.renderedScale||.6)*.43923,nw=guest.img.naturalWidth||220;guest.img.style.width=(nw*scale)+'px';const flip=guest.facing===(def.nativeFacing||'right')?1:-1;guest.img.style.transform=`translate(-50%,-98.5%) scaleX(${flip})`;};
+      let last=performance.now();const loop=t=>{dragonboundPlaydateGuestRaf=requestAnimationFrame(loop);if(!dragonboundActivePlaydate){last=t;return;}if(document.body.classList.contains('dragonbound-outing-active')){last=t;return;}if(!newGameStage.classList.contains('is-home')){dragonboundEndPlaydate('left-home');last=t;return;}if(Date.now()>=Date.parse(dragonboundActivePlaydate.expiresAt||0)){dragonboundEndPlaydate('expired');return;}const dt=Math.min(.05,(t-last)/1000);last=t;setFrame(t);if(guest.state==='walk'&&guest.path.length){const target=guest.path[guest.pathIndex],dx=(target[0]-guest.pos[0])*map.width,dy=(target[1]-guest.pos[1])*map.height,d=Math.hypot(dx,dy),step=32*guest.speedBoost*dt;if(Math.abs(dx)>1)guest.facing=dx>=0?'right':'left';if(d<=step+1){guest.pos=target.slice();guest.pathIndex++;if(guest.pathIndex>=guest.path.length){guest.path=[];guest.speedBoost=1;guest.state=guest.eventType==='shared_nap'?'sleep':guest.eventType==='calm_proximity'?'rest':'sit';guest.stateUntil=t+(guest.state==='sleep'?10000:4500);}}else{guest.pos[0]+=(dx/d*step)/map.width;guest.pos[1]+=(dy/d*step)/map.height;}}else if(t>=guest.stateUntil&&!guest.eventType){guest.state='idle';guest.stateUntil=t+2000+Math.random()*3500;}if(guest.eventType&&t>=guest.eventUntil){guest.eventType='';if(guest.state!=='walk'){guest.state='idle';guest.stateUntil=t+2200;}}if(t>=guest.nextSocialAt){dragonboundRunPlaydateEvent();}render();};
+      setFrame(performance.now());render();dragonboundPlaydateGuestRaf=requestAnimationFrame(loop);dragonboundRecordSocialInteraction(session.guestUserId,'greeting');
+    };
+    const dragonboundEndPlaydate=async(reason='ended')=>{
+      const active=dragonboundActivePlaydate;dragonboundStopHomePlaydateGuest();dragonboundActivePlaydate=null;if(active?.playdateId){try{await dragonboundVisitRpc('dragonbound_end_playdate',{p_playdate_id:active.playdateId,p_reason:String(reason||'ended')});}catch(_e){}}
+    };
+    const dragonboundResumeActivePlaydate=async()=>{
+      try{const active=await dragonboundVisitRpc('dragonbound_get_active_playdate');if(!active){if(dragonboundActivePlaydate)dragonboundStopHomePlaydateGuest();dragonboundActivePlaydate=null;return null;}dragonboundActivePlaydate={...active,hostHouseId:resolveOwnedStarterHome()?.id||''};if(newGameStage.classList.contains('is-home')){const preview=await dragonboundVisitRpc('dragonbound_public_house_preview',{p_keeper_id:active.guestUserId});if(preview?.dragon)dragonboundStartHomePlaydateGuest(active,preview);}return active;}catch(err){console.warn('[Dragonbound Social] could not restore playdate',err);return null;}
+    };
+    const dragonboundStartPlaydate=async otherUserId=>{
+      const id=dragonboundSocialNormaliseId(otherUserId);if(!id)return;
+      if(houseVisitsStatus)houseVisitsStatus.textContent='Sending playdate invitation…';
+      try{
+        const [session,preview]=await Promise.all([dragonboundVisitRpc('dragonbound_start_playdate',{p_other_user_id:id}),dragonboundVisitRpc('dragonbound_public_house_preview',{p_keeper_id:id})]);
+        if(!session||!preview?.dragon)throw new Error('That dragon could not visit right now.');dragonboundActivePlaydate={...session,guestUserId:id,hostHouseId:resolveOwnedStarterHome()?.id||''};closeDragonboundHouseVisits();closeMyDragonProfile();if(!newGameStage.classList.contains('is-home'))travelToOwnedHome();setTimeout(()=>dragonboundStartHomePlaydateGuest(dragonboundActivePlaydate,preview),newGameStage.classList.contains('is-home')?120:760);await dragonboundLoadSocialRelationships(true);renderDragonboundSocialJournal();
+      }catch(err){if(houseVisitsStatus)houseVisitsStatus.textContent=err?.message||'Could not start that playdate.';else console.warn('[Dragonbound Social] playdate failed',err);}
+    };
     const dragonboundVisitBlockedPolys=(placements,catalog)=>placements.map(p=>{const item=catalog.get(p.itemId||p.item_id);if(!item||String(item.category||'').toLowerCase()==='decor'&&/wall|tapestry|panel|painting|portrait|map|board|mirror|shelf|chandelier/i.test(`${item.name} ${item.description||''}`))return null;return dragonboundVisitFurniturePoly(p,item);}).filter(Boolean);
     const dragonboundVisitIsWalkable=(map,p,blocked)=>{const floor=map?.floors?.[0];return !!floor&&floor.walkableZones.some(poly=>dragonboundVisitPointInPoly(p,poly))&&!blocked.some(poly=>dragonboundVisitPointInPoly(p,poly));};
     const dragonboundVisitLineClear=(a,b,blocked)=>!blocked.some(poly=>dragonboundVisitSegHitsPoly(a,b,poly));
     const dragonboundVisitFindPath=(map,a,b,blocked)=>{if(!dragonboundVisitIsWalkable(map,b,blocked))return[];if(dragonboundVisitLineClear(a,b,blocked))return[b.slice()];const floor=map.floors[0],nodes=(floor.navigationNodes||[]).filter(p=>dragonboundVisitIsWalkable(map,p,blocked)),pts=[a,...nodes,b],N=pts.length,adj=Array.from({length:N},()=>[]);for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)if(dragonboundVisitLineClear(pts[i],pts[j],blocked)){const d=dragonboundVisitDistance(pts[i],pts[j],map);adj[i].push([j,d]);adj[j].push([i,d]);}const dist=Array(N).fill(Infinity),prev=Array(N).fill(-1),used=Array(N).fill(false);dist[0]=0;for(let k=0;k<N;k++){let u=-1;for(let i=0;i<N;i++)if(!used[i]&&(u<0||dist[i]<dist[u]))u=i;if(u<0||!isFinite(dist[u]))break;used[u]=true;if(u===N-1)break;for(const [v,w] of adj[u])if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}}if(!isFinite(dist[N-1]))return[];const out=[];for(let cur=N-1;cur>0;cur=prev[cur])out.unshift(pts[cur].slice());return out;};
 
-    const stopDragonboundHouseVisitActor=()=>{if(dragonboundHouseVisitRaf)cancelAnimationFrame(dragonboundHouseVisitRaf);dragonboundHouseVisitRaf=0;dragonboundHouseVisitActor=null;if(houseVisitDragonLayer)houseVisitDragonLayer.replaceChildren();};
+    const stopDragonboundHouseVisitActor=()=>{if(dragonboundHouseVisitRaf)cancelAnimationFrame(dragonboundHouseVisitRaf);if(dragonboundHouseVisitCompanionRaf)cancelAnimationFrame(dragonboundHouseVisitCompanionRaf);dragonboundHouseVisitRaf=0;dragonboundHouseVisitCompanionRaf=0;dragonboundHouseVisitActor=null;dragonboundHouseVisitCompanion=null;if(houseVisitDragonLayer)houseVisitDragonLayer.replaceChildren();};
     const startDragonboundHouseVisitActor=(data,map,blocked)=>{
       stopDragonboundHouseVisitActor();
       const def=window.DragonboundBabyRegistry?.[data?.dragon?.breedId];if(!def||!houseVisitDragonLayer||!houseVisitWorld)return;
@@ -44414,14 +44597,33 @@ document.head.appendChild(s)})();
       setFrame(performance.now(),true);render();dragonboundHouseVisitRaf=requestAnimationFrame(loop);
     };
 
+    const startDragonboundHouseVisitCompanion=(data,map,blocked,relationship)=>{
+      if(!data?.keeperId||!houseVisitDragonLayer||!houseVisitWorld)return;const src=dragonProfileSource(),def=window.DragonboundBabyRegistry?.[src.breedId];if(!src.hasDragon||!def)return;
+      const el=document.createElement('div');el.className='dragonbound-house-visit-dragon is-visiting-companion';const badge=document.createElement('span');badge.className='dragonbound-house-visit-dragon-badge';badge.textContent='Your dragon';const img=document.createElement('img');img.className='dragonbound-house-visit-dragon-sprite';img.alt=src.name||def.displayName;el.append(img,badge);houseVisitDragonLayer.appendChild(el);
+      const nodes=(map.floors?.[0]?.navigationNodes||[]).filter(p=>dragonboundVisitIsWalkable(map,p,blocked));const owner=dragonboundHouseVisitActor;let spawn=nodes[0]||[.44,.70];if(owner&&nodes.length)spawn=nodes.slice().sort((a,b)=>dragonboundVisitDistance(b,owner.pos,map)-dragonboundVisitDistance(a,owner.pos,map))[0]||spawn;
+      const actor={el,img,def,pos:spawn.slice(),facing:def.nativeFacing||'right',state:'idle',path:[],pathIndex:0,stateUntil:performance.now()+1000,frameIndex:0,frameAt:0,animName:'',nextSocialAt:performance.now()+2200};dragonboundHouseVisitCompanion=actor;
+      const chooseAnim=()=>actor.state==='walk'?'walk':actor.state==='sleep'?'sleep':actor.state==='rest'?'rest':actor.state==='sit'?'sit':'idle';
+      const setFrame=t=>{const name=chooseAnim(),anim=def.animations?.[name]||def.animations?.idle;if(!anim?.frames?.length)return;if(actor.animName!==name){actor.animName=name;actor.frameIndex=0;actor.frameAt=0;}const f=anim.frames[actor.frameIndex%anim.frames.length];if(actor.img.dataset.src!==f.src){actor.img.src=f.src;actor.img.dataset.src=f.src;}const dur=Number(f.durationMs||500)/(name==='walk'?1.45:1);if(!actor.frameAt)actor.frameAt=t+dur;if(t>=actor.frameAt){actor.frameIndex=(actor.frameIndex+1)%anim.frames.length;actor.frameAt=0;}};
+      const goTo=target=>{const path=dragonboundVisitFindPath(map,actor.pos,target,blocked);if(path.length){actor.path=path;actor.pathIndex=0;actor.state='walk';return true;}return false;};
+      const render=()=>{const q=dragonboundVisitToPixels(houseVisitWorld,map,actor.pos);actor.el.style.left=q.x+'px';actor.el.style.top=q.y+'px';actor.el.style.zIndex=String(100000+Math.round(actor.pos[1]*100000)*10+8);const sc=dragonboundVisitSourceScale(houseVisitWorld,map)*Number(def.renderedScale||.6)*.43923,nw=actor.img.naturalWidth||220;actor.img.style.width=(nw*sc)+'px';actor.img.style.transform=`translate(-50%,-98.5%) scaleX(${actor.facing===(def.nativeFacing||'right')?1:-1})`;};
+      let last=performance.now();const loop=t=>{dragonboundHouseVisitCompanionRaf=requestAnimationFrame(loop);if(!houseVisits?.classList.contains('is-previewing')){last=t;return;}const dt=Math.min(.05,(t-last)/1000);last=t;setFrame(t);if(actor.state==='walk'&&actor.path.length){const target=actor.path[actor.pathIndex],dx=(target[0]-actor.pos[0])*map.width,dy=(target[1]-actor.pos[1])*map.height,d=Math.hypot(dx,dy),step=34*dt;if(Math.abs(dx)>1)actor.facing=dx>=0?'right':'left';if(d<=step+1){actor.pos=target.slice();actor.pathIndex++;if(actor.pathIndex>=actor.path.length){actor.path=[];actor.state='sit';actor.stateUntil=t+4500;}}else{actor.pos[0]+=(dx/d*step)/map.width;actor.pos[1]+=(dy/d*step)/map.height;}}else if(t>=actor.nextSocialAt&&owner){const label=String(relationship?.relationshipType||'Stranger');let target=owner.pos.slice();let dist=label==='Nervous Around'?.12:label==='Rival'||label==='Competitive Rival'?.055:.035;target=[dragonboundVisitClamp(target[0]+(Math.random()-.5)*dist,.08,.92),dragonboundVisitClamp(target[1]+dist*.35,.10,.90)];if(label==='Nervous Around'&&nodes.length)target=nodes.slice().sort((a,b)=>dragonboundVisitDistance(b,owner.pos,map)-dragonboundVisitDistance(a,owner.pos,map))[0]||target;goTo(target);actor.nextSocialAt=t+120000+Math.random()*240000;dragonboundRecordSocialInteraction(data.keeperId,label==='Nervous Around'?'nervous_retreat':label.includes('Rival')?'rival_challenge':'greeting');}else if(t>=actor.stateUntil&&actor.state!=='walk'){actor.state='idle';actor.stateUntil=t+2000+Math.random()*2500;}render();};
+      setFrame(performance.now());render();dragonboundHouseVisitCompanionRaf=requestAnimationFrame(loop);
+    };
+
     const renderDragonboundHouseVisitFurniture=async(data,map)=>{if(!houseVisitFurniture||!houseVisitWorld)return new Map();houseVisitFurniture.replaceChildren();const catalog=await dragonboundVisitLoadCatalog();const placements=Array.isArray(data.placements)?data.placements:[];for(const p of placements){const item=catalog.get(p.itemId||p.item_id);if(!item)continue;const el=document.createElement('div');el.className='dragonbound-house-visit-furnishing';el.dataset.itemId=item.item_id;const img=document.createElement('img');img.alt=item.name||'Furniture';img.dataset.rawSrc=`${item.sprite_path}?v=v32-79-house-visits`;img.src=img.dataset.rawSrc;el.appendChild(img);houseVisitFurniture.appendChild(el);const position=()=>{const q=dragonboundVisitToPixels(houseVisitWorld,map,[Number(p.x),Number(p.y)]);el.style.left=q.x+'px';el.style.top=q.y+'px';const base=Math.round(Number(p.y)*100000);el.style.zIndex=String(100000+base*10+5);const natural=img.naturalWidth||160,s=dragonboundVisitSourceScale(houseVisitWorld,map),userScale=dragonboundVisitClamp(Number(p.scale||.7),.55,1.6);img.style.width=Math.max(28,Math.min(245,natural*s*.42*userScale))+'px';img.style.transform=`translate(-50%,-96%) scaleX(${String(p.direction||'right')==='left'?-1:1})`;};img.addEventListener('load',position);position();}return catalog;};
 
-    const renderDragonboundHouseVisitList=()=>{if(!houseVisitsGrid)return;const q=String(houseVisitsSearch?.value||'').trim().toLowerCase(),rows=dragonboundHouseVisitRows.filter(row=>!q||`${row.username||''} ${row.dragon_name||''} ${row.breed_id||''}`.toLowerCase().includes(q));if(!rows.length){houseVisitsGrid.innerHTML='<div class="dragonbound-house-visits-empty">No keeper homes match that search.</div>';return;}houseVisitsGrid.innerHTML=rows.map(row=>{const property=dragonboundVisitHouseProperty(row.house_id),image=property?.full||'',breed=String(row.breed_id||'').replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),count=Number(row.furniture_count||0);return `<button class="dragonbound-house-visit-card" type="button" data-keeper-id="${escapeHtml(row.keeper_id)}"><span class="dragonbound-house-visit-card-image" style="background-image:linear-gradient(180deg,rgba(3,12,14,.04),rgba(3,12,14,.38)),url('${escapeHtml(image)}')"></span><span class="dragonbound-house-visit-card-copy"><strong>${escapeHtml(row.username||'Keeper')}</strong><b>${escapeHtml(row.dragon_name||'Baby Dragon')}</b><small>${escapeHtml(breed)} · ${count} furnishing${count===1?'':'s'}</small></span><span class="dragonbound-house-visit-card-arrow">Visit ›</span></button>`;}).join('');houseVisitsGrid.querySelectorAll('[data-keeper-id]').forEach(button=>button.addEventListener('click',()=>openDragonboundHouseVisitPreview(button.dataset.keeperId)));};
+    const renderDragonboundHouseVisitList=()=>{
+      if(!houseVisitsGrid)return;const q=String(houseVisitsSearch?.value||'').trim().toLowerCase(),rows=dragonboundHouseVisitRows.filter(row=>!q||`${row.username||''} ${row.dragon_name||''} ${row.breed_id||''}`.toLowerCase().includes(q));
+      if(!rows.length){houseVisitsGrid.innerHTML='<div class="dragonbound-house-visits-empty">No keeper homes match that search.</div>';return;}
+      houseVisitsGrid.innerHTML=rows.map(row=>{const property=dragonboundVisitHouseProperty(row.house_id),image=property?.full||'',breed=String(row.breed_id||'').replace(/-/g,' ').replace(/\b\w/g,m=>m.toUpperCase()),count=Number(row.furniture_count||0),rel=dragonboundSocialRelationshipFor(row.keeper_id),label=rel.relationshipType||'Stranger';return `<article class="dragonbound-house-visit-card" data-keeper-id="${escapeHtml(row.keeper_id)}"><button class="dragonbound-house-visit-card-main" type="button" data-visit-keeper="${escapeHtml(row.keeper_id)}"><span class="dragonbound-house-visit-card-image" style="background-image:linear-gradient(180deg,rgba(3,12,14,.04),rgba(3,12,14,.38)),url('${escapeHtml(image)}')"></span><span class="dragonbound-house-visit-card-copy"><strong>${escapeHtml(row.username||'Keeper')}</strong><b>${escapeHtml(row.dragon_name||'Baby Dragon')}</b><small>${escapeHtml(breed)} · ${count} furnishing${count===1?'':'s'}</small><em>${escapeHtml(label)}</em></span><span class="dragonbound-house-visit-card-arrow">Visit ›</span></button><button class="dragonbound-house-visit-invite" type="button" data-invite-keeper="${escapeHtml(row.keeper_id)}">Invite over</button></article>`;}).join('');
+      houseVisitsGrid.querySelectorAll('[data-visit-keeper]').forEach(button=>button.addEventListener('click',()=>openDragonboundHouseVisitPreview(button.dataset.visitKeeper)));
+      houseVisitsGrid.querySelectorAll('[data-invite-keeper]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();dragonboundStartPlaydate(button.dataset.inviteKeeper);}));
+    };
 
     const closeDragonboundHouseVisits=()=>{stopDragonboundHouseVisitActor();dragonboundHouseVisitPreviewData=null;houseVisits?.classList.remove('is-visible','is-previewing');houseVisits?.setAttribute('aria-hidden','true');houseVisitPreview?.setAttribute('aria-hidden','true');houseVisitsBrowser?.setAttribute('aria-hidden','false');newGameStage.classList.remove('is-visiting-house');if(houseVisitFurniture)houseVisitFurniture.replaceChildren();if(houseVisitImage)houseVisitImage.style.backgroundImage='';};
     const showDragonboundHouseVisitBrowser=()=>{stopDragonboundHouseVisitActor();houseVisits?.classList.remove('is-previewing');houseVisitPreview?.setAttribute('aria-hidden','true');houseVisitsBrowser?.setAttribute('aria-hidden','false');newGameStage.classList.remove('is-visiting-house');renderDragonboundHouseVisitList();};
-    const openDragonboundHouseVisits=async()=>{closeTravelMenu();houseVisits?.classList.add('is-visible');houseVisits?.setAttribute('aria-hidden','false');houseVisitsBrowser?.setAttribute('aria-hidden','false');houseVisitPreview?.setAttribute('aria-hidden','true');if(houseVisitsStatus)houseVisitsStatus.textContent='Looking up keeper homes…';if(houseVisitsGrid)houseVisitsGrid.innerHTML='';try{const data=await dragonboundVisitRpc('dragonbound_public_house_list');dragonboundHouseVisitRows=Array.isArray(data)?data:[];if(houseVisitsStatus)houseVisitsStatus.textContent=dragonboundHouseVisitRows.length?`${dragonboundHouseVisitRows.length} keeper home${dragonboundHouseVisitRows.length===1?'':'s'} available to visit.`:'No other keeper homes are ready to visit yet.';renderDragonboundHouseVisitList();}catch(err){if(houseVisitsStatus)houseVisitsStatus.textContent='Could not load keeper homes right now.';if(houseVisitsGrid)houseVisitsGrid.innerHTML=`<div class="dragonbound-house-visits-empty">${escapeHtml(err?.message||'Please try again.')}</div>`;}};
-    const openDragonboundHouseVisitPreview=async keeperId=>{if(!keeperId)return;if(houseVisitsStatus)houseVisitsStatus.textContent='Opening house…';try{const data=await dragonboundVisitRpc('dragonbound_public_house_preview',{p_keeper_id:keeperId});if(!data?.houseId||!data?.dragon)throw new Error('That keeper does not have a visitable Dragonbound home yet.');const property=dragonboundVisitHouseProperty(data.houseId),map=window.DragonboundHouseNavigationRegistry?.[data.houseId];if(!property?.full||!map)throw new Error('That starter house is not available in this build.');dragonboundHouseVisitPreviewData=data;houseVisitsBrowser?.setAttribute('aria-hidden','true');houseVisitPreview?.setAttribute('aria-hidden','false');houseVisits?.classList.add('is-previewing');newGameStage.classList.add('is-visiting-house');if(houseVisitImage)houseVisitImage.style.backgroundImage=`url('${property.full}')`;if(houseVisitOwner)houseVisitOwner.textContent=`${data.username}'s Home`;if(houseVisitDragonName){const gender=String(data.dragon.gender||'').toLowerCase();houseVisitDragonName.textContent=`${data.dragon.name} · ${gender==='female'?'Female':gender==='male'?'Male':String(data.dragon.breedId||'').replace(/-/g,' ')}`;}const catalog=await renderDragonboundHouseVisitFurniture(data,map),blocked=dragonboundVisitBlockedPolys(Array.isArray(data.placements)?data.placements:[],catalog);startDragonboundHouseVisitActor(data,map,blocked);if(houseVisitsStatus)houseVisitsStatus.textContent='';}catch(err){showDragonboundHouseVisitBrowser();if(houseVisitsStatus)houseVisitsStatus.textContent=err?.message||'Could not open that home.';}};
+    const openDragonboundHouseVisits=async()=>{closeTravelMenu();houseVisits?.classList.add('is-visible');houseVisits?.setAttribute('aria-hidden','false');houseVisitsBrowser?.setAttribute('aria-hidden','false');houseVisitPreview?.setAttribute('aria-hidden','true');if(houseVisitsStatus)houseVisitsStatus.textContent='Looking up keeper homes…';if(houseVisitsGrid)houseVisitsGrid.innerHTML='';try{const [data]=await Promise.all([dragonboundVisitRpc('dragonbound_public_house_list'),dragonboundLoadSocialRelationships()]);dragonboundHouseVisitRows=Array.isArray(data)?data:[];if(houseVisitsStatus)houseVisitsStatus.textContent=dragonboundHouseVisitRows.length?`${dragonboundHouseVisitRows.length} keeper home${dragonboundHouseVisitRows.length===1?'':'s'} available to visit.`:'No other keeper homes are ready to visit yet.';renderDragonboundHouseVisitList();}catch(err){if(houseVisitsStatus)houseVisitsStatus.textContent='Could not load keeper homes right now.';if(houseVisitsGrid)houseVisitsGrid.innerHTML=`<div class="dragonbound-house-visits-empty">${escapeHtml(err?.message||'Please try again.')}</div>`;}};
+    const openDragonboundHouseVisitPreview=async keeperId=>{if(!keeperId)return;if(houseVisitsStatus)houseVisitsStatus.textContent='Opening house…';try{const [data,relData]=await Promise.all([dragonboundVisitRpc('dragonbound_public_house_preview',{p_keeper_id:keeperId}),dragonboundVisitRpc('dragonbound_get_relationship',{p_other_user_id:keeperId})]);if(!data?.houseId||!data?.dragon)throw new Error('That keeper does not have a visitable Dragonbound home yet.');const property=dragonboundVisitHouseProperty(data.houseId),map=window.DragonboundHouseNavigationRegistry?.[data.houseId];if(!property?.full||!map)throw new Error('That starter house is not available in this build.');const relationship=relData||dragonboundSocialRelationshipFor(keeperId);dragonboundHouseVisitPreviewData={...data,relationship};houseVisitsBrowser?.setAttribute('aria-hidden','true');houseVisitPreview?.setAttribute('aria-hidden','false');houseVisits?.classList.add('is-previewing');newGameStage.classList.add('is-visiting-house');if(houseVisitImage)houseVisitImage.style.backgroundImage=`url('${property.full}')`;if(houseVisitOwner)houseVisitOwner.textContent=`${data.username}'s Home`;if(houseVisitDragonName){const gender=String(data.dragon.gender||'').toLowerCase();houseVisitDragonName.textContent=`${data.dragon.name} · ${gender==='female'?'Female':gender==='male'?'Male':String(data.dragon.breedId||'').replace(/-/g,' ')} · ${relationship.relationshipType||'Stranger'}`;}const catalog=await renderDragonboundHouseVisitFurniture(data,map),blocked=dragonboundVisitBlockedPolys(Array.isArray(data.placements)?data.placements:[],catalog);startDragonboundHouseVisitActor(data,map,blocked);setTimeout(()=>startDragonboundHouseVisitCompanion(data,map,blocked,relationship),180);dragonboundRecordSocialInteraction(keeperId,'meeting').then(()=>dragonboundLoadSocialRelationships(true));if(houseVisitsStatus)houseVisitsStatus.textContent='';}catch(err){showDragonboundHouseVisitBrowser();if(houseVisitsStatus)houseVisitsStatus.textContent=err?.message||'Could not open that home.';}};
 
     const stopTravelLocationAudio=()=>{
       [adoptionExteriorAudio,adoptionInteriorAudio,estateInteriorAudio].forEach(audio=>{try{audio.pause();audio.currentTime=0;}catch(_e){}});
@@ -44465,6 +44667,7 @@ document.head.appendChild(s)})();
             hideHomeSidebar();
             setTimeout(()=>{if(newGameStage.classList.contains('is-home'))startDoppyArrival();},320);
           }else showHomeSidebar();
+          setTimeout(()=>dragonboundResumeActivePlaydate(),220);
         },180);
       },460);
     };
@@ -45335,7 +45538,7 @@ document.head.appendChild(s)})();
     });
     propertyConfirmYes?.addEventListener('click', event=>{
       event.preventDefault();event.stopPropagation();
-      if(pendingStarterProperty) moveIntoStarterHome(pendingStarterProperty);
+      if(pendingStarterProperty) void moveIntoStarterHome(pendingStarterProperty);
     });
     propertyConfirmNo?.addEventListener('click', event=>{
       event.preventDefault();event.stopPropagation();closePropertyConfirmation();
@@ -45363,6 +45566,7 @@ document.head.appendChild(s)})();
       else if(destination==='keepers') openDragonboundHouseVisits();
     }));
     locationReturnHome?.addEventListener('click', event=>{event.preventDefault();event.stopImmediatePropagation();travelToOwnedHome();},true);
+    window.addEventListener('dragonbound:house-selected',event=>{const nextId=String(event?.detail?.houseId||'');if(dragonboundActivePlaydate?.hostHouseId&&nextId&&nextId!==dragonboundActivePlaydate.hostHouseId)dragonboundEndPlaydate('house-changed');});
     houseVisitsClose?.addEventListener('click', event=>{event.preventDefault();event.stopPropagation();closeDragonboundHouseVisits();});
     houseVisits?.addEventListener('click', event=>{if(event.target===houseVisits||event.target.closest('.dragonbound-house-visits-backdrop'))closeDragonboundHouseVisits();});
     houseVisitsSearch?.addEventListener('input',()=>renderDragonboundHouseVisitList());
@@ -45466,6 +45670,67 @@ document.head.appendChild(s)})();
         continueFlightVideo();
       }
     });
+
+    // V34.09 — small public bridge for playable outings. This deliberately reuses
+    // the existing profile, treat, pet and playdate systems rather than duplicating
+    // economy or relationship logic inside the destination controller.
+    window.DragonboundHomeActions={
+      openProfile:()=>openMyDragonProfile(),
+      closeProfile:()=>closeMyDragonProfile(),
+      playdateSnapshot:()=>{
+        if(!dragonboundActivePlaydate||!dragonboundPlaydateGuest?.profile)return null;
+        const profile=dragonboundPlaydateGuest.profile||{};
+        return {
+          playdateId:dragonboundActivePlaydate.playdateId||'',
+          guestUserId:dragonboundActivePlaydate.guestUserId||'',
+          expiresAt:dragonboundActivePlaydate.expiresAt||null,
+          relationship:dragonboundSocialRelationshipFor(dragonboundActivePlaydate.guestUserId||''),
+          guest:{
+            id:profile.id||`visitor-dragon-${dragonboundActivePlaydate.guestUserId||'guest'}`,
+            name:profile.name||'Visiting dragon',
+            breedId:profile.breedId||profile.breed_id||'',
+            gender:profile.gender||'',
+            personality:profile.personality||{},
+            traits:profile.traits||{}
+          }
+        };
+      },
+      recordSocial:(interactionType='calm_proximity')=>{
+        const uid=String(dragonboundActivePlaydate?.guestUserId||'');
+        if(!uid)return Promise.resolve(null);
+        return dragonboundRecordSocialInteraction(uid,String(interactionType||'calm_proximity'));
+      },
+      endPlaydate:(reason='outing-ended')=>dragonboundEndPlaydate(reason),
+      giveOutingTreat:async()=>{
+        if(dragonTreatsBusy)return{ok:false,message:'Dragon Bites are busy right now.'};
+        const actor=activeDragonTreatActor();
+        if(!actor)return{ok:false,message:'Your dragon is not ready for Dragon Bites right now.'};
+        const remain=Math.max(0,getTreatCooldownUntil()-Date.now());
+        if(remain>0)return{ok:false,message:`Dragon Bites will be ready again in ${formatTreatCooldown(remain)}.`};
+        if(dragonTreatBalance()<DRAGONBOUND_TREAT_COST)return{ok:false,message:`You need ${DRAGONBOUND_TREAT_COST.toLocaleString('en-GB')} GP to buy Dragon Bites.`};
+        try{
+          const receipt=await purchaseDragonTreats();
+          const name=actor.dragon?.name||'Your dragon';
+          actor.applyCareBenefit?.('hunger',6);
+          actor.applyCareBenefit?.('fun',2);
+          actor.applyCareBenefit?.('social',1);
+          actor.addBond?.(.15);
+          const obs=actor.memory?.observationCounters||(actor.memory.observationCounters={});
+          obs.dragonBitesEaten=(Number(obs.dragonBitesEaten)||0)+1;
+          actor.noteKeeperRelationship?.('treat',{label:'Dragon Bites on an outing'});
+          actor.noteUniverseActivity?.('treat');
+          actor.openRoutineTrigger?.('keeper_treat',{durationMs:65000,source:'outing-treat'});
+          actor.behaviourDirty=true;
+          window.DragonboundBabyEngine?.saveBehaviourLocal?.();
+          window.DragonboundBabyEngine?.saveBehaviour?.(true);
+          return{ok:true,name,newGp:Number(receipt?.new_gp||dragonTreatBalance()),cooldownUntil:receipt?.cooldown_until||getTreatCooldownUntil()};
+        }catch(error){
+          const message=String(error?.message||'Dragon Bites could not be purchased.').replace(/^Error:\s*/, '');
+          const seconds=Number(message.match(/in\s+(\d+)\s+seconds?/i)?.[1]||0);if(seconds>0)setTreatCooldownUntil(Date.now()+seconds*1000);
+          return{ok:false,message};
+        }
+      }
+    };
 
     overlay.openDragonbound=open;
     overlay.closeDragonbound=close;
