@@ -1,0 +1,12 @@
+Dragonbound V34.14.2 — Main Home Downtime Dragon Sprites
+
+Copy these into your site root, preserving folders:
+- dragonbound-baby-engine.js
+- index.html
+- assets/dragonbound/downtime-dragons/
+
+What this patch does:
+- Uses the new downtime action sprite sets in normal Dragonbound home mode as well as Career mode.
+- Applies to the named dragons for CatAsthma, CovidPanda, Emlux, Kat, Proco and SmokedRope1028.
+- Keeps the existing Dragonbound home behaviour/personality logic, but swaps the visible action frames.
+- Updates the script cache-buster in index.html.

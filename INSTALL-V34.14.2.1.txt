@@ -1,0 +1,11 @@
+Dragonbound V34.14.2.1 — Original Walking Animation Hotfix
+
+Merge these two files into the site root and replace matching files:
+- dragonbound-baby-engine.js
+- index.html
+
+Fixes:
+- Restores the ORIGINAL breed walking animation for normal home movement.
+- Restores original take-off, flying and landing animations too.
+- Keeps the new downtime artwork for stationary/action states such as idle, looking, sitting, resting, sleeping, investigating, eating, playing, perching and pet reactions.
+- Does not require replacing the downtime sprite assets from V34.14.2.

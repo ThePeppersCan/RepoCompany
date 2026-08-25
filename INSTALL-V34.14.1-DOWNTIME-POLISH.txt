@@ -1,0 +1,19 @@
+DRAGONBOUND V34.14.1 — DOWNTIME POLISH
+
+Merge this folder into the same website root as V34.14 and allow matching files to replace.
+This is cumulative over the previous Chapter 2/Chapter 3 patch content.
+
+Fixes in this pass:
+- Reprocessed all 16 September/CatAsthma downtime poses with hard transparent PNG alpha.
+- Converted all six account downtime sets to PNG render assets to prevent white matte/fringe bleed.
+- Rebuilt Tyrese, Mara and Nell downtime portraits as individual clean transparent frames.
+- Removed accidental neighboring/duplicate objects from room-decoration prop crops.
+- Repositioned room decor onto real wall/shelf/nest anchors in the supplied room art.
+- Moved the in-room dragon to the actual dragon nest rather than the desk/chair area.
+- Reworked room customisation into a cleaner bottom design tray so the room remains visible.
+- Corrected accommodation-corridor hotspot/nameplate positions.
+- Added scene-layer deduplication safeguards.
+- Enlarged and improved normal dialogue and exploration/narration text boxes.
+- Added the supplied private-quarters music to room/hallway story scenes at low volume.
+
+No changes are required to the site's main /assets folder.
