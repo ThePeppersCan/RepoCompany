@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-10-6-team-avatars-20260825';
+  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-14-place-at-quickquill-20260825';
   const SUPABASE_URL = 'https://hvdrwmjieguurxvrgzfu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ';
   const ACTIVE_CLASS = 'dragonbound-career-active';
@@ -14,7 +14,9 @@
     parentLoops: [],
     engineWasRunning: false,
     bridgeToken: '',
-    open: false
+    open: false,
+    storyRaceActive: false,
+    storyRaceConfig: null
   };
   let careerBridgeClient = null;
 
@@ -94,7 +96,8 @@
         overflow: hidden !important;
       }
       body.${ACTIVE_CLASS} #dragonboundOverlay {
-        z-index: 2147483645 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
       }
       .${BUTTON_CLASS} {
         position: absolute !important;
@@ -205,6 +208,56 @@
     state.engineWasRunning = false;
   }
 
+  function careerFrame() {
+    return document.getElementById(OVERLAY_ID)?.querySelector('iframe') || null;
+  }
+
+  function hideCareerForStoryRace() {
+    const overlay = ensureOverlay();
+    overlay.classList.remove('is-visible');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
+  function restoreCareerAfterStoryRace(message) {
+    if (!state.open) return;
+    state.storyRaceActive = false;
+    state.storyRaceConfig = null;
+    const overlay = ensureOverlay();
+    overlay.classList.add('is-visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    const frame = overlay.querySelector('iframe');
+    if (message && frame?.contentWindow) {
+      try { frame.contentWindow.postMessage({ ...message, bridge: state.bridgeToken }, '*'); } catch (_) {}
+    }
+    try { frame?.focus?.({ preventScroll: true }); } catch (_) {}
+  }
+
+  function startStoryRace(detail = {}) {
+    if (!state.open || state.storyRaceActive) return;
+    const race = window.DragonRacingRace;
+    const ui = window.DragonRacingUi;
+    if (!race?.start || !ui?.open) {
+      const frame = careerFrame();
+      try { frame?.contentWindow?.postMessage({ type: 'dragonbound-career-story-race-error', bridge: state.bridgeToken, error: 'Dragon Racing is not ready. Close Career Mode, refresh the page and try again.' }, '*'); } catch (_) {}
+      return;
+    }
+    state.storyRaceActive = true;
+    state.storyRaceConfig = { ...detail };
+    hideCareerForStoryRace();
+    try {
+      ui.open();
+      requestAnimationFrame(() => {
+        const started = race.start({ id: 'canto_meadow_circuit', story: { ...detail } });
+        if (started) return;
+        try { ui.close?.(); } catch (_) {}
+        restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-error', error: 'Canto Meadow Circuit could not start. Your story progress is still safe.' });
+      });
+    } catch (error) {
+      try { ui.close?.(); } catch (_) {}
+      restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-error', error: error?.message || 'The Canto race could not start.' });
+    }
+  }
+
   function openCareer() {
     if (state.open) return;
     const overlay = ensureOverlay();
@@ -231,6 +284,9 @@
     const overlay = ensureOverlay();
     const frame = overlay.querySelector('iframe');
     state.open = false;
+    if (state.storyRaceActive) { try { window.DragonRacingRace?.stop?.(); window.DragonRacingUi?.close?.(); } catch (_) {} }
+    state.storyRaceActive = false;
+    state.storyRaceConfig = null;
     overlay.classList.remove('is-visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove(ACTIVE_CLASS);
@@ -251,11 +307,28 @@
       void sendCareerSession(frame, event.data.bridge);
       return;
     }
+    if (event.data?.type === 'dragonbound-career-story-race-start') {
+      startStoryRace(event.data);
+      return;
+    }
     if (event.data?.type === 'dragonbound-career-close') closeCareer();
   });
 
+  window.addEventListener('dragonbound:story-race-complete', event => {
+    if (!state.storyRaceActive) return;
+    const detail = event.detail || {};
+    if (state.storyRaceConfig?.careerSaveId && detail.careerSaveId && String(detail.careerSaveId) !== String(state.storyRaceConfig.careerSaveId)) return;
+    restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-result', result: detail });
+  });
+
+  window.addEventListener('dragonbound:story-race-aborted', event => {
+    if (!state.storyRaceActive) return;
+    const detail = event.detail || {};
+    restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-aborted', result: detail });
+  });
+
   window.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && state.open) {
+    if (event.key === 'Escape' && state.open && !state.storyRaceActive) {
       event.preventDefault();
       closeCareer();
     }

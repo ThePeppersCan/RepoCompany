@@ -1,9 +1,0 @@
-Velmora Bedroom V33.11
-
-- Corrected keeper bed sleep orientation: rotates the sleeping frame 180 degrees so the head is at the pillow end.
-- Small bed anchor adjustment to centre the keeper on the mattress.
-- Fixed pet popover refusing to disappear: explicit [hidden] CSS now overrides the menu display rule.
-- Pet menu redesigned as a much smaller MMORPG-style dark/gold action panel.
-- Pet menu auto-closes faster, X closes immediately, click-away/escape still close it.
-- Pet sleep mounts moved slightly higher on nests/beds/rugs.
-- V33.10 free furniture and pet sizing retained.

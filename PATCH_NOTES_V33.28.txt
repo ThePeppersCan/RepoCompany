@@ -1,8 +1,0 @@
-Velmora Bedroom V33.28 — Travel Map & Day Cycle Polish
-
-- Reworked Dragonbound travel menu into a single immersive Velmora map based on the provided layout.
-- Mapped the tree sanctuary to the Adoption Centre, the town building to the Estate Agents,
-  the top neighbourhood to Other Keepers, and the farmhouse to Your Home.
-- Upgraded day-cycle handling to be per-account, added business-hours config, admin debug hooks,
-  clean bottom-right clock, and smoother scene lighting for Dragonbound and the bedroom.
-- Travel map now reflects open/closed state using the live day cycle.

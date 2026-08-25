@@ -1,7 +1,0 @@
-V32.38 Dragonbound home polish
-- Hard-locks the transparent Travel hotspot so the global brown button hover style cannot show through.
-- Removes hover/focus pseudo chrome from the Travel hotspot.
-- Hovering the baby dragon now shows a compact identity card above its head.
-- Identity card includes a circular baby-dragon avatar, chosen name, and live age.
-- Existing dragons without an age timestamp are given one once and it is preserved in localStorage.
-- Age reads as Just hatched, minutes old, hours old, days old, then weeks old.

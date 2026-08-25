@@ -1,5 +1,0 @@
--- V27.0 Phase 5 migration documentation
--- The live migrations were applied directly to Supabase project hvdrwmjieguurxvrgzfu.
--- This package is a deployment record, not a script that needs to be run.
--- Objects added: adventure_combat_enemy_catalog, adventure_danger_catalog, adventure_combat_ability_catalog, adventure_combat_encounters, adventure_shop_catalog, adventure_shop_stock, adventure_expedition_catalog, adventure_expedition_room_catalog, adventure_expedition_progress and Phase 5 RPCs.
--- No manual SQL is required.

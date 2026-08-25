@@ -1,0 +1,36 @@
+DRAGONBOUND CAREER MODE — V34.11.1 IMMERSIVE QUICKQUILL UPDATE
+
+This is a small upgrade patch for V34.11.0.
+
+INSTALL
+1. Copy the files and folder in this ZIP into the same web2 folder where V34.11.0 is installed.
+2. Allow Windows to merge the dragonbound-career-mode folder.
+3. Choose Replace when asked about the five existing files.
+4. Keep the existing story assets from V34.11.0; this update does not replace them.
+5. Upload/deploy the updated web2 folder as usual, then hard-refresh the website.
+
+CHANGED FILES
+- index.html
+- dragonbound-career-launcher.js
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career.css
+
+WHAT CHANGED
+- CatAsthma has a Career Hub control to reset only Quickquill chapter progress.
+- The account, selected dragon, team and Career save are preserved during reset.
+- Existing unfinished V34.11.0 chapter positions safely restart at the new opening.
+- Completed chapters remain completed.
+- The prologue now has 44 beats, expanded character dialogue and a saved-choice callback.
+- Each scene begins with a cinematic title card and a slower fade from black.
+- Dialogue reveals progressively; one click completes the line and the next advances it.
+- Added letterboxing, ambient light, drifting particles, speed streaks, lens flare and subtle parallax.
+- Career story music is reduced to a quieter cinematic level.
+
+TESTING AS CATASTHMA
+1. Load the Quickquill Career save.
+2. On the Career Hub, choose RESET QUICKQUILL STORY in the lower-left corner.
+3. Confirm RESET STORY.
+4. Choose FOLLOW THE STORY to replay from the opening fade.
+
+The reset control is currently shown only for the CatAsthma account with a Quickquill save.

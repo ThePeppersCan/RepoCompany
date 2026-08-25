@@ -1,8 +1,0 @@
-V32.34 baby dragon behaviour polish
-- Behaviour polish pass added across the baby dragon home system.
-- Sleeping now happens less often, with shorter overall sleep windows.
-- Sitting/resting is more balanced so dragons wander and look around more often.
-- Walking now prefers safer, more central navigation nodes so dragons sit near walls less.
-- Stair usage is more natural: lower cooldowns, better entrance selection, and a higher chance to change floors over time.
-- Added region-specific idle behaviour tuning so different egg/dragon regions feel a bit more distinct.
-- Reset saved house movement state again (V4) so the new behaviour logic applies cleanly.

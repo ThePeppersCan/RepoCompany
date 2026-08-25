@@ -1,9 +1,0 @@
-Velmora Bedroom V33.15
-
-- Sleeping orientation returned to the right-side-up diagonal.
-- Sleeper moved substantially lower on the mattress so the head reaches the pillow.
-- Added solid player collision for beds, tables, seating, storage, baths, training pieces and other blocking furniture.
-- Rugs and deliberately non-blocking wall decor remain walkable.
-- Collision uses bottom-centre isometric footprints and edge sliding.
-- Waking from a bed places the keeper beside/in front of it instead of inside the bed collider.
-- Cache-busted bedroom JS/CSS.

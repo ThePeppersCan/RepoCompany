@@ -1,0 +1,16 @@
+DRAGONBOUND V34.12.1 — MEET THE TEAMS BACK BUTTON HOTFIX
+
+Install this patch over the V34.12 Meet the Teams integration.
+
+Copy the files and folders in this package into the root of the existing site,
+preserving the folder structure and replacing the matching files when prompted.
+
+Fix included:
+- The Back button on the Meet the Teams grid now always returns to the Career menu.
+- Back still closes an open team dossier first, then returns from the grid normally.
+- A direct same-site return hook is used, with the existing message route retained as
+  a fallback.
+- Cache versions were advanced so browsers load the corrected files immediately.
+
+This patch does not replace script.js, save-game data, pet/dragon data, images,
+audio, or Meet the Teams assets.

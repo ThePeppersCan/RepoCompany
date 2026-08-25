@@ -1,5 +1,0 @@
-Velmora Bedroom V33.19
-- Sleep pose moved slightly higher and rotated a touch flatter.
-- Keeper now stays in bed until the bed is clicked to get up.
-- Only beds and pets remain interactable for the keeper in normal mode.
-- Non-bed furniture no longer shows interaction prompts or action animations.

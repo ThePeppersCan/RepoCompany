@@ -1,8 +1,0 @@
-Velmora V33.29 — Travel Map Load Hotfix
-
-CRITICAL FIX
-- Removed the whole-document MutationObserver from the V33.28 travel-map patch.
-- That observer watched childList while the travel map itself changed childList, allowing a self-triggering loop that could freeze startup.
-- Travel-map enhancement now runs only on DOM ready, Dragonbound open, and Travel button open.
-- Open/closed pill text now updates only when its value actually changes.
-- No day-cycle, bedroom, avatar, pet, or travel-map art/coordinates were changed in this hotfix.

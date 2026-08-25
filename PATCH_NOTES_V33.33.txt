@@ -1,7 +1,0 @@
-Velmora patch V33.33 — Travel hover cleanup
-
-- Travel-map hotspots no longer use real HTML buttons.
-- Replaced them with role=button hotspots to stop the site's brown button/hover skin from bleeding onto the map.
-- Strengthened the CSS reset so hotspot rectangles stay transparent.
-- Added keyboard activation (Enter/Space) so accessibility is preserved.
-- Patch-only zip: modified files only.

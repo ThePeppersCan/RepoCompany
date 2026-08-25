@@ -1,0 +1,48 @@
+DRAGONBOUND V34.14 — A PLACE AT QUICKQUILL
+
+CUMULATIVE MERGE PATCH
+======================
+This patch contains the Chapter 2 Canto story-race integration plus the new Chapter 3 downtime chapter.
+
+INSTALL
+-------
+1. Back up your current website/project.
+2. Extract this ZIP.
+3. Merge its contents into the SAME ROOT as your existing site.
+4. Allow the included files to replace files with matching names.
+5. Do NOT delete your existing /assets folder; this patch is intentionally merge-only.
+
+CHAPTER 3 — A PLACE AT QUICKQUILL
+---------------------------------
+Implemented Q9–Q17 downtime progression after Canto:
+- post-Canto return and result-aware reactions
+- permanent Quickquill room key / accommodation corridor
+- persistent room customisation and first-room dragon behaviour
+- account-specific downtime dragons for all six site users
+- two-choice evening free-time system
+- Tyrese rooftop, Nell workshop, Mara lounge, and dragon-bond scenes
+- three selectable team duties
+- free-roam downtime / environmental interactions
+- Memory Shelf and Career Journal state
+- night routine, sleep, morning routine, and day/night environment progression
+- gradual Blackglass foreshadowing
+- Blackglass invitation and initial-attitude save flag
+- relationship, personality, duty aptitude and dragon-story-bond save data
+
+ASSETS INCLUDED
+---------------
+- Quickquill accommodation corridor
+- player room day/evening/night art
+- lounge day/evening/night art
+- rooftop evening/night art
+- cleaned story props
+- expanded Tyrese / Mara / Nell downtime portraits
+- 96 processed transparent downtime dragon frames (6 accounts × 16 poses)
+- Chapter 2 story-racing assets and racer frames from V34.13
+
+IMPORTANT
+---------
+This is a patch, not a complete site copy. It should be merged into your current project root.
+Existing unrelated project files and your main assets directory remain untouched.
+
+VERSION: V34.14

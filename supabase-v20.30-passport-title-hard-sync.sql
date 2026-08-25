@@ -1,4 +1,0 @@
--- REPO COMPANY V20.30 — robust persistent public Passport titles
--- Already applied to the live Supabase project on 2026-08-16.
--- Creates set_my_passport_title_v2(text) and get_public_passport_title(text).
--- Both require an authenticated user; the setter updates only auth.uid().

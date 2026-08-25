@@ -1,4 +1,0 @@
--- V28.0 Phase 6 migration documentation
--- STATUS: ALREADY APPLIED TO LIVE VELMORA SUPABASE. DO NOT RERUN.
--- Migrations: adventure_phase6_schema, adventure_phase6_content, adventure_phase6_helpers, adventure_phase6_state, adventure_phase6_property_home_actions, adventure_phase6_town_economy_actions, adventure_phase6_admin_security, adventure_phase6_work_no_row_fix.
--- Public RPCs: adventure_phase6_get_state, property_action, upgrade, storage, display, decor, rest, transport, shop, work, craft, read_letter, set_title, admin.

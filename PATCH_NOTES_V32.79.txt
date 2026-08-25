@@ -1,8 +1,0 @@
-Repo Sports / Dragonbound V32.79
-
-- Fixed "Failed to fetch" when opening another keeper's house by removing the visit preview's separate furniture-catalog network fetch; the visitor catalog is now bundled in the build.
-- Added a one-time retry for transient network failures on the public house list/preview RPC calls.
-- Added petting for your own baby dragon: hover shows the pet action, click to pet.
-- Petting plays the supplied cute creature sound at 60% volume and shows a heart/love reaction without interrupting normal movement.
-- Petting has a persistent two-minute cooldown per dragon, with a live countdown in the hover card.
-- Guest-house preview dragons remain view-only and cannot be petted.

@@ -1,5 +1,0 @@
--- V33.68 Dragon Racing Keeper Mark rewards
--- Applied live to Supabase project hvdrwmjieguurxvrgzfu via migration dragonbound_race_keeper_mark_rewards.
--- City Circuit base rewards: 1st 75, 2nd 60, 3rd 52, 4th 45, 5th 40, 6th 35.
--- Bonuses: PB +8, best lap +5, first race of UK day +10, first win of UK day +10.
--- Dragon Racing XP is intentionally unchanged/disabled.

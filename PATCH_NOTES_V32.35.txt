@@ -1,3 +1,0 @@
-V32.35 pet dragon sprite scale hotfix
-- Increased all in-home pet/baby dragon sprites by a further 10% over V32.34.
-- Behaviour, navigation, stair logic, flight rarity and collision rules are unchanged.

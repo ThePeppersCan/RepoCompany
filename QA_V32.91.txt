@@ -1,9 +1,0 @@
-V32.91 QA
-- node --check script.js: PASS
-- node --check dragonbound-baby-engine.js: PASS
-- My Dragon overlay markup/selectors present: PASS
-- Dragonbound Book home hotspot present: PASS
-- Study Your Dragon My Dragon entry present: PASS
-- Life-history persistence included in behaviourSnapshot: PASS
-- Treat chase walkSpeedBoost set to 4.0 and reset to 1 after arrival: PASS
-- index.html cache-bust updated to V32.91 for CSS/script/engine: PASS

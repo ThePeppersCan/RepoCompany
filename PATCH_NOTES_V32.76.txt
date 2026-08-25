@@ -1,7 +1,0 @@
-Repo Sports / Dragonbound V32.76
-
-- Fixed furniture drifting / nudging after placement by removing stale placement-image load closures.
-- Placement images now re-anchor using the CURRENT placement data, not an older snapshot.
-- Added stable raw-sprite tracking so sprite cleanup no longer forces placement images to bounce back and forth between raw and cleaned sources.
-- Improved furniture depth ordering with a deterministic z-order pass to stop inconsistent front/behind clipping.
-- Keeps V32.75 furniture sprite cleanup included.

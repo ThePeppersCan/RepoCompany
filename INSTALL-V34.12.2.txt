@@ -1,0 +1,16 @@
+DRAGONBOUND V34.12.2 — GUARANTEED MEET THE TEAMS BACK FIX
+
+Install over V34.12 or V34.12.1.
+
+Copy the files and folders in this package into the root of the existing site,
+preserving the folder structure and replacing the matching files when prompted.
+
+Fix included:
+- Career Mode now owns the clickable Back control above the embedded Teams screen.
+- Clicking Back directly changes the mode to the Career Hub; it no longer relies on
+  the embedded screen successfully sending a message to its parent.
+- The click target follows the exact 16:9 footer position, including letterboxing.
+- Cache versions were advanced so browsers request the corrected Career files.
+
+This patch does not replace script.js, save-game data, pet/dragon data, images,
+audio, or Meet the Teams assets.

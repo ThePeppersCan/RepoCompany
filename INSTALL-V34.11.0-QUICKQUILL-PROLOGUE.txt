@@ -1,0 +1,25 @@
+DRAGONBOUND CAREER MODE — V34.11.0 QUICKQUILL PROLOGUE
+
+This is a patch-only update for the cleaned web2 site.
+
+Install:
+1. Extract the ZIP into the root of your existing web2 website.
+2. Allow it to replace index.html and dragonbound-career-launcher.js.
+3. Allow it to merge/replace files inside dragonbound-career-mode.
+4. Do not remove your existing general assets folder.
+
+Included:
+- Playable Quickquill prologue Q0–Q3 from Follow the Story.
+- 22 cinematic dialogue/decision beats.
+- Two meaningful choices affecting Heart, Fire, Focus, Quickquill Trust and Tyrese Bond.
+- Exact-choice resume and account autosave using the existing Career save row.
+- Automatic migration of the previous Career save state; dragon/team/save are preserved.
+- Cleaned approved Tyrese, Mara, Nell, Jalen and Sofia portrait atlases.
+- All eight approved Velmora master environments installed for upcoming races.
+- Career Mode fully hides the Dragon House layer while open, preventing avatar/text overlap.
+- No new database table or SQL change is required.
+
+Scope:
+- Quickquill is the first playable team story.
+- Other team saves remain intact and show a clear team-specific story message for now.
+- Race One at Canto Plains is the next implementation section.

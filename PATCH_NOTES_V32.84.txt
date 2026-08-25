@@ -1,7 +1,0 @@
-Velmora Dragonbound — V32.84
---------------------------------
-- Added 90 new furniture items from the Dragonbound Furniture Variety 90 pack into the furniture shop/build inventory catalog.
-- Added local catalog entries, assets, prices, footprints, categories and interaction tags so the new items can be placed and used by dragons.
-- Included Supabase SQL upsert: supabase-v32.84-furniture-variety-90-store.sql
-- Added asset folder: assets/dragonbound/furniture/v3284/variety-90/
-- New furniture count: 90

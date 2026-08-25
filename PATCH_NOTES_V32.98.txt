@@ -1,9 +1,0 @@
-V32.98 — Faster Sims-Style Needs Decay
-
-- Increased Dragonbound need decay to exactly 3x the V32.97 baseline.
-- Hunger, Energy, Fun, Hygiene, Social and Comfort all use the same 3x multiplier.
-- Kept Sims-style autonomy thresholds unchanged: dragons generally start solving care needs once visible bars fall into the 30–40% range.
-- Kept partial refill ceilings unchanged so one meal/bath/nap/play session does not automatically fill a need to 100%.
-- Kept gradual furniture recovery: care is earned over the actual interaction duration, and interrupted interactions only keep partial progress.
-- Kept offline safety protections: care cannot become catastrophic, and existing gentle mood/Bond consequences remain capped.
-- No database migration required.

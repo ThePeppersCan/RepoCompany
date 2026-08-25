@@ -1,8 +1,0 @@
-Repo Sports / Dragonbound V32.74
-
-- Fixed bed-use mounting so baby dragons sit lower and more naturally on beds instead of hovering above the mattress.
-- Tuned all sleepable / restable / washable mounted positions to sit more naturally inside furniture.
-- Added bath-use sound support using the supplied bathtub splashing audio file.
-- Bath sound now starts when a dragon begins using a bath and stops immediately when the dragon gets out.
-- Enhanced the bath visual effect with a more playful bubble-bath / foam look while dragons are washing.
-- Preserves the V32.73 starter house floor-map and furniture placement fixes.

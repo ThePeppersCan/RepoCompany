@@ -1,6 +1,0 @@
-Velmora patch V33.35 — Dragon hover Bond text fit
-
-- Reduced and tightened the Bond line in the dragon hover card.
-- Keeps the full text (for example: Bond 72 · Attached) on one line without clipping.
-- Does not change bond values, petting behaviour, hitboxes, animations or other dragon UI.
-- Patch-only: modified files only.

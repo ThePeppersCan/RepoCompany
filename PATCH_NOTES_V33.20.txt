@@ -1,4 +1,0 @@
-Velmora Bedroom V33.20
-- Fixed the bed sleep animation popping caused by inconsistent sleep sprite frame sizes.
-- Keeper now uses a single stable sleep frame while lying in bed.
-- All V33.19 sleep placement, bed-only interaction and click-to-get-up behaviour remain intact.

@@ -1,5 +1,0 @@
-V32.36 site index repair
-- Fixed a packaging error where index.html had accidentally been replaced with the baby dragon JavaScript engine source.
-- Restored the real HTML page.
-- Kept the latest V32.35 baby dragon engine, assets, scale, behaviour and navigation changes intact.
-- Updated cache-busting so the repaired page reloads cleanly.

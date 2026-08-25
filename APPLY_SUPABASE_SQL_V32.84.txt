@@ -1,1 +1,0 @@
-Run supabase-v32.84-furniture-variety-90-store.sql in Supabase/Postgres to make the new furniture items purchasable from Bonnie's furniture shop on the live site.

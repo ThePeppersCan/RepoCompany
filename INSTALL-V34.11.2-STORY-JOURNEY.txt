@@ -1,0 +1,40 @@
+DRAGONBOUND CAREER MODE — V34.11.2 STORY JOURNEY
+
+This is a changed-files-only upgrade for V34.11.1.
+
+INSTALL
+1. Copy everything in this ZIP into the same web2 folder where V34.11.1 is installed.
+2. Allow Windows to merge the dragonbound-career-mode and story folders.
+3. Choose Replace when asked about existing files.
+4. Upload/deploy the updated web2 folder as usual.
+5. Hard-refresh the website so the V34.11.2 cache version loads.
+
+CHANGED FILES
+- index.html
+- dragonbound-career-launcher.js
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career.css
+- dragonbound-career-mode/quickquill-story-theme.mp3
+- dragonbound-career-mode/story/portraits/tyrese.png
+- dragonbound-career-mode/story/portraits/mara.png
+- dragonbound-career-mode/story/portraits/nell.png
+- dragonbound-career-mode/story/portraits/jalen.png
+- dragonbound-career-mode/story/portraits/sofia.png
+
+WHAT CHANGED
+- Removed the white matte remnants around all five Career portrait sheets.
+- Character artwork, expressions, uniforms, sheet sizes and frame positions remain unchanged.
+- Fixed the completion panel entrance animation so it remains centred at every aspect ratio.
+- Added viewport-safe scrolling for unusually short screens.
+- Completing the prologue now unlocks a full Story Journey menu.
+- Follow the Story opens Story Journey after the prologue is complete.
+- Story Journey shows the completed prologue, Race One unlocking, future locked chapters, remembered choices and current identity.
+- The attached quest music now plays at exactly 40% during the story and Story Journey.
+- Menu, opening and Career Hub tracks stop while story music is active.
+- Leaving the story stops the quest music and restores the Career Hub track.
+
+CatAsthma TEST FLOW
+1. Finish the Quickquill prologue and return to the Career Hub.
+2. Follow the Story now opens Story Journey instead of replaying the final dialogue.
+3. Use RESET QUICKQUILL STORY on the Career Hub when another full test is needed.

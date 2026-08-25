@@ -1,7 +1,0 @@
-PASS: notice no vertical stretch
-PASS: compact idle hint
-PASS: preventScroll focus
-PASS: arrow keys prevented
-PASS: space prevented
-PASS: canvas click prevents default
-PASS: V7 cache bust

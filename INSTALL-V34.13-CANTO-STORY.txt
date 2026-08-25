@@ -1,0 +1,72 @@
+DRAGONBOUND V34.13 — QUICKQUILL CHAPTER 2 / CANTO STORY RACE PATCH
+25 August 2026
+
+INSTALL
+Merge this patch into the matching project root, preserving folders and replacing files when prompted.
+This package intentionally does NOT contain the project's root /assets folder.
+
+CHANGED CODE
+- index.html
+- dragonbound-career-launcher.js
+- dragon-racing-race.js
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career.css
+
+NEW RACING ASSETS
+- dragon-racing-assets/story-racers/catasthma/
+- dragon-racing-assets/story-racers/covidpanda/
+- dragon-racing-assets/story-racers/emlux/
+- dragon-racing-assets/story-racers/kat/
+- dragon-racing-assets/story-racers/proco/
+- dragon-racing-assets/story-racers/smokedrope1028/
+- dragon-racing-assets/story-racers/tyrese/
+- dragon-racing-assets/story-racers/jalen/
+- dragon-racing-assets/story-racers/kestrel/
+Each folder contains frame-00.webp through frame-15.webp on a consistent transparent 384x256 canvas.
+
+ACCOUNT / DRAGON MAPPING
+- CatAsthma -> September
+- CovidPanda -> NightLight
+- Emlux -> Turi
+- Kat -> Opal
+- Proco -> Wally
+- SmokedRope1028 -> Pipsqueak JR
+
+CANTO STORY GRID
+1 player account dragon
+2 Tyrese Bell
+3 Jalen Cross
+4 Kestrel
+5 Sofia Mendes
+6 Luka Kovac
+
+Tyrese, Jalen, Kestrel and all six player-account dragons use the supplied Quickquill racing assets.
+Sofia and Luka currently use the project's existing baby-dragon race sprites as a deliberate temporary fallback. They do not require new artwork to test Chapter 2.
+
+OPAL / ISKANDAR FRAME 14
+The missing frame-14 is replaced with the closest usable matching Quickquill-uniform Iskandar pose (derived from frame 11) so Opal cannot disappear during landing.
+
+CHAPTER 2 FLOW
+Q4 Two Days to Canto -> Focus / Fire / Heart strategy
+Q5 Welcome to Canto -> paddock and fixed grid
+Q6 Prove You Belong -> launches Canto Meadow Circuit directly
+Q7 After the Flag -> result-dependent dialogue
+Q8 The Debrief -> result saved and Blackglass becomes next
+
+STORY RACE RULES
+- The selected strategy gives only a small race nudge; random race luck remains dominant.
+- Story races do not award ordinary Dragon Racing Keeper Marks, GP or Racing XP.
+- Story races do not alter ordinary circuit records or AI race stats.
+- The result returns rank, finish time, best lap, grid movement, overtakes, lead changes and photo-finish status to Career Mode.
+- Race Again / Track Select are replaced by Continue Story during the Canto story race.
+- The Career save is marked in-progress before the race starts and can safely resume after an abort/refresh.
+
+QA COMPLETED
+- Modified JavaScript files pass Node syntax validation.
+- 9 racer folders / 144 frames checked.
+- Every story-racer frame is non-empty, transparent, and 384x256.
+- The patch contains only the changed code plus new story-racer assets.
+
+NOTE
+Because the supplied project ZIP deliberately omitted /assets, the live project still needs its existing /assets/dragonbound/baby-dragons/ folder for ordinary racers and the temporary Sofia/Luka fallback sprites.

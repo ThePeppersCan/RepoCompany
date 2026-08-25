@@ -1,7 +1,0 @@
-V32.32 baby dragon hotfix
-- Reduced all baby dragons to roughly one third of previous render size.
-- Reset saved movement positions (V2 movement storage) so old bad positions do not persist.
-- Elvane starter downstairs left wall/door area is now blocked for navigation.
-- Walking now prefers safe interior navigation nodes instead of wandering to wall edges.
-- Flights are much rarer and shorter.
-- If a dragon ever ends up off a valid floor point, it snaps back to a safe point.

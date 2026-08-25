@@ -1,6 +1,0 @@
-Repo Sports / Dragonbound V32.77
-
-- Fixed mounted furniture interaction layering for baby dragons.
-- Dragons using beds, baths and other mounted furnishings now render in the correct depth layer instead of being pushed behind the furniture.
-- Updated dragon z-ordering to match the V32.76 furniture depth-order system, so dragons and furnishings now sort on the same scale.
-- Keeps V32.76 furniture drift and depth-order fixes intact.

@@ -1,0 +1,40 @@
+DRAGONBOUND CAREER MODE V34.12 — MEET THE TEAMS
+
+Install over V34.11.2 and overwrite the included files.
+
+IMPLEMENTED
+- The existing Teams hotspot in the Career Hub now opens Meet the Teams.
+- Meet the Teams runs full-screen inside the existing Career Mode overlay.
+- It is part of the current website: no external host, new tab or standalone
+  replacement site is used.
+- Preserved the supplied exact clubhouse artwork, six sponsor logos, captain
+  mapping, six team spreads, responsive 16:9 layout and visual effects.
+- Mouse, keyboard and gamepad navigation are supported.
+- Team spreads open as full-screen animated dossiers and return to the grid.
+- Back returns from a dossier to the team grid, then to the Career Hub.
+- Supplied menu music plays at exactly 23% and Career Hub music is paused while
+  Meet the Teams is open. Career Hub music resumes on return.
+- Sound can be toggled within Meet the Teams.
+
+UNCHANGED / PROTECTED
+- V34.11.2 Story Journey and Quickquill progress.
+- Player website accounts and cross-device Career saves.
+- Selected teams, dragons and Career save loading.
+- Main Dragonbound Load Game, house, dragon and pet data.
+- Core script.js is not included in this patch.
+
+CAPTAINS
+- Sunscale — Jalen Cross
+- Valecroft — Sofia Mendes
+- Ember & Oak — Luka Kovač
+- Quickquill — Tyrese Bell
+- Wyrmwell — Ren Sato
+- Fizzy Drake — Maya Banks
+
+CHANGED FILES
+- index.html
+- dragonbound-career-launcher.js
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.css
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/meet-the-teams/*
