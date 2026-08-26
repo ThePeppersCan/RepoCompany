@@ -1,0 +1,26 @@
+DRAGONBOUND V34.20.1 — FIRST PAINT / LEGACY THEME CLEANUP
+
+Install over V34.20 and replace the matching files.
+
+Changed files:
+- /index.html
+- /dragonbound-career-mode/index.html
+- /dragonbound-career-mode/meet-the-teams/index.html
+
+What this patch does:
+- Prevents the retired brown Adventure/MMORPG shell from flashing before the current dashboard is ready.
+- Uses the current dark navy/slate background for the browser's very first paint.
+- Waits only for the current dashboard/auth shell to assemble, then removes the guard automatically.
+- Includes a 1.6 second hard fail-safe so the guard can never strand the page behind a cover.
+- Adds dark theme-color/color-scheme metadata for Safari/iPad browser chrome.
+- Gives Career Mode and Meet the Teams a matching dark first-paint background instead of a white/legacy flash.
+- Refreshes CSS cache keys for the main shell and mobile/Career styles so stale older styling is not reused.
+
+NOT CHANGED:
+- saves / Supabase data
+- story progression or choices
+- race physics or balance
+- Dragonbound movement/animations
+- audio/music logic
+- mobile control logic
+- game assets

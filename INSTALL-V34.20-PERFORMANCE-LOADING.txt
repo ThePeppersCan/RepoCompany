@@ -1,0 +1,30 @@
+DRAGONBOUND V34.20 — PERFORMANCE & LOADING OPTIMISATION
+
+BASE REQUIRED
+Apply this patch over Dragonbound V34.19 Mobile & iPad Compatibility (including the prior V34.18.3.x hotfix chain).
+
+INSTALL
+Copy this patch into the site root and replace matching files/folders.
+Do not delete or replace any unrelated assets.
+
+WHAT THIS PATCH CHANGES
+- Stops the main site from eagerly preloading dozens of music tracks at startup.
+- Stops Career Mode from eagerly preloading the full story art/portrait library.
+- Career Mode now looks ahead only to the immediate next scene/portrait during browser idle time.
+- Dragonbound New Game adoption/hatching sequences are prefetched when New Game actually starts rather than on normal site load.
+- Dragonbound audio/video nodes keep their existing behaviour but fetch on demand instead of at page construction.
+- The hidden/inactive baby-dragon simulation no longer wakes at display refresh rate; it polls lightly until the playable home is active, then returns to normal RAF timing.
+- Mobile layout mutation checks and Career pointer parallax are frame-debounced.
+- Meet the Teams music fetches only when that screen needs it.
+
+NOT CHANGED
+- Saves / account data
+- Story content or choices
+- Race physics, race balance or camera behaviour
+- Dragon locomotion / animations
+- Blackglass After Hours logic
+- Music selection or intended playback volumes
+- Desktop/mobile visual design
+
+ROLLBACK
+Restore the matching V34.19 files if required. No database migration or save migration is performed by this patch.

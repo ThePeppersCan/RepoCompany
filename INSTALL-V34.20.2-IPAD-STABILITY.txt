@@ -1,0 +1,14 @@
+Dragonbound V34.20.2 — iPad Stability + Touch Hotfix
+
+Install over V34.20.1 and replace matching files.
+
+Fixes:
+- Removes the normal-home virtual D-pad that was physically overlapping Dragon Racing / dragon taps on iPad.
+- Removes the global touch-action:none rule that made iOS Safari click synthesis unreliable.
+- Adds a touch tap bridge for the baby dragon and Dragon Racing image button, with duplicate-click protection.
+- Hides the decorative account avatar HUD while Dragonbound is open on touch devices so it cannot cover the game.
+- Uses stable small-viewport height (svh) for the Dragonbound stage so Safari browser chrome does not constantly resize the game.
+- Replaces the expensive whole-page mutation watcher with lightweight class observers.
+- Removes blur from the optional touch controller on touch devices.
+
+Desktop behaviour, saves, races, story, economy, dragon AI and Career Mode logic are unchanged.

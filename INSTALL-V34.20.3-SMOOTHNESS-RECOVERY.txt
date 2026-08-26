@@ -1,0 +1,30 @@
+DRAGONBOUND V34.20.3 — SMOOTHNESS RECOVERY
+==============================================
+Install over V34.20.2 and replace matching files.
+
+This is deliberately a recovery/stability pass, not another redesign.
+
+KEPT
+- V34.20 lazy/scene-based asset loading (no return to loading the whole game up front)
+- V34.20.1 first-paint/navy theme cleanup
+- V34.20.2 iPad safe-area, tap reliability, Dragon Racing and petting fixes
+- Existing story, saves, race logic, dragon AI, audio choices and mobile layouts
+
+RECOVERED / TUNED
+- Dragonbound visible home simulation stays at full requestAnimationFrame cadence
+- Inactive-scene wake checks were tightened from 160ms to 50ms so returning to Dragonbound feels immediate, while hidden tabs still sleep lightly
+- Mobile compatibility no longer does bookkeeping on every website click
+- Career next-scene art is warmed shortly after paint instead of relying on delayed requestIdleCallback
+- Dragonbound active-scene audio uses a balanced warm-up strategy; unrelated site audio remains untouched
+- Tiny interaction SFX are warmed so first taps feel immediate
+- New-game video uses metadata preload, not full eager download
+
+NOT CHANGED
+- race physics / race balance
+- save format or Supabase data
+- story progression / choices
+- normal dragon locomotion
+- Blackglass After Hours mechanics
+- cutscene input debounce
+
+Goal: keep the bandwidth/RAM wins from V34.20 while restoring the responsive feel of the pre-optimisation build.

@@ -829,21 +829,24 @@
     downtime: document.getElementById('careerDowntimeMusic')
   };
   const AFTER_HOURS_AUDIO_ROOT = 'story/after-hours/audio/';
-  const afterHoursAudio = {
-    storm: new Audio(AFTER_HOURS_AUDIO_ROOT+'distant-storm.mp3'),
-    walk: new Audio(AFTER_HOURS_AUDIO_ROOT+'dragon-walk.mp3'),
-    run: new Audio(AFTER_HOURS_AUDIO_ROOT+'dragon-run.mp3'),
-    door: new Audio(AFTER_HOURS_AUDIO_ROOT+'metal-door.mp3'),
-    clatter: new Audio(AFTER_HOURS_AUDIO_ROOT+'plate-clatter.mp3'),
-    eat: new Audio(AFTER_HOURS_AUDIO_ROOT+'eat.mp3'),
-    steward: new Audio(AFTER_HOURS_AUDIO_ROOT+'steward-steps.mp3'),
-    paper: new Audio(AFTER_HOURS_AUDIO_ROOT+'paper-rustle.mp3'),
-    discovery: new Audio(AFTER_HOURS_AUDIO_ROOT+'discovery-chime.mp3')
+  const makeAfterHoursAudio = (file, loop = false) => {
+    const audio = new Audio();
+    audio.preload = 'none';
+    audio.loop = loop;
+    audio.src = AFTER_HOURS_AUDIO_ROOT + file;
+    return audio;
   };
-  afterHoursAudio.storm.loop = true;
-  afterHoursAudio.walk.loop = true;
-  afterHoursAudio.run.loop = true;
-  afterHoursAudio.steward.loop = true;
+  const afterHoursAudio = {
+    storm: makeAfterHoursAudio('distant-storm.mp3', true),
+    walk: makeAfterHoursAudio('dragon-walk.mp3', true),
+    run: makeAfterHoursAudio('dragon-run.mp3', true),
+    door: makeAfterHoursAudio('metal-door.mp3'),
+    clatter: makeAfterHoursAudio('plate-clatter.mp3'),
+    eat: makeAfterHoursAudio('eat.mp3'),
+    steward: makeAfterHoursAudio('steward-steps.mp3', true),
+    paper: makeAfterHoursAudio('paper-rustle.mp3'),
+    discovery: makeAfterHoursAudio('discovery-chime.mp3')
+  };
   const state = {
     mode: 'menu',
     selectedMenu: 0,
@@ -3995,18 +3998,28 @@
     if (event.key === 'Escape') { event.preventDefault(); state.exitOpen = true; render(); }
   }
 
+  let parallaxFrame = 0;
+  let parallaxPointer = null;
   root.addEventListener('pointermove', event => {
-    const x = event.clientX / window.innerWidth - .5;
-    const y = event.clientY / window.innerHeight - .5;
-    root.querySelector('.scene')?.style.setProperty('--look-x', `${x * -7}px`);
-    root.querySelector('.scene')?.style.setProperty('--look-y', `${y * -5}px`);
-    root.querySelector('.team-select-stage')?.style.setProperty('--team-x', `${x * -5}px`);
-    root.querySelector('.team-select-stage')?.style.setProperty('--team-y', `${y * -4}px`);
-    root.querySelector('.career-hub-stage')?.style.setProperty('--hub-x', `${x * -5}px`);
-    root.querySelector('.career-hub-stage')?.style.setProperty('--hub-y', `${y * -4}px`);
-    root.querySelector('.story-stage')?.style.setProperty('--story-x', `${x * -9}px`);
-    root.querySelector('.story-stage')?.style.setProperty('--story-y', `${y * -6}px`);
-  });
+    if (event.pointerType === 'touch') return;
+    parallaxPointer = { x: event.clientX, y: event.clientY };
+    if (parallaxFrame) return;
+    parallaxFrame = requestAnimationFrame(() => {
+      parallaxFrame = 0;
+      const point = parallaxPointer;
+      if (!point) return;
+      const x = point.x / window.innerWidth - .5;
+      const y = point.y / window.innerHeight - .5;
+      root.querySelector('.scene')?.style.setProperty('--look-x', `${x * -7}px`);
+      root.querySelector('.scene')?.style.setProperty('--look-y', `${y * -5}px`);
+      root.querySelector('.team-select-stage')?.style.setProperty('--team-x', `${x * -5}px`);
+      root.querySelector('.team-select-stage')?.style.setProperty('--team-y', `${y * -4}px`);
+      root.querySelector('.career-hub-stage')?.style.setProperty('--hub-x', `${x * -5}px`);
+      root.querySelector('.career-hub-stage')?.style.setProperty('--hub-y', `${y * -4}px`);
+      root.querySelector('.story-stage')?.style.setProperty('--story-x', `${x * -9}px`);
+      root.querySelector('.story-stage')?.style.setProperty('--story-y', `${y * -6}px`);
+    });
+  }, { passive: true });
   window.addEventListener('keydown', handleKey);
   window.addEventListener('message', event => {
     if (event.origin !== window.location.origin) return;
@@ -4017,15 +4030,71 @@
   window.addEventListener('pointerdown', () => syncMusic(), { once: true });
   window.addEventListener('keydown', () => syncMusic(), { once: true });
 
-  OPENING_FRAMES.concat([
-    'dragonbound-career.png', 'team-selection.png', 'career-hub.png',
-    ...ALL_QUICKQUILL_SCENES.map(scene => scene.background),
-    ...Object.values(PORTRAITS).map(portrait => portrait.source),
-    ...STORY_JOURNEY.map(chapter => chapter.image)
-  ]).forEach(source => {
-    const image = new Image();
-    image.src = source;
-  });
+  const careerPreloadedImages = new Set();
+  let careerPreloadHandle = 0;
+  function queueCareerImagePreload(sources = []) {
+    const pending = [...new Set(sources.filter(Boolean))]
+      .filter(source => !careerPreloadedImages.has(source))
+      .slice(0, 3);
+    if (!pending.length || document.hidden) return;
+    const run = () => {
+      careerPreloadHandle = 0;
+      pending.forEach(source => {
+        if (careerPreloadedImages.has(source)) return;
+        careerPreloadedImages.add(source);
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = source;
+      });
+    };
+    // Do not wait for requestIdleCallback here. iPad Safari can postpone idle work
+    // until after the user advances, which makes the next cutscene hitch while its
+    // art decodes. Warm only a tiny capped set just after the current paint.
+    if (careerPreloadHandle) clearTimeout(careerPreloadHandle);
+    careerPreloadHandle = setTimeout(run, 90);
+  }
+  function queueCurrentModePreloads() {
+    if (document.hidden) return;
+    if (state.mode === 'opening') {
+      queueCareerImagePreload([OPENING_FRAMES[state.frameIndex + 1]]);
+      return;
+    }
+    if (state.mode === 'career-hub' && state.story) {
+      queueCareerImagePreload([activeStoryScene()?.background]);
+      return;
+    }
+    if (state.mode !== 'story' || !state.story) return;
+    const scene = activeStoryScene();
+    const chapterTwoScene = QUICKQUILL_CANTO_SCENES.some(item => item.id === scene.id);
+    const chapterThreeScene = QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === scene.id);
+    const chapterFourScene = QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === scene.id);
+    const sceneList = chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const sceneIndex = sceneList.findIndex(item => item.id === scene.id);
+    const beatIndex = Math.min(state.story?.beat || 0, scene.beats.length - 1);
+    const beat = scene.beats[beatIndex] || scene.beats[0];
+    const nextBeat = scene.beats[beatIndex + 1];
+    const nextScene = sceneList[sceneIndex + 1];
+    const portraitPreloadSource = (portrait) => {
+      const sheet = PORTRAITS[portrait?.character];
+      if (!sheet) return '';
+      if (sheet.folder) {
+        const frame = Math.max(0, Math.min((sheet.frames || 1) - 1, Number(portrait?.frame) || 0));
+        return `${sheet.folder}/frame-${String(frame).padStart(2, '0')}.png`;
+      }
+      return sheet.source || '';
+    };
+    queueCareerImagePreload([
+      portraitPreloadSource(beat?.portrait),
+      portraitPreloadSource(nextBeat?.portrait),
+      nextScene?.background
+    ]);
+  }
+
+  const originalRender = render;
+  render = function performanceAwareRender() {
+    originalRender();
+    queueCurrentModePreloads();
+  };
 
   render();
   void connectAccount();

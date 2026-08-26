@@ -96,7 +96,7 @@
   function renderShell() {
     root.innerHTML = `
       <div class="game-stage is-loading" id="meetTeamsStage" aria-busy="true">
-        <audio id="meetTeamsMusic" src="assets/menu-theme.mp3" preload="auto" loop aria-hidden="true"></audio>
+        <audio id="meetTeamsMusic" src="assets/menu-theme.mp3" preload="none" loop aria-hidden="true"></audio>
         <h1 class="sr-only">Meet the Teams</h1><p class="sr-only">Dragon Racing Grid</p>
         <div class="scene" aria-hidden="true"><div class="scene-art"></div><div class="moving-daylight"></div><div class="captain-focus"></div><div class="ambient-vignette"></div><div class="trophy-glint glint-one"></div><div class="trophy-glint glint-two"></div><div class="mug-steam steam-one"></div><div class="mug-steam steam-two"></div><div class="dust-field">${dustMarkup()}</div></div>
         <header class="mobile-heading"><span>MEET THE TEAMS</span><small>DRAGON RACING GRID</small></header>

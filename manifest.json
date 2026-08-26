@@ -1,0 +1,14 @@
+{
+  "version": "34.20.3",
+  "name": "Smoothness Recovery",
+  "base": "34.20.2",
+  "files": [
+    "index.html",
+    "script.js",
+    "dragonbound-baby-engine.js",
+    "dragonbound-mobile.js",
+    "dragonbound-mobile.css",
+    "dragonbound-career-mode/index.html",
+    "dragonbound-career-mode/career.js"
+  ]
+}

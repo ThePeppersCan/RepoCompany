@@ -1,13 +1,50 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html class="repo-first-paint" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#071018" name="theme-color"/>
+<meta content="dark" name="color-scheme"/>
+<style id="repoFirstPaintCritical">
+/* V34.20.1 — first-paint guard. Prevent the retired brown adventure shell from
+   becoming visible while the current dashboard/auth state is assembled. */
+html,body{background-color:#071018}
+html.repo-first-paint{background:#071018!important;color-scheme:dark}
+html.repo-first-paint body{background:#071018!important}
+html.repo-first-paint body::after{
+  content:"";position:fixed;inset:0;z-index:2147483646;pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 24%,rgba(45,84,104,.24),transparent 42%),
+    linear-gradient(180deg,#0b1721 0%,#07131d 48%,#040a10 100%)!important;
+}
+</style>
+<script id="repoFirstPaintBoot">
+(function(){
+  var root=document.documentElement,released=false,frames=0;
+  function release(){
+    if(released)return;
+    released=true;
+    root.classList.remove('repo-first-paint');
+  }
+  function settle(){
+    var body=document.body;
+    var shell=document.getElementById('repoDashboardV20');
+    var authReady=!!(body&&(body.classList.contains('repo-logged-in')||body.classList.contains('repo-logged-out')));
+    if((shell&&authReady)||frames++>=10){setTimeout(release,70);return;}
+    requestAnimationFrame(settle);
+  }
+  function start(){requestAnimationFrame(settle);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+  /* Hard fallback: never leave the page covered if a third-party script fails. */
+  setTimeout(release,1600);
+})();
+</script>
 <title>Repo Company</title>
 <link href="favicon.png?v=repo-company-20260806-1" rel="icon" sizes="128x128" type="image/png"/>
 <link href="favicon.png?v=repo-company-20260806-1" rel="shortcut icon" type="image/png"/>
-<link href="style.css?v=v34-09-5-garden-path-seat-pose-20260825" rel="stylesheet"/>
+<link href="style.css?v=v34-20-1-first-paint-20260826" rel="stylesheet"/>
 <link href="dragonbound-career.css?v=v34-11-2-story-journey-20260825" rel="stylesheet"/>
 <link href="dragonbound-furniture.css?v=v34-01-house-depth-20260824" rel="stylesheet"/>
 <link href="dragonbound-commands.css?v=v33-01-command-ux-hotfix-20260822" rel="stylesheet"/>
@@ -2788,10 +2825,10 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 @media(prefers-reduced-motion:reduce){.wc-final-enter{animation:none!important}}
 </style>
 
-<link href="dragonbound-mobile.css?v=v34-19-mobile-ipad-20260826" rel="stylesheet"/>
+<link href="dragonbound-mobile.css?v=v34-20-2-ipad-stability-20260826" rel="stylesheet"/>
 </head>
 <body>
-<audio aria-hidden="true" id="signedOutNatureAudio" loop="" preload="auto" src="assets/signed-out-nature.mp3"></audio>
+<audio aria-hidden="true" id="signedOutNatureAudio" loop="" preload="none" src="assets/signed-out-nature.mp3"></audio>
 <header class="repo-main-header">
 <div class="repo-header-centre">
 <div class="logo repo-logo-wrap"><img alt="Repo Company" class="repo-header-logo" src="assets/repo-company-logo-v20-11.png"/></div>
@@ -2841,7 +2878,7 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
     </div>
     <button aria-label="Close The Velmora Crown" class="velmora-crown-newspaper-close" id="closeVelmoraCrownNewspaper" type="button">×</button>
   </div>
-  <audio aria-hidden="true" id="velmoraCrownNewspaperMusic" loop preload="auto" src="assets/velmora-crown/velmora-crown-newspaper-music.mp3"></audio>
+  <audio aria-hidden="true" id="velmoraCrownNewspaperMusic" loop preload="none" src="assets/velmora-crown/velmora-crown-newspaper-music.mp3"></audio>
 </div>
 <div aria-hidden="true" aria-label="Repo Sports World Cup" aria-modal="true" class="world-cup-tv-ident" id="worldCupTvIdent" role="dialog">
 <div aria-hidden="true" class="world-cup-tv-stage">
@@ -2850,7 +2887,7 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 <span class="world-cup-logo-shine"></span>
 <span class="world-cup-tv-vignette"></span>
 </div>
-<audio aria-hidden="true" id="worldCupTvAudio" preload="auto" src="assets/repo-sports-world-cup-sting.mp3"></audio>
+<audio aria-hidden="true" id="worldCupTvAudio" preload="metadata" src="assets/repo-sports-world-cup-sting.mp3"></audio>
 <div aria-label="Repo Sports World Cup event information" class="world-cup-event-hub">
 <div class="world-cup-event-layout">
 <div class="world-cup-event-panel world-cup-event-panel-fixtures">
@@ -3080,25 +3117,25 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 <button aria-label="Return to country guide" class="world-cup-kit-close" id="closeWorldCupKit" type="button">×</button>
 </div>
 <button aria-label="Close Repo Sports World Cup" class="world-cup-event-close" id="closeWorldCupEvent" type="button">×</button>
-<audio aria-hidden="true" id="worldCupEventMusic" loop="" preload="auto" src="assets/repo-sports-world-cup-menu.mp3"></audio>
-<audio aria-hidden="true" id="worldCupMeetTeamsMusic" loop="" preload="auto" src="assets/repo-sports-meet-the-teams-music-v2.mp3"></audio>
-<audio aria-hidden="true" id="worldCupLoreOpenAudio" preload="auto" src="assets/repo-sports-world-cup-page-open.mp3"></audio>
-<audio aria-hidden="true" id="worldCupMarovarKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-marovar-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupDrazhenKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-drazhen-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupZafranKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-zafran-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupQasmirKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-qasmir-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupCalvoraKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-calvora-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupRovarnKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-rovarn-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupTaluneKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-talune-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupBelrosKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-belros-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupVardeshKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-vardesh-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupSoreviaKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-sorevia-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupIskandarKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-iskandar-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupKordeshKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-kordesh-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupNambaraKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-nambara-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupElvaneKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-elvane-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupNorvethKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-norveth-theme.mp3"></audio>
-<audio aria-hidden="true" id="worldCupLumerreKitAudio" loop="" preload="auto" src="assets/repo-sports-kit-lumerre-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupEventMusic" loop="" preload="none" src="assets/repo-sports-world-cup-menu.mp3"></audio>
+<audio aria-hidden="true" id="worldCupMeetTeamsMusic" loop="" preload="none" src="assets/repo-sports-meet-the-teams-music-v2.mp3"></audio>
+<audio aria-hidden="true" id="worldCupLoreOpenAudio" preload="metadata" src="assets/repo-sports-world-cup-page-open.mp3"></audio>
+<audio aria-hidden="true" id="worldCupMarovarKitAudio" loop="" preload="none" src="assets/repo-sports-kit-marovar-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupDrazhenKitAudio" loop="" preload="none" src="assets/repo-sports-kit-drazhen-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupZafranKitAudio" loop="" preload="none" src="assets/repo-sports-kit-zafran-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupQasmirKitAudio" loop="" preload="none" src="assets/repo-sports-kit-qasmir-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupCalvoraKitAudio" loop="" preload="none" src="assets/repo-sports-kit-calvora-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupRovarnKitAudio" loop="" preload="none" src="assets/repo-sports-kit-rovarn-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupTaluneKitAudio" loop="" preload="none" src="assets/repo-sports-kit-talune-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupBelrosKitAudio" loop="" preload="none" src="assets/repo-sports-kit-belros-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupVardeshKitAudio" loop="" preload="none" src="assets/repo-sports-kit-vardesh-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupSoreviaKitAudio" loop="" preload="none" src="assets/repo-sports-kit-sorevia-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupIskandarKitAudio" loop="" preload="none" src="assets/repo-sports-kit-iskandar-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupKordeshKitAudio" loop="" preload="none" src="assets/repo-sports-kit-kordesh-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupNambaraKitAudio" loop="" preload="none" src="assets/repo-sports-kit-nambara-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupElvaneKitAudio" loop="" preload="none" src="assets/repo-sports-kit-elvane-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupNorvethKitAudio" loop="" preload="none" src="assets/repo-sports-kit-norveth-theme.mp3"></audio>
+<audio aria-hidden="true" id="worldCupLumerreKitAudio" loop="" preload="none" src="assets/repo-sports-kit-lumerre-theme.mp3"></audio>
 </div>
 <main>
 <section aria-label="Repo Passport" class="card stats harmony-card passport-card">
@@ -4386,7 +4423,7 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 <div class="rc-controls"><button id="rcLeaveRoom" type="button">LEAVE MATCH</button><button class="hidden" id="rcRematch" type="button">REMATCH</button></div>
 <small class="rc-message" id="rcMessage">Waiting for another player…</small>
 <div class="rc-legend"><span><img alt="" src="assets/fire-rune.webp"/> Red · Fire</span><span><img alt="" src="assets/chaos-rune.png"/> Yellow · Chaos</span><span><img alt="" src="assets/wrath-rune.png"/> Black · Wrath</span></div>
-<audio id="rcMusic" loop="" preload="auto" src="assets/guardians-of-the-rift.mp3"></audio>
+<audio id="rcMusic" loop="" preload="none" src="assets/guardians-of-the-rift.mp3"></audio>
 </div>
 </dialog>
 <dialog class="game-dialog repoggle-dialog" id="repoggleDialog">
@@ -4525,11 +4562,11 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 </section>
 </div>
 <footer class="toa-footer"><span><b>MOVE</b> WASD / ARROW KEYS</span><span id="toaRoomStatus"><b>ROOM</b> THE NEXUS</span><span id="toaPartyStatus"><b>MODE</b> NOT STARTED</span></footer>
-<audio id="toaLobbyMusic" loop="" preload="auto" src="assets/Beneath_Cursed_Sands.mp3"></audio>
-<audio id="toaCrondisMusic" loop="" preload="auto" src="assets/Jaws_of_Gluttony.mp3"></audio>
-<audio id="toaScarabasMusic" loop="" preload="auto" src="assets/A_Mothers_Curse.mp3"></audio>
-<audio id="toaHetMusic" loop="" preload="auto" src="assets/Sands_of_Time.mp3"></audio>
-<audio id="toaApmekenMusic" loop="" preload="auto" src="assets/Ape-ex_Predator.mp3"></audio>
+<audio id="toaLobbyMusic" loop="" preload="none" src="assets/Beneath_Cursed_Sands.mp3"></audio>
+<audio id="toaCrondisMusic" loop="" preload="none" src="assets/Jaws_of_Gluttony.mp3"></audio>
+<audio id="toaScarabasMusic" loop="" preload="none" src="assets/A_Mothers_Curse.mp3"></audio>
+<audio id="toaHetMusic" loop="" preload="none" src="assets/Sands_of_Time.mp3"></audio>
+<audio id="toaApmekenMusic" loop="" preload="none" src="assets/Ape-ex_Predator.mp3"></audio>
 </div>
 </dialog>
 <dialog class="game-dialog runedle-dialog farm-run-dialog" id="runedleDialog">
@@ -4729,15 +4766,15 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
 </div>
 </dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="dragonbound-baby-engine.js?v=v34-14-2-3-nighlight-name-20260825"></script>
-<script src="script.js?v=v34-09-go-out-lantern-nook-20260824"></script>
+<script src="dragonbound-baby-engine.js?v=v34-20-3-smoothness-recovery-20260826"></script>
+<script src="script.js?v=v34-20-3-smoothness-recovery-20260826"></script>
 <script src="dragonbound-furniture.js?v=v34-07-house-events-20260824"></script>
 <script src="dragonbound-commands.js?v=v34-07-house-events-20260824"></script>
 <script src="velmora-daycycle.js?v=v33-31-travel-style-time-persist-20260822"></script>
 <script src="bedroom.js?v=v33-32-covidpanda-keeper-hotfix-20260822"></script>
 <script src="velmora-travel-map.js?v=v33-30-performance-hotfix-20260822"></script>
 <script src="dragonbound-outings.js?v=v34-09-7-garden-stone-path-20260825"></script>
-<script src="dragonbound-career-launcher.js?v=v34-18-3-1-after-hours-framing-audio-20260826"></script>
+<script src="dragonbound-career-launcher.js?v=v34-20-performance-loading-20260826"></script>
 <script>
 /* Kat billboard state guard — Test 32.
    The normal billboard state machine remains authoritative. This only prevents
@@ -8492,6 +8529,6 @@ window.__QD_HOST__={
 <script src="dragon-racing-race.js?v=v34-18-2-blackglass-race-music-20260826"></script>
 <script src="dragon-racing-ui.js?v=v33-95-gp-rate-display-20260824"></script>
 
-<script src="dragonbound-mobile.js?v=v34-19-mobile-ipad-20260826"></script>
+<script src="dragonbound-mobile.js?v=v34-20-3-smoothness-recovery-20260826"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-18-3-1-after-hours-framing-audio-20260826';
+  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-20-performance-loading-20260826';
   const SUPABASE_URL = 'https://hvdrwmjieguurxvrgzfu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ';
   const ACTIVE_CLASS = 'dragonbound-career-active';

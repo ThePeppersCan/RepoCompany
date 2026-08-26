@@ -41946,7 +41946,7 @@ document.head.appendChild(s)})();
 
     const audio=document.createElement('audio');
     audio.id='dragonboundMenuAudio';
-    audio.preload='auto';
+    audio.preload='metadata';
     audio.loop=true;
     audio.src=DRAGONBOUND_AUDIO;
     audio.volume=0.25;
@@ -41954,7 +41954,7 @@ document.head.appendChild(s)})();
 
     const newGameAudio=document.createElement('audio');
     newGameAudio.id='dragonboundNewGameAudio';
-    newGameAudio.preload='auto';
+    newGameAudio.preload='metadata';
     newGameAudio.loop=true;
     newGameAudio.src=DRAGONBOUND_NEW_GAME_AUDIO;
     newGameAudio.volume=0.4;
@@ -41962,7 +41962,7 @@ document.head.appendChild(s)})();
 
     const valleyAudio=document.createElement('audio');
     valleyAudio.id='dragonboundValleyAudio';
-    valleyAudio.preload='auto';
+    valleyAudio.preload='metadata';
     valleyAudio.loop=true;
     valleyAudio.src=DRAGONBOUND_VALLEY_AUDIO;
     valleyAudio.volume=0.4;
@@ -41970,7 +41970,7 @@ document.head.appendChild(s)})();
 
     const adoptionExteriorAudio=document.createElement('audio');
     adoptionExteriorAudio.id='dragonboundAdoptionExteriorAudio';
-    adoptionExteriorAudio.preload='auto';
+    adoptionExteriorAudio.preload='metadata';
     adoptionExteriorAudio.loop=true;
     adoptionExteriorAudio.src=DRAGONBOUND_ADOPTION_EXTERIOR_AUDIO;
     adoptionExteriorAudio.volume=0.5;
@@ -41978,7 +41978,7 @@ document.head.appendChild(s)})();
 
     const adoptionInteriorAudio=document.createElement('audio');
     adoptionInteriorAudio.id='dragonboundAdoptionInteriorAudio';
-    adoptionInteriorAudio.preload='auto';
+    adoptionInteriorAudio.preload='metadata';
     adoptionInteriorAudio.loop=true;
     adoptionInteriorAudio.src=DRAGONBOUND_ADOPTION_INTERIOR_AUDIO;
     adoptionInteriorAudio.volume=0.6;
@@ -42000,7 +42000,7 @@ document.head.appendChild(s)})();
 
     const estateInteriorAudio=document.createElement('audio');
     estateInteriorAudio.id='dragonboundEstateInteriorAudio';
-    estateInteriorAudio.preload='auto';
+    estateInteriorAudio.preload='metadata';
     estateInteriorAudio.loop=true;
     estateInteriorAudio.src=DRAGONBOUND_ESTATE_INTERIOR_AUDIO;
     estateInteriorAudio.volume=0.5;
@@ -42008,7 +42008,7 @@ document.head.appendChild(s)})();
 
     const homeRevealMusicAudio=document.createElement('audio');
     homeRevealMusicAudio.id='dragonboundHomeRevealMusicAudio';
-    homeRevealMusicAudio.preload='auto';
+    homeRevealMusicAudio.preload='metadata';
     homeRevealMusicAudio.src=DRAGONBOUND_HOME_REVEAL_MUSIC;
     homeRevealMusicAudio.volume=0.5;
     document.body.appendChild(homeRevealMusicAudio);
@@ -42517,7 +42517,13 @@ document.head.appendChild(s)})();
     if(adoptMenuForeground) adoptMenuForeground.src=DRAGONBOUND_ADOPTION_BASKET_FOREGROUND;
     if(adoptionRollMenuArt) adoptionRollMenuArt.style.backgroundImage=`url('${DRAGONBOUND_ADOPT_EGG_MENU_IMAGE}')`;
     if(adoptionRollForeground) adoptionRollForeground.src=DRAGONBOUND_ADOPTION_BASKET_FOREGROUND;
-    DRAGONBOUND_ADOPTION_FRAMES.forEach(src=>{ const img=new Image(); img.src=src; });
+    let dragonboundSequenceAssetsPreloaded=false;
+    const preloadDragonboundSequenceAssets=()=>{
+      if(dragonboundSequenceAssetsPreloaded)return;
+      dragonboundSequenceAssetsPreloaded=true;
+      const preload=()=>[...DRAGONBOUND_ADOPTION_FRAMES,...DRAGONBOUND_HOME_BASKET_OPEN_FRAMES].forEach(src=>{const img=new Image();img.decoding='async';img.src=src;});
+      if('requestIdleCallback' in window)requestIdleCallback(preload,{timeout:1200});else setTimeout(preload,180);
+    };
     if(adoptMenuMotes){
       for(let i=0;i<26;i++){
         const mote=document.createElement('span');
@@ -42649,7 +42655,7 @@ document.head.appendChild(s)})();
     }
 
     newGameVideo.src=DRAGONBOUND_MAELITH_VIDEO;
-    newGameVideo.preload='auto';
+    newGameVideo.preload='metadata';
     newGameVideo.setAttribute('playsinline','');
     newGameVideo.setAttribute('webkit-playsinline','');
     newGameVideo.controls=false;
@@ -43221,7 +43227,7 @@ document.head.appendChild(s)})();
     if(homeSidebarImage) homeSidebarImage.src=DRAGONBOUND_HOME_SIDEBAR_BUTTONS;
     if(homeBasket) homeBasket.src=DRAGONBOUND_HOME_EGG_BASKET;
     if(homeHatchOpeningImage) homeHatchOpeningImage.src=DRAGONBOUND_HOME_BASKET_OPEN_FRAMES[0];
-    DRAGONBOUND_HOME_BASKET_OPEN_FRAMES.forEach(src=>{const img=new Image();img.src=src;});
+
     if(homeHatchStars){
       for(let i=0;i<42;i++){
         const star=document.createElement('span');
@@ -45279,6 +45285,7 @@ document.head.appendChild(s)})();
 
     const startNewGame=()=>{
       if(overlay.classList.contains('is-new-game'))return;
+      preloadDragonboundSequenceAssets();
       overlay.classList.add('is-new-game');
       blackout.classList.add('is-black');
       fadeAudio(audio,0,560);
