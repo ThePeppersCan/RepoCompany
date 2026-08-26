@@ -39,7 +39,7 @@ const HOUSE_MAPS={
   const movementStorageKey=()=>`${HOUSE_STATE_KEY_BASE}:${currentAccountSlug()}`;
   const DOWNTIME_DRAGON_ASSET_VERSION='v34-14-2-1-original-locomotion-20260825';
   const DOWNTIME_DRAGON_OVERRIDES={
-    covidpanda:{name:'NightLight',matchTokens:['nightlight']},
+    covidpanda:{name:'NighLight',matchTokens:['nightlight']},
     catasthma:{name:'September',matchTokens:['september']},
     kat:{name:'Opal',matchTokens:['opal']},
     emlux:{name:'Turi',matchTokens:['turi']},
@@ -48,6 +48,12 @@ const HOUSE_MAPS={
   };
   const DOWNTIME_DRAGON_ANIMATION_FRAMES={idle:[0],look:[1],sit:[2],rest:[10],sleep:[12],investigate:[4],petReaction:[6],eatAction:[7],playAction:[8],perchAction:[13],cosyAction:[15]};
   const normaliseDowntimeDragonToken=value=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
+  const canonicaliseKnownDragonDisplayName=dragon=>{
+    if(!dragon||typeof dragon!=='object')return dragon;
+    const token=normaliseDowntimeDragonToken(dragon.name),account=currentAccountSlug();
+    if((account==='covidpanda'||token==='nightlight')&&token==='nightlight')return {...dragon,name:'NighLight'};
+    return dragon;
+  };
   const downtimeDragonFrameSrc=(key,frame)=>`assets/dragonbound/downtime-dragons/${key}/frame-${String(frame).padStart(2,'0')}.png?v=${DOWNTIME_DRAGON_ASSET_VERSION}`;
   function downtimeDragonSpriteKey(dragon){
     const accountKey=currentAccountSlug(),nameKey=normaliseDowntimeDragonToken(dragon?.name),fromAccount=DOWNTIME_DRAGON_OVERRIDES[accountKey];
@@ -698,7 +704,7 @@ const HOUSE_MAPS={
 
   class BabyDragonActor{
     constructor(engine,dragon,map){
-      this.engine=engine;this.dragon=dragon;this.def=engine.resolveDragonDefinition?.(dragon)||resolveDowntimeDragonDefinition(dragon)||REGISTRY[dragon.breedId];this.map=map;this.floorId='downstairs';this.pos=[0,0];this.facing='right';this.state='idle';this.path=[];this.pathIndex=0;this.nextDecision=0;this.stateUntil=0;this.frameIndex=0;this.frameAt=0;this.lastAction='';this.lastStairUse=0;this.lastFlight=0;this.floorEntered=Date.now();this.pauseUntil=0;this.el=null;this.img=null;this.hoverCard=null;this.hoverAge=null;this.hoverGender=null;this.hoverNature=null;this.hoverBond=null;this.hoverPet=null;this.hoverTimer=0;this.hoverMoveHandler=null;this.hoverVisible=false;this.petAudio=null;this.petLove=null;this.petLoveTimer=0;this.bondTogetherSeconds=0;this.bondNeglectSeconds=0;this.greetingTimer=0;
+      this.engine=engine;this.dragon=canonicaliseKnownDragonDisplayName(dragon);this.def=engine.resolveDragonDefinition?.(this.dragon)||resolveDowntimeDragonDefinition(this.dragon)||REGISTRY[this.dragon.breedId];this.map=map;this.floorId='downstairs';this.pos=[0,0];this.facing='right';this.state='idle';this.path=[];this.pathIndex=0;this.nextDecision=0;this.stateUntil=0;this.frameIndex=0;this.frameAt=0;this.lastAction='';this.lastStairUse=0;this.lastFlight=0;this.floorEntered=Date.now();this.pauseUntil=0;this.el=null;this.img=null;this.hoverCard=null;this.hoverAge=null;this.hoverGender=null;this.hoverNature=null;this.hoverBond=null;this.hoverPet=null;this.hoverTimer=0;this.hoverMoveHandler=null;this.hoverVisible=false;this.petAudio=null;this.petLove=null;this.petLoveTimer=0;this.bondTogetherSeconds=0;this.bondNeglectSeconds=0;this.greetingTimer=0;
       this.personality=this.def?.personality||{};this.behaviour=getBehaviour(dragon.breedId);this.coreStats=pStats(dragon);this.dailyMood=this.normaliseDailyMood(dragon?.mood||dragon?.dragonMood||{});this.dailyPreferencesState=this.normaliseDailyPreferences(dragon?.dailyPreferences||{});this.learnedRoutinesState=this.normaliseLearnedRoutines(dragon?.learnedRoutines||{});this.routineWindow=null;this.routineCommandUntil=0;this.lastRoutineWakeFrom=0;this.lastRoutinePeriod='';this.nextRoutinePeriodCheckAt=Date.now()+rand(12000,22000);this.lastBedtimeRoutineAt=0;
       this.assignedTraits=pArray(dragon?.traits?.assigned||dragon?.personality?.quirks);this.discoveredTraits=pArray(dragon?.traits?.discovered);this.signatureTraits=pArray(dragon?.traits?.signature||dragon?.personality?.signatureTraits).slice(0,3);
       this.preferences=boundedObject(dragon?.preferences,{preferredFloor:dragon?.personality?.preferencesSeed?.preferredFloor||'downstairs',formed:{}});if(!this.preferences.formed)this.preferences.formed={};

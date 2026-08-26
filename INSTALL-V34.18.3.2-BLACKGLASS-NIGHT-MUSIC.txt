@@ -1,0 +1,13 @@
+Dragonbound V34.18.3.2 — Blackglass Night Music Hotfix
+
+Install over V34.18.3.1 and replace matching files.
+
+Changes:
+- Blackglass Q24 Night Qualifying now uses the quiet Quickquill/private-quarters track.
+- Q25 The Long Night uses the same quiet track.
+- Q26 After Hours / midnight guest-wing section uses the same track underneath the distant storm ambience.
+- The track remains at the existing 23% volume.
+- Race music is untouched: the dedicated Blackglass race track still takes over during the actual race.
+- Race Morning and other daytime/story scenes remain unchanged.
+
+Includes quickquill-private-quarters.mp3 so the hotfix is self-contained.

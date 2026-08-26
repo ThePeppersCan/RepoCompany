@@ -1,0 +1,15 @@
+V34.17 MANIFEST — Blackglass Chapter Four
+
+INSTALL-V34.17-BLACKGLASS-CHAPTER4.txt	2021 bytes
+V34.17-MANIFEST.txt	474 bytes
+dragon-racing-assets/blackglass-night-circuit.webp	391998 bytes
+dragon-racing-race.css	88966 bytes
+dragon-racing-race.js	118952 bytes
+dragonbound-career-launcher.js	13604 bytes
+dragonbound-career-mode/career.css	138716 bytes
+dragonbound-career-mode/career.js	201147 bytes
+dragonbound-career-mode/index.html	1097 bytes
+index.html	693956 bytes
+
+Total files: 10
+Total bytes: 1650931

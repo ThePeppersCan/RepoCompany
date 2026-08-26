@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-14-place-at-quickquill-20260825';
+  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-18-3-1-after-hours-framing-audio-20260826';
   const SUPABASE_URL = 'https://hvdrwmjieguurxvrgzfu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ';
   const ACTIVE_CLASS = 'dragonbound-career-active';
@@ -16,7 +16,9 @@
     bridgeToken: '',
     open: false,
     storyRaceActive: false,
-    storyRaceConfig: null
+    storyRaceConfig: null,
+    audioGuardTimer: 0,
+    engineHomeMusicWanted: null
   };
   let careerBridgeClient = null;
 
@@ -170,6 +172,42 @@
     return button;
   }
 
+  function enforceCareerAudioIsolation() {
+    if (!state.open) return;
+    const engine = window.DragonboundBabyEngine;
+    try {
+      if (engine && 'homeMusicWanted' in engine) engine.homeMusicWanted = false;
+      engine?.homeMusic?.pause?.();
+    } catch (_) {}
+
+    // Any loop that was already playing when Career Mode opened belongs to the
+    // parent Dragonbound/site scene, not the Career iframe. Keep it silent for
+    // the whole Career session, including story-race handoffs.
+    state.parentLoops.forEach(({ media }) => {
+      try { if (media && !media.paused) media.pause(); } catch (_) {}
+    });
+
+    // While the Career iframe itself is visible, nothing in the parent page
+    // should be audible. Career music lives inside the iframe and is unaffected.
+    // During an embedded story race we leave newly-started race audio alone.
+    if (!state.storyRaceActive) {
+      document.querySelectorAll('audio, video').forEach(media => {
+        try { if (!media.paused) media.pause(); } catch (_) {}
+      });
+    }
+  }
+
+  function startCareerAudioGuard() {
+    clearInterval(state.audioGuardTimer);
+    enforceCareerAudioIsolation();
+    state.audioGuardTimer = window.setInterval(enforceCareerAudioIsolation, 220);
+  }
+
+  function stopCareerAudioGuard() {
+    clearInterval(state.audioGuardTimer);
+    state.audioGuardTimer = 0;
+  }
+
   function pauseHouse() {
     state.parentLoops = Array.from(document.querySelectorAll('audio, video'))
       .filter(media => !media.paused && media.loop)
@@ -180,7 +218,12 @@
 
     const engine = window.DragonboundBabyEngine;
     state.engineWasRunning = !!engine?.raf;
-    try { engine?.stop?.(); } catch (error) {
+    state.engineHomeMusicWanted = typeof engine?.homeMusicWanted === 'boolean' ? engine.homeMusicWanted : null;
+    try {
+      if (engine && 'homeMusicWanted' in engine) engine.homeMusicWanted = false;
+      engine?.homeMusic?.pause?.();
+      engine?.stop?.();
+    } catch (error) {
       console.warn('[Dragonbound Career Mode] House engine could not pause cleanly.', error);
       try { engine?.homeMusic?.pause?.(); } catch (_) {}
     }
@@ -188,6 +231,10 @@
 
   function restoreHouse() {
     const engine = window.DragonboundBabyEngine;
+    stopCareerAudioGuard();
+    if (engine && state.engineHomeMusicWanted !== null && 'homeMusicWanted' in engine) {
+      try { engine.homeMusicWanted = state.engineHomeMusicWanted; } catch (_) {}
+    }
     if (state.engineWasRunning) {
       try {
         engine?.start?.();
@@ -206,6 +253,7 @@
     });
     state.parentLoops = [];
     state.engineWasRunning = false;
+    state.engineHomeMusicWanted = null;
   }
 
   function careerFrame() {
@@ -229,6 +277,7 @@
     if (message && frame?.contentWindow) {
       try { frame.contentWindow.postMessage({ ...message, bridge: state.bridgeToken }, '*'); } catch (_) {}
     }
+    enforceCareerAudioIsolation();
     try { frame?.focus?.({ preventScroll: true }); } catch (_) {}
   }
 
@@ -247,14 +296,16 @@
     try {
       ui.open();
       requestAnimationFrame(() => {
-        const started = race.start({ id: 'canto_meadow_circuit', story: { ...detail } });
+        const trackId = String(detail.trackId || (detail.raceKey === 'blackglass' ? 'blackglass_night_circuit' : 'canto_meadow_circuit'));
+        const trackLabel = trackId === 'blackglass_night_circuit' ? 'Blackglass Night Circuit' : 'Canto Meadow Circuit';
+        const started = race.start({ id: trackId, story: { ...detail, trackId } });
         if (started) return;
         try { ui.close?.(); } catch (_) {}
-        restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-error', error: 'Canto Meadow Circuit could not start. Your story progress is still safe.' });
+        restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-error', error: `${trackLabel} could not start. Your story progress is still safe.` });
       });
     } catch (error) {
       try { ui.close?.(); } catch (_) {}
-      restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-error', error: error?.message || 'The Canto race could not start.' });
+      restoreCareerAfterStoryRace({ type: 'dragonbound-career-story-race-error', error: error?.message || 'The story race could not start.' });
     }
   }
 
@@ -268,6 +319,7 @@
     state.bridgeToken = Array.from(bridgeValues, value => value.toString(16).padStart(8, '0')).join('');
     state.previousFocus = document.activeElement;
     pauseHouse();
+    startCareerAudioGuard();
     document.body.classList.add(ACTIVE_CLASS);
     overlay.classList.add('is-visible');
     overlay.setAttribute('aria-hidden', 'false');
@@ -287,6 +339,7 @@
     if (state.storyRaceActive) { try { window.DragonRacingRace?.stop?.(); window.DragonRacingUi?.close?.(); } catch (_) {} }
     state.storyRaceActive = false;
     state.storyRaceConfig = null;
+    stopCareerAudioGuard();
     overlay.classList.remove('is-visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove(ACTIVE_CLASS);

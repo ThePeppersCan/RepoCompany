@@ -1,0 +1,21 @@
+Dragonbound V34.16 — Race Director & Broadcast Presentation
+
+Install over V34.15 (this patch already contains the V34.15 racing feel + V34.14.3 timing/smoothness work).
+Copy to the same site root and replace matching files:
+- dragon-racing-race.js
+- dragon-racing-race.css
+- index.html
+
+Main changes:
+- Event-driven Race Director with long camera holds and restrained, near-fixed race zoom.
+- No repeated zoom-in/zoom-out presentation. Camera drama comes from framing and subject selection.
+- Starting grid broadcast overlay.
+- Named track sections (including Canto: Meadow Launch, Windmill Rise, Willow Chicane, River Run, Canto Straight).
+- Live gaps on the timing tower.
+- Battle-for-position detection and persistent battle strip.
+- Short event feed, lead-change/overtake/final-lap/photo-finish callouts.
+- Per-section timing with fastest-section holder.
+- Winner/podium finish presentation using existing sprites.
+- Race-memory payload records player overtakes, lost positions, lead changes, battles, sectors and notable moments for later Career dialogue.
+
+No unrelated Dragonbound/home/Career assets are changed.

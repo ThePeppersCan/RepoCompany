@@ -1,0 +1,7 @@
+Dragonbound V34.14.2.3 — NighLight spelling correction
+
+Correct canonical spelling: NighLight
+
+This hotfix corrects the previous Nightlight/NightLight display spelling while preserving the original-walking fix and all downtime-sprite support.
+
+Replace the included files at the same paths in your site root.

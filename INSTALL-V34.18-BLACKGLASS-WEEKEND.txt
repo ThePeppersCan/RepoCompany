@@ -1,0 +1,14 @@
+Dragonbound V34.18 — Blackglass Weekend Rebuild
+
+Install:
+Merge this patch into the same site root used for V34.17/V34.16 and replace matching files.
+Preserve the included folder structure.
+
+Includes:
+- Expanded Blackglass weekend chapter
+- New Blackglass environments, route board, props and portraits
+- Real Blackglass circuit asset + race integration
+- Career/race handoff updates
+- Existing restrained race-camera approach retained
+
+This is a patch, not a full site backup.

@@ -1,0 +1,11 @@
+Dragonbound V34.18.3.1 — Blackglass After Hours framing/audio hotfix
+
+Install OVER V34.18.3 and replace matching files.
+
+Fixes:
+- Restores the After Hours playable stage to the centre of the Career viewport.
+- Removes the accidental inset/translate conflict that pushed roughly half the level offscreen.
+- Keeps the 16:9 gameplay image correctly fitted and centred.
+- Reduces Garran's patrol footsteps from roughly 12–34% to roughly 3.5–14% depending on distance.
+- Reduces Garran's close/caught/search footstep one-shots to 12%.
+- Does not change player movement, stealth rules, objectives, sprites, normal Dragonbound walking, or Blackglass race audio.

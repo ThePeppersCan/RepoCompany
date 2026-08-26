@@ -1,0 +1,18 @@
+Dragonbound V34.15 — Racing Feel Overhaul
+
+Merge this folder into the same website root and replace matching files.
+
+Includes the V34.14.3 real-time/smoothness fixes, plus:
+- restrained race camera: stable follow framing with only small, infrequent zoom changes
+- smoother acceleration and braking with visible momentum
+- advance curve anticipation instead of reacting at the exact corner sample
+- longer, deliberate racing-line commitments
+- staged overtakes: close, pull alongside, pass, clear
+- anti-position-flicker same-lane blocking
+- style-specific racing behaviour (smooth, overtaker, bold, cautious, late) without large hidden speed buffs
+- gentle drafting and context-aware boosts
+- rare softened mistakes instead of abrupt speed chops
+- final-lap aggression remains subtle
+- racer separation now nudges intended lines instead of physically snapping sprites sideways
+
+No Career story files, dragon home/walking sprites, NighLight naming, or Quickquill downtime music are changed by this patch.

@@ -1,0 +1,10 @@
+Dragonbound V34.18.2 — Blackglass Race Music
+
+Install over V34.18.1, preserving folders.
+
+Changed:
+- dragon-racing-race.js
+- index.html
+- dragon-racing-assets/audio/blackglass-race-theme.mp3
+
+Blackglass Night Circuit now uses the supplied dark suspense track as its dedicated race music at 40% volume for the entire Blackglass race scene. Other race music is not used during Blackglass. Existing crowd, wing and countdown sound effects remain.

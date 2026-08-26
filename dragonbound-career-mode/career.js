@@ -23,7 +23,7 @@
     { id: 'fizzy-drake', sponsor: 'Fizzy Drake', racer: 'Maya Banks', left: '80.7%', accent: '#4a9cff', room: 'team-rooms/fizzy-drake.png' }
   ];
   const CAREER_DRAGONS = {
-    covidpanda: { name: 'NightLight', owner: 'CovidPanda', asset: 'covidpanda.webp' },
+    covidpanda: { name: 'NighLight', owner: 'CovidPanda', asset: 'covidpanda.webp' },
     catasthma: { name: 'September', owner: 'CatAsthma', asset: 'catasthma.webp' },
     kat: { name: 'Opal', owner: 'Kat', asset: 'kat.webp' },
     emlux: { name: 'Turi', owner: 'Emlux', asset: 'emlux.webp' },
@@ -50,6 +50,8 @@
     tyrese: { folder: 'story/portraits/downtime/tyrese', frames: 12 },
     mara: { folder: 'story/portraits/downtime/mara', frames: 12 },
     nell: { folder: 'story/portraits/downtime/nell', frames: 12 },
+    rook: { folder: 'story/portraits/blackglass/rook', frames: 6 },
+    steward: { folder: 'story/portraits/blackglass/steward', frames: 1 },
     jalen: { source: 'story/portraits/jalen.png', columns: 3, rows: 2 },
     sofia: { source: 'story/portraits/sofia.png', columns: 2, rows: 2 }
   };
@@ -329,6 +331,367 @@
     }
   ];
 
+  const BLACKGLASS_SECTION_DEFS = [
+    { id:'blackglass-straight', name:'Blackglass Straight', note:'Start/finish under the grandstand lights. Fast, exposed and deceptively easy to overdrive.', benefit:'Cleaner launch and stronger exits.' },
+    { id:'crown-descent', name:'Crown Descent', note:'The long right-hand drop away from the grandstand. Grip changes halfway down.', benefit:'Reduced mistakes while the circuit falls away.' },
+    { id:'saltwake-run', name:'Saltwake Run', note:'The low sea-wall section. Spray crosses the road and the wind arrives late.', benefit:'More stable pace through sea spray.' },
+    { id:'needle-gate', name:'Needle Gate', note:'A tightening left-side sequence through old gatework. Passing room disappears quickly.', benefit:'Sharper lines and safer side-by-side racing.' },
+    { id:'ember-steps', name:'Ember Steps', note:'The climbing S-bends beneath the lava vents. Easy to lose rhythm chasing the next apex.', benefit:'Better recovery after a compromised corner.' },
+    { id:'storm-span', name:'Storm Span', note:'The high bridge back toward the line. Crosswind, no shelter and nowhere to hide a bad exit.', benefit:'Lower error chance and a small final-sector advantage.' }
+  ];
+
+  const BLACKGLASS_EVENING_ACTIVITIES = {
+    tyrese: {
+      title:'Balcony with Tyrese', kicker:'VIEWING BALCONY', portrait:{character:'tyrese',frame:6,side:'right'},
+      intro:'Tyrese is leaning on the rail watching empty floodlights sweep across the wet circuit.',
+      line:'The night before my first win here I slept for forty minutes. The night before my worst race I slept eight hours. Very useful science.',
+      responses:[
+        {label:'What changed between those races?',note:'Ask for the uncomfortable answer',tag:'truth',effects:{relationships:{tyreseBond:2},identity:{focus:1}}},
+        {label:'So the lesson is never sleep?',note:'Refuse to let him become profound',tag:'joke',effects:{relationships:{tyreseBond:2},identity:{heart:1}}},
+        {label:'Tomorrow, tell me if I start forcing it.',note:'Give him permission to call you out',tag:'trust',effects:{relationships:{tyreseBond:3,quickquillTrust:1}}}
+      ]
+    },
+    nell: {
+      title:'Telemetry with Nell', kicker:'SETUP TABLE', portrait:{character:'nell',frame:6,side:'left'},
+      intro:'Nell has qualifying traces layered over the route board and three mugs of tea she has forgotten to drink.',
+      line:'Your fastest bit was not the bit where you were brave. It was the bit where you stopped arguing with the circuit.',
+      responses:[
+        {label:'Show me where I gave time away.',note:'Technical detail',tag:'detail',effects:{relationships:{nellBond:3},identity:{focus:1}}},
+        {label:'Can we make the dragon calmer on the bridge?',note:'Prioritise confidence',tag:'dragon',effects:{relationships:{nellBond:2,dragonBond:2},identity:{heart:1}}},
+        {label:'Give me one change. Not ten.',note:'Keep the setup simple',tag:'simple',effects:{relationships:{nellBond:2,quickquillTrust:1}}}
+      ]
+    },
+    mara: {
+      title:'Late debrief with Mara', kicker:'COMMON ROOM', portrait:{character:'mara',frame:6,side:'left'},
+      intro:'Most of the team has gone quiet. Mara is still at the round table with the qualifying sheet turned face down.',
+      line:'I do not need you to impress Blackglass tomorrow. I need you to make decisions I can trust when it gets ugly.',
+      responses:[
+        {label:'Then tell me where you still do not trust me.',note:'Invite the hard feedback',tag:'feedback',effects:{relationships:{maraBond:3,quickquillTrust:2},identity:{focus:1}}},
+        {label:'You signed me because I make decisions.',note:'Push back without flinching',tag:'push',effects:{relationships:{maraBond:1,quickquillTrust:1},identity:{fire:2}}},
+        {label:'If it gets ugly, I look after [PLAYER_DRAGON] first.',note:'Draw your line',tag:'dragon',effects:{relationships:{maraBond:2,dragonBond:2},identity:{heart:2}}}
+      ]
+    },
+    rook: {
+      title:'Local gossip with Rook', kicker:'WINDOW SEAT', portrait:{character:'rook',frame:3,side:'right'},
+      intro:'Rook Calder has somehow acquired a bowl of salted nuts and the confidence of someone who does not have to race tomorrow.',
+      line:'Blackglass has six official sectors and about thirty unofficial places people swear are cursed. Most of those people simply missed the apex.',
+      responses:[
+        {label:'Which “curse” is actually real?',note:'Ask for a local secret',tag:'secret',effects:{relationships:{rookRespect:3},identity:{focus:1}}},
+        {label:'You sound disappointed you are not racing.',note:'Prod the local test racer',tag:'prod',effects:{relationships:{rookRespect:2},identity:{fire:1}}},
+        {label:'Tell me the stupidest thing you have seen here.',note:'Trade nerves for a story',tag:'story',effects:{relationships:{rookRespect:2,tyreseBond:1},identity:{heart:1}}}
+      ]
+    }
+  };
+
+  const QUICKQUILL_BLACKGLASS_SCENES = [
+    {
+      id:'q18', number:'Q18', title:'The Table Is Set', location:'Quickquill common room · Morning',
+      background:'story/environments/10_Quickquill_Lounge_Common_Room.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'RACE TWO · THREE DAYS OUT',title:'THE TABLE IS SET',text:'For the first time, nobody at Quickquill calls the next race “the next race.” They call it Blackglass.'},
+        {speaker:'Mara',text:'Canto asked whether you could race in public. Blackglass asks what you do when the public would quite like to watch you fail.',portrait:{character:'mara',frame:6,side:'left'}},
+        {speaker:'Nell',text:'Six sectors. Three exposed bridges. One surface temperature that changes faster than my patience. The good news is the route is technically legal.',portrait:{character:'nell',frame:6,side:'left'}},
+        {speaker:'Tyrese',variants:{blackglassInitialAttitude:[
+          'You said you could not wait. I remember. Please keep that sentence so I can return it to you halfway through Storm Span.',
+          'You said Canto was hard enough. Good instinct. Blackglass rewards people who notice when something is difficult.',
+          'You asked what I meant by history. This is the place. Quickquill has won here, bled here and lied about being fine here.',
+          'One race at a time. Still the best thing you have said about it.'
+        ]},portrait:{character:'tyrese',frame:6,side:'right'}},
+        {type:'choice',id:'blackglassBriefingTone',prompt:'Mara looks at you. “Before we start — what is Blackglass to you?”',options:[
+          {label:'A chance to prove Canto was not luck.',note:'Turn pressure outward',value:'prove',effects:{identity:{fire:2},relationships:{maraBond:1}}},
+          {label:'A circuit I do not understand yet.',note:'Treat uncertainty as information',value:'learn',effects:{identity:{focus:2},relationships:{nellBond:2,quickquillTrust:1}}},
+          {label:'Something [PLAYER_DRAGON] and I will figure out together.',note:'Keep the partnership central',value:'together',effects:{identity:{heart:2},relationships:{dragonBond:2,maraBond:1}}},
+          {label:'A very dramatic place to discover whether I hate rain.',note:'Break the tension',value:'joke',effects:{identity:{heart:1},relationships:{tyreseBond:2}}}
+        ]},
+        {speaker:'Mara',variants:{blackglassBriefingTone:[
+          'Then prove it by making good decisions, not loud ones.',
+          'Excellent. Not knowing yet is a much safer starting point than pretending.',
+          'That answer will annoy every commentator in the building. Keep it.',
+          'You will. Blackglass has industrial quantities of it.'
+        ]},portrait:{character:'mara',frame:1,side:'left'}},
+        {type:'choice',id:'blackglassTeamQuestion',prompt:'The route dossier opens. What do you ask before the briefing ends?',options:[
+          {label:'Why does this place matter so much to Quickquill?',note:'Ask about the team, not yourself',value:'history',effects:{relationships:{quickquillTrust:2,maraBond:2}}},
+          {label:'Where do rookies usually lose the race?',note:'Look for the trap',value:'rookies',effects:{identity:{focus:1},relationships:{nellBond:1}}},
+          {label:'Who are we actually worried about?',note:'Make it competitive',value:'rivals',effects:{identity:{fire:1},relationships:{tyreseBond:1}}},
+          {label:'What does [PLAYER_DRAGON] need from me?',note:'Bring it back to the dragon',value:'dragon',effects:{identity:{heart:1},relationships:{dragonBond:2}}}
+        ]},
+        {speaker:'Narrator',text:'By the time the meeting ends, Blackglass is no longer a name on an envelope. It is weather, history, bad exits and a departure time written in Mara’s handwriting.'}
+      ]
+    },
+    {
+      id:'q19', number:'Q19', title:'The Part They Leave Out', location:'Quickquill rooftop · Before departure',
+      background:'story/environments/04_Quickquill_Rooftop_Walkway.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'BAGS PACKED · TEN MINUTES TO DEPARTURE',title:'THE PART THEY LEAVE OUT',text:'Tyrese asks you to wait on the roof after everybody else goes downstairs.'},
+        {speaker:'Tyrese',text:'I won at Blackglass once. Properly won. Good launch, clean bridge, stupid grin on the podium.',portrait:{character:'tyrese',frame:0,side:'right'}},
+        {speaker:'Tyrese',text:'The year after, I went back trying to repeat the same race in different weather. Put a wing into the west rail because I was more interested in being the old version of me than the racer actually sitting on the grid.',portrait:{character:'tyrese',frame:6,side:'right'}},
+        {speaker:'Tyrese',text:'That is the bit people leave out when they call a circuit “legendary.” Sometimes legendary just means enough good racers have made the same bad decision there.',portrait:{character:'tyrese',frame:1,side:'right'}},
+        {type:'choice',id:'blackglassPressureResponse',prompt:'What do you want from Tyrese before you leave?',options:[
+          {label:'Tell me what you were scared of.',note:'Ask for the truth, not the racing line',value:'truth',effects:{relationships:{tyreseBond:3},identity:{heart:1}}},
+          {label:'Show me exactly where you forced it.',note:'Turn his mistake into track knowledge',value:'line',effects:{relationships:{tyreseBond:2},identity:{focus:2}}},
+          {label:'If I start doing that tomorrow, stop me.',note:'Give him a job in your race',value:'callout',effects:{relationships:{tyreseBond:3,quickquillTrust:1}}},
+          {label:'Nothing. I just needed to know you had a bad one too.',note:'Let the confession be enough',value:'quiet',effects:{relationships:{tyreseBond:3},identity:{heart:1}}}
+        ]},
+        {speaker:'Tyrese',variants:{blackglassPressureResponse:[
+          'Losing control and everybody noticing. Then I learned everybody notices eventually anyway.',
+          'Needle Gate. I entered half a metre too deep because I was angry at the split. Nell still has the scrape pattern somewhere.',
+          'Deal. You will hate me for approximately twelve seconds. That is within team policy.',
+          'Oh, I have several. Mara keeps them alphabetised.'
+        ]},portrait:{character:'tyrese',frame:2,side:'right'}},
+        {speaker:'Tyrese',text:'Do not go north trying to become fearless. Go north knowing what you do when fear turns up.' ,portrait:{character:'tyrese',frame:1,side:'right'}}
+      ]
+    },
+    {
+      id:'q20', number:'Q20', title:'Northbound', location:'Northern coast road · Dusk',
+      background:'story/environments/20_Blackglass_Night_Circuit_Reveal.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'NORTHBOUND',title:'THE LIGHTS IN THE RAIN',text:'The road narrows, the sea gets louder, and a fortress of floodlights appears where the cliffs should end.'},
+        {speaker:'Narrator',text:'For an hour the windows show nothing but black rock, spray and the reflection of [PLAYER_DRAGON] sleeping against a travel blanket.'},
+        {speaker:'Nell',text:'There. Top span first. Grandstand to the right. You can see the return bridge when the lightning behaves.',portrait:{character:'nell',frame:4,side:'left'}},
+        {type:'choice',id:'northRoadChoice',prompt:'As Blackglass comes into view, where does your attention go?',options:[
+          {label:'Wake [PLAYER_DRAGON] so we see it together.',note:'Share the arrival',value:'dragon',effects:{relationships:{dragonBond:2},identity:{heart:1}}},
+          {label:'Ask Nell to point out the dangerous sections.',note:'Start studying now',value:'study',effects:{relationships:{nellBond:1},identity:{focus:2}}},
+          {label:'Watch Tyrese instead of the circuit.',note:'See what the place does to him',value:'tyrese',effects:{relationships:{tyreseBond:2},identity:{heart:1}}},
+          {label:'Just look. No questions yet.',note:'Let the scale land',value:'quiet',effects:{identity:{focus:1}}}
+        ]},
+        {speaker:'Mara',text:'Welcome to Blackglass. Nobody has to be impressed by it. You just have to race it.',portrait:{character:'mara',frame:0,side:'left'}}
+      ]
+    },
+    {
+      id:'q21', number:'Q21', title:'Credentials', location:'Blackglass paddock · Stormlight',
+      background:'story/environments/21_Blackglass_Paddock.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'BLACKGLASS · PADDOCK LEVEL',title:'CREDENTIALS',text:'The paddock smells of wet stone, lamp oil and equipment cases that cost more than Quickquill’s transport.'},
+        {speaker:'Steward Garran Slate',text:'Quickquill. Four personnel, one junior licence, one dragon, three crates declared as “mostly safe.” You are two minutes early. Suspicious.',portrait:{character:'steward',frame:0,side:'left'}},
+        {speaker:'Tyrese',text:'Garran. Still charming.',portrait:{character:'tyrese',frame:7,side:'right'}},
+        {speaker:'Steward Garran Slate',text:'Bell. Still documented.',portrait:{character:'steward',frame:0,side:'left'}},
+        {type:'blackglass-paddock-explore'},
+        {type:'choice',id:'stewardResponse',prompt:'Garran checks the pass, then looks at [PLAYER_DRAGON]. “Registration says rookie. Anything I should know?”',options:[
+          {label:'Their name is [PLAYER_DRAGON]. Start there.',note:'Polite, but firm',value:'name',effects:{relationships:{stewardRespect:2,dragonBond:1},identity:{heart:1}}},
+          {label:'Only that we plan to leave with all four wings attached.',note:'Dry humour',value:'dry',effects:{relationships:{stewardRespect:2,tyreseBond:1}}},
+          {label:'You will know after qualifying.',note:'Let the track answer',value:'prove',effects:{relationships:{stewardRespect:1},identity:{fire:2}}},
+          {label:'No. What should I know about you?',note:'Turn the inspection around',value:'ask',effects:{relationships:{stewardRespect:3},identity:{focus:1}}}
+        ]},
+        {speaker:'Steward Garran Slate',variants:{stewardResponse:[
+          'Fair correction. Names outlast licence numbers more often than people expect.',
+          'Good. The paperwork for missing wings is dreadful.',
+          'That answer ages very quickly here. I look forward to seeing which direction.',
+          'That I dislike preventable accidents, damp forms and racers who confuse confidence with right of way. In that order.'
+        ]},portrait:{character:'steward',frame:0,side:'left'}},
+        {speaker:'Narrator',text:'Garran stamps the pass. The sound is tiny. Somehow it makes the weekend feel official.'}
+      ]
+    },
+    {
+      id:'q22', number:'Q22', title:'A Local Line', location:'Blackglass paddock rail · Night',
+      background:'story/environments/21_Blackglass_Paddock.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'PADDOCK RAIL',title:'A LOCAL LINE',text:'A blue dragon in a weathered circuit vest has been watching Quickquill unload with open professional curiosity.'},
+        {speaker:'Rook Calder',text:'You are the Canto rookie. I am Rook Calder. I test the circuit after weather shifts, which is a prestigious way of saying I get sent outside when everyone sensible is indoors.',portrait:{character:'rook',frame:0,side:'right'}},
+        {speaker:'Rook Calder',text:'I am not on tomorrow’s grid. Before you ask: yes, that makes me unbearably qualified to give advice.',portrait:{character:'rook',frame:4,side:'right'}},
+        {type:'choice',id:'rookFirstImpression',prompt:'How do you take Rook?',options:[
+          {label:'Fine. Give me the advice nobody prints.',note:'Treat the local knowledge seriously',value:'listen',effects:{relationships:{rookRespect:3},identity:{focus:1}}},
+          {label:'If it is free, I am already suspicious.',note:'Meet the sarcasm',value:'banter',effects:{relationships:{rookRespect:2,tyreseBond:1},identity:{heart:1}}},
+          {label:'How fast are you when you are not explaining things?',note:'Make it competitive immediately',value:'challenge',effects:{relationships:{rookRespect:2},identity:{fire:2}}},
+          {label:'Start with the bit that scares locals.',note:'Go directly to the danger',value:'danger',effects:{relationships:{rookRespect:3},identity:{focus:1}}}
+        ]},
+        {speaker:'Rook Calder',variants:{rookFirstImpression:[
+          'Good. Printed advice has lawyers in it. Local advice has regret.',
+          'Excellent. You may survive the paddock even if the circuit gets you.',
+          'Fast enough that I do not have to answer that while standing still.',
+          'Storm Span. Not because it is the hardest. Because it convinces you it is easier on lap two.'
+        ]},portrait:{character:'rook',frame:3,side:'right'}},
+        {speaker:'Jalen Cross',text:'You collect locals quickly.',portrait:{character:'jalen',frame:1,side:'left'}},
+        {type:'choice',id:'jalenBlackglassResponse',prompt:'Jalen gives [PLAYER_DRAGON] a long look. How do you answer?',options:[
+          {label:'I collect useful information.',note:'No performance for him',value:'watch',effects:{identity:{focus:1},relationships:{jalenRespect:2}}},
+          {label:'I was hoping you would be worried.',note:'Apply pressure back',value:'pressure',effects:{identity:{fire:1},relationships:{jalenHeat:2,jalenRespect:1}}},
+          {label:'Do all your entrances need an audience?',note:'Make him work for the intimidation',value:'joke',effects:{identity:{heart:1},relationships:{tyreseBond:1,jalenHeat:1}}},
+          {label:'Good luck tomorrow, Jalen.',note:'Refuse the game completely',value:'respect',effects:{relationships:{jalenRespect:3},identity:{heart:1}}}
+        ]},
+        {speaker:'Jalen Cross',variants:{jalenBlackglassResponse:[
+          'Then make sure you know which information is useful.',
+          'Worried? No. Interested enough to stop pretending you are invisible.',
+          'Only the good ones.',
+          '...You too.'
+        ]},portrait:{character:'jalen',frame:2,side:'left'}}
+      ]
+    },
+    {
+      id:'q23', number:'Q23', title:'Learn the Circuit', location:'Blackglass team common room · Route briefing',
+      background:'story/environments/24_Blackglass_Common_Room.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'ROUTE BRIEFING',title:'LEARN THE CIRCUIT',text:'You cannot learn all of Blackglass tonight. Nell does not let you pretend otherwise.'},
+        {speaker:'Nell',text:'You get two sections for deep study. Two. If you try to memorise six, you will remember none of them when the visor gets wet.',portrait:{character:'nell',frame:6,side:'left'}},
+        {speaker:'Rook Calder',text:'Pick the places you want to recognise when everything else becomes noise.',portrait:{character:'rook',frame:1,side:'right'}},
+        {type:'blackglass-circuit-study'},
+        {speaker:'Nell',text:'Good. [STUDIED_SECTIONS]. Those are your anchors. Everywhere else, race what you can actually see.',portrait:{character:'nell',frame:1,side:'left'}},
+        {type:'choice',id:'blackglassSetupPlan',prompt:'Nell can bias the setup one way. Which compromise do you want?',options:[
+          {label:'Stable in the wet sections.',note:'Fewer mistakes · slightly less attack',value:'stable',effects:{identity:{focus:1},relationships:{nellBond:2}}},
+          {label:'Sharper when we pull alongside.',note:'Better attacking response · more demanding',value:'attack',effects:{identity:{fire:2},relationships:{tyreseBond:1}}},
+          {label:'Give [PLAYER_DRAGON] something forgiving.',note:'Recovery and confidence first',value:'forgiving',effects:{identity:{heart:2},relationships:{dragonBond:2,nellBond:1}}}
+        ]},
+        {speaker:'Nell',variants:{blackglassSetupPlan:[
+          'Stable it is. Boring telemetry is beautiful telemetry.',
+          'Sharper front response. If you use all of it at Needle Gate, I will personally become weather.',
+          'Forgiving. You can always ask for more from a dragon that still trusts the next corner.'
+        ]},portrait:{character:'nell',frame:2,side:'left'}}
+      ]
+    },
+    {
+      id:'q24', number:'Q24', title:'Night Qualifying', location:'Blackglass launch tunnel · Qualifying',
+      background:'story/environments/23_Blackglass_Launch_Tunnel.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'QUALIFYING · 22:40',title:'ONE LAP TO PLACE YOURSELF',text:'The tunnel is quieter than the grandstand and somehow more intimidating.'},
+        {speaker:'Steward Garran Slate',text:'One out-lap. One timed lap. Track limits are the stone, the rail and common sense, in descending order of reliability.',portrait:{character:'steward',frame:0,side:'left'}},
+        {speaker:'Tyrese',text:'Qualify for the race Blackglass actually gives you. Not the lap you imagined in the common room.',portrait:{character:'tyrese',frame:1,side:'right'}},
+        {type:'blackglass-qualifying'},
+        {speaker:'Nell',blackglassQualifyingVariants:{
+          pole:'P1. Do not stare at it. The number does not become more useful if you keep looking.',
+          front:'Front two rows. Good. We have options now.',
+          mid:'Middle of the grid. Busy, but workable. We know exactly where the time went.',
+          back:'Back row. Fine. Tomorrow we race forward instead of pretending tonight did not happen.'
+        },portrait:{character:'nell',frame:1,side:'left'}},
+        {speaker:'Rook Calder',blackglassQualifyingVariants:{
+          pole:'Well. That is deeply inconvenient for everyone who had a rookie speech prepared.',
+          front:'That will do. You looked less surprised by Storm Span than Storm Span looked by you.',
+          mid:'You left time on the circuit, which is better than leaving confidence there.',
+          back:'Blackglass likes to make rookies think grid position is a personality test. It is not.'
+        },portrait:{character:'rook',frame:4,side:'right'}},
+        {speaker:'Narrator',text:'The qualifying sheet is stamped and slid under the common-room lamp. Tomorrow starts from [QUALIFYING_POSITION]. Tonight is still yours.'}
+      ]
+    },
+    {
+      id:'q25', number:'Q25', title:'The Long Night', location:'Blackglass team common room · After qualifying',
+      background:'story/environments/24_Blackglass_Common_Room.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'23:18 · QUALIFYING COMPLETE',title:'THE LONG NIGHT',text:'The circuit is still awake. Quickquill does not have to be.'},
+        {speaker:'Mara',text:'You have time for two conversations before I start confiscating people’s opinions. Use them well.',portrait:{character:'mara',frame:0,side:'left'}},
+        {type:'blackglass-evening-planner'},
+        {speaker:'Narrator',text:'Two conversations, a cooling circuit and the strange relief of having already made tomorrow slightly more real.'},
+        {speaker:'Mara',text:'Enough. Everybody out of my common room before somebody discovers a fourth setup philosophy.',portrait:{character:'mara',frame:7,side:'left'}}
+      ]
+    },
+    {
+      id:'q26', number:'Q26', title:'After Hours', location:'Blackglass guest wing · 00:06–02:13',
+      background:'story/environments/28_Blackglass_Midnight_Suite.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'BLACKGLASS · ROOM 11',title:'WHEN THE DOOR CLOSES',text:'For the first time all evening, the crowd is only something happening beyond glass.'},
+        {type:'blackglass-room-night'},
+        {speaker:'Narrator',text:'The pass, the room key and the qualifying sheet end up together on the desk. Eventually the lights go out. The rain does not.'},
+        {type:'blackglass-after-hours'},
+        {speaker:'Narrator',blackglassAfterHoursVariants:{clean:'By morning, nobody at Quickquill knows [PLAYER_DRAGON] went anywhere. [AFTER_HOURS_MEMORY]',caught:'By morning, Quickquill knows there was an incident. Garran has already filed it under “predictable.” [AFTER_HOURS_MEMORY]',secret:'By morning, the only proof of the night is a full stomach, wet paws and a view of Blackglass that belonged to nobody else. [AFTER_HOURS_MEMORY]'}}
+      ]
+    },
+    {
+      id:'q27', number:'Q27', title:'Race Morning', location:'Blackglass common room · Late morning',
+      background:'story/environments/24_Blackglass_Common_Room.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'RACE DAY',title:'THE HOURS BEFORE',text:'Blackglass looks less supernatural in daylight. It does not look easier.'},
+        {speaker:'Steward Garran Slate',text:'Weather update. Rain intermittent. Crosswind unpleasant. Visibility legal. A triumph. [GARRAN_AFTER_HOURS]',portrait:{character:'steward',frame:0,side:'left'}},
+        {type:'blackglass-morning-prep'},
+        {speaker:'Mara',text:'Whatever you chose, that is the last new idea. From here we simplify.',portrait:{character:'mara',frame:1,side:'left'}},
+        {speaker:'Nell',text:'Setup locked. Studied sections: [STUDIED_SECTIONS]. [AFTER_HOURS_NOTE] Starting [QUALIFYING_POSITION]. Nothing else needs to fit inside your head.',portrait:{character:'nell',frame:6,side:'left'}}
+      ]
+    },
+    {
+      id:'q28', number:'Q28', title:'Into the Tunnel', location:'Blackglass launch tunnel · Race call',
+      background:'story/environments/23_Blackglass_Launch_Tunnel.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'CALL TO GRID',title:'INTO THE TUNNEL',text:'Six racers. Six dragons. The sound of the crowd arriving through stone before the light does.'},
+        {speaker:'Steward Garran Slate',blackglassStandingVariants:{
+          cold:'Quickquill. Grid call. Keep your pass visible and your ambition inside the white lines.',
+          neutral:'Quickquill. Grid call. [PLAYER_DRAGON] is cleared. Try to return with the same number of appendages.',
+          respected:'Quickquill. Grid call. [PLAYER_DRAGON] is cleared. Good weekend so far. Do not ruin my assessment.'
+        },portrait:{character:'steward',frame:0,side:'left'}},
+        {speaker:'Jalen Cross',text:'Still enjoying the weather?',portrait:{character:'jalen',frame:1,side:'right'}},
+        {speaker:'Tyrese',text:'Do not answer him. He gets stronger when acknowledged.',portrait:{character:'tyrese',frame:7,side:'left'}},
+        {type:'choice',id:'blackglassFinalWord',prompt:'The gate mechanism starts to rise. What is the last thing you give [PLAYER_DRAGON]?',options:[
+          {label:'“We know our two places. Find them.”',note:'Trust the circuit study',value:'anchors',effects:{identity:{focus:1},relationships:{dragonBond:1}}},
+          {label:'“If there is a gap, we go.”',note:'Commit to attacking',value:'gap',effects:{identity:{fire:2},relationships:{tyreseBond:1}}},
+          {label:'“Nothing here matters more than us coming back together.”',note:'Keep the dragon settled',value:'together',effects:{identity:{heart:2},relationships:{dragonBond:2}}},
+          {label:'Scratch behind the jaw. No speech.',note:'Let familiarity do the work',value:'quiet',effects:{relationships:{dragonBond:3},identity:{heart:1}}}
+        ]},
+        {speaker:'Tyrese',variants:{blackglassFinalWord:[
+          'Good. When it gets loud, find something you recognise.',
+          'Of course that is what you picked. At least make the gap real first.',
+          'That is a racing instruction, whether the timing tower understands it or not.',
+          'Best speech of the weekend.'
+        ]},portrait:{character:'tyrese',frame:1,side:'left'}}
+      ]
+    },
+    {
+      id:'q29', number:'Q29', title:'Under Floodlights', location:'Blackglass grid · Race night',
+      background:'story/environments/25_Blackglass_Race_Track.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'RACE TWO',title:'BLACKGLASS UNDER FLOODLIGHTS',text:'Three laps. Six racers. A circuit you now know just well enough to respect.'},
+        {speaker:'Mara',text:'You start [QUALIFYING_POSITION]. Forget the number when the lights go out. Race the dragon, the road and the moment in front of you.',portrait:{character:'mara',frame:1,side:'left'}},
+        {speaker:'Nell',text:'Setup is locked. No heroic corrections. If one corner goes wrong, the next one is still yours.',portrait:{character:'nell',frame:6,side:'left'}},
+        {speaker:'Rook Calder',text:'Storm Span lies on lap two. It always does. That is the local wisdom you paid absolutely nothing for.',portrait:{character:'rook',frame:3,side:'right'}},
+        {type:'race-launch',raceKey:'blackglass',speaker:'Race Control',text:'Blackglass Night Circuit is ready. Your qualifying position, studied sections, setup choice and race-day preparation all carry into the autonomous race.'}
+      ]
+    },
+    {
+      id:'q30', number:'Q30', title:'After the Floodlights', location:'Blackglass paddock · After the flag',
+      background:'story/environments/21_Blackglass_Paddock.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'AFTER THE FLAG',title:'WHEN THE NOISE MOVES ON',text:'The grandstand empties faster than the adrenaline does.'},
+        {speaker:'Narrator',blackglassResultVariants:{
+          win:'[PLAYER_DRAGON] crossed the line first. Blackglass did not become smaller. You simply stopped feeling like a visitor to it.',
+          podium:'[PLAYER_DRAGON] came home on the podium after three laps that never gave the same problem twice.',
+          midfield:'[PLAYER_DRAGON] finished in the fight. Not a headline, not a collapse — a real race with real decisions all the way to the flag.',
+          last:'[PLAYER_DRAGON] finished last and finished moving forward. Blackglass tried very hard to make the position feel like a verdict. Quickquill did not let it.'
+        }},
+        {speaker:'Tyrese',blackglassResultVariants:{
+          win:'There it is. You just made one of my favourite old stories less impressive.',
+          podium:'That was grown-up racing. Horrible phrase. Unfortunately accurate.',
+          midfield:'You kept making decisions after the result stopped flattering you. That is the bit I wanted to see.',
+          last:'Look at me. You finished a bad Blackglass night without turning it into a bad version of yourself.'
+        },portrait:{character:'tyrese',frame:1,side:'right'}},
+        {speaker:'Jalen Cross',blackglassResultVariants:{
+          win:'Fine. Canto was not an accident. I am officially irritated.',
+          podium:'Better. Now you are interesting for reasons other than being new.',
+          midfield:'You stayed in it. Most rookies disappear mentally before the final bridge.',
+          last:'You finished. Annoyingly, that means I cannot use the easy speech.'
+        },portrait:{character:'jalen',frame:1,side:'left'}},
+        {speaker:'Steward Garran Slate',blackglassStandingVariants:{
+          cold:'Your clearance is complete. Result recorded. Try not to make me remember you for the paperwork.',
+          neutral:'Result recorded. [PLAYER_DRAGON] leaves Blackglass in one piece. I count that as administratively satisfying.',
+          respected:'Result recorded. [PLAYER_DRAGON]. Good racecraft this weekend. I do not write that on many forms.'
+        },portrait:{character:'steward',frame:0,side:'left'}},
+        {speaker:'Rook Calder',blackglassResultVariants:{
+          win:'So. You came north, learned two sections and stole the whole circuit. Obnoxious efficiency.',
+          podium:'You looked like you knew where you were by the end. That is rarer here than speed.',
+          midfield:'There were three corners I hated for you and two I would steal. That is a useful ratio.',
+          last:'You did not let the circuit make your decisions for you. Keep that part. Replace the lap time.'
+        },portrait:{character:'rook',frame:4,side:'right'}},
+        {speaker:'Nell',text:'Race time [BLACKGLASS_TIME]. Overtakes [BLACKGLASS_OVERTAKES]. The timing file says the notable moment was [BLACKGLASS_MOMENT]. I have approximately forty-seven less poetic observations.',portrait:{character:'nell',frame:2,side:'left'}},
+        {type:'choice',id:'blackglassAftermath',prompt:'When Mara finally asks what Blackglass taught you, what do you say?',options:[
+          {label:'I can belong at places like this.',note:'Own the progress',value:'pride',effects:{identity:{fire:1},relationships:{quickquillTrust:2,maraBond:1}}},
+          {label:'I know exactly what I want to improve.',note:'Turn the weekend into information',value:'learn',effects:{identity:{focus:2},relationships:{nellBond:2}}},
+          {label:'The result mattered. It just was not the whole weekend.',note:'Keep perspective',value:'perspective',effects:{identity:{heart:2},relationships:{dragonBond:2,tyreseBond:1}}},
+          {label:'Ask me after I have slept for twelve hours.',note:'Refuse the instant life lesson',value:'sleep',effects:{identity:{heart:1},relationships:{tyreseBond:2,maraBond:1}}}
+        ]},
+        {speaker:'Mara',text:'Good. Whatever answer you gave, keep the version that still makes sense tomorrow morning.',portrait:{character:'mara',frame:0,side:'left'}}
+      ]
+    },
+    {
+      id:'q31', number:'Q31', title:'Something to Keep', location:'North road · Morning after',
+      background:'story/environments/20_Blackglass_Night_Circuit_Reveal.png', tone:'blackglass', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'MORNING AFTER',title:'SOMETHING TO KEEP',text:'Blackglass recedes behind rain and cliff mist. It looks impossible again from a distance.'},
+        {speaker:'Mara',text:'Garran returned three things you are apparently allowed to keep. Pick one before Nell turns all of them into filing.',portrait:{character:'mara',frame:7,side:'left'}},
+        {type:'choice',id:'blackglassKeepsake',prompt:'What goes back to your Quickquill room?',options:[
+          {label:'The stamped Blackglass venue pass.',note:'Proof you were there',value:'pass',effects:{relationships:{stewardRespect:1}}},
+          {label:'Your qualifying sheet.',note:'Keep the imperfect lap',value:'sheet',effects:{identity:{focus:1},relationships:{nellBond:1}}},
+          {label:'The pocket circuit card.',note:'Keep the map you learned',value:'card',effects:{identity:{heart:1},relationships:{rookRespect:1}}}
+        ]},
+        {speaker:'Tyrese',text:'First Canto, now Blackglass. Your shelf is going to become unbearable.',portrait:{character:'tyrese',frame:2,side:'right'}},
+        {speaker:'Narrator',text:'The keepsake goes into the travel bag. [PLAYER_DRAGON] falls asleep before the circuit disappears completely.'},
+        {speaker:'Narrator',text:'Race two is over. The next part of the career will not be about proving you can enter the room. It will be about what happens when people start saving you a seat.'}
+      ]
+    }
+  ];
+
+
   const EVENING_ACTIVITIES = {
     tyrese: {
       title: 'Rooftop with Tyrese',
@@ -434,13 +797,13 @@
     mug: { title: 'Nell’s mug', text: 'Cold.' }
   };
 
-  const ALL_QUICKQUILL_SCENES = [...QUICKQUILL_SCENES, ...QUICKQUILL_CANTO_SCENES, ...QUICKQUILL_DOWNTIME_SCENES];
+  const ALL_QUICKQUILL_SCENES = [...QUICKQUILL_SCENES, ...QUICKQUILL_CANTO_SCENES, ...QUICKQUILL_DOWNTIME_SCENES, ...QUICKQUILL_BLACKGLASS_SCENES];
 
   const STORY_JOURNEY = [
     { number: '01', title: 'The Impossible Contract', subtitle: 'A race nobody important was watching', image: 'story/environments/01_Young_Velmora_League_Circuit.png' },
     { number: '02', title: 'Prove You Belong', subtitle: 'Race One · Canto Plains', image: 'story/environments/05_Canto_Plains_Racing_Venue.png' },
     { number: '03', title: 'A Place at Quickquill', subtitle: 'Settling in · no race today', image: 'story/environments/11_Quickquill_Accommodation_Corridor.png' },
-    { number: '04', title: 'Second Wind', subtitle: 'Race Two · Blackglass', image: 'story/environments/06_Blackglass_Night_Circuit.png' },
+    { number: '04', title: 'Blackglass Under Floodlights', subtitle: 'Race Two · a full northern weekend', image: 'story/environments/20_Blackglass_Night_Circuit_Reveal.png' },
     { number: '05', title: 'A Seat at the Table', subtitle: 'Pressure, people and consequences', image: 'story/environments/04_Quickquill_Rooftop_Walkway.png' },
     { number: '06', title: 'The Lumerre Crown', subtitle: 'Race Three · Lumerre', image: 'story/environments/08_Lumerre_Crown_Racing_Circuit.png' },
     { number: '07', title: 'The Contract Decision', subtitle: 'Your choices return', image: 'story/environments/07_Lumerre_Terraces_and_Paddock.png' }
@@ -454,6 +817,22 @@
     story: document.getElementById('careerStoryMusic'),
     downtime: document.getElementById('careerDowntimeMusic')
   };
+  const AFTER_HOURS_AUDIO_ROOT = 'story/after-hours/audio/';
+  const afterHoursAudio = {
+    storm: new Audio(AFTER_HOURS_AUDIO_ROOT+'distant-storm.mp3'),
+    walk: new Audio(AFTER_HOURS_AUDIO_ROOT+'dragon-walk.mp3'),
+    run: new Audio(AFTER_HOURS_AUDIO_ROOT+'dragon-run.mp3'),
+    door: new Audio(AFTER_HOURS_AUDIO_ROOT+'metal-door.mp3'),
+    clatter: new Audio(AFTER_HOURS_AUDIO_ROOT+'plate-clatter.mp3'),
+    eat: new Audio(AFTER_HOURS_AUDIO_ROOT+'eat.mp3'),
+    steward: new Audio(AFTER_HOURS_AUDIO_ROOT+'steward-steps.mp3'),
+    paper: new Audio(AFTER_HOURS_AUDIO_ROOT+'paper-rustle.mp3'),
+    discovery: new Audio(AFTER_HOURS_AUDIO_ROOT+'discovery-chime.mp3')
+  };
+  afterHoursAudio.storm.loop = true;
+  afterHoursAudio.walk.loop = true;
+  afterHoursAudio.run.loop = true;
+  afterHoursAudio.steward.loop = true;
   const state = {
     mode: 'menu',
     selectedMenu: 0,
@@ -480,6 +859,9 @@
     resetStoryConfirmOpen: false,
     downtimeActivity: '',
     downtimeMessage: '',
+    blackglassActivity: '',
+    blackglassMessage: '',
+    afterHoursGame: null,
     dutySession: null,
     freeRoamMugClicks: 0,
     status: 'Loading your career records…'
@@ -560,12 +942,24 @@
     } catch (_) {}
   }
 
+  const BLACKGLASS_QUIET_NIGHT_SCENES = new Set(['q24','q25','q26']);
+
   function activeTrack() {
     if (state.mode === 'menu') return music.menu;
     if (state.mode === 'opening' || state.mode === 'team-select') return music.opening;
     if (state.mode === 'story') {
-      const quietScenes = new Set(['q10','q11','q15','q16','q17']);
-      if (quietScenes.has(state.story?.scene)) return music.downtime || music.story;
+      // Blackglass qualifying/evening/After Hours should feel like the same
+      // private late-night downtime space as the Quickquill dorm scenes. Keep
+      // the restrained private-quarters music underneath the storm ambience;
+      // do not fall back to the louder adventure/story track here.
+      if (state.afterHoursGame?.active) return music.downtime || null;
+      if (BLACKGLASS_QUIET_NIGHT_SCENES.has(state.story?.scene)) return music.downtime || music.story;
+      // Chapter 3 is one continuous Quickquill downtime atmosphere. Keep the
+      // private-quarters track running through the hangar return, accommodation
+      // corridor, player room, common room, workshop duties and rooftop scenes
+      // instead of dropping back to the generic story track between locations.
+      const inQuickquillDowntime = QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === state.story?.scene);
+      if (inQuickquillDowntime) return music.downtime || music.story;
       return music.story;
     }
     if (state.mode === 'story-journey') return music.story;
@@ -619,11 +1013,11 @@
   function defaultQuickquillStory() {
     return {
       id: 'quickquill-against-the-odds',
-      version: 4,
+      version: 7,
       chapter: 'prologue',
       scene: 'q0',
       beat: 0,
-      completed: { prologue: false, canto: false, downtime: false },
+      completed: { prologue: false, canto: false, downtime: false, blackglass: false },
       identity: { heart: 0, fire: 0, focus: 0 },
       relationships: {
         quickquillTrust: 50,
@@ -633,10 +1027,56 @@
         dragonBond: 50,
         jalenHeat: 10,
         jalenRespect: 0,
+        rookRespect: 0,
+        stewardRespect: 0,
         valecroftInterest: 0
       },
       choices: {},
       race: { status: 'not-started', strategy: '', runId: '', result: null },
+      blackglassRace: { status: 'not-started', strategy: '', runId: '', result: null },
+      chapter4: {
+        rebuildVersion: 2,
+        strategy: '',
+        briefingTone: '',
+        teamQuestion: '',
+        pressureResponse: '',
+        northRoadChoice: '',
+        paddockSeen: [],
+        stewardResponse: '',
+        rookResponse: '',
+        jalenResponse: '',
+        reputation: 0,
+        studiedSections: [],
+        setupPlan: '',
+        qualifying: { completed: false, plan: '', position: 3, lapMs: 0, referenceDeltaMs: 0, grid: [] },
+        eveningMoments: [],
+        eveningResponses: {},
+        localTip: '',
+        telemetryReady: false,
+        tyreseCallout: false,
+        roomActions: [],
+        dragonState: 'steady',
+        morningPrep: '',
+        finalWord: '',
+        aftermath: '',
+        keepsake: '',
+        raceMemory: [],
+        afterHours: {
+          completed:false,
+          snackFound:false,
+          timingFound:false,
+          bonusSection:'',
+          passFound:false,
+          passReturned:false,
+          passPocketed:false,
+          secretFound:false,
+          caught:false,
+          caughtResponse:'',
+          clatterTriggered:false,
+          outcome:'',
+          memory:''
+        }
+      },
       chapter3: {
         cantoAttitude: '',
         roomKeyReceived: false,
@@ -663,6 +1103,7 @@
     if (!raw || typeof raw !== 'object' || raw.id !== fallback.id) return fallback;
     if ((Number(raw.version) || 1) < fallback.version && !raw.completed?.prologue) return fallback;
     const rawChapter3 = raw.chapter3 && typeof raw.chapter3 === 'object' ? raw.chapter3 : {};
+    const rawChapter4 = raw.chapter4 && typeof raw.chapter4 === 'object' ? raw.chapter4 : {};
     const story = {
       ...fallback,
       ...cloneValue(raw),
@@ -672,6 +1113,19 @@
       relationships: { ...fallback.relationships, ...(raw.relationships || {}) },
       choices: { ...(raw.choices || {}) },
       race: { ...fallback.race, ...(raw.race || {}), result: raw.race?.result && typeof raw.race.result === 'object' ? { ...raw.race.result } : null },
+      blackglassRace: { ...fallback.blackglassRace, ...(raw.blackglassRace || {}), result: raw.blackglassRace?.result && typeof raw.blackglassRace.result === 'object' ? { ...raw.blackglassRace.result } : null },
+      chapter4: {
+        ...fallback.chapter4,
+        ...cloneValue(rawChapter4),
+        qualifying: { ...fallback.chapter4.qualifying, ...(rawChapter4.qualifying || {}), grid: Array.isArray(rawChapter4.qualifying?.grid) ? rawChapter4.qualifying.grid.slice(0,6) : [] },
+        paddockSeen: Array.isArray(rawChapter4.paddockSeen) ? rawChapter4.paddockSeen.slice(0,12) : [],
+        studiedSections: Array.isArray(rawChapter4.studiedSections) ? rawChapter4.studiedSections.slice(0,2) : [],
+        eveningMoments: Array.isArray(rawChapter4.eveningMoments) ? rawChapter4.eveningMoments.slice(0,2) : [],
+        eveningResponses: { ...(rawChapter4.eveningResponses || {}) },
+        roomActions: Array.isArray(rawChapter4.roomActions) ? rawChapter4.roomActions.slice(0,3) : [],
+        raceMemory: Array.isArray(rawChapter4.raceMemory) ? rawChapter4.raceMemory.slice(-24) : [],
+        afterHours: { ...fallback.chapter4.afterHours, ...(rawChapter4.afterHours || {}) }
+      },
       chapter3: {
         ...fallback.chapter3,
         ...cloneValue(rawChapter3),
@@ -692,6 +1146,22 @@
       story.beat = 0;
     }
     story.beat = Math.max(0, Number(story.beat) || 0);
+    const sourceVersion = Number(raw.version) || 1;
+    if (sourceVersion < 6 && story.completed?.downtime) {
+      story.completed = { ...(story.completed || {}), blackglass: false };
+      story.chapter = 'blackglass';
+      story.scene = 'q18';
+      story.beat = 0;
+      story.chapter4 = cloneValue(fallback.chapter4);
+      story.blackglassRace = cloneValue(fallback.blackglassRace);
+      story.history = [...(story.history || []), { scene:'q18', event:'blackglass-v34-18-rebuild-migration' }].slice(-100);
+    }
+    if (sourceVersion < 7 && story.completed?.downtime && !story.completed?.blackglass && !story.chapter4?.afterHours?.completed && ['q27','q28'].includes(story.scene)) {
+      story.chapter = 'blackglass';
+      story.scene = 'q26';
+      story.beat = 3;
+      story.history = [...(story.history || []), { scene:'q26', event:'blackglass-v34-18-3-after-hours-migration' }].slice(-100);
+    }
     return story;
   }
 
@@ -731,16 +1201,79 @@
     return story?.chapter3 || defaultQuickquillStory().chapter3;
   }
 
+  function isBlackglassScene(story = state.story) {
+    return QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === story?.scene);
+  }
+
+  function chapter4State(story = state.story) {
+    return story?.chapter4 || defaultQuickquillStory().chapter4;
+  }
+
+  function blackglassResultBand(story = state.story) {
+    const rank = Math.max(1, Math.min(6, Number(story?.blackglassRace?.result?.rank) || 6));
+    return rank === 1 ? 'win' : rank <= 3 ? 'podium' : rank <= 5 ? 'midfield' : 'last';
+  }
+
+  function blackglassRaceTime(story = state.story) {
+    const ms = Math.max(0, Number(story?.blackglassRace?.result?.finishMs) || 0);
+    const minutes = Math.floor(ms / 60000), seconds = Math.floor((ms % 60000) / 1000), hundredths = Math.floor((ms % 1000) / 10);
+    return ms ? `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(hundredths).padStart(2,'0')}` : '—';
+  }
+
+  function blackglassStandingBand(story = state.story) {
+    const c4 = chapter4State(story);
+    const score = (Number(c4.reputation)||0) + Math.round((Number(story?.relationships?.stewardRespect)||0)/2) + Math.round((Number(story?.relationships?.rookRespect)||0)/3);
+    return score >= 5 ? 'respected' : score <= -1 ? 'cold' : 'neutral';
+  }
+
+  function blackglassQualifyingBand(story = state.story) {
+    const position = Math.max(1, Math.min(6, Number(chapter4State(story).qualifying?.position)||6));
+    return position === 1 ? 'pole' : position <= 2 ? 'front' : position <= 4 ? 'mid' : 'back';
+  }
+
+  function blackglassStudiedText(story = state.story) {
+    const selected = chapter4State(story).studiedSections || [];
+    const names = selected.map(id => BLACKGLASS_SECTION_DEFS.find(section => section.id === id)?.name).filter(Boolean);
+    return names.length === 2 ? `${names[0]} and ${names[1]}` : names[0] || 'No deep-study sections yet';
+  }
+
+  function blackglassDragonStateLabel(story = state.story) {
+    const value = String(chapter4State(story).dragonState || 'steady');
+    return ({settled:'Settled',sharp:'Sharp',rested:'Rested',steady:'Steady'})[value] || 'Steady';
+  }
+
+  function ordinal(value) {
+    const n = Math.max(1, Math.min(99, Number(value) || 1));
+    const mod100 = n % 100;
+    const suffix = mod100 >= 11 && mod100 <= 13 ? 'TH' : n % 10 === 1 ? 'ST' : n % 10 === 2 ? 'ND' : n % 10 === 3 ? 'RD' : 'TH';
+    return `${n}${suffix}`;
+  }
+
   function storyCopy(value) {
     return String(value || '')
       .replaceAll('[PLAYER_DRAGON]', storyDragonName())
       .replaceAll('[ACCOUNT_NAME]', username())
       .replaceAll('[RACE_POSITION]', state.story?.race?.result?.rank ? `${state.story.race.result.rank}${state.story.race.result.rank===1?'ST':state.story.race.result.rank===2?'ND':state.story.race.result.rank===3?'RD':'TH'}` : 'RESULT')
       .replaceAll('[RACE_TIME]', storyRaceTime())
-      .replaceAll('[OVERTAKES]', String(Math.max(0, Number(state.story?.race?.result?.overtakes) || 0)));
+      .replaceAll('[OVERTAKES]', String(Math.max(0, Number(state.story?.race?.result?.overtakes) || 0)))
+      .replaceAll('[BLACKGLASS_POSITION]', state.story?.blackglassRace?.result?.rank ? ordinal(state.story.blackglassRace.result.rank) : 'RESULT')
+      .replaceAll('[BLACKGLASS_TIME]', blackglassRaceTime())
+      .replaceAll('[BLACKGLASS_OVERTAKES]', String(Math.max(0, Number(state.story?.blackglassRace?.result?.overtakes) || 0)))
+      .replaceAll('[BLACKGLASS_MOMENT]', String(state.story?.blackglassRace?.result?.notableMoment || 'the finish'))
+      .replaceAll('[QUALIFYING_POSITION]', ordinal(chapter4State().qualifying?.position || 3))
+      .replaceAll('[STUDIED_SECTIONS]', blackglassStudiedText())
+      .replaceAll('[BLACKGLASS_STANDING]', blackglassStandingBand().toUpperCase())
+      .replaceAll('[DRAGON_STATE]', blackglassDragonStateLabel())
+      .replaceAll('[AFTER_HOURS_MEMORY]', chapter4State().afterHours?.memory ? `Memory: ${chapter4State().afterHours.memory}.` : '')
+      .replaceAll('[AFTER_HOURS_NOTE]', chapter4State().afterHours?.timingFound ? `And somehow you have an unofficial midnight note on ${BLACKGLASS_SECTION_DEFS.find(section=>section.id===chapter4State().afterHours?.bonusSection)?.name || 'one extra sector'}.` : '')
+      .replaceAll('[GARRAN_AFTER_HOURS]', chapter4State().afterHours?.caught ? 'Also: your athlete has already completed one unscheduled event today.' : chapter4State().afterHours?.passReturned ? 'Also: thank you to whoever returned the venue pass. I am choosing not to investigate why it was found after midnight.' : '');
   }
 
   function storyBeatText(beat) {
+    if (beat?.blackglassAfterHoursVariants && typeof beat.blackglassAfterHoursVariants === 'object') { const ah=chapter4State().afterHours||{},band=ah.secretFound?'secret':ah.caught?'caught':'clean'; return storyCopy(beat.blackglassAfterHoursVariants[band] || beat.text || ''); }
+    if (beat?.blackglassResultVariants && typeof beat.blackglassResultVariants === 'object') return storyCopy(beat.blackglassResultVariants[blackglassResultBand()] || beat.text || '');
+    if (beat?.blackglassQualifyingVariants && typeof beat.blackglassQualifyingVariants === 'object') return storyCopy(beat.blackglassQualifyingVariants[blackglassQualifyingBand()] || beat.text || '');
+    if (beat?.blackglassStandingVariants && typeof beat.blackglassStandingVariants === 'object') return storyCopy(beat.blackglassStandingVariants[blackglassStandingBand()] || beat.text || '');
     if (beat?.resultVariants && typeof beat.resultVariants === 'object') return storyCopy(beat.resultVariants[storyResultBand()] || beat.text || '');
     if (!beat?.variants || typeof beat.variants !== 'object') return storyCopy(beat?.text || '');
     for (const [choiceId, variants] of Object.entries(beat.variants)) {
@@ -767,11 +1300,13 @@
       ...previousState,
       version: SAVE_VERSION,
       stage: stageOverride || (
-        QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.downtime
-          ? 'quickquill-downtime-story'
-          : nextStory.completed?.canto
-            ? 'career-hub'
-            : QUICKQUILL_CANTO_SCENES.some(scene => scene.id === nextStory.scene)
+        QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.blackglass
+          ? 'quickquill-blackglass-story'
+          : QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.downtime
+            ? 'quickquill-downtime-story'
+            : nextStory.completed?.canto
+              ? 'career-hub'
+              : QUICKQUILL_CANTO_SCENES.some(scene => scene.id === nextStory.scene)
               ? 'quickquill-canto-story'
               : nextStory.completed?.prologue
                 ? 'career-hub'
@@ -1133,7 +1668,11 @@
       'room-key': 'story/props/room-key.png',
       'canto-photo': 'story/props/canto-photo.png',
       'blackglass-envelope': 'story/props/blackglass-envelope.png',
-      'blackglass-envelope-open': 'story/props/blackglass-envelope-open.png'
+      'blackglass-envelope-open': 'story/props/blackglass-envelope-open.png',
+      'blackglass-pass': 'story/props/blackglass/venue-pass.png',
+      'blackglass-room-key': 'story/props/blackglass/room-key.png',
+      'blackglass-circuit-card': 'story/props/blackglass/circuit-card.png',
+      'blackglass-qualifying-sheet': 'story/props/blackglass/qualifying-sheet.png'
     };
     if (beat?.visual && propMap[beat.visual]) {
       return `<img class="story-prop-image is-${escapeHtml(beat.visual)}" src="${propMap[beat.visual]}" alt="" aria-hidden="true">`;
@@ -1154,8 +1693,8 @@
 
   function storyDragonMarkup(scene, beat) {
     if (!scene.showDragon || beat?.portrait || beat?.type === 'cinematic') return '';
-    if (QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === scene.id)) {
-      const frameByScene = { q9: 10, q11: 4, q15: 11, q16: 9, q17: 1 };
+    if (QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === scene.id) || QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === scene.id)) {
+      const frameByScene = { q9:10,q11:4,q15:11,q16:9,q17:1,q18:0,q19:3,q20:11,q21:2,q22:1,q23:10,q24:9,q25:3,q26:11,q27:0,q28:2,q29:1,q30:4,q31:11 };
       return downtimeDragonMarkup(frameByScene[scene.id] ?? 0, 'is-story-dragon');
     }
     const dragon = careerDragon(state.activeSave);
@@ -1238,6 +1777,523 @@
     const next = nextStoryPointer(changed);
     state.downtimeMessage = '';
     await saveStoryProgress(next.story, { transition: next.changedScene });
+  }
+
+  async function saveBlackglassSameBeat(changed) {
+    try {
+      await persistStory(changed, { stageOverride: 'quickquill-blackglass-story' });
+      state.storyError = '';
+      render();
+      return true;
+    } catch (error) {
+      console.error('[Dragonbound Career Mode] Blackglass autosave failed', error);
+      state.storySaving = false;
+      state.storyError = error?.message || 'This Blackglass moment could not be saved. Try again.';
+      render();
+      return false;
+    }
+  }
+
+  async function completeBlackglassBeat(mutator = null) {
+    if (state.storySaving || state.transitionLocked) return;
+    const changed = cloneValue(state.story);
+    if (typeof mutator === 'function') mutator(changed);
+    changed.history = [...(changed.history || []), { scene: changed.scene, beat: changed.beat, event: 'blackglass-interaction-complete' }].slice(-120);
+    const next = nextStoryPointer(changed);
+    state.blackglassMessage = '';
+    state.blackglassActivity = '';
+    await saveStoryProgress(next.story, { transition: next.changedScene });
+  }
+
+  function blackglassWeekendStatusMarkup(story = state.story) {
+    const c4 = chapter4State(story);
+    const standing = blackglassStandingBand(story);
+    const standingLabel = standing === 'respected' ? 'RESPECTED' : standing === 'cold' ? 'FROSTY' : 'UNKNOWN';
+    return `<div class="blackglass-weekend-status">
+      <span><small>PADDOCK</small><b>${standingLabel}</b></span>
+      <span><small>GRID</small><b>${c4.qualifying?.completed ? ordinal(c4.qualifying.position || 3) : '—'}</b></span>
+      <span><small>DRAGON</small><b>${escapeHtml(blackglassDragonStateLabel(story).toUpperCase())}</b></span>
+    </div>`;
+  }
+
+  const BLACKGLASS_PADDOCK_SPOTS = {
+    pass:{title:'VENUE PASS',text:'Blackglass does not print “rookie” anywhere on the pass. It does not need to. Garran has already memorised the face.'},
+    track:{title:'VIEWING RAIL',text:'From here the circuit is all wet geometry and floodlight. The grandstand looks close enough to touch and the sea looks much too far down.'},
+    crates:{title:'QUICKQUILL CASES',text:'Nell has labelled one case “DO NOT DROP” and another “DO NOT LET TYRESE OPEN.” The second is considerably more secure.'},
+    dragon:{title:'PADDOCK EDGE',text:'[PLAYER_DRAGON] watches the track, then the rain, then you. The order feels deliberate.'}
+  };
+
+  function blackglassPaddockMarkup() {
+    const c4 = chapter4State();
+    const seen = c4.paddockSeen || [];
+    return `<section class="blackglass-interaction-card is-paddock">
+      <header><div><small>BLACKGLASS ARRIVAL</small><h2>Take the place in.</h2><p>Look around before Garran finishes registration. Three stops are enough; all four are there if you want them.</p></div><b>${seen.length}/4</b></header>
+      ${blackglassWeekendStatusMarkup()}
+      <div class="blackglass-paddock-actions">
+        ${Object.entries(BLACKGLASS_PADDOCK_SPOTS).map(([id,spot])=>`<button type="button" data-bg-paddock="${id}" class="${seen.includes(id)?'is-seen':''}"><span>${escapeHtml(spot.title)}</span><i>${seen.includes(id)?'SEEN':'LOOK'}</i></button>`).join('')}
+      </div>
+      ${state.blackglassMessage ? `<div class="blackglass-message">${escapeHtml(storyCopy(state.blackglassMessage))}</div>` : ''}
+      <button type="button" class="blackglass-primary" data-bg-paddock-finish ${seen.length>=3?'':'disabled'}>RETURN TO GARRAN</button>
+    </section>`;
+  }
+
+  function blackglassCircuitStudyMarkup() {
+    const c4 = chapter4State(), selected=c4.studiedSections||[];
+    return `<section class="blackglass-study-layout">
+      <div class="blackglass-board-wrap"><img src="story/props/blackglass/blackglass-route-board.png" alt="Blackglass circuit strategy board"></div>
+      <aside class="blackglass-interaction-card is-study">
+        <header><div><small>NELL'S RULE: TWO ONLY</small><h2>Choose your anchors.</h2><p>Deep-study two sections. Those sections give [PLAYER_DRAGON] a small real race advantage and lower the chance of a mistake there.</p></div><b>${selected.length}/2</b></header>
+        ${blackglassWeekendStatusMarkup()}
+        <div class="blackglass-section-list">
+          ${BLACKGLASS_SECTION_DEFS.map(section=>`<button type="button" data-bg-section="${section.id}" class="${selected.includes(section.id)?'is-selected':''}">
+            <span><strong>${escapeHtml(section.name)}</strong><small>${escapeHtml(section.note)}</small><em>${escapeHtml(section.benefit)}</em></span><i>${selected.includes(section.id)?'LOCKED':'STUDY'}</i>
+          </button>`).join('')}
+        </div>
+        ${state.blackglassMessage ? `<div class="blackglass-message">${escapeHtml(state.blackglassMessage)}</div>` : ''}
+        <button type="button" class="blackglass-primary" data-bg-study-finish ${selected.length===2?'':'disabled'}>LOCK DEEP STUDY</button>
+      </aside>
+    </section>`;
+  }
+
+  function blackglassEveningPlannerMarkup() {
+    const c4=chapter4State(),used=c4.eveningMoments||[],remaining=Math.max(0,2-used.length);
+    if(state.blackglassActivity&&BLACKGLASS_EVENING_ACTIVITIES[state.blackglassActivity]){
+      const activity=BLACKGLASS_EVENING_ACTIVITIES[state.blackglassActivity];
+      return `<section class="blackglass-interaction-card is-conversation">
+        <button type="button" class="blackglass-text-back" data-bg-evening-cancel>‹ BACK</button>
+        <small>${escapeHtml(activity.kicker)}</small><h2>${escapeHtml(activity.title)}</h2>
+        <p>${escapeHtml(storyCopy(activity.intro))}</p>
+        <blockquote>${escapeHtml(storyCopy(activity.line))}</blockquote>
+        <div class="blackglass-response-list">${activity.responses.map((response,index)=>`<button type="button" data-bg-evening-response="${index}"><b>${String.fromCharCode(65+index)}</b><span><strong>${escapeHtml(storyCopy(response.label))}</strong><small>${escapeHtml(response.note)}</small></span><i>›</i></button>`).join('')}</div>
+      </section>`;
+    }
+    return `<section class="blackglass-interaction-card is-evening">
+      <header><div><small>AFTER QUALIFYING</small><h2>Spend the evening.</h2><p>Choose two. The conversations change relationships and some of them alter what you carry into race day.</p></div><b>${remaining} LEFT</b></header>
+      ${blackglassWeekendStatusMarkup()}
+      <div class="blackglass-evening-grid">
+        ${Object.entries(BLACKGLASS_EVENING_ACTIVITIES).map(([id,activity])=>`<button type="button" data-bg-evening="${id}" class="${used.includes(id)?'is-used':''}" ${used.includes(id)||remaining<=0?'disabled':''}><small>${escapeHtml(activity.kicker)}</small><strong>${escapeHtml(activity.title)}</strong><span>${used.includes(id)?'DONE':'GO'}</span></button>`).join('')}
+      </div>
+      ${used.length>=2?'<p class="blackglass-complete-note">Two moments chosen. The rest of the team is winding down.</p>':''}
+      <button type="button" class="blackglass-primary" data-bg-evening-finish ${used.length>=2?'':'disabled'}>CALL IT A NIGHT</button>
+    </section>`;
+  }
+
+  // V34.18.3 — Blackglass After Hours playable dragon interlude.
+  const AFTER_HOURS_FRAMES = {quiet:0,creepA:1,creepB:2,sniff:3,investigate:4,eat:5,hide:6,peek:7,startled:8,guilty:9};
+  const AFTER_HOURS_PATROL = [[18,39],[43,39],[70,39],[88,28],[84,48],[62,48],[48,58],[73,69],[88,66],[72,43],[34,43]];
+  const AFTER_HOURS_MAPS = {
+    wing:{background:'story/environments/26_Blackglass_Guest_Wing.png',start:[29,31]},
+    pantry:{background:'story/environments/27_Blackglass_Pantry.png',start:[50,82]}
+  };
+  const afterHoursKeys = new Set();
+  let afterHoursRaf = 0;
+  let afterHoursLastFrameAt = 0;
+  let afterHoursListenersBound = false;
+
+  function afterHoursDragonKey(){const key=accountKey(username());return CAREER_DRAGONS[key]?key:'catasthma';}
+  function afterHoursDragonSrc(frame=0){return `story/after-hours/dragons/${afterHoursDragonKey()}/frame-${String(Math.max(0,Math.min(9,Number(frame)||0))).padStart(2,'0')}.png`;}
+  function afterHoursStewardSrc(frame=0){return `story/after-hours/steward/frame-${String(Math.max(0,Math.min(9,Number(frame)||0))).padStart(2,'0')}.png`;}
+  function afterHoursPropSrc(name){return `story/after-hours/props/${name}.png`;}
+  function ahDistance(a,b){return Math.hypot(Number(a[0])-Number(b[0]),Number(a[1])-Number(b[1]));}
+  function ahClamp(n,a,b){return Math.max(a,Math.min(b,n));}
+
+  function afterHoursAudioPlay(name,volume=.3,{restart=true,loop=null}={}){
+    const audio=afterHoursAudio[name];if(!audio||!state.soundOn)return;
+    try{if(restart)audio.currentTime=0;if(loop!==null)audio.loop=!!loop;audio.volume=ahClamp(volume,0,1);void audio.play().catch(()=>undefined);}catch(_e){}
+  }
+  function afterHoursAudioPause(name,reset=false){const audio=afterHoursAudio[name];if(!audio)return;try{audio.pause();if(reset)audio.currentTime=0;}catch(_e){}}
+  function startAfterHoursStorm(){if(!state.soundOn)return;afterHoursAudio.storm.volume=.27;afterHoursAudio.storm.loop=true;if(afterHoursAudio.storm.paused)void afterHoursAudio.storm.play().catch(()=>undefined);}
+  function stopAfterHoursLoop(){
+    cancelAnimationFrame(afterHoursRaf);afterHoursRaf=0;afterHoursLastFrameAt=0;afterHoursKeys.clear();
+    afterHoursAudioPause('walk');afterHoursAudioPause('run');afterHoursAudioPause('steward');
+    if(afterHoursListenersBound){window.removeEventListener('keydown',afterHoursKeyDown,true);window.removeEventListener('keyup',afterHoursKeyUp,true);afterHoursListenersBound=false;}
+  }
+  function stopAfterHoursGameplay(resetRuntime=false){
+    stopAfterHoursLoop();Object.keys(afterHoursAudio).forEach(key=>afterHoursAudioPause(key,true));
+    if(state.afterHoursGame)state.afterHoursGame.active=false;
+    if(resetRuntime)state.afterHoursGame=null;
+  }
+
+  function newAfterHoursGame(){
+    return {
+      active:true,phase:'intro',room:'wing',x:29,y:31,facing:'left',moving:false,movementMode:'quiet',action:'quiet',actionUntil:0,noise:0,message:'',messageUntil:0,
+      snackFound:false,timingFound:false,bonusSection:'',serviceKey:false,passFound:false,passReturned:false,passPocketed:false,secretFound:false,caught:false,caughtResponse:'',clatterTriggered:false,
+      hidden:false,hideId:'',modal:'',objective:'Find something to eat.',
+      steward:{x:18,y:39,patrolIndex:1,mode:'patrol',target:null,investigateUntil:0},
+      stewardComingAt:0,stewardSearchUntil:0,stewardSearchSafe:false,
+      startedAt:Date.now(),outcome:'',memory:'',pendingStewardDelta:0,pendingReputationDelta:0,sceneIndex:0
+    };
+  }
+  function ensureAfterHoursGame(sceneIndex=0){
+    if(!state.afterHoursGame||state.afterHoursGame.phase==='done')state.afterHoursGame=newAfterHoursGame();
+    state.afterHoursGame.active=true;state.afterHoursGame.sceneIndex=sceneIndex;return state.afterHoursGame;
+  }
+  function afterHoursSetMessage(text,duration=3200){const g=state.afterHoursGame;if(!g)return;g.message=String(text||'');g.messageUntil=Date.now()+duration;}
+
+  function afterHoursWalkable(room,x,y){
+    if(room==='pantry'){
+      if(x<7||x>93||y<13||y>88)return false;
+      if(x>29&&x<71&&y>33&&y<66)return false; // preparation table
+      if(y<28&&x>9&&x<91)return false; // shelves
+      return true;
+    }
+    // Guest wing is a connected set of broad floor zones. This prevents the
+    // dragon from walking through the major wall masses without turning the
+    // hand-painted environment into a brittle pixel-perfect collision map.
+    const zones=[
+      [6,14,94,48],[27,38,82,66],[36,47,78,88],[5,54,38,84],[67,53,95,86]
+    ];
+    return zones.some(([x0,y0,x1,y1])=>x>=x0&&x<=x1&&y>=y0&&y<=y1);
+  }
+  function afterHoursTryMove(g,nx,ny){
+    if(afterHoursWalkable(g.room,nx,ny)){g.x=nx;g.y=ny;return;}
+    if(afterHoursWalkable(g.room,nx,g.y))g.x=nx;
+    if(afterHoursWalkable(g.room,g.x,ny))g.y=ny;
+  }
+
+  function afterHoursNearby(){
+    const g=state.afterHoursGame;if(!g||g.phase!=='play')return null;
+    const rows=[];const add=(id,label,pos,radius=7,kind='interaction')=>{const d=ahDistance([g.x,g.y],pos);if(d<=radius)rows.push({id,label,pos,d,kind});};
+    if(g.room==='wing'){
+      add('room','Room 11',[29,29],7,'door');
+      add('pantry','Staff pantry',[21,63],7,'door');
+      add('view','Maintenance viewing rail',[89,28],7,'door');
+      if(!g.serviceKey)add('key','Dropped service key',[84,66],7,'pickup');
+      if(!g.passFound)add('pass','Dropped venue pass',[47,42],6,'pickup');
+      if(g.passFound&&!g.passReturned&&!g.passPocketed)add('return-pass','Night desk drop box',[13,37],7,'pickup');
+      add('notice','Noticeboard',[69,50],6,'inspect');
+      add('hide-crates','Hide behind equipment crates',[37,66],7,'hide');
+      add('hide-bench','Hide in the recessed bench nook',[67,50],7,'hide');
+      add('hide-gear','Hide behind service racks',[86,69],7,'hide');
+    } else {
+      add('exit-pantry','Guest wing',[50,84],8,'door');
+      if(!g.snackFound)add('snack','Leftover Blackglass sweet roll',[50,68],8,'food');
+      if(!g.timingFound)add('timing','Old sector sheets',[77,69],8,'inspect');
+      add('hide-table','Hide beneath the prep table',[50,68],9,'hide');
+      add('mug','Very precarious mug',[69,48],6,'noise');
+    }
+    rows.sort((a,b)=>a.d-b.d);return rows[0]||null;
+  }
+
+  function afterHoursPlayerFrame(g){
+    const nowMs=Date.now();if(g.actionUntil>nowMs){if(g.action==='eat')return AFTER_HOURS_FRAMES.eat;if(g.action==='sniff')return AFTER_HOURS_FRAMES.sniff;if(g.action==='investigate')return AFTER_HOURS_FRAMES.investigate;if(g.action==='startled')return AFTER_HOURS_FRAMES.startled;if(g.action==='guilty')return AFTER_HOURS_FRAMES.guilty;}
+    if(g.hidden)return AFTER_HOURS_FRAMES.hide;
+    if(g.moving&&g.movementMode==='creep')return Math.floor(nowMs/260)%2?AFTER_HOURS_FRAMES.creepA:AFTER_HOURS_FRAMES.creepB;
+    if(g.moving)return Math.floor(nowMs/220)%2?AFTER_HOURS_FRAMES.creepA:AFTER_HOURS_FRAMES.creepB;
+    return AFTER_HOURS_FRAMES.quiet;
+  }
+  function afterHoursStewardFrame(g){
+    const mode=g.steward?.mode||'patrol';if(mode==='investigate')return 5;if(mode==='alert')return 7;if(mode==='caught')return 8;return 1+(Math.floor(Date.now()/330)%3);
+  }
+
+  function afterHoursPropMarkup(g){
+    const props=[];
+    const add=(name,x,y,cls='')=>props.push(`<img class="after-hours-world-prop ${cls}" src="${afterHoursPropSrc(name)}" alt="" style="--x:${x}%;--y:${y}%">`);
+    if(g.room==='wing'){
+      if(!g.serviceKey)add('service-key',84,66,'is-key');
+      if(!g.passFound)add('venue-pass',47,42,'is-pass');
+    } else {
+      if(!g.snackFound){add('sweet-roll',49,44,'is-snack');add('snack-plate',53,47,'is-snack-plate');}
+      if(!g.timingFound)add('timing-stack',77,67,'is-paper');
+      add('mug',69,47,'is-mug');
+    }
+    return props.join('');
+  }
+
+  function afterHoursObjective(g){
+    if(!g.snackFound)return 'FIND SOMETHING TO EAT';
+    if(g.room==='pantry'&&!g.timingFound)return 'SNACK ACQUIRED · EXPLORE OR RETURN TO ROOM';
+    return 'RETURN TO ROOM · OPTIONAL SECRETS REMAIN';
+  }
+  function afterHoursStatusChips(g){
+    const rows=[];
+    if(g.snackFound)rows.push('<span>✓ SNACK</span>');
+    if(g.timingFound)rows.push('<span>✓ EXTRA SECTOR NOTE</span>');
+    if(g.serviceKey)rows.push('<span>✓ SERVICE KEY</span>');
+    if(g.secretFound)rows.push('<span>★ SECRET VIEW</span>');
+    if(g.passReturned)rows.push('<span>✓ PASS RETURNED</span>');
+    if(g.caught)rows.push('<span class="is-danger">! CAUGHT</span>');
+    return rows.join('');
+  }
+
+  function afterHoursPlayMarkup(g){
+    const map=AFTER_HOURS_MAPS[g.room]||AFTER_HOURS_MAPS.wing,near=afterHoursNearby();
+    const alertText=g.stewardSearchUntil>Date.now()?'DO NOT MOVE · GARRAN IS IN THE ROOM':g.stewardComingAt>Date.now()?`FOOTSTEPS APPROACHING · ${Math.max(1,Math.ceil((g.stewardComingAt-Date.now())/1000))}s`:g.steward?.mode==='investigate'?'GARRAN HEARD SOMETHING':'QUIET';
+    const timingOptions=BLACKGLASS_SECTION_DEFS.filter(section=>!(chapter4State().studiedSections||[]).includes(section.id)).slice(0,4);
+    return `<section class="after-hours-game" data-after-room="${escapeHtml(g.room)}">
+      <img class="after-hours-map" src="${map.background}" alt="Blackglass ${g.room==='pantry'?'staff pantry':'guest wing'} at night">
+      <div class="after-hours-night-filter"></div>
+      ${afterHoursPropMarkup(g)}
+      <div class="after-hours-player ${g.facing==='right'?'is-flipped':''} ${g.hidden?'is-hidden':''}" style="--x:${g.x}%;--y:${g.y}%"><img data-after-player-img src="${afterHoursDragonSrc(afterHoursPlayerFrame(g))}" alt="${escapeHtml(storyDragonName())}"></div>
+      ${g.room==='wing'?`<div class="after-hours-steward ${g.steward.x>g.x?'':'is-flipped'}" style="--x:${g.steward.x}%;--y:${g.steward.y}%"><img data-after-steward-img src="${afterHoursStewardSrc(afterHoursStewardFrame(g))}" alt="Steward Garran Slate"></div>`:''}
+      <header class="after-hours-hud">
+        <div class="after-hours-objective"><small>BLACKGLASS · AFTER HOURS</small><strong data-after-objective>${afterHoursObjective(g)}</strong><div>${afterHoursStatusChips(g)}</div></div>
+        <div class="after-hours-noise"><small>NOISE</small><i><b data-after-noise style="width:${Math.round(g.noise*100)}%"></b></i><span data-after-alert class="${alertText==='QUIET'?'':'is-alert'}">${escapeHtml(alertText)}</span></div>
+        <button type="button" data-story-home>BACK TO HUB</button>
+      </header>
+      <div class="after-hours-controls"><span><b>WASD</b> MOVE</span><span><b>SHIFT</b> CREEP</span><span><b>SPACE</b> RUN</span><span><b>E</b> INTERACT</span></div>
+      <div class="after-hours-message ${g.message&&g.messageUntil>Date.now()?'is-visible':''}" data-after-message>${escapeHtml(g.message||'')}</div>
+      <button type="button" class="after-hours-interact ${near?'is-visible':''}" data-after-interact><kbd>E</kbd><span data-after-prompt>${escapeHtml(g.hidden?'Leave hiding place':near?.label||'')}</span></button>
+      ${g.modal==='timing'?`<div class="after-hours-modal"><section><small>OLD BLACKGLASS SECTOR SHEETS</small><h2>One useful note survived the rain.</h2><p>You only have time to understand one extra section. This becomes a real race-knowledge bonus tomorrow.</p><div class="after-hours-timing-options">${timingOptions.map(section=>`<button type="button" data-after-timing-section="${section.id}"><b>${escapeHtml(section.name)}</b><small>${escapeHtml(section.note)}</small><span>STUDY THIS</span></button>`).join('')}</div><button type="button" data-after-modal-close>LEAVE THE PAPERS</button></section></div>`:''}
+    </section>`;
+  }
+
+  function renderBlackglassAfterHours(scene,beat,sceneIndex){
+    stopAfterHoursLoop();const g=ensureAfterHoursGame(sceneIndex);startAfterHoursStorm();syncMusic();
+    if(g.phase==='intro'){
+      root.innerHTML=`<section class="after-hours-cinematic-shell"><img src="story/environments/28_Blackglass_Midnight_Suite.png" alt="Blackglass guest suite in the middle of the night"><div class="after-hours-cinematic-shade"></div><img class="after-hours-intro-dragon" src="${afterHoursDragonSrc(0)}" alt="${escapeHtml(storyDragonName())}"><section class="after-hours-cinematic-card"><small>01:47 · ROOM 11</small><h1>SOMETHING WAKES UP</h1><p>The room is dark. The storm is not. ${escapeHtml(storyDragonName())} is very definitely awake — and very definitely hungry.</p><div><span>No dialogue choices.</span><span>No keeper.</span><span>Just the dragon.</span></div><button type="button" data-after-begin>GET OUT OF THE NEST</button></section><button class="after-hours-corner-back" type="button" data-story-home>BACK TO HUB</button></section>`;
+      root.querySelector('[data-after-begin]')?.addEventListener('click',()=>{afterHoursAudioPlay('door',.34);g.phase='play';g.room='wing';g.x=29;g.y=31;g.message='The guest wing is supposed to be asleep.';g.messageUntil=Date.now()+3000;renderBlackglassAfterHours(scene,beat,sceneIndex);});
+      root.querySelector('[data-story-home]')?.addEventListener('click',returnToHubFromStory);return;
+    }
+    if(g.phase==='secret'){
+      root.innerHTML=`<section class="after-hours-secret-shell"><img src="story/environments/29_Blackglass_Circuit_At_Rest.png" alt="The empty Blackglass circuit in the rain"><div class="after-hours-secret-shade"></div><img class="after-hours-secret-dragon ${g.facing==='right'?'is-flipped':''}" src="${afterHoursDragonSrc(AFTER_HOURS_FRAMES.peek)}" alt="${escapeHtml(storyDragonName())}"><section><small>02:13 · MAINTENANCE VIEWING RAIL</small><h1>BLACKGLASS BEFORE THE CROWD</h1><p>No racers. No commentary. No grid. For a minute Blackglass is just rain, sea and a road glowing through the dark.</p><em>Career memory discovered</em><strong>BLACKGLASS AT 02:13</strong><button type="button" data-after-secret-return>GO BACK INSIDE</button></section></section>`;
+      root.querySelector('[data-after-secret-return]')?.addEventListener('click',()=>{g.phase='play';g.room='wing';g.x=85;g.y=31;g.secretFound=true;g.message='The service door clicks shut behind you.';g.messageUntil=Date.now()+2600;afterHoursAudioPlay('door',.34);renderBlackglassAfterHours(scene,beat,sceneIndex);});return;
+    }
+    if(g.phase==='caught'){
+      root.innerHTML=`<section class="after-hours-caught-shell"><img src="${AFTER_HOURS_MAPS.wing.background}" alt="Blackglass guest wing"><div class="after-hours-caught-shade"></div><img class="after-hours-caught-steward" src="story/portraits/blackglass/steward/frame-00.png" alt="Steward Garran Slate"><img class="after-hours-caught-dragon" src="${afterHoursDragonSrc(AFTER_HOURS_FRAMES.guilty)}" alt="${escapeHtml(storyDragonName())}"><section class="after-hours-caught-card"><small>UNSCHEDULED EVENT · 02:${String(14+Math.floor((Date.now()-g.startedAt)/60000)).padStart(2,'0')}</small><h1>GARRAN FOUND YOU.</h1><blockquote>“You are aware breakfast is in several hours.”</blockquote><p>${escapeHtml(storyDragonName())} looks at Garran. Garran looks at ${escapeHtml(storyDragonName())}. Nobody is winning.</p><div><button type="button" data-after-caught="hungry"><b>“I was hungry.”</b><small>Be extremely honest.</small></button><button type="button" data-after-caught="study" ${g.timingFound?'':'disabled'}><b>Point at the timing sheets.</b><small>${g.timingFound?'At least there was a reason.':'You did not actually find any.'}</small></button><button type="button" data-after-caught="guilty"><b>Say absolutely nothing.</b><small>Deploy the guilty stare.</small></button></div></section></section>`;
+      root.querySelectorAll('[data-after-caught]').forEach(button=>button.addEventListener('click',()=>{const response=button.dataset.afterCaught;if(button.disabled)return;g.caughtResponse=response;g.snackFound=true;g.outcome='caught';if(response==='study'&&g.timingFound){g.pendingStewardDelta+=1;g.message='Garran studies the sheet, then the dragon. “At least your trespassing has sector discipline.”';}else if(response==='guilty'){g.pendingReputationDelta-=1;g.message='Garran sighs so heavily it probably appears on the weather instruments.';}else{g.message='Garran produces one dry biscuit from somewhere inside his coat. “Resolve the emergency.”';}g.phase='summary';afterHoursAudioPlay('eat',.30);renderBlackglassAfterHours(scene,beat,sceneIndex);}));return;
+    }
+    if(g.phase==='summary'){
+      const memory=g.secretFound?'Blackglass at 02:13':g.caught?'The Blackglass Biscuit Incident':g.timingFound?'The Midnight Timing Sheet':'The Midnight Snack Run';g.memory=memory;
+      root.innerHTML=`<section class="after-hours-summary-shell"><img src="story/environments/28_Blackglass_Midnight_Suite.png" alt="Blackglass guest suite at night"><div class="after-hours-summary-shade"></div><section class="after-hours-summary-card"><small>AFTER HOURS COMPLETE</small><h1>${escapeHtml(memory)}</h1><p>${escapeHtml(g.message||`${storyDragonName()} makes it back to the nest before anybody notices.`)}</p><div class="after-hours-summary-grid"><span class="${g.snackFound?'is-done':''}"><b>${g.snackFound?'✓':'—'}</b><small>SNACK</small><strong>${g.snackFound?'ACQUIRED':'MISSED'}</strong></span><span class="${g.timingFound?'is-done':''}"><b>${g.timingFound?'✓':'—'}</b><small>EXTRA STUDY</small><strong>${g.timingFound?escapeHtml(BLACKGLASS_SECTION_DEFS.find(s=>s.id===g.bonusSection)?.name||'SECTOR NOTE'):'NONE'}</strong></span><span class="${g.secretFound?'is-done':''}"><b>${g.secretFound?'★':'—'}</b><small>SECRET</small><strong>${g.secretFound?'02:13 VIEW':'UNDISCOVERED'}</strong></span><span class="${g.passReturned?'is-done':''}"><b>${g.passReturned?'✓':'—'}</b><small>VENUE PASS</small><strong>${g.passReturned?'RETURNED':g.passFound?'FOUND':'MISSED'}</strong></span></div><button type="button" data-after-finish>BACK TO THE NEST</button></section></section>`;
+      root.querySelector('[data-after-finish]')?.addEventListener('click',()=>{stopAfterHoursGameplay(false);void completeBlackglassBeat(changed=>{const c4=changed.chapter4,ah=c4.afterHours||{};Object.assign(ah,{completed:true,snackFound:!!g.snackFound,timingFound:!!g.timingFound,bonusSection:g.bonusSection||'',passFound:!!g.passFound,passReturned:!!g.passReturned,passPocketed:!!(g.passFound&&!g.passReturned),secretFound:!!g.secretFound,caught:!!g.caught,caughtResponse:g.caughtResponse||'',clatterTriggered:!!g.clatterTriggered,outcome:g.outcome||'clean',memory});c4.afterHours=ah;if(g.snackFound){c4.dragonState='rested';changed.relationships.dragonBond+=1;}if(g.timingFound)changed.identity.focus+=1;if(g.secretFound){changed.identity.heart+=1;changed.relationships.dragonBond+=2;}if(g.passReturned){changed.relationships.stewardRespect+=2;c4.reputation+=1;}changed.relationships.stewardRespect+=g.pendingStewardDelta||0;c4.reputation+=g.pendingReputationDelta||0;changed.history.push({scene:'q26',event:'blackglass-after-hours',memory,snack:!!g.snackFound,timing:g.bonusSection||'',secret:!!g.secretFound,caught:!!g.caught,passReturned:!!g.passReturned});});});return;
+    }
+
+    root.innerHTML=`<section class="story-shell tone-blackglass after-hours-story-shell" aria-label="Blackglass After Hours"><div class="story-stage is-after-hours-stage">${afterHoursPlayMarkup(g)}</div></section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+    root.querySelector('[data-story-home]')?.addEventListener('click',returnToHubFromStory);
+    root.querySelector('[data-after-interact]')?.addEventListener('click',afterHoursInteract);
+    root.querySelector('[data-after-modal-close]')?.addEventListener('click',()=>{g.modal='';g.message='The papers stay where they are.';g.messageUntil=Date.now()+2200;renderBlackglassAfterHours(scene,beat,sceneIndex);});
+    root.querySelectorAll('[data-after-timing-section]').forEach(button=>button.addEventListener('click',()=>{const id=button.dataset.afterTimingSection,def=BLACKGLASS_SECTION_DEFS.find(section=>section.id===id);if(!def)return;g.timingFound=true;g.bonusSection=id;g.modal='';g.action='investigate';g.actionUntil=Date.now()+1200;g.message=`You remember one useful note about ${def.name}. Nell would be annoyed by how useful this is.`;g.messageUntil=Date.now()+4200;afterHoursAudioPlay('paper',.28);renderBlackglassAfterHours(scene,beat,sceneIndex);}));
+    startAfterHoursLoop();
+  }
+
+  function afterHoursCatch(reason='caught'){
+    const g=state.afterHoursGame;if(!g||g.phase!=='play')return;g.caught=true;g.outcome='caught';g.action='startled';g.actionUntil=Date.now()+1000;g.phase='caught';g.hidden=false;stopAfterHoursLoop();afterHoursAudioPlay('steward',.12,{restart:true,loop:false});window.setTimeout(()=>{const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);},300);
+  }
+
+  function afterHoursTriggerClatter(){
+    const g=state.afterHoursGame;if(!g||g.clatterTriggered)return;g.clatterTriggered=true;g.noise=1;g.stewardComingAt=Date.now()+3900;afterHoursAudioPlay('clatter',.40);afterHoursSetMessage('CLATTER. Somewhere in the guest wing, heavy footsteps stop.',3900);
+  }
+
+  function afterHoursInteract(){
+    const g=state.afterHoursGame;if(!g||g.phase!=='play'||g.modal)return;
+    if(g.hidden){g.hidden=false;g.hideId='';afterHoursSetMessage('You creep back out.',1600);return;}
+    const near=afterHoursNearby();if(!near){g.action='sniff';g.actionUntil=Date.now()+800;afterHoursSetMessage('Nothing useful here. The food smell is stronger toward the service rooms.',2200);return;}
+    if(near.kind==='hide'){
+      g.hidden=true;g.hideId=near.id;g.noise=0;afterHoursAudioPause('walk');afterHoursAudioPause('run');afterHoursSetMessage(near.id==='hide-table'?'You flatten yourself beneath the preparation table.':'You disappear into the darkest bit of cover available.',2600);return;
+    }
+    if(near.id==='pantry'){
+      afterHoursAudioPlay('door',.35);g.room='pantry';g.x=50;g.y=82;g.noise=.08;afterHoursSetMessage('Warm pastry. Definitely pastry.',2800);const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='exit-pantry'){
+      afterHoursAudioPlay('door',.35);g.room='wing';g.x=23;g.y=61;g.noise=.12;afterHoursSetMessage('Back into the guest wing.',1800);const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='room'){
+      if(!g.snackFound){afterHoursSetMessage('Going back to bed hungry would make this entire operation pointless.',2600);g.action='sniff';g.actionUntil=Date.now()+900;return;}
+      g.outcome=g.secretFound?'secret':g.caught?'caught':'clean';g.message=g.secretFound?'The nest feels different after seeing the circuit empty.':g.timingFound?'Full stomach. One extra sector note. Nobody needs to know.':'Snack secured. Mission accomplished with an almost professional lack of dignity.';g.phase='summary';stopAfterHoursLoop();const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='snack'){
+      g.snackFound=true;g.action='eat';g.actionUntil=Date.now()+1900;g.objective='Return to Room 11 — or keep exploring.';afterHoursAudioPlay('eat',.32);afterHoursSetMessage('A slightly stale Blackglass sweet roll. At 01:57 it may be the finest food ever produced.',4300);const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='timing'){
+      g.modal='timing';g.action='investigate';g.actionUntil=Date.now()+1200;afterHoursAudioPlay('paper',.28);stopAfterHoursLoop();const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='key'){
+      g.serviceKey=true;g.action='investigate';g.actionUntil=Date.now()+800;afterHoursSetMessage('A small service key tag. One of the upper maintenance doors uses the same blue enamel mark.',3600);const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='pass'){
+      g.passFound=true;g.action='investigate';g.actionUntil=Date.now()+800;afterHoursAudioPlay('paper',.22);afterHoursSetMessage('Dropped Blackglass venue pass. Somebody is going to need this in the morning.',3000);const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='return-pass'){
+      g.passReturned=true;afterHoursSetMessage('The pass slips into the night desk return slot. Garran will know somebody bothered.',3200);afterHoursAudioPlay('door',.25);const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='view'){
+      if(!g.serviceKey){afterHoursAudioPlay('door',.28);afterHoursSetMessage('Locked. A tiny blue-enamel key symbol is stamped beside the latch.',3000);return;}
+      g.secretFound=true;g.phase='secret';stopAfterHoursLoop();afterHoursAudioPlay('door',.34);afterHoursAudioPlay('discovery',.25);const scene=activeStoryScene(),beat=scene.beats[state.story.beat],idx=QUICKQUILL_BLACKGLASS_SCENES.findIndex(item=>item.id===scene.id);renderBlackglassAfterHours(scene,beat,idx);return;
+    }
+    if(near.id==='notice'){
+      g.action='investigate';g.actionUntil=Date.now()+1000;afterHoursSetMessage('Tomorrow’s notices: grid access, weather restrictions, breakfast. Breakfast is offensively far away.',3600);return;
+    }
+    if(near.id==='mug'){afterHoursTriggerClatter();return;}
+  }
+
+  function afterHoursKeyDown(event){
+    const g=state.afterHoursGame;if(!g?.active||g.phase!=='play'||g.modal)return;const key=String(event.key||'').toLowerCase();
+    if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift',' ','e'].includes(key)){event.preventDefault();event.stopPropagation();}
+    if(key==='e'&&!event.repeat){afterHoursInteract();return;}
+    afterHoursKeys.add(key);
+  }
+  function afterHoursKeyUp(event){const key=String(event.key||'').toLowerCase();afterHoursKeys.delete(key);}
+
+  function afterHoursStartMovementAudio(mode,moving){
+    if(!state.soundOn||!moving){afterHoursAudioPause('walk');afterHoursAudioPause('run');return;}
+    if(mode==='run'){
+      afterHoursAudioPause('walk');afterHoursAudio.run.volume=.40;afterHoursAudio.run.loop=true;if(afterHoursAudio.run.paused)void afterHoursAudio.run.play().catch(()=>undefined);
+    }else{
+      afterHoursAudioPause('run');afterHoursAudio.walk.volume=mode==='creep'?.10:.29;afterHoursAudio.walk.loop=true;if(afterHoursAudio.walk.paused)void afterHoursAudio.walk.play().catch(()=>undefined);
+    }
+  }
+
+  function afterHoursUpdateSteward(g,dt){
+    if(g.room!=='wing')return;const s=g.steward,player=[g.x,g.y],dist=ahDistance([s.x,s.y],player),nowMs=Date.now();
+    if(!g.hidden&&g.noise>.62&&dist<29){s.mode='investigate';s.target=[g.x,g.y];s.investigateUntil=nowMs+4300;}
+    else if(s.mode==='investigate'&&nowMs>s.investigateUntil){s.mode='patrol';s.target=null;}
+    let target=s.mode==='investigate'&&s.target?s.target:AFTER_HOURS_PATROL[s.patrolIndex%AFTER_HOURS_PATROL.length],speed=s.mode==='investigate'?8.2:5.1,dx=target[0]-s.x,dy=target[1]-s.y,d=Math.hypot(dx,dy);
+    if(d<1.2){if(s.mode==='patrol')s.patrolIndex=(s.patrolIndex+1)%AFTER_HOURS_PATROL.length;else{s.mode='patrol';s.target=null;}}else{s.x+=dx/d*speed*dt;s.y+=dy/d*speed*dt;}
+    const newDist=ahDistance([s.x,s.y],player);if(!g.hidden&&newDist<7.2){afterHoursCatch('steward');return;}
+    if(state.soundOn&&newDist<42){const vol=.035+(1-ahClamp(newDist/42,0,1))*.105;afterHoursAudio.steward.volume=vol;afterHoursAudio.steward.loop=true;if(afterHoursAudio.steward.paused)void afterHoursAudio.steward.play().catch(()=>undefined);}else afterHoursAudioPause('steward');
+  }
+
+  function afterHoursUpdatePantryThreat(g){
+    const nowMs=Date.now();
+    if(g.stewardComingAt&&nowMs>=g.stewardComingAt){g.stewardComingAt=0;if(g.hidden){g.stewardSearchUntil=nowMs+4300;g.stewardSearchSafe=true;afterHoursAudioPlay('door',.36);afterHoursAudioPlay('steward',.12,{restart:true,loop:false});afterHoursSetMessage('The door opens. Garran checks the room. Do not move.',4300);}else{afterHoursCatch('clatter');return;}}
+    if(g.stewardSearchUntil){if(!g.hidden){afterHoursCatch('moved-while-hidden');return;}if(nowMs>=g.stewardSearchUntil){g.stewardSearchUntil=0;g.stewardSearchSafe=false;afterHoursSetMessage('The door closes again. Somehow, that worked.',3000);afterHoursAudioPlay('door',.28);}}
+  }
+
+  function afterHoursRefreshDom(g){
+    const player=root.querySelector('.after-hours-player'),playerImg=root.querySelector('[data-after-player-img]'),steward=root.querySelector('.after-hours-steward'),stewardImg=root.querySelector('[data-after-steward-img]');
+    if(player){player.style.setProperty('--x',g.x+'%');player.style.setProperty('--y',g.y+'%');player.classList.toggle('is-flipped',g.facing==='right');player.classList.toggle('is-hidden',g.hidden);}if(playerImg){const src=afterHoursDragonSrc(afterHoursPlayerFrame(g));if(!playerImg.src.endsWith(src))playerImg.src=src;}
+    if(steward){steward.style.setProperty('--x',g.steward.x+'%');steward.style.setProperty('--y',g.steward.y+'%');steward.classList.toggle('is-flipped',g.steward.x<g.x);}if(stewardImg){const src=afterHoursStewardSrc(afterHoursStewardFrame(g));if(!stewardImg.src.endsWith(src))stewardImg.src=src;}
+    const noise=root.querySelector('[data-after-noise]');if(noise)noise.style.width=Math.round(g.noise*100)+'%';const obj=root.querySelector('[data-after-objective]');if(obj)obj.textContent=afterHoursObjective(g);
+    const msg=root.querySelector('[data-after-message]');if(msg){const visible=!!g.message&&g.messageUntil>Date.now();msg.textContent=visible?g.message:'';msg.classList.toggle('is-visible',visible);}
+    const near=afterHoursNearby(),interact=root.querySelector('[data-after-interact]'),prompt=root.querySelector('[data-after-prompt]');if(interact)interact.classList.toggle('is-visible',!!near||g.hidden);if(prompt)prompt.textContent=g.hidden?'Leave hiding place':near?.label||'';
+    const alert=root.querySelector('[data-after-alert]');if(alert){const nowMs=Date.now(),txt=g.stewardSearchUntil>nowMs?'DO NOT MOVE · GARRAN IS IN THE ROOM':g.stewardComingAt>nowMs?`FOOTSTEPS APPROACHING · ${Math.max(1,Math.ceil((g.stewardComingAt-nowMs)/1000))}s`:g.steward?.mode==='investigate'?'GARRAN HEARD SOMETHING':'QUIET';alert.textContent=txt;alert.classList.toggle('is-alert',txt!=='QUIET');}
+  }
+
+  function startAfterHoursLoop(){
+    const g=state.afterHoursGame;if(!g||g.phase!=='play'||g.modal)return;stopAfterHoursLoop();g.active=true;if(!afterHoursListenersBound){window.addEventListener('keydown',afterHoursKeyDown,true);window.addEventListener('keyup',afterHoursKeyUp,true);afterHoursListenersBound=true;}
+    const tick=t=>{if(!state.afterHoursGame?.active||state.afterHoursGame.phase!=='play'){stopAfterHoursLoop();return;}afterHoursRaf=requestAnimationFrame(tick);const game=state.afterHoursGame,dt=Math.min(.05,Math.max(.001,(t-(afterHoursLastFrameAt||t))/1000));afterHoursLastFrameAt=t;if(game.modal)return;
+      let dx=0,dy=0;if(afterHoursKeys.has('w')||afterHoursKeys.has('arrowup'))dy-=1;if(afterHoursKeys.has('s')||afterHoursKeys.has('arrowdown'))dy+=1;if(afterHoursKeys.has('a')||afterHoursKeys.has('arrowleft'))dx-=1;if(afterHoursKeys.has('d')||afterHoursKeys.has('arrowright'))dx+=1;const moving=!!(dx||dy),run=afterHoursKeys.has(' '),creep=afterHoursKeys.has('shift');
+      if(moving&&game.hidden){game.hidden=false;game.hideId='';if(game.stewardSearchUntil){afterHoursCatch('left-cover');return;}}
+      const mag=Math.hypot(dx,dy)||1,mode=creep?'creep':run?'run':'walk',speed=mode==='creep'?7.6:mode==='run'?22:13.2;game.moving=moving;game.movementMode=mode;if(moving){dx/=mag;dy/=mag;afterHoursTryMove(game,game.x+dx*speed*dt,game.y+dy*speed*dt);if(Math.abs(dx)>.1)game.facing=dx>0?'right':'left';game.noise=Math.max(game.noise,mode==='creep'?.10:mode==='run'?.88:.35);}else game.noise=Math.max(0,game.noise-dt*.72);afterHoursStartMovementAudio(mode,moving);
+      if(game.room==='pantry'&&moving&&mode==='run'&&!game.clatterTriggered&&ahDistance([game.x,game.y],[68,48])<8)afterHoursTriggerClatter();
+      if(game.room==='wing')afterHoursUpdateSteward(game,dt);else afterHoursUpdatePantryThreat(game);afterHoursRefreshDom(game);
+    };afterHoursRaf=requestAnimationFrame(tick);
+  }
+
+
+  const BLACKGLASS_ROOM_ACTIONS = {
+    settle:{title:'SETTLE [PLAYER_DRAGON]',text:'Sit by the nest until the rain becomes background noise.',effect:'Dragon settles · bond up'},
+    grid:{title:'READ THE QUALIFYING SHEET',text:'Look at the gaps instead of the position.',effect:'Focus up · grid context'},
+    card:{title:'POCKET CIRCUIT CARD',text:'Trace the two sections you chose one last time.',effect:'Studied sections reinforced'},
+    pack:{title:'PACK FOR MORNING',text:'Pass, goggles, towel, spare strap. No midnight panic.',effect:'Quickquill trust up'},
+    rain:{title:'WATCH THE STORM',text:'Do absolutely nothing useful for a minute.',effect:'Heart up · pressure down'}
+  };
+
+  function blackglassRoomNightMarkup() {
+    const c4=chapter4State(),actions=c4.roomActions||[],remaining=Math.max(0,3-actions.length);
+    return `<section class="blackglass-interaction-card is-room-night">
+      <header><div><small>ROOM 11 · 00:06</small><h2>No team meeting. No cameras.</h2><p>Do up to three things, then sleep. You only need two before the night can end.</p></div><b>${remaining} OPTIONAL</b></header>
+      ${blackglassWeekendStatusMarkup()}
+      <div class="blackglass-room-actions">
+        ${Object.entries(BLACKGLASS_ROOM_ACTIONS).map(([id,action])=>`<button type="button" data-bg-room-action="${id}" class="${actions.includes(id)?'is-done':''}" ${actions.includes(id)||actions.length>=3?'disabled':''}><span><strong>${escapeHtml(storyCopy(action.title))}</strong><small>${escapeHtml(action.text)}</small><em>${escapeHtml(action.effect)}</em></span><i>${actions.includes(id)?'DONE':'DO'}</i></button>`).join('')}
+      </div>
+      ${state.blackglassMessage?`<div class="blackglass-message">${escapeHtml(storyCopy(state.blackglassMessage))}</div>`:''}
+      <button type="button" class="blackglass-primary" data-bg-room-sleep ${actions.length>=2?'':'disabled'}>SETTLE IN FOR THE NIGHT</button>
+    </section>
+    <div class="blackglass-room-props" aria-hidden="true">
+      <img class="is-pass" src="story/props/blackglass/venue-pass.png" alt="">
+      <img class="is-key" src="story/props/blackglass/room-key.png" alt="">
+      <img class="is-sheet" src="story/props/blackglass/qualifying-sheet.png" alt="">
+      <img class="is-bag" src="story/props/blackglass/travel-bag.png" alt="">
+    </div>`;
+  }
+
+  const BLACKGLASS_MORNING_PREP = {
+    warmup:{title:'Short dragon warm-up',note:'Sharper launch · slightly more eager early race',value:'warmup'},
+    technical:{title:'One final setup check with Nell',note:'Smoother corner pace · fewer forced corrections',value:'technical'},
+    breakfast:{title:'Eat properly and keep it normal',note:'Rested race state · steadier overall pace',value:'breakfast'},
+    balcony:{title:'Five quiet minutes on the balcony',note:'Lower pressure · fewer mistakes',value:'balcony'}
+  };
+
+  function blackglassMorningPrepMarkup() {
+    const c4=chapter4State(),selected=c4.morningPrep||'';
+    return `<section class="blackglass-interaction-card is-morning-prep">
+      <header><div><small>RACE MORNING</small><h2>One last preparation.</h2><p>You do not get to optimise everything. Pick the thing that will make the afternoon simpler.</p></div></header>
+      ${blackglassWeekendStatusMarkup()}
+      <div class="blackglass-morning-grid">${Object.entries(BLACKGLASS_MORNING_PREP).map(([id,item])=>`<button type="button" data-bg-morning="${id}" class="${selected===id?'is-selected':''}"><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.note)}</small><i>›</i></button>`).join('')}</div>
+      ${state.blackglassMessage?`<div class="blackglass-message">${escapeHtml(state.blackglassMessage)}</div>`:''}
+    </section>`;
+  }
+
+  function renderBlackglassInteractive(scene, beat, sceneIndex) {
+    window.clearTimeout(storyRevealTimer);storyRevealTimer=0;state.storyRevealComplete=true;
+    if (beat.type === 'blackglass-after-hours') { renderBlackglassAfterHours(scene, beat, sceneIndex); return; }
+    let content='',portrait='',extra='';
+    if(beat.type==='blackglass-paddock-explore') content=blackglassPaddockMarkup();
+    else if(beat.type==='blackglass-circuit-study') content=blackglassCircuitStudyMarkup();
+    else if(beat.type==='blackglass-evening-planner'){
+      content=blackglassEveningPlannerMarkup();
+      if(state.blackglassActivity&&BLACKGLASS_EVENING_ACTIVITIES[state.blackglassActivity]) portrait=portraitMarkup(BLACKGLASS_EVENING_ACTIVITIES[state.blackglassActivity].portrait);
+      else extra=downtimeDragonMarkup(3,'is-blackglass-lounge-dragon');
+    }
+    else if(beat.type==='blackglass-room-night'){content=blackglassRoomNightMarkup();extra=downtimeDragonMarkup(11,'is-blackglass-room-dragon');}
+    else if(beat.type==='blackglass-morning-prep'){content=blackglassMorningPrepMarkup();extra=downtimeDragonMarkup(0,'is-blackglass-morning-dragon');}
+    root.innerHTML=`
+      <section class="story-shell tone-blackglass blackglass-interactive-shell" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}">
+        <img class="story-backdrop" src="${scene.background}" alt="" aria-hidden="true">
+        <div class="story-stage is-blackglass-interactive">
+          <img class="story-environment" src="${scene.background}" alt="${escapeHtml(scene.title)}">
+          <div class="story-light" aria-hidden="true"></div><div class="story-weather" aria-hidden="true"></div><div class="story-grain" aria-hidden="true"></div>
+          <header class="story-header"><div><small>QUICKQUILL: AGAINST THE ODDS</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-story-home>BACK TO HUB</button></header>
+          ${portrait}${extra}${content}
+          <div class="story-scene-counter"><i style="--story-progress:${((sceneIndex+1)/QUICKQUILL_BLACKGLASS_SCENES.length)*100}%"></i><span>BLACKGLASS WEEKEND ${sceneIndex+1} / ${QUICKQUILL_BLACKGLASS_SCENES.length}</span></div>
+        </div><div class="story-screen-vignette" aria-hidden="true"></div>
+      </section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+    cleanDuplicateSceneLayers();
+    root.querySelector('[data-story-home]')?.addEventListener('click',returnToHubFromStory);
+
+    if(beat.type==='blackglass-paddock-explore'){
+      root.querySelectorAll('[data-bg-paddock]').forEach(button=>button.addEventListener('click',()=>{
+        const id=button.dataset.bgPaddock,spot=BLACKGLASS_PADDOCK_SPOTS[id];if(!spot)return;
+        const changed=cloneValue(state.story),c4=changed.chapter4;const first=!c4.paddockSeen.includes(id);
+        if(first){c4.paddockSeen.push(id);if(id==='pass'){c4.reputation+=1;changed.relationships.stewardRespect+=1;}if(id==='track')changed.identity.focus+=1;if(id==='crates')changed.relationships.quickquillTrust+=1;if(id==='dragon')changed.relationships.dragonBond+=1;}
+        state.blackglassMessage=spot.text;playTone(first?330:230);void saveBlackglassSameBeat(changed);
+      }));
+      root.querySelector('[data-bg-paddock-finish]')?.addEventListener('click',()=>void completeBlackglassBeat(changed=>{changed.history.push({scene:'q21',event:'paddock-explored',seen:[...changed.chapter4.paddockSeen]});}));
+    }
+
+    if(beat.type==='blackglass-circuit-study'){
+      root.querySelectorAll('[data-bg-section]').forEach(button=>button.addEventListener('click',()=>{
+        const id=button.dataset.bgSection,changed=cloneValue(state.story),selected=changed.chapter4.studiedSections||[];
+        if(selected.includes(id)){changed.chapter4.studiedSections=selected.filter(value=>value!==id);state.blackglassMessage='Section released. You can choose another anchor.';}
+        else if(selected.length>=2){state.blackglassMessage='Nell taps the board. “Two. I meant two.”';playTone(170);render();return;}
+        else{changed.chapter4.studiedSections=[...selected,id];const def=BLACKGLASS_SECTION_DEFS.find(section=>section.id===id);state.blackglassMessage=`${def?.name||'Section'} locked for deep study. ${def?.benefit||''}`;}
+        playTone(340);void saveBlackglassSameBeat(changed);
+      }));
+      root.querySelector('[data-bg-study-finish]')?.addEventListener('click',()=>void completeBlackglassBeat(changed=>{changed.chapter4.reputation+=1;changed.identity.focus+=1;changed.history.push({scene:'q23',event:'circuit-study',sections:[...changed.chapter4.studiedSections]});}));
+    }
+
+    if(beat.type==='blackglass-evening-planner'){
+      root.querySelectorAll('[data-bg-evening]').forEach(button=>button.addEventListener('click',()=>{state.blackglassActivity=button.dataset.bgEvening;state.blackglassMessage='';playTone(320);render();}));
+      root.querySelector('[data-bg-evening-cancel]')?.addEventListener('click',()=>{state.blackglassActivity='';render();});
+      root.querySelectorAll('[data-bg-evening-response]').forEach(button=>button.addEventListener('click',()=>{
+        const id=state.blackglassActivity,activity=BLACKGLASS_EVENING_ACTIVITIES[id],index=Number(button.dataset.bgEveningResponse),response=activity?.responses?.[index];if(!response)return;
+        const changed=cloneValue(state.story),c4=changed.chapter4;if(!c4.eveningMoments.includes(id)&&c4.eveningMoments.length<2){applyStoryEffects(changed,response.effects);c4.eveningMoments.push(id);c4.eveningResponses[id]=response.tag||index;if(id==='rook'){c4.reputation+=1;if(response.tag==='secret')c4.localTip='storm-span';}if(id==='nell'&&(response.tag==='detail'||response.tag==='simple'))c4.telemetryReady=true;if(id==='nell'&&response.tag==='dragon')c4.dragonState='settled';if(id==='tyrese'&&response.tag==='trust')c4.tyreseCallout=true;changed.history.push({scene:'q25',event:'blackglass-evening',activity:id,response:response.tag||index});}
+        state.blackglassActivity='';playTone(430);void saveBlackglassSameBeat(changed);
+      }));
+      root.querySelector('[data-bg-evening-finish]')?.addEventListener('click',()=>void completeBlackglassBeat());
+    }
+
+    if(beat.type==='blackglass-room-night'){
+      root.querySelectorAll('[data-bg-room-action]').forEach(button=>button.addEventListener('click',()=>{
+        const action=button.dataset.bgRoomAction,changed=cloneValue(state.story),c4=changed.chapter4;if(c4.roomActions.includes(action)||c4.roomActions.length>=3)return;c4.roomActions.push(action);
+        if(action==='settle'){c4.dragonState='settled';changed.relationships.dragonBond+=2;state.blackglassMessage='[PLAYER_DRAGON] shifts twice, sighs, and finally stops listening to every gust against the window.';}
+        if(action==='grid'){changed.identity.focus+=1;state.blackglassMessage='The gaps are smaller than the positions make them look. That helps.';}
+        if(action==='card'){changed.relationships.nellBond+=1;state.blackglassMessage=`You trace ${blackglassStudiedText(changed)} once, then put the card down before it turns into superstition.`;}
+        if(action==='pack'){changed.relationships.quickquillTrust+=1;state.blackglassMessage='Morning-you now has goggles, pass, towel and spare strap in one place. A rare act of kindness.';}
+        if(action==='rain'){changed.identity.heart+=1;state.blackglassMessage='For sixty seconds you let Blackglass be scenery instead of a problem to solve.';}
+        playTone(300);void saveBlackglassSameBeat(changed);
+      }));
+      root.querySelector('[data-bg-room-sleep]')?.addEventListener('click',()=>void completeBlackglassBeat(changed=>{changed.history.push({scene:'q26',event:'blackglass-room-lights-out',actions:[...changed.chapter4.roomActions],dragonState:changed.chapter4.dragonState});}));
+    }
+
+    if(beat.type==='blackglass-morning-prep'){
+      root.querySelectorAll('[data-bg-morning]').forEach(button=>button.addEventListener('click',()=>{
+        const id=button.dataset.bgMorning,item=BLACKGLASS_MORNING_PREP[id];if(!item)return;
+        void completeBlackglassBeat(changed=>{changed.chapter4.morningPrep=id;if(id==='warmup'){changed.chapter4.dragonState='sharp';changed.relationships.dragonBond+=1;}if(id==='technical'){changed.relationships.nellBond+=2;changed.identity.focus+=1;}if(id==='breakfast'){changed.chapter4.dragonState='rested';changed.identity.heart+=1;}if(id==='balcony'){changed.identity.heart+=1;changed.relationships.tyreseBond+=1;}changed.history.push({scene:'q27',event:'race-morning-prep',prep:id});});
+      }));
+    }
   }
 
   function roomChoiceCard(slot, value, label, image, selected) {
@@ -1624,31 +2680,151 @@
   }
 
 
+  function formatStoryLap(ms) {
+    const value = Math.max(0, Number(ms) || 0);
+    if (!value) return '—';
+    const minutes = Math.floor(value / 60000), seconds = Math.floor((value % 60000) / 1000), thousandths = Math.floor(value % 1000);
+    return `${minutes}:${String(seconds).padStart(2,'0')}.${String(thousandths).padStart(3,'0')}`;
+  }
+
+  function qualifyingPlanDefinition(plan) {
+    return {
+      clean: { title: 'BANK A CLEAN LAP', note: 'Low risk · stable exits', pace: 230, variance: 430 },
+      chase: { title: "CHASE TYRESE'S SPLIT", note: 'High commitment · higher variance', pace: -380, variance: 980 },
+      adapt: { title: 'LEARN, THEN COMMIT', note: 'Adaptive · strongest final sector', pace: -90, variance: 650 }
+    }[plan] || null;
+  }
+
+  async function resolveBlackglassQualifying(plan) {
+    if (state.storySaving || !state.story || state.story?.completed?.blackglass) return;
+    const def = qualifyingPlanDefinition(plan);
+    if (!def) return;
+    const changed = cloneValue(state.story);
+    const c4 = changed.chapter4 ||= cloneValue(defaultQuickquillStory().chapter4);
+    if (c4.qualifying?.completed) return;
+    const strategy = currentBlackglassStrategy(changed);
+    const matchBonus = (strategy === 'focus' && plan === 'clean') || (strategy === 'fire' && plan === 'chase') || (strategy === 'heart' && plan === 'adapt') ? -180 : 0;
+    const pressure = String(c4.pressureResponse || '');
+    const pressureBonus = pressure === 'line' ? -95 : pressure === 'callout' ? -55 : pressure === 'truth' ? -20 : pressure === 'quiet' ? -35 : 0;
+    const setup = String(c4.setupPlan || '');
+    const setupBonus = (setup === 'stable' && plan === 'clean') || (setup === 'attack' && plan === 'chase') || (setup === 'forgiving' && plan === 'adapt') ? -125 : 0;
+    const studyBonus = -Math.min(170, (c4.studiedSections || []).length * 80);
+    const localBonus = -Math.min(110, Math.max(0, Number(changed.relationships?.rookRespect)||0) * 12);
+    const dragonState = String(c4.dragonState || 'steady');
+    const stateVariance = dragonState === 'settled' || dragonState === 'rested' ? .82 : 1;
+    const riskRoll = (Math.random() * 2 - 1) * def.variance * stateVariance;
+    const stumbleChance = plan === 'chase' ? (setup === 'stable' ? .17 : setup === 'attack' ? .26 : .22) : 0;
+    const stumble = stumbleChance && Math.random() < stumbleChance ? 620 + Math.random() * 690 : 0;
+    const playerLap = Math.round(82180 + def.pace + matchBonus + pressureBonus + setupBonus + studyBonus + localBonus + riskRoll + stumble);
+    const rivals = [
+      { name: 'Jalen Cross', lapMs: Math.round(81420 + (Math.random() * 2 - 1) * 520) },
+      { name: 'Tyrese Bell', lapMs: Math.round(81720 + (Math.random() * 2 - 1) * 500) },
+      { name: 'Sofia Mendes', lapMs: Math.round(82580 + (Math.random() * 2 - 1) * 620) },
+      { name: 'Luka Kovač', lapMs: Math.round(82980 + (Math.random() * 2 - 1) * 650) },
+      { name: 'Kestrel', lapMs: Math.round(83380 + (Math.random() * 2 - 1) * 720) }
+    ];
+    const rows = [...rivals, { name: storyDragonName(), lapMs: playerLap, player: true }].sort((a,b)=>a.lapMs-b.lapMs).map((row,index)=>({ ...row, position:index+1 }));
+    const player = rows.find(row=>row.player);
+    const tyrese = rows.find(row=>row.name === 'Tyrese Bell');
+    c4.qualifying = {
+      completed: true,
+      plan,
+      planTitle: def.title,
+      position: player?.position || 3,
+      lapMs: playerLap,
+      referenceDeltaMs: tyrese ? playerLap - tyrese.lapMs : 0,
+      grid: rows
+    };
+    changed.history = [...(changed.history || []), { scene:'q24', event:'blackglass-qualifying', plan, position:c4.qualifying.position, lapMs:playerLap }].slice(-100);
+    try {
+      await persistStory(changed, { stageOverride:'quickquill-blackglass-story' });
+      state.storyError = '';
+      playTone(440);
+      render();
+    } catch (error) {
+      console.error('[Dragonbound Career Mode] Blackglass qualifying save failed', error);
+      state.storySaving = false;
+      state.storyError = error?.message || 'Qualifying could not be saved. Try the lap again.';
+      render();
+    }
+  }
+
+  function renderBlackglassQualifying(scene, beat, sceneIndex) {
+    const q = chapter4State().qualifying || {};
+    const plans = ['clean','chase','adapt'];
+    const rows = Array.isArray(q.grid) ? q.grid : [];
+    root.innerHTML = `
+      <section class="story-shell tone-blackglass blackglass-qualifying-shell" aria-label="Blackglass qualifying">
+        <img class="story-backdrop" src="${scene.background}" alt="" aria-hidden="true">
+        <div class="story-stage is-blackglass-qualifying">
+          <img class="story-environment" src="${scene.background}" alt="Blackglass Night Circuit">
+          <div class="story-light" aria-hidden="true"></div><div class="story-weather" aria-hidden="true"></div><div class="story-grain" aria-hidden="true"></div><div class="story-letterbox" aria-hidden="true"></div>
+          <header class="story-header"><div><small>QUICKQUILL: AGAINST THE ODDS</small><strong>Q24 · NIGHT QUALIFYING</strong><span>Blackglass Night Circuit · one flying lap</span></div><button type="button" data-story-home>BACK TO HUB</button></header>
+          ${storyDragonMarkup(scene, beat)}
+          <div class="story-scene-counter"><i style="--story-progress:${((sceneIndex + 1) / QUICKQUILL_BLACKGLASS_SCENES.length) * 100}%"></i><span>RACE TWO ${sceneIndex + 1} / ${QUICKQUILL_BLACKGLASS_SCENES.length}</span></div>
+          <section class="blackglass-qualifying-panel ${q.completed ? 'has-result' : ''}">
+            <div class="blackglass-quali-heading"><small>BLACKGLASS · QUALIFYING</small><h1>${q.completed ? `GRID ${ordinal(q.position)}` : 'CHOOSE THE LAP'}</h1><p>${q.completed ? 'The lap is banked. No rerolls. This is where you start the race.' : 'This is a story decision, not a reaction test. Pick how you want to attack one lap under the floodlights. Your circuit study, setup and earlier choices quietly influence the result.'}</p></div>
+            ${q.completed ? `
+              <div class="blackglass-quali-result">
+                <div class="blackglass-quali-hero"><span>YOUR LAP</span><strong>${escapeHtml(formatStoryLap(q.lapMs))}</strong><small>${q.referenceDeltaMs <= 0 ? '−' : '+'}${escapeHtml(formatStoryLap(Math.abs(q.referenceDeltaMs)).replace(/^0:/,''))} vs Tyrese</small></div>
+                <div class="blackglass-grid-board">${rows.map(row=>`<div class="blackglass-grid-row ${row.player?'is-player':''}"><b>P${row.position}</b><span>${escapeHtml(row.name)}</span><strong>${escapeHtml(formatStoryLap(row.lapMs))}</strong></div>`).join('')}</div>
+                <div class="blackglass-quali-plan-memory"><small>PLAN</small><strong>${escapeHtml(q.planTitle || qualifyingPlanDefinition(q.plan)?.title || 'QUALIFYING LAP')}</strong></div>
+                <button type="button" data-qualifying-lock ${state.storySaving?'disabled':''}>${state.storySaving?'SAVING…':'LOCK IN GRID'}</button>
+              </div>` : `
+              <div class="blackglass-quali-plans">${plans.map((plan,index)=>{const def=qualifyingPlanDefinition(plan);return `<button type="button" class="blackglass-quali-plan" data-qualifying-plan="${plan}" ${state.storySaving?'disabled':''}><b>0${index+1}</b><span><strong>${escapeHtml(def.title)}</strong><small>${escapeHtml(def.note)}</small></span><i>›</i></button>`;}).join('')}</div>
+              <div class="blackglass-quali-tip"><span>TYRESE</span><p>“Do not qualify for the race you wish Blackglass was. Qualify for the one it actually is.”</p></div>`}
+            ${state.storyError ? `<div class="story-error" role="alert">${escapeHtml(state.storyError)}</div>` : ''}
+          </section>
+        </div><div class="story-screen-vignette" aria-hidden="true"></div>
+      </section><div class="blackout ${state.blackout ? 'is-visible' : ''}" aria-hidden="true"></div>`;
+    root.querySelector('[data-story-home]')?.addEventListener('click', returnToHubFromStory);
+    root.querySelectorAll('[data-qualifying-plan]').forEach(button=>button.addEventListener('click',()=>{ void resolveBlackglassQualifying(button.dataset.qualifyingPlan); }));
+    root.querySelector('[data-qualifying-lock]')?.addEventListener('click',()=>{
+      const next = nextStoryPointer(state.story);
+      void saveStoryProgress(next.story, { transition:false });
+    });
+  }
+
+
   function renderStory() {
     window.clearTimeout(storyRevealTimer);
     storyRevealTimer = 0;
     storyRevealText = '';
     const chapterTwoScene = QUICKQUILL_CANTO_SCENES.some(item => item.id === state.story?.scene);
     const chapterThreeScene = QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === state.story?.scene);
-    if (state.story?.completed?.downtime) {
+    const chapterFourScene = QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === state.story?.scene);
+    if (state.story?.completed?.blackglass) {
+      renderBlackglassComplete();
+      return;
+    }
+    if (state.story?.completed?.downtime && !chapterFourScene) {
       renderDowntimeComplete();
       return;
     }
-    if (state.story?.completed?.canto && !chapterThreeScene) {
+    if (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.downtime) {
       renderCantoComplete();
       return;
     }
-    if (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !state.story?.completed?.canto) {
+    if (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.canto) {
       renderStoryComplete();
       return;
     }
     const scene = activeStoryScene();
     const beat = scene.beats[Math.min(state.story?.beat || 0, scene.beats.length - 1)] || scene.beats[0];
-    const sceneList = chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const sceneList = chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
     const sceneIndex = sceneList.findIndex(item => item.id === scene.id);
     const interactiveTypes = new Set(['corridor-explore','room-customise','evening-planner','duty-select','duty-game','downtime-free-roam','night-routine','morning-corridor']);
+    const blackglassInteractiveTypes = new Set(['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep']);
     if (chapterThreeScene && interactiveTypes.has(beat.type)) {
       renderDowntimeInteractive(scene, beat, sceneIndex);
+      return;
+    }
+    if (chapterFourScene && blackglassInteractiveTypes.has(beat.type)) {
+      renderBlackglassInteractive(scene, beat, sceneIndex);
+      return;
+    }
+    if (chapterFourScene && beat.type === 'blackglass-qualifying') {
+      renderBlackglassQualifying(scene, beat, sceneIndex);
       return;
     }
     const isChoice = beat.type === 'choice';
@@ -1656,12 +2832,12 @@
     const isRaceLaunch = beat.type === 'race-launch';
     const fullText = !isChoice && !isCinematic && !isRaceLaunch ? storyBeatText(beat) : '';
     state.storyRevealComplete = isChoice || isCinematic || isRaceLaunch;
-    const chapterLabel = chapterThreeScene ? 'DOWNTIME' : chapterTwoScene ? 'RACE ONE' : 'PROLOGUE';
+    const chapterLabel = chapterFourScene ? 'RACE TWO' : chapterThreeScene ? 'DOWNTIME' : chapterTwoScene ? 'RACE ONE' : 'PROLOGUE';
     const persistentRoomDecor = chapterThreeScene && ['q11','q16'].includes(scene.id) ? roomDecorMarkup() : '';
     root.innerHTML = `
       <section class="story-shell tone-${escapeHtml(scene.tone || 'default')}" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}">
         <img class="story-backdrop" src="${scene.background}" alt="" aria-hidden="true">
-        <div class="story-stage ${chapterThreeScene && ['q10','q11','q15','q16','q17'].includes(scene.id) ? 'is-private-quarters' : ''} ${isCinematic ? 'is-cinematic-beat' : ''} ${isRaceLaunch ? 'is-race-launch-beat' : ''}" ${isChoice || isRaceLaunch ? '' : 'data-story-advance role="button" tabindex="0"'}>
+        <div class="story-stage ${(chapterThreeScene && ['q10','q11','q15','q16','q17'].includes(scene.id)) || (chapterFourScene && scene.id==='q26') ? 'is-private-quarters' : ''} ${isCinematic ? 'is-cinematic-beat' : ''} ${isRaceLaunch ? 'is-race-launch-beat' : ''}" ${isChoice || isRaceLaunch ? '' : 'data-story-advance role="button" tabindex="0"'}>
           <img class="story-environment" src="${scene.background}" alt="${escapeHtml(scene.title)}">
           <div class="story-light" aria-hidden="true"></div><div class="story-weather" aria-hidden="true"></div><div class="story-speed-lines" aria-hidden="true"></div><div class="story-lens-flare" aria-hidden="true"></div><div class="story-grain" aria-hidden="true"></div><div class="story-letterbox" aria-hidden="true"></div>
           <header class="story-header"><div><small>QUICKQUILL: AGAINST THE ODDS</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-story-home aria-label="Return to Career hub">BACK TO HUB</button></header>
@@ -1669,11 +2845,11 @@
           <div class="story-scene-counter" aria-hidden="true"><i style="--story-progress:${((sceneIndex + 1) / sceneList.length) * 100}%"></i><span>${chapterLabel} ${sceneIndex + 1} / ${sceneList.length}</span></div>
           ${isCinematic ? `<section class="story-cinematic-card" aria-live="polite"><small>${escapeHtml(storyCopy(beat.eyebrow))}</small><h1>${escapeHtml(storyCopy(beat.title))}</h1><i></i><p>${escapeHtml(storyCopy(beat.text))}</p><span>CLICK TO BEGIN</span></section>` : isRaceLaunch ? `
             <section class="story-race-launch-card" aria-live="polite">
-              <small>CANTO MEADOW CIRCUIT · STORY RACE</small>
-              <h1>START THE RACE</h1>
+              <small>${chapterFourScene ? 'BLACKGLASS NIGHT CIRCUIT · STORY RACE' : 'CANTO MEADOW CIRCUIT · STORY RACE'}</small>
+              <h1>${chapterFourScene ? 'BLACKGLASS UNDER FLOODLIGHTS' : 'START THE RACE'}</h1>
               <p>${escapeHtml(storyCopy(beat.text))}</p>
-              <div class="story-race-strategy"><span>STRATEGY</span><strong>${escapeHtml(String(state.story?.race?.strategy || 'focus').toUpperCase())}</strong></div>
-              <button type="button" data-story-race-start ${state.storySaving ? 'disabled' : ''}>${state.storySaving ? 'SAVING…' : state.story?.race?.status === 'in-progress' ? 'RESUME CANTO RACE' : 'GO TO THE GRID'}</button>
+              <div class="story-race-strategy"><span>STRATEGY</span><strong>${escapeHtml(String(chapterFourScene ? currentBlackglassStrategy() : currentCantoStrategy()).toUpperCase())}</strong>${chapterFourScene ? `<small>START · ${ordinal(chapter4State().qualifying?.position || 3)}</small>` : ''}</div>
+              <button type="button" data-story-race-start ${state.storySaving ? 'disabled' : ''}>${state.storySaving ? 'SAVING…' : chapterFourScene && state.story?.blackglassRace?.status === 'in-progress' ? 'RESUME BLACKGLASS RACE' : !chapterFourScene && state.story?.race?.status === 'in-progress' ? 'RESUME CANTO RACE' : 'GO TO THE GRID'}</button>
               ${state.storyError ? `<div class="story-error" role="alert">${escapeHtml(state.storyError)}</div>` : ''}
             </section>` : `<section class="story-dialogue ${isChoice ? 'has-choices' : ''}" aria-live="polite">
             <div class="story-speaker"><span>${escapeHtml(storyCopy(beat.speaker || 'Decision'))}</span>${beat.aside ? `<small>${escapeHtml(storyCopy(beat.aside))}</small>` : ''}</div>
@@ -1691,7 +2867,7 @@
     if (isChoice) {
       root.querySelectorAll('[data-story-choice]').forEach(button => button.addEventListener('click', event => { event.stopPropagation(); void chooseStoryOption(Number(button.dataset.storyChoice)); }));
     } else if (isRaceLaunch) {
-      root.querySelector('[data-story-race-start]')?.addEventListener('click', event => { event.stopPropagation(); void launchCantoStoryRace(); });
+      root.querySelector('[data-story-race-start]')?.addEventListener('click', event => { event.stopPropagation(); void launchActiveStoryRace(); });
     } else {
       root.querySelector('[data-story-advance]')?.addEventListener('click', event => {
         if (event.target.closest('[data-story-home]')) return;
@@ -1819,6 +2995,38 @@
     root.querySelector('[data-downtime-complete-journey]')?.addEventListener('click', () => { state.mode = 'story-journey'; playTone(310); render(); });
   }
 
+
+  function renderBlackglassComplete() {
+    const story = state.story || normaliseQuickquillStory(activeSaveState().story);
+    const result = story.blackglassRace?.result || {};
+    const q = chapter4State(story).qualifying || {};
+    const rank = Math.max(1, Math.min(6, Number(result.rank) || 6));
+    const overtakes = Math.max(0, Number(result.overtakes) || 0);
+    const moment = String(result.notableMoment || (result.photoFinish ? 'A finish decided at the line' : 'A complete Blackglass race'));
+    root.innerHTML = `
+      <section class="story-complete-shell blackglass-complete-shell">
+        <img class="story-backdrop" src="story/environments/20_Blackglass_Night_Circuit_Reveal.png" alt="" aria-hidden="true">
+        <div class="story-complete-stage">
+          <div class="story-complete-glow" aria-hidden="true"></div>
+          <small>QUICKQUILL: AGAINST THE ODDS · RACE TWO</small><h1>BLACKGLASS<br>UNDER FLOODLIGHTS</h1><div class="story-complete-rule"></div>
+          <p>${escapeHtml(storyDragonName())} leaves Blackglass with a result, a grid story and a race the Career will remember later.</p>
+          <div class="story-complete-stats">
+            <div><small>RESULT</small><strong>${ordinal(rank)}</strong></div>
+            <div><small>OFFICIAL TIME</small><strong>${escapeHtml(blackglassRaceTime(story))}</strong></div>
+            <div><small>QUALIFIED</small><strong>${ordinal(q.position || result.startPosition || 3)}</strong></div>
+            <div><small>OVERTAKES</small><strong>${overtakes}</strong></div>
+          </div>
+          <div class="blackglass-memory-card"><small>RACE MEMORY</small><strong>${escapeHtml(moment)}</strong><span>${result.photoFinish ? 'PHOTO FINISH · ' : ''}${escapeHtml(String(story.blackglassRace?.strategy || chapter4State(story).strategy || 'focus').toUpperCase())} APPROACH · ${escapeHtml(blackglassStandingBand(story).toUpperCase())} PADDOCK STANDING</span></div>
+          <div class="blackglass-weekend-recap"><span><small>DEEP STUDY</small><b>${escapeHtml(blackglassStudiedText(story))}</b></span><span><small>AFTER HOURS</small><b>${escapeHtml(String(chapter4State(story).afterHours?.memory || 'SLEPT THROUGH').toUpperCase())}</b></span><span><small>RACE MORNING</small><b>${escapeHtml(String(chapter4State(story).morningPrep || 'steady').replaceAll('-',' ').toUpperCase())}</b></span><span><small>KEEPSAKE</small><b>${escapeHtml(String(chapter4State(story).keepsake || 'circuit card').replaceAll('-',' ').toUpperCase())}</b></span></div>
+          <div class="story-next-race"><span>NEXT</span><strong>CHAPTER FIVE · A SEAT AT THE TABLE</strong><small>Pressure, people and consequences.</small></div>
+          <button type="button" data-blackglass-complete-journey>STORY JOURNEY</button>
+          <button type="button" class="story-complete-secondary" data-story-home>CAREER HUB</button>
+        </div><div class="story-screen-vignette" aria-hidden="true"></div>
+      </section><div class="blackout ${state.blackout ? 'is-visible' : ''}" aria-hidden="true"></div>`;
+    root.querySelector('[data-blackglass-complete-journey]')?.addEventListener('click',()=>{ state.mode='story-journey'; playTone(310); render(); });
+    root.querySelector('[data-story-home]')?.addEventListener('click', returnToHubFromStory);
+  }
+
   function renderStoryJourney() {
     const story = state.story || normaliseQuickquillStory(activeSaveState().story);
     if (!story.completed?.prologue) {
@@ -1834,19 +3042,23 @@
     const cantoComplete = !!story.completed?.canto;
     const downtimeStarted = QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === story.scene) && !story.completed?.downtime;
     const downtimeComplete = !!story.completed?.downtime;
+    const blackglassStarted = QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === story.scene) && !story.completed?.blackglass;
+    const blackglassComplete = !!story.completed?.blackglass;
     const journeyStates = STORY_JOURNEY.map((chapter, index) => {
       let status = 'locked';
       if (index === 0) status = 'complete';
       else if (index === 1) status = cantoComplete ? 'complete' : 'next';
       else if (index === 2) status = !cantoComplete ? 'locked' : downtimeComplete ? 'complete' : 'next';
-      else if (index === 3 && downtimeComplete) status = 'next';
+      else if (index === 3) status = !downtimeComplete ? 'locked' : blackglassComplete ? 'complete' : 'next';
       return { ...chapter, status };
     });
     const cantoAction = cantoComplete ? 'VIEW CANTO RESULT' : cantoStarted ? 'RESUME STORY CHAPTER' : 'BEGIN STORY CHAPTER';
     const downtimeAction = downtimeComplete ? 'VIEW CHAPTER RESULT' : downtimeStarted ? 'RESUME SETTLING IN' : 'BEGIN SETTLING IN';
+    const blackglassAction = blackglassComplete ? 'VIEW BLACKGLASS RESULT' : blackglassStarted ? 'RESUME BLACKGLASS' : 'BEGIN BLACKGLASS';
     const c3 = chapter3State(story);
-    const decisionCount = Object.keys(story.choices || {}).length + (c3.eveningMoments || []).length + (c3.duty?.completed ? 1 : 0);
-    const completedCount = 1 + (cantoComplete ? 1 : 0) + (downtimeComplete ? 1 : 0);
+    const c4 = chapter4State(story);
+    const decisionCount = Object.keys(story.choices || {}).length + (c3.eveningMoments || []).length + (c3.duty?.completed ? 1 : 0) + (c4.qualifying?.completed ? 1 : 0) + (c4.eveningMoments || []).length + (c4.studiedSections || []).length + (c4.roomActions || []).length + (c4.morningPrep ? 1 : 0) + (c4.afterHours?.completed ? 1 : 0);
+    const completedCount = 1 + (cantoComplete ? 1 : 0) + (downtimeComplete ? 1 : 0) + (blackglassComplete ? 1 : 0);
     root.innerHTML = `
       <section class="story-journey-shell" aria-label="Dragonbound Story Journey">
         <img class="journey-backdrop" src="story/environments/07_Lumerre_Terraces_and_Paddock.png" alt="" aria-hidden="true">
@@ -1880,8 +3092,14 @@
                   <div class="journey-card-copy"><span><b>03</b><small>${!cantoComplete ? 'LOCKED' : downtimeComplete ? 'DOWNTIME · COMPLETE' : downtimeStarted ? 'DOWNTIME · IN PROGRESS' : 'DOWNTIME · READY'}</small></span><h2>A PLACE AT QUICKQUILL</h2><p>${downtimeComplete ? 'A room, a routine, two remembered evening choices and one very real place in the team.' : 'Go home after Canto. Unpack. Meet the people behind the race weekends. No starting lights required.'}</p><button type="button" ${cantoComplete ? (downtimeComplete ? 'data-view-downtime' : 'data-start-downtime') : 'disabled'}>${cantoComplete ? downtimeAction : 'COMPLETE CANTO FIRST'} <i>›</i></button></div>
                   ${downtimeComplete ? '<div class="journey-complete-stamp"><i>✓</i><span>COMPLETE</span></div>' : cantoComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PATH UNLOCKED</span></div>' : ''}
                 </article>
+                <article class="journey-card journey-card-blackglass ${!downtimeComplete ? 'is-locked' : blackglassComplete ? 'is-complete' : 'is-next'}">
+                  <img src="${STORY_JOURNEY[3].image}" alt="">
+                  <div class="journey-card-shade" aria-hidden="true"></div>${blackglassComplete ? '<div class="journey-card-scan" aria-hidden="true"></div>' : downtimeComplete ? '<div class="journey-unlock-flare" aria-hidden="true"></div>' : ''}
+                  <div class="journey-card-copy"><span><b>04</b><small>${!downtimeComplete ? 'LOCKED' : blackglassComplete ? 'RACE TWO · COMPLETE' : blackglassStarted ? 'RACE TWO · IN PROGRESS' : 'RACE TWO · READY'}</small></span><h2>BLACKGLASS UNDER FLOODLIGHTS</h2><p>${blackglassComplete ? `${escapeHtml(storyDragonName())} finished ${ordinal(story.blackglassRace?.result?.rank || 6)} at Blackglass after qualifying ${ordinal(c4.qualifying?.position || 3)}.` : 'A full northern race weekend: arrive, learn the circuit, qualify, live through the long night, then race under the floodlights.'}</p><button type="button" ${downtimeComplete ? (blackglassComplete ? 'data-view-blackglass' : 'data-start-blackglass') : 'disabled'}>${downtimeComplete ? blackglassAction : 'COMPLETE QUICKQUILL DOWNTIME FIRST'} <i>›</i></button></div>
+                  ${blackglassComplete ? '<div class="journey-complete-stamp"><i>✓</i><span>COMPLETE</span></div>' : downtimeComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PATH UNLOCKED</span></div>' : ''}
+                </article>
                 <div class="journey-locked-list">
-                  ${journeyStates.slice(3).map((chapter, index) => `<article class="journey-locked-card ${chapter.status === 'next' ? 'is-next' : ''}" style="--journey-delay:${2.15 + index * .14}s"><img src="${chapter.image}" alt=""><div><span>${chapter.number}</span><p><small>${escapeHtml(chapter.subtitle)}</small><strong>${escapeHtml(chapter.title)}</strong></p><i aria-hidden="true">${chapter.status === 'next' ? 'NEXT' : 'LOCKED'}</i></div></article>`).join('')}
+                  ${journeyStates.slice(4).map((chapter, index) => `<article class="journey-locked-card ${chapter.status === 'next' ? 'is-next' : ''}" style="--journey-delay:${2.15 + index * .14}s"><img src="${chapter.image}" alt=""><div><span>${chapter.number}</span><p><small>${escapeHtml(chapter.subtitle)}</small><strong>${escapeHtml(chapter.title)}</strong></p><i aria-hidden="true">${chapter.status === 'next' ? 'NEXT' : 'LOCKED'}</i></div></article>`).join('')}
                 </div>
               </div>
               <footer class="journey-decisions"><div><small>YOUR STORY REMEMBERS</small><span>${escapeHtml(invitationChoice)}</span><span>${escapeHtml(cantoComplete ? (story.choices?.cantoAttitude?.label || strategyChoice) : cantoStarted ? strategyChoice : assessmentChoice)}</span></div><p><strong>${decisionCount}</strong><span>DECISIONS & MOMENTS<br>RECORDED</span></p></footer>
@@ -1896,13 +3114,16 @@
     root.querySelector('[data-view-canto]')?.addEventListener('click', () => { playTone(310); renderCantoComplete(); });
     root.querySelector('[data-start-downtime]')?.addEventListener('click', () => { void startDowntimeChapter(); });
     root.querySelector('[data-view-downtime]')?.addEventListener('click', () => { playTone(310); renderDowntimeComplete(); });
+    root.querySelector('[data-start-blackglass]')?.addEventListener('click', () => { void startBlackglassChapter(); });
+    root.querySelector('[data-view-blackglass]')?.addEventListener('click', () => { playTone(310); renderBlackglassComplete(); });
   }
 
   function nextStoryPointer(story) {
     const next = cloneValue(story);
     const inCanto = QUICKQUILL_CANTO_SCENES.some(scene => scene.id === next.scene);
     const inDowntime = QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === next.scene);
-    const scenes = inDowntime ? QUICKQUILL_DOWNTIME_SCENES : inCanto ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const inBlackglass = QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === next.scene);
+    const scenes = inBlackglass ? QUICKQUILL_BLACKGLASS_SCENES : inDowntime ? QUICKQUILL_DOWNTIME_SCENES : inCanto ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
     const sceneIndex = scenes.findIndex(scene => scene.id === next.scene);
     const scene = scenes[Math.max(0, sceneIndex)];
     if (next.beat < scene.beats.length - 1) {
@@ -1913,6 +3134,14 @@
       next.scene = scenes[sceneIndex + 1].id;
       next.beat = 0;
       return { story: next, changedScene: true, completed: false };
+    }
+    if (inBlackglass) {
+      next.completed = { ...(next.completed || {}), blackglass: true };
+      next.chapter = 'pressure';
+      next.blackglassRace = { ...(next.blackglassRace || {}), status: 'complete' };
+      next.beat = scene.beats.length - 1;
+      next.history = [...(next.history || []), { scene: 'q31', event: 'blackglass-chapter-complete' }].slice(-100);
+      return { story: next, changedScene: true, completed: true };
     }
     if (inDowntime) {
       next.completed = { ...(next.completed || {}), downtime: true };
@@ -2013,6 +3242,37 @@
     syncMusic({ restart: true });
   }
 
+
+  async function startBlackglassChapter() {
+    if (state.storySaving || state.transitionLocked || !state.activeSave) return;
+    const current = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (!current.completed?.downtime || current.completed?.blackglass) return;
+    const alreadyInBlackglass = QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === current.scene);
+    if (!alreadyInBlackglass) {
+      current.chapter = 'blackglass';
+      current.scene = 'q18';
+      current.beat = 0;
+      current.chapter4 = { ...defaultQuickquillStory().chapter4, ...(current.chapter4 || {}), qualifying:{...defaultQuickquillStory().chapter4.qualifying, ...(current.chapter4?.qualifying || {})}, raceMemory:Array.isArray(current.chapter4?.raceMemory)?current.chapter4.raceMemory.slice(-24):[] };
+      current.blackglassRace = { ...defaultQuickquillStory().blackglassRace, ...(current.blackglassRace || {}), status: current.blackglassRace?.result ? 'complete' : 'not-started' };
+      current.history = [...(current.history || []), { scene:'q18', event:'blackglass-chapter-start' }].slice(-100);
+      await persistStory(current, { stageOverride:'quickquill-blackglass-story' });
+    } else {
+      state.story = current;
+    }
+    state.mode = 'story';
+    state.storyError = '';
+    playTone(370);
+    render();
+    syncMusic({ restart:true });
+  }
+
+  function currentBlackglassStrategy(story = state.story) {
+    const explicit = String(story?.blackglassRace?.strategy || story?.chapter4?.strategy || (story?.chapter4?.setupPlan==='attack'?'fire':story?.chapter4?.setupPlan==='forgiving'?'heart':'focus') || '').toLowerCase();
+    if (['focus','fire','heart'].includes(explicit)) return explicit;
+    const option = Number(story?.choices?.blackglassStrategy?.option);
+    return option === 1 ? 'fire' : option === 2 ? 'heart' : 'focus';
+  }
+
   function currentCantoStrategy(story = state.story) {
     const explicit = String(story?.race?.strategy || '').toLowerCase();
     if (['focus','fire','heart'].includes(explicit)) return explicit;
@@ -2049,6 +3309,110 @@
       state.storyError = error?.message || 'The race could not be prepared. Your story progress is safe.';
       render();
     }
+  }
+
+
+  async function launchBlackglassStoryRace() {
+    if (state.storySaving || state.transitionLocked || !state.activeSave || state.story?.completed?.blackglass) return;
+    const scene = activeStoryScene();
+    const beat = scene.beats[state.story?.beat || 0];
+    if (scene.id !== 'q29' || beat?.type !== 'race-launch') return;
+    const changed = cloneValue(state.story);
+    const strategy = currentBlackglassStrategy(changed);
+    const startPosition = Math.max(1, Math.min(6, Number(changed.chapter4?.qualifying?.position) || 3));
+    const runId = changed.blackglassRace?.runId || `blackglass-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    changed.blackglassRace = { ...(changed.blackglassRace || {}), status:'in-progress', strategy, runId, result:null, startedAt:new Date().toISOString() };
+    changed.chapter4 = { ...defaultQuickquillStory().chapter4, ...(changed.chapter4 || {}), strategy };
+    changed.history = [...(changed.history || []), { scene:'q29', event:'blackglass-race-start', strategy, runId, startPosition }].slice(-100);
+    try {
+      await persistStory(changed, { stageOverride:'quickquill-blackglass-race' });
+      state.story = changed;
+      state.storyError = '';
+      try { music.story?.pause?.(); } catch (_) {}
+      sendParent('dragonbound-career-story-race-start', {
+        careerSaveId: state.activeSave.id,
+        runId,
+        raceKey:'blackglass',
+        trackId:'blackglass_night_circuit',
+        accountKey:accountKey(username()),
+        playerKey:accountKey(username()),
+        playerName:storyDragonName(),
+        strategy,
+        startPosition,
+        qualifyingGrid: Array.isArray(changed.chapter4?.qualifying?.grid) ? changed.chapter4.qualifying.grid : [],
+        studiedSections: [...new Set([...(Array.isArray(changed.chapter4?.studiedSections) ? changed.chapter4.studiedSections : []), changed.chapter4?.afterHours?.bonusSection].filter(Boolean))],
+        setupPlan: String(changed.chapter4?.setupPlan || ''),
+        dragonState: String(changed.chapter4?.dragonState || 'steady'),
+        morningPrep: String(changed.chapter4?.morningPrep || ''),
+        finalWord: String(changed.chapter4?.finalWord || ''),
+        localTip: String(changed.chapter4?.localTip || ''),
+        telemetryReady: !!changed.chapter4?.telemetryReady,
+        tyreseCallout: !!changed.chapter4?.tyreseCallout,
+        blackglassStanding: blackglassStandingBand(changed)
+      });
+    } catch (error) {
+      console.error('[Dragonbound Career Mode] Blackglass race launch save failed', error);
+      state.storySaving = false;
+      state.storyError = error?.message || 'Blackglass could not be prepared. Your story progress is safe.';
+      render();
+    }
+  }
+
+  function launchActiveStoryRace() {
+    return activeStoryScene()?.id === 'q29' ? launchBlackglassStoryRace() : launchCantoStoryRace();
+  }
+
+  async function acceptBlackglassRaceResult(result = {}) {
+    if (!state.activeSave || state.storySaving) return;
+    const story = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (story.completed?.blackglass || story.blackglassRace?.status === 'complete') return;
+    if (result.careerSaveId && String(result.careerSaveId) !== String(state.activeSave.id)) return;
+    if (story.blackglassRace?.runId && result.runId && String(story.blackglassRace.runId) !== String(result.runId)) return;
+    const rank = Math.max(1, Math.min(6, Number(result.rank) || 6));
+    const changed = cloneValue(story);
+    const resultEvents = Array.isArray(result.events) ? result.events.slice(-12) : [];
+    changed.blackglassRace = {
+      ...(changed.blackglassRace || {}), status:'complete', strategy:currentBlackglassStrategy(changed), completedAt:new Date().toISOString(),
+      result:{
+        rank,
+        finishMs:Math.max(0,Number(result.finishMs)||0),
+        bestLapMs:Math.max(0,Number(result.bestLapMs)||0),
+        startPosition:Math.max(1,Math.min(6,Number(result.startPosition)||Number(changed.chapter4?.qualifying?.position)||3)),
+        positionsGained:Math.max(0,Number(result.positionsGained)||0),
+        positionDelta:Number(result.positionDelta)||0,
+        overtakes:Math.max(0,Number(result.playerOvertakes ?? result.totalOvertakes)||0),
+        leadChanges:Math.max(0,Number(result.leadChanges)||0),
+        photoFinish:!!result.photoFinish,
+        notableMoment:String(result.notableMoment||''),
+        events:resultEvents
+      }
+    };
+    changed.chapter4 = { ...defaultQuickquillStory().chapter4, ...(changed.chapter4 || {}), raceMemory:resultEvents };
+    if (rank === 1) { changed.relationships.quickquillTrust += 6; changed.relationships.tyreseBond += 3; changed.relationships.jalenRespect += 6; }
+    else if (rank <= 3) { changed.relationships.quickquillTrust += 4; changed.relationships.tyreseBond += 2; changed.relationships.jalenRespect += 4; }
+    else if (rank <= 5) { changed.relationships.quickquillTrust += 2; changed.relationships.jalenRespect += 2; }
+    else { changed.relationships.tyreseBond += 2; changed.relationships.dragonBond += 1; }
+    changed.scene='q30'; changed.beat=0; changed.chapter='blackglass';
+    changed.history=[...(changed.history||[]),{scene:'q29',event:'blackglass-race-result',rank,finishMs:changed.blackglassRace.result.finishMs,notableMoment:changed.blackglassRace.result.notableMoment}].slice(-100);
+    try {
+      await persistStory(changed,{stageOverride:'quickquill-blackglass-story'});
+      state.story=changed; state.mode='story'; state.storyError=''; state.status=`Blackglass result saved — ${ordinal(rank)}`;
+      render(); syncMusic({restart:true});
+    } catch(error) {
+      console.error('[Dragonbound Career Mode] Blackglass result save failed',error);
+      state.storySaving=false; state.storyError=error?.message||'The race finished, but the Blackglass result could not be saved. Try Continue Story again.';
+      state.mode='story'; render(); syncMusic({restart:true});
+    }
+  }
+
+  async function handleBlackglassRaceAbort(message='') {
+    if (!state.activeSave) return;
+    const changed=normaliseQuickquillStory(state.story||activeSaveState().story);
+    if (changed.completed?.blackglass || changed.blackglassRace?.status==='complete') return;
+    changed.blackglassRace={...(changed.blackglassRace||{}),status:'ready'};
+    state.story=changed; state.mode='story'; state.storyError=message||'Race exited. Your Blackglass chapter is safe — return to the grid when ready.';
+    try { await persistStory(changed,{stageOverride:'quickquill-blackglass-story'}); } catch (_) {}
+    render(); syncMusic({restart:true});
   }
 
   async function acceptCantoRaceResult(result = {}) {
@@ -2145,14 +3509,15 @@
     }
     const cantoInProgress = state.story.completed?.prologue && !state.story.completed?.canto && QUICKQUILL_CANTO_SCENES.some(scene => scene.id === state.story.scene);
     const downtimeInProgress = state.story.completed?.canto && !state.story.completed?.downtime && QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === state.story.scene);
-    await fadeTo(cantoInProgress || downtimeInProgress ? 'story' : state.story.completed?.prologue ? 'story-journey' : 'story', { duration: 980 });
+    const blackglassInProgress = state.story.completed?.downtime && !state.story.completed?.blackglass && QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === state.story.scene);
+    await fadeTo(cantoInProgress || downtimeInProgress || blackglassInProgress ? 'story' : state.story.completed?.prologue ? 'story-journey' : 'story', { duration: 980 });
   }
 
   async function advanceStory() {
-    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.downtime) return;
+    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.blackglass) return;
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
-    if (beat?.type === 'choice' || beat?.type === 'race-launch') return;
+    if (beat?.type === 'choice' || beat?.type === 'race-launch' || beat?.type === 'blackglass-qualifying' || ['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep'].includes(beat?.type)) return;
     if (finishStoryReveal()) {
       playTone(190);
       return;
@@ -2161,7 +3526,7 @@
     const next = nextStoryPointer(state.story);
     const nextScene = activeStoryScene(next.story);
     const nextBeat = nextScene.beats[next.story.beat];
-    const interactiveNext = ['corridor-explore','room-customise','evening-planner','duty-select','duty-game','downtime-free-roam','night-routine','morning-corridor'].includes(nextBeat?.type);
+    const interactiveNext = ['corridor-explore','room-customise','evening-planner','duty-select','duty-game','downtime-free-roam','night-routine','morning-corridor','blackglass-qualifying','blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep'].includes(nextBeat?.type);
     const mustSave = next.changedScene || next.completed || nextBeat?.type === 'choice' || nextBeat?.type === 'race-launch' || interactiveNext;
     if (mustSave) {
       await saveStoryProgress(next.story, { transition: next.changedScene });
@@ -2173,32 +3538,91 @@
   }
 
   async function chooseStoryOption(optionIndex) {
-    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.downtime) return;
+    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.blackglass) return;
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
     const option = beat?.type === 'choice' ? beat.options[optionIndex] : null;
-    if (!option || state.story.choices?.[beat.id]) return;
+    if (!option) return;
     const changed = cloneValue(state.story);
+
+    // V34.18 rebuilt several Blackglass beats while preserving account saves.
+    // If an older save already contains this choice id, the old guard used to
+    // make every visible option look clickable but silently refuse the click.
+    // Re-selection is now safe: remove the previously-applied effects first,
+    // then apply the newly selected option and continue normally.
+    const existingChoice = changed.choices?.[beat.id];
+    if (existingChoice) {
+      const previousIndex = Number(existingChoice.option);
+      const previousOption = Number.isInteger(previousIndex) ? beat.options?.[previousIndex] : null;
+      if (previousOption?.effects) {
+        const inverseEffects = { identity: {}, relationships: {} };
+        Object.entries(previousOption.effects.identity || {}).forEach(([key, value]) => inverseEffects.identity[key] = -Number(value || 0));
+        Object.entries(previousOption.effects.relationships || {}).forEach(([key, value]) => inverseEffects.relationships[key] = -Number(value || 0));
+        applyStoryEffects(changed, inverseEffects);
+      }
+    }
     applyStoryEffects(changed, option.effects);
     changed.choices[beat.id] = { option: optionIndex, label: option.label, value: option.value || '' };
     if (beat.id === 'cantoStrategy') changed.race = { ...(changed.race || {}), strategy: option.strategy || (optionIndex === 1 ? 'fire' : optionIndex === 2 ? 'heart' : 'focus'), status: 'ready' };
     if (beat.id === 'cantoAttitude') changed.chapter3.cantoAttitude = option.value || ['confident','analytical','grounded','hungry'][optionIndex] || 'grounded';
     if (beat.id === 'blackglassInitialAttitude') changed.chapter3.blackglassInitialAttitude = option.value || ['eager','wary','curious','measured'][optionIndex] || 'measured';
+    if (beat.id === 'blackglassStrategy') {
+      const strategy = option.strategy || (optionIndex === 1 ? 'fire' : optionIndex === 2 ? 'heart' : 'focus');
+      changed.chapter4.strategy = strategy;
+      changed.blackglassRace = { ...(changed.blackglassRace || {}), strategy, status:'ready' };
+    }
+    if (beat.id === 'blackglassBriefingTone') changed.chapter4.briefingTone = option.value || 'learn';
+    if (beat.id === 'blackglassTeamQuestion') changed.chapter4.teamQuestion = option.value || 'history';
+    if (beat.id === 'blackglassPressureResponse') changed.chapter4.pressureResponse = option.value || 'truth';
+    if (beat.id === 'northRoadChoice') changed.chapter4.northRoadChoice = option.value || 'quiet';
+    if (beat.id === 'stewardResponse') {
+      changed.chapter4.stewardResponse = option.value || 'name';
+      changed.chapter4.reputation += [1,1,0,2][optionIndex] || 0;
+    }
+    if (beat.id === 'rookFirstImpression') {
+      changed.chapter4.rookResponse = option.value || 'listen';
+      changed.chapter4.reputation += optionIndex === 0 || optionIndex === 3 ? 1 : 0;
+    }
+    if (beat.id === 'jalenBlackglassResponse') changed.chapter4.jalenResponse = option.value || 'watch';
+    if (beat.id === 'blackglassSetupPlan') {
+      const setup = option.value || ['stable','attack','forgiving'][optionIndex] || 'stable';
+      const strategy = setup === 'attack' ? 'fire' : setup === 'forgiving' ? 'heart' : 'focus';
+      changed.chapter4.setupPlan = setup;
+      changed.chapter4.strategy = strategy;
+      changed.blackglassRace = { ...(changed.blackglassRace || {}), strategy, status:'ready' };
+    }
+    if (beat.id === 'blackglassFinalWord') changed.chapter4.finalWord = option.value || 'anchors';
+    if (beat.id === 'blackglassAftermath') changed.chapter4.aftermath = option.value || 'learn';
+    if (beat.id === 'blackglassKeepsake') changed.chapter4.keepsake = option.value || 'card';
     changed.history.push({ scene: scene.id, choice: beat.id, option: optionIndex });
     const next = nextStoryPointer(changed);
     playTone(430 + optionIndex * 55);
+
+    // Advance the visible beat immediately so a choice never feels dead while
+    // waiting on the account save. saveStoryProgress still confirms the cloud
+    // save and reports/recovers normally if the request fails.
+    if (!next.changedScene) {
+      state.story = next.story;
+      state.storyError = '';
+      render();
+    }
     await saveStoryProgress(next.story, { transition: next.changedScene });
   }
 
   function returnToHubFromStory() {
     if (state.storySaving || state.transitionLocked) return;
+    stopAfterHoursGameplay(true);
     state.mode = 'career-hub';
     window.clearTimeout(storyRevealTimer);
     storyRevealTimer = 0;
     state.storyError = '';
-    state.status = state.story?.completed?.downtime
-      ? 'A Place at Quickquill complete — Blackglass briefing is next'
-      : QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === state.story?.scene)
+    state.status = state.story?.completed?.blackglass
+      ? 'Second Wind complete — Chapter Five is next'
+      : QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === state.story?.scene)
+        ? 'Blackglass chapter progress saved'
+        : state.story?.completed?.downtime
+          ? 'A Place at Quickquill complete — Blackglass briefing is next'
+          : QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === state.story?.scene)
         ? 'Settling-in progress saved'
         : state.story?.completed?.canto
           ? 'Race One complete — go home to Quickquill before Blackglass'
@@ -2244,15 +3668,20 @@
   window.addEventListener('message', event => {
     if (event.source !== window.parent || event.data?.bridge !== BRIDGE_TOKEN) return;
     if (event.data?.type === 'dragonbound-career-story-race-result') {
-      void acceptCantoRaceResult(event.data.result || {});
+      const result = event.data.result || {};
+      if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit') void acceptBlackglassRaceResult(result);
+      else void acceptCantoRaceResult(result);
       return;
     }
     if (event.data?.type === 'dragonbound-career-story-race-aborted') {
-      void handleCantoRaceAbort('Race exited. Your chapter progress is safe — start Canto again when ready.');
+      const result = event.data.result || {};
+      if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit' || activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort('Race exited. Your Blackglass chapter is safe — return to the grid when ready.');
+      else void handleCantoRaceAbort('Race exited. Your chapter progress is safe — start Canto again when ready.');
       return;
     }
     if (event.data?.type === 'dragonbound-career-story-race-error') {
-      void handleCantoRaceAbort(event.data.error || 'The Canto race could not start. Your chapter progress is safe.');
+      if (activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort(event.data.error || 'The Blackglass race could not start. Your chapter progress is safe.');
+      else void handleCantoRaceAbort(event.data.error || 'The Canto race could not start. Your chapter progress is safe.');
     }
   });
 
@@ -2455,6 +3884,7 @@
   }
 
   function handleKey(event) {
+    if (state.afterHoursGame?.active) return;
     if (state.transitionLocked || state.busy) return;
     if (state.mode === 'opening') {
       if (['Enter', ' ', 'ArrowRight'].includes(event.key)) { event.preventDefault(); void advanceOpening(); }
@@ -2490,7 +3920,8 @@
       const scene = activeStoryScene();
       const chapterTwoScene = QUICKQUILL_CANTO_SCENES.some(item => item.id === state.story?.scene);
       const chapterThreeScene = QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === state.story?.scene);
-      const resultScreen = state.story?.completed?.downtime || (state.story?.completed?.canto && !chapterThreeScene) || (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !state.story?.completed?.canto);
+      const chapterFourScene = QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === state.story?.scene);
+      const resultScreen = state.story?.completed?.blackglass || (state.story?.completed?.downtime && !chapterFourScene) || (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.downtime) || (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.canto);
       const beat = resultScreen ? null : scene.beats[state.story?.beat || 0];
       if (beat?.type === 'choice' && /^[1-4]$/.test(event.key)) {
         const choice = Number(event.key) - 1;
@@ -2502,7 +3933,7 @@
       }
       if (beat?.type === 'race-launch' && ['Enter', ' '].includes(event.key)) {
         event.preventDefault();
-        void launchCantoStoryRace();
+        void launchActiveStoryRace();
         return;
       }
       if (!beat && resultScreen && ['Enter', ' '].includes(event.key)) {
@@ -2510,7 +3941,7 @@
         returnToHubFromStory();
         return;
       }
-      if (beat?.type !== 'choice' && beat?.type !== 'race-launch' && ['Enter', ' ', 'ArrowRight'].includes(event.key)) {
+      if (beat?.type !== 'choice' && beat?.type !== 'race-launch' && beat?.type !== 'blackglass-qualifying' && !['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep'].includes(beat?.type) && ['Enter', ' ', 'ArrowRight'].includes(event.key)) {
         event.preventDefault();
         void advanceStory();
       }

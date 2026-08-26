@@ -1,0 +1,11 @@
+Dragonbound V34.18.1 — Career Choices + Audio Isolation Hotfix
+
+Install over V34.18, preserving paths and replacing matching files.
+
+Fixes:
+- Parent Dragonbound/home/site music is forcibly muted for the full time Career Mode is open.
+- Career iframe music continues normally.
+- Story-race audio is still allowed during the temporary race handoff.
+- Parent/home audio is restored only after Career Mode closes.
+- Blackglass/rebuilt story choices no longer become unclickable when an older save already contains the same choice id.
+- Choice screens visually advance immediately instead of appearing dead while the cloud autosave is completing.

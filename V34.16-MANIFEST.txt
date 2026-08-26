@@ -1,0 +1,15 @@
+Dragonbound V34.16 — Race Director & Broadcast Presentation
+
+FILES
+- dragon-racing-race.js
+- dragon-racing-race.css
+- index.html
+- INSTALL-V34.16-RACE-DIRECTOR.txt
+
+QA
+- JavaScript syntax checked with Node.
+- V34.15 race feel and V34.14.3 fixed-step/real-time timing retained.
+- Normal race zoom range kept deliberately narrow (~1.455–1.49 before per-track multiplier).
+- Only start ceremony and genuine photo finish use noticeably different zoom.
+- Director camera subjects have hold times; hard cuts are rate-limited to >6.2 seconds apart.
+- Canto named sections: Meadow Launch / Windmill Rise / Willow Chicane / River Run / Canto Straight.

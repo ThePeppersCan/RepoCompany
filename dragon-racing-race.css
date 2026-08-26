@@ -6,14 +6,15 @@
 .dragon-race-game{position:absolute;inset:0;z-index:80;overflow:hidden;background:#07131a;color:#f4f8f9;font-family:'Trebuchet MS',Arial,sans-serif;opacity:0;transition:opacity .28s ease;contain:layout paint style}
 .dragon-race-game.is-visible{opacity:1}
 .dragon-race-viewport{position:absolute;inset:0;overflow:hidden;background:#061018}
-.dragon-race-world{position:absolute;left:0;top:0;width:1536px;height:1024px;transform-origin:0 0;will-change:transform}
-.dragon-race-world-bg{position:absolute;inset:0;width:1536px;height:1024px;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.dragon-race-world{position:absolute;left:0;top:0;width:1536px;height:1024px;transform-origin:0 0;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.dragon-race-world-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .dragon-race-world::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 45%,transparent 52%,rgba(1,6,9,.16) 100%)}
 .dragon-race-atmosphere{position:absolute;inset:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen;opacity:.55}
 .dragon-race-atmosphere i{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,221,154,.55);box-shadow:0 0 8px rgba(255,183,91,.28);animation:dragonRaceDrift var(--d,7s) ease-in-out infinite alternate;animation-delay:var(--delay,0s)}
 @keyframes dragonRaceDrift{from{transform:translate3d(0,0,0);opacity:.25}to{transform:translate3d(var(--dx,18px),var(--dy,-10px),0);opacity:.8}}
-.dragon-race-racer{position:absolute;left:0;top:0;width:52px;height:52px;transform:translate(-50%,-68%);transform-origin:50% 70%;will-change:left,top,transform;z-index:10;pointer-events:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.48))}
+.dragon-race-racer{position:absolute;left:0;top:0;width:52px;height:52px;transform:translate(-50%,-68%);transform-origin:50% 70%;will-change:transform;z-index:10;pointer-events:none;filter:drop-shadow(0 4px 5px rgba(0,0,0,.48))}
 .dragon-race-racer img{display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto;transform-origin:50% 55%}
+.dragon-race-racer,.dragon-race-racer-sprite-wrap,.dragon-race-racer img{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .dragon-race-racer.is-flipped img{transform:scaleX(-1)}
 .dragon-race-racer.is-player{width:58px;height:58px;z-index:20;filter:drop-shadow(0 5px 6px rgba(0,0,0,.52)) drop-shadow(0 0 7px rgba(104,218,241,.28))}
 .dragon-race-racer.is-player::after{content:'';position:absolute;left:50%;top:73%;width:35px;height:12px;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(124,221,241,.58);box-shadow:0 0 12px rgba(98,205,230,.22);opacity:.78}
@@ -1141,3 +1142,200 @@
   .dragon-race-canto-festival-glint{animation:none!important}
   .dragon-race-canto-crowd-flag{opacity:.3}
 }
+
+
+/* =========================================================
+   V34.16 — Race Director / broadcast layer
+   Restrained lens: normal racing stays at an almost fixed zoom.
+   ========================================================= */
+.dragon-race-starting-grid{position:absolute;inset:0;z-index:149;display:grid;place-items:center;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .25s ease,transform .25s ease}
+.dragon-race-starting-grid.is-visible{opacity:1;transform:translateY(0)}
+.dragon-race-grid-card{width:min(510px,66vw);padding:14px 15px 15px;border:1px solid rgba(142,201,216,.24);border-radius:12px;background:linear-gradient(180deg,rgba(4,20,27,.94),rgba(3,13,18,.92));box-shadow:0 20px 55px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.025) inset;backdrop-filter:blur(8px)}
+.dragon-race-grid-card header{display:grid;grid-template-columns:1fr auto;grid-template-areas:'small small' 'title track';align-items:end;padding:0 2px 10px;border-bottom:1px solid rgba(149,199,210,.13)}
+.dragon-race-grid-card header small{grid-area:small;color:#7899a5;font:900 6px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.2em}
+.dragon-race-grid-card header b{grid-area:title;margin-top:5px;color:#f1e8d2;font:900 20px/1 Georgia,serif;letter-spacing:.05em}
+.dragon-race-grid-card header em{grid-area:track;color:#c5a95f;font:900 7px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.12em}
+.dragon-race-grid-list{display:grid;grid-template-columns:1fr 1fr;gap:5px 7px;margin-top:9px}
+.dragon-race-grid-row{display:grid;grid-template-columns:22px 3px 1fr auto;align-items:center;gap:7px;min-height:38px;padding:5px 7px;border:1px solid rgba(131,182,195,.1);border-radius:8px;background:rgba(8,26,33,.55);opacity:0;transform:translateY(5px);animation:dragonRaceGridIn .32s ease forwards;animation-delay:var(--grid-delay,0ms)}
+.dragon-race-starting-grid:not(.is-visible) .dragon-race-grid-row{animation:none}
+.dragon-race-grid-row.is-player{border-color:rgba(111,216,238,.32);background:linear-gradient(90deg,rgba(17,62,72,.72),rgba(8,26,33,.56))}
+.dragon-race-grid-row>b{color:#e3c976;font:900 13px/1 Georgia,serif;text-align:center}.dragon-race-grid-row>i{width:3px;height:25px;border-radius:999px;background:var(--racer-accent,#75cedf);box-shadow:0 0 8px color-mix(in srgb,var(--racer-accent,#75cedf) 50%,transparent)}
+.dragon-race-grid-row span{min-width:0}.dragon-race-grid-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eef4f3;font:800 10px/1.05 Georgia,serif}.dragon-race-grid-row small{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#718e98;font:800 5px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.dragon-race-grid-row>em{padding:3px 5px;border-radius:5px;background:rgba(111,216,238,.12);color:#9ee7f5;font:900 5px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.1em}
+@keyframes dragonRaceGridIn{to{opacity:1;transform:translateY(0)}}
+
+.dragon-race-broadcast-strip{position:absolute;left:50%;bottom:13px;z-index:134;display:grid;grid-template-columns:minmax(105px,1fr) minmax(150px,1.3fr) minmax(105px,1fr);width:min(590px,62vw);transform:translateX(-50%);border:1px solid rgba(132,188,202,.14);border-radius:10px;overflow:hidden;background:rgba(4,17,23,.78);box-shadow:0 12px 30px rgba(0,0,0,.26);backdrop-filter:blur(7px);transition:opacity .25s ease,transform .25s ease}
+.dragon-race-broadcast-strip>div{min-width:0;padding:7px 10px 8px}.dragon-race-broadcast-strip>div+div{border-left:1px solid rgba(135,184,196,.10)}
+.dragon-race-broadcast-strip small{display:block;color:#708d98;font:900 5px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.15em}.dragon-race-broadcast-strip b{display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e9f0ef;font:900 9px/1 Georgia,serif}.dragon-race-broadcast-strip em{display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#77939e;font:800 5px/1 'Trebuchet MS',Arial,sans-serif;font-style:normal;letter-spacing:.09em}
+.dragon-race-battle-chip{background:linear-gradient(180deg,rgba(6,26,34,.35),rgba(7,20,26,.22));transition:background .22s ease}.dragon-race-battle-chip.is-live{background:linear-gradient(180deg,rgba(43,34,12,.47),rgba(8,22,28,.32))}.dragon-race-battle-chip.is-live small{color:#d9bd69}.dragon-race-battle-chip.is-live b{color:#f2dfa7}
+.dragon-race-fastest-chip{text-align:right}.dragon-race-fastest-chip b{color:#9eddeb}
+.dragon-race-game[data-race-phase="setup"] .dragon-race-broadcast-strip,.dragon-race-game[data-race-phase="ceremony"] .dragon-race-broadcast-strip,.dragon-race-game[data-race-phase="countdown"] .dragon-race-broadcast-strip{opacity:0;transform:translateX(-50%) translateY(5px)}
+
+.dragon-race-live-leaderboard{height:190px!important}.dragon-race-live-leaderboard-list{height:132px!important}.dragon-race-live-row{grid-template-columns:15px 3px minmax(0,1fr) 31px 9px!important;height:20px!important}.dragon-race-live-gap{display:block;color:#78939d;font:900 5px/1 'Trebuchet MS',Arial,sans-serif;text-align:right;letter-spacing:.02em}.dragon-race-live-row:first-child .dragon-race-live-gap{color:#cbb56e}.dragon-race-live-change{width:9px;text-align:right}
+.dragon-race-event-feed{position:absolute;left:5px;right:5px;bottom:5px;height:43px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;padding-top:4px;border-top:1px solid rgba(147,191,202,.07);overflow:hidden}
+.dragon-race-feed-row{display:grid;grid-template-columns:26px 37px minmax(0,1fr);align-items:center;gap:3px;height:12px;opacity:.76}.dragon-race-feed-row small{color:#617d87;font:800 4.5px/1 'Trebuchet MS',Arial,sans-serif}.dragon-race-feed-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#a7bdc4;font:900 4.5px/1 'Trebuchet MS',Arial,sans-serif;letter-spacing:.04em}.dragon-race-feed-row b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#cddadd;font:700 5px/1 'Trebuchet MS',Arial,sans-serif}.dragon-race-feed-row.is-leader span,.dragon-race-feed-row.is-final span{color:#d2b95f}.dragon-race-feed-row.is-photo span{color:#83d7e9}
+
+.dragon-race-racer.is-race-winner .dragon-race-racer-tag{border-color:rgba(239,207,112,.48)!important;box-shadow:0 0 18px rgba(226,190,77,.20)!important}.dragon-race-racer.is-race-winner .dragon-race-racer-sprite-wrap{animation:dragonRaceWinnerSettle 1.25s ease-in-out 1}.dragon-race-racer.is-podium-finish .dragon-race-racer-tag{border-color:rgba(132,205,221,.30)!important}
+@keyframes dragonRaceWinnerSettle{0%,100%{transform:translateY(var(--flight-bob,0px)) rotate(var(--flight-bank,0deg)) scale(1)}45%{transform:translateY(calc(var(--flight-bob,0px) - 3px)) rotate(var(--flight-bank,0deg)) scale(1.035)}}
+
+/* The director cut is a subtle broadcast blink, never a zoom-punch. */
+.dragon-race-camera-cut{background:linear-gradient(90deg,rgba(4,13,18,0),rgba(119,189,205,.08) 50%,rgba(4,13,18,0))!important}.dragon-race-camera-cut.is-active{animation-duration:.13s!important}
+
+@media(max-width:760px){.dragon-race-grid-card{width:82vw;padding:10px}.dragon-race-grid-list{grid-template-columns:1fr}.dragon-race-grid-row{min-height:30px}.dragon-race-broadcast-strip{left:8px;right:8px;bottom:8px;width:auto;transform:none;grid-template-columns:1fr 1.15fr}.dragon-race-fastest-chip{display:none}.dragon-race-game[data-race-phase="setup"] .dragon-race-broadcast-strip,.dragon-race-game[data-race-phase="ceremony"] .dragon-race-broadcast-strip,.dragon-race-game[data-race-phase="countdown"] .dragon-race-broadcast-strip{transform:translateY(5px)}.dragon-race-event-feed{display:none}.dragon-race-live-leaderboard{height:132px!important}.dragon-race-live-leaderboard-list{height:118px!important}.dragon-race-live-gap{font-size:4px}}
+@media(prefers-reduced-motion:reduce){.dragon-race-grid-row,.dragon-race-racer.is-race-winner .dragon-race-racer-sprite-wrap{animation:none!important}.dragon-race-starting-grid,.dragon-race-broadcast-strip{transition:none!important}}
+
+/* =========================================================
+   V34.17 — cool broadcast palette + Blackglass night pass
+   Removes the bronze/brown panel treatment introduced by the
+   broadcast additions. Warm colour is reserved for world lights,
+   never for interface boxes.
+   ========================================================= */
+.dragon-race-game{
+  --broadcast-ink:#06131a;
+  --broadcast-panel:rgba(5,20,28,.92);
+  --broadcast-panel-2:rgba(7,28,37,.88);
+  --broadcast-line:rgba(113,205,225,.22);
+  --broadcast-line-strong:rgba(127,224,241,.46);
+  --broadcast-text:#e9f5f7;
+  --broadcast-muted:#86a9b4;
+  --broadcast-accent:#7dd8e8;
+  --broadcast-accent-2:#a9edf5;
+}
+
+/* Grid, live director and event presentation */
+.dragon-race-grid-card,
+.dragon-race-broadcast-strip,
+.dragon-race-event-callout,
+.dragon-race-event-callout.is-leader,
+.dragon-race-event-callout.is-final,
+.dragon-race-event-callout.is-photo,
+.dragon-race-battle-chip,
+.dragon-race-battle-chip.is-live,
+.dragon-race-fastest-chip,
+.dragon-race-sector-chip{
+  background:linear-gradient(180deg,rgba(6,25,34,.94),rgba(4,15,22,.90))!important;
+  border-color:var(--broadcast-line)!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.28),0 0 0 1px rgba(255,255,255,.018) inset!important;
+}
+.dragon-race-battle-chip.is-live,
+.dragon-race-event-callout.is-leader,
+.dragon-race-event-callout.is-final{
+  background:linear-gradient(180deg,rgba(7,39,50,.96),rgba(5,22,31,.92))!important;
+  border-color:rgba(111,218,237,.38)!important;
+}
+.dragon-race-battle-chip.is-live small,
+.dragon-race-battle-chip.is-live b,
+.dragon-race-event-callout.is-leader small,
+.dragon-race-event-callout.is-final small,
+.dragon-race-event-callout.is-final b,
+.dragon-race-feed-row.is-leader span,
+.dragon-race-feed-row.is-final span,
+.dragon-race-grid-card header em,
+.dragon-race-grid-row>b,
+.dragon-race-live-row:first-child .dragon-race-live-gap{
+  color:var(--broadcast-accent-2)!important;
+}
+.dragon-race-game.is-final-lap .dragon-race-hud-cluster .dragon-race-hud-box:nth-child(2){
+  border-color:rgba(111,218,237,.38)!important;
+  background:linear-gradient(180deg,rgba(7,35,45,.94),rgba(5,20,28,.91))!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.23),0 0 16px rgba(83,196,218,.07),0 0 0 1px rgba(255,255,255,.02) inset!important;
+}
+.dragon-race-game.is-final-lap .dragon-race-hud-cluster .dragon-race-hud-box:nth-child(2) small{color:#89cbd8!important}
+.dragon-race-game.is-final-lap .dragon-race-hud-cluster .dragon-race-hud-box:nth-child(2) b{color:#dff8fb!important}
+
+/* Results: no brown/gold cards, buttons, medals or winner rows. */
+.dragon-race-results-card,
+.dragon-race-result-stat,
+.dragon-race-result-metric,
+.dragon-race-classification,
+.dragon-race-result-notes,
+.dragon-race-reward-strip,
+.dragon-race-results-actions>div,
+.dragon-race-results-actions>div.is-primary,
+.dragon-race-result-footer .dragon-race-results-actions>div,
+.dragon-race-result-footer .dragon-race-results-actions>div.is-primary{
+  background:linear-gradient(180deg,rgba(7,27,36,.96),rgba(4,17,24,.94))!important;
+  border-color:rgba(104,196,216,.24)!important;
+  color:var(--broadcast-text)!important;
+}
+.dragon-race-results-actions>div.is-primary,
+.dragon-race-result-footer .dragon-race-results-actions>div.is-primary{
+  background:linear-gradient(180deg,rgba(12,73,88,.96),rgba(8,45,58,.98))!important;
+  border-color:rgba(126,226,241,.56)!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.25),0 0 18px rgba(72,193,217,.10)!important;
+}
+.dragon-race-results-actions>div:hover,
+.dragon-race-results-actions>div:focus-visible{
+  background:linear-gradient(180deg,rgba(12,62,77,.98),rgba(7,34,45,.98))!important;
+  border-color:rgba(153,234,247,.64)!important;
+}
+.dragon-race-reward-strip{
+  box-shadow:0 10px 28px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.025)!important;
+}
+.dragon-race-reward-medallion{
+  background:radial-gradient(circle at 35% 28%,#bcecf2,#3b8695 72%)!important;
+  border-color:rgba(172,238,247,.55)!important;
+  color:#06161d!important;
+  box-shadow:0 0 16px rgba(91,202,222,.12)!important;
+}
+.dragon-race-reward-total>span,
+.dragon-race-classification-marks.has-bonus::after,
+.dragon-race-classification-row.is-winner>b,
+.dragon-race-result-place strong,
+.dragon-race-result-achievements span{
+  color:#b8edf3!important;
+}
+.dragon-race-result-achievements span{
+  background:rgba(11,62,76,.46)!important;
+  border-color:rgba(111,210,229,.30)!important;
+}
+.dragon-race-classification-row.is-winner,
+.dragon-race-classification-row.is-player{
+  background:rgba(10,55,68,.20)!important;
+  border-color:rgba(99,196,216,.22)!important;
+}
+.dragon-race-standing b{color:#aee8ef!important}
+
+/* Blackglass atmosphere — rain and sea-cold floodlight haze. */
+.dragon-race-atmosphere.is-blackglass{
+  opacity:.92!important;
+  mix-blend-mode:screen!important;
+  background:
+    radial-gradient(circle at 70% 14%,rgba(116,178,196,.13),rgba(116,178,196,0) 24%),
+    linear-gradient(180deg,rgba(16,35,48,.06),rgba(2,12,18,.18));
+}
+.dragon-race-blackglass-moon{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 72% 13%,rgba(211,237,241,.22) 0 2%,rgba(120,184,201,.10) 7%,rgba(75,142,163,0) 24%);
+  filter:blur(.2px);
+}
+.dragon-race-blackglass-rainfield,
+.dragon-race-blackglass-embers{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.dragon-race-blackglass-rain{
+  position:absolute;width:1px;height:26px;border-radius:999px;
+  background:linear-gradient(180deg,rgba(184,228,237,0),rgba(184,228,237,.38),rgba(184,228,237,0));
+  opacity:.34;transform:rotate(12deg);animation:dragonRaceBlackglassRain var(--d,1.5s) linear infinite;animation-delay:var(--delay,0s)
+}
+.dragon-race-blackglass-ember{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:#9ccfda;box-shadow:0 0 8px rgba(121,202,218,.38);opacity:0;
+  animation:dragonRaceBlackglassEmber 6.5s ease-in-out infinite;animation-delay:var(--delay,0s)
+}
+@keyframes dragonRaceBlackglassRain{from{transform:translate3d(0,-34px,0) rotate(12deg)}to{transform:translate3d(-28px,1080px,0) rotate(12deg)}}
+@keyframes dragonRaceBlackglassEmber{0%,100%{opacity:0;transform:translate3d(0,12px,0)}35%{opacity:.48}70%{opacity:.15;transform:translate3d(12px,-20px,0)}}
+.dragon-race-atmosphere.is-blackglass .dragon-race-crowd-burst{opacity:.18!important;filter:saturate(.35) hue-rotate(145deg)}
+
+/* Story races are deliberately clean: no economy tint or reward styling. */
+.dragon-race-game.is-story-race .dragon-race-result-footer>small{color:#7faab5!important}
+.dragon-race-game.is-story-race .dragon-race-results-actions>div.is-primary{min-width:150px;text-align:center}
+
+@media(prefers-reduced-motion:reduce){
+  .dragon-race-blackglass-rain,.dragon-race-blackglass-ember{animation:none!important;opacity:.16!important}
+}
+/* V34.17 final warm-colour scrub: higher-specificity legacy result states. */
+.dragon-race-results-card.is-first,.dragon-race-results-card.is-second,.dragon-race-results-card.is-third,.dragon-race-results-card.is-standard{border-color:rgba(116,204,223,.28)!important}
+.dragon-race-results-card h2,.dragon-race-result-place strong,.is-second .dragon-race-result-place strong,.is-third .dragon-race-result-place strong,.is-standard .dragon-race-result-place strong,.dragon-race-result-metric.is-primary em{color:#dff6f9!important}
+.dragon-race-reward-copy small,.dragon-race-reward-total>b,.dragon-race-classification-marks,.dragon-race-classification-marks>b,.dragon-race-classification-row.is-player .dragon-race-classification-marks>b,.dragon-race-classification-marks.has-bonus>b{color:#aee8ef!important;text-shadow:none!important}
+.dragon-race-reward-strip.is-awarded{border-color:rgba(120,215,233,.43)!important;box-shadow:0 11px 34px rgba(0,0,0,.22),0 0 22px rgba(70,191,214,.07),0 0 0 1px rgba(255,255,255,.02) inset!important}
+.dragon-race-reward-strip::after{background:linear-gradient(110deg,transparent 42%,rgba(183,238,247,.08) 49%,transparent 56%)!important}
+.dragon-race-standing.is-winner:not(.is-player),.dragon-race-standing-rank{background:rgba(12,70,84,.12)!important;border-color:rgba(112,204,223,.22)!important;color:#b9edf3!important}

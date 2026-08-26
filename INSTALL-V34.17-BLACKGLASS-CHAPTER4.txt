@@ -1,0 +1,51 @@
+Velmora: Dragonbound — V34.17 BLACKGLASS / CHAPTER FOUR
+
+INSTALL
+Copy the contents of this patch into the same website root used by V34.16 and replace matching files.
+Preserve the included folder structure.
+
+CHANGED FILES
+- index.html
+- dragon-racing-race.js
+- dragon-racing-race.css
+- dragonbound-career-launcher.js
+- dragon-racing-assets/blackglass-night-circuit.webp
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career.css
+
+WHAT THIS VERSION DOES
+1. Removes the brown / bronze broadcast UI treatment introduced by V34.16.
+   Race Director panels, starting grid, battle graphics, final-lap graphics,
+   results, reward panels and action buttons now use a cool navy / slate /
+   cyan / silver broadcast palette.
+
+2. Adds Quickquill Chapter Four: SECOND WIND / BLACKGLASS.
+   Q18 The Briefing
+   Q19 What Nobody Says
+   Q20 The North Road
+   Q21 Under the Floodlights
+   Q22 Night Qualifying
+   Q23 Second Wind — Blackglass race
+   Q24 After the Storm
+
+3. Adds a persistent one-lap Blackglass qualifying decision and six-racer grid.
+   The resulting grid position carries into the story race.
+
+4. Adds Blackglass Night Circuit as a real autonomous story race with named
+   circuit sections, rain/floodlight atmosphere and Career race-memory data.
+
+5. Restores Career story-race routing that was accidentally lost in V34.16.
+   Canto and Blackglass story races return their result to Career Mode and do
+   not use normal Dragon Racing rewards/records.
+
+NOT CHANGED
+- The restrained V34.16 Race Director camera philosophy remains: normal race
+  zoom stays nearly fixed and does not bounce in/out repeatedly.
+- Normal Dragonbound walking / takeoff / flight / landing sprites are untouched.
+- NighLight spelling support is untouched.
+- Quickquill private-quarters music files are not duplicated in this patch.
+
+DEPENDENCY
+This patch is intended to be installed over the current site that already has
+V34.14.x Quickquill downtime/story assets and story-racer sprites.

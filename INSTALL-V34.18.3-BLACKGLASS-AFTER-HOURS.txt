@@ -1,0 +1,36 @@
+Dragonbound V34.18.3 — Blackglass After Hours
+
+INSTALL
+Merge this patch into the SAME website root that already has V34.18.2 installed.
+Replace matching files when prompted.
+
+CHANGED FILES
+- index.html
+- dragonbound-career-launcher.js
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career.css
+
+NEW ASSETS
+- dragonbound-career-mode/story/environments/26_Blackglass_Guest_Wing.png
+- dragonbound-career-mode/story/environments/27_Blackglass_Pantry.png
+- dragonbound-career-mode/story/environments/28_Blackglass_Midnight_Suite.png
+- dragonbound-career-mode/story/environments/29_Blackglass_Circuit_At_Rest.png
+- dragonbound-career-mode/story/after-hours/...
+
+WHAT'S NEW
+- Q26 is now Blackglass: After Hours, inserted between the post-qualifying night and race morning.
+- Direct control of the player's dragon with WASD.
+- SHIFT creep / SPACE run / E interact.
+- Normal movement, noise, hiding and Garran patrol/hearing gameplay.
+- Pantry snack objective, old timing-sheet study, dropped pass, service key and hidden viewing rail.
+- Getting caught is a story outcome, not a game-over.
+- After Hours decisions feed into dragon state, Steward respect/reputation and the Blackglass race.
+- Midnight timing sheets can grant one extra real sector-knowledge bonus in the race engine.
+- Full supplied sound set integrated at restrained volumes; long clips were trimmed where useful.
+- Blackglass Career race music from V34.18.2 remains untouched at 40%.
+
+SAVE COMPATIBILITY
+- Existing saves are retained.
+- Saves at Q27/Q28 which have not completed Blackglass are gently moved to the new After Hours interlude once.
+- Saves already in the Blackglass race or beyond are not rewound.

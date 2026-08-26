@@ -1,0 +1,12 @@
+Dragonbound V34.14.2.4 — Quickquill Downtime Music
+
+Merge this folder into the same site root and replace matching files.
+
+Changes:
+- The same Quickquill private-quarters music used in the accommodation hallway now stays active across the entire Chapter 3 Quickquill downtime section.
+- Covers the return/hangar downtime, accommodation corridor, player room, common room/lounge, workshop/team duty scenes, rooftop scenes, night routine, morning corridor and Blackglass invitation sequence.
+- Music remains at 23% volume.
+- The track continues between Chapter 3 scene changes instead of swapping back to the generic Career story theme.
+- Includes the music file so the patch is self-contained.
+
+This patch builds on V34.14.2.3 and does not alter dragon walking animations or naming.
