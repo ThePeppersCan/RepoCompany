@@ -1,0 +1,177 @@
+/* Dragonbound V34.19 — additive mobile/iPad compatibility layer.
+   Desktop layouts remain authoritative; these rules only adapt coarse-pointer,
+   tablet/mobile and short-height viewports. */
+:root{
+  --db-safe-top:env(safe-area-inset-top,0px);
+  --db-safe-right:env(safe-area-inset-right,0px);
+  --db-safe-bottom:env(safe-area-inset-bottom,0px);
+  --db-safe-left:env(safe-area-inset-left,0px);
+}
+
+#dragonboundOverlay,
+.dragonbound-career-overlay,
+.dragonbound-outings-overlay,
+.dragonbound-outing-destination,
+.velmora-calendar-overlay{
+  -webkit-tap-highlight-color:transparent;
+}
+
+@media (pointer:coarse), (max-width:1100px), (max-height:720px){
+  html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%;}
+  body.dragonbound-menu-open,body.dragonbound-career-open,body.dragonbound-outing-active{touch-action:none;}
+
+  /* Keep the entire original 16:9 Dragonbound stage inside Safari's *visible*
+     viewport instead of allowing the bottom edge/buttons to fall under browser UI. */
+  #dragonboundOverlay.dragonbound-overlay{
+    padding:var(--db-safe-top) var(--db-safe-right) var(--db-safe-bottom) var(--db-safe-left)!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  #dragonboundOverlay .dragonbound-shell{
+    width:min(
+      calc(100vw - var(--db-safe-left) - var(--db-safe-right)),
+      calc((100dvh - var(--db-safe-top) - var(--db-safe-bottom)) * 16 / 9),
+      1875px
+    )!important;
+    max-width:none!important;
+    max-height:calc(100dvh - var(--db-safe-top) - var(--db-safe-bottom))!important;
+    aspect-ratio:16/9!important;
+  }
+  @supports not (height:100dvh){
+    #dragonboundOverlay .dragonbound-shell{
+      width:min(calc(100vw - var(--db-safe-left) - var(--db-safe-right)),calc((100svh - var(--db-safe-top) - var(--db-safe-bottom)) * 16 / 9),1875px)!important;
+      max-height:calc(100svh - var(--db-safe-top) - var(--db-safe-bottom))!important;
+    }
+  }
+
+  #dragonboundOverlay .dragonbound-close{
+    right:max(8px,var(--db-safe-right))!important;
+    top:max(8px,var(--db-safe-top))!important;
+    width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+    touch-action:manipulation!important;
+  }
+
+  /* Anything that reads like a real button gets a reliable tap target. Invisible
+     art hotspots are intentionally excluded so their mapped geometry is untouched. */
+  #dragonboundOverlay button:not([class*="hotspot"]):not(.dragonbound-property-back),
+  .dragonbound-outings-overlay button,
+  .dragonbound-outing-destination button,
+  .velmora-calendar-overlay button{
+    touch-action:manipulation;
+  }
+
+  /* Panels may scroll internally instead of losing their bottom actions. */
+  #dragonboundOverlay .dragonbound-property-confirm-panel,
+  #dragonboundOverlay .dragonbound-travel-menu-panel,
+  #dragonboundOverlay .dragonbound-house-visits-browser,
+  #dragonboundOverlay .dragonbound-my-dragon-book,
+  #dragonboundOverlay .dragonbound-bonnie-menu-panel,
+  #dragonboundOverlay .dragonbound-dialogue,
+  body>.dragonbound-outings-overlay .dragonbound-outings-panel,
+  body>.velmora-calendar-overlay .velmora-calendar-book{
+    max-height:calc(100dvh - var(--db-safe-top) - var(--db-safe-bottom) - 16px)!important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  #dragonboundOverlay .dragonbound-travel-menu-panel,
+  #dragonboundOverlay .dragonbound-house-visits-browser,
+  #dragonboundOverlay .dragonbound-my-dragon-book,
+  #dragonboundOverlay .dragonbound-bonnie-menu-panel,
+  body>.dragonbound-outings-overlay .dragonbound-outings-panel,
+  body>.velmora-calendar-overlay .velmora-calendar-book{
+    overflow:auto!important;
+  }
+
+  /* Dialogue remains readable on short iPad/phone landscape screens and the
+     continue/choice area can never be placed below the visible frame. */
+  #dragonboundOverlay .dragonbound-dialogue{
+    bottom:max(2%,calc(var(--db-safe-bottom) + 4px))!important;
+    max-height:47%!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+  }
+  #dragonboundOverlay .dragonbound-dialogue-actions,
+  #dragonboundOverlay .dragonbound-dialogue-options{position:relative!important;bottom:auto!important;}
+
+  /* Home buttons: keep all three persistent launchers inside the usable frame.
+     This is the same artwork/layout, just packed to the actual tablet width. */
+  #dragonboundOverlay .dragonbound-home-scene .velmora-calendar-launcher{
+    right:max(10px,var(--db-safe-right))!important;
+    bottom:max(10px,var(--db-safe-bottom))!important;
+  }
+  #dragonboundOverlay .dragonbound-home-scene .dragonbound-go-out-launcher{
+    right:calc(max(10px,var(--db-safe-right)) + 136px)!important;
+    bottom:max(10px,var(--db-safe-bottom))!important;
+  }
+  #dragonboundOverlay .dragonbound-home-scene .dragonbound-career-launcher{
+    right:calc(max(10px,var(--db-safe-right)) + 278px)!important;
+    bottom:max(10px,var(--db-safe-bottom))!important;
+  }
+
+  /* Sidebar and care HUD stay on-screen even when Safari reports a narrow
+     landscape layout. */
+  #dragonboundOverlay .dragonbound-home-sidebar{left:max(2.4%,var(--db-safe-left))!important;top:max(3%,var(--db-safe-top))!important;}
+  #dragonboundOverlay .dragonbound-needs-hud{max-height:54%!important;overflow:auto!important;overscroll-behavior:contain;}
+
+  /* Build/furniture interfaces need touch gestures rather than hover. */
+  #dragonboundOverlay .dragonbound-furniture-placement,
+  #dragonboundOverlay .dragonbound-furniture-placement img,
+  #dragonboundOverlay .dragonbound-furniture-placement-surface{touch-action:none!important;}
+  #dragonboundOverlay .dragonbound-furniture-shop,
+  #dragonboundOverlay .dragonbound-build-panel,
+  #dragonboundOverlay .dragonbound-furniture-panel{max-height:calc(100% - 16px)!important;overflow:auto!important;-webkit-overflow-scrolling:touch;}
+
+  /* Body-mounted screens use safe-area aware padding. */
+  body>.dragonbound-outings-overlay,
+  body>.velmora-calendar-overlay{
+    padding:max(8px,var(--db-safe-top)) max(8px,var(--db-safe-right)) max(8px,var(--db-safe-bottom)) max(8px,var(--db-safe-left))!important;
+  }
+  body>.dragonbound-outing-destination{
+    padding-top:var(--db-safe-top)!important;
+    padding-right:var(--db-safe-right)!important;
+    padding-bottom:var(--db-safe-bottom)!important;
+    padding-left:var(--db-safe-left)!important;
+  }
+
+  /* Touch-only virtual controller; JS decides when it is actually useful. */
+  .dragonbound-touch-controls{
+    position:fixed;z-index:69920;inset:0;display:none;pointer-events:none;
+    padding:var(--db-safe-top) var(--db-safe-right) var(--db-safe-bottom) var(--db-safe-left);
+    font-family:ui-sans-serif,system-ui,sans-serif;
+  }
+  body.dragonbound-touch-controls-visible .dragonbound-touch-controls{display:block;}
+  .dragonbound-touch-dpad{position:absolute;left:max(12px,calc(var(--db-safe-left) + 8px));bottom:max(14px,calc(var(--db-safe-bottom) + 8px));width:148px;height:148px;pointer-events:none;}
+  .dragonbound-touch-btn{
+    position:absolute;display:grid;place-items:center;width:48px;height:48px;padding:0;border:1px solid rgba(190,231,220,.34);border-radius:14px;
+    background:rgba(5,26,31,.78);box-shadow:0 8px 22px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.08);color:#eef8f5;
+    font:900 18px/1 ui-sans-serif,system-ui,sans-serif;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;backdrop-filter:blur(8px);
+  }
+  .dragonbound-touch-btn.is-held{background:rgba(46,113,96,.92);border-color:rgba(211,250,235,.72);transform:scale(.96);}
+  .dragonbound-touch-up{left:50px;top:0}.dragonbound-touch-left{left:0;top:50px}.dragonbound-touch-right{right:0;top:50px}.dragonbound-touch-down{left:50px;bottom:0}
+  .dragonbound-touch-actions{position:absolute;right:max(14px,calc(var(--db-safe-right) + 8px));bottom:max(18px,calc(var(--db-safe-bottom) + 12px));display:flex;align-items:flex-end;gap:10px;pointer-events:none;}
+  .dragonbound-touch-actions .dragonbound-touch-btn{position:relative;left:auto;right:auto;top:auto;bottom:auto;width:62px;height:62px;border-radius:50%;font-size:10px;letter-spacing:.04em;}
+  .dragonbound-touch-actions .dragonbound-touch-action{width:70px;height:70px;background:rgba(31,92,78,.88);}
+  .dragonbound-touch-actions .dragonbound-touch-run{width:56px;height:56px;}
+
+  .dragonbound-orientation-hint{position:fixed;z-index:69930;left:50%;top:max(9px,calc(var(--db-safe-top) + 7px));transform:translateX(-50%);display:none;padding:7px 11px;border:1px solid rgba(143,211,195,.25);border-radius:999px;background:rgba(4,22,27,.82);color:#dbece7;font:800 9px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.06em;pointer-events:none;backdrop-filter:blur(8px);}
+  @media (orientation:portrait) and (max-width:900px){body.dragonbound-menu-open .dragonbound-orientation-hint,body.dragonbound-career-open .dragonbound-orientation-hint{display:block;}}
+}
+
+@media (pointer:coarse) and (max-width:620px){
+  #dragonboundOverlay .dragonbound-home-scene .velmora-calendar-launcher{width:92px!important;min-height:48px!important;padding:5px!important;grid-template-columns:27px 1fr!important;gap:4px!important;}
+  #dragonboundOverlay .dragonbound-home-scene .velmora-calendar-launcher>img{width:27px!important;height:27px!important;}
+  #dragonboundOverlay .dragonbound-home-scene .velmora-calendar-launcher strong{font-size:15px!important;}
+  #dragonboundOverlay .dragonbound-home-scene .velmora-calendar-launcher em{display:none!important;}
+  #dragonboundOverlay .dragonbound-home-scene .dragonbound-go-out-launcher{right:calc(max(8px,var(--db-safe-right)) + 98px)!important;width:92px!important;min-height:48px!important;grid-template-columns:27px minmax(0,1fr)!important;gap:5px!important;padding:5px 6px!important;}
+  #dragonboundOverlay .dragonbound-home-scene .dragonbound-go-out-icon{width:27px!important;height:27px!important;padding:4px!important;}
+  #dragonboundOverlay .dragonbound-home-scene .dragonbound-go-out-launcher strong{font-size:11px!important;}
+  #dragonboundOverlay .dragonbound-home-scene .dragonbound-go-out-launcher em{display:none!important;}
+  #dragonboundOverlay .dragonbound-home-scene .dragonbound-career-launcher{right:calc(max(8px,var(--db-safe-right)) + 196px)!important;width:112px!important;height:48px!important;}
+  .dragonbound-touch-dpad{width:132px;height:132px}.dragonbound-touch-btn{width:43px;height:43px}.dragonbound-touch-up{left:44px}.dragonbound-touch-left{top:44px}.dragonbound-touch-right{top:44px}.dragonbound-touch-down{left:44px}
+}
+
+@media (pointer:coarse) and (max-height:500px){
+  .dragonbound-touch-dpad{width:116px;height:116px}.dragonbound-touch-btn{width:38px;height:38px;border-radius:11px}.dragonbound-touch-up{left:39px}.dragonbound-touch-left{top:39px}.dragonbound-touch-right{top:39px}.dragonbound-touch-down{left:39px}
+  .dragonbound-touch-actions .dragonbound-touch-btn{width:50px;height:50px}.dragonbound-touch-actions .dragonbound-touch-action{width:58px;height:58px}
+  #dragonboundOverlay .dragonbound-needs-hud{transform:scale(.86);transform-origin:top left;}
+}

@@ -6,6 +6,17 @@
   const SAVE_TABLE = 'dragonbound_career_saves';
   const SAVE_VERSION = 2;
   const BRIDGE_TOKEN = new URLSearchParams(window.location.search).get('bridge') || '';
+  const STORY_INPUT_GUARD_MS = 420;
+  let storyInputGuardUntil = 0;
+  function claimStoryInput(ms = STORY_INPUT_GUARD_MS) {
+    const stamp = performance.now();
+    if (stamp < storyInputGuardUntil) return false;
+    storyInputGuardUntil = stamp + Math.max(120, Number(ms) || STORY_INPUT_GUARD_MS);
+    return true;
+  }
+  function releaseStoryInputAfter(ms = STORY_INPUT_GUARD_MS) {
+    storyInputGuardUntil = Math.max(storyInputGuardUntil, performance.now() + Math.max(120, Number(ms) || STORY_INPUT_GUARD_MS));
+  }
   const OPENING_FRAMES = [
     'opening/01_race_over.png',
     'opening/02_crosswind.png',
@@ -2871,6 +2882,11 @@
     } else {
       root.querySelector('[data-story-advance]')?.addEventListener('click', event => {
         if (event.target.closest('[data-story-home]')) return;
+        event.preventDefault();
+        event.stopPropagation();
+        // event.detail > 1 is the browser's explicit double-click sequence.
+        // The persistent time guard inside advanceStory also protects across rerenders.
+        if (Number(event.detail || 1) > 1) return;
         void advanceStory();
       });
       if (!isCinematic) startStoryReveal(fullText);
@@ -3518,6 +3534,11 @@
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
     if (beat?.type === 'choice' || beat?.type === 'race-launch' || beat?.type === 'blackglass-qualifying' || ['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep'].includes(beat?.type)) return;
+    // One physical double-click can produce two click events. The first used to
+    // finish/advance the current beat and the second could immediately hit the
+    // freshly-rendered next beat. Keep the lock outside the DOM so it survives
+    // renders and prevents accidental cutscene skipping.
+    if (!claimStoryInput()) return;
     if (finishStoryReveal()) {
       playTone(190);
       return;
@@ -3539,6 +3560,7 @@
 
   async function chooseStoryOption(optionIndex) {
     if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.blackglass) return;
+    if (!claimStoryInput()) return;
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
     const option = beat?.type === 'choice' ? beat.options[optionIndex] : null;
@@ -3917,6 +3939,9 @@
         returnToHubFromStory();
         return;
       }
+      // Ignore OS key-repeat while a key is held. Otherwise holding Space/Enter
+      // can advance several dialogue beats even though the player pressed once.
+      if (event.repeat) return;
       const scene = activeStoryScene();
       const chapterTwoScene = QUICKQUILL_CANTO_SCENES.some(item => item.id === state.story?.scene);
       const chapterThreeScene = QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === state.story?.scene);

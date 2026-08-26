@@ -1,0 +1,12 @@
+/* Meet the Teams — touch/tablet compatibility. */
+@media (pointer:coarse), (max-width:1100px), (max-height:720px){
+  html,body,.game-viewport{height:100dvh!important;min-height:0!important;overscroll-behavior:none;}
+  .game-stage{width:min(100vw,calc(100dvh * 16 / 9))!important;height:min(100dvh,calc(100vw * 9 / 16))!important;}
+  button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+  .team-hotspot,.back-button,.team-spread-close{min-width:44px;min-height:44px;}
+  .team-spread-viewer,.team-spread-panel{max-height:calc(100dvh - 16px)!important;}
+  .team-spread-panel{overflow:auto!important;-webkit-overflow-scrolling:touch;}
+}
+@media (pointer:coarse) and (orientation:portrait) and (max-width:900px){
+  .game-stage{box-shadow:none!important;}
+}

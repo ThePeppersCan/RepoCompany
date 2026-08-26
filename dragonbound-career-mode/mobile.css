@@ -1,0 +1,94 @@
+/* Dragonbound Career V34.19 — iPad/mobile compatibility, additive only. */
+:root{--cm-safe-top:env(safe-area-inset-top,0px);--cm-safe-right:env(safe-area-inset-right,0px);--cm-safe-bottom:env(safe-area-inset-bottom,0px);--cm-safe-left:env(safe-area-inset-left,0px);}
+
+@media (pointer:coarse), (max-width:1100px), (max-height:720px){
+  html,body{width:100%;height:100%;min-height:0!important;overflow:hidden;overscroll-behavior:none;-webkit-text-size-adjust:100%;touch-action:manipulation;}
+  .game-shell{width:100vw!important;height:100dvh!important;min-height:0!important;padding:var(--cm-safe-top) var(--cm-safe-right) var(--cm-safe-bottom) var(--cm-safe-left);}
+  @supports not (height:100dvh){.game-shell{height:100svh!important;}}
+
+  button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+
+  /* Generic Career panels can scroll instead of placing their final action below
+     iPad Safari's visible viewport. */
+  .career-save-panel,.contract-panel,.settings-panel,.journey-panel,.story-complete-stage,
+  .blackglass-interaction-card,.blackglass-qualifying-panel,.downtime-duty-select,.downtime-duty-game,.downtime-duty-result,
+  .downtime-room-panel,.downtime-planner-card,.downtime-activity-card,.downtime-free-roam-card,.downtime-night-card,
+  .after-hours-modal>section,.after-hours-summary-card,.after-hours-caught-card{
+    max-height:calc(100dvh - var(--cm-safe-top) - var(--cm-safe-bottom) - 18px)!important;
+    overflow:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  }
+
+  .career-save-backdrop{padding:max(8px,var(--cm-safe-top)) max(8px,var(--cm-safe-right)) max(8px,var(--cm-safe-bottom)) max(8px,var(--cm-safe-left))!important;}
+  .career-save-list{max-height:62dvh!important;}
+
+  /* Story stages keep their exact 16:9 composition but use the visible dynamic
+     viewport and leave no content behind browser chrome. */
+  .story-shell,.story-complete-shell{width:100vw!important;height:100dvh!important;min-height:0!important;}
+  .story-stage:not(.is-after-hours-stage){
+    width:min(calc(100vw - var(--cm-safe-left) - var(--cm-safe-right)),calc((100dvh - var(--cm-safe-top) - var(--cm-safe-bottom)) * 1.7779))!important;
+    height:min(calc(100dvh - var(--cm-safe-top) - var(--cm-safe-bottom)),calc((100vw - var(--cm-safe-left) - var(--cm-safe-right)) / 1.7779))!important;
+  }
+  .story-header{top:max(2.2%,var(--cm-safe-top))!important;left:max(2.4%,var(--cm-safe-left))!important;right:max(2.4%,var(--cm-safe-right))!important;}
+  .story-header button{min-width:44px;min-height:44px;padding:0 12px!important;}
+  .story-dialogue,.story-stage.is-private-quarters .story-dialogue{
+    left:2.5%!important;right:2.5%!important;bottom:max(1.8%,var(--cm-safe-bottom))!important;
+    max-height:48%!important;min-height:0!important;overflow:auto!important;padding:clamp(28px,3.2vw,44px) clamp(18px,3.8vw,58px) clamp(18px,2.5vw,34px)!important;
+  }
+  .story-dialogue.has-choices{max-height:58%!important;}
+  .story-dialogue p{font-size:clamp(14px,2.05vw,25px)!important;line-height:1.42!important;}
+  .story-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px!important;}
+  .story-choices button{min-height:58px!important;padding:8px 9px!important;}
+  .story-scene-counter{bottom:31%!important;min-width:105px!important;}
+
+  /* Blackglass / downtime interaction panels were designed for roomy desktop
+     heights. Keep their visual positions when possible, otherwise allow them to
+     occupy a safe scrollable card. */
+  .blackglass-interaction-card,.blackglass-qualifying-panel{bottom:max(3%,var(--cm-safe-bottom))!important;}
+  .blackglass-paddock-actions,.blackglass-evening-grid,.blackglass-morning-grid,.blackglass-room-actions,.blackglass-section-list{max-height:42dvh;overflow:auto;-webkit-overflow-scrolling:touch;}
+
+  /* After Hours uses the same 16:9 world and gets its own touch controller. */
+  .after-hours-story-shell{height:100dvh!important;}
+  .story-stage.is-after-hours-stage{
+    width:min(calc(100vw - var(--cm-safe-left) - var(--cm-safe-right)),calc((100dvh - var(--cm-safe-top) - var(--cm-safe-bottom)) * 1.7779))!important;
+    height:min(calc(100dvh - var(--cm-safe-top) - var(--cm-safe-bottom)),calc((100vw - var(--cm-safe-left) - var(--cm-safe-right)) / 1.7779))!important;
+  }
+  .after-hours-hud{top:max(2%,var(--cm-safe-top))!important;left:max(2%,var(--cm-safe-left))!important;right:max(2%,var(--cm-safe-right))!important;gap:8px!important;}
+  .after-hours-objective{min-width:0!important;width:min(64%,590px)!important;padding:9px 11px!important;}
+  .after-hours-noise{width:min(29%,270px)!important;padding:8px 9px!important;}
+  .after-hours-controls{display:none!important;}
+  .after-hours-message{bottom:13%!important;width:min(700px,72%)!important;}
+  .after-hours-interact{bottom:6%!important;}
+
+  .career-touch-controls{position:fixed;inset:0;z-index:65;display:none;pointer-events:none;padding:var(--cm-safe-top) var(--cm-safe-right) var(--cm-safe-bottom) var(--cm-safe-left);font-family:ui-sans-serif,system-ui,sans-serif;}
+  body.career-touch-after-hours .career-touch-controls{display:block;}
+  .career-touch-dpad{position:absolute;left:max(12px,calc(var(--cm-safe-left) + 8px));bottom:max(12px,calc(var(--cm-safe-bottom) + 8px));width:146px;height:146px;pointer-events:none;}
+  .career-touch-btn{position:absolute;width:48px;height:48px;display:grid;place-items:center;padding:0;border:1px solid rgba(126,203,220,.38);border-radius:14px;background:rgba(3,24,33,.76);box-shadow:0 8px 22px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);color:#e8f8fb;font:900 18px/1 ui-sans-serif,system-ui,sans-serif;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;backdrop-filter:blur(7px);}
+  .career-touch-btn.is-held{background:rgba(15,86,103,.94);border-color:rgba(169,235,245,.75);transform:scale(.96);}
+  .career-touch-up{left:49px;top:0}.career-touch-left{left:0;top:49px}.career-touch-right{right:0;top:49px}.career-touch-down{left:49px;bottom:0}
+  .career-touch-actions{position:absolute;right:max(13px,calc(var(--cm-safe-right) + 8px));bottom:max(14px,calc(var(--cm-safe-bottom) + 9px));display:flex;align-items:flex-end;gap:9px;pointer-events:none;}
+  .career-touch-actions .career-touch-btn{position:relative;left:auto;top:auto;right:auto;bottom:auto;width:57px;height:57px;border-radius:50%;font-size:9px;letter-spacing:.04em;}
+  .career-touch-actions .career-touch-interact{width:68px;height:68px;background:rgba(11,75,89,.9);}
+  .career-touch-actions .career-touch-run{width:58px;height:58px;}
+  .career-touch-actions .career-touch-creep{width:55px;height:55px;}
+
+  .career-orientation-hint{position:fixed;left:50%;top:max(7px,calc(var(--cm-safe-top) + 5px));z-index:68;display:none;transform:translateX(-50%);padding:6px 10px;border:1px solid rgba(113,196,211,.25);border-radius:999px;background:rgba(2,18,26,.82);color:#d5ebef;font:800 8px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.06em;pointer-events:none;backdrop-filter:blur(7px);}
+  @media (orientation:portrait) and (max-width:900px){.career-orientation-hint{display:block;}}
+}
+
+@media (pointer:coarse) and (max-width:700px){
+  .story-header>div span{display:none}.story-header{gap:8px!important}.story-header strong{font-size:14px!important;}
+  .story-dialogue,.story-stage.is-private-quarters .story-dialogue{max-height:54%!important;padding:29px 15px 15px!important;}
+  .story-speaker{left:14px!important;max-width:82%!important;padding:8px 12px!important;}.story-speaker span{font-size:14px!important;}
+  .story-choices{grid-template-columns:1fr!important;}.story-choices button{min-height:48px!important;}
+  .story-scene-counter{display:none!important;}
+  .after-hours-objective{width:68%!important}.after-hours-noise{width:29%!important}.after-hours-objective>div{display:none!important}.after-hours-message{bottom:17%!important;width:82%!important;}
+  .after-hours-interact{bottom:10%!important;}
+  .career-touch-dpad{width:128px;height:128px}.career-touch-btn{width:42px;height:42px}.career-touch-up{left:43px}.career-touch-left{top:43px}.career-touch-right{top:43px}.career-touch-down{left:43px}
+}
+
+@media (pointer:coarse) and (max-height:500px){
+  .story-dialogue,.story-stage.is-private-quarters .story-dialogue{max-height:52%!important;padding:26px 16px 13px!important;}.story-dialogue p{font-size:13px!important;}
+  .story-portrait{height:46%!important;bottom:35%!important;}
+  .career-touch-dpad{width:112px;height:112px}.career-touch-btn{width:37px;height:37px;border-radius:10px}.career-touch-up{left:38px}.career-touch-left{top:38px}.career-touch-right{top:38px}.career-touch-down{left:38px}
+  .career-touch-actions .career-touch-btn{width:47px;height:47px}.career-touch-actions .career-touch-interact{width:56px;height:56px}.career-touch-actions .career-touch-creep{width:46px;height:46px}
+}

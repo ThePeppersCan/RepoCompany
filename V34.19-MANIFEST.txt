@@ -1,0 +1,4 @@
+V34.19 Mobile & iPad Compatibility
+Base: V34.18.3.3 Cutscene Input Debounce Hotfix
+Scope: responsive/touch presentation and input only
+Desktop gameplay changes: none intended

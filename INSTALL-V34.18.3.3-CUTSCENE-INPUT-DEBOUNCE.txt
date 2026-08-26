@@ -1,0 +1,11 @@
+Dragonbound V34.18.3.3 — Career Cutscene Input Debounce Hotfix
+
+Install over V34.18.3.2 and replace matching files.
+
+Changes:
+- Prevents a physical double-click from advancing two Career story/cutscene beats.
+- The protection survives the DOM re-render between beats, so the second click cannot land on the next scene.
+- Finishing the typewriter text and advancing are now separated by a short input guard.
+- Ignores held-key auto-repeat for Space/Enter/ArrowRight during story scenes.
+- Adds the same short guard to story choices and race-start buttons.
+- No story content, music, race balance, or visuals changed.

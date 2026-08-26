@@ -1,0 +1,34 @@
+DRAGONBOUND V34.19 — MOBILE / IPAD COMPATIBILITY PATCH
+======================================================
+
+Install over the current V34.18.3.3 build.
+Copy this patch into the website root and replace matching files.
+
+This is an ADDITIVE compatibility layer. It does not rebalance races, alter
+story/save data, replace dragon animations, or redesign the desktop game.
+
+WHAT IT DOES
+------------
+• Fits the complete Dragonbound 16:9 stage inside iPad/iPhone Safari's visible viewport.
+• Adds iOS safe-area support (home indicator / rounded screen insets).
+• Removes Career Mode's 520px minimum-height problem on short landscape screens.
+• Keeps dialogue, choices, journals, calendar, travel, outings and modal actions scrollable/on-screen.
+• Keeps the Home Calendar, Go Out and Career Mode launchers inside the tablet viewport.
+• Improves touch targets without changing mapped invisible art hotspots.
+• Makes furniture/build interactions touch-safe.
+• Adds touch movement + ACT/RUN controls for compatible Dragonbound exploration/outing gameplay.
+• Adds dedicated CREEP/RUN/ACT touch controls for Blackglass After Hours.
+• Touch controllers appear only when gameplay needs them; desktop keyboard controls are unchanged.
+• Adds a small landscape recommendation in portrait mode; portrait remains usable.
+• Adds Meet the Teams tablet/touch fit rules.
+
+FILES
+-----
+index.html
+dragonbound-mobile.css
+dragonbound-mobile.js
+dragonbound-career-mode/index.html
+dragonbound-career-mode/mobile.css
+dragonbound-career-mode/mobile.js
+dragonbound-career-mode/meet-the-teams/index.html
+dragonbound-career-mode/meet-the-teams/mobile.css
