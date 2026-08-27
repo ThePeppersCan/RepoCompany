@@ -1,4 +1,4 @@
-/* Dragonbound V34.20.2 — iPad stability + touch input hotfix. */
+/* Dragonbound V34.21.1 — iPad stability + touch input hotfix. */
 (()=>{
   'use strict';
   const coarse=()=>matchMedia?.('(pointer: coarse)')?.matches||navigator.maxTouchPoints>0;
@@ -109,7 +109,14 @@
     if(!valid)return;
     bridgedTarget=target;bridgedAt=performance.now();
     e.preventDefault();
-    try{target.click();}catch(_){/* native click may still follow */}
+    /* The Dragon Racing launcher is an IMG with role=button. iPad Safari can
+       occasionally skip the synthetic click after viewport/layout changes, so
+       invoke the already-loaded racing UI directly for this one control. */
+    if(target.matches?.('.dragon-racing-sidebar-button')&&typeof window.DragonRacingUi?.open==='function'){
+      try{window.DragonRacingUi.open();}catch(_){try{target.click();}catch(__){/* noop */}}
+    }else{
+      try{target.click();}catch(_){/* native click may still follow */}
+    }
   },{passive:false,capture:true});
   document.addEventListener('click',e=>{
     if(!e.isTrusted||!bridgedTarget)return;

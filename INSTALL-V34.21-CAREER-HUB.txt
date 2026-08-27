@@ -1,0 +1,10 @@
+Dragonbound V34.21 — Career Hub / Progression
+
+Install over V34.20.3 and replace matching files.
+
+Changed / added:
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career-progression.css
+
+This patch is additive to Career Mode. It does not alter race physics, normal Dragonbound movement, account economy, or existing story chapter content.

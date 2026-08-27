@@ -1,0 +1,15 @@
+Dragonbound V34.21.1 — iPad Controls + Dragon Racing Hotfix
+
+Install over V34.21 and replace matching files.
+
+Changed files only:
+- index.html
+- dragonbound-mobile.css
+- dragonbound-mobile.js
+
+Fixes:
+- Commands launcher no longer appears above playable outing touch controls.
+- Commands launcher is docked away from the left Dragonbound home sidebar on touch devices.
+- Dragon Racing receives a direct iPad tap bridge instead of depending on Safari synthesising a click on an IMG role=button.
+- Desktop placement/behaviour is unchanged.
+- No save, race physics, story, AI, economy, or Career progression changes.

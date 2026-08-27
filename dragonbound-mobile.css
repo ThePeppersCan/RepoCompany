@@ -204,3 +204,61 @@ html.dragonbound-touch-device .dragonbound-orientation-hint{
   .dragonbound-touch-actions .dragonbound-touch-btn{width:50px;height:50px}.dragonbound-touch-actions .dragonbound-touch-action{width:58px;height:58px}
   #dragonboundOverlay .dragonbound-needs-hud{transform:scale(.86);transform-origin:top left;}
 }
+
+
+/* =====================================================================
+   V34.21.1 — iPad control-layer collision hotfix
+   Keep the home training launcher away from Dragon Racing, and never let a
+   body-fixed training control sit above direct-control outing buttons.
+   ===================================================================== */
+html.dragonbound-touch-device .dragonbound-command-button[hidden]{
+  display:none!important;
+}
+
+/* Commands operate the home dragon, not the keeper-controlled outing scene.
+   Hiding the launcher here also guarantees it cannot steal touches from the
+   outing D-pad / RUN / ACT controls. */
+html.dragonbound-touch-device body.dragonbound-outing-active .dragonbound-command-button,
+html.dragonbound-touch-device body.dragon-racing-modal-open .dragonbound-command-button,
+html.dragonbound-touch-device body.dragonbound-career-open .dragonbound-command-button{
+  display:none!important;
+  pointer-events:none!important;
+}
+
+/* On touch devices, dock Commands at the top-centre of the Dragonbound frame.
+   The original desktop position remains unchanged. This keeps the entire
+   left-hand home sidebar — including Dragon Racing and Dragon Bites — clear. */
+html.dragonbound-touch-device body.dragonbound-menu-open:not(.dragonbound-outing-active):not(.dragon-racing-modal-open):not(.dragonbound-career-open) .dragonbound-command-button:not([hidden]){
+  left:50%!important;
+  right:auto!important;
+  top:max(12px,calc(var(--db-safe-top) + 10px))!important;
+  width:148px!important;
+  min-width:148px!important;
+  height:48px!important;
+  margin-left:-74px!important;
+  padding:6px 8px 6px 7px!important;
+  grid-template-columns:32px minmax(0,1fr) 13px!important;
+  gap:8px!important;
+  border-radius:11px!important;
+}
+html.dragonbound-touch-device .dragonbound-command-button .dragonbound-command-button-icon{
+  width:32px!important;
+  height:32px!important;
+}
+html.dragonbound-touch-device .dragonbound-command-button .dragonbound-command-button-copy small{
+  font-size:6.5px!important;
+}
+html.dragonbound-touch-device .dragonbound-command-button .dragonbound-command-button-copy strong{
+  font-size:14px!important;
+}
+
+/* Make the image-based Dragon Racing launcher an unambiguous iPad tap target.
+   Geometry is deliberately unchanged. */
+html.dragonbound-touch-device #dragonboundOverlay .dragonbound-home-sidebar .dragon-racing-sidebar-button{
+  touch-action:manipulation!important;
+  pointer-events:auto!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+  z-index:90!important;
+}

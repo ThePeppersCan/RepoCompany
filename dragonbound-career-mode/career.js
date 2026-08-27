@@ -820,6 +820,16 @@
     { number: '07', title: 'The Contract Decision', subtitle: 'Your choices return', image: 'story/environments/07_Lumerre_Terraces_and_Paddock.png' }
   ];
 
+  const CAREER_DESK_PANELS = [
+    { id:'journal', label:'Career Journal', short:'Journal', mark:'J' },
+    { id:'records', label:'Race Records', short:'Records', mark:'R' },
+    { id:'relationships', label:'Relationships', short:'People', mark:'P' },
+    { id:'memories', label:'Memory Shelf', short:'Memories', mark:'M' },
+    { id:'inbox', label:'Inbox', short:'Inbox', mark:'I' },
+    { id:'calendar', label:'Calendar', short:'Calendar', mark:'C' },
+    { id:'dragon', label:'Dragon Profile', short:'Dragon', mark:'D' }
+  ];
+
   const root = document.getElementById('careerRoot');
   const music = {
     menu: document.getElementById('careerMenuMusic'),
@@ -852,6 +862,8 @@
     selectedMenu: 0,
     selectedTeam: null,
     selectedHub: null,
+    hubPanel: '',
+    hubInboxId: '',
     frameIndex: 0,
     soundOn: true,
     saves: [],
@@ -1108,6 +1120,7 @@
         morningNoticeSeen: false,
         blackglassInitialAttitude: ''
       },
+      careerHub: { inboxRead: [] },
       history: []
     };
   }
@@ -1151,6 +1164,11 @@
         traits: { ...fallback.chapter3.traits, ...(rawChapter3.traits || {}) },
         freeRoamSeen: Array.isArray(rawChapter3.freeRoamSeen) ? rawChapter3.freeRoamSeen.slice(0, 12) : [],
         nightActions: Array.isArray(rawChapter3.nightActions) ? rawChapter3.nightActions.slice(0, 12) : []
+      },
+      careerHub: {
+        ...fallback.careerHub,
+        ...(raw.careerHub && typeof raw.careerHub === 'object' ? raw.careerHub : {}),
+        inboxRead: Array.isArray(raw.careerHub?.inboxRead) ? [...new Set(raw.careerHub.inboxRead.map(String))].slice(-64) : []
       },
       history: Array.isArray(raw.history) ? raw.history.slice(-100) : []
     };
@@ -1595,9 +1613,11 @@
           </nav>
           ${storyJourneyUnlocked ? `<div class="hub-story-journey-badge" aria-hidden="true"><i></i><span><small>PROLOGUE COMPLETE</small><strong>STORY JOURNEY UNLOCKED</strong></span></div>` : ''}
           ${save ? `<div class="active-career-chip"><small>ACTIVE CAREER</small><strong>${escapeHtml(save.sponsor)}</strong><span>${escapeHtml(save.racer)}</span></div>` : ''}
+          ${careerDeskBarMarkup()}
           ${isCatAsthmaTester() ? `<button type="button" class="story-reset-test" data-reset-story><small>CatAsthma test control</small><strong>RESET QUICKQUILL STORY</strong></button>` : ''}
         </div><div class="hub-screen-vignette" aria-hidden="true"></div>
         <div class="hub-status-toast" role="status">${escapeHtml(state.status || `${save?.sponsor || 'Career'} loaded`)}</div>
+        ${careerDeskOverlayMarkup()}
         ${state.resetStoryConfirmOpen ? `<div class="story-reset-backdrop" role="presentation"><section class="story-reset-panel" role="dialog" aria-modal="true" aria-labelledby="storyResetTitle"><small>CATASTHMA TEST CONTROL</small><h2 id="storyResetTitle">Reset Quickquill story?</h2><p>This clears only the Quickquill chapter progress and choices. Your account, dragon, selected team and Career save remain untouched.</p>${state.storyError ? `<div class="story-error" role="alert">${escapeHtml(state.storyError)}</div>` : ''}<div><button type="button" data-cancel-reset ${state.storySaving ? 'disabled' : ''}>KEEP PROGRESS</button><button type="button" data-confirm-reset ${state.storySaving ? 'disabled' : ''}>${state.storySaving ? 'RESETTING…' : 'RESET STORY'}</button></div></section></div>` : ''}
       </section><div class="blackout ${state.blackout ? 'is-visible' : ''}" aria-hidden="true"></div>`;
     root.querySelectorAll('[data-hub]').forEach(button => {
@@ -1624,11 +1644,29 @@
           void fadeTo('meet-teams', { restartMusic: false, duration: 360 });
           return;
         }
+        if (item.id === 'profile') { openCareerPanel('dragon'); return; }
+        if (item.id === 'trophies') { openCareerPanel('records'); return; }
+        if (item.id === 'favourites') { openCareerPanel('memories'); return; }
         state.status = `${item.label} will continue in the next Career Mode update`;
         const toast = root.querySelector('.hub-status-toast');
         if (toast) { toast.textContent = state.status; toast.classList.add('is-visible'); window.setTimeout(() => toast.classList.remove('is-visible'), 2600); }
       });
     });
+    root.querySelectorAll('[data-career-panel]').forEach(button => button.addEventListener('click', () => openCareerPanel(String(button.dataset.careerPanel || 'journal'))));
+    root.querySelector('[data-career-panel-close]')?.addEventListener('click', () => { state.hubPanel = ''; state.hubInboxId = ''; playTone(175); render(); });
+    root.querySelectorAll('[data-career-inbox]').forEach(button => button.addEventListener('click', () => {
+      const id = String(button.dataset.careerInbox || '');
+      if (!id) return;
+      state.hubInboxId = id;
+      const story = careerHubStory();
+      if (story && !(story.careerHub?.inboxRead || []).includes(id)) {
+        const changed = cloneValue(story);
+        changed.careerHub = { ...(changed.careerHub || {}), inboxRead: [...new Set([...(changed.careerHub?.inboxRead || []), id])].slice(-64) };
+        state.story = changed;
+        render();
+        void persistCareerHubRead(id);
+      } else { render(); }
+    }));
     root.querySelector('[data-reset-story]')?.addEventListener('click', () => { state.resetStoryConfirmOpen = true; state.storyError = ''; playTone(185); render(); });
     root.querySelector('[data-cancel-reset]')?.addEventListener('click', () => { state.resetStoryConfirmOpen = false; state.storyError = ''; playTone(170); render(); });
     root.querySelector('[data-confirm-reset]')?.addEventListener('click', () => { void resetQuickquillStory(); });
@@ -1766,6 +1804,343 @@
       <p><b>First evening</b> ${escapeHtml(evening)}</p>
       <p><b>Team duty</b> ${escapeHtml(duty)}</p>
     </div>`;
+  }
+
+
+  function careerHubStory() {
+    if (state.activeSave?.team_id !== 'quickquill') return null;
+    return state.story || normaliseQuickquillStory(activeSaveState().story);
+  }
+
+  function careerDeskPanelDefinition(id = state.hubPanel) {
+    return CAREER_DESK_PANELS.find(panel => panel.id === id) || CAREER_DESK_PANELS[0];
+  }
+
+  function formatCareerTime(ms) {
+    const value = Math.max(0, Number(ms) || 0);
+    if (!value) return '—';
+    const minutes = Math.floor(value / 60000);
+    const seconds = Math.floor((value % 60000) / 1000);
+    const hundredths = Math.floor((value % 1000) / 10);
+    return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(hundredths).padStart(2,'0')}`;
+  }
+
+  function careerCurrentChapter(story) {
+    if (!story) return { eyebrow:'CAREER', title:'Career file', note:'This campaign has not started its story systems yet.' };
+    if (story.completed?.blackglass) return { eyebrow:'BETWEEN WEEKENDS', title:'A Seat at the Table', note:'Blackglass is complete. Your next chapter will begin from the Career Hub.' };
+    if (isBlackglassScene(story)) return { eyebrow:'RACE WEEKEND', title:'Blackglass Under Floodlights', note:'Qualifying, team choices and the northern night are shaping the weekend.' };
+    if (story.completed?.downtime) return { eyebrow:'NEXT EVENT', title:'Blackglass', note:'The invitation is real. The northern weekend is ready.' };
+    if (isDowntimeScene(story)) return { eyebrow:'QUICKQUILL HQ', title:'A Place at Quickquill', note:'Your career is becoming a life between races.' };
+    if (story.completed?.canto) return { eyebrow:'QUICKQUILL HQ', title:'A Place at Quickquill', note:'Canto is recorded. The team is waiting at home.' };
+    if (QUICKQUILL_CANTO_SCENES.some(scene => scene.id === story.scene)) return { eyebrow:'RACE ONE', title:'Canto Plains', note:'Your first professional race weekend is underway.' };
+    if (story.completed?.prologue) return { eyebrow:'NEXT EVENT', title:'Canto Plains', note:'The contract is signed. Your first professional race weekend is ready.' };
+    return { eyebrow:'QUICKQUILL', title:'The Impossible Contract', note:'The first chapter of the career is still being written.' };
+  }
+
+  function careerJournalEntries(story) {
+    if (!story) return [];
+    const c3 = chapter3State(story), c4 = chapter4State(story), entries = [];
+    const prologueStarted = story.completed?.prologue || !['q0','q1','q2','q3'].includes(story.scene) || Number(story.beat) > 0;
+    if (prologueStarted) entries.push({
+      id:'prologue', number:'01', status:story.completed?.prologue?'complete':'current', title:'The Impossible Contract', location:'Young Velmora League → Quickquill', image:'story/environments/01_Young_Velmora_League_Circuit.png',
+      text:story.completed?.prologue
+        ? `${storyDragonName()} was noticed after the race was already over, accepted Quickquill’s invitation and signed into the least sensible professional opportunity in Velmora.`
+        : `${storyDragonName()} has been noticed. Quickquill’s invitation is turning an ordinary junior race into the beginning of something much larger.`,
+      tags:[story.choices?.invitationResponse?.label, story.choices?.assessmentResponse?.label].filter(Boolean).slice(0,2)
+    });
+    const cantoStarted = QUICKQUILL_CANTO_SCENES.some(scene => scene.id === story.scene) || story.completed?.canto || story.race?.result;
+    if (cantoStarted) {
+      const result = story.race?.result || {};
+      entries.push({
+        id:'canto', number:'02', status:story.completed?.canto?'complete':'current', title:'Prove You Belong', location:'Canto Plains', image:'story/environments/05_Canto_Plains_Racing_Venue.png',
+        text:story.completed?.canto
+          ? `${storyDragonName()} completed a first professional start at Canto, finishing ${ordinal(result.rank || 6)} with ${Math.max(0,Number(result.overtakes)||0)} recorded overtakes. The weekend established ${String(c3.cantoAttitude || 'a measured').replaceAll('-',' ')} response to pressure.`
+          : `Quickquill’s first assessment has become a real race weekend. The choices made here will become the first official line in the Career record.`,
+        tags:[`Strategy · ${String(story.race?.strategy || currentCantoStrategy(story)).toUpperCase()}`, result.finishMs ? `Time · ${formatCareerTime(result.finishMs)}` : 'Race in progress']
+      });
+    }
+    const downtimeStarted = isDowntimeScene(story) || story.completed?.downtime || story.completed?.blackglass;
+    if (downtimeStarted) {
+      const evening = (c3.eveningMoments || []).map(id => EVENING_ACTIVITIES[id]?.title).filter(Boolean).join(' · ');
+      const duty = c3.duty?.type ? DUTY_GAMES[c3.duty.type]?.title : '';
+      entries.push({
+        id:'home', number:'03', status:story.completed?.downtime?'complete':'current', title:'A Place at Quickquill', location:'Quickquill Headquarters', image:'story/environments/11_Quickquill_Accommodation_Corridor.png',
+        text:story.completed?.downtime
+          ? `${storyDragonName()} gained a room, a routine and a place inside Quickquill that no longer feels temporary. ${evening ? `The first free evening included ${evening}.` : ''}`
+          : `The racing has stopped for a moment. The important work now is learning the people, rooms and routines that make Quickquill a team.`,
+        tags:[duty ? `Duty · ${duty}` : '', c3.roomKeyReceived ? 'Room key received' : ''].filter(Boolean)
+      });
+    }
+    const blackglassStarted = isBlackglassScene(story) || story.completed?.blackglass || story.blackglassRace?.result;
+    if (blackglassStarted) {
+      const ah = c4.afterHours || {}, result = story.blackglassRace?.result || {};
+      let afterHours = 'The long night stayed quiet.';
+      if (ah.secretFound) afterHours = `${storyDragonName()} found the hidden viewing rail and the 02:13 view of an empty Blackglass.`;
+      else if (ah.caught) afterHours = `${storyDragonName()} was caught exploring after hours; Garran has not forgotten it.`;
+      else if (ah.timingFound) afterHours = `${storyDragonName()} found an old sector sheet during an unscheduled midnight expedition.`;
+      else if (ah.snackFound) afterHours = `${storyDragonName()} solved the night’s most urgent problem: food.`;
+      entries.push({
+        id:'blackglass', number:'04', status:story.completed?.blackglass?'complete':'current', title:'Blackglass Under Floodlights', location:'Blackglass Night Circuit', image:'story/environments/20_Blackglass_Night_Circuit_Reveal.png',
+        text:story.completed?.blackglass
+          ? `${storyDragonName()} qualified ${ordinal(c4.qualifying?.position || result.startPosition || 3)} and finished ${ordinal(result.rank || 6)} beneath the floodlights. ${afterHours}`
+          : `The northern weekend is still alive: reputation, qualifying, circuit study and the team’s confidence are all moving at once. ${afterHours}`,
+        tags:[c4.qualifying?.completed ? `Qualifying · ${ordinal(c4.qualifying.position || 3)}` : 'Qualifying pending', ah.memory ? `Memory · ${ah.memory}` : ''].filter(Boolean)
+      });
+    }
+    return entries;
+  }
+
+  function careerRaceRecords(story) {
+    if (!story) return [];
+    const records = [];
+    if (story.race?.result) {
+      const r = story.race.result;
+      records.push({ id:'canto', number:'R01', title:'Canto Plains', subtitle:'Career Race One', image:'story/environments/05_Canto_Plains_Racing_Venue.png', rank:r.rank||6, start:r.startPosition||3, qualifying:null, finishMs:r.finishMs, bestLapMs:r.bestLapMs, overtakes:r.overtakes, positionDelta:r.positionDelta, leadChanges:r.leadChanges, photoFinish:r.photoFinish, strategy:story.race.strategy||currentCantoStrategy(story), moment:r.photoFinish?'A finish decided at the line':'First professional start completed.' });
+    }
+    if (story.blackglassRace?.result) {
+      const r = story.blackglassRace.result, c4 = chapter4State(story);
+      records.push({ id:'blackglass', number:'R02', title:'Blackglass Night Circuit', subtitle:'Career Race Two', image:'story/environments/25_Blackglass_Race_Track.png', rank:r.rank||6, start:r.startPosition||c4.qualifying?.position||3, qualifying:c4.qualifying?.position||r.startPosition||3, finishMs:r.finishMs, bestLapMs:r.bestLapMs, overtakes:r.overtakes, positionDelta:r.positionDelta, leadChanges:r.leadChanges, photoFinish:r.photoFinish, strategy:story.blackglassRace.strategy||currentBlackglassStrategy(story), moment:r.notableMoment || (r.photoFinish?'A finish decided at the line':'Blackglass completed under floodlights.'), sectors:blackglassStudiedText(story) });
+    }
+    return records;
+  }
+
+  function relationshipState(id, story) {
+    const rel = story?.relationships || {};
+    const bands = {
+      tyrese: [Number(rel.tyreseBond)||0, [[35,'Formal'],[45,'Warming'],[55,'Friendly'],[65,'Trusting'],[999,'Close']]],
+      mara: [Number(rel.maraBond)||0, [[20,'Formal'],[30,'Professional'],[40,'Warming'],[55,'Trusting'],[999,'Trusted']]],
+      nell: [Number(rel.nellBond)||0, [[20,'Formal'],[30,'Professional'],[40,'Warming'],[55,'Trusting'],[999,'Trusted']]],
+      steward: [Number(rel.stewardRespect)||0, [[1,'Formal'],[3,'Noted'],[6,'Respected'],[999,'Trusted at Blackglass']]],
+      rook: [Number(rel.rookRespect)||0, [[1,'Unknown'],[3,'Competitive'],[6,'Mutual respect'],[999,'Friendly rival']]]
+    };
+    const [value, thresholds] = bands[id] || [0, [[999,'Unknown']]];
+    for (const [limit,label] of thresholds) if (value < limit) return label;
+    return thresholds[thresholds.length-1][1];
+  }
+
+  function careerRelationships(story) {
+    if (!story) return [];
+    const c3 = chapter3State(story), c4 = chapter4State(story), ah = c4.afterHours || {};
+    const items = [
+      { id:'tyrese', name:'Tyrese Bell', role:'Quickquill Team Captain', portrait:'story/portraits/downtime/tyrese/frame-06.png', available:true,
+        description:'Tyrese increasingly treats you like a racer whose judgement matters, not simply the rookie he found after a junior race.',
+        memories:[c3.eveningMoments?.includes('tyrese')?'Rooftop conversation at Quickquill':'', c4.pressureResponse?'Spoke honestly before the Blackglass trip':'', c4.eveningMoments?.includes('tyrese')?'Blackglass balcony conversation':'', story.blackglassRace?.result?'Shared a complete Blackglass weekend':''].filter(Boolean)},
+      { id:'mara', name:'Mara Venn', role:'Quickquill Team Principal', portrait:'story/portraits/downtime/mara/frame-04.png', available:story.completed?.prologue || c3.roomKeyReceived,
+        description:'Mara’s respect is practical. She notices preparation, judgement and whether you make Quickquill stronger when nobody is watching.',
+        memories:[c3.roomKeyReceived?'Handed over the Quickquill room key':'', c3.duty?.completed?'Saw you pull your weight around HQ':'', c4.briefingTone?'Included you in the Blackglass briefing':'', c4.aftermath?'Asked what Blackglass taught you':''].filter(Boolean)},
+      { id:'nell', name:'Nell Wren', role:'Quickquill Chief Engineer', portrait:'story/portraits/downtime/nell/frame-02.png', available:story.completed?.prologue,
+        description:'Nell trusts evidence before speeches. Every useful question, clean setup choice and piece of telemetry moves the relationship forward.',
+        memories:[c3.duty?.type==='equipment'?'Worked through equipment duty together':'', c4.studiedSections?.length?'Built the Blackglass sector study plan':'', c4.qualifying?.completed?'Reviewed Blackglass qualifying traces':'', c4.eveningMoments?.includes('nell')?'Spent the evening over telemetry':''].filter(Boolean)},
+      { id:'steward', name:'Garran', role:'Blackglass Venue Steward', portrait:'story/portraits/blackglass/steward/frame-00.png', available:isBlackglassScene(story)||story.completed?.blackglass,
+        description:'Blackglass staff do not care about hype. Garran remembers whether you respected the venue, the rules and the people who keep it running.',
+        memories:[c4.stewardResponse?'First Blackglass registration':'', ah.passReturned?'Returned the dropped venue pass':'', ah.caught?'Caught during the after-hours expedition':'', story.blackglassRace?.result?'Saw you complete the Blackglass race':''].filter(Boolean)},
+      { id:'rook', name:'Rook Calder', role:'Blackglass Local Racer', portrait:'story/portraits/blackglass/rook/frame-02.png', available:isBlackglassScene(story)||story.completed?.blackglass,
+        description:'Rook measures people by what they do on difficult circuits. The relationship sits somewhere between local rivalry and earned respect.',
+        memories:[c4.rookResponse?'First paddock exchange':'', c4.eveningMoments?.includes('rook')?'Traded Blackglass stories after qualifying':'', c4.localTip?'Shared a local circuit tip':'', story.blackglassRace?.result?'Compared notes after the race':''].filter(Boolean)}
+    ];
+    return items.filter(item => item.available).map(item => ({...item, state:relationshipState(item.id,story), memories:item.memories.slice(0,4)}));
+  }
+
+  function careerMemories(story) {
+    if (!story) return [];
+    const c3=chapter3State(story), c4=chapter4State(story), ah=c4.afterHours||{}, items=[];
+    if (c3.roomKeyReceived) items.push({id:'quickquill-key',title:'Quickquill Room Key',kicker:'A PLACE AT QUICKQUILL',image:'story/props/room-key.png',text:'The moment the accommodation wing stopped feeling like somewhere you were borrowing and started feeling like home.'});
+    if (c3.memoryShelfUnlocked) items.push({id:'canto-keepsake',title:'Canto Keepsake',kicker:'CANTO PLAINS',image:'story/props/canto-keepsake.png',text:'A small reminder of the first professional weekend — before the results had time to become history.'});
+    if (ah.timingFound) items.push({id:'midnight-timing',title:'Old Blackglass Timing Sheet',kicker:'AFTER HOURS',image:'story/after-hours/props/timing-sheet.png',text:`Found after midnight. The note on ${BLACKGLASS_SECTION_DEFS.find(s=>s.id===ah.bonusSection)?.name || 'an extra sector'} became genuine race knowledge.`});
+    if (ah.secretFound) items.push({id:'0213',title:'Blackglass at 02:13',kicker:'SECRET MEMORY',image:'story/environments/29_Blackglass_Circuit_At_Rest.png',wide:true,text:'No crowd. No broadcast. Just rain, floodlights and a circuit that finally felt quiet.'});
+    if (ah.passPocketed && c4.keepsake !== 'pass') items.push({id:'after-hours-pass',title:'Dropped Blackglass Pass',kicker:'AFTER HOURS',image:'story/after-hours/props/venue-pass.png',text:'A venue pass found after midnight and never quite returned to where it belonged.'});
+    if (c4.keepsake==='pass') items.push({id:'blackglass-pass',title:'Stamped Blackglass Venue Pass',kicker:'BLACKGLASS',image:'story/props/blackglass/venue-pass.png',text:'Proof that the impossible-looking northern circuit eventually let you through the gate.'});
+    if (c4.keepsake==='sheet') items.push({id:'blackglass-sheet',title:'Blackglass Qualifying Sheet',kicker:'BLACKGLASS',image:'story/props/blackglass/qualifying-sheet.png',text:`The imperfect lap that still put ${storyDragonName()} ${ordinal(c4.qualifying?.position||3)} on the grid.`});
+    if (c4.keepsake==='card') items.push({id:'blackglass-card',title:'Blackglass Circuit Card',kicker:'BLACKGLASS',image:'story/props/blackglass/circuit-card.png',text:'A pocket map of a circuit that became less frightening one corner at a time.'});
+    return items;
+  }
+
+  function careerInboxMessages(story) {
+    if (!story) return [];
+    const c3=chapter3State(story), c4=chapter4State(story), messages=[];
+    messages.push({id:'welcome',from:'Tyrese Bell',subject:'Bring courage. We have goggles.',stamp:'QUICKQUILL · RECRUITMENT',important:true,available:true,body:`${storyDragonName()}, if you are reading this from the Career Hub, the impossible part already happened. You came through the door. The rest is just racing, work and an unreasonable amount of tea.`});
+    messages.push({id:'canto',from:'Nell Wren',subject:'Canto file archived',stamp:'ENGINEERING · RACE ONE',available:!!story.race?.result,body:`Canto is in the archive: ${ordinal(story.race?.result?.rank||6)}, ${formatCareerTime(story.race?.result?.finishMs)}, ${Math.max(0,Number(story.race?.result?.overtakes)||0)} overtakes. Keep the useful parts. I already kept the telemetry.`});
+    messages.push({id:'room',from:'Mara Venn',subject:'Accommodation allocation',stamp:'QUICKQUILL · HQ',available:!!c3.roomKeyReceived,body:`Third door past the noticeboard. The room is yours while you race for Quickquill. That means the key is your responsibility and the skirting board remains ${storyDragonName()}’s problem.`});
+    messages.push({id:'blackglass-invite',from:'Race Operations',subject:'BLACKGLASS · travel accreditation',stamp:'OFFICIAL · RACE TWO',important:true,available:story.completed?.downtime||isBlackglassScene(story)||story.completed?.blackglass,body:'Travel accreditation confirmed. Northern route allocation attached to the team file. Blackglass paddock access is conditional on venue registration with Garran on arrival.'});
+    messages.push({id:'qualifying',from:'Nell Wren',subject:`Grid confirmed · ${ordinal(c4.qualifying?.position||3)}`,stamp:'ENGINEERING · BLACKGLASS',available:!!c4.qualifying?.completed,body:`Qualifying is locked. Start position: ${ordinal(c4.qualifying?.position||3)}. Deep-study anchors: ${blackglassStudiedText(story)}. Do not spend tonight trying to find another three tenths in your head.`});
+    messages.push({id:'blackglass-result',from:'Mara Venn',subject:'Blackglass debrief',stamp:'QUICKQUILL · RACE TWO',important:true,available:!!story.blackglassRace?.result,body:`Blackglass is complete: ${ordinal(story.blackglassRace?.result?.rank||6)} at the flag. The result matters. So do the choices that got you there. We will discuss both when everybody has slept.`});
+    messages.push({id:'seat',from:'Quickquill Team Office',subject:'Next: A Seat at the Table',stamp:'CAREER · NEXT CHAPTER',available:!!story.completed?.blackglass,body:'Your next Career chapter is not open yet. When it begins, the question will be different: not whether you belong in the room, but what happens once people start saving you a seat.'});
+    const read = new Set((story.careerHub?.inboxRead||[]).map(String));
+    return messages.filter(m=>m.available).map(m=>({...m,read:read.has(m.id)}));
+  }
+
+  function careerCalendarEvents(story) {
+    if (!story) return [];
+    const cantoStarted=QUICKQUILL_CANTO_SCENES.some(scene=>scene.id===story.scene)||story.completed?.canto;
+    const downtimeStarted=isDowntimeScene(story)||story.completed?.downtime;
+    const blackglassStarted=isBlackglassScene(story)||story.completed?.blackglass;
+    const rows=[
+      {id:'scout',day:'01',title:'Scouted',place:'Young Velmora League',detail:'Tyrese stays after the race.',complete:!!story.completed?.prologue,current:!story.completed?.prologue},
+      {id:'canto',day:'02',title:'Canto race weekend',place:'Canto Plains',detail:'Preparation · grid · first professional start.',complete:!!story.completed?.canto,current:!!story.completed?.prologue&&!story.completed?.canto&&cantoStarted},
+      {id:'hq',day:'03',title:'Quickquill downtime',place:'Quickquill HQ',detail:'Room · team duties · first evening · Blackglass invitation.',complete:!!story.completed?.downtime,current:!!story.completed?.canto&&!story.completed?.downtime&&downtimeStarted},
+      {id:'blackglass',day:'04',title:'Blackglass weekend',place:'Northern Circuit',detail:'Arrival · circuit study · qualifying · After Hours · race.',complete:!!story.completed?.blackglass,current:!!story.completed?.downtime&&!story.completed?.blackglass&&blackglassStarted},
+      {id:'table',day:'05',title:'A Seat at the Table',place:'Quickquill',detail:'Pressure, people and consequences.',complete:false,current:false,upcoming:!!story.completed?.blackglass}
+    ];
+    let currentSeen=false;
+    return rows.map((row,index)=>{
+      let status=row.complete?'complete':row.current?'current':row.upcoming?'next':'locked';
+      if(status==='current') currentSeen=true;
+      if(!currentSeen && status==='locked' && index>0 && rows[index-1].complete) status='next';
+      return {...row,status};
+    });
+  }
+
+  function careerIdentity(story) {
+    const values=[['heart',Number(story?.identity?.heart)||0],['fire',Number(story?.identity?.fire)||0],['focus',Number(story?.identity?.focus)||0]].sort((a,b)=>b[1]-a[1]);
+    const label={heart:'Grounded',fire:'Competitive',focus:'Analytical'};
+    return { primary:label[values[0]?.[0]]||'Developing', key:values[0]?.[0]||'heart', values };
+  }
+
+  function careerDragonTraits(story) {
+    if (!story) return [];
+    const c3=chapter3State(story), c4=chapter4State(story), ah=c4.afterHours||{}, identity=careerIdentity(story), traits=[];
+    traits.push(identity.primary);
+    const attitude={confident:'Confident',analytical:'Self-critical learner',grounded:'Team-minded',hungry:'Hungry competitor'}[c3.cantoAttitude];
+    if(attitude) traits.push(attitude);
+    if(Number(story.relationships?.dragonBond)>=60) traits.push('Dragon-first');
+    if(Number(story.relationships?.quickquillTrust)>=58) traits.push('Quickquill loyal');
+    if(ah.secretFound) traits.push('Explorer');
+    else if(ah.timingFound) traits.push('Technical eye');
+    if(c4.blackglassInitialAttitude==='curious'||story.choices?.blackglassInitialAttitude?.value==='curious') traits.push('Curious');
+    if((story.race?.result?.rank||99)<=3||(story.blackglassRace?.result?.rank||99)<=3) traits.push('Podium proven');
+    return [...new Set(traits)].slice(0,6);
+  }
+
+  function careerDragonProfile(story) {
+    const dragon=careerDragon(state.activeSave), races=careerRaceRecords(story), starts=races.length, wins=races.filter(r=>Number(r.rank)===1).length, podiums=races.filter(r=>Number(r.rank)<=3).length;
+    const finishes=races.map(r=>Number(r.rank)).filter(Boolean), best=finishes.length?Math.min(...finishes):0;
+    const c4=story?chapter4State(story):null, strategies=story?[story.race?.result?currentCantoStrategy(story):'',story.blackglassRace?.result?currentBlackglassStrategy(story):''].filter(Boolean):[];
+    const identity=story?careerIdentity(story):{primary:'Developing'};
+    const bond=Number(story?.relationships?.dragonBond)||0;
+    const bondLabel=bond>=65?'In sync':bond>=55?'Strong':bond>=45?'Connected':'Developing';
+    return {dragon,starts,wins,podiums,best,identity:identity.primary,bond:bondLabel,traits:careerDragonTraits(story),strategies:[...new Set(strategies)],chapter:careerCurrentChapter(story),studied:c4?blackglassStudiedText(story):''};
+  }
+
+  function careerDeskBarMarkup() {
+    const story=careerHubStory(), inbox=careerInboxMessages(story), unread=inbox.filter(message=>!message.read).length, chapter=careerCurrentChapter(story);
+    return `<section class="career-desk-bar" aria-label="Career progression">
+      <div class="career-desk-summary"><small>${escapeHtml(chapter.eyebrow)}</small><strong>${escapeHtml(chapter.title)}</strong><span>${escapeHtml(chapter.note)}</span></div>
+      <nav class="career-desk-tabs" aria-label="Career progression sections">
+        ${CAREER_DESK_PANELS.map(panel=>`<button type="button" data-career-panel="${panel.id}" class="${state.hubPanel===panel.id?'is-active':''}"><b>${panel.mark}</b><span>${escapeHtml(panel.short)}</span>${panel.id==='inbox'&&unread?`<i>${unread}</i>`:''}</button>`).join('')}
+      </nav>
+    </section>`;
+  }
+
+  function careerDeskEmpty(title, text) {
+    return `<div class="career-desk-empty"><b>—</b><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div>`;
+  }
+
+  function careerJournalMarkup(story) {
+    const entries=careerJournalEntries(story);
+    if(!entries.length) return careerDeskEmpty('Your journal is waiting','Start the Quickquill story and the Career archive will write itself from your actual choices.');
+    return `<div class="career-journal-timeline">${entries.map(entry=>`<article class="career-journal-entry is-${entry.status}">
+      <div class="career-journal-number"><span>${entry.number}</span><i></i></div>
+      <div class="career-journal-image"><img loading="lazy" decoding="async" src="${entry.image}" alt=""></div>
+      <div class="career-journal-copy"><small>${escapeHtml(entry.status==='complete'?'ARCHIVED':'CURRENT CHAPTER')} · ${escapeHtml(entry.location)}</small><h3>${escapeHtml(entry.title)}</h3><p>${escapeHtml(entry.text)}</p>${entry.tags?.length?`<div class="career-desk-tags">${entry.tags.map(tag=>`<span>${escapeHtml(tag)}</span>`).join('')}</div>`:''}</div>
+    </article>`).join('')}</div>`;
+  }
+
+  function careerRaceRecordsMarkup(story) {
+    const records=careerRaceRecords(story);
+    if(!records.length) return careerDeskEmpty('No Career races recorded yet','Career story races will appear here after the flag. Normal Dragon Racing records remain separate.');
+    return `<div class="career-records-grid">${records.map(record=>`<article class="career-record-card">
+      <div class="career-record-hero"><img loading="lazy" decoding="async" src="${record.image}" alt=""><span>${record.number}</span><strong>${ordinal(record.rank)}</strong></div>
+      <header><small>${escapeHtml(record.subtitle)}</small><h3>${escapeHtml(record.title)}</h3><p>${escapeHtml(record.moment)}</p></header>
+      <div class="career-record-stats"><span><small>FINISH</small><b>${ordinal(record.rank)}</b></span><span><small>START</small><b>${ordinal(record.start)}</b></span>${record.qualifying?`<span><small>QUALIFY</small><b>${ordinal(record.qualifying)}</b></span>`:''}<span><small>TIME</small><b>${formatCareerTime(record.finishMs)}</b></span><span><small>BEST LAP</small><b>${formatCareerTime(record.bestLapMs)}</b></span><span><small>OVERTAKES</small><b>${Math.max(0,Number(record.overtakes)||0)}</b></span></div>
+      <footer><span>${escapeHtml(String(record.strategy||'focus').toUpperCase())} APPROACH</span>${record.sectors?`<span>${escapeHtml(record.sectors)}</span>`:''}${record.photoFinish?'<span>PHOTO FINISH</span>':''}</footer>
+    </article>`).join('')}</div>`;
+  }
+
+  function careerRelationshipsMarkup(story) {
+    const people=careerRelationships(story);
+    if(!people.length) return careerDeskEmpty('The paddock is still quiet','Relationships will appear as the Quickquill campaign introduces people who can remember your choices.');
+    return `<div class="career-relationships-grid">${people.map(person=>`<article class="career-relationship-card">
+      <div class="career-relationship-portrait"><img loading="lazy" decoding="async" src="${person.portrait}" alt=""></div>
+      <div class="career-relationship-copy"><small>${escapeHtml(person.role)}</small><h3>${escapeHtml(person.name)}</h3><strong>${escapeHtml(person.state)}</strong><p>${escapeHtml(person.description)}</p>${person.memories.length?`<ul>${person.memories.map(memory=>`<li>${escapeHtml(memory)}</li>`).join('')}</ul>`:'<p class="career-muted">First impressions are still forming.</p>'}</div>
+    </article>`).join('')}</div>`;
+  }
+
+  function careerMemoriesMarkup(story) {
+    const memories=careerMemories(story);
+    if(!memories.length) return careerDeskEmpty('The shelf is still empty','Only objects and memories you actually earn or discover will appear here.');
+    return `<div class="career-memory-grid">${memories.map(memory=>`<article class="career-memory-card ${memory.wide?'is-wide':''}"><div class="career-memory-art"><img loading="lazy" decoding="async" src="${memory.image}" alt=""></div><small>${escapeHtml(memory.kicker)}</small><h3>${escapeHtml(memory.title)}</h3><p>${escapeHtml(memory.text)}</p></article>`).join('')}</div>`;
+  }
+
+  function careerInboxMarkup(story) {
+    const messages=careerInboxMessages(story);
+    if(!messages.length) return careerDeskEmpty('No team messages yet','Important team communications will collect here as the Career story progresses.');
+    const selectedId=state.hubInboxId&&messages.some(message=>message.id===state.hubInboxId)?state.hubInboxId:messages[0].id;
+    const selected=messages.find(message=>message.id===selectedId)||messages[0];
+    return `<div class="career-inbox-layout"><div class="career-inbox-list">${messages.map(message=>`<button type="button" data-career-inbox="${message.id}" class="${selected.id===message.id?'is-selected':''} ${message.read?'is-read':'is-unread'}"><i></i><span><small>${escapeHtml(message.from)} · ${escapeHtml(message.stamp)}</small><strong>${escapeHtml(message.subject)}</strong></span>${message.important?'<b>IMPORTANT</b>':''}</button>`).join('')}</div><article class="career-inbox-message"><small>${escapeHtml(selected.stamp)}</small><h3>${escapeHtml(selected.subject)}</h3><span>FROM · ${escapeHtml(selected.from)}</span><p>${escapeHtml(selected.body)}</p><footer>${selected.read?'READ':'UNREAD'} · SAVED TO CAREER FILE</footer></article></div>`;
+  }
+
+  function careerCalendarMarkup(story) {
+    const events=careerCalendarEvents(story), current=events.find(event=>event.status==='current')||events.find(event=>event.status==='next')||events[events.length-1];
+    return `<div class="career-calendar-layout"><section class="career-next-event"><small>NEXT / CURRENT</small><h3>${escapeHtml(current?.title||'Career schedule')}</h3><strong>${escapeHtml(current?.place||'Quickquill')}</strong><p>${escapeHtml(current?.detail||'The next event will appear here when the story advances.')}</p></section><div class="career-calendar-list">${events.map(event=>`<article class="is-${event.status}"><div><small>SEQUENCE</small><b>${event.day}</b></div><span><small>${escapeHtml(event.status.toUpperCase())}</small><strong>${escapeHtml(event.title)}</strong><p>${escapeHtml(event.place)} · ${escapeHtml(event.detail)}</p></span><i>${event.status==='complete'?'✓':event.status==='current'?'NOW':event.status==='next'?'NEXT':'—'}</i></article>`).join('')}</div></div>`;
+  }
+
+  function careerDragonMarkup(story) {
+    const profile=careerDragonProfile(story), dragon=profile.dragon, activeTeam=TEAMS.find(team=>team.id===state.activeSave?.team_id);
+    if(!dragon) return careerDeskEmpty('Dragon profile unavailable','This account does not yet have a mapped Dragonbound Career dragon.');
+    const avatar=activeTeam?`team-avatars/${activeTeam.id}/${dragon.asset}`:dragon.asset;
+    const tendencies=profile.strategies.length?profile.strategies.map(value=>value.toUpperCase()).join(' / '):'Still developing';
+    return `<div class="career-dragon-profile"><section class="career-dragon-hero"><div class="career-dragon-backdrop"></div><img loading="lazy" decoding="async" src="${avatar}" alt="${escapeHtml(dragon.name)}"><div><small>${escapeHtml(activeTeam?.sponsor||state.activeSave?.sponsor||'CAREER')} · RACER PROFILE</small><h2>${escapeHtml(dragon.name)}</h2><span>${escapeHtml(profile.chapter.title)}</span></div></section><section class="career-dragon-overview"><div class="career-dragon-statline"><span><small>STARTS</small><b>${profile.starts}</b></span><span><small>PODIUMS</small><b>${profile.podiums}</b></span><span><small>WINS</small><b>${profile.wins}</b></span><span><small>BEST</small><b>${profile.best?ordinal(profile.best):'—'}</b></span></div><div class="career-dragon-details"><article><small>CAREER IDENTITY</small><h3>${escapeHtml(profile.identity)}</h3><p>Developed from the decisions you have actually made during the Quickquill campaign.</p></article><article><small>DRAGON BOND</small><h3>${escapeHtml(profile.bond)}</h3><p>The partnership state is shown as a story relationship, not a raw hidden number.</p></article><article><small>RACE TENDENCY</small><h3>${escapeHtml(tendencies)}</h3><p>Built from the approaches carried into completed Career races.</p></article></div><div class="career-trait-list"><small>CAREER TRAITS</small>${profile.traits.length?profile.traits.map(trait=>`<span>${escapeHtml(trait)}</span>`).join(''):'<span>Developing</span>'}</div></section></div>`;
+  }
+
+  function careerDeskBodyMarkup(panelId, story) {
+    if(!story && state.activeSave?.team_id!=='quickquill') return careerDeskEmpty('Campaign archive not active',`${state.activeSave?.sponsor||'This team'} does not have a story campaign in this build yet. The Career Desk is ready to populate when that campaign is added.`);
+    if(panelId==='records') return careerRaceRecordsMarkup(story);
+    if(panelId==='relationships') return careerRelationshipsMarkup(story);
+    if(panelId==='memories') return careerMemoriesMarkup(story);
+    if(panelId==='inbox') return careerInboxMarkup(story);
+    if(panelId==='calendar') return careerCalendarMarkup(story);
+    if(panelId==='dragon') return careerDragonMarkup(story);
+    return careerJournalMarkup(story);
+  }
+
+  function careerDeskOverlayMarkup() {
+    if(!state.hubPanel) return '';
+    const panel=careerDeskPanelDefinition(), story=careerHubStory(), inbox=careerInboxMessages(story), unread=inbox.filter(message=>!message.read).length;
+    return `<section class="career-desk-overlay" role="dialog" aria-modal="true" aria-label="${escapeHtml(panel.label)}">
+      <div class="career-desk-frame">
+        <header class="career-desk-header"><div><small>DRAGONBOUND CAREER · PROGRESSION</small><h2>${escapeHtml(panel.label)}</h2></div><button type="button" data-career-panel-close aria-label="Close Career Desk"><span>ESC</span><b>×</b></button></header>
+        <aside class="career-desk-nav">${CAREER_DESK_PANELS.map(item=>`<button type="button" data-career-panel="${item.id}" class="${state.hubPanel===item.id?'is-active':''}"><b>${item.mark}</b><span><strong>${escapeHtml(item.label)}</strong><small>${item.id==='inbox'&&unread?`${unread} UNREAD`:'CAREER FILE'}</small></span><i>›</i></button>`).join('')}<div class="career-hq-shortcuts"><small>QUICKQUILL HQ</small><button type="button" data-career-panel="memories">Your room / shelf</button><button type="button" data-career-panel="relationships">Team relationships</button><button type="button" data-career-panel="calendar">Race board</button></div></aside>
+        <main class="career-desk-content">${careerDeskBodyMarkup(panel.id,story)}</main>
+      </div>
+    </section>`;
+  }
+
+  async function persistCareerHubRead(messageId) {
+    const current=careerHubStory();
+    if(!current||!state.client||!state.user||!state.activeSave) return;
+    const read=new Set((current.careerHub?.inboxRead||[]).map(String));
+    if(!read.has(messageId)) read.add(String(messageId));
+    const changed=cloneValue(current);
+    changed.careerHub={...(changed.careerHub||{}),inboxRead:[...read].slice(-64)};
+    state.story=changed;
+    try {
+      const timestamp=new Date().toISOString(), previousState=activeSaveState(), saveState={...previousState,version:SAVE_VERSION,story:changed};
+      const {data,error}=await state.client.from(SAVE_TABLE).update({state:saveState,updated_at:timestamp,last_played_at:timestamp}).eq('id',state.activeSave.id).eq('user_id',state.user.id).select('id,user_id,owner_username,save_name,team_id,sponsor,racer,state,created_at,updated_at,last_played_at').single();
+      if(error) throw error;
+      if(data?.id){state.activeSave=data;state.story=normaliseQuickquillStory(data.state?.story);state.saves=state.saves.map(save=>save.id===data.id?data:save);}
+    } catch(error) {
+      console.warn('[Dragonbound Career Mode] Inbox read state could not be synced',error);
+      state.status='Message opened · read status will retry next time';
+    }
+  }
+
+  function openCareerPanel(panelId) {
+    if(!CAREER_DESK_PANELS.some(panel=>panel.id===panelId)) return;
+    if(state.activeSave?.team_id==='quickquill'&&!state.story) state.story=normaliseQuickquillStory(activeSaveState().story);
+    state.hubPanel=panelId;
+    if(panelId!=='inbox') state.hubInboxId='';
+    playTone(235+CAREER_DESK_PANELS.findIndex(panel=>panel.id===panelId)*13);
+    render();
   }
 
   async function saveDowntimeSameBeat(changed) {
@@ -3976,6 +4351,10 @@
       return;
     }
     if (state.mode === 'career-hub') {
+      if (state.hubPanel) {
+        if (event.key === 'Escape') { event.preventDefault(); state.hubPanel = ''; state.hubInboxId = ''; playTone(170); render(); }
+        return;
+      }
       if (state.resetStoryConfirmOpen) {
         if (event.key === 'Escape') { event.preventDefault(); state.resetStoryConfirmOpen = false; state.storyError = ''; render(); }
         if (event.key === 'Enter') { event.preventDefault(); void resetQuickquillStory(); }

@@ -1,14 +1,15 @@
 {
-  "version": "34.20.3",
-  "name": "Smoothness Recovery",
-  "base": "34.20.2",
-  "files": [
+  "version": "34.21.1",
+  "name": "iPad Controls + Dragon Racing Hotfix",
+  "base": "34.21",
+  "changed_files": [
     "index.html",
-    "script.js",
-    "dragonbound-baby-engine.js",
-    "dragonbound-mobile.js",
     "dragonbound-mobile.css",
-    "dragonbound-career-mode/index.html",
-    "dragonbound-career-mode/career.js"
+    "dragonbound-mobile.js"
+  ],
+  "scope": [
+    "iPad/touch command launcher placement",
+    "outing control collision prevention",
+    "Dragon Racing touch activation"
   ]
 }
