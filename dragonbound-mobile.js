@@ -1,4 +1,4 @@
-/* Dragonbound V34.21.1 — iPad stability + touch input hotfix. */
+/* Dragonbound V34.21.2 — iPad Dragon Racing coordinate tap hotfix. */
 (()=>{
   'use strict';
   const coarse=()=>matchMedia?.('(pointer: coarse)')?.matches||navigator.maxTouchPoints>0;
@@ -93,34 +93,59 @@
   let tap=null;
   let bridgedTarget=null;
   let bridgedAt=0;
-  const tapTarget=node=>node?.closest?.('.dragon-racing-sidebar-button,.dragonbound-baby-sprite')||null;
+  const normalTapTarget=node=>node?.closest?.('.dragonbound-baby-sprite')||null;
+  const racingButton=()=>document.querySelector('#dragonboundOverlay .dragon-racing-sidebar-button');
+  const pointInside=(el,x,y,pad=0)=>{
+    if(!el||el.hidden)return false;
+    const style=getComputedStyle(el);
+    if(style.display==='none'||style.visibility==='hidden'||style.pointerEvents==='none'||Number(style.opacity)===0)return false;
+    const r=el.getBoundingClientRect();
+    if(r.width<8||r.height<8)return false;
+    return x>=r.left-pad&&x<=r.right+pad&&y>=r.top-pad&&y<=r.bottom+pad;
+  };
+  const hitTarget=(node,x,y)=>{
+    /* V34.21.2: do not trust event.target for Dragon Racing on iPad. Safari can
+       report a transparent/overlapping sibling even though the finger is visibly
+       on the racing artwork. Hit-test the button's real screen rectangle instead. */
+    const race=racingButton();
+    if(pointInside(race,x,y,3))return {target:race,kind:'racing'};
+    const target=normalTapTarget(node);
+    return target?{target,kind:'normal'}:null;
+  };
   document.addEventListener('pointerdown',e=>{
     if(e.pointerType!=='touch'&&e.pointerType!=='pen')return;
-    const target=tapTarget(e.target);if(!target)return;
-    tap={id:e.pointerId,target,x:e.clientX,y:e.clientY};
+    const hit=hitTarget(e.target,e.clientX,e.clientY);if(!hit)return;
+    tap={id:e.pointerId,target:hit.target,kind:hit.kind,x:e.clientX,y:e.clientY};
   },{passive:true,capture:true});
   document.addEventListener('pointercancel',()=>{tap=null;},{passive:true,capture:true});
   document.addEventListener('pointerup',e=>{
     if(!tap||tap.id!==e.pointerId)return;
-    const target=tapTarget(e.target);
-    const dx=e.clientX-tap.x,dy=e.clientY-tap.y;
-    const valid=target===tap.target&&(dx*dx+dy*dy)<=196;
+    const start=tap;
+    const dx=e.clientX-start.x,dy=e.clientY-start.y;
+    const stillInside=start.kind==='racing'
+      ? pointInside(start.target,e.clientX,e.clientY,8)
+      : normalTapTarget(e.target)===start.target;
+    const valid=stillInside&&(dx*dx+dy*dy)<=324;
     tap=null;
     if(!valid)return;
-    bridgedTarget=target;bridgedAt=performance.now();
+    bridgedTarget=start.target;bridgedAt=performance.now();
     e.preventDefault();
-    /* The Dragon Racing launcher is an IMG with role=button. iPad Safari can
-       occasionally skip the synthetic click after viewport/layout changes, so
-       invoke the already-loaded racing UI directly for this one control. */
-    if(target.matches?.('.dragon-racing-sidebar-button')&&typeof window.DragonRacingUi?.open==='function'){
-      try{window.DragonRacingUi.open();}catch(_){try{target.click();}catch(__){/* noop */}}
+    if(start.kind==='racing'){
+      /* Call the racing UI directly. This works even when a stale transparent
+         layer is what Safari reports as the pointer target. */
+      try{
+        if(typeof window.DragonRacingUi?.open==='function')window.DragonRacingUi.open();
+        else start.target.click();
+      }catch(_){try{start.target.click();}catch(__){/* noop */}}
     }else{
-      try{target.click();}catch(_){/* native click may still follow */}
+      try{start.target.click();}catch(_){/* native click may still follow */}
     }
   },{passive:false,capture:true});
   document.addEventListener('click',e=>{
     if(!e.isTrusted||!bridgedTarget)return;
-    if(tapTarget(e.target)===bridgedTarget&&performance.now()-bridgedAt<650){
+    const now=performance.now();
+    const same=e.target===bridgedTarget||e.target?.closest?.('.dragon-racing-sidebar-button,.dragonbound-baby-sprite')===bridgedTarget;
+    if(same&&now-bridgedAt<650){
       e.preventDefault();e.stopImmediatePropagation();
       bridgedTarget=null;bridgedAt=0;
     }

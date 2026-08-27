@@ -1,0 +1,11 @@
+Dragonbound V34.21.2 — iPad Dragon Racing Tap Hotfix
+
+Install over V34.21.1 and replace matching files.
+
+Changed only:
+- index.html (cache/version bump)
+- dragonbound-mobile.js (coordinate-based iPad tap bridge for Dragon Racing)
+
+The new touch bridge checks the Dragon Racing button's actual on-screen rectangle,
+so a stale transparent/overlapping element cannot steal the iPad tap.
+Desktop/mouse behaviour and game logic are unchanged.
