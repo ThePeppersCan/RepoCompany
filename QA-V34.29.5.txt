@@ -1,0 +1,38 @@
+DRAGONBOUND V34.29.5 — FINAL QA REPORT
+
+PASS — root Lumerre track registration exists
+PASS — root Career message bridge exists
+PASS — root sends real started acknowledgement
+PASS — root returns real result event
+PASS — seven-racer Lumerre branch exists
+PASS — all six named rivals present
+PASS — 10-lap Lumerre descriptor
+PASS — live team order exists
+PASS — final-lap music crossfade exists
+PASS — quiet countdown supported
+PASS — Canto config retained
+PASS — Blackglass config retained
+PASS — City config retained
+PASS — normal UI track rules unchanged
+PASS — normal UI CSS unchanged
+PASS — old fake marker renderer absent
+PASS — Career uses parent engine handoff
+PASS — route has dense closed centreline · 51 points
+PASS — descriptor world size matches map
+PASS — engine-smoothed route stays on visible race road · 500 Catmull samples; 0 off-road
+PASS — asset dragonbound-career-mode/story/chapter6/race/lumerre-crown-full-map.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/lumerre-crown-podium-stage.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-live-hud.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-race-team-orders.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-race-battle-reference.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-trophy-transparent.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/audio/lumerre_crown_main_race_BALANCED.mp3
+PASS — asset dragonbound-career-mode/story/chapter6/race/audio/lumerre_crown_final_lap_BALANCED.mp3
+PASS — trophy has real alpha transparency
+PASS — race CSS brace balance · 669 / 669
+PASS — UI CSS brace balance · 238 / 238
+
+ARCHITECTURE RESULT
+Career Mode prepares Lumerre. The supplied current root Dragon Racing engine now registers the Crown as a career-only track, opens the existing race modal, runs the established animated-racer/camera/overtaking engine with seven entrants, and posts the genuine classification back to Career Mode.
+
+OVERALL: PASS

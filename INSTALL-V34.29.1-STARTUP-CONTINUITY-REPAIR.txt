@@ -1,0 +1,25 @@
+DRAGONBOUND V34.29.1 — STARTUP + CONTINUITY REPAIR
+
+INSTALL OVER V34.29.
+Copy the entire patch and replace matching files.
+No database migration. No save reset.
+
+FIXED
+- Fatal Career Mode startup error introduced in V34.29.
+  Cause: the new race music tracks were created by calling makeCrownAudio before
+  that helper existed, so career.js stopped executing and the Career Mode frame
+  stayed black.
+- Race music now uses normal HTML audio elements, matching the rest of Career Mode.
+- Restores the V34.28.3 Tyrese / Mara / Nell practice portrait fixes that V34.29
+  accidentally regressed when it was built from V34.28.2 instead of V34.28.3.
+- Restores the safer Practice & Qualifying portrait positioning.
+- Uses the properly balanced V34.29 main-race and final-lap masters.
+- Keeps the cleaned transparent Lumerre Crown trophy and all Race Day content.
+- Cache-busting updated so browsers do not keep the broken V34.29 JavaScript.
+
+PRESERVED
+- CatAsthma chapter replay, including Race Day.
+- Multiple career saves.
+- Crown Week portrait recovery.
+- Practice & Qualifying progress.
+- V34.29 Race Day progress.

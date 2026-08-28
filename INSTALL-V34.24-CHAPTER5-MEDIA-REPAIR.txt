@@ -1,0 +1,39 @@
+DRAGONBOUND V34.24 — CHAPTER FIVE MEDIA REPAIR
+
+BASE
+- Install over V34.23.
+- Copy the ENTIRE contents of this patch over the site root.
+- Replace matching files when prompted AND copy the new story/chapter5 media files.
+- Do not use an upload option that skips new files.
+
+FIXED
+- Restores the missing Chapter Five Quickquill strategy-room background.
+- Restores the Lumerre media-zone and arrival backgrounds.
+- Restores all four Chapter Five music tracks.
+- Q32/Q33/Q38 use Mara serious music at ~23%.
+- Q34 simulator uses strategy music at ~27%.
+- Q35 media uses press music at ~25%.
+- Q39 Lumerre arrival uses arrival music at ~18%.
+- Q37 keeps the existing Quickquill downtime track.
+- Chapter Five image loading now has a safe established-environment fallback instead of a black screen if a media file is ever missing.
+- Chapter Five music loading now falls back to the established story theme instead of silence if a new track fails to resolve.
+- Cache-busting updated to V34.24.
+
+IMPORTANT
+- The Chapter Five story/progression and V34.23 multi-save work are retained.
+- The live Supabase multiple-save migration is already applied; the SQL file is included only for parity/source control.
+
+MEDIA FILES THAT MUST EXIST AFTER INSTALL
+- dragonbound-career-mode/story/chapter5/quickquill-strategy-room.webp
+- dragonbound-career-mode/story/chapter5/lumerre-media-zone.webp
+- dragonbound-career-mode/story/chapter5/lumerre-arrival.webp
+- dragonbound-career-mode/story/chapter5/audio/strategy-simulator.mp3
+- dragonbound-career-mode/story/chapter5/audio/press-media.mp3
+- dragonbound-career-mode/story/chapter5/audio/mara-serious.mp3
+- dragonbound-career-mode/story/chapter5/audio/lumerre-arrival.mp3
+
+QA
+- career.js node --check
+- Chapter Five asset presence/hash validation
+- MP3 duration/readability validation
+- ZIP integrity validation

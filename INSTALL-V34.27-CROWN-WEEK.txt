@@ -1,0 +1,48 @@
+DRAGONBOUND V34.27 — CROWN WEEK
+
+BASE VERSION
+- Install over Dragonbound V34.26 — Career Evolution.
+
+INSTALL
+1. Copy the ENTIRE contents of this patch over the website root.
+2. Replace matching files when prompted.
+3. IMPORTANT: also copy ALL NEW folders/files under:
+   dragonbound-career-mode/story/chapter6/
+   Do not use an upload mode that skips new files.
+4. No Supabase/database migration is required.
+5. Hard refresh / clear the Career Mode page cache after upload if your host/CDN keeps old JS/CSS.
+
+THIS BUILD ADDS
+- Chapter 6 Crown Week Day One: Q40–Q45.
+- Fame-aware Lumerre arrival.
+- Open Crown Village schedule / encounter hub.
+- Career inbox and paddock-rumour interactions.
+- Crown Parade reputation choices.
+- Crown Challenge: Reaction Gate, Precision Slalom, Terrace Climb and Head-to-Head Sprint.
+- V34.26 Career Evolution battle resolver used by the head-to-head sprint.
+- Garden Reception social hub with save-dependent conversations.
+- Optional Tyrese Crown Circuit overlook scene.
+- Quickquill villa evening / Day One completion sequence.
+- Chapter 6 Story Journey card and Practice Day lead-in.
+- New Lumerre environments, portraits, music and SFX.
+- Existing site crowd ambience is reused for Crown Village / festival crowd beds.
+- Countdown/GO sounds are deliberately kept very quiet.
+
+SAVE SAFETY
+- Existing V34.26 saves are normalised forward automatically.
+- Crown Week state is stored inside the individual career save.
+- Multiple careers per account remain independent.
+- Chapters 1–5 and Career Evolution data are preserved.
+
+NOT INCLUDED YET
+- Practice Day / full Lumerre qualifying.
+- The main Lumerre Crown race.
+- Contract Decision chapter.
+These are subsequent builds; Chapter 6 is intentionally not marked fully complete after Day One.
+
+QA COMPLETED
+- career.js passes Node syntax validation.
+- All required Chapter 6 environment images decode successfully.
+- All supplied music/SFX files are readable.
+- Required Chapter 6 asset references exist in the patch.
+- ZIP integrity test passed before delivery.

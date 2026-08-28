@@ -1,0 +1,42 @@
+DRAGONBOUND CAREER MODE V34.28
+THE MEASURE OF A LAP
+
+V34.28 makes Practice & Qualifying a real technical sporting phase rather than another sequence of dialogue scenes.
+
+PRACTICE
+- The player selects the first-run learning objective.
+- Practice produces real lap and sector data.
+- The player is compared against the full grid and Tyrese benchmark.
+- Setup is adjustable across Front Response, Stability, Endurance Bias and Qualifying Trim.
+- Each axis has advantages and costs; there is no universal max-everything solution.
+- Upper Terrace instability creates a telemetry diagnosis problem.
+- Correct diagnosis improves setup confidence and technical progression; a wrong diagnosis is recoverable but less efficient.
+- Final practice validates the changes before qualifying.
+
+QUALIFYING
+- Three-run structure: Bank One, Push, Final Run.
+- Player selects a release strategy after Run One.
+- Track evolution, traffic/tow risk, pressure handling, setup and Career Evolution all influence pace.
+- Qualifying laps reveal sectors live before the final result appears.
+- Positions are not simply assigned in advance.
+- Lumerre is tuned as the point where the developing Quickquill racer can naturally become a 2nd–4th threat, while pole is possible after a particularly strong weekend.
+- The final grid is saved for the upcoming Lumerre Crown race.
+
+CAREER CONSEQUENCES
+- Best qualifying is recorded.
+- First career pole can be recorded permanently.
+- Outqualifying Tyrese changes professional respect / competitive tension.
+- Nearby grid rivals gain qualifying-battle history.
+- Fame, media pressure, technical understanding and pressure handling can move from the result.
+
+PRESENTATION
+- New Quickquill Lumerre technical garage.
+- New Lumerre technical circuit map.
+- New dynamic telemetry, setup and live qualifying UI built in code from the supplied visual references.
+- New launch tunnel Race Day teaser.
+- New dedicated technical CSS layer with iPad/landscape responsive handling.
+- New dedicated Practice and Qualifying music at restrained scene-appropriate levels.
+
+NEXT
+- Race Day: THE LUMERRE CROWN.
+- The saved qualifying grid is ready to feed the advanced live race / overtaking / defending / stamina / team-order systems.

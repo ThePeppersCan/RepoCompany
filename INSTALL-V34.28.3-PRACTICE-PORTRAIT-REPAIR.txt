@@ -1,0 +1,25 @@
+DRAGONBOUND V34.28.3 — PRACTICE PORTRAIT POSITION REPAIR
+
+BASE
+- Install over V34.28.2.
+- Replace matching files only.
+- No database migration.
+- No save reset.
+
+FIXED
+- Practice & Qualifying dialogue now uses the established clean Quickquill
+  portrait set for Nell, Tyrese and Mara instead of the Crown Week sheet
+  extractions that can show neighboring body strips.
+- Portraits are moved higher and slightly reduced in size so their faces remain
+  visible above the dialogue panel.
+- The short-landscape/iPad rule that pushed portraits down to 102px from the
+  bottom has been repaired.
+- Portrait overflow is clipped defensively.
+- Cache-busting updated to V34.28.3.
+
+PRESERVED
+- Crown Week itself still uses its Crown Week expression portraits.
+- V34.28 Practice & Qualifying gameplay and results.
+- Career Evolution.
+- CatAsthma non-destructive chapter replay.
+- Existing saves and qualifying progress.

@@ -4,7 +4,8 @@
   const SUPABASE_URL = 'https://hvdrwmjieguurxvrgzfu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ';
   const SAVE_TABLE = 'dragonbound_career_saves';
-  const SAVE_VERSION = 2;
+  const SAVE_VERSION = 3;
+  const CAREER_EVOLUTION_VERSION = 1;
   const BRIDGE_TOKEN = new URLSearchParams(window.location.search).get('bridge') || '';
   const STORY_INPUT_GUARD_MS = 420;
   let storyInputGuardUntil = 0;
@@ -51,6 +52,30 @@
     { id: 'trophies', label: 'Trophies', left: '86.5%', top: '92.1%', width: '4%', height: '5.3%', footer: true },
     { id: 'favourites', label: 'Favourites', left: '92.2%', top: '92.1%', width: '4%', height: '5.3%', footer: true }
   ];
+  const CAREER_RACER_AI = {
+    jalen: { id:'jalen', name:'Jalen Cross', team:'Sunscale', pace:86, consistency:82, aggression:88, defending:91, overtaking:87, stamina:82, mistakes:18, pressure:89, style:'Aggressive defender', sectorBias:{technical:-1,fast:3,climb:1,wet:0} },
+    sofia: { id:'sofia', name:'Sofia Mendes', team:'Valecroft', pace:84, consistency:91, aggression:67, defending:84, overtaking:82, stamina:88, mistakes:10, pressure:90, style:'Patient technical hunter', sectorBias:{technical:4,fast:0,climb:1,wet:2} },
+    luka: { id:'luka', name:'Luka Kovač', team:'Ember & Oak', pace:85, consistency:73, aggression:94, defending:79, overtaking:91, stamina:80, mistakes:25, pressure:78, style:'Relentless attacker', sectorBias:{technical:-1,fast:4,climb:2,wet:-1} },
+    tyrese: { id:'tyrese', name:'Tyrese Bell', team:'Quickquill', pace:88, consistency:93, aggression:74, defending:90, overtaking:86, stamina:92, mistakes:8, pressure:94, style:'Clean senior race manager', sectorBias:{technical:3,fast:2,climb:2,wet:3} },
+    ren: { id:'ren', name:'Ren Sato', team:'Wyrmwell', pace:83, consistency:95, aggression:61, defending:86, overtaking:78, stamina:89, mistakes:7, pressure:92, style:'Precise technical racer', sectorBias:{technical:5,fast:-1,climb:2,wet:2} },
+    maya: { id:'maya', name:'Maya Banks', team:'Fizzy Drake', pace:82, consistency:78, aggression:82, defending:76, overtaking:85, stamina:83, mistakes:19, pressure:80, style:'Opportunistic chaos reader', sectorBias:{technical:1,fast:2,climb:0,wet:1} }
+  };
+
+  const CAREER_RACE_WINDOWS = {
+    1:{ event:'Canto Plains', expected:[4,6], upside:3, downside:6, paceTarget:42, winChance:'remote', note:'Rookie pace. Finishing the race cleanly matters more than hunting the leaders.' },
+    2:{ event:'Blackglass', expected:[3,5], upside:2, downside:6, paceTarget:49, winChance:'very-low', note:'The rookie has enough pace to become a podium problem.' },
+    3:{ event:'Lumerre Crown', expected:[2,4], upside:1, downside:5, paceTarget:58, winChance:'outside', note:'A genuine podium weekend. Victory is possible only if the race develops perfectly.' },
+    4:{ event:'Career Race Four', expected:[2,3], upside:1, downside:5, paceTarget:64, winChance:'outside', note:'The paddock expects a front-running Quickquill.' },
+    5:{ event:'Career Race Five', expected:[1,3], upside:1, downside:5, paceTarget:70, winChance:'real', note:'Winning pace is now believable.' },
+    6:{ event:'Career Race Six', expected:[1,3], upside:1, downside:5, paceTarget:75, winChance:'real', note:'Regular podium and victory pace.' }
+  };
+
+  const CAREER_CHAPTER_TYPES = [
+    'race-weekend','open-hub','festival','technical-crisis','politics','travel','sprint','investigation','teammate-story','weather-disruption','championship'
+  ];
+
+  const CAREER_RIVAL_IDS = ['jalen','sofia','luka','tyrese','ren','maya'];
+
   const EMBERS = [
     [8,82,8,.2],[13,69,6,1.8],[18,91,9,3.1],[24,77,7,4.4],
     [31,88,10,2.6],[37,73,7,.9],[43,94,8,5.2],[48,80,6,3.8],
@@ -64,7 +89,19 @@
     rook: { folder: 'story/portraits/blackglass/rook', frames: 6 },
     steward: { folder: 'story/portraits/blackglass/steward', frames: 1 },
     jalen: { source: 'story/portraits/jalen.png', columns: 3, rows: 2 },
-    sofia: { source: 'story/portraits/sofia.png', columns: 2, rows: 2 }
+    sofia: { source: 'story/portraits/sofia.png', columns: 2, rows: 2 },
+    // V34.27.1: Crown Week sheets are pre-split into clean individual frames.
+    // Several generated sheets deliberately overlap cell boundaries; using the
+    // full sheet as a CSS background caused neighboring torsos/heads to bleed
+    // into dialogue portraits. Folder frames avoid that completely.
+    crownTyrese: { folder:'story/chapter6/portrait-frames/tyrese', frames:16, fallback:'story/portraits/downtime/tyrese/frame-06.png' },
+    crownJalen: { folder:'story/chapter6/portrait-frames/jalen', frames:12 },
+    crownSofia: { folder:'story/chapter6/portrait-frames/sofia', frames:11 },
+    crownMaya: { folder:'story/chapter6/portrait-frames/maya', frames:12 },
+    crownMara: { folder:'story/chapter6/portrait-frames/mara', frames:12, fallback:'story/portraits/downtime/mara/frame-04.png' },
+    crownLuka: { folder:'story/chapter6/portrait-frames/luka', frames:12 },
+    crownNell: { folder:'story/chapter6/portrait-frames/nell', frames:5, fallback:'story/portraits/downtime/nell/frame-02.png' },
+    crownRen: { folder:'story/chapter6/portrait-frames/ren', frames:10 }
   };
   const QUICKQUILL_SCENES = [
     {
@@ -703,6 +740,219 @@
   ];
 
 
+  const SEAT_SIMULATOR_SCENARIOS = [
+    {
+      id:'dirty-air', title:'Dirty Air', sector:'Terrace Climb', situation:'You are tucked into another racer’s wake approaching a fast uphill section. The draft is useful; the turbulence is not.',
+      options:[
+        {label:'DRAFT',note:'Stay directly behind and bank the energy.',feedback:'You accept the dirty air and save enough energy to attack later.',effects:{reading:2,energy:4,aggression:-1,team:0},story:{identity:{focus:1}}},
+        {label:'BREAK HIGH',note:'Climb above the wake and commit to the pass.',feedback:'The move is expensive but decisive. You clear the wake before the crest.',effects:{reading:1,energy:-3,aggression:5,team:0},story:{identity:{fire:1}}},
+        {label:'DROP LOW',note:'Use the terrain to escape the turbulence.',feedback:'You trade altitude for clean air and keep the racing line alive.',effects:{reading:4,energy:1,aggression:1,team:0},story:{identity:{focus:1}}},
+        {label:'WAIT',note:'Protect the line and refuse the invitation.',feedback:'Nothing dramatic happens. That is exactly the point.',effects:{reading:1,energy:3,aggression:-2,team:1},story:{identity:{heart:1}}}
+      ]
+    },
+    {
+      id:'crosswind', title:'Crosswind', sector:'Gallery Sweep', situation:'A lateral gust is shoving the dragon toward the outside rail. The fastest line is suddenly the least stable one.',
+      options:[
+        {label:'FIGHT IT',note:'Hold the original line through the gust.',feedback:'You keep the fast line, but the wing load spikes hard.',effects:{reading:0,energy:-4,aggression:3,team:0},story:{identity:{fire:1}}},
+        {label:'SHELTER',note:'Use another racer as a temporary windbreak.',feedback:'The pace drops slightly, but the dragon settles almost immediately.',effects:{reading:3,energy:3,aggression:-1,team:1},story:{identity:{focus:1}}},
+        {label:'CHANGE LINE',note:'Give up the apex and protect stability.',feedback:'The line is slower on paper and faster in reality.',effects:{reading:5,energy:1,aggression:-1,team:0},story:{identity:{focus:1}}},
+        {label:'CONSERVE',note:'Back out and wait for the next sector.',feedback:'You lose ground now and buy options for later.',effects:{reading:2,energy:5,aggression:-3,team:0},story:{identity:{heart:1}}}
+      ]
+    },
+    {
+      id:'rival-attack', title:'Rival Attack', sector:'Orchard Gate', situation:'A rival closes quickly from behind. They have the overlap before the braking marker and they know it.',
+      options:[
+        {label:'DEFEND INSIDE',note:'Make the shortest route unavailable.',feedback:'The rival is forced to hesitate. You keep the position at a cost to exit speed.',effects:{reading:2,energy:-1,aggression:4,team:0},story:{identity:{fire:1}}},
+        {label:'GIVE THE CORNER',note:'Lose the corner, win the next straight.',feedback:'You surrender one metre and recover three on exit.',effects:{reading:5,energy:1,aggression:-1,team:0},story:{identity:{focus:1}}},
+        {label:'FORCE OUTSIDE',note:'Make them take the long route.',feedback:'The move is legal, assertive and very visible.',effects:{reading:2,energy:-2,aggression:5,team:0},story:{identity:{fire:1}}},
+        {label:'IGNORE THEM',note:'Protect your own lap instead.',feedback:'You refuse to let somebody else dictate your race.',effects:{reading:1,energy:2,aggression:0,team:1},story:{identity:{heart:1}}}
+      ]
+    },
+    {
+      id:'stamina', title:'Stamina Warning', sector:'Sunstep Rise', situation:'The dragon is quicker than expected and burning energy just as quickly. The final sector is still a long way away.',
+      options:[
+        {label:'SLOW NOW',note:'Reset the pace before the warning becomes a problem.',feedback:'The field edges away. Your energy curve immediately stabilises.',effects:{reading:3,energy:6,aggression:-3,team:0},story:{identity:{focus:1}}},
+        {label:'USE IT',note:'Spend the pace while it exists.',feedback:'You convert the temporary advantage into track position.',effects:{reading:0,energy:-5,aggression:5,team:0},story:{identity:{fire:1}}},
+        {label:'CHANGE ALTITUDE',note:'Search for cleaner, cheaper air.',feedback:'You find a calmer layer and keep most of the speed.',effects:{reading:5,energy:3,aggression:1,team:0},story:{identity:{focus:1}}},
+        {label:'FIND A DRAFT',note:'Make somebody else pay for the air.',feedback:'The solution is not heroic. Nell looks delighted.',effects:{reading:4,energy:5,aggression:0,team:1},story:{identity:{focus:1},relationships:{nellBond:1}}}
+      ]
+    },
+    {
+      id:'team-situation', title:'Team Situation', sector:'Crown Approach', situation:'Tyrese is directly ahead. A rival is attacking both Quickquill dragons and the route narrows in six seconds.',
+      options:[
+        {label:'HOLD POSITION',note:'Protect the two-car equivalent and deny the rival.',feedback:'Quickquill keeps both places. Nobody gets to be the hero.',effects:{reading:3,energy:1,aggression:-1,team:6},story:{identity:{heart:1},relationships:{quickquillTrust:2,tyreseBond:1}}},
+        {label:'ATTACK TYRESE',note:'Take the opening before the rival does.',feedback:'You gain position, but turn a team problem into a team conversation.',effects:{reading:1,energy:-2,aggression:6,team:-4},story:{identity:{fire:2},relationships:{tyreseBond:-1}}},
+        {label:'WORK TOGETHER',note:'Use Tyrese to trap the rival in dirty air.',feedback:'The two Quickquill lines become one problem the rival cannot solve.',effects:{reading:5,energy:2,aggression:1,team:7},story:{identity:{focus:1},relationships:{quickquillTrust:2,tyreseBond:2}}},
+        {label:'BREAK AWAY',note:'Create space and make the rival choose.',feedback:'The pack stretches. The rival cannot cover both of you.',effects:{reading:4,energy:-2,aggression:4,team:2},story:{identity:{fire:1},relationships:{tyreseBond:1}}}
+      ]
+    },
+    {
+      id:'final-sector', title:'Final Sector', sector:'Lumerre Straight', situation:'The simulation has one sector left. Your earlier calls have created the problem in front of you now.',
+      options:[
+        {label:'COMMIT EARLY',note:'Spend what is left before the final bend.',feedback:'You make the finish about position rather than preservation.',effects:{reading:1,energy:-4,aggression:6,team:0},story:{identity:{fire:1}}},
+        {label:'WAIT FOR EXIT',note:'Trust the final acceleration zone.',feedback:'The pass is delayed until the moment it is hardest to defend.',effects:{reading:5,energy:1,aggression:2,team:0},story:{identity:{focus:1}}},
+        {label:'PROTECT RESULT',note:'Bring home the position you already earned.',feedback:'The simulated result survives intact. Mara makes a note.',effects:{reading:3,energy:4,aggression:-3,team:3},story:{identity:{heart:1},relationships:{maraBond:1}}},
+        {label:'USE TYRESE',note:'Coordinate the finish instead of racing alone.',feedback:'The Quickquill pair crosses as a unit with the rival boxed behind.',effects:{reading:4,energy:0,aggression:1,team:6},story:{identity:{heart:1},relationships:{tyreseBond:1,quickquillTrust:1}}}
+      ]
+    }
+  ];
+
+  const SEAT_REPORTERS = [
+    {id:'sporting-post',name:'THE VELMORAN SPORTING POST',angle:'FORM',question:'Was Blackglass proof that you can genuinely compete with senior racers?'},
+    {id:'gridline',name:'GRIDLINE',angle:'TEAM ORDERS',question:'Did Quickquill order you not to attack Tyrese during the weekend?'},
+    {id:'lumerre-daily',name:'THE LUMERRE DAILY',angle:'EXPECTATION',question:'Are you arriving in Lumerre expecting to challenge for a podium?'},
+    {id:'paddock',name:'PADDOCK',angle:'MARKET',question:'Several teams are reportedly monitoring you. Any comment?'},
+    {id:'flightline',name:'FLIGHTLINE WEEKLY',angle:'DRAGON',question:'How much of the recent progress belongs to your dragon rather than the people around you?'}
+  ];
+
+  const SEAT_MEDIA_TONES = [
+    {id:'confident',label:'CONFIDENT',note:'Own the result.',effects:{identity:{fire:1}},scores:{confidence:3,team:0,candid:0,edge:1}},
+    {id:'team',label:'TEAM-FIRST',note:'Put Quickquill first.',effects:{identity:{heart:1},relationships:{quickquillTrust:2,maraBond:1}},scores:{confidence:1,team:4,candid:0,edge:0}},
+    {id:'honest',label:'HONEST',note:'Answer the actual question.',effects:{identity:{focus:1}},scores:{confidence:0,team:1,candid:4,edge:0}},
+    {id:'deflect',label:'DEFLECT',note:'Give them nothing useful.',effects:{relationships:{maraBond:1}},scores:{confidence:0,team:1,candid:-1,edge:0}},
+    {id:'joke',label:'JOKE',note:'Break the room without breaking the answer.',effects:{identity:{heart:1},relationships:{tyreseBond:1}},scores:{confidence:1,team:0,candid:1,edge:3}},
+    {id:'challenge',label:'CHALLENGE PREMISE',note:'Push back on the framing.',effects:{identity:{fire:1}},scores:{confidence:2,team:0,candid:2,edge:4}}
+  ];
+
+  const SEAT_FREE_TIME = {
+    workshop:{title:'Workshop · Nell',kicker:'TECHNICAL CALIBRATION',note:'Spend an hour turning simulator theory into a real setup preference.',result:'Nell makes you repeat one calibration until the numbers and your explanation agree.',effects:{identity:{focus:1},relationships:{nellBond:3,quickquillTrust:1}}},
+    rooftop:{title:'Rooftop · Tyrese',kicker:'CAPTAIN TIME',note:'Talk without a strategy board between you.',result:'Tyrese admits the strange part is not that other teams are noticing you. It is that he expected them to eventually.',effects:{identity:{heart:1},relationships:{tyreseBond:4}}},
+    mara:{title:'Mara’s office',kicker:'EXPECTATIONS',note:'Ask what Quickquill actually thinks your role is becoming.',result:'Mara gives you the uncomfortable version: potential is useful; reliability is employable.',effects:{identity:{focus:1},relationships:{maraBond:3,quickquillTrust:2}}},
+    dragon:{title:'Your dragon',kicker:'NO TELEMETRY',note:'Feed, brush and sit somewhere nobody is timing anything.',result:'For one hour the career stops being a career. Your dragon seems extremely satisfied with this arrangement.',effects:{identity:{heart:2},relationships:{dragonBond:5}}}
+  };
+
+  const SEAT_HQ_EVENTS = [
+    {id:'tray',title:'THE ENTIRE TRAY',text:'A junior mechanic turns too quickly and a full tray of calibrated fasteners becomes weather.',options:[
+      {label:'Help sort them by size.',note:'Slow, useful, unglamorous.',effects:{relationships:{quickquillTrust:2,nellBond:1},identity:{focus:1}}},
+      {label:'Make a joke and start picking them up.',note:'Keep the embarrassment small.',effects:{relationships:{quickquillTrust:1,tyreseBond:1},identity:{heart:1}}},
+      {label:'Catch the rolling case before it reaches the stairs.',note:'Prioritise the expensive bit.',effects:{relationships:{quickquillTrust:1},identity:{fire:1}}}
+    ]},
+    {id:'courier',title:'WRONG QUICKQUILL',text:'A courier arrives with a sealed parcel addressed to “Quick Quill Racing & Stationery”. It is definitely for you. Probably.',options:[
+      {label:'Send it back unopened.',note:'Professional, tragically boring.',effects:{relationships:{maraBond:2,quickquillTrust:2},identity:{focus:1}}},
+      {label:'Ask Mara whether stationery is a new revenue stream.',note:'Risk a very small smile.',effects:{relationships:{maraBond:2,tyreseBond:1},identity:{heart:1}}},
+      {label:'Make Tyrese sign for it.',note:'Delegation.',effects:{relationships:{tyreseBond:2},identity:{fire:1}}}
+    ]},
+    {id:'theft',title:'A VERY SMALL CRIME',text:'Tyrese’s dragon has acquired one of Nell’s cloth tool wraps and is pretending this is not happening.',options:[
+      {label:'Trade it for a treat.',note:'Resolve the hostage situation.',effects:{relationships:{dragonBond:2,tyreseBond:2,nellBond:1},identity:{heart:1}}},
+      {label:'Distract the dragon while Tyrese retrieves it.',note:'Team operation.',effects:{relationships:{tyreseBond:3,quickquillTrust:1},identity:{focus:1}}},
+      {label:'Tell Nell immediately.',note:'No conspiracies on your watch.',effects:{relationships:{nellBond:2},identity:{focus:1}}}
+    ]},
+    {id:'document',title:'THE MISSING PAGE',text:'Mara cannot find one page of the Lumerre logistics packet. Everyone is now pretending not to panic.',options:[
+      {label:'Check the strategy room printer.',note:'Follow the boring explanation first.',effects:{relationships:{maraBond:2,nellBond:1},identity:{focus:1}}},
+      {label:'Search the common room with your dragon.',note:'Turn it into a hunt.',effects:{relationships:{dragonBond:2,maraBond:1},identity:{heart:1}}},
+      {label:'Rebuild the page from the duplicate notes.',note:'Solve the problem, not the mystery.',effects:{relationships:{quickquillTrust:2,maraBond:1},identity:{fire:1}}}
+    ]}
+  ];
+
+  const QUICKQUILL_SEAT_SCENES = [
+    {
+      id:'q32', number:'Q32', title:'Monday Morning', location:'Quickquill strategy room · 09:00', background:'story/chapter5/quickquill-strategy-room.webp', tone:'seat', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'POST-BLACKGLASS · TEAM REVIEW',title:'MONDAY MORNING',text:'Blackglass is already in the archive. The uncomfortable part is deciding what it means.'},
+        {speaker:'Mara',blackglassResultVariants:{win:'Winning does not make the review shorter. It makes the mistakes more expensive to ignore.',podium:'A podium gets people excited. Our job is to work out which parts were repeatable.',midfield:'The result is useful because it did not hide the difficult bits.',last:'We are not going to protect you from the result. We are going to make it useful.'},portrait:{character:'mara',frame:6,side:'left'}},
+        {speaker:'Nell',text:'You qualified [QUALIFYING_POSITION], finished [BLACKGLASS_POSITION], recorded [BLACKGLASS_OVERTAKES] overtakes, and gave me enough telemetry to ruin several peaceful evenings.',portrait:{character:'nell',frame:6,side:'left'}},
+        {speaker:'Tyrese',blackglassAfterHoursVariants:{secret:'Also, apparently somebody discovered that Blackglass is beautiful at two in the morning. I have questions.',caught:'Also, Garran sent a message containing the phrase “unscheduled athlete”. I am framing it.',clean:'Also, nobody was arrested overnight. Strong operational result.'},portrait:{character:'tyrese',frame:7,side:'right'}},
+        {type:'choice',id:'seatReviewReason',prompt:'Mara freezes one moment from the Blackglass replay. “Why did you make this call?”',options:[
+          {label:'I was protecting the finish.',note:'Value the result already in your hands.',value:'protect',effects:{identity:{heart:1},relationships:{maraBond:1}}},
+          {label:'I did not trust the conditions.',note:'Treat uncertainty as a reason, not an excuse.',value:'conditions',effects:{identity:{focus:2},relationships:{nellBond:1}}},
+          {label:'I was waiting for the better opening.',note:'Race the sequence, not the corner.',value:'wait',effects:{identity:{focus:1,fire:1},relationships:{tyreseBond:1}}},
+          {label:'I should have attacked.',note:'Own the missed opportunity.',value:'attack',effects:{identity:{fire:2},relationships:{maraBond:1}}}
+        ]},
+        {speaker:'Mara',variants:{seatReviewReason:['Good. Results are not cowardice. They are the thing we are employed to produce.','Then keep learning the difference between caution and information.','That answer I can use. You were thinking beyond the corner.','Good. Regret is only useful when it becomes a rule for next time.']},portrait:{character:'mara',frame:1,side:'left'}},
+        {speaker:'Narrator',text:'The review runs longer than the race highlights. Nobody asks whether you belong at the table.'}
+      ]
+    },
+    {
+      id:'q33', number:'Q33', title:'You’re Staying', location:'Quickquill strategy room · 10:17', background:'story/chapter5/quickquill-strategy-room.webp', tone:'seat', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'THE REVIEW ENDS',title:'YOU’RE STAYING',text:'Tyrese stands when the meeting ends. Mara looks at you instead.'},
+        {speaker:'Mara',text:'Tyrese, thank you. Nell — stay. [ACCOUNT_NAME], you are staying too.',portrait:{character:'mara',frame:6,side:'left'}},
+        {speaker:'Narrator',text:'Tyrese looks back once. Not surprised. Just interested.'},
+        {speaker:'Mara',text:'Quickquill is done asking you to execute somebody else’s plan. Not if we expect you to become useful to us.',portrait:{character:'mara',frame:4,side:'left'}},
+        {speaker:'Nell',text:'Lumerre is faster, brighter, less forgiving of indecision and considerably more expensive to damage.',portrait:{character:'nell',frame:2,side:'left'}},
+        {type:'choice',id:'seatDevelopmentPriority',prompt:'Quickquill has limited preparation time. What should the team prioritise for Lumerre?',options:[
+          {label:'CONTROL',note:'Stability, predictable lines and technical confidence.',value:'control',effects:{identity:{focus:2},relationships:{nellBond:2,quickquillTrust:1}}},
+          {label:'ATTACK',note:'Acceleration, passing windows and aggressive transitions.',value:'attack',effects:{identity:{fire:2},relationships:{tyreseBond:1}}},
+          {label:'EFFICIENCY',note:'Stamina management and pace that survives the whole event.',value:'efficiency',effects:{identity:{heart:1,focus:1},relationships:{maraBond:1,quickquillTrust:1}}}
+        ]},
+        {speaker:'Nell',variants:{seatDevelopmentPriority:['Control package. I can make predictable. Predictable is underrated.','Attack package. Fine. I will hide the fragile components from you.','Efficiency. Excellent. A strategy that acknowledges races continue after the first thirty seconds.']},portrait:{character:'nell',frame:6,side:'left'}},
+        {speaker:'Nell',text:'Come on. Six calls. No perfect answers. That is why this is useful.',portrait:{character:'nell',frame:6,side:'left'}}
+      ]
+    },
+    {
+      id:'q34', number:'Q34', title:'Six Calls', location:'Quickquill simulator · Late morning', background:'story/chapter5/quickquill-strategy-room.webp', tone:'seat', showDragon:false,
+      beats:[{type:'seat-strategy-sim'}]
+    },
+    {
+      id:'q35', number:'Q35', title:'The Press Are Waiting', location:'Lumerre media preview suite · Afternoon', background:'story/chapter5/lumerre-media-zone.webp', tone:'lumerre-media', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'MEDIA SESSION · FIRST CALL-UP',title:'THE PRESS ARE WAITING',text:'Blackglass made you interesting enough that Quickquill can no longer pretend the cameras are for somebody else.'},
+        {speaker:'Tyrese',text:'Do not say anything stupid. Actually, do not say anything interesting either. They hate that.',portrait:{character:'tyrese',frame:7,side:'right'}},
+        {speaker:'Mara',text:'Three questions. You choose who gets them. Answer the question you were asked, not the headline you are afraid of.',portrait:{character:'mara',frame:4,side:'left'}},
+        {type:'seat-media-scrum'}
+      ]
+    },
+    {
+      id:'q36', number:'Q36', title:'Five Minutes', location:'Quickquill common room · Late afternoon', background:'story/environments/10_Quickquill_Lounge_Common_Room.png', tone:'seat', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'INBOX · ONE NEW MESSAGE',title:'FIVE MINUTES',text:'The press room empties. Your Career inbox does not.'},
+        {speaker:'Sofia Mendes',text:'Good job at Blackglass. If you have five minutes before Lumerre, come find me. — Sofia',portrait:{character:'sofia',frame:1,side:'right'}},
+        {speaker:'Narrator',text:'It is not a contract offer. That somehow makes it more complicated.'},
+        {type:'choice',id:'seatSofiaTell',prompt:'Who do you tell about Sofia’s message?',options:[
+          {label:'Tell Mara immediately.',note:'Make the politics somebody else’s problem too.',value:'mara',effects:{relationships:{maraBond:3,quickquillTrust:2}}},
+          {label:'Tell Tyrese.',note:'Trust the person who brought you here.',value:'tyrese',effects:{relationships:{tyreseBond:4}}},
+          {label:'Ask Nell.',note:'This is absolutely not Nell’s department.',value:'nell',effects:{relationships:{nellBond:3}}},
+          {label:'Keep it private.',note:'No lie. No disclosure either.',value:'private',effects:{identity:{fire:1},relationships:{valecroftInterest:1}}}
+        ]},
+        {speaker:'Narrator',variants:{seatSofiaTell:['Mara reads it twice, hands the device back and says only: “Thank you for telling me.”','Tyrese reads the message and sighs like this confirms a theory he hoped was stupid.','Nell stares at it for a long time. “I can calculate wing load. This is worse.”','The message remains between you, Sofia and a very unimpressed notification icon.']}},
+        {type:'choice',id:'seatSofiaReply',prompt:'What do you send back?',options:[
+          {label:'I’m not interested.',note:'Close the door cleanly.',value:'not-interested',effects:{relationships:{quickquillTrust:2,valecroftInterest:-1}}},
+          {label:'I’ll hear you out.',note:'A conversation is not a contract.',value:'hear-out',effects:{identity:{fire:1},relationships:{valecroftInterest:4}}},
+          {label:'After Lumerre.',note:'Delay the decision, not the possibility.',value:'after-lumerre',effects:{identity:{focus:1},relationships:{valecroftInterest:3}}},
+          {label:'Do not reply.',note:'Silence is also an answer. Sort of.',value:'none',effects:{relationships:{valecroftInterest:1}}}
+        ]},
+        {speaker:'Narrator',text:'The message disappears into the same Career file as everything else. Nothing happens immediately. That does not mean nothing happened.'}
+      ]
+    },
+    {
+      id:'q37', number:'Q37', title:'Three Hours', location:'Quickquill headquarters · Free time', background:'story/environments/10_Quickquill_Lounge_Common_Room.png', tone:'seat', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'FREE TIME · 3 HOURS',title:'THREE HOURS',text:'For once, Quickquill gives you time instead of instructions. You cannot fit everybody into it.'},
+        {speaker:'Mara',text:'Be back in the strategy room in three hours. What you do until then is your business. Mostly.',portrait:{character:'mara',frame:1,side:'left'}},
+        {type:'seat-free-time'}
+      ]
+    },
+    {
+      id:'q38', number:'Q38', title:'A Seat at the Table', location:'Quickquill strategy room · Evening', background:'story/chapter5/quickquill-strategy-room.webp', tone:'seat', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'FINAL BRIEFING',title:'A SEAT AT THE TABLE',text:'The same table. A different place around it.'},
+        {speaker:'Nell',text:'Simulator assessment: [SEAT_PROFILE]. Development priority: [DEVELOPMENT_PRIORITY]. I have written both down so nobody can pretend this was my idea later.',portrait:{character:'nell',frame:6,side:'left'}},
+        {speaker:'Mara',text:'At Lumerre, your role is [LUMERRE_ROLE]. That is not a rank. It is the job we believe you are ready to do.',portrait:{character:'mara',frame:6,side:'left'}},
+        {speaker:'Tyrese',text:'The irritating part is she is probably right. The more irritating part is that I am looking forward to finding out.',portrait:{character:'tyrese',frame:7,side:'right'}},
+        {type:'choice',id:'seatLumerrePromise',prompt:'What do you promise the room before Lumerre?',options:[
+          {label:'I’ll make the smart race visible.',note:'Trust the work.',value:'smart',effects:{identity:{focus:2},relationships:{nellBond:1}}},
+          {label:'I’ll give them something to chase.',note:'Arrive with intent.',value:'attack',effects:{identity:{fire:2},relationships:{tyreseBond:1}}},
+          {label:'I’ll bring the result home.',note:'Make reliability the statement.',value:'result',effects:{identity:{heart:1},relationships:{maraBond:2,quickquillTrust:1}}},
+          {label:'I’ll race what is actually there.',note:'No promises to a circuit you have not met.',value:'present',effects:{identity:{focus:1,heart:1},relationships:{quickquillTrust:1}}}
+        ]},
+        {speaker:'Mara',text:'Good. Pack for sunlight.' ,portrait:{character:'mara',frame:1,side:'left'}}
+      ]
+    },
+    {
+      id:'q39', number:'Q39', title:'The Terraces', location:'Lumerre · Arrival road', background:'story/chapter5/lumerre-arrival.webp', tone:'lumerre', showDragon:false,
+      beats:[
+        {type:'cinematic',eyebrow:'NEXT DESTINATION',title:'LUMERRE — THE TERRACES',text:'After Blackglass, the light feels almost impossible.'},
+        {speaker:'Narrator',text:'Pale stone terraces fall away into green valleys. Grandstands climb the hillsides. Every bridge seems to have a banner and every banner seems to have an audience.'},
+        {speaker:'Narrator',text:'Blackglass tested what you did when nobody expected anything. Lumerre is different.'},
+        {speaker:'Mara',text:'Now they expect something.',portrait:{character:'mara',frame:6,side:'left'}},
+        {speaker:'Tyrese',text:'Good. I was getting tired of proving we could survive places. I would like to start arriving somewhere we can actually race.' ,portrait:{character:'tyrese',frame:7,side:'right'}},
+        {speaker:'Nell',text:'Do not let the gardens fool you. Elegant circuits still contain corners. I expect you to remember that before the first camera points at us.' ,portrait:{character:'nell',frame:6,side:'left'}},
+        {speaker:'Narrator',text:'The Quickquill transport turns toward the terraces. Your Career file updates before the gates even come into view.'},
+        {type:'cinematic',eyebrow:'CHAPTER COMPLETE',title:'A SEAT AT THE TABLE',text:'Blackglass proved you belonged in the room. Lumerre is where the room expects results.'}
+      ]
+    }
+  ];
+
   const EVENING_ACTIVITIES = {
     tyrese: {
       title: 'Rooftop with Tyrese',
@@ -808,21 +1058,266 @@
     mug: { title: 'Nell’s mug', text: 'Cold.' }
   };
 
-  const ALL_QUICKQUILL_SCENES = [...QUICKQUILL_SCENES, ...QUICKQUILL_CANTO_SCENES, ...QUICKQUILL_DOWNTIME_SCENES, ...QUICKQUILL_BLACKGLASS_SCENES];
+  const CROWN_WEEK_ROOT = 'story/chapter6/';
+  const CROWN_WEEK_ENV = CROWN_WEEK_ROOT + 'crown-week/';
+  const CROWN_WEEK_AUDIO = CROWN_WEEK_ROOT + 'audio/';
+  const CROWN_WEEK_SFX_ROOT = CROWN_WEEK_AUDIO + 'sfx/';
+
+  const QUICKQUILL_CROWN_WEEK_SCENES = [
+    {
+      id:'q40', number:'Q40', title:'The City Knows Your Name', location:'Lumerre · Crown Village arrival', background:CROWN_WEEK_ENV+'crown-village.webp', tone:'crown-day', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'CHAPTER SIX · CROWN WEEK',title:'THE CITY KNOWS YOUR NAME',text:'Lumerre does not wait for race day to start watching.'},
+        {speaker:'Narrator',crownFameVariants:{unknown:'The transport rolls beneath the first Crown Week arch almost unnoticed. Most cameras are pointed toward names that have been winning here for years.',curiosity:'A handful of paddock regulars recognise the Quickquill rookie before the transport has even stopped.',recognisable:'Someone near the barrier says [PLAYER_DRAGON]’s name. Then somebody else does. By the third shout, the cameras turn.',rising:'The first thing [PLAYER_DRAGON] sees through the glass is a handmade sign with their name on it. Blackglass has travelled ahead of you.'}},
+        {speaker:'Tyrese',text:'Do not look alarmed. Being recognised is mostly the same as not being recognised, except people own cameras.',portrait:{character:'crownTyrese',frame:1,side:'right'}},
+        {speaker:'Mara',text:'Crown Week is public from the moment we arrive. You are representing Quickquill even when nobody has put a microphone in front of you.',portrait:{character:'crownMara',frame:0,side:'left'}},
+        {type:'choice',id:'crownArrivalResponse',prompt:'The transport doors open. How does [PLAYER_DRAGON] meet Lumerre?',options:[
+          {label:'Stop for the fans at the barrier.',note:'Acknowledge the people who already know the name.',value:'fans',effects:{identity:{heart:1},relationships:{quickquillTrust:1}},careerEffects:{reputation:{fame:3,paddockRespect:1,media:1}}},
+          {label:'Stay beside Tyrese and enter as a team.',note:'Keep the first arrival deliberately professional.',value:'team',effects:{identity:{focus:1},relationships:{tyreseBond:2,quickquillTrust:2}},careerEffects:{reputation:{paddockRespect:2,quickquillTrust:2}}},
+          {label:'Give the rival-team section a wave too.',note:'Confident enough to enjoy hostile colours.',value:'rivals',effects:{identity:{fire:1},relationships:{jalenRespect:1}},careerEffects:{reputation:{fame:2,paddockRespect:2,pressure:1}}},
+          {label:'Let the cameras have one clean shot, then move.',note:'Understand the job without turning arrival into a performance.',value:'media',effects:{identity:{focus:1},relationships:{maraBond:1}},careerEffects:{reputation:{media:3,fame:1}}}
+        ]},
+        {speaker:'Nell',text:'Lovely. You have successfully crossed a pavement. Garage logistics are through the east gate when everybody is finished documenting it.',portrait:{character:'crownNell',frame:2,side:'left'}},
+        {speaker:'Narrator',text:'Beyond the gates, six team compounds ring a garden-bright paddock. Crown Week has already started.'}
+      ]
+    },
+    {
+      id:'q41', number:'Q41', title:'The Crown Village', location:'Lumerre Crown Village · Open schedule', background:CROWN_WEEK_ENV+'crown-village.webp', tone:'crown-day', showDragon:true,
+      beats:[{type:'crown-village'}]
+    },
+    {
+      id:'q42', number:'Q42', title:'The Crown Parade', location:'Lumerre · Festival Boulevard', background:CROWN_WEEK_ENV+'festival-boulevard.webp', tone:'crown-festival', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'CROWN WEEK · PUBLIC PARADE',title:'THE BOULEVARD',text:'For twenty minutes the racing grid belongs to the city.'},
+        {speaker:'Narrator',crownFameVariants:{unknown:'The boulevard saves its loudest cheers for the established stars. That makes the smaller Quickquill cheer easier to hear.',curiosity:'A pocket of Quickquill supporters reacts when [PLAYER_DRAGON] appears. It is not huge. It is unmistakably yours.',recognisable:'The Quickquill section already knows the Blackglass result. A child near the front is holding a hand-painted [PLAYER_DRAGON] sign.',rising:'The announcer barely finishes [PLAYER_DRAGON]’s name before the boulevard answers it. Tyrese glances sideways, amused by how quickly this has happened.'}},
+        {speaker:'Jalen',text:'If you wave any harder you are going to pull something.',portrait:{character:'crownJalen',frame:3,side:'left'}},
+        {speaker:'Tyrese',text:'Ignore him. Sunscale charge extra for joy.',portrait:{character:'crownTyrese',frame:2,side:'right'}},
+        {type:'choice',id:'crownParadeStyle',prompt:'How does [PLAYER_DRAGON] handle the biggest crowd of the career so far?',options:[
+          {label:'Work both sides of the boulevard.',note:'Autographs, waves, photographs — embrace the moment.',value:'crowd',effects:{identity:{heart:1}},careerEffects:{reputation:{fame:5,media:2,pressure:2}}},
+          {label:'Keep pointing attention back to Quickquill.',note:'Make the team part of every photograph.',value:'team',effects:{identity:{focus:1},relationships:{quickquillTrust:3,maraBond:1}},careerEffects:{reputation:{paddockRespect:2,quickquillTrust:3,fame:2}}},
+          {label:'Trade gestures with rival supporters.',note:'Playfully accept that not everybody wants you to win.',value:'rival-fans',effects:{identity:{fire:1},relationships:{jalenRespect:2}},careerEffects:{reputation:{fame:3,paddockRespect:2,pressure:2}}},
+          {label:'Stay measured and save the performance for the course.',note:'Let the crowd watch without becoming the whole day.',value:'measured',effects:{identity:{focus:2},relationships:{nellBond:1}},careerEffects:{reputation:{paddockRespect:2,pressure:-1}}}
+        ]},
+        {speaker:'Mara',variants:{crownParadeStyle:['You can enjoy it. Just remember attention becomes expectation very quickly.','Good. Sponsors notice team language. So do mechanics.','I saw that. If this becomes an incident I am billing Jalen personally.','That is fine too. You do not owe the crowd a personality they invented for you.']},portrait:{character:'crownMara',frame:1,side:'left'}},
+        {speaker:'Narrator',text:'At the far end of the boulevard, officials begin moving barriers around a smaller ceremonial course. The Crown Challenge is next.'}
+      ]
+    },
+    {
+      id:'q43', number:'Q43', title:'The Crown Challenge', location:'Lumerre · Crown Challenge course', background:CROWN_WEEK_ENV+'crown-challenge-arena.webp', tone:'crown-challenge', showDragon:false,
+      beats:[{type:'crown-challenge'}]
+    },
+    {
+      id:'q44', number:'Q44', title:'The Garden Reception', location:'Lumerre Crown Gardens · Evening', background:CROWN_WEEK_ENV+'garden-reception.webp', tone:'crown-evening', showDragon:true,
+      beats:[{type:'crown-reception'}]
+    },
+    {
+      id:'q45', number:'Q45', title:'06:15 Tomorrow', location:'Quickquill Lumerre accommodation · 23:14', background:CROWN_WEEK_ENV+'quickquill-villa-interior.webp', tone:'crown-night', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'QUICKQUILL VILLA · 23:14',title:'THE NOISE FINALLY STOPS',text:'The paddock is still glowing somewhere beyond the gardens. The villa is not.'},
+        {speaker:'Narrator',text:'Your accreditation lands beside a half-finished drink. Crown Week has produced more conversations in one day than Blackglass managed in an entire storm.'},
+        {speaker:'Tyrese',crownOverlookVariants:{seen:'For somebody who disappeared from a sponsor reception, you found a suspiciously good view.',missed:'You survived the parade, the Challenge and sponsor small talk. That is basically an endurance event.'},portrait:{character:'crownTyrese',frame:5,side:'right'}},
+        {speaker:'Narrator',text:'The inbox chimes once.'},
+        {speaker:'Nell',text:'Garage. 06:15 tomorrow. Do not eat anything ridiculous at breakfast.',portrait:{character:'crownNell',frame:4,side:'left'}},
+        {speaker:'Mara',text:'Practice changes the weekend. Today was attention. Tomorrow we find out what the circuit does with it.',portrait:{character:'crownMara',frame:8,side:'left'}},
+        {type:'cinematic',eyebrow:'CROWN WEEK · DAY ONE COMPLETE',title:'PRACTICE DAY IS NEXT',text:'The Lumerre Crown has not started yet. Somehow, the weekend already has a history.'}
+      ]
+    }
+  ];
+
+  const LUMERRE_PRACTICE_ROOT = CROWN_WEEK_ROOT + 'practice/';
+  const LUMERRE_PRACTICE_AUDIO = LUMERRE_PRACTICE_ROOT + 'audio/';
+  const LUMERRE_PRACTICE_GARAGE = LUMERRE_PRACTICE_ROOT + 'quickquill-lumerre-garage.webp';
+  const LUMERRE_TECH_MAP = LUMERRE_PRACTICE_ROOT + 'lumerre-crown-technical-map.png';
+  const LUMERRE_LAUNCH_TUNNEL = LUMERRE_PRACTICE_ROOT + 'lumerre-launch-tunnel.webp';
+
+  const LUMERRE_RACE_ROOT = CROWN_WEEK_ROOT + 'race/';
+  const LUMERRE_RACE_AUDIO = LUMERRE_RACE_ROOT + 'audio/';
+  const LUMERRE_RACE_UI = LUMERRE_RACE_ROOT + 'ui/';
+  const LUMERRE_RACE_HUD = LUMERRE_RACE_UI + 'lumerre-crown-live-hud.png';
+  const LUMERRE_RACE_TEAM_ORDERS = LUMERRE_RACE_UI + 'lumerre-crown-race-team-orders.png';
+  const LUMERRE_RACE_BATTLE = LUMERRE_RACE_UI + 'lumerre-crown-race-battle-reference.png';
+  const LUMERRE_RACE_TROPHY = LUMERRE_RACE_UI + 'lumerre-crown-trophy-transparent.png';
+  const LUMERRE_RACE_PODIUM = LUMERRE_RACE_ROOT + 'lumerre-crown-podium-stage.png';
+  const LUMERRE_RACE_MAP = LUMERRE_RACE_ROOT + 'lumerre-crown-full-map.png';
+
+  const QUICKQUILL_LUMERRE_PRACTICE_SCENES = [
+    {
+      id:'q46', number:'Q46', title:'06:15', location:'Quickquill Lumerre garage · Practice morning', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-technical', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'PRACTICE DAY · 06:15',title:'THE MEASURE OF A LAP',text:'Yesterday Lumerre learned your name. Today the circuit decides whether it deserves to remember it.'},
+        {speaker:'Nell',text:'We have five things we could learn and enough clean track for two of them. So naturally everybody will ask for six.',portrait:{character:'nell',frame:0,side:'left'}},
+        {speaker:'Tyrese',text:'First rule of Lumerre practice: the timing screen is allowed to lie to you. Your dragon is not.',portrait:{character:'tyrese',frame:6,side:'right'}},
+        {type:'choice',id:'lumerrePracticePriority',prompt:'What does [PLAYER_DRAGON] want the first run to teach Quickquill?',options:[
+          {label:'Technical response through the terrace changes.',note:'Prioritise precision and direction change.',value:'technical',careerEffects:{racecraft:{technicalUnderstanding:1}}},
+          {label:'High-speed stability on the upper terrace.',note:'Find the limit before qualifying does.',value:'high-speed',careerEffects:{racecraft:{pressureHandling:1}}},
+          {label:'Long-run rhythm and stamina.',note:'Think beyond one headline lap.',value:'long-run',careerEffects:{racecraft:{staminaManagement:1}}},
+          {label:'Launch and overtaking preparation.',note:'Prepare for traffic rather than an empty circuit.',value:'overtaking',careerEffects:{racecraft:{starts:1,overtaking:1}}}
+        ]},
+        {speaker:'Nell',text:'Good. Baseline first. Then we change one thing at a time and pretend that was always the plan.',portrait:{character:'nell',frame:1,side:'left'}}
+      ]
+    },
+    {
+      id:'q47', number:'Q47', title:'Build a Baseline', location:'Lumerre Crown Circuit · Practice Run 1', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-technical', showDragon:false,
+      beats:[{type:'lumerre-practice-run',run:1}]
+    },
+    {
+      id:'q48', number:'Q48', title:'Between Runs', location:'Quickquill garage · Engineering board', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-technical', showDragon:false,
+      beats:[{type:'lumerre-setup-board'}]
+    },
+    {
+      id:'q49', number:'Q49', title:'The Upper Terrace', location:'Quickquill garage · Telemetry review', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-technical', showDragon:false,
+      beats:[{type:'lumerre-diagnosis'}]
+    },
+    {
+      id:'q50', number:'Q50', title:'Final Practice', location:'Lumerre Crown Circuit · Practice Run 2', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-technical', showDragon:false,
+      beats:[{type:'lumerre-practice-run',run:2}]
+    },
+    {
+      id:'q51', number:'Q51', title:'Bank One', location:'Lumerre Crown Circuit · Qualifying Run 1', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-qualifying', showDragon:false,
+      beats:[{type:'lumerre-qualifying-run',run:1}]
+    },
+    {
+      id:'q52', number:'Q52', title:'The Window', location:'Quickquill pit wall · Qualifying strategy', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-qualifying', showDragon:false,
+      beats:[{type:'lumerre-qualifying-window'}]
+    },
+    {
+      id:'q53', number:'Q53', title:'Push', location:'Lumerre Crown Circuit · Qualifying Run 2', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-qualifying', showDragon:false,
+      beats:[{type:'lumerre-qualifying-run',run:2}]
+    },
+    {
+      id:'q54', number:'Q54', title:'Final Run', location:'Lumerre Crown Circuit · One lap remaining', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-qualifying', showDragon:false,
+      beats:[{type:'lumerre-qualifying-run',run:3}]
+    },
+    {
+      id:'q55', number:'Q55', title:'After Qualifying', location:'Quickquill garage · 18:42', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-qualifying', showDragon:true,
+      beats:[
+        {type:'cinematic',eyebrow:'QUALIFYING COMPLETE',title:'[LUMERRE_QUALIFYING_POSITION] ON THE GRID',text:'[LUMERRE_QUALIFYING_HEADLINE]'},
+        {speaker:'Nell',text:'[LUMERRE_NELL_LINE]',portrait:{character:'nell',frame:3,side:'left'}},
+        {speaker:'Tyrese',text:'[LUMERRE_TYRESE_LINE]',portrait:{character:'tyrese',frame:9,side:'right'}},
+        {speaker:'Mara',text:'[LUMERRE_MARA_LINE]',portrait:{character:'mara',frame:8,side:'left'}},
+        {speaker:'Narrator',text:'The final timing screen stays lit for another minute: [LUMERRE_QUALIFYING_TIME]. Tomorrow that number becomes a starting position, and the starting position becomes somebody else’s problem.'}
+      ]
+    },
+    {
+      id:'q56', number:'Q56', title:'The Night Before the Crown', location:'Lumerre Crown launch tunnel · Race-day preview', background:LUMERRE_LAUNCH_TUNNEL, tone:'lumerre-grid', showDragon:false,
+      beats:[
+        {type:'cinematic',eyebrow:'TOMORROW',title:'THE LUMERRE CROWN',text:'Six established racers. One rising Quickquill. And now, for the first time, a grid position that makes victory look less like a fantasy.'},
+        {speaker:'Narrator',text:'The launch tunnel is empty tonight. Tomorrow every numbered bay will hold a racing dragon and the noise outside will be loud enough to shake the stone.'},
+        {speaker:'Nell',text:'Race strategy is uploaded. Sleep first. Become difficult tomorrow.',portrait:{character:'nell',frame:4,side:'left'}},
+        {speaker:'Mara',text:'Crown Week is over. Race weekend starts when those doors open.',portrait:{character:'mara',frame:9,side:'left'}},
+        {type:'cinematic',eyebrow:'CHAPTER SIX · PRACTICE & QUALIFYING COMPLETE',title:'RACE DAY IS NEXT',text:'[PLAYER_DRAGON] starts [LUMERRE_QUALIFYING_POSITION] in the Lumerre Crown.'}
+      ]
+    }
+  ];
+
+  const CROWN_VILLAGE_ENCOUNTERS = {
+    tyrese:{id:'tyrese',location:'Quickquill compound',title:'SPONSOR ESCAPE',character:'crownTyrese',frame:3,text:'Tyrese is standing behind an equipment case while a sponsor coordinator searches the opposite direction.',options:[
+      {label:'Cover for him for thirty seconds.',note:'A tiny act of teammate conspiracy.',effects:{relationships:{tyreseBond:3}},careerEffects:{reputation:{quickquillTrust:1}}},
+      {label:'Tell him Mara is going to find him anyway.',note:'Refuse to become an accessory.',effects:{relationships:{maraBond:1,tyreseBond:1}},careerEffects:{reputation:{paddockRespect:1}}}
+    ]},
+    jalen:{id:'jalen',location:'Hospitality row',title:'NO HELMETS, STILL COMPETITIVE',character:'crownJalen',frame:1,text:'Jalen has somehow turned an argument about local coffee into a discussion about who was faster through Blackglass sector two.',options:[
+      {label:'Correct his memory of the sector.',note:'Bring receipts to a social conversation.',effects:{relationships:{jalenRespect:2,jalenHeat:1}},careerEffects:{rivalries:{jalen:{intensity:2,respect:2}}}},
+      {label:'Buy him the coffee and refuse the argument.',note:'Competitive does not have to mean hostile.',effects:{relationships:{jalenRespect:2}},careerEffects:{rivalries:{jalen:{respect:3,intensity:-1}}}}
+    ]},
+    sofia:{id:'sofia',location:'Garden path',title:'FIVE MINUTES, FINALLY',character:'crownSofia',frame:2,text:'Sofia smiles as though the message from Quickquill HQ was sent yesterday rather than an entire chapter ago.',options:[
+      {label:'Ask what she actually wanted to talk about.',note:'Skip the paddock dance.',effects:{identity:{focus:1}},careerEffects:{reputation:{paddockRespect:1},rivalries:{sofia:{respect:2}}}},
+      {label:'Tell her Quickquill knows you are here.',note:'Friendly, but transparent.',effects:{relationships:{quickquillTrust:2}},careerEffects:{rivalries:{sofia:{respect:2}},reputation:{quickquillTrust:2}}}
+    ]},
+    nell:{id:'nell',location:'Technical display',title:'NOT TECHNICALLY SOCIALISING',character:'crownNell',frame:0,text:'Nell has left the hospitality route entirely because somebody is demonstrating an adjustable Lumerrean timing gate.',options:[
+      {label:'Stay and ask how it works.',note:'This may become a twenty-minute answer.',effects:{identity:{focus:2},relationships:{nellBond:3}},careerEffects:{racecraft:{technicalUnderstanding:1}}},
+      {label:'Remind her there is food somewhere.',note:'Engineering cannot legally replace lunch.',effects:{identity:{heart:1},relationships:{nellBond:2}},careerEffects:{racecraft:{staminaManagement:1}}}
+    ]},
+    luka:{id:'luka',location:'Café terrace',title:'ABSOLUTELY DELIBERATE',character:'crownLuka',frame:0,text:'Luka is explaining to three strangers that his near-miss at Blackglass was a tactical exploration of the outside barrier.',options:[
+      {label:'Ask whether the barrier learned anything.',note:'Meet nonsense with nonsense.',effects:{identity:{heart:1}},careerEffects:{rivalries:{luka:{respect:1,intensity:1}}}},
+      {label:'Ask what he actually felt in the corner.',note:'There is a serious racer underneath the performance.',effects:{identity:{focus:1}},careerEffects:{rivalries:{luka:{respect:3}}}}
+    ]},
+    ren:{id:'ren',location:'Promenade timing board',title:'THE LINE THROUGH THE NOISE',character:'crownRen',frame:1,text:'Ren is watching a public timing demonstration with the concentration most people reserve for qualifying.',options:[
+      {label:'Ask what he is seeing.',note:'Learn from the grid’s precision specialist.',effects:{identity:{focus:1}},careerEffects:{racecraft:{technicalUnderstanding:1},rivalries:{ren:{respect:2}}}},
+      {label:'Ask whether he ever switches off.',note:'A rare non-technical question.',effects:{identity:{heart:1}},careerEffects:{rivalries:{ren:{respect:2}}}}
+    ]},
+    maya:{id:'maya',location:'Media plaza edge',title:'THE GAP IN THE CROWD',character:'crownMaya',frame:1,text:'Maya has identified the exact moment a press line becomes confused enough to escape through it.',options:[
+      {label:'Follow her route.',note:'Trust the grid’s best chaos reader.',effects:{identity:{fire:1}},careerEffects:{rivalries:{maya:{respect:2}},reputation:{media:-1}}},
+      {label:'Stay and answer one more question.',note:'Use the attention while it is useful.',effects:{identity:{focus:1}},careerEffects:{reputation:{media:2,fame:1}}}
+    ]},
+    media:{id:'media',location:'Media plaza',title:'ONE QUESTION BECOMES SIX',character:'crownMara',frame:5,text:'A reporter recognises you before Mara can steer the team around the media line.',options:[
+      {label:'Give them one clean answer.',note:'Control the moment.',effects:{relationships:{maraBond:1}},careerEffects:{reputation:{media:3,fame:2,pressure:1}}},
+      {label:'Politely point them toward the scheduled session.',note:'Professional boundaries are still professional.',effects:{relationships:{quickquillTrust:2}},careerEffects:{reputation:{paddockRespect:2,media:1}}}
+    ]},
+    fan:{id:'fan',location:'Central promenade',title:'THE FIRST AUTOGRAPH',character:'crownTyrese',frame:7,text:'A young Quickquill supporter holds out a programme and then seems to forget every word they intended to say.',options:[
+      {label:'Sign it and ask their name.',note:'Make the moment belong to them too.',effects:{identity:{heart:2}},careerEffects:{reputation:{fame:4,paddockRespect:1}}},
+      {label:'Sign it, then let Tyrese add his name too.',note:'The team captain is standing right there.',effects:{relationships:{tyreseBond:2}},careerEffects:{reputation:{fame:3,quickquillTrust:2}}}
+    ]}
+  };
+
+  const CROWN_RECEPTION_CONVERSATIONS = {
+    mara:{id:'mara',title:'WHO MARA WAS TALKING TO',character:'crownMara',frame:4,text:'Mara finishes a conversation with a senior figure from another team before you arrive. She does not volunteer who it was.',options:[
+      {label:'Ask directly.',note:'Career politics are now your business too.',effects:{relationships:{maraBond:2}},careerEffects:{reputation:{quickquillTrust:1,pressure:1}}},
+      {label:'Leave it alone unless she needs you.',note:'Trust her to manage the team.',effects:{relationships:{maraBond:2,quickquillTrust:2}},careerEffects:{reputation:{quickquillTrust:2}}}
+    ]},
+    tyrese:{id:'tyrese',title:'NUMBER ONE QUESTIONS',character:'crownTyrese',frame:8,text:'Tyrese has already been asked twice whether Quickquill now has “two number-one racers.” He is amused. Mostly.',options:[
+      {label:'Tell him it is still his team.',note:'Respect the captain without shrinking yourself.',effects:{relationships:{tyreseBond:3}},careerEffects:{tyrese:{friendship:2,professionalRespect:2,competitiveTension:-1}}},
+      {label:'Tell him the stopwatch can decide.',note:'Friendly words. Competitive meaning.',effects:{identity:{fire:1},relationships:{tyreseBond:1}},careerEffects:{tyrese:{professionalRespect:3,competitiveTension:4}}}
+    ]},
+    jalen:{id:'jalen',title:'NO CAMERAS FOR ONCE',character:'crownJalen',frame:10,text:'Away from the public route, Jalen is considerably less interested in performing the rivalry everybody keeps trying to write for him.',options:[
+      {label:'Talk racing honestly.',note:'Respect can be more interesting than hostility.',effects:{relationships:{jalenRespect:3}},careerEffects:{rivalries:{jalen:{respect:4,intensity:1}}}},
+      {label:'Remind him he started this.',note:'Keep the competitive edge alive.',effects:{relationships:{jalenHeat:2,jalenRespect:1}},careerEffects:{rivalries:{jalen:{respect:2,intensity:3}}}}
+    ]},
+    sofia:{id:'sofia',title:'THE PADDOCK IS TALKING',character:'crownSofia',frame:7,text:'Sofia says the paddock has begun treating your three-race assessment like public property. She does not say which rumours she believes.',options:[
+      {label:'Ask what Valecroft are hearing.',note:'Information without pretending it is friendship.',effects:{identity:{focus:1}},careerEffects:{rivalries:{sofia:{respect:3}},reputation:{pressure:1}}},
+      {label:'Tell her you are focused on Quickquill.',note:'Make the boundary clear.',effects:{relationships:{quickquillTrust:2}},careerEffects:{rivalries:{sofia:{respect:2}},reputation:{quickquillTrust:2}}}
+    ]},
+    nell:{id:'nell',title:'THE RECEPTION HAS TELEMETRY NOW',character:'crownNell',frame:1,text:'Nell has found a Lumerrean engineer near the food tables and turned the reception into an unscheduled technical seminar.',options:[
+      {label:'Join the discussion.',note:'Apparently this is what relaxation looks like now.',effects:{relationships:{nellBond:3},identity:{focus:1}},careerEffects:{racecraft:{technicalUnderstanding:1}}},
+      {label:'Rescue Nell before midnight.',note:'Somebody has to end the seminar.',effects:{relationships:{nellBond:2},identity:{heart:1}},careerEffects:{racecraft:{pressureHandling:1}}}
+    ]},
+    luka:{id:'luka',title:'THE CHALLENGE WAS DEFINITELY RIGGED',character:'crownLuka',frame:3,text:'Luka has a new explanation for every Crown Challenge event he did not win.',options:[
+      {label:'Let him tell the story.',note:'It gets better every thirty seconds.',effects:{identity:{heart:1}},careerEffects:{rivalries:{luka:{respect:2}}}},
+      {label:'Show him the scoreboard.',note:'Cruel. Accurate.',effects:{identity:{fire:1}},careerEffects:{rivalries:{luka:{intensity:2,respect:1}}}}
+    ]},
+    ren:{id:'ren',title:'PRECISION, OFF DUTY',character:'crownRen',frame:6,text:'Ren congratulates you on the Challenge with exactly enough specificity to prove he remembers every split.',options:[
+      {label:'Ask where you lost time.',note:'Turn a compliment into useful data.',effects:{identity:{focus:1}},careerEffects:{rivalries:{ren:{respect:3}},racecraft:{technicalUnderstanding:1}}},
+      {label:'Just accept the compliment.',note:'Not every conversation needs telemetry.',effects:{identity:{heart:1}},careerEffects:{rivalries:{ren:{respect:3}}}}
+    ]},
+    maya:{id:'maya',title:'EVERYBODY IS WATCHING SOMEBODY ELSE',character:'crownMaya',frame:5,text:'Maya claims receptions are easy because the useful conversations happen while cameras are pointed at the famous people.',options:[
+      {label:'Ask what she has heard.',note:'Chaos can contain information.',effects:{identity:{focus:1}},careerEffects:{rivalries:{maya:{respect:2}},reputation:{pressure:1}}},
+      {label:'Ask who she thinks is being underestimated.',note:'Make it about the racing grid.',effects:{identity:{heart:1}},careerEffects:{rivalries:{maya:{respect:3}}}}
+    ]}
+  };
+
+  const CROWN_CHALLENGE_AI_POINTS = {
+    reaction:{jalen:9,sofia:8,luka:7,tyrese:9,ren:9,maya:7},
+    slalom:{jalen:7,sofia:9,luka:6,tyrese:8,ren:10,maya:7},
+    climb:{jalen:9,sofia:7,luka:10,tyrese:8,ren:7,maya:8},
+    sprint:{jalen:10,sofia:7,luka:9,tyrese:9,ren:7,maya:8}
+  };
+
+  const ALL_QUICKQUILL_SCENES = [...QUICKQUILL_SCENES, ...QUICKQUILL_CANTO_SCENES, ...QUICKQUILL_DOWNTIME_SCENES, ...QUICKQUILL_BLACKGLASS_SCENES, ...QUICKQUILL_SEAT_SCENES, ...QUICKQUILL_CROWN_WEEK_SCENES, ...QUICKQUILL_LUMERRE_PRACTICE_SCENES];
 
   const STORY_JOURNEY = [
     { number: '01', title: 'The Impossible Contract', subtitle: 'A race nobody important was watching', image: 'story/environments/01_Young_Velmora_League_Circuit.png' },
     { number: '02', title: 'Prove You Belong', subtitle: 'Race One · Canto Plains', image: 'story/environments/05_Canto_Plains_Racing_Venue.png' },
     { number: '03', title: 'A Place at Quickquill', subtitle: 'Settling in · no race today', image: 'story/environments/11_Quickquill_Accommodation_Corridor.png' },
     { number: '04', title: 'Blackglass Under Floodlights', subtitle: 'Race Two · a full northern weekend', image: 'story/environments/20_Blackglass_Night_Circuit_Reveal.png' },
-    { number: '05', title: 'A Seat at the Table', subtitle: 'Pressure, people and consequences', image: 'story/environments/04_Quickquill_Rooftop_Walkway.png' },
-    { number: '06', title: 'The Lumerre Crown', subtitle: 'Race Three · Lumerre', image: 'story/environments/08_Lumerre_Crown_Racing_Circuit.png' },
+    { number: '05', title: 'A Seat at the Table', subtitle: 'Strategy, media and career politics', image: 'story/chapter5/quickquill-strategy-room.webp' },
+    { number: '06', title: 'The Lumerre Crown', subtitle: 'Crown Week · festival, challenge, race weekend', image: 'story/chapter6/crown-week/crown-village.webp' },
     { number: '07', title: 'The Contract Decision', subtitle: 'Your choices return', image: 'story/environments/07_Lumerre_Terraces_and_Paddock.png' }
+  ];
+
+  const TESTER_REPLAY_CHAPTERS = [
+    { id:'prologue', number:'01', label:'The Impossible Contract', scene:'q0', phase:'PROLOGUE' },
+    { id:'canto', number:'02', label:'Prove You Belong', scene:'q4', phase:'RACE ONE · CANTO' },
+    { id:'downtime', number:'03', label:'A Place at Quickquill', scene:'q9', phase:'DOWNTIME' },
+    { id:'blackglass', number:'04', label:'Blackglass Under Floodlights', scene:'q18', phase:'RACE TWO · BLACKGLASS' },
+    { id:'seat', number:'05', label:'A Seat at the Table', scene:'q32', phase:'CAREER REVIEW' },
+    { id:'crown-week', number:'06A', label:'The Lumerre Crown — Crown Week', scene:'q40', phase:'CROWN WEEK' },
+    { id:'practice', number:'06B', label:'The Measure of a Lap', scene:'q46', phase:'PRACTICE & QUALIFYING' },
+    { id:'race-day', number:'06C', label:'The Lumerre Crown — Race Day', scene:'q56', phase:'RACE DAY' }
   ];
 
   const CAREER_DESK_PANELS = [
     { id:'journal', label:'Career Journal', short:'Journal', mark:'J' },
     { id:'records', label:'Race Records', short:'Records', mark:'R' },
+    { id:'evolution', label:'Career Evolution', short:'Evolution', mark:'E' },
     { id:'relationships', label:'Relationships', short:'People', mark:'P' },
     { id:'memories', label:'Memory Shelf', short:'Memories', mark:'M' },
     { id:'inbox', label:'Inbox', short:'Inbox', mark:'I' },
@@ -836,7 +1331,21 @@
     opening: document.getElementById('careerOpeningMusic'),
     hub: document.getElementById('careerHubMusic'),
     story: document.getElementById('careerStoryMusic'),
-    downtime: document.getElementById('careerDowntimeMusic')
+    downtime: document.getElementById('careerDowntimeMusic'),
+    strategy: document.getElementById('careerStrategyMusic'),
+    press: document.getElementById('careerPressMusic'),
+    mara: document.getElementById('careerMaraMusic'),
+    lumerre: document.getElementById('careerLumerreMusic'),
+    crownArrival: document.getElementById('careerCrownArrivalMusic'),
+    crownFestival: document.getElementById('careerCrownFestivalMusic'),
+    crownChallenge: document.getElementById('careerCrownChallengeMusic'),
+    crownGarden: document.getElementById('careerCrownGardenMusic'),
+    crownOverlook: document.getElementById('careerCrownOverlookMusic'),
+    crownAccommodation: document.getElementById('careerCrownAccommodationMusic'),
+    lumerrePractice: document.getElementById('careerLumerrePracticeMusic'),
+    lumerreQualifying: document.getElementById('careerLumerreQualifyingMusic'),
+    lumerreRace: document.getElementById('careerLumerreRaceMusic'),
+    lumerreRaceFinal: document.getElementById('careerLumerreRaceFinalMusic')
   };
   const AFTER_HOURS_AUDIO_ROOT = 'story/after-hours/audio/';
   const makeAfterHoursAudio = (file, loop = false) => {
@@ -857,6 +1366,66 @@
     paper: makeAfterHoursAudio('paper-rustle.mp3'),
     discovery: makeAfterHoursAudio('discovery-chime.mp3')
   };
+
+  const makeCrownAudio = (src, loop = false) => {
+    const audio = new Audio();
+    audio.preload = loop ? 'metadata' : 'auto';
+    audio.loop = loop;
+    audio.src = src;
+    return audio;
+  };
+  // Reuse the site's established crowd ambience instead of adding another
+  // heavy crowd file. Crown Week supplied ambience is only used where it adds
+  // a distinct soundscape: the reception and the quiet circuit overlook.
+  const crownAmbience = {
+    crowd: makeCrownAudio('../assets/quidditch-crowd.mp3', true),
+    garden: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_garden_muffled_chatter_loop.mp3', true),
+    wind: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_overlook_wind_loop.mp3', true)
+  };
+  const crownSfx = {
+    beep: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_countdown_beep_QUIET.mp3'),
+    go: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_go_beep_QUIET.mp3'),
+    checkpoint: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_checkpoint_pass.mp3'),
+    split: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_split_time_ping.mp3'),
+    miss: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_missed_gate.mp3'),
+    falseStart: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_false_start_buzzer_QUIET.mp3'),
+    newLeader: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_new_leader_sting.mp3'),
+    personalBest: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_personal_best_sting.mp3'),
+    complete: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_event_complete_sting.mp3'),
+    inbox: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_inbox_message_ping_SOFT.mp3'),
+    camera: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_camera_shutter_burst_SOFT.mp3'),
+    autograph: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_autograph_signature.mp3'),
+    rumour: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_rumour_news_sting_SOFT.mp3')
+  };
+  const CROWN_SFX_VOLUMES = {beep:.11,go:.13,checkpoint:.22,split:.20,miss:.19,falseStart:.17,newLeader:.23,personalBest:.23,complete:.25,inbox:.20,camera:.14,autograph:.24,rumour:.19};
+  function playCrownSfx(id, overrideVolume = null) {
+    const audio = crownSfx[id];
+    if (!audio || !state.soundOn) return;
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = Math.max(0, Math.min(1, overrideVolume ?? CROWN_SFX_VOLUMES[id] ?? .2));
+      void audio.play().catch(() => {});
+    } catch (_) {}
+  }
+
+  const raceSfx = {
+    order: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_inbox_message_ping_SOFT.mp3'),
+    attack: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_new_leader_sting.mp3'),
+    finalLap: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_personal_best_sting.mp3'),
+    finish: makeCrownAudio(CROWN_WEEK_SFX_ROOT + 'crown_event_complete_sting.mp3')
+  };
+  const RACE_SFX_VOLUMES = { order:.18, attack:.22, finalLap:.24, finish:.26 };
+  function playRaceSfx(id, overrideVolume = null) {
+    const audio = raceSfx[id];
+    if (!audio || !state.soundOn) return;
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = Math.max(0, Math.min(1, overrideVolume ?? RACE_SFX_VOLUMES[id] ?? .2));
+      void audio.play().catch(() => {});
+    } catch (_) {}
+  }
   const state = {
     mode: 'menu',
     selectedMenu: 0,
@@ -883,11 +1452,24 @@
     storySaving: false,
     storyRevealComplete: true,
     resetStoryConfirmOpen: false,
+    testerReplay: null,
     downtimeActivity: '',
     downtimeMessage: '',
     blackglassActivity: '',
     blackglassMessage: '',
     afterHoursGame: null,
+    seatMediaReporter: '',
+    seatTransient: '',
+    crownEncounterId: '',
+    crownReceptionId: '',
+    crownWeekView: '',
+    crownTransient: '',
+    crownChallengeLive: null,
+    lumerrePracticeView: '',
+    lumerrePracticeTransient: '',
+    lumerreQualifyingLive: null,
+    lumerreRaceTransient: '',
+    lumerreRaceRuntime: null,
     dutySession: null,
     freeRoamMugClicks: 0,
     status: 'Loading your career records…'
@@ -898,6 +1480,32 @@
   let accountBridgeResolve = null;
   let accountBridgeReject = null;
   let accountBridgeTimer = 0;
+  const failedMusicTracks = new WeakSet();
+  let crownChallengeTimers = [];
+  let lumerreQualifyingTimers = [];
+  function clearCrownChallengeTimers() {
+    crownChallengeTimers.forEach(id => window.clearTimeout(id));
+    crownChallengeTimers = [];
+    state.crownChallengeLive = null;
+  }
+  function clearLumerreQualifyingTimers(resetLive = true) {
+    lumerreQualifyingTimers.forEach(id => window.clearTimeout(id));
+    lumerreQualifyingTimers = [];
+    if (resetLive) state.lumerreQualifyingLive = null;
+  }
+
+  // V34.24: Chapter Five introduced new media files. If a deployment ever
+  // misses one of those files, fail gracefully to the established story music
+  // instead of leaving the scene completely silent. Re-installing this patch
+  // also restores the intended Chapter Five tracks themselves.
+  Object.entries(music).forEach(([key, track]) => {
+    if (!track) return;
+    track.addEventListener('error', () => {
+      failedMusicTracks.add(track);
+      console.warn(`[Dragonbound Career Mode] Audio asset failed to load: ${key}`, track.currentSrc || track.src);
+      if (state.mode === 'story' && state.soundOn) window.setTimeout(() => syncMusic(), 0);
+    });
+  });
 
   const delay = milliseconds => new Promise(resolve => window.setTimeout(resolve, milliseconds));
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({
@@ -970,6 +1578,12 @@
 
   const BLACKGLASS_QUIET_NIGHT_SCENES = new Set(['q24','q25','q26']);
 
+  function usableChapterTrack(track) {
+    if (track && !failedMusicTracks.has(track)) return track;
+    if (music.story && !failedMusicTracks.has(music.story)) return music.story;
+    return null;
+  }
+
   function activeTrack() {
     if (state.mode === 'menu') return music.menu;
     if (state.mode === 'opening' || state.mode === 'team-select') return music.opening;
@@ -986,11 +1600,62 @@
       // instead of dropping back to the generic story track between locations.
       const inQuickquillDowntime = QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === state.story?.scene);
       if (inQuickquillDowntime) return music.downtime || music.story;
+      if (state.story?.chapter === 'lumerre-race-day') {
+        const phase = state.story?.chapter6?.raceWeekend?.phase || 'grid';
+        return ['engine-launching','engine-live'].includes(phase) ? null : usableChapterTrack(music.lumerreRace);
+      }
+      if (QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === state.story?.scene)) {
+        return ['q51','q52','q53','q54','q55','q56'].includes(state.story?.scene) ? usableChapterTrack(music.lumerreQualifying) : usableChapterTrack(music.lumerrePractice);
+      }
+      if (QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === state.story?.scene)) {
+        if (state.story?.scene === 'q42') return usableChapterTrack(music.crownFestival);
+        if (state.story?.scene === 'q43') return usableChapterTrack(music.crownChallenge);
+        if (state.story?.scene === 'q44') return state.crownWeekView === 'overlook' ? usableChapterTrack(music.crownOverlook) : usableChapterTrack(music.crownGarden);
+        if (state.story?.scene === 'q45') return usableChapterTrack(music.crownAccommodation);
+        return usableChapterTrack(music.crownArrival);
+      }
+      if (QUICKQUILL_SEAT_SCENES.some(scene => scene.id === state.story?.scene)) {
+        if (state.story?.scene === 'q34' || (state.story?.scene === 'q33' && activeStoryScene()?.beats?.[state.story?.beat]?.type === 'seat-strategy-sim')) return usableChapterTrack(music.strategy);
+        if (state.story?.scene === 'q35') return usableChapterTrack(music.press);
+        if (state.story?.scene === 'q37') return music.downtime || music.story;
+        if (state.story?.scene === 'q39') return usableChapterTrack(music.lumerre);
+        return usableChapterTrack(music.mara);
+      }
       return music.story;
     }
     if (state.mode === 'story-journey') return music.story;
     if (state.mode === 'meet-teams') return null;
     return music.hub;
+  }
+
+  function syncCrownAmbience() {
+    const inCrown = state.mode === 'story' && QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === state.story?.scene);
+    const inPractice = state.mode === 'story' && QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === state.story?.scene);
+    const inRaceDay = state.mode === 'story' && state.story?.chapter === 'lumerre-race-day';
+    let active = null;
+    let volume = 0;
+    if (inCrown && state.soundOn) {
+      if (state.story?.scene === 'q44' && state.crownWeekView === 'overlook') { active = crownAmbience.wind; volume = .12; }
+      else if (state.story?.scene === 'q44') { active = crownAmbience.garden; volume = .18; }
+      else if (['q40','q41','q42','q43'].includes(state.story?.scene)) { active = crownAmbience.crowd; volume = state.story?.scene === 'q42' ? .15 : state.story?.scene === 'q43' ? .13 : .11; }
+    } else if (inPractice && state.soundOn) {
+      active = crownAmbience.crowd;
+      volume = ['q51','q52','q53','q54'].includes(state.story?.scene) ? .10 : .055;
+    } else if (inRaceDay && state.soundOn) {
+      const phase = state.story?.chapter6?.raceWeekend?.phase || 'grid';
+      if (!['engine-launching','engine-live'].includes(phase)) { active = crownAmbience.crowd; volume = phase === 'result' ? .09 : .11; }
+    }
+    Object.values(crownAmbience).forEach(track => {
+      if (!track) return;
+      if (track !== active || !state.soundOn) {
+        try { track.pause(); } catch (_) {}
+      }
+    });
+    if (!active || !state.soundOn) return;
+    try {
+      active.volume = volume;
+      void active.play().catch(() => {});
+    } catch (_) {}
   }
 
   function syncMusic({ restart = false } = {}) {
@@ -1002,11 +1667,37 @@
         track.muted = !state.soundOn;
       }
     });
+    syncCrownAmbience();
     if (!active || !state.soundOn) return;
     if (restart) active.currentTime = 0;
     active.muted = false;
-    active.volume = active === music.downtime ? .23 : state.mode === 'menu' ? .5 : state.mode === 'career-hub' ? .2 : (state.mode === 'story' || state.mode === 'story-journey') ? .4 : .4;
-    void active.play().catch(() => undefined);
+    active.volume = active === music.downtime ? .23
+      : active === music.strategy ? .27
+      : active === music.press ? .25
+      : active === music.mara ? .23
+      : active === music.lumerre ? .18
+      : active === music.crownArrival ? .22
+      : active === music.crownFestival ? .28
+      : active === music.crownChallenge ? .16
+      : active === music.crownGarden ? .32
+      : active === music.crownOverlook ? .24
+      : active === music.crownAccommodation ? .30
+      : active === music.lumerrePractice ? .32
+      : active === music.lumerreQualifying ? (state.story?.scene === 'q54' ? .32 : .29)
+      : active === music.lumerreRace ? .31
+      : active === music.lumerreRaceFinal ? .33
+      : state.mode === 'menu' ? .5
+      : state.mode === 'career-hub' ? .2
+      : (state.mode === 'story' || state.mode === 'story-journey') ? .4 : .4;
+    void active.play().catch(error => {
+      console.warn('[Dragonbound Career Mode] Music playback failed', active.currentSrc || active.src, error);
+      failedMusicTracks.add(active);
+      if (active !== music.story && music.story && !failedMusicTracks.has(music.story) && state.soundOn) {
+        music.story.muted = false;
+        music.story.volume = .4;
+        void music.story.play().catch(() => failedMusicTracks.add(music.story));
+      }
+    });
   }
 
   function username() {
@@ -1036,14 +1727,582 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function clampCareerValue(value, minimum = 0, maximum = 100) {
+    return Math.max(minimum, Math.min(maximum, Number(value) || 0));
+  }
+
+  function defaultCareerRivalry() {
+    return {
+      intensity:0,
+      respect:0,
+      battles:0,
+      playerPassedThem:0,
+      theyPassedPlayer:0,
+      closeFinishes:0,
+      contacts:0,
+      qualifyingBattles:0,
+      winsAgainst:0,
+      lossesAgainst:0,
+      mediaIncidents:0,
+      lastEvent:''
+    };
+  }
+
+  function defaultCareerEvolution() {
+    const rivalries = {};
+    CAREER_RIVAL_IDS.forEach(id => { rivalries[id] = defaultCareerRivalry(); });
+    return {
+      version:CAREER_EVOLUTION_VERSION,
+      raceNumber:0,
+      careerPhase:'rookie',
+      playerStyle:'Developing racer',
+      fameTier:'Unknown',
+      racecraft:{
+        pace:42,
+        overtaking:38,
+        defending:40,
+        starts:41,
+        consistency:43,
+        staminaManagement:44,
+        pressureHandling:42,
+        technicalUnderstanding:44
+      },
+      reputation:{
+        fame:5,
+        paddockRespect:8,
+        media:0,
+        quickquillTrust:50,
+        pressure:10
+      },
+      records:{
+        starts:0,
+        wins:0,
+        podiums:0,
+        poles:0,
+        bestFinish:null,
+        bestQualifying:null,
+        consecutivePodiums:0,
+        bestPodiumStreak:0,
+        overtakes:0,
+        positionsGained:0,
+        leadChanges:0,
+        fastestLaps:0
+      },
+      firsts:{
+        firstPodium:null,
+        firstPole:null,
+        firstWin:null
+      },
+      recentForm:[],
+      raceHistory:[],
+      processedRaces:[],
+      rivalries,
+      tyrese:{
+        friendship:40,
+        professionalRespect:35,
+        competitiveTension:5,
+        playerFinishesAhead:0,
+        tyreseFinishesAhead:0,
+        playerOutqualifies:0,
+        tyreseOutqualifies:0,
+        teamOrdersObeyed:0,
+        teamOrdersIgnored:0
+      },
+      teamOrders:[],
+      chapterTypesUsed:[],
+      lastMilestones:[],
+      nextRaceWindow:{...CAREER_RACE_WINDOWS[1]}
+    };
+  }
+
+  function normaliseCareerRivalry(raw) {
+    const fallback = defaultCareerRivalry();
+    const next = { ...fallback, ...(raw && typeof raw === 'object' ? raw : {}) };
+    ['intensity','respect','battles','playerPassedThem','theyPassedPlayer','closeFinishes','contacts','qualifyingBattles','winsAgainst','lossesAgainst','mediaIncidents'].forEach(key => {
+      next[key] = Math.max(0, Number(next[key]) || 0);
+    });
+    next.intensity = clampCareerValue(next.intensity);
+    next.respect = clampCareerValue(next.respect);
+    next.lastEvent = String(next.lastEvent || '');
+    return next;
+  }
+
+  function normaliseCareerEvolution(raw) {
+    const fallback = defaultCareerEvolution();
+    const source = raw && typeof raw === 'object' ? raw : {};
+    const evolution = {
+      ...fallback,
+      ...cloneValue(source),
+      version:CAREER_EVOLUTION_VERSION,
+      racecraft:{ ...fallback.racecraft, ...(source.racecraft || {}) },
+      reputation:{ ...fallback.reputation, ...(source.reputation || {}) },
+      records:{ ...fallback.records, ...(source.records || {}) },
+      firsts:{ ...fallback.firsts, ...(source.firsts || {}) },
+      tyrese:{ ...fallback.tyrese, ...(source.tyrese || {}) },
+      rivalries:{},
+      recentForm:Array.isArray(source.recentForm) ? source.recentForm.slice(-5).map(item => ({...item})) : [],
+      raceHistory:Array.isArray(source.raceHistory) ? source.raceHistory.slice(-20).map(item => ({...item})) : [],
+      processedRaces:Array.isArray(source.processedRaces) ? [...new Set(source.processedRaces.map(String))].slice(-30) : [],
+      teamOrders:Array.isArray(source.teamOrders) ? source.teamOrders.slice(-30).map(item => ({...item})) : [],
+      chapterTypesUsed:Array.isArray(source.chapterTypesUsed) ? source.chapterTypesUsed.map(String).filter(value => CAREER_CHAPTER_TYPES.includes(value)).slice(-12) : [],
+      lastMilestones:Array.isArray(source.lastMilestones) ? source.lastMilestones.slice(-8).map(String) : []
+    };
+    CAREER_RIVAL_IDS.forEach(id => { evolution.rivalries[id] = normaliseCareerRivalry(source.rivalries?.[id]); });
+    Object.keys(evolution.racecraft).forEach(key => { evolution.racecraft[key] = clampCareerValue(evolution.racecraft[key]); });
+    Object.keys(evolution.reputation).forEach(key => { evolution.reputation[key] = clampCareerValue(evolution.reputation[key]); });
+    ['friendship','professionalRespect','competitiveTension'].forEach(key => { evolution.tyrese[key] = clampCareerValue(evolution.tyrese[key]); });
+    ['playerFinishesAhead','tyreseFinishesAhead','playerOutqualifies','tyreseOutqualifies','teamOrdersObeyed','teamOrdersIgnored'].forEach(key => { evolution.tyrese[key] = Math.max(0, Number(evolution.tyrese[key]) || 0); });
+    evolution.raceNumber = Math.max(0, Number(evolution.raceNumber) || 0);
+    return evolution;
+  }
+
+  function careerRacerIdFromName(value) {
+    const name = String(value || '').toLowerCase();
+    if (!name) return '';
+    for (const [id, racer] of Object.entries(CAREER_RACER_AI)) {
+      if (name.includes(racer.name.toLowerCase()) || name === id) return id;
+    }
+    return '';
+  }
+
+  function careerPerformanceWindow(raceNumber = 1) {
+    const number = Math.max(1, Number(raceNumber) || 1);
+    const source = CAREER_RACE_WINDOWS[Math.min(6, number)] || CAREER_RACE_WINDOWS[6];
+    return { ...source, raceNumber:number };
+  }
+
+  function deriveCareerPhase(evolution) {
+    const records = evolution?.records || {};
+    const starts = Math.max(0, Number(records.starts) || 0);
+    const wins = Math.max(0, Number(records.wins) || 0);
+    const podiums = Math.max(0, Number(records.podiums) || 0);
+    const best = Number(records.bestFinish) || 99;
+    const respect = Number(evolution?.reputation?.paddockRespect) || 0;
+    if (wins >= 4 && starts >= 8 && respect >= 68) return 'title-contender';
+    if (wins >= 2 || (starts >= 7 && podiums >= 4)) return 'contender';
+    if (wins >= 1) return starts >= 5 ? 'winner' : 'rising-star';
+    if (podiums >= 2 || best <= 2 || (starts >= 4 && podiums >= 1)) return 'podium-threat';
+    if (starts >= 2 || best <= 3 || respect >= 25) return 'prospect';
+    return 'rookie';
+  }
+
+  function careerPhaseLabel(value) {
+    return ({
+      'rookie':'Rookie',
+      'prospect':'Prospect',
+      'podium-threat':'Podium Threat',
+      'rising-star':'Rising Star',
+      'winner':'Winner',
+      'contender':'Contender',
+      'title-contender':'Title Contender'
+    })[String(value || '')] || 'Rookie';
+  }
+
+  function deriveFameTier(evolution) {
+    const fame = Number(evolution?.reputation?.fame) || 0;
+    const wins = Number(evolution?.records?.wins) || 0;
+    if (fame >= 78 || wins >= 4) return 'Velmora name';
+    if (fame >= 60 || wins >= 2) return 'Star racer';
+    if (fame >= 42 || wins >= 1) return 'Rising name';
+    if (fame >= 25) return 'Recognisable rookie';
+    if (fame >= 12) return 'Paddock curiosity';
+    return 'Unknown';
+  }
+
+  function deriveCareerRacingStyle(story, evolution) {
+    const starts = Math.max(0, Number(evolution?.records?.starts) || 0);
+    if (!starts) return 'Developing Racer';
+    const identity = careerIdentity(story);
+    const c5 = story?.chapter5 || {};
+    const metrics = c5.simulator?.metrics || {};
+    const overtaking = Number(evolution?.racecraft?.overtaking) || 0;
+    const defending = Number(evolution?.racecraft?.defending) || 0;
+    const technical = Number(evolution?.racecraft?.technicalUnderstanding) || 0;
+    if (identity.key === 'fire' && overtaking >= 48) return 'Attacking Racer';
+    if (identity.key === 'focus' && technical >= 48) return 'Precision Racer';
+    if (identity.key === 'heart' && Number(evolution?.racecraft?.staminaManagement) >= 48) return 'Patient Hunter';
+    if ((Number(metrics.reading)||0) >= 58 && technical >= 50) return 'Technical Specialist';
+    if (defending > overtaking + 6) return 'Defensive Racer';
+    if (overtaking > defending + 6) return 'Opportunist';
+    return 'All-Round Racer';
+  }
+
+  function careerEvolutionMilestone(evolution, label) {
+    const text = String(label || '').trim();
+    if (!text) return;
+    evolution.lastMilestones = [...new Set([...(evolution.lastMilestones || []), text])].slice(-8);
+  }
+
+  function applyCareerRivalryEvents(evolution, race, story) {
+    const events = Array.isArray(race.events) ? race.events : [];
+    const playerName = String(careerDragon(state.activeSave)?.name || storyDragonName() || '').toLowerCase();
+    events.forEach(event => {
+      const racers = Array.isArray(event?.racers) ? event.racers.map(String) : [];
+      const text = String(event?.text || '');
+      const candidates = new Set();
+      racers.forEach(name => { const id = careerRacerIdFromName(name); if (id) candidates.add(id); });
+      CAREER_RIVAL_IDS.forEach(id => { if (text.toLowerCase().includes(CAREER_RACER_AI[id].name.toLowerCase())) candidates.add(id); });
+      candidates.forEach(id => {
+        const entry = evolution.rivalries[id];
+        const hasPlayer = racers.some(name => name.toLowerCase().includes(playerName)) || racers.some(name => !careerRacerIdFromName(name));
+        if (!hasPlayer && event?.type !== 'contact') return;
+        entry.battles += event?.type === 'battle' ? 1 : 0;
+        entry.contacts += String(event?.type || '').includes('contact') ? 1 : 0;
+        entry.intensity = clampCareerValue(entry.intensity + (event?.type === 'battle' ? 3 : 1));
+        entry.respect = clampCareerValue(entry.respect + (event?.type === 'battle' ? 1 : 0));
+        entry.lastEvent = race.event || race.key || '';
+        if (id === 'tyrese' && event?.type === 'battle') evolution.tyrese.competitiveTension = clampCareerValue(evolution.tyrese.competitiveTension + 2);
+      });
+    });
+    if (race.rivalRanks && typeof race.rivalRanks === 'object') {
+      CAREER_RIVAL_IDS.forEach(id => {
+        const rivalRank = Number(race.rivalRanks[id]);
+        if (!rivalRank) return;
+        const entry = evolution.rivalries[id];
+        if (Number(race.rank) < rivalRank) { entry.winsAgainst += 1; entry.respect = clampCareerValue(entry.respect + 2); }
+        else if (Number(race.rank) > rivalRank) entry.lossesAgainst += 1;
+        if (Math.abs(Number(race.rank) - rivalRank) === 1) { entry.closeFinishes += 1; entry.intensity = clampCareerValue(entry.intensity + 2); }
+        if (id === 'tyrese') {
+          if (Number(race.rank) < rivalRank) evolution.tyrese.playerFinishesAhead += 1;
+          else if (Number(race.rank) > rivalRank) evolution.tyrese.tyreseFinishesAhead += 1;
+        }
+      });
+    }
+  }
+
+  function applyRaceToCareerEvolution(evolution, race, story) {
+    const key = String(race?.key || '').trim();
+    if (!key || evolution.processedRaces.includes(key)) return evolution;
+    const rank = Math.max(1, Math.min(99, Number(race.rank) || 99));
+    const start = Math.max(1, Math.min(99, Number(race.startPosition) || rank));
+    const qualifying = Number(race.qualifying) > 0 ? Number(race.qualifying) : null;
+    const overtakes = Math.max(0, Number(race.overtakes) || 0);
+    const gained = Math.max(0, Number(race.positionsGained) || Math.max(0, start - rank));
+    const records = evolution.records;
+    records.starts += 1;
+    if (rank === 1) records.wins += 1;
+    if (rank <= 3) records.podiums += 1;
+    if (qualifying === 1) records.poles += 1;
+    records.bestFinish = records.bestFinish ? Math.min(Number(records.bestFinish), rank) : rank;
+    if (qualifying) records.bestQualifying = records.bestQualifying ? Math.min(Number(records.bestQualifying), qualifying) : qualifying;
+    records.overtakes += overtakes;
+    records.positionsGained += gained;
+    records.leadChanges += Math.max(0, Number(race.leadChanges) || 0);
+    if (race.fastestLap) records.fastestLaps += 1;
+    records.consecutivePodiums = rank <= 3 ? records.consecutivePodiums + 1 : 0;
+    records.bestPodiumStreak = Math.max(records.bestPodiumStreak, records.consecutivePodiums);
+
+    const resultStrength = rank === 1 ? 5 : rank <= 3 ? 4 : rank <= 5 ? 2 : 1;
+    evolution.racecraft.pace = clampCareerValue(evolution.racecraft.pace + Math.min(4, 1 + resultStrength * .55));
+    evolution.racecraft.overtaking = clampCareerValue(evolution.racecraft.overtaking + Math.min(5, .8 + overtakes * .7 + gained * .35));
+    evolution.racecraft.defending = clampCareerValue(evolution.racecraft.defending + (rank <= start ? 1.7 : .8));
+    evolution.racecraft.starts = clampCareerValue(evolution.racecraft.starts + (start <= 3 ? 1.4 : .9));
+    evolution.racecraft.consistency = clampCareerValue(evolution.racecraft.consistency + (rank <= 5 ? 1.8 : .6));
+    evolution.racecraft.staminaManagement = clampCareerValue(evolution.racecraft.staminaManagement + (String(race.strategy||'').toLowerCase()==='focus' ? 2.2 : 1.2));
+    evolution.racecraft.pressureHandling = clampCareerValue(evolution.racecraft.pressureHandling + (rank <= 3 ? 2.7 : 1.1));
+    evolution.racecraft.technicalUnderstanding = clampCareerValue(evolution.racecraft.technicalUnderstanding + (String(race.strategy||'').toLowerCase()==='focus' ? 2.4 : 1.3));
+
+    const fameGain = rank === 1 ? 16 : rank <= 3 ? 9 : rank <= 5 ? 4 : 1;
+    const respectGain = rank === 1 ? 11 : rank <= 3 ? 7 : rank <= 5 ? 4 : 2;
+    evolution.reputation.fame = clampCareerValue(evolution.reputation.fame + fameGain + Math.min(3, overtakes));
+    evolution.reputation.paddockRespect = clampCareerValue(evolution.reputation.paddockRespect + respectGain + Math.min(2, gained));
+    evolution.reputation.quickquillTrust = clampCareerValue(Math.max(evolution.reputation.quickquillTrust, Number(story?.relationships?.quickquillTrust)||0) + (rank <= 3 ? 2 : 0));
+    evolution.reputation.pressure = clampCareerValue(evolution.reputation.pressure + (rank === 1 ? 12 : rank <= 3 ? 7 : rank <= 5 ? 3 : -2));
+    evolution.reputation.media = clampCareerValue(evolution.reputation.media + (rank === 1 ? 8 : rank <= 3 ? 5 : 2));
+
+    const completedAt = String(race.completedAt || new Date().toISOString());
+    if (rank <= 3 && !evolution.firsts.firstPodium) {
+      evolution.firsts.firstPodium = { event:race.event, raceNumber:records.starts, finish:rank, completedAt };
+      careerEvolutionMilestone(evolution, 'FIRST CAREER PODIUM');
+    }
+    if (qualifying === 1 && !evolution.firsts.firstPole) {
+      evolution.firsts.firstPole = { event:race.event, raceNumber:records.starts, completedAt };
+      careerEvolutionMilestone(evolution, 'FIRST CAREER POLE');
+    }
+    if (rank === 1 && !evolution.firsts.firstWin) {
+      evolution.firsts.firstWin = { event:race.event, raceNumber:records.starts, startPosition:start, completedAt, notableMoment:String(race.notableMoment||'') };
+      careerEvolutionMilestone(evolution, 'FIRST CAREER VICTORY');
+    }
+    if (records.consecutivePodiums >= 2) careerEvolutionMilestone(evolution, `${records.consecutivePodiums} PODIUMS IN A ROW`);
+
+    const form = {
+      key,
+      event:String(race.event || key),
+      raceNumber:records.starts,
+      finish:rank,
+      startPosition:start,
+      qualifying,
+      overtakes,
+      positionsGained:gained,
+      strategy:String(race.strategy || ''),
+      completedAt
+    };
+    evolution.recentForm = [...(evolution.recentForm || []), form].slice(-5);
+    evolution.raceHistory = [...(evolution.raceHistory || []), { ...form, events:Array.isArray(race.events)?race.events.slice(-8):[] }].slice(-20);
+    evolution.processedRaces = [...new Set([...(evolution.processedRaces || []), key])].slice(-30);
+    evolution.raceNumber = records.starts;
+    applyCareerRivalryEvents(evolution, race, story);
+    evolution.careerPhase = deriveCareerPhase(evolution);
+    evolution.fameTier = deriveFameTier(evolution);
+    evolution.playerStyle = deriveCareerRacingStyle(story, evolution);
+    evolution.nextRaceWindow = careerPerformanceWindow(records.starts + 1);
+    evolution.tyrese.friendship = clampCareerValue(Math.max(evolution.tyrese.friendship, Number(story?.relationships?.tyreseBond)||0));
+    evolution.tyrese.professionalRespect = clampCareerValue(evolution.tyrese.professionalRespect + (rank <= 3 ? 3 : 1));
+    return evolution;
+  }
+
+  function syncCareerEvolution(story) {
+    if (!story || typeof story !== 'object') return defaultCareerEvolution();
+    const evolution = normaliseCareerEvolution(story.careerEvolution);
+    const canto = story.race?.result;
+    if (canto) {
+      applyRaceToCareerEvolution(evolution, {
+        key:'race-01-canto', event:'Canto Plains', rank:Number(canto.rank)||6,
+        startPosition:Number(canto.startPosition)||3, qualifying:null,
+        overtakes:Number(canto.overtakes)||0, positionsGained:Number(canto.positionsGained)||0,
+        leadChanges:Number(canto.leadChanges)||0, strategy:story.race?.strategy||'focus',
+        completedAt:story.race?.completedAt||'', photoFinish:!!canto.photoFinish,
+        events:Array.isArray(canto.events)?canto.events:[], rivalRanks:canto.rivalRanks&&typeof canto.rivalRanks==='object'?canto.rivalRanks:{}, fastestLap:!!canto.fastestLap
+      }, story);
+    }
+    const blackglass = story.blackglassRace?.result;
+    if (blackglass) {
+      applyRaceToCareerEvolution(evolution, {
+        key:'race-02-blackglass', event:'Blackglass Night Circuit', rank:Number(blackglass.rank)||6,
+        startPosition:Number(blackglass.startPosition)||Number(story.chapter4?.qualifying?.position)||3,
+        qualifying:Number(story.chapter4?.qualifying?.position)||Number(blackglass.startPosition)||null,
+        overtakes:Number(blackglass.overtakes)||0, positionsGained:Number(blackglass.positionsGained)||0,
+        leadChanges:Number(blackglass.leadChanges)||0, strategy:story.blackglassRace?.strategy||story.chapter4?.strategy||'focus',
+        completedAt:story.blackglassRace?.completedAt||'', photoFinish:!!blackglass.photoFinish,
+        notableMoment:String(blackglass.notableMoment||''), events:Array.isArray(blackglass.events)?blackglass.events:[], rivalRanks:blackglass.rivalRanks&&typeof blackglass.rivalRanks==='object'?blackglass.rivalRanks:{}, fastestLap:!!blackglass.fastestLap
+      }, story);
+    }
+    evolution.reputation.quickquillTrust = clampCareerValue(Math.max(evolution.reputation.quickquillTrust, Number(story.relationships?.quickquillTrust)||0));
+    const mediaProfile = String(story.chapter5?.media?.reputation || '');
+    const mediaBoost = mediaProfile ? ({'Composed':5,'Team-first':6,'Candid':4,'Edge':5}[mediaProfile] || 3) : 0;
+    evolution.reputation.media = clampCareerValue(Math.max(evolution.reputation.media, mediaBoost));
+    evolution.tyrese.friendship = clampCareerValue(Math.max(evolution.tyrese.friendship, Number(story.relationships?.tyreseBond)||0));
+    if (!(evolution.chapterTypesUsed || []).length) {
+      const inferredTypes=[];
+      if (story.completed?.prologue) inferredTypes.push('teammate-story');
+      if (story.completed?.canto) inferredTypes.push('race-weekend');
+      if (story.completed?.downtime) inferredTypes.push('open-hub');
+      if (story.completed?.blackglass) inferredTypes.push('race-weekend');
+      if (story.completed?.seat) inferredTypes.push('politics');
+      evolution.chapterTypesUsed=inferredTypes.slice(-12);
+    }
+    evolution.careerPhase = deriveCareerPhase(evolution);
+    evolution.fameTier = deriveFameTier(evolution);
+    evolution.playerStyle = deriveCareerRacingStyle(story, evolution);
+    evolution.nextRaceWindow = careerPerformanceWindow((Number(evolution.records.starts)||0) + 1);
+    story.careerEvolution = evolution;
+    return evolution;
+  }
+
+  function careerEvolutionRaceConfig(story, raceNumber = null) {
+    const evolution = syncCareerEvolution(story);
+    const nextRace = Math.max(1, Number(raceNumber) || (Number(evolution.records.starts)||0) + 1);
+    const window = careerPerformanceWindow(nextRace);
+    return {
+      version:CAREER_EVOLUTION_VERSION,
+      raceNumber:nextRace,
+      phase:evolution.careerPhase,
+      phaseLabel:careerPhaseLabel(evolution.careerPhase),
+      playerStyle:evolution.playerStyle,
+      performanceWindow:window,
+      playerModel:{
+        racecraft:{...evolution.racecraft},
+        reputation:{...evolution.reputation},
+        staminaStart:100,
+        attackWindowGapSeconds:.48,
+        defendWindowGapSeconds:.42,
+        mistakeRiskScale:1,
+        growthPaceTarget:Number(window.paceTarget)||50
+      },
+      opponents:Object.fromEntries(Object.entries(CAREER_RACER_AI).map(([id,racer]) => [id,{...racer,sectorBias:{...racer.sectorBias}}])),
+      battleRules:{
+        enabled:true,
+        minimumGapSeconds:.08,
+        attackWindowSeconds:.48,
+        defendWindowSeconds:.42,
+        cooldownMs:9000,
+        choices:['attack-inside','pressure-exit','use-slipstream','stay-patient'],
+        defendChoices:['cover-inside','control-exit','break-tow','dont-over-defend'],
+        realPositionChanges:true,
+        noForcedRubberBanding:true
+      },
+      stamina:{enabled:true,hiddenByDefault:true,attackCost:8,pressureCost:4,slipstreamRecovery:3,patientRecovery:5},
+      teamOrders:{enabled:true,history:(evolution.teamOrders||[]).slice(-8)},
+      rivalries:Object.fromEntries(CAREER_RIVAL_IDS.map(id => [id,{...evolution.rivalries[id]}])),
+      qualifying:careerQualifyingProfile(story),
+      worldReaction:careerWorldReactionConfig(story)
+    };
+  }
+
+  function careerQualifyingProfile(story) {
+    const evolution = syncCareerEvolution(story);
+    const identity = careerIdentity(story);
+    const base = (Number(evolution.racecraft.pace)||0) * .42 + (Number(evolution.racecraft.technicalUnderstanding)||0) * .34 + (Number(evolution.racecraft.pressureHandling)||0) * .24;
+    const identityBias = identity.key === 'focus' ? 3 : identity.key === 'fire' ? 1 : 2;
+    return {
+      competitiveness:clampCareerValue(base + identityBias),
+      consistency:clampCareerValue(evolution.racecraft.consistency),
+      pressureHandling:clampCareerValue(evolution.racecraft.pressureHandling),
+      poleUnlocked:(Number(evolution.records.starts)||0) >= 2 && base >= 51,
+      note:(Number(evolution.records.starts)||0) < 2 ? 'Qualifying remains inconsistent while the rookie learns professional preparation.' : base >= 65 ? 'Front-row pace is now a genuine expectation.' : 'Front-row pace is possible when setup, track knowledge and execution align.'
+    };
+  }
+
+  function careerWorldReactionConfig(story) {
+    const evolution = syncCareerEvolution(story);
+    const fame = Number(evolution.reputation.fame)||0;
+    return {
+      tier:evolution.fameTier,
+      fanRecognition:fame >= 25,
+      autographMoments:fame >= 36,
+      photographerPresence:fame >= 42,
+      sponsorInterest:fame >= 48,
+      merchPresence:fame >= 55,
+      rivalFanReaction:fame >= 60,
+      majorHeadlinePressure:fame >= 68,
+      recognitionChance:Math.min(.9, Math.max(.03, fame / 100))
+    };
+  }
+
+  function careerChapterTypeCanFollow(story, proposedType) {
+    const type = String(proposedType || '');
+    if (!CAREER_CHAPTER_TYPES.includes(type)) return false;
+    const used = syncCareerEvolution(story).chapterTypesUsed || [];
+    return !used.length || used[used.length - 1] !== type;
+  }
+
+  function careerRegisterChapterType(story, type) {
+    const value = String(type || '');
+    if (!CAREER_CHAPTER_TYPES.includes(value)) return false;
+    const evolution = syncCareerEvolution(story);
+    if (evolution.chapterTypesUsed[evolution.chapterTypesUsed.length - 1] === value) return false;
+    evolution.chapterTypesUsed = [...evolution.chapterTypesUsed, value].slice(-12);
+    story.careerEvolution = evolution;
+    return true;
+  }
+
+  function careerBattleChoiceProfile(choice) {
+    return ({
+      'attack-inside':{label:'Attack inside',attack:11,risk:.16,stamina:-8,timeLossOnFail:.24},
+      'pressure-exit':{label:'Pressure the exit',attack:5,risk:.07,stamina:-4,timeLossOnFail:.10,followUp:6},
+      'use-slipstream':{label:'Use the slipstream',attack:2,risk:.025,stamina:3,timeLossOnFail:.03,followUp:9},
+      'stay-patient':{label:'Stay patient',attack:-5,risk:.01,stamina:5,timeLossOnFail:0,followUp:4}
+    })[String(choice || '')] || {label:'Stay patient',attack:-5,risk:.01,stamina:5,timeLossOnFail:0,followUp:4};
+  }
+
+  function careerDefenceChoiceProfile(choice) {
+    return ({
+      'cover-inside':{label:'Cover inside',defence:10,risk:.10,stamina:-6},
+      'control-exit':{label:'Control the exit',defence:6,risk:.05,stamina:-4},
+      'break-tow':{label:'Break the tow',defence:4,risk:.08,stamina:-5,attackerPenalty:5},
+      'dont-over-defend':{label:"Don't over-defend",defence:-3,risk:.015,stamina:4}
+    })[String(choice || '')] || {label:"Don't over-defend",defence:-3,risk:.015,stamina:4};
+  }
+
+  function resolveCareerAttackBattle(story, opponentId, choice, context = {}, roll = Math.random()) {
+    const evolution = syncCareerEvolution(story);
+    const opponent = CAREER_RACER_AI[opponentId] || CAREER_RACER_AI.tyrese;
+    const profile = careerBattleChoiceProfile(choice);
+    const gap = Math.max(.05, Number(context.gapSeconds) || .42);
+    const stamina = clampCareerValue(context.stamina ?? 100);
+    const sectorBias = Number(opponent.sectorBias?.[context.sectorType]) || 0;
+    const playerAttack = Number(evolution.racecraft.overtaking)||0;
+    const playerPace = Number(evolution.racecraft.pace)||0;
+    const opponentDefence = Number(opponent.defending)||75;
+    const gapBonus = Math.max(-8, Math.min(9, (.5-gap)*28));
+    const staminaPenalty = stamina < 35 ? (35-stamina)*.28 : 0;
+    const chance = Math.max(.08, Math.min(.84, .36 + (playerAttack-opponentDefence)/120 + (playerPace-50)/250 + profile.attack/100 + gapBonus/100 - sectorBias/100 - staminaPenalty/100));
+    const mistakeChance = Math.max(.01, Math.min(.34, profile.risk + (100-Number(evolution.racecraft.consistency||50))/420 + (stamina<25?.08:0)));
+    const rawRoll = Math.max(0, Math.min(.9999, Number(roll)||0));
+    let outcome = 'failed';
+    let positionDelta = 0;
+    let timeDelta = profile.timeLossOnFail || 0;
+    if (rawRoll < chance) { outcome='overtake'; positionDelta=-1; timeDelta=-.08; }
+    else if (rawRoll > 1-mistakeChance) { outcome='mistake'; timeDelta=.38; }
+    else if (profile.followUp) { outcome='set-up'; timeDelta=.02; }
+    const narrative = outcome==='overtake'
+      ? `${storyDragonName()} gets past ${opponent.name}.`
+      : outcome==='mistake'
+        ? `${storyDragonName()} asks too much of the move and loses momentum.`
+        : outcome==='set-up'
+          ? `${opponent.name} keeps the place, but the next sector is now an attack opportunity.`
+          : `${opponent.name} defends the position.`;
+    return {
+      mode:'attack', opponentId, opponentName:opponent.name, choice:String(choice||'stay-patient'), choiceLabel:profile.label,
+      outcome, chance, positionDelta, timeDelta, staminaDelta:Number(profile.stamina)||0,
+      followUpBonus:Number(profile.followUp)||0, narrative,
+      event:{type:outcome==='overtake'?'player-overtake':outcome==='mistake'?'player-battle-mistake':'battle', racers:[storyDragonName(),opponent.name], text:narrative}
+    };
+  }
+
+  function resolveCareerDefenceBattle(story, opponentId, choice, context = {}, roll = Math.random()) {
+    const evolution = syncCareerEvolution(story);
+    const opponent = CAREER_RACER_AI[opponentId] || CAREER_RACER_AI.sofia;
+    const profile = careerDefenceChoiceProfile(choice);
+    const gap = Math.max(.05, Number(context.gapSeconds) || .36);
+    const stamina = clampCareerValue(context.stamina ?? 100);
+    const playerDefence = Number(evolution.racecraft.defending)||0;
+    const opponentAttack = Number(opponent.overtaking)||78;
+    const gapPenalty = Math.max(-8,Math.min(10,(.42-gap)*30));
+    const staminaPenalty = stamina < 35 ? (35-stamina)*.24 : 0;
+    const holdChance = Math.max(.10,Math.min(.88,.48+(playerDefence-opponentAttack)/125+profile.defence/100-gapPenalty/100-staminaPenalty/100));
+    const mistakeChance = Math.max(.01,Math.min(.28,profile.risk+(100-Number(evolution.racecraft.consistency||50))/480));
+    const rawRoll = Math.max(0,Math.min(.9999,Number(roll)||0));
+    let outcome='hold';
+    let positionDelta=0;
+    let timeDelta=.03;
+    if(rawRoll > holdChance && rawRoll < 1-mistakeChance){outcome='passed';positionDelta=1;timeDelta=.18;}
+    else if(rawRoll >= 1-mistakeChance){outcome='mistake';positionDelta=1;timeDelta=.34;}
+    const narrative=outcome==='hold'?`${storyDragonName()} keeps ${opponent.name} behind.`:outcome==='mistake'?`${storyDragonName()} over-defends and ${opponent.name} takes the place.`:`${opponent.name} completes the pass.`;
+    return {
+      mode:'defend',opponentId,opponentName:opponent.name,choice:String(choice||'dont-over-defend'),choiceLabel:profile.label,
+      outcome,holdChance,positionDelta,timeDelta,staminaDelta:Number(profile.stamina)||0,narrative,
+      event:{type:outcome==='hold'?'defence-held':'player-lost-position',racers:[storyDragonName(),opponent.name],text:narrative}
+    };
+  }
+
+  function recordCareerTeamOrder(story, order = {}) {
+    const evolution = syncCareerEvolution(story);
+    const row = {
+      type:String(order.type || 'hold-position'),
+      event:String(order.event || ''),
+      raceNumber:Number(order.raceNumber)||Math.max(1,Number(evolution.records.starts)||1),
+      response:String(order.response || 'received'),
+      consequence:String(order.consequence || ''),
+      at:String(order.at || new Date().toISOString())
+    };
+    evolution.teamOrders = [...(evolution.teamOrders || []), row].slice(-30);
+    if (row.response === 'obeyed') evolution.tyrese.teamOrdersObeyed += 1;
+    if (row.response === 'ignored') { evolution.tyrese.teamOrdersIgnored += 1; evolution.tyrese.competitiveTension = clampCareerValue(evolution.tyrese.competitiveTension + 8); }
+    story.careerEvolution = evolution;
+    return row;
+  }
+
+  window.DragonboundCareerEvolution = Object.freeze({
+    version:CAREER_EVOLUTION_VERSION,
+    racerAI:CAREER_RACER_AI,
+    raceWindows:CAREER_RACE_WINDOWS,
+    getState:() => state.story ? cloneValue(syncCareerEvolution(state.story)) : null,
+    getRaceConfig:(raceNumber) => state.story ? cloneValue(careerEvolutionRaceConfig(state.story, raceNumber)) : null,
+    resolveAttack:(opponentId, choice, context, roll) => state.story ? resolveCareerAttackBattle(state.story, opponentId, choice, context || {}, roll === undefined ? Math.random() : roll) : null,
+    resolveDefence:(opponentId, choice, context, roll) => state.story ? resolveCareerDefenceBattle(state.story, opponentId, choice, context || {}, roll === undefined ? Math.random() : roll) : null,
+    chapterTypeCanFollow:(type) => state.story ? careerChapterTypeCanFollow(state.story, type) : false,
+    worldReaction:() => state.story ? cloneValue(careerWorldReactionConfig(state.story)) : null
+  });
+
   function defaultQuickquillStory() {
     return {
       id: 'quickquill-against-the-odds',
-      version: 7,
+      version: 15,
       chapter: 'prologue',
       scene: 'q0',
       beat: 0,
-      completed: { prologue: false, canto: false, downtime: false, blackglass: false },
+      completed: { prologue: false, canto: false, downtime: false, blackglass: false, seat: false, crownWeek: false, practiceQualifying: false, raceWeekend: false },
       identity: { heart: 0, fire: 0, focus: 0 },
       relationships: {
         quickquillTrust: 50,
@@ -1103,6 +2362,77 @@
           memory:''
         }
       },
+      chapter5: {
+        reviewReason:'',
+        developmentPriority:'',
+        simulator:{completed:false,index:0,answers:[],feedback:'',metrics:{reading:50,energy:50,aggression:50,team:50},profile:''},
+        media:{completed:false,answers:[],headlines:[],scores:{confidence:0,team:0,candid:0,edge:0},reputation:''},
+        sofia:{discovered:false,told:'',reply:''},
+        freeTime:{activities:[],eventId:'',eventChoice:'',completed:false},
+        lumerreRole:'',
+        finalPromise:''
+      },
+      chapter6: {
+        crownWeek:{
+          started:false,
+          completed:false,
+          arrivalStyle:'',
+          village:{visited:[],encounters:[],encounterChoices:{},inboxRead:[],rumourId:'',rumourSeen:false,completed:false},
+          paradeStyle:'',
+          challenge:{started:false,completed:false,stage:0,reaction:null,slalom:null,climb:null,sprint:null,playerPoints:{reaction:0,slalom:0,climb:0,sprint:0},totalPoints:0,rank:null,standings:[]},
+          reception:{conversations:[],choices:{},overlookUnlocked:false,overlookSeen:false,overlookChoice:'',completed:false},
+          fameAtArrival:'',
+          completedAt:''
+        },
+        practiceQualifying:{
+          started:false,
+          completed:false,
+          priority:'',
+          practice:{
+            completed:false,
+            run1:null,
+            run2:null,
+            classification:[],
+            setup:{frontResponse:54,stability:56,endurance:52,qualifyingTrim:48,confidence:58},
+            diagnosis:{issue:'',choice:'',correct:false,completed:false},
+            setupApplied:false
+          },
+          qualifying:{
+            completed:false,
+            run1:null,
+            run2:null,
+            run3:null,
+            window:'',
+            bestLapMs:0,
+            position:null,
+            grid:[],
+            tyresePosition:null,
+            tyreseLapMs:0,
+            headline:'',
+            completedAt:''
+          },
+          completedAt:''
+        }
+,
+        raceWeekend:{
+          started:false,
+          completed:false,
+          phase:'grid',
+          startPosition:null,
+          tyreseStart:null,
+          currentPosition:null,
+          teamOrder:'',
+          battleChoice:'',
+          finalCall:'',
+          finalPosition:null,
+          tyreseFinish:null,
+          headline:'',
+          narrative:'',
+          badge:'',
+          log:[],
+          completedAt:''
+        }
+      },
       chapter3: {
         cantoAttitude: '',
         roomKeyReceived: false,
@@ -1121,6 +2451,7 @@
         blackglassInitialAttitude: ''
       },
       careerHub: { inboxRead: [] },
+      careerEvolution: defaultCareerEvolution(),
       history: []
     };
   }
@@ -1131,11 +2462,13 @@
     if ((Number(raw.version) || 1) < fallback.version && !raw.completed?.prologue) return fallback;
     const rawChapter3 = raw.chapter3 && typeof raw.chapter3 === 'object' ? raw.chapter3 : {};
     const rawChapter4 = raw.chapter4 && typeof raw.chapter4 === 'object' ? raw.chapter4 : {};
+    const rawChapter5 = raw.chapter5 && typeof raw.chapter5 === 'object' ? raw.chapter5 : {};
+    const rawChapter6 = raw.chapter6 && typeof raw.chapter6 === 'object' ? raw.chapter6 : {};
     const story = {
       ...fallback,
       ...cloneValue(raw),
       version: fallback.version,
-      completed: { ...fallback.completed, ...(raw.completed || {}) },
+      completed: { ...fallback.completed, ...(raw.completed || {}), raceWeekend: !!(raw.completed?.raceWeekend) },
       identity: { ...fallback.identity, ...(raw.identity || {}) },
       relationships: { ...fallback.relationships, ...(raw.relationships || {}) },
       choices: { ...(raw.choices || {}) },
@@ -1152,6 +2485,79 @@
         roomActions: Array.isArray(rawChapter4.roomActions) ? rawChapter4.roomActions.slice(0,3) : [],
         raceMemory: Array.isArray(rawChapter4.raceMemory) ? rawChapter4.raceMemory.slice(-24) : [],
         afterHours: { ...fallback.chapter4.afterHours, ...(rawChapter4.afterHours || {}) }
+      },
+      chapter5: {
+        ...fallback.chapter5,
+        ...cloneValue(rawChapter5),
+        simulator:{
+          ...fallback.chapter5.simulator,
+          ...(rawChapter5.simulator || {}),
+          answers:Array.isArray(rawChapter5.simulator?.answers)?rawChapter5.simulator.answers.slice(0,6):[],
+          metrics:{...fallback.chapter5.simulator.metrics,...(rawChapter5.simulator?.metrics || {})}
+        },
+        media:{
+          ...fallback.chapter5.media,
+          ...(rawChapter5.media || {}),
+          answers:Array.isArray(rawChapter5.media?.answers)?rawChapter5.media.answers.slice(0,3):[],
+          headlines:Array.isArray(rawChapter5.media?.headlines)?rawChapter5.media.headlines.slice(0,3):[],
+          scores:{...fallback.chapter5.media.scores,...(rawChapter5.media?.scores || {})}
+        },
+        sofia:{...fallback.chapter5.sofia,...(rawChapter5.sofia || {})},
+        freeTime:{
+          ...fallback.chapter5.freeTime,
+          ...(rawChapter5.freeTime || {}),
+          activities:Array.isArray(rawChapter5.freeTime?.activities)?[...new Set(rawChapter5.freeTime.activities.map(String))].slice(0,3):[]
+        }
+      },
+      chapter6:{
+        ...fallback.chapter6,
+        ...cloneValue(rawChapter6),
+        crownWeek:{
+          ...fallback.chapter6.crownWeek,
+          ...(rawChapter6.crownWeek || {}),
+          village:{
+            ...fallback.chapter6.crownWeek.village,
+            ...(rawChapter6.crownWeek?.village || {}),
+            visited:Array.isArray(rawChapter6.crownWeek?.village?.visited)?[...new Set(rawChapter6.crownWeek.village.visited.map(String))].slice(0,12):[],
+            encounters:Array.isArray(rawChapter6.crownWeek?.village?.encounters)?[...new Set(rawChapter6.crownWeek.village.encounters.map(String))].slice(0,8):[],
+            encounterChoices:{...(rawChapter6.crownWeek?.village?.encounterChoices || {})},
+            inboxRead:Array.isArray(rawChapter6.crownWeek?.village?.inboxRead)?[...new Set(rawChapter6.crownWeek.village.inboxRead.map(String))].slice(0,12):[]
+          },
+          challenge:{
+            ...fallback.chapter6.crownWeek.challenge,
+            ...(rawChapter6.crownWeek?.challenge || {}),
+            playerPoints:{...fallback.chapter6.crownWeek.challenge.playerPoints,...(rawChapter6.crownWeek?.challenge?.playerPoints || {})},
+            standings:Array.isArray(rawChapter6.crownWeek?.challenge?.standings)?rawChapter6.crownWeek.challenge.standings.slice(0,7).map(row=>({...row})):[]
+          },
+          reception:{
+            ...fallback.chapter6.crownWeek.reception,
+            ...(rawChapter6.crownWeek?.reception || {}),
+            conversations:Array.isArray(rawChapter6.crownWeek?.reception?.conversations)?[...new Set(rawChapter6.crownWeek.reception.conversations.map(String))].slice(0,8):[],
+            choices:{...(rawChapter6.crownWeek?.reception?.choices || {})}
+          }
+        },
+        practiceQualifying:{
+          ...fallback.chapter6.practiceQualifying,
+          ...(rawChapter6.practiceQualifying || {}),
+          practice:{
+            ...fallback.chapter6.practiceQualifying.practice,
+            ...(rawChapter6.practiceQualifying?.practice || {}),
+            setup:{...fallback.chapter6.practiceQualifying.practice.setup,...(rawChapter6.practiceQualifying?.practice?.setup || {})},
+            diagnosis:{...fallback.chapter6.practiceQualifying.practice.diagnosis,...(rawChapter6.practiceQualifying?.practice?.diagnosis || {})},
+            classification:Array.isArray(rawChapter6.practiceQualifying?.practice?.classification)?rawChapter6.practiceQualifying.practice.classification.slice(0,7).map(row=>({...row})):[]
+          },
+          qualifying:{
+            ...fallback.chapter6.practiceQualifying.qualifying,
+            ...(rawChapter6.practiceQualifying?.qualifying || {}),
+            grid:Array.isArray(rawChapter6.practiceQualifying?.qualifying?.grid)?rawChapter6.practiceQualifying.qualifying.grid.slice(0,7).map(row=>({...row})):[]
+          }
+        }
+,
+        raceWeekend:{
+          ...fallback.chapter6.raceWeekend,
+          ...(rawChapter6.raceWeekend || {}),
+          log:Array.isArray(rawChapter6.raceWeekend?.log)?rawChapter6.raceWeekend.log.slice(0,16).map(row=>({...row})):[]
+        }
       },
       chapter3: {
         ...fallback.chapter3,
@@ -1170,6 +2576,7 @@
         ...(raw.careerHub && typeof raw.careerHub === 'object' ? raw.careerHub : {}),
         inboxRead: Array.isArray(raw.careerHub?.inboxRead) ? [...new Set(raw.careerHub.inboxRead.map(String))].slice(-64) : []
       },
+      careerEvolution: normaliseCareerEvolution(raw.careerEvolution),
       history: Array.isArray(raw.history) ? raw.history.slice(-100) : []
     };
     const sceneExists = ALL_QUICKQUILL_SCENES.some(scene => scene.id === story.scene);
@@ -1194,11 +2601,217 @@
       story.beat = 3;
       story.history = [...(story.history || []), { scene:'q26', event:'blackglass-v34-18-3-after-hours-migration' }].slice(-100);
     }
+    // V34.23 repair: a handful of completed Blackglass saves could present the
+    // Chapter Five card through the older locked-card styling. Preserve the
+    // explicit completion flag when present, and recover it only from strong
+    // end-of-chapter evidence for older saves.
+    if (!story.completed?.blackglass && blackglassChapterComplete(story)) {
+      story.completed = { ...(story.completed || {}), blackglass: true };
+      story.chapter = story.completed?.seat ? 'lumerre' : 'pressure';
+      story.history = [...(story.history || []), { scene:'q31', event:'blackglass-completion-repair-v34-23' }].slice(-100);
+    }
+    // V34.26 Career Evolution migration is deliberately data-driven and
+    // idempotent. Existing saves are rebuilt from their real Canto/Blackglass
+    // results instead of inventing placements or asking the player to restart.
+    syncCareerEvolution(story);
     return story;
   }
 
   function isCatAsthmaTester() {
     return accountKey(username()) === 'catasthma' && state.activeSave?.team_id === 'quickquill';
+  }
+
+  function testerReplayActive() {
+    return !!(isCatAsthmaTester() && state.testerReplay?.active);
+  }
+
+  function testerReplayChapterDefinition(chapterId) {
+    return TESTER_REPLAY_CHAPTERS.find(chapter => chapter.id === String(chapterId || '')) || null;
+  }
+
+  function setReplayCompletionGate(story, through) {
+    const order = ['prologue','canto','downtime','blackglass','seat','crownWeek','practiceQualifying','raceWeekend'];
+    const completionIndex = Math.max(-1, order.indexOf(through));
+    story.completed = { ...(story.completed || {}) };
+    order.forEach((key, index) => { story.completed[key] = completionIndex >= 0 && index <= completionIndex; });
+  }
+
+  function prepareTesterReplayStory(chapterId, sourceStory) {
+    const definition = testerReplayChapterDefinition(chapterId);
+    if (!definition) return null;
+    const defaults = defaultQuickquillStory();
+    let replay = normaliseQuickquillStory(cloneValue(sourceStory || defaults));
+
+    // Replay is intentionally isolated from the live career. Prerequisite
+    // completion flags are staged only inside this temporary copy so every
+    // implemented chapter can be launched regardless of the live save state.
+    if (chapterId === 'prologue') {
+      replay = normaliseQuickquillStory(cloneValue(defaults));
+      replay.scene = 'q0';
+      replay.chapter = 'prologue';
+      replay.beat = 0;
+      setReplayCompletionGate(replay, '');
+    } else if (chapterId === 'canto') {
+      setReplayCompletionGate(replay, 'prologue');
+      replay.chapter = 'race-one'; replay.scene = 'q4'; replay.beat = 0;
+      replay.race = cloneValue(defaults.race);
+      replay.chapter3 = cloneValue(defaults.chapter3);
+      replay.chapter4 = cloneValue(defaults.chapter4);
+      replay.blackglassRace = cloneValue(defaults.blackglassRace);
+      replay.chapter5 = cloneValue(defaults.chapter5);
+      replay.chapter6 = cloneValue(defaults.chapter6);
+    } else if (chapterId === 'downtime') {
+      setReplayCompletionGate(replay, 'canto');
+      replay.chapter = 'downtime'; replay.scene = 'q9'; replay.beat = 0;
+      replay.chapter3 = cloneValue(defaults.chapter3);
+      replay.chapter4 = cloneValue(defaults.chapter4);
+      replay.blackglassRace = cloneValue(defaults.blackglassRace);
+      replay.chapter5 = cloneValue(defaults.chapter5);
+      replay.chapter6 = cloneValue(defaults.chapter6);
+    } else if (chapterId === 'blackglass') {
+      setReplayCompletionGate(replay, 'downtime');
+      replay.chapter = 'blackglass'; replay.scene = 'q18'; replay.beat = 0;
+      replay.chapter4 = cloneValue(defaults.chapter4);
+      replay.blackglassRace = cloneValue(defaults.blackglassRace);
+      replay.chapter5 = cloneValue(defaults.chapter5);
+      replay.chapter6 = cloneValue(defaults.chapter6);
+    } else if (chapterId === 'seat') {
+      setReplayCompletionGate(replay, 'blackglass');
+      replay.chapter = 'seat'; replay.scene = 'q32'; replay.beat = 0;
+      replay.chapter5 = cloneValue(defaults.chapter5);
+      replay.chapter6 = cloneValue(defaults.chapter6);
+    } else if (chapterId === 'crown-week') {
+      setReplayCompletionGate(replay, 'seat');
+      replay.chapter = 'lumerre-crown-week'; replay.scene = 'q40'; replay.beat = 0;
+      replay.chapter6 = cloneValue(defaults.chapter6);
+      replay.chapter6.crownWeek.started = true;
+      replay.chapter6.crownWeek.fameAtArrival = syncCareerEvolution(replay).reputation?.fame || 0;
+    } else if (chapterId === 'practice') {
+      setReplayCompletionGate(replay, 'crownWeek');
+      replay.chapter = 'lumerre-practice'; replay.scene = 'q46'; replay.beat = 0;
+      replay.chapter6 = { ...replay.chapter6, practiceQualifying:cloneValue(defaults.chapter6.practiceQualifying) };
+      replay.chapter6.practiceQualifying.started = true;
+    }
+    else if (chapterId === 'race-day') {
+      setReplayCompletionGate(replay, 'practiceQualifying');
+      replay.chapter = 'lumerre-race-day'; replay.scene = 'q56'; replay.beat = 0;
+      replay.chapter6 = { ...replay.chapter6, practiceQualifying:cloneValue(defaults.chapter6.practiceQualifying), raceWeekend:cloneValue(defaults.chapter6.raceWeekend) };
+      replay.completed.practiceQualifying = true;
+      replay.chapter6.practiceQualifying.completed = true;
+      replay.chapter6.practiceQualifying.qualifying.position = 2;
+      replay.chapter6.practiceQualifying.qualifying.tyresePosition = 3;
+      replay.chapter6.practiceQualifying.qualifying.bestLapMs = 81754;
+      replay.chapter6.raceWeekend.started = true;
+    }
+
+    // Remove completion-repair evidence from the temporary replay copy. In
+    // particular, older Blackglass recovery logic intentionally recognises
+    // historic finish records; QA replay must not let those records jump the
+    // tester straight back to a completed screen.
+    replay.history = [{ scene:definition.scene, event:'catasthma-tester-replay-start', chapterId:definition.id, at:new Date().toISOString() }];
+    const prepared = normaliseQuickquillStory(replay);
+    // Re-apply the temporary gate after normalisation as a final safeguard.
+    if (chapterId === 'prologue') setReplayCompletionGate(prepared, '');
+    else if (chapterId === 'canto') setReplayCompletionGate(prepared, 'prologue');
+    else if (chapterId === 'downtime') setReplayCompletionGate(prepared, 'canto');
+    else if (chapterId === 'blackglass') setReplayCompletionGate(prepared, 'downtime');
+    else if (chapterId === 'seat') setReplayCompletionGate(prepared, 'blackglass');
+    else if (chapterId === 'crown-week') setReplayCompletionGate(prepared, 'seat');
+    else if (chapterId === 'practice') setReplayCompletionGate(prepared, 'crownWeek');
+    else if (chapterId === 'race-day') setReplayCompletionGate(prepared, 'practiceQualifying');
+    prepared.scene = definition.scene;
+    prepared.beat = 0;
+    return prepared;
+  }
+
+  function clearStoryTransientState() {
+    stopAfterHoursGameplay(true);
+    clearCrownChallengeTimers();
+    clearLumerreQualifyingTimers();
+    state.downtimeActivity = '';
+    state.downtimeMessage = '';
+    state.blackglassActivity = '';
+    state.blackglassMessage = '';
+    state.afterHoursGame = null;
+    state.seatMediaReporter = '';
+    state.seatTransient = '';
+    state.crownEncounterId = '';
+    state.crownReceptionId = '';
+    state.crownWeekView = '';
+    state.crownTransient = '';
+    state.crownChallengeLive = null;
+    state.lumerrePracticeView = '';
+    state.lumerrePracticeTransient = '';
+    state.lumerreQualifyingLive = null;
+    state.lumerreRaceTransient = '';
+    state.lumerreRaceRuntime = null;
+    state.dutySession = null;
+    state.freeRoamMugClicks = 0;
+  }
+
+  function restoreTesterReplaySnapshot({ destination = 'story-journey', renderNow = true } = {}) {
+    if (!state.testerReplay?.active) return false;
+    const snapshot = cloneValue(state.testerReplay.snapshot || activeSaveState().story || defaultQuickquillStory());
+    const chapter = testerReplayChapterDefinition(state.testerReplay.chapterId);
+    state.testerReplay = null;
+    clearStoryTransientState();
+    state.story = normaliseQuickquillStory(snapshot);
+    state.storySaving = false;
+    state.storyError = '';
+    state.transitionLocked = false;
+    state.blackout = false;
+    state.mode = destination;
+    state.status = `QA replay ended${chapter ? ` · ${chapter.label}` : ''} · live save restored`;
+    if (renderNow) {
+      render();
+      syncMusic({ restart:true });
+    }
+    return true;
+  }
+
+  function beginTesterReplay(chapterId) {
+    if (!isCatAsthmaTester() || state.storySaving || state.transitionLocked) return;
+    const definition = testerReplayChapterDefinition(chapterId);
+    if (!definition) return;
+
+    // If another QA replay is already active, always base the next launch on
+    // the original live snapshot rather than stacking temporary test state.
+    const liveStory = state.testerReplay?.active
+      ? cloneValue(state.testerReplay.snapshot)
+      : cloneValue(state.story || activeSaveState().story || defaultQuickquillStory());
+    const replay = prepareTesterReplayStory(definition.id, liveStory);
+    if (!replay) return;
+
+    state.testerReplay = {
+      active:true,
+      chapterId:definition.id,
+      snapshot:liveStory,
+      startedAt:new Date().toISOString()
+    };
+    clearStoryTransientState();
+    state.story = replay;
+    state.mode = 'story';
+    state.storyError = '';
+    state.status = `CatAsthma QA replay · ${definition.label} · changes will NOT save`;
+    playTone(470);
+    render();
+    syncMusic({ restart:true });
+  }
+
+  function testerReplayHudMarkup() {
+    if (!testerReplayActive()) return '';
+    const chapter = testerReplayChapterDefinition(state.testerReplay?.chapterId);
+    return `<aside class="tester-replay-hud" role="status"><div><small>CATASTHMA QA · NON-DESTRUCTIVE REPLAY</small><strong>${escapeHtml(chapter?.label || 'Chapter replay')}</strong><span>Cloud save locked · all test choices are temporary</span></div><button type="button" data-tester-replay-exit>RESTORE LIVE SAVE</button></aside>`;
+  }
+
+  function ensureTesterReplayHud() {
+    root.querySelector('.tester-replay-hud')?.remove();
+    if (!testerReplayActive() || state.mode !== 'story') return;
+    root.insertAdjacentHTML('beforeend', testerReplayHudMarkup());
+    root.querySelector('[data-tester-replay-exit]')?.addEventListener('click', event => {
+      event.stopPropagation();
+      restoreTesterReplaySnapshot({ destination:'story-journey' });
+    });
   }
 
   function activeSaveState() {
@@ -1239,6 +2852,231 @@
 
   function chapter4State(story = state.story) {
     return story?.chapter4 || defaultQuickquillStory().chapter4;
+  }
+
+  function blackglassChapterComplete(story = state.story) {
+    if (story?.completed?.blackglass === true) return true;
+    const history = Array.isArray(story?.history) ? story.history : [];
+    if (history.some(entry => entry?.event === 'blackglass-chapter-complete')) return true;
+    const finalScene = QUICKQUILL_BLACKGLASS_SCENES[QUICKQUILL_BLACKGLASS_SCENES.length - 1];
+    const finalBeat = Math.max(0, Number(finalScene?.beats?.length || 1) - 1);
+    return story?.scene === finalScene?.id
+      && Number(story?.beat || 0) >= finalBeat
+      && story?.blackglassRace?.status === 'complete'
+      && !!story?.blackglassRace?.result;
+  }
+
+  function isSeatScene(story = state.story) {
+    return QUICKQUILL_SEAT_SCENES.some(scene => scene.id === story?.scene);
+  }
+
+  function chapter5State(story = state.story) {
+    return story?.chapter5 || defaultQuickquillStory().chapter5;
+  }
+
+  function isCrownWeekScene(story = state.story) {
+    return QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === story?.scene);
+  }
+
+  function chapter6State(story = state.story) {
+    return story?.chapter6 || defaultQuickquillStory().chapter6;
+  }
+
+  function crownWeekState(story = state.story) {
+    return chapter6State(story).crownWeek || defaultQuickquillStory().chapter6.crownWeek;
+  }
+
+  function isLumerrePracticeScene(story = state.story) {
+    return QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === story?.scene);
+  }
+
+  function practiceQualifyingState(story = state.story) {
+    return chapter6State(story).practiceQualifying || defaultQuickquillStory().chapter6.practiceQualifying;
+  }
+
+  function lumerreRaceDayState(story = state.story) {
+    return chapter6State(story).raceWeekend || defaultQuickquillStory().chapter6.raceWeekend;
+  }
+
+
+  function crownFameBand(story = state.story) {
+    const fame = Number(syncCareerEvolution(story).reputation?.fame) || 0;
+    if (fame >= 42) return 'rising';
+    if (fame >= 25) return 'recognisable';
+    if (fame >= 12) return 'curiosity';
+    return 'unknown';
+  }
+
+  function applyCareerEvolutionEffects(story, effects = {}) {
+    if (!story || !effects || typeof effects !== 'object') return;
+    const evolution = syncCareerEvolution(story);
+    Object.entries(effects.reputation || {}).forEach(([key, delta]) => {
+      if (!(key in evolution.reputation)) return;
+      evolution.reputation[key] = clampCareerValue((Number(evolution.reputation[key]) || 0) + Number(delta || 0));
+    });
+    Object.entries(effects.racecraft || {}).forEach(([key, delta]) => {
+      if (!(key in evolution.racecraft)) return;
+      evolution.racecraft[key] = clampCareerValue((Number(evolution.racecraft[key]) || 0) + Number(delta || 0));
+    });
+    Object.entries(effects.tyrese || {}).forEach(([key, delta]) => {
+      if (!(key in evolution.tyrese)) return;
+      if (['friendship','professionalRespect','competitiveTension'].includes(key)) evolution.tyrese[key] = clampCareerValue((Number(evolution.tyrese[key]) || 0) + Number(delta || 0));
+      else evolution.tyrese[key] = Math.max(0, (Number(evolution.tyrese[key]) || 0) + Number(delta || 0));
+    });
+    Object.entries(effects.rivalries || {}).forEach(([id, changes]) => {
+      if (!evolution.rivalries[id] || !changes || typeof changes !== 'object') return;
+      Object.entries(changes).forEach(([key, delta]) => {
+        if (!(key in evolution.rivalries[id])) return;
+        if (['intensity','respect'].includes(key)) evolution.rivalries[id][key] = clampCareerValue((Number(evolution.rivalries[id][key]) || 0) + Number(delta || 0));
+        else if (typeof evolution.rivalries[id][key] === 'number') evolution.rivalries[id][key] = Math.max(0, (Number(evolution.rivalries[id][key]) || 0) + Number(delta || 0));
+      });
+    });
+    evolution.careerPhase = deriveCareerPhase(evolution);
+    evolution.fameTier = deriveFameTier(evolution);
+    evolution.playerStyle = deriveCareerRacingStyle(story, evolution);
+    story.careerEvolution = evolution;
+  }
+
+  function crownVillageEncounterDirector(story = state.story) {
+    const evolution = syncCareerEvolution(story);
+    const c5 = chapter5State(story);
+    const picked = ['tyrese'];
+    const jalen = evolution.rivalries?.jalen || defaultCareerRivalry();
+    const sofia = evolution.rivalries?.sofia || defaultCareerRivalry();
+    if ((Number(jalen.intensity)||0) + (Number(story?.relationships?.jalenHeat)||0) >= (Number(sofia.intensity)||0) + 5) picked.push('jalen');
+    else if (c5.sofia?.discovered || c5.sofia?.reply || (Number(sofia.respect)||0) > 0) picked.push('sofia');
+    else picked.push('jalen');
+    const world = careerWorldReactionConfig(story);
+    if (world.autographMoments) picked.push('fan');
+    else if (world.fanRecognition || (Number(evolution.reputation?.media)||0) >= 8) picked.push('media');
+    else picked.push('nell');
+    const identity = careerIdentity(story).key;
+    const final = identity === 'fire' ? 'luka' : identity === 'focus' ? 'ren' : 'maya';
+    if (!picked.includes(final)) picked.push(final);
+    if (!picked.includes('nell') && picked.length < 5) picked.push('nell');
+    return [...new Set(picked)].slice(0,5);
+  }
+
+  function crownVillageMessages(story = state.story) {
+    const world = careerWorldReactionConfig(story);
+    return [
+      {id:'mara',from:'MARA VENN',time:'11:42',text:'Media route is optional until 13:00. If you choose to use it, use it deliberately.'},
+      {id:'tyrese',from:'TYRESE BELL',time:'11:51',text:'If Mara asks, I am definitely at the sponsor pavilion and not behind the Quickquill equipment cases.'},
+      {id:'nell',from:'NELL WREN',time:'12:03',text:'There is an adjustable timing gate on the east promenade. This is more interesting than lunch.'},
+      ...(world.autographMoments ? [{id:'media',from:'CROWN WEEK MEDIA',time:'12:14',text:`Public-interest note: requests mentioning ${storyDragonName()} are above the rookie-session forecast.`}] : [])
+    ];
+  }
+
+  function crownRumourForStory(story = state.story) {
+    const evolution = syncCareerEvolution(story);
+    const media = Number(evolution.reputation?.media)||0;
+    const tension = Number(evolution.tyrese?.competitiveTension)||0;
+    if (tension >= 12) return {id:'number-one',label:'PADDOCK RUMOUR',text:'Quickquill are already being asked whether Tyrese Bell remains the undisputed number one. The team has declined to discuss hierarchy.'};
+    if (media >= 10 || chapter5State(story).sofia?.discovered) return {id:'other-teams',label:'PADDOCK RUMOUR',text:'At least one rival team is reportedly monitoring Quickquill’s three-race assessment. Nobody agrees on which team.'};
+    return {id:'extension',label:'PADDOCK RUMOUR',text:'Quickquill may be preparing a contract extension framework before the Lumerre weekend is complete. The team has not confirmed this.'};
+  }
+
+  function crownChallengeOpponentId(story = state.story) {
+    const evolution = syncCareerEvolution(story);
+    if ((Number(evolution.tyrese?.competitiveTension)||0) >= 14) return 'tyrese';
+    const candidates = ['jalen','sofia','luka','ren','maya'];
+    candidates.sort((a,b) => (Number(evolution.rivalries?.[b]?.intensity)||0) - (Number(evolution.rivalries?.[a]?.intensity)||0));
+    const best = candidates[0];
+    return (Number(evolution.rivalries?.[best]?.intensity)||0) >= 4 ? best : 'ren';
+  }
+
+  function crownChallengeStandings(story = state.story, playerPointsOverride = null) {
+    const challenge = crownWeekState(story).challenge || {};
+    const points = playerPointsOverride || challenge.playerPoints || {};
+    const ids = ['jalen','sofia','luka','tyrese','ren','maya'];
+    const rows = ids.map(id => ({id,name:CAREER_RACER_AI[id].name,team:CAREER_RACER_AI[id].team,points:Object.keys(CROWN_CHALLENGE_AI_POINTS).reduce((sum,event)=>sum+(Number(CROWN_CHALLENGE_AI_POINTS[event][id])||0),0)}));
+    const playerTotal = ['reaction','slalom','climb','sprint'].reduce((sum,key)=>sum+(Number(points[key])||0),0);
+    rows.push({id:'player',name:storyDragonName(),team:'Quickquill',points:playerTotal});
+    rows.sort((a,b) => b.points-a.points || a.name.localeCompare(b.name));
+    return rows.map((row,index)=>({...row,rank:index+1}));
+  }
+
+  function crownReceptionDirector(story = state.story) {
+    const challenge = crownWeekState(story).challenge || {};
+    const opponent = challenge.sprint?.opponentId || crownChallengeOpponentId(story);
+    const pool = ['mara','tyrese','nell'];
+    const evolution = syncCareerEvolution(story);
+    const jalenIntensity = Number(evolution.rivalries?.jalen?.intensity)||0;
+    const sofiaRespect = Number(evolution.rivalries?.sofia?.respect)||0;
+    pool.push(jalenIntensity >= 4 ? 'jalen' : sofiaRespect >= 2 ? 'sofia' : 'jalen');
+    if (opponent && CROWN_RECEPTION_CONVERSATIONS[opponent] && !pool.includes(opponent)) pool.push(opponent);
+    if (!pool.includes('maya')) pool.push('maya');
+    return [...new Set(pool)].slice(0,6);
+  }
+
+  function crownChallengeRankLabel(story = state.story) {
+    const rank = Number(crownWeekState(story).challenge?.rank);
+    return rank ? ordinal(rank) : '—';
+  }
+
+  function clampSeatMetric(value) {
+    return Math.max(12, Math.min(88, Number(value) || 50));
+  }
+
+  function deriveSeatSimulatorProfile(story = state.story) {
+    const metrics = chapter5State(story).simulator?.metrics || {};
+    const r=Number(metrics.reading)||50, e=Number(metrics.energy)||50, a=Number(metrics.aggression)||50, t=Number(metrics.team)||50;
+    if (t >= 64 && r >= 58) return 'TEAM TACTICIAN';
+    if (a >= 66 && r >= 58) return 'CALCULATED ATTACKER';
+    if (e >= 66 && r >= 58) return 'PATIENT OPPORTUNIST';
+    if (a >= 68) return 'INSTINCTIVE RACER';
+    if (e >= 68) return 'ENERGY MANAGER';
+    if (r >= 67) return 'PRESSURE READER';
+    if (t >= 64) return 'TEAM OPERATOR';
+    return 'BALANCED RACER';
+  }
+
+  function deriveMediaReputation(story = state.story) {
+    const scores = chapter5State(story).media?.scores || {};
+    const entries=[['confidence',Number(scores.confidence)||0],['team',Number(scores.team)||0],['candid',Number(scores.candid)||0],['edge',Number(scores.edge)||0]].sort((a,b)=>b[1]-a[1]);
+    if (!entries.some(([, value]) => value > 0)) return 'UNESTABLISHED';
+    return ({confidence:'COMPOSED CONTENDER',team:'TEAM VOICE',candid:'CANDID PROFESSIONAL',edge:'HEADLINE MAKER'})[entries[0]?.[0]] || 'MEASURED';
+  }
+
+  function deriveLumerreRole(story = state.story) {
+    const c5=chapter5State(story), m=c5.simulator?.metrics || {};
+    const attack=(Number(m.aggression)||50) + (c5.developmentPriority==='attack'?10:0);
+    const team=(Number(m.team)||50) + (Number(story?.relationships?.quickquillTrust)||50)/4;
+    const control=(Number(m.reading)||50) + (c5.developmentPriority==='control'?10:0);
+    const efficiency=(Number(m.energy)||50) + (c5.developmentPriority==='efficiency'?10:0);
+    if (attack >= Math.max(team,control,efficiency)+5) return 'THE HUNTER';
+    if (team >= Math.max(attack,control,efficiency)+4) return 'THE TACTICIAN';
+    if (efficiency >= Math.max(attack,team,control)+3 || control >= 67) return 'THE ANCHOR';
+    return 'THE WILD CARD';
+  }
+
+  function seatIncidentId(story = state.story) {
+    const saved=chapter5State(story).freeTime?.eventId;
+    if (saved) return saved;
+    const seed=(String(username()).split('').reduce((sum,ch)=>sum+ch.charCodeAt(0),0)+(Number(story?.blackglassRace?.result?.rank)||3)*7)%SEAT_HQ_EVENTS.length;
+    return SEAT_HQ_EVENTS[seed]?.id || SEAT_HQ_EVENTS[0].id;
+  }
+
+  function seatMediaHeadline(reporterId, toneId) {
+    const dragon=storyDragonName();
+    const table={
+      'sporting-post':{
+        confident:`${dragon.toUpperCase()}: “BLACKGLASS WAS NOT A ONE-OFF”`,team:'QUICKQUILL ROOKIE CREDITS TEAM AFTER BLACKGLASS',honest:'ROOKIE: “I AM STILL LEARNING WHAT THIS LEVEL COSTS”',deflect:'QUICKQUILL RACER REFUSES TO DECLARE BLACKGLASS A BREAKTHROUGH',joke:'BLACKGLASS? “I MOSTLY REMEMBER THE RAIN.”',challenge:'ROOKIE PUSHES BACK: “ONE RACE DOES NOT PROVE ANYTHING”'
+      },
+      gridline:{
+        confident:'NO TEAM ORDERS? QUICKQUILL ROOKIE SAYS THE RACE WAS THEIRS TO READ',team:'“TYRESE HELPED ME GET HERE.” — ROOKIE PRAISES CAPTAIN',honest:'QUICKQUILL RACER ADMITS TEAM CONTEXT SHAPED BLACKGLASS',deflect:'TEAM-ORDER QUESTION GETS NO ANSWER FROM QUICKQUILL',joke:'“TYRESE ORDERS TEA. MARA ORDERS EVERYTHING ELSE.”',challenge:'ROOKIE REJECTS TEAM-ORDERS FRAMING'
+      },
+      'lumerre-daily':{
+        confident:'QUICKQUILL ROOKIE TARGETS LUMERRE PODIUM',team:'“THE TEAM NEEDS A RESULT, NOT A PREDICTION.”',honest:'ROOKIE: “LUMERRE IS A DIFFERENT QUESTION.”',deflect:'NO PODIUM PREDICTION FROM QUICKQUILL',joke:'“I HAVE NOT EVEN FOUND THE HOTEL YET.”',challenge:'ROOKIE: “EXPECTATION IS NOT A LAP TIME.”'
+      },
+      paddock:{
+        confident:'RISING QUICKQUILL RACER UNFAZED BY RIVAL INTEREST',team:'“I RACE FOR QUICKQUILL.” — MESSAGE TO PADDOCK',honest:'ROOKIE ACKNOWLEDGES OTHER TEAMS ARE WATCHING',deflect:'TRANSFER TALK SHUT DOWN BEFORE LUMERRE',joke:'“THEY CAN MONITOR MY TEA ORDER TOO.”',challenge:'QUICKQUILL RACER QUESTIONS TRANSFER-SPECULATION TIMING'
+      },
+      flightline:{
+        confident:`“${dragon.toUpperCase()} CAN HANDLE THIS LEVEL.”`,team:`ROOKIE PUTS ${dragon.toUpperCase()} AT CENTRE OF QUICKQUILL RISE`,honest:`“MOST OF THE BRAVE PART BELONGS TO ${dragon.toUpperCase()}.”`,deflect:'QUICKQUILL RACER DODGES CREDIT QUESTION',joke:`“${dragon.toUpperCase()} ACCEPTS PAYMENT IN SNACKS.”`,challenge:'ROOKIE REJECTS IDEA THAT DRAGON AND RACER CAN BE SEPARATED'
+      }
+    };
+    return table[reporterId]?.[toneId] || 'QUICKQUILL ROOKIE FACES THE PRESS';
   }
 
   function blackglassResultBand(story = state.story) {
@@ -1298,10 +3136,24 @@
       .replaceAll('[DRAGON_STATE]', blackglassDragonStateLabel())
       .replaceAll('[AFTER_HOURS_MEMORY]', chapter4State().afterHours?.memory ? `Memory: ${chapter4State().afterHours.memory}.` : '')
       .replaceAll('[AFTER_HOURS_NOTE]', chapter4State().afterHours?.timingFound ? `And somehow you have an unofficial midnight note on ${BLACKGLASS_SECTION_DEFS.find(section=>section.id===chapter4State().afterHours?.bonusSection)?.name || 'one extra sector'}.` : '')
-      .replaceAll('[GARRAN_AFTER_HOURS]', chapter4State().afterHours?.caught ? 'Also: your athlete has already completed one unscheduled event today.' : chapter4State().afterHours?.passReturned ? 'Also: thank you to whoever returned the venue pass. I am choosing not to investigate why it was found after midnight.' : '');
+      .replaceAll('[GARRAN_AFTER_HOURS]', chapter4State().afterHours?.caught ? 'Also: your athlete has already completed one unscheduled event today.' : chapter4State().afterHours?.passReturned ? 'Also: thank you to whoever returned the venue pass. I am choosing not to investigate why it was found after midnight.' : '')
+      .replaceAll('[SEAT_PROFILE]', chapter5State().simulator?.profile || deriveSeatSimulatorProfile())
+      .replaceAll('[DEVELOPMENT_PRIORITY]', String(chapter5State().developmentPriority || 'control').toUpperCase())
+      .replaceAll('[MEDIA_REPUTATION]', chapter5State().media?.reputation || deriveMediaReputation())
+      .replaceAll('[LUMERRE_ROLE]', chapter5State().lumerreRole || deriveLumerreRole())
+      .replaceAll('[CROWN_CHALLENGE_RANK]', crownChallengeRankLabel())
+      .replaceAll('[FAME_TIER]', syncCareerEvolution(state.story || defaultQuickquillStory()).fameTier || 'Unknown')
+      .replaceAll('[LUMERRE_QUALIFYING_POSITION]', lumerreQualifyingPositionLabel())
+      .replaceAll('[LUMERRE_QUALIFYING_TIME]', formatStoryLap(practiceQualifyingState().qualifying?.bestLapMs || 0))
+      .replaceAll('[LUMERRE_QUALIFYING_HEADLINE]', qualifyingHeadlineFor(practiceQualifyingState().qualifying?.position || 7))
+      .replaceAll('[LUMERRE_NELL_LINE]', lumerreQualifyingNellLine())
+      .replaceAll('[LUMERRE_TYRESE_LINE]', lumerreQualifyingTyreseLine())
+      .replaceAll('[LUMERRE_MARA_LINE]', lumerreQualifyingMaraLine());
   }
 
   function storyBeatText(beat) {
+    if (beat?.crownFameVariants && typeof beat.crownFameVariants === 'object') return storyCopy(beat.crownFameVariants[crownFameBand()] || beat.text || '');
+    if (beat?.crownOverlookVariants && typeof beat.crownOverlookVariants === 'object') return storyCopy(beat.crownOverlookVariants[crownWeekState().reception?.overlookSeen ? 'seen' : 'missed'] || beat.text || '');
     if (beat?.blackglassAfterHoursVariants && typeof beat.blackglassAfterHoursVariants === 'object') { const ah=chapter4State().afterHours||{},band=ah.secretFound?'secret':ah.caught?'caught':'clean'; return storyCopy(beat.blackglassAfterHoursVariants[band] || beat.text || ''); }
     if (beat?.blackglassResultVariants && typeof beat.blackglassResultVariants === 'object') return storyCopy(beat.blackglassResultVariants[blackglassResultBand()] || beat.text || '');
     if (beat?.blackglassQualifyingVariants && typeof beat.blackglassQualifyingVariants === 'object') return storyCopy(beat.blackglassQualifyingVariants[blackglassQualifyingBand()] || beat.text || '');
@@ -1326,13 +3178,28 @@
 
   async function persistStory(nextStory, { stageOverride = '' } = {}) {
     if (!state.client || !state.user || !state.activeSave) throw new Error('Your Career save is not connected. Return to the Career menu and load it again.');
+    if (testerReplayActive()) {
+      // CatAsthma QA replay is a sandbox. Story systems behave normally in
+      // memory, including races and chapter choices, but Supabase is never
+      // touched. Leaving replay restores the exact live snapshot.
+      state.storySaving = false;
+      state.storyError = '';
+      state.story = normaliseQuickquillStory(cloneValue(nextStory));
+      return { ...state.activeSave, state:{ ...activeSaveState(), story:cloneValue(state.story) }, testerReplay:true, stageOverride };
+    }
     const timestamp = new Date().toISOString();
     const previousState = activeSaveState();
     const saveState = {
       ...previousState,
       version: SAVE_VERSION,
       stage: stageOverride || (
-        QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.blackglass
+        QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.practiceQualifying
+          ? 'quickquill-lumerre-practice-qualifying'
+          : QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.crownWeek
+          ? 'quickquill-crown-week'
+          : QUICKQUILL_SEAT_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.seat
+          ? 'quickquill-seat-story'
+          : QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.blackglass
           ? 'quickquill-blackglass-story'
           : QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === nextStory.scene) && !nextStory.completed?.downtime
             ? 'quickquill-downtime-story'
@@ -1416,14 +3283,14 @@
     state.saves = Array.isArray(data) ? data : [];
     state.savesError = '';
     state.status = state.saves.length
-      ? 'Your Career save is ready — select your dragon to continue'
+      ? `${state.saves.length} Career ${state.saves.length === 1 ? 'save is' : 'saves are'} ready — choose one to continue or start another`
       : 'Start a career to create your first save';
     render();
   }
 
   function menuItems() {
     return [
-      { id: 'career', label: 'Start career mode', y: '58.6%', disabled: state.savesLoading || state.saves.length > 0, disabledLabel: state.savesLoading ? 'loading your account' : 'one Career save is allowed per account' },
+      { id: 'career', label: 'Start career mode', y: '58.6%', disabled: state.savesLoading, disabledLabel: 'loading your account' },
       { id: 'dragon', label: 'Select a dragon', y: '65.2%', disabled: state.savesLoading || !state.saves.length, disabledLabel: state.savesLoading ? 'loading your account' : 'create a career first' },
       { id: 'back', label: 'Back', y: '72.3%', disabled: false }
     ];
@@ -1453,6 +3320,18 @@
       </div>`;
   }
 
+  function careerSaveProgress(save) {
+    const savedState = save?.state && typeof save.state === 'object' ? save.state : {};
+    const story = save?.team_id === 'quickquill' ? normaliseQuickquillStory(savedState.story) : null;
+    if (!story) return 'Career started';
+    if (story.completed?.seat) return 'Chapter 5 complete · Lumerre next';
+    if (blackglassChapterComplete(story)) return 'Chapter 5 ready · A Seat at the Table';
+    if (story.completed?.downtime) return 'Chapter 4 · Blackglass';
+    if (story.completed?.canto) return 'Chapter 3 · Quickquill downtime';
+    if (story.completed?.prologue) return 'Chapter 2 · Canto Plains';
+    return 'Chapter 1 · The Impossible Contract';
+  }
+
   function savePickerMarkup() {
     if (!state.savePickerOpen) return '';
     const list = state.saves.map(save => {
@@ -1465,7 +3344,8 @@
           <div class="career-save-copy">
             <small>${escapeHtml(save.save_name || 'Dragonbound Career')}</small>
             <strong>${escapeHtml(save.sponsor)}</strong>
-            <span>Racing with ${escapeHtml(save.racer)}</span>
+            <span>${escapeHtml(careerDragon(save)?.name || username())} · Racing with ${escapeHtml(save.racer)}</span>
+            <span class="career-save-progress">${escapeHtml(careerSaveProgress(save))}</span>
             <time>${escapeHtml(dateText)}</time>
           </div>
           <button type="button" data-load-save="${escapeHtml(save.id)}" ${state.busy ? 'disabled' : ''}>${state.busy ? 'LOADING…' : 'LOAD CAREER'}</button>
@@ -1475,7 +3355,7 @@
       <div class="career-save-backdrop" role="presentation">
         <section class="career-save-panel" role="dialog" aria-modal="true" aria-labelledby="careerSaveTitle">
           <header>
-            <div><small>YOUR DRAGONBOUND HISTORY</small><h2 id="careerSaveTitle">Load career</h2><p>Continue ${escapeHtml(username())}'s saved racing career.</p></div>
+            <div><small>YOUR DRAGONBOUND HISTORY</small><h2 id="careerSaveTitle">Choose a career</h2><p>${escapeHtml(username())} can keep multiple independent Career Mode saves.</p></div>
             <button type="button" data-close-saves aria-label="Close saved careers">×</button>
           </header>
           <div class="career-save-list">${list || '<p class="career-save-empty">No careers have been created yet.</p>'}</div>
@@ -1594,7 +3474,7 @@
   function renderHub() {
     const save = state.activeSave;
     const activeTeam = save ? TEAMS.find(team => team.id === save.team_id) : null;
-    const storyJourneyUnlocked = activeTeam?.id === 'quickquill' && activeSaveState().story?.completed?.prologue === true;
+    const storyJourneyUnlocked = activeTeam?.id === 'quickquill' && (activeSaveState().story?.completed?.prologue === true || isCatAsthmaTester());
     const activeDragon = save ? careerDragon(save) : null;
     const activeAvatar = activeTeam && activeDragon
       ? `team-avatars/${activeTeam.id}/${activeDragon.asset}`
@@ -1614,7 +3494,7 @@
           ${storyJourneyUnlocked ? `<div class="hub-story-journey-badge" aria-hidden="true"><i></i><span><small>PROLOGUE COMPLETE</small><strong>STORY JOURNEY UNLOCKED</strong></span></div>` : ''}
           ${save ? `<div class="active-career-chip"><small>ACTIVE CAREER</small><strong>${escapeHtml(save.sponsor)}</strong><span>${escapeHtml(save.racer)}</span></div>` : ''}
           ${careerDeskBarMarkup()}
-          ${isCatAsthmaTester() ? `<button type="button" class="story-reset-test" data-reset-story><small>CatAsthma test control</small><strong>RESET QUICKQUILL STORY</strong></button>` : ''}
+          ${isCatAsthmaTester() ? `<div class="catasthma-test-controls"><button type="button" class="story-replay-test" data-tester-replay-menu><small>CatAsthma QA</small><strong>REPLAY ANY CHAPTER</strong></button><button type="button" class="story-reset-test" data-reset-story><small>CatAsthma test control</small><strong>RESET QUICKQUILL STORY</strong></button></div>` : ''}
         </div><div class="hub-screen-vignette" aria-hidden="true"></div>
         <div class="hub-status-toast" role="status">${escapeHtml(state.status || `${save?.sponsor || 'Career'} loaded`)}</div>
         ${careerDeskOverlayMarkup()}
@@ -1644,7 +3524,7 @@
           void fadeTo('meet-teams', { restartMusic: false, duration: 360 });
           return;
         }
-        if (item.id === 'profile') { openCareerPanel('dragon'); return; }
+        if (item.id === 'profile') { openCareerPanel('evolution'); return; }
         if (item.id === 'trophies') { openCareerPanel('records'); return; }
         if (item.id === 'favourites') { openCareerPanel('memories'); return; }
         state.status = `${item.label} will continue in the next Career Mode update`;
@@ -1667,6 +3547,10 @@
         void persistCareerHubRead(id);
       } else { render(); }
     }));
+    root.querySelector('[data-tester-replay-menu]')?.addEventListener('click', () => {
+      state.story = normaliseQuickquillStory(state.story || activeSaveState().story || defaultQuickquillStory());
+      state.mode = 'story-journey'; state.storyError = ''; state.status = 'CatAsthma QA · choose any implemented chapter to replay'; playTone(265); render(); syncMusic({restart:true});
+    });
     root.querySelector('[data-reset-story]')?.addEventListener('click', () => { state.resetStoryConfirmOpen = true; state.storyError = ''; playTone(185); render(); });
     root.querySelector('[data-cancel-reset]')?.addEventListener('click', () => { state.resetStoryConfirmOpen = false; state.storyError = ''; playTone(170); render(); });
     root.querySelector('[data-confirm-reset]')?.addEventListener('click', () => { void resetQuickquillStory(); });
@@ -1699,7 +3583,8 @@
     if (sheet.folder) {
       const frame = Math.max(0, Math.min((sheet.frames || 1) - 1, Number(portrait.frame) || 0));
       const src = `${sheet.folder}/frame-${String(frame).padStart(2, '0')}.png`;
-      return `<div class="story-portrait is-${escapeHtml(portrait.side || 'right')} ${portrait.shadow ? 'is-shadowed' : ''}" aria-hidden="true"><img class="story-portrait-frame" src="${src}" alt=""></div>`;
+      const fallback = sheet.fallback ? ` data-portrait-fallback="${escapeHtml(sheet.fallback)}"` : '';
+      return `<div class="story-portrait is-${escapeHtml(portrait.side || 'right')} ${portrait.shadow ? 'is-shadowed' : ''}" aria-hidden="true"><img class="story-portrait-frame" src="${src}"${fallback} alt=""></div>`;
     }
     const frame = Math.max(0, Math.min((sheet.columns * sheet.rows) - 1, Number(portrait.frame) || 0));
     const column = frame % sheet.columns;
@@ -1707,6 +3592,25 @@
     const x = sheet.columns === 1 ? 0 : (column / (sheet.columns - 1)) * 100;
     const y = sheet.rows === 1 ? 0 : (row / (sheet.rows - 1)) * 100;
     return `<div class="story-portrait is-${escapeHtml(portrait.side || 'right')} ${portrait.shadow ? 'is-shadowed' : ''}" aria-hidden="true"><div class="story-portrait-sprite" style="--portrait-image:url('${sheet.source}');--portrait-size:${sheet.columns * 100}% ${sheet.rows * 100}%;--portrait-x:${x}%;--portrait-y:${y}%"></div></div>`;
+  }
+
+  function bindStoryPortraitFallbacks() {
+    root.querySelectorAll('img.story-portrait-frame').forEach(img => {
+      if (img.dataset.portraitFallbackBound === '1') return;
+      img.dataset.portraitFallbackBound = '1';
+      const recover = () => {
+        const fallback = img.dataset.portraitFallback || '';
+        if (fallback && img.dataset.portraitFallbackUsed !== '1') {
+          img.dataset.portraitFallbackUsed = '1';
+          img.src = fallback;
+          return;
+        }
+        img.closest('.story-portrait')?.classList.add('is-missing');
+        img.style.display = 'none';
+      };
+      img.addEventListener('error', recover);
+      if (img.complete && !img.naturalWidth) recover();
+    });
   }
 
   function storyPropMarkup(scene, beat) {
@@ -1745,8 +3649,8 @@
 
   function storyDragonMarkup(scene, beat) {
     if (!scene.showDragon || beat?.portrait || beat?.type === 'cinematic') return '';
-    if (QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === scene.id) || QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === scene.id)) {
-      const frameByScene = { q9:10,q11:4,q15:11,q16:9,q17:1,q18:0,q19:3,q20:11,q21:2,q22:1,q23:10,q24:9,q25:3,q26:11,q27:0,q28:2,q29:1,q30:4,q31:11 };
+    if (QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === scene.id) || QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === scene.id) || QUICKQUILL_SEAT_SCENES.some(item => item.id === scene.id) || QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === scene.id) || QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item => item.id === scene.id)) {
+      const frameByScene = { q9:10,q11:4,q15:11,q16:9,q17:1,q18:0,q19:3,q20:11,q21:2,q22:1,q23:10,q24:9,q25:3,q26:11,q27:0,q28:2,q29:1,q30:4,q31:11,q32:0,q33:2,q34:1,q35:3,q36:4,q37:11,q38:2,q39:9,q40:0,q41:1,q42:10,q43:9,q44:3,q45:4,q46:0,q55:2,q56:9 };
       return downtimeDragonMarkup(frameByScene[scene.id] ?? 0, 'is-story-dragon');
     }
     const dragon = careerDragon(state.activeSave);
@@ -1827,7 +3731,9 @@
 
   function careerCurrentChapter(story) {
     if (!story) return { eyebrow:'CAREER', title:'Career file', note:'This campaign has not started its story systems yet.' };
-    if (story.completed?.blackglass) return { eyebrow:'BETWEEN WEEKENDS', title:'A Seat at the Table', note:'Blackglass is complete. Your next chapter will begin from the Career Hub.' };
+    if (story.completed?.seat) return { eyebrow:'NEXT EVENT', title:'Lumerre — The Terraces', note:`${chapter5State(story).lumerreRole || deriveLumerreRole(story)} · the next race weekend is waiting.` };
+    if (isSeatScene(story)) return { eyebrow:'CAREER REVIEW', title:'A Seat at the Table', note:'Strategy, media attention and team politics are now part of the job.' };
+    if (story.completed?.blackglass) return { eyebrow:'BETWEEN WEEKENDS', title:'A Seat at the Table', note:'Blackglass is complete. The team review is ready.' };
     if (isBlackglassScene(story)) return { eyebrow:'RACE WEEKEND', title:'Blackglass Under Floodlights', note:'Qualifying, team choices and the northern night are shaping the weekend.' };
     if (story.completed?.downtime) return { eyebrow:'NEXT EVENT', title:'Blackglass', note:'The invitation is real. The northern weekend is ready.' };
     if (isDowntimeScene(story)) return { eyebrow:'QUICKQUILL HQ', title:'A Place at Quickquill', note:'Your career is becoming a life between races.' };
@@ -1887,6 +3793,11 @@
         tags:[c4.qualifying?.completed ? `Qualifying · ${ordinal(c4.qualifying.position || 3)}` : 'Qualifying pending', ah.memory ? `Memory · ${ah.memory}` : ''].filter(Boolean)
       });
     }
+    const seatStarted = isSeatScene(story) || story.completed?.seat || chapter5State(story).simulator?.answers?.length;
+    if (seatStarted) {
+      const c5=chapter5State(story);
+      entries.push({id:'seat',number:'05',status:story.completed?.seat?'complete':'current',title:'A Seat at the Table',location:'Quickquill Headquarters → Lumerre media suite',image:'story/chapter5/quickquill-strategy-room.webp',text:story.completed?.seat?`${storyDragonName()} left the Blackglass debrief with a permanent simulator profile of ${c5.simulator?.profile||deriveSeatSimulatorProfile(story)}, a media reputation of ${c5.media?.reputation||deriveMediaReputation(story)}, and a Lumerre role: ${c5.lumerreRole||deriveLumerreRole(story)}.`:'The post-Blackglass review has moved beyond lap times. Quickquill is now asking for judgement, public composure and decisions that affect the whole team.',tags:[c5.developmentPriority?`Development · ${String(c5.developmentPriority).toUpperCase()}`:'',c5.simulator?.profile?`Simulator · ${c5.simulator.profile}`:'',c5.media?.reputation?`Media · ${c5.media.reputation}`:''].filter(Boolean)});
+    }
     return entries;
   }
 
@@ -1911,7 +3822,8 @@
       mara: [Number(rel.maraBond)||0, [[20,'Formal'],[30,'Professional'],[40,'Warming'],[55,'Trusting'],[999,'Trusted']]],
       nell: [Number(rel.nellBond)||0, [[20,'Formal'],[30,'Professional'],[40,'Warming'],[55,'Trusting'],[999,'Trusted']]],
       steward: [Number(rel.stewardRespect)||0, [[1,'Formal'],[3,'Noted'],[6,'Respected'],[999,'Trusted at Blackglass']]],
-      rook: [Number(rel.rookRespect)||0, [[1,'Unknown'],[3,'Competitive'],[6,'Mutual respect'],[999,'Friendly rival']]]
+      rook: [Number(rel.rookRespect)||0, [[1,'Unknown'],[3,'Competitive'],[6,'Mutual respect'],[999,'Friendly rival']]],
+      sofia: [Number(rel.valecroftInterest)||0, [[1,'Distant'],[3,'Interested'],[6,'Watching closely'],[999,'Open line']]]
     };
     const [value, thresholds] = bands[id] || [0, [[999,'Unknown']]];
     for (const [limit,label] of thresholds) if (value < limit) return label;
@@ -1938,6 +3850,8 @@
         description:'Rook measures people by what they do on difficult circuits. The relationship sits somewhere between local rivalry and earned respect.',
         memories:[c4.rookResponse?'First paddock exchange':'', c4.eveningMoments?.includes('rook')?'Traded Blackglass stories after qualifying':'', c4.localTip?'Shared a local circuit tip':'', story.blackglassRace?.result?'Compared notes after the race':''].filter(Boolean)}
     ];
+    const c5=chapter5State(story);
+    if (c5.sofia?.discovered) items.push({id:'sofia',name:'Sofia Mendes',role:'Valecroft Captain',portrait:'story/portraits/sofia.png',available:true,description:'Sofia’s interest is deliberately informal. That makes it harder to classify and easier to remember.',memories:['Messaged after Blackglass',c5.sofia.told?`Message disclosed to ${c5.sofia.told}`:'Message kept private',c5.sofia.reply?`Reply · ${String(c5.sofia.reply).replaceAll('-',' ')}`:'No reply sent'].filter(Boolean)});
     return items.filter(item => item.available).map(item => ({...item, state:relationshipState(item.id,story), memories:item.memories.slice(0,4)}));
   }
 
@@ -1964,7 +3878,11 @@
     messages.push({id:'blackglass-invite',from:'Race Operations',subject:'BLACKGLASS · travel accreditation',stamp:'OFFICIAL · RACE TWO',important:true,available:story.completed?.downtime||isBlackglassScene(story)||story.completed?.blackglass,body:'Travel accreditation confirmed. Northern route allocation attached to the team file. Blackglass paddock access is conditional on venue registration with Garran on arrival.'});
     messages.push({id:'qualifying',from:'Nell Wren',subject:`Grid confirmed · ${ordinal(c4.qualifying?.position||3)}`,stamp:'ENGINEERING · BLACKGLASS',available:!!c4.qualifying?.completed,body:`Qualifying is locked. Start position: ${ordinal(c4.qualifying?.position||3)}. Deep-study anchors: ${blackglassStudiedText(story)}. Do not spend tonight trying to find another three tenths in your head.`});
     messages.push({id:'blackglass-result',from:'Mara Venn',subject:'Blackglass debrief',stamp:'QUICKQUILL · RACE TWO',important:true,available:!!story.blackglassRace?.result,body:`Blackglass is complete: ${ordinal(story.blackglassRace?.result?.rank||6)} at the flag. The result matters. So do the choices that got you there. We will discuss both when everybody has slept.`});
-    messages.push({id:'seat',from:'Quickquill Team Office',subject:'Next: A Seat at the Table',stamp:'CAREER · NEXT CHAPTER',available:!!story.completed?.blackglass,body:'Your next Career chapter is not open yet. When it begins, the question will be different: not whether you belong in the room, but what happens once people start saving you a seat.'});
+    const c5=chapter5State(story);
+    messages.push({id:'seat',from:'Quickquill Team Office',subject:'TEAM REVIEW · 09:00',stamp:'CAREER · CHAPTER FIVE',important:true,available:!!story.completed?.blackglass,body:story.completed?.seat?'Review archived. Simulator, media and Lumerre preparation have been added to the Career file.':'Strategy room. Attendance required. Blackglass is archived; the review is not.'});
+    messages.push({id:'media-clipping',from:'Quickquill Media Desk',subject:`Press profile · ${c5.media?.reputation||deriveMediaReputation(story)}`,stamp:'MEDIA · LUMERRE PREVIEW',available:!!c5.media?.completed,body:`Three questions answered. Current media profile: ${c5.media?.reputation||deriveMediaReputation(story)}. Lead clipping: ${c5.media?.headlines?.[0]||'No clipping selected.'}`});
+    messages.push({id:'sofia-message',from:'Sofia Mendes',subject:'Five minutes before Lumerre',stamp:'PRIVATE · PADDOCK',important:true,available:!!c5.sofia?.discovered,body:'Good job at Blackglass. If you have five minutes before Lumerre, come find me. — Sofia'});
+    messages.push({id:'lumerre-file',from:'Mara Venn',subject:'Lumerre · role confirmed',stamp:'QUICKQUILL · RACE THREE',important:true,available:!!story.completed?.seat,body:`Role: ${c5.lumerreRole||deriveLumerreRole(story)}. Development direction: ${String(c5.developmentPriority||'control').toUpperCase()}. Pack for sunlight. We leave on schedule.`});
     const read = new Set((story.careerHub?.inboxRead||[]).map(String));
     return messages.filter(m=>m.available).map(m=>({...m,read:read.has(m.id)}));
   }
@@ -1974,12 +3892,14 @@
     const cantoStarted=QUICKQUILL_CANTO_SCENES.some(scene=>scene.id===story.scene)||story.completed?.canto;
     const downtimeStarted=isDowntimeScene(story)||story.completed?.downtime;
     const blackglassStarted=isBlackglassScene(story)||story.completed?.blackglass;
+    const seatStarted=isSeatScene(story)||story.completed?.seat;
     const rows=[
       {id:'scout',day:'01',title:'Scouted',place:'Young Velmora League',detail:'Tyrese stays after the race.',complete:!!story.completed?.prologue,current:!story.completed?.prologue},
       {id:'canto',day:'02',title:'Canto race weekend',place:'Canto Plains',detail:'Preparation · grid · first professional start.',complete:!!story.completed?.canto,current:!!story.completed?.prologue&&!story.completed?.canto&&cantoStarted},
       {id:'hq',day:'03',title:'Quickquill downtime',place:'Quickquill HQ',detail:'Room · team duties · first evening · Blackglass invitation.',complete:!!story.completed?.downtime,current:!!story.completed?.canto&&!story.completed?.downtime&&downtimeStarted},
       {id:'blackglass',day:'04',title:'Blackglass weekend',place:'Northern Circuit',detail:'Arrival · circuit study · qualifying · After Hours · race.',complete:!!story.completed?.blackglass,current:!!story.completed?.downtime&&!story.completed?.blackglass&&blackglassStarted},
-      {id:'table',day:'05',title:'A Seat at the Table',place:'Quickquill',detail:'Pressure, people and consequences.',complete:false,current:false,upcoming:!!story.completed?.blackglass}
+      {id:'table',day:'05',title:'A Seat at the Table',place:'Quickquill',detail:'Strategy simulator · press · career politics · free time.',complete:!!story.completed?.seat,current:!!story.completed?.blackglass&&!story.completed?.seat&&seatStarted,upcoming:!!story.completed?.blackglass&&!seatStarted},
+      {id:'lumerre',day:'06',title:'Lumerre race weekend',place:'The Terraces',detail:'Race Three · public pressure · a new kind of circuit.',complete:false,current:false,upcoming:!!story.completed?.seat}
     ];
     let currentSeen=false;
     return rows.map((row,index)=>{
@@ -2008,17 +3928,19 @@
     else if(ah.timingFound) traits.push('Technical eye');
     if(c4.blackglassInitialAttitude==='curious'||story.choices?.blackglassInitialAttitude?.value==='curious') traits.push('Curious');
     if((story.race?.result?.rank||99)<=3||(story.blackglassRace?.result?.rank||99)<=3) traits.push('Podium proven');
+    const c5=chapter5State(story);
+    if(c5.simulator?.completed && c5.simulator?.profile) traits.push(c5.simulator.profile.replaceAll('_',' ').toLowerCase().replace(/(^|\s)\S/g,m=>m.toUpperCase()));
     return [...new Set(traits)].slice(0,6);
   }
 
   function careerDragonProfile(story) {
-    const dragon=careerDragon(state.activeSave), races=careerRaceRecords(story), starts=races.length, wins=races.filter(r=>Number(r.rank)===1).length, podiums=races.filter(r=>Number(r.rank)<=3).length;
-    const finishes=races.map(r=>Number(r.rank)).filter(Boolean), best=finishes.length?Math.min(...finishes):0;
+    const dragon=careerDragon(state.activeSave), evolution=story?syncCareerEvolution(story):defaultCareerEvolution(), records=evolution.records||{};
+    const starts=Math.max(0,Number(records.starts)||0), wins=Math.max(0,Number(records.wins)||0), podiums=Math.max(0,Number(records.podiums)||0), best=Number(records.bestFinish)||0;
     const c4=story?chapter4State(story):null, strategies=story?[story.race?.result?currentCantoStrategy(story):'',story.blackglassRace?.result?currentBlackglassStrategy(story):''].filter(Boolean):[];
     const identity=story?careerIdentity(story):{primary:'Developing'};
     const bond=Number(story?.relationships?.dragonBond)||0;
     const bondLabel=bond>=65?'In sync':bond>=55?'Strong':bond>=45?'Connected':'Developing';
-    return {dragon,starts,wins,podiums,best,identity:identity.primary,bond:bondLabel,traits:careerDragonTraits(story),strategies:[...new Set(strategies)],chapter:careerCurrentChapter(story),studied:c4?blackglassStudiedText(story):''};
+    return {dragon,starts,wins,podiums,best,identity:identity.primary,bond:bondLabel,traits:careerDragonTraits(story),strategies:[...new Set(strategies)],chapter:careerCurrentChapter(story),studied:c4?blackglassStudiedText(story):'',phase:careerPhaseLabel(evolution.careerPhase),style:evolution.playerStyle,fame:evolution.fameTier,recentForm:evolution.recentForm||[]};
   }
 
   function careerDeskBarMarkup() {
@@ -2056,6 +3978,82 @@
     </article>`).join('')}</div>`;
   }
 
+  function careerRivalryLabel(id, evolution) {
+    const entry = evolution?.rivalries?.[id] || defaultCareerRivalry();
+    const intensity = Number(entry.intensity) || 0;
+    const respect = Number(entry.respect) || 0;
+    if (id === 'tyrese') {
+      const tension = Number(evolution?.tyrese?.competitiveTension) || 0;
+      if (tension >= 55) return 'Teammate · intense competition';
+      if (tension >= 30) return 'Teammate · competitive edge';
+      if ((Number(evolution?.tyrese?.professionalRespect)||0) >= 50) return 'Trusted senior teammate';
+      return 'Senior teammate';
+    }
+    if (intensity >= 65 && respect >= 45) return 'Heated mutual rivalry';
+    if (intensity >= 65) return 'Heated rivalry';
+    if (intensity >= 38 && respect >= 30) return 'Respectful rivalry';
+    if (intensity >= 25) return 'Competitive interest';
+    if (respect >= 30) return 'Professional respect';
+    if (intensity >= 10) return 'On the radar';
+    return 'Paddock neutral';
+  }
+
+  function careerRacecraftBand(value) {
+    const score = Number(value) || 0;
+    if (score >= 78) return 'Elite';
+    if (score >= 68) return 'Front-running';
+    if (score >= 58) return 'Strong';
+    if (score >= 48) return 'Competitive';
+    if (score >= 40) return 'Developing';
+    return 'Rookie';
+  }
+
+  function careerEvolutionMarkup(story) {
+    if (!story) return careerDeskEmpty('Career evolution is waiting','Complete Career races and the sporting profile will build itself from the results you actually earn.');
+    const evolution = syncCareerEvolution(story);
+    const records = evolution.records || {};
+    const window = evolution.nextRaceWindow || careerPerformanceWindow((Number(records.starts)||0)+1);
+    const recent = [...(evolution.recentForm || [])].reverse();
+    const visibleRivals = CAREER_RIVAL_IDS
+      .map(id => ({id, racer:CAREER_RACER_AI[id], data:evolution.rivalries[id]}))
+      .filter(item => item.id === 'tyrese' || Number(item.data?.intensity) >= 5 || Number(item.data?.respect) >= 8)
+      .sort((a,b) => (b.id==='tyrese'?100:0)+(Number(b.data?.intensity)||0)+(Number(b.data?.respect)||0) - ((a.id==='tyrese'?100:0)+(Number(a.data?.intensity)||0)+(Number(a.data?.respect)||0)))
+      .slice(0,4);
+    const milestones = evolution.lastMilestones || [];
+    const best = Number(records.bestFinish) ? ordinal(Number(records.bestFinish)) : '—';
+    const expectedText = `${ordinal(window.expected?.[0] || 1)}–${ordinal(window.expected?.[1] || 3)}`;
+    const racecraftRows = [
+      ['PACE',evolution.racecraft.pace],
+      ['OVERTAKING',evolution.racecraft.overtaking],
+      ['DEFENDING',evolution.racecraft.defending],
+      ['CONSISTENCY',evolution.racecraft.consistency],
+      ['STAMINA MANAGEMENT',evolution.racecraft.staminaManagement],
+      ['PRESSURE HANDLING',evolution.racecraft.pressureHandling]
+    ];
+    const debugMarkup=isCatAsthmaTester()?`<details class="career-evolution-debug"><summary>ADMIN · CAREER EVOLUTION DEBUG</summary><pre>${escapeHtml(JSON.stringify({phase:evolution.careerPhase,racecraft:evolution.racecraft,reputation:evolution.reputation,records:evolution.records,tyrese:evolution.tyrese,rivalries:evolution.rivalries,nextRaceWindow:evolution.nextRaceWindow,chapterTypesUsed:evolution.chapterTypesUsed},null,2))}</pre></details>`:'';
+    return `<div class="career-evolution-profile">
+      <section class="career-evolution-hero">
+        <div><small>DRAGONBOUND CAREER EVOLUTION · SAVE-SPECIFIC</small><h2>${escapeHtml(careerPhaseLabel(evolution.careerPhase))}</h2><p>${escapeHtml(evolution.playerStyle)} · ${escapeHtml(evolution.fameTier)}</p></div>
+        <span><small>NEXT RACE EXPECTATION</small><strong>${escapeHtml(expectedText)}</strong><em>${escapeHtml(window.note || '')}</em></span>
+      </section>
+      <section class="career-evolution-statline">
+        <article><small>STARTS</small><strong>${Math.max(0,Number(records.starts)||0)}</strong></article>
+        <article><small>PODIUMS</small><strong>${Math.max(0,Number(records.podiums)||0)}</strong></article>
+        <article><small>WINS</small><strong>${Math.max(0,Number(records.wins)||0)}</strong></article>
+        <article><small>BEST FINISH</small><strong>${escapeHtml(best)}</strong></article>
+        <article><small>CAREER OVERTAKES</small><strong>${Math.max(0,Number(records.overtakes)||0)}</strong></article>
+      </section>
+      <div class="career-evolution-main">
+        <section class="career-evolution-card career-evolution-racecraft"><header><small>RACING DEVELOPMENT</small><h3>${escapeHtml(evolution.playerStyle)}</h3><p>The numbers stay under the hood; this is the sporting shape your actual races are producing.</p></header><div>${racecraftRows.map(([label,value])=>`<span style="--evo:${clampCareerValue(value)}%"><small>${label}</small><b>${escapeHtml(careerRacecraftBand(value))}</b><i><em></em></i></span>`).join('')}</div></section>
+        <section class="career-evolution-card"><header><small>RECENT FORM</small><h3>${recent.length ? 'Last career races' : 'No race form yet'}</h3></header><div class="career-form-strip">${recent.length?recent.map(item=>`<span class="${Number(item.finish)<=3?'is-podium':''} ${Number(item.finish)===1?'is-win':''}"><small>${escapeHtml(item.event)}</small><strong>${ordinal(item.finish)}</strong><em>${Math.max(0,Number(item.overtakes)||0)} OVT</em></span>`).join(''):'<p>Complete Canto and Blackglass to build a sporting form line.</p>'}</div>${milestones.length?`<div class="career-milestones"><small>CAREER MILESTONES</small>${milestones.map(item=>`<b>${escapeHtml(item)}</b>`).join('')}</div>`:''}</section>
+        <section class="career-evolution-card"><header><small>PADDOCK STATUS</small><h3>${escapeHtml(evolution.fameTier)}</h3><p>${escapeHtml(careerPhaseLabel(evolution.careerPhase))} · Quickquill trust and public expectation now move with results.</p></header><div class="career-reputation-grid"><span><small>FAME</small><b>${escapeHtml(evolution.fameTier)}</b></span><span><small>PADDOCK RESPECT</small><b>${escapeHtml(careerRacecraftBand(evolution.reputation.paddockRespect+25))}</b></span><span><small>MEDIA</small><b>${escapeHtml(story.chapter5?.media?.reputation || 'Developing')}</b></span><span><small>PRESSURE</small><b>${escapeHtml((Number(evolution.reputation.pressure)||0)>=55?'High':(Number(evolution.reputation.pressure)||0)>=30?'Building':'Manageable')}</b></span></div></section>
+        <section class="career-evolution-card"><header><small>COMPETITIVE RELATIONSHIPS</small><h3>The grid remembers</h3><p>Close races, overtakes, contact and repeated comparisons build these naturally.</p></header><div class="career-rivalry-list">${visibleRivals.length?visibleRivals.map(item=>`<span><i>${escapeHtml(item.racer.name.slice(0,1))}</i><p><strong>${escapeHtml(item.racer.name)}</strong><small>${escapeHtml(careerRivalryLabel(item.id,evolution))}</small></p><em>${Math.max(0,Number(item.data?.battles)||0)} BATTLES</em></span>`).join(''):'<p class="career-muted">No rivalry has earned a label yet.</p>'}</div></section>
+      </div>
+      <footer class="career-evolution-footer"><span><small>FIRST PODIUM</small><b>${evolution.firsts?.firstPodium?escapeHtml(evolution.firsts.firstPodium.event):'—'}</b></span><span><small>FIRST WIN</small><b>${evolution.firsts?.firstWin?escapeHtml(evolution.firsts.firstWin.event):'STILL AHEAD'}</b></span><span><small>TEAM ORDERS</small><b>${Math.max(0,(evolution.teamOrders||[]).length)} RECORDED</b></span></footer>
+      ${debugMarkup}
+    </div>`;
+  }
+
   function careerRelationshipsMarkup(story) {
     const people=careerRelationships(story);
     if(!people.length) return careerDeskEmpty('The paddock is still quiet','Relationships will appear as the Quickquill campaign introduces people who can remember your choices.');
@@ -2089,12 +4087,13 @@
     if(!dragon) return careerDeskEmpty('Dragon profile unavailable','This account does not yet have a mapped Dragonbound Career dragon.');
     const avatar=activeTeam?`team-avatars/${activeTeam.id}/${dragon.asset}`:dragon.asset;
     const tendencies=profile.strategies.length?profile.strategies.map(value=>value.toUpperCase()).join(' / '):'Still developing';
-    return `<div class="career-dragon-profile"><section class="career-dragon-hero"><div class="career-dragon-backdrop"></div><img loading="lazy" decoding="async" src="${avatar}" alt="${escapeHtml(dragon.name)}"><div><small>${escapeHtml(activeTeam?.sponsor||state.activeSave?.sponsor||'CAREER')} · RACER PROFILE</small><h2>${escapeHtml(dragon.name)}</h2><span>${escapeHtml(profile.chapter.title)}</span></div></section><section class="career-dragon-overview"><div class="career-dragon-statline"><span><small>STARTS</small><b>${profile.starts}</b></span><span><small>PODIUMS</small><b>${profile.podiums}</b></span><span><small>WINS</small><b>${profile.wins}</b></span><span><small>BEST</small><b>${profile.best?ordinal(profile.best):'—'}</b></span></div><div class="career-dragon-details"><article><small>CAREER IDENTITY</small><h3>${escapeHtml(profile.identity)}</h3><p>Developed from the decisions you have actually made during the Quickquill campaign.</p></article><article><small>DRAGON BOND</small><h3>${escapeHtml(profile.bond)}</h3><p>The partnership state is shown as a story relationship, not a raw hidden number.</p></article><article><small>RACE TENDENCY</small><h3>${escapeHtml(tendencies)}</h3><p>Built from the approaches carried into completed Career races.</p></article></div><div class="career-trait-list"><small>CAREER TRAITS</small>${profile.traits.length?profile.traits.map(trait=>`<span>${escapeHtml(trait)}</span>`).join(''):'<span>Developing</span>'}</div></section></div>`;
+    return `<div class="career-dragon-profile"><section class="career-dragon-hero"><div class="career-dragon-backdrop"></div><img loading="lazy" decoding="async" src="${avatar}" alt="${escapeHtml(dragon.name)}"><div><small>${escapeHtml(activeTeam?.sponsor||state.activeSave?.sponsor||'CAREER')} · RACER PROFILE</small><h2>${escapeHtml(dragon.name)}</h2><span>${escapeHtml(profile.phase)} · ${escapeHtml(profile.chapter.title)}</span></div></section><section class="career-dragon-overview"><div class="career-dragon-statline"><span><small>STARTS</small><b>${profile.starts}</b></span><span><small>PODIUMS</small><b>${profile.podiums}</b></span><span><small>WINS</small><b>${profile.wins}</b></span><span><small>BEST</small><b>${profile.best?ordinal(profile.best):'—'}</b></span></div><div class="career-dragon-details"><article><small>CAREER PHASE</small><h3>${escapeHtml(profile.phase)}</h3><p>Your sporting status now moves with results, consistency and the quality of opposition you beat.</p></article><article><small>RACING IDENTITY</small><h3>${escapeHtml(profile.style)}</h3><p>Derived from racecraft, Focus / Fire / Heart decisions and the Chapter Five simulator profile.</p></article><article><small>PADDOCK STATUS</small><h3>${escapeHtml(profile.fame)}</h3><p>Recognition grows naturally through podiums, wins, battles and media moments.</p></article><article><small>DRAGON BOND</small><h3>${escapeHtml(profile.bond)}</h3><p>The partnership state remains part of the Career file without becoming an arcade stat.</p></article></div><div class="career-trait-list"><small>CAREER TRAITS</small>${profile.traits.length?profile.traits.map(trait=>`<span>${escapeHtml(trait)}</span>`).join(''):'<span>Developing</span>'}</div><div class="career-trait-list"><small>RACE APPROACHES</small><span>${escapeHtml(tendencies)}</span></div></section></div>`;
   }
 
   function careerDeskBodyMarkup(panelId, story) {
     if(!story && state.activeSave?.team_id!=='quickquill') return careerDeskEmpty('Campaign archive not active',`${state.activeSave?.sponsor||'This team'} does not have a story campaign in this build yet. The Career Desk is ready to populate when that campaign is added.`);
     if(panelId==='records') return careerRaceRecordsMarkup(story);
+    if(panelId==='evolution') return careerEvolutionMarkup(story);
     if(panelId==='relationships') return careerRelationshipsMarkup(story);
     if(panelId==='memories') return careerMemoriesMarkup(story);
     if(panelId==='inbox') return careerInboxMarkup(story);
@@ -2900,6 +4899,7 @@
         </div><div class="story-screen-vignette" aria-hidden="true"></div>
       </section><div class="blackout ${state.blackout ? 'is-visible' : ''}" aria-hidden="true"></div>`;
 
+    bindChapterFiveBackgroundFallback(scene);
     cleanDuplicateSceneLayers();
     root.querySelector('[data-story-home]')?.addEventListener('click', event => { event.stopPropagation(); returnToHubFromStory(); });
 
@@ -3175,6 +5175,1425 @@
   }
 
 
+  const CHAPTER_FIVE_BACKGROUND_FALLBACKS = {
+    q32:'story/environments/03_Quickquill_Workshop.png',
+    q33:'story/environments/03_Quickquill_Workshop.png',
+    q34:'story/environments/03_Quickquill_Workshop.png',
+    q35:'story/environments/07_Lumerre_Terraces_and_Paddock.png',
+    q36:'story/environments/10_Quickquill_Lounge_Common_Room.png',
+    q37:'story/environments/10_Quickquill_Lounge_Common_Room.png',
+    q38:'story/environments/03_Quickquill_Workshop.png',
+    q39:'story/environments/07_Lumerre_Terraces_and_Paddock.png'
+  };
+
+  function bindChapterFiveBackgroundFallback(scene) {
+    if (!QUICKQUILL_SEAT_SCENES.some(item => item.id === scene?.id)) return;
+    const fallback = CHAPTER_FIVE_BACKGROUND_FALLBACKS[scene.id] || 'story/environments/03_Quickquill_Workshop.png';
+    root.querySelectorAll('img.story-backdrop,img.story-environment').forEach(image => {
+      image.addEventListener('error', () => {
+        if (image.dataset.chapterFiveFallback === '1') return;
+        image.dataset.chapterFiveFallback = '1';
+        console.warn('[Dragonbound Career Mode] Chapter Five background missing, using safe fallback', image.src);
+        image.src = fallback;
+      }, { once:true });
+    });
+  }
+
+  const CROWN_WEEK_BACKGROUND_FALLBACKS = {
+    q40:'story/environments/07_Lumerre_Terraces_and_Paddock.png',
+    q41:'story/environments/07_Lumerre_Terraces_and_Paddock.png',
+    q42:'story/environments/07_Lumerre_Terraces_and_Paddock.png',
+    q43:'story/environments/08_Lumerre_Crown_Circuit.png',
+    q44:'story/environments/07_Lumerre_Terraces_and_Paddock.png',
+    q45:'story/environments/10_Quickquill_Lounge_Common_Room.png'
+  };
+
+  function bindCrownWeekBackgroundFallback(scene) {
+    if (!QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === scene?.id)) return;
+    const fallback = CROWN_WEEK_BACKGROUND_FALLBACKS[scene.id] || 'story/environments/07_Lumerre_Terraces_and_Paddock.png';
+    root.querySelectorAll('img.story-backdrop,img.story-environment').forEach(image => {
+      image.addEventListener('error', () => {
+        if (image.dataset.crownWeekFallback === '1') return;
+        image.dataset.crownWeekFallback = '1';
+        console.warn('[Dragonbound Career Mode] Crown Week background missing, using safe Lumerre fallback', image.src);
+        image.src = fallback;
+      }, { once:true });
+    });
+  }
+
+  const LUMERRE_PRACTICE_BACKGROUND_FALLBACKS = {
+    q46:'story/environments/03_Quickquill_Workshop.png',q47:'story/environments/08_Lumerre_Crown_Circuit.png',q48:'story/environments/03_Quickquill_Workshop.png',q49:'story/environments/03_Quickquill_Workshop.png',q50:'story/environments/08_Lumerre_Crown_Circuit.png',q51:'story/environments/08_Lumerre_Crown_Circuit.png',q52:'story/environments/08_Lumerre_Crown_Circuit.png',q53:'story/environments/08_Lumerre_Crown_Circuit.png',q54:'story/environments/08_Lumerre_Crown_Circuit.png',q55:'story/environments/03_Quickquill_Workshop.png',q56:'story/environments/08_Lumerre_Crown_Circuit.png'
+  };
+  function bindLumerrePracticeBackgroundFallback(scene) {
+    if (!QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item=>item.id===scene?.id)) return;
+    const fallback=LUMERRE_PRACTICE_BACKGROUND_FALLBACKS[scene.id]||'story/environments/08_Lumerre_Crown_Circuit.png';
+    root.querySelectorAll('img.story-backdrop,img.story-environment').forEach(image=>image.addEventListener('error',()=>{if(image.dataset.lumerrePracticeFallback==='1')return;image.dataset.lumerrePracticeFallback='1';console.warn('[Dragonbound Career Mode] V34.28 background missing, using safe fallback',image.src);image.src=fallback;},{once:true}));
+  }
+
+  function seatStageShell(scene, sceneIndex, body, extraClass='') {
+    return `<section class="story-shell tone-${escapeHtml(scene.tone||'seat')} seat-story-shell" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}">
+      <img class="story-backdrop" src="${scene.background}" alt="" aria-hidden="true">
+      <div class="story-stage seat-stage ${extraClass}">
+        <img class="story-environment" src="${scene.background}" alt="${escapeHtml(scene.title)}">
+        <div class="story-light" aria-hidden="true"></div><div class="story-grain" aria-hidden="true"></div><div class="story-letterbox" aria-hidden="true"></div>
+        <header class="story-header"><div><small>QUICKQUILL: AGAINST THE ODDS</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-story-home>BACK TO HUB</button></header>
+        <div class="story-scene-counter" aria-hidden="true"><i style="--story-progress:${((sceneIndex+1)/QUICKQUILL_SEAT_SCENES.length)*100}%"></i><span>CAREER REVIEW ${sceneIndex+1} / ${QUICKQUILL_SEAT_SCENES.length}</span></div>
+        ${body}
+      </div><div class="story-screen-vignette" aria-hidden="true"></div>
+    </section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+  }
+
+  function bindSeatBack() {
+    root.querySelector('[data-story-home]')?.addEventListener('click', event=>{event.stopPropagation();returnToHubFromStory();});
+  }
+
+  function renderSeatSimulator(scene, beat, sceneIndex) {
+    const changed=state.story, c5=chapter5State(changed), sim=c5.simulator||defaultQuickquillStory().chapter5.simulator;
+    const index=Math.max(0,Math.min(SEAT_SIMULATOR_SCENARIOS.length-1,Number(sim.index)||0));
+    const scenario=SEAT_SIMULATOR_SCENARIOS[index];
+    const metrics={...defaultQuickquillStory().chapter5.simulator.metrics,...(sim.metrics||{})};
+    const completed=!!sim.completed;
+    const gauges=[['RACE READING',metrics.reading],['ENERGY',metrics.energy],['AGGRESSION',metrics.aggression],['TEAM DISCIPLINE',metrics.team]];
+    const feedback=sim.feedback || '';
+    const body=`<section class="seat-simulator" aria-live="polite">
+      <header><div><small>NELL WREN · TACTICAL SIMULATION</small><h1>${completed?'ASSESSMENT LOCKED':`SCENARIO ${String(index+1).padStart(2,'0')} · ${escapeHtml(scenario.title)}`}</h1></div><span>${completed?'6 / 6':`${index+1} / ${SEAT_SIMULATOR_SCENARIOS.length}`}</span></header>
+      <div class="seat-sim-layout">
+        <section class="seat-sim-track"><div class="seat-sim-sector"><small>ACTIVE SECTOR</small><strong>${escapeHtml(scenario.sector)}</strong></div><svg viewBox="0 0 760 360" role="img" aria-label="Simplified Lumerre simulation route"><path class="seat-route-shadow" d="M80 245 C130 70 300 85 332 178 S470 310 535 180 S650 82 700 145"/><path class="seat-route" d="M80 245 C130 70 300 85 332 178 S470 310 535 180 S650 82 700 145"/><circle class="seat-route-node" cx="${110+index*105}" cy="${index%2?155:215}" r="9"/></svg><div class="seat-sim-situation"><small>LIVE CALL</small><p>${escapeHtml(scenario.situation)}</p></div></section>
+        <aside class="seat-sim-telemetry"><small>QUICKQUILL LIVE TELEMETRY</small>${gauges.map(([label,val])=>`<div class="seat-gauge"><span><b>${escapeHtml(label)}</b><i>${Math.round(clampSeatMetric(val))}</i></span><em><u style="width:${clampSeatMetric(val)}%"></u></em></div>`).join('')}<div class="seat-sim-priority"><span>DEVELOPMENT</span><strong>${escapeHtml(String(c5.developmentPriority||'control').toUpperCase())}</strong></div></aside>
+      </div>
+      ${completed?`<section class="seat-assessment"><small>NELL'S ASSESSMENT</small><h2>${escapeHtml(sim.profile||deriveSeatSimulatorProfile(changed))}</h2><div>${gauges.map(([label,val])=>`<span><b>${escapeHtml(label)}</b><strong>${val>=62?'STRONG':val<=42?'RISK AREA':'BALANCED'}</strong></span>`).join('')}</div><p>There is no score to chase. This profile is how Quickquill now expects you to make decisions under pressure.</p><button type="button" data-seat-sim-finish>LOCK ASSESSMENT & CONTINUE</button></section>`:
+      feedback?`<section class="seat-sim-feedback"><small>SIMULATION RESPONSE</small><p>${escapeHtml(feedback)}</p><button type="button" data-seat-sim-next>${index===SEAT_SIMULATOR_SCENARIOS.length-1?'GENERATE ASSESSMENT':'NEXT SCENARIO'}</button></section>`:
+      `<div class="seat-sim-options">${scenario.options.map((option,i)=>`<button type="button" data-seat-sim-choice="${i}" ${state.storySaving?'disabled':''}><b>${String.fromCharCode(65+i)}</b><span><strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(option.note)}</small></span><i>›</i></button>`).join('')}</div>`}
+      ${state.storyError?`<div class="story-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}
+    </section>`;
+    root.innerHTML=seatStageShell(scene,sceneIndex,body,'is-seat-simulator'); bindChapterFiveBackgroundFallback(scene); bindSeatBack();
+    root.querySelectorAll('[data-seat-sim-choice]').forEach(button=>button.addEventListener('click',()=>void chooseSeatSimulatorOption(Number(button.dataset.seatSimChoice))));
+    root.querySelector('[data-seat-sim-next]')?.addEventListener('click',()=>void continueSeatSimulator());
+    root.querySelector('[data-seat-sim-finish]')?.addEventListener('click',()=>void finishSeatSimulator());
+  }
+
+  async function chooseSeatSimulatorOption(optionIndex) {
+    if (state.storySaving || state.transitionLocked) return;
+    const changed=cloneValue(state.story), c5=changed.chapter5, sim=c5.simulator;
+    const index=Math.max(0,Math.min(SEAT_SIMULATOR_SCENARIOS.length-1,Number(sim.index)||0)), scenario=SEAT_SIMULATOR_SCENARIOS[index], option=scenario?.options?.[optionIndex];
+    if(!option || sim.feedback) return;
+    sim.metrics={...sim.metrics}; Object.entries(option.effects||{}).forEach(([key,val])=>sim.metrics[key]=clampSeatMetric((Number(sim.metrics[key])||50)+Number(val||0)));
+    sim.answers=[...(sim.answers||[]),{scenario:scenario.id,option:optionIndex,label:option.label}].slice(0,6); sim.feedback=option.feedback;
+    applyStoryEffects(changed,option.story||{}); changed.history=[...(changed.history||[]),{scene:'q34',event:'simulator-call',scenario:scenario.id,option:option.label}].slice(-100);
+    state.story=changed; render(); try{await persistStory(changed,{stageOverride:'quickquill-seat-story'});}catch(error){state.storyError=error?.message||'Simulator choice could not be saved.';render();}
+  }
+
+  async function continueSeatSimulator() {
+    if(state.storySaving||state.transitionLocked)return;
+    const changed=cloneValue(state.story), sim=changed.chapter5.simulator;
+    if(!sim.feedback)return;
+    if((Number(sim.index)||0)>=SEAT_SIMULATOR_SCENARIOS.length-1){sim.completed=true;sim.profile=deriveSeatSimulatorProfile(changed);sim.feedback='';}
+    else {sim.index=(Number(sim.index)||0)+1;sim.feedback='';}
+    state.story=changed;render();try{await persistStory(changed,{stageOverride:'quickquill-seat-story'});}catch(error){state.storyError=error?.message||'Simulator progress could not be saved.';render();}
+  }
+
+  async function finishSeatSimulator() {
+    if(state.storySaving||state.transitionLocked)return;
+    const changed=cloneValue(state.story); changed.chapter5.simulator.completed=true; changed.chapter5.simulator.profile=changed.chapter5.simulator.profile||deriveSeatSimulatorProfile(changed);
+    const next=nextStoryPointer(changed); await saveStoryProgress(next.story,{transition:next.changedScene}); syncMusic({restart:true});
+  }
+
+  function renderSeatMediaScrum(scene, beat, sceneIndex) {
+    const c5=chapter5State(), media=c5.media||{}, answers=Array.isArray(media.answers)?media.answers:[], answered=new Set(answers.map(item=>item.reporter));
+    const active=SEAT_REPORTERS.find(r=>r.id===state.seatMediaReporter&&!answered.has(r.id));
+    const latest=(media.headlines||[]).slice(-1)[0]||'';
+    const body=`<section class="seat-media" aria-live="polite"><header><div><small>LUMERRE MEDIA PREVIEW</small><h1>PRESS SCRUM</h1></div><span>${answers.length} / 3 ANSWERED</span></header>
+      <div class="seat-media-main"><section class="seat-media-wall">${storyDragonMarkup(scene,{})}<div class="seat-media-status"><small>MEDIA REPUTATION</small><strong>${escapeHtml(media.reputation||deriveMediaReputation())}</strong><span>Choose three outlets. The others will write something anyway.</span></div>${latest?`<article class="seat-headline"><small>LATEST CLIPPING</small><h2>${escapeHtml(latest)}</h2></article>`:''}</section>
+      <aside class="seat-reporters">${active?`<button type="button" class="seat-reporter-back" data-seat-reporter-back>← OTHER REPORTERS</button><div class="seat-question"><small>${escapeHtml(active.name)} · ${escapeHtml(active.angle)}</small><h2>${escapeHtml(active.question)}</h2></div><div class="seat-tone-grid">${SEAT_MEDIA_TONES.map(t=>`<button type="button" data-seat-media-tone="${t.id}"><strong>${escapeHtml(t.label)}</strong><small>${escapeHtml(t.note)}</small></button>`).join('')}</div>`:`<small>SELECT A REPORTER</small>${SEAT_REPORTERS.map(r=>`<button type="button" class="seat-reporter ${answered.has(r.id)?'is-done':''}" data-seat-reporter="${r.id}" ${answered.has(r.id)||answers.length>=3?'disabled':''}><span><b>${escapeHtml(r.name)}</b><small>${escapeHtml(r.angle)}</small></span><i>${answered.has(r.id)?'✓':'›'}</i></button>`).join('')}${answers.length>=3?`<button type="button" class="seat-media-finish" data-seat-media-finish>END MEDIA SESSION</button>`:''}`}</aside></div>
+      <footer><span>CONFIDENT</span><span>TEAM-FIRST</span><span>HONEST</span><span>DEFLECT</span><span>JOKE</span><span>CHALLENGE</span></footer></section>`;
+    root.innerHTML=seatStageShell(scene,sceneIndex,body,'is-seat-media'); bindChapterFiveBackgroundFallback(scene); bindSeatBack();
+    root.querySelectorAll('[data-seat-reporter]').forEach(button=>button.addEventListener('click',()=>{state.seatMediaReporter=String(button.dataset.seatReporter||'');playTone(260);render();syncMusic();}));
+    root.querySelector('[data-seat-reporter-back]')?.addEventListener('click',()=>{state.seatMediaReporter='';render();syncMusic();});
+    root.querySelectorAll('[data-seat-media-tone]').forEach(button=>button.addEventListener('click',()=>void answerSeatMedia(String(button.dataset.seatMediaTone||''))));
+    root.querySelector('[data-seat-media-finish]')?.addEventListener('click',()=>void finishSeatMedia());
+  }
+
+  async function answerSeatMedia(toneId) {
+    if(state.storySaving||state.transitionLocked)return;
+    const reporter=SEAT_REPORTERS.find(r=>r.id===state.seatMediaReporter), tone=SEAT_MEDIA_TONES.find(t=>t.id===toneId); if(!reporter||!tone)return;
+    const changed=cloneValue(state.story), media=changed.chapter5.media; if((media.answers||[]).some(a=>a.reporter===reporter.id)||(media.answers||[]).length>=3)return;
+    const headline=seatMediaHeadline(reporter.id,tone.id); media.answers=[...(media.answers||[]),{reporter:reporter.id,tone:tone.id}].slice(0,3); media.headlines=[...(media.headlines||[]),headline].slice(0,3);
+    media.scores={...media.scores};Object.entries(tone.scores||{}).forEach(([key,val])=>media.scores[key]=(Number(media.scores[key])||0)+Number(val||0)); applyStoryEffects(changed,tone.effects||{}); media.reputation=deriveMediaReputation(changed);
+    changed.history=[...(changed.history||[]),{scene:'q35',event:'media-answer',reporter:reporter.id,tone:tone.id,headline}].slice(-100); state.seatMediaReporter=''; state.story=changed; render();
+    try{await persistStory(changed,{stageOverride:'quickquill-seat-story'});}catch(error){state.storyError=error?.message||'Media answer could not be saved.';render();}
+  }
+
+  async function finishSeatMedia() {
+    if(state.storySaving||state.transitionLocked)return; const changed=cloneValue(state.story); if((changed.chapter5.media.answers||[]).length<3)return;
+    changed.chapter5.media.completed=true; changed.chapter5.media.reputation=deriveMediaReputation(changed); const next=nextStoryPointer(changed); await saveStoryProgress(next.story,{transition:next.changedScene}); syncMusic({restart:true});
+  }
+
+  function renderSeatFreeTime(scene, beat, sceneIndex) {
+    const c5=chapter5State(), ft=c5.freeTime||{}, picked=Array.isArray(ft.activities)?ft.activities:[], incident=SEAT_HQ_EVENTS.find(e=>e.id===(ft.eventId||seatIncidentId()))||SEAT_HQ_EVENTS[0];
+    const ready=picked.length>=3, eventDone=!!ft.eventChoice;
+    const body=`<section class="seat-free-time" aria-live="polite"><header><div><small>QUICKQUILL HQ · OPEN SCHEDULE</small><h1>${ready?'ONE LAST INTERRUPTION':'THREE HOURS'}</h1></div><span>${Math.max(0,3-picked.length)} HOURS LEFT</span></header>
+      ${!ready?`<div class="seat-activity-grid">${Object.entries(SEAT_FREE_TIME).map(([id,item])=>`<button type="button" data-seat-activity="${id}" class="${picked.includes(id)?'is-done':''}" ${picked.includes(id)?'disabled':''}><small>${escapeHtml(item.kicker)}</small><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.note)}</p><span>${picked.includes(id)?'COMPLETED':'SPEND 1 HOUR'} <i>›</i></span></button>`).join('')}</div><aside class="seat-time-ledger"><small>TODAY</small>${picked.map((id,index)=>`<span><b>0${index+1}</b>${escapeHtml(SEAT_FREE_TIME[id]?.title||id)}</span>`).join('')}${Array.from({length:3-picked.length},(_,i)=>`<span class="is-empty"><b>0${picked.length+i+1}</b>UNALLOCATED</span>`).join('')}</aside>`:
+      `<section class="seat-hq-event"><small>UNPLANNED HQ EVENT · ${escapeHtml(incident.title)}</small><h2>${escapeHtml(incident.text)}</h2>${eventDone?`<div class="seat-event-result"><strong>RECORDED</strong><p>${escapeHtml(ft.eventChoice)}</p><button type="button" data-seat-free-finish>RETURN TO STRATEGY ROOM</button></div>`:`<div>${incident.options.map((option,i)=>`<button type="button" data-seat-event-choice="${i}"><b>${String.fromCharCode(65+i)}</b><span><strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(option.note)}</small></span></button>`).join('')}</div>`}</section>`}
+      ${state.seatTransient?`<div class="seat-activity-toast">${escapeHtml(state.seatTransient)}</div>`:''}</section>`;
+    root.innerHTML=seatStageShell(scene,sceneIndex,body,'is-seat-free-time');bindChapterFiveBackgroundFallback(scene);bindSeatBack();
+    root.querySelectorAll('[data-seat-activity]').forEach(button=>button.addEventListener('click',()=>void chooseSeatActivity(String(button.dataset.seatActivity||''))));
+    root.querySelectorAll('[data-seat-event-choice]').forEach(button=>button.addEventListener('click',()=>void chooseSeatEvent(Number(button.dataset.seatEventChoice))));
+    root.querySelector('[data-seat-free-finish]')?.addEventListener('click',()=>void finishSeatFreeTime());
+  }
+
+  async function chooseSeatActivity(id) {
+    const item=SEAT_FREE_TIME[id];if(!item||state.storySaving||state.transitionLocked)return;const changed=cloneValue(state.story),ft=changed.chapter5.freeTime;ft.activities=Array.isArray(ft.activities)?ft.activities:[];if(ft.activities.includes(id)||ft.activities.length>=3)return;
+    ft.activities=[...ft.activities,id];applyStoryEffects(changed,item.effects||{});changed.history=[...(changed.history||[]),{scene:'q37',event:'free-time',activity:id}].slice(-100);state.seatTransient=item.result;state.story=changed;render();setTimeout(()=>{state.seatTransient='';if(state.mode==='story')render();},2200);
+    try{await persistStory(changed,{stageOverride:'quickquill-seat-story'});}catch(error){state.storyError=error?.message||'Free-time choice could not be saved.';render();}
+  }
+
+  async function chooseSeatEvent(optionIndex) {
+    if(state.storySaving||state.transitionLocked)return;const changed=cloneValue(state.story),ft=changed.chapter5.freeTime;if((ft.activities||[]).length<3||ft.eventChoice)return;const incident=SEAT_HQ_EVENTS.find(e=>e.id===seatIncidentId(changed))||SEAT_HQ_EVENTS[0],option=incident.options?.[optionIndex];if(!option)return;
+    ft.eventId=incident.id;ft.eventChoice=option.label;applyStoryEffects(changed,option.effects||{});changed.history=[...(changed.history||[]),{scene:'q37',event:'hq-incident',incident:incident.id,choice:optionIndex}].slice(-100);state.story=changed;render();try{await persistStory(changed,{stageOverride:'quickquill-seat-story'});}catch(error){state.storyError=error?.message||'HQ event could not be saved.';render();}
+  }
+
+  async function finishSeatFreeTime() {
+    if(state.storySaving||state.transitionLocked)return;const changed=cloneValue(state.story);if((changed.chapter5.freeTime.activities||[]).length<3||!changed.chapter5.freeTime.eventChoice)return;changed.chapter5.freeTime.completed=true;const next=nextStoryPointer(changed);await saveStoryProgress(next.story,{transition:next.changedScene});syncMusic({restart:true});
+  }
+
+  function renderSeatComplete() {
+    const story=state.story||normaliseQuickquillStory(activeSaveState().story),c5=chapter5State(story),headlines=c5.media?.headlines||[];
+    root.innerHTML=`<section class="seat-complete-shell"><img src="story/chapter5/lumerre-arrival.webp" alt="" aria-hidden="true"><div class="seat-complete-shade"></div><header><small>QUICKQUILL CAREER · CHAPTER FIVE</small><h1>A SEAT AT THE TABLE</h1><p>The rookie review became a professional brief. Lumerre is now on the calendar.</p></header><div class="seat-complete-grid"><article><small>SIMULATOR PROFILE</small><strong>${escapeHtml(c5.simulator?.profile||deriveSeatSimulatorProfile(story))}</strong><span>${escapeHtml(String(c5.developmentPriority||'control').toUpperCase())} DEVELOPMENT</span></article><article><small>MEDIA REPUTATION</small><strong>${escapeHtml(c5.media?.reputation||deriveMediaReputation(story))}</strong><span>${escapeHtml(headlines[0]||'Three answers archived')}</span></article><article><small>LUMERRE ROLE</small><strong>${escapeHtml(c5.lumerreRole||deriveLumerreRole(story))}</strong><span>${escapeHtml(c5.finalPromise?String(c5.finalPromise).replaceAll('-',' ').toUpperCase():'ROLE CONFIRMED')}</span></article></div><button type="button" data-seat-complete-back>RETURN TO STORY JOURNEY</button></section>`;
+    root.querySelector('[data-seat-complete-back]')?.addEventListener('click',()=>{state.mode='story-journey';render();syncMusic({restart:true});});
+  }
+
+
+
+  function clamp01(value, min = 0, max = 100) {
+    return Math.max(min, Math.min(max, Number(value) || 0));
+  }
+
+  function lumerreSetupScore(setup = {}) {
+    const targets = { frontResponse:58, stability:60, endurance:55, qualifyingTrim:58 };
+    const errors = Object.keys(targets).map(key => Math.abs((Number(setup[key]) || 50) - targets[key]));
+    return Math.max(0, 100 - errors.reduce((sum,value)=>sum+value,0) * .9);
+  }
+
+  function lumerrePracticeIssue(story = state.story) {
+    const pq = practiceQualifyingState(story);
+    const setup = pq.practice?.setup || {};
+    const risks = [
+      {id:'front',score:(Number(setup.frontResponse)||50)-61,title:'FRONT RESPONSE',clue:'Turn-in is sharp, then the dragon has to correct halfway through the upper-terrace entry.'},
+      {id:'stability',score:50-(Number(setup.stability)||50),title:'STABILITY',clue:'The first input is clean, but the body settles late when the terrace cambers away.'},
+      {id:'trim',score:(Number(setup.qualifyingTrim)||50)-64,title:'QUALIFYING TRIM',clue:'The lap is quick early, but the platform becomes nervous as speed builds through the long section.'},
+      {id:'endurance',score:45-(Number(setup.endurance)||50),title:'ENDURANCE BIAS',clue:'Response fades rather than snaps; the problem grows after repeated direction changes.'}
+    ].sort((a,b)=>b.score-a.score);
+    return risks[0].score > 0 ? risks[0] : {id:'stability',score:2,title:'STABILITY',clue:'The line is fast enough. The problem appears only when the upper terrace loads the outside side of the dragon.'};
+  }
+
+  function lumerrePracticeFocusLabel(value) {
+    return ({technical:'TECHNICAL RESPONSE','high-speed':'HIGH-SPEED STABILITY','long-run':'LONG-RUN RHYTHM',overtaking:'LAUNCH / TRAFFIC',launch:'LAUNCH','endurance':'ENDURANCE'})[String(value||'')] || 'TECHNICAL RESPONSE';
+  }
+
+  function lumerrePracticeRunResult(story, runNumber) {
+    const pq = practiceQualifyingState(story);
+    return Number(runNumber) === 2 ? pq.practice?.run2 : pq.practice?.run1;
+  }
+
+  function lumerrePlayerPracticeLap(story, runNumber, focus) {
+    const evo = syncCareerEvolution(story);
+    const setup = practiceQualifyingState(story).practice?.setup || {};
+    const skill = (Number(evo.racecraft?.pace)||45)*.36 + (Number(evo.racecraft?.technicalUnderstanding)||45)*.32 + (Number(evo.racecraft?.consistency)||45)*.19 + (Number(evo.racecraft?.pressureHandling)||45)*.13;
+    const setupScore = lumerreSetupScore(setup);
+    const focusBonus = focus === 'technical' ? (Number(evo.racecraft?.technicalUnderstanding)||45)-45
+      : focus === 'high-speed' ? (Number(evo.racecraft?.pressureHandling)||45)-45
+      : focus === 'long-run' ? (Number(evo.racecraft?.staminaManagement)||45)-45
+      : (Number(evo.racecraft?.overtaking)||40)-40;
+    const diagnosisBonus = Number(runNumber) === 2 && practiceQualifyingState(story).practice?.diagnosis?.correct ? 115 : 0;
+    const runGain = Number(runNumber) === 2 ? 360 : 0;
+    const noise = (Math.random() - .5) * (Number(runNumber) === 2 ? 210 : 330);
+    return Math.round(102760 - (skill-45)*13 - (setupScore-55)*4.2 - focusBonus*4 - diagnosisBonus - runGain + noise);
+  }
+
+  function lumerrePracticeSectors(lapMs, runNumber = 1) {
+    const wobble = () => Math.round((Math.random()-.5)*90);
+    const s1 = Math.round(lapMs*.307) + wobble();
+    const s2 = Math.round(lapMs*.411) + wobble() + (Number(runNumber)===1?55:-35);
+    const s3 = Math.max(1, lapMs-s1-s2);
+    return [s1,s2,s3];
+  }
+
+  function lumerrePracticeAIRows(runNumber = 1) {
+    const improve = Number(runNumber) === 2 ? 130 : 0;
+    return [
+      {id:'ren',name:'Ren Sato',lapMs:102314-improve},
+      {id:'tyrese',name:'Tyrese Bell',lapMs:102398-improve},
+      {id:'sofia',name:'Sofia Mendes',lapMs:102507-improve},
+      {id:'jalen',name:'Jalen Cross',lapMs:102555-improve},
+      {id:'luka',name:'Luka Kovač',lapMs:102630-improve},
+      {id:'maya',name:'Maya Banks',lapMs:102718-improve}
+    ];
+  }
+
+  function lumerrePracticeClassification(story, runNumber = 1, playerLap = null) {
+    const pq = practiceQualifyingState(story);
+    const best = Math.min(
+      Number(playerLap)||999999,
+      Number(pq.practice?.run1?.lapMs)||999999,
+      Number(pq.practice?.run2?.lapMs)||999999
+    );
+    const rows = lumerrePracticeAIRows(runNumber).map(row=>({...row}));
+    if (best < 999999) rows.push({id:'player',name:storyDragonName(),lapMs:best,player:true});
+    rows.sort((a,b)=>a.lapMs-b.lapMs);
+    return rows.map((row,index)=>({...row,position:index+1,gapMs:row.lapMs-rows[0].lapMs}));
+  }
+
+  async function resolveLumerrePracticeRun(runNumber) {
+    if (state.storySaving || state.transitionLocked) return;
+    const changed = cloneValue(state.story);
+    const pq = changed.chapter6.practiceQualifying;
+    const practice = pq.practice;
+    const key = Number(runNumber) === 2 ? 'run2' : 'run1';
+    if (practice[key]) return;
+    const focus = Number(runNumber) === 1 ? (pq.priority || changed.choices?.lumerrePracticePriority?.value || 'technical') : (practice.diagnosis?.correct ? 'high-speed' : 'technical');
+    playCrownSfx('beep', .075);
+    const lapMs = lumerrePlayerPracticeLap(changed, runNumber, focus);
+    const sectors = lumerrePracticeSectors(lapMs, runNumber);
+    const classification = lumerrePracticeClassification(changed, runNumber, lapMs);
+    const player = classification.find(row=>row.id==='player');
+    practice[key] = {focus,lapMs,sectors,position:player?.position||7,completedAt:new Date().toISOString()};
+    practice.classification = classification;
+    if (Number(runNumber) === 2) {
+      practice.completed = true;
+      applyCareerEvolutionEffects(changed,{racecraft:{technicalUnderstanding:1,consistency:1,pressureHandling:1},reputation:{paddockRespect:1}});
+    }
+    changed.history=[...(changed.history||[]),{scene:state.story?.scene,event:'lumerre-practice-run',run:Number(runNumber),focus,lapMs,position:player?.position||7}].slice(-100);
+    state.story=changed;
+    playCrownSfx(player?.position<=3?'personalBest':'split', .18);
+    render();
+    try { await persistStory(changed,{stageOverride:'quickquill-lumerre-practice-qualifying'}); }
+    catch(error){ state.storyError=error?.message||'Practice telemetry could not be saved.'; render(); }
+  }
+
+  function lumerrePracticeStageShell(scene, sceneIndex, body, extraClass='') {
+    const count=QUICKQUILL_LUMERRE_PRACTICE_SCENES.length;
+    return `<section class="story-shell tone-${escapeHtml(scene.tone||'lumerre-technical')} lumerre-practice-story-shell" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}">
+      <img class="story-backdrop" src="${scene.background}" alt="" aria-hidden="true">
+      <div class="story-stage lumerre-practice-stage ${extraClass}">
+        <img class="story-environment" src="${scene.background}" alt="${escapeHtml(scene.title)}">
+        <div class="lumerre-practice-wash" aria-hidden="true"></div><div class="story-grain" aria-hidden="true"></div><div class="story-letterbox" aria-hidden="true"></div>
+        <header class="story-header"><div><small>QUICKQUILL: AGAINST THE ODDS</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-story-home>BACK TO HUB</button></header>
+        <div class="story-scene-counter lumerre-practice-progress"><i style="--story-progress:${((sceneIndex+1)/count)*100}%"></i><span>PRACTICE & QUALIFYING ${sceneIndex+1} / ${count}</span></div>
+        ${body}
+      </div><div class="story-screen-vignette" aria-hidden="true"></div>
+    </section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+  }
+
+  function bindLumerrePracticeBack(scene) {
+    bindLumerrePracticeBackgroundFallback(scene);
+    root.querySelector('[data-story-home]')?.addEventListener('click',event=>{event.stopPropagation();returnToHubFromStory();});
+  }
+
+  function telemetryClassificationMarkup(rows = []) {
+    if (!rows.length) return '<div class="lumerre-empty-telemetry">NO TIMED LAPS YET</div>';
+    const leader=rows[0]?.lapMs||0;
+    return `<div class="lumerre-classification">${rows.map(row=>`<div class="${row.player?'is-player':''}"><b>P${row.position}</b><span>${escapeHtml(row.name)}</span><strong>${row.position===1?formatStoryLap(row.lapMs):`+${((row.lapMs-leader)/1000).toFixed(3)}`}</strong></div>`).join('')}</div>`;
+  }
+
+  function renderLumerrePracticeRun(scene, beat, sceneIndex) {
+    const runNumber=Number(beat.run)||1;
+    const pq=practiceQualifyingState();
+    const result=lumerrePracticeRunResult(state.story,runNumber);
+    const rows=result ? (pq.practice?.classification||[]) : lumerrePracticeClassification(state.story,runNumber);
+    const focus=runNumber===1?(pq.priority||state.story?.choices?.lumerrePracticePriority?.value||'technical'):(pq.practice?.diagnosis?.correct?'high-speed':'technical');
+    const sectors=result?.sectors||[];
+    const body=`<section class="lumerre-practice-console">
+      <header class="lumerre-tech-hero"><div><small>QUICKQUILL TECHNICAL · RUN ${String(runNumber).padStart(2,'0')}</small><h1>${runNumber===1?'BUILD A BASELINE':'FINAL PRACTICE'}</h1><p>${runNumber===1?'One clean reference. No heroics. Give Nell a lap she can compare against Tyrese.':'Apply what you learned. This is the last practice data Quickquill gets before qualifying.'}</p></div><div><small>RUN OBJECTIVE</small><strong>${escapeHtml(lumerrePracticeFocusLabel(focus))}</strong></div></header>
+      <div class="lumerre-tech-grid">
+        <section class="lumerre-track-map-card"><img src="${LUMERRE_TECH_MAP}" alt="Lumerre Crown technical circuit map"><span>${result?'RUN COMPLETE':'READY FOR RELEASE'}</span></section>
+        <section class="lumerre-practice-data"><header><small>PRACTICE CLASSIFICATION</small><strong>${result?`P${result.position}`:'LIVE'}</strong></header>${telemetryClassificationMarkup(rows)}</section>
+        <section class="lumerre-sector-card"><header><small>SECTOR COMPARISON</small><strong>${result?formatStoryLap(result.lapMs):'—'}</strong></header>${result?sectors.map((value,index)=>`<div><span>S${index+1}</span><b>${formatStoryLap(value).replace(/^0:/,'')}</b><i class="${index===1&&runNumber===1?'is-warning':'is-good'}"></i></div>`).join(''):`<p>Sector timing appears after the run.</p>`}</section>
+      </div>
+      <footer class="lumerre-tech-actions">${result?`<div><small>NELL'S NOTE</small><strong>${runNumber===1?'UPPER TERRACE · ENTRY INSTABILITY DETECTED':'BALANCE IMPROVED · QUALIFYING BASE READY'}</strong></div><button type="button" data-lumerre-practice-continue>${runNumber===1?'OPEN ENGINEERING BOARD':'BEGIN QUALIFYING'} <i>›</i></button>`:`<div><small>FOCUS</small><strong>${escapeHtml(lumerrePracticeFocusLabel(focus))}</strong></div><button type="button" data-lumerre-practice-run="${runNumber}">SEND ${escapeHtml(storyDragonName().toUpperCase())} OUT <i>›</i></button>`}</footer>
+      ${state.storyError?`<div class="story-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}
+    </section>`;
+    root.innerHTML=lumerrePracticeStageShell(scene,sceneIndex,body,'is-telemetry');bindLumerrePracticeBack(scene);
+    root.querySelector('[data-lumerre-practice-run]')?.addEventListener('click',()=>void resolveLumerrePracticeRun(runNumber));
+    root.querySelector('[data-lumerre-practice-continue]')?.addEventListener('click',()=>void completeLumerreInteractiveBeat());
+  }
+
+  function lumerreSetupAssessment(setup = {}) {
+    const score=lumerreSetupScore(setup);
+    const issue=lumerrePracticeIssue({...(state.story||{}),chapter6:{...(state.story?.chapter6||{}),practiceQualifying:{...practiceQualifyingState(),practice:{...practiceQualifyingState().practice,setup}}}});
+    return {score,confidence:Math.round(Math.max(25,Math.min(96,score))),label:score>=82?'HIGH':score>=67?'MEDIUM':'LOW',issue};
+  }
+
+  function renderLumerreSetupBoard(scene, beat, sceneIndex) {
+    const pq=practiceQualifyingState(), setup={...pq.practice.setup}, assessment=lumerreSetupAssessment(setup);
+    const sliders=[['frontResponse','FRONT RESPONSE','STABLE','SHARP'],['stability','STABILITY','AGILE','PLANTED'],['endurance','ENDURANCE BIAS','SPRINT','LONG RUN'],['qualifyingTrim','QUALIFYING TRIM','RACE','QUALIFYING']];
+    const body=`<section class="lumerre-setup-console"><header><div><small>QUICKQUILL SETUP ENGINEERING</small><h1>BETWEEN RUNS</h1><p>Every improvement costs something somewhere else. Build a setup you can explain, not just one that looks fast on a slider.</p></div><button type="button" data-lumerre-compare>COMPARE WITH TYRESE</button></header>
+      <div class="lumerre-setup-layout"><section class="lumerre-setup-sliders">${sliders.map(([key,label,left,right])=>`<article><header><strong>${label}</strong><span><b>${left}</b><b>${right}</b></span></header><input type="range" min="20" max="85" step="1" value="${Number(setup[key])||50}" data-lumerre-setup="${key}" aria-label="${label}"><div><i style="--setup-p:${Number(setup[key])||50}%"></i></div></article>`).join('')}</section>
+      <aside class="lumerre-setup-summary"><section><small>CURRENT SETUP</small><strong>${assessment.score>=78?'TECHNICAL / BALANCED':assessment.score>=62?'AGGRESSIVE / DEVELOPING':'UNSETTLED'}</strong><span>SETUP CONFIDENCE · ${assessment.confidence}%</span></section><section class="is-warning"><small>NELL'S ASSESSMENT</small><strong>${assessment.score>=78?'GOOD BASELINE':'WORK TO DO'}</strong><span>${escapeHtml(assessment.issue.title)} · ${escapeHtml(assessment.issue.clue)}</span></section><section data-lumerre-tyrese-compare hidden><small>TYRESE REFERENCE</small><strong>STABILITY +4 · RESPONSE -2</strong><span>Tyrese is carrying a calmer high-speed platform and giving away a little initial rotation.</span></section></aside></div>
+      <footer><button type="button" data-lumerre-setup-revert>REVERT TO BASELINE</button><button type="button" data-lumerre-setup-apply>APPLY SETUP <i>✓</i></button></footer></section>`;
+    root.innerHTML=lumerrePracticeStageShell(scene,sceneIndex,body,'is-setup');bindLumerrePracticeBack(scene);
+    root.querySelector('[data-lumerre-compare]')?.addEventListener('click',()=>{const el=root.querySelector('[data-lumerre-tyrese-compare]');if(el){el.hidden=!el.hidden;playTone(285);}});
+    root.querySelectorAll('[data-lumerre-setup]').forEach(input=>input.addEventListener('input',()=>{const fill=input.parentElement?.querySelector('div>i');if(fill)fill.style.setProperty('--setup-p',`${Number(input.value)||50}%`);}));
+    root.querySelector('[data-lumerre-setup-revert]')?.addEventListener('click',()=>{root.querySelectorAll('[data-lumerre-setup]').forEach(input=>{const defaults={frontResponse:54,stability:56,endurance:52,qualifyingTrim:48};input.value=defaults[input.dataset.lumerreSetup]||50;const fill=input.parentElement?.querySelector('div>i');if(fill)fill.style.setProperty('--setup-p',`${Number(input.value)||50}%`);});playTone(190);});
+    root.querySelector('[data-lumerre-setup-apply]')?.addEventListener('click',()=>void applyLumerreSetup());
+  }
+
+  async function applyLumerreSetup() {
+    if(state.storySaving||state.transitionLocked)return;
+    const changed=cloneValue(state.story), setup=changed.chapter6.practiceQualifying.practice.setup;
+    root.querySelectorAll('[data-lumerre-setup]').forEach(input=>{const key=String(input.dataset.lumerreSetup||'');if(key in setup)setup[key]=clamp01(input.value,20,85);});
+    const assessment=lumerreSetupAssessment(setup);setup.confidence=assessment.confidence;
+    changed.chapter6.practiceQualifying.practice.setupApplied=true;
+    changed.history=[...(changed.history||[]),{scene:'q48',event:'lumerre-setup-applied',setup:{...setup},confidence:assessment.confidence}].slice(-100);
+    state.story=changed;playTone(420);
+    try{await persistStory(changed,{stageOverride:'quickquill-lumerre-practice-qualifying'});const next=nextStoryPointer(state.story);await saveStoryProgress(next.story,{transition:true});}
+    catch(error){state.storyError=error?.message||'Setup could not be saved.';render();}
+  }
+
+  function renderLumerreDiagnosis(scene, beat, sceneIndex) {
+    const pq=practiceQualifyingState(), diagnosis=pq.practice.diagnosis||{}, issue=lumerrePracticeIssue();
+    const options=[
+      {id:'front',label:'Front response is too sharp.',note:'The first steering input is creating a second correction.'},
+      {id:'stability',label:'The high-speed platform is too light.',note:'The dragon settles too late when the upper terrace cambers away.'},
+      {id:'trim',label:'Qualifying trim is destabilising the long section.',note:'Single-lap attack is arriving before the chassis/body balance can support it.'},
+      {id:'endurance',label:'The endurance bias is delaying response.',note:'The setup is conserving too much and making the transitions lazy.'}
+    ];
+    const body=`<section class="lumerre-diagnosis-console"><header><small>Q49 · TELEMETRY DIAGNOSIS</small><h1>THE UPPER TERRACE</h1><p>Nell has one ugly trace and four plausible explanations. Read the symptoms before changing the dragon underneath them.</p></header><div class="lumerre-diagnosis-grid"><section class="lumerre-track-map-card"><img src="${LUMERRE_TECH_MAP}" alt="Lumerre Crown circuit technical map"><span>05 · UPPER TERRACE</span></section><section class="lumerre-trace"><small>TELEMETRY NOTE</small><strong>ENTRY INSTABILITY</strong><p>${escapeHtml(issue.clue)}</p><div><span>TURN-IN</span><i style="--trace:72%"></i></div><div><span>SETTLE</span><i class="is-warning" style="--trace:41%"></i></div><div><span>EXIT</span><i style="--trace:66%"></i></div></section></div>
+      ${diagnosis.completed?`<section class="lumerre-diagnosis-result ${diagnosis.correct?'is-correct':'is-partial'}"><small>NELL'S VERDICT</small><h2>${diagnosis.correct?'THAT IS THE ROOT CAUSE':'NOT QUITE — BUT THE CORRECTION HELPS'}</h2><p>${diagnosis.correct?'You identified the problem from the trace. Nell makes the precise correction instead of softening the entire setup.':'Nell corrects the actual issue without pretending the wrong diagnosis never happened. You lose a little setup confidence, not the weekend.'}</p><button type="button" data-lumerre-practice-continue>FINAL PRACTICE <i>›</i></button></section>`:`<div class="lumerre-diagnosis-options">${options.map((option,index)=>`<button type="button" data-lumerre-diagnosis="${option.id}"><b>${String.fromCharCode(65+index)}</b><span><strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(option.note)}</small></span></button>`).join('')}</div>`}</section>`;
+    root.innerHTML=lumerrePracticeStageShell(scene,sceneIndex,body,'is-diagnosis');bindLumerrePracticeBack(scene);
+    root.querySelectorAll('[data-lumerre-diagnosis]').forEach(button=>button.addEventListener('click',()=>void resolveLumerreDiagnosis(String(button.dataset.lumerreDiagnosis||''))));
+    root.querySelector('[data-lumerre-practice-continue]')?.addEventListener('click',()=>void completeLumerreInteractiveBeat());
+  }
+
+  async function resolveLumerreDiagnosis(choice) {
+    if(state.storySaving||state.transitionLocked)return;
+    const changed=cloneValue(state.story), practice=changed.chapter6.practiceQualifying.practice, issue=lumerrePracticeIssue(changed), correct=choice===issue.id;
+    practice.diagnosis={issue:issue.id,choice,correct,completed:true};
+    const setup=practice.setup;
+    if(issue.id==='front')setup.frontResponse=Math.max(48,(Number(setup.frontResponse)||54)-(correct?8:4));
+    if(issue.id==='stability')setup.stability=Math.min(72,(Number(setup.stability)||56)+(correct?9:4));
+    if(issue.id==='trim')setup.qualifyingTrim=Math.max(45,(Number(setup.qualifyingTrim)||50)-(correct?7:3));
+    if(issue.id==='endurance')setup.endurance=Math.min(66,(Number(setup.endurance)||52)+(correct?7:3));
+    setup.confidence=clamp01((Number(setup.confidence)||58)+(correct?15:6));
+    applyCareerEvolutionEffects(changed,{racecraft:{technicalUnderstanding:correct?2:1,consistency:1},reputation:{quickquillTrust:correct?2:1}});
+    changed.history=[...(changed.history||[]),{scene:'q49',event:'lumerre-diagnosis',issue:issue.id,choice,correct}].slice(-100);
+    state.story=changed;playCrownSfx(correct?'personalBest':'split',.18);render();
+    try{await persistStory(changed,{stageOverride:'quickquill-lumerre-practice-qualifying'});}catch(error){state.storyError=error?.message||'Diagnosis could not be saved.';render();}
+  }
+
+  async function completeLumerreInteractiveBeat() {
+    if(state.storySaving||state.transitionLocked)return;
+    const next=nextStoryPointer(state.story);
+    await saveStoryProgress(next.story,{transition:true});
+  }
+
+  function lumerreQualifyingWindowDef(value) {
+    return ({
+      early:{label:'GO EARLY',note:'Clearer track, less evolution.',paceMs:70,variance:110,pressure:0},
+      evolution:{label:'WAIT FOR EVOLUTION',note:'Faster surface, greater traffic risk.',paceMs:-125,variance:220,pressure:1},
+      tow:{label:'HUNT A TOW',note:'Best straight-line upside, least control.',paceMs:-105,variance:260,pressure:2},
+      clear:{label:'PRIORITISE CLEAR TRACK',note:'Small pace gain, cleanest execution.',paceMs:-55,variance:90,pressure:-1}
+    })[String(value||'')] || {label:'CLEAR TRACK',note:'Balanced release.',paceMs:0,variance:140,pressure:0};
+  }
+
+  function lumerreQualifyingAIBest(runNumber=3) {
+    const step=Number(runNumber)===1?330:Number(runNumber)===2?145:0;
+    return [
+      {id:'ren',name:'Ren Sato',lapMs:101913+step},
+      {id:'tyrese',name:'Tyrese Bell',lapMs:101984+step},
+      {id:'jalen',name:'Jalen Cross',lapMs:102070+step},
+      {id:'sofia',name:'Sofia Mendes',lapMs:102111+step},
+      {id:'luka',name:'Luka Kovač',lapMs:102166+step},
+      {id:'maya',name:'Maya Banks',lapMs:102310+step}
+    ];
+  }
+
+  function lumerreQualifyingRunResult(story, runNumber) {
+    const q=practiceQualifyingState(story).qualifying||{};
+    return q[`run${Number(runNumber)||1}`]||null;
+  }
+
+  function lumerrePlayerQualifyingLap(story, runNumber) {
+    const pq=practiceQualifyingState(story), q=pq.qualifying, setup=pq.practice?.setup||{}, evo=syncCareerEvolution(story), profile=careerQualifyingProfile(story);
+    const run=Number(runNumber)||1;
+    const baseByRun={1:102470,2:102135,3:101995};
+    const skillGain=(Number(profile.competitiveness)||50)-50;
+    const trim=Number(setup.qualifyingTrim)||50, stability=Number(setup.stability)||55, response=Number(setup.frontResponse)||55;
+    const setupBonus=(trim-48)*4.6 + Math.max(-15,18-Math.abs(stability-60))*4 + Math.max(-12,14-Math.abs(response-58))*3;
+    const diagnosis=pq.practice?.diagnosis?.correct?70:0;
+    const window=run>=2?lumerreQualifyingWindowDef(q.window):{paceMs:105,variance:125,pressure:0};
+    const pressureSkill=((Number(evo.racecraft?.pressureHandling)||45)-45)*4;
+    const finalPressure=run===3 ? Math.max(-80,90-pressureSkill) : 0;
+    const noise=(Math.random()-.5)*(window.variance||140);
+    return Math.round(baseByRun[run] - skillGain*13 - setupBonus - diagnosis + window.paceMs + finalPressure + noise);
+  }
+
+  function lumerreQualifyingSectors(lapMs, runNumber=1) {
+    const variation=()=>Math.round((Math.random()-.5)*55);
+    const s1=Math.round(lapMs*.306)+variation();
+    const s2=Math.round(lapMs*.413)+variation()-(Number(runNumber)===3?45:0);
+    const s3=Math.max(1,lapMs-s1-s2);
+    return [s1,s2,s3];
+  }
+
+  function lumerreQualifyingSectorDeltas(sectors = [], runNumber = 1) {
+    const leaderLap = lumerreQualifyingAIBest(runNumber)[0]?.lapMs || 102000;
+    const reference = [Math.round(leaderLap*.306), Math.round(leaderLap*.413)];
+    reference.push(Math.max(1, leaderLap-reference[0]-reference[1]));
+    return [0,1,2].map(index => ((Number(sectors[index])||reference[index]) - reference[index]) / 1000);
+  }
+
+  function lumerreQualifyingBestPlayerLap(story=state.story) {
+    const q=practiceQualifyingState(story).qualifying||{};
+    const values=[q.run1?.lapMs,q.run2?.lapMs,q.run3?.lapMs].map(Number).filter(value=>value>0);
+    return values.length?Math.min(...values):0;
+  }
+
+  function lumerreQualifyingGrid(story=state.story,runNumber=3,playerLapOverride=null) {
+    const q=practiceQualifyingState(story).qualifying||{};
+    const playerBest=Math.min(...[Number(playerLapOverride)||999999,Number(q.run1?.lapMs)||999999,Number(q.run2?.lapMs)||999999,Number(q.run3?.lapMs)||999999]);
+    const rows=lumerreQualifyingAIBest(runNumber).map(row=>({...row}));
+    if(playerBest<999999)rows.push({id:'player',name:storyDragonName(),lapMs:playerBest,player:true});
+    rows.sort((a,b)=>a.lapMs-b.lapMs);
+    return rows.map((row,index)=>({...row,position:index+1,gapMs:row.lapMs-rows[0].lapMs,status:Number(runNumber)===3?'FINAL RUN':'ON LAP'}));
+  }
+
+  function qualifyingHeadlineFor(position) {
+    const p=Number(position)||7;
+    if(p===1)return 'For the first time, the Quickquill rookie is the reference everybody else has to chase.';
+    if(p===2)return 'Front row. The rookie experiment has become a race-winning possibility.';
+    if(p===3)return 'Second row pace has become podium expectation.';
+    if(p===4)return 'Close enough to the front that strategy can change the entire race.';
+    return 'Not the headline lap you wanted. Still close enough to race forward tomorrow.';
+  }
+
+  function recordLumerreQualifyingOutcome(story) {
+    const pq=practiceQualifyingState(story), q=pq.qualifying;
+    if(q.completed)return;
+    const grid=lumerreQualifyingGrid(story,3,q.run3?.lapMs||null),player=grid.find(row=>row.id==='player'),tyrese=grid.find(row=>row.id==='tyrese');
+    q.grid=grid;q.position=player?.position||7;q.bestLapMs=player?.lapMs||0;q.tyresePosition=tyrese?.position||0;q.tyreseLapMs=tyrese?.lapMs||0;q.headline=qualifyingHeadlineFor(q.position);q.completed=true;q.completedAt=new Date().toISOString();
+    const evo=syncCareerEvolution(story),records=evo.records||{};
+    records.bestQualifying=records.bestQualifying?Math.min(Number(records.bestQualifying)||99,q.position):q.position;
+    if(q.position===1&&!evo.firsts.firstPole){evo.firsts.firstPole={event:'Lumerre Crown',raceNumber:(Number(records.starts)||0)+1,completedAt:q.completedAt};careerEvolutionMilestone(evo,'FIRST CAREER POLE');}
+    if(tyrese){if(q.position<tyrese.position){evo.tyrese.playerOutqualifies+=1;evo.tyrese.competitiveTension=clampCareerValue(evo.tyrese.competitiveTension+3);evo.tyrese.professionalRespect=clampCareerValue(evo.tyrese.professionalRespect+2);}else if(q.position>tyrese.position){evo.tyrese.tyreseOutqualifies+=1;evo.tyrese.competitiveTension=clampCareerValue(evo.tyrese.competitiveTension+1);}}
+    Object.values(evo.rivalries||{}).forEach(entry=>{if(entry&&typeof entry==='object')entry.qualifyingBattles=Math.max(0,Number(entry.qualifyingBattles)||0);});
+    grid.filter(row=>row.id!=='player'&&Math.abs(row.position-q.position)===1).forEach(row=>{const rival=evo.rivalries?.[row.id];if(rival){rival.qualifyingBattles+=1;rival.intensity=clampCareerValue(rival.intensity+2);rival.respect=clampCareerValue(rival.respect+1);}});
+    evo.reputation.fame=clampCareerValue(evo.reputation.fame+(q.position===1?5:q.position<=2?3:q.position<=4?2:1));
+    evo.reputation.media=clampCareerValue(evo.reputation.media+(q.position===1?4:q.position<=3?2:1));
+    evo.reputation.pressure=clampCareerValue(evo.reputation.pressure+(q.position===1?6:q.position<=3?3:1));
+    evo.racecraft.pressureHandling=clampCareerValue(evo.racecraft.pressureHandling+(q.position<=3?2:1));
+    evo.racecraft.technicalUnderstanding=clampCareerValue(evo.racecraft.technicalUnderstanding+1);
+    evo.careerPhase=deriveCareerPhase(evo);evo.fameTier=deriveFameTier(evo);evo.playerStyle=deriveCareerRacingStyle(story,evo);story.careerEvolution=evo;
+  }
+
+  async function resolveLumerreQualifyingRun(runNumber) {
+    if(state.storySaving||state.transitionLocked||state.lumerreQualifyingLive)return;
+    const run=Number(runNumber)||1,key=`run${run}`;
+    const current=practiceQualifyingState().qualifying||{};
+    if(current[key])return;
+    clearLumerreQualifyingTimers();
+    const preview=cloneValue(state.story),q=preview.chapter6.practiceQualifying.qualifying;
+    const lapMs=lumerrePlayerQualifyingLap(preview,run),sectors=lumerreQualifyingSectors(lapMs,run),deltas=lumerreQualifyingSectorDeltas(sectors,run),grid=lumerreQualifyingGrid(preview,run,lapMs),player=grid.find(row=>row.id==='player');
+    state.lumerreQualifyingLive={run,phase:0,lapMs,sectors,deltas,grid,position:player?.position||7,startedAt:Date.now()};
+    playCrownSfx('beep',.055);
+    render();
+    const reveal=(phase,delayMs)=>lumerreQualifyingTimers.push(window.setTimeout(()=>{
+      const live=state.lumerreQualifyingLive;
+      if(!live||live.run!==run||state.mode!=='story')return;
+      live.phase=phase;
+      if(phase<=2)playCrownSfx('split',.13);
+      render();
+    },delayMs));
+    reveal(1,650);reveal(2,1450);reveal(3,2250);
+    lumerreQualifyingTimers.push(window.setTimeout(async()=>{
+      const live=state.lumerreQualifyingLive;
+      if(!live||live.run!==run||state.mode!=='story')return;
+      const changed=cloneValue(state.story),changedQ=changed.chapter6.practiceQualifying.qualifying;
+      if(changedQ[key]){clearLumerreQualifyingTimers();render();return;}
+      changedQ[key]={lapMs:live.lapMs,sectors:[...live.sectors],deltas:[...live.deltas],position:live.position,completedAt:new Date().toISOString()};
+      if(run===3)recordLumerreQualifyingOutcome(changed);
+      changed.history=[...(changed.history||[]),{scene:state.story?.scene,event:'lumerre-qualifying-run',run,lapMs:live.lapMs,position:live.position,window:changedQ.window||''}].slice(-100);
+      state.story=changed;
+      clearLumerreQualifyingTimers();
+      playCrownSfx(live.position===1?'newLeader':live.position<=3?'personalBest':'split',.16);
+      render();
+      try{await persistStory(changed,{stageOverride:'quickquill-lumerre-practice-qualifying'});}catch(error){state.storyError=error?.message||'Qualifying lap could not be saved.';render();}
+    },2850));
+  }
+
+  function renderLumerreQualifyingRun(scene, beat, sceneIndex) {
+    const run=Number(beat.run)||1,q=practiceQualifyingState().qualifying||{},result=lumerreQualifyingRunResult(state.story,run),live=state.lumerreQualifyingLive?.run===run?state.lumerreQualifyingLive:null,display=result||live;
+    const grid=result?(run===3&&q.grid?.length?q.grid:lumerreQualifyingGrid(state.story,run)):live?.grid||lumerreQualifyingGrid(state.story,run);
+    const leader=grid[0],player=grid.find(row=>row.id==='player'),sectors=display?.sectors||[],deltas=result?.deltas||live?.deltas||(result?lumerreQualifyingSectorDeltas(sectors,run):[]);
+    const phase=result?3:Number(live?.phase)||0;
+    const bestBefore=Math.min(...[q.run1?.lapMs,q.run2?.lapMs].map(Number).filter(v=>v>0).concat([999999]));
+    const sectorMarkup=display?sectors.map((value,index)=>{const revealed=phase>=index+1;const delta=Number(deltas[index])||0;return `<div class="${revealed?'is-revealed':'is-pending'}"><span>S${index+1}</span><b class="${revealed?(delta<=0?'is-good':'is-loss'):''}">${revealed?`${delta>=0?'+':''}${delta.toFixed(3)}`:'—'}</b><i style="--sector-p:${revealed?Math.min(100,68+index*10):12}%"></i></div>`;}).join(''):'';
+    const body=`<section class="lumerre-quali-console ${run===3?'is-final-run':''} ${live?'is-live-lap':''}"><header class="lumerre-quali-head"><div><small>LUMERRE CROWN · QUALIFYING</small><h1>${run===1?'BANK ONE':run===2?'PUSH':'FINAL RUN'}</h1><p>${run===1?'Put a clean time on the board. The weekend cannot improve a lap that does not exist.':run===2?'The surface is coming toward you. Use the release strategy you chose.':'One lap remains. There is nowhere useful to save anything now.'}</p></div><span>${live?`LIVE · S${Math.min(3,Math.max(1,phase||1))}`:`RUN ${run} / 3`}</span></header>
+      <div class="lumerre-quali-grid"><section class="lumerre-live-timing"><header><small>LIVE TIMING</small><strong>${result&&player?`P${player.position}`:live&&phase>=3?`P${live.position}`:'LIVE'}</strong></header>${telemetryClassificationMarkup(result||phase>=3?grid:grid.filter(row=>!row.player))}</section><section class="lumerre-current-lap"><header><small>CURRENT LAP</small><strong>${result?formatStoryLap(result.lapMs):live?phase>=3?formatStoryLap(live.lapMs):'ON LAP':'READY'}</strong></header>${display?sectorMarkup:`<div class="lumerre-quali-ready"><b>${run===3?'ONE LAP REMAINING':'TRACK CLEARANCE READY'}</b><span>${run>=2?escapeHtml(lumerreQualifyingWindowDef(q.window).label):'BANKER LAP'}</span></div>`}</section><section class="lumerre-quali-map"><img src="${LUMERRE_TECH_MAP}" alt="Lumerre Crown circuit map"><span>${live?phase===0?'RELEASED':phase<3?`SECTOR ${phase} COMPLETE`:'LAP COMPLETE':run===3?'FINAL ATTEMPT':'SECTOR TARGETS LIVE'}</span></section></div>
+      <footer class="lumerre-quali-actions">${result?`<div><small>${player?.position===1?'PROVISIONAL POLE':player?.position<=2?'FRONT ROW':'CURRENT POSITION'}</small><strong>P${player?.position||7} · ${escapeHtml(formatStoryLap(result.lapMs))}</strong><span>${bestBefore<999999&&result.lapMs<bestBefore?`PERSONAL BEST · -${((bestBefore-result.lapMs)/1000).toFixed(3)}`:`GAP TO P1 · +${Math.max(0,(result.lapMs-(leader?.lapMs||result.lapMs))/1000).toFixed(3)}`}</span></div><button type="button" data-lumerre-practice-continue>${run===1?'REVIEW THE WINDOW':run===2?'PREPARE FINAL RUN':'LOCK QUALIFYING RESULT'} <i>›</i></button>`:live?`<div><small>LIVE DELTA</small><strong>${phase===0?'BUILDING SPEED':phase<3?`SECTOR ${phase} RECORDED`:'CROSSING THE LINE'}</strong><span>${phase>=1?`${Number(deltas[Math.min(phase,3)-1])<=0?'GAINING':'LOSING'} · ${Math.abs(Number(deltas[Math.min(phase,3)-1])||0).toFixed(3)}s`:'WAIT FOR FIRST SPLIT'}</span></div><button type="button" disabled>ON LAP…</button>`:`<div><small>${run===3?'FINAL ATTEMPT':'RELEASE PLAN'}</small><strong>${run>=2?escapeHtml(lumerreQualifyingWindowDef(q.window).label):'BANK A CLEAN LAP'}</strong></div><button type="button" data-lumerre-quali-run="${run}">${run===3?'START FINAL LAP':'SEND OUT'} <i>›</i></button>`}</footer>
+      ${state.storyError?`<div class="story-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}
+    </section>`;
+    root.innerHTML=lumerrePracticeStageShell(scene,sceneIndex,body,'is-qualifying');bindLumerrePracticeBack(scene);
+    root.querySelector('[data-lumerre-quali-run]')?.addEventListener('click',()=>void resolveLumerreQualifyingRun(run));
+    root.querySelector('[data-lumerre-practice-continue]')?.addEventListener('click',()=>void completeLumerreInteractiveBeat());
+  }
+
+  function renderLumerreQualifyingWindow(scene, beat, sceneIndex) {
+    const q=practiceQualifyingState().qualifying||{},selected=q.window||'';
+    const options=['early','evolution','tow','clear'];
+    const body=`<section class="lumerre-window-console"><header><small>QUALIFYING STRATEGY · BETWEEN RUNS</small><h1>THE WINDOW</h1><p>Your first lap exists. Now choose what Quickquill values more: track evolution, clean air, or somebody else's wake.</p></header><div class="lumerre-window-layout"><section class="lumerre-window-map"><img src="${LUMERRE_TECH_MAP}" alt="Lumerre Crown technical circuit map"><div><span>TRACK EVOLUTION</span><strong>+0.18s EXPECTED</strong><i></i></div></section><section class="lumerre-window-options">${options.map((id,index)=>{const def=lumerreQualifyingWindowDef(id);return `<button type="button" class="${selected===id?'is-selected':''}" data-lumerre-window="${id}"><b>${String.fromCharCode(65+index)}</b><span><strong>${escapeHtml(def.label)}</strong><small>${escapeHtml(def.note)}</small></span></button>`;}).join('')}</section></div></section>`;
+    root.innerHTML=lumerrePracticeStageShell(scene,sceneIndex,body,'is-window');bindLumerrePracticeBack(scene);
+    root.querySelectorAll('[data-lumerre-window]').forEach(button=>button.addEventListener('click',()=>void chooseLumerreQualifyingWindow(String(button.dataset.lumerreWindow||''))));
+  }
+
+  async function chooseLumerreQualifyingWindow(value) {
+    if(state.storySaving||state.transitionLocked)return;
+    const def=lumerreQualifyingWindowDef(value),changed=cloneValue(state.story);changed.chapter6.practiceQualifying.qualifying.window=value;
+    applyCareerEvolutionEffects(changed,{racecraft:{pressureHandling:def.pressure>0?1:0},reputation:{pressure:def.pressure}});
+    changed.history=[...(changed.history||[]),{scene:'q52',event:'lumerre-qualifying-window',window:value}].slice(-100);
+    state.story=changed;playTone(380);
+    try{await persistStory(changed,{stageOverride:'quickquill-lumerre-practice-qualifying'});const next=nextStoryPointer(state.story);await saveStoryProgress(next.story,{transition:true});}
+    catch(error){state.storyError=error?.message||'Qualifying strategy could not be saved.';render();}
+  }
+
+  function lumerreQualifyingPositionLabel(story=state.story) {
+    const p=Number(practiceQualifyingState(story).qualifying?.position)||7;return ordinal(p);
+  }
+  function lumerreQualifyingMaraLine(story=state.story) {
+    const p=Number(practiceQualifyingState(story).qualifying?.position)||7;
+    if(p===1)return 'Enjoy pole for exactly tonight. Tomorrow everybody behind you gets to spend the opening lap trying to take it away.';
+    if(p===2)return 'Front row changes the conversation. It does not change the job. Make the first sector boring and the rest can become interesting.';
+    if(p<=4)return 'That is close enough to matter. Tomorrow we race forward, not emotionally.';
+    return 'Not our cleanest Saturday. Good. Now we get to find out whether you can improve a weekend instead of merely enjoy one.';
+  }
+  function lumerreQualifyingNellLine(story=state.story) {
+    const q=practiceQualifyingState(story).qualifying||{},p=Number(q.position)||7;
+    if(p===1)return 'The final sector was the first time all day the setup did exactly what the model said it would. I am choosing to be pleased for fourteen seconds.';
+    if(p<=3)return 'The final lap is clean enough that I can use it tomorrow. That is more valuable than a spectacular lap I cannot explain.';
+    return 'There is still race pace in the data. Qualifying simply refused to package it nicely.';
+  }
+  function lumerreQualifyingTyreseLine(story=state.story) {
+    const q=practiceQualifyingState(story).qualifying||{},p=Number(q.position)||7,t=Number(q.tyresePosition)||0;
+    if(t&&p<t)return 'Right. So we are doing this now. Good lap. I will be extremely mature about starting behind you for at least the first thirty seconds.';
+    if(t&&p===t)return 'Apparently the timing system has decided diplomacy is important. I can live with that.';
+    return 'You were close. Tomorrow is longer than one lap, which is inconveniently where I tend to become annoying.';
+  }
+
+
+  // V34.29.5 — Lumerre is no longer rendered by Career Mode; the root engine now accepts this bridge.  These points are
+  // supplied only as a track descriptor to the site's established Dragon Racing
+  // engine, which remains responsible for dragon sprites, camera, movement and
+  // the actual race presentation.
+  const LUMERRE_ENGINE_WAYPOINTS = [
+    [50.06,88.31],
+    [84.93,88.31],
+    [89.95,85.44],
+    [90.85,83.42],
+    [91.45,78.96],
+    [90.79,75.66],
+    [89.17,73.01],
+    [84.51,70.35],
+    [83.67,69.08],
+    [83.25,66.52],
+    [83.67,63.23],
+    [84.69,61.21],
+    [90.07,56.00],
+    [93.72,50.05],
+    [94.02,43.46],
+    [92.46,38.79],
+    [91.51,38.68],
+    [87.02,32.52],
+    [86.36,27.95],
+    [87.02,19.55],
+    [86.54,16.47],
+    [85.35,14.45],
+    [82.30,11.90],
+    [77.27,12.33],
+    [75.12,13.92],
+    [72.43,14.35],
+    [39.65,13.92],
+    [36.36,9.67],
+    [33.31,8.18],
+    [30.20,7.97],
+    [24.10,9.99],
+    [14.41,17.32],
+    [11.00,21.25],
+    [9.87,25.50],
+    [10.47,29.12],
+    [13.22,31.77],
+    [23.80,38.36],
+    [25.00,42.19],
+    [24.16,48.67],
+    [22.31,51.65],
+    [14.17,59.09],
+    [12.02,63.55],
+    [11.72,66.31],
+    [12.32,69.61],
+    [15.73,74.60],
+    [14.71,83.32],
+    [15.49,86.18],
+    [18.48,88.42],
+    [26.14,87.67],
+    [28.89,88.42],
+    [50.06,88.31]
+  ];
+
+  function lumerreRaceNameForId(id, story = state.story) {
+    if (id === 'player') return storyDragonName();
+    return CAREER_RACER_AI[id]?.name || String(id || '').replace(/-/g,' ');
+  }
+
+  function lumerreRaceTeamForId(id) {
+    if (id === 'player') return 'Quickquill';
+    return CAREER_RACER_AI[id]?.team || 'Independent';
+  }
+
+  function lumerreRaceFixedGrid(story = state.story) {
+    const qual = practiceQualifyingState(story).qualifying || {};
+    const playerPos = Math.max(1, Math.min(7, Number(qual.position) || 4));
+    let tyresePos = Math.max(1, Math.min(7, Number(qual.tyresePosition) || Math.min(7, playerPos + 1)));
+    if (tyresePos === playerPos) tyresePos = playerPos === 1 ? 2 : playerPos - 1;
+    const order = new Array(7).fill('');
+    order[playerPos - 1] = 'player';
+    order[tyresePos - 1] = 'tyrese';
+    const filler = ['ren','jalen','sofia','luka','maya'];
+    let cursor = 0;
+    for (let i = 0; i < order.length; i += 1) {
+      if (!order[i]) {
+        order[i] = filler[cursor] || 'maya';
+        cursor += 1;
+      }
+    }
+    return order;
+  }
+
+  function lumerreRacePhaseLabel(phase = '') {
+    if (phase === 'engine-launching') return 'Opening Dragon Racing';
+    if (phase === 'engine-live') return 'Live race';
+    if (phase === 'result') return 'Result';
+    return 'Grid';
+  }
+
+  function lumerreRaceEnsureState(rw, story = state.story) {
+    if (!rw || typeof rw !== 'object') return rw;
+    if (!Array.isArray(rw.gridOrder) || rw.gridOrder.length !== 7) rw.gridOrder = lumerreRaceFixedGrid(story);
+    if (!Array.isArray(rw.liveOrder) || rw.liveOrder.length !== 7) rw.liveOrder = rw.gridOrder.slice();
+    rw.totalLaps = 10;
+    rw.startPosition = Math.max(1, rw.gridOrder.indexOf('player') + 1 || 4);
+    rw.tyreseStart = Math.max(1, rw.gridOrder.indexOf('tyrese') + 1 || Math.min(7, rw.startPosition + 1));
+    rw.currentPosition = Math.max(1, rw.liveOrder.indexOf('player') + 1 || rw.startPosition);
+    rw.tyreseCurrent = Math.max(1, rw.liveOrder.indexOf('tyrese') + 1 || rw.tyreseStart);
+    rw.currentLap = Math.max(0, Math.min(10, Number(rw.currentLap) || 0));
+    if (!rw.engineVersion) rw.engineVersion = 4;
+    if (!rw.energyBand) rw.energyBand = 'STRONG';
+    if (!Array.isArray(rw.log)) rw.log = [];
+    rw.log = rw.log.slice(-18);
+    return rw;
+  }
+
+  function lumerreEngineAsset(path = '') {
+    const clean = String(path || '').replace(/^\/+/, '');
+    return `dragonbound-career-mode/${clean}`;
+  }
+
+  function lumerreEngineEntrants(story = state.story) {
+    const grid = lumerreRaceFixedGrid(story);
+    return grid.map((id, index) => ({
+      id,
+      racerId:id,
+      gridPosition:index + 1,
+      name:lumerreRaceNameForId(id, story),
+      team:lumerreRaceTeamForId(id),
+      isPlayer:id === 'player',
+      isTeammate:id === 'tyrese',
+      ai:id === 'player' ? null : cloneValue(CAREER_RACER_AI[id] || {})
+    }));
+  }
+
+  function lumerreEngineTrackDescriptor(story = state.story) {
+    return {
+      id:'lumerre_crown_circuit',
+      trackId:'lumerre_crown_circuit',
+      key:'lumerre_crown_circuit',
+      name:'Lumerre Crown Circuit',
+      title:'THE LUMERRE CROWN',
+      region:'Lumerre',
+      worldWidth:1672,
+      worldHeight:941,
+      laps:10,
+      totalLaps:10,
+      closedCircuit:true,
+      routeType:'continuous-loop',
+      source:'career-mode-v34.29.5-real-engine-route',
+      // The existing racing engine may use whichever of these descriptor fields it supports.
+      image:lumerreEngineAsset(LUMERRE_RACE_MAP),
+      background:lumerreEngineAsset(LUMERRE_RACE_MAP),
+      circuitImage:lumerreEngineAsset(LUMERRE_RACE_MAP),
+      waypoints:LUMERRE_ENGINE_WAYPOINTS.map(point => ({ x:Number(point[0]) / 100, y:Number(point[1]) / 100 })),
+      waypointPercent:LUMERRE_ENGINE_WAYPOINTS.map(point => point.slice()),
+      startFinish:{ x:.5006, y:.8831 },
+      environment:{ bright:true, crowd:true, prestige:true, terraces:true, gardens:true },
+      presentation:{
+        liveHud:lumerreEngineAsset(LUMERRE_RACE_HUD),
+        teamOrders:lumerreEngineAsset(LUMERRE_RACE_TEAM_ORDERS),
+        battleReference:lumerreEngineAsset(LUMERRE_RACE_BATTLE),
+        podium:lumerreEngineAsset(LUMERRE_RACE_PODIUM),
+        trophy:lumerreEngineAsset(LUMERRE_RACE_TROPHY)
+      }
+    };
+  }
+
+  function lumerreEngineRacePayload(story, runId) {
+    const rw = lumerreRaceEnsureState(lumerreRaceDayState(story), story);
+    const qual = practiceQualifyingState(story).qualifying || {};
+    const practice = practiceQualifyingState(story).practice || {};
+    const grid = rw.gridOrder.slice();
+    return {
+      careerSaveId:state.activeSave.id,
+      runId,
+      raceKey:'lumerre',
+      trackId:'lumerre_crown_circuit',
+      trackCandidates:['lumerre_crown_circuit','lumerre_crown','lumerre'],
+      engineMode:'existing-dragon-racing-engine',
+      renderer:'dragon-racing',
+      fallbackAllowed:false,
+      raceNumber:3,
+      totalLaps:10,
+      laps:10,
+      accountKey:accountKey(username()),
+      playerKey:accountKey(username()),
+      playerName:storyDragonName(),
+      startPosition:rw.startPosition,
+      qualifyingPosition:rw.startPosition,
+      qualifyingGrid:grid.slice(),
+      entrants:lumerreEngineEntrants(story),
+      track:lumerreEngineTrackDescriptor(story),
+      trackDescriptor:lumerreEngineTrackDescriptor(story),
+      registerTrack:true,
+      trackRegistration:{ mode:'additive', descriptor:lumerreEngineTrackDescriptor(story) },
+      strategy:String(story.chapter6?.practiceQualifying?.priority || 'balanced'),
+      setupPlan:cloneValue(practice.setup || {}),
+      setupDiagnosis:cloneValue(practice.diagnosis || {}),
+      qualifying:cloneValue(qual),
+      teammate:{ id:'tyrese', name:'Tyrese Bell', gridPosition:rw.tyreseStart },
+      teamOrder:{ enabled:true, teammateId:'tyrese', preferredLap:4, choices:['obey','wait','ignore'] },
+      careerEvolution:careerEvolutionRaceConfig(story, 3),
+      presentation:{
+        title:'THE LUMERRE CROWN',
+        venue:'Lumerre Crown Circuit',
+        liveHud:lumerreEngineAsset(LUMERRE_RACE_HUD),
+        teamOrders:lumerreEngineAsset(LUMERRE_RACE_TEAM_ORDERS),
+        battleReference:lumerreEngineAsset(LUMERRE_RACE_BATTLE),
+        podium:lumerreEngineAsset(LUMERRE_RACE_PODIUM),
+        trophy:lumerreEngineAsset(LUMERRE_RACE_TROPHY),
+        useExistingDragonSprites:true,
+        useExistingRaceCamera:true,
+        useExistingRaceMovement:true,
+        useExistingRacePresentation:true
+      },
+      audio:{
+        main:lumerreEngineAsset(`${LUMERRE_RACE_AUDIO}lumerre_crown_main_race_BALANCED.mp3`),
+        finalLap:lumerreEngineAsset(`${LUMERRE_RACE_AUDIO}lumerre_crown_final_lap_BALANCED.mp3`),
+        reuseExistingCrowd:true,
+        mainVolume:.24,
+        finalLapVolume:.28,
+        crowdVolume:.12,
+        countdownVolume:.05
+      }
+    };
+  }
+
+  function lumerreClassificationFromResult(result = {}, story = state.story) {
+    const rows = [];
+    const candidates = [result.classification, result.standings, result.results, result.finishOrder];
+    for (const candidate of candidates) {
+      if (!Array.isArray(candidate)) continue;
+      candidate.forEach((row, index) => {
+        if (typeof row === 'string') rows.push({ id:String(row), rank:index + 1, name:String(row) });
+        else if (row && typeof row === 'object') rows.push({ ...row, rank:Number(row.rank ?? row.position ?? row.pos) || index + 1 });
+      });
+      if (rows.length) break;
+    }
+    const aliases = {
+      player:['player','player dragon',String(storyDragonName()).toLowerCase(),String(accountKey(username())).toLowerCase()],
+      tyrese:['tyrese','tyrese bell'], jalen:['jalen','jalen cross'], sofia:['sofia','sofia mendes'], luka:['luka','luka kovač','luka kovac'], ren:['ren','ren sato'], maya:['maya','maya banks']
+    };
+    const identify = row => {
+      const hay = [row.id,row.racerId,row.key,row.name,row.racer,row.driver,row.playerName,row.username].map(value => String(value || '').toLowerCase().trim()).filter(Boolean).join(' | ');
+      for (const [id,names] of Object.entries(aliases)) if (names.some(name => hay === name || hay.includes(name))) return id;
+      if (row.isPlayer || row.player === true) return 'player';
+      return '';
+    };
+    const byId = {};
+    rows.forEach((row,index) => { const id=identify(row); if(id && !byId[id]) byId[id]={...row,id,rank:Number(row.rank)||index+1}; });
+    const rivalRanks = result.rivalRanks && typeof result.rivalRanks === 'object' ? result.rivalRanks : {};
+    const playerRank = Math.max(1, Math.min(7, Number(result.rank ?? result.position ?? byId.player?.rank) || 7));
+    const tyreseRank = Math.max(1, Math.min(7, Number(byId.tyrese?.rank ?? rivalRanks.tyrese ?? rivalRanks['Tyrese Bell']) || 7));
+    const order = rows.length ? rows.slice().sort((a,b)=>(Number(a.rank)||99)-(Number(b.rank)||99)).map(identify).filter(Boolean) : [];
+    if (!order.includes('player')) order.splice(Math.max(0, playerRank - 1), 0, 'player');
+    if (!order.includes('tyrese')) order.splice(Math.max(0, tyreseRank - 1), 0, 'tyrese');
+    const fallbackOrder = lumerreRaceFixedGrid(story);
+    fallbackOrder.forEach(id => { if (!order.includes(id)) order.push(id); });
+    return { rows, byId, playerRank, tyreseRank, order:order.slice(0,7) };
+  }
+
+  function applyLumerreEngineResultToCareer(changed, rw, result = {}) {
+    if (rw.engineResultApplied) return;
+    rw.engineResultApplied = true;
+    const evo = syncCareerEvolution(changed);
+    const finish = Math.max(1, Math.min(7, Number(rw.finalPosition) || 7));
+    const tyreseFinish = Math.max(1, Math.min(7, Number(rw.tyreseFinish) || 7));
+    evo.records.starts = Math.max(0, Number(evo.records.starts) || 0) + 1;
+    evo.records.bestFinish = evo.records.bestFinish ? Math.min(Number(evo.records.bestFinish) || 99, finish) : finish;
+    evo.records.positionsGained = Math.max(0, Number(evo.records.positionsGained) || 0) + Math.max(0, Number(rw.startPosition || 7) - finish);
+    if (finish <= 3) {
+      evo.records.podiums = Math.max(0, Number(evo.records.podiums) || 0) + 1;
+      evo.records.consecutivePodiums = Math.max(0, Number(evo.records.consecutivePodiums) || 0) + 1;
+      evo.records.bestPodiumStreak = Math.max(Number(evo.records.bestPodiumStreak) || 0, Number(evo.records.consecutivePodiums) || 0);
+      if (!evo.firsts.firstPodium) evo.firsts.firstPodium = 'Lumerre Crown';
+    } else evo.records.consecutivePodiums = 0;
+    if (finish === 1) {
+      evo.records.wins = Math.max(0, Number(evo.records.wins) || 0) + 1;
+      if (!evo.firsts.firstWin) evo.firsts.firstWin = 'Lumerre Crown';
+    }
+    const orderResponse = String(rw.teamOrder || result.teamOrderResponse || '').toLowerCase();
+    if (orderResponse === 'ignore' || orderResponse === 'ignored') evo.tyrese.teamOrdersIgnored += 1;
+    if (orderResponse === 'obey' || orderResponse === 'obeyed') evo.tyrese.teamOrdersObeyed += 1;
+    evo.tyrese.playerFinishesAhead += finish < tyreseFinish ? 1 : 0;
+    evo.tyrese.tyreseFinishesAhead += finish > tyreseFinish ? 1 : 0;
+    applyCareerEvolutionEffects(changed, {
+      reputation:{ fame:finish === 1 ? 8 : finish <= 3 ? 5 : 2, paddockRespect:finish <= 3 ? 4 : 2, media:finish <= 3 ? 3 : 1, quickquillTrust:(orderResponse === 'ignore' || orderResponse === 'ignored') ? -2 : (orderResponse === 'obey' || orderResponse === 'obeyed') ? 3 : 1 },
+      racecraft:{
+        overtaking:Math.max(1, Math.min(3, Number(result.playerOvertakes ?? result.overtakes ?? result.totalOvertakes) || 1)),
+        defending:1,
+        starts:2,
+        staminaManagement:1,
+        pressureHandling:2
+      },
+      tyrese:{ friendship:(orderResponse === 'obey' || orderResponse === 'obeyed') ? 2 : 0, professionalRespect:finish < tyreseFinish ? 3 : 1, competitiveTension:(orderResponse === 'ignore' || orderResponse === 'ignored') ? 4 : 1 }
+    });
+  }
+
+  async function launchLumerreStoryRace() {
+    if (state.storySaving || state.transitionLocked || !state.activeSave) return;
+    const story = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (!story.completed?.practiceQualifying || story.completed?.raceWeekend) return;
+    if (story.chapter !== 'lumerre-race-day') return;
+    const changed = cloneValue(story);
+    changed.chapter6 = { ...defaultQuickquillStory().chapter6, ...(changed.chapter6 || {}), raceWeekend:{...defaultQuickquillStory().chapter6.raceWeekend,...(changed.chapter6?.raceWeekend || {})} };
+    const rw = lumerreRaceEnsureState(changed.chapter6.raceWeekend, changed);
+    const runId = String(rw.runId || `lumerre-${Date.now()}-${Math.random().toString(36).slice(2,8)}`);
+    rw.runId = runId;
+    rw.started = true;
+    rw.completed = false;
+    rw.phase = 'engine-launching';
+    rw.engineVersion = 4;
+    rw.engine = 'site-dragon-racing';
+    rw.engineStartedAt = new Date().toISOString();
+    rw.gridOrder = lumerreRaceFixedGrid(changed);
+    rw.liveOrder = rw.gridOrder.slice();
+    rw.startPosition = Math.max(1, rw.gridOrder.indexOf('player') + 1);
+    rw.tyreseStart = Math.max(1, rw.gridOrder.indexOf('tyrese') + 1);
+    rw.log = [...(rw.log || []).slice(-17), { event:'real-engine-launch', runId, trackId:'lumerre_crown_circuit', lap:0 }];
+    changed.history = [...(changed.history || []), { scene:'q56', event:'lumerre-real-engine-start', runId, startPosition:rw.startPosition, engineVersion:4 }].slice(-120);
+    try {
+      await persistStory(changed, { stageOverride:'quickquill-lumerre-race-day' });
+      state.story = changed;
+      state.storyError = '';
+      try { music.lumerreRace?.pause?.(); music.lumerreRaceFinal?.pause?.(); } catch (_) {}
+      const payload = lumerreEngineRacePayload(changed, runId);
+      // Expose the descriptor to the same-origin parent as an additive registry.  This
+      // does not mutate Canto/Blackglass and lets compatible engine builds register
+      // the track without Career Mode owning the renderer.
+      try {
+        if (window.parent && window.parent !== window) {
+          const descriptor=cloneValue(payload.trackDescriptor);
+          window.parent.DragonboundCareerTrackDescriptors ||= {};
+          window.parent.DragonboundCareerTrackDescriptors.lumerre_crown_circuit = descriptor;
+          window.parent.DragonRacingCareerTracks ||= {};
+          window.parent.DragonRacingCareerTracks.lumerre_crown_circuit = descriptor;
+          try { window.parent.dispatchEvent(new CustomEvent('dragonbound:career-track-register',{detail:descriptor})); } catch (_) {}
+          try { window.parent.document?.dispatchEvent?.(new CustomEvent('dragonbound:career-track-register',{detail:descriptor})); } catch (_) {}
+        }
+      } catch (_) {}
+      sendParent('dragonbound-career-story-track-register', { careerSaveId:state.activeSave.id, raceKey:'lumerre', trackId:'lumerre_crown_circuit', descriptor:payload.trackDescriptor });
+      sendParent('dragonbound-career-story-race-start', payload);
+      render();
+    } catch (error) {
+      console.error('[Dragonbound Career Mode] Lumerre real-engine launch failed', error);
+      state.storySaving = false;
+      state.storyError = error?.message || 'Lumerre could not be handed to Dragon Racing. Your qualifying result is safe.';
+      render();
+    }
+  }
+
+  async function acceptLumerreRaceResult(result = {}) {
+    if (!state.activeSave || state.storySaving) return;
+    const story = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (story.completed?.raceWeekend || story.chapter6?.raceWeekend?.completed) return;
+    if (result.careerSaveId && String(result.careerSaveId) !== String(state.activeSave.id)) return;
+    const rwCurrent = lumerreRaceDayState(story);
+    if (rwCurrent.runId && result.runId && String(rwCurrent.runId) !== String(result.runId)) return;
+    const changed = cloneValue(story);
+    changed.chapter6 = { ...defaultQuickquillStory().chapter6, ...(changed.chapter6 || {}), raceWeekend:{...defaultQuickquillStory().chapter6.raceWeekend,...(changed.chapter6?.raceWeekend || {})} };
+    const rw = lumerreRaceEnsureState(changed.chapter6.raceWeekend, changed);
+    const classification = lumerreClassificationFromResult(result, changed);
+    rw.liveOrder = classification.order.slice();
+    rw.finalPosition = classification.playerRank;
+    rw.tyreseFinish = classification.tyreseRank;
+    rw.currentPosition = rw.finalPosition;
+    rw.tyreseCurrent = rw.tyreseFinish;
+    rw.currentLap = 10;
+    rw.completed = true;
+    rw.phase = 'result';
+    rw.engineVersion = 4;
+    rw.engine = 'site-dragon-racing';
+    rw.completedAt = new Date().toISOString();
+    rw.finishMs = Math.max(0, Number(result.finishMs) || 0);
+    rw.bestLapMs = Math.max(0, Number(result.bestLapMs) || 0);
+    rw.playerOvertakes = Math.max(0, Number(result.playerOvertakes ?? result.overtakes ?? result.totalOvertakes) || 0);
+    rw.positionsGained = Math.max(0, Number(result.positionsGained) || Math.max(0, rw.startPosition - rw.finalPosition));
+    rw.teamOrder = String(result.teamOrderResponse || result.teamOrder || rw.teamOrder || '').replace(/^order-/, '');
+    rw.badge = rw.finalPosition === 1 ? 'WIN' : rw.finalPosition <= 3 ? 'PODIUM' : rw.finalPosition <= 5 ? 'POINTS' : 'FINISH';
+    rw.headline = rw.finalPosition === 1 ? 'CROWNED AT LUMERRE' : rw.finalPosition <= 3 ? 'LUMERRE CROWN PODIUM' : rw.finalPosition <= 5 ? 'POINTS UNDER PRESSURE' : 'THE CHEQUERED FLAG';
+    rw.narrative = rw.finalPosition === 1
+      ? `${storyDragonName()} wins the Lumerre Crown in the same Dragon Racing engine that carried the season here.`
+      : rw.finalPosition <= 3
+      ? `${storyDragonName()} takes ${ordinal(rw.finalPosition)} after a full Lumerre Crown race.`
+      : `${storyDragonName()} finishes ${ordinal(rw.finalPosition)} at the end of the Lumerre Crown.`;
+    rw.highlight = String(result.notableMoment || result.highlight || rw.narrative);
+    rw.log = [...(rw.log || []).slice(-17), { event:'real-engine-chequered-flag', finalPosition:rw.finalPosition, tyreseFinish:rw.tyreseFinish, engineVersion:4 }];
+    rw.result = {
+      rank:rw.finalPosition,
+      finishMs:rw.finishMs,
+      bestLapMs:rw.bestLapMs,
+      startPosition:rw.startPosition,
+      positionsGained:rw.positionsGained,
+      overtakes:rw.playerOvertakes,
+      leadChanges:Math.max(0, Number(result.leadChanges) || 0),
+      photoFinish:!!result.photoFinish,
+      fastestLap:!!result.fastestLap,
+      notableMoment:String(result.notableMoment || ''),
+      rivalRanks:result.rivalRanks && typeof result.rivalRanks === 'object' ? {...result.rivalRanks} : {},
+      standings:classification.rows.slice(0,7).map(row => ({...row})),
+      events:Array.isArray(result.events) ? result.events.slice(-20).map(row => typeof row === 'object' ? {...row} : row) : []
+    };
+    changed.completed = { ...(changed.completed || {}), raceWeekend:true };
+    changed.history = [...(changed.history || []), { scene:'q56', event:'lumerre-real-engine-finish', finish:rw.finalPosition, tyrese:rw.tyreseFinish, engineVersion:4 }].slice(-120);
+    applyLumerreEngineResultToCareer(changed, rw, result);
+    state.story = changed;
+    state.lumerreRaceTransient = rw.narrative;
+    state.storyError = '';
+    render();
+    syncMusic({restart:true});
+    try { await persistStory(changed, { stageOverride:'quickquill-lumerre-race-day' }); }
+    catch (error) { state.storyError = error?.message || 'The Lumerre Crown result could not be saved.'; render(); }
+  }
+
+  async function handleLumerreRaceAbort(message = '') {
+    if (!state.activeSave) return;
+    const changed = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (changed.completed?.raceWeekend || changed.chapter6?.raceWeekend?.completed) return;
+    changed.chapter6 = { ...defaultQuickquillStory().chapter6, ...(changed.chapter6 || {}), raceWeekend:{...defaultQuickquillStory().chapter6.raceWeekend,...(changed.chapter6?.raceWeekend || {})} };
+    const rw = lumerreRaceEnsureState(changed.chapter6.raceWeekend, changed);
+    rw.phase = 'grid';
+    rw.engineVersion = 4;
+    rw.engine = 'site-dragon-racing';
+    rw.runId = '';
+    rw.completed = false;
+    state.story = changed;
+    state.mode = 'story';
+    state.storyError = message || 'Race exited. Your Lumerre qualifying result is safe — start the Crown again when ready.';
+    try { await persistStory(changed, { stageOverride:'quickquill-lumerre-race-day' }); } catch (_) {}
+    render();
+    syncMusic({restart:true});
+  }
+
+  function rollbackLegacyLumerreSimulationResult(story, rw) {
+    if (!story || !rw || Number(rw.engineVersion || 0) >= 4 || !rw.engineResultApplied) return;
+    const evo = syncCareerEvolution(story);
+    const finish = Math.max(1, Math.min(7, Number(rw.finalPosition) || 7));
+    const tyreseFinish = Math.max(1, Math.min(7, Number(rw.tyreseFinish) || 7));
+    const start = Math.max(1, Math.min(7, Number(rw.startPosition) || 7));
+    evo.records.starts = Math.max(0, Number(evo.records.starts || 0) - 1);
+    evo.records.positionsGained = Math.max(0, Number(evo.records.positionsGained || 0) - Math.max(0, start - finish));
+    if (finish <= 3) evo.records.podiums = Math.max(0, Number(evo.records.podiums || 0) - 1);
+    if (finish === 1) evo.records.wins = Math.max(0, Number(evo.records.wins || 0) - 1);
+    const priorRanks = [Number(story.race?.result?.rank)||0, Number(story.blackglassRace?.result?.rank)||0].filter(Boolean);
+    evo.records.bestFinish = priorRanks.length ? Math.min(...priorRanks) : null;
+    let streak=0;
+    for (const rank of priorRanks) streak = rank <= 3 ? streak + 1 : 0;
+    evo.records.consecutivePodiums = streak;
+    evo.records.bestPodiumStreak = Math.max(streak, Math.min(Number(evo.records.bestPodiumStreak)||0, Math.max(0, Number(evo.records.podiums)||0)));
+    if (evo.firsts?.firstWin === 'Lumerre Crown') evo.firsts.firstWin = '';
+    if (evo.firsts?.firstPodium === 'Lumerre Crown') evo.firsts.firstPodium = priorRanks.some(rank=>rank<=3) ? (Number(story.race?.result?.rank)<=3 ? 'Canto Plains' : 'Blackglass Night Circuit') : '';
+    const orderResponse=String(rw.teamOrder||'').toLowerCase();
+    if (orderResponse === 'ignore') evo.tyrese.teamOrdersIgnored=Math.max(0,Number(evo.tyrese.teamOrdersIgnored||0)-1);
+    if (orderResponse === 'obey') evo.tyrese.teamOrdersObeyed=Math.max(0,Number(evo.tyrese.teamOrdersObeyed||0)-1);
+    if (finish < tyreseFinish) evo.tyrese.playerFinishesAhead=Math.max(0,Number(evo.tyrese.playerFinishesAhead||0)-1);
+    if (finish > tyreseFinish) evo.tyrese.tyreseFinishesAhead=Math.max(0,Number(evo.tyrese.tyreseFinishesAhead||0)-1);
+    const subtract=(bucket,key,value)=>{ if(bucket&&key in bucket) bucket[key]=clampCareerValue((Number(bucket[key])||0)-Number(value||0)); };
+    subtract(evo.reputation,'fame',finish===1?8:finish<=3?5:2);
+    subtract(evo.reputation,'paddockRespect',finish<=3?4:2);
+    subtract(evo.reputation,'media',finish<=3?3:1);
+    subtract(evo.reputation,'quickquillTrust',orderResponse==='ignore'?-2:orderResponse==='obey'?3:1);
+    subtract(evo.racecraft,'overtaking',2); subtract(evo.racecraft,'defending',1); subtract(evo.racecraft,'starts',2); subtract(evo.racecraft,'staminaManagement',1); subtract(evo.racecraft,'pressureHandling',2);
+    subtract(evo.tyrese,'friendship',orderResponse==='obey'?2:0); subtract(evo.tyrese,'professionalRespect',finish<tyreseFinish?3:1); subtract(evo.tyrese,'competitiveTension',orderResponse==='ignore'?4:1);
+    evo.careerPhase=deriveCareerPhase(evo); evo.fameTier=deriveFameTier(evo); evo.playerStyle=deriveCareerRacingStyle(story,evo);
+    story.careerEvolution=evo;
+  }
+
+  async function startLumerreRaceDay() {
+    if (state.storySaving || state.transitionLocked || !state.activeSave) return;
+    const current = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (!current.completed?.practiceQualifying) return;
+    current.chapter6 = {
+      ...defaultQuickquillStory().chapter6,
+      ...(current.chapter6 || {}),
+      practiceQualifying:{...defaultQuickquillStory().chapter6.practiceQualifying,...(current.chapter6?.practiceQualifying || {}),practice:{...defaultQuickquillStory().chapter6.practiceQualifying.practice,...(current.chapter6?.practiceQualifying?.practice || {}),setup:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.setup,...(current.chapter6?.practiceQualifying?.practice?.setup || {})},diagnosis:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.diagnosis,...(current.chapter6?.practiceQualifying?.practice?.diagnosis || {})}},qualifying:{...defaultQuickquillStory().chapter6.practiceQualifying.qualifying,...(current.chapter6?.practiceQualifying?.qualifying || {})}},
+      raceWeekend:{...defaultQuickquillStory().chapter6.raceWeekend,...(current.chapter6?.raceWeekend || {}),log:Array.isArray(current.chapter6?.raceWeekend?.log)?current.chapter6.raceWeekend.log.slice(0,18).map(row=>({...row})):[]}
+    };
+    let rw = current.chapter6.raceWeekend;
+    // V34.29 through V34.29.3 used non-canonical button/map simulations. Reset those
+    // results once so testing the real engine is never skipped by a stale completion.
+    if (Number(rw.engineVersion || 0) < 4) {
+      rollbackLegacyLumerreSimulationResult(current, rw);
+      const fresh = cloneValue(defaultQuickquillStory().chapter6.raceWeekend);
+      current.chapter6.raceWeekend = { ...fresh, engineVersion:4, engine:'site-dragon-racing', started:true, phase:'grid', gridOrder:lumerreRaceFixedGrid(current), liveOrder:lumerreRaceFixedGrid(current), currentLap:0, totalLaps:10, log:[] };
+      current.completed = { ...(current.completed || {}), raceWeekend:false };
+      rw = current.chapter6.raceWeekend;
+    }
+    lumerreRaceEnsureState(rw, current);
+    if (!rw.started) {
+      rw.started = true;
+      rw.phase = 'grid';
+      rw.gridOrder = lumerreRaceFixedGrid(current);
+      rw.liveOrder = rw.gridOrder.slice();
+      rw.currentLap = 0;
+      rw.totalLaps = 10;
+      rw.engineVersion = 4;
+      rw.engine = 'site-dragon-racing';
+      rw.log = [{ event:'grid formed', position:rw.startPosition, lap:0 }];
+    }
+    current.chapter = 'lumerre-race-day';
+    current.scene = 'q56';
+    current.beat = 0;
+    state.story = current;
+    state.mode = 'story';
+    state.storyError = '';
+    state.lumerreRaceTransient = '';
+    render();
+    syncMusic({restart:true});
+    try { await persistStory(current, { stageOverride:'quickquill-lumerre-race-day' }); }
+    catch (error) { state.storyError = error?.message || 'Race day could not be prepared.'; render(); }
+  }
+
+  async function handleLumerreRaceAction(action) {
+    if (action === 'result-journey') {
+      state.mode = 'story-journey';
+      render();
+      syncMusic({restart:true});
+      return;
+    }
+    if (action === 'launch-real-engine' || action === 'retry-real-engine') {
+      await launchLumerreStoryRace();
+    }
+  }
+
+  function renderLumerreRaceDay() {
+    const story = state.story || normaliseQuickquillStory(activeSaveState().story);
+    const rw = lumerreRaceEnsureState(lumerreRaceDayState(story), story);
+    const qual = practiceQualifyingState(story).qualifying || {};
+    const result = rw.phase === 'result' && rw.completed;
+    const launching = ['engine-launching','engine-live'].includes(String(rw.phase || ''));
+    const background = result && Number(rw.finalPosition || 9) <= 3 ? LUMERRE_RACE_PODIUM : LUMERRE_LAUNCH_TUNNEL;
+    const title = result ? (rw.headline || 'THE CHEQUERED FLAG') : launching ? 'OPENING DRAGON RACING' : 'THE LUMERRE CROWN';
+    const copy = result
+      ? (rw.narrative || `${storyDragonName()} finished ${ordinal(rw.finalPosition || 7)} at Lumerre.`)
+      : launching
+        ? 'Career Mode has handed the event to the established Dragon Racing engine. The race itself belongs there — normal dragon sprites, normal race camera, normal movement and real on-track position changes.'
+        : `You qualified ${ordinal(Number(qual.position) || rw.startPosition || 4)}. The Crown will now open in the same Dragon Racing system used by the other races — not the old map-marker simulation.`;
+    const grid = result ? (rw.liveOrder || []) : (rw.gridOrder || lumerreRaceFixedGrid(story));
+    const classification = grid.map((id, index) => `<div class="lumerre-grid-row ${id === 'player' ? 'is-player' : ''}"><span>P${index + 1}</span><strong>${escapeHtml(lumerreRaceNameForId(id))}</strong><small>${escapeHtml(lumerreRaceTeamForId(id))}</small></div>`).join('');
+    const action = result
+      ? `<button type="button" data-lumerre-race-action="result-journey"><b>RETURN TO STORY JOURNEY</b><span>Carry the genuine Dragon Racing result forward.</span></button>`
+      : launching
+        ? `<div class="lumerre-engine-handoff"><small>ENGINE HANDOFF</small><strong>DRAGON RACING SHOULD BE OPEN</strong><p>If you exited the race, use retry. Career Mode will never fall back to the old tiny-marker race.</p></div><button type="button" data-lumerre-race-action="retry-real-engine"><b>RETRY DRAGON RACING</b><span>Re-open the same Lumerre run safely.</span></button>`
+        : `<button type="button" data-lumerre-race-action="launch-real-engine"><b>START LUMERRE IN DRAGON RACING</b><span>Launch the real race engine used by Canto and Blackglass.</span></button>`;
+    root.innerHTML = `<section class="lumerre-race-shell"><img class="lumerre-race-backdrop" src="${background}" alt="" aria-hidden="true"><div class="lumerre-race-shade"></div><header class="lumerre-race-header"><div><small>CHAPTER SIX · ${result ? 'OFFICIAL RESULT' : 'RACE DAY'}</small><h1>${escapeHtml(title)}</h1><p>${escapeHtml(copy)}</p></div><button type="button" class="lumerre-race-back" data-lumerre-race-action="result-journey">STORY JOURNEY</button></header><div class="lumerre-race-stage"><section class="lumerre-race-card"><div class="lumerre-race-badge">${escapeHtml(result ? (rw.badge || 'RESULT') : launching ? 'REAL ENGINE' : 'DRAGON RACING')}</div><div class="lumerre-race-grid-card"><header><small>${result ? 'FINAL CLASSIFICATION' : 'STARTING GRID'}</small><strong>${result ? `YOU · ${ordinal(rw.finalPosition || 7)}` : `YOU · ${ordinal(rw.startPosition || Number(qual.position) || 4)}`}</strong></header>${classification}</div>${result && Number(rw.finalPosition || 9) <= 3 ? `<img class="lumerre-race-trophy" src="${LUMERRE_RACE_TROPHY}" alt="Lumerre Crown trophy">` : ''}</section><section class="lumerre-race-actions">${action}${state.storyError ? `<div class="story-error" role="alert">${escapeHtml(state.storyError)}</div>` : ''}</section></div></section>`;
+    root.querySelectorAll('[data-lumerre-race-action]').forEach(button => button.addEventListener('click', () => { void handleLumerreRaceAction(button.dataset.lumerreRaceAction || ''); }));
+  }
+
+  function renderPracticeQualifyingComplete() {
+
+    const story=state.story||normaliseQuickquillStory(activeSaveState().story),pq=practiceQualifyingState(story),practice=pq.practice||{},q=pq.qualifying||{},evo=syncCareerEvolution(story),race=lumerreRaceDayState(story),raceAction=(story.completed?.raceWeekend||race.completed)?'VIEW RACE DAY RESULT':'BEGIN RACE DAY';
+    root.innerHTML=`<section class="practice-complete-shell"><img src="${LUMERRE_LAUNCH_TUNNEL}" alt="" aria-hidden="true"><div class="practice-complete-shade"></div><header><small>CHAPTER SIX · PRACTICE & QUALIFYING</small><h1>THE MEASURE OF A LAP</h1><p>Practice found the problem. Qualifying found the grid. Tomorrow the Lumerre Crown asks whether either one matters in traffic.</p></header><div class="practice-complete-grid"><article><small>GRID</small><strong>${escapeHtml(lumerreQualifyingPositionLabel(story))}</strong><span>${escapeHtml(formatStoryLap(q.bestLapMs))}</span></article><article><small>PRACTICE</small><strong>${practice.run2?`P${practice.run2.position}`:'—'}</strong><span>${practice.diagnosis?.correct?'ROOT CAUSE IDENTIFIED':'CORRECTION APPLIED'}</span></article><article><small>TYRESE</small><strong>${q.tyresePosition?`P${q.tyresePosition}`:'—'}</strong><span>${q.position&&q.tyresePosition&&q.position<q.tyresePosition?'OUTQUALIFIED CAPTAIN':'TEAMMATE BENCHMARK'}</span></article><article><small>CAREER STATUS</small><strong>${escapeHtml(evo.fameTier)}</strong><span>${escapeHtml(evo.playerStyle)}</span></article></div><div class="practice-next-card"><small>NEXT</small><strong>RACE DAY · THE LUMERRE CROWN</strong><span>Full live gaps, overtaking, defending, stamina and team orders arrive with the race.</span></div><div class="practice-complete-actions"><button type="button" data-start-lumerre-race>${raceAction}</button><button type="button" class="is-secondary" data-practice-complete-back>RETURN TO STORY JOURNEY</button></div></section>`;
+    root.querySelector('[data-start-lumerre-race]')?.addEventListener('click',()=>{void startLumerreRaceDay();});
+    root.querySelector('[data-practice-complete-back]')?.addEventListener('click',()=>{state.mode='story-journey';render();syncMusic({restart:true});});
+  }
+
+
+  function crownStageShell(scene, sceneIndex, body, extraClass = '') {
+    const count = QUICKQUILL_CROWN_WEEK_SCENES.length;
+    return `<section class="story-shell tone-${escapeHtml(scene.tone||'crown-day')} crown-story-shell" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}">
+      <img class="story-backdrop" src="${scene.background}" alt="" aria-hidden="true">
+      <div class="story-stage crown-stage ${extraClass}">
+        <img class="story-environment" src="${scene.background}" alt="${escapeHtml(scene.title)}">
+        <div class="crown-stage-wash" aria-hidden="true"></div><div class="story-grain" aria-hidden="true"></div><div class="story-letterbox" aria-hidden="true"></div>
+        <header class="story-header crown-story-header"><div><small>QUICKQUILL: AGAINST THE ODDS</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-story-home>BACK TO HUB</button></header>
+        <div class="story-scene-counter crown-progress" aria-hidden="true"><i style="--story-progress:${((sceneIndex+1)/count)*100}%"></i><span>CROWN WEEK ${sceneIndex+1} / ${count}</span></div>
+        ${body}
+      </div><div class="story-screen-vignette" aria-hidden="true"></div>
+    </section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+  }
+
+  function bindCrownBack() {
+    bindCrownWeekBackgroundFallback(activeStoryScene());
+    root.querySelector('[data-story-home]')?.addEventListener('click', event => { event.stopPropagation(); clearCrownChallengeTimers(); returnToHubFromStory(); });
+  }
+
+  function crownEncounterPosition(id, index = 0) {
+    const map = {
+      tyrese:[18,31],jalen:[71,24],sofia:[57,17],nell:[35,61],luka:[29,74],ren:[53,36],maya:[81,56],media:[56,72],fan:[45,48]
+    };
+    return map[id] || [25 + (index%4)*18, 28 + Math.floor(index/4)*34];
+  }
+
+  function crownEncounterModal(encounter, selectedIndex = -1) {
+    if (!encounter) return '';
+    return `<div class="crown-modal-layer" role="dialog" aria-modal="true" aria-label="${escapeHtml(encounter.title)}">
+      <section class="crown-encounter-modal">
+        ${portraitMarkup({character:encounter.character,frame:encounter.frame,side:'left'})}
+        <button type="button" class="crown-modal-close" data-crown-modal-close aria-label="Close">×</button>
+        <div class="crown-modal-copy"><small>${escapeHtml(encounter.location || 'CROWN VILLAGE')}</small><h2>${escapeHtml(encounter.title)}</h2><p>${escapeHtml(encounter.text)}</p>
+          <div class="crown-modal-options">${encounter.options.map((option,index)=>`<button type="button" data-crown-encounter-choice="${index}"><b>${String.fromCharCode(65+index)}</b><span><strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(option.note)}</small></span></button>`).join('')}</div>
+        </div>
+      </section>
+    </div>`;
+  }
+
+  function renderCrownVillage(scene, beat, sceneIndex) {
+    const cw = crownWeekState();
+    const village = cw.village || defaultQuickquillStory().chapter6.crownWeek.village;
+    const director = crownVillageEncounterDirector(state.story);
+    const completed = village.encounters || [];
+    const messages = crownVillageMessages(state.story);
+    const rumour = crownRumourForStory(state.story);
+    const selected = state.crownEncounterId ? CROWN_VILLAGE_ENCOUNTERS[state.crownEncounterId] : null;
+    const visitsNeeded = Math.max(0, 3 - completed.length);
+    const encounterButtons = director.map((id,index) => {
+      const item=CROWN_VILLAGE_ENCOUNTERS[id]; if(!item) return '';
+      const [x,y]=crownEncounterPosition(id,index), done=completed.includes(id);
+      return `<button type="button" class="crown-map-pin ${done?'is-complete':''}" data-crown-encounter="${id}" style="--pin-x:${x}%;--pin-y:${y}%"><i>${done?'✓':'◆'}</i><span><small>${escapeHtml(item.location)}</small><strong>${escapeHtml(item.title)}</strong></span></button>`;
+    }).join('');
+    const unread=messages.filter(m=>!village.inboxRead?.includes(m.id)).length;
+    const body=`<section class="crown-village-ui" aria-live="polite">
+      <header class="crown-week-dashboard"><div><small>CROWN WEEK · OPEN SCHEDULE</small><h1>THE CROWN VILLAGE</h1><p>Spend the afternoon where you want. Three meaningful encounters move the schedule forward; everything else is optional.</p></div><div class="crown-clock"><small>NEXT FIXED EVENT</small><strong>15:00</strong><span>CROWN PARADE</span></div></header>
+      <div class="crown-village-map"><div class="crown-map-shade"></div>${encounterButtons}<div class="crown-map-avatar">${downtimeDragonMarkup(0,'is-crown-map-dragon')}<span>${escapeHtml(storyDragonName())}</span></div></div>
+      <aside class="crown-village-side">
+        <section class="crown-schedule-card"><small>TODAY</small><span class="is-done"><b>10:00</b>ARRIVAL</span><span class="is-live"><b>11:30</b>CROWN VILLAGE</span><span><b>15:00</b>PUBLIC PARADE</span><span><b>17:30</b>CROWN CHALLENGE</span><span><b>20:00</b>GARDEN RECEPTION</span></section>
+        <section class="crown-inbox-card"><header><small>RACING INBOX</small><b>${unread} NEW</b></header>${messages.map(msg=>`<button type="button" class="${village.inboxRead?.includes(msg.id)?'is-read':''}" data-crown-message="${msg.id}"><span>${escapeHtml(msg.from)} <i>${escapeHtml(msg.time)}</i></span><p>${escapeHtml(msg.text)}</p></button>`).join('')}</section>
+        ${completed.length>=2?`<section class="crown-rumour-card ${village.rumourSeen?'is-open':''}"><small>${escapeHtml(rumour.label)} · UNVERIFIED</small>${village.rumourSeen?`<p>${escapeHtml(rumour.text)}</p>`:`<button type="button" data-crown-rumour>OPEN PADDOCK RUMOUR</button>`}</section>`:''}
+      </aside>
+      <footer class="crown-village-footer"><div><small>AFTERNOON MEMORY</small><strong>${completed.length} / 3 REQUIRED ENCOUNTERS</strong><span>${visitsNeeded?`${visitsNeeded} more before the parade`:'Schedule clear — leave when ready'}</span></div><button type="button" data-crown-village-finish ${completed.length<3?'disabled':''}>HEAD TO THE CROWN PARADE <i>›</i></button></footer>
+      ${state.crownTransient?`<div class="crown-toast">${escapeHtml(state.crownTransient)}</div>`:''}
+      ${selected?crownEncounterModal(selected):''}
+      ${state.storyError?`<div class="story-error crown-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}
+    </section>`;
+    root.innerHTML=crownStageShell(scene,sceneIndex,body,'is-crown-village'); bindCrownBack();
+    root.querySelectorAll('[data-crown-encounter]').forEach(button=>button.addEventListener('click',()=>{const id=String(button.dataset.crownEncounter||'');if(completed.includes(id)){state.crownTransient='You already had this conversation.';render();return;}state.crownEncounterId=id;playTone(285);render();}));
+    root.querySelector('[data-crown-modal-close]')?.addEventListener('click',()=>{state.crownEncounterId='';render();});
+    root.querySelectorAll('[data-crown-encounter-choice]').forEach(button=>button.addEventListener('click',()=>void chooseCrownVillageEncounter(Number(button.dataset.crownEncounterChoice))));
+    root.querySelectorAll('[data-crown-message]').forEach(button=>button.addEventListener('click',()=>void readCrownMessage(String(button.dataset.crownMessage||''))));
+    root.querySelector('[data-crown-rumour]')?.addEventListener('click',()=>void revealCrownRumour());
+    root.querySelector('[data-crown-village-finish]')?.addEventListener('click',()=>void finishCrownVillage());
+  }
+
+  async function chooseCrownVillageEncounter(optionIndex) {
+    if (state.storySaving || state.transitionLocked) return;
+    const id=state.crownEncounterId, encounter=CROWN_VILLAGE_ENCOUNTERS[id], option=encounter?.options?.[optionIndex];
+    if(!encounter||!option)return;
+    const changed=cloneValue(state.story), village=changed.chapter6.crownWeek.village;
+    if(village.encounters.includes(id))return;
+    applyStoryEffects(changed,option.effects||{}); applyCareerEvolutionEffects(changed,option.careerEffects||{});
+    village.encounters=[...village.encounters,id].slice(0,8); village.encounterChoices={...village.encounterChoices,[id]:option.label};
+    if(id==='fan')playCrownSfx('autograph'); else if(id==='media')playCrownSfx('camera');
+    changed.history=[...(changed.history||[]),{scene:'q41',event:'crown-village-encounter',encounter:id,choice:optionIndex}].slice(-100);
+    state.story=changed; state.crownEncounterId=''; state.crownTransient=`${encounter.title} · recorded`;
+    render();
+    try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Crown Village choice could not be saved.';render();}
+    window.setTimeout(()=>{if(state.mode==='story'&&state.story?.scene==='q41'){state.crownTransient='';render();}},1800);
+  }
+
+  async function readCrownMessage(id) {
+    if(state.storySaving)return; const changed=cloneValue(state.story),village=changed.chapter6.crownWeek.village;
+    if(!village.inboxRead.includes(id)){village.inboxRead=[...village.inboxRead,id].slice(0,12);playCrownSfx('inbox');state.story=changed;render();try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(_){}}
+  }
+
+  async function revealCrownRumour() {
+    if (state.storySaving) return;
+    const changed = cloneValue(state.story);
+    const village = changed.chapter6.crownWeek.village;
+    const rumour = crownRumourForStory(changed);
+    village.rumourId = rumour.id;
+    village.rumourSeen = true;
+    changed.history = [...(changed.history || []), { scene:'q41', event:'paddock-rumour', rumour:rumour.id }].slice(-100);
+    playCrownSfx('rumour');
+    state.story = changed;
+    render();
+    try { await persistStory(changed, { stageOverride:'quickquill-crown-week' }); } catch (_) {}
+  }
+
+  async function finishCrownVillage() {
+    if(state.storySaving||state.transitionLocked)return;const changed=cloneValue(state.story),village=changed.chapter6.crownWeek.village;if((village.encounters||[]).length<3)return;
+    village.completed=true;const next=nextStoryPointer(changed);state.crownEncounterId='';await saveStoryProgress(next.story,{transition:true});syncMusic({restart:true});
+  }
+
+  function crownChallengeScoreboard(story=state.story) {
+    const challenge=crownWeekState(story).challenge||{},standings=crownChallengeStandings(story),points=challenge.playerPoints||{};
+    return `<aside class="crown-challenge-score"><header><small>LIVE CROWN CHALLENGE</small><strong>${['reaction','slalom','climb','sprint'].reduce((sum,k)=>sum+(Number(points[k])||0),0)} PTS</strong></header>${standings.map(row=>`<span class="${row.id==='player'?'is-player':''}"><b>${String(row.rank).padStart(2,'0')}</b><i>${escapeHtml(row.name)}</i><strong>${row.points}</strong></span>`).join('')}</aside>`;
+  }
+
+  function crownChallengeEventHeader(stage, title, subtitle) {
+    const label = stage >= 4 ? 'FINAL STANDINGS' : `EVENT ${stage+1} / 4`;
+    return `<header class="crown-challenge-event-head"><div><small>${label}</small><h1>${escapeHtml(title)}</h1><p>${escapeHtml(subtitle)}</p></div><span>CROWN CHALLENGE</span></header>`;
+  }
+
+  function renderCrownChallenge(scene, beat, sceneIndex) {
+    const cw=crownWeekState(),challenge=cw.challenge||defaultQuickquillStory().chapter6.crownWeek.challenge,stage=Math.max(0,Math.min(4,Number(challenge.stage)||0));
+    let eventBody='';
+    if(stage===0){
+      const result=challenge.reaction;
+      eventBody=result?`${crownChallengeEventHeader(0,'REACTION GATE','One launch. No restart.')}<section class="crown-reaction-result"><small>OFFICIAL REACTION</small><strong>${result.falseStart?'FALSE START':`${Math.round(result.ms)} ms`}</strong><span>${result.points} POINTS</span><p>${escapeHtml(result.note)}</p><button type="button" data-crown-challenge-next>NEXT EVENT <i>›</i></button></section>`:
+      `${crownChallengeEventHeader(0,'REACTION GATE','Arm the start, wait for green, then launch. Jump it and the result stands.')}<section class="crown-reaction-game"><div class="crown-reaction-lights" data-crown-reaction-lights><i></i><i></i><i></i><i></i></div><button type="button" class="crown-launch-button" data-crown-reaction-arm>ARM START</button><p data-crown-reaction-status>The clock is yours when you arm it.</p></section>`;
+    } else if(stage===1){
+      const slalom=challenge.slalom,sequence=['L','R','R','L','R','L'];
+      if(slalom?.completed){eventBody=`${crownChallengeEventHeader(1,'PRECISION SLALOM','Six gates. Wrong side means a penalty.')}<section class="crown-slalom-result"><small>OFFICIAL TIME</small><strong>${(Number(slalom.totalMs)/1000).toFixed(3)}s</strong><span>${slalom.points} POINTS · ${slalom.misses} PENALT${slalom.misses===1?'Y':'IES'}</span><button type="button" data-crown-challenge-next>NEXT EVENT <i>›</i></button></section>`;}
+      else {const idx=Math.max(0,Number(slalom?.index)||0),hits=Number(slalom?.hits)||0,misses=Number(slalom?.misses)||0;eventBody=`${crownChallengeEventHeader(1,'PRECISION SLALOM','Read the gate call and commit left or right.')}<section class="crown-slalom-game"><div class="crown-gate-run">${sequence.map((dir,i)=>`<i class="${i<idx?(slalom?.inputs?.[i]===dir?'is-hit':'is-miss'):i===idx?'is-live':''}">${i<idx?(slalom?.inputs?.[i]===dir?'✓':'×'):i===idx?'◆':'·'}</i>`).join('')}</div><div class="crown-gate-call"><small>GATE ${idx+1} / ${sequence.length}</small><strong>${sequence[idx]==='L'?'LEFT':'RIGHT'}</strong><span>${hits} CLEAN · ${misses} PENALTIES</span></div><div class="crown-slalom-controls"><button type="button" data-crown-slalom="L">← LEFT GATE</button><button type="button" data-crown-slalom="R">RIGHT GATE →</button></div></section>`;}
+    } else if(stage===2){
+      const climb=challenge.climb||{},segment=Math.max(0,Number(climb.segment)||0),stamina=Math.max(0,Math.min(100,Number(climb.stamina??100))),choices=Array.isArray(climb.choices)?climb.choices:[];
+      if(climb.completed){eventBody=`${crownChallengeEventHeader(2,'TERRACE CLIMB','Three sectors. Pace has a cost.')}<section class="crown-climb-result"><small>OFFICIAL TIME</small><strong>${(Number(climb.totalMs)/1000).toFixed(3)}s</strong><span>${climb.points} POINTS · ${Math.round(climb.stamina)} ENERGY LEFT</span><button type="button" data-crown-challenge-next>NEXT EVENT <i>›</i></button></section>`;}
+      else eventBody=`${crownChallengeEventHeader(2,'TERRACE CLIMB','Three uphill sectors. Decide how much of the dragon you spend now.')}<section class="crown-climb-game"><div class="crown-climb-telemetry"><span><small>SECTOR</small><strong>${segment+1} / 3</strong></span><span><small>ENERGY</small><strong>${Math.round(stamina)}%</strong></span><span><small>ELAPSED</small><strong>${((Number(climb.totalMs)||0)/1000).toFixed(1)}s</strong></span></div><div class="crown-energy-bar"><i style="width:${stamina}%"></i></div><div class="crown-climb-controls"><button type="button" data-crown-climb="push"><b>PUSH</b><span>Fastest · high energy cost</span></button><button type="button" data-crown-climb="hold"><b>HOLD PACE</b><span>Controlled · moderate cost</span></button><button type="button" data-crown-climb="recover"><b>RECOVER</b><span>Slowest · restore energy</span></button></div><div class="crown-climb-history">${choices.map((c,i)=>`<span>S${i+1} · ${escapeHtml(String(c).toUpperCase())}</span>`).join('')}</div></section>`;
+    } else if(stage===3){
+      const sprint=challenge.sprint||{},opponentId=sprint.opponentId||crownChallengeOpponentId(state.story),opponent=CAREER_RACER_AI[opponentId]||CAREER_RACER_AI.ren,gap=Math.max(.05,Number(sprint.gap??.38)),round=Math.max(0,Number(sprint.round)||0),stamina=Math.max(0,Math.min(100,Number(sprint.stamina??100)));
+      if(sprint.completed){eventBody=`${crownChallengeEventHeader(3,'HEAD-TO-HEAD SPRINT','The first live battle test of Career Evolution.')}<section class="crown-sprint-result"><small>${escapeHtml(opponent.name)} · HEAD TO HEAD</small><strong>${sprint.won?'PASS COMPLETE':sprint.close?'PHOTO-LINE LOSS':'OPPONENT HOLDS'}</strong><span>${sprint.points} POINTS</span><p>${escapeHtml(sprint.summary||'The result is recorded.')}</p><button type="button" data-crown-challenge-next>FINAL STANDINGS <i>›</i></button></section>`;}
+      else eventBody=`${crownChallengeEventHeader(3,'HEAD-TO-HEAD SPRINT','Close the gap and choose the move. This battle uses the V34.26 racecraft resolver.')}<section class="crown-sprint-game"><div class="crown-head-to-head"><span><small>PLAYER</small><strong>${escapeHtml(storyDragonName())}</strong></span><b>VS</b><span><small>${escapeHtml(opponent.team)}</small><strong>${escapeHtml(opponent.name)}</strong></span></div><div class="crown-gap-display"><small>${round?`ATTACK WINDOW · ROUND ${round+1}`:'STARTING GAP'}</small><strong>${gap.toFixed(2)}s</strong><span>ENERGY ${Math.round(stamina)}%</span></div>${sprint.lastNarrative?`<p class="crown-battle-commentary">${escapeHtml(sprint.lastNarrative)}</p>`:''}<div class="crown-battle-controls"><button type="button" data-crown-sprint="attack-inside"><b>ATTACK INSIDE</b><span>High commitment</span></button><button type="button" data-crown-sprint="pressure-exit"><b>PRESSURE EXIT</b><span>Set up the next sector</span></button><button type="button" data-crown-sprint="use-slipstream"><b>USE SLIPSTREAM</b><span>Build the straight-line move</span></button><button type="button" data-crown-sprint="stay-patient"><b>STAY PATIENT</b><span>Save energy, wait for a better opening</span></button></div></section>`;
+    } else {
+      const standings=challenge.standings?.length?challenge.standings:crownChallengeStandings(state.story),player=standings.find(row=>row.id==='player')||{rank:7,points:challenge.totalPoints||0};
+      eventBody=`${crownChallengeEventHeader(4,'CROWN CHALLENGE — FINAL','Four disciplines. One public first impression.')}<section class="crown-challenge-final"><div class="crown-final-rank"><small>FINAL POSITION</small><strong>${ordinal(player.rank)}</strong><span>${player.points} TOTAL POINTS</span></div><div class="crown-final-board">${standings.map(row=>`<span class="${row.id==='player'?'is-player':''}"><b>${row.rank}</b><i>${escapeHtml(row.name)}</i><strong>${row.points}</strong></span>`).join('')}</div><p>${player.rank===1?'Crown Week has a new headline. The rookie just won the ceremonial Challenge.':player.rank<=3?'The paddock expected promise. A Crown Challenge podium looks much more like evidence.':'The Challenge does not decide the race weekend. It does decide who the cameras follow into it.'}</p><button type="button" data-crown-challenge-finish>CONTINUE TO GARDEN RECEPTION <i>›</i></button></section>`;
+    }
+    const body=`<section class="crown-challenge-ui" aria-live="polite"><div class="crown-challenge-main">${eventBody}</div>${crownChallengeScoreboard(state.story)}${state.storyError?`<div class="story-error crown-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}</section>`;
+    root.innerHTML=crownStageShell(scene,sceneIndex,body,'is-crown-challenge');bindCrownBack();
+    root.querySelector('[data-crown-reaction-arm]')?.addEventListener('click',()=>beginCrownReaction());
+    root.querySelectorAll('[data-crown-slalom]').forEach(button=>button.addEventListener('click',()=>void crownSlalomInput(String(button.dataset.crownSlalom||''))));
+    root.querySelectorAll('[data-crown-climb]').forEach(button=>button.addEventListener('click',()=>void crownClimbChoice(String(button.dataset.crownClimb||''))));
+    root.querySelectorAll('[data-crown-sprint]').forEach(button=>button.addEventListener('click',()=>void crownSprintChoice(String(button.dataset.crownSprint||''))));
+    root.querySelector('[data-crown-challenge-next]')?.addEventListener('click',()=>void advanceCrownChallengeEvent());
+    root.querySelector('[data-crown-challenge-finish]')?.addEventListener('click',()=>void finishCrownChallenge());
+  }
+
+  function beginCrownReaction() {
+    if(state.crownChallengeLive||state.storySaving)return;clearCrownChallengeTimers();
+    const button=root.querySelector('[data-crown-reaction-arm]'),lights=root.querySelector('[data-crown-reaction-lights]'),status=root.querySelector('[data-crown-reaction-status]');if(!button||!lights)return;
+    state.crownChallengeLive={phase:'reaction',goAt:0};button.textContent='LAUNCH';button.classList.add('is-live');if(status)status.textContent='Wait for green. Jump it and the false start stands.';playCrownSfx('beep');
+    [650,1350,2050].forEach((delayMs,index)=>crownChallengeTimers.push(window.setTimeout(()=>lights.classList.add(`step-${index+1}`),delayMs)));
+    const goDelay=3000+Math.round(Math.random()*500);
+    crownChallengeTimers.push(window.setTimeout(()=>{if(!state.crownChallengeLive)return;lights.classList.add('is-green');state.crownChallengeLive.goAt=performance.now();if(status)status.textContent='GO';playCrownSfx('go');},goDelay));
+    button.onclick=()=>void completeCrownReaction();
+  }
+
+  async function completeCrownReaction() {
+    const live=state.crownChallengeLive;if(!live||state.storySaving)return;const falseStart=!live.goAt,ms=falseStart?0:Math.max(1,performance.now()-live.goAt);clearCrownChallengeTimers();
+    let points=2,note='The start was jumped. Lumerre records it anyway.';
+    if(!falseStart){const starts=Number(syncCareerEvolution(state.story).racecraft.starts)||40;points=ms<210?10:ms<270?9:ms<340?8:ms<430?7:ms<560?6:5;if(starts>=55&&points<10)points+=1;note=ms<270?'Elite reaction. The crowd notices immediately.':ms<430?'Clean professional launch.':'Safe, legal, a little time left on the table.';}
+    const changed=cloneValue(state.story);changed.chapter6.crownWeek.challenge.started=true;changed.chapter6.crownWeek.challenge.reaction={falseStart,ms,points,note};changed.chapter6.crownWeek.challenge.playerPoints.reaction=points;changed.history=[...(changed.history||[]),{scene:'q43',event:'crown-reaction',ms:falseStart?null:Math.round(ms),falseStart,points}].slice(-100);state.story=changed;falseStart?playCrownSfx('falseStart'):playCrownSfx(points>=9?'personalBest':'checkpoint');render();try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Reaction result could not be saved.';render();}
+  }
+
+  async function crownSlalomInput(direction) {
+    if(state.storySaving)return;const sequence=['L','R','R','L','R','L'],changed=cloneValue(state.story),challenge=changed.chapter6.crownWeek.challenge,current=challenge.slalom&&typeof challenge.slalom==='object'?{...challenge.slalom}:{index:0,hits:0,misses:0,inputs:[],startedAt:Date.now()};if(current.completed)return;
+    const idx=Math.max(0,Number(current.index)||0);if(idx>=sequence.length)return;current.inputs=[...(current.inputs||[]),direction];if(direction===sequence[idx]){current.hits=(Number(current.hits)||0)+1;playCrownSfx('checkpoint');}else{current.misses=(Number(current.misses)||0)+1;playCrownSfx('miss');}current.index=idx+1;
+    if(current.index>=sequence.length){const rawMs=Math.max(4200,Date.now()-(Number(current.startedAt)||Date.now()));const tech=Number(syncCareerEvolution(changed).racecraft.technicalUnderstanding)||45;const penalties=(Number(current.misses)||0)*2000;const skillCredit=Math.max(0,tech-45)*22;current.totalMs=Math.max(4000,rawMs+penalties-skillCredit);current.points=Math.max(3,Math.min(10,10-(Number(current.misses)||0)*2-(current.totalMs>11500?2:current.totalMs>9000?1:0)));current.completed=true;challenge.playerPoints.slalom=current.points;challenge.slalom=current;changed.history=[...(changed.history||[]),{scene:'q43',event:'crown-slalom',misses:current.misses,totalMs:Math.round(current.totalMs),points:current.points}].slice(-100);playCrownSfx(current.points>=9?'personalBest':'split');}
+    challenge.slalom=current;state.story=changed;render();if(current.completed){try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Slalom result could not be saved.';render();}}
+  }
+
+  async function crownClimbChoice(choice) {
+    if(state.storySaving)return;const changed=cloneValue(state.story),challenge=changed.chapter6.crownWeek.challenge,climb=challenge.climb&&typeof challenge.climb==='object'?{...challenge.climb}:{segment:0,stamina:100,totalMs:0,choices:[]};if(climb.completed)return;
+    const evo=syncCareerEvolution(changed),skill=Number(evo.racecraft.staminaManagement)||45,segment=Math.max(0,Number(climb.segment)||0);let stamina=Math.max(0,Math.min(100,Number(climb.stamina??100))),ms=25000;
+    if(choice==='push'){ms=22000-Math.max(0,skill-45)*55;stamina-=26;if(stamina<25&&Math.random()<.34){ms+=3800;state.crownTransient='The final metres bite back.';}}
+    else if(choice==='recover'){ms=28200-Math.max(0,skill-45)*25;stamina+=18;}
+    else {ms=24800-Math.max(0,skill-45)*38;stamina-=12;choice='hold';}
+    climb.totalMs=(Number(climb.totalMs)||0)+Math.max(18000,ms);climb.stamina=Math.max(0,Math.min(100,stamina));climb.choices=[...(climb.choices||[]),choice];climb.segment=segment+1;playCrownSfx('split');
+    if(climb.segment>=3){const total=climb.totalMs;climb.points=total<69000?10:total<73000?9:total<78000?8:total<84000?7:6;if(climb.stamina<15)climb.points=Math.max(5,climb.points-1);climb.completed=true;challenge.playerPoints.climb=climb.points;changed.history=[...(changed.history||[]),{scene:'q43',event:'crown-climb',totalMs:Math.round(total),stamina:Math.round(climb.stamina),points:climb.points,choices:climb.choices.slice()}].slice(-100);playCrownSfx(climb.points>=9?'personalBest':'checkpoint');}
+    challenge.climb=climb;state.story=changed;render();try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Terrace Climb progress could not be saved.';render();}
+  }
+
+  function recordCrownSprintBattle(story,battle) {
+    const evolution=syncCareerEvolution(story),id=battle.opponentId,entry=evolution.rivalries?.[id];if(entry){entry.battles+=1;entry.intensity=clampCareerValue(entry.intensity+2);entry.respect=clampCareerValue(entry.respect+1);entry.lastEvent='Lumerre Crown Challenge';if(battle.outcome==='overtake')entry.playerPassedThem+=1;}
+    if(id==='tyrese'){evolution.tyrese.competitiveTension=clampCareerValue(evolution.tyrese.competitiveTension+(battle.outcome==='overtake'?4:2));evolution.tyrese.professionalRespect=clampCareerValue(evolution.tyrese.professionalRespect+2);}story.careerEvolution=evolution;
+  }
+
+  async function crownSprintChoice(choice) {
+    if(state.storySaving)return;const changed=cloneValue(state.story),challenge=changed.chapter6.crownWeek.challenge;let sprint=challenge.sprint&&typeof challenge.sprint==='object'?{...challenge.sprint}:{opponentId:crownChallengeOpponentId(changed),gap:.38,stamina:100,round:0,events:[]};if(sprint.completed)return;
+    const battle=resolveCareerAttackBattle(changed,sprint.opponentId,choice,{gapSeconds:sprint.gap,stamina:sprint.stamina,sectorType:(Number(sprint.round)||0)%2?'technical':'fast'});recordCrownSprintBattle(changed,battle);sprint.events=[...(sprint.events||[]),battle.event].slice(-6);sprint.stamina=Math.max(0,Math.min(100,(Number(sprint.stamina)||100)+(Number(battle.staminaDelta)||0)));sprint.lastNarrative=battle.narrative;sprint.round=(Number(sprint.round)||0)+1;
+    if(battle.outcome==='overtake'){sprint.completed=true;sprint.won=true;sprint.close=false;sprint.points=10;sprint.gap=-.05;sprint.summary=`${storyDragonName()} completes the pass on ${battle.opponentName}. The first live Crown Week battle belongs to Quickquill.`;playCrownSfx('newLeader');}
+    else {const follow=(Number(battle.followUpBonus)||0)*.012;sprint.gap=Math.max(.08,Math.min(.9,(Number(sprint.gap)||.38)+(Number(battle.timeDelta)||0)-follow+(battle.outcome==='failed'?.02:0)));if(sprint.round>=3){sprint.completed=true;sprint.won=false;sprint.close=sprint.gap<=.30;sprint.points=sprint.close?8:battle.outcome==='mistake'?5:6;sprint.summary=sprint.close?`${battle.opponentName} holds the line by ${sprint.gap.toFixed(2)}s. It is close enough to become a future problem.`:`${battle.opponentName} keeps the place. The battle still becomes part of the paddock memory.`;playCrownSfx(sprint.close?'personalBest':'complete');}else playCrownSfx('checkpoint');}
+    if(sprint.completed){challenge.playerPoints.sprint=sprint.points;changed.history=[...(changed.history||[]),{scene:'q43',event:'crown-head-to-head',opponent:sprint.opponentId,won:!!sprint.won,points:sprint.points,events:sprint.events.slice(-4)}].slice(-100);}challenge.sprint=sprint;state.story=changed;render();try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Head-to-head result could not be saved.';render();}
+  }
+
+  async function advanceCrownChallengeEvent() {
+    if(state.storySaving||state.transitionLocked)return;const changed=cloneValue(state.story),challenge=changed.chapter6.crownWeek.challenge,stage=Math.max(0,Number(challenge.stage)||0);const ready=stage===0?!!challenge.reaction:stage===1?!!challenge.slalom?.completed:stage===2?!!challenge.climb?.completed:stage===3?!!challenge.sprint?.completed:false;if(!ready)return;
+    challenge.stage=Math.min(4,stage+1);
+    if(challenge.stage===4&&!challenge.completed){const standings=crownChallengeStandings(changed,challenge.playerPoints);const player=standings.find(row=>row.id==='player')||{rank:7,points:0};challenge.standings=standings;challenge.totalPoints=player.points;challenge.rank=player.rank;challenge.completed=true;const fameGain=player.rank===1?6:player.rank<=3?4:2,respectGain=player.rank===1?4:player.rank<=3?3:1;applyCareerEvolutionEffects(changed,{reputation:{fame:fameGain,paddockRespect:respectGain,pressure:player.rank<=3?2:0}});changed.history=[...(changed.history||[]),{scene:'q43',event:'crown-challenge-complete',rank:player.rank,points:player.points}].slice(-100);playCrownSfx(player.rank===1?'newLeader':'complete');}
+    state.story=changed;render();try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Crown Challenge progress could not be saved.';render();}
+  }
+
+  async function finishCrownChallenge() {
+    if(state.storySaving||state.transitionLocked)return;const changed=cloneValue(state.story);if(!changed.chapter6.crownWeek.challenge.completed)return;const next=nextStoryPointer(changed);clearCrownChallengeTimers();await saveStoryProgress(next.story,{transition:true});syncMusic({restart:true});
+  }
+
+  function crownReceptionModal(item) {
+    if(!item)return'';return `<div class="crown-modal-layer" role="dialog" aria-modal="true"><section class="crown-encounter-modal is-reception">${portraitMarkup({character:item.character,frame:item.frame,side:'left'})}<button type="button" class="crown-modal-close" data-crown-reception-close>×</button><div class="crown-modal-copy"><small>LUMERRE CROWN RECEPTION</small><h2>${escapeHtml(item.title)}</h2><p>${escapeHtml(item.text)}</p><div class="crown-modal-options">${item.options.map((option,index)=>`<button type="button" data-crown-reception-choice="${index}"><b>${String.fromCharCode(65+index)}</b><span><strong>${escapeHtml(option.label)}</strong><small>${escapeHtml(option.note)}</small></span></button>`).join('')}</div></div></section></div>`;
+  }
+
+  function renderCrownOverlook(scene,sceneIndex) {
+    const cw=crownWeekState(),reception=cw.reception||{},evo=syncCareerEvolution(state.story),tension=Number(evo.tyrese?.competitiveTension)||0;
+    const body=`<section class="crown-overlook-ui"><div class="crown-overlook-copy"><small>OPTIONAL MOMENT · CIRCUIT OVERLOOK</small><h1>THE CROWD IS SOMEWHERE ELSE</h1><p>${tension>=14?'Tyrese is already at the rail. For the first time all day, neither of you has a camera pointed at you.':'Tyrese arrives a minute after you and leans against the rail without saying anything about the reception.'}</p><p>The illuminated Crown Circuit folds through the terraces below. Tomorrow it stops being scenery.</p>${reception.overlookSeen?`<div class="crown-overlook-recorded"><strong>MOMENT RECORDED</strong><span>${escapeHtml(reception.overlookChoice||'Private conversation')}</span><button type="button" data-crown-overlook-return>RETURN TO RECEPTION</button></div>`:`<div class="crown-overlook-options"><button type="button" data-crown-overlook-choice="0"><strong>“This is getting serious, isn’t it?”</strong><span>Acknowledge what the paddock is starting to see.</span></button><button type="button" data-crown-overlook-choice="1"><strong>“Tomorrow we race the circuit, not the headlines.”</strong><span>Keep the relationship grounded in the work.</span></button></div>`}</div>${portraitMarkup({character:'crownTyrese',frame:tension>=14?9:5,side:'right'})}</section>`;
+    root.innerHTML=crownStageShell({...scene,background:CROWN_WEEK_ENV+'circuit-overlook.webp',location:'Lumerre Crown Circuit overlook · 21:37'},sceneIndex,body,'is-crown-overlook');bindCrownBack();
+    root.querySelectorAll('[data-crown-overlook-choice]').forEach(button=>button.addEventListener('click',()=>void chooseCrownOverlook(Number(button.dataset.crownOverlookChoice))));
+    root.querySelector('[data-crown-overlook-return]')?.addEventListener('click',()=>{state.crownWeekView='';render();syncMusic({restart:true});});
+  }
+
+  function renderCrownReception(scene, beat, sceneIndex) {
+    if(state.crownWeekView==='overlook'){renderCrownOverlook(scene,sceneIndex);return;}
+    const reception=crownWeekState().reception||defaultQuickquillStory().chapter6.crownWeek.reception,director=crownReceptionDirector(state.story),completed=reception.conversations||[],selected=state.crownReceptionId?CROWN_RECEPTION_CONVERSATIONS[state.crownReceptionId]:null;
+    const body=`<section class="crown-reception-ui" aria-live="polite"><header><div><small>CROWN GARDEN RECEPTION · 20:00</small><h1>OFF THE CLOCK. NOT OFF THE RECORD.</h1><p>Choose who to spend the evening with. Three conversations are enough to leave; the rest are optional and may change later relationships.</p></div><span>${completed.length} / 3 REQUIRED</span></header><div class="crown-reception-floor">${director.map((id,index)=>{const item=CROWN_RECEPTION_CONVERSATIONS[id],done=completed.includes(id);return `<button type="button" class="crown-social-node ${done?'is-complete':''} node-${index+1}" data-crown-reception="${id}"><i>${done?'✓':'◆'}</i><span><small>${escapeHtml(id.toUpperCase())}</small><strong>${escapeHtml(item?.title||id)}</strong></span></button>`;}).join('')}<div class="crown-reception-status"><small>CROWN CHALLENGE</small><strong>${crownChallengeRankLabel()}</strong><span>${escapeHtml(syncCareerEvolution(state.story).fameTier)}</span></div></div><aside class="crown-reception-ledger"><small>EVENING</small>${completed.map((id,index)=>`<span><b>0${index+1}</b>${escapeHtml(CROWN_RECEPTION_CONVERSATIONS[id]?.title||id)}</span>`).join('')}${Array.from({length:Math.max(0,3-completed.length)},(_,i)=>`<span class="is-empty"><b>0${completed.length+i+1}</b>OPEN</span>`).join('')}${reception.overlookUnlocked&&!reception.overlookSeen?`<button type="button" class="crown-side-gate" data-crown-overlook><small>A SIDE GATE IS OPEN</small><strong>CIRCUIT OVERLOOK</strong><span>No objective marker. No cameras.</span></button>`:reception.overlookSeen?`<div class="crown-side-gate is-found"><small>OPTIONAL MOMENT</small><strong>CIRCUIT OVERLOOK</strong><span>Discovered</span></div>`:''}</aside><footer><p>${completed.length>=3?'You can leave whenever you want.':'The night still has room for another conversation.'}</p><button type="button" data-crown-reception-finish ${completed.length<3?'disabled':''}>RETURN TO QUICKQUILL VILLA <i>›</i></button></footer>${selected?crownReceptionModal(selected):''}${state.storyError?`<div class="story-error crown-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}</section>`;
+    root.innerHTML=crownStageShell(scene,sceneIndex,body,'is-crown-reception');bindCrownBack();
+    root.querySelectorAll('[data-crown-reception]').forEach(button=>button.addEventListener('click',()=>{const id=String(button.dataset.crownReception||'');if(completed.includes(id)){state.crownTransient='Conversation already recorded.';return;}state.crownReceptionId=id;render();}));
+    root.querySelector('[data-crown-reception-close]')?.addEventListener('click',()=>{state.crownReceptionId='';render();});
+    root.querySelectorAll('[data-crown-reception-choice]').forEach(button=>button.addEventListener('click',()=>void chooseCrownReception(Number(button.dataset.crownReceptionChoice))));
+    root.querySelector('[data-crown-overlook]')?.addEventListener('click',()=>{state.crownWeekView='overlook';state.crownReceptionId='';render();syncMusic({restart:true});});
+    root.querySelector('[data-crown-reception-finish]')?.addEventListener('click',()=>void finishCrownReception());
+  }
+
+  async function chooseCrownReception(optionIndex) {
+    if(state.storySaving)return;const id=state.crownReceptionId,item=CROWN_RECEPTION_CONVERSATIONS[id],option=item?.options?.[optionIndex];if(!item||!option)return;const changed=cloneValue(state.story),rec=changed.chapter6.crownWeek.reception;if(rec.conversations.includes(id))return;
+    applyStoryEffects(changed,option.effects||{});applyCareerEvolutionEffects(changed,option.careerEffects||{});rec.conversations=[...rec.conversations,id].slice(0,8);rec.choices={...rec.choices,[id]:option.label};if(rec.conversations.length>=2)rec.overlookUnlocked=true;changed.history=[...(changed.history||[]),{scene:'q44',event:'crown-reception-conversation',person:id,choice:optionIndex}].slice(-100);state.story=changed;state.crownReceptionId='';render();try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Reception choice could not be saved.';render();}
+  }
+
+  async function chooseCrownOverlook(optionIndex) {
+    if(state.storySaving)return;const changed=cloneValue(state.story),rec=changed.chapter6.crownWeek.reception;if(rec.overlookSeen)return;const options=[{label:'This is getting serious.',effects:{relationships:{tyreseBond:2}},careerEffects:{tyrese:{friendship:2,professionalRespect:2,competitiveTension:2},racecraft:{pressureHandling:1}}},{label:'Race the circuit, not the headlines.',effects:{relationships:{tyreseBond:3},identity:{focus:1}},careerEffects:{tyrese:{friendship:3,professionalRespect:2,competitiveTension:-1},racecraft:{pressureHandling:1}}}],option=options[optionIndex]||options[1];applyStoryEffects(changed,option.effects||{});applyCareerEvolutionEffects(changed,option.careerEffects||{});rec.overlookSeen=true;rec.overlookChoice=option.label;changed.history=[...(changed.history||[]),{scene:'q44',event:'circuit-overlook',choice:optionIndex}].slice(-100);state.story=changed;render();try{await persistStory(changed,{stageOverride:'quickquill-crown-week'});}catch(error){state.storyError=error?.message||'Overlook moment could not be saved.';render();}
+  }
+
+  async function finishCrownReception() {
+    if(state.storySaving||state.transitionLocked)return;const changed=cloneValue(state.story),rec=changed.chapter6.crownWeek.reception;if((rec.conversations||[]).length<3)return;rec.completed=true;state.crownWeekView='';state.crownReceptionId='';const next=nextStoryPointer(changed);await saveStoryProgress(next.story,{transition:true});syncMusic({restart:true});
+  }
+
+  function renderCrownWeekComplete() {
+    const story=state.story||normaliseQuickquillStory(activeSaveState().story),cw=crownWeekState(story),challenge=cw.challenge||{},village=cw.village||{},reception=cw.reception||{},evo=syncCareerEvolution(story),standings=challenge.standings||[],player=standings.find(row=>row.id==='player');
+    root.innerHTML=`<section class="crown-complete-shell"><img src="${CROWN_WEEK_ENV}circuit-overlook.webp" alt="" aria-hidden="true"><div class="crown-complete-shade"></div><header><small>CHAPTER SIX · CROWN WEEK</small><h1>DAY ONE: COMPLETE</h1><p>Lumerre already knows the name. Practice day decides what the circuit thinks of it.</p></header><div class="crown-complete-grid"><article><small>CROWN CHALLENGE</small><strong>${player?ordinal(player.rank):crownChallengeRankLabel(story)}</strong><span>${Number(challenge.totalPoints)||0} POINTS</span></article><article><small>PADDOCK STATUS</small><strong>${escapeHtml(evo.fameTier)}</strong><span>${escapeHtml(evo.playerStyle)}</span></article><article><small>OPEN SCHEDULE</small><strong>${(village.encounters||[]).length} ENCOUNTERS</strong><span>${village.rumourSeen?'1 PADDOCK RUMOUR HEARD':'RUMOURS LEFT ALONE'}</span></article><article><small>EVENING</small><strong>${(reception.conversations||[]).length} CONVERSATIONS</strong><span>${reception.overlookSeen?'CIRCUIT OVERLOOK DISCOVERED':'RECEPTION ONLY'}</span></article></div><div class="crown-next-card"><small>NEXT</small><strong>PRACTICE DAY · 06:15 GARAGE CALL</strong><span>Telemetry, setup development, diagnosis and three-run qualifying are ready.</span></div><div class="crown-complete-actions"><button type="button" data-start-lumerre-practice>BEGIN PRACTICE DAY</button><button type="button" class="is-secondary" data-crown-complete-back>STORY JOURNEY</button></div></section>`;
+    root.querySelector('[data-start-lumerre-practice]')?.addEventListener('click',()=>{void startLumerrePracticeQualifying();});
+    root.querySelector('[data-crown-complete-back]')?.addEventListener('click',()=>{state.mode='story-journey';render();syncMusic({restart:true});});
+  }
+
   function renderStory() {
     window.clearTimeout(storyRevealTimer);
     storyRevealTimer = 0;
@@ -3182,28 +6601,50 @@
     const chapterTwoScene = QUICKQUILL_CANTO_SCENES.some(item => item.id === state.story?.scene);
     const chapterThreeScene = QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === state.story?.scene);
     const chapterFourScene = QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === state.story?.scene);
-    if (state.story?.completed?.blackglass) {
+    const chapterFiveScene = QUICKQUILL_SEAT_SCENES.some(item => item.id === state.story?.scene);
+    const chapterSixScene = QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === state.story?.scene);
+    const lumerrePracticeScene = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item => item.id === state.story?.scene);
+    if (state.story?.chapter === 'lumerre-race-day' || state.story?.completed?.raceWeekend) {
+      renderLumerreRaceDay();
+      return;
+    }
+    if (state.story?.completed?.practiceQualifying) {
+      renderPracticeQualifyingComplete();
+      return;
+    }
+    if (state.story?.completed?.crownWeek && !lumerrePracticeScene) {
+      renderCrownWeekComplete();
+      return;
+    }
+    if (state.story?.completed?.seat && !chapterSixScene && !lumerrePracticeScene) {
+      renderSeatComplete();
+      return;
+    }
+    if (state.story?.completed?.blackglass && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) {
       renderBlackglassComplete();
       return;
     }
-    if (state.story?.completed?.downtime && !chapterFourScene) {
+    if (state.story?.completed?.downtime && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) {
       renderDowntimeComplete();
       return;
     }
-    if (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.downtime) {
+    if (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.downtime) {
       renderCantoComplete();
       return;
     }
-    if (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.canto) {
+    if (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.canto) {
       renderStoryComplete();
       return;
     }
     const scene = activeStoryScene();
     const beat = scene.beats[Math.min(state.story?.beat || 0, scene.beats.length - 1)] || scene.beats[0];
-    const sceneList = chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const sceneList = lumerrePracticeScene ? QUICKQUILL_LUMERRE_PRACTICE_SCENES : chapterSixScene ? QUICKQUILL_CROWN_WEEK_SCENES : chapterFiveScene ? QUICKQUILL_SEAT_SCENES : chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
     const sceneIndex = sceneList.findIndex(item => item.id === scene.id);
     const interactiveTypes = new Set(['corridor-explore','room-customise','evening-planner','duty-select','duty-game','downtime-free-roam','night-routine','morning-corridor']);
     const blackglassInteractiveTypes = new Set(['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep']);
+    const seatInteractiveTypes = new Set(['seat-strategy-sim','seat-media-scrum','seat-free-time']);
+    const crownInteractiveTypes = new Set(['crown-village','crown-challenge','crown-reception']);
+    const lumerrePracticeInteractiveTypes = new Set(['lumerre-practice-run','lumerre-setup-board','lumerre-diagnosis','lumerre-qualifying-run','lumerre-qualifying-window']);
     if (chapterThreeScene && interactiveTypes.has(beat.type)) {
       renderDowntimeInteractive(scene, beat, sceneIndex);
       return;
@@ -3216,12 +6657,32 @@
       renderBlackglassQualifying(scene, beat, sceneIndex);
       return;
     }
+    if (chapterFiveScene && seatInteractiveTypes.has(beat.type)) {
+      if (beat.type === 'seat-strategy-sim') renderSeatSimulator(scene, beat, sceneIndex);
+      else if (beat.type === 'seat-media-scrum') renderSeatMediaScrum(scene, beat, sceneIndex);
+      else renderSeatFreeTime(scene, beat, sceneIndex);
+      return;
+    }
+    if (chapterSixScene && crownInteractiveTypes.has(beat.type)) {
+      if (beat.type === 'crown-village') renderCrownVillage(scene, beat, sceneIndex);
+      else if (beat.type === 'crown-challenge') renderCrownChallenge(scene, beat, sceneIndex);
+      else renderCrownReception(scene, beat, sceneIndex);
+      return;
+    }
+    if (lumerrePracticeScene && lumerrePracticeInteractiveTypes.has(beat.type)) {
+      if (beat.type === 'lumerre-practice-run') renderLumerrePracticeRun(scene, beat, sceneIndex);
+      else if (beat.type === 'lumerre-setup-board') renderLumerreSetupBoard(scene, beat, sceneIndex);
+      else if (beat.type === 'lumerre-diagnosis') renderLumerreDiagnosis(scene, beat, sceneIndex);
+      else if (beat.type === 'lumerre-qualifying-run') renderLumerreQualifyingRun(scene, beat, sceneIndex);
+      else renderLumerreQualifyingWindow(scene, beat, sceneIndex);
+      return;
+    }
     const isChoice = beat.type === 'choice';
     const isCinematic = beat.type === 'cinematic';
     const isRaceLaunch = beat.type === 'race-launch';
     const fullText = !isChoice && !isCinematic && !isRaceLaunch ? storyBeatText(beat) : '';
     state.storyRevealComplete = isChoice || isCinematic || isRaceLaunch;
-    const chapterLabel = chapterFourScene ? 'RACE TWO' : chapterThreeScene ? 'DOWNTIME' : chapterTwoScene ? 'RACE ONE' : 'PROLOGUE';
+    const chapterLabel = lumerrePracticeScene ? 'PRACTICE & QUALIFYING' : chapterSixScene ? 'CROWN WEEK' : chapterFiveScene ? 'CAREER REVIEW' : chapterFourScene ? 'RACE TWO' : chapterThreeScene ? 'DOWNTIME' : chapterTwoScene ? 'RACE ONE' : 'PROLOGUE';
     const persistentRoomDecor = chapterThreeScene && ['q11','q16'].includes(scene.id) ? roomDecorMarkup() : '';
     root.innerHTML = `
       <section class="story-shell tone-${escapeHtml(scene.tone || 'default')}" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}">
@@ -3251,6 +6712,9 @@
         </div><div class="story-screen-vignette" aria-hidden="true"></div>
       </section><div class="blackout ${state.blackout ? 'is-visible' : ''}" aria-hidden="true"></div>`;
 
+    bindChapterFiveBackgroundFallback(scene);
+    bindCrownWeekBackgroundFallback(scene);
+    bindLumerrePracticeBackgroundFallback(scene);
     cleanDuplicateSceneLayers();
     root.querySelector('[data-story-home]')?.addEventListener('click', event => { event.stopPropagation(); returnToHubFromStory(); });
     if (isChoice) {
@@ -3422,6 +6886,7 @@
   }
 
   function renderStoryJourney() {
+    if (testerReplayActive()) restoreTesterReplaySnapshot({ destination:'story-journey', renderNow:false });
     const story = state.story || normaliseQuickquillStory(activeSaveState().story);
     if (!story.completed?.prologue) {
       state.mode = 'story';
@@ -3437,28 +6902,49 @@
     const downtimeStarted = QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === story.scene) && !story.completed?.downtime;
     const downtimeComplete = !!story.completed?.downtime;
     const blackglassStarted = QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === story.scene) && !story.completed?.blackglass;
-    const blackglassComplete = !!story.completed?.blackglass;
+    const blackglassComplete = blackglassChapterComplete(story);
+    const seatStarted = QUICKQUILL_SEAT_SCENES.some(scene => scene.id === story.scene) && !story.completed?.seat;
+    const seatComplete = !!story.completed?.seat;
+    const crownWeekStarted = QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === story.scene) && !story.completed?.crownWeek;
+    const crownWeekComplete = !!story.completed?.crownWeek;
+    const practiceStarted = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === story.scene) && !story.completed?.practiceQualifying;
+    const practiceComplete = !!story.completed?.practiceQualifying;
     const journeyStates = STORY_JOURNEY.map((chapter, index) => {
       let status = 'locked';
       if (index === 0) status = 'complete';
       else if (index === 1) status = cantoComplete ? 'complete' : 'next';
       else if (index === 2) status = !cantoComplete ? 'locked' : downtimeComplete ? 'complete' : 'next';
       else if (index === 3) status = !downtimeComplete ? 'locked' : blackglassComplete ? 'complete' : 'next';
+      else if (index === 4) status = !blackglassComplete ? 'locked' : seatComplete ? 'complete' : seatStarted ? 'current' : 'next';
+      else if (index === 5) status = !seatComplete ? 'locked' : crownWeekStarted || crownWeekComplete || practiceStarted || practiceComplete ? 'current' : 'next';
+      else if (index === 6) status = 'locked';
       return { ...chapter, status };
     });
     const cantoAction = cantoComplete ? 'VIEW CANTO RESULT' : cantoStarted ? 'RESUME STORY CHAPTER' : 'BEGIN STORY CHAPTER';
     const downtimeAction = downtimeComplete ? 'VIEW CHAPTER RESULT' : downtimeStarted ? 'RESUME SETTLING IN' : 'BEGIN SETTLING IN';
     const blackglassAction = blackglassComplete ? 'VIEW BLACKGLASS RESULT' : blackglassStarted ? 'RESUME BLACKGLASS' : 'BEGIN BLACKGLASS';
+    const seatAction = seatComplete ? 'VIEW CHAPTER RESULT' : seatStarted ? 'RESUME A SEAT AT THE TABLE' : 'BEGIN A SEAT AT THE TABLE';
+    const raceDay = lumerreRaceDayState(story);
+    const raceDayStarted = story.chapter === 'lumerre-race-day' || !!raceDay.started;
+    const raceDayComplete = !!story.completed?.raceWeekend || !!raceDay.completed;
+    const crownAction = raceDayComplete ? 'VIEW RACE DAY RESULT' : raceDayStarted ? 'RESUME RACE DAY' : practiceComplete ? 'BEGIN RACE DAY' : practiceStarted ? 'RESUME PRACTICE & QUALIFYING' : crownWeekComplete ? 'BEGIN PRACTICE DAY' : crownWeekStarted ? 'RESUME CROWN WEEK' : 'BEGIN CROWN WEEK';
+    const crownCardLabel = !seatComplete ? 'LOCKED' : raceDayComplete ? 'RACE DAY · COMPLETE' : raceDayStarted ? 'RACE DAY · IN PROGRESS' : practiceComplete ? 'PRACTICE & QUALIFYING · COMPLETE' : practiceStarted ? 'PRACTICE & QUALIFYING · IN PROGRESS' : crownWeekComplete ? 'CROWN WEEK · DAY ONE COMPLETE' : crownWeekStarted ? 'CROWN WEEK · IN PROGRESS' : 'CROWN WEEK · READY';
+    const crownCardSummary = raceDayComplete ? `${escapeHtml(storyDragonName())} finished ${ordinal(raceDay.finalPosition || 7)} in the Lumerre Crown${raceDay.tyreseFinish ? ` · Tyrese ${ordinal(raceDay.tyreseFinish)}` : ''}.` : raceDayStarted ? `Race Day is live. Current phase: ${escapeHtml(lumerreRacePhaseLabel(raceDay.phase || 'grid'))}.` : practiceComplete ? `${escapeHtml(storyDragonName())} qualified ${escapeHtml(lumerreQualifyingPositionLabel(story))} with ${escapeHtml(formatStoryLap(pq6.qualifying?.bestLapMs || 0))}. Practice found the setup; Race Day is next.` : crownWeekComplete ? `Crown Week opened with ${escapeHtml(String(c6.village?.encounters?.length || 0))} paddock encounters, a ${escapeHtml(crownChallengeRankLabel(story))} Crown Challenge finish and ${c6.reception?.overlookSeen ? 'a discovered circuit-overlook moment' : 'an evening at the garden reception'}. Practice Day is ready.` : 'Crown Week begins before the circuit does: open paddock exploration, public parade, the traditional Crown Challenge and a night among the full professional grid.';
+    const crownCardActionAttr = seatComplete ? (raceDayComplete ? 'data-view-lumerre-race' : raceDayStarted || practiceComplete ? 'data-start-lumerre-race' : crownWeekComplete || practiceStarted ? 'data-start-lumerre-practice' : 'data-start-crown-week') : 'disabled';
     const c3 = chapter3State(story);
     const c4 = chapter4State(story);
-    const decisionCount = Object.keys(story.choices || {}).length + (c3.eveningMoments || []).length + (c3.duty?.completed ? 1 : 0) + (c4.qualifying?.completed ? 1 : 0) + (c4.eveningMoments || []).length + (c4.studiedSections || []).length + (c4.roomActions || []).length + (c4.morningPrep ? 1 : 0) + (c4.afterHours?.completed ? 1 : 0);
-    const completedCount = 1 + (cantoComplete ? 1 : 0) + (downtimeComplete ? 1 : 0) + (blackglassComplete ? 1 : 0);
+    const c5 = chapter5State(story);
+    const c6 = crownWeekState(story);
+    const pq6 = practiceQualifyingState(story);
+    const decisionCount = Object.keys(story.choices || {}).length + (c3.eveningMoments || []).length + (c3.duty?.completed ? 1 : 0) + (c4.qualifying?.completed ? 1 : 0) + (c4.eveningMoments || []).length + (c4.studiedSections || []).length + (c4.roomActions || []).length + (c4.morningPrep ? 1 : 0) + (c4.afterHours?.completed ? 1 : 0) + (c5.simulator?.answers || []).length + (c5.media?.answers || []).length + (c5.freeTime?.activities || []).length + (c6.village?.encounters || []).length + (c6.reception?.conversations || []).length + (c6.challenge?.completed ? 4 : 0) + (c6.reception?.overlookSeen ? 1 : 0) + (pq6.practice?.run1 ? 1 : 0) + (pq6.practice?.setupApplied ? 1 : 0) + (pq6.practice?.diagnosis?.completed ? 1 : 0) + (pq6.practice?.run2 ? 1 : 0) + (pq6.qualifying?.run1 ? 1 : 0) + (pq6.qualifying?.window ? 1 : 0) + (pq6.qualifying?.run2 ? 1 : 0) + (pq6.qualifying?.run3 ? 1 : 0);
+    const completedCount = 1 + (cantoComplete ? 1 : 0) + (downtimeComplete ? 1 : 0) + (blackglassComplete ? 1 : 0) + (seatComplete ? 1 : 0);
     root.innerHTML = `
       <section class="story-journey-shell" aria-label="Dragonbound Story Journey">
         <img class="journey-backdrop" src="story/environments/07_Lumerre_Terraces_and_Paddock.png" alt="" aria-hidden="true">
         <div class="journey-stage">
           <div class="journey-atmosphere" aria-hidden="true"></div><div class="journey-grid" aria-hidden="true"></div><div class="journey-vignette" aria-hidden="true"></div>
           <header class="journey-header"><div><strong>DRAGONBOUND</strong><span>FOLLOW THE STORY</span></div><button type="button" data-journey-back aria-label="Return to Career Hub"><i aria-hidden="true">←</i><span>BACK</span></button></header>
+          ${isCatAsthmaTester() ? `<section class="tester-replay-panel" aria-label="CatAsthma chapter replay controls"><div><small>CATASTHMA QA TOOL</small><strong>NON-DESTRUCTIVE CHAPTER REPLAY</strong><span>Launch any implemented chapter from its opening scene. Test choices, races and results stay temporary; your live cloud save is restored when you leave replay.</span></div><nav>${TESTER_REPLAY_CHAPTERS.map(chapter => `<button type="button" data-tester-replay="${chapter.id}"><b>${chapter.number}</b><span><small>${escapeHtml(chapter.phase)}</small><strong>${escapeHtml(chapter.label)}</strong></span><i>REPLAY ›</i></button>`).join('')}</nav></section>` : ''}
           <nav class="journey-route" aria-label="Quickquill chapter progress">
             <div class="journey-route-line"><i></i></div>
             ${journeyStates.map((chapter, index) => `<div class="journey-route-node is-${chapter.status}" style="--journey-delay:${.34 + index * .12}s"><b>${chapter.status === 'complete' ? '✓' : index + 1}</b><span>${escapeHtml(chapter.number)}</span></div>`).join('')}
@@ -3492,8 +6978,20 @@
                   <div class="journey-card-copy"><span><b>04</b><small>${!downtimeComplete ? 'LOCKED' : blackglassComplete ? 'RACE TWO · COMPLETE' : blackglassStarted ? 'RACE TWO · IN PROGRESS' : 'RACE TWO · READY'}</small></span><h2>BLACKGLASS UNDER FLOODLIGHTS</h2><p>${blackglassComplete ? `${escapeHtml(storyDragonName())} finished ${ordinal(story.blackglassRace?.result?.rank || 6)} at Blackglass after qualifying ${ordinal(c4.qualifying?.position || 3)}.` : 'A full northern race weekend: arrive, learn the circuit, qualify, live through the long night, then race under the floodlights.'}</p><button type="button" ${downtimeComplete ? (blackglassComplete ? 'data-view-blackglass' : 'data-start-blackglass') : 'disabled'}>${downtimeComplete ? blackglassAction : 'COMPLETE QUICKQUILL DOWNTIME FIRST'} <i>›</i></button></div>
                   ${blackglassComplete ? '<div class="journey-complete-stamp"><i>✓</i><span>COMPLETE</span></div>' : downtimeComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PATH UNLOCKED</span></div>' : ''}
                 </article>
-                <div class="journey-locked-list">
-                  ${journeyStates.slice(4).map((chapter, index) => `<article class="journey-locked-card ${chapter.status === 'next' ? 'is-next' : ''}" style="--journey-delay:${2.15 + index * .14}s"><img src="${chapter.image}" alt=""><div><span>${chapter.number}</span><p><small>${escapeHtml(chapter.subtitle)}</small><strong>${escapeHtml(chapter.title)}</strong></p><i aria-hidden="true">${chapter.status === 'next' ? 'NEXT' : 'LOCKED'}</i></div></article>`).join('')}
+                <article class="journey-card journey-card-seat ${!blackglassComplete ? 'is-locked' : seatComplete ? 'is-complete' : 'is-next'}">
+                  <img src="${STORY_JOURNEY[4].image}" alt="">
+                  <div class="journey-card-shade" aria-hidden="true"></div>${seatComplete ? '<div class="journey-card-scan" aria-hidden="true"></div>' : blackglassComplete ? '<div class="journey-unlock-flare" aria-hidden="true"></div>' : ''}
+                  <div class="journey-card-copy"><span><b>05</b><small>${!blackglassComplete ? 'LOCKED' : seatComplete ? 'CHAPTER FIVE · COMPLETE' : seatStarted ? 'CHAPTER FIVE · IN PROGRESS' : 'CHAPTER FIVE · READY'}</small></span><h2>A SEAT AT THE TABLE</h2><p>${seatComplete ? `${escapeHtml(storyDragonName())} left the Blackglass review with a simulator profile of ${escapeHtml(c5.simulator?.profile||deriveSeatSimulatorProfile(story))}, a media reputation of ${escapeHtml(c5.media?.reputation||deriveMediaReputation(story))}, and a confirmed Lumerre role: ${escapeHtml(c5.lumerreRole||deriveLumerreRole(story))}.` : 'Quickquill moves the assessment away from the circuit. Strategy, press attention and team politics now decide how you arrive at Lumerre.'}</p><button type="button" ${blackglassComplete ? (seatComplete ? 'data-view-seat' : 'data-start-seat') : 'disabled'}>${blackglassComplete ? seatAction : 'COMPLETE BLACKGLASS FIRST'} <i>›</i></button></div>
+                  ${seatComplete ? '<div class="journey-complete-stamp"><i>✓</i><span>COMPLETE</span></div>' : blackglassComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PATH UNLOCKED</span></div>' : ''}
+                </article>
+                <article class="journey-card journey-card-crown ${!seatComplete ? 'is-locked' : (crownWeekStarted || crownWeekComplete || practiceStarted || practiceComplete) ? 'is-current' : 'is-next'}">
+                  <img src="${STORY_JOURNEY[5].image}" alt="">
+                  <div class="journey-card-shade" aria-hidden="true"></div>${seatComplete ? '<div class="journey-unlock-flare" aria-hidden="true"></div>' : ''}
+                  <div class="journey-card-copy"><span><b>06</b><small>${crownCardLabel}</small></span><h2>THE LUMERRE CROWN</h2><p>${crownCardSummary}</p><button type="button" ${crownCardActionAttr}>${seatComplete ? crownAction : 'COMPLETE A SEAT AT THE TABLE FIRST'} <i>›</i></button></div>
+                  ${practiceComplete ? '<div class="journey-progress-stamp"><i>✓</i><span>QUALIFYING COMPLETE</span></div>' : practiceStarted ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PRACTICE LIVE</span></div>' : seatComplete && !crownWeekComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>CROWN WEEK LIVE</span></div>' : crownWeekComplete ? '<div class="journey-progress-stamp"><i>✓</i><span>DAY ONE COMPLETE</span></div>' : ''}
+                </article>
+                <div class="journey-locked-list future-chapters-only">
+                  ${journeyStates.slice(6).map((chapter, index) => `<article class="journey-locked-card ${chapter.status === 'next' || chapter.status === 'current' ? 'is-next' : ''}" data-chapter-status="${escapeHtml(chapter.status)}" style="--journey-delay:${2.43 + index * .14}s"><img src="${chapter.image}" alt=""><div><span>${chapter.number}</span><p><small>${escapeHtml(chapter.subtitle)}</small><strong>${escapeHtml(chapter.title)}</strong></p><i aria-hidden="true">${chapter.status === 'next' ? 'NEXT' : 'LOCKED'}</i></div></article>`).join('')}
                 </div>
               </div>
               <footer class="journey-decisions"><div><small>YOUR STORY REMEMBERS</small><span>${escapeHtml(invitationChoice)}</span><span>${escapeHtml(cantoComplete ? (story.choices?.cantoAttitude?.label || strategyChoice) : cantoStarted ? strategyChoice : assessmentChoice)}</span></div><p><strong>${decisionCount}</strong><span>DECISIONS & MOMENTS<br>RECORDED</span></p></footer>
@@ -3503,6 +7001,7 @@
         </div>
       </section><div class="blackout ${state.blackout ? 'is-visible' : ''}" aria-hidden="true"></div>`;
     root.querySelector('[data-journey-back]')?.addEventListener('click', returnToHubFromStory);
+    root.querySelectorAll('[data-tester-replay]').forEach(button => button.addEventListener('click', () => beginTesterReplay(String(button.dataset.testerReplay || ''))));
     root.querySelector('[data-view-prologue]')?.addEventListener('click', () => { playTone(310); renderStoryComplete(); });
     root.querySelector('[data-start-canto]')?.addEventListener('click', () => { void startCantoChapter(); });
     root.querySelector('[data-view-canto]')?.addEventListener('click', () => { playTone(310); renderCantoComplete(); });
@@ -3510,6 +7009,14 @@
     root.querySelector('[data-view-downtime]')?.addEventListener('click', () => { playTone(310); renderDowntimeComplete(); });
     root.querySelector('[data-start-blackglass]')?.addEventListener('click', () => { void startBlackglassChapter(); });
     root.querySelector('[data-view-blackglass]')?.addEventListener('click', () => { playTone(310); renderBlackglassComplete(); });
+    root.querySelector('[data-start-seat]')?.addEventListener('click', () => { void startSeatChapter(); });
+    root.querySelector('[data-view-seat]')?.addEventListener('click', () => { playTone(310); renderSeatComplete(); });
+    root.querySelector('[data-start-crown-week]')?.addEventListener('click', () => { void startCrownWeek(); });
+    root.querySelector('[data-view-crown-week]')?.addEventListener('click', () => { playTone(310); renderCrownWeekComplete(); });
+    root.querySelector('[data-start-lumerre-practice]')?.addEventListener('click', () => { void startLumerrePracticeQualifying(); });
+    root.querySelector('[data-view-lumerre-practice]')?.addEventListener('click', () => { playTone(310); renderPracticeQualifyingComplete(); });
+    root.querySelector('[data-start-lumerre-race]')?.addEventListener('click', () => { void startLumerreRaceDay(); });
+    root.querySelector('[data-view-lumerre-race]')?.addEventListener('click', () => { void startLumerreRaceDay(); });
   }
 
   function nextStoryPointer(story) {
@@ -3517,7 +7024,10 @@
     const inCanto = QUICKQUILL_CANTO_SCENES.some(scene => scene.id === next.scene);
     const inDowntime = QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === next.scene);
     const inBlackglass = QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === next.scene);
-    const scenes = inBlackglass ? QUICKQUILL_BLACKGLASS_SCENES : inDowntime ? QUICKQUILL_DOWNTIME_SCENES : inCanto ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const inSeat = QUICKQUILL_SEAT_SCENES.some(scene => scene.id === next.scene);
+    const inCrownWeek = QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === next.scene);
+    const inLumerrePractice = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === next.scene);
+    const scenes = inLumerrePractice ? QUICKQUILL_LUMERRE_PRACTICE_SCENES : inCrownWeek ? QUICKQUILL_CROWN_WEEK_SCENES : inSeat ? QUICKQUILL_SEAT_SCENES : inBlackglass ? QUICKQUILL_BLACKGLASS_SCENES : inDowntime ? QUICKQUILL_DOWNTIME_SCENES : inCanto ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
     const sceneIndex = scenes.findIndex(scene => scene.id === next.scene);
     const scene = scenes[Math.max(0, sceneIndex)];
     if (next.beat < scene.beats.length - 1) {
@@ -3527,7 +7037,50 @@
     if (sceneIndex < scenes.length - 1) {
       next.scene = scenes[sceneIndex + 1].id;
       next.beat = 0;
+      if (next.scene === 'q36') next.chapter5 = { ...defaultQuickquillStory().chapter5, ...(next.chapter5||{}), sofia:{...defaultQuickquillStory().chapter5.sofia,...(next.chapter5?.sofia||{}),discovered:true} };
+      if (next.scene === 'q38') next.chapter5 = { ...defaultQuickquillStory().chapter5, ...(next.chapter5||{}), lumerreRole:next.chapter5?.lumerreRole || deriveLumerreRole(next) };
+      if (inCrownWeek) {
+        next.chapter6 = { ...defaultQuickquillStory().chapter6, ...(next.chapter6 || {}), crownWeek:{...defaultQuickquillStory().chapter6.crownWeek,...(next.chapter6?.crownWeek || {}),started:true} };
+      }
+      if (inLumerrePractice) {
+        next.chapter6 = { ...defaultQuickquillStory().chapter6, ...(next.chapter6 || {}), practiceQualifying:{...defaultQuickquillStory().chapter6.practiceQualifying,...(next.chapter6?.practiceQualifying || {}),started:true,practice:{...defaultQuickquillStory().chapter6.practiceQualifying.practice,...(next.chapter6?.practiceQualifying?.practice||{}),setup:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.setup,...(next.chapter6?.practiceQualifying?.practice?.setup||{})},diagnosis:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.diagnosis,...(next.chapter6?.practiceQualifying?.practice?.diagnosis||{})}},qualifying:{...defaultQuickquillStory().chapter6.practiceQualifying.qualifying,...(next.chapter6?.practiceQualifying?.qualifying||{})}} };
+      }
       return { story: next, changedScene: true, completed: false };
+    }
+    if (inLumerrePractice) {
+      const completedAt = new Date().toISOString();
+      next.completed = { ...(next.completed || {}), practiceQualifying: true };
+      next.chapter = 'lumerre-race-day';
+      next.chapter6 = { ...defaultQuickquillStory().chapter6, ...(next.chapter6 || {}), practiceQualifying:{...defaultQuickquillStory().chapter6.practiceQualifying,...(next.chapter6?.practiceQualifying||{}),started:true,completed:true,completedAt,practice:{...defaultQuickquillStory().chapter6.practiceQualifying.practice,...(next.chapter6?.practiceQualifying?.practice||{}),setup:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.setup,...(next.chapter6?.practiceQualifying?.practice?.setup||{})},diagnosis:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.diagnosis,...(next.chapter6?.practiceQualifying?.practice?.diagnosis||{})}},qualifying:{...defaultQuickquillStory().chapter6.practiceQualifying.qualifying,...(next.chapter6?.practiceQualifying?.qualifying||{})}} };
+      const evolution = syncCareerEvolution(next);
+      evolution.chapterTypesUsed = Array.isArray(evolution.chapterTypesUsed) ? evolution.chapterTypesUsed : [];
+      if (!evolution.chapterTypesUsed.includes('technical-crisis')) evolution.chapterTypesUsed.push('technical-crisis');
+      next.careerEvolution = evolution;
+      next.beat = scene.beats.length - 1;
+      next.history = [...(next.history || []), { scene:'q56', event:'lumerre-practice-qualifying-complete', qualifyingPosition:next.chapter6.practiceQualifying.qualifying?.position || null, bestLapMs:next.chapter6.practiceQualifying.qualifying?.bestLapMs || 0 }].slice(-100);
+      return { story: next, changedScene: true, completed: true };
+    }
+    if (inCrownWeek) {
+      const completedAt = new Date().toISOString();
+      next.completed = { ...(next.completed || {}), crownWeek: true };
+      next.chapter = 'lumerre-practice';
+      next.chapter6 = { ...defaultQuickquillStory().chapter6, ...(next.chapter6 || {}), crownWeek:{...defaultQuickquillStory().chapter6.crownWeek,...(next.chapter6?.crownWeek || {}),started:true,completed:true,completedAt} };
+      const evolution = syncCareerEvolution(next);
+      evolution.chapterTypesUsed = Array.isArray(evolution.chapterTypesUsed) ? evolution.chapterTypesUsed : [];
+      if (!evolution.chapterTypesUsed.includes('festival')) evolution.chapterTypesUsed.push('festival');
+      if (!evolution.chapterTypesUsed.includes('open-hub')) evolution.chapterTypesUsed.push('open-hub');
+      next.careerEvolution = evolution;
+      next.beat = scene.beats.length - 1;
+      next.history = [...(next.history || []), { scene:'q45', event:'crown-week-day-one-complete', challengeRank:next.chapter6.crownWeek.challenge?.rank || null, overlook:!!next.chapter6.crownWeek.reception?.overlookSeen }].slice(-100);
+      return { story: next, changedScene: true, completed: true };
+    }
+    if (inSeat) {
+      next.completed = { ...(next.completed || {}), seat: true };
+      next.chapter = 'lumerre';
+      next.chapter5 = { ...defaultQuickquillStory().chapter5, ...(next.chapter5 || {}), lumerreRole:next.chapter5?.lumerreRole || deriveLumerreRole(next) };
+      next.beat = scene.beats.length - 1;
+      next.history = [...(next.history || []), { scene:'q39', event:'seat-at-table-complete', role:next.chapter5.lumerreRole }].slice(-100);
+      return { story: next, changedScene: true, completed: true };
     }
     if (inBlackglass) {
       next.completed = { ...(next.completed || {}), blackglass: true };
@@ -3577,6 +7130,10 @@
       } else {
         render();
       }
+      // Scene-aware Career music follows story transitions without restarting
+      // the same track. This is especially important for Q33→Q34, Q36→Q37
+      // and Q38→Q39 in A Seat at the Table.
+      syncMusic();
       return true;
     } catch (error) {
       console.error('[Dragonbound Career Mode] Story autosave failed', error);
@@ -3674,6 +7231,89 @@
     return option === 1 ? 'fire' : option === 2 ? 'heart' : 'focus';
   }
 
+
+  async function startSeatChapter() {
+    if (state.storySaving || state.transitionLocked || !state.activeSave) return;
+    const current=normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (!blackglassChapterComplete(current) || current.completed?.seat) return;
+    if (!current.completed?.blackglass) current.completed = { ...(current.completed || {}), blackglass: true };
+    const already=QUICKQUILL_SEAT_SCENES.some(scene=>scene.id===current.scene);
+    if (!already) {
+      current.chapter='seat'; current.scene='q32'; current.beat=0;
+      current.chapter5={...defaultQuickquillStory().chapter5,...(current.chapter5||{}),simulator:{...defaultQuickquillStory().chapter5.simulator,...(current.chapter5?.simulator||{}),metrics:{...defaultQuickquillStory().chapter5.simulator.metrics,...(current.chapter5?.simulator?.metrics||{})}},media:{...defaultQuickquillStory().chapter5.media,...(current.chapter5?.media||{}),scores:{...defaultQuickquillStory().chapter5.media.scores,...(current.chapter5?.media?.scores||{})}},sofia:{...defaultQuickquillStory().chapter5.sofia,...(current.chapter5?.sofia||{})},freeTime:{...defaultQuickquillStory().chapter5.freeTime,...(current.chapter5?.freeTime||{})}};
+      current.history=[...(current.history||[]),{scene:'q32',event:'seat-at-table-start'}].slice(-100);
+      await persistStory(current,{stageOverride:'quickquill-seat-story'});
+    } else state.story=current;
+    state.mode='story'; state.storyError=''; state.status='A Seat at the Table';
+    playTone(420); render(); syncMusic({restart:true});
+  }
+
+  async function startCrownWeek() {
+    if (state.storySaving || state.transitionLocked || !state.activeSave) return;
+    const current = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (!current.completed?.seat) return;
+    if (current.completed?.crownWeek) {
+      state.story = current;
+      state.mode = 'story';
+      renderCrownWeekComplete();
+      syncMusic({ restart:true });
+      return;
+    }
+    const already = QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === current.scene);
+    current.chapter6 = {
+      ...defaultQuickquillStory().chapter6,
+      ...(current.chapter6 || {}),
+      crownWeek:{
+        ...defaultQuickquillStory().chapter6.crownWeek,
+        ...(current.chapter6?.crownWeek || {}),
+        village:{...defaultQuickquillStory().chapter6.crownWeek.village,...(current.chapter6?.crownWeek?.village || {})},
+        challenge:{...defaultQuickquillStory().chapter6.crownWeek.challenge,...(current.chapter6?.crownWeek?.challenge || {}),playerPoints:{...defaultQuickquillStory().chapter6.crownWeek.challenge.playerPoints,...(current.chapter6?.crownWeek?.challenge?.playerPoints || {})}},
+        reception:{...defaultQuickquillStory().chapter6.crownWeek.reception,...(current.chapter6?.crownWeek?.reception || {})}
+      }
+    };
+    if (!already) {
+      current.chapter = 'lumerre-crown-week';
+      current.scene = 'q40';
+      current.beat = 0;
+      current.chapter6.crownWeek.started = true;
+      current.chapter6.crownWeek.fameAtArrival = syncCareerEvolution(current).reputation?.fame || 0;
+      current.history = [...(current.history || []), { scene:'q40', event:'crown-week-start', fame:current.chapter6.crownWeek.fameAtArrival }].slice(-100);
+      await persistStory(current, { stageOverride:'quickquill-crown-week' });
+    } else {
+      state.story = current;
+    }
+    state.story = current;
+    state.crownEncounterId = '';
+    state.crownReceptionId = '';
+    state.crownWeekView = '';
+    state.crownTransient = '';
+    state.crownChallengeLive = null;
+    clearCrownChallengeTimers();
+    state.mode = 'story';
+    state.storyError = '';
+    state.status = 'The Lumerre Crown — Crown Week';
+    playTone(440);
+    render();
+    syncMusic({ restart:true });
+  }
+
+  async function startLumerrePracticeQualifying() {
+    if (state.storySaving || state.transitionLocked || !state.activeSave) return;
+    const current = normaliseQuickquillStory(state.story || activeSaveState().story);
+    if (!current.completed?.crownWeek) return;
+    if (current.completed?.practiceQualifying) {
+      state.story=current;state.mode='story';renderPracticeQualifyingComplete();syncMusic({restart:true});return;
+    }
+    const already=QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene=>scene.id===current.scene);
+    current.chapter6={...defaultQuickquillStory().chapter6,...(current.chapter6||{}),practiceQualifying:{...defaultQuickquillStory().chapter6.practiceQualifying,...(current.chapter6?.practiceQualifying||{}),practice:{...defaultQuickquillStory().chapter6.practiceQualifying.practice,...(current.chapter6?.practiceQualifying?.practice||{}),setup:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.setup,...(current.chapter6?.practiceQualifying?.practice?.setup||{})},diagnosis:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.diagnosis,...(current.chapter6?.practiceQualifying?.practice?.diagnosis||{})}},qualifying:{...defaultQuickquillStory().chapter6.practiceQualifying.qualifying,...(current.chapter6?.practiceQualifying?.qualifying||{})}}};
+    if(!already){
+      current.chapter='lumerre-practice';current.scene='q46';current.beat=0;current.chapter6.practiceQualifying.started=true;
+      current.history=[...(current.history||[]),{scene:'q46',event:'lumerre-practice-start'}].slice(-100);
+      await persistStory(current,{stageOverride:'quickquill-lumerre-practice-qualifying'});
+    } else state.story=current;
+    clearLumerreQualifyingTimers();state.story=current;state.lumerrePracticeView='';state.lumerrePracticeTransient='';state.lumerreQualifyingLive=null;state.mode='story';state.storyError='';state.status='The Lumerre Crown — Practice & Qualifying';playTone(440);render();syncMusic({restart:true});
+  }
+
   async function launchCantoStoryRace() {
     if (state.storySaving || state.transitionLocked || !state.activeSave || state.story?.completed?.canto) return;
     const scene = activeStoryScene();
@@ -3692,10 +7332,13 @@
       sendParent('dragonbound-career-story-race-start', {
         careerSaveId: state.activeSave.id,
         runId,
+        raceKey:'canto',
+        trackId:'canto_meadow_circuit',
         accountKey: accountKey(username()),
         playerKey: accountKey(username()),
         playerName: storyDragonName(),
-        strategy
+        strategy,
+        careerEvolution: careerEvolutionRaceConfig(changed, 1)
       });
     } catch (error) {
       console.error('[Dragonbound Career Mode] Canto race launch save failed', error);
@@ -3742,7 +7385,8 @@
         localTip: String(changed.chapter4?.localTip || ''),
         telemetryReady: !!changed.chapter4?.telemetryReady,
         tyreseCallout: !!changed.chapter4?.tyreseCallout,
-        blackglassStanding: blackglassStandingBand(changed)
+        blackglassStanding: blackglassStandingBand(changed),
+        careerEvolution: careerEvolutionRaceConfig(changed, 2)
       });
     } catch (error) {
       console.error('[Dragonbound Career Mode] Blackglass race launch save failed', error);
@@ -3753,6 +7397,7 @@
   }
 
   function launchActiveStoryRace() {
+    if (state.story?.chapter === 'lumerre-race-day' || activeStoryScene()?.id === 'q56') return launchLumerreStoryRace();
     return activeStoryScene()?.id === 'q29' ? launchBlackglassStoryRace() : launchCantoStoryRace();
   }
 
@@ -3778,6 +7423,9 @@
         leadChanges:Math.max(0,Number(result.leadChanges)||0),
         photoFinish:!!result.photoFinish,
         notableMoment:String(result.notableMoment||''),
+        fastestLap:!!result.fastestLap,
+        rivalRanks:result.rivalRanks && typeof result.rivalRanks==='object' ? {...result.rivalRanks} : {},
+        standings:Array.isArray(result.standings) ? result.standings.slice(0,6).map(item=>({...item})) : [],
         events:resultEvents
       }
     };
@@ -3788,6 +7436,7 @@
     else { changed.relationships.tyreseBond += 2; changed.relationships.dragonBond += 1; }
     changed.scene='q30'; changed.beat=0; changed.chapter='blackglass';
     changed.history=[...(changed.history||[]),{scene:'q29',event:'blackglass-race-result',rank,finishMs:changed.blackglassRace.result.finishMs,notableMoment:changed.blackglassRace.result.notableMoment}].slice(-100);
+    syncCareerEvolution(changed);
     try {
       await persistStory(changed,{stageOverride:'quickquill-blackglass-story'});
       state.story=changed; state.mode='story'; state.storyError=''; state.status=`Blackglass result saved — ${ordinal(rank)}`;
@@ -3831,7 +7480,12 @@
         positionDelta: Number(result.positionDelta) || 0,
         overtakes: Math.max(0, Number(result.playerOvertakes ?? result.totalOvertakes) || 0),
         leadChanges: Math.max(0, Number(result.leadChanges) || 0),
-        photoFinish: !!result.photoFinish
+        photoFinish: !!result.photoFinish,
+        notableMoment:String(result.notableMoment||''),
+        fastestLap:!!result.fastestLap,
+        rivalRanks:result.rivalRanks && typeof result.rivalRanks==='object' ? {...result.rivalRanks} : {},
+        standings:Array.isArray(result.standings) ? result.standings.slice(0,6).map(item=>({...item})) : [],
+        events:Array.isArray(result.events) ? result.events.slice(-12).map(item=>({...item})) : []
       }
     };
     if (rank === 1) { changed.relationships.quickquillTrust += 5; changed.relationships.tyreseBond += 3; changed.relationships.jalenRespect += 5; }
@@ -3842,6 +7496,7 @@
     changed.beat = 0;
     changed.chapter = 'race-one';
     changed.history = [...(changed.history || []), { scene: 'q6', event: 'canto-race-result', rank, finishMs: changed.race.result.finishMs }].slice(-60);
+    syncCareerEvolution(changed);
     try {
       await persistStory(changed, { stageOverride: 'quickquill-canto-story' });
       state.story = changed;
@@ -3904,14 +7559,18 @@
     const cantoInProgress = state.story.completed?.prologue && !state.story.completed?.canto && QUICKQUILL_CANTO_SCENES.some(scene => scene.id === state.story.scene);
     const downtimeInProgress = state.story.completed?.canto && !state.story.completed?.downtime && QUICKQUILL_DOWNTIME_SCENES.some(scene => scene.id === state.story.scene);
     const blackglassInProgress = state.story.completed?.downtime && !state.story.completed?.blackglass && QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === state.story.scene);
-    await fadeTo(cantoInProgress || downtimeInProgress || blackglassInProgress ? 'story' : state.story.completed?.prologue ? 'story-journey' : 'story', { duration: 980 });
+    const seatInProgress = state.story.completed?.blackglass && !state.story.completed?.seat && QUICKQUILL_SEAT_SCENES.some(scene => scene.id === state.story.scene);
+    const crownWeekInProgress = state.story.completed?.seat && !state.story.completed?.crownWeek && QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === state.story.scene);
+    const practiceInProgress = state.story.completed?.crownWeek && !state.story.completed?.practiceQualifying && QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === state.story.scene);
+    const raceDayInProgress = state.story.completed?.practiceQualifying && state.story.chapter === 'lumerre-race-day' && !state.story.completed?.raceWeekend;
+    await fadeTo(cantoInProgress || downtimeInProgress || blackglassInProgress || seatInProgress || crownWeekInProgress || practiceInProgress || raceDayInProgress ? 'story' : state.story.completed?.prologue ? 'story-journey' : 'story', { duration: 980 });
   }
 
   async function advanceStory() {
-    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.blackglass) return;
+    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.practiceQualifying) return;
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
-    if (beat?.type === 'choice' || beat?.type === 'race-launch' || beat?.type === 'blackglass-qualifying' || ['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep'].includes(beat?.type)) return;
+    if (beat?.type === 'choice' || beat?.type === 'race-launch' || beat?.type === 'blackglass-qualifying' || ['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep','seat-strategy-sim','seat-media-scrum','seat-free-time','crown-village','crown-challenge','crown-reception','lumerre-practice-run','lumerre-setup-board','lumerre-diagnosis','lumerre-qualifying-run','lumerre-qualifying-window'].includes(beat?.type)) return;
     // One physical double-click can produce two click events. The first used to
     // finish/advance the current beat and the second could immediately hit the
     // freshly-rendered next beat. Keep the lock outside the DOM so it survives
@@ -3925,8 +7584,61 @@
     const next = nextStoryPointer(state.story);
     const nextScene = activeStoryScene(next.story);
     const nextBeat = nextScene.beats[next.story.beat];
-    const interactiveNext = ['corridor-explore','room-customise','evening-planner','duty-select','duty-game','downtime-free-roam','night-routine','morning-corridor','blackglass-qualifying','blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep'].includes(nextBeat?.type);
+    const interactiveNext = ['corridor-explore','room-customise','evening-planner','duty-select','duty-game','downtime-free-roam','night-routine','morning-corridor','blackglass-qualifying','blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep','seat-strategy-sim','seat-media-scrum','seat-free-time','crown-village','crown-challenge','crown-reception','lumerre-practice-run','lumerre-setup-board','lumerre-diagnosis','lumerre-qualifying-run','lumerre-qualifying-window'].includes(nextBeat?.type);
     const mustSave = next.changedScene || next.completed || nextBeat?.type === 'choice' || nextBeat?.type === 'race-launch' || interactiveNext;
+    if (next.completed && QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item=>item.id===scene.id)) {
+      state.transitionLocked = true;
+      state.blackout = true;
+      root.querySelector('.blackout')?.classList.add('is-visible');
+      await delay(780);
+      await persistStory(next.story, { stageOverride:'quickquill-lumerre-practice-qualifying-complete' });
+      state.story = normaliseQuickquillStory(next.story);
+      state.mode = 'story';
+      state.lumerrePracticeView = '';
+      state.lumerrePracticeTransient = '';
+      state.lumerreQualifyingLive = null;
+      state.blackout = false;
+      state.transitionLocked = false;
+      state.status = 'Practice & Qualifying complete — Race Day is next';
+      render();
+      syncMusic({restart:true});
+      return;
+    }
+    if (next.completed && QUICKQUILL_CROWN_WEEK_SCENES.some(item=>item.id===scene.id)) {
+      state.transitionLocked = true;
+      state.blackout = true;
+      root.querySelector('.blackout')?.classList.add('is-visible');
+      await delay(780);
+      await persistStory(next.story, { stageOverride:'quickquill-crown-week-complete' });
+      state.story = normaliseQuickquillStory(next.story);
+      state.mode = 'story';
+      state.crownEncounterId = '';
+      state.crownReceptionId = '';
+      state.crownWeekView = '';
+      state.crownTransient = '';
+      clearCrownChallengeTimers();
+      state.blackout = false;
+      state.transitionLocked = false;
+      state.status = 'Crown Week complete — Practice Day is next';
+      render();
+      syncMusic({restart:true});
+      return;
+    }
+    if (next.completed && QUICKQUILL_SEAT_SCENES.some(item=>item.id===scene.id)) {
+      state.transitionLocked = true;
+      state.blackout = true;
+      root.querySelector('.blackout')?.classList.add('is-visible');
+      await delay(780);
+      await persistStory(next.story, { stageOverride:'quickquill-story' });
+      state.story = normaliseQuickquillStory(next.story);
+      state.mode = 'story';
+      state.blackout = false;
+      state.transitionLocked = false;
+      state.status = 'A Seat at the Table complete — Lumerre is next';
+      render();
+      syncMusic({restart:true});
+      return;
+    }
     if (mustSave) {
       await saveStoryProgress(next.story, { transition: next.changedScene });
       return;
@@ -3937,7 +7649,7 @@
   }
 
   async function chooseStoryOption(optionIndex) {
-    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.blackglass) return;
+    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.practiceQualifying) return;
     if (!claimStoryInput()) return;
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
@@ -3962,6 +7674,7 @@
       }
     }
     applyStoryEffects(changed, option.effects);
+    applyCareerEvolutionEffects(changed, option.careerEffects || {});
     changed.choices[beat.id] = { option: optionIndex, label: option.label, value: option.value || '' };
     if (beat.id === 'cantoStrategy') changed.race = { ...(changed.race || {}), strategy: option.strategy || (optionIndex === 1 ? 'fire' : optionIndex === 2 ? 'heart' : 'focus'), status: 'ready' };
     if (beat.id === 'cantoAttitude') changed.chapter3.cantoAttitude = option.value || ['confident','analytical','grounded','hungry'][optionIndex] || 'grounded';
@@ -3975,6 +7688,9 @@
     if (beat.id === 'blackglassTeamQuestion') changed.chapter4.teamQuestion = option.value || 'history';
     if (beat.id === 'blackglassPressureResponse') changed.chapter4.pressureResponse = option.value || 'truth';
     if (beat.id === 'northRoadChoice') changed.chapter4.northRoadChoice = option.value || 'quiet';
+    if (beat.id === 'lumerrePracticePriority') {
+      changed.chapter6 = { ...defaultQuickquillStory().chapter6, ...(changed.chapter6 || {}), practiceQualifying:{...defaultQuickquillStory().chapter6.practiceQualifying,...(changed.chapter6?.practiceQualifying||{}),started:true,priority:option.value||'technical',practice:{...defaultQuickquillStory().chapter6.practiceQualifying.practice,...(changed.chapter6?.practiceQualifying?.practice||{}),setup:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.setup,...(changed.chapter6?.practiceQualifying?.practice?.setup||{})},diagnosis:{...defaultQuickquillStory().chapter6.practiceQualifying.practice.diagnosis,...(changed.chapter6?.practiceQualifying?.practice?.diagnosis||{})}},qualifying:{...defaultQuickquillStory().chapter6.practiceQualifying.qualifying,...(changed.chapter6?.practiceQualifying?.qualifying||{})}} };
+    }
     if (beat.id === 'stewardResponse') {
       changed.chapter4.stewardResponse = option.value || 'name';
       changed.chapter4.reputation += [1,1,0,2][optionIndex] || 0;
@@ -3994,6 +7710,19 @@
     if (beat.id === 'blackglassFinalWord') changed.chapter4.finalWord = option.value || 'anchors';
     if (beat.id === 'blackglassAftermath') changed.chapter4.aftermath = option.value || 'learn';
     if (beat.id === 'blackglassKeepsake') changed.chapter4.keepsake = option.value || 'card';
+    if (beat.id === 'seatReviewReason') changed.chapter5.reviewReason = option.value || 'protect';
+    if (beat.id === 'seatDevelopmentPriority') changed.chapter5.developmentPriority = option.value || 'control';
+    if (beat.id === 'seatSofiaTell') changed.chapter5.sofia = { ...changed.chapter5.sofia, discovered:true, told:option.value || 'private' };
+    if (beat.id === 'seatSofiaReply') changed.chapter5.sofia = { ...changed.chapter5.sofia, discovered:true, reply:option.value || 'none' };
+    if (beat.id === 'seatLumerrePromise') changed.chapter5.finalPromise = option.value || 'present';
+    if (beat.id === 'crownArrivalResponse') {
+      changed.chapter6 = { ...defaultQuickquillStory().chapter6, ...(changed.chapter6 || {}), crownWeek:{...defaultQuickquillStory().chapter6.crownWeek,...(changed.chapter6?.crownWeek || {}),started:true,arrivalStyle:option.value || 'team'} };
+      if (['fans','media','rivals'].includes(option.value)) playCrownSfx('camera');
+    }
+    if (beat.id === 'crownParadeStyle') {
+      changed.chapter6 = { ...defaultQuickquillStory().chapter6, ...(changed.chapter6 || {}), crownWeek:{...defaultQuickquillStory().chapter6.crownWeek,...(changed.chapter6?.crownWeek || {}),started:true,paradeStyle:option.value || 'measured'} };
+      if (['crowd','rival-fans'].includes(option.value)) playCrownSfx('camera');
+    }
     changed.history.push({ scene: scene.id, choice: beat.id, option: optionIndex });
     const next = nextStoryPointer(changed);
     playTone(430 + optionIndex * 55);
@@ -4011,13 +7740,39 @@
 
   function returnToHubFromStory() {
     if (state.storySaving || state.transitionLocked) return;
+    if (testerReplayActive()) {
+      restoreTesterReplaySnapshot({ destination:'career-hub' });
+      return;
+    }
     stopAfterHoursGameplay(true);
+    clearCrownChallengeTimers();
+    clearLumerreQualifyingTimers();
+    state.crownEncounterId = '';
+    state.crownReceptionId = '';
+    state.crownWeekView = '';
+    state.crownTransient = '';
+    state.crownChallengeLive = null;
+    state.lumerrePracticeView = '';
+    state.lumerrePracticeTransient = '';
+    state.lumerreQualifyingLive = null;
     state.mode = 'career-hub';
     window.clearTimeout(storyRevealTimer);
     storyRevealTimer = 0;
     state.storyError = '';
-    state.status = state.story?.completed?.blackglass
-      ? 'Second Wind complete — Chapter Five is next'
+    state.status = state.story?.completed?.practiceQualifying
+      ? 'Practice & Qualifying complete — Race Day is next'
+      : QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === state.story?.scene)
+        ? 'Practice & Qualifying progress saved'
+      : state.story?.completed?.crownWeek
+        ? 'Crown Week complete — Practice Day is ready'
+      : QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === state.story?.scene)
+        ? 'Crown Week progress saved'
+      : state.story?.completed?.seat
+      ? 'A Seat at the Table complete — Crown Week is ready'
+      : QUICKQUILL_SEAT_SCENES.some(scene => scene.id === state.story?.scene)
+        ? 'A Seat at the Table progress saved'
+      : state.story?.completed?.blackglass
+      ? 'Blackglass complete — A Seat at the Table is ready'
       : QUICKQUILL_BLACKGLASS_SCENES.some(scene => scene.id === state.story?.scene)
         ? 'Blackglass chapter progress saved'
         : state.story?.completed?.downtime
@@ -4067,20 +7822,62 @@
 
   window.addEventListener('message', event => {
     if (event.source !== window.parent || event.data?.bridge !== BRIDGE_TOKEN) return;
+    if (event.data?.type === 'dragonbound-career-evolution-config-request') {
+      if (!state.story || !state.activeSave) return;
+      sendParent('dragonbound-career-evolution-config', {
+        requestId:String(event.data.requestId || ''),
+        careerSaveId:state.activeSave.id,
+        config:careerEvolutionRaceConfig(state.story, event.data.raceNumber)
+      });
+      return;
+    }
+    if (event.data?.type === 'dragonbound-career-evolution-battle-request') {
+      if (!state.story || !state.activeSave) return;
+      const mode=String(event.data.mode || 'attack');
+      const battle=mode==='defend'
+        ? resolveCareerDefenceBattle(state.story,String(event.data.opponentId||''),String(event.data.choice||''),event.data.context||{})
+        : resolveCareerAttackBattle(state.story,String(event.data.opponentId||''),String(event.data.choice||''),event.data.context||{});
+      sendParent('dragonbound-career-evolution-battle-result', {
+        requestId:String(event.data.requestId || ''),
+        careerSaveId:state.activeSave.id,
+        battle
+      });
+      return;
+    }
+    if (event.data?.type === 'dragonbound-career-evolution-team-order') {
+      if (!state.story || !state.activeSave) return;
+      const changed=cloneValue(state.story);
+      const order=recordCareerTeamOrder(changed,event.data.order||{});
+      state.story=changed;
+      void persistStory(changed,{stageOverride:String(activeSaveState().stage||'career-hub')}).catch(error=>console.error('[Dragonbound Career Mode] Team order save failed',error));
+      sendParent('dragonbound-career-evolution-team-order-saved',{careerSaveId:state.activeSave.id,order});
+      return;
+    }
     if (event.data?.type === 'dragonbound-career-story-race-result') {
       const result = event.data.result || {};
-      if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit') void acceptBlackglassRaceResult(result);
+      if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit') void acceptLumerreRaceResult(result);
+      else if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit') void acceptBlackglassRaceResult(result);
       else void acceptCantoRaceResult(result);
+      return;
+    }
+    if (event.data?.type === 'dragonbound-career-story-race-started') {
+      const result = event.data.result || event.data || {};
+      if ((result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit') && state.story?.chapter === 'lumerre-race-day') {
+        const changed=cloneValue(state.story), rw=lumerreRaceEnsureState(changed.chapter6.raceWeekend,changed); rw.phase='engine-live'; rw.engineVersion=4; state.story=changed; render();
+      }
       return;
     }
     if (event.data?.type === 'dragonbound-career-story-race-aborted') {
       const result = event.data.result || {};
-      if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit' || activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort('Race exited. Your Blackglass chapter is safe — return to the grid when ready.');
+      if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit' || state.story?.chapter === 'lumerre-race-day') void handleLumerreRaceAbort('Race exited. Your Lumerre grid is safe — start the Crown again when ready.');
+      else if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit' || activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort('Race exited. Your Blackglass chapter is safe — return to the grid when ready.');
       else void handleCantoRaceAbort('Race exited. Your chapter progress is safe — start Canto again when ready.');
       return;
     }
     if (event.data?.type === 'dragonbound-career-story-race-error') {
-      if (activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort(event.data.error || 'The Blackglass race could not start. Your chapter progress is safe.');
+      const result=event.data.result||{};
+      if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit' || state.story?.chapter === 'lumerre-race-day') void handleLumerreRaceAbort(event.data.error || 'The site Dragon Racing engine did not accept the Lumerre track. The old map simulation will not be used.');
+      else if (activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort(event.data.error || 'The Blackglass race could not start. Your chapter progress is safe.');
       else void handleCantoRaceAbort(event.data.error || 'The Canto race could not start. Your chapter progress is safe.');
     }
   });
@@ -4102,6 +7899,7 @@
     else if (state.mode === 'story-journey') renderStoryJourney();
     else if (state.mode === 'meet-teams') renderMeetTeams();
     else renderHub();
+    ensureTesterReplayHud();
     syncMusic();
   }
 
@@ -4128,12 +7926,6 @@
     if (id === 'career') {
       if (state.savesLoading) {
         state.status = 'Your website account is still loading';
-        render();
-        return;
-      }
-      if (state.saves.length) {
-        state.selectedMenu = 1;
-        state.status = 'Only one Career save is allowed per account — load your existing career';
         render();
         return;
       }
@@ -4202,17 +7994,13 @@
       render();
       return;
     }
-    if (state.saves.length) {
-      state.savesError = 'This account already has a Career save. Return to the main menu and load it instead.';
-      render();
-      return;
-    }
     const team = TEAMS[state.selectedTeam];
     state.busy = true;
     state.savesError = '';
     render();
     try {
-      const saveName = `${team.sponsor} Career`;
+      const saveNumber = state.saves.length + 1;
+      const saveName = state.saves.length ? `${team.sponsor} Career ${saveNumber}` : `${team.sponsor} Career`;
       const payload = {
         user_id: state.user.id,
         owner_username: username(),
@@ -4241,9 +8029,7 @@
       console.error('[Dragonbound Career Mode] Career save failed', error);
       state.busy = false;
       if (error?.code === '23505') {
-        try { await loadSaves({ preserveStatus: true }); } catch (_) {}
-        state.status = 'This account already has a Career save';
-        state.savesError = 'Only one Career save is allowed per account. Return to the main menu and load it instead.';
+        state.savesError = 'That save record conflicted with an existing record. Try signing the contract again.';
       } else {
         state.savesError = error?.message || 'The contract could not be saved. Please try again.';
       }
@@ -4324,7 +8110,10 @@
       const chapterTwoScene = QUICKQUILL_CANTO_SCENES.some(item => item.id === state.story?.scene);
       const chapterThreeScene = QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === state.story?.scene);
       const chapterFourScene = QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === state.story?.scene);
-      const resultScreen = state.story?.completed?.blackglass || (state.story?.completed?.downtime && !chapterFourScene) || (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.downtime) || (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !state.story?.completed?.canto);
+      const chapterFiveScene = QUICKQUILL_SEAT_SCENES.some(item => item.id === state.story?.scene);
+      const chapterSixScene = QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === state.story?.scene);
+      const lumerrePracticeScene = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item => item.id === state.story?.scene);
+      const resultScreen = state.story?.completed?.practiceQualifying || (state.story?.completed?.crownWeek && !lumerrePracticeScene) || (state.story?.completed?.seat && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.blackglass && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.downtime && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.downtime) || (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.canto);
       const beat = resultScreen ? null : scene.beats[state.story?.beat || 0];
       if (beat?.type === 'choice' && /^[1-4]$/.test(event.key)) {
         const choice = Number(event.key) - 1;
@@ -4344,7 +8133,7 @@
         returnToHubFromStory();
         return;
       }
-      if (beat?.type !== 'choice' && beat?.type !== 'race-launch' && beat?.type !== 'blackglass-qualifying' && !['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep'].includes(beat?.type) && ['Enter', ' ', 'ArrowRight'].includes(event.key)) {
+      if (beat?.type !== 'choice' && beat?.type !== 'race-launch' && beat?.type !== 'blackglass-qualifying' && !['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep','seat-strategy-sim','seat-media-scrum','seat-free-time','crown-village','crown-challenge','crown-reception','lumerre-practice-run','lumerre-setup-board','lumerre-diagnosis','lumerre-qualifying-run','lumerre-qualifying-window'].includes(beat?.type) && ['Enter', ' ', 'ArrowRight'].includes(event.key)) {
         event.preventDefault();
         void advanceStory();
       }
@@ -4447,7 +8236,10 @@
     const chapterTwoScene = QUICKQUILL_CANTO_SCENES.some(item => item.id === scene.id);
     const chapterThreeScene = QUICKQUILL_DOWNTIME_SCENES.some(item => item.id === scene.id);
     const chapterFourScene = QUICKQUILL_BLACKGLASS_SCENES.some(item => item.id === scene.id);
-    const sceneList = chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const chapterFiveScene = QUICKQUILL_SEAT_SCENES.some(item => item.id === scene.id);
+    const chapterSixScene = QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === scene.id);
+    const lumerrePracticeScene = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item => item.id === scene.id);
+    const sceneList = lumerrePracticeScene ? QUICKQUILL_LUMERRE_PRACTICE_SCENES : chapterSixScene ? QUICKQUILL_CROWN_WEEK_SCENES : chapterFiveScene ? QUICKQUILL_SEAT_SCENES : chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
     const sceneIndex = sceneList.findIndex(item => item.id === scene.id);
     const beatIndex = Math.min(state.story?.beat || 0, scene.beats.length - 1);
     const beat = scene.beats[beatIndex] || scene.beats[0];
@@ -4472,6 +8264,7 @@
   const originalRender = render;
   render = function performanceAwareRender() {
     originalRender();
+    bindStoryPortraitFallbacks();
     queueCurrentModePreloads();
   };
 

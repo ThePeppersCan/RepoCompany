@@ -1,0 +1,63 @@
+DRAGONBOUND V34.28 — THE MEASURE OF A LAP
+PRACTICE & QUALIFYING
+
+BASE VERSION
+- Install over Dragonbound V34.27.1 — Crown Week Portrait Repair.
+- V34.27 and V34.27.1 must already be installed.
+
+INSTALL
+1. Copy the ENTIRE contents of this patch over your site root.
+2. Replace matching files when prompted.
+3. IMPORTANT: also copy the NEW folder:
+   dragonbound-career-mode/story/chapter6/practice/
+4. Do not use an upload/deploy option that skips new files or new folders.
+5. Hard refresh once after deployment if the browser still has the old Career Mode cached.
+
+NO DATABASE MIGRATION
+- No Supabase migration is required.
+- Existing saves are normalised automatically from story schema 11 to 12.
+- Multiple career saves remain independent.
+
+WHAT V34.28 ADDS
+- Q46–Q56: The Measure of a Lap / Lumerre Practice & Qualifying.
+- 06:15 Quickquill garage opening.
+- Persistent first-run practice priority.
+- Real practice lap / sector / classification simulation.
+- Interactive four-axis setup engineering board with real trade-offs.
+- Nell telemetry diagnosis sequence at the Upper Terrace.
+- Final-practice validation run.
+- Three qualifying attempts: banker, push, final run.
+- Release-window strategy: early, track evolution, tow, or clear track.
+- Live staged sector reveals during qualifying rather than an instant result.
+- Final qualifying grid generated from Career Evolution + setup + execution + controlled variance.
+- Lumerre competitive progression supports realistic front-running pace without hard-scripting an exact position.
+- Tyrese qualifying comparison and persistent competitive tension/respect effects.
+- Career first-pole support and qualifying milestones.
+- New Practice & Qualifying result screen and Race Day teaser.
+- Story Journey Chapter 6 continues naturally into Practice Day.
+- Lumerre launch tunnel teaser for the next Race Day build.
+
+AUDIO
+- New balanced Practice / Engineering music.
+- New balanced Lumerre Qualifying music.
+- Practice is intentionally restrained beneath telemetry/dialogue.
+- Qualifying is stronger, with a small lift for the final run.
+- Existing site Crown Week/crowd ambience is reused at low levels rather than duplicated.
+- Existing timing and Crown Challenge SFX are reused; countdown/timing beep remains deliberately quiet.
+
+PRESERVED
+- V34.27 Crown Week systems and all supplied assets.
+- V34.27.1 clean portrait frames and portrait sizing repair.
+- V34.26 Career Evolution.
+- V34.23 multiple career saves.
+- Chapters 1–5.
+- Existing race results, story choices, relationships and save history.
+
+QA
+- career.js Node syntax check: PASS
+- career-practice.css brace / required-class checks: PASS
+- New image decode checks: PASS
+- Both MP3 read/duration checks: PASS
+- New asset reference checks: PASS
+- Existing V34.27.1 portrait-frame folders preserved in merged source: PASS
+- ZIP integrity test: PASS before delivery

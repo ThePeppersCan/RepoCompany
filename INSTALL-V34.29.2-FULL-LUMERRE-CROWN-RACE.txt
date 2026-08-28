@@ -1,0 +1,18 @@
+Dragonbound V34.29.2 — Full Lumerre Crown Race
+
+Apply this patch over your current Dragonbound Career Mode files.
+
+Included:
+- Lumerre Crown Race Day rebuilt into a proper lap-by-lap race flow
+- full ten-lap race progression instead of the previous abbreviated choice chain
+- live tower / gap / stamina presentation throughout the race
+- opening laps, radio call, mid-race phase, battle window, closing stint, final lap and chequered flag flow
+- main race music retained with automatic final-lap switch
+- podium / trophy / Race Day continuity preserved
+- previous startup continuity fixes retained
+
+Main files:
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career-practice.css
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/story/chapter6/race/*

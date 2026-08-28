@@ -1,0 +1,37 @@
+DRAGONBOUND V34.23 — CHAPTER FIVE UNLOCK + MULTIPLE CAREER SAVES
+
+BASE
+- Install over Dragonbound V34.22 — A Seat at the Table.
+- Copy the contents of this patch over the site root.
+- Replace matching files only.
+- Keep all other V34.22 files/assets unchanged.
+
+FIXED — CHAPTER FIVE
+- Chapter 05: A Seat at the Table now becomes a genuinely interactive next chapter after Blackglass is complete.
+- The compact chapter card explicitly leaves the inherited locked styling and exposes BEGIN / RESUME / VIEW correctly.
+- Older completed Blackglass saves have a safe completion-recovery path when strong end-of-chapter evidence exists.
+- startSeatChapter now accepts repaired Blackglass completion state and enters Q32 correctly.
+- Story schema version bumped to 9 so older saves are normalised once on open.
+
+ADDED — MULTIPLE CAREER SAVES
+- Start Career Mode remains available when the account already has saves.
+- New contracts create additional independent Career saves instead of being blocked.
+- Existing saves are preserved.
+- Save picker now shows the dragon, team partner, chapter/progress summary and last-updated time.
+- New save names are numbered after the first save to make them easier to distinguish.
+- Save loading/updating remains scoped by both save ID and account user ID.
+
+DATABASE
+- The live Supabase project has already been migrated.
+- Removed the unique one-save-per-user index: dragonbound_career_saves_one_per_user_idx.
+- Existing owner RLS policies remain unchanged and continue to isolate saves per account.
+- supabase-v34.23-multiple-career-saves.sql is included for source control / other environments.
+
+QA RUN
+- career.js: node --check PASS
+- Chapter 5 Q32–Q39 definitions still present
+- Chapter 5 journey button + handler presence PASS
+- one-save frontend restriction removed PASS
+- cache-bust updated to V34.23 PASS
+- live DB unique one-per-user index removed PASS
+- ZIP integrity validated

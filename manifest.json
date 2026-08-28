@@ -1,15 +1,29 @@
 {
-  "version": "34.21.1",
-  "name": "iPad Controls + Dragon Racing Hotfix",
-  "base": "34.21",
-  "changed_files": [
-    "index.html",
-    "dragonbound-mobile.css",
-    "dragonbound-mobile.js"
+  "name": "Dragonbound V34.29.6 \u2014 Lumerre Pace Continuity Repair",
+  "version": "34.29.6",
+  "base": "V34.29.5",
+  "type": "incremental root-engine bugfix",
+  "databaseMigrationRequired": false,
+  "fixes": [
+    "Lumerre arc-length route progress",
+    "removes straight-line warp / corner near-stop visual bug",
+    "preserves existing City/Canto/Blackglass progress mapping"
   ],
-  "scope": [
-    "iPad/touch command launcher placement",
-    "outing control collision prevention",
-    "Dragon Racing touch activation"
+  "files": [
+    {
+      "path": "INSTALL-V34.29.6-LUMERRE-PACE-CONTINUITY.txt",
+      "size": 1517,
+      "sha256": "d4310a600e54796606b11420d952890bc1f1529b6cc842a674b81e496c1aade5"
+    },
+    {
+      "path": "QA-V34.29.6.txt",
+      "size": 1035,
+      "sha256": "1279174e41d7ce21cc1ace39d88819705d10dec8d2b932af973294e883964894"
+    },
+    {
+      "path": "dragon-racing-race.js",
+      "size": 141570,
+      "sha256": "a1b439237ad6e333706463599767bc3650ff5a589c116f0c48fc60d73a8c5488"
+    }
   ]
 }

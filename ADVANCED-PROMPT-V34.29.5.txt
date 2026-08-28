@@ -1,0 +1,53 @@
+DRAGONBOUND V34.29.5 — LUMERRE CROWN REAL DRAGON RACING ENGINE BRIDGE
+
+SOURCE LOCK
+- Build from exact V34.29.4 Career patch plus the exact current root Dragon Racing files supplied by the user.
+- Never replace the established race engine with a second Career Mode renderer.
+- Preserve City Circuit, Canto, Blackglass, normal Dragon Racing progression, multi-save, CatAsthma replay, Crown Week, Practice & Qualifying, Career Evolution, portraits and all existing saves.
+
+MANDATE
+The Lumerre Crown must run inside the exact established Dragon Racing engine. Career Mode only prepares the grid/configuration, launches the root engine and consumes its real classification afterward.
+
+NON-NEGOTIABLE RACE PRESENTATION
+- same animated dragon sprite renderer as existing Dragon Racing
+- same camera/director, autonomous movement, overtaking, side-by-side battles and finish presentation
+- same live leaderboard / race-event language
+- no SVG racers, dots, tactical markers or Career-owned race simulation
+- 7 entrants: Player, Tyrese Bell, Jalen Cross, Sofia Mendes, Luka Kovač, Ren Sato, Maya Banks
+- 10 laps
+- qualifying position becomes actual grid position
+- natural Career Evolution makes podiums and an outside win plausible, never guaranteed
+
+LUMERRE-SPECIFIC EXTENSIONS
+- dynamically register career-only track id lumerre_crown_circuit
+- exact 1672×941 Crown map
+- track centreline MUST stay on the visible pale race road for the entire closed loop
+- live Quickquill team order around lap 4: OBEY / WAIT / IGNORE while the real race continues
+- main race music 24%
+- final-lap music 28% with in-race crossfade
+- existing stadium crowd ambience 12%
+- countdown/beep 5%
+- full 7-racer classification returned to Career Mode
+- podium/trophy shown only after genuine race-engine result
+
+ENGINE BRIDGE
+Career sends dragonbound-career-story-track-register then dragonbound-career-story-race-start. Root Dragon Racing must register the descriptor, open its existing modal, start lumerre_crown_circuit with story payload, reply dragonbound-career-story-race-started, and later return dragonbound-career-story-race-result / aborted / error to the exact iframe source with the Career bridge token.
+
+SAFETY
+- additive Lumerre registration only
+- no changes to old track configs or track-select unlock rules
+- no database migration
+- no fake fallback
+- if launch fails, preserve the grid/save and send a recoverable error
+
+QA
+- JS syntax checks
+- root engine listener exists
+- 7-racer story branch exists
+- 10 laps accepted
+- exact route QA overlay is wholly on the visible road
+- final-lap audio route exists
+- team-order route exists
+- Career result route exists
+- Canto/Blackglass configs remain present
+- ZIP integrity passes

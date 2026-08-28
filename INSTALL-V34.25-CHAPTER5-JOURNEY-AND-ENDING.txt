@@ -1,0 +1,25 @@
+DRAGONBOUND V34.25 — CHAPTER FIVE JOURNEY + ENDING REPAIR
+
+BASE
+- Install over V34.24.
+- Replace matching files only.
+- This is a small incremental patch; no media or database changes are required.
+
+FIXED
+- Chapter Five no longer ends by abruptly dumping the player straight back to the Career Hub.
+- Finishing Q39 now transitions cleanly into the Chapter Five completion/result screen.
+- Q39 has additional closing dialogue and a proper CHAPTER COMPLETE end beat so the arrival at Lumerre lands more cleanly.
+- Chapter 05 on the Story Journey now displays like the main large chapter cards once it is unlocked/active/complete.
+- Completed Chapter Five now shows the same proper full-card presentation as Chapters 01–04 instead of the compressed future-chapter teaser style.
+- Chapters 06–07 remain as compact future cards underneath.
+- Cache-busting updated to V34.25.
+
+UNCHANGED
+- Chapter Five media restoration from V34.24 remains intact.
+- Multiple saves from V34.23 remain intact.
+- No Supabase migration is needed for this patch.
+
+QA
+- career.js node --check
+- patch structure validation
+- ZIP integrity validation

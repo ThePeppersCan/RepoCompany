@@ -1,0 +1,51 @@
+DRAGONBOUND V34.29.3 — ACTUAL ON-TRACK LUMERRE CROWN RACE
+
+BASE
+- Install over V34.29.2.
+- Copy the entire patch over the site root and replace matching files.
+- No database migration.
+- No save reset required.
+
+IMPORTANT FIX
+V34.29.2 still presented Race Day as staged buttons. V34.29.3 replaces that
+with an actual live on-track race view.
+
+THE RACE NOW
+- Shows the complete Lumerre Crown circuit during the race.
+- Shows all seven racers physically moving around the circuit in real time.
+- Runs continuously without a Continue button for every lap.
+- Uses a ten-lap live simulation.
+- Uses the qualifying grid as the real starting grid.
+- Continuously recalculates position from track progress.
+- Lets racers genuinely catch and pass one another.
+- Player can PUSH / BALANCED / CONSERVE while the race is running.
+- ATTACK becomes available when the dragon ahead is within attack range.
+- DEFEND affects a close racer behind.
+- Stamina drains throughout the race and affects late-race pace.
+- AI pace uses each established rival's pace/consistency/stamina profile.
+- Small rival mistakes can create real passing opportunities.
+- Quickquill's team order interrupts the live race on Lap 4 and pauses the
+  simulation only for that decision: OBEY / WAIT / IGNORE.
+- Final-lap music switches automatically when Lap 10 starts.
+- The race continues until all seven racers cross the finish line.
+- Final classification comes from the live track simulation, then feeds the
+  existing podium/trophy/Career Evolution systems.
+
+OLD V34.29 / V34.29.2 RESULTS
+- The old button-only Race Day engine had no engineVersion marker.
+- On first entry after installing V34.29.3, an old Race Day state is reset once
+  so the save can run the actual race instead.
+- New V34.29.3 results are marked engineVersion 3 and are not reset again.
+
+PRESERVED
+- V34.29.1 startup repair.
+- V34.28.3 portrait continuity repairs.
+- multiple saves.
+- CatAsthma chapter replay.
+- main Lumerre Crown race music.
+- final-lap music.
+- cleaned transparent trophy.
+- podium and Race Day assets.
+
+CACHE
+- index.html cache bust updated to v34-29-3-actual-ontrack-race-20260828.

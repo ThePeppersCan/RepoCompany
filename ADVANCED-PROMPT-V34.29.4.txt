@@ -1,0 +1,56 @@
+DRAGONBOUND V34.29.4 — LUMERRE CROWN REAL DRAGON RACING ENGINE INTEGRATION
+
+SOURCE LOCK
+- Build only from exact V34.29.3.
+- Never roll back to V34.29.2, V34.29.1, V34.28.x or an older Career Mode source.
+- Preserve multi-save, CatAsthma replay, Chapter 6 Crown Week, practice and qualifying, portrait fixes, Career Evolution, transparent trophy, supplied race music, all story choices and existing saves.
+
+PRIMARY MANDATE
+V34.29.3 is architecturally wrong: it renders a separate SVG/map race with tiny custom markers. Remove that race implementation completely.
+
+Lumerre Race Day must hand control to the SAME established Dragon Racing engine used by the site's existing races (including Career Canto and Blackglass). Career Mode must not own a second race renderer.
+
+VISUAL / GAMEPLAY NON-NEGOTIABLES
+- normal established Dragon Racing dragon sprites and animation
+- normal established race camera, scale, movement language and presentation
+- actual on-track racing, not a sequence of race buttons
+- no tiny dots, arrows, SVG dragons or tactical-map substitutes
+- no static full-map simulation pretending to be the race
+- genuine catching, overtaking, counter-attacking and being overtaken
+- qualifying grid carries into the real race
+- 7 Lumerre entrants: Player Dragon, Tyrese Bell, Jalen Cross, Sofia Mendes, Luka Kovač, Ren Sato, Maya Banks
+- 10 laps
+- career progression makes P2/P1 increasingly achievable here without guaranteeing a win
+- player performance remains earned and affected by racecraft / consistency / pressure / setup
+
+ENGINE SAFETY
+- ADD Lumerre; do not rewrite Canto, Blackglass or City Circuit.
+- Preserve existing race balance, camera, audio framework, result flow and controls for old tracks.
+- Never silently fall back to the V34.29.3 fake map simulation. If the parent engine cannot open Lumerre, show a recoverable engine error and preserve the save.
+
+LUMERRE EXTENSIONS
+- use the supplied Lumerre circuit descriptor / assets
+- supplement the normal race with the Lumerre live HUD where supported
+- Career Evolution battle rules may produce real position changes
+- Tyrese team order should occur during the actual race, not on a separate fake screen
+- supplied main race music at ~24%
+- supplied final-lap music at ~28%
+- reuse the site's existing crowd ambience at ~12%
+- countdown/beep effects very quiet (~5%)
+- podium and trophy only after the genuine engine result
+
+RESULT CONTRACT
+The existing Dragon Racing engine returns dragonbound-career-story-race-result. Career Mode must accept raceKey=lumerre / trackId=lumerre_crown_circuit, store the real finishing position and classification, identify Tyrese's finish, apply Career Evolution once, then display the proper Lumerre result/podium flow.
+
+SAVE MIGRATION
+Any V34.29–V34.29.3 fake Lumerre completion (engineVersion < 4) is reset once to the real-engine grid. Do not reset practice, qualifying, Crown Week or any earlier chapter.
+
+QA GATES
+- career.js passes JavaScript syntax validation
+- no lumerreRaceMarkerSvg / fake live race renderer remains
+- Lumerre launch uses dragonbound-career-story-race-start, same bridge as Canto / Blackglass
+- Lumerre result/abort/error routes exist
+- Canto / Blackglass launch code remains present
+- all supplied Lumerre assets remain bundled
+- no database migration
+- ZIP integrity passes

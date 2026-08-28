@@ -1,0 +1,21 @@
+DRAGONBOUND V34.29.4 — LUMERRE REAL ENGINE INTEGRATION
+
+Base: V34.29.3
+Database migration: NONE
+
+INSTALL
+1. Copy the ENTIRE contents of this patch over the current site.
+2. Replace matching Career Mode files.
+3. Keep all bundled story/chapter6/race assets.
+4. Hard refresh after deployment.
+
+WHAT CHANGED
+- Retired the V34.29.3 custom SVG/tiny-marker Lumerre race renderer.
+- Lumerre Race Day now uses the same parent Dragon Racing bridge used by Career Canto and Blackglass.
+- Sends a full Lumerre track descriptor, 7-racer grid, qualifying position, Career Evolution rules, Lumerre HUD/podium/trophy paths and supplied audio configuration to the established race engine.
+- Receives the genuine Dragon Racing result back into Career Mode.
+- Old V34.29–V34.29.3 fake Race Day completions are reset once without touching practice/qualifying or earlier chapters.
+- No fake race fallback: if the parent site engine cannot register/open lumerre_crown_circuit, Career Mode reports that clearly and keeps the save safe.
+
+IMPORTANT ENGINE NOTE
+This patch deliberately does NOT overwrite root dragon-racing-race.js / dragon-racing-ui.js because the exact current root engine files were not part of V34.29.3. Replacing them from an older Library build would risk regressing every existing race. V34.29.4 integrates through the existing supported Career race bridge instead.

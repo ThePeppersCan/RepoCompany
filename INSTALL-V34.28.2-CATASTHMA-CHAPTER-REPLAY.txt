@@ -1,0 +1,47 @@
+DRAGONBOUND V34.28.2 — CATASTHMA NON-DESTRUCTIVE CHAPTER REPLAY
+
+BASE
+- Install over V34.28.1.
+- Copy the entire patch over the site root and replace matching files.
+- No database migration is required.
+
+CATASTHMA QA CONTROL
+- CatAsthma + Quickquill now gets a REPLAY ANY CHAPTER test control on the Career Hub.
+- The Story Journey contains a dedicated CatAsthma QA panel for every implemented chapter/major Chapter 6 segment:
+  01  The Impossible Contract
+  02  Prove You Belong / Canto
+  03  A Place at Quickquill
+  04  Blackglass Under Floodlights
+  05  A Seat at the Table
+  06A The Lumerre Crown — Crown Week
+  06B The Measure of a Lap — Practice & Qualifying
+
+IMPORTANT — NON-DESTRUCTIVE
+- Replay launches from the opening scene even when the live save has already completed the chapter.
+- Prerequisite chapter flags are staged only inside a temporary in-memory replay copy.
+- Story choices, minigames, Canto/Blackglass races, Crown Challenge, Practice and Qualifying can all run normally for QA.
+- While QA replay is active, Career story writes to Supabase are blocked.
+- The original live Career story is snapshotted before replay begins.
+- Leaving replay, pressing Back/Escape, returning to the Journey, or using RESTORE LIVE SAVE restores that exact snapshot.
+- Replay results do NOT overwrite Career Evolution, race records, relationships, qualifying, team orders, or chapter completion in the live save.
+
+UI
+- A fixed CATASTHMA QA · NON-DESTRUCTIVE REPLAY banner appears during replay.
+- RESTORE LIVE SAVE is always available from the replay banner.
+- CatAsthma can open the Story Journey QA menu even if the story has previously been reset for testing.
+
+UNCHANGED
+- V34.28 Practice & Qualifying remains intact.
+- V34.28.1 portrait-frame recovery remains required/in place.
+- Multiple career saves remain independent.
+- Normal players do not receive the replay controls.
+
+QA
+- career.js syntax check: PASS
+- CatAsthma-only guard: PASS
+- seven replay targets/reference checks: PASS
+- Supabase story-write sandbox interception: PASS
+- snapshot restore path: PASS
+- CSS brace validation: PASS
+- cache-bust validation: PASS
+- ZIP integrity: see manifest/package test

@@ -1,0 +1,21 @@
+Dragonbound V34.29.5 — Lumerre Crown Real Engine Bridge
+
+INSTALL OVER V34.29.4
+Copy the ENTIRE contents of this patch over the website root and replace matching files.
+
+IMPORTANT
+This patch intentionally includes the four exact root Dragon Racing files because V34.29.4 only patched Career Mode and therefore had nobody listening for the Lumerre handoff.
+
+ROOT FILES
+- dragon-racing-race.js — updated
+- dragon-racing-race.css — updated
+- dragon-racing-ui.js — exact supplied current file, retained
+- dragon-racing-ui.css — exact supplied current file, retained
+
+CAREER
+The included dragonbound-career-mode files preserve V34.29.4 and provide the Lumerre track/grid/result contract.
+
+NO DATABASE MIGRATION. NO SAVE RESET.
+
+EXPECTED FLOW
+Practice & Qualifying -> Race Day -> START LUMERRE IN DRAGON RACING -> established Dragon Racing opens -> real 7-dragon 10-lap race -> CONTINUE STORY -> Career Mode official Lumerre result/podium.

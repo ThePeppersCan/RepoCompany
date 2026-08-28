@@ -1,0 +1,46 @@
+DRAGONBOUND V34.29 — LUMERRE CROWN RACE DAY + TROPHY TRANSPARENCY FIX
+
+BASE
+- Install over V34.28.2.
+- Copy the entire patch over the site root and replace matching files.
+- No database migration is required.
+
+WHAT THIS BUILDS
+- Adds Chapter 6C: THE LUMERRE CROWN — RACE DAY.
+- Race Day is now launchable immediately after Practice & Qualifying.
+- Story Journey chapter 06 now progresses through:
+  Crown Week → Practice & Qualifying → Race Day.
+- Adds a simple playable Race Day flow with:
+  - grid/start screen
+  - team-order decision
+  - racecraft battle decision
+  - final-lap decision
+  - result/podium screen
+- CatAsthma non-destructive replay now includes 06C Race Day.
+
+AUDIO
+- Uses the supplied main Lumerre Crown race music.
+- Uses the supplied final-lap music when the race reaches its last-lap phase.
+- Reuses existing Crown SFX / crowd ambience at balanced levels.
+
+TRANSPARENCY FIX
+- Cleans the Lumerre Crown trophy art into a proper transparent PNG asset.
+- New asset path:
+  dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-trophy-transparent.png
+
+NEW / UPDATED ASSETS
+- story/chapter6/race/audio/lumerre_crown_main_race_BALANCED.mp3
+- story/chapter6/race/audio/lumerre_crown_final_lap_BALANCED.mp3
+- story/chapter6/race/ui/lumerre-crown-live-hud.png
+- story/chapter6/race/ui/lumerre-crown-race-team-orders.png
+- story/chapter6/race/ui/lumerre-crown-race-battle-reference.png
+- story/chapter6/race/ui/lumerre-crown-trophy-transparent.png
+- story/chapter6/race/lumerre-crown-podium-stage.png
+- story/chapter6/race/lumerre-crown-full-map.png
+
+QA NOTES
+- career.js syntax check: PASS
+- CSS append / brace validation: PASS
+- Race Day asset references: PASS
+- Trophy transparency cleanup: PASS
+- ZIP integrity: see manifest/package test

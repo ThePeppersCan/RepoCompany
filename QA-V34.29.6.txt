@@ -1,0 +1,27 @@
+V34.29.6 QA — LUMERRE PHYSICAL SPEED CONTINUITY
+
+ROOT CAUSE
+The Lumerre descriptor contains a non-uniform hand-traced centreline. Long straight sections have sparse control points, while technical corners have dense control points. The engine previously advanced by sample index, not physical path length. A constant progress delta therefore became a variable on-screen distance delta.
+
+MEASURED BEFORE FIX
+10,000 equal progress intervals over the V34.29.5 Lumerre centreline:
+- p05 physical step: 0.0914 px-equivalent units
+- median: 0.2593
+- p95: 1.7501
+- p99: 3.1932
+- p95 / p05: 19.14x
+- extreme max / min: ~189.8x
+
+MEASURED AFTER FIX
+Arc-length interpolation over the same route:
+- p05: 0.447114
+- median: 0.447114
+- p95: 0.447114
+- p99: 0.447114
+- p95 / p05: 1.000000x
+
+SCOPE
+The fix is gated behind activeTrack().arcLengthProgress and this flag is added only to lumerre_crown_circuit. Existing City, Canto and Blackglass track progression is left on the previous code path.
+
+STATIC QA
+node --check dragon-racing-race.js: PASS

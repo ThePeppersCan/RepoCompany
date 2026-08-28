@@ -1,0 +1,35 @@
+DRAGONBOUND V34.29.4 — QA REPORT
+
+PASS — story schema bumped to v15
+PASS — Lumerre uses standard race-start bridge
+PASS — Lumerre canonical track id present
+PASS — real engine renderer requested
+PASS — fake fallback disabled
+PASS — 7 entrant contract
+PASS — 10-lap contract
+PASS — Lumerre result handler
+PASS — Lumerre abort handler
+PASS — old fake marker renderer removed
+PASS — old fake live renderer removed
+PASS — Canto bridge retained
+PASS — Blackglass bridge retained
+PASS — legacy fake result migration
+PASS — main race music config
+PASS — final lap music config
+PASS — crowd reuse config
+PASS — quiet countdown config
+PASS — cache bust updated
+PASS — CSS brace balance
+PASS — asset dragonbound-career-mode/story/chapter6/race/lumerre-crown-full-map.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/lumerre-crown-podium-stage.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-live-hud.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-race-team-orders.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-race-battle-reference.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-trophy-transparent.png
+PASS — asset dragonbound-career-mode/story/chapter6/race/audio/lumerre_crown_main_race_BALANCED.mp3
+PASS — asset dragonbound-career-mode/story/chapter6/race/audio/lumerre_crown_final_lap_BALANCED.mp3
+
+ARCHITECTURE NOTE:
+The V34.29.3 tiny-marker/SVG race renderer is removed from career.js. Lumerre now hands off through the same dragonbound-career-story-race-start bridge used by Canto and Blackglass. No root Dragon Racing engine file is overwritten by this patch.
+
+NO DATABASE MIGRATION REQUIRED.

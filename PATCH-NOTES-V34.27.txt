@@ -1,0 +1,28 @@
+VELMORA: DRAGONBOUND CAREER MODE
+V34.27 — CROWN WEEK
+
+Crown Week deliberately changes the chapter structure away from the usual briefing → qualifying → race loop.
+
+DAY ONE FLOW
+Q40  The City Knows Your Name
+Q41  The Crown Village
+Q42  The Crown Parade
+Q43  The Crown Challenge
+Q44  The Garden Reception
+Q45  06:15 Tomorrow
+
+CORE SYSTEMS
+- Save-aware fame reactions on arrival/parade.
+- Open-schedule paddock encounters instead of one fixed dialogue chain.
+- Inbox and rumour hooks for future Career Mode chapters.
+- Four-part Crown Challenge with persistent results.
+- Head-to-head sprint uses Career Evolution race-battle resolution.
+- Reception conversations are selected from the professional grid and affect persistent career relationships/reputation.
+- Optional circuit-overlook moment can be discovered rather than automatically served.
+- Crown Week progression is kept separate from the full Lumerre race-weekend completion state.
+
+AUDIO
+- Six supplied scene-specific music tracks.
+- Reuses established website crowd audio for public Crown Week scenes.
+- Garden chatter and overlook wind added as distinct ambience.
+- Quiet timing beep/GO cue plus Challenge stingers and interaction SFX.

@@ -1,0 +1,54 @@
+DRAGONBOUND V34.26 — CAREER EVOLUTION
+
+BASE
+- Install over V34.25 — Chapter Five Journey + Ending Repair.
+- Copy this patch over the site root and replace matching files.
+- This is an incremental patch: only changed/new files are included.
+- No Supabase schema migration is required. Career Evolution lives inside each existing career save JSON state.
+
+WHAT THIS UPDATE ADDS
+- Persistent, save-specific Career Evolution model.
+- Natural sporting progression from rookie → prospect → podium threat → winner → contender → title contender.
+- Controlled race competitiveness windows for Canto, Blackglass, Lumerre and later races. These are pace targets / expectations, NOT hard-coded finishing places.
+- Durable career records: starts, podiums, wins, poles, best finish, best qualifying, overtakes, positions gained, recent form and first milestones.
+- Automatic migration of existing Canto and Blackglass result history into Career Evolution. Existing saves are not reset and victories are never invented.
+- Persistent first podium / first pole / first victory detection.
+- Six distinct established-racer AI profiles for Jalen, Sofia, Luka, Tyrese, Ren and Maya.
+- Organic rivalry data and special Tyrese teammate / competitive-tension tracking.
+- Reusable attack and defence battle resolver with real pass/fail/mistake/position-change outcomes.
+- Stamina/risk-aware battle choices and race-engine configuration.
+- Persistent team-order history: received / obeyed / ignored and future consequences.
+- Fame, paddock respect, media reputation, Quickquill trust and pressure tracking.
+- World-reaction/fame tiers for future crowd, autograph, media and sponsor behaviour.
+- Qualifying progression model.
+- Future chapter uniqueness metadata so consecutive chapters can avoid repeating the same primary loop.
+- New professional Career Evolution screen from the Career Hub PROFILE button.
+- Career Evolution is independent for every save slot.
+- CatAsthma tester/admin receives an expandable Career Evolution debug readout only.
+
+RACE ENGINE BRIDGE
+The Career iframe now sends a serializable `careerEvolution` configuration with Career story race launches.
+It also supports bridge requests for:
+- dragonbound-career-evolution-config-request
+- dragonbound-career-evolution-battle-request
+- dragonbound-career-evolution-team-order
+
+The current Canto / Blackglass parent simulator can safely ignore these new fields. The new Lumerre / future race engine should consume them so live gap-closing, attack windows, defending windows, stamina and team orders use the persistent Career model rather than a predetermined finishing-order animation.
+
+IMPORTANT
+- V34.26 does NOT hard-force the player into 2nd or 1st.
+- It provides controlled competitiveness windows and a real battle model so future races can naturally move forward with the player's career.
+- Existing Canto and Blackglass results remain whatever the player genuinely earned.
+- The first career victory remains available as a special future cinematic milestone; this patch does not fabricate one.
+
+CACHE
+- career.js cache key updated to V34.26.
+- career-seat.css cache key updated to V34.26.
+
+QA
+- JavaScript syntax check passed.
+- V34.25 Chapter Five code retained.
+- Multi-save code retained.
+- Career Evolution state is normalised per save and migration is idempotent.
+- No database migration required.
+- ZIP integrity checked before delivery.

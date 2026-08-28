@@ -1,0 +1,37 @@
+DRAGONBOUND V34.28.1 — PORTRAIT ASSET RECOVERY
+
+BASE
+- Install over V34.28.
+- Copy the ENTIRE patch contents over the site root.
+- Replace matching files when prompted.
+- IMPORTANT: make sure the NEW/RESTORED story/chapter6/portrait-frames/ folders are actually uploaded. Do not use an uploader mode that skips new directories.
+
+WHAT WAS WRONG
+V34.28's story code correctly references the clean individual Crown Week portrait frames introduced in V34.27.1, but the V34.28 incremental ZIP did not carry those portrait-frame files itself. If the deployment did not already contain every V34.27.1 frame directory, the browser received 404s and rendered empty/broken portrait boxes.
+
+FIXED
+- Re-bundles all 90 clean Crown Week portrait frame PNGs:
+  Tyrese, Mara, Nell, Jalen, Sofia, Maya, Luka and Ren.
+- Adds runtime portrait recovery for the V34.28 core cast:
+  Tyrese -> established downtime portrait fallback
+  Mara -> established downtime portrait fallback
+  Nell -> established downtime portrait fallback
+- If both the intended frame and fallback ever fail, the broken portrait container is hidden instead of leaving an empty outlined box.
+- Cache bust updated to V34.28.1.
+
+UNCHANGED
+- V34.28 Practice & Qualifying progression and results.
+- Career Evolution.
+- Multiple saves.
+- Music/audio balancing.
+- Crown Week progression.
+- No database migration.
+- No save reset.
+
+QA
+- career.js node syntax check: PASS
+- 90/90 portrait frames present: PASS
+- 90/90 portrait PNG files decode: PASS
+- CSS brace validation: PASS
+- Crown portrait frame ranges validated: PASS
+- ZIP integrity test required before delivery.
