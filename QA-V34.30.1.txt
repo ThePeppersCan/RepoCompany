@@ -1,0 +1,13 @@
+DRAGONBOUND V34.30.1 — QA
+PASS — built from exact V34.30 test candidate
+PASS — only career-verdict.css and index.html changed
+PASS — cache bust updated
+PASS — Chapter Seven body explicitly sits above shared decorative layers
+PASS — Verdict header geometry fully isolated from legacy story-header rules
+PASS — Verdict progress geometry fully isolated from legacy story-scene-counter rules
+PASS — progress element compact and bottom-right instead of scene-covering
+PASS — short desktop viewport guard added
+PASS — CSS brace balance
+PASS — no save/database/race logic touched
+TEST TARGET — Q66 at the same desktop size shown in the supplied screenshot
+NOT PUSHED LIVE

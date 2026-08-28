@@ -1,0 +1,31 @@
+DRAGONBOUND V34.29.9 — BLACKGLASS STEALTH PATHFINDING
+TEST CANDIDATE ONLY — NOT FOR AUTOMATIC LIVE DEPLOYMENT
+
+BASE REQUIRED
+- Apply over the exact V34.29.8 After the Flag TEST CANDIDATE.
+- Do not apply over older V34.29.7 or earlier without V34.29.8 first.
+
+FILES TO REPLACE
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/index.html
+
+WHAT THIS CHANGES
+- Replaces the broad Guest Wing walkable rectangles with a connected corridor nav graph.
+- Player dragon movement is constrained to the actual safe route network instead of broad wall-crossing zones.
+- Adds wall sliding so diagonal movement feels smooth without tunnelling through corners.
+- Garran now pathfinds through the same safe corridor graph instead of moving in a straight line toward patrol/investigation targets.
+- Garran can no longer catch the dragon through a wall just because the two screen coordinates are close.
+- Pantry collision now includes clearance around the preparation table and shelving.
+- No story/save/schema/database changes.
+- No Lumerre race balance changes.
+- No V34.29.8 After the Flag changes.
+
+TEST FOCUS
+1. Replay Blackglass Q26 / After Hours.
+2. Walk the full Guest Wing perimeter, including Room 11, pantry door, noticeboard, viewing rail, crates and service rack/key area.
+3. Try holding diagonal movement into walls/corners — the dragon should slide along the valid floor, not cross the wall.
+4. Make noise near Garran. He should route around the corridor network rather than cutting straight through architecture.
+5. Hide with Garran on the opposite side of a wall. Proximity alone should not trigger a catch.
+6. Enter the pantry and verify the dragon cannot clip through the prep table or upper shelves.
+
+If a particular doorway is now too narrow or an accessible nook is blocked, send a screenshot of that exact spot and the nav corridor can be adjusted without touching the rest of the chapter.

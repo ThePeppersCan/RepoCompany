@@ -1,0 +1,45 @@
+DRAGONBOUND CAREER MODE V34.31
+THE FIRST FULL SEASON — OPENING WEEK
+TEST CANDIDATE
+
+BASE
+Install over V34.30, V34.30.1, V34.30.2, V34.30.3 or V34.30.4.
+V34.30.4 is the recommended base.
+
+REPLACE THESE THREE FILES
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career-season.css
+- dragonbound-career-mode/index.html
+
+NO ASSET REPLACEMENT IS REQUIRED
+V34.31 deliberately reuses existing Quickquill, Velmora and strategy-room
+art. The archive does not duplicate the large assets or MP3 folders.
+
+WHAT IS NEW
+- Chapter 08 is playable from Story Journey after The Verdict.
+- Q75: eight-round explorable championship calendar and season ambition.
+- Q76: six-hour preparation planner with five live readiness meters.
+- Q77: evidence-driven telemetry deduction with a useful retry.
+- Q78: five-stage pit-wall command simulation with persistent score and grade.
+- Q79: choose exactly three season promises with team/personal mix rules.
+- Q80: persistent Season Control dashboard and race-presentation preference.
+- Career Journal, Inbox and Calendar acknowledge Opening Week.
+- CatAsthma receives non-destructive Chapter 08 replay.
+- Story schema v18 preserves all older chapter state without a DB migration.
+
+IMPORTANT CONTINUITY
+- A negotiated four-day sponsor clause makes Sponsor Duty cost one preparation
+  hour instead of two.
+- The telemetry solution improves Nell trust and technical understanding.
+- The final pit-wall team call reacts to the existing Tyrese relationship.
+- V34.30.4 negotiation state repair and V34.29.9 stealth pathfinding remain.
+
+TEST
+1. Replace the three files.
+2. Hard-refresh the Career Mode frame.
+3. Finish or replay The Verdict, then open Chapter 08.
+4. Complete Q75–Q80 and return to Story Journey.
+5. Reopen Season Control and confirm the preparation profile, objective set,
+   telemetry result, pit-wall grade and race mode survived the refresh.
+
+Nothing in this package has been pushed live.

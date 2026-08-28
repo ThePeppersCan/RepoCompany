@@ -1,10 +1,11 @@
 (function(){
   'use strict';
-  // V34.29.6 — Lumerre Crown pace continuity repair; existing City, Canto and Blackglass racing preserved.
-  if(window.__dragonRacingRaceV34296)return;
-  window.__dragonRacingRaceV34296=true;
+  // V34.32.1 — real Quick Sim / Full Sim acceleration for Career Season races; same Dragon Racing engine.
+  if(window.__dragonRacingRaceV3432)return;
+  window.__dragonRacingRaceV3432=true;
 
   const WORLD_W=1536,WORLD_H=1024,RACER_COUNT=6;
+  // V34.29.7 — Competitive Field & Overtake Resolution
   const LUMERRE_TRACK_ID='lumerre_crown_circuit';
   const LUMERRE_WORLD_W=1672,LUMERRE_WORLD_H=941;
   const DEFAULT_TRACK_ID='velmora_city_circuit';
@@ -160,7 +161,7 @@
   const RACING_MAX_XP=13034431;
   function racingXpForLevel(level){const target=Math.max(1,Math.min(99,Math.floor(Number(level)||1)));if(target<=1)return 0;let points=0;for(let lvl=1;lvl<target;lvl++)points+=Math.floor(lvl+300*Math.pow(2,lvl/7));return Math.floor(points/4);}
   function racingLevelFromXp(xp){const value=Math.max(0,Math.min(RACING_MAX_XP,Number(xp)||0));for(let level=2;level<=99;level++)if(value<racingXpForLevel(level))return level-1;return 99;}
-  const state={trackId:DEFAULT_TRACK_ID,phase:'closed',game:null,viewport:null,world:null,racers:[],player:null,raf:0,lastT:0,raceStartedAt:0,raceStartedEpochMs:0,finishAt:0,keys:{up:false,down:false,left:false,right:false,boost:false},camera:{x:WORLD_W/2,y:WORLD_H/2,zoom:1,targetX:WORLD_W/2,targetY:WORLD_H/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''},samples:[],totalLength:0,debugPath:false,countdownToken:0,resultOrder:[],lapBannerTimer:0,raceMusic:null,finalLapMusic:null,wingAudio:[],crowdAudio:null,countdownAudio:null,nextWingAt:0,sequenceTimers:[],audioFadeToken:0,aiStatsPersisted:false,nextHudLayoutAt:0,nextHudTickAt:0,nextRaceStoryAt:0,nextCameraEvalAt:0,nextFocusAt:0,rewardRunId:0,raceRewardSessionId:'',raceRewardPromise:null,raceRewardClaim:null,raceOrderIds:[],pendingOrderKey:'',pendingOrderAt:0,lastLeaderId:'',lastRaceEventAt:0,raceEventTimer:0,raceStory:{overtakes:0,leadChanges:0},storyRace:null,finalLapDramaStarted:false,photoFinishHoldUntil:0,finishRevealTimer:0,broadcastEvents:[],battleWatch:{},activeBattleKey:'',lastBattleCalloutAt:0,lastFastestEventAt:0,fastestSectors:{},nextBroadcastHudAt:0,director:{lastCutAt:0,holdUntil:0,lastSubjectKey:'',lastMode:'follow'},raceStoryMemoryLimit:14,finalLapAudioFadeToken:0};
+  const state={trackId:DEFAULT_TRACK_ID,phase:'closed',game:null,viewport:null,world:null,racers:[],player:null,raf:0,lastT:0,simClock:0,raceStartedAt:0,raceStartedEpochMs:0,finishAt:0,keys:{up:false,down:false,left:false,right:false,boost:false},camera:{x:WORLD_W/2,y:WORLD_H/2,zoom:1,targetX:WORLD_W/2,targetY:WORLD_H/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''},samples:[],totalLength:0,debugPath:false,countdownToken:0,resultOrder:[],lapBannerTimer:0,raceMusic:null,finalLapMusic:null,wingAudio:[],crowdAudio:null,countdownAudio:null,nextWingAt:0,sequenceTimers:[],audioFadeToken:0,aiStatsPersisted:false,nextHudLayoutAt:0,nextHudTickAt:0,nextRaceStoryAt:0,nextCameraEvalAt:0,nextFocusAt:0,rewardRunId:0,raceRewardSessionId:'',raceRewardPromise:null,raceRewardClaim:null,raceOrderIds:[],pendingOrderKey:'',pendingOrderAt:0,lastLeaderId:'',lastRaceEventAt:0,raceEventTimer:0,raceStory:{overtakes:0,leadChanges:0},storyRace:null,finalLapDramaStarted:false,photoFinishHoldUntil:0,finishRevealTimer:0,broadcastEvents:[],battleWatch:{},activeBattleKey:'',lastBattleCalloutAt:0,lastFastestEventAt:0,fastestSectors:{},nextBroadcastHudAt:0,director:{lastCutAt:0,holdUntil:0,lastSubjectKey:'',lastMode:'follow'},raceStoryMemoryLimit:14,finalLapAudioFadeToken:0};
 
   function activeTrack(){return TRACK_CONFIGS[state.trackId]||TRACK_CONFIGS[DEFAULT_TRACK_ID];}
   function activeWorldWidth(){return Math.max(1,Number(activeTrack().worldWidth)||WORLD_W);}
@@ -169,6 +170,9 @@
   function isBlackglassMusicScene(){return activeTrack().id==='blackglass_night_circuit';}
   function isLumerreTrack(){return activeTrack().id===LUMERRE_TRACK_ID;}
   function isLumerreStoryRace(){return isStoryRace()&&state.trackId===LUMERRE_TRACK_ID;}
+  function isSeasonStoryRace(){return isStoryRace()&&Number(state.storyRace?.seasonRound)>0;}
+  function displayRaceNumber(){return isSeasonStoryRace()?Math.max(1,Number(state.storyRace?.seasonRound)||1):RACE_NUMBER;}
+  function broadcastRaceModeLabel(){const mode=normKey(state.storyRace?.presentationMode||'watch');return isSeasonStoryRace()?(mode==='full'?'FULL SIM · LIVE ENGINE':mode==='quick'?'QUICK SIM · DECISIVE WINDOWS':'WATCH LIVE · AUTONOMOUS RACE'):'LIVE AUTONOMOUS RACE';}
   function raceMusicTarget(multiplier=1){return isBlackglassMusicScene()?activeMusicVolume():activeMusicVolume()*multiplier;}
   function activeCrowdVolume(){const v=Number(activeTrack().crowdVolume);return Number.isFinite(v)&&v>=0?v:CROWD_VOLUME;}
   function activeCountdownVolume(){const v=Number(activeTrack().countdownVolume);return Number.isFinite(v)&&v>=0?v:COUNTDOWN_VOLUME;}
@@ -216,7 +220,20 @@
   function activeLaps(){return Math.max(1,Number(activeTrack().laps)||3);}
   function activeCheckpoints(){return activeTrack().checkpoints||TRACK_CONFIGS[DEFAULT_TRACK_ID].checkpoints;}
   function activeControlPoints(){return activeTrack().controlPoints||TRACK_CONFIGS[DEFAULT_TRACK_ID].controlPoints;}
-  function raceElapsedMs(){return state.raceStartedEpochMs?Math.max(0,Date.now()-state.raceStartedEpochMs):0;}
+  function raceClockNow(){return state.raceStartedAt&&state.simClock?Math.max(state.raceStartedAt,state.simClock):now();}
+  function raceElapsedMs(){return state.raceStartedAt?Math.max(0,raceClockNow()-state.raceStartedAt):(state.raceStartedEpochMs?Math.max(0,Date.now()-state.raceStartedEpochMs):0);}
+  function seasonPresentationMode(){return isSeasonStoryRace()?normKey(state.storyRace?.presentationMode||'watch'):'watch';}
+  function seasonSimulationRate(){
+    const mode=seasonPresentationMode();
+    if(mode==='full')return 12;
+    if(mode!=='quick')return 1;
+    // Quick Sim races through the routine laps, slows to real time for the decisive call, then accelerates to the flag.
+    const callIndex=Math.max(0,Number(state.storyRace?.seasonCallIndex)||0);
+    const distance=Math.max(0,Number(state.player?.distance)||0);
+    const decisive=seasonRaceCallDefinition(1);
+    if(callIndex===1&&distance>=(Number(decisive?.trigger)||Infinity)-.045)return 1;
+    return 7;
+  }
   function activeSectors(){return activeTrack().sectors||[{id:'circuit',name:'Circuit',start:0,end:1}];}
   function sectorIndexForDistance(distance){const f=mod1(Math.max(0,Number(distance)||0)),sectors=activeSectors();for(let i=0;i<sectors.length;i++){const s=sectors[i];if(f>=Number(s.start||0)&&f<Number(s.end??1))return i;}return Math.max(0,sectors.length-1);}
   function sectorForDistance(distance){const sectors=activeSectors();return sectors[sectorIndexForDistance(distance)]||sectors[0];}
@@ -598,18 +615,19 @@
     return `<svg class="dragon-race-debug-svg" viewBox="0 0 ${activeWorldWidth()} ${activeWorldHeight()}"><polyline points="${pts}"></polyline>${cps}</svg>`;
   }
 
-  function expectedRacerCount(){return isLumerreStoryRace()?Math.max(2,Math.min(7,Array.isArray(state.storyRace?.entrants)?state.storyRace.entrants.length:7)):RACER_COUNT;}
+  function expectedRacerCount(){return (isLumerreStoryRace()||isSeasonStoryRace())?Math.max(2,Math.min(7,Array.isArray(state.storyRace?.entrants)?state.storyRace.entrants.length:7)):RACER_COUNT;}
 
   function ensureGame(){
     document.getElementById('dragon-race-sky-styles-v3360')?.remove();
     document.getElementById('dragon-race-sky-styles')?.remove();
     const shell=document.querySelector('#dragonRacingModal .dragon-racing-shell');if(!shell)return null;
     let game=shell.querySelector('.dragon-race-game');
-    if(game&&game.dataset.trackId!==activeTrack().id){game.remove();game=null;}if(game){game.querySelector('.dragon-race-sky-overlay')?.remove();state.game=game;state.viewport=game.querySelector('.dragon-race-viewport');state.world=game.querySelector('.dragon-race-world');return game;}
+    const raceKind=isSeasonStoryRace()?'season-story':isLumerreStoryRace()?'lumerre-story':isStoryRace()?'career-story':'standard';
+    if(game&&(game.dataset.trackId!==activeTrack().id||game.dataset.raceKind!==raceKind)){game.remove();game=null;}if(game){game.querySelector('.dragon-race-sky-overlay')?.remove();state.game=game;state.viewport=game.querySelector('.dragon-race-viewport');state.world=game.querySelector('.dragon-race-world');return game;}
     game=document.createElement('div');game.className='dragon-race-game';game.classList.toggle('is-lumerre-crown',isLumerreTrack());
     const track=activeTrack();
-    game.dataset.trackId=track.id;
-    game.innerHTML=`<div class="dragon-race-viewport"><div class="dragon-race-world" style="width:${activeWorldWidth()}px;height:${activeWorldHeight()}px"><img class="dragon-race-world-bg" src="${track.asset}" alt="${escapeRaceText(track.name)}"><div class="dragon-race-atmosphere ${track.id==='canto_meadow_circuit'?'is-canto':track.id==='blackglass_night_circuit'?'is-blackglass':track.id===LUMERRE_TRACK_ID?'is-lumerre':''}">${makeAtmosphere()}</div>${debugSvg()}<div class="dragon-race-racers"></div></div><div class="dragon-race-cinematic-pass" aria-hidden="true"></div><div class="dragon-race-tv-glass" aria-hidden="true"></div><div class="dragon-race-hud"><div class="dragon-race-hud-top"><div class="dragon-race-hud-cluster"><div class="dragon-race-hud-box is-position"><small>POSITION</small><b data-race-position>— / ${expectedRacerCount()}</b></div><div class="dragon-race-hud-box"><small>LAP</small><b data-race-lap>1 / ${activeLaps()}</b></div><div class="dragon-race-hud-box"><small>TIME</small><b data-race-time>00:00.00</b></div></div><div class="dragon-race-hud-box dragon-race-hud-dragon"><img data-race-player-icon alt=""><span><strong data-race-player-name>Your Dragon</strong><em>${track.shortName}</em></span></div></div><div class="dragon-race-auto-badge"><b>LIVE AUTONOMOUS RACE</b> · Velmora Racing Network</div><div class="dragon-race-live-leaderboard" aria-label="Live race order"><div class="dragon-race-live-leaderboard-head"><span>ORDER</span><em>GAP</em></div><div class="dragon-race-live-leaderboard-list"></div><div class="dragon-race-event-feed" aria-label="Race event feed"></div></div><div class="dragon-race-lap-banner"></div><div class="dragon-race-event-callout" aria-live="polite"><small data-race-event-kicker></small><b data-race-event-text></b></div><div class="dragon-race-team-order" aria-hidden="true"><small>QUICKQUILL TEAM ORDER</small><strong data-team-order-title>HOLD POSITION</strong><span data-team-order-copy>Do not attack Tyrese through this phase.</span><div class="dragon-race-team-order-actions"><button type="button" data-team-order="obey">OBEY</button><button type="button" data-team-order="wait">WAIT</button><button type="button" data-team-order="ignore">IGNORE</button></div></div><div class="dragon-race-broadcast-strip" aria-live="polite"><div class="dragon-race-sector-chip"><small>SECTION</small><b data-race-sector>—</b><em data-race-sector-lap></em></div><div class="dragon-race-battle-chip"><small data-race-battle-kicker>RACE DIRECTOR</small><b data-race-battle-text>FIELD IN VIEW</b></div><div class="dragon-race-fastest-chip"><small>FASTEST SECTION</small><b data-race-fastest-sector>—</b><em data-race-fastest-racer></em></div></div><div class="dragon-race-exit" role="button" tabindex="0">EXIT RACE</div></div><div class="dragon-race-starting-grid" aria-hidden="true"><div class="dragon-race-grid-card"><header><small>VELMORA RACING NETWORK</small><b>STARTING GRID</b><em>${track.shortName}</em></header><div class="dragon-race-grid-list"></div></div></div><div class="dragon-race-broadcast-title"><small>LIVE FROM VELMORA</small><b>${track.shortName}</b><em>RACE ${RACE_NUMBER}</em></div><div class="dragon-race-start-lights" aria-hidden="true"><i></i><i></i><i></i></div><div class="dragon-race-camera-cut" aria-hidden="true"></div><div class="dragon-race-countdown"><b></b></div></div><div class="dragon-race-results"><div class="dragon-race-results-card"></div></div>`;
+    game.dataset.trackId=track.id;game.dataset.raceKind=raceKind;
+    game.innerHTML=`<div class="dragon-race-viewport"><div class="dragon-race-world" style="width:${activeWorldWidth()}px;height:${activeWorldHeight()}px"><img class="dragon-race-world-bg" src="${track.asset}" alt="${escapeRaceText(track.name)}"><div class="dragon-race-atmosphere ${track.id==='canto_meadow_circuit'?'is-canto':track.id==='blackglass_night_circuit'?'is-blackglass':track.id===LUMERRE_TRACK_ID?'is-lumerre':''}">${makeAtmosphere()}</div>${debugSvg()}<div class="dragon-race-racers"></div></div><div class="dragon-race-cinematic-pass" aria-hidden="true"></div><div class="dragon-race-tv-glass" aria-hidden="true"></div><div class="dragon-race-hud"><div class="dragon-race-hud-top"><div class="dragon-race-hud-cluster"><div class="dragon-race-hud-box is-position"><small>POSITION</small><b data-race-position>— / ${expectedRacerCount()}</b></div><div class="dragon-race-hud-box"><small>LAP</small><b data-race-lap>1 / ${activeLaps()}</b></div><div class="dragon-race-hud-box"><small>TIME</small><b data-race-time>00:00.00</b></div></div><div class="dragon-race-hud-box dragon-race-hud-dragon"><img data-race-player-icon alt=""><span><strong data-race-player-name>Your Dragon</strong><em>${track.shortName}</em></span></div></div><div class="dragon-race-auto-badge"><b>${broadcastRaceModeLabel()}</b> · Velmora Racing Network</div><div class="dragon-race-live-leaderboard" aria-label="Live race order"><div class="dragon-race-live-leaderboard-head"><span>ORDER</span><em>GAP</em></div><div class="dragon-race-live-leaderboard-list"></div><div class="dragon-race-event-feed" aria-label="Race event feed"></div></div><div class="dragon-race-lap-banner"></div><div class="dragon-race-event-callout" aria-live="polite"><small data-race-event-kicker></small><b data-race-event-text></b></div><div class="dragon-race-team-order" aria-hidden="true"><small>QUICKQUILL TEAM ORDER</small><strong data-team-order-title>HOLD POSITION</strong><span data-team-order-copy>Do not attack Tyrese through this phase.</span><div class="dragon-race-team-order-actions"><button type="button" data-team-order="obey">OBEY</button><button type="button" data-team-order="wait">WAIT</button><button type="button" data-team-order="ignore">IGNORE</button></div></div><div class="dragon-race-broadcast-strip" aria-live="polite"><div class="dragon-race-sector-chip"><small>SECTION</small><b data-race-sector>—</b><em data-race-sector-lap></em></div><div class="dragon-race-battle-chip"><small data-race-battle-kicker>RACE DIRECTOR</small><b data-race-battle-text>FIELD IN VIEW</b></div><div class="dragon-race-fastest-chip"><small>FASTEST SECTION</small><b data-race-fastest-sector>—</b><em data-race-fastest-racer></em></div></div><div class="dragon-race-exit" role="button" tabindex="0">EXIT RACE</div></div><div class="dragon-race-starting-grid" aria-hidden="true"><div class="dragon-race-grid-card"><header><small>VELMORA RACING NETWORK</small><b>STARTING GRID</b><em>${track.shortName}</em></header><div class="dragon-race-grid-list"></div></div></div><div class="dragon-race-broadcast-title"><small>LIVE FROM VELMORA</small><b>${track.shortName}</b><em>RACE ${displayRaceNumber()}</em></div><div class="dragon-race-start-lights" aria-hidden="true"><i></i><i></i><i></i></div><div class="dragon-race-camera-cut" aria-hidden="true"></div><div class="dragon-race-countdown"><b></b></div></div><div class="dragon-race-results"><div class="dragon-race-results-card"></div></div>`;
     shell.appendChild(game);state.game=game;state.viewport=game.querySelector('.dragon-race-viewport');state.world=game.querySelector('.dragon-race-world');
     const exit=game.querySelector('.dragon-race-exit');bindAction(exit,()=>isStoryRace()?returnStoryRace({aborted:true,message:'Race exited.'}):exitToTrackSelect());
     return game;
@@ -691,7 +709,8 @@
       paceBias:0,paceTarget:0,paceAt:0,
       surge:0,surgeAt:0,
       mistake:style==='smooth'?.47:style==='cautious'?.44:Math.random(),mistakeUntil:0,mistakeStrength:0,nextMistakeAt:0,
-      battle:null,battleCooldownUntil:0,
+      battle:null,battleCooldownUntil:0,pairCooldown:{},battleWins:0,battleLosses:0,
+      lumerrePhaseAt:0,lumerrePhaseTarget:0,lumerrePhaseBias:0,
       boost:100,boostUntil:0,boostCooldown:700+Math.random()*1800
     };
   }
@@ -796,13 +815,27 @@
   const LUMERRE_STORY_BREEDS={tyrese:'story-tyrese',jalen:'story-jalen',sofia:'lumerre',luka:'calvora',ren:'qasmir',maya:'zafran'};
   const LUMERRE_STORY_STYLES={tyrese:'smooth',jalen:'bold',sofia:'cautious',luka:'overtaker',ren:'smooth',maya:'overtaker'};
   function lumerreEntrantId(entry,index=0){return normKey(entry?.id||entry?.racerId||entry?.key||entry?.name||`racer-${index+1}`);}
-  function lumerreCareerAiBias(ai={}){const pace=Number(ai?.pace);return Number.isFinite(pace)?clamp((pace-84)*.0013,-.0045,.0060):0;}
+  function lumerreCareerAiBias(ai={}){
+    const pace=Number(ai?.pace);
+    // Career pace matters at Lumerre, but it no longer gets drowned by the generic ±3.2% race-luck roll.
+    return Number.isFinite(pace)?clamp((pace-84)*.00145,-.0040,.0070):0;
+  }
+  function compactLumerreLuck(span=.0075){return (Math.random()-.5)*2*span;}
+  function setLumerreBasePace(r,paceBias=0,extraBias=0,luckSpan=.0075){
+    if(!r?.ai)return;
+    const luck=compactLumerreLuck(luckSpan);
+    r.ai.raceLuck=luck;r.ai.extraBias=extraBias;
+    r.ai.base=.0265*(Number(activeTrack().paceMultiplier)||1)*(1+luck+paceBias+extraBias);
+  }
   function tuneLumerreCareerAi(r,entry={}){
     if(!r?.ai)return;const ai=entry?.ai&&typeof entry.ai==='object'?entry.ai:{};
-    r.ai.base*=1+lumerreCareerAiBias(ai);
-    const consistency=clamp(Number(ai.consistency)||82,55,98),aggression=clamp(Number(ai.aggression)||75,50,98),overtaking=clamp(Number(ai.overtaking)||80,50,98);
+    const consistency=clamp(Number(ai.consistency)||82,55,98),aggression=clamp(Number(ai.aggression)||75,50,98),overtaking=clamp(Number(ai.overtaking)||80,50,98),defending=clamp(Number(ai.defending)||82,50,98),stamina=clamp(Number(ai.stamina)||84,50,98);
+    setLumerreBasePace(r,lumerreCareerAiBias(ai),0,.0075);
     r.ai.careerMistakeMult=clamp(1.30-(consistency-55)/75,.58,1.24);
-    r.ai.careerAttackFactor=clamp(.90+(aggression+overtaking-130)/170,.90,1.22);
+    r.ai.careerAttackFactor=clamp(.91+(aggression+overtaking-130)/165,.91,1.23);
+    r.ai.careerDefendFactor=clamp(.91+(defending+consistency-130)/175,.91,1.20);
+    r.ai.careerConsistency=consistency;
+    r.ai.careerStamina=stamina;
   }
   function createLumerreStoryRacers(playerInfo,skills,traits){
     const entrants=Array.isArray(state.storyRace?.entrants)?state.storyRace.entrants.slice(0,7):[];
@@ -810,9 +843,16 @@
     const playerEntry=sorted.find(e=>e?.isPlayer||lumerreEntrantId(e)==='player')||{id:'player',name:playerInfo.name,gridPosition:Number(state.storyRace?.startPosition)||4,isPlayer:true};
     const usedSlots=new Set(),slotFor=entry=>{let slot=clamp(Math.round(Number(entry?.gridPosition)||1),1,7)-1;while(usedSlots.has(slot)&&slot<6)slot++;while(usedSlots.has(slot)&&slot>0)slot--;usedSlots.add(slot);return slot;};
     const strategy=normKey(state.storyRace?.strategy||'focus'),strategyIdentity=storyStrategyIdentity();
-    let playerBias=tinyPlayerRaceBias(skills,traits)+.0016;if(strategy==='focus')playerBias+=.00035;else if(strategy==='fire')playerBias+=.00025;else if(strategy==='heart')playerBias+=.00020;
+    // V34.29.7: the rookie is now competitive rather than secretly protected. Training still matters,
+    // but the old +0.16% Lumerre-only free pace plus full training stack has been removed.
+    let playerBias=tinyPlayerRaceBias(skills,traits)*.48+.00015;if(strategy==='focus')playerBias+=.00018;else if(strategy==='fire')playerBias+=.00012;else if(strategy==='heart')playerBias+=.00008;
     const playerSlot=slotFor(playerEntry);
-    const player=makeRacerRecord({id:'player',name:String(playerEntry?.name||state.storyRace?.playerName||playerInfo.name),breed:playerInfo.breed,isPlayer:true,slot:playerSlot,lateral:(playerSlot%2?-.22:.22),skills,traits,bias:playerBias,style:strategyIdentity.style,takeoffDelay:strategy==='fire'?-90:0});
+    const player=makeRacerRecord({id:'player',name:String(playerEntry?.name||state.storyRace?.playerName||playerInfo.name),breed:playerInfo.breed,isPlayer:true,slot:playerSlot,lateral:(playerSlot%2?-.22:.22),skills,traits,bias:0,style:strategyIdentity.style,takeoffDelay:strategy==='fire'?-90:0});
+    setLumerreBasePace(player,0,playerBias,.0060);
+    player.ai.careerAttackFactor=clamp(1+(Number(state.storyRace?.careerEvolution?.playerModel?.racecraft?.overtaking)||0)*.010,1,1.09);
+    player.ai.careerDefendFactor=clamp(1+(Number(state.storyRace?.careerEvolution?.playerModel?.racecraft?.defending)||0)*.010,1,1.09);
+    player.ai.careerConsistency=clamp(82+(Number(state.storyRace?.careerEvolution?.playerModel?.racecraft?.pressureHandling)||0)*2,82,94);
+    player.ai.careerStamina=clamp(82+(Number(state.storyRace?.careerEvolution?.playerModel?.racecraft?.staminaManagement)||0)*2,82,94);
     if(strategy==='focus')player.ai.mistake=.28;if(strategy==='heart')player.ai.boostCooldown=560+Math.random()*1200;state.player=player;state.racers.push(player);
     for(const [index,entry] of sorted.entries()){
       const id=lumerreEntrantId(entry,index);if(id==='player'||entry?.isPlayer)continue;
@@ -823,14 +863,78 @@
     }
     // Defensive contract: if an incomplete payload ever arrives, still field all seven named Crown entrants.
     const fallbacks=[['tyrese','Tyrese Bell'],['jalen','Jalen Cross'],['sofia','Sofia Mendes'],['luka','Luka Kovač'],['ren','Ren Sato'],['maya','Maya Banks']];
-    for(const [id,name] of fallbacks){if(state.racers.some(r=>r.id===id))continue;const open=[0,1,2,3,4,5,6].find(slot=>!usedSlots.has(slot));if(open===undefined)break;usedSlots.add(open);state.racers.push(makeRacerRecord({id,identityId:`story-${id}`,name,breed:LUMERRE_STORY_BREEDS[id],personality:'Lumerre Crown racer',style:LUMERRE_STORY_STYLES[id],slot:open,lateral:open%2?-.25:.25,bias:0}));}
+    for(const [id,name] of fallbacks){if(state.racers.some(r=>r.id===id))continue;const open=[0,1,2,3,4,5,6].find(slot=>!usedSlots.has(slot));if(open===undefined)break;usedSlots.add(open);const racer=makeRacerRecord({id,identityId:`story-${id}`,name,breed:LUMERRE_STORY_BREEDS[id],personality:'Lumerre Crown racer',style:LUMERRE_STORY_STYLES[id],slot:open,lateral:open%2?-.25:.25,bias:0});setLumerreBasePace(racer,0,0,.0075);racer.ai.careerAttackFactor=1.02;racer.ai.careerDefendFactor=1.02;racer.ai.careerConsistency=84;racer.ai.careerStamina=84;state.racers.push(racer);}
+  }
+
+
+  function seasonStoryProfile(){return state.storyRace?.seasonProfile&&typeof state.storyRace.seasonProfile==='object'?state.storyRace.seasonProfile:{};}
+  function seasonCareerPlayerRating(){
+    const window=state.storyRace?.careerEvolution?.performanceWindow||{};
+    const target=Math.max(42,Number(window.paceTarget)||Number(state.storyRace?.careerEvolution?.playerModel?.growthPaceTarget)||58);
+    const readiness=state.storyRace?.openingReadiness||{};
+    let rating=78.5+(target-42)*.20+(Math.max(0,Number(readiness.pace)||50)-50)*.022+(Math.max(0,Number(readiness.control)||50)-50)*.014;
+    if(state.storyRace?.telemetryCorrect)rating+=.55;
+    rating+=Math.max(0,Number(state.storyRace?.pitwallScore)||0)*.035;
+    const plan=normKey(state.storyRace?.seasonStrategy||'adaptive');
+    if(plan==='attack')rating+=.18;
+    if(plan==='clean')rating-=.08;
+    return clamp(rating,78,90);
+  }
+  function tuneSeasonProfile(r,entry={}){
+    if(!r?.ai)return;
+    const profile=seasonStoryProfile();
+    const mistakePressure=clamp(Number(profile.mistakePressure)||1,.82,1.24);
+    const attackPressure=clamp(Number(profile.attackPressure)||1,.82,1.24);
+    const staminaPressure=clamp(Number(profile.staminaPressure)||1,.88,1.24);
+    r.ai.careerMistakeMult=clamp((Number(r.ai.careerMistakeMult)||1)*mistakePressure,.48,1.45);
+    r.ai.careerAttackFactor=clamp((Number(r.ai.careerAttackFactor)||1)*attackPressure,.84,1.34);
+    r.ai.careerStamina=clamp((Number(r.ai.careerStamina)||84)-(staminaPressure-1)*22,50,98);
+    if(normKey(entry?.id||entry?.racerId)==='maya'&&Number(state.storyRace?.seasonRound)===1){
+      r.ai.careerAttackFactor=clamp(r.ai.careerAttackFactor*1.055,.84,1.36);
+      r.ai.careerMistakeMult=clamp(r.ai.careerMistakeMult*1.035,.48,1.48);
+    }
+  }
+  function createSeasonStoryRacers(playerInfo,skills,traits){
+    const entrants=Array.isArray(state.storyRace?.entrants)?state.storyRace.entrants.slice(0,7):[];
+    const sorted=entrants.slice().sort((a,b)=>(Number(a?.gridPosition)||99)-(Number(b?.gridPosition)||99));
+    const playerEntry=sorted.find(e=>e?.isPlayer||lumerreEntrantId(e)==='player')||{id:'player',name:playerInfo.name,gridPosition:Number(state.storyRace?.startPosition)||5,isPlayer:true};
+    const usedSlots=new Set(),slotFor=entry=>{let slot=clamp(Math.round(Number(entry?.gridPosition)||1),1,7)-1;while(usedSlots.has(slot)&&slot<6)slot++;while(usedSlots.has(slot)&&slot>0)slot--;usedSlots.add(slot);return slot;};
+    const plan=normKey(state.storyRace?.seasonStrategy||'adaptive'),playerSlot=slotFor(playerEntry),rating=seasonCareerPlayerRating();
+    const style=plan==='attack'?'overtaker':plan==='clean'?'cautious':'smooth';
+    const player=makeRacerRecord({id:'player',name:String(playerEntry?.name||state.storyRace?.playerName||playerInfo.name),breed:playerInfo.breed,isPlayer:true,slot:playerSlot,lateral:(playerSlot%2?-.22:.22),skills,traits,bias:0,style,takeoffDelay:plan==='attack'?-70:plan==='clean'?35:0});
+    const racecraft=state.storyRace?.careerEvolution?.playerModel?.racecraft||{};
+    const playerPaceBias=clamp((rating-84)*.00145,-.0065,.0090)+tinyPlayerRaceBias(skills,traits)*.34;
+    setLumerreBasePace(player,playerPaceBias,0,.0063);
+    player.ai.careerAttackFactor=clamp(1+(Number(racecraft.overtaking||50)-50)*.0018,.94,1.10);
+    player.ai.careerDefendFactor=clamp(1+(Number(racecraft.defending||50)-50)*.0017,.94,1.10);
+    player.ai.careerConsistency=clamp(78+(Number(racecraft.pressureHandling||50)-50)*.22,72,94);
+    player.ai.careerStamina=clamp(Number(state.storyRace?.openingReadiness?.stamina)||84,58,98);
+    player.ai.careerMistakeMult=clamp(1.10-(Number(racecraft.consistency||50)-50)*.004,.72,1.20);
+    if(plan==='attack'){player.ai.careerAttackFactor=clamp(player.ai.careerAttackFactor*1.075,.94,1.18);player.ai.careerMistakeMult*=1.06;}
+    else if(plan==='clean'){player.ai.careerAttackFactor*=.95;player.ai.careerDefendFactor=clamp(player.ai.careerDefendFactor*1.04,.94,1.14);player.ai.careerMistakeMult*=.84;}
+    tuneSeasonProfile(player,{id:'player'});state.player=player;state.racers.push(player);
+    for(const [index,entry] of sorted.entries()){
+      const id=lumerreEntrantId(entry,index);if(id==='player'||entry?.isPlayer)continue;
+      const slot=slotFor(entry),styleName=LUMERRE_STORY_STYLES[id]||'smooth',breed=LUMERRE_STORY_BREEDS[id]||'lumerre';
+      const racer=makeRacerRecord({id,identityId:`story-${id}`,name:String(entry?.name||id),breed,personality:String(entry?.ai?.style||entry?.team||'Championship racer'),style:styleName,slot,lateral:(slot%2?-.25:.25)+((index%3)-1)*.045,bias:0});
+      tuneLumerreCareerAi(racer,entry);tuneSeasonProfile(racer,entry);state.racers.push(racer);
+    }
+    const fallbacks=[['tyrese','Tyrese Bell'],['jalen','Jalen Cross'],['sofia','Sofia Mendes'],['luka','Luka Kovač'],['ren','Ren Sato'],['maya','Maya Banks']];
+    for(const [id,name] of fallbacks){
+      if(state.racers.some(r=>r.id===id))continue;
+      const open=[0,1,2,3,4,5,6].find(slot=>!usedSlots.has(slot));if(open===undefined)break;usedSlots.add(open);
+      const racer=makeRacerRecord({id,identityId:`story-${id}`,name,breed:LUMERRE_STORY_BREEDS[id],personality:'Championship racer',style:LUMERRE_STORY_STYLES[id],slot:open,lateral:open%2?-.25:.25,bias:0});
+      setLumerreBasePace(racer,0,0,.0075);racer.ai.careerAttackFactor=1.02;racer.ai.careerDefendFactor=1.02;racer.ai.careerConsistency=84;racer.ai.careerStamina=84;tuneSeasonProfile(racer,{id});state.racers.push(racer);
+    }
   }
 
   function createRacers(){
     clearRacers();
     const holder=state.game.querySelector('.dragon-race-racers'),playerInfo=storyPlayerInfo(),skills=trainingModifiers(),traits=traitText();
     if(isStoryRace()){
-      if(isLumerreStoryRace()){
+      if(isSeasonStoryRace()){
+        createSeasonStoryRacers(playerInfo,skills,traits);
+      }else if(isLumerreStoryRace()){
         createLumerreStoryRacers(playerInfo,skills,traits);
       }else{
       const playerSlot=clamp(Math.round(Number(state.storyRace.startPosition)||3),1,6)-1;
@@ -932,6 +1036,68 @@
     el.classList.add('is-visible');el.setAttribute('aria-hidden','false');raceMemory('team-order-issued',{distance:state.player?.distance||0,playerRank,tyreseRank,text:'Quickquill issued a live team order'});
   }
 
+
+  function seasonRaceCallDefinition(index=0){
+    if(index===0)return {
+      id:'street-exit',title:'STREET COMPRESSION',copy:'The field is stacking into the wall-lined middle sector. Pick the shape of the next two corners.',
+      choices:{
+        obey:{label:'BUILD EXIT',effect:{mistakeMult:.84,attackFactor:.96,paceFactor:1.0006,finalFactor:1}},
+        wait:{label:'HOLD CENTRE',effect:{mistakeMult:.93,attackFactor:1,paceFactor:1.0002,finalFactor:1}},
+        ignore:{label:'FORCE INSIDE',effect:{mistakeMult:1.10,attackFactor:1.12,paceFactor:1.0010,finalFactor:1}}
+      },
+      trigger:.58
+    };
+    return {
+      id:'decisive-window',title:'DECISIVE WINDOW',copy:'Final lap. The gaps are real now. Decide what the points are worth.',
+      choices:{
+        obey:{label:'COMMIT',effect:{mistakeMult:1.08,attackFactor:1.14,paceFactor:1.0014,finalFactor:1.0015}},
+        wait:{label:'PRESSURE',effect:{mistakeMult:.98,attackFactor:1.06,paceFactor:1.0007,finalFactor:1.0008}},
+        ignore:{label:'BANK POINTS',effect:{mistakeMult:.82,attackFactor:.78,paceFactor:.9998,finalFactor:.9996}}
+      },
+      trigger:Math.max(1.35,activeLaps()-.78)
+    };
+  }
+  function seasonAutoCallChoice(index=0){
+    const plan=normKey(state.storyRace?.seasonStrategy||'adaptive');
+    if(index===0)return plan==='attack'?'ignore':plan==='clean'?'obey':'wait';
+    return plan==='attack'?'obey':plan==='clean'?'ignore':'wait';
+  }
+  function chooseSeasonRaceCall(choice='wait',auto=false){
+    if(!isSeasonStoryRace())return false;
+    const index=Math.max(0,Number(state.storyRace?.seasonCallIndex)||0),definition=seasonRaceCallDefinition(index);
+    if(!definition)return false;
+    const key=['obey','wait','ignore'].includes(normKey(choice))?normKey(choice):'wait',selected=definition.choices[key]||definition.choices.wait;
+    state.storyRace.seasonCallResponses=Array.isArray(state.storyRace.seasonCallResponses)?state.storyRace.seasonCallResponses:[];
+    state.storyRace.seasonCallResponses.push({call:definition.id,title:definition.title,choice:key,label:selected.label,auto:!!auto,lap:Math.min(activeLaps(),Math.floor(Math.max(0,state.player?.distance||0))+1)});
+    state.storyRace.seasonCallEffect={...selected.effect};
+    state.storyRace.seasonCallEffectUntil=raceClockNow()+11500;
+    state.storyRace.seasonCallIndex=index+1;
+    hideLumerreTeamOrder();
+    raceMemory('season-race-call',{distance:state.player?.distance||0,call:definition.id,choice:key,text:`${definition.title}: ${selected.label}`});
+    showRaceEvent(auto?'QUICKQUILL AUTO CALL':'QUICKQUILL',selected.label,key==='ignore'?'overtake':'leader',true);
+    return true;
+  }
+  function maybeOfferSeasonRaceCall(t){
+    if(!isSeasonStoryRace()||state.phase!=='racing')return;
+    const index=Math.max(0,Number(state.storyRace?.seasonCallIndex)||0);
+    if(index>=2)return;
+    const definition=seasonRaceCallDefinition(index);
+    if((state.player?.distance||0)<definition.trigger)return;
+    const mode=normKey(state.storyRace?.presentationMode||'watch');
+    if(mode==='full'||(mode==='quick'&&index===0)){chooseSeasonRaceCall(seasonAutoCallChoice(index),true);return;}
+    if(state.storyRace?.seasonCallVisible===index)return;
+    state.storyRace.seasonCallVisible=index;
+    const el=state.game?.querySelector('.dragon-race-team-order');if(!el)return;
+    const kicker=el.querySelector('small'),title=el.querySelector('[data-team-order-title]'),copy=el.querySelector('[data-team-order-copy]');
+    if(kicker)kicker.textContent=mode==='quick'?'DECISIVE QUICK-SIM WINDOW':'QUICKQUILL LIVE CALL';
+    if(title)title.textContent=definition.title;
+    if(copy)copy.textContent=definition.copy;
+    const buttons=[...el.querySelectorAll('[data-team-order]')],keys=['obey','wait','ignore'];
+    buttons.forEach((btn,i)=>{const key=keys[i]||'wait';btn.textContent=definition.choices[key].label;btn.onclick=()=>chooseSeasonRaceCall(key,false);});
+    el.classList.add('is-visible');el.setAttribute('aria-hidden','false');
+    raceMemory('season-race-call-issued',{distance:state.player?.distance||0,call:definition.id,text:`Quickquill asks for ${definition.title}`});
+  }
+
   function hideRaceEvent(){
     const el=state.game?.querySelector('.dragon-race-event-callout');
     if(!el)return;
@@ -1008,7 +1174,7 @@
   function triggerPhotoFinish(a,b,t){
     if(state.camera.photoFinishDone)return;
     state.camera.photoFinishDone=true;raceMemory('photo-finish',{distance:a?.distance||0,racers:[a?.name,b?.name].filter(Boolean),text:`Photo finish: ${a?.name||''} and ${b?.name||''}`});
-    state.photoFinishHoldUntil=Math.max(state.photoFinishHoldUntil,t+1950);
+    state.photoFinishHoldUntil=Math.max(state.photoFinishHoldUntil,now()+1950);
     state.game?.classList.add('is-photo-finish');
     setCameraMode('photoFinish',1900,true,[a.id,b.id]);
     showRaceEvent('PHOTO FINISH',`${a.name} · ${b.name}`,'photo',true);
@@ -1033,29 +1199,44 @@
     const title=state.game.querySelector('.dragon-race-broadcast-title'),grid=state.game.querySelector('.dragon-race-starting-grid'),lights=state.game.querySelector('.dragon-race-start-lights'),count=state.game.querySelector('.dragon-race-countdown');
     grid?.classList.remove('is-visible');title?.classList.add('is-visible');lights?.classList.remove('is-visible','is-go');if(count){count.classList.remove('is-pop');count.querySelector('b').textContent='';}
     setCameraMode('ceremonyWide',0,false);
-    queueSequence(()=>{title?.classList.remove('is-visible');grid?.classList.add('is-visible');setCameraMode('grid',0,false);},1450,token);
-    queueSequence(()=>{grid?.classList.remove('is-visible');},4050,token);
-    queueSequence(()=>beginCountdown(token),4450,token);
+    const seasonMode=seasonPresentationMode(),ceremonyScale=seasonMode==='full'?.16:seasonMode==='quick'?.32:1;
+    queueSequence(()=>{title?.classList.remove('is-visible');grid?.classList.add('is-visible');setCameraMode('grid',0,false);},Math.round(1450*ceremonyScale),token);
+    queueSequence(()=>{grid?.classList.remove('is-visible');},Math.round(4050*ceremonyScale),token);
+    queueSequence(()=>beginCountdown(token),Math.round(4450*ceremonyScale),token);
   }
   function setStartingLights(count){const lights=state.game?.querySelector('.dragon-race-start-lights');if(!lights)return;lights.classList.add('is-visible');lights.classList.toggle('is-go',count>=4);[...lights.querySelectorAll('i')].forEach((el,i)=>el.classList.toggle('is-on',i<count&&count<4));}
   function beginCountdown(token=state.countdownToken){
     if(token!==state.countdownToken)return;setPhase('countdown');
     const el=state.game.querySelector('.dragon-race-countdown'),b=el.querySelector('b');setStartingLights(0);ensureRaceAudio();fadeAudio(state.raceMusic,raceMusicTarget(.70),420);playCountdownAudio();
+    const seasonMode=seasonPresentationMode(),countdownScale=seasonMode==='full'?.18:seasonMode==='quick'?.35:1;
     COUNTDOWN_CUES.forEach((cue,index)=>queueSequence(()=>{
       if(state.phase!=='countdown')return;b.textContent=cue.label;el.classList.remove('is-pop');void el.offsetWidth;el.classList.add('is-pop');setStartingLights(cue.lights);
       if(index===COUNTDOWN_CUES.length-1){
-        setPhase('racing');state.raceStartedAt=now();state.raceStartedEpochMs=Date.now();state.racers.forEach(r=>{r.lapStartedAt=state.raceStartedAt;r.lapStartedEpochMs=state.raceStartedEpochMs;r.takeoffDelay=Math.random()*400;r.sectorIndex=0;r.sectorLap=0;r.sectorStartedAt=0;});
+        setPhase('racing');state.raceStartedAt=now();state.simClock=state.raceStartedAt;state.raceStartedEpochMs=Date.now();state.racers.forEach(r=>{r.lapStartedAt=state.raceStartedAt;r.lapStartedEpochMs=state.raceStartedEpochMs;r.takeoffDelay=Math.random()*400;r.sectorIndex=0;r.sectorLap=0;r.sectorStartedAt=0;});
         state.camera.nextDecisionAt=state.raceStartedAt+2600;state.camera.nextEventAt=state.raceStartedAt+5200;state.director.holdUntil=state.raceStartedAt+3600;state.director.lastCutAt=state.raceStartedAt;setCameraMode('follow',0,false);
         fadeAudio(state.raceMusic,raceMusicTarget(1),1000);
         if(state.crowdAudio){state.crowdAudio.volume=crowdTarget(.03);queueSequence(()=>{if(state.crowdAudio)state.crowdAudio.volume=activeCrowdVolume();},900,token);}
         queueSequence(()=>{b.textContent='';el.classList.remove('is-pop');state.game?.querySelector('.dragon-race-start-lights')?.classList.remove('is-visible','is-go');},850,token);
       }
-    },cue.at,token));
+    },Math.round(cue.at*countdownScale),token));
   }
 
   function storyPlayerRaceModifiers(r){
     const base={mistakeMult:1,paceFactor:1,attackFactor:1,curveAdjust:0,finalFactor:1};
     if(!r?.isPlayer||!isStoryRace())return base;
+    if(isSeasonStoryRace()){
+      const readiness=state.storyRace?.openingReadiness||{},plan=normKey(state.storyRace?.seasonStrategy||'adaptive');
+      base.mistakeMult*=clamp(1-(Math.max(0,Number(readiness.control)||50)-50)*.0045,.78,1);
+      base.finalFactor*=clamp(1+(Math.max(0,Number(readiness.stamina)||50)-50)*.00005,1,1.0024);
+      if(state.storyRace?.telemetryCorrect){base.mistakeMult*=.90;base.curveAdjust-=.0020;}
+      if(Number(state.storyRace?.pitwallScore)>=8)base.attackFactor*=1.025;
+      if(plan==='clean'){base.mistakeMult*=.86;base.attackFactor*=.94;base.curveAdjust-=.0020;}
+      else if(plan==='attack'){base.mistakeMult*=1.07;base.attackFactor*=1.08;base.paceFactor*=1.0005;}
+      else{base.mistakeMult*=.96;base.attackFactor*=1.015;}
+      const effect=state.storyRace?.seasonCallEffect||{},live=raceClockNow()<(Number(state.storyRace?.seasonCallEffectUntil)||0);
+      if(live){base.mistakeMult*=Number(effect.mistakeMult)||1;base.attackFactor*=Number(effect.attackFactor)||1;base.paceFactor*=Number(effect.paceFactor)||1;base.finalFactor*=Number(effect.finalFactor)||1;}
+      return base;
+    }
     if(isLumerreStoryRace()){
       const response=normKey(state.storyRace?.teamOrderResponse||'');const live=now()<(Number(state.storyRace?.teamOrderEffectUntil)||0);
       if(response==='obey'){base.mistakeMult*=.88;base.attackFactor*=live?.68:.93;base.paceFactor*=live?.9980:.9996;}
@@ -1128,20 +1309,41 @@
     }
     if(ai.battle){
       const rival=racerById(ai.battle.opponentId);
-      const expired=t>ai.battle.until||!rival||rival.finished;
-      const cleared=rival&&r.distance-rival.distance>.0030;
-      const dropped=rival&&rival.distance-r.distance>.020;
+      const gap=rival?rival.distance-r.distance:Infinity;
+      const cleared=rival&&r.distance-rival.distance>.0022;
+      const dropped=rival&&rival.distance-r.distance>.016;
+      if(rival&&!rival.finished&&!ai.battle.resolved&&t>=ai.battle.resolveAt){
+        const laneClearance=Math.abs(r.lateral-rival.lateral);
+        const baseEdge=clamp(((r.ai?.base||.0265)-(rival.ai?.base||.0265))/.0018,-.22,.22);
+        const attackEdge=(Number(ai.careerAttackFactor)||1)-1;
+        const defendEdge=(Number(rival.ai?.careerDefendFactor)||1)-1;
+        const styleEdge=ai.style==='overtaker'?.055:ai.style==='bold'?.035:ai.style==='cautious'?-.025:0;
+        const laneEdge=laneClearance>.18?.055:-.035;
+        const storyEdge=r.isPlayer?clamp((storyMods.attackFactor-1)*.55,-.10,.10):0;
+        const passChance=clamp(.48+baseEdge+attackEdge*.72-defendEdge*.62+styleEdge+laneEdge+storyEdge,.22,.79);
+        ai.battle.resolved=true;
+        ai.battle.outcome=Math.random()<passChance?'pass':'defended';
+        ai.battle.resolveUntil=t+(ai.battle.outcome==='pass'?2500:1500);
+        if(ai.battle.outcome==='pass')ai.battleWins=(Number(ai.battleWins)||0)+1;else ai.battleLosses=(Number(ai.battleLosses)||0)+1;
+      }
+      const expired=t>ai.battle.until||!rival||rival.finished||(ai.battle.resolved&&t>ai.battle.resolveUntil);
       if(expired||cleared||dropped){
-        ai.battle=null;ai.battleCooldownUntil=t+2200+Math.random()*2200;ai.laneAt=t+1500;
+        const opponentId=ai.battle.opponentId;
+        const longCooldown=12000+Math.random()*7000;
+        ai.pairCooldown=ai.pairCooldown||{};ai.pairCooldown[opponentId]=t+longCooldown;
+        if(rival?.ai){rival.ai.pairCooldown=rival.ai.pairCooldown||{};rival.ai.pairCooldown[r.id]=t+longCooldown*.82;}
+        ai.battle=null;ai.battleCooldownUntil=t+3600+Math.random()*2600;ai.laneAt=t+1900;
       }
     }
-    if(!ai.battle&&ahead&&bestGap<feel.attackGap&&t>(ai.battleCooldownUntil||0)&&raceAge>2400){
+    const pairLocked=ahead&&t<Number(ai.pairCooldown?.[ahead.id]||0);
+    if(!ai.battle&&ahead&&bestGap<feel.attackGap&&t>(ai.battleCooldownUntil||0)&&!pairLocked&&raceAge>2400){
       const roomLeft=ahead.lateral>-.42,roomRight=ahead.lateral<.42;
       let side;
       if(roomLeft&&roomRight)side=(r.lateral<=ahead.lateral)?1:-1;
       else side=roomRight?1:-1;
       if(Math.random()<.24)side*=-1;
-      ai.battle={opponentId:ahead.id,side,startedAt:t,commitAt:t+900+Math.random()*650,until:t+3900+Math.random()*1600};
+      const commitAt=t+700+Math.random()*450;
+      ai.battle={opponentId:ahead.id,side,startedAt:t,commitAt,resolveAt:commitAt+1200+Math.random()*850,until:commitAt+5200+Math.random()*1300,resolved:false,outcome:'',resolveUntil:0};
     }
 
     let battleAttack=0,directlyBlocked=false;
@@ -1154,8 +1356,16 @@
         ai.targetLane=desired;
         const laneClearance=Math.abs(r.lateral-rival.lateral);
         const committed=clamp((t-ai.battle.startedAt)/Math.max(1,ai.battle.commitAt-ai.battle.startedAt),0,1);
-        if(laneClearance>.17&&t>=ai.battle.commitAt)battleAttack=feel.attackRange*(.45+.55*committed)*storyMods.attackFactor*(Number(ai.careerAttackFactor)||1);
-        if(gap>0&&gap<.0048&&laneClearance<.15)directlyBlocked=true;
+        if(laneClearance>.17&&t>=ai.battle.commitAt)battleAttack=feel.attackRange*(.38+.42*committed)*storyMods.attackFactor*(Number(ai.careerAttackFactor)||1);
+        if(ai.battle.resolved&&ai.battle.outcome==='pass'&&t<ai.battle.resolveUntil){
+          // A winning move gets a visible two-to-three second clearing burst, so "side by side"
+          // actually resolves into a pass instead of looping fifty times without rank changing.
+          battleAttack+=.078;
+        }else if(ai.battle.resolved&&ai.battle.outcome==='defended'&&t<ai.battle.resolveUntil){
+          // A successful defence opens the gap and makes the attacker reset before trying again.
+          battleAttack-=.050;ai.targetLane=approachValue(ai.targetLane,0,.08);
+        }
+        if(gap>0&&gap<.0048&&laneClearance<.15&&!ai.battle.resolved)directlyBlocked=true;
       }
     }
 
@@ -1171,6 +1381,24 @@
       if(ai.style==='smooth')ai.paceTarget*=.72;
     }
     ai.paceBias=lerp(ai.paceBias||0,ai.paceTarget||0,clamp(dt*.62,0,1));
+
+    // V34.29.7 Lumerre race phases: every Crown racer gets changing good/bad spells.
+    // This is deliberately small (tenths of a percent), but enough to stop one early leader
+    // from being permanently locked in place for all ten laps.
+    let lumerrePhaseFactor=1;
+    if(isLumerreStoryRace()){
+      if(t>(ai.lumerrePhaseAt||0)){
+        ai.lumerrePhaseAt=t+5200+Math.random()*6200;
+        const range=r.isPlayer?.0028:(ai.style==='overtaker'||ai.style==='bold'?.0052:.0043);
+        ai.lumerrePhaseTarget=(Math.random()-.5)*2*range;
+        if(r.id==='tyrese')ai.lumerrePhaseTarget+=.0006;
+        else if(r.id==='jalen'&&r.distance<3.2)ai.lumerrePhaseTarget+=.00045;
+        else if(r.id==='ren'&&r.distance>3&&r.distance<8)ai.lumerrePhaseTarget+=.00035;
+        else if(r.id==='maya'&&r.distance>6)ai.lumerrePhaseTarget+=.00035;
+      }
+      ai.lumerrePhaseBias=lerp(Number(ai.lumerrePhaseBias)||0,Number(ai.lumerrePhaseTarget)||0,clamp(dt*.34,0,1));
+      lumerrePhaseFactor=1+(Number(ai.lumerrePhaseBias)||0);
+    }
 
     // Rare mistakes are softened over more than a second instead of instant speed chops.
     if(!(ai.nextMistakeAt>0))ai.nextMistakeAt=t+5200+Math.random()*6200;
@@ -1201,14 +1429,17 @@
     const curvePenalty=Math.max(.045,feel.curvePenalty+(ai.mistake-.5)*.005+storyMods.curveAdjust);
     const curveFactor=1-curve*curvePenalty;
     const finalFactor=(finalLap?1+feel.finalPush*(nearFinish?1.28:1):1)*storyMods.finalFactor;
-    const draftFactor=ahead&&bestGap<.010&&bestGap>.0035&&Math.abs(ahead.lateral-r.lateral)<.20?1.0018:1;
+    const draftStrength=isLumerreStoryRace()?.0044:isSeasonStoryRace()?.0034:.0018;
+    const draftFactor=ahead&&bestGap<.0115&&bestGap>.0030&&Math.abs(ahead.lateral-r.lateral)<.23?1+draftStrength:1;
     const launchFactor=raceAge<600?.72+raceAge/600*.18:raceAge<2100?.90+(raceAge-600)/1500*.10:1;
-    let target=ai.base*(1+(ai.paceBias||0)+battleAttack)*curveFactor*boostFactor*finalFactor*draftFactor*mistakeFactor*launchFactor*storyMods.paceFactor;
+    const staminaScore=clamp(Number(ai.careerStamina)||84,50,98),raceProgress=clamp(Math.max(0,r.distance)/Math.max(1,activeLaps()),0,1);
+    const staminaFactor=(isLumerreStoryRace()||isSeasonStoryRace())?1-clamp((86-staminaScore)*.00010*clamp((raceProgress-.48)/.52,0,1),-.0010,.0030):1;
+    let target=ai.base*(1+(ai.paceBias||0)+battleAttack)*curveFactor*boostFactor*finalFactor*draftFactor*mistakeFactor*launchFactor*storyMods.paceFactor*lumerrePhaseFactor*staminaFactor;
 
     // A dragon tucked directly behind another has to pull out before passing. This small cap
     // is the main anti-'position flicker' rule: rank swaps happen after visible lane movement.
     if(directlyBlocked&&ahead)target=Math.min(target,Math.max(.0228,(ahead.speed||target)*.9985));
-    target=clamp(target,.0218,.0310);
+    target=clamp(target,.0218,(isLumerreStoryRace()||isSeasonStoryRace())?.0318:.0310);
 
     // Momentum: fast launch acceleration, then restrained race acceleration/deceleration.
     // Target pace can change, but visible speed does not jump with it.
@@ -1383,7 +1614,7 @@
     state.viewport.style.setProperty('--focus-ry',`${focusRy.toFixed(2)}px`);
   }
 
-  function onPlayerFinish(t){state.phase='player_finished';state.finishAt=t;const p=state.player,rank=standings().findIndex(r=>r.isPlayer)+1;state.raceStory.finishPosition=rank;state.raceStory.finishTimeMs=Math.round(Number(p.finishMs)||raceElapsedMs());state.raceStory.bestLapMs=Math.round(Number(p.bestLapMs)||0);state.raceStory.startPosition=Math.max(1,(Number(p.slot)||0)+1);raceMemory('player-finish',{distance:p.distance,position:rank,text:`Finished ${ordinal(rank)}`});if(!isStoryRace())persistResult(p,rank);showLapBanner(`${ordinal(rank)} PLACE · FINISH`);scheduleResultsReveal();}
+  function onPlayerFinish(t){state.phase='player_finished';state.finishAt=now();const p=state.player,rank=standings().findIndex(r=>r.isPlayer)+1;state.raceStory.finishPosition=rank;state.raceStory.finishTimeMs=Math.round(Number(p.finishMs)||raceElapsedMs());state.raceStory.bestLapMs=Math.round(Number(p.bestLapMs)||0);state.raceStory.startPosition=Math.max(1,(Number(p.slot)||0)+1);raceMemory('player-finish',{distance:p.distance,position:rank,text:`Finished ${ordinal(rank)}`});if(!isStoryRace())persistResult(p,rank);showLapBanner(`${ordinal(rank)} PLACE · FINISH`);scheduleResultsReveal();}
   function persistResult(player,rank){
     const data=loadSave(),tracks=data.tracks||(data.tracks={}),trackId=state.trackId||DEFAULT_TRACK_ID,s=tracks[trackId]||(tracks[trackId]={races:0,wins:0,podiums:0,bestTimeMs:0,bestLapMs:0});s.races=(Number(s.races)||0)+1;if(rank===1)s.wins=(Number(s.wins)||0)+1;if(rank<=3)s.podiums=(Number(s.podiums)||0)+1;if(!s.bestTimeMs||player.finishMs<s.bestTimeMs)s.bestTimeMs=Math.round(player.finishMs);if(player.bestLapMs&&(!s.bestLapMs||player.bestLapMs<s.bestLapMs))s.bestLapMs=Math.round(player.bestLapMs);s.lastFinishPosition=rank;s.lastFinishTimeMs=Math.round(player.finishMs);s.updatedAt=Date.now();data.level=Math.max(1,Number(data.level)||1);data.xp=Math.max(0,Number(data.xp)||0);saveData(data);
     // Account Dragon Racing XP is granted server-side when the verified race reward is claimed.
@@ -1458,7 +1689,7 @@
 
     const movementLabel=positionDelta>0?'POSITIONS GAINED':positionDelta<0?'POSITIONS LOST':'GRID MOVEMENT';
     const movementValue=positionDelta>0?`+${positionDelta}`:positionDelta<0?`−${Math.abs(positionDelta)}`:'—';
-    const pbValue=storyRace?String(state.storyRace?.strategy||'focus').toUpperCase():(isNewPersonalBest?formatTime(p.finishMs):(current.bestTimeMs?formatTime(current.bestTimeMs):formatTime(p.finishMs)));
+    const pbValue=storyRace?String(isSeasonStoryRace()?(state.storyRace?.seasonStrategy||'adaptive'):(state.storyRace?.strategy||'focus')).toUpperCase():(isNewPersonalBest?formatTime(p.finishMs):(current.bestTimeMs?formatTime(current.bestTimeMs):formatTime(p.finishMs)));
     const pbHint=storyRace?'Career strategy · ordinary race records unchanged':(isNewPersonalBest?(wasFirstRecordedRace?'First benchmark recorded':(Number(previous.bestTimeMs)>p.finishMs?`${formatDeltaMs(Number(previous.bestTimeMs)-p.finishMs)} quicker`:'New best')):'Current circuit record');
 
     if(!isStoryRace())persistAiResults(order);
@@ -1466,7 +1697,7 @@
     card.classList.remove('is-first','is-second','is-third','is-standard');
     card.classList.add(finishClass);
     card.innerHTML=`
-      <div class="dragon-race-result-topline"><span>VELMORA RACING NETWORK</span><em>OFFICIAL RESULT · RACE ${RACE_NUMBER}</em></div>
+      <div class="dragon-race-result-topline"><span>VELMORA RACING NETWORK</span><em>OFFICIAL RESULT · RACE ${displayRaceNumber()}</em></div>
 
       <div class="dragon-race-result-hero">
         <div class="dragon-race-result-dragon">
@@ -1514,8 +1745,8 @@
       </div>
 
       <div class="dragon-race-result-footer">
-        <small>${isStoryRace()?'STORY RESULT · SAVED WHEN YOU CONTINUE':'KEEPER MARKS + GP + DRAGON RACING XP AWARDED'}</small>
-        <div class="dragon-race-results-actions">${isStoryRace()?'<div class="is-primary" role="button" tabindex="0" data-race-continue-story>CONTINUE STORY</div>':'<div class="is-primary" role="button" tabindex="0" data-race-again>RACE AGAIN</div><div role="button" tabindex="0" data-race-track-select>TRACK SELECT</div><div role="button" tabindex="0" data-race-leave>LEAVE RACEWAY</div>'}</div>
+        <small>${isLumerreStoryRace()?'LUMERRE CROWN · THE WEEKEND CONTINUES':isStoryRace()?'STORY RESULT · SAVED WHEN YOU CONTINUE':'KEEPER MARKS + GP + DRAGON RACING XP AWARDED'}</small>
+        <div class="dragon-race-results-actions">${isStoryRace()?`<div class="is-primary" role="button" tabindex="0" data-race-continue-story>${isLumerreStoryRace()?'CONTINUE · AFTER THE FLAG':'CONTINUE STORY'}</div>`:'<div class="is-primary" role="button" tabindex="0" data-race-again>RACE AGAIN</div><div role="button" tabindex="0" data-race-track-select>TRACK SELECT</div><div role="button" tabindex="0" data-race-leave>LEAVE RACEWAY</div>'}</div>
       </div>`;
 
     results.classList.remove('is-visible');
@@ -1536,7 +1767,7 @@
     const config={...state.storyRace},order=standings();
     const classification=order.map((r,index)=>({id:String(r.id||'').replace(/^story-/,''),racerId:String(r.id||'').replace(/^story-/,''),name:String(r.name||''),rank:index+1,position:index+1,isPlayer:!!r.isPlayer,finishMs:Math.round(Number(r.finishMs)||0),bestLapMs:Math.round(Number(r.bestLapMs)||0),gridPosition:Math.max(1,(Number(r.slot)||0)+1)}));
     const rivalRanks=Object.fromEntries(classification.filter(row=>!row.isPlayer).map(row=>[row.id,row.rank]));
-    const detail={source:'dragonbound-career',trackId:state.trackId,careerSaveId:String(config.careerSaveId||''),runId:String(config.runId||''),raceKey:String(config.raceKey||''),strategy:String(config.strategy||'focus'),classification,standings:classification,finishOrder:classification.map(row=>row.id),rivalRanks,teamOrderResponse:String(config.teamOrderResponse||''),...result};
+    const detail={source:'dragonbound-career',trackId:state.trackId,careerSaveId:String(config.careerSaveId||''),runId:String(config.runId||''),raceKey:String(config.raceKey||''),strategy:String(config.strategy||'focus'),seasonStrategy:String(config.seasonStrategy||''),seasonRound:Number(config.seasonRound)||0,seasonRoundId:String(config.seasonRoundId||''),presentationMode:String(config.presentationMode||''),seasonCallResponses:Array.isArray(config.seasonCallResponses)?config.seasonCallResponses.map(row=>({...row})):[],classification,standings:classification,finishOrder:classification.map(row=>row.id),rivalRanks,teamOrderResponse:String(config.teamOrderResponse||''),...result};
     const type=result.aborted?'dragonbound-career-story-race-aborted':'dragonbound-career-story-race-result';
     postCareerBridge(type,{result:detail});
     try{window.dispatchEvent(new CustomEvent(result.aborted?'dragonbound:story-race-aborted':'dragonbound:story-race-complete',{detail}));}catch(_e){}
@@ -1544,11 +1775,31 @@
     return true;
   }
 
-  function loop(t){if(!state.game||state.phase==='closed')return;state.raf=requestAnimationFrame(loop);const rawDt=Math.max(0,(t-state.lastT)/1000)||.016;state.lastT=t;const simDt=Math.min(.5,rawDt);if(state.phase==='racing'||state.phase==='player_finished'){let remaining=simDt,simT=t-simDt*1000,steps=0;while(remaining>.00001&&steps<36){const step=Math.min(1/60,remaining);simT+=step*1000;for(const r of state.racers){if(r.finished)continue;autoRacerUpdate(r,step,simT);updateSectorTiming(r,simT);updateCheckpointAndLap(r,simT);}separateRacers();remaining-=step;steps++;}if(t>=(state.nextRaceStoryAt||0)){detectRaceEvents(t);updateBattleMoments(t);maybeOfferLumerreTeamOrder(t);state.nextRaceStoryAt=t+120;}maybePlayWingSound(t);if(t>=(state.nextCameraEvalAt||0)){evaluateCamera(t);state.nextCameraEvalAt=t+100;}}updateCamera(Math.min(.1,rawDt),t);for(const r of state.racers)renderRacer(r,t);updateHud(t);}
+  function loop(t){
+    if(!state.game||state.phase==='closed')return;
+    state.raf=requestAnimationFrame(loop);
+    const rawDt=Math.max(0,(t-state.lastT)/1000)||.016;state.lastT=t;
+    let renderClock=t;
+    if(state.phase==='racing'||state.phase==='player_finished'){
+      const simRate=seasonSimulationRate();
+      const simDt=Math.min(simRate>1?.42:.5,rawDt*simRate);
+      let remaining=simDt,simT=state.simClock||t,steps=0;
+      while(remaining>.00001&&steps<180){
+        const step=Math.min(1/60,remaining);simT+=step*1000;
+        for(const r of state.racers){if(r.finished)continue;autoRacerUpdate(r,step,simT);updateSectorTiming(r,simT);updateCheckpointAndLap(r,simT);}
+        separateRacers();remaining-=step;steps++;
+      }
+      state.simClock=simT;renderClock=simT;
+      if(t>=(state.nextRaceStoryAt||0)){detectRaceEvents(simT);updateBattleMoments(simT);maybeOfferLumerreTeamOrder(simT);maybeOfferSeasonRaceCall(simT);state.nextRaceStoryAt=t+120;}
+      maybePlayWingSound(t);
+      if(t>=(state.nextCameraEvalAt||0)){evaluateCamera(t);state.nextCameraEvalAt=t+100;}
+    }
+    updateCamera(Math.min(.1,rawDt),t);for(const r of state.racers)renderRacer(r,renderClock);updateHud(t);
+  }
 
   function start(track={id:DEFAULT_TRACK_ID}){
     const requested=trackById(track?.id||DEFAULT_TRACK_ID);if(!requested)return false;const storyConfig=track?.story&&typeof track.story==='object'?{...track.story}:null;stop(false);state.storyRace=storyConfig;state.trackId=requested.id;state.samples=[];state.totalLength=0;if(!isStoryRace()){const progression=loadSave();saveData(progression);}state.preRaceTrackStats=getTrackStats(state.trackId);buildSamples();const game=ensureGame();if(!game)return false;
-    document.getElementById('dragonRacingModal')?.classList.add('is-race-active');game.querySelector('.dragon-race-results')?.classList.remove('is-visible');game.classList.toggle('is-debug-path',state.debugPath);game.classList.toggle('is-story-race',isStoryRace());game.classList.toggle('is-lumerre-crown',isLumerreTrack());createRacers();setPhase('setup');state.resultOrder=[];state.finishAt=0;state.raceStartedEpochMs=0;state.aiStatsPersisted=false;state.nextHudLayoutAt=0;state.nextHudTickAt=0;state.nextRaceStoryAt=0;state.nextCameraEvalAt=0;state.nextFocusAt=0;state.raceOrderIds=[];state.pendingOrderKey='';state.pendingOrderAt=0;state.lastLeaderId='';state.lastRaceEventAt=0;state.raceStory={overtakes:0,leadChanges:0,playerOvertakes:0,playerLostPositions:0,events:[],notableMoment:''};state.broadcastEvents=[];state.battleWatch={};state.activeBattleKey='';state.fastestSectors={};state.lastBattleCalloutAt=0;state.lastFastestEventAt=0;state.nextBroadcastHudAt=0;state.director={lastCutAt:0,holdUntil:0,lastSubjectKey:'',lastMode:'follow'};renderBroadcastFeed();state.finalLapDramaStarted=false;state.photoFinishHoldUntil=0;clearTimeout(state.finishRevealTimer);state.finishRevealTimer=0;clearTimeout(state.raceEventTimer);state.raceEventTimer=0;game.classList.remove('is-final-lap','is-photo-finish');game.querySelector('.dragon-race-starting-grid')?.classList.remove('is-visible');hideRaceEvent();hideLumerreTeamOrder();if(isLumerreStoryRace()){state.storyRace.teamOrderShown=false;state.storyRace.teamOrderResponse='';state.storyRace.teamOrderEffectUntil=0;}state.camera={x:activeWorldWidth()/2,y:activeWorldHeight()/2,zoom:1,targetX:activeWorldWidth()/2,targetY:activeWorldHeight()/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''};state.keys={up:false,down:false,left:false,right:false,boost:false};const rewardRunId=++state.rewardRunId;state.raceRewardSessionId='';state.raceRewardClaim=null;state.raceRewardPromise=isStoryRace()?Promise.resolve(null):beginRaceRewardSession(rewardRunId);game.classList.add('is-visible');window.DragonRacingUi?.fadeMenuAudioOut?.(650);startRaceAudio();state.lastT=now();if(state.raf)cancelAnimationFrame(state.raf);state.raf=requestAnimationFrame(loop);queueSequence(()=>{if(state.phase==='setup')startCeremony();},320,state.countdownToken);return true;
+    document.getElementById('dragonRacingModal')?.classList.add('is-race-active');game.querySelector('.dragon-race-results')?.classList.remove('is-visible');game.classList.toggle('is-debug-path',state.debugPath);game.classList.toggle('is-story-race',isStoryRace());game.classList.toggle('is-lumerre-crown',isLumerreTrack());createRacers();setPhase('setup');state.resultOrder=[];state.finishAt=0;state.simClock=0;state.raceStartedEpochMs=0;state.aiStatsPersisted=false;state.nextHudLayoutAt=0;state.nextHudTickAt=0;state.nextRaceStoryAt=0;state.nextCameraEvalAt=0;state.nextFocusAt=0;state.raceOrderIds=[];state.pendingOrderKey='';state.pendingOrderAt=0;state.lastLeaderId='';state.lastRaceEventAt=0;state.raceStory={overtakes:0,leadChanges:0,playerOvertakes:0,playerLostPositions:0,events:[],notableMoment:''};state.broadcastEvents=[];state.battleWatch={};state.activeBattleKey='';state.fastestSectors={};state.lastBattleCalloutAt=0;state.lastFastestEventAt=0;state.nextBroadcastHudAt=0;state.director={lastCutAt:0,holdUntil:0,lastSubjectKey:'',lastMode:'follow'};renderBroadcastFeed();state.finalLapDramaStarted=false;state.photoFinishHoldUntil=0;clearTimeout(state.finishRevealTimer);state.finishRevealTimer=0;clearTimeout(state.raceEventTimer);state.raceEventTimer=0;game.classList.remove('is-final-lap','is-photo-finish');game.querySelector('.dragon-race-starting-grid')?.classList.remove('is-visible');hideRaceEvent();hideLumerreTeamOrder();if(isLumerreStoryRace()){state.storyRace.teamOrderShown=false;state.storyRace.teamOrderResponse='';state.storyRace.teamOrderEffectUntil=0;}if(isSeasonStoryRace()){state.storyRace.seasonCallIndex=0;state.storyRace.seasonCallVisible=-1;state.storyRace.seasonCallResponses=[];state.storyRace.seasonCallEffect={};state.storyRace.seasonCallEffectUntil=0;}state.camera={x:activeWorldWidth()/2,y:activeWorldHeight()/2,zoom:1,targetX:activeWorldWidth()/2,targetY:activeWorldHeight()/2,targetZoom:1,mode:'wide',eventUntil:0,nextDecisionAt:0,nextEventAt:0,subjectIds:[],finalLapShown:false,finalStraightShown:false,photoFinishDone:false,forcedMode:''};state.keys={up:false,down:false,left:false,right:false,boost:false};const rewardRunId=++state.rewardRunId;state.raceRewardSessionId='';state.raceRewardClaim=null;state.raceRewardPromise=isStoryRace()?Promise.resolve(null):beginRaceRewardSession(rewardRunId);game.classList.add('is-visible');window.DragonRacingUi?.fadeMenuAudioOut?.(650);startRaceAudio();state.lastT=now();if(state.raf)cancelAnimationFrame(state.raf);state.raf=requestAnimationFrame(loop);queueSequence(()=>{if(state.phase==='setup')startCeremony();},320,state.countdownToken);return true;
   }
   function stop(remove=false){
     state.storyRace=null;

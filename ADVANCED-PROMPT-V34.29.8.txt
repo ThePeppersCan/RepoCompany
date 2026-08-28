@@ -1,0 +1,124 @@
+DRAGONBOUND V34.29.8 — AFTER THE FLAG
+CHAPTER SIX LUMERRE CROWN FINALE
+
+SOURCE LOCK
+- Build on the exact V34.29.7 Lumerre race engine and the V34.29.5 full Career Mode integration baseline.
+- Do not roll back the V34.29.6 pace-continuity fix or V34.29.7 competitive-field/overtake-resolution fix.
+- Preserve all prior Career Mode saves, Crown Week, Practice & Qualifying, Race Day, CatAsthma testing/replay, Career Evolution, portrait positioning, race music, podium/trophy assets and multi-save support.
+
+PRIMARY MANDATE
+The Lumerre Crown must not end immediately after the official classification. Extend Chapter Six with a directed, interactive 8-scene post-race finale that feels substantially less repetitive than portrait-dialogue clicking.
+
+PRESENTATION RULE
+Full portrait dialogue is one tool, not the default. Rotate between:
+1. cooldown/radio montage
+2. interactive parc ferme
+3. compact team debrief choice
+4. mostly visual podium ceremony
+5. interactive press scrum
+6. quiet environmental inspection
+7. short Tyrese close-up choice
+8. tactile envelope reveal + chapter completion
+
+Q57 — STILL MOVING
+- Enter after the genuine Lumerre engine result.
+- Keep a race/circuit visual atmosphere with crowd ambience.
+- Show dynamic radio lines from Nell, Mara and Tyrese based on actual finish, Tyrese finish and team-order choice.
+- Show final position, grid, overtakes and Tyrese result.
+- No long portrait conversation.
+
+Q58 — PARC FERME
+- Use the supplied/reused Lumerre parc ferme environment.
+- Clickable interactions: Tyrese, Nell, Mara, classification/timing board, player dragon.
+- Player chooses three interactions; do not require every NPC.
+- Each interaction is short and race-data-aware.
+- Persist relevant relationship/Career Evolution consequences.
+
+Q59 — WHAT THE DATA SAYS
+- Quick debrief with a single focus choice: pace trace, team order, or captain/teammate battle.
+- Dynamic reactions based on the real weekend record.
+- No long office-style dialogue chain.
+
+Q60 — THE CEREMONY
+- P1/P2/P3 only: use the established podium stage.
+- P1: show the transparent Lumerre Crown trophy.
+- First career win: show FIRST CAREER VICTORY milestone.
+- P4+: skip the podium naturally and move toward media.
+- Let visuals/crowd/camera flashes do most of the work.
+
+Q61 — TWO QUESTIONS
+- Use the Lumerre media backdrop.
+- Generate a reporter pool from actual race facts: win, positions gained, Tyrese result, team-order response, Jalen battle, general progression.
+- Player chooses which two reporters/questions to answer.
+- Answer tones: TEAM FIRST, CONFIDENT, STRAIGHT ANSWER.
+- Persist fame/media/trust/respect/tension effects.
+
+Q62 — FIVE QUIET MINUTES
+- Use Quickquill Lumerre accommodation.
+- Start the supplied post-race music here at roughly 32%.
+- No crowd ambience.
+- Environmental interactions: result sheet, player dragon, race gloves.
+- Require at least one inspection before Tyrese arrives.
+
+Q63 — TYRESE
+- Short character scene, not a long click chain.
+- Dynamic lead based on who beat whom and team-order history.
+- Choices: WE'RE A TEAM / I WANT TO BEAT YOU / WE BOTH NEED TO WIN.
+- Persist relationship consequences for Chapter Seven.
+
+Q64 — MONDAY
+- Use the supplied Quickquill envelope asset as closed/open states.
+- Mara gives a short assessment-to-professional transition line.
+- Player clicks the sealed envelope to open it.
+- Letter text only: QUICKQUILL RACING · HEAD OFFICE / MONDAY · 09:00 / PRIVATE MEETING.
+- Nell asks "Good news?"; Mara answers "Monday."
+- No exposition dump.
+
+Q65 — THE LUMERRE CROWN
+- Proper Chapter Six completion presentation.
+- Summary: qualifying, race finish, positions gained, overtakes, Tyrese, team order, milestone.
+- Show only Career impact categories that actually changed.
+- Next hook: THE VERDICT · Quickquill HQ · Monday · 09:00.
+- Mark Chapter Six finale complete only here.
+
+WEEKEND RECORD
+Persist a post-race snapshot before the finale begins. It must preserve at least:
+- qualifying position
+- race start/finish
+- positions gained
+- player overtakes
+- Tyrese finish
+- Jalen finish when available
+- best lap / finish time
+- team-order choice
+- photo finish / lead changes / notable moment where available
+- Crown Challenge rank
+- first career podium/win milestone
+- final standings
+The finale reads from this snapshot rather than inventing outcomes.
+
+AUDIO
+- Q57-Q60: established Crown Week/accommodation music + controlled crowd ambience.
+- Q61: established press music, crowd reduced.
+- Q62-Q65: supplied POST RACE MUSIC.mp3 at ~32%, no crowd.
+- Camera flash SFX only where appropriate.
+
+ENGINE / SAVE SAFETY
+- Keep V34.29.7 race balance and overtake resolution intact.
+- Lumerre race result remains genuine root Dragon Racing engine data.
+- No database migration.
+- Never overwrite/erase earlier Chapter Six state when starting the finale.
+- After Flag must be resumable from Story Journey.
+- Chapter Seven unlocks only after Q65 completion.
+
+QA GATES
+- career.js syntax PASS
+- dragon-racing-race.js syntax PASS
+- UI JS syntax PASS
+- all CSS brace balances PASS
+- envelope transparency PASS
+- post-race audio readable and bundled
+- q57-q65 and interactive action tokens present
+- Story Journey correctly exposes CONTINUE/RESUME AFTER THE FLAG
+- keydown/result-screen handling does not eject q57-q65
+- ZIP integrity PASS

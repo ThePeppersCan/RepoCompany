@@ -1,0 +1,48 @@
+V34.33 — SEASON POLISH QA
+
+GOAL
+The First Full Season should stop feeling like one giant rushed dashboard.
+Opening Week teaches the systems; Season Control then handles one race-weekend stage at a time.
+
+1. OPENING WEEK
+- Q75-Q80 now shows a clear Tue/Wed/Wed/Thu/Fri/Weekend timeline.
+- Existing Calendar / Plan / Telemetry / Pit Wall / Promise choices should still work and save.
+- Q80 should NOT ask you to choose a permanent sim mode before entering Season Control.
+- Enter Season Control. New careers default to Watch Live; mode can be changed per weekend.
+
+2. SEASON CONTROL LAYOUT
+- Top season spine shows all eight rounds without mixing every stat onto the same page.
+- Tabs: RACE WEEKEND / CHAMPIONSHIP / DEVELOPMENT.
+- Only the selected section should be the focus.
+
+3. ROUND ONE — BEFORE QUALIFYING
+- Race Weekend should show briefing + team target + Opening Week takeaways.
+- There should be NO race launch yet.
+- Click RUN SATURDAY QUALIFYING.
+
+4. ROUND ONE — AFTER QUALIFYING
+- Qualifying result should save and show the full 7-racer grid.
+- Player grid position should remain the same after leaving/re-entering Season Control.
+- Race Plan and Watch/Quick/Full options now appear AFTER the grid is known.
+- Changing race plan or mode should save immediately.
+
+5. RACE
+- GO TO SUNDAY RACE should launch the existing Dragon Racing engine.
+- Watch Live = normal speed.
+- Quick Sim = fast routine race, slows for decisive player call.
+- Full Sim = fastest, calls auto-resolved.
+- Exiting a race should keep qualifying safe.
+
+6. POST-RACE
+- Result returns to the Race Weekend tab as a clean post-race report.
+- Championship tab shows the standings separately.
+- Development tab shows readiness, preparation, technical record and season promises separately.
+
+7. OLD SAVE COMPATIBILITY
+- A V34.32 save already at Season Control should open directly into the new layout.
+- A save with Round One already completed should show the post-race report and points.
+
+EXPECTED BEHAVIOUR
+Opening Week = onboarding with visible days and context.
+Season Control = one job at a time.
+Round One = Briefing -> Qualifying -> Strategy -> Race -> Debrief.

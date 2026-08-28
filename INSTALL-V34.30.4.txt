@@ -1,0 +1,36 @@
+DRAGONBOUND V34.30.4 — VERDICT NEGOTIATION STATE REPAIR
+TEST CANDIDATE HOTFIX
+
+INSTALL OVER V34.30.3
+
+REPLACE THESE TWO FILES
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/index.html
+
+ROOT CAUSE FIXED
+During Q70, each demand definition lookup recreated chapter7.offer. The final
+accepted terms and status were written to an older object, while the object
+saved to the account remained status: draft. The submitting state therefore
+finished and Q70 redrew its original demand screen.
+
+V34.30.4 keeps one stable contract-offer object throughout definition lookup,
+leverage calculation, demand application and account persistence.
+
+VERIFIED CASES
+- Podium Bonus + Sponsor Days:
+  16,000 GP becomes 22,000 GP; 6 sponsor days become 4; status becomes agreed.
+- Expensive Team Role + Contract Term:
+  deterministic counter-offer persists correctly.
+- Zero asks:
+  agreed status persists correctly.
+- Q70 accepted/counter-offer view exposes CONTINUE · LEAVE BOARDROOM to Q71.
+
+INSTALL
+1. Overlay this ZIP onto the current V34.30.3 test site.
+2. Replace the two files above.
+3. Hard refresh / clear cached Career Mode files.
+4. Reload Q70 and submit the terms again.
+
+No assets, CSS or MP3 files are included or required.
+No database migration.
+Nothing was pushed to GitHub or the live site.

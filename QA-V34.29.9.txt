@@ -1,0 +1,33 @@
+DRAGONBOUND V34.29.9 — BLACKGLASS STEALTH PATHFINDING QA
+
+SOURCE
+PASS — built from exact V34.29.8 After the Flag test candidate source
+
+STATIC CODE QA
+PASS — career.js JavaScript syntax check (node --check)
+PASS — V34.29.9 cache bust present in career-mode/index.html
+PASS — old broad Guest Wing zone collision removed
+PASS — corridor nav graph present
+PASS — wall-sliding player collision present
+PASS — Garran routed path state present
+PASS — line-of-sight wall check present for catches
+PASS — no save schema/database migration
+
+NAV GEOMETRY QA
+PASS — all 16 Guest Wing navigation nodes are connected
+PASS — every nav edge sampled at 101 points remains walkable with Garran clearance
+PASS — player start is walkable
+PASS — Room 11 interaction anchor is walkable
+PASS — pantry-door interaction anchor is walkable
+PASS — maintenance-view interaction anchor is walkable
+PASS — service-key interaction anchor is walkable
+PASS — venue-pass interaction anchor is walkable
+PASS — pass-return interaction anchor is walkable
+PASS — noticeboard interaction anchor is walkable
+PASS — all three hiding anchors are walkable
+PASS — all patrol node ids resolve to valid nav nodes
+
+REGRESSION SCOPE
+- Only dragonbound-career-mode/career.js and its cache-busted index reference are changed.
+- V34.29.8 After the Flag assets/story are not modified.
+- Dragon Racing root engine files are not modified.

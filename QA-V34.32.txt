@@ -1,0 +1,33 @@
+V34.32 STATIC QA / TEST CHECKLIST
+=================================
+
+STATIC CHECKS COMPLETED
+[PASS] career.js parses with Node syntax checker.
+[PASS] dragon-racing-race.js parses with Node syntax checker.
+[PASS] dragonbound-career-launcher.js parses with Node syntax checker.
+[PASS] Old disabled Season Control race placeholder removed from the game code.
+[PASS] Existing V34.29/V34.31 race/story code remains in place; this is an additive integration.
+[PASS] Cache keys updated for Career Mode CSS/JS, launcher and race engine.
+
+MANUAL BROWSER TEST
+1. Load an existing V34.31 Quickquill save after finishing Opening Week.
+2. Open Season Control.
+3. Confirm Round 1 shows VELMORA CITY CIRCUIT and an active QUALIFY · GO TO THE GRID button.
+4. Choose each race plan and verify selection persists while the dashboard is open.
+5. Test WATCH LIVE:
+   - race opens in the normal Dragon Racing presentation;
+   - seven named racers are on the grid;
+   - two Quickquill race-call decisions appear during the race.
+6. Finish the race.
+7. Confirm Career Mode returns automatically to Season Control.
+8. Confirm official result, grid position, overtakes, live-call log and championship points appear.
+9. Reload the page and confirm Round 1 result/standings persist.
+10. Confirm Round 2 is shown as Greenwater Canopy but cannot accidentally launch on the wrong physical circuit.
+11. Optional: repeat with QUICK SIM and FULL SIM to verify the different pit-wall call automation behaviour.
+12. Abort a race once and confirm the save safely returns to Season Control without losing Opening Week or the qualifying grid.
+
+EXPECTED DESIGN CURVE
+- Early career: wins remain difficult.
+- Round 1: competitive but no scripted victory.
+- Mid-season: podium/win probability rises with development and preparation.
+- Late season: genuine front-running/title-favourite performance can emerge.

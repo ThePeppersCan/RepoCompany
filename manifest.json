@@ -1,29 +1,147 @@
 {
-  "name": "Dragonbound V34.29.6 \u2014 Lumerre Pace Continuity Repair",
-  "version": "34.29.6",
-  "base": "V34.29.5",
-  "type": "incremental root-engine bugfix",
-  "databaseMigrationRequired": false,
-  "fixes": [
-    "Lumerre arc-length route progress",
-    "removes straight-line warp / corner near-stop visual bug",
-    "preserves existing City/Canto/Blackglass progress mapping"
+  "build": "Dragonbound V34.30 \u2014 The Verdict",
+  "status": "TEST CANDIDATE ONLY",
+  "baseline": [
+    "V34.29.8 After the Flag",
+    "V34.29.9 Blackglass Stealth Pathfinding"
   ],
+  "databaseMigration": false,
+  "fileCount": 27,
   "files": [
     {
-      "path": "INSTALL-V34.29.6-LUMERRE-PACE-CONTINUITY.txt",
-      "size": 1517,
-      "sha256": "d4310a600e54796606b11420d952890bc1f1529b6cc842a674b81e496c1aade5"
+      "path": "ADVANCED-PROMPT-V34.30.txt",
+      "size": 4900,
+      "sha256": "0114342005049acfe5591bc26fc735cb4584daa1c88dab4f84e268e84e38de31"
     },
     {
-      "path": "QA-V34.29.6.txt",
-      "size": 1035,
-      "sha256": "1279174e41d7ce21cc1ace39d88819705d10dec8d2b932af973294e883964894"
+      "path": "INSTALL-V34.30.txt",
+      "size": 1832,
+      "sha256": "5ce0a8d1284ffc77a3b0906ba1520efbc700d573580dc9652c2c30b3a218765a"
+    },
+    {
+      "path": "QA/lumerre-route-qa.png",
+      "size": 3623479,
+      "sha256": "017b34b853dba486ebc6e3d87e9e75bdcd81f5c26299350ff0117ce4439b0460"
+    },
+    {
+      "path": "QA-V34.30.txt",
+      "size": 4612,
+      "sha256": "186150c370a2dc4a39c5ce03eeadb28420472756a2ab3087edbbfe24aa02e7fa"
+    },
+    {
+      "path": "dragon-racing-race.css",
+      "size": 93074,
+      "sha256": "6f5509ecc6ff140f1f0332a2d118c81595b6fba7f73631e1fa36497390701171"
     },
     {
       "path": "dragon-racing-race.js",
-      "size": 141570,
-      "sha256": "a1b439237ad6e333706463599767bc3650ff5a589c116f0c48fc60d73a8c5488"
+      "size": 147254,
+      "sha256": "88f7db75b6e469eaf08ba2f5c3e43fba8068231771be1090f8b2eadd6a39547b"
+    },
+    {
+      "path": "dragon-racing-ui.css",
+      "size": 45461,
+      "sha256": "2ce7697399a55e9786fc10041d675481be08cd3a21a0b00a99076cb20b506229"
+    },
+    {
+      "path": "dragon-racing-ui.js",
+      "size": 27375,
+      "sha256": "2073d13a367d4d8ae649504e21cc3e64681aa7c8e80763e2bb13fa0bb276e068"
+    },
+    {
+      "path": "dragonbound-career-mode/career-after-flag.css",
+      "size": 24266,
+      "sha256": "c99a77f50cbd7fd2cdb4a68c344e1bb6004be8a139fe062de7169409ab4c0ede"
+    },
+    {
+      "path": "dragonbound-career-mode/career-practice.css",
+      "size": 44976,
+      "sha256": "851e7302e8e14f4bce4e7199ad95631510deda532503045f7563f116322de8ce"
+    },
+    {
+      "path": "dragonbound-career-mode/career-verdict.css",
+      "size": 20962,
+      "sha256": "a8746e00c9708d19d78d961b380b4255d4ee24f145594d90ad10c918892e1903"
+    },
+    {
+      "path": "dragonbound-career-mode/career.js",
+      "size": 748903,
+      "sha256": "bedde699ab437927edf7e561cbc595d22dc407c7aa267e1c48ede175195d309f"
+    },
+    {
+      "path": "dragonbound-career-mode/index.html",
+      "size": 4160,
+      "sha256": "0e99c4a057b2537c6822295c72b5a9a7faf5edbf3af459efa2cc2e674115c66a"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter5/lumerre-media-zone.webp",
+      "size": 453230,
+      "sha256": "3af0bafe3e6f7c25bb86a3ba18218960b21981762fa4e987ab4ffc5a72a76036"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/after-flag/audio/post-race-music.mp3",
+      "size": 4949760,
+      "sha256": "5c48451fc7299b9887fea9f4f521de91164ccfc316e4699db596b81c220abc8d"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/after-flag/lumerre-parc-ferme.webp",
+      "size": 740900,
+      "sha256": "cdbbab3de71d55fc09012e3a24d2d814d4d42f0a193d01473c83cfd9f253e0bc"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/after-flag/ui/quickquill-envelope-closed.png",
+      "size": 618341,
+      "sha256": "105f6183a5b2f2de0c29edeb7fbe1c6e8e749b53eb1f65035523fce7d332a195"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/after-flag/ui/quickquill-envelope-open.png",
+      "size": 856323,
+      "sha256": "376b30111569087d62b76d8c0f0343a0b040f44cb240951bcd90a1d533d65eab"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/crown-week/quickquill-villa-interior.webp",
+      "size": 585944,
+      "sha256": "634ec900763ca05cbf3e8917d799fe2ebdb39a2e6f6384e5eb4f34f143fa647a"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/audio/lumerre_crown_final_lap_BALANCED.mp3",
+      "size": 5341292,
+      "sha256": "82267c88b696129c582aa67fc68b4bfcaa3dab854ae65043256d39a59a30d271"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/audio/lumerre_crown_main_race_BALANCED.mp3",
+      "size": 3566070,
+      "sha256": "635b68947ad5195fc86cad512277292553c381dafcc997aa46704bcb11db7e34"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/lumerre-crown-full-map.png",
+      "size": 4555449,
+      "sha256": "5fb96a3bec2da80bbfce2563b5a8f568e34eaa0231edcae53fc9f51bc20622ca"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/lumerre-crown-podium-stage.png",
+      "size": 4249894,
+      "sha256": "d84dff3af2da05d381fbf96b2058d077b145af28e6e37a7a4908fe7c2b019972"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-live-hud.png",
+      "size": 1595119,
+      "sha256": "cbe98d391fca5cc219713e7f42620e5f46506976125d8ae51732fb8d9b5290c4"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-race-battle-reference.png",
+      "size": 2391762,
+      "sha256": "94094cc1ec507769925831eaed91bf1146ec7681cb9e01835f8a03c040c0e34d"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-race-team-orders.png",
+      "size": 2408640,
+      "sha256": "c93dc65fa372d5082fff416f83821e2937a0676f3647cec6a2417a3c2a5eec30"
+    },
+    {
+      "path": "dragonbound-career-mode/story/chapter6/race/ui/lumerre-crown-trophy-transparent.png",
+      "size": 1971279,
+      "sha256": "5e61bd3157c460e4ff7495f604559f529ebdd40aabdb00ba24045c319b2855e4"
     }
   ]
 }

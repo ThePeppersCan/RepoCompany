@@ -1,0 +1,52 @@
+DRAGONBOUND V34.30 — THE VERDICT
+TEST CANDIDATE INSTALL / TEST NOTES
+
+THIS IS NOT A LIVE DEPLOYMENT.
+Nothing in this package has been pushed to GitHub or to the live site.
+
+BASELINE
+This candidate was built from the merged latest test line:
+- V34.29.8 — After the Flag
+- V34.29.9 — Blackglass Stealth Pathfinding
+
+INSTALL FOR TESTING
+1. Back up your current local/test site.
+2. Overlay the contents of this ZIP onto the current site root, preserving folder structure.
+3. Replace files when prompted.
+4. Hard refresh / clear the relevant cached site files.
+5. Do not push to GitHub until you are happy with the test.
+
+PRIMARY TEST ROUTE
+- Complete / replay Chapter Six After the Flag.
+- Open Story Journey.
+- Start Chapter 07 — THE VERDICT.
+- Play Q66 through Q74.
+
+IMPORTANT BRANCHES TO TEST
+A. Contract negotiation
+- Pick no asks.
+- Pick one ask.
+- Pick two low-cost asks.
+- Pick an expensive Team Role ask + another ask and confirm a counter-offer can occur.
+
+B. Sunscale
+- HEAR THEM OUT should unlock the Q73 Sunscale conversation option.
+- SHOW MARA and ARCHIVE should leave that Q73 option disabled.
+- Sunscale must never automatically transfer the player.
+
+C. Final decision
+- SIGN QUICKQUILL
+- ASK FOR 24 HOURS
+- HEAR OUT SUNSCALE (when unlocked)
+Each should produce a different Q74 summary and then mark Chapter Seven complete.
+
+D. Career Hub after Chapter Seven
+Check Story Journey, Calendar, Journal, Inbox and Race Records.
+Lumerre should appear as Race R03 and Chapter Eight should appear only as the next placeholder.
+
+REGRESSION TESTS
+- Blackglass After Hours: dragon/Garran pathfinding remains V34.29.9 behavior.
+- Lumerre Crown race: V34.29.7 competitive-field + V34.29.6 pace-continuity behavior remains intact.
+- After the Flag Q57-Q65 still reaches The Verdict correctly.
+
+NO DATABASE MIGRATION REQUIRED.

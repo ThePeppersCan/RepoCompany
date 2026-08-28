@@ -1,0 +1,14 @@
+VELMORA: DRAGONBOUND CAREER MODE — V34.33 SEASON POLISH
+
+Install over your current V34.32 / V34.32.1 web2 build.
+
+Copy these into the ROOT of web2 and replace existing files:
+- dragon-racing-race.js
+- dragonbound-career-mode/index.html
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career-season.css
+
+No assets or MP3s are required by this patch.
+The included dragon-racing-race.js already contains the V34.32.1 Quick Sim speed hotfix.
+
+After copying, hard refresh the site (Ctrl+F5).

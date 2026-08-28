@@ -1,0 +1,80 @@
+DRAGONBOUND V34.30 — THE VERDICT
+LOCAL QA REPORT
+
+STATUS: TEST CANDIDATE
+DEPLOYMENT: NOT PUSHED TO GITHUB / NOT DEPLOYED LIVE
+
+SOURCE / CONTINUITY
+PASS — Built on merged V34.29.8 After the Flag + V34.29.9 Blackglass Stealth Pathfinding test-candidate line.
+PASS — V34.29.9 AFTER_HOURS_WING_NAV_NODES / graph-based Garran pathing remains present.
+PASS — V34.29.8 After the Flag assets and post-race music remain bundled.
+PASS — Existing root Dragon Racing engine files remain bundled; V34.30 does not redesign the racing engine.
+
+JAVASCRIPT / CSS
+PASS — dragonbound-career-mode/career.js: node --check.
+PASS — dragon-racing-race.js: node --check.
+PASS — dragon-racing-ui.js: node --check.
+PASS — career-practice.css braces: 375 / 375.
+PASS — career-after-flag.css braces: 228 / 228.
+PASS — career-verdict.css braces: 177 / 177.
+PASS — dragon-racing-race.css braces: 669 / 669.
+PASS — dragon-racing-ui.css braces: 238 / 238.
+
+V34.30 STORY SYSTEM
+PASS — Story schema bumped to v17.
+PASS — completed.verdict state exists.
+PASS — chapter7 state normalises nested HQ / review / offer / outside-interest data.
+PASS — Q66–Q74 present: 9 Verdict scenes.
+PASS — Story Journey Chapter 07 = THE VERDICT.
+PASS — Story Journey Chapter 08 placeholder = THE FIRST FULL SEASON.
+PASS — After the Flag completion unlocks Verdict without resetting prior chapters.
+PASS — openStory resume routing recognises Verdict in progress.
+PASS — old completed-Practice result guard explicitly exempts Verdict.
+PASS — keyboard result-screen guard explicitly exempts Verdict.
+PASS — CatAsthma tester replay includes Verdict Q66 and is non-destructive.
+
+PRESENTATION / INTERACTION
+PASS — Q66 arrival tone choice.
+PASS — Q67 five HQ hotspots; three required to proceed.
+PASS — Q68 four board-review files; three required to proceed.
+PASS — Q69 dynamic contract document.
+PASS — Q70 clause builder limits selection to two asks.
+PASS — Q71 Sunscale enquiry is explicitly interest, not an automatic transfer.
+PASS — Q72 Tyrese stance choices affect relationship/career state.
+PASS — Q73 Quickquill / 24 hours / conditional Sunscale decision branches.
+PASS — Q74 dynamic Chapter Seven completion summary.
+PASS — All Verdict data-action selectors have corresponding event bindings.
+
+CONTRACT LOGIC SANITY TEST
+PASS — No asks: accepted, no hidden failure.
+PASS — P4 / trust 50 / bonus + sponsor: both accepted (cost 2 vs leverage 3).
+PASS — P4 / trust 50 / role + term: Quickquill counters the highest-cost role ask and accepts term.
+PASS — P2 / trust 60 / role + term: both accepted (cost 5 vs leverage 5).
+PASS — P1 / trust 60 / Equal Racer role upgrade + term: both accepted (cost 6 vs leverage 6).
+PASS — Counter logic is deterministic from result/trust; no random roll.
+
+CAREER HUB INTEGRATION
+PASS — Career Current Chapter understands After the Flag, Verdict and post-Verdict season state.
+PASS — Career Journal adds Chapter Six Lumerre and Chapter Seven Verdict entries.
+PASS — Race Records adds Lumerre as R03.
+PASS — Calendar adds Lumerre, The Verdict and First Full Season rows.
+PASS — Inbox adds Quickquill HQ Monday 09:00 and conditional Sunscale enquiry.
+PASS — Relationships adds conditional Sunscale interest once discovered.
+PASS — Verdict completion registers Career Evolution chapter type 'politics'.
+PASS — Lumerre first-win / first-podium detection now handles Career Evolution milestone objects correctly.
+
+ASSETS
+PASS — post-race-music.mp3 readable; duration 154.680 seconds.
+PASS — quickquill-envelope-closed.png readable; 887x887 RGBA.
+PASS — quickquill-envelope-open.png readable; 887x887 RGBA.
+PASS — lumerre-crown-trophy-transparent.png readable; 1024x1536 RGBA.
+PASS — Existing Quickquill HQ environment paths are reused rather than renamed.
+NOTE — This is an overlay patch/test candidate. Several reused HQ environment files live in the existing site baseline and are intentionally not duplicated in this ZIP.
+
+CACHE / INSTALL
+PASS — index.html loads career-verdict.css with V34.30 cache key.
+PASS — index.html loads career.js with V34.30 cache key.
+PASS — No database migration required.
+
+BROWSER QA LIMITATION
+A full interactive end-to-end browser playthrough was not claimed. This candidate is an overlay patch and intentionally relies on established baseline site assets not duplicated in the patch directory. Local QA covered syntax, state wiring, branch logic, action bindings, bundled media and package integrity. User-side test should cover Q66→Q74 on the current full site before any GitHub push.

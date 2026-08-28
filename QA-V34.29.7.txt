@@ -1,0 +1,23 @@
+DRAGONBOUND V34.29.7 QA
+
+PASS — node --check dragon-racing-race.js
+PASS — compact Lumerre race-luck model present
+PASS — old Lumerre-only player +0.0016 pace gift removed
+PASS — pair-specific battle cooldown present
+PASS — attacker/defender resolution probability present
+PASS — successful pass clearing burst present
+PASS — successful-defence reset present
+PASS — Lumerre-specific pace phases present
+PASS — Lumerre-specific stronger draft present
+PASS — Canto / Blackglass track code not directly modified by this patch
+
+MONTE CARLO BASE-PACE SANITY CHECK
+{
+  "runs": 10000,
+  "player_fastest_base_pct": 8.5,
+  "tyrese_fastest_base_pct": 48.0,
+  "whole_field_within_1pct_pct": 14.9
+}
+
+NOTE
+The Monte Carlo check validates only base-pace distribution. Actual race order also depends on track curvature, drafting, mistakes, stamina, passing outcomes, styles and Career Evolution.

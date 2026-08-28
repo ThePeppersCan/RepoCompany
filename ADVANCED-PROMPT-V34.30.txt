@@ -1,0 +1,123 @@
+DRAGONBOUND V34.30 — THE VERDICT
+ADVANCED IMPLEMENTATION SPECIFICATION
+
+STATUS
+- TEST CANDIDATE ONLY.
+- Do not push to GitHub or deploy live automatically.
+- Build on the merged V34.29.8 After the Flag + V34.29.9 Blackglass Stealth Pathfinding test-candidate baseline.
+- Preserve all prior Lumerre race-engine, competitive-field, After the Flag, portrait, multi-save and Blackglass pathfinding work.
+
+PRIMARY GOAL
+Chapter Seven must be the point where Dragonbound stops treating the player as an assessment candidate and starts behaving like a career mode. The player arrives at Quickquill HQ after the Lumerre Crown and receives a genuine contract offer. They review their first three races, explore HQ, negotiate simple clauses, react to outside interest and make a career decision.
+
+PRESENTATION RULE
+Do not return to long portrait -> dialogue -> click chains as the default presentation.
+Rotate interaction formats:
+1. arrival/ticker scene,
+2. free-choice HQ exploration,
+3. interactive board-review files,
+4. contract document,
+5. clause negotiation builder,
+6. phone/inbox interruption,
+7. short Tyrese walk-and-talk,
+8. career decision screen,
+9. chapter summary.
+
+CHAPTER FLOW
+Q66 — 09:00
+- Monday morning at Quickquill HQ.
+- React to the room: read it, break tension, or get straight to business.
+- Lumerre result and Quickquill trust are visible context.
+
+Q67 — Before the Meeting
+- Mara is delayed ten minutes.
+- Explore Quickquill HQ through five optional hotspots.
+- Require three discoveries to continue.
+- Hotspots should reveal active-world details rather than exposition dumps.
+
+Q68 — Three Races
+- Board performance review.
+- Four files: Results, Racecraft, Team, Profile.
+- Player reads any three.
+- Review uses real saved Canto / Blackglass / Lumerre data.
+
+Q69 — The Offer
+- Show a clean professional Quickquill contract sheet.
+- Initial role adapts to Lumerre result and team trust.
+- Base offer: two seasons, podium bonus, sponsor-day expectation.
+
+Q70 — Your Turn
+- FIFA-style simple negotiation, not Football Manager complexity.
+- Pick maximum two asks:
+  * Team Role
+  * Contract Term
+  * Podium Bonus
+  * Sponsor Days
+- Deterministic leverage from performance/trust.
+- Quickquill may accept both or counter one demand.
+- No hidden random failure.
+
+Q71 — One More Message
+- Sunscale/Jalen management asks whether the Quickquill contract is already signed.
+- This is interest, not a transfer offer.
+- Choices: hear them out, show Mara, archive.
+- Consequences persist.
+
+Q72 — Same Garage
+- Short rooftop scene with Tyrese.
+- Choices:
+  * We're a team
+  * I want equal machinery
+  * I want your seat eventually
+- Affect Tyrese bond / competitive tension / Quickquill trust.
+
+Q73 — The Verdict
+- Player chooses:
+  * Sign Quickquill
+  * Ask for 24 hours
+  * Hear out Sunscale (only if Q71 left the line open)
+- Do not silently transfer the player to Sunscale.
+
+Q74 — A Career, Not an Assessment
+- Dynamic chapter summary.
+- Show Lumerre finish, contract status, role, term, outside-interest state and Tyrese stance.
+- Tease Chapter Eight: The First Full Season.
+
+CAREER-HUB INTEGRATION
+- Story Journey Chapter 07 becomes THE VERDICT.
+- Add Chapter 08 placeholder: THE FIRST FULL SEASON.
+- Career Desk current chapter must understand After the Flag, Verdict and post-Verdict states.
+- Career Journal must record Lumerre and Verdict.
+- Race Records must include Lumerre as R03.
+- Inbox must contain the Monday 09:00 contract call and any Sunscale enquiry.
+- Calendar must contain Lumerre, Verdict and First Full Season rows.
+
+SAVE / MIGRATION
+- Story schema v17.
+- Add completed.verdict and chapter7 state without resetting old completion flags.
+- Existing saves completing After the Flag should unlock Verdict.
+- Completing Verdict changes chapter to season-one.
+- Register career chapter type 'politics'.
+- Preserve CatAsthma non-destructive tester replay and add Verdict replay from Q66.
+
+VISUAL RULES
+- No brown UI.
+- Quickquill professional palette: navy/slate, ivory, restrained cyan/gold, green confirmation accents.
+- Reuse established HQ environments rather than inventing unnecessary new scenes.
+- Missing environment files in this patch are existing site baseline assets and must not be renamed.
+
+QA GATES
+- career.js must pass node --check.
+- root Dragon Racing JS must remain syntactically valid.
+- CSS braces must balance.
+- V34.29.9 Blackglass pathfinding tokens must remain present.
+- V34.29.8 After the Flag assets/music must remain present.
+- Story schema = 17.
+- Q66-Q74 = 9 Verdict scenes.
+- All Verdict data-action selectors must have event bindings.
+- Journey chapter 07 and chapter 08 placeholder present.
+- Lumerre R03 Career record present.
+- Contract negotiation max two asks and deterministic counter logic present.
+- Sunscale path must be interest only, never automatic transfer.
+- No database migration.
+- ZIP integrity must pass.

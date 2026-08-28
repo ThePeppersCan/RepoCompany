@@ -1,0 +1,28 @@
+DRAGONBOUND V34.30.3 — QA
+
+PASS — supplied V34.30.2 baseline extracted safely
+PASS — career.js JavaScript syntax
+PASS — mobile.js JavaScript syntax
+PASS — career-verdict.css brace balance
+PASS — career.css brace balance
+PASS — career-progression.css brace balance
+PASS — Q66 summons/reception/wait stages present
+PASS — Q67 Nell boardroom-call gate present
+PASS — Q68 assessment-review explanation present
+PASS — Q69 contract reveal follows completed review
+PASS — Q70 Submit Terms has explicit submitting state
+PASS — Q70 successful save exposes accepted/counter-offer response
+PASS — Q70 failure path exposes visible retryable error
+PASS — persistStory always releases storySaving through finally
+PASS — Q70 continue action targets Q71
+PASS — new Verdict actions have event bindings
+PASS — Q66-Q74 remain nine Verdict scenes
+PASS — V34.30.2 dedicated Verdict viewport classes retained
+PASS — no environment or audio asset paths renamed
+PASS — no database migration
+
+NOTE — browser automation was unavailable in this runtime, so final QA uses
+JavaScript syntax, CSS structure, selector/binding, state-transition and package
+integrity checks. The included install notes identify the focused in-site route.
+
+NO GITHUB OR LIVE DEPLOYMENT.

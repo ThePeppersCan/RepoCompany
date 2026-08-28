@@ -297,7 +297,7 @@
       ui.open();
       requestAnimationFrame(() => {
         const trackId = String(detail.trackId || (detail.raceKey === 'blackglass' ? 'blackglass_night_circuit' : 'canto_meadow_circuit'));
-        const trackLabel = trackId === 'blackglass_night_circuit' ? 'Blackglass Night Circuit' : 'Canto Meadow Circuit';
+        const trackLabel = ({blackglass_night_circuit:'Blackglass Night Circuit',canto_meadow_circuit:'Canto Meadow Circuit',velmora_city_circuit:'Velmora City Circuit',lumerre_crown_circuit:'Lumerre Crown Circuit'})[trackId] || String(detail.trackName || trackId || 'Story race').replace(/_/g,' ');
         const started = race.start({ id: trackId, story: { ...detail, trackId } });
         if (started) return;
         try { ui.close?.(); } catch (_) {}

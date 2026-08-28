@@ -1,0 +1,16 @@
+DRAGONBOUND V34.30.1 — THE VERDICT LAYOUT REPAIR — TEST CANDIDATE
+
+BASE REQUIRED
+- Install over V34.30 The Verdict TEST CANDIDATE.
+
+FILES
+- dragonbound-career-mode/career-verdict.css
+- dragonbound-career-mode/index.html
+
+FIX
+- Prevents the shared legacy .story-scene-counter layout from expanding THE VERDICT progress UI into a giant dark overlay.
+- Gives Chapter Seven its own compact progress pill and explicit header geometry.
+- Raises Chapter Seven interactive content above decorative overlays.
+- Adds short-desktop/laptop viewport protection for Q66.
+
+NOT PUSHED LIVE.

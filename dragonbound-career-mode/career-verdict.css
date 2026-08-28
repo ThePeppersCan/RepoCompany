@@ -1,0 +1,410 @@
+/* Dragonbound Career Mode V34.30.3 — THE VERDICT CONTRACT FLOW REPAIR
+   Contract / leverage chapter.  Deliberately avoids the old brown UI language. */
+.verdict-shell{--v-ink:#061019;--v-panel:rgba(6,18,28,.90);--v-panel2:rgba(8,25,36,.82);--v-line:rgba(178,216,230,.22);--v-ivory:#f1ead7;--v-muted:#9eb4be;--v-cyan:#76d7ea;--v-gold:#e5ca78;--v-green:#7fd8b1;--v-red:#e28b8b;position:fixed;inset:0;overflow:hidden;background:#03090e;color:var(--v-ivory)}
+.verdict-shell .story-backdrop,.verdict-shell .story-environment{filter:saturate(.82) brightness(.64) contrast(1.05)}
+.verdict-stage{position:absolute!important;inset:0!important;overflow:hidden!important}
+.verdict-wash{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(1,8,13,.72),rgba(3,12,18,.16) 46%,rgba(1,8,13,.62)),linear-gradient(180deg,rgba(1,8,12,.28),rgba(1,7,11,.67));box-shadow:inset 0 0 160px rgba(0,0,0,.52)}
+.verdict-header{z-index:20!important;background:linear-gradient(180deg,rgba(3,11,17,.88),rgba(3,11,17,.45),transparent)!important}
+.verdict-progress{z-index:21!important}
+.verdict-shell button{font:800 12px/1.15 "Trebuchet MS",Arial,sans-serif;letter-spacing:.06em}
+.verdict-shell button:disabled{opacity:.35!important;cursor:not-allowed!important;filter:saturate(.3)!important}
+.verdict-primary,.verdict-shell [data-verdict-next],.verdict-shell [data-verdict-finish],.verdict-shell [data-verdict-submit]{appearance:none;border:1px solid rgba(118,215,234,.42);background:linear-gradient(180deg,rgba(20,70,88,.94),rgba(8,39,52,.96));color:#eefcff;border-radius:9px;padding:13px 18px;box-shadow:0 14px 35px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.07);cursor:pointer;transition:transform .14s ease,border-color .14s ease,background .14s ease}
+.verdict-primary:hover,.verdict-shell [data-verdict-next]:hover,.verdict-shell [data-verdict-finish]:hover,.verdict-shell [data-verdict-submit]:hover{transform:translateY(-1px);border-color:rgba(144,232,248,.78);background:linear-gradient(180deg,rgba(25,87,107,.98),rgba(9,47,61,.98))}
+.verdict-error{position:absolute;z-index:45;top:92px;right:24px;width:min(520px,calc(100vw - 48px));display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border:1px solid rgba(226,139,139,.52);border-radius:9px;background:rgba(42,12,17,.94);box-shadow:0 16px 40px rgba(0,0,0,.45);color:#f6dfe0}.verdict-error strong{flex:0 0 auto;color:#ffb9bd;font:900 8px/1.35 "Trebuchet MS",Arial,sans-serif;letter-spacing:.15em}.verdict-error span{font:700 10px/1.4 "Trebuchet MS",Arial,sans-serif}
+
+/* Q66 */
+.verdict-summons,.verdict-foyer{position:absolute;z-index:10;inset:13% 6% 6%;display:grid;align-items:center;pointer-events:auto}
+.verdict-summons-copy,.verdict-foyer-copy{width:min(790px,78vw);padding:28px 32px;border-left:3px solid var(--v-gold);background:linear-gradient(90deg,rgba(3,14,21,.96),rgba(3,14,21,.76) 72%,rgba(3,14,21,.2));box-shadow:0 28px 70px rgba(0,0,0,.35)}
+.verdict-summons-copy>small,.verdict-foyer-copy>small,.verdict-board-call>small{display:block;color:var(--v-gold);font:900 9px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.17em}
+.verdict-summons-copy h1,.verdict-foyer-copy h1{margin:9px 0 12px;color:#fff7e5;font:900 clamp(32px,4.1vw,58px)/.98 Georgia,serif;letter-spacing:-.025em}
+.verdict-summons-copy>p,.verdict-foyer-note{max-width:720px;margin:10px 0;color:#c5d3d8;font:700 13px/1.55 Georgia,serif}
+.verdict-summons-copy blockquote{display:grid;gap:6px;max-width:600px;margin:18px 0;padding:17px 19px;border:1px solid rgba(226,209,154,.28);border-left:3px solid var(--v-gold);background:rgba(240,235,215,.08)}
+.verdict-summons-copy blockquote b{color:#fff1c6;font:900 14px/1.2 Georgia,serif}.verdict-summons-copy blockquote span{color:#d2dfe2;font:800 10px/1.3 "Trebuchet MS",Arial,sans-serif;letter-spacing:.08em}.verdict-summons-copy blockquote em{color:#819ba4;font:700 10px/1.3 Georgia,serif}
+.verdict-summons-copy>button,.verdict-foyer-copy>button,.verdict-board-call>button{margin-top:10px;appearance:none;border:1px solid rgba(118,215,234,.42);border-radius:9px;padding:13px 18px;background:linear-gradient(180deg,rgba(20,70,88,.94),rgba(8,39,52,.96));color:#eefcff;cursor:pointer}
+.verdict-foyer-dialogue{display:grid;gap:8px;max-width:720px;margin:17px 0}.verdict-foyer-dialogue p{margin:0;padding:13px 15px;border:1px solid var(--v-line);border-radius:8px;background:rgba(255,255,255,.035);color:#dbe7e9;font:700 13px/1.48 Georgia,serif}.verdict-foyer-dialogue b{display:block;margin-bottom:5px;color:var(--v-cyan);font:900 8px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.15em}
+.verdict-arrival{position:absolute;z-index:6;left:6%;right:6%;top:16%;bottom:7%;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(270px,.75fr);grid-template-rows:auto 1fr;gap:18px;align-items:end}
+.verdict-kicker{align-self:end;max-width:760px;padding:30px 34px;border-left:3px solid var(--v-gold);background:linear-gradient(90deg,rgba(3,14,21,.93),rgba(3,14,21,.52),transparent);text-shadow:0 3px 14px rgba(0,0,0,.7)}
+.verdict-kicker small,.verdict-hq-copy small,.verdict-review-head small,.verdict-contract-paper header small,.verdict-negotiation-board header small,.verdict-phone>small,.verdict-walktalk small,.verdict-locker-line small,.verdict-finale-card>small{display:block;color:var(--v-gold);font:900 10px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.18em}
+.verdict-kicker h1{margin:8px 0 10px;font:900 clamp(36px,5vw,72px)/.93 Georgia,serif;letter-spacing:-.04em;color:#fff8e6}
+.verdict-kicker p{margin:0;max-width:700px;color:#c6d5db;font:700 14px/1.55 "Trebuchet MS",Arial,sans-serif}
+.verdict-arrival-ticker{grid-column:2;grid-row:1 / span 2;align-self:center;display:grid;gap:8px;padding:18px;border:1px solid var(--v-line);border-radius:14px;background:rgba(4,16,24,.78);backdrop-filter:blur(8px)}
+.verdict-arrival-ticker span{padding:11px 12px;border-radius:8px;background:rgba(255,255,255,.035);color:#dbe8ec;font:900 10px/1.2 "Trebuchet MS",Arial,sans-serif;letter-spacing:.1em}
+.verdict-arrival-choices{grid-column:1;display:flex;gap:8px;align-self:start;flex-wrap:wrap}
+.verdict-arrival-choices button{flex:1 1 180px;min-height:78px;padding:12px 14px;text-align:left;border:1px solid var(--v-line);border-radius:9px;background:rgba(6,24,34,.83);color:#eef5f5;cursor:pointer}
+.verdict-arrival-choices button:hover{border-color:rgba(118,215,234,.55);transform:translateY(-1px)}
+.verdict-arrival-choices b{display:block;color:#fff;font-size:11px}.verdict-arrival-choices small{display:block;margin-top:6px;color:var(--v-muted);font-size:10px;letter-spacing:0}
+.verdict-inline-reaction{grid-column:1;align-self:start;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 16px;border:1px solid var(--v-line);border-radius:10px;background:rgba(4,17,25,.86)}
+.verdict-inline-reaction p{margin:0;color:#d8e5e9;font:700 13px/1.45 Georgia,serif}
+
+/* Q67 open HQ */
+.verdict-hq{position:absolute;z-index:6;inset:12% 3.5% 5%;overflow:hidden}
+.verdict-hq-copy{position:absolute;left:2%;top:5%;width:min(560px,42vw);padding:18px 20px;border-left:3px solid var(--v-cyan);background:linear-gradient(90deg,rgba(3,14,21,.92),rgba(3,14,21,.45),transparent)}
+.verdict-hq-copy h1{margin:7px 0 8px;color:#f4f8f7;font:900 clamp(28px,3.5vw,50px)/1 Georgia,serif}.verdict-hq-copy p{margin:0;color:#b2c4cb;font:700 12px/1.5 "Trebuchet MS",Arial,sans-serif}
+.verdict-hq-spots{position:absolute;inset:0}
+.verdict-hq-spots button{position:absolute;left:var(--vx);top:var(--vy);transform:translate(-50%,-50%);width:168px;min-height:72px;padding:10px 12px;text-align:left;border:1px solid rgba(198,229,239,.24);border-radius:10px;background:rgba(4,18,27,.84);color:#eef6f8;box-shadow:0 10px 30px rgba(0,0,0,.26);cursor:pointer;backdrop-filter:blur(6px)}
+.verdict-hq-spots button:hover{transform:translate(-50%,-52%);border-color:rgba(118,215,234,.68)}
+.verdict-hq-spots b{display:block;color:#f1e4b8;font-size:10px}.verdict-hq-spots small{display:block;margin-top:5px;color:#a9bdc4;font-size:9px;line-height:1.3;letter-spacing:0}.verdict-hq-spots i{position:absolute;right:8px;top:8px;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:rgba(118,215,234,.13);color:var(--v-cyan);font-style:normal}.verdict-hq-spots button.is-seen{border-color:rgba(127,216,177,.46);background:rgba(5,33,30,.82)}.verdict-hq-spots button.is-seen i{background:rgba(127,216,177,.15);color:var(--v-green)}
+.verdict-hq footer{position:absolute;left:50%;bottom:1%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:8px 10px 8px 14px;border:1px solid var(--v-line);border-radius:12px;background:rgba(3,13,20,.9)}.verdict-hq footer span{color:#9fb4bc;font:900 9px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.13em}
+.verdict-popover{position:absolute;z-index:10;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,80vw);padding:24px;border:1px solid rgba(165,221,236,.38);border-radius:15px;background:linear-gradient(180deg,rgba(6,24,34,.98),rgba(3,14,21,.98));box-shadow:0 30px 90px rgba(0,0,0,.65)}
+.verdict-popover button,.verdict-review-detail button{position:absolute;right:10px;top:10px;width:32px;height:32px;border:1px solid var(--v-line);border-radius:50%;background:rgba(255,255,255,.04);color:#dbe9ed;cursor:pointer}.verdict-popover small{color:var(--v-gold);font:900 9px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.16em}.verdict-popover p{margin:14px 0 0;color:#e0eaec;font:700 15px/1.5 Georgia,serif}
+.verdict-hq.is-board-called>.verdict-hq-copy,.verdict-hq.is-board-called>.verdict-hq-spots{opacity:.22;filter:blur(2px);pointer-events:none}.verdict-board-call{position:absolute;z-index:14;left:50%;top:50%;transform:translate(-50%,-50%);width:min(620px,78vw);padding:26px 28px;border:1px solid rgba(151,218,234,.38);border-radius:14px;background:linear-gradient(180deg,rgba(6,24,34,.98),rgba(3,13,20,.99));box-shadow:0 32px 90px rgba(0,0,0,.68)}.verdict-board-call h2{margin:9px 0 10px;color:#fff3d2;font:900 32px/1 Georgia,serif}.verdict-board-call p{margin:0;color:#d4e0e3;font:700 14px/1.52 Georgia,serif}
+
+/* Q68 */
+.verdict-review{position:absolute;z-index:6;inset:15% 7% 7%;display:grid;grid-template-columns:minmax(280px,.72fr) minmax(460px,1.28fr);grid-template-rows:1fr auto;gap:22px;align-items:center}
+.verdict-review-head{align-self:center;padding:26px 28px;border-left:3px solid var(--v-gold);background:linear-gradient(90deg,rgba(3,14,21,.92),rgba(3,14,21,.48),transparent)}
+.verdict-review-head h1{margin:8px 0;color:#fff7e3;font:900 clamp(30px,4vw,55px)/.98 Georgia,serif}.verdict-review-head p{margin:0;color:#bdcdd2;font:700 13px/1.5 Georgia,serif}
+.verdict-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.verdict-review-grid button{min-height:142px;padding:17px;text-align:left;border:1px solid var(--v-line);border-radius:12px;background:linear-gradient(180deg,rgba(9,30,42,.91),rgba(4,17,25,.93));color:#eef7f8;cursor:pointer;box-shadow:0 15px 35px rgba(0,0,0,.25)}
+.verdict-review-grid button:hover{border-color:rgba(118,215,234,.58);transform:translateY(-2px)}.verdict-review-grid small{display:block;color:#7db8c8;font:900 8px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.15em}.verdict-review-grid strong{display:block;margin-top:8px;color:#f0e5c0;font:900 18px/1 Georgia,serif}.verdict-review-grid b{display:block;margin-top:11px;color:#dbe9ed;font-size:12px}.verdict-review-grid span{display:block;margin-top:15px;color:#75919c;font-size:8px}.verdict-review-grid .is-seen{border-color:rgba(127,216,177,.38);background:linear-gradient(180deg,rgba(8,42,39,.86),rgba(4,23,26,.9))}.verdict-review-grid .is-seen span{color:var(--v-green)}
+.verdict-review>.verdict-primary{grid-column:2;justify-self:end}.verdict-review-detail{position:absolute;right:0;bottom:13%;width:min(560px,50vw);padding:22px 24px;border:1px solid rgba(157,216,232,.36);border-radius:12px;background:rgba(3,14,21,.97);box-shadow:0 24px 60px rgba(0,0,0,.5)}.verdict-review-detail p{margin:0;padding-right:28px;color:#dce7e9;font:700 13px/1.52 Georgia,serif}
+
+/* Q69 offer */
+.verdict-offer{position:absolute;z-index:6;inset:14% 7% 6%;display:grid;grid-template-columns:minmax(480px,1.12fr) minmax(260px,.55fr);gap:24px;align-items:center}
+.verdict-contract-paper{min-height:520px;padding:34px 38px;border:1px solid rgba(224,210,162,.34);border-radius:5px;background:linear-gradient(180deg,rgba(242,239,226,.96),rgba(219,226,220,.96));color:#0d1a20;box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 0 0 4px rgba(255,255,255,.22)}
+.verdict-contract-paper header small{color:#657980}.verdict-contract-paper h1{margin:10px 0 8px;font:900 clamp(34px,4vw,58px)/.95 Georgia,serif;color:#0b171d}.verdict-contract-paper header p{margin:0;color:#53666d;font:700 12px/1.5 "Trebuchet MS",Arial,sans-serif}
+.verdict-contract-rows{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:30px}.verdict-contract-rows span{padding:16px;border:1px solid rgba(27,55,65,.13);background:rgba(255,255,255,.34)}.verdict-contract-rows small{display:block;color:#6a7d83;font:900 8px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.13em}.verdict-contract-rows strong{display:block;margin-top:8px;color:#15262d;font:900 16px/1.12 Georgia,serif}
+.verdict-contract-paper footer{display:flex;justify-content:space-between;gap:18px;margin-top:44px;padding-top:15px;border-top:1px solid rgba(26,53,61,.18);color:#687d84;font:900 8px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.1em}
+.verdict-offer-note{align-self:end;margin-bottom:40px;padding:20px 22px;border:1px solid var(--v-line);border-radius:12px;background:rgba(4,17,25,.9)}.verdict-offer-note small{color:var(--v-gold);font:900 9px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.15em}.verdict-offer-note p{color:#dce7e9;font:700 15px/1.5 Georgia,serif}
+
+/* Q70 */
+.verdict-negotiate{position:absolute;z-index:6;inset:14% 5% 5%;display:grid;place-items:center}.verdict-negotiation-board{width:min(1080px,94vw);padding:25px 27px;border:1px solid var(--v-line);border-radius:16px;background:linear-gradient(180deg,rgba(5,21,30,.95),rgba(3,13,20,.97));box-shadow:0 30px 90px rgba(0,0,0,.55)}
+.verdict-negotiation-board header h1{margin:7px 0 6px;color:#fff7e6;font:900 36px/1 Georgia,serif}.verdict-negotiation-board header p{margin:0;color:#9fb5bd;font:700 11px/1.45 "Trebuchet MS",Arial,sans-serif}
+.verdict-demand-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:19px}.verdict-demand-grid.is-submitting{opacity:.58}.verdict-demand-grid button{min-height:122px;padding:15px 16px;text-align:left;border:1px solid var(--v-line);border-radius:10px;background:rgba(8,30,41,.8);color:#eef7f9;cursor:pointer}.verdict-demand-grid button:hover{border-color:rgba(118,215,234,.58)}.verdict-demand-grid button.is-selected{border-color:rgba(127,216,177,.68);background:rgba(9,48,43,.86);box-shadow:0 0 22px rgba(70,190,146,.08)}.verdict-demand-grid small{display:block;color:#7caec0;font:900 8px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.15em}.verdict-demand-grid span{display:block;margin-top:8px;color:#f0e8cc;font:900 13px/1.2 Georgia,serif}.verdict-demand-grid i{color:var(--v-cyan);font-style:normal}.verdict-demand-grid p{margin:8px 0;color:#8fa7b0;font:700 9px/1.35 "Trebuchet MS",Arial,sans-serif}.verdict-demand-grid b{display:block;margin-top:8px;color:#7fd8b1;font-size:8px}
+.verdict-negotiation-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:14px}.verdict-negotiation-actions span{color:#8ca4ad;font:900 9px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.12em}
+.verdict-revised-terms{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px}.verdict-revised-terms span{padding:14px;border:1px solid var(--v-line);border-radius:8px;background:rgba(255,255,255,.025)}.verdict-revised-terms small{display:block;color:#7595a0;font:900 7px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.13em}.verdict-revised-terms b{display:block;margin-top:7px;color:#f1e7c7;font:900 13px/1.15 Georgia,serif}.verdict-counter-note{margin:14px 0;padding:14px 16px;border-left:3px solid var(--v-gold);background:rgba(255,255,255,.025)}.verdict-counter-note strong{color:var(--v-gold);font:900 9px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.13em}.verdict-counter-note p{margin:7px 0 0;color:#cbd8dc;font:700 11px/1.4 Georgia,serif}
+
+/* Q71 phone interruption */
+.verdict-interest{position:absolute;z-index:6;inset:14% 8% 5%;display:grid;place-items:center}.verdict-phone{width:min(560px,88vw);padding:26px;border:1px solid rgba(137,190,208,.28);border-radius:20px;background:linear-gradient(180deg,rgba(7,22,31,.97),rgba(2,11,17,.99));box-shadow:0 35px 90px rgba(0,0,0,.64)}.verdict-phone>small{color:#7699a7}.verdict-message{margin-top:14px;padding:18px;border-radius:13px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.055)}.verdict-message b{display:block;color:#f0d782;font:900 12px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.1em}.verdict-message p{margin:10px 0 0;color:#dce8eb;font:700 15px/1.5 Georgia,serif}.verdict-message-actions{display:grid;gap:8px;margin-top:13px}.verdict-message-actions button{padding:13px 15px;text-align:left;border:1px solid var(--v-line);border-radius:9px;background:rgba(9,33,44,.82);color:#edf7f9;cursor:pointer}.verdict-message-actions button:hover{border-color:rgba(118,215,234,.6)}.verdict-message-actions b{display:block;font-size:10px}.verdict-message-actions small{display:block;margin-top:5px;color:#91a8b1;font-size:9px;letter-spacing:0}.verdict-message-result{margin-top:14px;padding:16px;border-left:3px solid var(--v-cyan);background:rgba(255,255,255,.03)}.verdict-message-result strong{color:#a9eff9;font:900 10px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.12em}.verdict-message-result p{color:#c9d8dc;font:700 12px/1.45 Georgia,serif}
+
+/* Q72 */
+.verdict-tyrese{position:absolute;z-index:6;inset:14% 6% 4%}.verdict-walktalk{height:100%;display:grid;grid-template-columns:minmax(440px,1fr) minmax(260px,.45fr);align-items:end;gap:18px}.verdict-tyrese-copy{align-self:center;max-width:700px;padding:24px 28px;border-left:3px solid var(--v-gold);background:linear-gradient(90deg,rgba(3,14,21,.93),rgba(3,14,21,.58),transparent)}.verdict-tyrese-copy>p{margin:9px 0;color:#e1eaec;font:700 17px/1.45 Georgia,serif}.verdict-tyrese-copy>div{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}.verdict-tyrese-copy>div button{flex:1 1 170px;padding:12px;border:1px solid var(--v-line);border-radius:8px;background:rgba(7,29,40,.85);color:#edf7f8;cursor:pointer}.verdict-tyrese-copy>div button:hover{border-color:rgba(118,215,234,.58)}.verdict-tyrese-copy aside{margin:18px 0;padding:14px 16px;border-radius:9px;background:rgba(255,255,255,.04);color:#f0e5c6;font:700 14px/1.45 Georgia,serif}.verdict-tyrese-reaction{position:relative;height:min(72vh,720px)}.verdict-tyrese-reaction .story-portrait{position:absolute!important;right:-3%!important;left:auto!important;bottom:-8%!important;top:auto!important;transform:none!important;max-height:95%!important;opacity:1!important}
+
+/* Q73 */
+.verdict-decision{position:absolute;z-index:6;inset:15% 7% 5%;display:grid;align-content:center;gap:20px}.verdict-locker-line{max-width:760px;padding:22px 26px;border-left:3px solid var(--v-gold);background:linear-gradient(90deg,rgba(3,14,21,.94),rgba(3,14,21,.54),transparent)}.verdict-locker-line h1{margin:8px 0;color:#fff7e5;font:900 clamp(30px,4vw,54px)/1 Georgia,serif}.verdict-locker-line p{margin:0;color:#b9cbd1;font:700 12px/1.5 "Trebuchet MS",Arial,sans-serif}.verdict-decision-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:1040px}.verdict-decision-grid button{min-height:115px;padding:18px;text-align:left;border:1px solid var(--v-line);border-radius:11px;background:linear-gradient(180deg,rgba(9,33,45,.9),rgba(4,18,27,.93));color:#edf7f8;cursor:pointer}.verdict-decision-grid button:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(118,215,234,.63)}.verdict-decision-grid b{display:block;color:#f2e5bd;font:900 15px/1.1 Georgia,serif}.verdict-decision-grid small{display:block;margin-top:9px;color:#94aab3;font-size:9px;line-height:1.35;letter-spacing:0}.verdict-signature-result{max-width:720px;padding:24px;border:1px solid var(--v-line);border-radius:12px;background:rgba(4,18,27,.91)}.verdict-signature-result>small{color:var(--v-green);font:900 9px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.15em}.verdict-signature-result h2{margin:8px 0;color:#fff5d9;font:900 30px/1 Georgia,serif}.verdict-signature-result p{color:#c6d6da;font:700 13px/1.5 Georgia,serif}
+
+/* Q74 */
+.verdict-finale{position:absolute;z-index:6;inset:12% 5% 5%;display:grid;place-items:center}.verdict-finale-card{width:min(930px,92vw);padding:30px 34px;border:1px solid rgba(182,217,229,.26);border-radius:17px;background:linear-gradient(180deg,rgba(5,21,30,.95),rgba(2,12,18,.97));box-shadow:0 32px 100px rgba(0,0,0,.62)}.verdict-finale-card h1{margin:8px 0 5px;color:#fff6dd;font:900 clamp(42px,5vw,66px)/.95 Georgia,serif}.verdict-finale-card>p{margin:0;color:#a9bdc5;font:700 12px/1.5 "Trebuchet MS",Arial,sans-serif}.verdict-final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:22px}.verdict-final-grid span{padding:13px 14px;border:1px solid var(--v-line);border-radius:8px;background:rgba(255,255,255,.028)}.verdict-final-grid small{display:block;color:#73929f;font:900 7px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.13em}.verdict-final-grid b{display:block;margin-top:6px;color:#eee4c7;font:900 13px/1.15 Georgia,serif}.verdict-next{margin:18px 0;padding:16px 18px;border-left:3px solid var(--v-cyan);background:rgba(118,215,234,.045)}.verdict-next small{display:block;color:#789ca9;font:900 8px/1 "Trebuchet MS",Arial,sans-serif;letter-spacing:.14em}.verdict-next strong{display:block;margin-top:5px;color:#b9f2fb;font:900 18px/1 Georgia,serif}.verdict-next span{display:block;margin-top:5px;color:#91a8b0;font:700 9px/1.3 "Trebuchet MS",Arial,sans-serif}
+
+/* Story Journey chapter seven card gets its own cold Quickquill accent. */
+.journey-card-verdict{--chapter-accent:#78d7e9}.journey-card-verdict.is-next{box-shadow:0 0 0 1px rgba(120,215,233,.18),0 18px 40px rgba(0,0,0,.32)!important}.journey-card-verdict .journey-card-copy>span small{color:#9be3ee!important}
+
+@media(max-width:900px){
+  .verdict-summons,.verdict-foyer{inset:12% 4% 5%;overflow:auto}.verdict-summons-copy,.verdict-foyer-copy{width:auto;padding:23px 25px}.verdict-board-call{width:min(620px,82vw)}
+  .verdict-arrival{grid-template-columns:1fr;grid-template-rows:auto auto auto;top:13%;bottom:4%}.verdict-arrival-ticker{grid-column:1;grid-row:auto;grid-template-columns:repeat(3,1fr);align-self:auto}.verdict-arrival-choices,.verdict-inline-reaction{grid-column:1}
+  .verdict-hq-copy{width:72vw}.verdict-hq-spots button{width:142px}.verdict-review{grid-template-columns:1fr;grid-template-rows:auto auto auto;inset:14% 4% 4%;overflow:auto}.verdict-review>.verdict-primary{grid-column:1}.verdict-offer{grid-template-columns:1fr;overflow:auto;inset:13% 4% 4%}.verdict-offer-note{margin:0}.verdict-contract-paper{min-height:0}.verdict-revised-terms{grid-template-columns:1fr 1fr}.verdict-walktalk{grid-template-columns:1fr}.verdict-tyrese-reaction{display:none}.verdict-decision-grid{grid-template-columns:1fr}.verdict-final-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .verdict-error{top:80px;left:12px;right:12px;width:auto}.verdict-summons,.verdict-foyer{inset:11% 3% 3%}.verdict-summons-copy,.verdict-foyer-copy{padding:19px}.verdict-summons-copy h1,.verdict-foyer-copy h1{font-size:31px}.verdict-board-call{width:auto;left:8px;right:8px;transform:translateY(-50%);padding:21px}
+  .verdict-header{transform:scale(.92);transform-origin:top left}.verdict-progress{display:none!important}.verdict-kicker{padding:18px}.verdict-kicker h1{font-size:34px}.verdict-arrival-ticker{grid-template-columns:1fr}.verdict-arrival-choices{display:grid}.verdict-hq{inset:13% 2% 3%;overflow:auto}.verdict-hq-copy{position:relative;left:auto;top:auto;width:auto}.verdict-hq-spots{position:relative;display:grid;gap:8px;margin-top:14px}.verdict-hq-spots button{position:relative;left:auto;top:auto;transform:none!important;width:100%;min-height:66px}.verdict-hq footer{position:relative;left:auto;bottom:auto;transform:none;margin-top:12px;justify-content:space-between}.verdict-review-grid,.verdict-demand-grid,.verdict-contract-rows,.verdict-revised-terms,.verdict-final-grid{grid-template-columns:1fr}.verdict-contract-paper{padding:20px}.verdict-negotiation-board{padding:18px}.verdict-finale-card{padding:22px}
+}
+
+/* =========================================================
+   V34.30.1 — THE VERDICT DESKTOP LAYOUT ISOLATION
+   The shared story-scene-counter/header rules in older full-site
+   career.css builds can size the Chapter Seven progress element as
+   a large cinematic panel.  Chapter Seven owns its HUD geometry here
+   so shared legacy rules cannot cover the playable scene.
+   ========================================================= */
+.verdict-shell .verdict-stage > .verdict-arrival,
+.verdict-shell .verdict-stage > .verdict-summons,
+.verdict-shell .verdict-stage > .verdict-foyer,
+.verdict-shell .verdict-stage > .verdict-hq,
+.verdict-shell .verdict-stage > .verdict-review,
+.verdict-shell .verdict-stage > .verdict-offer,
+.verdict-shell .verdict-stage > .verdict-negotiate,
+.verdict-shell .verdict-stage > .verdict-interest,
+.verdict-shell .verdict-stage > .verdict-tyrese,
+.verdict-shell .verdict-stage > .verdict-decision,
+.verdict-shell .verdict-stage > .verdict-finale{
+  z-index:10!important;
+  pointer-events:auto!important;
+}
+
+.verdict-shell .verdict-header{
+  position:absolute!important;
+  left:24px!important;
+  right:24px!important;
+  top:18px!important;
+  bottom:auto!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:16px!important;
+  overflow:visible!important;
+  transform:none!important;
+  opacity:1!important;
+  background:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  pointer-events:none!important;
+  z-index:30!important;
+}
+.verdict-shell .verdict-header::before,
+.verdict-shell .verdict-header::after{content:none!important;display:none!important}
+.verdict-shell .verdict-header>div{
+  display:block!important;
+  width:auto!important;
+  max-width:min(720px,68vw)!important;
+  margin:0!important;
+  padding:11px 15px 12px!important;
+  border:1px solid rgba(178,216,230,.18)!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,rgba(3,13,20,.88),rgba(3,13,20,.68))!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.24)!important;
+  backdrop-filter:blur(7px)!important;
+}
+.verdict-shell .verdict-header small,
+.verdict-shell .verdict-header strong,
+.verdict-shell .verdict-header span{
+  position:static!important;
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  opacity:1!important;
+  text-align:left!important;
+  white-space:normal!important;
+}
+.verdict-shell .verdict-header small{color:#e5ca78!important;font:900 8px/1.1 "Trebuchet MS",Arial,sans-serif!important;letter-spacing:.16em!important}
+.verdict-shell .verdict-header strong{margin-top:5px!important;color:#fff8e8!important;font:900 17px/1.05 Georgia,serif!important;letter-spacing:.01em!important}
+.verdict-shell .verdict-header span{margin-top:5px!important;color:#9eb4be!important;font:800 9px/1.2 "Trebuchet MS",Arial,sans-serif!important;letter-spacing:.06em!important}
+.verdict-shell .verdict-header button{
+  position:static!important;
+  width:auto!important;
+  min-width:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:10px 13px!important;
+  border:1px solid rgba(178,216,230,.20)!important;
+  border-radius:9px!important;
+  background:rgba(3,14,21,.72)!important;
+  color:#c8d9de!important;
+  box-shadow:none!important;
+  transform:none!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+/* Compact progress pill.  Explicitly resets every legacy geometry field. */
+.verdict-shell .verdict-progress{
+  position:absolute!important;
+  inset:auto 24px 18px auto!important;
+  left:auto!important;
+  right:24px!important;
+  top:auto!important;
+  bottom:18px!important;
+  width:min(330px,34vw)!important;
+  max-width:calc(100vw - 48px)!important;
+  min-width:210px!important;
+  height:34px!important;
+  min-height:34px!important;
+  max-height:34px!important;
+  margin:0!important;
+  padding:0 13px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  overflow:hidden!important;
+  border:1px solid rgba(178,216,230,.18)!important;
+  border-radius:999px!important;
+  background:rgba(3,14,21,.78)!important;
+  box-shadow:0 10px 25px rgba(0,0,0,.25)!important;
+  backdrop-filter:blur(7px)!important;
+  transform:none!important;
+  opacity:1!important;
+  pointer-events:none!important;
+  z-index:18!important;
+}
+.verdict-shell .verdict-progress::before,
+.verdict-shell .verdict-progress::after{content:none!important;display:none!important}
+.verdict-shell .verdict-progress i{
+  position:absolute!important;
+  left:0!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:0!important;
+  width:var(--story-progress)!important;
+  max-width:100%!important;
+  height:2px!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  display:block!important;
+  border:0!important;
+  border-radius:0 999px 999px 0!important;
+  background:linear-gradient(90deg,#76d7ea,#e5ca78)!important;
+  box-shadow:0 0 10px rgba(118,215,234,.28)!important;
+  transform:none!important;
+  opacity:1!important;
+}
+.verdict-shell .verdict-progress span{
+  position:static!important;
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  color:#b9cbd1!important;
+  font:900 8px/1 "Trebuchet MS",Arial,sans-serif!important;
+  letter-spacing:.14em!important;
+  white-space:nowrap!important;
+  text-align:right!important;
+  transform:none!important;
+  opacity:1!important;
+}
+
+/* Q66 remains readable even on short desktop/laptop viewports. */
+@media (min-width:901px) and (max-height:760px){
+  .verdict-arrival{top:15%!important;bottom:7%!important;gap:12px!important}
+  .verdict-kicker{padding:20px 24px!important}
+  .verdict-kicker h1{font-size:clamp(32px,4.2vw,56px)!important}
+  .verdict-arrival-choices button{min-height:64px!important}
+}
+
+@media(max-width:900px){
+  .verdict-shell .verdict-header{left:12px!important;right:12px!important;top:10px!important}
+  .verdict-shell .verdict-header>div{max-width:72vw!important;padding:9px 11px!important}
+  .verdict-shell .verdict-progress{right:12px!important;bottom:10px!important;width:min(280px,56vw)!important;max-width:calc(100vw - 24px)!important}
+}
+@media(max-width:620px){
+  .verdict-shell .verdict-header{transform:none!important}
+  .verdict-shell .verdict-header>div{max-width:66vw!important}
+  .verdict-shell .verdict-header strong{font-size:14px!important}
+  .verdict-shell .verdict-progress{display:flex!important;min-width:180px!important;width:54vw!important}
+}
+
+/* =========================================================
+   V34.30.2 — THE VERDICT VIEWPORT-SAFE ISOLATION
+   Q66-Q74 no longer reuse story-shell/story-stage/story-header/
+   story-scene-counter geometry. Those shared classes belong to
+   older cinematic chapters and can carry desktop scaling/offsets
+   from the installed site's career.css. The Verdict owns the full
+   viewport explicitly so its content cannot be translated off-screen.
+   ========================================================= */
+html:has(.verdict-shell),body:has(.verdict-shell){overflow:hidden!important}
+.verdict-shell{
+  position:fixed!important;
+  inset:0!important;
+  left:0!important;right:0!important;top:0!important;bottom:0!important;
+  width:100vw!important;height:100vh!important;height:100dvh!important;
+  min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;
+  display:block!important;
+  overflow:hidden!important;
+  transform:none!important;translate:none!important;scale:1!important;
+  opacity:1!important;
+  z-index:100!important;
+  isolation:isolate!important;
+}
+.verdict-backdrop,.verdict-environment{
+  position:absolute!important;inset:0!important;
+  left:0!important;right:0!important;top:0!important;bottom:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;
+  object-fit:cover!important;object-position:center center!important;
+  transform:none!important;translate:none!important;scale:1!important;
+  opacity:1!important;pointer-events:none!important;
+}
+.verdict-backdrop{z-index:0!important;filter:blur(10px) saturate(.72) brightness(.42)!important;transform:scale(1.035)!important}
+.verdict-environment{z-index:1!important;filter:saturate(.82) brightness(.66) contrast(1.05)!important}
+.verdict-stage{
+  position:absolute!important;inset:0!important;
+  left:0!important;right:0!important;top:0!important;bottom:0!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;
+  display:block!important;overflow:hidden!important;
+  transform:none!important;translate:none!important;scale:1!important;
+  opacity:1!important;z-index:3!important;
+}
+.verdict-wash{z-index:2!important}
+.verdict-grain{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.13;background-image:radial-gradient(rgba(255,255,255,.18) .55px,transparent .7px);background-size:4px 4px;mix-blend-mode:soft-light}
+.verdict-vignette{position:absolute;inset:0;z-index:90;pointer-events:none;box-shadow:inset 0 0 120px rgba(0,0,0,.38)}
+
+/* Header and progress are now completely independent from legacy story HUD CSS. */
+.verdict-shell .verdict-header{
+  position:absolute!important;left:clamp(18px,2vw,34px)!important;right:clamp(18px,2vw,34px)!important;top:clamp(14px,2vh,26px)!important;bottom:auto!important;
+  width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;transform:none!important;translate:none!important;scale:1!important;
+  display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:18px!important;
+  overflow:visible!important;opacity:1!important;z-index:70!important;pointer-events:none!important;
+}
+.verdict-shell .verdict-header>div{max-width:min(700px,70vw)!important}
+.verdict-shell .verdict-progress{
+  position:absolute!important;left:auto!important;right:clamp(18px,2vw,34px)!important;top:auto!important;bottom:clamp(14px,2vh,24px)!important;
+  inset:auto clamp(18px,2vw,34px) clamp(14px,2vh,24px) auto!important;
+  width:min(330px,36vw)!important;height:34px!important;min-width:210px!important;min-height:34px!important;max-height:34px!important;
+  margin:0!important;padding:0 13px!important;transform:none!important;translate:none!important;scale:1!important;
+  display:flex!important;align-items:center!important;justify-content:flex-end!important;z-index:72!important;
+}
+
+/* Q66: fixed safe-area composition. No inherited top/bottom/grid geometry can move it outside the viewport. */
+.verdict-shell .verdict-arrival{
+  position:absolute!important;
+  left:clamp(34px,5vw,96px)!important;right:clamp(34px,5vw,96px)!important;
+  top:clamp(104px,13vh,142px)!important;bottom:clamp(64px,8vh,92px)!important;
+  inset:clamp(104px,13vh,142px) clamp(34px,5vw,96px) clamp(64px,8vh,92px)!important;
+  width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;
+  margin:0!important;padding:0!important;transform:none!important;translate:none!important;scale:1!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(250px,360px)!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  column-gap:clamp(20px,3vw,52px)!important;row-gap:18px!important;
+  align-items:center!important;align-content:stretch!important;justify-items:stretch!important;
+  overflow:visible!important;opacity:1!important;z-index:20!important;
+}
+.verdict-shell .verdict-kicker{
+  grid-column:1!important;grid-row:1!important;align-self:center!important;justify-self:start!important;
+  width:min(780px,100%)!important;max-width:780px!important;height:auto!important;
+  margin:0!important;padding:clamp(22px,3vw,38px) clamp(24px,3.3vw,44px)!important;
+  transform:none!important;opacity:1!important;
+}
+.verdict-shell .verdict-arrival-ticker{
+  grid-column:2!important;grid-row:1!important;align-self:center!important;justify-self:stretch!important;
+  width:auto!important;height:auto!important;max-width:none!important;margin:0!important;transform:none!important;opacity:1!important;
+}
+.verdict-shell .verdict-arrival-choices,
+.verdict-shell .verdict-inline-reaction{
+  grid-column:1 / -1!important;grid-row:2!important;align-self:end!important;justify-self:stretch!important;
+  width:auto!important;height:auto!important;max-width:none!important;margin:0!important;transform:none!important;opacity:1!important;
+}
+.verdict-shell .verdict-arrival-choices{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+.verdict-shell .verdict-arrival-choices button{min-width:0!important;min-height:72px!important}
+
+/* Keep every later Verdict scene inside the same viewport-safe stage too. */
+.verdict-shell .verdict-hq,
+.verdict-shell .verdict-review,
+.verdict-shell .verdict-offer,
+.verdict-shell .verdict-negotiate,
+.verdict-shell .verdict-interest,
+.verdict-shell .verdict-tyrese,
+.verdict-shell .verdict-decision,
+.verdict-shell .verdict-finale{
+  transform:none!important;translate:none!important;scale:1!important;
+  max-width:none!important;max-height:none!important;
+}
+
+@media (max-height:820px) and (min-width:901px){
+  .verdict-shell .verdict-arrival{top:96px!important;bottom:54px!important;inset:96px clamp(28px,4vw,78px) 54px!important;row-gap:10px!important}
+  .verdict-shell .verdict-kicker{padding:18px 24px!important}
+  .verdict-shell .verdict-kicker h1{font-size:clamp(32px,4vw,52px)!important}
+  .verdict-shell .verdict-kicker p{font-size:12px!important;line-height:1.42!important}
+  .verdict-shell .verdict-arrival-choices button{min-height:58px!important}
+}
+@media (max-width:900px){
+  .verdict-shell .verdict-arrival{inset:92px 20px 54px!important;grid-template-columns:1fr!important;grid-template-rows:minmax(0,1fr) auto auto!important;gap:10px!important;overflow:auto!important}
+  .verdict-shell .verdict-kicker{grid-column:1!important;grid-row:1!important;align-self:end!important}
+  .verdict-shell .verdict-arrival-ticker{grid-column:1!important;grid-row:2!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important}
+  .verdict-shell .verdict-arrival-choices,.verdict-shell .verdict-inline-reaction{grid-column:1!important;grid-row:3!important}
+  .verdict-shell .verdict-arrival-choices{grid-template-columns:1fr!important}
+}

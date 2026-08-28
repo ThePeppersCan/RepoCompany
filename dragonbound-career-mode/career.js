@@ -7,6 +7,7 @@
   const SAVE_VERSION = 3;
   const CAREER_EVOLUTION_VERSION = 1;
   const BRIDGE_TOKEN = new URLSearchParams(window.location.search).get('bridge') || '';
+  // V34.29.9 — Blackglass stealth navmesh/pathfinding repair.
   const STORY_INPUT_GUARD_MS = 420;
   let storyInputGuardUntil = 0;
   function claimStoryInput(ms = STORY_INPUT_GUARD_MS) {
@@ -65,9 +66,14 @@
     1:{ event:'Canto Plains', expected:[4,6], upside:3, downside:6, paceTarget:42, winChance:'remote', note:'Rookie pace. Finishing the race cleanly matters more than hunting the leaders.' },
     2:{ event:'Blackglass', expected:[3,5], upside:2, downside:6, paceTarget:49, winChance:'very-low', note:'The rookie has enough pace to become a podium problem.' },
     3:{ event:'Lumerre Crown', expected:[2,4], upside:1, downside:5, paceTarget:58, winChance:'outside', note:'A genuine podium weekend. Victory is possible only if the race develops perfectly.' },
-    4:{ event:'Career Race Four', expected:[2,3], upside:1, downside:5, paceTarget:64, winChance:'outside', note:'The paddock expects a front-running Quickquill.' },
-    5:{ event:'Career Race Five', expected:[1,3], upside:1, downside:5, paceTarget:70, winChance:'real', note:'Winning pace is now believable.' },
-    6:{ event:'Career Race Six', expected:[1,3], upside:1, downside:5, paceTarget:75, winChance:'real', note:'Regular podium and victory pace.' }
+    4:{ event:'Velmora City Circuit', expected:[2,5], upside:1, downside:7, paceTarget:64, winChance:'outside', note:'The first full-season start. Quickquill expects points; a win still needs a near-perfect street race.' },
+    5:{ event:'Greenwater Canopy', expected:[2,5], upside:1, downside:7, paceTarget:68, winChance:'outside-real', note:'The player is beginning to carry genuine front-running pace into technical weekends.' },
+    6:{ event:'Qasira Moon Orbit', expected:[1,4], upside:1, downside:6, paceTarget:72, winChance:'real', note:'A clean qualifying session can now turn into a genuine win attempt.' },
+    7:{ event:'Skarholt Aurora Circuit', expected:[1,4], upside:1, downside:6, paceTarget:76, winChance:'real', note:'The grid now treats Quickquill as a race-winning threat rather than a surprise.' },
+    8:{ event:'Hollowfire Citadel', expected:[1,3], upside:1, downside:6, paceTarget:79, winChance:'strong', note:'Racecraft and preparation can put the player on equal terms with the established winners.' },
+    9:{ event:'Iskara Crown Arena', expected:[1,3], upside:1, downside:5, paceTarget:82, winChance:'strong', note:'Championship-level pace is believable. Bad decisions still punish it.' },
+    10:{ event:'Sunfire Oasis Arena', expected:[1,3], upside:1, downside:5, paceTarget:85, winChance:'favourite', note:'Late-season wins should happen often enough to feel earned, never guaranteed.' },
+    11:{ event:'Vardesh Grand Ice', expected:[1,3], upside:1, downside:5, paceTarget:88, winChance:'title-favourite', note:'Finale pace can match the very best racers on the grid. Form, pressure and decisions decide the rest.' }
   };
 
   const CAREER_CHAPTER_TYPES = [
@@ -1140,6 +1146,20 @@
   const LUMERRE_RACE_PODIUM = LUMERRE_RACE_ROOT + 'lumerre-crown-podium-stage.png';
   const LUMERRE_RACE_MAP = LUMERRE_RACE_ROOT + 'lumerre-crown-full-map.png';
 
+  // V34.29.8 — AFTER THE FLAG.  The Lumerre Crown no longer ends on the
+  // classification card.  This finale deliberately rotates presentation:
+  // radio/cooldown, open parc ferme, team board, ceremony, press, quiet room,
+  // a short Tyrese beat, a tactile envelope prop and finally the chapter card.
+  const LUMERRE_AFTER_FLAG_ROOT = CROWN_WEEK_ROOT + 'after-flag/';
+  const LUMERRE_AFTER_FLAG_AUDIO = LUMERRE_AFTER_FLAG_ROOT + 'audio/';
+  const LUMERRE_AFTER_FLAG_UI = LUMERRE_AFTER_FLAG_ROOT + 'ui/';
+  const LUMERRE_PARC_FERME = LUMERRE_AFTER_FLAG_ROOT + 'lumerre-parc-ferme.webp';
+  const LUMERRE_POST_RACE_MUSIC = LUMERRE_AFTER_FLAG_AUDIO + 'post-race-music.mp3';
+  const LUMERRE_ENVELOPE_CLOSED = LUMERRE_AFTER_FLAG_UI + 'quickquill-envelope-closed.png';
+  const LUMERRE_ENVELOPE_OPEN = LUMERRE_AFTER_FLAG_UI + 'quickquill-envelope-open.png';
+  const LUMERRE_MEDIA_ZONE = 'story/chapter5/lumerre-media-zone.webp';
+  const LUMERRE_VILLA_INTERIOR = CROWN_WEEK_ENV + 'quickquill-villa-interior.webp';
+
   const QUICKQUILL_LUMERRE_PRACTICE_SCENES = [
     {
       id:'q46', number:'Q46', title:'06:15', location:'Quickquill Lumerre garage · Practice morning', background:LUMERRE_PRACTICE_GARAGE, tone:'lumerre-technical', showDragon:true,
@@ -1208,6 +1228,133 @@
         {type:'cinematic',eyebrow:'CHAPTER SIX · PRACTICE & QUALIFYING COMPLETE',title:'RACE DAY IS NEXT',text:'[PLAYER_DRAGON] starts [LUMERRE_QUALIFYING_POSITION] in the Lumerre Crown.'}
       ]
     }
+  ];
+
+  const QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES = [
+    {id:'q57',number:'Q57',title:'Still Moving',location:'Lumerre Crown Circuit · Cooldown lap',background:LUMERRE_RACE_MAP,tone:'after-flag-radio',showDragon:false,beats:[{type:'lumerre-after-cooldown'}]},
+    {id:'q58',number:'Q58',title:'Parc Fermé',location:'Lumerre Crown · Parc fermé',background:LUMERRE_PARC_FERME,tone:'after-flag-parc',showDragon:true,beats:[{type:'lumerre-after-parc'}]},
+    {id:'q59',number:'Q59',title:'What the Data Says',location:'Lumerre Crown · Quickquill bay',background:LUMERRE_PARC_FERME,tone:'after-flag-team',showDragon:true,beats:[{type:'lumerre-after-team'}]},
+    {id:'q60',number:'Q60',title:'The Ceremony',location:'Lumerre Crown · Podium court',background:LUMERRE_RACE_PODIUM,tone:'after-flag-podium',showDragon:true,beats:[{type:'lumerre-after-podium'}]},
+    {id:'q61',number:'Q61',title:'Two Questions',location:'Lumerre media zone · Post-race',background:LUMERRE_MEDIA_ZONE,tone:'after-flag-media',showDragon:false,beats:[{type:'lumerre-after-press'}]},
+    {id:'q62',number:'Q62',title:'Five Quiet Minutes',location:'Quickquill Lumerre accommodation · Evening',background:LUMERRE_VILLA_INTERIOR,tone:'after-flag-night',showDragon:true,beats:[{type:'lumerre-after-room'}]},
+    {id:'q63',number:'Q63',title:'Tyrese',location:'Quickquill Lumerre accommodation · A little later',background:LUMERRE_VILLA_INTERIOR,tone:'after-flag-night',showDragon:true,beats:[{type:'lumerre-after-tyrese'}]},
+    {id:'q64',number:'Q64',title:'Monday',location:'Quickquill Lumerre accommodation · 22:18',background:LUMERRE_VILLA_INTERIOR,tone:'after-flag-envelope',showDragon:false,beats:[{type:'lumerre-after-envelope'}]},
+    {id:'q65',number:'Q65',title:'The Lumerre Crown',location:'Lumerre · Night',background:CROWN_WEEK_ENV+'circuit-overlook.webp',tone:'after-flag-finale',showDragon:false,beats:[{type:'lumerre-after-finale'}]}
+  ];
+
+
+  // V34.30 — THE VERDICT.  This is the final heavily-authored introduction
+  // chapter before the career opens into a repeatable season loop.  It avoids
+  // long portrait-click chains by rotating between an arrival ticker, an open
+  // HQ hub, board cards, a tactile contract builder, an inbox interruption,
+  // a short walk-and-talk with Tyrese and a final career decision.
+  const VERDICT_HQ_EXTERIOR = 'story/environments/02_Quickquill_Hangar_Exterior.png';
+  const VERDICT_HQ_WORKSHOP = 'story/environments/03_Quickquill_Workshop.png';
+  const VERDICT_HQ_ROOFTOP = 'story/environments/04_Quickquill_Rooftop_Walkway.png';
+  const VERDICT_HQ_LOUNGE = 'story/environments/10_Quickquill_Lounge_Common_Room.png';
+  const VERDICT_HQ_LOCKER = 'team-rooms/quickquill.png';
+
+  const QUICKQUILL_VERDICT_SCENES = [
+    {id:'q66',number:'Q66',title:'The Summons',location:'Quickquill HQ · Monday · 08:43',background:VERDICT_HQ_EXTERIOR,tone:'verdict-arrival',showDragon:true,beats:[{type:'verdict-arrival'}]},
+    {id:'q67',number:'Q67',title:'The Wait',location:'Quickquill HQ · Outside the boardroom',background:VERDICT_HQ_LOUNGE,tone:'verdict-hub',showDragon:true,beats:[{type:'verdict-hq-hub'}]},
+    {id:'q68',number:'Q68',title:'Why You Are Here',location:'Quickquill boardroom · Assessment review',background:VERDICT_HQ_WORKSHOP,tone:'verdict-review',showDragon:false,beats:[{type:'verdict-board-review'}]},
+    {id:'q69',number:'Q69',title:'The Offer',location:'Quickquill board room · Contract table',background:VERDICT_HQ_WORKSHOP,tone:'verdict-offer',showDragon:false,beats:[{type:'verdict-offer'}]},
+    {id:'q70',number:'Q70',title:'Your Turn',location:'Quickquill board room · Negotiation',background:VERDICT_HQ_WORKSHOP,tone:'verdict-contract',showDragon:false,beats:[{type:'verdict-negotiate'}]},
+    {id:'q71',number:'Q71',title:'One More Message',location:'Quickquill corridor · 09:41',background:'story/environments/11_Quickquill_Accommodation_Corridor.png',tone:'verdict-inbox',showDragon:false,beats:[{type:'verdict-interest'}]},
+    {id:'q72',number:'Q72',title:'Same Garage',location:'Quickquill rooftop walkway · Late morning',background:VERDICT_HQ_ROOFTOP,tone:'verdict-tyrese',showDragon:true,beats:[{type:'verdict-tyrese'}]},
+    {id:'q73',number:'Q73',title:'The Verdict',location:'Quickquill changing room · One empty locker',background:VERDICT_HQ_LOCKER,tone:'verdict-decision',showDragon:true,beats:[{type:'verdict-decision'}]},
+    {id:'q74',number:'Q74',title:'A Career, Not an Assessment',location:'Quickquill HQ · Monday',background:VERDICT_HQ_EXTERIOR,tone:'verdict-finale',showDragon:false,beats:[{type:'verdict-finale'}]}
+  ];
+
+  // V34.31 — THE FIRST FULL SEASON.  The opening week deliberately changes
+  // interaction grammar in every scene: route exploration, constrained
+  // planning, technical deduction, live command decisions, objective drafting
+  // and a persistent season-control dashboard.
+  const SEASON_HQ = 'story/environments/03_Quickquill_Workshop.png';
+  const SEASON_CALENDAR_BG = 'story/environments/01_Young_Velmora_League_Circuit.png';
+  const SEASON_ROOFTOP = 'story/environments/04_Quickquill_Rooftop_Walkway.png';
+  const QUICKQUILL_SEASON_SCENES = [
+    {id:'q75',number:'Q75',title:'The Calendar Opens',location:'Quickquill strategy floor · Tuesday',background:SEASON_CALENDAR_BG,tone:'season-calendar',beats:[{type:'season-calendar'}]},
+    {id:'q76',number:'Q76',title:'Six Hours',location:'Quickquill preparation room · Wednesday',background:VERDICT_HQ_LOUNGE,tone:'season-plan',beats:[{type:'season-plan'}]},
+    {id:'q77',number:'Q77',title:'The Missing Tenth',location:'Quickquill telemetry lab · Wednesday afternoon',background:SEASON_HQ,tone:'season-telemetry',beats:[{type:'season-telemetry'}]},
+    {id:'q78',number:'Q78',title:'Pit Wall, Live',location:'Quickquill race-control simulator · Thursday',background:'story/chapter5/quickquill-strategy-room.webp',tone:'season-pitwall',beats:[{type:'season-pitwall'}]},
+    {id:'q79',number:'Q79',title:'The Promises You Pick',location:'Quickquill rooftop walkway · Friday',background:SEASON_ROOFTOP,tone:'season-objectives',beats:[{type:'season-objectives'}]},
+    {id:'q80',number:'Q80',title:'Season Control',location:'Quickquill HQ · Championship desk',background:SEASON_HQ,tone:'season-control',beats:[{type:'season-control'}]}
+  ];
+
+  const SEASON_SCHEDULE = [
+    {id:'velmora',round:1,venue:'Velmora City Circuit',country:'VELMORA',rival:'Maya Banks',risk:'Street air · late braking',note:'The opener is narrow, public and impossible to hide in. Quickquill needs clean points before the calendar stretches.'},
+    {id:'greenwater',round:2,venue:'Greenwater Canopy',country:'TALUNE',rival:'Sofia Mendes',risk:'Humidity · technical rhythm',note:'A patient circuit beneath the canopy. Sofia normally finds time while everybody else is still forcing it.'},
+    {id:'qasira',round:3,venue:'Qasira Moon Orbit',country:'QASMIR',rival:'Ren Sato',risk:'Night air · precision gates',note:'Thin margins and cold light. Ren has built half his reputation on never wasting an input here.'},
+    {id:'skarholt',round:4,venue:'Skarholt Aurora Circuit',country:'NORVETH',rival:'Tyrese Bell',risk:'Crosswind · long exposure',note:'Quickquill machinery should work here. That makes the teammate comparison impossible to explain away.'},
+    {id:'hollowfire',round:5,venue:'Hollowfire Citadel',country:'DRAZHEN',rival:'Luka Kovač',risk:'Heat · aggression',note:'The calendar turns physical. Luka attacks the circuit as if it personally insulted him.'},
+    {id:'iskara',round:6,venue:'Iskara Crown Arena',country:'ISKANDAR',rival:'Jalen Cross',risk:'Altitude · pressure',note:'The title contenders usually reveal themselves here. Sunscale will remember every word from contract day.'},
+    {id:'sunfire',round:7,venue:'Sunfire Oasis Arena',country:'ZAFRAN',rival:'Maya Banks',risk:'Thermals · stamina',note:'A late-season endurance race where poor weekly preparation becomes visible all at once.'},
+    {id:'grandice',round:8,venue:'Vardesh Grand Ice',country:'VARDESH',rival:'The championship',risk:'Cold · finale pressure',note:'No assessment language remains. Whatever the table says after seven rounds becomes the only story that matters.'}
+  ];
+
+  const SEASON_POINTS = [15,12,10,8,6,4,2];
+  const SEASON_RACER_IDS = ['player','tyrese','jalen','sofia','luka','ren','maya'];
+  const SEASON_RACER_META = {
+    tyrese:{name:'Tyrese Bell',team:'Quickquill'},
+    jalen:{name:'Jalen Cross',team:'Sunscale'},
+    sofia:{name:'Sofia Mendes',team:'Valecroft'},
+    luka:{name:'Luka Kovač',team:'Ember & Oak'},
+    ren:{name:'Ren Sato',team:'Wyrmwell'},
+    maya:{name:'Maya Banks',team:'Fizzy Drake'}
+  };
+  // These profiles are data, not replacement race engines.  Every playable
+  // championship round is handed to the site's existing Dragon Racing engine.
+  // Only Velmora is enabled in V34.32 because it already has a real race map;
+  // later rounds can opt in as their physical circuit descriptors arrive.
+  const SEASON_RACE_PROFILES = {
+    velmora:{round:1,raceNumber:4,trackId:'velmora_city_circuit',playable:true,theme:'STREET COMPRESSION',weather:'Dry city air',staminaPressure:1.02,mistakePressure:1.08,attackPressure:1.12,qualifyingBias:'late-braking',liveCalls:['street-exit','decisive-window'],hook:'Narrow walls reward exits, patience and committed late moves.'},
+    greenwater:{round:2,raceNumber:5,trackId:'greenwater_canopy',playable:false,theme:'HUMID RHYTHM',weather:'Heavy canopy humidity',staminaPressure:1.08,mistakePressure:.94,attackPressure:.92,qualifyingBias:'technical',liveCalls:['rhythm','canopy-gap'],hook:'Long technical sequences punish forcing the dragon before the line opens.'},
+    qasira:{round:3,raceNumber:6,trackId:'qasira_moon_orbit',playable:false,theme:'PRECISION GATES',weather:'Cold night air',staminaPressure:.98,mistakePressure:1.12,attackPressure:.96,qualifyingBias:'precision',liveCalls:['gate-call','night-push'],hook:'Tiny errors compound under lights; Ren is strongest when everybody else gets impatient.'},
+    skarholt:{round:4,raceNumber:7,trackId:'skarholt_aurora_circuit',playable:false,theme:'CROSSWIND EXPOSURE',weather:'Strong crosswind',staminaPressure:1.04,mistakePressure:1.06,attackPressure:1.00,qualifyingBias:'wind',liveCalls:['wind-side','team-window'],hook:'Long exposed sections turn setup confidence and teammate management into race pace.'},
+    hollowfire:{round:5,raceNumber:8,trackId:'hollowfire_citadel',playable:false,theme:'HEAT BATTLE',weather:'Dry furnace heat',staminaPressure:1.14,mistakePressure:1.05,attackPressure:1.18,qualifyingBias:'launch',liveCalls:['heat-save','luka-battle'],hook:'The race becomes physical. Luka attacks early and overheats himself if the player can stay attached.'},
+    iskara:{round:6,raceNumber:9,trackId:'iskara_crown_arena',playable:false,theme:'ALTITUDE PRESSURE',weather:'Thin high-altitude air',staminaPressure:1.12,mistakePressure:1.09,attackPressure:1.04,qualifyingBias:'pressure',liveCalls:['breathing-room','jalen-call'],hook:'Championship pressure is now part of the circuit; Jalen defends every point like a title decider.'},
+    sunfire:{round:7,raceNumber:10,trackId:'sunfire_oasis_arena',playable:false,theme:'THERMAL ENDURANCE',weather:'Unstable desert thermals',staminaPressure:1.20,mistakePressure:1.02,attackPressure:.98,qualifyingBias:'stamina',liveCalls:['thermal-read','late-charge'],hook:'Preparation finally catches up with the field. Saving energy early creates the final-lap race.'},
+    grandice:{round:8,raceNumber:11,trackId:'vardesh_grand_ice',playable:false,theme:'FINALE ICE',weather:'Freezing crosswind',staminaPressure:1.10,mistakePressure:1.16,attackPressure:1.10,qualifyingBias:'finale',liveCalls:['ice-line','championship-call'],hook:'Cold grip, title pressure and seven rounds of history decide who is brave enough to finish the move.'}
+  };
+
+  const SEASON_PLAN_ACTIVITIES = {
+    bond:{title:'DRAGON BOND',cost:1,note:'Trust, calm and response under pressure.',effects:{bond:10,control:2}},
+    flight:{title:'FLIGHT LAB',cost:2,note:'Lines, pace and overtaking preparation.',effects:{pace:8,control:5}},
+    strength:{title:'STRENGTH',cost:2,note:'Launch power and defensive stability.',effects:{pace:4,stamina:8}},
+    engineering:{title:'ENGINEERING',cost:2,note:'Telemetry language and setup confidence.',effects:{control:9,team:5}},
+    recovery:{title:'RECOVERY',cost:1,note:'Protect stamina before the travel block.',effects:{stamina:10,bond:2}},
+    sponsor:{title:'SPONSOR DUTY',cost:2,note:'Meet the contract without losing the whole week. Negotiated sponsor relief cuts this to one hour.',effects:{team:9}}
+  };
+
+  const SEASON_TELEMETRY_CLUES = {
+    trace:{title:'PLAYER TRACE',tag:'SECTOR 3',text:'The lost tenth begins 0.18 seconds after the crosswind spike—not when the dragon changes line.'},
+    tyrese:{title:'TYRESE COMPARISON',tag:'SAME EQUIPMENT',text:'Tyrese receives the same wind reading but his control trace updates immediately. The mechanical response is clean.'},
+    wind:{title:'WIND LOG',tag:'12.4 KNOTS',text:'Three separate gusts produce an identical delayed correction. Random rider hesitation would not repeat this neatly.'},
+    calibration:{title:'CALIBRATION LOG',tag:'SENSOR 04',text:'The lateral sensor passed static calibration, but its live timestamp drifts by 0.18 seconds under vibration.'}
+  };
+
+  const SEASON_TELEMETRY_ANSWERS = [
+    {id:'line',title:'RIDER LINE ERROR',note:'The player reacts late to the gust.',correct:false},
+    {id:'stabiliser',title:'FRONT STABILISER',note:'The hardware is overcorrecting.',correct:false},
+    {id:'sensor',title:'SENSOR TIMESTAMP DRIFT',note:'The data arrives late; the dragon does not.',correct:true}
+  ];
+
+  const SEASON_PITWALL_SCENARIOS = [
+    {id:'traffic',title:'OPENING-LAP TRAFFIC',radio:'Three racers compress into Gate Four. September has pace but no clean outside exit.',gauges:{pace:72,stamina:94,dragon:88,team:82},options:[{id:'attack',label:'FORCE THE OUTSIDE',score:0,note:'Fast idea, closed piece of track.'},{id:'hold',label:'HOLD · BUILD THE EXIT',score:2,note:'Keeps the wing clean and creates the next move.'},{id:'save',label:'CONSERVE IMMEDIATELY',score:1,note:'Safe, but gives away useful track position.'}]},
+    {id:'crosswind',title:'CROSSWIND ARRIVES',radio:'The wind turns across the next two gates. The telemetry fix is holding.',gauges:{pace:69,stamina:86,dragon:79,team:84},options:[{id:'switch',label:'SWITCH TO SHELTERED LINE',score:2,note:'Uses the circuit instead of fighting the air.'},{id:'stay',label:'STAY ON THE REFERENCE',score:0,note:'The reference was built before the wind changed.'},{id:'push',label:'PUSH THROUGH IT',score:1,note:'Commits, but spends the dragon unnecessarily.'}]},
+    {id:'heat',title:'HEAT SPIKE',radio:'Core temperature rises two bands. Jalen is closing, but the warning is real.',gauges:{pace:76,stamina:64,dragon:61,team:80},options:[{id:'cool',label:'COOL FOR ONE SECTOR',score:2,note:'Loses a fraction now and protects the full race.'},{id:'attack',label:'ATTACK BEFORE IT WORSENS',score:0,note:'Turns a warning into a likely failure.'},{id:'draft',label:'SIT IN JALEN’S DRAFT',score:1,note:'Helps the air, but hands him control of the fight.'}]},
+    {id:'opening',title:'RIVAL EXPOSED',radio:'Sofia misses the first precision gate. There is one clean attacking window.',gauges:{pace:81,stamina:57,dragon:68,team:78},options:[{id:'commit',label:'COMMIT NOW',score:2,note:'The window is real and the remaining stamina is enough.'},{id:'wait',label:'WAIT FOR A SAFER MOVE',score:0,note:'There may not be another mistake.'},{id:'pressure',label:'SHOW THE NOSE',score:1,note:'Applies pressure without completing the pass.'}]},
+    {id:'team',title:'QUICKQUILL CALL',radio:'Tyrese is ahead on older stamina. You are faster; Jalen is approaching both of you.',gauges:{pace:84,stamina:49,dragon:65,team:60},options:[{id:'swap',label:'REQUEST THE SWAP',score:2,note:'Fastest Quickquill goes forward, with a promise to review later.'},{id:'race',label:'RACE TYRESE NOW',score:0,note:'Creates the exact opening Jalen needs.'},{id:'hold',label:'HOLD FORMATION',score:1,note:'Protects the team, but leaves performance unused.'}]}
+  ];
+
+  const SEASON_OBJECTIVES = [
+    {id:'team-points',scope:'team',type:'TEAM',title:'DOUBLE POINTS HABIT',note:'Both Quickquill racers score in four rounds.',reward:'Trust + development priority',pressure:'Tyrese results matter too.'},
+    {id:'beat-sunscale',scope:'team',type:'TEAM',title:'BEAT SUNSCALE TWICE',note:'Finish ahead of both Sunscale racers in two rounds.',reward:'Paddock authority',pressure:'Jalen intensity rises.'},
+    {id:'podiums',scope:'personal',type:'RESULTS',title:'THREE PODIUMS',note:'Turn the Lumerre promise into a repeatable level.',reward:'Bonus GP + role leverage',pressure:'Every missed podium becomes news.'},
+    {id:'technical',scope:'personal',type:'TECHNICAL',title:'NO BLIND SETUP CALLS',note:'Complete three technical events without guessing.',reward:'Control growth',pressure:'Requires evidence work.'},
+    {id:'reliable',scope:'personal',type:'RELIABILITY',title:'FINISH EVERY ROUND',note:'Eight starts, eight classified finishes.',reward:'Stamina growth',pressure:'Aggressive calls carry more risk.'},
+    {id:'media',scope:'personal',type:'PROFILE',title:'OWN THE HEADLINE',note:'Create two positive high-pressure media moments.',reward:'Fame + sponsor value',pressure:'Silence will not complete it.'}
   ];
 
   const CROWN_VILLAGE_ENCOUNTERS = {
@@ -1291,7 +1438,7 @@
     sprint:{jalen:10,sofia:7,luka:9,tyrese:9,ren:7,maya:8}
   };
 
-  const ALL_QUICKQUILL_SCENES = [...QUICKQUILL_SCENES, ...QUICKQUILL_CANTO_SCENES, ...QUICKQUILL_DOWNTIME_SCENES, ...QUICKQUILL_BLACKGLASS_SCENES, ...QUICKQUILL_SEAT_SCENES, ...QUICKQUILL_CROWN_WEEK_SCENES, ...QUICKQUILL_LUMERRE_PRACTICE_SCENES];
+  const ALL_QUICKQUILL_SCENES = [...QUICKQUILL_SCENES, ...QUICKQUILL_CANTO_SCENES, ...QUICKQUILL_DOWNTIME_SCENES, ...QUICKQUILL_BLACKGLASS_SCENES, ...QUICKQUILL_SEAT_SCENES, ...QUICKQUILL_CROWN_WEEK_SCENES, ...QUICKQUILL_LUMERRE_PRACTICE_SCENES, ...QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES, ...QUICKQUILL_VERDICT_SCENES, ...QUICKQUILL_SEASON_SCENES];
 
   const STORY_JOURNEY = [
     { number: '01', title: 'The Impossible Contract', subtitle: 'A race nobody important was watching', image: 'story/environments/01_Young_Velmora_League_Circuit.png' },
@@ -1300,7 +1447,8 @@
     { number: '04', title: 'Blackglass Under Floodlights', subtitle: 'Race Two · a full northern weekend', image: 'story/environments/20_Blackglass_Night_Circuit_Reveal.png' },
     { number: '05', title: 'A Seat at the Table', subtitle: 'Strategy, media and career politics', image: 'story/chapter5/quickquill-strategy-room.webp' },
     { number: '06', title: 'The Lumerre Crown', subtitle: 'Crown Week · festival, challenge, race weekend', image: 'story/chapter6/crown-week/crown-village.webp' },
-    { number: '07', title: 'The Contract Decision', subtitle: 'Your choices return', image: 'story/environments/07_Lumerre_Terraces_and_Paddock.png' }
+    { number: '07', title: 'The Verdict', subtitle: 'Contract · leverage · outside interest', image: 'story/environments/02_Quickquill_Hangar_Exterior.png' },
+    { number: '08', title: 'The First Full Season', subtitle: 'Calendar · objectives · rivalries · contracts', image: 'story/environments/01_Young_Velmora_League_Circuit.png' }
   ];
 
   const TESTER_REPLAY_CHAPTERS = [
@@ -1311,7 +1459,10 @@
     { id:'seat', number:'05', label:'A Seat at the Table', scene:'q32', phase:'CAREER REVIEW' },
     { id:'crown-week', number:'06A', label:'The Lumerre Crown — Crown Week', scene:'q40', phase:'CROWN WEEK' },
     { id:'practice', number:'06B', label:'The Measure of a Lap', scene:'q46', phase:'PRACTICE & QUALIFYING' },
-    { id:'race-day', number:'06C', label:'The Lumerre Crown — Race Day', scene:'q56', phase:'RACE DAY' }
+    { id:'race-day', number:'06C', label:'The Lumerre Crown — Race Day', scene:'q56', phase:'RACE DAY' },
+    { id:'after-flag', number:'06D', label:'The Lumerre Crown — After the Flag', scene:'q57', phase:'AFTER THE FLAG' },
+    { id:'verdict', number:'07', label:'The Verdict', scene:'q66', phase:'CONTRACT DECISION' },
+    { id:'season', number:'08', label:'The First Full Season', scene:'q75', phase:'OPENING WEEK' }
   ];
 
   const CAREER_DESK_PANELS = [
@@ -1345,7 +1496,8 @@
     lumerrePractice: document.getElementById('careerLumerrePracticeMusic'),
     lumerreQualifying: document.getElementById('careerLumerreQualifyingMusic'),
     lumerreRace: document.getElementById('careerLumerreRaceMusic'),
-    lumerreRaceFinal: document.getElementById('careerLumerreRaceFinalMusic')
+    lumerreRaceFinal: document.getElementById('careerLumerreRaceFinalMusic'),
+    lumerrePostRace: document.getElementById('careerLumerrePostRaceMusic')
   };
   const AFTER_HOURS_AUDIO_ROOT = 'story/after-hours/audio/';
   const makeAfterHoursAudio = (file, loop = false) => {
@@ -1450,6 +1602,7 @@
     story: null,
     storyError: '',
     storySaving: false,
+    verdictSubmitting: false,
     storyRevealComplete: true,
     resetStoryConfirmOpen: false,
     testerReplay: null,
@@ -1468,8 +1621,15 @@
     lumerrePracticeView: '',
     lumerrePracticeTransient: '',
     lumerreQualifyingLive: null,
+    seasonView: '',
+    seasonControlTab: 'weekend',
+    seasonTransient: '',
     lumerreRaceTransient: '',
     lumerreRaceRuntime: null,
+    afterFlagTransient: '',
+    afterFlagModal: '',
+    verdictTransient: '',
+    verdictModal: '',
     dutySession: null,
     freeRoamMugClicks: 0,
     status: 'Loading your career records…'
@@ -1604,6 +1764,22 @@
         const phase = state.story?.chapter6?.raceWeekend?.phase || 'grid';
         return ['engine-launching','engine-live'].includes(phase) ? null : usableChapterTrack(music.lumerreRace);
       }
+      if (state.story?.chapter === 'lumerre-after-flag' || QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES.some(scene=>scene.id===state.story?.scene)) {
+        if (['q62','q63','q64','q65'].includes(state.story?.scene)) return usableChapterTrack(music.lumerrePostRace);
+        if (state.story?.scene === 'q61') return usableChapterTrack(music.press);
+        return usableChapterTrack(music.crownAccommodation);
+      }
+      if (state.story?.chapter === 'verdict' || QUICKQUILL_VERDICT_SCENES.some(scene=>scene.id===state.story?.scene)) {
+        if (state.story?.scene === 'q67' || state.story?.scene === 'q72') return music.downtime || music.story;
+        if (['q68','q69','q70','q73','q74'].includes(state.story?.scene)) return usableChapterTrack(music.mara);
+        if (state.story?.scene === 'q71') return usableChapterTrack(music.strategy);
+        return music.story;
+      }
+      if (state.story?.chapter === 'season-one' || QUICKQUILL_SEASON_SCENES.some(scene=>scene.id===state.story?.scene)) {
+        if (['q76','q79'].includes(state.story?.scene)) return music.downtime || music.story;
+        if (['q77','q78','q80'].includes(state.story?.scene)) return usableChapterTrack(music.strategy);
+        return music.story;
+      }
       if (QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === state.story?.scene)) {
         return ['q51','q52','q53','q54','q55','q56'].includes(state.story?.scene) ? usableChapterTrack(music.lumerreQualifying) : usableChapterTrack(music.lumerrePractice);
       }
@@ -1632,6 +1808,7 @@
     const inCrown = state.mode === 'story' && QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === state.story?.scene);
     const inPractice = state.mode === 'story' && QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === state.story?.scene);
     const inRaceDay = state.mode === 'story' && state.story?.chapter === 'lumerre-race-day';
+    const inAfterFlag = state.mode === 'story' && (state.story?.chapter === 'lumerre-after-flag' || QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES.some(scene=>scene.id===state.story?.scene));
     let active = null;
     let volume = 0;
     if (inCrown && state.soundOn) {
@@ -1644,6 +1821,9 @@
     } else if (inRaceDay && state.soundOn) {
       const phase = state.story?.chapter6?.raceWeekend?.phase || 'grid';
       if (!['engine-launching','engine-live'].includes(phase)) { active = crownAmbience.crowd; volume = phase === 'result' ? .09 : .11; }
+    } else if (inAfterFlag && state.soundOn && ['q57','q58','q59','q60','q61'].includes(state.story?.scene)) {
+      active = crownAmbience.crowd;
+      volume = state.story?.scene === 'q60' ? .16 : state.story?.scene === 'q61' ? .07 : .10;
     }
     Object.values(crownAmbience).forEach(track => {
       if (!track) return;
@@ -1686,6 +1866,7 @@
       : active === music.lumerreQualifying ? (state.story?.scene === 'q54' ? .32 : .29)
       : active === music.lumerreRace ? .31
       : active === music.lumerreRaceFinal ? .33
+      : active === music.lumerrePostRace ? .32
       : state.mode === 'menu' ? .5
       : state.mode === 'career-hub' ? .2
       : (state.mode === 'story' || state.mode === 'story-journey') ? .4 : .4;
@@ -1867,7 +2048,7 @@
 
   function careerPerformanceWindow(raceNumber = 1) {
     const number = Math.max(1, Number(raceNumber) || 1);
-    const source = CAREER_RACE_WINDOWS[Math.min(6, number)] || CAREER_RACE_WINDOWS[6];
+    const source = CAREER_RACE_WINDOWS[Math.min(11, number)] || CAREER_RACE_WINDOWS[11];
     return { ...source, raceNumber:number };
   }
 
@@ -2298,11 +2479,11 @@
   function defaultQuickquillStory() {
     return {
       id: 'quickquill-against-the-odds',
-      version: 15,
+      version: 19,
       chapter: 'prologue',
       scene: 'q0',
       beat: 0,
-      completed: { prologue: false, canto: false, downtime: false, blackglass: false, seat: false, crownWeek: false, practiceQualifying: false, raceWeekend: false },
+      completed: { prologue: false, canto: false, downtime: false, blackglass: false, seat: false, crownWeek: false, practiceQualifying: false, raceWeekend: false, afterFlag: false, verdict: false, seasonOpening: false },
       identity: { heart: 0, fire: 0, focus: 0 },
       relationships: {
         quickquillTrust: 50,
@@ -2314,7 +2495,8 @@
         jalenRespect: 0,
         rookRespect: 0,
         stewardRespect: 0,
-        valecroftInterest: 0
+        valecroftInterest: 0,
+        sunscaleInterest: 0
       },
       choices: {},
       race: { status: 'not-started', strategy: '', runId: '', result: null },
@@ -2431,7 +2613,57 @@
           badge:'',
           log:[],
           completedAt:''
+        },
+        afterFlag:{
+          started:false,
+          completed:false,
+          weekendRecord:null,
+          parcFerme:{visited:[],choices:{}},
+          teamReaction:'',
+          media:{currentQuestion:'',answers:[],profile:''},
+          room:{inspected:[]},
+          tyreseChoice:'',
+          envelopeOpened:false,
+          impactBefore:null,
+          impactAfter:null,
+          completedAt:''
         }
+      },
+      chapter7: {
+        started:false,
+        completed:false,
+        startedAt:'',
+        introStep:0,
+        arrivalChoice:'',
+        hq:{visited:[],overheard:[],required:3,boardCalled:false},
+        review:{seen:[],completed:false},
+        offer:{initialRole:'',role:'',length:2,podiumBonus:12000,sponsorDays:6,status:'draft',selectedDemands:[],acceptedDemands:[],rejectedDemands:[],negotiationRounds:0,countered:false},
+        outsideInterest:{team:'Sunscale',discovered:false,response:''},
+        tyreseChoice:'',
+        decision:'',
+        signed:false,
+        signedAt:'',
+        completedAt:''
+      },
+      chapter8: {
+        started:false,
+        completed:false,
+        startedAt:'',
+        calendar:{seen:[],ambition:''},
+        weeklyPlan:{budget:6,allocations:{bond:0,flight:0,strength:0,engineering:0,recovery:0,sponsor:0},locked:false,profile:'',readiness:{pace:50,control:50,stamina:50,bond:50,team:50}},
+        telemetry:{seen:[],attempts:0,choice:'',correct:false,completed:false,feedback:''},
+        pitwall:{stage:0,score:0,choices:[],reviewing:false,completed:false,grade:'',lastResult:''},
+        objectives:{selected:[],locked:false},
+        raceMode:'',
+        seasonHubUnlocked:false,
+        championship:{
+          currentRound:1,
+          points:{player:0,tyrese:0,jalen:0,sofia:0,luka:0,ren:0,maya:0},
+          rounds:{
+            velmora:{status:'not-started',runId:'',presentationMode:'',strategy:'adaptive',qualifyingGrid:[],result:null,completedAt:''}
+          }
+        },
+        completedAt:''
       },
       chapter3: {
         cantoAttitude: '',
@@ -2464,11 +2696,13 @@
     const rawChapter4 = raw.chapter4 && typeof raw.chapter4 === 'object' ? raw.chapter4 : {};
     const rawChapter5 = raw.chapter5 && typeof raw.chapter5 === 'object' ? raw.chapter5 : {};
     const rawChapter6 = raw.chapter6 && typeof raw.chapter6 === 'object' ? raw.chapter6 : {};
+    const rawChapter7 = raw.chapter7 && typeof raw.chapter7 === 'object' ? raw.chapter7 : {};
+    const rawChapter8 = raw.chapter8 && typeof raw.chapter8 === 'object' ? raw.chapter8 : {};
     const story = {
       ...fallback,
       ...cloneValue(raw),
       version: fallback.version,
-      completed: { ...fallback.completed, ...(raw.completed || {}), raceWeekend: !!(raw.completed?.raceWeekend) },
+      completed: { ...fallback.completed, ...(raw.completed || {}), raceWeekend: !!(raw.completed?.raceWeekend), afterFlag: !!(raw.completed?.afterFlag), verdict: !!(raw.completed?.verdict), seasonOpening: !!(raw.completed?.seasonOpening) },
       identity: { ...fallback.identity, ...(raw.identity || {}) },
       relationships: { ...fallback.relationships, ...(raw.relationships || {}) },
       choices: { ...(raw.choices || {}) },
@@ -2557,6 +2791,46 @@
           ...fallback.chapter6.raceWeekend,
           ...(rawChapter6.raceWeekend || {}),
           log:Array.isArray(rawChapter6.raceWeekend?.log)?rawChapter6.raceWeekend.log.slice(0,16).map(row=>({...row})):[]
+        },
+        afterFlag:{
+          ...fallback.chapter6.afterFlag,
+          ...(rawChapter6.afterFlag || {}),
+          weekendRecord:rawChapter6.afterFlag?.weekendRecord && typeof rawChapter6.afterFlag.weekendRecord==='object' ? cloneValue(rawChapter6.afterFlag.weekendRecord) : null,
+          parcFerme:{...fallback.chapter6.afterFlag.parcFerme,...(rawChapter6.afterFlag?.parcFerme || {}),visited:Array.isArray(rawChapter6.afterFlag?.parcFerme?.visited)?[...new Set(rawChapter6.afterFlag.parcFerme.visited.map(String))].slice(0,5):[],choices:{...(rawChapter6.afterFlag?.parcFerme?.choices || {})}},
+          media:{...fallback.chapter6.afterFlag.media,...(rawChapter6.afterFlag?.media || {}),answers:Array.isArray(rawChapter6.afterFlag?.media?.answers)?rawChapter6.afterFlag.media.answers.slice(0,2).map(row=>({...row})):[]},
+          room:{...fallback.chapter6.afterFlag.room,...(rawChapter6.afterFlag?.room || {}),inspected:Array.isArray(rawChapter6.afterFlag?.room?.inspected)?[...new Set(rawChapter6.afterFlag.room.inspected.map(String))].slice(0,4):[]}
+        }
+      },
+      chapter7:{
+        ...fallback.chapter7,
+        ...rawChapter7,
+        hq:{...fallback.chapter7.hq,...(rawChapter7.hq||{}),visited:Array.isArray(rawChapter7.hq?.visited)?[...new Set(rawChapter7.hq.visited.map(String))].slice(0,8):[],overheard:Array.isArray(rawChapter7.hq?.overheard)?[...new Set(rawChapter7.hq.overheard.map(String))].slice(0,8):[]},
+        review:{...fallback.chapter7.review,...(rawChapter7.review||{}),seen:Array.isArray(rawChapter7.review?.seen)?[...new Set(rawChapter7.review.seen.map(String))].slice(0,8):[]},
+        offer:{...fallback.chapter7.offer,...(rawChapter7.offer||{}),selectedDemands:Array.isArray(rawChapter7.offer?.selectedDemands)?[...new Set(rawChapter7.offer.selectedDemands.map(String))].slice(0,2):[],acceptedDemands:Array.isArray(rawChapter7.offer?.acceptedDemands)?[...new Set(rawChapter7.offer.acceptedDemands.map(String))].slice(0,4):[],rejectedDemands:Array.isArray(rawChapter7.offer?.rejectedDemands)?[...new Set(rawChapter7.offer.rejectedDemands.map(String))].slice(0,4):[]},
+        outsideInterest:{...fallback.chapter7.outsideInterest,...(rawChapter7.outsideInterest||{})}
+      },
+      chapter8:{
+        ...fallback.chapter8,
+        ...cloneValue(rawChapter8),
+        calendar:{...fallback.chapter8.calendar,...(rawChapter8.calendar||{}),seen:Array.isArray(rawChapter8.calendar?.seen)?[...new Set(rawChapter8.calendar.seen.map(String))].slice(0,8):[]},
+        weeklyPlan:{...fallback.chapter8.weeklyPlan,...(rawChapter8.weeklyPlan||{}),allocations:{...fallback.chapter8.weeklyPlan.allocations,...(rawChapter8.weeklyPlan?.allocations||{})},readiness:{...fallback.chapter8.weeklyPlan.readiness,...(rawChapter8.weeklyPlan?.readiness||{})}},
+        telemetry:{...fallback.chapter8.telemetry,...(rawChapter8.telemetry||{}),seen:Array.isArray(rawChapter8.telemetry?.seen)?[...new Set(rawChapter8.telemetry.seen.map(String))].slice(0,4):[]},
+        pitwall:{...fallback.chapter8.pitwall,...(rawChapter8.pitwall||{}),choices:Array.isArray(rawChapter8.pitwall?.choices)?rawChapter8.pitwall.choices.slice(0,5).map(row=>({...row})):[]},
+        objectives:{...fallback.chapter8.objectives,...(rawChapter8.objectives||{}),selected:Array.isArray(rawChapter8.objectives?.selected)?[...new Set(rawChapter8.objectives.selected.map(String))].slice(0,3):[]},
+        championship:{
+          ...fallback.chapter8.championship,
+          ...(rawChapter8.championship||{}),
+          points:{...fallback.chapter8.championship.points,...(rawChapter8.championship?.points||{})},
+          rounds:{
+            ...fallback.chapter8.championship.rounds,
+            ...(rawChapter8.championship?.rounds||{}),
+            velmora:{
+              ...fallback.chapter8.championship.rounds.velmora,
+              ...(rawChapter8.championship?.rounds?.velmora||{}),
+              qualifyingGrid:Array.isArray(rawChapter8.championship?.rounds?.velmora?.qualifyingGrid)?rawChapter8.championship.rounds.velmora.qualifyingGrid.slice(0,7).map(row=>({...row})):[],
+              result:rawChapter8.championship?.rounds?.velmora?.result&&typeof rawChapter8.championship.rounds.velmora.result==='object'?cloneValue(rawChapter8.championship.rounds.velmora.result):null
+            }
+          }
         }
       },
       chapter3: {
@@ -2630,7 +2904,7 @@
   }
 
   function setReplayCompletionGate(story, through) {
-    const order = ['prologue','canto','downtime','blackglass','seat','crownWeek','practiceQualifying','raceWeekend'];
+    const order = ['prologue','canto','downtime','blackglass','seat','crownWeek','practiceQualifying','raceWeekend','afterFlag','verdict','seasonOpening'];
     const completionIndex = Math.max(-1, order.indexOf(through));
     story.completed = { ...(story.completed || {}) };
     order.forEach((key, index) => { story.completed[key] = completionIndex >= 0 && index <= completionIndex; });
@@ -2703,6 +2977,28 @@
       replay.chapter6.practiceQualifying.qualifying.bestLapMs = 81754;
       replay.chapter6.raceWeekend.started = true;
     }
+    else if (chapterId === 'after-flag') {
+      setReplayCompletionGate(replay, 'raceWeekend');
+      replay.chapter = 'lumerre-after-flag'; replay.scene = 'q57'; replay.beat = 0;
+      replay.chapter6 = { ...replay.chapter6, afterFlag:cloneValue(defaults.chapter6.afterFlag), raceWeekend:{...cloneValue(defaults.chapter6.raceWeekend),started:true,completed:true,phase:'result',startPosition:2,finalPosition:2,tyreseFinish:3,teamOrder:'obey',liveOrder:['jalen','player','tyrese','ren','sofia','luka','maya']} };
+      replay.completed.raceWeekend = true;
+      replay.chapter6.afterFlag.started = true;
+      replay.chapter6.afterFlag.weekendRecord = lumerreWeekendRecord(replay);
+    }
+    else if (chapterId === 'verdict') {
+      setReplayCompletionGate(replay, 'afterFlag');
+      replay.chapter = 'verdict'; replay.scene = 'q66'; replay.beat = 0;
+      replay.chapter6 = { ...replay.chapter6, afterFlag:{...cloneValue(defaults.chapter6.afterFlag),started:true,completed:true,weekendRecord:{qualifyingPosition:2,raceStartPosition:2,raceFinishPosition:2,positionsGained:0,playerOvertakes:3,tyreseFinish:3,jalenFinish:1,teamOrderChoice:'obey',firstCareerWin:false,notableMoment:'Held position under pressure at Lumerre.'}} };
+      replay.chapter7 = cloneValue(defaults.chapter7);
+      replay.completed.afterFlag = true;
+    }
+    else if (chapterId === 'season') {
+      setReplayCompletionGate(replay, 'verdict');
+      replay.chapter = 'season-one'; replay.scene = 'q75'; replay.beat = 0;
+      replay.chapter7 = {...cloneValue(defaults.chapter7),started:true,completed:true,decision:'sign',signed:true,offer:{...cloneValue(defaults.chapter7.offer),status:'signed'}};
+      replay.chapter8 = cloneValue(defaults.chapter8);
+      replay.completed.verdict = true;
+    }
 
     // Remove completion-repair evidence from the temporary replay copy. In
     // particular, older Blackglass recovery logic intentionally recognises
@@ -2719,6 +3015,9 @@
     else if (chapterId === 'crown-week') setReplayCompletionGate(prepared, 'seat');
     else if (chapterId === 'practice') setReplayCompletionGate(prepared, 'crownWeek');
     else if (chapterId === 'race-day') setReplayCompletionGate(prepared, 'practiceQualifying');
+    else if (chapterId === 'after-flag') setReplayCompletionGate(prepared, 'raceWeekend');
+    else if (chapterId === 'verdict') setReplayCompletionGate(prepared, 'afterFlag');
+    else if (chapterId === 'season') setReplayCompletionGate(prepared, 'verdict');
     prepared.scene = definition.scene;
     prepared.beat = 0;
     return prepared;
@@ -2745,6 +3044,13 @@
     state.lumerreQualifyingLive = null;
     state.lumerreRaceTransient = '';
     state.lumerreRaceRuntime = null;
+    state.afterFlagTransient = '';
+    state.afterFlagModal = '';
+    state.verdictTransient = '';
+    state.verdictModal = '';
+    state.seasonView = '';
+    state.seasonControlTab = 'weekend';
+    state.seasonTransient = '';
     state.dutySession = null;
     state.freeRoamMugClicks = 0;
   }
@@ -3215,20 +3521,25 @@
     };
     state.storySaving = true;
     state.storyError = '';
-    const { data, error } = await state.client
-      .from(SAVE_TABLE)
-      .update({ state: saveState, updated_at: timestamp, last_played_at: timestamp })
-      .eq('id', state.activeSave.id)
-      .eq('user_id', state.user.id)
-      .select('id,user_id,owner_username,save_name,team_id,sponsor,racer,state,created_at,updated_at,last_played_at')
-      .single();
-    state.storySaving = false;
-    if (error) throw error;
-    if (!data?.id) throw new Error('Career progress could not be confirmed by the account save.');
-    state.story = normaliseQuickquillStory(data.state?.story);
-    state.activeSave = data;
-    state.saves = state.saves.map(save => save.id === data.id ? data : save);
-    return data;
+    try {
+      const { data, error } = await state.client
+        .from(SAVE_TABLE)
+        .update({ state: saveState, updated_at: timestamp, last_played_at: timestamp })
+        .eq('id', state.activeSave.id)
+        .eq('user_id', state.user.id)
+        .select('id,user_id,owner_username,save_name,team_id,sponsor,racer,state,created_at,updated_at,last_played_at')
+        .single();
+      if (error) throw error;
+      if (!data?.id) throw new Error('Career progress could not be confirmed by the account save.');
+      state.story = normaliseQuickquillStory(data.state?.story);
+      state.activeSave = data;
+      state.saves = state.saves.map(save => save.id === data.id ? data : save);
+      return data;
+    } finally {
+      // A rejected request or network exception must never leave every story
+      // interaction silently locked behind storySaving=true.
+      state.storySaving = false;
+    }
   }
 
   async function connectAccount() {
@@ -3731,6 +4042,10 @@
 
   function careerCurrentChapter(story) {
     if (!story) return { eyebrow:'CAREER', title:'Career file', note:'This campaign has not started its story systems yet.' };
+    if (story.completed?.seasonOpening) return { eyebrow:'SEASON CONTROL', title:'Round One · Velmora City', note:`Opening week complete · ${seasonState(story).weeklyPlan.profile} · ${seasonState(story).pitwall.grade}.` };
+    if (story.completed?.verdict) return { eyebrow:'OPENING WEEK', title:'The First Full Season', note:story.chapter8?.started?'Calendar, preparation, telemetry and pit-wall training are in progress.':`The verdict is recorded: ${verdictDecisionSummary(story.chapter7||{})}. The calendar is ready to open.` };
+    if (story.completed?.afterFlag || story.chapter === 'verdict' || story.chapter7?.started) return { eyebrow:'CONTRACT DAY', title:'The Verdict', note:'Quickquill HQ · Monday 09:00. Contract terms, team hierarchy and outside interest are now live.' };
+    if (story.completed?.raceWeekend || story.chapter6?.afterFlag?.started) return { eyebrow:'AFTER THE FLAG', title:'The Lumerre Crown', note:'The race is over. The weekend still has something to say.' };
     if (story.completed?.seat) return { eyebrow:'NEXT EVENT', title:'Lumerre — The Terraces', note:`${chapter5State(story).lumerreRole || deriveLumerreRole(story)} · the next race weekend is waiting.` };
     if (isSeatScene(story)) return { eyebrow:'CAREER REVIEW', title:'A Seat at the Table', note:'Strategy, media attention and team politics are now part of the job.' };
     if (story.completed?.blackglass) return { eyebrow:'BETWEEN WEEKENDS', title:'A Seat at the Table', note:'Blackglass is complete. The team review is ready.' };
@@ -3798,6 +4113,16 @@
       const c5=chapter5State(story);
       entries.push({id:'seat',number:'05',status:story.completed?.seat?'complete':'current',title:'A Seat at the Table',location:'Quickquill Headquarters → Lumerre media suite',image:'story/chapter5/quickquill-strategy-room.webp',text:story.completed?.seat?`${storyDragonName()} left the Blackglass debrief with a permanent simulator profile of ${c5.simulator?.profile||deriveSeatSimulatorProfile(story)}, a media reputation of ${c5.media?.reputation||deriveMediaReputation(story)}, and a Lumerre role: ${c5.lumerreRole||deriveLumerreRole(story)}.`:'The post-Blackglass review has moved beyond lap times. Quickquill is now asking for judgement, public composure and decisions that affect the whole team.',tags:[c5.developmentPriority?`Development · ${String(c5.developmentPriority).toUpperCase()}`:'',c5.simulator?.profile?`Simulator · ${c5.simulator.profile}`:'',c5.media?.reputation?`Media · ${c5.media.reputation}`:''].filter(Boolean)});
     }
+    const lumerreStarted=!!story.completed?.crownWeek||!!story.completed?.practiceQualifying||!!story.completed?.raceWeekend||!!story.chapter6?.afterFlag?.started;
+    if(lumerreStarted){
+      const record=verdictWeekendRecord(story),done=!!story.completed?.afterFlag;
+      entries.push({id:'lumerre',number:'06',status:done?'complete':'current',title:'The Lumerre Crown',location:'Lumerre · Crown Week',image:'story/chapter6/race/lumerre-crown-podium-stage.png',text:done?`${storyDragonName()} qualified P${record.qualifyingPosition||record.raceStartPosition||7} and finished P${record.raceFinishPosition||7} in the Lumerre Crown. ${record.playerOvertakes||0} overtakes were recorded; Tyrese finished P${record.tyreseFinish||7}.`:'Crown Week has moved from spectacle to race weekend. Practice, qualifying and the Lumerre Crown are now part of the permanent career file.',tags:[record.teamOrderChoice?`Team order · ${String(record.teamOrderChoice).toUpperCase()}`:'',record.firstCareerWin?'FIRST CAREER WIN':record.raceFinishPosition<=3?'PODIUM':''].filter(Boolean)});
+    }
+    if(story.completed?.afterFlag||story.chapter7?.started){
+      const c7=verdictState(story),offer=c7.offer||{};
+      entries.push({id:'verdict',number:'07',status:story.completed?.verdict?'complete':'current',title:'The Verdict',location:'Quickquill Headquarters',image:'story/environments/02_Quickquill_Hangar_Exterior.png',text:story.completed?.verdict?`Contract day ended with ${verdictDecisionSummary(c7)}. Quickquill's latest terms list ${offer.role||'Developing Racer'} over ${offer.length||2} season${Number(offer.length||2)===1?'':'s'}.`:'The assessment period is over. Quickquill has put real terms on the table, and the paddock has started asking whether those terms will be enough.',tags:[offer.status?`Status · ${String(offer.status).replaceAll('-',' ').toUpperCase()}`:'',c7.outsideInterest?.discovered?'Sunscale interest':''].filter(Boolean)});
+    }
+    if(story.chapter8?.started||story.completed?.seasonOpening){const c8=seasonState(story);entries.push({id:'season-opening',number:'08',status:story.completed?.seasonOpening?'complete':'current',title:'The First Full Season',location:'Quickquill · Opening Week',image:SEASON_CALENDAR_BG,text:story.completed?.seasonOpening?`Eight rounds are open. Preparation profile: ${c8.weeklyPlan.profile}. Pit-wall grade: ${c8.pitwall.grade}. Three self-selected promises now define the season.`:'Quickquill is turning a contract into a campaign: calendar intelligence, six preparation hours, a telemetry fault and a race-control simulation.',tags:[c8.calendar.ambition?`Ambition · ${String(c8.calendar.ambition).toUpperCase()}`:'',c8.raceMode?`Race mode · ${String(c8.raceMode).toUpperCase()}`:''].filter(Boolean)});}
     return entries;
   }
 
@@ -3812,6 +4137,10 @@
       const r = story.blackglassRace.result, c4 = chapter4State(story);
       records.push({ id:'blackglass', number:'R02', title:'Blackglass Night Circuit', subtitle:'Career Race Two', image:'story/environments/25_Blackglass_Race_Track.png', rank:r.rank||6, start:r.startPosition||c4.qualifying?.position||3, qualifying:c4.qualifying?.position||r.startPosition||3, finishMs:r.finishMs, bestLapMs:r.bestLapMs, overtakes:r.overtakes, positionDelta:r.positionDelta, leadChanges:r.leadChanges, photoFinish:r.photoFinish, strategy:story.blackglassRace.strategy||currentBlackglassStrategy(story), moment:r.notableMoment || (r.photoFinish?'A finish decided at the line':'Blackglass completed under floodlights.'), sectors:blackglassStudiedText(story) });
     }
+    if (story.completed?.raceWeekend || story.chapter6?.raceWeekend?.result) {
+      const r=verdictWeekendRecord(story);
+      records.push({id:'lumerre',number:'R03',title:'The Lumerre Crown',subtitle:'Career Race Three',image:'story/chapter6/race/lumerre-crown-full-map.png',rank:r.raceFinishPosition||7,start:r.raceStartPosition||r.qualifyingPosition||4,qualifying:r.qualifyingPosition||null,finishMs:r.finishMs,bestLapMs:r.bestLapMs,overtakes:r.playerOvertakes,positionDelta:(r.raceStartPosition||4)-(r.raceFinishPosition||7),leadChanges:r.leadChanges,photoFinish:r.photoFinish,strategy:'career-evolution',moment:r.notableMoment||'The Lumerre Crown completed under full race pressure.',sectors:r.teamOrderChoice&&r.teamOrderChoice!=='none'?`Team order · ${String(r.teamOrderChoice).toUpperCase()}`:''});
+    }
     return records;
   }
 
@@ -3823,7 +4152,8 @@
       nell: [Number(rel.nellBond)||0, [[20,'Formal'],[30,'Professional'],[40,'Warming'],[55,'Trusting'],[999,'Trusted']]],
       steward: [Number(rel.stewardRespect)||0, [[1,'Formal'],[3,'Noted'],[6,'Respected'],[999,'Trusted at Blackglass']]],
       rook: [Number(rel.rookRespect)||0, [[1,'Unknown'],[3,'Competitive'],[6,'Mutual respect'],[999,'Friendly rival']]],
-      sofia: [Number(rel.valecroftInterest)||0, [[1,'Distant'],[3,'Interested'],[6,'Watching closely'],[999,'Open line']]]
+      sofia: [Number(rel.valecroftInterest)||0, [[1,'Distant'],[3,'Interested'],[6,'Watching closely'],[999,'Open line']]],
+      sunscale: [Number(rel.sunscaleInterest)||0, [[1,'No contact'],[3,'Enquiry'],[6,'Line open'],[999,'Active interest']]]
     };
     const [value, thresholds] = bands[id] || [0, [[999,'Unknown']]];
     for (const [limit,label] of thresholds) if (value < limit) return label;
@@ -3852,6 +4182,8 @@
     ];
     const c5=chapter5State(story);
     if (c5.sofia?.discovered) items.push({id:'sofia',name:'Sofia Mendes',role:'Valecroft Captain',portrait:'story/portraits/sofia.png',available:true,description:'Sofia’s interest is deliberately informal. That makes it harder to classify and easier to remember.',memories:['Messaged after Blackglass',c5.sofia.told?`Message disclosed to ${c5.sofia.told}`:'Message kept private',c5.sofia.reply?`Reply · ${String(c5.sofia.reply).replaceAll('-',' ')}`:'No reply sent'].filter(Boolean)});
+    const c7=verdictState(story);
+    if(c7.outsideInterest?.discovered) items.push({id:'sunscale',name:'Sunscale Racing',role:'Outside Contract Interest',portrait:'story/portraits/jalen.png',available:true,description:'Sunscale have not made an offer. They have done something more useful for negotiations: asked whether you are available.',memories:['Availability enquiry after Lumerre',c7.outsideInterest.response==='hear'?'Conversation left open':c7.outsideInterest.response==='tell'?'Enquiry disclosed to Mara':'Enquiry archived'].filter(Boolean)});
     return items.filter(item => item.available).map(item => ({...item, state:relationshipState(item.id,story), memories:item.memories.slice(0,4)}));
   }
 
@@ -3883,6 +4215,11 @@
     messages.push({id:'media-clipping',from:'Quickquill Media Desk',subject:`Press profile · ${c5.media?.reputation||deriveMediaReputation(story)}`,stamp:'MEDIA · LUMERRE PREVIEW',available:!!c5.media?.completed,body:`Three questions answered. Current media profile: ${c5.media?.reputation||deriveMediaReputation(story)}. Lead clipping: ${c5.media?.headlines?.[0]||'No clipping selected.'}`});
     messages.push({id:'sofia-message',from:'Sofia Mendes',subject:'Five minutes before Lumerre',stamp:'PRIVATE · PADDOCK',important:true,available:!!c5.sofia?.discovered,body:'Good job at Blackglass. If you have five minutes before Lumerre, come find me. — Sofia'});
     messages.push({id:'lumerre-file',from:'Mara Venn',subject:'Lumerre · role confirmed',stamp:'QUICKQUILL · RACE THREE',important:true,available:!!story.completed?.seat,body:`Role: ${c5.lumerreRole||deriveLumerreRole(story)}. Development direction: ${String(c5.developmentPriority||'control').toUpperCase()}. Pack for sunlight. We leave on schedule.`});
+    const c7=verdictState(story);
+    messages.push({id:'verdict-call',from:'Mara Venn',subject:'QUICKQUILL HQ · MONDAY 09:00',stamp:'PRIVATE · CONTRACT',important:true,available:!!story.completed?.afterFlag,body:story.completed?.verdict?`Meeting archived. ${verdictDecisionSummary(c7)}.`:'Head office. Monday. 09:00. Private meeting. Bring the Lumerre result sheet; leave the press clippings at home.'});
+    messages.push({id:'sunscale-interest',from:'Unknown · Sunscale management',subject:'Availability enquiry',stamp:'PADDOCK · PRIVATE',important:true,available:!!c7.outsideInterest?.discovered,body:c7.outsideInterest?.response==='hear'?'We understand your Quickquill terms are not final. If you want to hear what Sunscale are thinking, the line is open.':c7.outsideInterest?.response==='tell'?'The enquiry was forwarded to Quickquill. No further contact has been made.':'Enquiry archived without response.'});
+    const c8=seasonState(story);
+    messages.push({id:'season-calendar',from:'Mara Venn',subject:'Eight rounds. Tuesday. Strategy floor.',stamp:'SEASON · OPENING WEEK',important:true,available:!!story.completed?.verdict,body:story.completed?.seasonOpening?`Opening week archived. ${c8.weeklyPlan.profile} preparation profile; ${c8.pitwall.grade} pit-wall grade. Round One is Velmora City.`:'You signed for a full season. Tomorrow we stop talking about the contract and start deciding what to do with it. Strategy floor, 09:00.'});
     const read = new Set((story.careerHub?.inboxRead||[]).map(String));
     return messages.filter(m=>m.available).map(m=>({...m,read:read.has(m.id)}));
   }
@@ -3893,13 +4230,18 @@
     const downtimeStarted=isDowntimeScene(story)||story.completed?.downtime;
     const blackglassStarted=isBlackglassScene(story)||story.completed?.blackglass;
     const seatStarted=isSeatScene(story)||story.completed?.seat;
+    const lumerreStarted=!!story.completed?.crownWeek||!!story.completed?.practiceQualifying||!!story.completed?.raceWeekend||!!story.chapter6?.afterFlag?.started;
+    const lumerreComplete=!!story.completed?.afterFlag;
+    const verdictStarted=!!story.chapter7?.started||story.chapter==='verdict'||!!story.completed?.verdict;
     const rows=[
       {id:'scout',day:'01',title:'Scouted',place:'Young Velmora League',detail:'Tyrese stays after the race.',complete:!!story.completed?.prologue,current:!story.completed?.prologue},
       {id:'canto',day:'02',title:'Canto race weekend',place:'Canto Plains',detail:'Preparation · grid · first professional start.',complete:!!story.completed?.canto,current:!!story.completed?.prologue&&!story.completed?.canto&&cantoStarted},
       {id:'hq',day:'03',title:'Quickquill downtime',place:'Quickquill HQ',detail:'Room · team duties · first evening · Blackglass invitation.',complete:!!story.completed?.downtime,current:!!story.completed?.canto&&!story.completed?.downtime&&downtimeStarted},
       {id:'blackglass',day:'04',title:'Blackglass weekend',place:'Northern Circuit',detail:'Arrival · circuit study · qualifying · After Hours · race.',complete:!!story.completed?.blackglass,current:!!story.completed?.downtime&&!story.completed?.blackglass&&blackglassStarted},
       {id:'table',day:'05',title:'A Seat at the Table',place:'Quickquill',detail:'Strategy simulator · press · career politics · free time.',complete:!!story.completed?.seat,current:!!story.completed?.blackglass&&!story.completed?.seat&&seatStarted,upcoming:!!story.completed?.blackglass&&!seatStarted},
-      {id:'lumerre',day:'06',title:'Lumerre race weekend',place:'The Terraces',detail:'Race Three · public pressure · a new kind of circuit.',complete:false,current:false,upcoming:!!story.completed?.seat}
+      {id:'lumerre',day:'06',title:'The Lumerre Crown',place:'Crown Week · Lumerre',detail:'Festival · practice · qualifying · Race Three · After the Flag.',complete:lumerreComplete,current:lumerreStarted&&!lumerreComplete,upcoming:!!story.completed?.seat&&!lumerreStarted},
+      {id:'verdict',day:'07',title:'The Verdict',place:'Quickquill HQ · 09:00',detail:'Board review · contract terms · outside interest · career decision.',complete:!!story.completed?.verdict,current:lumerreComplete&&!story.completed?.verdict&&verdictStarted,upcoming:lumerreComplete&&!verdictStarted},
+      {id:'season',day:'08',title:'First Full Season',place:'Championship calendar',detail:'Calendar · preparation · telemetry · pit wall · self-chosen objectives.',complete:!!story.completed?.seasonOpening,current:!!story.completed?.verdict&&!story.completed?.seasonOpening&&!!story.chapter8?.started,upcoming:!!story.completed?.verdict&&!story.chapter8?.started}
     ];
     let currentSeen=false;
     return rows.map((row,index)=>{
@@ -4267,8 +4609,24 @@
   }
 
   // V34.18.3 — Blackglass After Hours playable dragon interlude.
+  // V34.29.9 — pathing repair: the Guest Wing now uses a corridor nav graph instead
+  // of broad walkable rectangles. Both September/the player dragon and Garran are
+  // constrained to the same safe floor network, and Garran routes around walls.
   const AFTER_HOURS_FRAMES = {quiet:0,creepA:1,creepB:2,sniff:3,investigate:4,eat:5,hide:6,peek:7,startled:8,guilty:9};
-  const AFTER_HOURS_PATROL = [[18,39],[43,39],[70,39],[88,28],[84,48],[62,48],[48,58],[73,69],[88,66],[72,43],[34,43]];
+  const AFTER_HOURS_WING_NAV_NODES = {
+    desk:[13,39], hallWest:[22,39], roomHall:[29,39], roomDoor:[29,29],
+    passHall:[47,41], hallCentre:[62,41], hallEast:[82,41], view:[89,28],
+    serviceMid:[84,50], serviceLower:[84,66], lowerEast:[73,67],
+    lowerMid:[48,58], crates:[37,66], pantry:[21,63], bench:[67,50], notice:[69,50]
+  };
+  const AFTER_HOURS_WING_NAV_EDGES = [
+    ['desk','hallWest'],['hallWest','roomHall'],['roomHall','roomDoor'],['roomHall','passHall'],
+    ['passHall','hallCentre'],['hallCentre','hallEast'],['hallEast','view'],['hallEast','serviceMid'],
+    ['serviceMid','serviceLower'],['serviceLower','lowerEast'],['lowerEast','lowerMid'],
+    ['lowerMid','crates'],['crates','pantry'],['lowerMid','bench'],['bench','notice'],
+    ['bench','lowerEast'],['hallCentre','bench']
+  ];
+  const AFTER_HOURS_PATROL = ['hallWest','passHall','hallCentre','hallEast','view','hallEast','serviceMid','serviceLower','lowerEast','lowerMid','crates','pantry','hallWest'];
   const AFTER_HOURS_MAPS = {
     wing:{background:'story/environments/26_Blackglass_Guest_Wing.png',start:[29,31]},
     pantry:{background:'story/environments/27_Blackglass_Pantry.png',start:[50,82]}
@@ -4307,7 +4665,7 @@
       active:true,phase:'intro',room:'wing',x:29,y:31,facing:'left',moving:false,movementMode:'quiet',action:'quiet',actionUntil:0,noise:0,message:'',messageUntil:0,
       snackFound:false,timingFound:false,bonusSection:'',serviceKey:false,passFound:false,passReturned:false,passPocketed:false,secretFound:false,caught:false,caughtResponse:'',clatterTriggered:false,
       hidden:false,hideId:'',modal:'',objective:'Find something to eat.',
-      steward:{x:18,y:39,patrolIndex:1,mode:'patrol',target:null,investigateUntil:0},
+      steward:{x:18,y:39,patrolIndex:1,mode:'patrol',target:null,investigateUntil:0,path:[],pathKey:'',pathRecalcAt:0},
       stewardComingAt:0,stewardSearchUntil:0,stewardSearchSafe:false,
       startedAt:Date.now(),outcome:'',memory:'',pendingStewardDelta:0,pendingReputationDelta:0,sceneIndex:0
     };
@@ -4318,26 +4676,65 @@
   }
   function afterHoursSetMessage(text,duration=3200){const g=state.afterHoursGame;if(!g)return;g.message=String(text||'');g.messageUntil=Date.now()+duration;}
 
-  function afterHoursWalkable(room,x,y){
+  function ahPointSegmentDistance(px,py,ax,ay,bx,by){
+    const vx=bx-ax,vy=by-ay,wx=px-ax,wy=py-ay,den=vx*vx+vy*vy;
+    const t=den?ahClamp((wx*vx+wy*vy)/den,0,1):0,dx=px-(ax+vx*t),dy=py-(ay+vy*t);
+    return Math.hypot(dx,dy);
+  }
+  function afterHoursWingPointWalkable(x,y,clearance=0){
+    const corridorRadius=Math.max(3.8,6.4-Math.max(0,Number(clearance)||0));
+    for(const [aKey,bKey] of AFTER_HOURS_WING_NAV_EDGES){
+      const a=AFTER_HOURS_WING_NAV_NODES[aKey],b=AFTER_HOURS_WING_NAV_NODES[bKey];
+      if(ahPointSegmentDistance(x,y,a[0],a[1],b[0],b[1])<=corridorRadius)return true;
+    }
+    // Small interaction bays deliberately widen only where the artwork has usable floor.
+    const bays=[['roomDoor',6.0],['desk',5.5],['view',5.3],['serviceLower',6.0],['crates',6.2],['pantry',6.2],['bench',5.2]];
+    return bays.some(([key,r])=>ahDistance([x,y],AFTER_HOURS_WING_NAV_NODES[key])<=Math.max(3.4,r-clearance));
+  }
+  function afterHoursWalkable(room,x,y,clearance=0){
     if(room==='pantry'){
-      if(x<7||x>93||y<13||y>88)return false;
-      if(x>29&&x<71&&y>33&&y<66)return false; // preparation table
-      if(y<28&&x>9&&x<91)return false; // shelves
+      const c=Math.max(0,Number(clearance)||0);
+      if(x<7+c||x>93-c||y<13+c||y>88-c)return false;
+      // Prep table and upper shelving use clearance too, so sprites no longer clip
+      // their centre point right up against the painted furniture/walls.
+      if(x>29-c&&x<71+c&&y>33-c&&y<66+c)return false;
+      if(y<28+c&&x>9-c&&x<91+c)return false;
       return true;
     }
-    // Guest wing is a connected set of broad floor zones. This prevents the
-    // dragon from walking through the major wall masses without turning the
-    // hand-painted environment into a brittle pixel-perfect collision map.
-    const zones=[
-      [6,14,94,48],[27,38,82,66],[36,47,78,88],[5,54,38,84],[67,53,95,86]
-    ];
-    return zones.some(([x0,y0,x1,y1])=>x>=x0&&x<=x1&&y>=y0&&y<=y1);
+    return afterHoursWingPointWalkable(x,y,clearance);
   }
   function afterHoursTryMove(g,nx,ny){
-    if(afterHoursWalkable(g.room,nx,ny)){g.x=nx;g.y=ny;return;}
-    if(afterHoursWalkable(g.room,nx,g.y))g.x=nx;
-    if(afterHoursWalkable(g.room,g.x,ny))g.y=ny;
+    const clearance=1.35;
+    if(afterHoursWalkable(g.room,nx,ny,clearance)){g.x=nx;g.y=ny;return;}
+    // Wall sliding feels much better than a hard stop, but each axis is re-tested
+    // against the navmesh so diagonal input cannot tunnel across a corner.
+    if(afterHoursWalkable(g.room,nx,g.y,clearance))g.x=nx;
+    if(afterHoursWalkable(g.room,g.x,ny,clearance))g.y=ny;
   }
+  function afterHoursLineWalkable(room,a,b,clearance=0){
+    const d=Math.max(1,ahDistance(a,b)),steps=Math.max(3,Math.ceil(d/1.1));
+    for(let i=0;i<=steps;i++){const t=i/steps,x=a[0]+(b[0]-a[0])*t,y=a[1]+(b[1]-a[1])*t;if(!afterHoursWalkable(room,x,y,clearance))return false;}
+    return true;
+  }
+  function afterHoursNearestWingNode(pos){
+    let best='',bestD=Infinity;
+    for(const [key,p] of Object.entries(AFTER_HOURS_WING_NAV_NODES)){const d=ahDistance(pos,p);if(d<bestD){bestD=d;best=key;}}
+    return best;
+  }
+  function afterHoursWingRoute(from,toKey){
+    const startKey=afterHoursNearestWingNode(from),targetKey=String(toKey||startKey);
+    if(!AFTER_HOURS_WING_NAV_NODES[targetKey])return [];
+    const adjacency={};
+    for(const key of Object.keys(AFTER_HOURS_WING_NAV_NODES))adjacency[key]=[];
+    for(const [a,b] of AFTER_HOURS_WING_NAV_EDGES){const w=ahDistance(AFTER_HOURS_WING_NAV_NODES[a],AFTER_HOURS_WING_NAV_NODES[b]);adjacency[a].push([b,w]);adjacency[b].push([a,w]);}
+    const dist={},prev={},open=new Set(Object.keys(adjacency));
+    Object.keys(adjacency).forEach(k=>dist[k]=Infinity);dist[startKey]=0;
+    while(open.size){let current='',best=Infinity;for(const k of open){if(dist[k]<best){best=dist[k];current=k;}}if(!current||current===targetKey)break;open.delete(current);for(const [next,w] of adjacency[current]){if(!open.has(next))continue;const alt=dist[current]+w;if(alt<dist[next]){dist[next]=alt;prev[next]=current;}}}
+    const keys=[];let k=targetKey;while(k){keys.unshift(k);if(k===startKey)break;k=prev[k];}
+    if(keys[0]!==startKey)return [AFTER_HOURS_WING_NAV_NODES[targetKey].slice()];
+    return keys.slice(1).map(key=>AFTER_HOURS_WING_NAV_NODES[key].slice());
+  }
+
 
   function afterHoursNearby(){
     const g=state.afterHoursGame;if(!g||g.phase!=='play')return null;
@@ -4523,14 +4920,42 @@
   }
 
   function afterHoursUpdateSteward(g,dt){
-    if(g.room!=='wing')return;const s=g.steward,player=[g.x,g.y],dist=ahDistance([s.x,s.y],player),nowMs=Date.now();
-    if(!g.hidden&&g.noise>.62&&dist<29){s.mode='investigate';s.target=[g.x,g.y];s.investigateUntil=nowMs+4300;}
-    else if(s.mode==='investigate'&&nowMs>s.investigateUntil){s.mode='patrol';s.target=null;}
-    let target=s.mode==='investigate'&&s.target?s.target:AFTER_HOURS_PATROL[s.patrolIndex%AFTER_HOURS_PATROL.length],speed=s.mode==='investigate'?8.2:5.1,dx=target[0]-s.x,dy=target[1]-s.y,d=Math.hypot(dx,dy);
-    if(d<1.2){if(s.mode==='patrol')s.patrolIndex=(s.patrolIndex+1)%AFTER_HOURS_PATROL.length;else{s.mode='patrol';s.target=null;}}else{s.x+=dx/d*speed*dt;s.y+=dy/d*speed*dt;}
-    const newDist=ahDistance([s.x,s.y],player);if(!g.hidden&&newDist<7.2){afterHoursCatch('steward');return;}
+    if(g.room!=='wing')return;
+    const s=g.steward,player=[g.x,g.y],dist=ahDistance([s.x,s.y],player),nowMs=Date.now();
+    if(!g.hidden&&g.noise>.62&&dist<29){
+      s.mode='investigate';
+      s.target=[g.x,g.y];
+      s.investigateUntil=nowMs+4300;
+      const anchor=afterHoursNearestWingNode(s.target);
+      if(s.pathKey!==`investigate:${anchor}`||nowMs>s.pathRecalcAt){s.path=afterHoursWingRoute([s.x,s.y],anchor);s.pathKey=`investigate:${anchor}`;s.pathRecalcAt=nowMs+650;}
+    }else if(s.mode==='investigate'&&nowMs>s.investigateUntil){s.mode='patrol';s.target=null;s.path=[];s.pathKey='';}
+
+    const patrolKey=AFTER_HOURS_PATROL[s.patrolIndex%AFTER_HOURS_PATROL.length];
+    const desiredKey=s.mode==='investigate'&&s.target?afterHoursNearestWingNode(s.target):patrolKey;
+    const routeKey=`${s.mode}:${desiredKey}`;
+    if(!s.path.length||s.pathKey!==routeKey||nowMs>s.pathRecalcAt){s.path=afterHoursWingRoute([s.x,s.y],desiredKey);s.pathKey=routeKey;s.pathRecalcAt=nowMs+(s.mode==='investigate'?650:1800);}
+    let target=s.path[0]||AFTER_HOURS_WING_NAV_NODES[desiredKey]||[s.x,s.y];
+    let dx=target[0]-s.x,dy=target[1]-s.y,d=Math.hypot(dx,dy);
+    if(d<.85){if(s.path.length)s.path.shift();target=s.path[0]||AFTER_HOURS_WING_NAV_NODES[desiredKey]||target;dx=target[0]-s.x;dy=target[1]-s.y;d=Math.hypot(dx,dy);}
+    const speed=s.mode==='investigate'?8.0:4.8;
+    if(d>.01){
+      const step=Math.min(d,speed*dt),nx=s.x+dx/d*step,ny=s.y+dy/d*step;
+      if(afterHoursWalkable('wing',nx,ny,1.75)){s.x=nx;s.y=ny;}
+      else{s.path=[];s.pathKey='';const snap=AFTER_HOURS_WING_NAV_NODES[afterHoursNearestWingNode([s.x,s.y])];if(snap&&ahDistance([s.x,s.y],snap)<2.8){s.x=snap[0];s.y=snap[1];}}
+    }
+
+    const reached=ahDistance([s.x,s.y],AFTER_HOURS_WING_NAV_NODES[desiredKey]||[s.x,s.y])<1.6;
+    if(reached){
+      if(s.mode==='patrol'){s.patrolIndex=(s.patrolIndex+1)%AFTER_HOURS_PATROL.length;s.path=[];s.pathKey='';}
+      else if(s.mode==='investigate'&&nowMs>s.investigateUntil-400){s.mode='patrol';s.target=null;s.path=[];s.pathKey='';}
+    }
+    const newDist=ahDistance([s.x,s.y],player);
+    // Proximity alone is no longer enough: Garran cannot catch the dragon through
+    // a wall just because their screen-space coordinates happen to be close.
+    if(!g.hidden&&newDist<7.2&&afterHoursLineWalkable('wing',[s.x,s.y],player,1.1)){afterHoursCatch('steward');return;}
     if(state.soundOn&&newDist<42){const vol=.035+(1-ahClamp(newDist/42,0,1))*.105;afterHoursAudio.steward.volume=vol;afterHoursAudio.steward.loop=true;if(afterHoursAudio.steward.paused)void afterHoursAudio.steward.play().catch(()=>undefined);}else afterHoursAudioPause('steward');
   }
+
 
   function afterHoursUpdatePantryThreat(g){
     const nowMs=Date.now();
@@ -6288,6 +6713,10 @@
   }
 
   async function handleLumerreRaceAction(action) {
+    if (action === 'after-flag') {
+      await startLumerreAfterFlag();
+      return;
+    }
     if (action === 'result-journey') {
       state.mode = 'story-journey';
       render();
@@ -6315,7 +6744,7 @@
     const grid = result ? (rw.liveOrder || []) : (rw.gridOrder || lumerreRaceFixedGrid(story));
     const classification = grid.map((id, index) => `<div class="lumerre-grid-row ${id === 'player' ? 'is-player' : ''}"><span>P${index + 1}</span><strong>${escapeHtml(lumerreRaceNameForId(id))}</strong><small>${escapeHtml(lumerreRaceTeamForId(id))}</small></div>`).join('');
     const action = result
-      ? `<button type="button" data-lumerre-race-action="result-journey"><b>RETURN TO STORY JOURNEY</b><span>Carry the genuine Dragon Racing result forward.</span></button>`
+      ? `<button type="button" data-lumerre-race-action="after-flag"><b>CONTINUE · AFTER THE FLAG</b><span>The chequered flag is not the end of Crown Week.</span></button><button type="button" class="is-secondary" data-lumerre-race-action="result-journey"><b>STORY JOURNEY</b><span>Leave the finale for later.</span></button>`
       : launching
         ? `<div class="lumerre-engine-handoff"><small>ENGINE HANDOFF</small><strong>DRAGON RACING SHOULD BE OPEN</strong><p>If you exited the race, use retry. Career Mode will never fall back to the old tiny-marker race.</p></div><button type="button" data-lumerre-race-action="retry-real-engine"><b>RETRY DRAGON RACING</b><span>Re-open the same Lumerre run safely.</span></button>`
         : `<button type="button" data-lumerre-race-action="launch-real-engine"><b>START LUMERRE IN DRAGON RACING</b><span>Launch the real race engine used by Canto and Blackglass.</span></button>`;
@@ -6594,6 +7023,986 @@
     root.querySelector('[data-crown-complete-back]')?.addEventListener('click',()=>{state.mode='story-journey';render();syncMusic({restart:true});});
   }
 
+  function afterFlagState(story = state.story) {
+    const raw = story?.chapter6?.afterFlag || {};
+    return { ...defaultQuickquillStory().chapter6.afterFlag, ...raw,
+      parcFerme:{...defaultQuickquillStory().chapter6.afterFlag.parcFerme,...(raw.parcFerme||{}),visited:Array.isArray(raw.parcFerme?.visited)?raw.parcFerme.visited:[],choices:{...(raw.parcFerme?.choices||{})}},
+      media:{...defaultQuickquillStory().chapter6.afterFlag.media,...(raw.media||{}),answers:Array.isArray(raw.media?.answers)?raw.media.answers:[]},
+      room:{...defaultQuickquillStory().chapter6.afterFlag.room,...(raw.room||{}),inspected:Array.isArray(raw.room?.inspected)?raw.room.inspected:[]}
+    };
+  }
+
+  function lumerreWeekendRecord(story = state.story) {
+    const af=afterFlagState(story);
+    if(af.weekendRecord)return af.weekendRecord;
+    const rw=lumerreRaceDayState(story),q=practiceQualifyingState(story).qualifying||{},challenge=crownWeekState(story).challenge||{},result=rw.result||{};
+    const standings=Array.isArray(result.standings)?result.standings.slice(0,7).map(row=>({...row})):[];
+    const rankOf=id=>{const byId=standings.findIndex(row=>String(row.id||row.racerId||'').toLowerCase()===id);return byId>=0?byId+1:null;};
+    return Object.freeze({
+      qualifyingPosition:Math.max(1,Math.min(7,Number(q.position)||Number(rw.startPosition)||4)),
+      raceStartPosition:Math.max(1,Math.min(7,Number(rw.startPosition)||Number(q.position)||4)),
+      raceFinishPosition:Math.max(1,Math.min(7,Number(rw.finalPosition)||Number(result.rank)||7)),
+      positionsGained:Math.max(0,Number(rw.positionsGained)||Number(result.positionsGained)||Math.max(0,(Number(rw.startPosition)||4)-(Number(rw.finalPosition)||7))),
+      playerOvertakes:Math.max(0,Number(rw.playerOvertakes)||Number(result.overtakes)||0),
+      tyreseFinish:Math.max(1,Math.min(7,Number(rw.tyreseFinish)||rankOf('tyrese')||7)),
+      jalenFinish:Math.max(1,Math.min(7,Number(result.rivalRanks?.jalen)||rankOf('jalen')||7)),
+      bestLapMs:Math.max(0,Number(rw.bestLapMs)||Number(result.bestLapMs)||0),
+      finishMs:Math.max(0,Number(rw.finishMs)||Number(result.finishMs)||0),
+      teamOrderChoice:String(rw.teamOrder||result.teamOrder||'none').replace(/^order-/,''),
+      fastestLap:!!result.fastestLap,
+      photoFinish:!!result.photoFinish,
+      leadChanges:Math.max(0,Number(result.leadChanges)||0),
+      notableMoment:String(result.notableMoment||rw.highlight||rw.narrative||''),
+      crownChallengeRank:Number(challenge.rank)||null,
+      firstCareerWin:String(syncCareerEvolution(story).firsts?.firstWin?.event||syncCareerEvolution(story).firsts?.firstWin||'')==='Lumerre Crown',
+      firstCareerPodium:String(syncCareerEvolution(story).firsts?.firstPodium?.event||syncCareerEvolution(story).firsts?.firstPodium||'')==='Lumerre Crown',
+      standings
+    });
+  }
+
+  function afterFlagImpactSnapshot(story=state.story){
+    const evo=syncCareerEvolution(story);
+    return {fame:Number(evo.reputation?.fame)||0,paddockRespect:Number(evo.reputation?.paddockRespect)||0,quickquillTrust:Number(evo.reputation?.quickquillTrust)||0,pressure:Number(evo.reputation?.pressure)||0,tyreseRespect:Number(evo.tyrese?.professionalRespect)||0,tyreseTension:Number(evo.tyrese?.competitiveTension)||0,tyreseFriendship:Number(evo.tyrese?.friendship)||0};
+  }
+  const afterFlagDelta=(before,after,key)=>Number(after?.[key]||0)-Number(before?.[key]||0);
+  const deltaLabel=value=>value>0?`+${value}`:String(value||0);
+
+  async function startLumerreAfterFlag(){
+    if(!state.activeSave||state.storySaving)return;
+    const changed=cloneValue(normaliseQuickquillStory(state.story||activeSaveState().story));
+    if(!changed.completed?.raceWeekend)return;
+    changed.chapter6={...defaultQuickquillStory().chapter6,...(changed.chapter6||{}),afterFlag:{...defaultQuickquillStory().chapter6.afterFlag,...(changed.chapter6?.afterFlag||{})}};
+    const af=changed.chapter6.afterFlag;
+    if(!af.weekendRecord)af.weekendRecord=cloneValue(lumerreWeekendRecord(changed));
+    if(!af.impactBefore)af.impactBefore=afterFlagImpactSnapshot(changed);
+    af.started=true;af.completed=false;
+    changed.completed={...(changed.completed||{}),afterFlag:false};
+    changed.chapter='lumerre-after-flag';changed.scene='q57';changed.beat=0;
+    changed.history=[...(changed.history||[]),{scene:'q57',event:'lumerre-after-flag-start',finish:af.weekendRecord.raceFinishPosition}].slice(-120);
+    state.story=changed;state.mode='story';state.afterFlagTransient='';state.afterFlagModal='';state.storyError='';
+    await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});
+    render();syncMusic({restart:true});
+  }
+
+  async function afterFlagGo(sceneId,{event='after-flag-advance'}={}){
+    if(state.storySaving||state.transitionLocked)return;
+    const changed=cloneValue(state.story),af=changed.chapter6.afterFlag;
+    changed.chapter='lumerre-after-flag';changed.scene=sceneId;changed.beat=0;
+    changed.history=[...(changed.history||[]),{scene:sceneId,event}].slice(-120);
+    state.story=changed;state.afterFlagTransient='';state.afterFlagModal='';
+    await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});
+    render();syncMusic({restart:['q61','q62'].includes(sceneId)});
+  }
+
+  function afterFlagRadioLines(story,record){
+    const player=storyDragonName();
+    const finish=record.raceFinishPosition;
+    const nell=finish===1?`${player}… P1. That's P1. You won the Lumerre Crown.`:finish<=3?`Podium. ${ordinal(finish)}. Clean it up on the cooldown lap and bring the dragon home.`:`P${finish}. Good race. There was more pace in that than the number will admit.`;
+    const mara=finish===1?'Bring the dragon home. Celebrate after we have counted all the wings.':record.positionsGained>=2?`That was a professional recovery. Remember the decisions, not just the position.`:'No speeches on the radio. Get home safely.';
+    let tyrese='Nice work. I will pretend I enjoyed watching that.';
+    if(record.raceFinishPosition<record.tyreseFinish)tyrese=record.teamOrderChoice==='ignore'?'You knew exactly what Mara asked. You also made the move stick. We will discuss both.':`You had me today. Don't make a personality out of it.`;
+    else if(record.raceFinishPosition>record.tyreseFinish)tyrese=`You were quick. Next time, stop showing me the move half a sector early.`;
+    else tyrese='Apparently we have invented finishing in the same position. Very efficient.';
+    return [{who:'NELL',line:nell},{who:'MARA',line:mara},{who:'TYRESE',line:tyrese}];
+  }
+
+  function afterFlagParcText(id,story,record){
+    const player=storyDragonName();
+    if(id==='tyrese')return record.raceFinishPosition<record.tyreseFinish?(record.teamOrderChoice==='ignore'?`Tyrese catches you looking at the timing board. “You had me. You also ignored the call. Annoyingly, both things are true.”`:`Tyrese taps the P${record.raceFinishPosition} line with one glove. “You had me today. Properly.”`):`Tyrese is already half out of his race gear. “You were in my mirrors enough to be irritating. That's progress.”`;
+    if(id==='nell')return `Nell has three screens open and none of them show the podium. “Best lap ${formatStoryLap(record.bestLapMs)}. ${record.playerOvertakes} passes. I have forty-seven less glamorous observations.”`;
+    if(id==='mara')return record.teamOrderChoice==='ignore'?`Mara says congratulations first. Then, after exactly one beat: “We are going to discuss how you got it.”`:`Mara gives ${player} a quick once-over, then you. “Result recorded. Decisions remembered. That's the useful order.”`;
+    if(id==='classification')return `The board settles: ${player} P${record.raceFinishPosition}. Tyrese P${record.tyreseFinish}. ${record.positionsGained?`Net gain: +${record.positionsGained}.`:'No net positions gained.'} ${record.photoFinish?'PHOTO FINISH logged.':''}`;
+    return `${player} is breathing hard but settled. For once, nobody is asking the dragon to perform for a camera.`;
+  }
+
+  async function afterFlagParcInteract(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag,record=af.weekendRecord||lumerreWeekendRecord(changed);
+    af.parcFerme={...defaultQuickquillStory().chapter6.afterFlag.parcFerme,...(af.parcFerme||{}),visited:Array.isArray(af.parcFerme?.visited)?af.parcFerme.visited:[],choices:{...(af.parcFerme?.choices||{})}};
+    if(!af.parcFerme.visited.includes(id))af.parcFerme.visited.push(id);
+    if(id==='tyrese')applyCareerEvolutionEffects(changed,{tyrese:{professionalRespect:1}});
+    if(id==='nell')applyStoryEffects(changed,{relationships:{nellBond:1}});
+    if(id==='mara')applyCareerEvolutionEffects(changed,{reputation:{quickquillTrust:record.teamOrderChoice==='ignore'?-1:1}});
+    if(id==='september')applyStoryEffects(changed,{relationships:{dragonBond:1}});
+    af.parcFerme.choices[id]=afterFlagParcText(id,changed,record);
+    changed.history=[...(changed.history||[]),{scene:'q58',event:'parc-ferme-interaction',target:id}].slice(-120);
+    state.story=changed;state.afterFlagModal=id;state.afterFlagTransient=af.parcFerme.choices[id];
+    await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});render();
+  }
+
+  async function afterFlagTeamChoice(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag,record=af.weekendRecord||lumerreWeekendRecord(changed);af.teamReaction=id;
+    if(id==='pace')applyCareerEvolutionEffects(changed,{racecraft:{technicalUnderstanding:1,consistency:1}});
+    else if(id==='orders')applyCareerEvolutionEffects(changed,{reputation:{quickquillTrust:record.teamOrderChoice==='ignore'?-1:1},racecraft:{pressureHandling:1}});
+    else applyCareerEvolutionEffects(changed,{tyrese:{professionalRespect:1,competitiveTension:record.raceFinishPosition<record.tyreseFinish?1:0}});
+    changed.history=[...(changed.history||[]),{scene:'q59',event:'post-race-team-focus',choice:id}].slice(-120);state.story=changed;state.afterFlagTransient=id;
+    await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});render();
+  }
+
+  function afterFlagMediaQuestions(story,record){
+    const pool=[];
+    if(record.raceFinishPosition===1)pool.push({id:'win',outlet:'LUMERRE SPORT',question:'When did you realise the Crown was actually yours to win?'});
+    if(record.positionsGained>=2)pool.push({id:'charge',outlet:'PADDOCK WIRE',question:`You came from P${record.raceStartPosition} to P${record.raceFinishPosition}. Where did the race pace come from?`});
+    if(record.raceFinishPosition<record.tyreseFinish)pool.push({id:'tyrese',outlet:'THE GRID',question:`You finished ahead of Tyrese. Has the hierarchy at Quickquill changed?`});
+    if(record.teamOrderChoice==='ignore')pool.push({id:'order',outlet:'CROWN LIVE',question:'We heard Quickquill ask you to hold position. Why did you ignore the call?'});
+    if(record.teamOrderChoice==='obey')pool.push({id:'order',outlet:'CROWN LIVE',question:'Do you feel you sacrificed your own result for the team today?'});
+    if(record.jalenFinish && Math.abs(record.jalenFinish-record.raceFinishPosition)<=2)pool.push({id:'jalen',outlet:'SUNSTEP RADIO',question:'Jalen was in your race for a long time. How hard was it keeping that battle under control?'});
+    pool.push({id:'progress',outlet:'VELMORA DAILY',question:'Three races into this career, what feels different about you and the dragon now?'},{id:'pressure',outlet:'THE TERRACE',question:'Did the size of Crown Week change the way you raced today?'});
+    const seen=new Set();return pool.filter(q=>!seen.has(q.id)&&seen.add(q.id)).slice(0,5);
+  }
+
+  async function afterFlagSelectQuestion(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag;af.media.currentQuestion=id;state.story=changed;state.afterFlagTransient='';render();
+  }
+
+  async function afterFlagAnswerMedia(tone){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag,record=af.weekendRecord||lumerreWeekendRecord(changed),questions=afterFlagMediaQuestions(changed,record),q=questions.find(row=>row.id===af.media.currentQuestion);if(!q)return;
+    const toneText=tone==='team'?'Keep it about the dragon and the team.':tone==='confident'?'Own the result without apologising for it.':'Answer the question exactly as asked.';
+    af.media.answers=[...(af.media.answers||[]),{questionId:q.id,outlet:q.outlet,tone,question:q.question,answer:toneText}].slice(0,2);af.media.currentQuestion='';
+    if(tone==='team')applyCareerEvolutionEffects(changed,{reputation:{quickquillTrust:2,paddockRespect:1,media:1},tyrese:{friendship:1}});
+    else if(tone==='confident')applyCareerEvolutionEffects(changed,{reputation:{fame:3,media:2,pressure:1},tyrese:{competitiveTension:1}});
+    else applyCareerEvolutionEffects(changed,{reputation:{paddockRespect:2,media:2},tyrese:{professionalRespect:1}});
+    if(q.id==='order'&&record.teamOrderChoice==='ignore'&&tone==='confident')applyCareerEvolutionEffects(changed,{reputation:{quickquillTrust:-2,pressure:2}});
+    af.media.profile=tone==='team'?'Team First':tone==='confident'?'Headline Maker':'Straight Shooter';
+    changed.history=[...(changed.history||[]),{scene:'q61',event:'lumerre-media-answer',question:q.id,tone}].slice(-120);state.story=changed;playCrownSfx('camera',.12);
+    await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});render();
+  }
+
+  async function afterFlagInspectRoom(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag;af.room={...defaultQuickquillStory().chapter6.afterFlag.room,...(af.room||{}),inspected:Array.isArray(af.room?.inspected)?af.room.inspected:[]};if(!af.room.inspected.includes(id))af.room.inspected.push(id);
+    if(id==='september')applyStoryEffects(changed,{relationships:{dragonBond:1}});if(id==='sheet')applyCareerEvolutionEffects(changed,{racecraft:{technicalUnderstanding:1}});
+    changed.history=[...(changed.history||[]),{scene:'q62',event:'quiet-room-inspect',target:id}].slice(-120);state.story=changed;state.afterFlagTransient=id;await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});render();
+  }
+
+  async function afterFlagTyreseChoice(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag;af.tyreseChoice=id;
+    if(id==='team')applyCareerEvolutionEffects(changed,{tyrese:{friendship:3,professionalRespect:1,competitiveTension:-1},reputation:{quickquillTrust:1}});
+    else if(id==='beat')applyCareerEvolutionEffects(changed,{tyrese:{professionalRespect:2,competitiveTension:3},reputation:{fame:1}});
+    else applyCareerEvolutionEffects(changed,{tyrese:{friendship:1,professionalRespect:3,competitiveTension:1}});
+    changed.history=[...(changed.history||[]),{scene:'q63',event:'tyrese-post-crown',choice:id}].slice(-120);state.story=changed;state.afterFlagTransient=id;await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});render();
+  }
+
+  async function afterFlagOpenEnvelope(){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag;if(!af.envelopeOpened){af.envelopeOpened=true;changed.history=[...(changed.history||[]),{scene:'q64',event:'quickquill-hq-envelope-opened'}].slice(-120);}state.story=changed;playTone(420);await persistStory(changed,{stageOverride:'quickquill-lumerre-after-flag'});render();
+  }
+
+  async function finishLumerreAfterFlag(){
+    if(state.storySaving)return;const changed=cloneValue(state.story),af=changed.chapter6.afterFlag;af.completed=true;af.completedAt=new Date().toISOString();af.impactAfter=afterFlagImpactSnapshot(changed);changed.completed={...(changed.completed||{}),afterFlag:true,verdict:false};changed.chapter7={...defaultQuickquillStory().chapter7,...(changed.chapter7||{})};changed.chapter='verdict';changed.history=[...(changed.history||[]),{scene:'q65',event:'lumerre-chapter-complete',finish:af.weekendRecord?.raceFinishPosition||null,media:af.media?.profile||''}].slice(-120);state.story=changed;
+    await persistStory(changed,{stageOverride:'quickquill-lumerre-chapter-complete'});state.mode='story-journey';state.afterFlagTransient='';state.afterFlagModal='';render();syncMusic({restart:true});
+  }
+
+  function afterFlagShell(scene,sceneIndex,body,extra=''){
+    return `<section class="after-flag-shell ${extra}" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}"><img class="after-flag-bg" src="${scene.background}" alt="" aria-hidden="true"><div class="after-flag-shade"></div><header class="after-flag-header"><div><small>CHAPTER SIX · AFTER THE FLAG</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-after-flag-hub>CAREER HUB</button></header><div class="after-flag-progress"><i style="--p:${((sceneIndex+1)/QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES.length)*100}%"></i><span>${sceneIndex+1} / ${QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES.length}</span></div>${body}</section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+  }
+
+  function renderAfterFlagCooldown(scene,idx,story,af,record){
+    const lines=afterFlagRadioLines(story,record);const headline=record.raceFinishPosition===1?'WINNER · LUMERRE CROWN':`FINISH · P${record.raceFinishPosition}`;
+    const body=`<main class="after-cooldown"><section class="after-cooldown-card"><small>CHEQUERED FLAG · STILL MOVING</small><h1>${escapeHtml(headline)}</h1><div class="after-radio-stack">${lines.map((r,i)=>`<article style="--d:${i*120}ms"><b>${escapeHtml(r.who)}</b><p>${escapeHtml(r.line)}</p></article>`).join('')}</div><div class="after-race-strip"><span><small>START</small><b>P${record.raceStartPosition}</b></span><span><small>FINISH</small><b>P${record.raceFinishPosition}</b></span><span><small>OVERTAKES</small><b>${record.playerOvertakes}</b></span><span><small>TYRESE</small><b>P${record.tyreseFinish}</b></span></div><button type="button" data-after-next="q58">ROLL INTO PARC FERMÉ</button></section><div class="after-cooldown-flight" aria-hidden="true"><i></i><i></i><i></i></div></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-cooldown');
+  }
+
+  function renderAfterFlagParc(scene,idx,story,af,record){
+    const visited=new Set(af.parcFerme?.visited||[]),targets=[['tyrese','TYRESE','Captain'],['nell','NELL','Telemetry'],['mara','MARA','Team Principal'],['classification','TIMING BOARD','Official'],['september',storyDragonName().toUpperCase(),'Your dragon']];
+    const body=`<main class="after-parc"><div class="after-parc-title"><small>OPEN PARC FERMÉ · CHOOSE THREE MOMENTS</small><h1>The noise comes back all at once.</h1><p>You do not have to speak to everybody. Pick where the next few minutes go.</p></div><div class="after-parc-targets">${targets.map(([id,name,note],i)=>`<button type="button" class="after-parc-target ${visited.has(id)?'is-done':''}" data-after-parc="${id}" style="--x:${[24,39,55,71,84][i]}%;--y:${[64,51,69,34,56][i]}%"><b>${escapeHtml(name)}</b><small>${escapeHtml(note)}</small><i>${visited.has(id)?'✓':'+'}</i></button>`).join('')}</div>${state.afterFlagModal?`<aside class="after-popover"><button type="button" data-after-close>×</button><small>${escapeHtml(state.afterFlagModal.toUpperCase())}</small><p>${escapeHtml(state.afterFlagTransient||'')}</p></aside>`:''}<div class="after-parc-footer"><span>${visited.size} / 3 moments</span><button type="button" data-after-next="q59" ${visited.size<3?'disabled':''}>BACK TO QUICKQUILL</button></div></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-parc');
+  }
+
+  function renderAfterFlagTeam(scene,idx,story,af,record){
+    const choice=af.teamReaction;const cards={pace:{title:'PACE TRACE',copy:`Best lap ${formatStoryLap(record.bestLapMs)} · ${record.playerOvertakes} completed passes. Nell wants to know where the speed became repeatable.`},orders:{title:'TEAM ORDER',copy:`Race call: ${String(record.teamOrderChoice||'none').toUpperCase()}. Mara cares less about the radio message than what you did with it.`},captain:{title:'TYRESE',copy:`You P${record.raceFinishPosition} · Tyrese P${record.tyreseFinish}. The garage has noticed the comparison even if nobody says “hierarchy”.`}};
+    const response=choice==='pace'?'Nell: “Good. We keep the part that repeated. Everything else was theatre.”':choice==='orders'?(record.teamOrderChoice==='ignore'?'Mara: “Congratulations. We are still going to discuss the word ‘ignore’.”':'Mara: “Good. Team calls only matter if they survive contact with a race.”'):'Tyrese, walking past: “Please stop turning my finishing position into a department.”';
+    const body=`<main class="after-team"><section class="after-team-board"><header><small>QUICKQUILL BAY · LIVE DEBRIEF</small><h1>Pick the thing you actually want to talk about.</h1></header><div class="after-team-cards">${Object.entries(cards).map(([id,c])=>`<button type="button" data-after-team="${id}" class="${choice===id?'is-selected':''}"><small>${escapeHtml(c.title)}</small><p>${escapeHtml(c.copy)}</p></button>`).join('')}</div>${choice?`<div class="after-team-response"><span>${escapeHtml(response)}</span></div><button class="after-primary" type="button" data-after-next="q60">CEREMONY</button>`:''}</section></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-team');
+  }
+
+  function renderAfterFlagPodium(scene,idx,story,af,record){
+    const podium=record.raceFinishPosition<=3,win=record.raceFinishPosition===1;
+    const body=podium?`<main class="after-podium"><section class="after-podium-banner"><small>${win&&record.firstCareerWin?'FIRST CAREER VICTORY':'LUMERRE CROWN · PODIUM'}</small><h1>${win?'CROWNED AT LUMERRE':`P${record.raceFinishPosition} · ON THE PODIUM`}</h1><p>${win?'For a few seconds nobody asks a question. The crowd gets the scene instead.':'No debrief. No radio. Just the walk out, the flashes and the result made physical.'}</p></section>${win?`<img class="after-podium-trophy" src="${LUMERRE_RACE_TROPHY}" alt="Lumerre Crown trophy">`:''}<div class="after-flashes" aria-hidden="true"><i></i><i></i><i></i></div><button class="after-podium-next" type="button" data-after-next="q61">FACE THE PRESS</button></main>`:`<main class="after-podium is-no-podium"><section><small>P${record.raceFinishPosition} · PARC FERMÉ</small><h1>The ceremony belongs to somebody else today.</h1><p>You watch long enough to hear the crowd, then the media coordinator points at you anyway. Apparently P${record.raceFinishPosition} is still interesting.</p><button type="button" data-after-next="q61">FACE THE PRESS</button></section></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-podium');if(podium)playCrownSfx('camera',.10);
+  }
+
+  function renderAfterFlagPress(scene,idx,story,af,record){
+    const questions=afterFlagMediaQuestions(story,record),answered=new Set((af.media?.answers||[]).map(a=>a.questionId)),current=questions.find(q=>q.id===af.media?.currentQuestion),done=(af.media?.answers||[]).length>=2;
+    const body=`<main class="after-press"><section class="after-press-stage"><header><small>POST-RACE SCRUM</small><h1>Two questions. Pick who gets them.</h1><span>${(af.media?.answers||[]).length} / 2 ANSWERED</span></header>${current?`<div class="after-question"><small>${escapeHtml(current.outlet)}</small><h2>${escapeHtml(current.question)}</h2><div class="after-answer-tones"><button data-after-tone="team"><b>TEAM FIRST</b><span>Professional · Quickquill trust</span></button><button data-after-tone="confident"><b>CONFIDENT</b><span>Fame · headlines · pressure</span></button><button data-after-tone="straight"><b>STRAIGHT ANSWER</b><span>Respect · no paddock dance</span></button></div><button class="after-text-back" data-after-question-back>OTHER REPORTERS</button></div>`:`<div class="after-reporters">${questions.map((q,i)=>`<button type="button" data-after-question="${q.id}" ${answered.has(q.id)||done?'disabled':''} style="--d:${i*70}ms"><b>${escapeHtml(q.outlet)}</b><span>${escapeHtml(q.question)}</span><i>${answered.has(q.id)?'✓':'›'}</i></button>`).join('')}</div>`}${done?`<div class="after-media-profile"><small>MEDIA READ</small><strong>${escapeHtml(af.media.profile||'Post-race')}</strong><button type="button" data-after-next="q62">GET OUT OF HERE</button></div>`:''}</section><div class="after-camera-flash" aria-hidden="true"></div></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-media');
+  }
+
+  function renderAfterFlagRoom(scene,idx,story,af,record){
+    const inspected=new Set(af.room?.inspected||[]);const notes={sheet:`LUMERRE CROWN · Qualifying P${record.qualifyingPosition} · Race P${record.raceFinishPosition} · ${record.playerOvertakes} overtakes · Tyrese P${record.tyreseFinish}.`,september:`${storyDragonName()} is already asleep. Apparently winning, losing and being famous all require exactly the same amount of blanket.`,gloves:'Your race gloves are where you dropped them. One still has pale Lumerre dust caught in the seam.'};
+    const body=`<main class="after-room"><section class="after-room-title"><small>22:03 · NO CAMERAS</small><h1>Five quiet minutes.</h1><p>Nothing advances until you decide to look at something.</p></section><div class="after-room-items"><button data-after-room="sheet" class="${inspected.has('sheet')?'is-seen':''}"><b>RESULT SHEET</b><small>On the table</small></button><button data-after-room="september" class="${inspected.has('september')?'is-seen':''}"><b>${escapeHtml(storyDragonName().toUpperCase())}</b><small>Already asleep</small></button><button data-after-room="gloves" class="${inspected.has('gloves')?'is-seen':''}"><b>RACE GLOVES</b><small>Where you dropped them</small></button></div>${state.afterFlagTransient?`<aside class="after-room-note">${escapeHtml(notes[state.afterFlagTransient]||'')}</aside>`:''}<button class="after-room-next" type="button" data-after-next="q63" ${inspected.size<1?'disabled':''}>SOMEONE KNOCKS</button></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-room');
+  }
+
+  function renderAfterFlagTyrese(scene,idx,story,af,record){
+    const beat=af.tyreseChoice;let lead='Three races ago I thought you were going to be another academy project.';let second='I was wrong.';
+    if(record.raceFinishPosition>record.tyreseFinish){lead='You were quick today. You also showed me the move too early.';second='Next time I take the invitation.';}
+    if(record.teamOrderChoice==='ignore'&&record.raceFinishPosition<record.tyreseFinish){lead='If you are going to race me, race me.';second='Just do not pretend afterward that you were not.';}
+    const response=beat==='team'?'Tyrese: “Fine. Team. Until the lights go out.”':beat==='beat'?'Tyrese smiles once. “Good. That answer I can work with.”':beat==='both'?'Tyrese: “Annoyingly sensible. Do not make a habit of it.”':'';
+    const body=`<main class="after-tyrese"><section class="after-tyrese-scene"><div class="after-tyrese-portrait">${portraitMarkup({character:'tyrese',frame:record.raceFinishPosition<record.tyreseFinish?7:record.raceFinishPosition>record.tyreseFinish?6:1,side:'right'})}</div><div class="after-tyrese-copy"><small>TYRESE</small><p>${escapeHtml(lead)}</p><p class="is-short">${escapeHtml(second)}</p>${!beat?`<div class="after-tyrese-choices"><button data-after-tyrese="team">WE'RE A TEAM</button><button data-after-tyrese="beat">I WANT TO BEAT YOU</button><button data-after-tyrese="both">WE BOTH NEED TO WIN</button></div>`:`<div class="after-tyrese-response">${escapeHtml(response)}</div><button class="after-primary" data-after-next="q64">MARA KNOCKS</button>`}</div></section></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-tyrese');
+  }
+
+  function renderAfterFlagEnvelope(scene,idx,story,af,record){
+    const open=!!af.envelopeOpened;const maraLine=record.raceFinishPosition<=3?'Three races ago, you were here on an assessment. Nobody is assessing whether you belong anymore.':'You answered the question I brought you here to answer. Head office wants the next one.';
+    const body=`<main class="after-envelope"><section class="after-envelope-copy"><small>MARA · 22:18</small><p>${escapeHtml(maraLine)}</p><p class="is-muted">“Head office wants you Monday.”</p></section><button type="button" class="after-envelope-prop ${open?'is-open':''}" data-after-envelope ${open?'disabled':''}><img src="${open?LUMERRE_ENVELOPE_OPEN:LUMERRE_ENVELOPE_CLOSED}" alt="${open?'Opened Quickquill envelope':'Sealed Quickquill envelope'}"><span>${open?'OPENED':'CLICK TO OPEN'}</span></button>${open?`<section class="after-letter"><small>QUICKQUILL RACING · HEAD OFFICE</small><strong>MONDAY · 09:00</strong><b>PRIVATE MEETING</b><p>Nell: “Good news?”<br>Mara: “Monday.”</p><button type="button" data-after-next="q65">FADE OUT</button></section>`:''}</main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-envelope');
+  }
+
+  function renderAfterFlagFinale(scene,idx,story,af,record){
+    const before=af.impactBefore||afterFlagImpactSnapshot(story),after=afterFlagImpactSnapshot(story);const impact=[['FAME',afterFlagDelta(before,after,'fame')],['PADDOCK RESPECT',afterFlagDelta(before,after,'paddockRespect')],['QUICKQUILL TRUST',afterFlagDelta(before,after,'quickquillTrust')],['TYRESE RESPECT',afterFlagDelta(before,after,'tyreseRespect')],['TYRESE TENSION',afterFlagDelta(before,after,'tyreseTension')]].filter(([,v])=>v!==0);
+    const milestone=record.firstCareerWin?'FIRST CAREER VICTORY':record.raceFinishPosition<=3?'LUMERRE CROWN PODIUM':'LUMERRE CROWN FINISH';
+    const body=`<main class="after-finale"><section class="after-finale-card"><small>CHAPTER SIX COMPLETE</small><h1>THE LUMERRE CROWN</h1><p>${escapeHtml(milestone)}</p><div class="after-final-stats"><span><small>QUALIFYING</small><b>P${record.qualifyingPosition}</b></span><span><small>RACE</small><b>P${record.raceFinishPosition}</b></span><span><small>GAIN</small><b>${record.positionsGained?`+${record.positionsGained}`:'0'}</b></span><span><small>OVERTAKES</small><b>${record.playerOvertakes}</b></span><span><small>TYRESE</small><b>P${record.tyreseFinish}</b></span><span><small>TEAM ORDER</small><b>${escapeHtml(String(record.teamOrderChoice||'NONE').toUpperCase())}</b></span></div>${impact.length?`<div class="after-impact"><small>AFTER THE FLAG · IMPACT</small>${impact.map(([k,v])=>`<span><b>${escapeHtml(k)}</b><i class="${v>0?'up':'down'}">${escapeHtml(deltaLabel(v))}</i></span>`).join('')}</div>`:''}<div class="after-next-chapter"><small>NEXT</small><strong>THE VERDICT</strong><span>Quickquill HQ · Monday · 09:00</span></div><button type="button" data-after-finish>COMPLETE CHAPTER SIX</button></section></main>`;
+    root.innerHTML=afterFlagShell(scene,idx,body,'is-finale');
+  }
+
+  function renderLumerreAfterFlag(scene,beat,idx){
+    const story=state.story,af=afterFlagState(story),record=af.weekendRecord||lumerreWeekendRecord(story);
+    if(beat.type==='lumerre-after-cooldown')renderAfterFlagCooldown(scene,idx,story,af,record);
+    else if(beat.type==='lumerre-after-parc')renderAfterFlagParc(scene,idx,story,af,record);
+    else if(beat.type==='lumerre-after-team')renderAfterFlagTeam(scene,idx,story,af,record);
+    else if(beat.type==='lumerre-after-podium')renderAfterFlagPodium(scene,idx,story,af,record);
+    else if(beat.type==='lumerre-after-press')renderAfterFlagPress(scene,idx,story,af,record);
+    else if(beat.type==='lumerre-after-room')renderAfterFlagRoom(scene,idx,story,af,record);
+    else if(beat.type==='lumerre-after-tyrese')renderAfterFlagTyrese(scene,idx,story,af,record);
+    else if(beat.type==='lumerre-after-envelope')renderAfterFlagEnvelope(scene,idx,story,af,record);
+    else renderAfterFlagFinale(scene,idx,story,af,record);
+    root.querySelector('[data-after-flag-hub]')?.addEventListener('click',returnToHubFromStory);
+    root.querySelectorAll('[data-after-next]').forEach(btn=>btn.addEventListener('click',()=>{void afterFlagGo(btn.dataset.afterNext||'q65');}));
+    root.querySelectorAll('[data-after-parc]').forEach(btn=>btn.addEventListener('click',()=>{void afterFlagParcInteract(btn.dataset.afterParc||'');}));
+    root.querySelector('[data-after-close]')?.addEventListener('click',()=>{state.afterFlagModal='';state.afterFlagTransient='';render();});
+    root.querySelectorAll('[data-after-team]').forEach(btn=>btn.addEventListener('click',()=>{void afterFlagTeamChoice(btn.dataset.afterTeam||'');}));
+    root.querySelectorAll('[data-after-question]').forEach(btn=>btn.addEventListener('click',()=>{void afterFlagSelectQuestion(btn.dataset.afterQuestion||'');}));
+    root.querySelector('[data-after-question-back]')?.addEventListener('click',()=>{const changed=cloneValue(state.story);changed.chapter6.afterFlag.media.currentQuestion='';state.story=changed;render();});
+    root.querySelectorAll('[data-after-tone]').forEach(btn=>btn.addEventListener('click',()=>{void afterFlagAnswerMedia(btn.dataset.afterTone||'straight');}));
+    root.querySelectorAll('[data-after-room]').forEach(btn=>btn.addEventListener('click',()=>{void afterFlagInspectRoom(btn.dataset.afterRoom||'');}));
+    root.querySelectorAll('[data-after-tyrese]').forEach(btn=>btn.addEventListener('click',()=>{void afterFlagTyreseChoice(btn.dataset.afterTyrese||'both');}));
+    root.querySelector('[data-after-envelope]')?.addEventListener('click',()=>{void afterFlagOpenEnvelope();});
+    root.querySelector('[data-after-finish]')?.addEventListener('click',()=>{void finishLumerreAfterFlag();});
+  }
+
+
+  function verdictState(story = state.story) {
+    const raw=story?.chapter7||{};
+    return {...defaultQuickquillStory().chapter7,...raw,
+      hq:{...defaultQuickquillStory().chapter7.hq,...(raw.hq||{}),visited:Array.isArray(raw.hq?.visited)?raw.hq.visited:[],overheard:Array.isArray(raw.hq?.overheard)?raw.hq.overheard:[]},
+      review:{...defaultQuickquillStory().chapter7.review,...(raw.review||{}),seen:Array.isArray(raw.review?.seen)?raw.review.seen:[]},
+      offer:{...defaultQuickquillStory().chapter7.offer,...(raw.offer||{}),selectedDemands:Array.isArray(raw.offer?.selectedDemands)?raw.offer.selectedDemands:[],acceptedDemands:Array.isArray(raw.offer?.acceptedDemands)?raw.offer.acceptedDemands:[],rejectedDemands:Array.isArray(raw.offer?.rejectedDemands)?raw.offer.rejectedDemands:[]},
+      outsideInterest:{...defaultQuickquillStory().chapter7.outsideInterest,...(raw.outsideInterest||{})}
+    };
+  }
+
+  function verdictWeekendRecord(story=state.story){
+    return story?.chapter6?.afterFlag?.weekendRecord || lumerreWeekendRecord(story);
+  }
+
+  function verdictInitialOffer(story=state.story){
+    const record=verdictWeekendRecord(story),trust=Number(story?.relationships?.quickquillTrust||50),finish=Number(record?.raceFinishPosition||7);
+    const role=finish===1&&trust>=58?'Equal Racer':finish<=3?'Developing Racer+':'Developing Racer';
+    return {initialRole:role,role,length:2,podiumBonus:finish<=3?16000:12000,sponsorDays:6,status:'draft',selectedDemands:[],acceptedDemands:[],rejectedDemands:[],negotiationRounds:0,countered:false};
+  }
+
+  function verdictOfferEnsure(story=state.story){
+    const c7=story.chapter7||(story.chapter7=cloneValue(defaultQuickquillStory().chapter7));
+    // Keep one stable offer object. Demand definitions are consulted several
+    // times during submission; replacing c7.offer on each lookup meant the
+    // accepted terms were applied to an older object while the save retained
+    // status:'draft', returning Q70 to its starting screen.
+    const current=c7.offer&&typeof c7.offer==='object'?c7.offer:{};
+    Object.assign(current,{...defaultQuickquillStory().chapter7.offer,...current});
+    if(!current.initialRole)Object.assign(current,verdictInitialOffer(story));
+    c7.offer=current;return current;
+  }
+
+  function verdictDemandDefinition(id,story=state.story){
+    const offer=verdictOfferEnsure(story);
+    const defs={
+      role:{id:'role',title:'TEAM ROLE',from:offer.role,to:offer.role==='Developing Racer'?'Developing Racer+':offer.role==='Developing Racer+'?'Equal Racer':'Lead Prospect',cost:offer.role==='Equal Racer'?4:3,note:'Ask Quickquill to put your status in writing.'},
+      length:{id:'length',title:'CONTRACT TERM',from:`${offer.length} seasons`,to:'1 season',cost:2,note:'Keep the next move in your hands.'},
+      bonus:{id:'bonus',title:'PODIUM BONUS',from:`${Number(offer.podiumBonus||0).toLocaleString('en-GB')} GP`,to:`${Number(offer.podiumBonus||0)+6000} GP`,cost:1,note:'More reward when the results arrive.'},
+      sponsor:{id:'sponsor',title:'SPONSOR DAYS',from:`${offer.sponsorDays} / season`,to:`${Math.max(3,offer.sponsorDays-2)} / season`,cost:1,note:'Protect more race-preparation time.'}
+    };
+    return defs[id]||null;
+  }
+
+  function verdictApplyDemand(offer,id,story){
+    const d=verdictDemandDefinition(id,story);if(!d)return;
+    if(id==='role')offer.role=d.to;
+    else if(id==='length')offer.length=1;
+    else if(id==='bonus')offer.podiumBonus=Number(offer.podiumBonus||0)+6000;
+    else if(id==='sponsor')offer.sponsorDays=Math.max(3,Number(offer.sponsorDays||6)-2);
+  }
+
+  function verdictImpactLine(story=state.story){
+    const record=verdictWeekendRecord(story),finish=Number(record?.raceFinishPosition||7),tyrese=Number(record?.tyreseFinish||7),trust=Number(story?.relationships?.quickquillTrust||50);
+    if(finish===1)return `${storyDragonName()} arrives as the Lumerre Crown winner. Quickquill cannot frame this as an academy trial anymore.`;
+    if(finish<=3&&finish<tyrese)return `${storyDragonName()} arrives with a Lumerre podium and a finish ahead of Tyrese. The hierarchy question is now unavoidable.`;
+    if(finish<=3)return `${storyDragonName()} arrives with a Lumerre podium. Quickquill wants the progress secured before another team asks first.`;
+    return `${storyDragonName()} has completed the assessment run with enough pace, trust (${trust}) and race evidence to force a real contract discussion.`;
+  }
+
+  async function startVerdictChapter(){
+    if(!state.activeSave||state.storySaving)return;
+    const changed=normaliseQuickquillStory(cloneValue(state.story||activeSaveState().story));
+    if(!changed.completed?.afterFlag){state.storyError='Finish The Lumerre Crown finale first.';render();return;}
+    changed.chapter7={...defaultQuickquillStory().chapter7,...(changed.chapter7||{}),hq:{...defaultQuickquillStory().chapter7.hq,...(changed.chapter7?.hq||{})},review:{...defaultQuickquillStory().chapter7.review,...(changed.chapter7?.review||{})},offer:{...defaultQuickquillStory().chapter7.offer,...(changed.chapter7?.offer||{})},outsideInterest:{...defaultQuickquillStory().chapter7.outsideInterest,...(changed.chapter7?.outsideInterest||{})}};
+    if(!changed.chapter7.started){changed.chapter7.started=true;changed.chapter7.startedAt=new Date().toISOString();changed.history=[...(changed.history||[]),{scene:'q66',event:'verdict-start'}].slice(-140);}
+    verdictOfferEnsure(changed);changed.completed={...(changed.completed||{}),verdict:false};changed.chapter='verdict';changed.scene=changed.chapter7.completed?'q74':(QUICKQUILL_VERDICT_SCENES.some(s=>s.id===changed.scene)?changed.scene:'q66');changed.beat=0;
+    state.story=changed;state.mode='story';state.storyError='';state.verdictTransient='';state.verdictModal='';render();syncMusic({restart:true});
+    try{await persistStory(changed,{stageOverride:'quickquill-verdict'});}catch(error){state.storyError=error?.message||'The Verdict could not be prepared.';render();}
+  }
+
+  async function verdictGo(sceneId,event='verdict-advance'){
+    if(state.storySaving)return;const changed=cloneValue(state.story);changed.chapter='verdict';changed.scene=sceneId;changed.beat=0;changed.history=[...(changed.history||[]),{scene:sceneId,event}].slice(-140);state.story=changed;state.verdictTransient='';state.verdictModal='';
+    try{await persistStory(changed,{stageOverride:'quickquill-verdict'});}catch(error){state.storyError=error?.message||'Career progress could not be saved.';}render();syncMusic({restart:true});
+  }
+
+  async function verdictAdvanceIntro(step){
+    if(state.storySaving)return;
+    const changed=cloneValue(state.story),c7=changed.chapter7;
+    c7.introStep=Math.max(0,Math.min(2,Number(step)||0));
+    changed.history=[...(changed.history||[]),{scene:'q66',event:'verdict-intro',step:c7.introStep}].slice(-140);
+    state.story=changed;state.storyError='';render();
+    try{await persistStory(changed,{stageOverride:'quickquill-verdict'});}catch(error){state.storyError=error?.message||'The arrival could not be saved. You can continue and try again.';}
+    render();
+  }
+
+  async function verdictArrivalChoice(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),c7=changed.chapter7;c7.arrivalChoice=id;
+    if(id==='quiet'){changed.relationships.maraBond+=1;changed.identity.focus+=1;}
+    else if(id==='joke'){changed.relationships.tyreseBond+=2;changed.identity.heart+=1;}
+    else {changed.relationships.quickquillTrust+=1;changed.identity.fire+=1;}
+    changed.history=[...(changed.history||[]),{scene:'q66',event:'verdict-arrival-tone',choice:id}].slice(-140);state.story=changed;state.verdictTransient=id;await persistStory(changed,{stageOverride:'quickquill-verdict'});render();
+  }
+
+  const VERDICT_HQ_SPOTS={
+    trophies:{title:'TROPHY WALL',note:'Old Quickquill winners, scratched plaques and one empty space.',text:'The oldest trophies are polished. The newest shelf is conspicuously empty. Tyrese walks past and says, “Do not stare at it. It gets ideas.”'},
+    engineering:{title:'ENGINEERING FLOOR',note:'Nell is already arguing with a telemetry graph.',text:'Nell has Lumerre sector traces open beside next-race simulation work. She points at one line without greeting you: “That is the bit I want to keep.”'},
+    cafe:{title:'STAFF CAFÉ',note:'The least glamorous room in professional racing.',text:'Two mechanics stop talking when you walk in, then deliberately continue. You catch: “If the kid signs equal status, Tyrese will pretend not to care for exactly four minutes.”'},
+    sponsors:{title:'SPONSOR GALLERY',note:'Uniforms, old campaigns and expensive smiles.',text:'Your Lumerre photo is already in a sponsor mock-up. Nobody asked permission. The caption simply says: QUICKQUILL — NEXT.'},
+    archive:{title:'RACER ARCHIVE',note:'Contracts, programmes and retired number boards.',text:'Quickquill keeps every signed racer card. The empty slot beside Tyrese is labelled only with today’s date.'}
+  };
+
+  async function verdictVisitHq(id){
+    if(state.storySaving||!VERDICT_HQ_SPOTS[id])return;const changed=cloneValue(state.story),hq=changed.chapter7.hq;hq.visited=Array.isArray(hq.visited)?hq.visited:[];hq.overheard=Array.isArray(hq.overheard)?hq.overheard:[];
+    if(!hq.visited.includes(id))hq.visited.push(id);if(id==='cafe'&&!hq.overheard.includes('equal-status-rumour'))hq.overheard.push('equal-status-rumour');
+    if(id==='engineering')changed.relationships.nellBond+=1;if(id==='trophies')changed.identity.fire+=1;if(id==='cafe')changed.identity.focus+=1;if(id==='sponsors')changed.relationships.quickquillTrust+=1;
+    changed.history=[...(changed.history||[]),{scene:'q67',event:'verdict-hq-visit',target:id}].slice(-140);state.story=changed;state.verdictModal=id;state.verdictTransient=VERDICT_HQ_SPOTS[id].text;await persistStory(changed,{stageOverride:'quickquill-verdict'});render();
+  }
+
+  async function verdictCallBoardroom(){
+    if(state.storySaving)return;
+    const changed=cloneValue(state.story),hq=changed.chapter7.hq;
+    if((hq.visited||[]).length<Number(hq.required||3))return;
+    hq.boardCalled=true;
+    changed.history=[...(changed.history||[]),{scene:'q67',event:'boardroom-called'}].slice(-140);
+    state.story=changed;state.storyError='';render();
+    try{await persistStory(changed,{stageOverride:'quickquill-verdict'});}catch(error){state.storyError=error?.message||'The boardroom transition could not be saved. You can continue and try again.';}
+    render();
+  }
+
+  function verdictReviewCards(story=state.story){
+    const record=verdictWeekendRecord(story),evo=syncCareerEvolution(story),c4=chapter4State(story),c5=chapter5State(story);
+    return [
+      {id:'results',kicker:'RESULTS',title:'THREE RACES',value:`LUMERRE · P${record.raceFinishPosition||7}`,text:`Canto ${ordinal(story.race?.result?.rank||6)} · Blackglass ${ordinal(story.blackglassRace?.result?.rank||6)} · Lumerre ${ordinal(record.raceFinishPosition||7)}. Quickquill sees a trend, not one headline.`},
+      {id:'racecraft',kicker:'RACECRAFT',title:evo.playerStyle||'Developing',value:`${Math.round(Number(evo.racecraft?.overtaking||0)+Number(evo.racecraft?.technicalUnderstanding||0))} SIGNAL`,text:`Starts, overtaking, technical understanding and stamina management are now being judged as a professional profile rather than academy notes.`},
+      {id:'team',kicker:'TEAM',title:'QUICKQUILL TRUST',value:String(Math.round(Number(story.relationships?.quickquillTrust||50))),text:`Mara weighs how you handled Blackglass, Lumerre team orders and the moments nobody put on television.`},
+      {id:'media',kicker:'PROFILE',title:'PUBLIC PRESSURE',value:String(c5.media?.reputation||'Developing').toUpperCase(),text:`The press file now travels with you. Lumerre made the question less “can they race?” and more “who gets them next?”`}
+    ];
+  }
+
+  async function verdictReviewCard(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),review=changed.chapter7.review,cards=verdictReviewCards(changed);if(!cards.some(c=>c.id===id))return;review.seen=Array.isArray(review.seen)?review.seen:[];if(!review.seen.includes(id))review.seen.push(id);review.completed=review.seen.length>=3;changed.history=[...(changed.history||[]),{scene:'q68',event:'verdict-review-card',target:id}].slice(-140);state.story=changed;state.verdictModal=id;state.verdictTransient=cards.find(c=>c.id===id)?.text||'';await persistStory(changed,{stageOverride:'quickquill-verdict'});render();
+  }
+
+  async function verdictToggleDemand(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),offer=verdictOfferEnsure(changed),selected=offer.selectedDemands=Array.isArray(offer.selectedDemands)?offer.selectedDemands:[];if(!verdictDemandDefinition(id,changed))return;
+    const at=selected.indexOf(id);if(at>=0)selected.splice(at,1);else if(selected.length<2)selected.push(id);else{state.verdictTransient='You only get two asks. Decide what actually matters.';render();return;}
+    state.story=changed;state.verdictTransient='';render();
+  }
+
+  async function verdictSubmitNegotiation(){
+    if(state.storySaving||state.verdictSubmitting)return;const changed=cloneValue(state.story),offer=verdictOfferEnsure(changed),selected=[...(offer.selectedDemands||[])];
+    const record=verdictWeekendRecord(changed),trust=Number(changed.relationships?.quickquillTrust||50),finish=Number(record.raceFinishPosition||7);let leverage=3+(trust>=56?1:0)+(finish<=3?1:0)+(finish===1?1:0);
+    const demands=selected.map(id=>verdictDemandDefinition(id,changed)).filter(Boolean);const total=demands.reduce((sum,d)=>sum+d.cost,0);let accepted=[...selected],rejected=[];
+    if(total>leverage&&demands.length){const ranked=[...demands].sort((a,b)=>b.cost-a.cost);const cut=ranked[0];accepted=selected.filter(id=>id!==cut.id);rejected=[cut.id];offer.countered=true;}
+    accepted.forEach(id=>verdictApplyDemand(offer,id,changed));offer.acceptedDemands=accepted;offer.rejectedDemands=rejected;offer.negotiationRounds=Number(offer.negotiationRounds||0)+1;offer.status=rejected.length?'counter':'agreed';
+    if(accepted.includes('role'))changed.relationships.quickquillTrust-=1;if(accepted.includes('sponsor'))changed.identity.focus+=1;if(accepted.includes('bonus'))changed.identity.fire+=1;if(!selected.length)changed.relationships.quickquillTrust+=1;
+    const resultText=rejected.length?`Mara accepts ${accepted.length||'none'} of the asks and holds the line on ${verdictDemandDefinition(rejected[0],changed)?.title||'one clause'}. That is the counter-offer.`:'Mara reads it once. “Fine. Put it in.” The revised terms are accepted.';
+    changed.history=[...(changed.history||[]),{scene:'q70',event:'contract-negotiation',requested:selected,accepted,rejected,leverage}].slice(-140);
+    state.verdictSubmitting=true;state.storyError='';state.verdictTransient='Mara and Nell are checking the revised terms…';render();
+    try{
+      await persistStory(changed,{stageOverride:'quickquill-verdict'});
+      state.verdictTransient=resultText;
+    }catch(error){
+      state.storyError=error?.message||'The revised terms could not be saved. Your selections are still here—submit them again.';
+      state.verdictTransient='';
+    }finally{
+      state.verdictSubmitting=false;
+      render();
+    }
+  }
+
+  async function verdictOutsideInterest(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),outside=changed.chapter7.outsideInterest;outside.discovered=true;outside.response=id;
+    if(id==='hear'){changed.relationships.sunscaleInterest+=4;changed.relationships.quickquillTrust-=1;}
+    else if(id==='tell'){changed.relationships.quickquillTrust+=3;changed.relationships.maraBond+=1;}
+    else {changed.relationships.quickquillTrust+=1;}
+    changed.history=[...(changed.history||[]),{scene:'q71',event:'sunscale-contract-interest',response:id}].slice(-140);state.story=changed;state.verdictTransient=id;await persistStory(changed,{stageOverride:'quickquill-verdict'});render();
+  }
+
+  async function verdictTyreseChoice(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story);changed.chapter7.tyreseChoice=id;
+    if(id==='team'){changed.relationships.tyreseBond+=3;changed.relationships.quickquillTrust+=1;}
+    else if(id==='equal'){changed.relationships.tyreseBond+=1;const evo=syncCareerEvolution(changed);evo.tyrese.competitiveTension=clampCareerValue(evo.tyrese.competitiveTension+3);changed.careerEvolution=evo;}
+    else {changed.relationships.tyreseBond+=1;changed.identity.fire+=2;const evo=syncCareerEvolution(changed);evo.tyrese.competitiveTension=clampCareerValue(evo.tyrese.competitiveTension+6);changed.careerEvolution=evo;}
+    changed.history=[...(changed.history||[]),{scene:'q72',event:'tyrese-contract-talk',choice:id}].slice(-140);state.story=changed;state.verdictTransient=id;await persistStory(changed,{stageOverride:'quickquill-verdict'});render();
+  }
+
+  async function verdictDecision(id){
+    if(state.storySaving)return;const changed=cloneValue(state.story),c7=changed.chapter7,offer=verdictOfferEnsure(changed);c7.decision=id;
+    if(id==='sign'){c7.signed=true;c7.signedAt=new Date().toISOString();offer.status='signed';changed.relationships.quickquillTrust+=4;}
+    else if(id==='time'){offer.status='held-24h';changed.relationships.maraBond+=1;}
+    else if(id==='sunscale'&&c7.outsideInterest?.response==='hear'){offer.status='external-talks';changed.relationships.sunscaleInterest+=3;}
+    else return;
+    changed.history=[...(changed.history||[]),{scene:'q73',event:'verdict-decision',decision:id,role:offer.role,length:offer.length}].slice(-140);state.story=changed;state.verdictTransient=id;await persistStory(changed,{stageOverride:'quickquill-verdict'});render();
+  }
+
+  async function finishVerdictChapter(){
+    if(state.storySaving)return;const changed=cloneValue(state.story),c7=changed.chapter7;if(!c7.decision)return;c7.completed=true;c7.completedAt=new Date().toISOString();changed.completed={...(changed.completed||{}),verdict:true};changed.chapter='season-one';careerRegisterChapterType(changed,'politics');changed.history=[...(changed.history||[]),{scene:'q74',event:'verdict-chapter-complete',decision:c7.decision,contractStatus:c7.offer?.status||''}].slice(-140);state.story=changed;
+    await persistStory(changed,{stageOverride:'quickquill-verdict-complete'});state.mode='story-journey';state.verdictTransient='';state.verdictModal='';render();syncMusic({restart:true});
+  }
+
+  function verdictShell(scene,idx,body,extra=''){
+    const progress=((idx+1)/QUICKQUILL_VERDICT_SCENES.length)*100;
+    return `<section class="verdict-shell tone-${escapeHtml(scene.tone||'verdict')} ${extra}"><img class="verdict-backdrop" src="${scene.background}" alt="" aria-hidden="true"><div class="verdict-stage"><img class="verdict-environment" src="${scene.background}" alt="${escapeHtml(scene.title)}"><div class="verdict-wash" aria-hidden="true"></div><div class="verdict-grain" aria-hidden="true"></div><header class="verdict-header"><div><small>QUICKQUILL: AGAINST THE ODDS</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-verdict-hub>BACK TO HUB</button></header><div class="verdict-progress"><i style="--story-progress:${progress}%"></i><span>THE VERDICT ${idx+1} / ${QUICKQUILL_VERDICT_SCENES.length}</span></div>${state.storyError?`<div class="verdict-error" role="alert"><strong>CAREER SAVE</strong><span>${escapeHtml(state.storyError)}</span></div>`:''}${body}</div><div class="verdict-vignette" aria-hidden="true"></div></section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+  }
+
+  function renderVerdictArrival(scene,idx,story,c7){
+    const record=verdictWeekendRecord(story),choice=c7.arrivalChoice,introStep=choice?2:Math.max(0,Math.min(2,Number(c7.introStep)||0));const reactions={quiet:'Mara notices you read the room before saying anything. “Good. Keep doing that.”',joke:'Tyrese: “If this is about my parking, I already deny it.” Nell almost smiles.',ready:'Nell: “Good. The board will appreciate that.”'};
+    let body='';
+    if(introStep===0){
+      body=`<main class="verdict-summons"><section class="verdict-summons-copy"><small>MONDAY · 08:43 · OUTSIDE QUICKQUILL HQ</small><h1>THREE LINES. ONE MEETING.</h1><p>The Quickquill envelope has been in your kit bag since Lumerre. No celebration and no threat.</p><blockquote><b>END-OF-ASSESSMENT REVIEW</b><span>Quickquill boardroom · Monday · 09:00</span><em>Mara Venn, Team Principal</em></blockquote><p>This is not a signing appointment. Quickquill called you back to decide what your first three races mean—and whether there is a future to discuss.</p><button type="button" data-verdict-intro="1">WALK INTO HQ</button></section></main>`;
+    }else if(introStep===1){
+      body=`<main class="verdict-foyer"><section class="verdict-foyer-copy"><small>08:51 · QUICKQUILL RECEPTION</small><h1>FIRST, THE ASSESSMENT.</h1><div class="verdict-foyer-dialogue"><p><b>TYRESE</b> “You got the same three-line summons, then.”</p><p><b>NELL</b> “Canto, Blackglass and Lumerre go on the record first. What comes after depends on the room.”</p></div><p class="verdict-foyer-note">Mara is upstairs with the board. Nell asks you to wait outside until the performance file is ready.</p><button type="button" data-verdict-intro="2">WAIT OUTSIDE THE BOARDROOM</button></section></main>`;
+    }else{
+      body=`<main class="verdict-arrival"><section class="verdict-kicker"><small>MONDAY · 08:58 · OUTSIDE THE BOARDROOM</small><h1>THEY ARE DECIDING WHAT COMES NEXT.</h1><p>${escapeHtml(verdictImpactLine(story))}</p></section><div class="verdict-arrival-ticker"><span>LUMERRE · P${record.raceFinishPosition||7}</span><span>TYRESE · P${record.tyreseFinish||7}</span><span>QUICKQUILL TRUST · ${Math.round(Number(story.relationships?.quickquillTrust||50))}</span></div>${!choice?`<section class="verdict-arrival-choices"><button type="button" data-verdict-arrival="quiet"><b>READ THE ROOM</b><small>Let the board speak first.</small></button><button type="button" data-verdict-arrival="joke"><b>BREAK THE TENSION</b><small>Tyrese is waiting beside you.</small></button><button type="button" data-verdict-arrival="ready"><b>GET TO IT</b><small>You are ready for the review.</small></button></section>`:`<section class="verdict-inline-reaction"><p>${escapeHtml(reactions[choice]||'')}</p><button type="button" data-verdict-next="q67">MARA IS RUNNING TEN MINUTES LATE</button></section>`}</main>`;
+    }
+    root.innerHTML=verdictShell(scene,idx,body,'is-arrival');
+  }
+
+  function renderVerdictHq(scene,idx,story,c7){
+    const visited=new Set(c7.hq?.visited||[]),required=Number(c7.hq?.required||3),boardCalled=!!c7.hq?.boardCalled;const spots=Object.entries(VERDICT_HQ_SPOTS);
+    const body=`<main class="verdict-hq ${boardCalled?'is-board-called':''}"><section class="verdict-hq-copy"><small>ASSESSMENT REVIEW DELAYED · TEN MINUTES</small><h1>Quickquill keeps moving while the board decides.</h1><p>You were summoned for a three-race review. While Mara finishes upstairs, notice ${required} things that show what joining this team would actually mean.</p></section><div class="verdict-hq-spots">${spots.map(([id,row],i)=>`<button type="button" data-verdict-hq-spot="${id}" class="${visited.has(id)?'is-seen':''}" style="--vx:${[17,37,56,75,86][i]}%;--vy:${[64,39,72,43,60][i]}%"><b>${escapeHtml(row.title)}</b><small>${escapeHtml(row.note)}</small><i>${visited.has(id)?'✓':'+'}</i></button>`).join('')}</div>${state.verdictModal?`<aside class="verdict-popover"><button type="button" data-verdict-close>×</button><small>${escapeHtml(VERDICT_HQ_SPOTS[state.verdictModal]?.title||'QUICKQUILL')}</small><p>${escapeHtml(state.verdictTransient||'')}</p></aside>`:''}${boardCalled?`<aside class="verdict-board-call"><small>09:08 · NELL WREN</small><h2>“They are ready for you.”</h2><p>“This starts with the assessment. If Mara puts a contract on the table afterward, it is because the review gave her a reason.”</p><button type="button" data-verdict-next="q68">ENTER THE BOARDROOM</button></aside>`:`<footer><span>${visited.size} / ${required} MOMENTS</span><button type="button" data-verdict-board-call ${visited.size<required?'disabled':''}>${visited.size<required?'KEEP WAITING':'NELL IS HERE'}</button></footer>`}</main>`;
+    root.innerHTML=verdictShell(scene,idx,body,'is-hq');
+  }
+
+  function renderVerdictReview(scene,idx,story,c7){
+    const cards=verdictReviewCards(story),seen=new Set(c7.review?.seen||[]);const body=`<main class="verdict-review"><section class="verdict-review-head"><small>09:10 · MARA VENN · ASSESSMENT REVIEW</small><h1>This is why you were called back.</h1><p>“Your three-race assessment is complete. First we put the evidence on record. If it matches what we think we saw, then we discuss keeping you.” Open any three files.</p></section><div class="verdict-review-grid">${cards.map(card=>`<button type="button" data-verdict-review="${card.id}" class="${seen.has(card.id)?'is-seen':''}"><small>${escapeHtml(card.kicker)}</small><strong>${escapeHtml(card.title)}</strong><b>${escapeHtml(card.value)}</b><span>${seen.has(card.id)?'READ':'OPEN FILE'}</span></button>`).join('')}</div>${state.verdictModal?`<aside class="verdict-review-detail"><button type="button" data-verdict-close>×</button><p>${escapeHtml(state.verdictTransient||'')}</p></aside>`:''}<button type="button" class="verdict-primary" data-verdict-next="q69" ${seen.size<3?'disabled':''}>FINISH THE REVIEW</button></main>`;root.innerHTML=verdictShell(scene,idx,body,'is-review');
+  }
+
+  function verdictOfferRows(story){const o=verdictOfferEnsure(story);return [['TEAM ROLE',o.role],['TERM',`${o.length} ${o.length===1?'SEASON':'SEASONS'}`],['PODIUM BONUS',`${Number(o.podiumBonus||0).toLocaleString('en-GB')} GP`],['SPONSOR DAYS',`${o.sponsorDays} / SEASON`]];}
+
+  function renderVerdictOffer(scene,idx,story,c7){
+    const offer=verdictOfferEnsure(story),rows=verdictOfferRows(story);const record=verdictWeekendRecord(story);const body=`<main class="verdict-offer"><section class="verdict-contract-paper"><header><small>ASSESSMENT COMPLETE · QUICKQUILL RACING CONTRACT OFFER</small><h1>${escapeHtml(storyDragonName().toUpperCase())}</h1><p>${escapeHtml(verdictImpactLine(story))}</p></header><div class="verdict-contract-rows">${rows.map(([k,v])=>`<span><small>${escapeHtml(k)}</small><strong>${escapeHtml(String(v))}</strong></span>`).join('')}</div><footer><span>MARA VENN · TEAM PRINCIPAL</span><span>LUMERRE RESULT · P${record.raceFinishPosition||7}</span></footer></section><aside class="verdict-offer-note"><small>MARA</small><p>“That concludes the review. Quickquill wants to keep you as a professional racer. This is our first offer—not a loyalty test. If something needs changing, say it while everybody is in the room.”</p><button type="button" data-verdict-next="q70">REVIEW THE TERMS</button></aside></main>`;root.innerHTML=verdictShell(scene,idx,body,'is-offer');
+  }
+
+  function renderVerdictNegotiate(scene,idx,story,c7){
+    const offer=verdictOfferEnsure(story),done=['agreed','counter','signed','held-24h','external-talks'].includes(offer.status),submitting=!!state.verdictSubmitting,selected=new Set(offer.selectedDemands||[]),defs=['role','length','bonus','sponsor'].map(id=>verdictDemandDefinition(id,story));const rows=verdictOfferRows(story);
+    const body=`<main class="verdict-negotiate"><section class="verdict-negotiation-board"><header><small>YOUR TURN · MAXIMUM TWO ASKS</small><h1>${done?'REVISED TERMS':submitting?'QUICKQUILL IS REVIEWING IT':'WHAT ACTUALLY MATTERS?'}</h1><p>${done?escapeHtml(state.verdictTransient||'The contract is ready to leave the room.'):submitting?escapeHtml(state.verdictTransient||'Mara and Nell are checking the revised terms…'):'Pick zero, one or two clauses, then submit them. Quickquill will answer before you leave the room.'}</p></header>${!done?`<div class="verdict-demand-grid ${submitting?'is-submitting':''}">${defs.map(d=>`<button type="button" data-verdict-demand="${d.id}" class="${selected.has(d.id)?'is-selected':''}" ${submitting?'disabled':''}><small>${escapeHtml(d.title)}</small><span>${escapeHtml(d.from)} <i>→</i> ${escapeHtml(d.to)}</span><p>${escapeHtml(d.note)}</p><b>${selected.has(d.id)?'SELECTED':'ASK'}</b></button>`).join('')}</div><div class="verdict-negotiation-actions"><span>${selected.size} / 2 asks</span><button type="button" data-verdict-submit ${submitting?'disabled':''}>${submitting?'SUBMITTING…':'SUBMIT TERMS'}</button></div>`:`<div class="verdict-revised-terms">${rows.map(([k,v])=>`<span><small>${escapeHtml(k)}</small><b>${escapeHtml(String(v))}</b></span>`).join('')}</div><div class="verdict-counter-note"><strong>${offer.rejectedDemands?.length?'COUNTER-OFFER':'ACCEPTED'}</strong><p>${escapeHtml(state.verdictTransient||'Terms recorded.')}</p></div><button type="button" class="verdict-primary" data-verdict-next="q71">CONTINUE · LEAVE BOARDROOM</button>`}</section></main>`;root.innerHTML=verdictShell(scene,idx,body,'is-contract');
+  }
+
+  function renderVerdictInterest(scene,idx,story,c7){
+    const out=c7.outsideInterest||{},response=out.response;const body=`<main class="verdict-interest"><section class="verdict-phone"><small>09:41 · UNKNOWN PADDOCK NUMBER</small><div class="verdict-message"><b>SUNSCALE RACING</b><p>Jalen’s management asked whether your Quickquill contract is already signed. No offer. No meeting request. Just the question.</p></div>${!response?`<div class="verdict-message-actions"><button data-verdict-interest="hear"><b>HEAR THEM OUT</b><small>Keep the door open.</small></button><button data-verdict-interest="tell"><b>SHOW MARA</b><small>No games with your own team.</small></button><button data-verdict-interest="ignore"><b>ARCHIVE IT</b><small>Not every rumour deserves oxygen.</small></button></div>`:`<div class="verdict-message-result"><strong>${response==='hear'?'DOOR LEFT OPEN':response==='tell'?'MARA NOW KNOWS':'MESSAGE ARCHIVED'}</strong><p>${response==='hear'?'You reply with one line: “Not signed yet.” Nothing more.':response==='tell'?'Mara reads it and hands the phone back. “Good. Now you know why the meeting was today.”':'You lock the screen. The question still exists, just not in the room.'}</p><button data-verdict-next="q72">FIND TYRESE</button></div>`}</section></main>`;root.innerHTML=verdictShell(scene,idx,body,'is-interest');
+  }
+
+  function renderVerdictTyrese(scene,idx,story,c7){
+    const record=verdictWeekendRecord(story),offer=verdictOfferEnsure(story),choice=c7.tyreseChoice;let opener=`Tyrese reads the words “${offer.role}” and gives the contract back.`;if(record.raceFinishPosition<record.tyreseFinish)opener='Tyrese looks over the roof instead of at you. “You beat me at Lumerre. So this bit was always coming.”';
+    const responses={team:'“Good,” Tyrese says. “Then be useful when the lights are out and unbearable when they are on.”',equal:'Tyrese nods once. “Equal machinery. Equal excuses. I can live with that.”',lead:'Tyrese laughs, properly this time. “There you are. Took seven chapters.”'};
+    const body=`<main class="verdict-tyrese"><section class="verdict-walktalk"><div class="verdict-tyrese-copy"><small>ROOFTOP · NO BOARD MEMBERS</small><p>${escapeHtml(opener)}</p><p>“I only care about one thing. What do you actually think this is now?”</p>${!choice?`<div><button data-verdict-tyrese="team">WE'RE A TEAM</button><button data-verdict-tyrese="equal">I WANT EQUAL MACHINERY</button><button data-verdict-tyrese="lead">I WANT YOUR SEAT EVENTUALLY</button></div>`:`<aside>${escapeHtml(responses[choice]||'')}</aside><button class="verdict-primary" data-verdict-next="q73">BACK TO THE LOCKER</button>`}</div><div class="verdict-tyrese-reaction">${portraitMarkup({character:'tyrese',frame:choice==='lead'?8:choice==='team'?7:6,side:'right'})}</div></section></main>`;root.innerHTML=verdictShell(scene,idx,body,'is-tyrese');
+  }
+
+  function verdictDecisionSummary(c7){const o=c7.offer||{};if(c7.decision==='sign')return `Quickquill · ${o.role} · ${o.length} ${o.length===1?'season':'seasons'} · signed.`;if(c7.decision==='time')return 'Quickquill holds the revised terms for 24 hours. The career continues with the decision still yours.';if(c7.decision==='sunscale')return 'You leave Quickquill unsigned and agree to hear what Sunscale actually wants. Interest is not a transfer.';return '';}
+
+  function renderVerdictDecision(scene,idx,story,c7){
+    const offer=verdictOfferEnsure(story),decision=c7.decision,canSun=c7.outsideInterest?.response==='hear';const body=`<main class="verdict-decision"><section class="verdict-locker-line"><small>THE SAME EMPTY LOCKER · DIFFERENT QUESTION</small><h1>${escapeHtml(storyDragonName())} is no longer asking to stay.</h1><p>The first contract was three races to prove you belonged. This one is about what you want belonging to mean.</p></section>${!decision?`<div class="verdict-decision-grid"><button data-verdict-decision="sign"><b>SIGN QUICKQUILL</b><small>${escapeHtml(offer.role)} · ${offer.length} ${offer.length===1?'season':'seasons'}</small></button><button data-verdict-decision="time"><b>ASK FOR 24 HOURS</b><small>Do not sign because the room expects it.</small></button><button data-verdict-decision="sunscale" ${canSun?'':'disabled'}><b>HEAR OUT SUNSCALE</b><small>${canSun?'Leave unsigned and take the call.':'No open conversation with Sunscale.'}</small></button></div>`:`<section class="verdict-signature-result"><small>DECISION RECORDED</small><h2>${decision==='sign'?'QUICKQUILL SIGNED':decision==='time'?'NO SIGNATURE — YET':'SUNSCALE CONVERSATION OPEN'}</h2><p>${escapeHtml(verdictDecisionSummary(c7))}</p><button data-verdict-next="q74">LEAVE THE ROOM</button></section>`}</main>`;root.innerHTML=verdictShell(scene,idx,body,'is-decision');
+  }
+
+  function renderVerdictFinale(scene,idx,story,c7){
+    const o=verdictOfferEnsure(story),record=verdictWeekendRecord(story),next=c7.decision==='sign'?'FIRST FULL PROFESSIONAL SEASON':c7.decision==='sunscale'?'THE PADDOCK OPENS':'TWENTY-FOUR HOURS';const body=`<main class="verdict-finale"><section class="verdict-finale-card"><small>CHAPTER SEVEN COMPLETE</small><h1>THE VERDICT</h1><p>A career is now something you can negotiate, delay or redirect.</p><div class="verdict-final-grid"><span><small>LUMERRE</small><b>P${record.raceFinishPosition||7}</b></span><span><small>CONTRACT</small><b>${escapeHtml(String(o.status||'').replaceAll('-',' ').toUpperCase())}</b></span><span><small>ROLE</small><b>${escapeHtml(o.role||'—')}</b></span><span><small>TERM</small><b>${o.length||2} ${o.length===1?'SEASON':'SEASONS'}</b></span><span><small>OUTSIDE INTEREST</small><b>${c7.outsideInterest?.response==='hear'?'SUNSCALE OPEN':c7.outsideInterest?.response==='tell'?'DECLARED':'CLOSED'}</b></span><span><small>TYRESE</small><b>${escapeHtml(String(c7.tyreseChoice||'UNSAID').toUpperCase())}</b></span></div><div class="verdict-next"><small>NEXT</small><strong>${escapeHtml(next)}</strong><span>Calendar · objectives · standings · rivalries · contracts</span></div><button data-verdict-finish>COMPLETE CHAPTER SEVEN</button></section></main>`;root.innerHTML=verdictShell(scene,idx,body,'is-finale');
+  }
+
+  function renderVerdict(scene,beat,idx){
+    const story=state.story,c7=verdictState(story);verdictOfferEnsure(story);
+    if(beat.type==='verdict-arrival')renderVerdictArrival(scene,idx,story,c7);
+    else if(beat.type==='verdict-hq-hub')renderVerdictHq(scene,idx,story,c7);
+    else if(beat.type==='verdict-board-review')renderVerdictReview(scene,idx,story,c7);
+    else if(beat.type==='verdict-offer')renderVerdictOffer(scene,idx,story,c7);
+    else if(beat.type==='verdict-negotiate')renderVerdictNegotiate(scene,idx,story,c7);
+    else if(beat.type==='verdict-interest')renderVerdictInterest(scene,idx,story,c7);
+    else if(beat.type==='verdict-tyrese')renderVerdictTyrese(scene,idx,story,c7);
+    else if(beat.type==='verdict-decision')renderVerdictDecision(scene,idx,story,c7);
+    else renderVerdictFinale(scene,idx,story,c7);
+    root.querySelector('[data-verdict-hub]')?.addEventListener('click',returnToHubFromStory);
+    root.querySelectorAll('[data-verdict-next]').forEach(btn=>btn.addEventListener('click',()=>{void verdictGo(btn.dataset.verdictNext||'q74');}));
+    root.querySelectorAll('[data-verdict-intro]').forEach(btn=>btn.addEventListener('click',()=>{void verdictAdvanceIntro(btn.dataset.verdictIntro||'0');}));
+    root.querySelectorAll('[data-verdict-arrival]').forEach(btn=>btn.addEventListener('click',()=>{void verdictArrivalChoice(btn.dataset.verdictArrival||'quiet');}));
+    root.querySelectorAll('[data-verdict-hq-spot]').forEach(btn=>btn.addEventListener('click',()=>{void verdictVisitHq(btn.dataset.verdictHqSpot||'');}));
+    root.querySelector('[data-verdict-board-call]')?.addEventListener('click',()=>{void verdictCallBoardroom();});
+    root.querySelectorAll('[data-verdict-review]').forEach(btn=>btn.addEventListener('click',()=>{void verdictReviewCard(btn.dataset.verdictReview||'');}));
+    root.querySelector('[data-verdict-close]')?.addEventListener('click',()=>{state.verdictModal='';state.verdictTransient='';render();});
+    root.querySelectorAll('[data-verdict-demand]').forEach(btn=>btn.addEventListener('click',()=>{void verdictToggleDemand(btn.dataset.verdictDemand||'');}));
+    root.querySelector('[data-verdict-submit]')?.addEventListener('click',()=>{void verdictSubmitNegotiation();});
+    root.querySelectorAll('[data-verdict-interest]').forEach(btn=>btn.addEventListener('click',()=>{void verdictOutsideInterest(btn.dataset.verdictInterest||'ignore');}));
+    root.querySelectorAll('[data-verdict-tyrese]').forEach(btn=>btn.addEventListener('click',()=>{void verdictTyreseChoice(btn.dataset.verdictTyrese||'team');}));
+    root.querySelectorAll('[data-verdict-decision]').forEach(btn=>btn.addEventListener('click',()=>{void verdictDecision(btn.dataset.verdictDecision||'');}));
+    root.querySelector('[data-verdict-finish]')?.addEventListener('click',()=>{void finishVerdictChapter();});
+  }
+
+  function seasonState(story=state.story){
+    const base=defaultQuickquillStory().chapter8,c8=story?.chapter8||{};
+    const baseChamp=base.championship||{},champ=c8.championship||{},baseRounds=baseChamp.rounds||{},rounds=champ.rounds||{};
+    return {
+      ...base,...c8,
+      calendar:{...base.calendar,...(c8.calendar||{})},
+      weeklyPlan:{...base.weeklyPlan,...(c8.weeklyPlan||{}),allocations:{...base.weeklyPlan.allocations,...(c8.weeklyPlan?.allocations||{})},readiness:{...base.weeklyPlan.readiness,...(c8.weeklyPlan?.readiness||{})}},
+      telemetry:{...base.telemetry,...(c8.telemetry||{})},
+      pitwall:{...base.pitwall,...(c8.pitwall||{})},
+      objectives:{...base.objectives,...(c8.objectives||{})},
+      championship:{
+        ...baseChamp,...champ,
+        points:{...(baseChamp.points||{}),...(champ.points||{})},
+        rounds:{
+          ...baseRounds,...rounds,
+          velmora:{
+            ...(baseRounds.velmora||{}),...(rounds.velmora||{}),
+            qualifyingGrid:Array.isArray(rounds.velmora?.qualifyingGrid)?rounds.velmora.qualifyingGrid.slice(0,7).map(row=>({...row})):[],
+            result:rounds.velmora?.result&&typeof rounds.velmora.result==='object'?cloneValue(rounds.velmora.result):null
+          }
+        }
+      }
+    };
+  }
+
+  function seasonActivityCost(id,story=state.story){if(id==='sponsor'&&Number(story?.chapter7?.offer?.sponsorDays||6)<=4)return 1;return SEASON_PLAN_ACTIVITIES[id]?.cost||0;}
+  function seasonPlanSpent(plan,story=state.story){return Object.entries(plan?.allocations||{}).reduce((sum,[id,count])=>sum+seasonActivityCost(id,story)*Math.max(0,Number(count)||0),0);}
+  function seasonReadiness(plan){
+    const result={pace:50,control:50,stamina:50,bond:50,team:50};
+    Object.entries(plan?.allocations||{}).forEach(([id,count])=>{const effects=SEASON_PLAN_ACTIVITIES[id]?.effects||{};Object.entries(effects).forEach(([key,value])=>{result[key]=Math.min(100,result[key]+(Number(count)||0)*Number(value||0));});});
+    return result;
+  }
+  function seasonPlanProfile(plan){const top=Object.entries(plan.allocations||{}).sort((a,b)=>Number(b[1])-Number(a[1]))[0];return !top||!top[1]?'UNSET':({bond:'CONNECTED',flight:'ATTACK READY',strength:'POWER WEEK',engineering:'TECHNICAL EDGE',recovery:'FRESH LEGS',sponsor:'TEAM FIRST'})[top[0]]||'BALANCED';}
+  function seasonPitwallGrade(score){return score>=9?'COMMAND VOICE':score>=6?'RACE READER':'CALM HAND';}
+
+  function seasonRoundState(c8,id='velmora'){
+    const base=defaultQuickquillStory().chapter8.championship.rounds.velmora;
+    return {...base,...(c8?.championship?.rounds?.[id]||{}),qualifyingGrid:Array.isArray(c8?.championship?.rounds?.[id]?.qualifyingGrid)?c8.championship.rounds[id].qualifyingGrid.slice(0,7).map(row=>({...row})):[]};
+  }
+
+  function seasonRacerLabel(id){
+    if(id==='player')return `${storyDragonName()} · Quickquill`;
+    const row=SEASON_RACER_META[id]||{name:id,team:''};
+    return `${row.name}${row.team?` · ${row.team}`:''}`;
+  }
+
+  function seasonStandings(c8){
+    const points=c8?.championship?.points||{};
+    return SEASON_RACER_IDS.map((id,index)=>({id,points:Math.max(0,Number(points[id])||0),seed:index,label:seasonRacerLabel(id)}))
+      .sort((a,b)=>b.points-a.points||a.seed-b.seed);
+  }
+
+  function seasonPointsForPosition(position){return Number(SEASON_POINTS[Math.max(1,Number(position)||99)-1])||0;}
+
+  function seasonQualifyingGrid(story,c8,id='velmora'){
+    const current=seasonRoundState(c8,id);
+    if(current.qualifyingGrid.length===7)return current.qualifyingGrid.map(row=>({...row}));
+    const profile=SEASON_RACE_PROFILES[id]||SEASON_RACE_PROFILES.velmora;
+    const evolution=syncCareerEvolution(story);
+    const raceWindow=careerPerformanceWindow(profile.raceNumber);
+    const readiness=c8.weeklyPlan?.readiness||seasonReadiness(c8.weeklyPlan||{});
+    const playerRating=78.5+(Math.max(42,Number(raceWindow.paceTarget)||42)-42)*.20+
+      (Math.max(0,Number(readiness.pace)||50)-50)*.022+
+      (Math.max(0,Number(readiness.control)||50)-50)*.014+
+      (c8.telemetry?.correct?.55:0)+(Math.max(0,Number(c8.pitwall?.score)||0)*.035);
+    const rows=[{
+      id:'player',racerId:'player',name:storyDragonName(),team:'Quickquill',isPlayer:true,
+      qualifyingScore:playerRating+(Math.random()-.5)*4.4,
+      ai:{pace:Math.round(playerRating),consistency:80,aggression:74,defending:80,overtaking:80,stamina:Math.round(Number(readiness.stamina)||70),pressure:82,style:evolution.playerStyle||'Adaptive'}
+    }];
+    Object.entries(CAREER_RACER_AI).forEach(([racerId,ai])=>{
+      const cityEdge=id==='velmora'?((Number(ai.aggression)||75)-75)*.010+((Number(ai.overtaking)||80)-80)*.010:0;
+      const technicalEdge=id==='greenwater'?Number(ai.sectorBias?.technical||0)*.16:0;
+      const pressureEdge=((Number(ai.pressure)||80)-80)*.012;
+      const variance=Math.max(.8,Math.min(3.0,(106-(Number(ai.consistency)||82))/10));
+      rows.push({id:racerId,racerId,name:ai.name,team:ai.team,isPlayer:false,qualifyingScore:Number(ai.pace)+cityEdge+technicalEdge+pressureEdge+(Math.random()-.5)*variance*2,ai:{...ai,sectorBias:{...(ai.sectorBias||{})}}});
+    });
+    rows.sort((a,b)=>b.qualifyingScore-a.qualifyingScore);
+    return rows.map((row,index)=>({...row,gridPosition:index+1,position:index+1,qualifyingScore:Number(row.qualifyingScore.toFixed(2))}));
+  }
+
+  function seasonRacePlanText(id){
+    return ({
+      clean:{title:'BUILD THE EXIT',note:'Protect the dragon, stay off the walls and make rivals overcommit.'},
+      adaptive:{title:'READ THE STREET',note:'Balanced pace. Change the race only when the gap is actually there.'},
+      attack:{title:'TAKE THE LATE BRAKE',note:'Higher passing pressure and launch aggression, with more mistake exposure.'}
+    })[id]||{title:'READ THE STREET',note:'Balanced pace and flexible race calls.'};
+  }
+
+  async function seasonChooseRacePlan(id){
+    if(state.storySaving||!['clean','adaptive','attack'].includes(id))return;
+    const changed=cloneValue(state.story),c8=seasonState(changed),round=seasonRoundState(c8,'velmora');
+    if(round.status==='complete')return;
+    round.strategy=id;c8.championship.rounds.velmora=round;changed.chapter8=c8;state.story=changed;state.seasonTransient='';
+    try{await persistStory(changed,{stageOverride:'quickquill-season-control'});}catch(_){}
+    render();
+  }
+
+  function seasonSetControlTab(id){
+    if(!['weekend','championship','development'].includes(id))return;
+    state.seasonControlTab=id;state.seasonTransient='';render();
+  }
+
+  async function seasonPrepareQualifying(){
+    if(state.storySaving||!state.activeSave)return;
+    const changed=normaliseQuickquillStory(cloneValue(state.story||activeSaveState().story)),c8=seasonState(changed),round=seasonRoundState(c8,'velmora');
+    if(!c8.seasonHubUnlocked){state.storyError='Finish Opening Week and unlock Season Control first.';render();return;}
+    if(round.status==='complete'){state.seasonTransient='Round One is already official.';render();return;}
+    if(round.qualifyingGrid.length===7){
+      if(round.status==='not-started')round.status='ready';
+      c8.championship.rounds.velmora=round;changed.chapter8=c8;state.story=changed;state.seasonControlTab='weekend';
+      const existingPosition=Math.max(1,round.qualifyingGrid.findIndex(row=>row.isPlayer||row.id==='player')+1);
+      state.seasonTransient=`QUALIFYING ALREADY RECORDED · P${existingPosition}`;
+      render();return;
+    }
+    const qualifyingGrid=seasonQualifyingGrid(changed,c8,'velmora');
+    const startPosition=Math.max(1,qualifyingGrid.findIndex(row=>row.isPlayer||row.id==='player')+1);
+    round.status='ready';round.runId='';round.qualifyingGrid=qualifyingGrid;
+    c8.championship.rounds.velmora=round;changed.chapter8=c8;changed.chapter='season-one';changed.scene='q80';changed.beat=0;
+    changed.history=[...(changed.history||[]),{scene:'q80',event:'season-round-one-qualifying',startPosition}].slice(-160);
+    state.story=changed;state.seasonControlTab='weekend';state.seasonTransient=`QUALIFYING COMPLETE · P${startPosition}`;
+    try{await persistStory(changed,{stageOverride:'quickquill-season-control'});render();}
+    catch(error){state.storySaving=false;state.storyError=error?.message||'Qualifying could not be saved. Your Opening Week is safe.';render();}
+  }
+
+  async function launchSeasonRoundOne(){
+    if(state.storySaving||!state.activeSave)return;
+    const changed=normaliseQuickquillStory(cloneValue(state.story||activeSaveState().story)),c8=seasonState(changed),profile=SEASON_RACE_PROFILES.velmora;
+    const round=seasonRoundState(c8,'velmora');
+    if(!c8.seasonHubUnlocked){state.storyError='Finish Opening Week and unlock Season Control first.';render();return;}
+    if(round.status==='complete'){state.seasonTransient='Round One is already in the championship record.';render();return;}
+    if(round.qualifyingGrid.length!==7){
+      state.seasonTransient='Qualifying comes first. Run the Saturday session before going to the grid.';
+      state.seasonControlTab='weekend';render();return;
+    }
+    const qualifyingGrid=round.qualifyingGrid.map(row=>({...row}));
+    const startPosition=Math.max(1,qualifyingGrid.findIndex(row=>row.isPlayer||row.id==='player')+1);
+    const runId=String(round.runId||`season-01-${Date.now()}-${Math.random().toString(36).slice(2,8)}`);
+    round.status='in-progress';round.runId=runId;round.presentationMode=c8.raceMode||'watch';round.strategy=['clean','adaptive','attack'].includes(round.strategy)?round.strategy:'adaptive';round.qualifyingGrid=qualifyingGrid;
+    c8.championship.rounds.velmora=round;c8.championship.currentRound=1;changed.chapter8=c8;changed.chapter='season-one';changed.scene='q80';changed.beat=0;
+    changed.history=[...(changed.history||[]),{scene:'q80',event:'season-round-one-grid',runId,startPosition,mode:round.presentationMode,strategy:round.strategy}].slice(-160);
+    try{
+      await persistStory(changed,{stageOverride:'quickquill-season-round-1'});
+      state.story=changed;state.storyError='';state.seasonTransient='';
+      sendParent('dragonbound-career-story-race-start',{
+        careerSaveId:state.activeSave.id,
+        runId,
+        raceKey:'season-01-velmora',
+        seasonRound:1,
+        seasonRoundId:'velmora',
+        raceNumber:profile.raceNumber,
+        trackId:profile.trackId,
+        accountKey:accountKey(username()),
+        playerKey:accountKey(username()),
+        playerName:storyDragonName(),
+        strategy:'focus',
+        seasonStrategy:round.strategy,
+        presentationMode:round.presentationMode,
+        startPosition,
+        qualifyingGrid:qualifyingGrid.map(row=>({name:row.name,position:row.gridPosition,id:row.id})),
+        entrants:qualifyingGrid.map(row=>({...row})),
+        openingReadiness:{...(c8.weeklyPlan?.readiness||{})},
+        telemetryCorrect:!!c8.telemetry?.correct,
+        pitwallScore:Math.max(0,Number(c8.pitwall?.score)||0),
+        pitwallGrade:String(c8.pitwall?.grade||''),
+        seasonAmbition:String(c8.calendar?.ambition||''),
+        seasonProfile:{...profile},
+        careerEvolution:careerEvolutionRaceConfig(changed,profile.raceNumber)
+      });
+      render();
+    }catch(error){
+      console.error('[Dragonbound Career Mode] Season Round One launch failed',error);
+      state.storySaving=false;state.storyError=error?.message||'Velmora City Circuit could not be prepared. Your qualifying result and Opening Week are safe.';render();
+    }
+  }
+
+  function seasonClassificationRows(result={}){
+    const rows=Array.isArray(result.classification)?result.classification:Array.isArray(result.standings)?result.standings:[];
+    return rows.slice(0,7).map((row,index)=>{
+      const raw=String(row?.id||row?.racerId||'').replace(/^story-/,'');
+      const id=raw==='player'||row?.isPlayer?'player':raw;
+      return {id,racerId:id,name:String(row?.name||seasonRacerLabel(id).split(' · ')[0]),rank:Math.max(1,Number(row?.rank||row?.position)||index+1),position:Math.max(1,Number(row?.rank||row?.position)||index+1),isPlayer:id==='player',finishMs:Math.max(0,Number(row?.finishMs)||0),bestLapMs:Math.max(0,Number(row?.bestLapMs)||0),gridPosition:Math.max(1,Number(row?.gridPosition)||index+1)};
+    }).sort((a,b)=>a.rank-b.rank);
+  }
+
+  async function acceptSeasonRaceResult(result={}){
+    if(!state.activeSave||state.storySaving)return;
+    if(!(String(result.raceKey||'').startsWith('season-')||Number(result.seasonRound)===1||result.trackId==='velmora_city_circuit'&&state.story?.chapter==='season-one'))return;
+    const story=normaliseQuickquillStory(state.story||activeSaveState().story),c8Current=seasonState(story),current=seasonRoundState(c8Current,'velmora');
+    if(current.status==='complete')return;
+    if(result.careerSaveId&&String(result.careerSaveId)!==String(state.activeSave.id))return;
+    if(current.runId&&result.runId&&String(current.runId)!==String(result.runId))return;
+    const changed=cloneValue(story),c8=seasonState(changed),round=seasonRoundState(c8,'velmora');
+    const classification=seasonClassificationRows(result);
+    const playerRow=classification.find(row=>row.id==='player')||{rank:Math.max(1,Math.min(7,Number(result.rank)||7)),gridPosition:Math.max(1,Math.min(7,Number(result.startPosition)||7))};
+    const rank=Math.max(1,Math.min(7,Number(playerRow.rank)||7));
+    round.status='complete';round.runId='';round.completedAt=new Date().toISOString();round.presentationMode=String(result.presentationMode||round.presentationMode||c8.raceMode||'watch');
+    round.result={
+      rank,
+      finishMs:Math.max(0,Number(result.finishMs||playerRow.finishMs)||0),
+      bestLapMs:Math.max(0,Number(result.bestLapMs||playerRow.bestLapMs)||0),
+      startPosition:Math.max(1,Math.min(7,Number(result.startPosition||playerRow.gridPosition)||7)),
+      positionsGained:Math.max(0,Number(result.positionsGained)||Math.max(0,(Number(result.startPosition||playerRow.gridPosition)||7)-rank)),
+      overtakes:Math.max(0,Number(result.playerOvertakes??result.totalOvertakes)||0),
+      leadChanges:Math.max(0,Number(result.leadChanges)||0),
+      photoFinish:!!result.photoFinish,
+      notableMoment:String(result.notableMoment||''),
+      rivalRanks:result.rivalRanks&&typeof result.rivalRanks==='object'?{...result.rivalRanks}:{},
+      classification,
+      events:Array.isArray(result.events)?result.events.slice(-20).map(row=>typeof row==='object'?{...row}:row):[],
+      liveCalls:Array.isArray(result.seasonCallResponses)?result.seasonCallResponses.slice(0,4).map(row=>({...row})):[]
+    };
+    for(const row of classification){
+      if(!SEASON_RACER_IDS.includes(row.id))continue;
+      c8.championship.points[row.id]=Math.max(0,Number(c8.championship.points[row.id])||0)+seasonPointsForPosition(row.rank);
+    }
+    c8.championship.currentRound=2;c8.championship.rounds.velmora=round;changed.chapter8=c8;changed.chapter='season-one';changed.scene='q80';changed.beat=0;
+    if(rank===1){changed.relationships.quickquillTrust+=5;changed.relationships.maraBond+=2;changed.relationships.tyreseBond+=2;}
+    else if(rank<=3){changed.relationships.quickquillTrust+=3;changed.relationships.tyreseBond+=1;}
+    else if(rank<=5)changed.relationships.quickquillTrust+=2;
+    else changed.relationships.dragonBond+=1;
+    const evolution=syncCareerEvolution(changed);
+    applyRaceToCareerEvolution(evolution,{
+      key:'race-04-season-velmora',event:'Velmora City Circuit',rank,startPosition:round.result.startPosition,
+      qualifying:round.result.startPosition,overtakes:round.result.overtakes,positionsGained:round.result.positionsGained,
+      leadChanges:round.result.leadChanges,strategy:'focus',completedAt:round.completedAt,photoFinish:round.result.photoFinish,
+      notableMoment:round.result.notableMoment,events:round.result.events,rivalRanks:round.result.rivalRanks
+    },changed);
+    changed.careerEvolution=evolution;
+    changed.history=[...(changed.history||[]),{scene:'q80',event:'season-round-one-result',rank,points:seasonPointsForPosition(rank),startPosition:round.result.startPosition}].slice(-160);
+    state.story=changed;state.mode='story';state.storyError='';state.seasonTransient=rank===1?'ROUND ONE WIN · VELMORA BELONGS TO QUICKQUILL':rank<=3?`ROUND ONE PODIUM · ${ordinal(rank)}`:`ROUND ONE COMPLETE · ${ordinal(rank)}`;
+    try{await persistStory(changed,{stageOverride:'quickquill-season-control'});render();syncMusic({restart:true});}
+    catch(error){state.storySaving=false;state.storyError=error?.message||'The race finished, but the Round One championship result could not be saved.';render();}
+  }
+
+  async function handleSeasonRaceAbort(message=''){
+    if(!state.activeSave)return;
+    const changed=normaliseQuickquillStory(state.story||activeSaveState().story),c8=seasonState(changed),round=seasonRoundState(c8,'velmora');
+    if(round.status==='complete')return;
+    round.status='ready';round.runId='';c8.championship.rounds.velmora=round;changed.chapter8=c8;changed.chapter='season-one';changed.scene='q80';changed.beat=0;
+    state.story=changed;state.mode='story';state.storyError=message||'Race exited. Your qualifying grid and Opening Week are safe — return to Velmora when ready.';
+    try{await persistStory(changed,{stageOverride:'quickquill-season-control'});}catch(_){}
+    render();syncMusic({restart:true});
+  }
+
+  async function startSeasonOpening(){
+    if(state.storySaving||!state.story?.completed?.verdict)return;
+    const changed=cloneValue(state.story),c8=seasonState(changed);c8.started=true;c8.startedAt=c8.startedAt||new Date().toISOString();changed.chapter8=c8;changed.chapter='season-one';changed.scene=c8.completed?'q80':QUICKQUILL_SEASON_SCENES.some(row=>row.id===changed.scene)?changed.scene:'q75';changed.beat=0;changed.history=[...(changed.history||[]),{scene:changed.scene,event:'season-opening-start'}].slice(-140);state.story=changed;state.mode='story';
+    await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();syncMusic({restart:true});
+  }
+
+  async function seasonGo(sceneId){
+    if(state.storySaving||!QUICKQUILL_SEASON_SCENES.some(row=>row.id===sceneId))return;
+    const changed=cloneValue(state.story);changed.chapter='season-one';changed.scene=sceneId;changed.beat=0;changed.history=[...(changed.history||[]),{scene:sceneId,event:'season-opening-progress'}].slice(-140);
+    state.story=changed;state.seasonView='';state.seasonTransient='';
+    await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();syncMusic({restart:true});
+  }
+
+  async function seasonInspectRound(id){const row=SEASON_SCHEDULE.find(item=>item.id===id);if(!row||state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.calendar.seen.includes(id))c8.calendar.seen.push(id);changed.chapter8=c8;state.story=changed;state.seasonView=id;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+  async function seasonChooseAmbition(id){if(state.storySaving||!['build','podiums','title'].includes(id))return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!['velmora','grandice'].every(key=>c8.calendar.seen.includes(key))){state.seasonTransient='Inspect the opener and finale before setting the season ambition.';render();return;}c8.calendar.ambition=id;changed.chapter8=c8;if(id==='build')changed.identity.focus+=2;else if(id==='podiums'){changed.identity.heart+=1;changed.identity.focus+=1;}else changed.identity.fire+=2;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+
+  function seasonAdjustPlan(id,delta){if(state.storySaving)return;const activity=SEASON_PLAN_ACTIVITIES[id],changed=cloneValue(state.story),c8=seasonState(changed);if(!activity||c8.weeklyPlan.locked)return;const current=Math.max(0,Number(c8.weeklyPlan.allocations[id])||0),next=Math.max(0,Math.min(3,current+delta));const projected=seasonPlanSpent(c8.weeklyPlan,changed)+(next-current)*seasonActivityCost(id,changed);if(projected>c8.weeklyPlan.budget){state.seasonTransient='Only six preparation hours are available. Remove something before adding that block.';render();return;}c8.weeklyPlan.allocations[id]=next;c8.weeklyPlan.readiness=seasonReadiness(c8.weeklyPlan);changed.chapter8=c8;state.story=changed;state.seasonTransient='';render();}
+  async function seasonLockPlan(){if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(seasonPlanSpent(c8.weeklyPlan)!==c8.weeklyPlan.budget){state.seasonTransient='Allocate all six hours before Nell locks the week.';render();return;}c8.weeklyPlan.locked=true;c8.weeklyPlan.readiness=seasonReadiness(c8.weeklyPlan);c8.weeklyPlan.profile=seasonPlanProfile(c8.weeklyPlan);changed.chapter8=c8;changed.relationships.nellBond+=1;changed.history=[...(changed.history||[]),{scene:'q76',event:'season-week-plan',allocations:{...c8.weeklyPlan.allocations},profile:c8.weeklyPlan.profile}].slice(-140);state.story=changed;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+
+  async function seasonInspectTelemetry(id){if(!SEASON_TELEMETRY_CLUES[id]||state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.telemetry.seen.includes(id))c8.telemetry.seen.push(id);changed.chapter8=c8;state.story=changed;state.seasonView=id;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+  async function seasonAnswerTelemetry(id){if(state.storySaving)return;const answer=SEASON_TELEMETRY_ANSWERS.find(row=>row.id===id),changed=cloneValue(state.story),c8=seasonState(changed);if(!answer||c8.telemetry.seen.length<3||c8.telemetry.completed)return;c8.telemetry.attempts+=1;c8.telemetry.choice=id;c8.telemetry.correct=answer.correct;c8.telemetry.feedback=answer.correct?'Nell freezes the traces together. The dragon was correcting on time. The sensor was telling the story late.':c8.telemetry.attempts<2?'Nell: “That explains a bad input. It does not explain the same 0.18-second delay three times. Compare the timestamps.”':'Not the clean diagnosis, but Nell isolates the delayed timestamp before the car leaves the lab. The lesson still goes on the record.';c8.telemetry.completed=answer.correct||c8.telemetry.attempts>=2;if(answer.correct){changed.relationships.nellBond+=3;changed.identity.focus+=2;const evolution=syncCareerEvolution(changed);evolution.racecraft.technicalUnderstanding=clampCareerValue(Number(evolution.racecraft.technicalUnderstanding||50)+2);changed.careerEvolution=evolution;}changed.chapter8=c8;changed.history=[...(changed.history||[]),{scene:'q77',event:'telemetry-diagnosis',choice:id,correct:answer.correct,attempt:c8.telemetry.attempts}].slice(-140);state.story=changed;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+
+  async function seasonPitwallChoice(id){if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed),scenario=SEASON_PITWALL_SCENARIOS[c8.pitwall.stage],option=scenario?.options.find(row=>row.id===id);if(!option||c8.pitwall.reviewing||c8.pitwall.completed)return;let earned=option.score,result=option.note;if(scenario.id==='team'){const bond=Number(changed.relationships?.tyreseBond||40);if(id==='swap'&&bond<50){earned=1;result='The pace call is sound, but the weak Tyrese understanding makes the swap untidy. Jalen gains time while Quickquill explains it.';}else if(id==='swap'){result='Tyrese acknowledges immediately. The relationship turns a difficult swap into a clean team move.';}else if(id==='hold'&&bond<50){earned=2;result='With the teammate channel already tense, formation is the cleanest way to deny Jalen the opening.';}}c8.pitwall.score+=earned;c8.pitwall.choices.push({scenario:scenario.id,choice:id,score:earned});c8.pitwall.lastResult=result;c8.pitwall.reviewing=true;changed.chapter8=c8;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+  async function seasonPitwallNext(){if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.pitwall.reviewing)return;c8.pitwall.stage+=1;c8.pitwall.reviewing=false;c8.pitwall.lastResult='';if(c8.pitwall.stage>=SEASON_PITWALL_SCENARIOS.length){c8.pitwall.completed=true;c8.pitwall.grade=seasonPitwallGrade(c8.pitwall.score);changed.relationships.quickquillTrust+=c8.pitwall.score>=6?2:1;}changed.chapter8=c8;changed.history=[...(changed.history||[]),{scene:'q78',event:c8.pitwall.completed?'pitwall-sim-complete':'pitwall-next-call',score:c8.pitwall.score}].slice(-140);state.story=changed;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+
+  function seasonToggleObjective(id){if(state.storySaving)return;const definition=SEASON_OBJECTIVES.find(row=>row.id===id),changed=cloneValue(state.story),c8=seasonState(changed);if(!definition||c8.objectives.locked)return;const selected=c8.objectives.selected,at=selected.indexOf(id);if(at>=0)selected.splice(at,1);else if(selected.length<3)selected.push(id);else{state.seasonTransient='Three promises maximum. Remove one before choosing another.';render();return;}changed.chapter8=c8;state.story=changed;state.seasonTransient='';render();}
+  async function seasonLockObjectives(){if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed),defs=c8.objectives.selected.map(id=>SEASON_OBJECTIVES.find(row=>row.id===id)).filter(Boolean);if(defs.length!==3||!defs.some(row=>row.scope==='team')||!defs.some(row=>row.scope==='personal')){state.seasonTransient='Choose exactly three promises, including at least one team goal and one personal goal.';render();return;}c8.objectives.locked=true;changed.chapter8=c8;changed.relationships.maraBond+=2;changed.history=[...(changed.history||[]),{scene:'q79',event:'season-objectives-locked',objectives:[...c8.objectives.selected]}].slice(-140);state.story=changed;await persistStory(changed,{stageOverride:'quickquill-season-opening'});render();}
+
+  async function seasonChooseRaceMode(id){
+    if(!['watch','quick','full'].includes(id)||state.storySaving)return;
+    const changed=cloneValue(state.story),c8=seasonState(changed);c8.raceMode=id;changed.chapter8=c8;state.story=changed;
+    try{await persistStory(changed,{stageOverride:'quickquill-season-control'});}catch(_){}
+    render();
+  }
+  async function finishSeasonOpening(){
+    if(state.storySaving)return;
+    const changed=cloneValue(state.story),c8=seasonState(changed);
+    if(!c8.objectives.locked||!c8.pitwall.completed)return;
+    // V34.33: race presentation is a weekend choice, not an awkward story gate.
+    // Existing saves keep their preference; new saves enter the season in Watch Live.
+    c8.raceMode=['watch','quick','full'].includes(c8.raceMode)?c8.raceMode:'watch';
+    c8.completed=true;c8.completedAt=c8.completedAt||new Date().toISOString();c8.seasonHubUnlocked=true;
+    changed.chapter8=c8;changed.completed={...(changed.completed||{}),seasonOpening:true};changed.chapter='season-one';changed.scene='q80';
+    careerRegisterChapterType(changed,'open-hub');
+    changed.history=[...(changed.history||[]),{scene:'q80',event:'season-control-unlocked',raceMode:c8.raceMode}].slice(-140);
+    state.story=changed;state.seasonControlTab='weekend';state.seasonTransient='';
+    await persistStory(changed,{stageOverride:'quickquill-season-control'});render();
+  }
+
+  function seasonShell(scene,idx,body,extra=''){
+    const labels=[
+      ['TUE','CALENDAR'],
+      ['WED','PLAN'],
+      ['WED','TELEMETRY'],
+      ['THU','PIT WALL'],
+      ['FRI','PROMISES'],
+      ['WEEKEND','CONTROL']
+    ];
+    const inControl=scene.id==='q80'&&!!seasonState().seasonHubUnlocked;
+    const strip=inControl?'':`<nav class="season-week-strip" aria-label="Opening Week progress">${labels.map((row,i)=>`<span class="${i<idx?'is-done':''} ${i===idx?'is-current':''}"><small>${row[0]}</small><b>${row[1]}</b></span>`).join('')}</nav>`;
+    const progressLabel=inControl?`SEASON ONE · ROUND ${Math.max(1,Number(seasonState().championship.currentRound)||1)} / ${SEASON_SCHEDULE.length}`:`OPENING WEEK · ${labels[idx]?.[0]||'WEEKEND'} · ${idx+1} / ${QUICKQUILL_SEASON_SCENES.length}`;
+    const progressValue=inControl?Math.max(8,Math.min(100,(Math.max(1,Number(seasonState().championship.currentRound)||1)/SEASON_SCHEDULE.length)*100)):((idx+1)/QUICKQUILL_SEASON_SCENES.length)*100;
+    return `<section class="season-shell ${extra}" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}"><img class="season-backdrop" src="${scene.background}" alt="" aria-hidden="true"><div class="season-stage"><header class="season-header"><div><small>QUICKQUILL · FIRST FULL SEASON</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-season-hub>BACK TO HUB</button></header>${strip}<div class="season-progress"><i style="--season-progress:${progressValue}%"></i><span>${escapeHtml(progressLabel)}</span></div>${state.storyError?`<div class="season-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}${body}</div></section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
+  }
+
+  function seasonReadinessMarkup(readiness){return `<div class="season-readiness">${Object.entries(readiness).map(([key,value])=>`<span><small>${escapeHtml(key)}</small><i style="--meter:${value}%"></i><b>${Math.round(value)}</b></span>`).join('')}</div>`;}
+  function renderSeasonCalendar(scene,idx,c8){const seen=new Set(c8.calendar.seen||[]),required=['velmora','grandice'].every(id=>seen.has(id)),selected=c8.calendar.ambition;const ambitions=[['build','BUILD THE BASE','Learn the calendar and become difficult everywhere.'],['podiums','CHASE PODIUMS','Make Lumerre a standard, not a surprise.'],['title','SAY CHAMPIONSHIP','Accept the pressure before Round One.']];const detail=SEASON_SCHEDULE.find(row=>row.id===state.seasonView);const body=`<main class="season-calendar"><section class="season-intro"><small>TUESDAY · 09:12 · CONTRACT SIGNED YESTERDAY</small><h1>NOW THE CALENDAR GETS BIG.</h1><p>Mara rolls eight circuit cards across the strategy floor. This is the first quiet morning of the job you just signed for. Quickquill is not asking you to memorise eight races at once—only to understand where the season begins, where it ends, and what kind of year you want between them.</p></section><div class="season-route">${SEASON_SCHEDULE.map(row=>`<button data-season-round="${row.id}" class="${seen.has(row.id)?'is-seen':''} ${['velmora','grandice'].includes(row.id)?'is-required':''}"><small>ROUND ${row.round} · ${escapeHtml(row.country)}</small><b>${escapeHtml(row.venue)}</b><span>${escapeHtml(row.risk)}</span><i>${seen.has(row.id)?'✓':'INSPECT'}</i></button>`).join('')}</div>${detail?`<aside class="season-detail"><button data-season-close>×</button><small>ROUND ${detail.round} · RIVAL WATCH: ${escapeHtml(detail.rival)}</small><h2>${escapeHtml(detail.venue)}</h2><p>${escapeHtml(detail.note)}</p></aside>`:''}<section class="season-ambition"><header><small>SEASON INTENT</small><strong>${required?'Pick the sentence Mara writes above the calendar.':'Inspect Round 1 and Round 8 first.'}</strong></header><div>${ambitions.map(([id,title,note])=>`<button data-season-ambition="${id}" class="${selected===id?'is-selected':''}" ${!required?'disabled':''}><b>${title}</b><span>${note}</span></button>`).join('')}</div>${selected?`<button class="season-primary" data-season-next="q76">END TUESDAY · BUILD THE WEEK</button>`:''}</section></main>`;root.innerHTML=seasonShell(scene,idx,body,'is-calendar');}
+
+  function renderSeasonPlan(scene,idx,c8){const plan=c8.weeklyPlan,spent=seasonPlanSpent(plan),readiness=seasonReadiness(plan);const body=`<main class="season-plan"><section class="season-title"><small>WEDNESDAY · NELL’S WHITEBOARD</small><h1>SIX HOURS. NO PERFECT WEEK.</h1><p>This is your first professional preparation plan, not a permanent weekly menu. Spend the six hours, see what changes, then carry that lesson into Velmora.</p></section><div class="season-plan-layout"><div class="season-activities">${Object.entries(SEASON_PLAN_ACTIVITIES).map(([id,row])=>{const count=Number(plan.allocations[id])||0,cost=seasonActivityCost(id);return `<article class="${count?'is-active':''}"><small>${cost}H BLOCK${id==='sponsor'&&cost===1?' · NEGOTIATED':''}</small><h2>${row.title}</h2><p>${row.note}</p><footer><button data-season-plan="${id}" data-delta="-1" ${!count||plan.locked?'disabled':''}>−</button><b>${count}</b><button data-season-plan="${id}" data-delta="1" ${plan.locked||count>=3?'disabled':''}>+</button></footer></article>`;}).join('')}</div><aside class="season-plan-board"><small>READINESS FORECAST</small>${seasonReadinessMarkup(readiness)}<div class="season-budget"><b>${spent} / ${plan.budget}</b><span>HOURS COMMITTED</span></div>${state.seasonTransient?`<p class="season-warning">${escapeHtml(state.seasonTransient)}</p>`:''}${plan.locked?`<strong class="season-locked">PLAN LOCKED · ${escapeHtml(plan.profile)}</strong><button class="season-primary" data-season-next="q77">LOCK WEDNESDAY · GO TO TELEMETRY</button>`:`<button class="season-primary" data-season-lock-plan ${spent!==plan.budget?'disabled':''}>LOCK SIX-HOUR PLAN</button>`}</aside></div></main>`;root.innerHTML=seasonShell(scene,idx,body,'is-plan');}
+
+  function renderSeasonTelemetry(scene,idx,c8){const telemetry=c8.telemetry,seen=new Set(telemetry.seen||[]),detail=SEASON_TELEMETRY_CLUES[state.seasonView];const body=`<main class="season-telemetry"><section class="season-title"><small>THE OPENING-WEEK PROBLEM</small><h1>FIND THE MISSING TENTH.</h1><p>One trace says ${escapeHtml(storyDragonName())} reacts late in crosswind. Nell thinks the conclusion is too convenient. Inspect at least three evidence channels, then diagnose it.</p></section><div class="telemetry-workbench">${Object.entries(SEASON_TELEMETRY_CLUES).map(([id,row])=>`<button data-season-clue="${id}" class="${seen.has(id)?'is-seen':''}"><small>${row.tag}</small><b>${row.title}</b><span>${seen.has(id)?'EVIDENCE LOGGED':'OPEN CHANNEL'}</span></button>`).join('')}</div>${detail?`<aside class="season-detail"><button data-season-close>×</button><small>${escapeHtml(detail.tag)}</small><h2>${escapeHtml(detail.title)}</h2><p>${escapeHtml(detail.text)}</p></aside>`:''}<section class="telemetry-diagnosis"><header><span>${seen.size} / 3 CHANNELS REQUIRED</span><strong>${telemetry.completed?'DIAGNOSIS RECORDED':'WHAT ACTUALLY LOST THE TIME?'}</strong></header>${telemetry.feedback?`<p class="telemetry-feedback ${telemetry.correct?'is-correct':''}">${escapeHtml(telemetry.feedback)}</p>`:''}${!telemetry.completed?`<div>${SEASON_TELEMETRY_ANSWERS.map(row=>`<button data-season-answer="${row.id}" ${seen.size<3?'disabled':''}><b>${row.title}</b><span>${row.note}</span></button>`).join('')}</div>`:`<button class="season-primary" data-season-next="q78">CLOSE THE LAB · THURSDAY NEXT</button>`}</section></main>`;root.innerHTML=seasonShell(scene,idx,body,'is-telemetry');}
+
+  function renderSeasonPitwall(scene,idx,c8){const sim=c8.pitwall,scenario=SEASON_PITWALL_SCENARIOS[sim.stage];let content='';if(sim.completed){content=`<section class="pitwall-result"><small>FIVE CALLS · ${sim.score} / 10</small><h1>${escapeHtml(sim.grade)}</h1><p>Nell has stopped feeding you obvious answers. Mara has started writing down the calls you make without them.</p><div class="pitwall-log">${sim.choices.map((row,i)=>`<span><b>CALL ${i+1}</b><em>+${row.score}</em></span>`).join('')}</div><button class="season-primary" data-season-next="q79">END THURSDAY · SET SEASON PROMISES</button></section>`;}else if(scenario){content=`<section class="pitwall-console"><header><small>CALL ${sim.stage+1} / ${SEASON_PITWALL_SCENARIOS.length}</small><h1>${escapeHtml(scenario.title)}</h1><p>“${escapeHtml(scenario.radio)}”</p></header>${seasonReadinessMarkup(scenario.gauges)}${sim.reviewing?`<div class="pitwall-review"><small>CALL LOGGED</small><strong>${escapeHtml(sim.lastResult)}</strong><button data-season-pit-next>${sim.stage===SEASON_PITWALL_SCENARIOS.length-1?'END SIMULATION':'NEXT RADIO CALL'}</button></div>`:`<div class="pitwall-options">${scenario.options.map(row=>`<button data-season-pit="${row.id}"><b>${row.label}</b><span>${row.note}</span></button>`).join('')}</div>`}<footer><span>DECISION SCORE</span><b>${sim.score} / ${sim.stage*2}</b></footer></section>`;}root.innerHTML=seasonShell(scene,idx,`<main class="season-pitwall"><div class="pitwall-lights" aria-hidden="true"></div>${content}</main>`,'is-pitwall');}
+
+  function renderSeasonObjectives(scene,idx,c8){const selected=new Set(c8.objectives.selected||[]),defs=[...selected].map(id=>SEASON_OBJECTIVES.find(row=>row.id===id)).filter(Boolean),valid=selected.size===3&&defs.some(row=>row.scope==='team')&&defs.some(row=>row.scope==='personal');const body=`<main class="season-objectives"><section class="season-title"><small>FRIDAY · NO BOARD-MANDATED CHECKLIST</small><h1>THE PROMISES YOU PICK.</h1><p>These are not three throwaway objectives for the next screen. They stay attached to the season. Pick three promises you would still care about after a bad race.</p></section><div class="objective-grid">${SEASON_OBJECTIVES.map(row=>`<button data-season-objective="${row.id}" class="${selected.has(row.id)?'is-selected':''}" ${c8.objectives.locked?'disabled':''}><small>${row.type}</small><h2>${row.title}</h2><p>${row.note}</p><span>${row.reward}</span><em>${row.pressure}</em><i>${selected.has(row.id)?'SIGNED':'SELECT'}</i></button>`).join('')}</div><footer class="objective-footer"><div><b>${selected.size} / 3</b><span>${valid?'TEAM + PERSONAL MIX READY':'NEED TEAM + PERSONAL'}</span></div>${state.seasonTransient?`<p>${escapeHtml(state.seasonTransient)}</p>`:''}${c8.objectives.locked?`<strong>PROMISES LOCKED</strong><button class="season-primary" data-season-next="q80">END OPENING WEEK · SEASON CONTROL</button>`:`<button class="season-primary" data-season-lock-objectives ${!valid?'disabled':''}>SIGN THREE PROMISES</button>`}</footer></main>`;root.innerHTML=seasonShell(scene,idx,body,'is-objectives');}
+
+  function renderSeasonControl(scene,idx,c8){
+    const modeLabels={watch:'WATCH LIVE',quick:'QUICK SIM',full:'FULL SIM'},ambitionLabels={build:'BUILD THE BASE',podiums:'CHASE PODIUMS',title:'CHAMPIONSHIP'};
+    const readiness=c8.weeklyPlan.readiness||seasonReadiness(c8.weeklyPlan),objectives=c8.objectives.selected.map(id=>SEASON_OBJECTIVES.find(row=>row.id===id)).filter(Boolean);
+    let body;
+    if(!c8.seasonHubUnlocked){
+      body=`<main class="season-control-welcome">
+        <section class="season-control-welcome-card">
+          <small>FRIDAY · 17:48 · OPENING WEEK COMPLETE</small>
+          <h1>THE TRAINING WHEELS COME OFF HERE.</h1>
+          <p>Opening Week was not the whole season squeezed into five screens. It was Quickquill teaching you the systems you will keep using: preparation, engineering, race calls and promises that survive beyond one result.</p>
+          <div class="season-control-recap">
+            <span><small>PREPARATION</small><b>${escapeHtml(c8.weeklyPlan.profile||'BALANCED')}</b><em>Your weekly choices will keep changing race readiness.</em></span>
+            <span><small>TECHNICAL TRUST</small><b>${c8.telemetry.correct?'ROOT CAUSE FOUND':'LESSON RECORDED'}</b><em>Nell now has a baseline for how much information to put in your hands.</em></span>
+            <span><small>PIT WALL</small><b>${escapeHtml(c8.pitwall.grade||'CALM HAND')}</b><em>Live calls will appear when the race actually needs you.</em></span>
+          </div>
+          <blockquote><b>MARA</b><span>“From now on, race weekends have a rhythm. Briefing. Qualifying. Strategy. Race. Then we live with the result.”</span></blockquote>
+          <button class="season-primary season-control-enter" data-season-unlock>ENTER SEASON CONTROL</button>
+        </section>
+      </main>`;
+    }else{
+      const round=seasonRoundState(c8,'velmora'),result=round.result,standings=seasonStandings(c8),qualified=round.qualifyingGrid.length===7;
+      const startPosition=qualified?Math.max(1,round.qualifyingGrid.findIndex(row=>row.isPlayer||row.id==='player')+1):0;
+      const plan=seasonRacePlanText(round.strategy||'adaptive');
+      const roundOneComplete=round.status==='complete'&&result;
+      const playerStanding=Math.max(1,standings.findIndex(row=>row.id==='player')+1);
+      const tab=['weekend','championship','development'].includes(state.seasonControlTab)?state.seasonControlTab:'weekend';
+      const target=({build:'Score clean points and learn the full-distance race.',podiums:'Put Quickquill in the podium fight without throwing the opener away.',title:'Start the championship like you expect to be in it at Grand Ice.'})[c8.calendar.ambition]||'Bank a professional opening result.';
+      const weekendStages=[
+        ['BRIEFING',true],
+        ['QUALIFYING',qualified||roundOneComplete],
+        ['STRATEGY',qualified||roundOneComplete],
+        ['RACE',roundOneComplete]
+      ];
+      let panel='';
+      if(tab==='weekend'&&!roundOneComplete){
+        panel=`<section class="season-control-panel season-weekend-panel">
+          <div class="season-weekend-head">
+            <div><small>ROUND 1 / 8 · VELMORA</small><h2>VELMORA CITY CIRCUIT</h2><p>One weekend at a time. Nothing else on the season screen needs your attention until this race is settled.</p></div>
+            <aside><small>TEAM TARGET</small><b>${escapeHtml(target)}</b></aside>
+          </div>
+          <div class="season-weekend-stages">${weekendStages.map(([label,done],i)=>`<span class="${done?'is-done':''} ${(!done&&weekendStages.slice(0,i).every(row=>row[1]))?'is-current':''}"><i>${done?'✓':i+1}</i><b>${label}</b></span>`).join('')}</div>
+          ${!qualified?`<div class="season-weekend-briefing">
+            <div class="season-weekend-hero">
+              <small>SATURDAY · QUALIFYING NEXT</small>
+              <h3>FIRST, LEARN WHERE YOU ACTUALLY START.</h3>
+              <p>The old screen jumped straight from preparation into the race. Now qualifying is its own saved session. Once the grid is set, you can make a strategy decision with real context instead of guessing.</p>
+              <div class="season-briefing-facts">
+                <span><small>RIVAL WATCH</small><b>MAYA BANKS</b></span>
+                <span><small>CONDITION</small><b>DRY CITY AIR</b></span>
+                <span><small>CIRCUIT</small><b>STREET COMPRESSION</b></span>
+              </div>
+              <button class="season-race-launch season-qualifying-launch" data-season-qualify>RUN SATURDAY QUALIFYING</button>
+            </div>
+            <aside class="season-weekend-notes"><small>WHAT OPENING WEEK ACTUALLY CHANGED</small><span><b>${escapeHtml(c8.weeklyPlan.profile||'BALANCED')}</b> preparation profile</span><span><b>${c8.telemetry.correct?'CLEAN':'SUPPORTED'}</b> telemetry diagnosis</span><span><b>${escapeHtml(c8.pitwall.grade||'CALM HAND')}</b> pit-wall baseline</span><em>These feed the race. They are not another checklist you need to redo right now.</em></aside>
+          </div>`:`<div class="season-qualified-layout">
+            <section class="season-qualifying-card">
+              <header><div><small>SATURDAY · QUALIFYING COMPLETE</small><h3>P${startPosition} ON THE GRID</h3></div><span>${startPosition<=2?'FRONT ROW':startPosition<=4?'ATTACKING RANGE':'WORK TO DO'}</span></header>
+              <div class="season-qualifying-grid">${round.qualifyingGrid.map((row,i)=>`<span class="${row.isPlayer||row.id==='player'?'is-player':''}"><b>P${i+1}</b><strong>${escapeHtml(row.name||seasonRacerLabel(row.id).split(' · ')[0])}</strong><em>${escapeHtml(row.team||SEASON_RACER_META[row.id]?.team||'Quickquill')}</em></span>`).join('')}</div>
+              <p>${startPosition<=2?'Nell: “Good. Now do not turn a strong Saturday into a stupid Sunday.”':startPosition<=4?'Nell: “That is close enough to race forward. Pick the moments properly.”':'Nell: “Nothing is lost. But the first two laps need to be intelligent, not emotional.”'}</p>
+            </section>
+            <section class="season-strategy-card">
+              <small>SUNDAY · RACE PLAN</small>
+              <h3>NOW PICK THE WAY YOU WANT TO RACE.</h3>
+              <p>You have the grid now. Strategy should answer the race you actually have, not the race you imagined on Tuesday.</p>
+              <div class="season-race-plan season-race-plan-clean">${[['clean','BUILD THE EXIT'],['adaptive','READ THE STREET'],['attack','TAKE THE LATE BRAKE']].map(([id,label])=>`<button data-season-race-plan="${id}" class="${(round.strategy||'adaptive')===id?'is-selected':''}"><b>${label}</b><span>${escapeHtml(seasonRacePlanText(id).note)}</span></button>`).join('')}</div>
+              <div class="season-mode-clean"><small>HOW MUCH OF SUNDAY DO YOU WANT TO PLAY?</small>${[['watch','WATCH LIVE','Normal race speed · all major calls'],['quick','QUICK SIM','Fast routine laps · decisive call stays yours'],['full','FULL SIM','Fastest · preparation resolves the calls']].map(([id,label,note])=>`<button data-season-mode="${id}" class="${c8.raceMode===id?'is-selected':''}"><b>${label}</b><span>${note}</span></button>`).join('')}</div>
+              <div class="season-race-ready"><span><small>GRID</small><b>P${startPosition}</b></span><span><small>PLAN</small><b>${escapeHtml(plan.title)}</b></span><span><small>MODE</small><b>${escapeHtml(modeLabels[c8.raceMode]||'WATCH LIVE')}</b></span></div>
+              <button class="season-race-launch" data-season-race-start>${round.status==='in-progress'?'RETURN TO THE GRID':'GO TO SUNDAY RACE'}</button>
+              <em class="season-race-engine-note">EXISTING DRAGON RACING ENGINE · QUALIFYING GRID SAVED · RESULT RETURNS HERE</em>
+            </section>
+          </div>`}
+        </section>`;
+      }else if(tab==='weekend'&&roundOneComplete){
+        panel=`<section class="season-control-panel season-postrace-panel">
+          <div class="season-postrace-hero">
+            <small>ROUND 1 / 8 · OFFICIAL</small>
+            <h2>${ordinal(result.rank)} AT VELMORA</h2>
+            <p>${result.rank===1?'The first full-season race ends with a win. That changes the tone, not the job.':result.rank<=3?'A podium makes the opener matter without pretending the championship is already decided.':'Round One is banked. There is time to understand it before the calendar moves on.'}</p>
+            <div class="season-postrace-numbers"><span><b>${seasonPointsForPosition(result.rank)}</b>POINTS</span><span><b>P${result.startPosition}</b>START</span><span><b>${result.positionsGained||0}</b>PLACES GAINED</span><span><b>${result.overtakes||0}</b>OVERTAKES</span></div>
+          </div>
+          <div class="season-postrace-columns">
+            <section><small>WHAT SUNDAY SAID</small>${result.liveCalls?.length?`<div class="season-call-log">${result.liveCalls.map(row=>`<span>${escapeHtml(String(row.title||row.call||'RACE CALL'))}<b>${escapeHtml(String(row.label||row.choice||''))}</b></span>`).join('')}</div>`:`<p>No manual pit-wall call log for this presentation mode. The result still used your preparation and race plan.</p>`}</section>
+            <section><small>CHAMPIONSHIP POSITION</small><h3>${ordinal(playerStanding)}</h3><p>${standings.find(row=>row.id==='player')?.points||0} points after one round.</p><button data-season-control-tab="championship">OPEN CHAMPIONSHIP TABLE</button></section>
+            <section><small>NEXT WEEK</small><h3>GREENWATER CANOPY</h3><p>Humidity · technical rhythm · Sofia Mendes. It will get its own weekend identity rather than pretending Velmora happened again.</p><span class="season-next-status">ROUND 2 BUILD COMES NEXT</span></section>
+          </div>
+        </section>`;
+      }else if(tab==='championship'){
+        panel=`<section class="season-control-panel season-championship-panel">
+          <header><small>CHAMPIONSHIP TABLE</small><h2>${roundOneComplete?'AFTER ROUND ONE':'BEFORE ROUND ONE'}</h2><p>The table gets its own space now. No race-plan buttons, readiness meters or settings mixed into it.</p></header>
+          <div class="season-table-clean">${standings.map((row,i)=>`<span class="${row.id==='player'?'is-player':''}"><b>${i+1}</b><strong>${escapeHtml(row.label)}</strong><em>${row.points} PTS</em></span>`).join('')}</div>
+          <div class="season-calendar-clean">${SEASON_SCHEDULE.map(row=>`<article class="${row.id==='velmora'?'is-current':''} ${row.round===2&&roundOneComplete?'is-next':''}"><small>ROUND ${row.round} · ${escapeHtml(row.country)}</small><b>${escapeHtml(row.venue)}</b><span>${escapeHtml(row.risk)}</span><em>${row.id==='velmora'?(roundOneComplete?`P${result.rank} · ${seasonPointsForPosition(result.rank)} PTS`:'THIS WEEKEND'):row.round===2&&roundOneComplete?'NEXT':'UPCOMING'}</em></article>`).join('')}</div>
+        </section>`;
+      }else{
+        const allocations=Object.entries(c8.weeklyPlan.allocations||{}).filter(([,count])=>Number(count)>0);
+        panel=`<section class="season-control-panel season-development-panel">
+          <header><small>DRIVER + DRAGON DEVELOPMENT</small><h2>WHAT OPENING WEEK LEFT BEHIND</h2><p>This is the long-term record. It is deliberately separate from the next-race screen so progression does not feel like a wall of numbers every time you want to race.</p></header>
+          <div class="season-development-grid">
+            <section><small>READINESS BASELINE</small>${seasonReadinessMarkup(readiness)}</section>
+            <section><small>PREPARATION PROFILE</small><h3>${escapeHtml(c8.weeklyPlan.profile||'BALANCED')}</h3>${allocations.map(([id,count])=>`<span><b>${escapeHtml(SEASON_PLAN_ACTIVITIES[id]?.title||id)}</b><em>${count} BLOCK${Number(count)===1?'':'S'}</em></span>`).join('')}</section>
+            <section><small>TECHNICAL RECORD</small><span><b>Telemetry diagnosis</b><em>${c8.telemetry.correct?'ROOT CAUSE FOUND':'COMPLETED WITH SUPPORT'}</em></span><span><b>Pit-wall grade</b><em>${escapeHtml(c8.pitwall.grade||'CALM HAND')}</em></span><span><b>Season ambition</b><em>${escapeHtml(ambitionLabels[c8.calendar.ambition]||'BUILD THE BASE')}</em></span></section>
+            <section><small>SEASON PROMISES</small>${objectives.map(row=>`<span><b>${escapeHtml(row.title)}</b><em>${escapeHtml(row.type)}</em></span>`).join('')}</section>
+          </div>
+        </section>`;
+      }
+      body=`<main class="season-control-v2">
+        <header class="season-control-v2-head">
+          <div><small>QUICKQUILL · SEASON ONE</small><h1>SEASON CONTROL</h1><p>${roundOneComplete?'Velmora is done. Review it, then move on when the next race is actually ready.':'Round One has one job at a time: understand the weekend, qualify, choose a plan, race.'}</p></div>
+          <aside><small>${roundOneComplete?'CHAMPIONSHIP':'CURRENT WEEKEND'}</small><b>${roundOneComplete?`${ordinal(playerStanding)} · ${standings.find(row=>row.id==='player')?.points||0} PTS`:'VELMORA · ROUND 1'}</b><span>${escapeHtml(ambitionLabels[c8.calendar.ambition]||'BUILD THE BASE')}</span></aside>
+        </header>
+        <div class="season-spine-clean">${SEASON_SCHEDULE.map(row=>`<span class="${row.id==='velmora'?(roundOneComplete?'is-done':'is-current'):row.round===2&&roundOneComplete?'is-next':''}"><i>${row.id==='velmora'&&roundOneComplete?'✓':row.round}</i><b>${escapeHtml(row.venue.replace(' Circuit','').replace(' Arena',''))}</b></span>`).join('')}</div>
+        <nav class="season-control-tabs" aria-label="Season Control sections">
+          ${[['weekend','RACE WEEKEND'],['championship','CHAMPIONSHIP'],['development','DEVELOPMENT']].map(([id,label])=>`<button data-season-control-tab="${id}" class="${tab===id?'is-selected':''}">${label}</button>`).join('')}
+        </nav>
+        ${state.seasonTransient?`<div class="season-dashboard-flash">${escapeHtml(state.seasonTransient)}</div>`:''}
+        ${panel}
+        <button class="season-primary season-return" data-season-return>RETURN TO CAREER JOURNEY</button>
+      </main>`;
+    }
+    root.innerHTML=seasonShell(scene,idx,body,'is-control');
+  }
+
+  function renderSeasonOpening(scene,beat,idx){
+    const c8=seasonState();if(beat.type==='season-calendar')renderSeasonCalendar(scene,idx,c8);else if(beat.type==='season-plan')renderSeasonPlan(scene,idx,c8);else if(beat.type==='season-telemetry')renderSeasonTelemetry(scene,idx,c8);else if(beat.type==='season-pitwall')renderSeasonPitwall(scene,idx,c8);else if(beat.type==='season-objectives')renderSeasonObjectives(scene,idx,c8);else renderSeasonControl(scene,idx,c8);
+    root.querySelector('[data-season-hub]')?.addEventListener('click',returnToHubFromStory);root.querySelectorAll('[data-season-next]').forEach(btn=>btn.addEventListener('click',()=>{void seasonGo(btn.dataset.seasonNext||'');}));root.querySelectorAll('[data-season-round]').forEach(btn=>btn.addEventListener('click',()=>{void seasonInspectRound(btn.dataset.seasonRound||'');}));root.querySelectorAll('[data-season-ambition]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseAmbition(btn.dataset.seasonAmbition||'');}));root.querySelectorAll('[data-season-plan]').forEach(btn=>btn.addEventListener('click',()=>seasonAdjustPlan(btn.dataset.seasonPlan||'',Number(btn.dataset.delta)||0)));root.querySelector('[data-season-lock-plan]')?.addEventListener('click',()=>{void seasonLockPlan();});root.querySelectorAll('[data-season-clue]').forEach(btn=>btn.addEventListener('click',()=>{void seasonInspectTelemetry(btn.dataset.seasonClue||'');}));root.querySelectorAll('[data-season-answer]').forEach(btn=>btn.addEventListener('click',()=>{void seasonAnswerTelemetry(btn.dataset.seasonAnswer||'');}));root.querySelectorAll('[data-season-pit]').forEach(btn=>btn.addEventListener('click',()=>{void seasonPitwallChoice(btn.dataset.seasonPit||'');}));root.querySelector('[data-season-pit-next]')?.addEventListener('click',()=>{void seasonPitwallNext();});root.querySelectorAll('[data-season-objective]').forEach(btn=>btn.addEventListener('click',()=>seasonToggleObjective(btn.dataset.seasonObjective||'')));root.querySelector('[data-season-lock-objectives]')?.addEventListener('click',()=>{void seasonLockObjectives();});root.querySelectorAll('[data-season-mode]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseRaceMode(btn.dataset.seasonMode||'');}));root.querySelectorAll('[data-season-race-plan]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseRacePlan(btn.dataset.seasonRacePlan||'');}));root.querySelectorAll('[data-season-control-tab]').forEach(btn=>btn.addEventListener('click',()=>seasonSetControlTab(btn.dataset.seasonControlTab||'weekend')));root.querySelector('[data-season-qualify]')?.addEventListener('click',()=>{void seasonPrepareQualifying();});root.querySelector('[data-season-race-start]')?.addEventListener('click',()=>{void launchSeasonRoundOne();});root.querySelector('[data-season-unlock]')?.addEventListener('click',()=>{void finishSeasonOpening();});root.querySelector('[data-season-return]')?.addEventListener('click',()=>{state.mode='story-journey';render();syncMusic({restart:true});});root.querySelectorAll('[data-season-close]').forEach(btn=>btn.addEventListener('click',()=>{state.seasonView='';render();}));
+  }
+
   function renderStory() {
     window.clearTimeout(storyRevealTimer);
     storyRevealTimer = 0;
@@ -6604,47 +8013,53 @@
     const chapterFiveScene = QUICKQUILL_SEAT_SCENES.some(item => item.id === state.story?.scene);
     const chapterSixScene = QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === state.story?.scene);
     const lumerrePracticeScene = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item => item.id === state.story?.scene);
-    if (state.story?.chapter === 'lumerre-race-day' || state.story?.completed?.raceWeekend) {
+    const lumerreAfterFlagScene = QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES.some(item => item.id === state.story?.scene);
+    const chapterSevenScene = QUICKQUILL_VERDICT_SCENES.some(item => item.id === state.story?.scene);
+    const chapterEightScene = QUICKQUILL_SEASON_SCENES.some(item => item.id === state.story?.scene);
+    if (state.story?.chapter === 'lumerre-race-day' || (state.story?.completed?.raceWeekend && !state.story?.chapter6?.afterFlag?.started && !lumerreAfterFlagScene && !chapterEightScene)) {
       renderLumerreRaceDay();
       return;
     }
-    if (state.story?.completed?.practiceQualifying) {
+    if (state.story?.completed?.practiceQualifying && !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene) {
       renderPracticeQualifyingComplete();
       return;
     }
-    if (state.story?.completed?.crownWeek && !lumerrePracticeScene) {
+    if (state.story?.completed?.crownWeek && !lumerrePracticeScene && !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene) {
       renderCrownWeekComplete();
       return;
     }
-    if (state.story?.completed?.seat && !chapterSixScene && !lumerrePracticeScene) {
+    if (state.story?.completed?.seat && !chapterSixScene && !lumerrePracticeScene && !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene) {
       renderSeatComplete();
       return;
     }
-    if (state.story?.completed?.blackglass && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) {
+    if (state.story?.completed?.blackglass && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene) {
       renderBlackglassComplete();
       return;
     }
-    if (state.story?.completed?.downtime && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) {
+    if (state.story?.completed?.downtime && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene) {
       renderDowntimeComplete();
       return;
     }
-    if (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.downtime) {
+    if (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene && !state.story?.completed?.downtime) {
       renderCantoComplete();
       return;
     }
-    if (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.canto) {
+    if (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene && !state.story?.completed?.canto) {
       renderStoryComplete();
       return;
     }
     const scene = activeStoryScene();
     const beat = scene.beats[Math.min(state.story?.beat || 0, scene.beats.length - 1)] || scene.beats[0];
-    const sceneList = lumerrePracticeScene ? QUICKQUILL_LUMERRE_PRACTICE_SCENES : chapterSixScene ? QUICKQUILL_CROWN_WEEK_SCENES : chapterFiveScene ? QUICKQUILL_SEAT_SCENES : chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const sceneList = chapterEightScene ? QUICKQUILL_SEASON_SCENES : chapterSevenScene ? QUICKQUILL_VERDICT_SCENES : lumerreAfterFlagScene ? QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES : lumerrePracticeScene ? QUICKQUILL_LUMERRE_PRACTICE_SCENES : chapterSixScene ? QUICKQUILL_CROWN_WEEK_SCENES : chapterFiveScene ? QUICKQUILL_SEAT_SCENES : chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
     const sceneIndex = sceneList.findIndex(item => item.id === scene.id);
     const interactiveTypes = new Set(['corridor-explore','room-customise','evening-planner','duty-select','duty-game','downtime-free-roam','night-routine','morning-corridor']);
     const blackglassInteractiveTypes = new Set(['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep']);
     const seatInteractiveTypes = new Set(['seat-strategy-sim','seat-media-scrum','seat-free-time']);
     const crownInteractiveTypes = new Set(['crown-village','crown-challenge','crown-reception']);
     const lumerrePracticeInteractiveTypes = new Set(['lumerre-practice-run','lumerre-setup-board','lumerre-diagnosis','lumerre-qualifying-run','lumerre-qualifying-window']);
+    const lumerreAfterFlagInteractiveTypes = new Set(['lumerre-after-cooldown','lumerre-after-parc','lumerre-after-team','lumerre-after-podium','lumerre-after-press','lumerre-after-room','lumerre-after-tyrese','lumerre-after-envelope','lumerre-after-finale']);
+    const verdictInteractiveTypes = new Set(['verdict-arrival','verdict-hq-hub','verdict-board-review','verdict-offer','verdict-negotiate','verdict-interest','verdict-tyrese','verdict-decision','verdict-finale']);
+    const seasonInteractiveTypes = new Set(['season-calendar','season-plan','season-telemetry','season-pitwall','season-objectives','season-control']);
     if (chapterThreeScene && interactiveTypes.has(beat.type)) {
       renderDowntimeInteractive(scene, beat, sceneIndex);
       return;
@@ -6677,12 +8092,24 @@
       else renderLumerreQualifyingWindow(scene, beat, sceneIndex);
       return;
     }
+    if (lumerreAfterFlagScene && lumerreAfterFlagInteractiveTypes.has(beat.type)) {
+      renderLumerreAfterFlag(scene, beat, sceneIndex);
+      return;
+    }
+    if (chapterSevenScene && verdictInteractiveTypes.has(beat.type)) {
+      renderVerdict(scene, beat, sceneIndex);
+      return;
+    }
+    if (chapterEightScene && seasonInteractiveTypes.has(beat.type)) {
+      renderSeasonOpening(scene, beat, sceneIndex);
+      return;
+    }
     const isChoice = beat.type === 'choice';
     const isCinematic = beat.type === 'cinematic';
     const isRaceLaunch = beat.type === 'race-launch';
     const fullText = !isChoice && !isCinematic && !isRaceLaunch ? storyBeatText(beat) : '';
     state.storyRevealComplete = isChoice || isCinematic || isRaceLaunch;
-    const chapterLabel = lumerrePracticeScene ? 'PRACTICE & QUALIFYING' : chapterSixScene ? 'CROWN WEEK' : chapterFiveScene ? 'CAREER REVIEW' : chapterFourScene ? 'RACE TWO' : chapterThreeScene ? 'DOWNTIME' : chapterTwoScene ? 'RACE ONE' : 'PROLOGUE';
+    const chapterLabel = chapterEightScene ? 'OPENING WEEK' : chapterSevenScene ? 'THE VERDICT' : lumerreAfterFlagScene ? 'AFTER THE FLAG' : lumerrePracticeScene ? 'PRACTICE & QUALIFYING' : chapterSixScene ? 'CROWN WEEK' : chapterFiveScene ? 'CAREER REVIEW' : chapterFourScene ? 'RACE TWO' : chapterThreeScene ? 'DOWNTIME' : chapterTwoScene ? 'RACE ONE' : 'PROLOGUE';
     const persistentRoomDecor = chapterThreeScene && ['q11','q16'].includes(scene.id) ? roomDecorMarkup() : '';
     root.innerHTML = `
       <section class="story-shell tone-${escapeHtml(scene.tone || 'default')}" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}">
@@ -6909,6 +8336,20 @@
     const crownWeekComplete = !!story.completed?.crownWeek;
     const practiceStarted = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === story.scene) && !story.completed?.practiceQualifying;
     const practiceComplete = !!story.completed?.practiceQualifying;
+    const raceDay = lumerreRaceDayState(story);
+    const raceDayStarted = story.chapter === 'lumerre-race-day' || !!raceDay.started;
+    const raceDayComplete = !!story.completed?.raceWeekend || !!raceDay.completed;
+    const afterFlagStarted = !!story.chapter6?.afterFlag?.started && !story.completed?.afterFlag;
+    const afterFlagComplete = !!story.completed?.afterFlag || !!story.chapter6?.afterFlag?.completed;
+    const verdictStarted = !!story.chapter7?.started && !story.completed?.verdict;
+    const verdictComplete = !!story.completed?.verdict || !!story.chapter7?.completed;
+    const seasonStarted = !!story.chapter8?.started && !story.completed?.seasonOpening;
+    const seasonOpeningComplete = !!story.completed?.seasonOpening || !!story.chapter8?.completed;
+    const c3 = chapter3State(story);
+    const c4 = chapter4State(story);
+    const c5 = chapter5State(story);
+    const c6 = crownWeekState(story);
+    const pq6 = practiceQualifyingState(story);
     const journeyStates = STORY_JOURNEY.map((chapter, index) => {
       let status = 'locked';
       if (index === 0) status = 'complete';
@@ -6916,28 +8357,25 @@
       else if (index === 2) status = !cantoComplete ? 'locked' : downtimeComplete ? 'complete' : 'next';
       else if (index === 3) status = !downtimeComplete ? 'locked' : blackglassComplete ? 'complete' : 'next';
       else if (index === 4) status = !blackglassComplete ? 'locked' : seatComplete ? 'complete' : seatStarted ? 'current' : 'next';
-      else if (index === 5) status = !seatComplete ? 'locked' : crownWeekStarted || crownWeekComplete || practiceStarted || practiceComplete ? 'current' : 'next';
-      else if (index === 6) status = 'locked';
+      else if (index === 5) status = !seatComplete ? 'locked' : afterFlagComplete ? 'complete' : crownWeekStarted || crownWeekComplete || practiceStarted || practiceComplete || raceDayStarted || afterFlagStarted ? 'current' : 'next';
+      else if (index === 6) status = !afterFlagComplete ? 'locked' : verdictComplete ? 'complete' : verdictStarted ? 'current' : 'next';
+      else if (index === 7) status = !verdictComplete ? 'locked' : seasonOpeningComplete ? 'complete' : seasonStarted ? 'current' : 'next';
       return { ...chapter, status };
     });
     const cantoAction = cantoComplete ? 'VIEW CANTO RESULT' : cantoStarted ? 'RESUME STORY CHAPTER' : 'BEGIN STORY CHAPTER';
     const downtimeAction = downtimeComplete ? 'VIEW CHAPTER RESULT' : downtimeStarted ? 'RESUME SETTLING IN' : 'BEGIN SETTLING IN';
     const blackglassAction = blackglassComplete ? 'VIEW BLACKGLASS RESULT' : blackglassStarted ? 'RESUME BLACKGLASS' : 'BEGIN BLACKGLASS';
     const seatAction = seatComplete ? 'VIEW CHAPTER RESULT' : seatStarted ? 'RESUME A SEAT AT THE TABLE' : 'BEGIN A SEAT AT THE TABLE';
-    const raceDay = lumerreRaceDayState(story);
-    const raceDayStarted = story.chapter === 'lumerre-race-day' || !!raceDay.started;
-    const raceDayComplete = !!story.completed?.raceWeekend || !!raceDay.completed;
-    const crownAction = raceDayComplete ? 'VIEW RACE DAY RESULT' : raceDayStarted ? 'RESUME RACE DAY' : practiceComplete ? 'BEGIN RACE DAY' : practiceStarted ? 'RESUME PRACTICE & QUALIFYING' : crownWeekComplete ? 'BEGIN PRACTICE DAY' : crownWeekStarted ? 'RESUME CROWN WEEK' : 'BEGIN CROWN WEEK';
-    const crownCardLabel = !seatComplete ? 'LOCKED' : raceDayComplete ? 'RACE DAY · COMPLETE' : raceDayStarted ? 'RACE DAY · IN PROGRESS' : practiceComplete ? 'PRACTICE & QUALIFYING · COMPLETE' : practiceStarted ? 'PRACTICE & QUALIFYING · IN PROGRESS' : crownWeekComplete ? 'CROWN WEEK · DAY ONE COMPLETE' : crownWeekStarted ? 'CROWN WEEK · IN PROGRESS' : 'CROWN WEEK · READY';
-    const crownCardSummary = raceDayComplete ? `${escapeHtml(storyDragonName())} finished ${ordinal(raceDay.finalPosition || 7)} in the Lumerre Crown${raceDay.tyreseFinish ? ` · Tyrese ${ordinal(raceDay.tyreseFinish)}` : ''}.` : raceDayStarted ? `Race Day is live. Current phase: ${escapeHtml(lumerreRacePhaseLabel(raceDay.phase || 'grid'))}.` : practiceComplete ? `${escapeHtml(storyDragonName())} qualified ${escapeHtml(lumerreQualifyingPositionLabel(story))} with ${escapeHtml(formatStoryLap(pq6.qualifying?.bestLapMs || 0))}. Practice found the setup; Race Day is next.` : crownWeekComplete ? `Crown Week opened with ${escapeHtml(String(c6.village?.encounters?.length || 0))} paddock encounters, a ${escapeHtml(crownChallengeRankLabel(story))} Crown Challenge finish and ${c6.reception?.overlookSeen ? 'a discovered circuit-overlook moment' : 'an evening at the garden reception'}. Practice Day is ready.` : 'Crown Week begins before the circuit does: open paddock exploration, public parade, the traditional Crown Challenge and a night among the full professional grid.';
-    const crownCardActionAttr = seatComplete ? (raceDayComplete ? 'data-view-lumerre-race' : raceDayStarted || practiceComplete ? 'data-start-lumerre-race' : crownWeekComplete || practiceStarted ? 'data-start-lumerre-practice' : 'data-start-crown-week') : 'disabled';
-    const c3 = chapter3State(story);
-    const c4 = chapter4State(story);
-    const c5 = chapter5State(story);
-    const c6 = crownWeekState(story);
-    const pq6 = practiceQualifyingState(story);
+    const crownAction = afterFlagComplete ? 'VIEW CHAPTER SIX RESULT' : afterFlagStarted ? 'RESUME AFTER THE FLAG' : raceDayComplete ? 'CONTINUE AFTER THE FLAG' : raceDayStarted ? 'RESUME RACE DAY' : practiceComplete ? 'BEGIN RACE DAY' : practiceStarted ? 'RESUME PRACTICE & QUALIFYING' : crownWeekComplete ? 'BEGIN PRACTICE DAY' : crownWeekStarted ? 'RESUME CROWN WEEK' : 'BEGIN CROWN WEEK';
+    const crownCardLabel = !seatComplete ? 'LOCKED' : afterFlagComplete ? 'CHAPTER SIX · COMPLETE' : afterFlagStarted ? 'AFTER THE FLAG · IN PROGRESS' : raceDayComplete ? 'RACE COMPLETE · FINALE READY' : raceDayStarted ? 'RACE DAY · IN PROGRESS' : practiceComplete ? 'PRACTICE & QUALIFYING · COMPLETE' : practiceStarted ? 'PRACTICE & QUALIFYING · IN PROGRESS' : crownWeekComplete ? 'CROWN WEEK · DAY ONE COMPLETE' : crownWeekStarted ? 'CROWN WEEK · IN PROGRESS' : 'CROWN WEEK · READY';
+    const crownCardSummary = afterFlagComplete ? `${escapeHtml(storyDragonName())} finished ${ordinal(raceDay.finalPosition || 7)} at Lumerre. The race, media reaction and Quickquill HQ summons are now part of the permanent Career record.` : afterFlagStarted ? `The Crown is finished. Parc fermé, media and the Quickquill evening are still unfolding.` : raceDayComplete ? `${escapeHtml(storyDragonName())} finished ${ordinal(raceDay.finalPosition || 7)} in the Lumerre Crown${raceDay.tyreseFinish ? ` · Tyrese ${ordinal(raceDay.tyreseFinish)}` : ''}.` : raceDayStarted ? `Race Day is live. Current phase: ${escapeHtml(lumerreRacePhaseLabel(raceDay.phase || 'grid'))}.` : practiceComplete ? `${escapeHtml(storyDragonName())} qualified ${escapeHtml(lumerreQualifyingPositionLabel(story))} with ${escapeHtml(formatStoryLap(pq6.qualifying?.bestLapMs || 0))}. Practice found the setup; Race Day is next.` : crownWeekComplete ? `Crown Week opened with ${escapeHtml(String(c6.village?.encounters?.length || 0))} paddock encounters, a ${escapeHtml(crownChallengeRankLabel(story))} Crown Challenge finish and ${c6.reception?.overlookSeen ? 'a discovered circuit-overlook moment' : 'an evening at the garden reception'}. Practice Day is ready.` : 'Crown Week begins before the circuit does: open paddock exploration, public parade, the traditional Crown Challenge and a night among the full professional grid.';
+    const crownCardActionAttr = seatComplete ? (afterFlagComplete ? 'data-view-after-flag' : afterFlagStarted ? 'data-resume-after-flag' : raceDayComplete ? 'data-start-after-flag' : raceDayStarted || practiceComplete ? 'data-start-lumerre-race' : crownWeekComplete || practiceStarted ? 'data-start-lumerre-practice' : 'data-start-crown-week') : 'disabled';
+    const verdictAction = verdictComplete ? 'VIEW THE VERDICT' : verdictStarted ? 'RESUME THE VERDICT' : 'BEGIN THE VERDICT';
+    const verdictActionAttr = !afterFlagComplete ? 'disabled' : verdictComplete ? 'data-view-verdict' : 'data-start-verdict';
+    const seasonAction = seasonOpeningComplete ? 'OPEN SEASON CONTROL' : seasonStarted ? 'RESUME OPENING WEEK' : 'BEGIN OPENING WEEK';
+    const seasonActionAttr = !verdictComplete ? 'disabled' : seasonOpeningComplete ? 'data-view-season' : 'data-start-season';
     const decisionCount = Object.keys(story.choices || {}).length + (c3.eveningMoments || []).length + (c3.duty?.completed ? 1 : 0) + (c4.qualifying?.completed ? 1 : 0) + (c4.eveningMoments || []).length + (c4.studiedSections || []).length + (c4.roomActions || []).length + (c4.morningPrep ? 1 : 0) + (c4.afterHours?.completed ? 1 : 0) + (c5.simulator?.answers || []).length + (c5.media?.answers || []).length + (c5.freeTime?.activities || []).length + (c6.village?.encounters || []).length + (c6.reception?.conversations || []).length + (c6.challenge?.completed ? 4 : 0) + (c6.reception?.overlookSeen ? 1 : 0) + (pq6.practice?.run1 ? 1 : 0) + (pq6.practice?.setupApplied ? 1 : 0) + (pq6.practice?.diagnosis?.completed ? 1 : 0) + (pq6.practice?.run2 ? 1 : 0) + (pq6.qualifying?.run1 ? 1 : 0) + (pq6.qualifying?.window ? 1 : 0) + (pq6.qualifying?.run2 ? 1 : 0) + (pq6.qualifying?.run3 ? 1 : 0);
-    const completedCount = 1 + (cantoComplete ? 1 : 0) + (downtimeComplete ? 1 : 0) + (blackglassComplete ? 1 : 0) + (seatComplete ? 1 : 0);
+    const completedCount = 1 + (cantoComplete ? 1 : 0) + (downtimeComplete ? 1 : 0) + (blackglassComplete ? 1 : 0) + (seatComplete ? 1 : 0) + (afterFlagComplete ? 1 : 0) + (verdictComplete ? 1 : 0) + (seasonOpeningComplete ? 1 : 0);
     root.innerHTML = `
       <section class="story-journey-shell" aria-label="Dragonbound Story Journey">
         <img class="journey-backdrop" src="story/environments/07_Lumerre_Terraces_and_Paddock.png" alt="" aria-hidden="true">
@@ -6984,20 +8422,29 @@
                   <div class="journey-card-copy"><span><b>05</b><small>${!blackglassComplete ? 'LOCKED' : seatComplete ? 'CHAPTER FIVE · COMPLETE' : seatStarted ? 'CHAPTER FIVE · IN PROGRESS' : 'CHAPTER FIVE · READY'}</small></span><h2>A SEAT AT THE TABLE</h2><p>${seatComplete ? `${escapeHtml(storyDragonName())} left the Blackglass review with a simulator profile of ${escapeHtml(c5.simulator?.profile||deriveSeatSimulatorProfile(story))}, a media reputation of ${escapeHtml(c5.media?.reputation||deriveMediaReputation(story))}, and a confirmed Lumerre role: ${escapeHtml(c5.lumerreRole||deriveLumerreRole(story))}.` : 'Quickquill moves the assessment away from the circuit. Strategy, press attention and team politics now decide how you arrive at Lumerre.'}</p><button type="button" ${blackglassComplete ? (seatComplete ? 'data-view-seat' : 'data-start-seat') : 'disabled'}>${blackglassComplete ? seatAction : 'COMPLETE BLACKGLASS FIRST'} <i>›</i></button></div>
                   ${seatComplete ? '<div class="journey-complete-stamp"><i>✓</i><span>COMPLETE</span></div>' : blackglassComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PATH UNLOCKED</span></div>' : ''}
                 </article>
-                <article class="journey-card journey-card-crown ${!seatComplete ? 'is-locked' : (crownWeekStarted || crownWeekComplete || practiceStarted || practiceComplete) ? 'is-current' : 'is-next'}">
+                <article class="journey-card journey-card-crown ${!seatComplete ? 'is-locked' : afterFlagComplete ? 'is-complete' : (crownWeekStarted || crownWeekComplete || practiceStarted || practiceComplete || raceDayStarted || afterFlagStarted) ? 'is-current' : 'is-next'}">
                   <img src="${STORY_JOURNEY[5].image}" alt="">
                   <div class="journey-card-shade" aria-hidden="true"></div>${seatComplete ? '<div class="journey-unlock-flare" aria-hidden="true"></div>' : ''}
                   <div class="journey-card-copy"><span><b>06</b><small>${crownCardLabel}</small></span><h2>THE LUMERRE CROWN</h2><p>${crownCardSummary}</p><button type="button" ${crownCardActionAttr}>${seatComplete ? crownAction : 'COMPLETE A SEAT AT THE TABLE FIRST'} <i>›</i></button></div>
-                  ${practiceComplete ? '<div class="journey-progress-stamp"><i>✓</i><span>QUALIFYING COMPLETE</span></div>' : practiceStarted ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PRACTICE LIVE</span></div>' : seatComplete && !crownWeekComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>CROWN WEEK LIVE</span></div>' : crownWeekComplete ? '<div class="journey-progress-stamp"><i>✓</i><span>DAY ONE COMPLETE</span></div>' : ''}
+                  ${afterFlagComplete ? '<div class="journey-complete-stamp"><i>✓</i><span>COMPLETE</span></div>' : afterFlagStarted ? '<div class="journey-unlock-seal"><i>◆</i><span>AFTER THE FLAG</span></div>' : raceDayComplete ? '<div class="journey-progress-stamp"><i>✓</i><span>FINALE READY</span></div>' : practiceComplete ? '<div class="journey-progress-stamp"><i>✓</i><span>QUALIFYING COMPLETE</span></div>' : practiceStarted ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>PRACTICE LIVE</span></div>' : seatComplete && !crownWeekComplete ? '<div class="journey-unlock-seal" aria-hidden="true"><i>◆</i><span>CROWN WEEK LIVE</span></div>' : crownWeekComplete ? '<div class="journey-progress-stamp"><i>✓</i><span>DAY ONE COMPLETE</span></div>' : ''}
                 </article>
-                <div class="journey-locked-list future-chapters-only">
-                  ${journeyStates.slice(6).map((chapter, index) => `<article class="journey-locked-card ${chapter.status === 'next' || chapter.status === 'current' ? 'is-next' : ''}" data-chapter-status="${escapeHtml(chapter.status)}" style="--journey-delay:${2.43 + index * .14}s"><img src="${chapter.image}" alt=""><div><span>${chapter.number}</span><p><small>${escapeHtml(chapter.subtitle)}</small><strong>${escapeHtml(chapter.title)}</strong></p><i aria-hidden="true">${chapter.status === 'next' ? 'NEXT' : 'LOCKED'}</i></div></article>`).join('')}
-                </div>
+                <article class="journey-card journey-card-verdict ${!afterFlagComplete ? 'is-locked' : verdictComplete ? 'is-complete' : 'is-next'}">
+                  <img src="${STORY_JOURNEY[6].image}" alt="">
+                  <div class="journey-card-shade" aria-hidden="true"></div>${afterFlagComplete ? '<div class="journey-unlock-flare" aria-hidden="true"></div>' : ''}
+                  <div class="journey-card-copy"><span><b>07</b><small>${!afterFlagComplete?'LOCKED':verdictComplete?'CHAPTER SEVEN · COMPLETE':verdictStarted?'CONTRACT TALKS · IN PROGRESS':'CONTRACT TALKS · READY'}</small></span><h2>THE VERDICT</h2><p>${verdictComplete?escapeHtml(verdictDecisionSummary(story.chapter7||{})):'Quickquill HQ. A real contract, two negotiable asks, an outside question from Sunscale and the first career decision that can be delayed.'}</p><button type="button" ${verdictActionAttr}>${afterFlagComplete?verdictAction:'COMPLETE THE LUMERRE CROWN FIRST'} <i>›</i></button></div>
+                  ${verdictComplete?'<div class="journey-complete-stamp"><i>✓</i><span>COMPLETE</span></div>':afterFlagComplete?'<div class="journey-unlock-seal"><i>◆</i><span>CAREER DECISION</span></div>':''}
+                </article>
+                <article class="journey-card journey-card-season ${!verdictComplete?'is-locked':seasonOpeningComplete?'is-complete':'is-next'}">
+                  <img src="${STORY_JOURNEY[7].image}" alt="">
+                  <div class="journey-card-shade" aria-hidden="true"></div>${verdictComplete?'<div class="journey-unlock-flare" aria-hidden="true"></div>':''}
+                  <div class="journey-card-copy"><span><b>08</b><small>${!verdictComplete?'LOCKED':seasonOpeningComplete?'OPENING WEEK · COMPLETE':seasonStarted?'OPENING WEEK · IN PROGRESS':'FULL SEASON · READY'}</small></span><h2>THE FIRST FULL SEASON</h2><p>${seasonOpeningComplete?'Your calendar, preparation profile, technical record, pit-wall grade and three chosen promises now live in Season Control.':'Eight rounds begin with choices off the circuit: inspect the calendar, spend six preparation hours, solve a telemetry fault, command the pit wall and write your own objectives.'}</p><button type="button" ${seasonActionAttr}>${verdictComplete?seasonAction:'COMPLETE THE VERDICT FIRST'} <i>›</i></button></div>
+                  ${seasonOpeningComplete?'<div class="journey-complete-stamp"><i>✓</i><span>CONTROL LIVE</span></div>':verdictComplete?'<div class="journey-unlock-seal"><i>◆</i><span>SEASON OPENS</span></div>':''}
+                </article>
               </div>
               <footer class="journey-decisions"><div><small>YOUR STORY REMEMBERS</small><span>${escapeHtml(invitationChoice)}</span><span>${escapeHtml(cantoComplete ? (story.choices?.cantoAttitude?.label || strategyChoice) : cantoStarted ? strategyChoice : assessmentChoice)}</span></div><p><strong>${decisionCount}</strong><span>DECISIONS & MOMENTS<br>RECORDED</span></p></footer>
             </section>
           </main>
-          <footer class="journey-footer"><span><i>⌂</i> CAREER HUB</span><strong>STORY JOURNEY</strong><span>QUICKQUILL · ${completedCount} / 7</span></footer>
+          <footer class="journey-footer"><span><i>⌂</i> CAREER HUB</span><strong>STORY JOURNEY</strong><span>QUICKQUILL · ${completedCount} / 8</span></footer>
         </div>
       </section><div class="blackout ${state.blackout ? 'is-visible' : ''}" aria-hidden="true"></div>`;
     root.querySelector('[data-journey-back]')?.addEventListener('click', returnToHubFromStory);
@@ -7017,6 +8464,13 @@
     root.querySelector('[data-view-lumerre-practice]')?.addEventListener('click', () => { playTone(310); renderPracticeQualifyingComplete(); });
     root.querySelector('[data-start-lumerre-race]')?.addEventListener('click', () => { void startLumerreRaceDay(); });
     root.querySelector('[data-view-lumerre-race]')?.addEventListener('click', () => { void startLumerreRaceDay(); });
+    root.querySelector('[data-start-after-flag]')?.addEventListener('click', () => { void startLumerreAfterFlag(); });
+    root.querySelector('[data-resume-after-flag]')?.addEventListener('click', () => { state.mode='story';state.story.chapter='lumerre-after-flag';render();syncMusic({restart:true}); });
+    root.querySelector('[data-view-after-flag]')?.addEventListener('click', () => { state.mode='story';state.story.chapter='lumerre-after-flag';state.story.scene='q65';state.story.beat=0;render();syncMusic({restart:true}); });
+    root.querySelector('[data-start-verdict]')?.addEventListener('click', () => { void startVerdictChapter(); });
+    root.querySelector('[data-view-verdict]')?.addEventListener('click', () => { state.mode='story';state.story.chapter='verdict';state.story.scene='q74';state.story.beat=0;render();syncMusic({restart:true}); });
+    root.querySelector('[data-start-season]')?.addEventListener('click', () => { void startSeasonOpening(); });
+    root.querySelector('[data-view-season]')?.addEventListener('click', () => { state.mode='story';state.story.chapter='season-one';state.story.scene='q80';state.story.beat=0;render();syncMusic({restart:true}); });
   }
 
   function nextStoryPointer(story) {
@@ -7563,11 +9017,14 @@
     const crownWeekInProgress = state.story.completed?.seat && !state.story.completed?.crownWeek && QUICKQUILL_CROWN_WEEK_SCENES.some(scene => scene.id === state.story.scene);
     const practiceInProgress = state.story.completed?.crownWeek && !state.story.completed?.practiceQualifying && QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(scene => scene.id === state.story.scene);
     const raceDayInProgress = state.story.completed?.practiceQualifying && state.story.chapter === 'lumerre-race-day' && !state.story.completed?.raceWeekend;
-    await fadeTo(cantoInProgress || downtimeInProgress || blackglassInProgress || seatInProgress || crownWeekInProgress || practiceInProgress || raceDayInProgress ? 'story' : state.story.completed?.prologue ? 'story-journey' : 'story', { duration: 980 });
+    const afterFlagInProgress = state.story.completed?.raceWeekend && !state.story.completed?.afterFlag && (state.story.chapter === 'lumerre-after-flag' || !!state.story.chapter6?.afterFlag?.started);
+    const verdictInProgress = state.story.completed?.afterFlag && !state.story.completed?.verdict && (state.story.chapter === 'verdict' || !!state.story.chapter7?.started);
+    const seasonInProgress = state.story.completed?.verdict && !state.story.completed?.seasonOpening && (state.story.chapter === 'season-one' || !!state.story.chapter8?.started);
+    await fadeTo(cantoInProgress || downtimeInProgress || blackglassInProgress || seatInProgress || crownWeekInProgress || practiceInProgress || raceDayInProgress || afterFlagInProgress || verdictInProgress || seasonInProgress ? 'story' : state.story.completed?.prologue ? 'story-journey' : 'story', { duration: 980 });
   }
 
   async function advanceStory() {
-    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.practiceQualifying) return;
+    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || (state.story?.completed?.practiceQualifying && !['lumerre-after-flag','verdict','season-one'].includes(state.story?.chapter))) return;
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
     if (beat?.type === 'choice' || beat?.type === 'race-launch' || beat?.type === 'blackglass-qualifying' || ['blackglass-paddock-explore','blackglass-circuit-study','blackglass-evening-planner','blackglass-room-night','blackglass-after-hours','blackglass-morning-prep','seat-strategy-sim','seat-media-scrum','seat-free-time','crown-village','crown-challenge','crown-reception','lumerre-practice-run','lumerre-setup-board','lumerre-diagnosis','lumerre-qualifying-run','lumerre-qualifying-window'].includes(beat?.type)) return;
@@ -7649,7 +9106,7 @@
   }
 
   async function chooseStoryOption(optionIndex) {
-    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || state.story?.completed?.practiceQualifying) return;
+    if (state.mode !== 'story' || state.storySaving || state.transitionLocked || (state.story?.completed?.practiceQualifying && !['lumerre-after-flag','verdict'].includes(state.story?.chapter))) return;
     if (!claimStoryInput()) return;
     const scene = activeStoryScene();
     const beat = scene.beats[state.story.beat];
@@ -7855,7 +9312,8 @@
     }
     if (event.data?.type === 'dragonbound-career-story-race-result') {
       const result = event.data.result || {};
-      if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit') void acceptLumerreRaceResult(result);
+      if (String(result.raceKey||'').startsWith('season-') || Number(result.seasonRound)>0) void acceptSeasonRaceResult(result);
+      else if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit') void acceptLumerreRaceResult(result);
       else if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit') void acceptBlackglassRaceResult(result);
       else void acceptCantoRaceResult(result);
       return;
@@ -7869,14 +9327,16 @@
     }
     if (event.data?.type === 'dragonbound-career-story-race-aborted') {
       const result = event.data.result || {};
-      if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit' || state.story?.chapter === 'lumerre-race-day') void handleLumerreRaceAbort('Race exited. Your Lumerre grid is safe — start the Crown again when ready.');
+      if (String(result.raceKey||'').startsWith('season-') || Number(result.seasonRound)>0 || state.story?.chapter === 'season-one') void handleSeasonRaceAbort('Race exited. Your Velmora qualifying grid and Opening Week are safe — return to the grid when ready.');
+      else if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit' || state.story?.chapter === 'lumerre-race-day') void handleLumerreRaceAbort('Race exited. Your Lumerre grid is safe — start the Crown again when ready.');
       else if (result.raceKey === 'blackglass' || result.trackId === 'blackglass_night_circuit' || activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort('Race exited. Your Blackglass chapter is safe — return to the grid when ready.');
       else void handleCantoRaceAbort('Race exited. Your chapter progress is safe — start Canto again when ready.');
       return;
     }
     if (event.data?.type === 'dragonbound-career-story-race-error') {
       const result=event.data.result||{};
-      if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit' || state.story?.chapter === 'lumerre-race-day') void handleLumerreRaceAbort(event.data.error || 'The site Dragon Racing engine did not accept the Lumerre track. The old map simulation will not be used.');
+      if (String(result.raceKey||'').startsWith('season-') || Number(result.seasonRound)>0 || state.story?.chapter === 'season-one') void handleSeasonRaceAbort(event.data.error || 'Velmora City Circuit could not start in the site Dragon Racing engine. Your Opening Week is safe.');
+      else if (result.raceKey === 'lumerre' || result.trackId === 'lumerre_crown_circuit' || state.story?.chapter === 'lumerre-race-day') void handleLumerreRaceAbort(event.data.error || 'The site Dragon Racing engine did not accept the Lumerre track. The old map simulation will not be used.');
       else if (activeStoryScene()?.id === 'q29') void handleBlackglassRaceAbort(event.data.error || 'The Blackglass race could not start. Your chapter progress is safe.');
       else void handleCantoRaceAbort(event.data.error || 'The Canto race could not start. Your chapter progress is safe.');
     }
@@ -8113,7 +9573,10 @@
       const chapterFiveScene = QUICKQUILL_SEAT_SCENES.some(item => item.id === state.story?.scene);
       const chapterSixScene = QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === state.story?.scene);
       const lumerrePracticeScene = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item => item.id === state.story?.scene);
-      const resultScreen = state.story?.completed?.practiceQualifying || (state.story?.completed?.crownWeek && !lumerrePracticeScene) || (state.story?.completed?.seat && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.blackglass && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.downtime && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.downtime) || (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.canto);
+      const lumerreAfterFlagScene = QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES.some(item => item.id === state.story?.scene);
+      const chapterSevenScene = QUICKQUILL_VERDICT_SCENES.some(item => item.id === state.story?.scene);
+      const chapterEightScene = QUICKQUILL_SEASON_SCENES.some(item => item.id === state.story?.scene);
+      const resultScreen = !lumerreAfterFlagScene && !chapterSevenScene && !chapterEightScene && (state.story?.completed?.practiceQualifying || (state.story?.completed?.crownWeek && !lumerrePracticeScene) || (state.story?.completed?.seat && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.blackglass && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.downtime && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene) || (state.story?.completed?.canto && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.downtime) || (state.story?.completed?.prologue && !chapterTwoScene && !chapterThreeScene && !chapterFourScene && !chapterFiveScene && !chapterSixScene && !lumerrePracticeScene && !state.story?.completed?.canto));
       const beat = resultScreen ? null : scene.beats[state.story?.beat || 0];
       if (beat?.type === 'choice' && /^[1-4]$/.test(event.key)) {
         const choice = Number(event.key) - 1;
@@ -8239,7 +9702,9 @@
     const chapterFiveScene = QUICKQUILL_SEAT_SCENES.some(item => item.id === scene.id);
     const chapterSixScene = QUICKQUILL_CROWN_WEEK_SCENES.some(item => item.id === scene.id);
     const lumerrePracticeScene = QUICKQUILL_LUMERRE_PRACTICE_SCENES.some(item => item.id === scene.id);
-    const sceneList = lumerrePracticeScene ? QUICKQUILL_LUMERRE_PRACTICE_SCENES : chapterSixScene ? QUICKQUILL_CROWN_WEEK_SCENES : chapterFiveScene ? QUICKQUILL_SEAT_SCENES : chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
+    const lumerreAfterFlagScene = QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES.some(item => item.id === scene.id);
+    const chapterSevenScene = QUICKQUILL_VERDICT_SCENES.some(item => item.id === scene.id);
+    const sceneList = chapterSevenScene ? QUICKQUILL_VERDICT_SCENES : lumerreAfterFlagScene ? QUICKQUILL_LUMERRE_AFTER_FLAG_SCENES : lumerrePracticeScene ? QUICKQUILL_LUMERRE_PRACTICE_SCENES : chapterSixScene ? QUICKQUILL_CROWN_WEEK_SCENES : chapterFiveScene ? QUICKQUILL_SEAT_SCENES : chapterFourScene ? QUICKQUILL_BLACKGLASS_SCENES : chapterThreeScene ? QUICKQUILL_DOWNTIME_SCENES : chapterTwoScene ? QUICKQUILL_CANTO_SCENES : QUICKQUILL_SCENES;
     const sceneIndex = sceneList.findIndex(item => item.id === scene.id);
     const beatIndex = Math.min(state.story?.beat || 0, scene.beats.length - 1);
     const beat = scene.beats[beatIndex] || scene.beats[0];

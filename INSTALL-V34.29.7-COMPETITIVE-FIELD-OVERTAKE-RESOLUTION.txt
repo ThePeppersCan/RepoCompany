@@ -1,0 +1,34 @@
+DRAGONBOUND V34.29.7 — COMPETITIVE FIELD & OVERTAKE RESOLUTION
+
+BASE
+- Install over V34.29.6.
+- Replace the root dragon-racing-race.js.
+- Hard-refresh after copying.
+- No database migration.
+- No save reset.
+
+WHY THIS PATCH EXISTS
+V34.29.6 fixed physical movement around the Lumerre circuit, but the competitive model still had two problems:
+1. Generic ±3.2% race luck plus Lumerre-only player bonuses could make September untouchable from the opening laps.
+2. Overtake battles could repeatedly trigger without ever resolving into an actual pass or a defender-created gap.
+
+V34.29.7 FIXES
+- Lumerre-only race luck is compressed to a much tighter competitive spread.
+- Removes the old free +0.16% Lumerre player pace bonus and reduces stacked training pace influence.
+- Career AI pace now matters more than generic random luck.
+- Tyrese, Jalen, Sofia, Luka, Ren and Maya can all have changing pace phases during the ten-lap race.
+- Stronger Lumerre slipstream effect helps the following pack stay connected.
+- Late-race stamina begins to distinguish racers naturally.
+- Overtake attempts now resolve decisively after the side-by-side phase.
+- A successful attacker gets a temporary clearing burst that physically completes the pass.
+- A successful defender forces the attacker to reset and opens a real gap.
+- Per-opponent cooldown prevents Tyrese/September from immediately repeating the same battle dozens of times.
+- Cooldown is shared by both racers in the pair.
+- Existing Canto, Blackglass and normal Dragon Racing balance is unchanged; these balance changes are Lumerre story-race specific.
+
+TARGET FEEL
+- A strong September can win, but pole/front-row is not protection.
+- Tyrese can genuinely pass September.
+- Other racers can remain attached to the fight and gain positions.
+- Battles end as PASS or DEFENDED rather than infinite repeated challenges.
+- Normal race target: several genuine field overtakes, not dozens of non-events.

@@ -1,0 +1,65 @@
+DRAGONBOUND V34.30.3 — THE VERDICT CONTRACT FLOW REPAIR
+TEST CANDIDATE INSTALL / TEST NOTES
+
+THIS IS NOT A LIVE DEPLOYMENT.
+Nothing in this package has been pushed to GitHub or to the live site.
+
+BASELINE
+- Install over V34.30.2.
+- The omitted full-site assets and MP3 files are not required by this patch.
+- Existing environment and audio paths remain unchanged.
+
+REPLACE THESE THREE CAREER MODE FILES
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career-verdict.css
+- dragonbound-career-mode/index.html
+
+WHAT CHANGED
+
+1. Q70 SUBMIT TERMS PROGRESSION REPAIR
+- SUBMIT TERMS now immediately shows a visible Quickquill review/saving state.
+- Demand controls are safely disabled while the terms are being recorded.
+- A successful save redraws Q70 as the accepted/counter-offer response.
+- CONTINUE · LEAVE BOARDROOM advances to Q71.
+- Save failures are shown inside The Verdict instead of failing invisibly.
+- A network exception can no longer leave storySaving permanently locked.
+- Failed submissions keep the player's selected clauses available for retry.
+
+2. CONTRACT-ROOM BUILD-UP
+- Q66 now starts with the original Quickquill summons and explains exactly why
+  the player returned to HQ.
+- The meeting is initially an end-of-assessment review, not an unexplained
+  contract appointment.
+- Tyrese and Nell establish that Canto, Blackglass and Lumerre will be reviewed
+  before Quickquill decides whether there is a future to discuss.
+- Q67 is explicitly a ten-minute wait outside the boardroom.
+- After three HQ moments, Nell personally calls the player into the room.
+- Q68 opens with Mara explaining the assessment-review order.
+- Q69 only reveals the contract after the review is complete.
+
+3. COMPATIBILITY
+- Q66-Q74 remain the same nine Verdict scenes.
+- Existing Chapter Seven saves remain valid.
+- Existing contract logic, leverage, Sunscale interest and final decisions are
+  preserved.
+- No database migration is required.
+- V34.30.2 full-screen Verdict viewport isolation remains in place.
+
+INSTALL
+1. Back up the current test site.
+2. Overlay this ZIP onto the site root, preserving its folder structure.
+3. Replace the three Career Mode files when prompted.
+4. Hard refresh / clear cached site files.
+5. Replay Chapter Seven from Q66 to see the new build-up.
+
+PRIMARY TEST
+1. Start/replay THE VERDICT.
+2. Confirm Q66 shows the summons, reception conversation and boardroom wait.
+3. Inspect three Q67 HQ moments.
+4. Confirm Nell calls the player into the boardroom.
+5. Read three Q68 review files and reveal the offer.
+6. At Q70, select two asks and press SUBMIT TERMS.
+7. Confirm the accepted/counter-offer screen appears.
+8. Press CONTINUE · LEAVE BOARDROOM and confirm Q71 appears.
+
+NO GITHUB OR LIVE DEPLOYMENT WAS PERFORMED.

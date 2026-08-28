@@ -1,0 +1,38 @@
+DRAGONBOUND V34.29.8 — AFTER THE FLAG QA REPORT
+
+PASS — Built on V34.29.7 root race engine with V34.29.5 full Career baseline
+PASS — Career story schema v16
+PASS — Q57-Q65 After the Flag scene set present
+PASS — result screen offers CONTINUE · AFTER THE FLAG
+PASS — Lumerre root race result CTA updated without changing race simulation/balance
+PASS — immutable-style weekend result snapshot created before finale
+PASS — Q57 dynamic cooldown/radio presentation
+PASS — Q58 optional parc ferme interaction hub (3 interactions required)
+PASS — Q59 compact team debrief focus choice
+PASS — Q60 dynamic podium / no-podium branching
+PASS — P1 trophy presentation and first-win milestone support
+PASS — Q61 two-question dynamic media scrum
+PASS — media answer tones affect persistent Career Evolution fields
+PASS — Q62 environmental quiet-room inspection
+PASS — supplied post-race music reserved for Q62-Q65 at 32%
+PASS — Q63 Tyrese relationship choice
+PASS — Q64 supplied envelope closed/open interaction
+PASS — Q65 proper Chapter Six completion + The Verdict hook
+PASS — Story Journey Continue/Resume/View After the Flag routes
+PASS — Chapter Seven becomes NEXT only after After the Flag completion
+PASS — After Flag key handling cannot be mistaken for the old Practice completion screen
+PASS — Career JS syntax validation
+PASS — Dragon Racing JS syntax validation
+PASS — Dragon Racing UI JS syntax validation
+PASS — CSS brace validation
+PASS — parc ferme/media/villa images decode
+PASS — envelope alpha transparency preserved
+PASS — transparent Lumerre trophy preserved
+PASS — post-race MP3 readable (154.68 seconds)
+PASS — no database migration
+
+RACE ENGINE SAFETY
+The V34.29.7 Lumerre pace/balance/overtake implementation is retained. V34.29.8 does not re-tune the race field. The only result-screen race-engine change is the Lumerre-specific continuation label/footer so the transition reads as part of the same weekend.
+
+KNOWN PRESENTATION NOTE
+Q57 is a Career-directed cooldown/radio montage after the genuine engine classification. It does not re-run a second race simulation and therefore cannot corrupt the official result.

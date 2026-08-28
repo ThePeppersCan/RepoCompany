@@ -1,0 +1,19 @@
+DRAGONBOUND V34.30.4 — QA
+
+PASS — career.js JavaScript syntax
+PASS — mobile.js JavaScript syntax
+PASS — career-verdict.css brace balance
+PASS — V34.30.4 JavaScript cache bust present
+PASS — contract-offer object identity retained through all demand lookups
+PASS — exact screenshot combination persists agreed status
+PASS — exact screenshot combination persists 22,000 GP podium bonus
+PASS — exact screenshot combination persists 4 sponsor days
+PASS — expensive two-demand combination persists counter status
+PASS — counter path retains accepted term and rejected Team Role demand
+PASS — zero-demand path persists agreed status
+PASS — Q70 continue action still targets Q71
+PASS — V34.30.3 build-up and visible saving/error states retained
+PASS — no asset or audio changes
+PASS — no database migration
+
+NO GITHUB OR LIVE DEPLOYMENT.

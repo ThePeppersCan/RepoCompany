@@ -1,0 +1,17 @@
+DRAGONBOUND V34.30.2 — THE VERDICT VIEWPORT REPAIR — TEST CANDIDATE
+
+Apply over V34.30 / V34.30.1 test build.
+Replace:
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career-verdict.css
+- dragonbound-career-mode/index.html
+
+Then hard refresh.
+
+This test candidate is NOT a live-site deployment.
+
+Fix target:
+- Q66-Q74 no longer inherit legacy story-shell/story-stage/story-header/story-scene-counter geometry.
+- The Verdict now owns a true 100vw x 100dvh viewport stage.
+- Q66 title, stats, choices, header and progress are hard-bounded inside the visible viewport.
+- Later Verdict scenes keep their existing gameplay/contract logic unchanged.

@@ -1,0 +1,127 @@
+ADVANCED BUILD PROMPT — DRAGONBOUND V34.31
+CHAPTER EIGHT: THE FIRST FULL SEASON — OPENING WEEK
+
+MISSION
+Build the first part of Chapter Eight for Velmora: Dragonbound Career Mode.
+This is the moment the game stops feeling like a chain of authored assessment
+chapters and becomes a real career framework. It must remain simple and clear
+like FIFA Career Mode, but the player must regularly do something more
+interesting than click through dialogue or watch cards appear.
+
+The player does not directly fly the dragon during races. Race weekends remain
+Watch, Quick Sim or Sim. Interactive mechanics happen around the racing:
+planning, investigation, strategy, team decisions, relationships and pressure.
+
+DESIGN PRINCIPLES
+- Premium Quickquill navy/slate/ivory interface. Never brown.
+- Short instructions, large readable actions and immediate feedback.
+- Every scene must use a different interaction grammar.
+- Do not copy Blackglass After Hours, but match its sense of agency, discovery
+  and consequences.
+- No fake buttons. Every visible primary action must advance or change state.
+- No random hidden failure. Results must be understandable from player input.
+- Existing Verdict contract, Tyrese stance, Sunscale interest, relationships,
+  racecraft and saved results must affect Chapter Eight.
+- Preserve all old saves. No database migration.
+
+CHAPTER FLOW — SIX DISTINCT MECHANICS
+
+Q75 — THE CALENDAR OPENS
+Interaction: explorable season route.
+- Reveal an eight-round Velmora Championship calendar.
+- Let the player inspect event cards in any order.
+- Each venue shows character, risk, likely rival and why it matters.
+- Require the opener and finale to be inspected.
+- Player chooses a season ambition: build consistently, hunt podiums, or fight
+  the front of the championship.
+
+Q76 — SIX HOURS
+Interaction: constrained weekly-planning board.
+- Give the player six preparation hours.
+- Activities have different costs and visible effects:
+  Dragon Bond, Flight Lab, Strength, Engineering, Recovery and Sponsor Duty.
+- Allocate exactly six hours, with a maximum of three in one activity.
+- Contract sponsor-day reductions must be reflected.
+- Show live Pace, Control, Stamina, Bond and Team-readiness meters.
+- Locking the week creates a persistent preparation profile.
+
+Q77 — THE MISSING TENTH
+Interaction: telemetry deduction puzzle.
+- A tenth of a second disappears only in crosswind conditions.
+- Player inspects four evidence sources: player trace, Tyrese comparison, wind
+  log and equipment calibration.
+- Require three clues before accusing a cause.
+- Choices must be technically plausible.
+- Correct diagnosis rewards engineering trust and technical understanding.
+- A wrong first diagnosis receives a useful Nell hint and allows one retry.
+- Never hard fail the chapter.
+
+Q78 — PIT WALL, LIVE
+Interaction: multi-stage command drill.
+- Present five changing race-control situations.
+- Each has gauges, radio context and three commands.
+- Calls include traffic, crosswind, overheating, rival vulnerability and a
+  Quickquill team-order dilemma.
+- Score each decision immediately and explain why.
+- Carry Pace, Stamina, Dragon and Team integrity between stages.
+- Final rank: CALM HAND, RACE READER or COMMAND VOICE.
+- Tyrese relationship and player identity can alter the final team-order call.
+
+Q79 — THE PROMISES YOU PICK
+Interaction: objective draft.
+- Choose exactly three objectives from six.
+- Categories: Results, Teammate, Development, Reliability, Technical and Media.
+- Each card shows reward and pressure.
+- At least one Team objective and one Personal objective are required.
+- Objectives persist into the season dashboard.
+- No generic “complete ten races” filler.
+
+Q80 — SEASON CONTROL
+Interaction: persistent career dashboard.
+- Show calendar, opening standings, chosen objectives, preparation profile,
+  telemetry result and pit-wall grade in one professional control room.
+- Let the player choose the default race-weekend presentation:
+  Watch Live, Quick Sim or Full Sim.
+- Make clear this sets a preference; it does not start a fake race.
+- Unlock the reusable Season HQ and tease Round One: Velmora City Circuit.
+
+CAREER SYSTEMS CREATED
+- Eight-round schedule.
+- Season ambition.
+- Weekly preparation allocation and derived readiness.
+- Telemetry evidence/diagnosis state.
+- Pit-wall decisions, score and grade.
+- Three trackable objectives.
+- Default race-presentation preference.
+- Opening standings for player, Tyrese, Jalen, Sofia, Luka, Ren and Maya.
+- Season HQ unlocked state.
+
+SAVE CONTRACT
+- Story schema v18.
+- Add completed.seasonOpening.
+- Add chapter8 without resetting any Chapter One–Seven state.
+- Existing completed Verdict saves unlock Chapter Eight.
+- CatAsthma receives non-destructive Chapter Eight replay.
+- Persist after every meaningful mechanic checkpoint.
+
+INTEGRATION
+- Story Journey Chapter 08 becomes playable instead of a locked placeholder.
+- Career Desk recognises the active full season.
+- Calendar and inbox acknowledge the Championship launch.
+- Chapter Eight is included in scene routing, music selection, image preloading,
+  keyboard guards and resume logic.
+
+QA GATES
+- career.js and mobile.js pass node --check.
+- All CSS brace counts balance.
+- Q75-Q80 = six season-opening scenes.
+- Every data-season-* action has a handler.
+- Weekly hours can never exceed six or exceed three in one activity.
+- Telemetry cannot lock the player out after a wrong answer.
+- Pit-wall drill always reaches a grade.
+- Objective draft enforces exactly three plus team/personal mix.
+- V34.30.4 negotiation object-identity repair remains present.
+- V34.29.9 Blackglass navmesh/pathfinding remains present.
+- Existing asset/audio paths are not removed or renamed.
+- ZIP integrity passes.
+- No database migration and no live deployment.

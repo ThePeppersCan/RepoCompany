@@ -1,0 +1,38 @@
+DRAGONBOUND V34.31 — OPENING WEEK QA
+
+SOURCE
+PASS — built from V34.30.4 negotiation-state-repair source.
+PASS — V34.30.4 contract offer object-identity repair retained.
+PASS — V34.29.9 Blackglass stealth navmesh/pathfinding retained.
+
+STATIC CHECKS
+PASS — career.js: node --check.
+PASS — mobile.js: node --check.
+PASS — career-season.css braces: 196 / 196.
+PASS — six Q75–Q80 season scene definitions.
+PASS — all 16 unique data-season-* actions have matching bindings.
+PASS — V34.31 CSS and JS cache keys present in career-mode/index.html.
+PASS — all five reused scene backgrounds exist in the supplied project.
+
+STATE AND PROGRESSION
+PASS — schema version 18 adds completed.seasonOpening and chapter8.
+PASS — V34.30 completed Verdict saves normalise without reset.
+PASS — Story Journey Chapter 08 unlock, start, resume and dashboard actions.
+PASS — Career Desk journal, inbox, calendar and current-chapter integration.
+PASS — CatAsthma non-destructive Chapter 08 replay gate.
+PASS — story resume, keyboard result guard and music routing include Chapter 08.
+
+MECHANIC GATES
+PASS — calendar requires opener and finale inspection before ambition.
+PASS — preparation blocks cap at three and can never exceed six hours.
+PASS — sponsor-duty cost reflects the negotiated sponsor-days clause.
+PASS — telemetry requires three clues and allows one useful wrong-answer retry.
+PASS — pit-wall drill records five calls and always resolves to a grade.
+PASS — final team-order score reacts to Tyrese relationship state.
+PASS — objectives require exactly three, including team and personal scopes.
+PASS — race presentation is a saved preference; it does not fake a result.
+
+PACKAGE
+PASS — no database migration.
+PASS — no new heavy assets or audio.
+PASS — no live deployment.

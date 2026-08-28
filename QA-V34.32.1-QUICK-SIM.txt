@@ -1,0 +1,29 @@
+V34.32.1 — QUICK SIM HOTFIX
+
+What was wrong
+- V34.32's QUICK SIM used the same real-time race speed as WATCH LIVE.
+- It only auto-resolved the first routine Quickquill call, so visually it looked like WATCH LIVE.
+
+What this fixes
+- WATCH LIVE: normal 1x Dragon Racing engine.
+- QUICK SIM: same engine at 7x through routine racing, slows to 1x for the decisive Quickquill window, then returns to 7x after your choice.
+- FULL SIM: same engine at 12x and both Quickquill calls resolve automatically.
+- Quick/Full Sim also shorten the pre-race presentation/countdown.
+- The simulated race clock advances with the engine, so lap/finish timing remains based on simulated race time rather than wall-clock fast-forward time.
+
+Install
+1. Apply V34.32 first if you have not already.
+2. Copy dragon-racing-race.js from this hotfix to the root of web2.
+3. Replace the existing file.
+4. Hard-refresh the site (Ctrl+F5).
+
+Test
+1. Enter Season Control before Round One is complete.
+2. Select QUICK SIM.
+3. Start Velmora.
+4. The opening/grid/countdown should be much shorter and the race should visibly progress much faster.
+5. The first Quickquill call should auto-resolve.
+6. Near the final-lap decisive window, the engine should return to normal speed and ask you for COMMIT / PRESSURE / BANK POINTS.
+7. After choosing, it should accelerate again to the flag.
+8. Repeat with WATCH LIVE to confirm normal speed remains untouched.
+9. Repeat with FULL SIM to confirm the race fast-sims and both calls are automatic.

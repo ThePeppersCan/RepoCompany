@@ -1,0 +1,34 @@
+VELMORA: DRAGONBOUND CAREER MODE — V34.32 PATCH ONLY
+====================================================
+
+INSTALL
+1. Make a backup of your current web2 folder.
+2. Open this patch ZIP.
+3. Copy everything inside it into the ROOT of your current web2 folder.
+4. When Windows asks, choose Replace the files in the destination.
+5. Hard-refresh the site once.
+
+Do NOT delete your assets folder.
+Do NOT replace your whole site with this patch folder.
+This patch contains only the files changed for V34.32.
+
+WHAT THIS PATCH DOES
+- Continues directly from V34.31 Opening Week / Season Control.
+- Replaces the old disabled next-race placeholder with a real Round 1 launch.
+- Round 1 uses the EXISTING Dragon Racing engine on Velmora City Circuit.
+- Seven named career racers are used: player, Tyrese, Jalen, Sofia, Luka, Ren and Maya.
+- Opening Week preparation influences qualifying and race behaviour.
+- Adds three Round 1 race plans: Build the Exit, Read the Street, Take the Late Brake.
+- WATCH LIVE: both live pit-wall calls are interactive.
+- QUICK SIM: first routine call is automatic; final decisive call is interactive.
+- FULL SIM: both calls resolve automatically from the selected race plan.
+- Result, grid, overtakes, live calls and championship points persist to the career save.
+- Existing saves are normalised into the new championship state automatically.
+- Career performance curve now continues through the full eight-round season so wins become progressively more realistic as the career develops.
+- Distinct mechanical race profiles are defined for all eight season rounds.
+
+IMPORTANT
+Round 1 is the fully playable race integration in V34.32.
+The later round logic/profiles are already scaffolded, but they are intentionally NOT launched on fake or incorrect maps. The current web2 build does not contain proper Dragon Racing circuit descriptors for Greenwater, Qasira, Skarholt, Hollowfire, Iskara, Sunfire or Vardesh Grand Ice.
+
+That means this patch does NOT quietly recycle Velmora/Canto for the rest of the season. Future rounds can plug into the same engine as their real circuit descriptors are built.

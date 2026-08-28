@@ -1,0 +1,26 @@
+DRAGONBOUND V34.29.8 — AFTER THE FLAG
+
+BASELINE
+Install over V34.29.7. This package includes the full current Career Mode integration plus the current root Dragon Racing files so it can also repair a partial install.
+
+INSTALL
+1. Back up the current site/repository revision.
+2. Copy the contents of this patch into the site root, preserving directories.
+3. Allow files with matching paths to replace the current V34.29.7/V34.29.5 equivalents.
+4. Hard-refresh the browser/CDN cache after deployment.
+
+IMPORTANT FILES
+- dragon-racing-race.js
+  Preserves V34.29.7 competitive-field/overtake-resolution and only adds the Lumerre result CTA wording used by the new finale.
+- dragonbound-career-mode/career.js
+  Adds the Q57-Q65 After the Flag story system and save state.
+- dragonbound-career-mode/career-after-flag.css
+  New finale presentation layer.
+- dragonbound-career-mode/index.html
+  Loads the new CSS and supplied post-race music.
+- dragonbound-career-mode/story/chapter6/after-flag/
+  Parc ferme, envelope states and post-race music.
+
+NO DATABASE MIGRATION REQUIRED.
+Existing saves are normalised forward to story schema v16.
+A completed Lumerre race can continue into After the Flag without replaying Practice/Qualifying/Crown Week.
