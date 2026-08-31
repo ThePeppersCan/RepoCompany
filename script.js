@@ -9137,12 +9137,12 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
         // stained-glass sanctuary artwork. Keeping kind 'billboard' preserves
         // the existing transparent-sprite calibration while the movement path
         // below is now a simple side walk-in rather than a ladder climb.
-        {id:'sofa-left',kind:'billboard',x:20.0,y:85.7,scale:.96},
-        {id:'sofa-left-centre',kind:'billboard',x:32.9,y:85.6,scale:.96},
-        {id:'sofa-right-centre',kind:'billboard',x:46.2,y:85.6,scale:.96},
-        {id:'sofa-right',kind:'billboard',x:58.1,y:85.6,scale:.96},
-        {id:'armchair-left',kind:'billboard',x:68.9,y:85.6,scale:.96},
-        {id:'armchair-right',kind:'billboard',x:78.7,y:85.6,scale:.96}
+        {id:'sofa-left',kind:'billboard',x:11.7,y:75.35,scale:1.04},
+        {id:'sofa-left-centre',kind:'billboard',x:27.2,y:75.05,scale:1.04},
+        {id:'sofa-right-centre',kind:'billboard',x:42.9,y:74.8,scale:1.04},
+        {id:'sofa-right',kind:'billboard',x:58.6,y:74.8,scale:1.04},
+        {id:'armchair-left',kind:'billboard',x:74.2,y:75.05,scale:1.04},
+        {id:'armchair-right',kind:'billboard',x:89.7,y:75.35,scale:1.04}
       ]
     : billboardMode
     ? [
@@ -9392,27 +9392,14 @@ window.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase
   async function enterGuest(actor){
     const motion=++actor.motion;actor.leaving=false;actor.el.classList.remove('is-idle');
     if(sanctuaryMode){
-      const fromLeft=actor.entrySide==='left';
       const seatPoint=visualSeatPoint(actor);
-      const walkY=89.6;
-      const entrance={x:fromLeft?-14:114,y:walkY};
-      const approach={x:seatPoint.x,y:walkY};
-      actor.el.classList.remove('is-billboard-seated','is-sanctuary-seated');
-      actor.el.classList.add('is-billboard-walking','is-sanctuary-walking');
-      face(actor,fromLeft?'right':'left');
-      setPoint(actor,entrance,true);
-      loopFrames(actor,actor.definition.walk,185);
-      requestAnimationFrame(()=>{actor.el.classList.add('is-present');walkTo(actor,entrance,approach);});
-      const duration=walkDuration(entrance,approach);
-      await wait(duration+35);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
-      stopAnimation(actor);
-      actor.el.classList.remove('is-billboard-walking','is-sanctuary-walking');
+      actor.el.classList.remove('is-billboard-walking','is-sanctuary-walking','is-billboard-seated','is-sanctuary-seated','is-idle');
       actor.isSeated=true;
       face(actor,'right');
-      actor.el.style.transition='left 210ms ease-out,top 260ms ease-out,opacity 180ms ease';
-      setPoint(actor,seatPoint);
-      await wait(215);if(actor.motion!==motion||actor.leaving||!actor.el.isConnected)return;
-      const sat=await playFramesOnce(actor,actor.definition.sit,105,motion);
+      setPoint(actor,seatPoint,true);
+      actor.el.classList.add('is-present');
+      actor.el.style.transition='opacity 180ms ease';
+      const sat=await playFramesOnce(actor,actor.definition.sit,95,motion);
       if(!sat)return;
       stopAnimation(actor);
       setFrame(actor,actor.definition.sit[actor.definition.sit.length-1]);

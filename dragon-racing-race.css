@@ -1446,3 +1446,36 @@
 @media(prefers-reduced-motion:reduce){
   #dragonRacingModal .dragon-race-team-order{transition:none!important}
 }
+
+/* =========================================================
+   V34.34 — Greenwater Canopy atmosphere
+   Engine remains unchanged; these states visualize the live
+   humidity/mist phases driven by dragon-racing-race.js.
+   ========================================================= */
+#dragonRacingModal .dragon-race-game.is-greenwater-canopy .dragon-race-atmosphere.is-greenwater{
+  opacity:.66!important;
+  mix-blend-mode:screen!important;
+  background:
+    radial-gradient(circle at 28% 18%,rgba(169,229,191,.12),transparent 26%),
+    radial-gradient(circle at 72% 68%,rgba(101,184,160,.09),transparent 30%),
+    linear-gradient(180deg,rgba(12,45,39,.03),rgba(5,27,29,.12));
+}
+#dragonRacingModal .dragon-race-game.is-greenwater-canopy .dragon-race-viewport::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:90;
+  pointer-events:none;
+  opacity:0;
+  background:
+    radial-gradient(ellipse at 22% 72%,rgba(209,239,229,.28),transparent 34%),
+    radial-gradient(ellipse at 64% 56%,rgba(191,229,219,.22),transparent 38%),
+    linear-gradient(180deg,rgba(179,221,211,.03),rgba(174,218,208,.18));
+  filter:blur(3px);
+  transition:opacity 1.1s ease,filter 1.1s ease;
+}
+#dragonRacingModal .dragon-race-game.is-greenwater-canopy.is-greenwater-mist .dragon-race-viewport::after{opacity:.34}
+#dragonRacingModal .dragon-race-game.is-greenwater-canopy.is-greenwater-mist-heavy .dragon-race-viewport::after{opacity:.55;filter:blur(5px)}
+#dragonRacingModal .dragon-race-game.is-greenwater-canopy.is-greenwater-mist .dragon-race-world-bg{filter:saturate(.91) contrast(.98) brightness(.96)}
+#dragonRacingModal .dragon-race-game.is-greenwater-canopy.is-greenwater-mist-heavy .dragon-race-world-bg{filter:saturate(.80) contrast(.94) brightness(.91)}
+@media(prefers-reduced-motion:reduce){#dragonRacingModal .dragon-race-game.is-greenwater-canopy .dragon-race-viewport::after{transition:none!important}}

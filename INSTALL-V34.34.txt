@@ -1,0 +1,22 @@
+V34.34 — GREENWATER / ROUND TWO — PATCH ONLY
+
+BASELINE
+Apply over V34.33 Season Polish (V34.32.1 Quick Sim is already included in V34.33).
+
+INSTALL
+1. Back up the current web2 folder.
+2. Copy the contents of this ZIP into the ROOT of web2.
+3. Replace files when prompted.
+4. Hard refresh the site (Ctrl+F5).
+
+FILES CHANGED
+- dragon-racing-race.js
+- dragon-racing-race.css
+- dragonbound-career-launcher.js
+- dragonbound-career-mode/career.js
+- dragonbound-career-mode/career-season.css
+- dragonbound-career-mode/index.html
+
+No new MP3s are required.
+No giant assets folder is included.
+The existing web2 asset dragon-racing-assets/track-previews/greenwater_canopy_arena_preview.png is reused.

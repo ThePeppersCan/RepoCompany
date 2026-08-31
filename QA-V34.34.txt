@@ -1,0 +1,59 @@
+V34.34 — GREENWATER / ROUND TWO — QA
+
+WHAT CHANGED
+- Result-aware Round 1 aftermath instead of jumping straight back to a dashboard.
+- Optional Quickquill downtime and Greenwater travel/arrival.
+- Greenwater technical setup: Cooling / Response / Stability.
+- Greenwater track-reading qualifying: Attack one sector, Control another.
+- Saved 7-racer qualifying grid.
+- Greenwater strategy: Find the Rhythm / Attack the Windows / Save for the Mist.
+- Round 2 uses the existing Dragon Racing engine through the new greenwater_canopy descriptor.
+- Greenwater live phases: humid/stable -> canopy mist -> late-race stamina phase.
+- Greenwater-specific AI strengths for Ren, Maya, Sofia, Jalen, Luka and Tyrese.
+- One contextual Quickquill live call, not constant race popups.
+- Watch Live / Quick Sim / Full Sim all use the same engine.
+- Round 2 results, points, first podium/first win flags, evening choice and championship progression persist.
+- Qasira becomes the next championship target after the Greenwater evening.
+
+GREENWATER VS VELMORA
+Velmora rewards street-race exits and aggressive windows.
+Greenwater rewards rhythm, visibility management, humidity/stamina control and technical precision.
+Mist is a live engine phase, not just a text label.
+
+TEST SEQUENCE
+1. Load a save with Round 1 complete.
+2. Confirm the Round 1 aftermath references the real result.
+3. Complete/skip optional Quickquill downtime and travel to Greenwater.
+4. Inspect the 3 optional paddock interactions.
+5. Choose Cooling, Response or Stability.
+6. Enter qualifying.
+7. Pick different ATTACK and CONTROL sectors.
+8. Run qualifying; confirm a 7-racer grid appears.
+9. Leave/re-enter Career Mode; confirm the same grid remains.
+10. Choose a Greenwater race plan.
+11. Test WATCH LIVE:
+    - race launches on Greenwater Canopy
+    - mist appears during the middle phase
+    - late-race stamina callout appears
+    - one Quickquill decision appears
+12. Finish; confirm Career Mode receives result once and updates championship once.
+13. Test QUICK SIM on a fresh/not-completed Round 2 save:
+    - routine race runs faster
+    - Greenwater major decision slows for player input
+    - resumes fast afterward
+14. Test FULL SIM:
+    - race runs fast
+    - Greenwater decision is auto-resolved from setup/strategy
+15. Confirm first podium / first win is only awarded once when applicable.
+16. Pick Tyrese / Nell / alone for the evening; confirm choice persists after reload.
+17. End Greenwater; confirm Round 3 / Qasira is next.
+18. Regression: confirm Round 1 Velmora still launches and V34.33 Season Control still loads.
+
+STATIC QA COMPLETED BEFORE PACKAGING
+- node --check dragon-racing-race.js
+- node --check dragonbound-career-launcher.js
+- node --check dragonbound-career-mode/career.js
+- Greenwater preview asset confirmed present in supplied web2.zip
+
+KNOWN LIMITATION
+- No dedicated Greenwater MP3 was supplied, so Round 2 reuses the existing compatible race audio path rather than inventing a missing asset.

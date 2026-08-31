@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-20-performance-loading-20260826';
+  const CAREER_URL = 'dragonbound-career-mode/index.html?v=v34-34-greenwater-round-two-20260828';
   const SUPABASE_URL = 'https://hvdrwmjieguurxvrgzfu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ';
   const ACTIVE_CLASS = 'dragonbound-career-active';
@@ -297,7 +297,7 @@
       ui.open();
       requestAnimationFrame(() => {
         const trackId = String(detail.trackId || (detail.raceKey === 'blackglass' ? 'blackglass_night_circuit' : 'canto_meadow_circuit'));
-        const trackLabel = ({blackglass_night_circuit:'Blackglass Night Circuit',canto_meadow_circuit:'Canto Meadow Circuit',velmora_city_circuit:'Velmora City Circuit',lumerre_crown_circuit:'Lumerre Crown Circuit'})[trackId] || String(detail.trackName || trackId || 'Story race').replace(/_/g,' ');
+        const trackLabel = trackId === 'blackglass_night_circuit' ? 'Blackglass Night Circuit' : trackId === 'velmora_city_circuit' ? 'Velmora City Circuit' : trackId === 'greenwater_canopy' ? 'Greenwater Canopy' : trackId === 'lumerre_crown_circuit' ? 'Lumerre Crown Circuit' : 'Canto Meadow Circuit';
         const started = race.start({ id: trackId, story: { ...detail, trackId } });
         if (started) return;
         try { ui.close?.(); } catch (_) {}

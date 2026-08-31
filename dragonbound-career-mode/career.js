@@ -1273,13 +1273,19 @@
   const SEASON_HQ = 'story/environments/03_Quickquill_Workshop.png';
   const SEASON_CALENDAR_BG = 'story/environments/01_Young_Velmora_League_Circuit.png';
   const SEASON_ROOFTOP = 'story/environments/04_Quickquill_Rooftop_Walkway.png';
+  const GREENWATER_BG = '../dragon-racing-assets/track-previews/greenwater_canopy_arena_preview.png';
   const QUICKQUILL_SEASON_SCENES = [
     {id:'q75',number:'Q75',title:'The Calendar Opens',location:'Quickquill strategy floor · Tuesday',background:SEASON_CALENDAR_BG,tone:'season-calendar',beats:[{type:'season-calendar'}]},
     {id:'q76',number:'Q76',title:'Six Hours',location:'Quickquill preparation room · Wednesday',background:VERDICT_HQ_LOUNGE,tone:'season-plan',beats:[{type:'season-plan'}]},
     {id:'q77',number:'Q77',title:'The Missing Tenth',location:'Quickquill telemetry lab · Wednesday afternoon',background:SEASON_HQ,tone:'season-telemetry',beats:[{type:'season-telemetry'}]},
     {id:'q78',number:'Q78',title:'Pit Wall, Live',location:'Quickquill race-control simulator · Thursday',background:'story/chapter5/quickquill-strategy-room.webp',tone:'season-pitwall',beats:[{type:'season-pitwall'}]},
     {id:'q79',number:'Q79',title:'The Promises You Pick',location:'Quickquill rooftop walkway · Friday',background:SEASON_ROOFTOP,tone:'season-objectives',beats:[{type:'season-objectives'}]},
-    {id:'q80',number:'Q80',title:'Season Control',location:'Quickquill HQ · Championship desk',background:SEASON_HQ,tone:'season-control',beats:[{type:'season-control'}]}
+    {id:'q80',number:'Q80',title:'Season Control',location:'Quickquill HQ · Championship desk',background:SEASON_HQ,tone:'season-control',beats:[{type:'season-control'}]},
+    {id:'q81',number:'Q81',title:'Monday After Velmora',location:'Quickquill HQ · Common room · Monday',background:VERDICT_HQ_LOUNGE,tone:'season-aftermath',beats:[{type:'season-aftermath'}]},
+    {id:'q82',number:'Q82',title:'South to Greenwater',location:'Quickquill travel block · Talune',background:GREENWATER_BG,tone:'season-greenwater-arrival',beats:[{type:'season-greenwater-arrival'}]},
+    {id:'q83',number:'Q83',title:'Under the Canopy',location:'Greenwater Canopy · Quickquill bay',background:GREENWATER_BG,tone:'season-greenwater-briefing',beats:[{type:'season-greenwater-briefing'}]},
+    {id:'q84',number:'Q84',title:'Read the Track',location:'Greenwater Canopy · Round Two weekend',background:GREENWATER_BG,tone:'season-greenwater-weekend',beats:[{type:'season-greenwater-weekend'}]},
+    {id:'q85',number:'Q85',title:'After the Mist',location:'Greenwater · Sunday evening',background:GREENWATER_BG,tone:'season-greenwater-debrief',beats:[{type:'season-greenwater-debrief'}]}
   ];
 
   const SEASON_SCHEDULE = [
@@ -1305,11 +1311,11 @@
   };
   // These profiles are data, not replacement race engines.  Every playable
   // championship round is handed to the site's existing Dragon Racing engine.
-  // Only Velmora is enabled in V34.32 because it already has a real race map;
-  // later rounds can opt in as their physical circuit descriptors arrive.
+  // V34.34 enables Greenwater with its own real circuit descriptor while keeping
+  // later rounds locked until their physical tracks are implemented.
   const SEASON_RACE_PROFILES = {
     velmora:{round:1,raceNumber:4,trackId:'velmora_city_circuit',playable:true,theme:'STREET COMPRESSION',weather:'Dry city air',staminaPressure:1.02,mistakePressure:1.08,attackPressure:1.12,qualifyingBias:'late-braking',liveCalls:['street-exit','decisive-window'],hook:'Narrow walls reward exits, patience and committed late moves.'},
-    greenwater:{round:2,raceNumber:5,trackId:'greenwater_canopy',playable:false,theme:'HUMID RHYTHM',weather:'Heavy canopy humidity',staminaPressure:1.08,mistakePressure:.94,attackPressure:.92,qualifyingBias:'technical',liveCalls:['rhythm','canopy-gap'],hook:'Long technical sequences punish forcing the dragon before the line opens.'},
+    greenwater:{round:2,raceNumber:5,trackId:'greenwater_canopy',playable:true,theme:'CANOPY RHYTHM',weather:'Humidity · rolling canopy mist',staminaPressure:1.10,mistakePressure:1.02,attackPressure:.96,qualifyingBias:'technical',liveCalls:['canopy-choice'],hook:'Humidity, shifting visibility and late-race stamina reward rhythm instead of permanent attack.'},
     qasira:{round:3,raceNumber:6,trackId:'qasira_moon_orbit',playable:false,theme:'PRECISION GATES',weather:'Cold night air',staminaPressure:.98,mistakePressure:1.12,attackPressure:.96,qualifyingBias:'precision',liveCalls:['gate-call','night-push'],hook:'Tiny errors compound under lights; Ren is strongest when everybody else gets impatient.'},
     skarholt:{round:4,raceNumber:7,trackId:'skarholt_aurora_circuit',playable:false,theme:'CROSSWIND EXPOSURE',weather:'Strong crosswind',staminaPressure:1.04,mistakePressure:1.06,attackPressure:1.00,qualifyingBias:'wind',liveCalls:['wind-side','team-window'],hook:'Long exposed sections turn setup confidence and teammate management into race pace.'},
     hollowfire:{round:5,raceNumber:8,trackId:'hollowfire_citadel',playable:false,theme:'HEAT BATTLE',weather:'Dry furnace heat',staminaPressure:1.14,mistakePressure:1.05,attackPressure:1.18,qualifyingBias:'launch',liveCalls:['heat-save','luka-battle'],hook:'The race becomes physical. Luka attacks early and overheats himself if the player can stay attached.'},
@@ -2479,7 +2485,7 @@
   function defaultQuickquillStory() {
     return {
       id: 'quickquill-against-the-odds',
-      version: 19,
+      version: 20,
       chapter: 'prologue',
       scene: 'q0',
       beat: 0,
@@ -2656,11 +2662,20 @@
         objectives:{selected:[],locked:false},
         raceMode:'',
         seasonHubUnlocked:false,
+        milestones:{firstPodium:false,firstWin:false,firstPodiumRound:0,firstWinRound:0},
+        aftermath:{started:false,completed:false,headline:'',development:'',band:'',tyreseComparison:'',visited:[],completedAt:''},
+        greenwater:{
+          started:false,arrivalStep:0,paddockSeen:[],setup:'',
+          qualifying:{attack:'',control:'',completed:false,grid:[],position:0,headline:'',completedAt:''},
+          strategy:'rhythm',debriefSeen:false,eveningChoice:'',eveningTone:'',eveningComplete:false,completed:false,completedAt:''
+        },
+        rivalryFlags:{tyrese:0,ren:0,luka:0,teamHarmony:0},
         championship:{
           currentRound:1,
           points:{player:0,tyrese:0,jalen:0,sofia:0,luka:0,ren:0,maya:0},
           rounds:{
-            velmora:{status:'not-started',runId:'',presentationMode:'',strategy:'adaptive',qualifyingGrid:[],result:null,completedAt:''}
+            velmora:{status:'not-started',runId:'',presentationMode:'',strategy:'adaptive',qualifyingGrid:[],result:null,completedAt:''},
+            greenwater:{status:'not-started',runId:'',presentationMode:'',strategy:'rhythm',qualifyingGrid:[],result:null,completedAt:''}
           }
         },
         completedAt:''
@@ -2817,6 +2832,14 @@
         telemetry:{...fallback.chapter8.telemetry,...(rawChapter8.telemetry||{}),seen:Array.isArray(rawChapter8.telemetry?.seen)?[...new Set(rawChapter8.telemetry.seen.map(String))].slice(0,4):[]},
         pitwall:{...fallback.chapter8.pitwall,...(rawChapter8.pitwall||{}),choices:Array.isArray(rawChapter8.pitwall?.choices)?rawChapter8.pitwall.choices.slice(0,5).map(row=>({...row})):[]},
         objectives:{...fallback.chapter8.objectives,...(rawChapter8.objectives||{}),selected:Array.isArray(rawChapter8.objectives?.selected)?[...new Set(rawChapter8.objectives.selected.map(String))].slice(0,3):[]},
+        milestones:{...fallback.chapter8.milestones,...(rawChapter8.milestones||{})},
+        aftermath:{...fallback.chapter8.aftermath,...(rawChapter8.aftermath||{}),visited:Array.isArray(rawChapter8.aftermath?.visited)?[...new Set(rawChapter8.aftermath.visited.map(String))].slice(0,4):[]},
+        greenwater:{
+          ...fallback.chapter8.greenwater,...(rawChapter8.greenwater||{}),
+          paddockSeen:Array.isArray(rawChapter8.greenwater?.paddockSeen)?[...new Set(rawChapter8.greenwater.paddockSeen.map(String))].slice(0,4):[],
+          qualifying:{...fallback.chapter8.greenwater.qualifying,...(rawChapter8.greenwater?.qualifying||{}),grid:Array.isArray(rawChapter8.greenwater?.qualifying?.grid)?rawChapter8.greenwater.qualifying.grid.slice(0,7).map(row=>({...row})):[]}
+        },
+        rivalryFlags:{...fallback.chapter8.rivalryFlags,...(rawChapter8.rivalryFlags||{})},
         championship:{
           ...fallback.chapter8.championship,
           ...(rawChapter8.championship||{}),
@@ -2829,6 +2852,12 @@
               ...(rawChapter8.championship?.rounds?.velmora||{}),
               qualifyingGrid:Array.isArray(rawChapter8.championship?.rounds?.velmora?.qualifyingGrid)?rawChapter8.championship.rounds.velmora.qualifyingGrid.slice(0,7).map(row=>({...row})):[],
               result:rawChapter8.championship?.rounds?.velmora?.result&&typeof rawChapter8.championship.rounds.velmora.result==='object'?cloneValue(rawChapter8.championship.rounds.velmora.result):null
+            },
+            greenwater:{
+              ...fallback.chapter8.championship.rounds.greenwater,
+              ...(rawChapter8.championship?.rounds?.greenwater||{}),
+              qualifyingGrid:Array.isArray(rawChapter8.championship?.rounds?.greenwater?.qualifyingGrid)?rawChapter8.championship.rounds.greenwater.qualifyingGrid.slice(0,7).map(row=>({...row})):[],
+              result:rawChapter8.championship?.rounds?.greenwater?.result&&typeof rawChapter8.championship.rounds.greenwater.result==='object'?cloneValue(rawChapter8.championship.rounds.greenwater.result):null
             }
           }
         }
@@ -7566,6 +7595,10 @@
       telemetry:{...base.telemetry,...(c8.telemetry||{})},
       pitwall:{...base.pitwall,...(c8.pitwall||{})},
       objectives:{...base.objectives,...(c8.objectives||{})},
+      milestones:{...base.milestones,...(c8.milestones||{})},
+      aftermath:{...base.aftermath,...(c8.aftermath||{}),visited:Array.isArray(c8.aftermath?.visited)?[...new Set(c8.aftermath.visited.map(String))].slice(0,4):[]},
+      greenwater:{...base.greenwater,...(c8.greenwater||{}),paddockSeen:Array.isArray(c8.greenwater?.paddockSeen)?[...new Set(c8.greenwater.paddockSeen.map(String))].slice(0,4):[],qualifying:{...base.greenwater.qualifying,...(c8.greenwater?.qualifying||{}),grid:Array.isArray(c8.greenwater?.qualifying?.grid)?c8.greenwater.qualifying.grid.slice(0,7).map(row=>({...row})):[]}},
+      rivalryFlags:{...base.rivalryFlags,...(c8.rivalryFlags||{})},
       championship:{
         ...baseChamp,...champ,
         points:{...(baseChamp.points||{}),...(champ.points||{})},
@@ -7575,6 +7608,11 @@
             ...(baseRounds.velmora||{}),...(rounds.velmora||{}),
             qualifyingGrid:Array.isArray(rounds.velmora?.qualifyingGrid)?rounds.velmora.qualifyingGrid.slice(0,7).map(row=>({...row})):[],
             result:rounds.velmora?.result&&typeof rounds.velmora.result==='object'?cloneValue(rounds.velmora.result):null
+          },
+          greenwater:{
+            ...(baseRounds.greenwater||{}),...(rounds.greenwater||{}),
+            qualifyingGrid:Array.isArray(rounds.greenwater?.qualifyingGrid)?rounds.greenwater.qualifyingGrid.slice(0,7).map(row=>({...row})):[],
+            result:rounds.greenwater?.result&&typeof rounds.greenwater.result==='object'?cloneValue(rounds.greenwater.result):null
           }
         }
       }
@@ -7592,8 +7630,10 @@
   function seasonPitwallGrade(score){return score>=9?'COMMAND VOICE':score>=6?'RACE READER':'CALM HAND';}
 
   function seasonRoundState(c8,id='velmora'){
-    const base=defaultQuickquillStory().chapter8.championship.rounds.velmora;
-    return {...base,...(c8?.championship?.rounds?.[id]||{}),qualifyingGrid:Array.isArray(c8?.championship?.rounds?.[id]?.qualifyingGrid)?c8.championship.rounds[id].qualifyingGrid.slice(0,7).map(row=>({...row})):[]};
+    const defaults=defaultQuickquillStory().chapter8.championship.rounds;
+    const base=defaults[id]||defaults.velmora;
+    const raw=c8?.championship?.rounds?.[id]||{};
+    return {...base,...raw,qualifyingGrid:Array.isArray(raw.qualifyingGrid)?raw.qualifyingGrid.slice(0,7).map(row=>({...row})):[],result:raw.result&&typeof raw.result==='object'?cloneValue(raw.result):null};
   }
 
   function seasonRacerLabel(id){
@@ -7635,6 +7675,53 @@
     });
     rows.sort((a,b)=>b.qualifyingScore-a.qualifyingScore);
     return rows.map((row,index)=>({...row,gridPosition:index+1,position:index+1,qualifyingScore:Number(row.qualifyingScore.toFixed(2))}));
+  }
+
+  function seasonRankFor(c8,id){const rows=seasonStandings(c8);return Math.max(1,rows.findIndex(row=>row.id===id)+1);}
+  function seasonResumeScene(c8=seasonState()){
+    const velmora=seasonRoundState(c8,'velmora'),greenwater=seasonRoundState(c8,'greenwater');
+    if(velmora.status!=='complete')return 'q80';
+    if(!c8.aftermath?.completed)return 'q81';
+    if(!c8.greenwater?.started)return 'q82';
+    if(!c8.greenwater?.setup)return 'q83';
+    if(greenwater.status!=='complete')return 'q84';
+    if(!c8.greenwater?.eveningComplete)return 'q85';
+    return 'q80';
+  }
+  function seasonRoundOneOutcome(story=state.story){
+    const c8=seasonState(story),round=seasonRoundState(c8,'velmora'),result=round.result||{};
+    const rank=Math.max(1,Math.min(7,Number(result.rank)||7)),grid=Math.max(1,Math.min(7,Number(result.startPosition)||7));
+    const tyrese=Array.isArray(result.classification)?result.classification.find(row=>row.id==='tyrese'):null,tyreseRank=Math.max(1,Number(tyrese?.rank)||Number(result.rivalRanks?.tyrese)||7);
+    const band=rank<=3?'excellent':rank<=5?'strong':'difficult';
+    const tyreseComparison=rank<tyreseRank?'ahead':rank>tyreseRank?'behind':'level';
+    const headline=rank===1?'ROOKIE WINS VELMORA OPENER':rank<=3?'QUICKQUILL ROOKIE MAKES IMMEDIATE IMPACT':grid>=6&&rank<=4?'RECOVERY DRIVE TURNS VELMORA AROUND':rank>=6?'VELMORA PROVES BRUTAL FOR QUICKQUILL NEWCOMER':'QUICKQUILL BANKS SOLID OPENING POINTS';
+    let development='race-rhythm';
+    if(Number(result.positionsGained)>1)development='racecraft-recovery';
+    else if(Number(result.overtakes)>=3)development='overtaking';
+    else if(grid<=3&&rank>=5)development='late-stamina';
+    else if(grid<=2)development='qualifying-pace';
+    const labels={'race-rhythm':'RACE RHYTHM','racecraft-recovery':'RECOVERY RACECRAFT',overtaking:'OVERTAKING READ','late-stamina':'LATE-RACE STAMINA','qualifying-pace':'QUALIFYING PACE'};
+    return {rank,grid,tyreseRank,band,tyreseComparison,headline,development,developmentLabel:labels[development]||'RACE RHYTHM'};
+  }
+  function greenwaterSetupText(id){return ({cooling:{title:'COOLING',note:'Protect late-race stamina and reduce the humidity penalty. Slightly softer immediate response.'},response:{title:'RESPONSE',note:'Sharper technical-sector pace and attacks. Costs more energy and raises error exposure.'},stability:{title:'STABILITY',note:'Fewer visibility mistakes and calmer mist performance. Gives away a little maximum attack.'}})[id]||{title:'UNSET',note:'Choose how Nell prepares the package.'};}
+  function greenwaterStrategyText(id){return ({rhythm:{title:'FIND THE RHYTHM',note:'Balanced, consistent and patient through the canopy.'},windows:{title:'ATTACK THE WINDOWS',note:'Push hardest when the light opens. More overtaking pressure, more energy cost.'},mist:{title:'SAVE FOR THE MIST',note:'Conservative early phase, stronger late-race stamina when visibility drops.'}})[id]||{title:'FIND THE RHYTHM',note:'Balanced Greenwater race plan.'};}
+  const GREENWATER_SECTORS={sunbreak:{title:'SUNBREAK',note:'Fast light transition. Commitment can win time.'},root:{title:'ROOT CHICANE',note:'Technical and punishing. Over-driving costs more than patience.'},lower:{title:'LOWER CANOPY',note:'Humid, dim and rhythmic. Smooth inputs matter most.'}};
+  function seasonGreenwaterQualifyingGrid(story,c8){
+    const gw=c8.greenwater||{},saved=gw.qualifying?.grid||[];if(saved.length===7)return saved.map(row=>({...row}));
+    const profile=SEASON_RACE_PROFILES.greenwater,evolution=syncCareerEvolution(story),window=careerPerformanceWindow(profile.raceNumber),ready=c8.weeklyPlan?.readiness||{};
+    const base=80.3+(Math.max(42,Number(window.paceTarget)||42)-42)*.205+(Number(ready.pace||50)-50)*.018+(Number(ready.control||50)-50)*.018;
+    let setup=gw.setup==='response'?1.05:gw.setup==='stability'?.35:gw.setup==='cooling'?.18:0;
+    const q=gw.qualifying||{};let sector=0;
+    if(q.attack==='sunbreak')sector+=.72;if(q.attack==='root')sector+=gw.setup==='response'?.95:.52;if(q.attack==='lower')sector+=gw.setup==='stability'?.78:.40;
+    if(q.control==='root')sector+=.58;if(q.control==='lower')sector+=.50;if(q.control==='sunbreak')sector+=.18;
+    const dev=c8.aftermath?.development||'';if(dev==='qualifying-pace')sector+=.55;if(dev==='race-rhythm')sector+=.18;
+    const rows=[{id:'player',racerId:'player',name:storyDragonName(),team:'Quickquill',isPlayer:true,qualifyingScore:base+setup+sector+(Math.random()-.5)*3.3,ai:{pace:Math.round(base),consistency:82,aggression:76,defending:82,overtaking:82,stamina:Math.round(Number(ready.stamina)||78),pressure:84,style:evolution.playerStyle||'Adaptive'}}];
+    Object.entries(CAREER_RACER_AI).forEach(([id,ai])=>{
+      let edge=0,variance=Math.max(.75,Math.min(3.2,(106-(Number(ai.consistency)||82))/9.5));
+      if(id==='ren'){edge+=2.25;variance*=.68;}else if(id==='maya'){edge+=1.35;variance*=.92;}else if(id==='sofia'){edge+=1.15;variance*=.72;}else if(id==='jalen'){edge+=1.30;variance*=.74;}else if(id==='luka'){edge+=.90;variance*=1.55;}else if(id==='tyrese')edge+=.70;
+      rows.push({id,racerId:id,name:ai.name,team:ai.team,isPlayer:false,qualifyingScore:Number(ai.pace)+edge+(Math.random()-.5)*variance*2,ai:{...ai,sectorBias:{...(ai.sectorBias||{})}}});
+    });
+    rows.sort((a,b)=>b.qualifyingScore-a.qualifyingScore);return rows.map((row,i)=>({...row,gridPosition:i+1,position:i+1,qualifyingScore:Number(row.qualifyingScore.toFixed(2))}));
   }
 
   function seasonRacePlanText(id){
@@ -7743,63 +7830,80 @@
 
   async function acceptSeasonRaceResult(result={}){
     if(!state.activeSave||state.storySaving)return;
-    if(!(String(result.raceKey||'').startsWith('season-')||Number(result.seasonRound)===1||result.trackId==='velmora_city_circuit'&&state.story?.chapter==='season-one'))return;
-    const story=normaliseQuickquillStory(state.story||activeSaveState().story),c8Current=seasonState(story),current=seasonRoundState(c8Current,'velmora');
+    const incomingId=normKey(result.seasonRoundId||'');
+    const roundId=incomingId==='greenwater'||Number(result.seasonRound)===2||result.trackId==='greenwater_canopy'?'greenwater':incomingId==='velmora'||Number(result.seasonRound)===1||result.trackId==='velmora_city_circuit'?'velmora':'';
+    if(!roundId||!String(result.raceKey||'').startsWith('season-')&&Number(result.seasonRound)<=0)return;
+    const story=normaliseQuickquillStory(state.story||activeSaveState().story),c8Current=seasonState(story),current=seasonRoundState(c8Current,roundId);
     if(current.status==='complete')return;
     if(result.careerSaveId&&String(result.careerSaveId)!==String(state.activeSave.id))return;
     if(current.runId&&result.runId&&String(current.runId)!==String(result.runId))return;
-    const changed=cloneValue(story),c8=seasonState(changed),round=seasonRoundState(c8,'velmora');
-    const classification=seasonClassificationRows(result);
-    const playerRow=classification.find(row=>row.id==='player')||{rank:Math.max(1,Math.min(7,Number(result.rank)||7)),gridPosition:Math.max(1,Math.min(7,Number(result.startPosition)||7))};
+    const changed=cloneValue(story),c8=seasonState(changed),round=seasonRoundState(c8,roundId),profile=SEASON_RACE_PROFILES[roundId];
+    const classification=seasonClassificationRows(result),playerRow=classification.find(row=>row.id==='player')||{rank:Math.max(1,Math.min(7,Number(result.rank)||7)),gridPosition:Math.max(1,Math.min(7,Number(result.startPosition)||7))};
     const rank=Math.max(1,Math.min(7,Number(playerRow.rank)||7));
     round.status='complete';round.runId='';round.completedAt=new Date().toISOString();round.presentationMode=String(result.presentationMode||round.presentationMode||c8.raceMode||'watch');
-    round.result={
-      rank,
-      finishMs:Math.max(0,Number(result.finishMs||playerRow.finishMs)||0),
-      bestLapMs:Math.max(0,Number(result.bestLapMs||playerRow.bestLapMs)||0),
-      startPosition:Math.max(1,Math.min(7,Number(result.startPosition||playerRow.gridPosition)||7)),
-      positionsGained:Math.max(0,Number(result.positionsGained)||Math.max(0,(Number(result.startPosition||playerRow.gridPosition)||7)-rank)),
-      overtakes:Math.max(0,Number(result.playerOvertakes??result.totalOvertakes)||0),
-      leadChanges:Math.max(0,Number(result.leadChanges)||0),
-      photoFinish:!!result.photoFinish,
-      notableMoment:String(result.notableMoment||''),
-      rivalRanks:result.rivalRanks&&typeof result.rivalRanks==='object'?{...result.rivalRanks}:{},
-      classification,
-      events:Array.isArray(result.events)?result.events.slice(-20).map(row=>typeof row==='object'?{...row}:row):[],
-      liveCalls:Array.isArray(result.seasonCallResponses)?result.seasonCallResponses.slice(0,4).map(row=>({...row})):[]
-    };
-    for(const row of classification){
-      if(!SEASON_RACER_IDS.includes(row.id))continue;
-      c8.championship.points[row.id]=Math.max(0,Number(c8.championship.points[row.id])||0)+seasonPointsForPosition(row.rank);
-    }
-    c8.championship.currentRound=2;c8.championship.rounds.velmora=round;changed.chapter8=c8;changed.chapter='season-one';changed.scene='q80';changed.beat=0;
-    if(rank===1){changed.relationships.quickquillTrust+=5;changed.relationships.maraBond+=2;changed.relationships.tyreseBond+=2;}
-    else if(rank<=3){changed.relationships.quickquillTrust+=3;changed.relationships.tyreseBond+=1;}
-    else if(rank<=5)changed.relationships.quickquillTrust+=2;
-    else changed.relationships.dragonBond+=1;
-    const evolution=syncCareerEvolution(changed);
-    applyRaceToCareerEvolution(evolution,{
-      key:'race-04-season-velmora',event:'Velmora City Circuit',rank,startPosition:round.result.startPosition,
-      qualifying:round.result.startPosition,overtakes:round.result.overtakes,positionsGained:round.result.positionsGained,
-      leadChanges:round.result.leadChanges,strategy:'focus',completedAt:round.completedAt,photoFinish:round.result.photoFinish,
-      notableMoment:round.result.notableMoment,events:round.result.events,rivalRanks:round.result.rivalRanks
-    },changed);
-    changed.careerEvolution=evolution;
-    changed.history=[...(changed.history||[]),{scene:'q80',event:'season-round-one-result',rank,points:seasonPointsForPosition(rank),startPosition:round.result.startPosition}].slice(-160);
-    state.story=changed;state.mode='story';state.storyError='';state.seasonTransient=rank===1?'ROUND ONE WIN · VELMORA BELONGS TO QUICKQUILL':rank<=3?`ROUND ONE PODIUM · ${ordinal(rank)}`:`ROUND ONE COMPLETE · ${ordinal(rank)}`;
-    try{await persistStory(changed,{stageOverride:'quickquill-season-control'});render();syncMusic({restart:true});}
-    catch(error){state.storySaving=false;state.storyError=error?.message||'The race finished, but the Round One championship result could not be saved.';render();}
+    round.result={rank,finishMs:Math.max(0,Number(result.finishMs||playerRow.finishMs)||0),bestLapMs:Math.max(0,Number(result.bestLapMs||playerRow.bestLapMs)||0),startPosition:Math.max(1,Math.min(7,Number(result.startPosition||playerRow.gridPosition)||7)),positionsGained:Number.isFinite(Number(result.positionsGained))?Number(result.positionsGained):((Number(result.startPosition||playerRow.gridPosition)||7)-rank),overtakes:Math.max(0,Number(result.playerOvertakes??result.totalOvertakes)||0),leadChanges:Math.max(0,Number(result.leadChanges)||0),photoFinish:!!result.photoFinish,notableMoment:String(result.notableMoment||''),rivalRanks:result.rivalRanks&&typeof result.rivalRanks==='object'?{...result.rivalRanks}:{},classification,events:Array.isArray(result.events)?result.events.slice(-24).map(row=>typeof row==='object'?{...row}:row):[],liveCalls:Array.isArray(result.seasonCallResponses)?result.seasonCallResponses.slice(0,4).map(row=>({...row})):[]};
+    // Points are applied only here, once, and completed rounds immediately reject duplicate callbacks.
+    for(const row of classification){if(SEASON_RACER_IDS.includes(row.id))c8.championship.points[row.id]=Math.max(0,Number(c8.championship.points[row.id])||0)+seasonPointsForPosition(row.rank);}
+    c8.championship.rounds[roundId]=round;c8.championship.currentRound=roundId==='velmora'?2:3;
+    if(!c8.milestones.firstPodium&&rank<=3){c8.milestones.firstPodium=true;c8.milestones.firstPodiumRound=profile.round;}
+    if(!c8.milestones.firstWin&&rank===1){c8.milestones.firstWin=true;c8.milestones.firstWinRound=profile.round;}
+    if(roundId==='greenwater'){c8.greenwater.completed=true;c8.greenwater.completedAt=round.completedAt;c8.greenwater.debriefSeen=false;}
+    changed.chapter8=c8;changed.chapter='season-one';changed.scene=roundId==='velmora'?'q81':'q85';changed.beat=0;
+    if(rank===1){changed.relationships.quickquillTrust+=5;changed.relationships.maraBond+=2;}else if(rank<=3)changed.relationships.quickquillTrust+=3;else if(rank<=5)changed.relationships.quickquillTrust+=2;else changed.relationships.dragonBond+=1;
+    const evolution=syncCareerEvolution(changed);applyRaceToCareerEvolution(evolution,{key:`race-0${profile.raceNumber}-season-${roundId}`,event:roundId==='velmora'?'Velmora City Circuit':'Greenwater Canopy',rank,startPosition:round.result.startPosition,qualifying:round.result.startPosition,overtakes:round.result.overtakes,positionsGained:round.result.positionsGained,leadChanges:round.result.leadChanges,strategy:roundId==='greenwater'?c8.greenwater.strategy:'focus',completedAt:round.completedAt,photoFinish:round.result.photoFinish,notableMoment:round.result.notableMoment,events:round.result.events,rivalRanks:round.result.rivalRanks},changed);changed.careerEvolution=evolution;
+    changed.history=[...(changed.history||[]),{scene:changed.scene,event:`season-round-${profile.round}-result`,rank,points:seasonPointsForPosition(rank),startPosition:round.result.startPosition}].slice(-180);
+    state.story=changed;state.mode='story';state.storyError='';state.seasonTransient='';
+    try{await persistStory(changed,{stageOverride:roundId==='velmora'?'quickquill-season-aftermath':'quickquill-greenwater-debrief'});render();syncMusic({restart:true});}
+    catch(error){state.storySaving=false;state.storyError=error?.message||'The race finished, but the championship result could not be saved.';render();}
   }
 
   async function handleSeasonRaceAbort(message=''){
     if(!state.activeSave)return;
-    const changed=normaliseQuickquillStory(state.story||activeSaveState().story),c8=seasonState(changed),round=seasonRoundState(c8,'velmora');
+    const changed=normaliseQuickquillStory(state.story||activeSaveState().story),c8=seasonState(changed);
+    const green=seasonRoundState(c8,'greenwater'),roundId=green.status==='in-progress'?'greenwater':'velmora',round=seasonRoundState(c8,roundId);
     if(round.status==='complete')return;
-    round.status='ready';round.runId='';c8.championship.rounds.velmora=round;changed.chapter8=c8;changed.chapter='season-one';changed.scene='q80';changed.beat=0;
-    state.story=changed;state.mode='story';state.storyError=message||'Race exited. Your qualifying grid and Opening Week are safe — return to Velmora when ready.';
-    try{await persistStory(changed,{stageOverride:'quickquill-season-control'});}catch(_){}
-    render();syncMusic({restart:true});
+    round.status='ready';round.runId='';c8.championship.rounds[roundId]=round;changed.chapter8=c8;changed.chapter='season-one';changed.scene=roundId==='greenwater'?'q84':'q80';changed.beat=0;
+    state.story=changed;state.mode='story';state.storyError=message||(roundId==='greenwater'?'Race exited. Your Greenwater qualifying grid and setup are safe.':'Race exited. Your qualifying grid and Opening Week are safe — return to Velmora when ready.');
+    try{await persistStory(changed,{stageOverride:roundId==='greenwater'?'quickquill-greenwater-weekend':'quickquill-season-control'});}catch(_){ }render();syncMusic({restart:true});
   }
+
+  async function seasonRecordAftermath(){
+    if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed),out=seasonRoundOneOutcome(changed);
+    c8.aftermath.started=true;c8.aftermath.headline=out.headline;c8.aftermath.development=c8.aftermath.development||out.development;c8.aftermath.band=out.band;c8.aftermath.tyreseComparison=out.tyreseComparison;changed.chapter8=c8;state.story=changed;
+    try{await persistStory(changed,{stageOverride:'quickquill-season-aftermath'});}catch(_){ }render();
+  }
+  async function seasonAftermathInspect(id){
+    if(!['mara','nell','tyrese','board'].includes(id)||state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.aftermath.visited.includes(id))c8.aftermath.visited.push(id);changed.chapter8=c8;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-season-aftermath'});render();
+  }
+  async function seasonFinishAftermath(){
+    if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed),out=seasonRoundOneOutcome(changed);c8.aftermath.started=true;c8.aftermath.completed=true;c8.aftermath.completedAt=c8.aftermath.completedAt||new Date().toISOString();c8.aftermath.headline=out.headline;c8.aftermath.development=c8.aftermath.development||out.development;c8.aftermath.band=out.band;c8.aftermath.tyreseComparison=out.tyreseComparison;changed.chapter8=c8;changed.scene='q82';changed.chapter='season-one';changed.history=[...(changed.history||[]),{scene:'q82',event:'greenwater-travel-start'}].slice(-180);state.story=changed;await persistStory(changed,{stageOverride:'quickquill-greenwater-arrival'});render();syncMusic({restart:true});
+  }
+  async function seasonGreenwaterTravelNext(){if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);c8.greenwater.started=true;c8.greenwater.arrivalStep=Math.min(2,Number(c8.greenwater.arrivalStep||0)+1);changed.chapter8=c8;if(c8.greenwater.arrivalStep>=2)changed.scene='q83';state.story=changed;await persistStory(changed,{stageOverride:c8.greenwater.arrivalStep>=2?'quickquill-greenwater-briefing':'quickquill-greenwater-arrival'});render();syncMusic({restart:true});}
+  async function seasonGreenwaterPaddock(id){if(!['luka','ren','maya'].includes(id)||state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.greenwater.paddockSeen.includes(id))c8.greenwater.paddockSeen.push(id);changed.chapter8=c8;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-greenwater-arrival'});render();}
+  async function seasonChooseGreenwaterSetup(id){if(state.storySaving||!['cooling','response','stability'].includes(id))return;const changed=cloneValue(state.story),c8=seasonState(changed);c8.greenwater.setup=id;changed.chapter8=c8;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-greenwater-briefing'});render();}
+  async function seasonStartGreenwaterWeekend(){if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.greenwater.setup){state.seasonTransient='Choose a Greenwater technical direction first.';render();return;}changed.scene='q84';changed.chapter8=c8;state.story=changed;state.seasonTransient='';await persistStory(changed,{stageOverride:'quickquill-greenwater-weekend'});render();}
+  async function seasonGreenwaterQualifyingPick(kind,id){
+    if(state.storySaving||!['attack','control'].includes(kind)||!GREENWATER_SECTORS[id])return;const changed=cloneValue(state.story),c8=seasonState(changed),q=c8.greenwater.qualifying;if(q.completed)return;
+    q[kind]=id;if(q.attack===q.control)q[kind==='attack'?'control':'attack']='';changed.chapter8=c8;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-greenwater-weekend'});render();
+  }
+  async function seasonRunGreenwaterQualifying(){
+    if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed),q=c8.greenwater.qualifying,round=seasonRoundState(c8,'greenwater');
+    if(q.completed||round.qualifyingGrid.length===7){state.seasonTransient='GREENWATER QUALIFYING ALREADY RECORDED';render();return;}if(!q.attack||!q.control){state.seasonTransient='Mark one sector to ATTACK and a different sector to CONTROL.';render();return;}
+    const grid=seasonGreenwaterQualifyingGrid(changed,c8),pos=Math.max(1,grid.findIndex(row=>row.id==='player'||row.isPlayer)+1);q.completed=true;q.grid=grid;q.position=pos;q.headline=pos<=2?'FRONT ROW':pos<=4?'IN THE FIGHT':'RECOVERY REQUIRED';q.completedAt=new Date().toISOString();round.status='ready';round.qualifyingGrid=grid;round.strategy=c8.greenwater.strategy||'rhythm';c8.championship.rounds.greenwater=round;changed.chapter8=c8;changed.history=[...(changed.history||[]),{scene:'q84',event:'greenwater-qualifying',position:pos,attack:q.attack,control:q.control}].slice(-180);state.story=changed;state.seasonTransient=`QUALIFYING COMPLETE · P${pos}`;await persistStory(changed,{stageOverride:'quickquill-greenwater-weekend'});render();
+  }
+  async function seasonChooseGreenwaterStrategy(id){if(state.storySaving||!['rhythm','windows','mist'].includes(id))return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.greenwater.qualifying.completed)return;c8.greenwater.strategy=id;const round=seasonRoundState(c8,'greenwater');round.strategy=id;c8.championship.rounds.greenwater=round;changed.chapter8=c8;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-greenwater-weekend'});render();}
+  async function launchSeasonGreenwater(){
+    if(state.storySaving||!state.activeSave)return;const changed=normaliseQuickquillStory(cloneValue(state.story||activeSaveState().story)),c8=seasonState(changed),profile=SEASON_RACE_PROFILES.greenwater,round=seasonRoundState(c8,'greenwater');
+    if(!c8.greenwater.setup||!c8.greenwater.qualifying.completed||round.qualifyingGrid.length!==7){state.seasonTransient='Finish the Greenwater briefing and qualifying before going to the grid.';render();return;}if(round.status==='complete'){changed.scene='q85';state.story=changed;render();return;}
+    const grid=round.qualifyingGrid.map(row=>({...row})),startPosition=Math.max(1,grid.findIndex(row=>row.id==='player'||row.isPlayer)+1),runId=String(round.runId||`season-02-${Date.now()}-${Math.random().toString(36).slice(2,8)}`);
+    round.status='in-progress';round.runId=runId;round.presentationMode=['watch','quick','full'].includes(c8.raceMode)?c8.raceMode:'watch';round.strategy=c8.greenwater.strategy||'rhythm';c8.championship.rounds.greenwater=round;c8.championship.currentRound=2;changed.chapter8=c8;changed.scene='q84';changed.history=[...(changed.history||[]),{scene:'q84',event:'greenwater-grid',runId,startPosition,mode:round.presentationMode,strategy:round.strategy}].slice(-180);
+    try{await persistStory(changed,{stageOverride:'quickquill-season-round-2'});state.story=changed;state.storyError='';state.seasonTransient='';sendParent('dragonbound-career-story-race-start',{careerSaveId:state.activeSave.id,runId,raceKey:'season-02-greenwater',seasonRound:2,seasonRoundId:'greenwater',raceNumber:profile.raceNumber,trackId:profile.trackId,accountKey:accountKey(username()),playerKey:accountKey(username()),playerName:storyDragonName(),strategy:'focus',seasonStrategy:round.strategy,presentationMode:round.presentationMode,startPosition,qualifyingGrid:grid.map(row=>({name:row.name,position:row.gridPosition,id:row.id})),entrants:grid.map(row=>({...row})),openingReadiness:{...(c8.weeklyPlan?.readiness||{})},telemetryCorrect:!!c8.telemetry?.correct,pitwallScore:Math.max(0,Number(c8.pitwall?.score)||0),greenwaterSetup:c8.greenwater.setup,greenwaterQualifying:{attack:c8.greenwater.qualifying.attack,control:c8.greenwater.qualifying.control},roundOneDevelopment:String(c8.aftermath?.development||''),seasonProfile:{...profile},careerEvolution:careerEvolutionRaceConfig(changed,profile.raceNumber)});render();}
+    catch(error){state.storySaving=false;state.storyError=error?.message||'Greenwater could not be prepared. Your qualifying result is safe.';render();}
+  }
+  async function seasonChooseGreenwaterEvening(id){
+    if(state.storySaving||!['tyrese','nell','alone'].includes(id))return;const changed=cloneValue(state.story),c8=seasonState(changed);c8.greenwater.eveningChoice=id;c8.greenwater.eveningTone=id==='alone'?'quiet':'';if(id==='tyrese')changed.relationships.tyreseBond+=2;if(id==='nell')changed.relationships.nellBond+=2;changed.chapter8=c8;state.story=changed;await persistStory(changed,{stageOverride:'quickquill-greenwater-debrief'});render();
+  }
+  async function seasonFinishGreenwater(){if(state.storySaving)return;const changed=cloneValue(state.story),c8=seasonState(changed);if(!c8.greenwater.eveningChoice){state.seasonTransient='Choose how you spend the Greenwater evening first.';render();return;}c8.greenwater.debriefSeen=true;c8.greenwater.eveningComplete=true;c8.greenwater.completed=true;c8.greenwater.completedAt=c8.greenwater.completedAt||new Date().toISOString();c8.championship.currentRound=3;changed.chapter8=c8;changed.scene='q80';changed.history=[...(changed.history||[]),{scene:'q80',event:'greenwater-weekend-complete',evening:c8.greenwater.eveningChoice}].slice(-180);state.story=changed;state.seasonControlTab='weekend';state.seasonTransient='ROUND TWO COMPLETE · QASIRA IS NEXT';await persistStory(changed,{stageOverride:'quickquill-season-control'});render();syncMusic({restart:true});}
 
   async function startSeasonOpening(){
     if(state.storySaving||!state.story?.completed?.verdict)return;
@@ -7859,10 +7963,10 @@
       ['FRI','PROMISES'],
       ['WEEKEND','CONTROL']
     ];
-    const inControl=scene.id==='q80'&&!!seasonState().seasonHubUnlocked;
-    const strip=inControl?'':`<nav class="season-week-strip" aria-label="Opening Week progress">${labels.map((row,i)=>`<span class="${i<idx?'is-done':''} ${i===idx?'is-current':''}"><small>${row[0]}</small><b>${row[1]}</b></span>`).join('')}</nav>`;
-    const progressLabel=inControl?`SEASON ONE · ROUND ${Math.max(1,Number(seasonState().championship.currentRound)||1)} / ${SEASON_SCHEDULE.length}`:`OPENING WEEK · ${labels[idx]?.[0]||'WEEKEND'} · ${idx+1} / ${QUICKQUILL_SEASON_SCENES.length}`;
-    const progressValue=inControl?Math.max(8,Math.min(100,(Math.max(1,Number(seasonState().championship.currentRound)||1)/SEASON_SCHEDULE.length)*100)):((idx+1)/QUICKQUILL_SEASON_SCENES.length)*100;
+    const inControl=scene.id==='q80'&&!!seasonState().seasonHubUnlocked,postOpening=idx>=6;
+    const strip=(inControl||postOpening)?'':`<nav class="season-week-strip" aria-label="Opening Week progress">${labels.map((row,i)=>`<span class="${i<idx?'is-done':''} ${i===idx?'is-current':''}"><small>${row[0]}</small><b>${row[1]}</b></span>`).join('')}</nav>`;
+    const progressLabel=(inControl||postOpening)?`SEASON ONE · ROUND ${Math.max(1,Number(seasonState().championship.currentRound)||1)} / ${SEASON_SCHEDULE.length}`:`OPENING WEEK · ${labels[idx]?.[0]||'WEEKEND'} · ${idx+1} / ${labels.length}`;
+    const progressValue=(inControl||postOpening)?Math.max(8,Math.min(100,(Math.max(1,Number(seasonState().championship.currentRound)||1)/SEASON_SCHEDULE.length)*100)):((idx+1)/labels.length)*100;
     return `<section class="season-shell ${extra}" aria-label="${escapeHtml(scene.number)} ${escapeHtml(scene.title)}"><img class="season-backdrop" src="${scene.background}" alt="" aria-hidden="true"><div class="season-stage"><header class="season-header"><div><small>QUICKQUILL · FIRST FULL SEASON</small><strong>${escapeHtml(scene.number)} · ${escapeHtml(scene.title)}</strong><span>${escapeHtml(scene.location)}</span></div><button type="button" data-season-hub>BACK TO HUB</button></header>${strip}<div class="season-progress"><i style="--season-progress:${progressValue}%"></i><span>${escapeHtml(progressLabel)}</span></div>${state.storyError?`<div class="season-error" role="alert">${escapeHtml(state.storyError)}</div>`:''}${body}</div></section><div class="blackout ${state.blackout?'is-visible':''}" aria-hidden="true"></div>`;
   }
 
@@ -7960,7 +8064,7 @@
           <div class="season-postrace-columns">
             <section><small>WHAT SUNDAY SAID</small>${result.liveCalls?.length?`<div class="season-call-log">${result.liveCalls.map(row=>`<span>${escapeHtml(String(row.title||row.call||'RACE CALL'))}<b>${escapeHtml(String(row.label||row.choice||''))}</b></span>`).join('')}</div>`:`<p>No manual pit-wall call log for this presentation mode. The result still used your preparation and race plan.</p>`}</section>
             <section><small>CHAMPIONSHIP POSITION</small><h3>${ordinal(playerStanding)}</h3><p>${standings.find(row=>row.id==='player')?.points||0} points after one round.</p><button data-season-control-tab="championship">OPEN CHAMPIONSHIP TABLE</button></section>
-            <section><small>NEXT WEEK</small><h3>GREENWATER CANOPY</h3><p>Humidity · technical rhythm · Sofia Mendes. It will get its own weekend identity rather than pretending Velmora happened again.</p><span class="season-next-status">ROUND 2 BUILD COMES NEXT</span></section>
+            <section><small>NEXT WEEK</small><h3>GREENWATER CANOPY</h3><p>Humidity · technical rhythm · Sofia Mendes. It will get its own weekend identity rather than pretending Velmora happened again.</p>${!c8.aftermath?.completed?`<button class="season-primary" data-season-next="q81">MONDAY MORNING · LIVE WITH THE RESULT</button>`:seasonRoundState(c8,'greenwater').status==='complete'?`<span class="season-next-status">ROUND 2 COMPLETE · QASIRA NEXT</span>`:`<button class="season-primary" data-season-next="${seasonResumeScene(c8)}">CONTINUE TO GREENWATER</button>`}</section>
           </div>
         </section>`;
       }else if(tab==='championship'){
@@ -7983,7 +8087,7 @@
       }
       body=`<main class="season-control-v2">
         <header class="season-control-v2-head">
-          <div><small>QUICKQUILL · SEASON ONE</small><h1>SEASON CONTROL</h1><p>${roundOneComplete?'Velmora is done. Review it, then move on when the next race is actually ready.':'Round One has one job at a time: understand the weekend, qualify, choose a plan, race.'}</p></div>
+          <div><small>QUICKQUILL · SEASON ONE</small><h1>SEASON CONTROL</h1><p>${seasonRoundState(c8,'greenwater').status==='complete'?'Two rounds are official. Qasira is next, but it will not reuse Greenwater’s weekend structure.':roundOneComplete?'Velmora is done. The season continues through consequences, travel and a different Greenwater weekend.':'Round One has one job at a time: understand the weekend, qualify, choose a plan, race.'}</p></div>
           <aside><small>${roundOneComplete?'CHAMPIONSHIP':'CURRENT WEEKEND'}</small><b>${roundOneComplete?`${ordinal(playerStanding)} · ${standings.find(row=>row.id==='player')?.points||0} PTS`:'VELMORA · ROUND 1'}</b><span>${escapeHtml(ambitionLabels[c8.calendar.ambition]||'BUILD THE BASE')}</span></aside>
         </header>
         <div class="season-spine-clean">${SEASON_SCHEDULE.map(row=>`<span class="${row.id==='velmora'?(roundOneComplete?'is-done':'is-current'):row.round===2&&roundOneComplete?'is-next':''}"><i>${row.id==='velmora'&&roundOneComplete?'✓':row.round}</i><b>${escapeHtml(row.venue.replace(' Circuit','').replace(' Arena',''))}</b></span>`).join('')}</div>
@@ -7998,9 +8102,45 @@
     root.innerHTML=seasonShell(scene,idx,body,'is-control');
   }
 
+  function renderSeasonAftermath(scene,idx,c8){
+    const out=seasonRoundOneOutcome(state.story),a=c8.aftermath||{},visited=new Set(a.visited||[]),result=seasonRoundState(c8,'velmora').result||{};
+    const mara=out.band==='excellent'?'“That was a result. It was not a declaration. Bring me the same judgement when nobody is impressed.”':out.band==='strong'?'“Useful points. More importantly, you made decisions we can build on.”':'“Bad Sundays happen. What matters is whether Monday gives us a better question.”';
+    const nell=({'late-stamina':'“The useful thing is ugly: the final third cost us. Greenwater will punish that harder.”','racecraft-recovery':'“Your recovery choices were cleaner than your starting position. That is data, not consolation.”',overtaking:'“You created passing windows instead of waiting for them. I can work with that.”','qualifying-pace':'“Saturday is already at this level. Now Sunday has to catch it.”','race-rhythm':'“Nothing dramatic. Your rhythm stayed usable all race. That is a better baseline than people think.”'})[a.development||out.development];
+    const tyrese=out.tyreseComparison==='ahead'?'“Enjoy it. I am absolutely pretending I have not already checked Greenwater sector maps.”':out.tyreseComparison==='behind'?'“One-nil. Not that I am counting. I am counting.”':'“A draw is offensively boring. Greenwater can fix that.”';
+    const body=`<main class="season-aftermath"><section class="season-aftermath-paper"><small>MONDAY · PADDOCK FEED</small><h1>${escapeHtml(a.headline||out.headline)}</h1><p>Velmora is already yesterday's headline. Inside Quickquill, the useful part is what the race exposed.</p><div><span><b>P${out.rank}</b>FINISH</span><span><b>P${out.grid}</b>GRID</span><span><b>${seasonPointsForPosition(out.rank)}</b>PTS</span><span><b>${Number(result.overtakes)||0}</b>OVERTAKES</span></div></section><section class="season-aftermath-reactions"><article><small>MARA</small><p>${escapeHtml(mara)}</p></article><article><small>NELL · ${escapeHtml(out.developmentLabel)}</small><p>${escapeHtml(nell)}</p></article><article><small>TYRESE</small><p>${escapeHtml(tyrese)}</p></article></section><section class="season-aftermath-roam"><header><small>OPTIONAL · TEN QUIET MINUTES</small><h2>THE GARAGE IS YOURS BEFORE TRAVEL.</h2><p>Nothing here is required. Pick at what matters, or leave for Greenwater.</p></header><div>${[['mara','MARA’S OFFICE','A two-minute season read, no speech.'],['nell','TELEMETRY SCREEN','See the one lesson Nell carries forward.'],['tyrese','TYRESE’S LOCKER','The teammate rivalry is starting to become real.'],['board','RESULT BOARD','Look at where the championship actually stands.']].map(([id,title,note])=>`<button data-season-aftermath="${id}" class="${visited.has(id)?'is-seen':''}"><b>${title}</b><span>${note}</span><i>${visited.has(id)?'SEEN':'OPTIONAL'}</i></button>`).join('')}</div>${state.seasonView?`<aside class="season-after-detail"><button data-season-close>×</button><small>${escapeHtml(state.seasonView.toUpperCase())}</small><p>${state.seasonView==='nell'?escapeHtml(nell):state.seasonView==='tyrese'?escapeHtml(tyrese):state.seasonView==='mara'?escapeHtml(mara):`You are ${ordinal(seasonRankFor(c8,'player'))} in the championship on ${c8.championship.points.player||0} points. One round is information, not destiny.`}</p></aside>`:''}<button class="season-primary" data-season-aftermath-finish>PACK FOR GREENWATER</button></section></main>`;
+    root.innerHTML=seasonShell(scene,idx,body,'is-aftermath');
+  }
+  function renderGreenwaterArrival(scene,idx,c8){const gw=c8.greenwater||{},seen=new Set(gw.paddockSeen||[]);const body=`<main class="greenwater-arrival"><section class="greenwater-arrival-hero"><small>ROUND 2 · TALUNE</small><h1>${gw.arrivalStep?'UNDER THE CANOPY.':'SOUTH TO GREENWATER.'}</h1><p>${gw.arrivalStep?'The road disappears under leaves, crowd platforms and damp air. Every team is already learning that Greenwater is quieter than Velmora and less forgiving.':'Quickquill leaves the city with one race finally behind you. Greenwater is not a reset. It is the first time the season has to carry consequences forward.'}</p><div class="greenwater-route"><span>QUICKQUILL HQ</span><i>→</i><span>TALUNE</span><i>→</i><strong>GREENWATER CANOPY</strong></div></section>${gw.arrivalStep?`<section class="greenwater-paddock"><header><small>PADDOCK · OPTIONAL</small><h2>EVERYBODY READS THIS PLACE DIFFERENTLY.</h2></header><div>${[['luka','LUKA KOVAČ','“Humidity? Terrible. Circuit? Brilliant. I can live with one of those.”'],['ren','REN SATO','Ren is already mapping the dark-to-light transitions by hand. No drama. Just work.'],['maya','MAYA BANKS','Maya looks more comfortable here than she did all weekend in Velmora.']].map(([id,title,note])=>`<button data-greenwater-paddock="${id}" class="${seen.has(id)?'is-seen':''}"><b>${title}</b><span>${note}</span></button>`).join('')}</div></section>`:''}<button class="season-primary" data-greenwater-travel-next>${gw.arrivalStep?'ENTER QUICKQUILL BAY':'ARRIVE IN GREENWATER'}</button></main>`;root.innerHTML=seasonShell(scene,idx,body,'is-greenwater-arrival');}
+  function renderGreenwaterBriefing(scene,idx,c8){const setup=c8.greenwater.setup;const body=`<main class="greenwater-briefing"><section class="greenwater-briefing-copy"><small>FRIDAY · NELL WREN</small><h1>DON’T FIGHT THE AIR.</h1><p>Greenwater alternates bright openings, root-tight technical sequences and humid lower canopy. Attack everything and the dragon pays for it late. Nell gives you one technical direction, not a spreadsheet.</p><blockquote>“Pick what you want the dragon to still have when the mist arrives.”</blockquote></section><div class="greenwater-setup-grid">${[['cooling','COOLING'],['response','RESPONSE'],['stability','STABILITY']].map(([id,title])=>{const d=greenwaterSetupText(id);return `<button data-greenwater-setup="${id}" class="${setup===id?'is-selected':''}"><small>${title}</small><b>${escapeHtml(d.title)}</b><span>${escapeHtml(d.note)}</span></button>`}).join('')}</div>${setup?`<section class="greenwater-setup-confirm"><small>PACKAGE LOCKED</small><h2>${escapeHtml(greenwaterSetupText(setup).title)}</h2><p>${escapeHtml(greenwaterSetupText(setup).note)}</p><button class="season-primary" data-greenwater-weekend>GO TO SATURDAY · READ THE TRACK</button></section>`:''}</main>`;root.innerHTML=seasonShell(scene,idx,body,'is-greenwater-briefing');}
+  function renderGreenwaterWeekend(scene,idx,c8){
+    const gw=c8.greenwater,q=gw.qualifying,round=seasonRoundState(c8,'greenwater'),qualified=q.completed&&round.qualifyingGrid.length===7,modeLabels={watch:'WATCH LIVE',quick:'QUICK SIM',full:'FULL SIM'};
+    const body=`<main class="greenwater-weekend"><header class="greenwater-weekend-head"><small>ROUND 2 / 8 · GREENWATER</small><h1>RHYTHM BEFORE SPEED.</h1><p>${qualified?'Saturday gave you a real grid. Build Sunday around the race you actually have.':'Nell gives you three sectors and two instructions: choose where to attack, and choose where discipline matters more.'}</p></header>${!qualified?`<section class="greenwater-track-read"><div class="greenwater-sector-grid">${Object.entries(GREENWATER_SECTORS).map(([id,row])=>`<article><small>${escapeHtml(row.title)}</small><p>${escapeHtml(row.note)}</p><div><button data-greenwater-qual="attack:${id}" class="${q.attack===id?'is-selected':''}">ATTACK</button><button data-greenwater-qual="control:${id}" class="${q.control===id?'is-selected':''}">CONTROL</button></div></article>`).join('')}</div><aside><small>YOUR LAP MAP</small><span><b>ATTACK</b>${escapeHtml(GREENWATER_SECTORS[q.attack]?.title||'—')}</span><span><b>CONTROL</b>${escapeHtml(GREENWATER_SECTORS[q.control]?.title||'—')}</span><span><b>PACKAGE</b>${escapeHtml(greenwaterSetupText(gw.setup).title)}</span>${state.seasonTransient?`<p>${escapeHtml(state.seasonTransient)}</p>`:''}<button class="season-primary" data-greenwater-qual-run ${!q.attack||!q.control?'disabled':''}>RUN GREENWATER QUALIFYING</button></aside></section>`:`<section class="greenwater-qualified"><div class="greenwater-grid"><header><small>SATURDAY COMPLETE</small><h2>P${q.position} · ${escapeHtml(q.headline||'GRID SET')}</h2></header>${round.qualifyingGrid.map((row,i)=>`<span class="${row.id==='player'||row.isPlayer?'is-player':''}"><b>P${i+1}</b><strong>${escapeHtml(row.name)}</strong><em>${escapeHtml(row.team||SEASON_RACER_META[row.id]?.team||'Quickquill')}</em></span>`).join('')}</div><div class="greenwater-strategy"><small>SUNDAY PLAN</small><h2>WHAT DO YOU SAVE FOR?</h2><div>${[['rhythm','FIND THE RHYTHM'],['windows','ATTACK THE WINDOWS'],['mist','SAVE FOR THE MIST']].map(([id,title])=>`<button data-greenwater-strategy="${id}" class="${gw.strategy===id?'is-selected':''}"><b>${title}</b><span>${escapeHtml(greenwaterStrategyText(id).note)}</span></button>`).join('')}</div><small>RACE PRESENTATION</small><div class="greenwater-modes">${[['watch','WATCH LIVE'],['quick','QUICK SIM'],['full','FULL SIM']].map(([id,label])=>`<button data-season-mode="${id}" class="${c8.raceMode===id?'is-selected':''}"><b>${label}</b><span>${id==='watch'?'Normal pace · live decision':id==='quick'?'Fast laps · slows for one major call':'Fastest · call auto-resolved'}</span></button>`).join('')}</div><section class="greenwater-ready"><span><small>GRID</small><b>P${q.position}</b></span><span><small>SETUP</small><b>${escapeHtml(greenwaterSetupText(gw.setup).title)}</b></span><span><small>PLAN</small><b>${escapeHtml(greenwaterStrategyText(gw.strategy).title)}</b></span><span><small>MODE</small><b>${escapeHtml(modeLabels[c8.raceMode]||'WATCH LIVE')}</b></span></section><button class="season-race-launch" data-greenwater-race-start>${round.status==='in-progress'?'RETURN TO GREENWATER':'GO TO THE GRID'}</button><em>EXISTING DRAGON RACING ENGINE · SAVED GRID · LIVE CANOPY PHASES</em></div></section>`}</main>`;root.innerHTML=seasonShell(scene,idx,body,'is-greenwater-weekend');
+  }
+  function renderGreenwaterDebrief(scene,idx,c8){
+    const round=seasonRoundState(c8,'greenwater'),r=round.result||{},rank=Math.max(1,Number(r.rank)||7),grid=Math.max(1,Number(r.startPosition)||7),tyrese=Array.isArray(r.classification)?r.classification.find(row=>row.id==='tyrese'):null,tyreseRank=Math.max(1,Number(tyrese?.rank)||Number(r.rivalRanks?.tyrese)||7),call=r.liveCalls?.[0],stand=seasonRankFor(c8,'player'),firstPod=c8.milestones.firstPodiumRound===2&&rank<=3,firstWin=c8.milestones.firstWinRound===2&&rank===1;
+    const mara=rank===1?'“Good. Remember exactly why it worked. Winning is only useful if you can explain it.”':rank<=3?'“That is a professional podium. Now do it somewhere that does not suit you.”':rank<=5?'“We had parts of the race. We did not own the whole thing yet.”':'“Greenwater found the weakness. That is expensive information, but it is information.”';
+    const nell=gw=>gw.setup==='cooling'?'“Cooling held. The late phase was the proof.”':gw.setup==='response'?'“Response gave us the technical time. We paid for every extra attack exactly where expected.”':'“Stability kept the mist from turning into noise. That matters.”';
+    const tyreseLine=rank<tyreseRank?'“Two races in and you are making this teammate thing annoyingly competitive.”':rank>tyreseRank?'“That is one back. I told you I was counting.”':'“Same result? Completely unacceptable. Qasira needs a tie-break.”';
+    const evening=c8.greenwater.eveningChoice;
+    const body=`<main class="greenwater-debrief"><section class="greenwater-result"><small>ROUND TWO · OFFICIAL</small><h1>${rank===1?'GREENWATER WIN':rank<=3?'GREENWATER PODIUM':`${ordinal(rank)} AT GREENWATER`}</h1>${firstWin?`<strong class="greenwater-milestone">FIRST CAREER WIN</strong>`:firstPod?`<strong class="greenwater-milestone">FIRST CAREER PODIUM</strong>`:''}<div><span><b>P${rank}</b>FINISH</span><span><b>P${grid}</b>GRID</span><span><b>${seasonPointsForPosition(rank)}</b>PTS</span><span><b>${Number(r.overtakes)||0}</b>OVERTAKES</span><span><b>${ordinal(stand)}</b>CHAMPIONSHIP</span><span><b>P${tyreseRank}</b>TYRESE</span></div>${call?`<p class="greenwater-call-recap"><small>THE GREENWATER CALL</small><b>${escapeHtml(call.title||call.call||'LIVE CALL')}</b> · ${escapeHtml(call.label||call.choice||'')}</p>`:''}</section><section class="greenwater-reactions"><article><small>MARA</small><p>${escapeHtml(mara)}</p></article><article><small>NELL</small><p>${escapeHtml(nell(c8.greenwater))}</p></article><article><small>TYRESE</small><p>${escapeHtml(tyreseLine)}</p></article></section><section class="greenwater-evening"><header><small>SUNDAY · AFTER THE NOISE</small><h2>ONE EVENING BEFORE THE SEASON MOVES AGAIN.</h2><p>No choice here is a performance tax. Pick the life moment you want.</p></header><div>${[['tyrese','GO WITH TYRESE','Food, teasing and the first honest teammate conversation after two rounds.'],['nell','HELP NELL','A quiet telemetry review and a little more of how she thinks.'],['alone','TAKE THE EVENING','Walk Greenwater, read the table, let the weekend settle.']].map(([id,title,note])=>`<button data-greenwater-evening="${id}" class="${evening===id?'is-selected':''}"><b>${title}</b><span>${note}</span></button>`).join('')}</div>${evening?`<aside><small>${evening==='tyrese'?'TYRESE':evening==='nell'?'NELL':'GREENWATER AFTER DARK'}</small><p>${escapeHtml(evening==='tyrese'?'Tyrese buys the first round of food because, in his words, “the championship table is currently too annoying to discuss soberly.”':evening==='nell'?'Nell finds one trace worth keeping and then, unusually, closes the laptop before midnight.':'The canopy sounds completely different without a race underneath it. For ten minutes, the table can wait.')}</p></aside>`:''}<button class="season-primary" data-greenwater-finish ${!evening?'disabled':''}>END GREENWATER · QASIRA NEXT</button></section></main>`;root.innerHTML=seasonShell(scene,idx,body,'is-greenwater-debrief');
+  }
+
   function renderSeasonOpening(scene,beat,idx){
-    const c8=seasonState();if(beat.type==='season-calendar')renderSeasonCalendar(scene,idx,c8);else if(beat.type==='season-plan')renderSeasonPlan(scene,idx,c8);else if(beat.type==='season-telemetry')renderSeasonTelemetry(scene,idx,c8);else if(beat.type==='season-pitwall')renderSeasonPitwall(scene,idx,c8);else if(beat.type==='season-objectives')renderSeasonObjectives(scene,idx,c8);else renderSeasonControl(scene,idx,c8);
+    const c8=seasonState();
+    if(beat.type==='season-calendar')renderSeasonCalendar(scene,idx,c8);else if(beat.type==='season-plan')renderSeasonPlan(scene,idx,c8);else if(beat.type==='season-telemetry')renderSeasonTelemetry(scene,idx,c8);else if(beat.type==='season-pitwall')renderSeasonPitwall(scene,idx,c8);else if(beat.type==='season-objectives')renderSeasonObjectives(scene,idx,c8);else if(beat.type==='season-aftermath')renderSeasonAftermath(scene,idx,c8);else if(beat.type==='season-greenwater-arrival')renderGreenwaterArrival(scene,idx,c8);else if(beat.type==='season-greenwater-briefing')renderGreenwaterBriefing(scene,idx,c8);else if(beat.type==='season-greenwater-weekend')renderGreenwaterWeekend(scene,idx,c8);else if(beat.type==='season-greenwater-debrief')renderGreenwaterDebrief(scene,idx,c8);else renderSeasonControl(scene,idx,c8);
     root.querySelector('[data-season-hub]')?.addEventListener('click',returnToHubFromStory);root.querySelectorAll('[data-season-next]').forEach(btn=>btn.addEventListener('click',()=>{void seasonGo(btn.dataset.seasonNext||'');}));root.querySelectorAll('[data-season-round]').forEach(btn=>btn.addEventListener('click',()=>{void seasonInspectRound(btn.dataset.seasonRound||'');}));root.querySelectorAll('[data-season-ambition]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseAmbition(btn.dataset.seasonAmbition||'');}));root.querySelectorAll('[data-season-plan]').forEach(btn=>btn.addEventListener('click',()=>seasonAdjustPlan(btn.dataset.seasonPlan||'',Number(btn.dataset.delta)||0)));root.querySelector('[data-season-lock-plan]')?.addEventListener('click',()=>{void seasonLockPlan();});root.querySelectorAll('[data-season-clue]').forEach(btn=>btn.addEventListener('click',()=>{void seasonInspectTelemetry(btn.dataset.seasonClue||'');}));root.querySelectorAll('[data-season-answer]').forEach(btn=>btn.addEventListener('click',()=>{void seasonAnswerTelemetry(btn.dataset.seasonAnswer||'');}));root.querySelectorAll('[data-season-pit]').forEach(btn=>btn.addEventListener('click',()=>{void seasonPitwallChoice(btn.dataset.seasonPit||'');}));root.querySelector('[data-season-pit-next]')?.addEventListener('click',()=>{void seasonPitwallNext();});root.querySelectorAll('[data-season-objective]').forEach(btn=>btn.addEventListener('click',()=>seasonToggleObjective(btn.dataset.seasonObjective||'')));root.querySelector('[data-season-lock-objectives]')?.addEventListener('click',()=>{void seasonLockObjectives();});root.querySelectorAll('[data-season-mode]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseRaceMode(btn.dataset.seasonMode||'');}));root.querySelectorAll('[data-season-race-plan]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseRacePlan(btn.dataset.seasonRacePlan||'');}));root.querySelectorAll('[data-season-control-tab]').forEach(btn=>btn.addEventListener('click',()=>seasonSetControlTab(btn.dataset.seasonControlTab||'weekend')));root.querySelector('[data-season-qualify]')?.addEventListener('click',()=>{void seasonPrepareQualifying();});root.querySelector('[data-season-race-start]')?.addEventListener('click',()=>{void launchSeasonRoundOne();});root.querySelector('[data-season-unlock]')?.addEventListener('click',()=>{void finishSeasonOpening();});root.querySelector('[data-season-return]')?.addEventListener('click',()=>{state.mode='story-journey';render();syncMusic({restart:true});});root.querySelectorAll('[data-season-close]').forEach(btn=>btn.addEventListener('click',()=>{state.seasonView='';render();}));
+    root.querySelectorAll('[data-season-aftermath]').forEach(btn=>btn.addEventListener('click',()=>{state.seasonView=btn.dataset.seasonAftermath||'';void seasonAftermathInspect(btn.dataset.seasonAftermath||'');}));
+    root.querySelector('[data-season-aftermath-finish]')?.addEventListener('click',()=>{void seasonFinishAftermath();});
+    root.querySelector('[data-greenwater-travel-next]')?.addEventListener('click',()=>{void seasonGreenwaterTravelNext();});
+    root.querySelectorAll('[data-greenwater-paddock]').forEach(btn=>btn.addEventListener('click',()=>{void seasonGreenwaterPaddock(btn.dataset.greenwaterPaddock||'');}));
+    root.querySelectorAll('[data-greenwater-setup]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseGreenwaterSetup(btn.dataset.greenwaterSetup||'');}));
+    root.querySelector('[data-greenwater-weekend]')?.addEventListener('click',()=>{void seasonStartGreenwaterWeekend();});
+    root.querySelectorAll('[data-greenwater-qual]').forEach(btn=>btn.addEventListener('click',()=>{const [kind,id]=String(btn.dataset.greenwaterQual||'').split(':');void seasonGreenwaterQualifyingPick(kind,id);}));
+    root.querySelector('[data-greenwater-qual-run]')?.addEventListener('click',()=>{void seasonRunGreenwaterQualifying();});
+    root.querySelectorAll('[data-greenwater-strategy]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseGreenwaterStrategy(btn.dataset.greenwaterStrategy||'');}));
+    root.querySelector('[data-greenwater-race-start]')?.addEventListener('click',()=>{void launchSeasonGreenwater();});
+    root.querySelectorAll('[data-greenwater-evening]').forEach(btn=>btn.addEventListener('click',()=>{void seasonChooseGreenwaterEvening(btn.dataset.greenwaterEvening||'');}));
+    root.querySelector('[data-greenwater-finish]')?.addEventListener('click',()=>{void seasonFinishGreenwater();});
   }
 
   function renderStory() {
@@ -8059,7 +8199,7 @@
     const lumerrePracticeInteractiveTypes = new Set(['lumerre-practice-run','lumerre-setup-board','lumerre-diagnosis','lumerre-qualifying-run','lumerre-qualifying-window']);
     const lumerreAfterFlagInteractiveTypes = new Set(['lumerre-after-cooldown','lumerre-after-parc','lumerre-after-team','lumerre-after-podium','lumerre-after-press','lumerre-after-room','lumerre-after-tyrese','lumerre-after-envelope','lumerre-after-finale']);
     const verdictInteractiveTypes = new Set(['verdict-arrival','verdict-hq-hub','verdict-board-review','verdict-offer','verdict-negotiate','verdict-interest','verdict-tyrese','verdict-decision','verdict-finale']);
-    const seasonInteractiveTypes = new Set(['season-calendar','season-plan','season-telemetry','season-pitwall','season-objectives','season-control']);
+    const seasonInteractiveTypes = new Set(['season-calendar','season-plan','season-telemetry','season-pitwall','season-objectives','season-control','season-aftermath','season-greenwater-arrival','season-greenwater-briefing','season-greenwater-weekend','season-greenwater-debrief']);
     if (chapterThreeScene && interactiveTypes.has(beat.type)) {
       renderDowntimeInteractive(scene, beat, sceneIndex);
       return;
@@ -8470,7 +8610,7 @@
     root.querySelector('[data-start-verdict]')?.addEventListener('click', () => { void startVerdictChapter(); });
     root.querySelector('[data-view-verdict]')?.addEventListener('click', () => { state.mode='story';state.story.chapter='verdict';state.story.scene='q74';state.story.beat=0;render();syncMusic({restart:true}); });
     root.querySelector('[data-start-season]')?.addEventListener('click', () => { void startSeasonOpening(); });
-    root.querySelector('[data-view-season]')?.addEventListener('click', () => { state.mode='story';state.story.chapter='season-one';state.story.scene='q80';state.story.beat=0;render();syncMusic({restart:true}); });
+    root.querySelector('[data-view-season]')?.addEventListener('click', () => { state.mode='story';state.story.chapter='season-one';state.story.scene=seasonResumeScene(seasonState(state.story));state.story.beat=0;render();syncMusic({restart:true}); });
   }
 
   function nextStoryPointer(story) {
