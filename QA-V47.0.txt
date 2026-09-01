@@ -1,0 +1,14 @@
+V47.0 — Greenhouse Restart / Target Layout
+
+Restart base: V34.45.3 pre-theme checkpoint.
+V46.0–V46.2 theme overrides are not carried forward.
+
+Desktop target:
+- 1774×887 populated greenhouse reference supplied by user
+- Harmony restored to top header
+- existing live Odds & Ebbles centre scene preserved
+- three main panels aligned to target geometry
+- skill/game deck aligned to target geometry
+- ticker aligned to target geometry
+
+The supplied target reference is used as the decorative greenhouse shell while live opaque panels cover its example/demo content.

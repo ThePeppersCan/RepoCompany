@@ -1,0 +1,10 @@
+V34.36.6 — Orphan Avatar Surgical HOTFIX
+
+Changed files:
+- style.css
+- script.js
+
+Purpose:
+- removes the remaining circular signed-in-user avatar/nameplate overlapping the homepage command deck
+- does not resize or reposition the command deck
+- explicitly protects the real header avatar, Repo Passport, centre scene, Harmony panel and real command buttons

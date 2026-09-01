@@ -1,0 +1,8 @@
+V34.36.2 — Command Deck Precision Hotfix
+
+- Shrinks the supplied command deck by exactly 15% from V34.36.1 (1300×227 -> 1105×193).
+- Re-centres it within the same lower homepage command area.
+- Replaces generic grid hitboxes with positions measured directly from the 2102×367 supplied artwork.
+- Corrects Guild Services, Velmora Manager, Dragonbound, Repo Sports, Raids and Achievements hover/click areas.
+- Adds persistent removal of the stray/orphan circular homepage portrait without touching the real header, Passport or centre-scene avatars.
+- JavaScript syntax checked with Node.

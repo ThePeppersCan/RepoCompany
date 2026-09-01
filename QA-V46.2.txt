@@ -1,0 +1,15 @@
+V46.2 — Greenhouse Comprehensive Polish
+
+Style-only patch over V46.0/V46.1.
+
+Primary corrections:
+- brighter greenhouse presentation closer to populated concept
+- top toolbar rebalanced, including full Velmora Crown label
+- Passport and Harmony panel spacing tightened
+- Harmony level bridge geometry/alignment corrected
+- skill headings/icons/labels placed on consistent baselines
+- five bottom game lockups mapped directly onto the five pre-drawn template slots
+- removes inherited grey blocks from Repo Sports / Raids / Achievement with stronger selectors
+- VM / Dragonbound lockups centred cleanly inside their slots
+- bottom ticker mapped to the actual four template apertures
+- centre Odds & Ebbles scene remains unchanged

@@ -1,0 +1,31 @@
+V34.35 — MASSIVE CONTENT CLEANUP
+
+REMOVED FROM LIVE SITE
+- Standalone Cooking / Gnome Kitchen Chaos launcher, dialog, runtime and active achievements
+- Pet Room chat UI, message polling, bubbles, send logic and styles
+- Pet Wars launcher/dialog/runtime/styles and active achievements
+- Quidditch Director live menu/dialog/module loading (database history preserved)
+- Repo Sports World Cup 2026 header button, live hub, fixture/live-room/draw UI and event scripts
+- World Cup Limited Event floating/menu buttons and homepage countdown launcher
+- World Cup dashboard ticker button
+
+PRESERVED
+- All Supabase history/data. No tables or rows were deleted.
+- Repo Sports
+- Dragonbound + Career Mode
+- Pet Room itself and roaming pet activities
+- Cooking skill references used by quests/Repo Diver
+- World Cup historical cosmetics/nametags and database records
+- Velmora Crown newspaper launcher
+- Existing homepage Odds & Ebbles scene/seating changes
+
+QUIDDITCH DIRECTOR ARCHIVE
+The live site no longer loads or exposes Quidditch Director. Its Supabase profile/history and asset directory are intentionally not deleted by this patch, making restoration possible later.
+
+PATCH FILES
+- index.html
+- style.css
+- script.js
+
+INSTALL
+Copy these three files into the root of the current site and replace the existing files. Hard refresh afterwards.

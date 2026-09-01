@@ -1,0 +1,11 @@
+V34.40 — Definitive Buttonbar Fix
+
+This patch replaces the V34.39.1 input relay with direct calls to the actual site functions.
+
+- Exact original BUTTONBAR artwork retained.
+- Bar restored to 1120 x 223 instead of the tiny 887 x 177 version.
+- Every command region is a real existing button ID.
+- Clicks are routed directly to the real feature functions, exactly once.
+- Dragonbound and Repo Sports launchers are explicitly exposed to the homepage command bar.
+- Velmora Manager remains a coming-soon placeholder.
+- Dashboard fullscreen scaling code is untouched.

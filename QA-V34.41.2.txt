@@ -1,0 +1,8 @@
+V34.41.2 — Buttonbar Fit + Clicks
+
+- Banner uses the supplied 2048x439 artwork unchanged.
+- Desktop render is 923x198, centred at y=665.
+- This confines it to the historical lower navigation/status rectangle (665–863) and prevents it crossing the main content or dashboard bottom frame.
+- Active buttons are explicitly connected to their existing site functions.
+- Repo Sports existing local opener is exposed as window.repoOpenRepoSportsFromHomepage.
+- Velmora Manager remains coming-soon only.

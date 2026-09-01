@@ -1,0 +1,25 @@
+REPO COMPANY V34.46.3 — GREENHOUSE GEOMETRY CLEANUP
+
+Apply this patch over V34.46.2.
+
+Changed files
+- index.html
+- repo-greenhouse-theme.css
+
+What changed
+- Locked the four activity wings to the template's painted divider coordinates.
+- Removed the duplicate DOM border/background system that created lines behind controls.
+- Re-centred activity icons and labels inside the painted square cells.
+- Matched the five flagship buttons to their individual artwork apertures.
+- Matched all four ticker regions to the template's actual vertical dividers.
+- Kept hover and keyboard-focus feedback restrained and inside each cell.
+
+Functionality
+- No JavaScript changed.
+- Existing button IDs, listeners, live data, routes, modals, Harmony, leaderboards,
+  Odds & Ebbles, and all other established systems remain intact.
+
+Installation
+1. Back up the current V34.46.2 files.
+2. Replace index.html and repo-greenhouse-theme.css with the files in this ZIP.
+3. Hard-refresh the browser so the V34.46.3 stylesheet cache key is loaded.

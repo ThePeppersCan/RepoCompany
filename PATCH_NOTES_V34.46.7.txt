@@ -1,0 +1,21 @@
+REPO COMPANY V34.46.7 — HIGHER CENTRAL SCENE FRAMING
+
+INSTALL
+Apply over V34.46.6. Replace these three files in the website root:
+- index.html
+- repo-greenhouse-theme.css
+- repo-greenhouse-scene.js
+Then hard-refresh the page.
+
+CHANGE
+The central scene crop moves upward to reveal both background characters and
+show less floor underneath the sofa. Vertical framing changes from 70% to 58%,
+shifting the image and seated guests together by about 75 pixels at the supplied
+screenshot size. The panel still fills edge to edge with proportional scaling.
+Character sizes and their alignment with the sofa are preserved.
+
+VALIDATION
+JavaScript syntax and all 90 existing seating-coordinate checks passed.
+The supplied screenshots were used to estimate the background character head
+and seated avatar feet positions; both remain inside the adjusted crop.
+A live browser preview was unavailable in this environment.

@@ -1,0 +1,42 @@
+REPO COMPANY V34.46.5 — CENTRAL SCENE FIT AND SEATING
+
+Apply over V34.46.4, the panel/avatar cleanup patch.
+
+FILES
+- index.html
+- repo-greenhouse-theme.css
+- repo-greenhouse-scene.js (new)
+
+CHANGE
+The central room now fits fully inside its existing 677 x 417 panel instead of
+being cropped to fill it. Depending on the image proportions, a small dark
+margin may remain above/below or beside the room.
+
+The six guest anchors and sprite sizes are mapped from their original 547 x 430
+lobby calibration onto the same fitted image scale and origin. This restores
+the relationship between characters and sofa when the panel proportions change,
+rather than scaling the room and guest positions independently.
+
+Image dimensions are read after load. The mapping updates for image reloads,
+resizing and desktop theme activation. The adjustment applies only to the
+central greenhouse desktop scene. The previous panel/avatar fixes are retained.
+
+INSTALL
+1. Back up index.html and repo-greenhouse-theme.css.
+2. Copy all three website files listed above into the website root.
+3. Hard-refresh the browser.
+
+VALIDATION
+- JavaScript syntax check passed.
+- 72 seat-coordinate cases passed across four image proportions and three
+  panel sizes. The complete room fits within each tested panel; guest positions
+  and sprite scale follow the same image transform.
+- Source comparison confirms the prior stylesheet is unchanged, with only two
+  central-scene rules added. HTML changes are limited to the new script tag
+  and the stylesheet cache key.
+- No visual browser pass: the environment blocks local browser previews, and
+  assets/homepage-sanctuary.png was absent from the supplied website ZIP.
+  Exact sofa placement therefore still needs visual confirmation on the site.
+
+Existing room artwork, character sprites, seating IDs, animation logic, account
+state and the V34.46.4 bedroom.js remain in use. No database changes are needed.

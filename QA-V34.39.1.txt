@@ -1,0 +1,12 @@
+V34.39.1 — Buttonbar Size + Clicks HOTFIX
+
+Apply over V34.39.
+
+Changes:
+- shrinks exact BUTTONBAR reference by 15% while preserving aspect ratio
+- centres it in the lower homepage area
+- makes the entire transparent hit layer pointer-interactive
+- raises hit regions above the decorative artwork
+- relays each click once into the button's existing real handler
+- Velmora Manager remains a coming-soon placeholder
+- leaves fullscreen/dashboard scale logic untouched

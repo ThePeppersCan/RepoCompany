@@ -1,0 +1,18 @@
+V34.35.1 — HEADER REBALANCE HOTFIX
+
+Changes
+- Velmora Crown newspaper is now a deliberate header tile instead of a floating World Cup child.
+- Retired World Cup header gap is filled by the Crown tile.
+- Header command strip lifted 8px and re-centred vertically.
+- Bank / Skills / Pets / Crown / Binder / Logout use an explicit eight-column grid.
+- Binder and logout are pinned to the final two cells so no implicit second row can form.
+- Main homepage panels, Odds & Ebbles scene, Harmony panel and Passport are untouched.
+
+QA
+1. Hard refresh.
+2. Confirm Crown newspaper sits between Pets and Binder.
+3. Confirm no Crown graphic floats over Train Harmony.
+4. Confirm Bank / Skills / Pets contents are vertically centred.
+5. Confirm no blank World Cup-sized hole remains in the header.
+6. Open Crown newspaper and close it.
+7. Confirm Binder and Logout still work.

@@ -1,0 +1,2985 @@
+/* ======================================================================
+   REPO COMPANY V34.46.0 — GREENHOUSE DESKTOP SHELL
+
+   Image 1 is the literal 1774 × 887 mounting template. The selectors below
+   give every live homepage region its own fixed aperture so older V20–V34
+   dashboard geometry cannot move the new composition.
+   ====================================================================== */
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop{
+  background:#020603!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"]{
+  width:1774px!important;
+  height:887px!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background-color:#07100d!important;
+  background-image:url('assets/repo-dashboard-greenhouse-template-v34-46.png')!important;
+  background-position:0 0!important;
+  background-repeat:no-repeat!important;
+  background-size:1774px 887px!important;
+  color:#e7d39a!important;
+  font-family:Georgia,'Times New Roman',serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"]::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #repoAtmosphereLayer,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > .repo-atmosphere-layer{
+  display:none!important;
+}
+
+/* ----------------------------------------------------------------------
+   HEADER APERTURE — one clean control bar inside the template's top panel.
+   The large Repo Company crest is already part of the supplied artwork.
+   ---------------------------------------------------------------------- */
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > .repo-main-header{
+  position:absolute!important;
+  inset:0!important;
+  z-index:30!important;
+  width:1774px!important;
+  height:216px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:none!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-header-centre{
+  position:static!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-logo-wrap{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .character-box{
+  position:absolute!important;
+  left:338px!important;
+  top:143px!important;
+  z-index:3!important;
+  width:1098px!important;
+  height:55px!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  text-align:left!important;
+  pointer-events:auto!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls{
+  position:relative!important;
+  z-index:5!important;
+  display:grid!important;
+  grid-template-columns:198px 298px 102px 102px 102px 139px 61px 40px!important;
+  align-items:stretch!important;
+  justify-content:start!important;
+  gap:4px!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:55px!important;
+  margin:0!important;
+  padding:0 4px!important;
+  background:transparent!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls.hidden{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .character-summary,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-quick,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .header-quick-button,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-home-stack{
+  position:relative!important;
+  inset:auto!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:55px!important;
+  min-width:0!important;
+  min-height:55px!important;
+  max-width:none!important;
+  margin:0!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .character-summary{
+  grid-column:1!important;
+  display:grid!important;
+  grid-template-columns:42px minmax(0,1fr)!important;
+  grid-template-rows:1fr 1fr!important;
+  column-gap:8px!important;
+  align-items:center!important;
+  padding:6px 8px!important;
+  border:0!important;
+  border-right:1px solid rgba(174,131,63,.34)!important;
+  border-radius:0!important;
+  background:linear-gradient(180deg,rgba(7,16,17,.30),rgba(3,9,10,.10))!important;
+  box-shadow:none!important;
+  color:#e6cf91!important;
+  text-align:left!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .character-summary:hover{
+  background:linear-gradient(180deg,rgba(32,54,43,.54),rgba(8,18,17,.28))!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-avatar{
+  grid-row:1/3!important;
+  grid-column:1!important;
+  width:39px!important;
+  height:39px!important;
+  min-width:39px!important;
+  max-width:39px!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  border:1px solid rgba(190,145,69,.52)!important;
+  border-radius:2px!important;
+  background:rgba(4,12,13,.64)!important;
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.44),0 2px 4px rgba(0,0,0,.45)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .character-summary > b{
+  grid-column:2!important;
+  align-self:end!important;
+  color:#e17a59!important;
+  font:900 14px/1 Georgia,serif!important;
+  letter-spacing:.02em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .character-summary > span{
+  grid-column:2!important;
+  align-self:start!important;
+  color:#d7bd7e!important;
+  font:700 9px/1.2 Georgia,serif!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-quick{
+  grid-column:2!important;
+  display:grid!important;
+  grid-template-columns:66px minmax(0,1fr)!important;
+  align-items:center!important;
+  padding:5px 10px!important;
+  border:0!important;
+  border-right:1px solid rgba(174,131,63,.34)!important;
+  background:linear-gradient(180deg,rgba(7,16,17,.28),rgba(3,9,10,.09))!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-quick > strong{
+  color:#e9d9ac!important;
+  font:900 33px/.9 Georgia,serif!important;
+  text-align:center!important;
+  text-shadow:0 2px 2px #000!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-copy{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:3px!important;
+  min-width:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-copy > small{
+  color:#cfad56!important;
+  font:900 8px/1 Georgia,serif!important;
+  letter-spacing:.13em!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-harmony-svg-meter{
+  width:100%!important;
+  height:8px!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-copy > em{
+  color:#c9b17a!important;
+  font:700 7px/1 Georgia,serif!important;
+  font-style:normal!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openBank{grid-column:3!important}
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openSkills{grid-column:4!important}
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openPets{grid-column:5!important}
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-home-stack{grid-column:6!important}
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick{grid-column:7!important}
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick{grid-column:8!important}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .header-quick-button,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  padding:4px 6px!important;
+  border:0!important;
+  border-right:1px solid rgba(174,131,63,.28)!important;
+  border-radius:0!important;
+  background:linear-gradient(180deg,rgba(9,20,20,.20),rgba(3,10,11,.07))!important;
+  box-shadow:none!important;
+  color:#ddc47f!important;
+  font:900 9px/1 Georgia,serif!important;
+  letter-spacing:.05em!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .header-quick-button:hover,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick:hover,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick:hover{
+  border-color:rgba(225,178,87,.62)!important;
+  background:linear-gradient(180deg,rgba(45,69,52,.58),rgba(9,21,20,.30))!important;
+  filter:brightness(1.06)!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .header-quick-button img{
+  width:25px!important;
+  height:25px!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-home-stack{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:3px 4px!important;
+  border-right:1px solid rgba(174,131,63,.28)!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-newspaper-launcher{
+  position:relative!important;
+  inset:auto!important;
+  display:grid!important;
+  grid-template-columns:32px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:5px!important;
+  width:100%!important;
+  height:47px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-newspaper-launcher img{
+  position:static!important;
+  width:30px!important;
+  height:37px!important;
+  max-width:30px!important;
+  object-fit:contain!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-header-copy{
+  position:static!important;
+  inset:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-header-copy b,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-header-copy small{
+  color:#dbc47f!important;
+  font:900 7px/1 Georgia,serif!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .admin-button{
+  left:-35px!important;
+  top:12px!important;
+}
+
+/* ----------------------------------------------------------------------
+   THREE INDEPENDENT MAIN APERTURES — no grid inheritance.
+   ---------------------------------------------------------------------- */
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > main.repo-theme-main{
+  position:absolute!important;
+  inset:0!important;
+  z-index:12!important;
+  display:block!important;
+  width:1774px!important;
+  height:887px!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:none!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > main.repo-theme-main > .passport-card,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > main.repo-theme-main > #scene,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > main.repo-theme-main > .harmony-actions{
+  position:absolute!important;
+  box-sizing:border-box!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+
+/* Passport panel. */
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-card{
+  left:247px!important;
+  top:225px!important;
+  z-index:4!important;
+  width:327px!important;
+  height:401px!important;
+  padding:7px 10px!important;
+  color:#dfca92!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-shell{
+  display:grid!important;
+  grid-template-rows:22px 72px 88px 83px 89px!important;
+  gap:4px!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-header{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:22px!important;
+  min-height:22px!important;
+  margin:0!important;
+  padding:0 0 5px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(179,135,64,.35)!important;
+  color:#e1c575!important;
+  font:900 10px/1 Georgia,serif!important;
+  letter-spacing:.18em!important;
+  text-align:center!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-header small{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-top{
+  display:grid!important;
+  grid-template-columns:67px minmax(0,1fr)!important;
+  gap:8px!important;
+  align-items:center!important;
+  height:72px!important;
+  margin:0!important;
+  padding:2px 3px!important;
+  border:0!important;
+  background:rgba(3,10,10,.12)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-wrap,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame{
+  display:grid!important;
+  place-items:center!important;
+  width:64px!important;
+  height:64px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame{
+  border:1px solid rgba(198,153,72,.62)!important;
+  background:rgba(5,14,14,.55)!important;
+  box-shadow:inset 0 0 0 3px rgba(0,0,0,.44)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-image{
+  width:58px!important;
+  height:58px!important;
+  max-width:58px!important;
+  max-height:58px!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-identity{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-width:0!important;
+  height:68px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-username{
+  margin:0 0 3px!important;
+  color:#e4b66f!important;
+  font:900 16px/1 Georgia,serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  min-width:0!important;
+  margin:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-label{
+  color:#b9904e!important;
+  font:900 6px/1 Georgia,serif!important;
+  letter-spacing:.08em!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-select{
+  min-width:0!important;
+  max-width:125px!important;
+  height:17px!important;
+  padding:1px 16px 1px 4px!important;
+  border:1px solid rgba(155,116,59,.28)!important;
+  border-radius:0!important;
+  background:#091311!important;
+  color:#d7c18d!important;
+  font:700 6px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-member-since{
+  margin-top:3px!important;
+  color:#ab9870!important;
+  font:700 6.5px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-status-row{
+  display:flex!important;
+  gap:4px!important;
+  margin-top:4px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-status-pill{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:3px!important;
+  height:13px!important;
+  padding:1px 5px!important;
+  border:1px solid rgba(152,116,62,.30)!important;
+  border-radius:8px!important;
+  background:rgba(4,11,11,.40)!important;
+  color:#bca878!important;
+  font:700 6px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-status-pill i{
+  width:5px!important;
+  height:5px!important;
+  border-radius:50%!important;
+  background:#85a92d!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,41px)!important;
+  gap:4px!important;
+  height:88px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-card{
+  display:grid!important;
+  grid-template-columns:35px minmax(0,1fr)!important;
+  align-items:center!important;
+  min-width:0!important;
+  height:41px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  border:1px solid rgba(149,109,54,.28)!important;
+  border-radius:0!important;
+  background:rgba(3,10,10,.25)!important;
+  box-shadow:inset 0 0 0 1px rgba(221,177,86,.025)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-icon{
+  display:grid!important;
+  place-items:center!important;
+  width:30px!important;
+  height:30px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-icon img{
+  width:26px!important;
+  height:26px!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-xp-icon{
+  display:grid!important;
+  place-items:center!important;
+  width:25px!important;
+  height:25px!important;
+  border:1px solid #9a7133!important;
+  border-radius:50%!important;
+  color:#dfbd69!important;
+  font:900 7px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-width:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy strong{
+  color:#ead093!important;
+  font:900 15px/1 Georgia,serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy span{
+  margin-top:2px!important;
+  color:#c7a453!important;
+  font:900 6px/1 Georgia,serif!important;
+  letter-spacing:.08em!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-card{
+  position:relative!important;
+  display:grid!important;
+  grid-template-rows:18px 7px 1fr!important;
+  gap:3px!important;
+  box-sizing:border-box!important;
+  height:83px!important;
+  margin:0!important;
+  padding:4px 7px!important;
+  border:1px solid rgba(149,109,54,.28)!important;
+  border-radius:0!important;
+  background:rgba(3,10,10,.23)!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading{
+  color:#d4b665!important;
+  font:900 8px/1 Georgia,serif!important;
+  letter-spacing:.10em!important;
+  text-align:center!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-hourglass{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-bar{
+  position:relative!important;
+  height:7px!important;
+  margin:0!important;
+  border:1px solid #47371d!important;
+  border-radius:0!important;
+  background:#050b0b!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-bar i{
+  display:block!important;
+  height:100%!important;
+  background:linear-gradient(90deg,#698d21,#a7a32f,#d0b35b)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-body{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 38px!important;
+  align-items:center!important;
+  min-width:0!important;
+  height:44px!important;
+  margin:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-meta{
+  position:relative!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-width:0!important;
+  height:42px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-percent{
+  position:absolute!important;
+  right:2px!important;
+  top:3px!important;
+  color:#e0c379!important;
+  font:900 13px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-line,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reward-row,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reset{
+  max-width:205px!important;
+  color:#bba774!important;
+  font:700 6px/1.2 Georgia,serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-claim-button{
+  height:15px!important;
+  padding:1px 4px!important;
+  font-size:5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack{
+  display:grid!important;
+  place-items:center!important;
+  width:38px!important;
+  height:42px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack img{
+  width:31px!important;
+  height:37px!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourites{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:4px!important;
+  height:89px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card{
+  display:grid!important;
+  grid-template-rows:17px 1fr!important;
+  min-width:0!important;
+  height:89px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid rgba(149,109,54,.28)!important;
+  border-radius:0!important;
+  background:rgba(3,10,10,.22)!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:17px!important;
+  padding:0 2px!important;
+  border-bottom:1px solid rgba(149,109,54,.22)!important;
+  color:#bf9f57!important;
+  font:900 5.5px/1 Georgia,serif!important;
+  letter-spacing:.04em!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-frame{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  min-width:0!important;
+  height:70px!important;
+  margin:0!important;
+  padding:2px!important;
+  border:0!important;
+  background:transparent!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media{
+  display:grid!important;
+  place-items:center!important;
+  width:38px!important;
+  height:39px!important;
+  min-height:39px!important;
+  margin:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media img{
+  width:36px!important;
+  height:36px!important;
+  max-width:36px!important;
+  max-height:36px!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy{
+  display:block!important;
+  min-width:0!important;
+  width:100%!important;
+  text-align:center!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy strong,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy span{
+  display:block!important;
+  width:100%!important;
+  color:#c5ac70!important;
+  font:700 5px/1.1 Georgia,serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy span{
+  margin-top:1px!important;
+  color:#8e805e!important;
+  font-size:4.5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-legacy-hidden{
+  display:none!important;
+}
+
+/* Live Odds & Ebbles centre scene. */
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene{
+  left:583px!important;
+  top:216px!important;
+  z-index:3!important;
+  width:677px!important;
+  height:417px!important;
+  padding:0!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:transparent!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > .tavern-lobby{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene .sanctuary-backdrop{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:none!important;
+  filter:saturate(1.02) contrast(1.01) brightness(1.01)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > .tavern-room,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > .poster,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > .monitor,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > .desk,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > .keyboard,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > .chair,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > #gamer,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene > #level{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene .tavern-sound-toggle{
+  right:7px!important;
+  bottom:7px!important;
+  transform:scale(.80)!important;
+  transform-origin:right bottom!important;
+}
+
+/* Harmony panel. */
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-actions{
+  left:1270px!important;
+  top:226px!important;
+  z-index:4!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:278px!important;
+  height:399px!important;
+  padding:7px 11px!important;
+  color:#ddc78e!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-actions > h2{
+  flex:0 0 22px!important;
+  height:22px!important;
+  min-height:22px!important;
+  margin:0 0 4px!important;
+  padding:0 0 5px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(178,133,62,.34)!important;
+  color:#dfc372!important;
+  font:900 10px/1 Georgia,serif!important;
+  letter-spacing:.16em!important;
+  text-align:center!important;
+  text-shadow:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button{
+  position:relative!important;
+  flex:0 0 88px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  width:100%!important;
+  height:88px!important;
+  min-height:88px!important;
+  margin:0 0 3px!important;
+  padding:4px!important;
+  border:1px solid rgba(173,125,55,.34)!important;
+  border-radius:0!important;
+  background:radial-gradient(circle at 50% 25%,rgba(128,58,21,.18),transparent 52%),rgba(3,10,10,.24)!important;
+  box-shadow:inset 0 0 0 1px rgba(224,177,83,.03)!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button:hover{
+  background:radial-gradient(circle at 50% 25%,rgba(169,76,25,.28),transparent 55%),rgba(8,21,18,.38)!important;
+  border-color:rgba(213,160,71,.62)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button-logo,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button-logo img{
+  width:43px!important;
+  height:43px!important;
+  min-width:43px!important;
+  min-height:43px!important;
+  margin:0!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button strong{
+  color:#e5cc80!important;
+  font:900 16px/1 Georgia,serif!important;
+  letter-spacing:.04em!important;
+  text-shadow:none!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button em{
+  position:static!important;
+  margin:1px 0 0!important;
+  color:#cf9e44!important;
+  font:900 7px/1 Georgia,serif!important;
+  letter-spacing:.05em!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle{
+  align-self:center!important;
+  flex:0 0 16px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  width:83px!important;
+  height:16px!important;
+  min-height:16px!important;
+  margin:0 0 4px!important;
+  padding:1px 6px!important;
+  border:1px solid rgba(154,113,57,.30)!important;
+  border-radius:0!important;
+  background:rgba(3,10,10,.26)!important;
+  color:#aa9162!important;
+  font:900 6px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle input{
+  position:absolute!important;
+  opacity:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board.global-xp-board{
+  flex:0 0 90px!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:90px!important;
+  min-height:90px!important;
+  max-height:90px!important;
+  margin:0 0 4px!important;
+  padding:4px 7px!important;
+  border:1px solid rgba(149,109,54,.26)!important;
+  border-radius:0!important;
+  background:rgba(3,10,10,.23)!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading{
+  height:17px!important;
+  min-height:17px!important;
+  margin:0!important;
+  padding:2px 0 4px!important;
+  border-bottom:1px solid rgba(149,109,54,.22)!important;
+  text-align:center!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading span{
+  color:#cfad62!important;
+  font:900 7px/1 Georgia,serif!important;
+  letter-spacing:.11em!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-list{
+  height:65px!important;
+  padding:2px 0 0!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-entry{
+  display:grid!important;
+  grid-template-columns:14px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:4px!important;
+  height:12px!important;
+  min-height:12px!important;
+  margin:0!important;
+  padding:0 1px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-rank,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-name,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-total,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-empty{
+  color:#bea873!important;
+  font:700 6px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-rank{
+  color:#c99b49!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-total{
+  max-width:84px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut{
+  align-self:center!important;
+  flex:0 0 24px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  width:88%!important;
+  height:24px!important;
+  min-height:24px!important;
+  margin:0 auto!important;
+  padding:2px 7px!important;
+  border:1px solid rgba(149,109,54,.30)!important;
+  border-radius:0!important;
+  background:rgba(3,10,10,.26)!important;
+  color:#c4ac70!important;
+  box-shadow:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut img{
+  width:13px!important;
+  height:13px!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut span{
+  display:block!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut b{
+  color:#ceb570!important;
+  font:900 7px/1 Georgia,serif!important;
+  letter-spacing:.07em!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut small{
+  display:none!important;
+}
+
+/* ----------------------------------------------------------------------
+   FRESH ACTION DECK — buttons are moved into this element; the retired deck
+   element is removed by V34.46 JS. Geometry follows the lower template.
+   ---------------------------------------------------------------------- */
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > .repo-theme-action-deck{
+  position:absolute!important;
+  left:209px!important;
+  top:646px!important;
+  z-index:18!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:105px 53px!important;
+  gap:3px!important;
+  box-sizing:border-box!important;
+  width:1355px!important;
+  height:161px!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > .repo-theme-action-deck::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > .repo-theme-action-deck::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top{
+  display:grid!important;
+  grid-template-columns:328px 310px 294px 405px!important;
+  gap:6px!important;
+  width:100%!important;
+  height:105px!important;
+  min-height:105px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing{
+  position:relative!important;
+  inset:auto!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  display:grid!important;
+  grid-template-rows:20px 1fr!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:105px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  overflow:hidden!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing h3{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:20px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  color:#c9aa61!important;
+  font:900 8px/1 Georgia,serif!important;
+  letter-spacing:.12em!important;
+  text-align:center!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-grid{
+  display:grid!important;
+  align-items:stretch!important;
+  gap:5px!important;
+  width:100%!important;
+  height:85px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-grid.cols-4{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-grid.cols-3{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame{
+  position:relative!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:85px!important;
+  min-width:0!important;
+  min-height:85px!important;
+  margin:0!important;
+  padding:2px!important;
+  border:0!important;
+  border-radius:0!important;
+  clip-path:none!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  cursor:pointer!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:4px 2px!important;
+  border:1px solid rgba(169,126,58,.10)!important;
+  border-radius:0!important;
+  clip-path:none!important;
+  background:rgba(2,9,10,.12)!important;
+  box-shadow:none!important;
+  transition:background .14s ease,border-color .14s ease,filter .14s ease!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame:hover:not(:disabled) .repo-native-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame:focus-visible .repo-native-face{
+  border-color:rgba(221,172,80,.52)!important;
+  background:linear-gradient(180deg,rgba(55,79,58,.48),rgba(9,22,20,.34))!important;
+  filter:brightness(1.07)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame:hover:not(:disabled),
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame:active:not(:disabled){
+  transform:none!important;
+  filter:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face > img{
+  display:block!important;
+  width:43px!important;
+  height:43px!important;
+  min-width:43px!important;
+  min-height:43px!important;
+  max-width:43px!important;
+  max-height:43px!important;
+  margin:0!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face > b{
+  display:block!important;
+  min-height:12px!important;
+  max-width:100%!important;
+  color:#d4b56d!important;
+  font:900 6.4px/1.05 Georgia,serif!important;
+  letter-spacing:.02em!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-ge{
+  display:grid!important;
+  place-items:center!important;
+  width:39px!important;
+  height:39px!important;
+  border:1px solid #9d7436!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,#665025,#21190d 72%)!important;
+  color:#e2be6e!important;
+  font:900 11px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom{
+  display:grid!important;
+  grid-template-columns:350px 330px 220px 205px 200px!important;
+  align-items:stretch!important;
+  gap:6px!important;
+  width:100%!important;
+  height:53px!important;
+  min-height:53px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-ornament{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom > #openRepoSports,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom > #openRaids,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom > #openAchievements{
+  position:relative!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:53px!important;
+  min-width:0!important;
+  min-height:53px!important;
+  margin:0!important;
+  padding:2px!important;
+  border:0!important;
+  border-radius:0!important;
+  clip-path:none!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:3px 8px!important;
+  border:1px solid rgba(169,126,58,.10)!important;
+  border-radius:0!important;
+  clip-path:none!important;
+  background:rgba(2,9,10,.11)!important;
+  box-shadow:none!important;
+  transition:background .14s ease,border-color .14s ease!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button:hover .repo-native-brand-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button:hover .repo-native-mini-face{
+  border-color:rgba(221,172,80,.52)!important;
+  background:linear-gradient(180deg,rgba(55,79,58,.48),rgba(9,22,20,.34))!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-face{
+  gap:7px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-vm-glyph{
+  width:55px!important;
+  min-width:55px!important;
+  max-width:55px!important;
+  flex:0 0 55px!important;
+  height:38px!important;
+  margin:0!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-vm-glyph .repo-vm-letter{
+  font-size:36px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dragonbound-mark{
+  width:92px!important;
+  height:47px!important;
+  min-width:92px!important;
+  max-width:92px!important;
+  flex:0 0 92px!important;
+  margin:0!important;
+  object-fit:contain!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-brand-divider{
+  width:1px!important;
+  height:31px!important;
+  flex:0 0 1px!important;
+  margin:0!important;
+  background:linear-gradient(transparent,#5f704c 18%,#5f704c 82%,transparent)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-brand-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  min-width:0!important;
+  margin:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-brand-copy > strong{
+  color:#d8bd7a!important;
+  font:900 13px/.95 Georgia,serif!important;
+  letter-spacing:.04em!important;
+  text-shadow:0 1px 1px #000!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-brand-copy > small{
+  margin-top:3px!important;
+  color:#aa8e54!important;
+  font:900 6px/1 Georgia,serif!important;
+  letter-spacing:.18em!important;
+  white-space:nowrap!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face{
+  flex-direction:row!important;
+  gap:7px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face > img{
+  display:block!important;
+  width:31px!important;
+  height:31px!important;
+  min-width:31px!important;
+  max-width:31px!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face > b{
+  color:#cdb16d!important;
+  font:900 7px/1.05 Georgia,serif!important;
+  letter-spacing:.04em!important;
+  text-align:left!important;
+  white-space:nowrap!important;
+}
+
+/* ----------------------------------------------------------------------
+   LIVE TICKER — a fresh footer container aligned to the lowest aperture.
+   ---------------------------------------------------------------------- */
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > footer.repo-theme-ticker{
+  position:absolute!important;
+  left:207px!important;
+  top:824px!important;
+  z-index:19!important;
+  display:grid!important;
+  grid-template-columns:205px 365px 360px 420px!important;
+  align-items:center!important;
+  gap:0!important;
+  box-sizing:border-box!important;
+  width:1350px!important;
+  height:49px!important;
+  min-height:49px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > footer.repo-theme-ticker::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > footer.repo-theme-ticker::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-today,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:49px!important;
+  min-height:49px!important;
+  margin:0!important;
+  padding:5px 12px!important;
+  border:0!important;
+  border-right:1px solid rgba(164,121,56,.28)!important;
+  border-radius:0!important;
+  background:rgba(2,8,9,.09)!important;
+  box-shadow:none!important;
+  color:#d2b86f!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-today{
+  font:900 9px/1 Georgia,serif!important;
+  letter-spacing:.11em!important;
+  text-align:center!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] button.repo-dash-ticker-item:hover{
+  background:linear-gradient(180deg,rgba(47,71,53,.42),rgba(9,20,19,.24))!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item img{
+  flex:0 0 27px!important;
+  width:27px!important;
+  height:27px!important;
+  margin:0 8px 0 0!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item span{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item b{
+  display:block!important;
+  max-width:100%!important;
+  color:#d8bd79!important;
+  font:900 8px/1 Georgia,serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item small{
+  display:block!important;
+  max-width:100%!important;
+  margin-top:3px!important;
+  color:#a99569!important;
+  font:700 6px/1 Georgia,serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+/* The retired homepage watch-card layer must never float over the redesign. */
+body.repo-dashboard-v20-active #qmWatcherAccounts,
+body.repo-dashboard-v20-active .qm-watcher-namecard,
+body.repo-dashboard-v20-active .qm-watcher-watchcard{
+  display:none!important;
+}
+
+/* ======================================================================
+   V34.46.1 — SCREENSHOT CORRECTION PASS
+
+   The shell geometry was sound, but several children were still carrying
+   V34 positioning and compressed type rules.  This pass resets those inner
+   nodes, uses the spare vertical space in both side panels, and closes the
+   remaining gaps in the header and lower navigation.
+   ====================================================================== */
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls{
+  grid-template-columns:198px 298px 102px 102px 102px 139px 61px 60px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-shell{
+  grid-template-rows:24px 82px 86px 88px 91px!important;
+  gap:3px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-header,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-top,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-wrap,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-identity,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-username,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-row,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-label,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-select,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-member-since,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-status-row,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-grid,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-card,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-card,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-bar,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-body,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-meta,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourites,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-frame,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy{
+  inset:auto!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-header{
+  position:static!important;
+  height:24px!important;
+  min-height:24px!important;
+  padding:0 0 4px!important;
+  font:900 11px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-top{
+  position:static!important;
+  grid-template-columns:72px minmax(0,1fr)!important;
+  gap:8px!important;
+  height:82px!important;
+  padding:3px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-wrap,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame{
+  width:70px!important;
+  height:70px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame{
+  position:relative!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-row::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-image{
+  position:static!important;
+  width:64px!important;
+  height:64px!important;
+  max-width:64px!important;
+  max-height:64px!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-identity{
+  position:static!important;
+  justify-content:center!important;
+  gap:3px!important;
+  height:76px!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-username{
+  position:static!important;
+  margin:0 0 1px!important;
+  padding:0!important;
+  font:900 17px/1.05 Georgia,serif!important;
+  text-shadow:0 1px 0 #2b1808!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-row{
+  position:static!important;
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:5px!important;
+  height:20px!important;
+  min-height:20px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-label{
+  position:static!important;
+  font:900 6.7px/1 Georgia,serif!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-select{
+  position:static!important;
+  width:100%!important;
+  max-width:none!important;
+  height:20px!important;
+  min-height:20px!important;
+  padding:2px 16px 2px 5px!important;
+  border-radius:0!important;
+  font:700 7.2px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-member-since{
+  position:static!important;
+  margin:0!important;
+  font:700 7.1px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-status-row{
+  position:static!important;
+  gap:5px!important;
+  margin:0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-status-pill{
+  height:15px!important;
+  padding:1px 6px!important;
+  font:700 6.5px/1 Georgia,serif!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-grid{
+  position:static!important;
+  grid-template-rows:repeat(2,41px)!important;
+  height:86px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy strong{
+  font-size:14.5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy span{
+  font-size:6.6px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-card{
+  position:relative!important;
+  grid-template-rows:18px 8px 1fr!important;
+  height:88px!important;
+  padding:4px 7px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading{
+  position:static!important;
+  margin:0!important;
+  font-size:8.4px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-bar{
+  position:relative!important;
+  height:8px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-body{
+  position:static!important;
+  grid-template-columns:minmax(0,1fr) 42px!important;
+  height:50px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-meta{
+  position:relative!important;
+  height:48px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-line,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reward-row,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reset{
+  max-width:210px!important;
+  font-size:6.5px!important;
+  line-height:1.25!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-percent{
+  right:1px!important;
+  top:3px!important;
+  font-size:12.5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack{
+  position:static!important;
+  width:42px!important;
+  height:48px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack img{
+  width:34px!important;
+  height:42px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourites,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card{
+  position:static!important;
+  height:91px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card{
+  grid-template-rows:18px 1fr!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading{
+  position:static!important;
+  height:18px!important;
+  font-size:5.8px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-frame{
+  position:static!important;
+  height:71px!important;
+  gap:2px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media{
+  position:static!important;
+  width:40px!important;
+  height:40px!important;
+  min-height:40px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media img{
+  width:38px!important;
+  height:38px!important;
+  max-width:38px!important;
+  max-height:38px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy strong{
+  font-size:5.8px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy span{
+  font-size:5.1px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-actions{
+  display:grid!important;
+  grid-template-rows:24px 102px 18px 82px 105px 32px!important;
+  gap:4px!important;
+  align-content:start!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-actions > h2{
+  position:static!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:24px!important;
+  min-height:24px!important;
+  margin:0!important;
+  padding:0 0 4px!important;
+  transform:none!important;
+  font-size:11px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button{
+  position:relative!important;
+  flex:none!important;
+  height:102px!important;
+  min-height:102px!important;
+  margin:0!important;
+  gap:3px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button-logo,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button-logo img{
+  width:45px!important;
+  height:45px!important;
+  min-width:45px!important;
+  min-height:45px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button strong{
+  font-size:17px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-button em{
+  font-size:7.4px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle{
+  position:relative!important;
+  flex:none!important;
+  width:92px!important;
+  height:18px!important;
+  min-height:18px!important;
+  margin:0 auto!important;
+  font-size:6.5px!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board.global-xp-board{
+  position:relative!important;
+  flex:none!important;
+  height:82px!important;
+  min-height:82px!important;
+  max-height:82px!important;
+  margin:0!important;
+  padding:4px 7px!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board.global-xp-board{
+  height:105px!important;
+  min-height:105px!important;
+  max-height:105px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading{
+  position:static!important;
+  height:18px!important;
+  min-height:18px!important;
+  padding:2px 0 4px!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading span{
+  font-size:7.5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-list{
+  height:56px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .global-xp-board .daily-xp-list{
+  height:79px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-entry{
+  height:13px!important;
+  min-height:13px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-rank,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-name,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-total,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-empty{
+  font-size:6.6px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut{
+  position:relative!important;
+  align-self:center!important;
+  flex:none!important;
+  width:92%!important;
+  height:32px!important;
+  min-height:32px!important;
+  margin:0 auto!important;
+  transform:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut b{
+  font-size:7.8px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing h3{
+  font-size:8.6px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face > img{
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  max-width:40px!important;
+  max-height:40px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face > b{
+  font-size:6.8px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom{
+  grid-template-columns:350px 330px 220px 205px 226px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-face{
+  gap:5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-vm-glyph{
+  width:46px!important;
+  min-width:46px!important;
+  max-width:46px!important;
+  flex-basis:46px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-vm-glyph .repo-vm-letter{
+  font-size:33px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dragonbound-mark{
+  width:56px!important;
+  min-width:56px!important;
+  max-width:56px!important;
+  flex-basis:56px!important;
+  transform:scale(1.55)!important;
+  transform-origin:center!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item b{
+  font-size:8.5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item small{
+  font-size:6.4px!important;
+}
+
+/* ======================================================================
+   V34.46.2 — OPTICAL READABILITY + FINISH
+
+   Geometry is intentionally unchanged. This pass improves the information
+   hierarchy at the real 2048x1024 desktop render and gives secondary copy
+   enough weight to read without turning the dashboard into oversized UI.
+   ====================================================================== */
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-username{
+  font-size:18px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-label{
+  font-size:7.4px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-title-select{
+  font-size:8.2px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-member-since{
+  font-size:8px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-status-pill{
+  font-size:7.1px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy strong{
+  font-size:15.5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy span{
+  font-size:7.2px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading{
+  font-size:9.2px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-percent{
+  font-size:13.5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-line,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reward-row,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reset{
+  font-size:7.35px!important;
+  line-height:1.2!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading{
+  font-size:6.7px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourites,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card{
+  box-sizing:border-box!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy strong{
+  font-size:6.7px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy span{
+  font-size:5.9px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading span{
+  font-size:8.2px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading{
+  box-sizing:border-box!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-list{
+  height:52px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .global-xp-board .daily-xp-list{
+  height:75px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-rank,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-name,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-total,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .daily-xp-empty{
+  font-size:7.15px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut b{
+  font-size:8.6px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing h3{
+  font-size:9.4px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face > b{
+  font-size:7.4px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-brand-copy b,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face > b{
+  letter-spacing:.055em!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item b{
+  font-size:9.2px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item small{
+  font-size:7px!important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] *,
+  body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] *::before,
+  body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] *::after{
+    scroll-behavior:auto!important;
+  }
+}
+
+/* ======================================================================
+   V34.46.3 — TEMPLATE-LOCKED DECK GEOMETRY
+
+   The greenhouse artwork is the single source of borders and dividers.
+   Live buttons remain in the DOM with their original IDs and listeners, but
+   their hit areas and contents now sit precisely inside the painted cells.
+   ====================================================================== */
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > .repo-theme-action-deck{
+  left:206px!important;
+  top:646px!important;
+  grid-template-rows:109px 40px!important;
+  gap:4px!important;
+  width:1369px!important;
+  height:153px!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top{
+  grid-template-columns:329px 310px 292px 438px!important;
+  gap:0!important;
+  width:1369px!important;
+  height:109px!important;
+  min-height:109px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing{
+  grid-template-rows:21px 75px!important;
+  height:109px!important;
+  overflow:hidden!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing h3{
+  height:21px!important;
+  min-height:21px!important;
+  padding:0 4px!important;
+  line-height:21px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-grid{
+  align-items:stretch!important;
+  column-gap:0!important;
+  row-gap:0!important;
+  box-sizing:border-box!important;
+  height:75px!important;
+  min-height:75px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top::after,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-grid::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-grid::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing:nth-child(1) .repo-native-premium-grid{
+  padding:0 13px 0 0!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing:nth-child(2) .repo-native-premium-grid{
+  padding:0 5px 0 10px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing:nth-child(3) .repo-native-premium-grid{
+  padding:0 13px 0 7px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing:nth-child(4) .repo-native-premium-grid{
+  padding:0 29px 0 9px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame{
+  display:grid!important;
+  place-items:center!important;
+  height:75px!important;
+  min-height:75px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:0!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face{
+  display:grid!important;
+  grid-template-rows:42px auto!important;
+  align-content:center!important;
+  justify-items:center!important;
+  gap:3px!important;
+  width:100%!important;
+  height:71px!important;
+  padding:3px 2px 2px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  transition:background .14s ease,filter .14s ease!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame::after,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame:hover:not(:disabled) .repo-native-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame:focus-visible .repo-native-face{
+  border:0!important;
+  background:rgba(75,104,73,.20)!important;
+  filter:brightness(1.08)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame:focus-visible{
+  outline:1px solid rgba(221,172,80,.70)!important;
+  outline-offset:-5px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face > img{
+  align-self:center!important;
+  justify-self:center!important;
+  width:40px!important;
+  height:40px!important;
+  min-width:40px!important;
+  min-height:40px!important;
+  max-width:40px!important;
+  max-height:40px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-face > b{
+  align-self:start!important;
+  justify-self:center!important;
+  min-height:0!important;
+  line-height:1.08!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-ge{
+  align-self:center!important;
+  justify-self:center!important;
+  width:38px!important;
+  height:38px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom{
+  grid-template-columns:363px 10px 317px 9px 241px 6px 185px 9px 203px!important;
+  gap:0!important;
+  width:1343px!important;
+  height:40px!important;
+  min-height:40px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button.manager{
+  grid-column:1!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button.dragonbound{
+  grid-column:3!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openRepoSports{
+  grid-column:5!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openRaids{
+  grid-column:7!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #openAchievements{
+  grid-column:9!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom > #openRepoSports,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom > #openRaids,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom > #openAchievements{
+  display:grid!important;
+  place-items:center!important;
+  height:40px!important;
+  min-height:40px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:0!important;
+  overflow:visible!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face{
+  width:100%!important;
+  height:36px!important;
+  padding:2px 8px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+  transition:background .14s ease,filter .14s ease!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-face::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-face::after,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face::after,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button::after,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button::after,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button:hover .repo-native-brand-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button:hover .repo-native-mini-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button:focus-visible .repo-native-brand-face,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button:focus-visible .repo-native-mini-face{
+  border:0!important;
+  background:rgba(75,104,73,.20)!important;
+  filter:brightness(1.08)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-button:focus-visible,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-button:focus-visible{
+  outline:1px solid rgba(221,172,80,.70)!important;
+  outline-offset:-4px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-brand-face{
+  gap:6px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-vm-glyph{
+  width:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  flex-basis:44px!important;
+  height:32px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-vm-glyph .repo-vm-letter{
+  font-size:31px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dragonbound-mark{
+  width:58px!important;
+  min-width:58px!important;
+  max-width:58px!important;
+  flex-basis:58px!important;
+  height:34px!important;
+  transform:scale(1.25)!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-brand-divider{
+  height:26px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face{
+  gap:6px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-mini-face > img{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  max-width:28px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > footer.repo-theme-ticker{
+  left:202px!important;
+  top:819px!important;
+  grid-template-columns:188px 332px 331px 516px!important;
+  width:1367px!important;
+  height:52px!important;
+  min-height:52px!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-today,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item{
+  height:52px!important;
+  min-height:52px!important;
+  padding:5px 12px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-today::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-today::after,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item::before,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-dash-ticker-item::after{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] button.repo-dash-ticker-item:hover,
+body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] button.repo-dash-ticker-item:focus-visible{
+  background:rgba(75,104,73,.17)!important;
+}
+
+/* ======================================================================
+   V34.46.4 — ONE SURFACE PER PANEL
+
+   The template contains painted internal dividers as well as outer trim.
+   Transparent controls exposed those dividers underneath independently sized
+   DOM boxes. Opaque inset surfaces mask the internal artwork, retaining the
+   ornate outer frame. All geometry below uses border-box dimensions.
+   ====================================================================== */
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-box,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-card,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions{
+  background:linear-gradient(135deg,#101a16,#080f0e 65%,#0b1411)!important;
+  border:0!important;
+  box-shadow:none!important;
+  isolation:isolate!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-box,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls *,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-shell,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-shell *,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions *{
+  box-sizing:border-box!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-box::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-box::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-summary::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-summary::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-quick::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-quick::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-copy::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-copy::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .header-quick-button::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .header-quick-button::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-home-stack::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-home-stack::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-newspaper-launcher::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-newspaper-launcher::after{
+  content:none!important;
+  display:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls{
+  column-gap:0!important;
+  grid-template-columns:202px 302px 106px 106px 106px 143px 65px 60px!important;
+  padding:0 4px!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-summary,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-quick,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .header-quick-button,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-home-stack,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-newspaper-launcher{
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .repo-dash-harmony-quick,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openBank,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openSkills,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openPets,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-home-stack,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick{
+  border-left:1px solid rgba(174,131,63,.25)!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .character-summary:hover,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .header-quick-button:hover,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #openTcgBinderQuick:hover,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] #repoLogoutQuick:hover,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .velmora-crown-newspaper-launcher:hover{
+  background:rgba(108,140,102,.14)!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .signed-in-controls button:focus-visible{
+  outline:1px solid #dfb45c!important;
+  outline-offset:-3px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-card{
+  left:240px!important;
+  width:330px!important;
+  padding:7px 8px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-shell{
+  grid-template-rows:24px 80px 82px 94px 91px!important;
+  gap:4px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-card::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-card::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-shell::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-shell::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-header::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-header::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-top::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-top::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-wrap::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-wrap::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-frame::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-identity::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-identity::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-grid::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-grid::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-card::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-card::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-card::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-card::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-body::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-body::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-meta::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-meta::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourites::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourites::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-frame::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-frame::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy::after{
+  content:none!important;
+  display:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-header,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-top,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-avatar-wrap,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-identity,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-grid,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourites,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-frame,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-body,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-meta,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-top{
+  grid-template-columns:70px minmax(0,1fr)!important;
+  gap:8px!important;
+  width:100%!important;
+  height:80px!important;
+  min-width:0!important;
+  padding:0 3px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-identity{
+  width:100%!important;
+  height:80px!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-title-row{
+  width:100%!important;
+  grid-template-columns:30px minmax(0,1fr)!important;
+  gap:4px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-title-select{
+  min-width:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  padding:2px 4px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-grid{
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;
+  height:82px!important;
+  gap:4px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-card,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-card,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card{
+  border:1px solid rgba(174,131,63,.32)!important;
+  border-radius:0!important;
+  background:rgba(0,0,0,.16)!important;
+  box-shadow:none!important;
+  min-width:0!important;
+  min-height:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-card{
+  grid-template-columns:30px minmax(0,1fr)!important;
+  column-gap:4px!important;
+  width:100%!important;
+  height:100%!important;
+  padding:3px 6px!important;
+  overflow:hidden!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-icon,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  margin:0!important;
+  padding:0!important;
+  min-width:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy{
+  width:100%!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy strong{
+  font-size:15px!important;
+  line-height:1.05!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-stat-copy span{
+  font-size:7px!important;
+  line-height:1.1!important;
+  letter-spacing:.04em!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-card{
+  position:relative!important;
+  grid-template-rows:14px 7px minmax(0,1fr)!important;
+  gap:4px!important;
+  height:94px!important;
+  padding:6px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-heading{
+  height:14px!important;
+  min-height:0!important;
+  padding:0 40px 0 0!important;
+  text-align:left!important;
+  font-size:8.6px!important;
+  line-height:14px!important;
+  letter-spacing:.07em!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-bar{
+  width:100%!important;
+  height:7px!important;
+  min-height:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-body{
+  position:static!important;
+  grid-template-columns:minmax(0,1fr) 34px!important;
+  column-gap:6px!important;
+  height:100%!important;
+  min-height:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-meta{
+  position:static!important;
+  height:100%!important;
+  min-height:0!important;
+  gap:2px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-percent{
+  position:absolute!important;
+  inset:6px 6px auto auto!important;
+  margin:0!important;
+  font-size:11px!important;
+  line-height:14px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-line,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reward-row,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reset{
+  max-width:100%!important;
+  margin:0!important;
+  font-size:7.2px!important;
+  line-height:1.2!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-reward-row{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:2px 4px!important;
+  white-space:normal!important;
+  overflow:visible!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-claim-button{
+  position:static!important;
+  flex:0 0 auto!important;
+  min-height:16px!important;
+  height:16px!important;
+  margin:0!important;
+  padding:1px 4px!important;
+  font-size:6.5px!important;
+  line-height:12px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-claim-button[hidden]{
+  display:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack{
+  width:34px!important;
+  height:100%!important;
+  min-height:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-weekly-pack img{
+  width:28px!important;
+  height:36px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourites{
+  height:91px!important;
+  gap:4px!important;
+  min-width:0!important;
+  min-height:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-card{
+  height:91px!important;
+  grid-template-rows:15px minmax(0,1fr)!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-heading{
+  height:15px!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0 2px!important;
+  font-size:6.3px!important;
+  line-height:1.1!important;
+  letter-spacing:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-frame{
+  display:grid!important;
+  grid-template-rows:34px minmax(0,1fr)!important;
+  justify-items:center!important;
+  align-content:start!important;
+  gap:3px!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  padding:3px 4px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media{
+  width:34px!important;
+  height:34px!important;
+  min-height:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-media img{
+  width:34px!important;
+  height:34px!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:34px!important;
+  max-height:34px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy{
+  width:100%!important;
+  min-height:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy strong,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy span{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+  overflow-wrap:anywhere!important;
+  text-overflow:clip!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy strong{
+  font-size:7px!important;
+  line-height:8px!important;
+  max-height:16px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-favourite-copy span{
+  font-size:6px!important;
+  line-height:7px!important;
+  max-height:14px!important;
+  margin-top:1px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions{
+  grid-template-rows:24px 96px 20px 96px 96px 28px!important;
+  gap:5px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions > h2::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions > h2::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-list::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-list::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut span::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut span::after,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut b::before,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut b::after{
+  content:none!important;
+  display:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions > h2,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board.global-xp-board,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut{
+  position:relative!important;
+  inset:auto!important;
+  translate:none!important;
+  transform:none!important;
+  margin:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  height:100%!important;
+  align-self:stretch!important;
+  box-shadow:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions > h2{
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board.global-xp-board,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut{
+  border:1px solid rgba(174,131,63,.32)!important;
+  border-radius:0!important;
+  background:rgba(0,0,0,.16)!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle{
+  justify-self:center!important;
+  width:92px!important;
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-sound-toggle:focus-within{
+  outline:1px solid #dfb45c!important;
+  outline-offset:-1px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-board.global-xp-board{
+  display:grid!important;
+  grid-template-rows:18px minmax(0,1fr)!important;
+  gap:0!important;
+  width:100%!important;
+  padding:4px 6px!important;
+  overflow:hidden!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-heading{
+  position:static!important;
+  inset:auto!important;
+  height:18px!important;
+  min-height:0!important;
+  padding:0 0 3px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  line-height:15px!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-list,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .global-xp-board .daily-xp-list{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  scrollbar-width:thin!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-entry{
+  height:13px!important;
+  min-height:13px!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .daily-xp-name{
+  min-width:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut{
+  grid-row:6!important;
+  justify-self:stretch!important;
+  width:100%!important;
+  max-width:none!important;
+  padding:2px 7px!important;
+  overflow:hidden!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut span,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut b{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button:hover,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut:hover{
+  background:rgba(108,140,102,.14)!important;
+}
+
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .harmony-actions .harmony-button:focus-visible,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .home-leaderboards-shortcut:focus-visible,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-title-select:focus-visible,
+html body.repo-dashboard-v20-active.repo-dashboard-v20-desktop #repoDashboardV20.repo-dashboard-shell-v20[data-repo-theme="greenhouse-v34-46"] .passport-claim-button:focus-visible{
+  outline:1px solid #dfb45c!important;
+  outline-offset:-3px!important;
+}
+
+/* ======================================================================
+   V34.46.7 — EDGE-TO-EDGE CENTRAL ROOM + CALIBRATED SEATING
+   The panel remains 677 x 417. Only the room's presentation changes.
+   Cover fills the panel; the higher crop reveals both background characters.
+   The guest layer
+   uses the identical image scale and origin, so seats stay attached to it.
+   ====================================================================== */
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene.repo-scene-fit-active .sanctuary-backdrop{
+  object-fit:cover!important;
+  object-position:var(--repo-scene-image-position,50% 58%)!important;
+  transform:none!important;
+}
+
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] #scene.repo-scene-fit-active #tavernGuestLayer{
+  position:absolute!important;
+  inset:auto!important;
+  left:var(--repo-scene-seat-left)!important;
+  top:var(--repo-scene-seat-top)!important;
+  width:var(--repo-scene-seat-width)!important;
+  height:var(--repo-scene-seat-height)!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+  transform:scale(var(--repo-scene-seat-scale))!important;
+  transform-origin:0 0!important;
+  overflow:visible!important;
+}

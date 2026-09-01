@@ -1,0 +1,9 @@
+V34.41 — Correct Size + Native Clicks
+
+- Uses the user-supplied 2048×439 Velmora button banner.
+- Displays it at 1064×228 logical dashboard pixels, preserving the source aspect ratio exactly.
+- Removes the V34.40 capture-phase click interceptor that prevented the site's original button handlers from firing.
+- Keeps the original button IDs in the DOM so the already-existing onclick/addEventListener bindings work normally.
+- Recalibrates hit rectangles against the new 2048×439 image.
+- The banner owns the old navigation/ticker footprint on desktop; Today in Velmora is hidden there to prevent overlap.
+- Velmora Manager remains a coming-soon placeholder.

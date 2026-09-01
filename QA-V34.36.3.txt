@@ -1,0 +1,11 @@
+V34.36.3 — Homepage Deck Containment + Avatar Removal
+
+Fixes:
+- Command deck restored to the original lower navigation baseline (top 665 in the 1774×887 shell).
+- Deck is 1060×185 and fully contained; it cannot paint over Passport, centre scene, or Harmony/leaderboards.
+- Today in Velmora ticker remains below the deck inside the shell.
+- Floating signed-in circular portrait is removed by its real username/nameplate container, not by a guessed image selector.
+- MutationObserver/short delayed passes remove it again if legacy code asynchronously re-inserts it.
+- Header identity and Repo Passport identity are preserved.
+
+Apply over V34.36.2, then Ctrl+F5.

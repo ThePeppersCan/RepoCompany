@@ -1,0 +1,16 @@
+V34.36.7 — Fullscreen / Avatar / Original Logos HOTFIX
+
+IMPORTANT: this patch is based on V34.36.5 and therefore rolls back the V34.36.6 continuous mutation-observer cleanup.
+
+Fixes:
+- restores stable dashboard viewport/fullscreen scaling
+- adds fullscreenchange + visualViewport resize recalculation
+- removes the command-deck avatar using short geometry-based cleanup bursts only
+- uses the original Velmora Manager and Dragonbound art cropped directly from the supplied homepage-bar design
+- keeps the two flagship buttons real clickable native buttons; Velmora Manager remains coming-soon only
+
+Files:
+- style.css
+- script.js
+- assets/velmora-manager-home-original.png
+- assets/dragonbound-home-original.png

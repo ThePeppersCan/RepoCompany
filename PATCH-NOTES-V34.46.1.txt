@@ -1,0 +1,47 @@
+REPO COMPANY V34.46.1 — GREENHOUSE CORRECTION PATCH
+===================================================
+
+Apply this patch over V34.46.0.
+
+FILES INCLUDED
+--------------
+- index.html
+- script.js
+- repo-greenhouse-theme.css
+
+CORRECTIONS
+-----------
+- Rebuilt the Repo Passport's internal layout so identity, title, membership,
+  status, totals, weekly progress, and favourites use the available panel space
+  cleanly without inherited V34 offsets.
+- Restored and enlarged the Train Harmony heading and redistributed the full
+  right panel across Harmonize, sound, daily rankings, global rankings, and the
+  Leaderboards control.
+- Closed the header grid to the artwork aperture, including the logout edge.
+- Kept the signed-in header mounted inside the fixed dashboard shell while
+  preserving the existing signed-out landing behaviour.
+- Synchronised the real Passport portrait into the header, including later
+  character/avatar changes.
+- Reduced crowding in the activity wings and tightened their icon/label rhythm.
+- Corrected the lower flagship row so its final button closes exactly on the
+  right edge of the deck; tightened Velmora Manager and Dragonbound branding.
+- Increased ticker hierarchy and retained the fixed, no-scroll desktop shell.
+- Updated CSS and JavaScript cache keys so the correction loads immediately.
+
+PRESERVED
+---------
+- Existing live Odds & Ebbles centre scene and billboard.
+- Existing IDs, listeners, data, account state, routes, modals, progression,
+  Harmony calculations/cooldowns, leaderboards, skills, pets, games, and audio.
+- The supplied greenhouse template asset from V34.46.0.
+- The V34.45.3 baseline style.css (unchanged).
+
+VALIDATION
+----------
+- JavaScript syntax check passed.
+- Theme stylesheet brace/syntax scan passed.
+- Desktop geometry rendered against the supplied 1774x887 template.
+- Header, Passport, scene, Harmony, command deck, and ticker matched their
+  apertures with no internal overflow.
+- The lower deck's final button aligns exactly with the deck's right edge.
+- No QA-only files or styles are included in this archive.

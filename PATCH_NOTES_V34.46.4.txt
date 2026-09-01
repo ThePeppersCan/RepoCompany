@@ -1,0 +1,47 @@
+REPO COMPANY V34.46.4 — HOMEPAGE PANEL AND AVATAR CLEANUP
+
+Apply over V34.46.3 (the supplied web2.zip source matches that baseline).
+
+FILES TO REPLACE
+- index.html
+- repo-greenhouse-theme.css
+- bedroom.js
+
+FIXES
+- Returning account portrait: fixed bedroom.js identifying arbitrary lower-left
+  homepage buttons as Dragonbound's Commands launcher. The portrait now requires
+  the real Commands button in an open, visible Dragonbound home, or an open
+  bedroom. Closed contexts fully hide it, including on initial creation.
+- Top bar: masks painted internal dividers beneath the live controls, removes
+  duplicate decoration, and uses one separator per control.
+- Repo Passport: masks the old internal frames inside the outer ornate panel;
+  fits stats, weekly progress and favourites into explicit border-box grids.
+  Favourite names and descriptions can wrap to two lines. Weekly percentage
+  sits beside the heading rather than over the progress/reward copy.
+- Harmony: gives both leaderboards space for five rows and reserves a separate
+  final row for the Leaderboards button. Removes inherited position offsets and
+  duplicate decoration. Extra leaderboard rows remain scrollable.
+- Refreshes the stylesheet and bedroom-script cache keys in index.html.
+
+INSTALLATION
+1. Back up the three current files listed above.
+2. Extract the three replacement files into the website root, overwriting them.
+3. Hard-refresh the page to load V34.46.4.
+
+CHECKS COMPLETED
+- JavaScript syntax check passed for bedroom.js.
+- Reproduced the original avatar false positive in a controlled DOM regression
+  harness; all 11 patched visibility cases passed, including homepage, closed
+  Dragonbound, visible home, hidden controls/ancestors, bedroom, and guest state.
+- Source checks passed: CSS delimiters, explicit desktop grid budgets and
+  five-row leaderboard capacity. All existing HTML IDs and inline scripts are
+  preserved; only the two cache keys change in index.html.
+
+VALIDATION LIMITS
+- No visual browser pass: the environment's URL policy blocked local preview.
+- The supplied web2.zip omits assets/, including the greenhouse template, so
+  the full illustrated composition could not be rendered here.
+- Live account data and backend interactions were not exercised.
+
+This is a patch-only archive. Existing assets and the rest of the website are
+required. No database migration is needed.

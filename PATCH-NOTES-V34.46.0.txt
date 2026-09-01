@@ -1,0 +1,34 @@
+REPO COMPANY — V34.46.0 GREENHOUSE DESKTOP THEME
+PATCH-ONLY PACKAGE
+
+BASELINE
+- Apply over V34.45.3 PRE-THEME-REDESIGN CHECKPOINT.
+
+CHANGED FILES
+- index.html
+- script.js
+
+NEW FILES
+- repo-greenhouse-theme.css
+- assets/repo-dashboard-greenhouse-template-v34-46.png
+
+NOT INCLUDED
+- style.css is unchanged from V34.45.3.
+- Existing site assets and secondary game files are unchanged.
+
+IMPLEMENTATION
+- Uses the supplied Image 1 artwork as the literal 1774 × 887 desktop shell.
+- Keeps the live Odds & Ebbles centre scene and guest behaviour.
+- Rebuilds the homepage main, activity-deck and ticker containers while moving
+  the existing working controls and IDs into them.
+- Gives Header, Passport, centre scene, Harmony, activity wings, flagship games
+  and ticker explicit independent coordinates.
+- Removes the retired command-deck container and suppresses the old floating
+  homepage watcher/avatar layer.
+
+QA
+- JavaScript syntax check passed.
+- Rendered signed-in desktop geometry checked against the supplied references.
+- Header children and every activity button remain within their apertures.
+- Passport, scene, Harmony, action deck and ticker do not overlap.
+- Existing Bank control was opened successfully after recomposition.

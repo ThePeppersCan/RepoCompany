@@ -1,0 +1,14 @@
+V34.45.2 — Flagship Logo Spacing Fix
+
+Changed files:
+- index.html
+- style.css
+
+Changes:
+- VM mark moved closer to Velmora Manager text
+- V remains blue
+- M is now red
+- red slash removed entirely
+- Dragonbound V crest enlarged substantially
+- Dragonbound crest moved closer to Velmora Dragonbound wordmark
+- no command-deck layout changes

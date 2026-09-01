@@ -1,0 +1,18 @@
+V34.37 — CLEAN Homepage Command Deck Rebuild
+
+IMPORTANT: this is rebuilt from the stable V34.35.1 homepage files, not from any V34.36.x hotfix.
+
+Files:
+- index.html
+- style.css
+- script.js
+- assets/velmora-manager-home-original.png
+- assets/dragonbound-home-original.png
+
+Changes:
+- Replaces the old homepage bar directly in HTML with real native buttons.
+- Uses the original supplied Velmora Manager and Dragonbound panel artwork.
+- Keeps the bar inside the original 1228x151 safe navigation footprint.
+- Leaves Velmora Manager unlinked and shows only a coming-soon toast.
+- Adds a bounded startup cleanup for the stray account portrait; no MutationObserver or continuous DOM scanner.
+- Retains the stable V34.35.1 fullscreen/dashboard scaling.

@@ -1,0 +1,13 @@
+V34.36.5 — Command Deck Polish HOTFIX
+
+Changed files:
+- style.css
+- script.js
+
+This pass:
+- polishes the rebuilt native command deck spacing and visual balance
+- gives the top row more height and breathing room
+- strengthens the flagship bottom row so Velmora Manager and Dragonbound read as the two main games
+- evens out Repo Sports / Raids / Achievements sizing
+- moves the Today in Velmora strip slightly lower for better separation
+- explicitly removes leaked watcher/namecard avatar widgets from the homepage dashboard

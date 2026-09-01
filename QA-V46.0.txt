@@ -1,0 +1,13 @@
+V46.0 — Greenhouse Theme First Pass
+
+Base: V34.45.3 pre-theme-redesign checkpoint.
+
+Theme changes:
+- uses supplied blank greenhouse template as the decorative 1774x887 shell
+- keeps the existing live Odds & Ebbles centre scene component/content
+- relocates Harmony level meter below the centre scene
+- repositions Passport / centre scene / Harmony panel into the new template apertures
+- rebuilds visual hierarchy of toolbar, skills, flagship games and ticker via CSS
+- hides leaked floating social/watch avatar widgets on the homepage
+
+No gameplay systems are intentionally changed.

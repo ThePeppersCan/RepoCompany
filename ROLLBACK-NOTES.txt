@@ -1,0 +1,13 @@
+V34.35.1 ORIGINAL BUTTON BAR ROLLBACK
+
+Purpose:
+- Reverts the complete V34.36 through V34.42 homepage command-deck/button-bar experiment.
+- Restores the original pre-redesign homepage button bar.
+- Keeps the earlier V34.35 cleanup and V34.35.1 header rebalance.
+
+Replace these files in the site root:
+- index.html
+- style.css
+- script.js
+
+No V34.36-V34.42 command-bar assets are required after this rollback.

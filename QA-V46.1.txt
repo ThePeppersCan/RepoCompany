@@ -1,0 +1,15 @@
+V46.1 — Greenhouse Alignment + Typography Polish
+
+Apply over V46.0.
+Changed file:
+- style.css
+
+Scope:
+- top toolbar slot alignment
+- central Harmony meter alignment
+- lower skill button icon/text centering
+- correct bottom game-slot widths to match the populated greenhouse template
+- horizontal Repo Sports / Raids / Achievement lockups
+- bottom ticker icon/text vertical alignment
+
+No gameplay or scene logic changed.

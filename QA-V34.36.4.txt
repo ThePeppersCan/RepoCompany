@@ -1,0 +1,14 @@
+V34.36.4 — Native Command Deck Rebuild HOTFIX
+
+Changed files:
+- style.css
+- script.js
+
+What this fixes:
+1. Replaces the homepage button-bar image overlay with a real native two-row command deck built from the actual live buttons.
+2. Keeps the command deck inside the historical lower navigation footprint so it no longer covers Passport, the centre scene, or Train Harmony.
+3. Restores clean bottom-row flagship buttons for Velmora Manager, Dragonbound, Repo Sports, Raids, and Achievements.
+4. Disables the stray hover-passport popup on the dashboard and removes leftover compact floating portrait widgets in the lower-left gutter.
+5. Returns the footer/ticker to a safe position beneath the rebuilt deck.
+
+Install over the current homepage build.

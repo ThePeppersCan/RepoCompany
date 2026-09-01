@@ -1,0 +1,30 @@
+REPO COMPANY — V34.46.0 GREENHOUSE DESKTOP THEME (PATCH ONLY)
+
+STATUS
+This package is a recovered / reconstructed first-pass rebuild of the lost V34.46.0 Work run.
+It is based on the saved V34.45.3 checkpoint and the recovered notes describing the lost run.
+
+GOAL OF THIS PATCH
+- Rebuild the desktop shell from V34.45.3
+- Keep the live Odds & Ebbles scene and existing homepage functions intact
+- Replace the inherited command-deck-heavy presentation with a dedicated greenhouse / conservatory desktop shell
+- Keep the patch isolated and rollback-friendly
+
+INCLUDED FILES
+- index.html
+  Adds the isolated greenhouse desktop theme stylesheet.
+
+- style.css
+  Adds a dashboard frame compatibility hook so the active desktop frame can be swapped by theme.
+
+- repo-greenhouse-desktop-theme-v34.46.0.css
+  Main recovered theme overrides for desktop layout, panel positioning, greenhouse styling,
+  header strip, bottom command dock, and ticker treatment.
+
+- assets/repo-greenhouse-shell-v34-46.png
+  Conservatory / greenhouse shell asset used by the recovered theme.
+
+NOTES
+- Existing JavaScript behavior is intentionally left unchanged.
+- Existing site assets and live functionality should remain in place.
+- This is the first-pass greenhouse attempt, not a final-perfect polish build.

@@ -1,0 +1,23 @@
+V34.39 — Exact BUTTONBAR Reference
+
+Changed files:
+- index.html
+- style.css
+- script.js
+- assets/home-command/buttonbar-original-reference.png
+
+Design:
+- The visible homepage command bar is now the supplied BUTTONBAR.png artwork itself.
+- All existing launch actions are real transparent buttons positioned over their exact visual buttons.
+- No generic grid recreation is used.
+- Velmora Manager remains a coming-soon placeholder.
+
+Layout:
+- 1044 × 208 at desktop, matching the supplied artwork's aspect ratio.
+- Positioned immediately below the three main homepage panels.
+- Does not alter the dashboard fullscreen scaling calculation.
+
+Avatar cleanup:
+- A finite startup cleanup removes compact username+portrait widgets overlapping the bar.
+- No MutationObserver or permanent polling is used.
+- Header identity and Repo Passport are excluded.

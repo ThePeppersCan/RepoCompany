@@ -1,0 +1,9 @@
+V34.45 — Native Identical-Style Command Deck
+
+- Built from V34.35.1 rollback.
+- Does not use any supplied separate button PNG as page artwork.
+- Recreates the cut-corner dark/bronze buttons natively in CSS.
+- Uses the website's original icon assets inside the recreated buttons.
+- Velmora Manager and Dragonbound are the main attraction.
+- Repo Sports / Raids / Achievement remain secondary.
+- Adds finite source-matched cleanup for the stray signed-in avatar outside legitimate homepage regions.

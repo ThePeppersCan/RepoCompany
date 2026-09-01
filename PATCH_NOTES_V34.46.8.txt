@@ -1,0 +1,29 @@
+REPO COMPANY V34.46.8 — GRAND EXCHANGE REDESIGN
+
+INSTALL
+Apply over V34.46.7.
+1. Replace index.html in your website root.
+2. Add repo-grand-exchange.css alongside it.
+3. Hard-refresh the page.
+
+DESIGN
+- Emerald market hall header with a brass scales-and-laurel crest.
+- Clear gold balance and a matching dark search field.
+- Larger item artwork, readable descriptions and aligned prices.
+- Gold purchase buttons with legible muted states when disabled.
+- Fine row separators instead of stacked brown boxes and bevels.
+- Scrollable listings and layouts for narrow or short screens.
+- Clear delivery note and accessible market status announcements.
+
+The crest is inline SVG; there are no new image downloads or dependencies.
+All added styling is restricted to the Grand Exchange dialog. Existing item
+images are reused. Search and purchase JavaScript and server calls are unchanged.
+The central scene framing and previous dashboard/avatar fixes remain in place.
+
+VALIDATION
+HTML checks confirm the existing integration IDs and close action are retained.
+Source comparison confirms only the Exchange markup and its stylesheet link
+changed in index.html. Basic stylesheet checks passed for balanced delimiters
+and dialog-scoped selectors. The previous scene CSS and JavaScript are unchanged.
+
+Live browser rendering and server purchases were not tested in this environment.

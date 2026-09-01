@@ -1,0 +1,7 @@
+V34.43.1 fixes the V34.43 screenshot issues only:
+- removes leaked CatAsthma/watch-party badge from homepage
+- enlarges top-row buttons/icons
+- restores full VM/Dragonbound artwork at flagship size
+- restores proper bordered Repo Sports/Raids/Achievements boxes
+- prevents Farming/Raids clipping
+- preserves V34.43 HTML and click handlers

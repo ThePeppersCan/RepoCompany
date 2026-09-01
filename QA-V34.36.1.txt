@@ -1,0 +1,11 @@
+V34.36.1 — Command Deck Scale + Orphan Avatar Hotfix
+
+Changes:
+- Shrinks the new flagship command deck from 1574x275 to 1300x227.
+- Moves it down into the intended lower homepage navigation zone.
+- Keeps all hotspot positions proportional to the supplied artwork.
+- Moves Today in Velmora down to preserve separation.
+- Explicitly retires the old Next Adventurer control.
+- Removes the orphan current-user circular portrait exposed in the left gutter without affecting the real header or Repo Passport avatars.
+
+Install over V34.36 and hard refresh (Ctrl+F5).

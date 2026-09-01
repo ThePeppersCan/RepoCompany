@@ -644,7 +644,6 @@ header{border-bottom-color:#286248;background:#050807}.logo{letter-spacing:-2px}
   .roaming-pet .pet-sprite{width:58px;height:58px}
   .roaming-pet .pet-sprite img{width:54px;height:54px}
 }
-\n\n/* PET WARS */\n.pet-wars-open-button{border-color:#76592f!important}.pet-wars-open-button>span:first-child{font-size:22px}.pet-wars-dialog{width:min(900px,94vw);border-color:#8b6a36;background:#120e08}.pet-wars-heading{display:flex;gap:14px;align-items:center;border-bottom:1px solid #73572d;padding-bottom:12px;margin-bottom:14px}.pet-wars-heading h3{margin:0;color:#f3ca75}.pet-wars-heading p{margin:4px 0 0;color:#c7b48c}.pet-wars-logo{width:58px;height:58px;display:grid;place-items:center;border:3px double #c69b4c;background:#2b1c0d;color:#f1c96f;font-weight:900;font-size:22px}.pet-wars-wallet{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:8px 14px;align-items:center;padding:10px 12px;background:#21170d;border:1px solid #71532d;margin-bottom:12px}.pet-wars-wallet span{color:#bda678;font-size:11px}.pet-wars-wallet strong{color:#f0ce83}.pet-wars-lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pet-wars-lobby-card{border:1px solid #604823;background:#191108;padding:14px}.pet-wars-lobby-card h4{margin:0 0 10px;color:#e7ba61}.pet-wars-lobby-card label{display:block;margin:8px 0 4px;color:#c5b28d;font-size:12px}.pet-wars-lobby-card input,.pet-wars-lobby-card select{width:100%;box-sizing:border-box;background:#0c0906;color:#eee0bd;border:1px solid #74582f;padding:9px}.pet-wars-lobby-card button{width:100%;margin-top:12px}.pet-wars-message{display:block;color:#e8c66e;text-align:center;margin-top:10px}.pet-wars-hud,.pet-wars-bets{display:flex;justify-content:space-between;gap:10px;border:1px solid #6f532a;padding:8px 12px;background:#1d140b;color:#d7c49a}.pet-wars-arena{height:430px;position:relative;overflow:hidden;border:3px ridge #8d6c38;margin-top:10px;background:#4b5e34}.pet-wars-arena:before{content:"";position:absolute;inset:0;background:linear-gradient(transparent 66%,rgba(31,20,10,.55) 67%),repeating-linear-gradient(90deg,transparent 0 74px,rgba(255,255,255,.035) 75px 76px);pointer-events:none}.pet-wars-arena.location-misthalin{background:linear-gradient(#729a67 0 54%,#8d7447 55%)}.pet-wars-arena.location-asgarnia{background:linear-gradient(#a2b2b4 0 51%,#8a8e75 52%)}.pet-wars-arena.location-kandarin{background:linear-gradient(#7da45b 0 48%,#a4854b 49%)}.pet-wars-arena.location-morytania{background:linear-gradient(#4b5360 0 53%,#433744 54%)}.pet-wars-crowd{position:absolute;top:12px;left:50%;transform:translateX(-50%);color:#f0d390;background:#291b0d;border:2px solid #9a753c;padding:6px 13px;font-weight:900;letter-spacing:1px}.pet-wars-ring{position:absolute;left:12%;right:12%;bottom:54px;height:220px;background:rgba(174,139,84,.75);border:8px solid #6e4121;box-shadow:inset 0 0 0 5px #dbc18a}.pet-wars-ring i{position:absolute;width:11px;height:250px;background:#523016;bottom:-10px}.pet-wars-ring i:nth-child(1){left:-11px}.pet-wars-ring i:nth-child(2){right:-11px}.pet-wars-ring i:nth-child(3){left:33%;width:2px;background:#ddd0a7}.pet-wars-ring i:nth-child(4){right:33%;width:2px;background:#ddd0a7}.pet-war-fighter{position:absolute;bottom:92px;width:170px;text-align:center;z-index:3;transition:filter .3s}.fighter-left{left:19%}.fighter-right{right:19%}.pet-war-fighter img{width:88px;height:88px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 7px 3px rgba(0,0,0,.45))}.pet-war-name{color:#fff0b7;font-weight:900;text-shadow:1px 2px #201308;white-space:nowrap}.pet-war-owner{font-size:11px;color:#d7c697}.pet-wars-arena.fighting .fighter-left{animation:petWarLeft .78s ease-in-out infinite alternate}.pet-wars-arena.fighting .fighter-right{animation:petWarRight .73s ease-in-out infinite alternate}.pet-wars-arena.finished .pet-war-fighter.winner{animation:petWarVictory .45s ease-in-out 5 alternate;filter:drop-shadow(0 0 10px #ffda58)}.pet-wars-arena.finished .pet-war-fighter.loser{transform:rotate(78deg) translateY(28px);filter:grayscale(.7)}@keyframes petWarLeft{0%{transform:translate(0,0) rotate(-4deg)}55%{transform:translate(52px,-18px) rotate(12deg)}100%{transform:translate(15px,-4px) rotate(-8deg)}}@keyframes petWarRight{0%{transform:translate(0,0) rotate(4deg)}55%{transform:translate(-52px,-15px) rotate(-13deg)}100%{transform:translate(-12px,-2px) rotate(8deg)}}@keyframes petWarVictory{to{transform:translateY(-25px) rotate(10deg)}}.pet-wars-commentary{position:absolute;bottom:12px;left:10%;right:10%;padding:8px;background:rgba(20,12,6,.88);border:1px solid #b38a48;color:#ffe49e;text-align:center;font-weight:800;z-index:5}.pet-wars-controls{display:flex;justify-content:center;gap:10px;margin-top:10px}.pet-wars-controls button{min-width:180px}@media(max-width:680px){.pet-wars-lobby-grid{grid-template-columns:1fr}.pet-wars-wallet{grid-template-columns:auto 1fr}.pet-war-fighter{width:120px}.fighter-left{left:8%}.fighter-right{right:8%}.pet-war-fighter img{width:68px;height:68px}}\n
 /* 2026-07-29 navigation sizing and enabled-state fix */
 .game-strip{
   width:min(1510px,calc(100% - 24px));
@@ -682,7 +681,6 @@ header{border-bottom-color:#286248;background:#050807}.logo{letter-spacing:-2px}
   flex:0 0 auto;
 }
 .game-strip .ge-open-button,
-.game-strip .pet-wars-open-button{
   opacity:1!important;
   filter:none!important;
   color:#eee!important;
@@ -691,12 +689,10 @@ header{border-bottom-color:#286248;background:#050807}.logo{letter-spacing:-2px}
   cursor:pointer!important;
 }
 .game-strip .ge-open-button>span:last-child,
-.game-strip .pet-wars-open-button>span:last-child{
   color:#eee!important;
   font-size:13px!important;
 }
 .game-strip .ge-open-button:hover,
-.game-strip .pet-wars-open-button:hover{
   background:#14221a!important;
   border-color:#63d39a!important;
 }
@@ -878,7 +874,6 @@ button.danger,.danger{background:linear-gradient(#87372b,#4b1c16)!important;bord
 }
 .game-strip button img{width:22px!important;height:22px!important;max-width:22px!important;max-height:22px!important;object-fit:contain!important;flex:0 0 22px!important}
 .game-strip button>span{min-width:0}
-.game-strip .ge-open-button,.game-strip .pet-wars-open-button{
   opacity:1!important;filter:none!important;color:#f7e5b1!important;
   background:linear-gradient(#72502f,#3e2412)!important;border-color:#b58b48!important;
 }
@@ -910,8 +905,6 @@ input,select,textarea{
   font-family:"Trebuchet MS",Georgia,serif!important;
 }
 .auth-tabs button.active,.selected,.active{border-color:#ecd17e!important}
-.bank-dialog,.ge-dialog,.pet-wars-dialog{background:#2a2119!important;border-color:#a37b41!important}
-.bank-balance-panel,.bank-pet-panel,.ge-wallet,.ge-market-frame,.pet-wars-wallet,.pet-wars-lobby-card{
   background:#17110c!important;border-color:#836439!important;color:#ecdcae!important;
 }
 .bank-grid,.ge-results{background:#17110c!important}
@@ -966,7 +959,6 @@ input,select,textarea{
 
 
 /* Quest points, completion presentation and updated skill/navigation icons */
-.quests-open-button img,#openPetWars img{width:26px;height:26px;object-fit:contain;image-rendering:auto}
 .quest-points-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:0 0 10px;padding:7px 11px;border:2px solid #8a6731;background:#2b1a0d;color:#f1d58a;letter-spacing:1px}.quest-points-bar img{width:27px;height:27px}.quest-points-bar strong{font-size:20px;color:#fff0a8}
 .quest-list-item.quest-crossed span{text-decoration:line-through;text-decoration-thickness:2px;opacity:.78}.quest-list-item.quest-crossed{background:rgba(70,95,43,.22)!important}.quest-list-item.quest-crossed small{text-decoration:none;display:block}
 .quest-complete-overlay{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(13,7,2,.82);padding:20px}.quest-complete-card{width:min(570px,94%);text-align:center;border:5px ridge #d9b85f;background:linear-gradient(#ead9aa,#c7ad72);padding:24px;color:#3a220e;box-shadow:0 0 0 5px #4a2b12,0 12px 30px #000}.quest-complete-icon{width:86px;height:86px}.quest-complete-card h3{font-family:Georgia,serif;letter-spacing:2px;color:#7a2d16;font-size:28px;margin:8px 0}.quest-complete-card p{font-weight:bold}.quest-complete-rewards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.quest-complete-rewards div{border:2px solid #8d6a35;background:#f3e4b9;padding:12px 6px;display:grid;justify-items:center;gap:4px}.quest-complete-rewards img{width:42px;height:42px;object-fit:contain}.quest-complete-rewards strong{font-size:22px;color:#6a2f13}.quest-complete-rewards span{font-size:11px;font-weight:bold}.quest-complete-card button{padding:12px 20px;background:#62401d;color:#ffe9a5;border:3px outset #a87c3d;font-weight:bold}.quest-rewards-mini img{width:23px;height:23px;object-fit:contain;vertical-align:middle}
@@ -1054,16 +1046,6 @@ input,select,textarea{
 .pet-bank-slot .pet-ground-shadow{bottom:1%}
 .ge-item-icon .pet-visual{width:48px;height:48px}
 
-/* Pet Wars: grounded, readable and more expressive without distorting the original sprites. */
-.pet-war-visual{height:92px;width:130px;margin:0 auto;position:relative}
-.pet-war-art{width:100%;height:100%}
-.pet-wars-arena.running .fighter-left .pet-war-art{animation:petWarAuthenticLeft 1.05s ease-in-out infinite}
-.pet-wars-arena.running .fighter-right .pet-war-art{animation:petWarAuthenticRight 1.05s ease-in-out infinite}
-.pet-wars-arena.finished .winner .pet-war-art{animation:petWarAuthenticVictory .5s ease-in-out infinite alternate}
-.pet-wars-arena.finished .loser .pet-war-art{transform:rotate(76deg) translateY(22px)}
-@keyframes petWarAuthenticLeft{0%,100%{transform:translateX(0)}50%{transform:translateX(30px) translateY(-5px)}}
-@keyframes petWarAuthenticRight{0%,100%{transform:translateX(0)}50%{transform:translateX(-30px) translateY(-5px)}}
-@keyframes petWarAuthenticVictory{to{transform:translateY(-10px) rotate(4deg)}}
 
 /* Shooting Star pets share the same true-to-sprite scaling and have varied mining rhythm. */
 .mining-pet-visual{position:absolute;bottom:0;left:8px;width:68px;height:66px}
@@ -1074,7 +1056,6 @@ input,select,textarea{
 .live-star-miner:nth-child(3n) .pet-visual img{animation-delay:-.7s}
 @keyframes petMiningBody{0%,100%{transform:scale(var(--pet-scale)) rotate(-1deg)}55%{transform:scale(var(--pet-scale)) translateY(2px) rotate(2deg)}}
 
-@media(max-width:700px){.roaming-pet{width:72px;height:82px}.roaming-pet .pet-sprite{height:54px}.roaming-pet .pet-label{bottom:59px}.pet-war-visual{width:104px;height:74px}}
 
 /* Remove accidental square panels around roaming pet sprites. */
 .roaming-pet,
@@ -1101,7 +1082,6 @@ input,select,textarea{
 .pet-ground-shadow,
 .roaming-pet .pet-ground-shadow,
 .pet-bank-slot .pet-ground-shadow,
-.pet-war-art .pet-ground-shadow,
 .star-pet-art .pet-ground-shadow,
 .live-star-miner .pet-ground-shadow{
   display:none!important;
@@ -1114,7 +1094,6 @@ input,select,textarea{
 .roaming-pet .pet-visual img,
 .pet-bank-art img,
 .pet-bank-mini img,
-.pet-war-art img,
 .star-pet-art img{
   filter:none!important;
   box-shadow:none!important;
@@ -1400,15 +1379,11 @@ input,select,textarea{
 @media(max-width:650px){.slayer-difficulty-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* RuneScape cooking minigame */
-.cooking-open-button{background:linear-gradient(#6e3d1e,#3d2112)!important;border-color:#d7a65b!important}.cooking-open-button img{object-fit:contain}.cooking-dialog{width:min(1040px,96vw);max-width:1040px;background:#17130d;border:3px solid #8c6a34;color:#f3dfad}.cooking-title{display:flex;gap:14px;align-items:center;border-bottom:2px solid #5e4828;padding-bottom:10px}.cooking-title img{width:46px;height:46px;object-fit:contain}.cooking-title h3{margin:0;color:#ffd36a}.cooking-title p{margin:4px 0 0;color:#c8b68b}.cooking-setup{display:grid;gap:18px;padding:24px}.cooking-mode-row{display:flex;gap:12px;justify-content:center}.cooking-mode-row button,.cooking-start,.cooking-result button{background:#3e2d19;color:#f8df9b;border:2px solid #a67836;padding:12px 18px;font-weight:800}.cooking-mode-row button.selected{background:#8b5a20;color:white;box-shadow:0 0 0 2px #e1b45d inset}.cooking-rules{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#241b10;border:1px solid #5f4828;padding:15px}.cooking-rules b{grid-column:1/-1;color:#ffd36a}.cooking-start{justify-self:center;font-size:18px}.cooking-hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.cooking-hud>div{background:#261b0e;border:1px solid #72572e;padding:8px;text-align:center}.cooking-hud span{display:block;font-size:11px;color:#bfa875}.cooking-hud b{font-size:20px;color:#fff0b0}.cooking-orders-bar{display:flex;gap:8px;overflow-x:auto;padding:8px;background:#0d0b08;border:1px solid #5a4426}.cook-order{min-width:120px;background:#2d2112;border:2px solid #6d5128;padding:8px;text-align:center}.cook-order b{display:block;color:#ffd36a}.cook-order small{color:#ddd}.cook-order.urgent{animation:cookPulse .55s infinite alternate;border-color:#c33}.cooking-dialog canvas{width:100%;height:auto;background:#1d2915;border:3px solid #72572e;image-rendering:pixelated}.cooking-message{text-align:center;padding:10px;color:#e9d6a1;min-height:24px}.cooking-result{position:absolute;inset:90px 80px;display:grid;place-content:center;text-align:center;background:rgba(20,12,5,.96);border:4px solid #b48336;z-index:5}.cooking-result h3{font-size:42px;color:#ffd36a;margin:0}.cooking-result p{font-size:18px;max-width:560px}.cooking-result.hidden{display:none}.hidden{display:none!important}@keyframes cookPulse{to{transform:scale(1.03);background:#4a1818}}
-.cooking-mode-row{flex-wrap:wrap}.cooking-join-panel{display:flex;justify-content:center;gap:10px}.cooking-join-panel input{width:190px;text-transform:uppercase;letter-spacing:5px;text-align:center;background:#0f0c08;color:#ffe39a;border:2px solid #9d7134;padding:12px;font:900 18px monospace}.cooking-join-panel button,.cooking-lobby button{background:#3e2d19;color:#f8df9b;border:2px solid #a67836;padding:12px 18px;font-weight:800}.cooking-lobby{text-align:center;padding:24px;background:radial-gradient(circle,#30200e,#140e08);border:2px solid #765326;margin:16px}.cooking-lobby h4{font-size:25px;color:#ffd36a;margin:0 0 8px}.cooking-lobby>strong{display:inline-block;font:900 38px monospace;letter-spacing:8px;color:#fff0a8;background:#100b06;border:3px solid #c28a35;padding:12px 20px;margin:8px}.cooking-lobby-team{display:flex;justify-content:center;align-items:center;gap:16px;margin:18px}.cooking-lobby-team span{min-width:210px;padding:12px;background:#24190d;border:1px solid #75552e;color:#f8dfa1}.cooking-hud{grid-template-columns:repeat(5,1fr)}.cook-order.golden{border-color:#ffd54a;box-shadow:0 0 12px #e7aa22;background:#4d3610}.cooking-start:disabled{opacity:.45;cursor:not-allowed}@media(max-width:700px){.cooking-lobby-team{flex-direction:column}.cooking-hud{grid-template-columns:repeat(3,1fr)}.cooking-rules{grid-template-columns:1fr}}
 /* Cooking readability and kitchen immersion */
-.cooking-orders-bar{padding:10px;gap:10px;background:linear-gradient(#21170d,#100c08);border:2px solid #8b6733;min-height:92px}
 .cook-order{min-width:205px;padding:8px 10px;text-align:left;border-radius:3px;background:linear-gradient(#3c2b16,#271b0f);box-shadow:0 3px 7px #0008}
 .cook-order header{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid #72552b;padding-bottom:4px}.cook-order header b{font-size:13px}.cook-order header em{font-style:normal;font-weight:900;color:#fff0b0}
 .cook-order-recipe{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0}.cook-order-item{display:flex;flex-direction:column;align-items:center;min-width:58px}.cook-order-item img{width:32px;height:32px;object-fit:contain;image-rendering:auto}.cook-order-item i{font-size:9px;font-style:normal;color:#f5deb0;text-transform:uppercase}.cook-order-recipe strong{color:#ffd36a;font-size:18px}
 .cook-order>small{display:block;text-align:center;color:#bfa875;font-size:9px}.cook-order-time{height:5px;background:#130c07;margin-top:6px;border:1px solid #6b4b26}.cook-order-time span{display:block;height:100%;background:#5bc66a;transition:width .2s}.cook-order.urgent .cook-order-time span{background:#e34d3f}
-.cooking-message{background:#21170d;border:1px solid #72572e;margin-top:7px;font-weight:700}.cooking-dialog canvas{background:#34261b;box-shadow:inset 0 0 30px #0008}
 
 
 /* Achievement log */
@@ -1539,7 +1514,6 @@ input,select,textarea{
 #openRaids,
 #openWiseTask,
 #openGrandExchange,
-#openPetWars,
 #openAchievements {
   opacity:1!important;
   filter:none!important;
@@ -1553,7 +1527,6 @@ input,select,textarea{
 #openRaids:hover,
 #openWiseTask:hover,
 #openGrandExchange:hover,
-#openPetWars:hover,
 #openAchievements:hover {
   color:#fff0bf!important;
   background:linear-gradient(#89623a,#4d2d16)!important;
@@ -1563,7 +1536,6 @@ input,select,textarea{
 #openRaids > span,
 #openWiseTask > span,
 #openGrandExchange > span:last-child,
-#openPetWars > span,
 #openAchievements > span {
   color:#f7e5b1!important;
   text-shadow:1px 1px 0 #251409!important;
@@ -3379,30 +3351,13 @@ body:not(.repo-logged-out) .repo-main-header .character-box{
 @keyframes energyCanTip{0%,68%,93%,100%{transform:rotate(-7deg)}77%,86%{transform:rotate(12deg)}}
 
 /* Pet-room chat: deliberately compact so it blends into the room frame. */
-.pet-chat-toggle{position:absolute;right:9px;top:8px;z-index:30;width:auto!important;min-width:0!important;height:22px!important;margin:0!important;padding:2px 8px!important;border:1px solid rgba(232,198,119,.55)!important;border-radius:2px;background:rgba(32,20,10,.82)!important;color:#e7ca88!important;font:700 9px/1 Georgia,serif!important;letter-spacing:.8px;opacity:.76;box-shadow:inset 0 0 0 1px rgba(0,0,0,.5);transition:opacity .15s ease,background .15s ease}
 .pet-room-skip{position:absolute;right:55px;top:8px;z-index:30;width:auto!important;min-width:0!important;height:22px!important;margin:0!important;padding:2px 7px!important;border:1px solid rgba(232,198,119,.42)!important;border-radius:2px;background:rgba(32,20,10,.68)!important;color:rgba(231,202,136,.82)!important;font:700 8px/1 Georgia,serif!important;letter-spacing:.7px;opacity:.58;box-shadow:inset 0 0 0 1px rgba(0,0,0,.45);transition:opacity .15s ease,background .15s ease,color .15s ease}
 .pet-room-skip:hover{opacity:1;background:rgba(67,40,19,.94)!important;color:#f1d694!important}
 .pet-room-skip:disabled{opacity:.25!important;cursor:default!important;filter:grayscale(.35)}
-.pet-chat-toggle:hover,.pet-chat-toggle[aria-expanded="true"]{opacity:1;background:rgba(67,40,19,.94)!important}
-.pet-chat-panel{position:absolute;right:8px;top:35px;z-index:30;display:flex;gap:5px;width:min(330px,calc(100% - 16px));padding:6px;background:rgba(31,19,10,.94);border:1px solid rgba(221,179,91,.7);box-shadow:0 3px 12px rgba(0,0,0,.55);opacity:0;visibility:hidden;transform:translateY(-5px);transition:opacity .14s ease,transform .14s ease,visibility .14s}
-.pet-chat-panel.is-open{opacity:1;visibility:visible;transform:translateY(0)}
-.pet-chat-panel input{min-width:0;flex:1;height:29px;padding:4px 8px;border:1px solid #6b4c25;background:#110c08;color:#f0dca4;font:12px Georgia,serif;outline:none}
-.pet-chat-panel input:focus{border-color:#c99b4d;box-shadow:0 0 0 1px rgba(201,155,77,.25)}
-.pet-chat-panel button{width:auto!important;min-width:52px!important;height:29px!important;margin:0!important;padding:3px 8px!important;border:1px solid #8f6832!important;background:linear-gradient(#51351a,#2e1d0e)!important;color:#f1d694!important;font:700 10px Georgia,serif!important}
-.pet-chat-bubble{position:absolute;left:50%;bottom:calc(100% + 8px);z-index:40;max-width:190px;min-width:54px;padding:6px 8px;border:2px solid #36220f;border-radius:8px;background:#f3dfaa;color:#2b1a0c;font:700 11px/1.25 Georgia,serif;text-align:center;overflow-wrap:anywhere;box-shadow:0 3px 0 rgba(0,0,0,.25);transform:translateX(-50%);pointer-events:none;animation:petChatPop .18s ease-out}
-.pet-chat-bubble:after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#36220f}
-.pet-chat-bubble:before{content:"";position:absolute;left:50%;top:100%;z-index:1;transform:translate(-50%,-2px);border:5px solid transparent;border-top-color:#f3dfaa}
-@keyframes petChatPop{from{opacity:0;transform:translateX(-50%) translateY(5px) scale(.94)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
-@media(max-width:650px){.pet-chat-panel{left:8px;right:8px;width:auto}.pet-chat-bubble{max-width:145px;font-size:10px}}
 
 
 /* Recent pet-room chat history: intentionally faint until hovered. */
-.pet-chat-history{position:absolute;left:10px;bottom:9px;z-index:24;width:min(360px,42%);max-height:126px;overflow-y:auto;padding:6px 8px;border:1px solid rgba(220,184,105,.13);border-radius:2px;background:rgba(17,11,7,.18);color:rgba(245,225,174,.43);font:10px/1.28 Georgia,serif;opacity:.36;backdrop-filter:blur(1px);box-shadow:inset 0 0 12px rgba(0,0,0,.08);transition:opacity .18s ease,background .18s ease,border-color .18s ease;scrollbar-width:thin;scrollbar-color:rgba(196,151,74,.25) transparent;pointer-events:auto}
-.pet-chat-history:hover{opacity:.9;background:rgba(17,11,7,.68);border-color:rgba(220,184,105,.38);color:rgba(255,235,187,.92)}
-.pet-chat-history-line{display:grid;grid-template-columns:max-content 1fr;gap:5px;min-width:0;padding:1px 0;opacity:calc(.34 + (11 - var(--age)) * .055)}
-.pet-chat-history-line b{color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:92px}.pet-chat-history-line b:after{content:':'}.pet-chat-history-line span{min-width:0;overflow-wrap:anywhere}.pet-chat-history-empty{padding:3px 0;font-style:italic;text-align:left}
 .global-xp-board{margin-top:20px}
-@media(max-width:700px){.pet-chat-history{left:6px;bottom:6px;width:58%;max-height:92px;font-size:9px}.global-xp-board{margin-top:17px}}
 
 /* Compact dual homepage leaderboards — preserve the original Harmony column height */
 .harmony-actions{
@@ -7201,7 +7156,6 @@ body:not(.repo-logged-out) .repo-main-header .character-box{
 .training-nav .fishing-open-button img{
   transform:scale(1.08);
 }
-.training-nav .cooking-open-button img{
   transform:scale(.92);
 }
 @media(max-width:1180px) and (min-width:1051px){
@@ -7329,7 +7283,6 @@ body:not(.repo-logged-out) .repo-main-header .character-box{
   filter:drop-shadow(0 3px 2px #140b06) brightness(1.08);
 }
 .training-nav .fishing-open-button{--nav-icon-scale:1.08;--nav-icon-hover-scale:1.15}
-.training-nav .cooking-open-button{--nav-icon-scale:.92;--nav-icon-hover-scale:.99}
 .training-nav .herblore-open-button{--nav-icon-scale:1.05;--nav-icon-hover-scale:1.12}
 .training-nav .construction-open-button{--nav-icon-scale:.94;--nav-icon-hover-scale:1.01}
 .training-nav .hunter-open-button{--nav-icon-scale:.92;--nav-icon-hover-scale:.99}
@@ -8749,7 +8702,8 @@ body.repo-dashboard-v20-active > #repoDashboardV20{
   transform-origin:center center;
   isolation:isolate;
   overflow:visible;
-  background-image:url('assets/repo-dashboard-frame-v20.png');
+  --repo-dashboard-frame-url:url('assets/repo-dashboard-frame-v20.png');
+  background-image:var(--repo-dashboard-frame-url);
   background-position:center;
   background-repeat:no-repeat;
   background-size:100% 100%;
@@ -8939,7 +8893,7 @@ body.repo-dashboard-v20-active > #repoDashboardV20{
 .repo-dash-ticker-item img{width:27px!important;height:27px!important;object-fit:contain!important;flex:0 0 27px!important}.repo-dash-ticker-item span{display:flex!important;min-width:0!important;flex-direction:column!important;gap:2px!important}.repo-dash-ticker-item b{color:#c9ad6b!important;font:800 8px/1 Georgia,serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.repo-dash-ticker-item small{color:#8f7c58!important;font:700 7px/1 Georgia,serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 
 /* Logged-out safety: keep authentication accessible even though the dashboard nodes are nested. */
-body.repo-logged-out > #repoDashboardV20{display:block!important;background-image:url('assets/repo-dashboard-frame-v20.png')!important}
+body.repo-logged-out > #repoDashboardV20{display:block!important;background-image:var(--repo-dashboard-frame-url)!important}
 body.repo-logged-out #repoDashboardV20>main,body.repo-logged-out #repoDashboardV20>.game-strip,body.repo-logged-out #repoDashboardV20>footer{display:none!important}
 body.repo-logged-out #repoDashboardV20>.repo-main-header{display:block!important}
 body.repo-logged-out #repoDashboardV20 .character-box{left:50%!important;top:355px!important;width:360px!important;height:auto!important;transform:translateX(-50%)!important}
@@ -32086,3 +32040,643 @@ body.dragonbound-outing-active .dragonbound-outing-destination{
 #repoDashboardV20 #scene.sanctuary-scene .tavern-guest.is-sanctuary-seated{
   width:31.0%!important;
 }
+
+
+/* ======================================================================
+   REPO COMPANY V34.35 — RETIRED CONTENT CLEANUP
+   World Cup 2026 live hub/buttons, Pet Wars, Pet Chat and standalone Cooking
+   are no longer active production surfaces. Keep the Velmora Crown launcher
+   as a normal header control with no dependency on World Cup positioning.
+   ====================================================================== */
+#repoDashboardV20 .velmora-crown-home-stack,
+.velmora-crown-home-stack{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+}
+.velmora-crown-home-stack .velmora-crown-newspaper-launcher{
+  position:relative!important;
+  inset:auto!important;
+  left:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  display:grid!important;
+  transform:none!important;
+  margin:0!important;
+}
+.velmora-crown-home-stack .velmora-crown-newspaper-launcher:hover{
+  transform:translateY(-2px) rotate(1deg) scale(1.035)!important;
+}
+
+
+/* V34.35.1 — external fallback for header rebalance. Authoritative rules are
+   also embedded at the end of <head> so old Crown inline CSS cannot win. */
+#repoDashboardV20 .character-box{top:156px!important}
+#repoDashboardV20 .signed-in-controls{grid-template-columns:214px 316px 105px 105px 105px 140px 64px 40px!important;gap:4px!important;justify-content:center!important}
+#repoDashboardV20 .velmora-crown-home-stack{grid-column:6!important;height:60px!important;overflow:hidden!important}
+#repoDashboardV20 #openTcgBinderQuick{grid-column:7!important}
+#repoDashboardV20 #repoLogoutQuick{grid-column:8!important}
+
+
+
+/* ======================================================================
+   V34.45 — NATIVE IDENTICAL-STYLE COMMAND DECK
+   Supplied PNG buttons are reference only. All visible frames are native CSS.
+   ====================================================================== */
+#repoDashboardV20>.game-strip.adventure-nav.repo-native-premium-deck{
+  position:absolute!important;
+  left:271px!important;
+  top:662px!important;
+  z-index:12!important;
+  width:1228px!important;
+  height:176px!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:6px 11px 8px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:7px!important;
+  border:1px solid rgba(142,102,51,.46)!important;
+  border-radius:17px!important;
+  background:
+    radial-gradient(ellipse at 50% -20%,rgba(39,76,105,.15),transparent 54%),
+    linear-gradient(180deg,rgba(7,18,27,.98),rgba(3,10,16,.98))!important;
+  box-shadow:inset 0 0 0 2px rgba(2,6,9,.76),inset 0 0 0 3px rgba(183,135,62,.10),0 6px 14px rgba(0,0,0,.38)!important;
+  overflow:hidden!important;
+}
+#repoDashboardV20>.game-strip.adventure-nav.repo-native-premium-deck::before{
+  content:'';
+  position:absolute;
+  inset:3px;
+  pointer-events:none;
+  border:1px solid rgba(218,170,81,.12);
+  border-radius:13px;
+}
+#repoDashboardV20 .repo-native-premium-top{
+  height:107px!important;
+  min-height:107px!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr .90fr 1fr!important;
+  gap:8px!important;
+}
+#repoDashboardV20 .repo-native-premium-wing{
+  position:relative!important;
+  min-width:0!important;
+  height:107px!important;
+  padding:5px 7px 6px!important;
+  border-right:1px solid rgba(154,111,54,.34)!important;
+  overflow:hidden!important;
+}
+#repoDashboardV20 .repo-native-premium-wing:last-child{border-right:0!important}
+#repoDashboardV20 .repo-native-premium-wing h3{
+  height:16px!important;
+  margin:0 0 5px!important;
+  padding:0!important;
+  color:#d6b66f!important;
+  font:900 8.5px/16px Georgia,serif!important;
+  letter-spacing:.13em!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+}
+#repoDashboardV20 .repo-native-premium-grid{
+  display:grid!important;
+  gap:5px!important;
+  height:79px!important;
+  align-items:stretch!important;
+}
+#repoDashboardV20 .repo-native-premium-grid.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#repoDashboardV20 .repo-native-premium-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+
+/* Recreated small button frame: cut corners, bronze lip, blue-black face. */
+#repoDashboardV20 .repo-native-frame{
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:79px!important;
+  min-width:0!important;
+  min-height:79px!important;
+  margin:0!important;
+  padding:2px!important;
+  display:block!important;
+  border:0!important;
+  border-radius:0!important;
+  background:linear-gradient(145deg,#8b6533 0,#30281f 16%,#121c22 43%,#604525 82%,#9c7138 100%)!important;
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)!important;
+  box-shadow:0 3px 5px rgba(0,0,0,.32)!important;
+  cursor:pointer!important;
+  overflow:hidden!important;
+}
+#repoDashboardV20 .repo-native-frame::after{
+  content:'';
+  position:absolute;
+  inset:1px;
+  z-index:3;
+  pointer-events:none;
+  clip-path:inherit;
+  box-shadow:inset 0 0 0 1px rgba(192,143,70,.18),inset 0 6px 11px rgba(255,255,255,.018),inset 0 -8px 12px rgba(0,0,0,.30);
+}
+#repoDashboardV20 .repo-native-face{
+  position:relative!important;
+  z-index:1!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100%!important;
+  padding:7px 2px 5px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)!important;
+  background:linear-gradient(180deg,#0d1b24 0%,#07131b 58%,#050d13 100%)!important;
+  border:1px solid rgba(91,112,120,.30)!important;
+}
+#repoDashboardV20 .repo-native-face>img{
+  display:block!important;
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  max-width:38px!important;
+  max-height:38px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:0!important;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))!important;
+}
+#repoDashboardV20 .repo-native-face>b{
+  display:block!important;
+  min-height:12px!important;
+  max-width:100%!important;
+  color:#d6b66f!important;
+  font:900 6.4px/1.05 Georgia,serif!important;
+  letter-spacing:.025em!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+#repoDashboardV20 .repo-native-frame:hover:not(:disabled){filter:brightness(1.10)!important;transform:translateY(-1px)!important}
+#repoDashboardV20 .repo-native-frame:active:not(:disabled){transform:translateY(0)!important;filter:brightness(.98)!important}
+#repoDashboardV20 .repo-native-frame:disabled{cursor:default!important;opacity:.74!important;filter:saturate(.80)!important}
+#repoDashboardV20 .repo-native-ge{
+  display:grid!important;
+  place-items:center!important;
+  width:36px!important;
+  height:36px!important;
+  border:1px solid #9c7137!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,#604923,#1d170d 72%)!important;
+  color:#e1bf74!important;
+  font:900 12px/1 Georgia,serif!important;
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.28)!important;
+}
+#repoDashboardV20 #wiseTaskBadge{
+  position:absolute!important;
+  z-index:8!important;
+  right:2px!important;
+  top:2px!important;
+  width:15px!important;
+  height:15px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin:0!important;
+  border:1px solid #f7d979!important;
+  border-radius:50%!important;
+  background:#d2a93d!important;
+  color:#241304!important;
+  font:900 9px/1 Georgia,serif!important;
+}
+
+/* Main attraction row */
+#repoDashboardV20 .repo-native-premium-bottom{
+  height:48px!important;
+  min-height:48px!important;
+  display:grid!important;
+  grid-template-columns:minmax(34px,1fr) 326px 290px 112px 90px 108px minmax(34px,1fr)!important;
+  gap:8px!important;
+  align-items:center!important;
+}
+#repoDashboardV20 .repo-native-ornament{
+  position:relative!important;
+  display:block!important;
+  height:48px!important;
+}
+#repoDashboardV20 .repo-native-ornament::before{
+  content:'';
+  position:absolute;
+  left:6px;right:6px;top:23px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(185,137,64,.58) 25%,rgba(185,137,64,.58) 75%,transparent);
+}
+#repoDashboardV20 .repo-native-ornament::after{
+  content:'◇';
+  position:absolute;left:50%;top:14px;transform:translateX(-50%);
+  color:#b98b47;font:900 15px/1 Georgia,serif;
+}
+#repoDashboardV20 .repo-native-brand-button,
+#repoDashboardV20 .repo-native-mini-button{
+  position:relative!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:48px!important;
+  min-width:0!important;
+  min-height:48px!important;
+  margin:0!important;
+  padding:2px!important;
+  border:0!important;
+  border-radius:0!important;
+  clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px)!important;
+  background:linear-gradient(145deg,#8b6533 0,#30281f 15%,#101b22 43%,#5b4224 82%,#9b7138 100%)!important;
+  box-shadow:0 3px 5px rgba(0,0,0,.32)!important;
+  cursor:pointer!important;
+  overflow:hidden!important;
+}
+#repoDashboardV20 .repo-native-brand-face,
+#repoDashboardV20 .repo-native-mini-face{
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px)!important;
+  background:linear-gradient(180deg,#0c1a23,#07131a 62%,#050d13)!important;
+  border:1px solid rgba(91,112,120,.30)!important;
+}
+#repoDashboardV20 .repo-native-brand-face{gap:12px!important;padding:4px 16px!important}
+#repoDashboardV20 .repo-brand-divider{width:1px!important;height:30px!important;background:linear-gradient(transparent,#335364 20%,#335364 80%,transparent)!important;flex:0 0 1px!important}
+#repoDashboardV20 .repo-brand-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;min-width:0!important}
+#repoDashboardV20 .repo-brand-copy>strong{color:#2255a4!important;font:1000 19px/.92 Arial,sans-serif!important;letter-spacing:.025em!important;text-shadow:0 1px 1px #000!important;white-space:nowrap!important}
+#repoDashboardV20 .repo-brand-copy>small{margin-top:4px!important;color:#2f6db8!important;font:900 6.8px/1 Arial,sans-serif!important;letter-spacing:.38em!important;white-space:nowrap!important}
+#repoDashboardV20 .repo-dragonbound-mark{width:62px!important;height:38px!important;object-fit:contain!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))!important}
+#repoDashboardV20 .repo-vm-glyph{position:relative!important;width:78px!important;height:32px!important;flex:0 0 78px!important}
+#repoDashboardV20 .repo-vm-glyph i{position:absolute!important;display:block!important;height:28px!important;transform:skewX(-28deg)!important;background:linear-gradient(180deg,#2c74ff,#0d3f9a)!important;box-shadow:0 1px 1px rgba(0,0,0,.4)!important}
+#repoDashboardV20 .repo-vm-glyph .v1{left:2px!important;top:1px!important;width:15px!important}
+#repoDashboardV20 .repo-vm-glyph .v2{left:21px!important;top:1px!important;width:15px!important;transform:skewX(28deg)!important}
+#repoDashboardV20 .repo-vm-glyph .v3{left:42px!important;top:1px!important;width:17px!important}
+#repoDashboardV20 .repo-vm-glyph .slash{left:62px!important;top:0!important;width:10px!important;height:30px!important;background:linear-gradient(180deg,#ff3434,#c80d18)!important}
+#repoDashboardV20 .repo-native-brand-button:hover,
+#repoDashboardV20 .repo-native-mini-button:hover{filter:brightness(1.08)!important;transform:translateY(-1px)!important}
+#repoDashboardV20 .repo-native-mini-face{flex-direction:column!important;gap:2px!important;padding:3px!important}
+#repoDashboardV20 .repo-native-mini-face>img{width:31px!important;height:26px!important;object-fit:contain!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))!important}
+#repoDashboardV20 .repo-native-mini-face>b{color:#d6b66f!important;font:900 5.8px/1 Georgia,serif!important;white-space:nowrap!important}
+
+/* Keep ticker underneath without colliding. */
+#repoDashboardV20>footer{
+  left:285px!important;
+  top:842px!important;
+  width:1151px!important;
+  height:25px!important;
+  min-height:25px!important;
+}
+#repoDashboardV20 .repo-dash-today,#repoDashboardV20 .repo-dash-ticker-item{height:25px!important;min-height:25px!important}
+
+/* Never show Quidditch watch-party/account cards on the homepage. */
+body.repo-dashboard-v20-active #qmWatcherAccounts,
+body.repo-dashboard-v20-active .qm-watcher-namecard,
+body.repo-dashboard-v20-active .qm-watcher-watchcard{display:none!important}
+
+
+
+/* ======================================================================
+   V34.45.1 — FLAGSHIP POLISH
+   Keep V34.45 structure; correct the VM mark, enlarge Dragonbound,
+   soften the button treatment, and explicitly restore Raids framing.
+   ====================================================================== */
+
+/* Softer deck/frame treatment so the command bar belongs to the dashboard. */
+#repoDashboardV20>.game-strip.adventure-nav.repo-native-premium-deck{
+  border-color:rgba(126,94,51,.30)!important;
+  background:
+    radial-gradient(ellipse at 50% -18%,rgba(37,70,94,.09),transparent 55%),
+    linear-gradient(180deg,rgba(7,17,25,.965),rgba(4,11,17,.965))!important;
+  box-shadow:inset 0 0 0 1px rgba(217,171,91,.045),0 5px 12px rgba(0,0,0,.28)!important;
+}
+#repoDashboardV20>.game-strip.adventure-nav.repo-native-premium-deck::before{
+  border-color:rgba(195,145,70,.075)!important;
+}
+#repoDashboardV20 .repo-native-premium-wing{
+  border-right-color:rgba(128,92,48,.22)!important;
+}
+#repoDashboardV20 .repo-native-premium-wing h3{
+  color:#cbb176!important;
+  font-size:8px!important;
+  letter-spacing:.11em!important;
+}
+
+/* Smaller buttons: reduce the loud bronze perimeter and heavy cut corners. */
+#repoDashboardV20 .repo-native-frame{
+  padding:1px!important;
+  background:#263039!important;
+  clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)!important;
+  box-shadow:0 2px 3px rgba(0,0,0,.24)!important;
+}
+#repoDashboardV20 .repo-native-frame::after{
+  inset:0!important;
+  box-shadow:inset 0 0 0 1px rgba(174,129,64,.38),inset 0 5px 9px rgba(255,255,255,.012),inset 0 -6px 9px rgba(0,0,0,.20)!important;
+}
+#repoDashboardV20 .repo-native-face{
+  clip-path:polygon(3px 0,calc(100% - 3px) 0,100% 3px,100% calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,0 calc(100% - 3px),0 3px)!important;
+  background:linear-gradient(180deg,#0c1821 0%,#08131a 62%,#060e14 100%)!important;
+  border-color:rgba(75,93,102,.20)!important;
+}
+#repoDashboardV20 .repo-native-face>b,
+#repoDashboardV20 .repo-native-mini-face>b{
+  color:#c5aa6c!important;
+  font-weight:700!important;
+  text-shadow:none!important;
+}
+#repoDashboardV20 .repo-native-frame:hover:not(:disabled){
+  filter:brightness(1.055)!important;
+}
+
+/* Same quieter language for the flagship and secondary buttons. */
+#repoDashboardV20 .repo-native-brand-button,
+#repoDashboardV20 .repo-native-mini-button{
+  padding:1px!important;
+  background:#263039!important;
+  clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)!important;
+  box-shadow:0 2px 3px rgba(0,0,0,.24)!important;
+}
+#repoDashboardV20 .repo-native-brand-face,
+#repoDashboardV20 .repo-native-mini-face{
+  clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px)!important;
+  background:linear-gradient(180deg,#0b1720,#071219 65%,#050d13)!important;
+  border-color:rgba(76,94,103,.22)!important;
+  box-shadow:inset 0 0 0 1px rgba(174,129,64,.34)!important;
+}
+#repoDashboardV20 .repo-native-brand-button:hover,
+#repoDashboardV20 .repo-native-mini-button:hover{
+  filter:brightness(1.055)!important;
+}
+
+/* Correct VM: explicit V + M, with the red slash from the supplied identity. */
+#repoDashboardV20 .repo-vm-glyph{
+  position:relative!important;
+  width:82px!important;
+  height:35px!important;
+  flex:0 0 82px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:0!important;
+  transform:skewX(-8deg)!important;
+}
+#repoDashboardV20 .repo-vm-glyph .repo-vm-letter{
+  position:relative!important;
+  display:block!important;
+  margin:0!important;
+  padding:0!important;
+  color:transparent!important;
+  background:linear-gradient(180deg,#367cff 0%,#1557cd 55%,#0a378d 100%)!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  font:1000 34px/.86 Impact,'Arial Black',Arial,sans-serif!important;
+  letter-spacing:-.10em!important;
+  text-shadow:none!important;
+  filter:drop-shadow(0 2px 1px rgba(0,0,0,.42))!important;
+}
+#repoDashboardV20 .repo-vm-glyph .repo-vm-v{z-index:2!important}
+#repoDashboardV20 .repo-vm-glyph .repo-vm-m{z-index:1!important;margin-left:-1px!important}
+#repoDashboardV20 .repo-vm-glyph .repo-vm-slash{
+  position:absolute!important;
+  right:1px!important;
+  top:2px!important;
+  width:9px!important;
+  height:30px!important;
+  display:block!important;
+  transform:skewX(-18deg)!important;
+  background:linear-gradient(180deg,#ff3b3b,#d4141c)!important;
+  box-shadow:0 1px 1px rgba(0,0,0,.42)!important;
+}
+
+/* Give Dragonbound's crest the same visual authority as the VM mark. */
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-native-brand-face{
+  gap:10px!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+}
+#repoDashboardV20 .repo-dragonbound-mark{
+  width:82px!important;
+  height:43px!important;
+  min-width:82px!important;
+  max-width:82px!important;
+  object-fit:contain!important;
+  transform:scale(1.12)!important;
+  transform-origin:center!important;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.42))!important;
+}
+
+/* Make the two names a little less shouty to match the rest of the site. */
+#repoDashboardV20 .repo-brand-copy>strong{
+  color:#2b5da8!important;
+  font:900 18px/.94 Arial,sans-serif!important;
+  letter-spacing:.015em!important;
+}
+#repoDashboardV20 .repo-brand-copy>small{
+  margin-top:3px!important;
+  color:#3972b6!important;
+  font-weight:800!important;
+  letter-spacing:.31em!important;
+}
+
+/* Raids was being visually stripped by old global #openRaids rules.
+   Force it to be the same complete framed button as the other mini games. */
+html body #repoDashboardV20 .repo-native-premium-bottom>#openRepoSports.repo-native-mini-button,
+html body #repoDashboardV20 .repo-native-premium-bottom>#openRaids.repo-native-mini-button,
+html body #repoDashboardV20 .repo-native-premium-bottom>#openAchievements.repo-native-mini-button{
+  position:relative!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:48px!important;
+  min-height:48px!important;
+  margin:0!important;
+  padding:1px!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#263039!important;
+  clip-path:polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px)!important;
+  box-shadow:0 2px 3px rgba(0,0,0,.24)!important;
+  overflow:hidden!important;
+  filter:none!important;
+  transform:none!important;
+}
+html body #repoDashboardV20 .repo-native-premium-bottom>#openRaids .repo-native-mini-face{
+  display:flex!important;
+  width:100%!important;
+  height:100%!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+html body #repoDashboardV20 .repo-native-premium-bottom>#openRaids .repo-native-mini-face>img{
+  display:block!important;
+  width:31px!important;
+  height:26px!important;
+  max-width:31px!important;
+  max-height:26px!important;
+  object-fit:contain!important;
+  opacity:1!important;
+}
+
+
+/* ======================================================================
+   V34.45.2 — FLAGSHIP LOGO SPACING FIX
+   Only tightens VM / Dragonbound identity composition.
+   ====================================================================== */
+
+/* Manager: compact VM mark, V blue, M red, no slash. */
+#repoDashboardV20 .repo-native-brand-button.manager .repo-native-brand-face{
+  gap:5px!important;
+  padding-left:10px!important;
+  padding-right:12px!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph{
+  width:62px!important;
+  min-width:62px!important;
+  max-width:62px!important;
+  flex:0 0 62px!important;
+  height:36px!important;
+  gap:0!important;
+  justify-content:center!important;
+  transform:skewX(-7deg)!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph .repo-vm-letter{
+  font:1000 36px/.86 Impact,'Arial Black',Arial,sans-serif!important;
+  letter-spacing:-.13em!important;
+  filter:drop-shadow(0 2px 1px rgba(0,0,0,.38))!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph .repo-vm-v{
+  margin:0!important;
+  background:linear-gradient(180deg,#3c82ff 0%,#155dD5 55%,#0b3d96 100%)!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph .repo-vm-m{
+  margin-left:-1px!important;
+  background:linear-gradient(180deg,#ff5151 0%,#e4232d 55%,#a80d18 100%)!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-slash{
+  display:none!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-brand-divider{
+  margin-left:1px!important;
+  margin-right:1px!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-brand-copy{
+  margin-left:0!important;
+}
+
+/* Dragonbound: much larger crest and a tighter logo-to-wordmark relationship. */
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-native-brand-face{
+  gap:4px!important;
+  justify-content:center!important;
+  padding-left:8px!important;
+  padding-right:10px!important;
+  overflow:visible!important;
+}
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-dragonbound-mark{
+  width:104px!important;
+  height:48px!important;
+  min-width:104px!important;
+  max-width:104px!important;
+  flex:0 0 104px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  transform:scale(1.22)!important;
+  transform-origin:center!important;
+  margin-right:-8px!important;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.40))!important;
+}
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-brand-divider{
+  margin-left:-2px!important;
+  margin-right:1px!important;
+}
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-brand-copy{
+  margin-left:0!important;
+}
+
+/* ======================================================================
+   V34.45.3 — TIGHT FLAGSHIP LOGO LOCKUPS
+   Fix the actual reserved flex footprint, not just the gap value.
+   ====================================================================== */
+
+/* Manager: VM footprint ends immediately after the M. */
+#repoDashboardV20 .repo-native-brand-button.manager .repo-native-brand-face{
+  justify-content:center!important;
+  gap:7px!important;
+  padding:4px 10px!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph{
+  width:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+  flex:0 0 48px!important;
+  height:36px!important;
+  overflow:visible!important;
+  justify-content:flex-start!important;
+  transform:skewX(-7deg)!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph .repo-vm-letter{
+  font-size:36px!important;
+  line-height:.86!important;
+  letter-spacing:-.16em!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph .repo-vm-v{
+  margin-left:0!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-vm-glyph .repo-vm-m{
+  margin-left:-4px!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-brand-divider{
+  margin:0!important;
+  flex:0 0 1px!important;
+}
+#repoDashboardV20 .repo-native-brand-button.manager .repo-brand-copy{
+  margin:0!important;
+  flex:0 0 auto!important;
+}
+
+/* Dragonbound: PNG contains transparent breathing room. Give the flex item a
+   narrow footprint and let the enlarged crest visually spill inside it. */
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-native-brand-face{
+  justify-content:center!important;
+  gap:7px!important;
+  padding:4px 10px!important;
+  overflow:hidden!important;
+}
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-dragonbound-mark{
+  width:88px!important;
+  height:50px!important;
+  min-width:88px!important;
+  max-width:88px!important;
+  flex:0 0 48px!important;
+  margin-left:-20px!important;
+  margin-right:-20px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  transform:scale(1.34)!important;
+  transform-origin:center!important;
+}
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-brand-divider{
+  margin:0!important;
+  flex:0 0 1px!important;
+}
+#repoDashboardV20 .repo-native-brand-button.dragonbound .repo-brand-copy{
+  margin:0!important;
+  flex:0 0 auto!important;
+}
+
+
+/* ======================================================================
+   V34.46.0 — dashboard frame compatibility hook
+   The active dashboard frame can now be swapped by an isolated theme file
+   without touching the shell-building JavaScript.
+   ====================================================================== */
+.repo-dashboard-shell-v20{background-color:#071019!important}

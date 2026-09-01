@@ -226,56 +226,27 @@
   function avatarProfileForUser(name){const keeper=keeperIdForUser(name);return ACCOUNT_AVATAR_MAP[keeper]||ACCOUNT_AVATAR_MAP[KEEPER_SHEETS[0].id];}
   function avatarElementVisible(el){
     if(!el||!el.isConnected)return false;
-    const style=window.getComputedStyle(el);
-    if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity||1)<.05)return false;
+    // A child can have opacity:1 while its closed overlay is still invisible.
+    for(let node=el;node;node=node.parentElement){
+      if(node.hidden||node.getAttribute('aria-hidden')==='true')return false;
+      const style=window.getComputedStyle(node);
+      if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity||1)<.05)return false;
+    }
     const rect=el.getBoundingClientRect();
     if(rect.width<50||rect.height<24)return false;
     if(rect.right<0||rect.bottom<0||rect.left>window.innerWidth||rect.top>window.innerHeight)return false;
     return true;
   }
   function avatarVisibleCommandAnchor(){
-    // Find the ACTUAL compact Dragon Training / Commands launcher.
-    // Do not fall back to the whole Dragonbound overlay or sidebar: that was what
-    // incorrectly put the portrait at the top of the main menu in V33.22.
-    const seen=new Set();
-    const candidates=[];
-    const add=el=>{if(el&&!seen.has(el)){seen.add(el);candidates.push(el);}};
-    [
-      '.dragonbound-command-float',
-      '.dragonbound-command-launcher',
-      '[data-dragonbound-command-launcher]',
-      '[data-command-launcher]',
-      '[class*="dragonbound-command"]'
-    ].forEach(selector=>{
-      try{document.querySelectorAll(selector).forEach(add);}catch(_){}
-    });
-    document.querySelectorAll('button,[role="button"]').forEach(add);
-
-    let best=null,bestScore=-1;
-    for(const el of candidates){
-      if(!avatarElementVisible(el))continue;
-      const rect=el.getBoundingClientRect();
-      const cls=String(el.className||'').toLowerCase();
-      const text=((el.getAttribute?.('aria-label')||'')+' '+(el.getAttribute?.('title')||'')+' '+(el.textContent||''))
-        .replace(/\s+/g,' ').trim().toLowerCase();
-
-      // Exclude menus/status panels; we only want the small lower-left launcher.
-      if(cls.includes('menu')||cls.includes('overlay')||cls.includes('live-hud')||cls.includes('feedback'))continue;
-      if(text.includes('commands & tricks'))continue;
-
-      let score=0;
-      if(text.includes('dragon training'))score+=8;
-      if(/\bcommands?\b/.test(text))score+=6;
-      if(cls.includes('command'))score+=3;
-      if(cls.includes('launcher')||cls.includes('float'))score+=4;
-      if(rect.left<window.innerWidth*.28)score+=3;
-      if(rect.top>window.innerHeight*.58)score+=3;
-      if(rect.width>=90&&rect.width<=280)score+=2;
-      if(rect.height>=30&&rect.height<=110)score+=2;
-
-      if(score>bestScore){bestScore=score;best=el;}
-    }
-    return bestScore>=10?best:null;
+    // V34.46.4: CommandManager mounts this exact button on <body>. Generic
+    // button scoring also matched ordinary dashboard controls in the lower
+    // left, bringing the bedroom portrait back over the Repo Passport.
+    const dragonbound=document.getElementById('dragonboundOverlay');
+    if(!dragonbound?.classList.contains('is-open')||dragonbound.getAttribute('aria-hidden')==='true')return null;
+    const home=dragonbound.querySelector('.dragonbound-home-scene.is-visible');
+    if(!home||!avatarElementVisible(home))return null;
+    const button=document.querySelector('button.dragonbound-command-button');
+    return avatarElementVisible(button)?button:null;
   }
   function ensureAvatarHud(){
     if(avatarHud?.isConnected)return avatarHud;
@@ -284,7 +255,7 @@
       avatarStyleEl.id='velmoraBedroomAvatarHudStyles';
       avatarStyleEl.textContent=`
       .velmora-account-avatar-hud{position:fixed;left:18px;bottom:96px;width:122px;height:122px;z-index:2147481600;pointer-events:none;opacity:1;transform:translate3d(0,0,0);transition:left .2s ease,top .2s ease,bottom .2s ease,opacity .18s ease,transform .18s ease;filter:drop-shadow(0 12px 22px rgba(0,0,0,.52));}
-      .velmora-account-avatar-hud.is-hidden{opacity:0;transform:translate3d(0,8px,0)}
+      .velmora-account-avatar-hud.is-hidden,.velmora-account-avatar-hud[hidden]{display:none!important;opacity:0;transform:translate3d(0,8px,0)}
       .velmora-account-avatar-shell{position:absolute;inset:0}
       .velmora-account-avatar-portrait-wrap{position:absolute;left:15px;top:14px;width:92px;height:92px;border-radius:50%;overflow:hidden;display:grid;place-items:center}
       .velmora-account-avatar-portrait-wrap::before{content:'';position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 50% 38%,rgba(86,132,138,.28),rgba(15,31,35,.08) 56%,rgba(4,8,10,0) 73%);box-shadow:inset 0 0 0 1px rgba(147,208,217,.12);}
@@ -302,7 +273,9 @@
       document.head.appendChild(avatarStyleEl);
     }
     avatarHud=document.createElement('div');
-    avatarHud.className='velmora-account-avatar-hud';
+    avatarHud.className='velmora-account-avatar-hud is-hidden';
+    avatarHud.hidden=true;
+    avatarHud.setAttribute('aria-hidden','true');
     avatarHud.dataset.mode='idle';
     avatarHud.innerHTML=`<div class="velmora-account-avatar-shell"><div class="velmora-account-avatar-portrait-wrap"><img class="velmora-account-avatar-portrait" alt="Account avatar portrait"></div><img class="velmora-account-avatar-frame" alt="" aria-hidden="true"><div class="velmora-account-avatar-badge"></div><div class="velmora-account-avatar-label"></div></div>`;
     document.body.appendChild(avatarHud);
@@ -348,6 +321,9 @@
     // fallback because command controls are intentionally hidden inside that scene.
     const shouldShow=currentUsername()!=='guest'&&(!!launcher||open);
     avatarHud.classList.toggle('is-hidden',!shouldShow);
+    if(avatarHud.hidden===shouldShow)avatarHud.hidden=!shouldShow;
+    const ariaHidden=String(!shouldShow);
+    if(avatarHud.getAttribute('aria-hidden')!==ariaHidden)avatarHud.setAttribute('aria-hidden',ariaHidden);
     if(!shouldShow)return;
 
     if(launcher){

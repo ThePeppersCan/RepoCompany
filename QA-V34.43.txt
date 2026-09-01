@@ -1,0 +1,13 @@
+V34.43 — Flagship Button Bar
+
+Built from V34.35.1 ORIGINAL BUTTON BAR ROLLBACK.
+No V34.36–V34.42 command-bar code is included.
+
+Changes:
+- Keeps the stable current homepage command-board footprint.
+- Reorganises the existing buttons into four top-row wings, inspired by the user's reference image.
+- Adds the supplied Velmora Manager and Dragonbound artwork as the two large flagship buttons in a dedicated second row.
+- Repo Sports, Raids and Achievements remain secondary games to the right.
+- Velmora Manager is a coming-soon placeholder only.
+- Existing live button IDs are preserved, so existing site handlers remain in use.
+- The supplied full reference bar is NOT used as an asset.

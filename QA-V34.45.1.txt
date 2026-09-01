@@ -1,0 +1,9 @@
+V34.45.1 — Flagship Polish Fix
+
+Changes only:
+- correct VM logo (explicit V + M + red slash)
+- larger Dragonbound crest
+- softer/thinner button and deck styling
+- force Raids into the same complete framed secondary-game button
+
+Apply over V34.45. Replace index.html, style.css, script.js.

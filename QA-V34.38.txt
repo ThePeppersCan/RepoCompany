@@ -1,0 +1,21 @@
+V34.38 — ORIGINAL BUTTONBAR REBUILD
+
+Built from the stable V34.35.1 homepage shell, not from V34.36/V34.37.
+
+Included:
+- index.html
+- style.css
+- script.js
+- assets/home-command/velmora-manager.png
+- assets/home-command/dragonbound.png
+- assets/home-command/repo-sports.png
+- assets/home-command/raids.png
+- assets/home-command/achievement.png
+
+Key changes:
+- Rebuilds the command bar inside the original 1228px lower navigation footprint.
+- Uses the ORIGINAL supplied panel artwork for both flagship games and all three secondary game panels.
+- Keeps the four skill/service wings as genuine live HTML buttons.
+- Velmora Manager is intentionally not linked yet.
+- Removes the retired qmWatcherAccounts DOM source and hides its legacy watcher cards, preventing the old circular account avatar from leaking onto the homepage.
+- Does not change the dashboard fullscreen/scale engine.

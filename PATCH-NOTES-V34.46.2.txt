@@ -1,0 +1,39 @@
+REPO COMPANY V34.46.2 — OPTICAL POLISH PATCH
+============================================
+
+Apply this patch over V34.46.1.
+
+FILES INCLUDED
+--------------
+- index.html
+- repo-greenhouse-theme.css
+
+CORRECTIONS
+-----------
+- Enlarged and rebalanced the remaining undersized Passport typography:
+  identity details, title selector, member date, status, totals, weekly progress,
+  reward copy, and favourite-card labels.
+- Increased leaderboard headings and row text without changing the right-panel
+  geometry or replacing live data.
+- Corrected the Daily and Global leaderboard box calculations so no rows or
+  lower borders are clipped.
+- Corrected the Favourite cards' border-box sizing so all three fit their row
+  exactly.
+- Improved activity-wing headings, button labels, brand spacing rhythm, and
+  ticker hierarchy for the real 2048x1024 render.
+- Updated the theme cache key so the stylesheet refreshes immediately.
+
+PRESERVED
+---------
+- Live Odds & Ebbles centre scene and billboard.
+- Existing functions, IDs, listeners, data, routes, account state, progression,
+  Harmony calculations, leaderboards, skills, pets, games, audio and modals.
+- V34.46.1 script.js, the template asset, and baseline style.css unchanged.
+
+VALIDATION
+----------
+- Theme stylesheet brace/syntax scan passed.
+- V34.46.1 script.js hash remained unchanged.
+- Passport, favourites, Daily leaderboard, Global leaderboard, Harmony,
+  activity navigation and ticker all returned matching client/scroll dimensions.
+- No QA-only files or styles are included in this archive.

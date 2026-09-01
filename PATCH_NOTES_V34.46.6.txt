@@ -1,0 +1,27 @@
+REPO COMPANY V34.46.6 — CENTRAL SCENE FILL
+
+Apply over V34.46.5 (or V34.46.4 with its bedroom.js avatar fix installed).
+
+INSTALL
+Copy these three files into the website root, replacing existing copies:
+- index.html
+- repo-greenhouse-theme.css
+- repo-greenhouse-scene.js
+Then hard-refresh the page.
+
+CHANGE
+The central room fills its existing panel edge to edge, removing the dark side
+strips introduced in V34.46.5. The portrait artwork uses a proportional cover
+crop focused 70% down the image so the sofa remains visible. The character layer
+shares that exact scale and crop position, preserving alignment with the sofa.
+
+The rest of the dashboard and the previous panel/avatar fixes are retained.
+
+VALIDATION
+JavaScript syntax passed. All 90 seating-coordinate checks passed across five
+image proportions and three panel sizes. Coverage checks confirm no empty side
+or top/bottom strips. The sofa bounds estimated from the supplied screenshot
+fit within the crop. Existing non-scene styling is unchanged.
+
+A live browser preview was unavailable: local previews are blocked in this
+environment and the original room artwork was absent from the supplied ZIP.

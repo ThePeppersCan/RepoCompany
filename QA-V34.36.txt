@@ -1,0 +1,16 @@
+V34.36 — Homepage Flagship Command Deck
+
+Included files:
+- index.html
+- style.css
+- script.js
+- assets/repo-command-deck-v35-vm-db.png
+
+Summary:
+- Replaces the old homepage bottom button bar with the new premium command deck layout.
+- Uses the supplied command deck artwork as the visual shell.
+- Dragonbound and Velmora Manager are now the two central flagship panels.
+- Velmora Manager is a non-linked placeholder and shows a coming-soon toast.
+- Repo Sports, Raids and Achievements remain as smaller secondary launch buttons.
+- Existing functional homepage buttons are preserved off-screen and triggered via proxy hotspots.
+- Mobile fallback keeps the legacy button grid visible instead of the decorative shell.

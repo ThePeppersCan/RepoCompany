@@ -1,0 +1,414 @@
+/* ======================================================================
+   REPO COMPANY V34.46.0 — GREENHOUSE DESKTOP THEME
+   Recovered / reconstructed first-pass theme package.
+   Purpose:
+   - rebuild the desktop shell from V34.45.3
+   - keep the live Odds & Ebbles scene and existing functions
+   - replace the inherited command-deck-heavy shell with a dedicated
+     greenhouse / conservatory dashboard frame
+   - remain isolated so the base site is still easy to roll back
+   ====================================================================== */
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop{
+  background:
+    radial-gradient(circle at 50% 14%,rgba(206,172,88,.16),transparent 20%),
+    radial-gradient(circle at 12% 40%,rgba(39,71,45,.12),transparent 22%),
+    radial-gradient(circle at 88% 38%,rgba(39,71,45,.12),transparent 22%),
+    linear-gradient(180deg,#091115 0%,#05090c 100%)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 16%,rgba(255,224,142,.08),transparent 24%),
+    linear-gradient(90deg,rgba(0,0,0,.38),transparent 12%,transparent 88%,rgba(0,0,0,.38));
+  z-index:0;
+}
+
+body.repo-dashboard-v20-active .repo-dashboard-shell-v20{
+  --repo-dashboard-frame-url:url('assets/repo-greenhouse-shell-v34-46.png');
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20{
+  overflow:hidden!important;
+  border-radius:34px!important;
+  box-shadow:
+    0 40px 90px rgba(0,0,0,.55),
+    0 0 0 1px rgba(156,126,62,.38),
+    inset 0 0 0 1px rgba(242,214,129,.04)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 11%,rgba(246,222,151,.09),transparent 18%),
+    linear-gradient(180deg,rgba(255,255,255,.02),transparent 20%,transparent 80%,rgba(0,0,0,.15));
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20::after{
+  z-index:2!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(224,187,95,.12),
+    inset 0 0 110px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,241,195,.04)!important;
+}
+
+/* header + top strip */
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20>.repo-main-header{
+  height:255px!important;
+  z-index:10!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-logo-wrap{
+  top:38px!important;
+  width:330px!important;
+  height:108px!important;
+  z-index:12!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-header-logo{
+  filter:drop-shadow(0 5px 8px rgba(0,0,0,.6)) drop-shadow(0 0 14px rgba(228,191,98,.08))!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .character-box{
+  left:276px!important;
+  top:169px!important;
+  width:1224px!important;
+  height:70px!important;
+  z-index:14!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .signed-in-controls{
+  height:70px!important;
+  padding:0 10px!important;
+  grid-template-columns:220px 318px 120px 120px 120px 252px 56px 44px!important;
+  gap:6px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .admin-button{
+  left:-42px!important;
+  top:18px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .character-summary,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-harmony-quick,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .header-quick-button,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #openTcgBinderQuick,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #repoLogoutQuick,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .velmora-crown-home-stack .velmora-crown-newspaper-launcher{
+  border:1px solid rgba(181,145,74,.28)!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,rgba(16,23,26,.88),rgba(8,14,16,.76))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03), inset 0 0 0 1px rgba(255,214,117,.02)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .character-summary{
+  grid-template-columns:52px minmax(0,1fr)!important;
+  padding:8px 12px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-avatar{
+  width:46px!important;
+  height:46px!important;
+  border-radius:8px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .character-summary>b{
+  color:#f0c56a!important;
+  font-size:15px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .character-summary>span,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-harmony-copy>em,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-harmony-copy>small{
+  color:#d4bf8c!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-harmony-quick{
+  padding:8px 14px!important;
+  border-left-color:rgba(181,145,74,.24)!important;
+  border-right-color:rgba(181,145,74,.24)!important;
+  border-radius:10px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-harmony-quick>strong{
+  font-size:32px!important;
+  color:#efd89d!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #openBank,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #openSkills,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #openPets{
+  grid-row:1!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .velmora-crown-home-stack{
+  grid-column:6!important;
+  display:block!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .velmora-crown-home-stack .velmora-crown-newspaper-launcher{
+  width:100%!important;
+  height:100%!important;
+  display:grid!important;
+  grid-template-columns:88px 1fr!important;
+  gap:10px!important;
+  align-items:center!important;
+  padding:8px 14px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .velmora-crown-home-stack .velmora-crown-newspaper-launcher img{
+  width:82px!important;
+  height:52px!important;
+  object-fit:contain!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #openTcgBinderQuick{
+  grid-column:7!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #repoLogoutQuick{
+  grid-column:8!important;
+  height:100%!important;
+  width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  place-items:center!important;
+  color:#dfc375!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-logout-icon{
+  width:22px!important;
+  height:22px!important;
+}
+
+/* main panel layout */
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20>main{
+  left:72px!important;
+  top:209px!important;
+  width:1630px!important;
+  height:500px!important;
+  grid-template-columns:345px 852px 421px!important;
+  grid-template-rows:500px!important;
+  gap:6px!important;
+  z-index:8!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20>main>.card,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20>main>.scene{
+  height:500px!important;
+  border-radius:18px!important;
+  background:linear-gradient(180deg,rgba(8,13,15,.34),rgba(4,8,10,.18))!important;
+}
+
+/* left passport */
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-card{
+  padding:15px 16px 12px!important;
+  color:#dec896!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-card .harmony-heading,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-actions>h2,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .nav-section-heading{
+  border-bottom-color:rgba(181,145,74,.28)!important;
+  color:#e8cc89!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-card #count{
+  font-size:56px!important;
+  color:#f1dfb0!important;
+  text-shadow:0 3px 0 rgba(45,28,14,.65),0 0 14px rgba(226,192,112,.06)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-card .bar,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-harmony-copy>i{
+  border-color:rgba(130,104,48,.62)!important;
+  background:#071014!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-unlocks,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-lamp-group,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-unlock,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .passport-weekly-card,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .passport-favourite-card,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .passport-stat-card{
+  background:rgba(8,13,15,.42)!important;
+  border-color:rgba(181,145,74,.24)!important;
+}
+
+/* center scene */
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #scene{
+  background:transparent!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #scene::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(255,230,164,.06),transparent 16%,transparent 82%,rgba(0,0,0,.22)),
+    radial-gradient(circle at 50% 10%,rgba(255,218,127,.07),transparent 24%);
+  z-index:0;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #scene>.tavern-lobby{
+  border-radius:18px!important;
+  overflow:hidden!important;
+  background:transparent!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #scene #nextDeskCharacter{
+  bottom:18px!important;
+  right:18px!important;
+  transform:scale(.9)!important;
+  opacity:.9!important;
+}
+
+/* right rail */
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-actions{
+  padding:14px 16px 12px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-actions .harmony-button,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-actions .daily-xp-board,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .home-leaderboards-shortcut{
+  background:rgba(8,13,15,.42)!important;
+  border-color:rgba(181,145,74,.28)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .harmony-actions .harmony-button strong{
+  color:#f0d89b!important;
+}
+
+/* command deck / bottom buttons */
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20>.game-strip.adventure-nav{
+  left:250px!important;
+  top:730px!important;
+  width:1265px!important;
+  height:86px!important;
+  grid-template-columns:735px 515px!important;
+  gap:15px!important;
+  z-index:9!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .game-strip.adventure-nav .nav-section{
+  height:86px!important;
+  padding:6px 10px 7px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .nav-section-heading{
+  height:18px!important;
+  margin-bottom:4px!important;
+  padding-bottom:4px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .nav-section-heading>span:first-child{
+  font-size:9px!important;
+  letter-spacing:.16em!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-training-quick{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .training-skill-grid,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .activity-button-grid{
+  height:55px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group{
+  height:55px!important;
+  padding:4px 5px!important;
+  border-radius:10px!important;
+  border-color:rgba(181,145,74,.22)!important;
+  background:rgba(8,13,15,.28)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group>b{
+  display:none!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group>div{
+  height:47px!important;
+  grid-template-columns:repeat(4,1fr)!important;
+  gap:4px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group button{
+  height:47px!important;
+  min-height:47px!important;
+  padding:3px 2px!important;
+  border:1px solid transparent!important;
+  border-radius:8px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group button:hover:not(:disabled),
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .header-quick-button:hover,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #openTcgBinderQuick:hover,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 #repoLogoutQuick:hover,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .velmora-crown-home-stack .velmora-crown-newspaper-launcher:hover{
+  background:linear-gradient(180deg,rgba(24,34,38,.95),rgba(10,16,18,.86))!important;
+  border-color:rgba(222,186,101,.55)!important;
+  filter:brightness(1.06)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group button>img,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group button>.activity-icon,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group button>.training-skill-icon{
+  width:20px!important;
+  height:20px!important;
+  max-width:20px!important;
+  max-height:20px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group button .training-button-copy>span,
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-skill-group button .activity-button-copy>span{
+  font-size:5.8px!important;
+  color:#dcc38a!important;
+}
+
+/* footer ticker */
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20>footer{
+  left:250px!important;
+  top:827px!important;
+  width:1265px!important;
+  height:28px!important;
+  grid-template-columns:250px repeat(4,1fr)!important;
+  z-index:9!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-today{
+  padding-left:14px!important;
+  font-size:9px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-ticker-item{
+  height:28px!important;
+  padding:2px 8px!important;
+  border-left-color:rgba(181,145,74,.18)!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-ticker-item img{
+  width:18px!important;
+  height:18px!important;
+  flex-basis:18px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-ticker-item b{
+  font-size:7px!important;
+}
+
+body.repo-dashboard-v20-active.repo-dashboard-v20-desktop .repo-dashboard-shell-v20 .repo-dash-ticker-item small{
+  font-size:6px!important;
+}
