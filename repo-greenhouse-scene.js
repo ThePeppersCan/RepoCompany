@@ -74,3 +74,92 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
   else boot();
 })();
+
+/* 2026-09-03 — Quidditch TCG pack Grand Exchange sale display.
+   Server purchase pricing remains authoritative; this keeps the market row in sync. */
+(function installTcgGrandExchangeSale(){
+  'use strict';
+  if(window.__repoTcgGrandExchangeSaleInstalled)return;
+  window.__repoTcgGrandExchangeSaleInstalled=true;
+
+  const PACK_NAME='Quidditch TCG Card Pack';
+  const BASE_PRICE=25000;
+  const SALE_PRICE=10000;
+  const SALE_END=Date.parse('2026-09-07T01:00:00Z');
+  const STYLE_ID='repoTcgGrandExchangeSaleStyles';
+
+  function saleActive(){return Date.now()<SALE_END;}
+  function gp(value){return Number(value).toLocaleString('en-GB');}
+
+  function ensureStyles(){
+    if(document.getElementById(STYLE_ID))return;
+    const style=document.createElement('style');
+    style.id=STYLE_ID;
+    style.textContent=`
+#grandExchangeDialog .ge-price.ge-tcg-sale-price{align-items:center}
+#grandExchangeDialog .ge-tcg-sale-stack{display:flex;flex-direction:column;align-items:flex-end;gap:1px;line-height:1.05}
+#grandExchangeDialog .ge-tcg-sale-now{color:#f3d476;font-size:15px;font-weight:800;white-space:nowrap}
+#grandExchangeDialog .ge-tcg-sale-meta{color:#9fbd94;font-size:8px;font-weight:800;letter-spacing:.35px;white-space:nowrap;text-transform:uppercase}
+#grandExchangeDialog .ge-tcg-sale-was{color:#7f9080;text-decoration:line-through;text-decoration-thickness:1px}
+`;
+    document.head.appendChild(style);
+  }
+
+  function applyRow(row){
+    const name=row.querySelector('.ge-item-info b')?.textContent?.trim();
+    if(name!==PACK_NAME)return;
+    const price=row.querySelector('.ge-price');
+    if(!price)return;
+
+    if(!saleActive()){
+      if(price.dataset.tcgSaleOriginalHtml){
+        price.innerHTML=price.dataset.tcgSaleOriginalHtml;
+        delete price.dataset.tcgSaleOriginalHtml;
+      }
+      price.classList.remove('ge-tcg-sale-price');
+      delete row.dataset.tcgSale;
+      return;
+    }
+
+    ensureStyles();
+    const existing=price.querySelector('.ge-tcg-sale-now');
+    if(existing&&existing.textContent===gp(SALE_PRICE))return;
+
+    if(!price.dataset.tcgSaleOriginalHtml)price.dataset.tcgSaleOriginalHtml=price.innerHTML;
+    const coin=price.querySelector('img')?.cloneNode(true);
+    price.replaceChildren();
+    if(coin)price.appendChild(coin);
+
+    const stack=document.createElement('span');
+    stack.className='ge-tcg-sale-stack';
+    const now=document.createElement('strong');
+    now.className='ge-tcg-sale-now';
+    now.textContent=gp(SALE_PRICE);
+    const meta=document.createElement('small');
+    meta.className='ge-tcg-sale-meta';
+    const was=document.createElement('span');
+    was.className='ge-tcg-sale-was';
+    was.textContent=gp(BASE_PRICE);
+    meta.append(was,document.createTextNode(' · 60% OFF'));
+    stack.append(now,meta);
+    price.appendChild(stack);
+    price.classList.add('ge-tcg-sale-price');
+    row.dataset.tcgSale='60-off';
+  }
+
+  function apply(){
+    document.querySelectorAll('#geResults .ge-item-row').forEach(applyRow);
+  }
+
+  function boot(){
+    const results=document.getElementById('geResults');
+    if(!results)return;
+    new MutationObserver(apply).observe(results,{childList:true,subtree:true,characterData:true});
+    apply();
+    const remaining=SALE_END-Date.now();
+    if(remaining>0)setTimeout(apply,Math.min(remaining+1000,2147483647));
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+})();
