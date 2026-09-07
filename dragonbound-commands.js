@@ -177,7 +177,7 @@
     ensureJournal(){
       const page=document.querySelector('.dragonbound-my-dragon-page--right');if(!page)return;if(this.journal?.isConnected)return;
       const block=document.createElement('div');block.className='dragonbound-my-dragon-commands';block.innerHTML=`<div class="dragonbound-my-dragon-section-title"><span>Training & Commands</span><small>Understanding grows with practice</small></div><div class="dragonbound-journal-command-summary" data-journal-command-summary></div><div class="dragonbound-journal-command-grid" data-journal-command-grid></div><div class="dragonbound-journal-command-detail" data-journal-command-detail hidden></div>`;
-      const life=page.querySelector('.dragonbound-my-dragon-life');page.insertBefore(block,life||null);block.querySelector('[data-journal-command-grid]').addEventListener('click',e=>{const btn=e.target.closest('[data-journal-command-key]');if(!btn)return;this.detailKey=this.detailKey===btn.dataset.journalCommandKey?'':btn.dataset.journalCommandKey;this.renderJournal();});this.journal=block;
+      const life=page.querySelector('.dragonbound-my-dragon-life');if(life?.parentElement===page)page.insertBefore(block,life);else page.appendChild(block);block.querySelector('[data-journal-command-grid]').addEventListener('click',e=>{const btn=e.target.closest('[data-journal-command-key]');if(!btn)return;this.detailKey=this.detailKey===btn.dataset.journalCommandKey?'':btn.dataset.journalCommandKey;this.renderJournal();});this.journal=block;
     }
     toggle(){if(this.overlay?.classList.contains('is-visible')){this.close();return;}this.open();}
     open(){
