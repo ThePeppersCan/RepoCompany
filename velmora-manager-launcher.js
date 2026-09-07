@@ -3,7 +3,7 @@
   const MANAGER_ORIGIN='https://manager.repocompany.uk';
   const SUPABASE_URL='https://hvdrwmjieguurxvrgzfu.supabase.co';
   const SUPABASE_KEY='sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ';
-  const INTRO_URL='assets/velmora-manager/velmora-manager-intro.mp4?v=20260907';
+  const INTRO_URL='assets/velmora-manager/velmora-manager-intro.mp4?v=20260907b';
   const OVERLAY_ID='velmoraManagerOverlay';
   let client=null,frame=null,intro=null,bridge='',pausedAudio=[],introTimer=0;
 
