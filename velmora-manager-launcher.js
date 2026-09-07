@@ -5,7 +5,7 @@
   const SUPABASE_KEY='sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ';
   const INTRO_URL='assets/velmora-manager/velmora-manager-intro.mp4?v=20260907b';
   const OVERLAY_ID='velmoraManagerOverlay';
-  let client=null,frame=null,intro=null,bridge='',pausedAudio=[],introTimer=0;
+  let client=null,frame=null,intro=null,bridge='',pausedAudio=[];
 
   function accountClient(){
     if(window.repoSupabaseClient?.auth?.getSession)return window.repoSupabaseClient;
@@ -43,7 +43,7 @@
   function ensureOverlay(){
     let overlay=document.getElementById(OVERLAY_ID);if(overlay)return overlay;
     overlay=document.createElement('section');overlay.id=OVERLAY_ID;overlay.setAttribute('aria-hidden','true');
-    overlay.innerHTML=`<div class="repo-vm-loading" role="status">ENTERING VELMORA MANAGER</div><video class="repo-vm-intro" playsinline preload="auto" aria-label="Velmora Manager introduction"><source src="${INTRO_URL}" type="video/mp4"></video><span class="repo-vm-intro-label">VELMORA MANAGER · INTRO CINEMATIC</span><button type="button" class="repo-vm-skip">SKIP INTRO</button><iframe title="Velmora Manager" allow="autoplay; fullscreen" referrerpolicy="strict-origin"></iframe><button type="button" class="repo-vm-close" aria-label="Close Velmora Manager">×</button>`;
+    overlay.innerHTML=`<div class="repo-vm-loading" role="status">ENTERING VELMORA MANAGER</div><video class="repo-vm-intro" playsinline preload="auto" fetchpriority="high" aria-label="Velmora Manager introduction"><source src="${INTRO_URL}" type="video/mp4"></video><span class="repo-vm-intro-label">VELMORA MANAGER · INTRO CINEMATIC</span><button type="button" class="repo-vm-skip">SKIP INTRO</button><iframe title="Velmora Manager" allow="autoplay; fullscreen" referrerpolicy="strict-origin"></iframe><button type="button" class="repo-vm-close" aria-label="Close Velmora Manager">×</button>`;
     overlay.querySelector('.repo-vm-close').addEventListener('click',close);
     overlay.querySelector('.repo-vm-skip').addEventListener('click',enterGame);
     overlay.querySelector('.repo-vm-intro').addEventListener('ended',enterGame);
@@ -63,24 +63,24 @@
   }
   function enterGame(){
     const overlay=document.getElementById(OVERLAY_ID);if(!overlay||!overlay.classList.contains('is-visible')||!bridge)return;
-    clearTimeout(introTimer);introTimer=0;if(intro){intro.pause();intro.currentTime=0;}
+    if(intro){intro.pause();intro.currentTime=0;}
     overlay.classList.remove('is-intro','is-loaded');
     const url=new URL(MANAGER_ORIGIN+'/');url.searchParams.set('source','repocompany');url.searchParams.set('repoBridge',bridge);frame.src=url.href;
   }
   function open(event){
     if(event&&(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button===1))return;
     event?.preventDefault();installStyles();const overlay=ensureOverlay();bridge=nonce();frame=overlay.querySelector('iframe');intro=overlay.querySelector('.repo-vm-intro');
-    clearTimeout(introTimer);frame.src='about:blank';overlay.classList.remove('is-loaded');overlay.classList.add('is-visible','is-intro');overlay.setAttribute('aria-hidden','false');document.body.classList.add('velmora-manager-active');pausePageAudio();
+    frame.src='about:blank';overlay.classList.remove('is-loaded');overlay.classList.add('is-visible','is-intro');overlay.setAttribute('aria-hidden','false');document.body.classList.add('velmora-manager-active');pausePageAudio();
     if(intro){intro.muted=false;intro.currentTime=0;const playback=intro.play();if(playback?.catch)playback.catch(()=>{intro.muted=true;return intro.play();}).catch(enterGame);}
     else enterGame();
-    introTimer=setTimeout(enterGame,20000);overlay.querySelector('.repo-vm-close').focus();
+    overlay.querySelector('.repo-vm-close').focus();
   }
   function close(){
-    const overlay=document.getElementById(OVERLAY_ID);if(!overlay)return;clearTimeout(introTimer);introTimer=0;if(intro){intro.pause();intro.currentTime=0;}overlay.classList.remove('is-visible','is-loaded','is-intro');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('velmora-manager-active');if(frame)frame.src='about:blank';frame=null;intro=null;bridge='';resumePageAudio();document.getElementById('openVelmoraManagerHome')?.focus();
+    const overlay=document.getElementById(OVERLAY_ID);if(!overlay)return;if(intro){intro.pause();intro.currentTime=0;}overlay.classList.remove('is-visible','is-loaded','is-intro');overlay.setAttribute('aria-hidden','true');document.body.classList.remove('velmora-manager-active');if(frame)frame.src='about:blank';frame=null;intro=null;bridge='';resumePageAudio();document.getElementById('openVelmoraManagerHome')?.focus();
   }
   window.addEventListener('message',event=>{const data=event.data||{};if(event.origin!==MANAGER_ORIGIN||event.source!==frame?.contentWindow||data.type!=='velmora-manager-ready'||data.bridge!==bridge)return;sendSession();});
   window.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.getElementById(OVERLAY_ID)?.classList.contains('is-visible'))close();});
-  function bind(){const button=document.getElementById('openVelmoraManagerHome');if(!button||button.dataset.velmoraLauncherBound)return;button.dataset.velmoraLauncherBound='true';button.addEventListener('click',open);}
+  function bind(){const button=document.getElementById('openVelmoraManagerHome');if(!button||button.dataset.velmoraLauncherBound)return;button.dataset.velmoraLauncherBound='true';button.addEventListener('click',open);installStyles();ensureOverlay().querySelector('.repo-vm-intro')?.load();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
   window.VelmoraManagerLauncher={open,close};
 })();
