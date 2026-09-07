@@ -33,8 +33,8 @@
     const style = document.createElement('style');
     style.id = 'dragonboundStandaloneLauncherStyles';
     style.textContent = `
-      #${OVERLAY_ID}{position:fixed;inset:0;z-index:2147483646;display:none!important;background:#02070a}
-      #${OVERLAY_ID}.is-visible{display:block!important}
+      #${OVERLAY_ID}{position:fixed;inset:0;z-index:2147483646;display:block!important;background:#02070a}
+      #${OVERLAY_ID}[hidden]{display:none!important}
       #${OVERLAY_ID} iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#02070a}
       #${OVERLAY_ID} .dragonbound-launch-loading{position:absolute;inset:0;z-index:2;display:grid;place-content:center;gap:13px;background:radial-gradient(circle at 50% 38%,#17382f,#02070a 68%);color:#dff8ef;text-align:center;font:800 11px/1.4 Arial,sans-serif;letter-spacing:.18em;transition:opacity .3s ease}
       #${OVERLAY_ID} .dragonbound-launch-loading::before{content:"";width:38px;height:38px;margin:auto;border:2px solid rgba(119,212,184,.17);border-top-color:#77d4b8;border-radius:50%;animation:dragonboundLaunchSpin .8s linear infinite}
@@ -50,6 +50,7 @@
     if (overlay) return overlay;
     overlay = document.createElement('section');
     overlay.id = OVERLAY_ID;
+    overlay.hidden = true;
     overlay.setAttribute('aria-hidden', 'true');
     overlay.innerHTML = '<div class="dragonbound-launch-loading" role="status">ENTERING DRAGONBOUND</div><iframe title="Dragonbound" allow="autoplay; fullscreen" referrerpolicy="strict-origin"></iframe>';
     document.body.appendChild(overlay);
@@ -99,6 +100,11 @@
     const overlay = ensureOverlay();
     bridge = nonce();
     frame = overlay.querySelector('iframe');
+    overlay.hidden = false;
+    // Repo Company's signed-out shell deliberately hides nearly every direct
+    // body child with a high-specificity !important rule. An inline priority
+    // keeps the launcher usable during auth-state transitions as well.
+    overlay.style.setProperty('display', 'block', 'important');
     overlay.classList.remove('is-loaded');
     overlay.classList.add('is-visible');
     overlay.setAttribute('aria-hidden', 'false');
@@ -114,14 +120,20 @@
   function close() {
     const overlay = document.getElementById(OVERLAY_ID);
     if (!overlay) return;
+    const closingFrame = frame || overlay.querySelector('iframe');
     overlay.classList.remove('is-visible', 'is-loaded');
     overlay.setAttribute('aria-hidden', 'true');
+    overlay.hidden = true;
     document.body.classList.remove('dragonbound-standalone-active');
-    if (frame) frame.src = 'about:blank';
     frame = null;
     bridge = '';
+    // Remove the cross-origin frame rather than navigating it to about:blank.
+    // This makes it impossible for a stale full-screen black iframe to remain
+    // above the Repo Company dashboard after Dragonbound closes.
+    closingFrame?.removeAttribute('src');
+    overlay.remove();
     resumePageAudio();
-    document.getElementById('openDragonbound')?.focus();
+    requestAnimationFrame(() => document.getElementById('openDragonbound')?.focus({ preventScroll: true }));
   }
 
   window.addEventListener('message', event => {

@@ -44092,23 +44092,12 @@ document.head.appendChild(s)})();
 
         homeScene?.classList.remove('is-visible');
         homeScene?.setAttribute('aria-hidden','true');
-        if(locked && !dragon){
-          selectedAdoptionEgg=locked;
-          newGameStage.classList.add('is-adoption-interior');
-          adoptionInteriorAudio.volume=0;
-          const p=adoptionInteriorAudio.play();
-          if(p&&typeof p.catch==='function')p.catch(()=>{});
-          fadeAudio(adoptionInteriorAudio,0.6,850);
-          dialogueMode='adoption-interior';
-          transitionTimerB=setTimeout(()=>{
-            blackout.classList.remove('is-black');
-            openBonnieMenu();
-          },220);
-          return;
-        }
-
-        // A pet without a current starter house is an abnormal but recoverable
-        // state: load directly at Hearth & Key so the player can pick a home.
+        // A locked egg is already a valid cloud save, even if the player left
+        // before choosing a house. Resume that incomplete onboarding at Hearth
+        // & Key instead of dropping them back at Bonnie's with a dead Home
+        // button. Their permanent egg remains selected and is delivered after
+        // they choose a starter property.
+        if(locked) selectedAdoptionEgg=locked;
         newGameStage.classList.add('is-estate-interior');
         estateInteriorAudio.volume=0;
         const p=estateInteriorAudio.play();
@@ -44117,7 +44106,9 @@ document.head.appendChild(s)})();
         dialogueMode='estate-interior';
         transitionTimerB=setTimeout(()=>{
           blackout.classList.remove('is-black');
-          showFeedback('Choose a starter home to continue your Dragonbound save.');
+          showFeedback(locked&&!dragon
+            ? `${locked.name} egg restored from your cloud save. Choose a free starter home with Mira to continue.`
+            : 'Choose a starter home to continue your Dragonbound save.');
         },220);
       },520);
     };
