@@ -44914,7 +44914,9 @@ window.repoEndlessCombatPerf=()=>{
     const b=document.getElementById('openVelmoraManagerHome');
     if(!b||b.dataset.vmBound==='1')return;
     b.dataset.vmBound='1';
-    b.addEventListener('click',e=>{e.preventDefault();if(typeof toast==='function')toast('Velmora Manager is coming soon.');});
+    const url='https://manager.repocompany.uk/';
+    if(b.tagName==='A'){b.href=url;return;}
+    b.addEventListener('click',e=>{e.preventDefault();window.location.assign(url);});
   }
   function killFloatingAccountAvatar(){
     if(!document.body.classList.contains('repo-dashboard-v20-active'))return;

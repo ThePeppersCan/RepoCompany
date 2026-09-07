@@ -32292,6 +32292,11 @@ body.dragonbound-outing-active .dragonbound-outing-destination{
   cursor:pointer!important;
   overflow:hidden!important;
 }
+#repoDashboardV20 a.repo-native-brand-button{
+  display:block!important;
+  color:inherit!important;
+  text-decoration:none!important;
+}
 #repoDashboardV20 .repo-native-brand-face,
 #repoDashboardV20 .repo-native-mini-face{
   box-sizing:border-box!important;
