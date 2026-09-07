@@ -127,9 +127,14 @@
   function getBusinessState(key,min=state.minuteOfDay){const k=keyFromAny(key),info=BUSINESS_HOURS[k];if(!info)return {known:false,isOpen:true};const isOpen=min>=info.open&&min<info.close;return {known:true,key:k,displayName:info.displayName,isOpen,closingSoon:min>=CLOSING_SOON_MINUTES&&min<info.close,openingTime:formatTime(info.open),closingTime:formatTime(info.close)};}
   function isBusinessOpen(key,min=state.minuteOfDay){return getBusinessState(key,min).isOpen;}
   function getTargetLabel(el){return [el?.dataset?.dragonboundTravel,el?.dataset?.destinationKey,el?.getAttribute?.('aria-label'),el?.getAttribute?.('title'),el?.textContent].filter(Boolean).join(' ').replace(/\s+/g,' ').trim().toLowerCase();}
+  function isFirstAdoptionEntry(target,key){
+    if(key!=='adoption'||!target?.matches?.('.dragonbound-adoption-door-hotspot'))return false;
+    const stage=target.closest('.dragonbound-new-game-stage');
+    return !!stage?.classList.contains('is-active')&&stage.classList.contains('is-adoption')&&!stage.classList.contains('has-owned-home');
+  }
   function updateClosedDecorations(){
     const overlay=dragonboundOverlay();if(!overlay||!isDragonboundOpen())return;
-    overlay.querySelectorAll('[data-dragonbound-travel],.dragonbound-adoption-door-hotspot,.dragonbound-estate-door-hotspot,.velmora-travel-map-hotspot').forEach(el=>{const key=keyFromAny(getTargetLabel(el));if(!key)return;const closed=!isBusinessOpen(key);if(closed){el.dataset.velmoraClosed='1';el.setAttribute('aria-disabled','true');}else{el.removeAttribute('data-velmora-closed');if(el.getAttribute('aria-disabled')==='true')el.removeAttribute('aria-disabled');}});
+    overlay.querySelectorAll('[data-dragonbound-travel],.dragonbound-adoption-door-hotspot,.dragonbound-estate-door-hotspot,.velmora-travel-map-hotspot').forEach(el=>{const key=keyFromAny(getTargetLabel(el));if(!key)return;const closed=!isBusinessOpen(key)&&!isFirstAdoptionEntry(el,key);if(closed){el.dataset.velmoraClosed='1';el.setAttribute('aria-disabled','true');}else{el.removeAttribute('data-velmora-closed');if(el.getAttribute('aria-disabled')==='true')el.removeAttribute('aria-disabled');}});
   }
   function canSleepNow(){const min=state.minuteOfDay;return min>=18*60||min<MORNING_MINUTES;}
   function sleepToMorning(){if(state.minuteOfDay>=MORNING_MINUTES)state.day+=1;state.minuteOfDay=MORNING_MINUTES;state.lastWarningDay={};saveState();lastMinute=-1;dispatchTimeChange();renderLighting(true);return now();}
@@ -148,7 +153,7 @@
     const label=getTargetLabel(target),key=keyFromAny(label);if(!key)return;
     const entryIntent=!!target.dataset?.dragonboundTravel||!!target.dataset?.destinationKey||/enter|travel|visit/.test(label);
     if(!entryIntent)return;
-    const info=getBusinessState(key);if(!info.isOpen){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation?.();showToast(`${info.displayName} is closed for the evening. Opens at ${info.openingTime}.`,2800);return;}
+    const info=getBusinessState(key);if(!info.isOpen&&!isFirstAdoptionEntry(target,key)){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation?.();showToast(`${info.displayName} is closed for the evening. Opens at ${info.openingTime}.`,2800);return;}
     if(info.closingSoon && state.lastWarningDay?.[key]!==state.day){state.lastWarningDay[key]=state.day;saveState();showToast(`${info.displayName} will be closing soon.`,2200);}
   },true);
   document.addEventListener('visibilitychange',()=>{lastReal=Date.now(); if(document.visibilityState==='visible'){applyElapsedProgress(Date.now() - (state.updatedAt||Date.now())); lastMinute=-1; renderLighting(true); dispatchTimeChange();}});
