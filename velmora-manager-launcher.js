@@ -20,8 +20,8 @@
   function installStyles(){
     if(document.getElementById('velmoraManagerLauncherStyles'))return;
     const style=document.createElement('style');style.id='velmoraManagerLauncherStyles';style.textContent=`
-      #${OVERLAY_ID}{position:fixed;inset:0;display:none;background:#03101a;z-index:2147483646}
-      #${OVERLAY_ID}.is-visible{display:block}
+      #${OVERLAY_ID}{position:fixed;inset:0;display:none!important;background:#03101a;z-index:2147483646}
+      #${OVERLAY_ID}.is-visible{display:block!important}
       #${OVERLAY_ID} iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#eef4f8}
       #${OVERLAY_ID} .repo-vm-close{position:absolute;top:14px;right:16px;z-index:4;width:42px;height:42px;border:1px solid rgba(137,211,222,.55);border-radius:3px;background:rgba(4,25,38,.92);color:#fff;font:300 27px/1 Arial,sans-serif;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,.25)}
       #${OVERLAY_ID} .repo-vm-close:hover,#${OVERLAY_ID} .repo-vm-close:focus-visible{background:#0a4253;border-color:#78e6ec;outline:none}
