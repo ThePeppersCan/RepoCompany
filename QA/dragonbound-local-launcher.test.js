@@ -13,7 +13,7 @@ const originSource = launcherSource.slice(
 function resolveOrigin(href) {
   const url = new URL(href);
   const context = {
-    location: { hostname: url.hostname, search: url.search },
+    location: { hostname: url.hostname, protocol: url.protocol, search: url.search },
     URLSearchParams
   };
   vm.createContext(context);
@@ -37,6 +37,14 @@ test('two-server development remains an explicit option', () => {
 
 test('production can never be redirected to a local Dragonbound server', () => {
   assert.equal(resolveOrigin('https://repocompany.uk/?dragonboundLocal=1').origin, 'https://dragonbound.repocompany.uk');
+});
+
+test('a directly opened file still uses hosted Dragonbound', () => {
+  const result = resolveOrigin('file:///C:/Users/Isaac/Desktop/web2/index.html');
+  assert.equal(result.localPreview, false);
+  assert.equal(result.localDragonbound, false);
+  assert.equal(result.origin, 'https://dragonbound.repocompany.uk');
+  assert.match(launcherSource, /if \(filePreview\) url\.searchParams\.set\('repoOrigin', 'null'\)/);
 });
 
 test('launcher has bounded failure recovery and strict message checks', () => {

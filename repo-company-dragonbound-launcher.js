@@ -2,6 +2,7 @@
   'use strict';
 
   const localPreview = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+  const filePreview = location.protocol === 'file:';
   const launchParams = new URLSearchParams(location.search);
   const localDragonbound = localPreview && launchParams.get('dragonboundLocal') === '1';
   const DRAGONBOUND_ORIGIN = localDragonbound ? 'http://127.0.0.1:4180' : 'https://dragonbound.repocompany.uk';
@@ -98,6 +99,7 @@
     url.searchParams.set('source', 'repocompany');
     url.searchParams.set('repoBridge', bridge);
     if (localPreview) url.searchParams.set('repoOrigin', location.origin);
+    if (filePreview) url.searchParams.set('repoOrigin', 'null');
     url.searchParams.set('launchAttempt', String(Date.now()));
     frame.src = url.href;
     launchTimer = window.setTimeout(showLaunchError, 12000);
