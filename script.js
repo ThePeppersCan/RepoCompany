@@ -19956,6 +19956,7 @@ qmShowSharedGoal=function(state){
   const favouriteLoadedUsers=new Set();
   const loadingUsers=new Set();
   let decorationQueued=false;
+  const normal=value=>String(value??'').trim();
   const key=name=>String(name||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
   const notify=message=>{if(typeof toast==='function')toast(message);else if(typeof showToast==='function')showToast(message)};
   const displayed=()=>window.__repoTcgDisplayedCollection||{};
