@@ -1039,6 +1039,7 @@ html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-l
 
 <link href="repo-greenhouse-theme.css?v=v34-46-7-greenhouse-scene-framing-20260901" rel="stylesheet"/>
 <link href="repo-grand-exchange.css?v=v34-46-8-exchange-redesign-20260901" rel="stylesheet"/>
+<link href="repo-navigation.css?v=20260923-moratales-1" rel="stylesheet"/>
 </head>
 <body>
 <audio aria-hidden="true" id="signedOutNatureAudio" loop="" preload="none" src="assets/signed-out-nature.mp3"></audio>
@@ -1295,34 +1296,29 @@ html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-l
     </section>
     <section class="repo-native-premium-wing" aria-label="Gatherer's Wing">
       <h3>GATHERER'S WING</h3>
-      <div class="repo-native-premium-grid cols-4">
+      <div class="repo-native-premium-grid cols-5">
         <button class="repo-native-frame fishing-open-button" id="openFishing" title="Level Fishing — Repo Diver" type="button"><span class="repo-native-face"><img src="assets/level-fishing-icon.png" alt=""><b>FISHING</b></span></button>
         <button class="repo-native-frame runedle-open-button farm-run-open-button" id="openRuneDle" type="button"><span class="repo-native-face"><img src="assets/watering-can.png" alt=""><b>FARMING</b></span></button>
         <button class="repo-native-frame mining-open-button" id="openMining" type="button"><span class="repo-native-face"><img src="assets/mining-icon.png" alt=""><b>MINING</b></span></button>
         <button class="repo-native-frame hunter-open-button" id="openHunter" title="Open Level Hunter" type="button"><span class="repo-native-face"><img src="assets/level-hunter-icon.png" alt=""><b>HUNTER</b></span></button>
-      </div>
-    </section>
-    <section class="repo-native-premium-wing" aria-label="Artisan's Wing">
-      <h3>ARTISAN'S WING</h3>
-      <div class="repo-native-premium-grid cols-3">
-        <button class="repo-native-frame herblore-open-button" disabled id="openHerblore" type="button"><span class="repo-native-face"><img src="assets/level-herblore-icon.png" alt=""><b>HERBLORE</b></span></button>
         <button class="repo-native-frame runecrafting-open-button" disabled id="openRunecrafting" type="button"><span class="repo-native-face"><img src="assets/runecrafting-icon.png" alt=""><b>RUNECRAFT</b></span></button>
-        <button class="repo-native-frame construction-open-button" disabled id="openConstruction" type="button"><span class="repo-native-face"><img src="assets/level-construction-icon.png" alt=""><b>CONSTRUCT</b></span></button>
       </div>
     </section>
     <section class="repo-native-premium-wing" aria-label="Guild Services">
       <h3>GUILD SERVICES</h3>
-      <div class="repo-native-premium-grid cols-4">
+      <div class="repo-native-premium-grid cols-7">
         <button class="repo-native-frame wise-task-open-button" id="openWiseTask" type="button"><span class="repo-native-face"><img src="assets/wise-old-man.png" alt=""><b>WISE OLD<br>MAN</b></span><em class="wise-task-badge hidden" id="wiseTaskBadge">!</em></button>
         <button class="repo-native-frame ge-open-button" id="openGrandExchange" type="button"><span class="repo-native-face"><i class="repo-native-ge">GE</i><b>GRAND<br>EXCHANGE</b></span></button>
         <button class="repo-native-frame npc-contact-open-button" id="openNpcContact" type="button"><span class="repo-native-face"><img src="assets/npc-contact-icon.png" alt=""><b>NPC CONTACT</b></span></button>
         <button class="repo-native-frame quests-open-button" id="openQuests" type="button"><span class="repo-native-face"><img src="assets/quest-icon.png" alt=""><b>QUESTS</b></span></button>
+        <button class="repo-native-frame raids-open-button" id="openRaids" type="button"><span class="repo-native-face"><img src="assets/raids-icon.png" alt=""><b>RAIDS</b></span></button>
+        <button class="repo-native-frame achievements-open-button" id="openAchievements" type="button"><span class="repo-native-face"><img src="assets/achievement-log-icon.png" alt=""><b>ACHIEVEMENTS</b></span></button>
+        <button class="repo-native-frame other-quidditch-open-button" id="openRepoSports" title="Open Repo Sports" type="button"><span class="repo-native-face"><img src="assets/repo-sports-logo.png" alt=""><b>REPO SPORTS</b></span></button>
       </div>
     </section>
   </div>
 
   <div class="repo-native-premium-bottom">
-    <span class="repo-native-ornament left" aria-hidden="true"></span>
 
     <a class="repo-native-brand-button manager" id="openVelmoraManagerHome" href="https://manager.repocompany.uk/" aria-label="Play Velmora Manager" title="Play Velmora Manager">
       <span class="repo-native-brand-face">
@@ -1330,6 +1326,10 @@ html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-l
         <span class="repo-brand-divider" aria-hidden="true"></span>
         <span class="repo-brand-copy"><strong>VELMORA</strong><small>MANAGER</small></span>
       </span>
+    </a>
+
+    <a class="repo-native-brand-button moratales" id="openMoratales" href="https://moratales.repocompany.uk/" aria-label="Play Moratales" title="Play Moratales">
+      <span class="repo-native-brand-face"><img class="repo-moratales-logo" src="assets/launchers/moratales-logo.png" alt="Moratales"/></span>
     </a>
 
     <button class="repo-native-brand-button dragonbound dragonbound-open-button other-quidditch-open-button" id="openDragonbound" title="Open Dragonbound" type="button">
@@ -1340,11 +1340,6 @@ html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-l
       </span>
     </button>
 
-    <button class="repo-native-mini-button other-quidditch-open-button" id="openRepoSports" title="Open Repo Sports" type="button"><span class="repo-native-mini-face"><img src="assets/repo-sports-logo.png" alt=""><b>REPO SPORTS</b></span></button>
-    <button class="repo-native-mini-button raids-open-button" id="openRaids" type="button"><span class="repo-native-mini-face"><img src="assets/raids-icon.png" alt=""><b>RAIDS</b></span></button>
-    <button class="repo-native-mini-button achievements-open-button" id="openAchievements" type="button"><span class="repo-native-mini-face"><img src="assets/achievement-log-icon.png" alt=""><b>ACHIEVEMENT</b></span></button>
-
-    <span class="repo-native-ornament right" aria-hidden="true"></span>
   </div>
 </section>
 <footer><b>REPO COMPANY ADVENTURERS’ GUILD</b><span>Train Harmony together, level skills, collect pets and compete across the realm.</span></footer>

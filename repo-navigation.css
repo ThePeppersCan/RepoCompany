@@ -1,0 +1,63 @@
+/* Keep the existing 1369 × 153 desktop mounting aperture. The template's
+   empty painted frames are reused as CSS backgrounds; only the navigation
+   inside that aperture is rearranged. No dashboard scale or panel moves. */
+html body #repoDashboardV20 .repo-native-premium-top {
+  grid-template-columns: repeat(16,minmax(0,1fr)) !important;
+  gap: 5px !important;
+}
+html body #repoDashboardV20 .repo-native-premium-wing {
+  display: grid !important;
+  grid-template-columns: subgrid !important;
+  grid-template-rows: 21px 75px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+html body #repoDashboardV20 .repo-native-premium-wing:nth-child(1) {grid-column:span 4 !important}
+html body #repoDashboardV20 .repo-native-premium-wing:nth-child(2) {grid-column:span 5 !important}
+html body #repoDashboardV20 .repo-native-premium-wing:nth-child(3) {grid-column:span 7 !important}
+html body #repoDashboardV20 .repo-native-premium-wing h3 {grid-column:1/-1 !important}
+html body #repoDashboardV20 .repo-native-premium-grid {
+  grid-column:1/-1 !important;
+  grid-template-columns:subgrid !important;
+  padding:0 !important;
+  column-gap:5px !important;
+}
+html body #repoDashboardV20 .repo-native-premium-grid > button {grid-column:auto !important;grid-row:1 !important}
+html body #repoDashboardV20 .repo-native-premium-bottom {
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  width:100% !important;
+  gap:8px !important;
+}
+html body #repoDashboardV20 .repo-native-premium-bottom > .repo-native-brand-button {
+  grid-column:auto !important;
+  grid-row:1 !important;
+  width:100% !important;
+}
+html body #repoDashboardV20 .repo-native-brand-button.moratales .repo-native-brand-face {padding:1px 12px !important}
+html body #repoDashboardV20 .repo-moratales-logo {
+  display:block !important;
+  width:156px !important;
+  height:42px !important;
+  max-width:100% !important;
+  object-fit:contain !important;
+  image-rendering:auto;
+}
+/* These selectors deliberately outrank the old template's four-wing rules. */
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] > .repo-theme-action-deck {background:#101713 !important}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top {grid-template-columns:repeat(16,minmax(0,1fr)) !important;gap:5px !important}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing {grid-template-columns:subgrid !important}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-wing:nth-child(n) .repo-native-premium-grid {grid-template-columns:subgrid !important;padding:0 !important;column-gap:5px !important}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-frame {
+  background:url('assets/repo-dashboard-greenhouse-template-v34-46.png') 12.2052% 82.4691% / 2274.359% 1151.948% no-repeat !important;
+}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top :is(#openRuneDle,#openRaids) {
+  background:url('assets/repo-dashboard-greenhouse-template-v34-46.png') 12.2052% 82.4691% / 2274.359% 1151.948% no-repeat !important;
+}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top #openRaids,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top #openAchievements,
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-top #openRepoSports {grid-column:auto !important}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom {grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important;width:1369px !important}
+html body.repo-dashboard-v20-desktop #repoDashboardV20[data-repo-theme="greenhouse-v34-46"] .repo-native-premium-bottom > .repo-native-brand-button {
+  grid-column:auto !important;
+  background:url('assets/repo-dashboard-greenhouse-template-v34-46.png') 14.6704% 89.6104% / 488.7052% 2217.5% no-repeat !important;
+}
