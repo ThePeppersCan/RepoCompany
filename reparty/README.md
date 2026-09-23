@@ -7,7 +7,9 @@ Forest pixel-art watch parties for existing RepoCompany accounts. The homepage R
 - Same Supabase project, account identities and browser session as RepoCompany when served on the same origin at `/reparty/`.
 - Rooms joined through a room link or code; signed-in members can control playback.
 - Synchronized YouTube play, pause, seek, next video, late joins and reconnect recovery. Audio volume is local to each viewer.
-- Persistent collaborative playlists: create, rename, delete, add videos, remove and reorder. Up to 20 playlists per room, 200 videos per playlist.
+- Persistent collaborative playlists: create, rename, delete, add videos, remove and reorder. Up to 20 playlists per room, 1,000 videos per playlist.
+- Built-in “The Playlist of gods”: 560 entries copied from the user's W2G playlist on 23 September 2026. Use its button in the Playlist panel to add an independent editable copy to any room. Original order and duplicate videos are preserved. Repeated clicks select the existing copy. This is a snapshot, not automatic syncing with W2G.
+- The playlist database upgrade (`playlist-upgrade.sql`) was applied and verified in Supabase. Fresh setups can use the full `migration.sql`. Tests cover exact entry order/titles, independent room copies, repeat imports, permissions and existing playback preservation. Browser verification showed all 560 rows and persistence after reload. Individual YouTube availability was not checked.
 - Persistent room chat with the latest 100 messages shown, server-stamped identity, length limits and send throttling.
 - 100 generated pixel-art avatars: animals, landscapes, plants, and fantasy/MMORPG. Avatar selection is saved per account, separately from the existing character.
 - Responsive layout, keyboard controls, labelled forms, focusable dialogs and local autoplay recovery.

@@ -1,65 +1,4 @@
--- Reparty v1: run once in the existing RepoCompany Supabase SQL editor.
--- Additive only. Existing accounts, characters, games and data are untouched.
 begin;
-
-create table if not exists public.reparty_profiles (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  avatar_id smallint not null default 0 check (avatar_id between 0 and 99)
-);
-create table if not exists public.reparty_rooms (
-  id text primary key check (id ~ '^[a-f0-9]{12}$'),
-  owner_id uuid not null references auth.users(id) on delete cascade,
-  name text not null check (char_length(name) between 1 and 60),
-  playlists jsonb not null,
-  playback jsonb not null default '{"video_id":null,"item_id":null,"playing":false,"position":0}',
-  revision bigint not null default 0,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-create table if not exists public.reparty_members (
-  room_id text not null references public.reparty_rooms(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  display_name text not null,
-  last_seen timestamptz not null default now(),
-  primary key (room_id, user_id)
-);
-create table if not exists public.reparty_messages (
-  id bigint generated always as identity primary key,
-  room_id text not null references public.reparty_rooms(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade,
-  display_name text not null,
-  avatar_id smallint not null check (avatar_id between 0 and 99),
-  body text not null check (char_length(body) between 1 and 1000),
-  created_at timestamptz not null default now()
-);
-create index if not exists reparty_messages_room_time on public.reparty_messages(room_id, id desc);
-create index if not exists reparty_messages_user_time on public.reparty_messages(user_id, created_at desc);
-create index if not exists reparty_rooms_owner_time on public.reparty_rooms(owner_id, created_at);
-
-alter table public.reparty_profiles enable row level security;
-alter table public.reparty_rooms enable row level security;
-alter table public.reparty_members enable row level security;
-alter table public.reparty_messages enable row level security;
-
-create or replace function public.reparty_is_member(p_room text) returns boolean
-language sql stable security definer set search_path = '' as $$
-  select exists(select 1 from public.reparty_members where room_id=p_room and user_id=auth.uid());
-$$;
-revoke all on function public.reparty_is_member(text) from public, anon;
-grant execute on function public.reparty_is_member(text) to authenticated;
-
-drop policy if exists reparty_room_read on public.reparty_rooms;
-create policy reparty_room_read on public.reparty_rooms for select to authenticated using(public.reparty_is_member(id));
-drop policy if exists reparty_member_read on public.reparty_members;
-create policy reparty_member_read on public.reparty_members for select to authenticated using(public.reparty_is_member(room_id));
-drop policy if exists reparty_message_read on public.reparty_messages;
-create policy reparty_message_read on public.reparty_messages for select to authenticated using(public.reparty_is_member(room_id));
-drop policy if exists reparty_profile_read on public.reparty_profiles;
-create policy reparty_profile_read on public.reparty_profiles for select to authenticated using(user_id=auth.uid());
-
-revoke all on public.reparty_rooms, public.reparty_members, public.reparty_messages, public.reparty_profiles from anon, authenticated;
-grant select on public.reparty_rooms, public.reparty_members, public.reparty_messages, public.reparty_profiles to authenticated;
-
 -- Captured from the user-provided W2G playlist; order and duplicates preserved.
 create or replace function public.reparty_builtin_playlist() returns jsonb
 language sql immutable set search_path = '' as $preset$
@@ -67,7 +6,6 @@ language sql immutable set search_path = '' as $preset$
 $preset$;
 revoke all on function public.reparty_builtin_playlist() from public, anon, authenticated;
 
--- All writes go through this validated transaction, never arbitrary client updates.
 create or replace function public.reparty_action(p_action text, p_room text default null, p_data jsonb default '{}'::jsonb)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
@@ -204,14 +142,4 @@ $$;
 revoke all on function public.reparty_action(text,text,jsonb) from public, anon;
 grant execute on function public.reparty_action(text,text,jsonb) to authenticated;
 
-do $$ begin
-  if exists(select 1 from pg_publication where pubname='supabase_realtime') then
-    if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='reparty_rooms') then
-      alter publication supabase_realtime add table public.reparty_rooms;
-    end if;
-    if not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='reparty_messages') then
-      alter publication supabase_realtime add table public.reparty_messages;
-    end if;
-  end if;
-end $$;
 commit;

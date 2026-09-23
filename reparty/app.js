@@ -50,7 +50,7 @@ function setConnected(ok, label) {
   connectionReady = ok;
   $('connection').textContent = label;
   $('syncLabel').textContent = ok ? 'In sync' : roomId ? 'Reconnecting' : 'Not connected';
-  ['addButton', 'newPlaylist', 'renamePlaylist', 'deletePlaylist', 'playlistSelect', 'sendMessage', 'message'].forEach(id => { $(id).disabled = !ok; });
+  ['addButton', 'builtinPlaylist', 'newPlaylist', 'renamePlaylist', 'deletePlaylist', 'playlistSelect', 'sendMessage', 'message'].forEach(id => { $(id).disabled = !ok; });
   const hasVideo = !!room?.playback?.video_id;
   ['togglePlay', 'nextVideo', 'seek'].forEach(id => { $(id).disabled = !ok || !hasVideo; });
   $('resync').disabled = !ok;
@@ -420,6 +420,18 @@ function openEdit(heading, label, action, value = '', confirm = false, readOnly 
   editAction = action; modal('editDialog'); if (!confirm) { $('editValue').focus(); $('editValue').select(); }
 }
 onForm('editForm', async () => { await editAction($('editValue').value.trim()); $('editDialog').close(); }, 'editError');
+$('builtinPlaylist').onclick = async () => {
+  const target = roomId;
+  $('builtinPlaylist').disabled = true;
+  try {
+    await mutate('playlist_builtin');
+    if (target !== roomId) return;
+    selectedPlaylist = room.playlists.find(p => p.preset_key === 'playlist-of-gods')?.id || selectedPlaylist;
+    renderPlaylists();
+    notify('The Playlist of gods is ready. This room has its own editable copy.');
+  } catch (error) { notify(friendly(error)); }
+  finally { $('builtinPlaylist').disabled = !connectionReady; }
+};
 $('newPlaylist').onclick = () => openEdit('A new shared playlist.', 'Playlist name', name => mutate('playlist_create', { name }));
 $('renamePlaylist').onclick = () => { const p = playlist(); openEdit('Rename your playlist.', 'Playlist name', name => mutate('playlist_rename', { playlist_id: p.id, name }), p.name); };
 $('deletePlaylist').onclick = () => { const p = playlist(); openEdit('Delete this playlist?', `“${p.name}” and its videos will be removed for everyone in this room.`, () => mutate('playlist_delete', { playlist_id: p.id }), '', true); };
