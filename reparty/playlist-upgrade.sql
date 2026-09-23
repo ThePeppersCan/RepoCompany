@@ -75,11 +75,16 @@ begin
     if char_length(trim(coalesce(p_data->>'name',''))) not between 1 and 60 then raise exception 'Give the playlist a name (up to 60 characters).'; end if;
     lists := lists || jsonb_build_array(jsonb_build_object('id',gen_random_uuid()::text,'name',trim(p_data->>'name'),'items','[]'::jsonb));
     changed := true;
-  elsif p_action in ('playlist_rename','playlist_delete','add','remove','move','play','next') then
+  elsif p_action in ('playlist_shuffle','playlist_rename','playlist_delete','add','remove','move','play','next') then
     select ord::integer-1 into li from jsonb_array_elements(lists) with ordinality a(value,ord) where value->>'id'=p_data->>'playlist_id';
     if li is null then raise exception 'That playlist no longer exists.'; end if;
     entries := lists->li->'items';
-    if p_action='playlist_rename' then
+    if p_action='playlist_shuffle' then
+      -- Keep the playing item first so playback continues through the shuffled remainder.
+      select coalesce(jsonb_agg(value order by case when value->>'id'=pb->>'item_id' then 0 else 1 end, random()),'[]'::jsonb)
+        into entries from jsonb_array_elements(entries);
+      lists := jsonb_set(lists,array[li::text,'items'],entries);
+    elsif p_action='playlist_rename' then
       if char_length(trim(coalesce(p_data->>'name',''))) not between 1 and 60 then raise exception 'Give the playlist a name (up to 60 characters).'; end if;
       lists := jsonb_set(lists,array[li::text,'name'],to_jsonb(trim(p_data->>'name')));
     elsif p_action='playlist_delete' then

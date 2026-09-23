@@ -50,7 +50,7 @@ function setConnected(ok, label) {
   connectionReady = ok;
   $('connection').textContent = label;
   $('syncLabel').textContent = ok ? 'In sync' : roomId ? 'Reconnecting' : 'Not connected';
-  ['addButton', 'builtinPlaylist', 'newPlaylist', 'renamePlaylist', 'deletePlaylist', 'playlistSelect', 'sendMessage', 'message'].forEach(id => { $(id).disabled = !ok; });
+  ['addButton', 'builtinPlaylist', 'shufflePlaylist', 'newPlaylist', 'renamePlaylist', 'deletePlaylist', 'playlistSelect', 'sendMessage', 'message'].forEach(id => { $(id).disabled = !ok; });
   const hasVideo = !!room?.playback?.video_id;
   ['togglePlay', 'nextVideo', 'seek'].forEach(id => { $(id).disabled = !ok || !hasVideo; });
   $('resync').disabled = !ok;
@@ -420,6 +420,17 @@ function openEdit(heading, label, action, value = '', confirm = false, readOnly 
   editAction = action; modal('editDialog'); if (!confirm) { $('editValue').focus(); $('editValue').select(); }
 }
 onForm('editForm', async () => { await editAction($('editValue').value.trim()); $('editDialog').close(); }, 'editError');
+$('shufflePlaylist').onclick = async () => {
+  const p = playlist();
+  if (!p || p.items.length < 2) return notify('Add at least two videos to shuffle.');
+  const target = roomId;
+  $('shufflePlaylist').disabled = true;
+  try {
+    await mutate('playlist_shuffle', { playlist_id: p.id });
+    if (target === roomId) notify('Playlist shuffled for everyone. The current video keeps playing.');
+  } catch (error) { notify(friendly(error)); }
+  finally { $('shufflePlaylist').disabled = !connectionReady; }
+};
 $('builtinPlaylist').onclick = async () => {
   const target = roomId;
   $('builtinPlaylist').disabled = true;

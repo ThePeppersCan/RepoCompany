@@ -53,7 +53,7 @@
         <div class="tabs" role="tablist" aria-label="Room activity"><button role="tab" aria-selected="true" aria-controls="playlistPanel" id="playlistTab">Playlist <span id="queueCount">0</span></button><button role="tab" aria-selected="false" aria-controls="chatPanel" id="chatTab" tabindex="-1">Chat <span id="unread" hidden>0</span></button></div>
         <section id="playlistPanel" role="tabpanel" aria-labelledby="playlistTab">
           <div class="playlist-picker"><label class="sr-only" for="playlistSelect">Shared playlist</label><select id="playlistSelect" disabled><option>Our playlist</option></select><button id="newPlaylist" aria-label="Create playlist" disabled>+</button></div>
-          <div class="playlist-tools"><span>Everyone can add & reorder</span><button id="renamePlaylist" disabled>Rename</button><button id="deletePlaylist" disabled>Delete</button></div>
+          <div class="playlist-tools"><span>Shared controls</span><button id="shufflePlaylist" title="Shuffle this playlist for everyone" disabled>Shuffle</button><button id="renamePlaylist" disabled>Rename</button><button id="deletePlaylist" disabled>Delete</button></div>
           <button class="add-bottom" id="builtinPlaylist" disabled>♫ The Playlist of gods · 560 videos</button>
           <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Your next favourite is waiting.</strong><p>Paste a YouTube link above to start your shared playlist.</p></li></ol>
           <button class="add-bottom" id="focusAdd">+ Add video</button>
@@ -69,6 +69,6 @@
   <dialog id="avatarDialog" class="modal avatar-modal"><button class="close" data-close="avatarDialog" aria-label="Close">×</button><p class="eyebrow">MAKE YOURSELF AT HOME</p><h2>Choose your avatar.</h2><p>100 little identities. Your RepoCompany character stays the same.</p><div class="avatar-filters" id="avatarFilters" aria-label="Avatar categories"></div><div class="avatar-grid" id="avatarGrid"></div><p id="avatarError" class="form-error" role="alert"></p></dialog>
   <dialog id="editDialog" class="modal"><button class="close" data-close="editDialog" aria-label="Close">×</button><form id="editForm"><h2 id="editHeading">Playlist name</h2><label id="editLabel" for="editValue">Name</label><input id="editValue" maxlength="60" required><p id="editDescription"></p><div class="dialog-actions"><button type="button" data-close="editDialog">Cancel</button><button type="submit" id="editSubmit" class="primary">Save</button></div><p id="editError" class="form-error" role="alert"></p></form></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
-  <script type="module" src="app.js?v=2"></script>
+  <script type="module" src="app.js?v=3"></script>
 </body>
 </html>
