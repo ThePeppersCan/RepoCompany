@@ -8,7 +8,15 @@ Forest pixel-art watch parties for existing RepoCompany accounts. The homepage R
 - Rooms joined through a room link or code; signed-in members can control playback.
 - Synchronized YouTube play, pause, seek, next video, late joins and reconnect recovery. Audio volume is local to each viewer.
 - Persistent collaborative playlists: create, rename, delete, add videos, remove and reorder. Up to 20 playlists per room, 1,000 videos per playlist.
-- Shared Shuffle button: randomizes the selected playlist for everyone, preserving every entry and keeping its currently playing video first without restarting it. The rest of the playlist follows in the new order. Database update `shuffle-upgrade.sql` applied; backend and browser checks passed.
+- Shared play modes (v2): **Repeat** (on by default) starts the playlist again after the last video; **Shuffle** plays in a random order for everyone, each video once per cycle, without changing the saved playlist order. The older destructive shuffle action is kept server-side only for old clients.
+- Playlist tools (v2): search/filter, **◎ Now playing** jump, **Play next** (queues a video straight after the current one, across playlists), **⤒ Move to top**, plus ↑/↓. Keyboard focus stays on the same button after each move.
+- Unplayable videos (v2): when YouTube reports a video as private, removed or not embeddable (errors 2, 100, 101, 150), Reparty waits 2.5 s, marks it “Unavailable” and skips it for the whole room. Only the first viewer's skip counts (revision check). Marked videos are skipped automatically afterwards; playing one by hand clears the mark and tries again.
+- Sync hardening (v2): YouTube's own controls and keyboard are off and a click shield covers the embed (click = play/pause for everyone, double-click = full screen), so nobody can wander into YouTube's “More videos”. If the embed ever loads a different video anyway, Reparty notices and reloads the room's video.
+- Keyboard shortcuts: K or Space play/pause, J/L ±10 s, N next, M mute, F full screen, C chat, / search, ? help.
+- Chat: on screens 1700 px and wider, playlist and chat sit side by side (no tabs). In full screen, new messages appear over the video and a small chat box sits in the controls.
+- Dark mode: follows the device by default; the ☾/☀ button in the top bar switches and remembers the choice in this browser.
+- Leaving: closing the tab sends a `leave` immediately, so people don't linger in the room list for a minute.
+- The “Enable playback” prompt is now a large overlay on the TV when a browser blocks autoplay.
 - Built-in “The Playlist of gods”: 560 entries copied from the user's W2G playlist on 23 September 2026. Use its button in the Playlist panel to add an independent editable copy to any room. Original order and duplicate videos are preserved. Repeated clicks select the existing copy. This is a snapshot, not automatic syncing with W2G.
 - The playlist database upgrade (`playlist-upgrade.sql`) was applied and verified in Supabase. Fresh setups can use the full `migration.sql`. Tests cover exact entry order/titles, independent room copies, repeat imports, permissions and existing playback preservation. Browser verification showed all 560 rows and persistence after reload. Individual YouTube availability was not checked.
 - Persistent room chat with the latest 100 messages shown, server-stamped identity, length limits and send throttling.
@@ -16,6 +24,9 @@ Forest pixel-art watch parties for existing RepoCompany accounts. The homepage R
 - Responsive layout, keyboard controls, labelled forms, focusable dialogs and local autoplay recovery.
 
 ## Installation status
+
+**v2 (this update): run `v2-upgrade.sql` in the Supabase SQL editor, then deploy the site files.** It adds a `settings` column to `reparty_rooms` (default `{"repeat":true,"shuffle":false}`) and replaces `reparty_action`. It is additive and rerunnable, and existing rooms, playlists and playback are kept. Don't rerun `playlist-upgrade.sql` or `shuffle-upgrade.sql` afterwards, because they would put back the older function. If the site is deployed before the SQL, it keeps working: the Repeat/Shuffle/Play next/Top controls stay hidden and unplayable videos fall back to a normal Next. `migration.sql` already includes v2 for fresh setups.
+
 
 The additive `migration.sql` has been applied to the existing RepoCompany Supabase project. Four new tables have row-level security; `reparty_rooms` and `reparty_messages` are enabled in `supabase_realtime`. Anonymous users cannot call the room RPC. Existing characters and game data are not modified.
 
@@ -44,6 +55,12 @@ Playback uses server time, a canonical playback timestamp, and bounded drift cor
 - Real YouTube oEmbed endpoint returned the expected video title. The official iframe was created but did not finish loading in the in-app test browser; actual streaming remains to be checked in a normal browser. The multi-viewer browser checks above used a simulated video adapter, not actual streamed video. The app displays a timeout and allows retrying when a player cannot load.
 
 YouTube can refuse videos that are private, unavailable, age restricted, or disallowed for embedding. Browser autoplay rules and per-viewer advertisements can temporarily affect synchronization. These are handled with a playback-enabling button, catch-up control and visible errors rather than bypassing YouTube restrictions.
+
+### v2 validation
+
+- SQL (PGlite): fresh `migration.sql` run twice plus `v2-upgrade.sql` twice; upgrade from the live v1 schema with a room mid-playback. 16 checks: in-order next, stale-revision rejection, Repeat wrap and stop, single-video repeat, skip marking/auto-skip/manual retry, paused skip stays paused, all-unavailable stops without looping, move up/down/top edges, Play next (same and cross-playlist), Shuffle cycle coverage with unchanged order, Shuffle + Repeat off stops, settings validation, non-member and anonymous denial, 560-video Playlist of gods (shuffle next ≈ 5 ms in PGlite).
+- Browser (Playwright, two to four real viewers against the PGlite backend with a simulated YouTube player): embed wandering onto another video is corrected, click shield and shortcuts control everyone, one shared skip on an unplayable video, Play next, Repeat on/off at the end, Shuffle keeps the order, Top/search/jump with 560 videos, split chat at 2560 px and tabs + unread badge at 1440 px, full-screen chat overlay, dark mode toggle/persistence/system default, 390 px phone with no sideways scroll, autoplay overlay, leave on tab close, and the old database without v2 SQL.
+- Not checked: real YouTube streaming (youtube.com is blocked in the test environment). Because YouTube's own controls are hidden, its captions (CC) and quality menus are no longer reachable inside the player.
 
 ## Assets
 
