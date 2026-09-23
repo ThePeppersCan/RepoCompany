@@ -930,8 +930,8 @@ html body .velmora-crown-newspaper-launcher.is-world-cup-corner:focus-visible{
   overflow:hidden!important;
   z-index:2!important;
 }
-#repoDashboardV20 .velmora-crown-home-stack #openVelmoraCrownNewspaper,
-#repoDashboardV20 .velmora-crown-home-stack #openVelmoraCrownNewspaper.is-world-cup-corner,
+#repoDashboardV20 .velmora-crown-home-stack #openReparty,
+#repoDashboardV20 .velmora-crown-home-stack #openReparty.is-world-cup-corner,
 html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-launcher{
   position:relative!important;
   inset:auto!important;
@@ -963,14 +963,14 @@ html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-l
   filter:none!important;
   z-index:2!important;
 }
-#repoDashboardV20 .velmora-crown-home-stack #openVelmoraCrownNewspaper:hover,
-#repoDashboardV20 .velmora-crown-home-stack #openVelmoraCrownNewspaper.is-world-cup-corner:hover{
+#repoDashboardV20 .velmora-crown-home-stack #openReparty:hover,
+#repoDashboardV20 .velmora-crown-home-stack #openReparty.is-world-cup-corner:hover{
   background:linear-gradient(180deg,rgba(27,45,56,.86),rgba(8,17,23,.65))!important;
   border-color:rgba(204,154,70,.64)!important;
   filter:brightness(1.08)!important;
   transform:none!important;
 }
-#repoDashboardV20 .velmora-crown-home-stack #openVelmoraCrownNewspaper img,
+#repoDashboardV20 .velmora-crown-home-stack #openReparty img,
 html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-launcher img{
   flex:0 0 auto!important;
   display:block!important;
@@ -1057,10 +1057,10 @@ html body #repoDashboardV20 .velmora-crown-home-stack .velmora-crown-newspaper-l
 <button class="header-quick-button pets-open-button" disabled="" id="openPets" type="button"><img alt="" height="25" src="assets/pets-icon.png" width="25"/><span>PETS</span></button>
 <div class="velmora-crown-home-stack">
 
-<button aria-label="Open The Velmora Crown newspaper" class="velmora-crown-newspaper-launcher" id="openVelmoraCrownNewspaper" title="Open The Velmora Crown" type="button">
-<img alt="" src="assets/velmora-crown/velmora-crown-newspaper-button.png"/>
-<span class="velmora-crown-header-copy"><b>VELMORA</b><small>CROWN</small></span>
-</button>
+<a aria-label="Open Reparty watch party" class="velmora-crown-newspaper-launcher" id="openReparty" title="Watch together in Reparty" href="reparty/" style="text-decoration:none">
+<img alt="" src="assets/reparty/reparty-icon.png"/>
+<span class="velmora-crown-header-copy"><b>REPARTY</b><small>WATCH TOGETHER</small></span>
+</a>
 </div>
 <button aria-label="Open Legacy Quidditch Mode" class="header-quick-button legacy-quidditch-tab" hidden="" id="openQuidditchMode" style="display:none!important" title="Legacy Quidditch Mode — results are not recorded" type="button">
 <img alt="Repo Sports Legacy Mode" height="46" src="assets/repo-sports-legacy-mode-tab.png" width="102"/>
@@ -4305,77 +4305,7 @@ window.__QD_HOST__={
 </script>
 <!-- V22.15.5: newspaper hover skin isolation; no brown hover box -->
 <!-- V22.15.4: replacement Crown spread, larger billboard, newspaper 30%, World Cup menu 7.5% -->
-<script id="velmoraCrownNewspaperScript">
-(()=>{
-  const openButton=document.getElementById('openVelmoraCrownNewspaper');
-  const viewer=document.getElementById('velmoraCrownNewspaperViewer');
-  const closeButton=document.getElementById('closeVelmoraCrownNewspaper');
-  const music=document.getElementById('velmoraCrownNewspaperMusic');
-  if(!openButton||!viewer||!closeButton||!music)return;
-
-  let previousFocus=null;
-  let audioFrame=0;
-  const clamp=v=>Math.max(0,Math.min(.3,Number(v)||0));
-  const cancelFade=()=>{if(audioFrame)cancelAnimationFrame(audioFrame);audioFrame=0};
-  const fadeMusic=(target,duration=420,stopAtEnd=false)=>{
-    cancelFade();
-    const from=Number.isFinite(music.volume)?music.volume:0;
-    const to=clamp(target);
-    const started=performance.now();
-    const tick=now=>{
-      const t=Math.min(1,(now-started)/Math.max(1,duration));
-      const eased=1-Math.pow(1-t,3);
-      try{music.volume=clamp(from+(to-from)*eased)}catch(_){}
-      if(t<1)audioFrame=requestAnimationFrame(tick);
-      else{
-        audioFrame=0;
-        if(stopAtEnd&&to<=.001){try{music.pause();music.currentTime=0;music.volume=.3}catch(_){}}
-      }
-    };
-    audioFrame=requestAnimationFrame(tick);
-  };
-
-  const startMusic=()=>{
-    cancelFade();
-    try{
-      music.pause();
-      music.currentTime=0;
-      music.volume=0;
-      const result=music.play();
-      result?.catch?.(()=>{});
-      fadeMusic(.3,620,false);
-    }catch(_){}
-  };
-  const stopMusic=()=>fadeMusic(0,320,true);
-
-  const open=()=>{
-    if(viewer.classList.contains('is-open'))return;
-    previousFocus=document.activeElement;
-    viewer.classList.add('is-open');
-    viewer.setAttribute('aria-hidden','false');
-    document.body.classList.add('velmora-crown-newspaper-open');
-    startMusic();
-    requestAnimationFrame(()=>closeButton.focus({preventScroll:true}));
-  };
-  const close=()=>{
-    if(!viewer.classList.contains('is-open'))return;
-    viewer.classList.remove('is-open');
-    viewer.setAttribute('aria-hidden','true');
-    document.body.classList.remove('velmora-crown-newspaper-open');
-    stopMusic();
-    try{previousFocus?.focus?.({preventScroll:true})}catch(_){}
-  };
-
-  openButton.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();open()});
-  closeButton.addEventListener('click',close);
-  viewer.addEventListener('click',event=>{if(event.target===viewer)close()});
-  document.addEventListener('keydown',event=>{
-    if(event.key==='Escape'&&viewer.classList.contains('is-open')){
-      event.preventDefault();event.stopPropagation();close();
-    }
-  },true);
-})();
-</script>
+<!-- Reparty replaces the retired Crown launcher. Newspaper assets are retained. -->
 
 <!-- Dragonbound gameplay is owned by dragonbound.repocompany.uk. Keep this page to the launcher/auth bridge only. -->
 <script src="repo-company-dragonbound-launcher.js?v=v34-51-file-dragonbound-bridge-20260908"></script>
