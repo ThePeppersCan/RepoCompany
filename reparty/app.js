@@ -66,6 +66,20 @@ applyTheme(savedTheme() || (systemDark.matches ? 'dark' : 'light'));
 systemDark.addEventListener('change', e => { if (!savedTheme()) applyTheme(e.matches ? 'dark' : 'light'); });
 $('themeToggle').onclick = () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true);
 
+function theatreActive() {
+  return document.documentElement.classList.contains('theatre') && matchMedia('(min-width: 851px)').matches;
+}
+function applyTheatre(enabled, save = false) {
+  document.documentElement.classList.toggle('theatre', enabled);
+  $('theatreToggle').setAttribute('aria-pressed', String(enabled));
+  $('theatreToggle').title = enabled ? 'Exit theatre mode (T)' : 'Theatre mode: a bigger TV (T)';
+  if (save) { try { localStorage.setItem('reparty-layout', enabled ? 'theatre' : 'standard'); } catch {} }
+  if (!enabled && !document.fullscreenElement) $('tvChat').replaceChildren();
+  if (enabled) { unread = 0; $('unread').hidden = true; }
+}
+applyTheatre(document.documentElement.classList.contains('theatre'));
+$('theatreToggle').onclick = () => applyTheatre(!document.documentElement.classList.contains('theatre'), true);
+
 function setConnected(ok, label) {
   connectionReady = ok;
   $('connection').textContent = label;
@@ -301,7 +315,7 @@ function renderMessages(messages) {
   messagesLoaded = true;
   if (!chatVisible()) unread += fresh.filter(m => m.user_id !== user.id).length;
   $('unread').hidden = unread === 0; $('unread').textContent = unread;
-  if (document.fullscreenElement === $('television')) fresh.forEach(overlayMessage);
+  if (document.fullscreenElement === $('television') || theatreActive()) fresh.forEach(overlayMessage);
   lastMessageId = messages.at(-1)?.id || 0;
   container.replaceChildren();
   if (!messages.length) container.append(node('p', 'First one here? Say hello.', 'muted'));
@@ -591,10 +605,10 @@ function seekBy(delta) {
 function press(id) { if (!$(id).disabled) $(id).click(); }
 const shortcuts = {
   ' ': () => press('togglePlay'), k: () => press('togglePlay'), n: () => press('nextVideo'), m: () => press('mute'), f: () => press('fullscreen'),
-  j: () => seekBy(-10), l: () => seekBy(10), '?': () => modal('shortcutsDialog'),
+  j: () => seekBy(-10), l: () => seekBy(10), t: () => press('theatreToggle'), '?': () => modal('shortcutsDialog'),
   '/': () => { if (!splitView.matches) showTab('playlist'); $('queueSearch').focus(); },
   c: () => {
-    if (document.fullscreenElement === $('television')) { $('tvMessage').focus(); return; }
+    if (document.fullscreenElement === $('television') || theatreActive()) { $('tvMessage').focus(); return; }
     if (!splitView.matches) showTab('chat');
     $('message').focus();
   }
