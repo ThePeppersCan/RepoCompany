@@ -7,8 +7,8 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Reparty · RepoCompany</title>
   <link rel="icon" href="../assets/reparty/reparty-icon.png">
-  <script>try{var t=localStorage.getItem('reparty-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){}</script>
-  <link rel="stylesheet" href="reparty.css?v=2">
+  <script>try{var t=localStorage.getItem('reparty-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;if(localStorage.getItem('reparty-layout')==='theatre')document.documentElement.classList.add('theatre')}catch(e){}</script>
+  <link rel="stylesheet" href="reparty.css?v=3">
 </head>
 <body>
   <div class="app">
@@ -46,6 +46,7 @@
             <button id="mute" class="icon-button dark" aria-label="Mute my audio" aria-keyshortcuts="M" title="Mute my audio (M)" disabled>♪</button>
             <label class="volume" title="Your volume">Volume<input id="volume" aria-label="Your volume" type="range" min="0" max="100" value="70"></label>
             <button id="resync" class="sync" disabled title="Catch up with the room"><i></i><span id="syncLabel">Not connected</span></button>
+            <button id="theatreToggle" class="icon-button dark" aria-label="Theatre mode" aria-pressed="false" aria-keyshortcuts="T" title="Theatre mode: a bigger TV (T)">▭</button>
             <button id="fullscreen" class="icon-button dark" aria-label="Full screen" aria-keyshortcuts="F" title="Full screen (F)">⛶</button>
             <span class="speaker" aria-hidden="true"></span>
           </div>
@@ -75,8 +76,8 @@
   <dialog id="auth" class="modal"><button class="close" data-close="auth" aria-label="Close">×</button><p class="eyebrow">YOUR EXISTING ACCOUNT</p><h2>Welcome back.</h2><p>Use your RepoCompany username and password. Already signed in on this browser? Your account connects automatically.</p><form id="loginForm"><label for="username">Username</label><input id="username" autocomplete="username" required maxlength="64"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><button class="primary">Sign in to Reparty</button><p id="authError" class="form-error" role="alert"></p></form><a href="../">Create an account at RepoCompany →</a></dialog>
   <dialog id="avatarDialog" class="modal avatar-modal"><button class="close" data-close="avatarDialog" aria-label="Close">×</button><p class="eyebrow">MAKE YOURSELF AT HOME</p><h2>Choose your avatar.</h2><p>100 little identities. Your RepoCompany character stays the same.</p><div class="avatar-filters" id="avatarFilters" aria-label="Avatar categories"></div><div class="avatar-grid" id="avatarGrid"></div><p id="avatarError" class="form-error" role="alert"></p></dialog>
   <dialog id="editDialog" class="modal"><button class="close" data-close="editDialog" aria-label="Close">×</button><form id="editForm"><h2 id="editHeading">Playlist name</h2><label id="editLabel" for="editValue">Name</label><input id="editValue" maxlength="60" required><p id="editDescription"></p><div class="dialog-actions"><button type="button" data-close="editDialog">Cancel</button><button type="submit" id="editSubmit" class="primary">Save</button></div><p id="editError" class="form-error" role="alert"></p></form></dialog>
-  <dialog id="shortcutsDialog" class="modal"><button class="close" data-close="shortcutsDialog" aria-label="Close">×</button><p class="eyebrow">QUICK KEYS</p><h2>Keyboard shortcuts.</h2><dl class="shortcuts"><dt><kbd>K</kbd> or <kbd>Space</kbd></dt><dd>Play or pause for everyone</dd><dt><kbd>J</kbd> / <kbd>L</kbd></dt><dd>Back or forward 10 seconds for everyone</dd><dt><kbd>N</kbd></dt><dd>Next video</dd><dt><kbd>M</kbd></dt><dd>Mute or unmute your audio</dd><dt><kbd>F</kbd></dt><dd>Full screen (double-click the video works too)</dd><dt><kbd>C</kbd></dt><dd>Write a chat message</dd><dt><kbd>/</kbd></dt><dd>Search the playlist</dd><dt><kbd>?</kbd></dt><dd>Show this list</dd></dl></dialog>
+  <dialog id="shortcutsDialog" class="modal"><button class="close" data-close="shortcutsDialog" aria-label="Close">×</button><p class="eyebrow">QUICK KEYS</p><h2>Keyboard shortcuts.</h2><dl class="shortcuts"><dt><kbd>K</kbd> or <kbd>Space</kbd></dt><dd>Play or pause for everyone</dd><dt><kbd>J</kbd> / <kbd>L</kbd></dt><dd>Back or forward 10 seconds for everyone</dd><dt><kbd>N</kbd></dt><dd>Next video</dd><dt><kbd>M</kbd></dt><dd>Mute or unmute your audio</dd><dt><kbd>T</kbd></dt><dd>Theatre mode: the TV fills the window</dd><dt><kbd>F</kbd></dt><dd>Full screen (double-click the video works too)</dd><dt><kbd>C</kbd></dt><dd>Write a chat message</dd><dt><kbd>/</kbd></dt><dd>Search the playlist</dd><dt><kbd>?</kbd></dt><dd>Show this list</dd></dl></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
-  <script type="module" src="app.js?v=4"></script>
+  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>

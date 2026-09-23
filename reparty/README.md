@@ -12,7 +12,8 @@ Forest pixel-art watch parties for existing RepoCompany accounts. The homepage R
 - Playlist tools (v2): search/filter, **◎ Now playing** jump, **Play next** (queues a video straight after the current one, across playlists), **⤒ Move to top**, plus ↑/↓. Keyboard focus stays on the same button after each move.
 - Unplayable videos (v2): when YouTube reports a video as private, removed or not embeddable (errors 2, 100, 101, 150), Reparty waits 2.5 s, marks it “Unavailable” and skips it for the whole room. Only the first viewer's skip counts (revision check). Marked videos are skipped automatically afterwards; playing one by hand clears the mark and tries again.
 - Sync hardening (v2): YouTube's own controls and keyboard are off and a click shield covers the embed (click = play/pause for everyone, double-click = full screen), so nobody can wander into YouTube's “More videos”. If the embed ever loads a different video anyway, Reparty notices and reloads the room's video.
-- Keyboard shortcuts: K or Space play/pause, J/L ±10 s, N next, M mute, F full screen, C chat, / search, ? help.
+- Theatre mode (▭ button or T, desktop widths): the TV takes the full width and is sized so the whole set fits the window; new chat appears over the video with a chat box in the controls, and the playlist and chat panels sit side by side below. Remembered per browser.
+- Keyboard shortcuts: K or Space play/pause, J/L ±10 s, N next, M mute, T theatre, F full screen, C chat, / search, ? help.
 - Chat: on screens 1700 px and wider, playlist and chat sit side by side (no tabs). In full screen, new messages appear over the video and a small chat box sits in the controls.
 - Dark mode: follows the device by default; the ☾/☀ button in the top bar switches and remembers the choice in this browser.
 - Leaving: closing the tab sends a `leave` immediately, so people don't linger in the room list for a minute.
@@ -25,7 +26,7 @@ Forest pixel-art watch parties for existing RepoCompany accounts. The homepage R
 
 ## Installation status
 
-**v2 (this update): run `v2-upgrade.sql` in the Supabase SQL editor, then deploy the site files.** It adds a `settings` column to `reparty_rooms` (default `{"repeat":true,"shuffle":false}`) and replaces `reparty_action`. It is additive and rerunnable, and existing rooms, playlists and playback are kept. Don't rerun `playlist-upgrade.sql` or `shuffle-upgrade.sql` afterwards, because they would put back the older function. If the site is deployed before the SQL, it keeps working: the Repeat/Shuffle/Play next/Top controls stay hidden and unplayable videos fall back to a normal Next. `migration.sql` already includes v2 for fresh setups.
+**v2: `v2-upgrade.sql` was applied to the live Supabase project on 23 September 2026** (migration `reparty_v2_play_modes`; the live function matched v1 exactly beforehand, and the existing room kept its playlists and playback). It adds a `settings` column to `reparty_rooms` (default `{"repeat":true,"shuffle":false}`) and replaces `reparty_action`. It is additive and rerunnable, and existing rooms, playlists and playback are kept. Don't rerun `playlist-upgrade.sql` or `shuffle-upgrade.sql` afterwards, because they would put back the older function. If the site is deployed before the SQL, it keeps working: the Repeat/Shuffle/Play next/Top controls stay hidden and unplayable videos fall back to a normal Next. `migration.sql` already includes v2 for fresh setups.
 
 
 The additive `migration.sql` has been applied to the existing RepoCompany Supabase project. Four new tables have row-level security; `reparty_rooms` and `reparty_messages` are enabled in `supabase_realtime`. Anonymous users cannot call the room RPC. Existing characters and game data are not modified.

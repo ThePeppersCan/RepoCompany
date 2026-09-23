@@ -94,6 +94,7 @@ kbd{font:600 11px var(--body);border:1px solid var(--soft-line);border-bottom-wi
 .screen iframe,.screen>#youtubePlayer{position:absolute;inset:0;width:100%;height:100%;border:0}
 /* The shield keeps every click on Reparty's side, so nobody can wander off into YouTube's own suggestions. */
 .screen-shield{position:absolute;inset:0;z-index:1;cursor:pointer}
+.screen{-webkit-user-select:none;user-select:none}
 .shield-flash{position:absolute;left:50%;top:50%;width:76px;height:76px;margin:-38px 0 0 -38px;display:grid;place-items:center;border-radius:50%;background:#000000a6;color:#fff;font-size:30px;opacity:0;pointer-events:none}
 .shield-flash.show{animation:shield-flash .65s ease-out}
 @keyframes shield-flash{0%{opacity:.95;transform:scale(.8)}100%{opacity:0;transform:scale(1.25)}}
@@ -260,6 +261,26 @@ input[type=range]::-moz-range-thumb{width:11px;height:12px;background:var(--oran
 .sidebar-footer{grid-column:1/-1}
 }
 
+/* Theatre mode (T): the TV takes the full width, sized so the whole set fits the window height.
+   Chat shows over the video; playlist and chat sit side by side underneath. */
+#theatreToggle[aria-pressed=true]{background:var(--orange);border-color:#713e2d;box-shadow:inset 0 2px #f08a5c,inset 0 -2px #91432e}
+@media(min-width:851px){
+.theatre .watch-layout{grid-template-columns:minmax(0,1fr)}
+.theatre .television{max-width:calc((100vh - 160px) * 16 / 9 + 62px);margin:0 auto}
+.theatre .tv-chat{display:flex}
+.theatre .tv-chat-form{display:flex;flex:0 1 300px;min-width:140px}
+.theatre .sidebar{align-self:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto;column-gap:18px;padding-top:18px}
+.theatre .sidebar>.tabs{display:none}
+.theatre #playlistPanel[hidden],.theatre #chatPanel[hidden]{display:flex!important}
+.theatre #playlistPanel,.theatre #chatPanel{display:flex;flex-direction:column;min-width:0}
+.theatre #chatPanel{border-left:2px dashed var(--rule);padding-left:18px}
+.theatre .split-heading{display:flex;align-items:baseline;gap:8px;font:600 22px var(--pixel);margin:0;padding:0 2px 11px;border-bottom:3px solid var(--rule)}
+.theatre .split-heading span{font:11px var(--body);opacity:.75}
+.theatre .queue{flex:0 0 auto;max-height:520px;min-height:300px}
+.theatre .messages{height:auto;flex:1 1 0;min-height:300px}
+.theatre .sidebar-footer{grid-column:1/-1}
+}
+
 @media(max-width:1150px){
 .app{padding:10px 15px}
 .watch-layout{grid-template-columns:minmax(0,1fr) 290px;gap:13px}
@@ -331,7 +352,7 @@ input[type=range]::-moz-range-thumb{width:11px;height:12px;background:var(--oran
 .icon-button{height:34px;min-width:31px;padding:3px 6px;font-size:18px}
 .sync{padding:7px;font-size:11px;min-width:0}
 .sync i{width:6px;height:6px}
-.playback-controls #mute{display:none}
+.playback-controls #mute,#theatreToggle{display:none}
 .sync span{max-width:70px}
 .now-playing{font-size:12px;padding:7px 10px}
 .participants .avatar{width:37px;height:37px}
