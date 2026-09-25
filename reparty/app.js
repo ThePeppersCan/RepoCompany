@@ -1,3 +1,5 @@
+import { createGamePlayer } from './game-player.js';
+import { createGameMode } from './game-mode.js';
 import { config } from './config.js';
 import { avatars, avatarGroups } from './avatars.js';
 import { parseVideo, playbackPosition, formatTime, validRoom, avatarPosition } from './core.mjs';
@@ -16,6 +18,28 @@ let queueFilter = '', renderedPlaying = null, centreOnPlaying = true;
 const UNPLAYABLE = [2, 100, 101, 150];
 const splitView = matchMedia('(min-width: 1700px)');
 const systemDark = matchMedia('(prefers-color-scheme: dark)');
+let latestMembers = [], wasGameMode = false;
+const gameMode = createGameMode({
+  getUser: () => user, avatar: avatarElement, notify,
+  onModeChange(active) {
+    if (active && !wasGameMode && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    miniPlayer.update(active);
+    wasGameMode = active;
+  },
+  async send(action, data) {
+    if (!requireUser()) return;
+    if (!roomId) { modal('lobby'); return; }
+    const target = roomId, started = Date.now();
+    const response = await db.rpc('reparty_game_action', { p_action: action, p_room: target, p_data: data });
+    if (response.error) throw response.error;
+    if (target !== roomId) return;
+    if (response.data?.server_time) offset = Date.parse(response.data.server_time) - (started + Date.now()) / 2;
+    applySnapshot(response.data);
+    if (response.data?.game_stale) notify('The table already moved on. You’re up to date.');
+  }
+});
+
+const miniPlayer = createGamePlayer();
 
 function node(tag, text, className) {
   const e = document.createElement(tag);
@@ -82,6 +106,8 @@ $('theatreToggle').onclick = () => applyTheatre(!document.documentElement.classL
 
 function setConnected(ok, label) {
   connectionReady = ok;
+  gameMode.setConnected(ok);
+  miniPlayer.connected(ok);
   $('connection').textContent = label;
   $('syncLabel').textContent = ok ? 'In sync' : roomId ? 'Reconnecting' : 'Not connected';
   ['addButton', 'builtinPlaylist', 'repeatMode', 'shuffleMode', 'newPlaylist', 'renamePlaylist', 'deletePlaylist', 'playlistSelect', 'sendMessage', 'message', 'tvMessage'].forEach(id => { $(id).disabled = !ok; });
@@ -130,13 +156,15 @@ function applySnapshot(data) {
   $('roomFootnote').textContent = `Room ${room.id} · Everyone can control playback and edit playlists.`;
   // On joining, open the playlist that's playing rather than always the first one.
   if (!room.playlists.some(p => p.id === selectedPlaylist)) selectedPlaylist = playingEntry()?.playlist.id || room.playlists[0]?.id;
+  latestMembers = data.members;
+  gameMode.update(room.settings?.game, latestMembers, roomId, offset);
   renderModes();
   renderPlaylists();
   renderMembers(data.members);
   renderMessages(data.messages);
   applyAvatar($('myAvatar'), myAvatar);
   $('chooseAvatar').disabled = false;
-  setConnected(true, `${data.members.length} watching together`);
+  setConnected(true, `${data.members.length} ${gameMode.active() ? 'playing together' : 'watching together'}`);
   $('emptyHint').textContent = 'Paste a YouTube link above. Everyone in your room can add videos.';
   $('startRoom').hidden = true;
   $('togglePlay').textContent = room.playback.playing ? 'Ⅱ' : '▶';
@@ -333,6 +361,7 @@ async function leaveRoom() {
   generation++;
   const oldRoom = roomId;
   roomId = null; room = null; playerVideo = null; blocked = false;
+  latestMembers = []; gameMode.update(null);
   clearInterval(poll); clearTimeout(refreshTimer); clearTimeout(skipTimer);
   if (channel) { await db.removeChannel(channel); channel = null; }
   suppressUntil = performance.now() + 2000;
@@ -524,7 +553,7 @@ onForm('addVideo', async () => {
   const title = await metadata(id);
   if (target !== roomId) return;
   await mutate('add', { playlist_id: listId, video_id: id, title });
-  $('videoUrl').value = ''; notify('Added to your shared playlist.');
+  $('videoUrl').value = ''; $('miniVideoUrl').value = ''; notify('Added to your shared playlist.');
 });
 onForm('createRoom', async () => {
   if (!requireUser()) return;
@@ -549,7 +578,7 @@ $('playlistSelect').onchange = () => { selectedPlaylist = $('playlistSelect').va
 $('togglePlay').onclick = () => run(() => publishPlayback(!room.playback.playing, playerReady ? player.getCurrentTime() : playbackPosition(room.playback, Date.now() + offset)));
 $('nextVideo').onclick = () => { const current = playingEntry(); if (current) run(() => mutate('next', { playlist_id: current.playlist.id, item_id: current.item.id, revision: room.revision })); };
 $('seek').onchange = () => run(() => publishPlayback(room.playback.playing, Number($('seek').value)));
-$('volume').oninput = () => { if (playerReady) { player.setVolume(Number($('volume').value)); player.unMute(); $('mute').textContent = '♪'; } };
+$('volume').oninput = () => { if (playerReady) { player.setVolume(Number($('volume').value)); player.unMute(); $('mute').textContent = '♪'; $('mute').setAttribute('aria-label', 'Mute my audio'); } };
 $('mute').onclick = () => { if (!playerReady) return; const muted = player.isMuted(); if (muted) player.unMute(); else player.mute(); $('mute').textContent = muted ? '♪' : '×'; $('mute').setAttribute('aria-label', muted ? 'Mute my audio' : 'Unmute my audio'); };
 $('resync').onclick = () => run(async () => { await refresh(); await applyPlayback(true); notify('Caught up with your room.'); });
 $('enablePlayback').onclick = () => { blocked = false; $('enablePlayback').hidden = true; if (playerReady) { player.playVideo(); suppressUntil = performance.now() + 1700; } applyPlayback(true).catch(error => notify(friendly(error))); };
@@ -614,6 +643,7 @@ const shortcuts = {
   }
 };
 document.addEventListener('keydown', e => {
+  if (gameMode.active()) return;
   if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
   const target = e.target instanceof Element ? e.target : null;
   if (target?.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]') || document.querySelector('dialog[open]')) return;

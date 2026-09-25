@@ -66,3 +66,18 @@ YouTube can refuse videos that are private, unavailable, age restricted, or disa
 ## Assets
 
 The four avatar sheets each contain a 5 × 5 grid. `avatars.js` assigns stable IDs 0–99 in row-major order. CSS selects each cell without requiring 100 individual downloads. Original generated artwork and prompts are also supplied in this task's output folder. Artwork was produced with the built-in image-generation tool using the supplied Biscuit pixel-art reference.
+
+
+## Game mode (25 September 2026)
+
+The Game mode database update was applied through the existing Supabase project’s SQL Editor on 25 September 2026, after confirming the deployed room function matched v2. Publish the Reparty files through the existing Cloudflare Pages workflow. For fresh installations, apply `migration.sql` and then the Game mode migration. Do not rerun old upgrade files afterwards.
+
+- Game mode sits beside the theme button and switches the shared room. Videos continue playing while cards are shown. The existing player and queue become a small bottom-right dock; Queue opens playlist controls and link entry, ⇄ moves it to the other corner, and Hide collapses it without stopping audio. A Player button restores it. Mute and volume are local; playback and queue edits remain shared. The same iframe remains mounted across mode changes. Returning restores the full watch layout and preserves playlists and chat.
+- Black-and-gold game-night layout, circular existing Reparty avatars, responsive setup and prompt table.
+- 389 cards imported from the user-supplied attachment without rewriting titles or card wording: Base 329, Occult 35, IRL 19, Digital 6. Seven untitled source entries use a display-only fallback. This records the input source, not an independent claim about authorship or licensing.
+- Host selects 2–24 named players (including friends sharing one screen), packs, 1–10 rule turns and a 10/20/30/60-second timer. The interface offers 2/3/5/10 turns. A three-player prompt is excluded for a two-player roster.
+- Server shuffles without repeating cards, resolves distinct named targets, rotates turns, stores the current round and uses revision checks against duplicate Next clicks. Room snapshots restore progress on reload/late join. The host can change if the previous host has been absent for 60 seconds.
+- Timed cards have a shared server deadline. Turn-based effects expire automatically; Save card keeps an effect on the table until the host clears it. Draw a player gives the room one shared random name. Card history supports remembering earlier prompts.
+- Social prompts, votes, physical challenges and special powers are adjudicated by the players. Save/clear controls track those powers; the app does not automatically execute every card instruction (for example, modifying a target, multiplying drinks, or external games). Digital cards may refer to a separate call’s chat, as Reparty chat is hidden in Game mode.
+
+Validation: 21 PostgreSQL checks against PGlite, plus two-browser checks for shared cards, host-only controls, guest names, Next/Save, mode switching, reload persistence, queueing and playing videos during games, local mute, hiding without pausing, moving the dock, and 390px layout; no browser JavaScript errors. Browser verification uses the actual SQL with test accounts and a simulated account connector, not live production accounts. The SQL tests can be run with `node tests/game-mode.cjs` when `@electric-sql/pglite@0.5.8` is available.
