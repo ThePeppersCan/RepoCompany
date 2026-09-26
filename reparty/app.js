@@ -3,11 +3,21 @@ import { createSunoPlayer } from './suno-player.js';
 import { createGameMode } from './game-mode.js?v=3';
 import { createSoundtrackMode } from './soundtrack-mode.js?v=3';
 import { config } from './config.js';
+import { createRepartyAuth } from './session-auth.mjs';
 import { avatars, avatarGroups } from './avatars.js';
 import { parseVideo, parseSunoLink, isSuno, sunoQueueDuration, playbackPosition, formatTime, validRoom, avatarPosition } from './core.mjs';
 
 const $ = id => document.getElementById(id);
-const db = window.supabase?.createClient(config.url, config.key);
+const sessionAuth = window.supabase && createRepartyAuth({
+  createClient: (...args) => window.supabase.createClient(...args), config,
+  onError: error => notify(friendly(error)),
+  async onSession(client, session) {
+    if (user && user.id !== session?.user?.id) await leaveRoom();
+    db = client; accessToken = session?.access_token || null;
+    await authChanged(session);
+  }
+});
+let db = sessionAuth?.account;
 let user = null, room = null, roomId = null, selectedPlaylist = null, channel = null;
 let player = null, playerReady = false, playerVideo = null, youtubePromise = null;
 let playerReadyTimer = null, loadGuardUntil = 0, skipTimer = null, shieldTimer = null;
@@ -32,10 +42,10 @@ const gameMode = createGameMode({
   async send(action, data) {
     if (!requireUser()) return;
     if (!roomId) { modal('lobby'); return; }
-    const target = roomId, started = Date.now();
+    const target = roomId, ticket = generation, started = Date.now();
     const response = await db.rpc('reparty_game_action', { p_action: action, p_room: target, p_data: data });
     if (response.error) throw response.error;
-    if (target !== roomId) return;
+    if (target !== roomId || ticket !== generation) return;
     if (response.data?.server_time) offset = Date.parse(response.data.server_time) - (started + Date.now()) / 2;
     applySnapshot(response.data);
     if (response.data?.game_stale) notify('The table already moved on. You’re up to date.');
@@ -57,10 +67,10 @@ const soundtrackMode = createSoundtrackMode({
   async send(action, data) {
     if (!requireUser()) return;
     if (!roomId) { modal('lobby'); return; }
-    const target = roomId, started = Date.now();
+    const target = roomId, ticket = generation, started = Date.now();
     const response = await db.rpc('reparty_soundtrack_action', { p_action: action, p_room: target, p_data: data });
     if (response.error) throw response.error;
-    if (target !== roomId) return;
+    if (target !== roomId || ticket !== generation) return;
     if (response.data?.server_time) offset = Date.parse(response.data.server_time) - (started + Date.now()) / 2;
     applySnapshot(response.data);
     if (response.data?.quiz_stale) notify('The round just changed. Try that control again.');
@@ -121,6 +131,8 @@ function friendly(error) {
   if (/reparty_action|schema cache|does not exist|PGRST202/i.test(message)) return 'The room service is not available yet. Please try again later.';
   if (/fetch|network|failed to send/i.test(message)) return 'Connection interrupted. Check your connection and try again.';
   if (/Invalid login credentials/i.test(message)) return 'That username or password wasn’t recognised.';
+  if (/anonymous.*disabled/i.test(message)) return 'Guest access is temporarily unavailable. Please try again shortly or sign in.';
+  if (/rate limit|too many requests/i.test(message)) return 'A few too many attempts. Please wait a moment and try again.';
   return message;
 }
 function modal(id) { if (!$(id).open) $(id).showModal(); }
@@ -243,9 +255,9 @@ function playingEntry() {
   return null;
 }
 async function mutate(action, data = {}, retry = true) {
-  const target = roomId;
+  const target = roomId, ticket = generation;
   const response = await rpc(action, data, target);
-  if (target === roomId) {
+  if (target === roomId && ticket === generation) {
     if (response.stale) {
       await refresh();
       // Another viewer changed the room first. Advance only if we're still on the same video.
@@ -289,12 +301,12 @@ async function refresh() {
   if (!roomId || !user) return;
   if (refreshing) { refreshAgain = true; return; }
   refreshing = true;
-  const target = roomId;
+  const target = roomId, ticket = generation;
   try {
     const data = await rpc('snapshot', {}, target);
-    if (roomId === target) applySnapshot(data);
+    if (roomId === target && ticket === generation) applySnapshot(data);
   } catch (error) {
-    if (roomId === target) setConnected(false, 'Reconnecting…');
+    if (roomId === target && ticket === generation) setConnected(false, 'Reconnecting…');
     console.warn('Reparty refresh:', error);
   } finally {
     refreshing = false;
@@ -487,7 +499,7 @@ async function leaveRoom() {
   if ($('youtubePlayer')) $('youtubePlayer').hidden = false;
   $('emptyScreen').hidden = false;
   $('enablePlayback').hidden = true;
-  setConnected(false, user ? 'Choose your mode' : 'Sign in to join');
+  setConnected(false, 'Choose your mode');
   queueSignature = membersSignature = messageSignature = ''; lastMessageId = unread = 0; messagesLoaded = false;
   renderedPlaying = null; centreOnPlaying = true; queueFilter = ''; $('queueSearch').value = '';
   if (oldRoom && user) rpc('leave', {}, oldRoom).catch(() => {});
@@ -726,11 +738,23 @@ onForm('createRoom', async () => {
 }, 'lobbyError');
 onForm('joinRoom', async () => { if (requireUser()) await join(roomCode($('roomCode').value)); }, 'lobbyError');
 onForm('loginForm', async () => {
-  const username = $('username').value.trim().toLowerCase();
-  const { error } = await db.auth.signInWithPassword({ email: `${username}@${config.authDomain}`, password: $('password').value });
-  if (error) throw error;
+  await sessionAuth.signIn($('username').value, $('password').value);
   $('password').value = ''; $('auth').close();
 }, 'authError');
+onForm('guestForm', async () => {
+  await sessionAuth.continueAsGuest($('guestName').value);
+  $('auth').close();
+}, 'guestError');
+onForm('signupForm', async () => {
+  await sessionAuth.signUp($('signupUsername').value, $('signupPassword').value);
+  $('signupPassword').value = ''; $('auth').close();
+}, 'signupError');
+for (const kind of ['signin','signup']) $('show'+kind).onclick = () => {
+  $('loginForm').hidden = kind !== 'signin'; $('signupForm').hidden = kind !== 'signup';
+  $('showsignin').setAttribute('aria-expanded', String(kind === 'signin'));
+  $('showsignup').setAttribute('aria-expanded', String(kind === 'signup'));
+  $(kind === 'signin' ? 'username' : 'signupUsername').focus();
+};
 async function sendChat(input) {
   const body = input.value.trim(); if (!body) return;
   await mutate('chat', { body }); input.value = ''; $('messages').scrollTop = $('messages').scrollHeight;
@@ -761,7 +785,7 @@ $('screenShield').addEventListener('click', () => {
 $('screenShield').addEventListener('dblclick', () => { clearTimeout(shieldTimer); $('fullscreen').click(); });
 $('focusAdd').onclick = () => { $('videoUrl').focus(); $('videoUrl').scrollIntoView({ block: 'center', behavior: 'smooth' }); };
 $('startRoom').onclick = () => openLobby('video');$('changeRoom').onclick = () => run(goHome);
-$('account').onclick = () => { if (user) { notify(`Connected as ${user.user_metadata?.username || 'your RepoCompany account'}. Manage your account on RepoCompany.`); } else modal('auth'); };
+$('account').onclick = () => { if (user && !user.is_anonymous) { notify(`Connected as ${user.user_metadata?.username || 'your RepoCompany account'}. Manage your account on RepoCompany.`); } else modal('auth'); };
 $('roomLink').onclick = () => run(async () => {
   try { await navigator.clipboard.writeText(location.href); notify('Room link copied.'); }
   catch { openEdit('Your room link', 'Copy this link', async () => {}, location.href, false, true); }
@@ -882,15 +906,17 @@ async function authChanged(session) {
   authUserId = next?.id || null; user = next;
   if (!user) {
     await leaveRoom(); $('participants').replaceChildren(node('p', 'Your friends will appear here.', 'muted'));
-    $('queue').replaceChildren(); $('messages').replaceChildren(); $('roomName').textContent = 'Your forest watch party';
+    $('queue').replaceChildren(); $('messages').replaceChildren(); $('roomName').textContent = 'Your kind of night';
     $('nowPlaying').textContent = 'Nothing playing yet'; $('queueCount').textContent = $('queueCountSplit').textContent = '0';
     $('startRoom').hidden = false; $('emptyHint').textContent = 'Make a room, add a video and settle in together.';
-    $('account').textContent = 'Sign in'; $('chooseAvatar').disabled = true;
+    $('account').textContent = 'Join in'; $('chooseAvatar').disabled = true;
     $('lobby').close();
     if(validRoom(new URLSearchParams(location.search).get('room')))modal('auth');
     return;
   }
-  $('auth').close(); $('account').textContent = user.user_metadata?.username || 'My account';
+  $('auth').close(); $('account').textContent = user.is_anonymous ? `${user.user_metadata?.reparty_name || 'Visitor'} · Guest` : user.user_metadata?.username || 'My account';
+  $('guestName').value = user.is_anonymous ? user.user_metadata?.reparty_name || 'Visitor' : '';
+  $('guestName').readOnly = !!user.is_anonymous;
   if(!roomId)setConnected(false,'Choose your mode');
   try {
     const profile = await rpc('profile'); myAvatar = profile.avatar_id; applyAvatar($('myAvatar'), myAvatar); $('chooseAvatar').disabled = false;
@@ -900,8 +926,6 @@ async function authChanged(session) {
 }
 if (!db) notify('The account service could not load. Check your connection and refresh.');
 else {
-  // Deferring avoids making another Supabase auth request inside its auth callback lock.
-  db.auth.onAuthStateChange((_event, session) => { accessToken = session?.access_token || null; setTimeout(() => { authChanged(session).catch(error => notify(friendly(error))); }, 0); });
-  db.auth.getSession().then(({ data, error }) => { if (error) throw error; accessToken = data.session?.access_token || accessToken; return authChanged(data.session); }).catch(error => notify(friendly(error)));
+  sessionAuth.start().catch(error => notify(friendly(error)));
 }
 applyAvatar($('myAvatar'), 0);

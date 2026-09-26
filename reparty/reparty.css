@@ -408,3 +408,9 @@ input[type=range]::-moz-range-thumb{width:11px;height:12px;background:var(--oran
 }
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important;animation:none!important}}
+
+.auth-options{display:flex;gap:10px;margin-top:18px}
+.auth-options button{flex:1}
+.auth-options button[aria-expanded="true"]{background:var(--ink);color:var(--modal-bg)}
+.auth-modal #guestForm>button{font-size:14px}
+.auth-modal .form-error:empty{display:none}
