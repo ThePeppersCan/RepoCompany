@@ -43,6 +43,7 @@ async function test(){
  await quiz(a,'resume');ok(Math.abs(Date.parse(g.deadline)-Date.now()-remaining)<1000,'resume restores remaining guess time');
  await expire();await quiz(b,'tick');ok(g.phase==='reveal'&&g.answer.title==='Old School RuneScape'&&g.scores[a]===1&&g.scores[b]===1,'reveal awards points once and releases the answer');
  await quiz(a,'tick');ok(g.scores[a]===1,'repeated tick cannot duplicate points');
+ ok(g.remaining_ms===10000&&g.reveal_position===15,'reveal lasts ten seconds and continues audio after the guess clip');
  await quiz(b,'pause');await expire();await quiz(a,'tick');ok(g.phase==='reveal'&&g.paused,'answer reveal also pauses for everyone');
  const oldToken=g.token;await quiz(a,'skip');ok(g.phase==='loading'&&g.paused&&g.round===2,'skip while paused preserves room pause');
  s=await quiz(b,'guess',{token:oldToken,answer:'OSRS'});ok(!s.quiz_feedback&&g.solved.length===0,'late answer from previous round is ignored');
@@ -51,14 +52,29 @@ async function test(){
  s=await quiz(a,'exit');ok(s.room.settings.game.mode==='watch'&&JSON.stringify(s.room.playlists)===JSON.stringify(before),'watch playlists survive quiz exit');
  await quiz(a,'enter');ok(g.paused&&g.round===2,'re-enter restores paused session');
  await quiz(a,'reset');await start('teams');await answerPhase();await quiz(a,'guess',{answer:'Sea Shanty 2'});await quiz(b,'guess',{answer:'OSRS'});await quiz(a,'next');ok(g.scores['team-1']===1&&g.scores['team-2']===1,'teams receive independent shared points');
+ ok(g.reveal_position>=0&&g.reveal_position<3,'early reveal continues from the current audio position');
  await quiz(a,'reset');await start('group');await answerPhase();await quiz(a,'guess',{answer:'OSRS'});s=await quiz(b,'guess',{answer:'OSRS'});ok(s.quiz_feedback==='already','group answer is shared');await quiz(a,'next');ok(g.scores.group===1,'group receives exactly one point');
  await quiz(a,'skip');await quiz(b,'error');ok(g.phase==='loading','guest playback error does not stop other players');await quiz(a,'error');ok(g.phase==='unavailable'&&g.paused,'host playback error pauses the room safely');await quiz(a,'skip');await quiz(a,'resume');
  for(let n=g.round;n<=g.total;n++)await quiz(a,'skip');ok(g.phase==='finished'&&!g.video_id&&g.scores.group===1,'last round finishes without losing scores');
+ await quiz(a,'reset');await start('chill');await answerPhase();
+ await quiz(a,'guess',{answer:'OSRS'});ok(g.phase==='guess'&&g.solved.length===1,'first Chill answer does not end the round');
+ await quiz(b,'guess',{answer:'OSRS'});await quiz(a,'next');ok(g.scores[a]===1&&g.scores[b]===1&&g.total===null,'Chill awards equal points to every correct player with no round limit');
+ const heard=new Set([g.video_id]);let last=g.video_id;
+ for(let i=1;i<10;i++){await quiz(a,'skip');heard.add(g.video_id);last=g.video_id;}
+ ok(heard.size===10,'Chill plays the whole mix without repeating recordings');
+ await quiz(a,'skip');ok(g.round===11&&g.phase==='loading'&&g.video_id!==last&&g.scores[a]===1,'Chill reshuffles endlessly, avoids a boundary repeat and keeps points');
+ await quiz(a,'pause');await quiz(a,'ready');await quiz(b,'ready');await expire();await quiz(a,'tick');ok(g.paused&&g.round===11&&g.phase==='loading','Chill shared pause still freezes progression');await quiz(a,'resume');
+ await action(c,'join',room);await quiz(c,'join');await quiz(c,'join');ok(g.players.filter(p=>p.id===c).length===1,'late Chill listener joins once without resetting scores');
+ await quiz(c,'ready');await quiz(a,'tick');await expire();await quiz(a,'tick');await quiz(c,'guess',{answer:'OSRS'});await quiz(a,'next');ok(g.scores[c]===1&&g.scores[a]===1,'late listener earns their own points');
+ for(let i=0;i<101;i++){await quiz(a,'skip');await quiz(a,'next');}
+ ok(g.phase==='reveal'&&g.round===112&&g.history.length===100,'long Chill runs keep recent history bounded and never finish');
+ await quiz(a,'reset');await start('group');await answerPhase();await quiz(a,'guess',{answer:'OSRS'});await quiz(a,'next');
  await assert.rejects(quiz(b,'takeover'),/still connected/);checks++;
  await pg.query(`update public.reparty_members set last_seen=clock_timestamp()-interval '2 minutes' where room_id=$1 and user_id=$2`,[room,a]);s=await quiz(b,'takeover');ok(g.host===b&&s.room.settings.game.host===b,'remaining player can recover hosting and game-menu controls');
  const matching=await pg.query(`select reparty_private.soundtrack_matches('Runescap','["RuneScape"]') typo,reparty_private.soundtrack_matches('Halo 2','["Halo 3"]') sequel,reparty_private.soundtrack_matches('SOS','["OSRS"]') short,reparty_private.soundtrack_matches('Main Theme','["Old School RuneScape","Sea Shanty 2"]') generic`);
  ok(matching.rows[0].typo&&!matching.rows[0].sequel&&!matching.rows[0].short&&!matching.rows[0].generic,'matching accepts small typos without generic or sequel false positives');
  await pg.exec(migration);ok((await action(b,'snapshot',room)).room.id===room,'migration is safely repeatable');
+ const revealUpgrade=fs.readFileSync(root+'/supabase/migrations/20260927030000_reparty_soundtrack_reveal.sql','utf8');await pg.exec(revealUpgrade);await pg.exec(revealUpgrade);ok((await action(b,'snapshot',room)).room.settings.soundtrack.scores.group===1,'reveal upgrade preserves an existing game and scores');
  console.log(`${checks} soundtrack checks passed`);await pg.close();
 }
 module.exports={setup};if(require.main===module)test().catch(e=>{console.error(e);process.exitCode=1;});

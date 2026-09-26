@@ -1,7 +1,7 @@
 import { createGamePlayer } from './game-player.js';
 import { createSunoPlayer } from './suno-player.js';
 import { createGameMode } from './game-mode.js?v=2';
-import { createSoundtrackMode } from './soundtrack-mode.js?v=1';
+import { createSoundtrackMode } from './soundtrack-mode.js?v=2';
 import { config } from './config.js';
 import { avatars, avatarGroups } from './avatars.js';
 import { parseVideo, parseSunoLink, isSuno, sunoQueueDuration, playbackPosition, formatTime, validRoom, avatarPosition } from './core.mjs';

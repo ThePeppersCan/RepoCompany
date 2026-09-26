@@ -1,49 +1,5 @@
--- Additive. Apply after the Suno migration, then soundtrack-catalogue.sql.
+-- Ten-second musical reveals and Chill mode without a finish line. Existing sessions and scores are preserved.
 begin;
-create table if not exists reparty_private.soundtracks (
- id text primary key, category text not null check(category in ('game','movie')),
- title text not null, track text not null, composer text not null default '', year integer,
- difficulty integer not null check(difficulty between 1 and 5), aliases jsonb not null,
- video_id text check(video_id ~ '^[a-zA-Z0-9_-]{11}$'), start_seconds double precision not null default 0
-);
-create table if not exists reparty_private.soundtrack_sessions (
- room_id text primary key references public.reparty_rooms(id) on delete cascade,
- state jsonb not null
-);
-revoke all on reparty_private.soundtracks,reparty_private.soundtrack_sessions from public,anon,authenticated;
-alter table reparty_private.soundtracks enable row level security;
-alter table reparty_private.soundtrack_sessions enable row level security;
-
-create or replace function reparty_private.soundtrack_normalize(t text) returns text
-language sql immutable set search_path='' as $$
- select regexp_replace(lower(translate(coalesce(t,''),'áàäâãåéèëêíìïîóòöôõúùüûñçýÿ’','aaaaaaeeeeiiiiooooouuuuncyy''')),'[^a-z0-9]','','g');
-$$;
-create or replace function reparty_private.soundtrack_matches(guess text, answers jsonb) returns boolean
-language plpgsql immutable set search_path='' as $$
-declare a text; b text:=reparty_private.soundtrack_normalize(guess); x text; i integer; j integer;
- prev integer[]; cur integer[]; distance integer; allowed integer;
-begin
- if length(b)<2 or length(b)>160 then return false; end if;
- for x in select jsonb_array_elements_text(answers) loop
-  a:=reparty_private.soundtrack_normalize(x);
-  if a=b then return true; end if;
-  -- Numbers distinguish sequels; short words require an exact match.
-  allowed:=case when length(a)>=12 then 2 when length(a)>=6 then 1 else 0 end;
-  if allowed=0 or abs(length(a)-length(b))>allowed or
-    regexp_replace(a,'[^0-9]','','g')<>regexp_replace(b,'[^0-9]','','g') then continue; end if;
-  prev:=array(select generate_series(0,length(b)));
-  for i in 1..length(a) loop
-   cur:=array[i];
-   for j in 1..length(b) loop
-    cur:=array_append(cur,least(prev[j+1]+1,cur[j]+1,prev[j]+case when substr(a,i,1)=substr(b,j,1) then 0 else 1 end));
-   end loop;
-   prev:=cur;
-  end loop;
-  if prev[length(b)+1]<=allowed then return true; end if;
- end loop;
- return false;
-end; $$;
-
 create or replace function reparty_private.soundtrack_view(g jsonb) returns jsonb
 language sql stable set search_path='' as $$
  select jsonb_build_object('version',1,'host',g->'host','revision',g->'revision','session',g->'session',
@@ -246,7 +202,4 @@ begin
  end if;
  return snap||jsonb_build_object('quiz_feedback',feedback);
 end; $$;
-revoke all on function reparty_private.soundtrack_normalize(text),reparty_private.soundtrack_matches(text,jsonb),reparty_private.soundtrack_view(jsonb) from public,anon,authenticated;
-revoke all on function public.reparty_soundtrack_action(text,text,jsonb) from public,anon;
-grant execute on function public.reparty_soundtrack_action(text,text,jsonb) to authenticated;
 commit;
