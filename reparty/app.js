@@ -1,7 +1,7 @@
 import { createGamePlayer } from './game-player.js';
 import { createSunoPlayer } from './suno-player.js';
-import { createGameMode } from './game-mode.js?v=2';
-import { createSoundtrackMode } from './soundtrack-mode.js?v=2';
+import { createGameMode } from './game-mode.js?v=3';
+import { createSoundtrackMode } from './soundtrack-mode.js?v=3';
 import { config } from './config.js';
 import { avatars, avatarGroups } from './avatars.js';
 import { parseVideo, parseSunoLink, isSuno, sunoQueueDuration, playbackPosition, formatTime, validRoom, avatarPosition } from './core.mjs';
@@ -21,8 +21,9 @@ const UNPLAYABLE = [2, 100, 101, 150];
 const splitView = matchMedia('(min-width: 1700px)');
 const systemDark = matchMedia('(prefers-color-scheme: dark)');
 let latestMembers = [], wasGameMode = false;
+let lobbyMode = null, lobbyRequest = 0, lobbyOffset = 0, lobbyRooms = [], lobbyLoading = false;
 const gameMode = createGameMode({
-  getUser: () => user, avatar: avatarElement, notify, openMenu: openGameMenu,
+  getUser: () => user, avatar: avatarElement, notify, openMenu: openGameMenu, onBackToModes: () => run(goHome),
   onModeChange(active) {
     if (active && !wasGameMode && document.fullscreenElement) document.exitFullscreen().catch(() => {});
     miniPlayer.update(active);
@@ -44,7 +45,7 @@ const gameMode = createGameMode({
 const miniPlayer = createGamePlayer();
 const sunoPlayer = createSunoPlayer($('sunoPlayer'), $('sunoNotice'));
 const soundtrackMode = createSoundtrackMode({
-  getUser: () => user, avatar: avatarElement, notify, loadYoutube,
+  getUser: () => user, avatar: avatarElement, notify, loadYoutube, onBackToModes: () => run(goHome),
   onActive(active) {
     if (active) {
       clearTimeout(skipTimer); suppressUntil = performance.now() + 2000;
@@ -69,8 +70,8 @@ const soundtrackMode = createSoundtrackMode({
 let sunoAdvancing = false, lastSunoAdvance = 0;
 
 function openGameMenu() {
+  if (!roomId) { openLobby('game'); return; }
   if (!requireUser()) return;
-  if (!roomId) { modal('lobby'); return; }
   const current = room.settings?.game;
   const canSwitch = !['game', 'soundtrack'].includes(current?.mode) || current?.host === user.id;
   ['chooseCards', 'chooseSoundtrack', 'chooseWatch'].forEach(id => { $(id).disabled = !canSwitch; });
@@ -123,6 +124,52 @@ function friendly(error) {
   return message;
 }
 function modal(id) { if (!$(id).open) $(id).showModal(); }
+async function lobbyRpc(action,data={}) {
+  const {data:response,error}=await db.rpc('reparty_lobby_action',{p_action:action,p_room:null,p_data:data});
+  if(error)throw error;return response;
+}
+function openLobby(mode='video') {
+  lobbyMode=mode;
+  if(!requireUser())return;
+  const game=mode==='game';
+  $('lobbyTitle').textContent=game?'Find your game night.':'Find your little corner.';
+  $('lobbyEyebrow').textContent=game?'GAME MODE':'VIDEO MODE';
+  $('lobbyIntro').textContent=game?'Join a game or bring everyone together in a new room.':'Join a watch party or make a room of your own.';
+  $('lobbyGameLabel').hidden=!game;$('newRoomName').placeholder=game?'Game night':'The forest lounge';
+  $('lobbyError').textContent='';modal('lobby');loadRooms();
+}
+async function loadRooms(more=false) {
+  const request=++lobbyRequest,mode=lobbyMode,who=user?.id;
+  if(!who)return;
+  lobbyLoading=true;$('refreshRooms').disabled=$('moreRooms').disabled=true;
+  if(!more){lobbyOffset=0;lobbyRooms=[];$('roomDirectory').replaceChildren(node('p','Finding your company…','directory-empty'));$('moreRooms').hidden=true;}
+  try {
+    const data=await lobbyRpc('list',{mode,offset:lobbyOffset});
+    if(request!==lobbyRequest||who!==user?.id||mode!==lobbyMode)return;
+    lobbyOffset+=data.rooms.length;
+    const known=new Map(lobbyRooms.map(r=>[r.id,r]));data.rooms.forEach(r=>known.set(r.id,r));lobbyRooms=[...known.values()];
+    $('roomDirectory').replaceChildren(...lobbyRooms.map(r=>{
+      const item=node('article',undefined,'directory-room'),copy=node('div'),button=node('button','Join room');
+      const age=Math.max(0,Date.parse(data.server_time)-Date.parse(r.last_used));
+      const ago=age<60000?'just now':age<3600000?`${Math.floor(age/60000)}m ago`:age<86400000?`${Math.floor(age/3600000)}h ago`:`${Math.floor(age/86400000)}d ago`;
+      copy.append(node('strong',r.name),node('p',`${({video:'Watch party',game:'Game night',soundtrack:'Guess the Soundtrack'})[r.mode]} · ${r.people?`${r.people} inside`:`Last used ${ago}`}`));
+      button.setAttribute('aria-label',`Join ${r.name}`);button.onclick=async()=>{button.disabled=true;await run(()=>join(r.id),'lobbyError');button.disabled=false;};item.append(copy,button);return item;
+    }));
+    if(!lobbyRooms.length)$('roomDirectory').append(node('p',mode==='game'?'No games open yet. Start one below and invite your friends.':'No watch parties open yet. Make the first room below.','directory-empty'));
+    $('moreRooms').hidden=!data.has_more;
+  }catch(error){if(request===lobbyRequest){$('lobbyError').textContent=friendly(error);if(!more)$('roomDirectory').replaceChildren(node('p','Rooms could not load. Try Refresh rooms.','directory-empty'));}}
+  finally{if(request===lobbyRequest){lobbyLoading=false;$('refreshRooms').disabled=$('moreRooms').disabled=false;}}
+}
+async function goHome() {
+  lobbyRequest++;lobbyMode=null;$('lobby').close();$('gameMenu').close();
+  await leaveRoom();history.replaceState(null,'',location.pathname);
+  document.title='Reparty · RepoCompany';$('roomName').textContent='Your kind of night';
+  $('entryGames').focus();
+}
+$('entryGames').onclick=()=>openLobby('game');$('entryVideos').onclick=()=>openLobby('video');
+$('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('entryGames').focus();};
+$('refreshRooms').onclick=()=>loadRooms();$('moreRooms').onclick=()=>loadRooms(true);
+setInterval(()=>{if($('lobby').open&&user&&!lobbyLoading)loadRooms();},30000);
 function avatarElement(id, name = '') {
   const e = node('span', undefined, 'avatar');
   applyAvatar(e, id);
@@ -431,6 +478,7 @@ async function leaveRoom() {
   roomId = null; room = null; playerVideo = null; blocked = false;
   latestMembers = []; gameMode.update(null);
   soundtrackMode.update(null);
+  document.documentElement.classList.add('reparty-entry');
   clearInterval(poll); clearTimeout(refreshTimer); clearTimeout(skipTimer);
   if (channel) { await db.removeChannel(channel); channel = null; }
   suppressUntil = performance.now() + 2000;
@@ -439,7 +487,7 @@ async function leaveRoom() {
   if ($('youtubePlayer')) $('youtubePlayer').hidden = false;
   $('emptyScreen').hidden = false;
   $('enablePlayback').hidden = true;
-  setConnected(false, user ? 'Choose a room' : 'Sign in to join');
+  setConnected(false, user ? 'Choose your mode' : 'Sign in to join');
   queueSignature = membersSignature = messageSignature = ''; lastMessageId = unread = 0; messagesLoaded = false;
   renderedPlaying = null; centreOnPlaying = true; queueFilter = ''; $('queueSearch').value = '';
   if (oldRoom && user) rpc('leave', {}, oldRoom).catch(() => {});
@@ -451,6 +499,7 @@ async function join(code) {
   const data = await rpc('join', {}, code);
   if (ticket !== generation) return;
   roomId = code;
+  document.documentElement.classList.remove('reparty-entry');
   history.replaceState(null, '', `?room=${code}`);
   applySnapshot(data);
   $('lobby').close();
@@ -672,7 +721,7 @@ onForm('addVideo', async () => {
 });
 onForm('createRoom', async () => {
   if (!requireUser()) return;
-  const response = await rpc('create', { name: $('newRoomName').value });
+  const response = await lobbyRpc('create', { name: $('newRoomName').value, mode: lobbyMode==='game'?$('lobbyGame').value:'video' });
   await join(response.id);
 }, 'lobbyError');
 onForm('joinRoom', async () => { if (requireUser()) await join(roomCode($('roomCode').value)); }, 'lobbyError');
@@ -711,7 +760,7 @@ $('screenShield').addEventListener('click', () => {
 });
 $('screenShield').addEventListener('dblclick', () => { clearTimeout(shieldTimer); $('fullscreen').click(); });
 $('focusAdd').onclick = () => { $('videoUrl').focus(); $('videoUrl').scrollIntoView({ block: 'center', behavior: 'smooth' }); };
-$('startRoom').onclick = $('changeRoom').onclick = () => { if (requireUser()) modal('lobby'); };
+$('startRoom').onclick = () => openLobby('video');$('changeRoom').onclick = () => run(goHome);
 $('account').onclick = () => { if (user) { notify(`Connected as ${user.user_metadata?.username || 'your RepoCompany account'}. Manage your account on RepoCompany.`); } else modal('auth'); };
 $('roomLink').onclick = () => run(async () => {
   try { await navigator.clipboard.writeText(location.href); notify('Room link copied.'); }
@@ -837,14 +886,17 @@ async function authChanged(session) {
     $('nowPlaying').textContent = 'Nothing playing yet'; $('queueCount').textContent = $('queueCountSplit').textContent = '0';
     $('startRoom').hidden = false; $('emptyHint').textContent = 'Make a room, add a video and settle in together.';
     $('account').textContent = 'Sign in'; $('chooseAvatar').disabled = true;
-    $('lobby').close(); modal('auth'); return;
+    $('lobby').close();
+    if(validRoom(new URLSearchParams(location.search).get('room')))modal('auth');
+    return;
   }
   $('auth').close(); $('account').textContent = user.user_metadata?.username || 'My account';
+  if(!roomId)setConnected(false,'Choose your mode');
   try {
     const profile = await rpc('profile'); myAvatar = profile.avatar_id; applyAvatar($('myAvatar'), myAvatar); $('chooseAvatar').disabled = false;
     const code = new URLSearchParams(location.search).get('room');
-    if (validRoom(code)) await join(code); else modal('lobby');
-  } catch (error) { modal('lobby'); $('lobbyError').textContent = friendly(error); }
+    if (validRoom(code)) await join(code); else if(lobbyMode)openLobby(lobbyMode);
+  } catch (error) { openLobby(lobbyMode||'video'); $('lobbyError').textContent = friendly(error); }
 }
 if (!db) notify('The account service could not load. Check your connection and refresh.');
 else {

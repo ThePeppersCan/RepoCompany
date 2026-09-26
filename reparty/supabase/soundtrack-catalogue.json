@@ -22429,18 +22429,19 @@
     "id": "movie-0222",
     "category": "movie",
     "title": "Luca",
-    "track": "Main Theme",
+    "track": "Meet Luca",
     "composer": "Dan Romer",
     "year": 2021,
-    "video_id": "23ckcbPziUU",
-    "start_seconds": 0,
+    "video_id": "9mUJkFN960U",
+    "start_seconds": 15,
     "search_url": "https://www.youtube.com/results?search_query=Luca+2021+soundtrack+Main+Theme",
-    "source_status": "metadata-checked",
+    "source_status": "official-metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Luca"
+      "Luca",
+      "Meet Luca"
     ],
-    "video_title": "LUCA - Main Theme / Soundtrack ( by Fyrosand )"
+    "video_title": "Meet Luca"
   },
   {
     "id": "movie-0223",

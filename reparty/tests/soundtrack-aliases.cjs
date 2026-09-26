@@ -11,6 +11,9 @@ async function test(){
  const cases=[
   ['Sonic the Hedgehog','sonic',true],['Sonic the Hedgehog','SONIC',true],['Sonic the Hedgehog','Green Hill Zone',true],
   ['Sonic the Hedgehog','mario',false],['Sonic the Hedgehog','sonic 2',false],['Sonic the Hedgehog','son',false],
+  ['Halo: Reach','halo',true],['Halo: Reach','HALO',true],['Halo: Reach','halo 3',false],
+  ['Halo: Combat Evolved','halo',true],['Halo 2','halo',true],['Halo 3','halo',true],['Halo 4','halo',true],
+  ['Halo 3: ODST','halo',true],['Halo 5: Guardians','halo',true],['Halo Infinite','halo',true],['Halo Wars','halo',true],
   ['The Legend of Zelda','zelda',true],['Super Mario Bros.','mario',true],['Pokémon Red and Blue','pokemon',true],
   ['Grand Theft Auto V','gta',true],['Grand Theft Auto V','gta 5',true],['Grand Theft Auto V','gta 4',false],
   ['Call of Duty: Black Ops','cod',true],['Call of Duty: Black Ops','black ops',true],

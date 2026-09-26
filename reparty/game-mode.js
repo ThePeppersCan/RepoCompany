@@ -3,7 +3,7 @@ import { cards, packs } from './game-cards.mjs';
 const $ = id => document.getElementById(id);
 const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
 
-export function createGameMode({ send, getUser, avatar, notify, onModeChange, openMenu }) {
+export function createGameMode({ send, getUser, avatar, notify, onModeChange, openMenu, onBackToModes }) {
   let game = null, members = [], connected = false, busy = false, signature = '', roster = [], draftRoom = null;
   let serverOffset = 0;
   const root = el('section', undefined, 'game-room'); root.id = 'gameRoom'; root.hidden = true;
@@ -26,12 +26,12 @@ export function createGameMode({ send, getUser, avatar, notify, onModeChange, op
       <article class="game-card" id="gameCard" aria-live="polite" aria-atomic="true"><p id="gameCardPack" class="game-kicker"></p><div class="game-card-ornament" aria-hidden="true">✧</div><h2 id="gameCardTitle"></h2><p id="gameCardText"></p><div class="game-card-bottom"><span id="gameCardNumber"></span><span aria-hidden="true">◆ REPARTY ◆</span></div></article>
       <div class="game-controls"><button id="gameSkip">Skip card</button><button id="gameNext" class="game-primary">Next card →</button><button id="gamePin">Save card</button></div>
       <div class="game-timer" id="gameTimer" hidden><button id="gameTimerStart">Start timer</button><output id="gameTimerValue" aria-label="Time remaining"></output></div>
-      <div class="game-tools"><button id="gameWheel">Draw a player</button><output id="gameWheelResult"></output><button id="gameReset">New game</button></div>
+      <div class="game-tools"><button id="gameWheel">Draw a player</button><output id="gameWheelResult"></output><button id="gameReset">End game</button></div>
       <section class="game-effects"><div class="game-section-title"><h2>On the table</h2><button id="gameClear">Clear all</button></div><div id="gameRules"></div></section>
       <details class="game-history"><summary>Previously played</summary><div id="gameHistory"></div></details>
     </div>
     <div id="gameWaiting" class="game-waiting" hidden>The host is setting up the game.</div><button id="gameTakeover" hidden>Take over hosting</button>
-    <footer class="game-footer"><span>◆</span><p>Good company. Questionable decisions.</p><small>Every card is optional. Skip freely; any drink works.</small></footer>`;
+    <button id="gameHome">Back to modes</button><footer class="game-footer"><span>◆</span><p>Good company. Questionable decisions.</p><small>Every card is optional. Skip freely; any drink works.</small></footer>`;
   document.querySelector('.app').append(root);
   const descriptions = { 'Base Pack':'The main event', 'Occult Pack':'Fate has other plans', 'IRL Pack':'For the same sofa', 'Digital Pack':'For the group call' };
   packs.forEach((pack, index) => {
@@ -76,6 +76,7 @@ export function createGameMode({ send, getUser, avatar, notify, onModeChange, op
     if (roster.some(p=>p.name.toLowerCase()===name.toLowerCase())) return notify('Give each player a different name.');
     roster.push({name,avatar_id:roster.length%100});$('gamePlayerName').value='';renderRoster();
   };
+  $('gameHome').onclick=()=>onBackToModes?.();
   $('gameToggle').onclick=()=>openMenu ? openMenu() : action(game?.mode==='game'?'exit':'enter');
   $('gameStart').onclick=()=>action('start',{players:roster,packs:selectedPacks(),turns:Number($('gameTurns').value),seconds:Number($('gameSeconds').value)});
   for(const [id,name] of Object.entries({gameNext:'next',gameSkip:'skip',gamePin:'pin',gameTimerStart:'timer',gameReset:'reset',gameClear:'clear',gameTakeover:'takeover',gameWheel:'wheel'})) $(id).onclick=()=>action(name);
@@ -96,6 +97,8 @@ export function createGameMode({ send, getUser, avatar, notify, onModeChange, op
     $('gameTakeover').hidden=host||!!hostMember;
     $('gameSetup').hidden=!!game.deck||!host; $('gameWaiting').hidden=!!game.deck||host;
     $('gamePlay').hidden=!game.deck;
+    $('gameReset').textContent=game.current?'End game':'Start a new game';
+    $('gameReset').hidden=!host;
     if (!game.deck && draftRoom!==roomId) { roster=members.map(m=>({name:m.name,avatar_id:m.avatar_id})); draftRoom=roomId;renderRoster(); }
     $('gamePeople').replaceChildren(...(game.players||members).map(p=>{
       const n=el('div',undefined,'game-person');n.classList.toggle('is-turn',p.name===game.current?.player);n.append(avatar(p.avatar_id,p.name),el('span',p.name));return n;

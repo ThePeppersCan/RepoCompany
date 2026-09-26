@@ -75,6 +75,15 @@ async function test(){
  ok(matching.rows[0].typo&&!matching.rows[0].sequel&&!matching.rows[0].short&&!matching.rows[0].generic,'matching accepts small typos without generic or sequel false positives');
  await pg.exec(migration);ok((await action(b,'snapshot',room)).room.id===room,'migration is safely repeatable');
  const revealUpgrade=fs.readFileSync(root+'/supabase/migrations/20260927030000_reparty_soundtrack_reveal.sql','utf8');await pg.exec(revealUpgrade);await pg.exec(revealUpgrade);ok((await action(b,'snapshot',room)).room.settings.soundtrack.scores.group===1,'reveal upgrade preserves an existing game and scores');
+ const clipUpgrade=fs.readFileSync(root+'/supabase/migrations/20260927050000_reparty_soundtrack_clip_starts.sql','utf8');await pg.exec(clipUpgrade);await pg.exec(clipUpgrade);
+ await quiz(b,'reset');await pg.query('update reparty_private.soundtracks set start_seconds=15');
+ const clipSettings={mode:'chill',category:'game',seconds:20,rounds:10,difficulty:2,players:[{id:b,team:'1'}]};
+ await quiz(b,'start',clipSettings);ok(g.start_seconds===15&&g.seconds===20,'track default can skip its intro without shortening the guess timer');
+ await quiz(b,'pause');await assert.rejects(quiz(a,'reset'),/host/);checks++;
+ await quiz(b,'reset');ok(g.phase==='setup'&&!g.paused&&!g.video_id&&Object.keys(g.scores).length===0,'End game stops a paused session and returns everyone to fresh setup');
+ await assert.rejects(quiz(b,'start',{...clipSettings,clip_start:999}),/starting point/);checks++;
+ await quiz(b,'start',{...clipSettings,clip_start:5});ok(g.start_seconds===5&&g.seconds===20,'shared clip start overrides track default while retaining full guess time');
+ await quiz(b,'skip');ok(g.start_seconds===5&&g.round===2,'clip start persists into the next round');
  console.log(`${checks} soundtrack checks passed`);await pg.close();
 }
 module.exports={setup};if(require.main===module)test().catch(e=>{console.error(e);process.exitCode=1;});

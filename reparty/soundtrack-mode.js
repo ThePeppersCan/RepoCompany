@@ -3,7 +3,7 @@ const make = (tag, text, cls) => { const n = document.createElement(tag); if (te
 const modes = { versus: 'Versus', teams: 'Teams', group: 'Together', chill: 'Chill' };
 const categories = { game: 'Game soundtracks', movie: 'Movie soundtracks', mixed: 'Games + movies' };
 
-export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube, onActive}) {
+export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube, onActive, onBackToModes}) {
  let state=null, members=[], roomId=null, active=false, connected=false, busy=false, offset=0, rosterRoom=null;
  let player=null, playerReady=false, playerLoading=false, video=null, token=null, readyToken=null, lastSync=0, lastTick=0, ticking=false;
  let roster=[], ownFeedback='', feedbackToken=null, needsGesture=false, playerError='', summary=null;
@@ -12,12 +12,12 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  const artworkCache=new Map();
  const root=make('section',undefined,'soundtrack-room');root.id='soundtrackRoom';root.hidden=true;
  root.innerHTML=`
-  <header class="st-heading"><span class="st-eyebrow">REPARTY ORIGINALS · MUSIC NIGHT</span><h1>Guess the<br><em>Soundtrack.</em></h1><p>A few notes. A thousand memories.</p><div class="st-heading-tags"><span>Games & movies</span><span>10–15 second rounds</span><span>Your people, your party</span></div></header>
+  <header class="st-heading"><span class="st-eyebrow">REPARTY ORIGINALS · MUSIC NIGHT</span><h1>Guess the<br><em>Soundtrack.</em></h1><p>A few notes. A thousand memories.</p><div class="st-heading-tags"><span>Games & movies</span><span>10–30 second rounds</span><span>Your people, your party</span></div></header>
   <div id="stSetup" class="st-setup">
    <section class="panel st-settings"><p class="st-eyebrow">01 / MAKE IT YOUR NIGHT</p><h2>Pick your mix.</h2>
     <fieldset class="st-choice"><legend>What are we guessing?</legend><label><input type="radio" name="stCategory" value="game" checked><span>▣<strong>Games</strong><small>From first levels to final bosses</small></span></label><label><input type="radio" name="stCategory" value="movie"><span>▰<strong>Movies</strong><small>The music behind the big screen</small></span></label><label><input type="radio" name="stCategory" value="mixed"><span>♫<strong>Mixed</strong><small>A little bit of everything</small></span></label></fieldset>
     <fieldset class="st-choice st-play-styles"><legend>How do you want to play?</legend><label><input type="radio" name="stMode" value="versus" checked><span>⚡<strong>Versus</strong><small>Every player for themselves</small></span></label><label><input type="radio" name="stMode" value="teams"><span>⚑<strong>Teams</strong><small>Share the glory, share the points</small></span></label><label><input type="radio" name="stMode" value="group"><span>♥<strong>Together</strong><small>One room. One shared score.</small></span></label><label><input type="radio" name="stMode" value="chill"><span>∞<strong>Chill</strong><small>Short rounds. No finish line.</small></span></label></fieldset>
-    <div class="st-options"><label>Guess time<select id="stSeconds"><option value="10">10 seconds</option><option value="15" selected>15 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option></select></label><label id="stRoundsLabel">Rounds<select id="stRounds"><option value="10">10 rounds</option><option value="20" selected>20 rounds</option><option value="50">50 rounds</option></select></label><label>Difficulty<select id="stDifficulty"><option value="1">Easy only</option><option value="2" selected>Easy + medium</option><option value="3">Up to hard</option><option value="4">Up to expert</option><option value="5">Everything</option></select></label></div>
+    <div class="st-options"><label>Guess time<select id="stSeconds"><option value="10">10 seconds</option><option value="15" selected>15 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option></select></label><label id="stRoundsLabel">Rounds<select id="stRounds"><option value="10">10 rounds</option><option value="20" selected>20 rounds</option><option value="50">50 rounds</option></select></label><label>Clip start<select id="stClipStart"><option value="" selected>Track default</option><option value="0">From the start</option><option value="5">5 seconds in</option><option value="10">10 seconds in</option><option value="15">15 seconds in</option><option value="30">30 seconds in</option></select></label><label>Difficulty<select id="stDifficulty"><option value="1">Easy only</option><option value="2" selected>Easy + medium</option><option value="3">Up to hard</option><option value="4">Up to expert</option><option value="5">Everything</option></select></label></div>
     <p id="stCatalogueCount" class="st-small"></p>
    </section>
    <section class="panel st-company"><p class="st-eyebrow">02 / BRING YOUR PEOPLE</p><h2>The listening club.</h2><p class="st-small">Everyone joins this room on their own device to type answers.</p><div id="stRoster"></div><button id="stRefreshRoster" class="link">Refresh players</button><p id="stChillRules" class="st-small" hidden>Keep listening for as long as you like. Everyone can earn a point each round; there’s no bonus for being first. Friends can join along the way.</p><div class="st-rules"><strong>One correct answer. One point.</strong><p>Guess the game, movie or a distinctive track name. Small typos are okay. Answers stay private until the reveal.</p><p>Anyone playing can pause the music and timer for the whole room.</p></div><button id="stStart" class="primary st-start">Start the soundtrack →</button><p id="stSetupError" class="form-error" role="alert"></p></section>
@@ -32,12 +32,12 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
     </div>
     <section id="stReveal" class="panel st-reveal" aria-live="polite" hidden><span class="st-eyebrow">THAT WAS…</span><h3 id="stAnswerTitle"></h3><p id="stAnswerTrack"></p><small id="stAnswerCredit"></small><a id="stSourceLink" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></section>
     <button id="stJoin" class="primary" hidden>Join the listening club</button><form id="stGuessForm" class="st-answer-form"><label for="stGuess">Know that sound?</label><div><input id="stGuess" autocomplete="off" maxlength="160" placeholder="Type the game, movie or track…" required><button id="stGuessSubmit" class="primary">Lock it in →</button></div><p id="stFeedback" role="status" aria-live="polite">Your answer stays between us until time’s up.</p></form>
-    <div class="st-host-controls"><span id="stHostNote"></span><button id="stNext">Reveal answer</button><button id="stSkip">Skip track</button></div>
+    <div class="st-host-controls"><span id="stHostNote"></span><button id="stNext">Reveal answer</button><button id="stSkip">Skip track</button><button id="stEnd">End game</button></div>
    </div><aside class="panel st-scoreboard"><span class="st-eyebrow">THE LISTENING CLUB</span><h2 id="stScoreHeading">Scoreboard</h2><div id="stScores"></div><p id="stScoreNote" class="st-small">One point per correct round.<br>Make every memory count.</p></aside></div>
   </div>
-  <section id="stFinished" class="panel st-finished" hidden><span class="st-eyebrow">THAT’S A WRAP</span><div class="st-trophy" aria-hidden="true">★</div><h2 id="stWinner"></h2><p id="stResultSubtitle"></p><div id="stFinalScores"></div><button id="stAgain" class="primary">Another round of memories →</button></section>
+  <section id="stFinished" class="panel st-finished" hidden><span class="st-eyebrow">THAT’S A WRAP</span><div class="st-trophy" aria-hidden="true">★</div><h2 id="stWinner"></h2><p id="stResultSubtitle"></p><div id="stFinalScores"></div><button id="stAgain" class="primary">Start a new game →</button></section>
   <details id="stHistory" class="panel st-history" hidden><summary>Tonight’s soundtracks</summary><ol id="stHistoryList"></ol></details>
-  <footer class="st-footer"><span id="stStatus"></span><button id="stTakeover" hidden>Take over hosting</button><button id="stLeave">Back to watch party</button></footer>`;
+  <footer class="st-footer"><span id="stStatus"></span><button id="stTakeover" hidden>Take over hosting</button><button id="stHome">Back to modes</button><button id="stLeave">Back to watch party</button></footer>`;
  document.querySelector('.app').append(root);
  const artworkPanel=make('div',undefined,'st-artwork');artworkPanel.hidden=true;
  artworkPanel.innerHTML='<img id="stArtworkImage" hidden alt=""><p id="stArtworkMessage">Finding the cover…</p><a id="stArtworkCredit" target="_blank" rel="noopener noreferrer" hidden>Artwork via Wikipedia ↗</a>';
@@ -73,9 +73,9 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  function left(){return state?.paused?Number(state.remaining_ms||0):Math.max(0,Date.parse(state?.deadline||0)-Date.now()-offset);}
  async function act(action,data={},quiet=false){
   if(!connected||busy)return;
-  busy=true;controls();
+  busy=true;controls();const sentToken=state?.token;
   try { const r=await send(action,{revision:state?.revision||0,token:state?.token,...data});
-   if(r?.quiz_feedback){ownFeedback=r.quiz_feedback;feedbackToken=state?.token;if(ownFeedback==='correct')$('stGuess').value='';feedback();}
+   if(r?.quiz_feedback&&state?.token===sentToken){ownFeedback=r.quiz_feedback;feedbackToken=state?.token;if(ownFeedback==='correct')$('stGuess').value='';feedback();}
    return r;
   } catch(e){if(!quiet){const msg=/reparty_soundtrack|schema cache|PGRST202/i.test(e.message||'')?'Guess the Soundtrack needs its database update.':e.message||'Could not update the game.';notify(msg);$('stSetupError').textContent=msg;}}
   finally{busy=false;controls();}
@@ -103,11 +103,13 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  root.querySelectorAll('input[name="stMode"]').forEach(n=>n.onchange=renderRoster);
  root.querySelectorAll('input[name="stCategory"]').forEach(n=>n.onchange=count);$('stDifficulty').onchange=count;
  $('stRefreshRoster').onclick=buildRoster;
- $('stStart').onclick=()=>{ $('stSetupError').textContent='';return act('start',{mode:choice('stMode'),category:choice('stCategory'),seconds:Number($('stSeconds').value),rounds:Number($('stRounds').value),difficulty:Number($('stDifficulty').value),players:roster.filter(p=>p.included).map(p=>({id:p.id,team:p.team}))});};
+ $('stStart').onclick=()=>{ $('stSetupError').textContent='';return act('start',{mode:choice('stMode'),category:choice('stCategory'),seconds:Number($('stSeconds').value),clip_start:$('stClipStart').value===''?null:Number($('stClipStart').value),rounds:Number($('stRounds').value),difficulty:Number($('stDifficulty').value),players:roster.filter(p=>p.included).map(p=>({id:p.id,team:p.team}))});};
  $('stJoin').onclick=()=>act('join');
+ $('stGuess').oninput=()=>{ownFeedback='';feedbackToken=null;feedback();};
  $('stGuessForm').onsubmit=e=>{e.preventDefault();act('guess',{answer:$('stGuess').value.trim()});};
  $('stPause').onclick=()=>act(state.paused?'resume':'pause');
  $('stNext').onclick=()=>act('next');$('stSkip').onclick=()=>act('skip');$('stAgain').onclick=()=>act('reset');
+ $('stEnd').onclick=()=>act('reset');$('stHome').onclick=()=>onBackToModes?.();
  $('stLeave').onclick=()=>act('exit');$('stTakeover').onclick=()=>act('takeover');
  let volume=70;try{volume=Number(localStorage.getItem('reparty-quiz-volume')??70);}catch{}$('stVolume').value=volume;
  $('stVolume').oninput=()=>{volume=Number($('stVolume').value);try{player?.setVolume(volume);player?.unMute();localStorage.setItem('reparty-quiz-volume',volume);}catch{}$('stMute').textContent='♪';};
@@ -123,6 +125,7 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
   $('stGuess').disabled=$('stGuessSubmit').disabled=!play||!me()||state?.phase!=='guess'||state?.paused||solved()||left()<=0;
   $('stNext').hidden=$('stSkip').hidden=!host();$('stNext').disabled=$('stSkip').disabled=!play;
   $('stNext').textContent=['reveal','unavailable'].includes(state?.phase)?'Next track →':'Reveal answer';
+  $('stEnd').hidden=!host();$('stEnd').disabled=!play;
   $('stAgain').hidden=!host();$('stAgain').disabled=!play;
   $('stLeave').disabled=!play||!host();$('stTakeover').disabled=!play;
   $('stTakeover').hidden=!active||host()||members.some(m=>m.user_id===state?.host);
@@ -132,8 +135,9 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
   if(!me())message=state?.mode==='chill'?'Join the listening club whenever you’re ready.':'You’re spectating. Join the next game to score.';
   else if(state?.paused)message='Paused for everyone. Your answer will be here when we resume.';
   else if(solved()){message=state.mode==='teams'?'Your team got it! One point secured.':state.mode==='group'?'You got it together! One point secured.':'You got it! One point secured.';style='correct';}
-  else if(feedbackToken===state?.token&&ownFeedback==='incorrect'){message='Not quite. You can try another answer.';style='incorrect';}
   else if(state?.phase==='reveal')message='The answer is in. A new memory is coming up…';
+  else if(feedbackToken===state?.token&&ownFeedback==='incorrect'){message='Not quite. You can try another answer.';style='incorrect';}
+  else if($('stGuess').value.trim())message='Press Enter or Lock it in to submit your guess.';
   $('stFeedback').textContent=message;$('stFeedback').className=style;
  }
  function scores(){

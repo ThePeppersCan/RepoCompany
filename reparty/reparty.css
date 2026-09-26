@@ -56,6 +56,33 @@ button.dark:hover:not(:disabled){background:var(--green-hover)}
 button[hidden],[hidden]{display:none!important}
 kbd{font:600 11px var(--body);border:1px solid var(--soft-line);border-bottom-width:2px;border-radius:3px;padding:1px 5px;background:var(--chip);color:var(--ink)}
 .app{max-width:1920px;margin:auto;padding:12px clamp(12px,2.4vw,44px) 24px}
+.reparty-entry .masthead,.reparty-entry .watch-layout,.reparty-entry #gameToggle,.reparty-entry #roomLink,.reparty-entry #changeRoom{display:none!important}
+html:not(.reparty-entry) #entryHome{display:none}
+.entry-home{max-width:960px;margin:clamp(24px,6vh,70px) auto;padding:clamp(24px,4vw,56px);text-align:center}
+.entry-icon{image-rendering:pixelated;object-fit:contain}
+.entry-home .eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--eyebrow);margin:16px 0}
+.entry-home h1{font:600 clamp(40px,5vw,66px)/1.02 var(--pixel);margin:0 0 18px}
+.entry-intro{color:var(--muted-ink);line-height:1.7;margin:0 auto 28px;max-width:430px}
+.entry-choices{display:grid;grid-template-columns:1fr 1fr;gap:18px;text-align:left}
+.entry-choices button{display:flex;align-items:flex-start;flex-direction:column;text-align:left;padding:26px;border-radius:8px;border-color:var(--soft-line);background:var(--field);gap:12px}
+.entry-symbol{font:38px var(--pixel);color:var(--accent-ink)}
+.entry-choices strong{font:600 32px var(--pixel)}
+.entry-choices button>span:not(.entry-symbol){font-size:13px;line-height:1.7;color:var(--muted-ink);font-weight:400}
+.entry-choices small{margin-top:10px;color:var(--accent-ink);font-size:12px}
+.entry-note{font-size:11px;color:var(--muted);margin:28px 0 0}
+.modal.room-lobby{width:min(730px,calc(100vw - 28px))}
+.room-lobby #lobbyBack{margin:0 0 22px;padding:0;border:0;background:none;box-shadow:none;font-size:12px;color:var(--muted-ink)}
+.lobby-list-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:26px}
+.room-lobby h3{font:600 23px var(--pixel);margin:0 0 10px}
+.lobby-list-heading button{font-size:11px;padding:5px}
+.room-directory{display:grid;gap:9px;max-height:300px;overflow:auto;padding:2px 3px 4px 0}
+.directory-room{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;background:var(--field);border:1px solid var(--soft-line);border-radius:6px}
+.directory-room>div{min-width:0}.directory-room strong{display:block;overflow-wrap:anywhere;font-size:15px}.directory-room p{color:var(--muted-ink);font-size:11px;margin:7px 0 0;line-height:1.5}.directory-room button{flex-shrink:0;font-size:12px}
+.directory-empty{padding:20px;background:var(--field);border:1px dashed var(--soft-line);border-radius:6px;color:var(--muted-ink);line-height:1.6;font-size:13px;margin:0}
+.room-lobby .lobby-retention{font-size:11px;color:var(--muted);margin:12px 0 24px}
+.lobby-create{border-top:1px solid var(--soft-line);padding-top:24px}.lobby-create select{display:block;width:100%;margin-top:7px}
+.lobby-code{margin-top:24px;font-size:12px}.lobby-code summary{cursor:pointer;color:var(--muted-ink)}
+@media(max-width:560px){.entry-choices{grid-template-columns:1fr;gap:12px}.entry-home{margin:20px auto;padding:24px 18px}.entry-icon{width:72px;height:72px}.entry-choices button{padding:18px;gap:8px}.entry-symbol{font-size:28px}.entry-choices strong{font-size:28px}.entry-choices small{margin-top:4px}.room-lobby .input-row{flex-wrap:wrap}.room-lobby .input-row input{flex-basis:60%;width:100%}.room-lobby .input-row button{flex-grow:1}.directory-room{padding:13px}}
 
 /* Room bar: labels sit on glass pills so they stay readable over the bright sky. */
 .room-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--glass-ink);font-size:13px;margin:0 4px 15px}
