@@ -8,7 +8,7 @@
   <title>Reparty · RepoCompany</title>
   <link rel="icon" href="../assets/reparty/reparty-icon.png">
   <script>try{var t=localStorage.getItem('reparty-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;if(localStorage.getItem('reparty-layout')==='theatre')document.documentElement.classList.add('theatre')}catch(e){}</script>
-  <link rel="stylesheet" href="reparty.css?v=3">
+  <link rel="stylesheet" href="reparty.css?v=4">
   <link rel="stylesheet" href="game-mode.css?v=2">
 </head>
 <body>
@@ -22,9 +22,9 @@
       <a class="brand panel" href="./" aria-label="Reparty home"><img src="../assets/reparty/reparty-icon.png" alt="" width="64" height="64"><span><strong>Reparty<span class="leaf" aria-hidden="true">◆</span></strong><small>by RepoCompany</small></span></a>
       <form id="addVideo" class="link-bar panel">
         <span class="youtube" aria-hidden="true">▶</span>
-        <label class="sr-only" for="videoUrl">YouTube video link</label>
-        <input id="videoUrl" type="text" placeholder="Paste a YouTube link…" autocomplete="off" required maxlength="2048">
-        <button type="submit" class="primary" id="addButton" disabled>+ Add video</button>
+        <label class="sr-only" for="videoUrl">YouTube or Suno link</label>
+        <input id="videoUrl" type="text" placeholder="Paste a YouTube or Suno link…" autocomplete="off" required maxlength="2048">
+        <button type="submit" class="primary" id="addButton" disabled>+ Add to queue</button>
       </form>
     </header>
     <main class="watch-layout">
@@ -33,11 +33,13 @@
           <div class="tv-top"><span>REPARTY <span aria-hidden="true">◆</span></span><span class="vent" aria-hidden="true"></span></div>
           <div class="screen" id="screen">
             <div id="youtubePlayer"></div>
+            <div id="sunoPlayer" class="suno-player" hidden></div>
             <div class="screen-shield" id="screenShield" title="Click to play or pause for everyone · double-click for full screen" aria-hidden="true"><span class="shield-flash" id="shieldFlash"></span></div>
             <div class="tv-chat" id="tvChat" aria-hidden="true"></div>
             <div class="empty-screen" id="emptyScreen"><img src="../assets/reparty/reparty-icon.png" alt="" width="104" height="104"><h1>Good videos. Better company.</h1><p id="emptyHint">Make a room, add a video and settle in together.</p><button class="primary" id="startRoom">Start a watch party</button></div>
             <div class="screen-overlay" id="enablePlayback" hidden><button class="primary" id="enablePlaybackButton">▶ Join the playback</button><p>Your browser needs one click before this video can play here.</p></div>
           </div>
+          <div id="sunoNotice" class="suno-notice" hidden><div><strong>Suno · shared queue timer</strong><p>If silent, press play inside Suno. Its controls affect only you; the queue moves on by time. Resume and late joins start from the beginning. Use your device volume.</p></div><button id="sunoRestart">↻ Restart for everyone</button></div>
           <div class="playback-controls">
             <span class="speaker" aria-hidden="true"></span>
             <button id="togglePlay" class="icon-button dark" aria-label="Play for everyone" aria-keyshortcuts="K Space" title="Play or pause for everyone (K)" disabled>▶</button>
@@ -64,8 +66,8 @@
           <div class="playlist-tools"><button id="repeatMode" class="mode" aria-pressed="true" title="When the last video ends, start the playlist again" hidden disabled>⟳ Repeat</button><button id="shuffleMode" class="mode" aria-pressed="false" title="Play videos in a random order for everyone. The playlist order is kept." hidden disabled>⤮ Shuffle</button><button id="renamePlaylist" class="link" disabled>Rename</button><button id="deletePlaylist" class="link" disabled>Delete</button></div>
           <div class="queue-search"><label class="sr-only" for="queueSearch">Search this playlist</label><input id="queueSearch" type="search" placeholder="Search this playlist…" autocomplete="off" aria-keyshortcuts="/"><button id="jumpNow" title="Scroll to the video that's playing" disabled>◎ Now playing</button></div>
           <button class="builtin-playlist" id="builtinPlaylist" disabled>♫ Add “The Playlist of gods” · 560 videos</button>
-          <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Your next favourite is waiting.</strong><p>Paste a YouTube link above to start your shared playlist.</p></li></ol>
-          <button class="add-bottom" id="focusAdd">+ Add video</button>
+          <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Your next favourite is waiting.</strong><p>Paste a YouTube or Suno link above to start your shared playlist.</p></li></ol>
+          <button class="add-bottom" id="focusAdd">+ Add to queue</button>
         </section>
         <section id="chatPanel" role="tabpanel" aria-labelledby="chatTab" hidden><h2 class="split-heading">Chat</h2><div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"></div><form id="chatForm"><label class="sr-only" for="message">Message your room</label><textarea id="message" placeholder="Say something nice…" rows="2" maxlength="1000" required disabled></textarea><button class="primary" id="sendMessage" disabled>Send</button></form></section>
         <div class="sidebar-footer"><span class="mini-leaf">◆</span> Same room. Same moment.</div>
@@ -79,6 +81,6 @@
   <dialog id="editDialog" class="modal"><button class="close" data-close="editDialog" aria-label="Close">×</button><form id="editForm"><h2 id="editHeading">Playlist name</h2><label id="editLabel" for="editValue">Name</label><input id="editValue" maxlength="60" required><p id="editDescription"></p><div class="dialog-actions"><button type="button" data-close="editDialog">Cancel</button><button type="submit" id="editSubmit" class="primary">Save</button></div><p id="editError" class="form-error" role="alert"></p></form></dialog>
   <dialog id="shortcutsDialog" class="modal"><button class="close" data-close="shortcutsDialog" aria-label="Close">×</button><p class="eyebrow">QUICK KEYS</p><h2>Keyboard shortcuts.</h2><dl class="shortcuts"><dt><kbd>K</kbd> or <kbd>Space</kbd></dt><dd>Play or pause for everyone</dd><dt><kbd>J</kbd> / <kbd>L</kbd></dt><dd>Back or forward 10 seconds for everyone</dd><dt><kbd>N</kbd></dt><dd>Next video</dd><dt><kbd>M</kbd></dt><dd>Mute or unmute your audio</dd><dt><kbd>T</kbd></dt><dd>Theatre mode: the TV fills the window</dd><dt><kbd>F</kbd></dt><dd>Full screen (double-click the video works too)</dd><dt><kbd>C</kbd></dt><dd>Write a chat message</dd><dt><kbd>/</kbd></dt><dd>Search the playlist</dd><dt><kbd>?</kbd></dt><dd>Show this list</dd></dl></dialog>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
-  <script type="module" src="app.js?v=8"></script>
+  <script type="module" src="app.js?v=9"></script>
 </body>
 </html>

@@ -2,6 +2,22 @@
 
 Forest pixel-art watch parties for existing RepoCompany accounts. The homepage Reparty TV button replaces the Velmora Crown launcher.
 
+## Suno queue (26 September 2026)
+
+The Suno database upgrade was applied to the live Supabase project on 26 September 2026. The prior room function matched the tested Game mode version, and the resulting function matched the tested Suno version; all three existing rooms were retained.
+
+Paste a Suno `/s/…` share link, `/song/<id>` link or `/embed/<id>` link into the existing link field, including in Game mode. Songs keep their titles and sit alongside YouTube videos in the same playlists, with the existing Play next, reorder, Shuffle, Repeat and Next controls. The official Suno player owns playback; Reparty does not fetch or decrypt Suno audio.
+
+Suno does not expose a parent-page playback API. The accepted workaround uses a **shared queue timer**, based on the song duration plus five seconds for loading, rather than actual playback progress. Autoplay can require a click inside Suno. Its own pause/seek controls affect only that viewer and do not stop the room timer. Reparty's shared Pause removes the iframe; Play and Restart for everyone start the song from the beginning on every connected viewer. Late joins/reloads start the song from the beginning, with the room's remaining queue time. Use device/browser volume for Suno; Reparty's seek, mute and volume controls are disabled while Suno is selected. Refreshing the queue does not restart the iframe. Game mode and hiding its dock keep the same iframe mounted.
+
+The server validates the timer against its clock, room revision and exact playback timestamp before advancing. This prevents early timer requests, duplicate advances across viewers and stale requests skipping a restarted/repeating song. At least one connected Reparty viewer must be running for timed advancement; background browser throttling or offline viewers can delay it. On reconnect, the next timer check catches up. Unavailable embeds cannot report errors to Reparty; members can use Next.
+
+**Activation:** apply `supabase/migrations/20260926010000_reparty_suno_queue.sql` after the Game mode migration, then publish the changed Reparty files and `functions/api/reparty-suno.js` through the existing Cloudflare Pages workflow. The migration preserves all rooms, playlists, playback and game state and is rerunnable. Do not rerun older room-function migrations afterward. For fresh setups apply `migration.sql`, the Game mode migration, then this Suno migration. Before the new database migration is installed, YouTube still works and adding Suno gives an explicit upgrade-needed message. Existing open tabs should reload after publishing.
+
+The metadata endpoint accepts only validated Suno song/share URLs, follows only HTTPS Suno song/share redirects, limits response size and time, and returns only ID, title and duration. It reads the public song metadata in Suno's page, so a change to Suno's page format may require updating the resolver. No Suno account key is stored. Link-only songs work when their shared page is accessible; unfinished songs without a duration are rejected.
+
+Validation: `node reparty/tests/suno-queue.cjs` with `@electric-sql/pglite@0.5.8` covers parsing, redirect restrictions, metadata, permissions, mixed queues, duration validation, upgrade preservation, pause/restart, timer races, Repeat/Shuffle, idempotence and Game mode. Two-browser integration checks used the real SQL in PGlite, simulated RepoCompany authentication and a simulated YouTube adapter. The **actual Suno embed** played the supplied “Repo Company” song (116.76 seconds) in Edge. Checks passed for paste/queue, both viewers, pause/restart, persistence, Game mode, timed progression, provider switching, mobile overflow and application errors. This does not constitute live deployment or a real YouTube streaming test.
+
 ## Included
 
 - Same Supabase project, account identities and browser session as RepoCompany when served on the same origin at `/reparty/`.

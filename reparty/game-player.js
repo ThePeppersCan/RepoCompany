@@ -6,7 +6,7 @@ export function createGamePlayer() {
   header.innerHTML = '<strong>♫ Watch & listen</strong><button id="miniQueue" aria-expanded="false" aria-controls="playlistPanel">Queue</button><button id="miniSide" aria-label="Move player to bottom left" title="Move to other corner">⇄</button><button id="miniHide" aria-label="Hide player, keep audio playing">Hide</button>';
   layout.prepend(header);
   const form = document.createElement('form');form.className='mini-add-video';form.id='miniAddVideo';
-  form.innerHTML='<label class="sr-only" for="miniVideoUrl">Queue a YouTube video</label><input id="miniVideoUrl" placeholder="Paste a YouTube link…" maxlength="2048" autocomplete="off" required><button id="miniAddButton">+ Queue</button>';
+  form.innerHTML='<label class="sr-only" for="miniVideoUrl">Queue a YouTube or Suno link</label><input id="miniVideoUrl" placeholder="Paste a YouTube or Suno link…" maxlength="2048" autocomplete="off" required><button id="miniAddButton">+ Queue</button>';
   document.querySelector('.sidebar').prepend(form);
   const launcher=document.createElement('div');launcher.className='mini-player-launcher';
   launcher.innerHTML='<button id="miniShow" aria-label="Show video player and queue">♫ Player</button><button id="miniMute" aria-label="Mute my audio">Mute</button>';

@@ -14,6 +14,23 @@ export function parseVideo(input) {
     return /^[\w-]{11}$/.test(id || '') ? id : null;
   } catch { return null; }
 }
+export const SUNO_ID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+export function parseSunoLink(input) {
+  try {
+    const value = String(input || '').trim();
+    const url = new URL(/^https?:\/\//i.test(value) ? value : `https://${value}`);
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.port) return null;
+    if (!['suno.com', 'www.suno.com'].includes(url.hostname.toLowerCase())) return null;
+    const parts = url.pathname.replace(/\/$/, '').split('/');
+    if (parts.length !== 3) return null;
+    if (['song', 'embed'].includes(parts[1]) && SUNO_ID.test(parts[2])) return { id: parts[2].toLowerCase() };
+    if (parts[1] === 's' && /^[a-zA-Z0-9]{8,64}$/.test(parts[2])) return { share: parts[2] };
+  } catch {}
+  return null;
+}
+export function isSuno(id) { return typeof id === 'string' && id.startsWith('suno:') && SUNO_ID.test(id.slice(5)); }
+// The extra five seconds allows the official embed to load before the room moves on.
+export function sunoQueueDuration(item) { return Math.max(0, Number(item?.duration) || 0) + 5; }
 export function playbackPosition(playback, now = Date.now()) {
   const elapsed = playback.playing ? Math.max(0, (now - Date.parse(playback.updated_at)) / 1000) : 0;
   return Math.max(0, Math.min(86400, Number(playback.position || 0) + (Number.isFinite(elapsed) ? elapsed : 0)));

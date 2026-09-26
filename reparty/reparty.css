@@ -92,6 +92,15 @@ kbd{font:600 11px var(--body);border:1px solid var(--soft-line);border-bottom-wi
 .vent{width:42px;height:12px;background:repeating-linear-gradient(90deg,var(--vent-a) 0 4px,var(--vent-b) 4px 8px)}
 .screen{width:100%;aspect-ratio:16/9;background:#112a25;position:relative;border:7px solid var(--bezel);border-radius:6px;box-shadow:0 0 0 3px var(--bezel-ring),0 0 0 6px var(--bezel-ring2);overflow:hidden;min-height:200px}
 .screen iframe,.screen>#youtubePlayer{position:absolute;inset:0;width:100%;height:100%;border:0}
+.suno-player{position:absolute;inset:0;background:#172b26;display:grid;place-items:center}
+.suno-paused{padding:24px;text-align:center;color:#fff0d4;max-width:440px}
+.suno-notice{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--paper);border-bottom:1px solid var(--line);font-size:12px}
+.suno-notice p{margin:4px 0 0;line-height:1.4;color:var(--muted-ink)}
+.suno-notice button{flex-shrink:0;font-size:12px}
+@media(max-width:650px){.suno-notice{flex-wrap:wrap}.suno-notice button{width:100%}}
+.game-mode .suno-notice{flex-wrap:wrap;font-size:11px;padding:6px 10px}
+.game-mode .suno-notice button{font-size:11px}
+.television:fullscreen:has(.suno-player:not([hidden])) .screen{flex:1;min-height:0;height:auto!important;aspect-ratio:auto}
 /* The shield keeps every click on Reparty's side, so nobody can wander off into YouTube's own suggestions. */
 .screen-shield{position:absolute;inset:0;z-index:1;cursor:pointer}
 .screen{-webkit-user-select:none;user-select:none}
