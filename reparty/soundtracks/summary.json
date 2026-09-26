@@ -1,0 +1,66 @@
+{
+  "total": 2000,
+  "linked": 1949,
+  "counts": [
+    {
+      "category": "game",
+      "difficulty": 1,
+      "total": 153,
+      "playable": 151
+    },
+    {
+      "category": "game",
+      "difficulty": 2,
+      "total": 232,
+      "playable": 227
+    },
+    {
+      "category": "game",
+      "difficulty": 3,
+      "total": 192,
+      "playable": 188
+    },
+    {
+      "category": "game",
+      "difficulty": 4,
+      "total": 267,
+      "playable": 259
+    },
+    {
+      "category": "game",
+      "difficulty": 5,
+      "total": 156,
+      "playable": 148
+    },
+    {
+      "category": "movie",
+      "difficulty": 1,
+      "total": 148,
+      "playable": 148
+    },
+    {
+      "category": "movie",
+      "difficulty": 2,
+      "total": 214,
+      "playable": 213
+    },
+    {
+      "category": "movie",
+      "difficulty": 3,
+      "total": 215,
+      "playable": 215
+    },
+    {
+      "category": "movie",
+      "difficulty": 4,
+      "total": 243,
+      "playable": 235
+    },
+    {
+      "category": "movie",
+      "difficulty": 5,
+      "total": 180,
+      "playable": 165
+    }
+  ]
+}

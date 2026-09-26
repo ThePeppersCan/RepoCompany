@@ -1,6 +1,7 @@
 import { createGamePlayer } from './game-player.js';
 import { createSunoPlayer } from './suno-player.js';
-import { createGameMode } from './game-mode.js';
+import { createGameMode } from './game-mode.js?v=2';
+import { createSoundtrackMode } from './soundtrack-mode.js?v=1';
 import { config } from './config.js';
 import { avatars, avatarGroups } from './avatars.js';
 import { parseVideo, parseSunoLink, isSuno, sunoQueueDuration, playbackPosition, formatTime, validRoom, avatarPosition } from './core.mjs';
@@ -21,7 +22,7 @@ const splitView = matchMedia('(min-width: 1700px)');
 const systemDark = matchMedia('(prefers-color-scheme: dark)');
 let latestMembers = [], wasGameMode = false;
 const gameMode = createGameMode({
-  getUser: () => user, avatar: avatarElement, notify,
+  getUser: () => user, avatar: avatarElement, notify, openMenu: openGameMenu,
   onModeChange(active) {
     if (active && !wasGameMode && document.fullscreenElement) document.exitFullscreen().catch(() => {});
     miniPlayer.update(active);
@@ -42,7 +43,50 @@ const gameMode = createGameMode({
 
 const miniPlayer = createGamePlayer();
 const sunoPlayer = createSunoPlayer($('sunoPlayer'), $('sunoNotice'));
+const soundtrackMode = createSoundtrackMode({
+  getUser: () => user, avatar: avatarElement, notify, loadYoutube,
+  onActive(active) {
+    if (active) {
+      clearTimeout(skipTimer); suppressUntil = performance.now() + 2000;
+      try { player?.stopVideo?.(); } catch {}
+      playerVideo = null; sunoPlayer.clear(); miniPlayer.update(false);
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    }
+  },
+  async send(action, data) {
+    if (!requireUser()) return;
+    if (!roomId) { modal('lobby'); return; }
+    const target = roomId, started = Date.now();
+    const response = await db.rpc('reparty_soundtrack_action', { p_action: action, p_room: target, p_data: data });
+    if (response.error) throw response.error;
+    if (target !== roomId) return;
+    if (response.data?.server_time) offset = Date.parse(response.data.server_time) - (started + Date.now()) / 2;
+    applySnapshot(response.data);
+    if (response.data?.quiz_stale) notify('The round just changed. Try that control again.');
+    return response.data;
+  }
+});
 let sunoAdvancing = false, lastSunoAdvance = 0;
+
+function openGameMenu() {
+  if (!requireUser()) return;
+  if (!roomId) { modal('lobby'); return; }
+  const current = room.settings?.game;
+  const canSwitch = !['game', 'soundtrack'].includes(current?.mode) || current?.host === user.id;
+  ['chooseCards', 'chooseSoundtrack', 'chooseWatch'].forEach(id => { $(id).disabled = !canSwitch; });
+  $('gameMenuHint').textContent = canSwitch ? 'Choose how you spend the night.' : 'Your host chooses the room’s game.';
+  modal('gameMenu');
+}
+async function changeGame(next) {
+  if (soundtrackMode.active() && next !== 'soundtrack') await soundtrackMode.leave();
+  if (gameMode.active() && next !== 'game') await gameMode.leave();
+  if (next === 'soundtrack' && !gameMode.active()) await soundtrackMode.enter();
+  if (next === 'game' && !soundtrackMode.active()) await gameMode.enter();
+  $('gameMenu').close();
+}
+$('chooseCards').onclick = () => run(() => changeGame('game'));
+$('chooseSoundtrack').onclick = () => run(() => changeGame('soundtrack'));
+$('chooseWatch').onclick = () => run(() => changeGame('watch'));
 
 function sunoActive() { return isSuno(room?.playback?.video_id); }
 function mediaControls() {
@@ -124,6 +168,7 @@ $('theatreToggle').onclick = () => applyTheatre(!document.documentElement.classL
 function setConnected(ok, label) {
   connectionReady = ok;
   gameMode.setConnected(ok);
+  soundtrackMode.setConnected(ok);
   miniPlayer.connected(ok);
   $('connection').textContent = label;
   $('syncLabel').textContent = ok ? 'In sync' : roomId ? 'Reconnecting' : 'Not connected';
@@ -167,6 +212,7 @@ function applySnapshot(data) {
   if (!data?.room || data.room.id !== roomId) return;
   if (room && Number(data.room.revision) < Number(room.revision)) return;
   const playbackChanged = !room || JSON.stringify(data.room.playback) !== JSON.stringify(room.playback);
+  const soundtrackChanged = soundtrackMode.active() !== (data.room.settings?.game?.mode === 'soundtrack');
   room = data.room;
   myAvatar = data.avatar_id;
   $('roomName').textContent = room.name;
@@ -176,20 +222,21 @@ function applySnapshot(data) {
   if (!room.playlists.some(p => p.id === selectedPlaylist)) selectedPlaylist = playingEntry()?.playlist.id || room.playlists[0]?.id;
   latestMembers = data.members;
   gameMode.update(room.settings?.game, latestMembers, roomId, offset);
+  soundtrackMode.update(room.settings?.soundtrack, latestMembers, roomId, offset, room.settings?.game?.mode === 'soundtrack');
   renderModes();
   renderPlaylists();
   renderMembers(data.members);
   renderMessages(data.messages);
   applyAvatar($('myAvatar'), myAvatar);
   $('chooseAvatar').disabled = false;
-  setConnected(true, `${data.members.length} ${gameMode.active() ? 'playing together' : 'watching together'}`);
+  setConnected(true, `${data.members.length} ${gameMode.active() || soundtrackMode.active() ? 'playing together' : 'watching together'}`);
   $('emptyHint').textContent = 'Paste a YouTube or Suno link above. Everyone in your room can add to the queue.';
   $('startRoom').hidden = true;
   $('togglePlay').textContent = room.playback.playing ? 'Ⅱ' : '▶';
   $('togglePlay').setAttribute('aria-label', room.playback.playing ? 'Pause for everyone' : 'Play for everyone');
   $('nowPlaying').textContent = playingEntry()?.item.title || 'Choose a video from your playlist';
   mediaControls();
-  if (playbackChanged) applyPlayback().catch(error => notify(friendly(error)));
+  if (playbackChanged || soundtrackChanged) applyPlayback().catch(error => notify(friendly(error)));
 }
 async function refresh() {
   if (!roomId || !user) return;
@@ -383,6 +430,7 @@ async function leaveRoom() {
   const oldRoom = roomId;
   roomId = null; room = null; playerVideo = null; blocked = false;
   latestMembers = []; gameMode.update(null);
+  soundtrackMode.update(null);
   clearInterval(poll); clearTimeout(refreshTimer); clearTimeout(skipTimer);
   if (channel) { await db.removeChannel(channel); channel = null; }
   suppressUntil = performance.now() + 2000;
@@ -444,6 +492,7 @@ function wrongVideo() {
 }
 function recoverVideo() { playerVideo = null; applyPlayback(true).catch(() => {}); }
 function scheduleSkip() {
+  if (soundtrackMode.active()) return false;
   const current = playingEntry();
   if (!current || !connectionReady) return false;
   const { playlist: list, item } = current;
@@ -457,7 +506,7 @@ function scheduleSkip() {
 }
 async function ensurePlayer() {
   await loadYoutube();
-  if (sunoActive()) return;
+  if (sunoActive() || soundtrackMode.active()) return;
   if (player) return;
   player = new window.YT.Player('youtubePlayer', {
     width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
@@ -467,9 +516,9 @@ async function ensurePlayer() {
       onReady: () => { clearTimeout(playerReadyTimer); playerReady = true; player.setVolume(Number($('volume').value)); mediaControls(); applyPlayback().catch(error => notify(friendly(error))); },
       onStateChange: onPlayerState,
       onPlaybackRateChange: event => { if (event.data !== 1) player.setPlaybackRate(1); },
-      onAutoplayBlocked: () => { if (!sunoActive()) { blocked = true; $('enablePlayback').hidden = false; } },
+      onAutoplayBlocked: () => { if (!sunoActive() && !soundtrackMode.active()) { blocked = true; $('enablePlayback').hidden = false; } },
       onError: event => {
-        if (sunoActive()) return;
+        if (sunoActive() || soundtrackMode.active()) return;
         const messages = { 100: 'This video is unavailable or private.', 101: 'The owner does not allow this video to play on other websites.', 150: 'The owner does not allow this video to play on other websites.', 153: 'YouTube could not verify this page. Open Reparty from the website rather than a local file.', 2: 'That video link is invalid.', 5: 'This video cannot play in this browser.' };
         const reason = messages[event.data] || 'YouTube could not play this video.';
         if (UNPLAYABLE.includes(event.data) && scheduleSkip()) notify(`${reason} Skipping to the next video…`);
@@ -486,6 +535,7 @@ async function ensurePlayer() {
   }, 15000);
 }
 async function applyPlayback(force = false) {
+  if (soundtrackMode.active()) return;
   const pb = room?.playback;
   if (isSuno(pb?.video_id)) {
     clearTimeout(skipTimer);
@@ -510,7 +560,7 @@ async function applyPlayback(force = false) {
   }
   if (!playerReady) $('emptyHint').textContent = 'Connecting to YouTube…';
   await ensurePlayer();
-  if (!playerReady || pb !== room?.playback) return;
+  if (!playerReady || pb !== room?.playback || soundtrackMode.active()) return;
   $('emptyScreen').hidden = true;
   const position = playbackPosition(pb, Date.now() + offset);
   const different = playerVideo !== pb.video_id || wrongVideo();
@@ -527,13 +577,14 @@ async function applyPlayback(force = false) {
   }
 }
 async function publishPlayback(playing, position) {
+  if (soundtrackMode.active()) return;
   if (!room?.playback.video_id || !connectionReady || pendingPlayback) return;
   pendingPlayback = true;
   try { await mutate('playback', { item_id: room.playback.item_id, playing, position: Math.max(0, Math.min(86400, position)) }); }
   finally { pendingPlayback = false; }
 }
 function onPlayerState(event) {
-  if (sunoActive()) return;
+  if (sunoActive() || soundtrackMode.active()) return;
   if (!room?.playback.video_id || !connectionReady || playerVideo !== room.playback.video_id) return;
   if (wrongVideo()) { recoverVideo(); return; }
   if (event.data === 1 && blocked) { blocked = false; $('enablePlayback').hidden = true; }
@@ -547,6 +598,7 @@ function onPlayerState(event) {
   if ((event.data === 1 && !room.playback.playing) || (event.data === 2 && room.playback.playing)) run(() => publishPlayback(event.data === 1, player.getCurrentTime()));
 }
 setInterval(() => {
+  if (soundtrackMode.active()) return;
   if (sunoActive()) {
     const current = playingEntry();
     if (!current) return;
@@ -712,6 +764,11 @@ document.addEventListener('keydown', e => {
   const target = e.target instanceof Element ? e.target : null;
   if (target?.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]') || document.querySelector('dialog[open]')) return;
   if (e.key === ' ' && target?.closest('button, a, [role=tab]')) return; // Space still activates the focused control.
+  if (soundtrackMode.active()) {
+    if (e.key === ' ' || e.key.toLowerCase() === 'k') { e.preventDefault(); soundtrackMode.pause(); }
+    if (e.key.toLowerCase() === 'm') { e.preventDefault(); $('stMute').click(); }
+    return;
+  }
   const action = shortcuts[e.key.length === 1 ? e.key.toLowerCase() : e.key];
   if (!action) return;
   e.preventDefault(); action();

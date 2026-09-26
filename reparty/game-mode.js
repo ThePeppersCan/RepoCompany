@@ -3,7 +3,7 @@ import { cards, packs } from './game-cards.mjs';
 const $ = id => document.getElementById(id);
 const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
 
-export function createGameMode({ send, getUser, avatar, notify, onModeChange }) {
+export function createGameMode({ send, getUser, avatar, notify, onModeChange, openMenu }) {
   let game = null, members = [], connected = false, busy = false, signature = '', roster = [], draftRoom = null;
   let serverOffset = 0;
   const root = el('section', undefined, 'game-room'); root.id = 'gameRoom'; root.hidden = true;
@@ -76,7 +76,7 @@ export function createGameMode({ send, getUser, avatar, notify, onModeChange }) 
     if (roster.some(p=>p.name.toLowerCase()===name.toLowerCase())) return notify('Give each player a different name.');
     roster.push({name,avatar_id:roster.length%100});$('gamePlayerName').value='';renderRoster();
   };
-  $('gameToggle').onclick=()=>action(game?.mode==='game'?'exit':'enter');
+  $('gameToggle').onclick=()=>openMenu ? openMenu() : action(game?.mode==='game'?'exit':'enter');
   $('gameStart').onclick=()=>action('start',{players:roster,packs:selectedPacks(),turns:Number($('gameTurns').value),seconds:Number($('gameSeconds').value)});
   for(const [id,name] of Object.entries({gameNext:'next',gameSkip:'skip',gamePin:'pin',gameTimerStart:'timer',gameReset:'reset',gameClear:'clear',gameTakeover:'takeover',gameWheel:'wheel'})) $(id).onclick=()=>action(name);
   function timer() {
@@ -88,7 +88,7 @@ export function createGameMode({ send, getUser, avatar, notify, onModeChange }) 
     game=next||null;members=roomMembers;serverOffset=offset;
     const active=game?.mode==='game';
     root.hidden=!active;document.documentElement.classList.toggle('game-mode',active);
-    $('gameToggle').textContent=active?'Watch mode':'Game mode';$('gameToggle').setAttribute('aria-pressed',String(active));
+    $('gameToggle').textContent='Game mode';$('gameToggle').setAttribute('aria-pressed',String(active||game?.mode==='soundtrack'));
     onModeChange(active);
     if (!active) { signature=''; if(!roomId) draftRoom=null; controls();return; }
     const host=isHost(); const hostMember=members.find(m=>m.user_id===game.host);
@@ -121,5 +121,5 @@ export function createGameMode({ send, getUser, avatar, notify, onModeChange }) 
     }
     controls();timer();
   }
-  return {update, setConnected(value){connected=value;controls();count();}, active:()=>game?.mode==='game'};
+  return {update, enter:()=>action('enter'), leave:()=>action('exit'), setConnected(value){connected=value;controls();count();}, active:()=>game?.mode==='game'};
 }
