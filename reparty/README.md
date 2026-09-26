@@ -2,6 +2,8 @@
 
 ## Guess the Soundtrack (26 September 2026)
 
+Common short titles and familiar series names count: for example Sonic, Zelda, Mario, Pokémon, GTA, COD, Harry Potter and LOTR. The alias correction is in `supabase/migrations/20260927020000_reparty_soundtrack_short_names.sql` (apply after the initial soundtrack migration and catalogue). It updates only aliases and also works for rounds already in progress. The main catalogue seed includes these aliases for new installations. `node reparty/tests/soundtrack-aliases.cjs` covers the reported “sonic” rejection, abbreviations, incorrect answers and repeatable upgrades with 20 checks.
+
 The Game mode menu offers card games and Guess the Soundtrack. Choose Games, Movies or Mixed; Versus, Teams (2–4 teams) or Together; 10/15/20/30-second clips; 10/20/50 rounds; and a maximum difficulty. Each player joins on their own device. Late joiners spectate until the next match. The host assigns teams and controls round skips/reveals; every rostered player can pause or resume the whole room, including the countdown and reveal. The watch queue pauses on entry and retains its position for returning afterwards.
 
 Answers can be a game/movie title or distinctive track name, with punctuation/accent normalization and small typo tolerance. Generic answers such as “Main Theme” are not accepted. Versus awards one point per player per round, Teams one per team, and Together one shared point. Points become visible on reveal. A private database session stores the chosen deck, answer and attempt timestamps; shared room snapshots omit those until reveal. This is a social party game, not a tamper-proof competition: YouTube video IDs can still be inspected by a determined player.

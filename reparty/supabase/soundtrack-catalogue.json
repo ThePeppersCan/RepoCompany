@@ -14,7 +14,9 @@
     "aliases": [
       "Super Mario Bros.",
       "Ground Theme (Overworld)",
-      "Ground Theme"
+      "Ground Theme",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Bros (NES) Music - Overworld Theme"
   },
@@ -33,7 +35,8 @@
     "aliases": [
       "The Legend of Zelda",
       "Legend of Zelda",
-      "Overworld Theme"
+      "Overworld Theme",
+      "Zelda"
     ],
     "video_title": "Legend of Zelda, The (NES) Music - Overworld Theme"
   },
@@ -70,7 +73,9 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Pokémon Red and Blue"
+      "Pokémon Red and Blue",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Pokémon Red & Blue Music: Opening Theme"
   },
@@ -88,7 +93,8 @@
     "difficulty": 1,
     "aliases": [
       "Sonic the Hedgehog",
-      "Green Hill Zone"
+      "Green Hill Zone",
+      "Sonic"
     ],
     "video_title": "Sonic The Hedgehog OST - Green Hill Zone"
   },
@@ -131,7 +137,10 @@
       "Elder Scrolls V: Skyrim",
       "Dragonborn",
       "Skyrim",
-      "Elder Scrolls Skyrim"
+      "Elder Scrolls Skyrim",
+      "Elder Scrolls",
+      "The Elder Scrolls 5: Skyrim",
+      "Elder Scrolls 5: Skyrim"
     ],
     "video_title": "TES V Skyrim Soundtrack - Dragonborn (Theme)"
   },
@@ -167,7 +176,9 @@
     "difficulty": 1,
     "aliases": [
       "Super Mario 64",
-      "Bob-omb Battlefield"
+      "Bob-omb Battlefield",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario 64 - Main Theme Music - Bob-Omb Battlefield"
   },
@@ -188,7 +199,10 @@
       "Ocarina of Time",
       "Legend of Zelda: Ocarina of Time",
       "Gerudo Valley",
-      "Zelda Ocarina of Time"
+      "Zelda Ocarina of Time",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Ocarina of Time"
     ],
     "video_title": "Gerudo Valley - The Legend of Zelda: Ocarina Of Time"
   },
@@ -209,7 +223,11 @@
       "One-Winged Angel",
       "Final Fantasy 7",
       "FF7",
-      "FFVII"
+      "FFVII",
+      "Final Fantasy",
+      "FF",
+      "FF VII",
+      "FF 7"
     ],
     "video_title": "Final Fantasy VII OST - One-Winged Angel"
   },
@@ -227,7 +245,9 @@
     "difficulty": 1,
     "aliases": [
       "Street Fighter II",
-      "Guile's Theme"
+      "Guile's Theme",
+      "Street Fighter",
+      "Street Fighter 2"
     ],
     "video_title": "Street Fighter II - Guile Theme Original Theme"
   },
@@ -264,7 +284,9 @@
     "aliases": [
       "Super Mario Bros. 3",
       "Overworld Theme (World 1)",
-      "Overworld Theme"
+      "Overworld Theme",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Bros. 3 - Overworld 1 Theme"
   },
@@ -354,7 +376,9 @@
     "difficulty": 1,
     "aliases": [
       "Mario Kart 8",
-      "Rainbow Road"
+      "Rainbow Road",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Mario Kart 8 - Rainbow Road Music Extended"
   },
@@ -372,7 +396,8 @@
     "difficulty": 1,
     "aliases": [
       "Animal Crossing: New Horizons",
-      "New Horizons"
+      "New Horizons",
+      "Animal Crossing"
     ],
     "video_title": "Animal Crossing: New Horizons (Main Theme)"
   },
@@ -390,7 +415,9 @@
     "difficulty": 1,
     "aliases": [
       "Super Mario World",
-      "Overworld Theme"
+      "Overworld Theme",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Overworld Theme - Super Mario: World"
   },
@@ -409,7 +436,10 @@
     "aliases": [
       "The Legend of Zelda: Breath of the Wild",
       "Breath of the Wild",
-      "Legend of Zelda: Breath of the Wild"
+      "Legend of Zelda: Breath of the Wild",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Breath of the Wild"
     ],
     "video_title": "The Legend of Zelda: Breath of the Wild - Main Theme (fixed audio)"
   },
@@ -445,7 +475,9 @@
     "difficulty": 1,
     "aliases": [
       "Mario Kart 64",
-      "Rainbow Road"
+      "Rainbow Road",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Rainbow Road - Mario Kart 64 OST"
   },
@@ -462,7 +494,9 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Super Smash Bros. Brawl"
+      "Super Smash Bros. Brawl",
+      "Smash Bros",
+      "Super Smash Bros"
     ],
     "video_title": "Main Theme - Super Smash Bros: Brawl"
   },
@@ -480,7 +514,8 @@
     "difficulty": 1,
     "aliases": [
       "Sonic Adventure 2",
-      "Live and Learn"
+      "Live and Learn",
+      "Sonic"
     ],
     "video_title": "Live and Learn - Sonic Adventure 2 [OST]"
   },
@@ -498,7 +533,10 @@
     "difficulty": 1,
     "aliases": [
       "Metal Gear Solid 3: Snake Eater",
-      "Snake Eater"
+      "Snake Eater",
+      "Metal Gear",
+      "Metal Gear Solid",
+      "MGS"
     ],
     "video_title": "Metal Gear Solid 3 Snake Eater Soundtrack: Snake Eater"
   },
@@ -518,7 +556,10 @@
       "The Legend of Zelda: Majora's Mask",
       "Majora's Mask",
       "Legend of Zelda: Majora's Mask",
-      "Clock Town, First Day"
+      "Clock Town, First Day",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Majora's Mask"
     ],
     "video_title": "Clock Town First Day - The Legend of Zelda: Majora's Mask OST | Remastered"
   },
@@ -590,7 +631,9 @@
     "aliases": [
       "Mega Man 2",
       "Dr. Wily's Castle (Stage 1)",
-      "Dr. Wily's Castle"
+      "Dr. Wily's Castle",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Dr.Wily's Castle Stage 1 and 2 Extended Mega Man 2"
   },
@@ -610,7 +653,11 @@
       "Final Fantasy X",
       "To Zanarkand",
       "Final Fantasy 10",
-      "FFX"
+      "FFX",
+      "Final Fantasy",
+      "FF",
+      "FF X",
+      "FF 10"
     ],
     "video_title": "Final Fantasy X - OST - To Zanarkand"
   },
@@ -646,7 +693,8 @@
     "difficulty": 1,
     "aliases": [
       "Donkey Kong Country",
-      "Aquatic Ambience"
+      "Aquatic Ambience",
+      "Donkey Kong"
     ],
     "video_title": "Aquatic Ambience - Donkey Kong Country (David Wise) OST"
   },
@@ -664,7 +712,9 @@
     "difficulty": 1,
     "aliases": [
       "Super Mario Galaxy",
-      "Gusty Garden Galaxy"
+      "Gusty Garden Galaxy",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Galaxy Soundtrack - Gusty Garden Galaxy"
   },
@@ -683,7 +733,8 @@
     "aliases": [
       "Halo 2",
       "Halo Theme (Mjolnir Mix)",
-      "Halo Theme"
+      "Halo Theme",
+      "Halo"
     ],
     "video_title": "Halo 2 Volume 1 OST 01 Halo Theme Mjolnir Mix"
   },
@@ -701,7 +752,10 @@
     "difficulty": 1,
     "aliases": [
       "Call of Duty: Black Ops",
-      "Black Ops"
+      "Black Ops",
+      "COD",
+      "Call of Duty",
+      "COD: Black Ops"
     ],
     "video_title": "Call Of Duty: Black Ops / 115 (Remastered)"
   },
@@ -720,7 +774,10 @@
     "aliases": [
       "Grand Theft Auto: San Andreas",
       "San Andreas",
-      "GTA San Andreas"
+      "GTA San Andreas",
+      "GTA",
+      "Grand Theft Auto",
+      "GTA: San Andreas"
     ],
     "video_title": "Grand Theft Auto: San Andreas (Official Theme Song)"
   },
@@ -738,7 +795,12 @@
     "difficulty": 1,
     "aliases": [
       "Grand Theft Auto IV",
-      "Soviet Connection"
+      "Soviet Connection",
+      "GTA",
+      "Grand Theft Auto",
+      "Grand Theft Auto 4",
+      "GTA IV",
+      "GTA 4"
     ],
     "video_title": "Grand Theft Auto IV - Soviet Connection Intro"
   },
@@ -758,7 +820,9 @@
       "Grand Theft Auto V",
       "GTA V",
       "GTA 5",
-      "Grand Theft Auto 5"
+      "Grand Theft Auto 5",
+      "GTA",
+      "Grand Theft Auto"
     ],
     "video_title": "Grand Theft Auto - Main Theme [REMASTERED & EXTENDED]"
   },
@@ -776,7 +840,8 @@
     "difficulty": 1,
     "aliases": [
       "Red Dead Redemption",
-      "Far Away"
+      "Far Away",
+      "RDR"
     ],
     "video_title": "Red Dead Redemption \"Far Away\" Music Video (Red Dead Redemption OST)"
   },
@@ -795,7 +860,9 @@
     "aliases": [
       "Red Dead Redemption 2",
       "That's the Way It Is",
-      "RDR2"
+      "RDR2",
+      "Red Dead Redemption",
+      "RDR"
     ],
     "video_title": "Red Dead Redemption 2 Official Soundtrack - That's The Way It Is"
   },
@@ -851,7 +918,9 @@
     "difficulty": 1,
     "aliases": [
       "Assassin's Creed II",
-      "Ezio's Family"
+      "Ezio's Family",
+      "Assassins Creed",
+      "Assassin's Creed 2"
     ],
     "video_title": "Assassin's Creed 2 OST / Jesper Kyd - Ezio's Family (Track 03)"
   },
@@ -889,7 +958,8 @@
     "difficulty": 1,
     "aliases": [
       "Fallout 3",
-      "I Don't Want to Set the World on Fire"
+      "I Don't Want to Set the World on Fire",
+      "1 Don't Want to Set the World on Fire"
     ],
     "video_title": "Fallout 3 - Soundtrack - \"I Don't Want to Set the World on Fire\" by The Ink Spots"
   },
@@ -926,7 +996,8 @@
     "difficulty": 1,
     "aliases": [
       "World of Warcraft",
-      "Legends of Azeroth"
+      "Legends of Azeroth",
+      "WoW"
     ],
     "video_title": "Official World of Warcraft Soundtrack - (01) Legends of Azeroth"
   },
@@ -962,7 +1033,9 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Metal Gear Solid"
+      "Metal Gear Solid",
+      "Metal Gear",
+      "MGS"
     ],
     "video_title": "01 - Metal Gear Solid Main Theme"
   },
@@ -980,7 +1053,12 @@
     "difficulty": 1,
     "aliases": [
       "Final Fantasy VI",
-      "Terra's Theme"
+      "Terra's Theme",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 6",
+      "FF VI",
+      "FF 6"
     ],
     "video_title": "Final Fantasy VI Pixel Remaster \"Terra's Theme\""
   },
@@ -998,7 +1076,8 @@
     "difficulty": 1,
     "aliases": [
       "Final Fantasy",
-      "Prelude"
+      "Prelude",
+      "FF"
     ],
     "video_title": "Final Fantasy VII - Prelude (Original Soundtrack)"
   },
@@ -1016,7 +1095,9 @@
     "difficulty": 1,
     "aliases": [
       "Pokémon Gold and Silver",
-      "New Bark Town"
+      "New Bark Town",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "New Bark Town - Pokémon Gold/Silver/Crystal Soundtrack"
   },
@@ -1033,7 +1114,9 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Super Smash Bros. Melee"
+      "Super Smash Bros. Melee",
+      "Smash Bros",
+      "Super Smash Bros"
     ],
     "video_title": "Super Smash Bros. Melee Music - Opening Theme"
   },
@@ -1051,7 +1134,9 @@
     "difficulty": 1,
     "aliases": [
       "Super Smash Bros. Ultimate",
-      "Lifelight"
+      "Lifelight",
+      "Smash Bros",
+      "Super Smash Bros"
     ],
     "video_title": "Super Smash Bros. Ultimate Main Theme - Lifelight"
   },
@@ -1069,7 +1154,8 @@
     "difficulty": 1,
     "aliases": [
       "Kirby's Dream Land",
-      "Green Greens"
+      "Green Greens",
+      "Kirby"
     ],
     "video_title": "Kirby's Dream Land (Green Greens Theme) (From \"Kirby's Dreamland\")"
   },
@@ -1266,7 +1352,10 @@
     "difficulty": 1,
     "aliases": [
       "Call of Duty: Modern Warfare 2",
-      "Modern Warfare 2"
+      "Modern Warfare 2",
+      "COD",
+      "Call of Duty",
+      "COD: Modern Warfare 2"
     ],
     "video_title": "Call of Duty: Modern Warfare 2 - Main Theme (Official OST)"
   },
@@ -1284,7 +1373,10 @@
     "difficulty": 1,
     "aliases": [
       "Call of Duty 4: Modern Warfare",
-      "Modern Warfare"
+      "Modern Warfare",
+      "COD",
+      "Call of Duty",
+      "COD 4: Modern Warfare"
     ],
     "video_title": "Main Theme — Call of Duty 4: Modern Warfare [OST]"
   },
@@ -1302,7 +1394,8 @@
     "difficulty": 1,
     "aliases": [
       "Halo 3",
-      "One Final Effort"
+      "One Final Effort",
+      "Halo"
     ],
     "video_title": "Halo 3 Original Soundtrack : One Final Effort [Extended Version]"
   },
@@ -1319,7 +1412,8 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Halo: Reach"
+      "Halo: Reach",
+      "Halo"
     ],
     "video_title": "1 01 Overture - Halo: Reach OST"
   },
@@ -1590,7 +1684,8 @@
     "aliases": [
       "Guitar Hero III: Legends of Rock",
       "Legends of Rock",
-      "Through the Fire and Flames"
+      "Through the Fire and Flames",
+      "Guitar Hero 3: Legends of Rock"
     ],
     "video_title": ""
   },
@@ -1608,7 +1703,8 @@
     "difficulty": 1,
     "aliases": [
       "Civilization IV",
-      "Baba Yetu"
+      "Baba Yetu",
+      "Civilization 4"
     ],
     "video_title": "BABA YETU | OST Civilization IV"
   },
@@ -1626,7 +1722,9 @@
     "difficulty": 1,
     "aliases": [
       "Assassin's Creed IV: Black Flag",
-      "Black Flag"
+      "Black Flag",
+      "Assassins Creed",
+      "Assassin's Creed 4: Black Flag"
     ],
     "video_title": "Assassin's Creed IV Black Flag - Assassin's Creed IV Black Flag Main Theme (Track 01)"
   },
@@ -1644,7 +1742,9 @@
     "difficulty": 1,
     "aliases": [
       "Super Mario Odyssey",
-      "Jump Up, Super Star!"
+      "Jump Up, Super Star!",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Odyssey - Jump Up, Super Star!"
   },
@@ -1662,7 +1762,9 @@
     "difficulty": 1,
     "aliases": [
       "Super Mario Sunshine",
-      "Delfino Plaza"
+      "Delfino Plaza",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Sunshine Beta - Delfino Plaza Theme"
   },
@@ -1697,7 +1799,9 @@
     "difficulty": 1,
     "aliases": [
       "Sonic the Hedgehog 2",
-      "Chemical Plant Zone"
+      "Chemical Plant Zone",
+      "Sonic",
+      "Sonic 2"
     ],
     "video_title": "Chemical Plant Zone - Sonic the Hedgehog 2 [OST]"
   },
@@ -1715,7 +1819,8 @@
     "difficulty": 1,
     "aliases": [
       "Kirby Super Star",
-      "Gourmet Race"
+      "Gourmet Race",
+      "Kirby"
     ],
     "video_title": "Gourmet Race - Kirby: Super Star"
   },
@@ -1735,7 +1840,10 @@
       "The Legend of Zelda: A Link to the Past",
       "A Link to the Past",
       "Legend of Zelda: A Link to the Past",
-      "Dark World"
+      "Dark World",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: A Link to the Past"
     ],
     "video_title": "The Legend of Zelda - A Link To The Past - Dark World"
   },
@@ -1755,7 +1863,10 @@
       "The Legend of Zelda: The Wind Waker",
       "The Wind Waker",
       "Legend of Zelda: The Wind Waker",
-      "Dragon Roost Island"
+      "Dragon Roost Island",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: The Wind Waker"
     ],
     "video_title": "Dragon Roost Island - The Legend of Zelda: The Wind Waker OST"
   },
@@ -1775,7 +1886,10 @@
       "The Legend of Zelda: Twilight Princess",
       "Twilight Princess",
       "Legend of Zelda: Twilight Princess",
-      "Hyrule Field"
+      "Hyrule Field",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Twilight Princess"
     ],
     "video_title": "Hyrule Field - The Legend of Zelda: Twilight Princess OST"
   },
@@ -1794,7 +1908,10 @@
     "aliases": [
       "The Legend of Zelda: Tears of the Kingdom",
       "Tears of the Kingdom",
-      "Legend of Zelda: Tears of the Kingdom"
+      "Legend of Zelda: Tears of the Kingdom",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Tears of the Kingdom"
     ],
     "video_title": "Main Theme - The Legend of Zelda: Tears of the Kingdom"
   },
@@ -1886,7 +2003,9 @@
     "difficulty": 1,
     "aliases": [
       "Mario Kart Wii",
-      "Coconut Mall"
+      "Coconut Mall",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Coconut Mall - Mario Kart Wii OST"
   },
@@ -1905,7 +2024,9 @@
     "aliases": [
       "Mario Kart: Double Dash!!",
       "Double Dash!!",
-      "Waluigi Stadium"
+      "Waluigi Stadium",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Waluigi Stadium & Wario Colosseum - Mario Kart: Double Dash!! (Soundtrack)"
   },
@@ -1923,7 +2044,9 @@
     "difficulty": 1,
     "aliases": [
       "Super Mario Kart",
-      "Mario Circuit"
+      "Mario Circuit",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "mario circuit EXTENDED super mario kart snes"
   },
@@ -1941,7 +2064,8 @@
     "difficulty": 1,
     "aliases": [
       "Donkey Kong 64",
-      "DK Rap"
+      "DK Rap",
+      "Donkey Kong"
     ],
     "video_title": "Kongo Jungle (DK Rap Donkey Kong 64)  Super Smash Bros Melee"
   },
@@ -1960,7 +2084,9 @@
     "aliases": [
       "Pokémon Diamond and Pearl",
       "Route 209 (Night)",
-      "Route 209"
+      "Route 209",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Route 209 (Night) - Pokémon Brilliant Diamond & Shining Pearl OST"
   },
@@ -1978,7 +2104,9 @@
     "difficulty": 1,
     "aliases": [
       "Pokémon Ruby and Sapphire",
-      "Littleroot Town"
+      "Littleroot Town",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Littleroot Town - Pokémon Ruby/Sapphire/Emerald Soundtrack"
   },
@@ -1996,7 +2124,10 @@
     "difficulty": 1,
     "aliases": [
       "Pokémon X and Y",
-      "Lumiose City"
+      "Lumiose City",
+      "Pokemon",
+      "Pokémon",
+      "Pokémon 10 and Y"
     ],
     "video_title": "Pokemon X and Y Soundtrack- Lumiose City"
   },
@@ -2014,7 +2145,9 @@
     "difficulty": 1,
     "aliases": [
       "Pokémon Sword and Shield",
-      "Motostoke"
+      "Motostoke",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Motostoke | Pokémon Sword and Shield | Official Soundtrack | OST"
   },
@@ -2049,7 +2182,8 @@
     "difficulty": 1,
     "aliases": [
       "Animal Crossing: New Leaf",
-      "New Leaf"
+      "New Leaf",
+      "Animal Crossing"
     ],
     "video_title": "Animal Crossing (GameCube) - 5 pm"
   },
@@ -2085,7 +2219,12 @@
     "difficulty": 1,
     "aliases": [
       "Final Fantasy VIII",
-      "Liberi Fatali"
+      "Liberi Fatali",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 8",
+      "FF VIII",
+      "FF 8"
     ],
     "video_title": "[Video Soundtrack] Liberi Fatali [FINAL FANTASY VIII]"
   },
@@ -2103,7 +2242,12 @@
     "difficulty": 1,
     "aliases": [
       "Final Fantasy IX",
-      "You're Not Alone"
+      "You're Not Alone",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 9",
+      "FF IX",
+      "FF 9"
     ],
     "video_title": "Final Fantasy IX OST - You're Not Alone!"
   },
@@ -2121,7 +2265,12 @@
     "difficulty": 1,
     "aliases": [
       "Final Fantasy XV",
-      "Somnus"
+      "Somnus",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 15",
+      "FF XV",
+      "FF 15"
     ],
     "video_title": "Somnus (Instrumental Version) (FINAL FANTASY XV Original Soundtrack) 【Audio】"
   },
@@ -2139,7 +2288,9 @@
     "difficulty": 1,
     "aliases": [
       "Kingdom Hearts II",
-      "Sanctuary"
+      "Sanctuary",
+      "Kingdom Hearts",
+      "Kingdom Hearts 2"
     ],
     "video_title": "Kingdom Hearts II Soundtrack- Sanctuary"
   },
@@ -2174,7 +2325,8 @@
     "difficulty": 1,
     "aliases": [
       "Silent Hill 2",
-      "Theme of Laura"
+      "Theme of Laura",
+      "Silent Hill"
     ],
     "video_title": "Silent Hill 2 Unreleased Music - Theme of Laura (Complete Version)"
   },
@@ -2193,7 +2345,8 @@
     "aliases": [
       "Resident Evil 4",
       "Serenity (Save Room)",
-      "Serenity"
+      "Serenity",
+      "Resident Evil"
     ],
     "video_title": "Resident Evil 4 Serenity Save Room Ambient"
   },
@@ -2230,7 +2383,8 @@
     "difficulty": 1,
     "aliases": [
       "Sonic Adventure",
-      "Open Your Heart"
+      "Open Your Heart",
+      "Sonic"
     ],
     "video_title": "Open Your Heart - Sonic Adventure [OST]"
   },
@@ -2249,7 +2403,8 @@
     "aliases": [
       "Sonic Unleashed",
       "Rooftop Run (Spagonia Day)",
-      "Rooftop Run"
+      "Rooftop Run",
+      "Sonic"
     ],
     "video_title": "Sonic Unleashed \"Spagonia Rooftop Run Day\" Music"
   },
@@ -2488,7 +2643,10 @@
       "Elder Scrolls IV: Oblivion",
       "Reign of the Septims",
       "Oblivion",
-      "Elder Scrolls Oblivion"
+      "Elder Scrolls Oblivion",
+      "Elder Scrolls",
+      "The Elder Scrolls 4: Oblivion",
+      "Elder Scrolls 4: Oblivion"
     ],
     "video_title": "The Elder Scrolls IV: Oblivion – Reign of the Septims (Main Theme) | Oblivion x Skyrim"
   },
@@ -2505,7 +2663,8 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Age of Empires II"
+      "Age of Empires II",
+      "Age of Empires 2"
     ],
     "video_title": "Age of Empires II Main Theme"
   },
@@ -2524,7 +2683,9 @@
     "aliases": [
       "Warcraft III: Reign of Chaos",
       "Reign of Chaos",
-      "Arthas, My Son"
+      "Arthas, My Son",
+      "Warcraft",
+      "Warcraft 3: Reign of Chaos"
     ],
     "video_title": "World of Warcraft - Arthas My Son (Lyrics)"
   },
@@ -2542,7 +2703,8 @@
     "difficulty": 1,
     "aliases": [
       "Diablo II",
-      "Rogue Encampment"
+      "Rogue Encampment",
+      "Diablo 2"
     ],
     "video_title": "Diablo II Music - Rogue Encampment"
   },
@@ -2594,7 +2756,9 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Mario Party"
+      "Mario Party",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Mario Party 1 OST - Opening"
   },
@@ -2612,7 +2776,9 @@
     "difficulty": 1,
     "aliases": [
       "New Super Mario Bros.",
-      "Overworld Theme"
+      "Overworld Theme",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Overworld Theme - New Super Mario Bros. DS | Original DS Version"
   },
@@ -2629,7 +2795,9 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Super Mario Bros. Wonder"
+      "Super Mario Bros. Wonder",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Main Theme (Official) - Super Mario Bros. Wonder OST"
   },
@@ -2648,7 +2816,9 @@
     "aliases": [
       "Paper Mario: The Thousand-Year Door",
       "The Thousand-Year Door",
-      "Rogueport"
+      "Rogueport",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Rogueport   Paper Mario  The Thousand Year Door"
   },
@@ -2668,7 +2838,9 @@
       "Mario & Luigi: Superstar Saga",
       "Superstar Saga",
       "Fighting Theme (Battle)",
-      "Fighting Theme"
+      "Fighting Theme",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "mario and luigi superstar saga music~Normal Battle"
   },
@@ -2724,7 +2896,8 @@
     "difficulty": 1,
     "aliases": [
       "Baldur's Gate 3",
-      "I Want to Live"
+      "I Want to Live",
+      "1 Want to Live"
     ],
     "video_title": "Baldur's Gate 3 - OST - \"I Want To Live\""
   },
@@ -2795,7 +2968,12 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy IV",
-      "Theme of Love"
+      "Theme of Love",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 4",
+      "FF IV",
+      "FF 4"
     ],
     "video_title": "Theme of Love (Final Fantasy Iv)"
   },
@@ -2813,7 +2991,12 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy V",
-      "Clash on the Big Bridge"
+      "Clash on the Big Bridge",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 5",
+      "FF V",
+      "FF 5"
     ],
     "video_title": "Clash on the Big Bridge (Final Fantasy V)"
   },
@@ -2831,7 +3014,12 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy VII Remake",
-      "Hollow"
+      "Hollow",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 7 Remake",
+      "FF VII Remake",
+      "FF 7 Remake"
     ],
     "video_title": "FFVII REMAKE: Hollow (FINAL FANTASY VII REMAKE Original Soundtrack) 【Audio】"
   },
@@ -2849,7 +3037,12 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy VII Rebirth",
-      "No Promises to Keep"
+      "No Promises to Keep",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 7 Rebirth",
+      "FF VII Rebirth",
+      "FF 7 Rebirth"
     ],
     "video_title": "Final Fantasy VII Rebirth OST - No Promises to Keep(Date)"
   },
@@ -2867,7 +3060,12 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy XVI",
-      "Find the Flame"
+      "Find the Flame",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 16",
+      "FF XVI",
+      "FF 16"
     ],
     "video_title": "Find the Flame(from FINAL FANTASY XVI Original Soundtrack - Prelude)【Audio】"
   },
@@ -2885,7 +3083,12 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy XIV: Shadowbringers",
-      "Shadowbringers"
+      "Shadowbringers",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 14: Shadowbringers",
+      "FF XIV: Shadowbringers",
+      "FF 14: Shadowbringers"
     ],
     "video_title": "FINAL FANTASY XIV: SHADOWBRINGERS Full Trailer"
   },
@@ -2903,7 +3106,12 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy XII",
-      "Kiss Me Good-Bye"
+      "Kiss Me Good-Bye",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 12",
+      "FF XII",
+      "FF 12"
     ],
     "video_title": "Final Fantasy XII OST - cd4 - 19 - Kiss me Good-bye - Featured in FFXII"
   },
@@ -2975,7 +3183,9 @@
     "difficulty": 2,
     "aliases": [
       "Super Mario RPG",
-      "Forest Maze"
+      "Forest Maze",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Forest Maze | Super Mario RPG OST"
   },
@@ -2993,7 +3203,9 @@
     "difficulty": 2,
     "aliases": [
       "Super Mario 3D World",
-      "Super Bell Hill"
+      "Super Bell Hill",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Bell Hill Theme [With Opening] - From Super Mario 3D World OST (Original Unextended Version)"
   },
@@ -3011,7 +3223,9 @@
     "difficulty": 2,
     "aliases": [
       "Super Mario Galaxy 2",
-      "Sky Station Galaxy"
+      "Sky Station Galaxy",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Galaxy 2 Soundtrack - Sky Station Galaxy"
   },
@@ -3065,7 +3279,8 @@
     "difficulty": 2,
     "aliases": [
       "Metroid Prime",
-      "Phendrana Drifts"
+      "Phendrana Drifts",
+      "Metroid"
     ],
     "video_title": "Metroid Prime Music - Phendrana Drifts Main Theme"
   },
@@ -3122,7 +3337,8 @@
     "aliases": [
       "Phoenix Wright: Ace Attorney",
       "Ace Attorney",
-      "Pressing Pursuit ~ Cornered"
+      "Pressing Pursuit ~ Cornered",
+      "Phoenix Wright"
     ],
     "video_title": "Phoenix Wright Ace Attorney OST - Pressing Pursuit ~ Cornered"
   },
@@ -3158,7 +3374,10 @@
     "difficulty": 2,
     "aliases": [
       "Metal Gear Solid 2: Sons of Liberty",
-      "Sons of Liberty"
+      "Sons of Liberty",
+      "Metal Gear",
+      "Metal Gear Solid",
+      "MGS"
     ],
     "video_title": "Intro Theme - Metal Gear Solid 2: Sons of Liberty [OST]"
   },
@@ -3176,7 +3395,8 @@
     "difficulty": 2,
     "aliases": [
       "Metal Gear Rising: Revengeance",
-      "Rules of Nature"
+      "Rules of Nature",
+      "Metal Gear"
     ],
     "video_title": "Metal Gear Rising: Revengeance OST - Rules of Nature Extended"
   },
@@ -3195,7 +3415,11 @@
     "aliases": [
       "Metal Gear Solid V: The Phantom Pain",
       "The Phantom Pain",
-      "Sins of the Father"
+      "Sins of the Father",
+      "Metal Gear",
+      "Metal Gear Solid",
+      "MGS",
+      "Metal Gear Solid 5: The Phantom Pain"
     ],
     "video_title": "Metal Gear Solid V: The Phantom Pain - Sins of the Father // OST Music Video"
   },
@@ -3375,7 +3599,8 @@
     "difficulty": 2,
     "aliases": [
       "Resident Evil 2",
-      "The Front Hall"
+      "The Front Hall",
+      "Resident Evil"
     ],
     "video_title": "Resident Evil 2 OST _The Front Hall // Police Station Hall Theme"
   },
@@ -3577,7 +3802,8 @@
     "difficulty": 2,
     "aliases": [
       "Crazy Taxi",
-      "All I Want"
+      "All I Want",
+      "All 1 Want"
     ],
     "video_title": "Crazy Taxi OST - The Offspring - All I Want"
   },
@@ -3595,7 +3821,8 @@
     "difficulty": 2,
     "aliases": [
       "Sonic 3 & Knuckles",
-      "Ice Cap Zone"
+      "Ice Cap Zone",
+      "Sonic"
     ],
     "video_title": "Ice Cap Zone (Act 1) - Sonic the Hedgehog 3 [OST]"
   },
@@ -3613,7 +3840,8 @@
     "difficulty": 2,
     "aliases": [
       "Sonic Mania",
-      "Studiopolis Zone Act 1"
+      "Studiopolis Zone Act 1",
+      "Sonic"
     ],
     "video_title": "Lights, Camera, Action! (Studiopolis Zone Act 1) - Sonic Mania [OST]"
   },
@@ -3649,7 +3877,10 @@
     "difficulty": 2,
     "aliases": [
       "Mega Man X",
-      "Intro Stage"
+      "Intro Stage",
+      "Mega Man",
+      "Megaman",
+      "Mega Man 10"
     ],
     "video_title": "Mega Man X4 - Intro Stage (X)"
   },
@@ -3687,7 +3918,8 @@
     "aliases": [
       "Castlevania: Symphony of the Night",
       "Symphony of the Night",
-      "Dracula's Castle"
+      "Dracula's Castle",
+      "Castlevania"
     ],
     "video_title": "Castlevania: Symphony of the Night - Dracula's Castle [Song]"
   },
@@ -3706,7 +3938,9 @@
     "aliases": [
       "Castlevania II: Simon's Quest",
       "Simon's Quest",
-      "Bloody Tears"
+      "Bloody Tears",
+      "Castlevania",
+      "Castlevania 2: Simon's Quest"
     ],
     "video_title": "Castlevania II - Simon's Quest (NES) Music - Stage Theme Bloody Tears"
   },
@@ -3762,7 +3996,10 @@
       "The Legend of Zelda: Link's Awakening",
       "Link's Awakening",
       "Legend of Zelda: Link's Awakening",
-      "Ballad of the Wind Fish"
+      "Ballad of the Wind Fish",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Link's Awakening"
     ],
     "video_title": "Ballad of the Wind Fish Full Symphonic Version - The Legend of Zelda: Link's Awakening Orchestral"
   },
@@ -3782,7 +4019,10 @@
       "The Legend of Zelda: Skyward Sword",
       "Skyward Sword",
       "Legend of Zelda: Skyward Sword",
-      "Ballad of the Goddess"
+      "Ballad of the Goddess",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Skyward Sword"
     ],
     "video_title": "Ballad of the Goddess (Main Theme) - The Legend of Zelda: Skyward Sword OST"
   },
@@ -3800,7 +4040,9 @@
     "difficulty": 2,
     "aliases": [
       "Pokémon Black and White",
-      "Driftveil City"
+      "Driftveil City",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Driftveil City Pokémon Black and White 2 OST"
   },
@@ -3818,7 +4060,9 @@
     "difficulty": 2,
     "aliases": [
       "Dr. Mario",
-      "Fever"
+      "Fever",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Dr. Mario (NES) - Fever Level Music (Extended OST)"
   },
@@ -3873,7 +4117,10 @@
     "aliases": [
       "The Elder Scrolls III: Morrowind",
       "Elder Scrolls III: Morrowind",
-      "Nerevar Rising"
+      "Nerevar Rising",
+      "Elder Scrolls",
+      "The Elder Scrolls 3: Morrowind",
+      "Elder Scrolls 3: Morrowind"
     ],
     "video_title": "The Elder Scrolls III - Morrowind Soundtrack - 01 Nerevar Rising"
   },
@@ -3926,7 +4173,8 @@
     "difficulty": 2,
     "aliases": [
       "Dark Souls III",
-      "Soul of Cinder"
+      "Soul of Cinder",
+      "Dark Souls 3"
     ],
     "video_title": "Dark Souls III OST 7 - Soul of Cinder"
   },
@@ -4096,7 +4344,8 @@
     "aliases": [
       "Donkey Kong Country 2: Diddy's Kong Quest",
       "Diddy's Kong Quest",
-      "Stickerbush Symphony"
+      "Stickerbush Symphony",
+      "Donkey Kong"
     ],
     "video_title": "Stickerbush Symphony - Donkey Kong Country 2: Diddy's Kong Quest Music Extended"
   },
@@ -4151,7 +4400,10 @@
     "difficulty": 2,
     "aliases": [
       "Grand Theft Auto: Vice City",
-      "Vice City"
+      "Vice City",
+      "GTA",
+      "Grand Theft Auto",
+      "GTA: Vice City"
     ],
     "video_title": "Grand Theft Auto - Vice City (Main Theme Extended Mix)"
   },
@@ -4204,7 +4456,9 @@
     "difficulty": 2,
     "aliases": [
       "Super Mario Land",
-      "Birabuto Kingdom"
+      "Birabuto Kingdom",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Land OST - Birabuto Kingdom"
   },
@@ -4242,7 +4496,8 @@
       "Zelda II: The Adventure of Link",
       "The Adventure of Link",
       "Temple (Palace Theme)",
-      "Temple"
+      "Temple",
+      "Zelda 2: The Adventure of Link"
     ],
     "video_title": "Zelda II: The Adventure of Link- Palace Theme [Link to the Past Soundfont]"
   },
@@ -4260,7 +4515,8 @@
     "difficulty": 2,
     "aliases": [
       "Mega Man",
-      "Cut Man Stage"
+      "Cut Man Stage",
+      "Megaman"
     ],
     "video_title": "Cut Man Stage - Mega Man 8 [OST]"
   },
@@ -4278,7 +4534,9 @@
     "difficulty": 2,
     "aliases": [
       "Mega Man 3",
-      "Snake Man Stage"
+      "Snake Man Stage",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man 3 (NES) Music - Snake Man Stage"
   },
@@ -4316,7 +4574,9 @@
     "aliases": [
       "Castlevania III: Dracula's Curse",
       "Dracula's Curse",
-      "Beginning"
+      "Beginning",
+      "Castlevania",
+      "Castlevania 3: Dracula's Curse"
     ],
     "video_title": "Castlevania III - Dracula's Curse (NES) Music - Stage 01 Beginning"
   },
@@ -4439,7 +4699,9 @@
     "difficulty": 2,
     "aliases": [
       "Mortal Kombat II",
-      "The Dead Pool"
+      "The Dead Pool",
+      "Mortal Kombat",
+      "Mortal Kombat 2"
     ],
     "video_title": "Mortal Kombat II Soundtrack: The Dead Pool"
   },
@@ -4495,7 +4757,9 @@
     "aliases": [
       "Street Fighter III: 3rd Strike",
       "3rd Strike",
-      "Jazzy NYC '99"
+      "Jazzy NYC '99",
+      "Street Fighter",
+      "Street Fighter 3: 3rd Strike"
     ],
     "video_title": "Jazzy NYC '99 ~Alex's & Ken's Stage~ Mix #1 - Street Fighter III: Third Strike Music Extended HD"
   },
@@ -4548,7 +4812,8 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Halo 4"
+      "Halo 4",
+      "Halo"
     ],
     "video_title": "Halo 4 OST - 117"
   },
@@ -4634,7 +4899,8 @@
     "difficulty": 2,
     "aliases": [
       "Star Wars: Knights of the Old Republic",
-      "Knights of the Old Republic"
+      "Knights of the Old Republic",
+      "Star Wars"
     ],
     "video_title": "Star Wars The Old Republic: Main Theme OST HD"
   },
@@ -5084,7 +5350,8 @@
     "difficulty": 2,
     "aliases": [
       "StarCraft II: Wings of Liberty",
-      "Wings of Liberty"
+      "Wings of Liberty",
+      "StarCraft 2: Wings of Liberty"
     ],
     "video_title": "StarCraft II - Wings of Liberty Main Theme"
   },
@@ -5207,7 +5474,8 @@
     "aliases": [
       "Donkey Kong Country: Tropical Freeze",
       "Tropical Freeze",
-      "Grassland Groove"
+      "Grassland Groove",
+      "Donkey Kong"
     ],
     "video_title": "Donkey Kong Country: Tropical Freeze Soundtrack - Grassland Groove"
   },
@@ -5512,7 +5780,8 @@
     "difficulty": 2,
     "aliases": [
       "Assassin's Creed",
-      "Access the Animus"
+      "Access the Animus",
+      "Assassins Creed"
     ],
     "video_title": "Access the Animus - Assassin's Creed OST"
   },
@@ -5586,7 +5855,9 @@
     "aliases": [
       "The Last of Us Part II",
       "Last of Us Part II",
-      "Future Days"
+      "Future Days",
+      "The Last of Us Part 2",
+      "Last of Us Part 2"
     ],
     "video_title": "Future Days | The Last of Us Part II OST"
   },
@@ -5622,7 +5893,8 @@
     "difficulty": 2,
     "aliases": [
       "Batman: Arkham Asylum",
-      "Arkham Asylum"
+      "Arkham Asylum",
+      "Batman"
     ],
     "video_title": "Batman: Arkham Asylum, Soundtrack [01 - Main Theme]"
   },
@@ -5749,7 +6021,9 @@
     "difficulty": 2,
     "aliases": [
       "Kingdom Hearts III",
-      "Don't Think Twice"
+      "Don't Think Twice",
+      "Kingdom Hearts",
+      "Kingdom Hearts 3"
     ],
     "video_title": "Kingdom Hearts III - Ending : Don't Think Twice / Utada Hikaru"
   },
@@ -5768,7 +6042,11 @@
     "aliases": [
       "Crisis Core: Final Fantasy VII",
       "Final Fantasy VII",
-      "The Price of Freedom"
+      "The Price of Freedom",
+      "Crisis Core: Final Fantasy 7",
+      "Final Fantasy 7",
+      "FF VII",
+      "FF 7"
     ],
     "video_title": "Final Fantasy VII Crisis Core [OST] [CD2] #21 - The Price of Freedom"
   },
@@ -5804,7 +6082,10 @@
     "difficulty": 2,
     "aliases": [
       "Final Fantasy Tactics",
-      "Antipyretic"
+      "Antipyretic",
+      "Final Fantasy",
+      "FF",
+      "FF Tactics"
     ],
     "video_title": "Final Fantasy Tactics OST - Antipyretic"
   },
@@ -5821,7 +6102,8 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Dragon Quest VIII"
+      "Dragon Quest VIII",
+      "Dragon Quest 8"
     ],
     "video_title": "Dragon Quest viii original soundtrack (Overture)"
   },
@@ -5840,7 +6122,9 @@
     "aliases": [
       "Pokémon Mystery Dungeon: Explorers of Sky",
       "Explorers of Sky",
-      "Treasure Town"
+      "Treasure Town",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Treasure Town (OST Version) - Pokémon Mystery Dungeon: Explorers of Sky"
   },
@@ -5858,7 +6142,9 @@
     "difficulty": 2,
     "aliases": [
       "Pokémon Scarlet and Violet",
-      "Area Zero"
+      "Area Zero",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Area Zero (Extended Intro) - Pokémon Scarlet and Violet OST (Gamerip)"
   },
@@ -5876,7 +6162,9 @@
     "difficulty": 2,
     "aliases": [
       "Mario Paint",
-      "Creative Exercise"
+      "Creative Exercise",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Creative Exercise (Mario Paint) - Mario Kart World (OST)"
   },
@@ -5929,7 +6217,8 @@
     "difficulty": 2,
     "aliases": [
       "F-Zero X",
-      "Big Blue"
+      "Big Blue",
+      "F-Zero 10"
     ],
     "video_title": "F-Zero X - Big Blue Theme"
   },
@@ -5984,7 +6273,8 @@
     "difficulty": 2,
     "aliases": [
       "Kirby and the Forgotten Land",
-      "Welcome to the New World!"
+      "Welcome to the New World!",
+      "Kirby"
     ],
     "video_title": "Welcome to the New World! - Kirby and the Forgotten Land OST [005]"
   },
@@ -6001,7 +6291,9 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Super Smash Bros."
+      "Super Smash Bros.",
+      "Smash Bros",
+      "Super Smash Bros"
     ],
     "video_title": "Main Theme - Super Smash Bros: Brawl"
   },
@@ -6019,7 +6311,8 @@
     "difficulty": 2,
     "aliases": [
       "Sonic CD",
-      "Sonic Boom"
+      "Sonic Boom",
+      "Sonic"
     ],
     "video_title": "Sonic Boom - Sonic CD [OST]"
   },
@@ -6036,7 +6329,8 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Sonic Heroes"
+      "Sonic Heroes",
+      "Sonic"
     ],
     "video_title": "Sonic Heroes - Sonic Heroes [OST]"
   },
@@ -6054,7 +6348,8 @@
     "difficulty": 2,
     "aliases": [
       "Shadow the Hedgehog",
-      "I Am... All of Me"
+      "I Am... All of Me",
+      "1 Am... All of Me"
     ],
     "video_title": "I Am (All of Me) - Shadow the Hedgehog [OST]"
   },
@@ -6072,7 +6367,8 @@
     "difficulty": 2,
     "aliases": [
       "Sonic Frontiers",
-      "Undefeatable"
+      "Undefeatable",
+      "Sonic"
     ],
     "video_title": "Undefeatable - Sonic Frontiers OST (High Quality)"
   },
@@ -6090,7 +6386,8 @@
     "difficulty": 2,
     "aliases": [
       "Sonic Colors",
-      "Reach for the Stars"
+      "Reach for the Stars",
+      "Sonic"
     ],
     "video_title": "Reach for the Stars (Opening Theme) - Sonic Colors [OST]"
   },
@@ -6234,7 +6531,8 @@
     "difficulty": 2,
     "aliases": [
       "Silent Hill 3",
-      "You're Not Here"
+      "You're Not Here",
+      "Silent Hill"
     ],
     "video_title": "Silent Hill 3 Soundtracks - You're Not Here   [w/ lyrics]."
   },
@@ -6287,7 +6585,8 @@
     "difficulty": 2,
     "aliases": [
       "Civilization VI",
-      "Sogno di Volare"
+      "Sogno di Volare",
+      "Civilization 6"
     ],
     "video_title": "Christopher Tin - Sogno di Volare (\"The Dream of Flight\") (Civilization VI Main Theme)"
   },
@@ -6321,7 +6620,8 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Hades II"
+      "Hades II",
+      "Hades 2"
     ],
     "video_title": "Hades II - Menu Title Screen & Original Soundtrack (OST) (BGM)"
   },
@@ -6984,7 +7284,9 @@
     "difficulty": 3,
     "aliases": [
       "Super Mario Bros. 2",
-      "Overworld Theme"
+      "Overworld Theme",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Bros. 2 Overworld Theme"
   },
@@ -7040,7 +7342,10 @@
       "The Legend of Zelda: The Minish Cap",
       "The Minish Cap",
       "Legend of Zelda: The Minish Cap",
-      "Minish Village"
+      "Minish Village",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: The Minish Cap"
     ],
     "video_title": "Minish Village - The Legend of Zelda: The Minish Cap"
   },
@@ -7060,7 +7365,10 @@
       "The Legend of Zelda: A Link Between Worlds",
       "A Link Between Worlds",
       "Legend of Zelda: A Link Between Worlds",
-      "Lorule Castle"
+      "Lorule Castle",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: A Link Between Worlds"
     ],
     "video_title": "The Legend of Zelda: A Link Between Worlds OST - Lorule Castle"
   },
@@ -7080,7 +7388,10 @@
       "The Legend of Zelda: Spirit Tracks",
       "Spirit Tracks",
       "Legend of Zelda: Spirit Tracks",
-      "Realm Overworld"
+      "Realm Overworld",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Spirit Tracks"
     ],
     "video_title": "The Legend of Zelda: Spirit Tracks - Realm Overworld Theme"
   },
@@ -7098,7 +7409,8 @@
     "difficulty": 3,
     "aliases": [
       "Kirby's Adventure",
-      "Vegetable Valley"
+      "Vegetable Valley",
+      "Kirby"
     ],
     "video_title": "Kirby's Adventure Soundtrack - Vegetable Valley"
   },
@@ -7116,7 +7428,8 @@
     "difficulty": 3,
     "aliases": [
       "Kirby's Return to Dream Land",
-      "C-R-O-W-N-E-D"
+      "C-R-O-W-N-E-D",
+      "Kirby"
     ],
     "video_title": "C-R-O-W-N-E-D (Remastered) - Kirby's Return to Dream Land Deluxe Original Soundtrack"
   },
@@ -7134,7 +7447,9 @@
     "difficulty": 3,
     "aliases": [
       "Paper Mario",
-      "Toad Town"
+      "Toad Town",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Toad Town - Paper Mario (N64) Soundtrack"
   },
@@ -7153,7 +7468,9 @@
     "aliases": [
       "Mario & Luigi: Bowser's Inside Story",
       "Bowser's Inside Story",
-      "The Grand Finale"
+      "The Grand Finale",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Mario & Luigi: Bowser's Inside Story: The Grand Finale Arrangement [Revision]"
   },
@@ -7171,7 +7488,8 @@
     "difficulty": 3,
     "aliases": [
       "Donkey Kong Country Returns",
-      "Jungle Hijinxs"
+      "Jungle Hijinxs",
+      "Donkey Kong"
     ],
     "video_title": "Jungle Hijinx - Donkey Kong Country Returns HD OST"
   },
@@ -7207,7 +7525,8 @@
     "difficulty": 3,
     "aliases": [
       "Xenoblade Chronicles X",
-      "Uncontrollable"
+      "Uncontrollable",
+      "Xenoblade Chronicles 10"
     ],
     "video_title": "Uncontrollable - Xenoblade Chronicles X OST"
   },
@@ -7351,7 +7670,8 @@
     "difficulty": 3,
     "aliases": [
       "Sonic R",
-      "Can You Feel the Sunshine?"
+      "Can You Feel the Sunshine?",
+      "Sonic"
     ],
     "video_title": "Can You Feel the Sunshine - Sonic R [OST]"
   },
@@ -7370,7 +7690,9 @@
     "aliases": [
       "Sonic the Hedgehog (2006)",
       "Sonic the Hedgehog",
-      "His World"
+      "His World",
+      "Sonic",
+      "Sonic (2006)"
     ],
     "video_title": "His World (Theme of Sonic) - Sonic the Hedgehog [OST]"
   },
@@ -7388,7 +7710,8 @@
     "difficulty": 3,
     "aliases": [
       "Super Castlevania IV",
-      "Simon Belmont's Theme"
+      "Simon Belmont's Theme",
+      "Super Castlevania 4"
     ],
     "video_title": "Theme of Simon - Super Castlevania IV - Simon Belmont's Theme - OCRemix"
   },
@@ -7407,7 +7730,10 @@
     "aliases": [
       "Metal Gear Solid 4: Guns of the Patriots",
       "Guns of the Patriots",
-      "Old Snake"
+      "Old Snake",
+      "Metal Gear",
+      "Metal Gear Solid",
+      "MGS"
     ],
     "video_title": "Old Snake - Metal Gear Solid 4: Guns of the Patriots [OST]"
   },
@@ -7425,7 +7751,8 @@
     "difficulty": 3,
     "aliases": [
       "Resident Evil 7: Biohazard",
-      "Go Tell Aunt Rhody"
+      "Go Tell Aunt Rhody",
+      "Resident Evil"
     ],
     "video_title": "Resident Evil 7:Biohazard -Theme Song - ''Go Tell Aunt Rhody'' [Lyrics included]"
   },
@@ -7443,7 +7770,9 @@
     "difficulty": 3,
     "aliases": [
       "Street Fighter IV",
-      "Indestructible"
+      "Indestructible",
+      "Street Fighter",
+      "Street Fighter 4"
     ],
     "video_title": "Street Fighter IV (Indestructible) Theme ENGLISH"
   },
@@ -7479,7 +7808,12 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy III",
-      "Eternal Wind"
+      "Eternal Wind",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 3",
+      "FF III",
+      "FF 3"
     ],
     "video_title": "[Video Soundtrack] Eternal Wind [FINAL FANTASY III]"
   },
@@ -7497,7 +7831,12 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy XIII",
-      "Blinded by Light"
+      "Blinded by Light",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 13",
+      "FF XIII",
+      "FF 13"
     ],
     "video_title": "Final Fantasy Xiii OST - Blinded by light"
   },
@@ -7515,7 +7854,12 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy X-2",
-      "Real Emotion"
+      "Real Emotion",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 10-2",
+      "FF X-2",
+      "FF 10-2"
     ],
     "video_title": "Final Fantasy X-2 Real Emotion"
   },
@@ -7570,7 +7914,8 @@
     "difficulty": 3,
     "aliases": [
       "Dark Souls II",
-      "Majula"
+      "Majula",
+      "Dark Souls 2"
     ],
     "video_title": "Dark Souls II: Scholar of the First Sin OST - Majula (Title)"
   },
@@ -7624,7 +7969,8 @@
     "difficulty": 3,
     "aliases": [
       "Death Stranding",
-      "I'll Keep Coming"
+      "I'll Keep Coming",
+      "1'll Keep Coming"
     ],
     "video_title": "Low Roar - I'll Keep Coming | Death Stranding OST"
   },
@@ -7680,7 +8026,9 @@
     "aliases": [
       "World of Warcraft: Wrath of the Lich King",
       "Wrath of the Lich King",
-      "Invincible"
+      "Invincible",
+      "World of Warcraft",
+      "WoW"
     ],
     "video_title": "Arthas, My Son - Dragon's Rest - Mother's Lament | World of Warcraft: Wrath of the Lich King"
   },
@@ -7697,7 +8045,8 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Halo 3: ODST"
+      "Halo 3: ODST",
+      "Halo"
     ],
     "video_title": "Halo 3 ODST: Original Soundtrack - 04 Rain (Deference for Darkness)"
   },
@@ -7789,7 +8138,8 @@
     "aliases": [
       "Doom II",
       "Running from Evil (MAP01)",
-      "Running from Evil"
+      "Running from Evil",
+      "Doom 2"
     ],
     "video_title": "Doom II OST - Map 01,15 - Running from Evil"
   },
@@ -8018,7 +8368,8 @@
     "difficulty": 3,
     "aliases": [
       "Kingdom Hearts Birth by Sleep",
-      "Dismiss"
+      "Dismiss",
+      "Kingdom Hearts"
     ],
     "video_title": "Kingdom Hearts Birth by Sleep OST - Dismiss"
   },
@@ -8037,7 +8388,8 @@
     "aliases": [
       "Kingdom Hearts: Chain of Memories",
       "Chain of Memories",
-      "Lord of the Castle"
+      "Lord of the Castle",
+      "Kingdom Hearts"
     ],
     "video_title": "Kingdom Hearts Re:Chain of Memories OST - Lord of the Castle"
   },
@@ -8055,7 +8407,8 @@
     "difficulty": 3,
     "aliases": [
       "Dragon Quest III",
-      "Adventure"
+      "Adventure",
+      "Dragon Quest 3"
     ],
     "video_title": "Dragon Quest III Symphonic Suite - Adventure"
   },
@@ -8128,7 +8481,12 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy XI",
-      "Vana'diel March"
+      "Vana'diel March",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 11",
+      "FF XI",
+      "FF 11"
     ],
     "video_title": "Final Fantasy XI OST   Vana'diel March"
   },
@@ -8146,7 +8504,12 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy XIV: Heavensward",
-      "Dragonsong"
+      "Dragonsong",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 14: Heavensward",
+      "FF XIV: Heavensward",
+      "FF 14: Heavensward"
     ],
     "video_title": "FINAL FANTASY XIV - Dragonsong"
   },
@@ -8164,7 +8527,12 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy XIV: Endwalker",
-      "Footfalls"
+      "Footfalls",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 14: Endwalker",
+      "FF XIV: Endwalker",
+      "FF 14: Endwalker"
     ],
     "video_title": "\"Endwalker – Footfalls\" with Official Lyrics | Final Fantasy XIV"
   },
@@ -8182,7 +8550,12 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy II",
-      "Rebel Army Theme"
+      "Rebel Army Theme",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 2",
+      "FF II",
+      "FF 2"
     ],
     "video_title": "Final Fantasy II - Rebel Army Theme (Orchestrated)"
   },
@@ -8200,7 +8573,10 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy Mystic Quest",
-      "Battle 1"
+      "Battle 1",
+      "Final Fantasy",
+      "FF",
+      "FF Mystic Quest"
     ],
     "video_title": "Final Fantasy Mystic Quest OST - Battle 1"
   },
@@ -8218,7 +8594,10 @@
     "difficulty": 3,
     "aliases": [
       "Final Fantasy Adventure",
-      "Rising Sun"
+      "Rising Sun",
+      "Final Fantasy",
+      "FF",
+      "FF Adventure"
     ],
     "video_title": "Final Fantasy Adventure ost Rising Sun"
   },
@@ -8255,7 +8634,8 @@
     "aliases": [
       "Suikoden II",
       "Opening (Into a World of Illusions)",
-      "Opening"
+      "Opening",
+      "Suikoden 2"
     ],
     "video_title": "Suikoden II Original Game Soundtrack Vol. 1 - Opening BGM"
   },
@@ -8399,7 +8779,8 @@
     "difficulty": 3,
     "aliases": [
       "Shin Megami Tensei III: Nocturne",
-      "Normal Battle"
+      "Normal Battle",
+      "Shin Megami Tensei 3: Nocturne"
     ],
     "video_title": "Shin Megami Tensei III: Nocturne Music- Normal Battle"
   },
@@ -8418,7 +8799,8 @@
     "aliases": [
       "Castlevania: Rondo of Blood",
       "Rondo of Blood",
-      "Divine Bloodlines"
+      "Divine Bloodlines",
+      "Castlevania"
     ],
     "video_title": "Castlevania: Rondo of Blood - Divine Bloodlines (Extended)"
   },
@@ -8437,7 +8819,8 @@
     "aliases": [
       "Castlevania: Aria of Sorrow",
       "Aria of Sorrow",
-      "Castle Corridor"
+      "Castle Corridor",
+      "Castlevania"
     ],
     "video_title": "Castle Corridor - Castlevania Aria of Sorrow OST"
   },
@@ -8455,7 +8838,8 @@
     "difficulty": 3,
     "aliases": [
       "Castlevania: Lords of Shadow",
-      "Lords of Shadow"
+      "Lords of Shadow",
+      "Castlevania"
     ],
     "video_title": "Castlevania Lords Of Shadow OST - Main Title"
   },
@@ -8509,7 +8893,8 @@
     "aliases": [
       "Teenage Mutant Ninja Turtles IV: Turtles in Time",
       "Turtles in Time",
-      "Sewer Surfin'"
+      "Sewer Surfin'",
+      "Teenage Mutant Ninja Turtles 4: Turtles in Time"
     ],
     "video_title": "Teenage Mutant Ninja Turtles IV: Turtles in Time - Sewer Surfin' (SNES OST)"
   },
@@ -8563,7 +8948,8 @@
     "difficulty": 3,
     "aliases": [
       "Ys I & II",
-      "Feena"
+      "Feena",
+      "Ys 1 & 2"
     ],
     "video_title": "[PC-Engine Soundtrack] YS I & II Ancient Ys Vanished - Feena [OST]"
   },
@@ -8688,7 +9074,8 @@
     "aliases": [
       "Donkey Kong Country 3: Dixie Kong's Double Trouble!",
       "Dixie Kong's Double Trouble!",
-      "Water World"
+      "Water World",
+      "Donkey Kong"
     ],
     "video_title": "Donkey Kong Country 3: Dixie Kong's Double Trouble OST - Water World"
   },
@@ -8757,7 +9144,8 @@
     "difficulty": 3,
     "aliases": [
       "Sonic Advance",
-      "Neo Green Hill Zone"
+      "Neo Green Hill Zone",
+      "Sonic"
     ],
     "video_title": "Neo Green Hill Zone (Act 1) - Sonic Advance [OST]"
   },
@@ -8775,7 +9163,8 @@
     "difficulty": 3,
     "aliases": [
       "Sonic Rush",
-      "Right There, Ride On"
+      "Right There, Ride On",
+      "Sonic"
     ],
     "video_title": "Right There, Ride On - Sonic Rush [OST]"
   },
@@ -8793,7 +9182,8 @@
     "difficulty": 3,
     "aliases": [
       "Sonic Forces",
-      "Theme of Infinite"
+      "Theme of Infinite",
+      "Sonic"
     ],
     "video_title": "Sonic Forces OST - Theme of Infinite"
   },
@@ -9022,7 +9412,10 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Call of Duty 2"
+      "Call of Duty 2",
+      "COD",
+      "Call of Duty",
+      "COD 2"
     ],
     "video_title": "Call of Duty 2 theme song"
   },
@@ -9164,7 +9557,9 @@
     "aliases": [
       "Warcraft II: Tides of Darkness",
       "Tides of Darkness",
-      "Human Battle 1"
+      "Human Battle 1",
+      "Warcraft",
+      "Warcraft 2: Tides of Darkness"
     ],
     "video_title": "Warcraft II: Tides of Darkness OST - Mysterious and Noble / Human Battle Theme 1 (HQ Version)"
   },
@@ -9182,7 +9577,8 @@
     "difficulty": 3,
     "aliases": [
       "Heroes of Might and Magic III",
-      "Rampart Town"
+      "Rampart Town",
+      "Heroes of Might and Magic 3"
     ],
     "video_title": "Heroes of Might & Magic III HD Edition Rampart Town Theme (2014, Ubisoft) 1080p Animated"
   },
@@ -9323,7 +9719,8 @@
     "difficulty": 3,
     "aliases": [
       "Civilization V",
-      "Main Menu Theme"
+      "Main Menu Theme",
+      "Civilization 5"
     ],
     "video_title": "Civilization V: Brave New World OST - Theme [With Lyrics & Translation]"
   },
@@ -10062,7 +10459,9 @@
     "difficulty": 3,
     "aliases": [
       "Super Mario Land 2: 6 Golden Coins",
-      "6 Golden Coins"
+      "6 Golden Coins",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Land 2 - 6 Golden Coins - Overworld Theme"
   },
@@ -10079,7 +10478,9 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Mario Kart 7"
+      "Mario Kart 7",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Mario Kart 7 Music - Main Theme / Title Screen"
   },
@@ -10096,7 +10497,9 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Mario Tennis"
+      "Mario Tennis",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "[N64] Mario Tennis OST: Menu Theme"
   },
@@ -10113,7 +10516,9 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Mario Golf"
+      "Mario Golf",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "[Nintendo 64] Mario Golf OST: Main Menu Music"
   },
@@ -10148,7 +10553,8 @@
     "difficulty": 3,
     "aliases": [
       "Animal Crossing: Wild World",
-      "Wild World"
+      "Wild World",
+      "Animal Crossing"
     ],
     "video_title": "Animal Crossing Wild World - Main Theme"
   },
@@ -10183,7 +10589,8 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Metroid Prime 2: Echoes"
+      "Metroid Prime 2: Echoes",
+      "Metroid"
     ],
     "video_title": "Metroid Prime 2: Echoes - Title - Soundtrack"
   },
@@ -10200,7 +10607,8 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Metroid Fusion"
+      "Metroid Fusion",
+      "Metroid"
     ],
     "video_title": "Metroid Fusion Music - Title Theme"
   },
@@ -10218,7 +10626,8 @@
     "difficulty": 3,
     "aliases": [
       "Metroid: Zero Mission",
-      "Zero Mission"
+      "Zero Mission",
+      "Metroid"
     ],
     "video_title": "Metroid: Zero Mission Music - Title Theme"
   },
@@ -10271,7 +10680,9 @@
     "difficulty": 3,
     "aliases": [
       "Pokémon Emerald",
-      "Battle Frontier"
+      "Battle Frontier",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Battle Frontier - Pokémon Ruby/Sapphire/Emerald Soundtrack"
   },
@@ -10289,7 +10700,8 @@
     "difficulty": 3,
     "aliases": [
       "Kirby 64: The Crystal Shards",
-      "The Crystal Shards"
+      "The Crystal Shards",
+      "Kirby"
     ],
     "video_title": "Kirby 64: The Crystal Shards - File Select Theme"
   },
@@ -10306,7 +10718,8 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Kirby's Epic Yarn"
+      "Kirby's Epic Yarn",
+      "Kirby"
     ],
     "video_title": "Kirby's Epic Yarn Music - Staff Credits"
   },
@@ -10323,7 +10736,8 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Kirby Planet Robobot"
+      "Kirby Planet Robobot",
+      "Kirby"
     ],
     "video_title": "01-02. First Contact - Kirby: Planet Robobot Original Soundtrack"
   },
@@ -10340,7 +10754,8 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Kirby Star Allies"
+      "Kirby Star Allies",
+      "Kirby"
     ],
     "video_title": "Kirby Star Allies Main Theme (Playable Music Level) Super Mario Maker 2"
   },
@@ -10409,7 +10824,8 @@
     "source_status": "needs-review",
     "difficulty": 4,
     "aliases": [
-      "Kirby's Dream Land 2"
+      "Kirby's Dream Land 2",
+      "Kirby"
     ],
     "video_title": "Kirby's Dream Land 2 - Full OST"
   },
@@ -10427,7 +10843,9 @@
     "difficulty": 4,
     "aliases": [
       "Mario & Luigi: Partners in Time",
-      "Partners in Time"
+      "Partners in Time",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Main Title - Mario & Luigi: Partners in Time [OST]"
   },
@@ -10445,7 +10863,9 @@
     "difficulty": 4,
     "aliases": [
       "Mario & Luigi: Dream Team",
-      "Dream Team"
+      "Dream Team",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Main Theme - Mario & Luigi: Dream Team"
   },
@@ -10462,7 +10882,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mario + Rabbids Kingdom Battle"
+      "Mario + Rabbids Kingdom Battle",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Grant Kirkhope - Ancient Gardens (From \"Mario + Rabbids Kingdom Battle\" OST)"
   },
@@ -10479,7 +10901,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mario + Rabbids Sparks of Hope"
+      "Mario + Rabbids Sparks of Hope",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Mario + Rabbids: Sparks of Hope OST - Title Theme"
   },
@@ -10532,7 +10956,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Metroid Prime 3: Corruption"
+      "Metroid Prime 3: Corruption",
+      "Metroid"
     ],
     "video_title": "Metroid Prime 3 Corruption - Main Theme"
   },
@@ -10550,7 +10975,9 @@
     "difficulty": 4,
     "aliases": [
       "Metroid II: Return of Samus",
-      "Return of Samus"
+      "Return of Samus",
+      "Metroid",
+      "Metroid 2: Return of Samus"
     ],
     "video_title": "Surface of SR-388 [Main theme] (Arranged) - Metroid II: Return of Samus"
   },
@@ -10569,7 +10996,10 @@
     "aliases": [
       "The Legend of Zelda: Phantom Hourglass",
       "Phantom Hourglass",
-      "Legend of Zelda: Phantom Hourglass"
+      "Legend of Zelda: Phantom Hourglass",
+      "Zelda",
+      "Legend of Zelda",
+      "Zelda: Phantom Hourglass"
     ],
     "video_title": "The Legend of Zelda: Phantom Hourglass OST 01 - Set Sail for Adventure (Title Theme)."
   },
@@ -10656,7 +11086,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Pokémon Sun and Moon"
+      "Pokémon Sun and Moon",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Pokémon Sun and Moon: Under The Alolan Sun (FULL THEME)"
   },
@@ -10673,7 +11105,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Pokémon Trading Card Game"
+      "Pokémon Trading Card Game",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Pokémon Trading Card Game - Opening/Main Theme"
   },
@@ -10692,7 +11126,9 @@
     "aliases": [
       "Sonic the Hedgehog (Master System)",
       "Sonic the Hedgehog",
-      "Green Hill Zone"
+      "Green Hill Zone",
+      "Sonic",
+      "Sonic (Master System)"
     ],
     "video_title": "Green Hill Zone Music (PAL) - Sonic The Hedgehog SEGA Master System"
   },
@@ -10709,7 +11145,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Sonic 3D Blast"
+      "Sonic 3D Blast",
+      "Sonic"
     ],
     "video_title": "Boss 1 - Sonic 3D Blast (Genesis) [OST]"
   },
@@ -10727,7 +11164,8 @@
     "difficulty": 4,
     "aliases": [
       "Sonic Riders",
-      "Sonic Speed Riders"
+      "Sonic Speed Riders",
+      "Sonic"
     ],
     "video_title": "Sonic Speed Riders - Sonic Riders [OST]"
   },
@@ -10745,7 +11183,8 @@
     "difficulty": 4,
     "aliases": [
       "Sonic and the Secret Rings",
-      "Seven Rings in Hand"
+      "Seven Rings in Hand",
+      "Sonic"
     ],
     "video_title": "Seven Rings in Hand - Sonic and the Secret Rings [OST]"
   },
@@ -10762,7 +11201,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Sonic Lost World"
+      "Sonic Lost World",
+      "Sonic"
     ],
     "video_title": "SONIC LOST WORLD - MAIN THEME (with lyrics, duet feat. Donniegirl12)"
   },
@@ -10779,7 +11219,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Sonic Spinball"
+      "Sonic Spinball",
+      "Sonic"
     ],
     "video_title": "Sonic Spinball: Beta/Japanese Death Theme (FL-Studio \"Plus Mix\")"
   },
@@ -10902,7 +11343,8 @@
     "difficulty": 4,
     "aliases": [
       "Phantasy Star IV: The End of the Millennium",
-      "The End of the Millennium"
+      "The End of the Millennium",
+      "Phantasy Star 4: The End of the Millennium"
     ],
     "video_title": "The End of the Millennium (Main Theme) [From Phantasy Star 4]"
   },
@@ -11181,7 +11623,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mega Man 4"
+      "Mega Man 4",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man 4 OST: Title Screen"
   },
@@ -11198,7 +11642,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mega Man 5"
+      "Mega Man 5",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man 5 - Title Screen / Main Theme [NES OST HD]"
   },
@@ -11215,7 +11661,9 @@
     "source_status": "needs-review",
     "difficulty": 4,
     "aliases": [
-      "Mega Man 6"
+      "Mega Man 6",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man 6 Complete Works OST - 03 - Rockman 6 Title Theme - 'History's Greatest Battle!'"
   },
@@ -11232,7 +11680,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mega Man 9"
+      "Mega Man 9",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man 9 - Title Theme"
   },
@@ -11249,7 +11699,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mega Man X4"
+      "Mega Man X4",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man X4 - Sky Lagoon ~ X's Theme"
   },
@@ -11266,7 +11718,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mega Man Zero"
+      "Mega Man Zero",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man Zero Collection OST - T1-25: Area of Zero / Main Theme of Zero (Credits Theme)"
   },
@@ -11283,7 +11737,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mega Man Battle Network"
+      "Mega Man Battle Network",
+      "Mega Man",
+      "Megaman"
     ],
     "video_title": "Mega Man Battle Network OST - T01: Theme of Mega Man Battle Network"
   },
@@ -11368,7 +11824,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Breath of Fire III"
+      "Breath of Fire III",
+      "Breath of Fire 3"
     ],
     "video_title": "22 - Dedicated to the Dragons ~Main Theme~ Breath of Fire III Original Game Soundtrack"
   },
@@ -11385,7 +11842,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Resident Evil 3: Nemesis"
+      "Resident Evil 3: Nemesis",
+      "Resident Evil"
     ],
     "video_title": "Resident Evil 3: Nemesis OST - The Opening"
   },
@@ -11402,7 +11860,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Resident Evil – Code: Veronica"
+      "Resident Evil – Code: Veronica",
+      "Resident Evil"
     ],
     "video_title": "Resident Evil Code Veronica - Soundtrack -  Opening Claire"
   },
@@ -11419,7 +11878,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Resident Evil 5"
+      "Resident Evil 5",
+      "Resident Evil"
     ],
     "video_title": "Resident Evil 5 Original Soundtrack - 19 - Result"
   },
@@ -11436,7 +11896,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Resident Evil Village"
+      "Resident Evil Village",
+      "Resident Evil"
     ],
     "video_title": "Resident Evil Village - Main Theme OST"
   },
@@ -11471,7 +11932,9 @@
     "difficulty": 4,
     "aliases": [
       "Phoenix Wright: Ace Attorney – Justice for All",
-      "Ace Attorney – Justice for All"
+      "Ace Attorney – Justice for All",
+      "Ace Attorney",
+      "Phoenix Wright"
     ],
     "video_title": "Phoenix Wright Ace Attorney: Justice for All OST - Trial"
   },
@@ -11489,7 +11952,9 @@
     "difficulty": 4,
     "aliases": [
       "Phoenix Wright: Ace Attorney – Trials and Tribulations",
-      "Ace Attorney – Trials and Tribulations"
+      "Ace Attorney – Trials and Tribulations",
+      "Ace Attorney",
+      "Phoenix Wright"
     ],
     "video_title": "Questioning ~ Allegro 2004   Phoenix Wright  Ace Attorney  Trials and Tribulations Music Extended"
   },
@@ -11525,7 +11990,9 @@
     "difficulty": 4,
     "aliases": [
       "Ace Attorney Investigations: Miles Edgeworth",
-      "Miles Edgeworth"
+      "Miles Edgeworth",
+      "Ace Attorney",
+      "Phoenix Wright"
     ],
     "video_title": "Logic ~ The Way to the Truth   Ace Attorney Investigations  Miles Edgeworth Music Extended"
   },
@@ -11561,7 +12028,8 @@
     "difficulty": 4,
     "aliases": [
       "Castlevania: Bloodlines",
-      "Reincarnated Soul"
+      "Reincarnated Soul",
+      "Castlevania"
     ],
     "video_title": "Castlevania Bloodlines OST - Reincarnated Soul (Stage 1)"
   },
@@ -11579,7 +12047,8 @@
     "difficulty": 4,
     "aliases": [
       "Castlevania: Dawn of Sorrow",
-      "Dawn of Sorrow"
+      "Dawn of Sorrow",
+      "Castlevania"
     ],
     "video_title": "Castlevania Dawn of Sorrow OST HD: Platinum Moonlight"
   },
@@ -11597,7 +12066,8 @@
     "difficulty": 4,
     "aliases": [
       "Castlevania: Order of Ecclesia",
-      "Order of Ecclesia"
+      "Order of Ecclesia",
+      "Castlevania"
     ],
     "video_title": "Castlevania: Order of Ecclesia music - Title Screen"
   },
@@ -11615,7 +12085,8 @@
     "difficulty": 4,
     "aliases": [
       "Castlevania: Lament of Innocence",
-      "Lament of Innocence"
+      "Lament of Innocence",
+      "Castlevania"
     ],
     "video_title": "Castlevania: Lament of Innocence OST - Prologue"
   },
@@ -11705,7 +12176,10 @@
     "aliases": [
       "Metal Gear Solid: Peace Walker",
       "Peace Walker",
-      "Heavens Divide"
+      "Heavens Divide",
+      "Metal Gear",
+      "Metal Gear Solid",
+      "MGS"
     ],
     "video_title": "HEAVENS DIVIDE from METAL GEAR SOLID PEACE WALKER"
   },
@@ -11743,7 +12217,8 @@
     "aliases": [
       "Silent Hill 4: The Room",
       "The Room",
-      "Room of Angel"
+      "Room of Angel",
+      "Silent Hill"
     ],
     "video_title": "\"ROOM OF ANGEL\" - AKIRA YAMAOKA / SILENT HILL 4 THEME / HIGH QUALITY"
   },
@@ -12059,7 +12534,10 @@
     "difficulty": 4,
     "aliases": [
       "Final Fantasy Crystal Chronicles",
-      "Sound of the Wind"
+      "Sound of the Wind",
+      "Final Fantasy",
+      "FF",
+      "FF Crystal Chronicles"
     ],
     "video_title": "Sound of the Wind - Final Fantasy Crystal Chronicles Original OST"
   },
@@ -12076,7 +12554,10 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Final Fantasy Type-0"
+      "Final Fantasy Type-0",
+      "Final Fantasy",
+      "FF",
+      "FF Type-0"
     ],
     "video_title": "Final Fantasy Type-0 HD OST - Menu Theme"
   },
@@ -12093,7 +12574,12 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Final Fantasy XIII-2"
+      "Final Fantasy XIII-2",
+      "Final Fantasy",
+      "FF",
+      "Final Fantasy 13-2",
+      "FF XIII-2",
+      "FF 13-2"
     ],
     "video_title": "Final Fantasy XIII 2 ~ Main Theme ~Wish~ Extended"
   },
@@ -12111,7 +12597,8 @@
     "difficulty": 4,
     "aliases": [
       "Kingdom Hearts 3D: Dream Drop Distance",
-      "Dream Drop Distance"
+      "Dream Drop Distance",
+      "Kingdom Hearts"
     ],
     "video_title": "Kingdom Hearts 3D- Dream Drop Distance Opening Theme"
   },
@@ -12128,7 +12615,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Dragon Quest II"
+      "Dragon Quest II",
+      "Dragon Quest 2"
     ],
     "video_title": "🎵 Overworld Theme (\"Endless World\") | Dragon Quest II"
   },
@@ -12145,7 +12633,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Dragon Quest IV"
+      "Dragon Quest IV",
+      "Dragon Quest 4"
     ],
     "video_title": "Symphonic Suite Dragon Quest IV ~ Overture"
   },
@@ -12162,7 +12651,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Dragon Quest V"
+      "Dragon Quest V",
+      "Dragon Quest 5"
     ],
     "video_title": "🎵 Overture (Main Theme) | Dragon Quest V"
   },
@@ -12179,7 +12669,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Dragon Quest IX"
+      "Dragon Quest IX",
+      "Dragon Quest 9"
     ],
     "video_title": "[Dragon Quest IX-Symphonic Suite]: Hills and Meadows"
   },
@@ -12196,7 +12687,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Dragon Quest XI"
+      "Dragon Quest XI",
+      "Dragon Quest 11"
     ],
     "video_title": "\"OVERTURE XI\" (Main Theme) | Dragon Quest XI: Echoes of an Elusive Age / ドラゴンクエストXI 過ぎ去りし時を求めて"
   },
@@ -12213,7 +12705,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Octopath Traveler II"
+      "Octopath Traveler II",
+      "Octopath Traveler 2"
     ],
     "video_title": "OCTOPATH TRAVELER II - \"Main Theme\" by Yasunori Nishiki | TGS 2022"
   },
@@ -12438,7 +12931,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Shin Megami Tensei IV"
+      "Shin Megami Tensei IV",
+      "Shin Megami Tensei 4"
     ],
     "video_title": "Shin Megami Tensei IV OST -Main Theme-"
   },
@@ -12455,7 +12949,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Shin Megami Tensei V"
+      "Shin Megami Tensei V",
+      "Shin Megami Tensei 5"
     ],
     "video_title": "Shin Megami Tensei V OST - Main Theme"
   },
@@ -12786,7 +13281,8 @@
     "difficulty": 4,
     "aliases": [
       "Ni no Kuni II: Revenant Kingdom",
-      "Revenant Kingdom"
+      "Revenant Kingdom",
+      "Ni no Kuni 2: Revenant Kingdom"
     ],
     "video_title": "Ni No Kuni II: Revenant Kingdom OST - Track 1 - Main Theme"
   },
@@ -12964,7 +13460,8 @@
     "difficulty": 4,
     "aliases": [
       "Batman: Return of the Joker",
-      "Return of the Joker"
+      "Return of the Joker",
+      "Batman"
     ],
     "video_title": "Theme of the Week #8 - Batman Beyond: Return of the Joker Main Theme"
   },
@@ -13103,7 +13600,8 @@
     "difficulty": 4,
     "aliases": [
       "X-COM: UFO Defense",
-      "UFO Defense"
+      "UFO Defense",
+      "10-COM: UFO Defense"
     ],
     "video_title": "Dogfight - X-Com Ufo Defense Music"
   },
@@ -13223,7 +13721,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Age of Empires III"
+      "Age of Empires III",
+      "Age of Empires 3"
     ],
     "video_title": "Age of Empires III - Main Theme (Extended)"
   },
@@ -13344,7 +13843,8 @@
     "difficulty": 4,
     "aliases": [
       "Harry Potter and the Chamber of Secrets (PC)",
-      "Harry Potter and the Chamber of Secrets"
+      "Harry Potter and the Chamber of Secrets",
+      "Harry Potter"
     ],
     "video_title": "Harry Potter and the Chamber of Secrets (PC) Music - Main Theme"
   },
@@ -13363,7 +13863,8 @@
     "aliases": [
       "Star Wars: Republic Commando",
       "Republic Commando",
-      "Vode An"
+      "Vode An",
+      "Star Wars"
     ],
     "video_title": "Star Wars: Republic Commando Theme (Vode An) | EPIC VERSION"
   },
@@ -13381,7 +13882,8 @@
     "difficulty": 4,
     "aliases": [
       "Star Wars: The Force Unleashed",
-      "The Force Unleashed"
+      "The Force Unleashed",
+      "Star Wars"
     ],
     "video_title": "Star Wars: The Force Unleashed music - Main Theme"
   },
@@ -13399,7 +13901,10 @@
     "difficulty": 4,
     "aliases": [
       "Star Wars: Knights of the Old Republic II",
-      "Knights of the Old Republic II"
+      "Knights of the Old Republic II",
+      "Star Wars",
+      "Star Wars: Knights of the Old Republic 2",
+      "Knights of the Old Republic 2"
     ],
     "video_title": "The Sith Lords - Star Wars: Knights of the Old Republic II soundtrack"
   },
@@ -13417,7 +13922,8 @@
     "difficulty": 4,
     "aliases": [
       "Star Wars Jedi: Fallen Order",
-      "Fallen Order"
+      "Fallen Order",
+      "Star Wars"
     ],
     "video_title": "Star Wars Jedi: Fallen Order - Main Menu Theme"
   },
@@ -13451,7 +13957,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Dragon Age II"
+      "Dragon Age II",
+      "Dragon Age 2"
     ],
     "video_title": "Dragon Age II Soundtrack - Main Theme"
   },
@@ -13591,7 +14098,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Lineage II"
+      "Lineage II",
+      "Lineage 2"
     ],
     "video_title": "Lineage II - Intro theme"
   },
@@ -13626,7 +14134,9 @@
     "difficulty": 4,
     "aliases": [
       "The Lord of the Rings Online",
-      "Lord of the Rings Online"
+      "Lord of the Rings Online",
+      "Lord of the Rings",
+      "LOTR"
     ],
     "video_title": "Main Theme: LOTRO Legacy |  The Lord of the Rings Online: Riders of Rohan Soundtrack"
   },
@@ -13644,7 +14154,8 @@
     "difficulty": 4,
     "aliases": [
       "The Elder Scrolls Online",
-      "Elder Scrolls Online"
+      "Elder Scrolls Online",
+      "Elder Scrolls"
     ],
     "video_title": "The Elder Scrolls Online - Main Theme"
   },
@@ -13678,7 +14189,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Halo 5: Guardians"
+      "Halo 5: Guardians",
+      "Halo"
     ],
     "video_title": "Main Theme Soundtrack OST Halo 5 Guardians Official"
   },
@@ -13695,7 +14207,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Halo Infinite"
+      "Halo Infinite",
+      "Halo"
     ],
     "video_title": "Halo Infinite OST - Main Theme (Warthog Run Soundtrack)"
   },
@@ -13712,7 +14225,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Halo Wars"
+      "Halo Wars",
+      "Halo"
     ],
     "video_title": "HALO WARS MAIN MENU THEME"
   },
@@ -13746,7 +14260,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Fable II"
+      "Fable II",
+      "Fable 2"
     ],
     "video_title": "Fable II OST  |  Main Theme & End Credits"
   },
@@ -13833,7 +14348,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Quake II"
+      "Quake II",
+      "Quake 2"
     ],
     "video_title": "Quake II (1997/1999) OST - Main Theme (EXTENDED) (HQ)"
   },
@@ -13850,7 +14366,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Quake III Arena"
+      "Quake III Arena",
+      "Quake 3 Arena"
     ],
     "video_title": "Quake III Arena OST — Deathmatch (Extended)"
   },
@@ -14005,7 +14522,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Call of Duty"
+      "Call of Duty",
+      "COD"
     ],
     "video_title": "Call Of Duty main theme"
   },
@@ -14023,7 +14541,10 @@
     "difficulty": 4,
     "aliases": [
       "Call of Duty: World at War",
-      "World at War"
+      "World at War",
+      "COD",
+      "Call of Duty",
+      "COD: World at War"
     ],
     "video_title": "Call of Duty World at War Soundtrack (By Mission) - Main Theme"
   },
@@ -14041,7 +14562,10 @@
     "difficulty": 4,
     "aliases": [
       "Call of Duty: Modern Warfare 3",
-      "Modern Warfare 3"
+      "Modern Warfare 3",
+      "COD",
+      "Call of Duty",
+      "COD: Modern Warfare 3"
     ],
     "video_title": "Call Of Duty : Modern Warfare 3 Main theme (High Quality BASS + VOLUME BOOST & REMASTERED)"
   },
@@ -14059,7 +14583,13 @@
     "difficulty": 4,
     "aliases": [
       "Call of Duty: Black Ops II",
-      "Black Ops II"
+      "Black Ops II",
+      "COD",
+      "Call of Duty",
+      "Call of Duty: Black Ops 2",
+      "COD: Black Ops II",
+      "COD: Black Ops 2",
+      "Black Ops 2"
     ],
     "video_title": "Call of Duty: Black Ops II OST | Main Theme (Extended Arrangement)"
   },
@@ -14486,7 +15016,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mafia II"
+      "Mafia II",
+      "Mafia 2"
     ],
     "video_title": "MAFIA II · Main Theme · Prague Film Orchestra"
   },
@@ -14538,7 +15069,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Jak II"
+      "Jak II",
+      "Jak 2"
     ],
     "video_title": "Jak II OST - Krew Battle (Extended)"
   },
@@ -14663,7 +15195,8 @@
     "aliases": [
       "Prince of Persia: Warrior Within",
       "Warrior Within",
-      "I Stand Alone"
+      "I Stand Alone",
+      "1 Stand Alone"
     ],
     "video_title": "Prince of Persia: Warrior Within  OST - (I Stand Alone) HD"
   },
@@ -14680,7 +15213,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Assassin's Creed: Brotherhood"
+      "Assassin's Creed: Brotherhood",
+      "Assassins Creed"
     ],
     "video_title": "Assassin's Creed: Brotherhood Main Theme - Assassin's Creed: Brotherhood unofficial soundtrack"
   },
@@ -14697,7 +15231,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Assassin's Creed III"
+      "Assassin's Creed III",
+      "Assassins Creed",
+      "Assassin's Creed 3"
     ],
     "video_title": "Assassin’s Creed 3 / Lorne Balfe - Assassin's Creed III Main Theme (Track 01)"
   },
@@ -14714,7 +15250,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Assassin's Creed Unity"
+      "Assassin's Creed Unity",
+      "Assassins Creed"
     ],
     "video_title": "Assassin's Creed: Unity Main Theme"
   },
@@ -14731,7 +15268,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Assassin's Creed Syndicate"
+      "Assassin's Creed Syndicate",
+      "Assassins Creed"
     ],
     "video_title": "Assassin's Creed Syndicate Official Main Theme - Bloodlines [OST]"
   },
@@ -14748,7 +15286,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Assassin's Creed Origins"
+      "Assassin's Creed Origins",
+      "Assassins Creed"
     ],
     "video_title": "Assassin's Creed Origins Main Theme"
   },
@@ -14765,7 +15304,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Assassin's Creed Odyssey"
+      "Assassin's Creed Odyssey",
+      "Assassins Creed"
     ],
     "video_title": "Assassin's Creed Odyssey: Legend of the Eagle Bearer (Main Theme) | The Flight"
   },
@@ -14782,7 +15322,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Assassin's Creed Valhalla"
+      "Assassin's Creed Valhalla",
+      "Assassins Creed"
     ],
     "video_title": "Assassin's Creed Valhalla Main Theme (feat. Einar Selvik)"
   },
@@ -14834,7 +15375,8 @@
     "difficulty": 4,
     "aliases": [
       "Need for Speed III: Hot Pursuit",
-      "Hot Pursuit"
+      "Hot Pursuit",
+      "Need for Speed 3: Hot Pursuit"
     ],
     "video_title": "Need for Speed III Hot Pursuit Soundtrack - Need for Speed III Title"
   },
@@ -14957,7 +15499,8 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Mortal Kombat 3"
+      "Mortal Kombat 3",
+      "Mortal Kombat"
     ],
     "video_title": "Mortal Kombat 3 Arcade OST - Original Music Soundtrack - The Tournament (Opening Music)"
   },
@@ -15010,7 +15553,9 @@
     "source_status": "metadata-checked",
     "difficulty": 4,
     "aliases": [
-      "Pokémon GO"
+      "Pokémon GO",
+      "Pokemon",
+      "Pokémon"
     ],
     "video_title": "Professor (Main Theme) - Pokémon GO OST (Extended)"
   },
@@ -15254,7 +15799,8 @@
     "difficulty": 5,
     "aliases": [
       "Thunder Force IV",
-      "Lightning Strikes Again"
+      "Lightning Strikes Again",
+      "Thunder Force 4"
     ],
     "video_title": "Thunder Force IV - Lightning Strikes Again (Opening Theme)"
   },
@@ -15271,7 +15817,8 @@
     "source_status": "metadata-checked",
     "difficulty": 5,
     "aliases": [
-      "Phantasy Star II"
+      "Phantasy Star II",
+      "Phantasy Star 2"
     ],
     "video_title": "Phantasy Star II Title Theme - VGMs vs. Cartridge"
   },
@@ -15328,7 +15875,8 @@
       "Batman: The Video Game",
       "The Video Game",
       "Streets of Desolation (Stage 1)",
-      "Streets of Desolation"
+      "Streets of Desolation",
+      "Batman"
     ],
     "video_title": "Vidéo-OST ~ Batman - Streets of Desolation : Stage 1 Theme (NES)"
   },
@@ -15501,7 +16049,8 @@
     "difficulty": 5,
     "aliases": [
       "Turrican II: The Final Fight",
-      "The Final Fight"
+      "The Final Fight",
+      "Turrican 2: The Final Fight"
     ],
     "video_title": "Turrican II: The Final Fight Amiga - Intro / Opening and Main Theme (Full HD 1080p)"
   },
@@ -15850,7 +16399,8 @@
     "aliases": [
       "Ys VIII: Lacrimosa of Dana",
       "Lacrimosa of Dana",
-      "Sunshine Coastline"
+      "Sunshine Coastline",
+      "Ys 8: Lacrimosa of Dana"
     ],
     "video_title": "Ys VIII -Lacrimosa of DANA- OST - Sunshine Coastline"
   },
@@ -16150,7 +16700,8 @@
     "aliases": [
       "Xenosaga Episode I: Der Wille zur Macht",
       "Der Wille zur Macht",
-      "Kokoro"
+      "Kokoro",
+      "Xenosaga Episode 1: Der Wille zur Macht"
     ],
     "video_title": ""
   },
@@ -16756,7 +17307,9 @@
     "difficulty": 5,
     "aliases": [
       "Wario Land: Super Mario Land 3",
-      "Super Mario Land 3"
+      "Super Mario Land 3",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Super Mario Land 3  Wario Land - Stage 1 theme"
   },
@@ -16876,7 +17429,8 @@
     "source_status": "metadata-checked",
     "difficulty": 5,
     "aliases": [
-      "Dune II"
+      "Dune II",
+      "Dune 2"
     ],
     "video_title": "[Dune II MT-32 Soundtrack] Main Menu"
   },
@@ -17055,7 +17609,8 @@
     "difficulty": 5,
     "aliases": [
       "Armored Core VI: Fires of Rubicon",
-      "Fires of Rubicon"
+      "Fires of Rubicon",
+      "Armored Core 6: Fires of Rubicon"
     ],
     "video_title": "Armored Core VI Fires Of Rubicon - Soundtrack [Unofficial Main Menu Music | Main Theme]"
   },
@@ -17124,7 +17679,8 @@
     "source_status": "metadata-checked",
     "difficulty": 5,
     "aliases": [
-      "Grandia II"
+      "Grandia II",
+      "Grandia 2"
     ],
     "video_title": "Grandia II OST - cd1(deus) - 02 - Opening Act"
   },
@@ -17367,7 +17923,9 @@
     "difficulty": 5,
     "aliases": [
       "Frontier: Elite II",
-      "Elite II"
+      "Elite II",
+      "Frontier: Elite 2",
+      "Elite 2"
     ],
     "video_title": "Frontier Elite II Main Theme - Amiga music by Uncle Art"
   },
@@ -17853,7 +18411,8 @@
     "difficulty": 1,
     "aliases": [
       "Jurassic Park",
-      "Theme from Jurassic Park"
+      "Theme from Jurassic Park",
+      "Jurassic World"
     ],
     "video_title": "Theme From Jurassic Park"
   },
@@ -17871,7 +18430,8 @@
     "difficulty": 1,
     "aliases": [
       "Harry Potter and the Philosopher's Stone",
-      "Hedwig's Theme"
+      "Hedwig's Theme",
+      "Harry Potter"
     ],
     "video_title": "Harry Potter and the Sorcerer's Stone Soundtrack - 19. Hedwig's Theme a.k.a Hedwig's Flight"
   },
@@ -17945,7 +18505,8 @@
     "aliases": [
       "Pirates of the Caribbean: The Curse of the Black Pearl",
       "The Curse of the Black Pearl",
-      "He's a Pirate"
+      "He's a Pirate",
+      "Pirates of the Caribbean"
     ],
     "video_title": "He's a Pirate (Main Theme) - From the Curse of the Black Pearl [EXTENDED]"
   },
@@ -17999,7 +18560,8 @@
     "difficulty": 1,
     "aliases": [
       "Mission: Impossible",
-      "Mission: Impossible Theme"
+      "Mission: Impossible Theme",
+      "Mission Impossible"
     ],
     "video_title": "Mission Impossible Theme (Full Theme)"
   },
@@ -18166,7 +18728,9 @@
       "The Lord of the Rings: The Fellowship of the Ring",
       "The Fellowship of the Ring",
       "Lord of the Rings: The Fellowship of the Ring",
-      "Concerning Hobbits"
+      "Concerning Hobbits",
+      "Lord of the Rings",
+      "LOTR"
     ],
     "video_title": "Lord of the Rings: The Fellowship of the Ring - Howard Shore - Concerning Hobbits (The Shire)"
   },
@@ -18203,7 +18767,8 @@
     "aliases": [
       "The Dark Knight",
       "Dark Knight",
-      "Why So Serious?"
+      "Why So Serious?",
+      "Batman"
     ],
     "video_title": "Why So Serious? The Joker Theme The Dark Knight Soundtrack - Hans Zimmer"
   },
@@ -18530,7 +19095,8 @@
     "difficulty": 1,
     "aliases": [
       "Moana",
-      "How Far I'll Go"
+      "How Far I'll Go",
+      "How Far 1'll Go"
     ],
     "video_title": "Moana: How Far I'll Go: Main Theme"
   },
@@ -18675,7 +19241,8 @@
     "difficulty": 1,
     "aliases": [
       "Grease",
-      "You're the One That I Want"
+      "You're the One That I Want",
+      "You're the One That 1 Want"
     ],
     "video_title": "You're The One That I Want (From “Grease”)"
   },
@@ -18694,7 +19261,8 @@
     "aliases": [
       "Dirty Dancing",
       "(I've Had) The Time of My Life",
-      "The Time of My Life"
+      "The Time of My Life",
+      "(1've Had) The Time of My Life"
     ],
     "video_title": "Dirty Dancing Soundtrack - I've Had The Time Of My Life"
   },
@@ -18751,7 +19319,8 @@
     "aliases": [
       "The Bodyguard",
       "Bodyguard",
-      "I Will Always Love You"
+      "I Will Always Love You",
+      "1 Will Always Love You"
     ],
     "video_title": "Whitney Houston - I will always love you (Bodyguard Soundtrack)"
   },
@@ -18804,7 +19373,8 @@
     "difficulty": 1,
     "aliases": [
       "Rocky III",
-      "Eye of the Tiger"
+      "Eye of the Tiger",
+      "Rocky 3"
     ],
     "video_title": "Rocky III • Eye of the Tiger • Survivor"
   },
@@ -18841,7 +19411,8 @@
     "difficulty": 1,
     "aliases": [
       "Terminator 2: Judgment Day",
-      "Judgment Day"
+      "Judgment Day",
+      "Terminator"
     ],
     "video_title": "Brad Fiedel - Terminator 2: Judgment Day Theme [Extended by Gilles Nuytens] NEW EDIT"
   },
@@ -18895,7 +19466,9 @@
     "source_status": "metadata-checked",
     "difficulty": 1,
     "aliases": [
-      "Spider-Man"
+      "Spider-Man",
+      "Spider Man",
+      "Spiderman"
     ],
     "video_title": "Main Titles (Film Version) | Spider-Man (2002) Soundtrack | Danny Elfman"
   },
@@ -18931,7 +19504,8 @@
     "difficulty": 1,
     "aliases": [
       "Barbie",
-      "What Was I Made For?"
+      "What Was I Made For?",
+      "What Was 1 Made For?"
     ],
     "video_title": "Barbie Soundtrack | What Was I Made For? (Epilogue) - Instrumental - Mark Ronson & Andrew Wyatt | WT"
   },
@@ -19110,7 +19684,8 @@
     "difficulty": 1,
     "aliases": [
       "Frozen II",
-      "Into the Unknown"
+      "Into the Unknown",
+      "Frozen 2"
     ],
     "video_title": "Into The Unknown (Panic! At The Disco Version) | Frozen 2 OST"
   },
@@ -19128,7 +19703,8 @@
     "difficulty": 1,
     "aliases": [
       "Tangled",
-      "I See the Light"
+      "I See the Light",
+      "1 See the Light"
     ],
     "video_title": "Mandy Moore & Zachary Levi (Ost.Tangled/Rapunzel) - I See The Light"
   },
@@ -19201,7 +19777,9 @@
     "aliases": [
       "The Super Mario Bros. Movie",
       "Super Mario Bros. Movie",
-      "Peaches"
+      "Peaches",
+      "Mario",
+      "Super Mario"
     ],
     "video_title": "Bowser - Peaches (Official Music Video) | The Super Mario Bros. Movie"
   },
@@ -19237,7 +19815,8 @@
     "difficulty": 1,
     "aliases": [
       "Mulan",
-      "I'll Make a Man Out of You"
+      "I'll Make a Man Out of You",
+      "1'll Make a Man Out of You"
     ],
     "video_title": "03: I'll Make A Man Out Of You - Mulan: An Original Walt Disney Records Soundtrack"
   },
@@ -19364,7 +19943,8 @@
     "difficulty": 1,
     "aliases": [
       "Monsters, Inc.",
-      "If I Didn't Have You"
+      "If I Didn't Have You",
+      "If 1 Didn't Have You"
     ],
     "video_title": "If I Didn't Have You (Billy Crystal & John Goodman) - Monsters, Inc OST"
   },
@@ -19456,7 +20036,8 @@
     "difficulty": 1,
     "aliases": [
       "How to Train Your Dragon",
-      "Test Drive"
+      "Test Drive",
+      "HTTYD"
     ],
     "video_title": "Test Drive (How to train your Dragon Theme) | INTENSE EPIC VERSION"
   },
@@ -19492,7 +20073,8 @@
     "difficulty": 1,
     "aliases": [
       "Madagascar",
-      "I Like to Move It"
+      "I Like to Move It",
+      "1 Like to Move It"
     ],
     "video_title": "Madagascar Soundtrack 02 I Like To Move It - Sacha Baron Cohen"
   },
@@ -19510,7 +20092,8 @@
     "difficulty": 1,
     "aliases": [
       "Harry Potter and the Deathly Hallows – Part 2",
-      "Lily's Theme"
+      "Lily's Theme",
+      "Harry Potter"
     ],
     "video_title": "Harry Potter & The Deathly Hallows Part 2 Lily's Theme Extended"
   },
@@ -19530,7 +20113,9 @@
       "The Lord of the Rings: The Return of the King",
       "The Return of the King",
       "Lord of the Rings: The Return of the King",
-      "Into the West"
+      "Into the West",
+      "Lord of the Rings",
+      "LOTR"
     ],
     "video_title": "Into the West - Annie Lennox lyrics video from The Lord of the Rings : The Return of the King"
   },
@@ -19550,7 +20135,9 @@
       "The Lord of the Rings: The Two Towers",
       "The Two Towers",
       "Lord of the Rings: The Two Towers",
-      "The Riders of Rohan"
+      "The Riders of Rohan",
+      "Lord of the Rings",
+      "LOTR"
     ],
     "video_title": "The Two Towers Soundtrack-03-The Riders of Rohan"
   },
@@ -19570,7 +20157,9 @@
       "The Hobbit: An Unexpected Journey",
       "An Unexpected Journey",
       "Hobbit: An Unexpected Journey",
-      "Misty Mountains"
+      "Misty Mountains",
+      "The Hobbit",
+      "Hobbit"
     ],
     "video_title": "The Hobbit: An Unexpected Journey | Misty Mountains (Film Scene) | Richard Armitage & The Dwarf Cast"
   },
@@ -19588,7 +20177,8 @@
     "difficulty": 1,
     "aliases": [
       "Avengers: Endgame",
-      "Portals"
+      "Portals",
+      "Avengers"
     ],
     "video_title": "Avengers: Endgame | Soundtrack - Portals (Extended)"
   },
@@ -19698,7 +20288,8 @@
     "aliases": [
       "Pirates of the Caribbean: At World's End",
       "At World's End",
-      "Up Is Down"
+      "Up Is Down",
+      "Pirates of the Caribbean"
     ],
     "video_title": "Up Is Down (From \"Pirates of the Caribbean: At World's End\"/Score)"
   },
@@ -19753,7 +20344,10 @@
     "aliases": [
       "Star Wars: Episode I – The Phantom Menace",
       "Episode I – The Phantom Menace",
-      "Duel of the Fates"
+      "Duel of the Fates",
+      "Star Wars",
+      "Star Wars: Episode 1 – The Phantom Menace",
+      "Episode 1 – The Phantom Menace"
     ],
     "video_title": "Star Wars: Episode I - The Phantom Menace • Duel of the Fates • John Williams"
   },
@@ -19771,7 +20365,8 @@
     "difficulty": 1,
     "aliases": [
       "Indiana Jones and the Last Crusade",
-      "Scherzo for Motorcycle and Orchestra"
+      "Scherzo for Motorcycle and Orchestra",
+      "Indiana Jones"
     ],
     "video_title": "Scherzo for Motorcycle and Orchestra (From \"Indiana Jones and the Last Crusade\")"
   },
@@ -19807,7 +20402,8 @@
     "difficulty": 1,
     "aliases": [
       "Jurassic World",
-      "Welcome to Jurassic World"
+      "Welcome to Jurassic World",
+      "Jurassic Park"
     ],
     "video_title": "Jurassic World Original Soundtrack  03 - Welcome to Jurassic World"
   },
@@ -20044,7 +20640,8 @@
       "The Hunger Games: Mockingjay – Part 1",
       "Mockingjay – Part 1",
       "Hunger Games: Mockingjay – Part 1",
-      "The Hanging Tree"
+      "The Hanging Tree",
+      "Hunger Games"
     ],
     "video_title": "The Hanging Tree - MUSIC VIDEO - [The Hunger Games: Mockingjay Pt.1 Score (James Newton Howard)]"
   },
@@ -20220,7 +20817,8 @@
     "difficulty": 1,
     "aliases": [
       "Armageddon",
-      "I Don't Want to Miss a Thing"
+      "I Don't Want to Miss a Thing",
+      "1 Don't Want to Miss a Thing"
     ],
     "video_title": "[4K] Aerosmith - I Don't Want to Miss a Thing (From Soundtrack Armageddon) (Music Video)"
   },
@@ -20240,7 +20838,9 @@
       "Robin Hood: Prince of Thieves",
       "Prince of Thieves",
       "(Everything I Do) I Do It for You",
-      "I Do It for You"
+      "I Do It for You",
+      "(Everything 1 Do) 1 Do It for You",
+      "1 Do It for You"
     ],
     "video_title": "(Everything I Do) I Do It for You (From Robin Hood: Prince of Thieves)"
   },
@@ -20476,7 +21076,8 @@
     "aliases": [
       "Pirates of the Caribbean: Dead Man's Chest",
       "Dead Man's Chest",
-      "Jack Sparrow"
+      "Jack Sparrow",
+      "Pirates of the Caribbean"
     ],
     "video_title": "04. Captain Jack Sparrow (Pirates of the Caribbean: Dead Man's Chest Complete Score)"
   },
@@ -20513,7 +21114,10 @@
     "aliases": [
       "Star Wars: Episode III – Revenge of the Sith",
       "Episode III – Revenge of the Sith",
-      "Battle of the Heroes"
+      "Battle of the Heroes",
+      "Star Wars",
+      "Star Wars: Episode 3 – Revenge of the Sith",
+      "Episode 3 – Revenge of the Sith"
     ],
     "video_title": "Star Wars Episode III Soundtrack | Battle of the Heroes | HQ | John Williams |"
   },
@@ -20532,7 +21136,8 @@
     "aliases": [
       "Star Wars: The Force Awakens",
       "The Force Awakens",
-      "Rey's Theme"
+      "Rey's Theme",
+      "Star Wars"
     ],
     "video_title": "Star Wars: The Force Awakens • Rey's Theme • John Williams"
   },
@@ -20568,7 +21173,8 @@
     "difficulty": 2,
     "aliases": [
       "Indiana Jones and the Temple of Doom",
-      "Slave Children's Crusade"
+      "Slave Children's Crusade",
+      "Indiana Jones"
     ],
     "video_title": "Indiana Jones and the Temple of Doom (1984) - 'Slave Children's Crusade' scene [1080]"
   },
@@ -20604,7 +21210,8 @@
     "difficulty": 2,
     "aliases": [
       "Harry Potter and the Chamber of Secrets",
-      "Fawkes the Phoenix"
+      "Fawkes the Phoenix",
+      "Harry Potter"
     ],
     "video_title": "02 - Fawkes The Phoenix - Harry Potter and The Chamber of Secrets Soundtrack"
   },
@@ -20622,7 +21229,8 @@
     "difficulty": 2,
     "aliases": [
       "Harry Potter and the Prisoner of Azkaban",
-      "A Window to the Past"
+      "A Window to the Past",
+      "Harry Potter"
     ],
     "video_title": "Harry Potter and the Prisoner of Azkaban Soundtrack - 07. A Window to the Past"
   },
@@ -20640,7 +21248,8 @@
     "difficulty": 2,
     "aliases": [
       "Harry Potter and the Goblet of Fire",
-      "Harry in Winter"
+      "Harry in Winter",
+      "Harry Potter"
     ],
     "video_title": "12 - Harry In Winter - Harry Potter and The Goblet Of Fire Soundtrack"
   },
@@ -20658,7 +21267,8 @@
     "difficulty": 2,
     "aliases": [
       "Harry Potter and the Order of the Phoenix",
-      "Professor Umbridge"
+      "Professor Umbridge",
+      "Harry Potter"
     ],
     "video_title": "02 - Professor Umbridge - Harry Potter and The Order of The Phoenix Soundtrack"
   },
@@ -20676,7 +21286,8 @@
     "difficulty": 2,
     "aliases": [
       "Harry Potter and the Half-Blood Prince",
-      "In Noctem"
+      "In Noctem",
+      "Harry Potter"
     ],
     "video_title": "Harry Potter and the Half-Blood Prince Soundtrack | In Noctem - Nicholas Hooper | WaterTower"
   },
@@ -20694,7 +21305,8 @@
     "difficulty": 2,
     "aliases": [
       "Harry Potter and the Deathly Hallows – Part 1",
-      "Obliviate"
+      "Obliviate",
+      "Harry Potter"
     ],
     "video_title": "Harry Potter and the Deathly Hallows, Pt. 1 Soundtrack | Obliviate - Alexandre Desplat | WaterTower"
   },
@@ -20729,7 +21341,8 @@
     "difficulty": 2,
     "aliases": [
       "Batman Begins",
-      "Molossus"
+      "Molossus",
+      "Batman"
     ],
     "video_title": "Batman Begins Official Soundtrack | Molossus – Hans Zimmer & James Newton Howard| WaterTower"
   },
@@ -20747,7 +21360,8 @@
     "difficulty": 2,
     "aliases": [
       "The Dark Knight Rises",
-      "Dark Knight Rises"
+      "Dark Knight Rises",
+      "Batman"
     ],
     "video_title": "The Dark Knight Rises Official Soundtrack | Rise – Hans Zimmer | WaterTower"
   },
@@ -20894,7 +21508,8 @@
     "aliases": [
       "Mission: Impossible – Fallout",
       "Impossible – Fallout",
-      "Fallout"
+      "Fallout",
+      "Mission Impossible"
     ],
     "video_title": "08. Fallout (Mission: Impossible - Fallout Soundtrack)"
   },
@@ -20912,7 +21527,8 @@
     "difficulty": 2,
     "aliases": [
       "Avengers: Infinity War",
-      "Infinity War"
+      "Infinity War",
+      "Avengers"
     ],
     "video_title": "Avengers: Infinity War SoundTrack  ,→Мстители: Война Бесконечности СаундТрэк KharatianMusic ◄◄◄"
   },
@@ -20949,7 +21565,9 @@
     "aliases": [
       "Spider-Man: Into the Spider-Verse",
       "Into the Spider-Verse",
-      "Sunflower"
+      "Sunflower",
+      "Spider Man",
+      "Spiderman"
     ],
     "video_title": "Post Malone - Sunflower [Spider-Man: Into The Spider-Verse] (Audio)"
   },
@@ -20968,7 +21586,9 @@
     "aliases": [
       "Spider-Man: Across the Spider-Verse",
       "Across the Spider-Verse",
-      "Calling"
+      "Calling",
+      "Spider Man",
+      "Spiderman"
     ],
     "video_title": "Spider-Man Across the Spider-Verse - Calling - Metro Boomin, Nav, A Boogie & Swae Lee (Music Video)"
   },
@@ -20985,7 +21605,9 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Spider-Man: Homecoming"
+      "Spider-Man: Homecoming",
+      "Spider Man",
+      "Spiderman"
     ],
     "video_title": "''Spider-Man: Homecoming' Main Theme by Michael Giacchino"
   },
@@ -21002,7 +21624,8 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "X-Men"
+      "X-Men",
+      "10-Men"
     ],
     "video_title": "01. Main Title (X-Men Complete Score)"
   },
@@ -21073,7 +21696,8 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Batman Returns"
+      "Batman Returns",
+      "Batman"
     ],
     "video_title": "BATMAN RETURNS-MAIN THEME"
   },
@@ -21147,7 +21771,8 @@
     "aliases": [
       "Batman v Superman: Dawn of Justice",
       "Dawn of Justice",
-      "Is She with You?"
+      "Is She with You?",
+      "Batman"
     ],
     "video_title": "11. Is She With You? (Batman V Superman: Dawn of Justice Soundtrack - CD1)"
   },
@@ -21741,7 +22366,8 @@
     "difficulty": 2,
     "aliases": [
       "Toy Story 2",
-      "When She Loved Me"
+      "When She Loved Me",
+      "Toy Story"
     ],
     "video_title": "Toy Story 2 soundtrack - 02. When She Loved Me"
   },
@@ -21759,7 +22385,8 @@
     "difficulty": 2,
     "aliases": [
       "Toy Story 3",
-      "We Belong Together"
+      "We Belong Together",
+      "Toy Story"
     ],
     "video_title": "We Belong Together (From \"Toy Story 3\"/Soundtrack)"
   },
@@ -21882,7 +22509,8 @@
     "difficulty": 2,
     "aliases": [
       "Wreck-It Ralph",
-      "When Can I See You Again?"
+      "When Can I See You Again?",
+      "When Can 1 See You Again?"
     ],
     "video_title": "When Can I See You Again - Owl City HD (Wreck It Ralph Soundtrack)"
   },
@@ -21900,7 +22528,8 @@
     "difficulty": 2,
     "aliases": [
       "Bolt",
-      "I Thought I Lost You"
+      "I Thought I Lost You",
+      "1 Thought 1 Lost You"
     ],
     "video_title": "Bolt(2008) Ending credits 'i thought i lost you' with lyrics"
   },
@@ -22176,7 +22805,8 @@
     "aliases": [
       "Spirit: Stallion of the Cimarron",
       "Stallion of the Cimarron",
-      "Here I Am"
+      "Here I Am",
+      "Here 1 Am"
     ],
     "video_title": "Here I Am (Bryan Adams) | Spirit: Stallion of the Cimarron | TUNE"
   },
@@ -22446,7 +23076,8 @@
     "source_status": "metadata-checked",
     "difficulty": 2,
     "aliases": [
-      "Kung Fu Panda 2"
+      "Kung Fu Panda 2",
+      "Kung Fu Panda"
     ],
     "video_title": "Kung Fu Panda 2 - Main Theme (Hans Zimmer)"
   },
@@ -22465,7 +23096,9 @@
     "aliases": [
       "How to Train Your Dragon 2",
       "Where No One Goes (Jónsi)",
-      "Where No One Goes"
+      "Where No One Goes",
+      "How to Train Your Dragon",
+      "HTTYD"
     ],
     "video_title": "How to Train your Dragon 2 Soundtrack - 19 Where No one Goes (Jónsi and John Powell)"
   },
@@ -22754,7 +23387,8 @@
     "difficulty": 2,
     "aliases": [
       "Rocky IV",
-      "Training Montage"
+      "Training Montage",
+      "Rocky 4"
     ],
     "video_title": "Training Montage (From \"Rocky IV\" Soundtrack)"
   },
@@ -23633,7 +24267,8 @@
     "aliases": [
       "Rocketman",
       "(I'm Gonna) Love Me Again",
-      "Love Me Again"
+      "Love Me Again",
+      "(1'm Gonna) Love Me Again"
     ],
     "video_title": "Rocketman Soundtrack 34. I'm Gonna Love Me Again - Elton John & Taron Egerton"
   },
@@ -23777,7 +24412,8 @@
     "difficulty": 2,
     "aliases": [
       "Les Misérables",
-      "I Dreamed a Dream"
+      "I Dreamed a Dream",
+      "1 Dreamed a Dream"
     ],
     "video_title": "Les Misérables Movie Soundtrack - I Dreamed A Dream"
   },
@@ -23813,7 +24449,8 @@
     "difficulty": 2,
     "aliases": [
       "Dreamgirls",
-      "And I Am Telling You I'm Not Going"
+      "And I Am Telling You I'm Not Going",
+      "And 1 Am Telling You 1'm Not Going"
     ],
     "video_title": "Dreamgirls (2006) : It's All Over + And I Am Telling You I'm Not Going"
   },
@@ -23831,7 +24468,8 @@
     "difficulty": 2,
     "aliases": [
       "Fiddler on the Roof",
-      "If I Were a Rich Man"
+      "If I Were a Rich Man",
+      "If 1 Were a Rich Man"
     ],
     "video_title": "Fiddler on the roof - If I were a rich man (with subtitles)"
   },
@@ -23920,7 +24558,8 @@
     "difficulty": 2,
     "aliases": [
       "My Fair Lady",
-      "I Could Have Danced All Night"
+      "I Could Have Danced All Night",
+      "1 Could Have Danced All Night"
     ],
     "video_title": "My Fair Lady Soundtrack   10 I Could Have Danced All Night"
   },
@@ -23955,7 +24594,8 @@
     "difficulty": 2,
     "aliases": [
       "Sister Act",
-      "I Will Follow Him"
+      "I Will Follow Him",
+      "1 Will Follow Him"
     ],
     "video_title": "I Will Follow Him (from \"Sister Act\") (Motion Picture Soundtrack)"
   },
@@ -23974,7 +24614,8 @@
     "aliases": [
       "Pitch Perfect",
       "Cups (When I'm Gone)",
-      "Cups"
+      "Cups",
+      "Cups (When 1'm Gone)"
     ],
     "video_title": "Pitch Perfect - Cups (When I'm Gone) Lyrics 1080pHD"
   },
@@ -24296,7 +24937,8 @@
     "difficulty": 2,
     "aliases": [
       "Batman Forever",
-      "Kiss from a Rose"
+      "Kiss from a Rose",
+      "Batman"
     ],
     "video_title": "Batman Forever OST Kiss From A Rose"
   },
@@ -24315,7 +24957,8 @@
     "aliases": [
       "Reality Bites",
       "Stay (I Missed You)",
-      "Stay"
+      "Stay",
+      "Stay (1 Missed You)"
     ],
     "video_title": "Lisa Loeb - Stay (I Missed You) - MTV classic ( Reality Bites Soundtrack)"
   },
@@ -24917,7 +25560,8 @@
     "difficulty": 3,
     "aliases": [
       "Caddyshack",
-      "I'm Alright"
+      "I'm Alright",
+      "1'm Alright"
     ],
     "video_title": "Kenny Loggins - I'm Alright (Theme from \"Caddyshack\") (Official Audio)"
   },
@@ -25061,7 +25705,8 @@
     "aliases": [
       "The Woman in Red",
       "Woman in Red",
-      "I Just Called to Say I Love You"
+      "I Just Called to Say I Love You",
+      "1 Just Called to Say 1 Love You"
     ],
     "video_title": "I Just Called to Say I Love You (Original Soundtrack From \"The Woman in Red\")"
   },
@@ -25222,7 +25867,8 @@
     "aliases": [
       "Mission: Impossible 2",
       "Impossible 2",
-      "Take a Look Around"
+      "Take a Look Around",
+      "Mission Impossible"
     ],
     "video_title": "Limp Bizkit - Take A Look Around (Official Music Video) / Mission: Impossible 2 Theme [Upscale 4K]"
   },
@@ -25605,7 +26251,8 @@
     "aliases": [
       "The Departed",
       "Departed",
-      "I'm Shipping Up to Boston"
+      "I'm Shipping Up to Boston",
+      "1'm Shipping Up to Boston"
     ],
     "video_title": "Soundtrack The Departed - I'm Shipping Up To Boston - Dropkick Murphys"
   },
@@ -25842,7 +26489,8 @@
     "difficulty": 3,
     "aliases": [
       "O Brother, Where Art Thou?",
-      "I Am a Man of Constant Sorrow"
+      "I Am a Man of Constant Sorrow",
+      "1 Am a Man of Constant Sorrow"
     ],
     "video_title": "I Am a Man Of Constant Sorrow | O Brother, Where Art Thou? (2000) | Screen Bites"
   },
@@ -26095,7 +26743,9 @@
     "aliases": [
       "The King and I",
       "King and I",
-      "Shall We Dance?"
+      "Shall We Dance?",
+      "The King and 1",
+      "King and 1"
     ],
     "video_title": "Shall We Dance? (From \"The King And I\" Soundtrack / Remastered 2001)"
   },
@@ -26585,7 +27235,8 @@
     "difficulty": 3,
     "aliases": [
       "Star Trek II: The Wrath of Khan",
-      "The Wrath of Khan"
+      "The Wrath of Khan",
+      "Star Trek 2: The Wrath of Khan"
     ],
     "video_title": "Star Trek 2 The Wrath of Khan Soundtrack Track 1 Main Title James Horner"
   },
@@ -26873,7 +27524,8 @@
       "The Chronicles of Narnia: The Lion, the Witch and the Wardrobe",
       "The Lion, the Witch and the Wardrobe",
       "Chronicles of Narnia: The Lion, the Witch and the Wardrobe",
-      "The Battle"
+      "The Battle",
+      "Narnia"
     ],
     "video_title": "The Chronicles of Narnia: The Battle OST: extended score from The Lion, the Witch and the Wardrobe"
   },
@@ -26890,7 +27542,8 @@
     "source_status": "metadata-checked",
     "difficulty": 3,
     "aliases": [
-      "Gladiator II"
+      "Gladiator II",
+      "Gladiator 2"
     ],
     "video_title": "Gladiator II Soundtrack | Now We Are Free – Lisa Gerrard, Gavin Greenaway & The Lyndhurst Orchestra|"
   },
@@ -27459,7 +28112,10 @@
     "aliases": [
       "Star Wars: Episode II – Attack of the Clones",
       "Episode II – Attack of the Clones",
-      "Across the Stars"
+      "Across the Stars",
+      "Star Wars",
+      "Star Wars: Episode 2 – Attack of the Clones",
+      "Episode 2 – Attack of the Clones"
     ],
     "video_title": "Star Wars II : Attack of the Clones - Across the Stars (John Williams - 2002)"
   },
@@ -27623,7 +28279,8 @@
       "The Thing",
       "Thing",
       "Humanity (Part II)",
-      "Humanity"
+      "Humanity",
+      "Humanity (Part 2)"
     ],
     "video_title": "Soundtrack ~ Ennio Morricone ~ The Thing (1982) ~ 08 ~ Humanity, Pt. 2"
   },
@@ -27729,7 +28386,10 @@
     "aliases": [
       "The Godfather Part II",
       "Godfather Part II",
-      "The Immigrant"
+      "The Immigrant",
+      "Godfather",
+      "The Godfather Part 2",
+      "Godfather Part 2"
     ],
     "video_title": "The Immigrant (From \"The Godfather - Part II\")"
   },
@@ -27871,7 +28531,8 @@
     "difficulty": 3,
     "aliases": [
       "Out of Africa",
-      "I Had a Farm in Africa"
+      "I Had a Farm in Africa",
+      "1 Had a Farm in Africa"
     ],
     "video_title": "Out of Africa OST - 01. Main Title (I Had a Farm in Africa)"
   },
@@ -28687,7 +29348,8 @@
     "difficulty": 4,
     "aliases": [
       "Sinners",
-      "I Lied to You"
+      "I Lied to You",
+      "1 Lied to You"
     ],
     "video_title": "Miles Caton - I Lied to You | Sinners (Original Motion Picture Soundtrack)"
   },
@@ -29433,7 +30095,8 @@
     "difficulty": 4,
     "aliases": [
       "V for Vendetta",
-      "1812 Overture"
+      "1812 Overture",
+      "5 for Vendetta"
     ],
     "video_title": "V for Vendetta 1812 Overture opening and ending scene"
   },
@@ -29803,7 +30466,8 @@
     "difficulty": 4,
     "aliases": [
       "Anatomy of a Fall",
-      "P.I.M.P."
+      "P.I.M.P.",
+      "P.1.M.P."
     ],
     "video_title": "Anatomy of a fall - Soundtrack - Bacao Rhythm & Steel Band"
   },
@@ -30572,7 +31236,8 @@
     "aliases": [
       "The Umbrellas of Cherbourg",
       "Umbrellas of Cherbourg",
-      "I Will Wait for You"
+      "I Will Wait for You",
+      "1 Will Wait for You"
     ],
     "video_title": "The Umbrellas of Cherbourg: I Will Wait for You"
   },
@@ -30929,7 +31594,8 @@
     "aliases": [
       "Gallipoli",
       "Oxygène (Part II)",
-      "Oxygène"
+      "Oxygène",
+      "Oxygène (Part 2)"
     ],
     "video_title": "Gallipoli Soundtrack - 2. The Race.wmv"
   },
@@ -30965,7 +31631,8 @@
     "difficulty": 4,
     "aliases": [
       "Babe",
-      "If I Had Words"
+      "If I Had Words",
+      "If 1 Had Words"
     ],
     "video_title": "Babe - If I Had Words (Mice)"
   },
@@ -31107,7 +31774,8 @@
     "difficulty": 4,
     "aliases": [
       "Lost Highway",
-      "I'm Deranged"
+      "I'm Deranged",
+      "1'm Deranged"
     ],
     "video_title": "I'm Deranged (Lost Highway Reprise) [2025 Remaster]"
   },
@@ -31362,7 +32030,8 @@
     "difficulty": 4,
     "aliases": [
       "Some Like It Hot",
-      "I Wanna Be Loved by You"
+      "I Wanna Be Loved by You",
+      "1 Wanna Be Loved by You"
     ],
     "video_title": "Marilyn Monroe - I Wanna Be Loved By You (Soundtrack \"Some Like It Hot\")"
   },
@@ -31696,7 +32365,8 @@
     "difficulty": 4,
     "aliases": [
       "Nashville",
-      "I'm Easy"
+      "I'm Easy",
+      "1'm Easy"
     ],
     "video_title": "Nashville, (1975), by Robert Altman. Soundtrack: \"I'm easy\", performed by Keith Carradine. HD."
   },
@@ -31803,7 +32473,8 @@
     "aliases": [
       "The Big Chill",
       "Big Chill",
-      "I Heard It Through the Grapevine"
+      "I Heard It Through the Grapevine",
+      "1 Heard It Through the Grapevine"
     ],
     "video_title": "Marvin Gaye (The Big Chill Soundtrack) - I Heard It Through The Grapevine"
   },
@@ -31998,7 +32669,8 @@
     "difficulty": 4,
     "aliases": [
       "Oliver & Company",
-      "Why Should I Worry?"
+      "Why Should I Worry?",
+      "Why Should 1 Worry?"
     ],
     "video_title": "Oliver & Company OST - 02 - Why Should I Worry"
   },
@@ -32017,7 +32689,9 @@
     "aliases": [
       "Treasure Planet",
       "I'm Still Here (Jim's Theme)",
-      "I'm Still Here"
+      "I'm Still Here",
+      "1'm Still Here (Jim's Theme)",
+      "1'm Still Here"
     ],
     "video_title": "I'm Still Here (Jim's Theme) (From \"Treasure Planet\"/Soundtrack Version)"
   },
@@ -33127,7 +33801,8 @@
     "aliases": [
       "Metropolis (2001)",
       "Metropolis",
-      "I Can't Stop Loving You"
+      "I Can't Stop Loving You",
+      "1 Can't Stop Loving You"
     ],
     "video_title": "Metropolis (2001) - I Can't Stop Loving You"
   },
@@ -33456,7 +34131,9 @@
     "difficulty": 5,
     "aliases": [
       "The Double Life of Véronique",
-      "Double Life of Véronique"
+      "Double Life of Véronique",
+      "The Double Life of 5éronique",
+      "Double Life of 5éronique"
     ],
     "video_title": "The Double Life Of Véronique (1991, Krzysztof Kieślowski) Soundtrack By Zbigniew Preisner"
   },
@@ -33650,7 +34327,8 @@
     "difficulty": 5,
     "aliases": [
       "Dancer in the Dark",
-      "I've Seen It All"
+      "I've Seen It All",
+      "1've Seen It All"
     ],
     "video_title": "Dancer in the Dark : Bjork - I've seen it all (HQ)"
   },
@@ -33774,7 +34452,8 @@
     "difficulty": 5,
     "aliases": [
       "Aguirre, the Wrath of God",
-      "Aguirre I"
+      "Aguirre I",
+      "Aguirre 1"
     ],
     "video_title": "Aguirre I (l'acrime di rei)"
   },
@@ -34250,7 +34929,8 @@
     "difficulty": 5,
     "aliases": [
       "Stranger Than Paradise",
-      "I Put a Spell on You"
+      "I Put a Spell on You",
+      "1 Put a Spell on You"
     ],
     "video_title": "I Put a Spell on You - Screamin' Jay Hawkins / Jim Jarmusch - Stranger Than Paradise 1984"
   },
@@ -34394,7 +35074,8 @@
     "difficulty": 5,
     "aliases": [
       "A Ghost Story",
-      "I Get Overwhelmed"
+      "I Get Overwhelmed",
+      "1 Get Overwhelmed"
     ],
     "video_title": "Dark Rooms - \"I Get Overwhelmed\" (A Ghost Story OST)"
   },
@@ -35555,7 +36236,8 @@
     "difficulty": 5,
     "aliases": [
       "Withnail and I",
-      "A Whiter Shade of Pale"
+      "A Whiter Shade of Pale",
+      "Withnail and 1"
     ],
     "video_title": "Withnail and I OST - A Whiter Shade of Pale"
   },
