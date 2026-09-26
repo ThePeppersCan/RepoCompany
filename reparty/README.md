@@ -87,6 +87,16 @@ For another Supabase environment, update `config.js` and apply `migration.sql` i
 
 ## Architecture and access
 
+### Guest access (27 September 2026)
+
+The mode entrance is public. Choosing a mode or following a room link offers a guest display name, sign in, or inline RepoCompany sign up. Guests can use the room directory, create/join rooms and play with the existing member/host checks. Guest names carry a `(Guest)` suffix in room snapshots.
+
+Apply `supabase/migrations/20260927070000_reparty_guests.sql` after the existing Reparty migrations, then enable **Allow anonymous sign-ins** in Supabase Authentication → Sign In / Providers. Both steps are applied in production. The migration skips main-game character creation for anonymous identities and preserves the existing username validation/character creation for account signups. It patches only the current room function's name resolution and refuses an unexpected function version.
+
+Supabase guests still have an authenticated identity: unauthenticated SQL `anon` requests remain denied. `session-auth.mjs` stores guests under `reparty-guest-session`, separate from the main RepoCompany login. A signed-in account takes precedence; clearing browser storage loses the guest identity. Signing in or registering uses a separate account identity and does not transfer guest scores or room ownership.
+
+Validation: `node reparty/tests/session-auth.mjs` checks session restoration, storage isolation, account precedence and auth forms. `node reparty/tests/guests.cjs` (with PGlite available) checks the signup trigger, guest names, room access, guessing, pause, host restrictions and private-data denial.
+
 `reparty_action` validates all writes in a PostgreSQL transaction, locks room state, and derives the display name from the existing `characters` table. Members can read only rooms they have joined. Knowing a random 12-character room code allows another signed-in account to join; these rooms are intended as collaborative rooms, not owner-moderated private vaults. Membership persists for reopening rooms. Active presence expires after 60 seconds without a heartbeat.
 
 Playback uses server time, a canonical playback timestamp, and bounded drift corrections. Playlist updates are atomic operations rather than whole-document client replacements. Revision checks prevent multiple viewers from advancing an ended video twice. Database events trigger refreshes; eight-second polling is the fallback and heartbeat. Media itself is served directly by YouTube, not relayed through Supabase.
