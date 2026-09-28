@@ -1,8 +1,5 @@
-#moratales-company-intro{position:fixed;inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;background:#000;color:#fff;overflow:hidden}
-#moratales-company-intro::backdrop{background:#000}
-#moratales-company-intro video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
-#moratales-company-intro .company-intro-controls{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));display:flex;gap:12px}
-#moratales-company-intro button{width:auto;min-height:44px;margin:0;padding:10px 16px;border:1px solid #ffffff70;border-radius:4px;background:#111c;color:#fff;font:14px/1.3 system-ui,sans-serif;cursor:pointer;box-shadow:none}
-#moratales-company-intro button:hover{background:#333e}
-#moratales-company-intro button:focus-visible{outline:3px solid #fff;outline-offset:3px}
-#moratales-company-intro button[hidden]{display:none}
+/* Isolate the film from the website's !important carved-dialog theme. */
+#moratales-company-intro{position:fixed!important;inset:0!important;width:100vw!important;min-width:0!important;max-width:none!important;height:100dvh!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;background:#000!important;overflow:hidden!important;transform:none!important;filter:none!important}
+#moratales-company-intro::backdrop{background:#000!important;backdrop-filter:none!important}
+#moratales-company-intro::before,#moratales-company-intro::after{display:none!important;content:none!important}
+#moratales-company-intro video{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;object-fit:contain!important;background:#000!important}

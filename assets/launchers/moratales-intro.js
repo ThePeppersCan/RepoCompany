@@ -3,7 +3,7 @@
   const link = document.getElementById('openMoratales');
   if (!link) return;
   const film = new URL('repo-company-intro.mp4', document.currentScript.src).href;
-  let dialog, video, sound, active = false, leaving = false, timer, pausedAudio = [];
+  let dialog, video, active = false, leaving = false, timer, pausedAudio = [];
 
   function watch() {
     clearTimeout(timer);
@@ -25,8 +25,6 @@
       if (!active || leaving) return;
       // Some mobile browsers reject sound after returning from another app.
       video.muted = true;
-      sound.textContent = 'Sound on';
-      sound.setAttribute('aria-pressed', 'false');
       try { video.play()?.catch(finish); } catch (_) { finish(); }
     };
     try { video.play()?.catch(failed); } catch (_) { failed(); }
@@ -41,24 +39,8 @@
     video.volume = .65;
     video.setAttribute('aria-label', 'Repo Company logo film');
     video.setAttribute('disablepictureinpicture', '');
-    const controls = document.createElement('div');
-    controls.className = 'company-intro-controls';
-    sound = document.createElement('button');
-    sound.type = 'button';
-    sound.textContent = 'Sound off';
-    sound.setAttribute('aria-label', 'Intro sound');
-    sound.setAttribute('aria-pressed', 'true');
-    sound.onclick = () => {
-      video.muted = !video.muted;
-      sound.textContent = video.muted ? 'Sound on' : 'Sound off';
-      sound.setAttribute('aria-pressed', String(!video.muted));
-    };
-    const skip = document.createElement('button');
-    skip.type = 'button';
-    skip.textContent = 'Skip intro';
-    skip.onclick = finish;
-    controls.append(sound, skip);
-    dialog.append(video, controls);
+    video.controls = false;
+    dialog.append(video);
     document.body.append(dialog);
     video.addEventListener('ended', finish);
     video.addEventListener('error', finish);
@@ -77,7 +59,7 @@
     pausedAudio = [...document.querySelectorAll('audio,video')].filter(a => a !== video && !a.paused);
     pausedAudio.forEach(a => a.pause());
     dialog.showModal();
-    dialog.querySelector('button:last-child').focus();
+    dialog.focus();
     play();
   });
   document.addEventListener('play', event => {

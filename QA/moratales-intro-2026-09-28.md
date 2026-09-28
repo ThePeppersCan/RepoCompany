@@ -7,3 +7,7 @@ The film uses a full-screen black dialog with contained, undistorted video, inli
 `node QA/moratales-intro.cjs` passed in Edge: native completion, skip, Escape, Back/replay, failed media, stalled playback, audio toggle, 390 × 844 mobile layout and no page exceptions. The test uses the exact anchor from the real index in an isolated local fixture, serves the real film/script/styles, and substitutes a destination page for the password-protected game. Desktop and mobile captures were visually reviewed. This is not a claim of authenticated production gameplay.
 
 Release confirmation is recorded in the task after the website's normal Git-connected deployment completes.
+
+## Borderless correction
+
+Removed all visible controls at Isaac’s request. The film fills the viewport against black, with an explicit reset for the main website’s important dialog border, shadows, padding and pseudo-elements. Escape still skips. Regression checks now load the actual website styles and assert zero border, shadow, outline and padding, full viewport bounds, and no buttons. Desktop and mobile captures were reviewed.
