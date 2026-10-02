@@ -20,6 +20,7 @@ async function test(){
  await pg.exec(patch);await pg.exec(patch);
  const snapshot=await call(pg,a,'reparty_action','snapshot',room);
  ok(JSON.stringify(snapshot.room.settings.soundtrack)===before,'repeated migration preserves an existing room');
+ await pg.exec(fs.readFileSync(root+'/supabase/migrations/20261002020000_reparty_popular_songs.sql','utf8'));
  await pg.exec(fs.readFileSync(root+'/supabase/soundtrack-catalogue.sql','utf8'));
  const state=async()=>(await pg.query('select state from reparty_private.soundtrack_sessions where room_id=$1',[room])).rows[0].state;
  const start=(mode,category='disney',difficulty=5)=>quiz(a,'start',{mode,category,seconds:15,rounds:50,difficulty,clip_start:5,players:[{id:a,team:'1'},{id:b,team:'2'}]});

@@ -1,6 +1,6 @@
 {
-  "total": 2658,
-  "linked": 2607,
+  "total": 5658,
+  "linked": 5607,
   "counts": [
     {
       "category": "game",
@@ -91,6 +91,36 @@
       "difficulty": 5,
       "total": 2,
       "playable": 2
+    },
+    {
+      "category": "popular",
+      "difficulty": 1,
+      "total": 500,
+      "playable": 500
+    },
+    {
+      "category": "popular",
+      "difficulty": 2,
+      "total": 750,
+      "playable": 750
+    },
+    {
+      "category": "popular",
+      "difficulty": 3,
+      "total": 750,
+      "playable": 750
+    },
+    {
+      "category": "popular",
+      "difficulty": 4,
+      "total": 600,
+      "playable": 600
+    },
+    {
+      "category": "popular",
+      "difficulty": 5,
+      "total": 400,
+      "playable": 400
     }
   ],
   "mixes": {
@@ -115,12 +145,19 @@
       "4": 656,
       "5": 658
     },
+    "popular": {
+      "1": 500,
+      "2": 1250,
+      "3": 2000,
+      "4": 2600,
+      "5": 3000
+    },
     "mixed": {
-      "1": 418,
-      "2": 1062,
-      "3": 1647,
-      "4": 2211,
-      "5": 2524
+      "1": 916,
+      "2": 2309,
+      "3": 3641,
+      "4": 4805,
+      "5": 5517
     }
   }
 }

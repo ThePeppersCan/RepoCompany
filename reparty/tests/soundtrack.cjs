@@ -4,7 +4,7 @@ const {init,seed,call,a,b,c}=require('./game-mode.cjs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const migration=fs.readFileSync(root+'/supabase/migrations/20260927010000_reparty_soundtrack.sql','utf8');
-async function setup(){const pg=await init();await pg.exec(fs.readFileSync(root+'/supabase/migrations/20260926010000_reparty_suno_queue.sql','utf8'));await pg.exec(migration);await pg.exec(fs.readFileSync(root+'/supabase/migrations/20261002010000_reparty_disney_soundtracks.sql','utf8'));await seed(pg);return pg;}
+async function setup(){const pg=await init();await pg.exec(fs.readFileSync(root+'/supabase/migrations/20260926010000_reparty_suno_queue.sql','utf8'));await pg.exec(migration);await pg.exec(fs.readFileSync(root+'/supabase/migrations/20261002010000_reparty_disney_soundtracks.sql','utf8'));await pg.exec(fs.readFileSync(root+'/supabase/migrations/20261002020000_reparty_popular_songs.sql','utf8'));await seed(pg);return pg;}
 async function test(){
  const pg=await setup();let checks=0;
  const ok=(value,label)=>{assert.ok(value,label);checks++;console.log('PASS '+label);};

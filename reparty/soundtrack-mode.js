@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 const make = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
 const modes = { versus: 'Versus', teams: 'Teams', group: 'Together', chill: 'Chill' };
-const categories = { game: 'Game soundtracks', movie: 'Movie soundtracks', disney: 'Disney + DreamWorks', mixed: 'Everything mixed' };
+const categories = { game: 'Game soundtracks', movie: 'Movie soundtracks', disney: 'Disney + DreamWorks', popular: 'Popular songs · 1996–2026', mixed: 'Everything mixed' };
 
 export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube, onActive, onBackToModes}) {
  let state=null, members=[], roomId=null, active=false, connected=false, busy=false, offset=0, rosterRoom=null;
@@ -12,15 +12,15 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  const artworkCache=new Map();
  const root=make('section',undefined,'soundtrack-room');root.id='soundtrackRoom';root.hidden=true;
  root.innerHTML=`
-  <header class="st-heading"><span class="st-eyebrow">REPARTY ORIGINALS · MUSIC NIGHT</span><h1>Guess the<br><em>Soundtrack.</em></h1><p>A few notes. A thousand memories.</p><div class="st-heading-tags"><span>Games, movies & Disney</span><span>10–30 second rounds</span><span>Your people, your party</span></div></header>
+  <header class="st-heading"><span class="st-eyebrow">REPARTY ORIGINALS · MUSIC NIGHT</span><h1>Guess the<br><em>Soundtrack.</em></h1><p>A few notes. A thousand memories.</p><div class="st-heading-tags"><span>Soundtracks & chart hits</span><span>10–30 second rounds</span><span>Your people, your party</span></div></header>
   <div id="stSetup" class="st-setup">
    <section class="panel st-settings"><p class="st-eyebrow">01 / MAKE IT YOUR NIGHT</p><h2>Pick your mix.</h2>
-    <fieldset class="st-choice st-categories"><legend>What are we guessing?</legend><label><input type="radio" name="stCategory" value="game" checked><span>▣<strong>Games</strong><small>From first levels to final bosses</small></span></label><label><input type="radio" name="stCategory" value="movie"><span>▰<strong>Movies</strong><small>The music behind the big screen</small></span></label><label><input type="radio" name="stCategory" value="disney"><span>✦<strong>Disney + DreamWorks</strong><small>Pixar, classics, musicals & Disney Channel</small></span></label><label><input type="radio" name="stCategory" value="mixed"><span>♫<strong>Mixed</strong><small>A little bit of everything</small></span></label></fieldset>
+    <fieldset class="st-choice st-categories"><legend>What are we guessing?</legend><label><input type="radio" name="stCategory" value="game" checked><span>▣<strong>Games</strong><small>From first levels to final bosses</small></span></label><label><input type="radio" name="stCategory" value="movie"><span>▰<strong>Movies</strong><small>The music behind the big screen</small></span></label><label><input type="radio" name="stCategory" value="disney"><span>✦<strong>Disney + DreamWorks</strong><small>Pixar, classics, musicals & Disney Channel</small></span></label><label><input type="radio" name="stCategory" value="popular"><span>♬<strong>Popular songs</strong><small>1996–2026 · UK & worldwide hits</small></span></label><label><input type="radio" name="stCategory" value="mixed"><span>♫<strong>Mixed</strong><small>A little bit of everything</small></span></label></fieldset>
     <fieldset class="st-choice st-play-styles"><legend>How do you want to play?</legend><label><input type="radio" name="stMode" value="versus" checked><span>⚡<strong>Versus</strong><small>Every player for themselves</small></span></label><label><input type="radio" name="stMode" value="teams"><span>⚑<strong>Teams</strong><small>Share the glory, share the points</small></span></label><label><input type="radio" name="stMode" value="group"><span>♥<strong>Together</strong><small>One room. One shared score.</small></span></label><label><input type="radio" name="stMode" value="chill"><span>∞<strong>Chill</strong><small>Short rounds. No finish line.</small></span></label></fieldset>
     <div class="st-options"><label>Guess time<select id="stSeconds"><option value="10">10 seconds</option><option value="15" selected>15 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option></select></label><label id="stRoundsLabel">Rounds<select id="stRounds"><option value="10">10 rounds</option><option value="20" selected>20 rounds</option><option value="50">50 rounds</option></select></label><label>Clip start<select id="stClipStart"><option value="" selected>Track default</option><option value="0">From the start</option><option value="5">5 seconds in</option><option value="10">10 seconds in</option><option value="15">15 seconds in</option><option value="30">30 seconds in</option></select></label><label>Difficulty<select id="stDifficulty"><option value="1">Easy only</option><option value="2" selected>Easy + medium</option><option value="3">Up to hard</option><option value="4">Up to expert</option><option value="5">Everything</option></select></label></div>
     <p id="stCatalogueCount" class="st-small"></p>
    </section>
-   <section class="panel st-company"><p class="st-eyebrow">02 / BRING YOUR PEOPLE</p><h2>The listening club.</h2><p class="st-small">Everyone joins this room on their own device to type answers.</p><div id="stRoster"></div><button id="stRefreshRoster" class="link">Refresh players</button><p id="stChillRules" class="st-small" hidden>Keep listening for as long as you like. Everyone can earn a point each round; there’s no bonus for being first. Friends can join along the way.</p><div class="st-rules"><strong>One correct answer. One point.</strong><p>Guess the game, film, show or a distinctive track name. Small typos are okay. Answers stay private until the reveal.</p><p>Anyone playing can pause the music and timer for the whole room.</p></div><button id="stStart" class="primary st-start">Start the soundtrack →</button><p id="stSetupError" class="form-error" role="alert"></p></section>
+   <section class="panel st-company"><p class="st-eyebrow">02 / BRING YOUR PEOPLE</p><h2>The listening club.</h2><p class="st-small">Everyone joins this room on their own device to type answers.</p><div id="stRoster"></div><button id="stRefreshRoster" class="link">Refresh players</button><p id="stChillRules" class="st-small" hidden>Keep listening for as long as you like. Everyone can earn a point each round; there’s no bonus for being first. Friends can join along the way.</p><div class="st-rules"><strong>One correct answer. One point.</strong><p id="stAnswerRules">Guess the game, film, show or a distinctive song title. Small typos are okay. Answers stay private until the reveal.</p><p>Anyone playing can pause the music and timer for the whole room.</p></div><button id="stStart" class="primary st-start">Start the soundtrack →</button><p id="stSetupError" class="form-error" role="alert"></p></section>
   </div>
   <div id="stWaiting" class="panel st-waiting" hidden><span>♫</span><h2>Good company is on its way.</h2><p>The host is choosing the mix. You’ll be ready in a moment.</p></div>
   <div id="stPlay" hidden>
@@ -43,7 +43,7 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  artworkPanel.innerHTML='<img id="stArtworkImage" hidden alt=""><p id="stArtworkMessage">Finding the cover…</p><a id="stArtworkCredit" target="_blank" rel="noopener noreferrer" hidden>Artwork via Wikipedia ↗</a>';
  $('stScreen').append(artworkPanel);
  function revealArtwork(answer){
-  const key=answer?JSON.stringify([answer.title,answer.category,answer.year]):null;
+  const key=answer?JSON.stringify([answer.title,answer.category,answer.year,answer.category==='popular'?state?.video_id:null]):null;
   artworkPanel.hidden=!answer;$('stCurtain').hidden=!!answer;
   if(key===artworkKey)return;artworkKey=key;const request=++artworkRequest;
   artworkController?.abort();$('stArtworkImage').hidden=true;$('stArtworkImage').removeAttribute('src');$('stArtworkCredit').hidden=true;
@@ -57,6 +57,12 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
    img.onerror=()=>{if(request===artworkRequest){img.hidden=true;$('stArtworkMessage').hidden=false;$('stArtworkMessage').textContent='♫ '+answer.title;}};
    $('stArtworkCredit').href=art.source;img.src=art.image;
   };
+  $('stArtworkCredit').textContent=answer.category==='popular'?'Video artwork via YouTube ↗':'Artwork via Wikipedia ↗';
+  if(answer.category==='popular'){
+   const id=state?.video_id;
+   show(/^[A-Za-z0-9_-]{11}$/.test(id||'')?{image:`https://i.ytimg.com/vi/${id}/hqdefault.jpg`,source:`https://www.youtube.com/watch?v=${id}`}:null);
+   return;
+  }
   if(artworkCache.has(key)){show(artworkCache.get(key));return;}
   artworkController=new AbortController();
   const params=new URLSearchParams({title:answer.title,category:answer.category,year:String(answer.year||'')});
@@ -94,12 +100,13 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
   }));controls();
  }
  function count(){
-  if(!summary){$('stCatalogueCount').textContent='Games, movies, Disney, Pixar and DreamWorks. Choose your mix.';return;}
+  $('stAnswerRules').textContent=choice('stCategory')==='popular'?'Name the song title. Artist names do not score. Small typos are okay. Answers stay private until the reveal.':'Guess the game, film, show or a distinctive song title. Popular-song rounds need the song title. Small typos are okay. Answers stay private until the reveal.';
+  if(!summary){$('stCatalogueCount').textContent='Games, movies, Disney and popular songs. Choose your mix.';return;}
   const cat=choice('stCategory'),diff=Number($('stDifficulty').value);
   const n=summary.mixes?.[cat]?.[diff]??summary.counts.filter(x=>(cat==='mixed'||x.category===cat)&&x.difficulty<=diff).reduce((sum,x)=>sum+x.playable,0);
   $('stCatalogueCount').textContent=`${n.toLocaleString()} linked tracks in this mix · ${choice('stMode')==='chill'?'short rounds, no finish line':'no repeats within a game'}.`;
  }
- fetch('./soundtracks/summary.json?v=disney1').then(r=>r.ok?r.json():null).then(s=>{summary=s;count();}).catch(()=>{});
+ fetch('./soundtracks/summary.json?v=popular1').then(r=>r.ok?r.json():null).then(s=>{summary=s;count();}).catch(()=>{});
  root.querySelectorAll('input[name="stMode"]').forEach(n=>n.onchange=renderRoster);
  root.querySelectorAll('input[name="stCategory"]').forEach(n=>n.onchange=count);$('stDifficulty').onchange=count;
  $('stRefreshRoster').onclick=buildRoster;
@@ -179,7 +186,7 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  }
  function renderClock(){
   if(!active||!state)return;const phase=state.phase,remaining=left();
-  const hint=playerError||(state.paused?'Take your time. We’re all paused.':phase==='loading'?`${state.ready?.length||0} listener${state.ready?.length===1?'':'s'} ready`:phase==='countdown'?'Get ready. Your next memory starts now.':phase==='guess'?'Name the game, film, show or track.':phase==='reveal'?'A new memory is coming up…':phase==='unavailable'?'The host can skip this track.':'');
+  const hint=playerError||(state.paused?'Take your time. We’re all paused.':phase==='loading'?`${state.ready?.length||0} listener${state.ready?.length===1?'':'s'} ready`:phase==='countdown'?'Get ready. Your next memory starts now.':phase==='guess'?(state.category==='popular'?'Name the song. Artist names do not score.':'Name the game, film, show or song.'):phase==='reveal'?'A new memory is coming up…':phase==='unavailable'?'The host can skip this track.':'');
   $('stScreenHint').textContent=hint;$('stPhaseLabel').textContent=state.paused?'PAUSED FOR EVERYONE':({loading:'TUNING IN',countdown:'READY?',guess:'LISTEN CLOSELY',reveal:'DID YOU GET IT?',unavailable:'TRACK UNAVAILABLE'})[phase]||'';
   $('stBigNumber').textContent=state.paused?'Ⅱ':phase==='loading'?'♫':phase==='unavailable'?'!':String(Math.max(0,Math.ceil(remaining/1000)));
   $('stLiveLabel').textContent=state.paused?'Ⅱ PAUSED':phase==='reveal'?`NEXT TRACK IN ${Math.ceil(remaining/1000)}s`:phase==='guess'?'● LIVE ROUND':'REPARTY FM';
@@ -218,11 +225,12 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
   $('stCategoryTag').textContent=categories[state?.category]||'';$('stModeTag').textContent=modes[state?.mode]||'';
   $('stHostNote').textContent=host()?'You’re hosting. Everyone can pause.':`${hostName} controls the rounds. Everyone can pause.`;
   const answer=state?.answer;$('stReveal').hidden=!answer;
+  $('stGuess').placeholder=state?.category==='popular'?'Type the song title…':'Type the game, film, show or song…';
   revealArtwork(answer);
-  if(answer){$('stAnswerTitle').textContent=answer.title;$('stAnswerTrack').textContent=answer.track;$('stAnswerCredit').textContent=[answer.year,answer.composer].filter(Boolean).join(' · ');$('stSourceLink').href=`https://www.youtube.com/watch?v=${state.video_id}`;}
+  if(answer){$('stAnswerTitle').textContent=answer.title;$('stAnswerTrack').textContent=answer.track;$('stAnswerCredit').textContent=answer.category==='popular'?`Chart hit · ${answer.year}`:[answer.year,answer.composer].filter(Boolean).join(' · ');$('stSourceLink').href=`https://www.youtube.com/watch?v=${state.video_id}`;}
   const rows=scores();$('stScores').replaceChildren(...scoreRows(rows));$('stScoreHeading').textContent=state?.mode==='group'?'Our shared score':state?.mode==='chill'?'Memories unlocked':'Scoreboard';
   $('stScoreNote').textContent=state?.mode==='chill'?'One point each when you know it. No race, no winner—just keep listening.':'One point per correct round. Make every memory count.';
-  $('stHistory').querySelector('summary').textContent=state?.mode==='chill'?'Recent soundtracks':'Tonight’s soundtracks';
+  $('stHistory').querySelector('summary').textContent=state?.mode==='chill'?'Recent tracks':'Tonight’s tracks';
   if(phase==='finished'){
    const winners=rows.filter(x=>x.score===rows[0]?.score);$('stWinner').textContent=state.mode==='group'?`${rows[0]?.score||0} memories unlocked.`:winners.length>1?'A shared spotlight.':`${rows[0]?.name||'The room'} takes the spotlight!`;
    const points=rows[0]?.score||0;
