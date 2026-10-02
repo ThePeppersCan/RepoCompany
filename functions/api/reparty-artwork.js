@@ -27,7 +27,7 @@ export async function findArtwork(title, category, year, fetcher = fetch) {
 export async function onRequestGet({ request }) {
   const params = new URL(request.url).searchParams;
   const title = (params.get('title') || '').trim(), category = params.get('category'), year = params.get('year') || '';
-  if (title.length < 1 || title.length > 180 || /[|\u0000-\u001f]/.test(title) || !['game', 'movie'].includes(category) || (year && !/^(18|19|20)\d{2}$/.test(year))) {
+  if (title.length < 1 || title.length > 180 || /[|\u0000-\u001f]/.test(title) || !['game', 'movie', 'disney'].includes(category) || (year && !/^(18|19|20)\d{2}$/.test(year))) {
     return new Response(JSON.stringify({ error: 'Invalid artwork request' }), { status: 400, headers: JSON_HEADERS });
   }
   try {

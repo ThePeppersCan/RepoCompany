@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 const make = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
 const modes = { versus: 'Versus', teams: 'Teams', group: 'Together', chill: 'Chill' };
-const categories = { game: 'Game soundtracks', movie: 'Movie soundtracks', mixed: 'Games + movies' };
+const categories = { game: 'Game soundtracks', movie: 'Movie soundtracks', disney: 'Disney + DreamWorks', mixed: 'Everything mixed' };
 
 export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube, onActive, onBackToModes}) {
  let state=null, members=[], roomId=null, active=false, connected=false, busy=false, offset=0, rosterRoom=null;
@@ -12,15 +12,15 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  const artworkCache=new Map();
  const root=make('section',undefined,'soundtrack-room');root.id='soundtrackRoom';root.hidden=true;
  root.innerHTML=`
-  <header class="st-heading"><span class="st-eyebrow">REPARTY ORIGINALS · MUSIC NIGHT</span><h1>Guess the<br><em>Soundtrack.</em></h1><p>A few notes. A thousand memories.</p><div class="st-heading-tags"><span>Games & movies</span><span>10–30 second rounds</span><span>Your people, your party</span></div></header>
+  <header class="st-heading"><span class="st-eyebrow">REPARTY ORIGINALS · MUSIC NIGHT</span><h1>Guess the<br><em>Soundtrack.</em></h1><p>A few notes. A thousand memories.</p><div class="st-heading-tags"><span>Games, movies & Disney</span><span>10–30 second rounds</span><span>Your people, your party</span></div></header>
   <div id="stSetup" class="st-setup">
    <section class="panel st-settings"><p class="st-eyebrow">01 / MAKE IT YOUR NIGHT</p><h2>Pick your mix.</h2>
-    <fieldset class="st-choice"><legend>What are we guessing?</legend><label><input type="radio" name="stCategory" value="game" checked><span>▣<strong>Games</strong><small>From first levels to final bosses</small></span></label><label><input type="radio" name="stCategory" value="movie"><span>▰<strong>Movies</strong><small>The music behind the big screen</small></span></label><label><input type="radio" name="stCategory" value="mixed"><span>♫<strong>Mixed</strong><small>A little bit of everything</small></span></label></fieldset>
+    <fieldset class="st-choice st-categories"><legend>What are we guessing?</legend><label><input type="radio" name="stCategory" value="game" checked><span>▣<strong>Games</strong><small>From first levels to final bosses</small></span></label><label><input type="radio" name="stCategory" value="movie"><span>▰<strong>Movies</strong><small>The music behind the big screen</small></span></label><label><input type="radio" name="stCategory" value="disney"><span>✦<strong>Disney + DreamWorks</strong><small>Pixar, classics, musicals & Disney Channel</small></span></label><label><input type="radio" name="stCategory" value="mixed"><span>♫<strong>Mixed</strong><small>A little bit of everything</small></span></label></fieldset>
     <fieldset class="st-choice st-play-styles"><legend>How do you want to play?</legend><label><input type="radio" name="stMode" value="versus" checked><span>⚡<strong>Versus</strong><small>Every player for themselves</small></span></label><label><input type="radio" name="stMode" value="teams"><span>⚑<strong>Teams</strong><small>Share the glory, share the points</small></span></label><label><input type="radio" name="stMode" value="group"><span>♥<strong>Together</strong><small>One room. One shared score.</small></span></label><label><input type="radio" name="stMode" value="chill"><span>∞<strong>Chill</strong><small>Short rounds. No finish line.</small></span></label></fieldset>
     <div class="st-options"><label>Guess time<select id="stSeconds"><option value="10">10 seconds</option><option value="15" selected>15 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option></select></label><label id="stRoundsLabel">Rounds<select id="stRounds"><option value="10">10 rounds</option><option value="20" selected>20 rounds</option><option value="50">50 rounds</option></select></label><label>Clip start<select id="stClipStart"><option value="" selected>Track default</option><option value="0">From the start</option><option value="5">5 seconds in</option><option value="10">10 seconds in</option><option value="15">15 seconds in</option><option value="30">30 seconds in</option></select></label><label>Difficulty<select id="stDifficulty"><option value="1">Easy only</option><option value="2" selected>Easy + medium</option><option value="3">Up to hard</option><option value="4">Up to expert</option><option value="5">Everything</option></select></label></div>
     <p id="stCatalogueCount" class="st-small"></p>
    </section>
-   <section class="panel st-company"><p class="st-eyebrow">02 / BRING YOUR PEOPLE</p><h2>The listening club.</h2><p class="st-small">Everyone joins this room on their own device to type answers.</p><div id="stRoster"></div><button id="stRefreshRoster" class="link">Refresh players</button><p id="stChillRules" class="st-small" hidden>Keep listening for as long as you like. Everyone can earn a point each round; there’s no bonus for being first. Friends can join along the way.</p><div class="st-rules"><strong>One correct answer. One point.</strong><p>Guess the game, movie or a distinctive track name. Small typos are okay. Answers stay private until the reveal.</p><p>Anyone playing can pause the music and timer for the whole room.</p></div><button id="stStart" class="primary st-start">Start the soundtrack →</button><p id="stSetupError" class="form-error" role="alert"></p></section>
+   <section class="panel st-company"><p class="st-eyebrow">02 / BRING YOUR PEOPLE</p><h2>The listening club.</h2><p class="st-small">Everyone joins this room on their own device to type answers.</p><div id="stRoster"></div><button id="stRefreshRoster" class="link">Refresh players</button><p id="stChillRules" class="st-small" hidden>Keep listening for as long as you like. Everyone can earn a point each round; there’s no bonus for being first. Friends can join along the way.</p><div class="st-rules"><strong>One correct answer. One point.</strong><p>Guess the game, film, show or a distinctive track name. Small typos are okay. Answers stay private until the reveal.</p><p>Anyone playing can pause the music and timer for the whole room.</p></div><button id="stStart" class="primary st-start">Start the soundtrack →</button><p id="stSetupError" class="form-error" role="alert"></p></section>
   </div>
   <div id="stWaiting" class="panel st-waiting" hidden><span>♫</span><h2>Good company is on its way.</h2><p>The host is choosing the mix. You’ll be ready in a moment.</p></div>
   <div id="stPlay" hidden>
@@ -31,7 +31,7 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
      <div class="st-timer-track"><div id="stTimeBar"></div></div><div class="st-tv-controls"><button id="stPause" class="primary">Ⅱ Pause everyone</button><label>My volume<input id="stVolume" type="range" min="0" max="100" value="70" aria-label="My soundtrack volume"></label><button id="stMute" aria-label="Mute my soundtrack">♪</button></div>
     </div>
     <section id="stReveal" class="panel st-reveal" aria-live="polite" hidden><span class="st-eyebrow">THAT WAS…</span><h3 id="stAnswerTitle"></h3><p id="stAnswerTrack"></p><small id="stAnswerCredit"></small><a id="stSourceLink" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></section>
-    <button id="stJoin" class="primary" hidden>Join the listening club</button><form id="stGuessForm" class="st-answer-form"><label for="stGuess">Know that sound?</label><div><input id="stGuess" autocomplete="off" maxlength="160" placeholder="Type the game, movie or track…" required><button id="stGuessSubmit" class="primary">Lock it in →</button></div><p id="stFeedback" role="status" aria-live="polite">Your answer stays between us until time’s up.</p></form>
+    <button id="stJoin" class="primary" hidden>Join the listening club</button><form id="stGuessForm" class="st-answer-form"><label for="stGuess">Know that sound?</label><div><input id="stGuess" autocomplete="off" maxlength="160" placeholder="Type the game, film, show or track…" required><button id="stGuessSubmit" class="primary">Lock it in →</button></div><p id="stFeedback" role="status" aria-live="polite">Your answer stays between us until time’s up.</p></form>
     <div class="st-host-controls"><span id="stHostNote"></span><button id="stNext">Reveal answer</button><button id="stSkip">Skip track</button><button id="stEnd">End game</button></div>
    </div><aside class="panel st-scoreboard"><span class="st-eyebrow">THE LISTENING CLUB</span><h2 id="stScoreHeading">Scoreboard</h2><div id="stScores"></div><p id="stScoreNote" class="st-small">One point per correct round.<br>Make every memory count.</p></aside></div>
   </div>
@@ -94,12 +94,12 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
   }));controls();
  }
  function count(){
-  if(!summary){$('stCatalogueCount').textContent='A library of 1,000 games and 1,000 movies.';return;}
+  if(!summary){$('stCatalogueCount').textContent='Games, movies, Disney, Pixar and DreamWorks. Choose your mix.';return;}
   const cat=choice('stCategory'),diff=Number($('stDifficulty').value);
-  const n=summary.counts.filter(x=>(cat==='mixed'||x.category===cat)&&x.difficulty<=diff).reduce((sum,x)=>sum+x.playable,0);
+  const n=summary.mixes?.[cat]?.[diff]??summary.counts.filter(x=>(cat==='mixed'||x.category===cat)&&x.difficulty<=diff).reduce((sum,x)=>sum+x.playable,0);
   $('stCatalogueCount').textContent=`${n.toLocaleString()} linked tracks in this mix · ${choice('stMode')==='chill'?'short rounds, no finish line':'no repeats within a game'}.`;
  }
- fetch('./soundtracks/summary.json').then(r=>r.ok?r.json():null).then(s=>{summary=s;count();}).catch(()=>{});
+ fetch('./soundtracks/summary.json?v=disney1').then(r=>r.ok?r.json():null).then(s=>{summary=s;count();}).catch(()=>{});
  root.querySelectorAll('input[name="stMode"]').forEach(n=>n.onchange=renderRoster);
  root.querySelectorAll('input[name="stCategory"]').forEach(n=>n.onchange=count);$('stDifficulty').onchange=count;
  $('stRefreshRoster').onclick=buildRoster;
@@ -179,7 +179,7 @@ export function createSoundtrackMode({send, getUser, avatar, notify, loadYoutube
  }
  function renderClock(){
   if(!active||!state)return;const phase=state.phase,remaining=left();
-  const hint=playerError||(state.paused?'Take your time. We’re all paused.':phase==='loading'?`${state.ready?.length||0} listener${state.ready?.length===1?'':'s'} ready`:phase==='countdown'?'Get ready. Your next memory starts now.':phase==='guess'?'Name the game, movie or track.':phase==='reveal'?'A new memory is coming up…':phase==='unavailable'?'The host can skip this track.':'');
+  const hint=playerError||(state.paused?'Take your time. We’re all paused.':phase==='loading'?`${state.ready?.length||0} listener${state.ready?.length===1?'':'s'} ready`:phase==='countdown'?'Get ready. Your next memory starts now.':phase==='guess'?'Name the game, film, show or track.':phase==='reveal'?'A new memory is coming up…':phase==='unavailable'?'The host can skip this track.':'');
   $('stScreenHint').textContent=hint;$('stPhaseLabel').textContent=state.paused?'PAUSED FOR EVERYONE':({loading:'TUNING IN',countdown:'READY?',guess:'LISTEN CLOSELY',reveal:'DID YOU GET IT?',unavailable:'TRACK UNAVAILABLE'})[phase]||'';
   $('stBigNumber').textContent=state.paused?'Ⅱ':phase==='loading'?'♫':phase==='unavailable'?'!':String(Math.max(0,Math.ceil(remaining/1000)));
   $('stLiveLabel').textContent=state.paused?'Ⅱ PAUSED':phase==='reveal'?`NEXT TRACK IN ${Math.ceil(remaining/1000)}s`:phase==='guess'?'● LIVE ROUND':'REPARTY FM';

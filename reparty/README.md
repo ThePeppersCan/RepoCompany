@@ -1,5 +1,17 @@
 # Reparty
 
+## Disney + DreamWorks soundtracks (2 October 2026)
+
+Choose **Game mode → Guess the Soundtrack → Disney + DreamWorks**. The pool contains **658 distinct recordings from 203 films and shows**, covering Disney animation, Pixar, DreamWorks, Disney live-action musicals and adventure scores, sequels, and Disney Channel films and series. Both songs and instrumental scores are included. Select **Everything** under Difficulty for the full pool; **Chill** plays through the selected pool before reshuffling, with no immediate repeat at the cycle boundary.
+
+The category works with Versus, Teams, Together and Chill, shared pauses, clip starts and existing scoring. Mixed includes all three catalogues and deduplicates overlapping YouTube recordings. The displayed counts use the same recording deduplication and difficulty thresholds as the server. Film/show names, distinctive song names and common abbreviations such as HTTYD and HSM are accepted; numbered sequel aliases retain their numbers.
+
+For an existing installation, apply `supabase/migrations/20261002010000_reparty_disney_soundtracks.sql`, then `supabase/disney-soundtrack-catalogue.sql`. The latter is a Disney-only upsert and leaves existing game/movie entries untouched. For a fresh install, apply existing migrations chronologically, including the Disney migration, before the full `supabase/soundtrack-catalogue.sql`. Do not reapply older function migrations after the Disney update. The category migration updates only the allowed-category constraint and the deployed function's category validation, and refuses an unexpected validation clause. It preserves rooms, scores, guest naming and permissions.
+
+Edit the source catalogue in `supabase/soundtrack-catalogue.json`; `node reparty/tools/build-soundtrack-catalogue.cjs` regenerates the full SQL seed and counts. The Disney-only seed is the release snapshot. All new links passed YouTube oEmbed metadata checks on 2 October 2026. Ambiguous matches, known covers, dialogue-only results and duplicate recordings were excluded during review. This is a metadata audit, not a full listening audit of every track; YouTube availability, adverts and regional playback may vary. Existing playback-error and skip controls still apply.
+
+Validation: `node reparty/tests/disney-soundtracks.cjs` runs 34 PGlite checks covering the full no-repeat Chill cycle, all categories and difficulty levels, all four play styles, scoring/reveal, host restrictions, private answers, aliases, and migration repeatability with existing state. Existing soundtrack, alias, media, guest, lobby and artwork checks also pass. Desktop and 390px phone layout checked with the actual SQL backend and simulated media; the new category starts a round and shows the correct pool count.
+
 ## Entrance and room discovery (26 September 2026)
 
 Reparty opens with Game mode and Video mode. Signed-in users can browse **every room** in the selected mode, join by button or link/code, and create a video, soundtrack or card-game room. Existing room links still join directly. The directory includes room name, game type, active listener count and last use, with 50-room pagination. Room contents remain accessible only after joining. This directory visibility was explicitly requested by the owner.

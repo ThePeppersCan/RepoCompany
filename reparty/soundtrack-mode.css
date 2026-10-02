@@ -64,4 +64,4 @@
 @media(prefers-reduced-motion:reduce){.st-wave i{animation:none!important}.st-choice label>span,#stTimeBar{transition:none}}
 @media(max-width:760px){.soundtrack-room{padding:18px 12px 12px;border-radius:14px}.st-options{gap:7px}.st-options select{font-size:11px}.st-answer-form>div{flex-wrap:wrap}.st-answer-form input{flex-basis:65%}.st-heading h1{font-size:50px}.st-choice small{font-size:10px}}
 
-.st-play-styles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.st-categories,.st-play-styles{grid-template-columns:repeat(2,minmax(0,1fr))}

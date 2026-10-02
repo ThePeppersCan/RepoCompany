@@ -12,6 +12,8 @@ async function test(){
  assert(!validArtworkUrl('https://upload.wikimedia.org.evil.test/x'));assert(!validArtworkUrl('javascript:alert(1)'));assert(!validArtworkUrl('https://user:pass@upload.wikimedia.org/x'));
  for(const query of ['title=Sonic%7CSomething&category=game','title=Sonic&category=evil','title=Sonic&category=game&year=oops'])assert.equal((await onRequestGet({request:new Request('https://repocompany.uk/api/reparty-artwork?'+query)})).status,400);
  console.log('PASS correct cover preference, movie redirects, missing images, fixed upstream, URL validation and invalid input');
+ const disneyResponse=await onRequestGet({request:new Request('https://repocompany.uk/api/reparty-artwork?title=Frozen&category=disney&year=2013')});
+ assert.equal(disneyResponse.status,200);assert((await disneyResponse.json()).artwork?.image,'Disney reveal artwork');
  for(const [title,category,year] of [['Sonic the Hedgehog','game','1991'],['Old School RuneScape','game','2013'],['Interstellar','movie','2014']]){
   const art=await findArtwork(title,category,year);assert(art?.image,title);console.log('LIVE METADATA',title,art.title);
  }

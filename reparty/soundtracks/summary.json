@@ -1,6 +1,6 @@
 {
-  "total": 2000,
-  "linked": 1949,
+  "total": 2658,
+  "linked": 2607,
   "counts": [
     {
       "category": "game",
@@ -61,6 +61,66 @@
       "difficulty": 5,
       "total": 180,
       "playable": 165
+    },
+    {
+      "category": "disney",
+      "difficulty": 2,
+      "total": 231,
+      "playable": 231
+    },
+    {
+      "category": "disney",
+      "difficulty": 3,
+      "total": 204,
+      "playable": 204
+    },
+    {
+      "category": "disney",
+      "difficulty": 4,
+      "total": 77,
+      "playable": 77
+    },
+    {
+      "category": "disney",
+      "difficulty": 1,
+      "total": 144,
+      "playable": 144
+    },
+    {
+      "category": "disney",
+      "difficulty": 5,
+      "total": 2,
+      "playable": 2
     }
-  ]
+  ],
+  "mixes": {
+    "game": {
+      "1": 151,
+      "2": 377,
+      "3": 565,
+      "4": 823,
+      "5": 970
+    },
+    "movie": {
+      "1": 148,
+      "2": 361,
+      "3": 576,
+      "4": 811,
+      "5": 975
+    },
+    "disney": {
+      "1": 144,
+      "2": 375,
+      "3": 579,
+      "4": 656,
+      "5": 658
+    },
+    "mixed": {
+      "1": 418,
+      "2": 1062,
+      "3": 1647,
+      "4": 2211,
+      "5": 2524
+    }
+  }
 }
