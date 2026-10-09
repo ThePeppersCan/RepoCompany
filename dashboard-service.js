@@ -54,7 +54,26 @@
   try{const row=await rpc('buy_quidditch_tcg_pack');if(!row||!Number.isFinite(Number(row.new_gp)))throw new Error('Could not confirm your purchase. Refresh your inventory before trying again.');state.bank={gp:Number(row.new_gp),items:row.bank_items||{}};notify();return row;}
   finally{buying=false;}
  }
- window.repoAccount=Object.freeze({state,refresh,refreshSocial,signIn,signOut,buyPack,api,rpc,db,setGame(id){game=id;heartbeat();},setProfile:async values=>{await api('profile',values);await refreshSocial();}});
+ let openingPack=false;
+ async function openPack(){
+  if(openingPack)throw new Error('Your pack is already opening.');
+  if(!state.user)throw new Error('Sign in to open a pack.');
+  if(Number(state.bank?.items?.quidditch_tcg_pack||0)<1)throw new Error('You have no unopened packs.');
+  openingPack=true;
+  try{
+   // The existing server transaction consumes the pack and chooses/saves its card.
+   // Never retry this mutation automatically after an uncertain network response.
+   const row=await rpc('open_quidditch_tcg_pack');
+   if(!row?.card_id||!Array.isArray(row.owned_cards)||!row.bank_items)throw new Error('The pack result could not be confirmed.');
+   state.bank={...state.bank,items:row.bank_items};
+   state.cards=[...row.owned_cards];
+   for(const key of ['one','two'])if(row['skill_'+key+'_total']!=null&&row['skill_'+key]){
+    state.character[String(row['skill_'+key]).replace(/_xp$/,'')+'_xp']=Number(row['skill_'+key+'_total']);
+   }
+   notify();return row;
+  }finally{openingPack=false;}
+ }
+ window.repoAccount=Object.freeze({state,refresh,refreshSocial,signIn,signOut,buyPack,openPack,api,rpc,db,setGame(id){game=id;heartbeat();},setProfile:async values=>{await api('profile',values);await refreshSocial();}});
  db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(refresh,0);});
  document.addEventListener('visibilitychange',()=>{heartbeat();if(!document.hidden&&state.user)refreshSocial();});
  heartbeatTimer=setInterval(()=>{heartbeat();if(document.querySelector('#account-menu[open][data-account-tab="friends"]'))refreshSocial();},30000);

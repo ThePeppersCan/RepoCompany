@@ -2,3 +2,4 @@ dist/
 .wrangler/
 node_modules/
 QA/dashboard-staging/
+QA/dashboard-packs/

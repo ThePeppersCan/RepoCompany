@@ -8,7 +8,8 @@
     "test:dashboard": "node tools/test-dashboard.cjs",
     "deploy:staging": "npm run build && wrangler pages deploy dist --project-name repocompany --branch codex/console-dashboard-staging",
     "build:production": "node tools/build-dashboard.cjs --production",
-    "deploy:production": "npm run build:production && wrangler pages deploy dist --project-name repocompany --branch main"
+    "deploy:production": "npm run build:production && wrangler pages deploy dist --project-name repocompany --branch main",
+    "test:packs": "node tools/test-pack.cjs"
   },
   "engines": {
     "node": ">=24"

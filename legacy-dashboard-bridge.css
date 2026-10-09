@@ -3,6 +3,8 @@ body[data-dashboard-runtime]>:not(dialog):not(script):not(style):not([id*="Overl
 body[data-dashboard-runtime] dialog,body[data-dashboard-runtime] dialog *{visibility:visible}
 body[data-dashboard-runtime] .resource-node,body[data-dashboard-runtime] .roaming-pet{display:none!important}
 body[data-dashboard-runtime] dialog::backdrop{background:#080d12!important;backdrop-filter:none!important}
+/* Never expose the retired homepage while a collection dialog is closing. */
+body[data-dashboard-runtime].dashboard-feature-closing *{visibility:hidden!important}
 /* Fit the existing slab archive to the dashboard frame without changing its contents. */
 body[data-dashboard-runtime] #repoRcgBinderDialog .repo-rcg-binder-main{width:min(76vw,calc((100dvh - 260px)*1.56),1450px)!important;max-width:none!important}
 body[data-dashboard-runtime] #repoRcgBinderDialog .repo-rcg-binder-header{height:85px!important;margin:0 auto 8px!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
