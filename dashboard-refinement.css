@@ -1,0 +1,49 @@
+/* Open-case dashboard: restrained atmosphere, physical disc plane, full-screen media. */
+.launch-curtain{position:fixed;inset:0;width:100vw;height:100dvh;z-index:1000;background:#000;opacity:0;pointer-events:none;outline:none;transition:opacity .82s cubic-bezier(.4,0,.7,1)}
+.launch-curtain.visible{opacity:1}.is-launching .launch-curtain{pointer-events:auto}.is-launching{overflow:hidden}.is-launching .case-rim{opacity:.8}.is-launching .play{pointer-events:none}
+.launch-announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.launch-curtain{transition:opacity .12s linear}}
+.ambient-wash{position:absolute;inset:-120px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 34% 21%,rgba(var(--game-glow,122,153,120),.15),transparent 38%),radial-gradient(ellipse at 62% 67%,#ecd3a316,transparent 42%);filter:blur(32px);animation:ambient-drift 23s ease-in-out infinite alternate}
+#atmosphere{position:absolute;inset:0;width:1672px;height:941px;pointer-events:none;z-index:1;opacity:.9}
+.gallery-particles{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.72}
+@keyframes ambient-drift{from{transform:translate(-25px,12px) scale(1);opacity:.6}to{transform:translate(28px,-15px) scale(1.06);opacity:1}}
+.case-aura{position:absolute;left:607px;top:20px;width:919px;height:580px;pointer-events:none;background:radial-gradient(ellipse,#c6ddae00 42%,#dcf4cc0d 62%,transparent 75%);filter:blur(24px);opacity:0;transition:opacity .75s ease}
+.case-rim{position:absolute;inset:0;width:1672px;height:941px;fill:none;stroke:#e8eed6;stroke-width:1.3;stroke-linejoin:round;opacity:0;pointer-events:none;filter:drop-shadow(0 0 3px #efffc6aa) drop-shadow(0 0 9px #b7d6b04d);transition:opacity .65s ease}
+.case-rim .hinge-light{opacity:.25;stroke-width:.7}.case-active .case-rim{opacity:.55}.case-active .case-aura{opacity:1}
+.case-hit{position:absolute;left:638px;top:56px;width:857px;height:529px;clip-path:polygon(4% 0,50% 9%,99% 5%,100% 100%,50% 95%,0 96%);cursor:pointer;z-index:2;background:transparent;outline:none!important}
+.disc-plane{position:absolute;left:0;top:0;width:400px;height:400px;transform-origin:0 0;pointer-events:none}
+.disc-print{position:absolute;inset:0;border-radius:50%;overflow:hidden;mask-image:radial-gradient(circle at center,transparent 0 64px,#000 65px);-webkit-mask-image:radial-gradient(circle at center,transparent 0 64px,#000 65px);background:#142e23}
+.disc-spin{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 45% 35%,#214331,#193528 53%,#132b21);will-change:transform;transform:rotate(0deg)}
+.disc-wreath{position:absolute;inset:18px;width:364px;height:364px;object-fit:contain;filter:brightness(.82) saturate(.91)}
+.disc-spin .disc-title{left:31px;top:54px;width:337px;transform:none;filter:brightness(.92) drop-shadow(0 2px 2px #112115)}
+.disc-spin .disc-brand{left:149px;top:294px;width:102px;height:69px;transform:none;opacity:.93}
+.disc-spin .disc-brand:before{left:27px;top:0;width:46px;height:46px;background-size:211.68px 132.3px;background-position:-83.79px -35.57px}
+.disc-spin .disc-brand:after{left:0;top:55px;width:102px;height:11px;background-size:273.6px 171px;background-position:-86.64px -114px}
+.disc-sheen{position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,#f5e2b112,transparent 42%,#0002 100%);box-shadow:inset 0 0 4px #081b16;pointer-events:none}
+.shot:first-child .frame{box-shadow:0 8px 20px #0004}.shot.selected .frame{box-shadow:0 0 0 2px #f1dfb7,0 0 15px #f9df9d13}.shot:hover .frame,.shot:focus-visible .frame{box-shadow:0 0 0 2px #f1dfb7,0 0 22px #f9df9d26}
+#gallery{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:#090c10;color:#f0f1f0;isolation:isolate}
+#gallery[open]{display:grid;grid-template-rows:104px minmax(0,1fr) 108px;animation:gallery-open .28s ease-out}
+#gallery::backdrop{background:#090c10;backdrop-filter:none}
+.gallery-atmosphere{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 47% 37%,#213331b3,transparent 73%),linear-gradient(120deg,#12191b,#090c10 80%);animation:gallery-breathe 23s ease-in-out infinite alternate}
+@keyframes gallery-breathe{from{opacity:.68}to{opacity:1}}
+.gallery-header{display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,4.3vw,82px);gap:24px}
+.gallery-game{font-size:12px;letter-spacing:.035em;color:#bbbfc0}.gallery-game span{margin-left:8px;color:#707778}
+#gallery h2{font-size:23px;line-height:1.3;font-weight:350;letter-spacing:.01em;margin:5px 0 0}
+.gallery-header-actions{display:flex;align-items:center;gap:30px}#gallery-count{font-size:13px;letter-spacing:.14em;font-variant-numeric:tabular-nums;color:#e0e5e5}#gallery-count span{margin-left:7px;color:#707a7d}
+#gallery button{float:none;margin:0;color:inherit;transition:background .2s,opacity .2s,box-shadow .2s;padding:0;border:0}
+#gallery button:focus-visible{outline:2px solid #eaf3f2;outline-offset:5px}
+#gallery .gallery-close{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:transparent;color:#b8c1c3}#gallery .gallery-close:hover{background:#ffffff10;color:#fff}
+#gallery svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+.gallery-stage{height:100%;min-height:0;display:grid;grid-template-columns:88px minmax(0,1fr) 88px;gap:18px;padding:0 clamp(18px,3.2vw,60px);align-items:center}
+.gallery-picture{position:relative;height:100%;width:100%;min-width:0;min-height:0;margin:0;overflow:hidden}
+#gallery #gallery-image{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;filter:drop-shadow(0 12px 35px #0004);border-radius:0;user-select:none}
+#gallery .gallery-arrow{display:grid;place-items:center;width:52px;height:52px;justify-self:center;border-radius:50%;color:#9aabad;background:transparent;opacity:.8}#gallery .gallery-arrow:hover{background:#ffffff0d;color:#fff;opacity:1}
+.gallery-footer{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 clamp(24px,4.3vw,82px)}
+.gallery-key-hint{display:flex;align-items:center;gap:5px;font-size:12px;color:#79858a}.gallery-key-hint>span{margin-left:8px}
+.gallery-footer kbd{font:inherit;font-size:11px;min-width:20px;height:20px;border:1px solid #727e814d;border-radius:4px;display:inline-grid;place-items:center;color:#a1adaf}
+.gallery-thumbnails{display:flex;gap:12px}#gallery .gallery-thumbnails button{width:74px;height:43px;border-radius:4px;overflow:hidden;opacity:.4;position:relative;background:#111a1b;transition:opacity .2s,box-shadow .2s}#gallery .gallery-thumbnails button[aria-current="true"]{opacity:1;box-shadow:0 0 0 2px #e4efed;outline-offset:5px}#gallery .gallery-thumbnails button:hover{opacity:.9}
+#gallery .gallery-thumbnails img{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover}
+#gallery .gallery-back{justify-self:end;display:flex;align-items:center;gap:10px;color:#a6b0b4;font-size:12px;border-radius:0;background:transparent}#gallery .gallery-back kbd{padding:0 5px;min-width:29px}#gallery .gallery-back:hover{color:#fff}
+@keyframes gallery-open{from{opacity:0;transform:scale(1.008)}to{opacity:1;transform:scale(1)}}
+@media(max-width:700px){#gallery[open]{grid-template-rows:86px minmax(0,1fr) 94px}.gallery-stage{grid-template-columns:28px minmax(0,1fr) 28px;gap:5px;padding:0 8px}#gallery .gallery-arrow{width:28px;height:42px}.gallery-header{padding:0 21px}.gallery-header-actions{gap:12px}#gallery h2{font-size:19px}.gallery-footer{padding:0 20px;grid-template-columns:1fr auto}.gallery-key-hint{display:none}.gallery-thumbnails{gap:9px}#gallery .gallery-thumbnails button{width:59px;height:35px}.gallery-footer .gallery-back{justify-self:end}}
+@media(prefers-reduced-motion:reduce){.ambient-wash,.gallery-atmosphere,#gallery[open]{animation:none}#atmosphere,.gallery-particles{display:none}.case-rim,.case-aura,#gallery button,.shot .frame{transition:none}.disc-spin{will-change:auto}}

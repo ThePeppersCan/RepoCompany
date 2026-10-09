@@ -1,0 +1,20 @@
+name = "repocompany"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-08-06"
+
+[[d1_databases]]
+binding = "DASHBOARD_DB"
+database_name = "repo-dashboard-staging"
+database_id = "c6aa1b5b-07bc-45d5-863b-d98ab1c59132"
+preview_database_id = "DASHBOARD_DB"
+
+[[env.preview.d1_databases]]
+binding = "DASHBOARD_DB"
+database_name = "repo-dashboard-staging"
+database_id = "c6aa1b5b-07bc-45d5-863b-d98ab1c59132"
+preview_database_id = "DASHBOARD_DB"
+
+[[env.production.d1_databases]]
+binding = "DASHBOARD_DB"
+database_name = "repo-dashboard-production"
+database_id = "a88e0fb6-1782-440a-adfd-0661dcd0279f"

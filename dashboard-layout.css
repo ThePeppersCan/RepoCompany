@@ -1,0 +1,19 @@
+/* Fill the window; preserve the original case planes and artwork aspect ratios. */
+html,body{background:#101413}
+.viewport{max-width:100vw}
+.dashboard{--scene-extra:0px;--scene-top:0px;background:radial-gradient(ellipse at 72% 32%,#24291f,#101413 65%)}
+.dashboard>.stage{left:auto;right:0;top:var(--scene-top);bottom:auto;width:1672px;height:941px;background-size:1672px 941px;background-repeat:no-repeat;mask-image:linear-gradient(90deg,transparent,#000 9%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%)}
+.dashboard>.stage:before{content:"";position:absolute;inset:0;background:linear-gradient(#10141318,transparent 12%,transparent 90%,#10141333)}
+.dashboard>.vignette{inset:0}
+.dashboard .clip{width:1672px;height:941px;right:auto;bottom:auto}
+.open-scene,.collection-scene{top:var(--scene-top);bottom:auto;height:var(--scene-height,941px)}
+.open-scene :is(.booklet,.clip,.disc-plane,.case-hit,.case-rim,.case-aura){translate:var(--scene-extra) 0}
+.open-scene .screenshots{width:calc(100% - 144px)}
+.collection-scene .case-stack{left:var(--scene-extra)}
+.collection-scene .stack-shadow{translate:var(--scene-extra) 0}
+.dashboard>#atmosphere{width:100%;height:100%}
+.dashboard>.brand,.dashboard>.account{margin-top:var(--scene-top)}
+body:not(.collection-preview) .dashboard>:is(.booklet,.clip,.disc-plane,.case-hit,.case-rim,.case-aura){translate:var(--scene-extra) var(--scene-top)}
+body:not(.collection-preview) .dashboard>:is(.back,.game-details,.screenshots){translate:0 var(--scene-top)}
+body:not(.collection-preview) .dashboard>.screenshots{width:calc(100% - 144px)}
+@media(max-width:700px){.home-mode .collection-scene{top:0}.home-mode .brand,.home-mode .account{margin-top:0}}

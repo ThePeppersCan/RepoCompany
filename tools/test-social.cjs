@@ -1,0 +1,26 @@
+const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('node:sqlite');
+(async()=>{
+ const source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public-anon'};");
+ const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync('dashboard-social-schema.sql','utf8'));
+ const prepare=(query,values=[])=>({bind(...args){return prepare(query,args);},async first(){return sql.prepare(query).get(...values)||null;},async all(){return {results:sql.prepare(query).all(...values)};},async run(){return sql.prepare(query).run(...values);}});
+ const env={DASHBOARD_DB:{prepare,async batch(statements){sql.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sql.exec('COMMIT');return results;}catch(e){sql.exec('ROLLBACK');throw e;}}}};
+ const users={alice:'Alice',bob:'Bob',mallory:'Mallory'};let upstreamCalls=0;
+ global.fetch=async(url,opts)=>{upstreamCalls++;const token=opts.headers.Authorization.slice(7);if(!users[token])return Response.json({error:'invalid'},{status:401});if(url.endsWith('/auth/v1/user'))return Response.json({id:'uuid-'+token});if(url.endsWith('/get_my_character'))return Response.json([{username:users[token]}]);if(url.endsWith('/get_public_character')){const name=JSON.parse(opts.body).p_username.toLowerCase();return Response.json(users[name]?[{username:users[name]}]:[]);}throw Error('Unexpected upstream route');};
+ const call=async(token,path,body,origin='https://stage.test')=>{const request=new Request('https://stage.test/api/dashboard/'+path,{method:body===undefined?'GET':'POST',headers:{...(token?{Authorization:'Bearer '+token}:{}),Origin:origin},...(body===undefined?{}:{body:JSON.stringify(body)})});const response=await onRequest({request,env,params:{path:path.split('?')[0].split('/')}});return {status:response.status,body:await response.json()};};
+ assert.equal((await call(null,'state')).status,401);assert.equal((await call('forged','state')).status,401);assert.equal((await call('alice','state',undefined,'https://evil.test')).status,403);
+ assert.equal((await call('alice','state')).body.profile.repo_score,0);
+ assert.equal((await call('alice','search?username=bob')).body.players[0].username,'Bob');
+ assert.equal((await call('alice','friends',{action:'request',username:'Alice'})).status,400);
+ await call('alice','friends',{action:'request',username:'Bob'});await call('alice','friends',{action:'request',username:'Bob'});
+ assert.equal((await call('bob','state')).body.friends.length,1);
+ await call('alice','friends',{action:'accept',username:'Bob'});assert.equal((await call('alice','state')).body.friends[0].status,'pending','Sender cannot accept their own request');
+ await call('mallory','friends',{action:'accept',username:'Alice'});assert.equal((await call('alice','state')).body.friends[0].status,'pending','Third party cannot accept');
+ await call('bob','friends',{action:'accept',username:'Alice'});assert.equal((await call('alice','state')).body.friends[0].status,'accepted');
+ await call('bob','presence',{game:'manager'});let friend=(await call('alice','state')).body.friends[0];assert.equal(friend.online,1);assert.equal(friend.current_game,'manager');
+ await call('bob','profile',{displayName:'Bobby',bio:'Hello',invisible:true,repo_score:100000});friend=(await call('alice','state')).body.friends[0];assert.equal(friend.online,0);assert.equal(friend.current_game,'');assert.equal(friend.repo_score,0,'Client cannot award RepoScore');
+ await call('alice','friends',{action:'block',username:'Bob'});assert.equal((await call('bob','friends',{action:'request',username:'Alice'})).status,404);assert.equal((await call('alice','state')).body.friends.length,0);
+ await call('alice','friends',{action:'unblock',username:'Bob'});await call('alice','friends',{action:'request',username:'Bob'});await call('bob','friends',{action:'decline',username:'Alice'});assert.equal((await call('alice','state')).body.friends.length,0);
+ for(let i=0;i<40;i++)await call('mallory','presence',{});assert.equal((await call('mallory','presence',{})).status,429);
+ assert(upstreamCalls>0);console.log('PASS: validated identities, request ownership, duplicates, acceptance, privacy, blocking, no client scoring and rate limit.');sql.close();
+})().catch(e=>{console.error(e);process.exit(1);});

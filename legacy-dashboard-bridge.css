@@ -1,0 +1,9 @@
+html:has([data-dashboard-runtime]),body[data-dashboard-runtime]{background:#10151b!important;background-image:none!important}
+body[data-dashboard-runtime]>:not(dialog):not(script):not(style):not([id*="Overlay"]):not([id*="overlay"]){visibility:hidden}
+body[data-dashboard-runtime] dialog,body[data-dashboard-runtime] dialog *{visibility:visible}
+body[data-dashboard-runtime] .resource-node,body[data-dashboard-runtime] .roaming-pet{display:none!important}
+body[data-dashboard-runtime] dialog::backdrop{background:#080d12!important;backdrop-filter:none!important}
+/* Fit the existing slab archive to the dashboard frame without changing its contents. */
+body[data-dashboard-runtime] #repoRcgBinderDialog .repo-rcg-binder-main{width:min(76vw,calc((100dvh - 260px)*1.56),1450px)!important;max-width:none!important}
+body[data-dashboard-runtime] #repoRcgBinderDialog .repo-rcg-binder-header{height:85px!important;margin:0 auto 8px!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
+body[data-dashboard-runtime] #repoRcgBinderDialog .repo-rcg-header-brand{height:85px!important;width:auto!important;max-width:100%!important;object-fit:contain!important;transform:none!important}
