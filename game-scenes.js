@@ -39,7 +39,7 @@
     morogue:{
       name:'Morogue',meta:'Action roguelite · Solo',
       description:'Survive the night in the Moratales universe. Forge your build, master your weapons and face twelve bosses before challenging the Uncrowned.',
-      url:'https://moratales.repocompany.uk/interface/vampire-survivor/index.html',glow:'181,91,77',
+      url:'https://morogue.repocompany.uk/',glow:'181,91,77',
       title:`<img class="game-logo morogue-wordmark" src="${assets}morogue-logo.png" alt="Morogue">`,
       booklet:`<img class="morogue-booklet-art" src="${assets}morogue-cover-art.png" alt=""><div class="morogue-paper-shade"></div><img class="title" src="${assets}morogue-logo.png" alt="">`,
       bookletLabel:'Morogue Uncrowned cover artwork with the original Morogue wordmark',
