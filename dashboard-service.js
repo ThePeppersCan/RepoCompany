@@ -12,7 +12,7 @@
   const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not complete that action.');return result;
  }
  async function refreshSocial(){
-  if(!state.user)return;try{state.social=await api('state');state.socialError='';}catch(e){state.socialError=e.message;}notify();
+  if(!state.user)return;const userId=state.user.id,revision=generation;try{const result=await api('state');if(state.user?.id!==userId||generation!==revision)return;state.social=result;state.socialError='';}catch(e){if(state.user?.id!==userId||generation!==revision)return;state.socialError=e.message;}notify();
  }
  async function heartbeat(online=!document.hidden){if(!state.user)return;try{await api('presence',{game,online});}catch(_){} }
  async function refresh(){
@@ -76,7 +76,7 @@
  window.repoAccount=Object.freeze({state,refresh,refreshSocial,signIn,signOut,buyPack,openPack,api,rpc,db,setGame(id){game=id;heartbeat();},setAvatar:async avatar=>{const userId=state.user?.id,revision=generation;if(!userId)throw Error('Sign in to save your avatar.');const result=await api('avatar',{avatar});if(!result.ok||!result.avatar)throw Error('Your avatar could not be confirmed. Please reload your profile.');if(state.user?.id!==userId||generation!==revision)throw Error('Your account changed. Reload your profile.');if(state.social?.profile)state.social.profile.avatar=result.avatar;notify();return result.avatar;},setProfile:async values=>{await api('profile',values);await refreshSocial();}});
  db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(refresh,0);});
  document.addEventListener('visibilitychange',()=>{heartbeat();if(!document.hidden&&state.user)refreshSocial();});
- heartbeatTimer=setInterval(()=>{heartbeat();if(document.querySelector('#account-menu[open][data-account-tab="friends"]'))refreshSocial();},30000);
+ heartbeatTimer=setInterval(()=>{heartbeat();if(!document.hidden&&document.querySelector('#account-menu[open]')&&['friends','profile'].includes(document.querySelector('#account-menu').dataset.accountTab))refreshSocial();},15000);
  addEventListener('pagehide',()=>{clearInterval(heartbeatTimer);});
  refresh();
 })();

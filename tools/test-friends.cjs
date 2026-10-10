@@ -1,0 +1,84 @@
+const {chromium}=require('playwright');
+const fs=require('fs'),assert=require('assert/strict'),path=require('path');
+(async()=>{
+ const browser=await chromium.launch({channel:'msedge',headless:true});
+ try{
+  const context=await browser.newContext({viewport:{width:1672,height:941}});const page=await context.newPage(),errors=[],rpcs=[],playRequests=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  page.on('console',m=>{if(m.type()==='warning'||m.type()==='error')console.log('BROWSER',m.text().slice(0,350));});
+  const config=JSON.parse(fs.readFileSync('dashboard-config.json','utf8')),base='http://127.0.0.1:8788';
+  const user={id:'11111111-1111-4111-8111-111111111111',aud:'authenticated',role:'authenticated',email:'qaplayer@'+config.authDomain,user_metadata:{username:'QAPlayer'},created_at:new Date().toISOString()};
+  const token=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600,role:'authenticated'})).toString('base64url')+'.test';
+  const session={access_token:token,token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,refresh_token:'test-refresh',user};
+  let bank={gp:50000,items:{quidditch_tcg_pack:2}},social={username:'QAPlayer',profile:{display_name:'QAPlayer',bio:'A new adventure, every evening.',invisible:0,repo_score:120},friends:[{username:'fern',display_name:'Fern',status:'accepted',online:1,repo_score:250},{username:'rowan',display_name:'Rowan',status:'accepted',online:0,repo_score:80}],blocks:[],activity:[{game:'manager',played_ms:7200000,last_played:Date.now()-86400000},{game:'moratales',played_ms:1800000,last_played:Date.now()},{game:'morogue',played_ms:5400000,last_played:Date.now()-172800000},{game:'diver',played_ms:60000,last_played:Date.now()-172800001}]};
+  const send=(route,data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
+  await context.route(config.url+'/**',async route=>{
+   const url=new URL(route.request().url()),p=url.pathname;
+   if(p.endsWith('/auth/v1/token'))return send(route,session);
+   if(p.endsWith('/auth/v1/user'))return send(route,user);
+   if(p.endsWith('/auth/v1/logout'))return send(route,{});
+   const rpc=p.split('/rpc/')[1];if(rpc){rpcs.push(rpc);if(rpc==='get_my_character')return send(route,[{id:user.id,username:'QAPlayer',gp:bank.gp,harmony_xp:0}]);if(rpc==='get_my_bank')return send(route,[bank]);if(rpc==='get_my_quidditch_tcg_collection'||rpc==='get_public_quidditch_tcg_collection')return send(route,[{username:'QAPlayer',cards:['boomstick','barrys_tip_jar']}]);if(rpc==='get_my_rcg_slab_binder_view')return send(route,[{slabs:[],layout:[],username:'QAPlayer'}]);if(rpc==='buy_quidditch_tcg_pack'){bank={gp:25000,items:{quidditch_tcg_pack:3}};return send(route,[{new_gp:25000,bank_items:bank.items}]);}return send(route,[]);}
+   return send(route,[]);
+  });
+  const avatar=JSON.parse(fs.readFileSync('account-assets/avatar-v2/catalog.json','utf8')).defaults;
+  social.profile.private_profile=0;social.friends[0].avatar=avatar;social.friends[0].current_game='morogue';
+  social.friend_activity=[{username:'fern',game:'morogue',played_ms:5400000,last_played:Date.now()}];
+  let playerLocked=false,slowProfile=false,profileCalls=0;
+  await context.route(base+'/api/dashboard/**',async route=>{
+   const p=new URL(route.request().url()).pathname.split('/').pop(),isGet=route.request().method()==='GET';
+   if(p==='state')return send(route,social);
+   if(p==='profile'&&isGet){profileCalls++;const target=new URL(route.request().url()).searchParams.get('username');if(slowProfile)await new Promise(r=>setTimeout(r,500));return send(route,playerLocked?{username:target,relationship:'none',locked:true}:{username:target,relationship:target==='fern'?'accepted':'none',profile:{display_name:target==='fern'?'Fern':'New player',avatar,bio:'Into the next adventure.',repo_score:250,online:1,current_game:'morogue'},activity:social.activity,mutual_friends:[]});}
+   if(p==='search')return send(route,{players:[{username:'NewPlayer'}]});
+   const body=route.request().postDataJSON();if(p==='privacy')social.profile.private_profile=body.privateProfile?1:0;
+   return send(route,{ok:true});
+  });
+  await page.goto(base+'/#account/profile');await page.getByRole('button',{name:'Sign in →',exact:true}).click();
+  await page.locator('[name="username"]').fill('QAPlayer');await page.locator('[name="password"]').fill('test-password-123');await page.locator('#account-login-form [type="submit"]').click();
+  await page.waitForFunction(()=>repoAccount.state.bank?.gp===50000);await page.waitForFunction(()=>!document.querySelector('#account-detail').open);
+  const out=path.resolve('QA/dashboard-staging');fs.mkdirSync(out,{recursive:true});
+  await page.locator('#account-tab-friends').click();
+  await page.waitForFunction(()=>document.querySelector('.hub-avatar canvas')?.dataset.avatarReady==='true');
+  assert.equal(await page.locator('.hub-friend-card').count(),2);
+  assert.equal(await page.locator('.hub-activity').count(),1);
+  assert(await page.locator('.hub-presence').first().textContent().then(t=>t.includes('Playing Morogue')));
+  await page.screenshot({path:path.join(out,'friends-hub.png')});
+  await page.locator('.hub-friend-name').first().click();
+  await page.waitForSelector('.player-profile');
+  assert.equal(new URL(page.url()).hash,'#account/profile/fern');
+  assert.equal(await page.locator('.account-profile-copy h2').textContent(),'Fern');
+  assert.equal(await page.locator('#account-detail[open]').count(),0);
+  assert.equal(await page.locator('.profile-recent-game').count(),3);
+  assert.equal(await page.locator('.player-profile [data-edit-avatar]').count(),0);
+  assert.equal(await page.locator('.player-profile [data-binder]').count(),0);
+  await page.screenshot({path:path.join(out,'friend-full-profile.png')});
+  await page.goBack();await page.waitForSelector('.friends-hub');
+  await page.goForward();await page.waitForSelector('.player-profile');
+  await page.reload();await page.waitForSelector('.player-profile');
+  assert.equal(await page.locator('.account-profile-copy h2').textContent(),'Fern');
+  await page.locator('.profile-back-link').click();await page.waitForSelector('.friends-hub');
+  await page.getByRole('button',{name:'+ Add friend',exact:true}).first().click();
+  await page.locator('#friend-search input').fill('NewPlayer');await page.getByRole('button',{name:'Find player',exact:true}).click();
+  await page.locator('[data-search-profile]').click();await page.waitForSelector('.player-profile');
+  assert.equal(new URL(page.url()).hash,'#account/profile/newplayer');
+  playerLocked=true;await page.evaluate(()=>repoAccount.refreshSocial());await page.waitForSelector('.profile-locked');
+  assert.equal(await page.locator('.profile-recent-game').count(),0);assert.equal(await page.locator('#account-content canvas').count(),0);
+  assert(await page.locator('.profile-locked').textContent().then(t=>t.includes('accepted friends only')));
+  await page.screenshot({path:path.join(out,'private-profile.png')});
+  await page.locator('#account-tab-settings').click();await page.getByRole('switch',{name:'Private profile',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('[data-private-profile]').getAttribute('aria-checked')==='true');
+  assert.equal(social.profile.private_profile,1);
+  await page.reload();await page.waitForFunction(()=>document.querySelector('[data-private-profile]')?.getAttribute('aria-checked')==='true');
+  await page.screenshot({path:path.join(out,'profile-privacy-settings.png')});
+  await page.locator('#account-tab-friends').click();await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:path.join(out,'friends-hub-mobile.png')});
+  assert(await page.locator('#account-content').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+  playerLocked=false;await page.locator('.hub-friend-name').first().click();await page.waitForSelector('.player-profile');
+  await page.screenshot({path:path.join(out,'friend-profile-mobile.png')});
+  assert(await page.locator('#account-content').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+  await page.locator('#account-tab-friends').click();slowProfile=true;
+  await page.locator('.hub-friend-name').first().click();await page.locator('#account-tab-settings').click();
+  await page.waitForTimeout(700);assert.equal(await page.locator('.player-profile').count(),0,'Stale requests cannot replace another tab');
+  assert(profileCalls>=5);assert.deepEqual(errors,[]);
+  console.log('PASS: Friends hub, playing status, full profiles, search links, browser history, direct links, privacy persistence, locked views, stale navigation and mobile.');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1);});

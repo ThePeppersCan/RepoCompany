@@ -16,6 +16,16 @@ const readAvatar=value=>{try{return validateAvatar(JSON.parse(value));}catch{ret
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const cleanName=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{3,16}$/.test(value)?value.toLowerCase():null;
 const allowedGames=new Set(['','moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
+// Dashboard and game leases are independent: a hidden dashboard must never
+// clear a visible game's status. Only live, active game sessions supply a title.
+const playerJoins=`LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username`;
+const publicFields=`p.username,p.display_name,p.bio,p.repo_score,a.config AS avatar,COALESCE(v.private_profile,0) AS private_profile,
+ CASE WHEN p.invisible=0 AND (p.last_seen>? OR (s.active=1 AND s.last_tick>?)) THEN 1 ELSE 0 END AS online,
+ CASE WHEN p.invisible=0 AND s.active=1 AND s.last_tick>? THEN s.game WHEN p.invisible=0 AND p.last_seen>? THEN p.current_game ELSE '' END AS current_game`;
+async function playerFriends(db,me,now){
+ const results=await db.prepare(`SELECT f.status,f.requester,${publicFields} FROM dashboard_friendships f JOIN dashboard_players p ON p.username=CASE WHEN f.player_a=? THEN f.player_b ELSE f.player_a END ${playerJoins} WHERE (f.player_a=? OR f.player_b=?) AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocker=p.username AND b.blocked=?)) ORDER BY online DESC,p.username`).bind(now-90000,now-90000,now-90000,now-90000,me,me,me,me,me).all();
+ return results.results.map(f=>f.private_profile&&f.status!=='accepted'?{username:f.username,display_name:f.username,status:f.status,requester:f.requester,locked:true}:{...f,avatar:readAvatar(f.avatar)});
+}
 async function upstream(path,token,body){
  const response=await fetch(config.url+path,{method:body===undefined?'GET':'POST',headers:{apikey:config.key,Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(10000)});
  if(!response.ok)throw new Error(response.status===401?'AUTH':'UPSTREAM');return response.json();
@@ -34,12 +44,34 @@ export async function onRequest({request,env,params}){
   await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id').bind(me,user.id,character.username).run();
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
   if(request.method==='GET'&&route==='state'){
-   const profile=await db.prepare('SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar FROM dashboard_players p LEFT JOIN dashboard_avatars a ON a.username=p.username WHERE p.username=?').bind(me).first();
-   const friends=await db.prepare(`SELECT f.status,f.requester,p.username,p.display_name,p.repo_score,a.config AS avatar,CASE WHEN p.invisible=0 AND p.last_seen>? THEN 1 ELSE 0 END AS online,CASE WHEN p.invisible=0 AND p.last_seen>? THEN p.current_game ELSE '' END AS current_game FROM dashboard_friendships f JOIN dashboard_players p ON p.username=CASE WHEN f.player_a=? THEN f.player_b ELSE f.player_a END LEFT JOIN dashboard_avatars a ON a.username=p.username WHERE (f.player_a=? OR f.player_b=?) AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocker=p.username AND b.blocked=?)) ORDER BY online DESC,p.username`).bind(now-90000,now-90000,me,me,me,me,me).all();
+   const profile=await db.prepare(`SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar,COALESCE(v.private_profile,0) AS private_profile FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(me).first();
+   const friends=await playerFriends(db,me,now);
    const blocks=await db.prepare('SELECT blocked AS username FROM dashboard_blocks WHERE blocker=?').bind(me).all();
    const activity=await db.prepare('SELECT game,played_ms,last_played FROM dashboard_game_activity WHERE username=? ORDER BY last_played DESC').bind(me).all();
-   profile.avatar=readAvatar(profile.avatar);for(const f of friends.results)f.avatar=readAvatar(f.avatar);
-   return json({username:character.username,profile,friends:friends.results,blocks:blocks.results,activity:activity.results});
+   const feed=await db.prepare(`SELECT g.username,g.game,g.played_ms,g.last_played FROM dashboard_game_activity g JOIN dashboard_friendships f ON (f.player_a=? AND f.player_b=g.username) OR (f.player_b=? AND f.player_a=g.username) WHERE f.status='accepted' AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=g.username) OR (b.blocker=g.username AND b.blocked=?)) AND g.game=(SELECT h.game FROM dashboard_game_activity h WHERE h.username=g.username ORDER BY h.last_played DESC,h.game LIMIT 1) ORDER BY g.last_played DESC LIMIT 6`).bind(me,me,me,me).all();
+   profile.avatar=readAvatar(profile.avatar);
+   return json({username:character.username,profile,friends,blocks:blocks.results,activity:activity.results,friend_activity:feed.results});
+  }
+  if(request.method==='GET'&&route==='profile'){
+   const target=cleanName(url.searchParams.get('username'));if(!target)return json({error:'Choose a valid player.'},400);
+   const blocked=await db.prepare('SELECT 1 FROM dashboard_blocks WHERE (blocker=? AND blocked=?) OR (blocker=? AND blocked=?)').bind(me,target,target,me).first();
+   if(blocked)return json({error:'This profile is unavailable.'},404);
+   const [left,right]=[me,target].sort();
+   const link=await db.prepare('SELECT status,requester FROM dashboard_friendships WHERE player_a=? AND player_b=?').bind(left,right).first();
+   const relationship=me===target?'self':link?.status==='accepted'?'accepted':link?.status==='pending'?(link.requester===me?'outgoing':'incoming'):'none';
+   const profile=await db.prepare(`SELECT ${publicFields} FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(now-90000,now-90000,now-90000,now-90000,target).first();
+   if(!profile){
+    const rows=await upstream('/rest/v1/rpc/get_public_character',token,{p_username:target}),player=Array.isArray(rows)?rows[0]:rows;
+    if(!player||cleanName(player.username)!==target)return json({error:'This profile is unavailable.'},404);
+    return json({username:target,relationship,profile:{username:target,display_name:player.username,repo_score:0,online:0,avatar:null,bio:''},activity:[],mutual_friends:[]});
+   }
+   if(profile.private_profile&&!['self','accepted'].includes(relationship))return json({username:target,relationship,locked:true});
+   profile.avatar=readAvatar(profile.avatar);
+   const activity=await db.prepare('SELECT game,played_ms,last_played FROM dashboard_game_activity WHERE username=? ORDER BY last_played DESC').bind(target).all();
+   const friends=await playerFriends(db,me,now);
+   const links=await db.prepare("SELECT CASE WHEN player_a=? THEN player_b ELSE player_a END AS username FROM dashboard_friendships WHERE (player_a=? OR player_b=?) AND status='accepted'").bind(target,target,target).all();
+   const mutual=friends.filter(f=>f.status==='accepted'&&links.results.some(l=>l.username===f.username));
+   return json({username:target,relationship,profile,activity:activity.results,mutual_friends:mutual});
   }
   if(request.method==='GET'&&route==='search'){
    const target=cleanName(url.searchParams.get('username'));if(!target)return json({error:'Enter an exact player name (3â€“16 letters, numbers, _ or -).'},400);
@@ -78,12 +110,17 @@ export async function onRequest({request,env,params}){
    }
    const current=await db.prepare('SELECT session_id,game,active FROM dashboard_play_sessions WHERE username=?').bind(me).first();
    if(current?.session_id!==session||current?.game!==game)return json({error:'Another game session is active.',superseded:true},409);
-   await db.prepare('UPDATE dashboard_players SET last_seen=?,current_game=? WHERE username=?').bind(body.active&&body.action!=='stop'?now:0,body.active&&body.action!=='stop'?game:'',me).run();
    return json({ok:true});
   }
   if(route==='presence'){
    const game=allowedGames.has(body.game)?body.game:'';
-   await db.prepare('UPDATE dashboard_players SET last_seen=?,current_game=? WHERE username=?').bind(body.online===false?0:now,game,me).run();return json({ok:true});
+   // Let hidden/closed dashboard leases expire; other tabs may still be active.
+   if(body.online!==false)await db.prepare('UPDATE dashboard_players SET last_seen=?,current_game=? WHERE username=?').bind(now,game,me).run();return json({ok:true});
+  }
+  if(route==='privacy'){
+   if(typeof body.privateProfile!=='boolean')return json({error:'Choose a valid privacy setting.'},400);
+   await db.prepare('INSERT INTO dashboard_profile_privacy(username,private_profile) VALUES(?,?) ON CONFLICT(username) DO UPDATE SET private_profile=excluded.private_profile').bind(me,body.privateProfile?1:0).run();
+   return json({ok:true,private_profile:body.privateProfile});
   }
   if(route==='avatar'){
    const avatar=validateAvatar(body.avatar);if(!avatar)return json({error:'Choose valid avatar features and colours.'},400);

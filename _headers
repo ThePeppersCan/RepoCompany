@@ -8,6 +8,12 @@
   Cache-Control: no-cache
 /dashboard-service.js
   Cache-Control: no-cache
+/game-playtime-client.js
+  Cache-Control: no-cache
+/game-playtime-bridge.js
+  Cache-Control: no-cache
+/dashboard-playtime.js
+  Cache-Control: no-cache
 /account-menu.js
   Cache-Control: no-cache
 /account-profile.js

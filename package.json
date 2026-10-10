@@ -5,6 +5,7 @@
     "build": "node tools/build-dashboard.cjs",
     "dev": "npm run build && wrangler pages dev dist --port 8788",
     "test:social": "node tools/test-social.cjs",
+    "test:friends": "node tools/test-friends.cjs",
     "test:dashboard": "node tools/test-dashboard.cjs",
     "deploy:staging": "npm run build && wrangler pages deploy dist --project-name repocompany --branch codex/console-dashboard-staging",
     "build:production": "node tools/build-dashboard.cjs --production",

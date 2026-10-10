@@ -15,7 +15,7 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('assert/s
   if(p.endsWith('/get_my_bank'))return send(r,[{gp:50000,items:{}}]);
   return send(r,[]);
  });
- await context.route('**/api/dashboard/**',async r=>{const p=new URL(r.request().url()).pathname.split('/').pop();if(p==='state')return send(r,social);if(p==='avatar'){writes++;if(failSave)return send(r,{error:'Test save unavailable'},503);social.profile.avatar=r.request().postDataJSON().avatar;return send(r,{ok:true,avatar:social.profile.avatar});}return send(r,{ok:true});});
+ await context.route('**/api/dashboard/**',async r=>{const p=new URL(r.request().url()).pathname.split('/').pop();if(p==='state')return send(r,social);if(p==='profile')return send(r,{username:'fern',relationship:'accepted',profile:social.friends[0],activity:[],mutual_friends:[]});if(p==='avatar'){writes++;if(failSave)return send(r,{error:'Test save unavailable'},503);social.profile.avatar=r.request().postDataJSON().avatar;return send(r,{ok:true,avatar:social.profile.avatar});}return send(r,{ok:true});});
  await page.goto('http://127.0.0.1:8788/#account/profile');
  await page.getByRole('button',{name:'Sign in →',exact:true}).click();await page.locator('[name=username]').fill('QAPlayer');await page.locator('[name=password]').fill('test-password');await page.locator('#account-login-form [type=submit]').click();
  await page.waitForFunction(()=>repoAccount.state.social&&repoAvatar.catalog&&!document.querySelector('#account-detail').open);
@@ -47,8 +47,8 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('assert/s
  await page.reload();await page.waitForFunction(()=>document.querySelector('.profile-avatar canvas')?.dataset.avatarReady==='true');
  assert.equal(await page.locator('.profile-friend canvas').count(),1);
  await page.screenshot({path:path.join(out,'avatar-profile-saved.png')});
- await page.locator('[data-tab=friends][role=tab]').click();await page.waitForFunction(()=>document.querySelector('.account-friend-avatar canvas')?.dataset.avatarReady==='true');
- await page.getByRole('button',{name:'Profile →',exact:true}).click();assert.equal(await page.locator('.account-friend-detail canvas').count(),1);await page.locator('.account-detail-close').click();
+ await page.locator('[data-tab=friends][role=tab]').click();await page.waitForFunction(()=>document.querySelector('.hub-avatar canvas')?.dataset.avatarReady==='true');
+ await page.locator('.hub-profile-link').first().click();await page.waitForFunction(()=>document.querySelector('.player-profile canvas')?.dataset.avatarReady==='true');assert.equal(await page.locator('#account-detail[open]').count(),0);
  await page.locator('[data-tab=profile][role=tab]').click();await page.locator('.profile-edit[data-edit-avatar]').click();await ready();
  await page.setViewportSize({width:390,height:844});await page.locator('[data-avatar-section=hair]').click();
  assert(await page.evaluate(()=>document.querySelector('#avatar-creator').scrollWidth<=innerWidth+1),'Mobile does not overflow horizontally');
