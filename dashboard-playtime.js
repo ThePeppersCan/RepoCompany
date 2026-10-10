@@ -14,6 +14,7 @@
    if(response.status===409&&current===session){clearInterval(timer);current=null;}
    if(!response.ok)throw Error('Play time could not sync.');
    session.synced=true;
+   if(action==='start')session.started=true;
   }catch{
    // Missing beats earn no offline time. Never submit a client-calculated duration.
    session.synced=false;
@@ -23,21 +24,22 @@
   if(!validGames.has(game)||current?.game===game)return;
   await stop();
   if(!service.state.user)return;
-  const session={id:crypto.randomUUID(),game,sequence:-1,synced:false};
+  const session={id:crypto.randomUUID(),game,sequence:-1,synced:false,started:false};
   current=session;
   if(!token){const {data}=await service.db.auth.getSession();token=data.session?.access_token||null;}
   if(current!==session)return;
   await send(session,'start');
   if(current!==session)return;
-  if(!session.synced){current=null;return;}
-  timer=setInterval(()=>{if(current===session&&active())send(session,'tick');},30000);
+  // A temporary failure during startup must not disable tracking for the whole
+  // game. Retry the same session id; server-side start is idempotent.
+  timer=setInterval(()=>{if(current===session&&active())send(session,session.started?'tick':'start');},30000);
  }
  async function stop(){
   clearInterval(timer);timer=null;const session=current;current=null;
   if(session)await send(session,'stop',{keepalive:true});
  }
- document.addEventListener('visibilitychange',()=>{if(current)send(current,'tick',{keepalive:document.hidden});});
- addEventListener('repo-playtime-visibility',()=>{if(current)send(current,'tick',{keepalive:!active()});});
+ document.addEventListener('visibilitychange',()=>{if(current)send(current,current.started?'tick':'start',{keepalive:document.hidden});});
+ addEventListener('repo-playtime-visibility',()=>{if(current)send(current,current.started?'tick':'start',{keepalive:!active()});});
  addEventListener('pagehide',()=>{stop();});
  window.repoPlaytime=Object.freeze({start,stop,get game(){return current?.game||'';}});
 })();

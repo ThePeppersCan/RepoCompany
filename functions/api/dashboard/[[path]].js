@@ -19,12 +19,30 @@ const allowedGames=new Set(['','moratales','manager','morogue','dragonbound','di
 // Dashboard and game leases are independent: a hidden dashboard must never
 // clear a visible game's status. Only live, active game sessions supply a title.
 const playerJoins=`LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username`;
-const publicFields=`p.username,p.display_name,p.bio,p.repo_score,a.config AS avatar,COALESCE(v.private_profile,0) AS private_profile,
+const publicFields=`p.username,p.display_name,p.bio,p.repo_score,p.user_id AS _user_id,p.invisible AS _invisible,a.config AS avatar,COALESCE(v.private_profile,0) AS private_profile,
  CASE WHEN p.invisible=0 AND (p.last_seen>? OR (s.active=1 AND s.last_tick>?)) THEN 1 ELSE 0 END AS online,
  CASE WHEN p.invisible=0 AND s.active=1 AND s.last_tick>? THEN s.game WHEN p.invisible=0 AND p.last_seen>? THEN p.current_game ELSE '' END AS current_game`;
-async function playerFriends(db,me,now){
+async function gamePresence(env,players,now){
+ // Morogue already verifies account identity and records signed-in run updates.
+ // Read those leases as well, including for game tabs opened before the portal
+ // tracker was available. Never infer online status from an old unfinished run.
+ const candidates=players.filter(p=>!p.locked&&!p._invisible&&(!p.online||!p.current_game));
+ if(env.MOROGUE_DB&&candidates.length){
+  try{
+   for(let offset=0;offset<candidates.length;offset+=50){
+    const group=candidates.slice(offset,offset+50);
+    const rows=await env.MOROGUE_DB.prepare(`SELECT lower(p.username) AS username,p.user_id,MAX(r.updated_at) AS last_seen FROM morogue_players p JOIN morogue_runs r ON r.user_id=p.user_id WHERE lower(p.username) IN (${group.map(()=>'?').join(',')}) AND r.status='open' AND r.updated_at>? AND r.updated_at<=? AND r.expires_at>? GROUP BY p.username,p.user_id`).bind(...group.map(p=>p.username),now-90000,now,now).all();
+    for(const p of group){const live=rows.results.find(r=>r.username===p.username&&(!p._user_id||p._user_id===r.user_id));if(live){p.online=1;p.current_game='morogue';}}
+   }
+  }catch{ /* A game-service outage must not hide the rest of the Friends list. */ }
+ }
+ for(const p of players){delete p._user_id;delete p._invisible;}
+ return players;
+}
+async function playerFriends(db,me,now,env){
  const results=await db.prepare(`SELECT f.status,f.requester,${publicFields} FROM dashboard_friendships f JOIN dashboard_players p ON p.username=CASE WHEN f.player_a=? THEN f.player_b ELSE f.player_a END ${playerJoins} WHERE (f.player_a=? OR f.player_b=?) AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocker=p.username AND b.blocked=?)) ORDER BY online DESC,p.username`).bind(now-90000,now-90000,now-90000,now-90000,me,me,me,me,me).all();
- return results.results.map(f=>f.private_profile&&f.status!=='accepted'?{username:f.username,display_name:f.username,status:f.status,requester:f.requester,locked:true}:{...f,avatar:readAvatar(f.avatar)});
+ const players=results.results.map(f=>f.private_profile&&f.status!=='accepted'?{username:f.username,display_name:f.username,status:f.status,requester:f.requester,locked:true}:{...f,avatar:readAvatar(f.avatar)});
+ return (await gamePresence(env,players,now)).sort((a,b)=>Number(b.online||0)-Number(a.online||0)||a.username.localeCompare(b.username));
 }
 async function upstream(path,token,body){
  const response=await fetch(config.url+path,{method:body===undefined?'GET':'POST',headers:{apikey:config.key,Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(10000)});
@@ -45,7 +63,7 @@ export async function onRequest({request,env,params}){
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
   if(request.method==='GET'&&route==='state'){
    const profile=await db.prepare(`SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar,COALESCE(v.private_profile,0) AS private_profile FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(me).first();
-   const friends=await playerFriends(db,me,now);
+   const friends=await playerFriends(db,me,now,env);
    const blocks=await db.prepare('SELECT blocked AS username FROM dashboard_blocks WHERE blocker=?').bind(me).all();
    const activity=await db.prepare('SELECT game,played_ms,last_played FROM dashboard_game_activity WHERE username=? ORDER BY last_played DESC').bind(me).all();
    const feed=await db.prepare(`SELECT g.username,g.game,g.played_ms,g.last_played FROM dashboard_game_activity g JOIN dashboard_friendships f ON (f.player_a=? AND f.player_b=g.username) OR (f.player_b=? AND f.player_a=g.username) WHERE f.status='accepted' AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=g.username) OR (b.blocker=g.username AND b.blocked=?)) AND g.game=(SELECT h.game FROM dashboard_game_activity h WHERE h.username=g.username ORDER BY h.last_played DESC,h.game LIMIT 1) ORDER BY g.last_played DESC LIMIT 6`).bind(me,me,me,me).all();
@@ -66,9 +84,10 @@ export async function onRequest({request,env,params}){
     return json({username:target,relationship,profile:{username:target,display_name:player.username,repo_score:0,online:0,avatar:null,bio:''},activity:[],mutual_friends:[]});
    }
    if(profile.private_profile&&!['self','accepted'].includes(relationship))return json({username:target,relationship,locked:true});
+   await gamePresence(env,[profile],now);
    profile.avatar=readAvatar(profile.avatar);
    const activity=await db.prepare('SELECT game,played_ms,last_played FROM dashboard_game_activity WHERE username=? ORDER BY last_played DESC').bind(target).all();
-   const friends=await playerFriends(db,me,now);
+   const friends=await playerFriends(db,me,now,env);
    const links=await db.prepare("SELECT CASE WHEN player_a=? THEN player_b ELSE player_a END AS username FROM dashboard_friendships WHERE (player_a=? OR player_b=?) AND status='accepted'").bind(target,target,target).all();
    const mutual=friends.filter(f=>f.status==='accepted'&&links.results.some(l=>l.username===f.username));
    return json({username:target,relationship,profile,activity:activity.results,mutual_friends:mutual});

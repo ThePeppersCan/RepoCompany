@@ -2,7 +2,7 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
 (async()=>{
  const browser=await chromium.launch({channel:'msedge',headless:true});
  try{
-  const context=await browser.newContext(),page=await context.newPage(),requests=[],errors=[],messages=[];
+  const context=await browser.newContext(),page=await context.newPage(),requests=[],errors=[],messages=[];let failNextStart=false;
   const config=JSON.parse(fs.readFileSync('dashboard-config.json','utf8')),host='https://repocompany.uk';
   const user={id:'11111111-1111-4111-8111-111111111111',email:'test@example.test',aud:'authenticated'};
   const token=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';
@@ -13,7 +13,7 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
   await context.route(host+'/**',async route=>{
    const url=new URL(route.request().url());
    if(url.pathname==='/')return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>RepoCompany account fixture</title>'});
-   if(url.pathname.startsWith('/api/')){requests.push(route.request().postDataJSON());return route.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'});}
+   if(url.pathname.startsWith('/api/')){const body=route.request().postDataJSON();requests.push(body);if(failNextStart&&body.action==='start'){failNextStart=false;return route.fulfill({status:503,contentType:'application/json',body:'{"error":"Temporarily unavailable"}'});}return route.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'});}
    const filename=path.join(process.cwd(),url.pathname.slice(1));
    assert(filename.startsWith(process.cwd()+path.sep));
    return route.fulfill({status:200,contentType:url.pathname.endsWith('.html')?'text/html':'text/javascript',body:fs.readFileSync(filename)});
@@ -23,13 +23,14 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
   await page.goto(host+'/');await page.evaluate(({storageKey,session})=>localStorage.setItem(storageKey,JSON.stringify(session)),{storageKey,session});
   await page.clock.install();
   for(const [origin,game] of Object.entries(gameOrigins)){
-   const before=requests.length;await page.goto(origin);await page.waitForTimeout(250);
+   const before=requests.length;failNextStart=game==='morogue';await page.goto(origin);await page.waitForTimeout(250);
    if(origin.includes('evil')){assert.equal(requests.length,before,'Unapproved origins cannot connect');continue;}
    await page.waitForFunction(()=>received.some(m=>m.type==='repo-game-tracker-ready'));
    await page.waitForTimeout(50);
    assert(requests.slice(before).some(r=>r.action==='start'&&r.game===game));
    // Fast forward in small steps so the parent's ten-second lease renewals run.
-   for(let i=0;i<4;i++){await page.clock.runFor(10000);}
+   for(let i=0;i<(game==='morogue'?7:4);i++){await page.clock.runFor(10000);}
+   if(game==='morogue'){const starts=requests.slice(before).filter(r=>r.action==='start');assert(starts.length>=2,'Temporary startup failure must retry');assert(starts.every(r=>r.session===starts[0].session),'Retries use the same idempotent session');}
    assert(requests.slice(before).some(r=>r.action==='tick'&&r.active&&r.game===game));
    const parentMessages=await page.evaluate(()=>JSON.stringify(received));assert(!parentMessages.includes(token));assert(!parentMessages.includes('test-refresh'));
    await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
