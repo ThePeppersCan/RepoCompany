@@ -9,7 +9,11 @@
     "deploy:staging": "npm run build && wrangler pages deploy dist --project-name repocompany --branch codex/console-dashboard-staging",
     "build:production": "node tools/build-dashboard.cjs --production",
     "deploy:production": "npm run build:production && wrangler pages deploy dist --project-name repocompany --branch main",
-    "test:packs": "node tools/test-pack.cjs"
+    "test:packs": "node tools/test-pack.cjs",
+    "test:playtime": "node tools/test-playtime.cjs",
+    "test:profile": "node tools/test-profile.cjs",
+    "test:game-playtime": "node tools/test-game-playtime.cjs",
+    "test:avatar": "node tools/test-avatar-api.cjs && node tools/test-avatar-ui.cjs"
   },
   "engines": {
     "node": ">=24"

@@ -1,0 +1,38 @@
+const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('node:sqlite');
+(async()=>{
+ const source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public-anon'};");
+ const avatarImport="import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';";
+ const prepared=source.replace(avatarImport,'const avatarCatalog='+fs.readFileSync('account-assets/avatar-v2/catalog.json','utf8')+';');
+ const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(prepared).toString('base64'));
+ const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync('dashboard-social-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-playtime-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-avatar-schema.sql','utf8'));
+ const prepare=(query,values=[])=>({bind(...args){return prepare(query,args);},async first(){return sql.prepare(query).get(...values)||null;},async all(){return {results:sql.prepare(query).all(...values)};},async run(){return sql.prepare(query).run(...values);}});
+ const env={DASHBOARD_DB:{prepare,async batch(statements){sql.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sql.exec('COMMIT');return results;}catch(e){sql.exec('ROLLBACK');throw e;}}}};
+ const users={alice:'Alice',bob:'Bob',mallory:'Mallory'};let upstreamCalls=0;
+ global.fetch=async(url,opts)=>{upstreamCalls++;const token=opts.headers.Authorization.slice(7);if(!users[token])return Response.json({error:'invalid'},{status:401});if(url.endsWith('/auth/v1/user'))return Response.json({id:'uuid-'+token});if(url.endsWith('/get_my_character'))return Response.json([{username:users[token]}]);if(url.endsWith('/get_public_character')){const name=JSON.parse(opts.body).p_username.toLowerCase();return Response.json(users[name]?[{username:users[name]}]:[]);}throw Error('Unexpected upstream route');};
+ const call=async(token,path,body,origin='https://stage.test')=>{const request=new Request('https://stage.test/api/dashboard/'+path,{method:body===undefined?'GET':'POST',headers:{...(token?{Authorization:'Bearer '+token}:{}),Origin:origin},...(body===undefined?{}:{body:JSON.stringify(body)})});const response=await onRequest({request,env,params:{path:path.split('?')[0].split('/')}});return {status:response.status,body:await response.json()};};
+
+ let now=1800000000000;const realNow=Date.now;Date.now=()=>now;
+ const a='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',b='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ const play=(token,action,sequence,active=true,game='moratales',session=a)=>call(token,'play',{action,sequence,active,game,session,played_ms:999999999});
+ const time=()=>sql.prepare('SELECT played_ms FROM dashboard_game_activity WHERE username=? AND game=?').get('alice','moratales')?.played_ms||0;
+ assert.equal((await play(null,'start',0)).status,401);
+ assert.equal((await play('alice','start',0,true,'unknown')).status,400);
+ assert.equal((await play('alice','start',0)).status,200);assert.equal(time(),0);
+ now+=30000;await play('alice','tick',1);assert.equal(time(),30000);
+ now+=1000;await play('alice','tick',1);assert.equal(time(),30000,'Repeated sequence earns no extra time');
+ now+=9000;await play('alice','tick',2,false);assert.equal(time(),40000,'Hiding the tab credits only its last visible interval');
+ now+=300000;await play('alice','tick',3,true);assert.equal(time(),40000,'Hidden time is excluded');
+ now+=30000;await play('alice','tick',4);assert.equal(time(),70000);
+ now+=90000;await play('alice','tick',5);assert.equal(time(),70000,'Suspended/offline time is excluded');
+ now+=10000;await play('alice','stop',7,false);assert.equal(time(),80000);
+ now+=10000;await play('alice','tick',6,true);assert.equal(time(),80000,'Out of order tick cannot reactivate a stopped session');
+ assert.equal(sql.prepare('SELECT active FROM dashboard_play_sessions WHERE username=?').get('alice').active,0);
+ await play('alice','start',0,true,'manager',b);now+=30000;
+ assert.equal((await play('alice','tick',8)).status,409,'Old tabs cannot keep recording');assert.equal(time(),80000);
+ await play('alice','tick',1,true,'manager',b);
+ assert.equal(sql.prepare('SELECT played_ms FROM dashboard_game_activity WHERE username=? AND game=?').get('alice','manager').played_ms,30000);
+ assert.equal((await play('bob','tick',2,true,'manager',b)).status,409,'A different user cannot hijack the session');
+ const state=(await call('alice','state')).body;assert.equal(state.activity.length,2);assert.equal(state.activity[0].game,'manager');
+ assert.equal(state.profile.repo_score,0,'Play time does not award achievement score');
+ Date.now=realNow;sql.close();console.log('PASS: authenticated play time, server-clock accounting, hidden/offline pauses, duplicate and reordered ticks, multi-tab ownership and recent history.');
+})().catch(e=>{console.error(e);process.exit(1);});

@@ -1,0 +1,187 @@
+{
+  "tool": "Built-in image_gen",
+  "status": "Local artwork review; not published",
+  "generated": [
+    {
+      "id": "body-male",
+      "prompt": "Surgical edit to the approved pixel-art avatar. Remove ONLY the hair on top of the head, revealing the bald scalp underneath. Preserve everything else EXACTLY: existing eyes and eyebrows, nose, mouth, ears, face outline, rosy cheek/nose/neck shading, slim neck, jacket, shirt, tan background, size and position. Keep all face features at precisely their original coordinates. Do not simplify, redraw or recolour the face. The bald scalp should form a natural rounded silhouette under the original hairstyle. Existing empty tan areas stay tan. Original clean-shaven face remains clean-shaven. Same1254x1254 full portrait, no zooming or recentering, no labels. Output the same image with only head hair removed.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-8e317296-3d99-42e7-810c-94c1d333d383.png"
+    },
+    {
+      "id": "eyes-02",
+      "prompt": "Use case: precise-object-edit. Surgical pixel-art edit to this exact bald avatar portrait. Change ONLY both eyes to a slightly rounder, more open unisex shape. Keep the blue-grey irises, small dark pupils, white highlights and rose eyelid shadow. The eyes must retain their current 3/4 perspective and exact centers and stay within the same eye sockets. Preserve eyebrows. Do not enlarge the face or give it cartoon giant eyes. All other pixels/composition must remain identical: tan backdrop, face silhouette, scalp, ear, nose, mouth, neck, clothes, rich peach/rose skin tones. Same full square1254x1254 portrait. Pixel clusters the same size as reference, approximately16px square steps, simple calm expressive eyes, no added lines or thin detail. No labels.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-f5326513-1e9e-462f-bf7f-631d1e5f036b.png"
+    },
+    {
+      "id": "hair-18",
+      "prompt": "Create ONE interchangeable pixel-art HAIR LAYER with a real transparent background. Image1 defines the exact head position/size and three-quarter angle. Image2 defines the ONLY acceptable pixel-art detail level and chestnut/amber/maroon palette. Hairstyle: LONG WAVES, parted on the left, broad gently waving chestnut clumps falling past shoulders, no bangs covering eyes. Fit image1 bald head EXACTLY at existing coordinates: crown near(625,180), forehead x330..850 y330..450, right ear x800..930 y490..700, neck down to y1080. SAME1254x1254 canvas. Render only the hair, all face/skin/ears/body/background fully transparent. Do not recenter or enlarge the layer. Hair shadow outline dark burgundy with amber highlights arranged in a few LARGE shapes; each pixel staircase has approximately16px steps, matching image2. SIMPLE humble Stardew-like portrait pixels. Avoid fine strands, smooth painted curves, tiny pixels, busy shine, photorealism. Leave an open face window from approximatelyx320..820 y450..940; hair may hang beside face and shoulder edges. Crown silhouette starts near y95, hair reaches y1200 at sides. No text, no frame.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-4c20e15f-e75a-430f-a335-156bde91841f.png"
+    },
+    {
+      "id": "eyes-03",
+      "prompt": "Use case: precise-object-edit. Edit ONLY the eyes of this exact approved pixel portrait. Both eyes have a softly tapered almond shape, with slightly narrower outer corners. All eyes unisex. Keep blue-grey irises, dark small pupils, tiny white highlights and rose eyelid shading. Preserve brows unchanged. The eye centers remain at x375,y550 and x596,y551 on the1254 square canvas, the left eye narrower due to3/4 perspective. Keep edited eyes within rectangle x298..688,y498..606. Clearly distinguish this eye shape, using the SAME large ~16px block clusters and simple few-pixel features as reference. Keep face position, scale and all other artwork IDENTICAL: bald head, eyebrows, skin peach and rose palette, nose, mouth, ear, neck, jacket, tan background. No zoom or recentering, no new style, no extra fine pixels, no text. Return full unchanged1254 square portrait with only this eye variation.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-ead5c988-1afb-4a0d-86d9-ad234d17b2dc.png"
+    },
+    {
+      "id": "eyes-06",
+      "prompt": "Use case: precise-object-edit. Edit ONLY the eyes of this exact approved pixel portrait. Both eyes have a subtle upwards tilt at the outer corners, a friendly alert gaze. All eyes unisex. Keep blue-grey irises, dark small pupils, tiny white highlights and rose eyelid shading. Preserve brows unchanged. The eye centers remain at x375,y550 and x596,y551 on the1254 square canvas, the left eye narrower due to3/4 perspective. Keep edited eyes within rectangle x298..688,y498..606. Clearly distinguish this eye shape, using the SAME large ~16px block clusters and simple few-pixel features as reference. Keep face position, scale and all other artwork IDENTICAL: bald head, eyebrows, skin peach and rose palette, nose, mouth, ear, neck, jacket, tan background. No zoom or recentering, no new style, no extra fine pixels, no text. Return full unchanged1254 square portrait with only this eye variation.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-d159f8f5-4762-45d9-9552-45e4be9421db.png"
+    },
+    {
+      "id": "eyes-05",
+      "prompt": "Use case: precise-object-edit. Edit ONLY the eyes of this exact approved pixel portrait. Both eyes have a monolid shape with a smooth upper lid and no upper crease, keeping irises clearly visible. All eyes unisex. Keep blue-grey irises, dark small pupils, tiny white highlights and rose eyelid shading. Preserve brows unchanged. The eye centers remain at x375,y550 and x596,y551 on the1254 square canvas, the left eye narrower due to3/4 perspective. Keep edited eyes within rectangle x298..688,y498..606. Clearly distinguish this eye shape, using the SAME large ~16px block clusters and simple few-pixel features as reference. Keep face position, scale and all other artwork IDENTICAL: bald head, eyebrows, skin peach and rose palette, nose, mouth, ear, neck, jacket, tan background. No zoom or recentering, no new style, no extra fine pixels, no text. Return full unchanged1254 square portrait with only this eye variation.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-da12f854-93af-42a1-9c2a-95549ed84822.png"
+    },
+    {
+      "id": "eyes-04",
+      "prompt": "Use case: precise-object-edit. Edit ONLY the eyes of this exact approved pixel portrait. Both eyes have gently hooded upper lids, a low eyelid crease and a relaxed adult expression. All eyes unisex. Keep blue-grey irises, dark small pupils, tiny white highlights and rose eyelid shading. Preserve brows unchanged. The eye centers remain at x375,y550 and x596,y551 on the1254 square canvas, the left eye narrower due to3/4 perspective. Keep edited eyes within rectangle x298..688,y498..606. Clearly distinguish this eye shape, using the SAME large ~16px block clusters and simple few-pixel features as reference. Keep face position, scale and all other artwork IDENTICAL: bald head, eyebrows, skin peach and rose palette, nose, mouth, ear, neck, jacket, tan background. No zoom or recentering, no new style, no extra fine pixels, no text. Return full unchanged1254 square portrait with only this eye variation.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-a9faf66c-e4fd-4583-b6e9-1e1b6f802473.png"
+    },
+    {
+      "id": "eyes-07",
+      "prompt": "Use case: precise-object-edit. Edit ONLY the eyes of this exact approved pixel portrait. Both eyes have a subtle downwards tilt at the outer corners, a calm thoughtful gaze. All eyes unisex. Keep blue-grey irises, dark small pupils, tiny white highlights and rose eyelid shading. Preserve brows unchanged. The eye centers remain at x375,y550 and x596,y551 on the1254 square canvas, the left eye narrower due to3/4 perspective. Keep edited eyes within rectangle x298..688,y498..606. Clearly distinguish this eye shape, using the SAME large ~16px block clusters and simple few-pixel features as reference. Keep face position, scale and all other artwork IDENTICAL: bald head, eyebrows, skin peach and rose palette, nose, mouth, ear, neck, jacket, tan background. No zoom or recentering, no new style, no extra fine pixels, no text. Return full unchanged1254 square portrait with only this eye variation.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-a12adadf-04ec-4b41-ac94-b71660655c3d.png"
+    },
+    {
+      "id": "eyes-08",
+      "prompt": "Use case: precise-object-edit. Edit ONLY the eyes of this exact approved pixel portrait. Both eyes have a softer, narrower relaxed gaze, slightly lowered upper lids, warm friendly expression. All eyes unisex. Keep blue-grey irises, dark small pupils, tiny white highlights and rose eyelid shading. Preserve brows unchanged. The eye centers remain at x375,y550 and x596,y551 on the1254 square canvas, the left eye narrower due to3/4 perspective. Keep edited eyes within rectangle x298..688,y498..606. Clearly distinguish this eye shape, using the SAME large ~16px block clusters and simple few-pixel features as reference. Keep face position, scale and all other artwork IDENTICAL: bald head, eyebrows, skin peach and rose palette, nose, mouth, ear, neck, jacket, tan background. No zoom or recentering, no new style, no extra fine pixels, no text. Return full unchanged1254 square portrait with only this eye variation.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-528bf4be-da2d-4a5f-84e1-30d1cd45213d.png"
+    },
+    {
+      "id": "nose-02",
+      "prompt": "Use case: precise-object-edit. Make ONE feature variation on the exact approved bald pixel-art portrait. Change ONLY the NOSE. A small button nose: shorter bridge and a small rounded tip, subtly turned up. Must be distinctly different from the original, unisex and natural in the same3/4 face angle. Use simple LARGE ~16px pixel clusters; the nose is defined by rose-pink side shadow, burgundy nostril and warm peach light. Preserve all surrounding face colour perfectly, keep all other features and head outline unchanged. Nose may occupy x370..570,y596..722 on this1254x1254 canvas. Eyes, brows, mouth, ear, skin, neck, jacket and tan backdrop unchanged. No hair, no beard, no text. Do not simplify or redraw the rest of face, do not add tiny detail. Return whole square portrait, exact same positioning and scale.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-3225746b-5346-4e07-b191-13c03f4547b4.png"
+    },
+    {
+      "id": "nose-03",
+      "prompt": "Use case: precise-object-edit. Make ONE feature variation on the exact approved bald pixel-art portrait. Change ONLY the NOSE. A rounded nose with a full softly bulbous tip and gently rounded nostrils. Must be distinctly different from the original, unisex and natural in the same3/4 face angle. Use simple LARGE ~16px pixel clusters; the nose is defined by rose-pink side shadow, burgundy nostril and warm peach light. Preserve all surrounding face colour perfectly, keep all other features and head outline unchanged. Nose may occupy x370..570,y596..722 on this1254x1254 canvas. Eyes, brows, mouth, ear, skin, neck, jacket and tan backdrop unchanged. No hair, no beard, no text. Do not simplify or redraw the rest of face, do not add tiny detail. Return whole square portrait, exact same positioning and scale.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-11bd889e-b545-46ac-804a-89b4e986dfcd.png"
+    },
+    {
+      "id": "nose-04",
+      "prompt": "Use case: precise-object-edit. Make ONE feature variation on the exact approved bald pixel-art portrait. Change ONLY the NOSE. A noticeably broader nose with a wider base and nostrils, softly shaped bridge. Must be distinctly different from the original, unisex and natural in the same3/4 face angle. Use simple LARGE ~16px pixel clusters; the nose is defined by rose-pink side shadow, burgundy nostril and warm peach light. Preserve all surrounding face colour perfectly, keep all other features and head outline unchanged. Nose may occupy x370..570,y596..722 on this1254x1254 canvas. Eyes, brows, mouth, ear, skin, neck, jacket and tan backdrop unchanged. No hair, no beard, no text. Do not simplify or redraw the rest of face, do not add tiny detail. Return whole square portrait, exact same positioning and scale.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-bbe300c2-a533-417b-8eeb-f825a4f7f923.png"
+    },
+    {
+      "id": "nose-05",
+      "prompt": "Use case: precise-object-edit. Make ONE feature variation on the exact approved bald pixel-art portrait. Change ONLY the NOSE. An aquiline nose with a subtly curved prominent bridge and gently downturned tip. Must be distinctly different from the original, unisex and natural in the same3/4 face angle. Use simple LARGE ~16px pixel clusters; the nose is defined by rose-pink side shadow, burgundy nostril and warm peach light. Preserve all surrounding face colour perfectly, keep all other features and head outline unchanged. Nose may occupy x370..570,y596..722 on this1254x1254 canvas. Eyes, brows, mouth, ear, skin, neck, jacket and tan backdrop unchanged. No hair, no beard, no text. Do not simplify or redraw the rest of face, do not add tiny detail. Return whole square portrait, exact same positioning and scale.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-0050920f-2396-495f-bd9a-fc38e7a2f457.png"
+    },
+    {
+      "id": "nose-06",
+      "prompt": "Use case: precise-object-edit. Make ONE feature variation on the exact approved bald pixel-art portrait. Change ONLY the NOSE. An upturned nose with a short sloping bridge and clearly lifted tip. Must be distinctly different from the original, unisex and natural in the same3/4 face angle. Use simple LARGE ~16px pixel clusters; the nose is defined by rose-pink side shadow, burgundy nostril and warm peach light. Preserve all surrounding face colour perfectly, keep all other features and head outline unchanged. Nose may occupy x370..570,y596..722 on this1254x1254 canvas. Eyes, brows, mouth, ear, skin, neck, jacket and tan backdrop unchanged. No hair, no beard, no text. Do not simplify or redraw the rest of face, do not add tiny detail. Return whole square portrait, exact same positioning and scale.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-ab7716c1-6b7d-409b-a6c0-e5c3a079bdc5.png"
+    },
+    {
+      "id": "nose-07",
+      "prompt": "Use case: precise-object-edit. Make ONE feature variation on the exact approved bald pixel-art portrait. Change ONLY the NOSE. A longer slender nose with a straight narrow bridge and a low pointed tip. Must be distinctly different from the original, unisex and natural in the same3/4 face angle. Use simple LARGE ~16px pixel clusters; the nose is defined by rose-pink side shadow, burgundy nostril and warm peach light. Preserve all surrounding face colour perfectly, keep all other features and head outline unchanged. Nose may occupy x370..570,y596..722 on this1254x1254 canvas. Eyes, brows, mouth, ear, skin, neck, jacket and tan backdrop unchanged. No hair, no beard, no text. Do not simplify or redraw the rest of face, do not add tiny detail. Return whole square portrait, exact same positioning and scale.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-f6f9c079-8f33-40b8-b5a7-73a7dc9df3a6.png"
+    },
+    {
+      "id": "nose-08",
+      "prompt": "Use case: precise-object-edit. Make ONE feature variation on the exact approved bald pixel-art portrait. Change ONLY the NOSE. A defined angular nose with a strong straight bridge, angular tip and clean sharp nostril shape. Must be distinctly different from the original, unisex and natural in the same3/4 face angle. Use simple LARGE ~16px pixel clusters; the nose is defined by rose-pink side shadow, burgundy nostril and warm peach light. Preserve all surrounding face colour perfectly, keep all other features and head outline unchanged. Nose may occupy x370..570,y596..722 on this1254x1254 canvas. Eyes, brows, mouth, ear, skin, neck, jacket and tan backdrop unchanged. No hair, no beard, no text. Do not simplify or redraw the rest of face, do not add tiny detail. Return whole square portrait, exact same positioning and scale.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-7e9fd7b4-35fd-4331-9fc2-1220a111502d.png"
+    },
+    {
+      "id": "mouth-03",
+      "prompt": "Use case: precise-object-edit. Change ONLY the mouth of this exact approved bald pixel-art portrait. Fuller lips: soft rounded upper and lower lips, closed neutral expression. Keep mouth centered nearx482,y778 and withinx380..600,y740..840 on1254 square canvas, matching3/4 perspective. Unisex and subtle, visibly distinct. Same simple LARGE ~16px pixel clusters, rose lips and burgundy mouth line. Skin immediately around the lips retains original peach colour. Preserve exactly all other pixels, facial features, scale, bald head, neck, clothes, tan background. No zooming, recentering, repainting, extra fine detail, hair, beard or text. Whole1254square portrait with only mouth changed.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-1b301d48-d770-456a-a887-07c2f7dec70b.png"
+    },
+    {
+      "id": "mouth-04",
+      "prompt": "Use case: precise-object-edit. Change ONLY the mouth of this exact approved bald pixel-art portrait. Thin lips: narrow subtle horizontal closed mouth, with a tiny lower-lip shadow. Keep mouth centered nearx482,y778 and withinx380..600,y740..840 on1254 square canvas, matching3/4 perspective. Unisex and subtle, visibly distinct. Same simple LARGE ~16px pixel clusters, rose lips and burgundy mouth line. Skin immediately around the lips retains original peach colour. Preserve exactly all other pixels, facial features, scale, bald head, neck, clothes, tan background. No zooming, recentering, repainting, extra fine detail, hair, beard or text. Whole1254square portrait with only mouth changed.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-311a2773-d9c4-4316-891d-9df43dddb9e1.png"
+    },
+    {
+      "id": "mouth-05",
+      "prompt": "Use case: precise-object-edit. Change ONLY the mouth of this exact approved bald pixel-art portrait. A broad friendly closed-mouth smile, with lifted corners and a slightly fuller lower lip. No exposed teeth. Keep mouth centered nearx482,y778 and withinx380..600,y740..840 on1254 square canvas, matching3/4 perspective. Unisex and subtle, visibly distinct. Same simple LARGE ~16px pixel clusters, rose lips and burgundy mouth line. Skin immediately around the lips retains original peach colour. Preserve exactly all other pixels, facial features, scale, bald head, neck, clothes, tan background. No zooming, recentering, repainting, extra fine detail, hair, beard or text. Whole1254square portrait with only mouth changed.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-df7bebbd-7139-4377-a31e-0aff845e028b.png"
+    },
+    {
+      "id": "mouth-06",
+      "prompt": "Use case: precise-object-edit. Change ONLY the mouth of this exact approved bald pixel-art portrait. A defined cupid’s bow: clear central dip in upper lip, a subtle rounded lower lip, closed gentle expression. Keep mouth centered nearx482,y778 and withinx380..600,y740..840 on1254 square canvas, matching3/4 perspective. Unisex and subtle, visibly distinct. Same simple LARGE ~16px pixel clusters, rose lips and burgundy mouth line. Skin immediately around the lips retains original peach colour. Preserve exactly all other pixels, facial features, scale, bald head, neck, clothes, tan background. No zooming, recentering, repainting, extra fine detail, hair, beard or text. Whole1254square portrait with only mouth changed.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-eadcda3c-a72c-4c2f-ab89-56af9e6a7094.png"
+    },
+    {
+      "id": "mouth-07",
+      "prompt": "Use case: precise-object-edit. Change ONLY the mouth of this exact approved bald pixel-art portrait. An asymmetric playful closed-mouth smirk, one corner lifted higher than the other. Keep mouth centered nearx482,y778 and withinx380..600,y740..840 on1254 square canvas, matching3/4 perspective. Unisex and subtle, visibly distinct. Same simple LARGE ~16px pixel clusters, rose lips and burgundy mouth line. Skin immediately around the lips retains original peach colour. Preserve exactly all other pixels, facial features, scale, bald head, neck, clothes, tan background. No zooming, recentering, repainting, extra fine detail, hair, beard or text. Whole1254square portrait with only mouth changed.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-c71cded5-b103-4939-a6e4-4983997f4849.png"
+    },
+    {
+      "id": "mouth-08",
+      "prompt": "Use case: precise-object-edit. Change ONLY the mouth of this exact approved bald pixel-art portrait. Gently parted lips: a small dark central opening, thin upper lip and rose lower lip. No big grin, no tongue. Keep mouth centered nearx482,y778 and withinx380..600,y740..840 on1254 square canvas, matching3/4 perspective. Unisex and subtle, visibly distinct. Same simple LARGE ~16px pixel clusters, rose lips and burgundy mouth line. Skin immediately around the lips retains original peach colour. Preserve exactly all other pixels, facial features, scale, bald head, neck, clothes, tan background. No zooming, recentering, repainting, extra fine detail, hair, beard or text. Whole1254square portrait with only mouth changed.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-1acf27dd-4932-474b-bfaf-b1b5714ead8f.png"
+    },
+    {
+      "id": "ears-02",
+      "prompt": "Use case: precise-object-edit. Change ONLY the visible viewer-right ear on this exact approved bald pixel portrait. Small neat ear, noticeably shorter and less prominent than the original, with a small detached lobe. Ear is unisex. It remains attached in the same location nearx820,y585, same3/4 perspective. Use exact original peach skin, rose-pink fold shadows, dark burgundy outline and SIMPLE~16px square pixel clusters. The edited ear must fit withinx770..958,y479..728. Preserve the rest of face silhouette and whole image identically, including bald scalp, eyes/brows, nose, mouth, neck, jacket, tan backdrop and original1254square composition/position. No new hair, no beard, no fine detail or labels. Output complete edited portrait.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-2863b969-defa-48a2-bf79-b4824d25dd56.png"
+    },
+    {
+      "id": "ears-03",
+      "prompt": "Use case: precise-object-edit. Change ONLY the visible viewer-right ear on this exact approved bald pixel portrait. Soft rounded ear, rounder outer rim and a softly rounded larger lobe. Ear is unisex. It remains attached in the same location nearx820,y585, same3/4 perspective. Use exact original peach skin, rose-pink fold shadows, dark burgundy outline and SIMPLE~16px square pixel clusters. The edited ear must fit withinx770..958,y479..728. Preserve the rest of face silhouette and whole image identically, including bald scalp, eyes/brows, nose, mouth, neck, jacket, tan backdrop and original1254square composition/position. No new hair, no beard, no fine detail or labels. Output complete edited portrait.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-9847f25b-e036-46fe-8a42-3df4549f8b60.png"
+    },
+    {
+      "id": "ears-05",
+      "prompt": "Use case: precise-object-edit. Change ONLY the visible viewer-right ear on this exact approved bald pixel portrait. An attached-lobe ear with the lower ear blending smoothly into the cheek, no hanging lobe. Ear is unisex. It remains attached in the same location nearx820,y585, same3/4 perspective. Use exact original peach skin, rose-pink fold shadows, dark burgundy outline and SIMPLE~16px square pixel clusters. The edited ear must fit withinx770..958,y479..728. Preserve the rest of face silhouette and whole image identically, including bald scalp, eyes/brows, nose, mouth, neck, jacket, tan backdrop and original1254square composition/position. No new hair, no beard, no fine detail or labels. Output complete edited portrait.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-ca418bfb-7bcd-4d98-9034-617187236dcb.png"
+    },
+    {
+      "id": "ears-04",
+      "prompt": "Use case: precise-object-edit. Change ONLY the visible viewer-right ear on this exact approved bald pixel portrait. More prominent ear, a little wider away from the head with a larger outer rim and distinct natural lobe. Keep natural human proportions. Ear is unisex. It remains attached in the same location nearx820,y585, same3/4 perspective. Use exact original peach skin, rose-pink fold shadows, dark burgundy outline and SIMPLE~16px square pixel clusters. The edited ear must fit withinx770..958,y479..728. Preserve the rest of face silhouette and whole image identically, including bald scalp, eyes/brows, nose, mouth, neck, jacket, tan backdrop and original1254square composition/position. No new hair, no beard, no fine detail or labels. Output complete edited portrait.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-f8f318b3-cd9e-466d-9f3c-0d0b16aef847.png"
+    },
+    {
+      "id": "beard-01",
+      "prompt": "Create ONE transparent full-canvas facial-hair layer for a modular pixel-art avatar. Image1 is the exact head positioning target, Image2 is the approved art style and palette. STUBBLE: sparse short chestnut pixel clusters around jaw, chin and upper lip. Skin remains transparent between stubble marks. No solid beard mass. No dotted oval outline. Fit Image1 face at its EXISTING1254square canvas coordinates, three-quarter view facing left. Nose tip near(480,700), mouth(480,775), chin(470,930), viewer-right jaw ends near(815,707). Important: KEEP original scale and coordinates; do not center the beard on the image. No face, skin, scalp, eyes, nose, lips, clothing or background; they are fully transparent. Only facial hair exists. Same LARGE blocky16px pixel steps as Image2, burgundy outline, brown/chestnut clumps and modest amber highlights. Avoid fine hair strands, tiny busy pixels, sticker outlines. Real alpha transparency. No text.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-89a308d9-8d08-4be6-b1d6-cf0ea6e8f085.png"
+    },
+    {
+      "id": "beard-02",
+      "prompt": "Create ONE transparent full-canvas facial-hair layer for a modular pixel-art avatar. Image1 is the exact head positioning target, Image2 is the approved art style and palette. SHORT BEARD: close-trimmed chestnut beard following the jaw, joining short sideburns and a neat moustache. End at the chin y945, not below it. A transparent slit leaves the actual mouth visible. Fit Image1 face at its EXISTING1254square canvas coordinates, three-quarter view facing left. Nose tip near(480,700), mouth(480,775), chin(470,930), viewer-right jaw ends near(815,707). Important: KEEP original scale and coordinates; do not center the beard on the image. No face, skin, scalp, eyes, nose, lips, clothing or background; they are fully transparent. Only facial hair exists. Same LARGE blocky16px pixel steps as Image2, burgundy outline, brown/chestnut clumps and modest amber highlights. Avoid fine hair strands, tiny busy pixels, sticker outlines. Real alpha transparency. No text.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-c004808d-62b9-4021-beb9-60b31fc3644d.png"
+    },
+    {
+      "id": "beard-04",
+      "prompt": "Create ONE transparent full-canvas facial-hair layer for a modular pixel-art avatar. Image1 is the exact head positioning target, Image2 is the approved art style and palette. GOATEE: small chestnut chin beard and a separate neat moustache, cheeks and jaw sides stay entirely transparent. Chin patch aroundx413..590,y820..954, moustachex334..639,y703..759. Fit Image1 face at its EXISTING1254square canvas coordinates, three-quarter view facing left. Nose tip near(480,700), mouth(480,775), chin(470,930), viewer-right jaw ends near(815,707). Important: KEEP original scale and coordinates; do not center the beard on the image. No face, skin, scalp, eyes, nose, lips, clothing or background; they are fully transparent. Only facial hair exists. Same LARGE blocky16px pixel steps as Image2, burgundy outline, brown/chestnut clumps and modest amber highlights. Avoid fine hair strands, tiny busy pixels, sticker outlines. Real alpha transparency. No text.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-febf5031-75d1-4d96-9ec1-3f8c4377a972.png"
+    },
+    {
+      "id": "beard-05",
+      "prompt": "Create ONE transparent full-canvas facial-hair layer for a modular pixel-art avatar. Image1 is the exact head positioning target, Image2 is the approved art style and palette. MOUSTACHE ONLY: neat broad chestnut moustache centered below the nose and above the mouth atx330..653,y700..762. No chin hair, no cheek hair. Entire rest of canvas transparent. Fit Image1 face at its EXISTING1254square canvas coordinates, three-quarter view facing left. Nose tip near(480,700), mouth(480,775), chin(470,930), viewer-right jaw ends near(815,707). Important: KEEP original scale and coordinates; do not center the beard on the image. No face, skin, scalp, eyes, nose, lips, clothing or background; they are fully transparent. Only facial hair exists. Same LARGE blocky16px pixel steps as Image2, burgundy outline, brown/chestnut clumps and modest amber highlights. Avoid fine hair strands, tiny busy pixels, sticker outlines. Real alpha transparency. No text.",
+      "source": "C:\\Users\\Isaac\\.codex\\generated_images\\01a120e9-c8f6-7c70-88a0-3338c8501876\\exec-2e57e4f6-1d8c-4c75-9b39-23b631f07b3a.png"
+    }
+  ],
+  "retainedFromApprovedProof": [
+    "body-female.png",
+    "hair-01.png",
+    "hair-09.png",
+    "beard-03.png",
+    "mouth-02.png"
+  ],
+  "retainedFittedHair": [
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24"
+  ],
+  "notes": "Retained fitted hair uses existing generated layers from avatar-v1. Moustache + stubble combines beard-01 and beard-05. Facial variants are cropped in the application at their native position, preserving surrounding shading. Skin and hair colours are remapped perceptually, preserving highlights and shadows."
+}

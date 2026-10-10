@@ -10,6 +10,18 @@
   Cache-Control: no-cache
 /account-menu.js
   Cache-Control: no-cache
+/account-profile.js
+  Cache-Control: no-cache
+/account-profile.css
+  Cache-Control: no-cache
+/avatar-renderer.js
+  Cache-Control: no-cache
+/avatar-studio.js
+  Cache-Control: no-cache
+/avatar-studio.css
+  Cache-Control: no-cache
+/account-assets/avatar-v2/catalog.json
+  Cache-Control: no-cache
 /morogue-account-bridge.html
   Cache-Control: no-store
   Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors https://morogue.repocompany.uk https://moratales.repocompany.uk; base-uri 'none'; form-action 'none'

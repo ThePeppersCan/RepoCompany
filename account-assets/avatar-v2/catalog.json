@@ -1,0 +1,485 @@
+{
+  "version": 1,
+  "baseSize": 1254,
+  "bodies": [
+    {
+      "id": "male",
+      "name": "Male",
+      "file": "body-male.png"
+    },
+    {
+      "id": "female",
+      "name": "Female",
+      "file": "body-female.png"
+    }
+  ],
+  "parts": {
+    "eyes": [
+      {
+        "id": "01",
+        "name": "Classic",
+        "description": "Original relaxed eyes",
+        "file": "body-male.png"
+      },
+      {
+        "id": "02",
+        "name": "Round",
+        "description": "Open round eyes",
+        "file": "eyes-02.png"
+      },
+      {
+        "id": "03",
+        "name": "Almond",
+        "description": "Almond-shaped eyes",
+        "file": "eyes-03.png"
+      },
+      {
+        "id": "04",
+        "name": "Hooded",
+        "description": "Soft hooded lids",
+        "file": "eyes-04.png"
+      },
+      {
+        "id": "05",
+        "name": "Monolid",
+        "description": "Low crease, tapered eyes",
+        "file": "eyes-05.png"
+      },
+      {
+        "id": "06",
+        "name": "Upturned",
+        "description": "Gently lifted outer corners",
+        "file": "eyes-06.png"
+      },
+      {
+        "id": "07",
+        "name": "Downturned",
+        "description": "Gently lowered outer corners",
+        "file": "eyes-07.png"
+      },
+      {
+        "id": "08",
+        "name": "Soft gaze",
+        "description": "Relaxed narrow eyes",
+        "file": "eyes-08.png"
+      }
+    ],
+    "nose": [
+      {
+        "id": "01",
+        "name": "Straight",
+        "description": "Straight bridge",
+        "file": "body-male.png"
+      },
+      {
+        "id": "02",
+        "name": "Button",
+        "description": "Short and rounded",
+        "file": "nose-02.png"
+      },
+      {
+        "id": "03",
+        "name": "Rounded",
+        "description": "Full rounded tip",
+        "file": "nose-03.png"
+      },
+      {
+        "id": "04",
+        "name": "Broad",
+        "description": "Broad bridge and nostrils",
+        "file": "nose-04.png"
+      },
+      {
+        "id": "05",
+        "name": "Aquiline",
+        "description": "Gently curved bridge",
+        "file": "nose-05.png"
+      },
+      {
+        "id": "06",
+        "name": "Upturned",
+        "description": "Small lifted tip",
+        "file": "nose-06.png"
+      },
+      {
+        "id": "07",
+        "name": "Long",
+        "description": "Long slender bridge",
+        "file": "nose-07.png"
+      },
+      {
+        "id": "08",
+        "name": "Defined",
+        "description": "Strong angular tip",
+        "file": "nose-08.png"
+      }
+    ],
+    "mouth": [
+      {
+        "id": "01",
+        "name": "Neutral",
+        "description": "Relaxed closed lips",
+        "file": "body-male.png"
+      },
+      {
+        "id": "02",
+        "name": "Soft smile",
+        "description": "Small closed smile",
+        "file": "mouth-02.png"
+      },
+      {
+        "id": "03",
+        "name": "Full lips",
+        "description": "Fuller upper and lower lips",
+        "file": "mouth-03.png"
+      },
+      {
+        "id": "04",
+        "name": "Thin lips",
+        "description": "Thin understated lips",
+        "file": "mouth-04.png"
+      },
+      {
+        "id": "05",
+        "name": "Wide smile",
+        "description": "Open smile showing a little teeth",
+        "file": "mouth-05.png"
+      },
+      {
+        "id": "06",
+        "name": "Cupidâ€™s bow",
+        "description": "Defined upper-lip shape",
+        "file": "mouth-06.png"
+      },
+      {
+        "id": "07",
+        "name": "Smirk",
+        "description": "Gentle asymmetric smile",
+        "file": "mouth-07.png"
+      },
+      {
+        "id": "08",
+        "name": "Parted",
+        "description": "Slightly parted relaxed lips",
+        "file": "mouth-08.png"
+      }
+    ],
+    "ears": [
+      {
+        "id": "01",
+        "name": "Classic",
+        "description": "Original ear",
+        "file": "body-male.png"
+      },
+      {
+        "id": "02",
+        "name": "Small",
+        "description": "Small compact ear",
+        "file": "ears-02.png"
+      },
+      {
+        "id": "03",
+        "name": "Rounded",
+        "description": "Round outer rim",
+        "file": "ears-03.png"
+      },
+      {
+        "id": "04",
+        "name": "Prominent",
+        "description": "Larger projecting ear",
+        "file": "ears-04.png"
+      },
+      {
+        "id": "05",
+        "name": "Attached lobe",
+        "description": "Close-fitting lower lobe",
+        "file": "ears-05.png"
+      }
+    ],
+    "hair": [
+      {
+        "id": "none",
+        "name": "Bald",
+        "description": "No scalp hair",
+        "file": null
+      },
+      {
+        "id": "01",
+        "name": "Tousled",
+        "description": "short",
+        "file": "hair-01.png"
+      },
+      {
+        "id": "02",
+        "name": "Crop",
+        "description": "short",
+        "file": "hair-02.png"
+      },
+      {
+        "id": "03",
+        "name": "Side part",
+        "description": "short",
+        "file": "hair-03.png"
+      },
+      {
+        "id": "04",
+        "name": "Quiff",
+        "description": "short",
+        "file": "hair-04.png"
+      },
+      {
+        "id": "05",
+        "name": "Close coils",
+        "description": "short",
+        "file": "hair-05.png"
+      },
+      {
+        "id": "06",
+        "name": "Short curls",
+        "description": "short",
+        "file": "hair-06.png"
+      },
+      {
+        "id": "07",
+        "name": "Side sweep",
+        "description": "short",
+        "file": "hair-07.png"
+      },
+      {
+        "id": "08",
+        "name": "Undercut",
+        "description": "short",
+        "file": "hair-08.png"
+      },
+      {
+        "id": "09",
+        "name": "Bob",
+        "description": "medium",
+        "file": "hair-09.png"
+      },
+      {
+        "id": "10",
+        "name": "Shag",
+        "description": "medium",
+        "file": "hair-10.png"
+      },
+      {
+        "id": "11",
+        "name": "Wavy curtains",
+        "description": "medium",
+        "file": "hair-11.png"
+      },
+      {
+        "id": "12",
+        "name": "Curly bob",
+        "description": "medium",
+        "file": "hair-12.png"
+      },
+      {
+        "id": "13",
+        "name": "Afro",
+        "description": "medium",
+        "file": "hair-13.png"
+      },
+      {
+        "id": "14",
+        "name": "Medium locs",
+        "description": "medium",
+        "file": "hair-14.png"
+      },
+      {
+        "id": "15",
+        "name": "Twists",
+        "description": "medium",
+        "file": "hair-15.png"
+      },
+      {
+        "id": "16",
+        "name": "Feathered layers",
+        "description": "medium",
+        "file": "hair-16.png"
+      },
+      {
+        "id": "17",
+        "name": "Long straight",
+        "description": "long",
+        "file": "hair-17.png"
+      },
+      {
+        "id": "18",
+        "name": "Long waves",
+        "description": "long",
+        "file": "hair-18.png"
+      },
+      {
+        "id": "19",
+        "name": "Long curls",
+        "description": "long",
+        "file": "hair-19.png"
+      },
+      {
+        "id": "20",
+        "name": "Long coils",
+        "description": "long",
+        "file": "hair-20.png"
+      },
+      {
+        "id": "21",
+        "name": "Long locs",
+        "description": "long",
+        "file": "hair-21.png"
+      },
+      {
+        "id": "22",
+        "name": "Long braids",
+        "description": "long",
+        "file": "hair-22.png"
+      },
+      {
+        "id": "23",
+        "name": "Ponytail",
+        "description": "long",
+        "file": "hair-23.png"
+      },
+      {
+        "id": "24",
+        "name": "Bun",
+        "description": "long",
+        "file": "hair-24.png"
+      }
+    ],
+    "beard": [
+      {
+        "id": "none",
+        "name": "Clean-shaven",
+        "description": "No facial hair",
+        "file": null
+      },
+      {
+        "id": "01",
+        "name": "Stubble",
+        "description": "Light even stubble",
+        "file": "beard-01.png"
+      },
+      {
+        "id": "02",
+        "name": "Short beard",
+        "description": "Close-trimmed beard",
+        "file": "beard-02.png"
+      },
+      {
+        "id": "03",
+        "name": "Full beard",
+        "description": "Original full beard",
+        "file": "beard-03.png"
+      },
+      {
+        "id": "04",
+        "name": "Goatee",
+        "description": "Chin beard with moustache",
+        "file": "beard-04.png"
+      },
+      {
+        "id": "05",
+        "name": "Moustache",
+        "description": "Moustache only",
+        "file": "beard-05.png"
+      },
+      {
+        "id": "06",
+        "name": "Moustache + stubble",
+        "description": "Moustache with light stubble",
+        "file": "beard-06.png"
+      }
+    ]
+  },
+  "defaults": {
+    "version": 1,
+    "body": "male",
+    "eyes": "01",
+    "nose": "01",
+    "mouth": "01",
+    "ears": "01",
+    "hair": "01",
+    "beard": "03",
+    "hairColor": "#874209",
+    "beardColor": "#874209",
+    "eyeColor": "#416680",
+    "skinColor": "#ffc69d",
+    "linkHairBeard": true,
+    "clothing": "jacket",
+    "clothingColor": "#41434f"
+  },
+  "colors": {
+    "hair": [
+      "#261b22",
+      "#462a22",
+      "#874209",
+      "#b56d2b",
+      "#d3a958",
+      "#e5c98a",
+      "#973e32",
+      "#777782",
+      "#d5d1c9",
+      "#7b3458",
+      "#466783",
+      "#646b46"
+    ],
+    "eyes": [
+      "#416680",
+      "#71502f",
+      "#859044",
+      "#34847f",
+      "#67677a",
+      "#29212a",
+      "#94577e",
+      "#b1976c"
+    ],
+    "skin": [
+      "#ffe1bd",
+      "#ffc69d",
+      "#e8ac7f",
+      "#cb8d65",
+      "#b97850",
+      "#92583c",
+      "#75432e",
+      "#513025"
+    ],
+    "clothing": [
+      "#41434f",
+      "#ece0c8",
+      "#293750",
+      "#416d70",
+      "#65734e",
+      "#853f43",
+      "#b27c42",
+      "#796486",
+      "#b68b98",
+      "#25272d",
+      "#5085a0",
+      "#8e674e"
+    ]
+  },
+  "clothing": [
+    {
+      "id": "tshirt",
+      "name": "T-shirt"
+    },
+    {
+      "id": "polo",
+      "name": "Polo"
+    },
+    {
+      "id": "shirt",
+      "name": "Shirt"
+    },
+    {
+      "id": "hoodie",
+      "name": "Hoodie"
+    },
+    {
+      "id": "jacket",
+      "name": "Jacket"
+    }
+  ]
+}

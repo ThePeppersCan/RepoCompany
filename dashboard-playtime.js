@@ -1,0 +1,43 @@
+(() => {
+ 'use strict';
+ const service=window.repoAccount;
+ let current=null,timer=null,token=null;
+ const validGames=new Set(['moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
+ const active=()=>!document.hidden&&service.playtimeActive!==false;
+ service.db.auth.getSession().then(({data})=>{token=data.session?.access_token||null;});
+ service.db.auth.onAuthStateChange((_event,session)=>{token=session?.access_token||null;if(!session)stop();});
+ async function send(session,action,{keepalive=false}={}){
+  if(!token)return;
+  const body={game:session.game,session:session.id,sequence:++session.sequence,action,active:action==='stop'?false:active()};
+  try{
+   const response=await fetch('/api/dashboard/play',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body),keepalive});
+   if(response.status===409&&current===session){clearInterval(timer);current=null;}
+   if(!response.ok)throw Error('Play time could not sync.');
+   session.synced=true;
+  }catch{
+   // Missing beats earn no offline time. Never submit a client-calculated duration.
+   session.synced=false;
+  }
+ }
+ async function start(game){
+  if(!validGames.has(game)||current?.game===game)return;
+  await stop();
+  if(!service.state.user)return;
+  const session={id:crypto.randomUUID(),game,sequence:-1,synced:false};
+  current=session;
+  if(!token){const {data}=await service.db.auth.getSession();token=data.session?.access_token||null;}
+  if(current!==session)return;
+  await send(session,'start');
+  if(current!==session)return;
+  if(!session.synced){current=null;return;}
+  timer=setInterval(()=>{if(current===session&&active())send(session,'tick');},30000);
+ }
+ async function stop(){
+  clearInterval(timer);timer=null;const session=current;current=null;
+  if(session)await send(session,'stop',{keepalive:true});
+ }
+ document.addEventListener('visibilitychange',()=>{if(current)send(current,'tick',{keepalive:document.hidden});});
+ addEventListener('repo-playtime-visibility',()=>{if(current)send(current,'tick',{keepalive:!active()});});
+ addEventListener('pagehide',()=>{stop();});
+ window.repoPlaytime=Object.freeze({start,stop,get game(){return current?.game||'';}});
+})();

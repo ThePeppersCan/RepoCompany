@@ -77,7 +77,8 @@
   }
   function startLoop(){if(dialog.open&&!document.hidden&&frame===null&&!reduce.matches){last=0;frame=requestAnimationFrame(tick);}}
   function stopLoop(){if(frame!==null)cancelAnimationFrame(frame);frame=null;last=0;}
-  function open({route=true}={}){
+  function open({route=true,gameId}={}){
+    if(gameId){const index=games.findIndex(g=>g.id===gameId);if(index>=0)select(index,{sound:false,scroll:false});}
     if(dialog.open)return;
     opener=document.activeElement;routeOnClose=route;launching=false;
     select(selected,{sound:false,scroll:false});

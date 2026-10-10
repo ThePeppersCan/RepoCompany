@@ -19,13 +19,13 @@
   if(!dialog.open)return;
   clearTimeout(readyTimer);frame?.remove();frame=null;dialog.close();window.dashboardAudio?.suspend(false);window.repoAccount.setGame('');
   if(['binder','slabs'].includes(activeId)&&!document.getElementById('account-menu')?.open)window.accountMenu.open({tab:'inventory'});
-  await window.repoAccount.refresh();
+  await window.repoPlaytime?.stop();await window.repoAccount.refresh();
   (opener?.isConnected?opener:document.querySelector('#account-menu[open] .account-binder-tab'))?.focus({preventScroll:true});activeId='';
  }
  dialog.querySelector('[data-legacy-close]').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
  addEventListener('message',e=>{
   if(e.origin!==location.origin||e.source!==frame?.contentWindow||e.data?.type!=='repo-dashboard-runtime')return;
-  if(e.data.state==='ready'){clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').hidden=true;}
+  if(e.data.state==='ready'){clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').hidden=true;if(!['binder','slabs','pack'].includes(activeId))window.repoPlaytime?.start(activeId);}
   if(e.data.state==='error'){clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').textContent='This feature could not open. Return to the dashboard and try again.';}
   if(e.data.state==='close')close();
  });

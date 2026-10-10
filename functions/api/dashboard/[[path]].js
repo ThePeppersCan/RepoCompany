@@ -1,4 +1,18 @@
 import config from '../../../dashboard-config.json';
+import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';
+function validateAvatar(value){
+ if(!value||typeof value!=='object'||Array.isArray(value)||value.version!==1)return null;
+ const clean={version:1};
+ const clothing=value.clothing===undefined?avatarCatalog.defaults.clothing:value.clothing;
+ if(!avatarCatalog.clothing.some(p=>p.id===clothing))return null;clean.clothing=clothing;
+ const clothingColor=value.clothingColor===undefined?avatarCatalog.defaults.clothingColor:value.clothingColor;
+ if(typeof clothingColor!=='string'||!/^#[a-f\d]{6}$/i.test(clothingColor))return null;clean.clothingColor=clothingColor.toLowerCase();
+ if(!avatarCatalog.bodies.some(p=>p.id===value.body))return null;clean.body=value.body;
+ for(const key of Object.keys(avatarCatalog.parts)){if(!avatarCatalog.parts[key].some(p=>p.id===value[key]))return null;clean[key]=value[key];}
+ for(const key of ['hairColor','beardColor','eyeColor','skinColor']){if(typeof value[key]!=='string'||!/^#[a-f\d]{6}$/i.test(value[key]))return null;clean[key]=value[key].toLowerCase();}
+ if(typeof value.linkHairBeard!=='boolean')return null;clean.linkHairBeard=value.linkHairBeard;if(clean.linkHairBeard)clean.beardColor=clean.hairColor;return clean;
+}
+const readAvatar=value=>{try{return validateAvatar(JSON.parse(value));}catch{return null;}};
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const cleanName=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{3,16}$/.test(value)?value.toLowerCase():null;
 const allowedGames=new Set(['','moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
@@ -20,13 +34,15 @@ export async function onRequest({request,env,params}){
   await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id').bind(me,user.id,character.username).run();
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
   if(request.method==='GET'&&route==='state'){
-   const profile=await db.prepare('SELECT display_name,bio,invisible,repo_score FROM dashboard_players WHERE username=?').bind(me).first();
-   const friends=await db.prepare(`SELECT f.status,f.requester,p.username,p.display_name,p.repo_score,CASE WHEN p.invisible=0 AND p.last_seen>? THEN 1 ELSE 0 END AS online,CASE WHEN p.invisible=0 AND p.last_seen>? THEN p.current_game ELSE '' END AS current_game FROM dashboard_friendships f JOIN dashboard_players p ON p.username=CASE WHEN f.player_a=? THEN f.player_b ELSE f.player_a END WHERE (f.player_a=? OR f.player_b=?) AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocker=p.username AND b.blocked=?)) ORDER BY online DESC,p.username`).bind(now-90000,now-90000,me,me,me,me,me).all();
+   const profile=await db.prepare('SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar FROM dashboard_players p LEFT JOIN dashboard_avatars a ON a.username=p.username WHERE p.username=?').bind(me).first();
+   const friends=await db.prepare(`SELECT f.status,f.requester,p.username,p.display_name,p.repo_score,a.config AS avatar,CASE WHEN p.invisible=0 AND p.last_seen>? THEN 1 ELSE 0 END AS online,CASE WHEN p.invisible=0 AND p.last_seen>? THEN p.current_game ELSE '' END AS current_game FROM dashboard_friendships f JOIN dashboard_players p ON p.username=CASE WHEN f.player_a=? THEN f.player_b ELSE f.player_a END LEFT JOIN dashboard_avatars a ON a.username=p.username WHERE (f.player_a=? OR f.player_b=?) AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocker=p.username AND b.blocked=?)) ORDER BY online DESC,p.username`).bind(now-90000,now-90000,me,me,me,me,me).all();
    const blocks=await db.prepare('SELECT blocked AS username FROM dashboard_blocks WHERE blocker=?').bind(me).all();
-   return json({username:character.username,profile,friends:friends.results,blocks:blocks.results});
+   const activity=await db.prepare('SELECT game,played_ms,last_played FROM dashboard_game_activity WHERE username=? ORDER BY last_played DESC').bind(me).all();
+   profile.avatar=readAvatar(profile.avatar);for(const f of friends.results)f.avatar=readAvatar(f.avatar);
+   return json({username:character.username,profile,friends:friends.results,blocks:blocks.results,activity:activity.results});
   }
   if(request.method==='GET'&&route==='search'){
-   const target=cleanName(url.searchParams.get('username'));if(!target)return json({error:'Enter an exact player name (3–16 letters, numbers, _ or -).'},400);
+   const target=cleanName(url.searchParams.get('username'));if(!target)return json({error:'Enter an exact player name (3â€“16 letters, numbers, _ or -).'},400);
    const blocked=await db.prepare('SELECT 1 FROM dashboard_blocks WHERE (blocker=? AND blocked=?) OR (blocker=? AND blocked=?)').bind(me,target,target,me).first();
    if(blocked||target===me)return json({players:[]});
    const rows=await upstream('/rest/v1/rpc/get_public_character',token,{p_username:target}),player=Array.isArray(rows)?rows[0]:rows;
@@ -40,9 +56,39 @@ export async function onRequest({request,env,params}){
   const minute=Math.floor(now/60000);
   const rate=await db.prepare('INSERT INTO dashboard_rate_limits(player,window_start,count) VALUES(?,?,1) ON CONFLICT(player) DO UPDATE SET count=CASE WHEN window_start=excluded.window_start THEN count+1 ELSE 1 END,window_start=excluded.window_start RETURNING count').bind(me,minute).first();
   if(rate.count>35)return json({error:'Please wait a moment before trying again.'},429);
+  if(route==='play'){
+   const session=typeof body.session==='string'&&/^[a-f0-9-]{36}$/.test(body.session)?body.session:null;
+   const game=allowedGames.has(body.game)&&body.game?body.game:null;
+   const sequence=body.sequence;
+   if(!session||!game||!['start','tick','stop'].includes(body.action)||typeof body.active!=='boolean'||!Number.isSafeInteger(sequence)||sequence<0||sequence>1e9)return json({error:'Invalid game session.'},400);
+   if(body.action==='start'){
+    // One active session per account prevents time being multiplied by several tabs.
+    // Repeating the same start does not reset its last tick or credit any time.
+    await db.batch([
+     db.prepare(`INSERT INTO dashboard_play_sessions(username,session_id,game,last_tick,sequence,active) VALUES(?,?,?,?,?,?) ON CONFLICT(username) DO UPDATE SET session_id=excluded.session_id,game=excluded.game,last_tick=excluded.last_tick,sequence=excluded.sequence,active=excluded.active WHERE dashboard_play_sessions.session_id!=excluded.session_id`).bind(me,session,game,now,sequence,body.active?1:0),
+     db.prepare(`INSERT INTO dashboard_game_activity(username,game,last_played) VALUES(?,?,?) ON CONFLICT(username,game) DO UPDATE SET last_played=MAX(last_played,excluded.last_played)`).bind(me,game,now)
+    ]);
+   }else{
+    // Both statements run atomically. The server clock is the only source of time;
+    // a missing heartbeat (>45s), stale session or inactive tab earns no interval.
+    await db.batch([
+     db.prepare(`UPDATE dashboard_game_activity SET played_ms=played_ms+COALESCE((SELECT CASE WHEN active=1 AND ?-last_tick BETWEEN 0 AND 45000 THEN ?-last_tick ELSE 0 END FROM dashboard_play_sessions WHERE username=? AND session_id=? AND game=?),0),last_played=MAX(last_played,?) WHERE username=? AND game=? AND EXISTS(SELECT 1 FROM dashboard_play_sessions WHERE username=? AND session_id=? AND game=? AND sequence<?)`).bind(now,now,me,session,game,now,me,game,me,session,game,sequence),
+     db.prepare('UPDATE dashboard_play_sessions SET last_tick=MAX(last_tick,?),sequence=?,active=? WHERE username=? AND session_id=? AND game=? AND sequence<?').bind(now,sequence,body.action==='stop'?0:body.active?1:0,me,session,game,sequence)
+    ]);
+   }
+   const current=await db.prepare('SELECT session_id,game,active FROM dashboard_play_sessions WHERE username=?').bind(me).first();
+   if(current?.session_id!==session||current?.game!==game)return json({error:'Another game session is active.',superseded:true},409);
+   await db.prepare('UPDATE dashboard_players SET last_seen=?,current_game=? WHERE username=?').bind(body.active&&body.action!=='stop'?now:0,body.active&&body.action!=='stop'?game:'',me).run();
+   return json({ok:true});
+  }
   if(route==='presence'){
    const game=allowedGames.has(body.game)?body.game:'';
    await db.prepare('UPDATE dashboard_players SET last_seen=?,current_game=? WHERE username=?').bind(body.online===false?0:now,game,me).run();return json({ok:true});
+  }
+  if(route==='avatar'){
+   const avatar=validateAvatar(body.avatar);if(!avatar)return json({error:'Choose valid avatar features and colours.'},400);
+   await db.prepare('INSERT INTO dashboard_avatars(username,config,updated_at) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET config=excluded.config,updated_at=excluded.updated_at').bind(me,JSON.stringify(avatar),now).run();
+   return json({ok:true,avatar});
   }
   if(route==='profile'){
    const display=typeof body.displayName==='string'?body.displayName.trim():character.username,bio=typeof body.bio==='string'?body.bio.trim():'';
