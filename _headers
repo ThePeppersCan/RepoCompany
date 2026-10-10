@@ -10,3 +10,8 @@
   Cache-Control: no-cache
 /account-menu.js
   Cache-Control: no-cache
+/morogue-account-bridge.html
+  Cache-Control: no-store
+  Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors https://morogue.repocompany.uk https://moratales.repocompany.uk; base-uri 'none'; form-action 'none'
+/morogue-account-bridge.js
+  Cache-Control: no-cache
