@@ -53,7 +53,8 @@
   const scale=brand.width/143;
   dialog.style.setProperty('--account-scale',scale);
   dialog.style.setProperty('--account-logo-left',brand.left+'px');
-  dialog.style.setProperty('--account-logo-top',brand.top+'px');
+  // The collection can be vertically letterboxed; keep Account navigation in its header.
+  dialog.style.setProperty('--account-logo-top',Math.min(brand.top,36*scale)+'px');
   dialog.style.setProperty('--account-logo-right',brand.right+'px');
   dialog.style.setProperty('--account-glow',root.style.getPropertyValue('--game-glow')||'125,155,113');
  }
