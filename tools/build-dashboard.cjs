@@ -1,8 +1,9 @@
 const fs=require('fs'),path=require('path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist');
 const production=process.argv.includes('--production')||process.env.CF_PAGES_BRANCH==='main';
+require('./build-game-achievements.cjs');
 fs.mkdirSync(dist,{recursive:true});
-const includeDirs=['assets','original-case-assets','account-assets','audio','vendor','dragonbound-career-mode','reparty'];
+const includeDirs=['assets','game-integrations','original-case-assets','account-assets','audio','vendor','dragonbound-career-mode','reparty'];
 let files=0;
 function copy(src,dest){
  const stat=fs.statSync(src);if(stat.isDirectory()){fs.mkdirSync(dest,{recursive:true});for(const name of fs.readdirSync(src))if(!['node_modules','.git','.wrangler','tests','QA','work'].includes(name))copy(path.join(src,name),path.join(dest,name));}
@@ -20,7 +21,8 @@ if(production){
 }
 // The custom domain can retain assets longer than Pages' cache headers request.
 // Content versions keep HTML and its scripts/styles from different releases mixing.
-const entry=path.join(dist,'index.html');
+for(const html of ['index.html','game-achievements-bridge.html','game-playtime-bridge.html']){
+const entry=path.join(dist,html);if(!fs.existsSync(entry))continue;
 fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(attribute,key,url)=>{
  if(/^(?:[a-z]+:)?\/\//i.test(url))return attribute;
  const file=path.resolve(dist,url.replace(/^\//,''));
@@ -28,5 +30,6 @@ fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"
  const version=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex').slice(0,12);
  return `${key}="${url}?v=${version}"`;
 }));
+}
 fs.writeFileSync(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/api/*'],exclude:[]}));
 console.log('Staging bundle: '+files+' files. Existing runtime assets included.');

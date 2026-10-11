@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict');
+const Mora=require('../achievement-adapter-moratales'),Manager=require('../achievement-adapter-manager'),Moro=require('../achievement-adapter-morogue');
+// Save evidence: purchased food and staff-made food must not count as player cooking.
+const cafe={memories:{edie:{visits:18},inez:{visits:9}},serviceRevenue:1249.5,homestead:{kitchen:{baked:{scone:true,cake:true},achievementCooked:{scone:true}},roastery:{achievementRoasts:{farwake:true}},harvested:{carrot:4,farwake:2}}};
+let facts=Mora.derive({cafe});assert.equal(facts.paid_orders,27);assert.equal(facts.player_cooked_dishes,1);assert.equal(facts.named_roasts,1);assert.equal(facts.business_bronze,1249);assert(!facts.m080);
+cafe.achievementStats={perfectService:true,grownDishSold:true,homegrownCup:true,bagsSold:7};facts=Mora.derive({cafe});assert.equal(facts.m080,1);assert.equal(facts.m089,1);assert.equal(facts.m097,1);assert.equal(facts.branded_bags_sold,7);
+const save={careerMode:'MANAGER',managerMarket:{playerSpell:{clubId:'a',startDate:'2026-08-01',tier:4},spellHistory:[]},squads:{a:[]},fixtures:[],careerTime:{seasonId:'2026-27'},careerRuntime:{expansion:{clubs:{}}},roadToGlory:{careerHistory:[],clubHistory:{}}};
+const club={id:'a',name:'Alpha',world:'Velmora',tier:4,rival:'Beta'},opponent={id:'b',name:'Beta',tier:1};
+const tracker=Manager.createTracker();tracker.career({save,clubId:'a',club,clubs:[club,opponent],date:'2026-08-01',players:[],stats:[]});
+let serial=0;
+function fixture(type='LEAGUE',win=true){return {fixtureId:'f'+(++serial),date:'2026-09-'+String(serial).padStart(2,'0'),seasonId:'2026-27',homeClubId:'a',awayClubId:'b',played:true,type,homeScore:win?3:0,awayScore:win?0:2,matchday:{participation:{one:{team:'home',started:true,minutes:90},two:{team:'home',started:true,minutes:90},three:{team:'home',started:true,minutes:90},away:{team:'away',started:true,minutes:90}},report:{goalEvents:[{teamId:'a',playerId:'one',minute:10},{teamId:'a',playerId:'two',minute:20},{teamId:'a',playerId:'three',minute:87}],disciplineEvents:[{team:'home',card:'RED',minute:64}],teamStats:{home:{possession:120},away:{possession:240}}}}};}
+tracker.match({fixture:fixture('FRIENDLY'),clubId:'a',club,opponent});assert(!tracker.facts.m001);
+const first=fixture();tracker.match({fixture:first,clubId:'a',club,opponent,assists:{away:3}});assert.equal(tracker.facts.m001,1);assert.equal(tracker.facts.m007,1);assert.equal(tracker.facts.m013,1);assert.equal(tracker.facts.m014,1);assert.equal(tracker.facts.m018,1);assert(!tracker.facts.m006,'Opponent assists must never award a player achievement');
+tracker.match({fixture:first,clubId:'a',club,opponent});assert.equal(tracker.facts.career_wins,1,'Replayed save cannot count a match twice');
+for(let i=0;i<4;i++)tracker.match({fixture:fixture(),clubId:'a',club,opponent});assert.equal(tracker.facts.winning_streak,5);
+tracker.match({fixture:fixture('LEAGUE',false),clubId:'a',club,opponent});for(let i=0;i<3;i++)tracker.match({fixture:fixture(),clubId:'a',club,opponent});assert.equal(tracker.facts.winning_streak,5,'Loss must reset the current streak');
+const cup=fixture('CUP');tracker.match({fixture:cup,clubId:'a',club,opponent,eliminatedOpponent:false});assert(!tracker.facts.m016,'Winning a first leg is not elimination');
+tracker.match({fixture:fixture('CUP'),clubId:'a',club,opponent,eliminatedOpponent:true,cupFinal:true,cupKind:'national'});assert.equal(tracker.facts.m016,1);assert.equal(tracker.facts.m085,1);
+const resumed=Manager.createTracker(JSON.parse(JSON.stringify(tracker.memory)));resumed.career({save,clubId:'a',club,clubs:[club,opponent],date:'2026-10-01',players:[],stats:[]});assert.equal(resumed.facts.career_wins,tracker.facts.career_wins);
+for(let n=0;n<12;n++)resumed.event('operatingMonth',{clubId:'a',month:`2027-${String(n+1).padStart(2,'0')}`,arrears:0});assert.equal(resumed.facts.m061,1);
+const debt=Manager.createTracker();for(let n=0;n<12;n++)debt.event('operatingMonth',{clubId:'a',month:`2027-${String(n+1).padStart(2,'0')}`,arrears:n===6?1:0});assert(!debt.facts.m061);
+const h={},state={practice:false,time:1,boss:{id:1,bossType:'kiln',major:true,hp:100,phase:1},build:{ability:'steam',perks:{},casts:1,keystone:null},relics:{},player:{hp:100},enemies:[],weapons:{espresso:1},mainWeapon:'espresso',world:{},evolutions:{},level:1,runTime:1};const combat=Moro.createTracker(state,h);
+combat.event({type:'finisher'});assert(!combat.facts.m026,'A whiffed finisher must not count');
+combat.event({type:'specialCast',achievementBank:3,achievementCharges:2});assert.equal(combat.facts.m066,1);state.build.casts=2;combat.event({type:'specialCast',achievementBank:0,achievementCharges:1});assert.equal(combat.facts.m073,1);
+const other=Moro.createTracker(state,{});state.build.casts=3;other.event({type:'specialCast',achievementCharges:2});other.event({type:'specialReady'});state.build.casts=4;other.event({type:'specialCast',achievementCharges:1});assert(!other.facts.m073,'A completed recharge invalidates the two-charge challenge');
+combat.event({type:'bossCounterplay',id:'kiln',key:'heat'});combat.event({type:'hurt',amount:1});combat.event({type:'bossDown',major:true,id:'kiln'});assert.equal(combat.facts.m013,1);assert(!combat.facts.m091);
+console.log('PASS: actual save shapes, cooking provenance, paid orders, match ownership, duplicate saves, streak resets, cup elimination, operating costs, landed attacks and charge timing.');

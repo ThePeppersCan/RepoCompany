@@ -113,6 +113,7 @@
  dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
  const mute=document.querySelector('[data-audio]');function syncMute(){const on=mute.getAttribute('aria-pressed')==='true';dialog.querySelector('.account-audio').setAttribute('aria-label',on?'Unmute audio':'Mute audio');dialog.querySelector('.account-waves').style.opacity=on?0:1;dialog.querySelector('[data-mute]')?.setAttribute('aria-checked',String(!on));}
  new MutationObserver(syncMute).observe(mute,{attributes:true,attributeFilter:['aria-pressed']});syncMute();
+ addEventListener('repo-achievement-state',()=>{if(dialog.open&&current==='profile'&&!viewedName)render(current,{route:false});});
  addEventListener('repo-account-state',()=>{if(profileUser!==state.user?.id){viewedPlayer=null;profileRequest++;profileUser=state.user?.id;}if(dialog.open){render(current,{route:false});if(viewedName)loadPlayer();}});
  function openAchievements(game=''){
   const returnHash=dialog.open?origin:location.hash||'#collection';

@@ -28,6 +28,7 @@
   Cache-Control: no-cache
 /assets/achievements/catalogue.json
   Cache-Control: no-cache
+  Access-Control-Allow-Origin: *
 /achievements
   Cache-Control: no-cache
 /achievements-redirect.js
@@ -35,6 +36,14 @@
 /account-profile.js
   Cache-Control: no-cache
 /account-profile.css
+  Cache-Control: no-cache
+/game-achievements-bridge.html
+  Cache-Control: no-store
+  Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors 'self' https://www.repocompany.uk https://morogue.repocompany.uk https://moratales.repocompany.uk https://manager.repocompany.uk; base-uri 'none'; form-action 'none'
+/game-achievements-bridge
+  Cache-Control: no-store
+  Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors 'self' https://www.repocompany.uk https://morogue.repocompany.uk https://moratales.repocompany.uk https://manager.repocompany.uk; base-uri 'none'; form-action 'none'
+/game-integrations/*
   Cache-Control: no-cache
 /avatar-renderer.js
   Cache-Control: no-cache
