@@ -116,5 +116,5 @@
  function sample(){const api=root.VELMORA_MANAGER_DEBUG;if(api)for(const name of Object.keys(api)){const fn=api[name];if(typeof fn!=='function'||wrapped.has(fn)||!/ForTest|seed|simulate|set|force|advance/i.test(name))continue;const replacement=function(...a){debug=true;client.observe({},{debug:true});return fn.apply(this,a);};wrapped.add(replacement);try{api[name]=replacement;}catch{}}
   if(client.identity&&queued.length){const pending=queued;queued=[];for(const q of pending)event(q.kind,q.data);}
  }
- root.repoManagerAchievements={event};client.register({sample,muted:()=>root.dashboardAudio?.muted===true});sample();
+ root.repoManagerAchievements={event};client.register({sample,muted:()=>document.getElementById('menuAudioToggle')?.getAttribute('aria-pressed')==='true'});sample();
 })(typeof window==='undefined'?globalThis:window);

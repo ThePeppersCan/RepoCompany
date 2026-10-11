@@ -31,9 +31,8 @@ async function modules(name){const r=await fetch(api+'/workers/scripts/'+name+'/
   if(JSON.stringify(Object.entries(fingerprint).sort())!==JSON.stringify(Object.entries(expected).sort()))throw Error('Live Worker changed; review before updating '+plan.name);
   plan.settings=await json('/workers/scripts/'+plan.name+'/settings');
   plan.deployments=await json('/workers/scripts/'+plan.name+'/deployments');
-  plan.modules={'achievement-entry.mjs':Buffer.from(`import {withAchievements} from './integration.mjs';\nimport manifest from './manifest.json';\n${plan.original?"import original from './cloudflare.js';\nexport {CafeRoom} from './cloudflare.js';":"const original={fetch:(request,env)=>env.ASSETS.fetch(request)};"}\nexport default {async fetch(request,env,ctx){return withAchievements(await original.fetch(request,env,ctx),request,manifest);}};\n`),'integration.mjs':integration,'manifest.json':manifest,...(plan.original?{'cloudflare.js':plan.original}:{})};
-  fs.writeFileSync(path.join(work,plan.name+'-pre-achievements-settings.json'),JSON.stringify(plan.settings,null,2));
-  fs.writeFileSync(path.join(work,plan.name+'-pre-achievements-deployments.json'),JSON.stringify(plan.deployments,null,2));
+  plan.modules={'achievement-entry.mjs':Buffer.from(`import {withAchievements} from './integration.mjs';\nimport manifest from './manifest.mjs';\n${plan.original?"import original from './cloudflare.js';\nexport {CafeRoom} from './cloudflare.js';":"const original={fetch:(request,env)=>env.ASSETS.fetch(request)};"}\nexport default {async fetch(request,env,ctx){return withAchievements(await original.fetch(request,env,ctx),request,manifest);}};\n`),'integration.mjs':integration,'manifest.mjs':Buffer.from('export default '+manifest.toString()+';'),...(plan.original?{'cloudflare.js':plan.original}:{})};
+  for(const[label,value]of [['settings',plan.settings],['deployments',plan.deployments]]){const p=path.join(work,plan.name+'-pre-achievements-'+label+'.json');if(!fs.existsSync(p))fs.writeFileSync(p,JSON.stringify(value,null,2));}
   console.log('Verified live source and preserved bindings:',plan.name,plan.settings.bindings.map(x=>x.name).join(', '));
  }
  if(!deploy){console.log('Read-only release check passed. Add --deploy after the website and additive schema are live.');return;}

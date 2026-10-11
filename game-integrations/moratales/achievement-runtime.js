@@ -102,6 +102,6 @@
   const recipes=root.VELMORA_BAKERY?.RECIPES;if(recipes)snap.knownRecipes=Object.values(recipes).filter(r=>!r.process&&kitchen?.known?.(r.id)).length;
   client.observe(derive(snap,tracking),{active:true,debug:debug||!!root.MORATALES_DEVELOPMENT||new URLSearchParams(location.search).has('checkpoint')});lastCafe=c;
  }
- client.register({sample,muted:()=>root.__velmoraTown?.audio?.muted===true});
+ client.register({sample,muted:()=>root.__velmoraTown?.audio?.muted===true||document.getElementById('mm-sound')?.checked===false});
 
 })(typeof window==='undefined'?globalThis:window);
