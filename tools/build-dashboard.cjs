@@ -1,4 +1,4 @@
-const fs=require('fs'),path=require('path');
+const fs=require('fs'),path=require('path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist');
 const production=process.argv.includes('--production')||process.env.CF_PAGES_BRANCH==='main';
 fs.mkdirSync(dist,{recursive:true});
@@ -18,5 +18,15 @@ if(production){
  fs.writeFileSync(index,fs.readFileSync(index,'utf8').replace(/<meta name="robots"[^>]*>/g,''));
  fs.writeFileSync(headers,fs.readFileSync(headers,'utf8').replace(/^.*X-Robots-Tag:.*\r?\n/gm,''));
 }
+// The custom domain can retain assets longer than Pages' cache headers request.
+// Content versions keep HTML and its scripts/styles from different releases mixing.
+const entry=path.join(dist,'index.html');
+fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(attribute,key,url)=>{
+ if(/^(?:[a-z]+:)?\/\//i.test(url))return attribute;
+ const file=path.resolve(dist,url.replace(/^\//,''));
+ if(!file.startsWith(dist+path.sep)||!fs.existsSync(file))return attribute;
+ const version=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex').slice(0,12);
+ return `${key}="${url}?v=${version}"`;
+}));
 fs.writeFileSync(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/api/*'],exclude:[]}));
 console.log('Staging bundle: '+files+' files. Existing runtime assets included.');
