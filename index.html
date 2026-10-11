@@ -22,7 +22,7 @@ dialog{border:1px solid #ffffff24;color:#f3ebd9;border-radius:18px;background:#1
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 <link rel="stylesheet" href="dashboard-refinement.css"><link rel="stylesheet" href="homepage.css"><link rel="stylesheet" href="game-scenes.css"><link rel="stylesheet" href="demo-library.css"><link rel="stylesheet" href="dashboard-layout.css"><link rel="stylesheet" href="account-menu.css">
-<meta name="description" content="Your Repo Company collection. Play Moratales, Velmora Manager, Morogue and more."><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.png"><link rel="stylesheet" href="dashboard-connected.css"><link rel="stylesheet" href="account-pack.css"><link rel="stylesheet" href="account-profile.css"><link rel="stylesheet" href="avatar-studio.css"></head>
+<meta name="description" content="Your Repo Company collection. Play Moratales, Velmora Manager, Morogue and more."><meta name="robots" content="noindex,nofollow"><link rel="icon" href="favicon.png"><link rel="stylesheet" href="dashboard-connected.css"><link rel="stylesheet" href="account-pack.css"><link rel="stylesheet" href="account-profile.css"><link rel="stylesheet" href="account-achievements.css?v=20261011-1"><link rel="stylesheet" href="avatar-studio.css"></head>
 <body class="collection-preview">
 <div class="viewport" id="viewport">
 <main class="dashboard home-mode" id="dashboard" aria-label="Repo Company game collection">
@@ -36,6 +36,7 @@ dialog{border:1px solid #ffffff24;color:#f3ebd9;border-radius:18px;background:#1
 <p class="meta">Story &amp; life sim&nbsp; · &nbsp;Solo / 2-player co-op</p>
 <p class="description">Make a life in Velmora. Run your café, grow ingredients and explore new places, with friends and animal companions along the way.</p>
 <div class="actions"><button class="play" data-note="Play" data-game-url="https://moratales.repocompany.uk/"><svg viewBox="0 0 24 28"><path d="M3 2Q1 1 1 4v20q0 3 2 2l19-11q2-1 0-2Z"/></svg>Play</button><button class="close-case" data-note="Collection"><span class="key"><svg viewBox="0 0 30 22"><path d="M25 3v11H4m7-7-7 7 7 7"/></svg></span>Close case</button></div>
+<button class="game-achievement-link" data-open-achievements="moratales">View 100 achievements <span aria-hidden="true">→</span></button>
 </section>
 <div class="booklet" id="booklet" aria-label="Original Copper Kettle Square artwork on the printed booklet"><img class="art" src="original-case-assets/moratales-cover-source.png" alt=""><div class="shade"></div><img class="title" src="original-case-assets/moratales-logo.png" alt=""></div>
 <div class="clip top" aria-hidden="true"></div><div class="clip bottom" aria-hidden="true"></div>
@@ -81,5 +82,5 @@ function fit(){if(window.fitDashboard){window.fitDashboard();return;}const scale
 addEventListener('resize',fit);fit();
 pinPlane(document.getElementById('disc-plane'),400,400,[[1107,171.6],[1446,138.1],[1446,521.8],[1107,527.0]]);
 </script>
-<script src="dashboard-audio.js"></script><script src="dashboard-motion.js"></script><script src="game-scenes.js"></script><script src="demo-library.js"></script><script src="dashboard-layout.js"></script><script src="vendor/supabase.js"></script><script src="dashboard-config.js"></script><script src="dashboard-service.js"></script><script src="dashboard-playtime.js"></script><script src="legacy-launcher.js"></script><script src="avatar-renderer.js"></script><script src="avatar-studio.js"></script><script src="account-profile.js"></script><script src="account-menu.js"></script><script src="account-pack.js"></script><script src="homepage.js"></script>
+<script src="dashboard-audio.js"></script><script src="dashboard-motion.js"></script><script src="game-scenes.js"></script><script src="demo-library.js"></script><script src="dashboard-layout.js"></script><script src="vendor/supabase.js"></script><script src="dashboard-config.js"></script><script src="dashboard-service.js"></script><script src="dashboard-playtime.js"></script><script src="legacy-launcher.js"></script><script src="avatar-renderer.js"></script><script src="avatar-studio.js"></script><script src="account-profile.js"></script><script src="achievement-model.js"></script><script src="account-achievements.js"></script><script src="account-menu.js"></script><script src="account-pack.js"></script><script src="homepage.js"></script>
 </body></html>

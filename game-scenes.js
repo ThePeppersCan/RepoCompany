@@ -59,6 +59,8 @@
     if(!scene)throw new Error(`Unknown scene: ${id}`);
     root.dataset.openGame=id;
     root.dataset.gameName=scene.name;
+    const achievements=details.querySelector('[data-open-achievements]');
+    if(achievements){achievements.dataset.openAchievements=id;achievements.setAttribute('aria-label','View '+scene.name+' achievements');}
     root.style.setProperty('--game-glow',scene.glow);
     root.setAttribute('aria-label',`${scene.name} open case`);
     document.getElementById('open-scene').setAttribute('aria-label',scene.name);

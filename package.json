@@ -14,7 +14,9 @@
     "test:playtime": "node tools/test-playtime.cjs",
     "test:profile": "node tools/test-profile.cjs",
     "test:game-playtime": "node tools/test-game-playtime.cjs",
-    "test:avatar": "node tools/test-avatar-api.cjs && node tools/test-avatar-ui.cjs"
+    "test:avatar": "node tools/test-avatar-api.cjs && node tools/test-avatar-ui.cjs",
+    "test:achievements": "node tools/test-achievements.cjs",
+    "predeploy:production": "node tools/verify-deploy-base.cjs"
   },
   "engines": {
     "node": ">=24"

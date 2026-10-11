@@ -16,6 +16,22 @@
   Cache-Control: no-cache
 /account-menu.js
   Cache-Control: no-cache
+/homepage.js
+  Cache-Control: no-cache
+/game-scenes.js
+  Cache-Control: no-cache
+/account-achievements.js
+  Cache-Control: no-cache
+/account-achievements.css
+  Cache-Control: no-cache
+/achievement-model.js
+  Cache-Control: no-cache
+/assets/achievements/catalogue.json
+  Cache-Control: no-cache
+/achievements
+  Cache-Control: no-cache
+/achievements-redirect.js
+  Cache-Control: no-cache
 /account-profile.js
   Cache-Control: no-cache
 /account-profile.css
