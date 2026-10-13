@@ -46,3 +46,7 @@ All six demo discs now open inside the dashboard. Repo Diver, Goblin Bomb Party,
 Validation: `test:binders`, `test:packs` and `test:dashboard` pass with isolated account fixtures. These cover visibility persistence, layout retention, cross-page moves, distinct duplicate slabs, failed-save retry, unknown cards, mobile overflow, native pack-to-binder return, six game launch/return paths and absence of legacy requests from native binders. Browser checks make no real purchases, save changes or social requests. They check game menus and account handoff, not full game campaigns or live multiplayer.
 
 For this dashboard-only release, build with `node tools/build-dashboard.cjs --production --preserve-game-integrations` to retain the exact existing generated game integration files. The ordinary build continues to regenerate them when game integration work is intended. Baseline commit: `e1827c3219c2870205951b892805afd6556a1ee9`.
+
+### Shared demo loading correction
+
+A delayed favourite-card request could make the retired passport panel repeatedly render through already-resolved promises, starving network completion and game startup. Its loader now waits for the favourite cache to be marked loaded; the existing completion event handles the final render. This changes only the shared account loading path, not game rules or saves. Demo launch tests delay favourite-card responses by 750 ms to cover this race. Legacy runtime scripts and styles now receive content versions during the build so the corrected loader is fetched consistently.

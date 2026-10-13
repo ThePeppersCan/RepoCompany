@@ -33163,7 +33163,11 @@ window.__repoBinderFavouriteWorldCupFixV194=true;
       const loadedDisplay=typeof window.repoTcgGetFavouriteDisplay==='function'?window.repoTcgGetFavouriteDisplay(clean):null;
       passportFavouriteCardCache=loadedDisplay?.card||card||null;
       passportFavouriteLoadingFor='';
-      renderRepoPassportPanel();
+      // A concurrent load returns its current cache immediately. Rendering while
+      // that request is still pending creates a resolved-Promise loop that can
+      // starve the network response and prevent embedded games from opening.
+      // The favourite-changed event renders once the original request completes.
+      if(window.repoTcgFavouriteLoaded?.(clean))renderRepoPassportPanel();
     }).catch(()=>{passportFavouriteLoadingFor=''});
   }
   const passportWeeklyServerCache={userKey:'',data:null,loading:false,loadedAt:0};
