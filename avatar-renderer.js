@@ -4,7 +4,7 @@
  const images=new Map(),sources=new Map(),tints=new Map(),jobs=new WeakMap();
  const scaled=box=>box.map(n=>n*unit);
  let catalog;
- const ready=fetch(new URL('catalog.json?v=20261013-fit1',base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Avatar styles could not be loaded.');return r.json();}).then(v=>(catalog=v));
+ const ready=fetch(new URL('catalog.json?v=20261013-hair2',base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Avatar styles could not be loaded.');return r.json();}).then(v=>(catalog=v));
  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
  const bytes=hex=>hex.slice(1).match(/../g).map(x=>parseInt(x,16));
  function lab(r,g,b){
@@ -54,7 +54,7 @@
   }
  }
  function load(part){
-  const {file}=part,key=JSON.stringify([file,part.rect,part.target,part.crownLift]);
+  const {file}=part,key=JSON.stringify([file,part.rect,part.target,part.crownLift,part.fit]);
   if(!images.has(key))images.set(key,(async()=>{
    const im=await source(file);
    const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
@@ -67,9 +67,24 @@
     ctx.drawImage(copy,0,peak,size,end-peak,0,peak-lift,size,end-peak+lift);
     ctx.drawImage(copy,0,end,size,size-end,0,end,size,size-end);
    }
+   if(part.fit){
+    // Register the cap to the skull and ear line. Long styles keep their lower
+    // lengths rather than shrinking the braids along with an oversized crown.
+    const [sx,sy,dx,dy,hinge]=part.fit,original=ctx.getImageData(0,0,size,size),fitted=new ImageData(size,size),src=new Uint32Array(original.data.buffer),dst=new Uint32Array(fitted.data.buffer),join=hinge*sy+dy;
+    for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+     const px=Math.round((x-dx)/sx),py=Math.round(hinge&&y>join?hinge+(y-join)*(size-hinge)/(size-join):(y-dy)/sy);
+     if(px>=0&&px<size&&py>=0&&py<size)dst[y*size+x]=src[py*size+px];
+    }
+    ctx.putImageData(fitted,0,0);
+   }
    if(!part.rect)sources.delete(file);
    const pixels=ctx.getImageData(0,0,size,size),data=pixels.data;
-   if(file.startsWith('hair-sheet-')){closeHairSeams(data);ctx.putImageData(pixels,0,0);}
+   if(file.startsWith('hair-')){
+    // Keep a single crisp pixel edge. Near-transparent source pixels otherwise
+    // leave skin-coloured pinholes and halos when the hair is recoloured.
+    for(let i=3;i<data.length;i+=4)data[i]=data[i]>=128?255:0;
+    closeHairSeams(data);ctx.putImageData(pixels,0,0);
+   }
    // The background remains unchanged when skin colour changes. It is connected
    // to the outer edge and has the portrait's ochre hue, unlike the peach face.
    const backdrop=new Uint8Array(size*size),queue=new Int32Array(size*size);let head=0,tail=0;
@@ -275,17 +290,54 @@
   tc.globalCompositeOperation='destination-in';tc.drawImage(asset.foreground,0,0);tc.drawImage(baseAsset.foreground,0,0);
   ctx.drawImage(tile,0,0);
  }
+ const scalpMasks=new Map();
+ function hideExposedScalp(ctx,hair,body){
+  const key=hair.key+'|'+body.key;let layer=scalpMasks.get(key);
+  if(!layer){
+   const seen=new Uint8Array(size*size),data=body.pixels.data,alpha=hair.pixels.data,remove=new Uint8Array(size*size);
+   // The bald crown is a construction layer. Only the exposed front face
+   // belongs in the finished portrait; disconnected crown edges must not
+   // appear as a pink outline outside a bun or close-fitting braid.
+   for(let start=0;start<118*size;start++){
+    if(seen[start]||body.backdrop[start]||alpha[start*4+3]>=128)continue;
+    const queue=[start];seen[start]=1;let face=false,outer=false;
+    for(let n=0;n<queue.length;n++){
+     const i=queue[n],x=i%size,y=Math.floor(i/size);if(y>=118&&x<190)face=true;
+     for(const j of [x?i-1:-1,x<size-1?i+1:-1,i-size,i+size]){
+      if(j<0||j>=seen.length)continue;if(body.backdrop[j])outer=true;
+      else if(!seen[j]&&alpha[j*4+3]<128){seen[j]=1;queue.push(j);}
+     }
+    }
+    if(outer&&!face)for(const i of queue)if(i<118*size)remove[i]=1;
+   }
+   const pixels=new ImageData(size,size);
+   for(let i=0;i<remove.length;i++)if(remove[i]){
+    const x=i%size,y=Math.floor(i/size);let nearest=-1;
+    for(let d=1;d<size&&nearest<0;d++)for(const [xx,yy]of [[x,y-d],[x-d,y],[x+d,y]])if(xx>=0&&xx<size&&yy>=0&&body.backdrop[yy*size+xx]){nearest=yy*size+xx;break;}
+    if(nearest>=0)pixels.data.set(data.slice(nearest*4,nearest*4+4),i*4);
+   }
+   layer=document.createElement('canvas');layer.width=layer.height=size;layer.getContext('2d').putImageData(pixels,0,0);scalpMasks.set(key,layer);
+  }
+  ctx.drawImage(layer,0,0);
+ }
  async function draw(canvas,value,options={}){
   const ticket={};jobs.set(canvas,ticket);await ready;
-  const state=normalize(value),outfit=catalog.clothing.find(p=>p.id===state.clothing);
+  const state=normalize(value),outfit=catalog.clothing.find(p=>p.id===state.clothing),hairstyle=catalog.parts.hair.find(p=>p.id===state.hair);
   const beardParts=state.beard==='06'?['01','05']:state.beard==='03'?['02','03']:[state.beard];
-  const parts=[['body',catalog.bodies.find(b=>b.id===state.body)],['clothing',outfit],...['ears','eyes','nose','mouth','beard','hair'].flatMap(k=>k==='beard'?beardParts.map(id=>[k,catalog.parts[k].find(p=>p.id===id)]):[[k,catalog.parts[k].find(p=>p.id===state[k])]])].filter(([kind,p])=>p?.file&&!(regions[kind]&&p.id==='01'));
+  // A covered ear remains selected, but must not poke through the outside of
+  // a hairstyle that completely conceals it.
+  const parts=[['body',catalog.bodies.find(b=>b.id===state.body)],['clothing',outfit],...['ears','eyes','nose','mouth','beard','hair'].flatMap(k=>k==='beard'?beardParts.map(id=>[k,catalog.parts[k].find(p=>p.id===id)]):[[k,catalog.parts[k].find(p=>p.id===state[k])]])].filter(([kind,p])=>p?.file&&!(regions[kind]&&p.id==='01')&&!(kind==='ears'&&hairstyle.coversEars));
   const layers=await Promise.all(parts.map(async([kind,part])=>({kind,part,asset:await load(part)})));
   if(jobs.get(canvas)!==ticket)return false;
   const portrait=document.createElement('canvas');portrait.width=portrait.height=size;const ctx=portrait.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=false;
   const baseAsset=layers[0].asset;
   for(const {kind,part,asset} of layers){
    const image=tinted(asset,asset.key,kind,state),box=regions[kind]&&!part.rect?scaled(regions[kind]):null;
+   let faceInFront;
+   if(kind==='hair'){
+    if(part.behindJaw){faceInFront=document.createElement('canvas');faceInFront.width=faceInFront.height=size;const fc=faceInFront.getContext('2d');fc.drawImage(portrait,0,0);fc.globalCompositeOperation='destination-in';fc.drawImage(headMask(baseAsset),0,0);fc.clearRect(0,0,size,170);fc.clearRect(195,0,size-195,size);}
+    hideExposedScalp(ctx,asset,baseAsset);
+   }
    // Feature edits stay at their native coordinates. Never stretch a feature's
    // detected bounding box into a different eye, nose or mouth shape.
    if(['eyes','nose','mouth'].includes(kind))faceFeature(ctx,image,asset,baseAsset,box,kind);
@@ -302,6 +354,7 @@
     ctx.drawImage(image,0,0,size,from,0,0,size,from);
     ctx.drawImage(image,0,from,size,to-from,0,from,size,end-from);
    }else ctx.drawImage(image,0,0,size,size);
+   if(faceInFront)ctx.drawImage(faceInFront,0,0);
    if(kind==='body'&&!outfit.file){const clothes=clothingLayer(asset,state);if(clothes)ctx.drawImage(clothes,0,0,size,size);}
   }
   const map=jawMap(state);
