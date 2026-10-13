@@ -66,6 +66,8 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   await page.locator('[data-book-search]').fill(catalog[0].name);assert.equal(await page.locator('.binder-pocket').count(),1);await page.locator('[data-book-search]').fill('nothing-matches-123');assert.equal(await page.locator('.binder-pocket').count(),0);await page.locator('[data-book-search]').fill('');
   await page.locator('[data-book-action=hide]').first().click();await saved();
   await page.reload();await page.locator('.binder-book').waitFor();assert((await page.locator('.binder-summary').innerText()).includes('1 in storage'));
+  // Refresh pulls new ownership before rebuilding the binder.
+  cards.push(catalog[35].id);await page.locator('[data-book-action=reload]').click();await page.locator('.binder-book').waitFor();await page.locator('[data-book-search]').fill(catalog[35].name);assert.equal(await page.locator('.binder-pocket').count(),1);await page.locator('[data-book-search]').fill('');
   // Unknown card IDs remain in the arrangement, and duplicate copies are counted.
   await page.locator('[data-book-search]').fill('unknown_future_card');assert.equal(await page.locator('.binder-missing').count(),1);await page.locator('[data-book-search]').fill('');
   await page.locator('.binder-art-button img').evaluateAll(imgs=>Promise.all(imgs.map(img=>img.decode().catch(()=>{}))));await page.screenshot({path:path.join(out,'tcg-desktop.png'),fullPage:true});

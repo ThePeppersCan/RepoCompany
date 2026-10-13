@@ -22,9 +22,10 @@
  }
  function newSession(mode){return {mode,user:accountId,owner:owner(),loading:true,ready:false,error:'',warning:'',page:0,query:'',rarity:'all',storage:false,selected:null,layout:[],stored:[],items:[],count:0,busy:false,unsaved:false,message:''};}
  function normalize(raw,length,valid){const used=new Set();return Array.from({length},(_,i)=>{const id=raw?.[i];if(typeof id!=='string'||!valid.has(id)||used.has(id))return null;used.add(id);return id;});}
- async function load(s){
+ async function load(s,{refresh=false}={}){
   s.loading=true;s.error='';draw();
   try{
+   if(refresh)await service.refresh();
    await getCatalog();
    if(s.mode==='slabs'){
     const row=await service.rpc('get_my_rcg_slab_binder_view');
@@ -128,7 +129,7 @@
    const b=e.target.closest('button');if(!b||b.disabled)return;
    if(b.dataset.bookInspect)return inspect(b.dataset.bookInspect);
    const action=b.dataset.bookAction,s=active;if(!s)return;
-   if(action==='reload'){if(!s.unsaved&&!s.busy){s.readOnly=false;s.warning='';load(s);}return;}
+   if(action==='reload'){if(!s.unsaved&&!s.busy){s.readOnly=false;s.warning='';load(s,{refresh:true});}return;}
    if(action==='save')return persist(s);
    if(action==='prev'||action==='next'){s.page=Math.max(0,Math.min(s.capacity/s.perSpread-1,s.page+(action==='next'?1:-1)));draw();return;}
    if(action==='displayed'||action==='storage'){s.storage=action==='storage';s.selected=null;draw();return;}
