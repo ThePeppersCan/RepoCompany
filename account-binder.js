@@ -20,7 +20,7 @@
   if(accountId===service.state.user?.id)return;
   accountId=service.state.user?.id||'';sessions={};active=null;if(inspector.open)inspector.close();
  }
- function newSession(mode){return {mode,user:accountId,owner:owner(),loading:true,ready:false,error:'',warning:'',page:0,query:'',rarity:'all',storage:false,selected:null,layout:[],stored:[],items:[],count:0,busy:false,unsaved:false,message:''};}
+ function newSession(mode){return {mode,user:accountId,owner:owner(),username:service.state.character?.username||'',loading:true,ready:false,error:'',warning:'',page:0,query:'',rarity:'all',storage:false,selected:null,layout:[],stored:[],items:[],count:0,busy:false,unsaved:false,message:''};}
  function normalize(raw,length,valid){const used=new Set();return Array.from({length},(_,i)=>{const id=raw?.[i];if(typeof id!=='string'||!valid.has(id)||used.has(id))return null;used.add(id);return id;});}
  async function load(s,{refresh=false}={}){
   s.loading=true;s.error='';draw();
@@ -106,7 +106,7 @@
     // Keep the exact legacy keys so returning to the original tools preserves this arrangement.
     localStorage.setItem(`repo_tcg_binder_54_layout_${s.owner}`,JSON.stringify(s.layout));
     localStorage.setItem(`repo_tcg_binder_storage_${s.owner}`,JSON.stringify(s.stored));
-    await service.rpc('set_my_quidditch_tcg_binder_layout',{p_username:s.owner,p_layout:[...s.layout],p_storage:[...s.stored]});
+    await service.rpc('set_my_quidditch_tcg_binder_layout',{p_username:s.username,p_layout:[...s.layout],p_storage:[...s.stored]});
    }
    s.unsaved=false;s.message='Arrangement saved.';
   }catch(e){s.message=`Could not confirm the save: ${e.message} Your changes are still shown. Retry save before leaving.`;}

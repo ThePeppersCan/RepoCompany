@@ -58,6 +58,7 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   const saved=()=>page.waitForFunction(()=>document.querySelector('.binder-save-status')?.textContent.includes('Arrangement saved.'));
   await page.locator(`[data-book-action=select][data-id="${cards[0]}"]`).click();
   await page.locator('[data-book-action=next]').click();await page.locator('[data-book-action=place]').first().click();await saved();
+  assert.equal(calls.find(x=>x.rpc==='set_my_quidditch_tcg_binder_layout').args.p_username,'QAPlayer','Preserve the account username casing used by the existing service');
   let layout=await page.evaluate(()=>JSON.parse(localStorage.getItem('repo_tcg_binder_54_layout_qaplayer')));assert.equal(layout[1],null);assert(layout.indexOf(cards[0])>=24);
   await page.locator('[data-book-action=hide]').first().click();await saved();
   await page.locator('[data-book-action=storage]').click();assert((await page.locator('.binder-pocket').count())>=2);
