@@ -62,7 +62,7 @@
    ctx.drawImage(im,...(part.rect||[0,0,im.width,im.height]),...(part.target?scaled(part.target):[0,0,size,size]));
    if(part.crownLift){
     // Anchor the bun's top and the face opening, adjusting only the crown fit.
-    const [peak,end,lift]=scaled(part.crownLift),copy=document.createElement('canvas');copy.width=copy.height=size;copy.getContext('2d').drawImage(canvas,0,0);ctx.clearRect(0,0,size,size);
+    const [peak,end,lift]=scaled(part.crownLift).map(Math.round),copy=document.createElement('canvas');copy.width=copy.height=size;copy.getContext('2d').drawImage(canvas,0,0);ctx.clearRect(0,0,size,size);
     ctx.drawImage(copy,0,0,size,peak,0,0,size,peak-lift);
     ctx.drawImage(copy,0,peak,size,end-peak,0,peak-lift,size,end-peak+lift);
     ctx.drawImage(copy,0,end,size,size-end,0,end,size,size-end);
