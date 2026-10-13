@@ -32,3 +32,17 @@ Binder and slab views keep their original implementation and saved layouts. Thei
 `npm run test:packs` uses mocked account data to check close before/after opening, duplicate-click protection, duplicate copies, slab-to-card-binder navigation, Escape return, missing artwork, rejected requests, a committed pull with a lost response, and mobile layout. It consumes no real packs.
 
 Rollback for this update: Git commit `e8e950f977c112d5058b64ea14cd47bc3f460344`, Pages deployment `25055ccd-f727-4854-9c58-96f72516c177` (the released console dashboard).
+
+## Inventory and native binders — 13 October 2026
+
+Inventory has individual Hide controls, Hide all cards and Unhide all. This display preference is saved per account in this browser and does not change ownership, binder layouts, packs or balances. Hidden cards are not rendered or downloaded by Inventory.
+
+TCG and slab binders open as Account sections at `#account/binder` and `#account/slabs`. They use the existing catalogue and Supabase services directly, without loading `legacy-runtime.html`. Both include spread navigation, search, rarity filtering, full-size inspection, Move/swap and drag controls, storage, individual restore and Restore all. Copies and separate slab certificates remain distinct. TCG continues to read/write the established browser layout/storage keys and publish the existing public snapshot. On a new browser only, it reads that snapshot as a fallback. Slabs retain the existing 270-pocket server layout. A failed save remains visible with an explicit retry; there are no automatic mutation retries.
+
+The original grading, public collection and binder-style tools remain available through the clearly labelled Grading & binder styles link. Their code and saved style settings are unchanged; style customizations are not rendered by the new Account binder.
+
+All six demo discs now open inside the dashboard. Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas and Repo Sports keep their original same-origin runtime and game assets. Dragonbound now uses its existing embedded account protocol on `dragonbound.repocompany.uk`, with exact origin/source/nonce checks, rather than navigating away. Its hosting, game code and save services remain unchanged.
+
+Validation: `test:binders`, `test:packs` and `test:dashboard` pass with isolated account fixtures. These cover visibility persistence, layout retention, cross-page moves, distinct duplicate slabs, failed-save retry, unknown cards, mobile overflow, native pack-to-binder return, six game launch/return paths and absence of legacy requests from native binders. Browser checks make no real purchases, save changes or social requests. They check game menus and account handoff, not full game campaigns or live multiplayer.
+
+For this dashboard-only release, build with `node tools/build-dashboard.cjs --production --preserve-game-integrations` to retain the exact existing generated game integration files. The ordinary build continues to regenerate them when game integration work is intended. Baseline commit: `e1827c3219c2870205951b892805afd6556a1ee9`.

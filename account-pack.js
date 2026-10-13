@@ -90,7 +90,8 @@
   window.accountMenu.open({tab:'inventory'});
   // Refresh from the original account after every exit, including uncertain results.
   await service.refresh();
-  if(binder)window.repoLegacy.open('binder');
+  window.repoBinder?.invalidate();
+  if(binder)window.repoBinder.open('binder');
   else (opener?.isConnected?opener:document.getElementById('account-tab-inventory'))?.focus({preventScroll:true});
  }
  dialog.addEventListener('click',e=>{

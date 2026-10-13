@@ -44,7 +44,7 @@
     dialog.querySelector('#demo-selected-title').textContent=game.name;
     dialog.querySelector('#demo-selected-genre').textContent=game.genre;
     dialog.querySelector('#demo-selected-description').textContent=game.description;
-    launch.href=game.url||('#demo/'+game.id);
+    launch.href='#demo/'+game.id;
     launch.setAttribute('aria-label',`Play ${game.name}`);
     dialog.querySelector('#demo-launch-label').textContent='Play';
     dialog.querySelector('#demo-location').textContent='';
@@ -121,14 +121,13 @@
     if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
     event.preventDefault();if(launching)return;
     launching=true;coast=null;launchAt=performance.now();launchFrom=Math.max(80,speed);
-    const destination=launch.href,duration=reduce.matches?320:1900;
+    const duration=reduce.matches?320:1900;
     dialog.classList.add('demo-is-launching');curtain.firstChild.textContent=`Opening ${games[selected].name}`;
     audio?.launch(duration-200);
     timers.push(setTimeout(()=>curtain.classList.add('visible'),reduce.matches?0:900));
     timers.push(setTimeout(()=>audio?.finish(),duration-280));
     timers.push(setTimeout(()=>{
-      if(games[selected].url)location.assign(destination);
-      else {resetLaunch();window.repoLegacy.open(games[selected].id);}
+      resetLaunch();window.repoLegacy.open(games[selected].id);
     },duration));
   });
   function resetLaunch(){timers.forEach(clearTimeout);timers=[];launching=false;angle=speed=0;stopSpin();curtain.classList.remove('visible');dialog.classList.remove('demo-is-launching');root.inert=dialog.open;audio?.reset();startLoop();}

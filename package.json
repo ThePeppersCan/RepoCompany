@@ -16,7 +16,8 @@
     "test:game-playtime": "node tools/test-game-playtime.cjs",
     "test:avatar": "node tools/test-avatar-api.cjs && node tools/test-avatar-ui.cjs",
     "test:achievements": "node tools/test-achievements.cjs",
-    "predeploy:production": "node tools/verify-deploy-base.cjs"
+    "predeploy:production": "node tools/verify-deploy-base.cjs",
+    "test:binders": "node tools/test-binders.cjs"
   },
   "engines": {
     "node": ">=24"

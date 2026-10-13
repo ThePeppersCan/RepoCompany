@@ -1,7 +1,7 @@
 const fs=require('fs'),path=require('path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist');
 const production=process.argv.includes('--production')||process.env.CF_PAGES_BRANCH==='main';
-require('./build-game-achievements.cjs');
+if(!process.argv.includes('--preserve-game-integrations'))require('./build-game-achievements.cjs');
 fs.mkdirSync(dist,{recursive:true});
 const includeDirs=['assets','game-integrations','original-case-assets','account-assets','audio','vendor','dragonbound-career-mode','reparty'];
 let files=0;
