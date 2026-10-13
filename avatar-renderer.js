@@ -1,9 +1,10 @@
 (() => {
  'use strict';
- const base=new URL('account-assets/avatar-v2/',document.currentScript.src),size=1254;
- const images=new Map(),tints=new Map(),jobs=new WeakMap();
+ const base=new URL('account-assets/avatar-v2/',document.currentScript.src),size=320,unit=size/1254;
+ const images=new Map(),sources=new Map(),tints=new Map(),jobs=new WeakMap();
+ const scaled=box=>box.map(n=>n*unit);
  let catalog;
- const ready=fetch(new URL('catalog.json',base)).then(r=>{if(!r.ok)throw Error('Avatar styles could not be loaded.');return r.json();}).then(v=>(catalog=v));
+ const ready=fetch(new URL('catalog.json?v=20261013-sheets1',base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Avatar styles could not be loaded.');return r.json();}).then(v=>(catalog=v));
  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
  const bytes=hex=>hex.slice(1).match(/../g).map(x=>parseInt(x,16));
  function lab(r,g,b){
@@ -19,6 +20,8 @@
   if(!catalog)throw Error('Avatar catalogue is loading.');
   if(!value||typeof value!=='object'||Array.isArray(value))value={};
   const v={...catalog.defaults};
+  // Existing saved avatars retain their original silhouette until edited.
+  if(value.version===1&&value.face===undefined)v.face='classic';
   if(catalog.bodies.some(b=>b.id===value.body))v.body=value.body;
   if(catalog.clothing.some(p=>p.id===value.clothing))v.clothing=value.clothing;
   for(const key of Object.keys(catalog.parts))if(catalog.parts[key].some(p=>p.id===value[key]))v[key]=value[key];
@@ -28,11 +31,18 @@
   return v;
  }
  const regions={eyes:[296,496,391,115],nose:[362,590,220,138],mouth:[377,735,229,113],ears:[754,455,207,283]};
- function load(file){
-  if(!images.has(file))images.set(file,(async()=>{
-   const im=new Image();im.src=new URL(file,base);await im.decode();
+ function source(file){
+  if(!sources.has(file))sources.set(file,(async()=>{const im=new Image();im.src=new URL(file,base);await im.decode();return im;})().catch(error=>{sources.delete(file);throw error;}));
+  return sources.get(file);
+ }
+ function load(part){
+  const {file}=part,key=JSON.stringify([file,part.rect,part.target]);
+  if(!images.has(key))images.set(key,(async()=>{
+   const im=await source(file);
    const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
-   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=false;ctx.drawImage(im,0,0,size,size);
+   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=false;
+   ctx.drawImage(im,...(part.rect||[0,0,im.width,im.height]),...(part.target?scaled(part.target):[0,0,size,size]));
+   if(!part.rect)sources.delete(file);
    const pixels=ctx.getImageData(0,0,size,size),data=pixels.data;
    // The background remains unchanged when skin colour changes. It is connected
    // to the outer edge and has the portrait's ochre hue, unlike the peach face.
@@ -41,9 +51,9 @@
    for(let x=0;x<size;x++){visit(x);visit((size-1)*size+x);}for(let y=0;y<size;y++){visit(y*size);visit(y*size+size-1);}
    while(head<tail){const i=queue[head++],x=i%size;if(x)visit(i-1);if(x<size-1)visit(i+1);if(i>=size)visit(i-size);if(i<size*(size-1))visit(i+size);}
    function bounds(yMin=0,yMax=size){let x0=size,y0=size,x1=-1,y1=-1;for(let y=yMin;y<yMax;y++)for(let x=0;x<size;x++)if(data[(y*size+x)*4+3]>96){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}return [x0,y0,x1-x0+1,y1-y0+1];}
-   return {canvas,pixels,backdrop,bbox:file.startsWith('beard')?bounds():null,sections:file==='beard-04.png'?[bounds(0,900),bounds(900)]:null};
-  })().catch(error=>{images.delete(file);throw error;}));
-  return images.get(file);
+   return {key,canvas,pixels,backdrop,bbox:file.startsWith('beard')?bounds():null,sections:file==='beard-04.png'?[bounds(0,Math.round(900*unit)),bounds(Math.round(900*unit))]:null};
+  })().catch(error=>{images.delete(key);throw error;}));
+  return images.get(key);
  }
  const refSkin=lab(...bytes('#ffc69d')),refHair=lab(...bytes('#874209')),refEye=lab(...bytes('#416680'));
  function remap(source,target,ref,kind){
@@ -59,8 +69,9 @@
   const data=asset.pixels.data,index=new Uint32Array(size*size),palette=[null],seen=new Map();
   for(let i=0;i<data.length;i+=4){
    if(!data[i+3])continue;
-   const pixel=i/4,x=pixel%size,y=Math.floor(pixel/size),r=data[i],g=data[i+1],b=data[i+2];let material;
+   const pixel=i/4,x=(pixel%size)/unit,y=Math.floor(pixel/size)/unit,r=data[i],g=data[i+1],b=data[i+2];let material;
    if(kind==='hair'||kind==='beard')material=1;
+   else if(kind==='clothing'){if(b>r*.98&&b>g*.98)material=4;}
    else if(!asset.backdrop[pixel]){
     if(y>450&&y<610&&x>298&&x<690&&b>r*1.08&&g>r*1.03&&Math.max(r,g,b)<205)material=3;
     else if(y>447&&y<494&&x>300&&x<695&&r>g*1.7&&r>b*1.5&&g<100)material=1;
@@ -76,19 +87,19 @@
  function tinted(asset,file,kind,state){
   const hairKey=kind==='beard'?state.beardColor:state.hairColor;
   const hairOnly=kind==='hair'||kind==='beard';
-  const key=(hairOnly?[file,hairKey]:[file,hairKey,state.eyeColor,state.skinColor]).join('|');
+  const key=(hairOnly?[file,hairKey]:[file,hairKey,state.eyeColor,state.skinColor,state.clothingColor]).join('|');
   if(tints.has(key))return tints.get(key);
-  if(hairKey==='#874209'&&(hairOnly||(state.eyeColor==='#416680'&&state.skinColor==='#ffc69d')))return asset.canvas;
+  if(kind!=='clothing'&&hairKey==='#874209'&&(hairOnly||(state.eyeColor==='#416680'&&state.skinColor==='#ffc69d')))return asset.canvas;
   const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
   const ctx=canvas.getContext('2d'),data=new Uint8ClampedArray(asset.pixels.data);
-  const hair=lab(...bytes(hairKey)),skin=lab(...bytes(state.skinColor)),eye=lab(...bytes(state.eyeColor));
+  const hair=lab(...bytes(hairKey)),skin=lab(...bytes(state.skinColor)),eye=lab(...bytes(state.eyeColor)),cloth=lab(...bytes(state.clothingColor)),refCloth=lab(...bytes('#647084'));
   // Material and source-colour analysis is done once per layer. Colour dragging
   // now updates the small palette and uses numeric lookups for the pixels.
   const {index,palette}=indexedPalette(asset,kind),lookup=new Uint32Array(palette.length),enabled=new Uint8Array(palette.length);
   for(let i=1;i<palette.length;i++){
    const {material,source}=palette[i];
    if((material===1&&hairKey==='#874209')||(material===2&&state.skinColor==='#ffc69d')||(material===3&&state.eyeColor==='#416680'))continue;
-   const [r,g,b]=remap(source,material===1?hair:material===2?skin:eye,material===1?refHair:material===2?refSkin:refEye,material===1?'hair':material===2?'skin':'eye');
+   const [r,g,b]=remap(source,material===1?hair:material===2?skin:material===4?cloth:eye,material===1?refHair:material===2?refSkin:material===4?refCloth:refEye,material===1?'hair':material===2?'skin':material===4?'cloth':'eye');
    lookup[i]=r|(g<<8)|(b<<16);enabled[i]=1;
   }
   const output=new Uint32Array(data.buffer);
@@ -105,7 +116,7 @@
   const mask=document.createElement('canvas');mask.width=mask.height=size;
   const pixels=new ImageData(size,size),source=asset.pixels.data,marked=new Uint8Array(size*size);
   for(let i=0;i<marked.length;i++){
-   const x=i%size,y=Math.floor(i/size),k=i*4,r=source[k],g=source[k+1],b=source[k+2];
+   const x=(i%size)/unit,y=Math.floor(i/size)/unit,k=i*4,r=source[k],g=source[k+1],b=source[k+2];
    const belowNeck=y>(body==='female'?855:825)&&(x>825||y>(body==='female'?925:943));
    if(belowNeck&&!asset.backdrop[i]&&((b>=r*.85&&g>=r*.7&&r<175)||(r<100&&g<65&&b<100))){marked[i]=1;pixels.data[k+3]=255;}
   }
@@ -114,7 +125,7 @@
   const edge=document.createElement('canvas');edge.width=edge.height=size;
   const edges=new ImageData(size,size);
   for(let i=0;i<marked.length;i++)if(marked[i]){
-   const x=i%size,y=Math.floor(i/size),d=10;
+   const x=i%size,y=Math.floor(i/size),d=Math.max(1,Math.round(10*unit));
    if((x>=d&&!marked[i-d])||(x<size-d&&!marked[i+d])||(y>=d&&!marked[i-d*size]))edges.data[i*4+3]=255;
   }
   edge.getContext('2d').putImageData(edges,0,0);
@@ -122,7 +133,7 @@
  }
  function clothingLayer(asset,state){
   if(state.clothing==='jacket'&&state.clothingColor==='#41434f')return null;
-  const key=[state.body,state.clothing,state.clothingColor].join('|');if(wardrobe.has(key))return wardrobe.get(key);
+  const key=[state.body,state.face,state.clothing,state.clothingColor].join('|');if(wardrobe.has(key))return wardrobe.get(key);
   const {mask,edge,marked}=clothingMask(asset,state.body),colour=bytes(state.clothingColor),mix=(other,t)=>colour.map((v,i)=>Math.round(v*(1-t)+other[i]*t));
   const shades=[mix([32,16,31],.78),mix([28,25,40],.48),mix([28,31,45],.22),colour,mix([228,218,200],.15),mix([245,232,207],.28)];
   const css=c=>'rgb('+c.join(',')+')',layer=document.createElement('canvas');layer.width=layer.height=size;const ctx=layer.getContext('2d');ctx.imageSmoothingEnabled=false;
@@ -173,29 +184,30 @@
  }
  async function draw(canvas,value,options={}){
   const ticket={};jobs.set(canvas,ticket);await ready;
-  const state=normalize(value),parts=[['body',catalog.bodies.find(b=>b.id===state.body)],...['ears','eyes','nose','mouth','hair','beard'].flatMap(k=>k==='beard'&&state.beard==='06'?['01','05'].map(id=>[k,catalog.parts[k].find(p=>p.id===id)]):[[k,catalog.parts[k].find(p=>p.id===state[k])]])].filter(([kind,p])=>p?.file&&!(regions[kind]&&p.id==='01'));
-  const layers=await Promise.all(parts.map(async([kind,part])=>({kind,part,asset:await load(part.file)})));
+  const state=normalize(value),face=catalog.parts.face.find(p=>p.id===state.face),outfit=catalog.clothing.find(p=>p.id===state.clothing);
+  const parts=[['body',face?.bodies?.[state.body]||catalog.bodies.find(b=>b.id===state.body)],['clothing',outfit],...['ears','eyes','nose','mouth','hair','beard'].flatMap(k=>k==='beard'&&state.beard==='06'?['01','05'].map(id=>[k,catalog.parts[k].find(p=>p.id===id)]):[[k,catalog.parts[k].find(p=>p.id===state[k])]])].filter(([kind,p])=>p?.file&&!(regions[kind]&&p.id==='01'));
+  const layers=await Promise.all(parts.map(async([kind,part])=>({kind,part,asset:await load(part)})));
   if(jobs.get(canvas)!==ticket)return false;
   const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.save();ctx.scale(canvas.width/size,canvas.height/size);ctx.imageSmoothingEnabled=false;
   for(const {kind,part,asset} of layers){
-   const image=tinted(asset,part.file,kind,state),box=regions[kind];
+   const image=tinted(asset,asset.key,kind,state),box=regions[kind]&&!part.rect?scaled(regions[kind]):null;
    // Feature edits stay at their native coordinates. Never stretch a feature's
    // detected bounding box into a different eye, nose or mouth shape.
    if(box)ctx.drawImage(image,...box,...box);
    else if(kind==='beard'&&part.id==='04'){
-    ctx.drawImage(image,...asset.sections[0],324,697,335,109);
-    ctx.drawImage(image,...asset.sections[1],401,813,185,160);
+    ctx.drawImage(image,...asset.sections[0],...scaled([324,697,335,109]));
+    ctx.drawImage(image,...asset.sections[1],...scaled([401,813,185,160]));
    }else if(kind==='beard'&&part.id!=='03'){
     const target=part.id==='01'?[315,635,525,310]:part.id==='02'?[316,626,515,321]:[324,697,335,110];
-    ctx.drawImage(image,...asset.bbox,...target);
+    ctx.drawImage(image,...asset.bbox,...scaled(target));
    }else ctx.drawImage(image,0,0,size,size);
-   if(kind==='body'){const clothes=clothingLayer(asset,state);if(clothes)ctx.drawImage(clothes,0,0,size,size);}
+   if(kind==='body'&&!outfit.file){const clothes=clothingLayer(asset,state);if(clothes)ctx.drawImage(clothes,0,0,size,size);}
   }
   ctx.restore();canvas.dataset.avatarReady='true';return true;
  }
  async function feature(canvas,kind,id,value){
   // Showing each choice on a complete portrait makes its actual fit visible.
-  return draw(canvas,{...value,...(['nose','mouth'].includes(kind)?{beard:'none'}:{}),...(kind==='ears'?{hair:'none'}:{}),[kind]:id});
+  return draw(canvas,{...value,...(['face','nose','mouth'].includes(kind)?{beard:'none'}:{}),...(['face','ears'].includes(kind)?{hair:'none'}:{}),[kind]:id});
  }
  function markup(value,label='Player avatar'){
   if(!value||typeof value!=='object')return '';

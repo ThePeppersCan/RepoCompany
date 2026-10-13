@@ -17,15 +17,23 @@ const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('n
  assert.equal(profile.avatar.clothing,'hoodie');assert.equal(profile.avatar.clothingColor,'#b27c42');
  for(const patch of [{clothing:'other'},{clothing:null},{clothingColor:'#fff'},{clothingColor:null}])assert.equal((await call('alice','avatar',{avatar:{...value,...patch}})).status,400);
  assert.equal((await call('bob','state')).body.profile.avatar,null,'Cannot write another account avatar');
- for(const patch of [{hair:'25'},{eyes:'09'},{nose:'00'},{mouth:'09'},{ears:'06'},{beard:'07'},{body:'other'},{hairColor:'url(https://evil.test)'},{skinColor:'#fff'},{version:2},{linkHairBeard:'false'}])assert.equal((await call('alice','avatar',{avatar:{...value,...patch}})).status,400);
+ for(const patch of [{hair:'missing'},{eyes:'missing'},{nose:'00'},{mouth:'missing'},{face:'missing'},{face:null},{ears:'06'},{beard:'07'},{body:'other'},{hairColor:'url(https://evil.test)'},{skinColor:'#fff'},{version:2},{linkHairBeard:'false'}])assert.equal((await call('alice','avatar',{avatar:{...value,...patch}})).status,400);
  assert.equal((await call('alice','avatar',{avatar:null})).status,400);
  await call('alice','friends',{action:'request',username:'bob'});await call('bob','friends',{action:'accept',username:'alice'});
  assert.deepEqual((await call('bob','state')).body.friends[0].avatar,saved.body.avatar,'Friends receive saved avatar');
  await call('alice','avatar',{avatar:{...value,hair:'none',beard:'none',linkHairBeard:false,beardColor:'#121212'}});
  profile=(await call('alice','state')).body.profile;assert.equal(profile.avatar.hair,'none');assert.equal(profile.avatar.beardColor,'#121212');
- const legacy={...value};delete legacy.clothing;delete legacy.clothingColor;
+ for(const body of ['male','female']){
+  const expanded={...value,body,face:'square',hair:'36',eyes:'12',mouth:'09',clothing:'armour'};
+  const result=await call('alice','avatar',{avatar:expanded});assert.equal(result.status,200);
+  assert.equal(result.body.avatar.face,'square');assert.equal(result.body.avatar.hair,'36');assert.equal(result.body.avatar.clothing,'armour');
+  assert.deepEqual((await call('bob','state')).body.friends[0].avatar,result.body.avatar,'Friends receive sheet selections');
+ }
+ const legacy={...value};delete legacy.clothing;delete legacy.clothingColor;delete legacy.face;
  sql.prepare('UPDATE dashboard_avatars SET config=? WHERE username=?').run(JSON.stringify(legacy),'alice');
  profile=(await call('alice','state')).body.profile;assert.equal(profile.avatar.hair,'24');assert.equal(profile.avatar.clothing,'jacket');assert.equal(profile.avatar.clothingColor,'#41434f');
+ assert.equal(profile.avatar.face,'classic','Old saved avatars retain their face');
+ assert.equal((await call('alice','avatar',{avatar:legacy})).body.avatar.face,'classic','Older clients can still save');
  await call('alice','friends',{action:'block',username:'bob'});assert.equal((await call('bob','state')).body.friends.length,0,'Blocked profiles stay unavailable');
  assert.equal(sql.prepare('SELECT count(*) AS n FROM dashboard_avatars').get().n,1);
  sql.close();console.log('PASS: avatar persistence, linked/separate colours, feature validation, account ownership, friends and blocking.');

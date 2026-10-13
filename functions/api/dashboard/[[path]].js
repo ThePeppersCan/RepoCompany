@@ -8,7 +8,7 @@ function validateAvatar(value){
  const clothingColor=value.clothingColor===undefined?avatarCatalog.defaults.clothingColor:value.clothingColor;
  if(typeof clothingColor!=='string'||!/^#[a-f\d]{6}$/i.test(clothingColor))return null;clean.clothingColor=clothingColor.toLowerCase();
  if(!avatarCatalog.bodies.some(p=>p.id===value.body))return null;clean.body=value.body;
- for(const key of Object.keys(avatarCatalog.parts)){if(!avatarCatalog.parts[key].some(p=>p.id===value[key]))return null;clean[key]=value[key];}
+ for(const key of Object.keys(avatarCatalog.parts)){const selected=key==='face'&&value[key]===undefined?'classic':value[key];if(!avatarCatalog.parts[key].some(p=>p.id===selected))return null;clean[key]=selected;}
  for(const key of ['hairColor','beardColor','eyeColor','skinColor']){if(typeof value[key]!=='string'||!/^#[a-f\d]{6}$/i.test(value[key]))return null;clean[key]=value[key].toLowerCase();}
  if(typeof value.linkHairBeard!=='boolean')return null;clean.linkHairBeard=value.linkHairBeard;if(clean.linkHairBeard)clean.beardColor=clean.hairColor;return clean;
 }

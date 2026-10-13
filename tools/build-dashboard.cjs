@@ -21,7 +21,7 @@ if(production){
 }
 // The custom domain can retain assets longer than Pages' cache headers request.
 // Content versions keep HTML and its scripts/styles from different releases mixing.
-for(const html of ['index.html','legacy-runtime.html','game-achievements-bridge.html','game-playtime-bridge.html']){
+for(const html of ['index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html']){
 const entry=path.join(dist,html);if(!fs.existsSync(entry))continue;
 fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(attribute,key,url)=>{
  if(/^(?:[a-z]+:)?\/\//i.test(url))return attribute;

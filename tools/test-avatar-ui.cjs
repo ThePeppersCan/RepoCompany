@@ -16,13 +16,21 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('assert/s
   return send(r,[]);
  });
  await context.route('**/api/dashboard/**',async r=>{const p=new URL(r.request().url()).pathname.split('/').pop();if(p==='state')return send(r,social);if(p==='profile')return send(r,{username:'fern',relationship:'accepted',profile:social.friends[0],activity:[],mutual_friends:[]});if(p==='avatar'){writes++;if(failSave)return send(r,{error:'Test save unavailable'},503);social.profile.avatar=r.request().postDataJSON().avatar;return send(r,{ok:true,avatar:social.profile.avatar});}return send(r,{ok:true});});
- await page.goto('http://127.0.0.1:8788/#account/profile');
+ await page.goto((process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8788')+'/#account/profile');
  await page.getByRole('button',{name:'Sign in →',exact:true}).click();await page.locator('[name=username]').fill('QAPlayer');await page.locator('[name=password]').fill('test-password');await page.locator('#account-login-form [type=submit]').click();
  await page.waitForFunction(()=>repoAccount.state.social&&repoAvatar.catalog&&!document.querySelector('#account-detail').open);
  await page.locator('.profile-edit[data-edit-avatar]').click();
  const ready=()=>page.waitForFunction(()=>{const b=document.querySelector('#avatar-creator .avatar-save');return b&&!b.disabled});
  await ready();
- for(const [key,count] of Object.entries({body:2,eyes:8,nose:8,mouth:8,ears:5,hair:25,beard:7,clothing:5})){await page.locator('[data-avatar-section="'+key+'"]').click();assert.equal(await page.locator('[data-avatar-option]').count(),count);}
+ for(const [key,parts] of Object.entries({body:catalog.bodies,...catalog.parts,clothing:catalog.clothing})){await page.locator('[data-avatar-section="'+key+'"]').click();assert.equal(await page.locator('[data-avatar-option]').count(),parts.length);}
+ await page.locator('[data-avatar-section=face]').click();await page.locator('[data-avatar-option=square]').click();await ready();
+ await page.locator('.avatar-undo').click();await ready();assert.equal(await page.locator('[data-avatar-option=balanced]').getAttribute('aria-pressed'),'true');
+ await page.locator('.avatar-redo').click();await ready();assert.equal(await page.locator('[data-avatar-option=square]').getAttribute('aria-pressed'),'true');
+ await page.locator('[data-avatar-section=hair]').click();await page.locator('[data-avatar-filter=new]').click();assert.equal(await page.locator('[data-avatar-option]:visible').count(),12);
+ await page.getByRole('searchbox',{name:'Search hairstyles'}).fill('elven');assert.equal(await page.locator('[data-avatar-option]:visible').count(),1);
+ await page.locator('[data-avatar-option="36"]').click();await ready();
+ await page.getByRole('searchbox',{name:'Search hairstyles'}).fill('not a hairstyle');assert(await page.locator('.avatar-no-results').isVisible());
+ await page.getByRole('searchbox',{name:'Search hairstyles'}).fill('');await page.locator('[data-avatar-filter=all]').click();
  await page.locator('[data-avatar-section=body]').click();await page.locator('[data-avatar-option=female]').click();await ready();
  await page.locator('[data-avatar-section=hair]').click();await page.locator('[data-avatar-option="18"]').click();await ready();
  await page.locator('[data-avatar-section=beard]').click();await page.locator('[data-avatar-option=none]').click();await ready();
@@ -37,12 +45,15 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('assert/s
  await page.locator('.avatar-cancel').click();assert.equal(writes,0,'Cancel must not save');
  await page.locator('.profile-edit[data-edit-avatar]').click();await ready();await page.locator('[data-avatar-section=hair]').click();assert.equal(await page.locator('[data-avatar-option="01"]').getAttribute('aria-pressed'),'true');
  await page.locator('[data-avatar-option="24"]').click();await ready();await page.locator('[data-avatar-section=body]').click();await page.locator('[data-avatar-option=female]').click();await ready();
- await page.locator('[data-avatar-section=clothing]').click();assert.equal(await page.locator('[data-avatar-option]').count(),5);
- await page.locator('[data-avatar-option=hoodie]').click();await ready();
+ await page.locator('[data-avatar-section=face]').click();await page.locator('[data-avatar-option=soft]').click();await ready();
+ await page.locator('[data-avatar-section=hair]').click();await page.locator('[data-avatar-option="36"]').click();await ready();
+ await page.locator('[data-avatar-section=clothing]').click();assert.equal(await page.locator('[data-avatar-option]').count(),catalog.clothing.length);
+ await page.locator('[data-avatar-filter=adventure]').click();assert.equal(await page.locator('[data-avatar-option]:visible').count(),6);
+ await page.locator('[data-avatar-option=scholar]').click();await ready();
  await page.locator('[data-avatar-color=clothingColor]').fill('#b27c42');await ready();
  failSave=true;await page.locator('.avatar-save').click();await page.getByText('Test save unavailable',{exact:true}).waitFor();assert(await page.locator('#avatar-creator').isVisible(),'Failed save preserves draft');
- failSave=false;await page.locator('.avatar-save').click();await page.waitForFunction(()=>!document.querySelector('#avatar-creator').open);assert.equal(writes,2);assert.equal(social.profile.avatar.hair,'24');assert.equal(social.profile.avatar.body,'female');
- assert.equal(social.profile.avatar.clothing,'hoodie');assert.equal(social.profile.avatar.clothingColor,'#b27c42');
+ failSave=false;await page.locator('.avatar-save').click();await page.waitForFunction(()=>!document.querySelector('#avatar-creator').open);assert.equal(writes,2);assert.equal(social.profile.avatar.hair,'36');assert.equal(social.profile.avatar.body,'female');
+ assert.equal(social.profile.avatar.face,'soft');assert.equal(social.profile.avatar.clothing,'scholar');assert.equal(social.profile.avatar.clothingColor,'#b27c42');
  await page.waitForFunction(()=>document.querySelector('.profile-avatar canvas')?.dataset.avatarReady==='true');
  await page.reload();await page.waitForFunction(()=>document.querySelector('.profile-avatar canvas')?.dataset.avatarReady==='true');
  assert.equal(await page.locator('.profile-friend canvas').count(),1);
@@ -63,7 +74,8 @@ const {chromium}=require('playwright'),fs=require('fs'),assert=require('assert/s
   return{rendered,signatures,clothing};
  });
  for(const [key,parts]of Object.entries(catalog.parts))assert.equal(result.signatures[key],parts.length,key+' choices must render differently');
- for(const body of ['male','female'])assert.equal(result.clothing[body],5,body+' clothing styles must render differently');
+ for(const body of ['male','female'])assert.equal(result.clothing[body],catalog.clothing.length,body+' clothing styles must render differently');
+ assert.equal(await page.evaluate(()=>repoAvatar.normalize({version:1}).face),'classic');
  assert.deepEqual(errors,[]);console.log('PASS: option counts, '+result.rendered+' renders, colours, cancel/reset state, failed save, persistence, profile, Friends and mobile.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

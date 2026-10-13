@@ -62,6 +62,74 @@
         "name": "Soft gaze",
         "description": "Relaxed narrow eyes",
         "file": "eyes-08.png"
+      },
+      {
+        "id": "09",
+        "name": "Bright gaze",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          96,
+          133,
+          155,
+          80
+        ],
+        "target": [
+          302,
+          431,
+          391,
+          179
+        ]
+      },
+      {
+        "id": "10",
+        "name": "Confident",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          540,
+          133,
+          155,
+          80
+        ],
+        "target": [
+          302,
+          431,
+          391,
+          179
+        ]
+      },
+      {
+        "id": "11",
+        "name": "Relaxed",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          983,
+          133,
+          155,
+          80
+        ],
+        "target": [
+          302,
+          431,
+          391,
+          179
+        ]
+      },
+      {
+        "id": "12",
+        "name": "Thoughtful",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          1427,
+          133,
+          155,
+          80
+        ],
+        "target": [
+          302,
+          431,
+          391,
+          179
+        ]
       }
     ],
     "nose": [
@@ -147,7 +215,7 @@
       },
       {
         "id": "06",
-        "name": "Cupidâ€™s bow",
+        "name": "Cupid’s bow",
         "description": "Defined upper-lip shape",
         "file": "mouth-06.png"
       },
@@ -162,6 +230,74 @@
         "name": "Parted",
         "description": "Slightly parted relaxed lips",
         "file": "mouth-08.png"
+      },
+      {
+        "id": "09",
+        "name": "Toothy grin",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          128,
+          698,
+          100,
+          55
+        ],
+        "target": [
+          377,
+          735,
+          255,
+          119
+        ]
+      },
+      {
+        "id": "10",
+        "name": "Gentle smile",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          572,
+          698,
+          100,
+          55
+        ],
+        "target": [
+          377,
+          735,
+          255,
+          119
+        ]
+      },
+      {
+        "id": "11",
+        "name": "Soft pout",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          1015,
+          698,
+          100,
+          55
+        ],
+        "target": [
+          377,
+          735,
+          255,
+          119
+        ]
+      },
+      {
+        "id": "12",
+        "name": "Determined",
+        "file": "expressions-sheet-v1.webp",
+        "rect": [
+          1459,
+          698,
+          100,
+          55
+        ],
+        "target": [
+          377,
+          735,
+          255,
+          119
+        ]
       }
     ],
     "ears": [
@@ -346,6 +482,150 @@
         "name": "Bun",
         "description": "long",
         "file": "hair-24.png"
+      },
+      {
+        "id": "25",
+        "name": "Textured fade",
+        "group": "everyday",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          0,
+          0,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "26",
+        "name": "Cropped fringe",
+        "group": "everyday",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          320,
+          0,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "27",
+        "name": "Swept-back waves",
+        "group": "everyday",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          640,
+          0,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "28",
+        "name": "Short curtains",
+        "group": "everyday",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          960,
+          0,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "29",
+        "name": "High coils",
+        "group": "everyday",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          0,
+          320,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "30",
+        "name": "Braided crown",
+        "group": "adventure",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          320,
+          320,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "31",
+        "name": "Loc bun",
+        "group": "everyday",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          640,
+          320,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "32",
+        "name": "Side braid",
+        "group": "adventure",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          960,
+          320,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "33",
+        "name": "Twin braids",
+        "group": "adventure",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          0,
+          640,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "34",
+        "name": "Half-up waves",
+        "group": "adventure",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          320,
+          640,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "35",
+        "name": "Loose topknot",
+        "group": "adventure",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          640,
+          640,
+          320,
+          320
+        ]
+      },
+      {
+        "id": "36",
+        "name": "Elven braids",
+        "group": "adventure",
+        "file": "hair-sheet-v1.webp",
+        "rect": [
+          960,
+          640,
+          320,
+          320
+        ]
       }
     ],
     "beard": [
@@ -391,6 +671,163 @@
         "description": "Moustache with light stubble",
         "file": "beard-06.png"
       }
+    ],
+    "face": [
+      {
+        "id": "classic",
+        "name": "Original",
+        "description": "Keep your original face shape"
+      },
+      {
+        "id": "balanced",
+        "name": "Balanced",
+        "description": "Balanced jaw and chin",
+        "bodies": {
+          "male": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              0,
+              0,
+              320,
+              320
+            ]
+          },
+          "female": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              640,
+              320,
+              320,
+              320
+            ]
+          }
+        }
+      },
+      {
+        "id": "soft",
+        "name": "Soft",
+        "description": "Soft jaw and chin",
+        "bodies": {
+          "male": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              320,
+              0,
+              320,
+              320
+            ]
+          },
+          "female": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              960,
+              320,
+              320,
+              320
+            ]
+          }
+        }
+      },
+      {
+        "id": "square",
+        "name": "Square",
+        "description": "Square jaw and chin",
+        "bodies": {
+          "male": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              640,
+              0,
+              320,
+              320
+            ]
+          },
+          "female": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              0,
+              640,
+              320,
+              320
+            ]
+          }
+        }
+      },
+      {
+        "id": "round",
+        "name": "Round",
+        "description": "Round jaw and chin",
+        "bodies": {
+          "male": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              960,
+              0,
+              320,
+              320
+            ]
+          },
+          "female": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              320,
+              640,
+              320,
+              320
+            ]
+          }
+        }
+      },
+      {
+        "id": "tapered",
+        "name": "Tapered",
+        "description": "Tapered jaw and chin",
+        "bodies": {
+          "male": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              0,
+              320,
+              320,
+              320
+            ]
+          },
+          "female": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              640,
+              640,
+              320,
+              320
+            ]
+          }
+        }
+      },
+      {
+        "id": "broad",
+        "name": "Broad",
+        "description": "Broad jaw and chin",
+        "bodies": {
+          "male": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              320,
+              320,
+              320,
+              320
+            ]
+          },
+          "female": {
+            "file": "faces-sheet-v1.webp",
+            "rect": [
+              960,
+              640,
+              320,
+              320
+            ]
+          }
+        }
+      }
     ]
   },
   "defaults": {
@@ -408,7 +845,8 @@
     "skinColor": "#ffc69d",
     "linkHairBeard": true,
     "clothing": "jacket",
-    "clothingColor": "#41434f"
+    "clothingColor": "#41434f",
+    "face": "balanced"
   },
   "colors": {
     "hair": [
@@ -480,6 +918,222 @@
     {
       "id": "jacket",
       "name": "Jacket"
+    },
+    {
+      "id": "sweater",
+      "name": "Cable-knit sweater",
+      "group": "everyday",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        0,
+        210,
+        362,
+        232
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "denim",
+      "name": "Denim jacket",
+      "group": "everyday",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        362,
+        210,
+        362,
+        232
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "zip-hoodie",
+      "name": "Zip hoodie",
+      "group": "everyday",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        724,
+        210,
+        362,
+        232
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "overshirt",
+      "name": "Overshirt",
+      "group": "everyday",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        1086,
+        210,
+        362,
+        232
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "bomber",
+      "name": "Bomber jacket",
+      "group": "everyday",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        0,
+        500,
+        362,
+        247
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "scarf-coat",
+      "name": "Scarf & coat",
+      "group": "everyday",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        362,
+        500,
+        362,
+        247
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "ranger",
+      "name": "Ranger vest",
+      "group": "adventure",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        724,
+        500,
+        362,
+        247
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "traveller",
+      "name": "Traveller cloak",
+      "group": "adventure",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        1086,
+        500,
+        362,
+        247
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "scholar",
+      "name": "Scholar robe",
+      "group": "adventure",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        0,
+        800,
+        362,
+        286
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "armour",
+      "name": "Adventurer armour",
+      "group": "adventure",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        362,
+        800,
+        362,
+        286
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "expedition",
+      "name": "Expedition vest",
+      "group": "adventure",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        724,
+        800,
+        362,
+        286
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
+    },
+    {
+      "id": "guild",
+      "name": "Guild uniform",
+      "group": "adventure",
+      "file": "outfits-sheet-v1.webp",
+      "rect": [
+        1086,
+        800,
+        362,
+        286
+      ],
+      "target": [
+        0,
+        850,
+        1254,
+        404
+      ]
     }
   ]
 }
