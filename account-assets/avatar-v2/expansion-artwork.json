@@ -5,7 +5,7 @@
   "sheets": [
     {
       "id": "faces",
-      "file": "faces-sheet-v1.webp",
+      "file": "faces-sheet-v2.webp",
       "transparent_background": false,
       "references": [
         "account-assets/avatar-v2/body-male.png",

@@ -684,7 +684,7 @@
         "description": "Balanced jaw and chin",
         "bodies": {
           "male": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               0,
               0,
@@ -693,7 +693,7 @@
             ]
           },
           "female": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               640,
               320,
@@ -709,7 +709,7 @@
         "description": "Soft jaw and chin",
         "bodies": {
           "male": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               320,
               0,
@@ -718,7 +718,7 @@
             ]
           },
           "female": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               960,
               320,
@@ -734,7 +734,7 @@
         "description": "Square jaw and chin",
         "bodies": {
           "male": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               640,
               0,
@@ -743,7 +743,7 @@
             ]
           },
           "female": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               0,
               640,
@@ -759,7 +759,7 @@
         "description": "Round jaw and chin",
         "bodies": {
           "male": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               960,
               0,
@@ -768,7 +768,7 @@
             ]
           },
           "female": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               320,
               640,
@@ -784,7 +784,7 @@
         "description": "Tapered jaw and chin",
         "bodies": {
           "male": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               0,
               320,
@@ -793,7 +793,7 @@
             ]
           },
           "female": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               640,
               640,
@@ -809,7 +809,7 @@
         "description": "Broad jaw and chin",
         "bodies": {
           "male": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               320,
               320,
@@ -818,7 +818,7 @@
             ]
           },
           "female": {
-            "file": "faces-sheet-v1.webp",
+            "file": "faces-sheet-v2.webp",
             "rect": [
               960,
               640,

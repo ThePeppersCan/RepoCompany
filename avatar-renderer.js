@@ -4,7 +4,7 @@
  const images=new Map(),sources=new Map(),tints=new Map(),jobs=new WeakMap();
  const scaled=box=>box.map(n=>n*unit);
  let catalog;
- const ready=fetch(new URL('catalog.json?v=20261013-sheets1',base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Avatar styles could not be loaded.');return r.json();}).then(v=>(catalog=v));
+ const ready=fetch(new URL('catalog.json?v=20261013-sheets2',base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Avatar styles could not be loaded.');return r.json();}).then(v=>(catalog=v));
  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
  const bytes=hex=>hex.slice(1).match(/../g).map(x=>parseInt(x,16));
  function lab(r,g,b){
