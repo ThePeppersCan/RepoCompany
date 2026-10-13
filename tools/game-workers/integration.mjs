@@ -5,13 +5,12 @@ export function withAchievements(response, request, manifest) {
  const base='https://repocompany.uk/',url=new URL(request.url);let inserted=false;
  const source=(game,file)=>{const name=`game-integrations/${game}/${file}`;if(!manifest.hashes[name])throw Error('Missing release asset: '+name);return base+name+'?v='+manifest.hashes[name];};
  const replacements={
+  '/interface/vampire-survivor/food-card-ui.js':['morogue','food-card-ui.js'],
   '/interface/town-cafe-day.js':['moratales','town-cafe-day.js'],
   '/interface/town-cafe-service.js':['moratales','town-cafe-service.js'],
   '/interface/town-kitchen.js':['moratales','town-kitchen.js'],
   '/interface/town-roastery.js':['moratales','town-roastery.js'],
   '/interface/town-pleasure.js':['moratales','town-pleasure.js'],
-  '/interface/vampire-survivor/game.js':['morogue','game.js'],
-  '/interface/vampire-survivor/builds.js':['morogue','builds.js'],
   '/career-expansion.js':['manager','career-expansion.js'],
   '/career-bootstrap.js':['manager','career-bootstrap.js']
  };

@@ -14,6 +14,7 @@
     "game-integrations/manager/velmora-quidditch-engine.js": "b45bc7ea6bf8",
     "game-integrations/morogue/achievement-runtime.js": "b72725455e11",
     "game-integrations/morogue/builds.js": "9c91e675f7fd",
-    "game-integrations/morogue/game.js": "7be3c0e9dda6"
+    "game-integrations/morogue/game.js": "7be3c0e9dda6",
+    "game-integrations/morogue/food-card-ui.js": "ccd7d41d6246"
   }
 }
