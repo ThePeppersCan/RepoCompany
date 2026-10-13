@@ -10,10 +10,15 @@
   return days<1?'Played today':days<2?'Played yesterday':'Last played '+date.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
  }
  function catalog(games){return [...games,...(window.demoLibrary?.games||[])];}
+ const demoBannerTitles={dragonbound:['Dragonbound'],diver:['Repo','Diver'],goblin:['Goblin','Bomb Party'],rooftops:['Repo','Rooftops'],seas:['High','Seas']};
  function artwork(game){
   if(['moratales','manager','morogue'].includes(game.id)){
    const logo=game.id==='manager'?'<svg class="profile-banner-logo" viewBox="57 178 2073 432"><image width="2167" height="725" href="original-case-assets/manager-logo-clean.png"/></svg>':`<img class="profile-banner-logo" src="original-case-assets/${game.id}-logo.png" alt="">`;
    return `<span class="profile-game-banner banner-${game.id}" aria-hidden="true"><img class="profile-banner-art" src="account-assets/${game.id}-activity-banner-v1.png" alt="" loading="lazy">${logo}</span>`;
+  }
+  if(game.id==='sports'||demoBannerTitles[game.id]){
+   const title=game.id==='sports'?'<img class="profile-banner-logo" src="assets/repo-sports-logo.png" alt="">':`<span class="profile-banner-title">${demoBannerTitles[game.id].map(line=>`<span>${esc(line)}</span>`).join('')}</span>`;
+   return `<span class="profile-game-banner banner-${game.id}" aria-hidden="true"><img class="profile-banner-art" src="account-assets/${game.id}-activity-banner-v1.webp" alt="" width="1200" height="400" loading="lazy" decoding="async">${title}</span>`;
   }
   return `<span class="profile-demo-art" aria-hidden="true"><i></i><b>${esc(game.name)}</b></span>`;
  }

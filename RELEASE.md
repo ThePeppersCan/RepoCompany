@@ -54,3 +54,9 @@ A delayed favourite-card request could make the retired passport panel repeatedl
 ### Original standard-card binder correction
 
 Nine original catalogue entries omit `rarity`, including Soup, Jud and Mad Rager. The native binder now normalizes these entries to `standard`, matching the original pack reveal, before building filters, captions or card details. This fixes the `replaceAll` opening error without changing card IDs, ownership or saved arrangements. Binder regression coverage now includes all nine original entries, their rarity filter and details, an original-card slab, and every catalogue entry across the binder spreads.
+
+## Complete activity banner collection — 13 October 2026
+
+Dragonbound, Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas and Repo Sports now have individual 3:1 activity banners alongside the existing three main-game banners. Shared profile artwork also supplies player profiles, Friends' current-game cards and their activity feed. Original game environments inform each composition, the Repo Sports logo is retained, and the other titles remain separate responsive text. Six 1200×400 WebP backgrounds total approximately 587 KB and load lazily. Prompts and source references are recorded in `account-assets/demo-activity-banner-prompts.md`.
+
+Visual review covered all nine games, own and player profiles, Friends cards and activity, desktop and 390px mobile layouts. All banner images loaded, all nine games used custom banners, and no horizontal overflow or JavaScript errors were observed. Gameplay, achievements and account services are unchanged.

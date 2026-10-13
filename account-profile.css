@@ -36,6 +36,16 @@
 .account-dashboard .profile-game-banner .profile-banner-logo{position:absolute;left:4.5%;top:50%;transform:translateY(-50%);width:43%;height:auto;max-height:66%;max-width:none;object-fit:contain;margin:0;opacity:1;border-radius:0;filter:drop-shadow(0 2px 4px #0008)}
 .profile-game-link>.profile-game-banner{width:clamp(200px,18vw,300px)}
 .profile-game-link:hover .profile-banner-art{filter:brightness(1.12)}
+.account-dashboard .profile-game-banner{container-type:inline-size}
+.account-dashboard .profile-banner-title{position:absolute;left:5%;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;justify-content:center;width:44%;margin:0;color:#f9e9ba;font-family:Georgia,'Times New Roman',serif;font-size:9cqw;font-weight:800;line-height:.98;letter-spacing:-.025em;text-transform:uppercase;text-shadow:0 2px 4px #000b}
+.account-dashboard .profile-banner-title>span{display:block;margin:0}
+.account-dashboard .banner-dragonbound .profile-banner-title{font-size:6.2cqw;letter-spacing:-.05em;color:#f5ddb1}
+.account-dashboard .banner-diver .profile-banner-title{font-family:Impact,'Arial Narrow',sans-serif;font-size:12cqw;letter-spacing:.035em;color:#d5f6ed}
+.account-dashboard .banner-diver .profile-banner-title>span:first-child,.account-dashboard .banner-rooftops .profile-banner-title>span:first-child{font-family:Arial,sans-serif;font-size:4.7cqw;letter-spacing:.24em;line-height:1.6}
+.account-dashboard .banner-goblin .profile-banner-title{font-family:Impact,'Arial Narrow',sans-serif;font-size:8.1cqw;line-height:1.12;letter-spacing:.015em;color:#ffda7d}
+.account-dashboard .banner-rooftops .profile-banner-title{font-size:7.8cqw;color:#ffe3ad}
+.account-dashboard .banner-seas .profile-banner-title{font-size:10.3cqw;letter-spacing:.02em;line-height:.94;color:#dfedf0}
+.account-dashboard .banner-sports .profile-banner-logo{left:6%;width:35%;max-height:66%}
 .profile-start-games .profile-game-banner{width:100%;margin:0}
 .profile-achievement-games .profile-game-banner{width:100%;margin-bottom:20px}
 @media(max-width:1200px) and (min-width:951px){.profile-game-link{gap:16px}.profile-game-link>.profile-game-banner{width:180px}.profile-recent-game{gap:12px 15px}.profile-game-link b{font-size:16px}.profile-game-link small{font-size:10px}}
