@@ -23,6 +23,7 @@
     "game-integrations/morogue/shooting-star-cast.wav": "174e8d3116fc",
     "game-integrations/morogue/shooting-star-impact.wav": "de3f45c34f2f",
     "game-integrations/morogue/star-mechanics.js": "e28088e60c99",
-    "game-integrations/morogue/major-bosses.js": "579482982984"
+    "game-integrations/morogue/major-bosses.js": "579482982984",
+    "game-integrations/morogue/magistrate-encounter.js": "e59871eae13e"
   }
 }

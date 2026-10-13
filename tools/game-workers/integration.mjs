@@ -5,6 +5,7 @@ export function withAchievements(response, request, manifest) {
  const base='https://repocompany.uk/',url=new URL(request.url);let inserted=false,documentBase=url,baseSeen=false;
  const source=(game,file)=>{const name=`game-integrations/${game}/${file}`;if(!manifest.hashes[name])throw Error('Missing release asset: '+name);return base+name+'?v='+manifest.hashes[name];};
  const replacements={
+  '/interface/vampire-survivor/magistrate-encounter.js':['morogue','magistrate-encounter.js'],
   '/interface/vampire-survivor/game.js':['morogue','game.js'],
   '/interface/vampire-survivor/recovery.js':['morogue','recovery.js'],
   '/interface/vampire-survivor/star-mechanics.js':['morogue','star-mechanics.js'],
