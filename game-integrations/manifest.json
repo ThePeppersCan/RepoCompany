@@ -16,6 +16,13 @@
     "game-integrations/morogue/builds.js": "9c91e675f7fd",
     "game-integrations/morogue/game.js": "e1d92f19918c",
     "game-integrations/morogue/food-card-ui.js": "faece1dc3eeb",
-    "game-integrations/morogue/recovery.js": "3a435916f038"
+    "game-integrations/morogue/recovery.js": "3a435916f038",
+    "game-integrations/morogue/audio.js": "f796df714fa9",
+    "game-integrations/morogue/food-cards.js": "6c811b05795c",
+    "game-integrations/morogue/food-cards.css": "4d49a5704b25",
+    "game-integrations/morogue/shooting-star-cast.wav": "174e8d3116fc",
+    "game-integrations/morogue/shooting-star-impact.wav": "de3f45c34f2f",
+    "game-integrations/morogue/star-mechanics.js": "e28088e60c99",
+    "game-integrations/morogue/major-bosses.js": "579482982984"
   }
 }

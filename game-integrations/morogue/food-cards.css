@@ -1,0 +1,70 @@
+/* A hand of illustrated cards. These rules intentionally follow the older draft skins. */
+.mr-food-face{position:relative;display:block;width:100%;aspect-ratio:11/19;isolation:isolate;color:#252323;background:#cdbb91;font-family:'Velmora Pixel',serif;overflow:hidden;border:0;box-shadow:0 2px 0 #090c12;image-rendering:pixelated}
+.mr-food-art{position:absolute;inset:0;display:block;background-size:400% 400%;background-repeat:no-repeat;image-rendering:pixelated}
+.mr-food-number{position:absolute;z-index:1;top:1.1%;left:8%;right:8%;height:5.2%;display:grid;place-items:center;background:var(--food-paper,#d4c3a1);color:#2b2828;font-size:clamp(9px,1vw,13px);line-height:1;letter-spacing:1px}
+.mr-food-title{position:absolute;z-index:1;left:4%;right:4%;bottom:1.2%;min-height:6.5%;display:grid;place-items:center;background:var(--food-paper,#d4c3a1);padding:2px 1px;text-align:center;font-size:clamp(10px,1vw,14px);line-height:1.03;color:#252323;text-transform:uppercase;letter-spacing:0}
+#vs-dialog.vs-draft.mr-food-draft,#vs-dialog.vs-draft.mr-food-draft:focus{inset:auto auto 12px 50%;transform:translateX(-50%);margin:0;width:min(560px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 32px);padding:10px 16px 8px;overflow-x:hidden;overflow-y:auto;border:0;border-image:none;border-radius:0;background:transparent;box-shadow:none;color:#e6d5b2;filter:none}
+#vs-dialog.vs-draft.mr-food-draft::backdrop{background:transparent;backdrop-filter:none;animation:none}
+#vs-dialog.mr-food-draft .vs-dialog-heading{margin:0 0 6px;text-align:center;text-shadow:1px 1px #111318,-1px -1px #111318,0 2px #111318}
+#vs-dialog.mr-food-draft .vs-dialog-heading h2{font:28px/1.1 'Velmora Pixel';color:#ead7b1;text-shadow:inherit;margin:2px 0 4px}
+#vs-dialog.mr-food-draft .vs-eyebrow{font:11px/1.4 'Velmora Pixel';color:#b69b78;letter-spacing:1px}
+#vs-dialog.mr-food-draft .vs-build-slots{color:#bca98c!important;font:14px/1.3 'Velmora Pixel'!important;margin:0 0 8px;text-shadow:none!important}
+#vs-dialog.vs-draft .mr-food-hand{display:grid;align-items:center;gap:24px;height:314px;min-height:0;grid-template-columns:repeat(3,minmax(0,1fr));border:0;margin:4px 0 8px;perspective:1100px;padding:24px 12px 28px;overflow:clip;overflow-clip-margin:16px}
+#vs-dialog.vs-draft .vs-upgrade.mr-food-choice,#vs-dialog.vs-draft .vs-upgrade.mr-food-choice:is([data-kind]){position:relative;display:block;flex:1 1 0;min-width:0;min-height:0;aspect-ratio:11/19;padding:0;border:0;border-image:none;border-radius:0;background:none!important;box-shadow:none!important;outline:none;transform:none;translate:none;filter:none;color:#e6d4b0;animation:mr-food-deal .48s cubic-bezier(.18,.85,.25,1) both;animation-delay:calc(var(--card-order)*75ms);transition:opacity .2s;overflow:visible;text-align:left;touch-action:pan-y}
+#vs-dialog.vs-draft .vs-upgrade.mr-food-choice.is-inspected{z-index:2}
+.mr-food-lift{position:absolute;inset:0;display:block;transform:rotate(var(--rest-angle));transform-style:preserve-3d;filter:drop-shadow(0 4px 2px #090b1266);transition:transform .34s cubic-bezier(.18,.85,.25,1.12),filter .24s}
+.is-inspected .mr-food-lift{transform:translateY(-12px) scale(1.12);filter:drop-shadow(0 9px 4px #090b1299)}
+.mr-food-turn{display:block;position:absolute;inset:0;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.32,.02,.2,1)}
+.is-inspected .mr-food-turn{transform:rotateY(180deg)}
+.mr-food-front,.mr-food-back{position:absolute;inset:0;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.mr-food-back{display:block;transform:rotateY(180deg);background:var(--food-paper);border:0;box-shadow:0 2px 0 #090c12;color:var(--food-text);padding:0;overflow:hidden;text-align:left}
+.mr-food-back-stock{position:absolute;inset:0;height:100%;box-shadow:none}
+.mr-food-back-copy{position:absolute;inset:8.5% 3.5% 8.5%;display:flex;flex-direction:column;gap:9px;padding:10px 8px;background:var(--food-field);color:var(--food-text);overflow:auto;scrollbar-width:thin;scrollbar-color:var(--food-text) var(--food-field)}
+#vs-dialog.mr-food-draft .mr-food-kind{font:11px/1.2 'Velmora Pixel';color:var(--food-text);text-transform:uppercase;letter-spacing:.5px}
+.mr-food-back-title{display:none}
+#vs-dialog.mr-food-draft .vs-draft-description{display:block;font:14px/1.23 'Velmora Pixel';color:var(--food-text);margin:0;text-shadow:none}
+#vs-dialog.mr-food-draft .vs-draft-detail,#vs-dialog.mr-food-draft .vs-draft-pair{display:block;font:12px/1.25 'Velmora Pixel';color:var(--food-text);margin:0;opacity:1}
+.mr-food-choice-hint{display:block;margin-top:auto;padding-top:7px;border-top:1px solid currentColor;font:12px 'Velmora Pixel';color:var(--food-text)}
+#vs-dialog.mr-food-draft .vs-shortcut{position:absolute;left:calc(50% - 8px);top:auto;bottom:-20px;width:16px;height:16px;display:grid;place-items:center;padding:0;border:0;background:none!important;box-shadow:none;font:14px 'Velmora Pixel';color:#ccb38d!important;opacity:1;text-shadow:1px 1px #111318,-1px -1px #111318}
+#vs-dialog.mr-food-draft .mr-food-choice:focus-visible{outline:2px solid #ecd3a0;outline-offset:4px}
+#vs-dialog.mr-food-draft .mr-food-take{display:block;margin:0 0 12px;width:100%;min-height:40px;padding:8px 6px;border:0;border-image:none;background:transparent;color:#ecd8b0;box-shadow:none;text-shadow:1px 1px #111318,-1px -1px #111318;font:18px 'Velmora Pixel';filter:none}
+#vs-dialog.mr-food-draft .mr-food-take[aria-disabled=true]{opacity:.45}
+#vs-dialog.mr-food-draft .mr-food-take:focus-visible{outline:2px solid #dec38e;outline-offset:3px}
+#vs-dialog.mr-food-draft .vs-draft-actions{display:flex;justify-content:center;gap:28px;margin:4px 0}
+#vs-dialog.mr-food-draft .vs-draft-actions button{font:15px 'Velmora Pixel';color:#ead7b1;background:none;border:0;border-image:none;box-shadow:none;text-shadow:1px 1px #111318,-1px -1px #111318;padding:8px 0;min-height:40px}
+#vs-dialog.mr-food-draft .vs-draft-footer{font:12px/1.3 'Velmora Pixel';color:#ead7b1;text-align:center;text-shadow:1px 1px #111318,-1px -1px #111318;margin:2px 0 0;min-height:16px}
+#vs-dialog.vs-draft-closing.mr-food-draft .mr-food-choice{transition:opacity .2s;opacity:0;animation:none!important}
+#vs-dialog.vs-draft-closing.mr-food-draft .mr-food-choice.is-selected{opacity:1;animation:mr-food-take .22s ease-in forwards!important}
+.mr-reader .mr-row-icon.mr-food-face{width:62px!important;height:107px!important;flex:none;margin:0;float:none}
+.mr-reader .mr-row-icon.mr-food-face .mr-food-number{font-size:7px}.mr-reader .mr-row-icon.mr-food-face .mr-food-title{font-size:7px;padding:1px}
+.mr-food-study{display:flex;align-items:flex-start;gap:25px;margin:12px 0 16px}.mr-food-study>.mr-food-face{width:150px;flex:none}.mr-food-study>div{flex:1;min-width:0}
+.mr-food-branch{display:flex;align-items:center;gap:16px;padding:14px 0;border-top:1px solid #80604055}.mr-food-branch>.mr-food-face{width:66px;flex:none}.mr-food-branch p{margin:0!important}.mr-food-branch .mr-food-title{font-size:7px}.mr-food-branch .mr-food-number{font-size:7px}
+.mr-food-build{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 12px}.mr-food-build details{min-width:0}.mr-food-build summary{cursor:pointer;list-style:none}.mr-food-build summary::-webkit-details-marker{display:none}.mr-food-build summary:focus-visible{outline:2px solid #d5b584;outline-offset:3px}.mr-food-build details p{font:15px/1.35 'Velmora Pixel';color:#d9c8a7;margin:10px 0}.mr-food-build .mr-food-title{font-size:12px}
+#vs-dialog.mr-food-collection{width:min(780px,calc(100vw - 24px))}.mr-food-collection .vs-pause-options{max-width:none}
+.mr-food-evolved{display:block;width:170px;max-width:45%;margin:10px auto 20px}
+@keyframes mr-food-deal{from{opacity:0;transform:translate(var(--deal-x),55px) scale(.88) rotate(0)}70%{opacity:1}to{opacity:1;transform:none}}
+@keyframes mr-food-take{to{opacity:0;transform:translateY(26px) scale(.96)}}
+@media(max-width:700px) and (orientation:portrait){#vs-dialog.vs-draft.mr-food-draft,#vs-dialog.vs-draft.mr-food-draft:focus{inset:auto auto 8px 50%;transform:translateX(-50%);width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:68dvh;padding:13px 12px 10px}#vs-dialog.mr-food-draft .vs-dialog-heading h2{font-size:24px}#vs-dialog.mr-food-draft .vs-build-slots{font-size:12px!important}#vs-dialog.vs-draft .mr-food-hand{height:254px;min-height:0;gap:12px;margin:0;padding:24px 6px 24px}#vs-dialog.mr-food-draft .mr-food-back-copy{gap:6px;padding:7px 6px}#vs-dialog.mr-food-draft .vs-draft-description{font-size:12px;line-height:1.18}.mr-food-back-title{font-size:19px}.mr-food-kind{font-size:10px}.mr-food-study{gap:14px}.mr-food-study>.mr-food-face{width:110px}.mr-food-build{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-food-title{font-size:10px}#vs-dialog.mr-food-draft .mr-food-take{margin-bottom:4px}#vs-dialog.mr-food-draft .vs-draft-actions button{min-height:35px}.mr-reader .mr-row-icon.mr-food-face{width:46px!important;height:79px!important}}
+@media(max-height:600px) and (orientation:landscape){#vs-dialog.vs-draft.mr-food-draft,#vs-dialog.vs-draft.mr-food-draft:focus{inset:auto auto 6px 50%;transform:translateX(-50%);width:min(490px,calc(100vw - 20px));max-height:calc(100dvh - 12px);padding:4px 12px}#vs-dialog.vs-draft .mr-food-hand{height:calc(100dvh - 115px);max-height:280px;min-height:0;padding:22px 12px 24px;margin:0;justify-content:center;grid-template-columns:repeat(3,minmax(0,min(132px,calc((100dvh - 165px)*.5789))))}#vs-dialog.mr-food-draft .vs-dialog-heading h2{font-size:23px}#vs-dialog.mr-food-draft .vs-build-slots{font-size:12px!important}#vs-dialog.mr-food-draft .mr-food-back-copy{gap:5px;padding:7px 6px}#vs-dialog.mr-food-draft .vs-draft-description{font-size:12px}.mr-food-back-title{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.mr-food-turn{transition:none}#vs-dialog.vs-draft .mr-food-choice{animation:none!important;transition:none!important}#vs-dialog.vs-draft-closing .mr-food-choice.is-selected{animation:none!important}}
+#vs-dialog.vs-reduced .mr-food-turn{transition:none}#vs-dialog.vs-reduced .mr-food-choice{animation:none!important;transition:none!important}
+
+@media(hover:hover) and (pointer:fine){#vs-dialog.mr-food-draft .mr-food-take{display:none}}
+#vs-dialog.mr-food-draft .vs-eyebrow[hidden]{display:none}
+body:has(#vs-dialog.mr-food-draft[open]) :is(.vs-dash-group,#vs-stick,#vs-controls-hint){visibility:hidden}
+
+.mr-food-front::after,.mr-food-back::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;border:1px solid var(--food-paper);background:linear-gradient(112deg,transparent 30%,#fff5d332 48%,transparent 63%);background-size:260% 100%;background-position:130% 0}
+.is-inspected .mr-food-back::after{animation:mr-food-paper-light .64s .13s ease-out both}
+.mr-food-fx{position:absolute;inset:0;pointer-events:none;z-index:4}
+.mr-food-mote{position:absolute;display:block;width:var(--mote-size);height:var(--mote-size);background:var(--food-paper);box-shadow:1px 1px 0 #342b1a88;opacity:0;animation:mr-food-mote .78s var(--mote-delay) cubic-bezier(.12,.5,.32,1) both}
+.mr-food-mote:nth-child(3n){background:var(--food-ink)}
+@keyframes mr-food-paper-light{0%{opacity:0;background-position:130% 0}25%{opacity:.8}100%{opacity:0;background-position:-30% 0}}
+@keyframes mr-food-mote{0%{opacity:0;transform:translate(0,0) scale(.5)}18%{opacity:.85}65%{opacity:.6}100%{opacity:0;transform:translate(var(--mote-x),var(--mote-y)) rotate(90deg) scale(.35)}}
+@media(max-width:700px) and (orientation:portrait){.is-inspected .mr-food-lift{transform:translateY(-10px) scale(1.16)}}
+@media(max-height:600px) and (orientation:landscape){#vs-dialog.mr-food-draft .vs-draft-actions button{min-height:28px;padding:4px 0}#vs-dialog.mr-food-draft .vs-draft-footer{font-size:10px}#vs-dialog.mr-food-draft .mr-food-take{min-height:28px;margin:0;padding:4px;font-size:15px}}
+@media(prefers-reduced-motion:reduce){.mr-food-lift,.is-inspected .mr-food-lift{transition:none;transform:none;filter:none}.mr-food-fx,.mr-food-front::after,.mr-food-back::after{display:none!important}}
+#vs-dialog.vs-reduced .mr-food-lift{transition:none;transform:none;filter:none}#vs-dialog.vs-reduced .mr-food-fx,#vs-dialog.vs-reduced .mr-food-front::after,#vs-dialog.vs-reduced .mr-food-back::after{display:none!important}
+
+#vs-dialog.mr-food-draft .mr-food-glossary{color:#ead7b1;font:13px/1.4 'Velmora Pixel';text-shadow:1px 1px #111318}
+#vs-dialog.mr-food-draft .mr-food-glossary[open]{background:#181e20f2;padding:10px}
+@media(max-width:700px) and (orientation:portrait){#vs-dialog.vs-draft.mr-food-draft{max-height:85dvh}#vs-dialog.mr-food-draft .mr-food-take{display:block}}

@@ -45,6 +45,7 @@
   Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors 'self' https://www.repocompany.uk https://morogue.repocompany.uk https://moratales.repocompany.uk https://manager.repocompany.uk; base-uri 'none'; form-action 'none'
 /game-integrations/*
   Cache-Control: no-cache
+  Access-Control-Allow-Origin: *
 /avatar-renderer.js
   Cache-Control: no-cache
 /avatar-studio.js
