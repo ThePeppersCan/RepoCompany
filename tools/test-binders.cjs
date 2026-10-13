@@ -36,7 +36,7 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   });
   await context.route(base+'/api/dashboard/**',route=>send(route,{username:'QAPlayer',profile:{display_name:'QAPlayer',repo_score:0},friends:[],blocks:[]}));
   page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
-  await page.goto(base+'/#account/inventory');await page.getByRole('button',{name:'Sign in →',exact:true}).click();
+  await page.goto(base+'/#account/inventory',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Sign in →',exact:true}).click();
   await page.locator('[name=username]').fill('QAPlayer');await page.locator('[name=password]').fill('test-password-123');await page.locator('#account-login-form [type=submit]').click();
   await page.waitForFunction(()=>repoAccount.state.ready&&repoAccount.state.cards.length&&!document.querySelector('#account-detail').open);
   await page.locator('.inventory-card img').first().waitFor();
@@ -44,7 +44,7 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   assert.equal(await page.locator('.inventory-card').count(),unique);
   await page.locator('[data-inventory-visibility=hide]').first().click();assert.equal(await page.locator('.inventory-card').count(),unique-1);
   await page.getByRole('button',{name:'Hide all cards',exact:true}).click();assert.equal(await page.locator('.inventory-card').count(),0);
-  await page.reload();await page.locator('.inventory-card-hidden').waitFor();assert.equal(await page.locator('.inventory-card').count(),0);
+  await page.reload({waitUntil:'domcontentloaded'});await page.locator('.inventory-card-hidden').waitFor();assert.equal(await page.locator('.inventory-card').count(),0);
   await page.getByRole('button',{name:'Unhide all',exact:true}).click();assert.equal(await page.locator('.inventory-card').count(),unique);
   assert.equal(calls.filter(x=>x.rpc?.startsWith('set_')).length,0,'Inventory visibility never alters binder or collection data');
   const out=path.resolve('QA/native-binders');fs.mkdirSync(out,{recursive:true});
@@ -66,6 +66,7 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
    await page.keyboard.press('Escape');
   }
   await page.locator('[data-book-rarity]').selectOption('all');
+  console.log('PASS: original standard cards open, filter and inspect.');
   await page.locator('[data-book-inspect]').first().click();await page.locator('#binder-inspector[open]').waitFor();await page.keyboard.press('Escape');
   const saved=()=>page.waitForFunction(()=>document.querySelector('.binder-save-status')?.textContent.includes('Arrangement saved.'));
   await page.locator(`[data-book-action=select][data-id="${cards[0]}"]`).click();
@@ -78,7 +79,7 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   await page.locator('[data-book-action=displayed]').click();await page.locator('[data-book-page]').selectOption('0');
   await page.locator('[data-book-search]').fill(catalog[0].name);assert.equal(await page.locator('.binder-pocket').count(),1);await page.locator('[data-book-search]').fill('nothing-matches-123');assert.equal(await page.locator('.binder-pocket').count(),0);await page.locator('[data-book-search]').fill('');
   await page.locator('[data-book-action=hide]').first().click();await saved();
-  await page.reload();await page.locator('.binder-book').waitFor();assert((await page.locator('.binder-summary').innerText()).includes('1 in storage'));
+  await page.reload({waitUntil:'domcontentloaded'});await page.locator('.binder-book').waitFor();assert((await page.locator('.binder-summary').innerText()).includes('1 in storage'));
   // Refresh pulls new ownership before rebuilding the binder.
   cards.push(catalog[35].id);await page.locator('[data-book-action=reload]').click();await page.locator('.binder-book').waitFor();await page.locator('[data-book-search]').fill(catalog[35].name);assert.equal(await page.locator('.binder-pocket').count(),1);await page.locator('[data-book-search]').fill('');
   // Unknown card IDs remain in the arrangement, and duplicate copies are counted.
@@ -96,6 +97,9 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   await page.screenshot({path:path.join(out,'slabs-desktop.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(out,'slabs-mobile.png'),fullPage:true});assert(await page.locator('#account-content').evaluate(n=>n.scrollWidth<=n.clientWidth+1),'Slabs must fit mobile');
   await page.locator('.binder-types [data-binder=binder]').click();await page.locator('.binder-book').waitFor();assert(await page.locator('#account-content').evaluate(n=>n.scrollWidth<=n.clientWidth+1),'Cards must fit mobile');await page.screenshot({path:path.join(out,'tcg-mobile.png'),fullPage:true});
+  // Direct route and failed-load recovery use the normal-size collection fixture.
+  failSlabLoad=true;await page.goto(base+'/#account/slabs',{waitUntil:'domcontentloaded'});await page.reload({waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Try again',exact:true}).waitFor();failSlabLoad=false;await page.getByRole('button',{name:'Try again',exact:true}).click();await page.locator('.binder-book-slabs').waitFor();
+  await page.locator('.binder-types [data-binder=binder]').click();await page.locator('.binder-book').waitFor();
   // Render every catalogue entry so a valid card outside the small starter fixture cannot break a spread.
   for(const card of catalog)if(!cards.includes(card.id))cards.push(card.id);
   await page.locator('[data-book-action=reload]').click();await page.locator('.binder-book').waitFor();
@@ -106,8 +110,8 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
    for(const id of await page.locator('[data-book-inspect]').evaluateAll(nodes=>nodes.map(n=>n.dataset.bookInspect)))rendered.add(id);
   }
   assert.deepEqual([...rendered].sort(),[...new Set(cards)].sort(),'Every owned catalogue card renders across the binder spreads');
-  // Direct route, error recovery, no save on load, browser history and account isolation.
-  failSlabLoad=true;await page.goto(base+'/#account/slabs');await page.reload();await page.getByRole('button',{name:'Try again',exact:true}).waitFor();failSlabLoad=false;await page.getByRole('button',{name:'Try again',exact:true}).click();await page.locator('.binder-book-slabs').waitFor();
+  console.log('PASS: every catalogue card renders across the binder spreads.');
+  // Signing out clears both the binder and inventory.
   await page.locator('.binder-types [data-tab=inventory]').click();await page.getByRole('button',{name:'Hide all cards',exact:true}).click();
   await page.setViewportSize({width:1672,height:1000});await page.locator('#account-tab-settings').click();await page.locator('[data-signout]').click();await page.getByRole('button',{name:'Sign in →',exact:true}).waitFor();
   assert.equal(await page.locator('.binder-pocket').count(),0);assert.equal(await page.locator('.inventory-card').count(),0);
