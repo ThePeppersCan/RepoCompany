@@ -13,7 +13,8 @@
  inspector.addEventListener('close',()=>inspectOpener?.isConnected&&inspectOpener.focus());
  async function getCatalog(){
   if(catalog)return catalog;
-  if(!catalogRequest)catalogRequest=fetch('dashboard-card-catalog.json').then(r=>{if(!r.ok)throw Error('Card artwork could not load. Please try again.');return r.json();}).then(rows=>catalog=Object.fromEntries(rows.map(c=>[c.id,c]))).finally(()=>catalogRequest=null);
+  // The original base cards omit rarity and are standard, as in the existing pack reveal.
+  if(!catalogRequest)catalogRequest=fetch('dashboard-card-catalog.json').then(r=>{if(!r.ok)throw Error('Card artwork could not load. Please try again.');return r.json();}).then(rows=>catalog=Object.fromEntries(rows.map(c=>[c.id,{...c,rarity:typeof c.rarity==='string'&&c.rarity.trim()?c.rarity:'standard'}]))).finally(()=>catalogRequest=null);
   return catalogRequest;
  }
  function resetAccount(){

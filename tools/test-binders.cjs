@@ -9,9 +9,11 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   const user={id:'11111111-1111-4111-8111-111111111111',email:'qaplayer@'+config.authDomain,aud:'authenticated',role:'authenticated',user_metadata:{username:'QAPlayer'}};
   const token=Buffer.from('{}').toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';
   const session={access_token:token,token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,refresh_token:'test-refresh',user};
-  const cards=[...catalog.slice(0,29).map(x=>x.id),catalog[0].id,'unknown_future_card'];
+  // Original standard cards omit rarity; a collection of only special cards missed this crash.
+  const originalCards=catalog.filter(x=>!x.rarity);
+  const cards=[...new Set([...catalog.slice(0,29),...originalCards].map(x=>x.id)),catalog[0].id,'unknown_future_card'];
   let slabLayout=Array(270).fill(null);slabLayout[0]='slab-a';slabLayout[3]='slab-b';
-  const slabs=[{slab_id:'slab-a',card_id:cards[0],grade:10,certification_number:'RCG-0001'},{slab_id:'slab-b',card_id:cards[0],grade:9,certification_number:'RCG-0002'},{slab_id:'slab-c',card_id:cards[1],grade:8,certification_number:'RCG-0003'}];
+  const slabs=[{slab_id:'slab-a',card_id:cards[0],grade:10,certification_number:'RCG-0001'},{slab_id:'slab-b',card_id:cards[0],grade:9,certification_number:'RCG-0002'},{slab_id:'slab-c',card_id:'soup',grade:8,certification_number:'RCG-0003'}];
   let failSave=false,failSlabLoad=false;const calls=[],errors=[],requests=[];
   const send=(route,data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(data)});
   await context.route(config.url+'/**',async route=>{
@@ -54,6 +56,16 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   assert(page.url().endsWith('#account/binder'));assert.equal(await page.locator('.binder-pocket[data-book-slot="1"] [data-book-inspect]').getAttribute('data-book-inspect'),cards[0]);
   assert.equal(calls.filter(x=>x.rpc==='get_public_quidditch_tcg_binder_layout').length,0);
   assert.equal(requests.filter(x=>x.includes('legacy-runtime')||/\/script\.js/.test(x)).length,0);
+  await page.locator('[data-book-rarity]').selectOption('standard');
+  assert.equal(await page.locator('.binder-pocket').count(),originalCards.length,'Original cards belong to the standard rarity filter');
+  for(const card of originalCards){
+   const tile=page.locator('.binder-pocket').filter({has:page.locator(`[data-book-inspect="${card.id}"]`)});
+   assert.equal((await tile.locator('.binder-card-caption small').innerText()).toLowerCase(),'standard');
+   await tile.locator('[data-book-inspect]').click();
+   assert((await page.locator('#binder-inspector').innerText()).toLowerCase().includes('standard'));
+   await page.keyboard.press('Escape');
+  }
+  await page.locator('[data-book-rarity]').selectOption('all');
   await page.locator('[data-book-inspect]').first().click();await page.locator('#binder-inspector[open]').waitFor();await page.keyboard.press('Escape');
   const saved=()=>page.waitForFunction(()=>document.querySelector('.binder-save-status')?.textContent.includes('Arrangement saved.'));
   await page.locator(`[data-book-action=select][data-id="${cards[0]}"]`).click();
@@ -80,15 +92,26 @@ const base=process.env.DASHBOARD_TEST_URL||'http://127.0.0.1:8791';
   failSave=true;await page.locator('[data-book-action=hide][data-id="slab-a"]').click();await page.locator('[data-book-action=save]').waitFor();assert.equal(await page.locator('[data-book-inspect="slab-a"]').count(),0);assert.equal(slabLayout[3],'slab-a');
   failSave=false;await page.locator('[data-book-action=save]').click();await saved();assert.equal(slabLayout[3],null);
   await page.locator('[data-book-action=restore-all]').click();await saved();assert.equal(slabLayout.filter(Boolean).length,3);assert.equal(new Set(slabLayout.filter(Boolean)).size,3);
+  await page.locator('[data-book-inspect="slab-c"]').click();assert((await page.locator('#binder-inspector').innerText()).toLowerCase().includes('standard'));await page.keyboard.press('Escape');
   await page.screenshot({path:path.join(out,'slabs-desktop.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(out,'slabs-mobile.png'),fullPage:true});assert(await page.locator('#account-content').evaluate(n=>n.scrollWidth<=n.clientWidth+1),'Slabs must fit mobile');
   await page.locator('.binder-types [data-binder=binder]').click();await page.locator('.binder-book').waitFor();assert(await page.locator('#account-content').evaluate(n=>n.scrollWidth<=n.clientWidth+1),'Cards must fit mobile');await page.screenshot({path:path.join(out,'tcg-mobile.png'),fullPage:true});
+  // Render every catalogue entry so a valid card outside the small starter fixture cannot break a spread.
+  for(const card of catalog)if(!cards.includes(card.id))cards.push(card.id);
+  await page.locator('[data-book-action=reload]').click();await page.locator('.binder-book').waitFor();
+  await page.locator('[data-book-action=restore-all]').click();await saved();
+  const rendered=new Set(),spreads=await page.locator('[data-book-page] option').count();
+  for(let i=0;i<spreads;i++){
+   await page.locator('[data-book-page]').selectOption(String(i));
+   for(const id of await page.locator('[data-book-inspect]').evaluateAll(nodes=>nodes.map(n=>n.dataset.bookInspect)))rendered.add(id);
+  }
+  assert.deepEqual([...rendered].sort(),[...new Set(cards)].sort(),'Every owned catalogue card renders across the binder spreads');
   // Direct route, error recovery, no save on load, browser history and account isolation.
   failSlabLoad=true;await page.goto(base+'/#account/slabs');await page.reload();await page.getByRole('button',{name:'Try again',exact:true}).waitFor();failSlabLoad=false;await page.getByRole('button',{name:'Try again',exact:true}).click();await page.locator('.binder-book-slabs').waitFor();
   await page.locator('.binder-types [data-tab=inventory]').click();await page.getByRole('button',{name:'Hide all cards',exact:true}).click();
   await page.setViewportSize({width:1672,height:1000});await page.locator('#account-tab-settings').click();await page.locator('[data-signout]').click();await page.getByRole('button',{name:'Sign in →',exact:true}).waitFor();
   assert.equal(await page.locator('.binder-pocket').count(),0);assert.equal(await page.locator('.inventory-card').count(),0);
   assert.equal(requests.filter(x=>x.includes('legacy-runtime')).length,0);assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(out,'verification.json'),JSON.stringify({inventoryHideAll:true,individualHide:true,persistence:true,localLayoutPreserved:true,moveAcrossPages:true,slabSwap:true,storageRestore:true,saveFailureRetry:true,unknownCards:true,duplicateSlabs:true,search:true,mobile:true,nativeNoLegacyRequests:true,errors},null,2));console.log('PASS: inventory visibility, both native binders, saved layouts, moves, storage, failure recovery, search and mobile.');
+  fs.writeFileSync(path.join(out,'verification.json'),JSON.stringify({inventoryHideAll:true,individualHide:true,persistence:true,localLayoutPreserved:true,moveAcrossPages:true,slabSwap:true,storageRestore:true,saveFailureRetry:true,unknownCards:true,duplicateSlabs:true,search:true,mobile:true,nativeNoLegacyRequests:true,originalStandardCards:originalCards.length,fullCatalogue:catalog.length,errors},null,2));console.log(`PASS: inventory visibility, both native binders, saved layouts, moves, storage, failure recovery, search and mobile; ${originalCards.length} original standard cards and all ${catalog.length} catalogue cards.`);
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

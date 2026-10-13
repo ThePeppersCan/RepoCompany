@@ -50,3 +50,7 @@ For this dashboard-only release, build with `node tools/build-dashboard.cjs --pr
 ### Shared demo loading correction
 
 A delayed favourite-card request could make the retired passport panel repeatedly render through already-resolved promises, starving network completion and game startup. Its loader now waits for the favourite cache to be marked loaded; the existing completion event handles the final render. This changes only the shared account loading path, not game rules or saves. Demo launch tests delay favourite-card responses by 750 ms to cover this race. Legacy runtime scripts and styles now receive content versions during the build so the corrected loader is fetched consistently.
+
+### Original standard-card binder correction
+
+Nine original catalogue entries omit `rarity`, including Soup, Jud and Mad Rager. The native binder now normalizes these entries to `standard`, matching the original pack reveal, before building filters, captions or card details. This fixes the `replaceAll` opening error without changing card IDs, ownership or saved arrangements. Binder regression coverage now includes all nine original entries, their rarity filter and details, an original-card slab, and every catalogue entry across the binder spreads.
