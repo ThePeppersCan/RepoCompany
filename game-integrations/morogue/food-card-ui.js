@@ -34,7 +34,7 @@
   });
   take.onclick=()=>{if(ready()&&inspected)choose(inspected.id);};
   host.onkeydown=e=>{if(!host.classList.contains('mr-food-draft')||!ready()||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();e.stopPropagation();const at=buttons.indexOf(document.activeElement),next=at<0?0:(at+(['ArrowRight','ArrowDown'].includes(e.key)?1:-1)+buttons.length)%buttons.length;buttons[next].focus({preventScroll:true});};
-  const glossary=el('details','vs-fineprint mr-food-glossary'),summary=el('summary','','Combat terms');glossary.append(summary,el('p','','Main attack: your sword or coffee attack. Special: E / right-click. Finisher: the third attack of a combo. Clean hit: tap your next attack as the previous one recovers. Perfect dodge: dash through a damaging attack. Mark: the target takes 15% more main-attack damage; marks do not stack. Steps measure distance on the arena floor. Healing is halved during great-adversary fights.'));
+  const glossary=el('details','vs-fineprint mr-food-glossary'),summary=el('summary','','Combat terms');glossary.append(summary,el('p','','Main attack: your sword or coffee attack. Special: E / right-click. Finisher: the third attack of a combo. Clean hit: tap your next attack as the previous one recovers. Perfect dodge: dash through a damaging attack. Mark: the target takes 15% more main-attack damage; marks do not stack. Steps measure distance on the arena floor. Healing is reduced to 57.5% during great-adversary fights and increased by 15% during other boss fights.'));
   host.append(hand,take,glossary);return {hand,take,buttons};
  }
  root.MOROGUE_FOOD_UI={draft};
