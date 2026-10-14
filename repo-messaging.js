@@ -94,6 +94,7 @@
   const peerName = el('h3'), peerStatus = el('p'); peerInfo.append(peerName, peerStatus);
   const voice = button('Start voice call', 'phone', 'repo-social-icon', () => startCall('audio'));
   const video = button('Start video call', 'video', 'repo-social-icon', () => startCall('video'));
+  voice.hidden = video.hidden = true;
   conversationHead.append(back, peerAvatar, peerInfo, voice, video);
   const historyWrap = el('div', 'repo-message-history-wrap'), history = el('div', 'repo-message-history');
   history.setAttribute('role', 'log'); history.setAttribute('aria-label', 'Message history'); history.setAttribute('aria-live', 'polite'); history.setAttribute('aria-relevant', 'additions'); history.tabIndex = 0;
@@ -106,9 +107,8 @@
   const send = button('Send message', 'send', 'repo-message-send'); send.type = 'submit';
   composer.append(input, send);
   const composerHint = el('p', 'repo-composer-hint', 'Enter to send · Shift + Enter for a new line');
-  const callAvailability = el('p', 'repo-call-availability', 'Calls are being set up. Messaging is available.'); callAvailability.hidden = true;
   const empty = el('div', 'repo-conversation-empty'); empty.append(icon('message'), el('p', 'repo-social-eyebrow', 'STAY A LITTLE LONGER'), el('h3', '', 'Every adventure starts\nwith a conversation.'), el('p', '', 'Choose a friend to catch up, make a plan or share the next adventure.'));
-  conversation.append(empty, conversationHead, callAvailability, historyWrap, feedback, composer, composerHint);
+  conversation.append(empty, conversationHead, historyWrap, feedback, composer, composerHint);
   body.append(aside, conversation); drawer.append(head, body); document.body.append(drawer);
 
   const toast = el('div', 'repo-message-toast'); toast.setAttribute('role', 'status'); toast.setAttribute('popover', 'manual');
@@ -232,8 +232,8 @@
     peerName.textContent = f.display_name || f.username; paintAvatar(peerAvatar, f.username); peerAvatar.classList.toggle('is-online', !!f.online);
     peerStatus.textContent = f.online ? (f.current_game ? 'Playing ' + ({morogue: 'Morogue', moratales: 'Moratales', manager: 'Velmora Manager'}[f.current_game] || 'a game') : 'Online') : 'Offline';
     voice.disabled = video.disabled = !initialized || !callsEnabled || !!call || callBusy || loading;
-    callAvailability.hidden = !initialized || callsEnabled;
-    voice.title = video.title = !callsEnabled ? 'Calls are being set up. Messaging is available.' : call ? 'A call is already in progress' : '';
+    voice.hidden = video.hidden = !initialized || !callsEnabled;
+    voice.title = video.title = call ? 'A call is already in progress' : '';
     input.disabled = send.disabled = !available || sending || loading;
   }
   let callsEnabled = false;

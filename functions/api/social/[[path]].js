@@ -24,7 +24,8 @@ const conversationAllowed = allowed('c.a_name', 'c.b_name', 'c.a_id', 'c.b_id');
 const callAllowed = allowed('c.caller_name', 'c.callee_name', 'c.caller_id', 'c.callee_id');
 const messageView = row => ({ id: row.id, sender: row.sender_name, clientId: row.client_id, text: row.text, createdAt: row.created_at });
 const callView = row => row ? ({ id: row.id, caller: row.caller_name, callee: row.callee_name, kind: row.kind, status: row.status, createdAt: row.created_at, expiresAt: row.expires_at, endedAt: row.ended_at, reason: row.reason }) : null;
-const configured = env => /^[a-zA-Z0-9_-]{1,128}$/.test(env.SOCIAL_TURN_KEY_ID || '') && typeof env.SOCIAL_TURN_KEY_API_TOKEN === 'string' && env.SOCIAL_TURN_KEY_API_TOKEN.length >= 16;
+// Calling is an explicit product opt-in, independent of whether credentials exist.
+const configured = env => config.socialCallsEnabled === true && /^[a-zA-Z0-9_-]{1,128}$/.test(env.SOCIAL_TURN_KEY_ID || '') && typeof env.SOCIAL_TURN_KEY_API_TOKEN === 'string' && env.SOCIAL_TURN_KEY_API_TOKEN.length >= 16;
 
 async function bodyOf(request) {
   if (!request.headers.get('Content-Type')?.toLowerCase().startsWith('application/json')) throw fail('Send a JSON request.', 415);
@@ -91,6 +92,7 @@ export async function onRequest({ request, env, params }) {
     const body = request.method === 'POST' ? await bodyOf(request) : null;
     const me = await identity(request), now = Date.now();
     if (!env.DASHBOARD_DB) throw fail('Messaging is unavailable.', 503);
+    if (['calls', 'ice'].includes(route[0]) && !configured(env)) throw fail('Calls are not available. You can still send messages.', 503);
     // Read from the primary so revocation checks cannot use stale replicas.
     const db = env.DASHBOARD_DB.withSession ? env.DASHBOARD_DB.withSession('first-primary') : env.DASHBOARD_DB;
     await db.prepare(`INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL OR dashboard_players.user_id=excluded.user_id`).bind(me.name, me.id, me.display).run();
@@ -109,7 +111,7 @@ export async function onRequest({ request, env, params }) {
        (SELECT COUNT(*) FROM social_messages m WHERE m.conversation_id=c.id AND m.sender_id!=? AND m.id>CASE WHEN c.a_id=? THEN c.read_a ELSE c.read_b END) AS unread
        FROM social_conversations c JOIN social_messages m ON m.id=c.last_id WHERE (c.a_id=? OR c.b_id=?) AND c.last_id<? AND ${conversationAllowed} ORDER BY c.last_id DESC LIMIT ?`).bind(me.id, me.id, me.id, me.id, me.id, before, limit + 1).all();
       const conversations = rows.results.slice(0, limit).map(row => ({ id: row.id, username: row.peer_name, displayName: row.peer_name, lastMessage: { id: row.last_id, sender: row.last_sender, clientId: row.last_client, text: row.last_text, createdAt: row.last_created }, unread: row.unread, readThrough: row.a_id === me.id ? row.read_a : row.read_b, peerReadThrough: row.a_id === me.id ? row.read_b : row.read_a }));
-      const call = await db.prepare(`SELECT c.* FROM social_calls c JOIN social_call_slots s ON s.call_id=c.id WHERE s.user_id=? AND c.expires_at>? AND ${callAllowed}`).bind(me.id, now).first();
+      const call = configured(env) ? await db.prepare(`SELECT c.* FROM social_calls c JOIN social_call_slots s ON s.call_id=c.id WHERE s.user_id=? AND c.expires_at>? AND ${callAllowed}`).bind(me.id, now).first() : null;
       const unread = await db.prepare(`SELECT COUNT(*) AS n FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE (c.a_id=? OR c.b_id=?) AND m.sender_id!=? AND m.id>CASE WHEN c.a_id=? THEN c.read_a ELSE c.read_b END AND ${conversationAllowed}`).bind(me.id, me.id, me.id, me.id).first();
       return json({ conversations, totalUnread: unread.n, call: callView(call), serverTime: now, iceConfigured: configured(env), hasMore: rows.results.length > limit, nextCursor: rows.results.slice(0, limit).at(-1)?.last_id || null });
     }

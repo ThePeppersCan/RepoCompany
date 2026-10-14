@@ -3,8 +3,8 @@ const fs = require('node:fs'), path = require('node:path'), assert = require('no
 const { DatabaseSync } = require('node:sqlite');
 const { randomUUID } = require('node:crypto');
 const root = path.resolve(__dirname, '..');
-async function loadAPI() {
-  const source = fs.readFileSync(path.join(root, 'functions/api/social/[[path]].js'), 'utf8').replace("import config from '../../../dashboard-config.json';", "const config={url:'https://auth.test',key:'test-public-key'};");
+async function loadAPI({ callsEnabled = true } = {}) {
+  const source = fs.readFileSync(path.join(root, 'functions/api/social/[[path]].js'), 'utf8').replace("import config from '../../../dashboard-config.json';", "const config=" + JSON.stringify({url:'https://auth.test',key:'test-public-key',socialCallsEnabled:callsEnabled}) + ";");
   return (await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'))).onRequest;
 }
 function makeDatabase() {
@@ -18,8 +18,8 @@ function makeDatabase() {
   const db = { prepare, withSession: () => db, async batch(statements) { sql.exec('BEGIN'); try { const result = statements.map(statement => statement.runSync()); sql.exec('COMMIT'); return result; } catch (error) { sql.exec('ROLLBACK'); throw error; } } };
   return { sql, db, hooks };
 }
-async function createFixture() {
-  const { sql, db, hooks } = makeDatabase(), handler = await loadAPI();
+async function createFixture(options) {
+  const { sql, db, hooks } = makeDatabase(), handler = await loadAPI(options);
   // Deliberately give usernames and UUIDs different sort orders.
   const users = { alice: '33333333-3333-4333-8333-333333333333', bob: '11111111-1111-4111-8111-111111111111', carol: '22222222-2222-4222-8222-222222222222', mallory: '44444444-4444-4444-8444-444444444444' };
   for (const [username, uuid] of Object.entries(users)) sql.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?)').run(username, uuid, username);
@@ -44,10 +44,21 @@ async function createFixture() {
 }
 async function run() {
   const realFetch = global.fetch;
-  async function fixture(test) { const f = await createFixture(); global.fetch = f.fetch; try { await test(f); } finally { f.close(); global.fetch = realFetch; } }
+  async function fixture(test, options) { const f = await createFixture(options); global.fetch = f.fetch; try { await test(f); } finally { f.close(); global.fetch = realFetch; } }
   const send = (f, who = 'alice', username = 'bob', text = 'Hello', clientId = randomUUID()) => f.call(who, 'messages', { username, text, clientId });
   const start = (f, who = 'alice', username = 'bob', clientId = randomUUID()) => f.call(who, 'calls', { username, kind: 'audio', clientId });
   const signal = (f, who, callId, type, data, clientId = randomUUID()) => f.call(who, 'calls/' + callId + '/signals', { type, data, clientId });
+  assert.equal(JSON.parse(fs.readFileSync(path.join(root, 'dashboard-config.json'), 'utf8')).socialCallsEnabled, false, 'Production calling stays explicitly disabled.');
+  await fixture(async f => {
+    const inbox = await f.call('alice', 'inbox');
+    assert.equal(inbox.body.iceConfigured, false); assert.equal(inbox.body.call, null);
+    assert.equal((await start(f)).status, 503);
+    assert.equal((await f.call('alice', 'ice?callId=' + randomUUID())).status, 503);
+    assert.equal((await f.call('alice', 'calls/' + randomUUID() + '/signals', {clientId:randomUUID(),type:'ice',data:null})).status, 503);
+    assert.equal((await send(f)).status, 200, 'Disabling calls does not disable messaging.');
+    assert.equal(f.requests.some(request => request.url.startsWith('https://rtc.live.cloudflare.com/')), false, 'No relay credential request even when credentials are present.');
+    assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM social_calls').get().n, 0);
+  }, {callsEnabled:false});
   await fixture(async f => {
     assert.equal((await f.call('invalid', 'inbox')).status, 401);
     assert.equal((await f.call('alice', 'inbox', undefined, { headers: { Origin: 'https://evil.test' } })).status, 403);

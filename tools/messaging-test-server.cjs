@@ -8,7 +8,7 @@ const people={alice:'11111111-1111-4111-8111-111111111111',bob:'22222222-2222-42
 const encode=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
 const sessions=Object.fromEntries(Object.entries(people).map(([username,id])=>{const expires=Math.floor(Date.now()/1000)+3600,user={id,aud:'authenticated',role:'authenticated',email:username+'@conofdrpepper.local',user_metadata:{username},created_at:new Date().toISOString()};return [username,{access_token:encode({alg:'HS256'})+'.'+encode({sub:id,exp:expires,role:'authenticated'})+'.fixture',refresh_token:'fixture-'+username,token_type:'bearer',expires_in:3600,expires_at:expires,user}];}));
 async function createFixture(){
- const source=fs.readFileSync(path.join(root,'functions/api/social/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
+ const source=fs.readFileSync(path.join(root,'functions/api/social/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify({...config,socialCallsEnabled:true})+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
  const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(path.join(root,'dashboard-social-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-messaging-schema.sql'),'utf8'));
  for(const [username,id]of Object.entries(people))sql.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?)').run(username,id,username[0].toUpperCase()+username.slice(1));

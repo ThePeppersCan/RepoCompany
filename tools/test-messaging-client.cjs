@@ -81,10 +81,12 @@ const {createFixture} = require('./messaging-test-server.cjs');
     await plain.goto(fixture.base + '/#account/friends');
     await plain.waitForFunction(() => repoAccount.state.social?.friends?.length && window.repoMessaging);
     await plain.locator('[data-message-player="bob"]').click();
-    await plain.getByText('Calls are being set up. Messaging is available.',{exact:true}).waitFor();
-    assert.equal(await plain.getByRole('button',{name:'Start voice call',exact:true}).isDisabled(),true);
+    await plain.locator('.repo-message-row').first().waitFor();
+    assert.equal(await plain.getByRole('button',{name:'Start voice call',exact:true}).isVisible(),false);
+    assert.equal(await plain.getByRole('button',{name:'Start video call',exact:true}).isVisible(),false);
+    assert.equal(await plain.getByText('Calls are being set up. Messaging is available.',{exact:true}).count(),0);
     assert.equal(await plain.getByRole('textbox',{name:'Message',exact:true}).isEnabled(),true);
-    checks.push('Unconfigured calling is labelled honestly and does not disable text messaging.');
+    checks.push('Disabled calling has no controls or setup promises; text messaging remains available.');
     await noCalls.close();
 
     fixture.sql.exec('DELETE FROM social_messages; DELETE FROM social_conversations; DELETE FROM social_rate_limits;');
