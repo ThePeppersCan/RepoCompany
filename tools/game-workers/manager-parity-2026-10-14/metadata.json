@@ -1,0 +1,22 @@
+{
+  "placement": {},
+  "compatibility_date": "2026-09-21",
+  "compatibility_flags": [],
+  "usage_model": "standard",
+  "tags": [],
+  "tail_consumers": [],
+  "logpush": false,
+  "annotations": {
+    "workers/message": "Use the existing published Manager menu artwork for the player setup background; preserve the original game and routing Worker.",
+    "workers/triggered_by": "upload"
+  },
+  "bindings": [
+    {
+      "environment": "production",
+      "name": "GAME",
+      "service": "velmora-manager",
+      "type": "service"
+    }
+  ],
+  "main_module": "parity-entry.mjs"
+}

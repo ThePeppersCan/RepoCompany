@@ -93,6 +93,12 @@ function initialize() {
     #launcher-library-panel .launcher-library-note p{margin:0;max-width:730px;font-size:11px;line-height:1.7;color:inherit}
     #launcher-library-panel .launcher-library-version{display:flex;gap:10px;align-items:center;white-space:nowrap;font-size:10px;color:#748b89}
     #launcher-library-feedback{font-size:12px;line-height:1.7;color:#d9cbaa;margin-top:18px;min-height:20px}
+    #launcher-update-settings{margin-top:35px;max-width:760px}
+    #launcher-update-settings .account-settings-row{align-items:center}
+    #launcher-update-settings .account-switch:disabled{opacity:.6;cursor:wait}
+    #launcher-update-settings .account-switch:focus-visible{outline:2px solid #e3dbbf;outline-offset:5px}
+    #launcher-update-settings-note{font-size:11px;line-height:1.7;color:#84969e;margin:15px 0 25px}
+    #launcher-discord-status{font-size:11px;line-height:1.7;color:#84969e;margin:15px 0 25px}
     [data-launcher-cta][data-launcher-long="true"]{font-size:20px!important}
     #launcher-native-message{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:100000;max-width:min(640px,90vw);background:#18221eef;border:1px solid #cfc6a44d;border-radius:6px;padding:14px 22px;color:#eee5cf;font:13px/1.7 'Segoe UI',sans-serif;box-shadow:0 12px 36px #0007;pointer-events:none}
     #launcher-native-message[hidden]{display:none!important}
@@ -134,6 +140,35 @@ function initialize() {
     attachActions(panel);
     if(focusAction){const replacement=[...panel.querySelectorAll('button')].find(button=>{const action=actions.get(button);return action?.action===focusAction.action&&action?.id===focusAction.id;});if(replacement&&!replacement.disabled)replacement.focus({preventScroll:true});}
   }
+  function renderSettings() {
+    const dialog=document.getElementById('account-menu'),content=document.getElementById('account-content');
+    if(!content||dialog?.dataset.accountTab!=='settings')return;
+    let section=document.getElementById('launcher-update-settings');
+    if(!section){
+      section=document.createElement('section');section.id='launcher-update-settings';section.setAttribute('aria-labelledby','launcher-update-settings-heading');
+      section.innerHTML='<h3 id="launcher-update-settings-heading" class="account-settings-label">Windows launcher</h3><div class="account-settings-row"><div><b>Automatically update installed games</b><p id="launcher-auto-update-description">Keep your library up to date while the launcher is open. Games you are playing update after you close them.</p></div><button id="launcher-auto-update-toggle" type="button" class="account-switch" role="switch" aria-label="Automatically update installed games" aria-describedby="launcher-auto-update-description launcher-update-settings-note"><span></span></button></div><p id="launcher-update-settings-note"></p>';
+      const column=content.querySelector('.account-settings-layout>div');
+      if(column)column.append(section);else content.prepend(section);
+    }
+    if(!section.querySelector('#launcher-discord-toggle')){
+      const row=document.createElement('div');row.className='account-settings-row';
+      row.innerHTML='<div><b>Show games on Discord</b><p id="launcher-discord-description">Let Discord show the game you launch and how long you have been playing. Your account details, saves and scores stay private.</p></div><button id="launcher-discord-toggle" type="button" class="account-switch" role="switch" aria-label="Show games on Discord" aria-describedby="launcher-discord-description launcher-discord-status"><span></span></button>';
+      const status=document.createElement('p');status.id='launcher-discord-status';status.setAttribute('role','status');section.append(row,status);
+    }
+    const enabled=state.preferences?.automaticGameUpdates!==false,button=section.querySelector('#launcher-auto-update-toggle');
+    if(button.getAttribute('aria-checked')!==String(enabled))button.setAttribute('aria-checked',String(enabled));
+    button.disabled=[...pending].some(key=>key.startsWith('automatic-game-updates:'));
+    actions.set(button,{action:'automatic-game-updates',id:!enabled});
+    const note=section.querySelector('#launcher-update-settings-note'),text='Applies to this computer for every account. '+(enabled?'Switch off to choose when to update from Library.':'Automatic updates are off. Check for updates and choose Update in Library whenever you are ready.')+' Any update already in progress will finish.';
+    if(note.textContent!==text)note.textContent=text;
+    const discordEnabled=state.preferences?.discordPresence!==false,discordButton=section.querySelector('#launcher-discord-toggle');
+    if(discordButton.getAttribute('aria-checked')!==String(discordEnabled))discordButton.setAttribute('aria-checked',String(discordEnabled));
+    discordButton.disabled=[...pending].some(key=>key.startsWith('discord-presence:'));
+    actions.set(discordButton,{action:'discord-presence',id:!discordEnabled});
+    const discordStatus=section.querySelector('#launcher-discord-status');
+    const statusText=!discordEnabled?'Discord game activity is off on this computer.':state.discordPresence?.status==='connected'?'Connected to Discord. Your current game activity is shared.':state.discordPresence?.status==='unconfigured'?'Discord activity is available for MoraTales, Morogue and Velmora Manager.':state.discordPresence?.status==='connecting'?'Connecting to the Discord desktop app…':state.discordPresence?.status==='unavailable'?'Open the Discord desktop app to show your game. Its Activity Privacy settings also control visibility.':'Requires the Discord desktop app. Its Activity Privacy settings also control visibility.';
+    if(discordStatus.textContent!==statusText)discordStatus.textContent=statusText;
+  }
   function updatePlayButtons() {
     const candidates=[...document.querySelectorAll('[data-note="Play"][data-game-url]')].map(button=>({button,game:originGame(button.dataset.gameUrl)}));
     const demoButton=document.getElementById('demo-launch'),demo=selectedDemo();if(demoButton&&demo)candidates.push({button:demoButton,game:demo,demo:true});
@@ -165,7 +200,7 @@ function initialize() {
     if(dialog&&mountedDialog!==dialog){mountedDialog=dialog;dialog.addEventListener('close',()=>{libraryRequested=false;setLibrary(false);});}
     if(dialog?.open&&libraryRequested){libraryRequested=false;setLibrary(true,true);}
     if(libraryActive&&dialog?.open)setLibrary(true);
-    renderLibrary();updatePlayButtons();
+    renderLibrary();renderSettings();updatePlayButtons();
     if(embeddedDemo){
       let open=false;
       try{
@@ -195,6 +230,8 @@ function initialize() {
         const demo=action==='play-web'?demos().find(demo=>demo.id===id):null;
         if(demo?.embedded)embeddedDemo={id,seen:false,runtime:demo.runtime||'legacy',origin:demo.origin};
         if(action==='refresh')toast('Your games and account have been checked for updates.');
+        if(action==='automatic-game-updates')toast(id?'Automatic game updates are on.':'Automatic game updates are off. You can still update games from Library.');
+        if(action==='discord-presence')toast(id?'Discord game activity is on.':'Discord game activity is off.');
       }
     } catch(error){toast(error?.message||String(error));}
     finally{pending.delete(token);schedule();}

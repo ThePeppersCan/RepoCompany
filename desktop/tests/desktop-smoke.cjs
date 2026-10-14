@@ -5,6 +5,13 @@ const assert = require('node:assert/strict');
 const { _electron: electron } = require('playwright');
 const root = path.resolve(__dirname, '..');
 const qa = path.join(root, 'qa');
+const cliArgs = process.argv.slice(2);
+let release = path.join(root, 'releases/morogue'), skipRepair = false;
+for (let index = 0; index < cliArgs.length; index++) {
+  if (cliArgs[index] === '--release' && cliArgs[index + 1] && !cliArgs[index + 1].startsWith('--')) release = path.resolve(cliArgs[++index]);
+  else if (cliArgs[index] === '--skip-repair') skipRepair = true;
+  else throw Error('Usage: node tests/desktop-smoke.cjs [--release <Morogue release directory>] [--skip-repair]');
+}
 const wait = (page, predicate, timeout = 30000) => page.waitForFunction(predicate, null, { polling: 100, timeout });
 async function waitForState(page, predicate, timeout = 30000) {
   // Poll resolved IPC snapshots in Node; never let an async predicate's Promise
@@ -43,9 +50,11 @@ async function capture(app, page, filename, screenshots, captureWarnings) {
   }
 }
 async function run() {
+  const manifest = JSON.parse(await fs.readFile(path.join(release, 'manifest.json'), 'utf8'));
+  assert.equal(manifest.gameId, 'morogue', 'the explicit smoke release belongs to Morogue');
   await fs.mkdir(qa, { recursive: true });
   const profile = await fs.mkdtemp(path.join(qa, 'profile-'));
-  const env = { ...process.env, REPO_LAUNCHER_FIXTURES: '1', REPO_LAUNCHER_TEST_PROFILE: profile, REPO_LAUNCHER_HIDDEN_TEST: '1' };
+  const env = { ...process.env, REPO_LAUNCHER_FIXTURES: '1', REPO_LAUNCHER_TEST_PROFILE: profile, REPO_LAUNCHER_HIDDEN_TEST: '1', REPO_LAUNCHER_TEST_MOROGUE_RELEASE: release };
   delete env.ELECTRON_RUN_AS_NODE;
   const app = await electron.launch({ executablePath: require('electron'), args: [root, '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', '--disable-background-timer-throttling'], env, timeout: 30000 });
   const errors = [], requestFailures = [], screenshots = [], captureWarnings = [];
@@ -62,7 +71,9 @@ async function run() {
     await assert.rejects(() => page.evaluate(() => window.repoLauncher.play('morogue')), /Install/);
     await capture(app, page, 'launcher-library.png', screenshots, captureWarnings);
     await page.evaluate(() => window.repoLauncher.install('morogue'));
-    assert.equal((await page.evaluate(() => window.repoLauncher.getState())).library.morogue.status, 'installed');
+    const installed = (await page.evaluate(() => window.repoLauncher.getState())).library.morogue;
+    assert.equal(installed.status, 'installed');
+    assert.equal(installed.version, manifest.version, 'the selected release was installed through the actual library');
     await assert.rejects(() => page.evaluate(() => window.repoLauncher.play('morogue')), /Sign in/);
     await page.evaluate(() => window.repoLauncher.navigate('account'));
     const portalIsolation = await app.evaluate(async ({ webContents }) => {
@@ -79,6 +90,12 @@ async function run() {
     const nextWindow = app.waitForEvent('window');
     await page.evaluate(() => window.repoLauncher.play('morogue'));
     const game = await nextWindow; game.setDefaultTimeout(15000);
+    // Hidden Electron QA surfaces need a compositor consumer. Acknowledging real
+    // frames keeps the game's own clock/render loop moving without advancing or
+    // replacing any simulation state, input handler or animation callback.
+    const video = await game.context().newCDPSession(game);
+    video.on('Page.screencastFrame', frame => { void video.send('Page.screencastFrameAck', { sessionId: frame.sessionId }).catch(() => {}); });
+    await video.send('Page.startScreencast', { format: 'jpeg', quality: 20, maxWidth: 640, maxHeight: 360, everyNthFrame: 1 });
     await wait(game, () => window.MOROGUE_LAUNCHER?.state.reason === 'characters');
     assert.equal(await game.locator('#vs-character-name').count(), 0, 'an unavailable character service cannot fall through into the creator');
     await app.evaluate(() => { globalThis.__repoLauncherTestServices.stats.characterMode = 'wrong-account'; });
@@ -141,8 +158,10 @@ async function run() {
     assert.equal(results.lastResult.outcome, 'retired'); assert.ok(results.lastResult.activeMs >= 1000);
     await game.evaluate(() => window.MOROGUE_LAUNCHER.requestExit());
     await waitForState(page, state => state.running.length === 0);
-    await page.evaluate(() => window.repoLauncher.install('morogue'));
-    assert.equal((await page.evaluate(() => window.repoLauncher.getState())).library.morogue.status, 'installed');
+    if (!skipRepair) {
+      await page.evaluate(() => window.repoLauncher.install('morogue'));
+      assert.equal((await page.evaluate(() => window.repoLauncher.getState())).library.morogue.status, 'installed');
+    } else console.log('Repair was explicitly not rerun in this invocation; initial install and final uninstall remain required.');
     await app.evaluate(({ dialog }) => { dialog.showMessageBox = async () => ({ response: 1 }); });
     await page.evaluate(() => window.repoLauncher.uninstall('morogue'));
     assert.equal((await page.evaluate(() => window.repoLauncher.getState())).library.morogue.status, 'not-installed');
@@ -157,10 +176,10 @@ async function run() {
       if (!/closed|destroyed/i.test(error.message)) throw error;
     });
     assert.equal(await stopped, 0, 'launcher exits normally while portal requests settle');
-    const diagnostics = { errors, requestFailures, serviceResults: results, gracefulExit: true, screenshots, captureWarnings };
+    const diagnostics = { release, version: manifest.version, profile, repair: skipRepair ? 'not rerun (--skip-repair)' : 'passed', errors, requestFailures, serviceResults: results, gracefulExit: true, screenshots, captureWarnings };
     await fs.writeFile(path.join(qa, 'desktop-smoke.json'), JSON.stringify(diagnostics, null, 2));
     assert.equal(errors.length, 0, JSON.stringify(errors));
-    console.log('Desktop smoke passed: native install, account gating, shared sign-in, real Morogue run and result submission, offline/reconnect, sandbox, explicit exit, repair.');
+    console.log('Desktop smoke passed: native install, account gating, shared sign-in, real Morogue run and result submission, offline/reconnect, sandbox, explicit exit, uninstall' + (skipRepair ? '. Repair explicitly not rerun.' : ', repair.'));
     console.log(JSON.stringify({ serviceResults: results }));
     console.log(JSON.stringify({ requestFailures: requestFailures.length, screenshots, captureWarnings }));
   } catch (error) {

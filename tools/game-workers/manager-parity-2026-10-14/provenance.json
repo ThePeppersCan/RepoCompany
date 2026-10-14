@@ -1,0 +1,63 @@
+{
+  "worker": "repo-manager-achievements",
+  "method": "Wrap the captured entry; only GET/HEAD /player-career.css is eligible and only when the upstream body hash matches the captured stylesheet.",
+  "originalModules": {
+    "entry.mjs": {
+      "sha256": "43c361b52eb27644c5c77bcfafc93a8ed4fb5e6eb230ee5e404c7ea7ee30595d",
+      "bytes": 205,
+      "type": "application/javascript+module"
+    },
+    "integration.mjs": {
+      "sha256": "4d9b112bf85d1ad00eb532e139a60d14558cf69c862ed306fc37227b2bbd81f8",
+      "bytes": 2176,
+      "type": "application/javascript+module"
+    },
+    "manifest.mjs": {
+      "sha256": "613688646830e38d2381a6cd96497bcba1f720293af09aa169f3586ba55c97e6",
+      "bytes": 1001,
+      "type": "application/javascript+module"
+    }
+  },
+  "modules": {
+    "entry.mjs": {
+      "sha256": "43c361b52eb27644c5c77bcfafc93a8ed4fb5e6eb230ee5e404c7ea7ee30595d",
+      "bytes": 205
+    },
+    "integration.mjs": {
+      "sha256": "4d9b112bf85d1ad00eb532e139a60d14558cf69c862ed306fc37227b2bbd81f8",
+      "bytes": 2176
+    },
+    "manifest.mjs": {
+      "sha256": "613688646830e38d2381a6cd96497bcba1f720293af09aa169f3586ba55c97e6",
+      "bytes": 1001
+    },
+    "manager-player-background.mjs": {
+      "sha256": "b5496a1b999720bba6bb67d693e9ef3ace17ce8585bfe90e9f610cc4bae7688f",
+      "bytes": 2224
+    },
+    "manager-player-background-data.mjs": {
+      "sha256": "e574b213e54dbed35b48b8e9da89515512a80fc1c706942dd9dd131d800ec22e",
+      "bytes": 9190
+    },
+    "parity-entry.mjs": {
+      "sha256": "06cddbc6b12c5ffc3f2ed6e36e1d50c4bdc6e01155da8c68231abfb100dd9bd6",
+      "bytes": 266
+    }
+  },
+  "capturedSettingsSha256": "2055c85f534978d3f6691fdc58e8fbddbddfba54ebd4307e30fc9356087cc073",
+  "capturedDeploymentsSha256": "2d23d224f7238b591d8a98a828a7e429c4a3d4ee6f55ade0f3a25a18ad27eddb",
+  "originalCSSSha256": "fb82db63db1efc27b490b34882b2d17b95290d58ce08ed3e8759e43b3fd38f30",
+  "correctedCSSSha256": "39e724b24c3f678941fa256ba631d9bff6b7060359b0bde82f863554668ba976",
+  "background": {
+    "path": "assets/ui-v2/main-menu-clean-v2.png",
+    "sha256": "025cafc63f3df5a7a84db06bd44e03d0b1abf24339a7171ca2adf98731995d57",
+    "bytes": 1838886
+  },
+  "validationBeforeDeployment": [
+    "Re-read live deployments, settings and every Worker module and compare with capture.",
+    "Confirm the published stylesheet still has originalCSSSha256.",
+    "Preserve all modules/bindings/settings and the existing route; upload only to the captured Worker."
+  ],
+  "note": "Exact modules deployed on 2026-10-14; all original modules retained byte-for-byte. Capture authentication and transient API responses are intentionally excluded.",
+  "metadataSha256": "d800a1e04bbeda1b1e4e594a8e8616231ce2e86528b073a1dba703748f87cc46"
+}

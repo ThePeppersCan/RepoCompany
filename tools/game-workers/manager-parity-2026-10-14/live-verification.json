@@ -1,0 +1,18 @@
+{
+  "verifiedAt": "2026-10-14T02:03:10.069Z",
+  "worker": "repo-manager-achievements",
+  "liveCSSSha256": "39e724b24c3f678941fa256ba631d9bff6b7060359b0bde82f863554668ba976",
+  "routeMutationRequested": false,
+  "untouched": {
+    "https://manager.repocompany.uk/": "98c501f643135b30f69851d35a5fccf4264979a7c3af0cbace53ebd53d7144e9",
+    "https://manager.repocompany.uk/app.js": "3f82247cec402e5e4b284f302ceb149f8bcb04555825d8c7a7e0ae386e8aa394",
+    "https://manager.repocompany.uk/career-bootstrap.js": "75bb4745279a1e0b8802ea1c1b1e56df0708900ffe7ab4fa731feedd30cd9aeb",
+    "https://manager.repocompany.uk/velmora-quidditch-engine.js": "e1aa536a50a299a456018c29ccc7e662de753795b0e61ffd6f17127a0d53b792",
+    "https://repocompany.uk/game-integrations/manager/app.js": "1093a1b961d8ca679c0f373ae78900f18b188c754b4e69df1550d3ff76711634"
+  },
+  "originalModulesPreserved": {
+    "entry.mjs": "43c361b52eb27644c5c77bcfafc93a8ed4fb5e6eb230ee5e404c7ea7ee30595d",
+    "integration.mjs": "4d9b112bf85d1ad00eb532e139a60d14558cf69c862ed306fc37227b2bbd81f8",
+    "manifest.mjs": "613688646830e38d2381a6cd96497bcba1f720293af09aa169f3586ba55c97e6"
+  }
+}

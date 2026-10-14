@@ -1,0 +1,20 @@
+export default {
+  "version": 1,
+  "hashes": {
+    "game-integrations/moratales/achievement-runtime.js": "ef6109a1591f",
+    "game-integrations/moratales/town-cafe-day.js": "2fd8bb78fe30",
+    "game-integrations/moratales/town-cafe-service.js": "290630f3f1d9",
+    "game-integrations/moratales/town-kitchen.js": "b37022f08a94",
+    "game-integrations/moratales/town-pleasure.js": "7f513f10286d",
+    "game-integrations/moratales/town-roastery.js": "e14c070a68e7",
+    "game-integrations/manager/achievement-runtime.js": "2d044e91f758",
+    "game-integrations/manager/app.js": "1093a1b961d8",
+    "game-integrations/manager/career-bootstrap.js": "7925ae54b198",
+    "game-integrations/manager/career-expansion.js": "f8209a861ed5",
+    "game-integrations/manager/velmora-quidditch-engine.js": "b45bc7ea6bf8",
+    "game-integrations/morogue/achievement-runtime.js": "b72725455e11",
+    "game-integrations/morogue/builds.js": "9c91e675f7fd",
+    "game-integrations/morogue/game.js": "7be3c0e9dda6"
+  }
+}
+;

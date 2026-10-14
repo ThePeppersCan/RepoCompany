@@ -1,0 +1,1 @@
+import {withAchievements} from './integration.mjs';import manifest from './manifest.mjs';export default {async fetch(request,env){return withAchievements(await env.GAME.fetch(request),request,manifest);}};

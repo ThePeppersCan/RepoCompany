@@ -16,6 +16,11 @@ module.exports = function configuration(resourceRoot) {
     ],
     // Enable a release channel only after its signed installer and feed have been published.
     launcherUpdates: { url: null, publisherName: null },
+    discordApplications: {
+      moratales: { clientId: '1557490171614863390', name: 'MoraTales' },
+      morogue: { clientId: '1559743063382036522', name: 'Morogue' },
+      manager: { clientId: '1559743304856510494', name: 'Velmora Manager' }
+    },
     games: [
       {
         id: 'morogue', name: 'Morogue', genre: 'Action roguelite',

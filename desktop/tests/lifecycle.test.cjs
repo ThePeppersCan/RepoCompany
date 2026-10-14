@@ -449,3 +449,101 @@ test('automatic update sweeps deduplicate checks and skip running games and acti
   busy = false;
   const closing = h.run('checkAndApplyUpdates()'); h.run('quitting=true;'); resolveCheck(); await closing; assert.equal(updates, 1);
 });
+
+test('device update preference accepts only a boolean from the trusted launcher or portal frame', async () => {
+  const h = portalHarness(); let enabled = true, writes = 0;
+  h.context.fixture.preferences = { snapshot: () => ({ automaticGameUpdates: enabled }), async setAutomaticGameUpdates(value) { writes++; enabled = value; } };
+  h.run('preferences=fixture.preferences;');
+  const event = { sender: h.contents, senderFrame: h.frame };
+  for (const bad of [{ sender: {}, senderFrame: h.frame }, { sender: h.contents, senderFrame: { url: h.frame.url } }]) await assert.rejects(h.invoke(bad, 'automatic-game-updates', false), /belongs to/);
+  for (const value of ['false', 0, null, {}, undefined]) await assert.rejects(h.invoke(event, 'automatic-game-updates', value), /on or off/);
+  assert.equal(writes, 0);
+  const result = await h.invoke(event, 'automatic-game-updates', false);
+  assert.equal(result.preferences.automaticGameUpdates, false); assert.equal(writes, 1);
+  h.context.fixture.account.state.status = 'signed-out'; h.context.fixture.account.identity = null;
+  assert.equal(h.run('state()').preferences.automaticGameUpdates, false);
+  h.context.fixture.account.state.status = 'online'; h.context.fixture.account.identity = 'another-account';
+  assert.equal(h.run('state()').preferences.automaticGameUpdates, false, 'switching accounts does not reset a device preference');
+  h.run('quitting=true;');
+  await assert.rejects(h.invoke(event, 'automatic-game-updates', true), /belongs to/);
+  assert.equal(writes, 1);
+});
+
+test('opt-out still checks versions and allows explicit update or repair without automatically installing', async () => {
+  const h = harness(); let enabled = false, checks = 0; const actions = [];
+  h.context.updateFixture = {
+    preferences: { snapshot: () => ({ automaticGameUpdates: enabled }) },
+    library: { async checkUpdates() { checks++; }, snapshot: () => ({ morogue: { version: '1.0.0', availableVersion: '2.0.0' } }), isBusy: () => false, async update(id) { actions.push('update:' + id); }, async install(id) { actions.push('repair:' + id); } }
+  };
+  h.run('preferences=updateFixture.preferences; library=updateFixture.library;');
+  await h.run('checkAndApplyUpdates()');
+  assert.equal(checks, 1); assert.deepEqual(actions, []);
+  await h.run('executeCommand("update","morogue")'); await h.run('executeCommand("install","morogue")');
+  assert.deepEqual(actions, ['update:morogue', 'repair:morogue']);
+  enabled = true; await h.run('checkAndApplyUpdates()');
+  assert.deepEqual(actions, ['update:morogue', 'repair:morogue', 'update:morogue']);
+});
+
+test('disabling automatic updates during a sweep lets its active transfer finish but starts no next game', async () => {
+  const h = harness(); let enabled = true, complete; const updates = [];
+  h.context.updateFixture = {
+    preferences: { snapshot: () => ({ automaticGameUpdates: enabled }) },
+    library: { checkUpdates: async () => {}, snapshot: () => ({ morogue: { version: '1', availableVersion: '2' }, moratales: { version: '1', availableVersion: '2' } }), isBusy: () => false, update(id) { updates.push(id); return new Promise(resolve => { complete = resolve; }); } }
+  };
+  h.run('preferences=updateFixture.preferences; library=updateFixture.library;');
+  const sweep = h.run('checkAndApplyUpdates()'); await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(updates, ['morogue']); enabled = false; complete(); await sweep;
+  assert.deepEqual(updates, ['morogue']);
+});
+
+test('a game closing during another update is revisited immediately after that transfer finishes', async () => {
+  const h = harness(); const versions = { morogue: { version: '1', availableVersion: '2' }, moratales: { version: '1', availableVersion: '2' } };
+  let completeOther, checks = 0; const updates = [];
+  h.context.updateFixture = { async checkUpdates() { checks++; }, snapshot: () => versions, isBusy: () => false, async update(id) { updates.push(id); if (id === 'moratales') await new Promise(resolve => { completeOther = resolve; }); versions[id].version = '2'; } };
+  h.run('library=updateFixture; games.set("morogue",{});');
+  const sweep = h.run('checkAndApplyUpdates()'); await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(updates, ['moratales']);
+  h.run('games.delete("morogue");'); const afterClose = h.run('checkAndApplyUpdates({reschedule:true})');
+  assert.equal(sweep, afterClose); completeOther(); await sweep;
+  assert.equal(checks, 2); assert.deepEqual(updates, ['moratales', 'morogue']);
+});
+
+test('Discord visibility is a device boolean protected by the portal sender boundary', async () => {
+  const h = portalHarness(); let enabled = true; const calls = [];
+  h.context.fixture.preferences = { snapshot: () => ({ automaticGameUpdates: true, discordPresence: enabled }), async setDiscordPresence(value) { enabled = value; } };
+  h.context.fixture.discord = { setEnabled: value => calls.push(value), snapshot: () => ({ enabled, status: enabled ? 'idle' : 'disabled' }) };
+  h.run('preferences=fixture.preferences; discordPresence=fixture.discord;');
+  const event = { sender: h.contents, senderFrame: h.frame };
+  await assert.rejects(h.invoke({ sender: h.contents, senderFrame: { url: h.frame.url } }, 'discord-presence', false), /belongs to/);
+  for (const value of ['false', {}, 0]) await assert.rejects(h.invoke(event, 'discord-presence', value), /on or off/);
+  const result = await h.invoke(event, 'discord-presence', false);
+  assert.equal(result.preferences.discordPresence, false); assert.equal(result.discordPresence.status, 'disabled');
+  assert.deepEqual(calls, [false]); assert.doesNotMatch(JSON.stringify(result.discordPresence), /TEST_ONLY|token|username|score|account/i);
+});
+
+test('successful native game start, focus and close drive only the corresponding Discord game activity', async () => {
+  const windows = [], activity = []; let checks = 0;
+  class GameWindow extends EventEmitter {
+    constructor() {
+      super(); windows.push(this); this.destroyed = false;
+      this.webContents = Object.assign(new EventEmitter(), { isDestroyed: () => this.destroyed, send() {}, setWindowOpenHandler() {} });
+    }
+    isDestroyed() { return this.destroyed; }
+    async loadURL() { activity.push('loaded'); }
+    close() { this.destroyed = true; this.emit('closed'); }
+  }
+  const h = portalHarness({ electronOverrides: { BrowserWindow: GameWindow } });
+  h.context.fixture.account.requireOnline = async () => 'original-account';
+  h.context.fixture.account.refresh = async () => {};
+  h.context.fixture.library = { getInstalled: () => ({ version: '1', entry: 'index.html' }), snapshot: () => ({ manager: { status: 'installed', version: '1' } }), isBusy: () => false, async checkUpdates() { checks++; } };
+  h.context.fixture.discord = { gameStarted: id => activity.push('start:' + id), gameFocused: id => activity.push('focus:' + id), gameStopped: id => activity.push('stop:' + id) };
+  h.context.fixture.mainWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false, send() {} } };
+  h.context.fixture.sharedSession = { flushStorageData() {} };
+  h.run('library=fixture.library; discordPresence=fixture.discord; mainWindow=fixture.mainWindow; sharedSession=fixture.sharedSession;');
+  await h.run('play("manager")');
+  assert.deepEqual(activity, ['loaded', 'start:manager']);
+  windows[0].emit('focus'); windows[0].close(); await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(activity, ['loaded', 'start:manager', 'focus:manager', 'stop:manager']);
+  assert.equal(checks, 1, 'closing the real game lifecycle initiates deferred update checks');
+  assert.equal(h.run('games.size'), 0);
+});

@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld('repoLauncher', Object.freeze({
   play: id => invoke('play', id),
   refresh: () => invoke('refresh'),
   checkLauncherUpdates: () => invoke('launcher-update'),
+  setAutomaticGameUpdates: enabled => invoke('automatic-game-updates', enabled),
+  setDiscordPresence: enabled => invoke('discord-presence', enabled),
   openWebsite: () => invoke('website'),
   windowControl: action => invoke('window', action),
   onState: callback => {

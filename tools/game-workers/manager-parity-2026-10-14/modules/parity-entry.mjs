@@ -1,0 +1,1 @@
+import original from './entry.mjs';import {withManagerPlayerBackground} from './manager-player-background.mjs';import correction from './manager-player-background-data.mjs';export * from './entry.mjs';export default withManagerPlayerBackground(original,correction);

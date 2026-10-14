@@ -1,11 +1,11 @@
-# Repo Company for Windows — preview 0.1.3
+# Repo Company for Windows — preview 0.1.4
 
 The launcher uses the actual Repo Company website, including its game cases and Account navigation. The website's Download button provides the Windows preview. Homepage game cases install or launch games; **Account → Library** manages installation, updates, repair and removal.
 
 ## Games and accounts
 
 - **Morogue, Moratales and Velmora Manager** download separately from `https://repo-company-games.pages.dev`. Game payloads are not bundled into the launcher installer.
-- All three support install, update, repair and uninstall. Release checks run on startup, refresh and every ten minutes. Available game updates apply while the game is closed.
+- All three support install, update, repair and uninstall. **Automatic game updates are on by default.** While the launcher is open, release checks run on startup, manual refresh and every ten minutes. Closing a game triggers another check so an update skipped during play can apply immediately afterward. A running game's installed files are never replaced.
 - A verified Repo Company account and internet connection are required to play. Existing account, achievement and leaderboard services remain authoritative. Game windows bind to the account that opened them, with local storage separated by account.
 - Signing in to Repo Company automatically connects the Moratales character names and appearances held in that browser/profile. Downloaded Moratales also syncs new characters and appearance changes while playing and before closing, ready for Morogue. **There is no separate linking page to visit.** Conflicting characters are preserved rather than silently replaced.
 - **Moratales adventures stay local.** Appearance sync does not upload or migrate full adventure saves. Existing browser adventures remain in their original browser/profile; installed adventures remain in the launcher profile. The game's import/export backup controls remain available.
@@ -14,6 +14,13 @@ The launcher uses the actual Repo Company website, including its game cases and 
 - Dragonbound, Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas and Repo Sports remain web demos inside the launcher. They require no installation and retain their current content/prototype status.
 
 Game updates and launcher updates are separate. The remote **game** release channel is configured for all three titles. **Launcher automatic updates remain disabled** in this unsigned preview; install newer Windows previews manually until signing and the launcher update feed are configured and tested.
+
+## Launcher settings and Discord
+
+The existing website's **Account → Settings** page includes Windows launcher controls. Both settings are saved for this computer's Windows profile and persist through account changes and launcher restarts.
+
+- **Automatically update installed games** starts enabled. Switch it off to choose when to update in Account → Library. Version checks and explicit Update/Repair actions remain available. A download already in progress finishes safely; subsequent automatic downloads stop until the setting is enabled again. Enabling it triggers a fresh check.
+- **Show games on Discord** starts enabled. It uses the user-configured Discord application IDs for MoraTales, Morogue and Velmora Manager in `config.cjs`. With the Discord desktop app running and the player's Discord Activity Privacy settings permitting it, the launcher publishes the launched game's title and elapsed play time. Closing the game, a renderer crash or switching this setting off clears the launcher's activity. No Repo Company account details, tokens, saves, scores or leaderboard data are sent to Discord. This setting controls activity published by the launcher; Discord's own game detection remains governed by Discord's settings.
 
 Local assets and a dedicated Chromium window are implemented. Higher frame rates than the browser version have not been established by benchmarks.
 
@@ -28,6 +35,7 @@ npm test
 npm run test:desktop
 node tests/moratales-desktop.cjs
 node tests/manager-desktop.cjs
+node tests/settings-desktop.cjs
 npm start
 ```
 
@@ -35,43 +43,57 @@ Integration tests use Playwright from the website's development dependencies and
 
 These tests verify the integration contract. A real-account acceptance pass should still confirm newly earned achievements/results on the website and Manager career persistence against its production service.
 
+The native Settings test uses the actual website without signing in, checks trusted pointer/keyboard controls and synthetic-click rejection, then restarts an isolated launcher profile to verify persistence. Automatic-update tests cover opt-out, manual actions, active transfers, running-game deferral and immediate checks after closing. Discord protocol/lifecycle checks use fixture pipes, including reconnects, opt-out and clearing activity. **Actual publication in a real Discord account has not been acceptance-tested.** Hidden and fixture gameplay tests cannot publish activity to a real Discord client.
+
 ## Prepare immutable game releases
 
-Use reviewed, existing game builds. Do not rebuild an unrelated dirty game checkout as part of launcher packaging. Helpers default to a dry run and refuse to overwrite an existing release; use a fresh `--output` and version for new work. Initial preparation examples, from `desktop`:
+The published web game is the content authority. A local checkout, build folder or version-looking URL query is not evidence that a package is current. Do not rebuild an unrelated dirty checkout. Preparation defaults to a dry run and refuses existing output; always choose an explicit game version and fresh output directory.
+
+Morogue captures public GET bytes from its live page and the complete game integration subtree. The current game checkout and reviewed website checkout provide **filenames only**. The capture keeps published script order, localizes the integration scripts/assets, and re-fetches HTML and every executable/stylesheet to reject a mixed release. Native account/achievement and playtime services remain online. Per-file receipts record original URL/hash and bundled hash. From `desktop`, the reviewed preview.3 capture is reproducible with:
 
 ```powershell
-node tools/prepare-morogue.cjs --source C:\Users\Isaac\Documents\velmoragame\dist-web --version 0.1.0-preview.2 --write
-node tools/prepare-moratales.cjs --source C:\Users\Isaac\Documents\velmoragame\dist-web --version 0.1.0-preview.1 --write
-node tools/prepare-manager.cjs --source C:\Users\Isaac\Documents\GitHub\velmora-manager-web\dist --repo-source C:\Users\Isaac\Documents\Codex\2026-10-13\you\work\character-sync-release --version 0.1.0-preview.1 --write
-node tools/prepare-moratales.cjs --verify releases/moratales
+$work = 'C:\Users\Isaac\Documents\Codex\2026-10-13\you\work'
+node tools/prepare-morogue.cjs `
+  --source C:\Users\Isaac\Documents\velmoragame `
+  --repo-source "$work\character-sync-release" `
+  --audit "$work\morogue-delivery-audit\report.json" `
+  --version 0.1.0-preview.3 `
+  --output releases/morogue-preview3 `
+  --cache-blobs "$work\game-release-feed-v2\blobs" `
+  --write
 ```
 
-Review package reports and dependency audits. Selected website integration files provide achievements/account bridges. Moratales includes the reviewed automatic character-sync files and strict, packaging-only hooks into its existing solo/co-op save paths. No player saves or account tokens are included.
+Use a new version/output for subsequent releases; the example must not overwrite the already prepared preview.3 package. `--audit` optionally pins a reviewed page/script capture; `--cache-blobs` hardlinks identical, verified content to save disk. Inventory-only unpublished files are reported; missing required resources fail preparation. Attribution metadata and dynamic filename suffixes are not treated as standalone runtime files.
 
-Moratales staging copies code and hardlinks media. Source media must remain unchanged until upload completes. The feed builder checks every file's size and SHA-256 again. Never replace an uploaded version's contents: publish a new version and advance its manifest.
+Moratales and Manager preparation helpers produce **candidates**, which must pass the same live parity gate below. A local build may only supply a candidate when every delivered file is verified against the published game. Reviewed native account, save, pause and resource-path hooks are the only allowed differences; artwork, balance and game content have no exception. Moratales includes automatic character sync and guarded solo/co-op save hooks. No player saves or tokens belong in packages.
+
+Keep source media and cached hardlinks unchanged throughout preparation and upload. Never replace an uploaded version's contents: publish a higher semantic version and advance its manifest. Current Morogue preview.3 is 536,312,897 bytes (about 536MB).
 
 ## Prepare and publish the game feed
 
-The builder reads the reviewed canonical `desktop/releases/{morogue,moratales,manager}` packages. It creates a **new** static staging folder containing game manifests and deduplicated `/blobs/<sha256>.bin` files. These content-addressed URLs avoid Pages HTML redirects. Manifests retain original installation paths, sizes and hashes. Individual files must fit the host's 25MiB asset limit.
+Use `publish-game-release.cjs` as the required release workflow. It audits **all three** explicit package directories against fresh published responses, even when only one game changed. Every file's installed hash/size and original live URL/hash must pass, and each audit binds the exact manifest bytes. Previous reports and matching version labels cannot skip this check. A failed or incomplete audit stops before staging/publication.
+
+The workflow creates a **new** static stage outside the website checkout, retaining all old blobs and unchanged manifests byte-for-byte. Replacements require a higher semantic version. Deduplicated `/blobs/<sha256>.bin` URLs avoid HTML redirects. Every file must fit the host's 25MiB limit and the stage must remain within its file budget. The reviewed packages for this release are Morogue `0.1.0-preview.3`, Moratales `0.1.0-preview.2` and Manager `0.1.0-preview.2`, at the paths below. Future candidates need new paths and versions.
 
 ```powershell
 $repo = 'C:\Users\Isaac\Documents\GitHub\RepoCompany'
-$staging = 'C:\Users\Isaac\Documents\Codex\2026-10-13\you\work\game-release-feed-next'
-node "$repo\desktop\tools\prepare-release-feed.cjs" $staging
-
-# Deploy from STATIC STAGING, never the RepoCompany checkout.
-# Website Functions in the checkout must not enter this static game feed.
-Push-Location $staging
-try {
-  & "$repo\node_modules\.bin\wrangler.cmd" pages deploy . --project-name repo-company-games --branch main
-} finally {
-  Pop-Location
-}
+$work = 'C:\Users\Isaac\Documents\Codex\2026-10-13\you\work'
+$staging = "$work\game-release-feed-next"
+node "$repo\desktop\tools\publish-game-release.cjs" `
+  --game "morogue=$repo\desktop\releases\morogue-preview3" `
+  --game "moratales=$repo\desktop\releases\moratales-live" `
+  --game "manager=$repo\desktop\releases\manager-live" `
+  --base "$work\game-release-feed-v2" `
+  --audit-output "$work\game-release-parity-next" `
+  --output $staging `
+  --deploy
 
 node "$repo\desktop\tools\verify-release-feed.cjs" --expected-dir $staging --output "$repo\desktop\qa\live-release-feed.json"
 ```
 
-Publishing requires the existing Cloudflare project access. The verifier makes read-only HTTPS requests for all three manifests, their entry documents and a gameplay script, and each game's largest binary. It validates sizes/SHA-256, cache headers and range-request behavior. A host may return a complete file instead of a partial range; the verifier checks that entire fallback's size/hash and records `supportsRanges: false`. Installation uses complete downloads, and the launcher's local asset protocol supplies media ranges after installation. The verifier neither installs games nor writes to account/game services.
+Publishing requires existing Cloudflare access and explicit `--deploy`. Without that flag the workflow only audits/stages. It invokes the installed Wrangler from **STATIC STAGING**, never the RepoCompany working directory, so website Functions cannot enter the game feed. Keep audit reports outside the static stage. Do not use the low-level feed builder or direct Wrangler commands to bypass parity verification.
+
+After deployment, `verify-release-feed.cjs` makes read-only HTTPS checks of all live manifests, entry documents, gameplay samples and largest binaries against reviewed staging. It validates size/hash, cache headers and range-request behavior. A host may return a complete file for a range request; the verifier checks the full fallback and records `supportsRanges: false`. Installation uses complete downloads, and the launcher's local protocol supplies media ranges afterward. Neither verification tool writes account/game results.
 
 Future deployments must retain blobs referenced by still-published or supported manifests. Stable `/<game>/manifest.json` responses are not cached; blob responses are immutable. Keep staging/source hardlinks stable throughout deployment, then retain release metadata for reproducibility.
 
@@ -82,13 +104,14 @@ npm run package:directory
 npm run package
 ```
 
-Builds appear under `desktop/build`. The assisted per-user NSIS installer allows choosing its installation directory. Preview 0.1.3 is unsigned; remove `win.signExecutable: false` and configure signing before a signed public release.
+Builds appear under `desktop/build`. The assisted per-user NSIS installer allows choosing its installation directory. Preview 0.1.4 is unsigned; remove `win.signExecutable: false` and configure signing before a signed public release.
 
-Account/browser state, library metadata and installed games live under `%APPDATA%\Repo Company`. Game uninstall removes installed payloads while preserving account-scoped local saves/preferences and online records. Launcher uninstall retains application data too. Allow about 360MB for Morogue, 1.38GB for Moratales and 644MB for Manager, plus launcher/profile data and update space. Updates stage a complete new version before activation; old versions remain until game uninstall in this preview.
+Account/browser state, library metadata and installed games live under `%APPDATA%\Repo Company`. Game uninstall removes installed payloads while preserving account-scoped local saves/preferences and online records. Launcher uninstall retains application data too. Allow about 536MB for Morogue, 1.38GB for Moratales and 644MB for Manager, plus launcher/profile data and update space. Updates stage a complete new version before activation; old versions remain until game uninstall in this preview.
 
 ## Architecture and remaining release work
 
 - `main.cjs` validates native commands, accounts and game lifetimes, and schedules release checks. `lib/account.cjs` verifies the existing website session; the Library UI receives no bearer token.
+- `lib/preferences.cjs` stores only the device's launcher booleans in an atomically replaced `preferences.json`. `lib/discord-presence.cjs` uses Discord's local Windows IPC with the three configured application IDs, bounded reconnects and no user-token authentication.
 - `lib/library.cjs` and `manifest.cjs` enforce trusted HTTPS sources, checksums, bounded downloads, safe Windows paths, cancellation, repair and atomic activation. Failed updates preserve the previous active version.
 - `lib/protocol.cjs` serves installed assets under each game's original HTTPS origin. Account bridges, multiplayer APIs/WebSockets and cloud-save services retain their original routes.
 - `game/` provides account-scoped storage and online/save/pause adapters. Moratales waits for its local save before closing and bounds its final appearance sync. Its co-op host waits for the existing worker checkpoint to persist. Morogue never saves a resumable run.

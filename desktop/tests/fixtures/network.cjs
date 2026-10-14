@@ -25,6 +25,11 @@ function configure(config) {
   config.launcherUpdates = { url: null, publisherName: null };
   for (const game of config.games.filter(game => game.installable)) {
     game.developmentManifest = path.join(root, 'desktop/releases', game.id, 'manifest.json');
+    if (game.id === 'morogue' && process.env.REPO_LAUNCHER_TEST_MOROGUE_RELEASE) {
+      const release = process.env.REPO_LAUNCHER_TEST_MOROGUE_RELEASE;
+      if (!path.isAbsolute(release)) throw Error('The test Morogue release must be an absolute native path.');
+      game.developmentManifest = path.join(release, 'manifest.json');
+    }
   }
 }
 async function fixtureFetch(input, init = {}) {

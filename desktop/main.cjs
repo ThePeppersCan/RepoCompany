@@ -6,6 +6,8 @@ const { Library } = require('./lib/library.cjs');
 const { Account } = require('./lib/account.cjs');
 const { createHandler, serveFile } = require('./lib/protocol.cjs');
 const { LauncherUpdater } = require('./lib/updater.cjs');
+const { Preferences } = require('./lib/preferences.cjs');
+const { DiscordPresence } = require('./lib/discord-presence.cjs');
 
 app.setName('Repo Company');
 app.setAppUserModelId('uk.repocompany.launcher');
@@ -18,9 +20,9 @@ const config = require('./config.cjs')(app.isPackaged ? process.resourcesPath : 
 const fixtures = !app.isPackaged && process.env.REPO_LAUNCHER_FIXTURES === '1' ? require('./tests/fixtures/network.cjs') : null;
 const hiddenTest = !app.isPackaged && process.env.REPO_LAUNCHER_HIDDEN_TEST === '1';
 if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestServices = fixtures; }
-let mainWindow, portal, portalContents, sharedSession, library, account, updater, timer, checkTimer;
+let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
-let updateSweep = null, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
+let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
 const shutdown = new AbortController();
 const games = new Map();
 const publicCatalog = () => ({ games: config.games.map(({ developmentManifest, approvedOrigins, manifestUrl, ...game }) => game), demos: (config.demos || []).map(demo => ({ ...demo })) });
@@ -28,7 +30,7 @@ const state = () => ({
   version: app.getVersion(), view, selectedGame, selectedGameRevision, account: account?.snapshot() || { status: 'checking' },
   connectivity: { online: account?.state.status !== 'offline' },
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
-  launcherUpdate: updater?.snapshot(), portalError, portalReady
+  launcherUpdate: updater?.snapshot(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
 });
 function windowContents(window) {
   if (!window || window.isDestroyed()) return null;
@@ -43,16 +45,21 @@ function showWindow(window) {
 }
 function setPortalVisible(visible) { if (portal && activePortal() && windowContents(mainWindow)) portal.setVisible(visible); }
 function refreshAccount() { if (!quitting) void account?.refresh().catch(() => {}); }
-function checkAndApplyUpdates() {
+function checkAndApplyUpdates({ reschedule = false } = {}) {
   if (quitting || !library) return Promise.resolve();
-  if (updateSweep) return updateSweep;
+  if (updateSweep) { if (reschedule) updateSweepRequested = true; return updateSweep; }
   updateSweep = (async () => {
-    await library.checkUpdates().catch(() => {});
-    for (const game of config.games) {
-      if (quitting) return;
-      const installed = library.snapshot()[game.id];
-      if (game.installable && installed?.availableVersion && installed.version && installed.availableVersion !== installed.version && !games.has(game.id) && !library.isBusy(game.id)) await library.update(game.id).catch(() => {});
-    }
+    do {
+      updateSweepRequested = false;
+      await library.checkUpdates().catch(() => {});
+      for (const game of config.games) {
+        if (quitting || quitApproved || preferences?.snapshot().automaticGameUpdates === false) break;
+        const installed = library.snapshot()[game.id];
+        if (game.installable && installed?.availableVersion && installed.version && installed.availableVersion !== installed.version && !games.has(game.id) && !library.isBusy(game.id)) await library.update(game.id).catch(() => {});
+      }
+      // A game may close after it was skipped by this same sweep. Revisit it
+      // before resolving, rather than leaving it until the next ten-minute poll.
+    } while (updateSweepRequested && !quitting && !quitApproved);
   })().finally(() => { updateSweep = null; });
   return updateSweep;
 }
@@ -198,7 +205,7 @@ async function openDemos(id) {
 }
 function closeEmbeddedDemo(record = embeddedDemo) {
   if (!record || record !== embeddedDemo) return;
-  embeddedDemo = null; broadcast();
+  embeddedDemo = null; discordPresence?.gameStopped(record.id); broadcast();
   const close = record.runtime === 'dragonbound' ? 'if(window.DragonboundStandaloneLauncher?.launcherBridgeVersion===1)window.DragonboundStandaloneLauncher.close();' : `const frame=document.querySelector('#legacy-feature iframe');if(frame&&new URL(frame.src,location.href).searchParams.get('dashboard')===${JSON.stringify(record.id)})return window.repoLegacy?.close();`;
   if (record.contents === activePortal()) void record.contents.executeJavaScript(`(()=>{if(window.__repoLauncherDemoTicket!==${record.revision})return;delete window.__repoLauncherDemoTicket;${close}})()`).catch(() => {});
 }
@@ -292,7 +299,7 @@ async function playWeb(id) {
       })()`);
       record.opening = false;
       if (!opened || embeddedDemo !== record || account.state.status !== 'online' || account.identity !== identity) throw new Error('The demo could not open. Check your account and try again.');
-      showWindow(mainWindow); broadcast();
+      discordPresence?.gameStarted(id); showWindow(mainWindow); broadcast();
     } catch (error) { closeEmbeddedDemo(record); throw error; }
     return;
   }
@@ -328,7 +335,8 @@ async function play(id) {
   secureContents(window.webContents, value => { try { return new URL(value).origin === game.origin; } catch { return false; } });
   window.webContents.on('will-navigate', (event, destination) => { if (isPortalUrl(destination)) { event.preventDefault(); if (!window.isDestroyed()) window.close(); } });
   window.once('ready-to-show', () => showWindow(window));
-  window.webContents.on('render-process-gone', () => { if (!quitting) dialog.showErrorBox(game.name + ' closed unexpectedly', 'Your completed online results remain on your account. Reopen the game from your library.'); });
+  window.on('focus', () => discordPresence?.gameFocused(id));
+  window.webContents.on('render-process-gone', () => { discordPresence?.gameStopped(id); if (!quitting) dialog.showErrorBox(game.name + ' closed unexpectedly', 'Your completed online results remain on your account. Reopen the game from your library.'); });
   window.on('close', event => {
     if (quitting || window.__exitApproved) return;
     event.preventDefault();
@@ -337,8 +345,8 @@ async function play(id) {
       if (!quitting && result.response === 1 && !window.isDestroyed()) await closeGame(window);
     }).catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); }).finally(() => { window.__askingToClose = false; });
   });
-  window.on('closed', () => { games.delete(id); sharedSession.flushStorageData(); broadcast(); refreshAccount(); });
-  try { await window.loadURL(game.origin + '/'); }
+  window.on('closed', () => { games.delete(id); discordPresence?.gameStopped(id); sharedSession.flushStorageData(); broadcast(); refreshAccount(); if (!quitApproved) void checkAndApplyUpdates({ reschedule: true }); });
+  try { await window.loadURL(game.origin + '/'); if (windowContents(window) && !quitting) discordPresence?.gameStarted(id); }
   catch { if (!window.isDestroyed()) { window.__exitApproved = true; window.close(); } if (!quitting) throw new Error(game.name + ' could not open. Repair its installation and try again.'); }
 }
 async function command(event, action, value) {
@@ -350,7 +358,7 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'automatic-game-updates', 'discord-presence'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
@@ -360,6 +368,17 @@ async function executeCommand(action, value) {
     case 'website': await shell.openExternal(config.portalOrigin); return;
     case 'refresh': if (!portalReady) await loadPortal(); if (quitting) return; await Promise.allSettled([account.refresh(), checkAndApplyUpdates()]); return state();
     case 'launcher-update': return updater.check();
+    case 'automatic-game-updates':
+      if (typeof value !== 'boolean') throw new TypeError('Automatic game updates must be on or off.');
+      await preferences.setAutomaticGameUpdates(value);
+      broadcast();
+      if (value && !quitting && !quitApproved) void checkAndApplyUpdates({ reschedule: true });
+      return state();
+    case 'discord-presence':
+      if (typeof value !== 'boolean') throw new TypeError('Discord activity must be on or off.');
+      await preferences.setDiscordPresence(value);
+      discordPresence?.setEnabled(value); broadcast();
+      return state();
     case 'window':
       if (value === 'minimize') mainWindow.minimize();
       else if (value === 'maximize') mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
@@ -391,6 +410,12 @@ async function executeCommand(action, value) {
   }
 }
 async function launch() {
+  preferences = await new Preferences(path.join(app.getPath('userData'), 'preferences.json')).init();
+  if (quitting) return;
+  // Development smoke tests must never publish fixture activity to a player's
+  // real Discord client. Packaged games use only the confirmed application IDs.
+  discordPresence = new DiscordPresence({ applications: fixtures || hiddenTest ? {} : config.discordApplications || {}, enabled: preferences.snapshot().discordPresence });
+  discordPresence.on('change', broadcast);
   sharedSession = session.fromPartition('persist:repo-company');
   sharedSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
   sharedSession.setPermissionCheckHandler(() => false);
@@ -426,7 +451,7 @@ async function launch() {
   portalContents = portal.webContents; portalContentsId = portalContents.id;
   mainWindow.contentView.addChildView(portal); portal.setVisible(false); bounds();
   secureContents(portalContents, isPortalUrl);
-  portalContents.on('destroyed', () => { embeddedDemo = null; portalReady = false; portalLoading = false; portalLoadRevision++; portalContentsId = null; portalContents = null; });
+  portalContents.on('destroyed', () => { if (embeddedDemo) discordPresence?.gameStopped(embeddedDemo.id); embeddedDemo = null; portalReady = false; portalLoading = false; portalLoadRevision++; portalContentsId = null; portalContents = null; });
   portalContents.on('did-start-navigation', (_event, _url, inPlace, isMainFrame) => { if (isMainFrame && !inPlace) closeEmbeddedDemo(); });
   portalContents.on('dom-ready', () => { if (!activePortal()) return; portalReady = true; portalError = ''; setPortalVisible(true); refreshAccount(); broadcast(); });
   portalContents.on('did-finish-load', refreshAccount);
@@ -442,6 +467,7 @@ async function launch() {
   ipcMain.handle('launcher:game', gameCommand);
   Menu.setApplicationMenu(null);
   mainWindow.on('resize', bounds);
+  mainWindow.on('focus', () => { if (embeddedDemo) discordPresence?.gameFocused(embeddedDemo.id); });
   mainWindow.once('ready-to-show', () => showWindow(mainWindow));
   mainWindow.on('close', event => {
     if (quitApproved || quitting) return;
@@ -455,6 +481,7 @@ async function launch() {
     }).catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); }).finally(() => { window.__askingToClose = false; });
   });
   mainWindow.on('closed', () => {
+    discordPresence?.dispose();
     mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
     shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer);
     for (const game of games.values()) if (!game.isDestroyed()) game.destroy();
@@ -478,7 +505,7 @@ else {
   app.whenReady().then(launch).catch(error => { if (!quitting) { dialog.showErrorBox('Repo Company could not open', error.message); app.exit(1); } });
   app.on('before-quit', event => {
     if (!quitApproved && mainWindow && (games.size || embeddedDemo || Object.values(library?.snapshot() || {}).some(item => ['downloading', 'updating', 'verifying'].includes(item.status)))) { event.preventDefault(); mainWindow.close(); return; }
-    quitting = true; portalReady = false; portalContentsId = null; shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer); sharedSession?.flushStorageData();
+    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer); sharedSession?.flushStorageData();
   });
   app.on('window-all-closed', () => app.quit());
 }
