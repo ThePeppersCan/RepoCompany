@@ -5,6 +5,8 @@ export function withAchievements(response, request, manifest) {
  const base='https://repocompany.uk/',url=new URL(request.url);let inserted=false,documentBase=url,baseSeen=false;
  const source=(game,file)=>{const name=`game-integrations/${game}/${file}`;if(!manifest.hashes[name])throw Error('Missing release asset: '+name);return base+name+'?v='+manifest.hashes[name];};
  const replacements={
+  '/interface/vampire-survivor/app.js':['morogue','app.js'],
+  '/interface/vampire-survivor/art.js':['morogue','art.js'],
   '/interface/vampire-survivor/magistrate-encounter.js':['morogue','magistrate-encounter.js'],
   '/interface/vampire-survivor/game.js':['morogue','game.js'],
   '/interface/vampire-survivor/recovery.js':['morogue','recovery.js'],
@@ -30,6 +32,9 @@ export function withAchievements(response, request, manifest) {
   const replacement=replacements[src.pathname];if(replacement)el.setAttribute('href',source(...replacement));
  }}).on('script[src]',{element(el){
   const src=new URL(el.getAttribute('src'),documentBase);if(src.origin!==url.origin)return;
+  if(src.pathname==='/interface/vampire-survivor/app.js'){
+   el.before('<link rel="stylesheet" href="'+source('morogue','grove.css')+'">'+['grove-rig.js','grove-audio.js','grove-encores.js','grove.js'].map(file=>'<script defer src="'+source('morogue',file)+'"></script>').join(''),{html:true});
+  }
   const game=before[src.pathname];if(game&&!inserted){inserted=true;el.before(`<script ${el.hasAttribute('defer')?'defer ':''}src="${source(game,'achievement-runtime.js')}" data-game="${game}" data-bundled="true"></script>`,{html:true});}
   const replacement=replacements[src.pathname];if(replacement)el.setAttribute('src',source(...replacement));
  }}).transform(response);

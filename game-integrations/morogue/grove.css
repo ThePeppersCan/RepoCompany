@@ -1,0 +1,46 @@
+#vs-dialog.mr-grove{position:fixed;inset:0;margin:0;padding:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;border-image:none;border-radius:0;box-shadow:none;overflow:hidden;background:transparent;color:#e6d7b5;transform:none;font-family:'Velmora Pixel',Georgia,serif}
+#vs-dialog.mr-grove::backdrop{background:transparent;backdrop-filter:none}
+.mr-grove-scene{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mr-grove-heading{position:absolute;top:1%;left:50%;width:min(490px,36vw);transform:translateX(-50%);pointer-events:none;opacity:0;transition:opacity 1s;filter:drop-shadow(0 3px 8px #020606)}
+.mr-grove-wordmark{display:block;width:100%;aspect-ratio:100/31}
+#vs-dialog .mr-grove-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.mr-grove-announcement{position:absolute;top:16%;left:20%;right:20%;text-align:center;font:16px/1.35 'Velmora Pixel',Georgia,serif!important;color:#d9ccb0!important;text-shadow:0 2px 5px #000,0 0 12px #000;pointer-events:none}
+.mr-grove-shop{position:absolute;bottom:20px;left:50%;width:min(670px,60vw);transform:translate(-50%,18px);display:flex;align-items:center;flex-direction:column;opacity:0;visibility:hidden;transition:opacity .45s,transform .65s}
+[data-grove-phase=open] .mr-grove-shop{opacity:1;visibility:visible;transform:translate(-50%,0)}
+[data-grove-phase=open] .mr-grove-heading,[data-grove-phase=blessing] .mr-grove-heading{opacity:1}
+.mr-grove-hand{display:flex;gap:28px;justify-content:center;perspective:1100px;margin-bottom:16px}
+#vs-dialog .mr-grove-card{width:clamp(112px,10vw,150px);aspect-ratio:11/19;position:relative;flex:none;padding:0;border:0;background:none;filter:drop-shadow(0 6px 8px #000c)}
+.mr-grove-card .mr-food-lift{transform:rotate(var(--rest-angle))}
+.mr-grove-card.is-inspected{z-index:5}
+
+.mr-grove-card .mr-food-front,.mr-grove-card .mr-food-back{display:block}
+.mr-grove-card .mr-food-face{position:absolute;inset:0;width:100%;height:100%}
+.mr-grove-card .mr-food-back-stock .mr-food-art{background-image:none!important;background:var(--food-field);inset:8% 3.5% 8.5%;outline:0}
+.mr-grove-card .mr-food-back-copy{inset:9% 4% 22%;padding:8px 7px;gap:7px;font:14px/1.18 'Velmora Pixel',Georgia,serif;text-align:left;text-shadow:none}
+.mr-grove-card-name{font-size:15px;line-height:1.12;font-weight:normal;border-bottom:1px solid currentColor;padding-bottom:5px}
+.mr-grove-card-detail{font:12px/1.18 'Velmora Pixel',Georgia,serif}
+.mr-grove-slot{font:10px/1.2 'Velmora Pixel',Georgia,serif;margin-top:auto;padding-top:4px;opacity:.78}
+#vs-dialog.mr-grove button{font-family:'Velmora Pixel',Georgia,serif;border-radius:0;border-image:none;box-shadow:none;cursor:pointer}
+#vs-dialog .mr-grove-inspect{position:absolute;inset:0;width:100%;height:100%;padding:0;background:transparent;border:0;z-index:2}
+#vs-dialog .mr-grove-take{position:absolute;left:5%;right:5%;bottom:9%;width:90%;min-height:0;margin:0;padding:7px 2px;font:14px/1.15 'Velmora Pixel',Georgia,serif;color:var(--food-text);background:var(--food-field);text-shadow:none;border:0;border-top:1px solid currentColor;z-index:3}
+#vs-dialog .mr-grove-take:hover:not(:disabled){background:var(--food-paper);color:#292920}
+#vs-dialog .mr-grove-take:disabled{opacity:.4;cursor:default}
+#vs-dialog .mr-grove-leave{padding:8px 16px;border:0;background:#071212b8;color:#cfc9ab;font:14px/1.2 'Velmora Pixel',Georgia,serif;text-decoration:underline;text-underline-offset:4px;min-height:35px;text-shadow:0 2px 4px #000}
+#vs-dialog .mr-grove-skip{position:absolute;right:20px;bottom:20px;padding:9px 14px;background:#111a18c7;border:1px solid #665f45;color:#e5d4b2;font:14px/1.2 'Velmora Pixel',Georgia,serif;opacity:.75}
+#vs-dialog.mr-grove button:focus-visible{outline:2px solid #eee1b9;outline-offset:4px}
+.mr-grove-card .mr-food-front[inert],.mr-grove-card .mr-food-back[inert]{pointer-events:none}
+#vs-dialog .mr-grove-uninspect{position:absolute;right:4%;top:.4%;height:7%;width:19%;padding:0;background:transparent;border:0;color:var(--food-text);font:16px/1 Georgia,serif;z-index:3}
+.mr-grove.vs-reduced *{transition:none!important;animation:none!important}
+@media(min-height:1000px){.mr-grove-shop{bottom:3.5%}}
+@media(max-width:700px) and (orientation:portrait){.mr-grove-heading{top:2%;width:88vw}.mr-grove-announcement{left:6%;right:6%;top:16%;font-size:14px!important}.mr-grove-shop{width:96vw;bottom:max(20px,env(safe-area-inset-bottom))}.mr-grove-hand{gap:16px;margin-bottom:20px;padding-top:50px}#vs-dialog .mr-grove-card{width:26vw;max-width:115px}.mr-grove-card .mr-food-back-copy{font-size:11px;gap:5px;padding:5px}.mr-grove-card-name{font-size:12px}.mr-grove-card-detail{font-size:10px}.mr-grove-slot{font-size:8px}#vs-dialog .mr-grove-take{font-size:11px;padding:6px 1px}}
+@media(max-height:600px) and (orientation:landscape){.mr-grove-heading{top:1%;width:29vw;max-width:300px}.mr-grove-announcement{top:19%;font-size:13px!important}.mr-grove-shop{bottom:5px;width:60vw}.mr-grove-hand{gap:18px;margin-bottom:6px}#vs-dialog .mr-grove-card{width:calc((100dvh - 190px)*.46);min-width:75px;max-width:116px}.mr-grove-card .mr-food-back-copy{font-size:10px;padding:5px;gap:4px}.mr-grove-card-name{font-size:12px}.mr-grove-card-detail{font-size:9px}.mr-grove-slot{font-size:8px}#vs-dialog .mr-grove-take{font-size:10px;padding:4px 1px}#vs-dialog .mr-grove-leave{min-height:28px;padding:4px 10px;font-size:12px}}
+/* Enlarge the paper itself while keeping text at reading size, rather than magnifying tiny type. */
+#vs-dialog.mr-grove .mr-grove-card.is-inspected .mr-food-lift{inset:auto auto 0 50%;width:190px;height:328px;transform:translate(-50%,-12px)}
+@media(max-width:700px) and (orientation:portrait){#vs-dialog.mr-grove .mr-grove-card.is-inspected .mr-food-lift{width:min(230px,65vw);height:min(397px,112.27vw);transform:translate(calc(-50% + var(--read-shift)),-14px)}.mr-grove-card .mr-food-back-copy{font-size:14px;line-height:1.2;padding:9px;gap:8px}.mr-grove-card-name{font-size:17px}.mr-grove-card-detail{font-size:12px}.mr-grove-slot{font-size:10px}#vs-dialog .mr-grove-take{font-size:15px;padding:8px 2px}}
+@media(max-height:600px) and (orientation:landscape){#vs-dialog.mr-grove .mr-grove-card.is-inspected .mr-food-lift{width:175px;height:302px;transform:translate(-50%,-6px)}.mr-grove-card .mr-food-back-copy{font-size:13px;line-height:1.17;padding:7px;gap:6px}.mr-grove-card-name{font-size:14px}.mr-grove-card-detail{font-size:11px}.mr-grove-slot{font-size:9px}#vs-dialog .mr-grove-take{font-size:13px;padding:6px 1px}}
+
+/* A complete refinement explanation remains on the card back. */
+#vs-dialog.mr-grove .mr-grove-card.is-inspected .mr-food-lift{width:240px;height:414px}
+.mr-grove-card .mr-food-back-copy{overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+@media(max-height:600px) and (orientation:landscape){#vs-dialog.mr-grove .mr-grove-card.is-inspected .mr-food-lift{width:230px;height:min(330px,85dvh)}}
+@media(max-width:700px) and (orientation:portrait){#vs-dialog.mr-grove .mr-grove-card.is-inspected .mr-food-lift{width:min(260px,75vw);height:min(449px,60dvh)}}

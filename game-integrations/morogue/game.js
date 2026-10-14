@@ -259,7 +259,7 @@
       const special=state.level>=3&&!state.build.ability?'ability':state.level>=PROGRESSION.techniqueLevel&&!state.technique?'technique':state.level>=PROGRESSION.artLevel&&!state.combatArt?'art':null;
       state.choices=special==='ability'?Builds.abilityCards(state,shuffled):special?Object.entries(special==='technique'?TECHNIQUES:ARTS).filter(([id])=>state.loadout==='solo'?!['volley','secondserve'].includes(id):!['surge','relentless'].includes(id)).map(([id,spec])=>({id,kind:special,level:0,tag:special==='technique'?'FINISHING TECHNIQUE':'COMBAT ART',...spec})):choices();
       if(state.choices.length<2){const c=state.choices[0];if(c)applyChoice(c);else state.score+=250;state.choices=[];state.nextUpgradeAt=state.runTime+upgradeGap();event('mastery',{name:c?.name||'Night mastery'});return;}
-      state.choiceCount++;state.status='upgrade';event('level');
+      state.choiceCount++;state.status='upgrade';if(!openGrove())event('level');
     }
     function reroll(keepId=null){
       if(state.status!=='upgrade'||state.build.rerolls<=0||!state.choices.length)return false;
@@ -522,7 +522,7 @@
       dt=Math.min(dt,.05);
       if(state.transition){const tr=state.transition;if(globalThis.ROUGE_MORA_WORLD_ART&&!globalThis.ROUGE_MORA_WORLD_ART.ready(tr.to)){tr.age=Math.min(tr.duration*.35,tr.age+dt);return;}tr.age+=dt;if(tr.age>=tr.duration*.45&&!tr.committed){tr.committed=true;state.world=tr.to;flowKey='';Object.assign(p,tr.returning?tr.playerTo:World.nearest(state.world,p.x,p.y,p.r));if(tr.returning){state.boss=null;for(const e of enemies)if(e.major)e.hp=0;delete p.beeTunnel;delete p.inkCaptured;p.starLeap=null;p.starPlatform=null;p.admiralRide=null;}for(const item of [...gems,...drops])Object.assign(item,World.nearest(state.world,item.x,item.y,12));}inputAttackHeld=Boolean(input.attack);inputDashHeld=Boolean(input.dash);build.resetInput();if(tr.age>=tr.duration){state.transition=null;p.invulnerable=1;worldClock=6;}return;}
       if(state.finaleEnding>0){state.finaleEnding-=dt;state.boss.finale.deathAge+=dt;Finale.Colossus.updateEnding(state.boss,dt,p,finaleApi);if(state.finaleEnding<=0)completeFinale();return;}
-      if(relic.visit()){inputAttackHeld=inputDashHeld=true;build.resetInput();return;}
+      if((!state.grove||state.runTime-state.grove.at>=75)&&relic.visit()){inputAttackHeld=inputDashHeld=true;build.resetInput();return;}
       state.time+=dt;relic.update(dt);if(state.status!=='playing'||state.transition)return;if(!practice&&state.boss?.major&&state.boss.hp>0)state.bossTime+=dt;
       if(longRun&&state.runTime>=state.nextMajor&&(!state.boss||state.boss.hp<=0)){startMajor();return;}
       if(longRun&&!state.world.arena&&state.runTime<state.nextMajor&&World.at(state.runTime).index>state.world.index){const stage=World.at(state.runTime);cinematic(stage,stage.name,stage.hint);return;}
@@ -719,9 +719,37 @@
       cinematic(stage,spec.name,'PRACTICE · '+(practice.major?'Phase '+practice.phase+' · ':'')+'Learn the tell. Find the opening.');Object.assign(p,practice.id===Finale.SPEC.id?{x:758,y:640}:{x:768,y:730});
       const boss=spawn('boss',{x:768,y:535},{major:practice.major,bossType:practice.id,precise:true});if(practice.major&&practice.id!==Finale.SPEC.id&&practice.phase>1){boss.phase=practice.phase;boss.hp=practice.id==='star'?boss.starBaseHp*(practice.phase===2?.609:.31):boss.maxHp*(practice.id==='oracle'?([0,1.04,.79,.54,.29][practice.phase]/1.06):practice.phase===2?.64:.31);boss.forceMove=practice.id==='oracle'?Majors.Oracle.firstMove(spec,practice.phase):spec.moves[practice.phase===2?4:7];}
     }
+    // Visits spend an ordinary earned choice. Blocked visits wait for a later draft.
+    function groveCandidates(){return [...Builds.cards(state).filter(c=>c.kind==='perk'&&!c.from&&c.rarity==='rare'),...(Builds.refinementCards?.(state)||[])];}
+    function openGrove(){
+      const previous=state.grove,visits=previous?.visit||(previous?.visited?1:0),due=[180,480,840][visits];
+      if(due===undefined||state.status!=='upgrade'||practice||state.transition||state.boss?.hp>0||state.finalePending||state.runTime<due||visits&&state.runTime-previous.at<210||state.time-(state.merchant?.openAt??-999)<75||state.nextMajor-state.runTime>0&&state.nextMajor-state.runTime<18||nextBoss-state.runTime>0&&nextBoss-state.runTime<18||state.choices.some(c=>['ability','technique','art'].includes(c.kind)))return false;
+      const eligible=groveCandidates();if(!eligible.length)return false;
+      const original=state.choices.slice(),forms=shuffled(eligible.filter(c=>c.kind==='perk')),refines=shuffled(eligible.filter(c=>c.kind==='refinement')),offers=[];
+      // A weapon-specific alteration leads the first hand. Later hands always show a refinement when possible.
+      if(refines.length)offers.push(refines.shift());
+      const lead=forms.find(c=>Builds.PERKS[c.key].weapon===state.mainWeapon)||forms[0];if(lead){offers.push(lead);forms.splice(forms.indexOf(lead),1);}
+      for(const c of [...refines,...forms])if(offers.length<3)offers.push(c);
+      const history=[...(previous?.history||[])];if(previous)history.push({visit:visits,at:previous.at,chosen:previous.chosen});
+      state.grove={visited:true,visit:visits+1,scene:['bough','theatre','reflection'][visits],history,at:state.runTime,original,offers,chosen:null,cleared:false};state.status='grove';p.attack=p.cast=null;p.dash=0;p.moving=false;event('grove');return true;
+    }
+    function clearGroveArena(){
+      if(state.status!=='grove'||!state.grove||state.grove.cleared)return false;
+      enemies.length=shots.length=hazards.length=zones.length=effects.length=echoes.length=0;state.build.fields.length=0;relic.clearCombat();pendingWave=null;state.arenaEvent=null;state.grove.cleared=true;return true;
+    }
+    function chooseGrove(id){
+      if(state.status!=='grove'||!state.grove?.cleared||state.grove.chosen||!state.grove.offers.some(c=>c.id===id)||!groveCandidates().some(c=>c.id===id))return false;
+      state.grove.chosen=id;return true;
+    }
+    function leaveGrove(){
+      if(state.status!=='grove')return false;clearGroveArena();const g=state.grove;
+      if(g.chosen&&!groveCandidates().some(c=>c.id===g.chosen))g.chosen=null;state.status='upgrade';state.choices=g.chosen?g.offers:g.original;
+      if(g.chosen)choose(g.chosen);else event('level');
+      reliefUntil=Math.max(reliefUntil,state.runTime+5);spawnClock=5;nextElite=Math.max(nextElite,reliefUntil);nextWave=Math.max(nextWave,reliefUntil);nextArenaEvent=Math.max(nextArenaEvent,reliefUntil+10);attackBufferedUntil=dashBufferedUntil=0;inputAttackHeld=inputDashHeld=true;build.resetInput();return true;
+    }
     // A dealer clears threats without kills, loot, health or progression rewards.
     function clearMerchantArena(){if(state.status!=='merchant'||state.merchant.cleared)return false;enemies.length=shots.length=hazards.length=zones.length=effects.length=echoes.length=0;state.build.fields.length=0;relic.clearCombat();pendingWave=null;state.arenaEvent=null;state.merchant.cleared=true;return true;}
-    return {state,update,choose,reroll,skipUpgrade,clearMerchantArena,buyRelic:relic.buy,leaveMerchant(){clearMerchantArena();const ok=relic.leave();if(ok){reliefUntil=Math.max(reliefUntil,state.runTime+5);spawnClock=5;nextElite=Math.max(nextElite,reliefUntil);nextWave=Math.max(nextWave,reliefUntil);nextArenaEvent=Math.max(nextArenaEvent,reliefUntil+10);attackBufferedUntil=dashBufferedUntil=0;inputAttackHeld=inputDashHeld=true;build.resetInput();}return ok;},special:build.cast,dash,pause,resume,orbitals,continueEvolution,retire};
+    return {state,update,choose,reroll,skipUpgrade,openGrove,clearGroveArena,chooseGrove,leaveGrove,clearMerchantArena,buyRelic:relic.buy,leaveMerchant(){clearMerchantArena();const ok=relic.leave();if(ok){reliefUntil=Math.max(reliefUntil,state.runTime+5);spawnClock=5;nextElite=Math.max(nextElite,reliefUntil);nextWave=Math.max(nextWave,reliefUntil);nextArenaEvent=Math.max(nextArenaEvent,reliefUntil+10);attackBufferedUntil=dashBufferedUntil=0;inputAttackHeld=inputDashHeld=true;build.resetInput();}return ok;},special:build.cast,dash,pause,resume,orbitals,continueEvolution,retire};
   }
   function supportDescription(id){return {espresso:'Add automatic piercing coffee bolts to cover your attacks.',garlic:'Add orbiting cloves that damage guests on your flanks.',tray:'Add automatic trays that ricochet between guests.',baguette:'Add automatic sweeping cuts against nearby guests.'}[id];}
   function passiveDescription(id,n){return {power:'All weapons gain '+(22*n)+'% damage.',haste:'Attack recovery rate +'+(12*n)+'%, added to other recovery bonuses. Does not affect special or dash recharge.',health:'Gain '+(25*n)+' maximum health and recover '+20*n+' health.',magnet:'Collect experience from '+(35*n)+' steps farther away.',speed:'Run '+(10*n)+'% faster; each dash charge recovers '+(.15*n).toFixed(2)+'s sooner.',regen:'Recover '+(.22*n).toFixed(2)+' health each second.'}[id];}
