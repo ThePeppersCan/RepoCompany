@@ -206,7 +206,7 @@
     }
     const upgradeGap=()=>state.runTime<180?(state.level<4?20:28):state.runTime<600?42:50;
     function choices(reroll=false,keep=null){
-      const owned=[],missing=[],passives=[],changes=Builds.cards(state),ownedCount=Object.values(state.weapons).filter(Boolean).length;
+      const owned=[],missing=[],passives=[],changes=Builds.cards(state).filter(c=>!weaponTransformation(c)),ownedCount=Object.values(state.weapons).filter(Boolean).length;
       for(const w of WEAPONS){const from=state.weapons[w.id],main=w.id===state.mainWeapon,max=main?5:LOADOUT_RULES.supportMaxRank,to=from+1;if(from>=max||!from&&ownedCount>=state.weaponLimit)continue;const card={id:w.id,kind:'weapon',name:w.name,from,level:to,icon:w.id,tag:from?(main?'MAIN WEAPON':'AUTOMATIC SUPPORT'):'NEW SUPPORT',description:from?main?weaponUpgrade(w.id,to):'Strengthen your supporting attacks. Maximum rank III.':supportDescription(w.id),detail:from?'Rank '+from+' → '+to:'Uses your one support slot. Only the main weapon evolves.'};(from?owned:missing).push(card);}
       for(const [id,spec]of Object.entries(PASSIVES)){const from=state.passives[id];if(from<spec.max)passives.push({id,kind:'passive',name:spec.name,from,level:from+1,tag:'FOUNDATION',description:passiveDescription(id,1),detail:'Rank '+from+' → '+(from+1)});}
       const taken=[],add=c=>{if(c&&!taken.some(t=>t.id===c.id)&&taken.length<3)taken.push(c);},fresh=list=>{const unseen=list.filter(c=>!state.recentOffers.includes(c.id)),pool=unseen.length?unseen:list;if(!pool.length)return [];const least=Math.min(...pool.map(c=>state.offerCounts[c.kind+':'+c.id]||0));return pool.filter(c=>(state.offerCounts[c.kind+':'+c.id]||0)===least);};
@@ -720,10 +720,11 @@
       const boss=spawn('boss',{x:768,y:535},{major:practice.major,bossType:practice.id,precise:true});if(practice.major&&practice.id!==Finale.SPEC.id&&practice.phase>1){boss.phase=practice.phase;boss.hp=practice.id==='star'?boss.starBaseHp*(practice.phase===2?.609:.31):boss.maxHp*(practice.id==='oracle'?([0,1.04,.79,.54,.29][practice.phase]/1.06):practice.phase===2?.64:.31);boss.forceMove=practice.id==='oracle'?Majors.Oracle.firstMove(spec,practice.phase):spec.moves[practice.phase===2?4:7];}
     }
     // Visits spend an ordinary earned choice. Blocked visits wait for a later draft.
+    function weaponTransformation(c){const spec=Builds.PERKS[c.kind==='refinement'?c.parent:c.key];return spec?.rarity==='rare'&&!!spec.weapon;}
     function groveCandidates(){
       // Grove rewards must alter the equipped weapon; general rare combat perks stay in ordinary drafts.
-      const forms=Builds.cards(state).filter(c=>c.kind==='perk'&&!c.from&&c.rarity==='rare'&&Builds.PERKS[c.key]?.weapon===state.mainWeapon);
-      const refinements=(Builds.refinementCards?.(state)||[]).filter(c=>Builds.PERKS[c.parent]?.weapon===state.mainWeapon);
+      const forms=Builds.cards(state).filter(c=>c.kind==='perk'&&!c.from&&weaponTransformation(c)&&Builds.PERKS[c.key].weapon===state.mainWeapon);
+      const refinements=(Builds.refinementCards?.(state)||[]).filter(c=>weaponTransformation(c)&&Builds.PERKS[c.parent].weapon===state.mainWeapon);
       return [...forms,...refinements];
     }
     function openGrove(){
