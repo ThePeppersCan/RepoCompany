@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Repo Company</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="titlebar">
+    <div class="titlebar-brand">
+      <svg class="repo-mark" viewBox="565 234 335 341" aria-hidden="true"><image href="assets/repo-brand.png" width="1440" height="900"/></svg>
+      <span>REPO COMPANY</span>
+    </div>
+    <div id="download-status" class="download-status" role="status" aria-live="polite" hidden>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m-3-3 3 3 3-3M4 13v4h12v-4"/></svg>
+      <span id="download-label"></span>
+    </div>
+    <div class="window-controls" aria-label="Window controls">
+      <button data-window="minimize" aria-label="Minimize"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10h10"/></svg></button>
+      <button data-window="maximize" aria-label="Maximize or restore"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="5" width="10" height="10"/></svg></button>
+      <button data-window="close" class="close-window" aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M5 15 15 5"/></svg></button>
+    </div>
+  </header>
+  <!-- The native website view occupies this entire space once connected. -->
+  <main class="website-fallback" aria-labelledby="connection-title">
+    <div class="connection-card">
+      <svg class="connection-mark" viewBox="565 234 335 341" aria-hidden="true"><image href="assets/repo-brand.png" width="1440" height="900"/></svg>
+      <div id="connection-spinner" class="connection-spinner" aria-hidden="true"></div>
+      <h1 id="connection-title">Opening Repo Company</h1>
+      <p id="connection-message" role="status">Connecting to your collection.</p>
+      <div id="connection-actions" class="connection-actions" hidden>
+        <button id="reconnect" class="primary-button">Reconnect</button>
+        <button id="open-website" class="secondary-button">Open website</button>
+      </div>
+      <p id="connection-note" class="connection-note" hidden>Your installed games and account data are kept.</p>
+    </div>
+  </main>
+</body>
+</html>
