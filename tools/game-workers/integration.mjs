@@ -7,6 +7,9 @@ export function withAchievements(response, request, manifest) {
  const replacements={
   '/interface/vampire-survivor/app.js':['morogue','app.js'],
   '/interface/vampire-survivor/art.js':['morogue','art.js'],
+  '/interface/vampire-survivor/motion.js':['morogue','motion.js'],
+  '/interface/vampire-survivor/cosmetic-art.js':['morogue','cosmetic-art.js'],
+  '/interface/vampire-survivor/cosmetics.js':['morogue','cosmetics.js'],
   '/interface/vampire-survivor/magistrate-encounter.js':['morogue','magistrate-encounter.js'],
   '/interface/vampire-survivor/builds.js':['morogue','builds.js'],
   '/interface/vampire-survivor/build-art.js':['morogue','build-art.js'],
