@@ -149,6 +149,32 @@ test('CLI requires explicit publication/deployment flags and rejects incomplete 
   const base=['--commit','a'.repeat(40),'--sequence','6','--output','C:\\fixture'];assert.equal(release.parseArgs(base).publish,undefined);
   assert.equal(release.parseArgs([...base,'--publish']).publish,true);assert.throws(()=>release.parseArgs([...base,'--unknown']));assert.throws(()=>release.parseArgs([...base,'--publish','--publish']));
 });
+test('an exact publication retry accepts only feed commits after the reviewed source',async t=>{
+  const f=await fixture(t);await fs.mkdir(path.join(f.repo,'releases/launcher'),{recursive:true});
+  await fs.writeFile(path.join(f.repo,'releases/launcher/latest.json'),'feed');git(f.repo,['add','releases']);git(f.repo,['-c','user.name=Release test','-c','user.email=release-test@example.invalid','commit','-m','Promote feed']);
+  assert.equal(release.sourceIdentity(f.commit,f.repo).commit,f.commit);
+  await fs.writeFile(path.join(f.repo,'index.html'),'unrelated');git(f.repo,['add','index.html']);git(f.repo,['-c','user.name=Release test','-c','user.email=release-test@example.invalid','commit','-m','Other change']);
+  assert.throws(()=>release.sourceIdentity(f.commit,f.repo),/checkout/);
+});
+
+test('deployment commits the promoted feed before one Git push and never races a manual Pages deployment',async t=>{
+  const f=await fixture(t),events=[];
+  await fs.mkdir(path.join(f.repo,'releases/launcher'),{recursive:true});await fs.mkdir(path.join(f.repo,'dist/releases/launcher'),{recursive:true});
+  for(const target of ['releases/launcher/latest.json','dist/releases/launcher/latest.json'])await fs.writeFile(path.join(f.repo,target),'verified-feed');
+  const gitImpl=args=>{events.push(args);return args[0]==='status'?' M releases/launcher/latest.json\n?? releases/launcher/0.1.8.json\n?? QA/evidence.json':'';};
+  await release.deployWebsite({repo:f.repo,version:'0.1.8'},{gitImpl,runImpl:async(_cmd,args)=>{events.push(args);},verify:async(bytes,options)=>{assert.equal(bytes.toString(),'verified-feed');assert.equal(options.timeoutMs,900000);events.push(['verify']);}});
+  assert.deepEqual(events.slice(-4).map(args=>args[0]),['add','commit','push','verify']);
+  assert.deepEqual(events.at(-2),['push','origin','HEAD:main']);
+  assert.ok(!JSON.stringify(events).includes('wrangler'));
+  assert.ok(!events.find(args=>args[0]==='commit').includes('QA/evidence.json'));
+});
+
+test('deployment refuses unrelated staged evidence and does not publish or build it',async()=>{
+  for(const dirty of ['A  QA/evidence.json',' M index.html','?? secret.txt']){
+    await assert.rejects(release.deployWebsite({repo:'unused',version:'0.1.8'},{gitImpl:args=>{assert.equal(args[0],'status');return dirty;},runImpl:async()=>{throw Error('Must not build');}}),/unrelated uncommitted/);
+  }
+});
+
 test('post-deploy verification retries stale edges and transient failures using read-only requests',async()=>{
   const expected=Buffer.from('exact signed manifest');let time=0;const calls=[],delays=[];
   const fetchImpl=async(url,options)=>{

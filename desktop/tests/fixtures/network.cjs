@@ -4,7 +4,7 @@ const path = require('node:path');
 const { serveFile } = require('../../lib/protocol.cjs');
 const root = path.resolve(__dirname, '../../..');
 const USER_ID = '11111111-2222-4333-8444-555555555555';
-const expiry = Math.floor(Date.now() / 1000) + 36000;
+const expiry = Number(process.env.REPO_LAUNCHER_FIXTURE_EXPIRY) || Math.floor(Date.now() / 1000) + 36000;
 const encode = value => Buffer.from(JSON.stringify(value)).toString('base64url');
 const token = encode({ alg: 'HS256', typ: 'JWT' }) + '.' + encode({ sub: USER_ID, exp: expiry, aud: 'authenticated', role: 'authenticated', iat: expiry - 36000 }) + '.fixture-signature';
 const user = { id: USER_ID, email: 'launchertest@conofdrpepper.local', aud: 'authenticated', role: 'authenticated', app_metadata: { provider: 'email', providers: ['email'] }, user_metadata: { username: 'LauncherTest' }, identities: [], created_at: '2026-01-01T00:00:00Z' };
@@ -17,7 +17,7 @@ const json = (value, status = 200) => Response.json(value, { status, headers: { 
 const portal = `<!doctype html><html><head><title>Repo Company test services</title></head><body style="background:#152219;color:#f3ecd9;font:20px system-ui;padding:45px"><h1>Repo Company test account</h1><p>Isolated integration fixture. No production requests are sent.</p><button id="sign-in">Sign in test account</button><button id="sign-out">Sign out</button><p id="status"></p><script>
 const storageKey='sb-hvdrwmjieguurxvrgzfu-auth-token',session=${JSON.stringify(login)};
 function stored(){try{return JSON.parse(localStorage.getItem(storageKey));}catch{return null;}}
-window.repoAccount={db:{auth:{getSession:async()=>({data:{session:stored()}})}}};
+window.repoAccount={db:{auth:{getSession:async()=>({data:{session:stored()}})}},signIn:async(username,password)=>{if(username!=='LauncherTest'||password!=='fixture-password')throw Error('Invalid login credentials');localStorage.setItem(storageKey,JSON.stringify(session));dispatchEvent(new Event('repo-account-state'));}};
 document.getElementById('sign-in').onclick=()=>{localStorage.setItem(storageKey,JSON.stringify(session));document.getElementById('status').textContent='Signed in as LauncherTest';};
 document.getElementById('sign-out').onclick=()=>{localStorage.removeItem(storageKey);document.getElementById('status').textContent='Signed out';};
 </script></body></html>`;

@@ -20,7 +20,15 @@ function matchesCommitted(packed,commit,name,repo) {
 }
 function sourceIdentity(commit,repo=REPO) {
   check(/^[a-f0-9]{40}$/.test(commit),'Provide the exact reviewed 40-character source commit.');
-  check(git(['rev-parse','HEAD'],repo)===commit,'Release commit must be this checkout’s HEAD.');
+  if(git(['rev-parse','HEAD'],repo)!==commit){
+    let feedOnly=false;
+    try{
+      git(['merge-base','--is-ancestor',commit,'HEAD'],repo);
+      const changes=git(['diff','--name-only',commit,'HEAD'],repo).split('\n').filter(Boolean);
+      feedOnly=changes.length>0&&changes.every(name=>/^releases\/launcher\/(?:latest|\d+\.\d+\.\d+)\.json$/.test(name));
+    }catch{/* Unknown commits or changed runtime cannot be retried as this source. */}
+    check(feedOnly,'Release commit must match this checkout, apart from its promoted launcher feed.');
+  }
   check(!git(['status','--porcelain=v1','--untracked-files=all','--','desktop'],repo),'Commit the reviewed desktop source before preparing a release.');
   const pkg=JSON.parse(require('node:fs').readFileSync(path.join(repo,'desktop/package.json'),'utf8'));
   check(/^(0|[1-9]\d{0,6})\.(0|[1-9]\d{0,6})\.(0|[1-9]\d{0,6})$/.test(pkg.version),'Use a strict three-part launcher version.');
@@ -171,20 +179,28 @@ async function promoteFeed(envelope,config,{repo=REPO}={}) {
   const temporary=path.join(directory,'.latest-'+crypto.randomUUID()+'.tmp');
   await fs.writeFile(temporary,bytes,{flag:'wx'});await fs.rename(temporary,path.join(directory,'latest.json'));
 }
-async function deployWebsite({repo,version}) {
+async function deployWebsite({repo,version},{gitImpl=git,runImpl=run,verify=verifyPublishedFeed}={}) {
   const allowed=new Set(['releases/launcher/latest.json','releases/launcher/'+version+'.json']);
-  const dirty=git(['status','--porcelain=v1','--untracked-files=all'],repo).split('\n').filter(Boolean);
-  check(dirty.every(line=>allowed.has(line.slice(3))||line.slice(3).startsWith('QA/')),'Website deployment refused: unrelated uncommitted source exists.');
-  await run(process.execPath,['tools/verify-deploy-base.cjs'],{cwd:repo,windowsHide:true,shell:false,maxBuffer:1024*1024});
-  await run(process.execPath,['tools/build-dashboard.cjs','--production','--preserve-game-integrations'],{cwd:repo,windowsHide:true,shell:false,maxBuffer:1024*1024});
+  const dirty=gitImpl(['status','--porcelain=v1','--untracked-files=all'],repo).split('\n').filter(Boolean);
+  check(dirty.every(line=>allowed.has(line.slice(3))||(line.startsWith('?? ')&&line.slice(3).startsWith('QA/'))),'Website deployment refused: unrelated uncommitted source exists.');
+  await runImpl(process.execPath,['tools/verify-deploy-base.cjs'],{cwd:repo,windowsHide:true,shell:false,maxBuffer:1024*1024});
+  await runImpl(process.execPath,['tools/build-dashboard.cjs','--production','--preserve-game-integrations'],{cwd:repo,windowsHide:true,shell:false,maxBuffer:1024*1024});
   const bundle=path.join(repo,'dist/releases/launcher/latest.json'),source=path.join(repo,'releases/launcher/latest.json');
   check((await fs.readFile(bundle)).equals(await fs.readFile(source)),'Website build omitted or changed the update feed.');
-  await run(process.execPath,[path.join(repo,'node_modules/wrangler/bin/wrangler.js'),'pages','deploy','dist','--project-name','repocompany','--branch','main'],{cwd:repo,windowsHide:true,shell:false,timeout:600000,maxBuffer:8*1024*1024});
-  await verifyPublishedFeed(await fs.readFile(source));
+  // Pages already builds GitHub main. A second manual deployment can be
+  // overwritten by an older pending Git build. Publish the feed through Git
+  // once, then only observe the single existing deployment route.
+  const paths=[...allowed];
+  if(dirty.some(line=>allowed.has(line.slice(3)))){
+    gitImpl(['add','--',...paths],repo);
+    gitImpl(['commit','-m','Publish launcher '+version+' automatic update','--',...paths],repo);
+  }
+  gitImpl(['push','origin','HEAD:main'],repo);
+  await verify(await fs.readFile(source),{timeoutMs:900000,intervalMs:10000});
 }
 async function verifyPublishedFeed(expected,{fetchImpl=fetch,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms)),now=Date.now,timeoutMs=60000,intervalMs=5000}={}) {
   check(Buffer.isBuffer(expected)&&expected.length>0&&expected.length<=65536,'Expected signed feed bytes are invalid.');
-  check(Number.isSafeInteger(timeoutMs)&&timeoutMs>0&&timeoutMs<=60000&&Number.isSafeInteger(intervalMs)&&intervalMs>0,'Invalid feed verification retry bounds.');
+  check(Number.isSafeInteger(timeoutMs)&&timeoutMs>0&&timeoutMs<=900000&&Number.isSafeInteger(intervalMs)&&intervalMs>0,'Invalid feed verification retry bounds.');
   const deadline=now()+timeoutMs;let attempts=0;
   while(now()<deadline){
     attempts++;
@@ -196,7 +212,7 @@ async function verifyPublishedFeed(expected,{fetchImpl=fetch,sleep=ms=>new Promi
     const remaining=deadline-now();if(remaining<=0)break;
     await sleep(Math.min(intervalMs,remaining));
   }
-  throw Error('The website was deployed, but its signed feed could not be confirmed within 60 seconds. Verify the live feed before retrying; publication and deployment were not repeated.');
+  throw Error('The signed feed could not be confirmed before the verification deadline. Check the GitHub-triggered website deployment before retrying; publication and deployment were not repeated.');
 }
 async function prepareRelease(options,{repo=REPO,inspect=verifyInstallerArchive,signingKey=loadPrivateKey,publish=publishGithub,deploy=deployWebsite}={}) {
   const identity=sourceIdentity(options.commit,repo),desktop=path.join(repo,'desktop'),config=require(path.join(desktop,'config.cjs'))(desktop).launcherUpdates;
@@ -245,4 +261,4 @@ function parseArgs(args) {
   check(options.commit&&options.sequence&&options.output,'Provide --commit SHA --sequence NUMBER --output NEW_DIRECTORY.');return options;
 }
 if(require.main===module)(async()=>{const options=parseArgs(process.argv.slice(2));if(options.notesFile)options.notes=await fs.readFile(options.notesFile,'utf8');const result=await prepareRelease(options);console.log(JSON.stringify(result));})().catch(error=>{console.error(error.message);process.exitCode=1;});
-module.exports={sourceIdentity,fileDigest,verifyArchive,verifyUpdateMetadata,verifyInstallerArchive,extractInstallerFiles,createPayload,readPrevious,newer,verifyRemoteAsset,publishGithub,promoteFeed,verifyPublishedFeed,prepareRelease,parseArgs};
+module.exports={sourceIdentity,fileDigest,verifyArchive,verifyUpdateMetadata,verifyInstallerArchive,extractInstallerFiles,createPayload,readPrevious,newer,verifyRemoteAsset,publishGithub,promoteFeed,deployWebsite,verifyPublishedFeed,prepareRelease,parseArgs};

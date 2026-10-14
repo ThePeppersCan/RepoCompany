@@ -29,15 +29,17 @@ let messageOverlay = false, socialState = emptySocialState(), portalViewVisible 
 let mediaPermissions = null, mediaAccountId = null;
 let launcherCheckTimer = null, launcherReconnectTimer = null, launcherCheckPending = null, lastLauncherCheck = 0, previousConnectionStatus = null;
 let launcherQuitPending = null, launcherQuitFinished = false, launcherRestartRequested = false;
+let signingIn = false;
 const shutdown = new AbortController();
 const games = new Map();
 const publicCatalog = () => ({ games: config.games.map(({ developmentManifest, approvedOrigins, manifestUrl, ...game }) => game), demos: (config.demos || []).map(demo => ({ ...demo })) });
 const state = () => ({
-  version: app.getVersion(), view, selectedGame, selectedGameRevision, account: account?.snapshot() || { status: 'checking' },
+  version: app.getVersion(), view, selectedGame, selectedGameRevision, account: account?.snapshot() || { status: 'checking' }, signingIn,
   connectivity: { online: account?.state.status !== 'offline' },
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
   activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, closing: !!currentGame().__closing } : null,
   gameVisible: !!currentGame() && !messageOverlay, messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
+  entryVisible: !portalViewVisible && (!currentGame() || !!currentGame().loading),
   launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
 });
 function gameOperationsBusy() {
@@ -119,7 +121,7 @@ function windowContents(window) {
 function activePortal() { return !quitting && portalContents && !portalContents.isDestroyed() ? portalContents : null; }
 function currentGame() { return games.values().next().value || null; }
 function gameContents(record) { const contents = record?.webContents; return record && !record.closed && contents && !contents.isDestroyed() ? contents : null; }
-function focusGame(record) { const contents = gameContents(record); if (!contents || quitting) return; messageOverlay = false; setPortalVisible(false); record.view.setVisible(true); bounds(); showWindow(mainWindow); if (!hiddenTest) contents.focus(); broadcast(); }
+function focusGame(record) { const contents = gameContents(record); if (!contents || quitting) return; messageOverlay = false; setPortalVisible(false); record.view.setVisible(!record.loading); bounds(); showWindow(mainWindow); if (!hiddenTest && !record.loading) contents.focus(); broadcast(); }
 function showWindow(window) {
   if (quitting || hiddenTest || !windowContents(window)) return;
   if (window.isMinimized()) window.restore();
@@ -139,7 +141,7 @@ function notifyPortalVisibility(force = false) {
   }
 }
 function setPortalVisible(visible) {
-  portalViewVisible = !!(visible && portal && activePortal() && windowContents(mainWindow) && (!currentGame() || messageOverlay));
+  portalViewVisible = !!(visible && account?.state.status === 'online' && !signingIn && portalReady && portal && activePortal() && windowContents(mainWindow) && (!currentGame() || messageOverlay));
   if (portal && activePortal() && windowContents(mainWindow)) portal.setVisible(portalViewVisible);
   notifyPortalVisibility();
 }
@@ -262,6 +264,7 @@ async function loadPortal(hash = '#collection') {
   if (!contents) return;
   const revision = ++portalLoadRevision;
   portalReady = false; portalLoading = true;
+  setPortalVisible(false); broadcast();
   try { await contents.loadURL(config.portalOrigin + '/' + hash); }
   catch {
     if (quitting || contents !== activePortal() || revision !== portalLoadRevision) return;
@@ -275,7 +278,7 @@ async function portalSession() {
   if (!portalReady || !contents || !isPortalUrl(contents.getURL())) throw new Error('Portal unavailable');
   return contents.executeJavaScript(`(async()=>{
     const service=window.repoAccount;
-    if(!service?.db?.auth)return null;
+    if(!service?.db?.auth)throw Error('Account service is still loading');
     const {data,error}=await service.db.auth.getSession();
     if(error)throw Error('Account session unavailable');
     const session=data?.session;
@@ -335,7 +338,26 @@ function accountChanged() {
   else void reconcileEmbeddedDemo();
   for (const record of games.values()) gameContents(record)?.send('launcher:game-connection', gameConnection(record));
   if (account.state.status === 'signed-out') socialState = emptySocialState();
+  setPortalVisible(portalReady);
   broadcast();
+}
+async function signIn(value) {
+  if (signingIn) throw new Error('Sign-in is already in progress.');
+  if (currentGame() || embeddedDemo) throw new Error('Close your game before changing accounts.');
+  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['username', 'password', 'create'].includes(key)) || typeof value.username !== 'string' || !/^[a-zA-Z0-9_-]{3,16}$/.test(value.username) || typeof value.password !== 'string' || value.password.length < 8 || value.password.length > 1024 || typeof value.create !== 'boolean') throw new Error('Enter your Repo Company username and password.');
+  const contents = activePortal();
+  if (!portalReady || !contents) throw new Error('Connect to Repo Company before signing in.');
+  signingIn = true; setPortalVisible(false); broadcast();
+  try {
+    // Use the website's existing account service and session store. Credentials
+    // are not written to launcher preferences, logs, URLs or renderer snapshots.
+    const result = await contents.executeJavaScript(`(async()=>{try{if(!window.repoAccount?.signIn)return {ok:false,message:'Your account service is still loading. Please try again.'};await window.repoAccount.signIn(${JSON.stringify(value.username)},${JSON.stringify(value.password)},${value.create});return {ok:true};}catch(error){return {ok:false,message:String(error.message||'Unable to sign in.').slice(0,240)};}})()`);
+    if (!result?.ok) throw new Error(result?.message || 'Unable to sign in.');
+    // A refresh started before authentication must finish before the final check.
+    await account.refresh(); await account.refresh();
+    if (contents !== activePortal() || account.state.status !== 'online') throw new Error('Your account could not be verified. Reconnect and try again.');
+  } finally { signingIn = false; setPortalVisible(portalReady); broadcast(); }
+  return state();
 }
 function gameConnection(window) {
   const status = account?.state.status || 'offline';
@@ -488,7 +510,7 @@ async function play(id) {
     const contents = gameContents(record);
     if (presenceStarted || presenceEnded || quitting || !contents || games.get(id) !== record) return;
     try { if (new URL(contents.getURL()).origin !== game.origin) return; } catch { return; }
-    record.loading = false; broadcast();
+    record.loading = false; record.view.setVisible(!messageOverlay); if (!hiddenTest && !messageOverlay) contents.focus(); broadcast();
     presenceStarted = true; discordPresence?.gameStarted(id);
   }
   function stopGamePresence() {
@@ -522,8 +544,10 @@ async function portalCommand(event, action, value) {
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
+  if (['navigate', 'messages', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence'].includes(action)) await account.requireOnline();
   switch (action) {
     case 'state': return state();
+    case 'sign-in': return signIn(value);
     case 'navigate': await navigate(value); return state();
     case 'exit-game': await exitCurrentGame(); return state();
     case 'messages': await openMessages(); return state();
@@ -562,7 +586,7 @@ async function executeCommand(action, value) {
       const game = gameById(value);
       if (!game.installable) throw new Error('This game is not available to install yet.');
       if (games.has(value)) throw new Error('Close the game before changing its installation.');
-      // Installation itself needs no account privilege. Playing always verifies the live account.
+      // Interactive library actions require the same verified account as the portal.
       return action === 'install' ? library.install(value) : library.update(value);
     }
     case 'uninstall': {
@@ -620,7 +644,7 @@ async function launch() {
   mainWindow.contentView.addChildView(portal); portal.setVisible(false); bounds();
   secureContents(portalContents, isPortalUrl);
   portalContents.on('destroyed', () => { mediaPermissions?.reset(); if (embeddedDemo) discordPresence?.gameStopped(embeddedDemo.id); embeddedDemo = null; portalReady = false; portalViewVisible = false; lastPortalVisibility = null; portalLoading = false; portalLoadRevision++; portalContentsId = null; portalContents = null; });
-  portalContents.on('did-start-navigation', (_event, _url, inPlace, isMainFrame) => { if (isMainFrame && !inPlace) { mediaPermissions?.reset(); closeEmbeddedDemo(); } });
+  portalContents.on('did-start-navigation', (_event, _url, inPlace, isMainFrame) => { if (isMainFrame && !inPlace) { mediaPermissions?.reset(); closeEmbeddedDemo(); portalReady = false; account?.set({status:'checking',username:'',displayName:'',error:''}); setPortalVisible(false); broadcast(); } });
   portalContents.on('dom-ready', () => { if (!activePortal()) return; portalReady = true; portalError = ''; setPortalVisible(true); notifyPortalVisibility(true); refreshAccount(); broadcast(); });
   portalContents.on('did-finish-load', refreshAccount);
   portalContents.on('did-fail-load', (_event, code, _description, _url, isMainFrame) => {

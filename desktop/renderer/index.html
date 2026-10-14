@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
-<body>
+<body data-locked="true">
   <header class="titlebar">
     <div class="titlebar-brand">
       <svg class="repo-mark" viewBox="565 234 335 341" aria-hidden="true"><image href="assets/repo-brand.png" width="1440" height="900"/></svg>
@@ -34,12 +34,25 @@
   </header>
   <p id="shell-notice" class="shell-notice" role="alert" hidden></p>
   <!-- The native website view occupies this entire space once connected. -->
-  <main class="website-fallback" aria-labelledby="connection-title">
+  <main class="website-fallback" aria-labelledby="connection-title" data-phase="loading">
+    <div class="entry-atmosphere" aria-hidden="true"></div>
     <div class="connection-card">
-      <svg class="connection-mark" viewBox="565 234 335 341" aria-hidden="true"><image href="assets/repo-brand.png" width="1440" height="900"/></svg>
-      <div id="connection-spinner" class="connection-spinner" aria-hidden="true"></div>
+      <div class="brand-loader" aria-hidden="true">
+        <img class="brand-loader-piece piece-top" src="assets/repo-company-mark.png" alt="" draggable="false">
+        <img class="brand-loader-piece piece-middle" src="assets/repo-company-mark.png" alt="" draggable="false">
+        <img class="brand-loader-piece piece-bottom" src="assets/repo-company-mark.png" alt="" draggable="false">
+      </div>
       <h1 id="connection-title">Opening Repo Company</h1>
       <p id="connection-message" role="status">Connecting to your collection.</p>
+      <form id="sign-in-form" class="sign-in-form" hidden>
+        <label for="sign-in-username">Username</label>
+        <input id="sign-in-username" name="username" autocomplete="username" minlength="3" maxlength="16" pattern="[A-Za-z0-9_-]{3,16}" required spellcheck="false" autocapitalize="none">
+        <label for="sign-in-password">Password</label>
+        <div class="password-field"><input id="sign-in-password" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="1024" required><button id="password-visibility" type="button" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
+        <p id="sign-in-error" role="alert" hidden></p>
+        <button id="sign-in-submit" class="primary-button" type="submit">Log in</button>
+        <button id="sign-in-mode" class="sign-in-switch" type="button">Create account</button>
+      </form>
       <div id="connection-actions" class="connection-actions" hidden>
         <button id="reconnect" class="primary-button">Reconnect</button>
         <button id="open-website" class="secondary-button">Open website</button>

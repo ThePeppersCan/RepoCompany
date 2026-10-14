@@ -33,6 +33,7 @@ function portalHarness(options = {}) {
     contents,
     account: {
       token: 'TEST_ONLY_ACCESS_TOKEN', identity: 'TEST_ONLY_INTERNAL_ACCOUNT_ID',
+      async requireOnline() { if (this.state.status !== 'online') throw Error('Sign in to Repo Company before continuing.'); return this.identity; },
       state: { status: 'online' }, snapshot: () => ({ status: 'online', username: 'LauncherTest', displayName: 'Launcher Test', error: '' })
     },
     library: { snapshot: () => ({ morogue: { status: 'installed', version: '0.1.0' } }), install: async id => { calls.push(id); return { installed: id }; } }
@@ -40,6 +41,38 @@ function portalHarness(options = {}) {
   h.run('portalContents=fixture.contents; account=fixture.account; library=fixture.library;');
   return { ...h, contents, frame, calls, invoke: h.run('portalCommand') };
 }
+
+test('signed-out and offline clients cannot open the portal or use interactive library/settings commands', async () => {
+  for (const status of ['checking', 'signed-out', 'offline']) {
+    const h = portalHarness(); h.context.fixture.account.state.status = status;
+    const visible = [];
+    h.context.gateWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false, send() {} } };
+    h.context.gateView = { setVisible(value) { visible.push(value); } };
+    h.run('mainWindow=gateWindow;portal=gateView;portalReady=true;setPortalVisible(true);');
+    assert.equal(visible.at(-1), false);
+    for (const action of ['install', 'update', 'uninstall', 'navigate', 'messages', 'automatic-game-updates', 'discord-presence']) await assert.rejects(h.run(`executeCommand(${JSON.stringify(action)},'morogue')`), /Sign in/);
+    assert.deepEqual(h.calls, []);
+    await assert.rejects(h.invoke({sender:h.contents,senderFrame:h.frame}, 'sign-in', {username:'example',password:'password',create:false}), /unavailable/);
+  }
+});
+
+test('native login serializes authentication and only reveals the portal after final verification', async () => {
+  const h = portalHarness(); let finish; const visibility = [];
+  h.context.fixture.account.state.status = 'signed-out';
+  h.context.fixture.account.refresh = async () => { h.context.fixture.account.state.status = 'online'; };
+  h.contents.executeJavaScript = () => new Promise(resolve => { finish = resolve; });
+  h.context.gateWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false, send() {} } };
+  h.context.gateView = { setVisible(value) { visibility.push(value); } };
+  h.run('mainWindow=gateWindow;portal=gateView;portalReady=true;');
+  const pending = h.run('signIn({username:"LauncherTest",password:"fixture-password",create:false})');
+  await assert.rejects(h.run('signIn({username:"LauncherTest",password:"fixture-password",create:false})'), /already in progress/);
+  h.run('account.state.status="online";setPortalVisible(true);');
+  assert.equal(visibility.at(-1), false);
+  finish({ok:true}); const result = await pending;
+  assert.equal(result.signingIn, false); assert.equal(visibility.at(-1), true);
+  assert.ok(!JSON.stringify(result).includes('fixture-password'));
+  await assert.rejects(h.run('signIn({username:"bad!",password:"fixture-password",create:false})'), /username and password/);
+});
 
 function demoHarness() {
   const windows = [], scripts = [], verifiedOrigins = [], libraryCalls = [], externalLinks = [];
@@ -329,7 +362,7 @@ test('same-account refresh does not interrupt a demo opening, but sign-out cance
 
 test('pending portal failure after native view destruction does not touch destroyed handles', async () => {
   const h = harness(); let rejectLoad, touched = 0;
-  const contents = { isDestroyed: () => false, loadURL: () => new Promise((_resolve, reject) => { rejectLoad = reject; }) };
+  const contents = { isDestroyed: () => false, send() {}, loadURL: () => new Promise((_resolve, reject) => { rejectLoad = reject; }) };
   h.context.handles = { contents, portal: { setVisible() { touched++; throw new Error('Destroyed native view'); } } };
   h.run('portalContents=handles.contents; portal=handles.portal;');
   const pending = h.run('loadPortal()');
@@ -373,7 +406,7 @@ test('late navigation after shutdown is rejected without using a destroyed windo
 
 test('an aborted older portal load cannot replace a newer Account navigation with Library', async () => {
   const h = harness(); const pending = [];
-  h.context.contents = { isDestroyed: () => false, loadURL: () => new Promise((resolve, reject) => pending.push({ resolve, reject })) };
+  h.context.contents = { isDestroyed: () => false, send() {}, loadURL: () => new Promise((resolve, reject) => pending.push({ resolve, reject })) };
   h.run('portalContents=contents; view="account";');
   const first = h.run('loadPortal("#collection")');
   const second = h.run('loadPortal("#account/profile")');
@@ -473,6 +506,7 @@ test('device update preference accepts only a boolean from the trusted launcher 
 
 test('opt-out still checks versions and allows explicit update or repair without automatically installing', async () => {
   const h = harness(); let enabled = false, checks = 0; const actions = [];
+  h.run('account={requireOnline:async()=>"fixture-user"};');
   h.context.updateFixture = {
     preferences: { snapshot: () => ({ automaticGameUpdates: enabled }) },
     library: { async checkUpdates() { checks++; }, snapshot: () => ({ morogue: { version: '1.0.0', availableVersion: '2.0.0' } }), isBusy: () => false, async update(id) { actions.push('update:' + id); }, async install(id) { actions.push('repair:' + id); } }

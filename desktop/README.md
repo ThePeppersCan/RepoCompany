@@ -1,6 +1,8 @@
-# Repo Company for Windows — preview 0.1.6
+# Repo Company for Windows — preview 0.1.8
 
 The launcher uses the actual Repo Company website, including its game cases and Account navigation. The website's Download button provides the Windows preview. Homepage game cases install or launch games; **Account → Library** manages installation, updates, repair and removal.
+
+The native login screen keeps the collection hidden until the existing website session passes server verification. Remembered valid sessions open automatically; sign-out or connection loss returns to the gate. The original transparent logo assembles during launcher, sign-in and game startup. The minimal login form includes account creation, restrained ambient light and reduced-motion support. Credentials use the website's existing sign-in service and are never saved in native preferences or included in state snapshots. Native library/navigation actions also check the account; the visual gate is not the only protection.
 
 ## Games and accounts
 
@@ -46,6 +48,7 @@ npm run test:desktop
 node tests/moratales-desktop.cjs
 node tests/manager-desktop.cjs
 node tests/settings-desktop.cjs
+node tests/login-desktop.cjs
 node tests/single-window-desktop.cjs
 node tests/media-permissions-desktop.cjs
 npm start
@@ -55,7 +58,7 @@ Integration tests use Playwright from the website's development dependencies and
 
 These tests verify the integration contract. A real-account acceptance pass should still confirm newly earned achievements/results on the website and Manager career persistence against its production service.
 
-The native Settings test uses the actual website without signing in, checks trusted pointer/keyboard controls and synthetic-click rejection, then restarts an isolated launcher profile to verify persistence. Automatic-update tests cover opt-out, manual actions, active transfers, running-game deferral and immediate checks after closing. Discord protocol/lifecycle checks use fixture pipes, including reconnects, opt-out and clearing activity. The owner has confirmed real Discord profile activity for Morogue. Discord controls its separate game-detection panel. Hidden and fixture gameplay tests cannot publish activity to a real Discord client.
+The native Settings test uses the actual website anonymously and verifies that the new login gate rejects navigation and settings changes before and after restart. The native Login test uses isolated account fixtures to exercise invalid credentials, successful sign-in, reduced motion, remembered sessions, preference persistence, sign-out, offline locking and reconnect. Automatic-update tests cover opt-out, manual actions, active transfers, running-game deferral and immediate checks after closing. Discord protocol/lifecycle checks use fixture pipes, including reconnects, opt-out and clearing activity. The owner has confirmed real Discord profile activity for Morogue. Discord controls its separate game-detection panel. Hidden and fixture gameplay tests cannot publish activity to a real Discord client.
 
 From the website root, `node tools/test-messaging-api.cjs`, `node tools/test-messaging-client.cjs` and `node tools/test-messaging-integration.cjs` test authorization/revocation, client races, two-account messaging and synthetic-device video. These use isolated account/database fixtures and never message production players.
 
@@ -151,7 +154,7 @@ Use the next unused sequence and a fresh evidence directory outside the reposito
 
 Omitting `--publish` performs local verification/signing only and writes the manifest plus verification report. Publishing requires existing GitHub access via `GH_TOKEN` or the Windows Git credential helper. The tool verifies the source commit/tag, creates or reuses a **draft** release, uploads immutable installer/manifest assets, verifies their hashes (downloading them fully if GitHub has no digest), publishes the release, and checks that the installer is publicly available. Only then does it promote the website's signed `latest.json`. It does not overwrite a published version or commit/push unrelated files.
 
-`--deploy` additionally requires `--publish`, existing Cloudflare access and a verified deployment base. It rejects unrelated uncommitted source, builds the website while preserving reviewed game integrations, deploys to the existing `repocompany` Pages project, then checks the live feed bytes. Commit the two promoted feed files afterwards so source control retains the published state. Static manifests bypass Functions; the latest feed is `no-store`, and versioned manifests have immutable cache headers.
+`--deploy` additionally requires `--publish`, Git push access and a verified deployment base. It rejects unrelated uncommitted source and staged QA files, builds the website while preserving reviewed game integrations, commits only the two promoted feed files, and pushes once to main. The existing Cloudflare GitHub integration deploys that commit. The tool observes the live feed for up to fifteen minutes without launching another deployment. Do not manually deploy beside the GitHub build: an older queued build could otherwise roll back the feed. Publish the reviewed source commit to a release branch before running this command; the feed commit then reaches main in the same push. Static manifests bypass Functions; the latest feed is `no-store`, and versioned manifests have immutable cache headers.
 
 If publication is interrupted, retry with a fresh output directory and **the exact manifest already staged**:
 

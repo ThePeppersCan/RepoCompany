@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const invoke = (action, value) => ipcRenderer.invoke('launcher:command', action, value);
 contextBridge.exposeInMainWorld('repoLauncher', Object.freeze({
   getState: () => invoke('state'),
+  signIn: (username, password, create = false) => invoke('sign-in', { username, password, create }),
   navigate: view => invoke('navigate', view),
   install: id => invoke('install', id),
   update: id => invoke('update', id),
