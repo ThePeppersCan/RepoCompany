@@ -6,6 +6,7 @@ const { Library } = require('./lib/library.cjs');
 const { Account } = require('./lib/account.cjs');
 const { createHandler, serveFile } = require('./lib/protocol.cjs');
 const { LauncherUpdater } = require('./lib/updater.cjs');
+const { RequiredUpdate } = require('./lib/required-update.cjs');
 const { Preferences } = require('./lib/preferences.cjs');
 const { DiscordPresence } = require('./lib/discord-presence.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
@@ -32,14 +33,44 @@ let launcherQuitPending = null, launcherQuitFinished = false, launcherRestartReq
 let signingIn = false;
 const shutdown = new AbortController();
 const games = new Map();
+const requiredUpdate = new RequiredUpdate({ enabled: app.isPackaged, prepare: prepareRequiredUpdate, restart: () => { launcherRestartRequested = true; quitApproved = true; app.quit(); } });
+requiredUpdate.on('change', () => {
+  setPortalVisible(portalReady);
+  for (const record of games.values()) {
+    if (updateLocked()) record.view.setVisible(false);
+    gameContents(record)?.send('launcher:game-connection', gameConnection(record));
+  }
+  if (updateLocked()) windowContents(mainWindow)?.focus?.();
+  else void checkAndApplyUpdates();
+  broadcast();
+});
+function updateLocked() { return requiredUpdate.state.locked; }
+function requireCurrentLauncher() { if (updateLocked()) throw Error('Repo Company is updating. Please wait for the launcher to restart.'); }
+async function prepareRequiredUpdate() {
+  if (updater?.snapshot().status !== 'ready') throw Error('The update is not ready.');
+  // Save all games before disposing any view. A failed save keeps the locked
+  // application open with a retry, rather than silently ending an adventure.
+  let timeout;
+  try {
+    await Promise.race([
+      Promise.all([...games.values()].map(saveBeforeClose)),
+      new Promise((_, reject) => { timeout = setTimeout(() => reject(Error('Saving is taking longer than expected.')), 30000); })
+    ]);
+  } finally { clearTimeout(timeout); }
+  await settleGameOperations();
+  if (gameOperationsBusy()) throw Error('A game download is still stopping.');
+  for (const record of [...games.values()]) disposeGame(record);
+  closeEmbeddedDemo();
+}
 const publicCatalog = () => ({ games: config.games.map(({ developmentManifest, approvedOrigins, manifestUrl, ...game }) => game), demos: (config.demos || []).map(demo => ({ ...demo })) });
 const state = () => ({
   version: app.getVersion(), view, selectedGame, selectedGameRevision, account: account?.snapshot() || { status: 'checking' }, signingIn,
   connectivity: { online: account?.state.status !== 'offline' },
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
   activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, closing: !!currentGame().__closing } : null,
-  gameVisible: !!currentGame() && !messageOverlay, messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
-  entryVisible: !portalViewVisible && (!currentGame() || !!currentGame().loading),
+  gameVisible: !!currentGame() && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
+  entryVisible: updateLocked() || !portalViewVisible && (!currentGame() || !!currentGame().loading),
+  requiredUpdate: requiredUpdate.snapshot(),
   launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
 });
 function gameOperationsBusy() {
@@ -76,7 +107,7 @@ function startLauncherUpdateChecks() {
   launcherCheckTimer = setInterval(() => { void checkLauncherUpdates(); }, 30 * 60 * 1000);
   launcherCheckTimer.unref?.();
 }
-function stopLauncherUpdateChecks() { clearInterval(launcherCheckTimer); clearTimeout(launcherReconnectTimer); launcherCheckTimer = null; launcherReconnectTimer = null; }
+function stopLauncherUpdateChecks() { clearInterval(launcherCheckTimer); clearTimeout(launcherReconnectTimer); launcherCheckTimer = null; launcherReconnectTimer = null; requiredUpdate.dispose(); }
 async function settleGameOperations() {
   await Promise.allSettled(config.games.filter(game => game.installable && library?.isBusy?.(game.id)).map(game => library.cancel(game.id)));
 }
@@ -104,6 +135,9 @@ function requestLauncherRestart() {
 }
 function handleMainWindowClose(event) {
   if (quitApproved || quitting) return;
+  if (updateLocked() && ['countdown', 'saving', 'save-error', 'restarting'].includes(requiredUpdate.state.phase)) {
+    event.preventDefault(); void requiredUpdate.install(); return;
+  }
   const busy = gameOperationsBusy();
   if (!games.size && !embeddedDemo && !busy) { quitApproved = true; return; }
   event.preventDefault();
@@ -121,7 +155,7 @@ function windowContents(window) {
 function activePortal() { return !quitting && portalContents && !portalContents.isDestroyed() ? portalContents : null; }
 function currentGame() { return games.values().next().value || null; }
 function gameContents(record) { const contents = record?.webContents; return record && !record.closed && contents && !contents.isDestroyed() ? contents : null; }
-function focusGame(record) { const contents = gameContents(record); if (!contents || quitting) return; messageOverlay = false; setPortalVisible(false); record.view.setVisible(!record.loading); bounds(); showWindow(mainWindow); if (!hiddenTest && !record.loading) contents.focus(); broadcast(); }
+function focusGame(record) { const contents = gameContents(record); if (!contents || quitting || updateLocked()) return; messageOverlay = false; setPortalVisible(false); record.view.setVisible(!record.loading); bounds(); showWindow(mainWindow); if (!hiddenTest && !record.loading) contents.focus(); broadcast(); }
 function showWindow(window) {
   if (quitting || hiddenTest || !windowContents(window)) return;
   if (window.isMinimized()) window.restore();
@@ -141,7 +175,7 @@ function notifyPortalVisibility(force = false) {
   }
 }
 function setPortalVisible(visible) {
-  portalViewVisible = !!(visible && account?.state.status === 'online' && !signingIn && portalReady && portal && activePortal() && windowContents(mainWindow) && (!currentGame() || messageOverlay));
+  portalViewVisible = !!(visible && !updateLocked() && account?.state.status === 'online' && !signingIn && portalReady && portal && activePortal() && windowContents(mainWindow) && (!currentGame() || messageOverlay));
   if (portal && activePortal() && windowContents(mainWindow)) portal.setVisible(portalViewVisible);
   notifyPortalVisibility();
 }
@@ -150,14 +184,14 @@ function configureSessionPermissions(targetSession) {
 }
 function refreshAccount() { if (!quitting) void account?.refresh().catch(() => {}); }
 function checkAndApplyUpdates({ reschedule = false } = {}) {
-  if (quitting || !library) return Promise.resolve();
+  if (quitting || updateLocked() || !library) return Promise.resolve();
   if (updateSweep) { if (reschedule) updateSweepRequested = true; return updateSweep; }
   updateSweep = (async () => {
     do {
       updateSweepRequested = false;
       await library.checkUpdates().catch(() => {});
       for (const game of config.games) {
-        if (quitting || quitApproved || preferences?.snapshot().automaticGameUpdates === false) break;
+        if (quitting || quitApproved || updateLocked() || preferences?.snapshot().automaticGameUpdates === false) break;
         const installed = library.snapshot()[game.id];
         if (game.installable && installed?.availableVersion && installed.version && installed.availableVersion !== installed.version && !games.has(game.id) && !library.isBusy(game.id)) await library.update(game.id).catch(() => {});
       }
@@ -342,6 +376,7 @@ function accountChanged() {
   broadcast();
 }
 async function signIn(value) {
+  requireCurrentLauncher();
   if (signingIn) throw new Error('Sign-in is already in progress.');
   if (currentGame() || embeddedDemo) throw new Error('Close your game before changing accounts.');
   if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['username', 'password', 'create'].includes(key)) || typeof value.username !== 'string' || !/^[a-zA-Z0-9_-]{3,16}$/.test(value.username) || typeof value.password !== 'string' || value.password.length < 8 || value.password.length > 1024 || typeof value.create !== 'boolean') throw new Error('Enter your Repo Company username and password.');
@@ -360,6 +395,7 @@ async function signIn(value) {
   return state();
 }
 function gameConnection(window) {
+  if (updateLocked()) return { status: 'updating', accountId: window.__accountId };
   const status = account?.state.status || 'offline';
   return { status: status === 'online' && account.identity !== window.__accountId ? 'account-changed' : status, accountId: status === 'online' && account.identity === window.__accountId ? window.__accountId : null };
 }
@@ -439,9 +475,11 @@ async function gameCommand(event, action, value) {
   if (action === 'game') selectLibrary(value);
 }
 async function playWeb(id) {
+  requireCurrentLauncher();
   const demo = demoById(id);
   const identity = await account.requireOnline();
   await reconcileEmbeddedDemo();
+  requireCurrentLauncher();
   if (quitting || !windowContents(mainWindow) || !activePortal()) throw new Error('The launcher is closing.');
   if (account.state.status !== 'online' || account.identity !== identity) throw new Error('Your account changed. Sign in again before playing.');
   if (games.has(id)) { focusGame(games.get(id)); return; }
@@ -472,6 +510,7 @@ async function playWeb(id) {
         ${demoVisibility(record)}
       })()`);
       record.opening = false;
+      requireCurrentLauncher();
       if (!opened || embeddedDemo !== record || account.state.status !== 'online' || account.identity !== identity) throw new Error('The demo could not open. Check your account and try again.');
       discordPresence?.gameStarted(id); showWindow(mainWindow); broadcast();
     } catch (error) { closeEmbeddedDemo(record); throw error; }
@@ -479,6 +518,7 @@ async function playWeb(id) {
   }
 }
 async function play(id) {
+  requireCurrentLauncher();
   const game = gameById(id);
   if (!game.installable) throw new Error('This game is coming to the desktop library.');
   await reconcileEmbeddedDemo();
@@ -494,6 +534,7 @@ async function play(id) {
     if ((await portalSession())?.user?.id !== identity) throw new Error('Your account changed. Sign in again before playing.');
   }
   // Reserve synchronously after the account check so a second click cannot create two runs.
+  requireCurrentLauncher();
   if (games.has(id)) { focusGame(games.get(id)); return; }
   if (quitting || !mainWindow || mainWindow.isDestroyed()) throw new Error('The launcher is closing.');
   if (games.size || embeddedDemo) throw new Error('Close your current game before starting another.');
@@ -510,7 +551,8 @@ async function play(id) {
     const contents = gameContents(record);
     if (presenceStarted || presenceEnded || quitting || !contents || games.get(id) !== record) return;
     try { if (new URL(contents.getURL()).origin !== game.origin) return; } catch { return; }
-    record.loading = false; record.view.setVisible(!messageOverlay); if (!hiddenTest && !messageOverlay) contents.focus(); broadcast();
+    record.loading = false; record.view.setVisible(!messageOverlay && !updateLocked()); if (!hiddenTest && !messageOverlay && !updateLocked()) contents.focus();
+    if (updateLocked()) contents.send('launcher:game-connection', gameConnection(record)); broadcast();
     presenceStarted = true; discordPresence?.gameStarted(id);
   }
   function stopGamePresence() {
@@ -545,6 +587,7 @@ async function portalCommand(event, action, value) {
 }
 async function executeCommand(action, value) {
   if (['navigate', 'messages', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence'].includes(action)) await account.requireOnline();
+  if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
     case 'sign-in': return signIn(value);
@@ -557,7 +600,7 @@ async function executeCommand(action, value) {
       socialState = { unread: value.unread, callActive: value.callActive, incomingCall: value.incomingCall === true, open: value.open === true }; broadcast(); return;
     case 'website': await shell.openExternal(config.portalOrigin); return;
     case 'refresh': if (!portalReady) await loadPortal(); if (quitting) return; await Promise.allSettled([account.refresh(), checkAndApplyUpdates()]); return state();
-    case 'launcher-update': return checkLauncherUpdates();
+    case 'launcher-update': if (requiredUpdate.state.phase === 'save-error') await requiredUpdate.install(); else await checkLauncherUpdates(); return state();
     case 'launcher-reconnect': scheduleLauncherReconnect(); return;
     case 'launcher-restart': requestLauncherRestart(); return;
     case 'automatic-game-updates':
@@ -575,7 +618,7 @@ async function executeCommand(action, value) {
       if (value === 'minimize') mainWindow.minimize();
       else if (value === 'maximize') mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
       else if (value === 'close') mainWindow.close();
-      else if (value === 'fullscreen' && currentGame()) mainWindow.setFullScreen(!mainWindow.isFullScreen());
+      else if (value === 'fullscreen' && currentGame() && !updateLocked()) mainWindow.setFullScreen(!mainWindow.isFullScreen());
       else throw new Error('Unknown window action.');
       return;
     case 'play': return play(value);
@@ -594,6 +637,7 @@ async function executeCommand(action, value) {
       if (games.has(value)) throw new Error('Close the game before uninstalling it.');
       const answer = await dialog.showMessageBox(mainWindow, { type: 'question', title: 'Uninstall ' + game.name, message: 'Uninstall ' + game.name + '?', detail: 'Game files will be removed. Your account achievements, leaderboard results and local preferences will be kept.', buttons: ['Keep game', 'Uninstall'], defaultId: 0, cancelId: 0, noLink: true });
       if (answer.response === 1 && !quitting && windowContents(mainWindow)) {
+        requireCurrentLauncher();
         if (games.has(value)) throw new Error('Close the game before uninstalling it.');
         await library.uninstall(value);
       }
@@ -653,13 +697,14 @@ async function launch() {
     setPortalVisible(false); view = 'library'; broadcast();
   });
   account = new Account({ config, getSession: portalSession, fetchImpl: network }); account.on('change', accountChanged);
-  updater = new LauncherUpdater({ config: config.launcherUpdates, packaged: app.isPackaged, currentVersion: app.getVersion(), cacheDir: path.join(app.getPath('userData'), 'launcher-updates'), canRestart: () => !games.size && !embeddedDemo && !gameOperationsBusy() }); updater.on('change', broadcast);
+  updater = new LauncherUpdater({ config: config.launcherUpdates, packaged: app.isPackaged, currentVersion: app.getVersion(), cacheDir: path.join(app.getPath('userData'), 'launcher-updates'), canRestart: () => !games.size && !embeddedDemo && !gameOperationsBusy() });
+  updater.on('change', update => { requiredUpdate.observe(update); broadcast(); });
   ipcMain.handle('launcher:command', command);
   ipcMain.handle('launcher:portal', portalCommand);
   ipcMain.handle('launcher:game', gameCommand);
   Menu.setApplicationMenu(null);
   mainWindow.on('resize', bounds);
-  mainWindow.on('focus', () => { if (currentGame() && !messageOverlay) { gameContents(currentGame())?.focus(); discordPresence?.gameFocused(currentGame().__gameId); } else if (embeddedDemo) discordPresence?.gameFocused(embeddedDemo.id); notifyPortalVisibility(); });
+  mainWindow.on('focus', () => { if (currentGame() && !messageOverlay && !updateLocked()) { gameContents(currentGame())?.focus(); discordPresence?.gameFocused(currentGame().__gameId); } else if (embeddedDemo && !updateLocked()) discordPresence?.gameFocused(embeddedDemo.id); notifyPortalVisibility(); });
   for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) mainWindow.on(event, () => notifyPortalVisibility());
   mainWindow.on('enter-full-screen', () => { bounds(); broadcast(); });
   mainWindow.on('leave-full-screen', () => { bounds(); broadcast(); });

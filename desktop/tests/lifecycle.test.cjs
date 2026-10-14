@@ -846,3 +846,32 @@ test('explicit restart is passed only after safe quit, and an update failure can
     await new Promise(resolve => setImmediate(resolve)); assert.equal(quits, 1);
   }
 });
+
+test('mandatory updates hide native games and portal, reject actions, and survive late game DOM/account events', async () => {
+  const h = nativePresenceHarness({ pendingLoad: true });
+  const opening = h.run('play("manager")'); await new Promise(resolve => setImmediate(resolve));
+  const game = h.windows[0];
+  h.run('requiredUpdate.enabled=true; requiredUpdate.observe({status:"downloading",version:"0.1.10"}); setPortalVisible(true); focusGame(currentGame());');
+  game.webContents.emit('dom-ready'); game.finishLoad(); await opening;
+  assert.equal(h.portal.visible, false); assert.equal(game.visible, false);
+  assert.equal(h.run('state()').entryVisible, true); assert.equal(h.run('state()').gameVisible, false);
+  for (const action of ['play', 'play-web', 'navigate', 'messages', 'resume-game', 'install', 'update', 'automatic-game-updates', 'sign-in']) {
+    await assert.rejects(h.run(`executeCommand(${JSON.stringify(action)},"manager")`), /updating/);
+  }
+  assert.equal(h.run('gameConnection(currentGame()).status'), 'updating');
+  h.run('requiredUpdate.dispose();');
+});
+
+test('mandatory restart saves before disposing; a failed save keeps the native game intact and locked for retry', async () => {
+  const h = nativePresenceHarness(); let fail = true, quits = 0;
+  await h.run('play("manager")'); const game = h.windows[0];
+  game.webContents.executeJavaScript = async () => { if (fail) throw Error('Storage unavailable'); return true; };
+  h.app.quit = () => { quits++; };
+  h.context.updateFixture = { snapshot: () => ({ status: 'ready' }) };
+  h.run('updater=updateFixture; requiredUpdate.enabled=true; requiredUpdate.observe({status:"ready"});');
+  await h.run('requiredUpdate.install()');
+  assert.equal(quits, 0); assert.equal(game.destroyed, false); assert.equal(h.run('requiredUpdate.state.phase'), 'save-error');
+  fail = false; await h.run('requiredUpdate.install()');
+  assert.equal(game.destroyed, true); assert.equal(h.run('games.size'), 0); assert.equal(h.run('launcherRestartRequested'), true); assert.equal(quits, 1);
+  h.run('requiredUpdate.dispose();');
+});

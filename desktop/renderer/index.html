@@ -6,6 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Repo Company</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="brand-motion.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body data-locked="true">
@@ -38,10 +39,23 @@
     <div class="entry-atmosphere" aria-hidden="true"></div>
     <div class="connection-card">
       <div class="brand-loader" aria-hidden="true">
-        <img class="brand-loader-piece piece-top" src="assets/repo-company-mark.png" alt="" draggable="false">
-        <img class="brand-loader-piece piece-middle" src="assets/repo-company-mark.png" alt="" draggable="false">
-        <img class="brand-loader-piece piece-bottom" src="assets/repo-company-mark.png" alt="" draggable="false">
+        <svg class="brand-motion" viewBox="-100 -100 712 712" fill="#f9f8e6">
+          <defs><clipPath id="repo-core"><path d="M187.0 191.0L189.77 185.0L193.54 180.0L199.3 177.0L207.07 176.0L214.84 177.0L223.61 177.0L232.37 177.0L241.14 177.0L249.91 177.0L258.68 177.0L266.0 176.44L273.21 178.0L278.0 181.98L282.0 186.75L283.52 194.0L284.0 202.28L284.0 211.05L283.0 218.82L285.0 224.41L288.0 218.65L291.0 212.88L294.89 208.0L299.0 203.34L303.42 199.0L308.19 195.0L313.0 191.04L318.0 187.27L324.0 184.51L330.0 181.74L336.03 179.0L343.8 178.0L351.57 177.0L359.33 176.0L367.0 177.1L371.0 181.87L373.0 188.64L373.0 197.4L373.0 206.17L373.0 214.94L373.0 223.71L373.0 232.47L373.0 241.24L373.0 250.01L372.0 257.78L370.0 264.55L362.69 266.0L353.92 266.0L346.15 267.0L338.38 268.0L330.62 269.0L324.0 271.15L318.08 274.0L313.0 277.69L308.0 281.45L303.0 285.22L299.0 289.99L294.24 294.0L290.47 299.0L287.0 304.29L284.94 311.0L283.0 317.83L281.0 324.6L280.64 333.0L280.0 341.13L280.0 349.9L280.0 358.67L280.0 367.43L276.8 373.0L268.03 373.0L259.26 373.0L250.49 373.0L241.73 373.0L232.96 373.0L224.19 373.0L215.42 373.0L206.66 373.0L200.0 370.89L195.0 367.12L191.0 362.35L188.0 356.59L187.0 348.82L187.0 340.05L187.0 331.28L187.0 322.52L187.0 313.75L187.0 304.98L187.0 296.21L187.0 287.44L187.0 278.68L187.0 269.91L187.0 261.14L187.0 252.37L187.0 243.61L187.0 234.84L187.0 226.07L187.0 217.3L187.0 208.54L187.0 199.77L187.0 191.0Z"/></clipPath></defs>
+          <g class="motion-trails"><path/><path/><path/></g>
+          <g class="motion-arcs"><path/><path/><path/></g>
+          <g class="motion-core"><image href="assets/repo-company-mark.png" width="512" height="512" clip-path="url(#repo-core)"/></g>
+          <g class="motion-sparks"><ellipse/><ellipse/><ellipse/></g>
+          <image class="motion-rest" href="assets/repo-company-mark.png" width="512" height="512"/>
+        </svg>
       </div>
+      <section id="update-panel" class="update-panel" aria-labelledby="update-title" hidden>
+        <h2 id="update-title">Updating Repo Company</h2>
+        <p id="update-message" role="status" aria-live="polite"></p>
+        <div class="update-meter"><progress id="update-progress" max="1" aria-label="Launcher update progress"></progress></div>
+        <div class="update-meta"><span id="update-stage"></span><span id="update-percent"></span></div>
+        <p id="update-note"></p>
+        <button id="update-retry" class="secondary-button" hidden>Try again</button>
+      </section>
       <h1 id="connection-title">Opening Repo Company</h1>
       <p id="connection-message" role="status">Connecting to your collection.</p>
       <form id="sign-in-form" class="sign-in-form" hidden>

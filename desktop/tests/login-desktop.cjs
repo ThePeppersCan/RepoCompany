@@ -30,7 +30,8 @@ async function run(){
     await shell.screenshot({path:path.join(output,'sign-in-small.png'),timeout:10000});
     await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1480,940));
     await shell.emulateMedia({reducedMotion:'reduce'});
-    assert.equal(await shell.locator('.brand-loader-piece').first().evaluate(e=>getComputedStyle(e).animationName),'none');
+    assert.equal(await shell.locator('.motion-rest').getAttribute('opacity'),'1');
+    assert.equal(await shell.locator('.motion-core').getAttribute('opacity'),'0');
     assert.equal(await shell.locator('.entry-atmosphere').evaluate(e=>getComputedStyle(e,'::before').animationName),'none');
     await shell.emulateMedia({reducedMotion:'no-preference'});
     await shell.locator('#sign-in-username').fill('LauncherTest');await shell.locator('#sign-in-password').fill('wrong-password');

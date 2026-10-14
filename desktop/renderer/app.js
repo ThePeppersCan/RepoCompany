@@ -5,6 +5,38 @@
   const activeDownloads = new Set(['queued', 'downloading', 'updating', 'verifying']);
   let state = {}, reconnecting = false, connectionError = '', unsubscribe, leaving = false, openingMessages = false, toolbarError = '';
   let authenticating = false, createAccount = false, authError = '', previousPhase = '';
+  let countdownTimer = null, updateRetrying = false;
+
+  function renderUpdate() {
+    const gate = state.requiredUpdate;
+    $('#update-panel').hidden = !gate?.locked;
+    if (!gate?.locked) { clearInterval(countdownTimer); countdownTimer = null; return false; }
+    const phase = gate.phase, update = state.launcherUpdate || {};
+    const failed = phase === 'error' || phase === 'save-error';
+    const ready = phase === 'countdown';
+    $('.website-fallback').hidden = false;
+    $('.website-fallback').dataset.phase = 'updating'; document.body.dataset.locked = 'true';
+    $('.connection-card').setAttribute('aria-busy', String(!failed));
+    for (const id of ['sign-in-form','connection-actions','connection-note']) $('#' + id).hidden = true;
+    $('#shell-notice').hidden = true;
+    $('#update-title').textContent = failed ? phase === 'save-error' ? 'Let’s finish saving' : 'Update paused' : phase === 'checking' ? 'Checking for updates' : phase === 'restarting' ? 'Restarting Repo Company' : 'Updating Repo Company';
+    $('#update-message').textContent = failed ? gate.error || 'We couldn’t verify the latest version. Check your connection and try again.' : ready ? 'Your client will close and reopen automatically.' : phase === 'saving' ? 'Saving your game before restarting.' : phase === 'restarting' ? 'Installing the update. We’ll bring you straight back.' : phase === 'checking' ? 'Making sure you have the latest version.' : 'The client will restart when your update is ready.';
+    const progress = $('#update-progress');
+    if (ready || ['saving','restarting','verifying'].includes(phase)) progress.value = 1;
+    else if (phase === 'downloading' && Number.isFinite(update.progress)) progress.value = Math.max(0, Math.min(1, update.progress));
+    else progress.removeAttribute('value');
+    $('.update-meter').hidden = failed;
+    $('#update-percent').textContent = phase === 'downloading' && Number.isFinite(update.progress) ? Math.floor(progress.value * 100) + '%' : ready || phase === 'verifying' ? '100%' : '';
+    $('#update-stage').textContent = failed ? 'Update required to continue' : phase === 'checking' ? 'Connecting securely' : phase === 'downloading' ? 'Downloading' : phase === 'verifying' ? 'Verifying update' : phase === 'saving' ? 'Saving progress' : phase === 'restarting' ? 'Closing client' : '';
+    $('#update-note').textContent = state.activeGame?.id === 'morogue' ? 'This update ends your current run. Completed achievements and scores are kept.' : state.activeGame ? 'Your game will save before the client closes.' : '';
+    $('#update-retry').hidden = !failed; $('#update-retry').disabled = updateRetrying;
+    if (ready) {
+      const tick = () => { $('#update-stage').textContent = 'Restarting in ' + Math.max(0, Math.ceil((gate.restartAt - Date.now()) / 1000)) + ' seconds'; };
+      tick(); if (!countdownTimer) countdownTimer = setInterval(() => { if (state.requiredUpdate?.phase === 'countdown') $('#update-stage').textContent = 'Restarting in ' + Math.max(0, Math.ceil((state.requiredUpdate.restartAt - Date.now()) / 1000)) + ' seconds'; }, 250);
+    } else { clearInterval(countdownTimer); countdownTimer = null; }
+    window.repoBrandMotion?.setActive(!failed);
+    return true;
+  }
 
   function downloads() {
     const entries = Object.values(state.library || {}).filter(item => activeDownloads.has(item.status));
@@ -28,6 +60,7 @@
   }
 
   function renderConnection() {
+    if (renderUpdate()) return;
     $('.website-fallback').hidden = state.entryVisible === false;
     const busy = authenticating || state.signingIn;
     const account = state.account || { status: 'checking' };
@@ -36,6 +69,7 @@
     const showForm = state.portalReady && account.status === 'signed-out' && !error && !gameLoading;
     const phase = busy ? 'signing-in' : reconnecting || gameLoading ? 'loading' : error ? 'error' : showForm ? 'sign-in' : 'loading';
     $('.website-fallback').dataset.phase = phase;
+    window.repoBrandMotion?.setActive(state.entryVisible !== false && ['loading', 'signing-in'].includes(phase));
     document.body.dataset.locked = String(account.status !== 'online' || busy);
     $('.connection-card').setAttribute('aria-busy', String(['loading', 'signing-in'].includes(phase)));
     $('#connection-title').textContent = busy ? 'Making yourself at home' : gameLoading ? 'Opening ' + state.activeGame.name : reconnecting ? 'Reconnecting' : error ? 'Let’s reconnect' : showForm ? createAccount ? 'Your next chapter starts here.' : 'Welcome home.' : 'Opening Repo Company';
@@ -64,7 +98,7 @@
   }
   function renderGame() {
     const game = state.activeGame;
-    $('#game-toolbar').hidden = !game;
+    $('#game-toolbar').hidden = !game || !!state.requiredUpdate?.locked;
     if (!game) return;
     $('#game-title').textContent = toolbarError || game.name + (game.loading ? ' · Opening…' : '');
     $('#game-title').title = toolbarError || game.name;
@@ -115,6 +149,13 @@
   $('#open-website').addEventListener('click', () => {
     if (bridge) void bridge.openWebsite().catch(() => {});
   });
+  $('#update-retry').addEventListener('click', async () => {
+    if (!bridge || updateRetrying) return;
+    updateRetrying = true; renderUpdate();
+    try { await bridge.checkLauncherUpdates(); receive(await bridge.getState()); }
+    catch { /* The native update state owns the error and keeps the client locked. */ }
+    finally { updateRetrying = false; renderConnection(); }
+  });
   $('#sign-in-form').addEventListener('submit', async event => {
     event.preventDefault();
     if (!bridge || authenticating) return;
@@ -141,5 +182,5 @@
     $('#reconnect').hidden = true; $('#open-website').hidden = true;
     renderConnection();
   }
-  window.addEventListener('pagehide', () => unsubscribe?.(), { once: true });
+  window.addEventListener('pagehide', () => { unsubscribe?.(); clearInterval(countdownTimer); window.repoBrandMotion?.setActive(false); }, { once: true });
 })();

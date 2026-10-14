@@ -131,6 +131,9 @@ class LauncherUpdater extends EventEmitter {
       const release = verifyManifest(await this.fetchManifest(), this.config, { now: this.now(), currentVersion: this.currentVersion, highWater: this.highWater });
       await this.saveHighWater(release); this.assertActive(); this.release = release;
       if (compareVersions(release.payload.version, this.currentVersion) === 0) { this.set({ status: 'current', message: 'Your launcher is up to date.' }); return this.snapshot(); }
+      // Lock the native client as soon as a newer signed release is known,
+      // including when the subsequent provider/download operation fails.
+      this.set({ status: 'downloading', version: release.payload.version, message: 'Preparing your launcher update…' });
       this.engine.setFeedURL({ provider: 'custom', updateProvider: providerFor(release) });
       const result = await this.engine.checkForUpdates(); this.assertActive();
       if (!result?.isUpdateAvailable || result.updateInfo !== release.info) throw Error('The updater selected unexpected release metadata.');
@@ -143,7 +146,7 @@ class LauncherUpdater extends EventEmitter {
       // independently verify returned bytes before exposing Ready or installation.
       await this.verifyFile(files[0], release); this.assertActive();
       this.ready = Object.freeze({ release, file: files[0] });
-      this.set({ status: 'ready', version: release.payload.version, message: 'Ready to install when you close the launcher.' });
+      this.set({ status: 'ready', version: release.payload.version, message: 'Your launcher will restart automatically to install this update.' });
     } catch {
       this.ready = null;
       this.set({ status: 'error', message: 'Could not verify the launcher update. Please try again later.' });
