@@ -20,7 +20,7 @@ representative game/integration endpoints. No authentication material is stored.
 Future changes must capture the currently deployed Worker and preserve its
 current modules and bindings. `tools/prepare-manager-parity-route.cjs` prepares a
 fresh candidate and fails if the expected one-path correction no longer applies.
-`tools/deploy-manager-parity-route.cjs --candidate <reviewed-directory>` rechecks
+`tools/deploy-manager-parity-route.cjs --capture <fresh-capture> --candidate <reviewed-directory>` rechecks
 the published stylesheet, deployed module set, settings, and deployment before
 reporting readiness. It uploads only with the additional `--deploy` flag. The
 reviewed candidate's metadata and module hashes must match its report. This

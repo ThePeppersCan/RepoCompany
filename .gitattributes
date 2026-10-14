@@ -1,0 +1,2 @@
+# Preserve byte-for-byte deployment evidence, including its recorded hashes.
+tools/game-workers/manager-parity-2026-10-14/** -text
