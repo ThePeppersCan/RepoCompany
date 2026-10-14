@@ -4,6 +4,7 @@
   if (!account || window.repoMessaging) return;
   const terminal = new Set(['ended', 'rejected']);
   const icons = {
+    mail: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
     message: '<path d="M20 11.5a8 8 0 0 1-8 8H5l-4 3v-11a9 9 0 0 1 18-1Z"/><path d="M6 9h8M6 13h5"/>',
     close: '<path d="m6 6 12 12M18 6 6 18"/>',
     back: '<path d="m14 5-7 7 7 7"/>',
@@ -68,9 +69,10 @@
   let friendRefreshAt = 0, socialSnapshot = account.state.social;
   const requests = new Set();
 
-  const launch = button('Messages', 'message', 'repo-message-launch', () => open());
-  const launchLabel = el('span', '', 'Messages'), launchCount = el('span', 'repo-message-count');
-  launch.append(launchLabel, launchCount); launch.hidden = !userId; document.body.append(launch);
+  const launch = button('Messages', 'mail', 'repo-message-launch', () => open());
+  const launchCount = el('span', 'repo-message-count'); launchCount.hidden = true;
+  launch.setAttribute('aria-haspopup', 'dialog'); launch.setAttribute('aria-controls', 'repo-messages');
+  launch.append(launchCount); launch.hidden = !userId;
   const drawer = el('dialog', 'repo-messages'); drawer.id = 'repo-messages';
   drawer.setAttribute('aria-labelledby', 'repo-messages-title');
   const head = el('header', 'repo-messages-head');
@@ -148,6 +150,7 @@
     if (signature !== previousEvent) { previousEvent = signature; dispatchEvent(new CustomEvent('repo-messaging-state', {detail: state})); }
     launchCount.hidden = !unread; launchCount.textContent = unread > 99 ? '99+' : String(unread);
     launch.setAttribute('aria-label', unread ? `Messages, ${unread} unread` : 'Messages');
+    launch.title = launch.getAttribute('aria-label'); launch.setAttribute('aria-expanded', String(drawer.open));
   }
   async function api(route, payload, valid = () => true) {
     const revision = epoch, identity = userId;
@@ -174,10 +177,13 @@
   }
   function mountLaunch() {
     const accountDialog = document.getElementById('account-menu');
-    const destination = accountDialog?.open ? accountDialog.querySelector('.account-header-end') : document.body;
-    if (destination && launch.parentElement !== destination) destination.append(launch);
+    const accountButton = document.querySelector('.account [data-note="Account"]');
+    const destination = (accountDialog?.open && accountDialog.querySelector('.account-header-end')) || accountButton?.parentElement;
+    if (destination === accountButton?.parentElement && destination) {
+      if (launch.parentElement !== destination || launch.nextElementSibling !== accountButton) destination.insertBefore(launch, accountButton);
+    } else if (destination && launch.parentElement !== destination) destination.append(launch);
     launch.classList.toggle('is-account', !!accountDialog?.open);
-    const callDestination = drawer.open ? head : destination;
+    const callDestination = drawer.open ? head : destination || document.body;
     if (callChip.parentElement !== callDestination && callDestination) callDestination.append(callChip);
     callChip.classList.toggle('is-account', !!accountDialog?.open || drawer.open);
   }

@@ -1,6 +1,6 @@
 {
   "name": "repo-company-launcher",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "description": "Your Repo Company collection, installed and connected.",
   "author": "Repo Company",
@@ -60,7 +60,9 @@
     "publish": {
       "provider": "generic",
       "url": "https://repocompany.uk/releases/launcher/",
-      "publisherName": ["Repo Company Update Key"]
+      "publisherName": [
+        "Repo Company Update Key"
+      ]
     }
   }
 }
