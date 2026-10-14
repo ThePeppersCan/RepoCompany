@@ -1,0 +1,4 @@
+.account .download-client{display:flex;align-items:center;gap:13px;color:inherit;font:inherit;white-space:nowrap}
+.account .download-client:hover{color:#fff3cf}
+[data-repo-launcher="true"] #download-client{display:none!important}
+@media(max-width:700px){.home-mode .account .download-client{gap:10px}}
