@@ -38,7 +38,10 @@ async function verifyReleaseFeed({ expectedDirectory, fetchImpl = global.fetch, 
   async function verifyBlob(file, label, { largest = false, entry = false } = {}) {
     const head = await request(file.source, 'HEAD');
     requireThat(head.status === 200, `${label} HEAD returned ${head.status}; redirects are not allowed.`);
-    requireThat(Number(head.headers.get('content-length')) === file.size, `${label} HEAD size does not match its manifest.`);
+    // Pages may omit Content-Length on HEAD. GET below always measures and
+    // hashes every byte; an explicitly supplied HEAD length must still agree.
+    const headLength = head.headers.get('content-length');
+    requireThat(headLength === null || /^\d+$/.test(headLength) && Number(headLength) === file.size, `${label} HEAD size does not match its manifest.`);
     requireThat(/application\/octet-stream/i.test(head.headers.get('content-type') || ''), `${label} is not served as a binary download.`);
     cacheHeaders(head, true, label);
     const response = await request(file.source);
@@ -58,11 +61,20 @@ async function verifyReleaseFeed({ expectedDirectory, fetchImpl = global.fetch, 
     const result = { path: file.path, bytes: size, sha256: file.sha256, headers: headers(head), hashVerified: true };
     if (largest && size) {
       const end = Math.min(1023, size - 1), range = await request(file.source, 'GET', { Range: `bytes=0-${end}` });
-      requireThat(range.status === 206, `${label} range returned ${range.status}; expected 206.`);
-      requireThat(range.headers.get('content-range') === `bytes 0-${end}/${size}`, `${label} returned an incorrect content range.`);
-      const data = await boundedBytes(range, end + 1);
-      requireThat(data.length === end + 1 && data.equals(prefix.subarray(0, end + 1)), `${label} range bytes differ from the verified download.`);
-      result.range = { status: range.status, bytes: data.length, headers: headers(range), verified: true };
+      requireThat(range.status === 206 || range.status === 200, `${label} range returned ${range.status}; expected a partial response or complete-file fallback.`);
+      if (range.status === 206) {
+        requireThat(range.headers.get('content-range') === `bytes 0-${end}/${size}`, `${label} returned an incorrect content range.`);
+        const data = await boundedBytes(range, end + 1);
+        requireThat(data.length === end + 1 && data.equals(prefix.subarray(0, end + 1)), `${label} range bytes differ from the verified download.`);
+        result.range = { status: range.status, bytes: data.length, headers: headers(range), supportsRanges: true, verified: true };
+      } else {
+        // Installation requests complete files; media ranges are supplied by
+        // the launcher's local protocol after installation. Some static hosts
+        // ignore Range, so accept only a complete, independently verified body.
+        const data = await boundedBytes(range, size);
+        requireThat(data.length === size && hash(data) === file.sha256, `${label} full-file range fallback does not match its manifest.`);
+        result.range = { status: range.status, bytes: data.length, headers: headers(range), supportsRanges: false, verified: true };
+      }
     }
     return result;
   }
@@ -88,7 +100,7 @@ async function verifyReleaseFeed({ expectedDirectory, fetchImpl = global.fetch, 
     item.entry = await verifyBlob(entry, `${game.id} entry`, { entry: true });
     item.sample = await verifyBlob(sample, `${game.id} gameplay script`);
     item.largestBinary = await verifyBlob(largest, `${game.id} largest binary`, { largest: true });
-    onProgress(`Verified ${game.id}: ${manifest.version}, ${manifest.files.length} files; entry/script/binary hashes and media range passed.`);
+    onProgress(`Verified ${game.id}: ${manifest.version}, ${manifest.files.length} files; entry/script/binary hashes and ${item.largestBinary.range.supportsRanges ? 'partial byte ranges' : 'full-file range fallback'} passed.`);
   }
   report.passed = true; report.completedAt = new Date().toISOString(); return report;
 }
@@ -103,7 +115,7 @@ if (require.main === module) {
   const report = { origin: ORIGIN, checkedAt: new Date().toISOString(), passed: false, games: [] };
   verifyReleaseFeed({ ...options, report, onProgress: message => process.stdout.write(message + '\n') }).then(async () => {
     if (output) { await fs.mkdir(path.dirname(output), { recursive: true }); await fs.writeFile(output, JSON.stringify(report, null, 2) + '\n'); }
-    process.stdout.write('PASS all three public game manifests, sample hashes, immutable headers and byte ranges.\n');
+    process.stdout.write('PASS all three public game manifests, sample hashes, immutable headers and range delivery probes.\n');
   }).catch(async error => {
     report.failure = error.message;
     if (output) { await fs.mkdir(path.dirname(output), { recursive: true }); await fs.writeFile(output, JSON.stringify(report, null, 2) + '\n'); }

@@ -18,8 +18,13 @@ function fixture(mode) {
     let bytes = blobs.get(name); assert(bytes);
     const headers = { 'Content-Type': 'application/octet-stream', 'Content-Length': String(bytes.length), 'Cache-Control': 'public, max-age=31536000, immutable', 'Accept-Ranges': 'bytes' };
     if (mode === 'redirect') return new Response(null, { status: 301, headers: { Location: url + '/' } });
-    if (options.method === 'HEAD') return new Response(null, { headers });
+    if (options.method === 'HEAD') {
+      if (mode === 'no-head-length') delete headers['Content-Length'];
+      if (mode === 'wrong-head-length') headers['Content-Length'] = '1';
+      return new Response(null, { headers });
+    }
     if (options.headers.Range) {
+      if (mode === 'full-range' || mode === 'corrupt-full-range') return new Response(mode === 'full-range' ? bytes : Buffer.alloc(bytes.length,3), { status: 200, headers });
       const end = Number(options.headers.Range.split('-')[1]); headers['Content-Range'] = `bytes 0-${end}/${bytes.length}`; headers['Content-Length'] = String(end+1);
       bytes = bytes.subarray(0,end+1); if (mode === 'wrong-range') bytes = Buffer.alloc(end+1,3);
       return new Response(bytes, { status: 206, headers });
@@ -37,9 +42,21 @@ test('public feed verifier checks all manifests, entry/script hashes and actual 
 test('feed verifier rejects cached manifests before checking game blobs', async () => {
   await assert.rejects(verifyReleaseFeed(fixture('cached-manifest')), /unexpected cache headers/);
 });
+test('missing HEAD length uses measured GET bytes, while an incorrect declared HEAD length is rejected', async () => {
+  const report = await verifyReleaseFeed(fixture('no-head-length'));
+  assert.equal(report.passed, true);
+  assert(report.games.every(game => game.entry.hashVerified && game.largestBinary.range.verified));
+  await assert.rejects(verifyReleaseFeed(fixture('wrong-head-length')), /HEAD size does not match/);
+});
 test('feed verifier detects corrupt full downloads and inaccurate partial bytes', async () => {
   await assert.rejects(verifyReleaseFeed(fixture('corrupt')), /SHA-256 does not match/);
   await assert.rejects(verifyReleaseFeed(fixture('wrong-range')), /range bytes differ/);
+});
+test('a host ignoring Range must supply the complete correct file and reports no partial-range support', async () => {
+  const report = await verifyReleaseFeed(fixture('full-range'));
+  assert.equal(report.passed, true);
+  assert(report.games.every(game => game.largestBinary.range.verified && !game.largestBinary.range.supportsRanges && game.largestBinary.range.status === 200));
+  await assert.rejects(verifyReleaseFeed(fixture('corrupt-full-range')), /full-file range fallback does not match/);
 });
 test('feed verifier refuses host redirects for content-addressed blobs', async () => {
   await assert.rejects(verifyReleaseFeed(fixture('redirect')), /redirects are not allowed/);

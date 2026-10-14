@@ -71,7 +71,7 @@ try {
 node "$repo\desktop\tools\verify-release-feed.cjs" --expected-dir $staging --output "$repo\desktop\qa\live-release-feed.json"
 ```
 
-Publishing requires the existing Cloudflare project access. The verifier makes read-only HTTPS requests for all three manifests, their entry documents and a gameplay script, and each game's largest binary. It validates sizes/SHA-256, cache headers and byte-range delivery. It neither installs games nor writes to account/game services.
+Publishing requires the existing Cloudflare project access. The verifier makes read-only HTTPS requests for all three manifests, their entry documents and a gameplay script, and each game's largest binary. It validates sizes/SHA-256, cache headers and range-request behavior. A host may return a complete file instead of a partial range; the verifier checks that entire fallback's size/hash and records `supportsRanges: false`. Installation uses complete downloads, and the launcher's local asset protocol supplies media ranges after installation. The verifier neither installs games nor writes to account/game services.
 
 Future deployments must retain blobs referenced by still-published or supported manifests. Stable `/<game>/manifest.json` responses are not cached; blob responses are immutable. Keep staging/source hardlinks stable throughout deployment, then retain release metadata for reproducibility.
 
