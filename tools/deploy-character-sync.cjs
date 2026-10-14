@@ -16,12 +16,14 @@ async function get(suffix,options={}){const r=await fetch(api+suffix,{...options
  const live=await (await get('/content/v2')).formData(),modules={};
  for(const[name,file]of recorded){const current=live.get(name);if(!current||hash(await current.arrayBuffer())!==hash(await file.arrayBuffer()))throw Error('Live Worker changed: recapture before publishing.');modules[name]=Buffer.from(await file.arrayBuffer());}
  if([...live.keys()].length!==Object.keys(modules).length)throw Error('Live Worker module set changed.');
- const main=recordedHeaders['cf-entrypoint'];if(main!=='achievement-entry.mjs')throw Error('Review the current Worker entry point before publishing.');
+ const main=recordedHeaders['cf-entrypoint'];
+ const wrapper="import previous from './achievement-entry.mjs';\nexport {CafeRoom} from './achievement-entry.mjs';\nimport assets from './character-assets.mjs';\nimport {characterAsset,withCharacterSync} from './character-sync.mjs';\nexport default{async fetch(request,env,ctx){return characterAsset(request,assets)||withCharacterSync(await previous.fetch(request,env,ctx),request);}};\n";
+ if(main!=='achievement-entry.mjs' && !(main==='character-entry.mjs' && modules[main]?.toString()===wrapper))throw Error('Review the current Worker entry point before publishing.');
  const settings=(await (await get('/settings')).json()).result;
  const assets={};for(const file of ['interface/vampire-survivor/characters.js','interface/vampire-survivor/character-bridge.html','interface/vampire-survivor/character-bridge.js','interface/moratales-character-link.js','interface/moratales-character-status.js','interface/moratales-account-characters.js'])assets['/'+file]=fs.readFileSync(path.join(game,file),'utf8');
  modules['character-assets.mjs']=Buffer.from('export default '+JSON.stringify(assets)+';');
  modules['character-sync.mjs']=fs.readFileSync(path.join(root,'game-integrations/moratales/character-sync-worker.mjs'));
- modules['character-entry.mjs']=Buffer.from("import previous from './achievement-entry.mjs';\nexport {CafeRoom} from './achievement-entry.mjs';\nimport assets from './character-assets.mjs';\nimport {characterAsset,withCharacterSync} from './character-sync.mjs';\nexport default{async fetch(request,env,ctx){return characterAsset(request,assets)||withCharacterSync(await previous.fetch(request,env,ctx),request);}};\n");
+ modules['character-entry.mjs']=Buffer.from(wrapper);
  const manifest=Object.fromEntries(Object.entries(modules).map(([name,data])=>[name,hash(data)]));
  fs.writeFileSync(path.join(capture,'character-release-plan.json'),JSON.stringify({preserved:Object.keys(Object.fromEntries(recorded)),modules:manifest},null,2));
  console.log('Verified live Worker. Retaining all existing modules, game assets and bindings. Character assets: '+Object.keys(assets).length+'.');
