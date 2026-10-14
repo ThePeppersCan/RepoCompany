@@ -369,7 +369,7 @@
   if(!value||typeof value!=='object')return '';
   return `<canvas class="repo-avatar-image" width="256" height="256" data-repo-avatar="${encodeURIComponent(JSON.stringify(value))}" role="img" aria-label="${String(label).replace(/[&<>"']/g,'')}"></canvas>`;
  }
- function hydrate(root=document){root.querySelectorAll('canvas[data-repo-avatar]').forEach(c=>{if(c.dataset.avatarLoading)return;c.dataset.avatarLoading='true';let value;try{value=JSON.parse(decodeURIComponent(c.dataset.repoAvatar));}catch{return;}draw(c,value).catch(()=>{c.hidden=true;});});}
+ function hydrate(root=document){root.querySelectorAll('canvas[data-repo-avatar]').forEach(c=>{if(c.dataset.avatarLoading)return;c.dataset.avatarLoading='true';let value;try{value=JSON.parse(decodeURIComponent(c.dataset.repoAvatar));}catch{return;}draw(c,value).catch(()=>{c.hidden=true;});});window.repoFrames?.hydrate(root);}
  window.repoAvatar=Object.freeze({ready,normalize,draw,feature,markup,hydrate,get catalog(){return catalog;}});
  ready.catch(()=>{});
 })();

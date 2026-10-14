@@ -16,10 +16,11 @@ const readAvatar=value=>{try{return validateAvatar(JSON.parse(value));}catch{ret
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const cleanName=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{3,16}$/.test(value)?value.toLowerCase():null;
 const allowedGames=new Set(['','moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
+const frameIds=new Set(['ember-crown','moonlit-grove','arcane-orbit','deepwater','stormglass','royal-gilt','blossom-drift','astral-eclipse']);
 // Dashboard and game leases are independent: a hidden dashboard must never
 // clear a visible game's status. Only live, active game sessions supply a title.
-const playerJoins=`LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username`;
-const publicFields=`p.username,p.display_name,p.bio,p.repo_score,p.user_id AS _user_id,p.invisible AS _invisible,a.config AS avatar,COALESCE(v.private_profile,0) AS private_profile,
+const playerJoins=`LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username LEFT JOIN dashboard_avatar_frames af ON af.username=p.username`;
+const publicFields=`p.username,p.display_name,p.bio,p.repo_score,p.user_id AS _user_id,p.invisible AS _invisible,a.config AS avatar,af.frame_id,COALESCE(v.private_profile,0) AS private_profile,
  CASE WHEN p.invisible=0 AND (p.last_seen>? OR (s.active=1 AND s.last_tick>?)) THEN 1 ELSE 0 END AS online,
  CASE WHEN p.invisible=0 AND s.active=1 AND s.last_tick>? THEN s.game WHEN p.invisible=0 AND p.last_seen>? THEN p.current_game ELSE '' END AS current_game`;
 async function gamePresence(env,players,now){
@@ -62,7 +63,7 @@ export async function onRequest({request,env,params}){
   await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id').bind(me,user.id,character.username).run();
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
   if(request.method==='GET'&&route==='state'){
-   const profile=await db.prepare(`SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar,COALESCE(v.private_profile,0) AS private_profile FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(me).first();
+   const profile=await db.prepare(`SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar,af.frame_id,COALESCE(v.private_profile,0) AS private_profile FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(me).first();
    const friends=await playerFriends(db,me,now,env);
    const blocks=await db.prepare('SELECT blocked AS username FROM dashboard_blocks WHERE blocker=?').bind(me).all();
    const activity=await db.prepare('SELECT game,played_ms,last_played FROM dashboard_game_activity WHERE username=? ORDER BY last_played DESC').bind(me).all();
@@ -145,6 +146,17 @@ export async function onRequest({request,env,params}){
    const avatar=validateAvatar(body.avatar);if(!avatar)return json({error:'Choose valid avatar features and colours.'},400);
    await db.prepare('INSERT INTO dashboard_avatars(username,config,updated_at) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET config=excluded.config,updated_at=excluded.updated_at').bind(me,JSON.stringify(avatar),now).run();
    return json({ok:true,avatar});
+  }
+  if(route==='frame'){
+   const id=body.frameId;
+   if(id!==null&&(typeof id!=='string'||!frameIds.has(id)))return json({error:'Choose a valid frame.'},400);
+   if(id!==null){
+    const rows=await upstream('/rest/v1/rpc/get_my_avatar_frames',token,{}),collection=Array.isArray(rows)?rows[0]:rows;
+    if(!Array.isArray(collection?.owned))return json({error:'Your frame collection could not be verified. Please try again.'},503);
+    if(!collection.owned.includes(id))return json({error:'Purchase this frame before equipping it.'},403);
+    await db.prepare('INSERT INTO dashboard_avatar_frames(username,frame_id,updated_at) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET frame_id=excluded.frame_id,updated_at=excluded.updated_at').bind(me,id,now).run();
+   }else await db.prepare('DELETE FROM dashboard_avatar_frames WHERE username=?').bind(me).run();
+   return json({ok:true,frame_id:id});
   }
   if(route==='profile'){
    const display=typeof body.displayName==='string'?body.displayName.trim():character.username,bio=typeof body.bio==='string'?body.bio.trim():'';

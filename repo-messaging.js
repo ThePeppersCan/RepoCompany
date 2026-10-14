@@ -45,9 +45,11 @@
   const initials = name => String(name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
   function paintAvatar(node, username) {
     const name = display(username), avatar = friend(username)?.avatar;
-    const key = JSON.stringify([name, avatar || null]);
+    const frameId=friend(username)?.frame_id;
+    const key = JSON.stringify([name, avatar || null, frameId || null]);
     if (node.dataset.portraitKey === key) return;
-    node.dataset.portraitKey = key; node.textContent = initials(name);
+    node.dataset.portraitKey = key; node.textContent = initials(name);node.classList.remove('has-avatar-frame');
+    const frame=window.repoFrames?.markup(frameId);if(frame){node.insertAdjacentHTML('beforeend',frame);window.repoFrames.hydrate(node);}
     if (!avatar || !window.repoAvatar?.draw) return;
     const canvas = el('canvas', 'repo-social-portrait'); canvas.width = canvas.height = 256;
     canvas.setAttribute('aria-hidden', 'true'); node.append(canvas);
