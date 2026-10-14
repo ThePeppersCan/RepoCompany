@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#101713">
+  <title>Link your MoraTales characters · Repo Company</title>
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="moratales-characters.css">
+  <script defer src="vendor/supabase.js"></script>
+  <script defer src="dashboard-config.js"></script>
+  <script defer src="moratales-characters.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Repo Company home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-wordmark" aria-hidden="true"></span></a>
+    <a class="back-link" href="/#account/profile">Back to your account <span aria-hidden="true">↗</span></a>
+  </header>
+  <main>
+    <section class="introduction" aria-labelledby="page-title">
+      <p class="eyebrow">MORATALES <span aria-hidden="true">/</span> MOROGUE</p>
+      <h1 id="page-title">Familiar faces.<br>A new adventure.</h1>
+      <p class="lead">Link your MoraTales characters to your Repo Company account, then choose them in Morogue.</p>
+      <p class="browser-note">Open this page in the browser you use to play MoraTales.</p>
+    </section>
+    <div class="workspace">
+      <section class="link-panel" aria-labelledby="panel-title" aria-busy="true" id="link-panel">
+        <div class="panel-heading"><div><p class="eyebrow">YOUR CHARACTERS</p><h2 id="panel-title">Connecting to your account…</h2></div><button id="sign-out" class="text-button" type="button" hidden>Switch account</button></div>
+        <p id="account-status" class="subtle" role="status" aria-live="polite">Checking your Repo Company sign-in.</p>
+        <form id="login-form" hidden>
+          <p class="form-intro">Sign in with the same account you use in the launcher.</p>
+          <div class="form-fields"><label for="username">Username<input id="username" name="username" required minlength="3" maxlength="16" pattern="(?:[A-Za-z0-9_]|-){3,16}" autocomplete="username" spellcheck="false"></label><label for="password">Password<input id="password" name="password" type="password" required minlength="8" maxlength="1024" autocomplete="current-password"></label></div>
+          <p id="login-feedback" role="status" aria-live="polite"></p>
+          <button class="primary-button" type="submit">Sign in <span aria-hidden="true">→</span></button>
+          <p class="small-note">New to Repo Company? <a href="/#account/profile">Create your account on the website.</a></p>
+        </form>
+        <div id="signed-in" hidden>
+          <div class="list-heading"><h3>In this browser <span id="local-count"></span></h3><button id="refresh" class="text-button" type="button">Refresh characters <span aria-hidden="true">↻</span></button></div>
+          <p id="local-status" class="subtle" role="status" aria-live="polite"></p>
+          <fieldset id="character-choices" hidden><legend class="sr-only">Choose the characters to link to your account</legend><div id="character-list"></div></fieldset>
+          <div id="cloud-summary" class="cloud-summary" hidden><p class="eyebrow">ALREADY ON THIS ACCOUNT</p><p id="cloud-names"></p></div>
+          <p id="cloud-status" class="subtle" role="status" aria-live="polite"></p>
+          <div class="confirmation" id="confirmation" hidden><p id="selection-summary"></p><p class="small-note">Only the selected names and appearances are linked. Your MoraTales adventures stay in this browser.</p><button id="link-characters" class="primary-button" type="button" disabled>Link characters <span aria-hidden="true">→</span></button></div>
+          <div id="result" class="result" hidden role="status" aria-live="polite"><p id="result-title"></p><p id="result-message"></p><button id="retry-link" class="text-button" type="button" hidden>Retry automatic updates <span aria-hidden="true">→</span></button></div>
+        </div>
+        <button id="retry-account" class="text-button" type="button" hidden>Try connecting again <span aria-hidden="true">→</span></button>
+      </section>
+      <aside class="guide" aria-labelledby="guide-title">
+        <p class="eyebrow">ONE ACCOUNT. YOUR CHARACTERS.</p>
+        <h2 id="guide-title">Ready for another run.</h2>
+        <ol><li><span>01</span><div><h3>Choose your characters</h3><p>We look for character names and appearances saved by MoraTales in this browser.</p></div></li><li><span>02</span><div><h3>Link to your account</h3><p>You choose what to link, and which Repo Company account to use.</p></div></li><li><span>03</span><div><h3>Return to Morogue</h3><p>Reopen Morogue in the launcher, or retry the character list, to find your linked characters.</p></div></li></ol>
+        <p class="privacy-note">Your full game saves are never uploaded here. Mora Run and Endless Night runs still end when you quit.</p>
+      </aside>
+    </div>
+  </main>
+  <footer><span>REPO COMPANY</span><span>Your adventures, together.</span></footer>
+  <noscript><p class="noscript">Enable JavaScript to sign in and link your characters.</p></noscript>
+</body>
+</html>
