@@ -1,11 +1,13 @@
 /* Deploy only the reviewed character bridge around a captured live Moratales
  * Worker. Never rebuild the game asset manifest or its multiplayer objects.
- * node tools/deploy-character-sync.cjs --capture-dir <capture> --game-root <game> [--deploy]
+ * node tools/deploy-character-sync.cjs --capture-dir <capture> [--game-root <game>] [--deploy]
+ * Defaults to the reviewed source snapshot committed with this release.
  */
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const arg=name=>{const i=process.argv.indexOf(name);if(i<0||!process.argv[i+1])throw Error('Required: '+name);return path.resolve(process.argv[i+1]);};
-const capture=arg('--capture-dir'),game=arg('--game-root'),root=path.resolve(__dirname,'..');
+const capture=arg('--capture-dir'),root=path.resolve(__dirname,'..');
+const game=process.argv.includes('--game-root')?arg('--game-root'):path.join(root,'game-integrations/moratales/character-sync-assets');
 const hash=b=>crypto.createHash('sha256').update(Buffer.from(b)).digest('hex');
 const token=process.env.CLOUDFLARE_API_TOKEN||fs.readFileSync(path.join(process.env.USERPROFILE,'.wrangler/config/default.toml'),'utf8').match(/oauth_token\s*=\s*"([^"]+)"/)[1];
 const api='https://api.cloudflare.com/client/v4/accounts/a51cff0a015e6c78d886b2f0a92735cc/workers/scripts/moratales',auth={Authorization:'Bearer '+token};

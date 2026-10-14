@@ -6,7 +6,15 @@
  let frame=null,nonce='',connecting=null,inflight=null,again=false,epoch=0,userId=null,stopped=false,cloud=null,status='checking',queued=null;
  const requests=new Map(),controllers=new Set();
  const state=()=>({status,userId,characters:cloud?.userId===userId?cloud.characters:[]});
- function publish(value){status=value;dispatchEvent(new CustomEvent('repo-character-sync',{detail:state()}));}
+ function notice(){
+  const dialog=document.getElementById('account-menu');if(!dialog)return;
+  const text=userId?({conflict:'MoraTales characters differ between this browser and your account. Both appearances have been kept; other characters continue to sync.',account:'These browser characters belong to another account. Your current account’s characters remain available in Morogue.',offline:'Character sync is waiting for a connection. Your saved account characters are unchanged.'}[status]||''):'';
+  let node=document.getElementById('repo-character-sync-status');
+  if(!text){if(node&&!node.hidden)node.hidden=true;return;}
+  if(!node){node=document.createElement('p');node.id='repo-character-sync-status';node.setAttribute('role','status');node.setAttribute('aria-live','polite');node.style.cssText='flex:none;margin:12px clamp(24px,7.2vw,130px) 0;font:12px/1.7 Segoe UI,sans-serif;color:#c7c7af;max-width:none;';dialog.querySelector('.account-tabs')?.after(node);}
+  if(node.textContent!==text)node.textContent=text;if(node.hidden)node.hidden=false;
+ }
+ function publish(value){status=value;notice();dispatchEvent(new CustomEvent('repo-character-sync',{detail:state()}));}
  function account(value){const id=value?.user?.id||null;if(id!==userId){userId=id;epoch++;cloud=null;for(const controller of controllers)controller.abort();publish(id?'checking':'signed-out');}return id;}
  const valid=generation=>!stopped&&epoch===generation;
  function snapshot(value,id){
@@ -60,7 +68,7 @@
    const updated=plan.changed?await api(session,generation,{revision:saved.revision,characters:proposed.characters}):saved;
    if(!valid(generation))return;cloud=updated;
    if(await request('sync-commit',{planId:plan.planId,snapshot:updated})!==true)throw Error('Character sync could not be confirmed.');
-   if(valid(generation))publish('connected');
+   if(valid(generation))publish(plan.conflict?'conflict':'connected');
   }catch(error){if(valid(generation))publish(error.code==='conflict'?'conflict':'offline');}
  }
  function sync(){
@@ -77,6 +85,7 @@
  });
  service.db.auth.onAuthStateChange((_event,session)=>{account(session);schedule();});
  addEventListener('repo-account-state',()=>{if((service.state.user?.id||null)!==userId)schedule();});
+ new MutationObserver(notice).observe(document.body,{childList:true,subtree:true});
  addEventListener('focus',schedule);addEventListener('online',schedule);document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();});
  let timer=setInterval(()=>{if(!document.hidden&&userId)void sync();},30000);
  addEventListener('pagehide',()=>{stopped=true;epoch++;clearInterval(timer);clearTimeout(queued);for(const controller of controllers)controller.abort();for(const pending of requests.values()){clearTimeout(pending.timer);pending.reject(Error('Page closed.'));}requests.clear();});
