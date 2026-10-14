@@ -158,7 +158,7 @@
       const hp=options.major?(540000+state.majorKills*67500)*(1+Math.max(0,t-300)/6000)*(hard?1.25:1):longRun?(raw[0]+Math.min(t,240)*raw[1])*(hard?1.3:1)*longNight*(type==='boss'?1.08:1+Math.min(t,300)/950):(raw[0]+Math.min(t,480)*raw[1])*(hard?1.3:1)*(type==='boss'?1.15:1+Math.min(t,360)/420);
       // Demibosses use 70% of the previous 1.89 budget in both runs and practice.
       // Major/finale budgets and ordinary enemies remain independent.
-      const scaledHp=hp*(options.major?0.578:type==='boss'?0.9261:1)*(!options.major&&type!=='boss'&&!options.majorSummon&&t>=60?1.1:1);
+      const scaledHp=hp*(options.major?0.578:type==='boss'?0.787185:1)*(!options.major&&type!=='boss'&&!options.majorSummon&&t>=60?1.1:1);
       const e={id:nextId++,type,role:spec?.role||type,x,y,hp:scaledHp,maxHp:scaledHp,speed:raw[2]*(hard?1.1:1)*(longRun?Math.min(1.18,1+Math.max(0,t-360)/9000):1),damage:raw[3]*(longRun?1+Math.max(0,t-900)/9000:1),xp:options.summoned?0:raw[4],r:raw[5],age:0,hit:0,garlicHit:0,attack:spec&&['zoner','sniper','spreader','lobber','spinner'].includes(spec.role)?1.4+rng():1.8+rng()*2,telegraph:0,charge:0,aimX:0,aimY:0,variant:spec?.variant??(bossId?bossSpec.variant:3),view:'front',phase:1,attackNumber:0,summoned:!!options.summoned};
       if(bossId){e.bossType=bossId;e.bossName=bossSpec.name;e.attack=1.6;if(!options.major)lastBossType=bossId;else{Majors.begin(e);e.r=34;e.speed=145;e.damage=38;}}
       // Carry the same run-time, difficulty and circuit scaling as the twelve majors.
