@@ -195,6 +195,7 @@
     }
     const WEAPON_COLOURS={espresso:'#edb77c',tray:'#aadced',baguette:'#f1cb83',garlic:'#bad69a'};
     function projectile(shot,reduced){
+      if(shot.echoDelay>0)return;
       if(shot.x<camera.x-70||shot.y<camera.y-70||shot.x>camera.x+camera.viewWidth+70||shot.y>camera.y+camera.viewHeight+70)return;
       const angle=Math.atan2(shot.vy,shot.vx);
       if(shot.type==='espresso'){if(shot.attack)CosmeticArt.flourish(ctx,cosmetics.strike,shot.x,shot.y,angle,10,shot.age,.7,reduced);if(CosmeticArt.shot(ctx,cosmetics.espresso,shot.x,shot.y,angle,shot.age,reduced,shot.r||7))return;}

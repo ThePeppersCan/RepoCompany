@@ -321,7 +321,7 @@
     add('weapon:'+s.mainWeapon,Engine.weaponUpgrade(s.mainWeapon,s.weapons[s.mainWeapon]),s.weapons[s.mainWeapon]);if(s.evolutions[s.mainWeapon])add('evolution:'+s.mainWeapon,Engine.EVOLUTIONS[s.mainWeapon].description);
     if(b.ability){add('ability:'+b.ability,Engine.BUILDS.ABILITIES[b.ability].description,b.abilityRank);if(b.branch)add('branch:'+b.ability+':'+b.branch,Engine.BUILDS.ABILITIES[b.ability].branchText[b.branch]);}
     if(s.technique)add('technique:'+s.technique,Engine.TECHNIQUES[s.technique].description);if(s.combatArt)add('art:'+s.combatArt,Engine.ARTS[s.combatArt].description);if(b.keystone)add('keystone:'+b.keystone,Engine.BUILDS.KEYSTONES[b.keystone].description);
-    for(const [id,rank]of Object.entries(b.perks))add('perk:'+id,Engine.BUILDS.PERKS[id].description(rank),rank);
+    for(const [id,rank]of Object.entries(b.perks))add('perk:'+id,Engine.BUILDS.PERKS[id].description(rank)+' '+Engine.BUILDS.refinementSummary(s,id),rank);
     for(const [id,rank]of Object.entries(s.passives))if(rank)add('passive:'+id,Engine.passiveDescription(id,rank),rank);
     for(const [id,rank]of Object.entries(s.relics))if(rank&&Food.get('relic:'+id))add('relic:'+id,Food.get('relic:'+id).description+' '+Food.get('relic:'+id).detail,rank);
     for(const [id,rank]of Object.entries(s.training))if(rank)add('training:'+id,Engine.BUILDS.trainingSummary(s,id),rank);

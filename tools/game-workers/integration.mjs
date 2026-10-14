@@ -8,6 +8,8 @@ export function withAchievements(response, request, manifest) {
   '/interface/vampire-survivor/app.js':['morogue','app.js'],
   '/interface/vampire-survivor/art.js':['morogue','art.js'],
   '/interface/vampire-survivor/magistrate-encounter.js':['morogue','magistrate-encounter.js'],
+  '/interface/vampire-survivor/builds.js':['morogue','builds.js'],
+  '/interface/vampire-survivor/build-art.js':['morogue','build-art.js'],
   '/interface/vampire-survivor/game.js':['morogue','game.js'],
   '/interface/vampire-survivor/recovery.js':['morogue','recovery.js'],
   '/interface/vampire-survivor/star-mechanics.js':['morogue','star-mechanics.js'],

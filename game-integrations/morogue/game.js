@@ -103,7 +103,7 @@
     Object.assign(state,{aimAngle:Math.PI/2,attackCount:0,attackStep:0,attackWindow:0,attackWindowMax:.85,dashFollow:0,finishers:0,dashStrikes:0,cleanHits:0,momentum:0,momentumTime:0,combatArt:null,nextCut:false,styles:{},lastLightUsed:false,nextUpgradeAt:0,choiceCount:0,upgradesTaken:0,lastUpgradeAt:null,lastOffers:[]});
     state.evolutions={espresso:false,garlic:false,tray:false,baguette:false};state.pendingEvolution=null;state.zones=zones;
     const heal=amount=>Recovery.heal(state,amount);
-    const build=Builds.create({state,hit,fx,event,heal,Hitboxes,power:()=>power(),World});
+    const build=Builds.create({state,hit,fx,event,heal,Hitboxes,power:()=>power(),mainDamage:()=> (26+state.weapons[state.mainWeapon]*8)*power()*LOADOUT_RULES.mainDamage[state.mainWeapon]*(Object.values(state.weapons).filter(Boolean).length===1?LOADOUT_RULES.soloBonus:1)*(1+.6*Math.log1p((state.training?.edge||0)/10)),World});
     const relic=Relics.create({state,hit,fx,event,Hitboxes,hurt,heal,power:()=>power(),healingScale:()=>Recovery.scale(state.boss),specialCooldown:()=>Builds.ABILITIES[state.build.ability].cooldown*(state.build.keystone==='duellist'?1.25:1),debtDamage(amount){if(state.status!=='playing'||p.hp<=0)return;p.hp=Math.max(0,p.hp-amount);event('hurt',{amount,source:'nutmeg'});if(p.hp<=0)finish(false);}});
     function event(type,data={}){if(type==='specialCast')relic.cast();if(events.length<80)events.push({type,...data});}
     const power=()=>(1+state.passives.power*.22+rank('power')*.05)*(state.flowTime>0?1.18:1);
@@ -198,7 +198,7 @@
     function spawnShot(type,angle,level,{damageScale=1,technique,attack=null}={}){
       if(shots.length>=LIMITS.shots)return;
       const speed=type==='espresso'?490:325;
-      shots.push({id:nextId++,type,x:p.x,y:p.y-18,px:p.x,py:p.y-18,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,r:type==='espresso'?7:17,life:type==='espresso'?1.8:3.8,age:0,damage:(type==='espresso'?21+level*6:33+level*8)*power()*damageScale,pierce:type==='espresso'?1+Math.floor(level/2):2+level,bounces:2+level,hit:new Set(),spin:rng()*TAU,technique,attack});if(type==='espresso'&&attack&&build.rank('singleorigin')){const shot=shots[shots.length-1];shot.vx*=1.3;shot.vy*=1.3;shot.pierce+=4;shot.r=9;shot.compressed=true;}
+      shots.push({id:nextId++,type,x:p.x,y:p.y-18,px:p.x,py:p.y-18,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,r:type==='espresso'?7:17,life:type==='espresso'?1.8:3.8,age:0,damage:(type==='espresso'?21+level*6:33+level*8)*power()*damageScale,pierce:type==='espresso'?1+Math.floor(level/2):2+level,bounces:2+level,hit:new Set(),spin:rng()*TAU,technique,attack});if(type==='espresso'&&attack&&build.rank('singleorigin')){const shot=shots[shots.length-1];shot.vx*=1.3;shot.vy*=1.3;shot.pierce+=4;shot.r=9;shot.compressed=true;}return shots[shots.length-1];
     }
     function orbitals(){
       const lv=state.weapons.garlic;if(!lv)return [];const count=lv+2+(state.evolutions.garlic?2:0),radius=53+lv*7+(state.evolutions.garlic?20:0);
@@ -206,7 +206,7 @@
     }
     const upgradeGap=()=>state.runTime<180?(state.level<4?20:28):state.runTime<600?42:50;
     function choices(reroll=false,keep=null){
-      const owned=[],missing=[],passives=[],changes=Builds.cards(state).filter(c=>!weaponTransformation(c)),ownedCount=Object.values(state.weapons).filter(Boolean).length;
+      const owned=[],missing=[],passives=[],refinements=Builds.refinementCards(state),changes=[...Builds.cards(state).filter(c=>!weaponTransformation(c)),...refinements],ownedCount=Object.values(state.weapons).filter(Boolean).length;
       for(const w of WEAPONS){const from=state.weapons[w.id],main=w.id===state.mainWeapon,max=main?5:LOADOUT_RULES.supportMaxRank,to=from+1;if(from>=max||!from&&ownedCount>=state.weaponLimit)continue;const card={id:w.id,kind:'weapon',name:w.name,from,level:to,icon:w.id,tag:from?(main?'MAIN WEAPON':'AUTOMATIC SUPPORT'):'NEW SUPPORT',description:from?main?weaponUpgrade(w.id,to):'Strengthen your supporting attacks. Maximum rank III.':supportDescription(w.id),detail:from?'Rank '+from+' → '+to:'Uses your one support slot. Only the main weapon evolves.'};(from?owned:missing).push(card);}
       for(const [id,spec]of Object.entries(PASSIVES)){const from=state.passives[id];if(from<spec.max)passives.push({id,kind:'passive',name:spec.name,from,level:from+1,tag:'FOUNDATION',description:passiveDescription(id,1),detail:'Rank '+from+' → '+(from+1)});}
       const taken=[],add=c=>{if(c&&!taken.some(t=>t.id===c.id)&&taken.length<3)taken.push(c);},fresh=list=>{const unseen=list.filter(c=>!state.recentOffers.includes(c.id)),pool=unseen.length?unseen:list;if(!pool.length)return [];const least=Math.min(...pool.map(c=>state.offerCounts[c.kind+':'+c.id]||0));return pool.filter(c=>(state.offerCounts[c.kind+':'+c.id]||0)===least);};
@@ -216,6 +216,8 @@
       const due=slots<Builds.SLOTS&&(reroll&&schedule.active===window||!schedule.windows.includes(window));
       if(!reroll)schedule.active=null;
       add(keep);
+      // One compatible refinement remains visible in every ordinary hand once a form is owned.
+      if(refinements.length&&!taken.some(c=>c.kind==='refinement'))add(shuffled(fresh(refinements))[0]);
       const rare=fresh(changes.filter(c=>c.kind==='perk'&&!c.from&&c.rarity==='rare'));
       if(due&&rare.length){
         if(keep?.rarity!=='rare'){
@@ -317,13 +319,14 @@
       const riposte=state.parryReady?1+(state.endlessTalents.riposte||0)*.2:1;state.parryReady=false;
       const bonus=LOADOUT_RULES.mainDamage[a.weapon]*riposte*(1+.6*Math.log1p(state.training.edge/10))*build.mainScale(a)*(state.loadout==='solo'?LOADOUT_RULES.soloBonus:1)*(a.dash?1.25:1)*(a.clean?(state.styles.measure?1.55:1.18):1)*(1+state.momentum*.06)*(state.nextCut?1.3:1);state.nextCut=false;
       const strike={weapon:a.weapon,step:a.step,angle,x:p.x,y:p.y,damage:(26+lv*8)*(heavy?1.75:1)*power()*bonus,dash:a.dash,clean:a.clean,proc:false,landed:false};
-      const melee=a.weapon==='baguette'||a.weapon==='garlic',radius=(heavy?(melee?150:112):(melee?110:88))+lv*5+(evolved?12:0),span=a.weapon==='baguette'&&a.step===1&&build.rank('needle')?.9:heavy?TAU:a.dash?1.4:melee?2.65:2.25;
+      const melee=a.weapon==='baguette'||a.weapon==='garlic',radius=(heavy?(melee?150:112):(melee?110:88))+lv*5+(evolved?12:0),span=a.weapon==='baguette'&&!heavy&&build.rank('cyclone')?TAU:a.weapon==='baguette'&&a.step===1&&build.rank('needle')?.9:heavy?TAU:a.dash?1.4:melee?2.65:2.25;
       if(heavy&&state.combatArt==='undertow')for(const e of enemies){const d=distance(e,p);if(e.hp>0&&d>70&&d<185){const pull=Math.min(28,d-70);e.x+=(p.x-e.x)/d*pull;e.y+=(p.y-e.y)/d*pull;}}
       if(a.weapon==='baguette'||a.weapon==='garlic'||a.dash||heavy&&a.weapon==='tray'){
         if(a.weapon==='baguette'&&a.step===1)strike.damage*=1+build.rank('needle')*.1;
-        const seen=new Set(),range=a.weapon==='garlic'?radius+22:a.weapon==='baguette'?(heavy?108:78)+lv*3+(evolved?(heavy?7:5):0)+(a.step===1&&build.rank('needle')?12+build.rank('needle')*4:0):radius,colour=WEAPONS.find(w=>w.id===a.weapon).colour;
-        strike.hits=slash(angle,span,range,strike.damage*(heavy&&build.rank('returning')?.7:1)*(a.weapon==='garlic'?.82:a.weapon==='tray'?.65:1),{heavy,colour,step:a.step,seen,weapon:a.weapon,active:true});
+        const seen=new Set(),range=a.weapon==='garlic'?radius+22:a.weapon==='baguette'?(heavy?108:78)+lv*3+(evolved?(heavy?7:5):0)+(a.step===1&&build.rank('needle')?12+build.rank('needle')*4:0)+(!heavy&&build.rank('cyclone')?(build.refinement('cyclone','reach')?40:20):0):radius,colour=WEAPONS.find(w=>w.id===a.weapon).colour;
+        strike.hits=slash(angle,span,range,strike.damage*(heavy&&build.rank('returning')?.7:1)*(a.weapon==='baguette'?(build.rank('faultline')?.9:1)*(!heavy&&build.rank('cyclone')?.75:1)*(heavy&&build.rank('crumbstorm')?.8:1):1)*(a.weapon==='garlic'?.82:a.weapon==='tray'?.65:1),{heavy,colour,step:a.step,seen,weapon:a.weapon,active:true});
         for(const e of enemies)if(seen.has(e.id))landed(strike,e);
+        build.sweep(strike,seen);
         // A committed melee swing clears shots inside its visible arc, never floor hazards.
         // This gives short-range mains an active way through ranged pressure.
         if(melee){let sparks=0;for(const h of hazards){
@@ -332,14 +335,20 @@
         }if(sparks)event('parry',{weapon:a.weapon,count:sparks});}
 
       }
+      build.opening(strike);
       if(a.weapon==='espresso'||a.weapon==='tray'){
         const naturalCount=heavy?3+(lv>=4?2:0):lv>=3?2:1,compressed=a.weapon==='espresso'&&build.rank('singleorigin'),wide=a.weapon==='espresso'&&build.rank('fanbrew')&&!compressed,count=compressed?1:naturalCount+(wide?2:0);
-        for(let i=0;i<count;i++)spawnShot(a.weapon,angle+(i-(count-1)/2)*(a.weapon==='espresso'?(wide?.23:.12):.28),lv,{damageScale:bonus*(a.weapon==='espresso'?1:.72)*(compressed?Math.max(1,naturalCount*.72):wide?naturalCount/count*.9:1),attack:strike});
+        for(let i=0;i<count;i++){const outer=wide&&(i===0||i===count-1),spread=(i-(count-1)/2)*(a.weapon==='espresso'?(wide?.23:.12):.28)+(outer&&build.refinement('fanbrew','flank')?(i===0?-.32:.32):0),shot=spawnShot(a.weapon,angle+spread,lv,{damageScale:bonus*(a.weapon==='espresso'?1:.72)*(compressed?Math.max(1,naturalCount*.72):wide?naturalCount/count*.9:1),attack:strike});if(shot&&wide)Object.assign(shot,{outer,fanAim:angle,fanOrigin:{x:p.x,y:p.y-18}});if(shot&&a.weapon==='espresso'){
+          shot.damage*=(build.rank('carom')?.9:1)*(build.rank('echobrew')?.85:1)*(heavy&&build.rank('orbitbrew')?.85:1);
+          if(build.rank('echobrew')&&shots.length<LIMITS.shots)shots.push({...shot,id:nextId++,attack:null,secondary:true,compressed:false,outer:false,fanOrigin:null,hit:new Set(),damage:shot.damage*(build.refinement('echobrew','strong')?.55:.4),echoDelay:.35,echoSlow:build.refinement('echobrew','chill')});
+          if(heavy&&build.rank('orbitbrew'))shot.orbit={age:0,angle:angle+i/count*TAU,radius:build.refinement('orbitbrew','wide')?78:48,vx:shot.vx,vy:shot.vy};
+        }}
         if(heavy)fx('slash',p.x,p.y-18,WEAPONS.find(w=>w.id===a.weapon).colour,1,{angle,span:1.2,radius:64,heavy:true,step:3,weapon:a.weapon,life:.25});
       }
       if(heavy&&a.weapon==='espresso'&&state.endlessTalents.crossfire){const n=state.endlessTalents.crossfire;for(let i=0;i<n;i++)spawnShot('espresso',angle+Math.PI+(i-(n-1)/2)*.18,lv,{damageScale:bonus*.5,attack:strike});}
-      if(heavy&&a.weapon==='baguette'&&build.rank('returning')&&shots.length<LIMITS.shots){shots.push({id:nextId++,type:'crescent',returnBlade:true,x:p.x,y:p.y-18,px:p.x,py:p.y-18,vx:Math.cos(angle)*350,vy:Math.sin(angle)*350,r:15,life:.6,age:0,damage:strike.damage*.35,pierce:12,hit:new Set()});event('buildCue',{id:'returning_blade_throw'});}
-      if(heavy&&a.weapon==='baguette'&&state.styles.crescent&&shots.length<LIMITS.shots){shots.push({id:nextId++,type:'crescent',x:p.x,y:p.y-18,px:p.x,py:p.y-18,vx:Math.cos(angle)*360,vy:Math.sin(angle)*360,r:19,life:.85,age:0,damage:strike.damage*.65,pierce:5,hit:new Set()});event('styleProc',{id:'crescent'});}
+      if(heavy&&a.weapon==='baguette'&&build.rank('returning')&&shots.length<LIMITS.shots){shots.push({id:nextId++,type:'crescent',returnBlade:true,origin:{x:p.x,y:p.y},x:p.x,y:p.y-18,px:p.x,py:p.y-18,vx:Math.cos(angle)*350,vy:Math.sin(angle)*350,r:15,life:.6,age:0,damage:strike.damage*.35,pierce:12,hit:new Set()});event('buildCue',{id:'returning_blade_throw'});}
+      if(heavy&&a.weapon==='baguette'&&build.rank('crumbstorm')){const count=build.refinement('crumbstorm','five')?5:3;for(let i=0;i<count&&shots.length<LIMITS.shots;i++){const aim=angle+(i-(count-1)/2)*.24;shots.push({id:nextId++,type:'crescent',secondary:true,x:p.x,y:p.y-18,px:p.x,py:p.y-18,vx:Math.cos(aim)*390,vy:Math.sin(aim)*390,r:11,life:.7*(build.refinement('crumbstorm','reach')?1.3:1),age:0,damage:strike.damage*(count===5?.18:.25),pierce:build.refinement('crumbstorm','reach')?5:3,hit:new Set()});}event('buildCue',{id:'returning_blade_throw'});}
+      if(heavy&&a.weapon==='baguette'&&state.styles.crescent){for(const offset of build.refinement('crescent','fork')?[-.22,.22]:[0])if(shots.length<LIMITS.shots)shots.push({id:nextId++,type:'crescent',gilded:build.refinement('crescent','mark'),x:p.x,y:p.y-18,px:p.x,py:p.y-18,vx:Math.cos(angle+offset)*360,vy:Math.sin(angle+offset)*360,r:19,life:.85*(build.refinement('crescent','reach')?1.3:1),age:0,damage:strike.damage*(build.refinement('crescent','fork')?.4:.65),pierce:build.refinement('crescent','reach')?8:5,hit:new Set()});event('styleProc',{id:'crescent'});}
       if(heavy){for(const h of hazards)if(Math.hypot(h.x-p.x,h.y-(p.y-18))<82)h.life=0;fx('ring',p.x,p.y-18,'#efdda6',.65);}
       event('fire',{main:true,weapon:a.weapon,x:p.x,y:p.y-18,angle,step:a.step,heavy,compressed:a.weapon==='espresso'&&!!build.rank('singleorigin')});
     }
@@ -363,7 +372,7 @@
       state.dashFollow=.65;state.attackWindow=.85;state.dashChain=0;state.dashWindow=0;
       dashAge=0;dashPerfect=false;dashTravel=0;dashBufferedUntil=0;state.dashCount++;trailClock=0;
       const angle=Math.atan2(p.dy,p.dx);
-      if(state.styles.slipstream&&echoes.length<=8)for(const delay of [.18,.36])echoes.push({x:p.x,y:p.y,angle,damage:(24+state.weapons[state.mainWeapon]*8)*power()*1.8,at:state.time+delay,radius:70,weapon:'baguette',style:'slipstream'});
+      if(state.styles.slipstream&&echoes.length<=8){const scale=build.wakeScale();for(const delay of [.18,.36]){const travel=delay===.36&&build.refinement('slipstream','trail')?80:0;echoes.push({x:p.x+Math.cos(angle)*travel,y:p.y+Math.sin(angle)*travel,angle,damage:(24+state.weapons[state.mainWeapon]*8)*power()*1.8*scale,at:state.time+delay,radius:70,weapon:'baguette',style:'slipstream'});}}
       if(state.styles.bloom&&state.weapons.garlic&&echoes.length<=9)for(const delay of [.25,.6,.95])echoes.push({x:p.x,y:p.y,angle,damage:(20+state.weapons.garlic*6)*power(),at:state.time+delay,radius:62,weapon:'garlic',style:'bloom'});
       if(state.endlessTalents.soulstep){for(const g of gems)if(distance(g,p)<120+state.endlessTalents.soulstep*35)g.attracted=true;fx('ring',p.x,p.y-18,'#9ae2d6',1.2);}
       build.dash();relic.dash();event('dash',{angle,charges:p.dashCharges,leap:!!p.finaleLeap});return true;
@@ -651,7 +660,7 @@
         if(distance(e,p)<e.r+p.r){if(incomingCharge)perfectDodge('charge',e.bossType);const bitten=hurt(e.damage,e.type,e);if(bitten&&role==='leech')e.hp=Math.min(e.maxHp,e.hp+18);}
       }
       if(state.status!=='playing')return;
-      for(let i=echoes.length-1;i>=0;i--){const echo=echoes[i];if(state.time>=echo.at){echoes.splice(i,1);slash(echo.angle,TAU,echo.radius||104,echo.damage*.5,{heavy:true,colour:'#cbeee5',weapon:echo.weapon,origin:echo,echo:true});if(state.transition||state.status!=='playing')break;}}
+      for(let i=echoes.length-1;i>=0;i--){const echo=echoes[i];if(state.time>=echo.at){echoes.splice(i,1);const seen=new Set();slash(echo.angle,TAU,echo.radius||104,echo.damage*.5,{heavy:true,colour:'#cbeee5',weapon:echo.weapon,origin:echo,echo:true,seen});build.wake(echo,seen);if(state.transition||state.status!=='playing')break;}}
       espressoClock-=dt;trayClock-=dt;baguetteClock-=dt;
       const target=closest(p.x,p.y),targetPoint=target?Hitboxes.aim(target,{x:p.x,y:p.y-18}):null,angle=targetPoint?Math.atan2(targetPoint.y-(p.y-18),targetPoint.x-p.x):Math.atan2(p.dy,p.dx);
       if(target&&state.mainWeapon!=='espresso'&&state.weapons.espresso&&espressoClock<=0){const lv=state.weapons.espresso;espressoClock=(.73-lv*.045)*.78*cooldown()*(state.evolutions.espresso?.7:1);const n=lv>=5?3:lv>=3?2:1;for(let i=0;i<n;i++)spawnShot('espresso',angle+(i-(n-1)/2)*.13,lv,{damageScale:LOADOUT_RULES.supportDamage});event('fire',{weapon:'espresso',x:p.x,y:p.y-18,angle});}
@@ -664,8 +673,11 @@
       Majors.Clock.Fight?.carry(state.boss,p,{x:oldX,y:oldY},dt,majorApi);
       Majors.Star.Fight?.move(state.boss,p,{x:oldX,y:oldY},dt,majorApi);
       for(const s of shots){
-        if(s.returnBlade){if(!s.recalling&&s.life<=dt){s.recalling=true;s.hit.clear();s.life=1.2;s.pierce=12;}if(s.recalling){const angle=Math.atan2(p.y-18-s.y,p.x-s.x);s.vx=Math.cos(angle)*420;s.vy=Math.sin(angle)*420;if(Math.hypot(p.x-s.x,p.y-18-s.y)<20){s.life=0;event('buildCue',{id:'returning_blade_catch'});continue;}}}
+        if(s.echoDelay>0){s.echoDelay-=dt;continue;}
+        if(s.orbit){const o=s.orbit;o.age+=dt;if(o.age<.55){const angle=o.angle+o.age*7;s.vx=(p.x+Math.cos(angle)*o.radius-s.x)/dt;s.vy=(p.y-18+Math.sin(angle)*o.radius-s.y)/dt;s.life+=dt;}else{s.vx=o.vx;s.vy=o.vy;s.orbit=null;if(build.refinement('orbitbrew','release'))s.damage*=1.25;}}
+        if(s.returnBlade){if(!s.recalling&&s.life<=dt){if(build.refinement('returning','wait')&&!s.waited){s.waited=true;s.hold=.3;build.turnCut(s);}if(s.hold>0){s.hold-=dt;continue;}s.recalling=true;s.hit.clear();s.life=1.2;s.pierce=12;build.recall(s);}if(s.recalling){const angle=Math.atan2(p.y-18-s.y,p.x-s.x);s.vx=Math.cos(angle)*420;s.vy=Math.sin(angle)*420;if(Math.hypot(p.x-s.x,p.y-18-s.y)<20){s.life=0;event('buildCue',{id:'returning_blade_catch'});continue;}}}
         if(s.type==='tray'&&state.styles.recall){if(!s.recalling&&s.life<=dt){s.recalling=true;s.hit.clear();s.pierce=4;s.life=1.6;}if(s.recalling){const a=Math.atan2(p.y-18-s.y,p.x-s.x);s.vx=Math.cos(a)*410;s.vy=Math.sin(a)*410;if(Math.hypot(s.x-p.x,s.y-p.y+18)<22){s.life=0;continue;}}}
+        if(s.fanOrigin&&build.refinement('fanbrew','gather')&&!s.buildBounced&&Math.hypot(s.x-s.fanOrigin.x,s.y-s.fanOrigin.y)>180){const dx=s.x-s.fanOrigin.x,dy=s.y-s.fanOrigin.y,along=dx*Math.cos(s.fanAim)+dy*Math.sin(s.fanAim),tx=s.fanOrigin.x+Math.cos(s.fanAim)*(along+180),ty=s.fanOrigin.y+Math.sin(s.fanAim)*(along+180),aim=Math.atan2(ty-s.y,tx-s.x),old=Math.atan2(s.vy,s.vx),delta=Math.atan2(Math.sin(aim-old),Math.cos(aim-old)),speed=Math.hypot(s.vx,s.vy),angle=old+clamp(delta,-dt*1.2,dt*1.2);s.vx=Math.cos(angle)*speed;s.vy=Math.sin(angle)*speed;}
         s.life-=dt;s.age+=dt;s.px=s.x;s.py=s.y;s.x+=s.vx*dt;s.y+=s.vy*dt;Majors.Magistrate.Fight.shot(state.boss,s);
         if(s.type==='tray'&&(s.x<ARENA.left||s.x>ARENA.right)){s.vx*=-1;s.x=clamp(s.x,ARENA.left,ARENA.right);}
         if(s.type==='tray'&&(s.y<ARENA.top||s.y>ARENA.bottom)){s.vy*=-1;s.y=clamp(s.y,ARENA.top,ARENA.bottom);}
@@ -674,8 +686,8 @@
           // Swept circle prevents fast bolts tunnelling through small enemies.
           const shotFrom={x:s.px,y:s.py};
           if(!Hitboxes.swept(e,shotFrom,s,s.r))continue;
-          s.hit.add(e.id);const achievementHp=e.hp,vel=Math.hypot(s.vx,s.vy),impact={weapon:s.type,from:shotFrom,active:!!s.attack,step:s.attack?.step,angle:Math.atan2(s.vy,s.vx),heavy:false};let pelletScale=1;if(e.major&&s.type==='espresso'&&s.attack){s.attack.majorPellets??=new Map();const count=s.attack.majorPellets.get(e.id)||0;pelletScale=count>0?.6:1;s.attack.majorPellets.set(e.id,count+1);}hit(e,s.damage*pelletScale,s.vx/vel*6,s.vy/vel*6,impact);if(e.hp<achievementHp)event('achievementProjectile',{shot:s,enemy:e});if(s.attack)landed(s.attack,e);build.shotHit(s,e);if(s.type==='espresso'&&state.styles.roast){if(!(e.scorch>0)){e.scorchTick=.3;e.scorchDamage=0;}e.scorch=1.2;e.scorchDamage=Math.max(e.scorchDamage||0,s.damage*.1);}fx('spark',s.x,s.y,s.type==='tray'?'#b6e3f3':'#f4b565',1,{...impact,critical:e.hitCritical});
-          if(state.evolutions[s.type]){const radius=s.type==='espresso'?66:48;fx('ring',s.x,s.y,s.type==='espresso'?'#ffe0a0':'#c0e5f4',.5);for(const near of enemies)if(near.id!==e.id&&distance(near,e)<radius)hit(near,s.damage*.35,0,0,{weapon:s.type,angle:Math.atan2(near.y-e.y,near.x-e.x),heavy:false});}
+          s.hit.add(e.id);const achievementHp=e.hp,vel=Math.hypot(s.vx,s.vy)||1,impact={weapon:s.type,from:shotFrom,active:!!s.attack,step:s.attack?.step,angle:Math.atan2(s.vy,s.vx),heavy:false};let pelletScale=1;if(e.major&&s.type==='espresso'&&s.attack){s.attack.majorPellets??=new Map();const count=s.attack.majorPellets.get(e.id)||0;pelletScale=count>0?.6:1;s.attack.majorPellets.set(e.id,count+1);}hit(e,s.damage*pelletScale,s.vx/vel*6,s.vy/vel*6,impact);if(e.hp<achievementHp)event('achievementProjectile',{shot:s,enemy:e});if(s.attack)landed(s.attack,e);build.shotHit(s,e);if(!s.secondary&&s.type==='espresso'&&state.styles.roast){if(!(e.scorch>0)){e.scorchTick=.3;e.scorchDamage=0;}e.scorch=1.2;e.scorchDamage=Math.max(e.scorchDamage||0,s.damage*.1);}fx('spark',s.x,s.y,s.type==='tray'?'#b6e3f3':'#f4b565',1,{...impact,critical:e.hitCritical});
+          if(!s.secondary&&state.evolutions[s.type]){const radius=s.type==='espresso'?66:48;fx('ring',s.x,s.y,s.type==='espresso'?'#ffe0a0':'#c0e5f4',.5);for(const near of enemies)if(near.id!==e.id&&distance(near,e)<radius)hit(near,s.damage*.35,0,0,{weapon:s.type,angle:Math.atan2(near.y-e.y,near.x-e.x),heavy:false});}
           if(s.type==='tray'&&!s.recalling&&s.bounces-->0){const next=closest(s.x,s.y,s.hit,500);if(next){const pt=Hitboxes.aim(next,s),a=Math.atan2(pt.y-s.y,pt.x-s.x);s.vx=Math.cos(a)*350;s.vy=Math.sin(a)*350;}}
           if(--s.pierce<=0){if(build.redirect(s))break;if(s.type==='tray'&&state.styles.recall&&!s.recalling){s.recalling=true;s.hit.clear();s.pierce=4;s.life=1.6;}else s.life=0;break;}
         }
@@ -724,18 +736,13 @@
     function groveCandidates(){
       // Grove rewards must alter the equipped weapon; general rare combat perks stay in ordinary drafts.
       const forms=Builds.cards(state).filter(c=>c.kind==='perk'&&!c.from&&weaponTransformation(c)&&Builds.PERKS[c.key].weapon===state.mainWeapon);
-      const refinements=(Builds.refinementCards?.(state)||[]).filter(c=>weaponTransformation(c)&&Builds.PERKS[c.parent].weapon===state.mainWeapon);
-      return [...forms,...refinements];
+      return forms;
     }
     function openGrove(){
       const previous=state.grove,visits=previous?.visit||(previous?.visited?1:0),due=[180,480,840][visits];
       if(due===undefined||state.status!=='upgrade'||practice||state.transition||state.boss?.hp>0||state.finalePending||state.runTime<due||visits&&state.runTime-previous.at<210||state.time-(state.merchant?.openAt??-999)<75||state.nextMajor-state.runTime>0&&state.nextMajor-state.runTime<18||nextBoss-state.runTime>0&&nextBoss-state.runTime<18||state.choices.some(c=>['ability','technique','art'].includes(c.kind)))return false;
       const eligible=groveCandidates();if(!eligible.length)return false;
-      const original=state.choices.slice(),forms=shuffled(eligible.filter(c=>c.kind==='perk')),refines=shuffled(eligible.filter(c=>c.kind==='refinement')),offers=[];
-      // A weapon-specific alteration leads the first hand. Later hands always show a refinement when possible.
-      if(refines.length)offers.push(refines.shift());
-      const lead=forms.find(c=>Builds.PERKS[c.key].weapon===state.mainWeapon)||forms[0];if(lead){offers.push(lead);forms.splice(forms.indexOf(lead),1);}
-      for(const c of [...refines,...forms])if(offers.length<3)offers.push(c);
+      const original=state.choices.slice(),offers=shuffled(eligible).slice(0,3);
       const history=[...(previous?.history||[])];if(previous)history.push({visit:visits,at:previous.at,chosen:previous.chosen});
       state.grove={visited:true,visit:visits+1,scene:['bough','theatre','reflection'][visits],history,at:state.runTime,original,offers,chosen:null,cleared:false};state.status='grove';p.attack=p.cast=null;p.dash=0;p.moving=false;event('grove');return true;
     }
