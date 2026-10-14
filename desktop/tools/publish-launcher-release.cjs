@@ -180,8 +180,23 @@ async function deployWebsite({repo,version}) {
   const bundle=path.join(repo,'dist/releases/launcher/latest.json'),source=path.join(repo,'releases/launcher/latest.json');
   check((await fs.readFile(bundle)).equals(await fs.readFile(source)),'Website build omitted or changed the update feed.');
   await run(process.execPath,[path.join(repo,'node_modules/wrangler/bin/wrangler.js'),'pages','deploy','dist','--project-name','repocompany','--branch','main'],{cwd:repo,windowsHide:true,shell:false,timeout:600000,maxBuffer:8*1024*1024});
-  const response=await fetch('https://repocompany.uk/releases/launcher/latest.json',{cache:'no-store',signal:AbortSignal.timeout(30000)});
-  check(response.ok&&Buffer.from(await response.arrayBuffer()).equals(await fs.readFile(source)),'The website deployment could not be confirmed against the signed feed.');
+  await verifyPublishedFeed(await fs.readFile(source));
+}
+async function verifyPublishedFeed(expected,{fetchImpl=fetch,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms)),now=Date.now,timeoutMs=60000,intervalMs=5000}={}) {
+  check(Buffer.isBuffer(expected)&&expected.length>0&&expected.length<=65536,'Expected signed feed bytes are invalid.');
+  check(Number.isSafeInteger(timeoutMs)&&timeoutMs>0&&timeoutMs<=60000&&Number.isSafeInteger(intervalMs)&&intervalMs>0,'Invalid feed verification retry bounds.');
+  const deadline=now()+timeoutMs;let attempts=0;
+  while(now()<deadline){
+    attempts++;
+    try{
+      const remaining=Math.max(1,Math.floor(deadline-now()));
+      const response=await fetchImpl('https://repocompany.uk/releases/launcher/latest.json',{method:'GET',cache:'no-store',signal:AbortSignal.timeout(Math.min(10000,remaining))});
+      if(response.ok&&Number(response.headers.get('content-length')||0)<=65536&&Buffer.from(await response.arrayBuffer()).equals(expected))return {attempts};
+    }catch(_){/* Pages edges can briefly serve the previous deployment or fail during propagation. */}
+    const remaining=deadline-now();if(remaining<=0)break;
+    await sleep(Math.min(intervalMs,remaining));
+  }
+  throw Error('The website was deployed, but its signed feed could not be confirmed within 60 seconds. Verify the live feed before retrying; publication and deployment were not repeated.');
 }
 async function prepareRelease(options,{repo=REPO,inspect=verifyInstallerArchive,signingKey=loadPrivateKey,publish=publishGithub,deploy=deployWebsite}={}) {
   const identity=sourceIdentity(options.commit,repo),desktop=path.join(repo,'desktop'),config=require(path.join(desktop,'config.cjs'))(desktop).launcherUpdates;
@@ -230,4 +245,4 @@ function parseArgs(args) {
   check(options.commit&&options.sequence&&options.output,'Provide --commit SHA --sequence NUMBER --output NEW_DIRECTORY.');return options;
 }
 if(require.main===module)(async()=>{const options=parseArgs(process.argv.slice(2));if(options.notesFile)options.notes=await fs.readFile(options.notesFile,'utf8');const result=await prepareRelease(options);console.log(JSON.stringify(result));})().catch(error=>{console.error(error.message);process.exitCode=1;});
-module.exports={sourceIdentity,fileDigest,verifyArchive,verifyUpdateMetadata,verifyInstallerArchive,extractInstallerFiles,createPayload,readPrevious,newer,verifyRemoteAsset,publishGithub,promoteFeed,prepareRelease,parseArgs};
+module.exports={sourceIdentity,fileDigest,verifyArchive,verifyUpdateMetadata,verifyInstallerArchive,extractInstallerFiles,createPayload,readPrevious,newer,verifyRemoteAsset,publishGithub,promoteFeed,verifyPublishedFeed,prepareRelease,parseArgs};

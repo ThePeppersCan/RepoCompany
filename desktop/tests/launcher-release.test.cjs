@@ -149,3 +149,23 @@ test('CLI requires explicit publication/deployment flags and rejects incomplete 
   const base=['--commit','a'.repeat(40),'--sequence','6','--output','C:\\fixture'];assert.equal(release.parseArgs(base).publish,undefined);
   assert.equal(release.parseArgs([...base,'--publish']).publish,true);assert.throws(()=>release.parseArgs([...base,'--unknown']));assert.throws(()=>release.parseArgs([...base,'--publish','--publish']));
 });
+test('post-deploy verification retries stale edges and transient failures using read-only requests',async()=>{
+  const expected=Buffer.from('exact signed manifest');let time=0;const calls=[],delays=[];
+  const fetchImpl=async(url,options)=>{
+    calls.push({url,options});assert.equal(options.method,'GET');assert.equal(options.cache,'no-store');assert.ok(options.signal instanceof AbortSignal);
+    if(calls.length===1)return new Response('previous manifest');
+    if(calls.length===2)throw Error('Transient edge failure');
+    return new Response(expected);
+  };
+  const result=await release.verifyPublishedFeed(expected,{fetchImpl,now:()=>time,sleep:async ms=>{delays.push(ms);time+=ms;}});
+  assert.equal(result.attempts,3);assert.deepEqual(delays,[5000,5000]);assert.equal(time,10000);
+  assert.ok(calls.every(call=>call.url==='https://repocompany.uk/releases/launcher/latest.json'));
+});
+test('post-deploy verification stops at its deadline without retrying publication or deployment',async()=>{
+  let time=0,requests=0;const delays=[];
+  await assert.rejects(release.verifyPublishedFeed(Buffer.from('signed'),{fetchImpl:async()=>{requests++;return new Response('stale',{status:503});},now:()=>time,sleep:async ms=>{delays.push(ms);time+=ms;}}),/not repeated/);
+  assert.equal(time,60000);assert.equal(requests,12);assert.equal(delays.length,12);
+  time=59000;requests=0;
+  await assert.rejects(release.verifyPublishedFeed(Buffer.from('signed'),{fetchImpl:async()=>{requests++;time+=1000;throw Error('Timed out');},now:()=>time,sleep:async()=>{throw Error('Must not sleep beyond deadline');},timeoutMs:1000}),/not repeated/);
+  assert.equal(requests,1);assert.equal(time,60000);
+});
