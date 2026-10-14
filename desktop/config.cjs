@@ -14,8 +14,14 @@ module.exports = function configuration(resourceRoot) {
       'https://hvdrwmjieguurxvrgzfu.supabase.co', 'https://cdn.jsdelivr.net',
       'https://fonts.googleapis.com', 'https://fonts.gstatic.com', releaseOrigin
     ],
-    // Enable a release channel only after its signed installer and feed have been published.
-    launcherUpdates: { url: null, publisherName: null },
+    // Releases are authenticated by the pinned public key; private signing keys never ship.
+    launcherUpdates: {
+      url: 'https://repocompany.uk/releases/launcher/latest.json',
+      keyId: 'repo-launcher-2026-01',
+      publicKey: '-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEApVjnXw0h1vgA/hCRlRYTC1S/t/XxakuplZnsA8rqKRA=\n-----END PUBLIC KEY-----\n',
+      minSequence: 6,
+      publisherName: 'Repo Company Update Key'
+    },
     discordApplications: {
       moratales: { clientId: '1557490171614863390', name: 'MoraTales' },
       morogue: { clientId: '1559743063382036522', name: 'Morogue' },

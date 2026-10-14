@@ -136,6 +136,10 @@ function initialize() {
     #launcher-update-settings .account-switch:disabled{opacity:.6;cursor:wait}
     #launcher-update-settings .account-switch:focus-visible{outline:2px solid #e3dbbf;outline-offset:5px}
     #launcher-update-settings-note{font-size:11px;line-height:1.7;color:#84969e;margin:15px 0 25px}
+    #launcher-client-controls{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 15px}
+    #launcher-client-controls button:disabled{opacity:.5;cursor:default}
+    #launcher-client-restart[hidden]{display:none!important}
+    #launcher-client-note{font-size:11px;line-height:1.7;color:#84969e;margin:0 0 25px}
     #launcher-discord-status{font-size:11px;line-height:1.7;color:#84969e;margin:15px 0 25px}
     [data-launcher-cta][data-launcher-long="true"]{font-size:20px!important}
     #launcher-native-message{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:100000;max-width:min(640px,90vw);background:#18221eef;border:1px solid #cfc6a44d;border-radius:6px;padding:14px 22px;color:#eee5cf;font:13px/1.7 'Segoe UI',sans-serif;box-shadow:0 12px 36px #0007;pointer-events:none}
@@ -188,6 +192,23 @@ function initialize() {
       const column=content.querySelector('.account-settings-layout>div');
       if(column)column.append(section);else content.prepend(section);
     }
+    if(!section.querySelector('#launcher-client-version')){
+      const client=document.createElement('div');client.className='launcher-client-update';
+      client.innerHTML='<div class="account-settings-row"><div><b id="launcher-client-version"></b><p id="launcher-client-status" role="status" aria-live="polite"></p></div></div><div id="launcher-client-controls"><button id="launcher-client-check" type="button" class="account-soft-button">Check for launcher updates</button><button id="launcher-client-restart" type="button" class="account-soft-button" hidden>Restart to update</button></div><p id="launcher-client-note"></p>';
+      section.querySelector('h3').after(client);
+    }
+    const update=state.launcherUpdate||{},clientVersion=section.querySelector('#launcher-client-version'),versionText='Repo Company'+(state.version?' · '+state.version:'');
+    if(clientVersion.textContent!==versionText)clientVersion.textContent=versionText;
+    const updating=['checking','downloading','verifying','applying','installing'].includes(update.status),checking=pending.has('launcher-update:undefined');
+    const check=section.querySelector('#launcher-client-check'),restart=section.querySelector('#launcher-client-restart');
+    check.disabled=updating||checking;actions.set(check,{action:'launcher-update'});
+    restart.hidden=update.status!=='ready';restart.disabled=!update.canRestart||pending.has('launcher-restart:undefined');actions.set(restart,{action:'launcher-restart'});
+    const clientStatus=section.querySelector('#launcher-client-status');
+    let clientText=update.message||'Launcher updates are checked automatically.';
+    if(update.status==='downloading'&&Number.isFinite(update.progress))clientText+=' '+Math.round(Math.max(0,Math.min(1,update.progress))*100)+'%';
+    if(clientStatus.textContent!==clientText)clientStatus.textContent=clientText;
+    const clientNote=section.querySelector('#launcher-client-note'),clientNoteText=update.status==='ready'&&update.restartBlockedReason?update.restartBlockedReason:'Launcher updates download automatically and install when you close Repo Company. Games and calls keep running until you choose to close them.';
+    if(clientNote.textContent!==clientNoteText)clientNote.textContent=clientNoteText;
     if(!section.querySelector('#launcher-discord-toggle')){
       const row=document.createElement('div');row.className='account-settings-row';
       row.innerHTML='<div><b>Show games on Discord</b><p id="launcher-discord-description">Let Discord show the game you launch and how long you have been playing. Your account details, saves and scores stay private.</p></div><button id="launcher-discord-toggle" type="button" class="account-switch" role="switch" aria-label="Show games on Discord" aria-describedby="launcher-discord-description launcher-discord-status"><span></span></button>';
@@ -307,6 +328,7 @@ function initialize() {
     clearTimeout(refreshTimer);refreshTimer=setTimeout(async()=>{if(refreshPending)return;refreshPending=true;try{const next=await invoke('refresh');if(next?.catalog)receive(next);}catch{/* Periodic main refresh also retries connection. */}finally{refreshPending=false;}},150);
     schedule();
   });
+  addEventListener('online',()=>{void invoke('launcher-reconnect').catch(()=>{});});
   // Page-authored social summaries are untrusted display data only. Never pass
   // message text, peers, credentials, media or call signals into the shell.
   addEventListener('repo-messaging-state',event=>{

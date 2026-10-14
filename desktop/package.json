@@ -1,6 +1,6 @@
 {
   "name": "repo-company-launcher",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "description": "Your Repo Company collection, installed and connected.",
   "author": "Repo Company",
@@ -57,6 +57,10 @@
     },
     "artifactName": "Repo-Company-${version}-Windows-${arch}.${ext}",
     "compression": "normal",
-    "publish": null
+    "publish": {
+      "provider": "generic",
+      "url": "https://repocompany.uk/releases/launcher/",
+      "publisherName": ["Repo Company Update Key"]
+    }
   }
 }

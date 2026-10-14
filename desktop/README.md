@@ -1,4 +1,4 @@
-# Repo Company for Windows — preview 0.1.5
+# Repo Company for Windows — preview 0.1.6
 
 The launcher uses the actual Repo Company website, including its game cases and Account navigation. The website's Download button provides the Windows preview. Homepage game cases install or launch games; **Account → Library** manages installation, updates, repair and removal.
 
@@ -13,7 +13,7 @@ The launcher uses the actual Repo Company website, including its game cases and 
 - **Quitting Morogue ends the current Mora Mode or Endless Night run.** Runs cannot be resumed. Completed online achievements and leaderboard results remain on the account.
 - Dragonbound, Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas and Repo Sports remain web demos inside the launcher. They require no installation and retain their current content/prototype status.
 
-Game updates and launcher updates are separate. The remote **game** release channel is configured for all three titles. **Launcher automatic updates remain disabled** in this unsigned preview; install newer Windows previews manually until signing and the launcher update feed are configured and tested.
+Game updates and launcher updates are separate. The remote **game** release channel is configured for all three titles. Starting with **0.1.6**, launcher releases use a pinned Ed25519 signing key and immutable installer checksums. Earlier previews need one manual installation of 0.1.6 to acquire this updater. Later releases are downloaded automatically while the launcher is open and installed on a safe exit, with a restart control when available. An active game or installation is never interrupted to apply a launcher update. Windows may still display an unknown-publisher warning: authentication by the launcher's own release key is separate from a commercial Windows Authenticode certificate.
 
 ## Launcher settings and Discord
 
@@ -118,9 +118,53 @@ npm run package:directory
 npm run package
 ```
 
-Builds appear under `desktop/build`. The assisted per-user NSIS installer allows choosing its installation directory. Preview 0.1.5 is unsigned; remove `win.signExecutable: false` and configure signing before a signed public release.
+Builds appear under `desktop/build`. The assisted per-user NSIS installer allows choosing its installation directory. The installer has no commercial Authenticode certificate. The authenticated automatic-update path uses the public release key embedded in `config.cjs`, checks the signed manifest, and hashes the exact downloaded installer before installation. `app-update.yml` must carry the exact `Repo Company Update Key` verification sentinel and `repo-company-launcher-updater` cache directory; the release verifier checks the metadata inside the actual installer.
 
 Account/browser state, library metadata and installed games live under `%APPDATA%\Repo Company`. Game uninstall removes installed payloads while preserving account-scoped local saves/preferences and online records. Launcher uninstall retains application data too. Allow about 536MB for Morogue, 1.38GB for Moratales and 644MB for Manager, plus launcher/profile data and update space. Updates stage a complete new version before activation; old versions remain until game uninstall in this preview.
+
+## Authenticate and publish launcher updates
+
+Launcher installers are hosted in the existing public GitHub repository. The website serves the small static signed feed at `/releases/launcher/latest.json`, alongside immutable `VERSION.json` copies. This workflow does not create a subscription, provision a calling service, or rebuild/upload game packages. A developer still needs to release a reviewed new launcher version; players receive that published version automatically. An uncommitted local change is never a release.
+
+The release private key is protected by Windows DPAPI for the current Windows user and stored outside every Git checkout at `%LOCALAPPDATA%\RepoCompanyReleaseSigning\launcher-update-v1.dpapi`. The directory grants access only to that user and SYSTEM. Key material travels only through process memory and anonymous pipes; no plaintext private key, token or secret belongs in source control, command-line arguments, build output, Pages or GitHub assets. A DPAPI file depends on the original Windows profile: copying it alone to another computer does not recover signing access. Preserve the original protected profile/key with the owner's secured backup process. Losing it requires a new trust bootstrap; do not silently replace the public key in a normal update.
+
+**One-time setup only**, on the release owner's Windows profile:
+
+```powershell
+node desktop/tools/launcher-signing.cjs init-key --public-output C:\ReleaseEvidence\launcher-public.pem
+```
+
+This refuses to overwrite an existing private or public key file. After initialization, put only the public PEM in the reviewed launcher trust configuration and commit it before building. To recover the public PEM from an existing protected key, use `export-public --public-output NEW_PUBLIC_FILE` instead of generating another key. The installed updater pins the key ID `repo-launcher-2026-01`, public key, application/platform, exact repository URL and minimum sequence.
+
+For a subsequent reviewed release, bump the launcher package/version lock to a higher three-part version, finish validation, commit the desktop source and publish that commit to the repository. From a clean website checkout with root and desktop dependencies installed, this command can build, verify, sign, publish and deploy a new launcher release:
+
+```powershell
+$releaseCommit = git rev-parse HEAD
+node desktop/tools/publish-launcher-release.cjs `
+  --commit $releaseCommit `
+  --sequence 7 `
+  --output C:\ReleaseEvidence\launcher-0.1.7 `
+  --build --publish --deploy
+```
+
+Use the next unused sequence and a fresh evidence directory outside the repository. `--build` runs the locked dependency installation and desktop test suite, then creates only the Windows x64 NSIS installer; it does not build a ZIP or games. It requires a normal Node/npm installation. If building separately, omit `--build` and provide `--installer ABSOLUTE_EXE`. If archive-tool discovery is unavailable, provide `--seven-zip ABSOLUTE_7ZA_EXE`. Both paths still extract the actual installer and compare its packaged runtime and update trust metadata to the committed source. `--key-file` or `REPO_LAUNCHER_SIGNING_KEY` may select an existing protected `.dpapi` file outside Git; neither accepts plaintext keys.
+
+Omitting `--publish` performs local verification/signing only and writes the manifest plus verification report. Publishing requires existing GitHub access via `GH_TOKEN` or the Windows Git credential helper. The tool verifies the source commit/tag, creates or reuses a **draft** release, uploads immutable installer/manifest assets, verifies their hashes (downloading them fully if GitHub has no digest), publishes the release, and checks that the installer is publicly available. Only then does it promote the website's signed `latest.json`. It does not overwrite a published version or commit/push unrelated files.
+
+`--deploy` additionally requires `--publish`, existing Cloudflare access and a verified deployment base. It rejects unrelated uncommitted source, builds the website while preserving reviewed game integrations, deploys to the existing `repocompany` Pages project, then checks the live feed bytes. Commit the two promoted feed files afterwards so source control retains the published state. Static manifests bypass Functions; the latest feed is `no-store`, and versioned manifests have immutable cache headers.
+
+If publication is interrupted, retry with a fresh output directory and **the exact manifest already staged**:
+
+```powershell
+node desktop/tools/publish-launcher-release.cjs `
+  --installer C:\ReviewedBuild\Repo-Company-0.1.7-Windows-x64.exe `
+  --commit $releaseCommit --sequence 7 `
+  --manifest C:\ReleaseEvidence\launcher-0.1.7\launcher-update.json `
+  --output C:\ReleaseEvidence\launcher-0.1.7-retry `
+  --publish --deploy
+```
+
+The retry verifies the original signature, source, version, sequence and installer bytes; it never signs different metadata for an existing release. A completed promotion is idempotent. If those reviewed bytes changed, publish a higher version instead. Manifests expire after 365 days by default (maximum 366); publish a new version/sequence before expiry even if a long-maintained launcher needs only a maintenance release. A stale, malformed, replayed or invalidly signed feed cannot authorize installation.
 
 ## Architecture and remaining release work
 
@@ -130,4 +174,4 @@ Account/browser state, library metadata and installed games live under `%APPDATA
 - `lib/protocol.cjs` serves installed assets under each game's original HTTPS origin. Account bridges, multiplayer APIs/WebSockets and cloud-save services retain their original routes.
 - `game/` provides account-scoped storage and online/save/pause adapters. Moratales waits for its local save before closing and bounds its final appearance sync. Its co-op host waits for the existing worker checkpoint to persist. Morogue never saves a resumable run.
 - `renderer/` supplies the native title bar and connection fallback. `portal-preload.cjs` adds Library and install/play actions to the real website. Views are sandboxed without Node.js; commands validate sender, frame, origin and allowed IDs.
-- `lib/updater.cjs` has fail-closed Windows signature verification, but its launcher update channel is disabled. Before enabling it, sign the installer, set the trusted publisher and HTTPS feed in `config.cjs`, ship matching `app-update.yml` metadata, and verify a signed upgrade from an earlier installed version. Keep signing credentials outside source control.
+- `lib/update-manifest.cjs` verifies the pinned Ed25519 signature, strict metadata, immutable URL and installer hash. `lib/updater.cjs` supplies only verified release metadata to the updater, retains replay protection, and revalidates the downloaded installer before applying it. The native shell checks for updates without disrupting active games. `tools/publish-launcher-release.cjs` is the matching reviewed release workflow; protected signing credentials never enter an installer or website bundle.

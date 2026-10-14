@@ -27,6 +27,8 @@ let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, emb
 const emptySocialState = () => ({ unread: 0, callActive: false, incomingCall: false, open: false });
 let messageOverlay = false, socialState = emptySocialState(), portalViewVisible = false, lastPortalVisibility = null;
 let mediaPermissions = null, mediaAccountId = null;
+let launcherCheckTimer = null, launcherReconnectTimer = null, launcherCheckPending = null, lastLauncherCheck = 0, previousConnectionStatus = null;
+let launcherQuitPending = null, launcherQuitFinished = false, launcherRestartRequested = false;
 const shutdown = new AbortController();
 const games = new Map();
 const publicCatalog = () => ({ games: config.games.map(({ developmentManifest, approvedOrigins, manifestUrl, ...game }) => game), demos: (config.demos || []).map(demo => ({ ...demo })) });
@@ -36,8 +38,79 @@ const state = () => ({
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
   activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, closing: !!currentGame().__closing } : null,
   gameVisible: !!currentGame() && !messageOverlay, messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
-  launcherUpdate: updater?.snapshot(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
+  launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
 });
+function gameOperationsBusy() {
+  return config.games.some(game => game.installable && library?.isBusy?.(game.id)) || Object.values(library?.snapshot() || {}).some(item => ['queued', 'downloading', 'updating', 'verifying', 'installing', 'extracting'].includes(item.status));
+}
+function restartBlockedReason() {
+  if (games.size || embeddedDemo) return 'Close your game before restarting the launcher.';
+  if (socialState.callActive) return 'Finish your call before restarting the launcher.';
+  if (gameOperationsBusy()) return 'Wait for your game downloads to finish before restarting.';
+  if (quitting || quitApproved) return 'The launcher is closing.';
+  return '';
+}
+function launcherUpdateState() {
+  const update = updater?.snapshot();
+  return update ? { ...update, canRestart: update.status === 'ready' && !restartBlockedReason(), restartBlockedReason: update.status === 'ready' ? restartBlockedReason() : '' } : undefined;
+}
+function checkLauncherUpdates() {
+  if (quitting || quitApproved || !updater) return Promise.resolve(updater?.snapshot());
+  if (launcherCheckPending) return launcherCheckPending;
+  lastLauncherCheck = Date.now();
+  launcherCheckPending = Promise.resolve().then(() => updater.check()).catch(() => updater.snapshot()).finally(() => { launcherCheckPending = null; broadcast(); });
+  return launcherCheckPending;
+}
+function scheduleLauncherReconnect() {
+  if (quitting || quitApproved || !updater || launcherReconnectTimer) return;
+  // Repeated browser/account events may describe the same reconnection.
+  // Keep one retry, and leave at least thirty seconds between network checks.
+  launcherReconnectTimer = setTimeout(() => { launcherReconnectTimer = null; void checkLauncherUpdates(); }, Math.max(1000, 30000 - (Date.now() - lastLauncherCheck)));
+  launcherReconnectTimer.unref?.();
+}
+function startLauncherUpdateChecks() {
+  if (launcherCheckTimer || quitting || quitApproved) return;
+  void checkLauncherUpdates();
+  launcherCheckTimer = setInterval(() => { void checkLauncherUpdates(); }, 30 * 60 * 1000);
+  launcherCheckTimer.unref?.();
+}
+function stopLauncherUpdateChecks() { clearInterval(launcherCheckTimer); clearTimeout(launcherReconnectTimer); launcherCheckTimer = null; launcherReconnectTimer = null; }
+async function settleGameOperations() {
+  await Promise.allSettled(config.games.filter(game => game.installable && library?.isBusy?.(game.id)).map(game => library.cancel(game.id)));
+}
+function finishLauncherQuit(event) {
+  if (launcherQuitFinished) return;
+  // will-quit happens after save approval and native window/view disposal.
+  // An installer may request app.quit again; keep that request behind this lock.
+  event.preventDefault();
+  if (launcherQuitPending) return;
+  launcherQuitPending = (async () => {
+    await settleGameOperations();
+    if (!games.size && !embeddedDemo && !gameOperationsBusy()) await updater?.applyOnQuit?.({ restart: launcherRestartRequested });
+  })().catch(() => {}).finally(() => {
+    launcherQuitFinished = true;
+    updater?.dispose?.();
+    // A Promise continuation can run before Electron unwinds its cancelled
+    // will-quit event. A nested quit at that point is silently ignored.
+    setImmediate(() => app.quit());
+  });
+}
+function requestLauncherRestart() {
+  if (updater?.snapshot().status !== 'ready') throw new Error('The launcher update is not ready yet.');
+  const blocked = restartBlockedReason(); if (blocked) throw new Error(blocked);
+  launcherRestartRequested = true; quitApproved = true; app.quit();
+}
+function handleMainWindowClose(event) {
+  if (quitApproved || quitting) return;
+  const busy = gameOperationsBusy();
+  if (!games.size && !embeddedDemo && !busy) { quitApproved = true; return; }
+  event.preventDefault();
+  const window = mainWindow;
+  if (!window || window.__askingToClose) return; window.__askingToClose = true;
+  return dialog.showMessageBox(window, { type: 'question', title: 'Close Repo Company?', message: 'Close the launcher?', detail: games.has('morogue') || embeddedDemo ? 'Your game will close and its unfinished run will end.' : games.size ? 'Your game progress will be saved before closing.' : 'The current download will stop. You can restart it from your library.', buttons: ['Keep open', 'Close launcher'], defaultId: 0, cancelId: 0, noLink: true }).then(async result => {
+    if (!quitting && !window.isDestroyed() && result.response === 1) { for (const game of games.values()) await saveBeforeClose(game); quitApproved = true; app.quit(); }
+  }).catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); }).finally(() => { window.__askingToClose = false; });
+}
 function windowContents(window) {
   if (!window || window.isDestroyed()) return null;
   const contents = window.webContents;
@@ -254,6 +327,8 @@ async function reconcileEmbeddedDemo() {
   if (!visible && record === embeddedDemo) closeEmbeddedDemo(record);
 }
 function accountChanged() {
+  if (previousConnectionStatus === 'offline' && ['online', 'signed-out'].includes(account.state.status)) scheduleLauncherReconnect();
+  previousConnectionStatus = account.state.status;
   const identity = account.state.status === 'online' ? account.identity : null;
   if (identity !== mediaAccountId) { mediaPermissions?.reset(); mediaAccountId = identity; socialState = emptySocialState(); }
   if (embeddedDemo && (account.state.status !== 'online' || account.identity !== embeddedDemo.identity)) closeEmbeddedDemo();
@@ -443,7 +518,7 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'automatic-game-updates', 'discord-presence', 'social-state'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
@@ -458,7 +533,9 @@ async function executeCommand(action, value) {
       socialState = { unread: value.unread, callActive: value.callActive, incomingCall: value.incomingCall === true, open: value.open === true }; broadcast(); return;
     case 'website': await shell.openExternal(config.portalOrigin); return;
     case 'refresh': if (!portalReady) await loadPortal(); if (quitting) return; await Promise.allSettled([account.refresh(), checkAndApplyUpdates()]); return state();
-    case 'launcher-update': return updater.check();
+    case 'launcher-update': return checkLauncherUpdates();
+    case 'launcher-reconnect': scheduleLauncherReconnect(); return;
+    case 'launcher-restart': requestLauncherRestart(); return;
     case 'automatic-game-updates':
       if (typeof value !== 'boolean') throw new TypeError('Automatic game updates must be on or off.');
       await preferences.setAutomaticGameUpdates(value);
@@ -552,7 +629,7 @@ async function launch() {
     setPortalVisible(false); view = 'library'; broadcast();
   });
   account = new Account({ config, getSession: portalSession, fetchImpl: network }); account.on('change', accountChanged);
-  updater = new LauncherUpdater({ config: config.launcherUpdates, packaged: app.isPackaged, canRestart: () => !games.size && !embeddedDemo }); updater.on('change', broadcast);
+  updater = new LauncherUpdater({ config: config.launcherUpdates, packaged: app.isPackaged, currentVersion: app.getVersion(), cacheDir: path.join(app.getPath('userData'), 'launcher-updates'), canRestart: () => !games.size && !embeddedDemo && !gameOperationsBusy() }); updater.on('change', broadcast);
   ipcMain.handle('launcher:command', command);
   ipcMain.handle('launcher:portal', portalCommand);
   ipcMain.handle('launcher:game', gameCommand);
@@ -563,22 +640,12 @@ async function launch() {
   mainWindow.on('enter-full-screen', () => { bounds(); broadcast(); });
   mainWindow.on('leave-full-screen', () => { bounds(); broadcast(); });
   mainWindow.once('ready-to-show', () => showWindow(mainWindow));
-  mainWindow.on('close', event => {
-    if (quitApproved || quitting) return;
-    const busy = Object.values(library.snapshot()).some(item => ['downloading', 'updating', 'verifying'].includes(item.status));
-    if (!games.size && !embeddedDemo && !busy) { quitApproved = true; return; }
-    event.preventDefault();
-    const window = mainWindow;
-    if (!window || window.__askingToClose) return; window.__askingToClose = true;
-    void dialog.showMessageBox(window, { type: 'question', title: 'Close Repo Company?', message: 'Close the launcher?', detail: games.has('morogue') || embeddedDemo ? 'Your game will close and its unfinished run will end.' : games.size ? 'Your game progress will be saved before closing.' : 'The current download will stop. You can restart it from your library.', buttons: ['Keep open', 'Close launcher'], defaultId: 0, cancelId: 0, noLink: true }).then(async result => {
-      if (!quitting && !window.isDestroyed() && result.response === 1) { for (const game of games.values()) await saveBeforeClose(game); quitApproved = true; app.quit(); }
-    }).catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); }).finally(() => { window.__askingToClose = false; });
-  });
+  mainWindow.on('close', handleMainWindowClose);
   mainWindow.on('closed', () => {
     discordPresence?.dispose();
     mediaPermissions?.dispose();
     mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
-    shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer);
+    shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer);
     for (const game of [...games.values()]) disposeGame(game);
     const contents = portalContents; portalContents = null; portal = null;
     if (contents && !contents.isDestroyed()) contents.close();
@@ -592,15 +659,16 @@ async function launch() {
   void checkAndApplyUpdates();
   timer = setInterval(refreshAccount, 15000);
   checkTimer = setInterval(() => { void checkAndApplyUpdates(); }, 10 * 60 * 1000);
-  void updater.check();
+  startLauncherUpdateChecks();
 }
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance', () => showWindow(mainWindow));
   app.whenReady().then(launch).catch(error => { if (!quitting) { dialog.showErrorBox('Repo Company could not open', error.message); app.exit(1); } });
   app.on('before-quit', event => {
-    if (!quitApproved && mainWindow && (games.size || embeddedDemo || Object.values(library?.snapshot() || {}).some(item => ['downloading', 'updating', 'verifying'].includes(item.status)))) { event.preventDefault(); mainWindow.close(); return; }
-    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); mediaPermissions?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer); sharedSession?.flushStorageData();
+    if (!quitApproved && mainWindow && (games.size || embeddedDemo || gameOperationsBusy())) { event.preventDefault(); mainWindow.close(); return; }
+    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); mediaPermissions?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer); sharedSession?.flushStorageData();
   });
+  app.on('will-quit', finishLauncherQuit);
   app.on('window-all-closed', () => app.quit());
 }

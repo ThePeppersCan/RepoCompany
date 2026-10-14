@@ -7,7 +7,7 @@ const vm = require('node:vm');
 const { EventEmitter } = require('node:events');
 const desktop = path.resolve(__dirname, '..');
 
-function harness({ hidden = false, electronOverrides = {} } = {}) {
+function harness({ hidden = false, electronOverrides = {}, timerOverrides = {} } = {}) {
   const app = Object.assign(new EventEmitter(), {
     isPackaged: false, setName() {}, setAppUserModelId() {}, setPath() {}, getPath: () => desktop,
     getVersion: () => 'test', requestSingleInstanceLock: () => true,
@@ -18,10 +18,10 @@ function harness({ hidden = false, electronOverrides = {} } = {}) {
   const context = vm.createContext({
     require: name => name === 'electron' ? electron : name.startsWith('./') ? require(path.join(desktop, name)) : require(name),
     __dirname: desktop, process: { env: hidden ? { REPO_LAUNCHER_HIDDEN_TEST: '1' } : {} },
-    AbortController, AbortSignal, URL, Response, console, setInterval, clearInterval, setTimeout, clearTimeout
+    AbortController, AbortSignal, URL, Response, console, setInterval, clearInterval, setTimeout, clearTimeout, setImmediate, clearImmediate, ...timerOverrides
   });
   vm.runInContext(fs.readFileSync(path.join(desktop, 'main.cjs'), 'utf8'), context);
-  return { context, run: code => vm.runInContext(code, context) };
+  return { context, app, run: code => vm.runInContext(code, context) };
 }
 
 function portalHarness(options = {}) {
@@ -711,4 +711,104 @@ test('game crashes destroy the view and restore the portal, while a later load c
   view.webContents.emit('dom-ready'); view.webContents.emit('render-process-gone', {}, { reason: 'crashed' });
   assert.equal(view.destroyed, true); assert.equal(h.portal.visible, true); assert.equal(h.children.length, 0); assert.equal(h.run('games.size'), 0);
   view.finishLoad(); await opening; assert.deepEqual(h.activity, ['loaded', 'start:manager', 'stop:manager']);
+});
+
+test('launcher checks run on startup and thirty-minute schedule, deduplicate, and stop at shutdown', async () => {
+  const intervals = [], timeouts = [];
+  const h = harness({ timerOverrides: {
+    setInterval(fn, delay) { const timer = { fn, delay, unref() {} }; intervals.push(timer); return timer; },
+    clearInterval(timer) { if (timer) timer.cancelled = true; },
+    setTimeout(fn, delay) { const timer = { fn, delay, unref() {} }; timeouts.push(timer); return timer; },
+    clearTimeout(timer) { if (timer) timer.cancelled = true; }
+  } });
+  let checks = 0, complete;
+  h.context.updateFixture = { snapshot: () => ({ status: 'current' }), check() { checks++; return new Promise(resolve => { complete = resolve; }); } };
+  h.run('updater=updateFixture; startLauncherUpdateChecks(); startLauncherUpdateChecks();');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(checks, 1); assert.equal(intervals.length, 1); assert.equal(intervals[0].delay, 30 * 60 * 1000);
+  intervals[0].fn(); assert.equal(checks, 1); complete(); await h.run('launcherCheckPending');
+  intervals[0].fn(); await new Promise(resolve => setImmediate(resolve)); assert.equal(checks, 2);
+  complete(); await h.run('launcherCheckPending');
+  h.run('scheduleLauncherReconnect(); scheduleLauncherReconnect();');
+  assert.equal(timeouts.length, 1); assert(timeouts[0].delay > 29000 && timeouts[0].delay <= 30000);
+  h.run('quitting=true; stopLauncherUpdateChecks();');
+  assert.equal(intervals[0].cancelled, true); assert.equal(timeouts[0].cancelled, true);
+  intervals[0].fn(); timeouts[0].fn(); await new Promise(resolve => setImmediate(resolve)); assert.equal(checks, 2);
+});
+
+test('launcher restart requires a ready update and no game, demo, call or library operation', async () => {
+  const h = nativePresenceHarness(); let ready = false, busy = false, quit = 0;
+  h.app.quit = () => { quit++; };
+  h.context.updateFixture = { snapshot: () => ({ status: ready ? 'ready' : 'downloading', version: '2.0.0' }) };
+  h.context.fixture.library.isBusy = () => busy;
+  h.run('updater=updateFixture;');
+  assert.throws(() => h.run('requestLauncherRestart()'), /not ready/); ready = true;
+  for (const [setup, reset, message] of [
+    ['games.set("manager",{__gameId:"manager"})', 'games.clear()', /Close your game/],
+    ['embeddedDemo={id:"diver"}', 'embeddedDemo=null', /Close your game/],
+    ['socialState.callActive=true', 'socialState.callActive=false', /Finish your call/]
+  ]) {
+    h.run(setup); assert.throws(() => h.run('requestLauncherRestart()'), message); assert.equal(h.run('state()').launcherUpdate.canRestart, false); h.run(reset);
+  }
+  busy = true; assert.throws(() => h.run('requestLauncherRestart()'), /downloads/); busy = false;
+  assert.equal(quit, 0); assert.equal(h.run('state()').launcherUpdate.canRestart, true);
+  h.run('requestLauncherRestart()'); assert.equal(quit, 1); assert.equal(h.run('launcherRestartRequested'), true); assert.equal(h.run('quitApproved'), true);
+});
+
+test('launcher update never bypasses a failed adventure save or a cancelled window close', async () => {
+  const h = nativePresenceHarness(); let quit = 0, installed = 0;
+  h.app.quit = () => { quit++; };
+  h.context.updateFixture = { snapshot: () => ({ status: 'ready' }), async applyOnQuit() { installed++; } };
+  h.run('updater=updateFixture;'); await h.run('play("manager")');
+  const game = h.windows[0]; game.webContents.executeJavaScript = async () => { throw Error('Durable save failed'); };
+  let prevented = 0; h.context.closeEvent = { preventDefault() { prevented++; } };
+  await h.run('handleMainWindowClose(closeEvent)');
+  assert.equal(quit, 0); assert.equal(installed, 0); assert.equal(game.destroyed, false); assert.equal(h.run('quitApproved'), false);
+  h.dialogs.response = 0; await h.run('handleMainWindowClose(closeEvent)');
+  assert.equal(prevented, 2); assert.equal(quit, 0); assert.equal(installed, 0);
+});
+
+test('an approved launcher close waits for the adventure save, then applies only after disposing its view', async () => {
+  const h = nativePresenceHarness(), order = []; let finishSave;
+  h.app.quit = () => order.push('quit-requested');
+  h.context.updateFixture = { snapshot: () => ({ status: 'ready' }), async applyOnQuit(options) { assert.equal(h.run('games.size'), 0); order.push('apply:' + options.restart); }, dispose() {} };
+  h.context.closeEvent = { preventDefault() {} }; h.run('updater=updateFixture;');
+  await h.run('play("manager")'); const view = h.windows[0];
+  view.webContents.executeJavaScript = () => { order.push('save-started'); return new Promise(resolve => { finishSave = () => { order.push('save-finished'); resolve(true); }; }); };
+  const closing = h.run('handleMainWindowClose(closeEvent)'); await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(order, ['save-started']); assert.equal(h.run('quitApproved'), false); assert.equal(view.destroyed, false);
+  finishSave(); await closing;
+  assert.deepEqual(order, ['save-started', 'save-finished', 'quit-requested']); assert.equal(view.destroyed, false);
+  h.run('quitting=true; disposeGame(currentGame()); mainWindow=null; finishLauncherQuit(closeEvent);');
+  await h.run('launcherQuitPending');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(view.destroyed, true); assert.deepEqual(order, ['save-started', 'save-finished', 'quit-requested', 'apply:false', 'quit-requested']);
+});
+
+test('safe quit settles cancelled downloads before applying once, even when installer requests another quit', async () => {
+  const h = harness(), order = []; let settle, busy = true, prevented = 0, quits = 0;
+  h.context.closeEvent = { preventDefault() { prevented++; } };
+  h.context.libraryFixture = { snapshot: () => ({}), isBusy: id => id === 'manager' && busy, cancel() { order.push('cancel-started'); return new Promise(resolve => { settle = () => { busy = false; order.push('cancel-settled'); resolve(); }; }); } };
+  h.context.updateFixture = { async applyOnQuit(options) { order.push('apply:' + options.restart); h.app.emit('will-quit', h.context.closeEvent); return true; }, dispose() { order.push('disposed'); } };
+  h.app.quit = () => { quits++; h.app.emit('will-quit', h.context.closeEvent); };
+  h.run('library=libraryFixture; updater=updateFixture; quitting=true; quitApproved=true;');
+  h.app.emit('will-quit', h.context.closeEvent); h.app.emit('will-quit', h.context.closeEvent);
+  assert.deepEqual(order, ['cancel-started']); assert.equal(quits, 0);
+  settle(); await h.run('launcherQuitPending');
+  assert.equal(quits, 0, 'the final quit must wait until Electron unwinds its cancelled will-quit event');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(order, ['cancel-started', 'cancel-settled', 'apply:false', 'disposed']); assert.equal(quits, 1); assert.equal(prevented, 3);
+  h.app.emit('will-quit', h.context.closeEvent); assert.equal(prevented, 3, 'the final quit must be allowed through');
+});
+
+test('explicit restart is passed only after safe quit, and an update failure cannot trap the launcher open', async () => {
+  for (const fails of [false, true]) {
+    const h = harness(); let quits = 0, disposed = 0; const seen = [];
+    h.context.closeEvent = { preventDefault() {} };
+    h.context.updateFixture = { async applyOnQuit(options) { seen.push(options.restart); if (fails) throw Error('Installer verification failed'); return true; }, dispose() { disposed++; } };
+    h.app.quit = () => { quits++; };
+    h.run('updater=updateFixture; quitting=true; quitApproved=true; launcherRestartRequested=true; finishLauncherQuit(closeEvent);');
+    await h.run('launcherQuitPending'); assert.deepEqual(seen, [true]); assert.equal(disposed, 1); assert.equal(quits, 0);
+    await new Promise(resolve => setImmediate(resolve)); assert.equal(quits, 1);
+  }
 });

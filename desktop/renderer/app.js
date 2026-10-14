@@ -17,7 +17,10 @@
         const percent = item.totalBytes > 0 ? Math.min(100, Math.max(0, Math.floor(item.bytes / item.totalBytes * 100))) : null;
         text = `${item.status === 'updating' ? 'Updating' : 'Downloading'} ${names.get(item.id) || 'game'}${percent === null ? '' : ` · ${percent}%`}`;
       }
-    } else if (state.launcherUpdate?.status === 'downloading') text = 'Updating Repo Company';
+    } else if (state.launcherUpdate?.status === 'downloading') {
+      const progress = state.launcherUpdate.progress;
+      text = 'Updating Repo Company' + (Number.isFinite(progress) ? ' · ' + Math.round(Math.max(0, Math.min(1, progress)) * 100) + '%' : '');
+    } else if (state.launcherUpdate?.status === 'verifying') text = 'Verifying launcher update';
     else if (state.launcherUpdate?.status === 'ready') text = 'Launcher update ready';
     $('#download-status').hidden = !text;
     if ($('#download-label').textContent !== text) $('#download-label').textContent = text;
