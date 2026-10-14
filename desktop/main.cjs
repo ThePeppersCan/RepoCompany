@@ -8,6 +8,7 @@ const { createHandler, serveFile } = require('./lib/protocol.cjs');
 const { LauncherUpdater } = require('./lib/updater.cjs');
 const { Preferences } = require('./lib/preferences.cjs');
 const { DiscordPresence } = require('./lib/discord-presence.cjs');
+const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
 
 app.setName('Repo Company');
 app.setAppUserModelId('uk.repocompany.launcher');
@@ -23,6 +24,9 @@ if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestService
 let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
+const emptySocialState = () => ({ unread: 0, callActive: false, incomingCall: false, open: false });
+let messageOverlay = false, socialState = emptySocialState(), portalViewVisible = false, lastPortalVisibility = null;
+let mediaPermissions = null, mediaAccountId = null;
 const shutdown = new AbortController();
 const games = new Map();
 const publicCatalog = () => ({ games: config.games.map(({ developmentManifest, approvedOrigins, manifestUrl, ...game }) => game), demos: (config.demos || []).map(demo => ({ ...demo })) });
@@ -30,6 +34,8 @@ const state = () => ({
   version: app.getVersion(), view, selectedGame, selectedGameRevision, account: account?.snapshot() || { status: 'checking' },
   connectivity: { online: account?.state.status !== 'offline' },
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
+  activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, closing: !!currentGame().__closing } : null,
+  gameVisible: !!currentGame() && !messageOverlay, messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
   launcherUpdate: updater?.snapshot(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
 });
 function windowContents(window) {
@@ -38,12 +44,35 @@ function windowContents(window) {
   return contents && !contents.isDestroyed() ? contents : null;
 }
 function activePortal() { return !quitting && portalContents && !portalContents.isDestroyed() ? portalContents : null; }
+function currentGame() { return games.values().next().value || null; }
+function gameContents(record) { const contents = record?.webContents; return record && !record.closed && contents && !contents.isDestroyed() ? contents : null; }
+function focusGame(record) { const contents = gameContents(record); if (!contents || quitting) return; messageOverlay = false; setPortalVisible(false); record.view.setVisible(true); bounds(); showWindow(mainWindow); if (!hiddenTest) contents.focus(); broadcast(); }
 function showWindow(window) {
   if (quitting || hiddenTest || !windowContents(window)) return;
   if (window.isMinimized()) window.restore();
   window.show(); window.focus();
 }
-function setPortalVisible(visible) { if (portal && activePortal() && windowContents(mainWindow)) portal.setVisible(visible); }
+function isPortalVisible() {
+  return !!(portalViewVisible && portalReady && activePortal() && windowContents(mainWindow) && mainWindow.isVisible?.() && mainWindow.isFocused?.() && !mainWindow.isMinimized?.());
+}
+function notifyPortalVisibility(force = false) {
+  const visible = isPortalVisible();
+  if (force || visible !== lastPortalVisibility) {
+    lastPortalVisibility = visible;
+    // The portal intentionally keeps running for calls and account services.
+    // Its document.visibilityState therefore cannot identify a visible inbox.
+    activePortal()?.send('launcher:portal-visibility', visible);
+    broadcast();
+  }
+}
+function setPortalVisible(visible) {
+  portalViewVisible = !!(visible && portal && activePortal() && windowContents(mainWindow) && (!currentGame() || messageOverlay));
+  if (portal && activePortal() && windowContents(mainWindow)) portal.setVisible(portalViewVisible);
+  notifyPortalVisibility();
+}
+function configureSessionPermissions(targetSession) {
+  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog });
+}
 function refreshAccount() { if (!quitting) void account?.refresh().catch(() => {}); }
 function checkAndApplyUpdates({ reschedule = false } = {}) {
   if (quitting || !library) return Promise.resolve();
@@ -78,9 +107,11 @@ function broadcast() {
   broadcastTimer.unref?.();
 }
 function bounds() {
-  if (!windowContents(mainWindow) || !portal || !activePortal()) return;
+  if (!windowContents(mainWindow)) return;
   const [width, height] = mainWindow.getContentSize();
-  portal.setBounds({ x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) });
+  const area = { x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) };
+  if (portal && activePortal()) portal.setBounds(area);
+  for (const record of games.values()) if (gameContents(record)) record.view.setBounds(area);
 }
 function trustedShell(event) {
   const contents = !quitting && windowContents(mainWindow);
@@ -223,9 +254,12 @@ async function reconcileEmbeddedDemo() {
   if (!visible && record === embeddedDemo) closeEmbeddedDemo(record);
 }
 function accountChanged() {
+  const identity = account.state.status === 'online' ? account.identity : null;
+  if (identity !== mediaAccountId) { mediaPermissions?.reset(); mediaAccountId = identity; socialState = emptySocialState(); }
   if (embeddedDemo && (account.state.status !== 'online' || account.identity !== embeddedDemo.identity)) closeEmbeddedDemo();
   else void reconcileEmbeddedDemo();
-  for (const window of games.values()) windowContents(window)?.send('launcher:game-connection', gameConnection(window));
+  for (const record of games.values()) gameContents(record)?.send('launcher:game-connection', gameConnection(record));
+  if (account.state.status === 'signed-out') socialState = emptySocialState();
   broadcast();
 }
 function gameConnection(window) {
@@ -233,7 +267,7 @@ function gameConnection(window) {
   return { status: status === 'online' && account.identity !== window.__accountId ? 'account-changed' : status, accountId: status === 'online' && account.identity === window.__accountId ? window.__accountId : null };
 }
 async function saveBeforeClose(window) {
-  if (window.__gameId === 'morogue' || !windowContents(window)) return;
+  if (window.__gameId === 'morogue' || !gameContents(window)) return;
   if (window.__saving) return window.__saving;
   window.__saving = window.webContents.executeJavaScript(`(async()=>{
     if(!window.REPO_LAUNCHER_GAME?.beforeClose)throw Error('Your game is still starting. Please wait before closing.');
@@ -243,19 +277,62 @@ async function saveBeforeClose(window) {
   return window.__saving;
 }
 async function closeGame(window) {
-  await saveBeforeClose(window);
-  if (windowContents(window)) { window.__exitApproved = true; window.close(); }
+  if (window.__closing) return window.__closing;
+  window.__closing = (async () => { await saveBeforeClose(window); disposeGame(window); })().finally(() => { window.__closing = null; broadcast(); });
+  broadcast(); return window.__closing;
+}
+function disposeGame(record) {
+  if (!record || record.closed) return;
+  record.stopPresence?.(); record.closed = true;
+  const current = games.get(record.__gameId) === record;
+  if (current) games.delete(record.__gameId);
+  if (windowContents(mainWindow)) mainWindow.contentView.removeChildView(record.view);
+  record.view.setVisible(false);
+  if (!record.webContents.isDestroyed()) record.webContents.close();
+  sharedSession?.flushStorageData();
+  if (!current) return;
+  messageOverlay = false;
+  if (!quitting && windowContents(mainWindow)) {
+    if (mainWindow.isFullScreen()) mainWindow.setFullScreen(false);
+    setPortalVisible(portalReady); bounds();
+    void navigate('library').catch(() => {});
+    refreshAccount();
+    if (!quitApproved) void checkAndApplyUpdates({ reschedule: true });
+  }
+  broadcast();
+}
+async function exitCurrentGame() {
+  const record = currentGame();
+  if (!record || record.closed) return;
+  if (record.__exitPrompt) return record.__exitPrompt;
+  record.__exitPrompt = (async () => {
+    const name = gameById(record.__gameId).name;
+    const result = await dialog.showMessageBox(mainWindow, { type: 'question', title: 'Leave ' + name + '?', message: 'Return to your library?', detail: record.__gameId === 'morogue' ? 'Your unfinished Mora Mode or Endless Night run will end. Completed online results remain on your account.' : 'Your progress will be saved before leaving ' + name + '.', buttons: ['Keep playing', 'Exit game'], defaultId: 0, cancelId: 0, noLink: true });
+    if (!quitting && result.response === 1 && games.get(record.__gameId) === record) await closeGame(record);
+  })().catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); throw error; }).finally(() => { record.__exitPrompt = null; });
+  return record.__exitPrompt;
+}
+async function openMessages() {
+  const contents = activePortal();
+  if (!contents || !windowContents(mainWindow)) throw Error('The launcher is closing.');
+  messageOverlay = true;
+  const game = currentGame(); if (gameContents(game)) game.view.setVisible(false);
+  setPortalVisible(portalReady); bounds(); broadcast();
+  if (!portalReady) await loadPortal();
+  if (contents !== activePortal()) return;
+  if (!hiddenTest) contents.focus();
+  await contents.executeJavaScript(`(async()=>{const deadline=Date.now()+5000;while(!window.repoMessaging?.open&&Date.now()<deadline)await new Promise(r=>setTimeout(r,100));if(!window.repoMessaging?.open)throw Error('Messages are still connecting. Please try again.');await window.repoMessaging.open();})()`);
 }
 async function gameCommand(event, action, value) {
   if (quitting || !windowContents(mainWindow)) throw new Error('The launcher is closing.');
-  const found = [...games.entries()].find(([_id, window]) => { const contents = windowContents(window); return contents && contents === event.sender && event.senderFrame && event.senderFrame === contents.mainFrame; });
+  const found = [...games.entries()].find(([_id, window]) => { const contents = gameContents(window); return contents && contents === event.sender && event.senderFrame && event.senderFrame === contents.mainFrame; });
   if (!found || new URL(event.senderFrame.url).origin !== gameById(found[0]).origin) throw new Error('This action belongs to the game.');
   const window = found[1];
   if (action === 'connection') { await account.refresh(); return gameConnection(window); }
   if (action === 'session') {
     const identity = await account.requireOnline();
     const session = await portalSession();
-    if (!windowContents(window) || identity !== window.__accountId || session?.user?.id !== identity || session.access_token !== account.token) throw new Error('Your account changed. Return to the launcher and sign in again.');
+    if (!gameContents(window) || identity !== window.__accountId || session?.user?.id !== identity || session.access_token !== account.token) throw new Error('Your account changed. Return to the launcher and sign in again.');
     return { access_token: account.token, user: { id: identity } };
   }
   if (action === 'game') gameById(value);
@@ -270,7 +347,7 @@ async function playWeb(id) {
   await reconcileEmbeddedDemo();
   if (quitting || !windowContents(mainWindow) || !activePortal()) throw new Error('The launcher is closing.');
   if (account.state.status !== 'online' || account.identity !== identity) throw new Error('Your account changed. Sign in again before playing.');
-  if (games.has(id)) { showWindow(games.get(id)); return; }
+  if (games.has(id)) { focusGame(games.get(id)); return; }
   if (embeddedDemo?.id === id) { showWindow(mainWindow); return; }
   if (games.size || embeddedDemo) throw new Error('Close your current game before starting another.');
   {
@@ -308,7 +385,7 @@ async function play(id) {
   const game = gameById(id);
   if (!game.installable) throw new Error('This game is coming to the desktop library.');
   await reconcileEmbeddedDemo();
-  if (games.has(id)) { showWindow(games.get(id)); return; }
+  if (games.has(id)) { focusGame(games.get(id)); return; }
   if (games.size || embeddedDemo) throw new Error('Close your current game before starting another.');
   const current = library.getInstalled(id);
   if (!current) throw new Error('Install this game before playing.');
@@ -320,34 +397,42 @@ async function play(id) {
     if ((await portalSession())?.user?.id !== identity) throw new Error('Your account changed. Sign in again before playing.');
   }
   // Reserve synchronously after the account check so a second click cannot create two runs.
-  if (games.has(id)) { showWindow(games.get(id)); return; }
+  if (games.has(id)) { focusGame(games.get(id)); return; }
   if (quitting || !mainWindow || mainWindow.isDestroyed()) throw new Error('The launcher is closing.');
   if (games.size || embeddedDemo) throw new Error('Close your current game before starting another.');
   if (!library.getInstalled(id)) throw new Error('This game is no longer installed.');
   if (library.isBusy(id) || ['downloading', 'updating', 'verifying'].includes(library.snapshot()[id]?.status)) throw new Error('Wait for the installation to finish before playing.');
-  const window = new BrowserWindow({
-    width: 1440, height: 900, minWidth: 960, minHeight: 640, title: game.name + ' · Repo Company',
-    backgroundColor: '#121713', show: false, autoHideMenuBar: true,
+  const gameView = new WebContentsView({
     webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'game-preload.cjs'), additionalArguments: ['--repo-account-id=' + identity, '--repo-game-id=' + id], contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false }
   });
-  window.__accountId = identity; window.__gameId = id;
-  games.set(id, window); broadcast();
-  secureContents(window.webContents, value => { try { return new URL(value).origin === game.origin; } catch { return false; } });
-  window.webContents.on('will-navigate', (event, destination) => { if (isPortalUrl(destination)) { event.preventDefault(); if (!window.isDestroyed()) window.close(); } });
-  window.once('ready-to-show', () => showWindow(window));
-  window.on('focus', () => discordPresence?.gameFocused(id));
-  window.webContents.on('render-process-gone', () => { discordPresence?.gameStopped(id); if (!quitting) dialog.showErrorBox(game.name + ' closed unexpectedly', 'Your completed online results remain on your account. Reopen the game from your library.'); });
-  window.on('close', event => {
-    if (quitting || window.__exitApproved) return;
-    event.preventDefault();
-    if (window.__askingToClose) return; window.__askingToClose = true;
-    void dialog.showMessageBox(window, { type: 'question', title: 'Leave ' + game.name + '?', message: 'Close ' + game.name + '?', detail: id === 'morogue' ? 'An unfinished Mora Mode or Endless Night run will end. Completed online results remain on your account.' : 'Your progress will be saved before the game closes.', buttons: ['Keep playing', 'Close game'], defaultId: 0, cancelId: 0, noLink: true }).then(async result => {
-      if (!quitting && result.response === 1 && !window.isDestroyed()) await closeGame(window);
-    }).catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); }).finally(() => { window.__askingToClose = false; });
-  });
-  window.on('closed', () => { games.delete(id); discordPresence?.gameStopped(id); sharedSession.flushStorageData(); broadcast(); refreshAccount(); if (!quitApproved) void checkAndApplyUpdates({ reschedule: true }); });
-  try { await window.loadURL(game.origin + '/'); if (windowContents(window) && !quitting) discordPresence?.gameStarted(id); }
-  catch { if (!window.isDestroyed()) { window.__exitApproved = true; window.close(); } if (!quitting) throw new Error(game.name + ' could not open. Repair its installation and try again.'); }
+  gameView.setBackgroundColor('#121713');
+  const record = { view: gameView, webContents: gameView.webContents, __accountId: identity, __gameId: id, closed: false, loading: true };
+  games.set(id, record); mainWindow.contentView.addChildView(gameView); focusGame(record);
+  let presenceStarted = false, presenceEnded = false;
+  function startGamePresence() {
+    const contents = gameContents(record);
+    if (presenceStarted || presenceEnded || quitting || !contents || games.get(id) !== record) return;
+    try { if (new URL(contents.getURL()).origin !== game.origin) return; } catch { return; }
+    record.loading = false; broadcast();
+    presenceStarted = true; discordPresence?.gameStarted(id);
+  }
+  function stopGamePresence() {
+    if (presenceEnded) return;
+    presenceEnded = true;
+    if (games.get(id) === record) discordPresence?.gameStopped(id);
+  }
+  record.stopPresence = stopGamePresence;
+  secureContents(record.webContents, value => { try { return new URL(value).origin === game.origin; } catch { return false; } });
+  record.webContents.on('will-navigate', (event, destination) => { if (isPortalUrl(destination)) { event.preventDefault(); void exitCurrentGame().catch(() => {}); } });
+  // Large optional assets may keep loadURL pending after the game is usable.
+  // Register this live game document as soon as its DOM is ready instead.
+  record.webContents.on('dom-ready', startGamePresence);
+  record.webContents.on('did-fail-load', (_event, code, _description, _url, isMainFrame) => { if (isMainFrame && code !== -3) stopGamePresence(); });
+  record.webContents.on('focus', () => { if (!record.closed && games.get(id) === record) discordPresence?.gameFocused(id); });
+  record.webContents.on('render-process-gone', () => { disposeGame(record); if (!quitting) dialog.showErrorBox(game.name + ' closed unexpectedly', 'Your previously saved progress and completed online results remain. Reopen the game from your library.'); });
+  record.webContents.on('destroyed', () => disposeGame(record));
+  try { await record.webContents.loadURL(game.origin + '/'); startGamePresence(); }
+  catch { const wasClosed = record.closed; disposeGame(record); if (!quitting && !wasClosed) throw new Error(game.name + ' could not open. Repair its installation and try again.'); }
 }
 async function command(event, action, value) {
   if (!trustedShell(event)) throw new Error('This action belongs to the launcher.');
@@ -358,13 +443,19 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'automatic-game-updates', 'discord-presence'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'automatic-game-updates', 'discord-presence', 'social-state'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
   switch (action) {
     case 'state': return state();
     case 'navigate': await navigate(value); return state();
+    case 'exit-game': await exitCurrentGame(); return state();
+    case 'messages': await openMessages(); return state();
+    case 'resume-game': if (currentGame()) focusGame(currentGame()); else { messageOverlay = false; broadcast(); } return state();
+    case 'social-state':
+      if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['unread', 'callActive', 'incomingCall', 'open'].includes(key)) || !Object.hasOwn(value, 'unread') || !Object.hasOwn(value, 'callActive') || !Number.isInteger(value.unread) || value.unread < 0 || value.unread > 999 || typeof value.callActive !== 'boolean' || ['incomingCall', 'open'].some(key => Object.hasOwn(value, key) && typeof value[key] !== 'boolean')) throw TypeError('Invalid message status.');
+      socialState = { unread: value.unread, callActive: value.callActive, incomingCall: value.incomingCall === true, open: value.open === true }; broadcast(); return;
     case 'website': await shell.openExternal(config.portalOrigin); return;
     case 'refresh': if (!portalReady) await loadPortal(); if (quitting) return; await Promise.allSettled([account.refresh(), checkAndApplyUpdates()]); return state();
     case 'launcher-update': return updater.check();
@@ -383,6 +474,7 @@ async function executeCommand(action, value) {
       if (value === 'minimize') mainWindow.minimize();
       else if (value === 'maximize') mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
       else if (value === 'close') mainWindow.close();
+      else if (value === 'fullscreen' && currentGame()) mainWindow.setFullScreen(!mainWindow.isFullScreen());
       else throw new Error('Unknown window action.');
       return;
     case 'play': return play(value);
@@ -417,10 +509,9 @@ async function launch() {
   discordPresence = new DiscordPresence({ applications: fixtures || hiddenTest ? {} : config.discordApplications || {}, enabled: preferences.snapshot().discordPresence });
   discordPresence.on('change', broadcast);
   sharedSession = session.fromPartition('persist:repo-company');
-  sharedSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
-  sharedSession.setPermissionCheckHandler(() => false);
+  configureSessionPermissions(sharedSession);
   sharedSession.on('will-download', (event, item, contents) => {
-    const record = [...games.entries()].find(([id, window]) => id !== 'morogue' && windowContents(window) === contents);
+    const record = [...games.entries()].find(([id, window]) => id !== 'morogue' && gameContents(window) === contents);
     // Only explicit game save exports may use the native Save As dialog.
     const game = record && gameById(record[0]);
     if (!game || !item.getURL().startsWith('blob:' + game.origin + '/') || !/\.(json|velmora|moratales)$/i.test(item.getFilename())) { event.preventDefault(); return; }
@@ -451,9 +542,9 @@ async function launch() {
   portalContents = portal.webContents; portalContentsId = portalContents.id;
   mainWindow.contentView.addChildView(portal); portal.setVisible(false); bounds();
   secureContents(portalContents, isPortalUrl);
-  portalContents.on('destroyed', () => { if (embeddedDemo) discordPresence?.gameStopped(embeddedDemo.id); embeddedDemo = null; portalReady = false; portalLoading = false; portalLoadRevision++; portalContentsId = null; portalContents = null; });
-  portalContents.on('did-start-navigation', (_event, _url, inPlace, isMainFrame) => { if (isMainFrame && !inPlace) closeEmbeddedDemo(); });
-  portalContents.on('dom-ready', () => { if (!activePortal()) return; portalReady = true; portalError = ''; setPortalVisible(true); refreshAccount(); broadcast(); });
+  portalContents.on('destroyed', () => { mediaPermissions?.reset(); if (embeddedDemo) discordPresence?.gameStopped(embeddedDemo.id); embeddedDemo = null; portalReady = false; portalViewVisible = false; lastPortalVisibility = null; portalLoading = false; portalLoadRevision++; portalContentsId = null; portalContents = null; });
+  portalContents.on('did-start-navigation', (_event, _url, inPlace, isMainFrame) => { if (isMainFrame && !inPlace) { mediaPermissions?.reset(); closeEmbeddedDemo(); } });
+  portalContents.on('dom-ready', () => { if (!activePortal()) return; portalReady = true; portalError = ''; setPortalVisible(true); notifyPortalVisibility(true); refreshAccount(); broadcast(); });
   portalContents.on('did-finish-load', refreshAccount);
   portalContents.on('did-fail-load', (_event, code, _description, _url, isMainFrame) => {
     if (!activePortal() || !isMainFrame || code === -3) return;
@@ -467,7 +558,10 @@ async function launch() {
   ipcMain.handle('launcher:game', gameCommand);
   Menu.setApplicationMenu(null);
   mainWindow.on('resize', bounds);
-  mainWindow.on('focus', () => { if (embeddedDemo) discordPresence?.gameFocused(embeddedDemo.id); });
+  mainWindow.on('focus', () => { if (currentGame() && !messageOverlay) { gameContents(currentGame())?.focus(); discordPresence?.gameFocused(currentGame().__gameId); } else if (embeddedDemo) discordPresence?.gameFocused(embeddedDemo.id); notifyPortalVisibility(); });
+  for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) mainWindow.on(event, () => notifyPortalVisibility());
+  mainWindow.on('enter-full-screen', () => { bounds(); broadcast(); });
+  mainWindow.on('leave-full-screen', () => { bounds(); broadcast(); });
   mainWindow.once('ready-to-show', () => showWindow(mainWindow));
   mainWindow.on('close', event => {
     if (quitApproved || quitting) return;
@@ -482,9 +576,10 @@ async function launch() {
   });
   mainWindow.on('closed', () => {
     discordPresence?.dispose();
+    mediaPermissions?.dispose();
     mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
     shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer);
-    for (const game of games.values()) if (!game.isDestroyed()) game.destroy();
+    for (const game of [...games.values()]) disposeGame(game);
     const contents = portalContents; portalContents = null; portal = null;
     if (contents && !contents.isDestroyed()) contents.close();
     app.quit();
@@ -505,7 +600,7 @@ else {
   app.whenReady().then(launch).catch(error => { if (!quitting) { dialog.showErrorBox('Repo Company could not open', error.message); app.exit(1); } });
   app.on('before-quit', event => {
     if (!quitApproved && mainWindow && (games.size || embeddedDemo || Object.values(library?.snapshot() || {}).some(item => ['downloading', 'updating', 'verifying'].includes(item.status)))) { event.preventDefault(); mainWindow.close(); return; }
-    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer); sharedSession?.flushStorageData();
+    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); mediaPermissions?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); clearTimeout(broadcastTimer); sharedSession?.flushStorageData();
   });
   app.on('window-all-closed', () => app.quit());
 }

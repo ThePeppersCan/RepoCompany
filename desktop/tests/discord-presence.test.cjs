@@ -163,3 +163,59 @@ test('disable and dispose clear once, bound a silent peer, and ignore late event
     h.presence.dispose();
   }
 });
+
+function missingPipes(h, from = 0) {
+  for (let index = from; index < 10; index++) h.pipes[index].emit('error', Object.assign(new Error('private local path'), { code: 'ENOENT' }));
+}
+
+test('diagnostics distinguish missing pipes from denied access without exposing socket messages', () => {
+  const missing = setup(); missing.presence.gameStarted('morogue'); missingPipes(missing);
+  assert.equal(missing.presence.snapshot().reason, 'pipe-not-found');
+  assert.equal(missing.presence.snapshot().code, 'ENOENT'); missing.presence.dispose();
+  const denied = setup(); denied.presence.gameStarted('morogue');
+  denied.pipes[0].emit('error', Object.assign(new Error('private Windows username and path'), { code: 'EACCES' }));
+  missingPipes(denied, 1);
+  assert.equal(denied.presence.snapshot().reason, 'pipe-access-denied');
+  assert.equal(denied.presence.snapshot().code, 'EACCES');
+  assert.ok(!JSON.stringify(denied.events).includes('private')); denied.presence.dispose();
+});
+
+test('a real client handshake rejection survives missing later pipes and clears after recovery', () => {
+  for (const opcode of [1, 2]) {
+    const h = setup(); h.presence.gameStarted('morogue');
+    const message = opcode === 2 ? { code: 4000, message: 'private error token' } : { evt: 'ERROR', data: { code: 4000, message: 'private error token', user: 'private username' } };
+    h.pipes[0].receive(opcode, message); missingPipes(h, 1);
+    assert.equal(h.presence.snapshot().reason, 'handshake-rejected'); assert.equal(h.presence.snapshot().code, 4000);
+    assert.ok(!JSON.stringify(h.events).includes('private'));
+    h.clock.tick(2000); const next = h.pipes[10]; next.ready(); next.ack();
+    assert.equal(h.presence.snapshot().status, 'connected'); assert.equal(h.presence.snapshot().reason, null); assert.equal(h.presence.snapshot().code, null);
+    h.presence.dispose(); next.ack();
+  }
+});
+
+test('activity rejection, Discord close, and timeouts have distinct bounded diagnostics', () => {
+  const rejected = setup(); rejected.presence.gameStarted('morogue'); const pipe = rejected.pipes[0]; pipe.ready();
+  const nonce = pipe.messages().at(-1).body.nonce;
+  pipe.receive(1, { cmd: 'SET_ACTIVITY', nonce, evt: 'ERROR', data: { code: 4002, message: 'private details', user: { id: 'private-user' } } });
+  assert.equal(rejected.presence.snapshot().reason, 'activity-rejected'); assert.equal(rejected.presence.snapshot().code, 4002);
+  assert.ok(!JSON.stringify(rejected.events).includes('private')); rejected.presence.dispose();
+  const closed = setup(); closed.presence.gameStarted('morogue'); closed.pipes[0].ready(); closed.pipes[0].ack();
+  closed.pipes[0].receive(2, { code: 4001, message: 'private closure reason' });
+  assert.equal(closed.presence.snapshot().reason, 'discord-closed'); assert.equal(closed.presence.snapshot().code, 4001); closed.presence.dispose();
+  const handshake = setup(); handshake.presence.gameStarted('morogue'); handshake.clock.tick(25000);
+  assert.equal(handshake.presence.snapshot().reason, 'handshake-timeout'); handshake.presence.dispose();
+  const activity = setup(); activity.presence.gameStarted('morogue'); activity.pipes[0].ready(); activity.clock.tick(5000);
+  assert.equal(activity.presence.snapshot().reason, 'activity-timeout'); activity.presence.dispose();
+});
+
+test('unrecognized socket codes and out-of-range or structured RPC codes never enter public state', () => {
+  for (const code of ['private token', { token: 'private' }, 999999999999, -1, 1.25]) {
+    const h = setup(); h.presence.gameStarted('morogue'); const pipe = h.pipes[0]; pipe.ready();
+    const nonce = pipe.messages().at(-1).body.nonce;
+    pipe.receive(1, { cmd: 'SET_ACTIVITY', nonce, evt: 'ERROR', data: { code, message: 'private' } });
+    assert.equal(h.presence.snapshot().code, null); assert.ok(!JSON.stringify(h.events).includes('private')); h.presence.dispose();
+  }
+  const h = setup(); h.presence.gameStarted('morogue');
+  h.pipes[0].emit('error', Object.assign(new Error('private'), { code: 'private code' })); missingPipes(h, 1);
+  assert.equal(h.presence.snapshot().reason, 'pipe-error'); assert.equal(h.presence.snapshot().code, null); h.presence.dispose();
+});

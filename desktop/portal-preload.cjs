@@ -8,6 +8,25 @@ if (process.isMainFrame) {
   if (allowed.includes(location.origin)) initialize();
 }
 
+function discordStatusText(presence, enabled) {
+  if (!enabled || presence?.status === 'disabled') return 'Discord game activity is off on this computer.';
+  if (presence?.status === 'connected') return 'Discord accepted your game activity. Its Activity Privacy settings control who can see it.';
+  if (presence?.status === 'connecting') return 'Connecting to the Discord desktop app…';
+  if (presence?.status === 'unconfigured') return 'Discord activity is available for MoraTales, Morogue and Velmora Manager.';
+  if (presence?.status !== 'unavailable') return 'Launch a game to connect to Discord. Keep the Discord desktop app open.';
+  const code = Number.isInteger(presence.code) && presence.code >= 0 && presence.code <= 65535 ? ` (code ${presence.code})` : '';
+  switch (presence.reason) {
+    case 'pipe-not-found': return 'The Discord desktop app was not found. Open it and the launcher will reconnect automatically.';
+    case 'pipe-access-denied': return 'Windows blocked the connection to Discord. Run Discord and the launcher with the same Windows permissions.';
+    case 'handshake-rejected': return `Discord rejected the game connection${code}. The launcher will retry automatically.`;
+    case 'activity-rejected': return `Discord rejected the game activity${code}. The launcher will retry automatically.`;
+    case 'handshake-timeout': case 'activity-timeout': return 'Discord took too long to respond. The launcher will retry automatically.';
+    case 'discord-closed': case 'connection-closed': return 'Discord closed the connection. The launcher will reconnect automatically.';
+    case 'invalid-response': return 'Discord returned an unexpected response. The launcher will retry automatically.';
+    default: return 'The launcher could not connect to Discord. Keep its desktop app open; the launcher will retry automatically.';
+  }
+}
+
 function initialize() {
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   const activeStatuses = new Set(['downloading','updating','verifying','installing','queued','extracting']);
@@ -17,6 +36,25 @@ function initialize() {
   let libraryActive = false, libraryRequested = false, queued = false, mountedDialog = null;
   let lastLibrarySignature = '', refreshTimer = null, refreshPending = false, messageTimer = null;
   let embeddedDemo = null;
+  let portalVisible = false;
+  function publishPortalVisibility(value) {
+    portalVisible = value === true;
+    const root = document.documentElement;
+    if (!root || root.dataset.repoPortalVisible === String(portalVisible)) return;
+    root.dataset.repoPortalVisible = String(portalVisible);
+    dispatchEvent(new CustomEvent('repo-launcher-portal-visibility', { detail: { visible: portalVisible } }));
+  }
+  // Set the initial hidden state as soon as <html> exists, before deferred
+  // website scripts can regard an unseen inbox as read during portal reloads.
+  function markLauncherDocument() {
+    if (!document.documentElement) return false;
+    document.documentElement.dataset.repoLauncher = 'true';
+    publishPortalVisibility(portalVisible); return true;
+  }
+  if (!markLauncherDocument()) {
+    const rootObserver = new MutationObserver(() => { if (markLauncherDocument()) rootObserver.disconnect(); });
+    rootObserver.observe(document, { childList: true });
+  }
   const invoke = (action,value) => ipcRenderer.invoke('launcher:portal',action,value);
   const games = () => Array.isArray(state.catalog?.games) ? state.catalog.games : [];
   const demos = () => Array.isArray(state.catalog?.demos) ? state.catalog.demos : [];
@@ -166,7 +204,7 @@ function initialize() {
     discordButton.disabled=[...pending].some(key=>key.startsWith('discord-presence:'));
     actions.set(discordButton,{action:'discord-presence',id:!discordEnabled});
     const discordStatus=section.querySelector('#launcher-discord-status');
-    const statusText=!discordEnabled?'Discord game activity is off on this computer.':state.discordPresence?.status==='connected'?'Connected to Discord. Your current game activity is shared.':state.discordPresence?.status==='unconfigured'?'Discord activity is available for MoraTales, Morogue and Velmora Manager.':state.discordPresence?.status==='connecting'?'Connecting to the Discord desktop app…':state.discordPresence?.status==='unavailable'?'Open the Discord desktop app to show your game. Its Activity Privacy settings also control visibility.':'Requires the Discord desktop app. Its Activity Privacy settings also control visibility.';
+    const statusText=discordStatusText(state.discordPresence,discordEnabled);
     if(discordStatus.textContent!==statusText)discordStatus.textContent=statusText;
   }
   function updatePlayButtons() {
@@ -236,7 +274,7 @@ function initialize() {
     } catch(error){toast(error?.message||String(error));}
     finally{pending.delete(token);schedule();}
   }
-  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};schedule();}
+  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
 
   // Capture precedes the site's launch animation and its private launching flag.
   addEventListener('click',event=>{
@@ -269,8 +307,17 @@ function initialize() {
     clearTimeout(refreshTimer);refreshTimer=setTimeout(async()=>{if(refreshPending)return;refreshPending=true;try{const next=await invoke('refresh');if(next?.catalog)receive(next);}catch{/* Periodic main refresh also retries connection. */}finally{refreshPending=false;}},150);
     schedule();
   });
+  // Page-authored social summaries are untrusted display data only. Never pass
+  // message text, peers, credentials, media or call signals into the shell.
+  addEventListener('repo-messaging-state',event=>{
+    const data=event.detail;
+    if(!data||typeof data!=='object')return;
+    const unread=Number.isSafeInteger(data.unread)?Math.max(0,Math.min(999,data.unread)):0;
+    void invoke('social-state',{unread,callActive:data.callActive===true,incomingCall:data.incomingCall===true,open:data.open===true}).catch(()=>{});
+  });
   ipcRenderer.on('launcher:state',(_event,next)=>receive(next));
+  ipcRenderer.on('launcher:portal-visibility',(_event,visible)=>{if(typeof visible==='boolean')publishPortalVisibility(visible);});
   ipcRenderer.on('launcher:portal-library',()=>{libraryRequested=true;schedule();});
-  const ready=()=>{document.documentElement.dataset.repoLauncher='true';mount();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open','hidden','aria-hidden','class','data-game-url','href','src','data-open-game','data-selected-game','data-selected-demo','aria-selected']});invoke('state').then(receive).catch(()=>{});};
+  const ready=()=>{document.documentElement.dataset.repoLauncher='true';publishPortalVisibility(portalVisible);mount();new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open','hidden','aria-hidden','class','data-game-url','href','src','data-open-game','data-selected-game','data-selected-demo','aria-selected']});invoke('state').then(receive).catch(()=>{});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 }

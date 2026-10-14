@@ -68,3 +68,10 @@
 /morogue-account-bridge
   Cache-Control: no-store
   Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors https://morogue.repocompany.uk https://moratales.repocompany.uk; base-uri 'none'; form-action 'none'
+
+/repo-messaging.js
+  Cache-Control: no-cache
+/repo-messaging.css
+  Cache-Control: no-cache
+/api/social/*
+  Cache-Control: no-store

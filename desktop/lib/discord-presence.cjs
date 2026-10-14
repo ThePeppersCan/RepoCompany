@@ -8,6 +8,10 @@ const { randomUUID } = require('node:crypto');
 const MAX_PACKET = 64 * 1024;
 const PIPE_COUNT = 10;
 const validId = value => typeof value === 'string' && /^[1-9]\d{16,19}$/.test(value) && BigInt(value) <= 18446744073709551615n;
+const PIPE_CODES = new Set(['ENOENT', 'EACCES', 'EPERM', 'ECONNREFUSED', 'ETIMEDOUT', 'EPIPE', 'ECONNRESET', 'ENOTCONN', 'EBUSY']);
+const safeCode = value => Number.isInteger(value) && value >= 0 && value <= 65535 ? value : PIPE_CODES.has(value) ? value : null;
+const pipeFailure = error => ({ reason: error?.code === 'ENOENT' ? 'pipe-not-found' : ['EACCES', 'EPERM'].includes(error?.code) ? 'pipe-access-denied' : 'pipe-error', code: safeCode(error?.code) });
+const failureRank = value => value.reason === 'pipe-not-found' ? 0 : ['handshake-rejected', 'activity-rejected', 'invalid-response'].includes(value.reason) ? 3 : value.reason.endsWith('-timeout') ? 2 : 1;
 
 function packet(opcode, value) {
   const body = Buffer.isBuffer(value) ? value : Buffer.from(JSON.stringify(value), 'utf8');
@@ -30,6 +34,7 @@ class DiscordPresence extends EventEmitter {
     this.enabled = enabled === true; this.disposed = false;
     this.running = new Map(); this.order = 0; this.connection = null; this.retryTimer = null; this.failures = 0;
     this.status = this.enabled ? 'idle' : 'disabled';
+    this.reason = null; this.code = null;
     this.connect = dependencies.connect || (options => net.createConnection(options));
     this.now = dependencies.now || Date.now;
     this.setTimer = dependencies.setTimeout || setTimeout;
@@ -39,7 +44,7 @@ class DiscordPresence extends EventEmitter {
   }
 
   snapshot() {
-    return { enabled: this.enabled, status: this.status, gameId: this._selected()?.id || null, configuredGames: [...this.applications.keys()] };
+    return { enabled: this.enabled, status: this.status, reason: this.reason, code: this.code, gameId: this._selected()?.id || null, configuredGames: [...this.applications.keys()] };
   }
   gameStarted(id) {
     if (this.disposed || typeof id !== 'string' || !/^[a-z0-9-]{1,64}$/.test(id)) return;
@@ -76,8 +81,10 @@ class DiscordPresence extends EventEmitter {
     const current = this._selected(), app = current && this.applications.get(current.id);
     return this.enabled && !this.disposed && current && app ? { ...current, ...app } : null;
   }
-  _publish(status = this.status) {
+  _publish(status = this.status, diagnostic) {
     this.status = status;
+    if (diagnostic) { this.reason = diagnostic.reason; this.code = safeCode(diagnostic.code); }
+    else if (status !== 'unavailable') { this.reason = null; this.code = null; }
     const snapshot = this.snapshot(), serialized = JSON.stringify(snapshot);
     if (serialized !== this.lastSnapshot) { this.lastSnapshot = serialized; this.emit('change', snapshot); }
   }
@@ -98,9 +105,9 @@ class DiscordPresence extends EventEmitter {
     if (!this.connection && !this.retryTimer) this._dial(target, 0);
     else this._publish();
   }
-  _dial(target, index) {
+  _dial(target, index, scanFailure = null) {
     if (this.disposed || !this.enabled || this._target()?.id !== target.id) return this._reconcile();
-    const connection = { target, index, socket: null, buffer: Buffer.alloc(0), ready: false, closing: false, closed: false, pending: null, timer: null };
+    const connection = { target, index, scanFailure, socket: null, buffer: Buffer.alloc(0), ready: false, closing: false, closed: false, pending: null, timer: null };
     this.connection = connection; this._publish('connecting');
     try {
       connection.socket = this.connect({ path: `\\\\?\\pipe\\discord-ipc-${index}` });
@@ -111,43 +118,48 @@ class DiscordPresence extends EventEmitter {
         this._write(connection, 0, { v: 1, client_id: target.clientId });
       });
       socket.on('data', data => this._read(connection, data));
-      socket.on('error', () => this._failed(connection));
+      socket.on('error', error => this._failed(connection, pipeFailure(error)));
       socket.on('close', () => this._failed(connection));
-      this._arm(connection, 2500, () => this._failed(connection));
-    } catch { this._failed(connection); }
+      this._arm(connection, 2500, () => this._failed(connection, { reason: 'handshake-timeout' }));
+    } catch (error) { this._failed(connection, pipeFailure(error)); }
   }
   _write(connection, opcode, value) {
     if (connection.closed) return false;
     try {
       if (!connection.socket || connection.socket.destroyed || connection.socket.writableLength > MAX_PACKET) throw new Error('Unavailable pipe');
       connection.socket.write(packet(opcode, value)); return true;
-    } catch { this._failed(connection); return false; }
+    } catch (error) { this._failed(connection, pipeFailure(error)); return false; }
   }
   _read(connection, data) {
     if (connection.closed) return;
-    if (!Buffer.isBuffer(data) || data.length + connection.buffer.length > MAX_PACKET * 2 + 16) return this._failed(connection);
+    if (!Buffer.isBuffer(data) || data.length + connection.buffer.length > MAX_PACKET * 2 + 16) return this._failed(connection, { reason: 'invalid-response' });
     connection.buffer = Buffer.concat([connection.buffer, data]);
     while (!connection.closed && connection.buffer.length >= 8) {
       const opcode = connection.buffer.readUInt32LE(0), size = connection.buffer.readUInt32LE(4);
-      if (size > MAX_PACKET || opcode > 4) return this._failed(connection);
+      if (size > MAX_PACKET || opcode > 4) return this._failed(connection, { reason: 'invalid-response' });
       if (connection.buffer.length < 8 + size) return;
       const body = connection.buffer.subarray(8, 8 + size);
       connection.buffer = connection.buffer.subarray(8 + size);
       if (opcode === 3) { this._write(connection, 4, body); continue; }
       if (opcode === 4) continue;
-      if (opcode !== 1) return this._failed(connection);
+      if (opcode !== 1 && opcode !== 2) return this._failed(connection, { reason: 'invalid-response' });
       let message;
-      try { message = JSON.parse(body.toString('utf8')); } catch { return this._failed(connection); }
-      if (!message || typeof message !== 'object' || Array.isArray(message)) return this._failed(connection);
+      try { message = JSON.parse(body.toString('utf8')); } catch { return this._failed(connection, { reason: 'invalid-response' }); }
+      if (!message || typeof message !== 'object' || Array.isArray(message)) return this._failed(connection, { reason: 'invalid-response' });
+      // Keep only bounded protocol codes. Discord messages and READY user data
+      // never become part of launcher state or diagnostics.
+      if (opcode === 2) return this._failed(connection, { reason: connection.ready ? 'discord-closed' : 'handshake-rejected', code: safeCode(message.code) });
       if (!connection.ready) {
-        if (message.cmd !== 'DISPATCH' || message.evt !== 'READY') return this._failed(connection);
+        if (message.evt === 'ERROR') return this._failed(connection, { reason: 'handshake-rejected', code: safeCode(message.data?.code) });
+        if (message.cmd !== 'DISPATCH' || message.evt !== 'READY') return this._failed(connection, { reason: 'invalid-response' });
         connection.ready = true;
         if (connection.closing || this._target()?.id !== connection.target.id) this._retire(connection);
         else this._activity(connection, false);
       } else if (connection.pending && message.nonce === connection.pending.nonce) {
         const pending = connection.pending; connection.pending = null;
         if (connection.timer) this.clearTimer(connection.timer); connection.timer = null;
-        if (message.evt === 'ERROR' || message.cmd !== 'SET_ACTIVITY') return this._failed(connection);
+        if (message.evt === 'ERROR') return this._failed(connection, { reason: pending.clear ? 'clear-rejected' : 'activity-rejected', code: safeCode(message.data?.code) });
+        if (message.cmd !== 'SET_ACTIVITY') return this._failed(connection, { reason: 'invalid-response' });
         if (pending.clear) return this._finish(connection);
         this.failures = 0;
         if (connection.closing || this._target()?.id !== connection.target.id) this._retire(connection);
@@ -159,7 +171,7 @@ class DiscordPresence extends EventEmitter {
     if (connection.pending || connection.closed) return;
     const nonce = randomUUID(); connection.pending = { nonce, clear };
     const activity = clear ? null : { type: 0, details: `Playing ${connection.target.name}`, state: 'Via Repo Company', timestamps: { start: connection.target.start }, instance: true };
-    this._arm(connection, clear ? 1000 : 5000, () => this._failed(connection));
+    this._arm(connection, clear ? 1000 : 5000, () => this._failed(connection, { reason: clear ? 'clear-timeout' : 'activity-timeout' }));
     this._write(connection, 1, { cmd: 'SET_ACTIVITY', args: { pid: this.pid, activity }, nonce });
   }
   _retire(connection) {
@@ -181,14 +193,17 @@ class DiscordPresence extends EventEmitter {
     connection.socket?.destroy();
   }
   _finish(connection) { if (connection.closed) return; this._destroy(connection); this._reconcile(); }
-  _failed(connection) {
+  _failed(connection, failure = { reason: 'connection-closed', code: null }) {
     if (connection.closed) return;
     const wasReady = connection.ready, closing = connection.closing;
     this._destroy(connection);
     const target = this._target();
     if (closing || !target || target.id !== connection.target.id) return this._reconcile();
-    if (!wasReady && connection.index + 1 < PIPE_COUNT) return this._dial(target, connection.index + 1);
-    this._publish('unavailable');
+    // Missing later pipes must not hide a rejection from the Discord client
+    // actually found earlier in the scan.
+    if (!wasReady && connection.scanFailure && failureRank(connection.scanFailure) > failureRank(failure)) failure = connection.scanFailure;
+    if (!wasReady && connection.index + 1 < PIPE_COUNT) return this._dial(target, connection.index + 1, failure);
+    this._publish('unavailable', failure);
     const delay = Math.min(30000, 2000 * (2 ** Math.min(this.failures++, 4)));
     this.retryTimer = this._later(() => { this.retryTimer = null; this._reconcile(); }, delay);
   }

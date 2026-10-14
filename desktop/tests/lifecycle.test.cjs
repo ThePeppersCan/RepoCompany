@@ -412,11 +412,13 @@ test('game session IPC is account-bound and close waits for a durable save', asy
   const identity = '11111111-2222-4333-8444-555555555555';
   let saved = 0, closed = 0, failure = false;
   const frame = { url: 'https://manager.repocompany.uk/' };
-  const contents = { isDestroyed: () => false, mainFrame: frame, executeJavaScript: async () => { saved++; if (failure) throw Error('Storage full'); return true; } };
-  h.context.gameWindow = { __gameId: 'manager', __accountId: identity, isDestroyed: () => false, webContents: contents, close() { closed++; } };
-  h.context.fixture.mainWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false } };
+  const contents = { isDestroyed: () => closed > 0, mainFrame: frame, close() { closed++; }, executeJavaScript: async () => { saved++; if (failure) throw Error('Storage full'); return true; } };
+  h.context.gameWindow = { __gameId: 'manager', __accountId: identity, view: { setVisible() {}, setBounds() {} }, webContents: contents };
+  h.context.fixture.mainWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false, send() {} }, contentView: { removeChildView() {} }, getContentSize: () => [1200, 800], isFullScreen: () => false };
+  h.context.fixture.library.checkUpdates = async () => {};
   h.context.fixture.account.identity = identity;
   h.context.fixture.account.requireOnline = async () => h.context.fixture.account.identity;
+  h.context.fixture.account.refresh = async () => {};
   h.contents.getURL = () => 'https://repocompany.uk/';
   h.contents.executeJavaScript = async () => ({ access_token: h.context.fixture.account.token, user: { id: h.context.fixture.account.identity } });
   h.run('mainWindow=fixture.mainWindow; portalReady=true; games.set("manager",gameWindow);');
@@ -521,29 +523,192 @@ test('Discord visibility is a device boolean protected by the portal sender boun
   assert.deepEqual(calls, [false]); assert.doesNotMatch(JSON.stringify(result.discordPresence), /TEST_ONLY|token|username|score|account/i);
 });
 
-test('successful native game start, focus and close drive only the corresponding Discord game activity', async () => {
+function nativePresenceHarness({ pendingLoad = false } = {}) {
   const windows = [], activity = []; let checks = 0;
-  class GameWindow extends EventEmitter {
-    constructor() {
-      super(); windows.push(this); this.destroyed = false;
-      this.webContents = Object.assign(new EventEmitter(), { isDestroyed: () => this.destroyed, send() {}, setWindowOpenHandler() {} });
+  class GameView {
+    constructor(options) {
+      windows.push(this); this.destroyed = false; this.options = options; this.visible = false;
+      this.webContents = Object.assign(new EventEmitter(), {
+        mainFrame: { url: 'about:blank' }, isDestroyed: () => this.destroyed, getURL() { return this.mainFrame.url; }, send() {}, setWindowOpenHandler() {}, focus() { this.emit('focus'); },
+        loadURL: async url => { this.webContents.mainFrame.url = url; activity.push('loaded'); if (pendingLoad) await new Promise((resolve, reject) => { this.finishLoad = resolve; this.failLoad = reject; }); },
+        close: () => { this.destroyed = true; this.webContents.emit('destroyed'); }, executeJavaScript: async () => true
+      });
     }
-    isDestroyed() { return this.destroyed; }
-    async loadURL() { activity.push('loaded'); }
-    close() { this.destroyed = true; this.emit('closed'); }
+    setVisible(value) { this.visible = value; }
+    setBackgroundColor() {}
+    setBounds(value) { this.bounds = value; }
+    close() { this.webContents.close(); }
   }
-  const h = portalHarness({ electronOverrides: { BrowserWindow: GameWindow } });
+  const dialogs = { response: 1, showErrorBox() {}, async showMessageBox() { return { response: this.response }; } };
+  const h = portalHarness({ electronOverrides: { WebContentsView: GameView, BrowserWindow: class { constructor() { throw Error('Playing must not create another native window.'); } }, dialog: dialogs } });
   h.context.fixture.account.requireOnline = async () => 'original-account';
   h.context.fixture.account.refresh = async () => {};
   h.context.fixture.library = { getInstalled: () => ({ version: '1', entry: 'index.html' }), snapshot: () => ({ manager: { status: 'installed', version: '1' } }), isBusy: () => false, async checkUpdates() { checks++; } };
-  h.context.fixture.discord = { gameStarted: id => activity.push('start:' + id), gameFocused: id => activity.push('focus:' + id), gameStopped: id => activity.push('stop:' + id) };
-  h.context.fixture.mainWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false, send() {} } };
+  h.context.fixture.discord = { snapshot: () => ({ enabled: true, status: 'idle' }), gameStarted: id => activity.push('start:' + id), gameFocused: id => activity.push('focus:' + id), gameStopped: id => activity.push('stop:' + id) };
+  const children = [], portal = { visible: true, setVisible(value) { this.visible = value; }, setBounds(value) { this.bounds = value; } };
+  h.context.fixture.mainWindow = { isDestroyed: () => false, shown: true, focused: true, minimized: false, isVisible() { return this.shown; }, isFocused() { return this.focused; }, isMinimized() { return this.minimized; }, webContents: { isDestroyed: () => false, send() {} }, contentView: { addChildView: child => children.push(child), removeChildView: child => { const index = children.indexOf(child); if (index >= 0) children.splice(index, 1); } }, getContentSize: () => [1480, 940], fullscreen: false, isFullScreen() { return this.fullscreen; }, setFullScreen(value) { this.fullscreen = value; } };
+  h.context.fixture.portal = portal;
   h.context.fixture.sharedSession = { flushStorageData() {} };
-  h.run('library=fixture.library; discordPresence=fixture.discord; mainWindow=fixture.mainWindow; sharedSession=fixture.sharedSession;');
+  h.run('library=fixture.library; discordPresence=fixture.discord; mainWindow=fixture.mainWindow; sharedSession=fixture.sharedSession; portal=fixture.portal; portalReady=true;');
+  return { ...h, windows, activity, checks: () => checks, GameView, children, portal, dialogs };
+}
+
+test('successful native game start, focus and close drive only the corresponding Discord game activity', async () => {
+  const h = nativePresenceHarness(), { windows, activity } = h;
   await h.run('play("manager")');
   assert.deepEqual(activity, ['loaded', 'start:manager']);
-  windows[0].emit('focus'); windows[0].close(); await new Promise(resolve => setImmediate(resolve));
+  windows[0].webContents.emit('focus'); windows[0].close(); await new Promise(resolve => setImmediate(resolve));
   assert.deepEqual(activity, ['loaded', 'start:manager', 'focus:manager', 'stop:manager']);
-  assert.equal(checks, 1, 'closing the real game lifecycle initiates deferred update checks');
+  assert.equal(h.checks(), 1, 'closing the real game lifecycle initiates deferred update checks');
   assert.equal(h.run('games.size'), 0);
+});
+
+test('a ready game DOM starts Discord while optional assets keep loadURL pending', async () => {
+  const h = nativePresenceHarness({ pendingLoad: true }); let finished = false;
+  const opening = h.run('play("manager")').then(() => { finished = true; });
+  await new Promise(resolve => setImmediate(resolve));
+  const game = h.windows[0];
+  assert.equal(finished, false); assert.deepEqual(h.activity, ['loaded']);
+  game.webContents.emit('dom-ready');
+  assert.equal(finished, false, 'activity cannot wait for the full load promise');
+  assert.deepEqual(h.activity, ['loaded', 'start:manager']);
+  game.webContents.emit('dom-ready'); game.finishLoad(); await opening;
+  assert.deepEqual(h.activity, ['loaded', 'start:manager'], 'DOM events and the completed-load fallback register only once');
+  game.close();
+});
+
+test('closed, crashed or replaced game pages cannot resurrect Discord through late readiness or load completion', async () => {
+  for (const ending of ['closed', 'crashed-before-ready', 'crashed-after-ready', 'replaced']) {
+    const h = nativePresenceHarness({ pendingLoad: true });
+    const opening = h.run('play("manager")');
+    await new Promise(resolve => setImmediate(resolve));
+    const game = h.windows[0];
+    if (ending === 'crashed-after-ready') game.webContents.emit('dom-ready');
+    if (ending === 'closed') game.close();
+    else if (ending.startsWith('crashed')) game.webContents.emit('render-process-gone', {}, { reason: 'crashed' });
+    else { const view = new h.GameView(); h.context.replacement = { __gameId: 'manager', view, webContents: view.webContents }; h.run('games.set("manager",replacement);'); }
+    const before = [...h.activity];
+    game.webContents.emit('dom-ready'); game.finishLoad(); await opening;
+    assert.deepEqual(h.activity, before, ending + ': a stale page cannot restart activity');
+    if (ending === 'crashed-after-ready') assert.deepEqual(h.activity, ['loaded', 'start:manager', 'stop:manager']);
+    if (ending === 'replaced') {
+      game.close();
+      assert.equal(h.run('games.get("manager")'), h.context.replacement, 'the old closed event cannot delete its replacement');
+      assert.deepEqual(h.activity, before, 'the old page cannot clear its replacement activity');
+    }
+  }
+});
+
+test('Discord readiness ignores another origin, launcher shutdown and failed main-document loads', async () => {
+  for (const outcome of ['wrong-origin', 'shutdown', 'failed-document', 'rejected-load']) {
+    const h = nativePresenceHarness({ pendingLoad: true });
+    const opening = h.run('play("manager")');
+    await new Promise(resolve => setImmediate(resolve));
+    const game = h.windows[0];
+    if (outcome === 'wrong-origin') game.webContents.mainFrame.url = 'https://repocompany.uk/';
+    else if (outcome === 'shutdown') h.run('quitting=true;');
+    else {
+      game.webContents.emit('dom-ready');
+      assert.deepEqual(h.activity, ['loaded', 'start:manager']);
+      if (outcome === 'failed-document') game.webContents.emit('did-fail-load', {}, -105, 'Failed', game.webContents.getURL(), true);
+      else {
+        game.failLoad(Error('Document load failed'));
+        await assert.rejects(opening, /could not open/);
+        game.webContents.emit('dom-ready');
+        assert.deepEqual(h.activity, ['loaded', 'start:manager', 'stop:manager']);
+        continue;
+      }
+    }
+    game.webContents.emit('dom-ready'); game.finishLoad(); await opening;
+    assert.deepEqual(h.activity, outcome === 'failed-document' ? ['loaded', 'start:manager', 'stop:manager'] : ['loaded']);
+  }
+});
+
+test('downloaded games occupy one isolated native view with the original session and account preload', async () => {
+  const h = nativePresenceHarness();
+  await h.run('play("manager")');
+  const view = h.windows[0], preferences = view.options.webPreferences;
+  assert.equal(h.windows.length, 1); assert.deepEqual(h.children, [view]);
+  assert.equal(view.visible, true); assert.equal(h.portal.visible, false);
+  assert.deepEqual({ ...view.bounds }, { x: 0, y: 44, width: 1480, height: 896 });
+  assert.equal(view.webContents.getURL(), 'https://manager.repocompany.uk/');
+  assert.equal(preferences.session, h.context.fixture.sharedSession);
+  assert.equal(preferences.sandbox, true); assert.equal(preferences.contextIsolation, true); assert.equal(preferences.nodeIntegration, false);
+  assert.match(preferences.preload, /game-preload\.cjs$/); assert.ok(preferences.additionalArguments.includes('--repo-account-id=original-account'));
+  await assert.rejects(h.run('play("moratales")'), /Close your current game/);
+  await h.run('play("manager")'); assert.equal(h.windows.length, 1, 'repeated Play focuses the existing view');
+  const publicState = h.run('state()'); assert.equal(publicState.activeGame.name, 'Velmora Manager'); assert.equal(publicState.gameVisible, true);
+  assert.doesNotMatch(JSON.stringify(publicState.activeGame), /original-account|webContents|preload/);
+});
+
+test('a failed adventure save retains the live game; retry closes its view before restoring the portal', async () => {
+  const h = nativePresenceHarness(); await h.run('play("manager")');
+  const view = h.windows[0]; let saves = 0, complete;
+  view.webContents.executeJavaScript = async () => { saves++; throw Error('Save service unavailable'); };
+  await assert.rejects(h.run('exitCurrentGame()'), /Save service unavailable/);
+  assert.equal(view.destroyed, false); assert.equal(view.visible, true); assert.equal(h.portal.visible, false); assert.equal(h.run('games.size'), 1);
+  view.webContents.executeJavaScript = () => { saves++; return new Promise(resolve => { complete = resolve; }); };
+  const exiting = h.run('exitCurrentGame()'); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.run('state()').activeGame.closing, true); assert.equal(view.destroyed, false);
+  complete(true); await exiting; await new Promise(resolve => setImmediate(resolve));
+  assert.equal(saves, 2); assert.equal(view.destroyed, true); assert.equal(view.visible, false); assert.equal(h.children.length, 0);
+  assert.equal(h.portal.visible, true); assert.equal(h.run('games.size'), 0); assert.equal(h.checks(), 1);
+  assert.equal(h.run('state()').activeGame, null);
+});
+
+test('cancelled exit keeps playing, while Morogue exit destroys the run without saving or retaining a hidden game', async () => {
+  const h = nativePresenceHarness();
+  h.run('portalSession=async()=>({user:{id:"original-account"}});');
+  await h.run('play("morogue")'); const view = h.windows[0];
+  view.webContents.executeJavaScript = () => { throw Error('Morogue must never save an unfinished run.'); };
+  h.dialogs.response = 0; await h.run('exitCurrentGame()');
+  assert.equal(view.destroyed, false); assert.equal(h.run('games.size'), 1);
+  h.dialogs.response = 1; await h.run('exitCurrentGame()');
+  assert.equal(view.destroyed, true); assert.equal(h.run('games.size'), 0); assert.equal(h.portal.visible, true);
+  assert.deepEqual(h.activity, ['loaded', 'start:morogue', 'stop:morogue']);
+});
+
+test('messages can reveal the preserved portal and return to the same game without saving, quitting or restarting it', async () => {
+  const h = nativePresenceHarness(); await h.run('play("manager")'); const view = h.windows[0], record = h.run('currentGame()');
+  const scripts = []; h.contents.executeJavaScript = async script => { scripts.push(script); };
+  view.webContents.executeJavaScript = () => { throw Error('Opening messages must not close or save the game.'); };
+  await h.run('executeCommand("messages")');
+  assert.equal(view.visible, false); assert.equal(view.destroyed, false); assert.equal(h.portal.visible, true); assert.equal(h.run('state()').messageOverlay, true);
+  assert.match(scripts[0], /repoMessaging.*open/);
+  await h.run('executeCommand("resume-game")');
+  assert.equal(h.run('currentGame()'), record); assert.equal(h.windows.length, 1); assert.equal(view.visible, true); assert.equal(h.portal.visible, false);
+  assert.equal(h.run('state()').gameVisible, true); assert.deepEqual(h.activity, ['loaded', 'start:manager']);
+});
+
+test('shell controls cannot be invoked by the remote portal and social status accepts only bounded public fields', async () => {
+  const h = portalHarness(), event = { sender: h.contents, senderFrame: h.frame };
+  for (const action of ['exit-game', 'resume-game', 'messages']) await assert.rejects(h.invoke(event, action), /unavailable/);
+  for (const value of [{ unread: -1, callActive: false }, { unread: 1000, callActive: true }, { unread: 1.5, callActive: true }, { unread: 0, callActive: 'yes' }, { unread: 0, callActive: true, token: 'secret' }, { unread: 0, callActive: false, incomingCall: 'true' }]) await assert.rejects(h.invoke(event, 'social-state', value), /Invalid message status/);
+  const value = { unread: 3, callActive: true, incomingCall: true, open: false };
+  await assert.rejects(h.invoke({ sender: {}, senderFrame: h.frame }, 'social-state', value), /belongs to/);
+  await h.invoke(event, 'social-state', value); assert.deepEqual({ ...h.run('state()').social }, value);
+});
+
+test('portal visibility distinguishes the foreground inbox from a running hidden website', async () => {
+  const h = nativePresenceHarness(), notifications = [], host = h.context.fixture.mainWindow;
+  h.contents.send = (channel, value) => { if (channel === 'launcher:portal-visibility') notifications.push(value); };
+  h.run('setPortalVisible(true)'); assert.equal(h.run('state()').portalVisible, true);
+  await h.run('play("manager")'); assert.equal(h.run('state()').portalVisible, false);
+  await h.run('openMessages()'); assert.equal(h.run('state()').portalVisible, true);
+  host.focused = false; h.run('notifyPortalVisibility()'); assert.equal(h.run('state()').portalVisible, false);
+  host.focused = true; host.minimized = true; h.run('notifyPortalVisibility()'); assert.equal(h.run('state()').portalVisible, false);
+  host.minimized = false; h.run('notifyPortalVisibility()'); assert.equal(h.run('state()').portalVisible, true);
+  host.shown = false; h.run('notifyPortalVisibility()'); assert.equal(h.run('state()').portalVisible, false);
+  host.shown = true; h.run('notifyPortalVisibility()'); assert.equal(h.run('state()').portalVisible, true);
+  await h.run('executeCommand("resume-game")'); assert.equal(h.run('state()').portalVisible, false);
+  assert.deepEqual(notifications, [true, false, true, false, true, false, true, false]);
+  assert.equal(h.windows[0].destroyed, false, 'visibility signals do not stop game or call lifecycles');
+});
+
+test('game crashes destroy the view and restore the portal, while a later load completion cannot revive it', async () => {
+  const h = nativePresenceHarness({ pendingLoad: true }), opening = h.run('play("manager")');
+  await new Promise(resolve => setImmediate(resolve)); const view = h.windows[0];
+  view.webContents.emit('dom-ready'); view.webContents.emit('render-process-gone', {}, { reason: 'crashed' });
+  assert.equal(view.destroyed, true); assert.equal(h.portal.visible, true); assert.equal(h.children.length, 0); assert.equal(h.run('games.size'), 0);
+  view.finishLoad(); await opening; assert.deepEqual(h.activity, ['loaded', 'start:manager', 'stop:manager']);
 });

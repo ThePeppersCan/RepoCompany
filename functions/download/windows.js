@@ -1,4 +1,4 @@
-const installer='https://github.com/ThePeppersCan/RepoCompany/releases/download/launcher-v0.1.4/Repo-Company-0.1.4-Windows-x64.exe';
+const installer='https://github.com/ThePeppersCan/RepoCompany/releases/download/launcher-v0.1.5/Repo-Company-0.1.5-Windows-x64.exe';
 
 export function onRequest({request}) {
   const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};

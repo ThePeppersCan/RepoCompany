@@ -1,4 +1,4 @@
-# Repo Company for Windows — preview 0.1.4
+# Repo Company for Windows — preview 0.1.5
 
 The launcher uses the actual Repo Company website, including its game cases and Account navigation. The website's Download button provides the Windows preview. Homepage game cases install or launch games; **Account → Library** manages installation, updates, repair and removal.
 
@@ -6,7 +6,7 @@ The launcher uses the actual Repo Company website, including its game cases and 
 
 - **Morogue, Moratales and Velmora Manager** download separately from `https://repo-company-games.pages.dev`. Game payloads are not bundled into the launcher installer.
 - All three support install, update, repair and uninstall. **Automatic game updates are on by default.** While the launcher is open, release checks run on startup, manual refresh and every ten minutes. Closing a game triggers another check so an update skipped during play can apply immediately afterward. A running game's installed files are never replaced.
-- A verified Repo Company account and internet connection are required to play. Existing account, achievement and leaderboard services remain authoritative. Game windows bind to the account that opened them, with local storage separated by account.
+- A verified Repo Company account and internet connection are required to play. Existing account, achievement and leaderboard services remain authoritative. Game views bind to the account that opened them, with local storage separated by account.
 - Signing in to Repo Company automatically connects the Moratales character names and appearances held in that browser/profile. Downloaded Moratales also syncs new characters and appearance changes while playing and before closing, ready for Morogue. **There is no separate linking page to visit.** Conflicting characters are preserved rather than silently replaced.
 - **Moratales adventures stay local.** Appearance sync does not upload or migrate full adventure saves. Existing browser adventures remain in their original browser/profile; installed adventures remain in the launcher profile. The game's import/export backup controls remain available.
 - **Manager careers use its existing account cloud-save service**, with local account-scoped storage and a save-before-close check. No second career database is created.
@@ -22,7 +22,17 @@ The existing website's **Account → Settings** page includes Windows launcher c
 - **Automatically update installed games** starts enabled. Switch it off to choose when to update in Account → Library. Version checks and explicit Update/Repair actions remain available. A download already in progress finishes safely; subsequent automatic downloads stop until the setting is enabled again. Enabling it triggers a fresh check.
 - **Show games on Discord** starts enabled. It uses the user-configured Discord application IDs for MoraTales, Morogue and Velmora Manager in `config.cjs`. With the Discord desktop app running and the player's Discord Activity Privacy settings permitting it, the launcher publishes the launched game's title and elapsed play time. Closing the game, a renderer crash or switching this setting off clears the launcher's activity. No Repo Company account details, tokens, saves, scores or leaderboard data are sent to Discord. This setting controls activity published by the launcher; Discord's own game detection remains governed by Discord's settings.
 
-Local assets and a dedicated Chromium window are implemented. Higher frame rates than the browser version have not been established by benchmarks.
+Local assets and isolated Chromium game views are implemented. Higher frame rates than the browser version have not been established by benchmarks.
+
+## One window and friends' messages
+
+Games open inside the launcher, below its title bar. **Exit game** runs the game's existing save/exit checks and returns to the library. Morogue confirms ending the current run; it does not save a resumable run. **Messages** opens the company portal over the same game instance; **Back to game** restores it. The game remains running during messages and calls. Fullscreen, window resizing and crash recovery use the same launcher window.
+
+The website and launcher share the friends-only messaging service. Only accepted friends can read or send messages to each other, and blocking/removing a friend revokes access and ends active calls. Messages have server-side ownership checks, retry identifiers, pagination and read receipts. The shell receives only unread counts and call state, never message content or call credentials.
+
+Voice/video uses WebRTC with expiring relay credentials. The backend must be configured before calls become available; otherwise the interface explicitly says that calling is being set up and keeps messages usable. Starting or answering a call requests microphone/camera access. The Windows launcher grants access only to its signed-in, top-level company portal, with an explicit device prompt; games and other frames cannot request devices. Sign-out, account switching and call termination stop media tracks.
+
+Deploy `dashboard-messaging-schema.sql` to the dashboard D1 database before deploying the website's `/api/social/*` Functions. Apply it after the existing dashboard social schema; it is additive and repeatable. Configure `SOCIAL_TURN_KEY_ID` and the secret `SOCIAL_TURN_KEY_API_TOKEN` in the Pages production environment to enable calls. Keep the server token out of source control and client assets. The local integration suite uses synthetic devices and local ICE candidates; it does not verify a public TURN connection. Validate a real two-network call after configuring the relay.
 
 ## Develop and validate
 
@@ -36,6 +46,8 @@ npm run test:desktop
 node tests/moratales-desktop.cjs
 node tests/manager-desktop.cjs
 node tests/settings-desktop.cjs
+node tests/single-window-desktop.cjs
+node tests/media-permissions-desktop.cjs
 npm start
 ```
 
@@ -43,7 +55,9 @@ Integration tests use Playwright from the website's development dependencies and
 
 These tests verify the integration contract. A real-account acceptance pass should still confirm newly earned achievements/results on the website and Manager career persistence against its production service.
 
-The native Settings test uses the actual website without signing in, checks trusted pointer/keyboard controls and synthetic-click rejection, then restarts an isolated launcher profile to verify persistence. Automatic-update tests cover opt-out, manual actions, active transfers, running-game deferral and immediate checks after closing. Discord protocol/lifecycle checks use fixture pipes, including reconnects, opt-out and clearing activity. **Actual publication in a real Discord account has not been acceptance-tested.** Hidden and fixture gameplay tests cannot publish activity to a real Discord client.
+The native Settings test uses the actual website without signing in, checks trusted pointer/keyboard controls and synthetic-click rejection, then restarts an isolated launcher profile to verify persistence. Automatic-update tests cover opt-out, manual actions, active transfers, running-game deferral and immediate checks after closing. Discord protocol/lifecycle checks use fixture pipes, including reconnects, opt-out and clearing activity. The owner has confirmed real Discord profile activity for Morogue. Discord controls its separate game-detection panel. Hidden and fixture gameplay tests cannot publish activity to a real Discord client.
+
+From the website root, `node tools/test-messaging-api.cjs`, `node tools/test-messaging-client.cjs` and `node tools/test-messaging-integration.cjs` test authorization/revocation, client races, two-account messaging and synthetic-device video. These use isolated account/database fixtures and never message production players.
 
 ## Prepare immutable game releases
 
@@ -104,7 +118,7 @@ npm run package:directory
 npm run package
 ```
 
-Builds appear under `desktop/build`. The assisted per-user NSIS installer allows choosing its installation directory. Preview 0.1.4 is unsigned; remove `win.signExecutable: false` and configure signing before a signed public release.
+Builds appear under `desktop/build`. The assisted per-user NSIS installer allows choosing its installation directory. Preview 0.1.5 is unsigned; remove `win.signExecutable: false` and configure signing before a signed public release.
 
 Account/browser state, library metadata and installed games live under `%APPDATA%\Repo Company`. Game uninstall removes installed payloads while preserving account-scoped local saves/preferences and online records. Launcher uninstall retains application data too. Allow about 536MB for Morogue, 1.38GB for Moratales and 644MB for Manager, plus launcher/profile data and update space. Updates stage a complete new version before activation; old versions remain until game uninstall in this preview.
 

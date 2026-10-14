@@ -64,6 +64,7 @@ function fixture({ signedIn = true, online = true, account = accountId } = {}) {
     if (url === '/api/leaderboards/account') {
       controls.accountChecks++;
       assert.equal(init.headers.Authorization, 'Bearer test-access-token');
+      await controls.accountWait?.();
       return response(controls.accountOkay ? 200 : 503, { id: controls.account, username: 'TestPlayer' });
     }
     if (url === '/api/leaderboards/start') {
@@ -207,6 +208,57 @@ test('a different account cannot start a run or resume a suspended run', async (
   await f.root.MOROGUE_LAUNCHER.reconnect();
   assert.equal(game.state.status, 'paused'); assert.equal(f.controls.startCalls, 1);
   assert.equal(f.root.MOROGUE_LAUNCHER.state.reason, 'account'); f.dispose();
+});
+
+test('delayed initial auth notification supersedes startup verification without requiring reconnect', async () => {
+  const f = fixture(); let release;
+  f.controls.accountWait = () => { f.controls.accountWait = null; return new Promise(resolve => { release = resolve; }); };
+  await f.board.ready; await nextTurn();
+  assert.equal(typeof release, 'function');
+  for (const callback of f.controls.authListeners) callback('ACCOUNT_CHANGED');
+  release(); await nextTurn();
+  assert.equal(f.root.MOROGUE_LAUNCHER.state.blocked, false);
+  await f.start(); assert.equal(f.controls.startCalls, 1); f.dispose();
+});
+
+test('same-account auth notification during accepted start reuses that run exactly once', async () => {
+  const f = fixture(); await f.ready(); let accept;
+  f.controls.startResults.push(() => new Promise(resolve => { accept = resolve; }));
+  const starting = f.start(); await nextTurn();
+  for (const callback of f.controls.authListeners) callback('ACCOUNT_CHANGED');
+  accept(true); const { game } = await starting;
+  assert.equal(game.state.status, 'playing'); assert.equal(f.controls.startCalls, 1);
+  assert.equal(f.root.MOROGUE_LAUNCHER.state.blocked, false); f.dispose();
+});
+
+test('same-account token refresh preserves the active run; an intervening offline event cannot auto-resume it', async () => {
+  const f = fixture(); await f.ready(); const { game } = await f.start();
+  for (const callback of f.controls.authListeners) callback('ACCOUNT_CHANGED');
+  assert.equal(game.state.status, 'paused'); await nextTurn();
+  assert.equal(game.state.status, 'playing'); assert.equal(f.controls.startCalls, 1);
+  let release;
+  f.controls.accountWait = () => { f.controls.accountWait = null; return new Promise(resolve => { release = resolve; }); };
+  for (const callback of f.controls.authListeners) callback('ACCOUNT_CHANGED');
+  await nextTurn(); f.offline(); release(); f.online(); await nextTurn();
+  assert.equal(game.state.status, 'paused'); assert.equal(f.root.MOROGUE_LAUNCHER.state.reason, 'offline');
+  await f.root.MOROGUE_LAUNCHER.reconnect(); assert.equal(game.state.status, 'playing');
+  assert.equal(f.controls.startCalls, 1); f.dispose();
+});
+
+test('sign-out and an existing service interruption require explicit reconnect after same-account auth returns', async () => {
+  for (const interruption of ['sign-out', 'service']) {
+    const f = fixture(); await f.ready(); const { game } = await f.start();
+    if (interruption === 'sign-out') {
+      f.controls.signedIn = false;
+      for (const callback of f.controls.authListeners) callback('ACCOUNT_CHANGED');
+      await nextTurn(); f.controls.signedIn = true;
+    } else { f.controls.checkpointStatus = 503; await f.board.heartbeat(game.state, 1); }
+    for (const callback of f.controls.authListeners) callback('ACCOUNT_CHANGED');
+    await nextTurn(); assert.equal(game.state.status, 'paused');
+    assert.equal(f.root.MOROGUE_LAUNCHER.state.reason, interruption === 'sign-out' ? 'account' : 'service');
+    await f.root.MOROGUE_LAUNCHER.reconnect(); assert.equal(game.state.status, 'playing');
+    assert.equal(f.controls.startCalls, 1); f.dispose();
+  }
 });
 
 test('real completion payloads and responses are forwarded unchanged; leaving creates no result', async () => {

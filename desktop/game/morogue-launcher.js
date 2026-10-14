@@ -26,6 +26,7 @@
   let disposed = false, blocked = true, reason = 'checking', auth = null;
   let board = null, game = null, ownedPause = false, pendingBegin = null;
   let permit = false, verifying = null, reconnecting = null, networkEpoch = 0;
+  let blockRevision = 0, authCheck = null;
   let modal = null, heading, description, retryButton, signInButton, connectButton, statusLine;
   let deferredTransition = null;
 
@@ -126,6 +127,7 @@
   function block(nextReason) {
     if (disposed) return;
     const wasBlocked = blocked;
+    if (!blocked || reason !== nextReason) blockRevision++;
     blocked = true; reason = nextReason;
     for (const sample of clocks) sample(root.performance.now(), false);
     if (game?.state.status === 'playing' && game.pause()) ownedPause = true;
@@ -181,7 +183,10 @@
       } finally {
         root.clearTimeout(timer); timers.delete(timer); controllers.delete(controller);
       }
-    })().finally(() => { verifying = null; });
+    })().catch(error => {
+      if (epoch !== networkEpoch) throw Object.assign(new Error('Account verification superseded'), { gateStale: true });
+      throw error;
+    }).finally(() => { verifying = null; });
     return verifying;
   }
   async function tryBegin() {
@@ -204,7 +209,7 @@
       if (blocked && reason !== 'checking') { block(reason); return; }
       permit = true; pendingBegin = null; unblock(); waiting.resolve(waiting.accepted.result);
     } catch (error) {
-      if (!disposed) block(error.gateReason || 'service');
+      if (!disposed && !error.gateStale) block(error.gateReason || 'service');
     } finally {
       waiting.busy = false;
       if (!disposed && blocked) paint();
@@ -219,7 +224,7 @@
         if (disposed) return;
         if (pendingBegin) { reason = 'checking'; await tryBegin(); }
         else unblock();
-      } catch (error) { if (!disposed) block(error.gateReason || 'service'); }
+      } catch (error) { if (!disposed && !error.gateStale) block(error.gateReason || 'service'); }
       finally { if (!disposed && blocked) paint(); }
     })().finally(() => { reconnecting = null; });
     return reconnecting;
@@ -286,7 +291,26 @@
     const result = await originalAccount.apply(this, args); auth = result;
     const subscription = auth.auth.onAuthStateChange(() => {
       if (disposed || !board) return;
-      networkEpoch++; block('account');
+      // The origin bridge reports INITIAL_SESSION and token refresh through the
+      // same notification as sign-out. Pause immediately, then distinguish an
+      // unchanged verified account from a real session or connection loss.
+      const restore = authCheck?.epoch === networkEpoch ? authCheck.restore : { blocked, reason };
+      const epoch = ++networkEpoch;
+      block('account');
+      const revision = blockRevision, check = { epoch, restore };
+      authCheck = check;
+      void (async () => {
+        await verifying?.catch(() => {});
+        await board.ready;
+        if (disposed || epoch !== networkEpoch) return;
+        await verify(); await bridge.retryCharacters?.();
+        if (disposed || epoch !== networkEpoch || revision !== blockRevision) return;
+        if (restore.blocked && restore.reason !== 'checking') block(restore.reason);
+        else if (pendingBegin) { reason = 'checking'; await tryBegin(); }
+        else unblock();
+      })().catch(error => {
+        if (!disposed && epoch === networkEpoch && !error.gateStale) block(error.gateReason || 'service');
+      }).finally(() => { if (authCheck === check) authCheck = null; });
     });
     if (subscription?.data?.subscription) subscriptions.push(subscription.data.subscription);
     return result;
@@ -315,7 +339,7 @@
     };
     board.ready.then(async () => {
       try { await verify(); await bridge.retryCharacters?.(); if (!disposed && !pendingBegin && reason === 'checking') unblock(); }
-      catch (error) { if (!disposed) block(error.gateReason || 'service'); }
+      catch (error) { if (!disposed && !error.gateStale) block(error.gateReason || 'service'); }
     }).catch(() => { if (!disposed) block('service'); });
     return board;
   };
@@ -359,7 +383,7 @@
   listen(root, 'pagehide', dispose);
   function monitor() {
     if (disposed) return;
-    if (!blocked && board) verify().catch(error => { if (!disposed) block(error.gateReason || 'service'); }).finally(() => later(monitor, 20000));
+    if (!blocked && board) verify().catch(error => { if (!disposed && !error.gateStale) block(error.gateReason || 'service'); }).finally(() => later(monitor, 20000));
     else later(monitor, 20000);
   }
   later(monitor, 20000);

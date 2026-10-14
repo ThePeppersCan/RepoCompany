@@ -3,7 +3,7 @@
   const bridge = window.repoLauncher;
   const $ = selector => document.querySelector(selector);
   const activeDownloads = new Set(['queued', 'downloading', 'updating', 'verifying']);
-  let state = {}, reconnecting = false, connectionError = '', unsubscribe;
+  let state = {}, reconnecting = false, connectionError = '', unsubscribe, leaving = false, openingMessages = false, toolbarError = '';
 
   function downloads() {
     const entries = Object.values(state.library || {}).filter(item => activeDownloads.has(item.status));
@@ -35,15 +35,52 @@
   }
 
   function receive(next) {
+    if (state.activeGame?.id !== next?.activeGame?.id) toolbarError = '';
     state = next || {};
     if (!state.portalError) connectionError = '';
-    downloads(); renderConnection();
+    downloads(); renderConnection(); renderGame();
   }
+  function renderGame() {
+    const game = state.activeGame;
+    $('#game-toolbar').hidden = !game;
+    if (!game) return;
+    $('#game-title').textContent = toolbarError || game.name + (game.loading ? ' · Opening…' : '');
+    $('#game-title').title = toolbarError || game.name;
+    $('#back-to-game').hidden = !state.messageOverlay;
+    $('#exit-game').disabled = leaving || game.closing;
+    $('#exit-game').textContent = game.closing ? 'Saving…' : leaving ? 'Leaving…' : 'Exit game';
+    $('#game-messages').disabled = openingMessages;
+    $('#game-messages-label').textContent = state.social?.incomingCall ? 'Incoming call' : state.social?.callActive ? 'Call active' : 'Messages';
+    $('#game-messages').classList.toggle('incoming-call', !!state.social?.incomingCall);
+    $('#message-count').hidden = !state.social?.unread;
+    $('#message-count').textContent = state.social?.unread > 99 ? '99+' : String(state.social?.unread || '');
+    $('#game-fullscreen').setAttribute('aria-label', state.fullscreen ? 'Leave fullscreen' : 'Enter fullscreen');
+    $('#game-fullscreen').setAttribute('aria-pressed', String(!!state.fullscreen));
+  }
+  function notice(error) { const message = error?.message || 'Please try again.'; if (state.activeGame) { toolbarError = message; renderGame(); } else { $('#shell-notice').textContent = message; $('#shell-notice').hidden = false; } }
+  $('#exit-game').addEventListener('click', async () => {
+    if (!bridge || leaving) return;
+    leaving = true; toolbarError = ''; $('#shell-notice').hidden = true; renderGame();
+    try { receive(await bridge.exitGame()); } catch (error) { notice(error); }
+    finally { leaving = false; renderGame(); }
+  });
+  $('#game-messages').addEventListener('click', async () => {
+    if (!bridge || openingMessages) return;
+    openingMessages = true; toolbarError = ''; $('#shell-notice').hidden = true; renderGame();
+    try { receive(await bridge.openMessages()); } catch (error) { notice(error); }
+    finally { openingMessages = false; renderGame(); }
+  });
+  $('#back-to-game').addEventListener('click', async () => {
+    if (!bridge) return;
+    toolbarError = '';
+    $('#shell-notice').hidden = true;
+    try { receive(await bridge.resumeGame()); } catch (error) { notice(error); }
+  });
 
   document.querySelectorAll('[data-window]').forEach(button => {
     button.addEventListener('click', () => {
       if (!bridge) return;
-      void bridge.windowControl(button.dataset.window).catch(() => {});
+      void bridge.windowControl(button.dataset.window).catch(notice);
     });
   });
   $('#reconnect').addEventListener('click', async () => {

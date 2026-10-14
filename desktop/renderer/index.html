@@ -14,6 +14,14 @@
       <svg class="repo-mark" viewBox="565 234 335 341" aria-hidden="true"><image href="assets/repo-brand.png" width="1440" height="900"/></svg>
       <span>REPO COMPANY</span>
     </div>
+    <div id="game-toolbar" class="game-toolbar" hidden>
+      <span class="toolbar-divider" aria-hidden="true"></span>
+      <span id="game-title" class="game-title" aria-live="polite"></span>
+      <button id="back-to-game" class="toolbar-button" hidden>Back to game</button>
+      <button id="game-messages" class="toolbar-button" aria-label="Open messages"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4h12v9H9l-5 3V4Z"/></svg><span id="game-messages-label">Messages</span><span id="message-count" class="message-count" hidden></span></button>
+      <button id="game-fullscreen" class="toolbar-button icon-button" data-window="fullscreen" aria-label="Enter fullscreen"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4H4v3m9-3h3v3M4 13v3h3m9-3v3h-3"/></svg></button>
+      <button id="exit-game" class="toolbar-button exit-game">Exit game</button>
+    </div>
     <div id="download-status" class="download-status" role="status" aria-live="polite" hidden>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m-3-3 3 3 3-3M4 13v4h12v-4"/></svg>
       <span id="download-label"></span>
@@ -24,6 +32,7 @@
       <button data-window="close" class="close-window" aria-label="Close"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M5 15 15 5"/></svg></button>
     </div>
   </header>
+  <p id="shell-notice" class="shell-notice" role="alert" hidden></p>
   <!-- The native website view occupies this entire space once connected. -->
   <main class="website-fallback" aria-labelledby="connection-title">
     <div class="connection-card">

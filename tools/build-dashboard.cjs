@@ -4,7 +4,7 @@ const production=process.argv.includes('--production')||process.env.CF_PAGES_BRA
 if(!process.argv.includes('--preserve-game-integrations'))require('./build-game-achievements.cjs');
 fs.mkdirSync(dist,{recursive:true});
 const includeDirs=['assets','game-integrations','original-case-assets','account-assets','audio','vendor','dragonbound-career-mode','reparty'];
-const requiredStaticAssets=['moratales-characters.html','moratales-characters.js','moratales-characters.css','repo-character-sync.js','repo-client-download.css'];
+const requiredStaticAssets=['moratales-characters.html','moratales-characters.js','moratales-characters.css','repo-character-sync.js','repo-client-download.css','repo-messaging.js','repo-messaging.css'];
 for(const name of requiredStaticAssets)if(!fs.existsSync(path.join(root,name)))throw Error('Missing static page asset: '+name);
 let files=0;
 function copy(src,dest){
