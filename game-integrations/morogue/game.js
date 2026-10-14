@@ -720,7 +720,12 @@
       const boss=spawn('boss',{x:768,y:535},{major:practice.major,bossType:practice.id,precise:true});if(practice.major&&practice.id!==Finale.SPEC.id&&practice.phase>1){boss.phase=practice.phase;boss.hp=practice.id==='star'?boss.starBaseHp*(practice.phase===2?.609:.31):boss.maxHp*(practice.id==='oracle'?([0,1.04,.79,.54,.29][practice.phase]/1.06):practice.phase===2?.64:.31);boss.forceMove=practice.id==='oracle'?Majors.Oracle.firstMove(spec,practice.phase):spec.moves[practice.phase===2?4:7];}
     }
     // Visits spend an ordinary earned choice. Blocked visits wait for a later draft.
-    function groveCandidates(){return [...Builds.cards(state).filter(c=>c.kind==='perk'&&!c.from&&c.rarity==='rare'),...(Builds.refinementCards?.(state)||[])];}
+    function groveCandidates(){
+      // Grove rewards must alter the equipped weapon; general rare combat perks stay in ordinary drafts.
+      const forms=Builds.cards(state).filter(c=>c.kind==='perk'&&!c.from&&c.rarity==='rare'&&Builds.PERKS[c.key]?.weapon===state.mainWeapon);
+      const refinements=(Builds.refinementCards?.(state)||[]).filter(c=>Builds.PERKS[c.parent]?.weapon===state.mainWeapon);
+      return [...forms,...refinements];
+    }
     function openGrove(){
       const previous=state.grove,visits=previous?.visit||(previous?.visited?1:0),due=[180,480,840][visits];
       if(due===undefined||state.status!=='upgrade'||practice||state.transition||state.boss?.hp>0||state.finalePending||state.runTime<due||visits&&state.runTime-previous.at<210||state.time-(state.merchant?.openAt??-999)<75||state.nextMajor-state.runTime>0&&state.nextMajor-state.runTime<18||nextBoss-state.runTime>0&&nextBoss-state.runTime<18||state.choices.some(c=>['ability','technique','art'].includes(c.kind)))return false;
