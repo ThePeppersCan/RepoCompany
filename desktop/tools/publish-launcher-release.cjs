@@ -12,10 +12,11 @@ function git(args,repo=REPO) { return execFileSync('git',['-C',repo,...args],{en
 function committedFile(commit,name,repo) { return execFileSync('git',['-C',repo,'show',commit+':desktop/'+name],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe'],maxBuffer:16*1024*1024}); }
 function matchesCommitted(packed,commit,name,repo) {
   if(packed.equals(committedFile(commit,name,repo)))return true;
-  // Windows checkouts may legitimately smudge LF to CRLF. Compare Git's exact
-  // checked-out representation too, never an arbitrary mutable working file.
-  const checkout=execFileSync('git',['-C',repo,'cat-file','--filters',commit+':desktop/'+name],{windowsHide:true,shell:false,stdio:['ignore','pipe','pipe'],maxBuffer:16*1024*1024});
-  return packed.equals(checkout);
+  // Apply Git's own per-path clean filters to these exact packaged bytes. This
+  // handles Windows LF/CRLF (including a mixed-ending checkout) without treating
+  // binary assets as text or trusting an arbitrary mutable working file.
+  const hash=execFileSync('git',['-C',repo,'hash-object','--path=desktop/'+name,'--stdin'],{input:packed,encoding:'utf8',windowsHide:true,shell:false,stdio:['pipe','pipe','pipe']}).trim();
+  return hash===git(['rev-parse',commit+':desktop/'+name],repo);
 }
 function sourceIdentity(commit,repo=REPO) {
   check(/^[a-f0-9]{40}$/.test(commit),'Provide the exact reviewed 40-character source commit.');
@@ -65,16 +66,29 @@ async function verifyInstallerArchive(installer,identity,config,output,{sevenZip
   check(path.isAbsolute(seven),'The archive verifier must use an absolute executable path.'); await plainPath(seven);
   const nested=path.join(inspect,'app-64.7z'),archive=path.join(inspect,'app.asar'),metadata=path.join(inspect,'app-update.yml');
   try {
-    await run(seven,['e','-y','-bd','-o'+inspect,installer,'$PLUGINSDIR/app-64.7z'],{windowsHide:true,shell:false,timeout:180000,maxBuffer:1024*1024});
-    check((await fs.stat(nested)).isFile(),'Installer does not contain the expected Windows x64 application.');
-    await run(seven,['e','-y','-bd','-o'+inspect,nested,'resources/app.asar','resources/app-update.yml'],{windowsHide:true,shell:false,timeout:180000,maxBuffer:1024*1024});
-    return {...await verifyArchive(archive,identity,config,{repo}),...verifyUpdateMetadata(await fs.readFile(metadata),identity,config)};
+    const layout=await extractInstallerFiles(installer,inspect,seven);
+    return {installerArchiveLayout:layout,...await verifyArchive(archive,identity,config,{repo}),...verifyUpdateMetadata(await fs.readFile(metadata),identity,config)};
   } finally {
     // Delete only these exact verifier-created files; never recursively clean a
     // build, release, user profile or caller-provided directory.
     for(const file of [archive,nested,metadata])await fs.unlink(file).catch(error=>{if(error.code!=='ENOENT')throw error;});
     await fs.rmdir(inspect).catch(error=>{if(!['ENOENT','ENOTEMPTY'].includes(error.code))throw error;});
   }
+}
+async function extractInstallerFiles(installer,inspect,seven,{execute=run}={}) {
+  const nested=path.join(inspect,'app-64.7z'),archive=path.join(inspect,'app.asar'),metadata=path.join(inspect,'app-update.yml');
+  const extract=(from,names)=>execute(seven,['e','-y','-bd','-o'+inspect,from,...names],{windowsHide:true,shell:false,timeout:180000,maxBuffer:1024*1024});
+  const exists=async file=>{try{const stat=await fs.lstat(file);check(stat.isFile()&&!stat.isSymbolicLink(),'Installer extraction produced a non-regular file.');return true;}catch(error){if(error.code==='ENOENT')return false;throw error;}};
+  // Current 7za detects the embedded 7z stream directly inside NSIS executables.
+  // Older toolsets expose the NSIS container and its nested application archive.
+  await extract(installer,['resources/app.asar','resources/app-update.yml']);
+  const directArchive=await exists(archive),directMetadata=await exists(metadata);
+  if(directArchive||directMetadata){check(directArchive&&directMetadata,'Installer is missing required application or update verification metadata.');return 'embedded-7z';}
+  await extract(installer,['$PLUGINSDIR/app-64.7z']);
+  check(await exists(nested),'Installer does not contain the expected Windows x64 application.');
+  await extract(nested,['resources/app.asar','resources/app-update.yml']);
+  check(await exists(archive)&&await exists(metadata),'Installer is missing required application or update verification metadata.');
+  return 'nested-7z';
 }
 function createPayload(identity,digest,sequence,{now=Date.now(),days=365}={}) {
   check(Number.isSafeInteger(sequence)&&sequence>0,'Provide a positive release sequence.');
@@ -216,4 +230,4 @@ function parseArgs(args) {
   check(options.commit&&options.sequence&&options.output,'Provide --commit SHA --sequence NUMBER --output NEW_DIRECTORY.');return options;
 }
 if(require.main===module)(async()=>{const options=parseArgs(process.argv.slice(2));if(options.notesFile)options.notes=await fs.readFile(options.notesFile,'utf8');const result=await prepareRelease(options);console.log(JSON.stringify(result));})().catch(error=>{console.error(error.message);process.exitCode=1;});
-module.exports={sourceIdentity,fileDigest,verifyArchive,verifyUpdateMetadata,verifyInstallerArchive,createPayload,readPrevious,newer,verifyRemoteAsset,publishGithub,promoteFeed,prepareRelease,parseArgs};
+module.exports={sourceIdentity,fileDigest,verifyArchive,verifyUpdateMetadata,verifyInstallerArchive,extractInstallerFiles,createPayload,readPrevious,newer,verifyRemoteAsset,publishGithub,promoteFeed,prepareRelease,parseArgs};

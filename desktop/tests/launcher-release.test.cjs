@@ -56,6 +56,10 @@ test('installer archive is compared to committed runtime, rejects unexpected fil
   const packed={};for(const name of ['main.cjs','config.cjs','lib/runtime.cjs','package.json'])packed[name]=await fs.readFile(path.join(f.repo,'desktop',name));
   const asar={listPackage:()=>Object.keys(packed).map(name=>'/'+name),extractFile:(_,name)=>packed[name.replace(/\\/g,'/')],statFile:()=>({})};
   assert.equal((await release.verifyArchive(archive,id,config,{repo:f.repo,asar})).verifiedRuntimeFiles,3);
+  git(f.repo,['config','core.autocrlf','true']);packed['main.cjs']=Buffer.from(packed['main.cjs'].toString().replace(/\n/,'\r\n'));
+  assert.equal((await release.verifyArchive(archive,id,config,{repo:f.repo,asar})).verifiedRuntimeFiles,3,'Git-normalized Windows line endings preserve committed identity');
+  const reviewed=packed['main.cjs'];packed['main.cjs']=Buffer.from(reviewed.toString().replace('exports = 1','exports = 999'));
+  await assert.rejects(release.verifyArchive(archive,id,config,{repo:f.repo,asar}),/source differs/);packed['main.cjs']=reviewed;
   await fs.appendFile(path.join(f.repo,'desktop/main.cjs'),'uncommitted');assert.equal((await release.verifyArchive(archive,id,config,{repo:f.repo,asar})).verifiedRuntimeFiles,3,'Archive verification reads committed bytes, not mutable working bytes');
   packed['lib/unreviewed.cjs']=Buffer.from('x');await assert.rejects(release.verifyArchive(archive,id,config,{repo:f.repo,asar}),/Unexpected/);delete packed['lib/unreviewed.cjs'];
   packed['package.json']=Buffer.from(JSON.stringify({...f.pkg,version:'0.1.5'}));await assert.rejects(release.verifyArchive(archive,id,config,{repo:f.repo,asar}),/identity/);
@@ -78,6 +82,25 @@ test('packaged updater metadata requires its exact verification sentinel and saf
   assert.throws(()=>verify({...value,publisherName:'Unknown publisher'}),/metadata/);
   assert.throws(()=>verify({...value,publisherName:[config.publisherName,'Other publisher']}),/metadata/);
   assert.throws(()=>verify({...value,updaterCacheDirName:'../../elsewhere'}),/metadata/);
+});
+test('installer extraction supports directly detected 7z and legacy nested archives without accepting incomplete metadata',async t=>{
+  const f=await fixture(t);
+  for(const layout of ['direct','legacy','incomplete','missing']){
+    const inspect=path.join(f.root,layout);await fs.mkdir(inspect);const calls=[];
+    const execute=async(_exe,args)=>{
+      calls.push(args);const names=args.slice(5),from=args[4];
+      if(layout==='direct'||layout==='incomplete'){
+        await fs.writeFile(path.join(inspect,'app.asar'),'archive');
+        if(layout==='direct')await fs.writeFile(path.join(inspect,'app-update.yml'),'metadata');
+      }else if(layout==='legacy'&&names[0]==='$PLUGINSDIR/app-64.7z')await fs.writeFile(path.join(inspect,'app-64.7z'),'nested');
+      else if(layout==='legacy'&&from.endsWith('app-64.7z')){await fs.writeFile(path.join(inspect,'app.asar'),'archive');await fs.writeFile(path.join(inspect,'app-update.yml'),'metadata');}
+    };
+    const operation=release.extractInstallerFiles(f.installer,inspect,process.execPath,{execute});
+    if(layout==='direct'){assert.equal(await operation,'embedded-7z');assert.equal(calls.length,1);}
+    else if(layout==='legacy'){assert.equal(await operation,'nested-7z');assert.equal(calls.length,3);}
+    else {await assert.rejects(operation,/missing|required|expected/);assert.ok(calls.length<=2);}
+    assert.deepEqual(calls[0].slice(5),['resources/app.asar','resources/app-update.yml']);
+  }
 });
 test('publisher verifies both draft assets before exposing a release and checks public installer before returning',async t=>{
   const f=await fixture(t),p=payload(),manifestFile=path.join(f.root,'manifest.json');await fs.writeFile(manifestFile,JSON.stringify(signPayload(p,pair.privateKey)));
