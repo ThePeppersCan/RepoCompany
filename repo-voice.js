@@ -11,7 +11,7 @@
   const friends=()=>(account.state.social?.friends||[]).filter(f=>f.status==='accepted');
   const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
   const button=(text,fn,cls='')=>{const n=el('button','repo-voice-button '+cls,text);n.type='button';n.onclick=fn;return n;};
-  const state=()=>({enabled,callActive:!!current||busy,callStatus:current?(sender?.connectionState==='connected'?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy});
+  const state=()=>({enabled,available:enabled&&budget?.available!==false,callActive:!!current||busy,callStatus:current?(sender?.connectionState==='connected'?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy});
   function announce(){render();dispatchEvent(new CustomEvent('repo-voice-state',{detail:state()}));}
   async function api(op,payload={},valid=()=>true) {
     const e=epoch,id=user;
@@ -110,7 +110,7 @@
   async function poll(){
     if(polling||!user||suspended)return;polling=true;const e=epoch,g=generation,valid=()=>epoch===e&&generation===g;
     try{
-      const result=await api(current?'heartbeat':'state',current?{room:current,muted}:{},valid);
+      const result=await api(current?'heartbeat':'state',current?{room:current,muted:muted||deafened}:{},valid);
       enabled=!!result.enabled;rooms=result.rooms||[];budget=result.budget||null;
       if(current){
         lastContact=Date.now();const room=rooms.find(r=>r.id===current);
@@ -127,8 +127,8 @@
   function render(){
     if(!ui)return;
     ui.group.hidden=!user;ui.group.disabled=!enabled||!!current||busy||budget?.available===false;
-    ui.group.title=enabled?'Invite friends to a voice room':'Voice is being set up';
-    ui.panel.hidden=!user||(!current&&!message&&!rooms.some(joinable));
+    ui.group.title=enabled?(budget?.available===false?'The voice allowance is currently used up':'Invite friends to a voice room'):'Voice is being set up';
+    ui.panel.hidden=!user||(!current&&!message&&!rooms.some(joinable)&&budget?.available!==false);
     ui.panel.replaceChildren();
     const room=rooms.find(r=>r.id===current);
     if(current||busy){
@@ -137,11 +137,12 @@
       const line=el('p','repo-voice-status',message||(sender?.connectionState==='connected'?(room?.members.filter(m=>m.status==='active').length>1?'Connected':'Waiting for your friends…'):'Connecting…'));line.setAttribute('role','status');ui.panel.append(line);
       if(!collapsed&&room){const roster=el('div','repo-voice-roster');for(const m of room.members){const person=el('span','repo-voice-person',m.display+(m.id===user?' (you)':'')+(m.status==='invited'?' · invited':m.muted?' · muted':''));roster.append(person);}ui.panel.append(roster);}
       const controls=el('div','repo-voice-controls');
-      const mic=button(muted?'Unmute':'Mute',()=>{muted=!muted;stream?.getAudioTracks().forEach(t=>t.enabled=!muted);announce();poll();});mic.setAttribute('aria-pressed',String(muted));mic.disabled=!stream;
-      const sound=button(deafened?'Undeafen':'Deafen',()=>{deafened=!deafened;for(const audio of audios.values())audio.muted=deafened;announce();});sound.setAttribute('aria-pressed',String(deafened));
+      const mic=button(muted||deafened?'Unmute':'Mute',()=>{muted=!muted;stream?.getAudioTracks().forEach(t=>t.enabled=!muted&&!deafened);announce();poll();});mic.setAttribute('aria-pressed',String(muted||deafened));mic.disabled=!stream||deafened;
+      const sound=button(deafened?'Undeafen':'Deafen',()=>{deafened=!deafened;for(const audio of audios.values())audio.muted=deafened;stream?.getAudioTracks().forEach(t=>t.enabled=!muted&&!deafened);announce();poll();});sound.setAttribute('aria-pressed',String(deafened));
       controls.append(mic,sound,button(room?.kind==='group'&&room.host===user?'End room':'Leave',()=>leave(),'repo-voice-end'));ui.panel.append(controls);
       if(message.includes('Enable sound'))ui.panel.append(button('Enable sound',async()=>{try{await Promise.all([...audios.values()].map(a=>a.play()));message='';announce();}catch{}}));
     }else{
+      if(budget?.available===false)ui.panel.append(el('p','repo-voice-status','Voice is paused because the shared allowance is used up. It will reopen automatically.'));
       for(const invite of rooms.filter(joinable)){
         const row=el('div','repo-voice-invite'),host=invite.members.find(m=>m.id===invite.host);
         row.append(el('strong','',invite.kind==='private'?`${host?.display||'A friend'} is calling`:`${host?.display||'A friend'} invited you to ${invite.title}`));

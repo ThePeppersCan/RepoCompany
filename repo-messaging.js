@@ -250,7 +250,7 @@
     voice.hidden = video.hidden = !initialized || !callsEnabled;
     if (window.repoVoice?.getState().enabled) {
       voice.hidden = false;
-      voice.disabled = !initialized || !!call || callBusy || loading || window.repoVoice.getState().callActive;
+      voice.disabled = !initialized || !!call || callBusy || loading || !window.repoVoice.getState().available || window.repoVoice.getState().callActive;
     }
     voice.title = video.title = call ? 'A call is already in progress' : '';
     input.disabled = send.disabled = !available || sending || loading;

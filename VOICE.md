@@ -68,12 +68,16 @@ host ends it for everyone. Guests can leave and rejoin while their host remains.
 Unfriending or blocking any invited person closes the room. No microphone access
 occurs before an explicit Start/Answer/Join action. Sign-out, lost connection,
 page exit, hangup and cutoff stop local media.
+Deafening stops both received audio and the microphone; undeafening restores the
+previous mute choice. Used-up allowances disable both call creation controls.
 
 ## Verification
 
 `node tools/test-voice.cjs` covers authentication, origin checks, friendships,
 ownership, server-selected tracks, negotiation sequencing, cutoff and failed
 cleanup, revocation, billing-month/rolling accounting and audio-only validation.
+`node tools/test-voice-client.cjs` checks that incoming invitations never request
+devices and that a late capture after sign-out is immediately stopped.
 
 `node tools/test-voice-live.cjs` is an explicit live SFU test using fake audio and
 isolated local identities. It needs the ignored setup credentials file. It checks
