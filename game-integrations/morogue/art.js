@@ -224,6 +224,8 @@
       if(shot.echoDelay>0)return;
       if(shot.x<camera.x-70||shot.y<camera.y-70||shot.x>camera.x+camera.viewWidth+70||shot.y>camera.y+camera.viewHeight+70)return;
       const angle=Math.atan2(shot.vy,shot.vx);
+      if(shot.porcelain){ctx.save();ctx.translate(shot.x,shot.y);ctx.rotate(angle);ctx.fillStyle='#282828';ctx.beginPath();ctx.moveTo(12,0);ctx.lineTo(-7,-5);ctx.lineTo(-3,5);ctx.closePath();ctx.fill();ctx.fillStyle='#eee0bd';ctx.beginPath();ctx.moveTo(9,0);ctx.lineTo(-5,-3);ctx.lineTo(-2,3);ctx.closePath();ctx.fill();ctx.fillStyle='#849e9d';ctx.fillRect(-2,-2,3,2);ctx.restore();return;}
+      if(shot.coffeeReturning){ctx.save();ctx.translate(shot.x,shot.y);ctx.rotate(angle);ctx.strokeStyle='#e7d7b3';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,shot.r+2,-1.7,1.7);ctx.stroke();ctx.restore();}
       if(shot.type==='espresso'){if(shot.attack)CosmeticArt.flourish(ctx,cosmetics.strike,shot.x,shot.y,angle,10,shot.age,.7,reduced);if(CosmeticArt.shot(ctx,cosmetics.espresso,shot.x,shot.y,angle,shot.age,reduced,shot.r||7))return;}
       if(shot.type==='crescent'){
         ctx.save();ctx.translate(shot.x,shot.y);ctx.rotate(angle);ctx.lineCap='round';

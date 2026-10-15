@@ -174,6 +174,7 @@
     const list=element('div','mr-reader-list');for(const entry of entries){const {id,spec,key,meta}=entry,card=Food.get(key),description=typeof spec.description==='function'?spec.description(1):spec.description,{row,content}=readerRow(card.name,'',Food.face(card),meta);row.dataset.buildEntry=id;row.dataset.foodEntry=key;const copy=foodStudy(content,card,description);
       if(section==='specials'){copy.append(element('p','',spec.upgrade.replace('Edge training',Food.get('training:edge').name)));for(const [branch,name]of Object.entries(spec.branches)){const c=Food.get('branch:'+id+':'+branch),r=element('div','mr-food-branch'),p=element('p');p.append(element('strong','',name+' · '),document.createTextNode(spec.branchText[branch]));r.append(Food.face(c),p);content.append(r);}}
       if(section==='perks')copy.append(element('p','',(spec.weapon?'Weapon: '+Engine.WEAPONS.find(w=>w.id===spec.weapon).short+'. ':'')+'Up to '+spec.max+' '+(spec.max===1?'rank.':'ranks.')+(spec.at?' Opens at '+Engine.formatTime(spec.at)+'.':'')));
+      if(section==='perks'&&Engine.BUILDS.REFINEMENTS[id])for(const [refine,recipe]of Object.entries(Engine.BUILDS.REFINEMENTS[id])){const art=Food.get('refinement:'+id+':'+refine);if(!art)continue;const r=element('div','mr-food-branch'),p=element('p');p.append(element('strong','',recipe[0]+' · '),document.createTextNode(recipe[2]+' '+recipe[3]));r.append(Food.face(art),p);content.append(r);}
       if(section==='keystones')copy.append(element('p','','Choose one keystone after ten minutes.'));
       if(section==='relics')copy.append(element('p','',Engine.RELICS.ITEMS[id].detail+' Three slots per run. No duplicate relics.'));
       if(key.startsWith('weapon:'))for(let rank=2;rank<=5;rank++)copy.append(element('p','','Rank '+rank+' · '+Food.clearCopy(Engine.weaponUpgrade(id,rank))));
@@ -322,6 +323,7 @@
     if(b.ability){add('ability:'+b.ability,Engine.BUILDS.ABILITIES[b.ability].description,b.abilityRank);if(b.branch)add('branch:'+b.ability+':'+b.branch,Engine.BUILDS.ABILITIES[b.ability].branchText[b.branch]);}
     if(s.technique)add('technique:'+s.technique,Engine.TECHNIQUES[s.technique].description);if(s.combatArt)add('art:'+s.combatArt,Engine.ARTS[s.combatArt].description);if(b.keystone)add('keystone:'+b.keystone,Engine.BUILDS.KEYSTONES[b.keystone].description);
     for(const [id,rank]of Object.entries(b.perks))add('perk:'+id,Engine.BUILDS.PERKS[id].description(rank)+' '+Engine.BUILDS.refinementSummary(s,id),rank);
+    for(const [parent,owned]of Object.entries(b.refinements||{}))for(const key of owned){const recipe=Engine.BUILDS.REFINEMENTS[parent]?.[key];if(recipe)add('refinement:'+parent+':'+key,recipe[2]+' '+recipe[3]);}
     for(const [id,rank]of Object.entries(s.passives))if(rank)add('passive:'+id,Engine.passiveDescription(id,rank),rank);
     for(const [id,rank]of Object.entries(s.relics))if(rank&&Food.get('relic:'+id))add('relic:'+id,Food.get('relic:'+id).description+' '+Food.get('relic:'+id).detail,rank);
     for(const [id,rank]of Object.entries(s.training))if(rank)add('training:'+id,Engine.BUILDS.trainingSummary(s,id),rank);

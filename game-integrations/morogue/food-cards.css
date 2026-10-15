@@ -3,6 +3,9 @@
 .mr-food-art{position:absolute;inset:0;display:block;background-size:400% 400%;background-repeat:no-repeat;image-rendering:pixelated}
 .mr-food-number{position:absolute;z-index:1;top:1.1%;left:8%;right:8%;height:5.2%;display:grid;place-items:center;background:var(--food-paper,#d4c3a1);color:#2b2828;font-size:clamp(9px,1vw,13px);line-height:1;letter-spacing:1px}
 .mr-food-title{position:absolute;z-index:1;left:4%;right:4%;bottom:1.2%;min-height:6.5%;display:grid;place-items:center;background:var(--food-paper,#d4c3a1);padding:2px 1px;text-align:center;font-size:clamp(10px,1vw,14px);line-height:1.03;color:#252323;text-transform:uppercase;letter-spacing:0}
+.mr-food-face[data-food-layout="single-title"]{aspect-ratio:11/19}
+.mr-food-face[data-food-layout="single-title"] .mr-food-title{bottom:1.8%;left:5%;right:5%;height:9%;min-height:0;background:transparent;font-size:clamp(10px,1vw,13px);line-height:1.05;padding:0 1px}
+.mr-food-face[data-food-layout="single-title"]::after{content:'';position:absolute;inset:0;border:2px solid var(--food-paper);pointer-events:none;z-index:2}
 #vs-dialog.vs-draft.mr-food-draft,#vs-dialog.vs-draft.mr-food-draft:focus{inset:auto auto 12px 50%;transform:translateX(-50%);margin:0;width:min(560px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 32px);padding:10px 16px 8px;overflow-x:hidden;overflow-y:auto;border:0;border-image:none;border-radius:0;background:transparent;box-shadow:none;color:#e6d5b2;filter:none}
 #vs-dialog.vs-draft.mr-food-draft::backdrop{background:transparent;backdrop-filter:none;animation:none}
 #vs-dialog.mr-food-draft .vs-dialog-heading{margin:0 0 6px;text-align:center;text-shadow:1px 1px #111318,-1px -1px #111318,0 2px #111318}

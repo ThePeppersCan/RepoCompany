@@ -18,11 +18,11 @@
    const choice=Cards.present(raw,state),card=choice.food;if(!card)throw Error('Missing food card: '+Cards.keyFor(raw,state));
    const b=Cards.theme(el('button','vs-upgrade mr-food-choice'),card),lift=el('span','mr-food-lift'),inner=el('span','mr-food-turn'),front=Cards.face(card,choice.level),back=el('span','mr-food-back'),stock=Cards.face(card,choice.level),copy=el('span','mr-food-back-copy'),shortcut=el('span','vs-shortcut',String(i+1));
    b.style.setProperty('--rest-angle',(i-1)*3+'deg');b.style.setProperty('--deal-x',(i-1)*-36+'px');b.pointerIntent=false;
-   if(raw.rarity==='rare'){front.querySelector('.mr-food-number').textContent='RARE';b.dataset.rarity='rare';}
+   if(raw.rarity==='rare'){const number=front.querySelector('.mr-food-number');if(number)number.textContent='RARE';b.dataset.rarity='rare';}
    b.type='button';b.dataset.upgrade=raw.id;b.dataset.kind=raw.kind;b.dataset.foodKey=card.key;b.style.setProperty('--card-order',i);b.style.setProperty('--food-ink',Cards.families[card.family].colour);b.setAttribute('aria-label',(raw.rarity==='rare'?'Rare transformation. ':'')+choice.name+'. '+choice.description+(choice.detail?' '+choice.detail:''));b.setAttribute('aria-keyshortcuts',String(i+1));b.setAttribute('aria-expanded','false');b.setAttribute('aria-disabled','true');b.tabIndex=-1;
    front.classList.add('mr-food-front');front.setAttribute('aria-hidden','true');shortcut.setAttribute('aria-hidden','true');
    stock.classList.add('mr-food-back-stock');stock.setAttribute('aria-hidden','true');stock.removeAttribute('data-food-card');
-   copy.append(el('small','mr-food-kind',raw.rarity==='rare'?'Rare transformation':Cards.label(card)),el('strong','mr-food-back-title',card.name),el('span','vs-draft-description',choice.description));
+   copy.append(el('small','mr-food-kind',raw.rarity==='rare'?'Rare transformation':Cards.label(card)));if(!card.singleTitle)copy.append(el('strong','mr-food-back-title',card.name));copy.append(el('span','vs-draft-description',choice.description));
    if(choice.detail)copy.append(el('span','vs-draft-detail',choice.detail));
    const evo=raw.kind==='weapon'?state.mainWeapon===raw.id&&root.MORATALES_SURVIVOR.EVOLUTIONS[raw.id]:raw.kind==='passive'?Object.values(root.MORATALES_SURVIVOR.EVOLUTIONS).find(e=>e.passive===raw.id):null;
    if(evo)copy.append(el('span','vs-draft-pair',raw.kind==='weapon'?'Recipe: '+root.MORATALES_SURVIVOR.PASSIVES[evo.passive].name+' II':'Recipe: '+evo.name));

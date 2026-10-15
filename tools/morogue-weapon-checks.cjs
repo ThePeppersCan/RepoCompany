@@ -7,10 +7,10 @@ module.exports=() => {
  const target=(s,x,y,type='sigil')=>{const e={id:9000+s.enemies.length,type,role:'object',x,y,r:10,hp:1e7,maxHp:1e7,speed:0,damage:0,xp:0,age:0,hit:0,garlicHit:0,phase:1,view:'front'};s.enemies.push(e);return e;};
  const swing=(g,step=1)=>{const s=g.state;s.player.attack={weapon:s.mainWeapon,step,age:0,windup:.001,active:.09,recovery:.12,duration:.22,angle:0,dash:false,clean:false,hit:false,moveX:1,moveY:0};g.update(.016,{});};
  const advance=(g,t)=>{for(let i=0;i<Math.ceil(t/.016);i++)g.update(.016,{});};
- const forms=Object.keys(B.PERKS).filter(id=>B.PERKS[id].weapon&&B.PERKS[id].rarity==='rare');ok(forms.length===12,'Twelve weapon forms');
+ const forms=Object.keys(B.PERKS).filter(id=>B.PERKS[id].weapon&&B.PERKS[id].rarity==='rare');ok(forms.length===18,'Eighteen weapon forms');
  let total=0;
  for(const id of forms){const g=fixture(B.PERKS[id].weapon),s=g.state;ok(!B.refinementCards(s).length,'No unowned refinements');own(s,id);const options=B.refinementCards(s);total+=options.length;ok(options.every(c=>c.parent===id),'Only equipped owned parent');for(const c of options)ok(MOROGUE_FOOD_CARDS.present(c,s).food?.kind==='refinement','Refinement art '+c.id);const first=refine(s,id,options[0].key);ok(!B.apply(s,first),'No duplicates');refine(s,id,options[1].key);ok(!B.refinementCards(s).length,'Two refinements maximum');ok(Object.keys(s.build.perks).length===1,'No extra combat slots');}
- ok(total===30,'Thirty refinement options');
+ ok(total===42,'Forty-two weapon refinement options');
  {const s=fixture('baguette').state;own(s,'crescent');ok(!B.cards(s).some(c=>['returning','crumbstorm'].includes(c.key)),'Exclusive blade shapes');ok(!B.apply(s,{kind:'perk',id:'perk:crumbstorm',key:'crumbstorm',level:1}),'Reject invalid form');}
  // Actual weapon simulation: delayed echoes, timing and no inherited effect triggers.
  {const g=fixture(),s=g.state;own(s,'echobrew');refine(s,'echobrew','strong');s.weapons.espresso=3;s.build.perks.spill=1;s.styles.roast=true;s.evolutions.espresso=true;swing(g);const originals=s.shots.filter(q=>q.attack),echoes=s.shots.filter(q=>q.secondary);ok(originals.length===2&&echoes.length===2,'One echo per original');close(echoes[0].damage,originals[0].damage*.55,'Echo upgrade damage');const x=echoes[0].x;advance(g,.25);close(echoes[0].x,x,'Echo waits');advance(g,.16);ok(echoes[0].x>x,'Echo launches');ok(echoes.every(q=>!q.attack&&!q.compressed&&!q.fanOrigin),'Echo cannot recurse');advance(g,2.5);ok(!s.shots.length,'Echo shots expire');}

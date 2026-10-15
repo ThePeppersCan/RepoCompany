@@ -108,6 +108,14 @@
     "description": "Your finisher throws three piercing bread blades, each at 25% strike damage. Its melee hit deals 20% less damage. Replaces other flying-blade transformations."
   }
 };
+ Object.assign(NEW_WEAPON_FORMS,{
+  staticbrew:{name:'Thunderhead Coffee',weapon:'espresso',max:1,rarity:'rare',tag:'HIT → CHAIN LIGHTNING',description:'The first coffee hit of each attack arcs to two other enemies within 160 steps, dealing 22% shot damage to each. Arcs cannot hit a target twice or trigger other weapon effects.'},
+  pressurebrew:{name:'Pressure-pot Roast',weapon:'espresso',max:1,rarity:'rare',tag:'HIT → DELAYED BOMB',description:'The first coffee hit of each attack plants a pressure bean. It follows its target and bursts after 0.65 seconds for 45% shot damage within 80 steps. Up to four beans at once; bursts cannot trigger other weapon effects.'},
+  gravitybrew:{name:'Black-hole Decaf',weapon:'espresso',max:1,rarity:'rare',tag:'FINISHER → VORTEX',description:'The first hit of a coffee finisher opens a 1.6-second vortex, pulling ordinary enemies within 120 steps. Four pulses each deal 10% shot damage. One vortex at a time; bosses cannot be pulled.'},
+  shatterbrew:{name:'Porcelain Affogato',weapon:'espresso',max:1,rarity:'rare',tag:'HIT → SHARD FAN',description:'The first coffee hit of each attack scatters three porcelain shots ahead, each dealing 20% shot damage. Shards cannot hit their original target or trigger other weapon effects. They fly for 0.6 seconds and pierce one foe.'},
+  harvestbrew:{name:'Funeral Brew',weapon:'espresso',max:1,rarity:'rare',tag:'DEFEAT → COFFEE BLOOM',description:'Defeating an enemy with a main coffee shot releases a bloom for 45% shot damage within 100 steps. Once per attack, at most twice per second. Bloom defeats cannot create more blooms.'},
+  backwash:{name:'Homeward Mocha',weapon:'espresso',max:1,rarity:'rare',tag:'SHOT → RETURN',description:'Forward coffee shots return to you after their last pierce or 0.7 seconds of flight. Outgoing damage is 15% lower; returns deal 45% of that damage and pierce four foes. Returns can hit each foe once again, but cannot trigger other weapon effects.'}
+ });
  for(const [id,spec]of Object.entries(NEW_WEAPON_FORMS))PERKS[id]={...spec,description:()=>spec.description};
  const TRANSFORMATIONS=['slipstream','crescent','singleorigin','spill','returning','doughpin','feint','kindling','fanbrew',...Object.keys(NEW_WEAPON_FORMS)];
  for(const id of TRANSFORMATIONS)PERKS[id].rarity='rare';
@@ -387,6 +395,14 @@
     ]
   }
 });
+ Object.assign(REFINEMENTS,{
+  staticbrew:{links:['Forked Storm','ARC → EXTRA TARGET','Thunderhead Coffee arcs to three other enemies instead of two.','Each arc still deals 22% shot damage; no repeated targets.'],mark:['Storm Sigil','ARC → MARK','Lightning marks its targets for 3 seconds, making them take 15% more main-attack damage.','Marks refresh instead of stacking.']},
+  pressurebrew:{wide:['Boiler Crown','BOMB → COVERAGE','Pressure beans burst within 110 steps instead of 80.','Damage and the four-bean limit stay unchanged.'],quick:['Flash Extraction','BOMB → QUICK BURST','Pressure beans burst after 0.35 seconds instead of 0.65 and deal 55% shot damage.','The blast still cannot trigger other weapon effects.']},
+  gravitybrew:{wide:['Event Horizon','VORTEX → REACH','The vortex reaches 165 steps instead of 120 and pulls ordinary foes 30% faster.','Bosses remain immune to pulling.'],collapse:['Last Gravity','VORTEX → FINAL BURST','A vortex that lasts its full 1.6 seconds collapses for another 35% of its original shot damage.','Replacing a vortex early does not trigger its collapse.']},
+  shatterbrew:{five:['Fivefold Porcelain','SHARDS → WIDE FAN','Scatter five shards instead of three, each dealing 16% shot damage.','A wider fan covers more targets; each shard is weaker.'],pierce:['Needle Glaze','SHARDS → PIERCE','Each porcelain shard pierces three foes instead of one and travels 25% farther.','Shards still exclude the original target and cannot trigger other weapon effects.']},
+  harvestbrew:{seeds:['Twin Wake','BLOOM → TWO SEEDS','A Funeral Brew bloom leaves two smaller blooms 65 steps to either side, bursting after 0.4 seconds for 20% shot damage each.','Secondary defeats never chain into further blooms.'],refund:['Reclaimed Hour','BLOOM → SPECIAL CHARGE','Triggering Funeral Brew restores 0.6 seconds of special recharge.','At most once every 3 seconds; requires an equipped special.']},
+  backwash:{wide:['Broad Return','RETURN → WIDER SHOTS','Returning coffee shots grow from 7 to 12 steps in radius, or at least 12 for compressed shots.','Only the returning journey gains width.'],catch:['Safe Landing','CATCH → GUARD','Catching a returning coffee shot grants an 8-damage shield for 1.5 seconds.','Once every 4 seconds. Shields do not stack; stronger shields are preserved.']}
+ });
  function hasRefinement(s,parent,key){return !!s.build?.perks?.[parent]&&!!s.build.refinements?.[parent]?.includes(key);}
  function refinementCards(s){const result=[];for(const [parent,options]of Object.entries(REFINEMENTS)){if(!s.build.perks[parent]||PERKS[parent].weapon!==s.mainWeapon)continue;const owned=s.build.refinements?.[parent]||[];if(owned.length>=2)continue;for(const [key,[name,tag,description,tradeoff]]of Object.entries(options)){if(owned.includes(key))continue;result.push({id:'refinement:'+parent+':'+key,kind:'refinement',parent,key,name,tag,description:description+' '+tradeoff,tradeoff,detail:'Refines '+PERKS[parent].name+' · '+(owned.length+1)+' / 2 refinements · Uses its existing combat slot. Permanent for this run.',level:owned.length+2,icon:PERKS[parent].weapon||'perk'});}}return result;}
  function refinementSummary(s,parent){return (s.build.refinements?.[parent]||[]).map(key=>{const r=REFINEMENTS[parent]?.[key];return r?r[0]+': '+r[2]+' '+r[3]:'';}).filter(Boolean).join(' ');}
@@ -444,6 +460,16 @@
      if(ref('kindling','hollow'))for(const e of s.enemies)if(e.hp>0&&ordinary(e)&&dist(e,f)<110){const d=dist(e,f)||1;Object.assign(e,World.move(s.world,e,e.x+(e.x-f.x)/d*45,e.y+(e.y-f.y)/d*45));}
      if(ref('kindling','echo')&&!b.petalsThisDash){b.petalsThisDash=true;field('petals',f.x,f.y,f.radius*.7,.8,amount*.2,.5);}
      if(ref('kindling','ember'))b.emberUntil=s.time+4;continue;}
+    if(f.kind==='pressurebean'){
+     if(f.follow?.hp>0){f.x=f.follow.x;f.y=f.follow.y;}
+     if(f.age>=f.delay&&!f.fired){f.fired=true;secondary(f.x,f.y,f.radius,f.damage);cue('trap_detonate');}
+    }
+    if(f.kind==='coffeevortex'&&f.age<f.activeLife){
+     for(const e of s.enemies)if(e.hp>0&&ordinary(e)&&dist(e,f)<f.radius){const d=dist(e,f)||1,move=Math.min(Math.max(0,d-18),f.pullSpeed*dt);if(move>0)Object.assign(e,World.move(s.world,e,e.x+(f.x-e.x)/d*move,e.y+(f.y-e.y)/d*move));}
+     while(f.tick< f.activeLife&&f.age>=f.tick){secondary(f.x,f.y,f.radius,f.damage);f.tick+=.4;}
+    }
+    if(f.kind==='coffeevortex'&&f.age>=f.activeLife&&!f.fired){f.fired=true;if(f.collapse)secondary(f.x,f.y,f.radius,f.originalDamage*.35);}
+    if(f.kind==='funeralseed'&&f.age>=f.delay&&!f.fired){f.fired=true;secondary(f.x,f.y,f.radius,f.damage);}
     if(f.kind==='faultline'&&f.age>=f.delay&&!f.fired){f.fired=true;secondary(f.x,f.y,f.radius,f.damage);cue('trap_detonate');}
     if(f.kind==='petals'&&f.age>=f.delay&&!f.fired){f.fired=true;secondary(f.x,f.y,f.radius,f.damage);}
     if(f.age>=f.life&&!f.fired){if(f.kind==='spill'&&ref('spill','bloom')){f.fired=true;secondary(f.x,f.y,f.radius,f.originalDamage*.18);}if(f.kind==='decoy'&&ref('feint','burst')){f.fired=true;secondary(f.x,f.y,95,f.damage);}}
@@ -470,6 +496,14 @@
   function redirect(shot){if(r('carom')&&shot.attack&&shot.type==='espresso'){const a=shot.attack,limit=ref('carom','third')?3:2;if((!a.caromShot||a.caromShot===shot.id)&&(shot.caroms||0)<limit){const range=ref('carom','reach')?360:240;let next=null,d=range;for(const e of s.enemies){const pt=Hitboxes?Hitboxes.aim(e,shot):{x:e.x,y:e.y-18},dd=Math.hypot(pt.x-shot.x,pt.y-shot.y);if(e.hp>0&&!shot.hit.has(e.id)&&dd<d){d=dd;next=pt;}}if(next){a.caromShot=shot.id;a.bankshot=true;shot.caroms=(shot.caroms||0)+1;shot.buildBounced=true;const angle=Math.atan2(next.y-shot.y,next.x-shot.x);shot.vx=Math.cos(angle)*490;shot.vy=Math.sin(angle)*490;shot.damage*=.65+r('bankshot')*.05;shot.pierce=1;shot.life=Math.max(range/490+.1,shot.life);cue('ricochet');return true;}}return false;}if(!r('bankshot')||!shot.attack||shot.type!=='espresso'||shot.attack.bankshot||shot.buildBounced)return false;let next=null,d=240;for(const e of s.enemies){const pt=Hitboxes?Hitboxes.aim(e,shot):{x:e.x,y:e.y-18},dd=Math.hypot(pt.x-shot.x,pt.y-shot.y);if(e.hp>0&&!shot.hit.has(e.id)&&dd<d){d=dd;next=e;}}if(!next)return false;shot.attack.bankshot=true;shot.buildBounced=true;const pt=Hitboxes?Hitboxes.aim(next,shot):{x:next.x,y:next.y-18},a=Math.atan2(pt.y-shot.y,pt.x-shot.x);shot.vx=Math.cos(a)*490;shot.vy=Math.sin(a)*490;shot.damage*=.3+r('bankshot')*.1;shot.pierce=1;shot.life=Math.max(.6,shot.life);cue('ricochet');return true;}
   function shotHit(shot,e){
    if(shot.secondary){if(shot.echoSlow)chill(e,.7,2);return;}
+   if(shot.type==='espresso'&&shot.attack){
+    const a=shot.attack;
+    if(r('staticbrew')&&!a.staticBrew){a.staticBrew=true;const seen=new Set([e.id]);let from=e;for(let i=0;i<(ref('staticbrew','links')?3:2);i++){let next=null,range=160;for(const target of s.enemies){const d=dist(from,target);if(target.hp>0&&!seen.has(target.id)&&d<range){range=d;next=target;}}if(!next)break;seen.add(next.id);const trace=field('coffeearc',from.x,from.y,0,.2);if(trace)Object.assign(trace,{toX:next.x,toY:next.y,colour:'#e8d48d'});hit(next,shot.damage*.22,0,0,{weapon:'refinement',active:false});if(ref('staticbrew','mark')&&next.hp>0)applyMark(next,3);from=next;}}
+    if(r('pressurebrew')&&!a.pressureBrew){a.pressureBrew=true;const beans=b.fields.filter(f=>f.kind==='pressurebean'&&!f.fired&&f.age<f.life);if(beans.length<4){const delay=ref('pressurebrew','quick')?.35:.65,f=field('pressurebean',e.x,e.y,ref('pressurebrew','wide')?110:80,delay+.3,shot.damage*(ref('pressurebrew','quick')?.55:.45),delay);if(f)f.follow=e;}}
+    if(r('gravitybrew')&&a.step===3&&!a.gravityBrew){a.gravityBrew=true;const previous=b.fields.filter(f=>f.kind==='coffeevortex');for(const f of previous)f.life=0;const f=field('coffeevortex',e.x,e.y,ref('gravitybrew','wide')?165:120,1.85,shot.damage*.1,.05);if(f)Object.assign(f,{activeLife:1.6,pullSpeed:ref('gravitybrew','wide')?78:60,originalDamage:shot.damage,collapse:ref('gravitybrew','collapse')});}
+    if(r('shatterbrew')&&!a.shatterBrew){a.shatterBrew=true;const count=ref('shatterbrew','five')?5:3,angle=Math.atan2(shot.vy,shot.vx);for(let i=0;i<count;i++)api.secondaryShot?.({x:e.x,y:e.y-18,angle:angle+(i-(count-1)/2)*.32,damage:shot.damage*(count===5?.16:.2),life:ref('shatterbrew','pierce')?.75:.6,pierce:ref('shatterbrew','pierce')?3:1,exclude:e.id,porcelain:true});}
+    if(r('harvestbrew')&&e.hp<=0&&!a.harvestBrew&&gate('harvestbrew',.5)){a.harvestBrew=true;secondary(e.x,e.y,100,shot.damage*.45);const bloom=field('coffeebloom',e.x,e.y,100,.35);if(bloom)bloom.colour='#cbd3a0';if(ref('harvestbrew','seeds'))for(const side of [-1,1])field('funeralseed',e.x+Math.cos(a.angle+Math.PI/2)*65*side,e.y+Math.sin(a.angle+Math.PI/2)*65*side,65,.75,shot.damage*.2,.4);if(ref('harvestbrew','refund')&&b.ability&&gate('harvest-refund',3))b.cooldown=Math.max(0,b.cooldown-.6);}
+   }
    if(shot.gilded&&!shot.marked){shot.marked=true;applyMark(e,3);}
    if(shot.outer&&ref('fanbrew','frost'))chill(e,.6,1.5);
    if(r('coldbrew')&&shot.type==='espresso'&&shot.attack&&!shot.attack.chilled){shot.attack.chilled=true;if(ordinary(e)){e.buildChillUntil=s.time+2;fx('spark',e.x,e.y-18,'#a5dbdc',.7);}}
@@ -479,11 +513,13 @@
   }
   function opening(strike){if(strike.weapon!=='baguette'||strike.step!==1||!r('faultline'))return;const count=ref('faultline','fourth')?4:3;for(let i=0;i<count;i++){const pos=World.nearest(s.world,strike.x+Math.cos(strike.angle)*(70+i*70),strike.y+Math.sin(strike.angle)*(70+i*70),20);field('faultline',pos.x,pos.y,ref('faultline','wide')?60:42,.55+i*.12,strike.damage*.22,.18+i*.12);}}
   function sweep(strike,seen){if(strike.weapon==='baguette'&&strike.step!==3&&ref('cyclone','slow'))for(const e of s.enemies)if(seen.has(e.id))chill(e,.75,1.5);}
+  function returnCoffee(shot){if(!shot.returnCoffee||shot.coffeeReturning||shot.secondary)return false;shot.coffeeReturning=true;shot.secondary=true;shot.attack=null;shot.orbit=null;shot.compressed=false;shot.outer=false;shot.fanOrigin=null;shot.hit.clear();shot.life=1.1;shot.pierce=4;shot.damage*=.45;if(ref('backwash','wide'))shot.r=Math.max(12,shot.r);return true;}
+  function catchCoffee(){if(ref('backwash','catch')&&gate('coffee-catch',4)){b.ward=Math.max(b.ward,8);b.wardUntil=Math.max(b.wardUntil,s.time+1.5);fx('ring',p.x,p.y-18,'#e4d2a2',.6);}}
   function recall(shot){if(ref('returning','wide')){shot.r*=1.6;shot.damage*=.85;}if(ref('returning','cross')&&shot.origin&&dist(p,shot.origin)>=90)shot.damage*=1.35;}
   function turnCut(shot){secondary(shot.x,shot.y+18,65,shot.damage*.5);}
   function wake(echo,seen){if(echo.style==='slipstream'&&ref('slipstream','snare'))for(const e of s.enemies)if(seen.has(e.id))chill(e,.7,1.5);}
   function wakeScale(){const value=ref('slipstream','poise')&&b.repriseUntil>s.time?1.2:1;b.repriseUntil=0;return value;}
-  return {wounded(){b.woundedUntil=s.time+6;},cast,update,slow,defend,record,opening,sweep,mainScale,landed,finisher,dodge,redirect,shotHit,refinement:ref,recall,turnCut,wake,wakeScale,rank:r,resetInput(){specialHeld=true;},target(e){return !e.major&&!['boss','sigil'].includes(e.type)&&b.fields.find(f=>f.kind==='decoy'&&f.age<f.life&&dist(e,f)<(ref('feint','linger')?280:230))||p;},dash(){b.petalsThisDash=false;b.pursuitUntil=s.time+1.5;if(r('feint')&&gate('feint',ref('feint','linger')?8:6)){const life=ref('feint','linger')?3:2;if(field('decoy',p.x,p.y,20,life,(api.mainDamage?.()||0)*.45))cue('decoy');fx('trail',p.x,p.y-18,'#b4ded0',1,{pose:'idle',life,decoy:true});}},speed:()=>s.time<b.speedUntil?1+r('fleet')*.08:1};
+  return {wounded(){b.woundedUntil=s.time+6;},cast,update,slow,defend,record,opening,sweep,mainScale,landed,finisher,dodge,redirect,shotHit,returnCoffee,catchCoffee,refinement:ref,recall,turnCut,wake,wakeScale,rank:r,resetInput(){specialHeld=true;},target(e){return !e.major&&!['boss','sigil'].includes(e.type)&&b.fields.find(f=>f.kind==='decoy'&&f.age<f.life&&dist(e,f)<(ref('feint','linger')?280:230))||p;},dash(){b.petalsThisDash=false;b.pursuitUntil=s.time+1.5;if(r('feint')&&gate('feint',ref('feint','linger')?8:6)){const life=ref('feint','linger')?3:2;if(field('decoy',p.x,p.y,20,life,(api.mainDamage?.()||0)*.45))cue('decoy');fx('trail',p.x,p.y-18,'#b4ded0',1,{pose:'idle',life,decoy:true});}},speed:()=>s.time<b.speedUntil?1+r('fleet')*.08:1};
  }
  const TRAINING={
   edge:{name:'Honed Edge',max:12,description:s=>{const n=Math.min(12,s.training.edge||0),gain=((1+.6*Math.log1p((n+1)/10))/(1+.6*Math.log1p(n/10))-1)*100;return 'Main attacks, specials and merchant damage effects gain '+gain.toFixed(1)+'% damage from this rank. Smaller gains at later ranks. Maximum 12 ranks.';}},
