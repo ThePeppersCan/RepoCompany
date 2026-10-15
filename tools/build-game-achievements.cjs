@@ -12,8 +12,14 @@ for(const game of ['moratales','manager','morogue']){
  fs.writeFileSync(path.join(root,'game-integrations',game,'achievement-runtime.js'),source);
 }
 const hashes={};
-for(const game of ['moratales','manager','morogue'])for(const file of fs.readdirSync(path.join(root,'game-integrations',game)).filter(f=>f.endsWith('.js'))){
- const relative=`game-integrations/${game}/${file}`;
- hashes[relative]=hash(relative);
+// Versioned game releases and their styles/audio also need manifest entries.
+// Walk each published game folder so rebuilding cannot drop nested release hashes.
+function collect(relative){
+ for(const entry of fs.readdirSync(path.join(root,relative),{withFileTypes:true})){
+  const child=relative+'/'+entry.name;
+  if(entry.isDirectory())collect(child);
+  else if(entry.isFile())hashes[child]=hash(child);
+ }
 }
+for(const game of ['moratales','manager','morogue'])collect(`game-integrations/${game}`);
 fs.writeFileSync(path.join(root,'game-integrations','manifest.json'),JSON.stringify({version:1,hashes},null,2)+'\n');
