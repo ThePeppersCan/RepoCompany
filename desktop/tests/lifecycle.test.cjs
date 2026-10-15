@@ -565,7 +565,8 @@ function nativePresenceHarness({ pendingLoad = false } = {}) {
       this.webContents = Object.assign(new EventEmitter(), {
         mainFrame: { url: 'about:blank' }, isDestroyed: () => this.destroyed, getURL() { return this.mainFrame.url; }, send() {}, setWindowOpenHandler() {}, focus() { this.emit('focus'); },
         loadURL: async url => { this.webContents.mainFrame.url = url; activity.push('loaded'); if (pendingLoad) await new Promise((resolve, reject) => { this.finishLoad = resolve; this.failLoad = reject; }); },
-        close: () => { this.destroyed = true; this.webContents.emit('destroyed'); }, executeJavaScript: async () => true
+        close: () => { this.destroyed = true; this.webContents.emit('destroyed'); }, executeJavaScript: async () => true,
+        setAudioMuted: value => { this.muted = value; }
       });
     }
     setVisible(value) { this.visible = value; }
@@ -694,12 +695,35 @@ test('cancelled exit keeps playing, while Morogue exit destroys the run without 
   const h = nativePresenceHarness();
   h.run('portalSession=async()=>({user:{id:"original-account"}});');
   await h.run('play("morogue")'); const view = h.windows[0];
+  await h.run('executeCommand("game-intro-complete",currentGame().introId)');
   view.webContents.executeJavaScript = () => { throw Error('Morogue must never save an unfinished run.'); };
   h.dialogs.response = 0; await h.run('exitCurrentGame()');
   assert.equal(view.destroyed, false); assert.equal(h.run('games.size'), 1);
   h.dialogs.response = 1; await h.run('exitCurrentGame()');
   assert.equal(view.destroyed, true); assert.equal(h.run('games.size'), 0); assert.equal(h.portal.visible, true);
   assert.deepEqual(h.activity, ['loaded', 'start:morogue', 'stop:morogue']);
+});
+
+test('Morogue reveal requires both its own completed intro and a ready game document', async () => {
+  for (const first of ['document','intro']) {
+    const h=nativePresenceHarness({pendingLoad:true});h.run('portalSession=async()=>({user:{id:"original-account"}});');
+    const opening=h.run('play("morogue")');await new Promise(r=>setImmediate(r));const view=h.windows[0];
+    assert.equal(view.visible,false);assert.equal(view.muted,true);assert.equal(h.run('state().gameVisible'),false);
+    await h.run('executeCommand("game-intro-complete","stale")');assert.equal(view.visible,false);
+    await assert.rejects(h.run('openMessages()'),/Wait for your game/);
+    if(first==='document')view.webContents.emit('dom-ready');else await h.run('executeCommand("game-intro-complete",currentGame().introId)');
+    assert.equal(view.visible,false);assert.deepEqual(h.activity,['loaded']);
+    if(first==='document')await h.run('executeCommand("game-intro-complete",currentGame().introId)');else view.webContents.emit('dom-ready');
+    assert.equal(view.visible,true);assert.equal(view.muted,false);assert.equal(h.run('state().gameVisible'),true);
+    view.finishLoad();await opening;assert.deepEqual(h.activity,['loaded','start:morogue']);view.close();
+  }
+});
+
+test('cancelling the intro returns to the library and late completion cannot revive the game', async()=>{
+  const h=nativePresenceHarness();h.run('portalSession=async()=>({user:{id:"original-account"}});');await h.run('play("morogue")');
+  const id=h.run('currentGame().introId'),view=h.windows[0];await h.run('exitCurrentGame()');
+  await h.run('executeCommand("game-intro-complete",'+JSON.stringify(id)+')');
+  assert.equal(view.destroyed,true);assert.equal(view.visible,false);assert.equal(h.run('games.size'),0);assert.equal(h.portal.visible,true);assert.ok(!h.activity.includes('start:morogue'));
 });
 
 test('messages can reveal the preserved portal and return to the same game without saving, quitting or restarting it', async () => {

@@ -24,7 +24,15 @@ const {chromium}=require('playwright');
   await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>{receiveFixture({...fixture,activeGame:{id:'manager',name:'Velmora Manager',loading:true}});stepMotion(10000);});assert.equal(await page.locator('.motion-uncrowned').getAttribute('opacity'),'0');
   await page.evaluate(()=>{receiveFixture({...fixture,requiredUpdate:{locked:true,phase:'downloading'},launcherUpdate:{status:'downloading',progress:.5}});stepMotion(12000);});assert.equal(await page.locator('.motion-uncrowned').getAttribute('opacity'),'0');
   await page.evaluate(()=>{receiveFixture(fixture);stepMotion(14900);});await page.addStyleTag({content:'.brand-loader{width:164px;height:164px}'});await page.screenshot({path:path.join(output,'actual-size.png')});
-  assert.deepEqual(errors,[]);console.log('PASS: 140 rendered frames, exact loop seam, stopped/reduced-motion reset, Morogue-only selection, generic update animation. Preview: '+output);
+  await page.evaluate(()=>{window.completions=0;repoBrandMotion.setIntro('two-loops',2,()=>completions++);repoBrandMotion.setActive(true);stepMotion(16000);stepMotion(18800);});
+  assert.equal(await page.evaluate(()=>completions),0,'One loop must not reveal the game.');
+  await page.evaluate(()=>stepMotion(21599));assert.equal(await page.evaluate(()=>completions),0);
+  await page.evaluate(()=>stepMotion(21600));assert.equal(await page.evaluate(()=>completions),1);
+  await page.evaluate(()=>{repoBrandMotion.setIntro('two-loops',2,()=>completions++);repoBrandMotion.setActive(true);stepMotion(30000);});assert.equal(await page.evaluate(()=>completions),1,'Repeated state updates must not restart a completed intro.');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.evaluate(()=>{repoBrandMotion.setIntro('reduced',2,()=>completions++);repoBrandMotion.setActive(true);stepMotion(40000);stepMotion(45600);});assert.equal(await page.evaluate(()=>completions),2);assert.equal(await page.locator('.motion-rest').getAttribute('opacity'),'1');
+  await page.evaluate(()=>{repoBrandMotion.setIntro('cancelled',2,()=>completions++);repoBrandMotion.setActive(true);stepMotion(60000);repoBrandMotion.setIntro(null);repoBrandMotion.setActive(false);stepMotion(80000);});assert.equal(await page.evaluate(()=>completions),2);
+  assert.deepEqual(errors,[]);console.log('PASS: 140 rendered frames, exact loop seam, two-loop completion once, reduced-motion timing, cancellation, Morogue-only selection and generic update animation. Preview: '+output);
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
 

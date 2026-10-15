@@ -34,6 +34,7 @@
       const tick = () => { $('#update-stage').textContent = 'Restarting in ' + Math.max(0, Math.ceil((gate.restartAt - Date.now()) / 1000)) + ' seconds'; };
       tick(); if (!countdownTimer) countdownTimer = setInterval(() => { if (state.requiredUpdate?.phase === 'countdown') $('#update-stage').textContent = 'Restarting in ' + Math.max(0, Math.ceil((state.requiredUpdate.restartAt - Date.now()) / 1000)) + ' seconds'; }, 250);
     } else { clearInterval(countdownTimer); countdownTimer = null; }
+    window.repoBrandMotion?.setIntro(null);
     window.repoBrandMotion?.setVariant('default');
     window.repoBrandMotion?.setActive(!failed);
     return true;
@@ -66,11 +67,15 @@
     const busy = authenticating || state.signingIn;
     const account = state.account || { status: 'checking' };
     const gameLoading = state.activeGame?.loading;
+    const introId = gameLoading ? state.activeGame.introId : null;
     const error = connectionError || state.portalError || (account.status === 'offline' ? account.error || 'Connect to the internet to continue.' : '');
     const showForm = state.portalReady && account.status === 'signed-out' && !error && !gameLoading;
     const phase = busy ? 'signing-in' : reconnecting || gameLoading ? 'loading' : error ? 'error' : showForm ? 'sign-in' : 'loading';
     $('.website-fallback').dataset.phase = phase;
     window.repoBrandMotion?.setVariant(gameLoading && state.activeGame.id === 'morogue' ? 'morogue' : 'default');
+    window.repoBrandMotion?.setIntro(introId, state.activeGame?.introLoops || 2, () => {
+      bridge.completeGameIntro(introId).then(receive).catch(() => { connectionError = 'Your game could not open. Return to your library and try again.'; renderConnection(); });
+    });
     window.repoBrandMotion?.setActive(state.entryVisible !== false && ['loading', 'signing-in'].includes(phase));
     document.body.dataset.locked = String(account.status !== 'online' || busy);
     $('.connection-card').setAttribute('aria-busy', String(['loading', 'signing-in'].includes(phase)));
@@ -107,7 +112,7 @@
     $('#back-to-game').hidden = !state.messageOverlay;
     $('#exit-game').disabled = leaving || game.closing;
     $('#exit-game').textContent = game.closing ? 'Saving…' : leaving ? 'Leaving…' : 'Exit game';
-    $('#game-messages').disabled = openingMessages;
+    $('#game-messages').disabled = openingMessages || game.loading;
     $('#game-messages-label').textContent = state.social?.incomingCall ? 'Incoming call' : state.social?.callActive ? 'Call active' : 'Messages';
     $('#game-messages').classList.toggle('incoming-call', !!state.social?.incomingCall);
     $('#message-count').hidden = !state.social?.unread;

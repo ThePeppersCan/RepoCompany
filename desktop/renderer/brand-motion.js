@@ -41,7 +41,7 @@
     return "M" + points.map(fmt).join("L") + "Z";
   }
   const morogue = window.createMorogueBrandMotion?.(svg, outline);
-  let wanted = false, frame = 0, epoch = 0, variant = 'default';
+  let wanted = false, frame = 0, epoch = 0, variant = 'default', intro = null;
   function reset() {
     morogue?.hide();
     rest.setAttribute('opacity', '1'); rest.removeAttribute('transform');
@@ -79,12 +79,33 @@
       sparks[i].setAttribute('opacity', (Math.sin(burst * Math.PI) * .65).toFixed(3));
     }
   }
-  function tick(time) { if (!wanted || reduce.matches || document.hidden) { frame = 0; reset(); return; } if (variant === 'morogue' && morogue) morogue.draw(time - epoch); else draw(time - epoch); frame = requestAnimationFrame(tick); }
+  function tick(time) {
+    if (!wanted || document.hidden || reduce.matches && !intro) { frame = 0; if (intro) intro.last = null; reset(); return; }
+    let elapsed = time - epoch;
+    if (intro) {
+      if (intro.last !== null) intro.elapsed += Math.max(0, time - intro.last);
+      intro.last = time; elapsed = intro.elapsed;
+      if (elapsed >= intro.loops * (variant === 'morogue' && morogue ? morogue.duration : 4200)) {
+        frame = 0; intro.done = true; reset(); intro.complete(); return;
+      }
+    }
+    if (reduce.matches) reset(); else if (variant === 'morogue' && morogue) morogue.draw(elapsed); else draw(elapsed);
+    frame = requestAnimationFrame(tick);
+  }
   function sync() {
-    if (!wanted || reduce.matches || document.hidden) { cancelAnimationFrame(frame); frame = 0; reset(); return; }
+    if (!wanted || reduce.matches && !intro || document.hidden || intro?.done) { cancelAnimationFrame(frame); frame = 0; if (intro) intro.last = null; reset(); return; }
     if (!frame) { epoch = performance.now(); frame = requestAnimationFrame(tick); }
   }
-  window.repoBrandMotion = Object.freeze({ setActive(value) { wanted = !!value; sync(); }, setVariant(value) { const next = value === 'morogue' ? 'morogue' : 'default'; if (next === variant) return; variant = next; reset(); epoch = performance.now(); } });
+  window.repoBrandMotion = Object.freeze({
+    setActive(value) { wanted = !!value; sync(); },
+    setVariant(value) { const next = value === 'morogue' ? 'morogue' : 'default'; if (next === variant) return; variant = next; reset(); epoch = performance.now(); },
+    setIntro(key, loops = 2, complete = () => {}) {
+      if (!key) { intro = null; return; }
+      if (intro?.key === key) return;
+      intro = { key, loops: Math.max(1, Math.min(4, loops)), complete, elapsed: 0, last: null, done: false };
+      reset();
+    }
+  });
   reduce.addEventListener('change', sync); document.addEventListener('visibilitychange', sync);
   reset();
 })();

@@ -42,7 +42,7 @@
   const rest=svg.querySelector('.motion-rest');
   function hide(){group.setAttribute('opacity','0');}
   function draw(ms){
-   const t=(ms%5600)/5600;
+   const t=(ms%2800)/2800;
    const into=ease((t-.16)/.25),back=ease((t-.66)/.23),amount=into*(1-back);
    // Freeze the source image during the rest; use its matching outline in motion.
    const active=t>.155&&t<.895;
@@ -68,6 +68,6 @@
     h.node.setAttribute('d',shape(h.points.map(p=>[mix(h.center[0],p[0],reveal),mix(h.center[1],p[1],reveal)])));
    }
   }
-  return Object.freeze({draw,hide,duration:5600});
+  return Object.freeze({draw,hide,duration:2800});
  };
 })();

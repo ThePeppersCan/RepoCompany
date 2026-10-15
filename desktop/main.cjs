@@ -67,8 +67,8 @@ const state = () => ({
   version: app.getVersion(), view, selectedGame, selectedGameRevision, account: account?.snapshot() || { status: 'checking' }, signingIn,
   connectivity: { online: account?.state.status !== 'offline' },
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
-  activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, closing: !!currentGame().__closing } : null,
-  gameVisible: !!currentGame() && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
+  activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, introId: currentGame().introId, introLoops: currentGame().introLoops, closing: !!currentGame().__closing } : null,
+  gameVisible: !!currentGame() && !currentGame().loading && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
   entryVisible: updateLocked() || !portalViewVisible && (!currentGame() || !!currentGame().loading),
   requiredUpdate: requiredUpdate.snapshot(),
   launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
@@ -437,6 +437,7 @@ function disposeGame(record) {
 async function exitCurrentGame() {
   const record = currentGame();
   if (!record || record.closed) return;
+  if (record.loading && record.introId) { disposeGame(record); return; }
   if (record.__exitPrompt) return record.__exitPrompt;
   record.__exitPrompt = (async () => {
     const name = gameById(record.__gameId).name;
@@ -446,6 +447,7 @@ async function exitCurrentGame() {
   return record.__exitPrompt;
 }
 async function openMessages() {
+  if (currentGame()?.loading) throw Error('Wait for your game to open before opening messages.');
   const contents = activePortal();
   if (!contents || !windowContents(mainWindow)) throw Error('The launcher is closing.');
   messageOverlay = true;
@@ -544,13 +546,18 @@ async function play(id) {
     webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'game-preload.cjs'), additionalArguments: ['--repo-account-id=' + identity, '--repo-game-id=' + id], contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false }
   });
   gameView.setBackgroundColor('#121713');
-  const record = { view: gameView, webContents: gameView.webContents, __accountId: identity, __gameId: id, closed: false, loading: true };
+  const introLoops = id === 'morogue' ? 2 : 0;
+  const record = { view: gameView, webContents: gameView.webContents, __accountId: identity, __gameId: id, closed: false, loading: true, introLoops, introId: introLoops ? require('node:crypto').randomUUID() : null, introComplete: !introLoops, documentReady: false };
+  if (introLoops) record.webContents.setAudioMuted(true);
   games.set(id, record); mainWindow.contentView.addChildView(gameView); focusGame(record);
   let presenceStarted = false, presenceEnded = false;
   function startGamePresence() {
     const contents = gameContents(record);
     if (presenceStarted || presenceEnded || quitting || !contents || games.get(id) !== record) return;
     try { if (new URL(contents.getURL()).origin !== game.origin) return; } catch { return; }
+    record.documentReady = true;
+    if (!record.introComplete) return;
+    contents.setAudioMuted(false);
     record.loading = false; record.view.setVisible(!messageOverlay && !updateLocked()); if (!hiddenTest && !messageOverlay && !updateLocked()) contents.focus();
     if (updateLocked()) contents.send('launcher:game-connection', gameConnection(record)); broadcast();
     presenceStarted = true; discordPresence?.gameStarted(id);
@@ -561,6 +568,7 @@ async function play(id) {
     if (games.get(id) === record) discordPresence?.gameStopped(id);
   }
   record.stopPresence = stopGamePresence;
+  record.finishIntro = () => { record.introComplete = true; if (record.documentReady) startGamePresence(); };
   secureContents(record.webContents, value => { try { return new URL(value).origin === game.origin; } catch { return false; } });
   record.webContents.on('will-navigate', (event, destination) => { if (isPortalUrl(destination)) { event.preventDefault(); void exitCurrentGame().catch(() => {}); } });
   // Large optional assets may keep loadURL pending after the game is usable.
@@ -590,6 +598,11 @@ async function executeCommand(action, value) {
   if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
+    case 'game-intro-complete': {
+      const record = currentGame();
+      if (record && !record.closed && record.introId && value === record.introId) record.finishIntro();
+      return state();
+    }
     case 'sign-in': return signIn(value);
     case 'navigate': await navigate(value); return state();
     case 'exit-game': await exitCurrentGame(); return state();

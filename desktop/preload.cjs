@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('repoLauncher', Object.freeze({
   uninstall: id => invoke('uninstall', id),
   cancel: id => invoke('cancel', id),
   play: id => invoke('play', id),
+  completeGameIntro: id => invoke('game-intro-complete', id),
   exitGame: () => invoke('exit-game'),
   openMessages: () => invoke('messages'),
   resumeGame: () => invoke('resume-game'),
