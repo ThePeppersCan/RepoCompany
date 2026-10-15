@@ -1,7 +1,7 @@
 const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('node:sqlite');
 (async()=>{
  const catalog=JSON.parse(fs.readFileSync('account-assets/avatar-v2/catalog.json','utf8'));
- const source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public'};").replace("import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';",'const avatarCatalog='+JSON.stringify(catalog)+';');
+ const source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8').replace("import frameCatalog from '../../../avatar-frame-catalog.json';",'const frameCatalog='+fs.readFileSync('avatar-frame-catalog.json','utf8')+';').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public'};").replace("import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';",'const avatarCatalog='+JSON.stringify(catalog)+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
  const sql=new DatabaseSync(':memory:');for(const file of ['dashboard-social-schema.sql','dashboard-playtime-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql'])sql.exec(fs.readFileSync(file,'utf8'));
  const prepare=(q,args=[])=>({bind(...a){return prepare(q,a)},async first(){return sql.prepare(q).get(...args)||null},async all(){return{results:sql.prepare(q).all(...args)}},async run(){return sql.prepare(q).run(...args)}});

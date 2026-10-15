@@ -1,6 +1,6 @@
 const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('node:sqlite');
 (async()=>{
- const source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public-anon'};");
+ const source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8').replace("import frameCatalog from '../../../avatar-frame-catalog.json';",'const frameCatalog='+fs.readFileSync('avatar-frame-catalog.json','utf8')+';').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public-anon'};");
  const avatarImport="import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';";
  const prepared=source.replace(avatarImport,'const avatarCatalog='+fs.readFileSync('account-assets/avatar-v2/catalog.json','utf8')+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(prepared).toString('base64'));
