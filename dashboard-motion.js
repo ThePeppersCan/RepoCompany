@@ -240,7 +240,7 @@
     document.getElementById('gallery-count').innerHTML = '01 <span>/ 03</span>';
   });
 
-  function launchGame() {
+  function launchGame(ready) {
     if (launching || dashboard.classList.contains('home-mode')) return;
     launching = true;
     launchAt = performance.now();
@@ -259,13 +259,20 @@
     sound?.launch(duration - 200);
     launchTimers.push(setTimeout(() => launchCurtain.classList.add('visible'), reducedMotion.matches ? 0 : 900));
     launchTimers.push(setTimeout(() => sound?.finish(), duration - 300));
-    launchTimers.push(setTimeout(() => location.assign(playButton.dataset.gameUrl), duration));
+    launchTimers.push(setTimeout(() => {
+      if (typeof ready !== 'function') { location.assign(playButton.dataset.gameUrl); return; }
+      // Commit a fully black frame before the native view takes over, including
+      // when Windows has throttled the curtain's composited CSS transition.
+      launchCurtain.style.transition = 'none'; launchCurtain.classList.add('visible');
+      void launchCurtain.offsetWidth;
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (launching) ready(); }));
+    }, duration));
     updateLoop();
   }
   // Back from the game must restore the scene, including when the browser keeps it in memory.
-  addEventListener('pageshow', event => {
-    if (!event.persisted) return;
+  function resetLaunch() {
     launchTimers.forEach(clearTimeout);
+    launchTimers.length = 0;
     launching = active = hovering = keyboardFocus = pinned = false;
     speed = angle = 0; coast = null;
     delete dashboard.dataset.launching;
@@ -275,11 +282,27 @@
     playButton.disabled = false;
     document.body.classList.remove('is-launching');
     launchCurtain.classList.remove('visible');
+    launchCurtain.style.removeProperty('transition');
     launchCurtain.replaceChildren();
     rotor.style.transform = 'rotate(0deg)'; rotor.style.filter = ''; rotor.dataset.speed = '0';
     playButton.focus({preventScroll: true});
+    sound?.reset();
     updateLoop();
+  }
+  addEventListener('pageshow', event => { if (event.persisted) resetLaunch(); });
+  // Presentation only: the isolated desktop preload retains the trusted click,
+  // game selection and native launch. This event cannot launch a native game.
+  addEventListener('repo-launch-presentation', event => {
+    const { id, ticket } = event.detail || {};
+    if (launching || typeof ticket !== 'string' || !window.dashboardScenes?.ids.includes(id)) return;
+    if (document.querySelector('dialog[open]') || dashboard.classList.contains('home-mode') || dashboard.dataset.openGame !== id) {
+      history.replaceState({ scene: id }, '', '#' + id);
+      dispatchEvent(new PopStateEvent('popstate'));
+    }
+    launchGame(() => dispatchEvent(new CustomEvent('repo-launch-presentation-ready', { detail: { ticket } })));
   });
+  addEventListener('repo-launch-presentation-reset', resetLaunch);
+  document.documentElement.dataset.repoLaunchPresentation = '1';
 
   document.querySelectorAll('[data-note]').forEach(button => button.onclick = () => {
     if (launching) return;

@@ -13,6 +13,11 @@
 .connection-card{position:relative;width:min(370px,100%);padding-bottom:24px}
 .brand-loader{position:relative;width:164px;height:164px;margin:-22px auto 24px;isolation:isolate}
 .brand-motion{display:block;width:100%;height:100%;overflow:visible}
+.website-fallback[data-game-loading="true"]:not([data-phase="updating"]){background:#000}
+.website-fallback[data-game-loading="true"]:not([data-phase="updating"]) .entry-atmosphere{display:none}
+.website-fallback[data-game-loading="true"]:not([data-phase="updating"]) .brand-loader{animation:game-logo-enter .22s ease-out both}
+@keyframes game-logo-enter{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.website-fallback[data-game-loading="true"] .brand-loader{animation:none!important}}
 .connection-card h1{font-size:30px;letter-spacing:-.045em;font-weight:500;margin-bottom:10px}
 .connection-card #connection-message{font-size:13px;color:#929e94}
 .sign-in-form{text-align:left;margin-top:0;animation:repo-form-in .32s ease-out}

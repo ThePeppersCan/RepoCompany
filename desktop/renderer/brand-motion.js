@@ -40,10 +40,10 @@
     }
     return "M" + points.map(fmt).join("L") + "Z";
   }
-  const morogue = window.createMorogueBrandMotion?.(svg, outline);
+  const variants = { morogue: window.createMorogueBrandMotion?.(svg, outline), moratales: window.createMoratalesBrandMotion?.(svg, outline) };
   let wanted = false, frame = 0, epoch = 0, variant = 'default', intro = null;
   function reset() {
-    morogue?.hide();
+    Object.values(variants).forEach(motion => motion?.hide());
     rest.setAttribute('opacity', '1'); rest.removeAttribute('transform');
     core.setAttribute('opacity', '0');
     [...arcs, ...trails, ...sparks].forEach(el => el.setAttribute('opacity', '0'));
@@ -85,11 +85,11 @@
     if (intro) {
       if (intro.last !== null) intro.elapsed += Math.max(0, time - intro.last);
       intro.last = time; elapsed = intro.elapsed;
-      if (elapsed >= intro.loops * (variant === 'morogue' && morogue ? morogue.duration : 4200)) {
+      if (elapsed >= intro.loops * (variants[variant]?.duration || 4200)) {
         frame = 0; intro.done = true; reset(); intro.complete(); return;
       }
     }
-    if (reduce.matches) reset(); else if (variant === 'morogue' && morogue) morogue.draw(elapsed); else draw(elapsed);
+    if (reduce.matches) reset(); else if (variants[variant]) variants[variant].draw(elapsed); else draw(elapsed);
     frame = requestAnimationFrame(tick);
   }
   function sync() {
@@ -98,7 +98,7 @@
   }
   window.repoBrandMotion = Object.freeze({
     setActive(value) { wanted = !!value; sync(); },
-    setVariant(value) { const next = value === 'morogue' ? 'morogue' : 'default'; if (next === variant) return; variant = next; reset(); epoch = performance.now(); },
+    setVariant(value) { const next = Object.hasOwn(variants, value) && variants[value] ? value : 'default'; if (next === variant) return; variant = next; reset(); epoch = performance.now(); },
     setIntro(key, loops = 2, complete = () => {}) {
       if (!key) { intro = null; return; }
       if (intro?.key === key) return;

@@ -691,23 +691,22 @@ test('a failed adventure save retains the live game; retry closes its view befor
   assert.equal(h.run('state()').activeGame, null);
 });
 
-test('cancelled exit keeps playing, while Morogue exit destroys the run without saving or retaining a hidden game', async () => {
+test('Morogue exit closes immediately without a warning, saving or retaining a hidden run', async () => {
   const h = nativePresenceHarness();
   h.run('portalSession=async()=>({user:{id:"original-account"}});');
   await h.run('play("morogue")'); const view = h.windows[0];
   await h.run('executeCommand("game-intro-complete",currentGame().introId)');
   view.webContents.executeJavaScript = () => { throw Error('Morogue must never save an unfinished run.'); };
-  h.dialogs.response = 0; await h.run('exitCurrentGame()');
-  assert.equal(view.destroyed, false); assert.equal(h.run('games.size'), 1);
-  h.dialogs.response = 1; await h.run('exitCurrentGame()');
+  h.dialogs.showMessageBox = async () => { throw Error('Morogue exit must not show a confirmation.'); };
+  await h.run('exitCurrentGame()');
   assert.equal(view.destroyed, true); assert.equal(h.run('games.size'), 0); assert.equal(h.portal.visible, true);
   assert.deepEqual(h.activity, ['loaded', 'start:morogue', 'stop:morogue']);
 });
 
-test('Morogue reveal requires both its own completed intro and a ready game document', async () => {
-  for (const first of ['document','intro']) {
+test('Morogue and Moratales reveal requires both their own completed intro and a ready game document', async () => {
+  for (const gameId of ['morogue','moratales']) for (const first of ['document','intro']) {
     const h=nativePresenceHarness({pendingLoad:true});h.run('portalSession=async()=>({user:{id:"original-account"}});');
-    const opening=h.run('play("morogue")');await new Promise(r=>setImmediate(r));const view=h.windows[0];
+    const opening=h.run('play('+JSON.stringify(gameId)+')');await new Promise(r=>setImmediate(r));const view=h.windows[0];
     assert.equal(view.visible,false);assert.equal(view.muted,true);assert.equal(h.run('state().gameVisible'),false);
     await h.run('executeCommand("game-intro-complete","stale")');assert.equal(view.visible,false);
     await assert.rejects(h.run('openMessages()'),/Wait for your game/);
@@ -715,7 +714,7 @@ test('Morogue reveal requires both its own completed intro and a ready game docu
     assert.equal(view.visible,false);assert.deepEqual(h.activity,['loaded']);
     if(first==='document')await h.run('executeCommand("game-intro-complete",currentGame().introId)');else view.webContents.emit('dom-ready');
     assert.equal(view.visible,true);assert.equal(view.muted,false);assert.equal(h.run('state().gameVisible'),true);
-    view.finishLoad();await opening;assert.deepEqual(h.activity,['loaded','start:morogue']);view.close();
+    view.finishLoad();await opening;assert.deepEqual(h.activity,['loaded','start:'+gameId]);view.close();
   }
 });
 

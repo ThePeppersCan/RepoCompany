@@ -277,6 +277,17 @@ function initialize() {
     }
   }
   function schedule() {if(queued)return;queued=true;setTimeout(()=>{queued=false;mount();},100);}
+  let presentationSerial = 0;
+  async function presentGameLaunch(id) {
+    if(running(id)||document.documentElement.dataset.repoLaunchPresentation!=='1')return;
+    const ticket=id+':'+(++presentationSerial);
+    await new Promise((resolve,reject)=>{
+      const finish=event=>{if(event.detail?.ticket!==ticket)return;clearTimeout(timer);removeEventListener('repo-launch-presentation-ready',finish);resolve();};
+      const timer=setTimeout(()=>{removeEventListener('repo-launch-presentation-ready',finish);reject(Error('Your game could not open. Please try again.'));},5000);
+      addEventListener('repo-launch-presentation-ready',finish);
+      dispatchEvent(new CustomEvent('repo-launch-presentation',{detail:{id,ticket}}));
+    });
+  }
   async function request(action,id) {
     const token=action+':'+(id||'');if(pending.has(token))return;
     pending.add(token);schedule();
@@ -285,6 +296,7 @@ function initialize() {
         setLibrary(false);await invoke('navigate','account');
         const start=Date.now();const openLogin=()=>{const button=document.querySelector('#account-menu [data-login]');if(button&&button.getBoundingClientRect().width>0){button.click();return;}if(Date.now()-start<5000)setTimeout(openLogin,100);};openLogin();
       } else {
+        if(action==='play')await presentGameLaunch(id);
         const next=await invoke(action,id);if(next&&typeof next==='object'&&next.catalog)receive(next);
         const demo=action==='play-web'?demos().find(demo=>demo.id===id):null;
         if(demo?.embedded)embeddedDemo={id,seen:false,runtime:demo.runtime||'legacy',origin:demo.origin};
@@ -293,11 +305,11 @@ function initialize() {
         if(action==='discord-presence')toast(id?'Discord game activity is on.':'Discord game activity is off.');
       }
     } catch(error){toast(error?.message||String(error));}
-    finally{pending.delete(token);schedule();}
+    finally{if(action==='play')dispatchEvent(new Event('repo-launch-presentation-reset'));pending.delete(token);schedule();}
   }
   function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
 
-  // Capture precedes the site's launch animation and its private launching flag.
+  // Capture the trusted click, then run the site's disc/sound/curtain before IPC.
   addEventListener('click',event=>{
     const element=event.target instanceof Element?event.target.closest('button,a'):null;if(!element)return;
     if(element.id==='launcher-library-tab'){event.preventDefault();event.stopImmediatePropagation();setLibrary(true,true);return;}

@@ -72,7 +72,8 @@
     const showForm = state.portalReady && account.status === 'signed-out' && !error && !gameLoading;
     const phase = busy ? 'signing-in' : reconnecting || gameLoading ? 'loading' : error ? 'error' : showForm ? 'sign-in' : 'loading';
     $('.website-fallback').dataset.phase = phase;
-    window.repoBrandMotion?.setVariant(gameLoading && state.activeGame.id === 'morogue' ? 'morogue' : 'default');
+    $('.website-fallback').dataset.gameLoading = String(!!gameLoading);
+    window.repoBrandMotion?.setVariant(gameLoading ? state.activeGame.id : 'default');
     window.repoBrandMotion?.setIntro(introId, state.activeGame?.introLoops || 2, () => {
       bridge.completeGameIntro(introId).then(receive).catch(() => { connectionError = 'Your game could not open. Return to your library and try again.'; renderConnection(); });
     });
