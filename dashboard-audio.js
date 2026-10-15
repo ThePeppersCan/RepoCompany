@@ -23,6 +23,7 @@
   const toggle = document.querySelector('[data-audio]');
   const fades = new Map(), lastEffect = new Map();
   let muted = false, unlocked = false, spinning = false, launching = false, ducked = false, suspended = false;
+  let messagesOpen = !!window.repoMessaging?.getState().open;
   try { muted = localStorage.getItem('repo-dashboard-muted') === 'true'; } catch (_) {}
 
   function play(audio) {
@@ -56,9 +57,13 @@
       Object.values(tracks).forEach(audio => fade(audio, 0, 0, true));
       return;
     }
+    // Wibs pauses only collection music; call audio and the saved sound preference stay independent.
+    if (messagesOpen) fade(tracks.music, 0, 0, true);
     if (launching) return;
-    play(tracks.music);
-    fade(tracks.music, levels.music * mix.music * (ducked ? .42 : 1), 550);
+    if (!messagesOpen) {
+      play(tracks.music);
+      fade(tracks.music, levels.music * mix.music * (ducked ? .42 : 1), 550);
+    }
     if (spinning) {
       play(tracks.spin);
       fade(tracks.spin, levels.spin * mix.disc, 350);
@@ -119,6 +124,11 @@
     }
   });
   document.addEventListener('visibilitychange', sync);
+  addEventListener('repo-messaging-state', event => {
+    if (typeof event.detail?.open !== 'boolean' || event.detail.open === messagesOpen) return;
+    messagesOpen = event.detail.open;
+    sync();
+  });
   addEventListener('pagehide', () => Object.values(tracks).forEach(audio => fade(audio, 0, 0, true)));
   addEventListener('pageshow', event => { if (event.persisted) window.dashboardAudio.reset(); });
   sync();
