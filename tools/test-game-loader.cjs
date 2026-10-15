@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '..'), dist = path.join(root, 'dist');
 const output = path.resolve(root, '../web-game-loader-qa');
 const origin = 'https://repocompany.uk';
-const scripts = new Set(['dashboard-layout.js', 'dashboard-audio.js', 'dashboard-motion.js', 'game-scenes.js', 'homepage.js', 'repo-game-loader.js', 'repo-login-template.js']);
+const scripts = new Set(['dashboard-layout.js', 'dashboard-audio.js', 'dashboard-motion.js', 'game-scenes.js', 'homepage.js', 'repo-game-loader.js', 'repo-login-template.js', 'repo-web-game.js']);
 const types = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.png': 'image/png', '.webp': 'image/webp', '.mp3': 'audio/mpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
 (async () => {
   await fs.mkdir(output, { recursive: true });
@@ -41,6 +41,7 @@ const types = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/htm
     const selectors = { morogue: '.motion-uncrowned', moratales: '.motion-moratales', manager: '.motion-manager' };
     for (const [id, selector] of Object.entries(selectors)) {
       await page.goto(origin + '/#' + id);
+      await page.reload();
       await page.waitForFunction(() => window.mountRepoGameLoader && window.mountRepoLogin);
       // A mounted login controller must not be replaced by the game controller.
       await page.evaluate(() => {
@@ -58,10 +59,13 @@ const types = { '.js': 'text/javascript', '.css': 'text/css', '.html': 'text/htm
       assert.equal(await loader.locator(selector).getAttribute('opacity'), '1');
       assert.equal(await page.evaluate(() => window.__loginMotion === window.repoBrandMotion), true);
       await page.screenshot({ path: path.join(output, id + '.png') });
-      await page.waitForURL('https://' + id + '.repocompany.uk/**');
+      await page.locator('#repo-web-game[open] iframe').waitFor();
+      assert.equal(await page.locator('#repo-web-game iframe').getAttribute('src'),'https://' + id + '.repocompany.uk/');
+      assert.equal(new URL(page.url()).hostname,'repocompany.uk','Game keeps the social shell available');
       const elapsed = Date.now() - start, logoElapsed = Date.now() - introAt;
       assert.ok(logoElapsed >= 5500 && logoElapsed < 8500, `${id} intro: ${logoElapsed}ms`);
       results.push({ id, elapsed, logoElapsed, disc });
+      await page.getByRole('button',{name:'Exit game',exact:true}).click();
     }
     // The same responsive presentation is centered on a narrow phone viewport.
     await page.setViewportSize({ width: 390, height: 844 }); await page.goto(origin + '/#manager');

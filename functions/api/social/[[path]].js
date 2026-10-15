@@ -23,6 +23,14 @@ const allowed = (a, b, aid, bid) => `EXISTS(SELECT 1 FROM dashboard_friendships 
 const conversationAllowed = allowed('c.a_name', 'c.b_name', 'c.a_id', 'c.b_id');
 const callAllowed = allowed('c.caller_name', 'c.callee_name', 'c.caller_id', 'c.callee_id');
 const messageView = row => ({ id: row.id, sender: row.sender_name, clientId: row.client_id, text: row.text, createdAt: row.created_at });
+const EMOTES = new Set(['morogue', 'moratales', 'manager'].flatMap(game => ['up', 'down', 'laugh', 'angry', 'love'].map(emotion => game + '-' + emotion)));
+async function messageExtras(db, me, rows) {
+  if (!rows.length) return [];
+  if (rows.length > 80) return [...await messageExtras(db,me,rows.slice(0,80)), ...await messageExtras(db,me,rows.slice(80))];
+  const placeholders = rows.map(() => '?').join(','), ids = rows.map(row => row.id);
+  const reactions = await db.prepare(`SELECT r.message_id,r.emote,COUNT(*) AS n,MAX(r.user_id=?) AS mine FROM social_message_reactions r JOIN social_messages m ON m.id=r.message_id JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id IN (${placeholders}) AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed} GROUP BY r.message_id,r.emote`).bind(me.id, ...ids, me.id, me.id).all();
+  return rows.map(row => ({ ...messageView(row), reactions: reactions.results.filter(r => r.message_id === row.id).map(r => ({emote:r.emote,count:r.n,mine:!!r.mine})) }));
+}
 const callView = row => row ? ({ id: row.id, caller: row.caller_name, callee: row.callee_name, kind: row.kind, status: row.status, createdAt: row.created_at, expiresAt: row.expires_at, endedAt: row.ended_at, reason: row.reason }) : null;
 // Calling is an explicit product opt-in, independent of whether credentials exist.
 const configured = env => config.socialCallsEnabled === true && /^[a-zA-Z0-9_-]{1,128}$/.test(env.SOCIAL_TURN_KEY_ID || '') && typeof env.SOCIAL_TURN_KEY_API_TOKEN === 'string' && env.SOCIAL_TURN_KEY_API_TOKEN.length >= 16;
@@ -115,6 +123,15 @@ export async function onRequest({ request, env, params }) {
       const unread = await db.prepare(`SELECT COUNT(*) AS n FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE (c.a_id=? OR c.b_id=?) AND m.sender_id!=? AND m.id>CASE WHEN c.a_id=? THEN c.read_a ELSE c.read_b END AND ${conversationAllowed}`).bind(me.id, me.id, me.id, me.id).first();
       return json({ conversations, totalUnread: unread.n, call: callView(call), serverTime: now, iceConfigured: configured(env), hasMore: rows.results.length > limit, nextCursor: rows.results.slice(0, limit).at(-1)?.last_id || null });
     }
+    if (route.length === 1 && route[0] === 'reactions' && request.method === 'POST') {
+      if (!only(body, ['messageId', 'emote']) || !Number.isSafeInteger(body.messageId) || body.messageId <= 0 || (body.emote !== null && !EMOTES.has(body.emote))) throw fail('Choose a valid reaction.');
+      await rate(db, me.id, 'reactions', 40, now);
+      const row = await db.prepare(`SELECT m.* FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id=? AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed}`).bind(body.messageId, me.id, me.id).first();
+      if (!row) throw fail('Message unavailable.', 404);
+      if (body.emote === null) await db.prepare(`DELETE FROM social_message_reactions WHERE message_id=? AND user_id=? AND EXISTS(SELECT 1 FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id=? AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed})`).bind(body.messageId, me.id, body.messageId, me.id, me.id).run();
+      else await db.prepare(`INSERT INTO social_message_reactions(message_id,user_id,emote,created_at) SELECT m.id,?,?,? FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id=? AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed} ON CONFLICT(message_id,user_id) DO UPDATE SET emote=excluded.emote,created_at=excluded.created_at`).bind(me.id, body.emote, now, body.messageId, me.id, me.id).run();
+      return json({message:(await messageExtras(db, me, [row]))[0]});
+    }
     if (route.length === 1 && route[0] === 'messages') {
       const other = await peer(db, me, request.method === 'GET' ? url.searchParams.get('username') : body.username);
       if (request.method === 'POST') {
@@ -137,7 +154,12 @@ export async function onRequest({ request, env, params }) {
       if (!c) return json({ conversationId: null, messages: [], nextCursor: 0, hasMore: false, readThrough: 0, peerReadThrough: 0 });
       const rows = await db.prepare(`SELECT m.* FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE c.id=? AND m.id>? AND m.id<? AND ${conversationAllowed} ORDER BY m.id ${ascending ? 'ASC' : 'DESC'} LIMIT ?`).bind(c.id, after, before, limit + 1).all();
       const page = rows.results.slice(0, limit); if (!ascending) page.reverse();
-      return json({ conversationId: c.id, messages: page.map(messageView), nextCursor: ascending ? page.at(-1)?.id || after : page[0]?.id || 0, hasMore: rows.results.length > limit, readThrough: c.a_id === me.id ? c.read_a : c.read_b, peerReadThrough: c.a_id === me.id ? c.read_b : c.read_a });
+      // Refresh existing reactions separately from the forward message cursor.
+      // A full reaction window must never crowd new messages out of the page.
+      const refresh = ascending && after > 0 && url.searchParams.get('refresh') === '1';
+      const previous = refresh ? await db.prepare(`SELECT m.* FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE c.id=? AND m.id<=? AND ${conversationAllowed} ORDER BY m.id DESC LIMIT 100`).bind(c.id,after).all() : null;
+      const refreshed = previous ? (await messageExtras(db,me,previous.results)).map(({id,reactions})=>({id,reactions})) : [];
+      return json({ conversationId: c.id, messages: await messageExtras(db,me,page), refreshed, nextCursor: ascending ? page.at(-1)?.id || after : page[0]?.id || 0, hasMore: rows.results.length > limit, readThrough: c.a_id === me.id ? c.read_a : c.read_b, peerReadThrough: c.a_id === me.id ? c.read_b : c.read_a });
     }
     if (request.method === 'POST' && route.length === 1 && route[0] === 'read') {
       if (!only(body, ['username', 'messageId']) || !Number.isSafeInteger(body.messageId) || body.messageId <= 0) throw fail('Choose a valid message.');

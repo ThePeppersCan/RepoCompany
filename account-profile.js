@@ -22,7 +22,7 @@
   }
   return `<span class="profile-demo-art" aria-hidden="true"><i></i><b>${esc(game.name)}</b></span>`;
  }
- function achievementLine(game,own=true){const s=own?window.repoAchievementState?.summary(game.id):null;return '<div class="profile-achievement-line"><span>Achievement progress</span><small>'+(s?.loaded?s.unlocked+' / '+s.total+' unlocked':'View the achievement collection')+'</small><div aria-hidden="true"><i style="display:block;height:100%;background:#c6a75f;width:'+(s?.total?100*s.unlocked/s.total:0)+'%"></i></div></div>';}
+ function achievementLine(game,own=true){const s=own?window.repoAchievementState?.summary(game.id):null;return '<div class="profile-achievement-line"><span>Achievement progress</span><button class="profile-achievement-link" data-open-achievements="'+game.id+'">'+(s?.loaded?s.unlocked+' / '+s.total+' unlocked':'View the achievement collection')+'</button><div aria-hidden="true"><i style="display:block;height:100%;background:#c6a75f;width:'+(s?.total?100*s.unlocked/s.total:0)+'%"></i></div></div>';}
  function friendItem(friend){
   return `<button class="profile-friend" data-friend-profile="${esc(friend.username)}"><span class="profile-initials">${esc(initials(friend.display_name||friend.username))}${window.repoAvatar?.markup(friend.avatar,friend.display_name||friend.username)||''}${window.repoFrames?.markup(friend.frame_id)||''}<i class="${friend.online?'online':''}"></i></span><span><b>${esc(friend.display_name||friend.username)}</b><small>${friend.online?'Online':'Offline'}</small></span><span class="profile-friend-score">${fmt(friend.repo_score)}<small>RepoScore</small></span></button>`;
  }

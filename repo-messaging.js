@@ -67,6 +67,7 @@
   let connectedAt = 0, lastCallContact = 0, connectionTimer, callBusy = false, callBusyRevision = 0, micMuted = false, cameraOff = false;
   let opener = null, callOpener = null, toastTimer, callEndTimer, previousEvent = '';
   let portalVisible = document.documentElement.dataset.repoPortalVisible !== 'false', pageSuspended = false, pollRevision = 0;
+  let notificationBuffer = null, notificationBufferLoading = false;
   let notificationAudio = null, audioUnlocked = false, lastChime = 0;
   let friendRefreshAt = 0, socialSnapshot = account.state.social;
   const requests = new Set();
@@ -78,7 +79,7 @@
   const drawer = el('dialog', 'repo-messages'); drawer.id = 'repo-messages';
   drawer.setAttribute('aria-labelledby', 'repo-messages-title');
   const head = el('header', 'repo-messages-head');
-  const heading = el('div'); heading.append(el('p', 'repo-social-eyebrow', 'YOUR PEOPLE'));
+  const heading = el('div');
   const title = el('h2', '', 'Messages'); title.id = 'repo-messages-title'; heading.append(title);
   const closeButton = button('Close messages', 'close', 'repo-social-icon', close);
   head.append(heading, closeButton);
@@ -90,7 +91,7 @@
   const onlyFriends = el('p', 'repo-message-private', 'A space for accepted friends.');
   const moreConversations = el('button', 'repo-social-text-button', 'Load older conversations'); moreConversations.type = 'button'; moreConversations.hidden = true;
   moreConversations.onclick = async () => { moreConversations.disabled = true; try { await loadInboxArchive(inboxPageCursor); renderFriends(); } catch (error) { feedback.textContent = safeError(error); } finally { moreConversations.disabled = false; } };
-  aside.append(searchLabel, friendList, moreConversations, onlyFriends);
+  aside.append(searchLabel, friendList, moreConversations);
   const conversation = el('section', 'repo-message-conversation');
   const conversationHead = el('header', 'repo-conversation-head');
   const back = button('All conversations', 'back', 'repo-social-icon repo-message-back', () => { drawer.classList.remove('has-conversation'); search.focus(); });
@@ -111,10 +112,11 @@
   const send = button('Send message', 'send', 'repo-message-send'); send.type = 'submit';
   composer.append(input, send);
   const composerHint = el('p', 'repo-composer-hint', 'Enter to send · Shift + Enter for a new line');
-  const empty = el('div', 'repo-conversation-empty'); empty.append(icon('message'), el('p', 'repo-social-eyebrow', 'STAY A LITTLE LONGER'), el('h3', '', 'Every adventure starts\nwith a conversation.'), el('p', '', 'Choose a friend to catch up, make a plan or share the next adventure.'));
+  const empty = el('div', 'repo-conversation-empty'); empty.append(icon('mail'), el('h3', '', 'Messages'), el('p', '', 'Choose a friend.'));
   conversation.append(empty, conversationHead, historyWrap, feedback, composer, composerHint);
   body.append(aside, conversation); drawer.append(head, body); document.body.append(drawer);
 
+  const extras = window.repoChatExtras?.mount({drawer,composer,history,feedback,api,context:()=>({selection,userId}),replaceMessage:message=>{const i=messages.findIndex(m=>m.id===message.id);if(i<0)messages.push(message);else messages[i]=message;renderMessages();inboxAt=0;}});
   const toast = el('div', 'repo-message-toast'); toast.setAttribute('role', 'status'); toast.setAttribute('popover', 'manual');
   const toastOpen = button('Open message', null, 'repo-toast-content');
   const toastAvatar = el('span', 'repo-social-avatar'), toastCopy = el('span'), toastName = el('b'), toastText = el('span');
@@ -180,7 +182,8 @@
   function mountLaunch() {
     const accountDialog = document.getElementById('account-menu');
     const accountButton = document.querySelector('.account [data-note="Account"]');
-    const destination = (accountDialog?.open && accountDialog.querySelector('.account-header-end')) || accountButton?.parentElement;
+    const gameControls=document.querySelector('#repo-web-game[open] .repo-web-game-controls') || document.querySelector('#legacy-feature[open]>header');
+    const destination = gameControls || (accountDialog?.open && accountDialog.querySelector('.account-header-end')) || accountButton?.parentElement;
     if (destination === accountButton?.parentElement && destination) {
       if (launch.parentElement !== destination || launch.nextElementSibling !== accountButton) destination.insertBefore(launch, accountButton);
     } else if (destination && launch.parentElement !== destination) destination.append(launch);
@@ -201,7 +204,7 @@
   }
   function close() {
     if (!drawer.open) return;
-    drawer.close(); opener?.isConnected && opener.focus(); announce();
+    drawer.close(); if(window.repoWebGame?.active)window.repoWebGame.focus();else if(opener?.isConnected)opener.focus(); announce();
   }
   drawer.addEventListener('cancel', e => { e.preventDefault(); close(); });
   drawer.addEventListener('click', e => { if (e.target === drawer && e.clientX < drawer.getBoundingClientRect().left) close(); });
@@ -248,7 +251,7 @@
   async function select(name) {
     if (!friend(name)) { feedback.textContent = 'Only accepted friends can message each other.'; return; }
     if (selection) drafts.set(norm(selection), input.value);
-    selection = friend(name).username; const revision = ++selectionEpoch;
+    extras?.clear(); selection = friend(name).username; const revision = ++selectionEpoch;
     messages = []; selectedRead = peerRead = 0; hasOlder = false; loading = true;
     input.value = drafts.get(norm(selection)) || ''; resizeComposer();
     feedback.textContent = 'Loading your conversation…'; drawer.classList.add('has-conversation');
@@ -286,7 +289,7 @@
       const bubble = el('div', 'repo-message-bubble', message.text), meta = el('div', 'repo-message-meta');
       meta.append(el('time', '', time(message.createdAt)));
       if (own) { const receipt = el('span', 'repo-message-receipt', message.id <= peerRead ? 'Seen' : 'Sent'); receipt.prepend(icon('check')); meta.append(receipt); }
-      row.append(bubble, meta); history.append(row);
+      row.append(bubble, meta); history.append(row); extras?.decorate(row,message);
     }
     if (bottom || nearBottom) { history.scrollTop = history.scrollHeight; jump.hidden = true; }
     else { history.scrollTop = previousScroll; if (history.scrollHeight > previousHeight) jump.hidden = false; }
@@ -323,10 +326,15 @@
 
   function showToast(thread) {
     if (!thread?.lastMessage) return;
+    if (!portalVisible && document.documentElement.dataset.repoLauncher === 'true') {
+      const preferences=window.dashboardAudio?.preferences();
+      dispatchEvent(new CustomEvent('repo-message-notification',{detail:{id:thread.lastMessage.id,username:thread.username,name:display(thread.username),text:thread.lastMessage.text.slice(0,160),volume:preferences&&!preferences.muted?Math.max(0,Math.min(1,preferences.effects||0)):0}}));return;
+    }
     notificationSound();
     if (document.hidden || !portalVisible) return;
     const name = display(thread.username); toastName.textContent = name; toastText.textContent = thread.lastMessage.text;
     paintAvatar(toastAvatar, thread.username); toastOpen.onclick = () => { hideToast(); open(thread.username); };
+    const anchor=launch.getBoundingClientRect();toast.style.left=Math.max(12,Math.min(innerWidth-332,anchor.right-320))+'px';toast.style.top=Math.max(12,anchor.bottom+10)+'px';
     try { toast.showPopover(); } catch (_) { return; }
     clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 6500);
   }
@@ -337,7 +345,7 @@
   }
   function invalidateConversation(name, error) {
     if (![403, 404].includes(error.status)) return false;
-    revoked.add(norm(name));
+    extras?.clear(); revoked.add(norm(name));
     const old = inbox.find(c => norm(c.username) === norm(name)); unread = Math.max(0, unread - Number(old?.unread || 0));
     inbox = inbox.filter(c => norm(c.username) !== norm(name));
     if (norm(selection) === norm(name)) {
@@ -356,25 +364,15 @@
       const Audio = window.AudioContext || window.webkitAudioContext;
       if (!notificationAudio && Audio) notificationAudio = new Audio();
       notificationAudio?.resume().catch(() => {});
+      if(notificationAudio&&!notificationBuffer&&!notificationBufferLoading){notificationBufferLoading=true;fetch('/audio/message-notification.mp3').then(r=>r.arrayBuffer()).then(b=>notificationAudio.decodeAudioData(b)).then(b=>{notificationBuffer=b;}).catch(()=>{}).finally(()=>{notificationBufferLoading=false;});}
     } catch (_) {}
   }
   function notificationSound() {
     const preferences = window.dashboardAudio?.preferences();
     if (!audioUnlocked || !notificationAudio || notificationAudio.state !== 'running' || !preferences || preferences.muted || !preferences.effects || Date.now() - lastChime < 2000) return;
-    // A short, separate chime can be heard over a game without resuming the
-    // dashboard's suspended background music. Its volume follows Effects.
-    lastChime = Date.now();
-    try {
-      const start = notificationAudio.currentTime, volume = Math.min(1, Math.max(0, preferences.effects)) * .055;
-      for (const [offset, pitch] of [[0, 660], [.095, 880]]) {
-        const oscillator = notificationAudio.createOscillator(), gain = notificationAudio.createGain();
-        oscillator.type = 'sine'; oscillator.frequency.value = pitch;
-        gain.gain.setValueAtTime(0, start + offset); gain.gain.linearRampToValueAtTime(volume, start + offset + .015); gain.gain.exponentialRampToValueAtTime(.0001, start + offset + .21);
-        oscillator.connect(gain); gain.connect(notificationAudio.destination);
-        oscillator.start(start + offset); oscillator.stop(start + offset + .22);
-        oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
-      }
-    } catch (_) {}
+    if(!notificationBuffer)return;
+    lastChime=Date.now();
+    try{const source=notificationAudio.createBufferSource(),gain=notificationAudio.createGain();source.buffer=notificationBuffer;gain.gain.value=Math.min(1,Math.max(0,preferences.effects))*.5;source.connect(gain);gain.connect(notificationAudio.destination);source.start();source.onended=()=>{source.disconnect();gain.disconnect();};}catch{}
   }
   addEventListener('pointerdown', unlockNotificationAudio, {capture: true});
   addEventListener('keydown', unlockNotificationAudio, {capture: true});
@@ -585,11 +583,15 @@
       if (drawer.open && now - friendRefreshAt >= 30000) tasks.push(refreshFriends());
       if (selection && viewingConversation() && !loading && now - messageAt >= 2000) {
         messageAt = now; const selected = selection, selectedRevision = selectionEpoch, after = messages.at(-1)?.id || 0;
-        tasks.push(api('messages?username=' + encodeURIComponent(selected) + '&after=' + after).then(result => {
+        tasks.push(api('messages?username=' + encodeURIComponent(selected) + '&limit=100&refresh=1&after=' + after).then(result => {
           if (selectedRevision !== selectionEpoch || revision !== epoch) return;
-          const fresh = result.messages.filter(m => !messages.some(n => n.id === m.id)); const changedRead = Number(result.peerReadThrough || 0) !== peerRead;
-          messages.push(...fresh); peerRead = Number(result.peerReadThrough || 0);
-          if (fresh.length || changedRead) renderMessages(); markRead();
+          const fresh = result.messages.filter(m => !messages.some(n => n.id === m.id));
+          const refreshed = new Map((result.refreshed || []).map(m => [m.id,m.reactions]));
+          const changedExtras = messages.some(m => refreshed.has(m.id) && JSON.stringify(m.reactions || []) !== JSON.stringify(refreshed.get(m.id)));
+          const changedRead = Number(result.peerReadThrough || 0) !== peerRead;
+          messages=messages.map(m=>refreshed.has(m.id)?{...m,reactions:refreshed.get(m.id)}:m);messages.push(...fresh); peerRead = Number(result.peerReadThrough || 0);
+          if (result.hasMore) messageAt = 0;
+          if (fresh.length || changedRead || changedExtras) renderMessages(); markRead();
         }).catch(e => { if (selectedRevision === selectionEpoch && !invalidateConversation(selected, e)) feedback.textContent = safeError(e); }));
       }
       if (call && !terminal.has(call.status) && now - signalAt >= 2000) {
@@ -613,13 +615,13 @@
     const next = account.state.user?.id || null;
     if (socialSnapshot !== account.state.social) { socialSnapshot = account.state.social; revoked.clear(); }
     if (next !== userId) {
-      epoch++; selectionEpoch++; requests.forEach(r => r.abort()); requests.clear();
+      extras?.clear(); epoch++; selectionEpoch++; requests.forEach(r => r.abort()); requests.clear();
       userId = next; stopMedia(); clearTimeout(callEndTimer); call = null; callOwned = false; callBusy = false; callBusyRevision++; callPanel.close(); callChip.hidden = true;
       selection = ''; inbox = []; messages = []; drafts.clear(); draftIds.clear(); revoked.clear(); unread = 0; initialized = false; callsEnabled = false; inboxAt = inboxArchiveAt = messageAt = signalAt = heartbeatAt = friendRefreshAt = 0; inboxPageCursor = null; moreConversations.hidden = true;
       sending = loading = reading = false; input.value = ''; feedback.textContent = ''; history.replaceChildren(); listSignature = ''; hideToast(); close();
     }
     launch.hidden = !userId;
-    if (selection && account.state.social && !friend(selection)) { selection = ''; selectionEpoch++; messages = []; input.value = ''; history.replaceChildren(); feedback.textContent = ''; }
+    if (selection && account.state.social && !friend(selection)) { extras?.clear(); selection = ''; selectionEpoch++; messages = []; input.value = ''; history.replaceChildren(); feedback.textContent = ''; }
     if (call && account.state.social && !friend(callPeer())) endCall('end', 'Calls are available to accepted friends only.');
     renderFriends(); announce(); if (userId) tick();
   }

@@ -1,0 +1,88 @@
+/* The same compact social panel is used on the web and in the Windows client. */
+.repo-messages{--social-ink:#f4f5f7;--social-muted:#a8b0bd;--social-line:#ffffff12;--social-gold:#b5d7ff;inset:16px 16px 16px auto;width:min(440px,calc(100vw - 32px));height:calc(100dvh - 32px);border:1px solid #ffffff24;border-radius:18px;background:#161b23;box-shadow:0 24px 80px #0008,0 0 0 1px #080b1040;color:var(--social-ink)}
+.repo-messages[open]{animation:repo-console-enter .32s cubic-bezier(.16,1,.3,1)}
+.repo-messages::backdrop{background:#05080e38;backdrop-filter:none}
+.repo-messages-head{min-height:88px;padding:22px 24px 20px;background:linear-gradient(120deg,#263346,#191f2a 75%);border-bottom:1px solid #ffffff16}
+.repo-messages-head>div{display:flex;flex-direction:column;gap:5px}
+.repo-messages-head>div:before{content:"REPO SOCIAL";color:#a2b9d4;font-size:9px;font-weight:600;letter-spacing:.2em}
+.repo-messages h2{font-size:25px;font-weight:600;letter-spacing:-.7px}
+.repo-messages .repo-social-icon{color:#d9e0ec;width:36px;height:36px;border-radius:50%;background:#ffffff07}
+.repo-messages .repo-social-icon:hover{background:#ffffff15;color:#fff}
+.repo-messages .repo-social-icon svg{width:19px;height:19px;stroke-width:1.7}
+.repo-messages-body{display:flex;flex-direction:column;min-height:0}
+.repo-message-sidebar{flex:1;min-height:0;padding:20px 14px;border:0;background:none}
+.repo-message-search{height:44px;margin:0 8px 16px;padding:0 14px;background:#0e131b;border:1px solid #ffffff12;border-radius:9px}
+.repo-message-search input{font-size:13px;color:#e8edf6}
+.repo-message-search input::placeholder{color:#8f9bad}
+.repo-message-friends{scrollbar-color:#445066 transparent}
+.repo-message-friend{padding:14px 12px;gap:14px;border-radius:10px}
+.repo-message-friend:hover{background:#ffffff09}
+.repo-message-friend[aria-current=true]{border-color:#a4caff45!important;background:#abcfff0c}
+.repo-message-friend .repo-social-avatar{width:48px;height:48px;font-size:17px}
+.repo-social-avatar{background:linear-gradient(140deg,#425776,#243044);border-color:#adcaf42a;color:#edf5ff}
+.repo-social-avatar.is-online:after{background:#9addb6;border-color:#161b23;width:11px;height:11px}
+.repo-message-friend-title b{font-size:14px;font-weight:600;color:#f0f3f8}
+.repo-message-friend-title time{font-size:10px;color:#91a0b4}
+.repo-message-preview{font-size:12px;color:#9ba8bb;margin-top:4px}
+.repo-message-count{background:#e1ecfc;color:#182332;box-shadow:none}
+.repo-messages:not(.has-conversation) .repo-message-conversation{display:none}
+.repo-messages.has-conversation .repo-message-sidebar{flex:none;height:88px;padding:12px 16px 8px;border-bottom:1px solid #ffffff0c}
+.repo-messages.has-conversation .repo-message-search,.repo-messages.has-conversation .repo-message-sidebar>.repo-social-text-button{display:none}
+.repo-messages.has-conversation .repo-message-friends{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;align-items:flex-start;padding:5px 4px 3px}
+.repo-messages.has-conversation .repo-message-friend{width:58px;flex:none;display:flex;flex-direction:column;gap:5px;padding:0;background:transparent;border:0!important;border-radius:0}
+.repo-messages.has-conversation .repo-message-friend+.repo-message-friend{margin-top:0}
+.repo-messages.has-conversation .repo-message-friend .repo-social-avatar{width:38px;height:38px;font-size:13px;outline:2px solid transparent;outline-offset:3px}
+.repo-messages.has-conversation .repo-message-friend[aria-current=true] .repo-social-avatar{outline-color:#c8e0ff}
+.repo-messages.has-conversation .repo-message-friend-copy{flex:none;width:58px}
+.repo-messages.has-conversation .repo-message-friend-title{justify-content:center}
+.repo-messages.has-conversation .repo-message-friend-title b{font-size:10px;font-weight:500}
+.repo-messages.has-conversation .repo-message-friend-title time,.repo-messages.has-conversation .repo-message-preview,.repo-messages.has-conversation .repo-message-friend>.repo-message-count{display:none}
+.repo-messages.has-conversation .repo-message-conversation{display:flex;flex:1;min-height:0;background:none}
+.repo-conversation-head{min-height:76px;padding:16px 22px;gap:12px;border-bottom:0}
+.repo-message-back{display:grid!important;background:none!important;width:24px!important;margin-right:2px!important}
+.repo-conversation-head>.repo-social-avatar{width:40px;height:40px}
+.repo-peer-info h3{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.repo-peer-info p{font-size:11px;color:#a7b6c9;margin-top:4px}
+.repo-message-history{padding:0 22px 8px;scrollbar-color:#445066 transparent}
+.repo-message-day{font-size:10px;margin:14px 0 20px;color:#8492a5;letter-spacing:0}
+.repo-message-day:before,.repo-message-day:after{background:#ffffff0c}
+.repo-message-row{margin-bottom:15px}
+.repo-message-bubble{max-width:91%;background:#252d3a;border:1px solid #ffffff09;border-radius:12px 12px 12px 4px;padding:11px 14px;font-size:13px;line-height:1.6;color:#e9edf3}
+.repo-message-row.is-own .repo-message-bubble{background:#dce8f8;border-color:transparent;border-radius:12px 12px 4px 12px;color:#172333}
+.repo-message-meta{font-size:10px;color:#8e9caf;padding-top:5px}
+.repo-message-feedback{color:#d6c5a4;margin:0 22px 5px!important;min-height:0;font-size:11px}
+.repo-message-feedback:empty{display:none}
+.repo-message-composer{margin:4px 18px 0;padding:8px 8px 8px 14px;border:1px solid #ffffff1b;background:#0e141e;border-radius:12px;gap:8px}
+.repo-message-composer:focus-within{border-color:#b5d7ff80;box-shadow:0 0 0 2px #b5d7ff08}
+.repo-message-composer textarea{font-size:13px;line-height:1.6;color:#eef3fb}
+.repo-message-composer textarea::placeholder{color:#7f8ea3}
+.repo-message-send{width:36px;height:36px;border-radius:9px;background:#e1ecfc;color:#152234!important}
+.repo-message-send:hover:not(:disabled){background:#fff}
+.repo-composer-hint{color:#7f8ea3;font-size:10px;margin:9px 22px 18px!important}
+.repo-message-jump{background:#e1ecfc;color:#182332!important}
+.repo-messages .repo-reaction-chip{background:#ffffff08;border-color:#ffffff15;border-radius:8px;color:#c8d6ea;padding:1px 5px}
+.repo-messages .repo-reaction-chip[aria-pressed=true]{background:#a8cbff17;border-color:#bad8ff66}
+.repo-messages .repo-reaction-add{color:#adbacd;background:transparent;opacity:.55}
+.repo-messages .repo-reaction-add svg{width:17px;height:17px;stroke-width:1.5}
+.repo-messages .repo-reaction-add:hover,.repo-messages .repo-reaction-add:focus-visible{opacity:1;background:#ffffff0c}
+.repo-messages .repo-reaction-picker{background:#1d2635;color:#eaf1fc;border-color:#b5d7ff38;border-radius:14px;box-shadow:0 16px 50px #0008}
+.repo-reaction-group>span{color:#acbcd1;font-size:11px}
+.repo-message-toast{background:#192231;border-color:#adceff38;color:#f2f5fb;border-radius:12px;box-shadow:0 12px 40px #0006}
+.repo-message-toast .repo-toast-content>span:last-child>span{color:#b4c1d3}
+html[data-repo-message-overlay=true] .repo-messages{inset:0;width:100%;height:100dvh;border-radius:16px 0 0 16px;border-width:1px 0 1px 1px}
+html[data-repo-message-overlay=true] body{background:#161b23!important}
+@keyframes repo-console-enter{from{opacity:0;transform:translateX(28px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:620px){.repo-messages{inset:8px 8px 8px auto;width:calc(100vw - 16px);height:calc(100dvh - 16px);border-radius:14px}.repo-messages.has-conversation .repo-message-sidebar{display:block}.repo-message-friend-title b{max-width:100%}.repo-messages-head{padding:18px 21px;min-height:80px}.repo-message-composer textarea{font-size:16px}.repo-message-search input{font-size:16px}.repo-conversation-head{padding:14px 18px}.repo-message-history{padding-inline:18px}.repo-messages .repo-social-icon{min-width:36px}}
+@media(prefers-reduced-motion:reduce){.repo-messages[open]{animation:none}.repo-message-row.is-new{animation:none}}
+#repo-web-game{position:fixed;inset:0;margin:0;width:100vw;height:100dvh;max-width:none;max-height:none;padding:0;border:0;border-radius:0;background:#0d1016;color:#e9edf3}
+#repo-web-game[open]{display:flex;flex-direction:column}
+#repo-web-game>header{height:44px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid #ffffff13;font:12px 'Segoe UI',sans-serif;background:#141a23}
+.repo-web-brand{font-weight:700;letter-spacing:-1px;font-size:18px;color:#d6e3f5}
+.repo-web-game-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.repo-web-game-controls{display:flex;align-items:center;gap:12px}
+.repo-web-game-controls>button{border:1px solid #ffffff20;border-radius:5px;background:none;padding:6px 10px;color:#dce5f3;font:11px 'Segoe UI',sans-serif;cursor:pointer}
+.repo-web-game-controls>.repo-message-launch{order:-1;border:0;padding:0;width:30px;height:30px;color:#dce5f3}
+.repo-web-game-controls>.repo-message-launch svg{width:21px;height:21px}
+#repo-web-game>iframe{display:block;width:100%;flex:1;min-height:0;border:0;background:#000}
+#repo-web-game::backdrop{background:#000}
+@media(max-width:480px){#repo-web-game>header{padding-inline:10px;gap:10px}.repo-web-game-controls{gap:6px}.repo-web-game-controls>button{padding:6px}.repo-web-brand{display:none}}

@@ -732,11 +732,15 @@ test('messages can reveal the preserved portal and return to the same game witho
   const scripts = []; h.contents.executeJavaScript = async script => { scripts.push(script); };
   view.webContents.executeJavaScript = () => { throw Error('Opening messages must not close or save the game.'); };
   await h.run('executeCommand("messages")');
-  assert.equal(view.visible, false); assert.equal(view.destroyed, false); assert.equal(h.portal.visible, true); assert.equal(h.run('state()').messageOverlay, true);
+  assert.equal(view.visible, true); assert.equal(view.destroyed, false); assert.equal(h.portal.visible, true); assert.equal(h.run('state()').messageOverlay, true);
   assert.match(scripts[0], /repoMessaging.*open/);
   await h.run('executeCommand("resume-game")');
   assert.equal(h.run('currentGame()'), record); assert.equal(h.windows.length, 1); assert.equal(view.visible, true); assert.equal(h.portal.visible, false);
   assert.equal(h.run('state()').gameVisible, true); assert.deepEqual(h.activity, ['loaded', 'start:manager']);
+  await h.run('executeCommand("messages")');
+  await h.run('executeCommand("social-state",{unread:0,callActive:false,open:true})');
+  await h.run('executeCommand("social-state",{unread:0,callActive:false,open:false})');
+  assert.equal(h.run('state()').messageOverlay,false);assert.equal(view.visible,true);assert.equal(h.portal.visible,false);
 });
 
 test('shell controls cannot be invoked by the remote portal and social status accepts only bounded public fields', async () => {

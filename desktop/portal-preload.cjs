@@ -307,7 +307,7 @@ function initialize() {
     } catch(error){toast(error?.message||String(error));}
     finally{if(action==='play')dispatchEvent(new Event('repo-launch-presentation-reset'));pending.delete(token);schedule();}
   }
-  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
+  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
 
   // Capture the trusted click, then run the site's disc/sound/curtain before IPC.
   addEventListener('click',event=>{
@@ -341,8 +341,8 @@ function initialize() {
     schedule();
   });
   addEventListener('online',()=>{void invoke('launcher-reconnect').catch(()=>{});});
-  // Page-authored social summaries are untrusted display data only. Never pass
-  // message text, peers, credentials, media or call signals into the shell.
+  // Social content is bounded, untrusted display data. No credentials or media cross this bridge.
+  addEventListener('repo-message-notification',event=>{const d=event.detail;if(!d||typeof d!=='object')return;void invoke('message-notification',{id:d.id,username:d.username,name:typeof d.name==='string'?d.name.slice(0,32):'',text:typeof d.text==='string'?d.text.slice(0,160):'',volume:d.volume}).catch(()=>{});});
   addEventListener('repo-messaging-state',event=>{
     const data=event.detail;
     if(!data||typeof data!=='object')return;

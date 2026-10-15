@@ -9,6 +9,7 @@ const { LauncherUpdater } = require('./lib/updater.cjs');
 const { RequiredUpdate } = require('./lib/required-update.cjs');
 const { Preferences } = require('./lib/preferences.cjs');
 const { DiscordPresence } = require('./lib/discord-presence.cjs');
+const { MessageNotifications } = require('./lib/message-notifications.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
 
 app.setName('Repo Company');
@@ -22,6 +23,7 @@ const config = require('./config.cjs')(app.isPackaged ? process.resourcesPath : 
 const fixtures = !app.isPackaged && process.env.REPO_LAUNCHER_FIXTURES === '1' ? require('./tests/fixtures/network.cjs') : null;
 const hiddenTest = !app.isPackaged && process.env.REPO_LAUNCHER_HIDDEN_TEST === '1';
 if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestServices = fixtures; }
+let messageNotifications;
 let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
@@ -202,6 +204,7 @@ function checkAndApplyUpdates({ reschedule = false } = {}) {
   return updateSweep;
 }
 function broadcast() {
+  messageNotifications?.sync(account?.state.status === 'online' ? mediaAccountId : null);
   if (quitting || broadcastTimer || !windowContents(mainWindow)) return;
   // Coalesce file, account and game changes into the newest snapshot instead
   // of repeatedly rebuilding the website controls during a burst of events.
@@ -216,10 +219,13 @@ function broadcast() {
   broadcastTimer.unref?.();
 }
 function bounds() {
+  messageNotifications?.layout();
   if (!windowContents(mainWindow)) return;
   const [width, height] = mainWindow.getContentSize();
   const area = { x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) };
-  if (portal && activePortal()) portal.setBounds(area);
+  const panelWidth = Math.min(440, width);
+  const portalArea = messageOverlay && currentGame() ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
+  if (portal && activePortal()) portal.setBounds(portalArea);
   for (const record of games.values()) if (gameContents(record)) record.view.setBounds(area);
 }
 function trustedShell(event) {
@@ -447,17 +453,20 @@ async function exitCurrentGame() {
   })().catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); throw error; }).finally(() => { record.__exitPrompt = null; });
   return record.__exitPrompt;
 }
-async function openMessages() {
+async function openMessages(username = '') {
+  messageNotifications?.hide();
+  if (!/^[a-zA-Z0-9_-]{3,16}$/.test(username)) username='';
   if (currentGame()?.loading) throw Error('Wait for your game to open before opening messages.');
   const contents = activePortal();
   if (!contents || !windowContents(mainWindow)) throw Error('The launcher is closing.');
   messageOverlay = true;
-  const game = currentGame(); if (gameContents(game)) game.view.setVisible(false);
+  const game = currentGame();
+  if (gameContents(game)) { game.view.setVisible(true); mainWindow.contentView.addChildView(portal); }
   setPortalVisible(portalReady); bounds(); broadcast();
   if (!portalReady) await loadPortal();
   if (contents !== activePortal()) return;
   if (!hiddenTest) contents.focus();
-  await contents.executeJavaScript(`(async()=>{const deadline=Date.now()+5000;while(!window.repoMessaging?.open&&Date.now()<deadline)await new Promise(r=>setTimeout(r,100));if(!window.repoMessaging?.open)throw Error('Messages are still connecting. Please try again.');await window.repoMessaging.open();})()`);
+  await contents.executeJavaScript(`(async()=>{const deadline=Date.now()+5000;while(!window.repoMessaging?.open&&Date.now()<deadline)await new Promise(r=>setTimeout(r,100));if(!window.repoMessaging?.open)throw Error('Messages are still connecting. Please try again.');await window.repoMessaging.open(${JSON.stringify(username)});})()`);
 }
 async function gameCommand(event, action, value) {
   if (quitting || !windowContents(mainWindow)) throw new Error('The launcher is closing.');
@@ -591,7 +600,7 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'message-notification'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
@@ -599,6 +608,8 @@ async function executeCommand(action, value) {
   if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
+    case 'message-notification': await messageNotifications?.show(value); return;
+    case 'message-anchor': messageNotifications?.setAnchor(value); return;
     case 'game-intro-complete': {
       const record = currentGame();
       if (record && !record.closed && record.introId && value === record.introId) record.finishIntro();
@@ -611,7 +622,10 @@ async function executeCommand(action, value) {
     case 'resume-game': if (currentGame()) focusGame(currentGame()); else { messageOverlay = false; broadcast(); } return state();
     case 'social-state':
       if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['unread', 'callActive', 'incomingCall', 'open'].includes(key)) || !Object.hasOwn(value, 'unread') || !Object.hasOwn(value, 'callActive') || !Number.isInteger(value.unread) || value.unread < 0 || value.unread > 999 || typeof value.callActive !== 'boolean' || ['incomingCall', 'open'].some(key => Object.hasOwn(value, key) && typeof value[key] !== 'boolean')) throw TypeError('Invalid message status.');
-      socialState = { unread: value.unread, callActive: value.callActive, incomingCall: value.incomingCall === true, open: value.open === true }; broadcast(); return;
+      { const closed = socialState.open && value.open === false;
+      socialState = { unread: value.unread, callActive: value.callActive, incomingCall: value.incomingCall === true, open: value.open === true };
+      if (closed && messageOverlay && currentGame()) focusGame(currentGame());
+      broadcast(); return; }
     case 'website': await shell.openExternal(config.portalOrigin); return;
     case 'refresh': if (!portalReady) await loadPortal(); if (quitting) return; await Promise.allSettled([account.refresh(), checkAndApplyUpdates()]); return state();
     case 'launcher-update': if (requiredUpdate.state.phase === 'save-error') await requiredUpdate.install(); else await checkLauncherUpdates(); return state();
@@ -697,6 +711,8 @@ async function launch() {
     webPreferences: { preload: path.join(desktopRoot, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true }
   });
   secureContents(mainWindow.webContents, value => value === 'repo-launcher://app/index.html');
+  messageNotifications = new MessageNotifications({window:mainWindow,View:WebContentsView,root:desktopRoot,eligible:()=>!!currentGame()&&!currentGame().loading&&!messageOverlay&&!updateLocked()&&!quitting&&account?.state.status==='online'&&mainWindow?.isVisible()&&!mainWindow?.isMinimized(),open:openMessages});
+  ipcMain.on('launcher:notification-action',(event,action)=>messageNotifications?.action(event,action));
   portal = new WebContentsView({ webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'portal-preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false } });
   portalContents = portal.webContents; portalContentsId = portalContents.id;
   mainWindow.contentView.addChildView(portal); portal.setVisible(false); bounds();
@@ -719,12 +735,13 @@ async function launch() {
   Menu.setApplicationMenu(null);
   mainWindow.on('resize', bounds);
   mainWindow.on('focus', () => { if (currentGame() && !messageOverlay && !updateLocked()) { gameContents(currentGame())?.focus(); discordPresence?.gameFocused(currentGame().__gameId); } else if (embeddedDemo && !updateLocked()) discordPresence?.gameFocused(embeddedDemo.id); notifyPortalVisibility(); });
-  for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) mainWindow.on(event, () => notifyPortalVisibility());
+  for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) mainWindow.on(event, () => {messageNotifications?.sync(mediaAccountId);notifyPortalVisibility();});
   mainWindow.on('enter-full-screen', () => { bounds(); broadcast(); });
   mainWindow.on('leave-full-screen', () => { bounds(); broadcast(); });
   mainWindow.once('ready-to-show', () => showWindow(mainWindow));
   mainWindow.on('close', handleMainWindowClose);
   mainWindow.on('closed', () => {
+    messageNotifications?.dispose();
     discordPresence?.dispose();
     mediaPermissions?.dispose();
     mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;

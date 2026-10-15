@@ -192,3 +192,5 @@
   }
   window.addEventListener('pagehide', () => { unsubscribe?.(); clearInterval(countdownTimer); window.repoBrandMotion?.setActive(false); }, { once: true });
 })();
+
+{const mail=document.querySelector('#game-messages');let last=0;const anchor=()=>{const right=Math.round(mail.getBoundingClientRect().right);if(right&&right!==last){last=right;window.repoLauncher.messageAnchor(right).catch(()=>{});}};new ResizeObserver(anchor).observe(document.querySelector('.titlebar'));new MutationObserver(anchor).observe(document.querySelector('#game-toolbar'),{attributes:true,subtree:true});}

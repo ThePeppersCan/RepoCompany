@@ -279,7 +279,10 @@
         }
         launchCurtain.append(webIntroHost);
         webIntro.setVariant(id);
-        webIntro.setIntro('web-' + launchAt, 2, () => { if (launching) location.assign(url); });
+        webIntro.setIntro('web-' + launchAt, 2, () => {
+          if (!launching) return;
+          if (window.repoWebGame?.open(id)) resetLaunch(); else location.assign(url);
+        });
         webIntro.setActive(true);
       }));
     }, duration));

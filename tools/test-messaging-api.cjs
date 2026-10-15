@@ -9,7 +9,7 @@ async function loadAPI({ callsEnabled = true } = {}) {
 }
 function makeDatabase() {
   const sql = new DatabaseSync(':memory:');
-  for (const file of ['dashboard-social-schema.sql', 'dashboard-messaging-schema.sql']) sql.exec(fs.readFileSync(path.join(root, file), 'utf8'));
+  for (const file of ['dashboard-social-schema.sql', 'dashboard-messaging-schema.sql', 'dashboard-chat-extras-schema.sql']) sql.exec(fs.readFileSync(path.join(root, file), 'utf8'));
   const hooks = { beforeQuery: null };
   const prepare = (query, values = []) => {
     const execute = method => { hooks.beforeQuery?.(query, values); return sql.prepare(query)[method](...values); };
@@ -48,6 +48,22 @@ async function run() {
   const send = (f, who = 'alice', username = 'bob', text = 'Hello', clientId = randomUUID()) => f.call(who, 'messages', { username, text, clientId });
   const start = (f, who = 'alice', username = 'bob', clientId = randomUUID()) => f.call(who, 'calls', { username, kind: 'audio', clientId });
   const signal = (f, who, callId, type, data, clientId = randomUUID()) => f.call(who, 'calls/' + callId + '/signals', { type, data, clientId });
+  await fixture(async f => {
+    const first=(await send(f)).body.message;
+    const conversationId=f.sql.prepare('SELECT conversation_id FROM social_messages WHERE id=?').get(first.id).conversation_id;
+    const insert=f.sql.prepare('INSERT INTO social_messages(conversation_id,sender_id,sender_name,client_id,text,created_at) VALUES(?,?,?,?,?,?)');
+    for(let n=0;n<120;n++)insert.run(conversationId,f.users.bob,'bob',randomUUID(),'Message '+n,Date.now());
+    const cursor=f.sql.prepare('SELECT MAX(id) id FROM social_messages').get().id;
+    assert.equal((await f.call('alice','reactions',{messageId:cursor,emote:'moratales-love'})).status,200);
+    const last=Number(insert.run(conversationId,f.users.bob,'bob',randomUUID(),'After the full reaction window',Date.now()).lastInsertRowid);
+    const page=await f.call('alice','messages?username=bob&after='+cursor+'&limit=100&refresh=1');
+    assert.deepEqual(page.body.messages.map(m=>m.id),[last]);
+    assert.equal(page.body.refreshed.length,100);
+    assert.equal(page.body.refreshed.find(m=>m.id===cursor).reactions[0].emote,'moratales-love');
+    assert.equal((await f.call('mallory','reactions',{messageId:last,emote:'morogue-up'})).status,404);
+    for(let n=0;n<39;n++)assert.equal((await f.call('alice','reactions',{messageId:cursor,emote:'manager-up'})).status,200);
+    assert.equal((await f.call('alice','reactions',{messageId:cursor,emote:null})).status,429);
+  });
   assert.equal(JSON.parse(fs.readFileSync(path.join(root, 'dashboard-config.json'), 'utf8')).socialCallsEnabled, false, 'Production calling stays explicitly disabled.');
   await fixture(async f => {
     const inbox = await f.call('alice', 'inbox');
