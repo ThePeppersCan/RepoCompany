@@ -15,6 +15,7 @@ for(const name of fs.readdirSync(root)){
  if(requiredStaticAssets.includes(name)||includeDirs.includes(name))copy(path.join(root,name),path.join(dist,name));
  else if(fs.statSync(path.join(root,name)).isFile()&&(/\.(html|css|js|png|jpg|webp|mp3|json)$/i.test(name)||['_headers','_redirects'].includes(name))&&(!name.includes('test')||name==='repo-sports-quidditch-v2-test.html')&&!['package-lock.json','package.json'].includes(name))copy(path.join(root,name),path.join(dist,name));
 }
+require('./build-web-login.cjs')(root,dist);
 files+=require('./build-launcher-feed.cjs').buildLauncherFeed(root,dist);
 fs.writeFileSync(path.join(dist,'robots.txt'),production?'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /legacy-runtime\n':'User-agent: *\nDisallow: /\n');
 if(production){

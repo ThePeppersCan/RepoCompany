@@ -1,9 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-repo-auth="loading">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Repo Company — Your collection</title>
+<style>
+html:not([data-repo-auth="ready"]) body> :not(#repo-login):not(script){visibility:hidden!important}
+#repo-login{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:#101713;overflow:auto;box-shadow:none;color:#eceade}
+#repo-login::backdrop{background:#101713;backdrop-filter:none}
+</style>
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#111412;color:#f3ebd9;font-family:"Segoe UI",Arial,sans-serif}body{display:grid;place-items:center;min-height:100vh;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid #f5dfac;outline-offset:6px}button{color:inherit;border:0;background:none;padding:0}a{color:inherit;text-decoration:none}.viewport{position:relative;width:1672px;height:941px;flex:none;overflow:hidden}.dashboard{width:1672px;height:941px;position:absolute;left:0;top:0;transform-origin:0 0;isolation:isolate;background:#101511;overflow:hidden}.stage{position:absolute;inset:0;background:url('original-case-assets/open-case-stage-v3.png') center/100% 100% no-repeat;z-index:-3}.vignette{position:absolute;inset:0;pointer-events:none;z-index:-2;background:linear-gradient(90deg,#080b0c22,transparent 36%),linear-gradient(0deg,#080b0f70,transparent 32%)}
 .brand{position:absolute;left:64px;top:36px;width:143px;height:96px;mix-blend-mode:screen;background:url('original-case-assets/repo-brand.png') -116.28px -60.44px /367.2px 229.5px no-repeat;}
@@ -85,4 +90,6 @@ addEventListener('resize',fit);fit();
 pinPlane(document.getElementById('disc-plane'),400,400,[[1107,171.6],[1446,138.1],[1446,521.8],[1107,527.0]]);
 </script>
 <script src="dashboard-audio.js"></script><script src="dashboard-motion.js"></script><script src="game-scenes.js"></script><script src="demo-library.js"></script><script src="dashboard-layout.js"></script><script src="vendor/supabase.js"></script><script src="dashboard-config.js"></script><script src="dashboard-service.js"></script><script src="repo-character-sync.js"></script><script src="dashboard-playtime.js"></script><script src="legacy-launcher.js"></script><script src="avatar-renderer.js"></script><script src="avatar-frames.js"></script><script src="avatar-studio.js"></script><script src="achievement-service.js"></script><script src="account-profile.js"></script><script src="achievement-model.js"></script><script src="account-achievements.js"></script><script src="account-binder.js"></script><script src="account-menu.js"></script><script src="account-pack.js"></script><script src="homepage.js"></script><script src="repo-messaging.js"></script>
+<dialog id="repo-login" aria-label="Repo Company sign in"></dialog>
+<script src="repo-login-template.js"></script><script src="repo-login.js"></script>
 </body></html>
