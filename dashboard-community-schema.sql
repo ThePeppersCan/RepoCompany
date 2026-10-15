@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS community_roles (
 CREATE TABLE IF NOT EXISTS community_settings (
  id INTEGER PRIMARY KEY CHECK(id=1), title TEXT NOT NULL DEFAULT 'RE-COMP',
  banner_data TEXT, banner_type TEXT, banner_version TEXT,
- banner_height INTEGER NOT NULL DEFAULT 220, banner_zoom INTEGER NOT NULL DEFAULT 100,
+ banner_height INTEGER NOT NULL DEFAULT 260, banner_zoom INTEGER NOT NULL DEFAULT 100,
  banner_x INTEGER NOT NULL DEFAULT 50, banner_y INTEGER NOT NULL DEFAULT 50
 );
 INSERT OR IGNORE INTO community_settings(id) VALUES(1);
