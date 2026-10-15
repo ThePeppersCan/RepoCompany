@@ -1,0 +1,76 @@
+#vs-dialog.mr-merchant{position:fixed;inset:0;margin:0;padding:0;width:100vw;height:100dvh;max-width:none;max-height:none;border:0;border-image:none;box-shadow:none;overflow:hidden;background:#08090b;color:#e5d2a8;transform:none;border-radius:0;font-family:'Velmora Pixel',serif}
+#vs-dialog.mr-merchant::backdrop{background:transparent;backdrop-filter:none}
+#vs-dialog.mr-merchant{background:transparent}
+.mr-merchant-scene{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;pointer-events:none}
+.mr-merchant-content{position:relative;display:flex;align-items:center;flex-direction:column;justify-content:flex-end;height:100%;padding:25px 32px 18px;isolation:isolate}
+.mr-merchant-head{position:absolute;top:22px;left:30px;right:30px;pointer-events:none;text-shadow:2px 2px #09090d,0 0 12px #08080b}
+#vs-dialog.mr-merchant h2{margin:0;text-align:left;font:28px/1.1 'Velmora Pixel';color:#e4d0a5}
+.mr-merchant-wallet{position:absolute;right:0;top:0;margin:0;color:#e7d3a5;font:20px 'Velmora Pixel'}
+.mr-merchant-whisper{margin:8px 0;color:#b39e84;font:17px 'Velmora Pixel'}
+#vs-dialog.mr-merchant .mr-merchant-wallet{color:#e7d3a5}#vs-dialog.mr-merchant .mr-merchant-whisper{color:#baa78c}#vs-dialog.mr-merchant .mr-merchant-message{color:#dec9a5}
+.mr-merchant-hand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;width:min(560px,72vw);perspective:1400px;margin:0 0 24px;align-self:flex-end;flex:none}
+#vs-dialog.mr-merchant .mr-merchant-card{position:relative;display:block;aspect-ratio:11/19;min-width:0;padding:0;border:0;border-image:none;box-shadow:none;background:none;border-radius:0;overflow:visible;visibility:hidden;cursor:pointer;transition:filter .25s;filter:none}
+.mr-merchant-card:disabled{cursor:default}.mr-merchant-card.is-sold{filter:brightness(.5) saturate(.4)!important}.mr-merchant-card.is-inspected{z-index:4}
+.mr-merchant-card .mr-food-lift{transform:rotate(var(--rest-angle));filter:drop-shadow(0 7px 6px #0009)}
+.mr-merchant-card.is-inspected .mr-food-lift{transform:translateY(-17px) scale(1.1)}
+.mr-merchant-card .mr-food-back-copy{gap:9px;padding:10px 9px;font:15px/1.22 'Velmora Pixel';scrollbar-width:thin}
+.mr-merchant-card .mr-food-kind{font:11px/1.2 'Velmora Pixel'}.mr-relic-detail{font:12px/1.2 'Velmora Pixel';margin-top:auto;border-top:1px solid currentColor;padding-top:8px}
+.mr-merchant-price{position:absolute;top:calc(100% + 5px);left:0;right:0;font:15px 'Velmora Pixel';text-align:center;color:#e2c797;text-shadow:2px 2px #07070b}
+.mr-merchant-message{margin:7px 0 3px;min-height:18px;font:15px/1.2 'Velmora Pixel';text-align:center;text-shadow:2px 2px #08090b}
+#vs-dialog.mr-merchant button:not(.mr-merchant-card){font-family:'Velmora Pixel';background:none;border:0;border-image:none;box-shadow:none;color:#dfc99e;text-shadow:2px 2px #08090b;filter:none;cursor:pointer;border-radius:0}
+#vs-dialog.mr-merchant button:focus-visible{outline:2px solid #d6c08d;outline-offset:5px}
+#vs-dialog.mr-merchant .mr-merchant-buy{font-size:20px;min-height:38px;padding:5px 12px;margin-bottom:4px}
+#vs-dialog.mr-merchant button:disabled{opacity:.5;cursor:default}
+#vs-dialog.mr-merchant .mr-merchant-slot:disabled{opacity:.8}
+.mr-merchant-owned{display:flex;justify-content:center;gap:22px;min-height:44px;width:min(650px,100%)}
+#vs-dialog.mr-merchant .mr-merchant-slot{display:flex;align-items:center;gap:8px;padding:3px 0;max-width:33%;font-size:13px;min-width:0;flex:1}
+.mr-merchant-slot .mr-food-face{width:28px;flex:none}.mr-merchant-slot .mr-food-number,.mr-merchant-slot .mr-food-title{font-size:3px}
+.mr-empty-slot{display:grid;place-items:center;width:26px;height:40px;border:1px dashed #aa98774a;color:#8b7c65;flex:none}
+.mr-merchant-slot.is-exchange{outline:1px solid #d8bd82;outline-offset:4px}
+.mr-merchant-footer{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:8px;min-height:30px}
+.mr-merchant-footer button{font-size:16px;padding:5px 0}.mr-merchant-footer button:last-child{margin-left:auto}
+.mr-relic-single{inset:7% 3% 8%;outline:3px solid #252323}.mr-food-face:has(>.mr-relic-single){border:2px solid #29261e;background:var(--food-paper)}
+.mr-relic-pin{font:13px 'Velmora Pixel';text-align:center;color:#decea9;background:none;border:0;margin:0 0 4px}.mr-relic-pin select{font:inherit;color:inherit;background:#201b23;border:1px solid #8e795d;padding:5px}
+.mr-run-relics{position:fixed;left:18px;bottom:92px;display:flex;gap:7px;align-items:center;pointer-events:none;color:#d1bd8b;font:13px 'Velmora Pixel';text-shadow:1px 1px #111;z-index:4}.mr-run-relics .mr-food-face{width:21px}.mr-run-relics .mr-food-title,.mr-run-relics .mr-food-number{display:none}
+body:has(#vs-dialog.mr-merchant[open]) #vs-hud{visibility:hidden}
+@media(max-width:700px){.mr-merchant-content{padding:16px 14px 10px}.mr-merchant-head{left:16px;right:16px;top:15px}#vs-dialog.mr-merchant h2{font-size:22px}.mr-merchant-wallet{position:static;font-size:16px;margin-top:6px}.mr-merchant-whisper{font-size:14px}.mr-merchant-hand{width:min(520px,100%);gap:14px;align-self:center}.mr-merchant-card .mr-food-back-copy{font-size:12px;padding:6px;gap:5px}.mr-relic-detail{font-size:10px;padding-top:5px}.mr-merchant-card .mr-food-kind{font-size:9px}.mr-merchant-card.is-inspected .mr-food-lift{transform:translateY(-13px) scale(1.13)}.mr-merchant-message{font-size:13px;min-height:30px;max-width:95%}#vs-dialog.mr-merchant .mr-merchant-buy{font-size:17px}.mr-merchant-owned{gap:13px}.mr-merchant-slot .mr-food-face{width:23px}#vs-dialog.mr-merchant .mr-merchant-slot{font-size:11px}.mr-merchant-price{font-size:13px}}
+@media(max-height:560px) and (orientation:landscape){.mr-merchant-content{padding:12px 18px 8px}.mr-merchant-hand{width:calc((100dvh - 130px)*1.4);max-width:460px;gap:18px;margin-bottom:16px;margin-right:0}.mr-merchant-head{top:12px}.mr-merchant-whisper{display:none}.mr-merchant-owned{position:absolute;left:16px;bottom:45px;max-width:31%;flex-direction:column;gap:4px}#vs-dialog.mr-merchant .mr-merchant-slot{max-width:100%;font-size:11px;min-height:21px}.mr-merchant-slot .mr-food-face{width:14px}.mr-empty-slot{width:14px;height:22px}.mr-merchant-message{align-self:flex-end;max-width:60%;font-size:12px;min-height:14px;margin:2px 0}#vs-dialog.mr-merchant .mr-merchant-buy{align-self:flex-end;font-size:16px;min-height:26px;padding:3px}.mr-merchant-footer{margin:0;min-height:20px}.mr-merchant-footer button{font-size:13px;padding:3px}.mr-merchant-card .mr-food-back-copy{font-size:12px;padding:5px}.mr-relic-detail{font-size:10px}.mr-merchant-wallet{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.mr-merchant-card .mr-food-lift,.mr-merchant-card.is-inspected .mr-food-lift{transform:none;transition:none}.mr-merchant-card .mr-food-turn{transition:none}}
+#vs-dialog.vs-reduced.mr-merchant .mr-food-lift{transform:none;transition:none}#vs-dialog.vs-reduced.mr-merchant .mr-food-turn{transition:none}
+/* The square remains visible until he approaches. The hand only arrives when dealt. */
+.mr-merchant-announcement{position:absolute;top:19%;left:10%;right:10%;text-align:center;font:26px 'Velmora Pixel';color:#eee0ba!important;text-shadow:2px 3px 0 #08090b,0 0 18px #08090b;pointer-events:none}
+.mr-merchant-head,.mr-merchant-owned,.mr-merchant-message{opacity:0;transition:opacity .5s;pointer-events:none}
+[data-merchant-phase="dealing"] .mr-merchant-head,[data-merchant-phase="open"] .mr-merchant-head,[data-merchant-phase="open"] .mr-merchant-owned,[data-merchant-phase="open"] .mr-merchant-message{opacity:1;pointer-events:auto}
+[data-merchant-phase="leaving"] .mr-merchant-hand{pointer-events:none}
+.mr-merchant-card .mr-food-front{pointer-events:auto}
+.mr-merchant-card .mr-food-back{pointer-events:none}
+.mr-merchant-card.is-inspected .mr-food-front{pointer-events:none}
+.mr-merchant-card.is-inspected .mr-food-back{pointer-events:auto}
+#vs-dialog.mr-merchant .mr-merchant-inspect{position:absolute;inset:0;width:100%;height:100%;padding:0;background:transparent;border:0;z-index:2}
+.mr-merchant-card .mr-food-back-copy{bottom:23%;padding-bottom:6px}
+.mr-merchant-card .mr-food-back-stock .mr-food-art{background-image:none!important;background:var(--food-field);inset:8% 3.5% 8.5%;outline:0}
+#vs-dialog.mr-merchant button.mr-merchant-buy{position:absolute;left:4%;right:4%;bottom:9%;width:92%;min-height:0;margin:0;padding:7px 1px;font:16px/1.15 'Velmora Pixel';color:var(--food-text);background:var(--food-field);text-shadow:none;border-top:1px solid currentColor;z-index:3}
+#vs-dialog.mr-merchant .mr-merchant-buy:hover:not(:disabled),#vs-dialog.mr-merchant .mr-merchant-buy:focus-visible{background:var(--food-paper);color:#282622}
+.mr-merchant-card.is-sold{filter:brightness(.78) saturate(.65)!important}
+.mr-merchant-card.is-sold .mr-food-back-copy{opacity:.6}
+#vs-dialog.mr-merchant .mr-merchant-card.is-sold .mr-merchant-buy{opacity:1}
+.mr-merchant-card:focus-within{z-index:5}
+.mr-merchant-hand{margin-bottom:28px}
+@media(max-width:700px){#vs-dialog.mr-merchant button.mr-merchant-buy{font-size:12px;padding:6px 1px}.mr-merchant-announcement{font-size:22px}.mr-merchant-card .mr-food-back-copy{bottom:24%}}
+@media(max-height:560px) and (orientation:landscape){.mr-merchant-card .mr-food-back-copy{bottom:25%}.mr-merchant-hand{width:calc((100dvh - 105px)*1.4);max-width:460px}#vs-dialog.mr-merchant button.mr-merchant-buy{font-size:12px;padding:4px 1px}}
+
+.mr-merchant-card[data-risk="danger"] .mr-food-kind{color:#f4b898}.mr-merchant-card[data-risk="danger"] .mr-relic-detail{color:#ffe0c4}.mr-merchant-card[data-risk="danger"] .mr-merchant-price::before{content:"⚠ ";color:#f2b18d}
+.mr-relic-services[hidden]{display:none}
+.mr-relic-services{position:absolute;z-index:20;inset:10% max(16px,calc((100% - 640px)/2)) auto;max-height:80%;overflow:auto;padding:24px;background:#24231f;border:2px solid #ac9368;box-shadow:0 12px 50px #000b;color:#eddfbd;display:flex;flex-direction:column;gap:12px}
+#vs-dialog.mr-merchant .mr-relic-services :is(h3,p,label){color:#eddfbd}
+.mr-relic-services>*{flex:none}
+.mr-relic-services h3{margin:0 0 10px;font:25px 'Velmora Pixel',serif}
+.mr-relic-services p{margin:4px 0;font:17px/1.35 'Velmora Pixel',serif}
+.mr-relic-services label{display:flex;flex-direction:column;gap:6px;font:17px 'Velmora Pixel',serif}
+.mr-relic-services select{width:100%;min-height:40px;padding:8px;background:#181a18;color:#f1dfb9;border:1px solid #a58f68;font:17px 'Velmora Pixel',serif}
+#vs-dialog.mr-merchant .mr-relic-services button{min-height:40px;margin:0;padding:10px;border:1px solid #a58f68;background:#383329;color:#f0dfb8;font:17px 'Velmora Pixel',serif}
+#vs-dialog.mr-merchant .mr-relic-services button:focus-visible,.mr-relic-services select:focus-visible{outline:3px solid #f1d99f;outline-offset:3px}
+.mr-relic-status{position:absolute;left:50%;bottom:74px;transform:translateX(-50%);max-width:min(680px,90vw);padding:5px 9px;background:#171b20e8;border:1px solid #8b8067;color:#ebdbaf;font:14px/1.25 'Velmora Pixel',monospace;text-align:center;pointer-events:none}
+.mr-relic-status[hidden]{display:none}.mr-relic-status[data-danger=true]{color:#ffd6bb;border-color:#bf816e}
+@media(max-width:700px){.mr-relic-services{inset:8% 12px auto;max-height:84%;padding:16px}.mr-relic-status{bottom:150px;font-size:12px;max-width:94vw}}
+@media(max-height:560px){.mr-relic-services{inset:4% max(12px,calc((100% - 640px)/2)) auto;max-height:92%}.mr-relic-status{bottom:8px}}

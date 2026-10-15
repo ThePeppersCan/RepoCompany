@@ -53,6 +53,18 @@
     "game-integrations/morogue/grove-assets/riv.mp3": "d6d1e9d5c62d",
     "game-integrations/morogue/grove-assets/my.mp3": "2bba89cd5785",
     "game-integrations/morogue/build-art.js": "d4d7393a9548",
-    "game-integrations/morogue/weapon-cards-v1.png": "c73cce9ff827"
+    "game-integrations/morogue/weapon-cards-v1.png": "c73cce9ff827",
+    "game-integrations/morogue/relics-20261015/app.js": "1a45416cf347",
+    "game-integrations/morogue/relics-20261015/art.js": "d89f7d27fd53",
+    "game-integrations/morogue/relics-20261015/audio.js": "6724faca48b2",
+    "game-integrations/morogue/relics-20261015/builds.js": "25e3844eff7f",
+    "game-integrations/morogue/relics-20261015/food-cards.js": "b5af54ac7dcb",
+    "game-integrations/morogue/relics-20261015/game.js": "c3cd74169ab2",
+    "game-integrations/morogue/relics-20261015/merchant.css": "89823b4073ec",
+    "game-integrations/morogue/relics-20261015/merchant.js": "ae2f42d1d5c1",
+    "game-integrations/morogue/relics-20261015/relic-cards.js": "b957f6c85265",
+    "game-integrations/morogue/relics-20261015/relic-fx.js": "1cc818a00468",
+    "game-integrations/morogue/relics-20261015/relics.js": "fbb8e2dd4848",
+    "game-integrations/morogue/relics-20261015/relic-expansion.js": "74fa23761fef"
   }
 }
