@@ -23,3 +23,7 @@ database_id = "a88e0fb6-1782-440a-adfd-0661dcd0279f"
 binding = "MOROGUE_DB"
 database_name = "morogue-leaderboards"
 database_id = "a72085d9-2324-40ad-8e18-004c01a14f5c"
+
+[[env.production.services]]
+binding = "REPO_VOICE"
+service = "repocompany-voice"

@@ -1,0 +1,23 @@
+name = "repocompany-voice"
+main = "worker.mjs"
+compatibility_date = "2026-08-06"
+workers_dev = false
+preview_urls = false
+
+[vars]
+VOICE_ENABLED = "true"
+# Verified in the account's Realtime subscription: renewal on the 15th.
+BILLING_DAY = "15"
+
+[[durable_objects.bindings]]
+name = "VOICE_HUB"
+class_name = "VoiceHub"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["VoiceHub"]
+
+[[d1_databases]]
+binding = "DASHBOARD_DB"
+database_name = "repo-dashboard-production"
+database_id = "a88e0fb6-1782-440a-adfd-0661dcd0279f"

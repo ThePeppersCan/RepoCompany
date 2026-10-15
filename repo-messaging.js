@@ -97,7 +97,7 @@
   const back = button('All conversations', 'back', 'repo-social-icon repo-message-back', () => { drawer.classList.remove('has-conversation'); search.focus(); });
   const peerAvatar = el('span', 'repo-social-avatar'), peerInfo = el('div', 'repo-peer-info');
   const peerName = el('h3'), peerStatus = el('p'); peerInfo.append(peerName, peerStatus);
-  const voice = button('Start voice call', 'phone', 'repo-social-icon', () => startCall('audio'));
+  const voice = button('Start voice call', 'phone', 'repo-social-icon', () => window.repoVoice?.getState().enabled ? window.repoVoice.startPrivate(selection) : startCall('audio'));
   const video = button('Start video call', 'video', 'repo-social-icon', () => startCall('video'));
   voice.hidden = video.hidden = true;
   conversationHead.append(back, peerAvatar, peerInfo, voice, video);
@@ -148,8 +148,12 @@
     if (error?.name === 'AbortError' || error?.stale) return '';
     return String(error?.message || fallback).slice(0, 240);
   }
+  function messagingState() {
+    const hosted = window.repoVoice?.getState();
+    return {open: drawer.open, unread: Math.min(999, unread), callActive: !!hosted?.callActive || (!!call && !terminal.has(call.status)), callStatus: hosted?.callStatus || call?.status || '', incomingCall: !!hosted?.incomingCall || (call?.status === 'ringing' && norm(call.callee) === ownName())};
+  }
   function announce() {
-    const state = {open: drawer.open, unread: Math.min(999, unread), callActive: !!call && !terminal.has(call.status), callStatus: call?.status || '', incomingCall: call?.status === 'ringing' && norm(call.callee) === ownName()};
+    const state = messagingState();
     const signature = JSON.stringify(state);
     if (signature !== previousEvent) { previousEvent = signature; dispatchEvent(new CustomEvent('repo-messaging-state', {detail: state})); }
     launchCount.hidden = !unread; launchCount.textContent = unread > 99 ? '99+' : String(unread);
@@ -244,6 +248,10 @@
     peerStatus.textContent = f.online ? (f.current_game ? 'Playing ' + ({morogue: 'Morogue', moratales: 'Moratales', manager: 'Velmora Manager'}[f.current_game] || 'a game') : 'Online') : 'Offline';
     voice.disabled = video.disabled = !initialized || !callsEnabled || !!call || callBusy || loading;
     voice.hidden = video.hidden = !initialized || !callsEnabled;
+    if (window.repoVoice?.getState().enabled) {
+      voice.hidden = false;
+      voice.disabled = !initialized || !!call || callBusy || loading || window.repoVoice.getState().callActive;
+    }
     voice.title = video.title = call ? 'A call is already in progress' : '';
     input.disabled = send.disabled = !available || sending || loading;
   }
@@ -645,6 +653,8 @@
     clearInterval(timer); timer = setInterval(tick, 1000); accountChanged();
     if (audioUnlocked) notificationAudio?.resume().catch(() => {});
   });
-  window.repoMessaging = Object.freeze({open, close, getState: () => ({open: drawer.open, unread, callActive: !!call && !terminal.has(call.status), callStatus: call?.status || '', incomingCall: call?.status === 'ringing' && norm(call.callee) === ownName()})});
+  window.repoMessaging = Object.freeze({open, close, getState: messagingState});
+  addEventListener('repo-voice-state', () => { updatePeer(); announce(); });
+  window.repoVoice?.mount({drawer,head,context:()=>({selection,userId})});
   timer = setInterval(tick, 1000); accountChanged();
 })();

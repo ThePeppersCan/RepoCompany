@@ -7,7 +7,7 @@ const root=path.resolve(__dirname,'..'),config=JSON.parse(fs.readFileSync(path.j
 const people={alice:'11111111-1111-4111-8111-111111111111',bob:'22222222-2222-4222-8222-222222222222',mallory:'33333333-3333-4333-8333-333333333333'};
 const encode=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
 const sessions=Object.fromEntries(Object.entries(people).map(([username,id])=>{const expires=Math.floor(Date.now()/1000)+3600,user={id,aud:'authenticated',role:'authenticated',email:username+'@conofdrpepper.local',user_metadata:{username},created_at:new Date().toISOString()};return [username,{access_token:encode({alg:'HS256'})+'.'+encode({sub:id,exp:expires,role:'authenticated'})+'.fixture',refresh_token:'fixture-'+username,token_type:'bearer',expires_in:3600,expires_at:expires,user}];}));
-async function createFixture(){
+async function createFixture(fixtureOptions={}){
  const source=fs.readFileSync(path.join(root,'functions/api/social/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify({...config,socialCallsEnabled:true})+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
  const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(path.join(root,'dashboard-social-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-messaging-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-extras-schema.sql'),'utf8'));
@@ -18,16 +18,29 @@ async function createFixture(){
  const env={DASHBOARD_DB:db,SOCIAL_TURN_KEY_ID:'test-key',SOCIAL_TURN_KEY_API_TOKEN:'test-only-never-a-real-key'};
  const originalFetch=global.fetch;
  global.fetch=async(input,options={})=>{const url=String(input),token=new Headers(options.headers).get('Authorization')?.replace(/^Bearer /,''),who=Object.entries(sessions).find(([,s])=>s.access_token===token)?.[0];
-  if(url.startsWith('https://rtc.live.cloudflare.com/'))return Response.json({iceServers:[{urls:['turn:turn.cloudflare.com:3478?transport=udp'],username:'fixture-relay',credential:'fixture-only'}]},{status:201});
+  if(url.startsWith('https://rtc.live.cloudflare.com/'))return fixtureOptions.voiceSecrets ? originalFetch(input,options) : Response.json({iceServers:[{urls:['turn:turn.cloudflare.com:3478?transport=udp'],username:'fixture-relay',credential:'fixture-only'}]},{status:201});
   if(!url.startsWith(config.url))throw Error('Unexpected external request in isolated messaging fixture');
   if(!who)return Response.json({error:'invalid fixture identity'},{status:401});
   if(url.endsWith('/auth/v1/user'))return Response.json(sessions[who].user);
   if(url.endsWith('/get_my_character'))return Response.json([{username:who}]);
   throw Error('Unexpected upstream route');
  };
+ let voiceHub,onVoiceRequest;
+ if(fixtureOptions.voiceSecrets){
+  const {VoiceHub}=await import(require('node:url').pathToFileURL(path.join(root,'workers/voice/worker.mjs')));
+  const storage={async get(){return this.saved},async put(_key,value){this.saved=structuredClone(value)},async setAlarm(at){this.alarm=at},async deleteAlarm(){this.alarm=null}};
+  voiceHub=new VoiceHub({storage,blockConcurrencyWhile:fn=>fn()},{DASHBOARD_DB:db,...fixtureOptions.voiceSecrets});
+  env.REPO_VOICE={fetch:(url,init)=>voiceHub.fetch(new Request(url,init))};
+  const source=fs.readFileSync(path.join(root,'functions/api/voice/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
+  onVoiceRequest=(await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'))).onRequest;
+ }
  const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.mp3':'audio/mpeg','.woff2':'font/woff2'};
  const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://127.0.0.1');let response;
-  if(url.pathname.startsWith('/api/social/')){
+  if(url.pathname.startsWith('/api/voice/')&&onVoiceRequest){
+   const chunks=[];for await(const b of req)chunks.push(b);
+   const request=new Request(base+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})});
+   response=await onVoiceRequest({request,env,params:{path:url.pathname.slice('/api/voice/'.length).split('/')}});
+  }else if(url.pathname.startsWith('/api/social/')){
    const chunks=[];for await(const b of req)chunks.push(b);
    const request=new Request(base+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})});
    response=await onRequest({request,env,params:{path:url.pathname.slice('/api/social/'.length).split('/')}});
@@ -42,7 +55,7 @@ async function createFixture(){
   res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
  }catch(error){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Fixture failure: '+error.message}));}});
  let base;await new Promise(r=>server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+server.address().port;
- return {base,sql,env,sessions,config,async close(){await new Promise(r=>server.close(r));sql.close();global.fetch=originalFetch;},async browserContext(browser,who){
+ return {base,sql,env,sessions,config,voiceHub,async close(){await new Promise(r=>server.close(r));sql.close();global.fetch=originalFetch;},async browserContext(browser,who){
   const context=await browser.newContext({viewport:{width:1440,height:900},permissions:['microphone','camera'],reducedMotion:'reduce'});
   await context.route('**/*',route=>{const url=route.request().url();return url.startsWith(base)||url.startsWith(config.url)||url.startsWith('data:')?route.fallback():route.abort();});
   await context.addInitScript(({session})=>{localStorage.setItem('sb-hvdrwmjieguurxvrgzfu-auth-token',JSON.stringify(session));},{session:sessions[who]});
