@@ -34,6 +34,7 @@
       const tick = () => { $('#update-stage').textContent = 'Restarting in ' + Math.max(0, Math.ceil((gate.restartAt - Date.now()) / 1000)) + ' seconds'; };
       tick(); if (!countdownTimer) countdownTimer = setInterval(() => { if (state.requiredUpdate?.phase === 'countdown') $('#update-stage').textContent = 'Restarting in ' + Math.max(0, Math.ceil((state.requiredUpdate.restartAt - Date.now()) / 1000)) + ' seconds'; }, 250);
     } else { clearInterval(countdownTimer); countdownTimer = null; }
+    window.repoBrandMotion?.setVariant('default');
     window.repoBrandMotion?.setActive(!failed);
     return true;
   }
@@ -69,6 +70,7 @@
     const showForm = state.portalReady && account.status === 'signed-out' && !error && !gameLoading;
     const phase = busy ? 'signing-in' : reconnecting || gameLoading ? 'loading' : error ? 'error' : showForm ? 'sign-in' : 'loading';
     $('.website-fallback').dataset.phase = phase;
+    window.repoBrandMotion?.setVariant(gameLoading && state.activeGame.id === 'morogue' ? 'morogue' : 'default');
     window.repoBrandMotion?.setActive(state.entryVisible !== false && ['loading', 'signing-in'].includes(phase));
     document.body.dataset.locked = String(account.status !== 'online' || busy);
     $('.connection-card').setAttribute('aria-busy', String(['loading', 'signing-in'].includes(phase)));

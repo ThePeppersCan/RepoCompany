@@ -40,8 +40,10 @@
     }
     return "M" + points.map(fmt).join("L") + "Z";
   }
-  let wanted = false, frame = 0, epoch = 0;
+  const morogue = window.createMorogueBrandMotion?.(svg, outline);
+  let wanted = false, frame = 0, epoch = 0, variant = 'default';
   function reset() {
+    morogue?.hide();
     rest.setAttribute('opacity', '1'); rest.removeAttribute('transform');
     core.setAttribute('opacity', '0');
     [...arcs, ...trails, ...sparks].forEach(el => el.setAttribute('opacity', '0'));
@@ -77,12 +79,12 @@
       sparks[i].setAttribute('opacity', (Math.sin(burst * Math.PI) * .65).toFixed(3));
     }
   }
-  function tick(time) { if (!wanted || reduce.matches || document.hidden) { frame = 0; reset(); return; } draw(time - epoch); frame = requestAnimationFrame(tick); }
+  function tick(time) { if (!wanted || reduce.matches || document.hidden) { frame = 0; reset(); return; } if (variant === 'morogue' && morogue) morogue.draw(time - epoch); else draw(time - epoch); frame = requestAnimationFrame(tick); }
   function sync() {
     if (!wanted || reduce.matches || document.hidden) { cancelAnimationFrame(frame); frame = 0; reset(); return; }
     if (!frame) { epoch = performance.now(); frame = requestAnimationFrame(tick); }
   }
-  window.repoBrandMotion = Object.freeze({ setActive(value) { wanted = !!value; sync(); } });
+  window.repoBrandMotion = Object.freeze({ setActive(value) { wanted = !!value; sync(); }, setVariant(value) { const next = value === 'morogue' ? 'morogue' : 'default'; if (next === variant) return; variant = next; reset(); epoch = performance.now(); } });
   reduce.addEventListener('change', sync); document.addEventListener('visibilitychange', sync);
   reset();
 })();
