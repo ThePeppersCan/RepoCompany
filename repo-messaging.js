@@ -24,6 +24,7 @@
     return n;
   }
   function icon(name) {
+    if(name==='mail'){const n=el('span','repo-wibs-icon');n.setAttribute('aria-hidden','true');return n;}
     const n = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     n.setAttribute('viewBox', '0 0 24 24'); n.setAttribute('aria-hidden', 'true');
     // Only fixed, developer-authored SVG strings reach this sink.
@@ -201,13 +202,17 @@
   mountLaunch();
   function open(name) {
     if (!userId) { window.accountMenu?.open({tab: 'profile'}); return; }
+    const opening = !drawer.open;
     if (!drawer.open) { opener = document.activeElement; drawer.showModal(); inboxArchiveAt = 0; }
     if (name) select(name); else { renderFriends(); if (!selection) search.focus(); }
+    window.repoCommunity?.show(name ? 'dm' : 'community');
+    if (opening) window.repoWibsIntro?.play(drawer);
     if (callPanel.open) { callPanel.close(); callPanel.showModal(); }
     announce(); inboxAt = 0; tick();
   }
   function close() {
     if (!drawer.open) return;
+    window.repoWibsIntro?.stop();
     drawer.close(); if(window.repoWebGame?.active)window.repoWebGame.focus();else if(opener?.isConnected)opener.focus(); announce();
   }
   drawer.addEventListener('cancel', e => { e.preventDefault(); close(); });
@@ -258,6 +263,7 @@
   let callsEnabled = false;
   async function select(name) {
     if (!friend(name)) { feedback.textContent = 'Only accepted friends can message each other.'; return; }
+    window.repoCommunity?.show('dm');
     if (selection) drafts.set(norm(selection), input.value);
     extras?.clear(); selection = friend(name).username; const revision = ++selectionEpoch;
     messages = []; selectedRead = peerRead = 0; hasOlder = false; loading = true;
@@ -303,7 +309,7 @@
     else { history.scrollTop = previousScroll; if (history.scrollHeight > previousHeight) jump.hidden = false; }
   }
   let reading = false;
-  const viewingConversation = () => drawer.open && portalVisible && !document.hidden && !!conversation.getClientRects().length;
+  const viewingConversation = () => drawer.open && !drawer.hasAttribute('data-wibs-opening') && portalVisible && !document.hidden && !!conversation.getClientRects().length;
   async function markRead() {
     if (reading || !viewingConversation() || !selection || !messages.length || history.scrollHeight - history.scrollTop - history.clientHeight > 100) return;
     const last = Number(messages[messages.length - 1].id), name = selection, revision = selectionEpoch;

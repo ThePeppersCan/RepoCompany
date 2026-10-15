@@ -54,6 +54,12 @@ export class VoiceHub {
     return {id:p.user_id,name:p.username,display:p.display_name || p.username};
   }
   async permitted(room) {
+    if(room.kind==='community') {
+      const roster=members(room).filter(m=>live(m));
+      for(const m of roster)await this.owner(m);
+      for(let i=0;i<roster.length;i++)for(let j=i+1;j<roster.length;j++)if(await this.db().prepare('SELECT 1 FROM dashboard_blocks WHERE (blocker=? AND blocked=?) OR (blocker=? AND blocked=?) LIMIT 1').bind(roster[i].name,roster[j].name,roster[j].name,roster[i].name).first())throw fail('A member is unavailable.',403);
+      return;
+    }
     const host = room.members[room.host]; await this.owner(host);
     // Invitations remain private even after someone leaves a group. Revoking
     // friendship with any invitee closes the room and its rejoin invitation.
@@ -108,10 +114,11 @@ export class VoiceHub {
         else if (now >= room.expires) this.end(room,'This call reached its eight-hour limit. You can start another.',now);
         else if (verify) { try { await this.permitted(room); } catch { this.end(room,'A friendship changed or account verification is unavailable.',now); } }
         for (const m of members(room)) {
-          if (live(m) && m.lease <= now) { m.status='left'; if(m.id===room.host || room.kind==='private') this.end(room,'The call disconnected.',now); }
+          if (live(m) && m.lease <= now) { m.status='left'; if((m.id===room.host && room.kind!=='community') || room.kind==='private') this.end(room,'The call disconnected.',now); }
           if (room.kind==='private' && m.status==='invited' && m.invitedAt+90000 <= now) m.status='left';
         }
         if (room.kind==='private' && members(room).some(m=>m.status==='left')) this.end(room,'Call ended.',now);
+        if (room.kind==='community' && !members(room).some(live)) this.end(room,'The voice channel is empty.',now);
       }
     }
     // Schedule and persist the shutdown BEFORE making external close requests.
@@ -124,6 +131,7 @@ export class VoiceHub {
   alarm() { return this.serial(() => this.maintain(Date.now(),true)); }
   view(me, client, now) {
     return {enabled:true, budget:{limit:LIMIT,used:Math.ceil(this.state.usage[month(now,this.state.billingDay)]||0),resetAt:nextMonth(now,this.state.billingDay),available:hasBudget(this.state,now),estimated:true,rollingGuard:rollingUsage(this.state,now)>=LIMIT},
+      community:{title:'RE-COMP',capacity:8,members:this.state.rooms.filter(r=>r.kind==='community'&&!r.ended).flatMap(r=>members(r).filter(live).map(m=>({name:m.name,display:m.display,muted:!!m.muted})))},
       rooms:this.state.rooms.filter(r=>r.members[me.id] && (r.members[me.id].status!=='left' || r.members[me.id].client===client || (r.kind==='group'&&!r.ended))).map(r=>({
         id:r.id,title:r.title,kind:r.kind,host:r.host,created:r.created,ended:r.ended||null,reason:r.reason||'',expires:r.expires,
         mine:{status:r.members[me.id].status,owned:r.members[me.id].client===client,muted:!!r.members[me.id].muted},
@@ -148,6 +156,21 @@ export class VoiceHub {
     }
   }); }
   async action(me,op,b,now) {
+    if(op==='community') {
+      if(!hasBudget(this.state,now))throw fail('The monthly voice allowance has been reached.',429);
+      if(this.state.rooms.some(r=>!r.ended&&live(r.members[me.id]||{})))throw fail('Leave your current call first.',409);
+      let room=this.state.rooms.find(r=>r.kind==='community'&&!r.ended);
+      if(!room){
+        if(this.state.rooms.filter(r=>!r.ended).length>=8)throw fail('Voice is busy. Try again shortly.',429);
+        room={id:crypto.randomUUID(),kind:'community',title:'RE-COMP',host:me.id,created:now,expires:now+MAX_CALL,members:{}};
+        this.state.rooms.push(room);
+      }
+      if(members(room).filter(m=>m.client||m.pub||m.recv).length>=8)throw fail('RE-COMP has eight people in voice. Try again when a space opens.',429);
+      for(const m of members(room).filter(live))if(await this.db().prepare('SELECT 1 FROM dashboard_blocks WHERE (blocker=? AND blocked=?) OR (blocker=? AND blocked=?) LIMIT 1').bind(me.name,m.name,m.name,me.name).first())throw fail('Voice is unavailable while a blocked player is in the channel.',403);
+      // Never overwrite an uncertain retired media session or its budget reservation.
+      if(!room.members[me.id])room.members[me.id]={...me,status:'left',invitedAt:now};
+      return this.join(room,me,b,now);
+    }
     if(op==='create') {
       if (!hasBudget(this.state,now)) throw fail('The monthly voice allowance has been reached.',429);
       if(this.state.rooms.some(r=>!r.ended && live(r.members[me.id]||{}))) throw fail('Leave your current call first.',409);
@@ -163,7 +186,7 @@ export class VoiceHub {
     if(!room||!m||m.name!==me.name) throw fail('Voice room not found.',404);
     if(op==='leave') {
       if(m.client && m.client!==b.client) throw fail('This call is open on another device.',409);
-      m.status='left'; if(room.host===me.id || room.kind==='private') this.end(room,'Call ended.',now);
+      m.status='left'; if((room.host===me.id && room.kind!=='community') || room.kind==='private' || (room.kind==='community'&&!members(room).some(live))) this.end(room,'Call ended.',now);
       await this.save(); await this.clean(room); return {ok:true};
     }
     if(room.ended || (m.status==='left' && !(op==='join' && room.kind==='group'))) throw fail(room.reason||'This call has ended.',410);
@@ -172,6 +195,12 @@ export class VoiceHub {
     if(!live(m)||m.client!==b.client) throw fail('Join the call from this device first.',403);
     if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();await this.clean(room);throw fail(room.reason,429);}
     if(op==='heartbeat') {m.lease=now+LEASE;m.muted=!!b.muted;return this.view(me,b.client,now);}
+    if(op==='reset-receiver') {
+      // A permanent channel can see many departures/rejoins. Retire the old
+      // receiver before creating another, so inactive SDP tracks never pile up.
+      if(m.recv){await this.closeSession(m.recv);m.recv=null;await this.save();}
+      return {ok:true};
+    }
     if(op==='publish') {
       if(m.pub) throw fail('The microphone connection already exists. Rejoin the call.',409);
       let sdp;try{sdp=audioDescription(b.sessionDescription,'offer',1);}catch(e){throw fail(e.message);}

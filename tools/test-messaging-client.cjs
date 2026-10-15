@@ -103,7 +103,7 @@ const {createFixture} = require('./messaging-test-server.cjs');
     list.on('pageerror',error=>errors.push(error.message));
     await list.goto(fixture.base+'/');
     await list.waitForFunction(()=>window.repoMessaging?.getState().unread===60);
-    await list.evaluate(()=>repoMessaging.open());
+    await list.evaluate(()=>{repoMessaging.open();repoCommunity.show('dm');});
     await list.locator('.repo-message-friend[data-username="friend00"] .repo-message-preview').filter({hasText:'A message from friend00'}).waitFor();
     assert.equal(await list.locator('.repo-message-friend[data-username="friend00"] .repo-message-count').textContent(),'1');
     checks.push('Conversations beyond the newest inbox page retain their message previews and unread badges.');

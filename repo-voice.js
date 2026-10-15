@@ -3,7 +3,7 @@
   const account=window.repoAccount;
   if(!account || window.repoVoice)return;
   const client=crypto.randomUUID(), pcs=new Set(), audios=new Map(), controllers=new Set();
-  let user=account.state.user?.id||null, epoch=0, generation=0, enabled=false, rooms=[], budget=null;
+  let user=account.state.user?.id||null, epoch=0, generation=0, enabled=false, rooms=[], budget=null, community={members:[]};
   let current=null, stream=null, sender=null, receiver=null, subscribed=new Set(), busy=false, polling=false, muted=false, deafened=false;
   let ui=null, timer=null, lastContact=0, token='', message='', suspended=false, collapsed=false;
   const own=()=>String(account.state.social?.username||account.state.character?.username||'').toLowerCase();
@@ -11,7 +11,7 @@
   const friends=()=>(account.state.social?.friends||[]).filter(f=>f.status==='accepted');
   const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
   const button=(text,fn,cls='')=>{const n=el('button','repo-voice-button '+cls,text);n.type='button';n.onclick=fn;return n;};
-  const state=()=>({enabled,available:enabled&&budget?.available!==false,callActive:!!current||busy,callStatus:current?(sender?.connectionState==='connected'?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy});
+  const state=()=>({enabled,available:enabled&&budget?.available!==false,callActive:!!current||busy,callStatus:current?(sender?.connectionState==='connected'?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy,community,currentKind:rooms.find(r=>r.id===current)?.kind||'',budget});
   function announce(){render();dispatchEvent(new CustomEvent('repo-voice-state',{detail:state()}));}
   async function api(op,payload={},valid=()=>true) {
     const e=epoch,id=user;
@@ -83,13 +83,18 @@
     const g=++generation,e=epoch,valid=()=>generation===g&&epoch===e;
     announce();
     try{
-      const response=options.room?await api('join',{room:options.room},valid):await api('create',options,valid);
+      const response=options.community?await api('community',{},valid):options.room?await api('join',{room:options.room},valid):await api('create',options,valid);
       current=response.room||options.room;lastContact=Date.now();announce();
       await microphone(valid);
     }catch(error){if(!error.stale&&valid())await leave(error.name==='NotAllowedError'?'Microphone permission was declined. Allow it to make a call.':error.message);}
     finally{if(valid()){busy=false;announce();await poll();}}
   }
   async function subscribe(room,valid){
+    if([...subscribed].some(track=>!room.sources.some(s=>s.trackName===track))){
+      await api('reset-receiver',{room:room.id},valid);
+      if(receiver){receiver.ontrack=receiver.onconnectionstatechange=null;receiver.close();pcs.delete(receiver);receiver=null;}
+      for(const audio of audios.values()){audio.pause();audio.srcObject=null;audio.remove();}audios.clear();subscribed.clear();
+    }
     const needed=room.sources.filter(s=>!subscribed.has(s.trackName));
     if(!needed.length)return;
     const response=await api('subscribe',{room:room.id},valid);
@@ -111,7 +116,7 @@
     if(polling||!user||suspended)return;polling=true;const e=epoch,g=generation,valid=()=>epoch===e&&generation===g;
     try{
       const result=await api(current?'heartbeat':'state',current?{room:current,muted:muted||deafened}:{},valid);
-      enabled=!!result.enabled;rooms=result.rooms||[];budget=result.budget||null;
+      enabled=!!result.enabled;rooms=result.rooms||[];budget=result.budget||null;community=result.community||{members:[]};
       if(current){
         lastContact=Date.now();const room=rooms.find(r=>r.id===current);
         if(!room||room.ended||room.mine.status==='left'){await leave(room?.reason||'Call ended.');return;}
@@ -173,7 +178,7 @@
   }
   function changed(){
     const next=account.state.user?.id||null;
-    if(next!==user){abandon('');epoch++;controllers.forEach(c=>c.abort());user=next;token='';rooms=[];budget=null;enabled=false;message='';polling=false;if(ui)ui.form.hidden=true;announce();poll();}
+    if(next!==user){abandon('');epoch++;controllers.forEach(c=>c.abort());user=next;token='';rooms=[];budget=null;community={members:[]};enabled=false;message='';polling=false;if(ui)ui.form.hidden=true;announce();poll();}
   }
   addEventListener('repo-account-state',changed);
   addEventListener('offline',()=>abandon('You are offline. Call again when connected.'));
@@ -181,6 +186,6 @@
   addEventListener('pagehide',()=>{suspended=true;abandon('');clearInterval(timer);});
   addEventListener('pageshow',()=>{suspended=false;clearInterval(timer);timer=setInterval(poll,10000);poll();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
-  window.repoVoice=Object.freeze({mount,getState:state,startPrivate:username=>start({kind:'private',friends:[String(username).toLowerCase()]}),leave});
+  window.repoVoice=Object.freeze({mount,getState:state,joinCommunity:()=>start({community:true}),startPrivate:username=>start({kind:'private',friends:[String(username).toLowerCase()]}),leave});
   timer=setInterval(poll,10000);
 })();

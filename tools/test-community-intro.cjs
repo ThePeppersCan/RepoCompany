@@ -1,0 +1,64 @@
+'use strict';
+const assert = require('node:assert/strict');
+const path = require('node:path'), fs = require('node:fs');
+const {chromium} = require('playwright');
+const {createFixture} = require('./messaging-test-server.cjs');
+(async () => {
+  const fixture = await createFixture(), browser = await chromium.launch({channel: 'msedge', headless: true});
+  try {
+    const context = await fixture.browserContext(browser, 'alice'), page = await context.newPage(), errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.emulateMedia({reducedMotion: 'no-preference'});
+    await page.addInitScript(() => {
+      window.__micRequests = 0;
+      navigator.mediaDevices.getUserMedia = async () => { window.__micRequests++; throw Error('Opening chat must not request a microphone'); };
+    });
+    await page.goto(fixture.base);
+    await page.waitForFunction(() => window.repoCommunity && window.repoAccount.state.user);
+    await page.locator('.repo-message-launch').click();
+    const intro = page.locator('.repo-wibs-opening');
+    await intro.waitFor();
+    assert.equal(await intro.locator('button, p').count(), 0, 'The opening has no visible text or Skip button');
+    await page.evaluate(() => { window.__introStarted = performance.now(); window.__firstIntro = document.querySelector('.repo-wibs-opening'); });
+    assert.equal(await page.locator('.rc-layout').evaluate(node => node.inert), true);
+    const body = intro.locator('.wibs-body'), before = await body.getAttribute('d');
+    await page.waitForTimeout(600);
+    assert.notEqual(await body.getAttribute('d'), before, 'The approved mascot must animate');
+    await page.evaluate(() => repoMessaging.open());
+    assert.equal(await page.evaluate(() => window.__firstIntro === document.querySelector('.repo-wibs-opening')), true, 'Already-open chat must not restart the intro');
+    await page.waitForTimeout(1500);
+    const out = path.resolve(__dirname, '../../../outputs'); fs.mkdirSync(out, {recursive: true});
+    await page.screenshot({path: path.join(out, 'wibs-community-opening.png')});
+    await intro.waitFor({state: 'detached', timeout: 5000});
+    const elapsed = await page.evaluate(() => performance.now() - window.__introStarted);
+    assert(elapsed >= 3700 && elapsed < 4800, `Expected about four seconds, got ${elapsed}ms`);
+    assert.equal(await page.locator('.rc-layout').evaluate(node => node.inert), false);
+    assert.equal(await page.evaluate(() => window.__micRequests), 0);
+    // Existing desktop IPC opens the same page; hide/show must pause the motion.
+    await page.evaluate(() => { repoMessaging.close(); document.documentElement.dataset.repoLauncher = 'true'; });
+    await page.evaluate(() => repoMessaging.open()); await intro.waitFor();
+    await page.waitForTimeout(500);
+    await page.evaluate(() => { document.documentElement.dataset.repoPortalVisible = 'false'; dispatchEvent(new CustomEvent('repo-launcher-portal-visibility', {detail: {visible: false}})); });
+    const paused = await body.getAttribute('d'); await page.waitForTimeout(500);
+    assert.equal(await body.getAttribute('d'), paused);
+    await page.evaluate(() => { document.documentElement.dataset.repoPortalVisible = 'true'; dispatchEvent(new CustomEvent('repo-launcher-portal-visibility', {detail: {visible: true}})); });
+    await page.waitForTimeout(300); assert.notEqual(await body.getAttribute('d'), paused);
+    await page.evaluate(() => repoMessaging.close());
+    await intro.waitFor({state: 'detached'});
+    await page.evaluate(() => { repoMessaging.close(); repoMessaging.open(); }); await intro.waitFor();
+    await page.keyboard.press('Escape'); await intro.waitFor({state: 'detached'});
+    assert.equal(await page.locator('#repo-messages').evaluate(node => node.open), false);
+    await page.emulateMedia({reducedMotion: 'reduce'}); await page.evaluate(() => repoMessaging.open());
+    assert.equal(await intro.count(), 0); assert.equal(await page.locator('.rc-layout').evaluate(node => node.inert), false);
+    await page.emulateMedia({reducedMotion: 'no-preference'});
+    await page.evaluate(() => { repoMessaging.close(); repoMessaging.open(); }); await intro.waitFor();
+    await page.emulateMedia({reducedMotion: 'reduce'}); await intro.waitFor({state: 'detached'});
+    await page.emulateMedia({reducedMotion: 'no-preference'});
+    await page.evaluate(() => { repoMessaging.close(); repoMessaging.open(); }); await intro.waitFor();
+    await page.evaluate(() => { repoAccount.state.user = null; dispatchEvent(new Event('repo-account-state')); });
+    await intro.waitFor({state: 'detached'});
+    assert.equal(await page.locator('#repo-messages').evaluate(node => node.open), false, 'Signing out cancels the opening');
+    assert.deepEqual(errors, []);
+    console.log('PASS: four-second Wibs-only opening, no text or Skip button, no replay while open, no microphone capture, desktop visibility pause, close/logout/Escape cleanup and reduced-motion bypass.');
+  } finally { await browser.close(); await fixture.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

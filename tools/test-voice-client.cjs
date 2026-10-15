@@ -16,5 +16,14 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
   await page.waitForFunction(()=>window.__stops===1);assert.equal(await page.evaluate(()=>window.repoVoice.getState().callActive),false);
   console.log('PASS: an incoming hosted call never requests a microphone; signing out during a pending capture stops the late microphone track and clears native call state.');
   await context.close();
+  const publicContext=await fixture.browserContext(browser,'mallory');
+  await publicContext.addInitScript(()=>{window.__captures=0;Object.defineProperty(navigator.mediaDevices,'getUserMedia',{value:()=>{window.__captures++;return new Promise(()=>{});}});});
+  const publicPage=await publicContext.newPage();await publicPage.goto(fixture.base);await publicPage.waitForFunction(()=>window.repoVoice?.getState().enabled);
+  await publicPage.evaluate(()=>repoMessaging.open());
+  assert.equal(await publicPage.getByRole('button',{name:'Join voice',exact:true}).count(),0);
+  await publicPage.getByRole('button',{name:'Join RE-COMP voice',exact:true}).click();await publicPage.waitForFunction(()=>window.__captures===1);
+  assert(fixture.voiceHub.state.rooms.some(r=>r.kind==='community'&&r.members[fixture.sessions.mallory.user.id]?.status==='joining'));
+  console.log('PASS: the RE-COMP channel itself joins public voice and requests a microphone only after the click; there is no separate Join voice button.');
+  await publicContext.close();
  }finally{await browser?.close();await fixture.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

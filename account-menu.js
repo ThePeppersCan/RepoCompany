@@ -75,7 +75,7 @@
   if(current==='achievements')window.repoAchievements.mount(content,{state,games,game:achievementGame,navigate:openAchievements,showDetail});
   else content.innerHTML=!state.ready?status('Loading your account…'):state.user?(state.error?status(state.error,true)+button('data-refresh','Try again'):views[current]()):signedOut();
   if(state.user&&['binder','slabs'].includes(current)&&content.querySelector('#native-binder')){const host=content.querySelector('#native-binder');if(state.loading)host.innerHTML=status('Refreshing your collection…');else window.repoBinder.mount(host,current);}
-  window.repoAvatar?.hydrate(content);
+  window.repoAvatar?.hydrate(content);window.repoCommunity?.hydrateProfiles(content);
   dialog.querySelector('.account-wallet').textContent=state.user?`${state.bank?fmt(state.bank.gp):'—'} Repoints`:'Guest';
   if(state.user&&current==='inventory')loadCatalog();
   if(route){content.scrollTop=0;if(dialog.open)history.replaceState({scene:'account',returnHash:origin},'','#account/'+current+(current==='achievements'&&achievementGame?'/'+achievementGame:''));}
