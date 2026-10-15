@@ -204,8 +204,9 @@ function checkAndApplyUpdates({ reschedule = false } = {}) {
   return updateSweep;
 }
 function broadcast() {
+  if (quitting || !windowContents(mainWindow)) return;
   messageNotifications?.sync(account?.state.status === 'online' ? mediaAccountId : null);
-  if (quitting || broadcastTimer || !windowContents(mainWindow)) return;
+  if (broadcastTimer) return;
   // Coalesce file, account and game changes into the newest snapshot instead
   // of repeatedly rebuilding the website controls during a burst of events.
   broadcastTimer = setTimeout(() => {
@@ -711,7 +712,7 @@ async function launch() {
     webPreferences: { preload: path.join(desktopRoot, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true }
   });
   secureContents(mainWindow.webContents, value => value === 'repo-launcher://app/index.html');
-  messageNotifications = new MessageNotifications({window:mainWindow,View:WebContentsView,root:desktopRoot,eligible:()=>!!currentGame()&&!currentGame().loading&&!messageOverlay&&!updateLocked()&&!quitting&&account?.state.status==='online'&&mainWindow?.isVisible()&&!mainWindow?.isMinimized(),open:openMessages});
+  messageNotifications = new MessageNotifications({window:mainWindow,View:WebContentsView,root:desktopRoot,eligible:()=>!quitting&&!!windowContents(mainWindow)&&!!currentGame()&&!currentGame().loading&&!messageOverlay&&!updateLocked()&&account?.state.status==='online'&&mainWindow.isVisible()&&!mainWindow.isMinimized(),open:openMessages});
   ipcMain.on('launcher:notification-action',(event,action)=>messageNotifications?.action(event,action));
   portal = new WebContentsView({ webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'portal-preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false } });
   portalContents = portal.webContents; portalContentsId = portalContents.id;
@@ -741,10 +742,10 @@ async function launch() {
   mainWindow.once('ready-to-show', () => showWindow(mainWindow));
   mainWindow.on('close', handleMainWindowClose);
   mainWindow.on('closed', () => {
+    mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
     messageNotifications?.dispose();
     discordPresence?.dispose();
     mediaPermissions?.dispose();
-    mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
     shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer);
     for (const game of [...games.values()]) disposeGame(game);
     const contents = portalContents; portalContents = null; portal = null;

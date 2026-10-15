@@ -24,6 +24,18 @@ function harness({ hidden = false, electronOverrides = {}, timerOverrides = {} }
   return { context, app, run: code => vm.runInContext(code, context) };
 }
 
+test('late presence broadcasts never inspect notifications after the native window is destroyed', () => {
+  const h = harness(); let syncs = 0;
+  h.context.shutdownWindow = { isDestroyed: () => true, isVisible() { throw Error('Object has been destroyed'); }, webContents: { isDestroyed: () => false } };
+  h.context.notifications = { sync() { syncs++; h.context.shutdownWindow.isVisible(); } };
+  h.run('mainWindow=shutdownWindow;messageNotifications=notifications;');
+  assert.doesNotThrow(() => h.run('broadcast()')); assert.equal(syncs, 0);
+  h.context.shutdownWindow.isDestroyed = () => false;
+  h.context.shutdownWindow.isVisible = () => true;
+  h.run('broadcastTimer=1;broadcast()'); assert.equal(syncs, 1, 'active notification visibility still updates while state broadcasts are coalesced');
+  h.run('quitting=true;broadcast()'); assert.equal(syncs, 1);
+});
+
 function portalHarness(options = {}) {
   const h = harness({ hidden: true, ...options });
   const frame = { url: 'https://repocompany.uk/#collection' };
