@@ -49,17 +49,19 @@
  async function signOut(){await heartbeat(false);await db.auth.signOut();generation++;Object.assign(state,{user:null,character:null,bank:null,cards:[],slabs:[],frames:null,framesError:'',social:null,error:'',collectionError:'',socialError:'',ready:true});notify();}
  async function refreshFrames(){
   const userId=state.user?.id,revision=generation;if(!userId)return;
-  try{const row=await rpc('get_my_avatar_frames');if(!Array.isArray(row?.owned))throw Error('Your frames could not be loaded.');if(state.user?.id!==userId||revision!==generation)return;state.frames=row.owned;state.framesError='';}
+  try{const [row,rewards]=await Promise.all([rpc('get_my_avatar_frames'),api('frame-rewards')]);if(!Array.isArray(row?.owned)||!Array.isArray(rewards?.owned))throw Error('Your frames could not be loaded.');if(state.user?.id!==userId||revision!==generation)return;state.frames=[...new Set([...row.owned,...rewards.owned])];state.framesError='';}
   catch{if(state.user?.id!==userId||revision!==generation)return;state.frames=null;state.framesError='Your frame collection is unavailable. Refresh before buying or equipping.';}
   notify();
  }
+ let rewardSignature='';addEventListener('repo-achievement-state',()=>{const signature=(state.user?.id||'')+':'+Object.values(window.repoAchievementState?.mine||{}).filter(a=>a.unlocked_at).map(a=>a.id).sort().join(',');if(signature!==rewardSignature){rewardSignature=signature;if(state.user)refreshFrames();}});
  let frameBusy=false;
  async function buyFrame(id){
+  if(window.repoFrames?.get(id)?.kind==='achievement')throw Error('This frame is earned through its achievement.');
   if(frameBusy)throw Error('Your frame purchase is already processing.');if(!state.user)throw Error('Sign in to buy a frame.');
   const userId=state.user.id,revision=generation;frameBusy=true;
   try{const row=await rpc('buy_avatar_frame',{p_frame_id:id});if(state.user?.id!==userId||revision!==generation)throw Error('Your account changed. Refresh your collection.');
    if(!Array.isArray(row?.owned)||!row.owned.includes(id)||!Number.isFinite(Number(row.new_gp)))throw Error('Your purchase could not be confirmed. Refresh your collection before trying again.');
-   state.frames=row.owned;state.framesError='';state.bank={...state.bank,gp:Number(row.new_gp)};notify();return row;
+   state.frames=[...new Set([...row.owned,...(state.frames||[]).filter(id=>window.repoFrames?.get(id)?.kind==='achievement')])];state.framesError='';state.bank={...state.bank,gp:Number(row.new_gp)};notify();return row;
   }finally{frameBusy=false;}
  }
  async function equipFrame(id){

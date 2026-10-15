@@ -75,7 +75,7 @@
     const raw=Number(attributes?.[key]??baseline);
     return clamp(baseline+(raw-baseline)*(state.careerMode?1:FAIRNESS.attributeCompression),state.careerMode?.60:.68,state.careerMode?.99:.97);
   }
-  function fairNoise(amount=FAIRNESS.closeContestVariance){return ((state.simRand?.()||Math.random())-.5)*amount}
+  function fairNoise(amount=FAIRNESS.closeContestVariance){return ((state.simRand?.()??Math.random())-.5)*amount}
   const TEAM_STYLE = {
     belros:{name:'STRUCTURED',width:1.00,depth:1.00,tempo:1.00,press:1.00,directness:.50},
     zafran:{name:'FLUID',width:1.00,depth:1.00,tempo:1.00,press:1.00,directness:.50}
@@ -684,7 +684,7 @@
     const meta={ovr:raw.ovr,fitness:raw.fitness,sharpness:raw.sharpness,form:raw.form,morale:raw.morale,...(raw.careerMeta||{})};
     const valid=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));
     // Reject unit mistakes and malformed ratings at the integration boundary.
-    for(const [key,value] of Object.entries({ovr:meta.ovr,fitness:meta.fitness,sharpness:meta.sharpness,...Object.fromEntries(['PAC','PAS','SHO','HAN','DEF','STA'].map(key=>[key,raw.stats?.[key]]))})){
+    for(const [key,value] of Object.entries({ovr:meta.ovr,performanceOverall:meta.performanceOverall,fitness:meta.fitness,sharpness:meta.sharpness,...Object.fromEntries(['PAC','PAS','SHO','HAN','DEF','STA'].map(key=>[key,raw.stats?.[key]]))})){
       if(value==null)continue;
       const max=['fitness','sharpness'].includes(key)?100:99;
       if(!valid(value)||Number(value)<0||Number(value)>max)throw new Error(`Invalid ${key} for ${raw.name||raw.id||'player'}: career ratings must be between 0 and ${max}.`);
@@ -732,14 +732,7 @@
     if(opts.careerMode&&(!directHome||!directAway||[...directHome,...directAway].some(p=>p.unavailable)))throw new Error('Each club needs three available career starters.');
     if(directHome&&directAway){
       roster={belros:directHome,zafran:directAway};
-      // V104.8: the live match reads the same squad quality the career model
-      // reads. Without this a ten-point ability gap was worth almost nothing on
-      // the pitch while being decisive in a simulated fixture, so watching your
-      // matches quietly threw away the squad you had built.
-      const mean=list=>list.reduce((sum,p)=>sum+Number(p.careerMeta?.ovr||70),0)/Math.max(1,list.length);
-      careerQualityEdge=clamp((mean(directHome)-mean(directAway))*CAREER_QUALITY_EDGE,-CAREER_QUALITY_CAP,CAREER_QUALITY_CAP);
     }else{
-      careerQualityEdge=0;
       const requestedHome=Array.isArray(opts.homePlayers)&&opts.homePlayers.length===3?opts.homePlayers:fallback.home;
       const requestedAway=Array.isArray(opts.awayPlayers)&&opts.awayPlayers.length===3?opts.awayPlayers:fallback.away;
       const valid=id=>!!V2_PLAYERS[id],homeIds=requestedHome.filter(valid),awayIds=requestedAway.filter(valid);
@@ -3517,9 +3510,9 @@ function triggerBigMoment(kind='hattrick'){
         // Career pace sets movement speed; roles receive no hidden speed bonus.
         maxSpeed:state.careerMode?.198*(.34+a.speed*.78):.198*(.88+a.speed*.16),
         accel:.70*(0.86+a.accel*.20),turnRate:5.2*(0.85+a.turn*.22),
-        wander:(i-1)*.37,decisionNoise:(state.simRand?.()||.5)-.5,decisionClock:.05+(state.simRand?.()||.5)*.12,
-        recoveryTarget:null,lastIntent:'shape',lastDecisionAt:0,edgeStall:0,hoverTime:0,flowSign:i%2?1:-1,flowPhase:(state.simRand?.()||.5)*Math.PI*2,desiredTx:x,desiredTy:groundY,tacticalRole:'SHAPE',responsibility:'SHAPE',supportTarget:null,pressing:false,smoothedTurn:0,locomotionChangedAt:0,packCrowdTime:0,packDisperseTime:0,packDisperseTarget:null,
-        reactionState:'idle',reactionUntil:0,reactionMeta:{},microReactionClock:2+visualRandom()*5,animState:'IDLE',animPriority:0,animUntil:0,animElapsed:0,animMeta:{},idlePhase:(state.simRand?.()||.5)*Math.PI*2,motionHeading:teamMeta[team].attack>0?0:Math.PI,motionAccel:0,turnMagnitude:0,faceCandidate:0,faceCandidateTime:0};
+        wander:(i-1)*.37,decisionNoise:(state.simRand?.()??.5)-.5,decisionClock:.05+(state.simRand?.()??.5)*.12,
+        recoveryTarget:null,lastIntent:'shape',lastDecisionAt:0,edgeStall:0,hoverTime:0,flowSign:i%2?1:-1,flowPhase:(state.simRand?.()??.5)*Math.PI*2,desiredTx:x,desiredTy:groundY,tacticalRole:'SHAPE',responsibility:'SHAPE',supportTarget:null,pressing:false,smoothedTurn:0,locomotionChangedAt:0,packCrowdTime:0,packDisperseTime:0,packDisperseTarget:null,
+        reactionState:'idle',reactionUntil:0,reactionMeta:{},microReactionClock:2+visualRandom()*5,animState:'IDLE',animPriority:0,animUntil:0,animElapsed:0,animMeta:{},idlePhase:(state.simRand?.()??.5)*Math.PI*2,motionHeading:teamMeta[team].attack>0?0:Math.PI,motionAccel:0,turnMagnitude:0,faceCandidate:0,faceCandidateTime:0};
     };
     state.makeMatchEntity=makeEntity;
     roster.belros.forEach((p,i)=>state.entities.push(makeEntity(p,'belros',belrosX[i],i)));
@@ -3567,7 +3560,7 @@ function triggerBigMoment(kind='hattrick'){
       const off=players.filter(e=>e!==carrier);
       // Goal opportunity must not be attached permanently to the ATTACKER label.
       // The seeded match RNG gives either off-ball teammate the same runner chance.
-      const runner=off.length?off[Math.floor((state.simRand?.()||Math.random())*off.length)]:off[0];
+      const runner=off.length?off[Math.floor((state.simRand?.()??Math.random())*off.length)]:off[0];
       const support=off.find(e=>e!==runner)||off[0];
       if(runner){const profile=tt.profile||tacticalProfileForTeam(team);const role=(profile.id==='WIDE'||(profile.id==='PATIENT'&&tt.state==='BUILDUP'))?'WIDTH':'RUNNER';tt.responsibilities[runner.player.id]=role;runner.tacticalRole=role;runner.responsibility=role}
       if(support){const role='SUPPORT';tt.responsibilities[support.player.id]=role;support.tacticalRole=role;support.responsibility=role}
@@ -3821,7 +3814,7 @@ function triggerBigMoment(kind='hattrick'){
       quietUntil:0,lastMajorAt:-99,lastTurnoverAt:-99,lastSwitchAt:-99,lastAction:'restart',forcedPhaseUntil:0
     };
   }
-  function flowRand(){return state.simRand?.()||Math.random()}
+  function flowRand(){return state.simRand?.()??Math.random()}
   function flowTempoScale(){const t=state.matchFlow?.tempo;return t==='fast'?.82:t==='slow'?1.22:1}
   function flowScheduleNext(min=.95,max=1.85){const k=flowTempoScale();scheduleNext(min*k,max*k)}
   function chooseFlowTemplate(preferCounter=false){
@@ -4024,12 +4017,19 @@ function triggerBigMoment(kind='hattrick'){
   // 57, and the best club is 31 points clear of the worst. A cap that saturated
   // at 15 points made a cup tie across three divisions feel like a close match.
   const CAREER_QUALITY_EDGE=0.040, CAREER_QUALITY_CAP=0.82;
-  let careerQualityEdge=0;
+  function careerTeamQuality(team){
+    // Read the active team at the action, including substitutes. Keep the
+    // three-slot denominator after a dismissal: removing a weak player must
+    // not award the remaining side a stronger team-quality finishing bonus.
+    return teamEntities(team).reduce((sum,e)=>sum+Number(e.player.careerMeta?.performanceOverall??e.player.careerMeta?.ovr??70),0)/3;
+  }
   function careerFinishScale(team){
     if(!state.careerMode)return 1;
     const home=team==='belros';
+    const careerQualityEdge=clamp((careerTeamQuality('belros')-careerTeamQuality('zafran'))*CAREER_QUALITY_EDGE,-CAREER_QUALITY_CAP,CAREER_QUALITY_CAP);
     const quality=1+(home?careerQualityEdge:-careerQualityEdge);
-    return CAREER_FINISH_SCALE*(home?1+CAREER_HOME_EDGE:1-CAREER_HOME_EDGE)*clamp(quality,.18,1.82);
+    const homeEdge=state.neutralVenue?0:CAREER_HOME_EDGE;
+    return CAREER_FINISH_SCALE*(home?1+homeEdge:1-homeEdge)*clamp(quality,.18,1.82);
   }
   function neutralShotXg(opts){
     const {penalty,careerMode,zone,defence,coverage,pressurePenalty,distancePenalty,motionPenalty}=opts;
@@ -4077,7 +4077,7 @@ function triggerBigMoment(kind='hattrick'){
     if(!shooter||state.chanceBuild||state.delay){performShot({shooter});return}
     const opp=other(shooter.team),specialist=rolePlayer(opp,'defender'),allDef=teamEntities(opp);
     const defPool=specialist?[specialist,...allDef.filter(e=>e!==specialist)]:allDef;
-    const duration=.72+(state.simRand?.()||Math.random())*.42,def=defPool.slice().sort((a,b)=>dist2(a,shooter)-dist2(b,shooter))[0];
+    const duration=.72+(state.simRand?.()??Math.random())*.42,def=defPool.slice().sort((a,b)=>dist2(a,shooter)-dist2(b,shooter))[0];
     state.chanceBuild={shooter,defender:def,elapsed:0,duration};setFlowPhase(FLOW_PHASES.SHOT_SEQUENCE,'chance created');noteFlowMajor('shot-sequence');state.director.phase='GOAL CHANCE';
     shooter.intent='prepare-shot';setPlayerAnim(shooter,'DECELERATING',Math.min(.55,duration),ANIM_PRIORITY.DECELERATING,{bigChance:true});
     if(def){
@@ -4167,7 +4167,7 @@ function triggerBigMoment(kind='hattrick'){
   function chooseGoalCelebration(team,scorer){
     // Celebration choice affects the length of the frozen goal sequence, so it
     // belongs to the deterministic simulation RNG in globally synced V2.
-    const goalRand=()=>state.simRand?.()||Math.random();
+    const goalRand=()=>state.simRand?.()??Math.random();
     const pp=getPlayerPersonality(scorer),signature=pp.signatureCelebration||signatureCelebrations[scorer?.player?.name]||signatureCelebrations[scorer?.player?.name?.toUpperCase?.()];
     if(signature&&goalRand()<.28){const found=GOAL_CELEBRATIONS.find(c=>c.id===signature);if(found){if(PERSONALITY_DEBUG)console.log('[PERSONALITY]',scorer.player.name,'goal',pp.archetype,found.id,'SIGNATURE');return found}}
     const late=state.matchTime>=MATCH_SECONDS-95,margin=Math.abs(state.score.belros-state.score.zafran),important=late&&margin<=1;
@@ -4295,13 +4295,13 @@ function triggerBigMoment(kind='hattrick'){
     return {x:safeX(x),y:groundedY(baseOffset-jump),jump};
   }
   function beginGoalCelebration(team,scorer,restartTeam,varContext=null,adminPreview=false){
-    const style=chooseGoalCelebration(team,scorer),fullTeam=(state.simRand?.()||Math.random())<.125||style.group==='big';
+    const style=chooseGoalCelebration(team,scorer),fullTeam=(state.simRand?.()??Math.random())<.125||style.group==='big';
     const players=teamEntities(team),others=players.filter(e=>e!==scorer).sort((a,b)=>dist2(a,scorer)-dist2(b,scorer));
     const partner=others[0]||null,participants=fullTeam?[scorer,...others]:[scorer,partner].filter(Boolean);
-    const aerialDuration=style.id==='huge-important'?1.9:1.25+(state.simRand?.()||Math.random())*.45,descentDuration=.72,groundedAt=aerialDuration+descentDuration;
+    const aerialDuration=style.id==='huge-important'?1.9:1.25+(state.simRand?.()??Math.random())*.45,descentDuration=.72,groundedAt=aerialDuration+descentDuration;
     // V38.12: keep the grounded celebration on screen long enough to read before
     // the logo/replay sting begins. Same timing rules for both teams.
-    const duration=clamp(groundedAt+(fullTeam?2.05:1.68)+(state.simRand?.()||Math.random())*.55,3.55,5.45),centerX=team==='belros'?.67:.33;
+    const duration=clamp(groundedAt+(fullTeam?2.05:1.68)+(state.simRand?.()??Math.random())*.55,3.55,5.45),centerX=team==='belros'?.67:.33;
     const order=participants.slice().sort((a,b)=>a.y-b.y).map(e=>e.player.id),starts={},targets={},otherStarts={},otherTargets={},paths={};
     participants.forEach((e,i)=>{
       starts[e.player.id]={x:e.x,y:e.y};
@@ -4514,7 +4514,7 @@ function triggerBigMoment(kind='hattrick'){
       const nominalKeeper=rolePlayer(opp,'defender'),outfieldBlock=defender!==nominalKeeper;
       const keeperControl=executionSkill(defender.attributes,'catching'),cleanChance=clamp(.38+(keeperControl-.86)*.22,.32,.46);const saveType=outfieldBlock?'block':shootout?'clean':(dist2(defender,info.target)<.050&&state.simRand()<cleanChance?'clean':state.simRand()<.50?'parry':'block');
       if(saveType==='clean')audio.catchBall('save');else audio.rebound();
-      showBanner(`${saveType==='clean'?'SAVE':saveType==='parry'?'PARRY':'BLOCK'} · ${defender.player.name}`,'',1.6);eventLine('save',{pet:shooter.player.name,defender:defender.player.name},defender.player,.10);if(state.playerStats[defender.player.id].saves%2===0)showStoryCard('REPO SPORTS · HOOP DEFENDER WATCH',defender.player.name,`${state.playerStats[defender.player.id].saves} saves tonight`,defender.team,defender.player,3.8);if(saveType!=='clean'&&state.replayBuffer.length>=24&&state.matchTime-state.lastReplayAt>28&&(state.simRand?.()||Math.random())<.42)beginReplay('SAVE REPLAY',state.replayBuffer.slice(-42),{frames:34,duration:2.30,slow:.69,introDuration:.45});
+      showBanner(`${saveType==='clean'?'SAVE':saveType==='parry'?'PARRY':'BLOCK'} · ${defender.player.name}`,'',1.6);eventLine('save',{pet:shooter.player.name,defender:defender.player.name},defender.player,.10);if(state.playerStats[defender.player.id].saves%2===0)showStoryCard('REPO SPORTS · HOOP DEFENDER WATCH',defender.player.name,`${state.playerStats[defender.player.id].saves} saves tonight`,defender.team,defender.player,3.8);if(saveType!=='clean'&&state.replayBuffer.length>=24&&state.matchTime-state.lastReplayAt>28&&(state.simRand?.()??Math.random())<.42)beginReplay('SAVE REPLAY',state.replayBuffer.slice(-42),{frames:34,duration:2.30,slow:.69,introDuration:.45});
       if(shootout){resolveShootoutPenalty(team,false,shooter);return}
       if(saveType==='clean'){setPossession(opp,defender,.12);scheduleNext(.75,1.4);}
       else {
@@ -4693,7 +4693,7 @@ function triggerBigMoment(kind='hattrick'){
     const players=teamEntities(team);
     const shooter=shootout&&state.shootout
       ?players[(state.shootout.attempts[team]||0)%Math.max(1,players.length)]
-      :(players[Math.floor((state.simRand?.()||Math.random())*Math.max(1,players.length))]||players[0]);
+      :(players[Math.floor((state.simRand?.()??Math.random())*Math.max(1,players.length))]||players[0]);
     state.special={type:'penalty',elapsed:0,team,shooter,shootout,shot:false};
     if(!shootout)triggerBigMoment('penalty');
     const dir=teamMeta[team].attack;shooter.tx=team==='belros'?.72:.28;shooter.ty=.52;setPlayerAnim(shooter,'DECELERATING',.55,ANIM_PRIORITY.DECELERATING,{setPiece:true});teamEntities(team).filter(e=>e!==shooter).forEach((e,i)=>{e.tx=.5-dir*.08;e.ty=.39+i*.24;setPlayerAnim(e,'IDLE',1.35,ANIM_PRIORITY.IDLE,{setPiece:true})});teamEntities(other(team)).forEach((e,i)=>{e.tx=.5+dir*.08;e.ty=.39+i*.12});state.ref.tx=.5;state.ref.ty=.42;state.camera.tx=team==='belros'?.535:.465;state.camera.ty=.52;state.camera.tz=1.06;showBanner(shootout?'SHOOTOUT PENALTY':`PENALTY · ${teamMeta[team].name}`,'danger',2.0);eventLine('penalty',{team:teamMeta[team].name,pet:shooter.player.name},shooter.player,.06);audio.ensure();audio.play(audio.whistle,.55);
@@ -5957,7 +5957,7 @@ function triggerBigMoment(kind='hattrick'){
     try{
       createUi();applyFixtureConfig(opts);refreshFixtureUi();await preload();
       state.open=true;state.opening=false;state.rotationQueued=false;state.rotationAnnounceAt=0;
-      state.careerMode=!!opts.careerMode;state.playerMode=!!opts.playerMode;state.controlledPlayerId=opts.controlledPlayerId==null?null:String(opts.controlledPlayerId);state.onCareerComplete=typeof opts.onComplete==='function'?opts.onComplete:null;state.onCareerClose=typeof opts.onClose==='function'?opts.onClose:null;state.careerDelivered=false;state.audioDisabled=!!opts.disableAudio;
+      state.careerMode=!!opts.careerMode;state.neutralVenue=!!opts.neutralVenue;state.playerMode=!!opts.playerMode;state.controlledPlayerId=opts.controlledPlayerId==null?null:String(opts.controlledPlayerId);state.onCareerComplete=typeof opts.onComplete==='function'?opts.onComplete:null;state.onCareerClose=typeof opts.onClose==='function'?opts.onClose:null;state.careerDelivered=false;state.audioDisabled=!!opts.disableAudio;
       state.syncMode=!!opts.syncMode;state.headless=!!opts.headless;state.liveSerial=Math.max(0,Number(opts.liveSerial)||0);state.engineElapsed=0;state.simClockMs=0;state.renderLead=0;
       state.syncAnchorElapsed=Math.max(0,Number(opts.targetElapsedMs)||0)/1000;state.syncAnchorPerf=performance.now();state.syncRunning=opts.running!==false;state.syncAwaitingFreshSample=!!(state.syncMode&&document.hidden);state.syncLastSampleAt=0;
       state.startedAt=state.liveSerial||Number(opts.startedAt)||Date.now();

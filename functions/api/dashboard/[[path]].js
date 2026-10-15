@@ -1,4 +1,5 @@
 import config from '../../../dashboard-config.json';
+import frameCatalog from '../../../avatar-frame-catalog.json';
 import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';
 function validateAvatar(value){
  if(!value||typeof value!=='object'||Array.isArray(value)||value.version!==1)return null;
@@ -16,7 +17,8 @@ const readAvatar=value=>{try{return validateAvatar(JSON.parse(value));}catch{ret
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const cleanName=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{3,16}$/.test(value)?value.toLowerCase():null;
 const allowedGames=new Set(['','moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
-const frameIds=new Set(['ember-crown','moonlit-grove','arcane-orbit','deepwater','stormglass','royal-gilt','blossom-drift','astral-eclipse']);
+const frameIds=new Set(frameCatalog.map(f=>f.id));
+async function earnedFrames(db,me){const rows=await db.prepare('SELECT achievement_id FROM dashboard_achievement_unlocks WHERE username=?').bind(me).all();const ids=new Set(rows.results.map(r=>r.achievement_id));return frameCatalog.filter(f=>f.kind==='achievement'&&ids.has(f.achievementId)).map(f=>f.id);}
 // Dashboard and game leases are independent: a hidden dashboard must never
 // clear a visible game's status. Only live, active game sessions supply a title.
 const playerJoins=`LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username LEFT JOIN dashboard_avatar_frames af ON af.username=p.username`;
@@ -62,6 +64,7 @@ export async function onRequest({request,env,params}){
   const now=Date.now();
   await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id').bind(me,user.id,character.username).run();
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
+  if(request.method==='GET'&&route==='frame-rewards')return json({owned:await earnedFrames(db,me)});
   if(request.method==='GET'&&route==='state'){
    const profile=await db.prepare(`SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar,af.frame_id,COALESCE(v.private_profile,0) AS private_profile FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(me).first();
    const friends=await playerFriends(db,me,now,env);
@@ -151,9 +154,10 @@ export async function onRequest({request,env,params}){
    const id=body.frameId;
    if(id!==null&&(typeof id!=='string'||!frameIds.has(id)))return json({error:'Choose a valid frame.'},400);
    if(id!==null){
-    const rows=await upstream('/rest/v1/rpc/get_my_avatar_frames',token,{}),collection=Array.isArray(rows)?rows[0]:rows;
+    const reward=frameCatalog.find(f=>f.id===id)?.kind==='achievement';
+    const rows=reward?{owned:await earnedFrames(db,me)}:await upstream('/rest/v1/rpc/get_my_avatar_frames',token,{}),collection=Array.isArray(rows)?rows[0]:rows;
     if(!Array.isArray(collection?.owned))return json({error:'Your frame collection could not be verified. Please try again.'},503);
-    if(!collection.owned.includes(id))return json({error:'Purchase this frame before equipping it.'},403);
+    if(!collection.owned.includes(id))return json({error:'Earn or purchase this frame before equipping it.'},403);
     await db.prepare('INSERT INTO dashboard_avatar_frames(username,frame_id,updated_at) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET frame_id=excluded.frame_id,updated_at=excluded.updated_at').bind(me,id,now).run();
    }else await db.prepare('DELETE FROM dashboard_avatar_frames WHERE username=?').bind(me).run();
    return json({ok:true,frame_id:id});
