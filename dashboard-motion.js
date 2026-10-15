@@ -18,6 +18,7 @@
   launchCurtain.tabIndex = -1;
   document.body.append(launchCurtain);
   let launching = false, launchAt = 0, launchSpeed = 0;
+  let webIntro = null, webIntroHost = null;
   const launchTimers = [];
   const canvas = document.getElementById('atmosphere');
   const ctx = canvas.getContext('2d');
@@ -260,17 +261,34 @@
     launchTimers.push(setTimeout(() => launchCurtain.classList.add('visible'), reducedMotion.matches ? 0 : 900));
     launchTimers.push(setTimeout(() => sound?.finish(), duration - 300));
     launchTimers.push(setTimeout(() => {
-      if (typeof ready !== 'function') { location.assign(playButton.dataset.gameUrl); return; }
       // Commit a fully black frame before the native view takes over, including
       // when Windows has throttled the curtain's composited CSS transition.
       launchCurtain.style.transition = 'none'; launchCurtain.classList.add('visible');
       void launchCurtain.offsetWidth;
-      requestAnimationFrame(() => requestAnimationFrame(() => { if (launching) ready(); }));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (!launching) return;
+        if (typeof ready === 'function') { ready(); return; }
+        const id = dashboard.dataset.openGame, url = playButton.dataset.gameUrl;
+        if (!['morogue', 'moratales', 'manager'].includes(id) || !window.mountRepoGameLoader) { location.assign(url); return; }
+        // Reuse this instance on browser Back so listeners and animation clocks
+        // do not accumulate. Native launches run their intro in the shell only.
+        if (!webIntroHost) {
+          webIntroHost = document.createElement('div');
+          webIntroHost.className = 'game-intro';
+          webIntro = window.mountRepoGameLoader(webIntroHost);
+        }
+        launchCurtain.append(webIntroHost);
+        webIntro.setVariant(id);
+        webIntro.setIntro('web-' + launchAt, 2, () => { if (launching) location.assign(url); });
+        webIntro.setActive(true);
+      }));
     }, duration));
     updateLoop();
   }
   // Back from the game must restore the scene, including when the browser keeps it in memory.
   function resetLaunch() {
+    webIntro?.setIntro(null);
+    webIntro?.setActive(false);
     launchTimers.forEach(clearTimeout);
     launchTimers.length = 0;
     launching = active = hovering = keyboardFocus = pinned = false;

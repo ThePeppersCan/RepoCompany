@@ -40,7 +40,7 @@
     }
     return "M" + points.map(fmt).join("L") + "Z";
   }
-  const variants = { morogue: window.createMorogueBrandMotion?.(svg, outline), moratales: window.createMoratalesBrandMotion?.(svg, outline) };
+  const variants = { morogue: window.createMorogueBrandMotion?.(svg, outline), moratales: window.createMoratalesBrandMotion?.(svg, outline), manager: window.createManagerBrandMotion?.(svg, outline) };
   let wanted = false, frame = 0, epoch = 0, variant = 'default', intro = null;
   function reset() {
     Object.values(variants).forEach(motion => motion?.hide());

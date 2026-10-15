@@ -547,7 +547,7 @@ async function play(id) {
     webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'game-preload.cjs'), additionalArguments: ['--repo-account-id=' + identity, '--repo-game-id=' + id], contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false }
   });
   gameView.setBackgroundColor('#121713');
-  const introLoops = ['morogue', 'moratales'].includes(id) ? 2 : 0;
+  const introLoops = ['morogue', 'moratales', 'manager'].includes(id) ? 2 : 0;
   const record = { view: gameView, webContents: gameView.webContents, __accountId: identity, __gameId: id, closed: false, loading: true, introLoops, introId: introLoops ? require('node:crypto').randomUUID() : null, introComplete: !introLoops, documentReady: false };
   if (introLoops) record.webContents.setAudioMuted(true);
   games.set(id, record); mainWindow.contentView.addChildView(gameView); focusGame(record);

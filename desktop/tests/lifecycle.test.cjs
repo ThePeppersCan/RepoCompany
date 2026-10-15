@@ -557,14 +557,16 @@ test('Discord visibility is a device boolean protected by the portal sender boun
   assert.deepEqual(calls, [false]); assert.doesNotMatch(JSON.stringify(result.discordPresence), /TEST_ONLY|token|username|score|account/i);
 });
 
-function nativePresenceHarness({ pendingLoad = false } = {}) {
+function nativePresenceHarness({ pendingLoad = false, completeManagerIntro = true } = {}) {
   const windows = [], activity = []; let checks = 0;
   class GameView {
     constructor(options) {
       windows.push(this); this.destroyed = false; this.options = options; this.visible = false;
       this.webContents = Object.assign(new EventEmitter(), {
         mainFrame: { url: 'about:blank' }, isDestroyed: () => this.destroyed, getURL() { return this.mainFrame.url; }, send() {}, setWindowOpenHandler() {}, focus() { this.emit('focus'); },
-        loadURL: async url => { this.webContents.mainFrame.url = url; activity.push('loaded'); if (pendingLoad) await new Promise((resolve, reject) => { this.finishLoad = resolve; this.failLoad = reject; }); },
+        // General lifecycle tests emulate the shell completing its intro; the
+        // explicit intro tests below exercise both readiness orders themselves.
+        loadURL: async url => { this.webContents.mainFrame.url = url; activity.push('loaded'); if (completeManagerIntro && url.startsWith('https://manager.repocompany.uk/')) h.run('currentGame().finishIntro()'); if (pendingLoad) await new Promise((resolve, reject) => { this.finishLoad = resolve; this.failLoad = reject; }); },
         close: () => { this.destroyed = true; this.webContents.emit('destroyed'); }, executeJavaScript: async () => true,
         setAudioMuted: value => { this.muted = value; }
       });
@@ -703,9 +705,9 @@ test('Morogue exit closes immediately without a warning, saving or retaining a h
   assert.deepEqual(h.activity, ['loaded', 'start:morogue', 'stop:morogue']);
 });
 
-test('Morogue and Moratales reveal requires both their own completed intro and a ready game document', async () => {
-  for (const gameId of ['morogue','moratales']) for (const first of ['document','intro']) {
-    const h=nativePresenceHarness({pendingLoad:true});h.run('portalSession=async()=>({user:{id:"original-account"}});');
+test('All three games require both their own completed intro and a ready game document', async () => {
+  for (const gameId of ['morogue','moratales','manager']) for (const first of ['document','intro']) {
+    const h=nativePresenceHarness({pendingLoad:true,completeManagerIntro:false});h.run('portalSession=async()=>({user:{id:"original-account"}});');
     const opening=h.run('play('+JSON.stringify(gameId)+')');await new Promise(r=>setImmediate(r));const view=h.windows[0];
     assert.equal(view.visible,false);assert.equal(view.muted,true);assert.equal(h.run('state().gameVisible'),false);
     await h.run('executeCommand("game-intro-complete","stale")');assert.equal(view.visible,false);

@@ -1,8 +1,9 @@
 'use strict';
 const fs=require('node:fs/promises'),path=require('node:path'),{pathToFileURL}=require('node:url'),assert=require('node:assert/strict');
 const {chromium}=require('playwright');
-const gameId=process.argv[2]||'morogue';assert.ok(['morogue','moratales'].includes(gameId));
-const selector=gameId==='morogue'?'.motion-uncrowned':'.motion-moratales';
+const selectors={morogue:'.motion-uncrowned',moratales:'.motion-moratales',manager:'.motion-manager'};
+const gameId=process.argv[2]||'morogue';assert.ok(Object.hasOwn(selectors,gameId));
+const selector=selectors[gameId];
 (async()=>{
  const output=path.resolve(process.env.REPO_MOTION_OUTPUT||path.join(__dirname,'../../../'+gameId+'-loader-preview'));await fs.mkdir(output,{recursive:true});
  const browser=await chromium.launch({channel:'msedge',headless:true});
@@ -23,10 +24,10 @@ const selector=gameId==='morogue'?'.motion-uncrowned':'.motion-moratales';
   await page.evaluate(()=>stepMotion(5600));assert.deepEqual(await page.screenshot(),await fs.readFile(path.join(output,'000.png')),'Loop returns exactly to its first frame.');
   await page.evaluate(()=>{repoBrandMotion.setActive(false);});assert.equal(await page.locator(selector).getAttribute('opacity'),'0');assert.equal(await page.locator('.motion-rest').getAttribute('opacity'),'1');
   await page.evaluate(()=>{repoBrandMotion.setActive(true);stepMotion(8500);});await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>stepMotion(8501));assert.equal(await page.locator(selector).getAttribute('opacity'),'0');
-  await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>{receiveFixture({...fixture,activeGame:{id:'manager',name:'Velmora Manager',loading:true}});stepMotion(10000);});assert.equal(await page.locator(selector).getAttribute('opacity'),'0');
+  await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>{receiveFixture({...fixture,activeGame:{id:'dragonbound',name:'Dragonbound',loading:true}});stepMotion(10000);});assert.equal(await page.locator(selector).getAttribute('opacity'),'0');
   await page.evaluate(()=>{receiveFixture({...fixture,requiredUpdate:{locked:true,phase:'downloading'},launcherUpdate:{status:'downloading',progress:.5}});stepMotion(12000);});assert.equal(await page.locator(selector).getAttribute('opacity'),'0');
   await page.evaluate(()=>{receiveFixture(fixture);stepMotion(13456);});assert.equal(await page.locator(selector).getAttribute('opacity'),'1');
-  assert.equal(await page.locator(gameId==='morogue'?'.motion-moratales':'.motion-uncrowned').getAttribute('opacity'),'0','Only the current game animation is visible.');
+  for(const other of Object.values(selectors).filter(s=>s!==selector))assert.equal(await page.locator(other).getAttribute('opacity'),'0','Only the current game animation is visible.');
   await page.addStyleTag({content:'.brand-loader{width:164px;height:164px}'});await page.screenshot({path:path.join(output,'actual-size.png')});
   await page.evaluate(()=>{window.completions=0;repoBrandMotion.setIntro('two-loops',2,()=>completions++);repoBrandMotion.setActive(true);stepMotion(16000);stepMotion(18800);});
   assert.equal(await page.evaluate(()=>completions),0,'One loop must not reveal the game.');
