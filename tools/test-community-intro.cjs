@@ -34,6 +34,13 @@ const {createFixture} = require('./messaging-test-server.cjs');
     assert(elapsed >= 3700 && elapsed < 4800, `Expected about four seconds, got ${elapsed}ms`);
     assert.equal(await page.locator('.rc-layout').evaluate(node => node.inert), false);
     assert.equal(await page.evaluate(() => window.__micRequests), 0);
+    const brand=page.locator('.rc-community-identity'),mascot=brand.locator('.rc-wibs-brand');
+    assert.equal(await brand.innerText(),'');assert.equal(await brand.getAttribute('aria-label'),'Wibs');assert.equal(await brand.locator('.publisher-mark').count(),0);const brandBox=await brand.boundingBox(),mascotBox=await mascot.boundingBox();assert(mascotBox.width>=90);assert(Math.abs(mascotBox.x+mascotBox.width/2-(brandBox.x+brandBox.width/2))<1);
+    await brand.hover();await page.waitForFunction(()=>document.querySelector('.rc-wibs-brand').classList.contains('is-animating'));
+    const paw=mascot.locator('.wibs-rightPaw'),still=await paw.getAttribute('transform');await page.waitForTimeout(1600);assert.notEqual(await paw.getAttribute('transform'),still);
+    await page.screenshot({path:path.join(out,'wibs-sidebar-hover-preview.png')});
+    await page.mouse.move(1200,600);await page.waitForFunction(()=>!document.querySelector('.rc-wibs-brand').classList.contains('is-animating'));
+    await page.emulateMedia({reducedMotion:'reduce'});await brand.hover();assert.equal(await mascot.evaluate(n=>n.classList.contains('is-animating')),false);await page.emulateMedia({reducedMotion:'no-preference'});await page.mouse.move(1200,600);
     // Existing desktop IPC opens the same page; hide/show must pause the motion.
     await page.evaluate(() => { repoMessaging.close(); document.documentElement.dataset.repoLauncher = 'true'; });
     await page.evaluate(() => repoMessaging.open()); await intro.waitFor();

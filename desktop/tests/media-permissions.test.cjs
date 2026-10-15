@@ -11,6 +11,18 @@ function setup() {
   return { handlers, portal, window, details, controller, get prompts() { return prompts; }, setAccount(value) { account = value; }, answer(response) { resolve({ response }); }, request(permission = 'media', override = {}, contents = portal) { return new Promise(r => handlers.request(contents, permission, r, { ...details, ...override })); } };
 }
 const tick = () => new Promise(r => setImmediate(r));
+test('speaker selection is explicit and isolated from capture, games, frames and account changes',async()=>{
+  const f=setup(),check=()=>f.handlers.check(f.portal,'speaker-selection','https://repocompany.uk',f.details);
+  assert.equal(check(),false);
+  assert.equal(await f.request('speaker-selection',{isMainFrame:false}),false);
+  assert.equal(await f.request('speaker-selection',{requestingUrl:'https://morogue.repocompany.uk/'}),false);
+  assert.equal(await f.request('speaker-selection',{}, {...f.portal}),false);
+  const selection=f.request('speaker-selection');await tick();f.answer(1);assert.equal(await selection,true);await tick();
+  assert.equal(check(),true);assert.equal(f.handlers.check(f.portal,'media','https://repocompany.uk',{...f.details,mediaType:'audio'}),false);
+  f.controller.reset();assert.equal(check(),false);
+  const pending=f.request('speaker-selection');await tick();f.setAccount({identity:null,state:{status:'signed-out'}});f.answer(1);assert.equal(await pending,false);await tick();
+  assert.equal(await f.request('speaker-selection'),false);
+});
 test('only a verified portal main frame can ask for microphone/camera, all other access is denied', async () => {
   const f = setup();
   for (const permission of ['display-capture', 'notifications', 'geolocation', 'clipboard-read']) assert.equal(await f.request(permission), false);

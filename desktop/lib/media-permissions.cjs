@@ -16,11 +16,13 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
   const allowed = (contents, types) => !!(grant && grant.contents === contents && grant.identity === identity() && types.every(type => grant.types.has(type)));
   session.setPermissionCheckHandler((contents, permission, origin, details = {}) => {
     const type = details.mediaType;
+    if(permission === 'speaker-selection')return trusted(contents,details,origin)&&allowed(contents,['output']);
     return permission === 'media' && ['audio', 'video'].includes(type) && trusted(contents, details, origin) && allowed(contents, [type]);
   });
   session.setPermissionRequestHandler((contents, permission, callback, details = {}) => {
-    const types = Array.isArray(details.mediaTypes) ? [...new Set(details.mediaTypes)] : [];
-    if (permission !== 'media' || !types.length || types.some(type => !['audio', 'video'].includes(type)) || !trusted(contents, details)) { callback(false); return; }
+    const output=permission==='speaker-selection';
+    const types = output?['output']:Array.isArray(details.mediaTypes) ? [...new Set(details.mediaTypes)] : [];
+    if ((!output&&permission !== 'media') || !types.length || types.some(type => !(output?['output']:['audio', 'video']).includes(type)) || !trusted(contents, details)) { callback(false); return; }
     if (allowed(contents, types)) { callback(true); return; }
     if (pending) { callback(false); return; }
     const revision = generation, user = identity(), window = getWindow();
@@ -28,8 +30,8 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
     pending = true;
     const devices = types.includes('audio') && types.includes('video') ? 'microphone and camera' : types.includes('video') ? 'camera' : 'microphone';
     Promise.resolve().then(() => dialog.showMessageBox(window, {
-      type: 'question', title: 'Repo Company calls', message: 'Allow your ' + devices + ' for calls?',
-      detail: 'Only your Repo Company call can use these devices. You can mute, turn off your camera, or end the call at any time.',
+      type: 'question', title: 'Repo Company calls', message: output?'Allow speaker selection for calls?':'Allow your ' + devices + ' for calls?',
+      detail: output?'Choose which headphones or speakers play your calls. This does not grant microphone or camera access.':'Only your Repo Company call can use these devices. You can mute, turn off your camera, or end the call at any time.',
       buttons: ['Not now', 'Allow'], defaultId: 0, cancelId: 0, noLink: true
     })).then(result => {
       const accept = result.response === 1 && generation === revision && user === identity() && trusted(contents, details) && !window.isDestroyed();

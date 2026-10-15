@@ -62,7 +62,7 @@ other Realtime consumers, abuse or a future pricing change remains outside an
 absolute zero-charge guarantee. Worker/Durable Object/D1 pricing is separate;
 this implementation doesn't request any paid plan upgrade.
 
-Calls have a 60-second server lease, heartbeats every 10 seconds and an eight-hour
+Calls have a 60-second server lease, heartbeats about every two seconds and an eight-hour
 maximum duration. Up to 16 people can be admitted globally. Closing a group as
 host ends it for everyone. Guests can leave and rejoin while their host remains.
 Unfriending or blocking any invited person closes the room. No microphone access
@@ -71,7 +71,44 @@ page exit, hangup and cutoff stop local media.
 Deafening stops both received audio and the microphone; undeafening restores the
 previous mute choice. Used-up allowances disable both call creation controls.
 
-## Verification
+## Voice and audio preferences
+
+The gear beside RE-COMP and the **Voice settings** control in a call open device-local
+preferences: microphone, speaker (where supported), microphone gain (0–200%),
+received voice volume (0–100%), sensitivity, noise suppression, echo cancellation,
+automatic input level and call sounds. Speaker selection requires browser/device
+permission; unsupported browsers clearly use the system output instead. The Windows
+client 0.1.16 adds a portal-only speaker permission, separate from capture permissions.
+
+An AudioWorklet gates actual outgoing audio, with a gentle default threshold of
+−55 dB, attack/release smoothing and a short hold. It runs on the audio thread when
+the portal is hidden. Built-in WebRTC noise suppression, echo cancellation and
+automatic level start enabled; this is not a Krisp SDK integration or quality claim.
+All processing stays on the device. No new paid service or server traffic is added.
+Changing input during a call replaces the outgoing track and preserves mute/deafen.
+Failed replacement retains the old microphone. Microphone tests require an explicit
+click, do not play back, and stop after 30 seconds, closing settings or signing out.
+
+The owner's first MP3 (`assets/voice-join.mp3`) plays on a successful local join and
+new active participants; their second (`assets/voice-leave.mp3`) plays on departure.
+Polling snapshots and invitations do not generate repeated cues. Sounds use the
+selected output at 25% of voice volume, never overlap, and are silenced by deafen or
+the Call sounds preference. The monthly call allowance remains unchanged.
+
+Membership refreshes every two seconds while calling or viewing the community,
+and every ten seconds while idle. Pending refreshes are retried immediately after
+an in-flight request finishes. Membership is rendered before media negotiation;
+local departure clears immediately without waiting for server cleanup. Provider
+auth/profile reads run concurrently, with both still required for authorization.
+
+`node tools/test-voice-audio-client.cjs` measures processed audio for gate/gain/mute
+and bypass, and checks devices, failed selection, local persistence, test cleanup and
+mobile layout. `node tools/test-voice-activity-client.cjs` exercises actual local
+WebRTC, input replacement, output volume, speaking rings and join/leave cues.
+`node desktop/tests/media-permissions-desktop.cjs` verifies the real native audio
+pipeline using synthetic input, output selection and permission isolation.
+
+## Server and integration verification
 
 `node tools/test-voice.cjs` covers authentication, origin checks, friendships,
 ownership, server-selected tracks, negotiation sequencing, cutoff and failed

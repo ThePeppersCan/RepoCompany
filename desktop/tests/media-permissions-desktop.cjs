@@ -8,17 +8,21 @@ const root=path.resolve(__dirname,'..');
  try{
   const shell=await app.firstWindow();await shell.waitForFunction(()=>window.repoLauncher);
   let portal;for(let i=0;i<200;i++){portal=app.context().pages().find(p=>p.url().startsWith('https://repocompany.uk/'));if(portal)break;await new Promise(r=>setTimeout(r,50));}assert(portal);
-  await portal.locator('#sign-in').click();await shell.evaluate(()=>repoLauncher.refresh());await shell.waitForFunction(async()=>(await repoLauncher.getState()).account.status==='online');
+  // The native sign-in gate keeps this test-only portal hidden until verified.
+  await portal.locator('#sign-in').evaluate(n=>n.click());await shell.evaluate(()=>repoLauncher.refresh());await shell.waitForFunction(async()=>(await repoLauncher.getState()).account.status==='online');
   await app.evaluate(({dialog})=>{globalThis.__mediaPrompts=[];dialog.showMessageBox=async(_window,options)=>{globalThis.__mediaPrompts.push(options.message);return {response:1};};});
   const capture=await portal.evaluate(async()=>{const stream=await navigator.mediaDevices.getUserMedia({audio:true,video:true});const result=stream.getTracks().map(t=>({kind:t.kind,state:t.readyState}));stream.getTracks().forEach(t=>t.stop());return result;});
   assert.deepEqual(capture.map(t=>t.kind).sort(),['audio','video']);assert(capture.every(t=>t.state==='live'));
   const prompts=await app.evaluate(()=>globalThis.__mediaPrompts);assert.deepEqual(prompts,['Allow your microphone and camera for calls?']);
+  const speaker=await portal.evaluate(async()=>{const outputs=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audiooutput'),audio=new Audio(),id=outputs.find(d=>d.deviceId!=='default'&&d.deviceId!=='communications')?.deviceId||'';await audio.setSinkId(id);return audio.sinkId===id;});assert.equal(speaker,true);
+  await portal.addScriptTag({url:'https://repocompany.uk/repo-voice-audio.js'});
+  const processed=await portal.evaluate(async()=>{const capture=await repoVoiceAudio.capture(repoVoiceAudio.get());await new Promise(r=>setTimeout(r,250));const result={live:capture.stream.getTracks()[0].readyState==='live',meter:Number.isFinite(capture.level.db)};capture.stop();return {...result,stopped:capture.raw.getTracks().every(t=>t.readyState==='ended')};});assert.deepEqual(processed,{live:true,meter:true,stopped:true});
   await portal.evaluate(()=>new Promise(resolve=>{const frame=document.createElement('iframe');frame.id='media-child';frame.srcdoc='<p>Permission isolation fixture</p>';frame.onload=resolve;document.body.append(frame);}));
   const child=portal.frames().find(f=>f!==portal.mainFrame());assert(child);
   const denied=await child.evaluate(async()=>{try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());return false;}catch(e){return e.name==='NotAllowedError';}});assert.equal(denied,true);
-  await portal.locator('#sign-out').click();await shell.evaluate(()=>repoLauncher.refresh());
+  await portal.locator('#sign-out').evaluate(n=>n.click());await shell.evaluate(()=>repoLauncher.refresh());
   const signedOut=await portal.evaluate(async()=>{try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());return false;}catch(e){return e.name==='NotAllowedError';}});assert.equal(signedOut,true);
-  assert.equal((await app.evaluate(()=>globalThis.__mediaPrompts)).length,1);
-  console.log('PASS native media permissions: explicit portal prompt, synthetic audio/video, iframe denied, sign-out revokes access.');
+  const allPrompts=await app.evaluate(()=>globalThis.__mediaPrompts);assert(allPrompts.every(p=>p==='Allow your microphone and camera for calls?'||p==='Allow speaker selection for calls?'));
+  console.log('PASS native media permissions: explicit portal prompt, synthetic audio/video and processed AudioWorklet stream, speaker sink selection, iframe denied, sign-out revokes access.');
  }finally{await app.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

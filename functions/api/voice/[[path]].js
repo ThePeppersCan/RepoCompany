@@ -19,11 +19,15 @@ export async function onRequest({request,env,params}) {
     const token=request.headers.get('Authorization')?.match(/^Bearer ([^\s]{1,8192})$/)?.[1];
     if(!token)throw fail('Sign in to call.',401);
     const headers={apikey:config.key,Authorization:'Bearer '+token,'Content-Type':'application/json'};
-    const userResponse=await fetch(config.url+'/auth/v1/user',{headers,signal:AbortSignal.timeout(8000)});
+    // Both provider reads authenticate the same bearer independently. Run them
+    // together; identity still requires both successful, verified responses.
+    const [userResponse,profileResponse]=await Promise.all([
+      fetch(config.url+'/auth/v1/user',{headers,signal:AbortSignal.timeout(8000)}),
+      fetch(config.url+'/rest/v1/rpc/get_my_character',{method:'POST',headers,body:'{}',signal:AbortSignal.timeout(8000)})
+    ]);
     if(!userResponse.ok)throw fail('Sign in again to call.',401);
     const user=await userResponse.json();
     if(typeof user.id!=='string'||!/^[a-f0-9-]{36}$/i.test(user.id)||user.is_anonymous)throw fail('Sign in to call.',401);
-    const profileResponse=await fetch(config.url+'/rest/v1/rpc/get_my_character',{method:'POST',headers,body:'{}',signal:AbortSignal.timeout(8000)});
     if(!profileResponse.ok)throw fail('Your account is temporarily unavailable.',503);
     const profile=await profileResponse.json(),character=Array.isArray(profile)?profile[0]:profile;
     if(!/^[a-z0-9_-]{3,16}$/i.test(character?.username||''))throw fail('Create a player profile first.',409);

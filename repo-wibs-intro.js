@@ -158,6 +158,21 @@
   const openingDuration = 4000;
   let active = null;
   window.repoWibsIntro = Object.freeze({
+    attachHover(host,trigger,drawer){
+      let motion=null,frame=0,start=0;
+      function stop(){cancelAnimationFrame(frame);frame=0;host.classList.remove('is-animating');}
+      const visible=()=>drawer.open&&!document.hidden&&document.documentElement.dataset.repoPortalVisible!=='false'&&host.getClientRects().length;
+      function tick(now){frame=0;if(reduce.matches||!visible()){stop();return;}motion.draw(1200+(now-start)%2400);frame=requestAnimationFrame(tick);}
+      function play(){
+        if(frame||reduce.matches||!visible())return;
+        if(!motion){const shadow=host.attachShadow({mode:'open'});shadow.innerHTML=`<style>:host{position:relative}svg{display:block;width:100%;height:100%;overflow:visible;opacity:0;fill:#f4ecd6;stroke:none}:host(.is-animating) svg{opacity:1}.motion-core,.motion-arcs,.motion-trails,.motion-sparks{opacity:0}</style>${markup}`;const svg=shadow.querySelector('svg');svg.setAttribute('viewBox','10 100 492 338');svg.setAttribute('aria-hidden','true');motion=window.createWibsBrandMotion(svg,outline);}
+        // Reuse the approved hop, blink and paw wave while staying as Wibs.
+        motion.draw(1200);host.classList.add('is-animating');start=performance.now();frame=requestAnimationFrame(tick);
+      }
+      trigger.addEventListener('pointerenter',play);trigger.addEventListener('pointerleave',stop);trigger.addEventListener('focus',play);trigger.addEventListener('blur',stop);
+      drawer.addEventListener('close',stop);reduce.addEventListener('change',stop);document.addEventListener('visibilitychange',stop);window.addEventListener('repo-launcher-portal-visibility',stop);
+      return {stop};
+    },
     play(drawer) {
       active?.finish(false);
       if (!drawer.open || reduce.matches) return;
