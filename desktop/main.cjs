@@ -282,9 +282,10 @@ function selectLibrary(id) {
 function handlePortalRequest(details, callback) {
   let url; try { url = new URL(details.url); } catch { callback({ cancel: true }); return; }
   let pathname; try { pathname = decodeURIComponent(url.pathname); } catch { callback({ cancel: true }); return; }
-  if (isPortalUrl(url.href) && pathname === '/legacy-runtime.html' && portalContentsId !== null && details.webContentsId === portalContentsId && ['mainFrame', 'subFrame'].includes(details.resourceType)) {
-    const id = url.searchParams.get('dashboard');
-    const embedded = (config.demos || []).find(demo => demo.embedded && demo.runtime !== 'dragonbound' && demo.id === id);
+  const broomflightPage = ['/broomflight', '/broomflight/', '/broomflight/index.html'].includes(pathname);
+  if (isPortalUrl(url.href) && (pathname === '/legacy-runtime.html' || broomflightPage) && portalContentsId !== null && details.webContentsId === portalContentsId && ['mainFrame', 'subFrame'].includes(details.resourceType)) {
+    const id = broomflightPage ? 'broomflight' : url.searchParams.get('dashboard');
+    const embedded = (config.demos || []).find(demo => demo.embedded && demo.runtime !== 'dragonbound' && (demo.runtime === 'broomflight') === broomflightPage && demo.id === id);
     const collection = ['binder', 'slabs', 'pack'].includes(id);
     const granted = embedded && embeddedDemo?.id === id && account?.state.status === 'online' && account.identity === embeddedDemo.identity;
     const allowed = !quitting && details.resourceType === 'subFrame' && (collection || granted);
@@ -356,6 +357,8 @@ function demoById(id) {
   if (!demo.embedded) throw new Error('This demo is unavailable.');
   if (demo.runtime === 'dragonbound') {
     if (demo.id !== 'dragonbound' || demo.origin !== 'https://dragonbound.repocompany.uk' || entry.pathname !== '/') throw new Error('This demo is unavailable.');
+  } else if (demo.runtime === 'broomflight') {
+    if (demo.id !== 'broomflight' || !isPortalUrl(entry.href) || entry.pathname !== '/broomflight/' || entry.searchParams.get('embedded') !== '1') throw new Error('This demo is unavailable.');
   } else if (!isPortalUrl(entry.href) || entry.pathname !== '/legacy-runtime.html' || entry.searchParams.get('dashboard') !== demo.id) throw new Error('This demo is unavailable.');
   return demo;
 }
@@ -371,13 +374,18 @@ async function openDemos(id) {
 function closeEmbeddedDemo(record = embeddedDemo) {
   if (!record || record !== embeddedDemo) return;
   embeddedDemo = null; discordPresence?.gameStopped(record.id); broadcast();
-  const close = record.runtime === 'dragonbound' ? 'if(window.DragonboundStandaloneLauncher?.launcherBridgeVersion===1)window.DragonboundStandaloneLauncher.close();' : `const frame=document.querySelector('#legacy-feature iframe');if(frame&&new URL(frame.src,location.href).searchParams.get('dashboard')===${JSON.stringify(record.id)})return window.repoLegacy?.close();`;
+  const close = record.runtime === 'dragonbound' ? 'if(window.DragonboundStandaloneLauncher?.launcherBridgeVersion===1)window.DragonboundStandaloneLauncher.close();' : `const frame=document.querySelector('#legacy-feature iframe');if(frame&&(${demoFrameMatch(record)}))return window.repoLegacy?.close();`;
   if (record.contents === activePortal()) void record.contents.executeJavaScript(`(()=>{if(window.__repoLauncherDemoTicket!==${record.revision})return;delete window.__repoLauncherDemoTicket;${close}})()`).catch(() => {});
+}
+function demoFrameMatch(record) {
+  return record.runtime === 'broomflight'
+    ? `new URL(frame.src,location.href).origin===${JSON.stringify(config.portalOrigin)}&&new URL(frame.src,location.href).pathname==='/broomflight/'&&new URL(frame.src,location.href).searchParams.get('embedded')==='1'`
+    : `new URL(frame.src,location.href).searchParams.get('dashboard')===${JSON.stringify(record.id)}`;
 }
 function demoVisibility(record) {
   return record.runtime === 'dragonbound'
     ? `const dialog=document.getElementById('dragonboundStandaloneOverlay'),frame=dialog?.querySelector('iframe');return Boolean(dialog&&!dialog.hidden&&dialog.classList.contains('is-visible')&&frame&&new URL(frame.src,location.href).origin==='https://dragonbound.repocompany.uk');`
-    : `const dialog=document.getElementById('legacy-feature'),frame=dialog?.querySelector('iframe');return Boolean(dialog?.open&&frame&&new URL(frame.src,location.href).searchParams.get('dashboard')===${JSON.stringify(record.id)});`;
+    : `const dialog=document.getElementById('legacy-feature'),frame=dialog?.querySelector('iframe');return Boolean(dialog?.open&&frame&&(${demoFrameMatch(record)}));`;
 }
 async function reconcileEmbeddedDemo() {
   const record = embeddedDemo;

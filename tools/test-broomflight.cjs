@@ -13,7 +13,7 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png'
     if(p.endsWith('/'))p+='index.html';
     const file=path.resolve(dist,'.'+p);
     if(!file.startsWith(dist+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile())return route.fulfill({status:404,body:'Not found'});
-    if(native&&p==='/index.html')return route.fulfill({contentType:'text/html',body:fs.readFileSync(file,'utf8').replace('<html','<html data-repo-launcher="true"')});
+    if(native&&p==='/index.html')return route.fulfill({contentType:'text/html',body:fs.readFileSync(file,'utf8').replace('<html','<html data-repo-launcher="true"'+(native==='broomflight'?' data-repo-broomflight="true"':''))});
     return route.fulfill({path:file,contentType:mime[path.extname(file)]||'application/octet-stream'});
    });
    c.on('page',p=>{p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.url().includes('/broomflight/')&&r.status()>=400)failed.push(r.url());});});
@@ -101,6 +101,8 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png'
   await app.close();
   const native=await fixture.browserContext(browser,'alice');await serve(native,true);const n=await native.newPage();await n.goto(fixture.base);
   await n.waitForFunction(()=>window.demoLibrary);assert.equal(await n.evaluate(()=>demoLibrary.games.some(g=>g.id==='broomflight')),false,'Existing launchers do not offer a game missing from their native catalogue');await native.close();
+  const supported=await fixture.browserContext(browser,'alice');await serve(supported,'broomflight');const supportedPage=await supported.newPage();await supportedPage.goto(fixture.base);
+  await supportedPage.waitForFunction(()=>window.demoLibrary);assert.equal(await supportedPage.evaluate(()=>demoLibrary.games.some(g=>g.id==='broomflight')),true,'Updated launchers offer Broomflight');await supported.close();
   assert.deepEqual(errors,[]);assert.deepEqual(failed,[]);
   console.log('PASS: real WebGL rendering, keyboard/touch flight, climb and swoop, tricks, boost/brake, pause/resume, complete race, best-run persistence, direct demo URL, embedded ready/exit and playtime lifecycle.');
  }finally{await browser.close();await fixture.close();}

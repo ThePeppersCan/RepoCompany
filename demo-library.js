@@ -11,7 +11,7 @@
     {id:'rooftops',name:'Repo Rooftops',lines:['REPO','ROOFTOPS'],genre:'Parkour',description:'Take to the rooftops and find your rhythm across the course. A smaller parkour challenge from the collection.',color:'148,132,109',menu:'Agility → Repo Rooftops',prototype:true},
     {id:'seas',name:'High Seas',lines:['HIGH','SEAS'],genre:'Parkour voyage',description:'Master double-jumps and chase clean runs across a checkpoint-based voyage. Choose a route and take to the seas.',color:'99,143,167',menu:'Sailing',prototype:true},
     {id:'sports',name:'Repo Sports',lines:['REPO','SPORTS'],genre:'Fantasy sports',description:'Visit the league, browse its clubs and follow the live broadcast. The sporting side of the Repo Company collection.',color:'124,151,131',menu:'Repo Sports'}
-  ].filter(game=>game.id!=='broomflight'||document.documentElement.dataset.repoLauncher!=='true');
+  ].filter(game=>game.id!=='broomflight'||document.documentElement.dataset.repoLauncher!=='true'||document.documentElement.dataset.repoBroomflight==='true');
   const dialog=document.createElement('dialog');
   dialog.id='demo-library';dialog.className='demo-dashboard';
   dialog.setAttribute('aria-labelledby','demo-heading');

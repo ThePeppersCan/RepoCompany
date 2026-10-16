@@ -44,6 +44,7 @@ module.exports = function configuration(resourceRoot) {
     // These are the website's existing demo routes. Embedded titles retain the
     // account bridge and runtime inside its original dashboard overlay.
     demos: [
+      { id: 'broomflight', name: 'Broomflight', origin: 'https://repocompany.uk', webEntry: 'https://repocompany.uk/broomflight/?embedded=1', embedded: true, runtime: 'broomflight' },
       { id: 'dragonbound', name: 'Dragonbound', origin: 'https://dragonbound.repocompany.uk', webEntry: 'https://dragonbound.repocompany.uk/', embedded: true, runtime: 'dragonbound' },
       ...[
         ['diver', 'Repo Diver'], ['goblin', 'Goblin Bomb Party'],

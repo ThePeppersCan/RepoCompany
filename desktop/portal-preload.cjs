@@ -49,6 +49,7 @@ function initialize() {
   function markLauncherDocument() {
     if (!document.documentElement) return false;
     document.documentElement.dataset.repoLauncher = 'true';
+    document.documentElement.dataset.repoBroomflight = 'true';
     document.documentElement.dataset.repoNativeMessageSound = 'true';
     document.documentElement.dataset.repoSunoPlayback = 'true';
     publishPortalVisibility(portalVisible); return true;
@@ -271,7 +272,10 @@ function initialize() {
           open=Boolean(overlay&&!overlay.hidden&&overlay.classList.contains('is-visible')&&url?.origin===embeddedDemo.origin&&url.pathname==='/');
         }else{
           const dialog=document.getElementById('legacy-feature'),frame=dialog?.querySelector('iframe');
-          open=Boolean(dialog?.open&&frame&&new URL(frame.src,location.href).searchParams.get('dashboard')===embeddedDemo.id);
+          const url=frame?.src?new URL(frame.src,location.href):null;
+          open=Boolean(dialog?.open&&url&&(embeddedDemo.runtime==='broomflight'
+            ? url.origin===embeddedDemo.origin&&url.pathname==='/broomflight/'&&url.searchParams.get('embedded')==='1'
+            : url.searchParams.get('dashboard')===embeddedDemo.id));
         }
       }catch{/* A changing frame has not opened yet. */}
       if(open)embeddedDemo.seen=true;
