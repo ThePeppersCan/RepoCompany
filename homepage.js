@@ -143,6 +143,7 @@
   });
   function restoreRoute(id) {
     if(dashboard.dataset.launching)return;
+    if(window.repoLegacy?.game&&id!=='demo/'+window.repoLegacy.game)window.repoLegacy.close({route:false});
     if(id==='account'||id.startsWith('account/')){
       window.accountMenu.open({tab:id.split('/')[1]||'profile',player:id.split('/')[2]||'',game:id.split('/')[2]||'',route:false,origin:history.state?.returnHash||'#collection'});
       return;

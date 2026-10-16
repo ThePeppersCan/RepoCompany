@@ -93,6 +93,10 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png'
   await frame.getByRole('button',{name:/Back to demos/}).first().click();await p.waitForFunction(()=>!document.getElementById('legacy-feature').open&&!repoPlaytime.game);
   assert(plays.some(x=>x.game==='broomflight'&&x.action==='start'));assert(plays.some(x=>x.game==='broomflight'&&x.action==='stop'));
   assert.equal(await p.locator('#demo-library').evaluate(e=>e.open),true);
+  assert.equal(new URL(p.url()).pathname,'/Demos','Leaving a demo returns its URL to the collection');
+  await p.locator('#demo-launch').click();await p.waitForFunction(()=>repoPlaytime?.game==='broomflight');assert.equal(new URL(p.url()).pathname,'/Demos/broomflight','Launching from the collection updates the URL');
+  await p.goBack();await p.waitForFunction(()=>!document.getElementById('legacy-feature').open&&!repoPlaytime.game);assert.equal(new URL(p.url()).pathname,'/Demos');
+  await p.goForward();await p.waitForFunction(()=>repoPlaytime?.game==='broomflight');assert.equal(new URL(p.url()).pathname,'/Demos/broomflight');
   await app.close();
   const native=await fixture.browserContext(browser,'alice');await serve(native,true);const n=await native.newPage();await n.goto(fixture.base);
   await n.waitForFunction(()=>window.demoLibrary);assert.equal(await n.evaluate(()=>demoLibrary.games.some(g=>g.id==='broomflight')),false,'Existing launchers do not offer a game missing from their native catalogue');await native.close();

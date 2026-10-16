@@ -14,6 +14,7 @@
   if(!names[id])return;
   if(dialog.open)return;
   if(!window.repoAccount.state.user){window.accountMenu.open({tab:'profile'});window.accountMenu.login(()=>open(id));return;}
+  if(document.documentElement.dataset.repoLauncher!=='true'&&window.demoLibrary?.games.some(game=>game.id===id)&&window.repoRoutes?.read()!=='demo/'+id)history.pushState({scene:'demo/'+id},'',window.repoRoutes.href('demo/'+id));
   opener=document.activeElement;activeId=id;dialog.querySelector('#legacy-feature-title').textContent=names[id];dialog.querySelector('.legacy-loading').textContent='Opening '+names[id]+'…';dialog.querySelector('.legacy-loading').hidden=false;
   dialog.querySelector('[data-legacy-close]').textContent=['binder','slabs'].includes(id)?'← Back to Account':'← Back to dashboard';
   if(!dialog.open)dialog.showModal();window.dashboardAudio?.suspend(true);window.repoAccount.setGame(['binder','slabs','pack'].includes(id)?'':id);
@@ -27,10 +28,11 @@
   dialog.append(frame);
   clearTimeout(readyTimer);readyTimer=setTimeout(()=>{dialog.querySelector('.legacy-loading').textContent='Still loading. You can return to the dashboard and try again.';},30000);
  }
- async function close(){
+ async function close({route=true}={}){
   if(!dialog.open)return;
   const closingId=activeId,returnFocus=opener;activeId='';
   clearTimeout(readyTimer);frame?.remove();frame=null;bridge='';dialog.close();window.dashboardAudio?.suspend(false);window.repoAccount.setGame('');
+  if(route&&document.documentElement.dataset.repoLauncher!=='true'&&window.repoRoutes?.read()==='demo/'+closingId){history.replaceState({scene:'demos'},'',window.repoRoutes.href('demos'));document.title='Repo Company — Demos';}
   if(['binder','slabs'].includes(closingId)&&!document.getElementById('account-menu')?.open)window.accountMenu.open({tab:'inventory'});
   await window.repoPlaytime?.stop();window.repoBinder?.invalidate();await window.repoAccount.refresh();
   if(!dialog.open)(returnFocus?.isConnected?returnFocus:document.querySelector('#account-menu[open] #account-tab-binder'))?.focus({preventScroll:true});
@@ -56,5 +58,5 @@
   if(e.data.state==='error'){clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').textContent='This feature could not open. Return to the dashboard and try again.';}
   if(e.data.state==='close')close();
  });
- window.repoLegacy=Object.freeze({open,openOriginal,close});
+ window.repoLegacy=Object.freeze({open,openOriginal,close,get game(){return activeId;}});
 })();
