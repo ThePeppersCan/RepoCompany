@@ -73,3 +73,18 @@ test('Reparty provider resources are isolated from launcher navigation, credenti
   assert.equal((await handler(request('https://suno.com/','https://repocompany.uk','DELETE'))).status,403);
   assert.equal((await handler({url:'https://user:password@suno.com/',method:'GET',initiatorOrigin:'https://repocompany.uk'})).status,403);
 });
+
+test('Steam thumbnails load only for the Repo portal without credentials or arbitrary external access', async () => {
+  const calls=[],config={approvedOrigins:['https://repocompany.uk'],portalOrigin:'https://repocompany.uk',games:[]};
+  const handler=createHandler({config,library:{getInstalled:()=>null},desktopRoot:'.',fetchNetwork:async(request,options)=>{calls.push({url:request.url,options});return new Response('thumbnail',{headers:{'Content-Type':'image/jpeg','Cache-Control':'public, max-age=31536000'}});}});
+  const request=(url,initiator='https://repocompany.uk',method='GET')=>Object.assign(new Request(url,{method,headers:{Authorization:'Bearer must-not-leak',Cookie:'private=must-not-leak',Referer:'https://repocompany.uk/private'}}),{initiatorOrigin:initiator});
+  const image='https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1139980/'+'a'.repeat(40)+'/capsule_184x69.jpg?t=1789987425';
+  for(const url of [image,image.replace('shared.akamai','shared.fastly'),'https://shared.steamstatic.com/store_item_assets/steam/apps/3070070/capsule_184x69.jpg','https://cdn.cloudflare.steamstatic.com/steam/apps/1139980/capsule_184x69.jpg']){
+    const result=await handler(request(url));assert.equal(await result.text(),'thumbnail');assert.equal(result.headers.get('Cache-Control'),'public, max-age=31536000');
+  }
+  assert.equal(calls.length,4);for(const {options} of calls){assert.equal(options.redirect,'manual');assert.equal(options.credentials,'omit');assert.equal(options.referrerPolicy,'no-referrer');for(const header of ['Authorization','Cookie','Referer'])assert.equal(options.headers.get(header),null);}
+  for(const url of [image.replace('.com/','.com.evil.test/'),image.replace('.com/','.com:444/'),image.replace('https://','https://user:pass@'),image.replace('https:','http:'),image.replace('capsule_184x69.jpg','index.html'),image.replace('capsule_184x69.jpg','app.js'),image+'&next=https://evil.test',image+'#other','https://shared.akamai.steamstatic.com/__repo-launcher/account-storage.js'])assert.equal((await handler({url,method:'GET',headers:new Headers(),initiatorOrigin:config.portalOrigin})).status,403,url);
+  for(const initiator of [undefined,'https://evil.test','https://suno.com','https://morogue.repocompany.uk'])assert.equal((await handler(Object.assign(new Request(image),{initiatorOrigin:initiator}))).status,403);
+  assert.equal((await handler(request(image,config.portalOrigin,'POST'))).status,403);assert.equal(calls.length,4);
+  assert(!config.approvedOrigins.includes(new URL(image).origin),'Steam does not gain top-level navigation or native bridge access');
+});
