@@ -19,7 +19,7 @@ async function main(){
   const title=html.match(/<title>(.*?)<\/title>/)[1];assert.ok(!titles.has(title));titles.add(title);
   assert.equal((html.match(/name="description"/g)||[]).length,1);assert.ok(html.includes('property="og:description"'));
   const data=JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);assert.equal(data['@context'],'https://schema.org');
-  assert.ok(html.includes('/assets/brand/favicon.png'));assert.ok(html.includes('/favicon.ico'));
+  assert.ok(html.includes('/assets/brand/favicon-v2.png'));assert.ok(html.includes('/assets/brand/favicon-v2.ico'));
  }
  // Preview builds stay out of search; rebuilding production restores public pages.
  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'repo-public-test-'));

@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import {addOutline} from './npr';
 import {addVelmoraScenery} from './velmora';
+import {createHazards} from './hazards';
+import {addHazardScenery} from './hazard-scenery';
 import type { MaterialFactory, TrackSample, World } from './types';
 
 // The height field is eroded once, then carved by the Elvane flight course.
@@ -221,6 +223,9 @@ export function createWorld(materialFactory: MaterialFactory): World {
       if((progress>.52&&progress<.65&&Math.abs(lateral)<70)||(progress>.85&&Math.abs(lateral)<90)||(progress<.13&&Math.abs(lateral)<35))continue;
       if(p.y>475&&random()>.4)continue;
       const h=7+random()*12,w=2.6+random()*3.5,angle=random()*6.28;
+      // A tree offset from one bend can otherwise land inside the next bend.
+      // Keep its entire canopy outside the flight lane and chase-camera corridor.
+      if(nearest(p.x,p.z).distance<w+10)continue;
       trunks.push({position:p.clone(),scale:new THREE.Vector3(1,h*.65,1),angle});
       leaves.push({position:p.clone().add(new THREE.Vector3(0,h*.25,0)),scale:new THREE.Vector3(w,h*.65,w),angle});
       upper.push({position:p.clone().add(new THREE.Vector3(0,h*.52,0)),scale:new THREE.Vector3(w*.72,h*.55,w*.72),angle:angle+.3});
@@ -228,9 +233,8 @@ export function createWorld(materialFactory: MaterialFactory): World {
     for(let i=0;i<30;i++){const s=length*(chunk+random())/12,side=random()>.5?1:-1,p=sample(s,side*(6+random()*40)).position;p.y=height(p.x,p.z);const size=.6+random()*2.5;rocks.push({position:p,scale:new THREE.Vector3(size*1.4,size*.7,size),angle:random()*6.28});}
     instances(trunkGeo,trunkMat,trunks,650);instances(canopyGeo,leafMat,leaves,650);addOutline(instances(canopyGeo,leafLight,upper,650),.65);addOutline(instances(rockGeo,rockMat,rocks,430),.8);
   }
-  const obstacles=Array.from({length:11},(_,i)=>({s:length*(.349+i*.0055),lateral:Math.sin(i*2.4)*2.6,radius:.9+(i%3)*.2}));
-  const obstacleItems=obstacles.map(o=>{const p=sample(o.s,o.lateral).position;p.y+=.15;return {position:p,scale:new THREE.Vector3(o.radius*1.1,o.radius*2.2,o.radius),angle:o.s};});
-  addOutline(instances(rockGeo,rockMat,obstacleItems,350),.85);
+  const hazards=createHazards(length,s=>sample(s).width,s=>sample(s).position.y);
+  const updateHazards=addHazardScenery(group,hazards,sample,materialFactory);
   // Grassy cut banks and clustered flowers. Blade triangles are geometry,
   // so every detail remains graphic and works without downloaded sprites.
   const grassGeo=new THREE.BufferGeometry();grassGeo.setAttribute('position',new THREE.Float32BufferAttribute([-.3,0,0,0,1,0,.15,0,0,0,0,-.3,0,.8,.05,0,0,.3],3));grassGeo.computeVertexNormals();
@@ -272,7 +276,7 @@ export function createWorld(materialFactory: MaterialFactory): World {
 
   addVelmoraScenery(group,materialFactory,sample,height,length);
   let frame=0;
-  return {group,length,sample,height,checkpoints,obstacles,update(camera,dt){
+  return {group,length,sample,height,checkpoints,hazards,updateHazards,update(camera,dt){
     void dt;frame++;const x=camera.position.x,z=camera.position.z;
     // One bounded patch and one vegetation batch per frame avoids jump-time spikes.
     if(pendingRing<0){const nx=Math.round(x/16)*16,nz=Math.round(z/16)*16;if(nx!==clipX||nz!==clipZ){pendingX=nx;pendingZ=nz;pendingRing=0;}}

@@ -9,6 +9,7 @@ import {Presentation,type CameraMode} from './presentation';
 import {Controls} from './input';
 import {HUD} from './hud';
 import {GameAudio} from './audio';
+import {nextHazard,fallingRock} from './hazards';
 import type {InputState,RiderState} from './types';
 
 const capture=new URLSearchParams(location.search).has('capture');
@@ -21,6 +22,7 @@ let cameraMode:CameraMode='chase';
 let enhancedEffects=!matchMedia('(prefers-reduced-motion: reduce)').matches,rainWeather=false,lensWetness=0;
 try{const preference=localStorage.getItem('repo.broomflight.effects');if(preference)enhancedEffects=preference!=='reduced';}catch{/* Private browsing can deny storage. */}
 let debugInput:Partial<InputState>={};
+const warnedHazards=new Set<string>();
 const replayFrames:RiderState[]=[];let biggestFrames:RiderState[]=[];let airFrames:RiderState[]=[];let tailRecord=0;
 const renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:'high-performance'});
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.NoToneMapping;
@@ -39,7 +41,7 @@ function action(a:string){
   if(a==='effects'){enhancedEffects=!enhancedEffects;try{localStorage.setItem('repo.broomflight.effects',enhancedEffects?'full':'reduced');}catch{}hud.setEffects(enhancedEffects,rainWeather);return;}
   if(a==='weather'){rainWeather=!rainWeather;hud.setEffects(enhancedEffects,rainWeather);return;}
   if(!race)return;
-  if(a==='start'||a==='restart'){void audio.activate();renderer.domElement.focus({preventScroll:true});replay=false;autoReplay=false;biggestFrames=[];airFrames=[];replayFrames.length=0;tailRecord=0;lensWetness=0;race[a==='restart'?'reset':'start']();presentation.reset();audio.horn();}
+  if(a==='start'||a==='restart'){void audio.activate();renderer.domElement.focus({preventScroll:true});replay=false;autoReplay=false;biggestFrames=[];airFrames=[];replayFrames.length=0;tailRecord=0;lensWetness=0;warnedHazards.clear();race[a==='restart'?'reset':'start']();presentation.reset();audio.horn();}
   if(a==='pause'){void audio.activate();if(replay){replay=false;return;}race.togglePause();if(race.phase!=='paused')renderer.domElement.focus({preventScroll:true});}
   if(a==='blur'&&!capture&&(race.phase==='racing'||race.phase==='countdown'))race.togglePause();
   if(a==='replay'&&biggestFrames.length){replay=true;replayClock=0;replayIndex=0;presentation.reset();}
@@ -71,7 +73,9 @@ function tick(dt:number){
   const events=race.update(input,dt);simTime+=dt;
   if(race.phase==='countdown'&&Math.ceil(race.countdown)!==prevCount)audio.horn();
   if(prevPhase==='countdown'&&race.phase==='racing'){audio.horn(true);hud.notify('<small>ELVANE RUN</small>TAKE FLIGHT');}
-  for(const e of events){if(e.type==='land'||e.type==='crash'){presentation.impact(e.force);audio.impact(e.force);if(e.force>12){impact=Math.min(1,e.force/26);freeze=e.type==='crash'?2:1;}}if(e.type==='trick'){hud.notify(`<small>CLEAN FLIGHT · +${e.score}</small>${e.name}`);audio.bank();}}
+  for(const e of events){if(e.type==='land'||e.type==='crash'){presentation.impact(e.force);audio.impact(e.force);if(e.force>12){impact=Math.min(1,e.force/26);freeze=e.type==='crash'?2:1;}}if(e.type==='trick'){hud.notify(`<small>CLEAN FLIGHT · +${e.score}</small>${e.name}`);audio.bank();}if(e.type==='clear'){hud.notify('<small>+50 STYLE · BOOST RESTORED</small>Clean pass');audio.tone(880,.16,'sine',.07);}}
+  const hazard=nextHazard(world.hazards||[],race.player.s,100);
+  if(race.phase==='racing'&&hazard&&!warnedHazards.has(hazard.id)){warnedHazards.add(hazard.id);audio.tone(440,.3,'triangle',.08,660);}
   // A rolling pre-roll plus complete air/landing sequence preserves actual animation.
   if(race.phase==='racing'){
     if(Math.floor(simTime*30)!==Math.floor((simTime-dt)*30)){
@@ -90,13 +94,14 @@ function render(dt:number,draw=true){
   let shown=race.player;
   if(replay&&biggestFrames.length){replayClock+=dt*.65;replayIndex=Math.min(biggestFrames.length-1,Math.floor(replayClock*30));shown=biggestFrames[replayIndex];if(replayIndex>=biggestFrames.length-1){replay=false;presentation.reset();}}
   if(showcase)shown=showcase.sample(shown,dt);
+  world.updateHazards?.(shown.raceTime);
   for(let i=0;i<visuals.length;i++){
     const s=i===0?shown:race.riders[i],sm=world.sample(s.s,s.lateral);visuals[i].group.visible=(!replay&&!showcase?.isReplay)||i===0;visuals[i].update(s,sm,race.phase==='paused'?0:dt,simTime);
     shadowTransform.position.copy(sm.position);shadowTransform.position.y+=.125;shadowTransform.rotation.set(Math.atan(sm.slope),Math.atan2(-sm.tangent.x,-sm.tangent.z),0,'YXZ');
     shadowTransform.scale.set(.45,1,1.05);if(replay&&i!==0||s.y>8)shadowTransform.scale.setScalar(0);shadowTransform.updateMatrix();shadows.setMatrixAt(i,shadowTransform.matrix);
   }shadows.instanceMatrix.needsUpdate=true;
   ghostVisual.group.visible=race.ghost.length>1&&race.phase==='racing'&&!replay;
-  if(ghostVisual.group.visible){if(race.elapsed<race.ghost[ghostIndex]?.time)ghostIndex=0;while(ghostIndex<race.ghost.length-2&&race.ghost[ghostIndex+1].time<race.elapsed)ghostIndex++;const a=race.ghost[ghostIndex],b=race.ghost[ghostIndex+1];const t=THREE.MathUtils.clamp((race.elapsed-a.time)/Math.max(.001,b.time-a.time),0,1);ghostState.s=THREE.MathUtils.lerp(a.s,b.s,t);ghostState.lateral=THREE.MathUtils.lerp(a.lateral,b.lateral,t);const sm=world.sample(ghostState.s,ghostState.lateral);ghostState.position.copy(sm.position);ghostState.position.y+=1.85;ghostState.yaw=Math.atan2(-sm.tangent.x,-sm.tangent.z);ghostState.pitch=Math.atan(sm.slope);ghostState.speed=24;ghostVisual.update(ghostState,sm,dt,simTime);}
+  if(ghostVisual.group.visible){if(race.elapsed<race.ghost[ghostIndex]?.time)ghostIndex=0;while(ghostIndex<race.ghost.length-2&&race.ghost[ghostIndex+1].time<race.elapsed)ghostIndex++;const a=race.ghost[ghostIndex],b=race.ghost[ghostIndex+1];const t=THREE.MathUtils.clamp((race.elapsed-a.time)/Math.max(.001,b.time-a.time),0,1);ghostState.s=THREE.MathUtils.lerp(a.s,b.s,t);ghostState.lateral=THREE.MathUtils.lerp(a.lateral,b.lateral,t);const sm=world.sample(ghostState.s,ghostState.lateral);ghostState.position.copy(sm.position);ghostState.position.y+=THREE.MathUtils.lerp(a.y,b.y,t);ghostState.yaw=Math.atan2(-sm.tangent.x,-sm.tangent.z);ghostState.pitch=Math.atan(sm.slope);ghostState.speed=24;ghostVisual.update(ghostState,sm,dt,simTime);}
   const mode=replay?'replay':race.phase==='title'?'title':cameraMode;
   const input=showcase?showcase.input():{...controls.read(),...debugInput};
   const active=race.phase==='racing'||race.phase==='countdown'||replay;
@@ -124,7 +129,7 @@ function advance(dt:number,draw=true){
   let steps=0;while(accumulator>=1/120&&steps<8){tick(1/120);accumulator-=1/120;steps++;}
   render(dt,draw);
 }
-const api={ready:false,paused:capture,start:()=>action('start'),reset:()=>action('restart'),seek:(p:number)=>{race.seek(p);presentation.reset();ghostIndex=0;replay=false;presentation.update(race.player,1/60,simTime,cameraMode,false);for(let i=0;i<10;i++)world.update(camera,1/60);},step:(frames:number,draw=true)=>{for(let i=0;i<frames;i++)advance(1/60,draw&&i===frames-1);},camera:(angle:CameraMode)=>{cameraMode=angle;presentation.reset();},input:(value:Partial<InputState>)=>{debugInput={...debugInput,...value};},state:()=>({phase:race.phase,time:race.elapsed,player:{...race.player,position:race.player.position.toArray(),velocity:race.player.velocity.toArray()},riders:race.riders.map(r=>({id:r.id,s:r.s,speed:r.speed,finished:r.finished})),world:{length:world.length},performance:perf,effects:{...pipeline.effects,weather:rainWeather?'rain':'dawn'},replay,checkpoints:race.checkpoint}),pause:()=>race.togglePause()};
+const api={ready:false,paused:capture,start:()=>action('start'),reset:()=>action('restart'),seek:(p:number)=>{race.seek(p);presentation.reset();ghostIndex=0;replay=false;presentation.update(race.player,1/60,simTime,cameraMode,false);for(let i=0;i<10;i++)world.update(camera,1/60);},step:(frames:number,draw=true)=>{for(let i=0;i<frames;i++)advance(1/60,draw&&i===frames-1);},camera:(angle:CameraMode)=>{cameraMode=angle;presentation.reset();},input:(value:Partial<InputState>)=>{debugInput={...debugInput,...value};},state:()=>({phase:race.phase,time:race.elapsed,player:{...race.player,position:race.player.position.toArray(),velocity:race.player.velocity.toArray()},riders:race.riders.map(r=>({id:r.id,s:r.s,speed:r.speed,lateral:r.lateral,y:r.y,hits:r.hits,cleanPasses:r.cleanPasses,finished:r.finished})),world:{length:world.length,hazards:world.hazards?.map(h=>({...h,rocks:h.kind==='rockfall'?[0,1,2].map(i=>fallingRock(h,i,race.elapsed)):[]}))},performance:perf,effects:{...pipeline.effects,weather:rainWeather?'rain':'dawn'},replay,checkpoints:race.checkpoint}),pause:()=>race.togglePause()};
 if(capture&&new URLSearchParams(location.search).has('showcase')){
   showcase=new ShowcaseDirector(race,world);
   Object.assign(api,{showcase:{

@@ -96,9 +96,9 @@
 /robots.txt
   Cache-Control: no-cache
 /favicon.png
-  Cache-Control: public, max-age=86400
+  Cache-Control: no-cache
 /favicon.ico
-  Cache-Control: public, max-age=86400
+  Cache-Control: no-cache
 /assets/brand/*
   Cache-Control: public, max-age=86400
 /Wibs

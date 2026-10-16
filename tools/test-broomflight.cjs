@@ -50,10 +50,10 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png'
   for(let i=0;i<12&&(await state()).phase!=='results';i++)await step(600);
   s=await state();assert.equal(s.phase,'results');assert.equal(s.checkpoints,4);assert(s.player.finishTime>50&&s.player.finishTime<130);assert(s.player.finished);
   await step(700,true);assert.equal(await page.locator('#results-panel').isVisible(),true);await shot('results');
-  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('repo.broomflight.best.v1')));
+  const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('repo.broomflight.best.v2')));
   assert(saved.time>0&&saved.ghost.length>400);assert.equal(saved.checkpoints.length,4);
   await page.reload();await page.waitForFunction(()=>window.__BROOMFLIGHT?.ready);assert.equal((await state()).phase,'title');
-  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('repo.broomflight.best.v1')).time),saved.time);
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('repo.broomflight.best.v2')).time),saved.time);
   // Landmark views and close rider silhouette are useful visual regression evidence.
   for(const [name,progress] of [['vineyards',.57],['elvara',.94],['viaduct',.71]]){
    await page.evaluate(progress=>{__BROOMFLIGHT.seek(progress);__BROOMFLIGHT.input({pedal:true,crouch:true});__BROOMFLIGHT.step(65,true);},progress);await shot(name);
@@ -90,7 +90,8 @@ const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png'
   await frame.getByRole('button',{name:/Take flight/}).click();await frame.waitForFunction(()=>__BROOMFLIGHT.state().phase==='racing');
   await frame.locator('canvas').focus();await p.keyboard.press('Escape');await frame.waitForFunction(()=>__BROOMFLIGHT.state().phase==='paused');assert.equal(await p.locator('#legacy-feature').evaluate(e=>e.open),true,'Escape pauses without closing the embedded demo');
   await p.keyboard.press('Escape');await frame.waitForFunction(()=>__BROOMFLIGHT.state().phase==='racing');
-  await frame.getByRole('button',{name:/Back to demos/}).first().click();await p.waitForFunction(()=>!document.getElementById('legacy-feature').open&&!repoPlaytime.game);
+  const stopped=p.waitForRequest(r=>new URL(r.url()).pathname==='/api/dashboard/play'&&r.postDataJSON()?.game==='broomflight'&&r.postDataJSON()?.action==='stop');
+  await frame.getByRole('button',{name:/Back to demos/}).first().click();await stopped;await p.waitForFunction(()=>!document.getElementById('legacy-feature').open&&!repoPlaytime.game);
   assert(plays.some(x=>x.game==='broomflight'&&x.action==='start'));assert(plays.some(x=>x.game==='broomflight'&&x.action==='stop'));
   assert.equal(await p.locator('#demo-library').evaluate(e=>e.open),true);
   assert.equal(new URL(p.url()).pathname,'/Demos','Leaving a demo returns its URL to the collection');

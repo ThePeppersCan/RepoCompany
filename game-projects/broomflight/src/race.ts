@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { createRiderState, updatePhysics, resetPhysics } from './physics';
+import { nextHazard, fallingRock } from './hazards';
 import type { InputState, PhysicsEvent, RiderState, World } from './types';
 
 export type RacePhase = 'title' | 'countdown' | 'racing' | 'paused' | 'results';
-export interface GhostSample { s: number; lateral: number; time: number }
-const SAVE_KEY = 'repo.broomflight.best.v1';
+export interface GhostSample { s: number; lateral: number; y: number; time: number }
+// The obstacle course has its own record; keep the original run's save intact.
+const SAVE_KEY = 'repo.broomflight.best.v2';
 const emptyInput = (): InputState => ({ steer: 0, pedal: false, brake: false,
   crouch: false, hop: false, boost: false, manual: false, trick: 0 });
 const clamp = THREE.MathUtils.clamp;
@@ -84,13 +86,14 @@ export class Race {
       rider.s = clamp(s + (rider.id === 0 ? 0 : (2 - rider.id) * 4), 0, this.world.length - 1);
       rider.speed = 24; rider.y = 0; rider.vy = 0; rider.airborne = false;
       rider.airTime = 0; rider.crash = 0; rider.trick = ''; rider.trickRotation = 0;
+      rider.hits = 0; rider.cleanPasses = 0; rider.lastHit = '';
       rider.finished = false; rider.finishTime = 0;
       resetPhysics(rider);
       const at = this.world.sample(rider.s, rider.lateral);
       rider.position.copy(at.position);
       rider.pitch = Math.atan(at.slope);
       rider.yaw = Math.atan2(-at.tangent.x, -at.tangent.z);
-      updatePhysics(rider, this.neutral, this.world, 0);
+      updatePhysics(rider, this.neutral, this.world, 0, this.elapsed);
     }
     this.sortRiders();
   }
@@ -103,13 +106,13 @@ export class Race {
       return [];
     }
     this.elapsed += dt;
-    const events = updatePhysics(this.player, input, this.world, dt);
+    const events = updatePhysics(this.player, input, this.world, dt, this.elapsed);
     for (let i = 1; i < this.riders.length; i++) {
       const rider = this.riders[i];
       if (rider.finished) continue;
       this.thinkAI(rider, this.aiInputs[i - 1], dt);
       this.inputOverride?.(rider,this.aiInputs[i-1],dt);
-      updatePhysics(rider, this.aiInputs[i - 1], this.world, dt);
+      updatePhysics(rider, this.aiInputs[i - 1], this.world, dt, this.elapsed);
       // Maximum ±1.1 m/s²: enough to keep another jersey in view, never teleport.
       const behind = this.player.s - rider.s;
       rider.speed = Math.max(0, rider.speed + clamp(behind / 75, -.7, 1.1) * dt);
@@ -126,7 +129,7 @@ export class Race {
     this.recordClock += dt;
     if (this.recordClock >= .1) {
       this.recordClock -= .1;
-      this.recording.push({ s: this.player.s, lateral: this.player.lateral, time: this.elapsed });
+      this.recording.push({ s: this.player.s, lateral: this.player.lateral, y: this.player.y, time: this.elapsed });
     }
     this.wrongWay = this.player.speed > 1 && this.player.velocity.dot(this.world.sample(this.player.s).tangent) < -1;
     if (this.player.finished) {
@@ -135,7 +138,7 @@ export class Race {
         this.best = this.elapsed; this.ghost = this.recording.slice();
         this.ghostCheckpointTimes = this.checkpointTimes.slice();
         try {
-          localStorage.setItem(SAVE_KEY, JSON.stringify({ version: 1, time: this.best,
+          localStorage.setItem(SAVE_KEY, JSON.stringify({ version: 2, time: this.best,
             ghost: this.ghost, checkpoints: this.ghostCheckpointTimes }));
         } catch { /* Racing remains available when browser storage is disabled. */ }
       }
@@ -175,7 +178,6 @@ export class Race {
       if (other.id === rider.id || other.s < rider.s - .8 || other.s > rider.s + 7) continue;
       if (Math.abs(other.lateral - rider.lateral) < 1.1) lane += rider.lateral > other.lateral ? 1.15 : -1.15;
     }
-    for(const rock of this.world.obstacles||[])if(rock.s>rider.s&&rock.s<rider.s+18&&Math.abs(lane-rock.lateral)<1)lane=rock.lateral+(lane>rock.lateral?1.5:-1.5);
     lane = clamp(lane, -sample.width * .34, sample.width * .34);
     input.steer = clamp((lane - rider.lateral) * .9, -1, 1);
     const catchup=clamp((this.player.s-rider.s)/18,-2,6);
@@ -196,6 +198,25 @@ export class Race {
     }
     if (this.aiHops[index] && rider.airborne) input.trick = aggressive ? 7 : 6;
     if (!rider.airborne && rider.airTime === 0 && !input.hop) this.aiHops[index] = false;
+    const hazard = nextHazard(this.world.hazards || [], rider.s, clean ? 95 : aggressive ? 75 : 86);
+    if(hazard){
+      input.trick=0;input.hop=false;input.crouch=false;this.aiHops[index]=false;
+      if(hazard.kind==='thorns')input.crouch=true;
+      if(hazard.kind==='branches')input.manual=rider.y>2.8;
+      if(hazard.kind==='pillars')lane=-hazard.side*hazard.width*.44;
+      if(hazard.kind==='rockfall'){
+        // Look at where the rocks will be on arrival, using the shared race clock.
+        const arrival=this.elapsed+Math.max(0,hazard.s-rider.s)/Math.max(12,rider.speed);
+        const lanes=[-hazard.width*.49,0,hazard.width*.49];
+        const risk=(x:number)=>[0,1,2].reduce((sum,i)=>{
+          const rock=fallingRock(hazard,i,arrival+(i-1)*7/Math.max(12,rider.speed));
+          return sum+(rock.active&&rock.y<5?Math.max(0,3.2-Math.abs(rock.x-x))*10:0);
+        },Math.abs(x-rider.lateral)*.15);
+        lane=lanes.sort((a,b)=>risk(a)-risk(b))[0];
+        if(risk(lane)>8){input.brake=true;input.pedal=false;input.boost=false;}
+      }
+      input.steer=clamp((lane-rider.lateral)*.9,-1,1);
+    }
   }
 
   private resolveContacts(dt: number): void {
@@ -244,9 +265,9 @@ export class Race {
       const raw = localStorage.getItem(SAVE_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw);
-      if (saved.version !== 1 || !Number.isFinite(saved.time) || saved.time <= 0 || !Array.isArray(saved.ghost)) return;
+      if (saved.version !== 2 || !Number.isFinite(saved.time) || saved.time <= 0 || !Array.isArray(saved.ghost)) return;
       const ghost = saved.ghost.filter((point: GhostSample) => Number.isFinite(point.s)
-        && Number.isFinite(point.lateral) && Number.isFinite(point.time) && point.s >= 0 && point.s <= this.world.length).slice(0, 6000);
+        && Number.isFinite(point.lateral) && Number.isFinite(point.y) && Number.isFinite(point.time) && point.s >= 0 && point.s <= this.world.length).slice(0, 6000);
       if (ghost.length < 2) return;
       this.best = saved.time; this.ghost = ghost;
       if (Array.isArray(saved.checkpoints)) this.ghostCheckpointTimes = saved.checkpoints.filter((time: number) => Number.isFinite(time));

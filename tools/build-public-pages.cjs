@@ -4,7 +4,7 @@ const {origin, description, pages} = require('./public-pages.cjs');
 const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c');
 const logo = '/assets/brand/repo-company-mark.png';
-const iconLinks = '<link rel="icon" type="image/png" sizes="96x96" href="/assets/brand/favicon.png"><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png">';
+const iconLinks = '<link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48 96x96" href="/assets/brand/favicon-v2.ico"><link rel="icon" type="image/png" sizes="96x96" href="/assets/brand/favicon-v2.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon-v2.png">';
 const organization = {'@type':'Organization','@id':origin+'/#organization',name:'Repo Company',alternateName:'RepoCompany',url:origin+'/',logo:origin+logo};
 function metadata({title, description:copy, path:route, image=logo}, production) {
   return `<title>${esc(title)}</title>
