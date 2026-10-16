@@ -121,3 +121,80 @@
 .rc-header-setting input{width:17px;height:17px;accent-color:#b5d39c;margin:0;flex:none}
 @media(min-width:641px){.rc-banner-copy{right:270px}}
 @media(max-width:640px){.rc-banner-actions{right:16px;bottom:14px;gap:12px}.rc-banner.is-collapsed .rc-banner-actions{right:16px}.rc-banner-copy{bottom:65px;right:24px}}
+
+/* Personal palette: shared artwork and each profile card keep their own colours. */
+#repo-messages.rc-page{--social-ink:var(--wibs-ink);--social-muted:var(--wibs-muted);--social-line:var(--wibs-line);--social-gold:var(--wibs-accent);background:var(--wibs-bg);color:var(--wibs-ink)}
+#repo-messages::backdrop{background:var(--wibs-bg)}
+#repo-messages .rc-topbar{background:color-mix(in srgb,var(--wibs-bg) 94%,var(--wibs-ink))}
+#repo-messages .rc-sidebar{background:color-mix(in srgb,var(--wibs-bg) 97%,var(--wibs-accent))}
+#repo-messages .rc-members{background:color-mix(in srgb,var(--wibs-bg) 98%,var(--wibs-accent))}
+#repo-messages .rc-atmosphere{background:radial-gradient(ellipse at 60% 50%,color-mix(in srgb,var(--wibs-accent) 8%,transparent),transparent 70%)}
+#repo-messages .rc-atmosphere:after{background:radial-gradient(ellipse at 70% 40%,color-mix(in srgb,var(--wibs-accent) 9%,transparent),transparent 60%)}
+#repo-messages .rc-atmosphere i{background:var(--wibs-accent);box-shadow:0 0 8px color-mix(in srgb,var(--wibs-accent) 25%,transparent)}
+#repo-messages :is(.rc-channel,.rc-dm-toggle,.rc-hash,.rc-message-text,.rc-member-name,.rc-self-name,.rc-voice-heading,.rc-game-name,.rc-header-setting){color:var(--wibs-ink)}
+#repo-messages :is(.rc-section-heading,.rc-members-heading,.rc-voice-note,.rc-voice-person small,.rc-self-role,.rc-account-settings,.rc-self-controls button,.rc-back,.rc-search,.rc-day,.rc-message-meta time,.rc-group-time,.rc-empty p,.rc-empty-hash,.rc-settings-choice small,.rc-field small,.rc-profile-edit-note,.rc-slider output,.rc-game-copy small,.rc-game-time,.rc-game-inline .rc-game-name,.repo-message-preview,.repo-composer-hint,.repo-message-meta,.repo-conversation-empty p,.repo-voice-status,.repo-voice-usage,.repo-voice-budget,.rc-menu-name,.rc-menu-note){color:var(--wibs-muted)}
+#repo-messages .rc-channel[aria-current=true],#repo-messages .rc-reaction[aria-pressed=true]{background:var(--wibs-selected);color:var(--wibs-ink)}
+#repo-messages .rc-channel[aria-current=true]:before,#repo-messages .rc-top-link.is-current:after{background:var(--wibs-accent)}
+#repo-messages :is(.rc-dm-toggle,.rc-voice-heading,.rc-settings-choice,.rc-self-controls button,.rc-account-settings,.repo-message-friend,.rc-person-menu button):hover,#repo-messages .rc-dm-toggle.is-selected,#repo-messages .rc-voice-heading.is-connected,#repo-messages .repo-message-friend[aria-current=true]{background:var(--wibs-hover);color:var(--wibs-ink)}
+#repo-messages .rc-voice-heading.is-connected:disabled{color:var(--wibs-accent)}
+#repo-messages :is(.rc-account-dock,.rc-composer,.repo-message-composer,.rc-settings-choice,.rc-reaction,.rc-empty-hash){background:var(--wibs-hover);border-color:var(--wibs-line)}
+#repo-messages :is(.rc-message-actions,.rc-reaction-choices,.rc-editor,.rc-person-menu){background:var(--wibs-surface);color:var(--wibs-ink);border-color:var(--wibs-line)}
+#repo-messages .rc-person-menu button{color:var(--wibs-ink)}
+#repo-messages .rc-person-menu button.is-danger{color:#de827b}
+#repo-messages :is(.rc-field input,.rc-field textarea){background:var(--wibs-bg);border-color:var(--wibs-line);color:var(--wibs-ink)}
+#repo-messages :is(.rc-slider input,.rc-header-setting input){accent-color:var(--wibs-accent)}
+#repo-messages .rc-primary{background:var(--wibs-accent);color:var(--wibs-on-accent)!important}
+#repo-messages :is(.rc-editor-actions button,.rc-role,.rc-voice-restriction,.rc-own-activity,.rc-account-dock .repo-voice-panel,.rc-person-menu hr){border-color:var(--wibs-line)}
+#repo-messages :is(.rc-role,.rc-remove-banner,.rc-manage-roles,.rc-author,.rc-send,.rc-older){color:var(--wibs-accent)}
+#repo-messages :is(.rc-author.is-developer,.rc-member:has(.rc-role) .rc-member-name){color:var(--wibs-developer)}
+#repo-messages :is(.rc-day:before,.rc-day:after){background:var(--wibs-line)}
+#repo-messages :is(.rc-sidebar-scroll,.rc-log){scrollbar-color:var(--wibs-raised) transparent}
+#repo-messages .rc-avatar{background:linear-gradient(145deg,var(--wibs-raised),var(--wibs-selected));color:var(--wibs-ink);border-color:var(--wibs-line)}
+#repo-messages .rc-avatar.is-online:after{border-color:var(--wibs-bg)}
+#repo-messages .repo-message-bubble{background:var(--wibs-raised);color:var(--wibs-ink)}
+#repo-messages .repo-message-row.is-own .repo-message-bubble{background:var(--wibs-selected);color:var(--wibs-ink)}
+#repo-messages .rc-banner:not(.rc-profile-color-preview){background:radial-gradient(ellipse at 80% 15%,var(--wibs-selected),transparent 80%),var(--wibs-bg)}
+#repo-messages .rc-banner:after{background:linear-gradient(0deg,color-mix(in srgb,var(--wibs-bg) 85%,transparent),transparent 90%)}
+#repo-messages .rc-banner-copy,#repo-messages .rc-online{color:var(--wibs-ink)}
+#repo-messages .rc-customize{background:var(--wibs-bg);border-color:var(--wibs-muted);color:var(--wibs-ink)}
+#repo-messages .rc-header-toggle{color:var(--wibs-muted)}
+#repo-messages .rc-profile-popover :is(.rc-profile-name,.rc-game-name,.rc-role){color:var(--profile-ink)}
+#repo-messages .rc-profile-popover :is(.rc-game-copy small,.rc-game-time){color:var(--profile-muted)}
+#repo-messages .rc-profile-popover .rc-role{border-color:var(--profile-accent)}
+#repo-messages .has-name-color{color:var(--name-color)!important}
+#repo-messages :is(button,a,summary):focus-visible{outline-color:var(--wibs-accent)}
+#repo-messages[data-light-theme=true] :is(.publisher-mark,.publisher-wordmark,.repo-wibs-icon){filter:brightness(.25)}
+#repo-messages[data-light-theme=true] .rc-brand :is(.publisher-mark,.publisher-wordmark){background:var(--wibs-ink);mask-image:url('original-case-assets/repo-brand.png');mask-mode:luminance;mask-repeat:no-repeat;mix-blend-mode:normal;filter:none}
+#repo-messages[data-light-theme=true] .rc-brand .publisher-mark{mask-size:198px 124px;mask-position:-78px -33px}
+#repo-messages[data-light-theme=true] .rc-brand .publisher-wordmark{mask-size:394px 246px;mask-position:-125px -164px}
+#repo-messages[data-light-theme=true] .rc-banner h1{text-shadow:none}
+#repo-messages :is(input,textarea)::placeholder{color:var(--wibs-muted);opacity:1}
+.repo-voice-settings{background:var(--wibs-surface,#13231b);color:var(--wibs-ink,#eceee1);border-color:var(--wibs-line,#71846b80)}
+.repo-voice-settings :is(.rv-intro,small,.rv-hint,.rv-meter-label,.rv-notice){color:var(--wibs-muted,#aebeb0)}
+.repo-voice-settings select{background:var(--wibs-bg,#0e1c15);color:var(--wibs-ink,#eceee1);border-color:var(--wibs-line,#9cac874a)}
+.repo-voice-settings .rv-button{background:var(--wibs-raised,#213827);color:var(--wibs-ink,#e1ecd8);border-color:var(--wibs-line,#92a47b55)}
+.repo-voice-settings .rv-button:hover{background:var(--wibs-selected,#2a4632)}
+.repo-voice-settings :is(input[type=range],input[type=checkbox]){accent-color:var(--wibs-accent,#afd293)}
+.repo-voice-settings output{color:var(--wibs-accent,#b9d5a5)}
+
+/* The edit action belongs to the channel name; search keeps the remaining space. */
+#repo-messages .rc-edit-channel{margin-left:0;flex:none;width:25px;height:28px;display:grid;place-items:center;color:var(--wibs-muted);background:none}
+#repo-messages .rc-edit-channel:hover{background:var(--wibs-hover);color:var(--wibs-ink)}
+#repo-messages .rc-channel-head{gap:10px}
+#repo-messages .rc-channel-head h2{min-width:0;overflow:hidden;text-overflow:ellipsis}
+#repo-messages .rc-voice-heading-row .rc-voice-heading{flex:0 1 auto;width:auto;max-width:100%;padding-left:10px;padding-right:0;gap:10px;font-size:18px}
+#repo-messages .rc-voice-heading>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#repo-messages .rc-voice-heading-row .rc-voice-settings{margin-left:auto}
+.rc-name-colour{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.rc-name-colour .rc-field{width:90px;margin:0}.rc-name-colour input[type=color]{height:40px;padding:4px;cursor:pointer}
+.rc-name-sample{font-size:18px;overflow-wrap:anywhere;min-width:0;max-width:100%;color:var(--wibs-accent)}
+#repo-messages .rc-colour-reset{font-size:12px;border:0;background:none;color:var(--wibs-muted);text-decoration:underline}
+.rc-theme-settings{padding-top:24px;margin:24px 0;border-top:1px solid var(--wibs-line)}
+#repo-messages .rc-theme-settings h3{font:500 18px/1.4 Arial,sans-serif;margin-bottom:6px}
+#repo-messages .rc-theme-settings p{font-size:12px;color:var(--wibs-muted);margin-bottom:16px}
+.rc-theme-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:20px}
+#repo-messages .rc-profile-color-preview:after{display:none}
+#repo-messages .rc-theme-swatch{border:1px solid var(--wibs-line);border-radius:9px;min-width:0;padding:9px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;font-size:12px;background:none}
+.rc-theme-swatch:before{content:'';display:block;width:100%;height:35px;border-radius:4px;background:linear-gradient(100deg,var(--swatch-accent) 22%,var(--swatch-bg) 22%)}
+#repo-messages .rc-theme-swatch[aria-pressed=true]{outline:2px solid var(--wibs-accent);outline-offset:1px;background:var(--wibs-hover)}
+@media(max-width:640px){#repo-messages .rc-channel-head h2{font-size:18px}.rc-theme-presets{grid-template-columns:repeat(2,minmax(0,1fr))}}
