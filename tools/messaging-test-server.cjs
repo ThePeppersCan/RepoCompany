@@ -37,7 +37,7 @@ async function createFixture(fixtureOptions={}){
   const source=fs.readFileSync(path.join(root,'functions/api/voice/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
   onVoiceRequest=(await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'))).onRequest;
  }
- const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.mp3':'audio/mpeg','.woff2':'font/woff2'};
+ const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.gif':'image/gif','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.mp3':'audio/mpeg','.woff2':'font/woff2'};
  const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://127.0.0.1');let response;
   if(url.pathname.startsWith('/api/community/')){
    const chunks=[];for await(const b of req)chunks.push(b);

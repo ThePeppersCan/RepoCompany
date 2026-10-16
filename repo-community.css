@@ -215,3 +215,16 @@
 #repo-messages .repo-reaction-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;min-height:32px;border:1px solid var(--wibs-line);background:var(--wibs-hover);color:var(--wibs-ink)}
 #repo-messages .repo-reaction-chip .wibs-emote{width:36px;height:27px;object-fit:contain}
 #repo-messages .repo-reaction-add .wibs-emote{width:28px;height:21px;object-fit:contain}
+
+/* Wibs GIF messages share the existing, authenticated text composer. */
+#repo-messages .repo-gif-button{flex:none;align-self:center;min-width:38px;height:30px;border:1px solid var(--wibs-line);border-radius:6px;background:none;color:var(--wibs-muted);padding:3px 5px;font:600 11px/1 Arial,sans-serif;letter-spacing:.04em}
+#repo-messages .repo-gif-button:hover{background:var(--wibs-hover);color:var(--wibs-ink)}
+#repo-messages .repo-gif-picker{width:330px;max-height:calc(100dvh - 16px);overflow:auto}
+#repo-messages .repo-gif-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#repo-messages .repo-gif-choice{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid var(--wibs-line);border-radius:9px;padding:7px;background:var(--wibs-hover);color:var(--wibs-ink);font:500 12px/1.4 Arial,sans-serif}
+#repo-messages .repo-gif-choice:hover,#repo-messages .repo-gif-choice:focus-visible{border-color:var(--wibs-accent);background:var(--wibs-selected);transform:none}
+#repo-messages .repo-gif-choice img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain}
+#repo-messages .is-wibs-gif{position:relative;width:240px;max-width:100%;padding:0;border:0;background:none;white-space:normal}
+#repo-messages .repo-wibs-gif{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain}
+#repo-messages .repo-gif-play{position:absolute;right:4px;bottom:4px;background:var(--wibs-surface);color:var(--wibs-muted);border:1px solid var(--wibs-line);border-radius:5px;padding:3px 7px;font:500 10px/1.4 Arial,sans-serif;opacity:.75}
+#repo-messages .repo-gif-play:hover,#repo-messages .repo-gif-play:focus-visible{opacity:1;color:var(--wibs-ink)}

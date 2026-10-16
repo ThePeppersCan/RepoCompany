@@ -60,7 +60,7 @@
   const time = value => new Date(timestamp(value)).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
   const date = value => new Date(timestamp(value)).toLocaleDateString([], {day: 'numeric', month: 'long'});
   let userId = account.state.user?.id || null, epoch = 0, selection = '', selectionEpoch = 0;
-  let inbox = [], messages = [], draftIds = new Map(), drafts = new Map(), unread = 0, initialized = false;
+  let inbox = [], messages = [], draftIds = new Map(), drafts = new Map(), gifIds = new Map(), unread = 0, initialized = false;
   let selectedRead = 0, peerRead = 0, hasOlder = false, listSignature = '', sending = false, loading = false;
   let timer, inboxAt = 0, inboxArchiveAt = 0, inboxPageCursor = null, messageAt = 0, signalAt = 0, heartbeatAt = 0, polling = false;
   let call = null, callOwned = false, callEpoch = 0, pc = null, stream = null, remoteStream = null;
@@ -70,6 +70,7 @@
   let portalVisible = document.documentElement.dataset.repoPortalVisible !== 'false', pageSuspended = false, pollRevision = 0;
   let notificationBuffer = null, notificationBufferLoading = false;
   let notificationAudio = null, audioUnlocked = false, lastChime = 0;
+  const soundedMessages=new Set(),seenThreads=new Map();
   let friendRefreshAt = 0, socialSnapshot = account.state.social;
   const requests = new Set();
 
@@ -118,6 +119,8 @@
   body.append(aside, conversation); drawer.append(head, body); document.body.append(drawer);
 
   const extras = window.repoChatExtras?.mount({drawer,composer,history,feedback,api,context:()=>({selection,userId}),replaceMessage:message=>{const i=messages.findIndex(m=>m.id===message.id);if(i<0)messages.push(message);else messages[i]=message;renderMessages();inboxAt=0;}});
+  const gifPicker=window.repoChatExtras.createGifPicker(drawer,text=>sendText(text,true));
+  const gifButton=button('Send a Wibs GIF',null,'repo-gif-button',()=>gifPicker.choose(gifButton));gifButton.textContent='GIF';gifButton.setAttribute('aria-haspopup','dialog');composer.insertBefore(gifButton,send);
   const toast = el('div', 'repo-message-toast'); toast.setAttribute('role', 'status'); toast.setAttribute('popover', 'manual');
   const toastOpen = button('Open message', null, 'repo-toast-content');
   const toastAvatar = el('span', 'repo-social-avatar'), toastCopy = el('span'), toastName = el('b'), toastText = el('span');
@@ -232,7 +235,7 @@
       const avatar = el('span', 'repo-social-avatar'); paintAvatar(avatar, f.username); avatar.classList.toggle('is-online', !!f.online);
       const copy = el('span', 'repo-message-friend-copy'), row = el('span', 'repo-message-friend-title'); row.append(el('b', '', name));
       if (thread?.lastMessage) row.append(el('time', '', time(thread.lastMessage.createdAt)));
-      copy.append(row, el('span', 'repo-message-preview', thread?.lastMessage ? ((norm(thread.lastMessage.sender) === ownName() ? 'You: ' : '') + thread.lastMessage.text) : f.online ? 'Online · Say hello' : 'Start a conversation'));
+      copy.append(row, el('span', 'repo-message-preview', thread?.lastMessage ? ((norm(thread.lastMessage.sender) === ownName() ? 'You: ' : '') + window.repoChatExtras.preview(thread.lastMessage.text)) : f.online ? 'Online · Say hello' : 'Start a conversation'));
       item.append(avatar, copy);
       if (thread?.unread) item.append(el('span', 'repo-message-count', thread.unread > 99 ? '99+' : String(thread.unread)));
       friendList.append(item);
@@ -258,14 +261,14 @@
       voice.disabled = !initialized || !!call || callBusy || loading || !window.repoVoice.getState().available || window.repoVoice.getState().callActive;
     }
     voice.title = video.title = call ? 'A call is already in progress' : '';
-    input.disabled = send.disabled = !available || sending || loading;
+    input.disabled = send.disabled = gifButton.disabled = !available || sending || loading;
   }
   let callsEnabled = false;
   async function select(name) {
     if (!friend(name)) { feedback.textContent = 'Only accepted friends can message each other.'; return; }
     window.repoCommunity?.show('dm');
     if (selection) drafts.set(norm(selection), input.value);
-    extras?.clear(); selection = friend(name).username; const revision = ++selectionEpoch;
+    extras?.clear(); gifPicker.clear(); selection = friend(name).username; const revision = ++selectionEpoch;
     messages = []; selectedRead = peerRead = 0; hasOlder = false; loading = true;
     input.value = drafts.get(norm(selection)) || ''; resizeComposer();
     feedback.textContent = 'Loading your conversation…'; drawer.classList.add('has-conversation');
@@ -281,6 +284,7 @@
     try {
       const result = await api('messages?username=' + encodeURIComponent(name) + suffix);
       if (expected !== selectionEpoch || selection !== name) return;
+      if(!before){const previous=seenThreads.get(norm(name)),latest=Math.max(0,...result.messages.map(m=>m.id));if(previous!==undefined){const incoming=result.messages.filter(m=>m.id>previous&&norm(m.sender)!==ownName()).at(-1);if(incoming)notificationSound('dm:'+incoming.id);}seenThreads.set(norm(name),Math.max(previous||0,latest));}
       if (before) messages = [...result.messages.filter(m => !messages.some(n => n.id === m.id)), ...messages]; else messages = result.messages;
       hasOlder = !!result.hasMore; selectedRead = Number(result.readThrough || 0); peerRead = Number(result.peerReadThrough || 0); if (!before) loading = false;
       renderMessages(!before); if (before) history.scrollTop = scroll + history.scrollHeight - height;
@@ -303,7 +307,7 @@
       row.title = new Date(timestamp(message.createdAt)).toLocaleString();
       if (grouped) { row.classList.add('is-continuation'); previousRow.classList.add('has-continuation'); }
       if (!existingIds.has(String(message.id))) row.classList.add('is-new');
-      const bubble = el('div', 'repo-message-bubble', message.text), meta = el('div', 'repo-message-meta');
+      const bubble = el('div', 'repo-message-bubble'), meta = el('div', 'repo-message-meta');window.repoChatExtras.renderText(bubble,message.text,'dm:'+message.id);
       meta.append(el('time', '', time(message.createdAt)));
       if (own) { const receipt = el('span', 'repo-message-receipt', message.id <= peerRead ? 'Seen' : 'Sent'); receipt.prepend(icon('check')); meta.append(receipt); }
       row.append(bubble, meta); history.append(row); extras?.decorate(row,message);
@@ -325,32 +329,35 @@
   function resizeComposer() { input.style.height = 'auto'; input.style.height = Math.min(120, input.scrollHeight) + 'px'; }
   input.addEventListener('input', () => { if (selection) { drafts.set(norm(selection), input.value); draftIds.delete(norm(selection)); } resizeComposer(); });
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); composer.requestSubmit(); } });
-  composer.addEventListener('submit', async e => {
-    e.preventDefault(); const text = input.value.trim(), name = selection, revision = selectionEpoch;
+  composer.addEventListener('submit', e => {e.preventDefault();sendText(input.value.trim());});
+  async function sendText(text,keepDraft=false) {
+    const name = selection, revision = selectionEpoch, auth=epoch;
     if (!text || !friend(name) || sending) return;
-    const key = norm(name), clientId = draftIds.get(key) || crypto.randomUUID(); draftIds.set(key, clientId);
+    const keys=keepDraft?gifIds:draftIds,key=keepDraft?norm(name)+':'+text:norm(name),clientId=keys.get(key)||crypto.randomUUID();keys.set(key,clientId);
     sending = true; updatePeer(); feedback.textContent = 'Sending…';
     try {
       const result = await api('messages', {username: name, text, clientId});
-      drafts.delete(key); draftIds.delete(key);
+      keys.delete(key);if(!keepDraft)drafts.delete(key);
       if (revision !== selectionEpoch) return;
       if (!messages.some(m => m.id === result.message.id)) messages.push(result.message);
-      input.value = ''; resizeComposer();
+      if(!keepDraft){input.value = ''; resizeComposer();}
       renderMessages(true); feedback.textContent = ''; inboxAt = 0;
-    } catch (error) { if (revision === selectionEpoch && !invalidateConversation(name, error)) feedback.textContent = safeError(error) + ' Your message is still here; press Send to retry.'; }
-    finally { sending = false; updatePeer(); if (revision === selectionEpoch) input.focus(); }
-  });
+    } catch (error) { if (revision === selectionEpoch && !invalidateConversation(name, error)) feedback.textContent = safeError(error) + (keepDraft?' Choose the GIF again to retry.':' Your message is still here; press Send to retry.'); }
+    finally { if(auth===epoch){sending = false; updatePeer(); if (revision === selectionEpoch) input.focus();} }
+  }
   history.addEventListener('scroll', () => { if (history.scrollHeight - history.scrollTop - history.clientHeight < 100) { jump.hidden = true; markRead(); } });
 
   function showToast(thread) {
     if (!thread?.lastMessage) return;
+    notificationSound('dm:'+thread.lastMessage.id);
+    if (viewingConversation() && norm(selection) === norm(thread.username)) return;
     if (!portalVisible && document.documentElement.dataset.repoLauncher === 'true') {
-      const preferences=window.dashboardAudio?.preferences();
-      dispatchEvent(new CustomEvent('repo-message-notification',{detail:{id:thread.lastMessage.id,username:thread.username,name:display(thread.username),text:thread.lastMessage.text.slice(0,160),volume:preferences&&!preferences.muted?Math.max(0,Math.min(1,preferences.effects||0)):0}}));return;
+      // The live portal plays the same sound in the website and client, even
+      // when a game covers it. Keep the native preview silent to avoid doubles.
+      dispatchEvent(new CustomEvent('repo-message-notification',{detail:{id:thread.lastMessage.id,username:thread.username,name:display(thread.username),text:window.repoChatExtras.preview(thread.lastMessage.text).slice(0,160),volume:0}}));return;
     }
-    notificationSound();
     if (document.hidden || !portalVisible) return;
-    const name = display(thread.username); toastName.textContent = name; toastText.textContent = thread.lastMessage.text;
+    const name = display(thread.username); toastName.textContent = name; toastText.textContent = window.repoChatExtras.preview(thread.lastMessage.text);
     paintAvatar(toastAvatar, thread.username); toastOpen.onclick = () => { hideToast(); open(thread.username); };
     const anchor=launch.getBoundingClientRect();toast.style.left=Math.max(12,Math.min(innerWidth-332,anchor.right-320))+'px';toast.style.top=Math.max(12,anchor.bottom+10)+'px';
     try { toast.showPopover(); } catch (_) { return; }
@@ -382,15 +389,16 @@
       const Audio = window.AudioContext || window.webkitAudioContext;
       if (!notificationAudio && Audio) notificationAudio = new Audio();
       notificationAudio?.resume().catch(() => {});
-      if(notificationAudio&&!notificationBuffer&&!notificationBufferLoading){notificationBufferLoading=true;fetch('/audio/message-notification.mp3').then(r=>r.arrayBuffer()).then(b=>notificationAudio.decodeAudioData(b)).then(b=>{notificationBuffer=b;}).catch(()=>{}).finally(()=>{notificationBufferLoading=false;});}
+      if(notificationAudio&&!notificationBuffer&&!notificationBufferLoading){notificationBufferLoading=true;fetch('/audio/wibs-message-notification.mp3').then(r=>r.arrayBuffer()).then(b=>notificationAudio.decodeAudioData(b)).then(b=>{notificationBuffer=b;}).catch(()=>{}).finally(()=>{notificationBufferLoading=false;});}
     } catch (_) {}
   }
-  function notificationSound() {
+  function notificationSound(key) {
     const preferences = window.dashboardAudio?.preferences();
-    if (!audioUnlocked || !notificationAudio || notificationAudio.state !== 'running' || !preferences || preferences.muted || !preferences.effects || Date.now() - lastChime < 2000) return;
+    if(typeof key==='string'){if(soundedMessages.has(key))return;soundedMessages.add(key);if(soundedMessages.size>300)soundedMessages.delete(soundedMessages.values().next().value);}
+    if (!audioUnlocked || !notificationAudio || notificationAudio.state !== 'running' || !preferences || preferences.muted || !preferences.effects || Date.now() - lastChime < Math.max(2000,(notificationBuffer?.duration||0)*1000)) return;
     if(!notificationBuffer)return;
     lastChime=Date.now();
-    try{const source=notificationAudio.createBufferSource(),gain=notificationAudio.createGain();source.buffer=notificationBuffer;gain.gain.value=Math.min(1,Math.max(0,preferences.effects))*.5;source.connect(gain);gain.connect(notificationAudio.destination);source.start();source.onended=()=>{source.disconnect();gain.disconnect();};}catch{}
+    try{const source=notificationAudio.createBufferSource(),gain=notificationAudio.createGain();source.buffer=notificationBuffer;gain.gain.value=Math.min(1,Math.max(0,preferences.effects))*.24;source.connect(gain);gain.connect(notificationAudio.destination);source.start();source.onended=()=>{source.disconnect();gain.disconnect();};}catch{}
   }
   addEventListener('pointerdown', unlockNotificationAudio, {capture: true});
   addEventListener('keydown', unlockNotificationAudio, {capture: true});
@@ -406,7 +414,7 @@
     callsEnabled = !!result.iceConfigured;
     unread = Number.isFinite(Number(result.totalUnread)) ? Math.max(0, Number(result.totalUnread)) : inbox.reduce((n, c) => n + Number(c.unread || 0), 0);
     if (initialized) {
-      const newThread = inbox.find(c => c.lastMessage && norm(c.lastMessage.sender) !== ownName() && c.unread && Number(c.lastMessage.id) > Number(previous.find(p => p.id === c.id)?.lastMessage?.id || 0) && !(viewingConversation() && norm(selection) === norm(c.username)));
+      const newThread = inbox.find(c => c.lastMessage && norm(c.lastMessage.sender) !== ownName() && c.unread && Number(c.lastMessage.id) > Number(previous.find(p => p.id === c.id)?.lastMessage?.id || 0));
       if (newThread) showToast(newThread);
     }
     initialized = true; renderFriends(); announce();
@@ -633,9 +641,10 @@
     const next = account.state.user?.id || null;
     if (socialSnapshot !== account.state.social) { socialSnapshot = account.state.social; revoked.clear(); }
     if (next !== userId) {
-      extras?.clear(); epoch++; selectionEpoch++; requests.forEach(r => r.abort()); requests.clear();
+      extras?.clear(); gifPicker.clear(); epoch++; selectionEpoch++; requests.forEach(r => r.abort()); requests.clear();
+      soundedMessages.clear();seenThreads.clear();lastChime=0;
       userId = next; stopMedia(); clearTimeout(callEndTimer); call = null; callOwned = false; callBusy = false; callBusyRevision++; callPanel.close(); callChip.hidden = true;
-      selection = ''; inbox = []; messages = []; drafts.clear(); draftIds.clear(); revoked.clear(); unread = 0; initialized = false; callsEnabled = false; inboxAt = inboxArchiveAt = messageAt = signalAt = heartbeatAt = friendRefreshAt = 0; inboxPageCursor = null; moreConversations.hidden = true;
+      selection = ''; inbox = []; messages = []; drafts.clear(); draftIds.clear(); gifIds.clear(); revoked.clear(); unread = 0; initialized = false; callsEnabled = false; inboxAt = inboxArchiveAt = messageAt = signalAt = heartbeatAt = friendRefreshAt = 0; inboxPageCursor = null; moreConversations.hidden = true;
       sending = loading = reading = false; input.value = ''; feedback.textContent = ''; history.replaceChildren(); listSignature = ''; hideToast(); close();
     }
     launch.hidden = !userId;
@@ -663,7 +672,7 @@
     clearInterval(timer); timer = setInterval(tick, 1000); accountChanged();
     if (audioUnlocked) notificationAudio?.resume().catch(() => {});
   });
-  window.repoMessaging = Object.freeze({open, close, getState: messagingState});
+  window.repoMessaging = Object.freeze({open, close, getState: messagingState, messageSound: notificationSound});
   addEventListener('repo-voice-state', () => { updatePeer(); announce(); });
   window.repoVoice?.mount({drawer,head,context:()=>({selection,userId})});
   timer = setInterval(tick, 1000); accountChanged();

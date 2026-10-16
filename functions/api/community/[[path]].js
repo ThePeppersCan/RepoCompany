@@ -64,6 +64,7 @@ export async function onRequest({request,env,params}){
   await db.prepare(`INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL OR dashboard_players.user_id=excluded.user_id`).bind(me.name,me.id,me.display).run();
   if((await db.prepare('SELECT user_id FROM dashboard_players WHERE username=?').bind(me.name).first())?.user_id!==me.id)throw fail('Refresh your player profile.',409);
   const isDeveloper=!!await db.prepare("SELECT 1 FROM community_roles WHERE user_id=? AND role='Developer'").bind(me.id).first();
+  if(route==='banner'||route==='settings')throw fail('The shared Wibs header has been removed.',410);
   if(request.method==='GET'&&route==='state'){
    await db.prepare('INSERT INTO community_members(user_id,joined_at,last_seen) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen=excluded.last_seen WHERE last_seen<?').bind(me.id,now,now,now-20000).run();
    const settings=await db.prepare('SELECT title,banner_version,banner_height,banner_zoom,banner_x,banner_y FROM community_settings WHERE id=1').first();

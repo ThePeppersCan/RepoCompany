@@ -19,10 +19,10 @@ const assert=require('node:assert/strict'),{createFixture}=require('./messaging-
   assert.equal((await request('bob','messages?channel=general')).messages[0].text,'Shared community hello');
   await request('bob','reaction',{id:sent.id,emoji:'❤️'});assert.equal((await request('bob','messages?channel=general')).messages[0].reactions[0].mine,1);
   await request('bob','delete',{id:sent.id},403);
-  await request('alice','settings',{title:'Our community',height:240,zoom:120,x:40,y:30});assert.equal((await request('bob','state')).settings.title,'Our community');
+  await request('alice','settings',{title:'Our community',height:240,zoom:120,x:40,y:30},410);
   const gif='R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-  await request('alice','banner',{data:gif});await request('bob','banner',{data:null},403);
-  await request('alice','banner',{data:Buffer.from('<svg onload="alert(1)"></svg>').toString('base64')},400);
+  await request('alice','banner',{data:gif},410);await request('bob','banner',{data:null},410);await request('bob','banner',undefined,410);
+  await request('alice','profile-banner',{data:Buffer.from('<svg onload="alert(1)"></svg>').toString('base64')},400);
   await request('mallory','profile-banner',{data:gif,user_id:sessions.alice.user.id});
   assert.equal(sql.prepare('SELECT user_id FROM community_profiles').get().user_id,sessions.mallory.user.id,'profile writes cannot choose another account');
   await request('mallory','profile-settings',{height:180,zoom:150,x:10,y:90});assert.equal((await request('bob','profile?username=mallory')).settings.zoom,150);

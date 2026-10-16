@@ -10,6 +10,35 @@
   }
   function node(tag,cls,text) { const n=document.createElement(tag); n.className=cls; if(text)n.textContent=text; return n; }
   function button(label,cls,action) { const n=node('button',cls);n.type='button';n.title=label;n.setAttribute('aria-label',label);n.onclick=action;return n; }
+  const gifs=Object.freeze(catalog.slice(0,4).map(item=>Object.freeze({id:item.id.slice(5),label:item.label+' GIF'})));
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),pausedGifs=new Set();
+  const gifText=id=>gifs.some(g=>g.id===id)?`:wibs-gif-${id}:`:'';
+  const gifFor=text=>gifs.find(g=>gifText(g.id)===String(text).trim());
+  const preview=text=>gifFor(text)?.label||text;
+  function renderText(container,text,key=''){
+    const gif=gifFor(text);container.replaceChildren();container.classList.toggle('is-wibs-gif',!!gif);
+    if(!gif){container.textContent=text;return;}
+    const image=node('img','repo-wibs-gif'),control=button('','repo-gif-play',()=>setPlaying(!playing));
+    image.alt=gif.label;image.width=320;image.height=240;image.loading='lazy';image.draggable=false;
+    const base='/assets/wibs-gifs/'+gif.id;let playing=false;
+    function setPlaying(value){playing=value;image.src=base+(playing?'.gif':'.png');control.textContent=playing?'Pause':'Play';control.title=(playing?'Pause ':'Play ')+gif.label;control.setAttribute('aria-label',control.title);control.setAttribute('aria-pressed',String(playing));if(key){if(playing)pausedGifs.delete(key);else pausedGifs.add(key);}}
+    image.addEventListener('repo-pause-gif',()=>setPlaying(false));
+    setPlaying(!reduced.matches&&!pausedGifs.has(key));container.append(image,control);
+  }
+  reduced.addEventListener('change',()=>{if(reduced.matches)document.querySelectorAll('.repo-wibs-gif').forEach(n=>n.dispatchEvent(new Event('repo-pause-gif')));});
+  addEventListener('repo-account-state',()=>{if(!window.repoAccount?.state.user)pausedGifs.clear();});
+  function positionPicker(picker,trigger){const rect=trigger.getBoundingClientRect(),box=picker.getBoundingClientRect(),gap=8;picker.style.left=Math.max(gap,Math.min(innerWidth-box.width-gap,rect.right-box.width))+'px';picker.style.top=Math.max(gap,Math.min(innerHeight-box.height-gap,rect.top>=box.height+gap?rect.top-box.height-gap:rect.bottom+gap))+'px';}
+  function createGifPicker(drawer,onSend){
+    const picker=node('div','repo-reaction-picker repo-gif-picker');picker.setAttribute('popover','auto');picker.setAttribute('role','dialog');picker.setAttribute('aria-label','Wibs GIFs');
+    const clear=()=>{try{picker.hidePopover();}catch{}};
+    function choose(trigger){
+      if(!picker.isConnected)drawer.append(picker);picker.replaceChildren(node('strong','repo-reaction-heading','Send a Wibs GIF'));
+      const choices=node('div','repo-gif-choices');
+      for(const gif of gifs){const image=node('img','');image.alt='';image.width=160;image.height=120;image.src='/assets/wibs-gifs/'+gif.id+'.png';const b=button('Send '+gif.label,'repo-gif-choice',()=>{clear();trigger.focus({preventScroll:true});onSend(gifText(gif.id));});b.append(image,node('span','',gif.label.replace('Wibs · ','').replace(' GIF','')));const animate=()=>{if(!reduced.matches)image.src='/assets/wibs-gifs/'+gif.id+'.gif';},still=()=>{image.src='/assets/wibs-gifs/'+gif.id+'.png';};b.onpointerenter=b.onfocus=animate;b.onpointerleave=b.onblur=still;choices.append(b);}
+      picker.append(choices);picker.showPopover();positionPicker(picker,trigger);picker.querySelector('button').focus({preventScroll:true});
+    }
+    drawer.addEventListener('close',clear);addEventListener('resize',clear);return{choose,clear};
+  }
   function createPicker(drawer,onSelect){
     const picker=node('div','repo-reaction-picker');picker.setAttribute('popover','auto');picker.setAttribute('role','dialog');picker.setAttribute('aria-label','Wibs emotes');drawer.append(picker);
     const clear=()=>{try{picker.hidePopover();}catch{}};
@@ -23,7 +52,7 @@
     }
     drawer.addEventListener('close',clear);addEventListener('resize',clear);return {choose,clear};
   }
-  window.repoChatExtras = Object.freeze({catalog,emote,label,createPicker,mount({drawer,history,feedback,api,replaceMessage}) {
+  window.repoChatExtras = Object.freeze({catalog,emote,label,createPicker,gifs,gifText,preview,renderText,createGifPicker,mount({drawer,history,feedback,api,replaceMessage}) {
     let revision=0, reactionBusy=false;
     const picker=createPicker(drawer,react);
     function clear() { revision++;picker.clear(); }
