@@ -42,6 +42,7 @@ async function localControl(action,value){
  if(action==='enter'){if(!roomId)await enterSharedRoom();return;}
  if(action==='join'){if(validRoom(value)&&roomId!==value){if(!requireUser()){history.replaceState(null,'','?embedded=1&room='+value);return;}await join(value);}return;}
  if(action==='leave'){await goHome();return;}
+ if(action==='next'){const current=playingEntry();if(connectionReady&&current)await mutate('next',{playlist_id:current.playlist.id,item_id:current.item.id,revision:room.revision});return;}
  if(action==='pause')localPaused=!localPaused;
  else if(action==='mute')localMuted=!localMuted;
  else if(action==='volume'&&Number.isFinite(value)){localVolume=Math.max(0,Math.min(100,value));localMuted=false;$('volume').value=localVolume;}
@@ -49,7 +50,7 @@ async function localControl(action,value){
  saveAudio();if(playerReady){player.setVolume(localVolume);if(localMuted)player.mute();else player.unMute();}mediaControls();
  if(action==='pause'||(action==='mute'&&sunoActive()))await applyPlayback(true);
 }
-addEventListener('message',event=>{if(event.source!==parent||parent===window||event.origin!==location.origin||event.data?.type!=='repo-reparty-control')return;const {action,value}=event.data;if(['pause','mute','volume','join','leave','enter'].includes(action))run(()=>localControl(action,value));});
+addEventListener('message',event=>{if(event.source!==parent||parent===window||event.origin!==location.origin||event.data?.type!=='repo-reparty-control')return;const {action,value}=event.data;if(['pause','next','mute','volume','join','leave','enter'].includes(action))run(()=>localControl(action,value));});
 window.repoRepartyPlayer=Object.freeze({getState:mediaState,control:localControl});
 
 function sunoActive() { return isSuno(room?.playback?.video_id); }

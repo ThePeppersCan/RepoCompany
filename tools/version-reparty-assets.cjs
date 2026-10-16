@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 function versionRepartyAssets(dist){
  const root=path.join(dist,'reparty');if(!fs.existsSync(root))return;
  const files=fs.readdirSync(root).filter(name=>/\.(?:m?js|css)$/.test(name)).sort();
- const sources=new Map(files.map(name=>[name,fs.readFileSync(path.join(root,name),'utf8')]));
+ const sources=new Map(files.map(name=>[name,fs.readFileSync(path.join(root,name),'utf8').replace(/\r\n/g,'\n')]));
  const hash=crypto.createHash('sha256');for(const [name,source]of sources)hash.update(name+'\0'+source+'\0');
  const version=hash.digest('hex').slice(0,12);
  for(const [name,source]of sources){
