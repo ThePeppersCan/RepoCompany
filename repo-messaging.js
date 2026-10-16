@@ -76,7 +76,7 @@
   const requests = new Set();
 
   const launch = button('Messages', 'mail', 'repo-message-launch', () => open());
-  const launchCount = el('span', 'repo-message-count'); launchCount.hidden = true;
+  const launchCount = el('span', 'repo-message-count'); launchCount.hidden = true; launchCount.setAttribute('aria-hidden', 'true');
   launch.setAttribute('aria-haspopup', 'dialog'); launch.setAttribute('aria-controls', 'repo-messages');
   launch.append(launchCount); launch.hidden = !userId;
   const drawer = el('dialog', 'repo-messages'); drawer.id = 'repo-messages';
@@ -164,7 +164,7 @@
     const signature = JSON.stringify(state);
     if (signature !== previousEvent) { previousEvent = signature; dispatchEvent(new CustomEvent('repo-messaging-state', {detail: state})); }
     launchCount.hidden = !unread; launchCount.textContent = unread > 99 ? '99+' : String(unread);
-    launch.setAttribute('aria-label', unread ? `Messages, ${unread} unread` : 'Messages');
+    launch.setAttribute('aria-label', unread ? `Wibs, ${unread} unread message${unread === 1 ? '' : 's'}` : 'Open Wibs');
     launch.title = launch.getAttribute('aria-label'); launch.setAttribute('aria-expanded', String(drawer.open));
   }
   async function api(route, payload, valid = () => true) {
@@ -663,6 +663,7 @@
     renderFriends(); announce(); if (userId) tick();
   }
   addEventListener('repo-account-state', accountChanged);
+  addEventListener('repo-messaging-request', () => { previousEvent = ''; announce(); });
   addEventListener('repo-launcher-portal-visibility', event => {
     if (typeof event.detail?.visible !== 'boolean') return;
     portalVisible = event.detail.visible;

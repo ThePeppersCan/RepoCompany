@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, WebContentsView, ipcMain, protocol, session, Menu, dialog, shell } = require('electron');
+const { app, BrowserWindow, WebContentsView, ipcMain, protocol, session, Menu, dialog, shell, nativeImage } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { Library } = require('./lib/library.cjs');
@@ -11,6 +11,7 @@ const { RequiredUpdate } = require('./lib/required-update.cjs');
 const { Preferences } = require('./lib/preferences.cjs');
 const { DiscordPresence } = require('./lib/discord-presence.cjs');
 const { MessageNotifications } = require('./lib/message-notifications.cjs');
+const { TaskbarAttention } = require('./lib/taskbar-attention.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
 
 app.setName('Repo Company');
@@ -24,7 +25,7 @@ const config = require('./config.cjs')(app.isPackaged ? process.resourcesPath : 
 const fixtures = !app.isPackaged && process.env.REPO_LAUNCHER_FIXTURES === '1' ? require('./tests/fixtures/network.cjs') : null;
 const hiddenTest = !app.isPackaged && process.env.REPO_LAUNCHER_HIDDEN_TEST === '1';
 if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestServices = fixtures; }
-let messageNotifications;
+let messageNotifications, taskbarAttention;
 let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
@@ -211,6 +212,7 @@ function checkAndApplyUpdates({ reschedule = false } = {}) {
 function broadcast() {
   if (quitting || !windowContents(mainWindow)) return;
   messageNotifications?.sync(account?.state.status === 'online' ? mediaAccountId : null);
+  taskbarAttention?.sync(account?.state.status === 'online' ? mediaAccountId : null, socialState.unread);
   if (broadcastTimer) return;
   // Coalesce file, account and game changes into the newest snapshot instead
   // of repeatedly rebuilding the website controls during a burst of events.
@@ -627,7 +629,7 @@ async function executeCommand(action, value) {
   if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'media-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
-    case 'message-notification': await messageNotifications?.show(value); return;
+    case 'message-notification': taskbarAttention?.notify(value); await messageNotifications?.show(value); return;
     case 'message-anchor': messageNotifications?.setAnchor(value); return;
     case 'game-intro-complete': {
       const record = currentGame();
@@ -733,6 +735,7 @@ async function launch() {
     webPreferences: { preload: path.join(desktopRoot, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true }
   });
   secureContents(mainWindow.webContents, value => value === 'repo-launcher://app/index.html');
+  taskbarAttention = new TaskbarAttention({window:mainWindow,nativeImage,root:desktopRoot});
   messageNotifications = new MessageNotifications({window:mainWindow,View:WebContentsView,root:desktopRoot,eligible:()=>!quitting&&!!windowContents(mainWindow)&&!!currentGame()&&!currentGame().loading&&!messageOverlay&&!updateLocked()&&account?.state.status==='online'&&mainWindow.isVisible()&&!mainWindow.isMinimized(),open:openMessages});
   ipcMain.on('launcher:notification-action',(event,action)=>messageNotifications?.action(event,action));
   portal = new WebContentsView({ webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'portal-preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false } });
@@ -765,6 +768,7 @@ async function launch() {
   mainWindow.on('close', handleMainWindowClose);
   mainWindow.on('closed', () => {
     mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
+    taskbarAttention?.dispose();
     messageNotifications?.dispose();
     discordPresence?.dispose();
     mediaPermissions?.dispose();

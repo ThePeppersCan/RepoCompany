@@ -309,7 +309,7 @@ function initialize() {
     finally{if(action==='play')dispatchEvent(new Event('repo-launch-presentation-reset'));pending.delete(token);schedule();}
   }
   let mediaWasOnline=false;
-  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};const mediaOnline=next.account?.status==='online';if(mediaOnline&&!mediaWasOnline){mediaWasOnline=true;dispatchEvent(new Event('repo-media-request'));}else if(!mediaOnline)mediaWasOnline=false;document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
+  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};const mediaOnline=next.account?.status==='online';if(mediaOnline&&!mediaWasOnline){mediaWasOnline=true;dispatchEvent(new Event('repo-media-request'));dispatchEvent(new Event('repo-messaging-request'));}else if(!mediaOnline)mediaWasOnline=false;document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
 
   // Capture the trusted click, then run the site's disc/sound/curtain before IPC.
   addEventListener('click',event=>{
