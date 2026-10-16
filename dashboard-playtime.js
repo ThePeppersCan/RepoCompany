@@ -2,7 +2,7 @@
  'use strict';
  const service=window.repoAccount;
  let current=null,timer=null,token=null;
- const validGames=new Set(['moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
+ const validGames=new Set(['moratales','manager','morogue','broomflight','dragonbound','diver','goblin','rooftops','seas','sports']);
  const active=()=>!document.hidden&&service.playtimeActive!==false;
  service.db.auth.getSession().then(({data})=>{token=data.session?.access_token||null;});
  service.db.auth.onAuthStateChange((_event,session)=>{token=session?.access_token||null;if(!session)stop();});

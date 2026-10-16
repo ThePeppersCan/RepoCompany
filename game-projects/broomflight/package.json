@@ -1,0 +1,29 @@
+{
+  "name": "repo-velmora-broomflight",
+  "version": "1.0.0",
+  "description": "Velmora broomstick course-racing demo",
+  "private": true,
+  "type": "module",
+  "keywords": [
+    "threejs",
+    "typescript",
+    "broomflight",
+    "racing-game",
+    "cel-shading",
+    "procedural-generation"
+  ],
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.185.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.5",
+    "@playwright/test": "^1.55.0"
+  }
+}

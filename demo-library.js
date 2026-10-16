@@ -4,13 +4,14 @@
   // Names and descriptions are sourced from the local RepoCompany game menus.
   // Embedded games have no standalone deep link; never invent a working game URL.
   const games=[
+    {id:'broomflight',name:'Broomflight',lines:['VELMORA','BROOMFLIGHT'],genre:'Broomstick racing · Solo',description:'Race three rivals from Valeron Ridge to Elvara. Bank through the woods, climb over Solmere’s vineyards and catch the updrafts on the Elvane Run.',color:'137,167,123',url:'/broomflight/'},
     {id:'dragonbound',name:'Dragonbound',lines:['DRAGONBOUND'],genre:'Fantasy adventure',description:'A smaller adventure from the world of Velmora. Pick up a new journey from the Repo Company collection.',color:'115,136,170',url:'https://dragonbound.repocompany.uk/'},
     {id:'diver',name:'Repo Diver',lines:['REPO','DIVER'],genre:'Underwater exploration',description:'Explore living marine ecosystems, follow migrating schools and discover the creatures of a shared ocean.',color:'90,153,167',menu:'Fishing → Repo Diver'},
     {id:'goblin',name:'Goblin Bomb Party',lines:['GOBLIN BOMB','PARTY'],genre:'Party action · Solo / online',description:'Pass, throw and dodge a magical bomb. Play solo or bring friends into an increasingly frantic party.',color:'170,111,92',menu:'Slayer → Goblin Bomb Party'},
     {id:'rooftops',name:'Repo Rooftops',lines:['REPO','ROOFTOPS'],genre:'Parkour',description:'Take to the rooftops and find your rhythm across the course. A smaller parkour challenge from the collection.',color:'148,132,109',menu:'Agility → Repo Rooftops',prototype:true},
     {id:'seas',name:'High Seas',lines:['HIGH','SEAS'],genre:'Parkour voyage',description:'Master double-jumps and chase clean runs across a checkpoint-based voyage. Choose a route and take to the seas.',color:'99,143,167',menu:'Sailing',prototype:true},
     {id:'sports',name:'Repo Sports',lines:['REPO','SPORTS'],genre:'Fantasy sports',description:'Visit the league, browse its clubs and follow the live broadcast. The sporting side of the Repo Company collection.',color:'124,151,131',menu:'Repo Sports'}
-  ];
+  ].filter(game=>game.id!=='broomflight'||document.documentElement.dataset.repoLauncher!=='true');
   const dialog=document.createElement('dialog');
   dialog.id='demo-library';dialog.className='demo-dashboard';
   dialog.setAttribute('aria-labelledby','demo-heading');

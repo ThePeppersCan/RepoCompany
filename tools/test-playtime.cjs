@@ -36,5 +36,9 @@ const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('n
  assert.equal((await play('bob','tick',2,true,'manager',b)).status,409,'A different user cannot hijack the session');
  const state=(await call('alice','state')).body;assert.equal(state.activity.length,2);assert.equal(state.activity[0].game,'manager');
  assert.equal(state.profile.repo_score,0,'Play time does not award achievement score');
+ await play('alice','start',0,true,'broomflight','cccccccc-cccc-4ccc-8ccc-cccccccccccc');now+=30000;
+ assert.equal((await play('alice','stop',1,false,'broomflight','cccccccc-cccc-4ccc-8ccc-cccccccccccc')).status,200);
+ assert.equal(sql.prepare('SELECT played_ms FROM dashboard_game_activity WHERE username=? AND game=?').get('alice','broomflight').played_ms,30000);
+ assert.equal(presence().game,'broomflight');assert.equal(presence().running,0);
  Date.now=realNow;sql.close();console.log('PASS: authenticated play time, server-clock accounting, hidden/offline pauses, duplicate and reordered ticks, multi-tab ownership and recent history.');
 })().catch(e=>{console.error(e);process.exit(1);});

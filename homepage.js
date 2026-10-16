@@ -153,7 +153,7 @@
     if(document.getElementById('gallery').open)document.getElementById('gallery').close();
     window.demoLibrary.close(false);
     const index=games.findIndex(g=>g.id===id&&g.id!=='demos');
-    if(id.startsWith('demo/')){choose(3,false,false);showCollection({animate:false,route:false});window.demoLibrary.open({route:false});window.repoLegacy.open(id.split('/')[1]);}
+    if(id.startsWith('demo/')){choose(3,false,false);showCollection({animate:false,route:false});window.demoLibrary.open({route:false,gameId:id.split('/')[1]});window.repoLegacy.open(id.split('/')[1]);}
     else if(id==='demos'){choose(3,false,false);showCollection({animate:false,route:false});window.demoLibrary.open({route:false});}
     else if(index>=0){choose(index,false,false);showOpen({animate:false,route:false});}
     else showCollection({animate:false,route:false});

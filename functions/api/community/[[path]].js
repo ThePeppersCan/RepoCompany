@@ -40,7 +40,7 @@ async function rate(db,me,scope,max,now){
  if(row.count>max)throw fail('Please wait a moment before trying again.',429);
 }
 const settingsView=row=>({title:row.title,bannerVersion:row.banner_version,height:row.banner_height,zoom:row.banner_zoom,x:row.banner_x,y:row.banner_y});
-const games=new Set(['moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
+const games=new Set(['moratales','manager','morogue','broomflight','dragonbound','diver','goblin','rooftops','seas','sports']);
 function activityFor(p,now){
  if(p.locked||p.invisible)return null;
  let game='',seen=0,startedAt=null;

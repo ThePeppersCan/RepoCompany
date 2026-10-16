@@ -16,7 +16,7 @@ function validateAvatar(value){
 const readAvatar=value=>{try{return validateAvatar(JSON.parse(value));}catch{return null;}};
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const cleanName=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{3,16}$/.test(value)?value.toLowerCase():null;
-const allowedGames=new Set(['','moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
+const allowedGames=new Set(['','moratales','manager','morogue','broomflight','dragonbound','diver','goblin','rooftops','seas','sports']);
 const frameIds=new Set(frameCatalog.map(f=>f.id));
 async function earnedFrames(db,me){const rows=await db.prepare('SELECT achievement_id FROM dashboard_achievement_unlocks WHERE username=?').bind(me).all();const ids=new Set(rows.results.map(r=>r.achievement_id));return frameCatalog.filter(f=>f.kind==='achievement'&&ids.has(f.achievementId)).map(f=>f.id);}
 // Dashboard and game leases are independent: a hidden dashboard must never

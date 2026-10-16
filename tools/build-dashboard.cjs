@@ -19,6 +19,7 @@ for(const name of fs.readdirSync(root)){
 }
 require('./build-web-login.cjs')(root,dist);
 require('./build-game-loader.cjs')(root,dist);
+require('./build-broomflight.cjs')(root);
 files+=require('./build-launcher-feed.cjs').buildLauncherFeed(root,dist);
 const publicPages=require('./build-public-pages.cjs')(root,dist,{production});
 if(!production){
