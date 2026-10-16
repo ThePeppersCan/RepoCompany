@@ -2,4 +2,4 @@
 
 .repo-reparty-nav>.repo-media-button{border-radius:0}.repo-reparty-nav>.repo-media-button[aria-current]{border-bottom-color:#c4d6aa}
 
-.repo-reparty-nav>.repo-media-button{width:42px;height:42px;padding:0}.repo-reparty-nav .repo-icon-reparty img,.rc-topnav .repo-icon-reparty img{width:34px;height:34px}.repo-reparty-nav .repo-icon-wibs img{width:34px;height:25px}.repo-reparty-launch:hover{background:transparent}.repo-reparty-launch:hover img{transform:translateY(-1px)}
+.repo-reparty-nav>.repo-media-button{position:relative;width:42px;height:42px;padding:0;margin:0;border:0}.repo-reparty-nav>.repo-media-button[aria-current=page]::after{content:"";position:absolute;bottom:0;left:5px;right:5px;height:1px;background:#c4d6aa}.repo-reparty-nav .repo-icon-reparty img,.rc-topnav .repo-icon-reparty img{width:34px;height:34px}.repo-reparty-nav .repo-icon-wibs img{width:34px;height:25px}.repo-reparty-launch:hover{background:transparent}.repo-reparty-launch:hover img{transform:translateY(-1px)}
