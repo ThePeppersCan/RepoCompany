@@ -25,5 +25,11 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
   assert(fixture.voiceHub.state.rooms.some(r=>r.kind==='community'&&r.members[fixture.sessions.mallory.user.id]?.status==='joining'));
   console.log('PASS: the RE-COMP channel itself joins public voice and requests a microphone only after the click; there is no separate Join voice button.');
   await publicContext.close();
+  const recovery=await fixture.browserContext(browser,'alice');
+  await recovery.addInitScript(()=>{window.__failVoice=true;const original=window.fetch;window.fetch=(url,options)=>String(url).includes('/api/voice/state')&&window.__failVoice?Promise.reject(new DOMException('signal is aborted without reason','AbortError')):original(url,options);});
+  const recoveryPage=await recovery.newPage();await recoveryPage.goto(fixture.base);await recoveryPage.waitForFunction(()=>repoVoice?.getState().serviceError);await recoveryPage.evaluate(()=>repoMessaging.open());
+  await recoveryPage.getByText('Voice took too long to respond. Please try joining again.',{exact:true}).waitFor();assert.equal(await recoveryPage.getByText('signal is aborted without reason',{exact:true}).count(),0);
+  await recoveryPage.evaluate(()=>{__failVoice=false;dispatchEvent(new Event('online'));});await recoveryPage.waitForFunction(()=>repoVoice.getState().enabled&&!repoVoice.getState().serviceError);assert.equal(await recoveryPage.locator('.repo-voice-panel').isVisible(),false);
+  await recovery.close();console.log('PASS: interrupted voice requests display a useful error and recover automatically without endless loading.');
  }finally{await browser?.close();await fixture.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

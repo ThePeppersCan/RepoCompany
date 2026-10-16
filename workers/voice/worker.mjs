@@ -17,16 +17,28 @@ export default {
 
 export class VoiceHub {
   constructor(ctx, env) {
-    this.ctx = ctx; this.env = env; this.queue = Promise.resolve();
+    this.ctx = ctx; this.env = env; this.queue = Promise.resolve(); this.cleanups = new Map();
     this.ready = ctx.blockConcurrencyWhile(async () => {
       this.state = await ctx.storage.get('state') || {version:1, billingDay:Number(env.BILLING_DAY)||1, at:Date.now(), usage:{}, daily:{}, rooms:[], rates:{}};
       this.state.moderation ||= {};
     });
   }
-  serial(fn) { const task = this.queue.then(() => this.ready).then(fn); this.queue = task.catch(() => {}); return task; }
+  serial(fn) {
+    const entered=Date.now();
+    const task=this.queue.then(()=>this.ready).then(async()=>{
+      if(Date.now()-entered>1000)console.log(JSON.stringify({event:'voice-queue',queuedMs:Date.now()-entered}));
+      return fn();
+    });
+    this.queue=task.catch(()=>{});
+    this.ctx.waitUntil?.(this.queue);
+    return task;
+  }
   async save() { await this.ctx.storage.put('state', this.state); }
   async schedule() {
-    if (this.state.rooms.some(r => !r.ended || members(r).some(m => m.pub || m.recv))) await this.ctx.storage.setAlarm(Date.now() + 15000);
+    if (this.state.rooms.some(r => !r.ended || members(r).some(m => m.pub || m.recv))) {
+      const due=Date.now()+15000,scheduled=await this.ctx.storage.getAlarm?.();
+      if(!scheduled||scheduled>due)await this.ctx.storage.setAlarm(due);
+    }
     else await this.ctx.storage.deleteAlarm();
   }
   async sfu(path, body, method = 'POST') {
@@ -78,7 +90,7 @@ export class VoiceHub {
       if(r.deafened&&m.recv)m.recv.revoked=true;
     }
     await this.save();await this.schedule();
-    for(const room of active)await this.clean(room);
+    for(const room of active)this.clean(room);
     return this.view(me,b.client,now);
   }
   async friend(me, target) {
@@ -131,11 +143,26 @@ export class VoiceHub {
     if (session.pendingUntil > Date.now()) throw fail('Voice cleanup is still pending.',503);
     return true;
   }
-  async clean(room) {
+  clean(room) {
     for (const m of members(room)) {
-      // Always close publications first, stopping audio fanout to every receiver.
       for (const key of ['pub','recv']) if(m[key]&&(m.status==='left'||m[key].revoked)) {
-        try { await this.closeSession(m[key]); m[key]=null; } catch { /* Alarm retries, retaining the traffic reservation. */ }
+        const session=m[key];
+        if(this.cleanups.has(session.id)||session.retryAt>Date.now())continue;
+        // External shutdowns must never hold the admission/heartbeat queue.
+        // Keep the exact session and its traffic reservation until confirmed closed.
+        const job=(async()=>{
+          let closed=false;
+          try{await this.closeSession(session);closed=true;}catch{}
+          await this.serial(async()=>{
+            if(m[key]!==session)return;
+            settle(this.state,Date.now());
+            if(closed)m[key]=null;
+            else session.retryAt=Date.now()+15000;
+            if(m.status==='left'&&!m.pub&&!m.recv)m.client=null;
+            await this.save();await this.schedule();
+          });
+        })().catch(error=>console.warn(JSON.stringify({event:'voice-cleanup-error',error:error.name}))).finally(()=>this.cleanups.delete(session.id));
+        this.cleanups.set(session.id,job);this.ctx.waitUntil?.(job);
       }
       if (m.status==='left'&&!m.pub && !m.recv) m.client=null;
     }
@@ -160,12 +187,12 @@ export class VoiceHub {
     }
     // Schedule and persist the shutdown BEFORE making external close requests.
     await this.save(); await this.schedule();
-    for (const room of this.state.rooms) await this.clean(room);
+    for (const room of this.state.rooms) this.clean(room);
     settle(this.state,Date.now());
     this.state.rooms = this.state.rooms.filter(r => !r.ended || now-r.ended < 120000 || members(r).some(m=>m.pub||m.recv));
     await this.save(); await this.schedule();
   }
-  alarm() { return this.serial(() => this.maintain(Date.now(),true)); }
+  async alarm() { await this.serial(() => this.maintain(Date.now(),true)); await Promise.allSettled([...this.cleanups.values()]); }
   view(me, client, now) {
     return {enabled:true, budget:{limit:LIMIT,used:Math.ceil(this.state.usage[month(now,this.state.billingDay)]||0),resetAt:nextMonth(now,this.state.billingDay),available:hasBudget(this.state,now),estimated:true,rollingGuard:rollingUsage(this.state,now)>=LIMIT},
       community:{title:'RE-COMP',capacity:8,canModerate:!!me.developer,mine:this.restrictions(me.id,now),restrictions:me.developer?Object.entries(this.state.moderation).map(([id,r])=>({name:r.name,display:r.display,...this.restrictions(id,now)})):[],members:this.state.rooms.filter(r=>r.kind==='community'&&!r.ended).flatMap(r=>members(r).filter(live).map(m=>({name:m.name,display:m.display,muted:!!m.muted,...this.voiceFlags(r,m)})))},
@@ -176,21 +203,30 @@ export class VoiceHub {
         sources:this.voiceFlags(r,r.members[me.id]).serverDeafened?[]:members(r).filter(m=>m.id!==me.id && this.audible(r,m)).map(m=>({id:m.id,name:m.name,trackName:m.pub.trackName}))
       }))};
   }
-  fetch(request) { return this.serial(async () => {
+  async fetch(request) {
+    // Consume the request body while its caller is connected, before queuing
+    // state changes. A disconnected stream must not stall every later caller.
+    let payload;try{payload=await request.json();}catch{return json({error:'Voice request was interrupted. Please try again.'},400);}
+    return this.serial(async () => {
+    let action='unknown',stage='request',began=Date.now();
     try {
-      const {me:identity,op,body={}} = await request.json(), now=Date.now();
+      const {me:identity,op,body={}} = payload, now=Date.now();
+      action=op;stage='identity';
       if (!identity || typeof identity.id!=='string' || !name(identity.name)) throw fail('Sign in to call.',401);
       if (!uuid(body.client)) throw fail('Refresh this page to call.');
       const me = await this.owner(identity); this.rate(me,op,now);
+      stage='maintenance';
       await this.maintain(now,op==='state');
+      stage='action';
       let result;
       if(op==='state') result=this.view(me,body.client,now);
       else result=await this.action(me,op,body,now);
-      await this.save(); await this.schedule(); return json(result);
+      stage='save';await this.save(); await this.schedule(); return json(result);
     } catch(error) {
+      console.warn(JSON.stringify({event:'voice-error',action,stage,error:error.name,status:error.status||503,elapsedMs:Date.now()-began}));
       await this.save(); await this.schedule();
       return json({error:error.status?error.message:'Voice is temporarily unavailable.'},error.status||503);
-    }
+    }finally{console.log(JSON.stringify({event:'voice-request',action,stage,elapsedMs:Date.now()-began,rooms:this.state.rooms.length,pending:this.state.rooms.flatMap(members).filter(m=>m.status==='left'&&(m.pub||m.recv)).length}));}
   }); }
   async action(me,op,b,now) {
     if(op==='moderate')return this.moderate(me,b,now);
@@ -226,13 +262,13 @@ export class VoiceHub {
     if(op==='leave') {
       if(m.client && m.client!==b.client) throw fail('This call is open on another device.',409);
       m.status='left'; if((room.host===me.id && room.kind!=='community') || room.kind==='private' || (room.kind==='community'&&!members(room).some(live))) this.end(room,'Call ended.',now);
-      await this.save(); await this.clean(room); return {ok:true};
+      await this.save(); this.clean(room); return {ok:true};
     }
     if(room.ended || (m.status==='left' && !(op==='join' && room.kind==='group'))) throw fail(m.removalReason||room.reason||'This call has ended.',410);
-    try { await this.permitted(room); } catch(error) { this.end(room,'A friendship changed.',now); await this.save(); await this.clean(room); throw error; }
+    try { await this.permitted(room); } catch(error) { this.end(room,'A friendship changed.',now); await this.save(); this.clean(room); throw error; }
     if(op==='join') return this.join(room,me,b,now);
     if(!live(m)||m.client!==b.client) throw fail('Join the call from this device first.',403);
-    if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();await this.clean(room);throw fail(room.reason,429);}
+    if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();this.clean(room);throw fail(room.reason,429);}
     if(op==='heartbeat') {m.lease=now+LEASE;m.muted=!!b.muted;return this.view(me,b.client,now);}
     if(op==='reset-receiver') {
       // A permanent channel can see many departures/rejoins. Retire the old
@@ -253,7 +289,7 @@ export class VoiceHub {
         if(response.sessionDescription?.type!=='answer') throw fail('Unexpected voice connection response.',502);
         m.pub.pendingUntil=0;
         return {sessionDescription:response.sessionDescription};
-      } catch(e) {m.status='left';await this.save();await this.clean(room);throw e;}
+      } catch(e) {m.status='left';await this.save();this.clean(room);throw e;}
     }
     if(op==='ready') {const flags=this.voiceFlags(room,m);if(!m.pub&&!flags.serverMuted&&!flags.serverDeafened)throw fail('Connect your microphone first.');if(m.pub&&!m.pub.revoked)m.pub.ready=true;m.status='active';return{ok:true};}
     if(op==='subscribe') {
@@ -271,7 +307,7 @@ export class VoiceHub {
         m.recv.pendingUntil=0;
         m.recv.sources.push(...sources.map(p=>p.pub.trackName));
         return {sessionDescription:response.sessionDescription,tracks:response.tracks};
-      }catch(e){m.status='left';await this.save();await this.clean(room);throw e;}
+      }catch(e){m.status='left';await this.save();this.clean(room);throw e;}
     }
     if(op==='answer') {
       if(this.voiceFlags(room,m).serverDeafened)throw fail('A Developer has deafened you in RE-COMP.',403);

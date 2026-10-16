@@ -35,6 +35,8 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
    const parentMessages=await page.evaluate(()=>JSON.stringify(received));assert(!parentMessages.includes(token));assert(!parentMessages.includes('test-refresh'));
    await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
    await page.waitForTimeout(50);assert.equal(requests.at(-1).active,false,'Hidden games pause recording');
+   const hiddenCount=requests.length;for(let i=0;i<4;i++)await page.clock.runFor(10000);
+   assert(requests.length>hiddenCount&&requests.at(-1).action==='tick'&&!requests.at(-1).active,'An open hidden game renews presence without earning play time');
    await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
    await page.waitForTimeout(50);assert.equal(requests.at(-1).active,true,'Visible games resume');
   }

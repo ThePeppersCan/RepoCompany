@@ -11,7 +11,7 @@ async function createFixture(fixtureOptions={}){
  const source=fs.readFileSync(path.join(root,'functions/api/social/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify({...config,socialCallsEnabled:true})+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
  const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(path.join(root,'dashboard-social-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-messaging-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-extras-schema.sql'),'utf8'));
- for(const file of ['dashboard-community-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql'])sql.exec(fs.readFileSync(path.join(root,file),'utf8'));
+ for(const file of ['dashboard-community-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql','dashboard-playtime-schema.sql','dashboard-game-presence-schema.sql','dashboard-community-profile-schema.sql'])sql.exec(fs.readFileSync(path.join(root,file),'utf8'));
  const communitySource=fs.readFileSync(path.join(root,'functions/api/community/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
  const onCommunityRequest=(await import('data:text/javascript;base64,'+Buffer.from(communitySource).toString('base64'))).onRequest;
  for(const [username,id]of Object.entries(people))sql.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?)').run(username,id,username[0].toUpperCase()+username.slice(1));
@@ -31,7 +31,7 @@ async function createFixture(fixtureOptions={}){
  let voiceHub,onVoiceRequest;
  if(fixtureOptions.voiceSecrets){
   const {VoiceHub}=await import(require('node:url').pathToFileURL(path.join(root,'workers/voice/worker.mjs')));
-  const storage={async get(){return this.saved},async put(_key,value){this.saved=structuredClone(value)},async setAlarm(at){this.alarm=at},async deleteAlarm(){this.alarm=null}};
+  const storage={async get(){return this.saved},async put(_key,value){this.saved=structuredClone(value)},async getAlarm(){return this.alarm},async setAlarm(at){this.alarm=at},async deleteAlarm(){this.alarm=null}};
   voiceHub=new VoiceHub({storage,blockConcurrencyWhile:fn=>fn()},{DASHBOARD_DB:db,...fixtureOptions.voiceSecrets});
   env.REPO_VOICE={fetch:(url,init)=>voiceHub.fetch(new Request(url,init))};
   const source=fs.readFileSync(path.join(root,'functions/api/voice/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');

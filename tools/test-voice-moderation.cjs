@@ -12,7 +12,7 @@ const assert=require('node:assert/strict'),{createFixture}=require('./messaging-
   if(route.endsWith('/renegotiate'))return{};
   const tracks=body.tracks.map((t,i)=>({...t,mid:String(i),status:'active'}));sessions.set(key,tracks);return{tracks,sessionDescription:{...sdp,type:body.sessionDescription?'answer':'offer'}};
  };
- async function call(who,op,body={},status=200){const r=await hub.fetch(new Request('https://voice.internal/',{method:'POST',body:JSON.stringify({me:{id:id(who),name:who,developer:true},op,body:{client:clients[who],...body}})}));const data=await r.json();assert.equal(r.status,status,JSON.stringify(data));return data;}
+ async function call(who,op,body={},status=200){const r=await hub.fetch(new Request('https://voice.internal/',{method:'POST',body:JSON.stringify({me:{id:id(who),name:who,developer:true},op,body:{client:clients[who],...body}})}));await Promise.allSettled([...hub.cleanups.values()]);const data=await r.json();assert.equal(r.status,status,JSON.stringify(data));return data;}
  const mod=(action,options={},status=200)=>call('alice','moderate',{username:'bob',action,...options},status);
  async function publish(who,room){await call(who,'publish',{room,mid:'0',sessionDescription:sdp});await call(who,'ready',{room});}
  async function receive(who,room){await call(who,'subscribe',{room});await call(who,'answer',{room,sessionDescription:{...sdp,type:'answer'}});}
@@ -28,7 +28,7 @@ const assert=require('node:assert/strict'),{createFixture}=require('./messaging-
   await mod('deafen',{enabled:true});assert.equal(member.recv,null);assert.equal(sessions.get(recv).length,0);await call('bob','subscribe',{room},403);await call('bob','answer',{room,sessionDescription:{...sdp,type:'answer'}},403);
   await mod('deafen',{enabled:false});assert.equal((await call('bob','state')).rooms[0].mine.serverMuted,true,'Removing deafen does not remove a separate server mute');await receive('bob',room);
   await mod('mute',{enabled:false});await publish('bob',room);assert.equal((await call('alice','state')).rooms[0].sources.length,1);
-  failClose=true;await mod('mute',{enabled:true});assert(member.pub?.revoked&&member.client,'Failed upstream closure retains the session and its allowance reservation');await call('bob','publish',{room,mid:'0',sessionDescription:sdp},403);failClose=false;await hub.alarm();assert.equal(member.pub,null);await mod('mute',{enabled:false});await publish('bob',room);
+  failClose=true;await mod('mute',{enabled:true});assert(member.pub?.revoked&&member.client,'Failed upstream closure retains the session and its allowance reservation');await call('bob','publish',{room,mid:'0',sessionDescription:sdp},403);failClose=false;for(const r of hub.state.rooms)for(const m of Object.values(r.members))for(const k of ["pub","recv"])if(m[k])m[k].retryAt=0;await hub.alarm();assert.equal(member.pub,null);await mod('mute',{enabled:false});await publish('bob',room);
   await mod('disconnect');assert.equal(member.status,'left');assert.equal(member.pub,null);assert.equal(member.recv,null);await call('bob','heartbeat',{room},410);await call('bob','community');await publish('bob',room);
   await mod('ban',{seconds:300});const ban=hub.state.moderation[id('bob')].bannedUntil;assert(ban>Date.now());await call('bob','community',{client:crypto.randomUUID()},403);await call('bob','join',{room},410);
   const restarted=new (hub.constructor)(hub.ctx,hub.env);await restarted.ready;assert.equal(restarted.state.moderation[id('bob')].bannedUntil,ban,'Voice bans survive a Worker restart');

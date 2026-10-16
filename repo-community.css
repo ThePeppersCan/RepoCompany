@@ -37,3 +37,75 @@
 .rc-page .rc-message.has-continuation{padding-bottom:5px}.rc-page .rc-message.is-continuation{padding-left:76px}.rc-reactions:empty{display:none}.rc-group-time{position:absolute;left:0;top:3px;width:54px;text-align:center;font-size:10px;color:#a8afa5;opacity:0}.rc-message:hover>.rc-group-time,.rc-message:focus-within>.rc-group-time{opacity:1}.rc-page .repo-message-row.has-continuation{margin-bottom:4px}.rc-page .repo-message-row.has-continuation>.repo-message-meta{display:none}
 .rc-page .rc-person-menu{position:fixed;inset:auto;margin:0;width:245px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow:auto;padding:7px;background:#14251d;border:1px solid #8ca58259;border-radius:10px;box-shadow:0 12px 40px #0008;color:#edf0e7;font:14px/1.4 Arial,sans-serif}.rc-person-menu::backdrop{background:none;backdrop-filter:none}.rc-menu-name{display:block;padding:7px 9px;font-size:13px;color:#c4d2bb;overflow-wrap:anywhere}.rc-page .rc-person-menu button{display:block;position:relative;width:100%;text-align:left;padding:9px 27px 9px 9px;border:0;border-radius:5px;background:none;color:#edf0e7;font:inherit}.rc-page .rc-person-menu button:hover,.rc-page .rc-person-menu button:focus-visible{background:#75925c35;outline:1px solid #b5d39b55}.rc-page .rc-person-menu button[aria-checked=true]:after{content:'✓';position:absolute;right:9px;color:#badd9f}.rc-page .rc-person-menu button.is-danger{color:#f2aaa1}.rc-person-menu hr{border:0;border-top:1px solid #8ca58235;margin:6px 4px}.rc-menu-note,.rc-menu-error{font-size:12px!important;padding:7px 9px;color:#b7c7ad;overflow-wrap:anywhere}.rc-menu-error{color:#ffc1ad}.rc-voice-restriction{display:flex;flex-wrap:wrap;gap:8px;padding:14px 0;border-bottom:1px solid #8ca58235}.rc-voice-restriction strong,.rc-voice-restriction p{width:100%}.rc-voice-person:focus-visible{outline:1px solid #b5d39b;outline-offset:3px;border-radius:5px}
 @media(max-width:640px){.rc-page .rc-message.is-continuation{padding-left:50px}.rc-group-time{width:38px;font-size:9px}}
+
+/* The account and call dock stays at the foot of the channel list. */
+.rc-page .rc-sidebar{overflow:hidden}.rc-sidebar-scroll{min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;padding:2px 0 8px;scrollbar-width:thin;scrollbar-color:#405544 transparent}
+.rc-page .rc-sidebar-bottom{padding-top:24px;flex:none}
+.rc-page .rc-self{gap:9px;margin:14px 0 0;padding:18px 4px 9px;min-height:58px;font:13px/1.4 Arial,Helvetica,sans-serif}
+.rc-self-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-page .rc-self-role{display:inline;margin-left:auto;font-size:10px;flex:none}
+.rc-page .rc-account-settings{display:grid;place-items:center;width:28px;height:30px;flex:none;border:0;background:none;color:#aabca5}
+.rc-account-settings svg{width:19px;height:19px}.rc-page .rc-account-settings:hover{background:#c5d4be0d;color:#e1ebd6}
+.rc-page .rc-sidebar-bottom .rc-back{padding:9px 4px 0;gap:12px;font:14px/1.5 Arial,Helvetica,sans-serif;color:#bac7b4}
+.rc-sidebar-bottom .rc-back svg{width:25px;height:25px;border:0;padding:2px}
+.rc-page .rc-dm-toggle{font:400 17px/1.4 Arial,Helvetica,sans-serif;letter-spacing:0;color:#dce4d5}
+.rc-page .rc-dm-toggle>span,.rc-page .repo-message-friend-title b{font-family:Arial,Helvetica,sans-serif;font-weight:400}
+.rc-page .repo-message-search{border-radius:7px;padding:9px 10px;box-shadow:none}
+.rc-page .repo-message-search input,.rc-page .repo-message-search input:focus,.rc-page .repo-message-search input:focus-visible{outline:none!important;border:0!important;box-shadow:none!important;background:none;font:13px/1.4 Arial,Helvetica,sans-serif;padding:0}
+.rc-page .repo-message-search:focus-within{box-shadow:none;border-color:var(--social-line)}
+.rc-page .repo-message-search:has(input:focus-visible){border-color:#a7bb8c66}
+.rc-page .repo-message-friend-title b{font-size:14px!important}.rc-page .repo-message-bubble{font:16px/1.5 Arial,Helvetica,sans-serif}
+.rc-page .rc-settings-choice{display:grid;grid-template-columns:28px 1fr;gap:6px 14px;width:100%;padding:20px 16px;text-align:left;background:#c5d4be06;border:1px solid var(--social-line);border-radius:10px;margin-bottom:12px;font-size:17px}
+.rc-settings-choice svg{grid-row:1 / 3;margin-top:2px}.rc-settings-choice small{grid-column:2;color:#a8baa0;font-size:13px;line-height:1.5;font-weight:400}.rc-page .rc-settings-choice:hover{border-color:#a7bb8c66;background:#c5d4be0c}
+/* Proportional height keeps the selected crop stable as the client changes size. */
+.rc-page .rc-workspace>.rc-banner{height:auto;aspect-ratio:var(--rc-banner-ratio,1300 / 260);min-height:180px;max-height:38dvh}
+.rc-page .rc-banner-preview{height:auto;aspect-ratio:var(--rc-banner-ratio,1300 / 260);min-height:100px;max-height:none}
+@media(max-width:640px){.rc-page .rc-workspace>.rc-banner{min-height:170px;max-height:32dvh}}
+@media(max-height:850px){.rc-page .rc-sidebar{padding-top:20px;padding-bottom:16px}.rc-page .rc-community-identity{height:58px;min-height:58px;margin-bottom:16px}.rc-page .rc-community-identity .rc-wibs-brand{width:80px;height:58px}.rc-page .rc-dm-toggle{margin-top:12px;margin-bottom:8px;padding-top:8px;padding-bottom:8px}.rc-page .rc-voice{margin-top:10px;padding-top:12px}.rc-page .rc-voice-members{margin-top:8px;margin-bottom:8px}.rc-page .rc-sidebar-bottom{padding-top:14px}}
+
+/* One compact account dock, with activity and connection details above it. */
+.rc-account-dock{border:1px solid #b7cf9e20;border-radius:10px;background:#b4c99c08;overflow:hidden;margin-inline:-10px}
+.rc-page .rc-account-dock .rc-self{border:0;margin:0;padding:12px 9px;gap:5px;min-height:64px;justify-content:space-between}
+.rc-page .rc-self-profile{display:flex;align-items:center;gap:9px;min-width:0;flex:1;text-align:left;border:0;background:none;padding:3px;border-radius:6px}
+.rc-self-profile:hover{background:#d0dfbd08!important}.rc-self-copy{display:flex;flex-direction:column;min-width:0;gap:3px}
+.rc-page .rc-self-name{font:500 13px/1.2 Arial,Helvetica,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.rc-page .rc-self-role{font:11px/1.2 Arial,Helvetica,sans-serif;margin:0;color:#a5b49e}
+.rc-self-controls{display:flex;align-items:center;gap:1px;flex:none}
+.rc-page .rc-self-controls button{display:grid;place-items:center;position:relative;width:30px;height:32px;border:0;background:none;padding:5px;color:#b7c5af;border-radius:6px}
+.rc-page .rc-self-controls button svg{width:19px;height:19px;stroke-linecap:round;stroke-linejoin:round}
+.rc-page .rc-self-controls button:hover:not(:disabled){background:#b9d3a414;color:#edf1e5}
+.rc-page .rc-self-controls button[aria-pressed=true]{color:#e4a797}.rc-self-controls button[aria-pressed=true]:after{content:'';position:absolute;width:22px;height:2px;background:currentColor;transform:rotate(-45deg);box-shadow:0 0 0 1px #17241c}
+.rc-page .rc-account-dock .repo-voice-panel{border:0;border-bottom:1px solid #b7cf9e1a;border-radius:0;background:none;padding:10px 13px;margin:0;max-height:25vh}
+.rc-page .rc-account-dock .repo-voice-top .repo-voice-end{margin-left:auto;flex:none;width:30px;height:28px;min-height:0;padding:4px;background:none;border:0;color:#cdb5a7}
+.rc-page .rc-account-dock .repo-voice-top .repo-voice-end:hover{background:#d48a7518;color:#f2baab}
+.rc-page .rc-account-dock .repo-voice-status{margin-top:2px}.rc-page .rc-account-dock .repo-voice-usage{margin-top:7px;padding-top:6px;border-top:0}
+.rc-own-activity{border-bottom:1px solid #b7cf9e1a}.rc-game-activity{display:flex;align-items:center;gap:12px;padding:13px;min-width:0}
+.rc-game-icon{width:40px;height:40px;flex:none;border-radius:8px;object-fit:cover}
+.rc-game-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.rc-game-copy small{font:10px/1.1 Arial,Helvetica,sans-serif;color:#a5b79d}
+.rc-game-name{font:500 13px/1.25 Arial,Helvetica,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e0e8d7}
+.rc-game-time{font:11px/1.1 Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums;color:#a7c294}
+.rc-member-copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}.rc-member-copy .rc-member-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-game-inline{display:flex;align-items:center;gap:5px;min-width:0}.rc-game-inline .rc-game-icon{width:15px;height:15px;border-radius:3px}.rc-game-inline .rc-game-copy{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rc-game-inline .rc-game-name{font:11px/1.25 Arial,Helvetica,sans-serif;color:#a8bf9b}
+.rc-page .rc-member:has(.rc-game-inline){display:grid;grid-template-columns:44px minmax(0,1fr) auto;column-gap:10px;row-gap:5px;align-items:center}
+.rc-member:has(.rc-game-inline)>.rc-avatar{grid-column:1;grid-row:1 / 3}.rc-member:has(.rc-game-inline)>.rc-member-copy{display:contents}.rc-member:has(.rc-game-inline) .rc-member-name{grid-column:2;grid-row:1}.rc-member:has(.rc-game-inline)>.rc-role{grid-column:3;grid-row:1}.rc-member:has(.rc-game-inline) .rc-game-inline{grid-column:2 / 4;grid-row:2}
+.rc-profile-popover .rc-game-activity{margin-top:14px;background:#bdd2ab08;border:1px solid #b7cf9e17;border-radius:8px;padding:12px}
+.rc-page .rc-sidebar-bottom .rc-back{font-size:12px;padding:12px 5px 0;gap:10px}.rc-page .rc-sidebar-bottom .rc-back svg{width:24px;height:24px}
+.rc-page .rc-profile-popover{background:var(--profile-bg,#14231b);color:var(--profile-ink,#f1f4ed);border-color:color-mix(in srgb,var(--profile-accent,#b5d39c) 45%,var(--profile-bg,#14231b))}
+.rc-profile-popover .rc-profile-banner,.rc-page .rc-profile-color-preview{background:linear-gradient(120deg,var(--profile-bg,#14231b),var(--profile-accent,#b5d39c))}
+.rc-profile-popover .rc-profile-avatar{border-color:var(--profile-bg,#14231b)}
+.rc-profile-name-row{display:flex;align-items:center;gap:7px}.rc-profile-name-row .rc-profile-name{min-width:0}
+.rc-page .rc-profile-edit{display:grid;place-items:center;flex:none;width:25px;height:25px;border:0;background:none;color:var(--profile-muted,#c3cbbf);padding:4px}
+.rc-page .rc-profile-edit svg{width:15px;height:15px}.rc-page .rc-profile-edit:hover{background:color-mix(in srgb,var(--profile-ink,#f1f4ed) 10%,transparent)}
+.rc-profile-popover .rc-profile-handle,.rc-profile-popover .rc-profile-bio,.rc-profile-popover .rc-game-copy small,.rc-profile-popover .rc-game-time{color:var(--profile-muted,#c3cbbf)}
+.rc-profile-popover .rc-game-name{color:var(--profile-ink,#f1f4ed)}
+.rc-profile-popover .rc-role{background:var(--profile-bg,#14231b);border-color:var(--profile-accent,#b5d39c);color:var(--profile-ink,#f1f4ed)}
+.rc-profile-score{display:flex;align-items:baseline;gap:7px;padding-top:13px;margin-top:13px;border-top:1px solid color-mix(in srgb,var(--profile-ink,#f1f4ed) 14%,transparent)}
+.rc-profile-score strong{font:500 18px/1.2 Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums}.rc-profile-score span{font-size:11px;color:var(--profile-muted,#c3cbbf)}
+.rc-profile-colors{display:grid;grid-template-columns:1fr 1fr;gap:16px}.rc-page .rc-profile-colors input[type=color]{height:40px;padding:4px;cursor:pointer}
+.rc-page .rc-field textarea{resize:vertical;min-height:80px;width:100%;border:1px solid #9eb38f40;background:#09140d60;border-radius:7px;padding:10px;line-height:1.5}
+.rc-page .rc-profile-edit-note{font-size:12px;color:#a5b49e;margin:-4px 0 16px}.rc-page .rc-profile-color-preview .rc-preview-title{font-family:Arial,Helvetica,sans-serif;font-size:20px;color:white;text-shadow:0 1px 5px #000}
+.rc-page{--rc-nav-size:20px}.rc-page .rc-channel,.rc-page .rc-dm-toggle{font:400 var(--rc-nav-size)/28px Arial,Helvetica,sans-serif;letter-spacing:0}.rc-page .rc-dm-toggle>span{font:inherit}
+.rc-page .rc-dm-toggle{text-align:left;white-space:nowrap;padding-left:18px;padding-right:0}.rc-page .rc-dm-toggle>span{white-space:nowrap}
+.rc-profile-popover .rc-profile-avatar{width:66px;height:66px;margin-top:-28px;margin-bottom:12px}
+@media(max-width:1300px){.rc-page{--rc-nav-size:19px}}
+@media(max-width:960px){.rc-page{--rc-nav-size:18px}}

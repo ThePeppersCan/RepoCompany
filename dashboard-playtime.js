@@ -32,7 +32,9 @@
   if(current!==session)return;
   // A temporary failure during startup must not disable tracking for the whole
   // game. Retry the same session id; server-side start is idempotent.
-  timer=setInterval(()=>{if(current===session&&active())send(session,session.started?'tick':'start');},30000);
+  // Keep the open-game lease alive while paused or viewing Wibs. The server
+  // still credits play time only when active is true.
+  timer=setInterval(()=>{if(current===session)send(session,session.started?'tick':'start');},30000);
  }
  async function stop(){
   clearInterval(timer);timer=null;const session=current;current=null;

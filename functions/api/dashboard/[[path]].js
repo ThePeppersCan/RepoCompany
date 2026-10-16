@@ -133,6 +133,13 @@ export async function onRequest({request,env,params}){
    }
    const current=await db.prepare('SELECT session_id,game,active FROM dashboard_play_sessions WHERE username=?').bind(me).first();
    if(current?.session_id!==session||current?.game!==game)return json({error:'Another game session is active.',superseded:true},409);
+   // Only the accepted sequence may change presence. Late ticks/stops from an
+   // earlier session cannot revive a closed game or hide its replacement.
+   await db.prepare(`INSERT INTO dashboard_game_presence(username,session_id,game,started_at,last_seen,running)
+    SELECT username,session_id,game,?,?,? FROM dashboard_play_sessions WHERE username=? AND session_id=? AND sequence=?
+    ON CONFLICT(username) DO UPDATE SET session_id=excluded.session_id,game=excluded.game,
+    started_at=CASE WHEN dashboard_game_presence.session_id=excluded.session_id THEN dashboard_game_presence.started_at ELSE excluded.started_at END,
+    last_seen=excluded.last_seen,running=excluded.running`).bind(now,now,body.action==='stop'?0:1,me,session,sequence).run();
    return json({ok:true});
   }
   if(route==='presence'){

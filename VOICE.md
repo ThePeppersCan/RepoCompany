@@ -118,6 +118,18 @@ an in-flight request finishes. Membership is rendered before media negotiation;
 local departure clears immediately without waiting for server cleanup. Provider
 auth/profile reads run concurrently, with both still required for authorization.
 
+Retired and revoked SFU sessions close outside the state/admission queue. Each
+session has one in-flight cleanup, failed closes retry after 15 seconds, and its
+traffic reservation remains persisted until closure is confirmed. Cleanup commits
+re-enter the serialized queue and settle usage before releasing that reservation.
+Polling never postpones an already-scheduled cutoff alarm. Request bodies are read
+before queuing so an interrupted caller cannot hold later requests behind it.
+
+The sidebar call dock sits above the account row. Its icon controls keep accessible
+names, and allowance details expand on demand. The cog beside the account role
+opens voice and profile settings. Community banner height scales with its width,
+with minimum and viewport limits to keep the title and conversation usable.
+
 `node tools/test-voice-audio-client.cjs` measures processed audio for gate/gain/mute
 and bypass, and checks devices, failed selection, local persistence, test cleanup and
 mobile layout. `node tools/test-voice-activity-client.cjs` exercises actual local
@@ -130,6 +142,8 @@ pipeline using synthetic input, output selection and permission isolation.
 `node tools/test-voice.cjs` covers authentication, origin checks, friendships,
 ownership, server-selected tracks, negotiation sequencing, cutoff and failed
 cleanup, revocation, billing-month/rolling accounting and audio-only validation.
+`node tools/test-voice-cleanup-queue.cjs` stalls upstream cleanup while checking
+prompt joins/heartbeats, duplicate suppression, retained reservations and alarms.
 `node tools/test-voice-client.cjs` checks that incoming invitations never request
 devices and that a late capture after sign-out is immediately stopped.
 
@@ -141,3 +155,14 @@ It creates no real user messages/calls and cleans up its SFU tracks afterwards.
 
 Run the existing messaging API/client tests and desktop tests when changing the
 integration boundaries. Production has no test-only quota reset endpoint.
+### Wibs activity, account dock and personal profiles
+
+Apply `dashboard-game-presence-schema.sql` and `dashboard-community-profile-schema.sql` to the dashboard D1 database before publishing this version. Both are additive and idempotent.
+
+The account dock keeps microphone, deafen and settings beside your name, with connection status and the current game above it. Community member rows and compact profile cards show the same open-game activity. The existing authenticated game tracker renews a 90-second presence lease even while paused; earned play time still requires active play. Stops and accepted sequence numbers prevent older sessions from reviving a closed game. Invisible profiles, private non-friends and blocked players do not expose activity. No machine-wide process scanning is used.
+
+MoraTales uses its existing branding icon; Morogue and Velmora Manager use the previously made Discord icons. Other games use their existing activity artwork. Activity starts at the first confirmed server heartbeat and clears when the game closes or its lease expires.
+
+The pencil beside your name edits a separate Wibs display name, bio, banner and profile/accent colours. The account username, account bio and earned RepoScore are not edited. Profile card text automatically switches contrast for light and dark backgrounds. RepoScore is read from the existing account total, and the existing profile privacy rules apply.
+
+Additional checks: `node tools/test-community-presence.cjs`, `node tools/test-community-activity-client.cjs`, `node tools/test-playtime.cjs`, `node tools/test-game-playtime.cjs`.

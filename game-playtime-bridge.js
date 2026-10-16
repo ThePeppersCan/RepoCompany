@@ -21,7 +21,7 @@
   if(next&&!window.repoPlaytime.game&&changed)window.repoPlaytime.start(game);
   else if(changed)dispatchEvent(new Event('repo-playtime-visibility'));
  }
- const core=document.createElement('script');core.src='dashboard-playtime.js';
+ const core=document.createElement('script');core.src='dashboard-playtime.js?v=open-game-presence-1';
  core.onload=async()=>{
   const {data}=await db.auth.getSession();service.state.user=data.session?.user||null;
   db.auth.onAuthStateChange((_event,session)=>{

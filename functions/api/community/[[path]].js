@@ -33,9 +33,18 @@ async function rate(db,me,scope,max,now){
  if(row.count>max)throw fail('Please wait a moment before trying again.',429);
 }
 const settingsView=row=>({title:row.title,bannerVersion:row.banner_version,height:row.banner_height,zoom:row.banner_zoom,x:row.banner_x,y:row.banner_y});
+const games=new Set(['moratales','manager','morogue','dragonbound','diver','goblin','rooftops','seas','sports']);
+function activityFor(p,now){
+ if(p.locked||p.invisible)return null;
+ let game='',seen=0,startedAt=null;
+ if(p.presence_seen>now-90000){if(!p.running)return null;game=p.presence_game;seen=p.presence_seen;startedAt=p.started_at;}
+ else if(p.active&&p.last_tick>now-90000){game=p.session_game;seen=p.last_tick;}
+ else if(p.dashboard_seen>now-90000){game=p.current_game;seen=p.dashboard_seen;}
+ return games.has(game)?{game,startedAt,expiresAt:seen+90000}:null;
+}
 async function profileFor(db,me,target){
  if(!username(target))throw fail('Player not found.',404);
- const p=await db.prepare(`SELECT p.user_id,p.username,p.display_name,p.bio,p.invisible,a.config avatar,f.frame_id,COALESCE(v.private_profile,0) private_profile,r.role FROM dashboard_players p LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_avatar_frames f ON f.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN community_roles r ON r.user_id=p.user_id WHERE p.username=?`).bind(target).first();
+ const p=await db.prepare(`SELECT p.user_id,p.username,COALESCE(d.display_name,p.display_name) display_name,COALESCE(d.bio,p.bio) bio,p.repo_score,d.background,d.accent,p.invisible,p.last_seen dashboard_seen,p.current_game,g.game presence_game,g.started_at,g.last_seen presence_seen,g.running,s.game session_game,s.last_tick,s.active,a.config avatar,f.frame_id,COALESCE(v.private_profile,0) private_profile,r.role FROM dashboard_players p LEFT JOIN community_profile_details d ON d.user_id=p.user_id LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_avatar_frames f ON f.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN community_roles r ON r.user_id=p.user_id  LEFT JOIN dashboard_game_presence g ON g.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username WHERE p.username=?`).bind(target).first();
  if(!p||await db.prepare('SELECT 1 FROM dashboard_blocks WHERE (blocker=? AND blocked=?) OR (blocker=? AND blocked=?)').bind(me.name,p.username,p.username,me.name).first())throw fail('Profile unavailable.',404);
  const friend=!!await db.prepare("SELECT 1 FROM dashboard_friendships WHERE status='accepted' AND ((player_a=? AND player_b=?) OR (player_b=? AND player_a=?))").bind(me.name,p.username,me.name,p.username).first();
  p.locked=!!p.private_profile&&p.user_id!==me.id&&!friend;p.friend=friend;return p;
@@ -56,8 +65,8 @@ export async function onRequest({request,env,params}){
    await db.prepare('INSERT INTO community_members(user_id,joined_at,last_seen) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen=excluded.last_seen WHERE last_seen<?').bind(me.id,now,now,now-20000).run();
    const settings=await db.prepare('SELECT title,banner_version,banner_height,banner_zoom,banner_x,banner_y FROM community_settings WHERE id=1').first();
    const channels=await db.prepare('SELECT id,name,description FROM community_channels ORDER BY created_at,id').all();
-   const people=await db.prepare(`SELECT p.username,p.display_name,r.role,a.config avatar,f.frame_id,CASE WHEN p.user_id=? OR COALESCE(v.private_profile,0)=0 OR EXISTS(SELECT 1 FROM dashboard_friendships q WHERE q.status='accepted' AND ((q.player_a=? AND q.player_b=p.username) OR (q.player_b=? AND q.player_a=p.username))) THEN 0 ELSE 1 END locked,CASE WHEN p.invisible=0 AND m.last_seen>? THEN 1 ELSE 0 END online FROM community_members m JOIN dashboard_players p ON p.user_id=m.user_id LEFT JOIN community_roles r ON r.user_id=m.user_id LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_avatar_frames f ON f.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username WHERE NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocked=? AND b.blocker=p.username)) ORDER BY (r.role IS NOT NULL) DESC,online DESC,p.username LIMIT 200`).bind(me.id,me.name,me.name,now-60000,me.name,me.name).all();
-   for(const p of people.results){if(p.locked){p.avatar=null;p.frame_id=null;p.display_name=p.username;p.online=0;}else{try{p.avatar=JSON.parse(p.avatar);}catch{p.avatar=null;}}delete p.locked;}
+   const people=await db.prepare(`SELECT p.username,COALESCE(d.display_name,p.display_name) display_name,r.role,p.invisible,p.last_seen dashboard_seen,p.current_game,g.game presence_game,g.started_at,g.last_seen presence_seen,g.running,s.game session_game,s.last_tick,s.active,a.config avatar,f.frame_id,CASE WHEN p.user_id=? OR COALESCE(v.private_profile,0)=0 OR EXISTS(SELECT 1 FROM dashboard_friendships q WHERE q.status='accepted' AND ((q.player_a=? AND q.player_b=p.username) OR (q.player_b=? AND q.player_a=p.username))) THEN 0 ELSE 1 END locked,CASE WHEN p.invisible=0 AND m.last_seen>? THEN 1 ELSE 0 END online FROM community_members m JOIN dashboard_players p ON p.user_id=m.user_id LEFT JOIN community_profile_details d ON d.user_id=p.user_id LEFT JOIN community_roles r ON r.user_id=m.user_id LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_avatar_frames f ON f.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username  LEFT JOIN dashboard_game_presence g ON g.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username WHERE NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocked=? AND b.blocker=p.username)) ORDER BY (r.role IS NOT NULL) DESC,online DESC,p.username LIMIT 200`).bind(me.id,me.name,me.name,now-60000,me.name,me.name).all();
+   for(const p of people.results){p.activity=activityFor(p,now);if(p.activity)p.online=1;for(const key of ['invisible','dashboard_seen','current_game','presence_game','started_at','presence_seen','running','session_game','last_tick','active'])delete p[key];if(p.locked){p.avatar=null;p.frame_id=null;p.display_name=p.username;p.online=0;}else{try{p.avatar=JSON.parse(p.avatar);}catch{p.avatar=null;}}delete p.locked;}
    const developers=isDeveloper?(await db.prepare('SELECT p.username,p.display_name FROM community_roles r JOIN dashboard_players p ON p.user_id=r.user_id ORDER BY p.username').all()).results:[];
    return json({settings:settingsView(settings),channels:channels.results,members:people.results,developer:isDeveloper,developers,username:me.name});
   }
@@ -66,7 +75,7 @@ export async function onRequest({request,env,params}){
    if(p.locked)return json({username:p.username,display:p.username,locked:true,role:p.role});
    const row=await db.prepare('SELECT banner_version,banner_height,banner_zoom,banner_x,banner_y FROM community_profiles WHERE user_id=?').bind(p.user_id).first();
    let avatar=null;try{avatar=JSON.parse(p.avatar);}catch{}
-   return json({username:p.username,display:p.display_name,bio:p.bio,avatar,frame_id:p.frame_id,role:p.role,friend:p.friend,own:p.user_id===me.id,settings:row?settingsView(row):{bannerVersion:null,height:180,zoom:100,x:50,y:50}});
+   return json({username:p.username,display:p.display_name,bio:p.bio,repoScore:p.repo_score,colors:{background:p.background||'#14231b',accent:p.accent||'#b5d39c'},activity:activityFor(p,now),avatar,frame_id:p.frame_id,role:p.role,friend:p.friend,own:p.user_id===me.id,settings:row?settingsView(row):{bannerVersion:null,height:180,zoom:100,x:50,y:50}});
   }
   if(request.method==='GET'&&(route==='banner'||route==='profile-banner')){
    let row;
@@ -79,7 +88,7 @@ export async function onRequest({request,env,params}){
   if(request.method==='GET'&&route==='messages'){
    const channel=url.searchParams.get('channel')||'general',before=Number(url.searchParams.get('before')||Number.MAX_SAFE_INTEGER),after=Number(url.searchParams.get('after')||0),search=(url.searchParams.get('search')||'').slice(0,100);
    if(!Number.isSafeInteger(before)||before<1||!Number.isSafeInteger(after)||after<0)throw fail('Invalid message cursor.');
-   const rows=await db.prepare(`SELECT m.*,p.display_name,r.role FROM community_messages m LEFT JOIN dashboard_players p ON p.user_id=m.sender_id LEFT JOIN community_roles r ON r.user_id=m.sender_id WHERE m.channel_id=? AND m.id<? AND m.id>? AND instr(lower(m.text),lower(?))>0 AND ${visibility} ORDER BY m.id ${after?'ASC':'DESC'} LIMIT 51`).bind(channel,before,after,search,me.name,me.name).all();
+   const rows=await db.prepare(`SELECT m.*,COALESCE(d.display_name,p.display_name) display_name,r.role FROM community_messages m LEFT JOIN dashboard_players p ON p.user_id=m.sender_id LEFT JOIN community_profile_details d ON d.user_id=p.user_id LEFT JOIN community_roles r ON r.user_id=m.sender_id WHERE m.channel_id=? AND m.id<? AND m.id>? AND instr(lower(m.text),lower(?))>0 AND ${visibility} ORDER BY m.id ${after?'ASC':'DESC'} LIMIT 51`).bind(channel,before,after,search,me.name,me.name).all();
    const page=rows.results.slice(0,50);if(!after)page.reverse();
    let reactions=[];if(page.length)reactions=(await db.prepare(`SELECT message_id,emoji,COUNT(*) count,MAX(user_id=?) mine FROM community_reactions WHERE message_id IN (${page.map(()=>'?').join(',')}) GROUP BY message_id,emoji`).bind(me.id,...page.map(m=>m.id)).all()).results;
    return json({messages:page.map(m=>({id:m.id,sender:m.sender_name,display:m.display_name||m.sender_name,role:m.role,text:m.text,createdAt:m.created_at,mine:m.sender_id===me.id,reactions:reactions.filter(r=>r.message_id===m.id)})),hasMore:rows.results.length>50});
@@ -109,6 +118,12 @@ export async function onRequest({request,env,params}){
     if(body.emoji===null)await db.prepare('DELETE FROM community_reactions WHERE message_id=? AND user_id=?').bind(body.id,me.id).run();
     else await db.prepare('INSERT INTO community_reactions(message_id,user_id,emoji) VALUES(?,?,?) ON CONFLICT(message_id,user_id) DO UPDATE SET emoji=excluded.emoji').bind(body.id,me.id,body.emoji).run();
    }return json({ok:true});
+  }
+  if(route==='profile-details'){
+   const display=cleanText(body.display,32,'Use a Wibs display name of up to 32 characters.');
+   if(typeof body.bio!=='string'||body.bio.length>300||/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(body.bio))throw fail('Use a bio of up to 300 characters.');
+   for(const key of ['background','accent'])if(typeof body[key]!=='string'||!/^#[a-f0-9]{6}$/i.test(body[key]))throw fail('Choose a valid profile colour.');
+   await db.prepare('INSERT INTO community_profile_details(user_id,display_name,bio,background,accent) VALUES(?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET display_name=excluded.display_name,bio=excluded.bio,background=excluded.background,accent=excluded.accent').bind(me.id,display,body.bio.trim(),body.background.toLowerCase(),body.accent.toLowerCase()).run();return json({ok:true});
   }
   if(route==='settings'||route==='profile-settings'){
    const title=route==='settings'?cleanText(body.title,48,'Use a community title of up to 48 characters.'):'Profile';

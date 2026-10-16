@@ -9,7 +9,7 @@
   const micBlocked=()=>muted||deafened||serverMuted||serverDeafened;
   const soundBlocked=()=>deafened||serverDeafened;
   let ui=null, timer=null, lastContact=0, token='', message='', suspended=false, collapsed=false,pollAgain=false,openingKind='',pageOpen=false;
-  let speaking=[];const remoteNames=new Map(),remoteActivity=new Set();
+  let speaking=[],serviceError='',budgetExpanded=false;const remoteNames=new Map(),remoteActivity=new Set();
   const audioSettings=window.repoVoiceAudio;
   let inputCapture=null,pendingInput=null,rtpSender=null,changingAudio=false,connected=false,heardMembers=null;
   const activity=window.createRepoVoiceActivity?.(names=>{speaking=names;paintSpeaking();dispatchEvent(new CustomEvent('repo-voice-speaking',{detail:{speaking:[...speaking]}}));});
@@ -19,7 +19,11 @@
   const friends=()=>(account.state.social?.friends||[]).filter(f=>f.status==='accepted');
   const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
   const button=(text,fn,cls='')=>{const n=el('button','repo-voice-button '+cls,text);n.type='button';n.onclick=fn;return n;};
-  const state=()=>({enabled,available:enabled&&budget?.available!==false,callActive:!!current||busy,callStatus:current||busy?(connected?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy,community,currentKind:rooms.find(r=>r.id===current)?.kind||openingKind,budget,speaking:[...speaking]});
+  const icons={mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/>',sound:'<path d="M3 14v-3a9 9 0 0 1 18 0v3M3 12h4v9H5a2 2 0 0 1-2-2v-7Zm18 0h-4v9h2a2 2 0 0 0 2-2v-7Z"/>',settings:'<path d="m9 3-1 3-3 1-2 3 2 2-1 3 2 3 3-.5 2 2.5h3l1-3 3-1 2-3-2-2 1-3-2-3-3 .5L12 3H9Z"/><circle cx="11.5" cy="11.5" r="3"/>',leave:'<path d="M3 15c4-5 14-5 18 0l-2 4-4-2v-3M3 15l2 4 4-2v-3"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>'};
+  function iconButton(b,type){const label=b.textContent;b.title=label;b.setAttribute('aria-label',label);b.classList.add('repo-voice-icon-button');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.innerHTML=icons[type];b.replaceChildren(svg);return b;}
+  const state=()=>({enabled,serviceError,available:enabled&&budget?.available!==false,callActive:!!current||busy,callStatus:current||busy?(connected?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy,community,currentKind:rooms.find(r=>r.id===current)?.kind||openingKind,budget,speaking:[...speaking],muted:micBlocked(),deafened:soundBlocked(),serverMuted,serverDeafened,canMute:!!stream&&!deafened&&!serverMuted&&!serverDeafened,canDeafen:!!current&&!serverDeafened});
+  function toggleMute(){if(!state().canMute)return;muted=!muted;activity?.silence('local');applyMute();announce();poll();}
+  function toggleDeafen(){if(!state().canDeafen)return;deafened=!deafened;if(soundBlocked())audioSettings.stopCues();activity?.silence('local');for(const audio of audios.values())audio.muted=soundBlocked();applyMute();announce();poll();}
   function announce(){render();dispatchEvent(new CustomEvent('repo-voice-state',{detail:state()}));}
   async function api(op,payload={},valid=()=>true) {
     const e=epoch,id=user;
@@ -28,7 +32,7 @@
     if(e!==epoch||id!==user||session?.user?.id!==id||!valid())throw Object.assign(Error('Call changed.'),{stale:true});
     token=session.access_token;
     const controller=new AbortController();controllers.add(controller);
-    const timeout=setTimeout(()=>controller.abort(),22000);
+    let timedOut=false;const timeout=setTimeout(()=>{timedOut=true;controller.abort();},22000);
     try{
       const response=await fetch('/api/voice/'+op,{method:'POST',cache:'no-store',credentials:'same-origin',signal:controller.signal,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({...payload,client})});
       const data=await response.json();
@@ -36,6 +40,10 @@
       if(!response.ok)throw Object.assign(Error(data.error||'Voice is temporarily unavailable.'),{status:response.status});
       if(data.enabled===false && op!=='state')throw Error(data.reason||'Voice is not ready yet.');
       return data;
+    }catch(error){
+      if(e!==epoch||id!==user||!valid())throw Object.assign(Error('Call changed.'),{stale:true});
+      if(timedOut||error.name==='AbortError'||error.name==='TimeoutError')throw Error('Voice took too long to respond. Please try joining again.');
+      throw error;
     }finally{clearTimeout(timeout);controllers.delete(controller);}
   }
   function stopMedia(){
@@ -67,6 +75,7 @@
     return pc;
   }
   async function microphone(valid){
+    message='Opening your microphone…';announce();
     window.repoVoiceSettings?.stopPreview();
     inputCapture=await audioSettings.capture(audioSettings.get(),valid);stream=inputCapture.stream;
     inputCapture.raw.getAudioTracks()[0].onended=()=>{if(valid())leave('Your microphone disconnected. Choose a microphone in Voice settings, then rejoin.');};
@@ -75,6 +84,7 @@
     await api('ready',{room:current},valid);connected=true;heardMembers=null;if(!soundBlocked())audioSettings.cue('join');lastContact=Date.now();message='';announce();
   }
   async function publishMicrophone(valid){
+    if(!connected){message='Connecting audio…';announce();}
     sender=connection(valid);
     const transceiver=sender.addTransceiver(stream.getAudioTracks()[0],{direction:'sendonly'});
     rtpSender=transceiver.sender;watchLocal(valid);
@@ -136,7 +146,7 @@
   async function start(options){
     if(current||busy)return;
     if(!enabled){message='Voice is being set up.';announce();return;}
-    busy=true;openingKind=options.community?'community':rooms.find(r=>r.id===options.room)?.kind||options.kind;message='Connecting your microphone…';collapsed=false;
+    busy=true;openingKind=options.community?'community':rooms.find(r=>r.id===options.room)?.kind||options.kind;message='Joining voice…';collapsed=false;
     const g=++generation,e=epoch,valid=()=>generation===g&&epoch===e;
     announce();
     try{
@@ -176,6 +186,7 @@
     if(!user||suspended)return;if(polling){pollAgain=true;return;}clearTimeout(timer);polling=true;const e=epoch,g=generation,valid=()=>epoch===e&&generation===g;
     try{
       const result=await api(current?'heartbeat':'state',current?{room:current,muted:muted||deafened}:{},valid);
+      if(serviceError&&message===serviceError)message='';serviceError='';
       enabled=!!result.enabled;rooms=result.rooms||[];budget=result.budget||null;community=result.community||{members:[]};
       if(current){
         lastContact=Date.now();const room=rooms.find(r=>r.id===current);
@@ -190,6 +201,7 @@
       if(error.stale)return;
       if(current&&(error.status===401||error.status===403||error.status===404||error.status===410||error.status===429||Date.now()-lastContact>30000))await leave(error.message||'Voice lost its connection.');
       else if(current){message='Reconnecting to voice…';announce();}
+      else{serviceError=error.message||'Voice is temporarily unavailable.';message=serviceError;announce();}
     }finally{polling=false;schedulePoll();}
   }
   function render(){
@@ -200,15 +212,17 @@
     ui.panel.replaceChildren();
     const room=rooms.find(r=>r.id===current);
     if(current||busy){
-      const top=el('div','repo-voice-top');top.append(el('strong','',room?.kind==='private'?'Call with '+(room.members.find(m=>m.id!==user)?.display||'your friend'):room?.title||'Voice call'));
-      top.append(button(collapsed?'Expand':'Minimize',()=>{collapsed=!collapsed;render();},'repo-voice-small'));ui.panel.append(top);
+      const top=el('div','repo-voice-top');top.append(el('span','repo-voice-signal'+(connected?' is-connected':'')),el('strong','',room?.kind==='private'?'Call with '+(room.members.find(m=>m.id!==user)?.display||'your friend'):room?.title||(openingKind==='community'?'RE-COMP':'Voice call')));
+      if(!ui.drawer.classList.contains('rc-page'))top.append(button(collapsed?'Expand':'Minimize',()=>{collapsed=!collapsed;render();},'repo-voice-small'));ui.panel.append(top);
       const line=el('p','repo-voice-status',message||(connected?(room?.members.filter(m=>m.status==='active').length>1?'Connected':'Waiting for your friends…'):'Connecting…'));line.setAttribute('role','status');ui.panel.append(line);
       if(!collapsed&&room){const roster=el('div','repo-voice-roster');for(const m of room.members){const person=el('span','repo-voice-person');person.dataset.voiceName=m.name;const portrait=el('span','repo-voice-avatar',m.display.slice(0,2).toUpperCase()),profile=m.id===user?account.state.social?.profile:friends().find(f=>f.username.toLowerCase()===m.name);if(profile?.avatar&&window.repoAvatar){portrait.replaceChildren();portrait.insertAdjacentHTML('beforeend',window.repoAvatar.markup(profile.avatar,m.display));window.repoAvatar.hydrate(portrait);}person.append(portrait,el('span','',m.display+(m.id===user?' (you)':'')+(m.status==='invited'?' · invited':m.muted?' · muted':'')));roster.append(person);}ui.panel.append(roster);}
       const controls=el('div','repo-voice-controls');
-      const mic=button(serverMuted||serverDeafened?'Server muted':muted||deafened?'Unmute':'Mute',()=>{muted=!muted;activity?.silence('local');applyMute();announce();poll();});mic.setAttribute('aria-pressed',String(micBlocked()));mic.disabled=!stream||deafened||serverMuted||serverDeafened;
-      const sound=button(serverDeafened?'Server deafened':deafened?'Undeafen':'Deafen',()=>{deafened=!deafened;if(soundBlocked())audioSettings.stopCues();activity?.silence('local');for(const audio of audios.values())audio.muted=soundBlocked();applyMute();announce();poll();});sound.setAttribute('aria-pressed',String(soundBlocked()));sound.disabled=serverDeafened;
+      const mic=button(serverMuted||serverDeafened?'Server muted':muted||deafened?'Unmute':'Mute',toggleMute);mic.setAttribute('aria-pressed',String(micBlocked()));mic.disabled=!state().canMute;
+      const sound=button(serverDeafened?'Server deafened':deafened?'Undeafen':'Deafen',toggleDeafen);sound.setAttribute('aria-pressed',String(soundBlocked()));sound.disabled=!state().canDeafen;
       if(serverMuted||serverDeafened)ui.panel.append(el('p','repo-voice-status',serverDeafened?'A Developer has disabled your microphone and incoming audio in RE-COMP.':'A Developer has muted your microphone in RE-COMP.'));
-      controls.append(mic,sound,button('Voice settings',()=>window.repoVoiceSettings?.open()),button(room?.kind==='group'&&room.host===user?'End room':'Leave',()=>leave(),'repo-voice-end'));ui.panel.append(controls);
+      const disconnect=iconButton(button(room?.kind==='group'&&room.host===user?'End room':'Leave',()=>leave(),'repo-voice-end'),'leave');
+      if(ui.drawer.classList.contains('rc-page'))top.append(disconnect);
+      else{controls.append(iconButton(mic,'mic'),iconButton(sound,'sound'),iconButton(button('Voice settings',()=>window.repoVoiceSettings?.open()),'settings'),disconnect);ui.panel.append(controls);}
       if(message.includes('Enable sound'))ui.panel.append(button('Enable sound',async()=>{try{await Promise.all([...audios.values()].map(async a=>{await audioSettings.output(a);await a.play();}));message='';announce();}catch{message='Your selected speaker is unavailable. Choose another in Voice settings.';announce();}}));
     }else{
       if(budget?.available===false)ui.panel.append(el('p','repo-voice-status','Voice is paused because the shared allowance is used up. It will reopen automatically.'));
@@ -217,13 +231,13 @@
         row.append(el('strong','',invite.kind==='private'?`${host?.display||'A friend'} is calling`:`${host?.display||'A friend'} invited you to ${invite.title}`));
         const controls=el('div','repo-voice-controls');controls.append(button(invite.kind==='private'?'Answer':'Join room',()=>start({room:invite.id})),button('Decline',async()=>{await api('leave',{room:invite.id}).catch(()=>{});await poll();}));row.append(controls);ui.panel.append(row);
       }
-      if(message){const status=el('p','repo-voice-status',message);status.setAttribute('role','status');ui.panel.append(status,button('Dismiss',()=>{message='';render();},'repo-voice-small'));}
+      if(message){const top=el('div','repo-voice-top');top.append(el('strong','','Voice'),iconButton(button('Dismiss',()=>{message='';render();},'repo-voice-small'),'close'));const status=el('p','repo-voice-status',message);status.setAttribute('role','status');ui.panel.append(top,status);}
     }
     ui.chip.hidden=!current&&!state().incomingCall;
     ui.chip.textContent=current?(micBlocked()?'Mic muted · Return to voice':connected?'Voice connected · Return to call':'Connecting voice · Return to call'):'Incoming voice invitation';
     ui.budget.textContent=budget?`Estimated voice use: ${(budget.used/1e9).toFixed(1)} / 800 GB · renews ${new Date(budget.resetAt).toLocaleDateString([], {day:'numeric',month:'short',timeZone:'UTC'})}${budget.rollingGuard?' · carryover protection active':''}`:'';
     ui.budget.title='Conservative app estimate, shared by all Repo Company calls. It is not Cloudflare’s billing meter.';
-    ui.budget.hidden=!budget;ui.panel.append(ui.budget);paintSpeaking();
+    ui.budget.hidden=!budget;if(budget){const details=el('details','repo-voice-usage'),summary=el('summary','','Voice allowance');details.open=budgetExpanded;details.ontoggle=()=>{budgetExpanded=details.open;};details.append(summary,ui.budget);ui.panel.append(details);}paintSpeaking();
   }
   function createRoom(){
     ui.form.replaceChildren();ui.form.hidden=false;
@@ -242,7 +256,7 @@
   }
   function changed(){
     const next=account.state.user?.id||null;
-    if(next!==user){abandon('');epoch++;controllers.forEach(c=>c.abort());user=next;token='';rooms=[];budget=null;community={members:[]};enabled=false;message='';if(ui)ui.form.hidden=true;announce();poll();}
+    if(next!==user){abandon('');epoch++;controllers.forEach(c=>c.abort());user=next;token='';rooms=[];budget=null;community={members:[]};enabled=false;message=serviceError='';if(ui)ui.form.hidden=true;announce();poll();}
   }
   addEventListener('repo-account-state',changed);
   addEventListener('offline',()=>abandon('You are offline. Call again when connected.'));
@@ -252,6 +266,6 @@
   addEventListener('repo-messaging-state',()=>{const open=!!document.getElementById('repo-messages')?.open;if(open!==pageOpen){pageOpen=open;if(open)poll();else if(!polling)schedulePoll();}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
   window.repoVoiceSettings?.configure({apply:changeAudio,capture:()=>inputCapture});
-  window.repoVoice=Object.freeze({mount,getState:state,openSettings:()=>window.repoVoiceSettings?.open(),joinCommunity:()=>start({community:true}),startPrivate:username=>start({kind:'private',friends:[String(username).toLowerCase()]}),moderate:async(username,action,options={})=>{const result=await api('moderate',{username,action,...options});community=result.community||community;announce();await poll();},leave});
+  window.repoVoice=Object.freeze({mount,getState:state,toggleMute,toggleDeafen,openSettings:()=>window.repoVoiceSettings?.open(),joinCommunity:()=>start({community:true}),startPrivate:username=>start({kind:'private',friends:[String(username).toLowerCase()]}),moderate:async(username,action,options={})=>{const result=await api('moderate',{username,action,...options});community=result.community||community;announce();await poll();},leave});
   schedulePoll();
 })();

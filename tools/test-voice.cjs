@@ -20,7 +20,7 @@ const path=require('node:path'),{pathToFileURL}=require('node:url');
   const tracks=body.tracks.map((t,i)=>({...t,mid:String(i),status:'active'}));sessions.set(id,tracks);
   return{tracks,sessionDescription:{...sdp,type:body.sessionDescription?'answer':'offer'}};
  };
- async function call(who,op,body={},status=200){const r=await hub.fetch(new Request('https://voice.internal/',{method:'POST',body:JSON.stringify({me:me(who),op,body:{client:clients[who],...body}})}));const result=await r.json();assert.equal(r.status,status,JSON.stringify(result));return result;}
+ async function call(who,op,body={},status=200){const r=await hub.fetch(new Request('https://voice.internal/',{method:'POST',body:JSON.stringify({me:me(who),op,body:{client:clients[who],...body}})}));await Promise.allSettled([...hub.cleanups.values()]);const result=await r.json();assert.equal(r.status,status,JSON.stringify(result));return result;}
  async function room(kind='private',friends=['bob']){return(await call('alice','create',{kind,friends,title:'Test room'})).room;}
  async function connect(who,id){await call(who,'join',{room:id});await call(who,'publish',{room:id,mid:'0',sessionDescription:sdp});await call(who,'ready',{room:id});}
  try{
@@ -54,7 +54,7 @@ const path=require('node:path'),{pathToFileURL}=require('node:url');
   closeFailure=true;await call('bob','leave',{room:second});
   const retired=hub.state.rooms[0].members[me('bob').id];assert(retired.pub&&retired.client,'failed cleanup retains reservation');
   const before=hub.state.usage[month(Date.now())]||0;settle(hub.state,Date.now()+1000);assert(hub.state.usage[month(Date.now())]>before);
-  closeFailure=false;await hub.alarm();assert.equal(retired.pub,null);
+  closeFailure=false;for(const r of hub.state.rooms)for(const m of Object.values(r.members))for(const k of ["pub","recv"])if(m[k])m[k].retryAt=0;await hub.alarm();assert.equal(retired.pub,null);
   await call('alice','leave',{room:second});
   const third=await room();
   fixture.sql.prepare('INSERT INTO dashboard_blocks(blocker,blocked) VALUES(?,?)').run('bob','alice');
