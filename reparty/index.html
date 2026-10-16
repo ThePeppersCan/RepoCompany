@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="reparty-entry">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -13,13 +13,9 @@
 <body>
   <div class="app">
     <nav class="room-bar" aria-label="Reparty room">
-      <div class="reparty-identity"><img src="../assets/reparty/reparty-tv.svg" width="44" height="44" alt=""><div><strong id="roomName">Reparty</strong><span id="connection" role="status">Watch and listen together.</span></div></div>
+      <div class="reparty-identity"><img src="../assets/reparty/reparty-tv.svg" width="44" height="44" alt=""><div><strong id="roomName">Reparty</strong><span id="connection" role="status">Connecting…</span></div></div>
       <div class="room-actions"><button id="roomLink" disabled>Invite friends</button><button id="changeRoom">Rooms</button><button id="themeToggle" aria-label="Switch to light mode">Light</button><button id="account">Sign in</button></div>
     </nav>
-    <section id="entryHome" class="entry-home" aria-labelledby="entryTitle">
-      <div class="entry-copy"><p class="eyebrow">GOOD COMPANY. ONE PLAYLIST.</p><h1 id="entryTitle">One more song.<br>Everyone together.</h1><p class="entry-intro">Your favourite videos, shared playlists and a room for your people. Settle in, press play, and stay a while.</p><button id="entryVideos" class="primary">Find a room <span aria-hidden="true">→</span></button><p class="entry-note">Keep listening while you play or talk in Wibs.</p></div>
-      <div class="entry-art" aria-hidden="true"><span class="entry-orbit"></span><img src="../assets/reparty/reparty-tv.svg" width="200" height="200" alt=""><div class="entry-equalizer"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p>REPARTY</p></div>
-    </section>
     <header class="masthead">
       <form id="addVideo" class="link-bar panel">
         <span class="youtube" aria-hidden="true">▶</span>
@@ -36,7 +32,7 @@
             <div id="sunoPlayer" class="suno-player" hidden></div>
             <div class="screen-shield" id="screenShield" title="Click to play or pause for everyone · double-click for full screen" aria-hidden="true"><span class="shield-flash" id="shieldFlash"></span></div>
             <div class="tv-chat" id="tvChat" aria-hidden="true"></div>
-            <div class="empty-screen" id="emptyScreen"><img src="../assets/reparty/reparty-tv.svg" alt="" width="104" height="104"><h1>Good videos. Better company.</h1><p id="emptyHint">Make a room, add a video and settle in together.</p><button class="primary" id="startRoom">Start a watch party</button></div>
+            <div class="empty-screen" id="emptyScreen"><img src="../assets/reparty/reparty-tv.svg" alt="" width="104" height="104"><h1>Nothing playing</h1><p id="emptyHint">Connecting to the shared room…</p><button class="primary" id="startRoom">Join shared room</button></div>
             <div class="screen-overlay" id="enablePlayback" hidden><button class="primary" id="enablePlaybackButton">▶ Join the playback</button><p>Your browser needs one click before this video can play here.</p></div>
           </div>
           <div id="sunoNotice" class="suno-notice" hidden><div><strong>Suno</strong><p>Suno uses its own player. Press play there if needed. Resuming starts this song again; volume is controlled inside Suno or by your device.</p></div><button id="sunoRestart">↻ Restart for everyone</button></div>
@@ -56,7 +52,7 @@
         </div>
         <div class="now-playing"><span class="np-label" aria-hidden="true">NOW PLAYING</span><span id="nowPlaying">Nothing playing yet</span></div>
         <section class="participants panel" aria-label="People in this room"><div id="participants"><p class="muted">Your friends will appear here.</p></div><button id="chooseAvatar" class="avatar-change" aria-label="Change avatar" disabled><span id="myAvatar" class="avatar"></span><span>Change<br>avatar</span></button></section>
-        <p class="room-footnote"><span id="roomFootnote">A little place to watch together.</span><button id="shortcutHelp" class="hint" aria-keyshortcuts="?">Keyboard shortcuts <kbd>?</kbd></button></p>
+        <p class="room-footnote"><span id="roomFootnote"></span><button id="shortcutHelp" class="hint" aria-keyshortcuts="?">Keyboard shortcuts <kbd>?</kbd></button></p>
       </section>
       <aside class="sidebar panel">
         <div class="tabs" role="tablist" aria-label="Room activity"><button role="tab" aria-selected="true" aria-controls="playlistPanel" id="playlistTab">Playlist <span id="queueCount">0</span></button><button role="tab" aria-selected="false" aria-controls="chatPanel" id="chatTab" tabindex="-1">Chat <span id="unread" hidden>0</span></button></div>
@@ -66,31 +62,30 @@
           <div class="playlist-tools"><button id="repeatMode" class="mode" aria-pressed="true" title="When the last video ends, start the playlist again" hidden disabled>⟳ Repeat</button><button id="shuffleMode" class="mode" aria-pressed="false" title="Play videos in a random order for everyone. The playlist order is kept." hidden disabled>⤮ Shuffle</button><button id="renamePlaylist" class="link" disabled>Rename</button><button id="deletePlaylist" class="link" disabled>Delete</button></div>
           <div class="queue-search"><label class="sr-only" for="queueSearch">Search this playlist</label><input id="queueSearch" type="search" placeholder="Search this playlist…" autocomplete="off" aria-keyshortcuts="/"><button id="jumpNow" title="Scroll to the video that's playing" disabled>◎ Now playing</button></div>
           <button class="builtin-playlist" id="builtinPlaylist" disabled>♫ Add “The Playlist of gods” · 560 videos</button>
-          <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Your next favourite is waiting.</strong><p>Paste a YouTube or Suno link above to start your shared playlist.</p></li></ol>
+          <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Queue is empty</strong><p>Add a YouTube or Suno link above.</p></li></ol>
           <button class="add-bottom" id="focusAdd">+ Add to queue</button>
         </section>
-        <section id="chatPanel" role="tabpanel" aria-labelledby="chatTab" hidden><h2 class="split-heading">Chat</h2><div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"></div><form id="chatForm"><label class="sr-only" for="message">Message your room</label><textarea id="message" placeholder="Say something nice…" rows="2" maxlength="1000" required disabled></textarea><button class="primary" id="sendMessage" disabled>Send</button></form></section>
-        <div class="sidebar-footer"><span class="mini-leaf">◆</span> Your room. Your soundtrack.</div>
+        <section id="chatPanel" role="tabpanel" aria-labelledby="chatTab" hidden><h2 class="split-heading">Chat</h2><div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"></div><form id="chatForm"><label class="sr-only" for="message">Message your room</label><textarea id="message" placeholder="Message the room…" rows="2" maxlength="1000" required disabled></textarea><button class="primary" id="sendMessage" disabled>Send</button></form></section>
       </aside>
     </main>
   </div>
   <div id="toast" role="status" aria-live="polite" hidden></div>
   <dialog id="lobby" class="modal room-lobby" aria-labelledby="lobbyTitle"><button class="close" data-close="lobby" aria-label="Close rooms">×</button>
-    <button id="lobbyBack" class="link">← Back</button><p class="eyebrow" id="lobbyEyebrow">REPARTY ROOMS</p><h2 id="lobbyTitle">Find your little corner.</h2><p id="lobbyIntro">Join a watch party or make a room of your own.</p>
+    <button id="lobbyBack" class="link">← Back</button><p class="eyebrow" id="lobbyEyebrow">REPARTY ROOMS</p><h2 id="lobbyTitle">Rooms</h2><p id="lobbyIntro">Join another room or create one.</p>
     <div class="lobby-list-heading"><h3>Open rooms</h3><button id="refreshRooms" class="link">Refresh rooms</button></div>
     <div id="roomDirectory" class="room-directory" aria-live="polite"></div><button id="moreRooms" hidden>More rooms</button>
-    <p class="lobby-retention">Rooms disappear from this list after a week of no use.</p>
-    <form id="createRoom" class="lobby-create"><h3>Make yourself at home.</h3><label for="newRoomName">Room name</label><div class="input-row"><input id="newRoomName" placeholder="The forest lounge" maxlength="60"><button class="primary">Create room</button></div></form>
+    <p class="lobby-retention">The shared room is always available. Other rooms are listed for a week after use.</p>
+    <form id="createRoom" class="lobby-create"><h3>Create a room</h3><label for="newRoomName">Room name</label><div class="input-row"><input id="newRoomName" placeholder="Room name" maxlength="60"><button class="primary">Create room</button></div></form>
     <details class="lobby-code"><summary>Have a room link or code?</summary><form id="joinRoom"><label for="roomCode">Room link or code</label><div class="input-row"><input id="roomCode" autocomplete="off" placeholder="Paste a room link or code" required><button>Join room</button></div></form></details>
     <p class="form-error" id="lobbyError" role="alert"></p><p class="muted">Rooms are open to members and guests.</p>
   </dialog>
   <dialog id="auth" class="modal auth-modal" aria-labelledby="authTitle">
     <button class="close" data-close="auth" aria-label="Close">×</button>
-    <p class="eyebrow">THERE’S ROOM FOR YOU</p><h2 id="authTitle">Come on in.</h2>
-    <p>Pick a name and settle in. No account needed.</p>
+    <h2 id="authTitle">Join Reparty</h2>
+    <p>Sign in or choose a guest name.</p>
     <form id="guestForm">
       <label for="guestName">Your display name</label><input id="guestName" autocomplete="nickname" placeholder="What should we call you?" required minlength="2" maxlength="24">
-      <button class="primary">Continue as guest →</button><p id="guestError" class="form-error" role="alert"></p>
+      <button class="primary">Continue as guest</button><p id="guestError" class="form-error" role="alert"></p>
       <p class="muted">Your guest profile stays in this browser.</p>
     </form>
     <div class="divider">or use an account</div>
@@ -108,7 +103,7 @@
       <button class="primary">Create account &amp; continue</button><p id="signupError" class="form-error" role="alert"></p>
     </form>
   </dialog>
-  <dialog id="avatarDialog" class="modal avatar-modal"><button class="close" data-close="avatarDialog" aria-label="Close">×</button><p class="eyebrow">MAKE YOURSELF AT HOME</p><h2>Choose your avatar.</h2><p>100 little identities. Your RepoCompany character stays the same.</p><div class="avatar-filters" id="avatarFilters" aria-label="Avatar categories"></div><div class="avatar-grid" id="avatarGrid"></div><p id="avatarError" class="form-error" role="alert"></p></dialog>
+  <dialog id="avatarDialog" class="modal avatar-modal"><button class="close" data-close="avatarDialog" aria-label="Close">×</button><h2>Choose your avatar</h2><div class="avatar-filters" id="avatarFilters" aria-label="Avatar categories"></div><div class="avatar-grid" id="avatarGrid"></div><p id="avatarError" class="form-error" role="alert"></p></dialog>
   <dialog id="editDialog" class="modal"><button class="close" data-close="editDialog" aria-label="Close">×</button><form id="editForm"><h2 id="editHeading">Playlist name</h2><label id="editLabel" for="editValue">Name</label><input id="editValue" maxlength="60" required><p id="editDescription"></p><div class="dialog-actions"><button type="button" data-close="editDialog">Cancel</button><button type="submit" id="editSubmit" class="primary">Save</button></div><p id="editError" class="form-error" role="alert"></p></form></dialog>
   <dialog id="shortcutsDialog" class="modal"><button class="close" data-close="shortcutsDialog" aria-label="Close">×</button><p class="eyebrow">QUICK KEYS</p><h2>Keyboard shortcuts.</h2><dl class="shortcuts"><dt><kbd>K</kbd> or <kbd>Space</kbd></dt><dd>Play or pause for everyone</dd><dt><kbd>J</kbd> / <kbd>L</kbd></dt><dd>Back or forward 10 seconds for everyone</dd><dt><kbd>N</kbd></dt><dd>Next video</dd><dt><kbd>M</kbd></dt><dd>Mute or unmute your audio</dd><dt><kbd>T</kbd></dt><dd>Theatre mode: the TV fills the window</dd><dt><kbd>F</kbd></dt><dd>Full screen (double-click the video works too)</dd><dt><kbd>C</kbd></dt><dd>Write a chat message</dd><dt><kbd>/</kbd></dt><dd>Search the playlist</dd><dt><kbd>?</kbd></dt><dd>Show this list</dd></dl></dialog>
   <script src="../vendor/supabase.js"></script>

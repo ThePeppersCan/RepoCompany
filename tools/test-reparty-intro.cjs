@@ -1,0 +1,24 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {chromium}=require('playwright'),{createFixture}=require('./messaging-test-server.cjs');
+(async()=>{const fixture=await createFixture(),browser=await chromium.launch({channel:'msedge',headless:true});try{
+ const context=await fixture.browserContext(browser,'alice'),page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));await page.emulateMedia({reducedMotion:'no-preference'});
+ await context.route('**/reparty/?*',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><title>Reparty room fixture</title><button>Player</button>'}));
+ await page.goto(fixture.base);await page.waitForFunction(()=>window.repoReparty&&window.repoAccount.state.user);
+ await page.getByRole('button',{name:'Reparty',exact:true}).first().click();
+ const intro=page.locator('.repo-reparty-opening'),piece=intro.locator('.reparty-morph>path').first();await intro.waitFor();
+ await page.evaluate(()=>{const rest=document.querySelector('.repo-reparty-opening').shadowRoot.querySelector('.motion-rest');window.__morphSeen=false;window.__returnSeen=false;new MutationObserver(()=>{if(rest.getAttribute('opacity')==='0')window.__morphSeen=true;if(__morphSeen&&rest.getAttribute('opacity')==='1')window.__returnSeen=true;}).observe(rest,{attributes:true,attributeFilter:['opacity']});});
+ const initial=await piece.getAttribute('d');assert.equal(await page.locator('#repo-reparty iframe').evaluate(n=>n.inert),true);
+ await page.waitForTimeout(700);assert.notEqual(await piece.getAttribute('d'),initial);await page.evaluate(()=>{window.__opening=document.querySelector('.repo-reparty-opening');repoReparty.open();});assert(await page.evaluate(()=>__opening===document.querySelector('.repo-reparty-opening')));
+ await page.waitForTimeout(350);const out=path.resolve(__dirname,'../../../outputs');fs.mkdirSync(out,{recursive:true});await page.screenshot({path:path.join(out,'reparty-logo-transition.png')});
+ await page.waitForFunction(()=>window.__returnSeen);assert.equal(await page.evaluate(()=>__morphSeen),true);
+ await intro.waitFor({state:'detached'});assert.equal(await page.locator('#repo-reparty iframe').evaluate(n=>n.inert),false);
+ await page.evaluate(()=>{repoReparty.close();repoReparty.open();});await intro.waitFor();await page.waitForTimeout(200);
+ await page.evaluate(()=>{document.documentElement.dataset.repoPortalVisible='false';dispatchEvent(new Event('repo-launcher-portal-visibility'));});const paused=await piece.getAttribute('d');await page.waitForTimeout(300);assert.equal(await piece.getAttribute('d'),paused);
+ await page.evaluate(()=>{document.documentElement.dataset.repoPortalVisible='true';dispatchEvent(new Event('repo-launcher-portal-visibility'));});await page.waitForTimeout(200);assert.notEqual(await piece.getAttribute('d'),paused);
+ await page.keyboard.press('Escape');await intro.waitFor({state:'detached'});assert.equal(await page.locator('#repo-reparty').evaluate(n=>n.open),false);
+ await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>repoReparty.open());assert.equal(await intro.count(),0);assert.equal(await page.locator('#repo-reparty iframe').evaluate(n=>n.inert),false);
+ await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>{repoReparty.close();repoReparty.open();});await intro.waitFor();await page.emulateMedia({reducedMotion:'reduce'});await intro.waitFor({state:'detached'});
+ assert.deepEqual(errors,[]);console.log('PASS: logo morphs into TV and returns before reveal; repeated open does not restart; focus/inert restored; launcher hiding pauses animation; Escape cancels; reduced motion skips and cleans up.');
+}finally{await browser.close();await fixture.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

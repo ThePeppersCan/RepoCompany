@@ -31,6 +31,7 @@ let latestMembers = [];
 let lobbyMode = null, lobbyRequest = 0, lobbyOffset = 0, lobbyRooms = [], lobbyLoading = false;
 const sunoPlayer = createSunoPlayer($('sunoPlayer'), $('sunoNotice'));
 let sunoAdvancing = false, lastSunoAdvance = 0;
+let entering=null, entryEpoch=0;
 let localPaused=false,localMuted=false,localVolume=70,lastMediaState='';
 try{const prefs=JSON.parse(localStorage.getItem('repo-reparty-audio')||'{}');if(Number.isFinite(prefs.volume))localVolume=Math.max(0,Math.min(100,prefs.volume));localMuted=prefs.muted===true;}catch{}
 $('volume').value=localVolume;
@@ -38,6 +39,7 @@ function mediaState(){return {authenticated:!!user,active:!!roomId,room:room?.na
 function publishMedia(){const next=mediaState(),signature=JSON.stringify(next);if(signature===lastMediaState)return;lastMediaState=signature;if(parent!==window)parent.postMessage({type:'repo-reparty-state',state:next},location.origin);}
 function saveAudio(){try{localStorage.setItem('repo-reparty-audio',JSON.stringify({volume:localVolume,muted:localMuted}));}catch{}}
 async function localControl(action,value){
+ if(action==='enter'){if(!roomId)await enterSharedRoom();return;}
  if(action==='join'){if(validRoom(value)&&roomId!==value){if(!requireUser()){history.replaceState(null,'','?embedded=1&room='+value);return;}await join(value);}return;}
  if(action==='leave'){await goHome();return;}
  if(action==='pause')localPaused=!localPaused;
@@ -47,7 +49,7 @@ async function localControl(action,value){
  saveAudio();if(playerReady){player.setVolume(localVolume);if(localMuted)player.mute();else player.unMute();}mediaControls();
  if(action==='pause'||(action==='mute'&&sunoActive()))await applyPlayback(true);
 }
-addEventListener('message',event=>{if(event.source!==parent||parent===window||event.origin!==location.origin||event.data?.type!=='repo-reparty-control')return;const {action,value}=event.data;if(['pause','mute','volume','join','leave'].includes(action))run(()=>localControl(action,value));});
+addEventListener('message',event=>{if(event.source!==parent||parent===window||event.origin!==location.origin||event.data?.type!=='repo-reparty-control')return;const {action,value}=event.data;if(['pause','mute','volume','join','leave','enter'].includes(action))run(()=>localControl(action,value));});
 window.repoRepartyPlayer=Object.freeze({getState:mediaState,control:localControl});
 
 function sunoActive() { return isSuno(room?.playback?.video_id); }
@@ -94,16 +96,16 @@ async function lobbyRpc(action,data={}) {
 function openLobby(mode='video') {
   lobbyMode='video';
   if(!requireUser())return;
-  $('lobbyTitle').textContent='Find your company.';
+  $('lobbyTitle').textContent='Rooms';
   $('lobbyEyebrow').textContent='REPARTY ROOMS';
-  $('lobbyIntro').textContent='Join a room, or start a playlist of your own.';
+  $('lobbyIntro').textContent='Join another room or create one.';
   $('lobbyError').textContent='';modal('lobby');loadRooms();
 }
 async function loadRooms(more=false) {
   const request=++lobbyRequest,mode=lobbyMode,who=user?.id;
   if(!who)return;
   lobbyLoading=true;$('refreshRooms').disabled=$('moreRooms').disabled=true;
-  if(!more){lobbyOffset=0;lobbyRooms=[];$('roomDirectory').replaceChildren(node('p','Finding your company…','directory-empty'));$('moreRooms').hidden=true;}
+  if(!more){lobbyOffset=0;lobbyRooms=[];$('roomDirectory').replaceChildren(node('p','Loading rooms…','directory-empty'));$('moreRooms').hidden=true;}
   try {
     const data=await lobbyRpc('list',{mode,offset:lobbyOffset});
     if(request!==lobbyRequest||who!==user?.id||mode!==lobbyMode)return;
@@ -113,22 +115,40 @@ async function loadRooms(more=false) {
       const item=node('article',undefined,'directory-room'),copy=node('div'),button=node('button','Join room');
       const age=Math.max(0,Date.parse(data.server_time)-Date.parse(r.last_used));
       const ago=age<60000?'just now':age<3600000?`${Math.floor(age/60000)}m ago`:age<86400000?`${Math.floor(age/3600000)}h ago`:`${Math.floor(age/86400000)}d ago`;
-      copy.append(node('strong',r.name),node('p',`Watch party · ${r.people?`${r.people} inside`:`Last used ${ago}`}`));
-      button.setAttribute('aria-label',`Join ${r.name}`);button.onclick=async()=>{button.disabled=true;await run(()=>join(r.id),'lobbyError');button.disabled=false;};item.append(copy,button);return item;
+      copy.append(node('strong',r.name),node('p',`${r.is_default?'Shared room · ':''}${r.people?`${r.people} listening`:`Last used ${ago}`}`));
+      if(r.id===roomId){button.textContent='Current room';button.disabled=true;}
+      button.setAttribute('aria-label',`Join ${r.name}`);button.onclick=async()=>{button.disabled=true;await run(()=>join(r.id),'lobbyError');button.disabled=r.id===roomId;};item.append(copy,button);return item;
     }));
     if(!lobbyRooms.length)$('roomDirectory').append(node('p','No rooms open yet. Start one below and invite your friends.','directory-empty'));
     $('moreRooms').hidden=!data.has_more;
   }catch(error){if(request===lobbyRequest){$('lobbyError').textContent=friendly(error);if(!more)$('roomDirectory').replaceChildren(node('p','Rooms could not load. Try Refresh rooms.','directory-empty'));}}
   finally{if(request===lobbyRequest){lobbyLoading=false;$('refreshRooms').disabled=$('moreRooms').disabled=false;}}
 }
+async function enterSharedRoom() {
+  if(roomId)return;
+  if(!requireUser())return;
+  if(entering)return entering;
+  const epoch=++entryEpoch,who=user.id;
+  setConnected(false,'Joining shared room…');$('startRoom').disabled=true;
+  const request=(async()=>{
+    try {
+      const target=await lobbyRpc('default');
+      if(epoch!==entryEpoch||who!==user?.id)return;
+      await join(target.id);
+    } catch(error) {
+      if(epoch===entryEpoch||!roomId){setConnected(false,'Could not connect');$('emptyHint').textContent=friendly(error);$('startRoom').hidden=false;$('startRoom').textContent='Retry connection';}
+      throw error;
+    } finally {if(entering===request)entering=null;$('startRoom').disabled=false;}
+  })();
+  entering=request;return request;
+}
 async function goHome() {
   lobbyRequest++;lobbyMode=null;$('lobby').close();
   await leaveRoom();history.replaceState(null,'',location.pathname+'?embedded=1');
   document.title='Reparty · RepoCompany';$('roomName').textContent='Reparty';
-  $('entryVideos').focus();
+  $('startRoom').hidden=false;$('startRoom').textContent='Join shared room';$('emptyHint').textContent='You left the room.';$('startRoom').focus();
 }
-$('entryVideos').onclick=()=>openLobby('video');
-$('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('entryVideos').focus();};
+$('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('changeRoom').focus();};
 $('refreshRooms').onclick=()=>loadRooms();$('moreRooms').onclick=()=>loadRooms(true);
 setInterval(()=>{if($('lobby').open&&user&&!lobbyLoading)loadRooms();},30000);
 function avatarElement(id, name = '') {
@@ -221,7 +241,7 @@ function applySnapshot(data) {
   myAvatar = data.avatar_id;
   $('roomName').textContent = room.name;
   document.title = `${room.name} · Reparty`;
-  $('roomFootnote').textContent = `Room ${room.id} · Everyone can control playback and edit playlists.`;
+  $('roomFootnote').textContent = 'Shared playback';
   // On joining, open the playlist that's playing rather than always the first one.
   if (!room.playlists.some(p => p.id === selectedPlaylist)) selectedPlaylist = playingEntry()?.playlist.id || room.playlists[0]?.id;
   latestMembers = data.members;
@@ -307,7 +327,7 @@ function renderPlaylists() {
   list.replaceChildren();
   if (!p?.items.length) {
     const empty = node('li', undefined, 'empty-list');
-    empty.append(node('span', '♫'), node('strong', 'Your next favourite is waiting.'), node('p', 'Paste a YouTube or Suno link above to start your shared playlist.'));
+    empty.append(node('span', '♫'), node('strong', 'Queue is empty'), node('p', 'Add a YouTube or Suno link above.'));
     list.append(empty);
     return;
   }
@@ -432,7 +452,7 @@ async function leaveRoom() {
   const oldRoom = roomId;
   roomId = null; room = null; playerVideo = null; blocked = false;
   latestMembers = [];localPaused=false;
-  document.documentElement.classList.add('reparty-entry');
+  entryEpoch++;entering=null;
   clearInterval(poll); clearTimeout(refreshTimer); clearTimeout(skipTimer);
   if (channel) { await db.removeChannel(channel); channel = null; }
   suppressUntil = performance.now() + 2000;
@@ -441,7 +461,8 @@ async function leaveRoom() {
   if ($('youtubePlayer')) $('youtubePlayer').hidden = false;
   $('emptyScreen').hidden = false;
   $('enablePlayback').hidden = true;
-  setConnected(false, 'Choose a room');
+  setConnected(false, 'Not connected');
+  $('queue').replaceChildren();$('messages').replaceChildren();$('participants').replaceChildren();$('queueCount').textContent=$('queueCountSplit').textContent='0';$('nowPlaying').textContent='Nothing playing';
   queueSignature = membersSignature = messageSignature = ''; lastMessageId = unread = 0; messagesLoaded = false;
   renderedPlaying = null; centreOnPlaying = true; queueFilter = ''; $('queueSearch').value = '';
   if (oldRoom && user) rpc('leave', {}, oldRoom).catch(() => {});
@@ -450,10 +471,10 @@ async function join(code) {
   if (!validRoom(code)) throw new Error('Paste a valid Reparty room link or its 12-character code.');
   await leaveRoom();
   const ticket = generation;
+  setConnected(false,'Joining room…');
   const data = await rpc('join', {}, code);
   if (ticket !== generation) return;
   roomId = code;
-  document.documentElement.classList.remove('reparty-entry');
   history.replaceState(null, '', `?embedded=1&room=${code}`);
   applySnapshot(data);
   $('lobby').close();
@@ -726,7 +747,7 @@ $('screenShield').addEventListener('click', () => {
 });
 $('screenShield').addEventListener('dblclick', () => { clearTimeout(shieldTimer); $('fullscreen').click(); });
 $('focusAdd').onclick = () => { $('videoUrl').focus(); $('videoUrl').scrollIntoView({ block: 'center', behavior: 'smooth' }); };
-$('startRoom').onclick = () => openLobby('video');$('changeRoom').onclick = () => run(goHome);
+$('startRoom').onclick = () => run(enterSharedRoom);$('changeRoom').onclick = () => openLobby('video');
 $('account').onclick = () => { if (user && !user.is_anonymous) { notify(`Connected as ${user.user_metadata?.username || 'your RepoCompany account'}. Manage your account on RepoCompany.`); } else modal('auth'); };
 $('roomLink').onclick = () => run(async () => {
   try { await navigator.clipboard.writeText(location.origin+'/reparty/?room='+roomId); notify('Room link copied.'); }
@@ -844,20 +865,20 @@ async function authChanged(session) {
     await leaveRoom(); $('participants').replaceChildren(node('p', 'Your friends will appear here.', 'muted'));
     $('queue').replaceChildren(); $('messages').replaceChildren(); $('roomName').textContent = 'Reparty';
     $('nowPlaying').textContent = 'Nothing playing yet'; $('queueCount').textContent = $('queueCountSplit').textContent = '0';
-    $('startRoom').hidden = false; $('emptyHint').textContent = 'Make a room, add a video and settle in together.';
+    $('startRoom').hidden = false; $('emptyHint').textContent = 'Join to listen with everyone.';
     $('account').textContent = 'Join in'; $('chooseAvatar').disabled = true;
     $('lobby').close();
-    if(validRoom(new URLSearchParams(location.search).get('room')))modal('auth');
+    modal('auth');
     return;
   }
   $('auth').close(); $('account').textContent = user.is_anonymous ? `${user.user_metadata?.reparty_name || 'Visitor'} · Guest` : user.user_metadata?.username || 'My account';
   $('guestName').value = user.is_anonymous ? user.user_metadata?.reparty_name || 'Visitor' : '';
   $('guestName').readOnly = !!user.is_anonymous;
-  if(!roomId)setConnected(false,'Choose a room');
+  if(!roomId)setConnected(false,'Connecting…');
   try {
     const profile = await rpc('profile'); myAvatar = profile.avatar_id; applyAvatar($('myAvatar'), myAvatar); $('chooseAvatar').disabled = false;
     const code = new URLSearchParams(location.search).get('room');
-    if (validRoom(code)) await join(code); else if(lobbyMode)openLobby(lobbyMode);
+    if (validRoom(code)) await join(code); else await enterSharedRoom();
   } catch (error) { openLobby(lobbyMode||'video'); $('lobbyError').textContent = friendly(error); }
 }
 if (!db) notify('The account service could not load. Check your connection and refresh.');
