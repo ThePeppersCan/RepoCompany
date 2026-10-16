@@ -15,7 +15,7 @@ export function fallbacks(id){return [
  'https://cdn.cloudflare.steamstatic.com/steam/apps/'+id+'/capsule_184x69.jpg'
 ];}
 export async function resolveArtwork(id,fetcher=fetch){
- const response=await fetcher('https://store.steampowered.com/api/appdetails?appids='+id+'&filters=basic',{headers:{Accept:'application/json'},redirect:'error',signal:AbortSignal.timeout(5000)});
+ const response=await fetcher('https://store.steampowered.com/api/appdetails?appids='+id+'&filters=basic',{headers:{Accept:'application/json'},redirect:'manual',signal:AbortSignal.timeout(5000)});
  if(!response.ok)throw Error('Steam unavailable.');
  const reader=response.body.getReader();let size=0,text='';const decoder=new TextDecoder();
  try{for(;;){const chunk=await reader.read();if(chunk.done)break;size+=chunk.value.byteLength;if(size>256000){await reader.cancel();throw Error('Metadata too large.');}text+=decoder.decode(chunk.value,{stream:true});}text+=decoder.decode();}finally{reader.releaseLock();}
