@@ -9,14 +9,10 @@
   <link rel="icon" href="../assets/reparty/reparty-tv.svg">
   <script>if(window===top&&!new URLSearchParams(location.search).has('embedded'))location.replace('/?reparty='+encodeURIComponent(new URLSearchParams(location.search).get('room')||'home'));try{if(localStorage.getItem('reparty-layout')==='theatre')document.documentElement.classList.add('theatre')}catch(e){}</script>
   <link rel="stylesheet" href="../avatar-frames.css">
-  <link rel="stylesheet" href="watch.css?v=20261016-2">
+  <link rel="stylesheet" href="watch.css?v=20261016-3">
 </head>
 <body>
   <div class="app">
-    <nav class="room-bar" aria-label="Reparty room">
-      <div class="reparty-identity"><img src="../assets/reparty/reparty-tv.svg" width="44" height="44" alt=""><div><strong id="roomName">Reparty</strong><span id="connection" role="status">Connecting…</span></div></div>
-      <div class="room-actions"><button id="roomLink" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg><span>Invite friends</span></button><button id="changeRoom">Rooms</button><button id="account">Sign in</button></div>
-    </nav>
     <main class="watch-layout">
       <section class="watch-column" aria-label="Shared video player">
         <div class="television panel" id="television">
@@ -28,7 +24,7 @@
             <div class="empty-screen" id="emptyScreen"><img src="../assets/reparty/reparty-tv.svg" alt="" width="104" height="104"><h1>Nothing playing</h1><p id="emptyHint">Connecting to the shared room…</p><button class="primary" id="startRoom">Join shared room</button></div>
             <div class="screen-overlay" id="enablePlayback" hidden><button class="primary" id="enablePlaybackButton">▶ Join the playback</button><p>Your browser needs one click before this video can play here.</p></div>
           </div>
-          <div id="sunoNotice" class="suno-notice" hidden><span>Use Suno’s player for volume. Resuming restarts the song.</span><button id="sunoRestart">Restart for everyone</button></div>
+          <div id="sunoNotice" class="suno-notice" hidden><span id="sunoVolumeNote"></span><button id="sunoRestart">Restart for everyone</button></div>
           <div class="playback-controls">
             <span class="speaker" aria-hidden="true"></span>
             <button id="togglePlay" class="icon-button dark" aria-label="Play for everyone" aria-keyshortcuts="K Space" title="Play or pause for everyone (K)" disabled><svg class="play-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg><svg class="pause-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
@@ -57,7 +53,7 @@
 
           <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Queue is empty</strong><p>Add a YouTube or Suno link below.</p></li></ol>
           <button class="add-bottom" id="focusAdd">+ Add to queue</button>
-          <form id="addVideo" class="link-bar"><label class="sr-only" for="videoUrl">YouTube or Suno link</label><input id="videoUrl" type="text" placeholder="Paste a YouTube or Suno link…" autocomplete="off" required maxlength="2048"><button type="submit" id="addButton" aria-label="Add to queue" title="Add to queue" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></form>
+          <form id="addVideo" class="link-bar"><label class="sr-only" for="videoUrl">YouTube or Suno link</label><input id="videoUrl" type="text" placeholder="Paste a YouTube or Suno link…" autocomplete="off" required maxlength="2048"><div class="queue-buttons"><button type="submit" id="addButton" aria-label="Add to queue" title="Add to queue" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Add to queue</span></button><button type="button" id="changeRoom">Rooms</button></div></form>
         </section>
         <section id="chatPanel" role="tabpanel" aria-labelledby="chatTab" hidden><h2 class="split-heading">Chat</h2><div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"></div><form id="chatForm"><label class="sr-only" for="message">Message your room</label><textarea id="message" placeholder="Message the room…" rows="2" maxlength="1000" required disabled></textarea><button class="primary" id="sendMessage" disabled>Send</button></form></section>
       </aside>
@@ -66,7 +62,7 @@
   <div id="toast" role="status" aria-live="polite" hidden></div>
   <dialog id="lobby" class="modal room-lobby" aria-labelledby="lobbyTitle"><button class="close" data-close="lobby" aria-label="Close rooms">×</button>
     <button id="lobbyBack" class="link">← Back</button><p class="eyebrow" id="lobbyEyebrow">REPARTY ROOMS</p><h2 id="lobbyTitle">Rooms</h2><p id="lobbyIntro">Join another room or create one.</p>
-    <div class="lobby-list-heading"><h3>Open rooms</h3><button id="refreshRooms" class="link">Refresh rooms</button></div>
+    <div class="lobby-current"><div><strong id="roomName">Reparty</strong><span id="connection" role="status">Connecting…</span></div><button id="roomLink" disabled>Invite friends</button><button id="account" hidden>Sign in</button></div><div class="lobby-list-heading"><h3>Open rooms</h3><button id="refreshRooms" class="link">Refresh rooms</button></div>
     <div id="roomDirectory" class="room-directory" aria-live="polite"></div><button id="moreRooms" hidden>More rooms</button>
     <p class="lobby-retention">The shared room is always available. Other rooms are listed for a week after use.</p>
     <form id="createRoom" class="lobby-create"><h3>Create a room</h3><label for="newRoomName">Room name</label><div class="input-row"><input id="newRoomName" placeholder="Room name" maxlength="60"><button class="primary">Create room</button></div></form>
@@ -102,6 +98,6 @@
   <script src="../vendor/supabase.js"></script>
   <script src="../avatar-renderer.js"></script>
   <script src="../avatar-frames.js"></script>
-  <script type="module" src="app.js?v=20261016-2"></script>
+  <script type="module" src="app.js?v=20261016-3"></script>
 </body>
 </html>

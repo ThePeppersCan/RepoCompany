@@ -29,12 +29,13 @@ const profiles = createProfiles(() => accessToken);
 let latestMembers = [];
 let lobbyMode = null, lobbyRequest = 0, lobbyOffset = 0, lobbyRooms = [], lobbyLoading = false;
 const sunoPlayer = createSunoPlayer($('sunoPlayer'), $('sunoNotice'));
+const nativeSunoPlayback = () => { try { return parent !== window && parent.document.documentElement.dataset.repoSunoPlayback === 'true'; } catch { return false; } };
 let sunoAdvancing = false, lastSunoAdvance = 0;
 let entering=null, entryEpoch=0;
 let localPaused=false,localMuted=false,localVolume=70,lastMediaState='';
 try{const prefs=JSON.parse(localStorage.getItem('repo-reparty-audio')||'{}');if(Number.isFinite(prefs.volume))localVolume=Math.max(0,Math.min(100,prefs.volume));localMuted=prefs.muted===true;}catch{}
 $('volume').value=localVolume;
-function mediaState(){return {authenticated:!!user,active:!!roomId,room:room?.name||'',roomId:roomId||'',title:playingEntry()?.item.title||'',playing:!!room?.playback?.playing&&!localPaused,paused:localPaused,muted:localMuted,volume:localVolume,canControl:!!room?.playback?.video_id,canVolume:!sunoActive(),provider:sunoActive()?'suno':'youtube',connected:connectionReady};}
+function mediaState(){return {authenticated:!!user,active:!!roomId,room:room?.name||'',roomId:roomId||'',title:playingEntry()?.item.title||'',playing:!!room?.playback?.playing&&!localPaused,paused:localPaused,muted:localMuted,volume:localVolume,canControl:!!room?.playback?.video_id,canVolume:!sunoActive()||nativeSunoPlayback(),provider:sunoActive()?'suno':'youtube',connected:connectionReady,suno:sunoActive()?{id:room.playback.video_id.slice(5),position:playbackPosition(room.playback,Date.now()+offset),sampledAt:Date.now(),playing:room.playback.playing&&!localPaused}:null};}
 function publishMedia(){const next=mediaState(),signature=JSON.stringify(next);if(signature===lastMediaState)return;lastMediaState=signature;if(parent!==window)parent.postMessage({type:'repo-reparty-state',state:next},location.origin);}
 function saveAudio(){try{localStorage.setItem('repo-reparty-audio',JSON.stringify({volume:localVolume,muted:localMuted}));}catch{}}
 async function localControl(action,value){
@@ -56,10 +57,13 @@ function mediaControls() {
   const suno = sunoActive();publishMedia();$('mute').setAttribute('aria-label',localMuted?'Unmute my audio':'Mute my audio');$('mute').setAttribute('aria-pressed',String(localMuted));
   $('seek').disabled = !connectionReady || !room?.playback?.video_id || suno;
   $('seek').setAttribute('aria-label', suno ? 'Shared queue timer; Suno seeking is local' : 'Seek for everyone');
-  $('mute').disabled = !room?.playback?.video_id;$('volume').disabled = suno || !playerReady;
+  $('mute').disabled = !room?.playback?.video_id;$('volume').disabled = suno ? !nativeSunoPlayback() : !playerReady;
+  $('volume').title = suno && !nativeSunoPlayback() ? 'Suno volume is available in the Repo Company launcher.' : 'Your Reparty volume';
+  $('volume').closest('label').title = $('volume').title;
+  $('sunoVolumeNote').textContent = nativeSunoPlayback() ? 'Playback follows the room, including in the background.' : 'Suno sync and volume controls require the launcher. Resume restarts this player.';
   $('mute').title=localMuted?'Unmute my audio':'Mute my audio (M)';
   $('resync').title = suno ? 'Refresh the shared queue' : 'Catch up with the room';
-  $('syncLabel').textContent = connectionReady ? (suno ? 'Queue timer' : 'In sync') : roomId ? 'Reconnecting' : 'Not connected';
+  $('syncLabel').textContent = connectionReady ? (suno ? nativeSunoPlayback() ? 'Following room' : 'Queue timer' : 'In sync') : roomId ? 'Reconnecting' : 'Not connected';
   $('sunoRestart').disabled = !connectionReady;
   $('togglePlay').setAttribute('aria-label', room?.playback?.playing ? 'Pause for everyone' : suno ? 'Restart Suno for everyone' : 'Play for everyone');
   $('togglePlay').title = suno ? 'Pause for everyone; playing again restarts the song' : 'Play or pause for everyone (K)';
@@ -429,10 +433,11 @@ async function leaveRoom() {
   latestMembers = [];localPaused=false;
   entryEpoch++;entering=null;
   clearInterval(poll); clearTimeout(refreshTimer); clearTimeout(skipTimer);
-  if (channel) { await db.removeChannel(channel); channel = null; }
+  const oldChannel=channel;channel=null;
   suppressUntil = performance.now() + 2000;
   try { player?.stopVideo?.(); } catch {}
   sunoPlayer.clear(); $('screenShield').hidden = false;
+  if(oldChannel)void db.removeChannel(oldChannel).catch(()=>{});
   if ($('youtubePlayer')) $('youtubePlayer').hidden = false;
   $('emptyScreen').hidden = false;
   $('enablePlayback').hidden = true;
@@ -544,7 +549,7 @@ async function applyPlayback(force = false) {
     $('screenShield').hidden = true;
     $('emptyScreen').hidden = $('enablePlayback').hidden = true;
     blocked = false;
-    if(localPaused||localMuted){sunoPlayer.pause(playingEntry()?.item);}else sunoPlayer.apply(pb, playingEntry()?.item, Date.now() + offset);
+    if(nativeSunoPlayback())sunoPlayer.apply(pb,playingEntry()?.item,Date.now()+offset,true,localPaused);else if(localPaused||localMuted){sunoPlayer.pause(playingEntry()?.item);}else sunoPlayer.apply(pb, playingEntry()?.item, Date.now() + offset);
     mediaControls();
     return;
   }
@@ -707,7 +712,7 @@ $('nextVideo').onclick = () => { const current = playingEntry(); if (current) ru
 $('seek').onchange = () => run(() => publishPlayback(room.playback.playing, Number($('seek').value)));
 $('volume').oninput=()=>run(()=>localControl('volume',Number($('volume').value)));
 $('mute').onclick=()=>run(()=>localControl('mute'));
-$('resync').onclick = () => run(async () => { await refresh(); await applyPlayback(true); notify(sunoActive() ? 'Queue refreshed. To align Suno playback, use Restart for everyone.' : 'Caught up with your room.'); });
+$('resync').onclick = () => run(async () => { await refresh(); await applyPlayback(true); notify(sunoActive()&&!nativeSunoPlayback() ? 'Queue refreshed. Automatic Suno sync requires the launcher.' : 'Caught up with your room.'); });
 $('enablePlayback').onclick = () => { blocked = false; $('enablePlayback').hidden = true; if (playerReady) { player.playVideo(); suppressUntil = performance.now() + 1700; } applyPlayback(true).catch(error => notify(friendly(error))); };
 $('fullscreen').onclick = () => run(async () => { if (document.fullscreenElement) await document.exitFullscreen(); else if ($('television').requestFullscreen) await $('television').requestFullscreen(); });
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) $('tvChat').replaceChildren(); });

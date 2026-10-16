@@ -30,6 +30,8 @@ let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = 
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
 const emptySocialState = () => ({ unread: 0, callActive: false, incomingCall: false, open: false });
 const mediaControls = require('./lib/media-controls.cjs');
+const { SunoPlayback } = require('./lib/suno-playback.cjs');
+let sunoPlayback;
 let companionState = mediaControls.empty();
 let messageOverlay = false, socialState = emptySocialState(), portalViewVisible = false, lastPortalVisibility = null;
 let mediaPermissions = null, mediaAccountId = null;
@@ -634,7 +636,7 @@ async function executeCommand(action, value) {
     case 'messages': await openMessages(); return state();
     case 'reparty': await openReparty(); return state();
     case 'media-control': {const message=mediaControls.control(value);activePortal()?.send('launcher:media-control',message);return state();}
-    case 'media-state': {const next=mediaControls.status(value),closed=companionState.reparty.open&&!next.reparty.open;companionState=next;if(closed&&messageOverlay&&currentGame()&&!socialState.open)focusGame(currentGame());bounds();broadcast();return;}
+    case 'media-state': {const next=mediaControls.status(value),closed=companionState.reparty.open&&!next.reparty.open;companionState=next;sunoPlayback?.update(next.reparty);if(closed&&messageOverlay&&currentGame()&&!socialState.open)focusGame(currentGame());bounds();broadcast();return;}
     case 'resume-game': if (currentGame()) focusGame(currentGame()); else { messageOverlay = false; broadcast(); } return state();
     case 'social-state':
       if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['unread', 'callActive', 'incomingCall', 'open'].includes(key)) || !Object.hasOwn(value, 'unread') || !Object.hasOwn(value, 'callActive') || !Number.isInteger(value.unread) || value.unread < 0 || value.unread > 999 || typeof value.callActive !== 'boolean' || ['incomingCall', 'open'].some(key => Object.hasOwn(value, key) && typeof value[key] !== 'boolean')) throw TypeError('Invalid message status.');
@@ -731,6 +733,7 @@ async function launch() {
   ipcMain.on('launcher:notification-action',(event,action)=>messageNotifications?.action(event,action));
   portal = new WebContentsView({ webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'portal-preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false } });
   portalContents = portal.webContents; portalContentsId = portalContents.id;
+  sunoPlayback = new SunoPlayback(portalContents, config.portalOrigin);
   mainWindow.contentView.addChildView(portal); portal.setVisible(false); bounds();
   secureContents(portalContents, isPortalUrl);
   portalContents.on('destroyed', () => { mediaPermissions?.reset(); if (embeddedDemo) discordPresence?.gameStopped(embeddedDemo.id); embeddedDemo = null; portalReady = false; portalViewVisible = false; lastPortalVisibility = null; portalLoading = false; portalLoadRevision++; portalContentsId = null; portalContents = null; });

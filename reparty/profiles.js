@@ -6,8 +6,8 @@ export function createProfiles(getToken) {
     const markup = profile?.avatar && window.repoAvatar?.markup(profile.avatar, label);
     element.innerHTML = markup || '';
     if (!markup) element.textContent = element.dataset.initial;
-    element.classList.toggle('has-avatar-frame', !!profile?.frame_id && !!markup);
-    if (markup && profile.frame_id) {
+    element.classList.toggle('has-avatar-frame', !!profile?.frame_id);
+    if (profile?.frame_id) {
       element.insertAdjacentHTML('beforeend', window.repoFrames?.markup(profile.frame_id) || '');
       element.querySelectorAll('.repo-avatar-frame img').forEach(img => img.src = new URL('../' + img.getAttribute('src'), import.meta.url).href);
     }
