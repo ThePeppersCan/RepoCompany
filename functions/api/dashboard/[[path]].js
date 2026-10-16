@@ -62,7 +62,9 @@ export async function onRequest({request,env,params}){
   const me=cleanName(character?.username);if(!me)return json({error:'Your player profile could not be loaded.'},409);
   const db=env.DASHBOARD_DB;if(!db)return json({error:'Friends service is not configured.'},503);
   const now=Date.now();
-  await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id').bind(me,user.id,character.username).run();
+  // Polling must not rewrite an already-linked account (including its index).
+  await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL').bind(me,user.id,character.username).run();
+  if((await db.prepare('SELECT user_id FROM dashboard_players WHERE username=?').bind(me).first())?.user_id!==user.id)return json({error:'Refresh your player profile.'},409);
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
   if(request.method==='GET'&&route==='frame-rewards')return json({owned:await earnedFrames(db,me)});
   if(request.method==='GET'&&route==='state'){
