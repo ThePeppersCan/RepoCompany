@@ -343,6 +343,7 @@ function initialize() {
     schedule();
   });
   addEventListener('online',()=>{void invoke('launcher-reconnect').catch(()=>{});});
+  addEventListener('repo-collection-open',()=>{libraryRequested=false;setLibrary(false);void invoke('navigate','home').catch(error=>toast(error.message));});
   // Social content is bounded, untrusted display data. No credentials or media cross this bridge.
   addEventListener('repo-message-notification',event=>{const d=event.detail;if(!d||typeof d!=='object')return;void invoke('message-notification',{id:d.id,username:d.username,name:typeof d.name==='string'?d.name.slice(0,32):'',text:typeof d.text==='string'?d.text.slice(0,160):'',volume:d.volume}).catch(()=>{});});
   addEventListener('repo-messaging-state',event=>{

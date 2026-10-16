@@ -125,6 +125,12 @@
   document.getElementById('previous-case').onclick=()=>choose(selected-1);
   document.getElementById('next-case').onclick=()=>choose(selected+1);
   dashboard.addEventListener('return-to-collection',()=>showCollection());
+  window.repoCollection=Object.freeze({open(){
+    window.repoReparty?.close();window.repoMessaging?.close();window.accountMenu?.close({route:false});
+    window.demoLibrary?.close(false);
+    void showCollection({animate:false});
+    dispatchEvent(new Event('repo-collection-open'));
+  }});
   addEventListener('resize',fitCollection);
   addEventListener('keydown',event=>{
     if(document.querySelector('dialog[open]')||transitioning||dashboard.dataset.launching)return;

@@ -28,6 +28,7 @@ if(production){
 }
 // The custom domain can retain assets longer than Pages' cache headers request.
 // Content versions keep HTML and its scripts/styles from different releases mixing.
+require('./version-reparty-assets.cjs').versionRepartyAssets(dist);
 for(const html of ['reparty/index.html','index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html','moratales-characters.html','morogue-account-bridge.html']){
 const entry=path.join(dist,html);if(!fs.existsSync(entry))continue;
 fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(attribute,key,url)=>{

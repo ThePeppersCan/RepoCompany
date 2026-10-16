@@ -1,5 +1,9 @@
 ## Reparty watch and listen redesign — 16 October 2026
 
+Launcher 0.1.20 replaces the web download shortcut with Collection in Reparty and Wibs. The brand and Collection links reveal the homepage without destroying the Reparty frame, call or running game; Back to game resumes the same game. The production build versions the entire Reparty module/CSS import graph, preventing an old cached Suno module from hiding the animated Repo Company logo. The two-browser production-bundle test deliberately rejects stale unversioned Suno imports.
+
+Launcher 0.1.19 and later control the official Suno audio element through a bounded, origin/frame-checked native controller. Two hidden real players were verified to catch up after a stall with independent volume/pause, without changing call volume. The web embed still has no parent-page seek or volume API: web playback must not be described as synchronized merely because its queue timer follows the room. Website listeners can pause, mute or leave using the compact playback popover beside Reparty while outside the player.
+
 Reparty now runs in a persistent same-origin frame managed by `repo-reparty.js` on the collection page. Opening Wibs or a game hides the Reparty view without destroying playback. The homepage and Wibs navigation include the leaf TV icon. Old `/reparty/?room=` links enter the persistent collection shell.
 
 Normal entry goes directly to the configured shared room (the existing “The Boys” room), without a landing page. The Rooms dialog lets listeners create or join additional rooms while their current playback continues. The shared room stays listed even after inactivity. Apply `20261016020000_reparty_shared_room.sql`; other installations can configure their own existing room in the private `site_room` singleton. The 2.4-second opening morphs the original Repo Company silhouette into the leaf TV and back while the room connects underneath; reduced motion bypasses it.

@@ -7,11 +7,14 @@
   function element(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;}
   function button(label,fn,icon){const b=element('button','repo-media-button');b.type='button';b.setAttribute('aria-label',label);b.title=label;b.onclick=fn;if(icon==='reparty'||icon==='wibs'){b.classList.add('repo-icon-'+icon);const img=element('img');img.src=icon==='reparty'?'/assets/reparty/reparty-tv.svg':'/assets/wibs-icon.svg';img.alt='';b.append(img);}else if(glyphs[icon]){b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">'+glyphs[icon]+'</svg>';}else b.textContent=label;return b;}
   const panel=element('dialog');panel.id='repo-reparty';panel.setAttribute('aria-label','Reparty');
-  const bar=element('header','repo-reparty-bar'),brand=button('Back to collection',close);brand.classList.add('rc-brand');brand.replaceChildren(element('span','publisher-mark'),element('span','publisher-wordmark'));
+  const home=()=>window.repoCollection.open();
+  const bar=element('header','repo-reparty-bar'),brand=button('Back to collection',home);brand.classList.add('rc-brand');brand.replaceChildren(element('span','publisher-mark'),element('span','publisher-wordmark'));
   const nav=element('nav','repo-reparty-nav');nav.setAttribute('aria-label','Repo Company');
   const download=element('a','repo-media-button');download.href='/download/windows';download.setAttribute('aria-label','Download');download.title='Download';download.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">'+glyphs.download+'</svg>';
+  glyphs.collection='<rect x="3" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><path d="m17 5 3-1 3 15-3 1Z"/>';
+  const collection=button('Collection',home,'collection');
   const active=button('Reparty',()=>{},'reparty');active.setAttribute('aria-current','page');
-  nav.append(download,active,button('Wibs',()=>{window.repoMessaging?.open();close();},'wibs'),button('Account',()=>{close();window.accountMenu?.open({tab:'profile'});},'account'),button('Audio & calls',openSettings,'settings'));
+  nav.append(document.documentElement.dataset.repoLauncher==='true'?collection:download,active,button('Wibs',()=>{window.repoMessaging?.open();close();},'wibs'),button('Account',()=>{close();window.accountMenu?.open({tab:'profile'});},'account'),button('Audio & calls',openSettings,'settings'));
   bar.append(brand,nav);panel.append(bar);document.body.append(panel);
   function send(action,value){if(!ready||!frame)return;frame.contentWindow.postMessage({type:'repo-reparty-control',action,value},location.origin);}
   function ensureFrame(room){if(frame)return;frame=element('iframe');frame.title='Reparty player';frame.allow='autoplay; fullscreen';frame.src='/reparty/?embedded=1'+(room?'&room='+encodeURIComponent(room):'');panel.append(frame);}

@@ -755,6 +755,20 @@ test('messages can reveal the preserved portal and return to the same game witho
   assert.equal(h.run('state()').messageOverlay,false);assert.equal(view.visible,true);assert.equal(h.portal.visible,false);
 });
 
+test('Collection stays full width after social panels close and preserves the game, playback and call', async () => {
+  const h=nativePresenceHarness();await h.run('play("manager")');const record=h.run('currentGame()'),game=h.windows[0];
+  await h.run('openReparty()');
+  await h.run('executeCommand("media-state",{reparty:{open:true,active:true,playing:true,volume:42,title:"Forest radio"},voice:{active:true}})');
+  await h.run('executeCommand("social-state",{unread:0,callActive:true,open:true})');
+  await h.run('navigate("home")');
+  await h.run('executeCommand("media-state",{reparty:{open:false,active:true,playing:true,volume:42,title:"Forest radio"},voice:{active:true}})');
+  await h.run('executeCommand("social-state",{unread:0,callActive:true,open:false})');
+  assert.equal(h.portal.visible,true);assert.equal(h.run('portalNavigation'),true);assert.equal(h.run('state().view'),'home');assert.equal(h.run('state().gameVisible'),false);
+  assert.equal(h.run('currentGame()'),record);assert.equal(game.destroyed,false);assert.equal(h.run('state().media.reparty.playing'),true);assert.equal(h.run('state().social.callActive'),true);
+  assert.equal(h.portal.bounds.width,h.context.fixture.mainWindow.getContentSize()[0]);
+  await h.run('executeCommand("resume-game")');assert.equal(h.run('currentGame()'),record);assert.equal(h.portal.visible,false);assert.equal(h.run('state().gameVisible'),true);assert.equal(h.run('portalNavigation'),false);
+});
+
 test('shell controls cannot be invoked by the remote portal and social status accepts only bounded public fields', async () => {
   const h = portalHarness(), event = { sender: h.contents, senderFrame: h.frame };
   for (const action of ['exit-game', 'resume-game', 'messages']) await assert.rejects(h.invoke(event, action), /unavailable/);

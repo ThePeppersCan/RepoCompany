@@ -39,9 +39,11 @@
  const dmAside=drawer.querySelector('.repo-message-sidebar'),dmConversation=drawer.querySelector('.repo-message-conversation'),oldHead=drawer.querySelector('.repo-messages-head');
  const voicePanel=drawer.querySelector('.repo-voice-panel'),voiceForm=drawer.querySelector('.repo-voice-form');
  paintTheme(savedTheme);drawer.classList.add('rc-page');drawer.setAttribute('aria-label','RE-COMP community');drawer.removeAttribute('aria-labelledby');
- const top=el('header','rc-topbar'),brand=btn('Repo Company',()=>window.repoMessaging.close(),'rc-brand');brand.replaceChildren(el('span','publisher-mark'),el('span','publisher-wordmark'));brand.setAttribute('aria-label','Back to Repo Company');
+ const home=()=>window.repoCollection.open();
+ const top=el('header','rc-topbar'),brand=btn('Repo Company',home,'rc-brand');brand.replaceChildren(el('span','publisher-mark'),el('span','publisher-wordmark'));brand.setAttribute('aria-label','Back to collection');
  const nav=el('nav','rc-topnav');nav.setAttribute('aria-label','Repo Company');
  const collection=el('a','rc-top-link');collection.href='/download/windows';collection.setAttribute('aria-label','Download');collection.title='Download';const downloadIcon=icon('back');downloadIcon.innerHTML='<path d="M12 2v13m-5-5 5 5 5-5M3 15v6h18v-6"/>';collection.append(downloadIcon);
+ if(document.documentElement.dataset.repoLauncher==='true'){collection.href='#collection';collection.setAttribute('aria-label','Collection');collection.title='Collection';collection.onclick=event=>{event.preventDefault();home();};downloadIcon.innerHTML='<rect x="3" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><path d="m17 5 3-1 3 15-3 1Z"/>';}
  const current=btn('',()=>show('community'),'rc-top-link is-current rc-community-tab');const wibs=el('span','repo-wibs-icon');wibs.setAttribute('aria-hidden','true');current.prepend(wibs);current.setAttribute('aria-label','Community');current.title='Wibs · Community';
  const accountButton=btn('',()=>{window.repoMessaging.close();window.accountMenu?.open({tab:'profile'});},'rc-top-link','user');accountButton.setAttribute('aria-label','Account');accountButton.title='Account';
  nav.append(collection,current,accountButton);top.append(brand,nav);
@@ -57,7 +59,7 @@
  const voiceMembers=el('div','rc-voice-members'),voiceNotice=el('p','rc-voice-note');
  const voiceHeadingRow=el('div','rc-voice-heading-row'),voiceSettings=btn('Voice settings',()=>window.repoVoice?.openSettings(),'rc-voice-settings');voiceSettings.setAttribute('aria-label','Voice settings');voiceSettings.title='Voice settings';voiceSettings.replaceChildren(icon('settings'));const voiceRename=btn('Rename voice channel',editVoiceName,'rc-edit-channel rc-edit-voice','edit');voiceRename.setAttribute('aria-label','Rename voice channel');voiceRename.title='Rename voice channel';voiceRename.hidden=true;voiceHeadingRow.append(voiceHeading,voiceRename,voiceSettings);
  voiceSection.append(voiceHeadingRow,voiceMembers,voiceNotice);sidebar.append(voiceSection);
- const bottom=el('div','rc-sidebar-bottom'),back=btn('Back to collection',()=>window.repoMessaging.close(),'rc-back','back'),self=el('div','rc-self'),dock=el('div','rc-account-dock'),selfActivity=el('div','rc-own-activity');selfActivity.hidden=true;dock.append(selfActivity);if(voicePanel)dock.append(voicePanel);dock.append(self);bottom.append(dock,back);sidebar.append(bottom);
+ const bottom=el('div','rc-sidebar-bottom'),back=btn('Back to collection',home,'rc-back','back'),self=el('div','rc-self'),dock=el('div','rc-account-dock'),selfActivity=el('div','rc-own-activity');selfActivity.hidden=true;dock.append(selfActivity);if(voicePanel)dock.append(voicePanel);dock.append(self);bottom.append(dock,back);sidebar.append(bottom);
  const sidebarScroll=el('div','rc-sidebar-scroll');for(const node of [...sidebar.children])if(node!==bottom)sidebarScroll.append(node);sidebar.prepend(sidebarScroll);
  const below=el('div','rc-below'),center=el('div','rc-center'),members=el('aside','rc-members');members.setAttribute('aria-label','Community members');
  const channelView=el('section','rc-channel-view'),channelHead=el('header','rc-channel-head');

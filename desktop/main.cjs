@@ -33,7 +33,7 @@ const mediaControls = require('./lib/media-controls.cjs');
 const { SunoPlayback } = require('./lib/suno-playback.cjs');
 let sunoPlayback;
 let companionState = mediaControls.empty();
-let messageOverlay = false, socialState = emptySocialState(), portalViewVisible = false, lastPortalVisibility = null;
+let messageOverlay = false, portalNavigation = false, socialState = emptySocialState(), portalViewVisible = false, lastPortalVisibility = null;
 let mediaPermissions = null, mediaAccountId = null;
 let launcherCheckTimer = null, launcherReconnectTimer = null, launcherCheckPending = null, lastLauncherCheck = 0, previousConnectionStatus = null;
 let launcherQuitPending = null, launcherQuitFinished = false, launcherRestartRequested = false;
@@ -162,7 +162,7 @@ function windowContents(window) {
 function activePortal() { return !quitting && portalContents && !portalContents.isDestroyed() ? portalContents : null; }
 function currentGame() { return games.values().next().value || null; }
 function gameContents(record) { const contents = record?.webContents; return record && !record.closed && contents && !contents.isDestroyed() ? contents : null; }
-function focusGame(record) { const contents = gameContents(record); if (!contents || quitting || updateLocked()) return; messageOverlay = false; setPortalVisible(false); record.view.setVisible(!record.loading); bounds(); showWindow(mainWindow); if (!hiddenTest && !record.loading) contents.focus(); broadcast(); }
+function focusGame(record) { const contents = gameContents(record); if (!contents || quitting || updateLocked()) return; messageOverlay = false; portalNavigation = false; setPortalVisible(false); record.view.setVisible(!record.loading); bounds(); showWindow(mainWindow); if (!hiddenTest && !record.loading) contents.focus(); broadcast(); }
 function showWindow(window) {
   if (quitting || hiddenTest || !windowContents(window)) return;
   if (window.isMinimized()) window.restore();
@@ -230,7 +230,7 @@ function bounds() {
   const [width, height] = mainWindow.getContentSize();
   const area = { x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) };
   const panelWidth = Math.min(440, width);
-  const portalArea = messageOverlay && currentGame() && !companionState.reparty.open ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
+  const portalArea = messageOverlay && !portalNavigation && currentGame() && !companionState.reparty.open ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
   if (portal && activePortal()) portal.setBounds(portalArea);
   for (const record of games.values()) if (gameContents(record)) record.view.setBounds(area);
 }
@@ -301,6 +301,10 @@ async function navigate(destination) {
   if (!['library', 'home', 'account', 'achievements'].includes(destination)) throw new Error('Choose a valid launcher page.');
   const contents = activePortal();
   if (!contents || !windowContents(mainWindow)) throw new Error('The launcher is closing.');
+  // Home/account navigation keeps the running game behind a full-width portal.
+  // Closing a social panel during that navigation must not refocus the game.
+  portalNavigation = !!currentGame(); messageOverlay = portalNavigation;
+  if (portalNavigation) mainWindow.contentView.addChildView(portal);
   view = destination; portalError = ''; setPortalVisible(true); bounds(); broadcast();
   const hash = { library: '#account/profile', home: '#collection', account: '#account/profile', achievements: '#account/achievements' }[destination];
   if (!portalReady) await loadPortal(hash);
@@ -438,7 +442,7 @@ function disposeGame(record) {
   if (!record.webContents.isDestroyed()) record.webContents.close();
   sharedSession?.flushStorageData();
   if (!current) return;
-  messageOverlay = false;
+  messageOverlay = false; portalNavigation = false;
   if (!quitting && windowContents(mainWindow)) {
     if (mainWindow.isFullScreen()) mainWindow.setFullScreen(false);
     setPortalVisible(portalReady); bounds();
@@ -464,7 +468,7 @@ async function exitCurrentGame() {
 async function openReparty() {
   if(currentGame()?.loading)throw Error('Wait for your game to open.');
   const contents=activePortal();if(!contents||!windowContents(mainWindow))throw Error('The launcher is closing.');
-  messageOverlay=true;const game=currentGame();if(gameContents(game)){game.view.setVisible(true);mainWindow.contentView.addChildView(portal);}
+  portalNavigation=false;messageOverlay=true;const game=currentGame();if(gameContents(game)){game.view.setVisible(true);mainWindow.contentView.addChildView(portal);}
   setPortalVisible(portalReady);bounds();broadcast();if(!portalReady)await loadPortal();if(contents!==activePortal())return;if(!hiddenTest)contents.focus();
   await contents.executeJavaScript("(()=>{if(!window.repoReparty?.open)throw Error('Reparty is still connecting. Refresh the client and try again.');window.repoReparty.open();})()");
 }
@@ -474,7 +478,7 @@ async function openMessages(username = '') {
   if (currentGame()?.loading) throw Error('Wait for your game to open before opening messages.');
   const contents = activePortal();
   if (!contents || !windowContents(mainWindow)) throw Error('The launcher is closing.');
-  messageOverlay = true;
+  portalNavigation = false; messageOverlay = true;
   const game = currentGame();
   if (gameContents(game)) { game.view.setVisible(true); mainWindow.contentView.addChildView(portal); }
   setPortalVisible(portalReady); bounds(); broadcast();
@@ -636,13 +640,13 @@ async function executeCommand(action, value) {
     case 'messages': await openMessages(); return state();
     case 'reparty': await openReparty(); return state();
     case 'media-control': {const message=mediaControls.control(value);activePortal()?.send('launcher:media-control',message);return state();}
-    case 'media-state': {const next=mediaControls.status(value),closed=companionState.reparty.open&&!next.reparty.open;companionState=next;sunoPlayback?.update(next.reparty);if(closed&&messageOverlay&&currentGame()&&!socialState.open)focusGame(currentGame());bounds();broadcast();return;}
+    case 'media-state': {const next=mediaControls.status(value),closed=companionState.reparty.open&&!next.reparty.open;companionState=next;sunoPlayback?.update(next.reparty);if(closed&&messageOverlay&&!portalNavigation&&currentGame()&&!socialState.open)focusGame(currentGame());bounds();broadcast();return;}
     case 'resume-game': if (currentGame()) focusGame(currentGame()); else { messageOverlay = false; broadcast(); } return state();
     case 'social-state':
       if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['unread', 'callActive', 'incomingCall', 'open'].includes(key)) || !Object.hasOwn(value, 'unread') || !Object.hasOwn(value, 'callActive') || !Number.isInteger(value.unread) || value.unread < 0 || value.unread > 999 || typeof value.callActive !== 'boolean' || ['incomingCall', 'open'].some(key => Object.hasOwn(value, key) && typeof value[key] !== 'boolean')) throw TypeError('Invalid message status.');
       { const closed = socialState.open && value.open === false;
       socialState = { unread: value.unread, callActive: value.callActive, incomingCall: value.incomingCall === true, open: value.open === true };
-      if (closed && messageOverlay && currentGame() && !companionState.reparty.open) focusGame(currentGame());
+      if (closed && messageOverlay && !portalNavigation && currentGame() && !companionState.reparty.open) focusGame(currentGame());
       broadcast(); return; }
     case 'website': await shell.openExternal(config.portalOrigin); return;
     case 'refresh': if (!portalReady) await loadPortal(); if (quitting) return; await Promise.allSettled([account.refresh(), checkAndApplyUpdates()]); return state();
