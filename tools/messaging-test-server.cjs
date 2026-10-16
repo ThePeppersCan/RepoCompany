@@ -8,12 +8,18 @@ const people={alice:'11111111-1111-4111-8111-111111111111',bob:'22222222-2222-42
 const encode=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
 const sessions=Object.fromEntries(Object.entries(people).map(([username,id])=>{const expires=Math.floor(Date.now()/1000)+3600,user={id,aud:'authenticated',role:'authenticated',email:username+'@conofdrpepper.local',user_metadata:{username},created_at:new Date().toISOString()};return [username,{access_token:encode({alg:'HS256'})+'.'+encode({sub:id,exp:expires,role:'authenticated'})+'.fixture',refresh_token:'fixture-'+username,token_type:'bearer',expires_in:3600,expires_at:expires,user}];}));
 async function createFixture(fixtureOptions={}){
+ const imageImport=require('node:url').pathToFileURL(path.join(root,'lib/chat-images.mjs')).href;
+ const resolveImports=s=>s.replaceAll("'../../../lib/chat-images.mjs'",JSON.stringify(imageImport));
  const source=fs.readFileSync(path.join(root,'functions/api/social/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify({...config,socialCallsEnabled:true})+';');
- const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(resolveImports(source)).toString('base64'));
  const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(path.join(root,'dashboard-social-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-messaging-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-extras-schema.sql'),'utf8'));
  for(const file of ['dashboard-community-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql','dashboard-playtime-schema.sql','dashboard-game-presence-schema.sql','dashboard-community-profile-schema.sql','dashboard-wibs-appearance-schema.sql'])sql.exec(fs.readFileSync(path.join(root,file),'utf8'));
+ sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-images-schema.sql'),'utf8'));
+ sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-efficiency-schema.sql'),'utf8').replace(/CREATE INDEX IF NOT EXISTS achievement_unlocks_by_achievement[^;]+;/,''));
+ const imageSource=resolveImports(fs.readFileSync(path.join(root,'functions/api/chat-images/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';'));
+ const onImageRequest=(await import('data:text/javascript;base64,'+Buffer.from(imageSource).toString('base64'))).onRequest;
  const communitySource=fs.readFileSync(path.join(root,'functions/api/community/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
- const onCommunityRequest=(await import('data:text/javascript;base64,'+Buffer.from(communitySource).toString('base64'))).onRequest;
+ const onCommunityRequest=(await import('data:text/javascript;base64,'+Buffer.from(resolveImports(communitySource)).toString('base64'))).onRequest;
  const profileSource=fs.readFileSync(path.join(root,'functions/api/reparty-profiles.js'),'utf8').replace("import config from '../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
  const onRepartyProfiles=(await import('data:text/javascript;base64,'+Buffer.from(profileSource).toString('base64'))).onRequestGet;
  for(const [username,id]of Object.entries(people))sql.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?)').run(username,id,username[0].toUpperCase()+username.slice(1));
@@ -21,10 +27,17 @@ async function createFixture(fixtureOptions={}){
  const prepare=(query,values=[])=>({bind(...args){return prepare(query,args)},async first(){return sql.prepare(query).get(...values)||null},async all(){return {results:sql.prepare(query).all(...values)}},run(){const result=sql.prepare(query).run(...values);return {success:true,meta:{changes:Number(result.changes),last_row_id:Number(result.lastInsertRowid)}}}});
  const db={prepare,withSession(){return this},async batch(statements){sql.exec('BEGIN');try{const results=statements.map(s=>s.run());sql.exec('COMMIT');return results}catch(error){sql.exec('ROLLBACK');throw error}}};
  const env={DASHBOARD_DB:db,SOCIAL_TURN_KEY_ID:'test-key',SOCIAL_TURN_KEY_API_TOKEN:'test-only-never-a-real-key'};
+ const imageObjects=new Map();env.WIBS_STORAGE_KEY='fixture-storage-secret';
  const originalFetch=global.fetch;
  global.fetch=async(input,options={})=>{const url=String(input),token=new Headers(options.headers).get('Authorization')?.replace(/^Bearer /,''),who=Object.entries(sessions).find(([,s])=>s.access_token===token)?.[0];
   if(url.startsWith('https://rtc.live.cloudflare.com/'))return fixtureOptions.voiceSecrets ? originalFetch(input,options) : Response.json({iceServers:[{urls:['turn:turn.cloudflare.com:3478?transport=udp'],username:'fixture-relay',credential:'fixture-only'}]},{status:201});
   if(!url.startsWith(config.url))throw Error('Unexpected external request in isolated messaging fixture');
+  if(url.includes('/storage/v1/')&&token===env.WIBS_STORAGE_KEY){
+   const key=url.split('/').at(-1);
+   if(options.method==='DELETE'){if(fixtureOptions.failStorageDelete)return Response.json({error:'fixture deletion failure'},{status:503});for(const id of JSON.parse(options.body).prefixes)imageObjects.delete(id);return Response.json([]);}
+   if(options.method==='POST'){imageObjects.set(key,new Uint8Array(options.body));return Response.json({Key:key});}
+   return imageObjects.has(key)?new Response(imageObjects.get(key),{headers:{'Content-Type':'image/jpeg'}}):new Response('',{status:404});
+  }
   if(!who)return Response.json({error:'invalid fixture identity'},{status:401});
   if(url.endsWith('/auth/v1/user'))return Response.json(sessions[who].user);
   if(url.endsWith('/get_my_character'))return Response.json([{username:who}]);
@@ -43,6 +56,9 @@ async function createFixture(fixtureOptions={}){
  const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://127.0.0.1');let response;
   if(url.pathname==='/api/reparty-profiles'){
    response=await onRepartyProfiles({request:new Request(base+req.url,{headers:req.headers}),env});
+  }else if(url.pathname.startsWith('/api/chat-images/')){
+   const chunks=[];for await(const b of req)chunks.push(b);
+   response=await onImageRequest({request:new Request(base+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})}),env,params:{path:url.pathname.slice('/api/chat-images/'.length).split('/')}});
   }else if(url.pathname.startsWith('/api/community/')){
    const chunks=[];for await(const b of req)chunks.push(b);
    const request=new Request(base+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})});
@@ -66,7 +82,7 @@ async function createFixture(fixtureOptions={}){
   res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
  }catch(error){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Fixture failure: '+error.message}));}});
  let base;await new Promise(r=>server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+server.address().port;
- return {base,sql,env,sessions,config,voiceHub,async close(){await new Promise(r=>server.close(r));sql.close();global.fetch=originalFetch;},async browserContext(browser,who){
+ return {base,sql,env,imageObjects,sessions,config,voiceHub,async close(){await new Promise(r=>server.close(r));sql.close();global.fetch=originalFetch;},async browserContext(browser,who){
   const context=await browser.newContext({viewport:{width:1440,height:900},permissions:['microphone','camera'],reducedMotion:'reduce'});
   await context.route('**/*',route=>{const url=route.request().url();return url.startsWith(base)||url.startsWith(config.url)||url.startsWith('data:')?route.fallback():route.abort();});
   await context.addInitScript(({session})=>{localStorage.setItem('sb-hvdrwmjieguurxvrgzfu-auth-token',JSON.stringify(session));},{session:sessions[who]});

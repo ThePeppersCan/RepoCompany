@@ -1,3 +1,4 @@
+import {validateMessageImage,attachMessageImage} from '../../../lib/chat-images.mjs';
 import config from '../../../dashboard-config.json';
 
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -61,7 +62,7 @@ export async function onRequest({request,env,params}){
   const route=Array.isArray(params.path)?params.path.join('/'):params.path;
   const me=await identity(request),db=env.DASHBOARD_DB?.withSession?.('first-primary')||env.DASHBOARD_DB,now=Date.now();
   if(!db)throw fail('Community is temporarily unavailable.',503);
-  await db.prepare(`INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL OR dashboard_players.user_id=excluded.user_id`).bind(me.name,me.id,me.display).run();
+  await db.prepare(`INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL`).bind(me.name,me.id,me.display).run();
   if((await db.prepare('SELECT user_id FROM dashboard_players WHERE username=?').bind(me.name).first())?.user_id!==me.id)throw fail('Refresh your player profile.',409);
   const isDeveloper=!!await db.prepare("SELECT 1 FROM community_roles WHERE user_id=? AND role='Developer'").bind(me.id).first();
   if(route==='banner'||route==='settings')throw fail('The shared Wibs header has been removed.',410);
@@ -94,11 +95,16 @@ export async function onRequest({request,env,params}){
   if(request.method==='GET'&&route==='messages'){
    const channel=url.searchParams.get('channel')||'general',before=Number(url.searchParams.get('before')||Number.MAX_SAFE_INTEGER),after=Number(url.searchParams.get('after')||0),search=(url.searchParams.get('search')||'').slice(0,100);
    if(!Number.isSafeInteger(before)||before<1||!Number.isSafeInteger(after)||after<0)throw fail('Invalid message cursor.');
+   const revision=(await db.prepare("SELECT revision FROM wibs_revisions WHERE scope='community' AND target=?").bind(channel).first())?.revision||0;
+   // Include block state in the token: blocking must invalidate previously visible messages.
+   const blocks=await db.prepare('SELECT blocker,blocked FROM dashboard_blocks WHERE blocker=? OR blocked=? ORDER BY blocker,blocked').bind(me.name,me.name).all();
+   const token=revision+':'+JSON.stringify(blocks.results);
+   if(url.searchParams.get('revision')===token)return json({unchanged:true,revision:token});
    const rows=await db.prepare(`SELECT m.*,COALESCE(d.display_name,p.display_name) display_name,w.name_color,r.role FROM community_messages m LEFT JOIN dashboard_players p ON p.user_id=m.sender_id LEFT JOIN community_profile_details d ON d.user_id=p.user_id LEFT JOIN community_appearance w ON w.user_id=p.user_id LEFT JOIN community_roles r ON r.user_id=m.sender_id WHERE m.channel_id=? AND m.id<? AND m.id>? AND instr(lower(m.text),lower(?))>0 AND ${visibility} ORDER BY m.id ${after?'ASC':'DESC'} LIMIT 51`).bind(channel,before,after,search,me.name,me.name).all();
    const page=rows.results.slice(0,50);if(!after)page.reverse();
    let reactions=[];if(page.length)reactions=(await db.prepare(`SELECT message_id,emoji,COUNT(*) count,MAX(user_id=?) mine FROM community_reactions WHERE message_id IN (${page.map(()=>'?').join(',')}) GROUP BY message_id,emoji`).bind(me.id,...page.map(m=>m.id)).all()).results;
    reactions=wibsReactions(reactions,'emoji','count');
-   return json({messages:page.map(m=>({id:m.id,sender:m.sender_name,display:m.display_name||m.sender_name,nameColor:m.name_color,role:m.role,text:m.text,createdAt:m.created_at,mine:m.sender_id===me.id,reactions:reactions.filter(r=>r.message_id===m.id)})),hasMore:rows.results.length>50});
+   return json({revision:token,messages:page.map(m=>({id:m.id,sender:m.sender_name,display:m.display_name||m.sender_name,nameColor:m.name_color,role:m.role,text:m.text,createdAt:m.created_at,mine:m.sender_id===me.id,reactions:reactions.filter(r=>r.message_id===m.id)})),hasMore:rows.results.length>50});
   }
   if(request.method!=='POST')throw fail('Not found.',404);
   const restricted=['settings','banner','channel','voice-name','role'].includes(route);
@@ -108,10 +114,11 @@ export async function onRequest({request,env,params}){
   if(route==='messages'){
    const text=cleanText(body.text,4000,'Write a message of up to 4,000 characters.');if(!uuid(body.clientId))throw fail('Invalid message identifier.');
    if(!await db.prepare('SELECT id FROM community_channels WHERE id=?').bind(body.channel).first())throw fail('Channel not found.',404);
+   const imageId=await validateMessageImage(db,me,'community',body.channel,body.clientId,text);
    await db.prepare('INSERT INTO community_messages(channel_id,sender_id,sender_name,client_id,text,created_at) VALUES(?,?,?,?,?,?) ON CONFLICT(sender_id,client_id) DO NOTHING').bind(body.channel,me.id,me.name,body.clientId,text,now).run();
    const row=await db.prepare('SELECT id,channel_id,text FROM community_messages WHERE sender_id=? AND client_id=?').bind(me.id,body.clientId).first();
    if(row.channel_id!==body.channel||row.text!==text)throw fail('This message identifier was already used.',409);
-   return json({id:row.id});
+   await attachMessageImage(db,imageId,row.id);return json({id:row.id});
   }
   if(route==='reaction'||route==='delete'){
    if(!Number.isSafeInteger(body.id))throw fail('Invalid message.');

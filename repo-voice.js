@@ -182,7 +182,7 @@
     await api('answer',{room:room.id,sessionDescription:description(receiver)},valid);
     needed.forEach(s=>subscribed.add(s.trackName));
   }
-  function schedulePoll(){clearTimeout(timer);if(user&&!suspended)timer=setTimeout(poll,pollAgain?0:(current||(!document.hidden&&document.getElementById('repo-messages')?.open)?2000:10000));pollAgain=false;}
+  function schedulePoll(){clearTimeout(timer);if(user&&!suspended)timer=setTimeout(poll,pollAgain?0:(current?3000:10000));pollAgain=false;}
   async function poll(){
     if(!user||suspended)return;if(polling){pollAgain=true;return;}clearTimeout(timer);polling=true;const e=epoch,g=generation,valid=()=>epoch===e&&generation===g;
     try{

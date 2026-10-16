@@ -1,3 +1,4 @@
+import {validateMessageImage,attachMessageImage} from '../../../lib/chat-images.mjs';
 import config from '../../../dashboard-config.json';
 
 const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
@@ -107,11 +108,11 @@ export async function onRequest({ request, env, params }) {
     if (['calls', 'ice'].includes(route[0]) && !configured(env)) throw fail('Calls are not available. You can still send messages.', 503);
     // Read from the primary so revocation checks cannot use stale replicas.
     const db = env.DASHBOARD_DB.withSession ? env.DASHBOARD_DB.withSession('first-primary') : env.DASHBOARD_DB;
-    await db.prepare(`INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL OR dashboard_players.user_id=excluded.user_id`).bind(me.name, me.id, me.display).run();
+    await db.prepare(`INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL`).bind(me.name, me.id, me.display).run();
     const owner = await db.prepare('SELECT user_id FROM dashboard_players WHERE username=?').bind(me.name).first();
     if (owner?.user_id !== me.id) throw fail('Your player profile changed. Refresh your account.', 409);
     await rate(db, me.id, 'requests', 180, now);
-    await db.batch([
+    if (configured(env)) await db.batch([
       db.prepare("UPDATE social_calls SET status='ended',ended_at=?,reason=CASE WHEN created_at+?<=? THEN 'duration-limit' ELSE 'timeout' END WHERE status IN ('ringing','active') AND expires_at<=?").bind(now, CALL_LIMIT, now, now),
       db.prepare("DELETE FROM social_calls WHERE status IN ('ended','rejected') AND ended_at<?").bind(now - 86400000)
     ]);
@@ -140,6 +141,7 @@ export async function onRequest({ request, env, params }) {
       const other = await peer(db, me, request.method === 'GET' ? url.searchParams.get('username') : body.username);
       if (request.method === 'POST') {
         if (!only(body, ['username', 'clientId', 'text']) || !id(body.clientId) || typeof body.text !== 'string' || !body.text.trim() || body.text.length > 4000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(body.text)) throw fail('Write a message of up to 4,000 characters.');
+        const imageId=await validateMessageImage(db,me,'dm',other.username,body.clientId,body.text);
         await rate(db, me.id, 'messages', 30, now);
         const pair = [{ id: me.id, name: me.name }, { id: other.user_id, name: other.username }].sort((a, b) => a.id.localeCompare(b.id));
         await db.batch([
@@ -150,12 +152,15 @@ export async function onRequest({ request, env, params }) {
         const c = await conversation(db, me, other);
         if (!row || !c) throw fail('This conversation is unavailable.', 403);
         if (row.conversation_id !== c.id || row.text !== body.text.trim()) throw fail('This message identifier was already used.', 409);
-        return json({ conversationId: c.id, message: messageView(row) });
+        await attachMessageImage(db,imageId,row.id);return json({ conversationId: c.id, message: messageView(row) });
       }
       const c = await conversation(db, me, other), after = integer(url.searchParams.get('after')), before = integer(url.searchParams.get('before'), Number.MAX_SAFE_INTEGER);
       if (url.searchParams.has('after') && url.searchParams.has('before')) throw fail('Use one page cursor.');
       const limit = Math.min(100, Math.max(1, integer(url.searchParams.get('limit'), 50))), ascending = url.searchParams.has('after');
       if (!c) return json({ conversationId: null, messages: [], nextCursor: 0, hasMore: false, readThrough: 0, peerReadThrough: 0 });
+      const revision=(await db.prepare("SELECT revision FROM wibs_revisions WHERE scope='dm' AND target=?").bind(c.id).first())?.revision||0;
+      const markers={conversationId:c.id,revision,readThrough:c.a_id===me.id?c.read_a:c.read_b,peerReadThrough:c.a_id===me.id?c.read_b:c.read_a};
+      if(ascending&&url.searchParams.get('revision')===String(revision))return json({...markers,unchanged:true,messages:[],refreshed:[],hasMore:false,nextCursor:after});
       const rows = await db.prepare(`SELECT m.* FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE c.id=? AND m.id>? AND m.id<? AND ${conversationAllowed} ORDER BY m.id ${ascending ? 'ASC' : 'DESC'} LIMIT ?`).bind(c.id, after, before, limit + 1).all();
       const page = rows.results.slice(0, limit); if (!ascending) page.reverse();
       // Refresh existing reactions separately from the forward message cursor.
@@ -163,7 +168,7 @@ export async function onRequest({ request, env, params }) {
       const refresh = ascending && after > 0 && url.searchParams.get('refresh') === '1';
       const previous = refresh ? await db.prepare(`SELECT m.* FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE c.id=? AND m.id<=? AND ${conversationAllowed} ORDER BY m.id DESC LIMIT 100`).bind(c.id,after).all() : null;
       const refreshed = previous ? (await messageExtras(db,me,previous.results)).map(({id,reactions})=>({id,reactions})) : [];
-      return json({ conversationId: c.id, messages: await messageExtras(db,me,page), refreshed, nextCursor: ascending ? page.at(-1)?.id || after : page[0]?.id || 0, hasMore: rows.results.length > limit, readThrough: c.a_id === me.id ? c.read_a : c.read_b, peerReadThrough: c.a_id === me.id ? c.read_b : c.read_a });
+      return json({ revision, conversationId: c.id, messages: await messageExtras(db,me,page), refreshed, nextCursor: ascending ? page.at(-1)?.id || after : page[0]?.id || 0, hasMore: rows.results.length > limit, readThrough: c.a_id === me.id ? c.read_a : c.read_b, peerReadThrough: c.a_id === me.id ? c.read_b : c.read_a });
     }
     if (request.method === 'POST' && route.length === 1 && route[0] === 'read') {
       if (!only(body, ['username', 'messageId']) || !Number.isSafeInteger(body.messageId) || body.messageId <= 0) throw fail('Choose a valid message.');

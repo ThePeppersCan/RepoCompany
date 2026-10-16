@@ -1,0 +1,12 @@
+name = "repocompany-chat-maintenance"
+main = "worker.mjs"
+compatibility_date = "2026-10-16"
+workers_dev = false
+[triggers]
+crons = ["17 * * * *"]
+[vars]
+SUPABASE_URL = "https://hvdrwmjieguurxvrgzfu.supabase.co"
+[[d1_databases]]
+binding = "DASHBOARD_DB"
+database_name = "repo-dashboard-production"
+database_id = "a88e0fb6-1782-440a-adfd-0661dcd0279f"

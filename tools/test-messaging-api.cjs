@@ -5,11 +5,13 @@ const { randomUUID } = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 async function loadAPI({ callsEnabled = true } = {}) {
   const source = fs.readFileSync(path.join(root, 'functions/api/social/[[path]].js'), 'utf8').replace("import config from '../../../dashboard-config.json';", "const config=" + JSON.stringify({url:'https://auth.test',key:'test-public-key',socialCallsEnabled:callsEnabled}) + ";");
-  return (await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'))).onRequest;
+  const resolved=source.replace("'../../../lib/chat-images.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/chat-images.mjs')).href));
+  return (await import('data:text/javascript;base64,' + Buffer.from(resolved).toString('base64'))).onRequest;
 }
 function makeDatabase() {
   const sql = new DatabaseSync(':memory:');
-  for (const file of ['dashboard-social-schema.sql', 'dashboard-messaging-schema.sql', 'dashboard-chat-extras-schema.sql']) sql.exec(fs.readFileSync(path.join(root, file), 'utf8'));
+  for (const file of ['dashboard-social-schema.sql', 'dashboard-messaging-schema.sql', 'dashboard-chat-extras-schema.sql','dashboard-community-schema.sql','dashboard-chat-images-schema.sql']) sql.exec(fs.readFileSync(path.join(root, file), 'utf8'));
+  sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-efficiency-schema.sql'),'utf8').replace(/CREATE INDEX IF NOT EXISTS achievement_unlocks_by_achievement[^;]+;/,''));
   const hooks = { beforeQuery: null };
   const prepare = (query, values = []) => {
     const execute = method => { hooks.beforeQuery?.(query, values); return sql.prepare(query)[method](...values); };

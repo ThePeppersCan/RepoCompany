@@ -1,7 +1,7 @@
 import config from '../../../dashboard-config.json';
 import catalogue from '../../../assets/achievements/catalogue.json';
 const games=new Map(catalogue.games.map(g=>[g.id,g]));
-const response=(body,status=200,publicData=false)=>Response.json(body,{status,headers:{'Cache-Control':publicData?'public, max-age=30':'no-store','X-Content-Type-Options':'nosniff'}});
+const response=(body,status=200,publicData=false)=>Response.json(body,{status,headers:{'Cache-Control':publicData?'public, max-age=300':'no-store','X-Content-Type-Options':'nosniff'}});
 const name=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{3,16}$/.test(value)?value.toLowerCase():null;
 async function upstream(path,token,body){
  const r=await fetch(config.url+path,{method:body===undefined?'GET':'POST',headers:{apikey:config.key,Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(10000)});
@@ -12,7 +12,7 @@ async function own(db,me,game){
  const profile=await db.prepare('SELECT repo_score FROM dashboard_players WHERE username=?').bind(me).first();
  return {achievements:rows.results,repoScore:profile?.repo_score||0};
 }
-export async function onRequest({request,env,params}){
+export async function onRequest({request,env,params,waitUntil}){
  try{
   const url=new URL(request.url),origin=request.headers.get('Origin');
   if(origin&&origin!==url.origin)return response({error:'Use your Repo Company account connection.'},403);
@@ -21,16 +21,20 @@ export async function onRequest({request,env,params}){
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
   if(route==='global'&&request.method==='GET'){
    const game=url.searchParams.get('game')||'';if(game&&!games.has(game))return response({error:'Unknown game.'},400);
+   const cache=globalThis.caches?.default,key=new Request(url.origin+'/api/achievements/global?game='+encodeURIComponent(game));
+   const cached=cache?await cache.match(key):null;if(cached)return cached;
    const players=await db.prepare('SELECT game,COUNT(*) AS players FROM dashboard_achievement_players GROUP BY game').all();
    const counts=await db.prepare(`SELECT r.id,r.game,COUNT(u.username) AS completed FROM dashboard_achievement_rules r LEFT JOIN dashboard_achievement_unlocks u ON u.achievement_id=r.id WHERE (?='' OR r.game=?) GROUP BY r.id,r.game`).bind(game,game).all();
    const totals=Object.fromEntries(players.results.map(row=>[row.game,row.players]));
-   return response({players:totals,achievements:counts.results.map(row=>({...row,players:totals[row.game]||0,percent:totals[row.game]?100*row.completed/totals[row.game]:null}))},200,true);
+   const result=response({players:totals,achievements:counts.results.map(row=>({...row,players:totals[row.game]||0,percent:totals[row.game]?100*row.completed/totals[row.game]:null}))},200,true);
+   if(cache){const task=cache.put(key,result.clone());if(waitUntil)waitUntil(task);else await task;}return result;
   }
   const token=request.headers.get('Authorization')?.match(/^Bearer (.+)$/)?.[1];if(!token)return response({error:'Sign in to earn achievements.'},401);
   const user=await upstream('/auth/v1/user',token);if(!user?.id)return response({error:'Sign in again.'},401);
   const record=await upstream('/rest/v1/rpc/get_my_character',token,{}),character=Array.isArray(record)?record[0]:record,me=name(character?.username);
   if(!me)return response({error:'Your player profile is unavailable.'},409);
-  await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id').bind(me,user.id,character.username).run();
+  await db.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET user_id=excluded.user_id WHERE dashboard_players.user_id IS NULL').bind(me,user.id,character.username).run();
+  if((await db.prepare('SELECT user_id FROM dashboard_players WHERE username=?').bind(me).first())?.user_id!==user.id)return response({error:'Refresh your player profile.'},409);
   if(route==='mine'&&request.method==='GET'){
    const game=url.searchParams.get('game')||'';if(game&&!games.has(game))return response({error:'Unknown game.'},400);
    return response(await own(db,me,game));

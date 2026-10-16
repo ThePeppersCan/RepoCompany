@@ -67,6 +67,7 @@
   let signalCursor = 0, queuedIce = [], signalQueue = Promise.resolve(), offered = false;
   let connectedAt = 0, lastCallContact = 0, connectionTimer, callBusy = false, callBusyRevision = 0, micMuted = false, cameraOff = false;
   let opener = null, callOpener = null, toastTimer, callEndTimer, previousEvent = '';
+  const messageRevisions=new Map();
   let portalVisible = document.documentElement.dataset.repoPortalVisible !== 'false', pageSuspended = false, pollRevision = 0;
   let notificationBuffer = null, notificationBufferLoading = false;
   let notificationAudio = null, audioUnlocked = false, lastChime = 0;
@@ -272,7 +273,7 @@
     messages = []; selectedRead = peerRead = 0; hasOlder = false; loading = true;
     input.value = drafts.get(norm(selection)) || ''; resizeComposer();
     feedback.textContent = 'Loading your conversation…'; drawer.classList.add('has-conversation');
-    renderFriends(); renderMessages(true); updatePeer();
+    imageDraft?.clear();messageRevisions.clear();renderFriends(); renderMessages(true); updatePeer();
     try { await loadMessages(false, revision); if (revision === selectionEpoch) input.focus(); }
     finally { if (revision === selectionEpoch) { loading = false; updatePeer(); } }
   }
@@ -328,19 +329,21 @@
   }
   function resizeComposer() { input.style.height = 'auto'; input.style.height = Math.min(120, input.scrollHeight) + 'px'; }
   input.addEventListener('input', () => { if (selection) { drafts.set(norm(selection), input.value); draftIds.delete(norm(selection)); } resizeComposer(); });
+  const imageDraft=window.repoChatImages?.mount({form:composer,input,send,feedback,context:()=>({user:userId,scope:'dm',target:selection}),onChange:()=>draftIds.delete(norm(selection))});
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); composer.requestSubmit(); } });
   composer.addEventListener('submit', e => {e.preventDefault();sendText(input.value.trim());});
   async function sendText(text,keepDraft=false) {
     const name = selection, revision = selectionEpoch, auth=epoch;
-    if (!text || !friend(name) || sending) return;
+    if ((!text && !(imageDraft?.has()&&!keepDraft)) || !friend(name) || sending) return;
     const keys=keepDraft?gifIds:draftIds,key=keepDraft?norm(name)+':'+text:norm(name),clientId=keys.get(key)||crypto.randomUUID();keys.set(key,clientId);
     sending = true; updatePeer(); feedback.textContent = 'Sending…';
     try {
-      const result = await api('messages', {username: name, text, clientId});
+      const content=keepDraft?text:await imageDraft?.prepare(text,clientId)||text;
+      const result = await api('messages', {username: name, text:content, clientId});
       keys.delete(key);if(!keepDraft)drafts.delete(key);
       if (revision !== selectionEpoch) return;
       if (!messages.some(m => m.id === result.message.id)) messages.push(result.message);
-      if(!keepDraft){input.value = ''; resizeComposer();}
+      if(!keepDraft){imageDraft?.clear();input.value = ''; resizeComposer();}
       renderMessages(true); feedback.textContent = ''; inboxAt = 0;
     } catch (error) { if (revision === selectionEpoch && !invalidateConversation(name, error)) feedback.textContent = safeError(error) + (keepDraft?' Choose the GIF again to retry.':' Your message is still here; press Send to retry.'); }
     finally { if(auth===epoch){sending = false; updatePeer(); if (revision === selectionEpoch) input.focus();} }
@@ -604,13 +607,14 @@
     polling = true; const revision = epoch, thisPoll = pollRevision, now = Date.now();
     try {
       const tasks = [];
-      const inboxInterval = document.documentElement.dataset.repoLauncher === 'true' ? 3000 : document.hidden ? 10000 : 5000;
+      const inboxInterval = callsEnabled ? 5000 : document.hidden || !portalVisible || !drawer.open ? 30000 : 15000;
       if (now - inboxAt >= inboxInterval) { inboxAt = now; tasks.push(refreshInbox().catch(e => { if (revision === epoch && drawer.open) feedback.textContent = safeError(e); })); }
-      if (drawer.open && now - friendRefreshAt >= 30000) tasks.push(refreshFriends());
-      if (selection && viewingConversation() && !loading && now - messageAt >= 2000) {
+      if (drawer.open && now - friendRefreshAt >= 60000) tasks.push(refreshFriends());
+      if (selection && viewingConversation() && !loading && now - messageAt >= 4000) {
         messageAt = now; const selected = selection, selectedRevision = selectionEpoch, after = messages.at(-1)?.id || 0;
-        tasks.push(api('messages?username=' + encodeURIComponent(selected) + '&limit=100&refresh=1&after=' + after).then(result => {
+        tasks.push(api('messages?username=' + encodeURIComponent(selected) + '&limit=100&refresh=1&after=' + after + (messageRevisions.has(userId+':'+selected)?'&revision='+messageRevisions.get(userId+':'+selected):'')).then(result => {
           if (selectedRevision !== selectionEpoch || revision !== epoch) return;
+          if(!result.hasMore&&result.revision!==undefined)messageRevisions.set(userId+':'+selected,result.revision);
           const fresh = result.messages.filter(m => !messages.some(n => n.id === m.id));
           const refreshed = new Map((result.refreshed || []).map(m => [m.id,m.reactions]));
           const changedExtras = messages.some(m => refreshed.has(m.id) && JSON.stringify(m.reactions || []) !== JSON.stringify(refreshed.get(m.id)));

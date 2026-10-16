@@ -15,8 +15,9 @@
   const gifText=id=>gifs.some(g=>g.id===id)?`:wibs-gif-${id}:`:'';
   const gifFor=text=>gifs.find(g=>gifText(g.id)===String(text).trim());
   const emoteTokens=/(:wibs-(?:wave|love|laugh|hype|wow|sad|angry|sleepy):)/g;
-  const preview=text=>gifFor(text)?.label||String(text).replace(emoteTokens,token=>label(token.slice(1,-1)));
+  const preview=text=>gifFor(text)?.label||String(window.repoChatImages?.preview(text)??text).replace(emoteTokens,token=>label(token.slice(1,-1)));
   function renderText(container,text,key=''){
+    const imageId=window.repoChatImages?.idFrom(text);if(imageId){renderText(container,window.repoChatImages.withoutToken(text),key);window.repoChatImages.render(container,imageId);return;}
     const gif=gifFor(text);container.replaceChildren();container.classList.remove('is-emotes-only');container.classList.toggle('is-wibs-gif',!!gif);
     if(!gif){const parts=String(text).split(emoteTokens);let count=0;for(const part of parts){const id=part.startsWith(':')&&part.endsWith(':')?resolve(part.slice(1,-1)):null;if(id){const img=emote(id);img.classList.add('repo-inline-emote');img.removeAttribute('aria-hidden');img.alt=label(id);container.append(img);count++;}else container.append(document.createTextNode(part));}container.classList.toggle('is-emotes-only',count>0&&count<=3&&parts.filter((_,i)=>i%2===0).join('').trim()==='');return;}
     const image=node('img','repo-wibs-gif'),control=button('','repo-gif-play',()=>setPlaying(!playing));
