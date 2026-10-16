@@ -23,13 +23,17 @@ const allowed = (a, b, aid, bid) => `EXISTS(SELECT 1 FROM dashboard_friendships 
 const conversationAllowed = allowed('c.a_name', 'c.b_name', 'c.a_id', 'c.b_id');
 const callAllowed = allowed('c.caller_name', 'c.callee_name', 'c.caller_id', 'c.callee_id');
 const messageView = row => ({ id: row.id, sender: row.sender_name, clientId: row.client_id, text: row.text, createdAt: row.created_at });
-const EMOTES = new Set(['morogue', 'moratales', 'manager'].flatMap(game => ['up', 'down', 'laugh', 'angry', 'love'].map(emotion => game + '-' + emotion)));
+const wibsIds=new Set(['wave','love','laugh','hype','wow','sad','angry','sleepy'].map(id=>'wibs-'+id));
+const oldEmotes={'👍':'wibs-wave','❤️':'wibs-love','😂':'wibs-laugh','🎉':'wibs-hype','👀':'wibs-wow','🌿':'wibs-sleepy'};
+function wibsEmote(value){if(typeof value!=='string')return null;if(wibsIds.has(value))return value;if(Object.hasOwn(oldEmotes,value))return oldEmotes[value];const m=value.match(/^(?:morogue|moratales|manager)-(up|down|laugh|angry|love)$/);return m?'wibs-'+({up:'wave',down:'sad'}[m[1]]||m[1]):null;}
+function wibsReactions(rows,key,count){const merged=new Map();for(const r of rows){const id=wibsEmote(r[key]);if(!id)continue;const k=r.message_id+':'+id,prev=merged.get(k);if(prev){prev[count]+=r[count];prev.mine=Math.max(prev.mine,r.mine);}else merged.set(k,{...r,[key]:id});}return [...merged.values()];}
 async function messageExtras(db, me, rows) {
   if (!rows.length) return [];
   if (rows.length > 80) return [...await messageExtras(db,me,rows.slice(0,80)), ...await messageExtras(db,me,rows.slice(80))];
   const placeholders = rows.map(() => '?').join(','), ids = rows.map(row => row.id);
   const reactions = await db.prepare(`SELECT r.message_id,r.emote,COUNT(*) AS n,MAX(r.user_id=?) AS mine FROM social_message_reactions r JOIN social_messages m ON m.id=r.message_id JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id IN (${placeholders}) AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed} GROUP BY r.message_id,r.emote`).bind(me.id, ...ids, me.id, me.id).all();
-  return rows.map(row => ({ ...messageView(row), reactions: reactions.results.filter(r => r.message_id === row.id).map(r => ({emote:r.emote,count:r.n,mine:!!r.mine})) }));
+  const canonical=wibsReactions(reactions.results,'emote','n');
+  return rows.map(row => ({ ...messageView(row), reactions: canonical.filter(r => r.message_id === row.id).map(r => ({emote:r.emote,count:r.n,mine:!!r.mine})) }));
 }
 const callView = row => row ? ({ id: row.id, caller: row.caller_name, callee: row.callee_name, kind: row.kind, status: row.status, createdAt: row.created_at, expiresAt: row.expires_at, endedAt: row.ended_at, reason: row.reason }) : null;
 // Calling is an explicit product opt-in, independent of whether credentials exist.
@@ -124,12 +128,12 @@ export async function onRequest({ request, env, params }) {
       return json({ conversations, totalUnread: unread.n, call: callView(call), serverTime: now, iceConfigured: configured(env), hasMore: rows.results.length > limit, nextCursor: rows.results.slice(0, limit).at(-1)?.last_id || null });
     }
     if (route.length === 1 && route[0] === 'reactions' && request.method === 'POST') {
-      if (!only(body, ['messageId', 'emote']) || !Number.isSafeInteger(body.messageId) || body.messageId <= 0 || (body.emote !== null && !EMOTES.has(body.emote))) throw fail('Choose a valid reaction.');
+      if (!only(body, ['messageId', 'emote']) || !Number.isSafeInteger(body.messageId) || body.messageId <= 0 || (body.emote !== null && !wibsEmote(body.emote))) throw fail('Choose a valid reaction.');
       await rate(db, me.id, 'reactions', 40, now);
       const row = await db.prepare(`SELECT m.* FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id=? AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed}`).bind(body.messageId, me.id, me.id).first();
       if (!row) throw fail('Message unavailable.', 404);
       if (body.emote === null) await db.prepare(`DELETE FROM social_message_reactions WHERE message_id=? AND user_id=? AND EXISTS(SELECT 1 FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id=? AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed})`).bind(body.messageId, me.id, body.messageId, me.id, me.id).run();
-      else await db.prepare(`INSERT INTO social_message_reactions(message_id,user_id,emote,created_at) SELECT m.id,?,?,? FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id=? AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed} ON CONFLICT(message_id,user_id) DO UPDATE SET emote=excluded.emote,created_at=excluded.created_at`).bind(me.id, body.emote, now, body.messageId, me.id, me.id).run();
+      else await db.prepare(`INSERT INTO social_message_reactions(message_id,user_id,emote,created_at) SELECT m.id,?,?,? FROM social_messages m JOIN social_conversations c ON c.id=m.conversation_id WHERE m.id=? AND (c.a_id=? OR c.b_id=?) AND ${conversationAllowed} ON CONFLICT(message_id,user_id) DO UPDATE SET emote=excluded.emote,created_at=excluded.created_at`).bind(me.id, wibsEmote(body.emote), now, body.messageId, me.id, me.id).run();
       return json({message:(await messageExtras(db, me, [row]))[0]});
     }
     if (route.length === 1 && route[0] === 'messages') {

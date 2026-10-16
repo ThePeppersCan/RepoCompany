@@ -1,47 +1,44 @@
 (() => {
   'use strict';
-  const games = [['morogue','Morogue'],['moratales','Moratales'],['manager','Velmora Manager']];
-  const emotions = [['up','Thumbs up'],['down','Thumbs down'],['laugh','Laughing'],['angry','Angry'],['love','Love']];
-  const columns = [0,350,684,984,1308,1619], rows = [0,358,640,971];
-  const ns = 'http://www.w3.org/2000/svg';
+  const catalog=Object.freeze([['wave','Wave'],['love','Love'],['laugh','Laugh'],['hype','Hype'],['wow','Wow'],['sad','Sad'],['angry','Angry'],['sleepy','Sleepy']].map(([id,label])=>Object.freeze({id:'wibs-'+id,label:'Wibs · '+label})));
+  const legacy={'👍':'wibs-wave','❤️':'wibs-love','😂':'wibs-laugh','🎉':'wibs-hype','👀':'wibs-wow','🌿':'wibs-sleepy'};
+  function resolve(id){if(catalog.some(e=>e.id===id))return id;if(Object.hasOwn(legacy,id))return legacy[id];const m=String(id).match(/^(?:morogue|moratales|manager)-(up|down|laugh|angry|love)$/);return m?'wibs-'+({up:'wave',down:'sad'}[m[1]]||m[1]):null;}
+  const label=id=>catalog.find(e=>e.id===resolve(id))?.label||'Wibs reaction';
   function emote(id) {
-    const [game, emotion] = id.split('-'), r = games.findIndex(g => g[0] === game), c = emotions.findIndex(e => e[0] === emotion);
-    if (r < 0 || c < 0) return document.createTextNode('');
-    const svg = document.createElementNS(ns,'svg'), image = document.createElementNS(ns,'image');
-    svg.classList.add('repo-emote'); svg.setAttribute('aria-hidden','true');
-    svg.setAttribute('viewBox',`${columns[c]} ${rows[r]} ${columns[c+1]-columns[c]} ${rows[r+1]-rows[r]}`);
-    image.setAttribute('href','/assets/chat-reactions-v1.png'); image.setAttribute('width','1619'); image.setAttribute('height','971'); svg.append(image); return svg;
+    const key=resolve(id);if(!key)return document.createTextNode('');
+    const image=document.createElement('img');image.className='repo-emote wibs-emote';image.alt='';image.setAttribute('aria-hidden','true');image.draggable=false;image.src='/assets/wibs-emotes/'+key.slice(5)+'.svg';return image;
   }
   function node(tag,cls,text) { const n=document.createElement(tag); n.className=cls; if(text)n.textContent=text; return n; }
   function button(label,cls,action) { const n=node('button',cls);n.type='button';n.title=label;n.setAttribute('aria-label',label);n.onclick=action;return n; }
-  window.repoChatExtras = Object.freeze({mount({drawer,history,feedback,api,replaceMessage}) {
+  function createPicker(drawer,onSelect){
+    const picker=node('div','repo-reaction-picker');picker.setAttribute('popover','auto');picker.setAttribute('role','dialog');picker.setAttribute('aria-label','Wibs emotes');drawer.append(picker);
+    const clear=()=>{try{picker.hidePopover();}catch{}};
+    function choose(message,trigger){
+      // Wibs rebuilds the drawer after the DM module mounts.
+      if(!picker.isConnected)drawer.append(picker);
+      picker.replaceChildren(node('strong','repo-reaction-heading','Wibs emotes'));const choices=node('div','repo-reaction-choices');
+      for(const item of catalog){const mine=message.reactions?.some(r=>resolve(r.emote||r.emoji)===item.id&&r.mine),b=button(item.label,'repo-reaction-choice',()=>{clear();if(trigger.isConnected)trigger.focus({preventScroll:true});onSelect(message,mine?null:item.id,trigger);});b.setAttribute('aria-pressed',String(!!mine));b.append(emote(item.id));choices.append(b);}
+      picker.append(choices);picker.showPopover();const rect=trigger.getBoundingClientRect(),box=picker.getBoundingClientRect(),gap=8;
+      picker.style.left=Math.max(gap,Math.min(innerWidth-box.width-gap,rect.right-box.width))+'px';picker.style.top=Math.max(gap,Math.min(innerHeight-box.height-gap,rect.top>=box.height+gap?rect.top-box.height-gap:rect.bottom+gap))+'px';picker.querySelector('button').focus({preventScroll:true});
+    }
+    drawer.addEventListener('close',clear);addEventListener('resize',clear);return {choose,clear};
+  }
+  window.repoChatExtras = Object.freeze({catalog,emote,label,createPicker,mount({drawer,history,feedback,api,replaceMessage}) {
     let revision=0, reactionBusy=false;
-    const picker=node('div','repo-reaction-picker'); picker.setAttribute('popover','auto');picker.setAttribute('aria-label','Choose a reaction');drawer.append(picker);
-    function clear() { revision++;try{picker.hidePopover();}catch{}; }
-    function dismissPicker(){try{picker.hidePopover();}catch{}}
+    const picker=createPicker(drawer,react);
+    function clear() { revision++;picker.clear(); }
     async function react(message, value, trigger) {
-      if(reactionBusy)return;const rev=revision;reactionBusy=true;dismissPicker();
+      if(reactionBusy)return;const rev=revision;reactionBusy=true;picker.clear();
       try { const result=await api('reactions',{messageId:message.id,emote:value},()=>rev===revision);if(rev===revision){replaceMessage(result.message);history.querySelector(`[data-reaction-for="${message.id}"]`)?.focus({preventScroll:true});} }
       catch(error){if(rev===revision)feedback.textContent=error.message;}
       finally{reactionBusy=false;}
     }
-    function choose(message,trigger){
-      picker.replaceChildren();
-      for(const [game,label] of games){
-        const group=node('div','repo-reaction-group'), heading=node('span','',label), choices=node('div','repo-reaction-choices');group.append(heading,choices);
-        for(const [emotion,title] of emotions){const id=game+'-'+emotion,mine=message.reactions?.some(r=>r.emote===id&&r.mine);const b=button(label+' · '+title,'repo-reaction-choice',()=>react(message,mine?null:id,trigger));b.setAttribute('aria-pressed',String(!!mine));b.append(emote(id));choices.append(b);}
-        picker.append(group);
-      }
-      const rect=trigger.getBoundingClientRect();picker.style.left=Math.max(12,Math.min(innerWidth-284,rect.right-268))+'px';picker.style.top=Math.max(12,Math.min(innerHeight-260,rect.top-250))+'px';picker.showPopover();picker.querySelector('button').focus({preventScroll:true});
-    }
     function decorate(row,message){
       const controls=node('div','repo-message-reactions');
-      for(const reaction of message.reactions||[]){const title=reaction.emote.replace('-',' · ');const b=button(title+' · '+reaction.count,'repo-reaction-chip',()=>react(message,reaction.mine?null:reaction.emote,b));b.setAttribute('aria-pressed',String(reaction.mine));b.append(emote(reaction.emote),node('span','',String(reaction.count)));controls.append(b);}
-      const add=button('React to message','repo-reaction-add',()=>choose(message,add));
-      const smile=document.createElementNS(ns,'svg');smile.setAttribute('viewBox','0 0 24 24');smile.setAttribute('aria-hidden','true');smile.innerHTML='<circle cx="12" cy="12" r="8.5"/><path d="M8 14.5c2 3 6 3 8 0M8.5 9h.01M15.5 9h.01"/>';
-      add.append(smile);add.dataset.reactionFor=message.id;add.setAttribute('aria-haspopup','true');controls.append(add);row.append(controls);
+      for(const reaction of message.reactions||[]){const b=button(label(reaction.emote)+' · '+reaction.count,'repo-reaction-chip',()=>react(message,reaction.mine?null:reaction.emote,b));b.setAttribute('aria-pressed',String(reaction.mine));b.append(emote(reaction.emote),node('span','',String(reaction.count)));controls.append(b);}
+      const add=button('React to message','repo-reaction-add',()=>picker.choose(message,add));
+      add.append(emote('wibs-wave'));add.dataset.reactionFor=message.id;add.setAttribute('aria-haspopup','dialog');controls.append(add);row.append(controls);
     }
-    drawer.addEventListener('close',dismissPicker);
     return {decorate,clear};
   }});
 })();

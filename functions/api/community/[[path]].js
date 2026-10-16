@@ -5,7 +5,10 @@ const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control
 const uuid=v=>typeof v==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(v);
 const username=v=>typeof v==='string'&&/^[a-z0-9_-]{3,16}$/i.test(v);
 const developer='EXISTS(SELECT 1 FROM community_roles WHERE user_id=? AND role=\'Developer\')';
-const emojis=['👍','❤️','😂','🎉','👀','🌿'];
+const wibsIds=new Set(['wave','love','laugh','hype','wow','sad','angry','sleepy'].map(id=>'wibs-'+id));
+const oldEmotes={'👍':'wibs-wave','❤️':'wibs-love','😂':'wibs-laugh','🎉':'wibs-hype','👀':'wibs-wow','🌿':'wibs-sleepy'};
+function wibsEmote(value){if(typeof value!=='string')return null;if(wibsIds.has(value))return value;if(Object.hasOwn(oldEmotes,value))return oldEmotes[value];const m=value.match(/^(?:morogue|moratales|manager)-(up|down|laugh|angry|love)$/);return m?'wibs-'+({up:'wave',down:'sad'}[m[1]]||m[1]):null;}
+function wibsReactions(rows,key,count){const merged=new Map();for(const r of rows){const id=wibsEmote(r[key]);if(!id)continue;const k=r.message_id+':'+id,prev=merged.get(k);if(prev){prev[count]+=r[count];prev.mine=Math.max(prev.mine,r.mine);}else merged.set(k,{...r,[key]:id});}return [...merged.values()];}
 async function identity(request){
  const token=request.headers.get('Authorization')?.match(/^Bearer ([^\s]{1,8192})$/)?.[1];
  if(!token)throw fail('Sign in to join the community.',401);
@@ -93,6 +96,7 @@ export async function onRequest({request,env,params}){
    const rows=await db.prepare(`SELECT m.*,COALESCE(d.display_name,p.display_name) display_name,w.name_color,r.role FROM community_messages m LEFT JOIN dashboard_players p ON p.user_id=m.sender_id LEFT JOIN community_profile_details d ON d.user_id=p.user_id LEFT JOIN community_appearance w ON w.user_id=p.user_id LEFT JOIN community_roles r ON r.user_id=m.sender_id WHERE m.channel_id=? AND m.id<? AND m.id>? AND instr(lower(m.text),lower(?))>0 AND ${visibility} ORDER BY m.id ${after?'ASC':'DESC'} LIMIT 51`).bind(channel,before,after,search,me.name,me.name).all();
    const page=rows.results.slice(0,50);if(!after)page.reverse();
    let reactions=[];if(page.length)reactions=(await db.prepare(`SELECT message_id,emoji,COUNT(*) count,MAX(user_id=?) mine FROM community_reactions WHERE message_id IN (${page.map(()=>'?').join(',')}) GROUP BY message_id,emoji`).bind(me.id,...page.map(m=>m.id)).all()).results;
+   reactions=wibsReactions(reactions,'emoji','count');
    return json({messages:page.map(m=>({id:m.id,sender:m.sender_name,display:m.display_name||m.sender_name,nameColor:m.name_color,role:m.role,text:m.text,createdAt:m.created_at,mine:m.sender_id===me.id,reactions:reactions.filter(r=>r.message_id===m.id)})),hasMore:rows.results.length>50});
   }
   if(request.method!=='POST')throw fail('Not found.',404);
@@ -116,9 +120,9 @@ export async function onRequest({request,env,params}){
     if(row.sender_id!==me.id&&!isDeveloper)throw fail('You can only delete your own messages.',403);
     await db.prepare(`DELETE FROM community_messages WHERE id=? AND (sender_id=? OR ${developer})`).bind(body.id,me.id,me.id).run();
    }else{
-    if(body.emoji!==null&&!emojis.includes(body.emoji))throw fail('Choose a reaction.');
+    const selected=body.emoji===null?null:wibsEmote(body.emoji);if(body.emoji!==null&&!selected)throw fail('Choose a reaction.');
     if(body.emoji===null)await db.prepare('DELETE FROM community_reactions WHERE message_id=? AND user_id=?').bind(body.id,me.id).run();
-    else await db.prepare('INSERT INTO community_reactions(message_id,user_id,emoji) VALUES(?,?,?) ON CONFLICT(message_id,user_id) DO UPDATE SET emoji=excluded.emoji').bind(body.id,me.id,body.emoji).run();
+    else await db.prepare('INSERT INTO community_reactions(message_id,user_id,emoji) VALUES(?,?,?) ON CONFLICT(message_id,user_id) DO UPDATE SET emoji=excluded.emoji').bind(body.id,me.id,selected).run();
    }return json({ok:true});
   }
   if(route==='voice-name'){

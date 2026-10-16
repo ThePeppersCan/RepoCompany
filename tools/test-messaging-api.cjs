@@ -59,7 +59,7 @@ async function run() {
     const page=await f.call('alice','messages?username=bob&after='+cursor+'&limit=100&refresh=1');
     assert.deepEqual(page.body.messages.map(m=>m.id),[last]);
     assert.equal(page.body.refreshed.length,100);
-    assert.equal(page.body.refreshed.find(m=>m.id===cursor).reactions[0].emote,'moratales-love');
+    assert.equal(page.body.refreshed.find(m=>m.id===cursor).reactions[0].emote,'wibs-love');
     assert.equal((await f.call('mallory','reactions',{messageId:last,emote:'morogue-up'})).status,404);
     for(let n=0;n<39;n++)assert.equal((await f.call('alice','reactions',{messageId:cursor,emote:'manager-up'})).status,200);
     assert.equal((await f.call('alice','reactions',{messageId:cursor,emote:null})).status,429);

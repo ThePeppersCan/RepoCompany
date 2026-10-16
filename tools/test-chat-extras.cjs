@@ -12,7 +12,7 @@ const {chromium}=require('playwright'),{createFixture}=require('./messaging-test
     const send=await call(alice,'messages',{username:'bob',clientId:crypto.randomUUID(),text:'Ready for the Uncrowned?'});assert.equal(send.status,200);const messageId=send.body.message.id;
     await alice.evaluate(()=>repoMessaging.open('bob'));await bob.evaluate(()=>repoMessaging.open('alice'));
     await alice.locator('[data-reaction-for="'+messageId+'"]').click({force:true});
-    await alice.getByRole('button',{name:'Morogue · Thumbs up',exact:true}).click();
+    await alice.getByRole('button',{name:'Wibs · Wave',exact:true}).click();
     await bob.locator('.repo-reaction-chip').waitFor();assert.equal(await bob.locator('.repo-reaction-chip').getAttribute('aria-pressed'),'false');
     await bob.locator('.repo-reaction-chip').click();await bob.waitForFunction(()=>document.querySelector('.repo-reaction-chip span')?.textContent==='2');
     assert.equal((await call(alice,'reactions',{messageId,emote:'not-a-reaction'})).status,400);
