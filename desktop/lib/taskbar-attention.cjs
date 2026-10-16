@@ -38,8 +38,8 @@ class TaskbarAttention {
   }
   notify(data) {
     const message = clean(data);
-    if (!this.available() || !this.identity || !message || this.seen.has(message.id)) return;
-    this.seen.add(message.id);
+    if (!this.available() || !this.identity || !message || this.seen.has(message.key)) return;
+    this.seen.add(message.key);
     if (this.seen.size > 100) this.seen.delete(this.seen.values().next().value);
     if (!this.window.isFocused() && !this.flashing) {
       this.window.flashFrame(true); this.flashing = true;

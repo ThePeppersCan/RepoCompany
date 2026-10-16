@@ -60,7 +60,7 @@
   const time = value => new Date(timestamp(value)).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
   const date = value => new Date(timestamp(value)).toLocaleDateString([], {day: 'numeric', month: 'long'});
   let userId = account.state.user?.id || null, epoch = 0, selection = '', selectionEpoch = 0;
-  let inbox = [], messages = [], draftIds = new Map(), drafts = new Map(), gifIds = new Map(), unread = 0, initialized = false;
+  let inbox = [], messages = [], draftIds = new Map(), drafts = new Map(), gifIds = new Map(), unread = 0, communityUnread = 0, initialized = false;
   let selectedRead = 0, peerRead = 0, hasOlder = false, listSignature = '', sending = false, loading = false;
   let timer, inboxAt = 0, inboxArchiveAt = 0, inboxPageCursor = null, messageAt = 0, signalAt = 0, heartbeatAt = 0, polling = false;
   let call = null, callOwned = false, callEpoch = 0, pc = null, stream = null, remoteStream = null;
@@ -157,14 +157,15 @@
   }
   function messagingState() {
     const hosted = window.repoVoice?.getState();
-    return {open: drawer.open, unread: Math.min(999, unread), callActive: !!hosted?.callActive || (!!call && !terminal.has(call.status)), callStatus: hosted?.callStatus || call?.status || '', incomingCall: !!hosted?.incomingCall || (call?.status === 'ringing' && norm(call.callee) === ownName())};
+    return {open: drawer.open, unread: Math.min(999, unread + communityUnread), callActive: !!hosted?.callActive || (!!call && !terminal.has(call.status)), callStatus: hosted?.callStatus || call?.status || '', incomingCall: !!hosted?.incomingCall || (call?.status === 'ringing' && norm(call.callee) === ownName())};
   }
   function announce() {
     const state = messagingState();
     const signature = JSON.stringify(state);
     if (signature !== previousEvent) { previousEvent = signature; dispatchEvent(new CustomEvent('repo-messaging-state', {detail: state})); }
-    launchCount.hidden = !unread; launchCount.textContent = unread > 99 ? '99+' : String(unread);
-    launch.setAttribute('aria-label', unread ? `Wibs, ${unread} unread message${unread === 1 ? '' : 's'}` : 'Open Wibs');
+    const total = unread + communityUnread;
+    launchCount.hidden = !total; launchCount.textContent = total > 99 ? '99+' : String(total);
+    launch.setAttribute('aria-label', total ? `Wibs, ${total} unread message${total === 1 ? '' : 's'}` : 'Open Wibs');
     launch.title = launch.getAttribute('aria-label'); launch.setAttribute('aria-expanded', String(drawer.open));
   }
   async function api(route, payload, valid = () => true) {
@@ -356,16 +357,17 @@
 
   function showToast(thread) {
     if (!thread?.lastMessage) return;
-    notificationSound('dm:'+thread.lastMessage.id);
-    if (viewingConversation() && norm(selection) === norm(thread.username)) return;
+    notificationSound((thread.channel?'community:':'dm:')+thread.lastMessage.id);
+    if (!thread.channel && viewingConversation() && norm(selection) === norm(thread.username)) return;
+    if (thread.channel && window.repoCommunity?.isReading(thread.channel)) return;
     if (!portalVisible && document.documentElement.dataset.repoLauncher === 'true') {
-      // The live portal plays the same sound in the website and client, even
-      // when a game covers it. Keep the native preview silent to avoid doubles.
-      dispatchEvent(new CustomEvent('repo-message-notification',{detail:{id:thread.lastMessage.id,username:thread.username,name:display(thread.username),text:window.repoChatExtras.preview(thread.lastMessage.text).slice(0,160),volume:0}}));return;
+      // Sound has its own background-capable bridge. Keep the visual preview
+      // silent so one message cannot play two notification sounds.
+      dispatchEvent(new CustomEvent('repo-message-notification',{detail:{id:thread.lastMessage.id,username:thread.username,channel:thread.channel||'',name:thread.channel?'#'+thread.channelName+' · '+(thread.display||thread.username):display(thread.username),text:window.repoChatExtras.preview(thread.lastMessage.text).slice(0,160),volume:0}}));return;
     }
     if (document.hidden || !portalVisible) return;
-    const name = display(thread.username); toastName.textContent = name; toastText.textContent = window.repoChatExtras.preview(thread.lastMessage.text);
-    paintAvatar(toastAvatar, thread.username); toastOpen.onclick = () => { hideToast(); open(thread.username); };
+    const name = thread.channel ? '#'+thread.channelName+' · '+(thread.display||thread.username) : display(thread.username); toastName.textContent = name; toastText.textContent = window.repoChatExtras.preview(thread.lastMessage.text);
+    paintAvatar(toastAvatar, thread.username); toastOpen.onclick = () => { hideToast(); if(thread.channel)window.repoCommunity?.openChannel(thread.channel);else open(thread.username); };
     const anchor=launch.getBoundingClientRect();toast.style.left=Math.max(12,Math.min(innerWidth-332,anchor.right-320))+'px';toast.style.top=Math.max(12,anchor.bottom+10)+'px';
     try { toast.showPopover(); } catch (_) { return; }
     clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 6500);
@@ -401,6 +403,10 @@
   }
   function notificationSound(key) {
     const preferences = window.dashboardAudio?.preferences();
+    if (!key && call?.id) key = 'call:'+call.id;
+    if (document.documentElement.dataset.repoNativeMessageSound === 'true' && typeof key === 'string') {
+      dispatchEvent(new CustomEvent('repo-message-sound',{detail:{key,volume:preferences&&!preferences.muted?Number(preferences.effects)||0:0}}));return;
+    }
     if(typeof key==='string'){if(soundedMessages.has(key))return;soundedMessages.add(key);if(soundedMessages.size>300)soundedMessages.delete(soundedMessages.values().next().value);}
     if (!audioUnlocked || !notificationAudio || notificationAudio.state !== 'running' || !preferences || preferences.muted || !preferences.effects || Date.now() - lastChime < Math.max(2000,(notificationBuffer?.duration||0)*1000)) return;
     if(!notificationBuffer)return;
@@ -611,7 +617,7 @@
     polling = true; const revision = epoch, thisPoll = pollRevision, now = Date.now();
     try {
       const tasks = [];
-      const inboxInterval = callsEnabled ? 5000 : document.hidden || !portalVisible || !drawer.open ? 30000 : 15000;
+      const inboxInterval = 5000;
       if (now - inboxAt >= inboxInterval) { inboxAt = now; tasks.push(refreshInbox().catch(e => { if (revision === epoch && drawer.open) feedback.textContent = safeError(e); })); }
       if (drawer.open && now - friendRefreshAt >= 60000) tasks.push(refreshFriends());
       if (selection && viewingConversation() && !loading && now - messageAt >= 4000) {
@@ -654,7 +660,7 @@
       extras?.clear(); gifPicker.clear(); epoch++; selectionEpoch++; requests.forEach(r => r.abort()); requests.clear();
       soundedMessages.clear();seenThreads.clear();lastChime=0;
       userId = next; stopMedia(); clearTimeout(callEndTimer); call = null; callOwned = false; callBusy = false; callBusyRevision++; callPanel.close(); callChip.hidden = true;
-      selection = ''; inbox = []; messages = []; drafts.clear(); draftIds.clear(); gifIds.clear(); revoked.clear(); unread = 0; initialized = false; callsEnabled = false; inboxAt = inboxArchiveAt = messageAt = signalAt = heartbeatAt = friendRefreshAt = 0; inboxPageCursor = null; moreConversations.hidden = true;
+      selection = ''; inbox = []; messages = []; drafts.clear(); draftIds.clear(); gifIds.clear(); revoked.clear(); unread = communityUnread = 0; initialized = false; callsEnabled = false; inboxAt = inboxArchiveAt = messageAt = signalAt = heartbeatAt = friendRefreshAt = 0; inboxPageCursor = null; moreConversations.hidden = true;
       sending = loading = reading = false; input.value = ''; feedback.textContent = ''; history.replaceChildren(); listSignature = ''; hideToast(); close();
     }
     launch.hidden = !userId;
@@ -664,6 +670,7 @@
   }
   addEventListener('repo-account-state', accountChanged);
   addEventListener('repo-messaging-request', () => { previousEvent = ''; announce(); });
+  addEventListener('repo-background-messages', () => { inboxAt = 0; tick(); });
   addEventListener('repo-launcher-portal-visibility', event => {
     if (typeof event.detail?.visible !== 'boolean') return;
     portalVisible = event.detail.visible;
@@ -683,7 +690,7 @@
     clearInterval(timer); timer = setInterval(tick, 1000); accountChanged();
     if (audioUnlocked) notificationAudio?.resume().catch(() => {});
   });
-  window.repoMessaging = Object.freeze({open, close, getState: messagingState, messageSound: notificationSound});
+  window.repoMessaging = Object.freeze({open, close, getState: messagingState, messageSound: notificationSound, setCommunityUnread: count => {communityUnread=Number.isSafeInteger(count)&&count>0?count:0;announce();}, notifyCommunity: showToast});
   addEventListener('repo-voice-state', () => { updatePeer(); announce(); });
   window.repoVoice?.mount({drawer,head,context:()=>({selection,userId})});
   timer = setInterval(tick, 1000); accountChanged();

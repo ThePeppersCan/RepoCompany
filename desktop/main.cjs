@@ -12,6 +12,7 @@ const { Preferences } = require('./lib/preferences.cjs');
 const { DiscordPresence } = require('./lib/discord-presence.cjs');
 const { MessageNotifications } = require('./lib/message-notifications.cjs');
 const { TaskbarAttention } = require('./lib/taskbar-attention.cjs');
+const { NotificationAudio } = require('./lib/notification-audio.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
 
 app.setName('Repo Company');
@@ -25,7 +26,7 @@ const config = require('./config.cjs')(app.isPackaged ? process.resourcesPath : 
 const fixtures = !app.isPackaged && process.env.REPO_LAUNCHER_FIXTURES === '1' ? require('./tests/fixtures/network.cjs') : null;
 const hiddenTest = !app.isPackaged && process.env.REPO_LAUNCHER_HIDDEN_TEST === '1';
 if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestServices = fixtures; }
-let messageNotifications, taskbarAttention;
+let messageNotifications, taskbarAttention, notificationAudio, backgroundMessageTimer;
 let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
@@ -172,6 +173,7 @@ function showWindow(window) {
 function isPortalVisible() {
   return !!(portalViewVisible && portalReady && activePortal() && windowContents(mainWindow) && mainWindow.isVisible?.() && mainWindow.isFocused?.() && !mainWindow.isMinimized?.());
 }
+function pollBackgroundMessages(){if(!quitting&&account?.state.status==='online'&&!isPortalVisible())activePortal()?.send('launcher:background-messages');}
 function notifyPortalVisibility(force = false) {
   const visible = isPortalVisible();
   if (force || visible !== lastPortalVisibility) {
@@ -213,6 +215,7 @@ function broadcast() {
   if (quitting || !windowContents(mainWindow)) return;
   messageNotifications?.sync(account?.state.status === 'online' ? mediaAccountId : null);
   taskbarAttention?.sync(account?.state.status === 'online' ? mediaAccountId : null, socialState.unread);
+  notificationAudio?.sync(account?.state.status === 'online' ? mediaAccountId : null);
   if (broadcastTimer) return;
   // Coalesce file, account and game changes into the newest snapshot instead
   // of repeatedly rebuilding the website controls during a burst of events.
@@ -621,7 +624,7 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'media-state', 'message-notification'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'media-state', 'message-notification', 'notification-sound'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
@@ -629,6 +632,7 @@ async function executeCommand(action, value) {
   if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'media-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
+    case 'notification-sound': await notificationAudio?.play(value); return;
     case 'message-notification': taskbarAttention?.notify(value); await messageNotifications?.show(value); return;
     case 'message-anchor': messageNotifications?.setAnchor(value); return;
     case 'game-intro-complete': {
@@ -735,8 +739,9 @@ async function launch() {
     webPreferences: { preload: path.join(desktopRoot, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true }
   });
   secureContents(mainWindow.webContents, value => value === 'repo-launcher://app/index.html');
+  notificationAudio = new NotificationAudio({window:mainWindow,View:WebContentsView,root:desktopRoot});
   taskbarAttention = new TaskbarAttention({window:mainWindow,nativeImage,root:desktopRoot});
-  messageNotifications = new MessageNotifications({window:mainWindow,View:WebContentsView,root:desktopRoot,eligible:()=>!quitting&&!!windowContents(mainWindow)&&!!currentGame()&&!currentGame().loading&&!messageOverlay&&!updateLocked()&&account?.state.status==='online'&&mainWindow.isVisible()&&!mainWindow.isMinimized(),open:openMessages});
+  messageNotifications = new MessageNotifications({window:mainWindow,View:WebContentsView,root:desktopRoot,eligible:()=>!quitting&&!!windowContents(mainWindow)&&!!currentGame()&&!currentGame().loading&&!messageOverlay&&!updateLocked()&&account?.state.status==='online'&&mainWindow.isVisible()&&!mainWindow.isMinimized(),open:async(username,channel)=>{await openMessages(channel?'':username);if(channel)await activePortal()?.executeJavaScript('window.repoCommunity?.openChannel('+JSON.stringify(channel)+')');}});
   ipcMain.on('launcher:notification-action',(event,action)=>messageNotifications?.action(event,action));
   portal = new WebContentsView({ webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'portal-preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false } });
   portalContents = portal.webContents; portalContentsId = portalContents.id;
@@ -761,13 +766,14 @@ async function launch() {
   Menu.setApplicationMenu(null);
   mainWindow.on('resize', bounds);
   mainWindow.on('focus', () => { if (currentGame() && !messageOverlay && !updateLocked()) { gameContents(currentGame())?.focus(); discordPresence?.gameFocused(currentGame().__gameId); } else if (embeddedDemo && !updateLocked()) discordPresence?.gameFocused(embeddedDemo.id); notifyPortalVisibility(); });
-  for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) mainWindow.on(event, () => {messageNotifications?.sync(mediaAccountId);notifyPortalVisibility();});
+  for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) mainWindow.on(event, () => {messageNotifications?.sync(mediaAccountId);notifyPortalVisibility();pollBackgroundMessages();});
   mainWindow.on('enter-full-screen', () => { bounds(); broadcast(); });
   mainWindow.on('leave-full-screen', () => { bounds(); broadcast(); });
   mainWindow.once('ready-to-show', () => showWindow(mainWindow));
   mainWindow.on('close', handleMainWindowClose);
   mainWindow.on('closed', () => {
     mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
+    clearInterval(backgroundMessageTimer);notificationAudio?.dispose();
     taskbarAttention?.dispose();
     messageNotifications?.dispose();
     discordPresence?.dispose();
@@ -784,6 +790,7 @@ async function launch() {
   // Do not replace its Account/Home request with the background collection load.
   if (!portalReady && !portalLoading) void loadPortal();
   void checkAndApplyUpdates();
+  backgroundMessageTimer = setInterval(pollBackgroundMessages, 5000);
   timer = setInterval(refreshAccount, 15000);
   checkTimer = setInterval(() => { void checkAndApplyUpdates(); }, 10 * 60 * 1000);
   startLauncherUpdateChecks();
@@ -794,7 +801,7 @@ else {
   app.whenReady().then(launch).catch(error => { if (!quitting) { dialog.showErrorBox('Repo Company could not open', error.message); app.exit(1); } });
   app.on('before-quit', event => {
     if (!quitApproved && mainWindow && (games.size || embeddedDemo || gameOperationsBusy())) { event.preventDefault(); mainWindow.close(); return; }
-    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); mediaPermissions?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer); sharedSession?.flushStorageData();
+    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); mediaPermissions?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer); clearInterval(backgroundMessageTimer);notificationAudio?.dispose();sharedSession?.flushStorageData();
   });
   app.on('will-quit', finishLauncherQuit);
   app.on('window-all-closed', () => app.quit());

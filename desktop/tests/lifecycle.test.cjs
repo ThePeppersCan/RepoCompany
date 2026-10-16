@@ -794,6 +794,18 @@ test('portal visibility distinguishes the foreground inbox from a running hidden
   assert.equal(h.windows[0].destroyed, false, 'visibility signals do not stop game or call lifecycles');
 });
 
+test('closing a game preserves Wibs background checks and audio until launcher shutdown', async () => {
+  const h=nativePresenceHarness(),signals=[];let disposed=0,cancelled=0;
+  h.context.audioFixture={sync(){},dispose(){disposed++;}};h.context.backgroundMarker={};
+  h.context.clearInterval=timer=>{if(timer===h.context.backgroundMarker)cancelled++;};
+  h.run('notificationAudio=audioFixture;backgroundMessageTimer=backgroundMarker;');
+  await h.run('play("manager")');await h.run('exitCurrentGame()');assert.equal(disposed,0);assert.equal(cancelled,0);
+  h.contents.send=channel=>signals.push(channel);h.context.fixture.mainWindow.minimized=true;
+  h.run('pollBackgroundMessages()');assert(signals.includes('launcher:background-messages'));
+  signals.length=0;h.context.fixture.mainWindow.minimized=false;h.run('pollBackgroundMessages()');assert.equal(signals.length,0);
+  h.run('discordPresence=null;quitApproved=true');h.app.emit('before-quit',{preventDefault(){}});assert.equal(disposed,1);assert.equal(cancelled,1);
+});
+
 test('game crashes destroy the view and restore the portal, while a later load completion cannot revive it', async () => {
   const h = nativePresenceHarness({ pendingLoad: true }), opening = h.run('play("manager")');
   await new Promise(resolve => setImmediate(resolve)); const view = h.windows[0];

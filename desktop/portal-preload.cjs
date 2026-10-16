@@ -49,6 +49,7 @@ function initialize() {
   function markLauncherDocument() {
     if (!document.documentElement) return false;
     document.documentElement.dataset.repoLauncher = 'true';
+    document.documentElement.dataset.repoNativeMessageSound = 'true';
     document.documentElement.dataset.repoSunoPlayback = 'true';
     publishPortalVisibility(portalVisible); return true;
   }
@@ -345,7 +346,9 @@ function initialize() {
   addEventListener('online',()=>{void invoke('launcher-reconnect').catch(()=>{});});
   addEventListener('repo-collection-open',()=>{libraryRequested=false;setLibrary(false);void invoke('navigate','home').catch(error=>toast(error.message));});
   // Social content is bounded, untrusted display data. No credentials or media cross this bridge.
-  addEventListener('repo-message-notification',event=>{const d=event.detail;if(!d||typeof d!=='object')return;void invoke('message-notification',{id:d.id,username:d.username,name:typeof d.name==='string'?d.name.slice(0,32):'',text:typeof d.text==='string'?d.text.slice(0,160):'',volume:d.volume}).catch(()=>{});});
+  addEventListener('repo-message-notification',event=>{const d=event.detail;if(!d||typeof d!=='object')return;void invoke('message-notification',{id:d.id,username:d.username,channel:typeof d.channel==='string'?d.channel:'',name:typeof d.name==='string'?d.name.slice(0,32):'',text:typeof d.text==='string'?d.text.slice(0,160):'',volume:d.volume}).catch(()=>{});});
+  addEventListener('repo-message-sound',event=>{const d=event.detail;if(d&&typeof d.key==='string'&&Number.isFinite(d.volume))void invoke('notification-sound',{key:d.key,volume:d.volume}).catch(()=>{});});
+  ipcRenderer.on('launcher:background-messages',()=>dispatchEvent(new Event('repo-background-messages')));
   addEventListener('repo-messaging-state',event=>{
     const data=event.detail;
     if(!data||typeof data!=='object')return;

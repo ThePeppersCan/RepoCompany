@@ -1,3 +1,4 @@
+import {communityInbox,readCommunityChannel} from '../../../lib/community-inbox.mjs';
 import {writeTyping,readTyping} from '../../../lib/chat-typing.mjs';
 import {validateMessageImage,attachMessageImage} from '../../../lib/chat-images.mjs';
 import config from '../../../dashboard-config.json';
@@ -73,6 +74,8 @@ export async function onRequest({request,env,params}){
    if(!await db.prepare('SELECT id FROM community_channels WHERE id=?').bind(body.channel).first())throw fail('Channel not found.',404);
    await writeTyping(db,me,'community',body.channel,body.active,now);return json({ok:true});
   }
+  if(request.method==='GET'&&route==='inbox')return json(await communityInbox(db,me));
+  if(request.method==='POST'&&route==='read'){await rate(db,me,'read',120,now);return json(await readCommunityChannel(db,me,await bodyOf(request,1024)));}
   if(request.method==='GET'&&route==='state'){
    await db.prepare('INSERT INTO community_members(user_id,joined_at,last_seen) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen=excluded.last_seen WHERE last_seen<?').bind(me.id,now,now,now-20000).run();
    const settings=await db.prepare('SELECT title,banner_version,banner_height,banner_zoom,banner_x,banner_y FROM community_settings WHERE id=1').first();
