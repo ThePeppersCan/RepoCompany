@@ -119,6 +119,8 @@
   conversation.append(empty, conversationHead, historyWrap, feedback, composer, composerHint);
   body.append(aside, conversation); drawer.append(head, body); document.body.append(drawer);
 
+  const typing=window.repoChatTyping?.mount({form:composer,input,context:()=>({user:userId,target:selection,visible:drawer.open&&portalVisible&&drawer.dataset.communityView!=='community'&&!!friend(selection)}),send:(target,active)=>api('typing',{username:target,active})});
+  const chatScroll=window.repoChatScroll?.mount(history);
   const extras = window.repoChatExtras?.mount({drawer,composer,history,feedback,api,context:()=>({selection,userId}),replaceMessage:message=>{const i=messages.findIndex(m=>m.id===message.id);if(i<0)messages.push(message);else messages[i]=message;renderMessages();inboxAt=0;}});
   const gifPicker=window.repoChatExtras.createGifPicker(drawer,text=>sendText(text,true),id=>window.repoChatExtras.insertEmote(input,id));
   const gifButton=button('Emotes and GIFs',null,'repo-gif-button',()=>gifPicker.choose(gifButton));gifButton.append(window.repoChatExtras.emote('wibs-wave'));gifButton.setAttribute('aria-haspopup','dialog');composer.insertBefore(gifButton,send);
@@ -219,7 +221,7 @@
     window.repoWibsIntro?.stop();
     drawer.close(); if(window.repoWebGame?.active)window.repoWebGame.focus();else if(opener?.isConnected)opener.focus(); announce();
   }
-  drawer.addEventListener('cancel', e => { e.preventDefault(); close(); });
+  drawer.addEventListener('cancel', e => { if(e.target!==drawer)return;e.preventDefault(); close(); });
   drawer.addEventListener('click', e => { if (e.target === drawer && e.clientX < drawer.getBoundingClientRect().left) close(); });
   drawer.addEventListener('close', announce);
   document.addEventListener('click', e => { const b = e.target.closest('[data-message-player]'); if (b) { e.preventDefault(); open(b.dataset.messagePlayer); } });
@@ -269,7 +271,7 @@
     if (!friend(name)) { feedback.textContent = 'Only accepted friends can message each other.'; return; }
     window.repoCommunity?.show('dm');
     if (selection) drafts.set(norm(selection), input.value);
-    extras?.clear(); gifPicker.clear(); selection = friend(name).username; const revision = ++selectionEpoch;
+    typing?.reset();extras?.clear(); gifPicker.clear(); selection = friend(name).username; const revision = ++selectionEpoch;
     messages = []; selectedRead = peerRead = 0; hasOlder = false; loading = true;
     input.value = drafts.get(norm(selection)) || ''; resizeComposer();
     feedback.textContent = 'Loading your conversation…'; drawer.classList.add('has-conversation');
@@ -285,6 +287,7 @@
     try {
       const result = await api('messages?username=' + encodeURIComponent(name) + suffix);
       if (expected !== selectionEpoch || selection !== name) return;
+      if(!before)typing?.update(result);else chatScroll?.pause();
       if(!before){const previous=seenThreads.get(norm(name)),latest=Math.max(0,...result.messages.map(m=>m.id));if(previous!==undefined){const incoming=result.messages.filter(m=>m.id>previous&&norm(m.sender)!==ownName()).at(-1);if(incoming)notificationSound('dm:'+incoming.id);}seenThreads.set(norm(name),Math.max(previous||0,latest));}
       if (before) messages = [...result.messages.filter(m => !messages.some(n => n.id === m.id)), ...messages]; else messages = result.messages;
       hasOlder = !!result.hasMore; selectedRead = Number(result.readThrough || 0); peerRead = Number(result.peerReadThrough || 0); if (!before) loading = false;
@@ -314,7 +317,7 @@
       row.append(bubble, meta); history.append(row); extras?.decorate(row,message);
       previousMessage = message; previousRow = row;
     }
-    if (bottom || nearBottom) { history.scrollTop = history.scrollHeight; jump.hidden = true; }
+    if (bottom || nearBottom) { history.scrollTop = history.scrollHeight; jump.hidden = true;chatScroll?.follow(); }
     else { history.scrollTop = previousScroll; if (history.scrollHeight > previousHeight) jump.hidden = false; }
   }
   let reading = false;
@@ -333,6 +336,7 @@
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); composer.requestSubmit(); } });
   composer.addEventListener('submit', e => {e.preventDefault();sendText(input.value.trim());});
   async function sendText(text,keepDraft=false) {
+    typing?.stop();
     const name = selection, revision = selectionEpoch, auth=epoch;
     if ((!text && !(imageDraft?.has()&&!keepDraft)) || !friend(name) || sending) return;
     const keys=keepDraft?gifIds:draftIds,key=keepDraft?norm(name)+':'+text:norm(name),clientId=keys.get(key)||crypto.randomUUID();keys.set(key,clientId);
@@ -614,6 +618,7 @@
         messageAt = now; const selected = selection, selectedRevision = selectionEpoch, after = messages.at(-1)?.id || 0;
         tasks.push(api('messages?username=' + encodeURIComponent(selected) + '&limit=100&refresh=1&after=' + after + (messageRevisions.has(userId+':'+selected)?'&revision='+messageRevisions.get(userId+':'+selected):'')).then(result => {
           if (selectedRevision !== selectionEpoch || revision !== epoch) return;
+          typing?.update(result);
           if(!result.hasMore&&result.revision!==undefined)messageRevisions.set(userId+':'+selected,result.revision);
           const fresh = result.messages.filter(m => !messages.some(n => n.id === m.id));
           const refreshed = new Map((result.refreshed || []).map(m => [m.id,m.reactions]));
@@ -621,7 +626,7 @@
           const changedRead = Number(result.peerReadThrough || 0) !== peerRead;
           messages=messages.map(m=>refreshed.has(m.id)?{...m,reactions:refreshed.get(m.id)}:m);messages.push(...fresh); peerRead = Number(result.peerReadThrough || 0);
           if (result.hasMore) messageAt = 0;
-          if (fresh.length || changedRead || changedExtras) renderMessages(); markRead();
+          if (fresh.length || changedRead || changedExtras) renderMessages(fresh.length>0); markRead();
         }).catch(e => { if (selectedRevision === selectionEpoch && !invalidateConversation(selected, e)) feedback.textContent = safeError(e); }));
       }
       if (call && !terminal.has(call.status) && now - signalAt >= 2000) {
@@ -645,6 +650,7 @@
     const next = account.state.user?.id || null;
     if (socialSnapshot !== account.state.social) { socialSnapshot = account.state.social; revoked.clear(); }
     if (next !== userId) {
+      typing?.accountChanged();
       extras?.clear(); gifPicker.clear(); epoch++; selectionEpoch++; requests.forEach(r => r.abort()); requests.clear();
       soundedMessages.clear();seenThreads.clear();lastChime=0;
       userId = next; stopMedia(); clearTimeout(callEndTimer); call = null; callOwned = false; callBusy = false; callBusyRevision++; callPanel.close(); callChip.hidden = true;

@@ -39,6 +39,9 @@
    }catch(e){if(version===revision)feedback.textContent=e.message;}finally{if(version===revision){busy=false;choose.disabled=false;}}
   }
   choose.onclick=()=>{if(!input.disabled&&!busy)file.click();};file.onchange=()=>select(file.files[0]);
+  // File inputs emit a bubbling cancel event when the native picker is dismissed.
+  // It must never reach the enclosing Wibs dialog's Escape handler.
+  file.addEventListener('cancel',event=>{event.stopPropagation();input.focus();});
   input.addEventListener('paste',e=>{const image=[...(e.clipboardData?.items||[])].find(i=>i.kind==='file'&&i.type.startsWith('image/'));if(image){e.preventDefault();select(image.getAsFile());}});
   form.addEventListener('dragover',e=>{if(e.dataTransfer?.types.includes('Files')){e.preventDefault();form.classList.add('is-image-drop');}});
   form.addEventListener('dragleave',()=>form.classList.remove('is-image-drop'));

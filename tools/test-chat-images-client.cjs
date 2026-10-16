@@ -11,6 +11,8 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   await page.locator('.rc-composer textarea').fill('Our first image');await page.locator('.rc-send').click();
   await page.locator('.rc-log .repo-shared-image').waitFor();await peer.locator('.rc-log .repo-shared-image').waitFor({timeout:15000});
   await page.getByRole('button',{name:'View shared image',exact:true}).click();await page.getByRole('dialog',{name:'Shared image',exact:true}).waitFor();await page.locator('.repo-image-viewer button').click();
+  assert(await page.locator('#repo-messages').evaluate(e=>e.open),'closing full-size image keeps Wibs open');
+  await page.getByRole('button',{name:'View shared image',exact:true}).click();await page.keyboard.press('Escape');assert(await page.locator('#repo-messages').evaluate(e=>e.open),'Escape closes only the full-size image');
   assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM wibs_images').get().n,1);
   const before=f.sql.prepare('SELECT bytes FROM wibs_image_transfer').get().bytes;
   await page.evaluate(()=>{repoCommunity.show('dm');repoCommunity.show('community');});await page.waitForTimeout(5500);

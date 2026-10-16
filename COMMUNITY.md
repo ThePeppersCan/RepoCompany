@@ -2,6 +2,26 @@
 
 The chat launcher opens `repo-community.js` / `repo-community.css` inside the existing messaging dialog. The website and desktop portal share this implementation. Private messages, notifications and call state still use `repo-messaging.js`; the native client still receives `repo-messaging-state`.
 
+Typing indicators appear above both composers with three animated dots, a stable
+line height and a reduced-motion alternative. Apply the additive
+`dashboard-chat-typing-schema.sql` migration to the production and preview D1
+databases before deploying this feature. Existing message refreshes carry typing
+activity, including unchanged-history responses; there is no new polling loop.
+Clients announce the start of typing, refresh at most every five seconds while
+typing, and clear on send, blur, inactivity or leaving. The server limits activity
+refresh writes to one per four seconds per account and expires activity after ten
+seconds. Each account reuses one tiny row; drafts and keystrokes are never stored.
+Current ownership, accepted friendships, blocking and appearing-offline settings
+filter what each viewer can see. An indicator can take one existing chat refresh
+(up to about four or five seconds) to appear; no paid realtime service is added.
+
+New incoming messages scroll their conversation to the bottom. Resize observers
+keep it there while images and other media finish loading; loading older history
+preserves the current position. Dismissing the native image chooser cannot bubble
+into the surrounding chat dialog's close handler. Regression checks:
+`node tools/test-chat-typing.cjs`, `node tools/test-chat-polish-client.cjs`, and
+`node tools/test-chat-images-client.cjs`.
+
 Apply the additive `dashboard-community-schema.sql` migration before deploying the Pages code. Roles are stored against verified, immutable account IDs in `community_roles`; there is no client-side role bootstrap. The initial Developers are the verified CatAsthma and Covidpanda accounts. Developers can grant or remove other Developers through Customize → Manage Developer access. An account cannot remove its own role.
 
 Signed-in players with a player profile can enter. There is one initial text channel (`general`), up to 20 text channels, server-checked Developer editing, 4,000-character messages, pagination, search, reactions and deletion by the author or a Developer. Blocking filters public messages and profile access. Community member presence respects appearing offline; private profiles keep their avatar, frame and banner restricted to accepted friends.
