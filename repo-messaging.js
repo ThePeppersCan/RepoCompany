@@ -294,16 +294,20 @@
     const existingIds = new Set(Array.from(history.querySelectorAll('[data-message-id]'), n => n.dataset.messageId));
     history.replaceChildren(); older.hidden = !hasOlder; history.append(older);
     if (!messages.length && !loading) { const welcome = el('div', 'repo-thread-welcome'); welcome.append(el('span', 'repo-social-avatar', initials(display(selection))), el('h3', '', 'Say hello to ' + display(selection) + '.'), el('p', '', 'Just the two of you. Your conversation starts here.')); history.append(welcome); }
-    let previousDay = '';
+    let previousDay = '', previousMessage = null, previousRow = null;
     for (const message of messages) {
-      const day = date(message.createdAt); if (day !== previousDay) { history.append(el('div', 'repo-message-day', day)); previousDay = day; }
+      const day = date(message.createdAt), grouped = previousMessage && norm(previousMessage.sender) === norm(message.sender) && day === previousDay && timestamp(message.createdAt) >= timestamp(previousMessage.createdAt) && timestamp(message.createdAt) - timestamp(previousMessage.createdAt) < 300000;
+      if (day !== previousDay) { history.append(el('div', 'repo-message-day', day)); previousDay = day; }
       const own = norm(message.sender) === ownName(), row = el('div', 'repo-message-row' + (own ? ' is-own' : ''));
       row.dataset.messageId = String(message.id);
+      row.title = new Date(timestamp(message.createdAt)).toLocaleString();
+      if (grouped) { row.classList.add('is-continuation'); previousRow.classList.add('has-continuation'); }
       if (!existingIds.has(String(message.id))) row.classList.add('is-new');
       const bubble = el('div', 'repo-message-bubble', message.text), meta = el('div', 'repo-message-meta');
       meta.append(el('time', '', time(message.createdAt)));
       if (own) { const receipt = el('span', 'repo-message-receipt', message.id <= peerRead ? 'Seen' : 'Sent'); receipt.prepend(icon('check')); meta.append(receipt); }
       row.append(bubble, meta); history.append(row); extras?.decorate(row,message);
+      previousMessage = message; previousRow = row;
     }
     if (bottom || nearBottom) { history.scrollTop = history.scrollHeight; jump.hidden = true; }
     else { history.scrollTop = previousScroll; if (history.scrollHeight > previousHeight) jump.hidden = false; }

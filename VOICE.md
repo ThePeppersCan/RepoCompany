@@ -73,6 +73,23 @@ previous mute choice. Used-up allowances disable both call creation controls.
 
 ## Voice and audio preferences
 
+Developers can right-click a member, voice participant or message to server-mute,
+server-deafen, disconnect, or temporarily ban someone from RE-COMP voice for five
+minutes, one hour or 24 hours. Bans can be lifted from that menu; **Customize →
+Manage voice restrictions** also lists existing restrictions, including offline
+players. Moderation is limited to community voice, leaving private calls and account
+access unaffected. The Worker rechecks the Developer role from D1 on each action.
+Restrictions are keyed to the verified user ID and persist in the existing Durable
+Object across rejoining, device changes and deployments. Server mute closes outgoing
+SFU tracks; server deafen also closes incoming tracks. Failed closures remain tracked
+and budgeted until an alarm or request successfully retries. Restoring permissions
+reconnects media without a new join sound or changing the user's personal mute choice.
+
+Consecutive messages from the same sender within five minutes share their name,
+role and avatar. A different sender, date or longer pause starts a new group; search
+results retain individual identities. Each message keeps its own reactions, deletion
+control and timestamp. Direct messages also use compact consecutive groups.
+
 The gear beside RE-COMP and the **Voice settings** control in a call open device-local
 preferences: microphone, speaker (where supported), microphone gain (0–200%),
 received voice volume (0–100%), sensitivity, noise suppression, echo cancellation,

@@ -5,6 +5,9 @@
   const client=crypto.randomUUID(), pcs=new Set(), audios=new Map(), controllers=new Set();
   let user=account.state.user?.id||null, epoch=0, generation=0, enabled=false, rooms=[], budget=null, community={members:[]};
   let current=null, stream=null, sender=null, receiver=null, subscribed=new Set(), busy=false, polling=false, muted=false, deafened=false;
+  let serverMuted=false,serverDeafened=false;
+  const micBlocked=()=>muted||deafened||serverMuted||serverDeafened;
+  const soundBlocked=()=>deafened||serverDeafened;
   let ui=null, timer=null, lastContact=0, token='', message='', suspended=false, collapsed=false,pollAgain=false,openingKind='',pageOpen=false;
   let speaking=[];const remoteNames=new Map(),remoteActivity=new Set();
   const audioSettings=window.repoVoiceAudio;
@@ -36,19 +39,20 @@
     }finally{clearTimeout(timeout);controllers.delete(controller);}
   }
   function stopMedia(){
+    serverMuted=serverDeafened=false;
     activity?.clear();remoteNames.clear();remoteActivity.clear();
     generation++;connected=false;heardMembers=null;inputCapture?.stop();pendingInput?.stop();inputCapture=pendingInput=null;rtpSender=null;stream?.getTracks().forEach(t=>t.stop());stream=null;
     for(const pc of pcs){pc.ontrack=pc.onconnectionstatechange=null;pc.close();}pcs.clear();sender=receiver=null;
     for(const audio of audios.values()){audio.pause();audio.srcObject=null;audio.remove();}audios.clear();subscribed.clear();
   }
   async function leave(reason='Call ended.') {
-    if(connected&&!deafened)audioSettings.cue('leave');
+    if(connected&&!soundBlocked())audioSettings.cue('leave');
     const room=current;current=null;busy=false;openingKind='';community={...community,members:community.members.filter(m=>m.name!==own())};muted=deafened=false;stopMedia();message=reason;announce();
     if(room)await api('leave',{room}).catch(()=>{});
     await poll();
   }
   function abandon(reason){
-    if(reason&&connected&&!deafened)audioSettings.cue('leave');else audioSettings.stopCues();
+    if(reason&&connected&&!soundBlocked())audioSettings.cue('leave');else audioSettings.stopCues();
     const room=current,oldToken=token;current=null;busy=false;openingKind='';community={...community,members:community.members.filter(m=>m.name!==own())};muted=deafened=false;stopMedia();message=reason;announce();
     if(room&&oldToken)fetch('/api/voice/leave',{method:'POST',keepalive:true,headers:{Authorization:'Bearer '+oldToken,'Content-Type':'application/json'},body:JSON.stringify({room,client})}).catch(()=>{});
   }
@@ -67,6 +71,10 @@
     inputCapture=await audioSettings.capture(audioSettings.get(),valid);stream=inputCapture.stream;
     inputCapture.raw.getAudioTracks()[0].onended=()=>{if(valid())leave('Your microphone disconnected. Choose a microphone in Voice settings, then rejoin.');};
     applyMute();
+    if(!serverMuted&&!serverDeafened)await publishMicrophone(valid);
+    await api('ready',{room:current},valid);connected=true;heardMembers=null;if(!soundBlocked())audioSettings.cue('join');lastContact=Date.now();message='';announce();
+  }
+  async function publishMicrophone(valid){
     sender=connection(valid);
     const transceiver=sender.addTransceiver(stream.getAudioTracks()[0],{direction:'sendonly'});
     rtpSender=transceiver.sender;watchLocal(valid);
@@ -83,10 +91,24 @@
       function check(){if(!valid())finish(Object.assign(Error('Call changed.'),{stale:true}));else if(pc.connectionState==='connected')finish();else if(['failed','closed'].includes(pc.connectionState))finish(Error('Voice could not connect.'));}
       pc.addEventListener('connectionstatechange',check);check();
     });
-    await api('ready',{room:current},valid);connected=true;heardMembers=null;if(!deafened)audioSettings.cue('join');lastContact=Date.now();message='';announce();
   }
-  function applyMute(){inputCapture?.setMuted(muted||deafened);pendingInput?.setMuted(muted||deafened);}
-  function watchLocal(valid){const localTrack=stream.getAudioTracks()[0],localPeer=sender,transmitter=rtpSender;activity?.watch('local',{name:own(),type:'media-source',read:()=>transmitter.getStats(),enabled:()=>valid()&&localPeer.connectionState==='connected'&&localTrack.readyState==='live'&&localTrack.enabled&&!muted&&!deafened});}
+  function applyMute(){inputCapture?.setMuted(micBlocked());pendingInput?.setMuted(micBlocked());}
+  function watchLocal(valid){const localTrack=stream.getAudioTracks()[0],localPeer=sender,transmitter=rtpSender;activity?.watch('local',{name:own(),type:'media-source',read:()=>transmitter.getStats(),enabled:()=>valid()&&localPeer.connectionState==='connected'&&localTrack.readyState==='live'&&localTrack.enabled&&!micBlocked()});}
+  function closeReceiving(){
+    for(const key of remoteActivity)activity?.remove(key);remoteActivity.clear();remoteNames.clear();
+    if(receiver){receiver.ontrack=receiver.onconnectionstatechange=null;receiver.close();pcs.delete(receiver);receiver=null;}
+    for(const audio of audios.values()){audio.pause();audio.srcObject=null;audio.remove();}audios.clear();subscribed.clear();
+  }
+  async function applyModeration(room,valid){
+    serverMuted=!!room.mine.serverMuted;serverDeafened=!!room.mine.serverDeafened;applyMute();
+    if(serverMuted||serverDeafened){
+      activity?.silence('local');
+      if(sender){sender.onconnectionstatechange=null;sender.close();pcs.delete(sender);sender=null;rtpSender=null;activity?.remove('local');}
+    }
+    if(serverDeafened){audioSettings.stopCues();closeReceiving();}
+    for(const audio of audios.values())audio.muted=soundBlocked();
+    if(!serverMuted&&!serverDeafened&&!sender&&inputCapture&&!room.mine.mediaClosing&&!changingAudio){await publishMicrophone(valid);await api('ready',{room:room.id},valid);}
+  }
   async function changeAudio(next){
     if(changingAudio||busy)throw Error('Wait for voice to finish connecting, then change your settings.');
     const before=audioSettings.get(),p=audioSettings.clean(next),e=epoch,g=generation,id=user,valid=()=>epoch===e&&generation===g&&user===id;
@@ -100,9 +122,9 @@
       if(!valid())throw Object.assign(Error('Call changed.'),{stale:true});
       if(inputCapture&&p.inputId!==before.inputId){
         replacement=await audioSettings.capture(p,valid);pendingInput=replacement;applyMute();
-        await rtpSender.replaceTrack(replacement.stream.getAudioTracks()[0]);
+        if(rtpSender)await rtpSender.replaceTrack(replacement.stream.getAudioTracks()[0]);
         if(!valid())throw Object.assign(Error('Call changed.'),{stale:true});
-        const old=inputCapture;inputCapture=replacement;pendingInput=null;replacement=null;stream=inputCapture.stream;applyMute();old.stop();watchLocal(valid);
+        const old=inputCapture;inputCapture=replacement;pendingInput=null;replacement=null;stream=inputCapture.stream;applyMute();old.stop();if(rtpSender)watchLocal(valid);
         inputCapture.raw.getAudioTracks()[0].onended=()=>{if(valid())leave('Your microphone disconnected. Choose a microphone in Voice settings, then rejoin.');};
       }else if(inputCapture&&['noiseSuppression','echoCancellation','autoGainControl'].some(k=>p[k]!==before[k]))await inputCapture.processing(p);
       if(!valid())throw Object.assign(Error('Call changed.'),{stale:true});
@@ -119,16 +141,14 @@
     announce();
     try{
       const response=options.community?await api('community',{},valid):options.room?await api('join',{room:options.room},valid):await api('create',options,valid);
-      current=response.room||options.room;lastContact=Date.now();announce();
+      current=response.room||options.room;serverMuted=!!response.serverMuted;serverDeafened=!!response.serverDeafened;lastContact=Date.now();announce();
       await microphone(valid);
     }catch(error){if(!error.stale&&valid())await leave(error.name==='NotAllowedError'?'Microphone permission was declined. Allow it to make a call.':error.message);}
     finally{if(valid()){busy=false;announce();await poll();}}
   }
   async function subscribe(room,valid){
     if([...subscribed].some(track=>!room.sources.some(s=>s.trackName===track))){
-      for(const key of remoteActivity)activity?.remove(key);remoteActivity.clear();remoteNames.clear();
-      if(receiver){receiver.ontrack=receiver.onconnectionstatechange=null;receiver.close();pcs.delete(receiver);receiver=null;}
-      for(const audio of audios.values()){audio.pause();audio.srcObject=null;audio.remove();}audios.clear();
+      closeReceiving();
       await api('reset-receiver',{room:room.id},valid);subscribed.clear();
     }
     const needed=room.sources.filter(s=>!subscribed.has(s.trackName));
@@ -139,7 +159,7 @@
     if(!receiver){
       receiver=connection(valid);receiver.ontrack=event=>{
         if(!valid())return;
-        const audio=el('audio');audio.muted=deafened;audio.srcObject=new MediaStream([event.track]);document.body.append(audio);audios.set(event.track.id,audio);
+        const audio=el('audio');audio.muted=soundBlocked();audio.srcObject=new MediaStream([event.track]);document.body.append(audio);audios.set(event.track.id,audio);
         const name=remoteNames.get(String(event.transceiver.mid)),key='remote:'+event.track.id,remotePeer=receiver;
         if(name){remoteActivity.add(key);activity?.watch(key,{name,type:'inbound-rtp',read:()=>event.receiver.getStats(),enabled:()=>valid()&&receiver===remotePeer&&remotePeer.connectionState==='connected'&&event.track.readyState==='live'&&!event.track.muted});}
         audioSettings.output(audio).then(()=>{if(valid()&&audios.get(event.track.id)===audio)return audio.play();}).catch(()=>{if(valid()){message='Open Voice settings to check your speaker, or tap “Enable sound”.';announce();}});
@@ -159,11 +179,11 @@
       enabled=!!result.enabled;rooms=result.rooms||[];budget=result.budget||null;community=result.community||{members:[]};
       if(current){
         lastContact=Date.now();const room=rooms.find(r=>r.id===current);
-        if(!room||room.ended||room.mine.status==='left'){await leave(room?.reason||'Call ended.');return;}
-        if(connected){const members=new Set(room.members.filter(m=>m.id!==user&&m.status==='active').map(m=>m.id));if(heardMembers&&!deafened){if([...heardMembers].some(id=>!members.has(id)))audioSettings.cue('leave');if([...members].some(id=>!heardMembers.has(id)))audioSettings.cue('join');}heardMembers=members;}
+        if(!room||room.ended||room.mine.status==='left'){await leave(room?.mine.reason||room?.reason||'Call ended.');return;}
+        if(connected){const members=new Set(room.members.filter(m=>m.id!==user&&m.status==='active').map(m=>m.id));if(heardMembers&&!soundBlocked()&&!room.mine.serverDeafened){if([...heardMembers].some(id=>!members.has(id)))audioSettings.cue('leave');if([...members].some(id=>!heardMembers.has(id)))audioSettings.cue('join');}heardMembers=members;}
         // Show membership changes before waiting for SFU negotiation or cleanup.
         announce();
-        if(!busy&&sender?.connectionState==='connected')await subscribe(room,valid);
+        if(!busy&&connected){await applyModeration(room,valid);if(!serverDeafened&&!room.mine.mediaClosing)await subscribe(room,valid);}
       }
       announce();
     }catch(error){
@@ -182,11 +202,12 @@
     if(current||busy){
       const top=el('div','repo-voice-top');top.append(el('strong','',room?.kind==='private'?'Call with '+(room.members.find(m=>m.id!==user)?.display||'your friend'):room?.title||'Voice call'));
       top.append(button(collapsed?'Expand':'Minimize',()=>{collapsed=!collapsed;render();},'repo-voice-small'));ui.panel.append(top);
-      const line=el('p','repo-voice-status',message||(sender?.connectionState==='connected'?(room?.members.filter(m=>m.status==='active').length>1?'Connected':'Waiting for your friends…'):'Connecting…'));line.setAttribute('role','status');ui.panel.append(line);
+      const line=el('p','repo-voice-status',message||(connected?(room?.members.filter(m=>m.status==='active').length>1?'Connected':'Waiting for your friends…'):'Connecting…'));line.setAttribute('role','status');ui.panel.append(line);
       if(!collapsed&&room){const roster=el('div','repo-voice-roster');for(const m of room.members){const person=el('span','repo-voice-person');person.dataset.voiceName=m.name;const portrait=el('span','repo-voice-avatar',m.display.slice(0,2).toUpperCase()),profile=m.id===user?account.state.social?.profile:friends().find(f=>f.username.toLowerCase()===m.name);if(profile?.avatar&&window.repoAvatar){portrait.replaceChildren();portrait.insertAdjacentHTML('beforeend',window.repoAvatar.markup(profile.avatar,m.display));window.repoAvatar.hydrate(portrait);}person.append(portrait,el('span','',m.display+(m.id===user?' (you)':'')+(m.status==='invited'?' · invited':m.muted?' · muted':'')));roster.append(person);}ui.panel.append(roster);}
       const controls=el('div','repo-voice-controls');
-      const mic=button(muted||deafened?'Unmute':'Mute',()=>{muted=!muted;activity?.silence('local');applyMute();announce();poll();});mic.setAttribute('aria-pressed',String(muted||deafened));mic.disabled=!stream||deafened;
-      const sound=button(deafened?'Undeafen':'Deafen',()=>{deafened=!deafened;if(deafened)audioSettings.stopCues();activity?.silence('local');for(const audio of audios.values())audio.muted=deafened;applyMute();announce();poll();});sound.setAttribute('aria-pressed',String(deafened));
+      const mic=button(serverMuted||serverDeafened?'Server muted':muted||deafened?'Unmute':'Mute',()=>{muted=!muted;activity?.silence('local');applyMute();announce();poll();});mic.setAttribute('aria-pressed',String(micBlocked()));mic.disabled=!stream||deafened||serverMuted||serverDeafened;
+      const sound=button(serverDeafened?'Server deafened':deafened?'Undeafen':'Deafen',()=>{deafened=!deafened;if(soundBlocked())audioSettings.stopCues();activity?.silence('local');for(const audio of audios.values())audio.muted=soundBlocked();applyMute();announce();poll();});sound.setAttribute('aria-pressed',String(soundBlocked()));sound.disabled=serverDeafened;
+      if(serverMuted||serverDeafened)ui.panel.append(el('p','repo-voice-status',serverDeafened?'A Developer has disabled your microphone and incoming audio in RE-COMP.':'A Developer has muted your microphone in RE-COMP.'));
       controls.append(mic,sound,button('Voice settings',()=>window.repoVoiceSettings?.open()),button(room?.kind==='group'&&room.host===user?'End room':'Leave',()=>leave(),'repo-voice-end'));ui.panel.append(controls);
       if(message.includes('Enable sound'))ui.panel.append(button('Enable sound',async()=>{try{await Promise.all([...audios.values()].map(async a=>{await audioSettings.output(a);await a.play();}));message='';announce();}catch{message='Your selected speaker is unavailable. Choose another in Voice settings.';announce();}}));
     }else{
@@ -199,7 +220,7 @@
       if(message){const status=el('p','repo-voice-status',message);status.setAttribute('role','status');ui.panel.append(status,button('Dismiss',()=>{message='';render();},'repo-voice-small'));}
     }
     ui.chip.hidden=!current&&!state().incomingCall;
-    ui.chip.textContent=current?(muted?'Mic muted · Return to voice':sender?.connectionState==='connected'?'Voice connected · Return to call':'Connecting voice · Return to call'):'Incoming voice invitation';
+    ui.chip.textContent=current?(micBlocked()?'Mic muted · Return to voice':connected?'Voice connected · Return to call':'Connecting voice · Return to call'):'Incoming voice invitation';
     ui.budget.textContent=budget?`Estimated voice use: ${(budget.used/1e9).toFixed(1)} / 800 GB · renews ${new Date(budget.resetAt).toLocaleDateString([], {day:'numeric',month:'short',timeZone:'UTC'})}${budget.rollingGuard?' · carryover protection active':''}`:'';
     ui.budget.title='Conservative app estimate, shared by all Repo Company calls. It is not Cloudflare’s billing meter.';
     ui.budget.hidden=!budget;ui.panel.append(ui.budget);paintSpeaking();
@@ -231,6 +252,6 @@
   addEventListener('repo-messaging-state',()=>{const open=!!document.getElementById('repo-messages')?.open;if(open!==pageOpen){pageOpen=open;if(open)poll();else if(!polling)schedulePoll();}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
   window.repoVoiceSettings?.configure({apply:changeAudio,capture:()=>inputCapture});
-  window.repoVoice=Object.freeze({mount,getState:state,openSettings:()=>window.repoVoiceSettings?.open(),joinCommunity:()=>start({community:true}),startPrivate:username=>start({kind:'private',friends:[String(username).toLowerCase()]}),leave});
+  window.repoVoice=Object.freeze({mount,getState:state,openSettings:()=>window.repoVoiceSettings?.open(),joinCommunity:()=>start({community:true}),startPrivate:username=>start({kind:'private',friends:[String(username).toLowerCase()]}),moderate:async(username,action,options={})=>{const result=await api('moderate',{username,action,...options});community=result.community||community;announce();await poll();},leave});
   schedulePoll();
 })();

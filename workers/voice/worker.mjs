@@ -20,6 +20,7 @@ export class VoiceHub {
     this.ctx = ctx; this.env = env; this.queue = Promise.resolve();
     this.ready = ctx.blockConcurrencyWhile(async () => {
       this.state = await ctx.storage.get('state') || {version:1, billingDay:Number(env.BILLING_DAY)||1, at:Date.now(), usage:{}, daily:{}, rooms:[], rates:{}};
+      this.state.moderation ||= {};
     });
   }
   serial(fn) { const task = this.queue.then(() => this.ready).then(fn); this.queue = task.catch(() => {}); return task; }
@@ -41,9 +42,44 @@ export class VoiceHub {
   }
   db() { return this.env.DASHBOARD_DB.withSession?.('first-primary') || this.env.DASHBOARD_DB; }
   async owner(me) {
-    const p = await this.db().prepare('SELECT username,user_id,display_name FROM dashboard_players WHERE user_id=? AND username=?').bind(me.id,me.name).first();
+    const p = await this.db().prepare("SELECT username,user_id,display_name,EXISTS(SELECT 1 FROM community_roles WHERE user_id=dashboard_players.user_id AND role='Developer') developer FROM dashboard_players WHERE user_id=? AND username=?").bind(me.id,me.name).first();
     if (!p) throw fail('Refresh your player profile before calling.',403);
-    return {id:p.user_id,name:p.username,display:p.display_name || p.username};
+    return {id:p.user_id,name:p.username,display:p.display_name || p.username,developer:!!p.developer};
+  }
+  restrictions(id, now=Date.now()) {
+    const r=this.state.moderation[id];
+    return {serverMuted:!!r?.muted,serverDeafened:!!r?.deafened,bannedUntil:r?.bannedUntil>now?r.bannedUntil:0};
+  }
+  voiceFlags(room,m) { return room.kind==='community'?this.restrictions(m.id):{serverMuted:false,serverDeafened:false,bannedUntil:0}; }
+  audible(room,m) { const r=this.voiceFlags(room,m);return m.status==='active'&&m.pub?.ready&&!m.pub.revoked&&!r.serverMuted&&!r.serverDeafened; }
+  async moderate(me,b,now) {
+    if(!me.developer)throw fail('Only Developers can moderate RE-COMP voice.',403);
+    if(!name(b.username)||!['mute','deafen','disconnect','ban','unban'].includes(b.action))throw fail('Choose a player and voice action.');
+    if(b.username===me.name)throw fail('Use your own voice controls for yourself.');
+    if(['mute','deafen'].includes(b.action)&&typeof b.enabled!=='boolean')throw fail('Choose whether to enable this restriction.');
+    if(b.action==='ban'&&![300,3600,86400].includes(b.seconds))throw fail('Choose a 5-minute, 1-hour or 24-hour voice ban.');
+    const target=await this.db().prepare('SELECT user_id,username,display_name FROM dashboard_players WHERE username=? AND user_id IS NOT NULL').bind(b.username).first();
+    if(!target)throw fail('Player not found.',404);
+    const active=this.state.rooms.filter(r=>r.kind==='community'&&!r.ended&&live(r.members[target.user_id]||{}));
+    if(b.action==='disconnect'&&!active.length)throw fail('This player has already left voice.',409);
+    const r=this.state.moderation[target.user_id]||{name:target.username,display:target.display_name||target.username};
+    if(b.action==='mute')r.muted=b.enabled;
+    if(b.action==='deafen')r.deafened=b.enabled;
+    if(b.action==='ban')r.bannedUntil=now+b.seconds*1000;
+    if(b.action==='unban')r.bannedUntil=0;
+    if(b.action!=='disconnect'){r.by=me.name;r.at=now;this.state.moderation[target.user_id]=r;}
+    for(const room of active){
+      const m=room.members[target.user_id];
+      if(b.action==='disconnect'||b.action==='ban'){
+        m.status='left';m.removedAt=now;m.removalReason=b.action==='ban'?'A Developer temporarily banned you from RE-COMP voice.':'A Developer disconnected you from RE-COMP voice.';
+      }
+      // Force-close upstream media; an altered client cannot ignore moderation.
+      if((r.muted||r.deafened)&&m.pub)m.pub.revoked=true;
+      if(r.deafened&&m.recv)m.recv.revoked=true;
+    }
+    await this.save();await this.schedule();
+    for(const room of active)await this.clean(room);
+    return this.view(me,b.client,now);
   }
   async friend(me, target) {
     const p = await this.db().prepare(`SELECT q.username,q.user_id,q.display_name FROM dashboard_players p JOIN dashboard_players q ON q.username=?
@@ -96,16 +132,17 @@ export class VoiceHub {
     return true;
   }
   async clean(room) {
-    for (const m of members(room)) if (m.status === 'left') {
+    for (const m of members(room)) {
       // Always close publications first, stopping audio fanout to every receiver.
-      for (const key of ['pub','recv']) if(m[key]) {
+      for (const key of ['pub','recv']) if(m[key]&&(m.status==='left'||m[key].revoked)) {
         try { await this.closeSession(m[key]); m[key]=null; } catch { /* Alarm retries, retaining the traffic reservation. */ }
       }
-      if (!m.pub && !m.recv) m.client=null;
+      if (m.status==='left'&&!m.pub && !m.recv) m.client=null;
     }
   }
   async maintain(now, verify = false) {
     settle(this.state,now);
+    for(const [id,r] of Object.entries(this.state.moderation))if(!r.muted&&!r.deafened&&!(r.bannedUntil>now))delete this.state.moderation[id];
     if (!monthlyBudget(this.state,now)) this.state.stopped=month(now,this.state.billingDay);
     for (const room of this.state.rooms) {
       if (!room.ended) {
@@ -131,12 +168,12 @@ export class VoiceHub {
   alarm() { return this.serial(() => this.maintain(Date.now(),true)); }
   view(me, client, now) {
     return {enabled:true, budget:{limit:LIMIT,used:Math.ceil(this.state.usage[month(now,this.state.billingDay)]||0),resetAt:nextMonth(now,this.state.billingDay),available:hasBudget(this.state,now),estimated:true,rollingGuard:rollingUsage(this.state,now)>=LIMIT},
-      community:{title:'RE-COMP',capacity:8,members:this.state.rooms.filter(r=>r.kind==='community'&&!r.ended).flatMap(r=>members(r).filter(live).map(m=>({name:m.name,display:m.display,muted:!!m.muted})))},
-      rooms:this.state.rooms.filter(r=>r.members[me.id] && (r.members[me.id].status!=='left' || r.members[me.id].client===client || (r.kind==='group'&&!r.ended))).map(r=>({
+      community:{title:'RE-COMP',capacity:8,canModerate:!!me.developer,mine:this.restrictions(me.id,now),restrictions:me.developer?Object.entries(this.state.moderation).map(([id,r])=>({name:r.name,display:r.display,...this.restrictions(id,now)})):[],members:this.state.rooms.filter(r=>r.kind==='community'&&!r.ended).flatMap(r=>members(r).filter(live).map(m=>({name:m.name,display:m.display,muted:!!m.muted,...this.voiceFlags(r,m)})))},
+      rooms:this.state.rooms.filter(r=>r.members[me.id] && (r.members[me.id].status!=='left' || r.members[me.id].client===client || r.members[me.id].removedAt>now-120000 || (r.kind==='group'&&!r.ended))).map(r=>({
         id:r.id,title:r.title,kind:r.kind,host:r.host,created:r.created,ended:r.ended||null,reason:r.reason||'',expires:r.expires,
-        mine:{status:r.members[me.id].status,owned:r.members[me.id].client===client,muted:!!r.members[me.id].muted},
-        members:members(r).filter(m=>m.status!=='left').map(m=>({id:m.id,name:m.name,display:m.display,status:m.status,muted:!!m.muted})),
-        sources:members(r).filter(m=>m.id!==me.id && m.status==='active' && m.pub?.ready).map(m=>({id:m.id,name:m.name,trackName:m.pub.trackName}))
+        mine:{status:r.members[me.id].status,owned:r.members[me.id].client===client,muted:!!r.members[me.id].muted,reason:r.members[me.id].removalReason||'',mediaClosing:!!r.members[me.id].pub?.revoked||!!r.members[me.id].recv?.revoked,...this.voiceFlags(r,r.members[me.id])},
+        members:members(r).filter(m=>m.status!=='left').map(m=>({id:m.id,name:m.name,display:m.display,status:m.status,muted:!!m.muted,...this.voiceFlags(r,m)})),
+        sources:this.voiceFlags(r,r.members[me.id]).serverDeafened?[]:members(r).filter(m=>m.id!==me.id && this.audible(r,m)).map(m=>({id:m.id,name:m.name,trackName:m.pub.trackName}))
       }))};
   }
   fetch(request) { return this.serial(async () => {
@@ -156,7 +193,9 @@ export class VoiceHub {
     }
   }); }
   async action(me,op,b,now) {
+    if(op==='moderate')return this.moderate(me,b,now);
     if(op==='community') {
+      if(this.restrictions(me.id,now).bannedUntil)throw fail('You are temporarily banned from RE-COMP voice. Your access returns when the ban expires.',403);
       if(!hasBudget(this.state,now))throw fail('The monthly voice allowance has been reached.',429);
       if(this.state.rooms.some(r=>!r.ended&&live(r.members[me.id]||{})))throw fail('Leave your current call first.',409);
       let room=this.state.rooms.find(r=>r.kind==='community'&&!r.ended);
@@ -189,7 +228,7 @@ export class VoiceHub {
       m.status='left'; if((room.host===me.id && room.kind!=='community') || room.kind==='private' || (room.kind==='community'&&!members(room).some(live))) this.end(room,'Call ended.',now);
       await this.save(); await this.clean(room); return {ok:true};
     }
-    if(room.ended || (m.status==='left' && !(op==='join' && room.kind==='group'))) throw fail(room.reason||'This call has ended.',410);
+    if(room.ended || (m.status==='left' && !(op==='join' && room.kind==='group'))) throw fail(m.removalReason||room.reason||'This call has ended.',410);
     try { await this.permitted(room); } catch(error) { this.end(room,'A friendship changed.',now); await this.save(); await this.clean(room); throw error; }
     if(op==='join') return this.join(room,me,b,now);
     if(!live(m)||m.client!==b.client) throw fail('Join the call from this device first.',403);
@@ -202,6 +241,7 @@ export class VoiceHub {
       return {ok:true};
     }
     if(op==='publish') {
+      const flags=this.voiceFlags(room,m);if(flags.serverMuted||flags.serverDeafened)throw fail('A Developer has muted your microphone in RE-COMP.',403);
       if(m.pub) throw fail('The microphone connection already exists. Rejoin the call.',409);
       let sdp;try{sdp=audioDescription(b.sessionDescription,'offer',1);}catch(e){throw fail(e.message);}
       if(typeof b.mid!=='string'||!/^\d{1,3}$/.test(b.mid)||!sdp.sdp.includes('a=mid:'+b.mid+'\r\n')) throw fail('Invalid microphone track.');
@@ -215,11 +255,13 @@ export class VoiceHub {
         return {sessionDescription:response.sessionDescription};
       } catch(e) {m.status='left';await this.save();await this.clean(room);throw e;}
     }
-    if(op==='ready') {if(!m.pub)throw fail('Connect your microphone first.');m.pub.ready=true;m.status='active';return{ok:true};}
+    if(op==='ready') {const flags=this.voiceFlags(room,m);if(!m.pub&&!flags.serverMuted&&!flags.serverDeafened)throw fail('Connect your microphone first.');if(m.pub&&!m.pub.revoked)m.pub.ready=true;m.status='active';return{ok:true};}
     if(op==='subscribe') {
-      if(!m.pub?.ready) throw fail('Connect your microphone first.');
+      if(this.voiceFlags(room,m).serverDeafened)throw fail('A Developer has deafened you in RE-COMP.',403);
+      if(m.status!=='active') throw fail('Connect your microphone first.');
+      if(m.recv?.revoked)throw fail('Your previous speaker connection is still closing.',409);
       if(m.recv?.pending) throw fail('Finish the previous voice connection first.',409);
-      const sources=members(room).filter(p=>p.id!==me.id&&p.status==='active'&&p.pub?.ready&&!m.recv?.sources?.includes(p.pub.trackName));
+      const sources=members(room).filter(p=>p.id!==me.id&&this.audible(room,p)&&!m.recv?.sources?.includes(p.pub.trackName));
       if(!sources.length) return {tracks:[]};
       if(!m.recv) {const s=await this.sfu('/sessions/new');if(!s.sessionId)throw fail('Voice could not connect.',502);m.recv={id:s.sessionId,sources:[],pending:false};await this.save();}
       m.recv.pending=true;m.recv.pendingUntil=Date.now()+60000;await this.save();
@@ -232,6 +274,7 @@ export class VoiceHub {
       }catch(e){m.status='left';await this.save();await this.clean(room);throw e;}
     }
     if(op==='answer') {
+      if(this.voiceFlags(room,m).serverDeafened)throw fail('A Developer has deafened you in RE-COMP.',403);
       if(!m.recv?.pending)throw fail('No voice connection is waiting.',409);
       let sdp;try{sdp=audioDescription(b.sessionDescription,'answer');}catch(e){throw fail(e.message);}
       await this.sfu(`/sessions/${m.recv.id}/renegotiate`,{sessionDescription:sdp},'PUT');m.recv.pending=false;return{ok:true};
@@ -240,13 +283,14 @@ export class VoiceHub {
   }
   async join(room,me,b,now) {
     const m=room.members[me.id];
+    if(this.voiceFlags(room,m).bannedUntil)throw fail('You are temporarily banned from RE-COMP voice.',403);
     if(m.status==='left'&&(m.pub||m.recv))throw fail('Your previous connection is still closing. Try again shortly.',409);
     if(m.client && m.client!==b.client)throw fail('This call is open on another device.',409);
-    if(live(m))return{ok:true,room:room.id};
+    if(live(m))return{ok:true,room:room.id,...this.voiceFlags(room,m)};
     if(this.state.rooms.some(r=>r.id!==room.id&&!r.ended&&live(r.members[me.id]||{})))throw fail('Leave your current call first.',409);
     const current=members(room).filter(p=>p.client||p.pub||p.recv).length;
     if(!hasBudget(this.state,now,2*current))throw fail('The monthly voice allowance has been reached.',429);
     if(this.state.rooms.flatMap(members).filter(p=>p.client).length>=16)throw fail('Voice rooms are full.',429);
-    m.client=b.client;m.status='joining';m.lease=now+LEASE;m.muted=false;return{ok:true,room:room.id};
+    m.client=b.client;m.status='joining';m.lease=now+LEASE;m.muted=false;delete m.removedAt;delete m.removalReason;return{ok:true,room:room.id,...this.voiceFlags(room,m)};
   }
 }

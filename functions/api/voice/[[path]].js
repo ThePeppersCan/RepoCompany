@@ -8,7 +8,7 @@ export async function onRequest({request,env,params}) {
     if((origin&&origin!==url.origin)||request.headers.get('Sec-Fetch-Site')==='cross-site')throw fail('Use the Repo Company website or client.',403);
     if(request.method!=='POST')throw fail('Method not allowed.',405);
     const op=Array.isArray(params.path)?params.path.join('/'):params.path;
-    if(!['state','community','create','join','leave','heartbeat','publish','ready','subscribe','answer','reset-receiver'].includes(op))throw fail('Not found.',404);
+    if(!['state','community','create','join','leave','heartbeat','publish','ready','subscribe','answer','reset-receiver','moderate'].includes(op))throw fail('Not found.',404);
     if(!request.headers.get('Content-Type')?.startsWith('application/json'))throw fail('Send a JSON request.',415);
     const reader=request.body?.getReader();if(!reader)throw fail('Request body required.');
     let size=0;const chunks=[];
