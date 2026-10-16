@@ -261,3 +261,4 @@
 .rc-activity-note{font-size:12px!important;line-height:1.6;color:var(--wibs-muted);margin:16px 0!important}
 .rc-registered-game{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0;font-size:13px}.rc-registered-game button{font-size:12px}
 .rc-activity-art:not([data-steam=true]){height:46px;object-fit:contain}.rc-activity-meta{font-size:11px}
+.rc-activity-art[data-steam=true]{width:74px;height:40px;object-fit:contain;border-radius:5px}.rc-game-icon[data-steam=true]{object-fit:contain}

@@ -103,7 +103,8 @@
   }catch(e){error(e);}
  }
  const gameNames={moratales:'MoraTales',morogue:'Morogue',manager:'Velmora Manager',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin',rooftops:'Repo Rooftops',seas:'Repo Seas',sports:'Repo Sports'};
- function gameIcon(game){if(/^steam:[1-9][0-9]{0,9}$/.test(game))return 'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.slice(6)+'/library_600x900.jpg';if(game==='runelite')return '/assets/runelite-icon.png';if(/^custom:[a-f0-9]{24}$/.test(game))return '/assets/game-activity.svg';return ['moratales','morogue','manager'].includes(game)?'/account-assets/game-icons/'+game+'.png':'/account-assets/'+game+'-activity-banner-v1.webp';}
+ function gameIcon(game){if(/^steam:[1-9][0-9]{0,9}$/.test(game))return 'https://shared.steamstatic.com/store_item_assets/steam/apps/'+game.slice(6)+'/capsule_184x69.jpg';if(game==='runelite')return '/assets/runelite-icon.png';if(/^custom:[a-f0-9]{24}$/.test(game))return '/assets/game-activity.svg';return ['moratales','morogue','manager'].includes(game)?'/account-assets/game-icons/'+game+'.png':'/account-assets/'+game+'-activity-banner-v1.webp';}
+ function setGameArt(image,game){if(window.repoGameArtwork?.attach(image,game))return;image.src=gameIcon(game);image.loading='lazy';image.decoding='async';image.referrerPolicy='no-referrer';image.onerror=()=>{image.onerror=null;image.src='/assets/game-activity.svg';};}
  function profileColors(node,colors={}){
   const valid=(v,f)=>/^#[0-9a-f]{6}$/i.test(v)?v:f,background=valid(colors.background,'#14231b'),accent=valid(colors.accent,'#b5d39c');
   const rgb=background.slice(1).match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4),light=rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722>.179;
@@ -113,7 +114,7 @@
  function activityView(activity,compact=false){
   if(!activity||!activityName(activity)||activity.expiresAt<=Date.now())return null;
   const box=el(compact?'span':'div',compact?'rc-game-inline':'rc-game-activity');box.dataset.activityExpires=activity.expiresAt;
-  const image=el('img','rc-game-icon');image.alt='';image.src=gameIcon(activity.game);image.onerror=()=>{image.onerror=null;image.src='/assets/game-activity.svg';};
+  const image=el('img','rc-game-icon');image.alt='';setGameArt(image,activity.game);
   const copy=el('span','rc-game-copy');if(!compact)copy.append(el('small','','Playing'));
   copy.append(el('span','rc-game-name',(compact?'Playing ':'')+activityName(activity)));
   if(!compact&&Number.isFinite(activity.startedAt)&&activity.startedAt<=Date.now()){const time=el('span','rc-game-time');time.dataset.activityStarted=activity.startedAt;copy.append(time);}
@@ -187,7 +188,7 @@
    const live=a.expiresAt>Date.now(),meta=el('span','rc-activity-meta',live?'Playing now':relativeActivity(a.lastPlayed));meta.classList.toggle('is-playing',live);
    if(a.playedMs>=60000){const hours=a.playedMs/3600000;meta.append(el('span','',hours<1?Math.floor(a.playedMs/60000)+'m played':(hours<10?Number(hours.toFixed(1)):Math.floor(hours))+'h played'));}
    copy.append(person,el('strong','rc-activity-title',activityName(a)),meta);
-   const art=el('img','rc-activity-art');art.dataset.steam=String(a.game.startsWith('steam:'));art.src=gameIcon(a.game);art.alt='';art.loading='lazy';art.referrerPolicy='no-referrer';art.onerror=()=>{art.onerror=null;art.src='/assets/game-activity.svg';};card.append(copy,art);section.append(card);
+   const art=el('img','rc-activity-art');art.dataset.steam=String(a.game.startsWith('steam:'));art.alt='';setGameArt(art,a.game);card.append(copy,art);section.append(card);
   }
   if(people.length>3){const more=btn(activityExpanded?'Show less':'Show more',()=>{activityExpanded=!activityExpanded;paintMembers();},'rc-activity-more');more.setAttribute('aria-expanded',String(activityExpanded));section.append(more);}
   members.append(section);
