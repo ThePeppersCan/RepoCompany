@@ -28,6 +28,8 @@ let mainWindow, portal, portalContents, sharedSession, library, account, updater
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
 const emptySocialState = () => ({ unread: 0, callActive: false, incomingCall: false, open: false });
+const mediaControls = require('./lib/media-controls.cjs');
+let companionState = mediaControls.empty();
 let messageOverlay = false, socialState = emptySocialState(), portalViewVisible = false, lastPortalVisibility = null;
 let mediaPermissions = null, mediaAccountId = null;
 let launcherCheckTimer = null, launcherReconnectTimer = null, launcherCheckPending = null, lastLauncherCheck = 0, previousConnectionStatus = null;
@@ -70,7 +72,7 @@ const state = () => ({
   connectivity: { online: account?.state.status !== 'offline' },
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
   activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, introId: currentGame().introId, introLoops: currentGame().introLoops, closing: !!currentGame().__closing } : null,
-  gameVisible: !!currentGame() && !currentGame().loading && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, fullscreen: !!mainWindow?.isFullScreen?.(),
+  gameVisible: !!currentGame() && !currentGame().loading && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, media: companionState, fullscreen: !!mainWindow?.isFullScreen?.(),
   entryVisible: updateLocked() || !portalViewVisible && (!currentGame() || !!currentGame().loading),
   requiredUpdate: requiredUpdate.snapshot(),
   launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
@@ -225,7 +227,7 @@ function bounds() {
   const [width, height] = mainWindow.getContentSize();
   const area = { x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) };
   const panelWidth = Math.min(440, width);
-  const portalArea = messageOverlay && currentGame() ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
+  const portalArea = messageOverlay && currentGame() && !companionState.reparty.open ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
   if (portal && activePortal()) portal.setBounds(portalArea);
   for (const record of games.values()) if (gameContents(record)) record.view.setBounds(area);
 }
@@ -374,11 +376,11 @@ function accountChanged() {
   if (previousConnectionStatus === 'offline' && ['online', 'signed-out'].includes(account.state.status)) scheduleLauncherReconnect();
   previousConnectionStatus = account.state.status;
   const identity = account.state.status === 'online' ? account.identity : null;
-  if (identity !== mediaAccountId) { mediaPermissions?.reset(); mediaAccountId = identity; socialState = emptySocialState(); }
+  if (identity !== mediaAccountId) { mediaPermissions?.reset(); mediaAccountId = identity; socialState = emptySocialState(); companionState = mediaControls.empty(); }
   if (embeddedDemo && (account.state.status !== 'online' || account.identity !== embeddedDemo.identity)) closeEmbeddedDemo();
   else void reconcileEmbeddedDemo();
   for (const record of games.values()) gameContents(record)?.send('launcher:game-connection', gameConnection(record));
-  if (account.state.status === 'signed-out') socialState = emptySocialState();
+  if (account.state.status === 'signed-out') { socialState = emptySocialState(); companionState = mediaControls.empty(); }
   setPortalVisible(portalReady);
   broadcast();
 }
@@ -453,6 +455,13 @@ async function exitCurrentGame() {
     if (!quitting && result.response === 1 && games.get(record.__gameId) === record) await closeGame(record);
   })().catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); throw error; }).finally(() => { record.__exitPrompt = null; });
   return record.__exitPrompt;
+}
+async function openReparty() {
+  if(currentGame()?.loading)throw Error('Wait for your game to open.');
+  const contents=activePortal();if(!contents||!windowContents(mainWindow))throw Error('The launcher is closing.');
+  messageOverlay=true;const game=currentGame();if(gameContents(game)){game.view.setVisible(true);mainWindow.contentView.addChildView(portal);}
+  setPortalVisible(portalReady);bounds();broadcast();if(!portalReady)await loadPortal();if(contents!==activePortal())return;if(!hiddenTest)contents.focus();
+  await contents.executeJavaScript("(()=>{if(!window.repoReparty?.open)throw Error('Reparty is still connecting. Refresh the client and try again.');window.repoReparty.open();})()");
 }
 async function openMessages(username = '') {
   messageNotifications?.hide();
@@ -601,12 +610,12 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'message-notification'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'media-state', 'message-notification'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
-  if (['navigate', 'messages', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence'].includes(action)) await account.requireOnline();
-  if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
+  if (['navigate', 'messages', 'reparty', 'media-control', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence'].includes(action)) await account.requireOnline();
+  if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'media-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
     case 'message-notification': await messageNotifications?.show(value); return;
@@ -620,12 +629,15 @@ async function executeCommand(action, value) {
     case 'navigate': await navigate(value); return state();
     case 'exit-game': await exitCurrentGame(); return state();
     case 'messages': await openMessages(); return state();
+    case 'reparty': await openReparty(); return state();
+    case 'media-control': {const message=mediaControls.control(value);activePortal()?.send('launcher:media-control',message);return state();}
+    case 'media-state': {const next=mediaControls.status(value),closed=companionState.reparty.open&&!next.reparty.open;companionState=next;if(closed&&messageOverlay&&currentGame()&&!socialState.open)focusGame(currentGame());bounds();broadcast();return;}
     case 'resume-game': if (currentGame()) focusGame(currentGame()); else { messageOverlay = false; broadcast(); } return state();
     case 'social-state':
       if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !['unread', 'callActive', 'incomingCall', 'open'].includes(key)) || !Object.hasOwn(value, 'unread') || !Object.hasOwn(value, 'callActive') || !Number.isInteger(value.unread) || value.unread < 0 || value.unread > 999 || typeof value.callActive !== 'boolean' || ['incomingCall', 'open'].some(key => Object.hasOwn(value, key) && typeof value[key] !== 'boolean')) throw TypeError('Invalid message status.');
       { const closed = socialState.open && value.open === false;
       socialState = { unread: value.unread, callActive: value.callActive, incomingCall: value.incomingCall === true, open: value.open === true };
-      if (closed && messageOverlay && currentGame()) focusGame(currentGame());
+      if (closed && messageOverlay && currentGame() && !companionState.reparty.open) focusGame(currentGame());
       broadcast(); return; }
     case 'website': await shell.openExternal(config.portalOrigin); return;
     case 'refresh': if (!portalReady) await loadPortal(); if (quitting) return; await Promise.allSettled([account.refresh(), checkAndApplyUpdates()]); return state();

@@ -1,3 +1,13 @@
+## Reparty watch and listen redesign — 16 October 2026
+
+Reparty now runs in a persistent same-origin frame managed by `repo-reparty.js` on the collection page. Opening Wibs or a game hides the Reparty view without destroying playback. The homepage and Wibs navigation include the leaf TV icon. Old `/reparty/?room=` links enter the persistent collection shell.
+
+Personal pause/mute/volume are separate from the shared player RPCs. Resuming catches up with the room. The Windows 0.1.17 titlebar forwards only fixed, bounded controls through isolated IPC. Website Escape opens Audio & calls from the collection/Reparty view; the web game toolbar also exposes Audio & calls. Cross-origin games keep their own Escape handling. Suno continues using its official embed; local pause/mute unloads it, resume restarts the song, and its volume is controlled in the embed/device.
+
+`20261016010000_reparty_watch_only.sql` retires both game RPCs and game-room creation, and removes active game flags. Existing rooms, playlists, messages and private historical tables remain. The production bundle excludes retired game runtimes, catalogues and their old stylesheet. Migration applied and verified on the existing Supabase project on 16 October 2026. Older setup instructions below describe historical releases, not the current feature set.
+
+Validation: native isolated-IPC integration; 253 desktop unit checks; two-browser PostgreSQL fixture with a simulated YouTube player for shared playback/personal pause separation; view persistence and responsive widths; public/private inline emotes, GIFs, notifications, safety and draft preservation. Tests do not establish real YouTube streaming or two-person audio audibility.
+
 # Reparty
 
 ## Popular songs (2 October 2026)

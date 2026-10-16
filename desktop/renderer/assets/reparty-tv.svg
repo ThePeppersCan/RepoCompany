@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" color="#f3eed8" role="img" aria-label="Reparty">
+  <g stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="7.5" y="22.5" width="48" height="32" rx="8"/>
+    <rect x="13" y="28" width="29" height="21" rx="5"/>
+    <path d="M15 55v3m33-3v3M48 22c0-5-2-9-5-12m4 7 6-6"/>
+    <path d="M46 45h4m-4 4h4"/>
+  </g>
+  <g fill="currentColor">
+    <path d="M24 33.3q0-1.2 1.1-.5l8 5q1.1.7 0 1.4l-8 5q-1.1.7-1.1-.5Z"/>
+    <circle cx="48" cy="32.5" r="2.3"/>
+    <circle cx="48" cy="39" r="2"/>
+    <path d="M44.4 13C38 13 36.7 7.9 37 4c5.5.5 9 3.3 7.4 9ZM48 16c-.1-5.7 3.6-8.3 9-8-1 5.5-3.7 8.3-9 8Z"/>
+  </g>
+</svg>

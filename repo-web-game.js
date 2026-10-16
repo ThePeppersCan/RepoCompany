@@ -33,7 +33,7 @@
     frame?.remove();frame=null;panel.close();
     window.dashboardAudio?.suspend(false);window.repoAccount?.setGame('');previousFocus?.focus?.({preventScroll:true});
   }
-  panel.addEventListener('cancel',event=>{event.preventDefault();close();});
+  panel.addEventListener('cancel',event=>{event.preventDefault();window.repoMedia?.openSettings();});
   addEventListener('popstate',()=>{if(panel.open)close();});
   window.repoWebGame=Object.freeze({open,close,focus:()=>frame?.focus(),get active(){return panel.open;}});
 })();

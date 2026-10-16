@@ -119,8 +119,8 @@
   body.append(aside, conversation); drawer.append(head, body); document.body.append(drawer);
 
   const extras = window.repoChatExtras?.mount({drawer,composer,history,feedback,api,context:()=>({selection,userId}),replaceMessage:message=>{const i=messages.findIndex(m=>m.id===message.id);if(i<0)messages.push(message);else messages[i]=message;renderMessages();inboxAt=0;}});
-  const gifPicker=window.repoChatExtras.createGifPicker(drawer,text=>sendText(text,true));
-  const gifButton=button('Send a Wibs GIF',null,'repo-gif-button',()=>gifPicker.choose(gifButton));gifButton.textContent='GIF';gifButton.setAttribute('aria-haspopup','dialog');composer.insertBefore(gifButton,send);
+  const gifPicker=window.repoChatExtras.createGifPicker(drawer,text=>sendText(text,true),id=>window.repoChatExtras.insertEmote(input,id));
+  const gifButton=button('Emotes and GIFs',null,'repo-gif-button',()=>gifPicker.choose(gifButton));gifButton.append(window.repoChatExtras.emote('wibs-wave'));gifButton.setAttribute('aria-haspopup','dialog');composer.insertBefore(gifButton,send);
   const toast = el('div', 'repo-message-toast'); toast.setAttribute('role', 'status'); toast.setAttribute('popover', 'manual');
   const toastOpen = button('Open message', null, 'repo-toast-content');
   const toastAvatar = el('span', 'repo-social-avatar'), toastCopy = el('span'), toastName = el('b'), toastText = el('span');

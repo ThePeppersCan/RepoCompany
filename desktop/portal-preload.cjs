@@ -307,7 +307,8 @@ function initialize() {
     } catch(error){toast(error?.message||String(error));}
     finally{if(action==='play')dispatchEvent(new Event('repo-launch-presentation-reset'));pending.delete(token);schedule();}
   }
-  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
+  let mediaWasOnline=false;
+  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};const mediaOnline=next.account?.status==='online';if(mediaOnline&&!mediaWasOnline){mediaWasOnline=true;dispatchEvent(new Event('repo-media-request'));}else if(!mediaOnline)mediaWasOnline=false;document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
 
   // Capture the trusted click, then run the site's disc/sound/curtain before IPC.
   addEventListener('click',event=>{
@@ -349,6 +350,8 @@ function initialize() {
     const unread=Number.isSafeInteger(data.unread)?Math.max(0,Math.min(999,data.unread)):0;
     void invoke('social-state',{unread,callActive:data.callActive===true,incomingCall:data.incomingCall===true,open:data.open===true}).catch(()=>{});
   });
+  addEventListener('repo-media-state',event=>{const data=event.detail;if(!data||typeof data!=='object')return;const result={reparty:{},voice:{}};for(const [group,keys]of [['reparty',['open','active','playing','paused','muted','canControl','canVolume','connected']],['voice',['active','muted','deafened','canMute','canDeafen']]])for(const key of keys)result[group][key]=data[group]?.[key]===true;for(const key of ['room','title'])result.reparty[key]=typeof data.reparty?.[key]==='string'?data.reparty[key].slice(0,160):'';result.voice.name=typeof data.voice?.name==='string'?data.voice.name.slice(0,80):'Wibs';result.reparty.volume=Number.isFinite(data.reparty?.volume)?Math.max(0,Math.min(100,data.reparty.volume)):70;void invoke('media-state',result).catch(()=>{});});
+  ipcRenderer.on('launcher:media-control',(_event,data)=>{if(!data||!['reparty-pause','reparty-mute','reparty-volume','reparty-leave','wibs-mute','wibs-deafen','wibs-leave'].includes(data.action))return;if(data.action==='reparty-volume'&&(!Number.isFinite(data.value)||data.value<0||data.value>100))return;dispatchEvent(new CustomEvent('repo-media-control',{detail:{action:data.action,value:data.value}}));});
   ipcRenderer.on('launcher:state',(_event,next)=>receive(next));
   ipcRenderer.on('launcher:portal-visibility',(_event,visible)=>{if(typeof visible==='boolean')publishPortalVisibility(visible);});
   ipcRenderer.on('launcher:portal-library',()=>{libraryRequested=true;schedule();});

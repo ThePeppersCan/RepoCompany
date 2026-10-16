@@ -14,10 +14,11 @@
   const reduced=matchMedia('(prefers-reduced-motion: reduce)'),pausedGifs=new Set();
   const gifText=id=>gifs.some(g=>g.id===id)?`:wibs-gif-${id}:`:'';
   const gifFor=text=>gifs.find(g=>gifText(g.id)===String(text).trim());
-  const preview=text=>gifFor(text)?.label||text;
+  const emoteTokens=/(:wibs-(?:wave|love|laugh|hype|wow|sad|angry|sleepy):)/g;
+  const preview=text=>gifFor(text)?.label||String(text).replace(emoteTokens,token=>label(token.slice(1,-1)));
   function renderText(container,text,key=''){
-    const gif=gifFor(text);container.replaceChildren();container.classList.toggle('is-wibs-gif',!!gif);
-    if(!gif){container.textContent=text;return;}
+    const gif=gifFor(text);container.replaceChildren();container.classList.remove('is-emotes-only');container.classList.toggle('is-wibs-gif',!!gif);
+    if(!gif){const parts=String(text).split(emoteTokens);let count=0;for(const part of parts){const id=part.startsWith(':')&&part.endsWith(':')?resolve(part.slice(1,-1)):null;if(id){const img=emote(id);img.classList.add('repo-inline-emote');img.removeAttribute('aria-hidden');img.alt=label(id);container.append(img);count++;}else container.append(document.createTextNode(part));}container.classList.toggle('is-emotes-only',count>0&&count<=3&&parts.filter((_,i)=>i%2===0).join('').trim()==='');return;}
     const image=node('img','repo-wibs-gif'),control=button('','repo-gif-play',()=>setPlaying(!playing));
     image.alt=gif.label;image.width=320;image.height=240;image.loading='lazy';image.draggable=false;
     const base='/assets/wibs-gifs/'+gif.id;let playing=false;
@@ -28,14 +29,21 @@
   reduced.addEventListener('change',()=>{if(reduced.matches)document.querySelectorAll('.repo-wibs-gif').forEach(n=>n.dispatchEvent(new Event('repo-pause-gif')));});
   addEventListener('repo-account-state',()=>{if(!window.repoAccount?.state.user)pausedGifs.clear();});
   function positionPicker(picker,trigger){const rect=trigger.getBoundingClientRect(),box=picker.getBoundingClientRect(),gap=8;picker.style.left=Math.max(gap,Math.min(innerWidth-box.width-gap,rect.right-box.width))+'px';picker.style.top=Math.max(gap,Math.min(innerHeight-box.height-gap,rect.top>=box.height+gap?rect.top-box.height-gap:rect.bottom+gap))+'px';}
-  function createGifPicker(drawer,onSend){
-    const picker=node('div','repo-reaction-picker repo-gif-picker');picker.setAttribute('popover','auto');picker.setAttribute('role','dialog');picker.setAttribute('aria-label','Wibs GIFs');
+  function insertEmote(input,id){if(!catalog.some(e=>e.id===id)||input.disabled)return false;const token=':'+id+':',start=input.selectionStart??input.value.length,end=input.selectionEnd??start,prefix=start&&!/\s/.test(input.value[start-1])?' ':'',value=prefix+token+' ';input.focus({preventScroll:true});if(input.maxLength>=0&&input.value.length-(end-start)+value.length>input.maxLength)return false;input.setRangeText(value,start,end,'end');input.dispatchEvent(new Event('input',{bubbles:true}));return true;}
+  function createGifPicker(drawer,onSend,onEmote){
+    let tab='emotes',trigger;
+    const picker=node('div','repo-reaction-picker repo-gif-picker');picker.setAttribute('popover','auto');picker.setAttribute('role','dialog');picker.setAttribute('aria-label','Wibs emotes and GIFs');
     const clear=()=>{try{picker.hidePopover();}catch{}};
-    function choose(trigger){
-      if(!picker.isConnected)drawer.append(picker);picker.replaceChildren(node('strong','repo-reaction-heading','Send a Wibs GIF'));
+    function paint(){
+      picker.replaceChildren();const tabs=node('div','repo-media-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Wibs media');for(const [id,title]of [['emotes','Emotes'],['gifs','GIFs']]){const b=button(title,'',()=>{tab=id;paint();positionPicker(picker,trigger);picker.querySelector('[aria-selected=true]').focus();});b.textContent=title;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(tab===id));tabs.append(b);}picker.append(tabs);
+      picker.append(node('strong','repo-reaction-heading',tab==='emotes'?'Add an emote to your message':'Send a Wibs GIF'));
+      if(tab==='emotes'){const choices=node('div','repo-reaction-choices');for(const item of catalog){const b=button('Insert '+item.label,'repo-reaction-choice',()=>{clear();onEmote?.(item.id);});b.append(emote(item.id));choices.append(b);}picker.append(choices);return;}
       const choices=node('div','repo-gif-choices');
       for(const gif of gifs){const image=node('img','');image.alt='';image.width=160;image.height=120;image.src='/assets/wibs-gifs/'+gif.id+'.png';const b=button('Send '+gif.label,'repo-gif-choice',()=>{clear();trigger.focus({preventScroll:true});onSend(gifText(gif.id));});b.append(image,node('span','',gif.label.replace('Wibs · ','').replace(' GIF','')));const animate=()=>{if(!reduced.matches)image.src='/assets/wibs-gifs/'+gif.id+'.gif';},still=()=>{image.src='/assets/wibs-gifs/'+gif.id+'.png';};b.onpointerenter=b.onfocus=animate;b.onpointerleave=b.onblur=still;choices.append(b);}
-      picker.append(choices);picker.showPopover();positionPicker(picker,trigger);picker.querySelector('button').focus({preventScroll:true});
+      picker.append(choices);
+    }
+    function choose(button){
+      trigger=button;if(!picker.isConnected)drawer.append(picker);paint();picker.showPopover();positionPicker(picker,trigger);picker.querySelector('[aria-selected=true]').focus({preventScroll:true});
     }
     drawer.addEventListener('close',clear);addEventListener('resize',clear);return{choose,clear};
   }
@@ -52,7 +60,7 @@
     }
     drawer.addEventListener('close',clear);addEventListener('resize',clear);return {choose,clear};
   }
-  window.repoChatExtras = Object.freeze({catalog,emote,label,createPicker,gifs,gifText,preview,renderText,createGifPicker,mount({drawer,history,feedback,api,replaceMessage}) {
+  window.repoChatExtras = Object.freeze({catalog,emote,label,createPicker,gifs,gifText,preview,renderText,insertEmote,createGifPicker,mount({drawer,history,feedback,api,replaceMessage}) {
     let revision=0, reactionBusy=false;
     const picker=createPicker(drawer,react);
     function clear() { revision++;picker.clear(); }

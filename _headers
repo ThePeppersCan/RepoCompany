@@ -78,3 +78,9 @@
 /releases/launcher/latest.json
   Cache-Control: no-store
   Content-Type: application/json; charset=utf-8
+/reparty/*
+  Cache-Control: no-cache
+/repo-reparty.js
+  Cache-Control: no-cache
+/repo-reparty.css
+  Cache-Control: no-cache

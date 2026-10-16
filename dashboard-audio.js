@@ -58,9 +58,9 @@
       return;
     }
     // Wibs pauses only collection music; call audio and the saved sound preference stay independent.
-    if (messagesOpen) fade(tracks.music, 0, 0, true);
+    if (messagesOpen || window.repoMedia?.getState().reparty.active) fade(tracks.music, 0, 0, true);
     if (launching) return;
-    if (!messagesOpen) {
+    if (!messagesOpen && !window.repoMedia?.getState().reparty.active) {
       play(tracks.music);
       fade(tracks.music, levels.music * mix.music * (ducked ? .42 : 1), 550);
     }
@@ -123,6 +123,7 @@
       sync();
     }
   });
+  addEventListener('repo-media-state',sync);
   document.addEventListener('visibilitychange', sync);
   addEventListener('repo-messaging-state', event => {
     if (typeof event.detail?.open !== 'boolean' || event.detail.open === messagesOpen) return;

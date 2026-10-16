@@ -1,7 +1,4 @@
-import { createGamePlayer } from './game-player.js';
 import { createSunoPlayer } from './suno-player.js';
-import { createGameMode } from './game-mode.js?v=3';
-import { createSoundtrackMode } from './soundtrack-mode.js?v=5';
 import { config } from './config.js';
 import { createRepartyAuth } from './session-auth.mjs';
 import { avatars, avatarGroups } from './avatars.js';
@@ -30,82 +27,36 @@ let queueFilter = '', renderedPlaying = null, centreOnPlaying = true;
 const UNPLAYABLE = [2, 100, 101, 150];
 const splitView = matchMedia('(min-width: 1700px)');
 const systemDark = matchMedia('(prefers-color-scheme: dark)');
-let latestMembers = [], wasGameMode = false;
+let latestMembers = [];
 let lobbyMode = null, lobbyRequest = 0, lobbyOffset = 0, lobbyRooms = [], lobbyLoading = false;
-const gameMode = createGameMode({
-  getUser: () => user, avatar: avatarElement, notify, openMenu: openGameMenu, onBackToModes: () => run(goHome),
-  onModeChange(active) {
-    if (active && !wasGameMode && document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    miniPlayer.update(active);
-    wasGameMode = active;
-  },
-  async send(action, data) {
-    if (!requireUser()) return;
-    if (!roomId) { modal('lobby'); return; }
-    const target = roomId, ticket = generation, started = Date.now();
-    const response = await db.rpc('reparty_game_action', { p_action: action, p_room: target, p_data: data });
-    if (response.error) throw response.error;
-    if (target !== roomId || ticket !== generation) return;
-    if (response.data?.server_time) offset = Date.parse(response.data.server_time) - (started + Date.now()) / 2;
-    applySnapshot(response.data);
-    if (response.data?.game_stale) notify('The table already moved on. You’re up to date.');
-  }
-});
-
-const miniPlayer = createGamePlayer();
 const sunoPlayer = createSunoPlayer($('sunoPlayer'), $('sunoNotice'));
-const soundtrackMode = createSoundtrackMode({
-  getUser: () => user, avatar: avatarElement, notify, loadYoutube, onBackToModes: () => run(goHome),
-  onActive(active) {
-    if (active) {
-      clearTimeout(skipTimer); suppressUntil = performance.now() + 2000;
-      try { player?.stopVideo?.(); } catch {}
-      playerVideo = null; sunoPlayer.clear(); miniPlayer.update(false);
-      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    }
-  },
-  async send(action, data) {
-    if (!requireUser()) return;
-    if (!roomId) { modal('lobby'); return; }
-    const target = roomId, ticket = generation, started = Date.now();
-    const response = await db.rpc('reparty_soundtrack_action', { p_action: action, p_room: target, p_data: data });
-    if (response.error) throw response.error;
-    if (target !== roomId || ticket !== generation) return;
-    if (response.data?.server_time) offset = Date.parse(response.data.server_time) - (started + Date.now()) / 2;
-    applySnapshot(response.data);
-    if (response.data?.quiz_stale) notify('The round just changed. Try that control again.');
-    return response.data;
-  }
-});
 let sunoAdvancing = false, lastSunoAdvance = 0;
-
-function openGameMenu() {
-  if (!roomId) { openLobby('game'); return; }
-  if (!requireUser()) return;
-  const current = room.settings?.game;
-  const canSwitch = !['game', 'soundtrack'].includes(current?.mode) || current?.host === user.id;
-  ['chooseCards', 'chooseSoundtrack', 'chooseWatch'].forEach(id => { $(id).disabled = !canSwitch; });
-  $('gameMenuHint').textContent = canSwitch ? 'Choose how you spend the night.' : 'Your host chooses the room’s game.';
-  modal('gameMenu');
+let localPaused=false,localMuted=false,localVolume=70,lastMediaState='';
+try{const prefs=JSON.parse(localStorage.getItem('repo-reparty-audio')||'{}');if(Number.isFinite(prefs.volume))localVolume=Math.max(0,Math.min(100,prefs.volume));localMuted=prefs.muted===true;}catch{}
+$('volume').value=localVolume;
+function mediaState(){return {authenticated:!!user,active:!!roomId,room:room?.name||'',roomId:roomId||'',title:playingEntry()?.item.title||'',playing:!!room?.playback?.playing&&!localPaused,paused:localPaused,muted:localMuted,volume:localVolume,canControl:!!room?.playback?.video_id,canVolume:!sunoActive(),provider:sunoActive()?'suno':'youtube',connected:connectionReady};}
+function publishMedia(){const next=mediaState(),signature=JSON.stringify(next);if(signature===lastMediaState)return;lastMediaState=signature;if(parent!==window)parent.postMessage({type:'repo-reparty-state',state:next},location.origin);}
+function saveAudio(){try{localStorage.setItem('repo-reparty-audio',JSON.stringify({volume:localVolume,muted:localMuted}));}catch{}}
+async function localControl(action,value){
+ if(action==='join'){if(validRoom(value)&&roomId!==value){if(!requireUser()){history.replaceState(null,'','?embedded=1&room='+value);return;}await join(value);}return;}
+ if(action==='leave'){await goHome();return;}
+ if(action==='pause')localPaused=!localPaused;
+ else if(action==='mute')localMuted=!localMuted;
+ else if(action==='volume'&&Number.isFinite(value)){localVolume=Math.max(0,Math.min(100,value));localMuted=false;$('volume').value=localVolume;}
+ else return;
+ saveAudio();if(playerReady){player.setVolume(localVolume);if(localMuted)player.mute();else player.unMute();}mediaControls();
+ if(action==='pause'||(action==='mute'&&sunoActive()))await applyPlayback(true);
 }
-async function changeGame(next) {
-  if (soundtrackMode.active() && next !== 'soundtrack') await soundtrackMode.leave();
-  if (gameMode.active() && next !== 'game') await gameMode.leave();
-  if (next === 'soundtrack' && !gameMode.active()) await soundtrackMode.enter();
-  if (next === 'game' && !soundtrackMode.active()) await gameMode.enter();
-  $('gameMenu').close();
-}
-$('chooseCards').onclick = () => run(() => changeGame('game'));
-$('chooseSoundtrack').onclick = () => run(() => changeGame('soundtrack'));
-$('chooseWatch').onclick = () => run(() => changeGame('watch'));
+addEventListener('message',event=>{if(event.source!==parent||parent===window||event.origin!==location.origin||event.data?.type!=='repo-reparty-control')return;const {action,value}=event.data;if(['pause','mute','volume','join','leave'].includes(action))run(()=>localControl(action,value));});
+window.repoRepartyPlayer=Object.freeze({getState:mediaState,control:localControl});
 
 function sunoActive() { return isSuno(room?.playback?.video_id); }
 function mediaControls() {
-  const suno = sunoActive();
+  const suno = sunoActive();publishMedia();$('mute').setAttribute('aria-label',localMuted?'Unmute my audio':'Mute my audio');$('mute').setAttribute('aria-pressed',String(localMuted));
   $('seek').disabled = !connectionReady || !room?.playback?.video_id || suno;
   $('seek').setAttribute('aria-label', suno ? 'Shared queue timer; Suno seeking is local' : 'Seek for everyone');
-  $('mute').disabled = $('volume').disabled = suno || !playerReady;
-  $('mute').title = suno ? 'Use your device volume for Suno' : 'Mute my audio (M)';
+  $('mute').disabled = !room?.playback?.video_id;$('volume').disabled = suno || !playerReady;
+  $('mute').title=localMuted?'Unmute my audio':'Mute my audio (M)';
   $('resync').title = suno ? 'Refresh the shared queue' : 'Catch up with the room';
   $('syncLabel').textContent = connectionReady ? (suno ? 'Queue timer' : 'In sync') : roomId ? 'Reconnecting' : 'Not connected';
   $('sunoRestart').disabled = !connectionReady;
@@ -141,13 +92,11 @@ async function lobbyRpc(action,data={}) {
   if(error)throw error;return response;
 }
 function openLobby(mode='video') {
-  lobbyMode=mode;
+  lobbyMode='video';
   if(!requireUser())return;
-  const game=mode==='game';
-  $('lobbyTitle').textContent=game?'Find your game night.':'Find your little corner.';
-  $('lobbyEyebrow').textContent=game?'GAME MODE':'VIDEO MODE';
-  $('lobbyIntro').textContent=game?'Join a game or bring everyone together in a new room.':'Join a watch party or make a room of your own.';
-  $('lobbyGameLabel').hidden=!game;$('newRoomName').placeholder=game?'Game night':'The forest lounge';
+  $('lobbyTitle').textContent='Find your company.';
+  $('lobbyEyebrow').textContent='REPARTY ROOMS';
+  $('lobbyIntro').textContent='Join a room, or start a playlist of your own.';
   $('lobbyError').textContent='';modal('lobby');loadRooms();
 }
 async function loadRooms(more=false) {
@@ -164,22 +113,22 @@ async function loadRooms(more=false) {
       const item=node('article',undefined,'directory-room'),copy=node('div'),button=node('button','Join room');
       const age=Math.max(0,Date.parse(data.server_time)-Date.parse(r.last_used));
       const ago=age<60000?'just now':age<3600000?`${Math.floor(age/60000)}m ago`:age<86400000?`${Math.floor(age/3600000)}h ago`:`${Math.floor(age/86400000)}d ago`;
-      copy.append(node('strong',r.name),node('p',`${({video:'Watch party',game:'Game night',soundtrack:'Guess the Soundtrack'})[r.mode]} · ${r.people?`${r.people} inside`:`Last used ${ago}`}`));
+      copy.append(node('strong',r.name),node('p',`Watch party · ${r.people?`${r.people} inside`:`Last used ${ago}`}`));
       button.setAttribute('aria-label',`Join ${r.name}`);button.onclick=async()=>{button.disabled=true;await run(()=>join(r.id),'lobbyError');button.disabled=false;};item.append(copy,button);return item;
     }));
-    if(!lobbyRooms.length)$('roomDirectory').append(node('p',mode==='game'?'No games open yet. Start one below and invite your friends.':'No watch parties open yet. Make the first room below.','directory-empty'));
+    if(!lobbyRooms.length)$('roomDirectory').append(node('p','No rooms open yet. Start one below and invite your friends.','directory-empty'));
     $('moreRooms').hidden=!data.has_more;
   }catch(error){if(request===lobbyRequest){$('lobbyError').textContent=friendly(error);if(!more)$('roomDirectory').replaceChildren(node('p','Rooms could not load. Try Refresh rooms.','directory-empty'));}}
   finally{if(request===lobbyRequest){lobbyLoading=false;$('refreshRooms').disabled=$('moreRooms').disabled=false;}}
 }
 async function goHome() {
-  lobbyRequest++;lobbyMode=null;$('lobby').close();$('gameMenu').close();
-  await leaveRoom();history.replaceState(null,'',location.pathname);
-  document.title='Reparty · RepoCompany';$('roomName').textContent='Your kind of night';
-  $('entryGames').focus();
+  lobbyRequest++;lobbyMode=null;$('lobby').close();
+  await leaveRoom();history.replaceState(null,'',location.pathname+'?embedded=1');
+  document.title='Reparty · RepoCompany';$('roomName').textContent='Reparty';
+  $('entryVideos').focus();
 }
-$('entryGames').onclick=()=>openLobby('game');$('entryVideos').onclick=()=>openLobby('video');
-$('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('entryGames').focus();};
+$('entryVideos').onclick=()=>openLobby('video');
+$('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('entryVideos').focus();};
 $('refreshRooms').onclick=()=>loadRooms();$('moreRooms').onclick=()=>loadRooms(true);
 setInterval(()=>{if($('lobby').open&&user&&!lobbyLoading)loadRooms();},30000);
 function avatarElement(id, name = '') {
@@ -206,8 +155,8 @@ function applyTheme(theme, save = false) {
   $('themeToggle').setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
   document.querySelector('meta[name="theme-color"]').content = dark ? '#0a1814' : '#143e35';
 }
-applyTheme(savedTheme() || (systemDark.matches ? 'dark' : 'light'));
-systemDark.addEventListener('change', e => { if (!savedTheme()) applyTheme(e.matches ? 'dark' : 'light'); });
+applyTheme(savedTheme() || 'dark');
+
 $('themeToggle').onclick = () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true);
 
 function theatreActive() {
@@ -226,9 +175,6 @@ $('theatreToggle').onclick = () => applyTheatre(!document.documentElement.classL
 
 function setConnected(ok, label) {
   connectionReady = ok;
-  gameMode.setConnected(ok);
-  soundtrackMode.setConnected(ok);
-  miniPlayer.connected(ok);
   $('connection').textContent = label;
   $('syncLabel').textContent = ok ? 'In sync' : roomId ? 'Reconnecting' : 'Not connected';
   ['addButton', 'builtinPlaylist', 'repeatMode', 'shuffleMode', 'newPlaylist', 'renamePlaylist', 'deletePlaylist', 'playlistSelect', 'sendMessage', 'message', 'tvMessage'].forEach(id => { $(id).disabled = !ok; });
@@ -271,7 +217,6 @@ function applySnapshot(data) {
   if (!data?.room || data.room.id !== roomId) return;
   if (room && Number(data.room.revision) < Number(room.revision)) return;
   const playbackChanged = !room || JSON.stringify(data.room.playback) !== JSON.stringify(room.playback);
-  const soundtrackChanged = soundtrackMode.active() !== (data.room.settings?.game?.mode === 'soundtrack');
   room = data.room;
   myAvatar = data.avatar_id;
   $('roomName').textContent = room.name;
@@ -280,22 +225,20 @@ function applySnapshot(data) {
   // On joining, open the playlist that's playing rather than always the first one.
   if (!room.playlists.some(p => p.id === selectedPlaylist)) selectedPlaylist = playingEntry()?.playlist.id || room.playlists[0]?.id;
   latestMembers = data.members;
-  gameMode.update(room.settings?.game, latestMembers, roomId, offset);
-  soundtrackMode.update(room.settings?.soundtrack, latestMembers, roomId, offset, room.settings?.game?.mode === 'soundtrack');
   renderModes();
   renderPlaylists();
   renderMembers(data.members);
   renderMessages(data.messages);
   applyAvatar($('myAvatar'), myAvatar);
   $('chooseAvatar').disabled = false;
-  setConnected(true, `${data.members.length} ${gameMode.active() || soundtrackMode.active() ? 'playing together' : 'watching together'}`);
+  setConnected(true, `${data.members.length} watching together`);
   $('emptyHint').textContent = 'Paste a YouTube or Suno link above. Everyone in your room can add to the queue.';
   $('startRoom').hidden = true;
   $('togglePlay').textContent = room.playback.playing ? 'Ⅱ' : '▶';
   $('togglePlay').setAttribute('aria-label', room.playback.playing ? 'Pause for everyone' : 'Play for everyone');
   $('nowPlaying').textContent = playingEntry()?.item.title || 'Choose a video from your playlist';
   mediaControls();
-  if (playbackChanged || soundtrackChanged) applyPlayback().catch(error => notify(friendly(error)));
+  if (playbackChanged) applyPlayback().catch(error => notify(friendly(error)));
 }
 async function refresh() {
   if (!roomId || !user) return;
@@ -385,7 +328,7 @@ function renderPlaylists() {
     const img = node('img');
     const suno = isSuno(item.video_id);
     img.src = suno ? `https://cdn2.suno.ai/image_${item.video_id.slice(5)}.jpeg` : `https://i.ytimg.com/vi/${item.video_id}/mqdefault.jpg`;
-    img.onerror = () => { img.onerror = null; img.src = '../assets/reparty/reparty-icon.png'; };
+    img.onerror = () => { img.onerror = null; img.src = '../assets/reparty/reparty-tv.svg'; };
     img.alt = ''; img.loading = 'lazy';
     const copy = node('div');
     const playIt = () => run(() => mutate('play', { playlist_id: p.id, item_id: item.id }));
@@ -488,8 +431,7 @@ async function leaveRoom() {
   generation++;
   const oldRoom = roomId;
   roomId = null; room = null; playerVideo = null; blocked = false;
-  latestMembers = []; gameMode.update(null);
-  soundtrackMode.update(null);
+  latestMembers = [];localPaused=false;
   document.documentElement.classList.add('reparty-entry');
   clearInterval(poll); clearTimeout(refreshTimer); clearTimeout(skipTimer);
   if (channel) { await db.removeChannel(channel); channel = null; }
@@ -499,7 +441,7 @@ async function leaveRoom() {
   if ($('youtubePlayer')) $('youtubePlayer').hidden = false;
   $('emptyScreen').hidden = false;
   $('enablePlayback').hidden = true;
-  setConnected(false, 'Choose your mode');
+  setConnected(false, 'Choose a room');
   queueSignature = membersSignature = messageSignature = ''; lastMessageId = unread = 0; messagesLoaded = false;
   renderedPlaying = null; centreOnPlaying = true; queueFilter = ''; $('queueSearch').value = '';
   if (oldRoom && user) rpc('leave', {}, oldRoom).catch(() => {});
@@ -512,7 +454,7 @@ async function join(code) {
   if (ticket !== generation) return;
   roomId = code;
   document.documentElement.classList.remove('reparty-entry');
-  history.replaceState(null, '', `?room=${code}`);
+  history.replaceState(null, '', `?embedded=1&room=${code}`);
   applySnapshot(data);
   $('lobby').close();
   channel = db.channel(`reparty:${code}`)
@@ -528,7 +470,7 @@ async function join(code) {
 function roomCode(value) {
   const input = value.trim().toLowerCase();
   if (validRoom(input)) return input;
-  try { return new URL(input).searchParams.get('room') || ''; } catch { return ''; }
+  try { return new URL(input).searchParams.get('room') || new URL(input).searchParams.get('reparty') || ''; } catch { return ''; }
 }
 async function loadYoutube() {
   if (window.YT?.Player) return;
@@ -553,7 +495,7 @@ function wrongVideo() {
 }
 function recoverVideo() { playerVideo = null; applyPlayback(true).catch(() => {}); }
 function scheduleSkip() {
-  if (soundtrackMode.active()) return false;
+
   const current = playingEntry();
   if (!current || !connectionReady) return false;
   const { playlist: list, item } = current;
@@ -567,19 +509,19 @@ function scheduleSkip() {
 }
 async function ensurePlayer() {
   await loadYoutube();
-  if (sunoActive() || soundtrackMode.active()) return;
+  if (sunoActive()) return;
   if (player) return;
   player = new window.YT.Player('youtubePlayer', {
     width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
     // Reparty's own controls drive playback; YouTube's are hidden and a click shield covers the embed.
     playerVars: { playsinline: 1, origin: location.origin, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3 },
     events: {
-      onReady: () => { clearTimeout(playerReadyTimer); playerReady = true; player.setVolume(Number($('volume').value)); mediaControls(); applyPlayback().catch(error => notify(friendly(error))); },
+      onReady: () => { clearTimeout(playerReadyTimer); playerReady = true; player.setVolume(localVolume);if(localMuted)player.mute(); mediaControls(); applyPlayback().catch(error => notify(friendly(error))); },
       onStateChange: onPlayerState,
       onPlaybackRateChange: event => { if (event.data !== 1) player.setPlaybackRate(1); },
-      onAutoplayBlocked: () => { if (!sunoActive() && !soundtrackMode.active()) { blocked = true; $('enablePlayback').hidden = false; } },
+      onAutoplayBlocked: () => { if (!sunoActive()) { blocked = true; $('enablePlayback').hidden = false; } },
       onError: event => {
-        if (sunoActive() || soundtrackMode.active()) return;
+        if (sunoActive()) return;
         const messages = { 100: 'This video is unavailable or private.', 101: 'The owner does not allow this video to play on other websites.', 150: 'The owner does not allow this video to play on other websites.', 153: 'YouTube could not verify this page. Open Reparty from the website rather than a local file.', 2: 'That video link is invalid.', 5: 'This video cannot play in this browser.' };
         const reason = messages[event.data] || 'YouTube could not play this video.';
         if (UNPLAYABLE.includes(event.data) && scheduleSkip()) notify(`${reason} Skipping to the next video…`);
@@ -596,7 +538,7 @@ async function ensurePlayer() {
   }, 15000);
 }
 async function applyPlayback(force = false) {
-  if (soundtrackMode.active()) return;
+
   const pb = room?.playback;
   if (isSuno(pb?.video_id)) {
     clearTimeout(skipTimer);
@@ -606,7 +548,7 @@ async function applyPlayback(force = false) {
     $('screenShield').hidden = true;
     $('emptyScreen').hidden = $('enablePlayback').hidden = true;
     blocked = false;
-    sunoPlayer.apply(pb, playingEntry()?.item, Date.now() + offset);
+    if(localPaused||localMuted){sunoPlayer.clear();$('sunoPlayer').hidden=false;$('sunoPlayer').append(node('p','Listening paused for you. Resume from the Reparty controls.','suno-paused'));}else sunoPlayer.apply(pb, playingEntry()?.item, Date.now() + offset);
     mediaControls();
     return;
   }
@@ -621,7 +563,7 @@ async function applyPlayback(force = false) {
   }
   if (!playerReady) $('emptyHint').textContent = 'Connecting to YouTube…';
   await ensurePlayer();
-  if (!playerReady || pb !== room?.playback || soundtrackMode.active()) return;
+  if (!playerReady || pb !== room?.playback) return;
   $('emptyScreen').hidden = true;
   const position = playbackPosition(pb, Date.now() + offset);
   const different = playerVideo !== pb.video_id || wrongVideo();
@@ -630,22 +572,22 @@ async function applyPlayback(force = false) {
     playerVideo = pb.video_id; blocked = false; $('enablePlayback').hidden = true;
     loadGuardUntil = performance.now() + 4000;
     const opts = { videoId: pb.video_id, startSeconds: position };
-    if (pb.playing) player.loadVideoById(opts); else player.cueVideoById(opts);
+    if (pb.playing&&!localPaused) player.loadVideoById(opts); else player.cueVideoById(opts);
   } else {
     if (force || Math.abs(player.getCurrentTime() - position) > 1.25) player.seekTo(position, true);
-    if (pb.playing && !blocked && player.getPlayerState() !== 1) player.playVideo();
-    if (!pb.playing && player.getPlayerState() !== 2) player.pauseVideo();
+    if (pb.playing && !localPaused && !blocked && player.getPlayerState() !== 1) player.playVideo();
+    if ((!pb.playing||localPaused) && player.getPlayerState() !== 2) player.pauseVideo();
   }
 }
 async function publishPlayback(playing, position) {
-  if (soundtrackMode.active()) return;
+
   if (!room?.playback.video_id || !connectionReady || pendingPlayback) return;
   pendingPlayback = true;
   try { await mutate('playback', { item_id: room.playback.item_id, playing, position: Math.max(0, Math.min(86400, position)) }); }
   finally { pendingPlayback = false; }
 }
 function onPlayerState(event) {
-  if (sunoActive() || soundtrackMode.active()) return;
+  if (sunoActive()||localPaused) return;
   if (!room?.playback.video_id || !connectionReady || playerVideo !== room.playback.video_id) return;
   if (wrongVideo()) { recoverVideo(); return; }
   if (event.data === 1 && blocked) { blocked = false; $('enablePlayback').hidden = true; }
@@ -659,7 +601,7 @@ function onPlayerState(event) {
   if ((event.data === 1 && !room.playback.playing) || (event.data === 2 && room.playback.playing)) run(() => publishPlayback(event.data === 1, player.getCurrentTime()));
 }
 setInterval(() => {
-  if (soundtrackMode.active()) return;
+
   if (sunoActive()) {
     const current = playingEntry();
     if (!current) return;
@@ -679,7 +621,7 @@ setInterval(() => {
   const current = player.getCurrentTime(), duration = player.getDuration(), state = player.getPlayerState(), now = performance.now();
   if (document.activeElement !== $('seek')) { $('seek').max = Math.max(duration, 1); $('seek').value = current; }
   $('videoTime').textContent = `${formatTime(current)} / ${formatTime(duration)}`;
-  if (now > suppressUntil && !blocked && !pendingPlayback && connectionReady && [1, 2].includes(state)
+  if (now > suppressUntil && !localPaused && !blocked && !pendingPlayback && connectionReady && [1, 2].includes(state)
     && now - lastCorrection > 5000 && Math.abs(current - playbackPosition(room.playback, Date.now() + offset)) > 2.5) {
     lastCorrection = now; applyPlayback(true).catch(() => {});
   }
@@ -729,11 +671,11 @@ onForm('addVideo', async () => {
   } else title = await metadata(id);
   if (target !== roomId) return;
   await mutate('add', { playlist_id: listId, video_id: id, title, ...(suno ? { duration } : {}) });
-  $('videoUrl').value = ''; $('miniVideoUrl').value = ''; notify('Added to your shared playlist.');
+  $('videoUrl').value = ''; notify('Added to your shared playlist.');
 });
 onForm('createRoom', async () => {
   if (!requireUser()) return;
-  const response = await lobbyRpc('create', { name: $('newRoomName').value, mode: lobbyMode==='game'?$('lobbyGame').value:'video' });
+  const response = await lobbyRpc('create', { name: $('newRoomName').value, mode:'video' });
   await join(response.id);
 }, 'lobbyError');
 onForm('joinRoom', async () => { if (requireUser()) await join(roomCode($('roomCode').value)); }, 'lobbyError');
@@ -767,8 +709,8 @@ $('togglePlay').onclick = () => run(() => publishPlayback(!room.playback.playing
 $('sunoRestart').onclick = () => { const current = playingEntry(); if (current && sunoActive()) run(() => mutate('play', { playlist_id: current.playlist.id, item_id: current.item.id })); };
 $('nextVideo').onclick = () => { const current = playingEntry(); if (current) run(() => mutate('next', { playlist_id: current.playlist.id, item_id: current.item.id, revision: room.revision })); };
 $('seek').onchange = () => run(() => publishPlayback(room.playback.playing, Number($('seek').value)));
-$('volume').oninput = () => { if (playerReady) { player.setVolume(Number($('volume').value)); player.unMute(); $('mute').textContent = '♪'; $('mute').setAttribute('aria-label', 'Mute my audio'); } };
-$('mute').onclick = () => { if (!playerReady) return; const muted = player.isMuted(); if (muted) player.unMute(); else player.mute(); $('mute').textContent = muted ? '♪' : '×'; $('mute').setAttribute('aria-label', muted ? 'Mute my audio' : 'Unmute my audio'); };
+$('volume').oninput=()=>run(()=>localControl('volume',Number($('volume').value)));
+$('mute').onclick=()=>run(()=>localControl('mute'));
 $('resync').onclick = () => run(async () => { await refresh(); await applyPlayback(true); notify(sunoActive() ? 'Queue refreshed. To align Suno playback, use Restart for everyone.' : 'Caught up with your room.'); });
 $('enablePlayback').onclick = () => { blocked = false; $('enablePlayback').hidden = true; if (playerReady) { player.playVideo(); suppressUntil = performance.now() + 1700; } applyPlayback(true).catch(error => notify(friendly(error))); };
 $('fullscreen').onclick = () => run(async () => { if (document.fullscreenElement) await document.exitFullscreen(); else if ($('television').requestFullscreen) await $('television').requestFullscreen(); });
@@ -787,7 +729,7 @@ $('focusAdd').onclick = () => { $('videoUrl').focus(); $('videoUrl').scrollIntoV
 $('startRoom').onclick = () => openLobby('video');$('changeRoom').onclick = () => run(goHome);
 $('account').onclick = () => { if (user && !user.is_anonymous) { notify(`Connected as ${user.user_metadata?.username || 'your RepoCompany account'}. Manage your account on RepoCompany.`); } else modal('auth'); };
 $('roomLink').onclick = () => run(async () => {
-  try { await navigator.clipboard.writeText(location.href); notify('Room link copied.'); }
+  try { await navigator.clipboard.writeText(location.origin+'/reparty/?room='+roomId); notify('Room link copied.'); }
   catch { openEdit('Your room link', 'Copy this link', async () => {}, location.href, false, true); }
 });
 $('shortcutHelp').onclick = () => modal('shortcutsDialog');
@@ -832,16 +774,10 @@ const shortcuts = {
   }
 };
 document.addEventListener('keydown', e => {
-  if (gameMode.active()) return;
   if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
   const target = e.target instanceof Element ? e.target : null;
   if (target?.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]') || document.querySelector('dialog[open]')) return;
   if (e.key === ' ' && target?.closest('button, a, [role=tab]')) return; // Space still activates the focused control.
-  if (soundtrackMode.active()) {
-    if (e.key === ' ' || e.key.toLowerCase() === 'k') { e.preventDefault(); soundtrackMode.pause(); }
-    if (e.key.toLowerCase() === 'm') { e.preventDefault(); $('stMute').click(); }
-    return;
-  }
   const action = shortcuts[e.key.length === 1 ? e.key.toLowerCase() : e.key];
   if (!action) return;
   e.preventDefault(); action();
@@ -906,7 +842,7 @@ async function authChanged(session) {
   authUserId = next?.id || null; user = next;
   if (!user) {
     await leaveRoom(); $('participants').replaceChildren(node('p', 'Your friends will appear here.', 'muted'));
-    $('queue').replaceChildren(); $('messages').replaceChildren(); $('roomName').textContent = 'Your kind of night';
+    $('queue').replaceChildren(); $('messages').replaceChildren(); $('roomName').textContent = 'Reparty';
     $('nowPlaying').textContent = 'Nothing playing yet'; $('queueCount').textContent = $('queueCountSplit').textContent = '0';
     $('startRoom').hidden = false; $('emptyHint').textContent = 'Make a room, add a video and settle in together.';
     $('account').textContent = 'Join in'; $('chooseAvatar').disabled = true;
@@ -917,7 +853,7 @@ async function authChanged(session) {
   $('auth').close(); $('account').textContent = user.is_anonymous ? `${user.user_metadata?.reparty_name || 'Visitor'} · Guest` : user.user_metadata?.username || 'My account';
   $('guestName').value = user.is_anonymous ? user.user_metadata?.reparty_name || 'Visitor' : '';
   $('guestName').readOnly = !!user.is_anonymous;
-  if(!roomId)setConnected(false,'Choose your mode');
+  if(!roomId)setConnected(false,'Choose a room');
   try {
     const profile = await rpc('profile'); myAvatar = profile.avatar_id; applyAvatar($('myAvatar'), myAvatar); $('chooseAvatar').disabled = false;
     const code = new URLSearchParams(location.search).get('room');
@@ -929,3 +865,7 @@ else {
   sessionAuth.start().catch(error => notify(friendly(error)));
 }
 applyAvatar($('myAvatar'), 0);
+
+// Escape opens the same personal audio controls from inside the player.
+addEventListener("keydown",event=>{if(event.key!=="Escape"||document.querySelector("dialog[open]")||document.fullscreenElement)return;if(parent!==window){event.preventDefault();parent.postMessage({type:"repo-reparty-settings"},location.origin);}},true);
+publishMedia();

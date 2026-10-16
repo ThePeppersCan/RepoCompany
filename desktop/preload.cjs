@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('repoLauncher', Object.freeze({
   completeGameIntro: id => invoke('game-intro-complete', id),
   exitGame: () => invoke('exit-game'),
   openMessages: () => invoke('messages'),
+  openReparty: () => invoke('reparty'),
+  mediaControl: (action,value) => invoke('media-control',{action,value}),
   messageAnchor: right => invoke('message-anchor',right),
   resumeGame: () => invoke('resume-game'),
   refresh: () => invoke('refresh'),

@@ -228,3 +228,11 @@
 #repo-messages .repo-wibs-gif{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain}
 #repo-messages .repo-gif-play{position:absolute;right:4px;bottom:4px;background:var(--wibs-surface);color:var(--wibs-muted);border:1px solid var(--wibs-line);border-radius:5px;padding:3px 7px;font:500 10px/1.4 Arial,sans-serif;opacity:.75}
 #repo-messages .repo-gif-play:hover,#repo-messages .repo-gif-play:focus-visible{opacity:1;color:var(--wibs-ink)}
+#repo-messages .repo-gif-button{display:grid;place-items:center;border:0;width:40px;height:34px;padding:2px}
+#repo-messages .repo-gif-button img{width:34px;height:26px;object-fit:contain}
+#repo-messages .repo-media-tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--wibs-line);padding-bottom:8px}
+#repo-messages .repo-media-tabs button{font:500 13px/1.4 Arial,sans-serif;border:0;padding:6px 10px;color:var(--wibs-muted);background:none}
+#repo-messages .repo-media-tabs button[aria-selected=true]{background:var(--wibs-selected);color:var(--wibs-ink)}
+#repo-messages .repo-inline-emote{display:inline-block;width:32px;height:24px;object-fit:contain;vertical-align:middle;margin:0 2px}
+#repo-messages .is-emotes-only{background:none;border:0;padding:0}
+#repo-messages .is-emotes-only .repo-inline-emote{width:80px;height:60px}
