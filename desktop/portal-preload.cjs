@@ -310,11 +310,12 @@ function initialize() {
     finally{if(action==='play')dispatchEvent(new Event('repo-launch-presentation-reset'));pending.delete(token);schedule();}
   }
   let mediaWasOnline=false;
-  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};const mediaOnline=next.account?.status==='online';if(mediaOnline&&!mediaWasOnline){mediaWasOnline=true;dispatchEvent(new Event('repo-media-request'));dispatchEvent(new Event('repo-messaging-request'));}else if(!mediaOnline)mediaWasOnline=false;document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
+  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};if(next.externalActivity)dispatchEvent(new CustomEvent('repo-registered-games',{detail:next.externalActivity.registered||[]}));const mediaOnline=next.account?.status==='online';if(mediaOnline&&!mediaWasOnline){mediaWasOnline=true;dispatchEvent(new Event('repo-media-request'));dispatchEvent(new Event('repo-messaging-request'));}else if(!mediaOnline)mediaWasOnline=false;document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
 
   // Capture the trusted click, then run the site's disc/sound/curtain before IPC.
   addEventListener('click',event=>{
     const element=event.target instanceof Element?event.target.closest('button,a'):null;if(!element)return;
+    if(element.dataset.launcherActivityAction){event.preventDefault();event.stopImmediatePropagation();if(!event.isTrusted||element.disabled)return;const action=element.dataset.launcherActivityAction;if(action==='add')void request('activity-add',document.getElementById('rc-registered-game-name')?.value||'');else if(action==='remove')void request('activity-remove',element.dataset.activityGame);return;}
     if(element.id==='launcher-library-tab'){event.preventDefault();event.stopImmediatePropagation();setLibrary(true,true);return;}
     if(element.closest('#account-menu')&&(element.matches('[data-tab],.account-back,.account-return,[data-binder]'))){setLibrary(false);}
     const native=actions.get(element);
@@ -343,6 +344,7 @@ function initialize() {
     clearTimeout(refreshTimer);refreshTimer=setTimeout(async()=>{if(refreshPending)return;refreshPending=true;try{const next=await invoke('refresh');if(next?.catalog)receive(next);}catch{/* Periodic main refresh also retries connection. */}finally{refreshPending=false;}},150);
     schedule();
   });
+  addEventListener('repo-activity-refresh',()=>{void request('activity-refresh');});
   addEventListener('online',()=>{void invoke('launcher-reconnect').catch(()=>{});});
   addEventListener('repo-collection-open',()=>{libraryRequested=false;setLibrary(false);void invoke('navigate','home').catch(error=>toast(error.message));});
   // Social content is bounded, untrusted display data. No credentials or media cross this bridge.

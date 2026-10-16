@@ -90,6 +90,7 @@
  function mySettings(){
   const {form}=editorBase('Your settings');
   const choice=(label,description,action,glyph)=>{const b=btn(label,action,'rc-settings-choice',glyph);b.append(el('small','',description));return b;};
+  form.append(choice('Game activity','Recent games and activity sharing',activitySettings,'user'));
   form.append(choice('Voice & audio','Microphone, speakers, sensitivity, volume and noise suppression',()=>{closeEditor();window.repoVoice?.openSettings();},'voice'),choice('Profile & appearance','Your name, profile colours, Wibs theme, banner and avatar',()=>myProfile(),'user'));
   if(data?.developer)form.append(choice('Community management','Developer access and voice restrictions',manageCommunity,'settings'));
   const row=el('div','rc-editor-actions');row.append(btn('Done',closeEditor));form.append(row);
@@ -102,20 +103,21 @@
   }catch(e){error(e);}
  }
  const gameNames={moratales:'MoraTales',morogue:'Morogue',manager:'Velmora Manager',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin',rooftops:'Repo Rooftops',seas:'Repo Seas',sports:'Repo Sports'};
- function gameIcon(game){return ['moratales','morogue','manager'].includes(game)?'/account-assets/game-icons/'+game+'.png':'/account-assets/'+game+'-activity-banner-v1.webp';}
+ function gameIcon(game){if(/^steam:[1-9][0-9]{0,9}$/.test(game))return 'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.slice(6)+'/library_600x900.jpg';if(game==='runelite')return '/assets/runelite-icon.png';if(/^custom:[a-f0-9]{24}$/.test(game))return '/assets/game-activity.svg';return ['moratales','morogue','manager'].includes(game)?'/account-assets/game-icons/'+game+'.png':'/account-assets/'+game+'-activity-banner-v1.webp';}
  function profileColors(node,colors={}){
   const valid=(v,f)=>/^#[0-9a-f]{6}$/i.test(v)?v:f,background=valid(colors.background,'#14231b'),accent=valid(colors.accent,'#b5d39c');
   const rgb=background.slice(1).match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4),light=rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722>.179;
   node.style.setProperty('--profile-bg',background);node.style.setProperty('--profile-accent',accent);node.style.setProperty('--profile-ink',light?'#182019':'#f1f4ed');node.style.setProperty('--profile-muted',light?'#394039':'#c3cbbf');
  }
+ function activityName(activity){return gameNames[activity?.game]||(/^(?:steam:[1-9][0-9]{0,9}|runelite|custom:[a-f0-9]{24})$/.test(activity?.game)&&typeof activity.title==='string'?activity.title.slice(0,100):'');}
  function activityView(activity,compact=false){
-  if(!activity||!gameNames[activity.game]||activity.expiresAt<=Date.now())return null;
+  if(!activity||!activityName(activity)||activity.expiresAt<=Date.now())return null;
   const box=el(compact?'span':'div',compact?'rc-game-inline':'rc-game-activity');box.dataset.activityExpires=activity.expiresAt;
-  const image=el('img','rc-game-icon');image.alt='';image.src=gameIcon(activity.game);image.onerror=()=>{image.onerror=null;image.src='/favicon.png';};
+  const image=el('img','rc-game-icon');image.alt='';image.src=gameIcon(activity.game);image.onerror=()=>{image.onerror=null;image.src='/assets/game-activity.svg';};
   const copy=el('span','rc-game-copy');if(!compact)copy.append(el('small','','Playing'));
-  copy.append(el('span','rc-game-name',(compact?'Playing ':'')+gameNames[activity.game]));
+  copy.append(el('span','rc-game-name',(compact?'Playing ':'')+activityName(activity)));
   if(!compact&&Number.isFinite(activity.startedAt)&&activity.startedAt<=Date.now()){const time=el('span','rc-game-time');time.dataset.activityStarted=activity.startedAt;copy.append(time);}
-  box.append(image,copy);box.title='Playing '+gameNames[activity.game];return box;
+  box.append(image,copy);box.title='Playing '+activityName(activity);return box;
  }
  function paintActivityClocks(){for(const n of drawer.querySelectorAll('[data-activity-expires]')){if(Number(n.dataset.activityExpires)<=Date.now()){n.remove();continue;}for(const t of n.querySelectorAll('[data-activity-started]')){const seconds=Math.max(0,Math.floor((Date.now()-Number(t.dataset.activityStarted))/1000));t.textContent=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0')+' elapsed';}}selfActivity.hidden=!selfActivity.childElementCount;}
  const card=el('div','rc-profile-popover');card.popover='auto';card.setAttribute('role','dialog');card.setAttribute('aria-label','Player profile');drawer.append(card);
@@ -171,8 +173,45 @@
   if(!data)return;channelList.replaceChildren();for(const c of data.channels){const b=btn(c.name,()=>selectChannel(c.id),'rc-channel');b.prepend(el('span','rc-hash','#'));b.setAttribute('aria-current',String(c.id===channel&&mode==='community'));const unread=channelInbox.get(c.id)?.unread||0;if(unread){b.append(el('span','rc-channel-unread',unread>99?'99+':String(unread)));b.setAttribute('aria-label',c.name+', '+unread+' unread');}channelList.append(b);}
   const c=data.channels.find(c=>c.id===channel);channelName.textContent=c?.name||'general';input.placeholder='Message #'+(c?.name||'general');rename.hidden=!data.developer;addChannel.hidden=!data.developer;addChannel.disabled=data.channels.length>=20;
  }
+ let activityExpanded=false,registeredGames=[];
+ function relativeActivity(at){const minutes=Math.max(0,Math.floor((Date.now()-at)/60000));return minutes<1?'Just now':minutes<60?minutes+'m ago':minutes<1440?Math.floor(minutes/60)+'h ago':Math.floor(minutes/1440)+'d ago';}
+ function paintRecentActivity(){
+  const people=data.members.filter(p=>p.recentActivity&&activityName(p.recentActivity)).sort((a,b)=>Number(b.recentActivity.expiresAt>Date.now())-Number(a.recentActivity.expiresAt>Date.now())||b.recentActivity.lastPlayed-a.recentActivity.lastPlayed);
+  const section=el('section','rc-recent-activity');section.setAttribute('aria-label','Recent game activity');
+  const heading=el('div','rc-activity-heading'),title=el('h3','','Activity');if(people.length)title.append(el('span','',String(people.length)));
+  const settings=btn('',activitySettings,'rc-activity-settings','settings');settings.setAttribute('aria-label','Game activity settings');settings.title='Game activity settings';heading.append(title,settings);section.append(heading);
+  if(!people.length)section.append(el('p','rc-activity-empty','Recent games will appear here.'));
+  for(const p of people.slice(0,activityExpanded?20:3)){
+   const a=p.recentActivity,card=btn('',event=>profileCard(p.username,event),'rc-activity-card');card.replaceChildren();card.setAttribute('aria-label',p.display_name+' · '+activityName(a));
+   const copy=el('span','rc-activity-copy'),person=el('span','rc-activity-person');person.append(portrait(p.display_name,p),coloredName(el('span','',p.display_name),p.name_color));
+   const live=a.expiresAt>Date.now(),meta=el('span','rc-activity-meta',live?'Playing now':relativeActivity(a.lastPlayed));meta.classList.toggle('is-playing',live);
+   if(a.playedMs>=60000){const hours=a.playedMs/3600000;meta.append(el('span','',hours<1?Math.floor(a.playedMs/60000)+'m played':(hours<10?Number(hours.toFixed(1)):Math.floor(hours))+'h played'));}
+   copy.append(person,el('strong','rc-activity-title',activityName(a)),meta);
+   const art=el('img','rc-activity-art');art.dataset.steam=String(a.game.startsWith('steam:'));art.src=gameIcon(a.game);art.alt='';art.loading='lazy';art.referrerPolicy='no-referrer';art.onerror=()=>{art.onerror=null;art.src='/assets/game-activity.svg';};card.append(copy,art);section.append(card);
+  }
+  if(people.length>3){const more=btn(activityExpanded?'Show less':'Show more',()=>{activityExpanded=!activityExpanded;paintMembers();},'rc-activity-more');more.setAttribute('aria-expanded',String(activityExpanded));section.append(more);}
+  members.append(section);
+ }
+ async function activitySettings(){
+  const {form,feedback}=editorBase('Game activity'),revision=editorRevision;
+  try{
+   const settings=await api('activity-settings');if(revision!==editorRevision)return;
+   const toggle=(label,description,value)=>{const row=el('label','rc-activity-option'),copy=el('span'),input=el('input');input.type='checkbox';input.checked=value;copy.append(el('strong','',label),el('small','',description));row.append(copy,input);form.append(row);return input;};
+   const share=toggle('Share game activity','Show your current and recent games in Wibs.',settings.shareActivity);
+   const external=toggle('Detect Steam & RuneLite','While the launcher is open, share recognised games. Only the game name and time played are sent.',settings.externalGames);
+   form.append(el('p','rc-activity-note','Invisible mode hides your activity. Private profiles share it with accepted friends only. Time is recorded from now on; Steam lifetime hours are not imported.'));
+   if(document.documentElement.dataset.repoLauncher==='true'){
+    const custom=el('div','rc-registered-games');custom.dataset.activityRegistry='true';form.append(custom);paintRegisteredGames();
+    const name=field(form,'Other game name','',100);name.id='rc-registered-game-name';name.placeholder='Name to show in Wibs';const add=btn('Choose game…',null,'rc-register-game');add.dataset.launcherActivityAction='add';form.append(add);
+   }else form.append(el('p','rc-activity-note','Open the Repo Company launcher to detect games on your computer. Shared activity is visible here on the website too.'));
+   const actions=el('div','rc-editor-actions'),save=btn('Save changes');save.type='submit';actions.append(btn('Cancel',closeEditor),save);form.append(actions);
+   form.onsubmit=async event=>{event.preventDefault();save.disabled=true;try{await api('activity-settings',{shareActivity:share.checked,externalGames:external.checked});dispatchEvent(new Event('repo-activity-refresh'));await loadState();if(revision===editorRevision)closeEditor();}catch(e){error(e,feedback);save.disabled=false;}};
+  }catch(e){error(e,feedback);form.append(btn('Close',closeEditor));}
+ }
+ function paintRegisteredGames(){const box=editor.querySelector('[data-activity-registry]');if(!box)return;box.replaceChildren();for(const game of registeredGames){const row=el('div','rc-registered-game');row.append(el('span','',game.title));const remove=btn('Remove',null);remove.dataset.launcherActivityAction='remove';remove.dataset.activityGame=game.game;remove.setAttribute('aria-label','Remove '+game.title+' from detected games');row.append(remove);box.append(row);}}
+ addEventListener('repo-registered-games',event=>{registeredGames=Array.isArray(event.detail)?event.detail.filter(g=>/^custom:[a-f0-9]{24}$/.test(g.game)&&typeof g.title==='string').slice(0,40):[];paintRegisteredGames();});
  function paintMembers(){
-  members.replaceChildren();for(const role of ['Developer','Member']){const group=data.members.filter(m=>(m.role||'Member')===role);if(!group.length)continue;members.append(el('h3','rc-members-heading',`${role==='Developer'?'DEVELOPER':'MEMBERS'} — ${group.length}`));for(const m of group){const row=btn('',event=>profileCard(m.username,event),'rc-member'),avatar=portrait(m.display_name,m);row.replaceChildren();row.setAttribute('aria-label','View '+m.display_name+' profile card');row.dataset.voiceName=m.username;avatar.classList.toggle('is-online',!!m.online);const copy=el('span','rc-member-copy');copy.append(coloredName(el('span','rc-member-name',m.display_name),m.name_color));const activity=activityView(m.activity,true);if(activity)copy.append(activity);row.append(avatar,copy);if(m.role)row.append(el('span','rc-role',m.role));members.append(row);}}
+  members.replaceChildren();paintRecentActivity();for(const role of ['Developer','Member']){const group=data.members.filter(m=>(m.role||'Member')===role);if(!group.length)continue;members.append(el('h3','rc-members-heading',`${role==='Developer'?'DEVELOPER':'MEMBERS'} — ${group.length}`));for(const m of group){const row=btn('',event=>profileCard(m.username,event),'rc-member'),avatar=portrait(m.display_name,m);row.replaceChildren();row.setAttribute('aria-label','View '+m.display_name+' profile card');row.dataset.voiceName=m.username;avatar.classList.toggle('is-online',!!m.online);const copy=el('span','rc-member-copy');copy.append(coloredName(el('span','rc-member-name',m.display_name),m.name_color));const activity=activityView(m.activity,true);if(activity)copy.append(activity);row.append(avatar,copy);if(m.role)row.append(el('span','rc-role',m.role));members.append(row);}}
   if(!data.members.length)members.append(el('p','','Members appear here when they visit.'));
   const settings=btn('',mySettings,'rc-account-settings','settings');settings.setAttribute('aria-label','Your settings');settings.title='Voice & profile settings';
   const me=data.members.find(m=>m.username===data.username),identity=btn('',event=>profileCard(data.username,event),'rc-self-profile'),copy=el('span','rc-self-copy');identity.setAttribute('aria-label','Your profile');identity.replaceChildren(portrait(me?.display_name||data.username,me||account.state.social?.profile));copy.append(coloredName(el('span','rc-self-name',me?.display_name||data.username),me?.name_color),el('span','rc-self-role',data.developer?'Developer':'Member'));identity.append(copy);

@@ -1,0 +1,8 @@
+RuneLite icon: https://github.com/runelite/runelite.net/blob/master/public/img/runelite_logo.png
+Copyright RuneLite contributors. Used to identify the running RuneLite client.
+The RuneLite name and logo belong to their respective owners; no affiliation is implied.
+
+Steam game artwork is requested from Steam's public CDN using the detected app ID.
+Game titles and artwork belong to their respective publishers.
+
+game-activity.svg is an original Repo Company fallback icon.

@@ -12,6 +12,7 @@ const { Preferences } = require('./lib/preferences.cjs');
 const { DiscordPresence } = require('./lib/discord-presence.cjs');
 const { MessageNotifications } = require('./lib/message-notifications.cjs');
 const { TaskbarAttention } = require('./lib/taskbar-attention.cjs');
+const { ExternalActivity } = require('./lib/external-activity.cjs');
 const { NotificationAudio } = require('./lib/notification-audio.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
 
@@ -26,7 +27,7 @@ const config = require('./config.cjs')(app.isPackaged ? process.resourcesPath : 
 const fixtures = !app.isPackaged && process.env.REPO_LAUNCHER_FIXTURES === '1' ? require('./tests/fixtures/network.cjs') : null;
 const hiddenTest = !app.isPackaged && process.env.REPO_LAUNCHER_HIDDEN_TEST === '1';
 if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestServices = fixtures; }
-let messageNotifications, taskbarAttention, notificationAudio, backgroundMessageTimer;
+let messageNotifications, taskbarAttention, notificationAudio, backgroundMessageTimer, externalActivity;
 let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
@@ -80,7 +81,7 @@ const state = () => ({
   gameVisible: !!currentGame() && !currentGame().loading && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, media: companionState, fullscreen: !!mainWindow?.isFullScreen?.(),
   entryVisible: updateLocked() || !portalViewVisible && (!currentGame() || !!currentGame().loading),
   requiredUpdate: requiredUpdate.snapshot(),
-  launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), portalError, portalReady
+  launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), externalActivity: externalActivity?.snapshot(), portalError, portalReady
 });
 function gameOperationsBusy() {
   return config.games.some(game => game.installable && library?.isBusy?.(game.id)) || Object.values(library?.snapshot() || {}).some(item => ['queued', 'downloading', 'updating', 'verifying', 'installing', 'extracting'].includes(item.status));
@@ -387,6 +388,7 @@ async function reconcileEmbeddedDemo() {
   if (!visible && record === embeddedDemo) closeEmbeddedDemo(record);
 }
 function accountChanged() {
+  void externalActivity?.tick();
   if (previousConnectionStatus === 'offline' && ['online', 'signed-out'].includes(account.state.status)) scheduleLauncherReconnect();
   previousConnectionStatus = account.state.status;
   const identity = account.state.status === 'online' ? account.identity : null;
@@ -624,14 +626,23 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'media-state', 'message-notification', 'notification-sound'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'media-state', 'message-notification', 'notification-sound', 'activity-refresh', 'activity-add', 'activity-remove'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
-  if (['navigate', 'messages', 'reparty', 'media-control', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence'].includes(action)) await account.requireOnline();
+  if (['navigate', 'messages', 'reparty', 'media-control', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence', 'activity-add', 'activity-remove'].includes(action)) await account.requireOnline();
   if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'media-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
+    case 'activity-refresh': await externalActivity?.tick();return state();
+    case 'activity-add': {
+      if(typeof value!=='string'||!value.trim()||value.length>100||/[\u0000-\u001f]/.test(value))throw Error('Enter a game name first.');
+      const identity=account.identity;
+      const result=await dialog.showOpenDialog(mainWindow,{title:'Choose the game executable',properties:['openFile'],filters:[{name:'Game executable',extensions:['exe']}]});
+      if(!result.canceled&&result.filePaths.length===1&&account.identity===identity&&account.state.status==='online')await externalActivity.register(result.filePaths[0],value);
+      broadcast();return state();
+    }
+    case 'activity-remove': await externalActivity?.remove(value);broadcast();return state();
     case 'notification-sound': await notificationAudio?.play(value); return;
     case 'message-notification': taskbarAttention?.notify(value); await messageNotifications?.show(value); return;
     case 'message-anchor': messageNotifications?.setAnchor(value); return;
@@ -758,6 +769,7 @@ async function launch() {
     setPortalVisible(false); view = 'library'; broadcast();
   });
   account = new Account({ config, getSession: portalSession, fetchImpl: network }); account.on('change', accountChanged);
+  externalActivity=new ExternalActivity({account,origin:config.portalOrigin,fetchImpl:network,file:path.join(app.getPath('userData'),'registered-games.json'),onChange:broadcast,managedGame:()=>games.size>0||!!embeddedDemo,disabled:!!fixtures||hiddenTest});externalActivity.start();
   updater = new LauncherUpdater({ config: config.launcherUpdates, packaged: app.isPackaged, currentVersion: app.getVersion(), cacheDir: path.join(app.getPath('userData'), 'launcher-updates'), canRestart: () => !games.size && !embeddedDemo && !gameOperationsBusy() });
   updater.on('change', update => { requiredUpdate.observe(update); broadcast(); });
   ipcMain.handle('launcher:command', command);
@@ -773,7 +785,7 @@ async function launch() {
   mainWindow.on('close', handleMainWindowClose);
   mainWindow.on('closed', () => {
     mainWindow = null; quitting = true; embeddedDemo = null; portalReady = false; portalContentsId = null;
-    clearInterval(backgroundMessageTimer);notificationAudio?.dispose();
+    clearInterval(backgroundMessageTimer);notificationAudio?.dispose();externalActivity?.dispose();
     taskbarAttention?.dispose();
     messageNotifications?.dispose();
     discordPresence?.dispose();
@@ -801,7 +813,7 @@ else {
   app.whenReady().then(launch).catch(error => { if (!quitting) { dialog.showErrorBox('Repo Company could not open', error.message); app.exit(1); } });
   app.on('before-quit', event => {
     if (!quitApproved && mainWindow && (games.size || embeddedDemo || gameOperationsBusy())) { event.preventDefault(); mainWindow.close(); return; }
-    quitting = true; portalReady = false; portalContentsId = null; discordPresence?.dispose(); mediaPermissions?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer); clearInterval(backgroundMessageTimer);notificationAudio?.dispose();sharedSession?.flushStorageData();
+    quitting = true; portalReady = false; portalContentsId = null; externalActivity?.dispose(); discordPresence?.dispose(); mediaPermissions?.dispose(); shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer); clearInterval(backgroundMessageTimer);notificationAudio?.dispose();sharedSession?.flushStorageData();
   });
   app.on('will-quit', finishLauncherQuit);
   app.on('window-all-closed', () => app.quit());

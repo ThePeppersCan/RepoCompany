@@ -238,3 +238,26 @@
 #repo-messages .is-emotes-only .repo-inline-emote{width:80px;height:60px}
 
 .rc-channel-unread{margin-left:auto;min-width:18px;padding:1px 5px;border-radius:9px;background:var(--wibs-accent,#c4d6aa);color:var(--wibs-on-accent,#142219);font:700 10px/16px Arial,sans-serif;font-variant-numeric:tabular-nums}
+/* Recent activity shares the member panel's typography and theme. */
+.rc-recent-activity{padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--wibs-line)}
+.rc-activity-heading{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
+.rc-activity-heading h3{display:flex;align-items:center;gap:8px;margin:0;font:500 13px/1.4 Arial,Helvetica,sans-serif;color:var(--wibs-muted)}
+.rc-activity-heading h3>span{font-size:11px;opacity:.75}
+.rc-page .rc-activity-settings{display:grid;place-items:center;width:26px;height:26px;padding:4px;background:none;border:0;color:var(--wibs-muted);border-radius:5px}
+.rc-activity-settings svg{width:15px;height:15px}.rc-activity-settings>span:empty{display:none}
+.rc-page .rc-activity-card{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 8px;padding:12px;text-align:left;border:1px solid transparent;border-radius:9px;background:var(--wibs-surface);color:var(--wibs-ink);font:12px/1.35 Arial,Helvetica,sans-serif}
+.rc-page .rc-activity-card:hover,.rc-page .rc-activity-card:focus-visible{background:var(--wibs-raised);border-color:var(--wibs-line);outline:none}
+.rc-activity-copy{display:grid;gap:5px;min-width:0;flex:1}.rc-activity-person{display:flex;align-items:center;gap:7px;min-width:0;color:var(--wibs-muted)}
+.rc-activity-person>span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-activity-person .rc-avatar{height:22px;width:22px;flex:none;font-size:8px;border-width:0}
+.rc-activity-title{font-size:13px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.rc-activity-meta{display:flex;flex-wrap:wrap;gap:3px 8px;color:var(--wibs-muted);font-size:10px}.rc-activity-meta.is-playing{color:var(--wibs-accent)}.rc-activity-meta>span{color:var(--wibs-muted)}
+.rc-activity-art{width:46px;height:58px;object-fit:cover;border-radius:6px;flex:none;background:var(--wibs-bg)}
+.rc-page .rc-activity-more{border:0;background:none;padding:4px 0;font-size:11px;color:var(--wibs-muted)}
+.rc-activity-empty{font-size:12px!important;color:var(--wibs-muted);line-height:1.5}
+.rc-activity-option{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:16px 0;border-bottom:1px solid var(--wibs-line)}
+.rc-activity-option strong{display:block;font-size:14px}.rc-activity-option small{display:block;margin-top:5px;font-size:12px;line-height:1.5;color:var(--wibs-muted)}
+.rc-activity-option input[type=checkbox]{width:18px;height:18px;flex:none;accent-color:var(--wibs-accent)}
+.rc-activity-note{font-size:12px!important;line-height:1.6;color:var(--wibs-muted);margin:16px 0!important}
+.rc-registered-game{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0;font-size:13px}.rc-registered-game button{font-size:12px}
+.rc-activity-art:not([data-steam=true]){height:46px;object-fit:contain}.rc-activity-meta{font-size:11px}

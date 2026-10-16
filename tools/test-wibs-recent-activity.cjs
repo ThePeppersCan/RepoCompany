@@ -1,0 +1,40 @@
+'use strict';
+const assert=require('node:assert/strict'),{createFixture}=require('./messaging-test-server.cjs');
+(async()=>{
+ const fetch=global.fetch,f=await createFixture(),{sql,sessions,base}=f;
+ const request=async(who,route,body,status=200)=>{const r=await fetch(base+'/api/community/'+route,{method:body===undefined?'GET':'POST',headers:{...(who?{Authorization:'Bearer '+sessions[who].access_token}:{}),'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});const d=await r.json();assert.equal(r.status,status,JSON.stringify(d));return d;};
+ const bob=()=>request('alice','profile?username=bob');
+ const beat={game:'steam:413150',title:'Stardew Valley',session:crypto.randomUUID(),sequence:0,action:'start'};
+ try{
+  for(const who of ['alice','bob','mallory'])await request(who,'state');
+  await request(null,'activity-settings',undefined,401);await request(null,'external-activity',beat,401);
+  assert.equal((await request('bob','activity-settings')).externalGames,false);
+  assert.equal((await request('bob','external-activity',beat)).sharing,false);assert.equal((await bob()).activity,null);
+  await request('bob','activity-settings',{shareActivity:true,externalGames:true,user_id:sessions.alice.user.id});
+  assert.equal((await request('alice','activity-settings')).externalGames,false,'preferences belong to authenticated account');
+  await request('bob','external-activity',beat);
+  let p=await bob();assert.equal(p.activity.game,'steam:413150');assert.equal(p.recentActivity.title,'Stardew Valley');
+  sql.prepare('UPDATE community_external_sessions SET last_seen=? WHERE user_id=?').run(Date.now()-10000,sessions.bob.user.id);
+  await request('bob','external-activity',{...beat,action:'tick',sequence:1});
+  let history=sql.prepare('SELECT * FROM community_external_activity WHERE user_id=?').get(sessions.bob.user.id);assert(history.played_ms>=10000&&history.played_ms<12000);
+  await request('bob','external-activity',{...beat,action:'tick',sequence:1});assert.equal(sql.prepare('SELECT played_ms FROM community_external_activity WHERE user_id=?').get(sessions.bob.user.id).played_ms,history.played_ms,'replayed tick earns nothing');
+  sql.prepare('UPDATE community_external_sessions SET last_seen=? WHERE user_id=?').run(Date.now()-100000,sessions.bob.user.id);
+  assert.equal((await bob()).activity,null,'stale live activity expires');
+  await request('bob','external-activity',{...beat,action:'tick',sequence:2});assert.equal(sql.prepare('SELECT played_ms FROM community_external_activity WHERE user_id=?').get(sessions.bob.user.id).played_ms,history.played_ms,'offline gaps earn nothing');
+  await request('bob','external-activity',{...beat,action:'stop',sequence:3});
+  await request('bob','external-activity',{...beat,action:'tick',sequence:4});assert.equal((await bob()).activity,null,'late tick cannot revive stopped game');assert.equal((await bob()).recentActivity.game,beat.game);
+  const second={...beat,session:crypto.randomUUID(),game:'runelite',title:'ignored'};await request('bob','external-activity',second);
+  await request('bob','external-activity',{...beat,action:'stop',sequence:5});assert.equal((await bob()).activity.game,'runelite','old stop cannot hide replacement');assert.equal((await bob()).activity.title,'RuneLite');
+  sql.prepare('UPDATE dashboard_players SET invisible=1 WHERE username=?').run('bob');assert.equal((await bob()).activity,null);assert.equal((await bob()).recentActivity,null);assert.equal((await request('bob','activity-settings')).invisible,true);
+  sql.prepare('UPDATE dashboard_players SET invisible=0 WHERE username=?').run('bob');
+  sql.prepare('INSERT INTO dashboard_profile_privacy VALUES(?,1)').run('bob');assert.equal((await request('mallory','profile?username=bob')).recentActivity,undefined);assert.equal((await request('mallory','state')).members.find(m=>m.username==='bob').recentActivity,null);assert.equal((await bob()).activity.game,'runelite');
+  sql.prepare('INSERT INTO dashboard_blocks VALUES(?,?)').run('alice','bob');assert.equal((await request('alice','state')).members.some(m=>m.username==='bob'),false);sql.prepare('DELETE FROM dashboard_blocks').run();
+  sql.prepare('INSERT INTO dashboard_game_activity VALUES(?,?,?,?)').run('bob','morogue',500000,Date.now());
+  await request('bob','activity-settings',{shareActivity:false,externalGames:true});p=await bob();assert.equal(p.activity,null);assert.equal(p.recentActivity,null,'sharing hides external and Repo history');
+  await request('bob','activity-settings',{shareActivity:true,externalGames:false});p=await bob();assert.equal(p.activity,null);assert.equal(p.recentActivity.game,'morogue');
+  assert.equal(sql.prepare('SELECT repo_score FROM dashboard_players WHERE username=?').get('bob').repo_score,0,'social time never earns score');
+  await request('alice','external-activity',{...beat,game:'https://bad.test/pixel'},400);await request('alice','activity-settings',{shareActivity:'yes',externalGames:true},400);
+  sql.prepare('UPDATE dashboard_game_activity SET last_played=?').run(Date.now()-15*86400000);assert.equal((await bob()).recentActivity,null,'old activity is excluded');
+  console.log('PASS: authenticated opt-in, account isolation, live/recent Steam and RuneLite, lease expiry, stop/replay ordering, server-measured time, privacy/blocks/invisible, sharing off, bounded history and no rewards.');
+ }finally{await f.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
