@@ -109,7 +109,7 @@
     openScene.inert=true;home.inert=false;
     dashboard.classList.remove('opening');dashboard.classList.add('home-mode');
     dashboard.setAttribute('aria-label','Repo Company game collection');
-    document.title='Repo Company — Your collection';
+    document.title=document.documentElement.dataset.repoAuth==='ready'?'Repo Company — Your collection':'Repo Company — Games & Good Company';
     fitCollection();dashboard.dispatchEvent(new Event('scene-change'));
     if(route)history.pushState({scene:'collection'},'','#collection');
     if(animate&&!reducedMotion.matches)await delay(650);

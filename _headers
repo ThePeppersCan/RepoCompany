@@ -1,7 +1,6 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  X-Robots-Tag: noindex, nofollow
 /index.html
   Cache-Control: no-cache
 /dashboard-config.js
@@ -80,7 +79,25 @@
   Content-Type: application/json; charset=utf-8
 /reparty/*
   Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
 /repo-reparty.js
   Cache-Control: no-cache
 /repo-reparty.css
   Cache-Control: no-cache
+/legacy-runtime
+  X-Robots-Tag: noindex, nofollow
+/legacy-runtime.html
+  X-Robots-Tag: noindex, nofollow
+/reparty
+  X-Robots-Tag: noindex, nofollow
+/sitemap.xml
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: no-cache
+/robots.txt
+  Cache-Control: no-cache
+/favicon.png
+  Cache-Control: public, max-age=86400
+/favicon.ico
+  Cache-Control: public, max-age=86400
+/assets/brand/*
+  Cache-Control: public, max-age=86400

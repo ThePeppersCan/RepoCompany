@@ -5,6 +5,8 @@
  const native=()=>html.dataset.repoLauncher==='true';
  let busy=false,create=false,error='',wasLocked=true;
  const presentation=document.createElement('div');host.append(presentation);
+ const publicInfo=document.getElementById('repo-public-info');
+ if(publicInfo){publicInfo.dataset.loginMounted='true';presentation.append(publicInfo);}
  window.mountRepoLogin(presentation);
  const root=presentation.shadowRoot,$=id=>root.getElementById(id),screen=root.querySelector('.website-fallback');
  const form=$('sign-in-form'),username=$('sign-in-username'),password=$('sign-in-password');

@@ -15,21 +15,20 @@ function copy(src,dest){
 }
 for(const name of fs.readdirSync(root)){
  if(requiredStaticAssets.includes(name)||includeDirs.includes(name))copy(path.join(root,name),path.join(dist,name));
- else if(fs.statSync(path.join(root,name)).isFile()&&(/\.(html|css|js|png|jpg|webp|mp3|json)$/i.test(name)||['_headers','_redirects'].includes(name))&&(!name.includes('test')||name==='repo-sports-quidditch-v2-test.html')&&!['package-lock.json','package.json'].includes(name))copy(path.join(root,name),path.join(dist,name));
+ else if(fs.statSync(path.join(root,name)).isFile()&&(/\.(html|css|js|png|jpg|webp|mp3|json|ico)$/i.test(name)||['_headers','_redirects'].includes(name))&&(!name.includes('test')||name==='repo-sports-quidditch-v2-test.html')&&!['package-lock.json','package.json'].includes(name))copy(path.join(root,name),path.join(dist,name));
 }
 require('./build-web-login.cjs')(root,dist);
 require('./build-game-loader.cjs')(root,dist);
 files+=require('./build-launcher-feed.cjs').buildLauncherFeed(root,dist);
-fs.writeFileSync(path.join(dist,'robots.txt'),production?'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /legacy-runtime\n':'User-agent: *\nDisallow: /\n');
-if(production){
- const index=path.join(dist,'index.html'),headers=path.join(dist,'_headers');
- fs.writeFileSync(index,fs.readFileSync(index,'utf8').replace(/<meta name="robots"[^>]*>/g,''));
- fs.writeFileSync(headers,fs.readFileSync(headers,'utf8').replace(/^.*X-Robots-Tag:.*\r?\n/gm,''));
+const publicPages=require('./build-public-pages.cjs')(root,dist,{production});
+if(!production){
+ const headers=path.join(dist,'_headers');
+ fs.writeFileSync(headers,fs.readFileSync(headers,'utf8').replace('/*','/*\n  X-Robots-Tag: noindex, nofollow'));
 }
 // The custom domain can retain assets longer than Pages' cache headers request.
 // Content versions keep HTML and its scripts/styles from different releases mixing.
 require('./version-reparty-assets.cjs').versionRepartyAssets(dist);
-for(const html of ['reparty/index.html','index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html','moratales-characters.html','morogue-account-bridge.html']){
+for(const html of [...publicPages,'reparty/index.html','index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html','moratales-characters.html','morogue-account-bridge.html']){
 const entry=path.join(dist,html);if(!fs.existsSync(entry))continue;
 fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(attribute,key,url)=>{
  if(/^(?:[a-z]+:)?\/\//i.test(url))return attribute;
