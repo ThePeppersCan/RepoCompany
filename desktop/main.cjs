@@ -5,6 +5,7 @@ const path = require('node:path');
 const { Library } = require('./lib/library.cjs');
 const { Account } = require('./lib/account.cjs');
 const { createHandler, serveFile } = require('./lib/protocol.cjs');
+const { mediaFrameURL } = require('./lib/reparty-media.cjs');
 const { LauncherUpdater } = require('./lib/updater.cjs');
 const { RequiredUpdate } = require('./lib/required-update.cjs');
 const { Preferences } = require('./lib/preferences.cjs');
@@ -254,7 +255,9 @@ function secureContents(contents, allowedNavigation) {
       if (game) selectLibrary(game.id);
     }
   });
-  contents.on('will-redirect', (event, destination) => { if (quitting || !allowedNavigation(destination)) event.preventDefault(); });
+  contents.on('will-redirect', (event, destination, _inPlace, isMainFrame) => {
+    if (quitting || !(allowedNavigation(destination) || isMainFrame === false && mediaFrameURL(destination))) event.preventDefault();
+  });
 }
 function isPortalUrl(value) { try { const url = new URL(value); return url.origin === config.portalOrigin || url.origin === 'https://www.repocompany.uk'; } catch { return false; } }
 function selectLibrary(id) {

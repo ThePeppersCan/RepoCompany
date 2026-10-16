@@ -14,6 +14,8 @@ async function createFixture(fixtureOptions={}){
  for(const file of ['dashboard-community-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql','dashboard-playtime-schema.sql','dashboard-game-presence-schema.sql','dashboard-community-profile-schema.sql','dashboard-wibs-appearance-schema.sql'])sql.exec(fs.readFileSync(path.join(root,file),'utf8'));
  const communitySource=fs.readFileSync(path.join(root,'functions/api/community/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
  const onCommunityRequest=(await import('data:text/javascript;base64,'+Buffer.from(communitySource).toString('base64'))).onRequest;
+ const profileSource=fs.readFileSync(path.join(root,'functions/api/reparty-profiles.js'),'utf8').replace("import config from '../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
+ const onRepartyProfiles=(await import('data:text/javascript;base64,'+Buffer.from(profileSource).toString('base64'))).onRequestGet;
  for(const [username,id]of Object.entries(people))sql.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?)').run(username,id,username[0].toUpperCase()+username.slice(1));
  sql.prepare("INSERT INTO dashboard_friendships VALUES('alice','bob','alice','accepted',?)").run(Date.now());
  const prepare=(query,values=[])=>({bind(...args){return prepare(query,args)},async first(){return sql.prepare(query).get(...values)||null},async all(){return {results:sql.prepare(query).all(...values)}},run(){const result=sql.prepare(query).run(...values);return {success:true,meta:{changes:Number(result.changes),last_row_id:Number(result.lastInsertRowid)}}}});
@@ -39,7 +41,9 @@ async function createFixture(fixtureOptions={}){
  }
  const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.gif':'image/gif','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.mp3':'audio/mpeg','.woff2':'font/woff2'};
  const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://127.0.0.1');let response;
-  if(url.pathname.startsWith('/api/community/')){
+  if(url.pathname==='/api/reparty-profiles'){
+   response=await onRepartyProfiles({request:new Request(base+req.url,{headers:req.headers}),env});
+  }else if(url.pathname.startsWith('/api/community/')){
    const chunks=[];for await(const b of req)chunks.push(b);
    const request=new Request(base+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})});
    response=await onCommunityRequest({request,env,params:{path:url.pathname.slice('/api/community/'.length).split('/')}});

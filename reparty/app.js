@@ -1,8 +1,8 @@
 import { createSunoPlayer } from './suno-player.js';
 import { config } from './config.js';
 import { createRepartyAuth } from './session-auth.mjs';
-import { avatars, avatarGroups } from './avatars.js';
-import { parseVideo, parseSunoLink, isSuno, sunoQueueDuration, playbackPosition, formatTime, validRoom, avatarPosition } from './core.mjs';
+import { createProfiles } from './profiles.js';
+import { parseVideo, parseSunoLink, isSuno, sunoQueueDuration, playbackPosition, formatTime, validRoom } from './core.mjs';
 
 const $ = id => document.getElementById(id);
 const sessionAuth = window.supabase && createRepartyAuth({
@@ -18,15 +18,14 @@ let db = sessionAuth?.account;
 let user = null, room = null, roomId = null, selectedPlaylist = null, channel = null;
 let player = null, playerReady = false, playerVideo = null, youtubePromise = null;
 let playerReadyTimer = null, loadGuardUntil = 0, skipTimer = null, shieldTimer = null;
-let myAvatar = 0, offset = 0, suppressUntil = 0, blocked = false, pendingPlayback = false;
+let offset = 0, suppressUntil = 0, blocked = false, pendingPlayback = false;
 let poll = null, refreshing = false, refreshAgain = false, toastTimer = null, refreshTimer = null;
 let queueSignature = '', membersSignature = '', messageSignature = '', lastMessageId = 0, unread = 0, messagesLoaded = false;
-let lastCorrection = 0, selectedAvatarGroup = 'animals', editAction = null;
+let lastCorrection = 0, editAction = null;
 let connectionReady = false, generation = 0, authUserId = null, accessToken = null;
 let queueFilter = '', renderedPlaying = null, centreOnPlaying = true;
 const UNPLAYABLE = [2, 100, 101, 150];
-const splitView = matchMedia('(min-width: 1700px)');
-const systemDark = matchMedia('(prefers-color-scheme: dark)');
+const profiles = createProfiles(() => accessToken);
 let latestMembers = [];
 let lobbyMode = null, lobbyRequest = 0, lobbyOffset = 0, lobbyRooms = [], lobbyLoading = false;
 const sunoPlayer = createSunoPlayer($('sunoPlayer'), $('sunoNotice'));
@@ -151,33 +150,7 @@ async function goHome() {
 $('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('changeRoom').focus();};
 $('refreshRooms').onclick=()=>loadRooms();$('moreRooms').onclick=()=>loadRooms(true);
 setInterval(()=>{if($('lobby').open&&user&&!lobbyLoading)loadRooms();},30000);
-function avatarElement(id, name = '') {
-  const e = node('span', undefined, 'avatar');
-  applyAvatar(e, id);
-  e.setAttribute('role', 'img');
-  e.setAttribute('aria-label', name || avatars[Number(id)]?.name || 'Avatar');
-  return e;
-}
-function applyAvatar(e, id) {
-  const { sheet, x, y } = avatarPosition(id);
-  e.style.backgroundImage = `url('../assets/reparty/avatars-${avatarGroups[sheet].key}.png')`;
-  e.style.backgroundPosition = `${x}% ${y}%`;
-}
-
-// Theme: follows the device until someone picks one, then remembers that choice on this browser.
-function savedTheme() { try { const t = localStorage.getItem('reparty-theme'); return t === 'dark' || t === 'light' ? t : null; } catch { return null; } }
-function applyTheme(theme, save = false) {
-  const dark = theme === 'dark';
-  document.documentElement.dataset.theme = theme;
-  if (save) { try { localStorage.setItem('reparty-theme', theme); } catch {} }
-  const label = node('span', dark ? ' Light' : ' Dark', 'label');
-  $('themeToggle').replaceChildren(node('span', dark ? '☀' : '☾'), label);
-  $('themeToggle').setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-  document.querySelector('meta[name="theme-color"]').content = dark ? '#0a1814' : '#143e35';
-}
-applyTheme(savedTheme() || 'dark');
-
-$('themeToggle').onclick = () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark', true);
+const avatarElement = (id, name) => profiles.avatar(id, name);
 
 function theatreActive() {
   return document.documentElement.classList.contains('theatre') && matchMedia('(min-width: 851px)').matches;
@@ -188,7 +161,6 @@ function applyTheatre(enabled, save = false) {
   $('theatreToggle').title = enabled ? 'Exit theatre mode (T)' : 'Theatre mode: a bigger TV (T)';
   if (save) { try { localStorage.setItem('reparty-layout', enabled ? 'theatre' : 'standard'); } catch {} }
   if (!enabled && !document.fullscreenElement) $('tvChat').replaceChildren();
-  if (enabled) { unread = 0; $('unread').hidden = true; }
 }
 applyTheatre(document.documentElement.classList.contains('theatre'));
 $('theatreToggle').onclick = () => applyTheatre(!document.documentElement.classList.contains('theatre'), true);
@@ -238,7 +210,6 @@ function applySnapshot(data) {
   if (room && Number(data.room.revision) < Number(room.revision)) return;
   const playbackChanged = !room || JSON.stringify(data.room.playback) !== JSON.stringify(room.playback);
   room = data.room;
-  myAvatar = data.avatar_id;
   $('roomName').textContent = room.name;
   document.title = `${room.name} · Reparty`;
   $('roomFootnote').textContent = 'Shared playback';
@@ -249,14 +220,13 @@ function applySnapshot(data) {
   renderPlaylists();
   renderMembers(data.members);
   renderMessages(data.messages);
-  applyAvatar($('myAvatar'), myAvatar);
-  $('chooseAvatar').disabled = false;
-  setConnected(true, `${data.members.length} watching together`);
-  $('emptyHint').textContent = 'Paste a YouTube or Suno link above. Everyone in your room can add to the queue.';
+  setConnected(true, `${data.members.length} listening`);
+  $('emptyHint').textContent = 'Add a YouTube or Suno link in the playlist.';
   $('startRoom').hidden = true;
-  $('togglePlay').textContent = room.playback.playing ? 'Ⅱ' : '▶';
+  $('togglePlay').dataset.playing = String(!!room.playback.playing);
   $('togglePlay').setAttribute('aria-label', room.playback.playing ? 'Pause for everyone' : 'Play for everyone');
   $('nowPlaying').textContent = playingEntry()?.item.title || 'Choose a video from your playlist';
+  profiles.refresh([...data.members.map(m => m.user_id), ...data.messages.map(m => m.user_id)]);
   mediaControls();
   if (playbackChanged) applyPlayback().catch(error => notify(friendly(error)));
 }
@@ -327,7 +297,7 @@ function renderPlaylists() {
   list.replaceChildren();
   if (!p?.items.length) {
     const empty = node('li', undefined, 'empty-list');
-    empty.append(node('span', '♫'), node('strong', 'Queue is empty'), node('p', 'Add a YouTube or Suno link above.'));
+    empty.append(node('span', '♫'), node('strong', 'Queue is empty'), node('p', 'Add a YouTube or Suno link below.'));
     list.append(empty);
     return;
   }
@@ -361,6 +331,11 @@ function renderPlaylists() {
       : isNext ? node('small', 'UP NEXT', 'up-next')
       : node('small', `${suno ? 'Suno · ' : ''}Added by ${item.added_by}`);
     copy.append(title, meta);
+    const menu = node('details', undefined, 'queue-menu'), summary = node('summary', '•••');
+    summary.setAttribute('aria-label', `Options for ${item.title}`); summary.title = `Options for ${item.title}`;
+    menu.append(summary);
+    menu.open = !!focusKey?.startsWith(item.id + ':') && !focusKey.endsWith(':title');
+    menu.addEventListener('toggle', () => { if (menu.open) list.querySelectorAll('details[open]').forEach(other => { if (other !== menu) other.open = false; }); });
     const actions = node('div', undefined, 'item-actions');
     const move = direction => () => run(() => mutate('move', { playlist_id: p.id, item_id: item.id, direction }));
     actions.append(actionButton('▶ Play', `${item.id}:play`, `Play ${item.title} for everyone`, playIt));
@@ -374,7 +349,7 @@ function renderPlaylists() {
       actions.append(actionButton('↓', `${item.id}:down`, `Move ${item.title} down`, move('down'), index === p.items.length - 1));
     }
     actions.append(actionButton('×', `${item.id}:remove`, `Remove ${item.title}`, () => run(() => mutate('remove', { playlist_id: p.id, item_id: item.id }))));
-    li.append(img, copy, actions);
+    menu.append(actions);li.append(img, copy, menu);
     fragment.append(li);
   });
   list.append(fragment);
@@ -389,7 +364,7 @@ function renderPlaylists() {
 function jumpToNowPlaying() {
   const current = playingEntry();
   if (!current) { notify('Nothing is playing yet.'); return; }
-  if (!splitView.matches) showTab('playlist');
+  showTab('playlist');
   if (selectedPlaylist !== current.playlist.id) selectedPlaylist = current.playlist.id;
   if (!matchesFilter(current.item, queueFilter.trim().toLowerCase())) { queueFilter = ''; $('queueSearch').value = ''; }
   renderPlaylists();
@@ -406,7 +381,7 @@ function renderMembers(members) {
     const copy = node('div');
     const name = node('span', m.name); name.prepend(node('i', undefined, 'online-dot'));
     copy.append(name); if (m.user_id === user.id) copy.append(node('span', 'You', 'you'));
-    e.append(avatarElement(m.avatar_id, `${m.name}'s avatar`), copy); $('participants').append(e);
+    e.append(avatarElement(m.user_id, m.name), copy); $('participants').append(e);
   });
 }
 function chatVisible() {
@@ -417,7 +392,7 @@ function overlayMessage(m) {
   const box = $('tvChat');
   const line = node('div', undefined, 'tv-chat-line');
   const body = m.body.length > 200 ? `${m.body.slice(0, 197)}…` : m.body;
-  line.append(avatarElement(m.avatar_id), node('strong', m.display_name), node('span', body));
+  line.append(avatarElement(m.user_id, m.display_name), node('strong', m.display_name), node('span', body));
   box.append(line);
   while (box.children.length > 4) box.firstChild.remove();
   setTimeout(() => line.classList.add('fade'), 8000);
@@ -433,7 +408,7 @@ function renderMessages(messages) {
   messagesLoaded = true;
   if (!chatVisible()) unread += fresh.filter(m => m.user_id !== user.id).length;
   $('unread').hidden = unread === 0; $('unread').textContent = unread;
-  if (document.fullscreenElement === $('television') || theatreActive()) fresh.forEach(overlayMessage);
+  if (document.fullscreenElement === $('television')) fresh.forEach(overlayMessage);
   lastMessageId = messages.at(-1)?.id || 0;
   container.replaceChildren();
   if (!messages.length) container.append(node('p', 'First one here? Say hello.', 'muted'));
@@ -443,7 +418,7 @@ function renderMessages(messages) {
     const header = node('header');
     const time = node('time', new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })); time.dateTime = m.created_at;
     header.append(node('strong', m.display_name), time); copy.append(header, node('p', m.body));
-    e.append(avatarElement(m.avatar_id), copy); container.append(e);
+    e.append(avatarElement(m.user_id, m.display_name), copy); container.append(e);
   });
   if (nearBottom) container.scrollTop = container.scrollHeight;
 }
@@ -484,7 +459,7 @@ async function join(code) {
     .subscribe(status => {
       if (roomId !== code) return;
       if (status === 'SUBSCRIBED') refresh();
-      else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') $('connection').textContent = 'Using backup connection';
+      else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') $('connection').textContent = connectionReady ? `${latestMembers.length} listening` : 'Reconnecting…';
     });
   poll = setInterval(refresh, 8000); // Also supplies presence heartbeats and reconnect catch-up.
 }
@@ -569,7 +544,7 @@ async function applyPlayback(force = false) {
     $('screenShield').hidden = true;
     $('emptyScreen').hidden = $('enablePlayback').hidden = true;
     blocked = false;
-    if(localPaused||localMuted){sunoPlayer.clear();$('sunoPlayer').hidden=false;$('sunoPlayer').append(node('p','Listening paused for you. Resume from the Reparty controls.','suno-paused'));}else sunoPlayer.apply(pb, playingEntry()?.item, Date.now() + offset);
+    if(localPaused||localMuted){sunoPlayer.pause(playingEntry()?.item);}else sunoPlayer.apply(pb, playingEntry()?.item, Date.now() + offset);
     mediaControls();
     return;
   }
@@ -761,7 +736,6 @@ function showTab(tab) {
   if (chat) { unread = 0; $('unread').hidden = true; $('messages').scrollTop = $('messages').scrollHeight; }
 }
 ['playlist', 'chat'].forEach(name => { $(`${name}Tab`).onclick = () => showTab(name); $(`${name}Tab`).onkeydown = e => { if (['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); const target = name === 'chat' ? 'playlist' : 'chat'; showTab(target); $(`${target}Tab`).focus(); } }; });
-splitView.addEventListener('change', () => { if (splitView.matches) { unread = 0; $('unread').hidden = true; $('messages').scrollTop = $('messages').scrollHeight; } });
 $('queueSearch').addEventListener('input', () => { queueFilter = $('queueSearch').value; renderPlaylistsIfRoom(); });
 $('queueSearch').addEventListener('keydown', e => { if (e.key === 'Escape' && $('queueSearch').value) { e.preventDefault(); $('queueSearch').value = ''; queueFilter = ''; renderPlaylistsIfRoom(); } });
 function renderPlaylistsIfRoom() { if (room) renderPlaylists(); }
@@ -787,10 +761,10 @@ function press(id) { if (!$(id).disabled) $(id).click(); }
 const shortcuts = {
   ' ': () => press('togglePlay'), k: () => press('togglePlay'), n: () => press('nextVideo'), m: () => press('mute'), f: () => press('fullscreen'),
   j: () => seekBy(-10), l: () => seekBy(10), t: () => press('theatreToggle'), '?': () => modal('shortcutsDialog'),
-  '/': () => { if (!splitView.matches) showTab('playlist'); $('queueSearch').focus(); },
+  '/': () => { showTab('playlist'); $('queueSearch').focus(); },
   c: () => {
-    if (document.fullscreenElement === $('television') || theatreActive()) { $('tvMessage').focus(); return; }
-    if (!splitView.matches) showTab('chat');
+    if (document.fullscreenElement === $('television')) { $('tvMessage').focus(); return; }
+    showTab('chat');
     $('message').focus();
   }
 };
@@ -825,24 +799,9 @@ $('builtinPlaylist').onclick = async () => {
   } catch (error) { notify(friendly(error)); }
   finally { $('builtinPlaylist').disabled = !connectionReady; }
 };
-$('newPlaylist').onclick = () => openEdit('A new shared playlist.', 'Playlist name', name => mutate('playlist_create', { name }));
-$('renamePlaylist').onclick = () => { const p = playlist(); openEdit('Rename your playlist.', 'Playlist name', name => mutate('playlist_rename', { playlist_id: p.id, name }), p.name); };
+$('newPlaylist').onclick = () => openEdit('New playlist', 'Playlist name', name => mutate('playlist_create', { name }));
+$('renamePlaylist').onclick = () => { const p = playlist(); openEdit('Rename playlist', 'Playlist name', name => mutate('playlist_rename', { playlist_id: p.id, name }), p.name); };
 $('deletePlaylist').onclick = () => { const p = playlist(); openEdit('Delete this playlist?', `“${p.name}” and its videos will be removed for everyone in this room.`, () => mutate('playlist_delete', { playlist_id: p.id }), '', true); };
-function renderAvatars() {
-  $('avatarFilters').replaceChildren(...avatarGroups.map(group => {
-    const b = node('button', group.label); b.setAttribute('aria-pressed', String(group.key === selectedAvatarGroup));
-    b.onclick = () => { selectedAvatarGroup = group.key; renderAvatars(); }; return b;
-  }));
-  $('avatarGrid').replaceChildren(...avatars.filter(a => a.group === selectedAvatarGroup).map(a => {
-    const b = node('button', undefined, 'avatar-option'); b.title = a.name; b.setAttribute('aria-label', `Choose ${a.name}`); b.setAttribute('aria-pressed', String(a.id === myAvatar));
-    b.append(avatarElement(a.id, a.name), node('span', a.name));
-    b.onclick = async () => {
-      b.disabled = true; $('avatarError').textContent = '';
-      await run(async () => { await rpc('avatar', { avatar_id: a.id }); myAvatar = a.id; applyAvatar($('myAvatar'), myAvatar); await refresh(); $('avatarDialog').close(); notify('Avatar saved.'); }, 'avatarError'); b.disabled = false;
-    }; return b;
-  }));
-}
-$('chooseAvatar').onclick = () => { renderAvatars(); modal('avatarDialog'); };
 window.addEventListener('online', scheduleRefresh);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleRefresh(); });
 // Closing the tab leaves straight away instead of lingering in the room for up to a minute.
@@ -861,12 +820,13 @@ async function authChanged(session) {
   const next = session?.user || null;
   if (authUserId === next?.id && user) { user = next; return; }
   authUserId = next?.id || null; user = next;
+  profiles.clear();
   if (!user) {
     await leaveRoom(); $('participants').replaceChildren(node('p', 'Your friends will appear here.', 'muted'));
     $('queue').replaceChildren(); $('messages').replaceChildren(); $('roomName').textContent = 'Reparty';
     $('nowPlaying').textContent = 'Nothing playing yet'; $('queueCount').textContent = $('queueCountSplit').textContent = '0';
     $('startRoom').hidden = false; $('emptyHint').textContent = 'Join to listen with everyone.';
-    $('account').textContent = 'Join in'; $('chooseAvatar').disabled = true;
+    $('account').textContent = 'Join in';
     $('lobby').close();
     modal('auth');
     return;
@@ -876,7 +836,7 @@ async function authChanged(session) {
   $('guestName').readOnly = !!user.is_anonymous;
   if(!roomId)setConnected(false,'Connecting…');
   try {
-    const profile = await rpc('profile'); myAvatar = profile.avatar_id; applyAvatar($('myAvatar'), myAvatar); $('chooseAvatar').disabled = false;
+    await rpc('profile');
     const code = new URLSearchParams(location.search).get('room');
     if (validRoom(code)) await join(code); else await enterSharedRoom();
   } catch (error) { openLobby(lobbyMode||'video'); $('lobbyError').textContent = friendly(error); }
@@ -885,7 +845,6 @@ if (!db) notify('The account service could not load. Check your connection and r
 else {
   sessionAuth.start().catch(error => notify(friendly(error)));
 }
-applyAvatar($('myAvatar'), 0);
 
 // Escape opens the same personal audio controls from inside the player.
 addEventListener("keydown",event=>{if(event.key!=="Escape"||document.querySelector("dialog[open]")||document.fullscreenElement)return;if(parent!==window){event.preventDefault();parent.postMessage({type:"repo-reparty-settings"},location.origin);}},true);

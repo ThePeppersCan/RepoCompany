@@ -7,23 +7,16 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Reparty · RepoCompany</title>
   <link rel="icon" href="../assets/reparty/reparty-tv.svg">
-  <script>if(window===top&&!new URLSearchParams(location.search).has('embedded'))location.replace('/?reparty='+encodeURIComponent(new URLSearchParams(location.search).get('room')||'home'));try{var t=localStorage.getItem('reparty-theme');if(t!=='dark'&&t!=='light')t='dark';document.documentElement.dataset.theme=t;if(localStorage.getItem('reparty-layout')==='theatre')document.documentElement.classList.add('theatre')}catch(e){}</script>
-  <link rel="stylesheet" href="watch.css?v=20261016-1">
+  <script>if(window===top&&!new URLSearchParams(location.search).has('embedded'))location.replace('/?reparty='+encodeURIComponent(new URLSearchParams(location.search).get('room')||'home'));try{if(localStorage.getItem('reparty-layout')==='theatre')document.documentElement.classList.add('theatre')}catch(e){}</script>
+  <link rel="stylesheet" href="../avatar-frames.css">
+  <link rel="stylesheet" href="watch.css?v=20261016-2">
 </head>
 <body>
   <div class="app">
     <nav class="room-bar" aria-label="Reparty room">
       <div class="reparty-identity"><img src="../assets/reparty/reparty-tv.svg" width="44" height="44" alt=""><div><strong id="roomName">Reparty</strong><span id="connection" role="status">Connecting…</span></div></div>
-      <div class="room-actions"><button id="roomLink" disabled>Invite friends</button><button id="changeRoom">Rooms</button><button id="themeToggle" aria-label="Switch to light mode">Light</button><button id="account">Sign in</button></div>
+      <div class="room-actions"><button id="roomLink" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg><span>Invite friends</span></button><button id="changeRoom">Rooms</button><button id="account">Sign in</button></div>
     </nav>
-    <header class="masthead">
-      <form id="addVideo" class="link-bar panel">
-        <span class="youtube" aria-hidden="true">▶</span>
-        <label class="sr-only" for="videoUrl">YouTube or Suno link</label>
-        <input id="videoUrl" type="text" placeholder="Paste a YouTube or Suno link…" autocomplete="off" required maxlength="2048">
-        <button type="submit" class="primary" id="addButton" disabled>+ Add to queue</button>
-      </form>
-    </header>
     <main class="watch-layout">
       <section class="watch-column" aria-label="Shared video player">
         <div class="television panel" id="television">
@@ -35,23 +28,23 @@
             <div class="empty-screen" id="emptyScreen"><img src="../assets/reparty/reparty-tv.svg" alt="" width="104" height="104"><h1>Nothing playing</h1><p id="emptyHint">Connecting to the shared room…</p><button class="primary" id="startRoom">Join shared room</button></div>
             <div class="screen-overlay" id="enablePlayback" hidden><button class="primary" id="enablePlaybackButton">▶ Join the playback</button><p>Your browser needs one click before this video can play here.</p></div>
           </div>
-          <div id="sunoNotice" class="suno-notice" hidden><div><strong>Suno</strong><p>Suno uses its own player. Press play there if needed. Resuming starts this song again; volume is controlled inside Suno or by your device.</p></div><button id="sunoRestart">↻ Restart for everyone</button></div>
+          <div id="sunoNotice" class="suno-notice" hidden><span>Use Suno’s player for volume. Resuming restarts the song.</span><button id="sunoRestart">Restart for everyone</button></div>
           <div class="playback-controls">
             <span class="speaker" aria-hidden="true"></span>
-            <button id="togglePlay" class="icon-button dark" aria-label="Play for everyone" aria-keyshortcuts="K Space" title="Play or pause for everyone (K)" disabled>▶</button>
-            <button id="nextVideo" class="icon-button dark" aria-label="Next video for everyone" aria-keyshortcuts="N" title="Next video for everyone (N)" disabled>⏭</button>
+            <button id="togglePlay" class="icon-button dark" aria-label="Play for everyone" aria-keyshortcuts="K Space" title="Play or pause for everyone (K)" disabled><svg class="play-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg><svg class="pause-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+            <button id="nextVideo" class="icon-button dark" aria-label="Next video for everyone" aria-keyshortcuts="N" title="Next video for everyone (N)" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 5 10 7-10 7ZM19 5v14"/></svg></button>
             <div class="timeline"><label for="seek" class="sr-only">Seek for everyone</label><input id="seek" type="range" min="0" max="100" step="0.1" value="0" disabled><span id="videoTime">0:00 / 0:00</span></div>
             <form id="tvChatForm" class="tv-chat-form"><label class="sr-only" for="tvMessage">Message your room</label><input id="tvMessage" placeholder="Say something… (C)" maxlength="1000" autocomplete="off" required disabled></form>
-            <button id="mute" class="icon-button dark" aria-label="Mute my audio" aria-keyshortcuts="M" title="Mute my audio (M)" disabled>♪</button>
+            <button id="mute" class="icon-button dark" aria-label="Mute my audio" aria-keyshortcuts="M" title="Mute my audio (M)" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-5v16l-5-5H4ZM17 8a6 6 0 0 1 0 8M20 5a10 10 0 0 1 0 14"/></svg></button>
             <label class="volume" title="Your volume">Volume<input id="volume" aria-label="Your volume" type="range" min="0" max="100" value="70"></label>
             <button id="resync" class="sync" disabled title="Catch up with the room"><i></i><span id="syncLabel">Not connected</span></button>
-            <button id="theatreToggle" class="icon-button dark" aria-label="Theatre mode" aria-pressed="false" aria-keyshortcuts="T" title="Theatre mode: a bigger TV (T)">▭</button>
-            <button id="fullscreen" class="icon-button dark" aria-label="Full screen" aria-keyshortcuts="F" title="Full screen (F)">⛶</button>
+            <button id="theatreToggle" class="icon-button dark" aria-label="Theatre mode" aria-pressed="false" aria-keyshortcuts="T" title="Theatre mode: a bigger TV (T)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></button>
+            <button id="fullscreen" class="icon-button dark" aria-label="Full screen" aria-keyshortcuts="F" title="Full screen (F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
             <span class="speaker" aria-hidden="true"></span>
           </div>
         </div>
-        <div class="now-playing"><span class="np-label" aria-hidden="true">NOW PLAYING</span><span id="nowPlaying">Nothing playing yet</span></div>
-        <section class="participants panel" aria-label="People in this room"><div id="participants"><p class="muted">Your friends will appear here.</p></div><button id="chooseAvatar" class="avatar-change" aria-label="Change avatar" disabled><span id="myAvatar" class="avatar"></span><span>Change<br>avatar</span></button></section>
+        <div class="now-playing"><span class="np-label" aria-hidden="true">Now playing</span><span id="nowPlaying">Nothing playing yet</span></div>
+        <section class="participants" aria-label="People in this room"><div id="participants"><p class="muted">Your friends will appear here.</p></div></section>
         <p class="room-footnote"><span id="roomFootnote"></span><button id="shortcutHelp" class="hint" aria-keyshortcuts="?">Keyboard shortcuts <kbd>?</kbd></button></p>
       </section>
       <aside class="sidebar panel">
@@ -59,11 +52,12 @@
         <section id="playlistPanel" role="tabpanel" aria-labelledby="playlistTab">
           <h2 class="split-heading">Playlist <span id="queueCountSplit">0</span></h2>
           <div class="playlist-picker"><label class="sr-only" for="playlistSelect">Shared playlist</label><select id="playlistSelect" disabled><option>Our playlist</option></select><button id="newPlaylist" aria-label="Create playlist" title="New playlist" disabled>+</button></div>
-          <div class="playlist-tools"><button id="repeatMode" class="mode" aria-pressed="true" title="When the last video ends, start the playlist again" hidden disabled>⟳ Repeat</button><button id="shuffleMode" class="mode" aria-pressed="false" title="Play videos in a random order for everyone. The playlist order is kept." hidden disabled>⤮ Shuffle</button><button id="renamePlaylist" class="link" disabled>Rename</button><button id="deletePlaylist" class="link" disabled>Delete</button></div>
+          <div class="playlist-tools"><button id="repeatMode" class="mode" aria-pressed="true" title="When the last video ends, start the playlist again" hidden disabled>⟳ Repeat</button><button id="shuffleMode" class="mode" aria-pressed="false" title="Play videos in a random order for everyone. The playlist order is kept." hidden disabled>⤮ Shuffle</button><details class="playlist-options"><summary aria-label="Playlist options" title="Playlist options">•••</summary><div><button id="renamePlaylist" class="link" disabled>Rename playlist</button><button id="deletePlaylist" class="link" disabled>Delete playlist</button><button class="builtin-playlist" id="builtinPlaylist" disabled>Add The Playlist of gods</button></div></details></div>
           <div class="queue-search"><label class="sr-only" for="queueSearch">Search this playlist</label><input id="queueSearch" type="search" placeholder="Search this playlist…" autocomplete="off" aria-keyshortcuts="/"><button id="jumpNow" title="Scroll to the video that's playing" disabled>◎ Now playing</button></div>
-          <button class="builtin-playlist" id="builtinPlaylist" disabled>♫ Add “The Playlist of gods” · 560 videos</button>
-          <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Queue is empty</strong><p>Add a YouTube or Suno link above.</p></li></ol>
+
+          <ol id="queue" class="queue"><li class="empty-list"><span aria-hidden="true">♫</span><strong>Queue is empty</strong><p>Add a YouTube or Suno link below.</p></li></ol>
           <button class="add-bottom" id="focusAdd">+ Add to queue</button>
+          <form id="addVideo" class="link-bar"><label class="sr-only" for="videoUrl">YouTube or Suno link</label><input id="videoUrl" type="text" placeholder="Paste a YouTube or Suno link…" autocomplete="off" required maxlength="2048"><button type="submit" id="addButton" aria-label="Add to queue" title="Add to queue" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></form>
         </section>
         <section id="chatPanel" role="tabpanel" aria-labelledby="chatTab" hidden><h2 class="split-heading">Chat</h2><div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"></div><form id="chatForm"><label class="sr-only" for="message">Message your room</label><textarea id="message" placeholder="Message the room…" rows="2" maxlength="1000" required disabled></textarea><button class="primary" id="sendMessage" disabled>Send</button></form></section>
       </aside>
@@ -103,10 +97,11 @@
       <button class="primary">Create account &amp; continue</button><p id="signupError" class="form-error" role="alert"></p>
     </form>
   </dialog>
-  <dialog id="avatarDialog" class="modal avatar-modal"><button class="close" data-close="avatarDialog" aria-label="Close">×</button><h2>Choose your avatar</h2><div class="avatar-filters" id="avatarFilters" aria-label="Avatar categories"></div><div class="avatar-grid" id="avatarGrid"></div><p id="avatarError" class="form-error" role="alert"></p></dialog>
   <dialog id="editDialog" class="modal"><button class="close" data-close="editDialog" aria-label="Close">×</button><form id="editForm"><h2 id="editHeading">Playlist name</h2><label id="editLabel" for="editValue">Name</label><input id="editValue" maxlength="60" required><p id="editDescription"></p><div class="dialog-actions"><button type="button" data-close="editDialog">Cancel</button><button type="submit" id="editSubmit" class="primary">Save</button></div><p id="editError" class="form-error" role="alert"></p></form></dialog>
-  <dialog id="shortcutsDialog" class="modal"><button class="close" data-close="shortcutsDialog" aria-label="Close">×</button><p class="eyebrow">QUICK KEYS</p><h2>Keyboard shortcuts.</h2><dl class="shortcuts"><dt><kbd>K</kbd> or <kbd>Space</kbd></dt><dd>Play or pause for everyone</dd><dt><kbd>J</kbd> / <kbd>L</kbd></dt><dd>Back or forward 10 seconds for everyone</dd><dt><kbd>N</kbd></dt><dd>Next video</dd><dt><kbd>M</kbd></dt><dd>Mute or unmute your audio</dd><dt><kbd>T</kbd></dt><dd>Theatre mode: the TV fills the window</dd><dt><kbd>F</kbd></dt><dd>Full screen (double-click the video works too)</dd><dt><kbd>C</kbd></dt><dd>Write a chat message</dd><dt><kbd>/</kbd></dt><dd>Search the playlist</dd><dt><kbd>?</kbd></dt><dd>Show this list</dd></dl></dialog>
+  <dialog id="shortcutsDialog" class="modal"><button class="close" data-close="shortcutsDialog" aria-label="Close">×</button><p class="eyebrow">QUICK KEYS</p><h2>Keyboard shortcuts</h2><dl class="shortcuts"><dt><kbd>K</kbd> or <kbd>Space</kbd></dt><dd>Play or pause for everyone</dd><dt><kbd>J</kbd> / <kbd>L</kbd></dt><dd>Back or forward 10 seconds for everyone</dd><dt><kbd>N</kbd></dt><dd>Next video</dd><dt><kbd>M</kbd></dt><dd>Mute or unmute your audio</dd><dt><kbd>T</kbd></dt><dd>Theatre mode: the TV fills the window</dd><dt><kbd>F</kbd></dt><dd>Full screen (double-click the video works too)</dd><dt><kbd>C</kbd></dt><dd>Write a chat message</dd><dt><kbd>/</kbd></dt><dd>Search the playlist</dd><dt><kbd>?</kbd></dt><dd>Show this list</dd></dl></dialog>
   <script src="../vendor/supabase.js"></script>
-  <script type="module" src="app.js?v=20261016-1"></script>
+  <script src="../avatar-renderer.js"></script>
+  <script src="../avatar-frames.js"></script>
+  <script type="module" src="app.js?v=20261016-2"></script>
 </body>
 </html>

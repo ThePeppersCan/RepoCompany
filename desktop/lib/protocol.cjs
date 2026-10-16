@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Readable } = require('node:stream');
 const { validatePath } = require('./manifest.cjs');
+const { mediaRequest } = require('./reparty-media.cjs');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.gif': 'image/gif', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.otf': 'font/otf' };
 const fail = (status, message) => new Response(message, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
 
@@ -66,7 +67,17 @@ function createHandler({ config, library, desktopRoot, fetchNetwork }) {
   const origins = new Set(config.approvedOrigins);
   return async request => {
     let url; try { url = new URL(request.url); } catch { return fail(400, 'Invalid address.'); }
-    if (url.username || url.password || url.protocol !== 'https:' || !origins.has(url.origin)) return fail(403, 'This address is not part of Repo Company.');
+    if (url.username || url.password || url.protocol !== 'https:') return fail(403, 'This address is not part of Repo Company.');
+    if (!origins.has(url.origin)) {
+      if (!mediaRequest(request, config.portalOrigin)) return fail(403, 'This address is not part of Repo Company.');
+      // Let Chromium follow redirects through this handler, checking every hop.
+      // Electron's protocol forwarding loses Chromium's referrer. Preserve the
+      // actual embedding origin so providers can identify the client correctly.
+      const headers = new Headers(request.headers);
+      if (!headers.has('Referer')) headers.set('Referer', request.initiatorOrigin + '/');
+      try { return await fetchNetwork(request, { redirect: 'manual', headers }); }
+      catch { return fail(503, 'The media provider could not connect. Please try again.'); }
+    }
     if (url.origin === config.portalOrigin && url.pathname === '/__repo-launcher/dragonbound-web.js') {
       return serveFile(request, path.join(desktopRoot, 'game'), '/dragonbound-web.js');
     }

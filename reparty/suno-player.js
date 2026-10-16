@@ -4,17 +4,27 @@ import { isSuno, playbackPosition, sunoQueueDuration } from './core.mjs';
 // owns actual playback; this controller only mounts it and displays room time.
 export function createSunoPlayer(container, notice) {
   let signature = null;
+  function stage(item, playing) {
+    container.replaceChildren();
+    const art = document.createElement('div'); art.className = 'music-art'; art.dataset.playing = String(playing);
+    const light = document.createElement('div'); light.className = 'music-light'; light.setAttribute('aria-hidden', 'true');
+    const mark = document.createElement('img'); mark.src = '../assets/wibs-intro-mark.png'; mark.alt = 'Repo Company'; mark.className = 'music-mark'; mark.width = mark.height = 240;
+    const title = document.createElement('h1'); title.textContent = item?.title || 'Reparty';
+    const caption = document.createElement('span'); caption.className = 'music-caption'; caption.textContent = playing ? 'Suno · Reparty' : 'Playback paused';
+    art.append(light, mark, title, caption); container.append(art);
+  }
   return {
+    pause(item) { this.clear(); container.hidden = false; stage(item, false); },
     apply(playback, item, now) {
       if (!isSuno(playback?.video_id)) { this.clear(); return; }
       container.hidden = false; notice.hidden = false;
       const next = `${playback.item_id}:${playback.updated_at}:${playback.playing}`;
       if (next === signature) return;
       signature = next;
-      container.replaceChildren(); // Removing the frame stops its local audio.
+      stage(item, playback.playing); // Removing the frame stops its local audio.
       if (!playback.playing) {
         const text = document.createElement('p'); text.className = 'suno-paused';
-        text.textContent = 'Suno is paused. Press play to restart this song for everyone.';
+        text.textContent = 'Press play below to restart this song for everyone.';
         container.append(text);
         return;
       }
@@ -22,8 +32,9 @@ export function createSunoPlayer(container, notice) {
         const text = document.createElement('p'); text.className = 'suno-paused';
         text.textContent = 'Waiting for the next queued track…'; container.append(text); return;
       }
-      const loading = document.createElement('p'); loading.className = 'suno-paused'; loading.textContent = 'Loading Suno…';
-      container.append(loading);
+      const dock = document.createElement('div'); dock.className = 'suno-dock';
+      const loading = document.createElement('p'); loading.className = 'suno-loading'; loading.textContent = 'Connecting to Suno…';
+      dock.append(loading); container.append(dock);
       const frame = document.createElement('iframe');
       frame.title = `Suno: ${item?.title || 'song'}`;
       frame.src = `https://suno.com/embed/${playback.video_id.slice(5)}?autoplay=1`;
@@ -31,7 +42,7 @@ export function createSunoPlayer(container, notice) {
       frame.allowFullscreen = true;
       frame.referrerPolicy = 'strict-origin-when-cross-origin';
       frame.onload = () => loading.remove();
-      container.append(frame);
+      dock.append(frame);
     },
     clear() { signature = null; container.replaceChildren(); container.hidden = true; notice.hidden = true; }
   };

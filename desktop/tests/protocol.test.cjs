@@ -59,3 +59,17 @@ test('only an installed Morogue receives the authenticated character bridge over
   installed = false;
   assert.equal(await (await handler(new Request('https://morogue.repocompany.uk' + route))).text(), 'original website bridge');
 });
+
+test('Reparty provider resources are isolated from launcher navigation, credentials and bridges', async () => {
+  const calls=[];
+  const handler=createHandler({config:{approvedOrigins:['https://repocompany.uk'],portalOrigin:'https://repocompany.uk',games:[]},library:{getInstalled:()=>null},desktopRoot:'.',fetchNetwork:async(request,options)=>{calls.push({url:request.url,options});return new Response('provider');}});
+  const request=(url,initiator='https://repocompany.uk',method='GET')=>Object.assign(new Request(url,{method}),{initiatorOrigin:initiator});
+  for(const url of ['https://suno.com/embed/c72dcf81-5611-4c75-9a62-07a9c9e51fa8','https://www.youtube.com/iframe_api','https://rr1---sn-abc.googlevideo.com/videoplayback','https://i.ytimg.com/vi/abcdefghijk/mqdefault.jpg'])assert.equal(await(await handler(request(url))).text(),'provider');
+  assert(calls.every(c=>c.options.redirect==='manual'),'every external redirect is checked again');
+  assert(calls.every(c=>c.options.headers.get('Referer')==='https://repocompany.uk/'),'provider receives the real embedding origin');
+  for(const url of ['https://suno.com.evil.test/','https://evilgooglevideo.com/','https://suno.com:444/','https://www.youtube.com/__repo-launcher/account-storage.js','https://untrusted.test/'])assert.equal((await handler(request(url))).status,403,url);
+  assert.equal((await handler(request('https://suno.com/','https://evil.test'))).status,403);
+  assert.equal((await handler(new Request('https://suno.com/'))).status,403,'browser-initiated top-level requests are not media resources');
+  assert.equal((await handler(request('https://suno.com/','https://repocompany.uk','DELETE'))).status,403);
+  assert.equal((await handler({url:'https://user:password@suno.com/',method:'GET',initiatorOrigin:'https://repocompany.uk'})).status,403);
+});
