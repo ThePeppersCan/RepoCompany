@@ -209,6 +209,7 @@
   mountLaunch();
   function open(name) {
     if (!userId) { window.accountMenu?.open({tab: 'profile'}); return; }
+    window.repoRoutes?.enter('wibs');
     const opening = !drawer.open;
     if (!drawer.open) { opener = document.activeElement; drawer.showModal(); inboxArchiveAt = 0; }
     if (name) select(name); else { renderFriends(); if (!selection) search.focus(); }
@@ -220,6 +221,7 @@
   function close() {
     if (!drawer.open) return;
     window.repoWibsIntro?.stop();
+    window.repoRoutes?.leave('wibs');
     drawer.close(); if(window.repoWebGame?.active)window.repoWebGame.focus();else if(opener?.isConnected)opener.focus(); announce();
   }
   drawer.addEventListener('cancel', e => { if(e.target!==drawer)return;e.preventDefault(); close(); });

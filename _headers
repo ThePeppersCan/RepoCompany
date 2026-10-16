@@ -101,3 +101,9 @@
   Cache-Control: public, max-age=86400
 /assets/brand/*
   Cache-Control: public, max-age=86400
+/Wibs
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/Reparty
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow

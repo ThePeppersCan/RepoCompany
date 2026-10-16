@@ -83,10 +83,10 @@ async function createFixture(fixtureOptions={}){
   res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
  }catch(error){res.writeHead(500,{'Content-Type':'application/json'});res.end(JSON.stringify({error:'Fixture failure: '+error.message}));}});
  let base;await new Promise(r=>server.listen(0,'127.0.0.1',r));base='http://127.0.0.1:'+server.address().port;
- return {base,sql,env,imageObjects,sessions,config,voiceHub,async close(){await new Promise(r=>server.close(r));sql.close();global.fetch=originalFetch;},async browserContext(browser,who){
+ return {base,sql,env,imageObjects,sessions,config,voiceHub,async close(){await new Promise(r=>server.close(r));sql.close();global.fetch=originalFetch;},async browserContext(browser,who,{signedIn=true}={}){
   const context=await browser.newContext({viewport:{width:1440,height:900},permissions:['microphone','camera'],reducedMotion:'reduce'});
   await context.route('**/*',route=>{const url=route.request().url();return url.startsWith(base)||url.startsWith(config.url)||url.startsWith('data:')?route.fallback():route.abort();});
-  await context.addInitScript(({session,origin})=>{if(location.origin===origin)localStorage.setItem('sb-hvdrwmjieguurxvrgzfu-auth-token',JSON.stringify(session));},{session:sessions[who],origin:base});
+  if(signedIn)await context.addInitScript(({session,origin})=>{if(location.origin===origin)localStorage.setItem('sb-hvdrwmjieguurxvrgzfu-auth-token',JSON.stringify(session));},{session:sessions[who],origin:base});
   await context.route(config.url+'/**',route=>{const p=new URL(route.request().url()).pathname;let data=[];if(p.endsWith('/auth/v1/user'))data=sessions[who].user;else if(p.endsWith('/auth/v1/token'))data=sessions[who];else if(p.endsWith('/get_my_character'))data=[{username:who,id:people[who]}];else if(p.endsWith('/get_my_bank'))data=[{gp:100,items:{}}];else if(p.includes('collection'))data=[{cards:[]}];else if(p.includes('slab'))data=[{slabs:[]}];return route.fulfill({contentType:'application/json',body:JSON.stringify(data)});});
   // A local host-candidate connection verifies real offer/answer/ICE and media
   // flow without pretending a paid, unconfigured TURN relay has been tested.

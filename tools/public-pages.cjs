@@ -43,10 +43,10 @@ const pages = [
     description: 'Wibs is Repo Company’s chat and community platform. Send direct messages, join group chats and voice calls, and keep up with what friends are playing.',
     lead: 'Your friends, in good company.',
     copy: 'Wibs is the chat and community platform inside Repo Company. Catch up in community channels, send direct messages and join voice calls while you play.',
-    details: ['Chat & community', 'Web & launcher'], action: '/', actionLabel: 'Open Repo Company',
+    details: ['Chat & community', 'Web & launcher'], action: '/Wibs', actionLabel: 'Open Wibs',
     icon: '/assets/wibs-icon.svg',
     features: [['Keep in touch', 'Use community channels, direct messages and group chats to stay connected.'], ['Talk while you play', 'Join a Wibs voice call from the website or Repo Company launcher.'], ['Make it yours', 'Use your Repo Company avatar, send Wibs emotes and GIFs, and see your friends’ game activity.']],
-    note: 'Log in to Repo Company, then select the Wibs icon to open your community and messages.'
+    note: 'Log in with your Repo Company account to open your community and messages.'
   },
   {
     path: '/about/reparty/', name: 'Reparty', type: 'WebApplication',
@@ -54,10 +54,10 @@ const pages = [
     description: 'Reparty brings shared playlists, YouTube videos and Suno songs to Repo Company. Join a room with friends and keep listening while you play or talk on Wibs.',
     lead: 'Listen and watch together.',
     copy: 'Bring your music and videos into a shared room. Add YouTube videos or Suno songs to the playlist, chat with friends and keep listening while you play or spend time in Wibs.',
-    details: ['Shared playlists', 'Web & launcher'], action: '/', actionLabel: 'Open Repo Company',
+    details: ['Shared playlists', 'Web & launcher'], action: '/Reparty', actionLabel: 'Open Reparty',
     icon: '/assets/reparty/reparty-icon.png',
     features: [['A room for everyone', 'Open Reparty to join the main room, or use Rooms to choose another.'], ['Build the playlist', 'Paste a YouTube or Suno link and add it to the room’s queue.'], ['Stay connected', 'Keep listening alongside your games and Wibs calls.']],
-    note: 'Log in to Repo Company, then select the Reparty icon beside Wibs.'
+    note: 'Log in with your Repo Company account to join Reparty.'
   }
 ];
 

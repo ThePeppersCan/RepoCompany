@@ -111,7 +111,7 @@
     dashboard.setAttribute('aria-label','Repo Company game collection');
     document.title=document.documentElement.dataset.repoAuth==='ready'?'Repo Company — Your collection':'Repo Company — Games & Good Company';
     fitCollection();dashboard.dispatchEvent(new Event('scene-change'));
-    if(route)history.pushState({scene:'collection'},'','#collection');
+    if(route)history.pushState({scene:'collection'},'',document.documentElement.dataset.repoLauncher==='true'?'#collection':'/');
     if(animate&&!reducedMotion.matches)await delay(650);
     if(revision!==sceneRevision)return;
     transitioning=false;buttons[selected].focus({preventScroll:true});
