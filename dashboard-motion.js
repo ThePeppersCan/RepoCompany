@@ -317,7 +317,7 @@
     const { id, ticket } = event.detail || {};
     if (launching || typeof ticket !== 'string' || !window.dashboardScenes?.ids.includes(id)) return;
     if (document.querySelector('dialog[open]') || dashboard.classList.contains('home-mode') || dashboard.dataset.openGame !== id) {
-      history.replaceState({ scene: id }, '', '#' + id);
+      history.replaceState({ scene: id }, '', window.repoRoutes?.href(id) || '#' + id);
       dispatchEvent(new PopStateEvent('popstate'));
     }
     launchGame(() => dispatchEvent(new CustomEvent('repo-launch-presentation-ready', { detail: { ticket } })));

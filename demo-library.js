@@ -44,7 +44,7 @@
     dialog.querySelector('#demo-selected-title').textContent=game.name;
     dialog.querySelector('#demo-selected-genre').textContent=game.genre;
     dialog.querySelector('#demo-selected-description').textContent=game.description;
-    launch.href='#demo/'+game.id;
+    launch.href=window.repoRoutes?.href('demo/'+game.id)||'#demo/'+game.id;
     launch.setAttribute('aria-label',`Play ${game.name}`);
     dialog.querySelector('#demo-launch-label').textContent='Play';
     dialog.querySelector('#demo-location').textContent='';
@@ -84,7 +84,7 @@
     select(selected,{sound:false,scroll:false});
     dialog.showModal();root.inert=true;document.body.classList.add('demo-library-open');
     document.title='Repo Company — Demos';
-    if(route)history.pushState({scene:'demos'},'','#demos');
+    if(route)history.pushState({scene:'demos'},'',window.repoRoutes?.href('demos')||'#demos');
     dialog.querySelector('.demo-back').focus({preventScroll:true});
     choices[selected].scrollIntoView({behavior:'instant',block:'nearest',inline:'center'});
     startLoop();
@@ -93,7 +93,7 @@
     if(!dialog.open||launching)return;
     routeOnClose=route;dialog.close();
     stopSpin();stopLoop();root.inert=false;document.body.classList.remove('demo-library-open');
-    if(routeOnClose)history.pushState({scene:'collection'},'','#collection');
+    if(routeOnClose)history.pushState({scene:'collection'},'',window.repoRoutes?.href('collection')||'#collection');
     if(routeOnClose){document.title='Repo Company — Your collection';opener?.focus({preventScroll:true});}
   }
   dialog.addEventListener('cancel',event=>{event.preventDefault();if(!launching)close();});

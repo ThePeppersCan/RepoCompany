@@ -11,7 +11,7 @@ const player='<!doctype html><title>Persistent player fixture</title><script>win
    await c.route(fixture.base+'/**',async route=>{
     const u=new URL(route.request().url());if(u.pathname.startsWith('/api/'))return route.fallback();
     if(u.pathname==='/reparty/')return route.fulfill({contentType:'text/html',body:player});
-    const p=['/','/Wibs','/Reparty'].includes(u.pathname)?'/index.html':u.pathname;
+    const p=/^\/(?:Wibs|Reparty|Account(?:\/.*)?|Moratales|Morogue|VelmoraManager|Demos(?:\/.*)?)?$/.test(u.pathname)?'/index.html':u.pathname;
     const file=path.resolve(dist,'.'+p);if(!file.startsWith(dist+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile())return route.fulfill({status:404,body:'Not found'});
     const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.json':'application/json','.webp':'image/webp','.mp3':'audio/mpeg'};
     if(native&&p==='/index.html')return route.fulfill({contentType:'text/html',body:fs.readFileSync(file,'utf8').replace('<html','<html data-repo-launcher="true"')});
@@ -29,7 +29,7 @@ const player='<!doctype html><title>Persistent player fixture</title><script>win
   const playerId=await frame.evaluate(e=>e.contentWindow.playerId);
   await page.evaluate(()=>repoMessaging.open());assert.equal(new URL(page.url()).pathname,'/Wibs');assert.equal(await frame.evaluate(e=>e.contentWindow.playerId),playerId);assert.equal(await frame.evaluate(e=>e.contentWindow.playing),true);
   assert.equal(await game.evaluate(e=>e.isConnected),true);assert.equal(await page.evaluate(()=>callTrack.readyState),'live');assert.equal(await page.evaluate(()=>documentId),documentId);
-  await page.evaluate(()=>repoMessaging.close());assert.equal(page.url(),fixture.base+'/#morogue');assert.equal(await page.evaluate(()=>history.state.fixture),'retained');
+  await page.evaluate(()=>repoMessaging.close());assert.equal(page.url(),fixture.base+'/Morogue');assert.equal(await page.evaluate(()=>history.state.fixture),'retained');
   await page.evaluate(()=>repoReparty.open());await page.locator('#repo-reparty').getByRole('button',{name:'Back to collection',exact:true}).click();assert.equal(page.url(),fixture.base+'/');assert.equal(await frame.evaluate(e=>e.isConnected),true);
   await page.evaluate(()=>repoWebGame.close());
   // An existing game-history entry can become a Wibs URL without reloading.
@@ -38,18 +38,56 @@ const player='<!doctype html><title>Persistent player fixture</title><script>win
   await page.goForward();await page.waitForFunction(()=>document.getElementById('repo-messages').open);assert.equal(new URL(page.url()).pathname,'/Wibs');
   await page.reload();await page.waitForFunction(()=>document.getElementById('repo-messages')?.open);assert.equal(new URL(page.url()).pathname,'/Wibs');
   await page.goto(fixture.base+'/Reparty?room=abcdef123456');await page.waitForFunction(()=>repoReparty.getState().open);assert.match(await page.locator('#repo-reparty iframe').getAttribute('src'),/room=abcdef123456/);assert.equal(new URL(page.url()).hash,'');
-  // Direct app URLs wait for the normal login gate before opening either view.
-  for(const name of ['Wibs','Reparty']){
+  // Account and game changes stay in the same document and keep music alive.
+  await page.evaluate(()=>{repoReparty.close();accountMenu.open();});assert.equal(page.url(),fixture.base+'/Account');
+  await page.locator('#account-tab-friends').click();assert.equal(page.url(),fixture.base+'/Account/Friends');
+  await page.evaluate(()=>repoMessaging.open());assert.equal(page.url(),fixture.base+'/Wibs');
+  await page.evaluate(()=>repoMessaging.close());assert.equal(page.url(),fixture.base+'/Account/Friends');
+  const accountPlayer=await page.locator('#repo-reparty iframe').elementHandle();
+  await page.evaluate(()=>accountMenu.openAchievements('morogue'));assert.equal(page.url(),fixture.base+'/Account/Achievements/Morogue');
+  await page.goBack();await page.waitForFunction(()=>document.getElementById('account-menu').dataset.accountTab==='friends');
+  await page.goForward();await page.waitForFunction(()=>document.getElementById('account-menu').dataset.accountTab==='achievements');
+  await page.evaluate(()=>accountMenu.close());assert.equal(page.url(),fixture.base+'/');
+  assert.equal(await accountPlayer.evaluate(e=>e.isConnected&&e.contentWindow.playing),true);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  for(const [id,name,pathName] of [['moratales','Moratales','Moratales'],['manager','Velmora Manager','VelmoraManager'],['morogue','Morogue','Morogue']]){
+   await page.getByRole('button',{name:'Select '+name,exact:true}).focus();await page.locator('#open-selected').click();
+   await page.waitForURL(fixture.base+'/'+pathName);assert.equal(await page.locator('#dashboard').getAttribute('data-open-game'),id);
+   assert.equal(await accountPlayer.evaluate(e=>e.isConnected&&e.contentWindow.playing),true);
+   await page.locator('.close-case').click();await page.waitForURL(fixture.base+'/');
+  }
+  await page.evaluate(()=>demoLibrary.open());assert.equal(page.url(),fixture.base+'/Demos');
+  assert.match(await page.locator('#demo-launch').getAttribute('href'),/^\/Demos\//);
+  await page.evaluate(()=>demoLibrary.close());assert.equal(page.url(),fixture.base+'/');
+  const destinations=[['/Account','account/profile'],['/Account/Friends','account/friends'],['/Account/Profile/bob','account/profile/bob'],['/Account/Achievements/Morogue','account/achievements/morogue'],['/Account/Binder','account/binder'],['/Account/Slabs','account/slabs'],['/Moratales','moratales'],['/VelmoraManager','manager'],['/Morogue','morogue'],['/Demos','demos']];
+  async function ready(p,id){
+   await p.waitForFunction(()=>repoAccount.state.user&&document.documentElement.dataset.repoAuth==='ready');
+   if(id.startsWith('account/'))await p.waitForFunction(tab=>document.getElementById('account-menu').open&&document.getElementById('account-menu').dataset.accountTab===tab,id.split('/')[1]);
+   else if(id==='demos')await p.waitForFunction(()=>document.getElementById('demo-library').open);
+   else await p.waitForFunction(id=>!document.getElementById('dashboard').classList.contains('home-mode')&&document.getElementById('dashboard').dataset.openGame===id,id);
+  }
+  for(const [url,id] of destinations){
+   await page.goto(fixture.base+url);await ready(page,id);assert.equal(new URL(page.url()).hash,'');
+   assert.equal(await page.evaluate(()=>document.baseURI),fixture.base+'/');
+   await page.reload();await ready(page,id);assert.equal(page.url(),fixture.base+url);
+  }
+  for(const id of ['account/friends','account/achievements/morogue','moratales','manager','morogue','demos']){
+   await page.goto(fixture.base+'/#'+id);await ready(page,id);assert.equal(page.url(),fixture.base+destinations.find(item=>item[1]===id)[0]);
+  }
+  // Deep links wait for the normal login gate, then open the requested view.
+  for(const name of ['Wibs','Reparty','Account/Friends','Morogue','Demos']){
    const loggedOut=await context(false),p=await loggedOut.newPage();await p.goto(fixture.base+'/'+name);
    const login=p.locator('#repo-login');await login.locator('#sign-in-form').waitFor({state:'visible'});
    assert.equal(await p.locator('#repo-messages').evaluate(e=>e.open),false);assert.equal(await p.locator('#repo-reparty iframe').count(),0);
    await login.locator('#sign-in-username').fill('alice');await login.locator('#sign-in-password').fill('fixture-password');await login.locator('#sign-in-submit').click();
-   await p.waitForFunction(name=>document.getElementById(name==='Wibs'?'repo-messages':'repo-reparty').open,name);
+   if(['Wibs','Reparty'].includes(name))await p.waitForFunction(name=>document.getElementById(name==='Wibs'?'repo-messages':'repo-reparty').open,name);
+   else await ready(p,name==='Account/Friends'?'account/friends':name.toLowerCase());
    assert.equal(new URL(p.url()).pathname,'/'+name);assert.equal(await login.evaluate(e=>e.open),false);
    await p.evaluate(()=>repoAccount.signOut());await login.locator('#sign-in-form').waitFor({state:'visible'});await loggedOut.close();
   }
   const launcher=await context(true,true),nativePage=await launcher.newPage();await nativePage.goto(fixture.base);await nativePage.waitForFunction(()=>repoAccount.state.user);
   await nativePage.evaluate(()=>repoMessaging.open());assert.equal(new URL(nativePage.url()).pathname,'/');await nativePage.evaluate(()=>repoReparty.open());assert.equal(new URL(nativePage.url()).pathname,'/');
-  assert.deepEqual(errors,[]);console.log('PASS: clean Wibs/Reparty paths, direct links and refresh, deferred login, existing Back/Forward, collection return, retained history state, mounted game/player/audio stream, and unchanged native launcher routing.');
+  await nativePage.evaluate(()=>{repoReparty.close();accountMenu.open({tab:'friends'});});assert.equal(new URL(nativePage.url()).hash,'#account/friends');
+  assert.deepEqual(errors,[]);console.log('PASS: clean Account/game/Wibs/Reparty paths, nested Account sections, legacy links, direct links and refresh, deferred login, Back/Forward, collection return, mounted game/player/audio stream, and unchanged native launcher routing.');
  }finally{await browser.close();await fixture.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

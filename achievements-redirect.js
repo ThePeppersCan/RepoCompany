@@ -1,1 +1,1 @@
-(() => {const id=location.hash.slice(1).split('/')[0];location.replace('/#account/achievements'+(['moratales','manager','morogue'].includes(id)?'/'+id:''));})();
+(() => {const games={moratales:'Moratales',manager:'VelmoraManager',morogue:'Morogue'},id=location.hash.slice(1).split('/')[0];location.replace('/Account/Achievements'+(games[id]?'/'+games[id]:''));})();

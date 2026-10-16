@@ -49,7 +49,7 @@ async function main(){
    if(route==='/'){assert.ok((await page.locator('#repo-public-info').innerText()).includes(description));assert.ok(await page.locator('#repo-public-info').isVisible());assert.equal(await page.locator('#viewport').isVisible(),false);}
    else{assert.equal(await page.locator('h1').count(),1);assert.ok(await page.locator('h1').isVisible());}
    for(const link of await page.locator(route==='/'?'#repo-public-info a[href]':'a[href]').evaluateAll(elements=>elements.map(e=>e.getAttribute('href')))){
-    assert.ok(link.startsWith('/'));const target=new URL(link,origin).pathname;assert.ok(['/Wibs','/Reparty'].includes(target)||fs.existsSync(fileFor(target)),route+' -> '+link);
+    assert.ok(link.startsWith('/'));const target=new URL(link,origin).pathname;assert.ok(['/Wibs','/Reparty','/Moratales','/Morogue','/VelmoraManager'].includes(target)||fs.existsSync(fileFor(target)),route+' -> '+link);
    }
    const slug=route==='/'?'home':route.split('/').filter(Boolean).join('-');
    await page.screenshot({path:path.join(out,slug+'-desktop.png'),fullPage:true});

@@ -24,7 +24,7 @@ const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist'),config=JSON.
    }
    if(u.origin===base&&u.pathname.startsWith('/api/'))return send(route,u.pathname.endsWith('/state')?{profile:{display_name:'LoginTest'},friends:[],blocks:[],activity:[]}:{ok:true});
    if(u.origin!==base)return send(route,{});
-   const file=path.resolve(dist,'.'+(u.pathname==='/'?'/index.html':decodeURIComponent(u.pathname)));
+   const file=path.resolve(dist,'.'+(/^\/(?:Account(?:\/.*)?)?$/.test(u.pathname)?'/index.html':decodeURIComponent(u.pathname)));
    if(!file.startsWith(dist+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile())return route.fulfill({status:404,body:'Not found'});
    const types={'.js':'text/javascript','.css':'text/css','.html':'text/html','.png':'image/png','.svg':'image/svg+xml','.webp':'image/webp','.json':'application/json','.mp3':'audio/mpeg'};
    return route.fulfill({path:file,contentType:types[path.extname(file)]||'application/octet-stream'});

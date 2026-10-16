@@ -2,3 +2,15 @@
 /Reparty/ /Reparty 301
 /Wibs / 200
 /Reparty / 200
+/Account/ /Account 301
+/Moratales/ /Moratales 301
+/Morogue/ /Morogue 301
+/VelmoraManager/ /VelmoraManager 301
+/Demos/ /Demos 301
+/Account / 200
+/Moratales / 200
+/Morogue / 200
+/VelmoraManager / 200
+/Demos / 200
+/Account/* / 200
+/Demos/* / 200

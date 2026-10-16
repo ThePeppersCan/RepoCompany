@@ -10,7 +10,7 @@ const pages = [
     description: 'Discover Moratales, a story and life simulation game set in Velmora. Run your café, grow ingredients and explore with friends and animal companions.',
     lead: 'Make a life in Velmora.',
     copy: 'Run your café, grow ingredients and explore new places, with friends and animal companions along the way. Moratales brings story and everyday life together in the world of Velmora.',
-    details: ['Story & life sim', 'Solo / 2-player co-op'], action: '/#moratales', actionLabel: 'Open Moratales',
+    details: ['Story & life sim', 'Solo / 2-player co-op'], action: '/Moratales', actionLabel: 'Open Moratales',
     image: '/assets/discover/moratales-town.webp', imageAlt: 'Copper Kettle Square in Moratales',
     shots: [['moratales-explore.webp', 'Explore Velmora'], ['moratales-cafe.webp', 'Café life']],
     features: [['Your café', 'Grow ingredients and make the café part of your life in Velmora.'], ['A world to explore', 'Visit new places and spend time with friends and animal companions.'], ['Play together', 'Make your way through Moratales solo or in two-player co-op.']]
@@ -21,7 +21,7 @@ const pages = [
     description: 'Build your club in Velmora Manager. Sign players, train your squad and set your tactics in Repo Company’s fantasy sports management game.',
     lead: 'Build your club. Shape its future.',
     copy: 'Take charge of a club in Velmora. Sign players, train your squad and set the tactics as you chase glory through the season.',
-    details: ['Fantasy sports management', 'Career mode'], action: '/#manager', actionLabel: 'Open Velmora Manager',
+    details: ['Fantasy sports management', 'Career mode'], action: '/VelmoraManager', actionLabel: 'Open Velmora Manager',
     image: '/assets/discover/manager-central.webp', imageAlt: 'The club management screen in Velmora Manager',
     shots: [['manager-squad.webp', 'Build your squad'], ['manager-matchday.webp', 'Prepare for matchday']],
     features: [['Build your squad', 'Sign players and shape the team you want to manage.'], ['Prepare for matchday', 'Train your squad and choose the tactics for the next match.'], ['Follow your career', 'Take your club through the season in career mode.']]
@@ -32,7 +32,7 @@ const pages = [
     description: 'Morogue is a solo action roguelite in the Moratales universe. Forge your build, master your weapons and face twelve bosses before challenging the Uncrowned.',
     lead: 'Survive the night. Face the Uncrowned.',
     copy: 'Survive the night in the Moratales universe. Forge your build, master your weapons and face twelve bosses before challenging the Uncrowned.',
-    details: ['Action roguelite', 'Solo'], action: '/#morogue', actionLabel: 'Open Morogue',
+    details: ['Action roguelite', 'Solo'], action: '/Morogue', actionLabel: 'Open Morogue',
     image: '/assets/discover/morogue-uncrowned.webp', imageAlt: 'Facing the Uncrowned in Morogue',
     shots: [['morogue-kiln.webp', 'Into the Kiln'], ['morogue-upgrades.webp', 'Forge your build']],
     features: [['Forge your build', 'Choose upgrades and develop your build as you play.'], ['Master your weapons', 'Find your approach to surviving the night.'], ['Face the Uncrowned', 'Take on twelve bosses before the final challenge.']]

@@ -84,6 +84,7 @@
     const viewport=document.getElementById('viewport');viewport.style.width=width*scale+'px';viewport.style.height=height*scale+'px';
   }
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const routeURL=id=>window.repoRoutes?.href(id)||'#'+id;
   async function showOpen({animate=true,route=true}={}) {
     if((transitioning&&animate)||dashboard.dataset.launching)return;
     if(animate)window.dashboardAudio?.effect('open');
@@ -96,7 +97,7 @@
     home.inert=true;openScene.inert=false;
     dashboard.classList.remove('home-mode');
     fitCollection();dashboard.dispatchEvent(new Event('scene-change'));
-    if(route)history.pushState({scene:game.id},'','#'+game.id);
+    if(route)history.pushState({scene:game.id},'',routeURL(game.id));
     if(animate&&!reducedMotion.matches)await delay(650);
     if(revision!==sceneRevision)return;
     dashboard.classList.remove('opening');transitioning=false;
@@ -111,7 +112,7 @@
     dashboard.setAttribute('aria-label','Repo Company game collection');
     document.title=document.documentElement.dataset.repoAuth==='ready'?'Repo Company — Your collection':'Repo Company — Games & Good Company';
     fitCollection();dashboard.dispatchEvent(new Event('scene-change'));
-    if(route)history.pushState({scene:'collection'},'',document.documentElement.dataset.repoLauncher==='true'?'#collection':'/');
+    if(route)history.pushState({scene:'collection'},'',routeURL('collection'));
     if(animate&&!reducedMotion.matches)await delay(650);
     if(revision!==sceneRevision)return;
     transitioning=false;buttons[selected].focus({preventScroll:true});
@@ -160,8 +161,13 @@
     void dashboard.offsetWidth;
     dashboard.classList.remove('route-restore');
   }
-  addEventListener('popstate',()=>restoreRoute(location.hash.slice(1)));
+  addEventListener('popstate',()=>restoreRoute(window.repoRoutes?.read()||location.hash.slice(1)));
   choose(0,false,false);fitCollection();
+  // Website deep links open after login. Native and standalone previews keep
+  // their existing startup route and launch behavior.
+  if(window.repoRoutes&&document.documentElement.dataset.repoLauncher!=='true'){
+    window.repoRoutes.register(restoreRoute);return;
+  }
   const initial=location.hash.slice(1)||document.body.dataset.startGame;
   if(initial==='demos'||initial?.startsWith('demo/')||initial==='account'||initial?.startsWith('account/')||window.dashboardScenes.ids.includes(initial)){
     restoreRoute(initial);

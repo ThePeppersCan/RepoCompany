@@ -6,6 +6,8 @@
  const fmt=n=>Number(n||0).toLocaleString('en-GB');
  const tabs=['profile','friends','inventory','achievements','shop','settings','binder'];
  const labels={profile:'Profile',friends:'Friends',inventory:'Inventory',achievements:'Achievements',shop:'Shop',settings:'Settings',binder:'Binder',slabs:'Slab binder'};
+ const routeURL=id=>window.repoRoutes?.href(id)||'#'+id;
+ const routeOrigin=()=>{const id=window.repoRoutes?.read()||location.hash.slice(1)||'collection';return id.startsWith('account')?'#collection':'#'+id;};
  const games=[{id:'moratales',name:'Moratales',image:'moratales-town.png',genre:'Story & life sim'},{id:'manager',name:'Velmora Manager',image:'manager-central.png',genre:'Fantasy sports management'},{id:'morogue',name:'Morogue',image:'morogue-uncrowned.png',genre:'Action roguelite'}];
  const gameName=id=>games.find(g=>g.id===id)?.name||window.demoLibrary?.games.find(g=>g.id===id)?.name||'';
  const dialog=document.createElement('dialog');dialog.id='account-menu';dialog.className='account-dashboard';dialog.setAttribute('aria-labelledby','account-heading');
@@ -78,7 +80,7 @@
   window.repoAvatar?.hydrate(content);
   dialog.querySelector('.account-wallet').textContent=state.user?`${state.bank?fmt(state.bank.gp):'—'} Repoints`:'Guest';
   if(state.user&&current==='inventory')loadCatalog();
-  if(route){content.scrollTop=0;if(dialog.open)history.replaceState({scene:'account',returnHash:origin},'','#account/'+current+(current==='achievements'&&achievementGame?'/'+achievementGame:''));}
+  if(route){content.scrollTop=0;if(dialog.open)history.replaceState({scene:'account',returnHash:origin},'',routeURL('account/'+current+(current==='achievements'&&achievementGame?'/'+achievementGame:'')));}
   if(focus){const b=dialog.querySelector('#account-tab-'+(current==='slabs'?'binder':current));b.focus({preventScroll:true});b.scrollIntoView({block:'nearest',inline:'nearest'});}
   document.title='Repo Company — Account / '+labels[current];
  }
@@ -96,12 +98,12 @@
  function open({tab='profile',player='',game='',route=true,origin:from}={}){
   if(root.dataset.launching)return;
   achievementGame=['moratales','manager','morogue'].includes(game)?game:'';
-  if(!dialog.open){opener=document.activeElement;priorTitle=document.title;origin=from||(location.hash.startsWith('#account')?'#collection':location.hash||'#collection');root.dispatchEvent(new Event('account-opening'));audio.spin(false);dialog.showModal();root.inert=true;document.body.classList.add('account-is-open');if(route)history.pushState({scene:'account',returnHash:origin},'','#account/'+tab);}
+  if(!dialog.open){opener=document.activeElement;priorTitle=document.title;origin=from||routeOrigin();root.dispatchEvent(new Event('account-opening'));audio.spin(false);dialog.showModal();root.inert=true;document.body.classList.add('account-is-open');if(route)history.pushState({scene:'account',returnHash:origin},'',routeURL('account/'+tab));}
   const target=tab==='profile'&&/^[a-zA-Z0-9_-]{3,16}$/.test(player)&&player.toLowerCase()!==username().toLowerCase()?player.toLowerCase():'';
   if(viewedName!==target){viewedName=target;viewedPlayer=null;profileRequest++;}
-  alignAccountHeader();render(tab,{route:false});if(route&&['binder','slabs'].includes(tab))history.replaceState({scene:'account',returnHash:origin},'','#account/'+tab);if(viewedName)loadPlayer();dialog.querySelector('.account-back').focus({preventScroll:true});
+  alignAccountHeader();render(tab,{route:false});if(route)history.replaceState({scene:'account',returnHash:origin},'',routeURL('account/'+current+(viewedName?'/'+viewedName:achievementGame?'/'+achievementGame:'')));if(viewedName)loadPlayer();dialog.querySelector('.account-back').focus({preventScroll:true});
  }
- function close({route=true}={}){if(!dialog.open||detailBusy||window.repoPack?.busy||window.repoAvatarStudio?.busy)return;if(document.getElementById('avatar-creator')?.open)document.getElementById('avatar-creator').close();if(detail.open)detail.close();dialog.close();root.inert=!!document.getElementById('demo-library')?.open;document.body.classList.remove('account-is-open');if(route){history.pushState({scene:'collection'},'','#collection');dispatchEvent(new PopStateEvent('popstate'));}}
+ function close({route=true}={}){if(!dialog.open||detailBusy||window.repoPack?.busy||window.repoAvatarStudio?.busy)return;if(document.getElementById('avatar-creator')?.open)document.getElementById('avatar-creator').close();if(detail.open)detail.close();dialog.close();root.inert=!!document.getElementById('demo-library')?.open;document.body.classList.remove('account-is-open');if(route){history.pushState({scene:'collection'},'',routeURL('collection'));dispatchEvent(new PopStateEvent('popstate'));}}
  function showDetail(html){detailOpener=document.activeElement;detail.innerHTML=`<button class="account-detail-close" aria-label="Close details">×</button>${html}`;window.repoAvatar?.hydrate(detail);if(!detail.open)detail.showModal();detail.querySelector('.account-detail-close').onclick=()=>{if(!detailBusy)detail.close();};}
  detail.addEventListener('cancel',e=>{if(detailBusy)e.preventDefault();});detail.addEventListener('close',()=>detailOpener?.focus({preventScroll:true}));
  function login(after=null,create=false){authContinuation=after;showDetail(`<form class="account-profile-form" id="account-login-form"><p class="account-eyebrow">YOUR REPO COMPANY ACCOUNT</p><h2 id="account-detail-title">${create?'Create your account.':'Welcome back.'}</h2><label>Username<input name="username" required minlength="3" maxlength="16" pattern="(?:[A-Za-z0-9_]|-){3,16}" autocomplete="username"></label><label>Password<input name="password" type="password" required minlength="8" autocomplete="${create?'new-password':'current-password'}"></label><p class="account-detail-note">${create?'Use 3–16 letters, numbers, _ or -.':'Use your existing Repo Company username and password.'}</p><p role="status" id="auth-feedback"></p><button type="submit" class="account-primary">${create?'Create account':'Sign in'}</button></form>`);detail.querySelector('form').onsubmit=async e=>{e.preventDefault();if(detailBusy)return;detailBusy=true;const b=e.currentTarget.querySelector('[type="submit"]');b.disabled=true;detail.querySelector('#auth-feedback').textContent='Connecting…';const data=new FormData(e.currentTarget);try{await service.signIn(String(data.get('username')).trim(),String(data.get('password')),create);detailBusy=false;detail.close();const next=authContinuation;authContinuation=null;next?.();}catch(error){detail.querySelector('#auth-feedback').textContent=error.message;}finally{detailBusy=false;b.disabled=false;}};}
@@ -120,7 +122,7 @@
  function friendProfile(player){
   if(!/^[a-zA-Z0-9_-]{3,16}$/.test(player))return;
   if(detail.open)detail.close();
-  history.pushState({scene:'account',returnHash:origin},'','#account/profile/'+encodeURIComponent(player.toLowerCase()));
+  history.pushState({scene:'account',returnHash:origin},'',routeURL('account/profile/'+player.toLowerCase()));
   open({tab:'profile',player,route:false});content.scrollTop=0;content.focus({preventScroll:true});
  }
  function confirmFriend(action,player){showDetail(`<div class="account-achievement-detail"><h2 id="account-detail-title">${action==='block'?'Block':'Remove'} ${esc(player)}?</h2><p>${action==='block'?'This removes the friendship and prevents further friend requests between you.':'They will be removed from your Friends list.'}</p><p id="friend-action-feedback" role="status"></p><button class="account-primary" id="confirm-friend-action">${action==='block'?'Block player':'Remove friend'}</button></div>`);detail.querySelector('#confirm-friend-action').onclick=async e=>{e.currentTarget.disabled=true;try{await friendAction(action,player);detail.close();}catch(error){detail.querySelector('#friend-action-feedback').textContent=error.message;e.target.disabled=false;}};}
@@ -141,7 +143,7 @@
   if(b.dataset.blockPlayer)return confirmFriend('block',b.dataset.blockPlayer);
   if(b.hasAttribute('data-private-profile')){if(!state.social)throw Error('Your profile is not available. Try again.');b.disabled=true;await service.api('privacy',{privateProfile:!state.social.profile.private_profile});return await service.refreshSocial();}
   if(b.dataset.card){const c=catalog[b.dataset.card];if(c)return showDetail(`<div class="account-card-detail"><img src="${esc(c.image)}" alt="${esc(c.name)}"><h2 id="account-detail-title">${esc(c.name)}</h2><p>${esc(c.rarity)}</p>${button('id="detail-binder"','Open Binder →')}</div>`),detail.querySelector('#detail-binder').onclick=()=>{detail.close();window.repoBinder.open('binder');};return;}
-  if(b.dataset.game){close({route:false});history.pushState({},'',games.some(g=>g.id===b.dataset.game)?'#'+b.dataset.game:'#demos');dispatchEvent(new PopStateEvent('popstate'));if(!games.some(g=>g.id===b.dataset.game))window.demoLibrary.open({route:false,gameId:b.dataset.game});return;}
+  if(b.dataset.game){close({route:false});history.pushState({},'',routeURL(games.some(g=>g.id===b.dataset.game)?b.dataset.game:'demos'));dispatchEvent(new PopStateEvent('popstate'));if(!games.some(g=>g.id===b.dataset.game))window.demoLibrary.open({route:false,gameId:b.dataset.game});return;}
   if(b.matches('.account-audio')||b.hasAttribute('data-mute'))return document.querySelector('[data-audio]').click();
   if(b.hasAttribute('data-invisible')){if(!state.social)throw Error('Your profile is not available. Try again.');b.disabled=true;await service.setProfile({displayName:name(),bio:state.social.profile.bio,invisible:!state.social.profile.invisible});}
  }catch(error){showMessage('Could not complete that action',error.message);b.disabled=false;}});
@@ -153,10 +155,10 @@
  addEventListener('repo-achievement-state',()=>{if(dialog.open&&current==='profile'&&!viewedName)render(current,{route:false});});
  addEventListener('repo-account-state',()=>{if(profileUser!==state.user?.id){viewedPlayer=null;profileRequest++;profileUser=state.user?.id;}if(dialog.open){render(current,{route:false});if(viewedName)loadPlayer();}});
  function openAchievements(game=''){
-  const returnHash=dialog.open?origin:location.hash||'#collection';
+  const returnHash=dialog.open?origin:routeOrigin();
   const target=['moratales','manager','morogue'].includes(game)?game:'';
   if(detail.open)detail.close();
-  history.pushState({scene:'account',returnHash},'','#account/achievements'+(target?'/'+target:''));
+  history.pushState({scene:'account',returnHash},'',routeURL('account/achievements'+(target?'/'+target:'')));
   open({tab:'achievements',game:target,route:false,origin:returnHash});content.scrollTop=0;content.focus({preventScroll:true});
  }
  document.addEventListener('click',event=>{const button=event.target.closest('[data-open-achievements]');if(button)openAchievements(button.dataset.openAchievements);});

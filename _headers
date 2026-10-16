@@ -107,3 +107,24 @@
 /Reparty
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
+/Account
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/Account/*
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/Moratales
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/Morogue
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/VelmoraManager
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/Demos
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/Demos/*
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
