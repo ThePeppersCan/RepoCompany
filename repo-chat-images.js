@@ -59,7 +59,7 @@
   const existing=cache.get(id);if(existing)return existing.promise||existing;
   if(cache.size>=50)evict(cache.keys().next().value);
   const record={expires:Infinity},revision=epoch;cache.set(id,record);
-  record.promise=(async()=>{try{const response=await request(id),blob=await response.blob();if(revision!==epoch)return {error:'Image unavailable.'};record.expires=Number(response.headers.get('X-Image-Expires'));record.url=URL.createObjectURL(blob);}
+  record.promise=(async()=>{try{const response=await request(id),blob=await response.blob();if(revision!==epoch||cache.get(id)!==record)return {error:'Image unavailable.'};record.expires=Number(response.headers.get('X-Image-Expires'));record.url=URL.createObjectURL(blob);}
    catch(e){record.error=e.status===410?'Image expired':e.message;record.expires=e.status===410?0:Date.now()+60000;}
    finally{delete record.promise;}return record;})();return record.promise;
  }
@@ -67,11 +67,13 @@
  async function show(box){
   const revision=epoch,id=box.dataset.wibsImage,row=await load(id);if(revision!==epoch||!box.isConnected)return;
   if(row.error||row.expires<=Date.now()){box.textContent=row.error||'Image expired';return;}
-  const img=node('img','repo-shared-image');img.alt='Shared chat image';img.loading='lazy';img.decoding='async';img.src=row.url;
+  const img=node('img','repo-shared-image');img.alt='Shared chat image';img.loading='lazy';img.decoding='async';img.src=row.url;img.tabIndex=0;img.setAttribute('role','button');img.setAttribute('aria-label','View shared image');
+  img.onclick=()=>{if(row.expires<=Date.now())return;const dialog=node('dialog','repo-image-viewer'),full=node('img',''),close=node('button','','Close');full.src=row.url;full.alt='Shared chat image at full size';close.type='button';close.onclick=()=>dialog.close();dialog.dataset.expires=row.expires;dialog.setAttribute('aria-label','Shared image');dialog.append(close,full);document.body.append(dialog);dialog.addEventListener('close',()=>dialog.remove());dialog.addEventListener('cancel',e=>e.stopPropagation());dialog.onclick=e=>{if(e.target===dialog)dialog.close();};dialog.showModal();};
+  img.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();img.click();}};
   const note=node('small','','Disappears '+new Date(row.expires).toLocaleDateString());box.replaceChildren(img,note);box.dataset.expires=String(row.expires);
  }
  function render(container,id){const box=node('span','repo-image-message','Loading image…');box.dataset.wibsImage=id;container.append(box);observer.observe(box);}
- setInterval(()=>{const now=Date.now();for(const box of document.querySelectorAll('[data-wibs-image][data-expires]'))if(Number(box.dataset.expires)<=now){box.textContent='Image expired';evict(box.dataset.wibsImage);delete box.dataset.expires;}for(const [id,row]of cache)if(row.expires<=now&&!row.promise)evict(id);},30000);
- addEventListener('repo-account-state',()=>{const next=account.state.user?.id;if(next!==owner){owner=next;epoch++;for(const id of cache.keys())evict(id);observer.disconnect();}});
+ setInterval(()=>{const now=Date.now();for(const dialog of document.querySelectorAll('.repo-image-viewer'))if(Number(dialog.dataset.expires)<=now)dialog.close();for(const box of document.querySelectorAll('[data-wibs-image][data-expires]'))if(Number(box.dataset.expires)<=now){box.textContent='Image expired';evict(box.dataset.wibsImage);delete box.dataset.expires;}for(const [id,row]of cache)if(row.expires<=now&&!row.promise)evict(id);},30000);
+ addEventListener('repo-account-state',()=>{const next=account.state.user?.id;if(next!==owner){owner=next;epoch++;for(const dialog of document.querySelectorAll('.repo-image-viewer'))dialog.close();for(const id of cache.keys())evict(id);observer.disconnect();}});
  window.repoChatImages=Object.freeze({mount,render,idFrom:text=>String(text).match(pattern)?.[1],withoutToken:text=>String(text).replace(pattern,'').trim(),preview:text=>String(text).replace(pattern,'[Image]')});
 })();

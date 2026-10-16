@@ -7,10 +7,10 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   // Generate a real raster fixture in-browser; no external image or account.
   const png=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=600;c.height=360;const x=c.getContext('2d');x.fillStyle='#163e2b';x.fillRect(0,0,600,360);x.fillStyle='#d8e6b0';x.font='bold 36px sans-serif';x.fillText('A moment worth sharing',60,160);x.font='22px sans-serif';x.fillText('Wibs · disappears after seven days',60,210);return c.toDataURL('image/png').split(',')[1];});
   await page.locator('.rc-composer input[type=file]').setInputFiles({name:'test.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
-  await page.locator('.rc-image-unused').count(); // Keep selectors independent of generated message IDs.
   await page.locator('.rc-channel-view .repo-image-draft img').waitFor();assert(await page.getByRole('button',{name:'Remove attached image',exact:true}).isVisible());
   await page.locator('.rc-composer textarea').fill('Our first image');await page.locator('.rc-send').click();
   await page.locator('.rc-log .repo-shared-image').waitFor();await peer.locator('.rc-log .repo-shared-image').waitFor({timeout:15000});
+  await page.getByRole('button',{name:'View shared image',exact:true}).click();await page.getByRole('dialog',{name:'Shared image',exact:true}).waitFor();await page.locator('.repo-image-viewer button').click();
   assert.equal(f.sql.prepare('SELECT COUNT(*) n FROM wibs_images').get().n,1);
   const before=f.sql.prepare('SELECT bytes FROM wibs_image_transfer').get().bytes;
   await page.evaluate(()=>{repoCommunity.show('dm');repoCommunity.show('community');});await page.waitForTimeout(5500);
