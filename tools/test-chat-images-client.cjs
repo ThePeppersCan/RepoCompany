@@ -25,6 +25,8 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   // Expired files show a stable placeholder instead of requesting a public URL.
   const image=f.sql.prepare("SELECT id FROM wibs_images WHERE scope='dm'").get();f.sql.prepare('UPDATE wibs_images SET expires_at=? WHERE id=?').run(Date.now()-1,image.id);
   await peer.getByRole('button',{name:'Direct messages',exact:true}).click();await peer.getByRole('button',{name:'Message Alice',exact:true}).click();await peer.getByText('Image expired',{exact:true}).waitFor();
+  await page.locator('.repo-message-composer input[type=file]').setInputFiles({name:'private-draft.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.locator('.repo-message-conversation .repo-image-draft img').waitFor();
+  await page.evaluate(()=>{repoAccount.state.user=null;dispatchEvent(new Event('repo-account-state'));});assert(await page.locator('.repo-message-conversation .repo-image-draft').isHidden(),'sign-out clears unsent private previews immediately');
   assert.deepEqual(errors,[]);console.log('PASS: picker upload, preview, image-only DM paste, recipient rendering, no repeat downloads, mobile layout, expiry placeholder and no browser errors.');
  }finally{await browser.close();await f.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

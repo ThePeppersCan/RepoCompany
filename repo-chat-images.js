@@ -6,7 +6,7 @@
  async function request(path,options={}){
   const revision=epoch,user=owner,{data:{session}}=await account.db.auth.getSession();
   if(!user||session?.user?.id!==user||revision!==epoch)throw Error('Sign in to share images.');
-  const response=await fetch('/api/chat-images/'+path,{...options,cache:'no-store',headers:{...options.headers,Authorization:'Bearer '+session.access_token},signal:options.signal||AbortSignal.timeout(25000)});
+  const response=await fetch('/api/chat-images/'+path,{...options,cache:'no-store',headers:{...options.headers,Authorization:'Bearer '+session.access_token},signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(25000)]):AbortSignal.timeout(25000)});
   if(revision!==epoch)throw Object.assign(Error('Account changed.'),{stale:true});
   if(!response.ok){const data=await response.json();throw Object.assign(Error(data.error||'Image unavailable.'),{status:response.status});}return response;
  }
@@ -31,7 +31,7 @@
   function clear(){revision++;controller?.abort();controller=null;if(pending?.url)URL.revokeObjectURL(pending.url);pending=null;busy=false;preview.hidden=true;preview.replaceChildren();file.value='';choose.disabled=false;}
   async function select(selected){
    if(!selected||input.disabled||busy)return;clear();const version=revision,where=JSON.stringify(context());busy=true;choose.disabled=true;feedback.textContent='Preparing image…';
-   try{const blob=await compress(selected);if(version!==revision||where!==JSON.stringify(context()))return;pending={blob,url:URL.createObjectURL(blob),context:where,uploaded:null};
+   try{const blob=await compress(selected);if(version!==revision||where!==JSON.stringify(context()))return;pending={blob,url:URL.createObjectURL(blob),context:where,owner,uploaded:null};
     const img=node('img','');img.src=pending.url;img.alt='Image ready to send';
     const copy=node('span','','Image · '+Math.ceil(blob.size/1024)+' KB');copy.append(node('small','','Disappears after 7 days · 20 images per 24 hours'));
     const remove=node('button','','Remove');remove.type='button';remove.setAttribute('aria-label','Remove attached image');remove.onclick=()=>{clear();onChange?.();input.focus();};
@@ -43,7 +43,7 @@
   form.addEventListener('dragover',e=>{if(e.dataTransfer?.types.includes('Files')){e.preventDefault();form.classList.add('is-image-drop');}});
   form.addEventListener('dragleave',()=>form.classList.remove('is-image-drop'));
   form.addEventListener('drop',e=>{if(e.dataTransfer?.files.length){e.preventDefault();form.classList.remove('is-image-drop');select(e.dataTransfer.files[0]);}});
-  addEventListener('repo-account-state',()=>{if(!pending||pending.context!==JSON.stringify(context()))clear();});
+  addEventListener('repo-account-state',()=>{if(!pending||pending.owner!==account.state.user?.id||pending.context!==JSON.stringify(context()))clear();});
   return {clear,preview,has:()=>!!pending,async prepare(text,clientId){
    if(busy)throw Error('Wait for the image to finish preparing.');if(!pending)return text;
    const current=pending,version=revision,where=context();if(current.context!==JSON.stringify(where)){clear();throw Error('The conversation changed. Attach the image again.');}
