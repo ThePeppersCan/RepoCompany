@@ -165,4 +165,6 @@ MoraTales uses its existing branding icon; Morogue and Velmora Manager use the p
 
 The pencil beside your name edits a separate Wibs display name, bio, banner and profile/accent colours. The account username, account bio and earned RepoScore are not edited. Profile card text automatically switches contrast for light and dark backgrounds. RepoScore is read from the existing account total, and the existing profile privacy rules apply.
 
+Personal banners appear only on Wibs profile cards, not the main account profile pages. The shared Wibs header has a small Hide header / Show header control and a matching checkbox in Your settings. Its visibility is stored locally per signed-in account, so it does not change the shared banner or another person's layout.
+
 Additional checks: `node tools/test-community-presence.cjs`, `node tools/test-community-activity-client.cjs`, `node tools/test-playtime.cjs`, `node tools/test-game-playtime.cjs`.

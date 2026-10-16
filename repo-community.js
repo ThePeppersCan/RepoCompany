@@ -11,7 +11,10 @@
  function btn(label,fn,cls='',glyph){const b=el('button',cls);b.type='button';if(glyph)b.append(icon(glyph));b.append(el('span','',label));b.onclick=fn;return b;}
  function portrait(name,profile){const n=el('span','rc-avatar',String(name||'?').slice(0,2).toUpperCase());if(profile?.avatar&&window.repoAvatar){n.insertAdjacentHTML('beforeend',window.repoAvatar.markup(profile.avatar,name));window.repoAvatar.hydrate(n);}if(profile?.frame_id&&window.repoFrames){n.insertAdjacentHTML('beforeend',window.repoFrames.markup(profile.frame_id));window.repoFrames.hydrate(n);}return n;}
  let user=account.state.user?.id||null,epoch=0,channel='general',mode='community',data=null,rows=[],hasMore=false,searchTerm='',loading=false,sending=false,polling=false,lastState=0,signature='',bannerURL='',bannerVersion=null,bannerLoading=null,editURL='';
- let channelEpoch=0,editorRevision=0,draftKeys=new Map(),drafts=new Map();const controllers=new Set(),profileURLs=new Map();
+ let channelEpoch=0,editorRevision=0,draftKeys=new Map(),drafts=new Map();const controllers=new Set();
+ const headerPreferenceKey=()=>user?'repo-wibs-hide-header:'+user:null;
+ function savedHeaderHidden(){try{return !!headerPreferenceKey()&&localStorage.getItem(headerPreferenceKey())==='true';}catch{return false;}}
+ let headerHidden=savedHeaderHidden();
  async function api(route,body,blob=false){
   const revision=epoch,id=user;if(!id)throw Error('Sign in to join the community.');
   const {data:{session}}=await account.db.auth.getSession();if(revision!==epoch||session?.user?.id!==id)throw Object.assign(Error('Account changed.'),{stale:true});
@@ -46,7 +49,13 @@
  const sidebarScroll=el('div','rc-sidebar-scroll');for(const node of [...sidebar.children])if(node!==bottom)sidebarScroll.append(node);sidebar.prepend(sidebarScroll);
  const banner=el('section','rc-banner'),bannerImage=el('img','rc-banner-image');bannerImage.alt='';bannerImage.hidden=true;
  const bannerCopy=el('div','rc-banner-copy'),bannerLabel=el('p','rc-eyebrow','REPO COMPANY COMMUNITY'),bannerTitle=el('h1','','RE-COMP'),online=el('p','rc-online','Everyone has a place here.');bannerCopy.append(bannerLabel,bannerTitle,online);
- const customize=btn('Customize',()=>editSettings(),'rc-customize','edit');customize.hidden=true;banner.append(bannerImage,bannerCopy,customize);
+ const customize=btn('Customize',()=>editSettings(),'rc-customize','edit');customize.hidden=true;
+ const headerToggle=btn('Hide header',()=>setHeaderHidden(!headerHidden),'rc-header-toggle'),bannerActions=el('div','rc-banner-actions');
+ banner.id='rc-community-header';headerToggle.setAttribute('aria-controls',banner.id);bannerActions.append(customize,headerToggle);banner.append(bannerImage,bannerCopy,bannerActions);
+ function paintHeaderVisibility(){banner.classList.toggle('is-collapsed',headerHidden);headerToggle.firstChild.textContent=headerHidden?'Show header':'Hide header';headerToggle.setAttribute('aria-expanded',String(!headerHidden));headerToggle.title=headerHidden?'Show the community header':'Hide the community header for me';}
+ function setHeaderHidden(value){headerHidden=!!value;try{if(headerPreferenceKey())localStorage.setItem(headerPreferenceKey(),String(headerHidden));}catch{}paintHeaderVisibility();}
+ paintHeaderVisibility();
+ addEventListener('storage',e=>{if(e.key===headerPreferenceKey()){headerHidden=savedHeaderHidden();paintHeaderVisibility();}});
  const below=el('div','rc-below'),center=el('div','rc-center'),members=el('aside','rc-members');members.setAttribute('aria-label','Community members');
  const channelView=el('section','rc-channel-view'),channelHead=el('header','rc-channel-head');
  const menu=btn('Channels',()=>drawer.classList.toggle('rc-nav-open'),'rc-mobile-menu','menu');
@@ -73,6 +82,7 @@
   const {form}=editorBase('Your settings');
   const choice=(label,description,action,glyph)=>{const b=btn(label,action,'rc-settings-choice',glyph);b.append(el('small','',description));return b;};
   form.append(choice('Voice & audio','Microphone, speakers, sensitivity, volume and noise suppression',()=>{closeEditor();window.repoVoice?.openSettings();},'voice'),choice('Profile & appearance','Your banner, avatar, shop frames and account preferences',()=>myProfile(),'user'));
+  const headerSetting=el('label','rc-header-setting'),headerCheckbox=el('input');headerCheckbox.type='checkbox';headerCheckbox.checked=!headerHidden;headerCheckbox.onchange=()=>setHeaderHidden(!headerCheckbox.checked);headerSetting.append(headerCheckbox,el('span','','Show the Wibs header'));form.append(headerSetting);
   const row=el('div','rc-editor-actions');row.append(btn('Done',closeEditor));form.append(row);
  }
  async function myProfile(){
@@ -120,12 +130,6 @@
    placeCard();if(!event?.detail)content.querySelector('.rc-profile-name').focus({preventScroll:true});
    if(profile.settings?.bannerVersion){const blob=await api('profile-banner?username='+encodeURIComponent(username),undefined,true);if(!valid())return;cardURL=URL.createObjectURL(blob);const image=el('img');image.alt='';image.src=cardURL;image.style.objectPosition=`${profile.settings.x}% ${profile.settings.y}%`;image.style.transform=`scale(${profile.settings.zoom/100})`;image.style.transformOrigin=image.style.objectPosition;cover.append(image);}
   }catch(e){if(valid()){card.replaceChildren(feedback);error(e,feedback);placeCard();}}
- }
- async function hydrateProfiles(root){
-  for(const [node,url]of profileURLs)if(!node.isConnected){URL.revokeObjectURL(url);profileURLs.delete(node);}
-  for(const node of root.querySelectorAll('[data-community-profile-banner]')){if(node.dataset.loaded)continue;node.dataset.loaded='true';const auth=epoch;
-   try{const profile=await api('profile?username='+encodeURIComponent(node.dataset.communityProfileBanner));if(!profile.settings?.bannerVersion||!node.isConnected||auth!==epoch)continue;const blob=await api('profile-banner?username='+encodeURIComponent(profile.username),undefined,true);if(!node.isConnected||auth!==epoch)continue;const url=URL.createObjectURL(blob);profileURLs.set(node,url);const image=el('img');image.alt='Profile banner';image.src=url;image.style.objectPosition=`${profile.settings.x}% ${profile.settings.y}%`;image.style.transform=`scale(${profile.settings.zoom/100})`;image.style.transformOrigin=image.style.objectPosition;node.style.height=profile.settings.height+'px';node.append(image);node.classList.add('has-banner');}catch{}
-  }
  }
  const personMenu=el('div','rc-person-menu');personMenu.popover='auto';personMenu.setAttribute('role','menu');personMenu.setAttribute('aria-label','Player actions');drawer.append(personMenu);
  let menuPoint={x:0,y:0};
@@ -241,8 +245,8 @@
   if(!restrictions.length)form.append(el('p','','No active voice restrictions.'));form.append(btn('Close',closeEditor));
  }
  function editRoles(){if(!data?.developer)return;const {form,feedback}=editorBase('Developer access');form.append(el('p','','Developers can manage channels, the banner, voice moderation and Developer access.'));const list=el('div','rc-role-list');for(const person of data.developers){const row=el('div');row.append(el('span','',person.display_name||person.username));if(person.username!==data.username)row.append(btn('Remove role',async()=>{try{await api('role',{username:person.username,enabled:false});await loadState();closeEditor();editRoles();}catch(e){error(e,feedback);}}));list.append(row);}form.append(list);const name=field(form,'Repo Company username','',16),save=actions(form,'Grant Developer role');form.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{await api('role',{username:name.value.trim(),enabled:true});await loadState();closeEditor();editRoles();}catch(e){error(e,feedback);}finally{save.disabled=false;}};}
- addEventListener('repo-account-state',()=>{const next=account.state.user?.id||null;if(next!==user){epoch++;channelEpoch++;controllers.forEach(c=>c.abort());user=next;data=null;rows=[];drafts.clear();draftKeys.clear();input.value='';sending=loading=polling=false;input.disabled=send.disabled=false;lastState=0;signature='';members.replaceChildren();channelList.replaceChildren();self.replaceChildren();log.replaceChildren();closeCard();closeEditor();customize.hidden=rename.hidden=addChannel.hidden=true;bannerTitle.textContent='RE-COMP';bannerImage.hidden=true;if(bannerURL)URL.revokeObjectURL(bannerURL);bannerURL='';bannerVersion=bannerLoading=null;status.textContent='';}});
+ addEventListener('repo-account-state',()=>{const next=account.state.user?.id||null;if(next!==user){epoch++;channelEpoch++;controllers.forEach(c=>c.abort());user=next;headerHidden=savedHeaderHidden();paintHeaderVisibility();data=null;rows=[];drafts.clear();draftKeys.clear();input.value='';sending=loading=polling=false;input.disabled=send.disabled=false;lastState=0;signature='';members.replaceChildren();channelList.replaceChildren();self.replaceChildren();log.replaceChildren();closeCard();closeEditor();customize.hidden=rename.hidden=addChannel.hidden=true;bannerTitle.textContent='RE-COMP';bannerImage.hidden=true;if(bannerURL)URL.revokeObjectURL(bannerURL);bannerURL='';bannerVersion=bannerLoading=null;status.textContent='';}});
  addEventListener('repo-voice-state',paintVoice);addEventListener('repo-voice-speaking',paintSpeaking);addEventListener('repo-messaging-state',()=>{if(drawer.open)poll();});
  document.addEventListener('visibilitychange',()=>{drawer.classList.toggle('rc-ambient-paused',document.hidden);if(!document.hidden)poll(true);});addEventListener('repo-launcher-portal-visibility',e=>{drawer.classList.toggle('rc-ambient-paused',e.detail?.visible===false||document.hidden);});
- window.repoCommunity=Object.freeze({show,hydrateProfiles});paintVoice();show('community');setInterval(poll,4000);setInterval(()=>{if(drawer.open&&!document.hidden)paintActivityClocks();},1000);
+ window.repoCommunity=Object.freeze({show});paintVoice();show('community');setInterval(poll,4000);setInterval(()=>{if(drawer.open&&!document.hidden)paintActivityClocks();},1000);
 })();
