@@ -7,6 +7,22 @@ to JPEG, stripping metadata. GIFs up to 1 MiB remain animated. The server checks
 the GIF block structure, dimensions, maximum 300 frames and 80 million total
 canvas pixels across frames before storing them.
 
+Website image pastes prefer a real GIF clipboard file over a PNG preview. When
+the browser supplies a still frame plus the original image address, Wibs tries
+to retrieve the original GIF directly in the browser. Direct HTTPS GIF addresses
+can also be pasted. This request sends no cookies, account token or referrer,
+requires CORS, rejects redirects, and stops at 1 MiB or ten seconds. Copied HTML
+is parsed in an inert template and never inserted into the document. There is
+no server proxy or additional service. Account/conversation changes invalidate
+the draft and sign-out aborts retrieval.
+
+Some websites only copy a still frame or block retrieval. Known GIFs then show
+instructions to save and attach the original instead of silently sending a still
+image. Other pasted still images carry the same animation guidance in their
+preview. A GIF that is absent from the clipboard and inaccessible at its source
+cannot have its animation reconstructed. Existing upload and download limits
+apply equally to recovered GIFs.
+
 ## Limits and retention
 
 - 1 MiB per stored image; 20 uploads per account in a rolling 24 hours.
@@ -63,6 +79,9 @@ state comparison. These image-specific budgets do not cap unrelated services.
 `node tools/test-chat-efficiency.cjs` exercise permissions, concurrent upload
 limits, retries, storage deletion/failure, expiry, clipboard upload, mobile
 layout, download reuse, unchanged histories and identity writes.
+`node tools/test-chat-gif-paste.cjs` checks website clipboard recovery through to
+recipient playback, privacy, untrusted markup, limits, failure guidance and
+account-change cancellation.
 
 ## RepoCompany profile pictures
 

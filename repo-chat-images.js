@@ -23,6 +23,29 @@
    throw Error('This image is too detailed to fit in 1 MB. Try a smaller image.');
   }finally{bitmap.close();}
  }
+ const gifAddress=value=>{try{return /\.gif$/i.test(new URL(value).pathname);}catch{return false;}};
+ function pastedImage(data){
+  const files=[...(data?.items||[])].filter(item=>item.kind==='file'&&item.type.startsWith('image/')).map(item=>item.getAsFile()).filter(Boolean);
+  const file=files.find(file=>file.type==='image/gif')||files[0];if(file?.type==='image/gif')return {file};
+  let source='';const html=data?.getData('text/html')||'';
+  // A detached template never executes or loads the copied page's markup.
+  if(html&&html.length<=100000){const template=document.createElement('template');template.innerHTML=html;const images=template.content.querySelectorAll('img');if(images.length===1){const link=images[0].closest('a')?.getAttribute('href');source=gifAddress(link)?link:images[0].getAttribute('src')||'';}}
+  const text=(data?.getData('text/plain')||'').trim();if(gifAddress(text))source=text;
+  const expectsGif=gifAddress(source);if(!file&&!expectsGif)return null;
+  try{const url=new URL(source),host=url.hostname.toLowerCase();if(url.protocol!=='https:'||url.username||url.password||!host.includes('.')||/^[\d.]+$/.test(host)||host.includes(':')||/\.(localhost|local|internal)$/.test(host))source='';else source=url.href;}catch{source='';}
+  return {file,source,expectsGif};
+ }
+ async function originalGif(source,signal){
+  // Download directly in the browser: no paid proxy, cookies or account token.
+  const response=await fetch(source,{mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',cache:'no-store',signal:AbortSignal.any([signal,AbortSignal.timeout(10000)])});
+  if(!response.ok||!response.body)throw Error('GIF unavailable.');
+  const reader=response.body.getReader(),chunks=[];let size=0;
+  try{
+   if(Number(response.headers.get('Content-Length'))>1048576)throw Error('Choose an animated GIF up to 1 MB.');
+   while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>1048576)throw Error('Choose an animated GIF up to 1 MB.');chunks.push(value);}
+  }finally{await reader.cancel().catch(()=>{});reader.releaseLock();}
+  const blob=new Blob(chunks,{type:'image/gif'}),signature=await blob.slice(0,6).text();return /^GIF8[79]a$/.test(signature)?blob:null;
+ }
  function mount({form,input,send,context,feedback,onChange}){
   let pending=null,revision=0,controller=null,busy=false;
   const choose=node('button','repo-image-attach');choose.type='button';choose.title='Attach an image · expires after 7 days';choose.setAttribute('aria-label','Attach image');
@@ -30,20 +53,24 @@
   const file=node('input','');file.type='file';file.accept='image/png,image/jpeg,image/webp,image/gif';file.hidden=true;file.setAttribute('aria-label','Choose chat image');
   const preview=node('div','repo-image-draft');preview.hidden=true;preview.setAttribute('aria-live','polite');form.before(preview);form.insertBefore(choose,send);form.append(file);
   function clear(){revision++;controller?.abort();controller=null;if(pending?.url)URL.revokeObjectURL(pending.url);pending=null;busy=false;preview.hidden=true;preview.replaceChildren();file.value='';choose.disabled=false;}
-  async function select(selected){
-   if(!selected||input.disabled||busy)return;clear();const version=revision,where=JSON.stringify(context());busy=true;choose.disabled=true;feedback.textContent='Preparing image…';
-   try{const blob=await compress(selected);if(version!==revision||where!==JSON.stringify(context()))return;pending={blob,url:URL.createObjectURL(blob),context:where,owner,uploaded:null};
+  async function select(selected,paste={}){
+   if((!selected&&!paste.expectsGif)||input.disabled||busy)return;clear();const version=revision,where=JSON.stringify(context());busy=true;choose.disabled=true;feedback.textContent=paste.source?'Preparing copied image…':'Preparing image…';
+   try{
+    let original=null;if(paste.source){controller=new AbortController();try{original=await originalGif(paste.source,controller.signal);}catch(error){if(controller?.signal.aborted||version!==revision)throw error;if(paste.expectsGif&&error.message==='Choose an animated GIF up to 1 MB.')throw error;}}
+    if(paste.expectsGif&&!original)throw Error('The website did not provide an accessible GIF. Save the original GIF and attach it to keep the animation.');
+    const blob=await compress(original||selected);if(version!==revision||where!==JSON.stringify(context()))return;pending={blob,url:URL.createObjectURL(blob),context:where,owner,uploaded:null};
     const img=node('img','');img.src=pending.url;img.alt='Image ready to send';
     const copy=node('span','',(blob.type==='image/gif'?'Animated GIF · ':'Image · ')+Math.ceil(blob.size/1024)+' KB');copy.append(node('small','','Disappears after 7 days · 20 images per 24 hours'));
+    if(paste.file&&blob.type!=='image/gif')copy.append(node('small','','Only a still image was copied. If this was a GIF, save and attach the original to keep the animation.'));
     const remove=node('button','','Remove');remove.type='button';remove.setAttribute('aria-label','Remove attached image');remove.onclick=()=>{clear();onChange?.();input.focus();};
     preview.replaceChildren(img,copy,remove);preview.hidden=false;feedback.textContent='';onChange?.();input.focus();
-   }catch(e){if(version===revision)feedback.textContent=e.message;}finally{if(version===revision){busy=false;choose.disabled=false;}}
+   }catch(e){if(version===revision)feedback.textContent=e.message;}finally{if(version===revision){busy=false;choose.disabled=false;controller=null;}}
   }
   choose.onclick=()=>{if(!input.disabled&&!busy)file.click();};file.onchange=()=>select(file.files[0]);
   // File inputs emit a bubbling cancel event when the native picker is dismissed.
   // It must never reach the enclosing Wibs dialog's Escape handler.
   file.addEventListener('cancel',event=>{event.stopPropagation();input.focus();});
-  input.addEventListener('paste',e=>{const image=[...(e.clipboardData?.items||[])].find(i=>i.kind==='file'&&i.type.startsWith('image/'));if(image){e.preventDefault();select(image.getAsFile());}});
+  input.addEventListener('paste',e=>{const paste=pastedImage(e.clipboardData);if(paste){e.preventDefault();select(paste.file,paste);}});
   form.addEventListener('dragover',e=>{if(e.dataTransfer?.types.includes('Files')){e.preventDefault();form.classList.add('is-image-drop');}});
   form.addEventListener('dragleave',()=>form.classList.remove('is-image-drop'));
   form.addEventListener('drop',e=>{if(e.dataTransfer?.files.length){e.preventDefault();form.classList.remove('is-image-drop');select(e.dataTransfer.files[0]);}});
