@@ -20,7 +20,7 @@ export async function onRequestGet({ request, env }) {
     // Resolve identities by verified account UUID, never by a guest's chosen name.
     const me = await db.prepare('SELECT username FROM dashboard_players WHERE user_id=?').bind(user.id).first();
     const name = me?.username || '';
-    const data = await db.prepare(`SELECT p.user_id,a.config avatar,f.frame_id FROM dashboard_players p
+    const data = await db.prepare(`SELECT p.user_id,p.username,a.config avatar,f.frame_id,(SELECT version FROM dashboard_profile_photos WHERE user_id=p.user_id AND enabled=1) photo_version FROM dashboard_players p
       LEFT JOIN dashboard_avatars a ON a.username=p.username
       LEFT JOIN dashboard_avatar_frames f ON f.username=p.username
       LEFT JOIN dashboard_profile_privacy v ON v.username=p.username

@@ -11,7 +11,8 @@
   if(!response.ok){const data=await response.json();throw Object.assign(Error(data.error||'Image unavailable.'),{status:response.status});}return response;
  }
  async function compress(file){
-  if(!/^image\/(png|jpeg|webp|gif)$/i.test(file.type)||file.size>20*1024*1024)throw Error('Choose a JPG, PNG, WebP or GIF up to 20 MB. GIF uploads become still images.');
+  if(!/^image\/(png|jpeg|webp|gif)$/i.test(file.type)||file.size>20*1024*1024)throw Error('Choose a JPG, PNG, WebP or GIF up to 20 MB. Animated GIFs must be 1 MB or smaller.');
+  if(file.type==='image/gif'){if(file.size>1048576)throw Error('Choose an animated GIF up to 1 MB.');const bitmap=await createImageBitmap(file);try{if(bitmap.width>1600||bitmap.height>1600)throw Error('Choose a GIF at most 1,600 pixels wide and tall.');return file;}finally{bitmap.close();}}
   const bitmap=await createImageBitmap(file);
   try{
    if(bitmap.width*bitmap.height>40000000)throw Error('Choose an image smaller than 40 megapixels.');
@@ -33,7 +34,7 @@
    if(!selected||input.disabled||busy)return;clear();const version=revision,where=JSON.stringify(context());busy=true;choose.disabled=true;feedback.textContent='Preparing image…';
    try{const blob=await compress(selected);if(version!==revision||where!==JSON.stringify(context()))return;pending={blob,url:URL.createObjectURL(blob),context:where,owner,uploaded:null};
     const img=node('img','');img.src=pending.url;img.alt='Image ready to send';
-    const copy=node('span','','Image · '+Math.ceil(blob.size/1024)+' KB');copy.append(node('small','','Disappears after 7 days · 20 images per 24 hours'));
+    const copy=node('span','',(blob.type==='image/gif'?'Animated GIF · ':'Image · ')+Math.ceil(blob.size/1024)+' KB');copy.append(node('small','','Disappears after 7 days · 20 images per 24 hours'));
     const remove=node('button','','Remove');remove.type='button';remove.setAttribute('aria-label','Remove attached image');remove.onclick=()=>{clear();onChange?.();input.focus();};
     preview.replaceChildren(img,copy,remove);preview.hidden=false;feedback.textContent='';onChange?.();input.focus();
    }catch(e){if(version===revision)feedback.textContent=e.message;}finally{if(version===revision){busy=false;choose.disabled=false;}}
@@ -51,7 +52,7 @@
    if(busy)throw Error('Wait for the image to finish preparing.');if(!pending)return text;
    const current=pending,version=revision,where=context();if(current.context!==JSON.stringify(where)){clear();throw Error('The conversation changed. Attach the image again.');}
    if(text.length>3940)throw Error('Shorten the caption to 3,940 characters.');
-   if(!current.uploaded){controller=new AbortController();const response=await request('upload?scope='+encodeURIComponent(where.scope)+'&target='+encodeURIComponent(where.target)+'&clientId='+clientId,{method:'POST',headers:{'Content-Type':'image/jpeg'},body:current.blob,signal:controller.signal});const data=await response.json();if(version!==revision||current.context!==JSON.stringify(context()))throw Object.assign(Error('Conversation changed.'),{stale:true});current.uploaded={...data,clientId};}
+   if(!current.uploaded){controller=new AbortController();const response=await request('upload?scope='+encodeURIComponent(where.scope)+'&target='+encodeURIComponent(where.target)+'&clientId='+clientId,{method:'POST',headers:{'Content-Type':current.blob.type},body:current.blob,signal:controller.signal});const data=await response.json();if(version!==revision||current.context!==JSON.stringify(context()))throw Object.assign(Error('Conversation changed.'),{stale:true});current.uploaded={...data,clientId};}
    // After a failed send, keep the upload tied to the same idempotency key.
    if(current.uploaded.clientId!==clientId)throw Error('Remove and reattach this image before changing the failed message.');
    return (text?text+'\n':'')+'[[wibs-image:'+current.uploaded.id+']]';

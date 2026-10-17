@@ -168,3 +168,20 @@ The pencil beside your name edits a separate Wibs display name, bio, banner and 
 Personal banners appear only on Wibs profile cards, not the main account profile pages. The shared Wibs header has a small Hide header / Show header control and a matching checkbox in Your settings. Its visibility is stored locally per signed-in account, so it does not change the shared banner or another person's layout.
 
 Additional checks: `node tools/test-community-presence.cjs`, `node tools/test-community-activity-client.cjs`, `node tools/test-playtime.cjs`, `node tools/test-game-playtime.cjs`.
+
+### Candidate gathering recovery
+
+The browser sends the gathered candidates after four seconds even if an adapter
+or STUN request is still waiting. A complete gathering pass without candidates,
+or a ten-second empty timeout, retries once on a fresh PeerConnection with no
+STUN server. This happens before publishing, so the retry does not create a second
+SFU session or reserve extra usage. Cancellation closes the transport and stops
+waiting. This does not add TURN, alter the audio budget or enable screen sharing.
+
+A failed join offers a downloadable report with timestamps, connection states,
+candidate counts/types and STUN error codes. It excludes SDP, addresses, account
+names and tokens. Matching the old gathering-timeout message is evidence of a
+client failure path, not confirmation of the cause on an affected user's PC.
+
+Checks: `tools/test-voice-connection.cjs`, `tools/test-voice-retry-client.cjs`,
+`tools/test-voice-client.cjs` and the existing server voice/budget tests.

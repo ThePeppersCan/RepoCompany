@@ -1,5 +1,5 @@
 import config from '../../../dashboard-config.json';
-import {BUCKET,RETENTION,TRANSFER_LIMIT,imageError,imageToken,readImageBody,storageFetch,storageHeaders} from '../../../lib/chat-images.mjs';
+import {BUCKET,RETENTION,TRANSFER_LIMIT,imageError,imageToken,readImageBody,storageFetch,storageHeaders,imagePath} from '../../../lib/chat-images.mjs';
 const uuid=v=>typeof v==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(v);
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const allowed=`EXISTS(SELECT 1 FROM dashboard_friendships f JOIN dashboard_players a ON a.username=c.a_name AND a.user_id=c.a_id JOIN dashboard_players b ON b.username=c.b_name AND b.user_id=c.b_id WHERE f.status='accepted' AND ((f.player_a=c.a_name AND f.player_b=c.b_name) OR (f.player_b=c.a_name AND f.player_a=c.b_name))) AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=c.a_name AND b.blocked=c.b_name) OR (b.blocker=c.b_name AND b.blocked=c.a_name))`;
@@ -30,10 +30,10 @@ export async function onRequest({request,env,params}){
    if(!uuid(clientId)||!await targetAllowed(db,me,scope,target))throw imageError('This conversation is unavailable.',403);
    const prior=await db.prepare('SELECT * FROM wibs_images WHERE owner_id=? AND client_id=?').bind(me.id,clientId).first();
    if(prior){if(prior.scope!==scope||prior.target!==target||prior.expires_at<=now||prior.deleted_at)throw imageError('Attach the image again.',409);if(prior.state==='ready')return json({id:prior.id,expiresAt:prior.expires_at});throw imageError('The previous upload is still being processed. Remove the image and attach it again.',409);}
-   const {bytes,width,height}=await readImageBody(request),id=crypto.randomUUID(),expiresAt=now+RETENTION;
-   try{await db.prepare('INSERT INTO wibs_images(id,owner_id,owner_name,client_id,scope,target,bytes,width,height,created_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)').bind(id,me.id,me.name,clientId,scope,target,bytes.length,width,height,now,expiresAt).run();}
+   const {bytes,width,height,mime}=await readImageBody(request),id=crypto.randomUUID(),expiresAt=now+RETENTION;
+   try{await db.prepare('INSERT INTO wibs_images(id,owner_id,owner_name,client_id,scope,target,bytes,width,height,created_at,expires_at,mime_type) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').bind(id,me.id,me.name,clientId,scope,target,bytes.length,width,height,now,expiresAt,mime).run();}
    catch(e){if(String(e.message).includes('WIBS_PERSON_LIMIT'))throw imageError('You can send 20 images in 24 hours. Please try again later.',429);if(/WIBS_(DAILY|STORAGE)_LIMIT/.test(e.message))throw imageError('Wibs has reached its image allowance. Text chat is still available; please try again later.',429);throw e;}
-   const stored=await storageFetch(config,env,'object/'+BUCKET+'/'+id+'.jpg',{method:'POST',headers:{'Content-Type':'image/jpeg','Cache-Control':'max-age=0','x-upsert':'false'},body:bytes});
+   const stored=await storageFetch(config,env,'object/'+BUCKET+'/'+imagePath({id,mime_type:mime}),{method:'POST',headers:{'Content-Type':mime,'Cache-Control':'max-age=0','x-upsert':'false'},body:bytes});
    if(!stored.ok)throw imageError('The image could not be stored. Remove it and attach it again.',503);
    await db.prepare("UPDATE wibs_images SET state='ready' WHERE id=?").bind(id).run();return json({id,expiresAt});
   }
@@ -48,8 +48,8 @@ export async function onRequest({request,env,params}){
    const month=new Date(now).toISOString().slice(0,7);
    const budget=await db.prepare('INSERT INTO wibs_image_transfer(month,bytes) VALUES(?,?) ON CONFLICT(month) DO UPDATE SET bytes=bytes+excluded.bytes WHERE bytes+excluded.bytes<=? RETURNING bytes').bind(month,row.bytes,TRANSFER_LIMIT).first();
    if(!budget)throw imageError('Image viewing has reached its monthly allowance. Text chat is still available.',429);
-   const response=await storageFetch(config,env,'object/authenticated/'+BUCKET+'/'+row.id+'.jpg');if(!response.ok)throw imageError('Image unavailable.',404);
-   return new Response(response.body,{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','X-Image-Expires':String(row.expires_at),Vary:'Authorization'}});
+   const response=await storageFetch(config,env,'object/authenticated/'+BUCKET+'/'+imagePath(row));if(!response.ok)throw imageError('Image unavailable.',404);
+   return new Response(response.body,{headers:{'Content-Type':row.mime_type,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','X-Image-Expires':String(row.expires_at),Vary:'Authorization'}});
   }
   throw imageError('Not found.',404);
  }catch(e){return json({error:e.status?e.message:'Images are temporarily unavailable.'},e.status||503);}

@@ -51,6 +51,7 @@
     if (node.dataset.portraitKey === key) return;
     node.dataset.portraitKey = key; node.textContent = initials(name);node.classList.remove('has-avatar-frame');
     const frame=window.repoFrames?.markup(frameId);if(frame){node.insertAdjacentHTML('beforeend',frame);window.repoFrames.hydrate(node);}
+    window.repoProfilePhotos?.paint(node,username);
     if (!avatar || !window.repoAvatar?.draw) return;
     const canvas = el('canvas', 'repo-social-portrait'); canvas.width = canvas.height = 256;
     canvas.setAttribute('aria-hidden', 'true'); node.append(canvas);

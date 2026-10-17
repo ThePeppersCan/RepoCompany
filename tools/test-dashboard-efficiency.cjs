@@ -7,7 +7,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),{DatabaseSync}=
  }
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
  const sql=new DatabaseSync(':memory:');
- for(const file of ['dashboard-social-schema.sql','dashboard-playtime-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql'])sql.exec(fs.readFileSync(file,'utf8'));
+ for(const file of ['dashboard-social-schema.sql','dashboard-playtime-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-profile-pictures-schema.sql','dashboard-privacy-schema.sql'])sql.exec(fs.readFileSync(file,'utf8'));
  const prepare=(query,values=[])=>({bind(...args){return prepare(query,args);},async first(){return sql.prepare(query).get(...values)||null;},async all(){return {results:sql.prepare(query).all(...values)};},async run(){return sql.prepare(query).run(...values);}});
  const env={DASHBOARD_DB:{prepare}};
  const nativeFetch=global.fetch;

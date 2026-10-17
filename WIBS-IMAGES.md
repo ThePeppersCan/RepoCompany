@@ -2,9 +2,10 @@
 
 Wibs accepts one image per community or direct message through the image button,
 paste, or drag/drop onto the composer. A preview appears before sending. Original
-JPG/PNG/WebP/GIF files up to 20 MB are resized to at most 1,600 pixels and converted
-to JPEG, stripping metadata. Uploaded GIFs are still images; the existing Wibs GIF
-picker remains animated.
+JPG/PNG/WebP files up to 20 MB are resized to at most 1,600 pixels and converted
+to JPEG, stripping metadata. GIFs up to 1 MiB remain animated. The server checks
+the GIF block structure, dimensions, maximum 300 frames and 80 million total
+canvas pixels across frames before storing them.
 
 ## Limits and retention
 
@@ -42,10 +43,13 @@ completion statistics are cached for five minutes.
 1. Apply `dashboard-chat-efficiency-schema.sql` and
    `dashboard-chat-images-schema.sql` to production D1. Both are additive and
    repeatable; existing messages, saves and roles are retained.
-2. Run `supabase-wibs-images.sql` in the project's SQL editor.
-3. Set `WIBS_STORAGE_KEY` as an encrypted production Pages secret and an encrypted
+2. Apply `dashboard-wibs-media-schema.sql` once for the GIF MIME column, and
+   `dashboard-profile-pictures-schema.sql` for account-wide pictures. Deploy the
+   cleanup worker after the GIF migration and before enabling GIF uploads.
+3. Run `supabase-wibs-images.sql` in the project's SQL editor.
+4. Set `WIBS_STORAGE_KEY` as an encrypted production Pages secret and an encrypted
    secret on `repocompany-chat-maintenance`. It must be a server-only Supabase key.
-4. Deploy `workers/chat-maintenance/wrangler.toml`, with its hourly cron, and the
+5. Deploy `workers/chat-maintenance/wrangler.toml`, with its hourly cron, and the
    website. Do not enable a paid Cloudflare plan for this feature.
 
 Check the maintenance worker's cron status and `wibs_images` expired rows if
@@ -59,3 +63,23 @@ state comparison. These image-specific budgets do not cap unrelated services.
 `node tools/test-chat-efficiency.cjs` exercise permissions, concurrent upload
 limits, retries, storage deletion/failure, expiry, clipboard upload, mobile
 layout, download reuse, unchanged histories and identity writes.
+
+## RepoCompany profile pictures
+
+The main account profile editor offers a created avatar or an uploaded picture.
+Both are retained when switching; deleting an upload is an explicit action.
+Saving an avatar in the creator selects the avatar again. The same choice is used
+by Account, Friends, frame previews, Wibs messages/voice and Reparty.
+
+The browser crops JPG/PNG/WebP to a 256px square and re-encodes JPEG under 64 KiB.
+The authenticated picture API validates JPEG dimensions and size, allows five
+uploads per UTC day, and stores only one current file per account in D1. An atomic
+16 MiB binary-size limit bounds the entire photo collection (~22 MiB base64).
+Replacements overwrite old data. Images share the existing 20 GB/month transfer
+budget; private profiles and blocks are checked before serving any image.
+The roster carries only a version reference. Memory caches expire after a minute
+and are cleared on account changes. No new storage bucket or paid service is used.
+
+Run `node tools/test-wibs-media.cjs` and `node tools/test-wibs-media-client.cjs`
+for GIF playback, account picture selection, replacement, privacy, retention,
+storage/transfer limits, Reparty rendering and sign-out cleanup.

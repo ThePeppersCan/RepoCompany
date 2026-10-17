@@ -9,12 +9,14 @@ const encode=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
 const sessions=Object.fromEntries(Object.entries(people).map(([username,id])=>{const expires=Math.floor(Date.now()/1000)+3600,user={id,aud:'authenticated',role:'authenticated',email:username+'@conofdrpepper.local',user_metadata:{username},created_at:new Date().toISOString()};return [username,{access_token:encode({alg:'HS256'})+'.'+encode({sub:id,exp:expires,role:'authenticated'})+'.fixture',refresh_token:'fixture-'+username,token_type:'bearer',expires_in:3600,expires_at:expires,user}];}));
 async function createFixture(fixtureOptions={}){
  const imageImport=require('node:url').pathToFileURL(path.join(root,'lib/chat-images.mjs')).href;
- const resolveImports=s=>s.replaceAll("'../../../lib/wibs-activity.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/wibs-activity.mjs')).href)).replaceAll("'../../../lib/community-inbox.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/community-inbox.mjs')).href)).replaceAll("'../../../lib/chat-images.mjs'",JSON.stringify(imageImport)).replaceAll("'../../../lib/chat-typing.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/chat-typing.mjs')).href));
+ const resolveImports=s=>s.replaceAll("'../../../lib/profile-photos.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/profile-photos.mjs')).href)).replaceAll("'../../../lib/wibs-activity.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/wibs-activity.mjs')).href)).replaceAll("'../../../lib/community-inbox.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/community-inbox.mjs')).href)).replaceAll("'../../../lib/chat-images.mjs'",JSON.stringify(imageImport)).replaceAll("'../../../lib/chat-typing.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/chat-typing.mjs')).href));
  const source=fs.readFileSync(path.join(root,'functions/api/social/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify({...config,socialCallsEnabled:true})+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(resolveImports(source)).toString('base64'));
  const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(path.join(root,'dashboard-social-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-messaging-schema.sql'),'utf8'));sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-extras-schema.sql'),'utf8'));
  for(const file of ['dashboard-community-schema.sql','dashboard-community-unread-schema.sql','dashboard-wibs-activity-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql','dashboard-playtime-schema.sql','dashboard-game-presence-schema.sql','dashboard-community-profile-schema.sql','dashboard-wibs-appearance-schema.sql'])sql.exec(fs.readFileSync(path.join(root,file),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-images-schema.sql'),'utf8'));
+ sql.exec(fs.readFileSync(path.join(root,'dashboard-wibs-media-schema.sql'),'utf8'));
+ sql.exec(fs.readFileSync(path.join(root,'dashboard-profile-pictures-schema.sql'),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-typing-schema.sql'),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-efficiency-schema.sql'),'utf8').replace(/CREATE INDEX IF NOT EXISTS achievement_unlocks_by_achievement[^;]+;/,''));
  const imageSource=resolveImports(fs.readFileSync(path.join(root,'functions/api/chat-images/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';'));
@@ -22,6 +24,10 @@ async function createFixture(fixtureOptions={}){
  const communitySource=fs.readFileSync(path.join(root,'functions/api/community/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
  const onCommunityRequest=(await import('data:text/javascript;base64,'+Buffer.from(resolveImports(communitySource)).toString('base64'))).onRequest;
  const profileSource=fs.readFileSync(path.join(root,'functions/api/reparty-profiles.js'),'utf8').replace("import config from '../../dashboard-config.json';",'const config='+JSON.stringify(config)+';');
+ const pictureSource=fs.readFileSync(path.join(root,'functions/api/profile-picture.js'),'utf8').replace("import config from '../../dashboard-config.json';",'const config='+JSON.stringify(config)+';').replaceAll("'../../lib/profile-photos.mjs'",JSON.stringify(require('node:url').pathToFileURL(path.join(root,'lib/profile-photos.mjs')).href)).replaceAll("'../../lib/chat-images.mjs'",JSON.stringify(imageImport));
+ const onPictureRequest=(await import('data:text/javascript;base64,'+Buffer.from(pictureSource).toString('base64'))).onRequest;
+ const dashboardSource=fs.readFileSync(path.join(root,'functions/api/dashboard/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';').replace("import frameCatalog from '../../../avatar-frame-catalog.json';",'const frameCatalog='+fs.readFileSync(path.join(root,'avatar-frame-catalog.json'),'utf8')+';').replace("import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';",'const avatarCatalog='+fs.readFileSync(path.join(root,'account-assets/avatar-v2/catalog.json'),'utf8')+';');
+ const onDashboardRequest=(await import('data:text/javascript;base64,'+Buffer.from(dashboardSource).toString('base64'))).onRequest;
  const onRepartyProfiles=(await import('data:text/javascript;base64,'+Buffer.from(profileSource).toString('base64'))).onRequestGet;
  for(const [username,id]of Object.entries(people))sql.prepare('INSERT INTO dashboard_players(username,user_id,display_name) VALUES(?,?,?)').run(username,id,username[0].toUpperCase()+username.slice(1));
  sql.prepare("INSERT INTO dashboard_friendships VALUES('alice','bob','alice','accepted',?)").run(Date.now());
@@ -55,7 +61,9 @@ async function createFixture(fixtureOptions={}){
  }
  const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.gif':'image/gif','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.svg':'image/svg+xml','.mp3':'audio/mpeg','.woff2':'font/woff2'};
  const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://127.0.0.1');let response;
-  if(url.pathname==='/api/reparty-profiles'){
+  if(url.pathname==='/api/profile-picture'){
+   const chunks=[];for await(const b of req)chunks.push(b);response=await onPictureRequest({request:new Request(base+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})}),env});
+  }else if(url.pathname==='/api/reparty-profiles'){
    response=await onRepartyProfiles({request:new Request(base+req.url,{headers:req.headers}),env});
   }else if(url.pathname.startsWith('/api/chat-images/')){
    const chunks=[];for await(const b of req)chunks.push(b);
@@ -75,6 +83,7 @@ async function createFixture(fixtureOptions={}){
   }else if(url.pathname.startsWith('/api/dashboard/')){
    const who=Object.entries(sessions).find(([,s])=>req.headers.authorization==='Bearer '+s.access_token)?.[0];
    if(!who)response=Response.json({error:'Sign in'},{status:401});
+   else if(['/api/dashboard/state','/api/dashboard/profile','/api/dashboard/avatar'].includes(url.pathname)){const chunks=[];for await(const b of req)chunks.push(b);response=await onDashboardRequest({request:new Request(base+req.url,{method:req.method,headers:req.headers,...(req.method==='POST'?{body:Buffer.concat(chunks)}:{})}),env,params:{path:url.pathname.split('/').at(-1)}});}
    else if(url.pathname.endsWith('/state')){const friends=sql.prepare("SELECT CASE WHEN player_a=? THEN player_b ELSE player_a END username,status,requester FROM dashboard_friendships WHERE player_a=? OR player_b=?").all(who,who,who).map(f=>({...f,display_name:f.username[0].toUpperCase()+f.username.slice(1),online:1,repo_score:120}));response=Response.json({username:who,profile:{display_name:who[0].toUpperCase()+who.slice(1),bio:'Ready for another adventure.',repo_score:120},friends,blocks:[],activity:[],friend_activity:[]})}
    else if(url.pathname.endsWith('/profile'))response=Response.json({username:'bob',relationship:'accepted',profile:{username:'bob',display_name:'Bob',repo_score:120,online:1},activity:[{game:'morogue',played_ms:3600000,last_played:Date.now()}],mutual_friends:[]});
    else response=Response.json({ok:true});

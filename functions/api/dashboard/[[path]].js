@@ -22,7 +22,7 @@ async function earnedFrames(db,me){const rows=await db.prepare('SELECT achieveme
 // Dashboard and game leases are independent: a hidden dashboard must never
 // clear a visible game's status. Only live, active game sessions supply a title.
 const playerJoins=`LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username LEFT JOIN dashboard_avatar_frames af ON af.username=p.username`;
-const publicFields=`p.username,p.display_name,p.bio,p.repo_score,p.user_id AS _user_id,p.invisible AS _invisible,a.config AS avatar,af.frame_id,COALESCE(v.private_profile,0) AS private_profile,
+const publicFields=`p.username,p.display_name,p.bio,p.repo_score,p.user_id AS _user_id,p.invisible AS _invisible,a.config AS avatar,af.frame_id,(SELECT version FROM dashboard_profile_photos WHERE user_id=p.user_id AND enabled=1) photo_version,COALESCE(v.private_profile,0) AS private_profile,
  CASE WHEN p.invisible=0 AND (p.last_seen>? OR (s.active=1 AND s.last_tick>?)) THEN 1 ELSE 0 END AS online,
  CASE WHEN p.invisible=0 AND s.active=1 AND s.last_tick>? THEN s.game WHEN p.invisible=0 AND p.last_seen>? THEN p.current_game ELSE '' END AS current_game`;
 async function gamePresence(env,players,now){
@@ -68,7 +68,7 @@ export async function onRequest({request,env,params}){
   const route=Array.isArray(params.path)?params.path.join('/'):params.path||'';
   if(request.method==='GET'&&route==='frame-rewards')return json({owned:await earnedFrames(db,me)});
   if(request.method==='GET'&&route==='state'){
-   const profile=await db.prepare(`SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar,af.frame_id,COALESCE(v.private_profile,0) AS private_profile FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(me).first();
+   const profile=await db.prepare(`SELECT p.display_name,p.bio,p.invisible,p.repo_score,a.config AS avatar,af.frame_id,(SELECT version FROM dashboard_profile_photos WHERE user_id=p.user_id AND enabled=1) photo_version,COALESCE(v.private_profile,0) AS private_profile FROM dashboard_players p ${playerJoins} WHERE p.username=?`).bind(me).first();
    const friends=await playerFriends(db,me,now,env);
    const blocks=await db.prepare('SELECT blocked AS username FROM dashboard_blocks WHERE blocker=?').bind(me).all();
    const activity=await db.prepare('SELECT game,played_ms,last_played FROM dashboard_game_activity WHERE username=? ORDER BY last_played DESC').bind(me).all();
@@ -156,8 +156,8 @@ export async function onRequest({request,env,params}){
   }
   if(route==='avatar'){
    const avatar=validateAvatar(body.avatar);if(!avatar)return json({error:'Choose valid avatar features and colours.'},400);
-   await db.prepare('INSERT INTO dashboard_avatars(username,config,updated_at) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET config=excluded.config,updated_at=excluded.updated_at').bind(me,JSON.stringify(avatar),now).run();
-   return json({ok:true,avatar});
+   await db.batch([db.prepare('INSERT INTO dashboard_avatars(username,config,updated_at) VALUES(?,?,?) ON CONFLICT(username) DO UPDATE SET config=excluded.config,updated_at=excluded.updated_at').bind(me,JSON.stringify(avatar),now),db.prepare('UPDATE dashboard_profile_photos SET enabled=0 WHERE user_id=?').bind(user.id)]);
+   return json({ok:true,avatar,photo_version:null});
   }
   if(route==='frame'){
    const id=body.frameId;

@@ -4,7 +4,7 @@ const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('n
  const avatarImport="import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';";
  const prepared=source.replace(avatarImport,'const avatarCatalog='+fs.readFileSync('account-assets/avatar-v2/catalog.json','utf8')+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(prepared).toString('base64'));
- const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync('dashboard-social-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-playtime-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-avatar-schema.sql','utf8')+fs.readFileSync('dashboard-frames-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-privacy-schema.sql','utf8'));
+ const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync('dashboard-social-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-playtime-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-avatar-schema.sql','utf8')+fs.readFileSync('dashboard-frames-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-privacy-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-profile-pictures-schema.sql','utf8'));
  sql.exec(fs.readFileSync('dashboard-game-presence-schema.sql','utf8'));
  const presence=()=>sql.prepare('SELECT * FROM dashboard_game_presence WHERE username=?').get('alice');
  const prepare=(query,values=[])=>({bind(...args){return prepare(query,args);},async first(){return sql.prepare(query).get(...values)||null;},async all(){return {results:sql.prepare(query).all(...values)};},async run(){return sql.prepare(query).run(...values);}});
