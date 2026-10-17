@@ -30,7 +30,7 @@ const assert=require('node:assert/strict'),{createFixture}=require('./messaging-
   assert(f.imageObjects.has(image.id+'.jpg'));await cleanupImages(f.env.DASHBOARD_DB,f.env,f.config);assert(!f.imageObjects.has(image.id+'.jpg'),'cleanup removes actual storage bytes');
   const month=new Date().toISOString().slice(0,7);f.sql.prepare('UPDATE wibs_image_transfer SET bytes=? WHERE month=?').run(TRANSFER_LIMIT,month);assert.equal((await get('bob',privateImage.id)).status,429);
   f.sql.exec('DELETE FROM wibs_images;');
-  const responses=await Promise.all(Array.from({length:21},()=>upload('mallory')));assert.equal(responses.filter(r=>r.status===200).length,20);assert.equal(responses.filter(r=>r.status===429).length,1,'concurrent uploads respect quota');
+  const responses=await Promise.all(Array.from({length:31},()=>upload('mallory')));assert.equal(responses.filter(r=>r.status===200).length,30);assert.equal(responses.filter(r=>r.status===429).length,1,'concurrent uploads respect quota');
   // A stale upload is an orphan; the same storage removal path handles it.
   const orphan=f.sql.prepare('SELECT id FROM wibs_images LIMIT 1').get().id;f.sql.prepare('UPDATE wibs_images SET created_at=? WHERE id=?').run(Date.now()-3600001,orphan);await cleanupImages(f.env.DASHBOARD_DB,f.env,f.config);assert(!f.imageObjects.has(orphan+'.jpg'));
   console.log('PASS: private images, friendship/block checks, attachment ownership, upload retry, size/type/dimension limits, concurrent per-user quota, transfer ceiling, seven-day expiry and actual orphan/expired-file removal.');

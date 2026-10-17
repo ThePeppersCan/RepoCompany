@@ -62,7 +62,7 @@
     if(paste.expectsGif&&!original)throw Error('The website did not provide an accessible GIF. Save the original GIF and attach it to keep the animation.');
     const blob=await compress(original||selected);if(version!==revision||where!==JSON.stringify(context()))return;pending={blob,url:URL.createObjectURL(blob),context:where,owner,uploaded:null};
     const img=node('img','');img.src=pending.url;img.alt='Image ready to send';
-    const copy=node('span','',(blob.type==='image/gif'?'Animated GIF · ':'Image · ')+Math.ceil(blob.size/1024)+' KB');copy.append(node('small','','Disappears after 7 days · 20 images per 24 hours'));
+    const copy=node('span','',(blob.type==='image/gif'?'Animated GIF · ':'Image · ')+Math.ceil(blob.size/1024)+' KB');copy.append(node('small','','Disappears after 7 days · 30 images per 24 hours'));
     if(paste.file&&blob.type!=='image/gif')copy.append(node('small','','Only a still image was copied. If this was a GIF, save and attach the original to keep the animation.'));
     const remove=node('button','','Remove');remove.type='button';remove.setAttribute('aria-label','Remove attached image');remove.onclick=()=>{clear();onChange?.();input.focus();};
     preview.replaceChildren(img,copy,remove);preview.hidden=false;feedback.textContent='';onChange?.();input.focus();

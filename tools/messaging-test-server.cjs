@@ -16,6 +16,7 @@ async function createFixture(fixtureOptions={}){
  for(const file of ['dashboard-community-schema.sql','dashboard-community-unread-schema.sql','dashboard-wibs-activity-schema.sql','dashboard-avatar-schema.sql','dashboard-frames-schema.sql','dashboard-privacy-schema.sql','dashboard-playtime-schema.sql','dashboard-game-presence-schema.sql','dashboard-community-profile-schema.sql','dashboard-wibs-appearance-schema.sql'])sql.exec(fs.readFileSync(path.join(root,file),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-images-schema.sql'),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-wibs-media-schema.sql'),'utf8'));
+ sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-images-limit-30.sql'),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-profile-pictures-schema.sql'),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-typing-schema.sql'),'utf8'));
  sql.exec(fs.readFileSync(path.join(root,'dashboard-chat-efficiency-schema.sql'),'utf8').replace(/CREATE INDEX IF NOT EXISTS achievement_unlocks_by_achievement[^;]+;/,''));

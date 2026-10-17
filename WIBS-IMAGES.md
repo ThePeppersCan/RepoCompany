@@ -33,7 +33,7 @@ apply equally to recovered GIFs.
 
 ## Limits and retention
 
-- 1 MiB per stored image; 20 uploads per account in a rolling 24 hours.
+- 1 MiB per stored image; 30 uploads per account in a rolling 24 hours.
 - 100 uploads per rolling 24 hours across the app; 500 MiB total reserved storage.
 - 20 GB of image downloads per UTC calendar month, counted conservatively before
   each download. Cached browser image blobs do not download again during polling.
@@ -75,6 +75,8 @@ completion statistics are cached for five minutes.
    secret on `repocompany-chat-maintenance`. It must be a server-only Supabase key.
 5. Deploy `workers/chat-maintenance/wrangler.toml`, with its hourly cron, and the
    website. Do not enable a paid Cloudflare plan for this feature.
+6. Apply `dashboard-chat-images-limit-30.sql` to raise the per-account rolling
+   allowance to 30. It preserves existing images and the shared storage/traffic caps.
 
 Check the maintenance worker's cron status and `wibs_images` expired rows if
 uploads report their shared allowance is full. Review normal daily Workers/D1
