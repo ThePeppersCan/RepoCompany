@@ -212,12 +212,13 @@
   mountLaunch();
   function open(name) {
     if (!userId) { window.accountMenu?.open({tab: 'profile'}); return; }
+    const intro = window.repoRoutes?.shouldPlayIntro();
     window.repoRoutes?.enter('wibs');
     const opening = !drawer.open;
     if (!drawer.open) { opener = document.activeElement; drawer.showModal(); inboxArchiveAt = 0; }
     if (name) select(name); else { renderFriends(); if (!selection) search.focus(); }
     window.repoCommunity?.show(name ? 'dm' : 'community');
-    if (opening) window.repoWibsIntro?.play(drawer);
+    if (opening && intro) window.repoWibsIntro?.play(drawer);
     if (callPanel.open) { callPanel.close(); callPanel.showModal(); }
     announce(); inboxAt = 0; tick();
   }

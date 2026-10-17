@@ -10,7 +10,10 @@
   }
   function node(tag,cls,text) { const n=document.createElement(tag); n.className=cls; if(text)n.textContent=text; return n; }
   function button(label,cls,action) { const n=node('button',cls);n.type='button';n.title=label;n.setAttribute('aria-label',label);n.onclick=action;return n; }
-  const gifs=Object.freeze(catalog.slice(0,4).map(item=>Object.freeze({id:item.id.slice(5),label:item.label+' GIF'})));
+  const gifs=Object.freeze([
+    ...catalog.slice(0,4).map(item=>({id:item.id.slice(5),label:item.label+' GIF',width:320,height:240})),
+    ...[['griddy','Griddy'],['breakdance','Breakdance'],['little-jig','Little Jig'],['disgusted','Disgusted'],['moonwalk','Moonwalk'],['disco','Disco'],['happy-bounce','Happy Bounce'],['facepalm','Facepalm']].map(([id,label])=>({id,label:'Wibs · '+label+' GIF',width:480,height:480}))
+  ].map(Object.freeze));
   const reduced=matchMedia('(prefers-reduced-motion: reduce)'),pausedGifs=new Set();
   const gifText=id=>gifs.some(g=>g.id===id)?`:wibs-gif-${id}:`:'';
   const gifFor=text=>gifs.find(g=>gifText(g.id)===String(text).trim());
@@ -21,7 +24,7 @@
     const gif=gifFor(text);container.replaceChildren();container.classList.remove('is-emotes-only');container.classList.toggle('is-wibs-gif',!!gif);
     if(!gif){const parts=String(text).split(emoteTokens);let count=0;for(const part of parts){const id=part.startsWith(':')&&part.endsWith(':')?resolve(part.slice(1,-1)):null;if(id){const img=emote(id);img.classList.add('repo-inline-emote');img.removeAttribute('aria-hidden');img.alt=label(id);container.append(img);count++;}else container.append(document.createTextNode(part));}container.classList.toggle('is-emotes-only',count>0&&count<=3&&parts.filter((_,i)=>i%2===0).join('').trim()==='');return;}
     const image=node('img','repo-wibs-gif'),control=button('','repo-gif-play',()=>setPlaying(!playing));
-    image.alt=gif.label;image.width=320;image.height=240;image.loading='lazy';image.draggable=false;
+    image.alt=gif.label;image.width=gif.width;image.height=gif.height;image.style.aspectRatio=gif.width+'/'+gif.height;image.loading='lazy';image.draggable=false;
     const base='/assets/wibs-gifs/'+gif.id;let playing=false;
     function setPlaying(value){playing=value;image.src=base+(playing?'.gif':'.png');control.textContent=playing?'Pause':'Play';control.title=(playing?'Pause ':'Play ')+gif.label;control.setAttribute('aria-label',control.title);control.setAttribute('aria-pressed',String(playing));if(key){if(playing)pausedGifs.delete(key);else pausedGifs.add(key);}}
     image.addEventListener('repo-pause-gif',()=>setPlaying(false));

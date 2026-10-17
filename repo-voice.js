@@ -9,12 +9,12 @@
   const micBlocked=()=>muted||deafened||serverMuted||serverDeafened;
   const soundBlocked=()=>deafened||serverDeafened;
   let ui=null, timer=null, lastContact=0, token='', message='', suspended=false, collapsed=false,pollAgain=false,openingKind='',pageOpen=false;
-  let speaking=[],serviceError='',budgetHidden=false;try{budgetHidden=localStorage.getItem('wibs-usage-hidden')==='1';}catch{}const remoteNames=new Map(),remoteActivity=new Set();
+  let speaking=[],serviceError='';const remoteNames=new Map(),remoteActivity=new Set();
   const audioSettings=window.repoVoiceAudio;
   let inputCapture=null,pendingInput=null,rtpSender=null,changingAudio=false,connected=false,heardMembers=null;
   const screens=window.createRepoScreenShare?.({api,context:()=>({user,connected,room:rooms.find(r=>r.id===current)}),changed:announce,refresh:poll});
   const activity=window.createRepoVoiceActivity?.(names=>{speaking=names;paintSpeaking();dispatchEvent(new CustomEvent('repo-voice-speaking',{detail:{speaking:[...speaking]}}));});
-  function paintSpeaking(){for(const node of ui?.panel.querySelectorAll('[data-voice-name]')||[]){const active=speaking.includes(node.dataset.voiceName);node.classList.toggle('is-speaking',active);node.title=active?'Speaking':'';}}
+  function paintSpeaking(){ui?.stage?.paintSpeaking(speaking);for(const node of ui?.panel.querySelectorAll('[data-voice-name]')||[]){const active=speaking.includes(node.dataset.voiceName);node.classList.toggle('is-speaking',active);node.title=active?'Speaking':'';}}
   const communityName=()=>window.repoCommunity?.voiceName?.()||'RE-COMP';
   const own=()=>String(account.state.social?.username||account.state.character?.username||'').toLowerCase();
   const joinable=r=>!r.ended&&(r.mine.status==='invited'||(r.kind==='group'&&r.mine.status==='left'));
@@ -23,7 +23,7 @@
   const button=(text,fn,cls='')=>{const n=el('button','repo-voice-button '+cls,text);n.type='button';n.onclick=fn;return n;};
   const icons={mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/>',sound:'<path d="M3 14v-3a9 9 0 0 1 18 0v3M3 12h4v9H5a2 2 0 0 1-2-2v-7Zm18 0h-4v9h2a2 2 0 0 0 2-2v-7Z"/>',settings:'<path d="m9 3-1 3-3 1-2 3 2 2-1 3 2 3 3-.5 2 2.5h3l1-3 3-1 2-3-2-2 1-3-2-3-3 .5L12 3H9Z"/><circle cx="11.5" cy="11.5" r="3"/>',leave:'<path d="M3 15c4-5 14-5 18 0l-2 4-4-2v-3M3 15l2 4 4-2v-3"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>'};
   function iconButton(b,type){const label=b.textContent;b.title=label;b.setAttribute('aria-label',label);b.classList.add('repo-voice-icon-button');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.innerHTML=icons[type];b.replaceChildren(svg);return b;}
-  const state=()=>({enabled,serviceError,available:enabled&&budget?.available!==false,callActive:!!current||busy,callStatus:current||busy?(connected?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy,community,currentKind:rooms.find(r=>r.id===current)?.kind||openingKind,budget,speaking:[...speaking],muted:micBlocked(),deafened:soundBlocked(),serverMuted,serverDeafened,canMute:!!stream&&!deafened&&!serverMuted&&!serverDeafened,canDeafen:!!current&&!serverDeafened});
+  const state=()=>({enabled,serviceError,available:enabled&&budget?.available!==false,callActive:!!current||busy,callStatus:current||busy?(connected?'active':'connecting'):'',incomingCall:rooms.some(r=>!r.ended&&r.mine.status==='invited'),busy,community,currentKind:rooms.find(r=>r.id===current)?.kind||openingKind,budget,speaking:[...speaking],muted:micBlocked(),deafened:soundBlocked(),serverMuted,serverDeafened,canMute:!!stream&&!deafened&&!serverMuted&&!serverDeafened,canDeafen:!!current&&!serverDeafened,leaveLabel:rooms.some(r=>r.id===current&&r.kind==='group'&&r.host===user)?'End room':'Leave call'});
   function toggleMute(){if(!state().canMute)return;muted=!muted;activity?.silence('local');applyMute();announce();poll();}
   function toggleDeafen(){if(!state().canDeafen)return;deafened=!deafened;if(soundBlocked())audioSettings.stopCues();activity?.silence('local');for(const audio of audios.values())audio.muted=soundBlocked();applyMute();announce();poll();}
   function announce(){render();dispatchEvent(new CustomEvent('repo-voice-state',{detail:state()}));}
@@ -222,18 +222,20 @@
     ui.panel.hidden=!user||(!current&&!message&&!rooms.some(joinable)&&!budget);
     ui.panel.replaceChildren();
     const room=rooms.find(r=>r.id===current);
+    const callTitle=room?.kind==='private'?'Call with '+(room.members.find(m=>m.id!==user)?.display||'your friend'):room?.kind==='community'||openingKind==='community'?communityName():room?.title||'Voice call';
+    ui.stage?.update({...state(),room,title:callTitle,connected});
     if(current||busy){
       const top=el('div','repo-voice-top');top.append(el('span','repo-voice-signal'+(connected?' is-connected':'')),el('strong','',room?.kind==='private'?'Call with '+(room.members.find(m=>m.id!==user)?.display||'your friend'):room?.kind==='community'||openingKind==='community'?communityName():room?.title||'Voice call'));
       if(!ui.drawer.classList.contains('rc-page'))top.append(button(collapsed?'Expand':'Minimize',()=>{collapsed=!collapsed;render();},'repo-voice-small'));ui.panel.append(top);
-      const line=el('p','repo-voice-status',message||(connected?(room?.members.filter(m=>m.status==='active').length>1?'Connected':'Waiting for your friends…'):'Connecting…'));line.setAttribute('role','status');ui.panel.append(line);
-      if(!collapsed&&room){const roster=el('div','repo-voice-roster');for(const m of room.members){const person=el('span','repo-voice-person');person.dataset.voiceName=m.name;const portrait=el('span','repo-voice-avatar',m.display.slice(0,2).toUpperCase()),profile=m.id===user?account.state.social?.profile:friends().find(f=>f.username.toLowerCase()===m.name);if(profile?.avatar&&window.repoAvatar){portrait.replaceChildren();portrait.insertAdjacentHTML('beforeend',window.repoAvatar.markup(profile.avatar,m.display));window.repoAvatar.hydrate(portrait);}window.repoProfilePhotos?.paint(portrait,m.name);person.append(portrait,el('span','',m.display+(m.id===user?' (you)':'')+(m.status==='invited'?' · invited':m.muted?' · muted':'')));roster.append(person);}ui.panel.append(roster);}
+      if(ui.drawer.classList.contains('rc-page')){top.append(el('span','repo-voice-inline-status',connected?'Connected':'Connecting…'));if(message){const line=el('p','repo-voice-status',message);line.setAttribute('role','status');ui.panel.append(line);}}
+      else{const line=el('p','repo-voice-status',message||(connected?'Connected':'Connecting…'));line.setAttribute('role','status');ui.panel.append(line);}
+      if(!ui.drawer.classList.contains('rc-page')&&!collapsed&&room){const roster=el('div','repo-voice-roster');for(const m of room.members){const person=el('span','repo-voice-person');person.dataset.voiceName=m.name;const portrait=el('span','repo-voice-avatar',m.display.slice(0,2).toUpperCase()),profile=m.id===user?account.state.social?.profile:friends().find(f=>f.username.toLowerCase()===m.name);if(profile?.avatar&&window.repoAvatar){portrait.replaceChildren();portrait.insertAdjacentHTML('beforeend',window.repoAvatar.markup(profile.avatar,m.display));window.repoAvatar.hydrate(portrait);}window.repoProfilePhotos?.paint(portrait,m.name);person.append(portrait,el('span','',m.display+(m.id===user?' (you)':'')+(m.status==='invited'?' · invited':m.muted?' · muted':'')));roster.append(person);}ui.panel.append(roster);}
       const controls=el('div','repo-voice-controls');
       const mic=button(serverMuted||serverDeafened?'Server muted':muted||deafened?'Unmute':'Mute',toggleMute);mic.setAttribute('aria-pressed',String(micBlocked()));mic.disabled=!state().canMute;
       const sound=button(serverDeafened?'Server deafened':deafened?'Undeafen':'Deafen',toggleDeafen);sound.setAttribute('aria-pressed',String(soundBlocked()));sound.disabled=!state().canDeafen;
       if(serverMuted||serverDeafened)ui.panel.append(el('p','repo-voice-status',serverDeafened?'A Developer has disabled your microphone and incoming audio in '+communityName()+'.':'A Developer has muted your microphone in '+communityName()+'.'));
       const disconnect=iconButton(button(room?.kind==='group'&&room.host===user?'End room':'Leave',()=>leave(),'repo-voice-end'),'leave');
-      if(ui.drawer.classList.contains('rc-page'))top.append(disconnect);
-      else{controls.append(iconButton(mic,'mic'),iconButton(sound,'sound'),iconButton(button('Voice settings',()=>window.repoVoiceSettings?.open()),'settings'),disconnect);ui.panel.append(controls);}
+      if(!ui.drawer.classList.contains('rc-page')){controls.append(iconButton(mic,'mic'),iconButton(sound,'sound'),iconButton(button('Voice settings',()=>window.repoVoiceSettings?.open()),'settings'),disconnect);ui.panel.append(controls);}
       if(message.includes('Enable sound'))ui.panel.append(button('Enable sound',async()=>{try{await Promise.all([...audios.values()].map(async a=>{await audioSettings.output(a);await a.play();}));message='';announce();}catch{message='Your selected speaker is unavailable. Choose another in Voice settings.';announce();}}));
     }else{
       if(budget?.available===false)ui.panel.append(el('p','repo-voice-status','Voice is paused because the shared allowance is used up. It will reopen automatically.'));
@@ -247,17 +249,13 @@
     ui.chip.hidden=!current&&!state().incomingCall;
     ui.chip.textContent=current?(micBlocked()?'Mic muted · Return to voice':connected?'Voice connected · Return to call':'Connecting voice · Return to call'):'Incoming voice invitation';
     if(budget){
-      const usage=el('section','repo-wibs-usage'),toggle=el('button','repo-wibs-usage-toggle');toggle.type='button';
-      toggle.onclick=()=>{budgetHidden=!budgetHidden;try{localStorage.setItem('wibs-usage-hidden',budgetHidden?'1':'0');}catch{}render();ui.panel.querySelector('.repo-wibs-usage-toggle')?.focus({preventScroll:true});};
-      toggle.title=(budgetHidden?'Show':'Hide')+' monthly usage';toggle.setAttribute('aria-label',toggle.title);toggle.setAttribute('aria-expanded',String(!budgetHidden));
-      const chevron=el('span','repo-wibs-usage-chevron');chevron.setAttribute('aria-hidden','true');toggle.append(el('span','','Monthly'),chevron);usage.append(toggle);
-      if(!budgetHidden){const percent=Math.min(100,Math.max(0,budget.used/budget.limit*100)),value=el('span','repo-wibs-usage-value',percent.toFixed(1)+'%'),track=el('div','repo-wibs-usage-track'),fill=el('span');track.setAttribute('role','progressbar');track.setAttribute('aria-label','Monthly Wibs usage');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',percent.toFixed(1));track.setAttribute('aria-valuetext',`${(budget.used/1e9).toFixed(1)} of ${budget.limit/1e9} GB used`);fill.style.width=percent+'%';track.append(fill);usage.classList.toggle('is-near-limit',percent>=80);usage.classList.toggle('is-at-limit',budget.available===false);
+      const usage=el('section','repo-wibs-usage');usage.append(el('h3','repo-wibs-usage-heading','Monthly'));
+      const percent=Math.min(100,Math.max(0,budget.used/budget.limit*100)),value=el('span','repo-wibs-usage-value',percent.toFixed(1)+'%'),track=el('div','repo-wibs-usage-track'),fill=el('span');track.setAttribute('role','progressbar');track.setAttribute('aria-label','Monthly Wibs usage');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',percent.toFixed(1));track.setAttribute('aria-valuetext',`${(budget.used/1e9).toFixed(1)} of ${budget.limit/1e9} GB used`);fill.style.width=percent+'%';track.append(fill);usage.classList.toggle('is-near-limit',percent>=80);usage.classList.toggle('is-at-limit',budget.available===false);
         const amount=el('span','repo-wibs-usage-amount',`${(budget.used/1e9).toFixed(1)} / ${budget.limit/1e9} GB`);amount.title='Conservative shared allowance for all Wibs voice and screen sharing, including a safety margin. Not the provider’s billing meter.';
         const resetAt=new Date(budget.resetAt),reset=el('time','repo-wibs-usage-reset','Resets '+resetAt.toLocaleDateString('en-GB',{day:'numeric',month:'short'}));reset.dateTime=resetAt.toISOString();reset.title='Resets '+resetAt.toLocaleString();
         const details=el('div','repo-wibs-usage-details'),used=el('span','repo-wibs-usage-used');used.append(value,amount);details.append(used,reset);usage.append(track,details);
         if(budget.rollingGuard)usage.append(el('small','repo-wibs-usage-reset','Recent usage is still protected; access returns as it clears.'));
-      }
-      screens?.render(usage,room,connected&&budget.available!==false&&!serverDeafened);ui.panel.append(usage);
+      ui.panel.append(usage);
     }paintSpeaking();
   }
   function createRoom(){
@@ -273,7 +271,9 @@
     const panel=el('section','repo-voice-panel'),form=el('section','repo-voice-form');panel.setAttribute('aria-label','Voice call');form.setAttribute('aria-label','Create voice room');panel.hidden=form.hidden=true;
     const group=button('Voice room',createRoom,'repo-voice-create');head.insertBefore(group,head.lastChild);head.after(panel,form);
     const chip=button('Return to voice',()=>{window.repoMessaging?.open();collapsed=false;render();},'repo-voice-chip');chip.hidden=true;document.body.append(chip);
-    ui={drawer,group,panel,form,chip,budget:el('p','repo-voice-budget'),context};announce();poll();
+    const portrait=m=>{const node=el('span','repo-voice-avatar',m.display.slice(0,2).toUpperCase()),profile=m.id===user?account.state.social?.profile:friends().find(f=>f.username.toLowerCase()===m.name);if(profile?.avatar&&window.repoAvatar){node.replaceChildren();node.insertAdjacentHTML('beforeend',window.repoAvatar.markup(profile.avatar,m.display));window.repoAvatar.hydrate(node);}window.repoProfilePhotos?.paint(node,m.name);return node;};
+    const stage=window.createRepoCallStage?.({screens,actions:{toggleMute,toggleDeafen,leave:()=>leave()},portrait});if(stage)head.after(stage.element);
+    ui={drawer,group,panel,form,chip,stage,budget:el('p','repo-voice-budget'),context};announce();poll();
   }
   function changed(){
     const next=account.state.user?.id||null;

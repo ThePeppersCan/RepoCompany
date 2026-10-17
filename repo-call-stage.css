@@ -1,0 +1,61 @@
+/* Shared call stage: theme colours follow the current Wibs appearance. */
+#repo-messages .rc-center{flex-direction:column}
+.repo-call-stage{flex:none;min-width:0;border-bottom:1px solid var(--wibs-line,#c4d6aa25);background:var(--wibs-surface,#142219);color:var(--wibs-ink,#eceee1)}
+.repo-call-stage[hidden],.repo-call-stage [hidden]{display:none!important}
+.repo-call-stage-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:43px;padding:6px 18px}
+.repo-call-stage-heading{display:flex;align-items:center;gap:9px;min-width:0}
+.repo-call-stage-heading strong{font:600 12px/1.4 Arial,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.repo-call-stage-status{font:11px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0)}
+.repo-call-stage-body{padding:0 18px 12px;animation:repo-call-reveal .2s ease-out}
+.repo-call-stage-roster{display:flex;align-items:center;justify-content:center;gap:22px;min-height:100px;max-height:155px;padding:8px 0 10px;overflow:auto;flex-wrap:wrap}
+.repo-call-stage-person{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:70px;max-width:120px;flex:none}
+.repo-call-stage-avatar{position:relative;display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:50%;background:var(--wibs-raised,#263e2e);border:1px solid var(--wibs-line,#c4d6aa25);font:500 16px/1 Arial,sans-serif}
+.repo-call-stage-avatar svg,.repo-call-stage-avatar canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:50%}
+.repo-call-stage-person.is-speaking .repo-call-stage-avatar{outline:2px solid #69cc96;outline-offset:3px}
+.repo-call-stage-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 12px/1.2 Arial,sans-serif}
+.repo-call-stage-person-status{font:10px/1.2 Arial,sans-serif;color:var(--wibs-muted,#aebeb0);min-height:12px}
+.repo-call-stage-controls{display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;flex-wrap:wrap}
+#repo-messages .repo-call-stage-button{display:grid;place-items:center;flex:none;width:36px;height:36px;margin:0;padding:8px;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:50%;background:var(--wibs-raised,#263e2e);color:var(--wibs-ink,#eceee1)}
+#repo-messages .repo-call-stage-button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#repo-messages .repo-call-stage-button:hover:not(:disabled){background:var(--wibs-hover,#334b3b)}
+#repo-messages .repo-call-stage-button:focus-visible,#repo-messages .repo-screen-controls button:focus-visible{outline:2px solid var(--wibs-accent,#c4d6aa);outline-offset:3px}
+#repo-messages .repo-call-stage-button[aria-pressed=true]{color:#eea59e;position:relative}
+#repo-messages .repo-call-stage-button[aria-pressed=true]:after{content:'';position:absolute;width:23px;height:2px;background:currentColor;transform:rotate(-45deg)}
+#repo-messages .repo-call-stage-button:disabled{opacity:.45}
+#repo-messages .repo-call-stage-leave{background:#9d3d44;border-color:transparent;color:#fff1ec}
+#repo-messages .repo-call-stage-leave:hover{background:#b54850}
+#repo-messages .repo-call-stage-toggle{width:28px;height:28px;border:0;background:none;color:var(--wibs-muted,#aebeb0);padding:5px;border-radius:6px}
+.repo-call-stage.is-collapsed .repo-call-stage-toggle svg{transform:rotate(180deg)}
+.repo-call-stage-sharing{min-width:0}
+#repo-messages .repo-call-stage .repo-screen-controls{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:0;margin:0;border:0;font:11px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0)}
+#repo-messages .repo-call-stage .repo-screen-controls button{width:auto;min-height:36px;padding:7px 13px;margin:0;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:18px;background:var(--wibs-raised,#263e2e);color:var(--wibs-ink,#eceee1);font:500 12px/1.4 Arial,sans-serif}
+#repo-messages .repo-call-stage .repo-screen-controls button:hover:not(:disabled){background:var(--wibs-hover,#334b3b)}
+#repo-messages .repo-call-stage .repo-screen-controls button.is-sharing{border-color:var(--wibs-accent,#c4d6aa)}
+#repo-messages .repo-call-stage .repo-screen-controls>span{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#repo-messages .repo-call-stage .repo-screen-controls p{flex-basis:100%;font:11px/1.4 Arial,sans-serif;margin:0;max-width:310px;color:var(--wibs-muted,#aebeb0)}
+.repo-call-stage-media{position:relative;width:100%;min-width:0}
+#repo-messages .repo-screen-viewer{position:relative;inset:auto;display:block;width:100%;height:auto;max-width:none;max-height:none;margin:0;padding:0;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:8px;background:#090e11;overflow:hidden;box-shadow:none}
+#repo-messages .repo-screen-viewer-head{position:absolute;top:0;left:0;right:0;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:12px;min-height:34px;padding:7px 11px;margin:0;background:linear-gradient(#090e11c9,transparent);color:#f1f2e9;font:11px/1.4 Arial,sans-serif}
+#repo-messages .repo-screen-viewer-head strong{flex-basis:auto;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#repo-messages .repo-screen-viewer-head button{margin:0;padding:4px 8px;flex:none;border:1px solid #ffffff38;border-radius:5px;background:#111820b0;color:#f1f2e9;font:11px/1.4 Arial,sans-serif}
+#repo-messages .repo-screen-viewer video{display:block;width:100%;height:min(32dvh,310px);max-width:none;max-height:none;object-fit:contain;background:#090e11}
+#repo-messages .repo-screen-viewer video:fullscreen{width:100vw;height:100dvh;object-fit:contain}
+#repo-messages .repo-screen-loading{position:absolute;inset:50% 12px auto;margin:0;max-width:none;text-align:center;font:12px/1.5 Arial,sans-serif;color:#c6cec8}
+.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-roster{min-height:0;max-height:50px;gap:14px;padding:10px 0}
+.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-person{flex-direction:row;gap:7px;min-width:0;max-width:150px}
+.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-avatar{width:24px;height:24px;font-size:9px}
+.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-person-status{display:none}
+/* Compact connection line and permanently visible Monthly meter in the dock. */
+#repo-messages.rc-page .rc-account-dock .repo-voice-panel{padding:8px 12px;max-height:none;overflow:visible}
+#repo-messages .rc-account-dock .repo-voice-top{min-height:22px;gap:7px;margin:0;font-size:11px}
+#repo-messages .rc-account-dock .repo-voice-top strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 11px/1.4 Arial,sans-serif}
+.repo-voice-inline-status{margin-left:auto;color:var(--wibs-muted,#aebeb0);font:10px/1.4 Arial,sans-serif;white-space:nowrap}
+#repo-messages .rc-account-dock .repo-voice-status{margin:3px 0 5px;font-size:10px}
+#repo-messages .repo-wibs-usage{margin-top:5px;padding-top:7px}
+#repo-messages .repo-wibs-usage-heading{margin:0 0 5px;font:600 10px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0)}
+#repo-messages .rc-self-controls .rc-self-leave{color:#e7a099}
+#repo-messages .rc-self-controls .rc-self-leave:hover{background:#a3434828;color:#ffd4c9}
+@keyframes repo-call-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+@media(max-height:700px){#repo-messages .repo-screen-viewer video{height:27dvh}.repo-call-stage-roster{min-height:78px;max-height:100px}.repo-call-stage-avatar{width:36px;height:36px}.repo-call-stage-body{padding-bottom:8px}}
+@media(max-width:640px){.repo-call-stage-head{padding-inline:12px}.repo-call-stage-body{padding-inline:10px}.repo-call-stage-status{font-size:10px}.repo-call-stage-roster{gap:13px}.repo-call-stage-controls{gap:6px}#repo-messages .repo-call-stage .repo-screen-controls>span{display:none}#repo-messages .repo-screen-viewer video{height:25dvh}.repo-call-stage-name{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.repo-call-stage-body{animation:none}}

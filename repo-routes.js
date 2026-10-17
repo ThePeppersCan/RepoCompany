@@ -96,5 +96,8 @@
     if (overlay(requested) || document.documentElement.dataset.repoAuth !== 'ready') { event.stopImmediatePropagation(); openRequested(); }
     else requested = '';
   }, true);
-  window.repoRoutes = Object.freeze({href, read, enter, leave, start, register(callback) { restore = callback; }});
+  // Capture this before changing routes or opening a panel. Section-to-section
+  // switches should not replay the homepage's brand introduction.
+  const shouldPlayIntro = () => read() === 'collection' && !document.querySelector('dialog[open]') && !window.repoWebGame?.active;
+  window.repoRoutes = Object.freeze({href, read, enter, leave, start, shouldPlayIntro, register(callback) { restore = callback; }});
 })();
