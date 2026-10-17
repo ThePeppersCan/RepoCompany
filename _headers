@@ -136,3 +136,18 @@
   Cache-Control: no-cache
 /broomflight/assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+/repo-runners/*
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+/assets/repo-runners/build/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/repo-runners/build/*.bin.br
+  Content-Type: application/octet-stream
+  Content-Encoding: br
+/assets/repo-runners/build/*.framework.js.br
+  Content-Type: application/javascript
+  Content-Encoding: br
+/assets/repo-runners/build/*.wasm.br
+  Content-Type: application/wasm
+  Content-Encoding: br

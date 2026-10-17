@@ -1,0 +1,24 @@
+#repo-messages .rc-below,#repo-messages .repo-call-stage{position:relative}
+#repo-messages .repo-panel-divider{position:absolute;z-index:9;touch-action:none;outline:none;user-select:none}
+#repo-messages .repo-panel-divider[aria-orientation=vertical]{width:9px;top:0;bottom:0;cursor:col-resize}
+#repo-messages .repo-panel-divider[aria-orientation=horizontal]{height:9px;left:0;right:0;bottom:-4px;cursor:row-resize}
+.repo-panel-divider::after{content:'';position:absolute;background:var(--wibs-accent,#b5d39c);opacity:0;transition:opacity .12s}
+.repo-panel-divider[aria-orientation=vertical]::after{width:2px;left:4px;top:0;bottom:0}
+.repo-panel-divider[aria-orientation=horizontal]::after{height:2px;top:4px;left:0;right:0}
+.repo-panel-divider:hover::after,.repo-panel-divider:focus-visible::after,.repo-panel-divider.is-dragging::after{opacity:.8}
+#repo-messages[data-resizing] *{user-select:none!important}
+#repo-messages[data-resizing=column],#repo-messages[data-resizing=column] *{cursor:col-resize!important}
+#repo-messages[data-resizing=row],#repo-messages[data-resizing=row] *{cursor:row-resize!important}
+#repo-messages[data-resizing] iframe{pointer-events:none}
+@media(min-width:641px){#repo-messages .rc-layout{grid-template-columns:var(--wibs-sidebar-width,clamp(260px,18.3vw,325px)) minmax(0,1fr)}#repo-messages .rc-sidebar{min-width:0;width:auto}}
+@media(min-width:961px){#repo-messages .rc-below{grid-template-columns:minmax(0,1fr) var(--wibs-members-width,clamp(270px,19.7vw,350px))}#repo-messages .rc-members{min-width:0}}
+#repo-messages .repo-call-stage[data-resized=true]:not(.is-collapsed){display:flex;flex-direction:column;height:var(--wibs-call-height);min-height:0}
+#repo-messages .repo-call-stage[data-resized=true] .repo-call-stage-head{flex:none}
+#repo-messages .repo-call-stage[data-resized=true] .repo-call-stage-body{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+#repo-messages .repo-call-stage[data-resized=true] .repo-call-stage-roster{flex:1;min-height:0;max-height:none}
+#repo-messages .repo-call-stage[data-resized=true] .repo-call-stage-controls{flex:none}
+#repo-messages .repo-call-stage[data-resized=true]:has(.repo-screen-viewer) .repo-call-stage-roster{flex:none;max-height:50px}
+#repo-messages .repo-call-stage[data-resized=true] .repo-call-stage-media{flex:1;min-height:0;display:flex}
+#repo-messages .repo-call-stage[data-resized=true] .repo-screen-viewer{height:100%;min-height:0;flex:1}
+#repo-messages .repo-call-stage[data-resized=true] .repo-screen-viewer video{height:100%;min-height:0;aspect-ratio:auto}
+@media(prefers-reduced-motion:reduce){.repo-panel-divider::after{transition:none}}

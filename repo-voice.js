@@ -9,6 +9,7 @@
   const micBlocked=()=>muted||deafened||serverMuted||serverDeafened;
   const soundBlocked=()=>deafened||serverDeafened;
   let ui=null, timer=null, lastContact=0, token='', message='', suspended=false, collapsed=false,pollAgain=false,openingKind='',pageOpen=false;
+  let endedNoticeTimer=null;
   let speaking=[],serviceError='';const remoteNames=new Map(),remoteActivity=new Set();
   const audioSettings=window.repoVoiceAudio;
   let inputCapture=null,pendingInput=null,rtpSender=null,changingAudio=false,connected=false,heardMembers=null;
@@ -58,13 +59,13 @@
   }
   async function leave(reason='Call ended.') {
     if(connected&&!soundBlocked())audioSettings.cue('leave');
-    const room=current;current=null;busy=false;openingKind='';community={...community,members:community.members.filter(m=>m.name!==own())};muted=deafened=false;stopMedia();message=reason;announce();
+    const room=current;current=null;busy=false;openingKind='';community={...community,members:community.members.filter(m=>m.name!==own())};muted=deafened=false;stopMedia();message=reason;clearTimeout(endedNoticeTimer);if(reason==='Call ended.'){const endedGeneration=generation;endedNoticeTimer=setTimeout(()=>{if(generation===endedGeneration&&!current&&!busy&&message===reason){message='';announce();}},5000);}announce();
     if(room)await api('leave',{room}).catch(()=>{});
     await poll();
   }
   function abandon(reason){
     if(reason&&connected&&!soundBlocked())audioSettings.cue('leave');else audioSettings.stopCues();
-    const room=current,oldToken=token;current=null;busy=false;openingKind='';community={...community,members:community.members.filter(m=>m.name!==own())};muted=deafened=false;stopMedia();message=reason;announce();
+    const room=current,oldToken=token;current=null;busy=false;openingKind='';community={...community,members:community.members.filter(m=>m.name!==own())};muted=deafened=false;stopMedia();message=reason;clearTimeout(endedNoticeTimer);if(reason==='Call ended.'){const endedGeneration=generation;endedNoticeTimer=setTimeout(()=>{if(generation===endedGeneration&&!current&&!busy&&message===reason){message='';announce();}},5000);}announce();
     if(room&&oldToken)fetch('/api/voice/leave',{method:'POST',keepalive:true,headers:{Authorization:'Bearer '+oldToken,'Content-Type':'application/json'},body:JSON.stringify({room,client})}).catch(()=>{});
   }
   const description=pc=>({type:pc.localDescription.type,sdp:pc.localDescription.sdp});

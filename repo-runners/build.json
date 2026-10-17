@@ -1,0 +1,61 @@
+{
+  "name": "Repo Runners",
+  "version": "0.0.10",
+  "loader": "/assets/repo-runners/build/unity.92179ffc1c35b88f.loader.js",
+  "framework": "/assets/repo-runners/build/unity.818da08307d9e7f9.framework.js.br",
+  "code": "/assets/repo-runners/build/unity.af81834aa054a184.wasm.br",
+  "data": {
+    "size": 164680961,
+    "sha256": "f9412d73d8f7f1ce2518d5fe11e077cccf5663a6faf22dd03b03a375b7540e32",
+    "parts": [
+      {
+        "url": "/assets/repo-runners/build/data-01.b0cb0d6dff72dd76.bin.br",
+        "size": 20971520,
+        "sha256": "0c67ffeb243e8a82e9de5b47c0c4511b93f713a4860e27ea7c37459575c7f58f",
+        "downloadSize": 16802921
+      },
+      {
+        "url": "/assets/repo-runners/build/data-02.abae7b2fad448a7f.bin.br",
+        "size": 20971520,
+        "sha256": "53ddc94f0119d6861d5d478e668adac66fb5fff5d5e2257333b003eb1d14f19c",
+        "downloadSize": 19319753
+      },
+      {
+        "url": "/assets/repo-runners/build/data-03.a3742f81a88683f6.bin.br",
+        "size": 20971520,
+        "sha256": "730b214d2ad8d5a40b43b0dcc5048aa383d0d5456acccbd358a968b22d74b2c1",
+        "downloadSize": 17556165
+      },
+      {
+        "url": "/assets/repo-runners/build/data-04.38d663952a01ea5c.bin.br",
+        "size": 20971520,
+        "sha256": "c539b48320362157cb03720872e11b562586a64e57f3d648ca901b646fa65e70",
+        "downloadSize": 18577111
+      },
+      {
+        "url": "/assets/repo-runners/build/data-05.c6b918a373aa1b4c.bin.br",
+        "size": 20971520,
+        "sha256": "fa169159a3b205fa24464eb9b10942da1b3c55d5c85d5bf5bf4f82d82165927f",
+        "downloadSize": 20863861
+      },
+      {
+        "url": "/assets/repo-runners/build/data-06.34e1dfd8cdaac407.bin.br",
+        "size": 20971520,
+        "sha256": "794904a16d5fa471f4f2218fa5cd09e8f491f93725fef12b8546d84e125cf5b3",
+        "downloadSize": 20766688
+      },
+      {
+        "url": "/assets/repo-runners/build/data-07.2af77846537505ca.bin.br",
+        "size": 20971520,
+        "sha256": "63118d7c8a2f86d8b00f4fa110380bc50bf1b6ac23c9a0dc6dd72eb954212af5",
+        "downloadSize": 20796490
+      },
+      {
+        "url": "/assets/repo-runners/build/data-08.abb65e2e41036479.bin.br",
+        "size": 17880321,
+        "sha256": "96a8ee1de7e389f47eb381d334335772f9852e43747d8d6887449e4e0915f63d",
+        "downloadSize": 9077544
+      }
+    ]
+  }
+}

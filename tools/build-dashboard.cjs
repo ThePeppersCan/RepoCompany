@@ -3,7 +3,7 @@ const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist');
 const production=process.argv.includes('--production')||process.env.CF_PAGES_BRANCH==='main';
 if(!process.argv.includes('--preserve-game-integrations'))require('./build-game-achievements.cjs');
 fs.mkdirSync(dist,{recursive:true});
-const includeDirs=['assets','game-integrations','original-case-assets','account-assets','audio','vendor','dragonbound-career-mode','reparty'];
+const includeDirs=['assets','game-integrations','original-case-assets','account-assets','audio','vendor','dragonbound-career-mode','reparty','repo-runners'];
 const requiredStaticAssets=['moratales-characters.html','moratales-characters.js','moratales-characters.css','repo-character-sync.js','repo-client-download.css','repo-messaging.js','repo-messaging.css'];
 for(const name of requiredStaticAssets)if(!fs.existsSync(path.join(root,name)))throw Error('Missing static page asset: '+name);
 let files=0;
@@ -29,7 +29,7 @@ if(!production){
 // The custom domain can retain assets longer than Pages' cache headers request.
 // Content versions keep HTML and its scripts/styles from different releases mixing.
 require('./version-reparty-assets.cjs').versionRepartyAssets(dist);
-for(const html of [...publicPages,'reparty/index.html','index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html','moratales-characters.html','morogue-account-bridge.html']){
+for(const html of [...publicPages,'reparty/index.html','repo-runners/index.html','index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html','moratales-characters.html','morogue-account-bridge.html']){
 const entry=path.join(dist,html);if(!fs.existsSync(entry))continue;
 fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(attribute,key,url)=>{
  if(/^(?:[a-z]+:)?\/\//i.test(url))return attribute;

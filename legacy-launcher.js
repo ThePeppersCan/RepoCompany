@@ -4,7 +4,7 @@
  dialog.innerHTML='<header><button data-legacy-close>← Back to dashboard</button><span id="legacy-feature-title"></span></header><div class="legacy-loading" role="status">Opening your collection…</div>';
  document.body.append(dialog);let frame=null,opener=null,readyTimer=null,activeId='',bridge='';
  const dragonOrigin='https://dragonbound.repocompany.uk';
- const names={broomflight:'Broomflight',binder:'Your binders',slabs:'Slab binder',pack:'Open a pack',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin Bomb Party',rooftops:'Repo Rooftops',seas:'High Seas',sports:'Repo Sports'};
+ const names={runners:'Repo Runners',broomflight:'Broomflight',binder:'Your binders',slabs:'Slab binder',pack:'Open a pack',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin Bomb Party',rooftops:'Repo Rooftops',seas:'High Seas',sports:'Repo Sports'};
  async function open(id){
   if(['binder','slabs'].includes(id))return window.repoBinder.open(id);
   return openOriginal(id);
@@ -23,7 +23,8 @@
    bridge=crypto.randomUUID();const url=new URL(dragonOrigin+'/');url.searchParams.set('source','repocompany');url.searchParams.set('repoBridge',bridge);
    if(['localhost','127.0.0.1'].includes(location.hostname))url.searchParams.set('repoOrigin',location.origin);
    frame.src=url.href;
-  }else if(id==='broomflight')frame.src='/broomflight/?embedded=1';
+  }else if(id==='runners')frame.src='/repo-runners/?embedded=1';
+  else if(id==='broomflight')frame.src='/broomflight/?embedded=1';
   else frame.src='legacy-runtime.html?dashboard='+encodeURIComponent(id);
   dialog.append(frame);
   clearTimeout(readyTimer);readyTimer=setTimeout(()=>{dialog.querySelector('.legacy-loading').textContent='Still loading. You can return to the dashboard and try again.';},30000);
@@ -54,6 +55,7 @@
    return;
   }
   if(e.origin!==location.origin||e.source!==frame?.contentWindow||e.data?.type!=='repo-dashboard-runtime')return;
+  if(activeId==='runners'&&e.data.state==='loading'){clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').hidden=true;}
   if(e.data.state==='ready'){clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').hidden=true;if(!['binder','slabs','pack'].includes(activeId))window.repoPlaytime?.start(activeId);}
   if(e.data.state==='error'){clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').textContent='This feature could not open. Return to the dashboard and try again.';}
   if(e.data.state==='close')close();
