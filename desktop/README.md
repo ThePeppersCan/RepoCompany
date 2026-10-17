@@ -34,7 +34,9 @@ The website and launcher share the friends-only messaging service. Only accepted
 
 RE-COMP and private audio calls use the shared Cloudflare SFU implementation described in [VOICE.md](../VOICE.md), with a conservative shared 800 GB cutoff. Legacy peer-to-peer/video calls remain disabled by `socialCallsEnabled: false`. The voice settings gear selects microphone/speaker, input sensitivity, microphone and received volume, built-in noise/echo processing and quiet join/leave sounds. Settings are local to this device. Client 0.1.16 allows explicit speaker selection only in the verified company portal; output permission cannot grant microphone/camera access. Microphone tests are visual only and stop on close, sign-out or after 30 seconds.
 
-Deploy `dashboard-messaging-schema.sql` to the dashboard D1 database before deploying the website's `/api/social/*` Functions. Apply it after the existing dashboard social schema; it is additive and repeatable. The current voice service is audio-only and does not enable the old TURN/video flow. Server tokens must stay out of source control and client assets. The free audio processing runs on the device and does not use a commercial Krisp licence.
+Deploy `dashboard-messaging-schema.sql` to the dashboard D1 database before deploying the website's `/api/social/*` Functions. Apply it after the existing dashboard social schema; it is additive and repeatable. Voice and 720p screen sharing use the shared SFU allowance and do not enable the old TURN/video flow. Server tokens must stay out of source control and client assets. The free audio processing runs on the device and does not use a commercial Krisp licence.
+
+Client 0.1.27 adds a screen/window picker isolated from the portal. Only the verified signed-in top-level portal can request it after a user gesture; games and iframes cannot capture. System audio is excluded. Account changes cancel pending selections. Share/Watch controls live in the Monthly Wibs usage card and use separate media connections so stopping a share leaves voice connected. See [VOICE.md](../VOICE.md) for the combined cutoff and verification.
 
 ## Develop and validate
 

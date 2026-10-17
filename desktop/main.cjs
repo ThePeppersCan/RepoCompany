@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, WebContentsView, ipcMain, protocol, session, Menu, dialog, shell, nativeImage } = require('electron');
+const { app, BrowserWindow, WebContentsView, ipcMain, protocol, session, Menu, dialog, shell, nativeImage, desktopCapturer } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { Library } = require('./lib/library.cjs');
@@ -15,6 +15,7 @@ const { TaskbarAttention } = require('./lib/taskbar-attention.cjs');
 const { ExternalActivity } = require('./lib/external-activity.cjs');
 const { NotificationAudio } = require('./lib/notification-audio.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
+const { createScreenPicker } = require('./lib/screen-picker.cjs');
 
 app.setName('Repo Company');
 app.setAppUserModelId('uk.repocompany.launcher');
@@ -191,7 +192,8 @@ function setPortalVisible(visible) {
   notifyPortalVisibility();
 }
 function configureSessionPermissions(targetSession) {
-  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog });
+  const picker=createScreenPicker({BrowserWindow,desktopCapturer,ipcMain,getWindow:()=>mainWindow,hidden:hiddenTest});
+  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog,chooseScreen:valid=>picker.choose(valid),cancelScreen:()=>picker.cancel() });
 }
 function refreshAccount() { if (!quitting) void account?.refresh().catch(() => {}); }
 function checkAndApplyUpdates({ reschedule = false } = {}) {

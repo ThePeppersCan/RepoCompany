@@ -1,5 +1,6 @@
 import config from '../../../dashboard-config.json';
 import {BUCKET,RETENTION,TRANSFER_LIMIT,imageError,imageToken,readImageBody,storageFetch,storageHeaders,imagePath} from '../../../lib/chat-images.mjs';
+import {sourceGif} from '../../../lib/gif-sources.mjs';
 const uuid=v=>typeof v==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(v);
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const allowed=`EXISTS(SELECT 1 FROM dashboard_friendships f JOIN dashboard_players a ON a.username=c.a_name AND a.user_id=c.a_id JOIN dashboard_players b ON b.username=c.b_name AND b.user_id=c.b_id WHERE f.status='accepted' AND ((f.player_a=c.a_name AND f.player_b=c.b_name) OR (f.player_b=c.a_name AND f.player_a=c.b_name))) AND NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=c.a_name AND b.blocked=c.b_name) OR (b.blocker=c.b_name AND b.blocked=c.a_name))`;
@@ -25,6 +26,7 @@ export async function onRequest({request,env,params}){
   if(!['GET','POST'].includes(request.method))throw imageError('Method not allowed.',405);
   const db=env.DASHBOARD_DB?.withSession?.('first-primary')||env.DASHBOARD_DB;if(!db)throw imageError('Images unavailable.',503);
   const me=await identify(request,db),now=Date.now();
+  if(request.method==='GET'&&path==='source')return await sourceGif(db,me,url.searchParams.get('url'),now);
   if(request.method==='POST'&&path==='upload'){
    storageHeaders(env);const scope=url.searchParams.get('scope'),target=url.searchParams.get('target'),clientId=url.searchParams.get('clientId');
    if(!uuid(clientId)||!await targetAllowed(db,me,scope,target))throw imageError('This conversation is unavailable.',403);

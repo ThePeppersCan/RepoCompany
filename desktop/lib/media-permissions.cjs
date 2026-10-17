@@ -1,8 +1,9 @@
 'use strict';
 
 // Device access belongs only to the signed-in, top-level company portal.
-// Games, their frames, screen capture and arbitrary permissions remain denied.
-function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog }) {
+// Games, their frames and arbitrary permissions remain denied. Display capture
+// requires a fresh, trusted user gesture and an explicit source selection.
+function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog, chooseScreen, cancelScreen }) {
   let generation = 0, grant = null, pending = false;
   const identity = () => { const account = getAccount(); return account?.state?.status === 'online' ? account.identity : null; };
   const trusted = (contents, details = {}, origin) => {
@@ -16,10 +17,16 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
   const allowed = (contents, types) => !!(grant && grant.contents === contents && grant.identity === identity() && types.every(type => grant.types.has(type)));
   session.setPermissionCheckHandler((contents, permission, origin, details = {}) => {
     const type = details.mediaType;
+    if(permission==='display-capture')return !!chooseScreen&&trusted(contents,details,origin);
     if(permission === 'speaker-selection')return trusted(contents,details,origin)&&allowed(contents,['output']);
     return permission === 'media' && ['audio', 'video'].includes(type) && trusted(contents, details, origin) && allowed(contents, [type]);
   });
   session.setPermissionRequestHandler((contents, permission, callback, details = {}) => {
+    if(permission==='display-capture'){callback(!!chooseScreen&&trusted(contents,details));return;}
+    // Electron 44 uses an empty media-type preflight for getDisplayMedia.
+    // This only lets it reach the guarded source picker below; microphone and
+    // camera requests still require their separate, explicit device grants.
+    if(permission==='media'&&Array.isArray(details.mediaTypes)&&details.mediaTypes.length===0&&chooseScreen&&trusted(contents,details)){callback(true);return;}
     const output=permission==='speaker-selection';
     const types = output?['output']:Array.isArray(details.mediaTypes) ? [...new Set(details.mediaTypes)] : [];
     if ((!output&&permission !== 'media') || !types.length || types.some(type => !(output?['output']:['audio', 'video']).includes(type)) || !trusted(contents, details)) { callback(false); return; }
@@ -39,6 +46,12 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
       callback(accept);
     }, () => callback(false)).finally(() => { pending = false; });
   });
-  return { reset() { generation++; grant = null; }, dispose() { generation++; grant = null; session.setPermissionCheckHandler(() => false); session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false)); } };
+  if(chooseScreen)session.setDisplayMediaRequestHandler(async(request,callback)=>{
+    const revision=generation,user=identity(),portal=getPortal();
+    const valid=()=>{try{return !!user&&revision===generation&&user===identity()&&portal===getPortal()&&!portal.isDestroyed()&&request.frame===portal.mainFrame&&request.userGesture===true&&request.videoRequested===true&&!request.audioRequested&&isPortalUrl(request.securityOrigin)&&isPortalUrl(portal.getURL())&&new URL(request.securityOrigin).origin===new URL(portal.getURL()).origin;}catch{return false;}};
+    try{if(!valid()){callback(null);return;}const source=await chooseScreen(valid);callback(valid()&&source?{video:source}:null);}catch{try{callback(null);}catch{}}
+  });
+  function reset(){generation++;grant=null;cancelScreen?.();getPortal()?.executeJavaScript?.("dispatchEvent(new Event('repo-screen-share-revoke'))").catch(()=>{});}
+  return { reset, dispose() {reset();session.setPermissionCheckHandler(() => false); session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));if(chooseScreen)session.setDisplayMediaRequestHandler((_request,callback)=>callback(null)); } };
 }
 module.exports = { configureMediaPermissions };

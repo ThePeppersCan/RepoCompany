@@ -36,8 +36,10 @@
   return {file,source,expectsGif};
  }
  async function originalGif(source,signal){
-  // Download directly in the browser: no paid proxy, cookies or account token.
-  const response=await fetch(source,{mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',cache:'no-store',signal:AbortSignal.any([signal,AbortSignal.timeout(10000)])});
+  // Trusted GIF providers use a bounded, authenticated route on our existing
+  // service. Other copied images remain direct, credential-free browser reads.
+  const provider=/^(media\.tenor\.com|(?:media[0-4]?|i)\.giphy\.com)$/.test(new URL(source).hostname)&&gifAddress(source);
+  const response=provider?await request('source?url='+encodeURIComponent(source),{signal}):await fetch(source,{mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',cache:'no-store',signal:AbortSignal.any([signal,AbortSignal.timeout(10000)])});
   if(!response.ok||!response.body)throw Error('GIF unavailable.');
   const reader=response.body.getReader(),chunks=[];let size=0;
   try{
@@ -56,7 +58,7 @@
   async function select(selected,paste={}){
    if((!selected&&!paste.expectsGif)||input.disabled||busy)return;clear();const version=revision,where=JSON.stringify(context());busy=true;choose.disabled=true;feedback.textContent=paste.source?'Preparing copied image…':'Preparing image…';
    try{
-    let original=null;if(paste.source){controller=new AbortController();try{original=await originalGif(paste.source,controller.signal);}catch(error){if(controller?.signal.aborted||version!==revision)throw error;if(paste.expectsGif&&error.message==='Choose an animated GIF up to 1 MB.')throw error;}}
+    let original=null;if(paste.source){controller=new AbortController();try{original=await originalGif(paste.source,controller.signal);}catch(error){if(controller?.signal.aborted||version!==revision)throw error;if(error.status||paste.expectsGif&&error.message==='Choose an animated GIF up to 1 MB.')throw error;}}
     if(paste.expectsGif&&!original)throw Error('The website did not provide an accessible GIF. Save the original GIF and attach it to keep the animation.');
     const blob=await compress(original||selected);if(version!==revision||where!==JSON.stringify(context()))return;pending={blob,url:URL.createObjectURL(blob),context:where,owner,uploaded:null};
     const img=node('img','');img.src=pending.url;img.alt='Image ready to send';

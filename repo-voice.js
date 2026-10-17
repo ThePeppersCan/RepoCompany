@@ -9,9 +9,10 @@
   const micBlocked=()=>muted||deafened||serverMuted||serverDeafened;
   const soundBlocked=()=>deafened||serverDeafened;
   let ui=null, timer=null, lastContact=0, token='', message='', suspended=false, collapsed=false,pollAgain=false,openingKind='',pageOpen=false;
-  let speaking=[],serviceError='',budgetExpanded=false;const remoteNames=new Map(),remoteActivity=new Set();
+  let speaking=[],serviceError='',budgetHidden=false;try{budgetHidden=localStorage.getItem('wibs-usage-hidden')==='1';}catch{}const remoteNames=new Map(),remoteActivity=new Set();
   const audioSettings=window.repoVoiceAudio;
   let inputCapture=null,pendingInput=null,rtpSender=null,changingAudio=false,connected=false,heardMembers=null;
+  const screens=window.createRepoScreenShare?.({api,context:()=>({user,connected,room:rooms.find(r=>r.id===current)}),changed:announce,refresh:poll});
   const activity=window.createRepoVoiceActivity?.(names=>{speaking=names;paintSpeaking();dispatchEvent(new CustomEvent('repo-voice-speaking',{detail:{speaking:[...speaking]}}));});
   function paintSpeaking(){for(const node of ui?.panel.querySelectorAll('[data-voice-name]')||[]){const active=speaking.includes(node.dataset.voiceName);node.classList.toggle('is-speaking',active);node.title=active?'Speaking':'';}}
   const communityName=()=>window.repoCommunity?.voiceName?.()||'RE-COMP';
@@ -48,6 +49,7 @@
     }finally{clearTimeout(timeout);controllers.delete(controller);}
   }
   function stopMedia(){
+    screens?.reset();
     serverMuted=serverDeafened=false;
     activity?.clear();remoteNames.clear();remoteActivity.clear();
     generation++;connected=false;heardMembers=null;inputCapture?.stop();pendingInput?.stop();inputCapture=pendingInput=null;rtpSender=null;stream?.getTracks().forEach(t=>t.stop());stream=null;
@@ -199,6 +201,7 @@
       if(current){
         lastContact=Date.now();const room=rooms.find(r=>r.id===current);
         if(!room||room.ended||room.mine.status==='left'){await leave(room?.mine.reason||room?.reason||'Call ended.');return;}
+        screens?.sync(room);
         if(connected){const members=new Set(room.members.filter(m=>m.id!==user&&m.status==='active').map(m=>m.id));if(heardMembers&&!soundBlocked()&&!room.mine.serverDeafened){if([...heardMembers].some(id=>!members.has(id)))audioSettings.cue('leave');if([...members].some(id=>!heardMembers.has(id)))audioSettings.cue('join');}heardMembers=members;}
         // Show membership changes before waiting for SFU negotiation or cleanup.
         announce();
@@ -216,7 +219,7 @@
     if(!ui)return;
     ui.group.hidden=!user;ui.group.disabled=!enabled||!!current||busy||budget?.available===false;
     ui.group.title=enabled?(budget?.available===false?'The voice allowance is currently used up':'Invite friends to a voice room'):'Voice is being set up';
-    ui.panel.hidden=!user||(!current&&!message&&!rooms.some(joinable)&&budget?.available!==false);
+    ui.panel.hidden=!user||(!current&&!message&&!rooms.some(joinable)&&!budget);
     ui.panel.replaceChildren();
     const room=rooms.find(r=>r.id===current);
     if(current||busy){
@@ -243,9 +246,16 @@
     }
     ui.chip.hidden=!current&&!state().incomingCall;
     ui.chip.textContent=current?(micBlocked()?'Mic muted · Return to voice':connected?'Voice connected · Return to call':'Connecting voice · Return to call'):'Incoming voice invitation';
-    ui.budget.textContent=budget?`Estimated voice use: ${(budget.used/1e9).toFixed(1)} / 800 GB · renews ${new Date(budget.resetAt).toLocaleDateString([], {day:'numeric',month:'short',timeZone:'UTC'})}${budget.rollingGuard?' · carryover protection active':''}`:'';
-    ui.budget.title='Conservative app estimate, shared by all Repo Company calls. It is not Cloudflare’s billing meter.';
-    ui.budget.hidden=!budget;if(budget){const details=el('details','repo-voice-usage'),summary=el('summary','','Voice allowance');details.open=budgetExpanded;details.ontoggle=()=>{budgetExpanded=details.open;};details.append(summary,ui.budget);ui.panel.append(details);}paintSpeaking();
+    if(budget){
+      const usage=el('section','repo-wibs-usage'),head=el('div','repo-wibs-usage-head'),toggle=button(budgetHidden?'Show':'Hide',()=>{budgetHidden=!budgetHidden;try{localStorage.setItem('wibs-usage-hidden',budgetHidden?'1':'0');}catch{}render();},'repo-wibs-usage-toggle');
+      toggle.setAttribute('aria-label',(budgetHidden?'Show':'Hide')+' monthly usage');toggle.setAttribute('aria-expanded',String(!budgetHidden));head.append(el('strong','','Monthly Wibs usage'),toggle);usage.append(head);
+      if(!budgetHidden){const percent=Math.min(100,Math.max(0,budget.used/budget.limit*100)),value=el('div','repo-wibs-usage-value',percent.toFixed(1)+'%'),track=el('div','repo-wibs-usage-track'),fill=el('span');track.setAttribute('role','progressbar');track.setAttribute('aria-label','Monthly Wibs usage');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',percent.toFixed(1));track.setAttribute('aria-valuetext',`${(budget.used/1e9).toFixed(1)} of ${budget.limit/1e9} GB used`);fill.style.width=percent+'%';track.append(fill);usage.classList.toggle('is-near-limit',percent>=80);usage.classList.toggle('is-at-limit',budget.available===false);
+        const amount=el('small','repo-wibs-usage-amount',`${(budget.used/1e9).toFixed(1)} / ${budget.limit/1e9} GB`);amount.title='Conservative shared allowance for all Wibs voice and screen sharing, including a safety margin. Not the provider’s billing meter.';
+        const reset=el('small','repo-wibs-usage-reset','Resets '+new Date(budget.resetAt).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}));usage.append(value,track,amount,reset);
+        if(budget.rollingGuard)usage.append(el('small','repo-wibs-usage-reset','Recent usage is still protected; access returns as it clears.'));
+      }
+      screens?.render(usage,room,connected&&budget.available!==false&&!serverDeafened);ui.panel.append(usage);
+    }paintSpeaking();
   }
   function createRoom(){
     ui.form.replaceChildren();ui.form.hidden=false;

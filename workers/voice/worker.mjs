@@ -1,4 +1,5 @@
 import {LIMIT, month, nextMonth, settle, hasBudget, monthlyBudget, rollingUsage, audioDescription} from './budget.mjs';
+import {ScreenSharing,mediaKeys,hasMedia} from './screens.mjs';
 
 const LEASE = 60000, MAX_CALL = 8 * 3600000;
 const uuid = v => typeof v === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(v);
@@ -18,6 +19,7 @@ export default {
 export class VoiceHub {
   constructor(ctx, env) {
     this.ctx = ctx; this.env = env; this.queue = Promise.resolve(); this.cleanups = new Map();
+    this.screens=new ScreenSharing(this);
     this.ready = ctx.blockConcurrencyWhile(async () => {
       this.state = await ctx.storage.get('state') || {version:1, billingDay:Number(env.BILLING_DAY)||1, at:Date.now(), usage:{}, daily:{}, rooms:[], rates:{}};
       this.state.moderation ||= {};
@@ -35,7 +37,7 @@ export class VoiceHub {
   }
   async save() { await this.ctx.storage.put('state', this.state); }
   async schedule() {
-    if (this.state.rooms.some(r => !r.ended || members(r).some(m => m.pub || m.recv))) {
+    if (this.state.rooms.some(r => !r.ended || members(r).some(hasMedia))) {
       const due=Date.now()+15000,scheduled=await this.ctx.storage.getAlarm?.();
       if(!scheduled||scheduled>due)await this.ctx.storage.setAlarm(due);
     }
@@ -88,6 +90,7 @@ export class VoiceHub {
       // Force-close upstream media; an altered client cannot ignore moderation.
       if((r.muted||r.deafened)&&m.pub)m.pub.revoked=true;
       if(r.deafened&&m.recv)m.recv.revoked=true;
+      if(r.deafened){if(m.screenPub)m.screenPub.revoked=true;if(m.screenRecv)m.screenRecv.revoked=true;}
     }
     await this.save();await this.schedule();
     for(const room of active)this.clean(room);
@@ -144,8 +147,9 @@ export class VoiceHub {
     return true;
   }
   clean(room) {
+    this.screens.maintain(room,Date.now());
     for (const m of members(room)) {
-      for (const key of ['pub','recv']) if(m[key]&&(m.status==='left'||m[key].revoked)) {
+      for (const key of mediaKeys) if(m[key]&&(m.status==='left'||m[key].revoked)) {
         const session=m[key];
         if(this.cleanups.has(session.id)||session.retryAt>Date.now())continue;
         // External shutdowns must never hold the admission/heartbeat queue.
@@ -158,13 +162,13 @@ export class VoiceHub {
             settle(this.state,Date.now());
             if(closed)m[key]=null;
             else session.retryAt=Date.now()+15000;
-            if(m.status==='left'&&!m.pub&&!m.recv)m.client=null;
+            if(m.status==='left'&&!hasMedia(m))m.client=null;
             await this.save();await this.schedule();
           });
         })().catch(error=>console.warn(JSON.stringify({event:'voice-cleanup-error',error:error.name}))).finally(()=>this.cleanups.delete(session.id));
         this.cleanups.set(session.id,job);this.ctx.waitUntil?.(job);
       }
-      if (m.status==='left'&&!m.pub && !m.recv) m.client=null;
+      if (m.status==='left'&&!hasMedia(m)) m.client=null;
     }
   }
   async maintain(now, verify = false) {
@@ -174,7 +178,7 @@ export class VoiceHub {
     for (const room of this.state.rooms) {
       if (!room.ended) {
         if (this.env.VOICE_ENABLED==='false') this.end(room,'Voice is temporarily paused.',now);
-        else if (!hasBudget(this.state,now)) this.end(room,'The voice allowance has been reached. Calls reopen automatically when the allowance renews.',now);
+        else if (!hasBudget(this.state,now)) this.end(room,'Monthly Wibs usage has reached its limit. Voice and screen sharing reopen automatically when the allowance renews.',now);
         else if (now >= room.expires) this.end(room,'This call reached its eight-hour limit. You can start another.',now);
         else if (verify) { try { await this.permitted(room); } catch { this.end(room,'A friendship changed or account verification is unavailable.',now); } }
         for (const m of members(room)) {
@@ -189,7 +193,7 @@ export class VoiceHub {
     await this.save(); await this.schedule();
     for (const room of this.state.rooms) this.clean(room);
     settle(this.state,Date.now());
-    this.state.rooms = this.state.rooms.filter(r => !r.ended || now-r.ended < 120000 || members(r).some(m=>m.pub||m.recv));
+    this.state.rooms = this.state.rooms.filter(r => !r.ended || now-r.ended < 120000 || members(r).some(hasMedia));
     await this.save(); await this.schedule();
   }
   async alarm() { await this.serial(() => this.maintain(Date.now(),true)); await Promise.allSettled([...this.cleanups.values()]); }
@@ -198,6 +202,7 @@ export class VoiceHub {
       community:{title:'RE-COMP',capacity:8,canModerate:!!me.developer,mine:this.restrictions(me.id,now),restrictions:me.developer?Object.entries(this.state.moderation).map(([id,r])=>({name:r.name,display:r.display,...this.restrictions(id,now)})):[],members:this.state.rooms.filter(r=>r.kind==='community'&&!r.ended).flatMap(r=>members(r).filter(live).map(m=>({name:m.name,display:m.display,muted:!!m.muted,...this.voiceFlags(r,m)})))},
       rooms:this.state.rooms.filter(r=>r.members[me.id] && (r.members[me.id].status!=='left' || r.members[me.id].client===client || r.members[me.id].removedAt>now-120000 || (r.kind==='group'&&!r.ended))).map(r=>({
         id:r.id,title:r.title,kind:r.kind,host:r.host,created:r.created,ended:r.ended||null,reason:r.reason||'',expires:r.expires,
+        screen:this.screens.view(r,r.members[me.id]),
         mine:{status:r.members[me.id].status,owned:r.members[me.id].client===client,muted:!!r.members[me.id].muted,reason:r.members[me.id].removalReason||'',mediaClosing:!!r.members[me.id].pub?.revoked||!!r.members[me.id].recv?.revoked,...this.voiceFlags(r,r.members[me.id])},
         members:members(r).filter(m=>m.status!=='left').map(m=>({id:m.id,name:m.name,display:m.display,status:m.status,muted:!!m.muted,...this.voiceFlags(r,m)})),
         sources:this.voiceFlags(r,r.members[me.id]).serverDeafened?[]:members(r).filter(m=>m.id!==me.id && this.audible(r,m)).map(m=>({id:m.id,name:m.name,trackName:m.pub.trackName}))
@@ -270,6 +275,7 @@ export class VoiceHub {
     if(!live(m)||m.client!==b.client) throw fail('Join the call from this device first.',403);
     if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();this.clean(room);throw fail(room.reason,429);}
     if(op==='heartbeat') {m.lease=now+LEASE;m.muted=!!b.muted;return this.view(me,b.client,now);}
+    if(op.startsWith('screen-'))return this.screens.action(room,m,op,b,now);
     if(op==='reset-receiver') {
       // A permanent channel can see many departures/rejoins. Retire the old
       // receiver before creating another, so inactive SDP tracks never pile up.
@@ -320,7 +326,7 @@ export class VoiceHub {
   async join(room,me,b,now) {
     const m=room.members[me.id];
     if(this.voiceFlags(room,m).bannedUntil)throw fail('You are temporarily banned from RE-COMP voice.',403);
-    if(m.status==='left'&&(m.pub||m.recv))throw fail('Your previous connection is still closing. Try again shortly.',409);
+    if(m.status==='left'&&hasMedia(m))throw fail('Your previous connection is still closing. Try again shortly.',409);
     if(m.client && m.client!==b.client)throw fail('This call is open on another device.',409);
     if(live(m))return{ok:true,room:room.id,...this.voiceFlags(room,m)};
     if(this.state.rooms.some(r=>r.id!==room.id&&!r.ended&&live(r.members[me.id]||{})))throw fail('Leave your current call first.',409);

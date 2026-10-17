@@ -49,6 +49,7 @@ function initialize() {
   function markLauncherDocument() {
     if (!document.documentElement) return false;
     document.documentElement.dataset.repoLauncher = 'true';
+    document.documentElement.dataset.repoScreenSharing = 'true';
     document.documentElement.dataset.repoBroomflight = 'true';
     document.documentElement.dataset.repoNativeMessageSound = 'true';
     document.documentElement.dataset.repoSunoPlayback = 'true';

@@ -9,12 +9,20 @@ canvas pixels across frames before storing them.
 
 Website image pastes prefer a real GIF clipboard file over a PNG preview. When
 the browser supplies a still frame plus the original image address, Wibs tries
-to retrieve the original GIF directly in the browser. Direct HTTPS GIF addresses
-can also be pasted. This request sends no cookies, account token or referrer,
-requires CORS, rejects redirects, and stops at 1 MiB or ten seconds. Copied HTML
-is parsed in an inert template and never inserted into the document. There is
-no server proxy or additional service. Account/conversation changes invalidate
-the draft and sign-out aborts retrieval.
+to retrieve the original GIF. Direct HTTPS `.gif` addresses can also be pasted
+to create an animated attachment preview. Approved Tenor and Giphy media hosts
+use the existing authenticated image API so they work in the Windows client's
+restricted network context. Every redirect is revalidated, only GIF content is
+accepted, and retrieval stops at 1 MiB or ten seconds. Each attempt reserves
+1 MiB from the existing monthly image transfer budget; limits are ten per minute
+and thirty per UTC day per account, and one hundred per day globally.
+
+Other original image URLs use direct browser retrieval, require CORS and reject
+redirects. Neither route sends account tokens, cookies or referrers to the image
+provider. Copied HTML is parsed in an inert template and never inserted into the
+document. No additional paid service is used. Account/conversation changes
+invalidate the draft and sign-out aborts retrieval. Google thumbnail URLs can
+contain only a still JPEG; use the original Tenor/Giphy GIF in that case.
 
 Some websites only copy a still frame or block retrieval. Known GIFs then show
 instructions to save and attach the original instead of silently sending a still
@@ -82,6 +90,9 @@ layout, download reuse, unchanged histories and identity writes.
 `node tools/test-chat-gif-paste.cjs` checks website clipboard recovery through to
 recipient playback, privacy, untrusted markup, limits, failure guidance and
 account-change cancellation.
+`node tools/test-gif-sources.cjs` checks the provider allowlist, redirects, byte
+and request limits, authenticated delivery, and animation after sending. Set
+`WIBS_LIVE_GIFS=1` to check the supplied Tenor and Giphy examples over the network.
 
 ## RepoCompany profile pictures
 

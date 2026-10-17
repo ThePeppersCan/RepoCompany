@@ -27,9 +27,41 @@ Preview Pages
 has no production voice binding. Credentials in `.wrangler/voice-secrets.json`
 are only a local, ignored setup/test input; remove after provisioning and testing.
 
-The SFU's STUN connection is used directly; TURN credentials, video, screen
-sharing, data channels, recording and transcription are not enabled. Restrictive
+The SFU's STUN connection is used directly. Screen sharing uses separate video
+sessions; TURN credentials, camera video, data channels, recording and transcription
+are not enabled. Restrictive
 networks that block the SFU transport can fail to connect and show a retry error.
+
+## Screen sharing and Monthly Wibs usage
+
+One participant can share a screen or window at a time. Watching is opt-in and
+requires membership in the same active voice call. Capture is capped at 1280×720,
+15 fps and a 2 Mbit/s VP8 encoder target. It carries no system audio; conversation
+audio continues through Wibs. Stopping sharing or watching preserves voice.
+Each share expires after one hour and can be restarted if allowance remains.
+
+The shared budget reserves **10 Mbit/s per viewer**, including pending sessions
+and failed closures. It uses the same 800 GB monthly ceiling, rolling 32-day guard
+and two-minute admission margin as voice. The server force-closes both kinds of
+media at cutoff. `SCREEN_ENABLED=false` disables sharing and closes its sessions
+while preserving voice. Do not change the existing budget identity or billing day.
+
+The sidebar shows one **Monthly Wibs usage** progress bar, used/total and reset date,
+with a device-local Hide/Show preference. This is the conservative application
+allowance, not a real-time Cloudflare billing reading.
+
+Windows client 0.1.27 adds an isolated screen/window picker, reachable only from the
+verified signed-in portal's main frame after a user gesture. Games and iframes
+cannot capture. Account changes cancel pending selections and stop capture.
+Older clients can watch but must update to publish. Desktop browsers use their
+native chooser. Source media is not stored or recorded.
+
+`node tools/test-screen-share.cjs` covers authorization, format restrictions,
+concurrent sharing, budgets, failed closure and cutoff persistence.
+`node tools/test-screen-share-client.cjs` verifies real WebRTC video between
+Electron and a browser in both directions, with an isolated local SFU relay and
+synthetic content. It does not contact Cloudflare or capture the user's desktop.
+`node --test desktop/tests/screen-permissions.test.cjs` checks permission isolation.
 
 ## Cost safeguard and limits
 
@@ -126,7 +158,7 @@ Polling never postpones an already-scheduled cutoff alarm. Request bodies are re
 before queuing so an interrupted caller cannot hold later requests behind it.
 
 The sidebar call dock sits above the account row. Its icon controls keep accessible
-names, and allowance details expand on demand. The cog beside the account role
+names, and monthly usage details can be hidden. The cog beside the account role
 opens voice and profile settings. Community banner height scales with its width,
 with minimum and viewport limits to keep the title and conversation usable.
 
@@ -176,7 +208,7 @@ or STUN request is still waiting. A complete gathering pass without candidates,
 or a ten-second empty timeout, retries once on a fresh PeerConnection with no
 STUN server. This happens before publishing, so the retry does not create a second
 SFU session or reserve extra usage. Cancellation closes the transport and stops
-waiting. This does not add TURN, alter the audio budget or enable screen sharing.
+waiting. This recovery does not add TURN or alter the audio budget.
 
 A failed join offers a downloadable report with timestamps, connection states,
 candidate counts/types and STUN error codes. It excludes SDP, addresses, account

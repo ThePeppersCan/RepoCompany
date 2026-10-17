@@ -1,0 +1,4 @@
+const list=document.getElementById('sources');
+document.getElementById('cancel').onclick=()=>screenPicker.choose(null);
+addEventListener('keydown',event=>{if(event.key==='Escape')screenPicker.choose(null);});
+screenPicker.sources().then(sources=>{for(const source of sources){const button=document.createElement('button');button.type='button';button.className='source';button.setAttribute('aria-label','Share '+source.name);const image=document.createElement('img');image.src=source.thumbnail;image.alt='';const name=document.createElement('span');name.textContent=source.name;button.append(image,name);button.onclick=()=>{for(const b of list.querySelectorAll('button'))b.disabled=true;screenPicker.choose(source.id);};list.append(button);}if(!sources.length)list.textContent='No screens or windows are available.';}).catch(()=>{list.textContent='The available screens could not be loaded. Close this window and try again.';});
