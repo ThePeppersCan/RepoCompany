@@ -51,7 +51,8 @@
 #repo-messages .rc-account-dock .repo-voice-top strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 11px/1.4 Arial,sans-serif}
 .repo-voice-inline-status{margin-left:auto;color:var(--wibs-muted,#aebeb0);font:10px/1.4 Arial,sans-serif;white-space:nowrap}
 #repo-messages .rc-account-dock .repo-voice-status{margin:3px 0 5px;font-size:10px}
-#repo-messages .repo-wibs-usage{margin-top:5px;padding-top:7px}
+#repo-messages .rc-account-dock .repo-wibs-usage{margin:6px -12px -8px;padding:8px 12px;background:color-mix(in srgb,var(--wibs-accent,#b7c6df) 6%,transparent)}
+#repo-messages .rc-account-dock .repo-wibs-usage:first-child{margin-top:-8px;border-top:0}
 #repo-messages .repo-wibs-usage-heading{margin:0 0 5px;font:600 10px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0)}
 #repo-messages .rc-self-controls .rc-self-leave{color:#e7a099}
 #repo-messages .rc-self-controls .rc-self-leave:hover{background:#a3434828;color:#ffd4c9}

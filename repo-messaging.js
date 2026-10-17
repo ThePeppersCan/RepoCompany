@@ -168,7 +168,7 @@
     const total = unread + communityUnread;
     launchCount.hidden = !total; launchCount.textContent = total > 99 ? '99+' : String(total);
     launch.setAttribute('aria-label', total ? `Wibs, ${total} unread message${total === 1 ? '' : 's'}` : 'Open Wibs');
-    launch.title = launch.getAttribute('aria-label'); launch.setAttribute('aria-expanded', String(drawer.open));
+    launch.removeAttribute('title'); launch.setAttribute('aria-expanded', String(drawer.open));
   }
   async function api(route, payload, valid = () => true) {
     const revision = epoch, identity = userId;
@@ -197,13 +197,13 @@
     const accountDialog = document.getElementById('account-menu');
     const accountButton = document.querySelector('.account [data-note="Account"]');
     const gameControls=document.querySelector('#repo-web-game[open] .repo-web-game-controls') || document.querySelector('#legacy-feature[open]>header');
-    const destination = gameControls || (accountDialog?.open && accountDialog.querySelector('.account-header-end')) || accountButton?.parentElement;
+    const destination = gameControls || accountButton?.parentElement;
     if (destination === accountButton?.parentElement && destination) {
       const anchor = destination.querySelector('[data-mascot-divider]') || accountButton;
       if (launch.parentElement !== destination || launch.nextElementSibling !== anchor) destination.insertBefore(launch, anchor);
     } else if (destination && launch.parentElement !== destination) destination.append(launch);
     launch.classList.toggle('is-account', !!accountDialog?.open);
-    const callDestination = drawer.open ? head : destination || document.body;
+    const callDestination = drawer.open ? head : gameControls || (accountDialog?.open && accountDialog.querySelector('.account-header-end')) || destination || document.body;
     if (callChip.parentElement !== callDestination && callDestination) callDestination.append(callChip);
     callChip.classList.toggle('is-account', !!accountDialog?.open || drawer.open);
   }

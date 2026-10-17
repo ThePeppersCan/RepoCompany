@@ -42,12 +42,7 @@
  paintTheme(savedTheme);drawer.classList.add('rc-page');drawer.setAttribute('aria-label','RE-COMP community');drawer.removeAttribute('aria-labelledby');
  const home=()=>window.repoCollection.open();
  const top=el('header','rc-topbar'),brand=btn('Repo Company',home,'rc-brand');brand.replaceChildren(el('span','publisher-mark'),el('span','publisher-wordmark'));brand.setAttribute('aria-label','Back to collection');
- const nav=el('nav','rc-topnav');nav.setAttribute('aria-label','Repo Company');
- const collection=el('a','rc-top-link');collection.href='/download/windows';collection.setAttribute('aria-label','Download');collection.title='Download';const downloadIcon=icon('back');downloadIcon.innerHTML='<path d="M12 2v13m-5-5 5 5 5-5M3 15v6h18v-6"/>';collection.append(downloadIcon);
- if(document.documentElement.dataset.repoLauncher==='true'){collection.href='#collection';collection.setAttribute('aria-label','Collection');collection.title='Collection';collection.onclick=event=>{event.preventDefault();home();};downloadIcon.innerHTML='<rect x="3" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><path d="m17 5 3-1 3 15-3 1Z"/>';}
- const current=btn('',()=>show('community'),'rc-top-link is-current rc-community-tab');const wibs=el('span','repo-wibs-icon');wibs.setAttribute('aria-hidden','true');current.prepend(wibs);current.setAttribute('aria-label','Community');current.title='Wibs · Community';
- const accountButton=btn('',()=>{window.repoMessaging.close();window.accountMenu?.open({tab:'profile'});},'rc-top-link','user');accountButton.setAttribute('aria-label','Account');accountButton.title='Account';
- nav.append(collection,current,accountButton);top.append(brand,nav);
+ const nav=window.repoSectionHeader.create('wibs');top.classList.add('repo-section-bar');top.append(brand,nav);
  const layout=el('div','rc-layout'),sidebar=el('aside','rc-sidebar'),workspace=el('main','rc-workspace');
  sidebar.setAttribute('aria-label','Channels and direct messages');
  const identity=el('div','rc-community-identity'),mascot=el('span','repo-wibs-icon rc-wibs-brand');mascot.setAttribute('aria-hidden','true');identity.tabIndex=0;identity.setAttribute('aria-label','Wibs');identity.append(mascot);sidebar.append(identity);window.repoWibsIntro?.attachHover(mascot,identity,drawer);

@@ -9,12 +9,7 @@
   const panel=element('dialog');panel.id='repo-reparty';panel.setAttribute('aria-label','Reparty');
   const home=()=>window.repoCollection.open();
   const bar=element('header','repo-reparty-bar'),brand=button('Back to collection',home);brand.classList.add('rc-brand');brand.replaceChildren(element('span','publisher-mark'),element('span','publisher-wordmark'));
-  const nav=element('nav','repo-reparty-nav');nav.setAttribute('aria-label','Repo Company');
-  const download=element('a','repo-media-button');download.href='/download/windows';download.setAttribute('aria-label','Download');download.title='Download';download.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">'+glyphs.download+'</svg>';
-  glyphs.collection='<rect x="3" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><path d="m17 5 3-1 3 15-3 1Z"/>';
-  const collection=button('Collection',home,'collection');
-  const active=button('Reparty',()=>{},'reparty');active.setAttribute('aria-current','page');
-  nav.append(document.documentElement.dataset.repoLauncher==='true'?collection:download,active,button('Wibs',()=>{window.repoMessaging?.open();close();},'wibs'),button('Account',()=>{close();window.accountMenu?.open({tab:'profile'});},'account'),button('Audio & calls',openSettings,'settings'));
+  const nav=window.repoSectionHeader.create('reparty');bar.classList.add('repo-section-bar');
   bar.append(brand,nav);panel.append(bar);document.body.append(panel);
   function send(action,value){if(!ready||!frame)return;frame.contentWindow.postMessage({type:'repo-reparty-control',action,value},location.origin);}
   function ensureFrame(room){if(frame)return;frame=element('iframe');frame.title='Reparty player';frame.allow='autoplay; fullscreen';frame.src='/reparty/?embedded=1'+(room?'&room='+encodeURIComponent(room):'');panel.append(frame);}
@@ -48,9 +43,8 @@
   function playbackButton(){const b=button('Reparty playback',()=>{if(companion.matches(':popover-open')){companion.hidePopover();return;}(b.closest('dialog')||document.body).append(companion);const rect=b.getBoundingClientRect();companion.style.top=(rect.bottom+8)+'px';companion.style.right=Math.max(12,innerWidth-rect.right)+'px';companion.showPopover();});b.classList.add('repo-playback-launch');icon(b,'<path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/>');return b;}
   const playbackLaunch=playbackButton();
   const launch=button('Reparty',()=>open(),'reparty');launch.classList.add('repo-reparty-launch');
-  const communityLaunch=button('Reparty',()=>open(),'reparty');communityLaunch.classList.add('rc-top-link');
   const quickSettings=button('Audio & calls',openSettings,'settings');
-  function mount(){const wibsLaunch=document.querySelector('.repo-message-launch'),account=document.querySelector('.account [data-note="Account"]'),destination=wibsLaunch?.parentElement||account?.parentElement;const anchor=destination===account?.parentElement?account:(wibsLaunch||account);if(destination&&launch.parentElement!==destination)destination.insertBefore(launch,anchor);if(launch.parentElement&&playbackLaunch.parentElement!==launch.parentElement)launch.after(playbackLaunch);const wibsNav=document.querySelector('.rc-topnav'),wibsTab=wibsNav?.querySelector('.rc-community-tab');if(wibsNav&&communityLaunch.parentElement!==wibsNav)wibsNav.insertBefore(communityLaunch,wibsTab);const game=document.querySelector('#repo-web-game .repo-web-game-controls');if(game&&quickSettings.parentElement!==game)game.prepend(quickSettings);}
+  function mount(){const wibsLaunch=document.querySelector('.repo-message-launch'),account=document.querySelector('.account [data-note="Account"]'),destination=wibsLaunch?.parentElement||account?.parentElement;const anchor=destination===account?.parentElement?account:(wibsLaunch||account);if(destination&&launch.parentElement!==destination)destination.insertBefore(launch,anchor);if(launch.parentElement&&playbackLaunch.parentElement!==launch.parentElement)launch.after(playbackLaunch);const game=document.querySelector('#repo-web-game .repo-web-game-controls');if(game&&quickSettings.parentElement!==game)game.prepend(quickSettings);}
   new MutationObserver(mount).observe(document.body,{childList:true,subtree:true});mount();
   window.repoReparty=Object.freeze({open,close,getState:()=>state().reparty,command:(action,value)=>send(action,value)});
   window.repoMedia=Object.freeze({getState:state,command,openSettings});publish();
