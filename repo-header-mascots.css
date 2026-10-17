@@ -1,0 +1,14 @@
+/* Main collection controls; the Wibs/Reparty launchers still travel into dialogs. */
+.account.repo-header-controls{gap:19px;overflow:visible}
+.repo-header-controls>button{position:relative;justify-content:center;flex:none;width:42px;height:44px;min-width:42px;padding:0;border-radius:7px}
+.repo-header-controls>.divider{display:block;width:1px;height:26px;margin:0 5px;flex:none;opacity:.58}
+.repo-header-controls .repo-wibsworth-icon,.repo-header-controls .repo-wibs-icon{display:block;width:38px;height:28px;flex:none}
+.repo-header-controls .repo-wibsworth-icon{background:url('assets/wibsworth-icon.svg') center/contain no-repeat}
+.repo-header-controls .repo-message-launch{width:42px;height:44px}
+.repo-header-controls .repo-message-launch:hover .repo-wibs-icon{transform:none}
+.repo-header-controls .repo-message-count{top:0;right:-3px}
+.repo-header-controls>button:hover{color:#fff3cf}
+.repo-header-controls>button:focus-visible{outline:2px solid #e7d6a0;outline-offset:3px}
+.repo-header-controls .repo-coming-tip{position:absolute;top:calc(100% + 12px);left:0;width:max-content;max-width:250px;padding:9px 12px;border:1px solid #d9d6b530;border-radius:7px;background:#19231e;box-shadow:0 5px 20px #0003;color:#f4ecd6;font:12px/1.5 'Segoe UI',sans-serif;pointer-events:none;z-index:20}
+.repo-header-controls .repo-coming-tip[hidden]{display:none}
+@media(max-width:700px){.home-mode .account.repo-header-controls{gap:11px;right:30px}.home-mode .repo-header-controls>.divider{display:block;margin:0 2px}.repo-header-controls .download-client{width:42px;justify-content:center}.repo-header-controls .download-client>span{display:none}.repo-header-controls .repo-coming-tip{font-size:17px;max-width:300px}}

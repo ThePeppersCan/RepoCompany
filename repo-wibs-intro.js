@@ -18,6 +18,7 @@
     rightPaw: 'M675 837C676 811 700 795 730 794C757 795 779 813 779 838C781 858 758 868 728 868C697 869 670 860 675 837Z'
   };
 
+  window.repoWibsArt = Object.freeze(art);
   window.createWibsBrandMotion = function (svg, outline) {
     function el(name, attrs, parent) {
       const node = document.createElementNS(NS, name);

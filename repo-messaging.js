@@ -80,6 +80,7 @@
   const launchCount = el('span', 'repo-message-count'); launchCount.hidden = true; launchCount.setAttribute('aria-hidden', 'true');
   launch.setAttribute('aria-haspopup', 'dialog'); launch.setAttribute('aria-controls', 'repo-messages');
   launch.append(launchCount); launch.hidden = !userId;
+  window.repoHeaderMascots?.attachWibs(launch.querySelector('.repo-wibs-icon'), launch);
   const drawer = el('dialog', 'repo-messages'); drawer.id = 'repo-messages';
   drawer.setAttribute('aria-labelledby', 'repo-messages-title');
   const head = el('header', 'repo-messages-head');
@@ -198,7 +199,8 @@
     const gameControls=document.querySelector('#repo-web-game[open] .repo-web-game-controls') || document.querySelector('#legacy-feature[open]>header');
     const destination = gameControls || (accountDialog?.open && accountDialog.querySelector('.account-header-end')) || accountButton?.parentElement;
     if (destination === accountButton?.parentElement && destination) {
-      if (launch.parentElement !== destination || launch.nextElementSibling !== accountButton) destination.insertBefore(launch, accountButton);
+      const anchor = destination.querySelector('[data-mascot-divider]') || accountButton;
+      if (launch.parentElement !== destination || launch.nextElementSibling !== anchor) destination.insertBefore(launch, anchor);
     } else if (destination && launch.parentElement !== destination) destination.append(launch);
     launch.classList.toggle('is-account', !!accountDialog?.open);
     const callDestination = drawer.open ? head : destination || document.body;
