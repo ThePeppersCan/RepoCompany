@@ -7,7 +7,7 @@ const {createFixture}=require('./messaging-test-server.cjs');
  try{
   browser=await chromium.launch({channel:'msedge',headless:true});
   const context=await fixture.browserContext(browser,'alice');
-  const usage={used:2,limit:100,available:true};
+  const usage={used:2,limit:100,available:true,daily:{used:1,limit:10,resetAt:Date.now()+86400000}};
   await context.route(fixture.base+'/api/wibsworth/state',route=>route.fulfill({json:{available:true,usage,settings:{}}}));
   await context.route(fixture.base+'/api/wibsworth/chat',async route=>{
    const outcome=await new Promise(resolve=>release=resolve);release=null;
@@ -51,6 +51,28 @@ const {createFixture}=require('./messaging-test-server.cjs');
   await page.evaluate(()=>dashboardAudio.setMix('effects',.5));
   await ask();release('answer');await done();assert.equal(await count(),3,'next unmuted response plays normally with reduced motion');
   assert.equal(await page.evaluate(()=>__completionPlays.at(-1).volume),.2,'existing effects volume is respected');
+  // Deterministic browser visibility models a minimized client or background tab.
+  // The media element still decodes/plays, rather than merely counting an event.
+  await page.evaluate(()=>{
+   window.__background=false;
+   Object.defineProperty(document,'hidden',{configurable:true,get:()=>__background});
+   Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>__background?'hidden':'visible'});
+   window.__setBackground=value=>{__background=value;document.dispatchEvent(new Event('visibilitychange'));};
+  });
+  await ask();await page.evaluate(()=>{__setBackground(true);dashboardAudio.suspend(true);});release('answer');await done();
+  assert.equal(await count(),4,'completion plays while hidden and launcher audio is suspended');
+  await page.waitForFunction(()=>__completionAudio.currentTime>.05&&!__completionAudio.paused&&!__completionAudio.error);
+  await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));
+  assert.equal(await page.evaluate(()=>__completionAudio.paused),false,'visibility sync must not cut off the notification');
+  await page.evaluate(()=>{__setBackground(false);dashboardAudio.suspend(false);});assert.equal(await count(),4,'restoring the client never replays it');
+  await ask();await page.evaluate(()=>{__setBackground(true);document.querySelector('[data-audio]').click();});release('answer');await done();
+  assert.equal(await count(),4,'background notifications still respect mute');
+  await page.evaluate(()=>{__setBackground(false);document.querySelector('[data-audio]').click();});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await ask();release('answer');await page.getByRole('button',{name:'Show answer',exact:true}).waitFor();
+  await page.evaluate(()=>__setBackground(true));await done();assert.equal(await count(),5,'switching tabs during the reveal completes and sounds once');
+  await page.evaluate(()=>__setBackground(false));
   assert.deepEqual(errors,[]);console.log('PASS: cancellation, errors, Show answer, workspace switching, mute, effects volume, reduced motion, and no runtime errors.');
+  console.log('PASS: hidden/minimized completion playback, uninterrupted notification, mute in background, and no replay on returning.');
  }finally{release?.('answer');await browser?.close();await fixture.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

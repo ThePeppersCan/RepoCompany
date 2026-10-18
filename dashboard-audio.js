@@ -48,14 +48,17 @@
     fades.set(audio, requestAnimationFrame(step));
   }
   function available() { return unlocked && !muted && !document.hidden && !suspended; }
+  function completionAvailable() { return unlocked && !muted && mix.effects > 0; }
   function sync() {
     toggle.setAttribute('aria-pressed', String(muted));
     toggle.setAttribute('aria-label', muted ? 'Unmute audio' : 'Mute audio');
     toggle.title = muted ? 'Sound off' : unlocked ? 'Sound on' : 'Sound starts when you interact';
     toggle.querySelector('.sound-waves').style.opacity = muted ? 0 : 1;
     toggle.dataset.audioState = muted ? 'muted' : unlocked ? 'on' : 'waiting';
+    // Completion is a notification: backgrounding the app must not silence it.
+    fade(tracks.wibsworthComplete, completionAvailable() ? levels.wibsworthComplete * mix.effects : 0, 0, !completionAvailable());
     if (!available()) {
-      Object.values(tracks).forEach(audio => fade(audio, 0, 0, true));
+      Object.entries(tracks).forEach(([name,audio]) => { if(name !== 'wibsworthComplete') fade(audio, 0, 0, true); });
       return;
     }
     // Wibs pauses only collection music; call audio and the saved sound preference stay independent.
@@ -89,10 +92,10 @@
 
   window.dashboardAudio = Object.freeze({
     effect(name) {
-      if (!available() || launching || !['hover', 'open', 'screenshot', 'wibsworthComplete'].includes(name)) return;
-      if (name === 'wibsworthComplete' && mix.effects === 0) return;
+      if (!['hover', 'open', 'screenshot', 'wibsworthComplete'].includes(name)) return;
+      if (name === 'wibsworthComplete' ? !completionAvailable() : !available() || launching) return;
       const now = performance.now();
-      if (now - (lastEffect.get(name) ?? -Infinity) < (name === 'hover' ? 150 : 100)) return;
+      if (name !== 'wibsworthComplete' && now - (lastEffect.get(name) ?? -Infinity) < (name === 'hover' ? 150 : 100)) return;
       lastEffect.set(name, now);
       const audio = tracks[name];
       audio.currentTime = 0;
@@ -114,7 +117,7 @@
       fade(tracks.music, 0, duration, true);
       ['hover', 'open', 'screenshot'].forEach(name => fade(tracks[name], 0, 180, true));
     },
-    finish() { Object.values(tracks).forEach(audio => fade(audio, 0, 280, true)); },
+    finish() { Object.entries(tracks).forEach(([name,audio]) => { if(name !== 'wibsworthComplete') fade(audio, 0, 280, true); }); },
     reset() { launching = spinning = ducked = false; sync(); },
     suspend(value) { suspended=!!value; sync(); },
     preferences() { return {...mix,muted}; },
