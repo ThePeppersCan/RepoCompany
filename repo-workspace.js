@@ -4,7 +4,6 @@
   const wibs=document.getElementById('repo-messages'),reparty=document.getElementById('repo-reparty');
   if(!wibs||!reparty)return;
   const sidebar=wibs.querySelector('.rc-sidebar'),scroll=sidebar.querySelector('.rc-sidebar-scroll'),bottom=sidebar.querySelector('.rc-sidebar-bottom');
-  const workspace=wibs.querySelector('.rc-workspace'),below=wibs.querySelector('.rc-below');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const el=(tag,cls,text)=>{const n=document.createElement(tag);n.className=cls||'';if(text)n.textContent=text;return n;};
   const button=(label,action,cls='')=>{const n=el('button',cls,label);n.type='button';n.onclick=action;return n;};
@@ -39,9 +38,7 @@
   const roomList=el('nav','ws-room-list');roomList.setAttribute('aria-label','Open rooms');roomList.append(button('Browse rooms',()=>control('rooms')));
   rpScroll.append(roomsHeading,roomList);rpSide.append(rpScroll);rpBody.append(rpSide);reparty.append(rpBody);
   window.repoPaneResize?.mount({host:rpBody,edge:'left',key:'repo-reparty-left-v1',label:'Resize rooms sidebar',initial:()=>innerWidth>=1600?300:innerWidth<=1100?226:260,min:210,max:480,available:()=>rpBody.clientWidth-520,apply:n=>rpBody.style.setProperty('--rp-left',n+'px')});
-  const mini=el('div','ws-mini');mini.hidden=true;const track=button('',()=>window.repoReparty.open(),'ws-mini-track'),pause=button('Pause',()=>window.repoMedia.command('reparty-pause')),next=button('›',()=>window.repoMedia.command('reparty-next'));next.setAttribute('aria-label','Next track for everyone');
-  mini.append(el('span','ws-mini-tv','♫'),track,pause,next);workspace.prepend(mini);
-  function media(){const state=window.repoMedia?.getState(),p=state?.reparty||{};wibs.dataset.callActive=String(!!state?.voice?.active);reparty.dataset.callActive=wibs.dataset.callActive;mini.hidden=!p.active||view==='reparty';track.textContent=p.title||p.room||'Reparty';track.title='Return to Reparty';pause.textContent=p.paused?'Resume':'Pause';pause.disabled=next.disabled=!p.canControl;}
+  function media(){const state=window.repoMedia?.getState();wibs.dataset.callActive=String(!!state?.voice?.active);reparty.dataset.callActive=wibs.dataset.callActive;}
   function syncTheme(){const style=getComputedStyle(document.documentElement),vars={};for(const name of ['bg','surface','raised','ink','muted','accent','line','selected','hover','on-accent'])vars[name]=style.getPropertyValue('--wibs-'+name).trim();reparty.dataset.lightTheme=wibs.dataset.lightTheme||'false';reparty.style.colorScheme=wibs.style.colorScheme;reparty.querySelector('iframe')?.contentWindow?.postMessage({type:'repo-workspace-theme',vars,light:wibs.dataset.lightTheme==='true'},location.origin);}
   function select(nextView){
     const changed=view!==nextView;view=nextView;wibs.dataset.workspaceView=view;reparty.dataset.workspaceView=view;

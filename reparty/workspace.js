@@ -5,6 +5,9 @@
  window.repoPaneResize?.mount({host:layout,edge:'right',key:'repo-reparty-right-v1',label:'Resize queue and room chat',initial:()=>innerWidth>1300?310:innerWidth>840?274:226,min:210,max:520,available:()=>layout.clientWidth-340,apply:n=>layout.style.setProperty('--rp-right',n+'px')});
  const column=document.querySelector('.watch-column'),content=node('div','ws-player-content');
  content.append(...column.childNodes);column.append(document.querySelector('.ws-room-bar'),content);
+ const media=node('div','ws-player-media'),people=node('div','ws-people-pane');
+ media.append($('television'),document.querySelector('.now-playing'));people.append(document.querySelector('.participants'),document.querySelector('.room-footnote'));content.append(media,people);
+ window.repoPaneResize?.mount({host:content,edge:'bottom',key:'repo-reparty-people-v1',label:'Resize people in this room',initial:()=>144,min:100,max:420,available:()=>matchMedia('(max-width:700px)').matches?420:content.clientHeight-330,inset:()=>parseFloat(getComputedStyle(content).paddingBottom)||0,apply:n=>content.style.setProperty('--rp-people-height',n+'px')});
  const controls=document.querySelector('.playback-controls');
  $('shuffleMode').textContent='';$('shuffleMode').setAttribute('aria-label','Shuffle for everyone');$('shuffleMode').innerHTML='<svg viewBox="0 0 24 24"><path d="m4 5 14 14M4 19 18 5m-5 0h5v5m-5 9h5v-5"/></svg>';
  $('repeatMode').textContent='';$('repeatMode').setAttribute('aria-label','Repeat playlist');$('repeatMode').innerHTML='<svg viewBox="0 0 24 24"><path d="M4 10V6h15m-4-4 4 4-4 4M20 14v4H5m4-4-4 4 4 4"/></svg>';

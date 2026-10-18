@@ -137,3 +137,5 @@
 #repo-reparty .rc-self-controls .rc-self-leave{color:#e7a099}
 #repo-reparty .rc-self-controls .rc-self-leave:hover{background:#a3434828;color:#ffd4c9}
 #repo-reparty .rc-account-dock{margin:0}#repo-reparty .ws-rp-sidebar .rc-sidebar-bottom{padding:0 12px 14px}
+#repo-reparty .repo-wibs-usage{display:none!important}
+#repo-reparty[data-call-active=false] :is(.repo-voice-panel,.rc-self-mic,.rc-self-sound,.rc-self-leave){display:none!important}

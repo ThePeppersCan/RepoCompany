@@ -89,3 +89,27 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:9px;height:9px;bor
 .television:fullscreen{padding:0;background:var(--bg)}.television:fullscreen .screen{border-radius:0}.television:fullscreen .playback-controls{padding:12px 20px}
 .theatre .watch-layout{grid-template-columns:minmax(0,1fr)}.theatre .sidebar,.theatre .ws-divider{display:none}.theatre .ws-player-content{padding:0}.theatre .screen{border-radius:0}.theatre .playback-controls{padding:15px 24px}
 @media(max-width:700px){.watch-column,.theatre .watch-column{overflow:visible;min-height:0}.ws-player-content{overflow:visible;flex:none;padding:18px}.sidebar{height:auto;min-height:440px;max-height:none;padding-inline:18px}.ws-room-bar{width:100%}.ws-room-bar strong{font-size:12px}.ws-room-bar button{font-size:10px}.playback-controls{gap:8px}#nowPlaying{font-size:21px}.room-footnote{display:none!important}.now-playing{padding:22px 0}.ws-playlists{margin-top:22px}.playback-controls .volume{width:56px}.theatre .sidebar{display:flex}.theatre .watch-layout{display:flex}}
+/* The people divider reallocates space without replacing the playing media. */
+.ws-player-content{position:relative;display:grid;grid-template-rows:minmax(0,1fr) var(--rp-people-height,112px);overflow:hidden}
+.ws-player-media{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:auto;overflow-x:hidden;scrollbar-width:thin}
+.ws-player-media>.television{flex:1;min-height:170px}
+.ws-player-media .screen{flex:1;min-height:100px;height:auto;aspect-ratio:auto;box-sizing:border-box}
+.ws-player-media .playback-controls{flex:none}
+.ws-player-media .now-playing{flex:none;padding:20px 0 18px;border:0;min-width:0}
+.ws-player-media #nowPlaying{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ws-people-pane{min-width:0;min-height:0;overflow-y:auto;scrollbar-width:thin;border-top:1px solid var(--line);padding:18px 4px 0;--rp-avatar:clamp(38px,calc(var(--rp-people-height,112px) * .42),132px)}
+.ws-people-pane .participants{padding:0;min-height:0}
+.ws-people-pane #participants{gap:20px 28px;align-items:start}
+.ws-people-pane .person{flex-direction:column;align-items:center;gap:7px;min-width:84px;max-width:180px;text-align:center;font-size:clamp(12px,calc(var(--rp-people-height,112px) * .055),16px)}
+.ws-people-pane .person .avatar{width:var(--rp-avatar);height:var(--rp-avatar);flex:none;font-size:calc(var(--rp-avatar) * .3)}
+.ws-people-pane .person .you{font-size:11px;margin-top:3px}
+.ws-people-pane .person .online-dot{width:5px;height:5px}
+.ws-people-pane .person>div:last-child{max-width:100%;overflow-wrap:anywhere}
+.ws-people-pane .room-footnote{margin:0;padding:4px 0 0}
+.ws-people-pane .hint{padding:0;min-height:0;font-size:9px;line-height:1.4}
+.ws-people-pane .hint kbd{padding:0 3px;font-size:9px}
+.ws-divider[data-edge=bottom]{top:auto;left:24px;right:24px;width:auto;height:9px;transform:translateY(50%);cursor:row-resize}
+.ws-divider[data-edge=bottom]:after{left:0;right:0;top:4px;bottom:auto;width:auto;height:2px}
+.ws-dragging-row,.ws-dragging-row *,.ws-dragging-row .ws-resizing:after{cursor:row-resize!important;user-select:none!important}
+.theatre .ws-player-content{padding:24px}.theatre .ws-player-content>.ws-divider{display:block}
+@media(max-width:700px){.ws-player-content{grid-template-rows:auto var(--rp-people-height,112px)}.ws-player-media>.television{flex:none;min-height:0}.ws-player-media .screen{flex:none;height:auto;aspect-ratio:16/9;min-height:0}.ws-divider[data-edge=bottom]{left:18px;right:18px}.theatre .ws-player-content{padding:18px}}

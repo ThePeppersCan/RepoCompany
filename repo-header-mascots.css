@@ -4,6 +4,9 @@
 .repo-header-controls>.divider{display:block;width:1px;height:26px;margin:0 5px;flex:none;opacity:.58}
 .repo-header-controls .repo-wibsworth-icon,.repo-header-controls .repo-wibs-icon{display:block;width:38px;height:28px;flex:none}
 .repo-header-controls .repo-wibsworth-icon{background:url('assets/wibsworth-icon.svg') center/contain no-repeat}
+.repo-header-controls [data-mascot-ready=true] .repo-wibsworth-icon{background:none}
+/* Keep the animated face independent of generic outline-icon sizing and strokes. */
+.repo-wibsworth-icon>svg.mascot-face{display:block;width:100%;height:100%;max-width:none;max-height:none;fill:none;stroke:none;overflow:visible}
 .repo-header-controls .repo-message-launch{width:42px;height:44px}
 .repo-header-controls .repo-message-launch:hover .repo-wibs-icon{transform:none}
 .repo-header-controls .repo-message-count{top:0;right:-3px}
