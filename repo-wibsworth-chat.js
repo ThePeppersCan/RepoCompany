@@ -93,6 +93,7 @@
       thread.messages.push(message);thread.messages=thread.messages.slice(-24);store();answered=true;revealing=true;controls();animate('found');
       const view=replyView;view.rig?.set('found');await revealAnswer(view,message.content,signal);
       if(revision!==epoch||id!==requestId)return;answerSources(view,message.sources);
+      if(!signal.aborted)window.dashboardAudio?.effect('wibsworthComplete');
     }catch(e){
       if(!e.stale&&revision===epoch&&id===requestId){
         if(!answered){thread.messages.pop();input.value=question;input.dispatchEvent(new Event('input'));store();}

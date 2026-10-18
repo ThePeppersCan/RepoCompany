@@ -6,10 +6,11 @@
     hover: 'audio/case-hover-v2.mp3',
     open: 'audio/case-open-v2.mp3',
     screenshot: 'audio/screenshot-open.mp3',
+    wibsworthComplete: '/audio/wibsworth-answer-complete.mp3',
     spin: 'audio/disc-spin-balanced.wav'
   };
   // The very quiet spin recording has a derived PCM copy with 15.88x gain and a safe .85 peak.
-  const levels = {music: .085, hover: .38, open: .30, screenshot: .26, spin: .06};
+  const levels = {music: .085, hover: .38, open: .30, screenshot: .26, spin: .06, wibsworthComplete: .4};
   const mix={music:1,effects:1,disc:1};
   try{const saved=JSON.parse(localStorage.getItem('repo-dashboard-mix')||'{}');for(const key of Object.keys(mix))if(Number.isFinite(saved[key]))mix[key]=Math.max(0,Math.min(1,saved[key]));}catch(_){}
   const tracks = Object.fromEntries(Object.entries(files).map(([name, path]) => {
@@ -88,7 +89,8 @@
 
   window.dashboardAudio = Object.freeze({
     effect(name) {
-      if (!available() || launching || !['hover', 'open', 'screenshot'].includes(name)) return;
+      if (!available() || launching || !['hover', 'open', 'screenshot', 'wibsworthComplete'].includes(name)) return;
+      if (name === 'wibsworthComplete' && mix.effects === 0) return;
       const now = performance.now();
       if (now - (lastEffect.get(name) ?? -Infinity) < (name === 'hover' ? 150 : 100)) return;
       lastEffect.set(name, now);
