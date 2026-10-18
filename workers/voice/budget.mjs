@@ -1,11 +1,13 @@
 // This is a deliberately conservative traffic allowance, not a Cloudflare invoice
 // meter. Every possible delivered audio stream is charged at 1 Mbit/s (including
 // muted/connecting peers), well above the client's 64 kbit/s Opus target.
-export const LIMIT = 800_000_000_000;
+export const LIMIT = 950_000_000_000;
 export const BYTES_PER_SECOND = 125_000;
 // Screens target 2 Mbit/s. Reserve 10 Mbit/s per viewer, including failed or
 // retiring receiver sessions, to cover retransmission and protocol overhead.
 export const SCREEN_BYTES_PER_SECOND = 1_250_000;
+// Cameras target 1 Mbit/s; reserve 5 Mbit/s for every delivered camera track.
+export const CAMERA_BYTES_PER_SECOND = 625_000;
 export const RESERVE_SECONDS = 120;
 const DAY = 86400000;
 function start(year, index, day) {
@@ -28,7 +30,8 @@ export function flows(rooms) {
   }, 0);
 }
 export const screenFlows=rooms=>rooms.reduce((sum,room)=>sum+Object.values(room.members).filter(m=>m.screenRecv).length,0);
-export const byteRate=rooms=>flows(rooms)*BYTES_PER_SECOND+screenFlows(rooms)*SCREEN_BYTES_PER_SECOND;
+export const cameraFlows=rooms=>rooms.reduce((sum,room)=>sum+Object.values(room.members).reduce((n,m)=>n+(m.cameraRecv?.sources?.length||0),0),0);
+export const byteRate=rooms=>flows(rooms)*BYTES_PER_SECOND+screenFlows(rooms)*SCREEN_BYTES_PER_SECOND+cameraFlows(rooms)*CAMERA_BYTES_PER_SECOND;
 export function settle(state, now) {
   if (now <= state.at) return;
   state.daily ||= {};
@@ -47,9 +50,9 @@ export function settle(state, now) {
   for (const key of Object.keys(state.daily)) if(Number(key)<Math.floor(now/DAY)-32)delete state.daily[key];
 }
 export function rollingUsage(state,now){return Object.entries(state.daily||{}).reduce((sum,[day,bytes])=>sum+(Number(day)>=Math.floor(now/DAY)-32?bytes:0),0);}
-export function monthlyBudget(state,now,additionalFlows=0,additionalScreens=0){return state.stopped!==month(now,state.billingDay)&&(state.usage[month(now,state.billingDay)]||0)+(byteRate(state.rooms)+additionalFlows*BYTES_PER_SECOND+additionalScreens*SCREEN_BYTES_PER_SECOND)*RESERVE_SECONDS<LIMIT;}
-export function hasBudget(state, now, additionalFlows = 0, additionalScreens = 0) {
-  return monthlyBudget(state,now,additionalFlows,additionalScreens) && rollingUsage(state,now)+(byteRate(state.rooms)+additionalFlows*BYTES_PER_SECOND+additionalScreens*SCREEN_BYTES_PER_SECOND)*RESERVE_SECONDS<LIMIT;
+export function monthlyBudget(state,now,additionalFlows=0,additionalScreens=0,additionalCameras=0){return state.stopped!==month(now,state.billingDay)&&(state.usage[month(now,state.billingDay)]||0)+(byteRate(state.rooms)+additionalFlows*BYTES_PER_SECOND+additionalScreens*SCREEN_BYTES_PER_SECOND+additionalCameras*CAMERA_BYTES_PER_SECOND)*RESERVE_SECONDS<LIMIT;}
+export function hasBudget(state, now, additionalFlows = 0, additionalScreens = 0, additionalCameras = 0) {
+  return monthlyBudget(state,now,additionalFlows,additionalScreens,additionalCameras) && rollingUsage(state,now)+(byteRate(state.rooms)+additionalFlows*BYTES_PER_SECOND+additionalScreens*SCREEN_BYTES_PER_SECOND+additionalCameras*CAMERA_BYTES_PER_SECOND)*RESERVE_SECONDS<LIMIT;
 }
 export function audioDescription(value, type, maximum = 8) {
   if (!value || value.type !== type || typeof value.sdp !== 'string' || value.sdp.length > 48000 || !value.sdp.startsWith('v=0')) throw new Error('Invalid audio connection.');

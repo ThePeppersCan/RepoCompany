@@ -48,6 +48,7 @@
   const audioSettings=window.repoVoiceAudio;
   let inputCapture=null,pendingInput=null,rtpSender=null,changingAudio=false,connected=false,heardMembers=null;
   const screens=window.createRepoScreenShare?.({api,context:()=>({user,connected,room:rooms.find(r=>r.id===current)}),changed:announce,refresh:poll});
+  const cameras=window.createRepoCameras?.({api,context:()=>({user,connected,room:rooms.find(r=>r.id===current)}),changed:announce,refresh:poll});
   const activity=window.createRepoVoiceActivity?.(names=>{speaking=names;paintSpeaking();dispatchEvent(new CustomEvent('repo-voice-speaking',{detail:{speaking:[...speaking]}}));});
   function paintSpeaking(){ui?.stage?.paintSpeaking(speaking);for(const node of ui?.panel.querySelectorAll('[data-voice-name]')||[]){const active=speaking.includes(node.dataset.voiceName);node.classList.toggle('is-speaking',active);node.title=active?'Speaking':'';}}
   const communityName=()=>window.repoCommunity?.voiceName?.()||'RE-COMP';
@@ -84,7 +85,7 @@
     }finally{clearTimeout(timeout);controllers.delete(controller);}
   }
   function stopMedia(){
-    screens?.reset();
+    screens?.reset();cameras?.reset();
     serverMuted=serverDeafened=false;
     activity?.clear();remoteNames.clear();remoteActivity.clear();
     generation++;connected=false;heardMembers=null;inputCapture?.stop();pendingInput?.stop();inputCapture=pendingInput=null;rtpSender=null;stream?.getTracks().forEach(t=>t.stop());stream=null;
@@ -239,7 +240,7 @@
       if(current){
         lastContact=Date.now();const room=rooms.find(r=>r.id===current);
         if(!room||room.ended||room.mine.status==='left'){await leave(room?.mine.reason||room?.reason||'Call ended.');return;}
-        screens?.sync(room);
+        screens?.sync(room);cameras?.sync(room);
         if(connected){const members=new Set(room.members.filter(m=>m.id!==user&&m.status==='active').map(m=>m.id));if(heardMembers&&!soundBlocked()&&!room.mine.serverDeafened){if([...heardMembers].some(id=>!members.has(id)))audioSettings.cue('leave');if([...members].some(id=>!heardMembers.has(id)))audioSettings.cue('join');}heardMembers=members;}
         // Show membership changes before waiting for SFU negotiation or cleanup.
         announce();
@@ -289,7 +290,7 @@
     if(budget){
       const usage=el('section','repo-wibs-usage');usage.append(el('h3','repo-wibs-usage-heading','Monthly'));
       const percent=Math.min(100,Math.max(0,budget.used/budget.limit*100)),value=el('span','repo-wibs-usage-value',percent.toFixed(1)+'%'),track=el('div','repo-wibs-usage-track'),fill=el('span');track.setAttribute('role','progressbar');track.setAttribute('aria-label','Monthly Wibs usage');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuenow',percent.toFixed(1));track.setAttribute('aria-valuetext',`${(budget.used/1e9).toFixed(1)} of ${budget.limit/1e9} GB used`);fill.style.width=percent+'%';track.append(fill);usage.classList.toggle('is-near-limit',percent>=80);usage.classList.toggle('is-at-limit',budget.available===false);
-        const amount=el('span','repo-wibs-usage-amount',`${(budget.used/1e9).toFixed(1)} / ${budget.limit/1e9} GB`);amount.title='Conservative shared allowance for all Wibs voice and screen sharing, including a safety margin. Not the provider’s billing meter.';
+        const amount=el('span','repo-wibs-usage-amount',`${(budget.used/1e9).toFixed(1)} / ${budget.limit/1e9} GB`);amount.title='Conservative shared allowance for all Wibs voice, cameras and screen sharing, including a safety margin. Not the provider’s billing meter.';
         const resetAt=new Date(budget.resetAt),reset=el('time','repo-wibs-usage-reset','Resets '+resetAt.toLocaleDateString('en-GB',{day:'numeric',month:'short'}));reset.dateTime=resetAt.toISOString();reset.title='Resets '+resetAt.toLocaleString();
         const details=el('div','repo-wibs-usage-details'),used=el('span','repo-wibs-usage-used');used.append(value,amount);details.append(used,reset);usage.append(track,details);
         if(budget.rollingGuard)usage.append(el('small','repo-wibs-usage-reset','Recent usage is still protected; access returns as it clears.'));
@@ -310,7 +311,7 @@
     const group=button('Voice room',createRoom,'repo-voice-create');head.insertBefore(group,head.lastChild);head.after(panel,form);
     const chip=button('Return to voice',()=>{window.repoMessaging?.open();collapsed=false;render();},'repo-voice-chip');chip.hidden=true;document.body.append(chip);
     const portrait=m=>{const node=el('span','repo-voice-avatar',m.display.slice(0,2).toUpperCase()),profile=m.id===user?account.state.social?.profile:friends().find(f=>f.username.toLowerCase()===m.name);if(profile?.avatar&&window.repoAvatar){node.replaceChildren();node.insertAdjacentHTML('beforeend',window.repoAvatar.markup(profile.avatar,m.display));window.repoAvatar.hydrate(node);}window.repoProfilePhotos?.paint(node,m.name);return node;};
-    const stage=window.createRepoCallStage?.({screens,actions:{toggleMute,toggleDeafen,leave:()=>leave()},portrait});if(stage)head.after(stage.element);
+    const stage=window.createRepoCallStage?.({screens,cameras,actions:{toggleMute,toggleDeafen,leave:()=>leave()},portrait});if(stage)head.after(stage.element);
     ui={drawer,group,panel,form,chip,stage,budget:el('p','repo-voice-budget'),context};announce();poll();
   }
   function changed(){

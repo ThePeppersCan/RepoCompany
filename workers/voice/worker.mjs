@@ -1,5 +1,6 @@
 import {LIMIT, month, nextMonth, settle, hasBudget, monthlyBudget, rollingUsage, audioDescription} from './budget.mjs';
 import {ScreenSharing,mediaKeys,hasMedia} from './screens.mjs';
+import {Cameras} from './cameras.mjs';
 
 const LEASE = 60000, MAX_CALL = 8 * 3600000;
 const uuid = v => typeof v === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(v);
@@ -12,6 +13,8 @@ export default {
   async fetch(request, env) {
     // No workers.dev URL or routes: this entry point is only a Pages service binding.
     if (env.VOICE_ENABLED !== 'true' || !env.SFU_APP_ID || !env.SFU_APP_SECRET) return json({enabled:false, reason:'Voice is being set up.'});
+    // Deployment availability only: no usage, account, room or media data.
+    if(request.method==='GET'&&new URL(request.url).pathname==='/status')return json({enabled:true,cameras:env.CAMERA_ENABLED==='true',screenSharing:env.SCREEN_ENABLED==='true',limit:LIMIT});
     return env.VOICE_HUB.get(env.VOICE_HUB.idFromName('account-monthly-budget-v1')).fetch(request);
   }
 };
@@ -20,6 +23,7 @@ export class VoiceHub {
   constructor(ctx, env) {
     this.ctx = ctx; this.env = env; this.queue = Promise.resolve(); this.cleanups = new Map();
     this.screens=new ScreenSharing(this);
+    this.cameras=new Cameras(this);
     this.ready = ctx.blockConcurrencyWhile(async () => {
       this.state = await ctx.storage.get('state') || {version:1, billingDay:Number(env.BILLING_DAY)||1, at:Date.now(), usage:{}, daily:{}, rooms:[], rates:{}};
       this.state.moderation ||= {};
@@ -91,6 +95,7 @@ export class VoiceHub {
       if((r.muted||r.deafened)&&m.pub)m.pub.revoked=true;
       if(r.deafened&&m.recv)m.recv.revoked=true;
       if(r.deafened){if(m.screenPub)m.screenPub.revoked=true;if(m.screenRecv)m.screenRecv.revoked=true;}
+      if(r.deafened){if(m.cameraPub)m.cameraPub.revoked=true;if(m.cameraRecv)m.cameraRecv.revoked=true;}
     }
     await this.save();await this.schedule();
     for(const room of active)this.clean(room);
@@ -148,6 +153,7 @@ export class VoiceHub {
   }
   clean(room) {
     this.screens.maintain(room,Date.now());
+    this.cameras.maintain(room,Date.now());
     for (const m of members(room)) {
       for (const key of mediaKeys) if(m[key]&&(m.status==='left'||m[key].revoked)) {
         const session=m[key];
@@ -178,7 +184,7 @@ export class VoiceHub {
     for (const room of this.state.rooms) {
       if (!room.ended) {
         if (this.env.VOICE_ENABLED==='false') this.end(room,'Voice is temporarily paused.',now);
-        else if (!hasBudget(this.state,now)) this.end(room,'Monthly Wibs usage has reached its limit. Voice and screen sharing reopen automatically when the allowance renews.',now);
+        else if (!hasBudget(this.state,now)) this.end(room,'Monthly Wibs usage has reached its limit. Calls, cameras and screen sharing reopen automatically when the allowance renews.',now);
         else if (now >= room.expires) this.end(room,'This call reached its eight-hour limit. You can start another.',now);
         else if (verify) { try { await this.permitted(room); } catch { this.end(room,'A friendship changed or account verification is unavailable.',now); } }
         for (const m of members(room)) {
@@ -203,6 +209,7 @@ export class VoiceHub {
       rooms:this.state.rooms.filter(r=>r.members[me.id] && (r.members[me.id].status!=='left' || r.members[me.id].client===client || r.members[me.id].removedAt>now-120000 || (r.kind==='group'&&!r.ended))).map(r=>({
         id:r.id,title:r.title,kind:r.kind,host:r.host,created:r.created,ended:r.ended||null,reason:r.reason||'',expires:r.expires,
         screen:this.screens.view(r,r.members[me.id]),
+        cameras:this.cameras.view(r,r.members[me.id]),
         mine:{status:r.members[me.id].status,owned:r.members[me.id].client===client,muted:!!r.members[me.id].muted,reason:r.members[me.id].removalReason||'',mediaClosing:!!r.members[me.id].pub?.revoked||!!r.members[me.id].recv?.revoked,...this.voiceFlags(r,r.members[me.id])},
         members:members(r).filter(m=>m.status!=='left').map(m=>({id:m.id,name:m.name,display:m.display,status:m.status,muted:!!m.muted,...this.voiceFlags(r,m)})),
         sources:this.voiceFlags(r,r.members[me.id]).serverDeafened?[]:members(r).filter(m=>m.id!==me.id && this.audible(r,m)).map(m=>({id:m.id,name:m.name,trackName:m.pub.trackName}))
@@ -276,6 +283,7 @@ export class VoiceHub {
     if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();this.clean(room);throw fail(room.reason,429);}
     if(op==='heartbeat') {m.lease=now+LEASE;m.muted=!!b.muted;return this.view(me,b.client,now);}
     if(op.startsWith('screen-'))return this.screens.action(room,m,op,b,now);
+    if(op.startsWith('camera-'))return this.cameras.action(room,m,op,b,now);
     if(op==='reset-receiver') {
       // A permanent channel can see many departures/rejoins. Retire the old
       // receiver before creating another, so inactive SDP tracks never pile up.

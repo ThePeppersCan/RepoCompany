@@ -48,7 +48,7 @@ async function received(page,expected){
   console.log('PASS: three-person room, each browser receives both other microphones through Cloudflare.');
   await alice.screenshot({path:path.resolve(__dirname,'../../../outputs/voice-room-preview.png')});
   const room=fixture.voiceHub.state.rooms.find(r=>!r.ended),sessionIds=Object.values(room.members).flatMap(m=>[m.pub?.id,m.recv?.id]).filter(Boolean);
-  fixture.voiceHub.state.usage[new Date().toISOString().slice(0,7)]=800000000000-1000;
+  fixture.voiceHub.state.usage[new Date().toISOString().slice(0,7)]=950000000000-1000;
   await fixture.voiceHub.alarm();assert(room.ended);
   for(const id of sessionIds){const response=await fixture.voiceHub.sfu('/sessions/'+id,undefined,'GET');assert((response.tracks||[]).every(t=>['inactive','closed'].includes(t.status)),'server closed every Cloudflare track at cutoff');}
   for(const page of pages)await page.waitForFunction(()=>!window.repoVoice.getState().callActive,{},{timeout:30000});

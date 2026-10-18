@@ -6,21 +6,22 @@
   const label=(node,text)=>{node.setAttribute('aria-label',text);node.title=text;};
   const text=(node,value)=>{if(node.textContent!==value)node.textContent=value;};
   function button(name,kind,fn){const b=el('button','repo-call-stage-button');b.type='button';label(b,name);b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[kind]+'</svg>';b.onclick=fn;return b;}
-  window.createRepoCallStage=({screens,actions,portrait})=>{
+  window.createRepoCallStage=({screens,cameras,actions,portrait})=>{
     let collapsed=false,roomKey='',rosterKey='';
     const element=el('section','repo-call-stage');element.hidden=true;element.setAttribute('aria-label','Current voice call');
     const head=el('header','repo-call-stage-head'),heading=el('div','repo-call-stage-heading'),dot=el('span','repo-voice-signal'),title=el('strong'),status=el('span','repo-call-stage-status');dot.setAttribute('aria-hidden','true');heading.append(dot,title,status);
     const toggle=button('Collapse call','collapse',()=>{collapsed=!collapsed;sync();});toggle.classList.add('repo-call-stage-toggle');toggle.setAttribute('aria-controls','repo-call-stage-body');head.append(heading,toggle);
     const body=el('div','repo-call-stage-body');body.id='repo-call-stage-body';
     const media=el('div','repo-call-stage-media');media.hidden=true;
+    const cameraMedia=el('div','repo-camera-grid'),cameraControls=el('div','repo-call-stage-cameras'),cameraNotice=el('div','repo-call-stage-notice');cameraMedia.hidden=cameraNotice.hidden=true;
     const roster=el('div','repo-call-stage-roster');roster.setAttribute('role','list');roster.setAttribute('aria-label','People in this call');
     const controls=el('div','repo-call-stage-controls');controls.setAttribute('role','group');controls.setAttribute('aria-label','Call controls');
-    const mic=button('Mute','mic',actions.toggleMute),sound=button('Deafen','sound',actions.toggleDeafen),screenControls=el('div','repo-call-stage-sharing'),leave=button('Leave call','leave',actions.leave);leave.classList.add('repo-call-stage-leave');controls.append(mic,sound,screenControls,leave);
+    const mic=button('Mute','mic',actions.toggleMute),sound=button('Deafen','sound',actions.toggleDeafen),screenControls=el('div','repo-call-stage-sharing'),leave=button('Leave call','leave',actions.leave);leave.classList.add('repo-call-stage-leave');controls.append(mic,sound,cameraControls,screenControls,leave);
     const screenNotice=el('div','repo-call-stage-notice');screenNotice.hidden=true;
-    body.append(media,roster,controls,screenNotice);element.append(head,body);
+    body.append(media,cameraMedia,roster,controls,screenNotice,cameraNotice);element.append(head,body);
     function sync(){body.hidden=collapsed;toggle.setAttribute('aria-expanded',String(!collapsed));label(toggle,collapsed?'Expand call':'Collapse call');element.classList.toggle('is-collapsed',collapsed);}
     function show(){collapsed=false;sync();}
-    screens?.mount(media,show);
+    screens?.mount(media,show);cameras?.mount(cameraMedia,show);
     function paintSpeaking(names=[]){for(const row of roster.querySelectorAll('[data-voice-name]'))row.classList.toggle('is-speaking',names.includes(row.dataset.voiceName));}
     function update(s){
       element.hidden=!s.callActive;
@@ -37,6 +38,7 @@
         for(const m of people){const row=el('div','repo-call-stage-person');row.dataset.voiceName=m.name;row.setAttribute('role','listitem');const avatar=portrait(m);avatar.classList.add('repo-call-stage-avatar');const name=el('span','repo-call-stage-name',m.display),note=el('small','repo-call-stage-person-status',m.status==='invited'?'Invited':m.serverDeafened?'Deafened':m.serverMuted||m.muted?'Muted':'');row.append(avatar,name,note);roster.append(row);}
       }
       screens?.render(screenControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened,screenNotice);
+      cameras?.render(cameraControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened,cameraNotice);
       paintSpeaking(s.speaking);sync();
     }
     return Object.freeze({element,update,show,paintSpeaking});

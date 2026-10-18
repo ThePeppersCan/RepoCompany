@@ -165,3 +165,6 @@
 /assets/repo-runners/build/*.wasm.br
   Content-Type: application/wasm
   Content-Encoding: br
+
+/repo-cameras.js
+  Cache-Control: no-cache

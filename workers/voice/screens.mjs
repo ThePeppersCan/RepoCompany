@@ -1,5 +1,5 @@
 import {hasBudget} from './budget.mjs';
-export const mediaKeys=['pub','recv','screenPub','screenRecv'];
+export const mediaKeys=['pub','recv','screenPub','screenRecv','cameraPub','cameraRecv'];
 export const hasMedia=m=>mediaKeys.some(key=>m[key]);
 const fail=(message,status=400)=>Object.assign(Error(message),{status});
 const members=room=>Object.values(room.members);

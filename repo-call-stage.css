@@ -62,3 +62,15 @@
 @media(max-height:700px){#repo-messages .repo-screen-viewer video{height:27dvh}.repo-call-stage-roster{min-height:78px;max-height:100px}.repo-call-stage-avatar{width:36px;height:36px}.repo-call-stage-body{padding-bottom:8px}}
 @media(max-width:640px){.repo-call-stage-head{padding-inline:12px}.repo-call-stage-body{padding-inline:10px}.repo-call-stage-status{font-size:10px}.repo-call-stage-roster{gap:13px}.repo-call-stage-controls{gap:6px}#repo-messages .repo-call-stage .repo-screen-controls>span{display:none}#repo-messages .repo-screen-viewer video{height:25dvh}.repo-call-stage-name{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.repo-call-stage-body{animation:none}}
+
+.repo-camera-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:8px 0;max-height:36dvh;overflow:auto}
+.repo-camera-tile{position:relative;min-width:0;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:8px;overflow:hidden;background:#090e11;aspect-ratio:16/9}
+.repo-camera-tile video{display:block;width:100%;height:100%;object-fit:contain}
+.repo-camera-tile video.is-local{transform:scaleX(-1)}
+.repo-camera-tile>span{position:absolute;bottom:0;left:0;right:0;padding:5px 8px;color:#f1f2e9;background:#090e11aa;font:11px/1.4 Arial,sans-serif}
+.repo-camera-tile>span.repo-camera-loading{top:40%;bottom:auto;text-align:center;background:transparent}
+.repo-camera-controls{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+#repo-messages .repo-camera-controls button{width:auto;min-height:36px;margin:0;padding:7px 11px;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:18px;background:var(--wibs-raised,#263e2e);color:var(--wibs-ink,#eceee1);font:500 12px/1.4 Arial,sans-serif}
+#repo-messages .repo-camera-controls button[aria-pressed=true]{border-color:var(--wibs-accent,#c4d6aa)}
+.repo-camera-controls>span{width:100%;font:10px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0);text-align:center}
+@media(max-width:640px){.repo-camera-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:30dvh}.repo-camera-controls>span{display:none}}
