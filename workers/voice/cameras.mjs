@@ -42,7 +42,8 @@ export class Cameras{
   if(op==='camera-ready'){if(!m.cameraPub||m.cameraPub.revoked)throw fail('Start your camera first.',409);m.cameraPub.ready=true;return {ok:true};}
   if(op==='camera-watch'){
    if(m.cameraRecv)throw fail('Your previous camera view is finishing. Try again shortly.',409);
-   const sources=this.publishers(room).filter(p=>p.id!==m.id&&p.cameraPub.ready);
+   if(b.owners!==undefined&&(!Array.isArray(b.owners)||b.owners.length>MAX_CAMERAS||b.owners.some(id=>typeof id!=='string'||id.length>128)))throw fail('Invalid camera selection.');
+   const sources=this.publishers(room).filter(p=>p.id!==m.id&&p.cameraPub.ready&&(b.owners===undefined||b.owners.includes(p.id)));
    if(!sources.length)throw fail('Nobody else has a camera on yet.',409);
    if(!hasBudget(h.state,now,0,0,sources.length))throw fail('Monthly Wibs usage is too close to its limit to watch cameras.',429);
    const session=await h.sfu('/sessions/new');if(!session.sessionId)throw fail('Cameras could not connect.',502);
@@ -50,7 +51,7 @@ export class Cameras{
    try{
     const reply=await h.sfu(`/sessions/${session.sessionId}/tracks/new`,{tracks:sources.map(p=>({location:'remote',sessionId:p.cameraPub.id,trackName:p.cameraPub.trackName}))});
     if(reply.sessionDescription?.type!=='offer')throw fail('Cameras could not connect.',502);
-    const tracks=sources.map(p=>{const track=reply.tracks?.find(t=>t.trackName===p.cameraPub.trackName);if(typeof track?.mid!=='string')throw fail('A camera could not connect.',502);return {mid:track.mid,id:p.cameraPub.trackName,display:p.display};});
+    const tracks=sources.map(p=>{const track=reply.tracks?.find(t=>t.trackName===p.cameraPub.trackName);if(typeof track?.mid!=='string')throw fail('A camera could not connect.',502);return {mid:track.mid,id:p.cameraPub.trackName,owner:p.id,display:p.display};});
     m.cameraRecv.pendingUntil=0;return {sessionDescription:reply.sessionDescription,tracks};
    }catch(error){m.cameraRecv.revoked=true;await h.save();h.clean(room);throw error;}
   }

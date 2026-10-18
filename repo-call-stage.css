@@ -30,9 +30,6 @@
 .repo-call-stage.is-collapsed .repo-call-stage-toggle svg{transform:rotate(180deg)}
 .repo-call-stage-sharing{min-width:0}
 #repo-messages .repo-call-stage .repo-screen-controls{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:0;margin:0;border:0;font:11px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0)}
-#repo-messages .repo-call-stage .repo-screen-controls button{width:auto;min-height:36px;padding:7px 13px;margin:0;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:18px;background:var(--wibs-raised,#263e2e);color:var(--wibs-ink,#eceee1);font:500 12px/1.4 Arial,sans-serif}
-#repo-messages .repo-call-stage .repo-screen-controls button:hover:not(:disabled){background:var(--wibs-hover,#334b3b)}
-#repo-messages .repo-call-stage .repo-screen-controls button.is-sharing{border-color:var(--wibs-accent,#c4d6aa)}
 #repo-messages .repo-call-stage .repo-screen-controls>span{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #repo-messages .repo-call-stage .repo-screen-controls p{flex-basis:100%;font:11px/1.4 Arial,sans-serif;margin:0;max-width:310px;color:var(--wibs-muted,#aebeb0)}
 .repo-call-stage-media{position:relative;width:100%;min-width:0}
@@ -43,10 +40,10 @@
 #repo-messages .repo-screen-viewer video{display:block;width:100%;height:min(32dvh,310px);max-width:none;max-height:none;object-fit:contain;background:#090e11}
 #repo-messages .repo-screen-viewer video:fullscreen{width:100vw;height:100dvh;object-fit:contain}
 #repo-messages .repo-screen-loading{position:absolute;inset:50% 12px auto;margin:0;max-width:none;text-align:center;font:12px/1.5 Arial,sans-serif;color:#c6cec8}
-.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-roster{min-height:0;max-height:50px;gap:14px;padding:10px 0}
-.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-person{flex-direction:row;gap:7px;min-width:0;max-width:150px}
-.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-avatar{width:24px;height:24px;font-size:9px}
-.repo-call-stage:has(.repo-screen-viewer) .repo-call-stage-person-status{display:none}
+.repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-roster{min-height:0;max-height:50px;gap:14px;padding:10px 0}
+.repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-person{flex-direction:row;gap:7px;min-width:0;max-width:150px}
+.repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-avatar{width:24px;height:24px;font-size:9px}
+.repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-person-status{display:none}
 /* Compact connection line and permanently visible Monthly meter in the dock. */
 #repo-messages.rc-page .rc-account-dock .repo-voice-panel{padding:8px 12px;max-height:none;overflow:visible}
 #repo-messages .rc-account-dock .repo-voice-top{min-height:22px;gap:7px;margin:0;font-size:11px;align-items:center}
@@ -70,7 +67,38 @@
 .repo-camera-tile>span{position:absolute;bottom:0;left:0;right:0;padding:5px 8px;color:#f1f2e9;background:#090e11aa;font:11px/1.4 Arial,sans-serif}
 .repo-camera-tile>span.repo-camera-loading{top:40%;bottom:auto;text-align:center;background:transparent}
 .repo-camera-controls{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
-#repo-messages .repo-camera-controls button{width:auto;min-height:36px;margin:0;padding:7px 11px;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:18px;background:var(--wibs-raised,#263e2e);color:var(--wibs-ink,#eceee1);font:500 12px/1.4 Arial,sans-serif}
-#repo-messages .repo-camera-controls button[aria-pressed=true]{border-color:var(--wibs-accent,#c4d6aa)}
-.repo-camera-controls>span{width:100%;font:10px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0);text-align:center}
 @media(max-width:640px){.repo-camera-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:30dvh}.repo-camera-controls>span{display:none}}
+
+/* Media controls belong to the same icon row as mic, headphones and leave. */
+.repo-call-stage-cameras,.repo-call-stage-sharing,.repo-camera-controls{display:contents}
+#repo-messages .repo-call-stage .repo-screen-controls>span{display:none}
+#repo-messages .repo-call-media-button[aria-pressed=true]{background:var(--wibs-accent,#c4d6aa);color:var(--wibs-bg,#142219);border-color:transparent}
+#repo-messages .repo-call-media-button[aria-pressed=true]:after{display:none}
+.repo-call-stage-person{position:relative}
+#repo-messages .repo-camera-options,#repo-messages .repo-camera-person-options{display:grid;place-items:center;width:32px;height:32px;min-width:32px;padding:0;border:1px solid var(--wibs-line,#ffffff38);border-radius:6px;background:#111820b0;color:#f1f2e9;font:20px/1 Arial,sans-serif}
+.repo-camera-options{position:absolute;top:6px;right:6px}
+.repo-camera-person-options{position:static;flex:none}
+.repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-name{min-width:0}
+.repo-camera-menu{position:fixed;z-index:100;width:180px;padding:6px;border:1px solid var(--wibs-line,#ffffff38);border-radius:8px;background:var(--wibs-bg,#142219);box-shadow:0 8px 30px #0006}
+#repo-messages .repo-camera-menu button{display:block;width:100%;min-height:44px;padding:10px;text-align:left;border:0;background:transparent;color:var(--wibs-ink,#eceee1);font:14px/1.4 Arial,sans-serif}
+#repo-messages .repo-camera-menu button:hover,#repo-messages .repo-camera-menu button:focus-visible{background:var(--wibs-hover,#334b3b)}
+@media(max-width:640px){#repo-messages .repo-call-stage-controls .repo-call-stage-button{width:44px;height:44px}#repo-messages .repo-camera-options,#repo-messages .repo-camera-person-options{width:44px;height:44px}}
+
+/* Keep the conversation reachable when several media tiles are open. */
+.repo-call-stage{display:flex;flex-direction:column;max-height:65dvh;overflow:hidden}
+.repo-call-stage-head{flex:none}
+.repo-call-stage-body{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.repo-call-stage-content{min-height:0;overflow:auto}
+.repo-call-stage-controls{flex:none;padding-top:6px}
+@media(max-width:640px){.repo-call-stage{max-height:55dvh}}
+html[data-repo-companion=true][data-phone-compact=true] .repo-call-stage{max-height:150px}
+
+/* Fit simultaneous screens and webcams without obscuring names or controls. */
+.repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-roster{min-height:44px;max-height:70px;padding:6px 0}
+#repo-messages .repo-call-stage:has(.repo-camera-tile) .repo-screen-viewer video{height:min(24dvh,220px)}
+.repo-call-stage:has(.repo-screen-viewer) .repo-camera-tile{height:min(18dvh,170px);aspect-ratio:auto}
+@media(max-width:640px){
+ #repo-messages .repo-call-stage:has(.repo-camera-tile) .repo-screen-viewer video{height:20dvh}
+ .repo-call-stage:has(.repo-screen-viewer) .repo-camera-tile{height:auto;aspect-ratio:16/9}
+ .repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-roster{min-height:56px}
+}

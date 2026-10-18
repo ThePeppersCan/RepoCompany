@@ -23,6 +23,9 @@ const assert=require('node:assert/strict'),{createFixture}=require('./messaging-
   f.sql.prepare("INSERT INTO community_roles VALUES(?,'Developer','fixture',?)").run(f.sessions.alice.user.id,Date.now());
   await call('alice','moderate',{username:'bob',action:'deafen',enabled:true});assert(!person('bob').cameraPub);await call('bob','camera-publish',{room,mid:'0',sessionDescription:video},403);
   await call('alice','moderate',{username:'bob',action:'deafen',enabled:false});await call('bob','publish',{room,mid:'0',sessionDescription:audio});await call('bob','ready',{room});await call('bob','camera-publish',{room,mid:'0',sessionDescription:video});await call('bob','camera-ready',{room});
+  await call('mallory','camera-watch',{room,owners:'alice'},400);
+  await call('mallory','camera-watch',{room,owners:['not-a-room-member']},409);
+  const selected=await call('mallory','camera-watch',{room,owners:[person('alice').id]});assert.equal(selected.tracks.length,1);assert.equal(selected.tracks[0].owner,person('alice').id);assert.equal(byteRate(hub.state.rooms),baseline+CAMERA_BYTES_PER_SECOND,'hidden cameras are not subscribed or charged');await call('mallory','camera-unwatch',{room});
   const watched=await call('mallory','camera-watch',{room,tracks:[{sessionId:'forged',trackName:'forged'}]});assert.equal(watched.tracks.length,2);assert(watched.tracks.every(t=>!t.id.includes('forged')));assert.equal(byteRate(hub.state.rooms),baseline+2*CAMERA_BYTES_PER_SECOND);
   await call('mallory','camera-answer',{room,sessionDescription:{type:'answer',sdp:video.sdp.replace('sendonly','recvonly')}});
   await call('mallory','camera-watch',{room},409);

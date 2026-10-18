@@ -24,7 +24,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
    if(label==='keyboard')await p.screenshot({path:path.resolve(root,'../../outputs/Phone-keyboard-fit.png')});
    await controls.getByRole('button',{name:'Account',exact:true}).click();await p.locator('#account-menu[open]').waitFor();await p.locator('#account-menu .repo-section-nav [data-nav=wibs]').click();await p.locator('#repo-messages[open]').waitFor();
   }
-  await p.setViewportSize({width:390,height:844});await p.evaluate(()=>{for(const k of ['top','bottom','left','right'])document.documentElement.style.removeProperty('--phone-safe-'+k);});
+  // iOS can report a shorter visual viewport even with its keyboard closed.
+  await p.setViewportSize({width:430,height:932});
+  await p.evaluate(()=>{const s=document.documentElement.style;s.setProperty('--phone-safe-top','59px','important');s.setProperty('--phone-safe-bottom','34px','important');Object.defineProperty(visualViewport,'height',{configurable:true,value:873});dispatchEvent(new Event('resize'));s.setProperty('--phone-safe-bottom','34px','important');});
+  let panel=await p.locator('#repo-messages').boundingBox(),bar=await p.locator('.rc-composer').boundingBox();
+  assert.equal(panel.y+panel.height,932,'phone panel fills the window despite shorter idle visual viewport');assert.equal(bar.y+bar.height,932-34-8,'message bar sits just above the home indicator');
+  assert(await p.evaluate(()=>document.querySelector('#repo-messages').contains(document.elementFromPoint(215,931))),'themed panel covers the bottom strip');
+  await p.screenshot({path:path.resolve(root,'../../outputs/Phone-bottom-bar.png')});
+  await p.locator('.rc-composer textarea').focus();
+  await p.evaluate(()=>{document.documentElement.style.removeProperty('--phone-safe-bottom');Object.defineProperty(visualViewport,'height',{configurable:true,value:480});Object.defineProperty(visualViewport,'offsetTop',{configurable:true,value:30});visualViewport.dispatchEvent(new Event('resize'));});
+  panel=await p.locator('#repo-messages').boundingBox();bar=await p.locator('.rc-composer').boundingBox();assert.equal(panel.y,30);assert.equal(panel.height,480);assert.equal(bar.y+bar.height,502,'keyboard viewport keeps message bar above keyboard without duplicate safe-area padding');
+  await p.evaluate(()=>{document.activeElement.blur();delete visualViewport.height;delete visualViewport.offsetTop;for(const k of ['top','bottom','left','right'])document.documentElement.style.removeProperty('--phone-safe-'+k);dispatchEvent(new Event('resize'));});
+  await p.setViewportSize({width:390,height:844});
   const nav=p.locator('#repo-messages .repo-section-nav');await nav.getByRole('button',{name:'Wibsworth',exact:true}).click();await p.waitForFunction(()=>document.querySelector('#repo-messages')?.dataset.workspaceView==='wibsworth');assert.match(p.url(),/\/app\/#wibsworth/);
   await p.screenshot({path:path.resolve(root,'../../outputs/Phone-Wibsworth.png')});
   await nav.getByRole('button',{name:'Account',exact:true}).click();await p.locator('#account-menu[open]').waitFor();await p.getByRole('tab',{name:'Achievements',exact:true}).click();await p.locator('.ach-game-card').first().waitFor();assert.equal(await p.locator('.ach-game-card').count(),3);await p.screenshot({path:path.resolve(root,'../../outputs/Phone-achievements.png')});

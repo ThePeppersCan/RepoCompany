@@ -89,7 +89,10 @@
     if(ui.area.hidden)return;
     const label=mode?(busy?(mode==='publish'?'Preparing your screen…':'Connecting to the screen…'):mode==='publish'?'Sharing your screen · 720p':'Watching shared screen'):room.screen.active?room.screen.active.display+' is sharing':room.screen.closing?'Finishing the previous screen connection…':'';
     ui.label.textContent=label;ui.label.hidden=!label;
-    ui.action.textContent=mode?(mode==='publish'?'Stop sharing':'Stop watching'):room.screen.active?'Watch screen':'Share screen';
+    const actionLabel=mode?(mode==='publish'?'Stop sharing':'Stop watching'):room.screen.active?'Watch screen':'Share screen';
+    ui.action.classList.add('repo-call-stage-button','repo-call-media-button');
+    if(!ui.action.getAttribute('aria-label'))ui.action.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4M8 10l4-4 4 4m-4-4v8"/></svg>';
+    ui.action.setAttribute('aria-label',actionLabel);ui.action.title=actionLabel+(label?' · '+label:'');ui.action.setAttribute('aria-pressed',String(!!mode));
     ui.action.classList.toggle('is-sharing',!!mode);ui.action.disabled=!mode&&(!canShare||room.screen.closing);
    }
   };

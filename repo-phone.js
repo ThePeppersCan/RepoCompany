@@ -13,8 +13,18 @@
  window.repoRoutes?.start();
  document.addEventListener('close',event=>{if(event.target.id==='account-menu'&&window.repoAccount?.state.user&&!document.querySelector('#repo-messages[open],#repo-reparty[open]'))queueMicrotask(open);},true);
  // Reflect the visual viewport when the keyboard opens; keep composer reachable.
- const viewport=()=>{const v=window.visualViewport,style=document.documentElement.style;document.documentElement.dataset.phoneCompact=String((v?.height||innerHeight)<600);style.setProperty('--phone-height',(v?.height||innerHeight)+'px');style.setProperty('--phone-top',(v?.offsetTop||0)+'px');style.setProperty('--phone-safe-bottom',v&&innerHeight-v.height>140?'0px':'env(safe-area-inset-bottom,0px)');};
- window.visualViewport?.addEventListener('resize',viewport);window.visualViewport?.addEventListener('scroll',viewport);addEventListener('resize',viewport);addEventListener('pageshow',viewport);viewport();
+ const viewport=()=>{
+  const v=window.visualViewport,style=document.documentElement.style;
+  const editing=document.activeElement?.matches('textarea,input,[contenteditable=true]');
+  const keyboard=!!(editing&&v&&innerHeight-v.height>140);
+  // iOS standalone can report a visual viewport shorter than the app window
+  // even without a keyboard. Use the full CSS viewport until editing needs it.
+  document.documentElement.dataset.phoneCompact=String((keyboard?v.height:innerHeight)<600);
+  document.documentElement.dataset.phoneKeyboard=String(keyboard);
+  style.setProperty('--phone-height',keyboard?v.height+'px':'100dvh');
+  style.setProperty('--phone-top',keyboard?(v.offsetTop||0)+'px':'0px');
+ };
+ window.visualViewport?.addEventListener('resize',viewport);window.visualViewport?.addEventListener('scroll',viewport);addEventListener('resize',viewport);addEventListener('pageshow',viewport);document.addEventListener('focusin',viewport);document.addEventListener('focusout',()=>queueMicrotask(viewport));viewport();
  let deferred;
  addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferred=event;});
  const installed=()=>matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;

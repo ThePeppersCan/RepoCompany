@@ -1,6 +1,7 @@
 /* Same shared components, typography and chosen Wibs theme; only phone fit. */
 html[data-repo-companion=true]{background:#101713;overscroll-behavior:none;--phone-safe-top:env(safe-area-inset-top,0px);--phone-safe-bottom:env(safe-area-inset-bottom,0px);--phone-safe-left:env(safe-area-inset-left,0px);--phone-safe-right:env(safe-area-inset-right,0px)}
 html[data-repo-companion=true] body{display:block;height:100dvh;min-height:0;margin:0;overflow:hidden}
+html[data-repo-companion=true][data-phone-keyboard=true]{--phone-safe-bottom:0px}
 [data-repo-companion=true] #dashboard,[data-repo-companion=true] [data-nav=collection]{display:none!important}
 [data-repo-companion=true] .repo-section-nav{justify-content:space-around;width:100%}
 [data-repo-companion=true] :is(#repo-messages,#repo-reparty,#account-menu) .repo-section-nav>.repo-section-button{width:44px;min-width:44px;height:44px;min-height:44px;touch-action:manipulation}
@@ -8,6 +9,7 @@ html[data-repo-companion=true] body{display:block;height:100dvh;min-height:0;mar
 [data-repo-companion=true] :is(#repo-messages.rc-page,#repo-reparty,#account-menu,#repo-login){box-sizing:border-box;top:var(--phone-top,0px);bottom:auto;left:0;right:0;margin:0;width:100%;max-width:100%;max-height:var(--phone-height,100dvh);height:var(--phone-height,100dvh);padding:var(--phone-safe-top) var(--phone-safe-right) var(--phone-safe-bottom) var(--phone-safe-left)}
 [data-repo-companion=true] .rc-composer textarea,[data-repo-companion=true] .ws-compose textarea,[data-repo-companion=true] .account-profile-form input,[data-repo-companion=true] .account-profile-form textarea{font-size:16px}
 [data-repo-companion=true] .rc-account-dock{padding-bottom:5px}
+[data-repo-companion=true] #repo-messages .rc-composer{margin-bottom:8px}
 .repo-phone-install-button{display:block;width:100%;min-height:44px;padding:10px 16px;color:inherit;background:transparent;border:0;font:12px/1.5 "Segoe UI",Arial,sans-serif;cursor:pointer}
 #repo-login .repo-phone-install-button{position:relative;color:#c6c8bb;max-width:340px;margin:0 auto 12px}
 .repo-phone-install{width:calc(100% - 32px);max-width:430px;max-height:calc(100dvh - 32px);overflow:auto;padding:28px;border:1px solid #c4d6aa33;border-radius:18px;background:#17221c;color:#eceade;font:15px/1.65 "Segoe UI",Arial,sans-serif}

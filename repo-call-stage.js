@@ -18,7 +18,8 @@
     const controls=el('div','repo-call-stage-controls');controls.setAttribute('role','group');controls.setAttribute('aria-label','Call controls');
     const mic=button('Mute','mic',actions.toggleMute),sound=button('Deafen','sound',actions.toggleDeafen),screenControls=el('div','repo-call-stage-sharing'),leave=button('Leave call','leave',actions.leave);leave.classList.add('repo-call-stage-leave');controls.append(mic,sound,cameraControls,screenControls,leave);
     const screenNotice=el('div','repo-call-stage-notice');screenNotice.hidden=true;
-    body.append(media,cameraMedia,roster,controls,screenNotice,cameraNotice);element.append(head,body);
+    const content=el('div','repo-call-stage-content');content.append(media,cameraMedia,roster);
+    body.append(content,controls,screenNotice,cameraNotice);element.append(head,body);
     function sync(){body.hidden=collapsed;toggle.setAttribute('aria-expanded',String(!collapsed));label(toggle,collapsed?'Expand call':'Collapse call');element.classList.toggle('is-collapsed',collapsed);}
     function show(){collapsed=false;sync();}
     screens?.mount(media,show);cameras?.mount(cameraMedia,show);
@@ -32,10 +33,10 @@
       label(sound,s.serverDeafened?'Server deafened':s.deafened?'Undeafen':'Deafen');sound.setAttribute('aria-pressed',String(s.deafened));sound.disabled=!s.canDeafen;
       label(leave,s.leaveLabel||'Leave call');
       const people=s.room?.members.filter(m=>m.status==='active'||m.status==='invited')||[];
-      const next=JSON.stringify(people.map(m=>[m.id,m.name,m.display,m.status,m.muted,m.serverMuted,m.serverDeafened]));
+      const next=JSON.stringify(people.map(m=>[m.id,m.name,m.display,m.status,m.muted,m.serverMuted,m.serverDeafened,s.room?.cameras?.active.some(t=>t.owner===m.id),cameras?.hidden(m.id)]));
       if(next!==rosterKey){
         rosterKey=next;roster.replaceChildren();
-        for(const m of people){const row=el('div','repo-call-stage-person');row.dataset.voiceName=m.name;row.setAttribute('role','listitem');const avatar=portrait(m);avatar.classList.add('repo-call-stage-avatar');const name=el('span','repo-call-stage-name',m.display),note=el('small','repo-call-stage-person-status',m.status==='invited'?'Invited':m.serverDeafened?'Deafened':m.serverMuted||m.muted?'Muted':'');row.append(avatar,name,note);roster.append(row);}
+        for(const m of people){const row=el('div','repo-call-stage-person');row.dataset.voiceName=m.name;row.setAttribute('role','listitem');const avatar=portrait(m);avatar.classList.add('repo-call-stage-avatar');const name=el('span','repo-call-stage-name',m.display),note=el('small','repo-call-stage-person-status',m.status==='invited'?'Invited':m.serverDeafened?'Deafened':m.serverMuted||m.muted?'Muted':'');row.append(avatar,name,note);cameras?.person(row,m.id,m.display);roster.append(row);}
       }
       screens?.render(screenControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened,screenNotice);
       cameras?.render(cameraControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened,cameraNotice);
