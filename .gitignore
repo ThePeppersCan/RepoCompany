@@ -1,6 +1,17 @@
 dist/
 .wrangler/
 node_modules/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+*.pem
+*.p12
+*.pfx
+*-secrets.json
+credentials.json
+service-account.json
 QA/dashboard-staging/
 QA/dashboard-packs/
 QA/native-binders/

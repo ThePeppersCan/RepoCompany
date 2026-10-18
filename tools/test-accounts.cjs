@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  const root=path.resolve(__dirname,'..'),f=await createFixture(),fallback=global.fetch;
  const {OWNER_ID,digest,sendAccountMail}=await import(pathToFileURL(path.join(root,'lib/accounts.mjs')));
  const config=f.config,env={...f.env,RESEND_API_KEY:'fixture-only'},users={owner:{id:OWNER_ID,email:'catasthma@'+config.authDomain,user_metadata:{username:'CatAsthma'}},alice:f.sessions.alice.user,bob:f.sessions.bob.user};
- const issued=new Map(),emails=[],created=[];let failEmail=false;
+ const issued=new Map(),emails=[],created=[],signedOut=[];let failEmail=false,failLogout=false;
  f.sql.exec(fs.readFileSync(path.join(root,'dashboard-accounts-schema.sql'),'utf8'));
  global.fetch=async(input,options={})=>{
   const url=String(input),body=JSON.parse(options.body||'{}'),token=new Headers(options.headers).get('Authorization')?.replace('Bearer ',''),user=users[token];
@@ -18,7 +18,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   }
   if(url.endsWith('/auth/v1/verify')){const link=issued.get(body.token_hash);if(!link||body.type!==link.purpose)return Response.json({error:'invalid'},{status:400});issued.delete(body.token_hash);users['session-'+link.u.id]=link.u;return Response.json({user:link.u,access_token:'session-'+link.u.id});}
   if(url.endsWith('/auth/v1/user')&&options.method==='PUT'){assert(user);assert(body.password.length>=12);return Response.json(user);}
-  if(url.endsWith('/auth/v1/logout?scope=global'))return new Response(null,{status:204});
+  if(url.endsWith('/auth/v1/logout?scope=global')){assert(user);signedOut.push(user.id);if(failLogout==='network')throw Error('Fixture network failure');return new Response(null,{status:failLogout?503:204});}
   return fallback(input,options);
  };
  const source=fs.readFileSync(path.join(root,'functions/api/accounts/[[path]].js'),'utf8').replace("import config from '../../../dashboard-config.json';",'const config='+JSON.stringify(config)+';').replace("'../../../lib/accounts.mjs'",JSON.stringify(pathToFileURL(path.join(root,'lib/accounts.mjs')).href));
@@ -42,9 +42,16 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   const count=emails.length;await call('recover',{email:'unknown@example.com'});assert.equal(emails.length,count);await call('recover',{email:'alice@example.com'});assert.equal(emails.length,count+1);await call('complete',{purpose:'recovery',token:mailToken(emails.at(-1)),password:'new-long-password'});
   await call('request',{username:'second',email:'second@example.com'});const second=(await call('requests',undefined,'owner')).requests.find(r=>r.username==='second');failEmail=true;await call('review',{id:second.id,action:'approve'},'owner',503);assert.equal(f.sql.prepare('SELECT status FROM account_requests WHERE id=?').get(second.id).status,'send_failed');failEmail=false;await call('review',{id:second.id,action:'resend'},'owner');assert.equal(created.length,2,'Resending does not create another account');
   await call('request',{username:'evil',email:'evil@example.com'},null,403,{Origin:'https://evil.test'});await call('request',{username:'x',email:'nope'},null,400);
+  assert.deepEqual(signedOut,[created[0].id,users.alice.id],'Activation and recovery must revoke refresh sessions globally');
+  for(const failure of [true,'network']){
+   await call('recover',{email:'friend@example.com'});const recovery=mailToken(emails.at(-1));failLogout=failure;
+   const result=await call('complete',{purpose:'recovery',token:recovery,password:'new-long-password'},null,503);
+   assert.match(result.error,/password was saved.*signing out old sessions/);assert(!('access_token'in result));assert(!('refresh_token'in result));
+   await call('complete',{purpose:'recovery',token:recovery,password:'new-long-password'},null,400);failLogout=false;
+  }
   for(let i=0;i<90;i++)f.sql.prepare('INSERT INTO account_mail_usage VALUES(?,?)').run(crypto.randomUUID(),Date.now());await assert.rejects(sendAccountMail(env,{to:'nobody@example.com',subject:'fixture',text:'fixture',id:'quota'}),/allowance/);
   const old=await digest('x'.repeat(64));f.sql.prepare('INSERT INTO account_email_tokens(hash,user_id,username,email,purpose,expires_at) VALUES(?,?,?,?,?,?)').run(old,users.alice.id,'alice','alice@example.com','email',Date.now()-1);await call('complete',{purpose:'email',token:'x'.repeat(64)},null,400);
   assert(!fs.readFileSync(path.join(root,'dashboard-service.js'),'utf8').includes('db.auth.signUp('));
-  console.log('PASS: pending requests create no account/send no email; exact owner permissions; approval/invite activation; preserved existing identity; verified email recovery; wrong passwords; reused/expired links; resend after delivery failure; shared mail cutoff; origin and input validation.');
+  console.log('PASS: pending requests create no account/send no email; exact owner permissions; approval/invite activation; preserved existing identity; verified email recovery; global session revocation; logout HTTP/network failures do not report success or return tokens; wrong passwords; reused/expired links; resend after delivery failure; shared mail cutoff; origin and input validation.');
  }finally{await f.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

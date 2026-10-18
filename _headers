@@ -1,7 +1,11 @@
 /*
+  Strict-Transport-Security: max-age=31536000
+  Content-Security-Policy: object-src 'none'; base-uri 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 /index.html
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
 /dashboard-config.js
   Cache-Control: no-cache
@@ -59,8 +63,12 @@
 /morogue-account-bridge.js
   Cache-Control: no-cache
 /moratales-characters
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-store
 /moratales-characters.html
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-store
 /moratales-characters.js
   Cache-Control: no-cache
@@ -68,10 +76,6 @@
   Cache-Control: no-store
   Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors https://morogue.repocompany.uk https://moratales.repocompany.uk; base-uri 'none'; form-action 'none'
 
-/repo-messaging.js
-  Cache-Control: no-cache
-/repo-messaging.css
-  Cache-Control: no-cache
 /api/social/*
   Cache-Control: no-store
 /releases/launcher/latest.json
@@ -80,16 +84,6 @@
 /reparty/*
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
-/repo-reparty.js
-  Cache-Control: no-cache
-/repo-reparty.css
-  Cache-Control: no-cache
-/repo-listening.js
-  Cache-Control: no-cache
-/repo-spotify.js
-  Cache-Control: no-cache
-/repo-listening.css
-  Cache-Control: no-cache
 /spotify-connect.html
   Cache-Control: no-store
   Referrer-Policy: no-referrer
@@ -99,8 +93,12 @@
   Referrer-Policy: no-referrer
   Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; connect-src https://accounts.spotify.com; base-uri 'none'; frame-ancestors 'none'; form-action 'none'
 /legacy-runtime
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   X-Robots-Tag: noindex, nofollow
 /legacy-runtime.html
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   X-Robots-Tag: noindex, nofollow
 /reparty
   X-Robots-Tag: noindex, nofollow
@@ -116,30 +114,48 @@
 /assets/brand/*
   Cache-Control: public, max-age=86400
 /Wibs
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /Reparty
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /Account
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /Account/*
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /Moratales
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /Morogue
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /VelmoraManager
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /Demos
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /Demos/*
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
   X-Robots-Tag: noindex, nofollow
 /broomflight/*
@@ -166,25 +182,36 @@
   Content-Type: application/wasm
   Content-Encoding: br
 
-/repo-cameras.js
-  Cache-Control: no-cache
-
 /app/*
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
   Cache-Control: no-cache
 /app/sw.js
   Cache-Control: no-cache
   Service-Worker-Allowed: /app/
-/repo-phone.js
-  Cache-Control: no-cache
-/repo-phone.css
-  Cache-Control: no-cache
-
 /account-access/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  X-Frame-Options: DENY
   Cache-Control: no-store
   Referrer-Policy: no-referrer
-/repo-account-email.js
-  Cache-Control: no-cache
-/repo-account-email.css
-  Cache-Control: no-cache
-/repo-account-access.js
+/
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
+
+/Wibsworth
+  Content-Security-Policy: frame-ancestors 'self'
+  X-Frame-Options: SAMEORIGIN
+
+/account-access
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  X-Frame-Options: DENY
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer
+
+/account-access.html
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  X-Frame-Options: DENY
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer
+/repo-*
   Cache-Control: no-cache

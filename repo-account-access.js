@@ -11,6 +11,6 @@
  const form=host.querySelector('form'),feedback=form.querySelector('[role=status]');let busy=false;
  form.onsubmit=async event=>{event.preventDefault();if(busy)return;const body=Object.fromEntries(new FormData(form));if(body.password&&body.password!==body.confirmation){feedback.textContent='Your passwords do not match.';return;}delete body.confirmation;busy=true;form.querySelector('button').disabled=true;feedback.textContent='Please wait…';
   try{const route=purpose==='request'?'request':purpose==='recover'?'recover':'complete';if(route==='complete')Object.assign(body,{token,purpose});const r=await fetch('/api/accounts/'+route,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),result=await r.json();if(!r.ok)throw Error(result.error||'Please try again.');feedback.textContent=result.message||(result.username?'Ready to sign in as '+result.username+'.':'Done.');for(const input of form.querySelectorAll('input,textarea')){input.value='';input.disabled=true;}form.querySelector('button').hidden=true;try{localStorage.setItem('repo-email-verified',String(Date.now()));}catch{}}
-  catch(e){feedback.textContent=e.message;form.querySelector('button').disabled=false;}finally{busy=false;}
+  catch(e){feedback.textContent=e.message;form.querySelector('button').disabled=false;}finally{for(const input of form.querySelectorAll('input[type=password]'))input.value='';busy=false;}
  };
 })();

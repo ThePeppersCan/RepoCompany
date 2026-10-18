@@ -1,5 +1,6 @@
 const fs=require('fs'),path=require('path'),crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist');
+const security=require('./security-preflight.cjs');
 const production=process.argv.includes('--production')||process.env.CF_PAGES_BRANCH==='main';
 if(!process.argv.includes('--preserve-game-integrations'))require('./build-game-achievements.cjs');
 // Check the actual post-generation inputs before copying anything to the public
@@ -15,8 +16,9 @@ let files=0;
 function copy(src,dest){
  const relative=path.relative(root,src).replaceAll('\\','/');
  if(/^reparty\/(?:game-(?:mode|player|cards)\.|soundtrack-mode\.|soundtracks(?:\/|$)|supabase(?:\/|$)|tools(?:\/|$)|reparty\.css$)/.test(relative)){const target=path.resolve(dest);if(!target.startsWith(path.resolve(dist)+path.sep))throw Error('Invalid retired asset path.');if(fs.existsSync(target))fs.rmSync(target,{recursive:true,force:true});return;}
- const stat=fs.statSync(src);if(stat.isDirectory()){fs.mkdirSync(dest,{recursive:true});for(const name of fs.readdirSync(src))if(!['node_modules','.git','.wrangler','tests','QA','work'].includes(name))copy(path.join(src,name),path.join(dest,name));}
- else{if(/\.(sql|md|toml|map|ts|cjs)$/i.test(src))return;fs.copyFileSync(src,dest);files++;}
+ const stat=fs.lstatSync(src);if(stat.isSymbolicLink())throw Error('Security preflight: public symlink is not allowed: '+relative);
+ if(stat.isDirectory()){if(security.forbidden(relative))throw Error('Security preflight: private directory cannot be published: '+relative);fs.mkdirSync(dest,{recursive:true});for(const name of fs.readdirSync(src))if(!['node_modules','.git','.wrangler','tests','QA','work'].includes(name))copy(path.join(src,name),path.join(dest,name));}
+ else{if(/\.(sql|md|toml|map|ts|cjs)$/i.test(src))return;security.inspectFile(src,relative);fs.copyFileSync(src,dest);files++;}
 }
 for(const name of fs.readdirSync(root)){
  if(requiredStaticAssets.includes(name)||includeDirs.includes(name))copy(path.join(root,name),path.join(dist,name));
@@ -48,4 +50,8 @@ fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"
 }));
 }
 fs.writeFileSync(path.join(dist,'_routes.json'),JSON.stringify({version:1,include:['/api/*','/download/*'],exclude:[]}));
+const headerLines=fs.readFileSync(path.join(dist,'_headers'),'utf8').split(/\r?\n/);
+if(headerLines.filter(line=>line.startsWith('/')).length>100||headerLines.some(line=>line.length>2000))throw Error('Security preflight: static header rules exceed the hosting limit.');
+const checked=security.scanPublicTree(dist);
+console.log('Security preflight passed: '+checked.files+' public files, '+checked.textFiles+' readable assets.');
 console.log('Staging bundle: '+files+' files. Existing runtime assets included.');

@@ -62,8 +62,10 @@ export async function onRequest({request,env,params}){
     db.prepare('INSERT INTO account_contacts(user_id,username,email,verified_at) VALUES(?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET email=excluded.email,verified_at=excluded.verified_at').bind(row.user_id,row.username,row.email,now),
     db.prepare("UPDATE account_requests SET status='active',error='' WHERE id=? AND user_id=?").bind(row.request_id,row.user_id)
    ]);
-   // Revoke refresh sessions after a password change; sign in normally afterwards.
-   await fetch(config.url+'/auth/v1/logout?scope=global',{method:'POST',headers:{apikey:config.key,Authorization:'Bearer '+session.access_token},signal:AbortSignal.timeout(10000)});
+   // Revoke existing refresh sessions before reporting success. Existing access
+   // tokens retain the provider's normal short expiry; never return this session.
+   const signedOut=await fetch(config.url+'/auth/v1/logout?scope=global',{method:'POST',headers:{apikey:config.key,Authorization:'Bearer '+session.access_token},signal:AbortSignal.timeout(10000)}).catch(()=>null);
+   if(!signedOut?.ok)throw accountError('Your password was saved, but signing out old sessions could not be confirmed. Request another reset link and try again.',503);
    return json({ok:true,username:row.username,message:purpose==='invite'?'Your account is ready. Sign in with your username and new password.':'Password saved. Sign in with your username and new password.'});
   }
   const token=request.headers.get('Authorization')?.match(/^Bearer (.+)$/)?.[1];if(!token)return json({error:'Sign in to continue.'},401);
