@@ -5,13 +5,14 @@ are retained. Inference uses the existing Qwen3 1.7B alias on the KS-5-B server;
 there is no automatic Cloudflare Workers AI fallback and no AI binding in the new
 production configuration. Existing paid-provider reservations are untouched.
 
-Capacity: 10,000 shared model questions per UTC calendar month, 100 per verified
-member per UTC day, at most 3 per minute, one website model answer in flight.
-These are adjustable fair-use limits, not a provider billing allowance. Verified
-catalogue/boss replies and missing-evidence replies do not invoke the model.
-Failed/ambiguous model attempts remain counted and retain a two-minute lease.
-The existing Monthly meter shows the shared balance; its tooltip shows personal
-daily capacity. Existing stop/typing/mascot/completion sound behavior is retained.
+Capacity: 100 messages per verified member per UTC day. There is no shared monthly
+cap. The bottom-left Daily usage meter shows that member's remaining messages and
+the next midnight-UTC reset in local time. Other members cannot spend this budget.
+At most three messages per minute and one model inference at a time protect the
+shared server. Reviewed answers also count, but need no inference slot. Accepted
+failed/stopped model requests remain counted and retain their two-minute lease.
+These are adjustable capacity limits, not a provider billing allowance. Existing
+stop/typing/mascot/completion sound behavior is retained.
 
 Server path: /home/repo-audit/wibsworth-trial/site-bridge
 User service: wibsworth-site-bridge.service (enabled; user lingering enabled).
@@ -35,13 +36,26 @@ Pages secret. No credential is in Git or browser assets. Do not print credential
 while checking config. The runtime keeps no chat logs or chat history files.
 The site sends only the current bounded conversation context and opt-in preference.
 
-Knowledge: website requests use its reviewed knowledge/calculations, plus the
-verified 23-name web Morogue boss roster. Boss names require spoiler consent.
-The trial's AnythingLLM documents are not blindly imported into shared website
-answers. Future additions must be verified and approved, then included in the
-website retrieval data. General questions use a short prompt without game lore.
-This is still a small model, not a guarantee of accurate general answers. Further
-knowledge, prompts or model changes can be tested without redesigning the UI.
+Knowledge: 230 reviewed facts, 66 source pins, five conditional Morogue build
+calculations and the verified 23-name web boss roster. See knowledge-review.json.
+Current game/site questions use the retrieved reviewed prose directly: evaluation
+found that Qwen 1.7B sometimes inverted the meaning of correct supplied evidence.
+The model handles general conversation with real role-tagged recent history and
+explicit host identity. General knowledge is still fallible; a checked Lynmouth
+location reference fixes one observed error, not every possible model mistake.
+Boss guides and major story information require spoiler consent.
+
+The trial's AnythingLLM documents are not blindly imported into website answers.
+Corrections submitted through settings are compared with relevant official source
+pins, then retained as pending. A current source does NOT establish a user's claim
+as true. A current developer must approve it before it enters shared answers.
+Preferences remain opt-in and can be deleted. There is no automatic model training.
+Source checks fetch only reviewed public URLs, never arbitrary submitted targets.
+
+Deployment schema order: apply dashboard-wibsworth-local-schema.sql (installs the
+personal replacement trigger before dropping the old shared-month trigger), then
+dashboard-wibsworth-learning-schema.sql, before publishing these functions. Both
+are idempotent and retain requests/preferences/corrections. No Supabase change.
 
 Operations (as repo-audit):
   systemctl --user status wibsworth-site-bridge.service

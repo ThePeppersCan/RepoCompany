@@ -1,0 +1,40 @@
+{
+  "reviewedAt": "2026-10-18",
+  "knowledgeVersion": "2026-10-18.3",
+  "method": "Reviewed active public game entry dependencies, their loaded gameplay/UI modules, and the current website routes. Structured gameplay catalogues were read without running a game. This is a source/content review, not a complete playthrough or a claim to have tested every game state.",
+  "releasedContentOnly": true,
+  "facts": 230,
+  "sourcePins": 66,
+  "coverage": {
+    "Moratales": "Save slots and backups, controls, journal and quests, decorating, greenhouse crops and watered growth, pets, staff/wages, coffee/roasting/cafe/menu economics, released village and Merrowby story references.",
+    "Velmora Manager": "Career and online-career UI, local/cloud save status, training and preparation with conditions, recruitment/scouting, assistant advice, contracts, transfer windows and loan recalls.",
+    "Morogue": "Current web controls and build slots, all six specials, 53 perk entries, four keystones, all 55 merchant relics/prices, five conditional build calculations, all 23 boss names and twelve major-boss move/counterplay guides.",
+    "Demos": "Brief current catalogue and play guidance for Broomflight, Dragonbound, Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas, Repo Sports and Repo Runners; approved historical Repo Sports World Cup material remains available.",
+    "Account": "Sign-in, friends/privacy, RepoScore versus Repoints, achievements, packs, inventory visibility, card/slab binders.",
+    "Wibs": "Channels/DMs, voice controls, screen sharing, GIF playback, usage, themes/layout and activity.",
+    "Wibsworth": "Host identity, capabilities, daily allowance, opt-in preferences, local conversation history, source checking and developer-reviewed corrections.",
+    "Reparty": "Rooms, links/queue/playlists/chat, personal versus room playback controls, switching workspaces, resizing the player and room members."
+  },
+  "naming": "Morogue public food-card names take precedence over older internal combat names. The latter are retrieval aliases only. Relic coverage uses the current 55-item catalogue installed by relic-cards.js, not the obsolete twelve-card presentation list.",
+  "inference": "Game/site passages and calculations are returned directly from reviewed evidence. Qwen3 1.7B handles open conversation/general knowledge. This avoids observed errors where the small model inverted correct supplied facts.",
+  "knownLimits": [
+    "General knowledge can still be wrong. No live web search or external paid provider fallback.",
+    "Build comparisons preserve conditions, costs and trade-offs; they are not a proof of a universal highest-DPS build.",
+    "New game facts cover the reviewed current web versions. Installed launcher builds require a matching verified version before asserting identical stats.",
+    "A displayed online feature is not proof its external service is currently available.",
+    "No access to members' private messages, game saves, inventories or balances.",
+    "No unreviewed assets, unreleased material or automatically learned member claims."
+  ],
+  "maintenance": "Source pin tests fail on changed local content; --verify-published checks remote bytes and active game script references. Review changed facts before updating pins. A fact suggestion remains pending even when related published source bytes match. Approving a correction requires a current Developer role.",
+  "tests": [
+    "test-wibsworth-knowledge.cjs --verify-published",
+    "test-wibsworth-morogue.cjs",
+    "test-wibsworth-expanded.cjs",
+    "test-wibsworth-local.cjs",
+    "test-wibsworth-backend.cjs",
+    "test-wibsworth-review.cjs",
+    "test-wibsworth-local-client.cjs",
+    "test-wibsworth-usage-client.cjs",
+    "test-wibsworth-completion-sound.cjs"
+  ]
+}
