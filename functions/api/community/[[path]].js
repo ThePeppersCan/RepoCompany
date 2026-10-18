@@ -1,4 +1,5 @@
 import {activitySettings,saveActivitySettings,externalHeartbeat,attachActivity} from '../../../lib/wibs-activity.mjs';
+import {listeningSettings,saveListeningSettings,listeningHeartbeat,attachListening} from '../../../lib/listening.mjs';
 import {communityInbox,readCommunityChannel} from '../../../lib/community-inbox.mjs';
 import {writeTyping,readTyping} from '../../../lib/chat-typing.mjs';
 import {validateMessageImage,attachMessageImage} from '../../../lib/chat-images.mjs';
@@ -75,6 +76,9 @@ export async function onRequest({request,env,params}){
    if(!await db.prepare('SELECT id FROM community_channels WHERE id=?').bind(body.channel).first())throw fail('Channel not found.',404);
    await writeTyping(db,me,'community',body.channel,body.active,now);return json({ok:true});
   }
+  if(request.method==='GET'&&route==='listening-settings')return json(await listeningSettings(db,me.id,env));
+  if(request.method==='POST'&&route==='listening-settings'){await rate(db,me,'listening-settings',20,now);return json(await saveListeningSettings(db,me.id,await bodyOf(request,1024),env));}
+  if(request.method==='POST'&&route==='listening'){await rate(db,me,'listening',16,now);return json(await listeningHeartbeat(db,me,await bodyOf(request,4096),now));}
   if(request.method==='GET'&&route==='activity-settings')return json({...await activitySettings(db,me.id),invisible:!!(await db.prepare('SELECT invisible FROM dashboard_players WHERE user_id=?').bind(me.id).first())?.invisible});
   if(request.method==='POST'&&route==='activity-settings'){await rate(db,me,'activity-settings',20,now);return json(await saveActivitySettings(db,me.id,await bodyOf(request,1024)));}
   if(request.method==='POST'&&route==='external-activity'){await rate(db,me,'external-activity',16,now);return json(await externalHeartbeat(db,me,await bodyOf(request,2048),now));}
@@ -88,18 +92,18 @@ export async function onRequest({request,env,params}){
    const channels=await db.prepare('SELECT id,name,description FROM community_channels ORDER BY created_at,id').all();
    const people=await db.prepare(`SELECT p.username,COALESCE(d.display_name,p.display_name) display_name,w.name_color,r.role,p.invisible,p.last_seen dashboard_seen,p.current_game,g.game presence_game,g.started_at,g.last_seen presence_seen,g.running,s.game session_game,s.last_tick,s.active,a.config avatar,f.frame_id,(SELECT version FROM dashboard_profile_photos WHERE user_id=p.user_id AND enabled=1) photo_version,CASE WHEN p.user_id=? OR COALESCE(v.private_profile,0)=0 OR EXISTS(SELECT 1 FROM dashboard_friendships q WHERE q.status='accepted' AND ((q.player_a=? AND q.player_b=p.username) OR (q.player_b=? AND q.player_a=p.username))) THEN 0 ELSE 1 END locked,CASE WHEN p.invisible=0 AND m.last_seen>? THEN 1 ELSE 0 END online FROM community_members m JOIN dashboard_players p ON p.user_id=m.user_id LEFT JOIN community_profile_details d ON d.user_id=p.user_id LEFT JOIN community_appearance w ON w.user_id=p.user_id LEFT JOIN community_roles r ON r.user_id=m.user_id LEFT JOIN dashboard_avatars a ON a.username=p.username LEFT JOIN dashboard_avatar_frames f ON f.username=p.username LEFT JOIN dashboard_profile_privacy v ON v.username=p.username  LEFT JOIN dashboard_game_presence g ON g.username=p.username LEFT JOIN dashboard_play_sessions s ON s.username=p.username WHERE NOT EXISTS(SELECT 1 FROM dashboard_blocks b WHERE (b.blocker=? AND b.blocked=p.username) OR (b.blocked=? AND b.blocker=p.username)) ORDER BY (r.role IS NOT NULL) DESC,online DESC,p.username LIMIT 200`).bind(me.id,me.name,me.name,now-60000,me.name,me.name).all();
    for(const p of people.results)p.activity=activityFor(p,now);
-   await attachActivity(db,people.results,now);
-   for(const p of people.results){if(p.activity)p.online=1;for(const key of ['invisible','dashboard_seen','current_game','presence_game','started_at','presence_seen','running','session_game','last_tick','active'])delete p[key];if(p.locked){p.avatar=null;p.frame_id=null;p.photo_version=null;p.display_name=p.username;p.name_color=null;p.online=0;}else{try{p.avatar=JSON.parse(p.avatar);}catch{p.avatar=null;}}delete p.locked;}
+   await attachActivity(db,people.results,now);await attachListening(db,people.results,now);
+   for(const p of people.results){if(p.activity||p.listening)p.online=1;for(const key of ['invisible','dashboard_seen','current_game','presence_game','started_at','presence_seen','running','session_game','last_tick','active'])delete p[key];if(p.locked){p.avatar=null;p.frame_id=null;p.photo_version=null;p.display_name=p.username;p.name_color=null;p.online=0;}else{try{p.avatar=JSON.parse(p.avatar);}catch{p.avatar=null;}}delete p.locked;}
    const developers=isDeveloper?(await db.prepare('SELECT p.username,p.display_name FROM community_roles r JOIN dashboard_players p ON p.user_id=r.user_id ORDER BY p.username').all()).results:[];
    return json({settings:settingsView(settings),voiceName:voice?.name||'RE-COMP',appearance:appearance||{background:'#0c1913',accent:'#b5d39c'},channels:channels.results,members:people.results,developer:isDeveloper,developers,username:me.name});
   }
   if(request.method==='GET'&&route==='profile'){
    const p=await profileFor(db,me,url.searchParams.get('username')||me.name);
    if(p.locked)return json({username:p.username,display:p.username,locked:true,role:p.role});
-   p.activity=activityFor(p,now);await attachActivity(db,[p],now);
+   p.activity=activityFor(p,now);await attachActivity(db,[p],now);await attachListening(db,[p],now);
    const row=await db.prepare('SELECT banner_version,banner_height,banner_zoom,banner_x,banner_y FROM community_profiles WHERE user_id=?').bind(p.user_id).first();
    let avatar=null;try{avatar=JSON.parse(p.avatar);}catch{}
-   return json({username:p.username,display:p.display_name,nameColor:p.name_color,bio:p.bio,repoScore:p.repo_score,colors:{background:p.background||'#14231b',accent:p.accent||'#b5d39c'},activity:p.activity,recentActivity:p.recentActivity,photo_version:p.photo_version,avatar,frame_id:p.frame_id,role:p.role,friend:p.friend,own:p.user_id===me.id,settings:row?settingsView(row):{bannerVersion:null,height:180,zoom:100,x:50,y:50}});
+   return json({username:p.username,display:p.display_name,nameColor:p.name_color,bio:p.bio,repoScore:p.repo_score,colors:{background:p.background||'#14231b',accent:p.accent||'#b5d39c'},activity:p.activity,recentActivity:p.recentActivity,listening:p.listening,photo_version:p.photo_version,avatar,frame_id:p.frame_id,role:p.role,friend:p.friend,own:p.user_id===me.id,settings:row?settingsView(row):{bannerVersion:null,height:180,zoom:100,x:50,y:50}});
   }
   if(request.method==='GET'&&(route==='banner'||route==='profile-banner')){
    let row;

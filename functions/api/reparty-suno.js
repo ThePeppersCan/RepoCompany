@@ -21,7 +21,9 @@ export function extractSong(html, id) {
         if (item.is_trashed || item.is_hidden) throw failure('This Suno song is unavailable.', 404);
         const duration = Number(item.metadata.duration);
         if (!Number.isFinite(duration) || duration < 1 || duration > 86400) throw failure('This song has no finished duration yet. Try again when Suno has finished it.', 422);
-        return { id, title: String(item.title || 'Suno song').slice(0, 160), duration };
+        const image=typeof item.image_url==='string'?item.image_url:'';
+        const artwork=/^https:\/\/cdn[0-9]*\.suno\.(?:ai|com)\/[a-zA-Z0-9_./-]+\.(?:jpe?g|png|webp)$/i.test(image)&&image.length<=512?image:'';
+        return { id, title: String(item.title || 'Suno song').slice(0, 160), duration, artist: String(item.display_name || '').slice(0,160), artwork };
       }
       stack.push(...Object.values(item));
     }

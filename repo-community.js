@@ -87,6 +87,7 @@
   const {form}=editorBase('Your settings');
   const choice=(label,description,action,glyph)=>{const b=btn(label,action,'rc-settings-choice',glyph);b.append(el('small','',description));return b;};
   form.append(choice('Game activity','Recent games and activity sharing',activitySettings,'user'));
+  form.append(choice('Listening activity','Reparty, Spotify and music sharing',listeningSettings,'user'));
   form.append(choice('Voice & audio','Microphone, speakers, sensitivity, volume and noise suppression',()=>{closeEditor();window.repoVoice?.openSettings();},'voice'),choice('Profile & appearance','Your name, profile colours, Wibs theme, banner and avatar',()=>myProfile(),'user'));
   if(data?.developer)form.append(choice('Community management','Developer access and voice restrictions',manageCommunity,'settings'));
   const row=el('div','rc-editor-actions');row.append(btn('Done',closeEditor));form.append(row);
@@ -119,7 +120,7 @@
  function paintActivityClocks(){for(const n of drawer.querySelectorAll('[data-activity-expires]')){if(Number(n.dataset.activityExpires)<=Date.now()){n.remove();continue;}for(const t of n.querySelectorAll('[data-activity-started]')){const seconds=Math.max(0,Math.floor((Date.now()-Number(t.dataset.activityStarted))/1000));t.textContent=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0')+' elapsed';}}selfActivity.hidden=!selfActivity.childElementCount;}
  const card=el('div','rc-profile-popover');card.popover='auto';card.setAttribute('role','dialog');card.setAttribute('aria-label','Player profile');drawer.append(card);
  let cardRevision=0,cardURL='',cardPoint={x:0,y:0};
- function clearCard(){cardRevision++;card.replaceChildren();card.removeAttribute('style');if(cardURL){URL.revokeObjectURL(cardURL);cardURL='';}}
+ function clearCard(){cardRevision++;card.replaceChildren();card.removeAttribute('style');delete card.dataset.profileUsername;if(cardURL){URL.revokeObjectURL(cardURL);cardURL='';}}
  function closeCard(){if(card.matches(':popover-open'))card.hidePopover();else clearCard();}
  card.addEventListener('beforetoggle',e=>{if(e.newState==='closed')clearCard();});
  function placeCard(){if(!card.matches(':popover-open'))return;const box=card.getBoundingClientRect(),gap=12;let x=cardPoint.x+gap,y=cardPoint.y+gap;if(x+box.width>innerWidth-8)x=cardPoint.x-box.width-gap;if(y+box.height>innerHeight-8)y=cardPoint.y-box.height-gap;card.style.left=Math.max(8,Math.min(x,innerWidth-box.width-8))+'px';card.style.top=Math.max(8,Math.min(y,innerHeight-box.height-8))+'px';}
@@ -128,12 +129,12 @@
   closeCard();const rect=event?.currentTarget?.getBoundingClientRect();cardPoint=event?.detail?{x:event.clientX,y:event.clientY}:{x:rect?.left||20,y:rect?.bottom||80};
   const revision=++cardRevision,valid=()=>revision===cardRevision&&card.matches(':popover-open');
   const feedback=el('p','rc-card-status','Loading profile…');feedback.setAttribute('role','status');card.append(feedback);card.showPopover();placeCard();
-  try{const profile=await api('profile?username='+encodeURIComponent(username));if(!valid())return;card.replaceChildren();profileColors(card,profile.colors);const cover=el('div','rc-profile-banner'),content=el('div','rc-card-content');card.append(cover,content);
+  try{const profile=await api('profile?username='+encodeURIComponent(username));if(!valid())return;card.replaceChildren();card.dataset.profileUsername=profile.username;profileColors(card,profile.colors);const cover=el('div','rc-profile-banner'),content=el('div','rc-card-content');card.append(cover,content);
    const dismiss=btn('×',closeCard,'rc-card-close');dismiss.setAttribute('aria-label','Close profile card');card.append(dismiss);
    const avatar=portrait(profile.display||profile.username,profile);avatar.classList.add('rc-profile-avatar');const nameRow=el('div','rc-profile-name-row');nameRow.append(coloredName(btn(profile.display||profile.username,()=>openFullProfile(profile.username),'rc-profile-name'),profile.nameColor));if(profile.own){const edit=btn('',()=>{closeCard();myProfile();},'rc-profile-edit','edit');edit.setAttribute('aria-label','Edit Wibs profile');edit.title='Edit Wibs profile';nameRow.append(edit);}content.append(avatar,nameRow,el('p','rc-profile-handle','@'+profile.username));
    if(profile.role)content.append(el('span','rc-role',profile.role));if(profile.locked||profile.bio)content.append(el('p','rc-profile-bio',profile.locked?'This player shares their profile with accepted friends only.':profile.bio));
    if(!profile.locked){const score=el('div','rc-profile-score');score.append(el('strong','',Number(profile.repoScore||0).toLocaleString()),el('span','','RepoScore'));content.append(score);}
-   const activity=activityView(profile.activity);if(activity)content.append(activity);paintActivityClocks();
+   const activity=activityView(profile.activity);if(activity)content.append(activity);const listening=window.repoListening?.view(profile.listening);if(listening)content.append(listening);paintActivityClocks();window.repoListening?.tick(card);
    const controls=el('div','rc-profile-actions');if(!profile.own&&profile.friend)controls.append(btn('Message',()=>{closeCard();window.repoMessaging.open(profile.username);}));if(controls.children.length)content.append(controls);
    placeCard();if(!event?.detail)content.querySelector('.rc-profile-name').focus({preventScroll:true});
    if(profile.settings?.bannerVersion){const blob=await api('profile-banner?username='+encodeURIComponent(username),undefined,true);if(!valid())return;cardURL=URL.createObjectURL(blob);const image=el('img');image.alt='';image.src=cardURL;image.style.objectPosition=`${profile.settings.x}% ${profile.settings.y}%`;image.style.transform=`scale(${profile.settings.zoom/100})`;image.style.transformOrigin=image.style.objectPosition;cover.append(image);}
@@ -189,6 +190,25 @@
   if(people.length>3){const more=btn(activityExpanded?'Show less':'Show more',()=>{activityExpanded=!activityExpanded;paintMembers();},'rc-activity-more');more.setAttribute('aria-expanded',String(activityExpanded));section.append(more);}
   members.append(section);
  }
+ async function listeningSettings(){
+  const {form,feedback}=editorBase('Listening activity'),revision=editorRevision;
+  try{
+   const settings=await window.repoListening.settings();if(revision!==editorRevision)return;
+   const toggle=(label,description,value)=>{const row=el('label','rc-activity-option'),copy=el('span'),input=el('input');input.type='checkbox';input.checked=value;copy.append(el('strong','',label),el('small','',description));row.append(copy,input);form.append(row);return input;};
+   const reparty=toggle('Share Reparty listening','Show the song or video, artwork and progress while you listen.',settings.reparty);
+   const spotify=toggle('Share Spotify listening','Show your current Spotify song while Repo Company is open.',settings.spotify);
+   spotify.disabled=!settings.spotifyClientId;
+   form.append(el('p','rc-activity-note','Invisible mode hides listening. Private profiles share it with accepted friends only. Reparty takes priority when both are playing.'));
+   form.append(el('p','rc-activity-note','No songs or cover images are uploaded. Only your current status is shared, with no listening history.'));
+   if(settings.spotifyClientId){
+    const connected=el('p','rc-activity-note',settings.connected?'Spotify connected for this tab.':'Connect your Spotify account to share listening.');form.append(connected);
+    form.append(btn(settings.connected?'Disconnect Spotify':'Connect Spotify',async event=>{event.currentTarget.disabled=true;try{if(settings.connected){await window.repoListening.disconnect();if(revision===editorRevision)listeningSettings();}else{await window.repoListening.save({reparty:reparty.checked,spotify:spotify.checked});await window.repoListening.connect();}}catch(e){error(e,feedback);event.currentTarget.disabled=false;}}));
+   }else form.append(el('p','rc-activity-note','Spotify is not enabled on this site yet. Reparty sharing is available now.'));
+   if(settings.error)feedback.textContent=settings.error;
+   const actions=el('div','rc-editor-actions'),save=btn('Save changes');save.type='submit';actions.append(btn('Cancel',closeEditor),save);form.append(actions);
+   form.onsubmit=async event=>{event.preventDefault();save.disabled=true;try{await window.repoListening.save({reparty:reparty.checked,spotify:spotify.checked&&!spotify.disabled});await loadState();if(revision===editorRevision)closeEditor();}catch(e){error(e,feedback);save.disabled=false;}};
+  }catch(e){error(e,feedback);form.append(btn('Close',closeEditor));}
+ }
  async function activitySettings(){
   const {form,feedback}=editorBase('Game activity'),revision=editorRevision;
   try{
@@ -207,8 +227,14 @@
  }
  function paintRegisteredGames(){const box=editor.querySelector('[data-activity-registry]');if(!box)return;box.replaceChildren();for(const game of registeredGames){const row=el('div','rc-registered-game');row.append(el('span','',game.title));const remove=btn('Remove',null);remove.dataset.launcherActivityAction='remove';remove.dataset.activityGame=game.game;remove.setAttribute('aria-label','Remove '+game.title+' from detected games');row.append(remove);box.append(row);}}
  addEventListener('repo-registered-games',event=>{registeredGames=Array.isArray(event.detail)?event.detail.filter(g=>/^custom:[a-f0-9]{24}$/.test(g.game)&&typeof g.title==='string').slice(0,40):[];paintRegisteredGames();});
+ function paintListeningCard(){
+  if(!card.matches(':popover-open'))return;const content=card.querySelector('.rc-card-content');if(!content)return;
+  content.querySelector('.rc-listening-card')?.remove();const person=data?.members.find(p=>p.username===card.dataset.profileUsername),listening=window.repoListening?.view(person?.listening);
+  if(listening)content.insertBefore(listening,content.querySelector('.rc-profile-actions'));window.repoListening?.tick(card);
+ }
  function paintMembers(){
-  members.replaceChildren();paintRecentActivity();for(const role of ['Developer','Member']){const group=data.members.filter(m=>(m.role||'Member')===role);if(!group.length)continue;members.append(el('h3','rc-members-heading',`${role==='Developer'?'DEVELOPER':'MEMBERS'} — ${group.length}`));for(const m of group){const row=btn('',event=>profileCard(m.username,event),'rc-member'),avatar=portrait(m.display_name,m);row.replaceChildren();row.setAttribute('aria-label','View '+m.display_name+' profile card');row.dataset.voiceName=m.username;avatar.classList.toggle('is-online',!!m.online);const copy=el('span','rc-member-copy');copy.append(coloredName(el('span','rc-member-name',m.display_name),m.name_color));const activity=activityView(m.activity,true);if(activity)copy.append(activity);row.append(avatar,copy);if(m.role)row.append(el('span','rc-role',m.role));members.append(row);}}
+  paintListeningCard();
+  members.replaceChildren();paintRecentActivity();for(const role of ['Developer','Member']){const group=data.members.filter(m=>(m.role||'Member')===role);if(!group.length)continue;members.append(el('h3','rc-members-heading',`${role==='Developer'?'DEVELOPER':'MEMBERS'} — ${group.length}`));for(const m of group){const row=btn('',event=>profileCard(m.username,event),'rc-member'),avatar=portrait(m.display_name,m);row.replaceChildren();row.setAttribute('aria-label','View '+m.display_name+' profile card');row.dataset.voiceName=m.username;avatar.classList.toggle('is-online',!!m.online);const copy=el('span','rc-member-copy');copy.append(coloredName(el('span','rc-member-name',m.display_name),m.name_color));const activity=activityView(m.activity,true);if(activity)copy.append(activity);const listening=window.repoListening?.view(m.listening,true);if(listening)copy.append(listening);row.append(avatar,copy);if(m.role)row.append(el('span','rc-role',m.role));members.append(row);}}
   if(!data.members.length)members.append(el('p','','Members appear here when they visit.'));
   const settings=btn('',mySettings,'rc-account-settings','settings');settings.setAttribute('aria-label','Your settings');settings.title='Voice & profile settings';
   const me=data.members.find(m=>m.username===data.username),identity=btn('',event=>profileCard(data.username,event),'rc-self-profile'),copy=el('span','rc-self-copy');identity.setAttribute('aria-label','Your profile');identity.replaceChildren(portrait(me?.display_name||data.username,me||account.state.social?.profile));copy.append(coloredName(el('span','rc-self-name',me?.display_name||data.username),me?.name_color),el('span','rc-self-role',data.developer?'Developer':'Member'));identity.append(copy);

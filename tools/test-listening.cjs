@@ -1,0 +1,43 @@
+'use strict';
+const assert=require('node:assert/strict'),{createFixture}=require('./messaging-test-server.cjs');
+(async()=>{
+ const originalFetch=fetch,f=await createFixture(),{sql,sessions,base}=f;
+ const request=async(who,route,body,status=200)=>{const r=await originalFetch(base+'/api/community/'+route,{method:body===undefined?'GET':'POST',headers:{...(who?{Authorization:'Bearer '+sessions[who].access_token}:{}),'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});const value=await r.json();assert.equal(r.status,status,JSON.stringify(value));return value;};
+ const profile=who=>request(who||'alice','profile?username=bob');
+ let sequence=0;const session=crypto.randomUUID(),track={provider:'youtube',id:'abcdefghijk',title:'A song <b>title</b>',artist:'Example artist',position:12,duration:240};
+ const beat=(data={})=>({source:'reparty',session,sequence:++sequence,action:'start',track,...data});
+ try{
+  for(const who of ['alice','bob','mallory'])await request(who,'state');
+  await request(null,'listening-settings',undefined,401);await request(null,'listening',beat(),401);
+  assert.deepEqual(await request('bob','listening-settings'),{reparty:false,spotify:false,spotifyClientId:''});
+  assert.equal((await request('bob','listening',beat())).sharing,false);
+  assert.equal(sql.prepare('SELECT COUNT(*) n FROM community_listening').get().n,0);
+  await request('bob','listening-settings',{reparty:true,spotify:true,user_id:sessions.alice.user.id});
+  assert.equal((await request('alice','listening-settings')).reparty,false);
+  await request('bob','listening',beat());let p=await profile();assert.equal(p.listening.title,track.title);assert.equal(p.listening.artwork,'https://i.ytimg.com/vi/abcdefghijk/hqdefault.jpg');assert.equal(p.listening.source,'reparty');
+  assert(p.listening.sampledAt<=Date.now()&&p.listening.expiresAt<=Date.now()+90000);
+  const spotify={provider:'spotify',id:'1234567890123456789012',title:'Spotify song',artist:'Spotify artist',position:4,duration:200,artwork:'https://i.scdn.co/image/abcdef'};
+  await request('bob','listening',beat({source:'spotify',track:spotify}));assert.equal((await profile()).listening.source,'reparty');
+  assert.equal(sql.prepare('SELECT COUNT(*) n FROM community_listening').get().n,2);
+  const old=beat({action:'tick'});await request('bob','listening',old);
+  await request('bob','listening',beat({action:'stop'}));await request('bob','listening',old);assert.equal((await profile()).listening.source,'spotify','delayed tick must not revive Reparty');
+  await request('bob','listening',beat({action:'tick'}));assert.equal((await profile()).listening.source,'spotify','stopped session stays stopped until start');
+  const newer={session:crypto.randomUUID(),sequence:1};await request('bob','listening',beat(newer));await request('bob','listening',beat({action:'stop'}));assert.equal((await profile()).listening.source,'reparty','old session cannot clear replacement');
+  sql.prepare('UPDATE dashboard_players SET invisible=1 WHERE username=?').run('bob');assert.equal((await profile()).listening,null);assert.equal((await request('alice','state')).members.find(p=>p.username==='bob').listening,null);
+  sql.prepare('UPDATE dashboard_players SET invisible=0 WHERE username=?').run('bob');sql.prepare('INSERT INTO dashboard_profile_privacy VALUES(?,1)').run('bob');
+  assert.equal((await profile('mallory')).listening,undefined);assert.equal((await request('mallory','state')).members.find(p=>p.username==='bob').listening,null);assert((await profile()).listening);
+  sql.prepare('INSERT INTO dashboard_blocks VALUES(?,?)').run('alice','bob');await request('alice','profile?username=bob',undefined,404);assert(!(await request('alice','state')).members.some(p=>p.username==='bob'));sql.prepare('DELETE FROM dashboard_blocks').run();
+  sql.prepare('UPDATE community_listening SET expires_at=?').run(Date.now()-1);assert.equal((await profile()).listening,null);
+  sql.prepare('DELETE FROM social_rate_limits').run();
+  await request('bob','listening',beat({source:'spotify',track:{...spotify,artwork:'https://tracker.example/image.jpg'}}),400);
+  await request('bob','listening',beat({track:{...track,provider:'spotify'}}),400);
+  await request('bob','listening',beat({track:{...track,duration:1e8}}),400);
+  await request('bob','listening',beat({track:{...track,title:'a'.repeat(161)}}),400);
+  await request('bob','listening',beat({track:{...track,artist:'x\nheader'}}),400);
+  await request('bob','listening',beat());
+  await request('bob','listening-settings',{reparty:false,spotify:false});assert.equal((await profile()).listening,null);assert.equal(sql.prepare('SELECT COUNT(*) n FROM community_listening').get().n,0);
+  assert.equal(sql.prepare('SELECT repo_score FROM dashboard_players WHERE username=?').get('bob').repo_score,0);
+  await request('bob','listening-settings',{reparty:'yes',spotify:false},400);
+  console.log('PASS: opt-in, auth/account isolation, metadata-only storage, source priority, replay/stop/session ordering, expiry, private/invisible/blocked profiles, URL/timing/text validation and immediate disable.');
+ }finally{await f.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
