@@ -102,3 +102,4 @@ html[data-repo-companion=true][data-phone-compact=true] .repo-call-stage{max-hei
  .repo-call-stage:has(.repo-screen-viewer) .repo-camera-tile{height:auto;aspect-ratio:16/9}
  .repo-call-stage:has(.repo-screen-viewer,.repo-camera-tile) .repo-call-stage-roster{min-height:56px}
 }
+#repo-messages .repo-call-media-button[aria-pressed=true]:hover:not(:disabled){background:var(--wibs-accent,#c4d6aa);color:var(--wibs-bg,#142219);filter:brightness(1.08)}
