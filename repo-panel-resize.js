@@ -6,7 +6,7 @@
  const key='wibs-panel-sizes-v1',clamp=(n,min,max)=>Math.max(min,Math.min(max,n));let saved={},drag=null,frame=0;
  try{const value=JSON.parse(localStorage.getItem(key)||'{}');for(const name of ['left','right','voice','screen'])if(Number.isFinite(value?.[name]))saved[name]=value[name];}catch{}
  const persist=()=>{try{localStorage.setItem(key,JSON.stringify(saved));}catch{}};
- const mode=()=>stage.querySelector('.repo-call-stage-media')?.hidden?'voice':'screen';
+ const mode=()=>stage.querySelector('.repo-screen-viewer,.repo-camera-tile')?'screen':'voice';
  function separator(name,orientation,parent){const node=document.createElement('div');node.className='repo-panel-divider';node.dataset.resize=name;node.tabIndex=0;node.setAttribute('role','separator');node.setAttribute('aria-label',name==='left'?'Resize channels sidebar':name==='right'?'Resize activity and members':'Resize call area');node.setAttribute('aria-orientation',orientation);parent.append(node);return node;}
  const left=separator('left','vertical',layout),right=separator('right','vertical',below),call=separator('call','horizontal',stage);
  function metrics(){
@@ -14,7 +14,8 @@
   const rightWidth=hasRight?clamp(saved.right??rightDefault,220,Math.min(480,width-540)):0;
   const leftMax=Math.max(220,Math.min(480,width-320-rightWidth)),leftWidth=clamp(saved.left??leftDefault,220,leftMax);
   const rightMax=Math.max(220,Math.min(480,width-leftWidth-320));
-  const callMax=Math.max(130,center.clientHeight-180),callMin=Math.min(mode()==='screen'?240:160,callMax);
+  const cssMax=parseFloat(getComputedStyle(stage).maxHeight);
+  const callMax=Math.max(130,Math.min(center.clientHeight-180,Number.isFinite(cssMax)?cssMax:Infinity)),callMin=Math.min(mode()==='screen'?240:190,callMax);
   return {width,hasRight,leftWidth,rightWidth,leftMax,rightMax,callMin,callMax};
  }
  function aria(node,value,min,max){node.setAttribute('aria-valuenow',Math.round(value));node.setAttribute('aria-valuemin',Math.round(min));node.setAttribute('aria-valuemax',Math.round(max));node.setAttribute('aria-valuetext',Math.round(value)+' pixels');}
@@ -52,5 +53,6 @@
  new MutationObserver(schedule).observe(drawer,{attributes:true,attributeFilter:['open']});
  new MutationObserver(schedule).observe(stage,{attributes:true,attributeFilter:['hidden','class']});
  const media=stage.querySelector('.repo-call-stage-media');if(media)new MutationObserver(schedule).observe(media,{attributes:true,attributeFilter:['hidden']});
+ const content=stage.querySelector('.repo-call-stage-content');if(content)new MutationObserver(schedule).observe(content,{childList:true,subtree:true});
  schedule();
 })();
