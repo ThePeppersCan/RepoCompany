@@ -19,7 +19,7 @@ const {DatabaseSync}=require('node:sqlite');
  let state=(await call('state')).body;
  assert.equal(state.available,true);assert.equal(state.usage.limit,10000);assert.equal(state.usage.daily.limit,100);assert.equal(state.usage.provider,'self-hosted');
  const original=global.fetch;let calls=0;
- global.fetch=async(url,options)=>{calls++;assert.equal(url,'https://safe-bridge.trycloudflare.com/infer');assert.equal(options.headers.Authorization,'Bearer '+env.WIBSWORTH_BRIDGE_SECRET);assert.equal(options.redirect,'error');const body=JSON.parse(options.body);assert(!Object.hasOwn(body,'model'));assert(body.messages[0].content.includes('ordinary general-knowledge'));return Response.json({answer:'A cow is a female adult of domestic cattle.'});};
+ global.fetch=async(url,options)=>{calls++;assert.equal(url,'https://safe-bridge.trycloudflare.com/infer');assert.equal(options.headers.Authorization,'Bearer '+env.WIBSWORTH_BRIDGE_SECRET);assert.equal(options.redirect,'manual');const body=JSON.parse(options.body);assert(!Object.hasOwn(body,'model'));assert(body.messages[0].content.includes('ordinary general-knowledge'));return Response.json({answer:'A cow is a female adult of domestic cattle.'});};
  try{
   const answer=await call('chat',{question:'What is a cow?'});assert.equal(answer.status,200);assert.equal(calls,1);assert.equal(answer.body.usage.used,1);assert.equal(answer.body.usage.daily.used,1);
   assert.equal(sql.prepare('SELECT COUNT(*) n FROM wibsworth_requests').get().n,0,'paid ledger untouched');
