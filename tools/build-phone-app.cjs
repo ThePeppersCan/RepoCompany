@@ -1,0 +1,17 @@
+// The phone companion uses the exact shared Wibs and Account UI. Game runners
+// and collection markup are omitted from its document, not merely hidden.
+const fs=require('node:fs'),path=require('node:path');
+module.exports=(root,dist)=>{
+ const source=fs.readFileSync(path.join(dist,'index.html'),'utf8');
+ let head=source.match(/<head>([\s\S]*?)<\/head>/)[1];
+ head=head.replace(/<title>[\s\S]*?<\/title>/,'<title>Repo Company</title>').replace(/<meta name="viewport"[^>]+>/,'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">').replace(/<link rel="canonical"[^>]+>/,'<link rel="canonical" href="https://repocompany.uk/app/">');
+ head+='<link rel="manifest" href="/app/manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Repo Company"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="stylesheet" href="/repo-phone.css">';
+ const omit=new Set(['repo-game-loader.js','dashboard-motion.js','game-scenes.js','demo-library.js','dashboard-layout.js','legacy-launcher.js','homepage.js','repo-web-game.js','dashboard-playtime.js','repo-character-sync.js']);
+ const scripts=[...source.matchAll(/<script src="([^"?]+)(?:\?[^\"]*)?"><\/script>/g)].map(m=>m[1]).filter(s=>!omit.has(s));
+ const body='<div id="dashboard" hidden><span class="brand"></span><div class="account"><button data-audio aria-label="Mute audio"><span class="sound-waves"></span></button><button data-note="Account">Account</button></div></div><dialog id="repo-login" aria-label="Repo Company sign in"></dialog>';
+ fs.mkdirSync(path.join(dist,'app'),{recursive:true});
+ fs.writeFileSync(path.join(dist,'app/index.html'),'<!doctype html><html lang="en" data-repo-auth="loading" data-repo-companion="true"><head>'+head+'</head><body>'+body+scripts.map(s=>'<script src="/'+s.replace(/^\//,'')+'"></script>').join('')+'<script src="/repo-phone.js"></script></body></html>');
+ fs.writeFileSync(path.join(dist,'app/manifest.webmanifest'),JSON.stringify({id:'/app/',name:'Repo Company',short_name:'Repo Company',description:'Wibs calls and chat, Wibsworth, your profile and achievements.',start_url:'/app/#wibs',scope:'/app/',display:'standalone',background_color:'#101713',theme_color:'#101713',icons:[{src:'/assets/brand/repo-company-mark.png',sizes:'512x512',type:'image/png',purpose:'any'}],shortcuts:[{name:'Wibs',url:'/app/#wibs'},{name:'Wibsworth',url:'/app/#wibsworth'},{name:'My profile',url:'/app/#account/profile'}]},null,2));
+ fs.copyFileSync(path.join(root,'repo-phone-worker.js'),path.join(dist,'app/sw.js'));
+ fs.writeFileSync(path.join(dist,'app/offline.html'),'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Repo Company</title><style>body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#101713;color:#eceade;font:16px/1.6 "Segoe UI",sans-serif}main{max-width:340px;padding:32px;text-align:center}img{width:90px}h1{font-size:24px}a{display:inline-block;border:1px solid #eceade55;border-radius:8px;padding:10px 22px;color:inherit;text-decoration:none}</style><main><img src="/assets/brand/repo-company-mark.png" alt=""><h1>You’re offline</h1><p>Connect to the internet to use Wibs, Wibsworth and your account.</p><a href="/app/">Try again</a></main></html>');
+};

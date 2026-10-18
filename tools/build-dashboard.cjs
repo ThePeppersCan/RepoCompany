@@ -31,10 +31,13 @@ if(!production){
  const headers=path.join(dist,'_headers');
  fs.writeFileSync(headers,fs.readFileSync(headers,'utf8').replace('/*','/*\n  X-Robots-Tag: noindex, nofollow'));
 }
+require('./build-phone-app.cjs')(root,dist);
+fs.mkdirSync(path.join(dist,'account-access'),{recursive:true});
+fs.copyFileSync(path.join(root,'account-access.html'),path.join(dist,'account-access/index.html'));
 // The custom domain can retain assets longer than Pages' cache headers request.
 // Content versions keep HTML and its scripts/styles from different releases mixing.
 require('./version-reparty-assets.cjs').versionRepartyAssets(dist);
-for(const html of [...publicPages,'reparty/index.html','repo-runners/index.html','index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html','moratales-characters.html','morogue-account-bridge.html']){
+for(const html of [...publicPages,'app/index.html','account-access/index.html','reparty/index.html','repo-runners/index.html','index.html','legacy-runtime.html','avatar-studio.html','game-achievements-bridge.html','game-playtime-bridge.html','moratales-characters.html','morogue-account-bridge.html']){
 const entry=path.join(dist,html);if(!fs.existsSync(entry))continue;
 fs.writeFileSync(entry,fs.readFileSync(entry,'utf8').replace(/\b(src|href)="([^"?#]+\.(?:js|css))(?:\?[^"#]*)?"/g,(attribute,key,url)=>{
  if(/^(?:[a-z]+:)?\/\//i.test(url))return attribute;

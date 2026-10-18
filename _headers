@@ -168,3 +168,23 @@
 
 /repo-cameras.js
   Cache-Control: no-cache
+
+/app/*
+  Cache-Control: no-cache
+/app/sw.js
+  Cache-Control: no-cache
+  Service-Worker-Allowed: /app/
+/repo-phone.js
+  Cache-Control: no-cache
+/repo-phone.css
+  Cache-Control: no-cache
+
+/account-access/*
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer
+/repo-account-email.js
+  Cache-Control: no-cache
+/repo-account-email.css
+  Cache-Control: no-cache
+/repo-account-access.js
+  Cache-Control: no-cache

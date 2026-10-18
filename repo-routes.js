@@ -3,9 +3,12 @@
   const paths = {collection: '/', wibs: '/Wibs', wibsworth: '/Wibsworth', reparty: '/Reparty', account: '/Account', moratales: '/Moratales', manager: '/VelmoraManager', morogue: '/Morogue', demos: '/Demos'};
   const tabs = ['profile', 'friends', 'inventory', 'achievements', 'shop', 'settings', 'binder', 'slabs'];
   const overlay = name => name === 'wibs' || name === 'wibsworth' || name === 'reparty';
+  const companion = () => document.documentElement.dataset.repoCompanion === 'true';
+  const companionRoute = route => /^(wibs|wibsworth|reparty)$/.test(route)||/^account(?:\/|$)/.test(route)?route:'wibs';
   const native = () => document.documentElement.dataset.repoLauncher === 'true';
   const titleCase = value => value.charAt(0).toUpperCase() + value.slice(1);
   function href(route) {
+    if (companion()) return '/app/#'+companionRoute(route);
     if (native()) return '#' + route;
     const [name, tab, item] = route.split('/');
     if (name === 'account') {
@@ -18,6 +21,7 @@
   }
   function read() {
     const hash = location.hash.slice(1);
+    if(companion())return companionRoute(hash);
     if (/^(collection|moratales|manager|morogue|demos|wibs|wibsworth|reparty)$/.test(hash) || /^account(?:\/(?:profile|friends|inventory|achievements|progress|shop|settings|binder|slabs)(?:\/[a-zA-Z0-9_-]+)?)?$/.test(hash) || /^demo\/[a-z0-9_-]+$/.test(hash)) return hash;
     const parts = location.pathname.replace(/\/$/, '').split('/').slice(1);
     const name = Object.keys(paths).find(key => paths[key] === '/' + parts[0]);
@@ -31,7 +35,7 @@
     return name || 'collection';
   }
   function normalize() {
-    if (native()) return;
+    if (native()||companion()) return;
     const route = read(), url = new URL(location.href);
     // Only migrate known app links. Leave unrelated fragments and public pages alone.
     if (!url.hash && route === 'collection') return;
@@ -44,7 +48,7 @@
 
   function entry() {
     const url = new URL(location.href);
-    if (overlay(read())) { url.pathname = '/'; url.hash = ''; url.searchParams.delete('room'); }
+    if (overlay(read())) { url.pathname = companion()?'/app/':'/'; url.hash = companion()?'wibs':''; url.searchParams.delete('room'); }
     return {url: url.pathname + url.search + url.hash, state: history.state, title: document.title};
   }
   function enter(name) {
@@ -54,7 +58,7 @@
     active = name; requested = '';
     // These are the existing overlay views, not a document navigation. Keep
     // history state intact so account/game navigation still owns its entries.
-    const url = new URL(location.href); url.pathname = paths[name]; url.hash = '';
+    const url = new URL(location.href); url.pathname = companion()?'/app/':paths[name]; url.hash = companion()?name:'';
     if (name !== 'reparty') url.searchParams.delete('room');
     history.replaceState(history.state, '', url);
     document.title = (name === 'wibs' ? 'Wibs' : name === 'wibsworth' ? 'Wibsworth' : 'Reparty') + ' — Repo Company';

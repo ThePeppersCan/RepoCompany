@@ -40,8 +40,9 @@
  async function signIn(username,password,create=false){
   if(!/^[a-zA-Z0-9_-]{3,16}$/.test(username))throw new Error('Use 3–16 letters, numbers, _ or - for your username.');
   if(password.length<8)throw new Error('Your password must have at least 8 characters.');
+  if(create)throw new Error('Request an account at repocompany.uk/account-access/. Accounts need approval before activation.');
   const credentials={email:username.trim().toLowerCase()+'@'+config.authDomain,password};
-  const result=create?await db.auth.signUp({...credentials,options:{data:{username:username.trim()}}}):await db.auth.signInWithPassword(credentials);
+  const result=await db.auth.signInWithPassword(credentials);
   if(result.error)throw new Error(result.error.message);
   if(create&&!result.data.session)throw new Error('Your account was created, but sign-in requires confirmation. Contact Repo Company support.');
   await refresh();if(state.error)throw new Error(state.error);

@@ -19,7 +19,7 @@
   form.hidden=loading;
   $('sign-in-error').hidden=!error;$('sign-in-error').textContent=error;
   $('sign-in-submit').disabled=busy;$('sign-in-submit').textContent=create?'Create account':'Log in';
-  $('sign-in-mode').textContent=create?'Back to log in':'Create account';password.autocomplete=create?'new-password':'current-password';
+  $('sign-in-mode').textContent=create?'Back to log in':'Request an account';password.autocomplete=create?'new-password':'current-password';
   if(!host.open){window.accountMenu?.close({route:false});host.showModal();}
   window.repoBrandMotion.setActive(loading);
   if(!loading&&(wasLocked||root.activeElement===null)){username.focus({preventScroll:true});wasLocked=false;}
@@ -31,7 +31,9 @@
   catch(e){error=e.message||'Unable to sign in. Please try again.';}
   finally{busy=false;password.value='';password.type='password';$('password-visibility').setAttribute('aria-pressed','false');$('password-visibility').setAttribute('aria-label','Show password');wasLocked=true;render();}
  });
- $('sign-in-mode').addEventListener('click',()=>{create=!create;error='';password.value='';wasLocked=true;render();});
+ $('sign-in-mode').addEventListener('click',()=>{location.href='/account-access/?mode=request';});
+ const reset=document.createElement('button');reset.type='button';reset.className=$('sign-in-mode').className;reset.textContent='Forgot password?';reset.onclick=()=>{location.href='/account-access/?mode=recover';};$('sign-in-mode').after(reset);
+ const phone=document.createElement('a');phone.href='/app/';phone.textContent='Get the phone app';phone.style.cssText='display:block;text-align:center;color:inherit;font-size:12px;margin-top:12px';if(html.dataset.repoCompanion!=='true')form.append(phone);
  $('password-visibility').addEventListener('click',()=>{const visible=password.type==='password';password.type=visible?'text':'password';$('password-visibility').setAttribute('aria-pressed',String(visible));$('password-visibility').setAttribute('aria-label',visible?'Hide password':'Show password');});
  addEventListener('repo-account-state',render);
  // Native sign-in is owned by the launcher; its hidden portal must stay usable.
