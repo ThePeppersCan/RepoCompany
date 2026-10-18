@@ -9,7 +9,7 @@ ENDPOINT = 'https://repocompany.uk/api/wibsworth/bridge-heartbeat'
 URL = None
 
 def post(url, body, token=None, timeout=15):
-    headers={'Content-Type':'application/json'}
+    headers={'Content-Type':'application/json','User-Agent':'Mozilla/5.0 (compatible; Wibsworth/1.0; +https://repocompany.uk)'}
     if token: headers['Authorization']='Bearer '+token
     request=urllib.request.Request(url,data=json.dumps(body).encode(),headers=headers,method='POST')
     return urllib.request.urlopen(request,timeout=timeout)
