@@ -17,7 +17,6 @@
   const options=el('label','ws-spoilers'),spoilers=el('input');spoilers.type='checkbox';options.append(spoilers,document.createTextNode('Allow story spoilers'));q('.ws-compose-tools').firstElementChild.replaceWith(options);
   const errorLine=el('p','ws-chat-error');errorLine.setAttribute('role','status');form.after(errorLine);
   const sourcesPanel=el('aside','ws-sources');sourcesPanel.hidden=true;sourcesPanel.setAttribute('aria-label','Answer sources');ai.append(sourcesPanel);
-  const settingsButton=btn('Settings',()=>openSettings(),'ws-text-button');q('.ws-pane-head').append(settingsButton);
   const meter=el('section','ws-ai-usage'),meterTitle=el('div','ws-ai-usage-heading','Daily usage'),meterTrack=el('div','ws-ai-usage-track'),meterFill=el('span'),meterDetail=el('div','ws-ai-usage-detail');
   meterTrack.setAttribute('role','progressbar');meterTrack.setAttribute('aria-label','Shared daily AI allowance');meterTrack.setAttribute('aria-valuemin','0');meterTrack.setAttribute('aria-valuemax','100');meterTrack.append(meterFill);meter.append(meterTitle,meterTrack,meterDetail);shell.querySelector('.rc-account-dock')?.prepend(meter);
   function key(){return 'repo-wibsworth-conversations-v1:'+user;}
@@ -82,7 +81,7 @@
     const timer=setTimeout(()=>{signal.removeEventListener('abort',stop);resolve();},Math.max(0,when-performance.now()));
     if(signal.aborted)stop();else signal.addEventListener('abort',stop,{once:true});
   });}
-  function controls(){sidebar.querySelector('.ws-ai-mascot')?.wibsworthLogo?.setSearching(busy);send.disabled=busy||retryUntil>Date.now()||!canAsk()||!input.value.trim();input.disabled=busy;stop.hidden=!busy;stop.textContent=revealing?'Show answer':'Stop';send.hidden=busy;transcript.setAttribute('aria-busy',String(busy));newChat.disabled=busy;settingsButton.disabled=busy;status.textContent=busy?(revealing?'Writing…':'Having a think…'):canAsk()?'Your Repo Company companion':'Connection pending';note.textContent=canAsk()?'Conversations stay on this device. Wibsworth can make mistakes; check his sources.':state?.reason||'Checking Wibsworth’s connection…';}
+  function controls(){sidebar.querySelector('.ws-ai-mascot')?.wibsworthLogo?.setSearching(busy);send.disabled=busy||retryUntil>Date.now()||!canAsk()||!input.value.trim();input.disabled=busy;stop.hidden=!busy;stop.textContent=revealing?'Show answer':'Stop';send.hidden=busy;transcript.setAttribute('aria-busy',String(busy));newChat.disabled=busy;status.textContent=busy?(revealing?'Writing…':'Having a think…'):canAsk()?'Your Repo Company companion':'Connection pending';note.textContent=canAsk()?'Conversations stay on this device. Wibsworth can make mistakes; check his sources.':state?.reason||'Checking Wibsworth’s connection…';}
   function showRetry(error){
     clearTimeout(retryTimer);retryUntil=error.retryAt;
     function tick(){
@@ -113,12 +112,12 @@
     const thread=active,previous=recentHistory(thread.messages);thread.messages.push({role:'user',content:question});input.value='';input.dispatchEvent(new Event('input'));store();render();animate('thinking');
     try{
       const reset=allowanceReset();
-      const result=reset>Date.now()?allowanceReply(reset):await api('chat',{question,history:previous,spoilers:spoilers.checked},signal);
+      const result=reset>Date.now()?allowanceReply(reset):await api('chat',{question,history:previous,context:thread.context,spoilers:spoilers.checked},signal);
       if(result.allowanceExhausted)await thinkUntil(started+2200,signal);
       if(revision!==epoch||id!==requestId)return;
       if(typeof result.answer!=='string'||!result.answer.trim())throw Error('Wibsworth did not finish that answer. Please try again.');
       const message={role:'assistant',content:result.answer.slice(0,16000),sources:validSources(result.sources)};
-      thread.messages.push(message);thread.messages=thread.messages.slice(-24);store();answered=true;revealing=true;controls();animate('found');
+      thread.context=result.context??null;thread.messages.push(message);thread.messages=thread.messages.slice(-24);store();answered=true;revealing=true;controls();animate('found');
       const view=replyView;view.rig?.set('found');await revealAnswer(view,message.content,signal);
       if(revision!==epoch||id!==requestId)return;answerSources(view,message.sources);
       if(!signal.aborted)window.dashboardAudio?.effect('wibsworthComplete');
