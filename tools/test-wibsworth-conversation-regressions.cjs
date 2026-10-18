@@ -30,9 +30,38 @@ const {DatabaseSync}=require('node:sqlite');
  ]){
   now+=61000;const r=await ask(question,{platform:'launcher'});assert.equal(r.status,200);assert.match(r.body.answer,expected,question);noVersion(r.body.answer);assert(r.body.sources.length);assert.doesNotMatch(r.body.answer,/send a correction|official page link/i);
  }
- for(const question of ['So what is Repo Company then?','Could you tell me a bit about Repo Company please?','What is RepoCompany exactly?']){
-  now+=61000;const r=await ask(question);assert.equal(r.status,200);assert.match(r.body.answer,/Wibs/);assert.match(r.body.answer,/Reparty/);
+ for(const question of ['So what is Repo Company then?','Could you tell me a bit about Repo Company please?','What is RepoCompany exactly?',
+  'good tell me about repo comapny','good tell me about repo compnay','Tell me about repo compny','Tell me about repocomapny','Nice, could you please tell me a little more about Repo Company?', 'Tell me about repocompany.uk']){
+  now+=61000;const r=await ask(question);assert.equal(r.status,200);assert.match(r.body.answer,/Wibs/);assert.match(r.body.answer,/Reparty/);assert(r.body.sources.length);assert.doesNotMatch(r.body.answer,/employee management|financial planning|game developed by a team/);
  }
+ // Replay ordinary conversations through the actual handler. No bridge is
+ // available here: a retrieval miss cannot be hidden by a plausible model reply.
+ for(const [question,expected]of [['good tell me about moratlaes',/Moratales/],['great tell me about Velmora Managre',/Velmora Manager/],['good tell me about moroogue',/Morogue/]]){
+  now+=61000;const r=await ask(question);assert.equal(r.status,200);assert.match(r.body.answer,expected);assert(r.body.sources.length);
+ }
+ const upgradesHistory=[];
+ for(const [question,expected]of [
+  ['good tell me about morogue',/Morogue is/],
+  ['what upgrades are there?',/Passive bonuses.*Peppercorn Steak/s],
+  ['which ones are permanent?',/Hearty breakfast.*House blend.*Deep pockets/],
+  ['what weapons are there?',/Espresso Brioche.*Sourdough Sabre/s],
+  ['what perks are there?',/53 combat perks.*Twice-cut Ravioli/s],
+  ['Tell me about Twice-cut Ravioli',/two delayed cuts/],
+  ['what relics are there?',/55 merchant relics.*Glass Pepper/s],
+  ['What does Glass Pepper do?',/incoming damage increases by 20%/],
+  ['what specials are there?',/6 special abilities.*Scalding Chai.*Copper Cocoa/s],
+  ['what keystones are there?',/4 keystones.*Black-sugar Soufflé/s],
+  ['what passives are there?',/six passive upgrades.*Peppercorn Steak/s]
+ ]){
+  now+=61000;const r=await ask(question,{history:upgradesHistory.slice(-12),platform:'launcher'});assert.equal(r.status,200,question);assert.match(r.body.answer,expected,question);assert(r.body.sources.length,question);noVersion(r.body.answer);
+  if(upgradesHistory.length)assert.doesNotMatch(r.body.answer,/Morogue is a solo action roguelite|useful choice depends on your weapon/,question);
+  upgradesHistory.push({role:'user',content:question},{role:'assistant',content:r.body.answer});
+ }
+ for(const question of ['Who owns Repo Comapny?', 'Tell me about an Azure Palace in Repo Company', 'What is the Azure Palace in Moratales?']){
+  now+=61000;const r=await ask(question);assert.equal(r.status,200);assert.match(r.body.answer,/Which item, place or screen/);assert.equal(r.body.sources.length,0);
+ }
+ for(const question of ['What is a morgue?', 'Tell me about company management games', 'Explain what a company is', 'How do I write a report?'])assert.equal(retrieveKnowledge(question).scope,'general',question);
+ assert.equal(isCanonicalProduct('repo comapny'),false,'Typo tolerance must not relax persisted product validation');
  const history=[{role:'user',content:'Can you help me with Morogue?'},{role:'assistant',content:'What kind of build would you like?'}];
  for(const question of ['I want high damage on it','High damage','What builds can I do on it?']){
   now+=61000;const r=await ask(question,{history,platform:'launcher'});assert.equal(r.status,200);assert.match(r.body.answer,/Glass Pepper/);assert.match(r.body.answer,/62.5%/);assert.match(r.body.answer,/20% more damage/);assert.match(r.body.answer,/10% slower/);noVersion(r.body.answer);
@@ -54,5 +83,5 @@ const {DatabaseSync}=require('node:sqlite');
   global.fetch=async()=>{calls++;return Response.json({answer:'Air scatters shorter wavelengths of sunlight more strongly.'});};
   now+=5000;r=await ask('Explain why the sky is blue',{},bob);assert.equal(r.status,200);assert.equal(calls,2);
  }finally{global.fetch=originalFetch;sql.close();}
- console.log('PASS: conversational site questions; damage and game follow-ups; legacy launcher clients; final-boss guidance and spoiler consent; boss roster; exact rate countdown; rejected bridge lease release.');
+ console.log('PASS: screenshot regressions, misspelled product names, 11-turn upgrade/category/item conversation, unknown-fact and general-question boundaries; damage and game follow-ups; legacy launcher clients; final-boss guidance and spoiler consent; boss roster; exact rate countdown; rejected bridge lease release.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

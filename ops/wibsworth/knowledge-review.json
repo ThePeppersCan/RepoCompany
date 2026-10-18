@@ -1,9 +1,9 @@
 {
   "reviewedAt": "2026-10-18",
-  "knowledgeVersion": "2026-10-18.5",
+  "knowledgeVersion": "2026-10-18.6",
   "method": "Reviewed the three active public game entries and loaded gameplay/UI modules. Inspected Moratales main menu, fresh character, area guide and all backpack tabs; Manager setup and Central, Squad/tactics/training/dynamics/youth/archive, Transfers, Season, Office and Matchday; Morogue main menu, Journal, Combat guide, Evolutions, Bestiary/worlds, Night pantry, Wardrobe and Options. Story-gated screens and catalogue rules were checked in their active public source. This is not a complete playthrough of every story or every possible save state.",
   "releasedContentOnly": true,
-  "facts": 984,
+  "facts": 991,
   "sourcePins": 108,
   "coverage": {
     "Moratales": "Travel regions, village districts and shops; opening hours, calendar/seasons, controls, quests and story routes, coffee/roasting, staff/wages, café displays/pricing/rent, furniture/storage, co-op, energy, all 44 crops, 88 recipes, 76 supplier ingredients, 42 resident entries and 50 potential colleagues.",
@@ -26,6 +26,7 @@
     "A finite reviewed library cannot guarantee every future question. Game changes require a new review; source checks fail on drift. Normal answers discuss one game without platform qualifiers."
   ],
   "maintenance": "Source pin tests fail on changed local content; --verify-published checks remote bytes and active game script references. Review changed facts before updating pins. A fact suggestion remains pending even when related published source bytes match. Approving a correction requires a current Developer role.",
+  "conversationReview": "Reproduced the member's misspelled Repo Company introduction and repeated Morogue overview on an upgrades follow-up. Query-only product matching now tolerates one insertion, deletion, substitution or adjacent transposition in distinctive names; stored product validation remains exact. Broad Morogue upgrade, weapon, passive, perk, relic, special and keystone questions use category guides, while named-item and build advice stay separate. Game overviews no longer substitute for specific unanswered questions. Handler tests replay a continuous introduction/upgrades/permanent bonuses/weapons/perks/named perk/relics/named relic/specials/keystones/passives conversation without a model connection.",
   "tests": [
     "test-wibsworth-knowledge.cjs --verify-published",
     "test-wibsworth-morogue.cjs",
