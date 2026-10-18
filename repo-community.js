@@ -196,11 +196,14 @@
    const settings=await window.repoListening.settings();if(revision!==editorRevision)return;
    const toggle=(label,description,value)=>{const row=el('label','rc-activity-option'),copy=el('span'),input=el('input');input.type='checkbox';input.checked=value;copy.append(el('strong','',label),el('small','',description));row.append(copy,input);form.append(row);return input;};
    const reparty=toggle('Share Reparty listening','Show the song or video, artwork and progress while you listen.',settings.reparty);
-   const spotify=toggle('Share Spotify listening','Show your current Spotify song while Repo Company is open.',settings.spotify);
+   const spotify=toggle('Share Spotify listening','Show your current Spotify song while your connected website tab is open.',settings.spotify);
    spotify.disabled=!settings.spotifyClientId;
    form.append(el('p','rc-activity-note','Invisible mode hides listening. Private profiles share it with accepted friends only. Reparty takes priority when both are playing.'));
    form.append(el('p','rc-activity-note','No songs or cover images are uploaded. Only your current status is shared, with no listening history.'));
-   if(settings.spotifyClientId){
+   if(settings.spotifyClientId&&document.documentElement.dataset.repoLauncher==='true'){
+    form.append(el('p','rc-activity-note','Connect Spotify on the Repo Company website and keep that tab open. Your listening status will also appear here in the launcher.'));
+    const website=el('a','rc-listening-link','Open website');website.href='https://repocompany.uk/Wibs';website.target='_blank';website.rel='noopener noreferrer';form.append(website);
+   }else if(settings.spotifyClientId){
     const connected=el('p','rc-activity-note',settings.connected?'Spotify connected for this tab.':'Connect your Spotify account to share listening.');form.append(connected);
     form.append(btn(settings.connected?'Disconnect Spotify':'Connect Spotify',async event=>{event.currentTarget.disabled=true;try{if(settings.connected){await window.repoListening.disconnect();if(revision===editorRevision)listeningSettings();}else{await window.repoListening.save({reparty:reparty.checked,spotify:spotify.checked});await window.repoListening.connect();}}catch(e){error(e,feedback);event.currentTarget.disabled=false;}}));
    }else form.append(el('p','rc-activity-note','Spotify is not enabled on this site yet. Reparty sharing is available now.'));

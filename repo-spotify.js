@@ -15,6 +15,7 @@
  }
  async function connect(owner,clientId){
   if(!owner||!/^[a-f0-9]{32}$/i.test(clientId||''))throw Error('Spotify has not been enabled for this site yet.');
+  if(document.documentElement?.dataset.repoLauncher==='true')throw Error('Open the Repo Company website in your browser to connect Spotify.');
   const verifier=random(),state=random(),challenge=encoded(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))));
   sessionStorage.setItem(pendingKey,JSON.stringify({owner,clientId,verifier,state,at:Date.now()}));
   const query=new URLSearchParams({client_id:clientId,response_type:'code',redirect_uri:redirect(),code_challenge_method:'S256',code_challenge:challenge,state,scope:'user-read-currently-playing'});

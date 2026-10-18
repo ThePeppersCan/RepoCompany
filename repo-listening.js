@@ -82,7 +82,7 @@
   }
   body.append(art,copy);box.append(heading,body);
   if(/^https:\/\/(?:open\.spotify\.com\/track\/[a-zA-Z0-9]{22}|www\.youtube\.com\/watch\?v=[\w-]{11}|suno\.com\/song\/[a-f0-9-]{36})$/.test(track.url||'')){
-   const link=el('a','rc-listening-link',track.source==='spotify'?'Open Spotify':'Open song');link.href=track.url;link.target='_blank';link.rel='noopener noreferrer';box.append(link);
+   const link=el('a','rc-listening-link',track.source==='spotify'?'Open Spotify':'Open song');link.href=document.documentElement.dataset.repoLauncher==='true'?location.origin+'/listen.html?'+new URLSearchParams({provider:track.provider,id:track.id}):track.url;link.target='_blank';link.rel='noopener noreferrer';box.append(link);
   }
   return box;
  }

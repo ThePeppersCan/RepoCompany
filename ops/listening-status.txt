@@ -32,7 +32,9 @@ Optional Spotify setup (disabled until configured)
 4. Add approved test accounts in Spotify's app user management, then redeploy and
    use Connect Spotify from Listening activity. The connection lives in that tab's
    session storage, clears on account change/disconnect, and is not stored on the
-   RepoCompany server. RepoCompany must remain open to share Spotify activity.
+   RepoCompany server. That website tab must remain open to share Spotify activity.
+   The current launcher uses the website for Spotify connection; status is visible
+   in both the website and launcher. Reparty sharing works directly in either.
 5. Validate with a real Spotify account before treating Spotify as live-tested.
 
 As checked 18 October 2026, a development app requires its owner to have Premium
