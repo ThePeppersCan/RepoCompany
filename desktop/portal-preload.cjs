@@ -51,6 +51,7 @@ function initialize() {
     document.documentElement.dataset.repoLauncher = 'true';
     document.documentElement.dataset.repoScreenSharing = 'true';
     document.documentElement.dataset.repoBroomflight = 'true';
+    document.documentElement.dataset.repoRunners = 'true';
     document.documentElement.dataset.repoNativeMessageSound = 'true';
     document.documentElement.dataset.repoSunoPlayback = 'true';
     publishPortalVisibility(portalVisible); return true;
@@ -274,8 +275,8 @@ function initialize() {
         }else{
           const dialog=document.getElementById('legacy-feature'),frame=dialog?.querySelector('iframe');
           const url=frame?.src?new URL(frame.src,location.href):null;
-          open=Boolean(dialog?.open&&url&&(embeddedDemo.runtime==='broomflight'
-            ? url.origin===embeddedDemo.origin&&url.pathname==='/broomflight/'&&url.searchParams.get('embedded')==='1'
+          open=Boolean(dialog?.open&&url&&(['broomflight','runners'].includes(embeddedDemo.runtime)
+            ? url.origin===embeddedDemo.origin&&url.pathname===(embeddedDemo.runtime==='runners'?'/repo-runners/':'/broomflight/')&&url.searchParams.get('embedded')==='1'
             : url.searchParams.get('dashboard')===embeddedDemo.id));
         }
       }catch{/* A changing frame has not opened yet. */}

@@ -16,7 +16,8 @@
     const roster=el('div','repo-call-stage-roster');roster.setAttribute('role','list');roster.setAttribute('aria-label','People in this call');
     const controls=el('div','repo-call-stage-controls');controls.setAttribute('role','group');controls.setAttribute('aria-label','Call controls');
     const mic=button('Mute','mic',actions.toggleMute),sound=button('Deafen','sound',actions.toggleDeafen),screenControls=el('div','repo-call-stage-sharing'),leave=button('Leave call','leave',actions.leave);leave.classList.add('repo-call-stage-leave');controls.append(mic,sound,screenControls,leave);
-    body.append(media,roster,controls);element.append(head,body);
+    const screenNotice=el('div','repo-call-stage-notice');screenNotice.hidden=true;
+    body.append(media,roster,controls,screenNotice);element.append(head,body);
     function sync(){body.hidden=collapsed;toggle.setAttribute('aria-expanded',String(!collapsed));label(toggle,collapsed?'Expand call':'Collapse call');element.classList.toggle('is-collapsed',collapsed);}
     function show(){collapsed=false;sync();}
     screens?.mount(media,show);
@@ -35,7 +36,7 @@
         rosterKey=next;roster.replaceChildren();
         for(const m of people){const row=el('div','repo-call-stage-person');row.dataset.voiceName=m.name;row.setAttribute('role','listitem');const avatar=portrait(m);avatar.classList.add('repo-call-stage-avatar');const name=el('span','repo-call-stage-name',m.display),note=el('small','repo-call-stage-person-status',m.status==='invited'?'Invited':m.serverDeafened?'Deafened':m.serverMuted||m.muted?'Muted':'');row.append(avatar,name,note);roster.append(row);}
       }
-      screens?.render(screenControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened);
+      screens?.render(screenControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened,screenNotice);
       paintSpeaking(s.speaking);sync();
     }
     return Object.freeze({element,update,show,paintSpeaking});

@@ -217,7 +217,19 @@ function watchWindowVisibility(window) {
 }
 function configureSessionPermissions(targetSession) {
   const picker=createScreenPicker({BrowserWindow,desktopCapturer,ipcMain,getWindow:()=>mainWindow,hidden:hiddenTest});
-  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog,chooseScreen:valid=>picker.choose(valid),cancelScreen:()=>picker.cancel() });
+  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog, canUseGamePointer, chooseScreen:valid=>picker.choose(valid),cancelScreen:()=>picker.cancel() });
+}
+function canUseGamePointer(contents, details = {}, origin) {
+  try {
+    const record = embeddedDemo, url = new URL(details.requestingUrl);
+    return !!(record?.id === 'runners' && record.runtime === 'runners' && record.contents === contents &&
+      contents === activePortal() && !contents.isDestroyed() && isPortalUrl(contents.getURL()) &&
+      account?.state.status === 'online' && account.identity === record.identity && !quitting && !updateLocked() &&
+      portalViewVisible && windowContents(mainWindow) && mainWindow.isVisible() && !mainWindow.isMinimized() &&
+      details.isMainFrame === false && isPortalUrl(url.href) && !url.username && !url.password &&
+      url.pathname === '/repo-runners/' && url.searchParams.get('embedded') === '1' &&
+      (!origin || new URL(origin).origin === url.origin));
+  } catch { return false; }
 }
 function refreshAccount() { if (!quitting) void account?.refresh().catch(() => {}); }
 function checkAndApplyUpdates({ reschedule = false } = {}) {
@@ -309,10 +321,11 @@ function selectLibrary(id) {
 function handlePortalRequest(details, callback) {
   let url; try { url = new URL(details.url); } catch { callback({ cancel: true }); return; }
   let pathname; try { pathname = decodeURIComponent(url.pathname); } catch { callback({ cancel: true }); return; }
-  const broomflightPage = ['/broomflight', '/broomflight/', '/broomflight/index.html'].includes(pathname);
-  if (isPortalUrl(url.href) && (pathname === '/legacy-runtime.html' || broomflightPage) && portalContentsId !== null && details.webContentsId === portalContentsId && ['mainFrame', 'subFrame'].includes(details.resourceType)) {
-    const id = broomflightPage ? 'broomflight' : url.searchParams.get('dashboard');
-    const embedded = (config.demos || []).find(demo => demo.embedded && demo.runtime !== 'dragonbound' && (demo.runtime === 'broomflight') === broomflightPage && demo.id === id);
+  const standaloneDemo = ['/broomflight', '/broomflight/', '/broomflight/index.html'].includes(pathname) ? 'broomflight'
+    : ['/repo-runners', '/repo-runners/', '/repo-runners/index.html'].includes(pathname) ? 'runners' : null;
+  if (isPortalUrl(url.href) && (pathname === '/legacy-runtime.html' || standaloneDemo) && portalContentsId !== null && details.webContentsId === portalContentsId && ['mainFrame', 'subFrame'].includes(details.resourceType)) {
+    const id = standaloneDemo || url.searchParams.get('dashboard');
+    const embedded = (config.demos || []).find(demo => demo.embedded && (demo.runtime || 'legacy') === (standaloneDemo || 'legacy') && demo.id === id);
     const collection = ['binder', 'slabs', 'pack'].includes(id);
     const granted = embedded && embeddedDemo?.id === id && account?.state.status === 'online' && account.identity === embeddedDemo.identity;
     const allowed = !quitting && details.resourceType === 'subFrame' && (collection || granted);
@@ -386,6 +399,8 @@ function demoById(id) {
     if (demo.id !== 'dragonbound' || demo.origin !== 'https://dragonbound.repocompany.uk' || entry.pathname !== '/') throw new Error('This demo is unavailable.');
   } else if (demo.runtime === 'broomflight') {
     if (demo.id !== 'broomflight' || !isPortalUrl(entry.href) || entry.pathname !== '/broomflight/' || entry.searchParams.get('embedded') !== '1') throw new Error('This demo is unavailable.');
+  } else if (demo.runtime === 'runners') {
+    if (demo.id !== 'runners' || !isPortalUrl(entry.href) || entry.pathname !== '/repo-runners/' || entry.searchParams.get('embedded') !== '1') throw new Error('This demo is unavailable.');
   } else if (!isPortalUrl(entry.href) || entry.pathname !== '/legacy-runtime.html' || entry.searchParams.get('dashboard') !== demo.id) throw new Error('This demo is unavailable.');
   return demo;
 }
@@ -405,8 +420,8 @@ function closeEmbeddedDemo(record = embeddedDemo) {
   if (record.contents === activePortal()) void record.contents.executeJavaScript(`(()=>{if(window.__repoLauncherDemoTicket!==${record.revision})return;delete window.__repoLauncherDemoTicket;${close}})()`).catch(() => {});
 }
 function demoFrameMatch(record) {
-  return record.runtime === 'broomflight'
-    ? `new URL(frame.src,location.href).origin===${JSON.stringify(config.portalOrigin)}&&new URL(frame.src,location.href).pathname==='/broomflight/'&&new URL(frame.src,location.href).searchParams.get('embedded')==='1'`
+  return ['broomflight', 'runners'].includes(record.runtime)
+    ? `new URL(frame.src,location.href).origin===${JSON.stringify(config.portalOrigin)}&&new URL(frame.src,location.href).pathname===${JSON.stringify(record.runtime === 'runners' ? '/repo-runners/' : '/broomflight/')}&&new URL(frame.src,location.href).searchParams.get('embedded')==='1'`
     : `new URL(frame.src,location.href).searchParams.get('dashboard')===${JSON.stringify(record.id)}`;
 }
 function demoVisibility(record) {

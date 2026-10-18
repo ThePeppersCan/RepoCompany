@@ -23,6 +23,7 @@ function preload({ rootReady = true } = {}) {
 test('isolated preload starts hidden before website scripts and relays only explicit native boolean visibility', () => {
   const h = preload();
   assert.equal(h.document.documentElement.dataset.repoLauncher, 'true');
+  assert.equal(h.document.documentElement.dataset.repoRunners, 'true');
   assert.equal(h.document.documentElement.dataset.repoPortalVisible, 'false');
   h.handlers.get('launcher:portal-visibility')({}, true);
   h.handlers.get('launcher:portal-visibility')({}, true);

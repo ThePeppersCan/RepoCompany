@@ -15,6 +15,8 @@
 .repo-call-stage-name{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 12px/1.2 Arial,sans-serif}
 .repo-call-stage-person-status{font:10px/1.2 Arial,sans-serif;color:var(--wibs-muted,#aebeb0);min-height:12px}
 .repo-call-stage-controls{display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;flex-wrap:wrap}
+.repo-call-stage-notice{flex:none;text-align:center;color:var(--wibs-muted,#aebeb0)}
+.repo-call-stage-notice p{margin:6px 0 0;font:11px/1.4 Arial,sans-serif}
 #repo-messages .repo-call-stage-button{display:grid;place-items:center;flex:none;width:36px;height:36px;margin:0;padding:8px;border:1px solid var(--wibs-line,#c4d6aa25);border-radius:50%;background:var(--wibs-raised,#263e2e);color:var(--wibs-ink,#eceee1)}
 #repo-messages .repo-call-stage-button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #repo-messages .repo-call-stage-button:hover:not(:disabled){background:var(--wibs-hover,#334b3b)}

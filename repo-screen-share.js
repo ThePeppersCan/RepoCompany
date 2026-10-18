@@ -1,11 +1,12 @@
 (() => {
  'use strict';
  window.createRepoScreenShare=({api,context,changed,refresh})=>{
-  let revision=0,mode='',busy=false,capture=null,pc=null,roomId=null,shareId=null,notice='',viewerNode=null,video=null,serverStarted=false,mediaHost=null,expand=null;
+  let revision=0,mode='',busy=false,capture=null,pc=null,roomId=null,shareId=null,notice='',noticeTimer=null,viewerNode=null,video=null,serverStarted=false,mediaHost=null,expand=null;
   const controls=new WeakMap();
   const node=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
   const button=(text,fn)=>{const n=node('button',text);n.type='button';n.className='repo-voice-button';n.onclick=fn;return n;};
   const local=()=>{
+   clearTimeout(noticeTimer);noticeTimer=null;
    revision++;busy=false;mode='';serverStarted=false;roomId=shareId=null;
    if(capture){capture.getTracks().forEach(t=>{t.onended=null;t.stop();});capture=null;}
    if(pc){pc.ontrack=pc.onconnectionstatechange=null;pc.close();pc=null;}
@@ -13,7 +14,9 @@
   };
   async function stop(reason=''){
    const room=roomId,op=mode==='publish'?'screen-stop':'screen-unwatch',send=serverStarted;
-   local();notice=reason;changed();if(room&&send)await api(op,{room}).catch(()=>{});refresh();
+   local();notice=reason;
+   if(reason==='Screen sharing ended.'){const endedRevision=revision;noticeTimer=setTimeout(()=>{if(revision===endedRevision&&!mode&&notice===reason){notice='';noticeTimer=null;changed();}},5000);}
+   changed();if(room&&send)await api(op,{room}).catch(()=>{});refresh();
   }
   function connection(valid){
    const peer=new RTCPeerConnection({iceServers:[{urls:'stun:stun.cloudflare.com:3478'}],bundlePolicy:'max-bundle'});
@@ -37,7 +40,7 @@
   }
   async function begin(watch=false){
    const c=context();if(busy||mode||!c.connected||!c.room||!c.room.screen?.enabled)return;
-   notice='';busy=true;mode=watch?'watch':'publish';roomId=c.room.id;shareId=watch?c.room.screen.active?.id:null;
+   clearTimeout(noticeTimer);noticeTimer=null;notice='';busy=true;mode=watch?'watch':'publish';roomId=c.room.id;shareId=watch?c.room.screen.active?.id:null;
    const version=++revision,identity=c.user,room=roomId,valid=()=>revision===version&&context().user===identity&&context().room?.id===room&&context().connected;
    changed();
    try{
@@ -78,15 +81,16 @@
    reset(){local();notice='';},
    sync(room){if(!mode||busy)return;if(!room||room.ended||room.mine.status==='left'||(mode==='publish'&&!room.screen?.publishing)||(mode==='watch'&&(!room.screen?.watching||room.screen.active?.id!==shareId)))stop('Screen sharing ended.');},
    state:()=>({mode,busy}),
-   render(container,room,canShare){
+   render(container,room,canShare,noticeHost=null){
     let ui=controls.get(container);
-    if(!ui){const area=node('div');area.className='repo-screen-controls';const action=button('Share screen',()=>mode?stop():begin(!!context().room?.screen?.active)),label=node('span'),status=node('p');status.setAttribute('role','status');area.append(action,label,status);container.append(area);ui={area,action,label,status};controls.set(container,ui);}
-    ui.area.hidden=!room?.screen?.enabled;if(ui.area.hidden)return;
+    if(!ui){const area=node('div');area.className='repo-screen-controls';const action=button('Share screen',()=>mode?stop():begin(!!context().room?.screen?.active)),label=node('span'),status=node('p');status.setAttribute('role','status');area.append(action,label);(noticeHost||area).append(status);container.append(area);ui={area,action,label,status};controls.set(container,ui);}
+    ui.area.hidden=!room?.screen?.enabled;
+    ui.status.textContent=notice;ui.status.hidden=!notice||ui.area.hidden;if(noticeHost)noticeHost.hidden=ui.status.hidden;
+    if(ui.area.hidden)return;
     const label=mode?(busy?(mode==='publish'?'Preparing your screen…':'Connecting to the screen…'):mode==='publish'?'Sharing your screen · 720p':'Watching shared screen'):room.screen.active?room.screen.active.display+' is sharing':room.screen.closing?'Finishing the previous screen connection…':'';
     ui.label.textContent=label;ui.label.hidden=!label;
     ui.action.textContent=mode?(mode==='publish'?'Stop sharing':'Stop watching'):room.screen.active?'Watch screen':'Share screen';
     ui.action.classList.toggle('is-sharing',!!mode);ui.action.disabled=!mode&&(!canShare||room.screen.closing);
-    ui.status.textContent=notice;ui.status.hidden=!notice;
    }
   };
  };

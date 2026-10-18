@@ -177,7 +177,7 @@ test('portal state exposes only public account and game metadata', async () => {
   const value = await h.invoke({ sender: h.contents, senderFrame: h.frame }, 'state');
   assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 4);
   assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'download'), game => game.id), ['morogue', 'moratales', 'manager']);
-  assert.deepEqual(Array.from(value.catalog.demos, demo => demo.id), ['broomflight', 'dragonbound', 'diver', 'goblin', 'rooftops', 'seas', 'sports']);
+  assert.deepEqual(Array.from(value.catalog.demos, demo => demo.id), ['runners', 'broomflight', 'dragonbound', 'diver', 'goblin', 'rooftops', 'seas', 'sports']);
   assert.equal(value.library.morogue.status, 'installed');
   assert.doesNotMatch(JSON.stringify(value), /TEST_ONLY_ACCESS_TOKEN|TEST_ONLY_INTERNAL_ACCOUNT_ID|access_token|refresh_token|developmentManifest|manifestUrl|approvedOrigins/);
 });
@@ -206,7 +206,7 @@ test('web demo actions reject forged frames and arbitrary IDs before verifying o
 });
 
 test('legacy demos and Dragonbound verify the live signed-in account before opening', async () => {
-  for (const id of ['broomflight', 'diver', 'dragonbound']) {
+  for (const id of ['runners', 'broomflight', 'diver', 'dragonbound']) {
     for (const status of ['signed-out', 'offline']) {
       const h = demoHarness(); let verifications = 0;
       h.context.fixture.account.state.status = status;
@@ -217,10 +217,34 @@ test('legacy demos and Dragonbound verify the live signed-in account before open
   }
 });
 
-test('Broomflight and legacy demos open their website runtime without touching installed games', async () => {
-  for (const id of ['broomflight', 'diver', 'goblin', 'rooftops', 'seas', 'sports']) {
+test('Runners mouse capture belongs only to its active, verified game frame', () => {
+  const h = portalHarness();
+  h.contents.getURL = () => 'https://repocompany.uk/';
+  h.context.pointerWindow = { isDestroyed: () => false, isVisible: () => true, isMinimized: () => false, webContents: { isDestroyed: () => false } };
+  h.run('mainWindow=pointerWindow;portalViewVisible=true;embeddedDemo={id:"runners",runtime:"runners",contents:fixture.contents,identity:account.identity};');
+  const allow = h.run('canUseGamePointer'), details = { isMainFrame: false, requestingUrl: 'https://repocompany.uk/repo-runners/?embedded=1' };
+  assert.equal(allow(h.contents, details, 'https://repocompany.uk'), true);
+  assert.equal(allow(h.contents, details), true, 'request callbacks need no separate origin argument');
+  for (const change of [{ isMainFrame: true }, { isMainFrame: undefined }, { requestingUrl: undefined }, { requestingUrl: 'https://repocompany.uk/' }, { requestingUrl: 'https://repocompany.uk/repo-runners/' }, { requestingUrl: 'https://example.org/repo-runners/?embedded=1' }]) assert.equal(allow(h.contents, { ...details, ...change }), false);
+  assert.equal(allow(h.contents, details, 'https://example.org'), false);
+  assert.equal(allow({ ...h.contents }, details), false);
+  for (const [disable, restore] of [
+    ['portalViewVisible=false', 'portalViewVisible=true'],
+    ['quitting=true', 'quitting=false'],
+    ['account.state.status="offline"', 'account.state.status="online"'],
+    ['embeddedDemo.identity="another-user"', 'embeddedDemo.identity=account.identity'],
+    ['embeddedDemo.id="broomflight"', 'embeddedDemo.id="runners"'],
+    ['pointerWindow.isMinimized=()=>true', 'pointerWindow.isMinimized=()=>false'],
+    ['pointerWindow.isVisible=()=>false', 'pointerWindow.isVisible=()=>true'],
+    ['pointerWindow.isDestroyed=()=>true', 'pointerWindow.isDestroyed=()=>false']
+  ]) { h.run(disable); assert.equal(allow(h.contents, details), false, disable); h.run(restore); }
+  h.run('embeddedDemo=null'); assert.equal(allow(h.contents, details), false, 'closing the demo revokes mouse capture');
+});
+
+test('Runners, Broomflight and legacy demos open their website runtime without touching installed games', async () => {
+  for (const id of ['runners', 'broomflight', 'diver', 'goblin', 'rooftops', 'seas', 'sports']) {
     const h = demoHarness(), opened = [];
-    const demoUrl = value => value === 'broomflight' ? 'https://repocompany.uk/broomflight/?embedded=1' : 'https://repocompany.uk/legacy-runtime.html?dashboard=' + value;
+    const demoUrl = value => value === 'runners' ? 'https://repocompany.uk/repo-runners/?embedded=1' : value === 'broomflight' ? 'https://repocompany.uk/broomflight/?embedded=1' : 'https://repocompany.uk/legacy-runtime.html?dashboard=' + value;
     const dialog = { open: false, querySelector: () => frame }, frame = { src: '' };
     const portalWorld = {
       URL, location: { href: 'https://repocompany.uk/' }, dispatchEvent() {}, PageTransitionEvent: class {},
@@ -298,7 +322,7 @@ test('a delayed Dragonbound bridge cannot open after an account switch or failed
 });
 
 test('web demos cannot finish launching after the verified account changes or the launcher closes', async () => {
-  for (const id of ['broomflight', 'diver', 'dragonbound']) {
+  for (const id of ['runners', 'broomflight', 'diver', 'dragonbound']) {
     for (const change of ['account', 'shutdown']) {
       const h = demoHarness(); let resolveAccount;
       h.context.fixture.account.requireOnline = () => new Promise(resolve => { resolveAccount = resolve; });
@@ -313,7 +337,7 @@ test('web demos cannot finish launching after the verified account changes or th
 });
 
 test('lost or switched accounts close web demos and revoke their runtime grants', async () => {
-  for (const id of ['broomflight', 'diver', 'dragonbound']) {
+  for (const id of ['runners', 'broomflight', 'diver', 'dragonbound']) {
     for (const change of ['signed-out', 'offline', 'switch-account']) {
       const h = demoHarness();
       const portal = id === 'dragonbound' ? dragonboundPortal(h) : null;
@@ -337,7 +361,7 @@ test('legacy runtime URLs cannot bypass the demo gate through missing, unknown o
     h.run('handlePortalRequest')({ webContentsId: 17, resourceType, url: 'https://repocompany.uk' + pathname }, result => { cancelled = result.cancel; });
     return cancelled;
   };
-  for (const pathname of ['/legacy-runtime.html', '/legacy-runtime.html?dashboard=', '/legacy-runtime.html?dashboard=unknown', '/%6cegacy-runtime.html?dashboard=diver', '/legacy-runtime.html?dashboard=broomflight', '/broomflight', '/broomflight/', '/broomflight/index.html', '/%62roomflight/?embedded=1']) {
+  for (const pathname of ['/legacy-runtime.html', '/legacy-runtime.html?dashboard=', '/legacy-runtime.html?dashboard=unknown', '/%6cegacy-runtime.html?dashboard=diver', '/legacy-runtime.html?dashboard=broomflight', '/broomflight', '/broomflight/', '/broomflight/index.html', '/%62roomflight/?embedded=1', '/legacy-runtime.html?dashboard=runners', '/repo-runners', '/repo-runners/', '/repo-runners/index.html', '/%72epo-runners/?embedded=1']) {
     assert.equal(request(pathname), true, pathname);
   }
   for (const collection of ['binder', 'slabs', 'pack']) {

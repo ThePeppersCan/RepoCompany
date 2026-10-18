@@ -25,7 +25,7 @@ test('speaker selection is explicit and isolated from capture, games, frames and
 });
 test('only a verified portal main frame can ask for microphone/camera, all other access is denied', async () => {
   const f = setup();
-  for (const permission of ['display-capture', 'notifications', 'geolocation', 'clipboard-read']) assert.equal(await f.request(permission), false);
+  for (const permission of ['pointerLock', 'display-capture', 'notifications', 'geolocation', 'clipboard-read']) assert.equal(await f.request(permission), false);
   for (const details of [{ isMainFrame: false }, { isMainFrame: undefined }, { requestingUrl: 'https://morogue.repocompany.uk/' }, { mediaTypes: ['display'] }, { mediaTypes: [] }]) assert.equal(await f.request('media', details), false);
   assert.equal(await f.request('media', {}, { ...f.portal }), false);
   assert.equal(f.prompts, 0);
@@ -46,4 +46,21 @@ test('navigation or account changes during a device prompt cannot grant stale ac
   f.controller.reset(); f.answer(1); assert.equal(await requested, false); await tick();
   const next = f.request(); await tick(); f.setAccount({ identity: 'bob', state: { status: 'online' } }); f.answer(1); assert.equal(await next, false); await tick();
   f.controller.dispose(); assert.equal(await f.request(), false);
+});
+
+test('mouse capture delegates both permission paths to the current demo without granting device access', () => {
+  const handlers = {}, contents = {}, details = { isMainFrame: false, requestingUrl: 'https://repocompany.uk/repo-runners/?embedded=1' };
+  let active = true;
+  const controller = configureMediaPermissions({ setPermissionCheckHandler(fn) { handlers.check=fn; }, setPermissionRequestHandler(fn) { handlers.request=fn; } }, {
+    getPortal: () => null, getAccount: () => null, getWindow: () => null, isPortalUrl: () => false,
+    canUseGamePointer: (sender, frame, origin) => active && sender === contents && frame === details && (!origin || origin === 'https://repocompany.uk')
+  });
+  const request = permission => { let allowed; handlers.request(contents, permission, result => { allowed=result; }, details); return allowed; };
+  assert.equal(handlers.check(contents, 'pointerLock', 'https://repocompany.uk', details), true);
+  assert.equal(request('pointerLock'), true);
+  assert.equal(request('media'), false); assert.equal(request('display-capture'), false);
+  active=false;
+  assert.equal(handlers.check(contents, 'pointerLock', 'https://repocompany.uk', details), false);
+  assert.equal(request('pointerLock'), false);
+  active=true; controller.dispose(); assert.equal(request('pointerLock'), false);
 });

@@ -12,7 +12,7 @@ class Element{
  play(){return Promise.resolve();} pause(){}
 }
 const node=tag=>new Element(tag),document={createElement:node,documentElement:{dataset:{}},body:node('body')};
-const sandbox={document,console,WeakMap,setTimeout,addEventListener(){}};sandbox.window=sandbox;
+const sandbox={document,console,WeakMap,setTimeout,clearTimeout,addEventListener(){}};sandbox.window=sandbox;
 vm.runInNewContext(fs.readFileSync(require.resolve('../repo-call-stage.js'),'utf8'),sandbox);
 let mounts=0,screenHost,expander,leaves=0;
 const screens={mount(host,expand){mounts++;screenHost=host;expander=expand;},render(){}};
@@ -34,11 +34,17 @@ stage.update({...state,callActive:false});assert(stage.element.hidden);assert.eq
  vm.runInNewContext(fs.readFileSync(require.resolve('../repo-screen-share.js'),'utf8'),sandbox);
  const room={id:'one',mine:{status:'active'},screen:{enabled:true,active:{id:'share',display:'Bob'},watching:true}};
  const context={user:'alice',connected:true,room},controller=sandbox.createRepoScreenShare({api:async op=>{calls.push(op);return {sessionDescription:{type:'offer',sdp:'fixture'}};},context:()=>context,changed(){},refresh(){}});
- const host=node('div'),controls=node('div');controller.mount(host,()=>{});controller.render(controls,room,true);
+ const host=node('div'),controls=node('div'),noticeHost=node('div');controller.mount(host,()=>{});controller.render(controls,room,true,noticeHost);
  const action=controls.children[0].children[0];await action.onclick();
  assert.equal(document.body.children.length,0,'watching never creates a modal or separate window');assert.equal(host.children[0].tag,'section');
  const video=host.children[0].children.find(n=>n.tag==='video');assert(video.srcObject);video.requestFullscreen=()=>{fullscreen++;return Promise.resolve();};
  controller.render(controls,room,true);assert.equal(controls.children[0].children[0],action,'polling preserves screen controls');assert.equal(host.children[0].children.find(n=>n.tag==='video'),video,'polling preserves the playing video');assert.equal(fullscreen,0,'fullscreen is opt-in');
  await action.onclick();assert.equal(host.children.length,0);assert.equal(video.srcObject,null);assert.equal(closed,1);assert.equal(context.connected,true,'stop watching leaves voice connected');assert.deepEqual(calls,['screen-watch','screen-answer','screen-unwatch']);
+ let expiry; sandbox.setTimeout=(callback,delay)=>{assert.equal(delay,5000);expiry=callback;return 1;};sandbox.clearTimeout=()=>{expiry=null;};
+ await action.onclick();remoteTrack.onended();controller.render(controls,room,true,noticeHost);
+ assert.equal(controls.children[0].children.length,2,'screen notices never enter the buttons row');
+ assert.equal(noticeHost.children[0].textContent,'Screen sharing ended.');assert(!noticeHost.hidden);assert.equal(context.connected,true);
+ const clearEnded=expiry;clearEnded();controller.render(controls,room,true,noticeHost);assert(noticeHost.hidden,'normal ended notice disappears after five seconds');
+ await action.onclick();remoteTrack.onended();const staleExpiry=expiry;await action.onclick();staleExpiry();controller.render(controls,room,true,noticeHost);assert.equal(controller.state().mode,'watch','old notice expiry cannot stop the next screen share');assert(noticeHost.hidden);controller.reset();
  console.log('PASS: inline player, stable controls/video across updates, call collapse/expand, auto-open on a new call, opt-in fullscreen, stop-watching cleanup without ending voice.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

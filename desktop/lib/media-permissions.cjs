@@ -1,9 +1,10 @@
 'use strict';
 
 // Device access belongs only to the signed-in, top-level company portal.
-// Games, their frames and arbitrary permissions remain denied. Display capture
+// Game device access and arbitrary permissions remain denied. The selected
+// Repo Runners frame may capture mouse movement for its controls. Display capture
 // requires a fresh, trusted user gesture and an explicit source selection.
-function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog, chooseScreen, cancelScreen }) {
+function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog, chooseScreen, cancelScreen, canUseGamePointer }) {
   let generation = 0, grant = null, pending = false;
   const identity = () => { const account = getAccount(); return account?.state?.status === 'online' ? account.identity : null; };
   const trusted = (contents, details = {}, origin) => {
@@ -16,12 +17,14 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
   };
   const allowed = (contents, types) => !!(grant && grant.contents === contents && grant.identity === identity() && types.every(type => grant.types.has(type)));
   session.setPermissionCheckHandler((contents, permission, origin, details = {}) => {
+    if (permission === 'pointerLock') return canUseGamePointer?.(contents, details, origin) === true;
     const type = details.mediaType;
     if(permission==='display-capture')return !!chooseScreen&&trusted(contents,details,origin);
     if(permission === 'speaker-selection')return trusted(contents,details,origin)&&allowed(contents,['output']);
     return permission === 'media' && ['audio', 'video'].includes(type) && trusted(contents, details, origin) && allowed(contents, [type]);
   });
   session.setPermissionRequestHandler((contents, permission, callback, details = {}) => {
+    if (permission === 'pointerLock') { callback(canUseGamePointer?.(contents, details) === true); return; }
     if(permission==='display-capture'){callback(!!chooseScreen&&trusted(contents,details));return;}
     // Electron 44 uses an empty media-type preflight for getDisplayMedia.
     // This only lets it reach the guarded source picker below; microphone and
