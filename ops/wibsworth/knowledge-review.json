@@ -1,6 +1,6 @@
 {
   "reviewedAt": "2026-10-18",
-  "knowledgeVersion": "2026-10-18.3",
+  "knowledgeVersion": "2026-10-18.4",
   "method": "Reviewed active public game entry dependencies, their loaded gameplay/UI modules, and the current website routes. Structured gameplay catalogues were read without running a game. This is a source/content review, not a complete playthrough or a claim to have tested every game state.",
   "releasedContentOnly": true,
   "facts": 230,

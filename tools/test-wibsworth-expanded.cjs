@@ -55,6 +55,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  const follow=ask('Does it revive me?',{history:[{role:'user',content:base.chat.question},{role:'assistant',content:base.answer.answer}]});
  assert.match(follow.answer.answer,/Cannot revive/);
  const combo=ask('What are the best combos in Morogue?');assert(combo.answer.answer.includes('62.5%'));assert(combo.answer.answer.includes('140'));
+ const recommendation=ask('What games do you recommend with friends?').answer;assert.match(recommendation.answer,/Moratales/);assert.match(recommendation.answer,/Goblin Bomb Party/);assert(!recommendation.answer.includes('Glass Pepper'));
+ assert.match(ask('Recommend something relaxing to play').answer.answer,/Moratales/);
+ assert(!ask('Is Intensive training always best in Velmora Manager?').answer.answer.includes('recruitment suggestions'),'Specific preparation advice should not include unrelated recruitment details');
  const c={question:'Do you remember what I just said?',history:[{role:'user',content:'I like cats'},{role:'assistant',content:'Cats are lovely company.'}],platform:'web',spoilers:false};
  const messages=localMessages(c,{scope:'general',facts:[]},[],'');assert.deepEqual(messages.slice(1,3),c.history);assert.match(messages[0].content,/repocompany.uk/);
  let reads=[];
