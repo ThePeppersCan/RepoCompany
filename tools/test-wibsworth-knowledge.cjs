@@ -99,6 +99,18 @@ async function run(){
   assert.ok(!result.context.includes('the Uncrowned'),'No unrequested boss spoilers');
   result=ask('What games are on the website?');
   assert.ok(result.context.includes('Moratales'));
+  for(const question of ['what games are available','what games are avalible','what games are avablie','games?','What can I play?','What can I play with a friend?','Recommend a game','Do you have any multiplayer games?','Anything relaxing to play?']){
+    result=ask(question,{history:[{role:'user',content:'What are the best combos in Morogue?'}]});
+    assert.equal(result.intent,'catalogue',question);
+    assert.ok(result.context.includes('Moratales')&&result.context.includes('Repo Runners'),question);
+    assert.ok(result.context.includes('two-player co-op')&&result.context.includes('solo and online'),question);
+    assert.ok(!result.context.includes('Glass Pepper')&&!result.evidence.length,'A catalogue question must not inherit item statistics');
+  }
+  result=ask('Which ones can I play with a friend?',{history:[{role:'user',content:'what games are avalible'}]});
+  assert.equal(result.intent,'catalogue','Follow-ups inherit the catalogue, not unrelated old game context');
+  for(const question of ['What games are on Xbox?','What games are available on Steam?','What can I play on piano?']){
+    assert.equal(ask(question).scope,'general','External game or music questions must remain general knowledge');
+  }
   result=ask('What demos are available?');
   assert.ok(result.context.includes('Repo Runners')&&result.context.includes('Repo Sports'));
   result=ask('How do I share my screen on Wibs?');

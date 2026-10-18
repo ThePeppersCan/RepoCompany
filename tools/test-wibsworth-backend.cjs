@@ -208,7 +208,7 @@ const { DatabaseSync } = require('node:sqlite');
   await check('simultaneous requests cannot bypass the shared allowance or per-user active limit', async () => {
     const f = fixture(); try {
       const insert = f.sql.prepare('INSERT INTO wibsworth_requests(id,user_id,day,created_at,reserved,lease_until,completed) VALUES(?,?,?,?,?,?,?)');
-      insert.run(crypto.randomUUID(), developer, '2026-10-18', baseTime - 120000, 8900, baseTime, 1);
+      insert.run(crypto.randomUUID(), developer, '2026-10-18', baseTime - 120000, 8500, baseTime, 1);
       const responses = await Promise.all([f.request('chat', { question: 'How many slots?' }, 'alice'), f.request('chat', { question: 'How many slots?' }, 'bob')]);
       assert.equal(responses.filter(r => r.status === 200).length, 1);
       assert.equal(responses.filter(r => r.status === 429).length, 1);
@@ -250,7 +250,7 @@ const { DatabaseSync } = require('node:sqlite');
         insert.run(crypto.randomUUID(), developer, '2026-10-' + String(day).padStart(2, '0'), at, 9000, at, 1);
       }
       const at = Date.UTC(2026, 9, 31, 12); f.setTime(at);
-      insert.run(crypto.randomUUID(), developer, '2026-10-31', at - 120000, 8900, at, 1);
+      insert.run(crypto.randomUUID(), developer, '2026-10-31', at - 120000, 8500, at, 1);
       const results = await Promise.all([f.request('chat', { question: 'How many slots?' }, 'alice'), f.request('chat', { question: 'How many slots?' }, 'bob')]);
       assert.equal(results.filter(r => r.status === 200).length, 1);
       assert.equal(results.filter(r => r.status === 429).length, 1);
@@ -319,7 +319,11 @@ const { DatabaseSync } = require('node:sqlite');
   await check('byte-based reservation includes output and multibyte input; overflow is rejected', async () => {
     const plain = service.reserveCost([{ role: 'user', content: 'a'.repeat(200) }]);
     const multibyte = service.reserveCost([{ role: 'user', content: '🌿'.repeat(200) }]);
-    assert(multibyte > plain); assert(plain > service.MAX_OUTPUT_TOKENS * .031);
+    assert(multibyte > plain); assert(plain > service.MAX_OUTPUT_TOKENS * .078);
+    assert.equal(service.MODEL, '@cf/meta/llama-4-scout-17b-16e-instruct');
+    const prompt = [{role:'user',content:'a'.repeat(12000)}];
+    const pricedUpperBound = ((Buffer.byteLength(JSON.stringify(prompt)) + 1024) * 24545 + service.MAX_OUTPUT_TOKENS * 77273) / 1000000;
+    assert(service.reserveCost(prompt) >= pricedUpperBound * 1.1, 'Reservation must cover the reviewed model rates and safety margin.');
     assert.throws(() => service.reserveCost([{ role: 'user', content: 'a'.repeat(service.MAX_INPUT_BYTES) }]), e => e.status === 413);
     assert.equal(service.safeSourceUrl('https://user:pass@repocompany.uk/'), null);
     assert.equal(service.safeSourceUrl('javascript:alert(1)'), null);

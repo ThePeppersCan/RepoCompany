@@ -1,5 +1,5 @@
 (()=>{'use strict';const reduced=matchMedia('(prefers-reduced-motion: reduce)');
- let mascotId=0;const aiRigs=[];
+ let mascotId=0;const aiRigs=new Set();
  const clamp=x=>Math.max(0,Math.min(1,x)),smooth=(a,b,x)=>{const p=clamp((x-a)/(b-a));return p*p*(3-2*p);},env=(t,a,b,c,d)=>smooth(a,b,t)*(1-smooth(c,d,t));
  function createMascot(host){
   const id='face-'+(++mascotId), art=window.repoWibsArt;
@@ -18,8 +18,8 @@
   }
   function tick(now){frame=0;if(document.hidden||!host.isConnected||reduced.matches)return;const dt=prev?Math.min((now-prev)/1000,.04):.016;prev=now;if(draw(dt))frame=requestAnimationFrame(tick);}
   function wake(){if(!frame&&!reduced.matches){prev=0;frame=requestAnimationFrame(tick);}}
-  const trigger=host.closest('button')||host;trigger.addEventListener('pointerenter',()=>{hover=true;wake();});trigger.addEventListener('pointerleave',()=>{hover=false;wake();});trigger.addEventListener('focus',()=>{focus=trigger.matches(':focus-visible');wake();});trigger.addEventListener('blur',()=>{focus=false;wake();});
-  const controller={set(next){mode=next;if(next==='found')foundAt=clock;if(next==='thinking'){kind='';thoughtAt=-100;}wake();},stop(){mode='idle';hover=focus=false;wake();}};aiRigs.push(controller);draw(0);document.addEventListener('visibilitychange',()=>{prev=0;if(!document.hidden)wake();});reduced.addEventListener('change',()=>{if(reduced.matches){cancelAnimationFrame(frame);frame=0;mode='idle';amount=0;foundAt=-100;draw(0);}else wake();});return controller;
+  const life=new AbortController(),listen=(target,event,handler)=>target.addEventListener(event,handler,{signal:life.signal});const trigger=host.closest('button')||host;listen(trigger,'pointerenter',()=>{hover=true;wake();});listen(trigger,'pointerleave',()=>{hover=false;wake();});listen(trigger,'focus',()=>{focus=trigger.matches(':focus-visible');wake();});listen(trigger,'blur',()=>{focus=false;wake();});
+  const controller={set(next){mode=next;if(next==='found')foundAt=clock;if(next==='thinking'){kind='';thoughtAt=-100;}wake();},stop(){mode='idle';hover=focus=false;wake();},destroy(){cancelAnimationFrame(frame);frame=0;life.abort();aiRigs.delete(controller);}};aiRigs.add(controller);draw(0);listen(document,'visibilitychange',()=>{prev=0;if(!document.hidden)wake();});listen(reduced,'change',()=>{if(reduced.matches){cancelAnimationFrame(frame);frame=0;mode='idle';amount=0;foundAt=-100;draw(0);}else wake();});return controller;
  }
 
 window.repoWibsworthMascot={mount:createMascot,stop:()=>aiRigs.forEach(r=>r.stop())};})();

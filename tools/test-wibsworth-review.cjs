@@ -56,7 +56,38 @@ const {DatabaseSync} = require('node:sqlite');
       const evidence = JSON.parse(reference.content.slice(reference.content.indexOf('\n') + 1));
       assert.equal(evidence.calculations.find(item => item.id === 'finisher').stats.mainFinisherMultiplier, 1.625);
       assert.equal(evidence.calculations.find(item => item.id === 'special').stats.perChargeSeconds, 10.4);
+      assert.equal(evidence.calculations.find(item => item.id === 'finisher').stats.mainFinisherDamage, undefined, 'Synthetic hit amounts must not masquerade as actual game stats');
+      assert.equal(evidence.calculations.find(item => item.id === 'echo').stats.combinedIncreasePercent, 31.75);
+      assert.equal(evidence.calculations.find(item => item.id === 'crowds').stats.exampleSum, undefined);
     } finally { f.close(); }
+  });
+  await check('plain and misspelled catalogue questions reach the real model with game identities, not relic examples', async () => {
+    for(const question of ['what games are available','what games are avalible','What can I play with a friend?']){
+      const f=fixture();try{
+        const response=await f.request('chat',{question,history:[{role:'user',content:'what games are available'},{role:'assistant',content:'Glass Pepper and Lead Apricot are games.'}]});
+        assert.equal(response.status,200,JSON.stringify(response.body));
+        assert.equal(f.calls,1);
+        const reference=f.messages.find(m=>m.content.startsWith('Verified reference data'));
+        const evidence=JSON.parse(reference.content.slice(reference.content.indexOf('\n')+1));
+        assert.deepEqual(evidence.catalogue.mainGames,['Moratales','Velmora Manager','Morogue']);
+        assert.equal(evidence.catalogue.demoTitles.length,8);
+        assert.equal(evidence.catalogue.verifiedFriendPlay.Moratales,'two-player co-op');
+        assert.equal(evidence.calculations.length,0);
+        assert.ok(!JSON.stringify(evidence).includes('Glass Pepper'));
+        assert.ok(!f.messages.filter(m=>m.role==='system').some(m=>/Glass Pepper|Lead Apricot/.test(m.content)));
+        assert.ok(response.body.sources.some(s=>s.id==='demos-overview'));
+      }finally{f.close();}
+    }
+  });
+  await check('ordinary general questions keep the small game identity map without irrelevant source badges',async()=>{
+    const f=fixture();try{
+      const response=await f.request('chat',{question:'What is a cow?'});
+      assert.equal(response.status,200);assert.equal(f.calls,1);assert.equal(response.body.sources.length,0);
+      const reference=f.messages.find(m=>m.content.startsWith('Verified reference data'));
+      const evidence=JSON.parse(reference.content.slice(reference.content.indexOf('\n')+1));
+      assert.equal(evidence.mode,'general-knowledge');assert.equal(evidence.facts.length,0);
+      assert.ok(evidence.catalogue.mainGames.includes('Morogue'));
+    }finally{f.close();}
   });
   await check('reservation timestamps are refreshed after asynchronous retrieval', async () => {
     const f = fixture({duringRetrieval: now => now + 120000}); try {
