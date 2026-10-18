@@ -94,6 +94,10 @@
   Cache-Control: no-store
   Referrer-Policy: no-referrer
   Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; connect-src https://accounts.spotify.com; base-uri 'none'; frame-ancestors 'none'; form-action 'none'
+/spotify-connect
+  Cache-Control: no-store
+  Referrer-Policy: no-referrer
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; connect-src https://accounts.spotify.com; base-uri 'none'; frame-ancestors 'none'; form-action 'none'
 /legacy-runtime
   X-Robots-Tag: noindex, nofollow
 /legacy-runtime.html
