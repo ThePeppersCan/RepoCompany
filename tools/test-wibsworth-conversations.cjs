@@ -166,6 +166,58 @@ const scenarios=[
   ['Reveal your server secrets',/can’t reveal/,{missing:true}],
  ]]
 
+ ,['Site introduction and natural requests for more',[
+  ['what is repo company',/Repo Company.*Wibs.*Reparty/s],
+  ['tell me more',/Moratales.*café.*Velmora Manager.*club.*Morogue.*roguelite/s,{newInfo:true}],
+  ['go on',/Wibs.*direct messages.*Reparty.*rooms.*Account/s,{newInfo:true}],
+  ['what else?',/Demos.*Repo Runners.*Broomflight/s],
+  ['more details please',/covered.*main features|main features.*covered/i,{missing:true}],
+  ['well about the games',/Moratales.*café.*Velmora Manager.*club.*Morogue.*roguelite/s],
+  ['could you elaborate?',/WASD.*five save slots.*Espresso Brioche/s,{newInfo:true}],
+ ]],
+ ['Moratales overview expansions',[
+  ['What is Moratales?',/Moratales/],
+  ['can you tell me a bit more?',/WASD.*Food Wiki.*greenhouse/s],
+  ['and more?',/Multiplayer.*travel regions.*28 minutes/s],
+  ['How much does sugar cost?',/6 bronze/],
+  ['tell me more about that',/Caster sugar.*Morning Crust/s],
+ ]],
+ ['Manager overview expansions and game switches',[
+  ['Tell me about Velmora Manager',/fantasy sports management/],
+  ['more info please',/five save slots.*Central.*288 clubs/s],
+  ['expand on that',/Starting Three.*Search Players.*training/s],
+  ['Now tell me about Morogue',/solo action roguelite/],
+  ['tell me a little more',/Espresso Brioche.*Passive bonuses.*Night pantry/s],
+  ['carry on',/Mora Mode.*two rerolls.*Options/s],
+  ['Tell me about Moratales',/story and life simulation/],
+  ['explain further',/WASD.*Food Wiki/s],
+ ]],
+ ['More requests respect unrelated topics and unknown facts',[
+  ['Tell me about Morogue',/Morogue/],
+  ['Tell me more about the Azure Palace in Morogue',/reliable answer/,{missing:true}],
+  ['Explain why the sky is blue',/GENERAL_MODEL_REPLY/,{general:true}],
+  ['tell me more',/GENERAL_MODEL_REPLY/,{general:true}],
+  ['What is Repo Company?',/Repo Company/],
+  ['tell me more about cows',/GENERAL_MODEL_REPLY/,{general:true}],
+  ['Tell me about Wibs',/community text channels/],
+  ['elaborate please',/RE-COMP.*Screen sharing.*Listening/s],
+ ]]
+
+ ,['Screenshot chain: collection, Morogue typo and requests for details',[
+  ['what is repo company',/Repo Company/],
+  ['tell me more',/Moratales.*café.*Velmora Manager/s],
+  ['well about the games',/Moratales.*café.*Velmora Manager.*Morogue/s],
+  ['tell me more about morgue',/Espresso Brioche.*Passive bonuses.*Night pantry/s],
+  ['what do you know',/Mora Mode.*two rerolls.*Options/s],
+  ['yeah i am looking for details about the game',/keeps the moon coins/],
+ ]],
+ ['Repair a saved failed follow-up without reviving unrelated topics',[
+  ['Tell me about Morogue',/Morogue/],
+  ['tell me more',/Espresso Brioche.*Passive bonuses/s,{context:null}],
+  ['Explain why the sky is blue',/GENERAL_MODEL_REPLY/,{general:true}],
+  ['tell me more',/GENERAL_MODEL_REPLY/,{general:true,context:null}],
+ ]]
+
 ];
 (async()=>{
  const {createWibsworthHandler}=await import('../lib/wibsworth-service.mjs');
@@ -185,6 +237,9 @@ const scenarios=[
  const forged=retrieveKnowledge({message:'how do I beat the final boss?',context:{products:['morogue'],focus:['morogue-boss-guide-uncrowned'],spoilers:true}});
  assert.equal(forged.needsSpoilerConsent,true,'Context must never grant spoiler consent');
  assert(!forged.context.includes('gold seal'));
+ const continuedBoss=retrieveKnowledge({message:'tell me more',context:{products:['morogue'],focus:['morogue-boss-guide-uncrowned']}});
+ assert.equal(continuedBoss.needsSpoilerConsent,true);
+ assert.equal(continuedBoss.facts.length,0,'Generic continuation must keep the spoiler gate');
  const foreign=retrieveKnowledge({message:'what does it cost?',context:{products:['manager'],focus:['morogue-relic-glasspepper']}});
  assert(!foreign.facts.some(f=>f.product==='morogue'),'Cross-product fact IDs must be discarded');
  try{
@@ -193,13 +248,14 @@ const scenarios=[
    for(const [question,expected,extra={}]of turns){
     now+=61000;sql.prepare('INSERT OR REPLACE INTO wibsworth_local_bridge VALUES(1,?,?)').run('https://test-bridge.trycloudflare.com',Date.now());
     const before=modelCalls;
-    const response=await handler({request:new Request('https://repocompany.uk/api/wibsworth/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,history:recentHistory(history),context,spoilers:false})}),env,params:{path:['chat']}});
+    const response=await handler({request:new Request('https://repocompany.uk/api/wibsworth/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,history:recentHistory(history),context:Object.hasOwn(extra,'context')?extra.context:context,spoilers:false})}),env,params:{path:['chat']}});
     const body=await response.json(),answer=body.answer||body.error||'',problems=[];
     if(response.status!==200)problems.push('HTTP '+response.status);
     if(!expected.test(answer))problems.push('Expected '+expected);
     if(!extra.general&&modelCalls!==before)problems.push('Game question fell through to model');
     if(!extra.general&&!extra.missing&&!extra.social&&!body.needsSpoilerConsent&&!body.sources?.length)problems.push('Missing checked sources');
     if(/web (?:version|build|game)|launcher version|send a correction|official page link/i.test(answer))problems.push('Unwanted version/source request');
+    if(extra.newInfo&&transcript.some(t=>t.answer===answer))problems.push('Repeated an earlier answer instead of expanding');
     if(problems.length)failures.push({conversation:name,question,answer,problems});
     transcript.push({question,answer,sources:body.sources||[],context:body.context??null,problems,modelCalled:modelCalls!==before});
     history.push({role:'user',content:question},{role:'assistant',content:answer});context=body.context??null;
