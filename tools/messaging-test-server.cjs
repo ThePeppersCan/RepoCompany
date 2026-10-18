@@ -88,6 +88,11 @@ async function createFixture(fixtureOptions={}){
    else if(url.pathname.endsWith('/state')){const friends=sql.prepare("SELECT CASE WHEN player_a=? THEN player_b ELSE player_a END username,status,requester FROM dashboard_friendships WHERE player_a=? OR player_b=?").all(who,who,who).map(f=>({...f,display_name:f.username[0].toUpperCase()+f.username.slice(1),online:1,repo_score:120}));response=Response.json({username:who,profile:{display_name:who[0].toUpperCase()+who.slice(1),bio:'Ready for another adventure.',repo_score:120},friends,blocks:[],activity:[],friend_activity:[]})}
    else if(url.pathname.endsWith('/profile'))response=Response.json({username:'bob',relationship:'accepted',profile:{username:'bob',display_name:'Bob',repo_score:120,online:1},activity:[{game:'morogue',played_ms:3600000,last_played:Date.now()}],mutual_friends:[]});
    else response=Response.json({ok:true});
+  }else if(url.pathname==='/api/accounts/status'){
+   // Messaging fixtures represent existing verified accounts. Account onboarding
+   // and approval permissions are exercised separately by test-accounts.cjs.
+   const who=Object.entries(sessions).find(([,s])=>req.headers.authorization==='Bearer '+s.access_token)?.[0];
+   response=who?Response.json({verified:true,email:who+'@example.invalid',canApprove:false}):Response.json({error:'Sign in'},{status:401});
   }else if(url.pathname.startsWith('/api/'))response=Response.json({characters:[],slots:[],achievements:[]});
   else{let file=path.resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));if(!fs.existsSync(file)&&['repo-login-template.js','repo-game-loader.js'].includes(path.basename(file)))file=path.join(root,'dist',path.basename(file));if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);res.end();return;}res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'});fs.createReadStream(file).pipe(res);return;}
   res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
