@@ -75,6 +75,10 @@ completion statistics are cached for five minutes.
    secret on `repocompany-chat-maintenance`. It must be a server-only Supabase key.
 5. Deploy `workers/chat-maintenance/wrangler.toml`, with its hourly cron, and the
    website. Do not enable a paid Cloudflare plan for this feature.
+   Secrets take effect in a new deployment. After publishing, check
+   `/api/chat-images/status`: it must return HTTP 200 with `available: true`.
+   This checks the running function's binding rather than a masked settings entry;
+   the response contains no credentials or image information.
 6. Apply `dashboard-chat-images-limit-30.sql` to raise the per-account rolling
    allowance to 30. It preserves existing images and the shared storage/traffic caps.
 
