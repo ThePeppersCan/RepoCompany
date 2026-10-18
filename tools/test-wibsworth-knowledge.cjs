@@ -79,7 +79,8 @@ async function run(){
   const {LORE_FACTS,LORE_SOURCES}=await import(pathToFileURL(path.join(root,'lib/wibsworth-lore-data.mjs')));
   const {EXPANDED_FACTS,EXPANDED_SOURCES}=await import(pathToFileURL(path.join(root,'lib/wibsworth-expanded-data.mjs')));
   const {FINAL_BOSS_FACTS,FINAL_BOSS_SOURCES}=await import(pathToFileURL(path.join(root,'lib/wibsworth-final-boss-data.mjs')));
-  const FACTS=[...baseFacts,...LORE_FACTS,...EXPANDED_FACTS,...FINAL_BOSS_FACTS],SOURCE_MANIFEST=[...baseSources,...LORE_SOURCES,...EXPANDED_SOURCES,...FINAL_BOSS_SOURCES];
+  const {GAME_GUIDE_FACTS,GAME_GUIDE_SOURCES}=await import(pathToFileURL(path.join(root,'lib/wibsworth-game-guide-data.mjs')));
+  const FACTS=[...baseFacts,...LORE_FACTS,...EXPANDED_FACTS,...FINAL_BOSS_FACTS,...GAME_GUIDE_FACTS],SOURCE_MANIFEST=[...baseSources,...LORE_SOURCES,...EXPANDED_SOURCES,...FINAL_BOSS_SOURCES,...GAME_GUIDE_SOURCES];
   verifySources(knowledgeSources);
   if(process.argv.includes('--verify-published'))await verifyPublishedSources(knowledgeSources);
   if(process.argv.includes('--sources-only')){console.log(`Wibsworth source preflight passed: ${knowledgeSources.length} reviewed source pins.`);return;}

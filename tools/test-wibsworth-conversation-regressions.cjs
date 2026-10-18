@@ -19,7 +19,17 @@ const {DatabaseSync}=require('node:sqlite');
  assert.equal((await modelHeartbeat('Qwen3 4B Instruct')).status,200);
  const handler=createWibsworthHandler({config:{},retrieveKnowledge,isCanonicalProduct,clock:()=>now,identify:async request=>({id:request.headers.get('Authorization')||alice})});
  async function ask(question,extra={},who=alice){const response=await handler({request:new Request('https://repocompany.uk/api/wibsworth/chat',{method:'POST',headers:{Authorization:who,'Content-Type':'application/json'},body:JSON.stringify({question,...extra})}),env,params:{path:['chat']}});return {status:response.status,retryHeader:response.headers.get('Retry-After'),body:await response.json()};}
- const noVersion=answer=>assert.doesNotMatch(answer,/web (?:version|build|game)|launcher|installed|your version/i);
+ const noVersion=answer=>assert.doesNotMatch(answer,/web (?:version|build|game)|launcher|installed (?:version|build|game)|your version/i);
+ for(const [question,expected]of [
+  ['what are the locations in moratales',/Brindlewick, Glass Mile and Merrowby/],
+  ['Where do I buy sugar in Moratales?',/Arthur/],
+  ['How do I make scones in Moratales?',/2 Morning Crust flour/],
+  ['How do I get to Glass Mile in Moratales?',/seven Brindlewick milestones/],
+  ['What worlds are in Velmora Manager?',/Kharova, Caldria and Ezuraya/],
+  ['What is the Night pantry in Morogue?',/60, 120 and 180/]
+ ]){
+  now+=61000;const r=await ask(question,{platform:'launcher'});assert.equal(r.status,200);assert.match(r.body.answer,expected,question);noVersion(r.body.answer);assert(r.body.sources.length);assert.doesNotMatch(r.body.answer,/send a correction|official page link/i);
+ }
  for(const question of ['So what is Repo Company then?','Could you tell me a bit about Repo Company please?','What is RepoCompany exactly?']){
   now+=61000;const r=await ask(question);assert.equal(r.status,200);assert.match(r.body.answer,/Wibs/);assert.match(r.body.answer,/Reparty/);
  }

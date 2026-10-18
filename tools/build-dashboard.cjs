@@ -5,6 +5,7 @@ if(!process.argv.includes('--preserve-game-integrations'))require('./build-game-
 // Check the actual post-generation inputs before copying anything to the public
 // bundle. Publishing a changed game/help source requires reviewing its AI facts.
 require('node:child_process').execFileSync(process.execPath,[path.join(__dirname,'test-wibsworth-knowledge.cjs'),'--sources-only'],{stdio:'inherit'});
+require('node:child_process').execFileSync(process.execPath,[path.join(__dirname,'test-wibsworth-game-guide.cjs')],{stdio:'inherit'});
 fs.mkdirSync(dist,{recursive:true});
 const includeDirs=['assets','game-integrations','original-case-assets','account-assets','audio','vendor','dragonbound-career-mode','reparty','repo-runners'];
 const requiredStaticAssets=['moratales-characters.html','moratales-characters.js','moratales-characters.css','repo-character-sync.js','repo-client-download.css','repo-messaging.js','repo-messaging.css'];

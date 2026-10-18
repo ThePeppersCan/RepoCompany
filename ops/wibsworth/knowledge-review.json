@@ -1,14 +1,14 @@
 {
   "reviewedAt": "2026-10-18",
-  "knowledgeVersion": "2026-10-18.4",
-  "method": "Reviewed active public game entry dependencies, their loaded gameplay/UI modules, and the current website routes. Structured gameplay catalogues were read without running a game. This is a source/content review, not a complete playthrough or a claim to have tested every game state.",
+  "knowledgeVersion": "2026-10-18.5",
+  "method": "Reviewed the three active public game entries and loaded gameplay/UI modules. Inspected Moratales main menu, fresh character, area guide and all backpack tabs; Manager setup and Central, Squad/tactics/training/dynamics/youth/archive, Transfers, Season, Office and Matchday; Morogue main menu, Journal, Combat guide, Evolutions, Bestiary/worlds, Night pantry, Wardrobe and Options. Story-gated screens and catalogue rules were checked in their active public source. This is not a complete playthrough of every story or every possible save state.",
   "releasedContentOnly": true,
-  "facts": 230,
-  "sourcePins": 66,
+  "facts": 984,
+  "sourcePins": 108,
   "coverage": {
-    "Moratales": "Save slots and backups, controls, journal and quests, decorating, greenhouse crops and watered growth, pets, staff/wages, coffee/roasting/cafe/menu economics, released village and Merrowby story references.",
-    "Velmora Manager": "Career and online-career UI, local/cloud save status, training and preparation with conditions, recruitment/scouting, assistant advice, contracts, transfer windows and loan recalls.",
-    "Morogue": "Current web controls and build slots, all six specials, 53 perk entries, four keystones, all 55 merchant relics/prices, five conditional build calculations, all 23 boss names and twelve major-boss move/counterplay guides.",
+    "Moratales": "Travel regions, village districts and shops; opening hours, calendar/seasons, controls, quests and story routes, coffee/roasting, staff/wages, café displays/pricing/rent, furniture/storage, co-op, energy, all 44 crops, 88 recipes, 76 supplier ingredients, 42 resident entries and 50 potential colleagues.",
+    "Velmora Manager": "Career navigation and starting paths, player career, club selection, all 288 club setup profiles and four world profiles, squad/tactics/dynamics/training/youth, scouting/transfers/budget allocation, matchday, cups/records/archive, office/board/staff/contracts, online career and local/cloud save guidance.",
+    "Morogue": "Menus, controls/options, modes, permanent pantry upgrades, currency, evolutions/pickups, rerolls, merchant, leaderboard rules, all 30 worlds, 20 ordinary enemy types, six events, 18 cosmetics, six specials, 53 perks, four keystones, 55 merchant relics, conditional build calculations and boss guides.",
     "Demos": "Brief current catalogue and play guidance for Broomflight, Dragonbound, Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas, Repo Sports and Repo Runners; approved historical Repo Sports World Cup material remains available.",
     "Account": "Sign-in, friends/privacy, RepoScore versus Repoints, achievements, packs, inventory visibility, card/slab binders.",
     "Wibs": "Channels/DMs, voice controls, screen sharing, GIF playback, usage, themes/layout and activity.",
@@ -20,10 +20,10 @@
   "knownLimits": [
     "General knowledge can still be wrong. No live web search or external paid provider fallback.",
     "Build comparisons preserve conditions, costs and trade-offs; they are not a proof of a universal highest-DPS build.",
-    "New game facts cover the reviewed current web versions. Installed launcher builds require a matching verified version before asserting identical stats.",
     "A displayed online feature is not proof its external service is currently available.",
     "No access to members' private messages, game saves, inventories or balances.",
-    "No unreviewed assets, unreleased material or automatically learned member claims."
+    "No unreviewed assets, unreleased material or automatically learned member claims.",
+    "A finite reviewed library cannot guarantee every future question. Game changes require a new review; source checks fail on drift. Normal answers discuss one game without platform qualifiers."
   ],
   "maintenance": "Source pin tests fail on changed local content; --verify-published checks remote bytes and active game script references. Review changed facts before updating pins. A fact suggestion remains pending even when related published source bytes match. Approving a correction requires a current Developer role.",
   "tests": [
@@ -35,6 +35,8 @@
     "test-wibsworth-review.cjs",
     "test-wibsworth-local-client.cjs",
     "test-wibsworth-usage-client.cjs",
-    "test-wibsworth-completion-sound.cjs"
+    "test-wibsworth-completion-sound.cjs",
+    "test-wibsworth-game-guide.cjs",
+    "test-wibsworth-conversation-regressions.cjs"
   ]
 }

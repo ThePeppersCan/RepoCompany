@@ -46,7 +46,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  ];
  for(const [q,pattern]of cases){const {answer,k}=ask(q);assert.ok(answer,q+' '+JSON.stringify(k));assert.match(answer.answer,pattern,q);assert(answer.sources.every(s=>s.url.startsWith('https://')));}
  for(const p of PRODUCTS.filter(p=>['runners','broomflight','dragonbound','diver','goblin','rooftops','seas','sports'].includes(p.id)))assert.ok(ask('What is '+p.name+'?').answer?.answer.includes(p.name),p.name);
- const unknown=ask('What is Crimson Spire in Morogue?');assert.equal(unknown.k.facts.length,0);assert.match(unknown.k.needsClarification,/official page link/);
+ const unknown=ask('What is Crimson Spire in Morogue?');assert.equal(unknown.k.facts.length,0);assert.match(unknown.k.needsClarification,/Which item, place or screen/);
  const spoiled=ask('How do I beat the Kiln Sovereign in Morogue?');assert.equal(spoiled.k.needsSpoilerConsent,true);assert.equal(spoiled.answer,null);
  assert.match(ask('How do I beat the Kiln Sovereign in Morogue?',{spoilers:true}).answer.answer,/furnace/);
  assert.match(ask('How do I beat the Kiln Sovereign boss in Morogue?',{spoilers:true}).answer.answer,/furnace/);
