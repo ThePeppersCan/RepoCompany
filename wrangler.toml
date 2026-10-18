@@ -2,6 +2,18 @@ name = "repocompany"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-08-06"
 
+[vars]
+WIBSWORTH_AI_ENABLED = "false"
+
+[env.preview.vars]
+WIBSWORTH_AI_ENABLED = "false"
+
+[env.production.vars]
+WIBSWORTH_AI_ENABLED = "true"
+
+[env.production.ai]
+binding = "AI"
+
 [[d1_databases]]
 binding = "DASHBOARD_DB"
 database_name = "repo-dashboard-staging"

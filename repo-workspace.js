@@ -22,7 +22,7 @@
   const tools=el('div','ws-compose-tools'),send=button('↑',()=>{});send.disabled=true;send.setAttribute('aria-label','Send — AI is not connected yet');send.title='AI is not connected yet';
   tools.append(el('span','','Wibsworth'),send);form.append(input,tools);form.onsubmit=e=>e.preventDefault();
   body.append(welcome,form,el('p','ws-compose-note','AI chat is coming soon. Your draft stays on this device.'));ai.append(head,body);wibs.querySelector('.rc-center').append(ai);
-  for(const host of [sideMascot,welcomeMascot])window.repoWibsworthMascot?.mount(host);
+  for(const host of [sideMascot,welcomeMascot])host.wibsworthRig=window.repoWibsworthMascot?.mount(host);
   function draftKey(){return 'repo-wibsworth-draft:'+ (window.repoAccount?.state.user?.id||'signed-out');}
   function saveDraft(){try{localStorage.setItem(draftKey(),input.value);}catch{}}
   function restoreDraft(){try{input.value=localStorage.getItem(draftKey())||'';}catch{input.value='';}}
