@@ -2,3 +2,12 @@
 .account .download-client:hover{color:#fff3cf}
 [data-repo-launcher="true"] #download-client{display:none!important}
 @media(max-width:700px){.home-mode .account .download-client{gap:10px}}
+.repo-downloads{box-sizing:border-box;width:calc(100% - 32px);max-width:600px;max-height:calc(100dvh - 32px);overflow:auto;padding:32px;border:1px solid #c4d6aa33;border-radius:18px;background:#17221c;color:#eceade;font:15px/1.6 "Segoe UI",Arial,sans-serif;box-shadow:0 30px 100px #0007}
+.repo-downloads::backdrop{background:#0009;backdrop-filter:blur(8px)}
+.repo-download-close{float:right;min-width:44px;min-height:44px;color:inherit;background:none;border:0;font-size:28px;cursor:pointer}
+.repo-download-brand{width:64px;height:64px;object-fit:contain}.repo-download-eyebrow{margin:20px 0 6px;color:#bdc8ac;font-size:10px;letter-spacing:.16em}
+.repo-downloads h2{font-size:28px;line-height:1.2;margin:0 0 12px}.repo-download-intro{color:#c6cabe;margin:0 0 24px}
+.repo-download-options{display:grid;gap:12px}.repo-download-option{display:flex;align-items:center;gap:18px;padding:20px;border:1px solid #c4d6aa30;border-radius:12px;background:#ffffff04;text-decoration:none;color:inherit}.repo-download-option:hover{background:#c4d6aa10;border-color:#c4d6aa80}.repo-download-option:focus-visible,.repo-download-close:focus-visible{outline:2px solid #d1dfb5;outline-offset:3px}.repo-download-option>span:nth-child(2){flex:1}.repo-download-option strong{display:block;font-size:18px;font-weight:600}.repo-download-option small{display:block;color:#d0d5bf;font-size:12px;margin:2px 0 8px}.repo-download-option span span{display:block;color:#bfc8bc;font-size:13px}.repo-download-device{font-size:34px;color:#d3ddb9}.repo-download-option>b{font-size:21px;font-weight:400}.repo-download-note{font-size:12px;color:#bfc8bc;margin:22px 0 0}
+@media(max-width:480px){.repo-downloads{padding:22px}.repo-download-option{padding:16px;gap:12px}}
+
+.repo-download-device{display:block;width:32px;flex:none}.repo-download-device svg{display:block;width:32px;height:36px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}

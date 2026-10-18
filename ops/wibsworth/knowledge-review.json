@@ -1,6 +1,6 @@
 {
   "reviewedAt": "2026-10-18",
-  "knowledgeVersion": "2026-10-18.6",
+  "knowledgeVersion": "2026-10-18.9",
   "method": "Reviewed the three active public game entries and loaded gameplay/UI modules. Inspected Moratales main menu, fresh character, area guide and all backpack tabs; Manager setup and Central, Squad/tactics/training/dynamics/youth/archive, Transfers, Season, Office and Matchday; Morogue main menu, Journal, Combat guide, Evolutions, Bestiary/worlds, Night pantry, Wardrobe and Options. Story-gated screens and catalogue rules were checked in their active public source. This is not a complete playthrough of every story or every possible save state.",
   "releasedContentOnly": true,
   "facts": 991,
@@ -39,5 +39,6 @@
     "test-wibsworth-completion-sound.cjs",
     "test-wibsworth-game-guide.cjs",
     "test-wibsworth-conversation-regressions.cjs"
-  ]
+  ],
+  "appInstallReview": "Reviewed the phone install instructions and Phone/Desktop Download chooser. Added verified iPhone and Android installation guidance; reviewed profile/Wibs artwork-only changes without changing game facts. Account login remains username/password with approved email invitations."
 }

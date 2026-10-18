@@ -33,12 +33,12 @@
  });
  $('sign-in-mode').addEventListener('click',()=>{location.href='/account-access/?mode=request';});
  const reset=document.createElement('button');reset.type='button';reset.className=$('sign-in-mode').className;reset.textContent='Forgot password?';reset.onclick=()=>{location.href='/account-access/?mode=recover';};$('sign-in-mode').after(reset);
- const phone=document.createElement('a');phone.href='/app/';phone.textContent='Get the phone app';phone.style.cssText='display:block;text-align:center;color:inherit;font-size:12px;margin-top:12px';if(html.dataset.repoCompanion!=='true')form.append(phone);
+ const phone=document.createElement('a');phone.href='/app/?install=1';phone.textContent='Get the app · Phone or desktop';phone.onclick=event=>{if(window.repoDownloads){event.preventDefault();window.repoDownloads.open();}};phone.style.cssText='display:block;text-align:center;color:inherit;font-size:12px;margin-top:12px';if(html.dataset.repoCompanion!=='true')form.append(phone);
  $('password-visibility').addEventListener('click',()=>{const visible=password.type==='password';password.type=visible?'text':'password';$('password-visibility').setAttribute('aria-pressed',String(visible));$('password-visibility').setAttribute('aria-label',visible?'Hide password':'Show password');});
  addEventListener('repo-account-state',render);
  // Native sign-in is owned by the launcher; its hidden portal must stay usable.
  new MutationObserver(render).observe(html,{attributes:true,attributeFilter:['data-repo-launcher']});
  // A deep link must not place an account dialog above the login gate.
- new MutationObserver(records=>{if(!host.open)return;if(records.some(r=>r.target!==host&&r.target.matches('dialog[open]'))){host.close();host.showModal();}}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
+ new MutationObserver(records=>{if(!host.open)return;if(records.some(r=>r.target!==host&&r.target.matches('dialog[open]:not(#repo-downloads):not(.repo-phone-install)'))){host.close();host.showModal();}}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['open']});
  render();
 })();

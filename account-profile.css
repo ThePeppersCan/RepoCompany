@@ -46,6 +46,8 @@
 .account-dashboard .banner-rooftops .profile-banner-title{font-size:7.8cqw;color:#ffe3ad}
 .account-dashboard .banner-seas .profile-banner-title{font-size:10.3cqw;letter-spacing:.02em;line-height:.94;color:#dfedf0}
 .account-dashboard .banner-sports .profile-banner-logo{left:6%;width:35%;max-height:66%}
+.account-dashboard .banner-runners:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#131124de,transparent 70%);z-index:0;pointer-events:none}
+.account-dashboard .banner-runners .profile-banner-title{z-index:1;font-family:Impact,"Arial Narrow",sans-serif;font-size:10cqw;letter-spacing:.025em;color:#f8f4db}
 .profile-start-games .profile-game-banner{width:100%;margin:0}
 .profile-achievement-games .profile-game-banner{width:100%;margin-bottom:20px}
 @media(max-width:1200px) and (min-width:951px){.profile-game-link{gap:16px}.profile-game-link>.profile-game-banner{width:180px}.profile-recent-game{gap:12px 15px}.profile-game-link b{font-size:16px}.profile-game-link small{font-size:10px}}

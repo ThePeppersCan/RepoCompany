@@ -1,6 +1,7 @@
 (() => {
  'use strict';
  if(document.documentElement.dataset.repoCompanion!=='true')return;
+ const wantsInstall=new URL(location.href).searchParams.get('install')==='1';
  const allowed=name=>/^(wibs|wibsworth|reparty)$/.test(name)||/^account(?:\/(?:profile|friends|inventory|achievements|settings|shop|binder|slabs)(?:\/[a-zA-Z0-9_-]+)?)?$/.test(name);
  const back=document.querySelector('#account-menu .account-return');if(back)back.textContent='Back to Wibs';document.querySelector('#account-menu .account-back')?.setAttribute('aria-label','Back to Wibs');const footer=document.querySelector('#account-menu .account-footer>span');if(footer)footer.textContent='Repo Company · Your account';
  const open=()=>{if(!window.repoAccount?.state.user)return;window.accountMenu?.close({route:false});window.repoMessaging?.open('',{intro:false});};
@@ -12,8 +13,8 @@
  window.repoRoutes?.start();
  document.addEventListener('close',event=>{if(event.target.id==='account-menu'&&window.repoAccount?.state.user&&!document.querySelector('#repo-messages[open],#repo-reparty[open]'))queueMicrotask(open);},true);
  // Reflect the visual viewport when the keyboard opens; keep composer reachable.
- const viewport=()=>{document.documentElement.style.setProperty('--phone-height',(visualViewport?.height||innerHeight)+'px');};
- visualViewport?.addEventListener('resize',viewport);addEventListener('resize',viewport);viewport();
+ const viewport=()=>{const v=window.visualViewport,style=document.documentElement.style;document.documentElement.dataset.phoneCompact=String((v?.height||innerHeight)<600);style.setProperty('--phone-height',(v?.height||innerHeight)+'px');style.setProperty('--phone-top',(v?.offsetTop||0)+'px');style.setProperty('--phone-safe-bottom',v&&innerHeight-v.height>140?'0px':'env(safe-area-inset-bottom,0px)');};
+ window.visualViewport?.addEventListener('resize',viewport);window.visualViewport?.addEventListener('scroll',viewport);addEventListener('resize',viewport);addEventListener('pageshow',viewport);viewport();
  let deferred;
  addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferred=event;});
  const installed=()=>matchMedia('(display-mode:standalone)').matches||navigator.standalone===true;
@@ -22,5 +23,6 @@
  const login=document.querySelector('#repo-login>div');if(login)login.append(button);
  const drawer=document.querySelector('.rc-sidebar-bottom');if(drawer){const shortcut=button.cloneNode(true);shortcut.onclick=button.onclick;drawer.append(shortcut);}
  function visibility(){for(const b of document.querySelectorAll('.repo-phone-install-button'))b.hidden=installed();}visibility();addEventListener('appinstalled',visibility);
+ if(wantsInstall&&!installed()){dialog.showModal();const url=new URL(location.href);url.searchParams.delete('install');history.replaceState(history.state,'',url.pathname+url.search+url.hash);}
  if('serviceWorker' in navigator)navigator.serviceWorker.register('/app/sw.js',{scope:'/app/'}).catch(()=>{});
 })();

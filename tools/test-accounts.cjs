@@ -7,7 +7,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  f.sql.exec(fs.readFileSync(path.join(root,'dashboard-accounts-schema.sql'),'utf8'));
  global.fetch=async(input,options={})=>{
   const url=String(input),body=JSON.parse(options.body||'{}'),token=new Headers(options.headers).get('Authorization')?.replace('Bearer ',''),user=users[token];
-  if(url==='https://api.resend.com/emails'){assert.equal(new Headers(options.headers).get('Authorization'),'Bearer fixture-only');if(failEmail)return Response.json({error:'fixture outage'},{status:503});emails.push(body);return Response.json({id:crypto.randomUUID()});}
+  if(url==='https://api.resend.com/emails'){assert.equal(body.from,'Repo Company <Wibs@accounts.repocompany.uk>');assert.equal(new Headers(options.headers).get('Authorization'),'Bearer fixture-only');if(failEmail)return Response.json({error:'fixture outage'},{status:503});emails.push(body);return Response.json({id:crypto.randomUUID()});}
   if(url===config.url+'/auth/v1/user'&&options.method!=='PUT')return Response.json(user||{error:'Invalid'}, {status:user?200:401});
   if(url.endsWith('/rest/v1/rpc/get_my_character'))return Response.json([{username:user?.user_metadata.username}]);
   if(url.endsWith('/auth/v1/token?grant_type=password')){const u=Object.values(users).find(u=>u.email===body.email);return Response.json(body.password==='correct-password'&&u?{user:u}:{error:'Wrong password'},{status:body.password==='correct-password'&&u?200:400});}

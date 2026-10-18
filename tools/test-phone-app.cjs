@@ -14,6 +14,17 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
   await p.waitForFunction(()=>document.documentElement.dataset.repoAuth==='ready');await p.locator('#repo-messages[open]').waitFor({timeout:15000});
   assert.equal(await p.locator('[data-nav=collection]:visible').count(),0);assert.equal(await p.locator('script[src*=repo-game-loader],script[src*=repo-web-game],script[src*=legacy-launcher],script[src*=homepage]').count(),0);
   assert(await p.evaluate(()=>!window.repoWebGame&&!window.repoLegacy&&!window.demoLibrary));
+  // Exercise touch targets with iPhone safe areas, landscape cutouts and a shortened keyboard viewport.
+  for(const [width,height,top,bottom,side,label] of [[430,932,59,34,0,'portrait'],[932,430,0,21,59,'landscape'],[390,430,59,0,0,'keyboard'],[320,568,20,0,0,'small']]){
+   await p.setViewportSize({width,height});await p.evaluate(({top,bottom,side})=>{const s=document.documentElement.style;for(const [key,value]of [['top',top],['bottom',bottom],['left',side],['right',side]])s.setProperty('--phone-safe-'+key,value+'px','important');},{top,bottom,side});
+   const controls=p.locator('#repo-messages .repo-section-nav');await controls.getByRole('button',{name:'Wibsworth',exact:true}).click();
+   const geometry=await controls.locator('button:visible').evaluateAll((buttons,{top,bottom,side})=>buttons.map(b=>{const r=b.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return {name:b.getAttribute('aria-label'),safe:r.y>=top&&r.bottom<=innerHeight-bottom&&r.x>=side&&r.right<=innerWidth-side,touch:r.width>=44&&r.height>=44,hit:hit===b||b.contains(hit)};}),{top,bottom,side});assert(geometry.every(b=>b.safe&&b.touch&&b.hit),label+': '+JSON.stringify(geometry));
+   const compose=await p.locator('.ws-compose').boundingBox();assert(compose&&compose.y>=top&&compose.y+compose.height<=height-bottom+1,label+' composer stays in usable viewport');
+   if(label==='portrait')await p.screenshot({path:path.resolve(root,'../../outputs/Phone-safe-area.png')});
+   if(label==='keyboard')await p.screenshot({path:path.resolve(root,'../../outputs/Phone-keyboard-fit.png')});
+   await controls.getByRole('button',{name:'Account',exact:true}).click();await p.locator('#account-menu[open]').waitFor();await p.locator('#account-menu .repo-section-nav [data-nav=wibs]').click();await p.locator('#repo-messages[open]').waitFor();
+  }
+  await p.setViewportSize({width:390,height:844});await p.evaluate(()=>{for(const k of ['top','bottom','left','right'])document.documentElement.style.removeProperty('--phone-safe-'+k);});
   const nav=p.locator('#repo-messages .repo-section-nav');await nav.getByRole('button',{name:'Wibsworth',exact:true}).click();await p.waitForFunction(()=>document.querySelector('#repo-messages')?.dataset.workspaceView==='wibsworth');assert.match(p.url(),/\/app\/#wibsworth/);
   await p.screenshot({path:path.resolve(root,'../../outputs/Phone-Wibsworth.png')});
   await nav.getByRole('button',{name:'Account',exact:true}).click();await p.locator('#account-menu[open]').waitFor();await p.getByRole('tab',{name:'Achievements',exact:true}).click();await p.locator('.ach-game-card').first().waitFor();assert.equal(await p.locator('.ach-game-card').count(),3);await p.screenshot({path:path.resolve(root,'../../outputs/Phone-achievements.png')});

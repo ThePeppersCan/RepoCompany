@@ -1,21 +1,25 @@
 /* Same shared components, typography and chosen Wibs theme; only phone fit. */
-html[data-repo-companion=true]{background:#101713;overscroll-behavior:none}
-html[data-repo-companion=true] body{display:block;min-height:100dvh;overflow:hidden}
+html[data-repo-companion=true]{background:#101713;overscroll-behavior:none;--phone-safe-top:env(safe-area-inset-top,0px);--phone-safe-bottom:env(safe-area-inset-bottom,0px);--phone-safe-left:env(safe-area-inset-left,0px);--phone-safe-right:env(safe-area-inset-right,0px)}
+html[data-repo-companion=true] body{display:block;height:100dvh;min-height:0;margin:0;overflow:hidden}
 [data-repo-companion=true] #dashboard,[data-repo-companion=true] [data-nav=collection]{display:none!important}
 [data-repo-companion=true] .repo-section-nav{justify-content:space-around;width:100%}
-[data-repo-companion=true] .repo-section-button{min-width:44px;min-height:44px}
-[data-repo-companion=true] .repo-section-bar{padding-top:env(safe-area-inset-top)}
+[data-repo-companion=true] :is(#repo-messages,#repo-reparty,#account-menu) .repo-section-nav>.repo-section-button{width:44px;min-width:44px;height:44px;min-height:44px;touch-action:manipulation}
 [data-repo-companion=true] .account-back{min-width:44px;min-height:44px}
-[data-repo-companion=true] #repo-messages.rc-page,[data-repo-companion=true] #repo-reparty,[data-repo-companion=true] #account-menu{max-height:var(--phone-height,100dvh);height:var(--phone-height,100dvh);padding-bottom:env(safe-area-inset-bottom)}
-[data-repo-companion=true] #repo-login{height:var(--phone-height,100dvh);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+[data-repo-companion=true] :is(#repo-messages.rc-page,#repo-reparty,#account-menu,#repo-login){box-sizing:border-box;top:var(--phone-top,0px);bottom:auto;left:0;right:0;margin:0;width:100%;max-width:100%;max-height:var(--phone-height,100dvh);height:var(--phone-height,100dvh);padding:var(--phone-safe-top) var(--phone-safe-right) var(--phone-safe-bottom) var(--phone-safe-left)}
 [data-repo-companion=true] .rc-composer textarea,[data-repo-companion=true] .ws-compose textarea,[data-repo-companion=true] .account-profile-form input,[data-repo-companion=true] .account-profile-form textarea{font-size:16px}
-[data-repo-companion=true] .rc-account-dock{padding-bottom:max(5px,env(safe-area-inset-bottom))}
+[data-repo-companion=true] .rc-account-dock{padding-bottom:5px}
 .repo-phone-install-button{display:block;width:100%;min-height:44px;padding:10px 16px;color:inherit;background:transparent;border:0;font:12px/1.5 "Segoe UI",Arial,sans-serif;cursor:pointer}
 #repo-login .repo-phone-install-button{position:relative;color:#c6c8bb;max-width:340px;margin:0 auto 12px}
 .repo-phone-install{width:calc(100% - 32px);max-width:430px;max-height:calc(100dvh - 32px);overflow:auto;padding:28px;border:1px solid #c4d6aa33;border-radius:18px;background:#17221c;color:#eceade;font:15px/1.65 "Segoe UI",Arial,sans-serif}
 .repo-phone-install::backdrop{background:#0009;backdrop-filter:blur(8px)}
 .repo-phone-install>button{float:right;min-width:44px;min-height:44px;color:inherit;background:none;border:0;font-size:28px}
 .repo-phone-install img{width:64px;height:64px}.repo-phone-install h2{font-size:23px;line-height:1.25}.repo-phone-install ol{padding-left:22px}.repo-phone-install li{margin:12px 0}.repo-phone-install-note{color:#bdc8bc;font-size:12px}
-@media(max-width:650px){[data-repo-companion=true] .account-header{flex-wrap:wrap;height:auto;gap:4px;padding:env(safe-area-inset-top) 12px 8px}[data-repo-companion=true] .account-header>.account-back{display:none}[data-repo-companion=true] .account-header-end{width:100%;justify-content:space-between}[data-repo-companion=true] .account-content{padding-bottom:calc(24px + env(safe-area-inset-bottom))}}
+@media(max-width:650px){[data-repo-companion=true] .account-header{flex-wrap:wrap;height:auto;gap:4px;padding:0 12px 8px}[data-repo-companion=true] .account-header>.account-back{display:none}[data-repo-companion=true] .account-header-end{width:100%;justify-content:space-between}[data-repo-companion=true] .account-content{padding-bottom:24px}}
 
 @media(max-width:1000px){[data-repo-companion=true] .account-settings-layout{grid-template-columns:minmax(0,1fr);gap:24px}[data-repo-companion=true] .account-settings-aside{display:block;padding-top:20px;border-top:1px solid #cbd7bb33}[data-repo-companion=true] [data-original-binder]{display:none}}
+
+@media(max-width:650px){[data-repo-companion=true] #account-menu .account-header{grid-template-columns:minmax(0,1fr);padding:0 12px;column-gap:0}[data-repo-companion=true] #account-menu .account-header-end{grid-column:1;gap:12px}[data-repo-companion=true] #account-menu .account-wallet{display:none}}
+
+html[data-repo-companion=true][data-phone-compact=true] #repo-messages .ws-welcome{display:none}
+html[data-repo-companion=true][data-phone-compact=true] #repo-messages .ws-ai-body{padding:10px 16px;justify-content:flex-end}
+html[data-repo-companion=true][data-phone-compact=true] #repo-messages .ws-compose-note{margin-top:8px}

@@ -10,7 +10,7 @@
   return days<1?'Played today':days<2?'Played yesterday':'Last played '+date.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
  }
  function catalog(games){return [...games,...(window.demoLibrary?.games||[])];}
- const demoBannerTitles={broomflight:['Velmora','Broomflight'],dragonbound:['Dragonbound'],diver:['Repo','Diver'],goblin:['Goblin','Bomb Party'],rooftops:['Repo','Rooftops'],seas:['High','Seas']};
+ const demoBannerTitles={runners:['Repo','Runners'],broomflight:['Velmora','Broomflight'],dragonbound:['Dragonbound'],diver:['Repo','Diver'],goblin:['Goblin','Bomb Party'],rooftops:['Repo','Rooftops'],seas:['High','Seas']};
  function artwork(game){
   if(['moratales','manager','morogue'].includes(game.id)){
    const logo=game.id==='manager'?'<svg class="profile-banner-logo" viewBox="57 178 2073 432"><image width="2167" height="725" href="original-case-assets/manager-logo-clean.png"/></svg>':`<img class="profile-banner-logo" src="original-case-assets/${game.id}-logo.png" alt="">`;
