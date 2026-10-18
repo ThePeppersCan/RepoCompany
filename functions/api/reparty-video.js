@@ -9,7 +9,7 @@ export async function onRequestGet({ request }) {
     const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) return new Response(JSON.stringify({ title: `YouTube · ${id}`, unavailable: true }), { headers });
     const data = await response.json();
-    return new Response(JSON.stringify({ title: String(data.title || 'YouTube video').slice(0, 160) }), { headers });
+    return new Response(JSON.stringify({ title: String(data.title || 'YouTube video').slice(0, 160), artist: String(data.author_name || '').slice(0,160), artwork: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` }), { headers });
   } catch {
     return new Response(JSON.stringify({ title: `YouTube · ${id}` }), { headers });
   }

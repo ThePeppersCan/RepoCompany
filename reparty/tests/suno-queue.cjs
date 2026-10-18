@@ -16,7 +16,7 @@ async function test() {
   assert.equal(core.parseVideo('https://youtu.be/dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
   const clip = { id, title: '<script>literal title</script>', audio_url: 'https://example.test/forbidden', metadata: { duration: 116.76 } };
   const html = `<script>self.__next_f.push(${JSON.stringify([1, 'a:' + JSON.stringify(['$', { clip }]) + '\n'])})</script>`;
-  assert.deepEqual(api.extractSong(html, id), { id, title: clip.title, duration: 116.76 });
+  assert.deepEqual(api.extractSong(html, id), { id, title: clip.title, duration: 116.76, artist: '', artwork: '' });
   assert.throws(() => api.extractSong(html, 'other'), /details/);
   assert.throws(() => api.extractSong(html.replace('116.76', '0'), id), /duration/);
   const calls = [];

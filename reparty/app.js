@@ -35,8 +35,14 @@ let entering=null, entryEpoch=0;
 let localPaused=false,localMuted=false,localVolume=70,lastMediaState='';
 try{const prefs=JSON.parse(localStorage.getItem('repo-reparty-audio')||'{}');if(Number.isFinite(prefs.volume))localVolume=Math.max(0,Math.min(100,prefs.volume));localMuted=prefs.muted===true;}catch{}
 $('volume').value=localVolume;
-function mediaState(){return {authenticated:!!user,active:!!roomId,room:room?.name||'',roomId:roomId||'',title:playingEntry()?.item.title||'',playing:!!room?.playback?.playing&&!localPaused,paused:localPaused,muted:localMuted,volume:localVolume,canControl:!!room?.playback?.video_id,canVolume:!sunoActive()||nativeSunoPlayback(),provider:sunoActive()?'suno':'youtube',connected:connectionReady,suno:sunoActive()?{id:room.playback.video_id.slice(5),position:playbackPosition(room.playback,Date.now()+offset),sampledAt:Date.now(),playing:room.playback.playing&&!localPaused}:null};}
+function listeningMedia(){
+ const pb=room?.playback,item=playingEntry()?.item,suno=sunoActive();
+ const youtube=playerReady&&pb?.video_id&&!wrongVideo();
+ return {mediaId:pb?.video_id||'',listening:!!roomId&&!!pb?.playing&&!localPaused&&!localMuted&&localVolume>0&&(suno||!!youtube&&player.getPlayerState()===1),position:suno?playbackPosition(pb,Date.now()+offset):youtube?player.getCurrentTime():0,duration:suno&&item?sunoQueueDuration(item):youtube?player.getDuration():0,sampledAt:Date.now()};
+}
+function mediaState(){return {...listeningMedia(),authenticated:!!user,active:!!roomId,room:room?.name||'',roomId:roomId||'',title:playingEntry()?.item.title||'',playing:!!room?.playback?.playing&&!localPaused,paused:localPaused,muted:localMuted,volume:localVolume,canControl:!!room?.playback?.video_id,canVolume:!sunoActive()||nativeSunoPlayback(),provider:sunoActive()?'suno':'youtube',connected:connectionReady,suno:sunoActive()?{id:room.playback.video_id.slice(5),position:playbackPosition(room.playback,Date.now()+offset),sampledAt:Date.now(),playing:room.playback.playing&&!localPaused}:null};}
 function publishMedia(){const next=mediaState();$('workspaceRoomName').textContent=next.room||'Reparty';$('workspaceConnection').textContent=next.connected?'Connected':next.active?'Reconnecting…':'Choose a room';const signature=JSON.stringify(next);if(signature===lastMediaState)return;lastMediaState=signature;if(parent!==window)parent.postMessage({type:'repo-reparty-state',state:next},location.origin);}
+setInterval(()=>{if(roomId)publishMedia();},2000);
 function saveAudio(){try{localStorage.setItem('repo-reparty-audio',JSON.stringify({volume:localVolume,muted:localMuted}));}catch{}}
 async function localControl(action,value){
  if(action==='rooms-refresh'){lobbyMode='video';await loadRooms();return;}
