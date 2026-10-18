@@ -22,7 +22,8 @@
   const tools=el('div','ws-compose-tools'),send=button('↑',()=>{});send.disabled=true;send.setAttribute('aria-label','Send — AI is not connected yet');send.title='AI is not connected yet';
   tools.append(el('span','','Wibsworth'),send);form.append(input,tools);form.onsubmit=e=>e.preventDefault();
   body.append(welcome,form,el('p','ws-compose-note','AI chat is coming soon. Your draft stays on this device.'));ai.append(head,body);wibs.querySelector('.rc-center').append(ai);
-  for(const host of [sideMascot,welcomeMascot])host.wibsworthRig=window.repoWibsworthMascot?.mount(host);
+  sideMascot.wibsworthLogo=window.repoWibsworthLogo?.mount(sideMascot);
+  welcomeMascot.wibsworthRig=window.repoWibsworthMascot?.mount(welcomeMascot);
   function draftKey(){return 'repo-wibsworth-draft:'+ (window.repoAccount?.state.user?.id||'signed-out');}
   function saveDraft(){try{localStorage.setItem(draftKey(),input.value);}catch{}}
   function restoreDraft(){try{input.value=localStorage.getItem(draftKey())||'';}catch{input.value='';}}
@@ -43,6 +44,7 @@
   function select(nextView){
     const changed=view!==nextView;view=nextView;wibs.dataset.workspaceView=view;reparty.dataset.workspaceView=view;
     const isAI=view==='wibsworth';
+    sideMascot.wibsworthLogo?.setVisible(isAI&&wibs.open);
     for(const [node,active] of [[scroll,!isAI],[aiSide,isAI],[ai,isAI],[wibs.querySelector('.rc-members'),!isAI],...[...wibs.querySelector('.rc-center').children].filter(n=>n!==ai).map(n=>[n,!isAI])]){node.inert=!active;node.setAttribute('aria-hidden',String(!active));}
     sidebar.setAttribute('aria-label',isAI?'Wibsworth conversations':'Channels and direct messages');
     wibs.querySelector('.repo-section-nav').dataset.section=isAI?'wibsworth':'wibs';

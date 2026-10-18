@@ -15,6 +15,9 @@
 .ws-ai-sidebar{flex:1;min-height:0;overflow:auto;padding:0 6px}
 .ws-identity{height:139px;position:relative;display:flex;align-items:center;justify-content:center;flex:none}
 .ws-ai-mascot{display:block;width:88px;height:62px;transform:translateY(-4px)}
+.ws-ai-mascot{position:relative;flex:none}
+.ws-ai-mascot .ws-logo-canvas,.ws-ai-mascot .ws-logo-fallback{position:absolute;left:50%;top:50%;width:150%;height:150%;max-width:none;transform:translate(-50%,-50%);pointer-events:none}
+.ws-ai-mascot .ws-logo-fallback svg{display:block;width:100%;height:100%;overflow:visible}
 .ws-identity-label{position:absolute;bottom:8px;color:var(--ws-cream);font-size:10px;letter-spacing:.18em}
 .rc-page .ws-new-chat{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--wibs-line);border-radius:6px;color:var(--wibs-accent);background:var(--wibs-selected);font-size:13px}
 .ws-section-label{font-size:10px;letter-spacing:.09em;color:var(--wibs-muted);margin:32px 10px 14px}
