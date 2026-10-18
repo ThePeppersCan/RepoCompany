@@ -49,7 +49,7 @@ async function playerFriends(db,me,now,env){
 }
 async function upstream(path,token,body){
  const response=await fetch(config.url+path,{method:body===undefined?'GET':'POST',headers:{apikey:config.key,Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(10000)});
- if(!response.ok)throw new Error(response.status===401?'AUTH':'UPSTREAM');return response.json();
+ if(!response.ok)throw new Error(response.status===401||(path==='/auth/v1/user'&&[400,403].includes(response.status))?'AUTH':'UPSTREAM');return response.json();
 }
 export async function onRequest({request,env,params}){
  try{

@@ -5,7 +5,7 @@ const response=(body,status=200,publicData=false)=>Response.json(body,{status,he
 const name=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{3,16}$/.test(value)?value.toLowerCase():null;
 async function upstream(path,token,body){
  const r=await fetch(config.url+path,{method:body===undefined?'GET':'POST',headers:{apikey:config.key,Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(10000)});
- if(!r.ok)throw Error(r.status===401?'AUTH':'UPSTREAM');return r.json();
+ if(!r.ok)throw Error(r.status===401||(path==='/auth/v1/user'&&[400,403].includes(r.status))?'AUTH':'UPSTREAM');return r.json();
 }
 async function own(db,me,game){
  const rows=await db.prepare(`SELECT r.id,r.game,r.metric,r.target,COALESCE(p.value,0) AS progress,u.unlocked_at,u.score FROM dashboard_achievement_rules r LEFT JOIN dashboard_achievement_progress p ON p.achievement_id=r.id AND p.username=? LEFT JOIN dashboard_achievement_unlocks u ON u.achievement_id=r.id AND u.username=? WHERE (?='' OR r.game=?) ORDER BY r.id`).bind(me,me,game,game).all();
