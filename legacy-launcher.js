@@ -4,7 +4,7 @@
  dialog.innerHTML='<header><button data-legacy-close>← Back to dashboard</button><span id="legacy-feature-title"></span></header><div class="legacy-loading" role="status">Opening your collection…</div>';
  document.body.append(dialog);let frame=null,opener=null,readyTimer=null,activeId='',bridge='';
  const dragonOrigin='https://dragonbound.repocompany.uk';
- const names={runners:'Repo Runners',broomflight:'Broomflight',binder:'Your binders',slabs:'Slab binder',pack:'Open a pack',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin Bomb Party',rooftops:'Repo Rooftops',seas:'High Seas',sports:'Repo Sports'};
+ const names={deadbeat:'DEADBEAT: Descent',runners:'Repo Runners',broomflight:'Broomflight',binder:'Your binders',slabs:'Slab binder',pack:'Open a pack',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin Bomb Party',rooftops:'Repo Rooftops',seas:'High Seas',sports:'Repo Sports'};
  async function open(id){
   if(['binder','slabs'].includes(id))return window.repoBinder.open(id);
   return openOriginal(id);
@@ -23,6 +23,10 @@
    bridge=crypto.randomUUID();const url=new URL(dragonOrigin+'/');url.searchParams.set('source','repocompany');url.searchParams.set('repoBridge',bridge);
    if(['localhost','127.0.0.1'].includes(location.hostname))url.searchParams.set('repoOrigin',location.origin);
    frame.src=url.href;
+  }else if(id==='deadbeat'){
+   frame.src='https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site/';
+   const target=frame;
+   frame.onload=()=>{if(frame!==target||activeId!==id)return;clearTimeout(readyTimer);dialog.querySelector('.legacy-loading').hidden=true;};
   }else if(id==='runners')frame.src='/repo-runners/?embedded=1';
   else if(id==='broomflight')frame.src='/broomflight/?embedded=1';
   else frame.src='legacy-runtime.html?dashboard='+encodeURIComponent(id);
