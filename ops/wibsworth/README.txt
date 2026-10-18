@@ -79,3 +79,38 @@ backend/review/knowledge/Morogue tests; browser usage, typing and completion-sou
 tests. Private operator smoke requests exercised production D1 and the real server
 model (not a logged-in browser session); general and Morogue answers returned in
 roughly 8–22 seconds in these samples. Live auth/asset/heartbeat checks are separate.
+
+CONVERSATION FOLLOW-UP — 18 OCTOBER 2026
+
+Source branch: codex/wibsworth-4b-trial-20261018.
+Normal gameplay chat now uses the current published reference set for every
+client. Old launcher/platform hints and saved version selections no longer gate
+answers. Version pins and historical calculator validation remain internal.
+The final-boss guide is sourced from the published encounter and practice UI;
+spoilers still require consent, including a conversational "Yes please".
+Build recommendations preserve concrete numbers, requirements and drawbacks.
+Rate responses report the real remaining minute window. Busy replies invite a
+retry after five seconds. A definite adapter admission rejection releases only
+that unused inference lease; ambiguous failures retain their protective lease.
+No schema migration is required. Personal daily usage remains 100.
+
+Optional model selection is server-controlled via WIBSWORTH_MODEL:
+  qwen3-1.7b         -> wibsworth-trial:latest       (default, existing live model)
+  qwen3-4b-instruct  -> wibsworth-4b-instruct:latest  (installed trial candidate)
+Set the SAME key in Pages environment and the user bridge service environment.
+Health checks reject a mismatched label. Callers cannot choose a model. The
+candidate inherits qwen3:4b-instruct's native template; do not replace its Jinja
+template by passing it as a Go-template override to /api/create.
+The 2 CPU / 8 GiB Ollama cgroup limits, one loaded model, one generation, 4096
+context and 640-token maximum remain unchanged. No paid fallback is added.
+
+The owner selected keeping 1.7B after reviewing the 4B timings. Publish the
+conversation fixes with the existing model and bridge; no bridge restart or
+model environment change is needed. The optional bridge model selector in this
+source is prepared for a later trial, not installed by this conversation release.
+If changing models later, coordinate the Pages and bridge settings and verify
+the authenticated health/model label and a fresh heartbeat before live replies.
+Keep the old source and service settings for rollback. Reverting both model
+selectors to qwen3-1.7b restores the retained baseline alias. Do not redeploy an
+older full site bundle without checking intervening releases. Velmora, shared
+proxy configuration, Supabase, DNS and GitHub main are outside this rollout.

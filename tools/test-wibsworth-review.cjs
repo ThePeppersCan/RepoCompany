@@ -117,12 +117,13 @@ const {DatabaseSync} = require('node:sqlite');
       assert.ok(f.messages.some(message => message.content.includes('canonical-correction-marker')));
     } finally { f.close(); }
   });
-  await check('real retriever excludes unsupported launcher statistics before calling the model', async () => {
+  await check('legacy launcher hints do not block normal advice from the current reference set', async () => {
     const f = fixture(); try {
       const response = await f.request('chat', {question: 'What are the best combos in Morogue?', platform: 'launcher', gameVersion: '0.1.0-preview.4'});
       assert.equal(response.status, 200);
-      assert.equal(f.calls, 0);
-      assert.match(response.body.answer, /not been verified|web game only/i);
+      assert.equal(f.calls, 1);
+      assert.ok(f.messages.some(message=>message.content.includes('Glass Pepper')));
+      assert.doesNotMatch(response.body.answer, /not been verified|web game only/i);
     } finally { f.close(); }
   });
   await check('spoiler-bearing approved history is gated by real retrieval', async () => {
