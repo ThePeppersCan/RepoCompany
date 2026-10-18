@@ -10,10 +10,10 @@
   <script>if(window===top&&!new URLSearchParams(location.search).has('embedded'))location.replace('/?reparty='+encodeURIComponent(new URLSearchParams(location.search).get('room')||'home'));try{if(localStorage.getItem('reparty-layout')==='theatre')document.documentElement.classList.add('theatre')}catch(e){}</script>
   <link rel="stylesheet" href="../avatar-frames.css">
   <link rel="stylesheet" href="../repo-profile-photos.css">
-  <link rel="stylesheet" href="watch.css?v=20261016-3">
+  <link rel="stylesheet" href="watch.css?v=20261016-3"><link rel="stylesheet" href="../repo-workspace.css"><link rel="stylesheet" href="workspace.css">
 </head>
 <body>
-  <div class="app">
+  <div class="app"><header class="ws-room-bar"><strong id="workspaceRoomName">Reparty</strong><span id="workspaceConnection">Connecting…</span><button id="workspaceRooms">Rooms</button><button id="workspaceInvite">+ Invite</button></header>
     <main class="watch-layout">
       <section class="watch-column" aria-label="Shared video player">
         <div class="television panel" id="television">
@@ -45,7 +45,7 @@
         <p class="room-footnote"><span id="roomFootnote"></span><button id="shortcutHelp" class="hint" aria-keyshortcuts="?">Keyboard shortcuts <kbd>?</kbd></button></p>
       </section>
       <aside class="sidebar panel">
-        <div class="tabs" role="tablist" aria-label="Room activity"><button role="tab" aria-selected="true" aria-controls="playlistPanel" id="playlistTab">Playlist <span id="queueCount">0</span></button><button role="tab" aria-selected="false" aria-controls="chatPanel" id="chatTab" tabindex="-1">Chat <span id="unread" hidden>0</span></button></div>
+        <div class="tabs" role="tablist" aria-label="Room activity"><button role="tab" aria-selected="true" aria-controls="playlistPanel" id="playlistTab">Queue <span id="queueCount">0</span></button><button role="tab" aria-selected="false" aria-controls="chatPanel" id="chatTab" tabindex="-1">Room chat <span id="unread" hidden>0</span></button></div>
         <section id="playlistPanel" role="tabpanel" aria-labelledby="playlistTab">
           <h2 class="split-heading">Playlist <span id="queueCountSplit">0</span></h2>
           <div class="playlist-picker"><label class="sr-only" for="playlistSelect">Shared playlist</label><select id="playlistSelect" disabled><option>Our playlist</option></select><button id="newPlaylist" aria-label="Create playlist" title="New playlist" disabled>+</button></div>
@@ -99,6 +99,6 @@
   <script src="../vendor/supabase.js"></script>
   <script src="../avatar-renderer.js"></script>
   <script src="../avatar-frames.js"></script>
-  <script type="module" src="app.js?v=20261016-3"></script>
+  <script src="../repo-pane-resize.js"></script><script src="workspace.js"></script><script type="module" src="app.js?v=20261016-3"></script>
 </body>
 </html>

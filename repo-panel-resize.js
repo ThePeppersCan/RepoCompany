@@ -10,7 +10,7 @@
  function separator(name,orientation,parent){const node=document.createElement('div');node.className='repo-panel-divider';node.dataset.resize=name;node.tabIndex=0;node.setAttribute('role','separator');node.setAttribute('aria-label',name==='left'?'Resize channels sidebar':name==='right'?'Resize activity and members':'Resize call area');node.setAttribute('aria-orientation',orientation);parent.append(node);return node;}
  const left=separator('left','vertical',layout),right=separator('right','vertical',below),call=separator('call','horizontal',stage);
  function metrics(){
-  const width=layout.clientWidth,hasRight=innerWidth>960,leftDefault=innerWidth<=960?240:clamp(innerWidth*.183,260,325),rightDefault=clamp(innerWidth*.197,270,350);
+  const width=layout.clientWidth,hasRight=innerWidth>960,leftDefault=innerWidth<=1100?226:innerWidth>=1600?300:260,rightDefault=innerWidth<=1100?226:innerWidth>=1600?310:274;
   const rightWidth=hasRight?clamp(saved.right??rightDefault,220,Math.min(480,width-540)):0;
   const leftMax=Math.max(220,Math.min(480,width-320-rightWidth)),leftWidth=clamp(saved.left??leftDefault,220,leftMax);
   const rightMax=Math.max(220,Math.min(480,width-leftWidth-320));

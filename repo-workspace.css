@@ -1,0 +1,139 @@
+/* A continuous shell for Wibs, Wibsworth and Reparty. */
+.rc-page{--ws-cream:#ecdfbd;--ws-ease:cubic-bezier(.22,.8,.25,1)}
+.rc-page[data-light-theme=true]{--ws-cream:#756042}
+.rc-page [hidden]{display:none!important}
+.rc-page .rc-brand .publisher-mark,.rc-page .rc-brand .publisher-wordmark{background-color:currentColor;background-image:none;mask-image:url('/original-case-assets/repo-brand.png');mask-repeat:no-repeat;mask-mode:luminance}
+.rc-page .rc-brand .publisher-mark{width:42px;height:44px;mask-size:198px 124px;mask-position:-78px -33px}
+.rc-page .rc-brand .publisher-wordmark{width:145px;height:17px;mask-size:394px 246px;mask-position:-125px -164px}
+.rc-page .repo-section-bar{background:var(--wibs-surface);border-color:var(--wibs-line);color:var(--wibs-ink)}
+.rc-page .repo-section-button[aria-current=page]::after{background:var(--wibs-accent)}
+.rc-page .repo-section-button[data-nav=wibsworth][aria-current=page]::after{background:var(--ws-cream)}
+.ws-nav-tv{display:block;width:34px;height:34px}
+.rc-page[data-workspace-view=wibsworth] .rc-workspace{display:flex;flex-direction:column}
+.rc-page[data-workspace-view=wibsworth][data-call-active=false] .rc-self-mic,.rc-page[data-workspace-view=wibsworth][data-call-active=false] .rc-self-sound{display:none}
+.rc-page[data-workspace-view=wibsworth] .repo-panel-divider[data-resize=right]{display:none}
+.ws-ai-sidebar{flex:1;min-height:0;overflow:auto;padding:0 6px}
+.ws-identity{height:139px;position:relative;display:flex;align-items:center;justify-content:center;flex:none}
+.ws-ai-mascot{display:block;width:88px;height:62px;transform:translateY(-4px)}
+.ws-identity-label{position:absolute;bottom:8px;color:var(--ws-cream);font-size:10px;letter-spacing:.18em}
+.rc-page .ws-new-chat{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--wibs-line);border-radius:6px;color:var(--wibs-accent);background:var(--wibs-selected);font-size:13px}
+.ws-section-label{font-size:10px;letter-spacing:.09em;color:var(--wibs-muted);margin:32px 10px 14px}
+.ws-empty-history{font-size:12px!important;color:var(--wibs-muted);line-height:1.8;margin:16px 10px}
+.ws-ai{flex:1;min-height:0;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--wibs-accent) 3%,transparent),transparent 65%)}
+.ws-pane-head{height:56px;min-height:56px;border-bottom:1px solid var(--wibs-line);padding:0 28px;display:flex;align-items:center;gap:14px}
+.ws-pane-head h1{font:500 16px 'Segoe UI',sans-serif;color:var(--wibs-ink);margin:0;letter-spacing:0}
+.ws-status{font-size:10px;color:var(--wibs-muted);margin-left:auto}
+.ws-ai-body{flex:1;min-height:0;overflow:auto;padding:28px 38px 45px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ws-welcome{text-align:center;padding-top:24px;margin-bottom:34px}
+.ws-welcome-mascot{display:block;width:115px;height:80px;margin:0 auto 34px}
+.ws-welcome h2{font:400 clamp(24px,2.6vw,36px) Georgia,serif;letter-spacing:-.03em;margin:0;color:var(--ws-cream)}
+.rc-page .ws-compose{box-sizing:border-box;width:100%;max-width:690px;padding:20px 20px 13px;border:1px solid var(--wibs-line);border-radius:14px;background:var(--wibs-surface);box-shadow:0 12px 32px #0000000a}
+.rc-page .ws-compose:focus-within{border-color:color-mix(in srgb,var(--ws-cream) 40%,transparent)}
+.rc-page .ws-compose textarea{display:block;width:100%;min-height:66px;max-height:180px;resize:vertical;border:0;background:none;color:var(--wibs-ink);font:14px/1.6 'Segoe UI',sans-serif;outline:none;padding:0;box-shadow:none}
+.ws-compose textarea::placeholder{color:var(--wibs-muted)}
+.ws-compose-tools{display:flex;align-items:center;justify-content:space-between;margin-top:9px;font-size:10px;color:var(--wibs-muted)}
+.rc-page .ws-compose-tools button{display:grid;place-items:center;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:var(--wibs-raised);font-size:20px;color:var(--wibs-muted)}
+.ws-compose-note{font-size:10px!important;line-height:1.6;text-align:center;color:var(--wibs-muted);margin:16px 0 0}
+.mascot-face{display:block;width:100%;height:100%;overflow:visible;color:#f4ecd6;pointer-events:none}
+.rc-page .mascot-face{width:100%;height:100%;max-width:none;max-height:none}
+.rc-page .ws-section-label{font:10px/1.5 'Segoe UI',sans-serif;letter-spacing:.09em;color:var(--wibs-muted);margin:32px 10px 14px}
+.rc-page .ws-empty-history{font:12px/1.8 'Segoe UI',sans-serif;margin:16px 10px;color:var(--wibs-muted)}
+.rc-page .ws-compose-note{font:10px/1.6 'Segoe UI',sans-serif;margin:16px 0 0;color:var(--wibs-muted)}
+.thought-symbol{font:500 84px 'Segoe UI',sans-serif;fill:currentColor;stroke:none;text-anchor:middle}
+.rc-page[data-light-theme=true] .mascot-face{color:#756042}
+.rc-page .ws-mobile-menu{display:none}
+#repo-reparty{background:var(--wibs-bg);color:var(--wibs-ink);font:14px 'Segoe UI',sans-serif;border-radius:0}
+#repo-reparty::backdrop{background:var(--wibs-bg)}
+.repo-reparty-body{--rp-left:260px;display:grid;grid-template-columns:var(--rp-left) minmax(0,1fr);flex:1;min-height:0;position:relative;overflow:hidden}
+.repo-reparty-body>iframe{width:100%;height:100%;min-width:0;min-height:0;border:0;display:block}
+.ws-rp-sidebar{display:flex;flex-direction:column;min-height:0;min-width:0;background:color-mix(in srgb,var(--wibs-bg) 98%,var(--wibs-ink));border-right:1px solid var(--wibs-line);overflow:hidden}
+.ws-rp-scroll{min-height:0;overflow:auto;flex:1;padding:0 18px 20px;scrollbar-width:thin}
+.ws-rp-mascot{display:block;width:66px;height:66px}
+.rc-page .ws-room-link{padding:16px 12px;margin:3px 0;border:0;font-size:12px;color:var(--wibs-muted);background:none;text-align:left;width:100%}
+.ws-rooms-heading{display:flex;align-items:center;justify-content:space-between;margin-top:15px}
+.ws-rooms-heading .ws-section-label{margin:16px 8px}
+.rc-page .ws-room-refresh{border:0;padding:8px;background:none;color:var(--wibs-muted)}
+.ws-room-list{display:flex;flex-direction:column;gap:6px}
+.rc-page .ws-room-list button{position:relative;display:flex;flex-direction:column;gap:5px;padding:12px 14px;border:0;border-radius:6px;background:none;color:var(--wibs-ink);text-align:left;font-size:13px;min-width:0;overflow-wrap:anywhere}
+.rc-page .ws-room-list button:hover{background:var(--wibs-hover)}
+.rc-page .ws-room-list button.is-current{background:var(--wibs-selected)}
+.ws-room-list .is-current:before{content:'';position:absolute;left:2px;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--wibs-accent)}
+.ws-room-list small{font-size:10px;color:var(--wibs-muted);padding-left:17px}
+.ws-rp-sidebar .rc-sidebar-bottom{padding:0 10px 14px;margin-top:auto;flex:none}
+.ws-mini{display:flex;align-items:center;gap:10px;min-height:40px;flex:none;padding:4px 24px;border-bottom:1px solid var(--wibs-line);background:var(--wibs-surface);color:var(--wibs-muted);font-size:11px}
+.rc-page .ws-mini button{border:0;background:none;font-size:11px;padding:6px 8px;color:var(--wibs-ink)}
+.rc-page .ws-mini-track{text-overflow:ellipsis;overflow:hidden;white-space:nowrap;min-width:0;text-align:left;margin-right:auto}
+.ws-divider{position:absolute;top:0;bottom:0;width:9px;transform:translateX(-50%);z-index:8;cursor:col-resize;touch-action:none;outline-offset:-3px}
+.ws-divider[data-edge=right]{transform:translateX(50%)}
+.ws-divider:after{content:'';position:absolute;left:4px;top:0;bottom:0;width:2px;background:transparent;transition:background .15s}
+.ws-divider:hover:after,.ws-divider:focus-visible:after,.ws-resizing>.ws-divider:after{background:var(--wibs-accent,var(--accent))}
+.ws-dragging,.ws-dragging *{cursor:col-resize!important;user-select:none!important}
+.ws-resizing:after{content:'';position:absolute;inset:0;z-index:7;cursor:col-resize}
+@media(max-width:960px){.ws-pane-head{padding-inline:20px}.ws-ai-body{padding-inline:24px}.ws-rp-scroll{padding-inline:12px}}
+@media(max-width:640px){.ws-ai-body{padding:16px 18px 28px}.ws-welcome h2{font-size:25px}.ws-welcome-mascot{width:90px;height:65px}.ws-status{font-size:9px}.rc-page .ws-mobile-menu{display:block;border:0;background:none;color:var(--wibs-muted);padding:8px}.ws-pane-head{gap:8px;padding-inline:10px}.rc-page .ws-compose textarea{font-size:16px}.repo-reparty-body{grid-template-columns:1fr}.ws-rp-sidebar,.repo-reparty-body>.ws-divider{display:none}.ws-mini{padding-inline:12px}.rc-page .rc-brand .publisher-wordmark{display:none}}
+@media(prefers-reduced-motion:reduce){.ws-divider:after{transition:none}}
+/* Match the approved continuous panel motion: nothing is removed during a switch. */
+.ws-side-pages{position:relative;flex:1;min-height:0;overflow:hidden}
+.ws-side-pages>.rc-sidebar-scroll,.ws-side-pages>.ws-ai-sidebar{position:absolute;inset:0;width:100%;height:100%;min-height:0;overflow-y:auto;transition:opacity .28s,transform .5s var(--ws-ease),visibility .5s}
+.ws-side-pages>.ws-ai-sidebar{opacity:0;visibility:hidden;transform:translateY(8px)}
+#repo-messages[data-workspace-view=wibsworth] .ws-ai-sidebar{opacity:1;visibility:visible;transform:none}
+#repo-messages[data-workspace-view=wibsworth] .rc-sidebar-scroll{opacity:0;visibility:hidden;transform:translateY(-8px)}
+#repo-messages .rc-center{position:relative}
+#repo-messages .rc-below{transition:grid-template-columns .5s var(--ws-ease)}
+#repo-messages[data-workspace-view=wibsworth] .rc-below{display:grid;grid-template-columns:minmax(0,1fr) 0px}
+#repo-messages .rc-members{min-width:0;overflow:hidden;transition:opacity .25s,transform .45s var(--ws-ease),padding .5s var(--ws-ease),visibility .5s}
+#repo-messages[data-workspace-view=wibsworth] .rc-members{opacity:0;visibility:hidden;transform:translateX(15px);padding-inline:0;border:0}
+#repo-messages .rc-center>:not(.ws-ai){transition:opacity .25s,transform .45s var(--ws-ease),visibility .45s}
+#repo-messages[data-workspace-view=wibsworth] .rc-center>:not(.ws-ai){opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none}
+#repo-messages .ws-ai{position:absolute;inset:0;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .3s,transform .5s var(--ws-ease),visibility .5s}
+#repo-messages[data-workspace-view=wibsworth] .ws-ai{opacity:1;visibility:visible;transform:none}
+#repo-messages[data-resizing] .rc-below{transition:none}
+.rc-page .repo-section-bar{padding-inline:32px}
+.rc-page .rc-atmosphere{opacity:.4}
+.rc-page .rc-community-identity{height:139px;min-height:139px;margin:0;display:flex;align-items:center;justify-content:center}
+.rc-page .rc-wibs-brand{width:88px;height:62px}
+.rc-page .rc-sidebar{padding:0 14px 14px}
+.rc-page .rc-channel,.rc-page .rc-dm-toggle{font-size:14px;min-height:40px;padding:10px 12px}
+.rc-page .rc-voice-heading{font-size:14px}
+.rc-page .rc-voice{padding-top:20px;margin-top:22px}
+.rc-page .rc-self-name{font-size:11px}.rc-page .rc-self-role{font-size:9px}
+.rc-page .rc-account-dock .rc-self{min-height:53px;padding-block:9px}
+.rc-page .rc-self .rc-avatar{width:28px;height:28px;font-size:9px}
+.rc-page .rc-self-controls{gap:1px}.rc-page .rc-self-controls button{width:23px;min-width:23px;padding:3px}
+.rc-page .rc-sidebar-bottom .rc-back{font-size:10px;padding-top:16px}
+.rc-page .rc-sidebar-bottom .rc-back svg{width:19px;height:19px}
+.rc-page .rc-account-dock .repo-wibs-usage-heading{font-size:9px}
+.rc-page .ws-new-chat{font-weight:500;font-size:12px;min-height:40px;padding:10px 13px}
+.rc-page .ws-room-list button{font-size:12px;padding:12px 10px}
+.rc-page .ws-rooms-heading .ws-section-label{font-size:9px;margin:15px 8px}
+.rc-topbar,.repo-reparty-bar{view-transition-name:workspace-header}
+.rc-sidebar,.ws-rp-sidebar{view-transition-name:workspace-sidebar}
+.rc-sidebar-bottom{view-transition-name:workspace-profile}
+.rc-workspace,.repo-reparty-body>iframe{view-transition-name:workspace-main}
+::view-transition-group(workspace-header),::view-transition-group(workspace-sidebar),::view-transition-group(workspace-profile),::view-transition-group(workspace-main){animation-duration:.5s;animation-timing-function:cubic-bezier(.22,.8,.25,1)}
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-old(workspace-header),::view-transition-new(workspace-header),::view-transition-old(workspace-profile),::view-transition-new(workspace-profile){animation-duration:.18s}
+::view-transition-old(workspace-main),::view-transition-old(workspace-sidebar){animation:ws-exit .22s ease both}
+::view-transition-new(workspace-main),::view-transition-new(workspace-sidebar){animation:ws-enter .45s cubic-bezier(.22,.8,.25,1) both}
+@keyframes ws-exit{to{opacity:0;transform:translateY(-6px)}}
+@keyframes ws-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(max-width:640px){.rc-page .repo-section-bar{padding-inline:12px}.ws-side-pages{min-height:160px}}
+@media(prefers-reduced-motion:reduce){#repo-messages .rc-below,#repo-messages .rc-members,#repo-messages .rc-center>*,.ws-side-pages>*{transition:none!important}::view-transition-group(*){animation-duration:0s!important}}
+
+#repo-reparty :is(.rc-channel,.rc-dm-toggle,.rc-hash,.rc-message-text,.rc-member-name,.rc-self-name,.rc-voice-heading,.rc-game-name,.rc-header-setting){color:var(--wibs-ink)}
+#repo-reparty :is(.rc-section-heading,.rc-members-heading,.rc-voice-note,.rc-voice-person small,.rc-self-role,.rc-account-settings,.rc-self-controls button,.rc-back,.rc-search,.rc-day,.rc-message-meta time,.rc-group-time,.rc-empty p,.rc-empty-hash,.rc-settings-choice small,.rc-field small,.rc-profile-edit-note,.rc-slider output,.rc-game-copy small,.rc-game-time,.rc-game-inline .rc-game-name,.repo-message-preview,.repo-composer-hint,.repo-message-meta,.repo-conversation-empty p,.repo-voice-status,.repo-voice-usage,.repo-voice-budget,.rc-menu-name,.rc-menu-note){color:var(--wibs-muted)}
+#repo-reparty :is(.rc-dm-toggle,.rc-voice-heading,.rc-settings-choice,.rc-self-controls button,.rc-account-settings,.repo-message-friend,.rc-person-menu button):hover,#repo-reparty .rc-dm-toggle.is-selected,#repo-reparty .rc-voice-heading.is-connected,#repo-reparty .repo-message-friend[aria-current=true]{background:var(--wibs-hover);color:var(--wibs-ink)}
+#repo-reparty :is(.rc-account-dock,.rc-composer,.repo-message-composer,.rc-settings-choice,.rc-reaction,.rc-empty-hash){background:var(--wibs-hover);border-color:var(--wibs-line)}
+#repo-reparty :is(.rc-editor-actions button,.rc-role,.rc-voice-restriction,.rc-own-activity,.rc-account-dock .repo-voice-panel,.rc-person-menu hr){border-color:var(--wibs-line)}
+#repo-reparty .rc-avatar{background:linear-gradient(145deg,var(--wibs-raised),var(--wibs-selected));color:var(--wibs-ink);border-color:var(--wibs-line)}
+#repo-reparty .rc-avatar.is-online:after{border-color:var(--wibs-bg)}
+#repo-reparty.rc-page .rc-account-dock .repo-voice-panel{padding:8px 12px;max-height:none;overflow:visible}
+#repo-reparty .rc-account-dock .repo-voice-top{min-height:22px;gap:7px;margin:0;font-size:11px;align-items:center}
+#repo-reparty .rc-account-dock .repo-voice-top strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 11px/1.4 Arial,sans-serif}
+#repo-reparty .rc-account-dock .repo-voice-status{margin:3px 0 5px;font-size:10px}
+#repo-reparty .rc-account-dock .repo-wibs-usage{margin:8px -12px -8px;padding:8px 12px;background:color-mix(in srgb,var(--wibs-accent,#b7c6df) 6%,transparent)}
+#repo-reparty .rc-account-dock .repo-wibs-usage:first-child{margin-top:-8px;border-top:0}
+#repo-reparty .repo-wibs-usage-heading{margin:0 0 5px;font:600 10px/1.4 Arial,sans-serif;color:var(--wibs-muted,#aebeb0)}
+#repo-reparty .rc-self-controls .rc-self-leave{color:#e7a099}
+#repo-reparty .rc-self-controls .rc-self-leave:hover{background:#a3434828;color:#ffd4c9}
+#repo-reparty .rc-account-dock{margin:0}#repo-reparty .ws-rp-sidebar .rc-sidebar-bottom{padding:0 12px 14px}

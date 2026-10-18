@@ -1,8 +1,8 @@
 (() => {
   'use strict';
-  const paths = {collection: '/', wibs: '/Wibs', reparty: '/Reparty', account: '/Account', moratales: '/Moratales', manager: '/VelmoraManager', morogue: '/Morogue', demos: '/Demos'};
+  const paths = {collection: '/', wibs: '/Wibs', wibsworth: '/Wibsworth', reparty: '/Reparty', account: '/Account', moratales: '/Moratales', manager: '/VelmoraManager', morogue: '/Morogue', demos: '/Demos'};
   const tabs = ['profile', 'friends', 'inventory', 'achievements', 'shop', 'settings', 'binder', 'slabs'];
-  const overlay = name => name === 'wibs' || name === 'reparty';
+  const overlay = name => name === 'wibs' || name === 'wibsworth' || name === 'reparty';
   const native = () => document.documentElement.dataset.repoLauncher === 'true';
   const titleCase = value => value.charAt(0).toUpperCase() + value.slice(1);
   function href(route) {
@@ -18,7 +18,7 @@
   }
   function read() {
     const hash = location.hash.slice(1);
-    if (/^(collection|moratales|manager|morogue|demos|wibs|reparty)$/.test(hash) || /^account(?:\/(?:profile|friends|inventory|achievements|progress|shop|settings|binder|slabs)(?:\/[a-zA-Z0-9_-]+)?)?$/.test(hash) || /^demo\/[a-z0-9_-]+$/.test(hash)) return hash;
+    if (/^(collection|moratales|manager|morogue|demos|wibs|wibsworth|reparty)$/.test(hash) || /^account(?:\/(?:profile|friends|inventory|achievements|progress|shop|settings|binder|slabs)(?:\/[a-zA-Z0-9_-]+)?)?$/.test(hash) || /^demo\/[a-z0-9_-]+$/.test(hash)) return hash;
     const parts = location.pathname.replace(/\/$/, '').split('/').slice(1);
     const name = Object.keys(paths).find(key => paths[key] === '/' + parts[0]);
     if (name === 'account') {
@@ -57,7 +57,7 @@
     const url = new URL(location.href); url.pathname = paths[name]; url.hash = '';
     if (name !== 'reparty') url.searchParams.delete('room');
     history.replaceState(history.state, '', url);
-    document.title = (name === 'wibs' ? 'Wibs' : 'Reparty') + ' — Repo Company';
+    document.title = (name === 'wibs' ? 'Wibs' : name === 'wibsworth' ? 'Wibsworth' : 'Reparty') + ' — Repo Company';
   }
   function leave(name) {
     if (native() || applying || active !== name) return;
@@ -71,7 +71,8 @@
   function openRequested() {
     if (!started || !requested || native() || !window.repoAccount?.state.user || document.documentElement.dataset.repoAuth !== 'ready') return;
     const name = requested; requested = '';
-    if (name === 'wibs') window.repoMessaging?.open();
+    if (name === 'wibsworth') window.repoWibsworth?.open();
+    else if (name === 'wibs') window.repoMessaging?.open();
     else if (name === 'reparty') window.repoReparty?.open(new URL(location.href).searchParams.get('room') || '');
     else restore?.(name);
   }

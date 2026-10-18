@@ -62,5 +62,5 @@
     drawer.addEventListener('close',closed);document.addEventListener('visibilitychange',sync);window.addEventListener('repo-launcher-portal-visibility',sync);reduce.addEventListener('change',preference);
     active={host,finish};motion.draw(0);host.focus({preventScroll:true});sync();
   }
-  window.repoRepartyIntro=Object.freeze({play,stop(){active?.finish(false);}});
+  window.repoRepartyIntro=Object.freeze({play,createMotion,duration,stop(){active?.finish(false);}});
 })();

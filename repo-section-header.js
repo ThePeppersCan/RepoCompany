@@ -25,7 +25,8 @@
   }
   function syncUnread(state = window.repoMessaging?.getState()) {
     const total = state?.unread || 0;
-    for (const {button, badge, section} of wibsButtons) {
+    for (const {button, badge} of wibsButtons) {
+      const section = button.closest('.repo-section-nav').dataset.section;
       badge.hidden = !total || section === 'wibs'; badge.textContent = total > 99 ? '99+' : String(total);
       button.setAttribute('aria-label', section === 'wibs' ? 'Wibs' : total ? `Wibs, ${total} unread message${total === 1 ? '' : 's'}` : 'Open Wibs');
     }
@@ -45,7 +46,7 @@
     const softwareIcon = el('span', 'repo-wibsworth-icon'); softwareIcon.setAttribute('aria-hidden', 'true'); software.append(softwareIcon);
     window.repoHeaderMascots.mountWibsworth(software); nav.append(software);
     const wibs = button(section === 'wibs' ? 'Wibs' : 'Open Wibs', 'wibs', () => {
-      window.repoMessaging?.open(); window.repoReparty?.close(); window.accountMenu?.close({route:false});
+      window.repoMessaging?.open(); window.accountMenu?.close({route:false});
     });
     const mascot = el('span', 'repo-wibs-icon'), badge = el('span', 'repo-section-unread');
     mascot.setAttribute('aria-hidden', 'true'); badge.setAttribute('aria-hidden', 'true'); badge.hidden = true;
@@ -77,6 +78,7 @@
   }
   if (muted) new MutationObserver(syncMute).observe(muted, {attributes:true, attributeFilter:['aria-pressed']});
   addEventListener('repo-messaging-state', event => syncUnread(event.detail));
+  document.addEventListener('repo-workspace-view', () => syncUnread());
   window.repoSectionHeader = Object.freeze({create});
   const account = document.querySelector('#account-menu .account-header');
   if (account) {

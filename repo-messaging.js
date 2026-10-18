@@ -210,22 +210,25 @@
   const mountObserver = new MutationObserver(mountLaunch);
   mountObserver.observe(document.body, {subtree: true, childList: true, attributes: true, attributeFilter: ['open']});
   mountLaunch();
-  function open(name) {
+  function open(name, options = {}) {
     if (!userId) { window.accountMenu?.open({tab: 'profile'}); return; }
+    if(!options.workspace&&window.repoWorkspace?.transition('wibs',()=>open(name,options)))return;
     const intro = window.repoRoutes?.shouldPlayIntro();
+    window.repoWorkspace?.select(options.workspace||'wibs');
+    window.repoReparty?.close();
     window.repoRoutes?.enter('wibs');
     const opening = !drawer.open;
     if (!drawer.open) { opener = document.activeElement; drawer.showModal(); inboxArchiveAt = 0; }
     if (name) select(name); else { renderFriends(); if (!selection) search.focus(); }
     window.repoCommunity?.show(name ? 'dm' : 'community');
-    if (opening && intro) window.repoWibsIntro?.play(drawer);
+    if (opening && intro && options.intro !== false) window.repoWibsIntro?.play(drawer);
     if (callPanel.open) { callPanel.close(); callPanel.showModal(); }
     announce(); inboxAt = 0; tick();
   }
   function close() {
     if (!drawer.open) return;
     window.repoWibsIntro?.stop();
-    window.repoRoutes?.leave('wibs');
+    window.repoRoutes?.leave(drawer.dataset.workspaceView==='wibsworth'?'wibsworth':'wibs');
     drawer.close(); if(window.repoWebGame?.active)window.repoWebGame.focus();else if(opener?.isConnected)opener.focus(); announce();
   }
   drawer.addEventListener('cancel', e => { if(e.target!==drawer)return;e.preventDefault(); close(); });

@@ -37,6 +37,7 @@ const mediaControls = require('./lib/media-controls.cjs');
 const { SunoPlayback } = require('./lib/suno-playback.cjs');
 let sunoPlayback;
 let companionState = mediaControls.empty();
+let workspaceView = 'wibs';
 let messageOverlay = false, portalNavigation = false, socialState = emptySocialState(), portalViewVisible = false, lastPortalVisibility = null;
 let mediaPermissions = null, mediaAccountId = null;
 let launcherCheckTimer = null, launcherReconnectTimer = null, launcherCheckPending = null, lastLauncherCheck = 0, previousConnectionStatus = null;
@@ -275,7 +276,7 @@ function bounds() {
   if (width < 1 || height <= 44) return;
   const area = { x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) };
   const panelWidth = Math.min(440, width);
-  const portalArea = messageOverlay && !portalNavigation && currentGame() && !companionState.reparty.open ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
+  const portalArea = messageOverlay && !portalNavigation && currentGame() && !companionState.reparty.open && workspaceView !== 'wibsworth' ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
   if (portal && activePortal()) portal.setBounds(portalArea);
   for (const record of games.values()) if (gameContents(record)) record.view.setBounds(area);
 }
@@ -529,7 +530,8 @@ async function openReparty() {
   setPortalVisible(portalReady);bounds();broadcast();if(!portalReady)await loadPortal();if(contents!==activePortal())return;if(!hiddenTest)contents.focus();
   await contents.executeJavaScript("(()=>{if(!window.repoReparty?.open)throw Error('Reparty is still connecting. Refresh the client and try again.');window.repoReparty.open();})()");
 }
-async function openMessages(username = '') {
+async function openWibsworth() { return openMessages('', true); }
+async function openMessages(username = '', wibsworth = false) {
   messageNotifications?.hide();
   if (!/^[a-zA-Z0-9_-]{3,16}$/.test(username)) username='';
   if (currentGame()?.loading) throw Error('Wait for your game to open before opening messages.');
@@ -542,6 +544,7 @@ async function openMessages(username = '') {
   if (!portalReady) await loadPortal();
   if (contents !== activePortal()) return;
   if (!hiddenTest) contents.focus();
+  if(wibsworth){await contents.executeJavaScript("(()=>{if(!window.repoWibsworth?.open)throw Error('Wibsworth is still connecting. Refresh the client and try again.');window.repoWibsworth.open();})()");return;}
   await contents.executeJavaScript(`(async()=>{const deadline=Date.now()+5000;while(!window.repoMessaging?.open&&Date.now()<deadline)await new Promise(r=>setTimeout(r,100));if(!window.repoMessaging?.open)throw Error('Messages are still connecting. Please try again.');await window.repoMessaging.open(${JSON.stringify(username)});})()`);
 }
 async function gameCommand(event, action, value) {
@@ -676,14 +679,15 @@ async function portalCommand(event, action, value) {
   if (!contents || event.sender !== contents || !event.senderFrame || event.senderFrame !== contents.mainFrame || !isPortalUrl(event.senderFrame.url)) throw new Error('This action belongs to the Repo Company website.');
   // The isolated portal preload has no public bridge. It accepts real clicks
   // on the website's own controls and exposes no paths, tokens or execution API.
-  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'media-state', 'message-notification', 'notification-sound', 'activity-refresh', 'activity-add', 'activity-remove'].includes(action)) throw new Error('This desktop action is unavailable.');
+  if (!['state', 'install', 'update', 'uninstall', 'cancel', 'play', 'play-web', 'web-demo-closed', 'refresh', 'navigate', 'launcher-update', 'launcher-reconnect', 'launcher-restart', 'automatic-game-updates', 'discord-presence', 'social-state', 'media-state', 'workspace-view', 'message-notification', 'notification-sound', 'activity-refresh', 'activity-add', 'activity-remove'].includes(action)) throw new Error('This desktop action is unavailable.');
   return executeCommand(action, value);
 }
 async function executeCommand(action, value) {
-  if (['navigate', 'messages', 'reparty', 'media-control', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence', 'activity-add', 'activity-remove'].includes(action)) await account.requireOnline();
+  if (['navigate', 'messages', 'reparty', 'wibsworth', 'media-control', 'install', 'update', 'uninstall', 'automatic-game-updates', 'discord-presence', 'activity-add', 'activity-remove'].includes(action)) await account.requireOnline();
   if (!['state', 'window', 'launcher-update', 'launcher-reconnect', 'social-state', 'media-state', 'web-demo-closed'].includes(action)) requireCurrentLauncher();
   switch (action) {
     case 'state': return state();
+    case 'workspace-view': if(!['wibs','wibsworth','reparty'].includes(value))throw Error('Unknown workspace.');workspaceView=value;bounds();return;
     case 'activity-refresh': await externalActivity?.tick();return state();
     case 'activity-add': {
       if(typeof value!=='string'||!value.trim()||value.length>100||/[\u0000-\u001f]/.test(value))throw Error('Enter a game name first.');
@@ -706,6 +710,7 @@ async function executeCommand(action, value) {
     case 'exit-game': await exitCurrentGame(); return state();
     case 'messages': await openMessages(); return state();
     case 'reparty': await openReparty(); return state();
+    case 'wibsworth': await openWibsworth(); return state();
     case 'media-control': {const message=mediaControls.control(value);activePortal()?.send('launcher:media-control',message);return state();}
     case 'media-state': {const next=mediaControls.status(value),closed=companionState.reparty.open&&!next.reparty.open;companionState=next;sunoPlayback?.update(next.reparty);if(closed&&messageOverlay&&!portalNavigation&&currentGame()&&!socialState.open)focusGame(currentGame());bounds();broadcast();return;}
     case 'resume-game': if (currentGame()) focusGame(currentGame()); else { messageOverlay = false; broadcast(); } return state();

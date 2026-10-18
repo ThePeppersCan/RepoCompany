@@ -193,26 +193,12 @@
     });
   }
 
-  let tipId = 0;
+
   function mountWibsworth(trigger) {
     if (!trigger || trigger.dataset.mascotReady) return;
     trigger.dataset.mascotReady = 'true';
-    attachWibsworth(trigger.querySelector('.repo-wibsworth-icon'), trigger);
-    let tip = trigger.querySelector('[role="tooltip"]');
-    if (!tip) {
-      tip = document.createElement('span'); tip.className = 'repo-coming-tip';
-      tip.id = 'repo-section-wibsworth-tip-' + ++tipId; tip.setAttribute('role', 'tooltip');
-      tip.textContent = 'Wibsworth is coming soon'; tip.hidden = true; trigger.append(tip);
-    }
-    function hideTip() { tip.hidden = true; trigger.removeAttribute('aria-describedby'); }
-    trigger.addEventListener('click', () => {
-      tip.hidden = !tip.hidden;
-      if (tip.hidden) hideTip(); else trigger.setAttribute('aria-describedby', tip.id);
-    });
-    trigger.addEventListener('blur', hideTip);
-    document.addEventListener('pointerdown', e => { if (!trigger.contains(e.target)) hideTip(); }, true);
-    // Register before Reparty's Escape shortcut, so dismissing this tip stays local.
-    window.addEventListener('keydown', e => { if (e.key === 'Escape' && !tip.hidden) { hideTip(); e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+    window.repoWibsworthMascot.mount(trigger.querySelector('.repo-wibsworth-icon'));
+    trigger.addEventListener('click', () => window.repoWibsworth?.open());
   }
   window.repoHeaderMascots = Object.freeze({attachWibs, mountWibsworth});
   mountWibsworth(document.getElementById('repo-wibsworth-launch'));

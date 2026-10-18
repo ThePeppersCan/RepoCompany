@@ -780,6 +780,20 @@ test('messages can reveal the preserved portal and return to the same game witho
   assert.equal(h.run('state()').messageOverlay,false);assert.equal(view.visible,true);assert.equal(h.portal.visible,false);
 });
 
+test('Wibsworth opens the preserved portal and workspace switches keep the game and playback mounted', async () => {
+  const h=nativePresenceHarness();await h.run('play("manager")');const record=h.run('currentGame()'),game=h.windows[0],scripts=[];
+  h.contents.executeJavaScript=async script=>scripts.push(script);
+  await h.run('executeCommand("wibsworth")');
+  assert(scripts.some(script=>script.includes('repoWibsworth.open()')));
+  await h.run('executeCommand("workspace-view","wibsworth")');
+  assert.equal(h.portal.bounds.width,h.context.fixture.mainWindow.getContentSize()[0]);
+  assert.equal(h.run('currentGame()'),record);assert.equal(game.destroyed,false);
+  await assert.rejects(h.run('executeCommand("workspace-view","https://elsewhere.invalid")'),/Unknown workspace/);
+  await h.run('executeCommand("workspace-view","wibs")');
+  assert.equal(h.run('currentGame()'),record);assert.equal(h.portal.visible,true);
+  await h.run('executeCommand("resume-game")');assert.equal(h.portal.visible,false);assert.equal(game.visible,true);
+});
+
 test('Collection stays full width after social panels close and preserves the game, playback and call', async () => {
   const h=nativePresenceHarness();await h.run('play("manager")');const record=h.run('currentGame()'),game=h.windows[0];
   await h.run('openReparty()');

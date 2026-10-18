@@ -36,9 +36,11 @@ let localPaused=false,localMuted=false,localVolume=70,lastMediaState='';
 try{const prefs=JSON.parse(localStorage.getItem('repo-reparty-audio')||'{}');if(Number.isFinite(prefs.volume))localVolume=Math.max(0,Math.min(100,prefs.volume));localMuted=prefs.muted===true;}catch{}
 $('volume').value=localVolume;
 function mediaState(){return {authenticated:!!user,active:!!roomId,room:room?.name||'',roomId:roomId||'',title:playingEntry()?.item.title||'',playing:!!room?.playback?.playing&&!localPaused,paused:localPaused,muted:localMuted,volume:localVolume,canControl:!!room?.playback?.video_id,canVolume:!sunoActive()||nativeSunoPlayback(),provider:sunoActive()?'suno':'youtube',connected:connectionReady,suno:sunoActive()?{id:room.playback.video_id.slice(5),position:playbackPosition(room.playback,Date.now()+offset),sampledAt:Date.now(),playing:room.playback.playing&&!localPaused}:null};}
-function publishMedia(){const next=mediaState(),signature=JSON.stringify(next);if(signature===lastMediaState)return;lastMediaState=signature;if(parent!==window)parent.postMessage({type:'repo-reparty-state',state:next},location.origin);}
+function publishMedia(){const next=mediaState();$('workspaceRoomName').textContent=next.room||'Reparty';$('workspaceConnection').textContent=next.connected?'Connected':next.active?'Reconnecting…':'Choose a room';const signature=JSON.stringify(next);if(signature===lastMediaState)return;lastMediaState=signature;if(parent!==window)parent.postMessage({type:'repo-reparty-state',state:next},location.origin);}
 function saveAudio(){try{localStorage.setItem('repo-reparty-audio',JSON.stringify({volume:localVolume,muted:localMuted}));}catch{}}
 async function localControl(action,value){
+ if(action==='rooms-refresh'){lobbyMode='video';await loadRooms();return;}
+ if(action==='rooms'||action==='create'||action==='join-link'){if(!requireUser())return;openLobby();if(action==='create')$('newRoomName').focus();if(action==='join-link'){$('roomCode').closest('details').open=true;$('roomCode').focus();}return;}
  if(action==='enter'){if(!roomId)await enterSharedRoom();return;}
  if(action==='join'){if(validRoom(value)&&roomId!==value){if(!requireUser()){history.replaceState(null,'','?embedded=1&room='+value);return;}await join(value);}return;}
  if(action==='leave'){await goHome();return;}
@@ -50,7 +52,7 @@ async function localControl(action,value){
  saveAudio();if(playerReady){player.setVolume(localVolume);if(localMuted)player.mute();else player.unMute();}mediaControls();
  if(action==='pause'||(action==='mute'&&sunoActive()))await applyPlayback(true);
 }
-addEventListener('message',event=>{if(event.source!==parent||parent===window||event.origin!==location.origin||event.data?.type!=='repo-reparty-control')return;const {action,value}=event.data;if(['pause','next','mute','volume','join','leave','enter'].includes(action))run(()=>localControl(action,value));});
+addEventListener('message',event=>{if(event.source!==parent||parent===window||event.origin!==location.origin||event.data?.type!=='repo-reparty-control')return;const {action,value}=event.data;if(['pause','next','mute','volume','join','leave','enter','rooms','create','join-link','rooms-refresh'].includes(action))run(()=>localControl(action,value));});
 window.repoRepartyPlayer=Object.freeze({getState:mediaState,control:localControl});
 
 function sunoActive() { return isSuno(room?.playback?.video_id); }
@@ -125,6 +127,7 @@ async function loadRooms(more=false) {
     }));
     if(!lobbyRooms.length)$('roomDirectory').append(node('p','No rooms open yet. Start one below and invite your friends.','directory-empty'));
     $('moreRooms').hidden=!data.has_more;
+    if(parent!==window)parent.postMessage({type:'repo-reparty-rooms',rooms:lobbyRooms.map(({id,name,people})=>({id,name,people}))},location.origin);
   }catch(error){if(request===lobbyRequest){$('lobbyError').textContent=friendly(error);if(!more)$('roomDirectory').replaceChildren(node('p','Rooms could not load. Try Refresh rooms.','directory-empty'));}}
   finally{if(request===lobbyRequest){lobbyLoading=false;$('refreshRooms').disabled=$('moreRooms').disabled=false;}}
 }
@@ -152,6 +155,7 @@ async function goHome() {
   document.title='Reparty · RepoCompany';$('roomName').textContent='Reparty';
   $('startRoom').hidden=false;$('startRoom').textContent='Join shared room';$('emptyHint').textContent='You left the room.';$('startRoom').focus();
 }
+$('workspaceRooms').onclick=()=>openLobby();$('workspaceInvite').onclick=()=>$('roomLink').click();
 $('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('changeRoom').focus();};
 $('refreshRooms').onclick=()=>loadRooms();$('moreRooms').onclick=()=>loadRooms(true);
 setInterval(()=>{if($('lobby').open&&user&&!lobbyLoading)loadRooms();},30000);
@@ -845,6 +849,7 @@ async function authChanged(session) {
     await rpc('profile');
     const code = new URLSearchParams(location.search).get('room');
     if (validRoom(code)) await join(code); else await enterSharedRoom();
+    lobbyMode='video';await loadRooms();
   } catch (error) { openLobby(lobbyMode||'video'); $('lobbyError').textContent = friendly(error); }
 }
 if (!db) notify('The account service could not load. Check your connection and refresh.');
