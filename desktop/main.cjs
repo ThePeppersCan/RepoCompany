@@ -31,7 +31,7 @@ if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestService
 let messageNotifications, taskbarAttention, notificationAudio, backgroundMessageTimer, externalActivity;
 let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
-let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, embeddedDemo = null, demoLaunchRevision = 0;
+let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, restorePaint = null, embeddedDemo = null, demoLaunchRevision = 0;
 const emptySocialState = () => ({ unread: 0, callActive: false, incomingCall: false, open: false });
 const mediaControls = require('./lib/media-controls.cjs');
 const { SunoPlayback } = require('./lib/suno-playback.cjs');
@@ -191,6 +191,30 @@ function setPortalVisible(visible) {
   if (portal && activePortal() && windowContents(mainWindow)) portal.setVisible(portalViewVisible);
   notifyPortalVisibility();
 }
+function restoreWindowViews() {
+  if (restorePaint || quitting) return;
+  // Wait for Windows to finish restoring the native child surfaces. Keep the
+  // existing page/player alive; a restore must never navigate or reload it.
+  restorePaint = setImmediate(() => {
+    restorePaint = null;
+    const contents = !quitting && windowContents(mainWindow);
+    if (!contents || !mainWindow.isVisible() || mainWindow.isMinimized()) return;
+    bounds();
+    setPortalVisible(portalViewVisible);
+    contents.invalidate();
+    if (portalViewVisible) activePortal()?.invalidate();
+    if (!updateLocked()) for (const record of games.values()) if (!record.loading) gameContents(record)?.invalidate();
+  });
+  restorePaint.unref?.();
+}
+function watchWindowVisibility(window) {
+  for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) window.on(event, () => {
+    messageNotifications?.sync(mediaAccountId);
+    notifyPortalVisibility();
+    pollBackgroundMessages();
+    if (event === 'restore' || event === 'show') restoreWindowViews();
+  });
+}
 function configureSessionPermissions(targetSession) {
   const picker=createScreenPicker({BrowserWindow,desktopCapturer,ipcMain,getWindow:()=>mainWindow,hidden:hiddenTest});
   mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog,chooseScreen:valid=>picker.choose(valid),cancelScreen:()=>picker.cancel() });
@@ -234,8 +258,9 @@ function broadcast() {
 }
 function bounds() {
   messageNotifications?.layout();
-  if (!windowContents(mainWindow)) return;
+  if (!windowContents(mainWindow) || mainWindow.isMinimized?.()) return;
   const [width, height] = mainWindow.getContentSize();
+  if (width < 1 || height <= 44) return;
   const area = { x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) };
   const panelWidth = Math.min(440, width);
   const portalArea = messageOverlay && !portalNavigation && currentGame() && !companionState.reparty.open ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
@@ -788,7 +813,7 @@ async function launch() {
   Menu.setApplicationMenu(null);
   mainWindow.on('resize', bounds);
   mainWindow.on('focus', () => { if (currentGame() && !messageOverlay && !updateLocked()) { gameContents(currentGame())?.focus(); discordPresence?.gameFocused(currentGame().__gameId); } else if (embeddedDemo && !updateLocked()) discordPresence?.gameFocused(embeddedDemo.id); notifyPortalVisibility(); });
-  for (const event of ['blur', 'minimize', 'restore', 'show', 'hide']) mainWindow.on(event, () => {messageNotifications?.sync(mediaAccountId);notifyPortalVisibility();pollBackgroundMessages();});
+  watchWindowVisibility(mainWindow);
   mainWindow.on('enter-full-screen', () => { bounds(); broadcast(); });
   mainWindow.on('leave-full-screen', () => { bounds(); broadcast(); });
   mainWindow.once('ready-to-show', () => showWindow(mainWindow));
@@ -800,7 +825,7 @@ async function launch() {
     messageNotifications?.dispose();
     discordPresence?.dispose();
     mediaPermissions?.dispose();
-    shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer);
+    shutdown.abort(); clearInterval(timer); clearInterval(checkTimer); stopLauncherUpdateChecks(); clearTimeout(broadcastTimer); clearImmediate(restorePaint); restorePaint = null;
     for (const game of [...games.values()]) disposeGame(game);
     const contents = portalContents; portalContents = null; portal = null;
     if (contents && !contents.isDestroyed()) contents.close();

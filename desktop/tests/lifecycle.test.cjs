@@ -795,6 +795,55 @@ test('portal visibility distinguishes the foreground inbox from a running hidden
   assert.equal(h.windows[0].destroyed, false, 'visibility signals do not stop game or call lifecycles');
 });
 
+test('restoring Reparty repaints the existing portal after native restore without reloading playback', async () => {
+  const h = nativePresenceHarness(), host = h.context.fixture.mainWindow, events = new EventEmitter();
+  host.on = events.on.bind(events); let shellPaints = 0, portalPaints = 0, layouts = 0;
+  host.webContents.invalidate = () => shellPaints++;
+  h.contents.invalidate = () => portalPaints++;
+  h.contents.loadURL = h.contents.reload = () => { throw Error('Restoring must preserve the page and its playback.'); };
+  host.getContentSize = () => { layouts++; return [1480, 940]; };
+  h.run('setPortalVisible(true); companionState.reparty={...companionState.reparty,open:true,active:true,playing:true}; watchWindowVisibility(mainWindow); bounds();');
+  const playback = h.run('companionState.reparty'), surface = h.run('portalContents'), originalBounds = h.portal.bounds;
+  host.minimized = true; events.emit('minimize');
+  h.run('bounds()'); assert.equal(layouts, 1); assert.equal(h.portal.bounds, originalBounds);
+  assert.equal(h.run('state().portalVisible'), false);
+  host.minimized = false; events.emit('restore'); events.emit('show');
+  assert.equal(portalPaints, 0, 'native restore finishes before repaint');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(shellPaints, 1); assert.equal(portalPaints, 1); assert.equal(layouts, 2);
+  assert.equal(h.run('portalContents'), surface); assert.equal(h.run('companionState.reparty'), playback);
+  assert.equal(h.run('state().portalVisible'), true); assert.equal(h.run('portalReady'), true);
+  assert.deepEqual({ ...h.portal.bounds }, { x: 0, y: 44, width: 1480, height: 896 });
+});
+
+test('a queued restore does not paint a window that was hidden, minimized or closed again', async () => {
+  for (const state of ['hidden','minimized','destroyed','quitting']) {
+    const h = nativePresenceHarness(), host = h.context.fixture.mainWindow;
+    host.webContents.invalidate = h.contents.invalidate = () => { throw Error('The window is no longer available to paint.'); };
+    h.run('setPortalVisible(true); restoreWindowViews();');
+    if (state === 'hidden') host.shown = false;
+    if (state === 'minimized') host.minimized = true;
+    if (state === 'destroyed') host.isDestroyed = () => true;
+    if (state === 'quitting') h.run('quitting=true;');
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(h.run('restorePaint'), null);
+  }
+});
+
+test('restoring a game or a signed-out client never reveals the hidden portal', async () => {
+  const h = nativePresenceHarness(), host = h.context.fixture.mainWindow;
+  let portalPaints = 0, gamePaints = 0;
+  host.webContents.invalidate = () => {};
+  h.contents.invalidate = () => portalPaints++;
+  await h.run('play("manager")');
+  h.windows[0].webContents.invalidate = () => gamePaints++;
+  h.run('restoreWindowViews()'); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.portal.visible, false); assert.equal(portalPaints, 0); assert.equal(gamePaints, 1);
+  h.run('messageOverlay=true;setPortalVisible(true);account.state.status="signed-out";restoreWindowViews();');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(h.portal.visible, false); assert.equal(portalPaints, 0);
+});
+
 test('closing a game preserves Wibs background checks and audio until launcher shutdown', async () => {
   const h=nativePresenceHarness(),signals=[];let disposed=0,cancelled=0;
   h.context.audioFixture={sync(){},dispose(){disposed++;}};h.context.backgroundMarker={};
