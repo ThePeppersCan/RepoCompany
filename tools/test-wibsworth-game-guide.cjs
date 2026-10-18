@@ -59,6 +59,8 @@ const assert=require('node:assert/strict');
  assert.match(ask('And what shops are there?',history('What are the locations in Moratales?')).answer,/Pike & Line/);
  assert.match(ask('Where can I buy it?',history('Tell me about sugar in Moratales')).answer,/Arthur/);
  assert.match(ask('How long does it take to grow?',history('What is tomato in Moratales?')).answer,/2 watered days/);
+ const clubFollowup=ask('Where is it?',history('Tell me about Blackglass in Velmora Manager'));
+ assert.match(clubFollowup.answer,/Vardesh, Velmora/);assert(!clubFollowup.answer.includes('four divisions'));
  assert(!ask('What are the locations in Moratales?').answer.includes('recipe'));
  assert(!ask('Where do I buy sugar in Moratales?').answer.includes('Tomato'));
  assert.equal(ask('How do I bake a cake?').k.scope,'general','Common food words must not infer a game');
