@@ -25,7 +25,7 @@ function verifySources(sources,read=relative=>fs.readFileSync(path.join(root,rel
   const failures=[];
   for(const source of sources){
     if(source.external){
-      if(!/^https:\/\/(?:moratales|manager|morogue)\.repocompany\.uk\//.test(source.url||'')||!/^https:\/\/(?:moratales|manager|morogue)\.repocompany\.uk\/$/.test(source.entry||'')||!/^[0-9a-f]{64}$/.test(source.sha256||''))failures.push('Invalid external reviewed source: '+source.id);
+      if(!/^https:\/\/(?:(?:moratales|manager|morogue)\.repocompany\.uk\/|repocompany\.uk\/game-integrations\/)/.test(source.url||'')||!/^https:\/\/(?:moratales|manager|morogue)\.repocompany\.uk\/$/.test(source.entry||'')||!/^[0-9a-f]{64}$/.test(source.sha256||''))failures.push('Invalid external reviewed source: '+source.id);
       continue;
     }
     if(typeof source.path!=='string'||source.path.includes('..')||path.isAbsolute(source.path)||!source.path.match(/^[a-zA-Z0-9_./-]+$/)||!/^[0-9a-f]{64}$/.test(source.sha256||'')){
@@ -78,7 +78,8 @@ async function run(){
   const {FACTS:baseFacts,SOURCE_MANIFEST:baseSources}=await import(pathToFileURL(path.join(root,'lib/wibsworth-knowledge-data.mjs')));
   const {LORE_FACTS,LORE_SOURCES}=await import(pathToFileURL(path.join(root,'lib/wibsworth-lore-data.mjs')));
   const {EXPANDED_FACTS,EXPANDED_SOURCES}=await import(pathToFileURL(path.join(root,'lib/wibsworth-expanded-data.mjs')));
-  const FACTS=[...baseFacts,...LORE_FACTS,...EXPANDED_FACTS],SOURCE_MANIFEST=[...baseSources,...LORE_SOURCES,...EXPANDED_SOURCES];
+  const {FINAL_BOSS_FACTS,FINAL_BOSS_SOURCES}=await import(pathToFileURL(path.join(root,'lib/wibsworth-final-boss-data.mjs')));
+  const FACTS=[...baseFacts,...LORE_FACTS,...EXPANDED_FACTS,...FINAL_BOSS_FACTS],SOURCE_MANIFEST=[...baseSources,...LORE_SOURCES,...EXPANDED_SOURCES,...FINAL_BOSS_SOURCES];
   verifySources(knowledgeSources);
   if(process.argv.includes('--verify-published'))await verifyPublishedSources(knowledgeSources);
   if(process.argv.includes('--sources-only')){console.log(`Wibsworth source preflight passed: ${knowledgeSources.length} reviewed source pins.`);return;}

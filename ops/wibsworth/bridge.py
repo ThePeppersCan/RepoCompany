@@ -7,6 +7,9 @@ SECRET = (ROOT / 'bridge-secret.txt').read_text().strip()
 ADMISSION = threading.BoundedSemaphore(1)
 ENDPOINT = 'https://repocompany.uk/api/wibsworth/bridge-heartbeat'
 URL = None
+MODELS = {'qwen3-1.7b': ('wibsworth-trial:latest', 'Qwen3 1.7B'),
+          'qwen3-4b-instruct': ('wibsworth-4b-instruct:latest', 'Qwen3 4B Instruct')}
+MODEL, MODEL_LABEL = MODELS[os.environ.get('WIBSWORTH_MODEL', 'qwen3-1.7b')]
 
 def post(url, body, token=None, timeout=15):
     headers={'Content-Type':'application/json','User-Agent':'Mozilla/5.0 (compatible; Wibsworth/1.0; +https://repocompany.uk)'}
@@ -38,7 +41,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if not self.authenticated(): return self.reply(403,{'error':'Forbidden'})
         if self.path!='/health': return self.reply(404,{'error':'Not found'})
-        self.reply(200,{'ok':True,'model':'Qwen3 1.7B','parallel':1})
+        self.reply(200,{'ok':True,'model':MODEL_LABEL,'parallel':1})
     def do_POST(self):
         if not self.authenticated(): return self.reply(403,{'error':'Forbidden'})
         if self.path!='/infer': return self.reply(404,{'error':'Not found'})
@@ -56,7 +59,7 @@ class Handler(BaseHTTPRequestHandler):
         if not ADMISSION.acquire(blocking=False): return self.reply(429,{'error':'Busy'})
         try:
             # Model and compute limits are fixed here, never accepted from callers.
-            body={'model':'wibsworth-trial:latest','messages':messages,'stream':True,'think':False,'keep_alive':'5m',
+            body={'model':MODEL,'messages':messages,'stream':True,'think':False,'keep_alive':'5m',
                   'options':{'num_ctx':4096,'num_thread':2,'num_predict':640,'temperature':0.2,'top_p':0.8,'top_k':20}}
             answer=[]; started=time.monotonic(); finished=False
             with post('http://127.0.0.1:11437/api/chat',body,timeout=85) as response:
