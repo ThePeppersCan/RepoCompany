@@ -10,9 +10,7 @@ WIBSWORTH_AI_ENABLED = "false"
 
 [env.production.vars]
 WIBSWORTH_AI_ENABLED = "true"
-
-[env.production.ai]
-binding = "AI"
+WIBSWORTH_PROVIDER = "ks5b"
 
 [[d1_databases]]
 binding = "DASHBOARD_DB"
