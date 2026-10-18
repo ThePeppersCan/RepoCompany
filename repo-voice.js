@@ -3,6 +3,40 @@
   const account=window.repoAccount;
   if(!account || window.repoVoice)return;
   const client=crypto.randomUUID(), pcs=new Set(), audios=new Map(), controllers=new Set();
+  // A keepalive leave can be lost when the launcher exits. Keep the old client
+  // identity until its server media is closed; a Web Lock protects live tabs.
+  const recoveryPrefix='repo-voice-session:',lockName=id=>recoveryPrefix+id;
+  const recoveryReady=new Promise(resolve=>{
+    if(!navigator.locks){resolve(false);return;}
+    navigator.locks.request(lockName(client),()=>{resolve(true);return new Promise(()=>{});}).catch(()=>resolve(false));
+  });
+  function rememberCall(){try{localStorage.setItem(recoveryPrefix+client,JSON.stringify({user,client}));}catch{}}
+  async function recoverCalls(valid){
+    if(!await recoveryReady)return;
+    const records=[];
+    try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(recoveryPrefix)){const record=JSON.parse(localStorage.getItem(key));if(record?.user===user&&typeof record.client==='string'&&key===recoveryPrefix+record.client)records.push(record);}}}catch{return;}
+    for(const record of records){
+      const recover=async()=>{
+        if(!valid())throw Object.assign(Error('Call changed.'),{stale:true});
+        const previous=await api('state',{},valid,record.client);
+        if(previous.enabled===false)throw Error(previous.reason||'Voice is not ready yet.');
+        for(const room of previous.rooms||[])if(room.mine.owned)await api('leave',{room:room.id},valid,record.client);
+        // Leave acknowledges immediately; upstream media closes asynchronously.
+        // Wait before admitting a new call, retaining the record on failure.
+        const deadline=Date.now()+10000;
+        while(true){
+          const next=await api('state',{},valid,record.client);
+          if(next.enabled===false)throw Error(next.reason||'Voice is not ready yet.');
+          if(!(next.rooms||[]).some(r=>r.mine.owned))break;
+          if(Date.now()>=deadline)throw Error('Your previous voice connection is still closing. Please try joining again shortly.');
+          await new Promise(resolve=>setTimeout(resolve,500));
+        }
+        try{localStorage.removeItem(recoveryPrefix+record.client);}catch{}
+      };
+      if(record.client===client)await recover();
+      else await navigator.locks.request(lockName(record.client),{ifAvailable:true},lock=>lock?recover():undefined);
+    }
+  }
   let user=account.state.user?.id||null, epoch=0, generation=0, enabled=false, rooms=[], budget=null, community={members:[]};
   let current=null, stream=null, sender=null, receiver=null, subscribed=new Set(), busy=false, polling=false, muted=false, deafened=false;
   let serverMuted=false,serverDeafened=false;
@@ -28,7 +62,7 @@
   function toggleMute(){if(!state().canMute)return;muted=!muted;activity?.silence('local');applyMute();announce();poll();}
   function toggleDeafen(){if(!state().canDeafen)return;deafened=!deafened;if(soundBlocked())audioSettings.stopCues();activity?.silence('local');for(const audio of audios.values())audio.muted=soundBlocked();applyMute();announce();poll();}
   function announce(){render();dispatchEvent(new CustomEvent('repo-voice-state',{detail:state()}));}
-  async function api(op,payload={},valid=()=>true) {
+  async function api(op,payload={},valid=()=>true,requestClient=client) {
     const e=epoch,id=user;
     if(!id)throw Error('Sign in to call.');
     const {data:{session}}=await account.db.auth.getSession();
@@ -37,7 +71,7 @@
     const controller=new AbortController();controllers.add(controller);
     let timedOut=false;const timeout=setTimeout(()=>{timedOut=true;controller.abort();},22000);
     try{
-      const response=await fetch('/api/voice/'+op,{method:'POST',cache:'no-store',credentials:'same-origin',signal:controller.signal,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({...payload,client})});
+      const response=await fetch('/api/voice/'+op,{method:'POST',cache:'no-store',credentials:'same-origin',signal:controller.signal,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({...payload,client:requestClient})});
       const data=await response.json();
       if(e!==epoch||id!==user||!valid())throw Object.assign(Error('Call changed.'),{stale:true});
       if(!response.ok)throw Object.assign(Error(data.error||'Voice is temporarily unavailable.'),{status:response.status});
@@ -161,6 +195,9 @@
     const g=++generation,e=epoch,valid=()=>generation===g&&epoch===e;
     announce();
     try{
+      await recoverCalls(valid);
+      if(!valid())throw Object.assign(Error('Call changed.'),{stale:true});
+      rememberCall();
       const response=options.community?await api('community',{},valid):options.room?await api('join',{room:options.room},valid):await api('create',options,valid);
       current=response.room||options.room;serverMuted=!!response.serverMuted;serverDeafened=!!response.serverDeafened;lastContact=Date.now();announce();
       await microphone(valid);
