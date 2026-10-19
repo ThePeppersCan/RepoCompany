@@ -186,7 +186,11 @@ export class VoiceHub {
         if (this.env.VOICE_ENABLED==='false') this.end(room,'Voice is temporarily paused.',now);
         else if (!hasBudget(this.state,now)) this.end(room,'Monthly Wibs usage has reached its limit. Calls, cameras and screen sharing reopen automatically when the allowance renews.',now);
         else if (now >= room.expires) this.end(room,'This call reached its eight-hour limit. You can start another.',now);
-        else if (verify) { try { await this.permitted(room); } catch { this.end(room,'A friendship changed or account verification is unavailable.',now); } }
+        else if (verify) { try { await this.permitted(room); } catch(error) {
+          // A database outage does not revoke an existing friendship. Explicit
+          // denials still close media; temporary failures are retried next alarm.
+          if(error.status===403||error.status===404)this.end(room,'A friendship changed.',now);
+        } }
         for (const m of members(room)) {
           if (live(m) && m.lease <= now) { m.status='left'; if((m.id===room.host && room.kind!=='community') || room.kind==='private') this.end(room,'The call disconnected.',now); }
           if (room.kind==='private' && m.status==='invited' && m.invitedAt+90000 <= now) m.status='left';
@@ -277,7 +281,10 @@ export class VoiceHub {
       await this.save(); this.clean(room); return {ok:true};
     }
     if(room.ended || (m.status==='left' && !(op==='join' && room.kind==='group'))) throw fail(m.removalReason||room.reason||'This call has ended.',410);
-    try { await this.permitted(room); } catch(error) { this.end(room,'A friendship changed.',now); await this.save(); this.clean(room); throw error; }
+    try { await this.permitted(room); } catch(error) {
+      if(error.status===403||error.status===404){this.end(room,'A friendship changed.',now);await this.save();this.clean(room);}
+      throw error;
+    }
     if(op==='join') return this.join(room,me,b,now);
     if(!live(m)||m.client!==b.client) throw fail('Join the call from this device first.',403);
     if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();this.clean(room);throw fail(room.reason,429);}

@@ -25,7 +25,10 @@ export async function onRequest({request,env,params}) {
       fetch(config.url+'/auth/v1/user',{headers,signal:AbortSignal.timeout(8000)}),
       fetch(config.url+'/rest/v1/rpc/get_my_character',{method:'POST',headers,body:'{}',signal:AbortSignal.timeout(8000)})
     ]);
-    if(!userResponse.ok)throw fail('Sign in again to call.',401);
+    if(!userResponse.ok){
+      if(userResponse.status===401||userResponse.status===403)throw fail('Sign in again to call.',401);
+      throw fail('Account verification is temporarily unavailable. Reconnecting…',503);
+    }
     const user=await userResponse.json();
     if(typeof user.id!=='string'||!/^[a-f0-9-]{36}$/i.test(user.id)||user.is_anonymous)throw fail('Sign in to call.',401);
     if(!profileResponse.ok)throw fail('Your account is temporarily unavailable.',503);

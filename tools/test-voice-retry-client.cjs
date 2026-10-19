@@ -14,6 +14,12 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
   });
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(f.base);await page.waitForFunction(()=>repoVoice?.getState().enabled);await page.evaluate(()=>repoMessaging.open());await page.getByRole('button',{name:'Join RE-COMP voice',exact:true}).click();await page.waitForFunction(()=>repoVoice.getState().callStatus==='active');
   assert.deepEqual(await page.evaluate(()=>testPeers.map(p=>({servers:p.config.iceServers.length,state:p.connectionState}))),[{servers:1,state:'closed'},{servers:0,state:'connected'}]);assert.equal(sessions,1);assert.equal(publishes,1,'fresh local retry must not reserve a second SFU session');
+  await page.route('**/api/voice/heartbeat',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Temporary verification failure'})}));
+  await page.evaluate(()=>dispatchEvent(new Event('online')));await page.getByText('Reconnecting to voice…',{exact:true}).waitFor();
+  assert.equal(await page.evaluate(()=>repoVoice.getState().callStatus),'active','a temporary outage preserves connected media');
+  await page.unroute('**/api/voice/heartbeat');await page.evaluate(()=>dispatchEvent(new Event('online')));
+  await page.getByText('Reconnecting to voice…',{exact:true}).waitFor({state:'detached'});
+  assert.equal(await page.evaluate(()=>repoVoice.getState().callStatus),'active');
   await page.evaluate(()=>{repoAccount.state.user=null;dispatchEvent(new Event('repo-account-state'));});assert(await page.evaluate(()=>testPeers.every(p=>p.connectionState==='closed')));assert.deepEqual(errors,[]);
   console.log('PASS: empty candidate gathering retries on a fresh peer, closes the old one, publishes once, connects and cleans up on sign-out.');
  }finally{await browser?.close();await f.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

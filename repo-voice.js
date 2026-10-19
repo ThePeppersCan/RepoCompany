@@ -238,7 +238,7 @@
       if(serviceError&&message===serviceError)message='';serviceError='';
       enabled=!!result.enabled;rooms=result.rooms||[];budget=result.budget||null;community=result.community||{members:[]};
       if(current){
-        lastContact=Date.now();const room=rooms.find(r=>r.id===current);
+        lastContact=Date.now();if(message==='Reconnecting to voice…')message='';const room=rooms.find(r=>r.id===current);
         if(!room||room.ended||room.mine.status==='left'){await leave(room?.mine.reason||room?.reason||'Call ended.');return;}
         screens?.sync(room);cameras?.sync(room);
         if(connected){const members=new Set(room.members.filter(m=>m.id!==user&&m.status==='active').map(m=>m.id));if(heardMembers&&!soundBlocked()&&!room.mine.serverDeafened){if([...heardMembers].some(id=>!members.has(id)))audioSettings.cue('leave');if([...members].some(id=>!heardMembers.has(id)))audioSettings.cue('join');}heardMembers=members;}
