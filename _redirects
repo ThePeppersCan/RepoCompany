@@ -16,3 +16,5 @@
 /Demos/* / 200
 
 /Wibsworth /index.html 200
+/VelmoraTales/ /VelmoraTales 301
+/VelmoraTales / 200

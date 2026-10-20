@@ -85,10 +85,11 @@ function initialize() {
   const pendingGame = id => ['install','update','uninstall','play'].some(action => pending.has(`${action}:${id}`));
   const updateAvailable = id => installed(id) && entry(id).availableVersion && entry(id).availableVersion !== entry(id).version;
   const originGame = value => {try {const origin = new URL(value,location.href).origin;return games().find(game => game.origin === origin);}catch{return null;}};
-  const imageFor = id => ({morogue:'/account-assets/morogue-activity-banner-v1.png',moratales:'/account-assets/moratales-activity-banner-v1.png',manager:'/account-assets/manager-activity-banner-v1.png',dragonbound:'/original-case-assets/dragonbound-menu.png'}[id]);
+  const imageFor = id => ({'velmora-tales':'/original-case-assets/velmora-tales-artwork.png',morogue:'/account-assets/morogue-activity-banner-v1.png',moratales:'/account-assets/moratales-activity-banner-v1.png',manager:'/account-assets/manager-activity-banner-v1.png',dragonbound:'/original-case-assets/dragonbound-menu.png'}[id]);
   function percent(item) {return Math.round(Math.min(100,Math.max(0,item.totalBytes > 0 ? item.bytes / item.totalBytes * 100 : Number(item.progress || 0) * 100)));}
   function size(value) {const amount=Number(value)||0;if(amount<1024)return `${amount} B`;if(amount<1048576)return `${(amount/1024).toFixed(1)} KB`;return `${(amount/1048576).toFixed(1)} MB`;}
   function statusFor(game) {
+    if(game.comingSoon)return 'Download coming soon';
     const item=entry(game.id);
     if(running(game.id))return 'Now playing';
     if(busy(game.id))return `${item.status==='verifying'?'Verifying game files':item.status==='updating'?'Updating':'Installing'}${item.totalBytes?' · '+percent(item)+'%':''}`;
@@ -98,6 +99,7 @@ function initialize() {
     return installed(game.id)?'Installed · Version '+item.version:'Not installed on this computer';
   }
   function actionFor(game) {
+    if(game.comingSoon)return {label:'Coming soon',disabled:true};
     if(!game.installable)return {label:'Coming later',disabled:true};
     if(running(game.id))return {label:'Running',disabled:true};
     if(busy(game.id))return {label:entry(game.id).totalBytes?`Installing ${percent(entry(game.id))}%`:'Installing…',disabled:true};

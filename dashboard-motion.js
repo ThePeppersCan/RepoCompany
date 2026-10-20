@@ -31,7 +31,7 @@
   let current = 0, opener = null, imageAnimation;
 
   function showShot(index, direction = 1) {
-    if (launching) return;
+    if (launching || dashboard.dataset.comingSoon === 'true') return;
     const alreadyOpen = gallery.open;
     current = (index + shots.length) % shots.length;
     const source = shots[current].querySelector('img');
@@ -242,7 +242,7 @@
   });
 
   function launchGame(ready) {
-    if (launching || dashboard.classList.contains('home-mode')) return;
+    if (launching || dashboard.classList.contains('home-mode') || dashboard.dataset.comingSoon === 'true' || !playButton.dataset.gameUrl) return;
     launching = true;
     launchAt = performance.now();
     launchSpeed = Math.max(80, speed);
@@ -300,7 +300,7 @@
     dashboard.inert = false;
     dashboard.removeAttribute('aria-busy');
     dashboard.classList.remove('case-active');
-    playButton.disabled = false;
+    playButton.disabled = dashboard.dataset.comingSoon === 'true';
     document.body.classList.remove('is-launching');
     launchCurtain.classList.remove('visible');
     launchCurtain.style.removeProperty('transition');

@@ -7,14 +7,16 @@
   const stack = document.getElementById('case-stack');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const games = [
-    {id:'moratales',name:'Moratales',genre:'Story & life sim',tagline:'Your next chapter in Velmora.',glow:'125,155,113'},
-    {id:'manager',name:'Velmora Manager',genre:'Fantasy sports management',tagline:'Build your club. Shape its future.',glow:'91,137,190'},
     {id:'morogue',name:'Morogue',genre:'Action roguelite',tagline:'Survive the night. Face the Uncrowned.',glow:'181,91,77'},
+    {id:'velmora-tales',name:'Velmora Tales',genre:'Coming soon',tagline:'A new adventure is on the horizon.',glow:'116,155,122'},
+    {id:'manager',name:'Velmora Manager',genre:'Fantasy sports management',tagline:'Build your club. Shape its future.',glow:'91,137,190'},
+    {id:'moratales',name:'Moratales',genre:'Story & life sim',tagline:'Your next chapter in Velmora.',glow:'125,155,113'},
     {id:'demos',name:'Demos',genre:'Playable demos & minigames',tagline:'Including Dragonbound. Discover something new.',glow:'112,139,204'}
   ];
   // Crop the original source wordmarks. The Dragonbound lettering uses a single foil ink;
   // its letterforms are sampled directly from the original menu, never recreated as text.
   function logo(id, extra='') {
+    if(id==='velmora-tales') return `<img class="velmora-wordmark ${extra}" src="${assets}velmora-tales-logo.png" alt="">`;
     if(id==='moratales') return `<img class="${extra}" src="${assets}moratales-logo.png" alt="">`;
     if(id==='morogue') return `<img class="morogue-wordmark ${extra}" src="${assets}morogue-logo.png" alt="">`;
     if(id==='manager') return `<svg class="source-logo manager-wordmark ${extra}" viewBox="57 178 2073 432" aria-hidden="true"><image href="${assets}manager-logo-clean.png" width="2167" height="725"/></svg>`;
@@ -24,6 +26,7 @@
   const publisher = '<div class="cover-publisher"><i class="publisher-mark"></i><span class="publisher-wordmark" aria-label="Repo Company"></span></div>';
   function cover(id) {
     let content='';
+    if(id==='velmora-tales') content=`<svg class="velmora-cover-art" viewBox="100 0 986 1448" preserveAspectRatio="none" aria-hidden="true"><image href="${assets}velmora-tales-artwork.png" width="1086" height="1448"/></svg>${logo(id,'cover-logo')}`;
     if(id==='moratales') content=`<img class="cover-map" src="${assets}moratales-cover-source.png" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
     if(id==='morogue') content=`<img class="cover-art" src="${assets}morogue-cover-art.png" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
     if(id==='manager') content=`<img class="cover-art" src="${assets}manager-menu.png" alt="">${logo(id,'cover-logo')}<span class="cover-edition">VELMORA MANAGER</span>`;
@@ -32,10 +35,13 @@
     return `<div class="case-cover cover-${id}">${publisher}${content}</div>`;
   }
   function spine(id) {
+    if(id==='velmora-tales') return `<div class="case-spine spine-velmora-tales"><div class="velmora-spine-art" aria-hidden="true"></div><div class="spine-publisher"><i class="publisher-mark"></i></div><svg class="spine-logo" viewBox="0 195 2172 290" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><image href="${assets}velmora-tales-spine-logo.png" width="2172" height="724"/></svg></div>`;
     const content=id==='demos'?'<strong class="spine-demo-name">DEMOS</strong><span class="spine-demo-edition">DEMO DISC 01</span><div class="printed-disc"></div>':`${logo(id,'spine-logo')}<div class="spine-picture"></div>`;
     return `<div class="case-spine spine-${id}"><div class="spine-publisher"><i class="publisher-mark"></i></div>${content}</div>`;
   }
-  stack.innerHTML=games.map((g,i)=>`<div class="closed-case" data-case="${i}" style="--index:${i};z-index:${4-i}"><img class="case-shell" src="${assets}closed-case-shell.png" alt="">${cover(g.id)}${spine(g.id)}<button class="case-select" aria-label="Select ${g.name}" aria-pressed="false" tabindex="${i===0?0:-1}" data-game="${i}"></button><svg class="case-edge-light" viewBox="0 0 1672 941" aria-hidden="true"><path d="M734 255 1583 309Q1595 311 1596 329L1597 422 1491 667Q1486 678 1474 675L433 582Q418 580 418 565L418 481Q419 474 432 465Z"/></svg></div>`).join('');
+  stack.style.setProperty('--case-offset',`${-(games.length-4)*82}px`);
+  document.querySelector('.collection-position>span:last-child').textContent=String(games.length).padStart(2,'0');
+  stack.innerHTML=games.map((g,i)=>`<div class="closed-case" data-case="${i}" style="--index:${i};z-index:${games.length-i}"><img class="case-shell" src="${assets}closed-case-shell.png" alt="">${cover(g.id)}${spine(g.id)}<button class="case-select" aria-label="Select ${g.name}" aria-pressed="false" tabindex="${i===0?0:-1}" data-game="${i}"></button><svg class="case-edge-light" viewBox="0 0 1672 941" aria-hidden="true"><path d="M734 255 1583 309Q1595 311 1596 329L1597 422 1491 667Q1486 678 1474 675L433 582Q418 580 418 565L418 481Q419 474 432 465Z"/></svg></div>`).join('');
   const layers=[...stack.querySelectorAll('.closed-case')];
   const buttons=[...stack.querySelectorAll('.case-select')];
   layers.forEach(layer=>{
@@ -88,7 +94,7 @@
   async function showOpen({animate=true,route=true}={}) {
     if((transitioning&&animate)||dashboard.dataset.launching)return;
     if(animate)window.dashboardAudio?.effect('open');
-    if(selected===3){window.demoLibrary.open({route});return;}
+    if(games[selected].id==='demos'){window.demoLibrary.open({route});return;}
     const game=games[selected],revision=++sceneRevision;
     transitioning=true;
     window.dashboardScenes.activate(game.id);
@@ -138,7 +144,7 @@
     if(!dashboard.classList.contains('home-mode')){if(event.key==='Escape'){event.preventDefault();showCollection();}return;}
     if(['ArrowDown','ArrowRight','ArrowUp','ArrowLeft','Home','End'].includes(event.key)){
       event.preventDefault();
-      choose(event.key==='Home'?0:event.key==='End'?3:selected+(event.key==='ArrowDown'||event.key==='ArrowRight'?1:-1),true);
+      choose(event.key==='Home'?0:event.key==='End'?games.length-1:selected+(event.key==='ArrowDown'||event.key==='ArrowRight'?1:-1),true);
     }else if(event.key==='Enter'&&document.activeElement===document.body){event.preventDefault();showOpen();}
   });
   function restoreRoute(id) {
@@ -154,8 +160,8 @@
     if(document.getElementById('gallery').open)document.getElementById('gallery').close();
     window.demoLibrary.close(false);
     const index=games.findIndex(g=>g.id===id&&g.id!=='demos');
-    if(id.startsWith('demo/')){choose(3,false,false);showCollection({animate:false,route:false});window.demoLibrary.open({route:false,gameId:id.split('/')[1]});window.repoLegacy.open(id.split('/')[1]);}
-    else if(id==='demos'){choose(3,false,false);showCollection({animate:false,route:false});window.demoLibrary.open({route:false});}
+    if(id.startsWith('demo/')){choose(games.findIndex(g=>g.id==='demos'),false,false);showCollection({animate:false,route:false});window.demoLibrary.open({route:false,gameId:id.split('/')[1]});window.repoLegacy.open(id.split('/')[1]);}
+    else if(id==='demos'){choose(games.findIndex(g=>g.id==='demos'),false,false);showCollection({animate:false,route:false});window.demoLibrary.open({route:false});}
     else if(index>=0){choose(index,false,false);showOpen({animate:false,route:false});}
     else showCollection({animate:false,route:false});
     // Commit direct/back navigation without briefly overlapping the collection and open case.

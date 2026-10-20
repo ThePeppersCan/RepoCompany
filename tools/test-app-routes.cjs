@@ -11,7 +11,7 @@ const player='<!doctype html><title>Persistent player fixture</title><script>win
    await c.route(fixture.base+'/**',async route=>{
     const u=new URL(route.request().url());if(u.pathname.startsWith('/api/'))return route.fallback();
     if(u.pathname==='/reparty/')return route.fulfill({contentType:'text/html',body:player});
-    const p=/^\/(?:Wibs|Reparty|Account(?:\/.*)?|Moratales|Morogue|VelmoraManager|Demos(?:\/.*)?)?$/.test(u.pathname)?'/index.html':u.pathname;
+    const p=/^\/(?:Wibs|Reparty|Account(?:\/.*)?|Moratales|Morogue|VelmoraManager|VelmoraTales|Demos(?:\/.*)?)?$/.test(u.pathname)?'/index.html':u.pathname;
     const file=path.resolve(dist,'.'+p);if(!file.startsWith(dist+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile())return route.fulfill({status:404,body:'Not found'});
     const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.json':'application/json','.webp':'image/webp','.mp3':'audio/mpeg'};
     if(native&&p==='/index.html')return route.fulfill({contentType:'text/html',body:fs.readFileSync(file,'utf8').replace('<html','<html data-repo-launcher="true"')});
@@ -22,6 +22,7 @@ const player='<!doctype html><title>Persistent player fixture</title><script>win
   }
   const c=await context(),page=await c.newPage();await page.goto(fixture.base);await page.waitForFunction(()=>repoAccount.state.user&&document.documentElement.dataset.repoAuth==='ready');
   await page.evaluate(()=>{history.replaceState({scene:'morogue',fixture:'retained'},'','/#morogue');dispatchEvent(new PopStateEvent('popstate'));window.documentId=Math.random();repoWebGame.open('morogue');const audio=new AudioContext(),tone=audio.createOscillator(),dest=audio.createMediaStreamDestination();tone.connect(dest);tone.start();window.callTrack=dest.stream.getAudioTracks()[0];});
+  const upcomingPage=await c.newPage();await upcomingPage.goto(fixture.base+'/VelmoraTales');await upcomingPage.waitForFunction(()=>document.querySelector('#dashboard').dataset.openGame==='velmora-tales');assert.equal(new URL(upcomingPage.url()).pathname,'/VelmoraTales');assert(await upcomingPage.locator('[data-note="Play"]').isDisabled());assert.equal(await upcomingPage.locator('[data-shot]:disabled').count(),3);await upcomingPage.close();
   const documentId=await page.evaluate(()=>documentId),game=await page.locator('#repo-web-game iframe').elementHandle();
   await page.evaluate(()=>repoMessaging.open());assert.equal(new URL(page.url()).pathname,'/Wibs');assert.equal(new URL(page.url()).hash,'');
   await page.evaluate(()=>repoReparty.open());assert.equal(new URL(page.url()).pathname,'/Reparty');assert.equal(await page.locator('#repo-messages').evaluate(e=>e.open),false);
@@ -30,7 +31,7 @@ const player='<!doctype html><title>Persistent player fixture</title><script>win
   await page.evaluate(()=>repoMessaging.open());assert.equal(new URL(page.url()).pathname,'/Wibs');assert.equal(await frame.evaluate(e=>e.contentWindow.playerId),playerId);assert.equal(await frame.evaluate(e=>e.contentWindow.playing),true);
   assert.equal(await game.evaluate(e=>e.isConnected),true);assert.equal(await page.evaluate(()=>callTrack.readyState),'live');assert.equal(await page.evaluate(()=>documentId),documentId);
   await page.evaluate(()=>repoMessaging.close());assert.equal(page.url(),fixture.base+'/Morogue');assert.equal(await page.evaluate(()=>history.state.fixture),'retained');
-  await page.evaluate(()=>repoReparty.open());await page.locator('#repo-reparty').getByRole('button',{name:'Back to collection',exact:true}).click();assert.equal(page.url(),fixture.base+'/');assert.equal(await frame.evaluate(e=>e.isConnected),true);
+  await page.evaluate(()=>repoReparty.open());await page.locator('#repo-reparty .rc-back').click();assert.equal(page.url(),fixture.base+'/');assert.equal(await frame.evaluate(e=>e.isConnected),true);
   await page.evaluate(()=>repoWebGame.close());
   // An existing game-history entry can become a Wibs URL without reloading.
   await page.evaluate(()=>{history.pushState({scene:'morogue'},'','/#morogue');repoMessaging.open();});

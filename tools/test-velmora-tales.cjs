@@ -1,0 +1,83 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
+const {chromium}=require('playwright');
+const root=path.resolve(__dirname,'..');
+const dist=path.join(root,'dist');
+const out=process.env.VELMORA_QA_OUTPUT||path.join(root,'QA','velmora-tales');
+const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.svg':'image/svg+xml','.json':'application/json','.mp3':'audio/mpeg'};
+const server=http.createServer((req,res)=>{
+  const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+  const file=path.resolve(dist,'.'+(pathname==='/'?'/index.html':pathname));
+  if(!file.startsWith(dist+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404);res.end();return;}
+  res.setHeader('Content-Type',types[path.extname(file)]||'application/octet-stream');
+  if(path.extname(file)==='.html')res.end(fs.readFileSync(file,'utf8').replace('<html','<html data-repo-launcher="true"'));
+  else fs.createReadStream(file).pipe(res);
+});
+(async()=>{
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const browser=await chromium.launch({channel:'msedge',headless:true});
+  try{
+    fs.mkdirSync(out,{recursive:true});
+    const context=await browser.newContext({viewport:{width:1672,height:941},reducedMotion:'reduce'});
+    await context.route('**/*',route=>route.request().url().startsWith(base)?route.continue():route.abort());
+    const page=await context.newPage(),errors=[];
+    page.on('pageerror',e=>errors.push(e.message));
+    await page.goto(base);
+    await page.locator('.case-select').first().waitFor();
+    await page.evaluate(()=>Promise.all([...document.images].filter(i=>i.src).map(i=>i.decode().catch(()=>{}))));
+    assert.deepEqual(await page.locator('.case-select').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label'))),
+      ['Select Morogue','Select Velmora Tales','Select Velmora Manager','Select Moratales','Select Demos']);
+    assert.equal(await page.locator('.collection-position').innerText(),'01\n/\n05');
+    await page.screenshot({path:path.join(out,'velmora-collection.png')});
+    await page.locator('#next-case').click();
+    await page.locator('#open-selected').click();
+    await page.waitForFunction(()=>location.hash==='#velmora-tales'&&!document.querySelector('#dashboard').classList.contains('home-mode'));
+    assert(await page.locator('[data-note="Play"]').isDisabled());
+    assert.equal(await page.locator('[data-note="Play"]').innerText(),'Coming soon');
+    assert.equal(await page.locator('[data-shot]:disabled').count(),3);
+    assert(await page.locator('.coming-soon-download').isVisible());
+    assert.equal(await page.locator('[data-note="Play"]').getAttribute('data-game-url'),null);
+    await page.locator('[data-note="Play"]').dispatchEvent('click');
+    await page.locator('[data-shot]').first().dispatchEvent('click');
+    assert.equal(await page.locator('#gallery').getAttribute('open'),null);
+    assert.equal(await page.locator('#dashboard').getAttribute('data-launching'),null);
+    await page.screenshot({path:path.join(out,'velmora-coming-soon.png')});
+    await page.locator('.close-case').click();
+    await page.keyboard.press('End');
+    assert.equal(await page.locator('#selected-game-name').innerText(),'Demos');
+    await page.locator('#open-selected').click();
+    assert(await page.locator('#demo-library').isVisible());
+    await page.locator('.demo-back').click();
+    await page.keyboard.press('Home');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.locator('#open-selected').click();
+    assert.equal(await page.locator('#dashboard').getAttribute('data-open-game'),'moratales');
+    assert(!(await page.locator('[data-note="Play"]').isDisabled()));
+    assert.equal(await page.locator('[data-shot]:disabled').count(),0);
+    assert(!(await page.locator('.coming-soon-download').isVisible()));
+    assert(await page.locator('[data-open-achievements]').first().isVisible());
+    await page.locator('[data-shot]').first().click();
+    assert(await page.locator('#gallery').isVisible());
+    await page.locator('.gallery-close').click();
+    // Direct routes and returning from another game must reset the same shared controls.
+    await page.goto(base+'/#velmora-tales');
+    assert(await page.locator('[data-note="Play"]').isDisabled());
+    await page.locator('.close-case').click();
+    await page.setViewportSize({width:390,height:844});
+    await page.screenshot({path:path.join(out,'velmora-mobile.png'),fullPage:true});
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await page.setViewportSize({width:1672,height:941});
+    await page.goto(base+'/#manager');
+    await page.evaluate(()=>Promise.all([...document.images].filter(i=>i.src).map(i=>i.decode().catch(()=>{}))));
+    await page.screenshot({path:path.join(out,'manager-case.png')});
+    const config=require('../desktop/config.cjs')(path.join(root,'desktop'));
+    const upcoming=config.games.find(g=>g.id==='velmora-tales');
+    assert(upcoming.comingSoon&&!upcoming.installable&&!upcoming.manifestUrl&&!upcoming.origin);
+    assert.deepEqual(errors,[]);
+    console.log('PASS: five-case order, Coming soon controls, disabled gallery and launch, existing game and demos, direct route, mobile layout, non-installable launcher entry.');
+  }finally{await browser.close();server.close();}
+})().catch(error=>{server.close();console.error(error);process.exitCode=1;});

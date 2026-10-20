@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const paths = {collection: '/', wibs: '/Wibs', wibsworth: '/Wibsworth', reparty: '/Reparty', account: '/Account', moratales: '/Moratales', manager: '/VelmoraManager', morogue: '/Morogue', demos: '/Demos'};
+  const paths = {collection: '/', wibs: '/Wibs', wibsworth: '/Wibsworth', reparty: '/Reparty', account: '/Account', moratales: '/Moratales', manager: '/VelmoraManager', morogue: '/Morogue', 'velmora-tales': '/VelmoraTales', demos: '/Demos'};
   const tabs = ['profile', 'friends', 'inventory', 'achievements', 'shop', 'settings', 'binder', 'slabs'];
   const overlay = name => name === 'wibs' || name === 'wibsworth' || name === 'reparty';
   const companion = () => document.documentElement.dataset.repoCompanion === 'true';
@@ -22,7 +22,7 @@
   function read() {
     const hash = location.hash.slice(1);
     if(companion())return companionRoute(hash);
-    if (/^(collection|moratales|manager|morogue|demos|wibs|wibsworth|reparty)$/.test(hash) || /^account(?:\/(?:profile|friends|inventory|achievements|progress|shop|settings|binder|slabs)(?:\/[a-zA-Z0-9_-]+)?)?$/.test(hash) || /^demo\/[a-z0-9_-]+$/.test(hash)) return hash;
+    if (/^(collection|moratales|manager|morogue|velmora-tales|demos|wibs|wibsworth|reparty)$/.test(hash) || /^account(?:\/(?:profile|friends|inventory|achievements|progress|shop|settings|binder|slabs)(?:\/[a-zA-Z0-9_-]+)?)?$/.test(hash) || /^demo\/[a-z0-9_-]+$/.test(hash)) return hash;
     const parts = location.pathname.replace(/\/$/, '').split('/').slice(1);
     const name = Object.keys(paths).find(key => paths[key] === '/' + parts[0]);
     if (name === 'account') {

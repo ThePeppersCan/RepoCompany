@@ -9,6 +9,12 @@
   const shots=[...document.querySelectorAll('[data-shot]')];
   const thumbs=[...document.querySelectorAll('[data-gallery-shot]')];
   const publisher='<div class="disc-brand" role="img" aria-label="Repo Company"></div>';
+  const playMarkup=play.innerHTML;
+  const downloadNotice=document.createElement('p');
+  downloadNotice.className='coming-soon-download';
+  downloadNotice.textContent='Download · Coming soon';
+  downloadNotice.hidden=true;
+  details.append(downloadNotice);
   const managerLogo=className=>`<svg class="${className} manager-wordmark" viewBox="57 178 2073 432" role="img" aria-label="Velmora Manager"><image href="${assets}manager-logo-clean.png" width="2167" height="725"/></svg>`;
   const managerCast=className=>`<svg class="${className}" viewBox="800 95 960 755" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><image href="${assets}manager-menu.png" width="1770" height="888"/></svg>`;
   const original={
@@ -20,6 +26,17 @@
     shots:shots.map(button=>({file:button.querySelector('img').getAttribute('src').split('/').pop(),caption:button.querySelector('.caption').textContent,alt:button.querySelector('img').alt}))
   };
   const scenes={
+    'velmora-tales':{
+      name:'Velmora Tales',meta:'Coming soon',comingSoon:true,
+      description:'A new adventure in Velmora is on the horizon. More details coming soon.',
+      glow:'116,155,122',
+      title:`<img class="game-logo velmora-wordmark" src="${assets}velmora-tales-logo.png" alt="Velmora Tales">`,
+      booklet:`<svg class="velmora-booklet-art" viewBox="100 0 986 1448" preserveAspectRatio="none" aria-hidden="true"><image href="${assets}velmora-tales-artwork.png" width="1086" height="1448"/></svg><img class="title" src="${assets}velmora-tales-logo.png" alt=""><div class="velmora-booklet-publisher" aria-label="Repo Company"></div>`,
+      bookletLabel:'Velmora Tales illustrated front cover',
+      disc:`<img class="velmora-disc-art" src="${assets}velmora-tales-artwork.png" alt=""><div class="disc-print-shade"></div><div class="disc-foil-lines" aria-hidden="true"></div><img class="disc-title" src="${assets}velmora-tales-logo.png" alt="Velmora Tales">${publisher}`,
+      discLabel:'Velmora Tales illustrated disc — coming soon',
+      shots:[]
+    },
     moratales:{name:'Moratales',meta:original.meta,description:original.description,url:'https://moratales.repocompany.uk/',glow:'125,155,113',title:original.title,booklet:original.booklet,bookletLabel:original.bookletLabel,disc:original.disc,discLabel:'Moratales botanical disc',shots:original.shots},
     manager:{
       name:'Velmora Manager',meta:'Fantasy sports management · Career mode',
@@ -58,9 +75,10 @@
     const scene=scenes[id];
     if(!scene)throw new Error(`Unknown scene: ${id}`);
     root.dataset.openGame=id;
+    root.dataset.comingSoon=String(Boolean(scene.comingSoon));
     root.dataset.gameName=scene.name;
     const achievements=details.querySelector('[data-open-achievements]');
-    if(achievements){achievements.dataset.openAchievements=id;achievements.setAttribute('aria-label','View '+scene.name+' achievements');}
+    if(achievements){achievements.hidden=Boolean(scene.comingSoon);achievements.dataset.openAchievements=id;achievements.setAttribute('aria-label','View '+scene.name+' achievements');}
     root.style.setProperty('--game-glow',scene.glow);
     root.setAttribute('aria-label',`${scene.name} open case`);
     document.getElementById('open-scene').setAttribute('aria-label',scene.name);
@@ -72,12 +90,38 @@
     rotor.innerHTML=scene.disc;
     document.getElementById('disc-plane').setAttribute('aria-label',scene.discLabel);
     document.getElementById('case-preview').setAttribute('aria-label',`Animate ${scene.name} disc`);
-    play.dataset.gameUrl=scene.url;
+    play.disabled=Boolean(scene.comingSoon);
+    play.setAttribute('aria-disabled',String(Boolean(scene.comingSoon)));
+    play.setAttribute('aria-label',scene.comingSoon?`${scene.name}: Coming soon`:`Play ${scene.name}`);
+    play.innerHTML=scene.comingSoon?'Coming soon':playMarkup;
+    delete play.dataset.launcherCta;
+    delete play.dataset.launcherLong;
+    if(scene.url)play.dataset.gameUrl=scene.url;
+    else delete play.dataset.gameUrl;
+    downloadNotice.hidden=!scene.comingSoon;
     play.dataset.gameName=scene.name;
     document.querySelector('.gallery-game').replaceChildren(document.createTextNode(scene.name+' '));
     const suffix=document.createElement('span');suffix.textContent='/ Screenshots';
     document.querySelector('.gallery-game').append(suffix);
     document.getElementById('gallery').style.setProperty('--gallery-glow',scene.glow);
+    shots.forEach((button,i)=>{
+      button.disabled=Boolean(scene.comingSoon);
+      button.setAttribute('aria-label',scene.comingSoon?'Screenshots coming soon':scene.shots[i].caption);
+      let placeholder=button.querySelector('.shot-coming-soon');
+      if(!placeholder){
+        placeholder=document.createElement('span');
+        placeholder.className='shot-coming-soon';
+        placeholder.textContent='Coming soon';
+        button.querySelector('.frame').append(placeholder);
+      }
+      placeholder.hidden=!scene.comingSoon;
+      if(scene.comingSoon){
+        button.querySelector('img').removeAttribute('src');
+        button.querySelector('img').alt='';
+        button.querySelector('.caption').textContent='Screenshots coming soon';
+        thumbs[i].querySelector('img').removeAttribute('src');
+      }
+    });
     scene.shots.forEach((shot,i)=>{
       const image=shots[i].querySelector('img');image.src=assets+shot.file;image.alt=shot.alt;
       shots[i].querySelector('.caption').textContent=shot.caption;
@@ -85,9 +129,15 @@
       thumbs[i].setAttribute('aria-label',shot.caption);
     });
     // Preload the first full-size screenshot; it shares the original file with its rail image.
-    document.getElementById('gallery-image').src=assets+scene.shots[0].file;
-    document.getElementById('gallery-image').alt=scene.shots[0].alt;
-    document.getElementById('gallery-caption').textContent=scene.shots[0].caption;
+    if(scene.shots.length){
+      document.getElementById('gallery-image').src=assets+scene.shots[0].file;
+      document.getElementById('gallery-image').alt=scene.shots[0].alt;
+      document.getElementById('gallery-caption').textContent=scene.shots[0].caption;
+    }else{
+      document.getElementById('gallery-image').removeAttribute('src');
+      document.getElementById('gallery-image').alt='';
+      document.getElementById('gallery-caption').textContent='Screenshots coming soon';
+    }
     root.dispatchEvent(new Event('game-change'));
     document.title=`Repo Company — ${scene.name}`;
   }

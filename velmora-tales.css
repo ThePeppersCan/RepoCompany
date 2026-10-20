@@ -1,0 +1,39 @@
+/* Keep the supplied front artwork intact and soften the separate spine artwork. */
+.closed-case{top:calc(15px + var(--case-offset,0px))}
+.velmora-cover-art,.velmora-booklet-art,.velmora-spine-art{position:absolute;inset:0;width:100%;height:100%}
+.cover-velmora-tales>.cover-logo{position:absolute;left:28px;top:30px;width:344px;height:150px;object-fit:contain}
+.cover-velmora-tales .cover-publisher{inset:auto 12px 12px auto;width:auto;height:auto;padding:8px;background:transparent;flex-direction:column;gap:5px}
+.cover-velmora-tales .publisher-mark{width:40px;height:42px;background-size:188.7px 117.9px;background-position:-74.7px -31.7px}
+.cover-velmora-tales .publisher-wordmark{scale:.7}
+.spine-velmora-tales{background:#14231e}
+.spine-velmora-tales .velmora-spine-art{left:420px;width:580px;background:url('original-case-assets/velmora-tales-spine-wide.png') right 35% / 580px auto no-repeat;mask-image:linear-gradient(90deg,transparent 10%,#000 55%);filter:brightness(.94) saturate(.9) blur(.2px)}
+.spine-morogue .spine-picture{left:430px;background-image:url('original-case-assets/morogue-spine-wide.png');background-size:570px auto;background-position:right 40%;mask-image:linear-gradient(90deg,transparent,#000 27%);filter:brightness(.94) saturate(.9) blur(.2px)}
+.spine-moratales{background:#172a21}
+.spine-moratales .spine-picture{left:425px;background-image:url('original-case-assets/moratales-spine-cafe.png');background-size:620px auto;background-position:right 60%;mask-image:linear-gradient(90deg,transparent,#000 27%);filter:brightness(.94) saturate(.9) blur(.2px)}
+.spine-manager{background:#eeeee7}
+.spine-manager .spine-picture{left:430px;background-image:url('original-case-assets/manager-spine-ivory.png');background-size:850px auto;background-position:right 44%;mask-image:linear-gradient(90deg,transparent,#000 24%);filter:brightness(.97) saturate(.86) blur(.2px);mix-blend-mode:multiply}
+.spine-manager>.spine-logo{filter:brightness(.88) saturate(.84) blur(.2px)}
+.cover-manager{background:#f3f3ed}
+.cover-manager>.cover-art{mix-blend-mode:multiply}
+.dashboard[data-open-game="manager"] .manager-paper{background:linear-gradient(136deg,#f7f7f1,#eeeeea 72%,#e1e5e5)}
+.spine-velmora-tales>.spine-logo{left:132px;top:12px;width:570px;height:70px;object-fit:contain;object-position:left center;filter:brightness(.95) saturate(.8) blur(.32px) drop-shadow(0 1px 1px #102014)}
+.spine-velmora-tales .spine-publisher{background:#0b1716e8}
+.selected-brand>.velmora-wordmark{left:0;top:-18px;width:460px;height:180px;object-fit:contain}
+.dashboard[data-open-game="velmora-tales"] .game-logo{left:0;top:-38px;width:460px;height:180px;object-fit:contain}
+.dashboard[data-open-game="velmora-tales"] .booklet .title{left:22px;top:24px;width:284px;height:125px;object-fit:contain}
+.velmora-booklet-publisher{position:absolute;right:12px;bottom:12px;width:42px;height:43px;background:url('original-case-assets/repo-brand.png') -78.3px -33.2px /197.8px 123.6px no-repeat;mix-blend-mode:screen}
+.dashboard[data-open-game="velmora-tales"] .disc-print{background:#163c42}
+.velmora-disc-art{position:absolute;left:-35px;top:-110px;width:470px;height:627px;max-width:none}
+.dashboard[data-open-game="velmora-tales"] .disc-print-shade{background:linear-gradient(#102d3c77,transparent 45%,#0d232d99)}
+.dashboard[data-open-game="velmora-tales"] .disc-title{left:50px;top:22px;width:300px;height:115px;object-fit:contain}
+.cover-velmora-tales>.cover-logo,.dashboard[data-open-game="velmora-tales"] .booklet .title,.dashboard[data-open-game="velmora-tales"] .disc-title{filter:brightness(.96) saturate(.85) blur(.3px)}
+.dashboard[data-open-game="velmora-tales"] .disc-brand{background:#10292466;border-radius:12px}
+.dashboard[data-coming-soon="true"] .play{cursor:default;opacity:.7;white-space:nowrap;font-size:19px}
+.coming-soon-download{position:absolute;top:341px;margin:0;color:#b7c7ba;font-size:17px;font-weight:350}
+.coming-soon-download[hidden],.shot-coming-soon[hidden]{display:none}
+.dashboard[data-coming-soon="true"] [data-open-achievements]{display:none}
+.dashboard[data-coming-soon="true"] .shot{opacity:1;cursor:default}
+.dashboard[data-coming-soon="true"] .shot img{display:none}
+.dashboard[data-coming-soon="true"] .shot .frame{position:relative;background:radial-gradient(ellipse at 50% 35%,#35483d,#15241f);box-shadow:inset 0 0 0 1px #d7e3c326}
+.shot-coming-soon{position:absolute;inset:0;display:grid;place-items:center;color:#d6dfd0;font-size:22px;font-weight:350;letter-spacing:.04em}
+@media(max-width:700px){.home-mode .selected-brand>.velmora-wordmark{left:0;top:-15px;width:530px;height:190px}}
