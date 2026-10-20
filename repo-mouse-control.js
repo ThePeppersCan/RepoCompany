@@ -5,10 +5,28 @@
  for(let i=0;i<26;i++)keyCodes['Key'+String.fromCharCode(65+i)]=65+i;
  for(let i=0;i<10;i++){keyCodes['Digit'+i]=48+i;keyCodes['Numpad'+i]=96+i;}
  for(let i=1;i<=12;i++)keyCodes['F'+i]=111+i;
- window.createRepoMouseControl=({api,context,refresh,screenState})=>{
+ window.createRepoMouseControl=({api,context,refresh,screenState,focusScreen})=>{
   let current=null,ui=null,video=null,latest=null,verifiedAt=0,notice='',revision=0,declined=new Set(),menu=null;
+  let prompt=null,promptAction=null,promptStatus=null;
   const text=(tag,value)=>{const n=document.createElement(tag);n.textContent=value;return n;};
   const valid=c=>current===c&&context().connected&&context().room?.id===c.room;
+  function closePrompt(){if(prompt){prompt.close();prompt.remove();prompt=null;}}
+  function showPrompt(c){
+   closePrompt();prompt=text('dialog','');prompt.className='repo-control-prompt';prompt.setAttribute('aria-label','Take control');
+   const owner=context().room?.screen?.active?.display||'Your friend';
+   const title=text('h2',owner+' is giving you control'),description=text('p','Use your mouse and keyboard inside the shared screen. Stop control ends access without ending the call.');
+   promptStatus=text('p','Connecting securely…');promptStatus.setAttribute('role','status');
+   promptAction=text('button','Take control');promptAction.type='button';promptAction.disabled=true;
+   promptAction.onclick=()=>{if(!valid(c)||!c.open)return;c.taken=true;c.activate?.();closePrompt();focusScreen?.();video?.focus({preventScroll:true});render();};
+   const decline=text('button','Decline');decline.type='button';decline.onclick=()=>void stop('Control declined.');
+   prompt.addEventListener('cancel',e=>{e.preventDefault();void stop('Control declined.');});
+   prompt.append(title,description,promptStatus,promptAction,decline);document.body.append(prompt);prompt.showModal();
+  }
+  function showError(message){
+   closePrompt();prompt=text('dialog','');prompt.className='repo-control-prompt';prompt.setAttribute('aria-label','Control unavailable');
+   const done=text('button','Close');done.type='button';done.onclick=closePrompt;
+   prompt.append(text('h2','Control could not start'),text('p',message),done);document.body.append(prompt);prompt.showModal();
+  }
   function closeMenu(){menu?.remove();menu=null;}
   function menuActions({menu:target,username,owner,close}){
    const room=context().room,s=screenState();
@@ -51,18 +69,21 @@
    const host=s.mode==='publish',capable=document.documentElement.dataset.repoMouseControl==='true';
    ui.select.hidden=!host||!capable||!!current;ui.give.hidden=!host||!capable||!!current;
    ui.give.disabled=!person||s.busy;ui.give.dataset.mouseViewer=person?.id||'';ui.give.dataset.mouseName=person?.display||'';
-   ui.stop.hidden=!current;ui.status.textContent=current?(current.open?(current.host?'Mouse and keyboard control given · Ctrl+Alt+Shift+F12 to stop':'You have control · click the screen to type, drag or scroll'):'Connecting mouse and keyboard control…'):notice||(host?(capable?(watchers.length?'Share an entire screen to give mouse and keyboard control.':'A viewer must watch your screen before you can give control.'):'Use the updated Windows app to give mouse and keyboard control.'):'');
+   if(prompt&&current){promptAction.disabled=!current.open;promptStatus.textContent=current.open?'Ready. Select Take control to begin.':'Connecting securely…';}
+   ui.stop.hidden=!current;ui.status.textContent=current?(current.open?(current.taken?(current.host?'Mouse and keyboard control active · Ctrl+Alt+Shift+F12 to stop':'You have control · click the screen to type, drag or scroll'):'Waiting for the viewer to select Take control…'):'Connecting mouse and keyboard control…'):notice||(host?(capable?(watchers.length?'Share an entire screen to give mouse and keyboard control.':'A viewer must watch your screen before you can give control.'):'Use the updated Windows app to give mouse and keyboard control.'):'');
   }
   async function stop(reason='',remote=true){
-   closeMenu();const c=current;current=null;revision++;notice=reason;
+   closeMenu();closePrompt();const c=current;current=null;revision++;notice=reason;
    if(c){declined.add(c.id);clearInterval(c.timer);clearTimeout(c.timeout);c.channel?.close();c.pc?.close();if(c.host)emit('repo-mouse-stop');if(remote&&c.id)await api('control-stop',{room:c.room,control:c.id}).catch(()=>{});}
    render();if(remote)refresh();
+   if(reason&&/could not|disconnected|lost|unavailable/i.test(reason))showError(reason);
   }
   function channel(c,dc){
    c.channel=dc;dc.binaryType='arraybuffer';c.lastSeq=-1;c.lastPong=Date.now();c.challenges=new Map();c.seq=0;c.pointer={x:32768,y:32768,buttons:0,wheel:0};
    const send=value=>{if(dc.readyState==='open'&&dc.bufferedAmount<2048)dc.send(JSON.stringify(value));};
-   c.sendKey=value=>{if(c.challenge)send({seq:++c.seq,challenge:c.challenge,...value});};
-   c.transmit=()=>{if(c.challenge){send({seq:++c.seq,challenge:c.challenge,...c.pointer});c.pointer.wheel=0;}};
+   c.activate=()=>{if(c.challenge)send({pong:c.challenge,taking:true});};
+   c.sendKey=value=>{if(c.challenge&&c.taken)send({seq:++c.seq,challenge:c.challenge,...value});};
+   c.transmit=()=>{if(c.challenge&&c.taken&&c.pointer.active){send({seq:++c.seq,challenge:c.challenge,...c.pointer});c.pointer.wheel=0;}};
    dc.onopen=()=>{
     if(!valid(c)){dc.close();return;}c.open=c.host;c.lastPong=Date.now();clearTimeout(c.timeout);render();
     c.timer=setInterval(()=>{
@@ -79,11 +100,12 @@
     if(!valid(c)||typeof e.data!=='string'||e.data.length>256)return;
     let m;try{m=JSON.parse(e.data);}catch{return;}
     if(!m||typeof m!=='object')return;
-    if(!c.host){if(typeof m.ping==='string'&&m.ping.length===36){c.challenge=m.ping;if(!c.open){c.open=true;render();}send({pong:m.ping});}return;}
+    if(!c.host){if(typeof m.ping==='string'&&m.ping.length===36){c.challenge=m.ping;if(!c.open){c.open=true;render();}send({pong:m.ping,taking:!!c.taken});}return;}
     const now=Date.now(),challenge=m.pong||m.challenge;
     if(!c.challenges.has(challenge)||now-c.challenges.get(challenge)>1800)return;
     c.lastPong=now;
-    if(m.pong)return;
+    if(m.pong){if(c.taken!==!!m.taking){c.taken=!!m.taking;render();}return;}
+    if(!c.taken)return;
     if(!Number.isSafeInteger(m.seq)||m.seq<=c.lastSeq)return;
     if(m.kind){
      c.lastSeq=m.seq;
@@ -105,7 +127,7 @@
    c.pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.cloudflare.com:3478'}],iceTransportPolicy:'all'});
    c.pc.onconnectionstatechange=()=>{if(valid(c)&&['failed','disconnected','closed'].includes(c.pc.connectionState))void stop('Control disconnected.');};
    c.timeout=setTimeout(()=>{if(valid(c))void stop('Control could not connect on this network. Screen sharing is still available.');},25000);
-   current=c;notice='';render();return c;
+   current=c;notice='';if(!host)showPrompt(c);render();return c;
   }
   async function give(detail){
    const room=context().room;
@@ -116,7 +138,7 @@
     await c.pc.setLocalDescription(await c.pc.createOffer());await window.repoVoiceConnection.gather(c.pc,()=>valid(c));
     if(!valid(c))return;
     const result=await api('control-grant',{room:c.room,share:c.share,viewer:detail.viewer,sessionDescription:{type:'offer',sdp:c.pc.localDescription.sdp}},()=>valid(c));
-    c.id=result.control;
+    c.id=result.control;c.confirmBy=Date.now()+15000;
     if(version!==revision||!valid(c)){await api('control-stop',{room:c.room,control:c.id}).catch(()=>{});return;}
     refresh();
    }catch(error){if(valid(c))void stop(error.message);}
@@ -133,7 +155,7 @@
   function release(){if(current&&!current.host&&current.pointer){current.pointer.buttons=0;current.transmit?.();}}
   function releaseAll(){release();if(current&&!current.host)current.sendKey?.({kind:'release'});}
   function keyboard(e){
-   const c=current;if(!c?.open||c.host||!e.isTrusted)return;
+   const c=current;if(!c?.open||!c.taken||c.host||!e.isTrusted)return;
    if(e.ctrlKey&&e.altKey&&e.shiftKey&&e.code==='F12'){e.preventDefault();e.stopPropagation();void stop('Control stopped by emergency shortcut.');return;}
    e.preventDefault();e.stopPropagation();
    if(e.code==='Delete'&&e.ctrlKey&&e.altKey)return;
@@ -144,14 +166,14 @@
    const key=keyCodes[e.code];if(key)c.sendKey?.({kind:'key',key,down:e.type==='keydown'});
   }
   function pointer(e){
-   const c=current;if(!c?.open||c.host||!video||!e.isTrusted)return;
+   const c=current;if(!c?.open||!c.taken||c.host||!video||!e.isTrusted)return;
    const r=video.getBoundingClientRect(),ratio=video.videoWidth/video.videoHeight;
    if(!Number.isFinite(ratio)||ratio<=0)return;
    const w=Math.min(r.width,r.height*ratio),h=w/ratio,left=r.left+(r.width-w)/2,top=r.top+(r.height-h)/2;
    const x=(e.clientX-left)/w,y=(e.clientY-top)/h;
    if(e.type==='pointerup')c.pointer.buttons=e.buttons&7;
    if(x<0||x>1||y<0||y>1)return;
-   e.preventDefault();c.pointer.x=Math.round(x*65535);c.pointer.y=Math.round(y*65535);
+   e.preventDefault();c.pointer.active=true;c.pointer.x=Math.round(x*65535);c.pointer.y=Math.round(y*65535);
    if(e.type==='wheel'){c.pointer.wheel=Math.max(-1200,Math.min(1200,c.pointer.wheel-Math.sign(e.deltaY)*120));}
    else {c.pointer.buttons=e.buttons&7;if(e.type==='pointerdown'){video.focus({preventScroll:true});video.setPointerCapture(e.pointerId);}}
    if(e.type!=='pointermove')c.transmit?.();
@@ -159,7 +181,7 @@
   addEventListener('blur',releaseAll);addEventListener('pointerup',release);addEventListener('visibilitychange',()=>{if(document.hidden)releaseAll();});
   addEventListener('keydown',e=>{if(e.isTrusted&&e.ctrlKey&&e.altKey&&e.shiftKey&&e.code==='F12'){e.preventDefault();void stop('Control stopped by emergency shortcut.');}});
   addEventListener('repo-mouse-granted',e=>void give(e.detail));
-  addEventListener('repo-mouse-error',e=>{notice=String(e.detail||'Control could not start.').replace(/^Error invoking remote method '[^']+': Error: /,'');render();});
+  addEventListener('repo-mouse-error',e=>{notice=String(e.detail||'Control could not start.').replace(/^Error invoking remote method '[^']+': Error: /,'');render();if(!/cancelled/i.test(notice))showError(notice);});
   addEventListener('repo-mouse-state',e=>{if(e.detail?.active===false&&current?.host)void stop(e.detail.reason||'Control stopped.');});
   return {
    mount(host,player){
@@ -178,12 +200,15 @@
    },
    reset(){void stop('',true);ui=null;video=null;latest=null;verifiedAt=0;},
    sync(room){
-    latest=room?.control;verifiedAt=Date.now();
+    latest=room?.control;
     if(current){
      if(!context().connected||!room||room.id!==current.room||room.ended||!room.mine.owned||
-      (current.id&&latest?.id!==current.id)){void stop('Control stopped.');return;}
+      (current.id&&latest?.id!==current.id&&(current.observed||!current.host||Date.now()>current.confirmBy))){void stop('Control stopped.');return;}
+     // An already-running heartbeat may return the pre-grant room snapshot.
+     // Do not mistake it for revocation before the server has confirmed this grant.
+     if(current.id&&latest?.id===current.id){current.observed=true;verifiedAt=Date.now();}
      if(current.host&&latest?.answer&&!current.answering&&!current.pc.remoteDescription){current.answering=true;const c=current;c.pc.setRemoteDescription(latest.answer).catch(()=>{if(valid(c))void stop('Control could not connect.');});}
-    }else if(latest?.offer&&screenState().mode==='watch'&&!declined.has(latest.id)){void accept(latest);}
+    }else if(latest?.offer&&screenState().mode==='watch'&&!declined.has(latest.id)){verifiedAt=Date.now();void accept(latest);}
     render();
    }
   };

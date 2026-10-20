@@ -18,6 +18,7 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
   const allowed = (contents, types) => !!(grant && grant.contents === contents && grant.identity === identity() && types.every(type => grant.types.has(type)));
   session.setPermissionCheckHandler((contents, permission, origin, details = {}) => {
     if (permission === 'pointerLock') return canUseGamePointer?.(contents, details, origin) === true;
+    if (permission === 'fullscreen') return trusted(contents, details, origin);
     const type = details.mediaType;
     if(permission==='display-capture')return !!chooseScreen&&trusted(contents,details,origin);
     if(permission === 'speaker-selection')return trusted(contents,details,origin)&&allowed(contents,['output']);
@@ -25,6 +26,7 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
   });
   session.setPermissionRequestHandler((contents, permission, callback, details = {}) => {
     if (permission === 'pointerLock') { callback(canUseGamePointer?.(contents, details) === true); return; }
+    if (permission === 'fullscreen') { callback(trusted(contents, details)); return; }
     if(permission==='display-capture'){callback(!!chooseScreen&&trusted(contents,details));return;}
     // Electron 44 uses an empty media-type preflight for getDisplayMedia.
     // This only lets it reach the guarded source picker below; microphone and

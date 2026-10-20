@@ -11,6 +11,14 @@ function setup() {
   return { handlers, portal, window, details, controller, get prompts() { return prompts; }, setAccount(value) { account = value; }, answer(response) { resolve({ response }); }, request(permission = 'media', override = {}, contents = portal) { return new Promise(r => handlers.request(contents, permission, r, { ...details, ...override })); } };
 }
 const tick = () => new Promise(r => setImmediate(r));
+test('fullscreen is available only in the signed-in portal main frame',async()=>{
+ const f=setup();assert.equal(await f.request('fullscreen'),true);
+ assert.equal(f.handlers.check(f.portal,'fullscreen','https://repocompany.uk',f.details),true);
+ assert.equal(await f.request('fullscreen',{isMainFrame:false}),false);
+ assert.equal(await f.request('fullscreen',{requestingUrl:'https://other.example'}),false);
+ assert.equal(await f.request('fullscreen',{}, {...f.portal}),false);
+ f.setAccount({identity:null,state:{status:'signed-out'}});assert.equal(await f.request('fullscreen'),false);
+});
 test('speaker selection is explicit and isolated from capture, games, frames and account changes',async()=>{
   const f=setup(),check=()=>f.handlers.check(f.portal,'speaker-selection','https://repocompany.uk',f.details);
   assert.equal(check(),false);

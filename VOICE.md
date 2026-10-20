@@ -65,7 +65,7 @@ synthetic content. It does not contact Cloudflare or capture the user's desktop.
 
 ## Cost safeguard and limits
 
-### Give control (Windows client 0.1.31)
+### Give control (Windows client 0.1.32)
 
 The live production cap was verified on 20 October 2026 through both
 `GET /api/voice/status` and the deployed `repocompany-voice` Worker:
@@ -76,9 +76,16 @@ existing voice/video reservations are unchanged.
 While sharing an entire display, right-click a viewer's name in the call and
 select **Give control**, or right-click your shared screen and choose a viewer.
 The selector and **Give control** button beneath the screen are also available.
-The viewer must first choose **Watch screen**. An isolated native confirmation
+Screens open automatically for active call members, including people who join
+while a screen is already shared. A manual **Stop watching** remains respected
+until a new share or call. Failed automatic attempts require a manual retry.
+An isolated native confirmation
 grants mouse movement, left/right/middle buttons, dragging, scrolling and keyboard
-input. Window capture remains view-only. Clipboard and file transfer are not exposed.
+input. The viewer receives a **Take control / Decline** dialog; input is blocked
+until they choose **Take control**. This opens an enlarged screen window with
+Stop control and Exit full screen always available. The signed-in Windows portal
+can use browser fullscreen in 0.1.32; older clients fall back to a full-window view.
+Window capture remains view-only. Clipboard and file transfer are not exposed.
 Both participants have **Stop control**; the host also has a native floating stop
 window and the global **Ctrl+Alt+Shift+F12** shortcut. Control cannot start if the
 shortcut cannot be registered. A new grant requires new local consent.
@@ -103,7 +110,8 @@ Validation: `node tools/test-mouse-control.cjs`, `node
 tools/test-mouse-control-client.cjs`, and `node --test
 desktop/tests/mouse-control.test.cjs`. The client test uses real Electron,
 browser WebRTC and the isolated preload with an instrumented native boundary;
-it does not move the user's mouse. A separate Windows smoke check confirmed
+it does not move the user's mouse by default. `WIBS_REAL_INPUT_TEST=1` verifies
+the complete path into a temporary, owned Windows test window. A separate Windows smoke check confirmed
 actual SendInput clicks, scrolling, text, Ctrl+A and held-key release in an owned test window.
 
 Cloudflare's recurring free SFU/TURN allowance is 1,000 GB per month, shared by

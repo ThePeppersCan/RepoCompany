@@ -2,11 +2,31 @@
  'use strict';
  window.createRepoScreenShare=({api,context,changed,refresh})=>{
   let revision=0,mode='',busy=false,capture=null,pc=null,roomId=null,shareId=null,notice='',noticeTimer=null,viewerNode=null,video=null,serverStarted=false,mediaHost=null,expand=null;
-  const controls=new WeakMap();
-  const mouse=window.createRepoMouseControl?.({api,context,refresh,screenState:()=>({mode,busy})});
+  const controls=new WeakMap();let autoAttempt='',largeWindow=null,fullButton=null;
+  const mouse=window.createRepoMouseControl?.({api,context,refresh,screenState:()=>({mode,busy}),focusScreen:()=>large(true)});
   const node=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
   const button=(text,fn)=>{const n=node('button',text);n.type='button';n.className='repo-voice-button';n.onclick=fn;return n;};
+  function closeLarge(){
+   if(!largeWindow)return;
+   if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
+   if(viewerNode)mediaHost?.append(viewerNode);
+   const old=largeWindow;largeWindow=null;old.close();old.remove();
+   if(fullButton)fullButton.textContent='Full screen';
+  }
+  async function large(force=false){
+   if(largeWindow){if(!force){if(document.fullscreenElement)await document.exitFullscreen?.().catch(()=>{});closeLarge();}return;}
+   if(!viewerNode)return;
+   largeWindow=node('dialog');largeWindow.className='repo-screen-window';largeWindow.setAttribute('aria-label','Shared screen window');
+   largeWindow.addEventListener('cancel',e=>{e.preventDefault();closeLarge();});
+   (viewerNode.closest('dialog')||document.body).append(largeWindow);largeWindow.append(viewerNode);largeWindow.showModal();
+   fullButton.textContent='Exit full screen';
+   // Fullscreen the complete player so Stop control and Exit remain available.
+   // Older Windows clients still get a full-window player if permission is denied.
+   viewerNode.requestFullscreen?.().catch(()=>{});
+   video?.focus({preventScroll:true});
+  }
   const local=()=>{
+   closeLarge();fullButton=null;
    clearTimeout(noticeTimer);noticeTimer=null;
    revision++;busy=false;mode='';serverStarted=false;roomId=shareId=null;
    mouse?.reset();
@@ -34,7 +54,7 @@
    if(!mediaHost)throw Error('Open Wibs to view the screen.');
    viewerNode=node('section');viewerNode.className='repo-screen-viewer';viewerNode.setAttribute('aria-label','Shared screen');
    const head=node('div');head.className='repo-screen-viewer-head';
-   const full=button('Full screen',()=>{const action=document.fullscreenElement?document.exitFullscreen?.():video?.requestFullscreen?.();action?.catch(()=>{loading.hidden=false;loading.textContent='Full screen is unavailable in this window.';});});
+   const full=button('Full screen',()=>large());fullButton=full;
    full.title='Full screen';head.append(node('strong',title),full);
    video=node('video');video.autoplay=true;video.muted=true;video.playsInline=true;video.setAttribute('aria-label',title);
    const loading=node('p','Connecting to the screen…');loading.className='repo-screen-loading';loading.setAttribute('role','status');video.addEventListener('playing',()=>{loading.hidden=true;});
@@ -80,8 +100,15 @@
   addEventListener('repo-screen-share-revoke',()=>stop());
   return {
    mount(host,onExpand){mediaHost=host;expand=onExpand;if(viewerNode){host.append(viewerNode);host.hidden=false;}else host.hidden=true;},
-   reset(){local();notice='';},
-   sync(room){mouse?.sync(room);if(!mode||busy)return;if(!room||room.ended||room.mine.status==='left'||(mode==='publish'&&!room.screen?.publishing)||(mode==='watch'&&(!room.screen?.watching||room.screen.active?.id!==shareId)))stop('Screen sharing ended.');},
+   reset(){local();notice='';autoAttempt='';},
+   sync(room){
+    mouse?.sync(room);
+    if(!mode&&!busy&&mediaHost&&context().connected&&room&&!room.ended&&room.mine.status==='active'&&room.screen?.enabled&&room.screen.active&&room.screen.active.owner!==context().user){
+     const key=room.id+':'+room.screen.active.id;
+     if(autoAttempt!==key){autoAttempt=key;void begin(true);}return;
+    }
+    if(!mode||busy)return;if(!room||room.ended||room.mine.status==='left'||(mode==='publish'&&!room.screen?.publishing)||(mode==='watch'&&(!room.screen?.watching||room.screen.active?.id!==shareId)))stop('Screen sharing ended.');
+   },
    state:()=>({mode,busy}),
    render(container,room,canShare,noticeHost=null){
     let ui=controls.get(container);
