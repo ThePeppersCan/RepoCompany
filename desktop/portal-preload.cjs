@@ -50,6 +50,7 @@ function initialize() {
     if (!document.documentElement) return false;
     document.documentElement.dataset.repoLauncher = 'true';
     document.documentElement.dataset.repoScreenSharing = 'true';
+    document.documentElement.dataset.repoMouseControl = 'true';
     document.documentElement.dataset.repoBroomflight = 'true';
     document.documentElement.dataset.repoRunners = 'true';
     document.documentElement.dataset.repoNativeMessageSound = 'true';
@@ -60,6 +61,19 @@ function initialize() {
     const rootObserver = new MutationObserver(() => { if (markLauncherDocument()) rootObserver.disconnect(); });
     rootObserver.observe(document, { childList: true });
   }
+  let mouseStarting=false;
+  addEventListener('click',async event=>{
+    const button=event.target instanceof Element?event.target.closest('[data-mouse-give]'):null;
+    if(!button||!event.isTrusted||button.disabled||mouseStarting)return;
+    event.preventDefault();mouseStarting=true;const viewer=button.dataset.mouseViewer;
+    try{const result=await ipcRenderer.invoke('launcher:mouse-start',{name:button.dataset.mouseName});dispatchEvent(new CustomEvent('repo-mouse-granted',{detail:{id:result.id,viewer}}));}
+    catch(error){dispatchEvent(new CustomEvent('repo-mouse-error',{detail:String(error.message||error)}));}
+    finally{mouseStarting=false;}
+  },true);
+  addEventListener('repo-mouse-input',e=>{const v=e.detail;if(v&&typeof v==='object')ipcRenderer.send('launcher:mouse-input',{id:v.id,x:v.x,y:v.y,buttons:v.buttons,wheel:v.wheel,kind:v.kind,key:v.key,down:v.down,text:v.text});});
+  addEventListener('repo-mouse-lease',e=>{if(typeof e.detail==='string')ipcRenderer.send('launcher:mouse-lease',e.detail);});
+  addEventListener('repo-mouse-stop',()=>ipcRenderer.send('launcher:mouse-stop'));
+  ipcRenderer.on('launcher:mouse-state',(_e,value)=>dispatchEvent(new CustomEvent('repo-mouse-state',{detail:value})));
   const invoke = (action,value) => ipcRenderer.invoke('launcher:portal',action,value);
   const games = () => Array.isArray(state.catalog?.games) ? state.catalog.games : [];
   const demos = () => Array.isArray(state.catalog?.demos) ? state.catalog.demos : [];

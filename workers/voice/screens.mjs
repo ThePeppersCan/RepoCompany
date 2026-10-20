@@ -23,7 +23,7 @@ export class ScreenSharing{
   const pub=this.publisher(room);
   for(const m of members(room))if(m.screenRecv&&(!pub||m.screenRecv.source!==pub.screenPub.trackName||this.hub.voiceFlags(room,m).serverDeafened))m.screenRecv.revoked=true;
  }
- view(room,me){const pub=this.publisher(room);return {enabled:this.hub.env.SCREEN_ENABLED==='true',active:pub?.screenPub.ready?{id:pub.screenPub.trackName,owner:pub.id,display:pub.display,expires:pub.screenPub.expires,viewers:members(room).filter(m=>m.screenRecv&&!m.screenRecv.revoked).length}:null,publishing:!!me.screenPub&&!me.screenPub.revoked,watching:!!me.screenRecv&&!me.screenRecv.revoked,closing:!!me.screenPub?.revoked||!!me.screenRecv?.revoked};}
+ view(room,me){const pub=this.publisher(room);return {enabled:this.hub.env.SCREEN_ENABLED==='true',active:pub?.screenPub.ready?{id:pub.screenPub.trackName,owner:pub.id,display:pub.display,expires:pub.screenPub.expires,viewers:members(room).filter(m=>m.screenRecv&&!m.screenRecv.revoked).length,watchers:pub.id===me.id?members(room).filter(m=>m.status==='active'&&m.screenRecv&&!m.screenRecv.pending&&!m.screenRecv.revoked&&m.screenRecv.source===pub.screenPub.trackName).map(m=>({id:m.id,display:m.display})):[]}:null,publishing:!!me.screenPub&&!me.screenPub.revoked,watching:!!me.screenRecv&&!me.screenRecv.revoked,closing:!!me.screenPub?.revoked||!!me.screenRecv?.revoked};}
  async action(room,m,op,b,now){
   const h=this.hub;
   if(op==='screen-stop'||op==='screen-unwatch'){

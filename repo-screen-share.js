@@ -3,6 +3,7 @@
  window.createRepoScreenShare=({api,context,changed,refresh})=>{
   let revision=0,mode='',busy=false,capture=null,pc=null,roomId=null,shareId=null,notice='',noticeTimer=null,viewerNode=null,video=null,serverStarted=false,mediaHost=null,expand=null;
   const controls=new WeakMap();
+  const mouse=window.createRepoMouseControl?.({api,context,refresh,screenState:()=>({mode,busy})});
   const node=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
   const button=(text,fn)=>{const n=node('button',text);n.type='button';n.className='repo-voice-button';n.onclick=fn;return n;};
   const local=()=>{
@@ -36,7 +37,7 @@
    full.title='Full screen';head.append(node('strong',title),full);
    video=node('video');video.autoplay=true;video.muted=true;video.playsInline=true;video.setAttribute('aria-label',title);
    const loading=node('p','Connecting to the screen…');loading.className='repo-screen-loading';loading.setAttribute('role','status');video.addEventListener('playing',()=>{loading.hidden=true;});
-   viewerNode.append(head,video,loading);mediaHost.append(viewerNode);mediaHost.hidden=false;expand?.();return video;
+   viewerNode.append(head,video,loading);mouse?.mount(viewerNode,video);mediaHost.append(viewerNode);mediaHost.hidden=false;expand?.();return video;
   }
   async function begin(watch=false){
    const c=context();if(busy||mode||!c.connected||!c.room||!c.room.screen?.enabled)return;
@@ -79,7 +80,7 @@
   return {
    mount(host,onExpand){mediaHost=host;expand=onExpand;if(viewerNode){host.append(viewerNode);host.hidden=false;}else host.hidden=true;},
    reset(){local();notice='';},
-   sync(room){if(!mode||busy)return;if(!room||room.ended||room.mine.status==='left'||(mode==='publish'&&!room.screen?.publishing)||(mode==='watch'&&(!room.screen?.watching||room.screen.active?.id!==shareId)))stop('Screen sharing ended.');},
+   sync(room){mouse?.sync(room);if(!mode||busy)return;if(!room||room.ended||room.mine.status==='left'||(mode==='publish'&&!room.screen?.publishing)||(mode==='watch'&&(!room.screen?.watching||room.screen.active?.id!==shareId)))stop('Screen sharing ended.');},
    state:()=>({mode,busy}),
    render(container,room,canShare,noticeHost=null){
     let ui=controls.get(container);

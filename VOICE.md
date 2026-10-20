@@ -41,7 +41,7 @@ audio continues through Wibs. Stopping sharing or watching preserves voice.
 Each share expires after one hour and can be restarted if allowance remains.
 
 The shared budget reserves **10 Mbit/s per viewer**, including pending sessions
-and failed closures. It uses the same 800 GB monthly ceiling, rolling 32-day guard
+and failed closures. It uses the same 950 GB monthly ceiling, rolling 32-day guard
 and two-minute admission margin as voice. The server force-closes both kinds of
 media at cutoff. `SCREEN_ENABLED=false` disables sharing and closes its sessions
 while preserving voice. Do not change the existing budget identity or billing day.
@@ -65,6 +65,45 @@ synthetic content. It does not contact Cloudflare or capture the user's desktop.
 
 ## Cost safeguard and limits
 
+### Give control (Windows client 0.1.31)
+
+The live production cap was verified on 20 October 2026 through both
+`GET /api/voice/status` and the deployed `repocompany-voice` Worker:
+950,000,000,000 bytes. The previous 800 GB references were stale.
+The budget Durable Object identity, renewal on the 15th, rolling guard and
+existing voice/video reservations are unchanged.
+
+While sharing an entire display, choose a current viewer and select **Give
+control**. An isolated native confirmation grants mouse movement, left/right/
+middle buttons, dragging and scrolling on that display only. Window capture
+remains view-only. Keyboard input, clipboard and file transfer are not exposed.
+Both participants have **Stop control**; the host also has a native floating stop
+window and the global **Ctrl+Alt+Shift+F12** shortcut. Control cannot start if the
+shortcut cannot be registered. A new grant requires new local consent.
+
+Control uses a separate direct WebRTC data channel, authenticated by the existing
+call API and restricted to one current viewer/device. SDP contains only a data
+channel. No TURN/SFU data forwarding, video duplication or stored mouse events
+are added. Restrictive NAT/firewalls can prevent a direct connection; a timeout
+explains this while leaving screen sharing and voice active.
+
+Each grant reserves an additional 1 Mbit/s in the same monthly counter (about
+0.45 GB/hour of conservative allowance), including the admission margin. The
+actual small mouse messages travel directly between endpoints. Control ends when
+the shared usage cap is reached, the share/view/call ends, an account or device
+changes, or the display changes. A server verification timeout stops local
+control after about seven seconds; a lost peer stops input after about 2.5 seconds. The
+native helper releases held buttons and keys on EOF, stop, failure, or an independent
+1.8-second watchdog if the launcher stops sending keepalives. Administrator
+and secure Windows screens remain subject to Windows input restrictions.
+
+Validation: `node tools/test-mouse-control.cjs`, `node
+tools/test-mouse-control-client.cjs`, and `node --test
+desktop/tests/mouse-control.test.cjs`. The client test uses real Electron,
+browser WebRTC and the isolated preload with an instrumented native boundary;
+it does not move the user's mouse. A separate Windows smoke check confirmed
+actual SendInput clicks, scrolling, text, Ctrl+A and held-key release in an owned test window.
+
 Cloudflare's recurring free SFU/TURN allowance is 1,000 GB per month, shared by
 the account. Overage is billable. This integration does **not** make the account
 incapable of incurring charges. Cloudflare billing is the source of truth.
@@ -73,8 +112,8 @@ There is no real-time authoritative billed-byte meter exposed to this app.
 Instead, the server charges its internal allowance at **1 Mbit/s for every
 possible forwarded audio stream** in a room, even while muted or connecting.
 The microphone's actual Opus target is 64 kbit/s. The internal cutoff is
-800,000,000,000 bytes, with an additional two-minute traffic reservation. It is
-deliberately conservative, and can stop calls well below 800 GB of actual usage.
+950,000,000,000 bytes, with an additional two-minute traffic reservation. It is
+deliberately conservative, and can stop calls well below 950 GB of actual usage.
 For two people at six hours every night in a 31-day month, this accounting uses
 about 167.4 GB; the 64 kbit/s media payload estimate is about 10.7 GB.
 

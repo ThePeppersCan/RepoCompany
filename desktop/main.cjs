@@ -1,5 +1,5 @@
 'use strict';
-const { app, BrowserWindow, WebContentsView, ipcMain, protocol, session, Menu, dialog, shell, nativeImage, desktopCapturer } = require('electron');
+const { app, BrowserWindow, WebContentsView, ipcMain, protocol, session, Menu, dialog, shell, nativeImage, desktopCapturer, globalShortcut, screen } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { Library } = require('./lib/library.cjs');
@@ -15,6 +15,8 @@ const { TaskbarAttention } = require('./lib/taskbar-attention.cjs');
 const { ExternalActivity } = require('./lib/external-activity.cjs');
 const { NotificationAudio } = require('./lib/notification-audio.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
+const { createMouseControl } = require('./lib/mouse-control.cjs');
+let mouseControl;
 const { createScreenPicker } = require('./lib/screen-picker.cjs');
 
 app.setName('Repo Company');
@@ -217,8 +219,9 @@ function watchWindowVisibility(window) {
   });
 }
 function configureSessionPermissions(targetSession) {
+  mouseControl=createMouseControl({BrowserWindow,ipcMain,globalShortcut,screen,dialog,getWindow:()=>mainWindow,getPortal:activePortal,getAccount:()=>account,isPortalUrl});
   const picker=createScreenPicker({BrowserWindow,desktopCapturer,ipcMain,getWindow:()=>mainWindow,hidden:hiddenTest});
-  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog, canUseGamePointer, chooseScreen:valid=>picker.choose(valid),cancelScreen:()=>picker.cancel() });
+  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog, canUseGamePointer, chooseScreen:async valid=>{const source=await picker.choose(valid);mouseControl.select(source);return source;},cancelScreen:()=>{picker.cancel();mouseControl?.reset();} });
 }
 function canUseGamePointer(contents, details = {}, origin) {
   try {

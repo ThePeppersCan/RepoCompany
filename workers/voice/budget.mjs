@@ -31,7 +31,7 @@ export function flows(rooms) {
 }
 export const screenFlows=rooms=>rooms.reduce((sum,room)=>sum+Object.values(room.members).filter(m=>m.screenRecv).length,0);
 export const cameraFlows=rooms=>rooms.reduce((sum,room)=>sum+Object.values(room.members).reduce((n,m)=>n+(m.cameraRecv?.sources?.length||0),0),0);
-export const byteRate=rooms=>flows(rooms)*BYTES_PER_SECOND+screenFlows(rooms)*SCREEN_BYTES_PER_SECOND+cameraFlows(rooms)*CAMERA_BYTES_PER_SECOND;
+export const byteRate=rooms=>(flows(rooms)+rooms.filter(r=>r.control).length)*BYTES_PER_SECOND+screenFlows(rooms)*SCREEN_BYTES_PER_SECOND+cameraFlows(rooms)*CAMERA_BYTES_PER_SECOND;
 export function settle(state, now) {
   if (now <= state.at) return;
   state.daily ||= {};

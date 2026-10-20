@@ -1,4 +1,5 @@
 import {LIMIT, month, nextMonth, settle, hasBudget, monthlyBudget, rollingUsage, audioDescription} from './budget.mjs';
+import {MouseControl} from './control.mjs';
 import {ScreenSharing,mediaKeys,hasMedia} from './screens.mjs';
 import {Cameras} from './cameras.mjs';
 
@@ -14,7 +15,7 @@ export default {
     // No workers.dev URL or routes: this entry point is only a Pages service binding.
     if (env.VOICE_ENABLED !== 'true' || !env.SFU_APP_ID || !env.SFU_APP_SECRET) return json({enabled:false, reason:'Voice is being set up.'});
     // Deployment availability only: no usage, account, room or media data.
-    if(request.method==='GET'&&new URL(request.url).pathname==='/status')return json({enabled:true,cameras:env.CAMERA_ENABLED==='true',screenSharing:env.SCREEN_ENABLED==='true',limit:LIMIT});
+    if(request.method==='GET'&&new URL(request.url).pathname==='/status')return json({enabled:true,cameras:env.CAMERA_ENABLED==='true',screenSharing:env.SCREEN_ENABLED==='true',mouseControl:true,limit:LIMIT});
     return env.VOICE_HUB.get(env.VOICE_HUB.idFromName('account-monthly-budget-v1')).fetch(request);
   }
 };
@@ -22,7 +23,7 @@ export default {
 export class VoiceHub {
   constructor(ctx, env) {
     this.ctx = ctx; this.env = env; this.queue = Promise.resolve(); this.cleanups = new Map();
-    this.screens=new ScreenSharing(this);
+    this.screens=new ScreenSharing(this);this.control=new MouseControl(this);
     this.cameras=new Cameras(this);
     this.ready = ctx.blockConcurrencyWhile(async () => {
       this.state = await ctx.storage.get('state') || {version:1, billingDay:Number(env.BILLING_DAY)||1, at:Date.now(), usage:{}, daily:{}, rooms:[], rates:{}};
@@ -152,7 +153,7 @@ export class VoiceHub {
     return true;
   }
   clean(room) {
-    this.screens.maintain(room,Date.now());
+    this.screens.maintain(room,Date.now());this.control.maintain(room,Date.now());
     this.cameras.maintain(room,Date.now());
     for (const m of members(room)) {
       for (const key of mediaKeys) if(m[key]&&(m.status==='left'||m[key].revoked)) {
@@ -213,6 +214,7 @@ export class VoiceHub {
       rooms:this.state.rooms.filter(r=>r.members[me.id] && (r.members[me.id].status!=='left' || r.members[me.id].client===client || r.members[me.id].removedAt>now-120000 || (r.kind==='group'&&!r.ended))).map(r=>({
         id:r.id,title:r.title,kind:r.kind,host:r.host,created:r.created,ended:r.ended||null,reason:r.reason||'',expires:r.expires,
         screen:this.screens.view(r,r.members[me.id]),
+        control:this.control.view(r,r.members[me.id],client),
         cameras:this.cameras.view(r,r.members[me.id]),
         mine:{status:r.members[me.id].status,owned:r.members[me.id].client===client,muted:!!r.members[me.id].muted,reason:r.members[me.id].removalReason||'',mediaClosing:!!r.members[me.id].pub?.revoked||!!r.members[me.id].recv?.revoked,...this.voiceFlags(r,r.members[me.id])},
         members:members(r).filter(m=>m.status!=='left').map(m=>({id:m.id,name:m.name,display:m.display,status:m.status,muted:!!m.muted,...this.voiceFlags(r,m)})),
@@ -289,6 +291,7 @@ export class VoiceHub {
     if(!live(m)||m.client!==b.client) throw fail('Join the call from this device first.',403);
     if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();this.clean(room);throw fail(room.reason,429);}
     if(op==='heartbeat') {m.lease=now+LEASE;m.muted=!!b.muted;return this.view(me,b.client,now);}
+    if(op.startsWith('control-'))return this.control.action(room,m,op,b,now);
     if(op.startsWith('screen-'))return this.screens.action(room,m,op,b,now);
     if(op.startsWith('camera-'))return this.cameras.action(room,m,op,b,now);
     if(op==='reset-receiver') {
