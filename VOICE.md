@@ -311,17 +311,17 @@ Activation order:
    `TURN_KEY_API_TOKEN` as secrets on the existing `repocompany-voice` Worker.
    Do not place them in browser assets, Git, this document, or a pull request.
 2. Set `TURN_ENABLED="true"` in `workers/voice/wrangler.toml` once the secrets
-   are ready. Its checked-in default is `false`, so an unconfigured rollout
-   continues to support direct SFU calls.
+   are ready. It is enabled for the provisioned Repo Company Worker. Other
+   environments without both secrets continue to support direct SFU calls.
 3. Deploy the Worker first, retaining the existing service binding, Durable Object
    name, database and billing identity. Then publish the matching Pages client.
    Existing clients can continue using the old endpoints throughout this order.
    The launcher loads that portal; this change requires no native launcher rebuild.
 4. Before enabling production TURN, validate an isolated live call with direct
-   UDP blocked and inspect the selected ICE candidate pair for a relay, including
-   TURN/TLS on port 443. Check two-way received RTP, a network switch, a long call,
-   screen sharing, and control consent/stop behavior. The local tests below do
-   not establish that real Cloudflare TURN credentials or TLS relaying work.
+   candidates excluded and inspect the selected ICE candidate pair for a relay,
+   including TURN/TLS on port 443. Check two-way RTP, recovery, screen sharing,
+   and control consent/stop behavior with the opt-in live tests below. Longer
+   calls and physical Wi-Fi/mobile network switches remain useful field checks.
 
 Cloudflare documents that TURN traffic to its SFU is not billed twice:
 <https://developers.cloudflare.com/realtime/sfu/platform/pricing/>.
@@ -344,6 +344,25 @@ Verification:
   path rather than claiming a live relay test.
 - Existing voice, moderation, audio settings, call stage, screen/camera/control
   server and lifecycle tests, and native desktop permission/control tests.
+- `node tools/test-voice-turn-live.cjs`: opt-in real Cloudflare TURN/SFU test,
+  reading `.wrangler/voice-secrets.json` (or `WIBS_TEST_SECRETS`). Use a dedicated
+  test SFU app. It enforces relay-only audio, separately restricts TURN to UDP
+  3478 and TLS 443, asserts selected relay candidates and increasing two-way RTP,
+  closes a real transport and injects its failure notification, then verifies
+  automatic recovery and screen/capture/mute/deafen preservation. `WIBS_SOAK_MS`
+  controls the continuing-media check (30 seconds by default).
+- `node tools/test-screen-share-client.cjs --live-sfu`,
+  `node tools/test-mouse-control-client.cjs --live-sfu` and
+  `node tools/test-cameras-client.cjs --live-sfu` use the same ignored test
+  credentials. They exercise actual Electron capture, live SFU media, a real
+  browser control data channel and native input bridge. The control test checks
+  that audio recovery preserves an existing grant; OS input is stubbed unless
+  the separately documented owned-window input test is explicitly enabled.
+
+On 20 October 2026, the live UDP and TLS 443 tests passed with 60 seconds of
+continuing media after recovery. Audio recovered in 22.2 and 18.7 seconds,
+respectively. These are functional checks on the test network, not measurements
+of all user networks or proof of uninterrupted eight-hour calls.
 
 Rollback: disable TURN to stop issuing new credentials; this does not revoke
 already-issued credentials. Revert the matching client if recovery needs to be

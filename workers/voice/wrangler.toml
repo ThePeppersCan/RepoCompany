@@ -8,8 +8,8 @@ preview_urls = false
 VOICE_ENABLED = "true"
 SCREEN_ENABLED = "true"
 CAMERA_ENABLED = "true"
-# Enable after provisioning TURN_KEY_ID and TURN_KEY_API_TOKEN as Worker secrets.
-TURN_ENABLED = "false"
+# TURN_KEY_ID and TURN_KEY_API_TOKEN are provisioned as Worker secrets.
+TURN_ENABLED = "true"
 # Verified in the account's Realtime subscription: renewal on the 15th.
 BILLING_DAY = "15"
 
