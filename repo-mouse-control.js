@@ -6,9 +6,42 @@
  for(let i=0;i<10;i++){keyCodes['Digit'+i]=48+i;keyCodes['Numpad'+i]=96+i;}
  for(let i=1;i<=12;i++)keyCodes['F'+i]=111+i;
  window.createRepoMouseControl=({api,context,refresh,screenState})=>{
-  let current=null,ui=null,video=null,latest=null,verifiedAt=0,notice='',revision=0,declined=new Set();
+  let current=null,ui=null,video=null,latest=null,verifiedAt=0,notice='',revision=0,declined=new Set(),menu=null;
   const text=(tag,value)=>{const n=document.createElement(tag);n.textContent=value;return n;};
   const valid=c=>current===c&&context().connected&&context().room?.id===c.room;
+  function closeMenu(){menu?.remove();menu=null;}
+  function menuActions({menu:target,username,owner,close}){
+   const room=context().room,s=screenState();
+   if(!context().connected||s.mode!=='publish'||!room)return;
+   const member=owner?room.members.find(m=>m.id===owner):username?room.members.find(m=>m.name===username):null;
+   if((owner||username)&&(!member||member.id===context().user))return;
+   const watchers=room.screen.active?.watchers||[],people=member?watchers.filter(w=>w.id===member.id):watchers;
+   target.append(text('hr',''));
+   const action=(label,fn)=>{const b=text('button',label);b.type='button';b.setAttribute('role','menuitem');b.onclick=()=>{fn?.();close?.();};target.append(b);return b;};
+   const note=message=>{const n=text('p',message);n.className='rc-menu-note';target.append(n);};
+   if(current){action('Stop control',()=>void stop('Control stopped.'));return;}
+   if(document.documentElement.dataset.repoMouseControl!=='true'){
+    action('Give control').disabled=true;note('Update and restart the Windows app to give mouse and keyboard control.');return;
+   }
+   if(!people.length){
+    action('Give control').disabled=true;note(member?'This person must watch your screen first.':'Someone must watch your screen first.');return;
+   }
+   for(const person of people){const b=action(member?'Give control':'Give control to '+person.display);b.dataset.mouseGive='';b.dataset.mouseViewer=person.id;b.dataset.mouseName=person.display;b.disabled=s.busy;}
+   note('Mouse and keyboard · share an entire screen.');
+  }
+  function openMenu(event){
+   if(screenState().mode!=='publish')return;
+   event.preventDefault();event.stopPropagation();closeMenu();
+   menu=text('div','');menu.className='rc-person-menu repo-control-menu';menu.popover='auto';menu.setAttribute('role','menu');menu.setAttribute('aria-label','Screen control');
+   menuActions({menu,close:closeMenu});if(!menu.childElementCount){closeMenu();return;}
+   (video.closest('dialog')||video.parentElement).append(menu);menu.showPopover();
+   const rect=video.getBoundingClientRect(),x=event.type==='contextmenu'?event.clientX:rect.left,y=event.type==='contextmenu'?event.clientY:rect.top;
+   menu.style.left=Math.max(8,Math.min(x,innerWidth-menu.offsetWidth-8))+'px';menu.style.top=Math.max(8,Math.min(y,innerHeight-menu.offsetHeight-8))+'px';
+   menu.addEventListener('keydown',e=>{const items=[...menu.querySelectorAll('button:not(:disabled)')],at=items.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeMenu();video?.focus();}else if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();items[e.key==='Home'?0:e.key==='End'?items.length-1:(at+(e.key==='ArrowDown'?1:items.length-1))%items.length]?.focus();}});
+   menu.querySelector('button:not(:disabled)')?.focus();
+  }
+  addEventListener('repo-control-menu',e=>menuActions(e.detail));
+  addEventListener('resize',closeMenu);
   function render(){
    if(!ui)return;
    const s=screenState(),room=context().room,watchers=room?.screen?.active?.watchers||[];
@@ -21,7 +54,7 @@
    ui.stop.hidden=!current;ui.status.textContent=current?(current.open?(current.host?'Mouse and keyboard control given · Ctrl+Alt+Shift+F12 to stop':'You have control · click the screen to type, drag or scroll'):'Connecting mouse and keyboard control…'):notice||(host?(capable?(watchers.length?'Share an entire screen to give mouse and keyboard control.':'A viewer must watch your screen before you can give control.'):'Use the updated Windows app to give mouse and keyboard control.'):'');
   }
   async function stop(reason='',remote=true){
-   const c=current;current=null;revision++;notice=reason;
+   closeMenu();const c=current;current=null;revision++;notice=reason;
    if(c){declined.add(c.id);clearInterval(c.timer);clearTimeout(c.timeout);c.channel?.close();c.pc?.close();if(c.host)emit('repo-mouse-stop');if(remote&&c.id)await api('control-stop',{room:c.room,control:c.id}).catch(()=>{});}
    render();if(remote)refresh();
   }
@@ -139,7 +172,8 @@
     for(const type of ['pointermove','pointerdown','pointerup','wheel'])video.addEventListener(type,pointer,{passive:false});
     video.tabIndex=0;
     video.addEventListener('keydown',keyboard);video.addEventListener('keyup',keyboard);video.addEventListener('blur',releaseAll);
-    video.addEventListener('contextmenu',e=>{if(current?.open&&!current.host)e.preventDefault();});
+    video.addEventListener('contextmenu',e=>{if(current?.open&&!current.host)e.preventDefault();else openMenu(e);});
+    video.addEventListener('keydown',e=>{if(e.key==='ContextMenu'||(e.shiftKey&&e.key==='F10'))openMenu(e);});
     video.addEventListener('lostpointercapture',release);render();
    },
    reset(){void stop('',true);ui=null;video=null;latest=null;verifiedAt=0;},

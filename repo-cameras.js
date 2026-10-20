@@ -20,6 +20,7 @@
     event.preventDefault();event.stopPropagation();closeMenu();
     menu=el('div');menu.className='repo-camera-menu';menu.setAttribute('role','menu');menu.setAttribute('aria-label',display+' webcam');menu.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeMenu();target.focus();}});
     const action=el('button',hidden(owner)?'Show webcam':'Hide webcam');action.type='button';action.setAttribute('role','menuitem');action.onclick=()=>{togglePerson(owner);target.focus();};menu.append(action);
+    dispatchEvent(new CustomEvent('repo-control-menu',{detail:{menu,owner,close:closeMenu}}));
     (host.closest('dialog')||host.parentElement).append(menu);
     const rect=target.getBoundingClientRect(),x=event.type==='contextmenu'?event.clientX:rect.left,y=event.type==='contextmenu'?event.clientY:rect.bottom;
     menu.style.left=Math.max(8,Math.min(x,innerWidth-menu.offsetWidth-8))+'px';menu.style.top=Math.max(8,Math.min(y,innerHeight-menu.offsetHeight-8))+'px';action.focus();

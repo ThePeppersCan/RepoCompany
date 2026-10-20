@@ -154,6 +154,7 @@
   personMenu.replaceChildren(el('strong','rc-menu-name',label));
   action('View profile',()=>{closePersonMenu();profileCard(username,event);});
   if(account.state.social?.friends?.some(f=>f.username===username&&f.status==='accepted'))action('Message',()=>{closePersonMenu();window.repoMessaging.open(username);});
+  dispatchEvent(new CustomEvent('repo-control-menu',{detail:{menu:personMenu,username,close:closePersonMenu}}));
   if(data?.developer&&username!==data.username&&s?.enabled){
    personMenu.append(el('hr'));action('Server mute',()=>run('mute',{enabled:!restriction.serverMuted}),!!restriction.serverMuted);action('Server deafen',()=>run('deafen',{enabled:!restriction.serverDeafened}),!!restriction.serverDeafened);
    if(s.community.members.some(m=>m.name===username))action('Disconnect from voice',()=>run('disconnect')).classList.add('is-danger');
@@ -162,7 +163,7 @@
   }
   personMenu.showPopover();placePersonMenu();personMenu.querySelector('button')?.focus({preventScroll:true});
  }
- const personSelector='.rc-voice-person[data-voice-name],.rc-member[data-voice-name],[data-community-sender]';
+ const personSelector='.rc-voice-person[data-voice-name],.rc-member[data-voice-name],.repo-call-stage-person[data-voice-name],.repo-voice-person[data-voice-name],[data-community-sender]';
  drawer.addEventListener('contextmenu',e=>{const n=e.target.closest(personSelector);if(!n)return;e.preventDefault();personActions(n.dataset.voiceName||n.dataset.communitySender,e);});
  drawer.addEventListener('keydown',e=>{if(e.key!=='ContextMenu'&&!(e.shiftKey&&e.key==='F10'))return;const n=e.target.closest(personSelector);if(!n)return;e.preventDefault();personActions(n.dataset.voiceName||n.dataset.communitySender,e);});
  function show(next){if(next!==mode)typing?.reset();gifPicker.clear();mode=next;drawer.dataset.communityView=mode;dispatchEvent(new Event('repo-community-view'));channelView.hidden=mode!=='community';dmConversation.hidden=mode!=='dm';dmWrap.hidden=mode!=='dm';dmToggle.classList.toggle('is-selected',mode==='dm');drawer.classList.remove('rc-nav-open','rc-members-open');if(mode==='community'){paintChannels();poll(true);}else dmAside.querySelector('input')?.focus();}

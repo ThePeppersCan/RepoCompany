@@ -9,6 +9,7 @@
   const local=()=>{
    clearTimeout(noticeTimer);noticeTimer=null;
    revision++;busy=false;mode='';serverStarted=false;roomId=shareId=null;
+   mouse?.reset();
    if(capture){capture.getTracks().forEach(t=>{t.onended=null;t.stop();});capture=null;}
    if(pc){pc.ontrack=pc.onconnectionstatechange=null;pc.close();pc=null;}
    if(video){video.pause();video.srcObject=null;video=null;}if(viewerNode){viewerNode.remove();viewerNode=null;}if(mediaHost)mediaHost.hidden=true;

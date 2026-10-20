@@ -10,16 +10,23 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   for(const p of [native,web]){p.on('pageerror',e=>{errors.push(e.message);});await p.evaluate(()=>repoMessaging.open());await p.getByRole('button',{name:'Join RE-COMP voice',exact:true}).click();await p.waitForFunction(()=>repoVoice.getState().callStatus==='active',null,{timeout:35000});}
   await native.getByRole('button',{name:'Share screen',exact:true}).click();let picker=await app.waitForEvent('window',{predicate:p=>p.url().includes('screen-picker.html')});await picker.getByRole('button',{name:'Cancel',exact:true}).click();await native.getByRole('button',{name:'Share screen',exact:true}).waitFor();assert(await native.evaluate(()=>repoVoice.getState().callStatus==='active'));
   await native.getByRole('button',{name:'Share screen',exact:true}).click();picker=await app.waitForEvent('window',{predicate:p=>p.url().includes('screen-picker.html')});await picker.getByRole('button',{name:'Share Wibs test pattern',exact:true}).click();
+  const bob=native.locator('.repo-call-stage-person[data-voice-name="bob"]');
+  await native.getByRole('button',{name:'Stop sharing',exact:true}).waitFor();
+  await web.getByRole('button',{name:'Watch screen',exact:true}).waitFor({timeout:30000});
+  await bob.click({button:'right'});const peopleMenu=native.getByRole('menu',{name:'Player actions',exact:true});
+  assert(await peopleMenu.getByRole('menuitem',{name:'Give control',exact:true}).isDisabled());assert(await peopleMenu.getByText('This person must watch your screen first.').isVisible());await native.keyboard.press('Escape');
   await web.getByRole('button',{name:'Watch screen',exact:true}).click({timeout:30000});await web.waitForFunction(()=>{const v=document.querySelector('.repo-screen-viewer video');return v?.videoWidth>0&&v.currentTime>.3;},null,{timeout:25000});
-  await native.getByRole('button',{name:'Give control',exact:true}).click();
+  await native.waitForFunction(()=>!document.querySelector('[data-mouse-give]').disabled);
+  await bob.click({button:'right'});await peopleMenu.getByRole('menuitem',{name:'Give control',exact:true}).click();
   await web.getByText('You have control',{exact:false}).waitFor({timeout:35000});
   await native.screenshot({path:path.resolve(__dirname,'../desktop/qa/mouse-control-host.png')});await web.screenshot({path:path.resolve(__dirname,'../desktop/qa/mouse-control-viewer.png')});
   const video=web.locator('.repo-screen-viewer video');await video.click();await web.keyboard.type('Wibs');await web.keyboard.press('Control+a');await web.keyboard.press('Tab');assert(await video.evaluate(v=>document.activeElement===v),'remote Tab must not leave the viewer');await video.hover();await web.mouse.wheel(0,120);
   await new Promise(r=>setTimeout(r,700));
   let writes=await app.evaluate(()=>global.screenTest.writes);console.log('Native input count',writes.length);assert(writes.some(s=>/^mouse \d+ \d+ 1 /.test(s)),'native bridge received left down');assert(writes.some(s=>/^mouse \d+ \d+ 0 /.test(s)),'native bridge received left up');assert(writes.some(s=>s.startsWith('mouse ')&&s.trim().endsWith('-120')),'native bridge received scrolling');
   assert(writes.includes('text 87\n')&&writes.includes('text 105\n'),'native bridge received typed text');assert(writes.includes('key 162 1\n')&&writes.includes('key 162 0\n'),'native bridge received Ctrl shortcut and release');assert(writes.includes('key 9 1\n'),'native bridge received Tab');
-  await native.getByRole('button',{name:'Stop control',exact:true}).click();await web.getByText('You have control',{exact:false}).waitFor({state:'hidden'});assert(await web.evaluate(()=>repoVoice.getState().callActive));assert(await video.isVisible());
-  await native.getByRole('button',{name:'Give control',exact:true}).click();await web.getByText('You have control',{exact:false}).waitFor({timeout:35000});
+  const hostVideo=native.locator('.repo-screen-viewer video'),screenMenu=native.getByRole('menu',{name:'Screen control',exact:true});
+  await hostVideo.click({button:'right'});await screenMenu.getByRole('menuitem',{name:'Stop control',exact:true}).click();await web.getByText('You have control',{exact:false}).waitFor({state:'hidden'});assert(await web.evaluate(()=>repoVoice.getState().callActive));assert(await video.isVisible());
+  await hostVideo.focus();await native.keyboard.press('Shift+F10');await screenMenu.getByRole('menuitem',{name:/Give control to/}).click();await web.getByText('You have control',{exact:false}).waitFor({timeout:35000});
   await app.evaluate(()=>global.screenTest.emergency());await web.getByText('You have control',{exact:false}).waitFor({state:'hidden'});
   await native.getByRole('button',{name:'Give control',exact:true}).click();await web.getByText('You have control',{exact:false}).waitFor({timeout:35000});
   await web.getByRole('button',{name:'Stop watching',exact:true}).click();await native.getByRole('button',{name:'Stop control',exact:true}).waitFor({state:'hidden'});

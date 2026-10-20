@@ -73,10 +73,12 @@ The live production cap was verified on 20 October 2026 through both
 The budget Durable Object identity, renewal on the 15th, rolling guard and
 existing voice/video reservations are unchanged.
 
-While sharing an entire display, choose a current viewer and select **Give
-control**. An isolated native confirmation grants mouse movement, left/right/
-middle buttons, dragging and scrolling on that display only. Window capture
-remains view-only. Keyboard input, clipboard and file transfer are not exposed.
+While sharing an entire display, right-click a viewer's name in the call and
+select **Give control**, or right-click your shared screen and choose a viewer.
+The selector and **Give control** button beneath the screen are also available.
+The viewer must first choose **Watch screen**. An isolated native confirmation
+grants mouse movement, left/right/middle buttons, dragging, scrolling and keyboard
+input. Window capture remains view-only. Clipboard and file transfer are not exposed.
 Both participants have **Stop control**; the host also has a native floating stop
 window and the global **Ctrl+Alt+Shift+F12** shortcut. Control cannot start if the
 shortcut cannot be registered. A new grant requires new local consent.

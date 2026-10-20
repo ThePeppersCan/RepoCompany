@@ -36,7 +36,7 @@
       const next=JSON.stringify(people.map(m=>[m.id,m.name,m.display,m.status,m.muted,m.serverMuted,m.serverDeafened,s.room?.cameras?.active.some(t=>t.owner===m.id),cameras?.hidden(m.id)]));
       if(next!==rosterKey){
         rosterKey=next;roster.replaceChildren();
-        for(const m of people){const row=el('div','repo-call-stage-person');row.dataset.voiceName=m.name;row.setAttribute('role','listitem');const avatar=portrait(m);avatar.classList.add('repo-call-stage-avatar');const name=el('span','repo-call-stage-name',m.display),note=el('small','repo-call-stage-person-status',m.status==='invited'?'Invited':m.serverDeafened?'Deafened':m.serverMuted||m.muted?'Muted':'');row.append(avatar,name,note);cameras?.person(row,m.id,m.display);roster.append(row);}
+        for(const m of people){const row=el('div','repo-call-stage-person');row.dataset.voiceName=m.name;row.tabIndex=0;row.setAttribute('role','listitem');const avatar=portrait(m);avatar.classList.add('repo-call-stage-avatar');const name=el('span','repo-call-stage-name',m.display),note=el('small','repo-call-stage-person-status',m.status==='invited'?'Invited':m.serverDeafened?'Deafened':m.serverMuted||m.muted?'Muted':'');row.append(avatar,name,note);cameras?.person(row,m.id,m.display);roster.append(row);}
       }
       screens?.render(screenControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened,screenNotice);
       cameras?.render(cameraControls,s.room,s.connected&&s.budget?.available!==false&&!s.serverDeafened,cameraNotice);
