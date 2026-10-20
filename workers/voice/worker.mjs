@@ -2,6 +2,7 @@ import {LIMIT, month, nextMonth, settle, hasBudget, monthlyBudget, rollingUsage,
 import {MouseControl} from './control.mjs';
 import {ScreenSharing,mediaKeys,hasMedia} from './screens.mjs';
 import {Cameras} from './cameras.mjs';
+import {voiceIce} from './turn.mjs';
 
 const LEASE = 60000, MAX_CALL = 8 * 3600000;
 const uuid = v => typeof v === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(v);
@@ -291,6 +292,19 @@ export class VoiceHub {
     if(!live(m)||m.client!==b.client) throw fail('Join the call from this device first.',403);
     if(!hasBudget(this.state,now)) {this.end(room,'The monthly voice allowance has been reached.',now);await this.save();this.clean(room);throw fail(room.reason,429);}
     if(op==='heartbeat') {m.lease=now+LEASE;m.muted=!!b.muted;return this.view(me,b.client,now);}
+    if(op==='ice')return voiceIce(this.env,room,m,now);
+    if(op==='recover-audio'){
+      if(!uuid(b.recovery))throw fail('Invalid voice recovery.');
+      // Replaying a lost reset response must never retire its replacement.
+      if(m.audioRecovery!==b.recovery){
+        m.audioRecovery=b.recovery;
+        for(const key of ['pub','recv'])if(m[key])m[key].revoked=true;
+        await this.save();this.clean(room);
+      }
+      // Keep membership, capture permissions, screen sessions and control grant.
+      // No replacement is admitted until the old audio is confirmed closed.
+      return {closing:!!(m.pub||m.recv),...this.voiceFlags(room,m)};
+    }
     if(op.startsWith('control-'))return this.control.action(room,m,op,b,now);
     if(op.startsWith('screen-'))return this.screens.action(room,m,op,b,now);
     if(op.startsWith('camera-'))return this.cameras.action(room,m,op,b,now);
@@ -313,7 +327,7 @@ export class VoiceHub {
         if(response.sessionDescription?.type!=='answer') throw fail('Unexpected voice connection response.',502);
         m.pub.pendingUntil=0;
         return {sessionDescription:response.sessionDescription};
-      } catch(e) {m.status='left';await this.save();this.clean(room);throw e;}
+      } catch(e) {m.pub.revoked=true;await this.save();this.clean(room);throw e;}
     }
     if(op==='ready') {const flags=this.voiceFlags(room,m);if(!m.pub&&!flags.serverMuted&&!flags.serverDeafened)throw fail('Connect your microphone first.');if(m.pub&&!m.pub.revoked)m.pub.ready=true;m.status='active';return{ok:true};}
     if(op==='subscribe') {
@@ -331,7 +345,7 @@ export class VoiceHub {
         m.recv.pendingUntil=0;
         m.recv.sources.push(...sources.map(p=>p.pub.trackName));
         return {sessionDescription:response.sessionDescription,tracks:response.tracks};
-      }catch(e){m.status='left';await this.save();this.clean(room);throw e;}
+      }catch(e){m.recv.revoked=true;await this.save();this.clean(room);throw e;}
     }
     if(op==='answer') {
       if(this.voiceFlags(room,m).serverDeafened)throw fail('A Developer has deafened you in RE-COMP.',403);

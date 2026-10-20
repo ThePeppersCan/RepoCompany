@@ -47,6 +47,9 @@
   let speaking=[],serviceError='';const remoteNames=new Map(),remoteActivity=new Set();
   const audioSettings=window.repoVoiceAudio;
   let inputCapture=null,pendingInput=null,rtpSender=null,changingAudio=false,connected=false,heardMembers=null;
+  let iceServers=[{urls:'stun:stun.cloudflare.com:3478'}],relayOnly=false,audioWork=null,recovery=null;
+  const disconnectTimers=new Map();
+  const terminal=error=>[401,403,404,410,429].includes(error.status);
   const screens=window.createRepoScreenShare?.({api,context:()=>({user,connected,room:rooms.find(r=>r.id===current)}),changed:announce,refresh:poll});
   const cameras=window.createRepoCameras?.({api,context:()=>({user,connected,room:rooms.find(r=>r.id===current)}),changed:announce,refresh:poll});
   const activity=window.createRepoVoiceActivity?.(names=>{speaking=names;paintSpeaking();dispatchEvent(new CustomEvent('repo-voice-speaking',{detail:{speaking:[...speaking]}}));});
@@ -85,6 +88,9 @@
     }finally{clearTimeout(timeout);controllers.delete(controller);}
   }
   function stopMedia(){
+    if(recovery)clearTimeout(recovery.deadline);recovery=null;relayOnly=false;
+    for(const timer of disconnectTimers.values())clearTimeout(timer);disconnectTimers.clear();
+    iceServers=[{urls:'stun:stun.cloudflare.com:3478'}];
     screens?.reset();cameras?.reset();
     serverMuted=serverDeafened=false;
     activity?.clear();remoteNames.clear();remoteActivity.clear();
@@ -104,11 +110,76 @@
     if(room&&oldToken)fetch('/api/voice/leave',{method:'POST',keepalive:true,headers:{Authorization:'Bearer '+oldToken,'Content-Type':'application/json'},body:JSON.stringify({room,client})}).catch(()=>{});
   }
   const description=pc=>({type:pc.localDescription.type,sdp:pc.localDescription.sdp});
-  const ice=(pc,valid)=>window.repoVoiceConnection.gather(pc,valid);
+  const hasTurn=()=>iceServers.some(s=>(Array.isArray(s.urls)?s.urls:[s.urls]).some(url=>/^turns?:/.test(url)));
+  const ice=(pc,valid)=>window.repoVoiceConnection.gather(pc,valid,{waitForRelay:hasTurn()});
+  async function loadIce(valid){
+    const result=await api('ice',{room:current},valid);
+    iceServers=Array.isArray(result.iceServers)&&result.iceServers.length?result.iceServers:[{urls:'stun:stun.cloudflare.com:3478'}];
+    window.repoVoiceConnection.record(result.turn?'turn-ready':'turn-unavailable');
+  }
+  function waitConnected(pc,valid){
+    return new Promise((resolve,reject)=>{
+      let done=false;
+      const timeout=setTimeout(()=>finish(Error('Could not connect voice on this network.')),18000),interval=setInterval(check,100);
+      function finish(error){if(done)return;done=true;clearTimeout(timeout);clearInterval(interval);pc.removeEventListener('connectionstatechange',check);error?reject(error):resolve();}
+      function check(){if(!valid())finish(Object.assign(Error('Call changed.'),{stale:true}));else if(pc.connectionState==='connected')finish();else if(['failed','closed'].includes(pc.connectionState))finish(Error('Voice could not connect.'));}
+      pc.addEventListener('connectionstatechange',check);check();
+    });
+  }
+  function delay(ms,valid){return new Promise((resolve,reject)=>{const end=Date.now()+ms,timer=setInterval(()=>{if(!valid()){clearInterval(timer);reject(Object.assign(Error('Call changed.'),{stale:true}));}else if(Date.now()>=end){clearInterval(timer);resolve();}},100);});}
+  function closeSending(){
+    if(sender){sender.onconnectionstatechange=sender.onicecandidateerror=null;sender.close();pcs.delete(sender);sender=null;}
+    rtpSender=null;activity?.remove('local');
+  }
+  async function recoverAudio(){
+    if(recovery||!current||!inputCapture)return;
+    const room=current,e=epoch,g=generation,job={deadline:null},alive=()=>current===room&&epoch===e&&generation===g,valid=()=>alive()&&recovery===job;
+    recovery=job;busy=true;message='Reconnecting to voice…';announce();
+    job.deadline=setTimeout(()=>{if(valid())void leave('Voice could not reconnect. Please join again.');},45000);
+    try{
+      // Let any in-flight SDP operation settle before resetting its sessions.
+      await audioWork?.catch(()=>{});
+      for(let attempt=0;attempt<3&&valid();attempt++){
+        try{
+          while(navigator.onLine===false)await delay(500,valid);
+          closeSending();closeReceiving();
+          const reset=crypto.randomUUID();let result;
+          do{
+            result=await api('recover-audio',{room,recovery:reset},valid);
+            if(result.closing)await delay(1500,valid);
+          }while(result.closing&&valid());
+          serverMuted=!!result.serverMuted;serverDeafened=!!result.serverDeafened;applyMute();
+          await loadIce(valid);relayOnly=hasTurn();
+          if(!serverMuted&&!serverDeafened)await publishMicrophone(alive);
+          await api('ready',{room},valid);
+          const snapshot=await api('heartbeat',{room,muted:muted||deafened},valid),next=snapshot.rooms?.find(r=>r.id===room);
+          if(!next||next.ended||next.mine.status==='left')throw Object.assign(Error(next?.reason||'This call has ended.'),{status:410});
+          if(!serverDeafened)await subscribe(next,alive);
+          if(!valid())return;
+          connected=true;lastContact=Date.now();message='';window.repoVoiceConnection.record('reconnected',sender);
+          return;
+        }catch(error){
+          if(error.stale||!valid())return;
+          if(terminal(error)||attempt===2)throw error;
+          await delay((attempt+1)*1500,valid);
+        }
+      }
+    }catch(error){if(valid())await leave(terminal(error)?error.message:'Voice could not reconnect. Please join again.');}
+    finally{
+      clearTimeout(job.deadline);
+      if(recovery===job){recovery=null;busy=false;announce();void poll();}
+    }
+  }
   function connection(valid,direct=false){
-    const pc=new RTCPeerConnection({iceServers:direct?[]:[{urls:'stun:stun.cloudflare.com:3478'}],bundlePolicy:'max-bundle'});pcs.add(pc);
+    const pc=new RTCPeerConnection({iceServers:direct?[]:iceServers,iceTransportPolicy:relayOnly&&!direct?'relay':'all',bundlePolicy:'max-bundle'});pcs.add(pc);
     pc.onicecandidateerror=e=>window.repoVoiceConnection.record('candidate-error',pc,{code:e.errorCode});
-    pc.onconnectionstatechange=()=>{if(!valid())return;window.repoVoiceConnection.record('connection-state',pc);if(pc.connectionState==='failed')leave('Voice lost its connection. Please call again.');else announce();};
+    pc.onconnectionstatechange=()=>{
+      if(!valid()||!pcs.has(pc))return;window.repoVoiceConnection.record('connection-state',pc);
+      clearTimeout(disconnectTimers.get(pc));disconnectTimers.delete(pc);
+      if(pc.connectionState==='failed'&&!busy)void recoverAudio();
+      else if(pc.connectionState==='disconnected')disconnectTimers.set(pc,setTimeout(()=>{disconnectTimers.delete(pc);if(valid()&&pcs.has(pc)&&pc.connectionState==='disconnected'&&!busy)void recoverAudio();},4000));
+      else announce();
+    };
     return pc;
   }
   async function microphone(valid){
@@ -117,6 +188,7 @@
     inputCapture=await audioSettings.capture(audioSettings.get(),valid);stream=inputCapture.stream;
     inputCapture.raw.getAudioTracks()[0].onended=()=>{if(valid())leave('Your microphone disconnected. Choose a microphone in Voice settings, then rejoin.');};
     applyMute();
+    await loadIce(valid);
     if(!serverMuted&&!serverDeafened)await publishMicrophone(valid);
     await api('ready',{room:current},valid);connected=true;heardMembers=null;if(!soundBlocked())audioSettings.cue('join');lastContact=Date.now();message='';announce();
   }
@@ -130,7 +202,7 @@
       const codecs=RTCRtpSender.getCapabilities?.('audio')?.codecs.filter(c=>c.mimeType.toLowerCase()==='audio/opus');
       if(codecs?.length)transceiver.setCodecPreferences(codecs);
       try{await sender.setLocalDescription(await sender.createOffer());await ice(sender,valid);break;}
-      catch(error){if(error.code!=='ICE_NO_CANDIDATES'||attempt||!valid())throw error;
+      catch(error){if(error.code!=='ICE_NO_CANDIDATES'||attempt||relayOnly||!valid())throw error;
         // Nothing has been published yet. Replace the failed transport without
         // opening a second server session or reserving additional voice usage.
         window.repoVoiceConnection.record('retry-direct',sender);sender.onconnectionstatechange=sender.onicecandidateerror=null;sender.close();pcs.delete(sender);sender=null;
@@ -141,12 +213,7 @@
     if(!valid())return;
     await sender.setRemoteDescription(reply.sessionDescription);
     const parameters=transceiver.sender.getParameters();if(parameters.encodings?.length){parameters.encodings.forEach(e=>{e.maxBitrate=64000;});await transceiver.sender.setParameters(parameters);}
-    await new Promise((resolve,reject)=>{
-      const pc=sender,timeout=setTimeout(()=>finish(Error('Could not connect voice on this network.')),18000);
-      function finish(e){clearTimeout(timeout);pc.removeEventListener('connectionstatechange',check);e?reject(e):resolve();}
-      function check(){if(!valid())finish(Object.assign(Error('Call changed.'),{stale:true}));else if(pc.connectionState==='connected')finish();else if(['failed','closed'].includes(pc.connectionState))finish(Error('Voice could not connect.'));}
-      pc.addEventListener('connectionstatechange',check);check();
-    });
+    await waitConnected(sender,valid);
   }
   function applyMute(){inputCapture?.setMuted(micBlocked());pendingInput?.setMuted(micBlocked());}
   function watchLocal(valid){const localTrack=stream.getAudioTracks()[0],localPeer=sender,transmitter=rtpSender;activity?.watch('local',{name:own(),type:'media-source',read:()=>transmitter.getStats(),enabled:()=>valid()&&localPeer.connectionState==='connected'&&localTrack.readyState==='live'&&localTrack.enabled&&!micBlocked()});}
@@ -200,9 +267,12 @@
       if(!valid())throw Object.assign(Error('Call changed.'),{stale:true});
       rememberCall();
       const response=options.community?await api('community',{},valid):options.room?await api('join',{room:options.room},valid):await api('create',options,valid);
-      current=response.room||options.room;serverMuted=!!response.serverMuted;serverDeafened=!!response.serverDeafened;lastContact=Date.now();announce();
+      current=response.room||options.room;serverMuted=!!response.serverMuted;serverDeafened=!!response.serverDeafened;lastContact=Date.now();announce();void poll();
       await microphone(valid);
-    }catch(error){if(!error.stale&&valid())await leave(error.name==='NotAllowedError'?'Microphone permission was declined. Allow it to make a call.':error.message);}
+    }catch(error){if(!error.stale&&valid()){
+      if(inputCapture&&!terminal(error)&&!['NotAllowedError','NotFoundError'].includes(error.name))await recoverAudio();
+      else await leave(error.name==='NotAllowedError'?'Microphone permission was declined. Allow it to make a call.':error.message);
+    }}
     finally{if(valid()){busy=false;announce();await poll();}}
   }
   async function subscribe(room,valid){
@@ -228,6 +298,7 @@
     await receiver.setRemoteDescription(response.sessionDescription);
     await receiver.setLocalDescription(await receiver.createAnswer());await ice(receiver,valid);
     await api('answer',{room:room.id,sessionDescription:description(receiver)},valid);
+    await waitConnected(receiver,valid);
     needed.forEach(s=>subscribed.add(s.trackName));
   }
   function schedulePoll(){clearTimeout(timer);if(user&&!suspended)timer=setTimeout(poll,pollAgain?0:(current?3000:10000));pollAgain=false;}
@@ -238,13 +309,26 @@
       if(serviceError&&message===serviceError)message='';serviceError='';
       enabled=!!result.enabled;rooms=result.rooms||[];budget=result.budget||null;community=result.community||{members:[]};
       if(current){
-        lastContact=Date.now();if(message==='Reconnecting to voice…')message='';const room=rooms.find(r=>r.id===current);
+        lastContact=Date.now();if(!recovery&&message==='Reconnecting to voice…')message='';const room=rooms.find(r=>r.id===current);
         if(!room||room.ended||room.mine.status==='left'){await leave(room?.mine.reason||room?.reason||'Call ended.');return;}
         screens?.sync(room);cameras?.sync(room);
+        serverMuted=!!room.mine.serverMuted;serverDeafened=!!room.mine.serverDeafened;applyMute();
+        for(const audio of audios.values())audio.muted=soundBlocked();
         if(connected){const members=new Set(room.members.filter(m=>m.id!==user&&m.status==='active').map(m=>m.id));if(heardMembers&&!soundBlocked()&&!room.mine.serverDeafened){if([...heardMembers].some(id=>!members.has(id)))audioSettings.cue('leave');if([...members].some(id=>!heardMembers.has(id)))audioSettings.cue('join');}heardMembers=members;}
         // Show membership changes before waiting for SFU negotiation or cleanup.
         announce();
-        if(!busy&&connected){await applyModeration(room,valid);if(!serverDeafened&&!room.mine.mediaClosing)await subscribe(room,valid);}
+        if(!busy&&connected&&!audioWork){
+          if([...pcs].some(pc=>pc.connectionState==='failed'))void recoverAudio();
+          else{
+            // Heartbeats (including Give Control verification) continue during
+            // slow media negotiation; only one audio operation runs at a time.
+            audioWork=(async()=>{await applyModeration(room,valid);if(!serverDeafened&&!room.mine.mediaClosing)await subscribe(room,valid);})();
+            audioWork.catch(error=>{
+              if(error.stale||!valid())return;
+              if(terminal(error))void leave(error.message);else void recoverAudio();
+            }).finally(()=>{audioWork=null;});
+          }
+        }
       }
       announce();
     }catch(error){
@@ -319,7 +403,7 @@
     if(next!==user){abandon('');epoch++;controllers.forEach(c=>c.abort());user=next;token='';rooms=[];budget=null;community={members:[]};enabled=false;message=serviceError='';if(ui)ui.form.hidden=true;announce();poll();}
   }
   addEventListener('repo-account-state',changed);
-  addEventListener('offline',()=>abandon('You are offline. Call again when connected.'));
+  addEventListener('offline',()=>{if(current&&!busy)void recoverAudio();});
   addEventListener('online',poll);
   addEventListener('pagehide',()=>{suspended=true;abandon('');clearTimeout(timer);});
   addEventListener('pageshow',()=>{suspended=false;poll();});

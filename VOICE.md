@@ -27,10 +27,10 @@ Preview Pages
 has no production voice binding. Credentials in `.wrangler/voice-secrets.json`
 are only a local, ignored setup/test input; remove after provisioning and testing.
 
-The SFU's STUN connection is used directly. Screen sharing uses separate video
-sessions; TURN credentials, camera video, data channels, recording and transcription
-are not enabled. Restrictive
-networks that block the SFU transport can fail to connect and show a retry error.
+Voice uses the SFU directly where possible, with optional authenticated TURN
+fallback. Screen sharing and cameras retain separate video sessions; Give Control
+retains its separate direct data channel. Recording and transcription are not enabled.
+See **Voice relay fallback and automatic recovery** below for activation and limits.
 
 ## Screen sharing and Monthly Wibs usage
 
@@ -143,7 +143,7 @@ other Realtime consumers, abuse or a future pricing change remains outside an
 absolute zero-charge guarantee. Worker/Durable Object/D1 pricing is separate;
 this implementation doesn't request any paid plan upgrade.
 
-Calls have a 60-second server lease, heartbeats about every two seconds and an eight-hour
+Calls have a 60-second server lease, heartbeats about every three seconds and an eight-hour
 maximum duration. Up to 16 people can be admitted globally. Closing a group as
 host ends it for everyone. Guests can leave and rejoin while their host remains.
 Unfriending or blocking any invited person closes the room. No microphone access
@@ -257,7 +257,8 @@ or STUN request is still waiting. A complete gathering pass without candidates,
 or a ten-second empty timeout, retries once on a fresh PeerConnection with no
 STUN server. This happens before publishing, so the retry does not create a second
 SFU session or reserve extra usage. Cancellation closes the transport and stops
-waiting. This recovery does not add TURN or alter the audio budget.
+waiting. This direct-candidate retry does not allocate another SFU session or
+alter the audio budget; configured TURN and call recovery are described below.
 
 A failed join offers a downloadable report with timestamps, connection states,
 candidate counts/types and STUN error codes. It excludes SDP, addresses, account
@@ -266,3 +267,85 @@ client failure path, not confirmation of the cause on an affected user's PC.
 
 Checks: `tools/test-voice-connection.cjs`, `tools/test-voice-retry-client.cjs`,
 `tools/test-voice-client.cjs` and the existing server voice/budget tests.
+
+### Voice relay fallback and automatic recovery
+
+The existing call UI, audio processing, screen sharing, cameras and Give Control
+are retained. Voice can obtain expiring Cloudflare TURN credentials through
+`POST /api/voice/ice`. The existing account, friendship/block, room membership,
+device ownership, rate and budget checks all run before issuance. The permanent
+TURN key stays in Worker secrets. Credentials are cached in memory per membership
+and device, never returned in room snapshots or connection reports, and expire
+by the call's existing maximum duration. A credential service outage falls back
+to STUN and backs off issuance retries for 30 seconds.
+
+The first audio connection allows direct or relayed ICE. Non-trickle candidate
+gathering gives relay candidates time to arrive, up to the existing ten-second
+bound. A failed audio transport, a four-second sustained disconnect, or an
+offline/online interruption starts recovery in the same call. Recovery makes at
+most three attempts within 45 seconds and prefers relay-only audio when TURN is
+available. Initial media negotiation failures can also recover without another
+microphone prompt. A brief disconnect that heals during the grace period avoids
+rebuilding the connection.
+
+`recover-audio` retires only the caller's audio publisher/receiver. The request
+has an idempotent recovery ID; a repeated request cannot retire its replacement.
+Old sessions remain reserved until confirmed closed, including uncertain
+upstream operations. Recovery cannot extend the call expiry, create a new room,
+bypass moderation, or reset the monthly/rolling allowance. Failure to close the
+old sessions safely results in the bounded retry message instead of allocating
+duplicates. Heartbeats continue during media negotiation and recovery.
+
+Healthy screen sharing, camera sessions and Give Control remain attached to the
+same room; mute/deafen and the existing microphone capture are preserved.
+Hangup, sign-out, page exit, server revocation and the recovery deadline cancel
+retries and stop media. A real loss of the control connection or its verification
+still invokes the existing remote-control watchdogs. Recovery does not silently
+restore a stopped control grant: giving control again requires fresh consent.
+TURN and automatic recovery in this change apply to **voice audio**; the existing
+screen/camera connection recovery and direct-only control transport are unchanged.
+
+Activation order:
+
+1. Provision a dedicated Cloudflare TURN key. Set `TURN_KEY_ID` and
+   `TURN_KEY_API_TOKEN` as secrets on the existing `repocompany-voice` Worker.
+   Do not place them in browser assets, Git, this document, or a pull request.
+2. Set `TURN_ENABLED="true"` in `workers/voice/wrangler.toml` once the secrets
+   are ready. Its checked-in default is `false`, so an unconfigured rollout
+   continues to support direct SFU calls.
+3. Deploy the Worker first, retaining the existing service binding, Durable Object
+   name, database and billing identity. Then publish the matching Pages client.
+   Existing clients can continue using the old endpoints throughout this order.
+   The launcher loads that portal; this change requires no native launcher rebuild.
+4. Before enabling production TURN, validate an isolated live call with direct
+   UDP blocked and inspect the selected ICE candidate pair for a relay, including
+   TURN/TLS on port 443. Check two-way received RTP, a network switch, a long call,
+   screen sharing, and control consent/stop behavior. The local tests below do
+   not establish that real Cloudflare TURN credentials or TLS relaying work.
+
+Cloudflare documents that TURN traffic to its SFU is not billed twice:
+<https://developers.cloudflare.com/realtime/sfu/platform/pricing/>.
+The existing conservative 950 GB counter and admission limits are unchanged.
+Issued TURN credentials remain relay bearer credentials until expiry; closing
+SFU tracks is not a provider-wide TURN credential revocation or billing cap.
+The documented limitations concerning other consumers and abuse still apply.
+Credential API: <https://developers.cloudflare.com/realtime/turn/generate-credentials/>.
+
+Verification:
+
+- `node tools/test-voice-recovery.cjs`: TURN authorization, device isolation,
+  credential caching/expiry, filtered endpoints, no credential disclosure in
+  snapshots/persisted state, issuance outages, failed cleanup reservations,
+  idempotent audio reset, retained screen/control sessions and block revocation.
+- `node tools/test-voice-recovery-client.cjs`: real local two-way WebRTC across
+  repeated sender/receiver failures, initial negotiation failure, offline/online,
+  preserved capture/mute/deafen/screen player, hangup cancellation and bounded
+  failure. It inspects TURN configuration but deliberately uses a local media
+  path rather than claiming a live relay test.
+- Existing voice, moderation, audio settings, call stage, screen/camera/control
+  server and lifecycle tests, and native desktop permission/control tests.
+
+Rollback: disable TURN to stop issuing new credentials; this does not revoke
+already-issued credentials. Revert the matching client if recovery needs to be
+rolled back. The added Worker endpoints are backward compatible and can remain
+while old and new portal versions coexist. No schema or account migration is needed.
