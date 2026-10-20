@@ -74,6 +74,9 @@ const server=http.createServer((req,res)=>{
     await page.goto(base+'/#manager');
     await page.evaluate(()=>Promise.all([...document.images].filter(i=>i.src).map(i=>i.decode().catch(()=>{}))));
     await page.screenshot({path:path.join(out,'manager-case.png')});
+    await page.goto(base+'/#morogue');
+    await page.evaluate(()=>Promise.all([...document.images].filter(i=>i.src).map(i=>i.decode().catch(()=>{}))));
+    await page.screenshot({path:path.join(out,'morogue-disc.png')});
     const config=require('../desktop/config.cjs')(path.join(root,'desktop'));
     const upcoming=config.games.find(g=>g.id==='velmora-tales');
     assert(upcoming.comingSoon&&!upcoming.installable&&!upcoming.manifestUrl&&!upcoming.origin);

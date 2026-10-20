@@ -60,8 +60,8 @@
       title:`<img class="game-logo morogue-wordmark" src="${assets}morogue-logo.png" alt="Morogue">`,
       booklet:`<img class="morogue-booklet-art" src="${assets}morogue-cover-art.png" alt=""><div class="morogue-paper-shade"></div><img class="title" src="${assets}morogue-logo.png" alt="">`,
       bookletLabel:'Morogue Uncrowned cover artwork with the original Morogue wordmark',
-      disc:`<img class="morogue-disc-art" src="${assets}morogue-cover-art.png" alt=""><div class="disc-print-shade"></div><div class="disc-foil-lines" aria-hidden="true"></div><img class="disc-title" src="${assets}morogue-logo.png" alt="Morogue">${publisher}`,
-      discLabel:'Morogue burgundy and copper disc with Uncrowned cover artwork',
+      disc:`<img class="morogue-disc-art" src="${assets}morogue-disc-vortex.png" alt=""><div class="disc-print-shade"></div><div class="disc-foil-lines" aria-hidden="true"></div><img class="disc-title" src="${assets}morogue-logo.png" alt="Morogue">${publisher}`,
+      discLabel:'Morogue crimson disc with swirling engraved vortex artwork',
       shots:[
         {file:'morogue-uncrowned.png',caption:'Face the Uncrowned',alt:'Morogue Uncrowned boss battle across collapsing platforms'},
         {file:'morogue-kiln.png',caption:'The Furnace Court',alt:'Morogue battle against the Kiln Sovereign with marked attacks'},

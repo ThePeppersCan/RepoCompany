@@ -17,6 +17,8 @@
 .cover-manager>.cover-art{filter:url(#remove-white)}
 .dashboard[data-open-game="manager"] .manager-paper{background:#f3f3ed}
 .dashboard[data-open-game="manager"] .manager-booklet-art{filter:url(#remove-white);mix-blend-mode:normal}
+.dashboard[data-open-game="morogue"] .morogue-disc-art{left:0;top:0;width:400px;height:400px;filter:brightness(.96) saturate(.94)}
+.dashboard[data-open-game="morogue"] .disc-print-shade{background:linear-gradient(#18091888,transparent 38%,#260b1722)}
 .spine-velmora-tales>.spine-logo{left:132px;top:12px;width:570px;height:70px;object-fit:contain;object-position:left center;filter:brightness(.95) saturate(.8) blur(.32px) drop-shadow(0 1px 1px #102014)}
 .spine-velmora-tales .spine-publisher{background:#0b1716e8}
 .selected-brand>.velmora-wordmark{left:0;top:-18px;width:460px;height:180px;object-fit:contain}
