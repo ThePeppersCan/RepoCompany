@@ -1,7 +1,8 @@
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs/promises'),{chromium,_electron}=require('playwright'),{createFixture}=require('./messaging-test-server.cjs'),{localSFU}=require('./local-sfu.cjs');
 (async()=>{
- const f=await createFixture({voiceSecrets:{SFU_APP_ID:'fixture',SFU_APP_SECRET:'fixture',SCREEN_ENABLED:'true'}}),browser=await chromium.launch({channel:'msedge',headless:true,args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--autoplay-policy=no-user-gesture-required']}),relay=await localSFU(browser),errors=[];let app;
- f.voiceHub.sfu=relay.request;
+ const live=process.argv.includes('--live-sfu'),secrets=live?JSON.parse(await fs.readFile(process.env.WIBS_TEST_SECRETS||path.resolve(__dirname,'../.wrangler/voice-secrets.json'),'utf8')):{SFU_APP_ID:'fixture',SFU_APP_SECRET:'fixture'};
+ const f=await createFixture({voiceSecrets:{...secrets,SCREEN_ENABLED:'true'}}),browser=await chromium.launch({channel:'msedge',headless:true,args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream','--autoplay-policy=no-user-gesture-required']}),relay=live?null:await localSFU(browser),errors=[];let app;
+ if(relay)f.voiceHub.sfu=relay.request;
  try{
   const profile=await fs.mkdtemp(path.resolve(__dirname,'../desktop/qa/screen-test-')),env={...process.env,SCREEN_TEST_BASE:f.base,SCREEN_TEST_PROFILE:profile,SCREEN_TEST_LOGIN:JSON.stringify(f.sessions.alice)};delete env.ELECTRON_RUN_AS_NODE;
   app=await _electron.launch({executablePath:require('../desktop/node_modules/electron'),args:[path.resolve(__dirname,'../desktop/tests/screen-share-fixture.cjs')],env});
@@ -28,5 +29,5 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   const {LIMIT,month}=await import('../workers/voice/budget.mjs');f.voiceHub.state.usage[month(Date.now())]=LIMIT-1000;await f.voiceHub.alarm();for(const p of [native,web])await p.waitForFunction(()=>!repoVoice.getState().callActive,null,{timeout:15000});assert(await web.evaluate(()=>testCapture.getTracks().every(t=>t.readyState==='ended')));assert.equal(await native.locator('.repo-screen-viewer').count(),0);
   assert.deepEqual(errors,[]);console.log('PASS: real Electron picker/cancel and 720p capture to web; web capture to Electron; multiple decoded video frames; voice survives stop; inline playback and collapse; permanent monthly usage; shared cutoff stops capture and viewing.');
  }catch(error){if(app){console.log('Permissions',await app.evaluate(()=>global.screenTest.events));for(const p of app.windows())console.log('NATIVE',p.url(),await p.locator('body').innerText().catch(()=>''));}throw error;}
- finally{await app?.close();await relay.close();await browser.close();await f.close();}
+ finally{for(const room of f.voiceHub.state.rooms)f.voiceHub.end(room,'Screen validation complete',Date.now());await f.voiceHub.alarm();await app?.close();await relay?.close();await browser.close();await f.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

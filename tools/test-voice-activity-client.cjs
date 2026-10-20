@@ -38,7 +38,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
   await page.waitForFunction(()=>repoVoice.getState().speaking.includes('alice'));
   assert.equal(await page.locator('.rc-voice-person[data-voice-name="alice"]').evaluate(n=>n.classList.contains('is-speaking')),true);
   assert.equal(await page.locator('.rc-member[data-voice-name="alice"]').evaluate(n=>n.classList.contains('is-speaking')),true);
-  assert.equal(await page.locator('.repo-voice-person[data-voice-name="alice"]').evaluate(n=>n.classList.contains('is-speaking')),true);
+  assert.equal(await page.locator('.repo-call-stage-person[data-voice-name="alice"]').evaluate(n=>n.classList.contains('is-speaking')),true);
   assert(!await page.evaluate(()=>repoVoice.getState().speaking.includes('bob')));
   await page.locator('.rc-self').getByRole('button',{name:'Mute',exact:true}).click();await page.waitForFunction(()=>!repoVoice.getState().speaking.includes('alice'));
   await page.evaluate(()=>repoVoice.openSettings());
@@ -68,7 +68,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
   await page.locator('.rc-self').getByRole('button',{name:'Deafen',exact:true}).click();await page.waitForFunction(()=>!repoVoice.getState().speaking.includes('alice'));
   room.members.push(member('mallory'));await page.waitForTimeout(200);await page.evaluate(()=>dispatchEvent(new Event('online')));await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>__cues.length),3);
   await page.locator('.rc-self').getByRole('button',{name:'Undeafen',exact:true}).click();
-  await page.locator('.repo-voice-panel').getByRole('button',{name:'Leave',exact:true}).click();await page.waitForFunction(()=>!repoVoice.getState().callActive);
+  await page.locator('.repo-call-stage').getByRole('button',{name:'Leave call',exact:true}).click();await page.waitForFunction(()=>!repoVoice.getState().callActive);
   await page.waitForFunction(()=>__cues.length===4);assert.equal(await page.evaluate(()=>__cues[3].url.endsWith('voice-leave.mp3')&&__cues[3].volume===.0625),true);
   assert.deepEqual(await page.evaluate(()=>repoVoice.getState().speaking),[]);assert.equal(await page.locator('.is-speaking').count(),0);
   assert.equal(await page.evaluate(()=>__localAudio.stream.getTracks().every(t=>t.readyState==='ended')),true);
@@ -76,7 +76,7 @@ const assert=require('node:assert/strict'),{chromium}=require('playwright'),{cre
   await page.waitForFunction(()=>repoVoice.getState().callStatus==='active'&&[...document.querySelectorAll('audio')].some(a=>a.srcObject));assert.equal(await page.evaluate(()=>__publishPeer===__beforeModerationPeer),true,'Joining server-muted receives audio without publishing a microphone');assert.equal(await page.evaluate(()=>__localAudio.stream.getAudioTracks()[0].enabled),false);
   room.mine.serverMuted=false;await page.evaluate(()=>dispatchEvent(new Event('online')));await page.waitForFunction(()=>__publishPeer!==__beforeModerationPeer);await page.locator('.rc-self').getByRole('button',{name:'Mute',exact:true}).click();
   room.mine.serverMuted=true;await page.evaluate(()=>dispatchEvent(new Event('online')));await page.locator('.rc-self').getByRole('button',{name:'Server muted',exact:true}).waitFor();room.mine.serverMuted=false;await page.evaluate(()=>dispatchEvent(new Event('online')));await page.locator('.rc-self').getByRole('button',{name:'Unmute',exact:true}).waitFor();assert.equal(await page.evaluate(()=>__localAudio.stream.getAudioTracks()[0].enabled),false,'Removing server mute preserves personal mute');
-  await page.locator('.repo-voice-panel').getByRole('button',{name:'Leave',exact:true}).click();assert.deepEqual(errors,[]);
+  await page.locator('.repo-call-stage').getByRole('button',{name:'Leave call',exact:true}).click();assert.deepEqual(errors,[]);
   console.log('PASS: real WebRTC speaker rings, self mute/deafen, device replacement and output volume, join/leave sounds, server mute/deafen recovery without extra cues, joining muted while hearing others, personal mute preserved, complete capture cleanup.');
  }finally{await browser.close();await fixture.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -8,5 +8,10 @@ const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('nod
  await assert.rejects(gather(peer('','complete'),()=>true),e=>e.code==='ICE_NO_CANDIDATES');
  let valid=true;const pending=gather(peer(sdp),()=>valid,{settleMs:500,timeoutMs:800});valid=false;await assert.rejects(pending,e=>e.stale);
  const closed=peer();closed.signalingState='closed';await assert.rejects(gather(closed,()=>true),e=>e.stale);
+ const delayedRelay=peer(sdp);let finished=false;
+ const gathering=gather(delayedRelay,()=>true,{settleMs:50,timeoutMs:500,waitForRelay:true}).then(()=>{finished=true;});
+ await new Promise(r=>setTimeout(r,150));assert(!finished,'non-trickle signalling waits for relay candidates');
+ delayedRelay.localDescription.sdp+='a=candidate:2 1 udp 123 192.0.2.2 1234 typ relay\r\n';await gathering;
+ await gather(peer(sdp),()=>true,{settleMs:50,timeoutMs:150,waitForRelay:true});
  console.log('PASS: normal gathering, stalled STUN with usable candidates, no-candidate failure, cancellation and closed-connection cleanup.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
