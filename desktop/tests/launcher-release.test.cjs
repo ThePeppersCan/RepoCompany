@@ -142,7 +142,7 @@ test('feed promotion is monotonic, immutable and idempotent',async t=>{
 test('website includes only valid matching public manifests and independent latest/version cache policies',async t=>{
   const f=await fixture(t),envelope=signPayload(payload(),pair.privateKey);await release.promoteFeed(envelope,config,{repo:f.repo});
   const dist=path.join(f.root,'dist');await fs.mkdir(dist);await fs.writeFile(path.join(dist,'_headers'),'/releases/launcher/latest.json\n  Cache-Control: no-store\n');
-  assert.equal(buildLauncherFeed(f.repo,dist),2);const headers=await fs.readFile(path.join(dist,'_headers'),'utf8');assert.match(headers,/latest\.json\n  Cache-Control: no-store/);assert.match(headers,/0\.1\.6\.json\n  Cache-Control: public, max-age=31536000, immutable/);
+  assert.equal(buildLauncherFeed(f.repo,dist),2);const headers=await fs.readFile(path.join(dist,'_headers'),'utf8');assert.match(headers,/latest\.json\n  Cache-Control: no-store/);assert.match(headers,/0\.\*\n  Cache-Control: public, max-age=31536000, immutable/);assert.equal(headers.split('\n').filter(line=>line.startsWith('/')).length,2);assert(!headers.includes('/releases/launcher/*\n'));
   await fs.writeFile(path.join(f.repo,'releases/launcher/private.dpapi'),'do not publish');assert.throws(()=>buildLauncherFeed(f.repo,dist),/Unexpected launcher feed file/);
 });
 test('CLI requires explicit publication/deployment flags and rejects incomplete options',()=>{
