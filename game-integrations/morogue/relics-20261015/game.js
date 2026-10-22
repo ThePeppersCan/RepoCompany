@@ -17,6 +17,14 @@
   const Recovery=typeof module==='object'&&module.exports?require('./recovery.js'):globalThis.MOROGUE_RECOVERY;
   const Hitboxes=typeof module==='object'&&module.exports?require('./boss-hitboxes.js'):globalThis.MOROGUE_BOSS_HITBOXES;
   const TAU=Math.PI*2, DURATION=360, DASH_LINK_WINDOW=.65, DASH_INPUT_BUFFER=.12, MOVE_SPEED=205, DASH_SPEED=690;
+  // Insane increases pressure without speeding warnings, attack motion or traversal scenes.
+  const DIFFICULTIES=Object.freeze({normal:Object.freeze({name:'Normal',damage:1,speed:1}),insane:Object.freeze({name:'Insane',damage:1.2,speed:1.1})});
+  function paceBoss(b,dt){
+    const extra=dt*.25; // 1.25x recovery clock = 20% less time between sequences.
+    if(b.finalBoss){const c=b.finale?.colossus;if(c?.mode==='combat'&&!c.actions.length&&c.nextAttack>c.clock)c.nextAttack-=Math.min(extra,c.nextAttack-c.clock);return;}
+    const ink=b.inkFight;if(ink?.mode==='duel'&&!ink.act){ink.open=Math.max(0,ink.open-extra);ink.next=Math.max(0,ink.next-extra);return;}
+    if(!ink&&!b.admiralFight?.ride&&!b.admiralFight?.trap&&['recovery','approach'].includes(b.majorState))b.majorClock=Math.max(0,b.majorClock-extra);
+  }
   const LIMITS={enemies:200,shots:160,hazards:160,gems:260,drops:80,effects:150,zones:32};
   const ARENA={width:1536,height:1024,left:175,right:1360,top:330,bottom:835};
   const ENEMY_TYPES=Object.fromEntries([
@@ -85,6 +93,7 @@
   function create({seed=Date.now(),weapon='espresso',difficulty='normal',mode='endless',loadout='solo',powerups={},practice=null,previousDeath=null}={}){
     const practiceSpec=practice&&((practice.id===Finale.SPEC.id?Finale.SPEC:Majors.BOSSES[practice.id]||BOSSES[practice.id]));practice=practiceSpec?{id:practice.id,major:practice.id===Finale.SPEC.id||!!Majors.BOSSES[practice.id],phase:clamp(Math.floor(Number(practice.phase)||1),1,practice.id==='oracle'?4:3),ability:Builds.ABILITIES[practice.ability]?practice.ability:'steam'}:null;
     mode=practice?'practice':mode==='mora'||mode==='night'?'mora':'endless';const longRun=!practice;loadout='solo';if(practice)powerups={};
+    difficulty=['insane','hard'].includes(difficulty)?difficulty:'normal';const insane=difficulty==='insane',rules=DIFFICULTIES[insane?'insane':'normal'];
     const rng=random(seed),hard=difficulty==='hard'; let nextId=1,spawnClock=0,espressoClock=0,trayClock=0,baguetteClock=0,baguetteStep=0,nextElite=48,nextBoss=300,nextWave=24,nextArenaEvent=52,supplyClock=0,pressureClock=0,pendingWave=null,inputDashHeld=false;
     let bossDeck=[],eventDeck=[],lastBossType='landlord',squareAwake=false,endlessDeck=[],lastChapter=0,lastEndlessPhase='',reliefUntil=0,lastDodgeHeal=-99;
     let dashBufferedUntil=0,dashAge=0,dashPerfect=false,dashTravel=0,attackBufferedUntil=0,inputAttackHeld=false,lastAttackPress=-99,lastManualPress=-99,trailClock=0,techniqueClock=0,artClock=0;
@@ -93,7 +102,7 @@
     const events=[],enemies=[],shots=[],hazards=[],gems=[],drops=[],effects=[],zones=[];
     const rank=key=>clamp(Math.floor(Number(powerups[key])||0),0,3),maxHp=100+rank('health')*10;
     const p={x:768,y:535,hp:maxHp,maxHp,r:13,invulnerable:0,dash:0,dashCooldown:0,dx:0,dy:1,view:'front',moving:false,moveSpeed:MOVE_SPEED,dashCharges:2,dashLock:0,attack:null,gait:0,land:0,hurtTime:0};
-    const state={seed,hard,mode,cycle:1,bossKills:0,waveName:'The square stirs',arenaEvent:null,time:0,status:'playing',player:p,enemies,shots,hazards,gems,drops,effects,events,kills:0,level:1,xp:0,nextXp:9,score:0,combo:0,comboTime:0,bestCombo:0,damage:0,bossSpawned:false,bossDead:false,boss:null,choices:[],weapons:{espresso:0,garlic:0,tray:0,baguette:0},passives:{power:0,haste:0,health:0,magnet:0,speed:0,regen:0},dashCount:0,dashChain:0,dashWindow:0,collected:0,technique:null,flowTime:0,perfectDodges:0};
+    const state={seed,hard,difficulty,mode,cycle:1,bossKills:0,waveName:'The square stirs',arenaEvent:null,time:0,status:'playing',player:p,enemies,shots,hazards,gems,drops,effects,events,kills:0,level:1,xp:0,nextXp:9,score:0,combo:0,comboTime:0,bestCombo:0,damage:0,bossSpawned:false,bossDead:false,boss:null,choices:[],weapons:{espresso:0,garlic:0,tray:0,baguette:0},passives:{power:0,haste:0,health:0,magnet:0,speed:0,regen:0},dashCount:0,dashChain:0,dashWindow:0,collected:0,technique:null,flowTime:0,perfectDodges:0};
     // Simulation time keeps combat responsive; run time stops for major encounters only.
     state.bossTime=0;
     Object.defineProperty(state,'runTime',{enumerable:true,get:()=>Math.max(0,Math.round((state.time-state.bossTime)*1e9)/1e9)});
@@ -159,7 +168,7 @@
       // Demibosses use 70% of the previous 1.89 budget in both runs and practice.
       // Major/finale budgets and ordinary enemies remain independent.
       const scaledHp=hp*(options.major?0.578:type==='boss'?0.787185:1)*(!options.major&&type!=='boss'&&!options.majorSummon&&t>=60?1.1:1);
-      const e={id:nextId++,type,role:spec?.role||type,x,y,hp:scaledHp,maxHp:scaledHp,speed:raw[2]*(hard?1.1:1)*(longRun?Math.min(1.18,1+Math.max(0,t-360)/9000):1),damage:raw[3]*(longRun?1+Math.max(0,t-900)/9000:1),xp:options.summoned?0:raw[4],r:raw[5],age:0,hit:0,garlicHit:0,attack:spec&&['zoner','sniper','spreader','lobber','spinner'].includes(spec.role)?1.4+rng():1.8+rng()*2,telegraph:0,charge:0,aimX:0,aimY:0,variant:spec?.variant??(bossId?bossSpec.variant:3),view:'front',phase:1,attackNumber:0,summoned:!!options.summoned};
+      const e={id:nextId++,type,role:spec?.role||type,x,y,hp:scaledHp,maxHp:scaledHp,speed:raw[2]*rules.speed*(hard?1.1:1)*(longRun?Math.min(1.18,1+Math.max(0,t-360)/9000):1),damage:raw[3]*(longRun?1+Math.max(0,t-900)/9000:1),xp:options.summoned?0:raw[4],r:raw[5],age:0,hit:0,garlicHit:0,attack:spec&&['zoner','sniper','spreader','lobber','spinner'].includes(spec.role)?1.4+rng():1.8+rng()*2,telegraph:0,charge:0,aimX:0,aimY:0,variant:spec?.variant??(bossId?bossSpec.variant:3),view:'front',phase:1,attackNumber:0,summoned:!!options.summoned};
       if(bossId){e.bossType=bossId;e.bossName=bossSpec.name;e.attack=1.6;if(!options.major)lastBossType=bossId;else{Majors.begin(e);e.r=34;e.speed=145;e.damage=38;}}
       // Carry the same run-time, difficulty and circuit scaling as the twelve majors.
       if(bossId===Finale.SPEC.id)Finale.begin(e,state.finaleKills,practice?.phase||1,practice?1:hp/540000);
@@ -192,7 +201,7 @@
       else if(!e.summoned&&rng()<.007)addDrop({type:'heal',x:e.x,y:e.y,age:0});
     }
     const dashSafe=()=>p.dash>0&&(!p.attack?.whirl||p.attack.age<.055);
-    function hurt(amount,source='contact',attacker=null){if(p.starLeap&&source!=='starFall')return false;if(p.finaleLeap&&source==='uncrownedWave')return false;if(p.invulnerable>0||state.relicState.cafe.trial||state.transition||dashSafe()||state.status!=='playing')return false;state.achievementAttacker=attacker||enemies.find(e=>e.hp>0&&(e.bossType===source||e.type===source))||null;amount=build.defend(relic.incoming(amount,source,attacker));if(amount<=0){p.invulnerable=.12;return false;}amount=relic.defend(amount);if(amount<=0){p.invulnerable=.12;return false;}p.hp=Math.max(0,p.hp-amount);build.wounded();if(state.boss?.finale)state.boss.finale.clean=false;p.invulnerable=.62;p.hurtTime=.22;if(amount>0&&['uncrowned','uncrownedWave'].includes(source))Finale.Colossus.recoverHit(state.boss,p);state.momentum=0;state.momentumTime=0;event('hurt',{amount,source});Majors.Magistrate.Fight.wound(state.boss,p);fx('ring',p.x,p.y-20,'#e77685');if(p.hp<=0){const foe=state.achievementAttacker;state.deathEnemy=relic.enemyKey(foe);if(!relic.fatal(source,foe))finish(false);}else if(state.styles.lastlight&&!state.lastLightUsed&&p.hp<p.maxHp*.25){state.lastLightUsed=true;heal(30);p.invulnerable=.9;for(const h of hazards)if(Math.hypot(h.x-p.x,h.y-p.y+18)<180)h.life=0;fx('ring',p.x,p.y-18,'#f8e2a8',1.4);event('styleProc',{id:'lastlight'});}return true;}
+    function hurt(amount,source='contact',attacker=null){if(p.starLeap&&source!=='starFall')return false;if(p.finaleLeap&&source==='uncrownedWave')return false;if(p.invulnerable>0||state.relicState.cafe.trial||state.transition||dashSafe()||state.status!=='playing')return false;state.achievementAttacker=attacker||enemies.find(e=>e.hp>0&&(e.bossType===source||e.type===source))||null;amount=build.defend(relic.incoming(amount*rules.damage,source,attacker));if(amount<=0){p.invulnerable=.12;return false;}amount=relic.defend(amount);if(amount<=0){p.invulnerable=.12;return false;}p.hp=Math.max(0,p.hp-amount);build.wounded();if(state.boss?.finale)state.boss.finale.clean=false;p.invulnerable=.62;p.hurtTime=.22;if(amount>0&&['uncrowned','uncrownedWave'].includes(source))Finale.Colossus.recoverHit(state.boss,p);state.momentum=0;state.momentumTime=0;event('hurt',{amount,source});Majors.Magistrate.Fight.wound(state.boss,p);fx('ring',p.x,p.y-20,'#e77685');if(p.hp<=0){const foe=state.achievementAttacker;state.deathEnemy=relic.enemyKey(foe);if(!relic.fatal(source,foe))finish(false);}else if(state.styles.lastlight&&!state.lastLightUsed&&p.hp<p.maxHp*.25){state.lastLightUsed=true;heal(30);p.invulnerable=.9;for(const h of hazards)if(Math.hypot(h.x-p.x,h.y-p.y+18)<180)h.life=0;fx('ring',p.x,p.y-18,'#f8e2a8',1.4);event('styleProc',{id:'lastlight'});}return true;}
     function finish(win){if(['won','lost','retired'].includes(state.status))return false;dashBufferedUntil=0;attackBufferedUntil=0;lastAttackPress=lastManualPress=-99;inputAttackHeld=false;inputDashHeld=false;state.status=win?'won':'lost';state.score+=Math.floor(state.runTime)*2+(win?3000:0);event(win?'won':'lost');return true;}
     function retire(){if(['won','lost','retired'].includes(state.status))return false;dashBufferedUntil=0;attackBufferedUntil=0;lastAttackPress=lastManualPress=-99;inputAttackHeld=false;inputDashHeld=false;state.status='retired';state.score+=Math.floor(state.runTime)*2;event('retired');return true;}
     function spawnShot(type,angle,level,{damageScale=1,technique,attack=null}={}){
@@ -606,6 +615,7 @@
         if(e.hp<=0)continue;e.age+=dt;e.animAttack=Math.max(0,(e.animAttack||0)-dt);if(e.scorch>0){e.scorch-=dt;e.scorchTick-=dt;if(e.scorchTick<=1e-9){e.scorchTick+=.3;hit(e,e.scorchDamage,0,0,{weapon:'espresso'});fx('spark',e.x,e.y-30,'#ef9c58',.6,{weapon:'espresso'});}if(e.hp<=0)continue;}e.exposed=Math.max(0,(e.exposed||0)-dt);e.hit=Math.max(0,e.hit-dt);e.garlicHit=Math.max(0,e.garlicHit-dt);
         if(e.type==='sigil'){if(Number.isFinite(e.orbit))Object.assign(e,World.nearest(state.world,768+Math.cos(e.age*.32+e.orbit)*265,582+Math.sin(e.age*.32+e.orbit)*135,e.r));continue;}
         if(e.major){
+          if(insane)paceBoss(e,dt);
           if(e.finalBoss){Finale.update(e,dt,p,finaleApi);continue;}
           if(!e.admiralFight?.ride&&!e.admiralFight?.trap)Majors.update(e,dt,p,majorApi);
           if(e.bossType==='admiral')Majors.Admiral.Fight.observe(e,p,dt,admiralApi);
@@ -643,7 +653,7 @@
         }
         const from={x:e.x,y:e.y,r:e.r};const focus=build.target(e);let dx=focus.x-e.x,dy=focus.y-e.y,d=Math.hypot(dx,dy)||1;const ux=dx/d,uy=dy/d,incomingCharge=e.charge>0&&e.aimX*dx+e.aimY*dy>0,role=e.role||ENEMY_TYPES[e.type]?.role||e.type;let speed=e.speed,mx=ux,my=uy;
         if(e.railCarriageMinion&&e.emerge>0){e.emerge=Math.max(0,e.emerge-dt);e.moving=false;continue;}
-        if(relic.canEnemyStart(e))e.attack-=dt*build.slow(e)*relic.slow(e);else e.attack=Math.max(e.attack,.81);
+        if(relic.canEnemyStart(e)){const tick=dt*build.slow(e)*relic.slow(e);if(insane&&e.type==='boss'&&e.attack>.8)e.attack-=Math.min(tick*.25,e.attack-.8);e.attack-=tick;}else e.attack=Math.max(e.attack,.81);
         if(['caster','lobber','spreader','spinner','zoner','sniper','summoner'].includes(role)){const keep=role==='sniper'?320:role==='zoner'||role==='summoner'?290:230;if(d<keep)speed=d<keep-65?-24:0;}
         if(role==='flanker'||role==='duelist'||role==='wisp'){const sway=Math.sin(e.age*(role==='wisp'?2.7:1.1))* (role==='wisp'?.8:.65),norm=Math.hypot(1,sway);mx=(ux-uy*sway)/norm;my=(uy+ux*sway)/norm;}
         if(role==='orbiter'){const radial=d>215?1:d<165?-.7:0,norm=Math.max(1,Math.hypot(radial,.85));mx=(ux*radial-uy*.85)/norm;my=(uy*radial+ux*.85)/norm;}
@@ -778,5 +788,5 @@
     if(id==='garlic')return (lv+2)+' orbiting cloves. Stronger lashes and a wider harvest.';
     return lv>=5?'Three automatic trays, or five in a main-weapon finishing volley. More ricochets.':'Stronger trays with more ricochets. Two shots from rank III.';
   }
-  return {create,RELICS:Relics,BUILDS:Builds,MAJOR_BOSSES:Majors.BOSSES,FINAL_BOSS:Finale.SPEC,WORLD_STAGES:World.STAGES,ENDLESS_TALENTS:Endless.TALENTS,ENDLESS_ENCOUNTERS:Endless.ENCOUNTERS,ARENA,ENEMY_TYPES,BOSSES,EVENTS,WEAPONS,PASSIVES,EVOLUTIONS,TECHNIQUES,ARTS,STYLES,PROGRESSION,LOADOUT_RULES,DURATION,DASH_LINK_WINDOW,DASH_INPUT_BUFFER,MOVE_SPEED,DASH_SPEED,LIMITS,formatTime,weaponUpgrade,passiveDescription};
+  return {create,DIFFICULTIES,paceBoss,RELICS:Relics,BUILDS:Builds,MAJOR_BOSSES:Majors.BOSSES,FINAL_BOSS:Finale.SPEC,WORLD_STAGES:World.STAGES,ENDLESS_TALENTS:Endless.TALENTS,ENDLESS_ENCOUNTERS:Endless.ENCOUNTERS,ARENA,ENEMY_TYPES,BOSSES,EVENTS,WEAPONS,PASSIVES,EVOLUTIONS,TECHNIQUES,ARTS,STYLES,PROGRESSION,LOADOUT_RULES,DURATION,DASH_LINK_WINDOW,DASH_INPUT_BUFFER,MOVE_SPEED,DASH_SPEED,LIMITS,formatTime,weaponUpgrade,passiveDescription};
 });
