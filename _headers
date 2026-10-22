@@ -11,6 +11,8 @@
   Cache-Control: no-cache
 /dashboard-service.js
   Cache-Control: no-cache
+/dashboard-audio.js
+  Cache-Control: no-cache
 /game-playtime-client.js
   Cache-Control: no-cache
 /game-playtime-bridge.js
