@@ -27,7 +27,7 @@
   };
   const scenes={
     'comp-run':{
-      name:'COMP-RUN',meta:'First-person horror parkour · Solo',achievements:false,
+      name:'COMP-RUN',meta:'First-person horror parkour · Solo',
       description:'Chain jumps, chase faster times and race through a first-person horror parkour campaign. Keep moving when the nightmare catches up.',
       url:'https://comp-run.fluffy-star-4855.chatgpt.site/',glow:'194,37,35',
       title:`<img class="game-logo comp-run-wordmark" src="${assets}comp-run/comp-run-logo.png" alt="COMP-RUN">`,

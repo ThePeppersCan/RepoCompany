@@ -36,7 +36,7 @@ const scenes = context.window.dashboardScenes, origin = 'https://comp-run.fluffy
 scenes.activate('comp-run');
 assert.equal(document.title, 'Repo Company — COMP-RUN'); assert.equal(get('dashboard').dataset.comingSoon, 'false');
 assert.equal(play.disabled, false); assert.equal(play.dataset.gameUrl, origin);
-assert(shots.every(shot => shot.disabled)); assert.equal(details.selectors['[data-open-achievements]'].hidden, true);
+assert(shots.every(shot => shot.disabled)); assert.equal(details.selectors['[data-open-achievements]'].hidden, false);
 const images = ['playdate.png', 'small-hours.png', 'final-curtain.png'].map(name => 'original-case-assets/comp-run/screenshots/' + name);
 assert.deepEqual(shots.map(shot => shot.selectors.img.src), images);
 assert.equal(get('gallery-image').src, undefined);

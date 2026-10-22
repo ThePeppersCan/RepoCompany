@@ -175,8 +175,8 @@ test('a trusted portal cannot call shell-only actions or invent native commands'
 test('portal state exposes only public account and game metadata', async () => {
   const h = portalHarness();
   const value = await h.invoke({ sender: h.contents, senderFrame: h.frame }, 'state');
-  assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 4);
-  assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'download'), game => game.id), ['morogue', 'moratales', 'manager']);
+  assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 6);
+  assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'download'), game => game.id), ['morogue', 'moratales', 'manager', 'comp-run']);
   assert.deepEqual(Array.from(value.catalog.demos, demo => demo.id), ['runners', 'broomflight', 'dragonbound', 'diver', 'goblin', 'rooftops', 'seas', 'sports']);
   assert.equal(value.library.morogue.status, 'installed');
   assert.doesNotMatch(JSON.stringify(value), /TEST_ONLY_ACCESS_TOKEN|TEST_ONLY_INTERNAL_ACCOUNT_ID|access_token|refresh_token|developmentManifest|manifestUrl|approvedOrigins/);

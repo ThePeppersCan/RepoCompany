@@ -1,0 +1,22 @@
+(() => {
+ 'use strict';if(window.repoAchievementNotice)return;
+ const base=window.repoGameAchievements?.base||new URL(document.currentScript.src).origin;let catalog,loading,audio,playing=false,queue=[];
+ function load(){return loading||=(fetch(base+'/assets/achievements/catalogue.json').then(r=>r.json()).then(data=>catalog=new Map(data.games.flatMap(g=>g.achievements.map(a=>[a.id,{...a,game:g.name}])))).catch(()=>{loading=null;}));}
+ function unlockAudio(){try{audio||=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume().catch(()=>{});}catch{}}
+ addEventListener('pointerdown',unlockAudio,{once:true});addEventListener('keydown',unlockAudio,{once:true});
+ function sound(){if(!audio||audio.state!=='running')return;try{
+  const t=audio.currentTime,master=audio.createGain();master.gain.value=.075;master.connect(audio.destination);
+  [392,523.251,659.255,783.991].forEach((frequency,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=frequency;g.gain.setValueAtTime(0,t+i*.105);g.gain.linearRampToValueAtTime(.55,t+i*.105+.016);g.gain.exponentialRampToValueAtTime(.001,t+i*.105+.52);o.connect(g);g.connect(master);o.start(t+i*.105);o.stop(t+i*.105+.55);});
+ }catch{}}
+ async function next(){
+  if(playing||!queue.length)return;playing=true;await load();const item=queue.shift(),records=item.records,a=catalog?.get(records[0].id);
+  if(!a){playing=false;next();return;}
+  let toast=document.getElementById('repo-achievement-toast');if(!toast){toast=document.createElement('div');toast.id='repo-achievement-toast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');toast.setAttribute('aria-atomic','true');document.body.append(toast);const style=document.createElement('style');style.textContent=`#repo-achievement-toast{position:fixed;left:auto;top:auto;margin:0;right:max(20px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));z-index:2147483647;display:flex;align-items:center;gap:16px;width:min(360px,calc(100vw - 32px));box-sizing:border-box;padding:15px 19px;background:linear-gradient(125deg,#172219,#101711);border:1px solid #c6a75f;box-shadow:0 12px 45px #0009,inset 0 0 0 3px #c6a75f13;color:#f5edd7;font:14px system-ui,sans-serif;pointer-events:none;opacity:0;transform:translateY(18px);transition:opacity .25s,transform .25s}#repo-achievement-toast.is-visible{opacity:1;transform:none}#repo-achievement-toast .repo-unlock-art{width:58px;height:58px;flex:none;background-repeat:no-repeat;image-rendering:pixelated}#repo-achievement-toast .repo-unlock-copy{min-width:0}#repo-achievement-toast small{display:block;color:#dfc88e;font-size:10px;letter-spacing:.13em;text-transform:uppercase;margin-bottom:6px}#repo-achievement-toast strong{display:block;font-size:16px;font-weight:600;line-height:1.3}#repo-achievement-toast p{margin:6px 0 0;color:#b7c2a9;font-size:12px}@media(prefers-reduced-motion:reduce){#repo-achievement-toast{transition:none;transform:none}}`;document.head.append(style);}
+  toast.replaceChildren();const art=document.createElement('span'),copy=document.createElement('div'),label=document.createElement('small'),title=document.createElement('strong'),line=document.createElement('p');art.className='repo-unlock-art';art.setAttribute('aria-hidden','true');const t=a.art;art.style.backgroundImage=`url("${new URL(t.sheet,base)}")`;art.style.backgroundSize=`${t.sheetWidth/t.width*100}% ${t.sheetHeight/t.height*100}%`;art.style.backgroundPosition=`${t.x/(t.sheetWidth-t.width)*100}% ${t.y/(t.sheetHeight-t.height)*100}%`;copy.className='repo-unlock-copy';label.textContent=records.length>1?'Achievements unlocked':'Achievement unlocked';title.textContent=records.length>1?`${records.length} achievements earned`:a.name;line.textContent=`+${records.reduce((n,r)=>n+r.score,0)} RepoScore · ${a.game}`;copy.append(label,title,line);toast.append(art,copy);
+  // A non-modal popover stays above game dialogs without interrupting controls.
+  if(typeof toast.showPopover==='function'){toast.setAttribute('popover','manual');try{toast.showPopover();}catch{}}
+  requestAnimationFrame(()=>toast.classList.add('is-visible'));if(!item.muted)sound();
+  setTimeout(()=>{toast.classList.remove('is-visible');setTimeout(()=>{try{toast.hidePopover?.();}catch{}playing=false;next();},300);},records.length>1?6500:5000);
+ }
+ window.repoAchievementNotice=Object.freeze({show(records,{muted=false}={}){if(!records?.length)return;queue.push({records,muted});next();}});
+})();

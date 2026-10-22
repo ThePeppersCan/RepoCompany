@@ -13,7 +13,7 @@ The native login screen keeps the collection hidden until the existing website s
 - **Moratales adventures stay local.** Appearance sync does not upload or migrate full adventure saves. Existing browser adventures remain in their original browser/profile; installed adventures remain in the launcher profile. The game's import/export backup controls remain available.
 - **Manager careers use its existing account cloud-save service**, with local account-scoped storage and a save-before-close check. No second career database is created.
 - **Quitting Morogue ends the current Mora Mode or Endless Night run.** Runs cannot be resumed. Completed online achievements and leaderboard results remain on the account.
-- **COMP-RUN retains its exact published 2.2.1 game files.** Completed records, ghosts, unlocks and settings remain local to the launcher account on this device. An unfinished run cannot be resumed. Its original browser/profile saves are separate; no migration or cloud-save feature is implied. Launcher-owned storage, connection, exit and playtime hooks are applied outside the installed payload. See [COMP-RUN release preparation](COMP-RUN-RELEASE.md) for the package, screenshot and Windows acceptance gates.
+- **COMP-RUN retains its exact published 2.4.1 game files.** Completed records, ghosts, unlocks and settings remain local to the launcher account on this device. The account integration adds 17 achievements and separate Normal/Nightmare PB boards for all eight maps; production service and launcher publication gates are tracked in [COMP-RUN release preparation](COMP-RUN-RELEASE.md). An unfinished run cannot be resumed. Browser saves remain separate. Launcher-owned storage, connection, account, exit and playtime hooks are applied outside the installed payload; account tokens stay in the main process.
 - Repo Runners, Broomflight, Dragonbound, Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas and Repo Sports remain web demos inside the launcher. They require no installation and retain their current content/prototype status. Repo Runners requires launcher 0.1.29 or later; its active game frame can capture mouse movement for mouse-look, without gaining camera, microphone or screen-capture access.
 
 Game updates and launcher updates are separate. The remote **game** release channel is configured for all four titles. Starting with **0.1.6**, launcher releases use a pinned Ed25519 signing key and immutable installer checksums. Earlier previews need one manual installation of 0.1.6 to acquire this updater. Later releases are downloaded automatically while the launcher is open and installed on a safe exit, with a restart control when available. An active game or installation is never interrupted to apply a launcher update. Windows may still display an unknown-publisher warning: authentication by the launcher's own release key is separate from a commercial Windows Authenticode certificate.
@@ -98,7 +98,7 @@ The workflow creates a **new** static stage outside the website checkout, retain
 ```powershell
 $repo = 'C:\Users\Isaac\Documents\GitHub\RepoCompany'
 $work = 'C:\Users\Isaac\Documents\Codex\2026-10-13\you\work'
-$compRunPackage = "C:\Release\COMP-RUN-2.2.1-Release\native" # reviewed manifest.json + payload directory
+$compRunPackage = "C:\Release\COMP-RUN-2.4.1-Release\native-verified" # reviewed manifest.json + payload directory
 $staging = "$work\game-release-feed-next"
 node "$repo\desktop\tools\publish-game-release.cjs" `
   --game "morogue=$repo\desktop\releases\morogue-preview3" `

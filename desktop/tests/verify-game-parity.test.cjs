@@ -67,11 +67,12 @@ test('COMP-RUN parity requires exact bytes for text, artwork and download parts'
     files.push({ path: name, size: bytes.length, sha256: sha(bytes) });
   }
   await fs.writeFile(path.join(release, 'manifest.json'), JSON.stringify({ gameId: 'comp-run', version: '2.2.1', files }));
-  const fetchImpl = changed => async url => {
+  const fetchImpl = changed => async (url, options) => {
     const parsed = new URL(url); assert.equal(parsed.origin, 'https://comp-run.fluffy-star-4855.chatgpt.site');
     const name = parsed.pathname === '/' ? 'index.html' : parsed.pathname.slice(1);
     const bytes = changed && name === 'index.html' ? Buffer.from(entries[name].toString().replace(/\r\n/g, '\n')) : entries[name];
-    return new Response(bytes, { headers: { 'content-type': name.endsWith('.html') ? 'text/html' : 'application/octet-stream' } });
+    const responseBytes = name === 'index.html' && options.headers?.['X-Requested-With'] !== 'XMLHttpRequest' ? Buffer.concat([bytes, Buffer.from('<script>per-navigation detection</script>')]) : bytes;
+    return new Response(responseBytes, { headers: { 'content-type': name.endsWith('.html') ? 'text/html' : 'application/octet-stream' } });
   };
   const exact = await verifyGameParity({ release, output: path.join(dir, 'exact'), fetchImpl: fetchImpl(false) });
   assert.equal(exact.summary.equal, files.length); assert(exact.files.every(row => row.exact && row.transform === null));

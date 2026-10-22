@@ -1,72 +1,72 @@
-# COMP-RUN 2.2.1 — release preparation
+# COMP-RUN 2.4.1 — release evidence and remaining gates
 
-This change prepares COMP-RUN immediately above Demos in the homepage collection and adds its installable entry to the native launcher. The candidate launcher version is **0.1.33**. A review branch is not a production release.
+The browser game is published at https://comp-run.fluffy-star-4855.chatgpt.site/. Source commit: `2fc6dc2d333d7cfb902d0ea1202c7bac6c0117ff`. The candidate Repo Company launcher remains **0.1.33**; preparation is not a signed launcher release.
 
-## Preserved game
+## Game and interface
 
-The candidate contains all **133** files from the published COMP-RUN 2.2.1 distribution, totalling **87,210,713 bytes**. Every file has passed a fresh live comparison against `https://comp-run.fluffy-star-4855.chatgpt.site/`. There are no game-file transforms, including text normalization. The native manifest's SHA-256 is `aa53264b71188090b79eb12f378a62ab754c68ec9797bc3b3409cef2f774b42d`.
+Rupture has varied jumps and ramps, a moving and correctly grounded monster opening, articulated armour and limbs, cable and tunnel encounters, three leaps, and an evacuation platform struck by the actual pincer. Full furnished simulations completed Normal and Nightmare with every required gate and traversal interaction and no unsafe landings, stalls or premature capture. Current Rupture records use a new season so old shorter-route times cannot rank against this route.
 
-The independent offline download is the existing archive, reconstructed from its three published parts without recompression. It is **42,413,437 bytes**, SHA-256 `063cc38f065866b01202c733906825e19979c34376ccab048381f5ceeaa0702f`.
+The existing COMP-RUN logo now anchors the main menu, course selection, settings, loadouts, pause, help, results, HUD, leaderboards and account connection. The layout uses restrained charcoal, white and red, compact controls and optional help/credits. Browser checks cover 720p, narrow screens, all eight map selections, pause/pointer capture, keyboard focus and nested Escape behaviour.
 
-The native package includes `downloads/` so the original Credits download remains available. Its largest individual file is 16,777,216 bytes. The original browser origin is retained for web play. Native local storage is scoped to the signed-in launcher account; existing browser saves are not imported. Completed records, ghosts, unlocks and settings persist locally, while unfinished runs are not resumable. No achievements or cloud-save support are invented.
+## Immutable package
 
-The launcher injects its own storage, connection, exit and playtime adapters when serving the installed entry document. These files are outside the immutable game payload. Only the active, visible, signed-in COMP-RUN main frame may request mouse capture or fullscreen.
+The final `native-verified` candidate contains **148 files / 93,555,888 bytes**, including the independent offline download. Runtime: **144 files / 48,078,902 bytes**.
 
-## Current gameplay captures
+| Evidence | SHA-256 |
+| --- | --- |
+| Runtime fingerprint | `ed796fd0502ca0cce099983d65dc4318a12216baf3060fe83193ee3962641d0c` |
+| Complete distribution fingerprint | `034344d87da88d5048a787330aa3b593960a03611268a366f1ea0a18d6bce1b0` |
+| Offline ZIP, 45,476,254 bytes in three parts | `fd470d9ff2c5fa0ea7109c946c86f3a125d509012c51a3e76072f72e3f9f64fd` |
 
-Fresh gameplay captures are a release requirement. The development browser used during preparation could not initialize WebGL, and older supplied captures do not establish the current appearance. The gallery displays an honest pending state until actual screenshots are present.
+The launcher injects storage, connection, account, exit and playtime adapters outside the immutable payload. Local settings, ghosts, unlocks and records are isolated by launcher account. Unfinished runs are not resumable; browser saves are separate. This is not a general cloud-save feature.
 
-On Windows, use the repository's normal development dependencies and installed Edge or Chrome. The capture helper does not install browsers or edit the game:
+Fresh live asset parity passed **148/148 files** with no differences or errors. Requests identify themselves as AJAX so Cloudflare returns the asset without per-navigation detection markup; no response bytes are stripped or normalized. This follows the documented [JavaScript Detections behaviour](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/). The audit records that request header and hashes every returned byte.
 
-```powershell
-node tools/capture-comp-run-screenshots.cjs `
-  --game-dir "C:\Release\COMP-RUN-2.2.1-Release\native\payload" `
-  --browser msedge `
-  --output "C:\Release\comp-run-captures-2.2.1"
-```
+## Achievements and online records
 
-Use `--browser chrome` for Chrome. The helper validates the exact 2.2.1 runtime fingerprint, uses the normal game menus, and captures the in-engine openings of The Last Playdate, The Small Hours and The Final Curtain. It writes all three untouched PNGs plus provenance only after successful rendering and checks. Inspect the results, then copy `playdate.png`, `small-hours.png` and `final-curtain.png` to `original-case-assets/comp-run/screenshots/`. Keep `screenshot-provenance.json` with release evidence.
+There are **17 achievements / 700 points**: each of eight maps in Normal and Nightmare, plus unlocking all eight runners. Account-owned completion evidence is retained separately from guest records. Existing account-owned native completion records can award achievements; old PBs are not silently uploaded into new rankings.
 
-Run the required gallery gate from the repository root:
+The main-menu leaderboard supports every map and difficulty, pagination, equal-time ties, local PB display, empty/error states and current route seasons. The API validates account ownership, a server-issued run session, elapsed time and complete ordered checkpoint splits, then keeps the fastest accepted time. Results remain client-attested; this is not server-side physics verification or a claim of cheat-proof competition.
+
+Browser sign-in runs in the Repo Company origin. Native ranked/achievement requests use bounded main-process capabilities; the game never receives an account bearer token. Identity changes during requests are rejected.
+
+Staging D1 has the additive achievement tables, three COMP-RUN tables and all 17 rules. Production migrations and website deployment remain pending. Apply `dashboard-comp-run-schema.sql` and the COMP-RUN-only rules from `dashboard-achievement-rules.sql` before enabling the production API. Existing achievement data and score ledgers must remain intact.
+
+## Verified captures and installed-game checks
+
+The gallery contains three actual 1920×1080 captures from this exact runtime: The Last Playdate, The Small Hours and The Final Curtain. They were taken through normal game menus in installed Edge with hardware WebGL and visually reviewed. Capture provenance is retained under `desktop/release-evidence/`, outside the public website. These are in-engine opening scenes, not completed runs or generated artwork.
+
+The real Electron integration test installs all manifest files through `Library.install`, renders WebGL, checks opening skip and gameplay pause, routes a ranked request through the main process, reopens with persisted settings, reconnects after a simulated disconnect and verifies another account receives separate default settings. Account services are isolated fixtures. This does not claim a production-account Windows playtest, audible audio inspection or a signed-installer acceptance pass.
+
+Relevant checks:
 
 ```powershell
 node tools/test-comp-run-integration.cjs --require-screenshots
+node tools/test-comp-run-records.cjs
+node tools/test-achievements.cjs
+node tools/test-achievement-runtime.cjs
+node tools/test-game-achievements.cjs
+node tools/build-dashboard.cjs --production
+node --test desktop/tests/comp-run-account.test.cjs desktop/tests/comp-run-launcher.test.cjs
 ```
 
-Do not replace these images with generated art or old defect captures.
+`desktop/tests/comp-run-desktop.cjs` takes the immutable candidate directory and installed Electron executable as its two arguments. Run it with Playwright available on `NODE_PATH`.
 
-## Validate on Windows
+The full native unit suite passes **297/297 tests**. Catalogue, real-SQL achievement/record checks, gallery integration and the normal production website build also pass. These checks do not replace the remaining real-account and signed-installer acceptance checks below.
 
-Use a normal GPU-enabled Windows installation for the final acceptance pass. Verify installation from the staged feed, the original game startup, normal menu navigation, mouse-look, fullscreen, audio, an actual run, returning to the library, and reopening. Confirm that a completed record or changed setting persists for the same account and is isolated from another account. Check disconnect/reconnect, the Credits offline download, and the older launcher's explicit update message.
+## Remaining publication gates
 
-The native unit and source integration checks run independently of this acceptance pass. Passing those checks does not establish rendered gameplay or a successful installed Windows launch.
+The old complete feed at `C:\Users\Isaac\Documents\Codex\2026-10-13\you\work\game-release-feed-v2` is absent from this PC. Its replacement location is needed to preserve all historical blobs and existing downloads. Do not deploy a reconstructed partial feed.
 
-## Publish the game feed through its existing gate
-
-Set the variables below to the reviewed local package directories, previous complete feed and fresh output directories. The COMP-RUN directory contains `manifest.json` and `payload/`. The other three game packages are the existing reviewed releases in the Windows release workspace.
+Once that directory is located, use the existing guarded four-game workflow with the reviewed immutable Morogue, Moratales, Manager and COMP-RUN packages:
 
 ```powershell
-node "$repo\desktop\tools\publish-game-release.cjs" `
-  --game "morogue=$moroguePackage" `
-  --game "moratales=$moratalesPackage" `
-  --game "manager=$managerPackage" `
-  --game "comp-run=$compRunPackage" `
-  --base "$previousFeed" `
-  --output "$reviewFeed" `
-  --audit-output "$reviewAudits"
+node desktop/tools/publish-game-release.cjs `
+  --game "morogue=$moroguePackage" --game "moratales=$moratalesPackage" `
+  --game "manager=$managerPackage" --game "comp-run=$compRunPackage" `
+  --base "$previousCompleteFeed" --output "$newFeed" --audit-output "$newAudits"
 ```
 
-This audits all four packages and prepares a new static feed. Existing manifests and every historical blob are preserved when migrating the three-game feed. The COMP-RUN-only successful audit does not substitute for this all-game gate.
+All four must pass fresh live parity; then publish using the same guarded tool with fresh output directories and `--deploy`, and verify the resulting feed. Complete the Windows acceptance pass for fullscreen, audible audio, a real signed-in run, Credits download and returning/reopening.
 
-For authorized publication, use the same immutable inputs, new output/audit directories, and add `--deploy`. Existing Cloudflare access is required. Then run `desktop/tools/verify-release-feed.cjs` against the staged feed. The configured COMP-RUN manifest is `https://repo-company-games.pages.dev/comp-run/manifest.json`.
-
-## Website and launcher release
-
-1. Finish and commit the real screenshots and Windows acceptance evidence. Review the complete repository change.
-2. Publish and verify the four-game feed through the guarded workflow above.
-3. Use the existing signed Windows launcher release workflow in `desktop/README.md`. Version 0.1.33 needs an unused update sequence verified at release time; do not reuse a published version or sequence.
-4. Publish the reviewed website/source and signed launcher feed through the existing GitHub/Cloudflare workflow. Do not run a second competing website deployment.
-
-The launcher release signing key remains protected by Windows DPAPI in the existing release owner's Windows profile. This preparation does not replace the pinned public key, export the private key, or bypass release verification. The signed update must be produced through that existing Windows setup.
-
-The website remains compatible with older installed launchers: they show **Update launcher** for COMP-RUN until a client with its native catalogue entry is installed.
+Use the existing signed launcher workflow in `desktop/README.md` with an unused release version/sequence. The Windows DPAPI-protected release key and pinned public key are unchanged. Publish the reviewed website/source and signed launcher feed through the existing GitHub/Cloudflare workflow, without a competing website deployment. Older clients retain the explicit **Update launcher** gate for COMP-RUN.

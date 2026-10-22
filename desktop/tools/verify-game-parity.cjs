@@ -116,7 +116,12 @@ async function verifyGameParity({ release, output, concurrency = 16, fetchImpl =
           let live;
           for (let attempt = 0; ; attempt++) {
             try {
-              const response = await fetchImpl(url, { redirect: 'error', signal: AbortSignal.timeout(90000) });
+              // Request the published asset, not a browser navigation. Cloudflare
+              // adds per-request detection markup to HTML navigations; it leaves
+              // AJAX responses intact. Compare the returned bytes without stripping.
+              const requestHeaders = manifest.gameId === 'comp-run' ? { 'X-Requested-With': 'XMLHttpRequest' } : undefined;
+              const response = await fetchImpl(url, { redirect: 'error', signal: AbortSignal.timeout(90000), ...(requestHeaders ? { headers: requestHeaders } : {}) });
+              if (requestHeaders) row.requestHeaders = requestHeaders;
               row.status = response.status; row.contentType = response.headers.get('content-type');
               if (!response.ok) { await response.body?.cancel(); throw new Error(`Published file returned HTTP ${response.status}.`); }
               if (!/\.html$/i.test(file.path) && row.contentType?.includes('text/html')) { await response.body?.cancel(); throw new Error('Published asset returned HTML.'); }

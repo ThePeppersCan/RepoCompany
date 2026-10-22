@@ -12,19 +12,19 @@ const http = require('node:http');
 const crypto = require('node:crypto');
 
 const EXPECTED = Object.freeze({
-  version: '2.2.1',
-  gameFiles: 129,
-  gameBytes: 44796568,
-  gameSha256: 'a095a34d8cfd584d706ac953963083bca71627028ee8d841680294ce9d81c459',
-  distFiles: 133,
-  distSha256: '72369aea746631c9c85f3b3dd85d8865dd6b9e60927af0387fedd9706d4622fc'
+  "version": "2.4.1",
+  "gameFiles": 144,
+  "gameBytes": 48078902,
+  "gameSha256": "ed796fd0502ca0cce099983d65dc4318a12216baf3060fe83193ee3962641d0c",
+  "distFiles": 148,
+  "distSha256": "034344d87da88d5048a787330aa3b593960a03611268a366f1ea0a18d6bce1b0"
 });
 const FINGERPRINT = 'SHA256 of sorted UTF-8 path + TAB + byte length + TAB + SHA256 + LF';
 const VIEWPORT = Object.freeze({ width: 1920, height: 1080 });
 const SHOTS = Object.freeze([
   { id: 'playdate', title: 'The Last Playdate', seconds: 13, duration: 32, filename: 'playdate.png' },
   { id: 'small-hours', title: 'The Small Hours', seconds: 12, duration: 32, filename: 'small-hours.png' },
-  { id: 'final-curtain', title: 'The Final Curtain', seconds: 9, duration: 20, filename: 'final-curtain.png' }
+  { id: 'final-curtain', title: 'The Final Curtain', seconds: 2, duration: 20, filename: 'final-curtain.png' }
 ]);
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -52,10 +52,10 @@ No dependency or browser installation is performed by this tool.
   node tools/capture-comp-run-screenshots.cjs --game-dir ".\\native\\payload" --browser chrome --output ".\\capture-review"
 
 Options:
-  --game-dir PATH   Exact 2.2.1 runtime directory containing index.html.
+  --game-dir PATH   Exact 2.4.1 runtime directory containing index.html.
                     Default: ./native/payload, relative to the current folder.
                     The exact original dist (including downloads/) also works.
-  --output PATH     NEW review folder. Default: ./capture-review/comp-run-2.2.1
+  --output PATH     NEW review folder. Default: ./capture-review/comp-run-2.4.1
   --browser NAME    Installed browser channel: msedge (default) or chrome.
                     COMP_RUN_CAPTURE_BROWSER may also specify this choice.
   --help            Show this help without opening a browser.
@@ -131,11 +131,11 @@ async function snapshot(directory) {
   const runtime = entries.filter(file => !file.path.startsWith('downloads/'));
   const result = { entries, buffers, bytes, fingerprint: fingerprint(entries), runtimeFingerprint: fingerprint(runtime) };
   check(runtime.length === EXPECTED.gameFiles && runtime.reduce((sum, file) => sum + file.bytes, 0) === EXPECTED.gameBytes && result.runtimeFingerprint === EXPECTED.gameSha256,
-    'This is not the exact reviewed 2.2.1 runtime. No screenshots will be produced. Use the unchanged native/payload or original dist folder.');
+    'This is not the exact reviewed 2.4.1 runtime. No screenshots will be produced. Use the unchanged native/payload or original dist folder.');
   if (entries.length !== runtime.length) check(entries.length === EXPECTED.distFiles && result.fingerprint === EXPECTED.distSha256,
     'The runtime is correct, but extra/download files differ from the reviewed full dist. Use the exact native/payload or full dist folder.');
   const version = /export\s+const\s+VERSION\s*=\s*['"]([^'"]+)['"]/.exec(buffers.get('race.js').toString('utf8'))?.[1];
-  check(version === EXPECTED.version, 'Runtime VERSION does not match 2.2.1.');
+  check(version === EXPECTED.version, 'Runtime VERSION does not match 2.4.1.');
   return result;
 }
 
@@ -232,6 +232,7 @@ async function capture(browser, url, shot) {
   });
   await page.route('**/*', route => {
     if (route.request().url().startsWith(url) || /^(data|blob):/.test(route.request().url())) return route.continue();
+    if(route.request().url().startsWith('https://repocompany.uk/game-achievements-bridge.html?'))return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Offline capture</title>'});
     failedResources.push({ url: route.request().url(), status: 'unexpected-external-request' }); return route.abort();
   });
   try {
@@ -268,7 +269,7 @@ async function capture(browser, url, shot) {
     check(errors.length === 0 && rendererErrors.length === 0 && failedResources.length === 0, 'The game reported script, renderer or asset errors: ' + JSON.stringify({ errors, rendererErrors, failedResources }));
     return { png, record: {
       file: shot.filename, galleryFile: 'comp-run/screenshots/' + shot.filename, caption: shot.title,
-      alt: shot.title + ' in-engine opening in COMP-RUN 2.2.1, captured with its normal game UI visible.',
+      alt: shot.title + ' in-engine opening in COMP-RUN 2.4.1, captured with its normal game UI visible.',
       courseId: shot.id, captureKind: 'in-engine opening, paused using the ordinary Escape control',
       uiModified: false, gameStateInjected: false, capturedAt: new Date().toISOString(),
       sha256: sha256(png), bytes: png.length, pixels, gameUI: before, consoleMessages
@@ -293,18 +294,18 @@ async function main() {
   catch { throw Error('The repository Playwright dev dependency is not available. Use a prepared RepoCompany checkout with its existing dependencies. This tool does not install dependencies or browsers.'); }
   const source = await snapshot(args.gameDir);
   console.log(`Verified exact COMP-RUN ${EXPECTED.version}: ${EXPECTED.gameFiles} runtime files. Opening installed ${args.browser}.`);
-  console.log('Keep this browser in the foreground. The game UI will select and pause three real opening scenes.');
+  console.log('The browser runs headlessly. The game UI will select and pause three real opening scenes.');
   const local = await serve(source);
   let browser;
   try {
-    browser = await playwright.chromium.launch({ channel: args.browser, headless: false });
+    browser = await playwright.chromium.launch({ channel: args.browser, headless: true });
     const captures = [];
     for (const shot of SHOTS) { console.log('Capturing ' + shot.title + '…'); captures.push(await capture(browser, local.url, shot)); }
     const after = await snapshot(args.gameDir);
     check(after.fingerprint === source.fingerprint, 'Source files changed during capture. No screenshot set will be saved.');
     const provenance = {
       schemaVersion: 1, status: 'captured-requires-visual-review', gameId: 'comp-run', version: EXPECTED.version,
-      createdAt: new Date().toISOString(), captureMethod: 'Playwright screenshot from the unchanged main game UI in an installed headed Windows browser',
+      createdAt: new Date().toISOString(), captureMethod: 'Playwright screenshot from the unchanged main game UI in an installed headless Windows browser',
       sceneType: 'in-engine openings; not a claim of a completed gameplay run',
       source: { directory: args.gameDir, files: source.entries, bytes: source.bytes, fileCount: source.entries.length,
         fingerprintAlgorithm: FINGERPRINT, treeSha256: source.fingerprint, runtimeSha256: source.runtimeFingerprint,

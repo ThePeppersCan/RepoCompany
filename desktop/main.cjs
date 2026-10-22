@@ -16,6 +16,7 @@ const { ExternalActivity } = require('./lib/external-activity.cjs');
 const { NotificationAudio } = require('./lib/notification-audio.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
 const { canUseCompRunInput } = require('./lib/comp-run-permissions.cjs');
+const { requestCompRunAccount } = require('./lib/comp-run-account.cjs');
 const { createMouseControl } = require('./lib/mouse-control.cjs');
 let mouseControl;
 const { createScreenPicker } = require('./lib/screen-picker.cjs');
@@ -563,6 +564,7 @@ async function gameCommand(event, action, value) {
   if (!found || new URL(event.senderFrame.url).origin !== gameById(found[0]).origin) throw new Error('This action belongs to the game.');
   const window = found[1];
   if (action === 'connection') { await account.refresh(); return gameConnection(window); }
+  if (action === 'comp-run-account' && found[0] === 'comp-run') return requestCompRunAccount({account,record:window,alive:()=>!!gameContents(window)&&!quitting&&!updateLocked(),portalOrigin:config.portalOrigin,value});
   if (action === 'session') {
     if (found[0] === 'comp-run') throw new Error('COMP-RUN does not use Repo Company account sessions.');
     const identity = await account.requireOnline();
