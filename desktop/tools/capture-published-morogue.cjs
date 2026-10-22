@@ -76,7 +76,9 @@ function references(text, url, known) {
   return required;
 }
 function transformText(text, { html = false, entryURL = GAME + '/' } = {}) {
-  let result = text.replaceAll(PORTAL + PREFIX, PREFIX);
+  // Keep JavaScript URL bases absolute. The launcher serves this game origin
+  // from verified local files, including integrations originally on the portal.
+  let result = text.replaceAll(PORTAL + PREFIX, html ? PREFIX : GAME + PREFIX);
   if (html) {
     result = result.replace(/<script\b[^>]*\bsrc=["'][^"']*(?:achievement-runtime|game-achievements-client|achievement-adapter-morogue)\.js[^"']*["'][^>]*>\s*<\/script>/gi, '');
     result = result.replace(/(\bsrc=["'])\/game-integrations\/morogue\/app\.js(?=[?"'])/gi, '$1interface/vampire-survivor/app.js');
@@ -207,7 +209,10 @@ async function prepareMorogue({ source, repoSource = path.resolve(__dirname, '..
     if (!relative.includes('/') && relative !== 'achievement-runtime.js') put('interface/vampire-survivor/' + relative, record, TEXT.test(relative) ? Buffer.from(transformText(record.bytes.toString('utf8'))) : record.bytes, true);
     if (relative === 'achievement-runtime.js') put('launcher/achievement-runtime.js', record, record.bytes, true);
   }
-  put(ENTRY, { ...page, url: GAME + '/' }, Buffer.from(transformText(html, { html: true })));
+  const nativeEntry = transformText(html, { html: true });
+  // Catch capture/runtime compatibility drift before offering this download.
+  require('../lib/protocol.cjs').injectMorogue(nativeEntry);
+  put(ENTRY, { ...page, url: GAME + '/' }, Buffer.from(nativeEntry));
   const manifest = { schemaVersion: 1, gameId: 'morogue', version, entry: ENTRY, files: [...files].sort(([a], [b]) => a.localeCompare(b)).map(([name, file]) => ({ path: name, size: file.bytes.length, sha256: file.sha256 })) };
   validateManifest(manifest, { id: 'morogue', entry: ENTRY }, { developmentRoot: path.join(output, 'payload') });
   const report = { gameId: 'morogue', version, source, repoSource, authority: GAME + '/', capturedAt: new Date().toISOString(), htmlSha256: page.sha256, repeatedExecutableAndStyleChecks: true, entry: ENTRY, output, written: write, fileCount: files.size, bytes: manifest.files.reduce((sum, item) => sum + item.size, 0), sourceInventoryFiles: sourcePaths.length, integrationInventoryFiles: integrationPaths.length, skippedUnpublishedInventory: [...records.values()].filter(item => item.missing).map(item => item.url), onlineResources: [...records.values()].filter(item => item.online).map(item => item.url), publishedScriptOrder: ordered.filter(item => item.executable).map(item => item.url), transformations, aliases, receipts: [...receiptMap.values()], hardlinkedFiles: 0 };
