@@ -4,7 +4,7 @@
  dialog.innerHTML='<header><button data-legacy-close>← Back to dashboard</button><span id="legacy-feature-title"></span></header><div class="legacy-loading" role="status">Opening your collection…</div>';
  document.body.append(dialog);let frame=null,opener=null,readyTimer=null,activeId='',bridge='';
  const dragonOrigin='https://dragonbound.repocompany.uk';
- const names={deadbeat:'DEADBEAT: Descent',runners:'Repo Runners',broomflight:'Broomflight',binder:'Your binders',slabs:'Slab binder',pack:'Open a pack',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin Bomb Party',rooftops:'Repo Rooftops',seas:'High Seas',sports:'Repo Sports'};
+ const names={deadbeat:'REPOMETRY',runners:'Repo Runners',broomflight:'Broomflight',binder:'Your binders',slabs:'Slab binder',pack:'Open a pack',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin Bomb Party',rooftops:'Repo Rooftops',seas:'High Seas',sports:'Repo Sports'};
  async function open(id){
   if(['binder','slabs'].includes(id))return window.repoBinder.open(id);
   return openOriginal(id);

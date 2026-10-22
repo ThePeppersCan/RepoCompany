@@ -4,7 +4,7 @@
   // Names and descriptions are sourced from the local RepoCompany game menus.
   // Embedded games have no standalone deep link; never invent a working game URL.
   const games=[
-    {id:'deadbeat',name:'DEADBEAT: Descent',lines:['DEADBEAT','DESCENT'],genre:'Horror rhythm platformer · Solo',description:'Keep the pulse and outrun the dark. Jump and fly through ten nightmare worlds, with Hard and Nightmare courses, practice checkpoints and progress saved on your device.',color:'116,213,181',url:'https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site/'},
+    {id:'deadbeat',name:'REPOMETRY',lines:['REPOMETRY'],genre:'Horror rhythm platformer · Solo',description:'Keep the pulse and outrun the dark. Jump and fly through ten nightmare worlds, with Hard and Nightmare courses, practice checkpoints and progress saved on your device.',color:'116,213,181',url:'https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site/'},
     {id:'runners',name:'Repo Runners',lines:['REPO','RUNNERS'],genre:'Obstacle running · Solo',description:'Run, jump and bounce through obstacle courses. Customise your runner and try the available solo tracks.',color:'183,155,84',url:'/repo-runners/'},
     {id:'broomflight',name:'Broomflight',lines:['VELMORA','BROOMFLIGHT'],genre:'Broomstick racing · Solo',description:'Race three rivals from Valeron Ridge to Elvara. Bank through the woods, climb over Solmere’s vineyards and catch the updrafts on the Elvane Run.',color:'137,167,123',url:'/broomflight/'},
     {id:'dragonbound',name:'Dragonbound',lines:['DRAGONBOUND'],genre:'Fantasy adventure',description:'A smaller adventure from the world of Velmora. Pick up a new journey from the Repo Company collection.',color:'115,136,170',url:'https://dragonbound.repocompany.uk/'},
