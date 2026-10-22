@@ -99,8 +99,8 @@
    editSettings(profile);
   }catch(e){error(e);}
  }
- const gameNames={runners:'Repo Runners',broomflight:'Broomflight',moratales:'MoraTales',morogue:'Morogue',manager:'Velmora Manager',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin',rooftops:'Repo Rooftops',seas:'Repo Seas',sports:'Repo Sports'};
- function gameIcon(game){if(/^steam:[1-9][0-9]{0,9}$/.test(game))return 'https://shared.steamstatic.com/store_item_assets/steam/apps/'+game.slice(6)+'/capsule_184x69.jpg';if(game==='runelite')return '/assets/runelite-icon.png';if(/^custom:[a-f0-9]{24}$/.test(game))return '/assets/game-activity.svg';return ['moratales','morogue','manager'].includes(game)?'/account-assets/game-icons/'+game+'.png':'/account-assets/'+game+'-activity-banner-v1.webp';}
+ const gameNames={runners:'Repo Runners',broomflight:'Broomflight',moratales:'MoraTales',morogue:'Morogue',manager:'Velmora Manager','comp-run':'COMP-RUN',dragonbound:'Dragonbound',diver:'Repo Diver',goblin:'Goblin',rooftops:'Repo Rooftops',seas:'Repo Seas',sports:'Repo Sports'};
+ function gameIcon(game){if(game==='comp-run')return '/original-case-assets/comp-run/hero-art.webp';if(/^steam:[1-9][0-9]{0,9}$/.test(game))return 'https://shared.steamstatic.com/store_item_assets/steam/apps/'+game.slice(6)+'/capsule_184x69.jpg';if(game==='runelite')return '/assets/runelite-icon.png';if(/^custom:[a-f0-9]{24}$/.test(game))return '/assets/game-activity.svg';return ['moratales','morogue','manager'].includes(game)?'/account-assets/game-icons/'+game+'.png':'/account-assets/'+game+'-activity-banner-v1.webp';}
  function setGameArt(image,game){if(window.repoGameArtwork?.attach(image,game))return;image.src=gameIcon(game);image.loading='lazy';image.decoding='async';image.referrerPolicy='no-referrer';image.onerror=()=>{image.onerror=null;image.src='/assets/game-activity.svg';};}
  function profileColors(node,colors={}){
   const valid=(v,f)=>/^#[0-9a-f]{6}$/i.test(v)?v:f,background=valid(colors.background,'#14231b'),accent=valid(colors.accent,'#b5d39c');

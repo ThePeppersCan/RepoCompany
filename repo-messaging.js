@@ -266,7 +266,7 @@
     conversation.classList.toggle('has-peer', available);
     if (!available) { selection = ''; return; }
     peerName.textContent = f.display_name || f.username; paintAvatar(peerAvatar, f.username); peerAvatar.classList.toggle('is-online', !!f.online);
-    peerStatus.textContent = f.online ? (f.current_game ? 'Playing ' + ({morogue: 'Morogue', moratales: 'Moratales', manager: 'Velmora Manager'}[f.current_game] || 'a game') : 'Online') : 'Offline';
+    peerStatus.textContent = f.online ? (f.current_game ? 'Playing ' + ({morogue: 'Morogue', moratales: 'Moratales', manager: 'Velmora Manager', 'comp-run': 'COMP-RUN'}[f.current_game] || 'a game') : 'Online') : 'Offline';
     voice.disabled = video.disabled = !initialized || !callsEnabled || !!call || callBusy || loading;
     voice.hidden = video.hidden = !initialized || !callsEnabled;
     if (window.repoVoice?.getState().enabled) {

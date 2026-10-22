@@ -12,6 +12,7 @@
  function catalog(games){return [...games,...(window.demoLibrary?.games||[])];}
  const demoBannerTitles={runners:['Repo','Runners'],broomflight:['Velmora','Broomflight'],dragonbound:['Dragonbound'],diver:['Repo','Diver'],goblin:['Goblin','Bomb Party'],rooftops:['Repo','Rooftops'],seas:['High','Seas']};
  function artwork(game){
+  if(game.id==='comp-run')return '<span class="profile-game-banner banner-comp-run" aria-hidden="true"><img class="profile-banner-art" src="original-case-assets/comp-run/hero-art.webp" alt="" loading="lazy"><img class="profile-banner-logo" src="original-case-assets/comp-run/comp-run-logo.png" alt=""></span>';
   if(['moratales','manager','morogue'].includes(game.id)){
    const logo=game.id==='manager'?'<svg class="profile-banner-logo" viewBox="57 178 2073 432"><image width="2167" height="725" href="original-case-assets/manager-logo-clean.png"/></svg>':`<img class="profile-banner-logo" src="original-case-assets/${game.id}-logo.png" alt="">`;
    return `<span class="profile-game-banner banner-${game.id}" aria-hidden="true"><img class="profile-banner-art" src="account-assets/${game.id}-activity-banner-v1.png" alt="" loading="lazy">${logo}</span>`;
@@ -22,7 +23,7 @@
   }
   return `<span class="profile-demo-art" aria-hidden="true"><i></i><b>${esc(game.name)}</b></span>`;
  }
- function achievementLine(game,own=true){const s=own?window.repoAchievementState?.summary(game.id):null;return '<div class="profile-achievement-line"><span>Achievement progress</span><button class="profile-achievement-link" data-open-achievements="'+game.id+'">'+(s?.loaded?s.unlocked+' / '+s.total+' unlocked':'View the achievement collection')+'</button><div aria-hidden="true"><i style="display:block;height:100%;background:#c6a75f;width:'+(s?.total?100*s.unlocked/s.total:0)+'%"></i></div></div>';}
+ function achievementLine(game,own=true){if(game.achievements===false)return '';const s=own?window.repoAchievementState?.summary(game.id):null;return '<div class="profile-achievement-line"><span>Achievement progress</span><button class="profile-achievement-link" data-open-achievements="'+game.id+'">'+(s?.loaded?s.unlocked+' / '+s.total+' unlocked':'View the achievement collection')+'</button><div aria-hidden="true"><i style="display:block;height:100%;background:#c6a75f;width:'+(s?.total?100*s.unlocked/s.total:0)+'%"></i></div></div>';}
  function friendItem(friend){
   return `<button class="profile-friend" data-friend-profile="${esc(friend.username)}"><span class="profile-initials">${esc(initials(friend.display_name||friend.username))}${window.repoAvatar?.markup(friend.avatar,friend.display_name||friend.username)||''}${window.repoFrames?.markup(friend.frame_id)||''}${window.repoProfilePhotos?.markup(friend.username,friend.photo_version)||''}<i class="${friend.online?'online':''}"></i></span><span><b>${esc(friend.display_name||friend.username)}</b><small>${friend.online?'Online':'Offline'}</small></span><span class="profile-friend-score">${fmt(friend.repo_score)}<small>RepoScore</small></span></button>`;
  }
@@ -35,7 +36,7 @@
  }
  function achievements({state,games}){
   const total=(state.social?.activity||[]).reduce((sum,a)=>sum+Number(a.played_ms||0),0);
-  return `<div class="profile-achievements"><div class="account-section-heading"><h2>Achievements</h2></div><div class="account-progress-summary"><div><span>RepoScore</span><strong>${state.social?fmt(state.social.profile.repo_score):'—'}</strong><small>Your permanent achievement total</small></div><div><span>Hours on record</span><strong>${hours(total)}</strong><small>Recorded while your games are open and visible</small></div></div><div class="profile-achievement-games">${games.map(g=>`<article><button data-game="${g.id}">${artwork(g)}<span><b>${esc(g.name)}</b><small>View achievements</small></span><i>→</i></button>${achievementLine(g,false)}</article>`).join('')}</div><p class="profile-tracking-note">Earn permanent RepoScore as you play. Repoints are your separate Shop balance.</p></div>`;
+  return `<div class="profile-achievements"><div class="account-section-heading"><h2>Achievements</h2></div><div class="account-progress-summary"><div><span>RepoScore</span><strong>${state.social?fmt(state.social.profile.repo_score):'—'}</strong><small>Your permanent achievement total</small></div><div><span>Hours on record</span><strong>${hours(total)}</strong><small>Recorded while your games are open and visible</small></div></div><div class="profile-achievement-games">${games.filter(game=>game.achievements!==false).map(g=>`<article><button data-game="${g.id}">${artwork(g)}<span><b>${esc(g.name)}</b><small>View achievements</small></span><i>→</i></button>${achievementLine(g,false)}</article>`).join('')}</div><p class="profile-tracking-note">Earn permanent RepoScore as you play. Repoints are your separate Shop balance.</p></div>`;
  }
  function relationshipActions(player){
   const name=esc(player.username),action=(id,label)=>`<button class="account-soft-button" data-friend-action="${id}" data-player="${name}">${label}</button>`;

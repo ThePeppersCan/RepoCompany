@@ -10,7 +10,8 @@ const ORIGIN = 'https://repo-company-games.pages.dev';
 const GAMES = [
   { id: 'morogue', entry: 'interface/vampire-survivor/index.html', sample: 'interface/vampire-survivor/app.js' },
   { id: 'moratales', entry: 'preview.html', sample: 'interface/town-explorer.js' },
-  { id: 'manager', entry: 'index.html', sample: 'app.js' }
+  { id: 'manager', entry: 'index.html', sample: 'app.js' },
+  { id: 'comp-run', entry: 'index.html', sample: 'main.js' }
 ];
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 function requireThat(condition, message) { if (!condition) throw Error(message); }
@@ -115,7 +116,7 @@ if (require.main === module) {
   const report = { origin: ORIGIN, checkedAt: new Date().toISOString(), passed: false, games: [] };
   verifyReleaseFeed({ ...options, report, onProgress: message => process.stdout.write(message + '\n') }).then(async () => {
     if (output) { await fs.mkdir(path.dirname(output), { recursive: true }); await fs.writeFile(output, JSON.stringify(report, null, 2) + '\n'); }
-    process.stdout.write('PASS all three public game manifests, sample hashes, immutable headers and range delivery probes.\n');
+    process.stdout.write('PASS all four public game manifests, sample hashes, immutable headers and range delivery probes.\n');
   }).catch(async error => {
     report.failure = error.message;
     if (output) { await fs.mkdir(path.dirname(output), { recursive: true }); await fs.writeFile(output, JSON.stringify(report, null, 2) + '\n'); }

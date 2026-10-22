@@ -1,4 +1,4 @@
-# Repo Company for Windows — preview 0.1.8
+# Repo Company for Windows
 
 The launcher uses the actual Repo Company website, including its game cases and Account navigation. The website's Download button provides the Windows preview. Homepage game cases install or launch games; **Account → Library** manages installation, updates, repair and removal.
 
@@ -6,16 +6,17 @@ The native login screen keeps the collection hidden until the existing website s
 
 ## Games and accounts
 
-- **Morogue, Moratales and Velmora Manager** download separately from `https://repo-company-games.pages.dev`. Game payloads are not bundled into the launcher installer.
-- All three support install, update, repair and uninstall. **Automatic game updates are on by default.** While the launcher is open, release checks run on startup, manual refresh and every ten minutes. Closing a game triggers another check so an update skipped during play can apply immediately afterward. A running game's installed files are never replaced.
+- **Morogue, Moratales, Velmora Manager and COMP-RUN** download separately from `https://repo-company-games.pages.dev`. Game payloads are not bundled into the launcher installer. COMP-RUN is prepared for launcher 0.1.33; its game feed and signed launcher update must be released before installed clients can use it.
+- All four support install, update, repair and uninstall. **Automatic game updates are on by default.** While the launcher is open, release checks run on startup, manual refresh and every ten minutes. Closing a game triggers another check so an update skipped during play can apply immediately afterward. A running game's installed files are never replaced.
 - A verified Repo Company account and internet connection are required to play. Existing account, achievement and leaderboard services remain authoritative. Game views bind to the account that opened them, with local storage separated by account.
 - Signing in to Repo Company automatically connects the Moratales character names and appearances held in that browser/profile. Downloaded Moratales also syncs new characters and appearance changes while playing and before closing, ready for Morogue. **There is no separate linking page to visit.** Conflicting characters are preserved rather than silently replaced.
 - **Moratales adventures stay local.** Appearance sync does not upload or migrate full adventure saves. Existing browser adventures remain in their original browser/profile; installed adventures remain in the launcher profile. The game's import/export backup controls remain available.
 - **Manager careers use its existing account cloud-save service**, with local account-scoped storage and a save-before-close check. No second career database is created.
 - **Quitting Morogue ends the current Mora Mode or Endless Night run.** Runs cannot be resumed. Completed online achievements and leaderboard results remain on the account.
+- **COMP-RUN retains its exact published 2.4.2 game files.** Completed records, ghosts, unlocks and settings remain local to the launcher account on this device. The account integration adds 17 achievements and separate Normal/Nightmare PB boards for all eight maps; production service and launcher publication gates are tracked in [COMP-RUN release preparation](COMP-RUN-RELEASE.md). An unfinished run cannot be resumed. Browser saves remain separate. Launcher-owned storage, connection, account, exit and playtime hooks are applied outside the installed payload; account tokens stay in the main process.
 - Repo Runners, Broomflight, Dragonbound, Repo Diver, Goblin Bomb Party, Repo Rooftops, High Seas and Repo Sports remain web demos inside the launcher. They require no installation and retain their current content/prototype status. Repo Runners requires launcher 0.1.29 or later; its active game frame can capture mouse movement for mouse-look, without gaining camera, microphone or screen-capture access.
 
-Game updates and launcher updates are separate. The remote **game** release channel is configured for all three titles. Starting with **0.1.6**, launcher releases use a pinned Ed25519 signing key and immutable installer checksums. Earlier previews need one manual installation of 0.1.6 to acquire this updater. Later releases are downloaded automatically while the launcher is open and installed on a safe exit, with a restart control when available. An active game or installation is never interrupted to apply a launcher update. Windows may still display an unknown-publisher warning: authentication by the launcher's own release key is separate from a commercial Windows Authenticode certificate.
+Game updates and launcher updates are separate. The remote **game** release channel is configured for all four titles. Starting with **0.1.6**, launcher releases use a pinned Ed25519 signing key and immutable installer checksums. Earlier previews need one manual installation of 0.1.6 to acquire this updater. Later releases are downloaded automatically while the launcher is open and installed on a safe exit, with a restart control when available. An active game or installation is never interrupted to apply a launcher update. Windows may still display an unknown-publisher warning: authentication by the launcher's own release key is separate from a commercial Windows Authenticode certificate.
 
 ## Launcher settings and Discord
 
@@ -90,18 +91,20 @@ Keep source media and cached hardlinks unchanged throughout preparation and uplo
 
 ## Prepare and publish the game feed
 
-Use `publish-game-release.cjs` as the required release workflow. It audits **all three** explicit package directories against fresh published responses, even when only one game changed. Every file's installed hash/size and original live URL/hash must pass, and each audit binds the exact manifest bytes. Previous reports and matching version labels cannot skip this check. A failed or incomplete audit stops before staging/publication.
+For a COMP-RUN-only update preserving the current native versions of the other games, use `publish-comp-run-release.cjs --base COMPLETE_FEED --release COMP_RUN_PACKAGE --output NEW_STAGE --audit-output NEW_AUDITS --deploy`. It verifies the current native manifest bytes before and after staging, fully hashes retained history and requires fresh exact web parity for COMP-RUN. See [release evidence](COMP-RUN-RELEASE.md). For an intentional update of all four reviewed game packages, use `publish-game-release.cjs`. It audits **all four** explicit package directories against fresh published responses, even when only one game changed. Every file's installed hash/size and original live URL/hash must pass, and each audit binds the exact manifest bytes. Previous reports and matching version labels cannot skip this check. A failed or incomplete audit stops before staging/publication.
 
 The workflow creates a **new** static stage outside the website checkout, retaining all old blobs and unchanged manifests byte-for-byte. Replacements require a higher semantic version. Deduplicated `/blobs/<sha256>.bin` URLs avoid HTML redirects. Every file must fit the host's 25MiB limit and the stage must remain within its file budget. The reviewed packages for this release are Morogue `0.1.0-preview.3`, Moratales `0.1.0-preview.2` and Manager `0.1.0-preview.2`, at the paths below. Future candidates need new paths and versions.
 
 ```powershell
 $repo = 'C:\Users\Isaac\Documents\GitHub\RepoCompany'
 $work = 'C:\Users\Isaac\Documents\Codex\2026-10-13\you\work'
+$compRunPackage = "C:\Release\COMP-RUN-2.4.2-Release\native-verified" # reviewed manifest.json + payload directory
 $staging = "$work\game-release-feed-next"
 node "$repo\desktop\tools\publish-game-release.cjs" `
   --game "morogue=$repo\desktop\releases\morogue-preview3" `
   --game "moratales=$repo\desktop\releases\moratales-live" `
   --game "manager=$repo\desktop\releases\manager-live" `
+  --game "comp-run=$compRunPackage" `
   --base "$work\game-release-feed-v2" `
   --audit-output "$work\game-release-parity-next" `
   --output $staging `

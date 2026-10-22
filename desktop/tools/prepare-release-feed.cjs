@@ -6,7 +6,8 @@ const fs = require('node:fs'), fsp = fs.promises, path = require('node:path'), c
 const { validateManifest, within, MAX_MANIFEST_BYTES } = require('../lib/manifest.cjs');
 const { assertPlainPath, safeRemove } = require('../lib/library.cjs');
 const ORIGIN = 'https://repo-company-games.pages.dev';
-const GAMES = { morogue: 'interface/vampire-survivor/index.html', moratales: 'preview.html', manager: 'index.html' };
+const GAMES = { morogue: 'interface/vampire-survivor/index.html', moratales: 'preview.html', manager: 'index.html', 'comp-run': 'index.html' };
+const LEGACY_GAMES = ['morogue', 'moratales', 'manager'];
 const HEADERS = '/blobs/*\n  Cache-Control: public, max-age=31536000, immutable\n/*/manifest.json\n  Cache-Control: no-store\n';
 const MAX_ASSET_BYTES = 25 * 1024 * 1024, MAX_STATIC_FILES = 20000;
 
@@ -60,8 +61,10 @@ async function verifiedFile(file, expectedHash, expectedSize) {
 }
 async function readBase(directory) {
   await assertPlainPath(directory);
-  const expected = ['_headers', 'blobs', ...Object.keys(GAMES)].sort();
-  requireThat(JSON.stringify((await fsp.readdir(directory)).sort()) === JSON.stringify(expected), 'Base feed contains unexpected or missing files; only static game feed content is allowed.');
+  const contents = await fsp.readdir(directory);
+  const required = ['_headers', 'blobs', ...LEGACY_GAMES];
+  const supported = new Set(['_headers', 'blobs', ...Object.keys(GAMES)]);
+  requireThat(required.every(name => contents.includes(name)) && contents.every(name => supported.has(name)), 'Base feed contains unexpected or missing files; only static game feed content is allowed.');
   const headers = await readBounded(path.join(directory, '_headers'), 4096);
   requireThat(headers.toString('utf8').replace(/\r\n/g, '\n') === HEADERS, 'Base feed cache headers do not match the reviewed static feed.');
   const manifests = new Map(), blobs = new Map();
@@ -72,6 +75,9 @@ async function readBase(directory) {
     blobs.set(name, { source: file, size, sha256: name.slice(0, 64) });
   }
   for (const [id, entry] of Object.entries(GAMES)) {
+    // Existing feeds predate COMP-RUN. Preserve their three reviewed manifests
+    // verbatim, then add the new title through the same verified package path.
+    if (!contents.includes(id)) continue;
     const folder = path.join(directory, id); await assertPlainPath(folder);
     requireThat(JSON.stringify(await fsp.readdir(folder)) === '["manifest.json"]', 'Unexpected files in base game directory: ' + id);
     const bytes = await readBounded(path.join(folder, 'manifest.json'), MAX_MANIFEST_BYTES), raw = JSON.parse(bytes.toString('utf8'));

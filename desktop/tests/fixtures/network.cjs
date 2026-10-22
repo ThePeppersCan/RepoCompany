@@ -25,6 +25,7 @@ function configure(config) {
   config.launcherUpdates = { url: null, publisherName: null };
   for (const game of config.games.filter(game => game.installable)) {
     game.developmentManifest = path.join(root, 'desktop/releases', game.id, 'manifest.json');
+    if(game.id==='comp-run'&&process.env.REPO_LAUNCHER_TEST_COMP_RUN_RELEASE){const release=process.env.REPO_LAUNCHER_TEST_COMP_RUN_RELEASE;if(!path.isAbsolute(release))throw Error('COMP-RUN test release must be absolute.');game.developmentManifest=path.join(release,'manifest.json');}
     if (game.id === 'morogue' && process.env.REPO_LAUNCHER_TEST_MOROGUE_RELEASE) {
       const release = process.env.REPO_LAUNCHER_TEST_MOROGUE_RELEASE;
       if (!path.isAbsolute(release)) throw Error('The test Morogue release must be an absolute native path.');
@@ -38,7 +39,7 @@ async function fixtureFetch(input, init = {}) {
   stats.requests.push(url.origin + url.pathname);
   if (stats.offline) throw new Error('Fixture network disconnected');
   if (url.hostname === 'hvdrwmjieguurxvrgzfu.supabase.co') {
-    if (url.pathname === '/auth/v1/user') return request.headers.get('Authorization') === 'Bearer ' + token ? json(user) : json({ error: 'not signed in' }, 401);
+    if (url.pathname === '/auth/v1/user') return request.headers.get('Authorization') === 'Bearer ' + token ? json(stats.compRunAccountId?{...user,id:stats.compRunAccountId}:user) : json({ error: 'not signed in' }, 401);
     if (url.pathname === '/auth/v1/token') return json(login);
     if (url.pathname === '/auth/v1/logout') return json({});
     if (url.pathname === '/rest/v1/velmora_manager_career_slots' || url.pathname.startsWith('/storage/v1/object/')) {
@@ -116,6 +117,7 @@ async function fixtureFetch(input, init = {}) {
       if (url.pathname.endsWith('/progress')) stats.achievementFacts.push(body.facts);
       return json({ session: 'fixture-achievement-session', achievements: [], newUnlocks: [], repoScore: stats.achievementFacts.length });
     }
+    if(url.pathname.startsWith('/api/comp-run/')){if(request.method==='POST'){if(request.headers.get('Authorization')!=='Bearer '+token)return json({error:'Sign in'},401);const body=await request.json();stats.compRunRequests||=[];stats.compRunRequests.push({path:url.pathname,body});return json(url.pathname.endsWith('run-start')?{run:'fixture-comp-run-session'}:{accepted:true});}return json({rows:[],total:0,page:0},200);}
     return serveFile(request, root, url.pathname);
   }
   if (url.origin === 'https://morogue.repocompany.uk') {

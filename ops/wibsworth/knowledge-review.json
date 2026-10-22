@@ -41,5 +41,11 @@
     "test-wibsworth-conversation-regressions.cjs"
   ],
   "appInstallReview": "Reviewed the phone install instructions and Phone/Desktop Download chooser. Added verified iPhone and Android installation guidance; reviewed profile/Wibs artwork-only changes without changing game facts. Account login remains username/password with approved email invitations.",
-  "callControlsReview": "Reviewed icon call controls, automatic remote webcam viewing and per-person Hide/Show webcam with server-filtered subscriptions. Publishing remains opt-in, the shared 950 GB limit and one-hour camera expiry remain enforced. Reviewed phone viewport sizing without changing install instructions."
+  "callControlsReview": "Reviewed icon call controls, automatic remote webcam viewing and per-person Hide/Show webcam with server-filtered subscriptions. Publishing remains opt-in, the shared 950 GB limit and one-hour camera expiry remain enforced. Reviewed phone viewport sizing without changing install instructions.",
+  "compRunReview": {
+    "date": "2026-10-22",
+    "knowledgeVersion": "2026-10-22.1",
+    "scope": "Reviewed COMP-RUN catalogue, 17 achievement rules, account adapter and map/difficulty record seasons. Updated seven stale source pins after reviewing the existing PR catalogue/artwork changes and current achievements changes. Existing unrelated facts remain unchanged.",
+    "limits": "No live leaderboard positions or native release availability inferred from source configuration."
+  }
 }

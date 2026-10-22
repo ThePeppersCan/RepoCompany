@@ -298,3 +298,22 @@ INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('mor
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('morogue_098','morogue','m098',1,80) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('morogue_099','morogue','m099',1,65) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('morogue_100','morogue','endless_finale_wins',2,150) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+
+-- COMP-RUN: every map/difficulty and the complete runner roster.
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_001','comp-run','completed_sanctuary_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_002','comp-run','completed_sanctuary_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_003','comp-run','completed_hollow_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_004','comp-run','completed_hollow_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_005','comp-run','completed_undertow_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_006','comp-run','completed_undertow_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_007','comp-run','completed_playdate_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_008','comp-run','completed_playdate_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_009','comp-run','completed_small_hours_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_010','comp-run','completed_small_hours_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_011','comp-run','completed_final_curtain_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_012','comp-run','completed_final_curtain_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_013','comp-run','completed_last_bloom_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_014','comp-run','completed_last_bloom_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_015','comp-run','completed_rupture_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_016','comp-run','completed_rupture_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_017','comp-run','runners_unlocked',8,100) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;

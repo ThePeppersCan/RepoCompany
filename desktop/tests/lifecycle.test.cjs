@@ -175,8 +175,8 @@ test('a trusted portal cannot call shell-only actions or invent native commands'
 test('portal state exposes only public account and game metadata', async () => {
   const h = portalHarness();
   const value = await h.invoke({ sender: h.contents, senderFrame: h.frame }, 'state');
-  assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 4);
-  assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'download'), game => game.id), ['morogue', 'moratales', 'manager']);
+  assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 6);
+  assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'download'), game => game.id), ['morogue', 'moratales', 'manager', 'comp-run']);
   assert.deepEqual(Array.from(value.catalog.demos, demo => demo.id), ['runners', 'broomflight', 'dragonbound', 'diver', 'goblin', 'rooftops', 'seas', 'sports']);
   assert.equal(value.library.morogue.status, 'installed');
   assert.doesNotMatch(JSON.stringify(value), /TEST_ONLY_ACCESS_TOKEN|TEST_ONLY_INTERNAL_ACCOUNT_ID|access_token|refresh_token|developmentManifest|manifestUrl|approvedOrigins/);
@@ -501,6 +501,20 @@ test('game session IPC is account-bound and close waits for a durable save', asy
   await assert.rejects(invoke(event, 'exit'), /Storage full/); assert.equal(closed, 0);
   failure = false;
   await invoke(event, 'exit'); assert.equal(saved, 2); assert.equal(closed, 1);
+});
+
+test('COMP-RUN cannot obtain a Repo Company access token through direct game IPC', async () => {
+  const h = portalHarness({ hidden: true });
+  const frame = { url: 'https://comp-run.fluffy-star-4855.chatgpt.site/' };
+  const contents = { isDestroyed: () => false, mainFrame: frame };
+  h.context.gameWindow = { __gameId: 'comp-run', __accountId: h.context.fixture.account.identity, webContents: contents };
+  h.context.fixture.mainWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false } };
+  let accountReads = 0, portalReads = 0;
+  h.context.fixture.account.requireOnline = async () => { accountReads++; return h.context.fixture.account.identity; };
+  h.contents.executeJavaScript = async () => { portalReads++; throw Error('Session must not be read'); };
+  h.run('mainWindow=fixture.mainWindow; games.set("comp-run",gameWindow);');
+  await assert.rejects(h.run('gameCommand')({ sender: contents, senderFrame: frame }, 'session'), /does not use Repo Company account sessions/);
+  assert.equal(accountReads, 0); assert.equal(portalReads, 0);
 });
 
 test('automatic update sweeps deduplicate checks and skip running games and active library operations', async () => {

@@ -18,7 +18,7 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
    assert(filename.startsWith(process.cwd()+path.sep));
    return route.fulfill({status:200,contentType:url.pathname.endsWith('.html')?'text/html':'text/javascript',body:fs.readFileSync(filename)});
   });
-  const gameOrigins={'https://manager.repocompany.uk':'manager','https://moratales.repocompany.uk':'moratales','https://morogue.repocompany.uk':'morogue','https://dragonbound.repocompany.uk':'dragonbound','https://evil.example':'manager'};
+  const gameOrigins={'https://manager.repocompany.uk':'manager','https://moratales.repocompany.uk':'moratales','https://morogue.repocompany.uk':'morogue','https://comp-run.fluffy-star-4855.chatgpt.site':'comp-run','https://dragonbound.repocompany.uk':'dragonbound','https://evil.example':'manager'};
   for(const [origin,game] of Object.entries(gameOrigins))await context.route(origin+'/**',route=>route.fulfill({status:200,contentType:'text/html',body:`<!doctype html><body><h1>Game fixture</h1><script>window.received=[];addEventListener('message',e=>received.push(e.data));</script><script defer src="${host}/game-playtime-client.js" data-game="${game}"></script></body>`}));
   await page.goto(host+'/');await page.evaluate(({storageKey,session})=>localStorage.setItem(storageKey,JSON.stringify(session)),{storageKey,session});
   await page.clock.install();

@@ -1,0 +1,17 @@
+{
+  "profile": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\repo-company\\desktop\\qa\\comp-run-iB0Iwj",
+  "release": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\releases\\comp-run-2.4.2\\native",
+  "install": "Actual Library.install from immutable local manifest",
+  "accountServices": "Isolated fixtures; no production requests",
+  "checks": [
+    "Downloaded and verified all manifest files through Library.install",
+    "Real WebGL game, native identity and token-free account capability",
+    "Opening skip, gameplay mouse capture and Escape pause",
+    "Native ranked request through the authenticated main process",
+    "Settings survive return to library and reopening",
+    "Disconnect gate and authenticated reconnect",
+    "Second account receives separate default settings"
+  ],
+  "errors": [],
+  "passed": true
+}

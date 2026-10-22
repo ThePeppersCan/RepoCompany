@@ -12,14 +12,17 @@ const mora = require('./prepare-moratales.cjs');
 const manager = require('./prepare-manager.cjs');
 const morogue = require('./capture-published-morogue.cjs');
 const TEXT = /\.(?:js|css|json|html|webmanifest|svg|txt|md|csv)$/i;
-const ORIGINS = { moratales: 'https://moratales.repocompany.uk', manager: 'https://manager.repocompany.uk', morogue: 'https://morogue.repocompany.uk' };
-const OVERLAYS = { moratales: ['town-cafe-day.js', 'town-cafe-service.js', 'town-kitchen.js', 'town-pleasure.js', 'town-roastery.js'].map(name => 'interface/' + name), manager: ['app.js', 'career-bootstrap.js', 'career-expansion.js', 'velmora-quidditch-engine.js'] };
+const ORIGINS = { moratales: 'https://moratales.repocompany.uk', manager: 'https://manager.repocompany.uk', morogue: 'https://morogue.repocompany.uk', 'comp-run': 'https://comp-run.fluffy-star-4855.chatgpt.site' };
+const OVERLAYS = { moratales: ['town-cafe-day.js', 'town-cafe-service.js', 'town-kitchen.js', 'town-pleasure.js', 'town-roastery.js'].map(name => 'interface/' + name), manager: ['app.js', 'career-bootstrap.js', 'career-expansion.js', 'velmora-quidditch-engine.js'], 'comp-run': [] };
 const digest = body => crypto.createHash('sha256').update(body).digest('hex');
 const normalized = text => text.replace(/\r\n/g, '\n');
 
 function sourceURL(gameId, relative, receipt) {
   validatePath(relative);
   if (!ORIGINS[gameId]) throw new Error('Unsupported parity target.');
+  // The published host redirects /index.html to /. Audit the canonical page
+  // directly so redirects remain forbidden for all fetched release resources.
+  if (gameId === 'comp-run') return new URL(relative === 'index.html' ? '/' : relative, ORIGINS[gameId] + '/').href;
   if (gameId === 'morogue') {
     if (!receipt?.originalURL) throw new Error('Morogue requires a published capture receipt for every file.');
     const url = new URL(receipt.originalURL);
@@ -113,7 +116,12 @@ async function verifyGameParity({ release, output, concurrency = 16, fetchImpl =
           let live;
           for (let attempt = 0; ; attempt++) {
             try {
-              const response = await fetchImpl(url, { redirect: 'error', signal: AbortSignal.timeout(90000) });
+              // Request the published asset, not a browser navigation. Cloudflare
+              // adds per-request detection markup to HTML navigations; it leaves
+              // AJAX responses intact. Compare the returned bytes without stripping.
+              const requestHeaders = manifest.gameId === 'comp-run' ? { 'X-Requested-With': 'XMLHttpRequest' } : undefined;
+              const response = await fetchImpl(url, { redirect: 'error', signal: AbortSignal.timeout(90000), ...(requestHeaders ? { headers: requestHeaders } : {}) });
+              if (requestHeaders) row.requestHeaders = requestHeaders;
               row.status = response.status; row.contentType = response.headers.get('content-type');
               if (!response.ok) { await response.body?.cancel(); throw new Error(`Published file returned HTTP ${response.status}.`); }
               if (!/\.html$/i.test(file.path) && row.contentType?.includes('text/html')) { await response.body?.cancel(); throw new Error('Published asset returned HTML.'); }
@@ -129,7 +137,10 @@ async function verifyGameParity({ release, output, concurrency = 16, fetchImpl =
             const expected = expectedNative(manifest.gameId, file.path, live.text);
             row.transform = expected.transform; row.expectedNativeSha256 = digest(expected.text);
             const installed = await fsp.readFile(filename, 'utf8');
-            row.equal = normalized(expected.text) === normalized(installed);
+            // COMP-RUN is delivered exactly as published, including line
+            // endings. Existing reviewed transforms remain scoped to the
+            // other games; none apply to this title.
+            row.equal = manifest.gameId === 'comp-run' ? row.exact : normalized(expected.text) === normalized(installed);
             if (!row.equal) {
               const location = path.join(output, 'differences', file.path); await fsp.mkdir(path.dirname(location), { recursive: true });
               await fsp.writeFile(location + '.live', live.text, { flag: 'wx' });
@@ -146,7 +157,7 @@ async function verifyGameParity({ release, output, concurrency = 16, fetchImpl =
       }
     }));
   } finally { await journal.close(); }
-  const report = { gameId: manifest.gameId, version: manifest.version, release, manifestSha256: digest(manifestBody), startedAt, completedAt: new Date().toISOString(), fileCount: rows.length, fetchedBytes, sourceAudit, nativeTransformPolicy: 'Only enumerated authentication, save, pause and local resource mapping transforms; no art, balance or game content exceptions.', files: rows };
+  const report = { gameId: manifest.gameId, version: manifest.version, release, manifestSha256: digest(manifestBody), startedAt, completedAt: new Date().toISOString(), fileCount: rows.length, fetchedBytes, sourceAudit, nativeTransformPolicy: manifest.gameId === 'comp-run' ? 'Exact published bytes for every file; no native transforms or text normalization.' : 'Only enumerated authentication, save, pause and local resource mapping transforms; no art, balance or game content exceptions.', files: rows };
   report.summary = { equal: rows.filter(r => r.equal && r.manifestIntact).length, different: rows.filter(r => !r.equal || !r.manifestIntact).map(r => r.path), errors: rows.filter(r => r.error).map(r => ({ path: r.path, error: r.error })) };
   await fsp.writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
   return report;

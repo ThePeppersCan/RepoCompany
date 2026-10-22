@@ -11,11 +11,13 @@
     {id:'velmora-tales',name:'Velmora Tales',genre:'Coming soon',tagline:'A new adventure is on the horizon.',glow:'116,155,122'},
     {id:'manager',name:'Velmora Manager',genre:'Fantasy sports management',tagline:'Build your club. Shape its future.',glow:'91,137,190'},
     {id:'moratales',name:'Moratales',genre:'Story & life sim',tagline:'Your next chapter in Velmora.',glow:'125,155,113'},
+    {id:'comp-run',name:'COMP-RUN',genre:'First-person horror parkour',tagline:'Keep moving. Don’t look back.',glow:'194,37,35'},
     {id:'demos',name:'Demos',genre:'Playable demos & minigames',tagline:'Including Dragonbound. Discover something new.',glow:'112,139,204'}
   ];
   // Crop the original source wordmarks. The Dragonbound lettering uses a single foil ink;
   // its letterforms are sampled directly from the original menu, never recreated as text.
   function logo(id, extra='') {
+    if(id==='comp-run') return `<img class="comp-run-wordmark ${extra}" src="${assets}comp-run/comp-run-logo.png" alt="">`;
     if(id==='velmora-tales') return `<img class="velmora-wordmark ${extra}" src="${assets}velmora-tales-logo.png" alt="">`;
     if(id==='moratales') return `<img class="${extra}" src="${assets}moratales-logo.png" alt="">`;
     if(id==='morogue') return `<img class="morogue-wordmark ${extra}" src="${assets}morogue-logo.png" alt="">`;
@@ -26,6 +28,7 @@
   const publisher = '<div class="cover-publisher"><i class="publisher-mark"></i><span class="publisher-wordmark" aria-label="Repo Company"></span></div>';
   function cover(id) {
     let content='';
+    if(id==='comp-run') content=`<img class="cover-art" src="${assets}comp-run/cover-art.webp" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
     if(id==='velmora-tales') content=`<svg class="velmora-cover-art" viewBox="100 0 986 1448" preserveAspectRatio="none" aria-hidden="true"><image href="${assets}velmora-tales-artwork.png" width="1086" height="1448"/></svg>${logo(id,'cover-logo')}`;
     if(id==='moratales') content=`<img class="cover-map" src="${assets}moratales-cover-source.png" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
     if(id==='morogue') content=`<img class="cover-art" src="${assets}morogue-cover-art.png" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
@@ -35,6 +38,7 @@
     return `<div class="case-cover cover-${id}">${publisher}${content}</div>`;
   }
   function spine(id) {
+    if(id==='comp-run') return `<div class="case-spine spine-comp-run"><div class="spine-publisher"><i class="publisher-mark"></i></div><img class="spine-logo" src="${assets}comp-run/comp-run-spine-logo.png" alt=""><div class="spine-picture"></div></div>`;
     if(id==='velmora-tales') return `<div class="case-spine spine-velmora-tales"><div class="velmora-spine-art" aria-hidden="true"></div><div class="spine-publisher"><i class="publisher-mark"></i></div><svg class="spine-logo" viewBox="0 195 2172 290" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><image href="${assets}velmora-tales-spine-logo.png" width="2172" height="724"/></svg></div>`;
     const content=id==='demos'?'<strong class="spine-demo-name">DEMOS</strong><span class="spine-demo-edition">DEMO DISC 01</span><div class="printed-disc"></div>':`${logo(id,'spine-logo')}<div class="spine-picture"></div>`;
     return `<div class="case-spine spine-${id}"><div class="spine-publisher"><i class="publisher-mark"></i></div>${content}</div>`;

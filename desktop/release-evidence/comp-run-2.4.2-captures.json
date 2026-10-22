@@ -1,0 +1,3005 @@
+{
+  "schemaVersion": 1,
+  "status": "captured-requires-visual-review",
+  "gameId": "comp-run",
+  "version": "2.4.2",
+  "createdAt": "2026-10-22T20:05:07.985Z",
+  "captureMethod": "Playwright screenshot from the unchanged main game UI in an installed headless Windows browser",
+  "sceneType": "in-engine openings; not a claim of a completed gameplay run",
+  "source": {
+    "directory": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\releases\\comp-run-2.4.2\\native\\payload",
+    "files": [
+      {
+        "path": "assets/audio/foot-carpet-01.wav",
+        "bytes": 35618,
+        "sha256": "05573dc093187e4345cd0b1e12d5bb7c55f4780bbd70233df53bcf284d41b711"
+      },
+      {
+        "path": "assets/audio/foot-carpet-02.wav",
+        "bytes": 35618,
+        "sha256": "d781cfb216d720d67a40098ab44ffcb635530f08517025a6fd9c1fef4592d564"
+      },
+      {
+        "path": "assets/audio/foot-carpet-03.wav",
+        "bytes": 32546,
+        "sha256": "e0f997258d72d7caf90ef88d85e9cdbb861bb7e8fa00cb69e39dd06823fed453"
+      },
+      {
+        "path": "assets/audio/foot-carpet-04.wav",
+        "bytes": 35694,
+        "sha256": "ba0949815c902b0b6587c728fb7cebe756b7857f1ade47d31aa60bf0ed365348"
+      },
+      {
+        "path": "assets/audio/ident-landing.mp3",
+        "bytes": 16320,
+        "sha256": "704ca36a4e270dc57fdb10df4f043d6954aa127a4eca7a78dac3f8f9fbf25985"
+      },
+      {
+        "path": "assets/audio/land-carpet.wav",
+        "bytes": 37494,
+        "sha256": "fc79d3b21ba91b34efb2a47bbc93d51aea762fc0044e0deeeeaec60bf9ee4151"
+      },
+      {
+        "path": "assets/audio/land-damage-01.wav",
+        "bytes": 35300,
+        "sha256": "4213bd6cd90b807bc9646f1e39c84be4d714bc93b171d1d1bc6e042e2b386815"
+      },
+      {
+        "path": "assets/audio/land-damage-02.wav",
+        "bytes": 25068,
+        "sha256": "ff4c3f4c4231753d780332324e4a3c782960a6fac1df7640db24114d7edabb6f"
+      },
+      {
+        "path": "assets/audio/theatre-storm.wav",
+        "bytes": 1262636,
+        "sha256": "fbd62df8d949840d259fe8280ee7f7050d69848a3fe0aec605904dc488edaf98"
+      },
+      {
+        "path": "assets/comp-run-logo.png",
+        "bytes": 1364207,
+        "sha256": "740b19b1201ceaf37e26967b0f47a6dcc3f17fd9ab333caa9affe576cea6bdfc"
+      },
+      {
+        "path": "assets/music/abated-theatre-loop.ogg",
+        "bytes": 3161002,
+        "sha256": "8f91fffdb1b175868c0462410a615a4980fbc807c0b4cbaf3d18defc1d09d705"
+      },
+      {
+        "path": "assets/music/city-beneath-god.mp3",
+        "bytes": 2998692,
+        "sha256": "cefcf2394b59dee9ab4dbc77c31407e4201eeabaadcaef10e26349852cb431d1"
+      },
+      {
+        "path": "assets/music/greenhouse-stalker-loop.ogg",
+        "bytes": 3544194,
+        "sha256": "c6d8a4954bd2d0ebcb042da2bf92d40d311fd4b949b2209e581bd24ce617caa9"
+      },
+      {
+        "path": "assets/music/hollow-below.mp3",
+        "bytes": 4639704,
+        "sha256": "035cc261278e6dafce46267653589067561b20a48cc27ae3f7e32498234fb479"
+      },
+      {
+        "path": "assets/music/last-playdate.ogg",
+        "bytes": 1675450,
+        "sha256": "d4c8ee520e9d7e9c0856ea70233600e25005425daeffdd268f942986c9edee40"
+      },
+      {
+        "path": "assets/music/last-sanctuary.mp3",
+        "bytes": 3041324,
+        "sha256": "386be904239498674ef72383f3fd751cdc09b153cc64bf204f7e40e153a1a7ce"
+      },
+      {
+        "path": "assets/music/menu.mp3",
+        "bytes": 1512272,
+        "sha256": "b5c431dc5e5d7de70210364ba32d47e5e149c643b60fd3488ca5a2ec78f7a1e4"
+      },
+      {
+        "path": "assets/music/never-ending-pursuit-loop.ogg",
+        "bytes": 3012580,
+        "sha256": "9c6c4b21564cd6873b5e5570b10c11389e416c54f9a73b38dd53c2c31842463d"
+      },
+      {
+        "path": "assets/music/rupture-point-loop.ogg",
+        "bytes": 2980898,
+        "sha256": "4c5301b2c7f3451494ffa3e15072966c7a581239285804e481ad54de84fb1180"
+      },
+      {
+        "path": "assets/music/swamps-toll-loop.ogg",
+        "bytes": 3363558,
+        "sha256": "d846365f540b5fd646fdfc34d0c1a73be7aa1af14c99ce8c41aa43ba125020cf"
+      },
+      {
+        "path": "assets/repo-company-mark.png",
+        "bytes": 35271,
+        "sha256": "bee4781c1817888902fb316614ea333b7d4c38feb9a4839e6c72821cc141b84d"
+      },
+      {
+        "path": "assets/textures/bark_brown_02_diff_1k.jpg",
+        "bytes": 659592,
+        "sha256": "920fa0bed0c9d78c1d530e99795113afd532d7db746de440f4a85d7c83ed0f1a"
+      },
+      {
+        "path": "assets/textures/bark_brown_02_nor_gl_1k.jpg",
+        "bytes": 1015623,
+        "sha256": "0d5e691e8ad8bcd093a3587887fda2a6b4a948b5708a4f256f7919584c6eb857"
+      },
+      {
+        "path": "assets/textures/bark_brown_02_rough_1k.jpg",
+        "bytes": 337946,
+        "sha256": "68125592de36e15bae7aa6db85c4d135aeb7e5653199ba226483a70f6d69837d"
+      },
+      {
+        "path": "assets/textures/concrete_floor_worn_02_diff_1k.jpg",
+        "bytes": 708284,
+        "sha256": "ff489f9196bb19d908981f4e9cde48f915a9860986b6718357c04e8a088bb744"
+      },
+      {
+        "path": "assets/textures/concrete_floor_worn_02_nor_gl_1k.jpg",
+        "bytes": 1163338,
+        "sha256": "9bfd5d33849043dc13d938b2901b51c2cfd03b4e9a87b52a629b86a8bdbe1dc7"
+      },
+      {
+        "path": "assets/textures/concrete_floor_worn_02_rough_1k.jpg",
+        "bytes": 253558,
+        "sha256": "3035395368dc4e1e23424f566bac0cb21326fa42a4a9af7031e5467d4ba42150"
+      },
+      {
+        "path": "assets/textures/credits.json",
+        "bytes": 11965,
+        "sha256": "3db8d8b4ee666a11fce7d09c238513f53c4076f706332967d2b95cbf4fba6cb2"
+      },
+      {
+        "path": "assets/textures/mossy_rock_diff_1k.jpg",
+        "bytes": 1124438,
+        "sha256": "4dbf37f1b0465c9c8914213163923be159716f5b97fb6946437b6c5e143ef540"
+      },
+      {
+        "path": "assets/textures/mossy_rock_nor_gl_1k.jpg",
+        "bytes": 995727,
+        "sha256": "232cdd6a9fdfd01bb8bb1f8f604c53dbca79fa0d3d7995edf85c9945757aa8df"
+      },
+      {
+        "path": "assets/textures/mossy_rock_rough_1k.jpg",
+        "bytes": 780918,
+        "sha256": "0a18bdeb08444b730170b0477f13940ce6cd4d82d06137df661f96d1e2a6a66e"
+      },
+      {
+        "path": "assets/textures/rock_face_03_diff_1k.jpg",
+        "bytes": 927082,
+        "sha256": "ea48e0e47ad42c8bd312476178b1248ec66f0eb19156a26a1c222f2a40caaf2d"
+      },
+      {
+        "path": "assets/textures/rock_face_03_nor_gl_1k.jpg",
+        "bytes": 1146788,
+        "sha256": "c6423169583f31715cf0636954bad524e806848a5f2861fcea6794275f726ff0"
+      },
+      {
+        "path": "assets/textures/rock_face_03_rough_1k.jpg",
+        "bytes": 638904,
+        "sha256": "9e3d9a2fd75244892e7acb6bab2eaed1279299510a7970672c0ee27ff1c19fea"
+      },
+      {
+        "path": "assets/textures/sparse_grass_diff_512.jpg",
+        "bytes": 44218,
+        "sha256": "273b03361d06087bbe3a4da88ec46c94f9efa696c0a97a5a9cfd4a6651d042a9"
+      },
+      {
+        "path": "assets/textures/sparse_grass_nor_gl_512.jpg",
+        "bytes": 76818,
+        "sha256": "952e628f72f0fa873a61cfc601f0ae0b6e49ad1effd4bfd1565a068c14a6d3d7"
+      },
+      {
+        "path": "assets/textures/sparse_grass_rough_512.jpg",
+        "bytes": 18994,
+        "sha256": "8efa23902cdd903bdb55831b944ae073e72a8e77a957126852129913916f3e0c"
+      },
+      {
+        "path": "assets/textures/stone_block_wall_diff_1k.jpg",
+        "bytes": 610046,
+        "sha256": "00a7acbcc46db2917a4d42640cab860031714ff5ab51a7397b4f70aa6d63ea72"
+      },
+      {
+        "path": "assets/textures/stone_block_wall_nor_gl_1k.jpg",
+        "bytes": 1233958,
+        "sha256": "a676e1f7e99207c60f1c75539f1bc19402867cf9393956a6cd02aefd45855507"
+      },
+      {
+        "path": "assets/textures/stone_block_wall_rough_1k.jpg",
+        "bytes": 440405,
+        "sha256": "5cdbd70cc4d1285dc75af0acca350fbde2dea9921418fc594ae5525482b32c7f"
+      },
+      {
+        "path": "audio.js",
+        "bytes": 31214,
+        "sha256": "852f3f565a0670f5f9ce191ee80a4dbb07b9086361d380fc3275215805c3f137"
+      },
+      {
+        "path": "bloom-creatures.js",
+        "bytes": 38496,
+        "sha256": "798a1f1001c9c5cbba9c62c0c1a68f07660376dc123fc5f9384ebdfcc00e3cdb"
+      },
+      {
+        "path": "brand-intro.js",
+        "bytes": 12280,
+        "sha256": "a66161a3d796c58edeed8c5a8303d9bd042c81bb971d1680b1827c0c6ebbb5c6"
+      },
+      {
+        "path": "brand-shapes.js",
+        "bytes": 3849,
+        "sha256": "43a470ddcb329d05b55a82b1aba7cf8dbf8d05fabefff3d36e235390d72da9a0"
+      },
+      {
+        "path": "campaign-soundtrack.js",
+        "bytes": 2616,
+        "sha256": "3b21642fffe122361bc2c05a883cb1a77e9a7882b2e864f76e86ec1c15d5a474"
+      },
+      {
+        "path": "caretaker.js",
+        "bytes": 38496,
+        "sha256": "c3fbb4f7210e5c539fec1144040da8996998435bfd290883afc7792deffc580d"
+      },
+      {
+        "path": "characters.js",
+        "bytes": 20503,
+        "sha256": "148f4e01226e2cc3c24cafd230a95ccaa1666adf348e7c30472a15644fe3e9eb"
+      },
+      {
+        "path": "checkpoints.js",
+        "bytes": 3462,
+        "sha256": "cdcc041002b111898e02730f5cb76256e15fd407f2acd575e01ce302299b2f87"
+      },
+      {
+        "path": "clown-gantry.js",
+        "bytes": 1379,
+        "sha256": "7ade19e814a13370aa5ac4850bc9ceca335d2469fc16ca4176fc0c5b4fa941a6"
+      },
+      {
+        "path": "clown.js",
+        "bytes": 20627,
+        "sha256": "a6828a2e0b1f29759d7262457e18fbeec45ce6e19e7170565c7eff70a7fd770f"
+      },
+      {
+        "path": "colossus.js",
+        "bytes": 18424,
+        "sha256": "9418300bba0e8e513745be07e118ef4a14bd2e656d8d73b56fc5e05532f6d034"
+      },
+      {
+        "path": "comp-run.css",
+        "bytes": 13733,
+        "sha256": "cc8a062eb8120cc458dbff539fc63e669ab0c6a728cb09a8ce7a7d86dbe6c1ea"
+      },
+      {
+        "path": "crawler-surface.js",
+        "bytes": 3569,
+        "sha256": "75ba1a406c18d094a8fc06d2ca5c816720dbf2f8d10b0f654d127f798c13e9fa"
+      },
+      {
+        "path": "creatures.js",
+        "bytes": 36923,
+        "sha256": "7ec2c47eacfc98be4e66cf3409d26ae65d0b0f7ff0ab37675726b4492f252019"
+      },
+      {
+        "path": "depth-atmosphere.js",
+        "bytes": 3391,
+        "sha256": "3c65f7b150eceaa7198882ec9299355534be119a924d1873ea282b9a39b0003b"
+      },
+      {
+        "path": "director.js",
+        "bytes": 29200,
+        "sha256": "c0e7cb97f7645520e9e60e0880909b76b8fe992debc9bcb219f91a2661c20fe5"
+      },
+      {
+        "path": "districts.js",
+        "bytes": 16027,
+        "sha256": "c8026a88603005075cfaede8fd1b5810a9ea2816777a20df25ad5d883a5e1fc6"
+      },
+      {
+        "path": "downloads/COMP-RUN-Offline.36dcfe31684e.001.bin",
+        "bytes": 16777216,
+        "sha256": "c8f428e770c205322b4a77487b63ee51fa25513cb8da70f073110e9cb1605539"
+      },
+      {
+        "path": "downloads/COMP-RUN-Offline.36dcfe31684e.002.bin",
+        "bytes": 16777216,
+        "sha256": "4e2f9bd29ca58f0f7b65307987417fc9a6ef26df0b773f886b3ac90ae041dd0e"
+      },
+      {
+        "path": "downloads/COMP-RUN-Offline.36dcfe31684e.003.bin",
+        "bytes": 11925482,
+        "sha256": "5f8c70e27726a7e109b2d2d129d4008a0628e789d97e3d16eec71898dc849e0a"
+      },
+      {
+        "path": "downloads/offline-manifest.json",
+        "bytes": 732,
+        "sha256": "daed5b577ecbb98669535ac256971da94bf55703343da1d8473bb0c54b8b2931"
+      },
+      {
+        "path": "dragon.js",
+        "bytes": 25671,
+        "sha256": "e6b13b11602e162ab02526ea451df35b232adbdca92ec10747935f749ee49bf4"
+      },
+      {
+        "path": "equipment.js",
+        "bytes": 7079,
+        "sha256": "ca27e7dfa1e9e69a3b5e5a36977408025e10129438c420f5a64a1b4c96239a4b"
+      },
+      {
+        "path": "fault.js",
+        "bytes": 26626,
+        "sha256": "d712ce2e7ea473fd5228cc747f121c4df848d184881c3bbe666fdec137285546"
+      },
+      {
+        "path": "final-curtain-destruction.js",
+        "bytes": 10772,
+        "sha256": "cda33da336a2807251e1bdd8dd5e63fd5ef99c5588e9744e3e0124cd52580864"
+      },
+      {
+        "path": "final-curtain-dressing.js",
+        "bytes": 68966,
+        "sha256": "0751d591772a16c2f807a586a65fe9649f1c450c9a667d9c39ee051055a8c028"
+      },
+      {
+        "path": "final-curtain-layout.js",
+        "bytes": 3244,
+        "sha256": "4ae941c5632a5f6a17cc6b078d9a90028fb89cf6472ed2ce29c30b2c7c7f6c84"
+      },
+      {
+        "path": "final-curtain-lighting.js",
+        "bytes": 11418,
+        "sha256": "b69286ba3901b8e933404c7d7cdf7bf445654a81c1e789e1ac05ebabf58b333d"
+      },
+      {
+        "path": "final-curtain-mechanisms.js",
+        "bytes": 9916,
+        "sha256": "81a3975a20f97f3e3aeaab4a902f5baba48b3df75ed172cec9895628d1c212e9"
+      },
+      {
+        "path": "final-curtain-opening.js",
+        "bytes": 9074,
+        "sha256": "60f2896f3b16d05d67e4c854ef6dda3fb1b88bcd898908292f941e81f6e5e299"
+      },
+      {
+        "path": "final-curtain.js",
+        "bytes": 26167,
+        "sha256": "514377c4a9c90e7d3bfa279ba7289aae2fb99b4913b9efb39789018fba7b8879"
+      },
+      {
+        "path": "finale-space.js",
+        "bytes": 461,
+        "sha256": "3087677a5209cf7e976babb551fa49797eb729c3ba0104c80f52981e57f28f47"
+      },
+      {
+        "path": "finale.js",
+        "bytes": 1353,
+        "sha256": "238db31940891ec2e1b474360f195a86ba1bed8b8b4a0082b0ded7c43fd528e1"
+      },
+      {
+        "path": "game-input.js",
+        "bytes": 870,
+        "sha256": "90db10a5cc4ffa398bff6c5dfa0a68ce2b9f22bfc974a072357e1767bddce4a6"
+      },
+      {
+        "path": "hands.js",
+        "bytes": 45868,
+        "sha256": "74ed4546b210e49f2731bb3e8f3a725edc91b7b59830dbd7b67886ffc982eba4"
+      },
+      {
+        "path": "house-debris.js",
+        "bytes": 15816,
+        "sha256": "8298e740083bfe1fcc9eb68a43e9d531e4c0de63ab837d62f1347057ecd09d7b"
+      },
+      {
+        "path": "house-destruction.js",
+        "bytes": 11172,
+        "sha256": "035117e7ee85e71155723531fedd473162f91c6b63529264e23f57a1bd9c08bb"
+      },
+      {
+        "path": "house-furnishings.js",
+        "bytes": 17311,
+        "sha256": "5110b2718bd3fe84d4c1e69aef525f5793b3f0cabc3eec1d9207dc66f815deb9"
+      },
+      {
+        "path": "house-lighting.js",
+        "bytes": 11721,
+        "sha256": "ba67d474bc3acbcb20ce08a3a289fca200f0577562de4a55e872d30a3bc0069b"
+      },
+      {
+        "path": "house-mechanisms.js",
+        "bytes": 6893,
+        "sha256": "c1181c505f0bf47422baaf202661163afaba281785017ac285f96d52264be81f"
+      },
+      {
+        "path": "house-pursuit.js",
+        "bytes": 3414,
+        "sha256": "f8faec85012c709c7ba96db73e9243bb154d0d47a689d2c078b9a2d6b93524f0"
+      },
+      {
+        "path": "house-skateboard.js",
+        "bytes": 27552,
+        "sha256": "38eba10c54775db020e745cc0800627759a4d3db15554143ed2244aa915ce4cf"
+      },
+      {
+        "path": "house-wayfinding.js",
+        "bytes": 12766,
+        "sha256": "bc083e55721f1d7ff22ea601d479e46bf7e0d6f1ca5044897e1cec0d71013788"
+      },
+      {
+        "path": "index.html",
+        "bytes": 24434,
+        "sha256": "54bd7286d4a36b797f5b4c02d4249b8181044f816a8e8e7c58157580e7907443"
+      },
+      {
+        "path": "interface.css",
+        "bytes": 23839,
+        "sha256": "8f58cfa6e01af228c84e5125f709a2cf8d6736c3f27ac2ba113af0af42bd51a9"
+      },
+      {
+        "path": "journeys.js",
+        "bytes": 22456,
+        "sha256": "e8d86f86c4531eeb0a13fa3ac80fddeb1cebb4a9cdc103ae500649faec5784bf"
+      },
+      {
+        "path": "knife-catalog.js",
+        "bytes": 5551,
+        "sha256": "3998fa987705cfb97db68a9a232a2272bd398a3e092b627228cff9686d931dc3"
+      },
+      {
+        "path": "knife-models.js",
+        "bytes": 19787,
+        "sha256": "149c03ae53add2022a2fd41a3a02482031ca0936521c5c4844bbf474782e4fa6"
+      },
+      {
+        "path": "knife-motion.js",
+        "bytes": 10338,
+        "sha256": "be77ff946ad1d503a55924a1e72ed75824645042af99adae7f2f28270ca2a863"
+      },
+      {
+        "path": "knife-room.js",
+        "bytes": 4876,
+        "sha256": "184f571d3b18918d67702105522d1f9cf70801ccac31ab79f99a257fb2b96df0"
+      },
+      {
+        "path": "last-bloom-branches.js",
+        "bytes": 3576,
+        "sha256": "c09db185afff6df919f2b59d5334f4c0db50ee8d164fdbf41c4879c29f79419a"
+      },
+      {
+        "path": "last-bloom-destruction.js",
+        "bytes": 16864,
+        "sha256": "3dbe36b5f7a4806e199db457713c74f1fa796daf5b1e3ecd03b4c87cb8c2bcd5"
+      },
+      {
+        "path": "last-bloom-dressing.js",
+        "bytes": 73228,
+        "sha256": "b17d62b5d59d9c5c5389cfafc2a39f9105f10ba4fa711cab15edff4e935d13fe"
+      },
+      {
+        "path": "last-bloom-layout.js",
+        "bytes": 4297,
+        "sha256": "7604a9ee263669cd143144b04c0c4531a8bc6ffea501e410c8933fba430c8fee"
+      },
+      {
+        "path": "last-bloom-lighting.js",
+        "bytes": 12007,
+        "sha256": "d99fe7574102f618ffafb9b909422aef2d3364d92afaba7dfd9436afd3c3af9f"
+      },
+      {
+        "path": "last-bloom-opening.js",
+        "bytes": 5127,
+        "sha256": "b555214c94b808f30b27d5bcee9e83903707d912c81af1e10f9fb6372fb60c33"
+      },
+      {
+        "path": "last-bloom.js",
+        "bytes": 36677,
+        "sha256": "07c9eaed5c7e4920790b581e626d47ab8726b5ad40778bdd9a961e16354ac122"
+      },
+      {
+        "path": "launcher/achievement-runtime.js",
+        "bytes": 16282,
+        "sha256": "88f3537f5c83f7f7b730401736f360da1ddbec105830fec554fab81901824b74"
+      },
+      {
+        "path": "leaderboards.css",
+        "bytes": 5286,
+        "sha256": "54a2b4119152449ab27c0b8b77a696693e68cff97cf0090ec832b34742d0c884"
+      },
+      {
+        "path": "leaderboards.js",
+        "bytes": 6694,
+        "sha256": "c1748516b3c0bfafde43011cbcf9a94a3827ee4be7f9c62972c86d0872c93e3b"
+      },
+      {
+        "path": "legendary-runners.js",
+        "bytes": 30560,
+        "sha256": "37153b99ea4ec7f99a84a045308a085fe34467da0a4322d736f5e626a374fc3f"
+      },
+      {
+        "path": "loadout.css",
+        "bytes": 13132,
+        "sha256": "32d1955ced43507ab87643d33f08146bc80ae2bd3c165719227ec98eb28c869c"
+      },
+      {
+        "path": "main.js",
+        "bytes": 63997,
+        "sha256": "ff05c84c3d7b160ffba2aaa11f797951642b6e7a1682fdc8dcc89ab998066677"
+      },
+      {
+        "path": "movement-sounds.js",
+        "bytes": 3857,
+        "sha256": "9ae2d97d47b505beb72c850793333aa2b99c58a05b8af72b6faaf57113b190f5"
+      },
+      {
+        "path": "movement.js",
+        "bytes": 36471,
+        "sha256": "8bc0e588d7411c918797b2b996bc1b5a665ccc2abf56b2c0d9f8d2b2c00c9226"
+      },
+      {
+        "path": "offline-download.js",
+        "bytes": 10278,
+        "sha256": "8af800d9b61e5f4ec3be49bdd3f88c4e96f99b4e5b10bd5b2b8b58c9ba88097c"
+      },
+      {
+        "path": "opening-camera.js",
+        "bytes": 2427,
+        "sha256": "dfbaa34fbd631b46e823d3d85670cf3cebf87f132d87d2c44feefb4c44cfaf4e"
+      },
+      {
+        "path": "opening-dressing.js",
+        "bytes": 14128,
+        "sha256": "b5d5d821a209a20ea960034bff3163103419d0f6237f563f622cf9c23fbce33a"
+      },
+      {
+        "path": "opening.js",
+        "bytes": 30915,
+        "sha256": "37cbab71547e2e2725486341cd35825b4616d57452809744a95a7eeafda22218"
+      },
+      {
+        "path": "playdate-opening.js",
+        "bytes": 6161,
+        "sha256": "24b3715dc9dd2374efd1f7371a92af46ff8c6e201f984eb6e6a216426f44341a"
+      },
+      {
+        "path": "playdate.js",
+        "bytes": 13203,
+        "sha256": "a2f36e06476ae600e2fb1a4aabcbb417ac83358a9cf84f6868c0dfcd9ae4850d"
+      },
+      {
+        "path": "playground-dressing.js",
+        "bytes": 19897,
+        "sha256": "9b6b4de470d6edf3ef9edbb515267e3b8cb5d14014a74a67c0818034aaec7ca9"
+      },
+      {
+        "path": "playground-rides.js",
+        "bytes": 24457,
+        "sha256": "4c95f6c2fb903237ac945633d83078512bca0e642bdf3e72801d520e8506c518"
+      },
+      {
+        "path": "race.js",
+        "bytes": 13925,
+        "sha256": "ad3d97eb7f5e24c4dca9c8a9935fe232189a4ccc22928edd5ef2236bd35cfe2d"
+      },
+      {
+        "path": "record-seasons.js",
+        "bytes": 217,
+        "sha256": "eef1da5071b27de4ce5ba70324925d5b517f0f5cdb54cf962f90301cee0872bb"
+      },
+      {
+        "path": "render-view.js",
+        "bytes": 990,
+        "sha256": "9fa25c30efbde3b8ac1875f5e15266c20155854ab5957c880bfa0875271e5102"
+      },
+      {
+        "path": "runner-catalog.js",
+        "bytes": 5649,
+        "sha256": "bdff33ad85b585d694a72b17efc4a2684be4563bd6196153d22e739ee2887d8e"
+      },
+      {
+        "path": "runner-craft.js",
+        "bytes": 10168,
+        "sha256": "cfe26074ed0c588f6a08e9f6ec634fff0c001a317c2c1dfaee87284e2117a056"
+      },
+      {
+        "path": "runner-room.js",
+        "bytes": 5098,
+        "sha256": "2750e604131ab14287575bffb67fd2be111db71eb7a0039a4d29077b3a1790ea"
+      },
+      {
+        "path": "runner-unlocks.js",
+        "bytes": 784,
+        "sha256": "051beb53ed0ff6ef774c7551d4b293a90ef295ca4f34456a428b7291f58c900b"
+      },
+      {
+        "path": "rupture-destruction.js",
+        "bytes": 15723,
+        "sha256": "8e435fd7fc1215905c2ac8b3f4dd1497dcc3b0722afce2593e91a06ee1738ba0"
+      },
+      {
+        "path": "rupture-dressing.js",
+        "bytes": 52143,
+        "sha256": "010602a2efb6c283cb0f2dca60d62d8c143ae61bab867a7106b1cb7f4c892800"
+      },
+      {
+        "path": "rupture-effects.js",
+        "bytes": 9044,
+        "sha256": "92381bc6569cb4638eabb8d496e365be95f7e2289faf650b047d73b3b6dd40da"
+      },
+      {
+        "path": "rupture-encounters.js",
+        "bytes": 9824,
+        "sha256": "23c2a0c8a2ff7bd739c2fb353c52c53167609f1e67fe05341e73bf50d422cfd3"
+      },
+      {
+        "path": "rupture-layout.js",
+        "bytes": 3232,
+        "sha256": "3ebea89902472f805aa8a73f3eabb7178190d73abf6471c40b4be6fb4b2c4aba"
+      },
+      {
+        "path": "rupture-lighting.js",
+        "bytes": 5901,
+        "sha256": "b2c397e1aae5569110de13c61834ec445312f390b4866c0de71a313e76621d23"
+      },
+      {
+        "path": "rupture-opening.js",
+        "bytes": 3301,
+        "sha256": "0b592dca22a13a7c0d7e3c15ff78406f2706b45fa85b271fc844deba8f707d0f"
+      },
+      {
+        "path": "rupture-penstock-chase.js",
+        "bytes": 5028,
+        "sha256": "fbe4690fa8e09d2055c996967d7367dbda331c5125afc958fde4821fac456570"
+      },
+      {
+        "path": "rupture.js",
+        "bytes": 30189,
+        "sha256": "4627972a7b6fa9f25f2f16522cb0df58c840524ce67389a9e12bd0d56b72fcba"
+      },
+      {
+        "path": "seraph.js",
+        "bytes": 14657,
+        "sha256": "dca1701acc50f235cfe0a36996afa3ca2f1fbec26f60a059404db2463c6d0423"
+      },
+      {
+        "path": "skateboard-course.js",
+        "bytes": 6965,
+        "sha256": "fb2b7d8c7e632eda669ecbaae90e04029934ac7302d519e88db40ce3646f5405"
+      },
+      {
+        "path": "skateboard-frame.js",
+        "bytes": 2310,
+        "sha256": "8950b3a17b1bb7b81d4492b4410e5644fe8f04eda53d909d10b50c004b40c213"
+      },
+      {
+        "path": "skateboard-wayfinding.js",
+        "bytes": 12039,
+        "sha256": "e5fb0d855a24d552473838648575578e31abc0501f03fc03cfa369b70f57cf5c"
+      },
+      {
+        "path": "small-hours-dressing.js",
+        "bytes": 69599,
+        "sha256": "7878c8876d7199baa190190e1d9f2e36fd220037017d30775b1485c48bbbdce2"
+      },
+      {
+        "path": "small-hours-house.js",
+        "bytes": 3762,
+        "sha256": "30875192a09f948b41a55d70150f7c075d6df945fa5e75e9289a860cf5604688"
+      },
+      {
+        "path": "small-hours-opening.js",
+        "bytes": 11162,
+        "sha256": "1d2f150d36e9b973ef99bfbfd21a5e30ba1a2ce6feb5da4ba7c7cf663e064e6a"
+      },
+      {
+        "path": "small-hours.js",
+        "bytes": 32052,
+        "sha256": "a5c1403cf5361848faee187bfa3deb896af9bd203070305469a404aa188ab610"
+      },
+      {
+        "path": "soundtrack.js",
+        "bytes": 6631,
+        "sha256": "1a77c89aa855b919e9387e71f6d6cdba96b59d4b2726427853b500a5050e404b"
+      },
+      {
+        "path": "spectacle.js",
+        "bytes": 7614,
+        "sha256": "6375bb1a633241603f9e040b5d6ac265df42a4b2ef35e0942460c705fb0b6327"
+      },
+      {
+        "path": "stage.js",
+        "bytes": 56333,
+        "sha256": "9ce795bc50416921f949d4b6d97de1c611b3dc6284a85ff1a66e6c6ca98081d9"
+      },
+      {
+        "path": "storage.js",
+        "bytes": 7302,
+        "sha256": "fa6a25a7f8167ec2a5037743d45d40b0253a651c1c1c2d868100e0425a69b549"
+      },
+      {
+        "path": "style.css",
+        "bytes": 22196,
+        "sha256": "49b613ac89d54a0d245c8ac6430e934697dd42e788663c46837c0d96f81921eb"
+      },
+      {
+        "path": "theatre-storm.js",
+        "bytes": 4029,
+        "sha256": "d0c2e122d227b51277c6d75a6951bc305295353fb7e3f66158a1cf82717e42b8"
+      },
+      {
+        "path": "title-screen.css",
+        "bytes": 9925,
+        "sha256": "1b22d69d8d6f5068a11617f6e05fa92ebb52e4ce8d297881f43dec0f212b2bc6"
+      },
+      {
+        "path": "track-path.js",
+        "bytes": 1825,
+        "sha256": "1c916134289f726882b67d60629ccab73c6be17799dcc8fc1a0064c756477f6b"
+      },
+      {
+        "path": "traversal-visuals.js",
+        "bytes": 21836,
+        "sha256": "16dc8274a21961475f630c23152fe56a0c5a21d2861347dc4bb8a4f9fd2d201a"
+      },
+      {
+        "path": "traversal.js",
+        "bytes": 14025,
+        "sha256": "53f6bb805209becfd4c530111219d8aa13623204fbb1703a3239e61694f70713"
+      },
+      {
+        "path": "vendor/THREE-LICENSE.txt",
+        "bytes": 1102,
+        "sha256": "f57eb9202058667d12aebd854fe8a86d6feaeab51078180df5615bfdbd5cff05"
+      },
+      {
+        "path": "vendor/three.module.js",
+        "bytes": 1369252,
+        "sha256": "da7f8aecb0b1e4a55e820cce5dc5a5a8eb13dc379758f215e8fb07937be7a6a3"
+      }
+    ],
+    "bytes": 93569647,
+    "fileCount": 149,
+    "fingerprintAlgorithm": "SHA256 of sorted UTF-8 path + TAB + byte length + TAB + SHA256 + LF",
+    "treeSha256": "2d824cf4c2acdf2bdbb3c74b3b396591b72cc176046236d55072c04271ebfb9c",
+    "runtimeSha256": "3294ade57b944c1cff842f6c509ab328db0169240453db08e2c5cbef7844c57f",
+    "expectedRuntimeSha256": "3294ade57b944c1cff842f6c509ab328db0169240453db08e2c5cbef7844c57f",
+    "unchangedAfterCapture": true,
+    "servedFromImmutableReadOnlyMemorySnapshot": true
+  },
+  "browser": {
+    "channel": "msedge",
+    "version": "155.0.4283.62",
+    "playwrightVersion": "1.63.0",
+    "platform": "win32",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "deviceScaleFactor": 1,
+    "freshProfile": true
+  },
+  "captureTool": {
+    "file": "capture-comp-run-screenshots.cjs",
+    "sha256": "74b39a23dfb8f03fc63aad7b16f1fe790163fc993d6d4acfb51cd2daebc4fc67"
+  },
+  "screenshots": [
+    {
+      "file": "playdate.png",
+      "galleryFile": "comp-run/screenshots/playdate.png",
+      "caption": "The Last Playdate",
+      "alt": "The Last Playdate in-engine opening in COMP-RUN 2.4.1, captured with its normal game UI visible.",
+      "courseId": "playdate",
+      "captureKind": "in-engine opening, paused using the ordinary Escape control",
+      "uiModified": false,
+      "gameStateInjected": false,
+      "capturedAt": "2026-10-22T20:04:17.074Z",
+      "sha256": "da3f6f8360c3c156be1571aad0e8c8227dbe1c08cc7f3109c4caab620cf2b478",
+      "bytes": 1464401,
+      "pixels": {
+        "width": 1920,
+        "height": 1080,
+        "centralSceneColors": 203,
+        "centralSceneMinimumLuminance": 0,
+        "centralSceneMaximumLuminance": 154.4826,
+        "centralSceneVisibleFraction": 0.7060185185185185
+      },
+      "gameUI": {
+        "ready": true,
+        "unsupported": false,
+        "unsupportedNote": "Please use a desktop browser with WebGL enabled.",
+        "selected": "CAMPAIGN 01 · The Last Playdate",
+        "openingVisible": true,
+        "openingTitle": "THE LAST PLAYDATE",
+        "openingProgress": 40.6641,
+        "openingTimeLabel": "19s",
+        "pauseButton": "CONTINUE",
+        "caption": "PAUSED",
+        "menuVisible": false,
+        "resultVisible": false,
+        "pauseVisible": false,
+        "renderer": {
+          "context": "webgl2",
+          "lost": false,
+          "width": 1920,
+          "height": 1080,
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1660 (0x00002184) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "shadingLanguage": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)"
+        }
+      },
+      "consoleMessages": []
+    },
+    {
+      "file": "small-hours.png",
+      "galleryFile": "comp-run/screenshots/small-hours.png",
+      "caption": "The Small Hours",
+      "alt": "The Small Hours in-engine opening in COMP-RUN 2.4.1, captured with its normal game UI visible.",
+      "courseId": "small-hours",
+      "captureKind": "in-engine opening, paused using the ordinary Escape control",
+      "uiModified": false,
+      "gameStateInjected": false,
+      "capturedAt": "2026-10-22T20:04:46.751Z",
+      "sha256": "0202c12c4342bdccd6f86ccbd8595f7d20c8a4c389a022d863cc22e622d191eb",
+      "bytes": 1006708,
+      "pixels": {
+        "width": 1920,
+        "height": 1080,
+        "centralSceneColors": 121,
+        "centralSceneMinimumLuminance": 0,
+        "centralSceneMaximumLuminance": 116.72099999999999,
+        "centralSceneVisibleFraction": 0.5842978395061729
+      },
+      "gameUI": {
+        "ready": true,
+        "unsupported": false,
+        "unsupportedNote": "Please use a desktop browser with WebGL enabled.",
+        "selected": "CAMPAIGN 02 · The Small Hours",
+        "openingVisible": true,
+        "openingTitle": "THE SMALL HOURS",
+        "openingProgress": 37.5141,
+        "openingTimeLabel": "20s",
+        "pauseButton": "CONTINUE",
+        "caption": "PAUSED",
+        "menuVisible": false,
+        "resultVisible": false,
+        "pauseVisible": false,
+        "renderer": {
+          "context": "webgl2",
+          "lost": false,
+          "width": 1920,
+          "height": 1080,
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1660 (0x00002184) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "shadingLanguage": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)"
+        }
+      },
+      "consoleMessages": []
+    },
+    {
+      "file": "final-curtain.png",
+      "galleryFile": "comp-run/screenshots/final-curtain.png",
+      "caption": "The Final Curtain",
+      "alt": "The Final Curtain in-engine opening in COMP-RUN 2.4.1, captured with its normal game UI visible.",
+      "courseId": "final-curtain",
+      "captureKind": "in-engine opening, paused using the ordinary Escape control",
+      "uiModified": false,
+      "gameStateInjected": false,
+      "capturedAt": "2026-10-22T20:05:07.669Z",
+      "sha256": "685bb3dbbab6758e48cd622618e59c3f647bc0278c49ef52acf29e86927ab615",
+      "bytes": 1494343,
+      "pixels": {
+        "width": 1920,
+        "height": 1080,
+        "centralSceneColors": 86,
+        "centralSceneMinimumLuminance": 1.9948000000000001,
+        "centralSceneMaximumLuminance": 132.631,
+        "centralSceneVisibleFraction": 0.7901234567901234
+      },
+      "gameUI": {
+        "ready": true,
+        "unsupported": false,
+        "unsupportedNote": "Please use a desktop browser with WebGL enabled.",
+        "selected": "CAMPAIGN 03 · The Final Curtain",
+        "openingVisible": true,
+        "openingTitle": "THE FINAL CURTAIN",
+        "openingProgress": 10.042,
+        "openingTimeLabel": "18s",
+        "pauseButton": "CONTINUE",
+        "caption": "PAUSED",
+        "menuVisible": false,
+        "resultVisible": false,
+        "pauseVisible": false,
+        "renderer": {
+          "context": "webgl2",
+          "lost": false,
+          "width": 1920,
+          "height": 1080,
+          "vendor": "Google Inc. (NVIDIA)",
+          "renderer": "ANGLE (NVIDIA, NVIDIA GeForce GTX 1660 (0x00002184) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+          "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "shadingLanguage": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)"
+        }
+      },
+      "consoleMessages": []
+    }
+  ],
+  "serverRequests": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 24434
+    },
+    {
+      "path": "style.css",
+      "status": 200,
+      "bytes": 22196
+    },
+    {
+      "path": "comp-run.css",
+      "status": 200,
+      "bytes": 13733
+    },
+    {
+      "path": "title-screen.css",
+      "status": 200,
+      "bytes": 9925
+    },
+    {
+      "path": "loadout.css",
+      "status": 200,
+      "bytes": 13132
+    },
+    {
+      "path": "leaderboards.css",
+      "status": 200,
+      "bytes": 5286
+    },
+    {
+      "path": "interface.css",
+      "status": 200,
+      "bytes": 23839
+    },
+    {
+      "path": "offline-download.js",
+      "status": 200,
+      "bytes": 10278
+    },
+    {
+      "path": "launcher/achievement-runtime.js",
+      "status": 200,
+      "bytes": 16282
+    },
+    {
+      "path": "main.js",
+      "status": 200,
+      "bytes": 63997
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "record-seasons.js",
+      "status": 200,
+      "bytes": 217
+    },
+    {
+      "path": "leaderboards.js",
+      "status": 200,
+      "bytes": 6694
+    },
+    {
+      "path": "vendor/three.module.js",
+      "status": 200,
+      "bytes": 1369252
+    },
+    {
+      "path": "journeys.js",
+      "status": 200,
+      "bytes": 22456
+    },
+    {
+      "path": "stage.js",
+      "status": 200,
+      "bytes": 56333
+    },
+    {
+      "path": "audio.js",
+      "status": 200,
+      "bytes": 31214
+    },
+    {
+      "path": "hands.js",
+      "status": 200,
+      "bytes": 45868
+    },
+    {
+      "path": "traversal.js",
+      "status": 200,
+      "bytes": 14025
+    },
+    {
+      "path": "house-wayfinding.js",
+      "status": 200,
+      "bytes": 12766
+    },
+    {
+      "path": "skateboard-wayfinding.js",
+      "status": 200,
+      "bytes": 12039
+    },
+    {
+      "path": "final-curtain.js",
+      "status": 200,
+      "bytes": 26167
+    },
+    {
+      "path": "movement.js",
+      "status": 200,
+      "bytes": 36471
+    },
+    {
+      "path": "race.js",
+      "status": 200,
+      "bytes": 13925
+    },
+    {
+      "path": "finale.js",
+      "status": 200,
+      "bytes": 1353
+    },
+    {
+      "path": "game-input.js",
+      "status": 200,
+      "bytes": 870
+    },
+    {
+      "path": "render-view.js",
+      "status": 200,
+      "bytes": 990
+    },
+    {
+      "path": "characters.js",
+      "status": 200,
+      "bytes": 20503
+    },
+    {
+      "path": "runner-unlocks.js",
+      "status": 200,
+      "bytes": 784
+    },
+    {
+      "path": "runner-room.js",
+      "status": 200,
+      "bytes": 5098
+    },
+    {
+      "path": "knife-room.js",
+      "status": 200,
+      "bytes": 4876
+    },
+    {
+      "path": "knife-catalog.js",
+      "status": 200,
+      "bytes": 5551
+    },
+    {
+      "path": "playdate-opening.js",
+      "status": 200,
+      "bytes": 6161
+    },
+    {
+      "path": "small-hours-opening.js",
+      "status": 200,
+      "bytes": 11162
+    },
+    {
+      "path": "final-curtain-opening.js",
+      "status": 200,
+      "bytes": 9074
+    },
+    {
+      "path": "rupture-opening.js",
+      "status": 200,
+      "bytes": 3301
+    },
+    {
+      "path": "last-bloom-opening.js",
+      "status": 200,
+      "bytes": 5127
+    },
+    {
+      "path": "last-bloom-branches.js",
+      "status": 200,
+      "bytes": 3576
+    },
+    {
+      "path": "opening.js",
+      "status": 200,
+      "bytes": 30915
+    },
+    {
+      "path": "brand-intro.js",
+      "status": 200,
+      "bytes": 12280
+    },
+    {
+      "path": "storage.js",
+      "status": 200,
+      "bytes": 7302
+    },
+    {
+      "path": "checkpoints.js",
+      "status": 200,
+      "bytes": 3462
+    },
+    {
+      "path": "track-path.js",
+      "status": 200,
+      "bytes": 1825
+    },
+    {
+      "path": "playdate.js",
+      "status": 200,
+      "bytes": 13203
+    },
+    {
+      "path": "small-hours.js",
+      "status": 200,
+      "bytes": 32052
+    },
+    {
+      "path": "rupture.js",
+      "status": 200,
+      "bytes": 30189
+    },
+    {
+      "path": "last-bloom.js",
+      "status": 200,
+      "bytes": 36677
+    },
+    {
+      "path": "clown-gantry.js",
+      "status": 200,
+      "bytes": 1379
+    },
+    {
+      "path": "clown.js",
+      "status": 200,
+      "bytes": 20627
+    },
+    {
+      "path": "caretaker.js",
+      "status": 200,
+      "bytes": 38496
+    },
+    {
+      "path": "small-hours-dressing.js",
+      "status": 200,
+      "bytes": 69599
+    },
+    {
+      "path": "house-mechanisms.js",
+      "status": 200,
+      "bytes": 6893
+    },
+    {
+      "path": "house-skateboard.js",
+      "status": 200,
+      "bytes": 27552
+    },
+    {
+      "path": "house-pursuit.js",
+      "status": 200,
+      "bytes": 3414
+    },
+    {
+      "path": "house-destruction.js",
+      "status": 200,
+      "bytes": 11172
+    },
+    {
+      "path": "house-lighting.js",
+      "status": 200,
+      "bytes": 11721
+    },
+    {
+      "path": "final-curtain-dressing.js",
+      "status": 200,
+      "bytes": 68966
+    },
+    {
+      "path": "final-curtain-mechanisms.js",
+      "status": 200,
+      "bytes": 9916
+    },
+    {
+      "path": "final-curtain-lighting.js",
+      "status": 200,
+      "bytes": 11418
+    },
+    {
+      "path": "director.js",
+      "status": 200,
+      "bytes": 29200
+    },
+    {
+      "path": "final-curtain-destruction.js",
+      "status": 200,
+      "bytes": 10772
+    },
+    {
+      "path": "last-bloom-dressing.js",
+      "status": 200,
+      "bytes": 73228
+    },
+    {
+      "path": "last-bloom-lighting.js",
+      "status": 200,
+      "bytes": 12007
+    },
+    {
+      "path": "bloom-creatures.js",
+      "status": 200,
+      "bytes": 38496
+    },
+    {
+      "path": "last-bloom-destruction.js",
+      "status": 200,
+      "bytes": 16864
+    },
+    {
+      "path": "rupture-dressing.js",
+      "status": 200,
+      "bytes": 52143
+    },
+    {
+      "path": "rupture-lighting.js",
+      "status": 200,
+      "bytes": 5901
+    },
+    {
+      "path": "fault.js",
+      "status": 200,
+      "bytes": 26626
+    },
+    {
+      "path": "rupture-destruction.js",
+      "status": 200,
+      "bytes": 15723
+    },
+    {
+      "path": "rupture-effects.js",
+      "status": 200,
+      "bytes": 9044
+    },
+    {
+      "path": "rupture-encounters.js",
+      "status": 200,
+      "bytes": 9824
+    },
+    {
+      "path": "playground-dressing.js",
+      "status": 200,
+      "bytes": 19897
+    },
+    {
+      "path": "playground-rides.js",
+      "status": 200,
+      "bytes": 24457
+    },
+    {
+      "path": "dragon.js",
+      "status": 200,
+      "bytes": 25671
+    },
+    {
+      "path": "creatures.js",
+      "status": 200,
+      "bytes": 36923
+    },
+    {
+      "path": "seraph.js",
+      "status": 200,
+      "bytes": 14657
+    },
+    {
+      "path": "traversal-visuals.js",
+      "status": 200,
+      "bytes": 21836
+    },
+    {
+      "path": "colossus.js",
+      "status": 200,
+      "bytes": 18424
+    },
+    {
+      "path": "spectacle.js",
+      "status": 200,
+      "bytes": 7614
+    },
+    {
+      "path": "depth-atmosphere.js",
+      "status": 200,
+      "bytes": 3391
+    },
+    {
+      "path": "crawler-surface.js",
+      "status": 200,
+      "bytes": 3569
+    },
+    {
+      "path": "districts.js",
+      "status": 200,
+      "bytes": 16027
+    },
+    {
+      "path": "skateboard-frame.js",
+      "status": 200,
+      "bytes": 2310
+    },
+    {
+      "path": "equipment.js",
+      "status": 200,
+      "bytes": 7079
+    },
+    {
+      "path": "knife-motion.js",
+      "status": 200,
+      "bytes": 10338
+    },
+    {
+      "path": "final-curtain-layout.js",
+      "status": 200,
+      "bytes": 3244
+    },
+    {
+      "path": "campaign-soundtrack.js",
+      "status": 200,
+      "bytes": 2616
+    },
+    {
+      "path": "movement-sounds.js",
+      "status": 200,
+      "bytes": 3857
+    },
+    {
+      "path": "theatre-storm.js",
+      "status": 200,
+      "bytes": 4029
+    },
+    {
+      "path": "finale-space.js",
+      "status": 200,
+      "bytes": 461
+    },
+    {
+      "path": "runner-catalog.js",
+      "status": 200,
+      "bytes": 5649
+    },
+    {
+      "path": "knife-models.js",
+      "status": 200,
+      "bytes": 19787
+    },
+    {
+      "path": "legendary-runners.js",
+      "status": 200,
+      "bytes": 30560
+    },
+    {
+      "path": "runner-craft.js",
+      "status": 200,
+      "bytes": 10168
+    },
+    {
+      "path": "brand-shapes.js",
+      "status": 200,
+      "bytes": 3849
+    },
+    {
+      "path": "opening-camera.js",
+      "status": 200,
+      "bytes": 2427
+    },
+    {
+      "path": "opening-dressing.js",
+      "status": 200,
+      "bytes": 14128
+    },
+    {
+      "path": "small-hours-house.js",
+      "status": 200,
+      "bytes": 3762
+    },
+    {
+      "path": "skateboard-course.js",
+      "status": 200,
+      "bytes": 6965
+    },
+    {
+      "path": "rupture-layout.js",
+      "status": 200,
+      "bytes": 3232
+    },
+    {
+      "path": "last-bloom-layout.js",
+      "status": 200,
+      "bytes": 4297
+    },
+    {
+      "path": "house-furnishings.js",
+      "status": 200,
+      "bytes": 17311
+    },
+    {
+      "path": "house-debris.js",
+      "status": 200,
+      "bytes": 15816
+    },
+    {
+      "path": "rupture-penstock-chase.js",
+      "status": 200,
+      "bytes": 5028
+    },
+    {
+      "path": "soundtrack.js",
+      "status": 200,
+      "bytes": 6631
+    },
+    {
+      "path": "assets/audio/ident-landing.mp3",
+      "status": 200,
+      "bytes": 16320
+    },
+    {
+      "path": "assets/repo-company-mark.png",
+      "status": 200,
+      "bytes": 35271
+    },
+    {
+      "path": "assets/textures/stone_block_wall_diff_1k.jpg",
+      "status": 200,
+      "bytes": 610046
+    },
+    {
+      "path": "assets/textures/stone_block_wall_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1233958
+    },
+    {
+      "path": "assets/textures/stone_block_wall_rough_1k.jpg",
+      "status": 200,
+      "bytes": 440405
+    },
+    {
+      "path": "assets/textures/mossy_rock_diff_1k.jpg",
+      "status": 200,
+      "bytes": 1124438
+    },
+    {
+      "path": "assets/textures/mossy_rock_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 995727
+    },
+    {
+      "path": "assets/textures/mossy_rock_rough_1k.jpg",
+      "status": 200,
+      "bytes": 780918
+    },
+    {
+      "path": "assets/textures/rock_face_03_diff_1k.jpg",
+      "status": 200,
+      "bytes": 927082
+    },
+    {
+      "path": "assets/textures/rock_face_03_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1146788
+    },
+    {
+      "path": "assets/textures/rock_face_03_rough_1k.jpg",
+      "status": 200,
+      "bytes": 638904
+    },
+    {
+      "path": "assets/textures/bark_brown_02_diff_1k.jpg",
+      "status": 200,
+      "bytes": 659592
+    },
+    {
+      "path": "assets/textures/bark_brown_02_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1015623
+    },
+    {
+      "path": "assets/textures/bark_brown_02_rough_1k.jpg",
+      "status": 200,
+      "bytes": 337946
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_diff_1k.jpg",
+      "status": 200,
+      "bytes": 708284
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1163338
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_rough_1k.jpg",
+      "status": 200,
+      "bytes": 253558
+    },
+    {
+      "path": "assets/textures/sparse_grass_diff_512.jpg",
+      "status": 200,
+      "bytes": 44218
+    },
+    {
+      "path": "assets/textures/sparse_grass_nor_gl_512.jpg",
+      "status": 200,
+      "bytes": 76818
+    },
+    {
+      "path": "assets/textures/sparse_grass_rough_512.jpg",
+      "status": 200,
+      "bytes": 18994
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "assets/audio/foot-carpet-01.wav",
+      "status": 200,
+      "bytes": 35618
+    },
+    {
+      "path": "assets/audio/foot-carpet-02.wav",
+      "status": 200,
+      "bytes": 35618
+    },
+    {
+      "path": "assets/audio/foot-carpet-03.wav",
+      "status": 200,
+      "bytes": 32546
+    },
+    {
+      "path": "assets/audio/foot-carpet-04.wav",
+      "status": 200,
+      "bytes": 35694
+    },
+    {
+      "path": "assets/audio/land-carpet.wav",
+      "status": 200,
+      "bytes": 37494
+    },
+    {
+      "path": "assets/audio/land-damage-01.wav",
+      "status": 200,
+      "bytes": 35300
+    },
+    {
+      "path": "assets/audio/land-damage-02.wav",
+      "status": 200,
+      "bytes": 25068
+    },
+    {
+      "path": "assets/music/menu.mp3",
+      "status": 206,
+      "bytes": 1512272
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "assets/music/last-playdate.ogg",
+      "status": 200,
+      "bytes": 1675450
+    },
+    {
+      "path": "assets/music/last-playdate.ogg",
+      "status": 206,
+      "bytes": 1675450
+    },
+    {
+      "path": "assets/music/last-playdate.ogg",
+      "status": 206,
+      "bytes": 69818
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 24434
+    },
+    {
+      "path": "style.css",
+      "status": 200,
+      "bytes": 22196
+    },
+    {
+      "path": "comp-run.css",
+      "status": 200,
+      "bytes": 13733
+    },
+    {
+      "path": "title-screen.css",
+      "status": 200,
+      "bytes": 9925
+    },
+    {
+      "path": "loadout.css",
+      "status": 200,
+      "bytes": 13132
+    },
+    {
+      "path": "leaderboards.css",
+      "status": 200,
+      "bytes": 5286
+    },
+    {
+      "path": "interface.css",
+      "status": 200,
+      "bytes": 23839
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "offline-download.js",
+      "status": 200,
+      "bytes": 10278
+    },
+    {
+      "path": "launcher/achievement-runtime.js",
+      "status": 200,
+      "bytes": 16282
+    },
+    {
+      "path": "main.js",
+      "status": 200,
+      "bytes": 63997
+    },
+    {
+      "path": "record-seasons.js",
+      "status": 200,
+      "bytes": 217
+    },
+    {
+      "path": "leaderboards.js",
+      "status": 200,
+      "bytes": 6694
+    },
+    {
+      "path": "vendor/three.module.js",
+      "status": 200,
+      "bytes": 1369252
+    },
+    {
+      "path": "journeys.js",
+      "status": 200,
+      "bytes": 22456
+    },
+    {
+      "path": "stage.js",
+      "status": 200,
+      "bytes": 56333
+    },
+    {
+      "path": "audio.js",
+      "status": 200,
+      "bytes": 31214
+    },
+    {
+      "path": "hands.js",
+      "status": 200,
+      "bytes": 45868
+    },
+    {
+      "path": "traversal.js",
+      "status": 200,
+      "bytes": 14025
+    },
+    {
+      "path": "house-wayfinding.js",
+      "status": 200,
+      "bytes": 12766
+    },
+    {
+      "path": "skateboard-wayfinding.js",
+      "status": 200,
+      "bytes": 12039
+    },
+    {
+      "path": "final-curtain.js",
+      "status": 200,
+      "bytes": 26167
+    },
+    {
+      "path": "movement.js",
+      "status": 200,
+      "bytes": 36471
+    },
+    {
+      "path": "race.js",
+      "status": 200,
+      "bytes": 13925
+    },
+    {
+      "path": "finale.js",
+      "status": 200,
+      "bytes": 1353
+    },
+    {
+      "path": "game-input.js",
+      "status": 200,
+      "bytes": 870
+    },
+    {
+      "path": "render-view.js",
+      "status": 200,
+      "bytes": 990
+    },
+    {
+      "path": "characters.js",
+      "status": 200,
+      "bytes": 20503
+    },
+    {
+      "path": "runner-unlocks.js",
+      "status": 200,
+      "bytes": 784
+    },
+    {
+      "path": "runner-room.js",
+      "status": 200,
+      "bytes": 5098
+    },
+    {
+      "path": "knife-room.js",
+      "status": 200,
+      "bytes": 4876
+    },
+    {
+      "path": "knife-catalog.js",
+      "status": 200,
+      "bytes": 5551
+    },
+    {
+      "path": "playdate-opening.js",
+      "status": 200,
+      "bytes": 6161
+    },
+    {
+      "path": "small-hours-opening.js",
+      "status": 200,
+      "bytes": 11162
+    },
+    {
+      "path": "final-curtain-opening.js",
+      "status": 200,
+      "bytes": 9074
+    },
+    {
+      "path": "rupture-opening.js",
+      "status": 200,
+      "bytes": 3301
+    },
+    {
+      "path": "last-bloom-opening.js",
+      "status": 200,
+      "bytes": 5127
+    },
+    {
+      "path": "last-bloom-branches.js",
+      "status": 200,
+      "bytes": 3576
+    },
+    {
+      "path": "opening.js",
+      "status": 200,
+      "bytes": 30915
+    },
+    {
+      "path": "brand-intro.js",
+      "status": 200,
+      "bytes": 12280
+    },
+    {
+      "path": "storage.js",
+      "status": 200,
+      "bytes": 7302
+    },
+    {
+      "path": "checkpoints.js",
+      "status": 200,
+      "bytes": 3462
+    },
+    {
+      "path": "track-path.js",
+      "status": 200,
+      "bytes": 1825
+    },
+    {
+      "path": "playdate.js",
+      "status": 200,
+      "bytes": 13203
+    },
+    {
+      "path": "small-hours.js",
+      "status": 200,
+      "bytes": 32052
+    },
+    {
+      "path": "rupture.js",
+      "status": 200,
+      "bytes": 30189
+    },
+    {
+      "path": "last-bloom.js",
+      "status": 200,
+      "bytes": 36677
+    },
+    {
+      "path": "campaign-soundtrack.js",
+      "status": 200,
+      "bytes": 2616
+    },
+    {
+      "path": "movement-sounds.js",
+      "status": 200,
+      "bytes": 3857
+    },
+    {
+      "path": "theatre-storm.js",
+      "status": 200,
+      "bytes": 4029
+    },
+    {
+      "path": "clown-gantry.js",
+      "status": 200,
+      "bytes": 1379
+    },
+    {
+      "path": "clown.js",
+      "status": 200,
+      "bytes": 20627
+    },
+    {
+      "path": "caretaker.js",
+      "status": 200,
+      "bytes": 38496
+    },
+    {
+      "path": "small-hours-dressing.js",
+      "status": 200,
+      "bytes": 69599
+    },
+    {
+      "path": "house-mechanisms.js",
+      "status": 200,
+      "bytes": 6893
+    },
+    {
+      "path": "house-skateboard.js",
+      "status": 200,
+      "bytes": 27552
+    },
+    {
+      "path": "house-pursuit.js",
+      "status": 200,
+      "bytes": 3414
+    },
+    {
+      "path": "house-destruction.js",
+      "status": 200,
+      "bytes": 11172
+    },
+    {
+      "path": "house-lighting.js",
+      "status": 200,
+      "bytes": 11721
+    },
+    {
+      "path": "final-curtain-dressing.js",
+      "status": 200,
+      "bytes": 68966
+    },
+    {
+      "path": "final-curtain-mechanisms.js",
+      "status": 200,
+      "bytes": 9916
+    },
+    {
+      "path": "final-curtain-lighting.js",
+      "status": 200,
+      "bytes": 11418
+    },
+    {
+      "path": "director.js",
+      "status": 200,
+      "bytes": 29200
+    },
+    {
+      "path": "final-curtain-destruction.js",
+      "status": 200,
+      "bytes": 10772
+    },
+    {
+      "path": "last-bloom-dressing.js",
+      "status": 200,
+      "bytes": 73228
+    },
+    {
+      "path": "last-bloom-lighting.js",
+      "status": 200,
+      "bytes": 12007
+    },
+    {
+      "path": "bloom-creatures.js",
+      "status": 200,
+      "bytes": 38496
+    },
+    {
+      "path": "last-bloom-destruction.js",
+      "status": 200,
+      "bytes": 16864
+    },
+    {
+      "path": "rupture-dressing.js",
+      "status": 200,
+      "bytes": 52143
+    },
+    {
+      "path": "rupture-lighting.js",
+      "status": 200,
+      "bytes": 5901
+    },
+    {
+      "path": "fault.js",
+      "status": 200,
+      "bytes": 26626
+    },
+    {
+      "path": "rupture-destruction.js",
+      "status": 200,
+      "bytes": 15723
+    },
+    {
+      "path": "rupture-effects.js",
+      "status": 200,
+      "bytes": 9044
+    },
+    {
+      "path": "rupture-encounters.js",
+      "status": 200,
+      "bytes": 9824
+    },
+    {
+      "path": "playground-dressing.js",
+      "status": 200,
+      "bytes": 19897
+    },
+    {
+      "path": "playground-rides.js",
+      "status": 200,
+      "bytes": 24457
+    },
+    {
+      "path": "dragon.js",
+      "status": 200,
+      "bytes": 25671
+    },
+    {
+      "path": "creatures.js",
+      "status": 200,
+      "bytes": 36923
+    },
+    {
+      "path": "seraph.js",
+      "status": 200,
+      "bytes": 14657
+    },
+    {
+      "path": "traversal-visuals.js",
+      "status": 200,
+      "bytes": 21836
+    },
+    {
+      "path": "colossus.js",
+      "status": 200,
+      "bytes": 18424
+    },
+    {
+      "path": "spectacle.js",
+      "status": 200,
+      "bytes": 7614
+    },
+    {
+      "path": "depth-atmosphere.js",
+      "status": 200,
+      "bytes": 3391
+    },
+    {
+      "path": "crawler-surface.js",
+      "status": 200,
+      "bytes": 3569
+    },
+    {
+      "path": "districts.js",
+      "status": 200,
+      "bytes": 16027
+    },
+    {
+      "path": "equipment.js",
+      "status": 200,
+      "bytes": 7079
+    },
+    {
+      "path": "knife-motion.js",
+      "status": 200,
+      "bytes": 10338
+    },
+    {
+      "path": "skateboard-frame.js",
+      "status": 200,
+      "bytes": 2310
+    },
+    {
+      "path": "finale-space.js",
+      "status": 200,
+      "bytes": 461
+    },
+    {
+      "path": "final-curtain-layout.js",
+      "status": 200,
+      "bytes": 3244
+    },
+    {
+      "path": "runner-catalog.js",
+      "status": 200,
+      "bytes": 5649
+    },
+    {
+      "path": "legendary-runners.js",
+      "status": 200,
+      "bytes": 30560
+    },
+    {
+      "path": "runner-craft.js",
+      "status": 200,
+      "bytes": 10168
+    },
+    {
+      "path": "knife-models.js",
+      "status": 200,
+      "bytes": 19787
+    },
+    {
+      "path": "opening-camera.js",
+      "status": 200,
+      "bytes": 2427
+    },
+    {
+      "path": "opening-dressing.js",
+      "status": 200,
+      "bytes": 14128
+    },
+    {
+      "path": "brand-shapes.js",
+      "status": 200,
+      "bytes": 3849
+    },
+    {
+      "path": "soundtrack.js",
+      "status": 200,
+      "bytes": 6631
+    },
+    {
+      "path": "rupture-layout.js",
+      "status": 200,
+      "bytes": 3232
+    },
+    {
+      "path": "small-hours-house.js",
+      "status": 200,
+      "bytes": 3762
+    },
+    {
+      "path": "skateboard-course.js",
+      "status": 200,
+      "bytes": 6965
+    },
+    {
+      "path": "last-bloom-layout.js",
+      "status": 200,
+      "bytes": 4297
+    },
+    {
+      "path": "house-furnishings.js",
+      "status": 200,
+      "bytes": 17311
+    },
+    {
+      "path": "house-debris.js",
+      "status": 200,
+      "bytes": 15816
+    },
+    {
+      "path": "rupture-penstock-chase.js",
+      "status": 200,
+      "bytes": 5028
+    },
+    {
+      "path": "assets/audio/ident-landing.mp3",
+      "status": 200,
+      "bytes": 16320
+    },
+    {
+      "path": "assets/repo-company-mark.png",
+      "status": 200,
+      "bytes": 35271
+    },
+    {
+      "path": "assets/textures/stone_block_wall_diff_1k.jpg",
+      "status": 200,
+      "bytes": 610046
+    },
+    {
+      "path": "assets/textures/stone_block_wall_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1233958
+    },
+    {
+      "path": "assets/textures/stone_block_wall_rough_1k.jpg",
+      "status": 200,
+      "bytes": 440405
+    },
+    {
+      "path": "assets/textures/mossy_rock_diff_1k.jpg",
+      "status": 200,
+      "bytes": 1124438
+    },
+    {
+      "path": "assets/textures/mossy_rock_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 995727
+    },
+    {
+      "path": "assets/textures/mossy_rock_rough_1k.jpg",
+      "status": 200,
+      "bytes": 780918
+    },
+    {
+      "path": "assets/textures/rock_face_03_diff_1k.jpg",
+      "status": 200,
+      "bytes": 927082
+    },
+    {
+      "path": "assets/textures/rock_face_03_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1146788
+    },
+    {
+      "path": "assets/textures/rock_face_03_rough_1k.jpg",
+      "status": 200,
+      "bytes": 638904
+    },
+    {
+      "path": "assets/textures/bark_brown_02_diff_1k.jpg",
+      "status": 200,
+      "bytes": 659592
+    },
+    {
+      "path": "assets/textures/bark_brown_02_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1015623
+    },
+    {
+      "path": "assets/textures/bark_brown_02_rough_1k.jpg",
+      "status": 200,
+      "bytes": 337946
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_diff_1k.jpg",
+      "status": 200,
+      "bytes": 708284
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1163338
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_rough_1k.jpg",
+      "status": 200,
+      "bytes": 253558
+    },
+    {
+      "path": "assets/textures/sparse_grass_diff_512.jpg",
+      "status": 200,
+      "bytes": 44218
+    },
+    {
+      "path": "assets/textures/sparse_grass_nor_gl_512.jpg",
+      "status": 200,
+      "bytes": 76818
+    },
+    {
+      "path": "assets/textures/sparse_grass_rough_512.jpg",
+      "status": 200,
+      "bytes": 18994
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "assets/audio/foot-carpet-01.wav",
+      "status": 200,
+      "bytes": 35618
+    },
+    {
+      "path": "assets/audio/foot-carpet-02.wav",
+      "status": 200,
+      "bytes": 35618
+    },
+    {
+      "path": "assets/audio/foot-carpet-03.wav",
+      "status": 200,
+      "bytes": 32546
+    },
+    {
+      "path": "assets/audio/foot-carpet-04.wav",
+      "status": 200,
+      "bytes": 35694
+    },
+    {
+      "path": "assets/audio/land-carpet.wav",
+      "status": 200,
+      "bytes": 37494
+    },
+    {
+      "path": "assets/audio/land-damage-01.wav",
+      "status": 200,
+      "bytes": 35300
+    },
+    {
+      "path": "assets/audio/land-damage-02.wav",
+      "status": 200,
+      "bytes": 25068
+    },
+    {
+      "path": "assets/music/menu.mp3",
+      "status": 206,
+      "bytes": 1512272
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "assets/music/never-ending-pursuit-loop.ogg",
+      "status": 200,
+      "bytes": 3012580
+    },
+    {
+      "path": "assets/music/never-ending-pursuit-loop.ogg",
+      "status": 206,
+      "bytes": 3012580
+    },
+    {
+      "path": "assets/music/never-ending-pursuit-loop.ogg",
+      "status": 206,
+      "bytes": 96228
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 24434
+    },
+    {
+      "path": "style.css",
+      "status": 200,
+      "bytes": 22196
+    },
+    {
+      "path": "comp-run.css",
+      "status": 200,
+      "bytes": 13733
+    },
+    {
+      "path": "title-screen.css",
+      "status": 200,
+      "bytes": 9925
+    },
+    {
+      "path": "loadout.css",
+      "status": 200,
+      "bytes": 13132
+    },
+    {
+      "path": "leaderboards.css",
+      "status": 200,
+      "bytes": 5286
+    },
+    {
+      "path": "interface.css",
+      "status": 200,
+      "bytes": 23839
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "offline-download.js",
+      "status": 200,
+      "bytes": 10278
+    },
+    {
+      "path": "launcher/achievement-runtime.js",
+      "status": 200,
+      "bytes": 16282
+    },
+    {
+      "path": "main.js",
+      "status": 200,
+      "bytes": 63997
+    },
+    {
+      "path": "record-seasons.js",
+      "status": 200,
+      "bytes": 217
+    },
+    {
+      "path": "leaderboards.js",
+      "status": 200,
+      "bytes": 6694
+    },
+    {
+      "path": "vendor/three.module.js",
+      "status": 200,
+      "bytes": 1369252
+    },
+    {
+      "path": "journeys.js",
+      "status": 200,
+      "bytes": 22456
+    },
+    {
+      "path": "stage.js",
+      "status": 200,
+      "bytes": 56333
+    },
+    {
+      "path": "audio.js",
+      "status": 200,
+      "bytes": 31214
+    },
+    {
+      "path": "hands.js",
+      "status": 200,
+      "bytes": 45868
+    },
+    {
+      "path": "traversal.js",
+      "status": 200,
+      "bytes": 14025
+    },
+    {
+      "path": "house-wayfinding.js",
+      "status": 200,
+      "bytes": 12766
+    },
+    {
+      "path": "skateboard-wayfinding.js",
+      "status": 200,
+      "bytes": 12039
+    },
+    {
+      "path": "final-curtain.js",
+      "status": 200,
+      "bytes": 26167
+    },
+    {
+      "path": "movement.js",
+      "status": 200,
+      "bytes": 36471
+    },
+    {
+      "path": "race.js",
+      "status": 200,
+      "bytes": 13925
+    },
+    {
+      "path": "finale.js",
+      "status": 200,
+      "bytes": 1353
+    },
+    {
+      "path": "game-input.js",
+      "status": 200,
+      "bytes": 870
+    },
+    {
+      "path": "render-view.js",
+      "status": 200,
+      "bytes": 990
+    },
+    {
+      "path": "characters.js",
+      "status": 200,
+      "bytes": 20503
+    },
+    {
+      "path": "runner-unlocks.js",
+      "status": 200,
+      "bytes": 784
+    },
+    {
+      "path": "runner-room.js",
+      "status": 200,
+      "bytes": 5098
+    },
+    {
+      "path": "knife-room.js",
+      "status": 200,
+      "bytes": 4876
+    },
+    {
+      "path": "knife-catalog.js",
+      "status": 200,
+      "bytes": 5551
+    },
+    {
+      "path": "playdate-opening.js",
+      "status": 200,
+      "bytes": 6161
+    },
+    {
+      "path": "small-hours-opening.js",
+      "status": 200,
+      "bytes": 11162
+    },
+    {
+      "path": "final-curtain-opening.js",
+      "status": 200,
+      "bytes": 9074
+    },
+    {
+      "path": "rupture-opening.js",
+      "status": 200,
+      "bytes": 3301
+    },
+    {
+      "path": "last-bloom-opening.js",
+      "status": 200,
+      "bytes": 5127
+    },
+    {
+      "path": "last-bloom-branches.js",
+      "status": 200,
+      "bytes": 3576
+    },
+    {
+      "path": "opening.js",
+      "status": 200,
+      "bytes": 30915
+    },
+    {
+      "path": "brand-intro.js",
+      "status": 200,
+      "bytes": 12280
+    },
+    {
+      "path": "storage.js",
+      "status": 200,
+      "bytes": 7302
+    },
+    {
+      "path": "checkpoints.js",
+      "status": 200,
+      "bytes": 3462
+    },
+    {
+      "path": "track-path.js",
+      "status": 200,
+      "bytes": 1825
+    },
+    {
+      "path": "playdate.js",
+      "status": 200,
+      "bytes": 13203
+    },
+    {
+      "path": "small-hours.js",
+      "status": 200,
+      "bytes": 32052
+    },
+    {
+      "path": "rupture.js",
+      "status": 200,
+      "bytes": 30189
+    },
+    {
+      "path": "last-bloom.js",
+      "status": 200,
+      "bytes": 36677
+    },
+    {
+      "path": "campaign-soundtrack.js",
+      "status": 200,
+      "bytes": 2616
+    },
+    {
+      "path": "movement-sounds.js",
+      "status": 200,
+      "bytes": 3857
+    },
+    {
+      "path": "theatre-storm.js",
+      "status": 200,
+      "bytes": 4029
+    },
+    {
+      "path": "clown-gantry.js",
+      "status": 200,
+      "bytes": 1379
+    },
+    {
+      "path": "clown.js",
+      "status": 200,
+      "bytes": 20627
+    },
+    {
+      "path": "caretaker.js",
+      "status": 200,
+      "bytes": 38496
+    },
+    {
+      "path": "small-hours-dressing.js",
+      "status": 200,
+      "bytes": 69599
+    },
+    {
+      "path": "house-mechanisms.js",
+      "status": 200,
+      "bytes": 6893
+    },
+    {
+      "path": "house-skateboard.js",
+      "status": 200,
+      "bytes": 27552
+    },
+    {
+      "path": "house-pursuit.js",
+      "status": 200,
+      "bytes": 3414
+    },
+    {
+      "path": "house-destruction.js",
+      "status": 200,
+      "bytes": 11172
+    },
+    {
+      "path": "house-lighting.js",
+      "status": 200,
+      "bytes": 11721
+    },
+    {
+      "path": "final-curtain-dressing.js",
+      "status": 200,
+      "bytes": 68966
+    },
+    {
+      "path": "final-curtain-mechanisms.js",
+      "status": 200,
+      "bytes": 9916
+    },
+    {
+      "path": "final-curtain-lighting.js",
+      "status": 200,
+      "bytes": 11418
+    },
+    {
+      "path": "director.js",
+      "status": 200,
+      "bytes": 29200
+    },
+    {
+      "path": "final-curtain-destruction.js",
+      "status": 200,
+      "bytes": 10772
+    },
+    {
+      "path": "last-bloom-dressing.js",
+      "status": 200,
+      "bytes": 73228
+    },
+    {
+      "path": "last-bloom-lighting.js",
+      "status": 200,
+      "bytes": 12007
+    },
+    {
+      "path": "bloom-creatures.js",
+      "status": 200,
+      "bytes": 38496
+    },
+    {
+      "path": "last-bloom-destruction.js",
+      "status": 200,
+      "bytes": 16864
+    },
+    {
+      "path": "rupture-dressing.js",
+      "status": 200,
+      "bytes": 52143
+    },
+    {
+      "path": "fault.js",
+      "status": 200,
+      "bytes": 26626
+    },
+    {
+      "path": "rupture-lighting.js",
+      "status": 200,
+      "bytes": 5901
+    },
+    {
+      "path": "rupture-destruction.js",
+      "status": 200,
+      "bytes": 15723
+    },
+    {
+      "path": "rupture-effects.js",
+      "status": 200,
+      "bytes": 9044
+    },
+    {
+      "path": "rupture-encounters.js",
+      "status": 200,
+      "bytes": 9824
+    },
+    {
+      "path": "playground-dressing.js",
+      "status": 200,
+      "bytes": 19897
+    },
+    {
+      "path": "playground-rides.js",
+      "status": 200,
+      "bytes": 24457
+    },
+    {
+      "path": "dragon.js",
+      "status": 200,
+      "bytes": 25671
+    },
+    {
+      "path": "creatures.js",
+      "status": 200,
+      "bytes": 36923
+    },
+    {
+      "path": "seraph.js",
+      "status": 200,
+      "bytes": 14657
+    },
+    {
+      "path": "traversal-visuals.js",
+      "status": 200,
+      "bytes": 21836
+    },
+    {
+      "path": "colossus.js",
+      "status": 200,
+      "bytes": 18424
+    },
+    {
+      "path": "spectacle.js",
+      "status": 200,
+      "bytes": 7614
+    },
+    {
+      "path": "depth-atmosphere.js",
+      "status": 200,
+      "bytes": 3391
+    },
+    {
+      "path": "crawler-surface.js",
+      "status": 200,
+      "bytes": 3569
+    },
+    {
+      "path": "districts.js",
+      "status": 200,
+      "bytes": 16027
+    },
+    {
+      "path": "equipment.js",
+      "status": 200,
+      "bytes": 7079
+    },
+    {
+      "path": "knife-motion.js",
+      "status": 200,
+      "bytes": 10338
+    },
+    {
+      "path": "final-curtain-layout.js",
+      "status": 200,
+      "bytes": 3244
+    },
+    {
+      "path": "skateboard-frame.js",
+      "status": 200,
+      "bytes": 2310
+    },
+    {
+      "path": "finale-space.js",
+      "status": 200,
+      "bytes": 461
+    },
+    {
+      "path": "runner-catalog.js",
+      "status": 200,
+      "bytes": 5649
+    },
+    {
+      "path": "legendary-runners.js",
+      "status": 200,
+      "bytes": 30560
+    },
+    {
+      "path": "runner-craft.js",
+      "status": 200,
+      "bytes": 10168
+    },
+    {
+      "path": "opening-camera.js",
+      "status": 200,
+      "bytes": 2427
+    },
+    {
+      "path": "opening-dressing.js",
+      "status": 200,
+      "bytes": 14128
+    },
+    {
+      "path": "knife-models.js",
+      "status": 200,
+      "bytes": 19787
+    },
+    {
+      "path": "brand-shapes.js",
+      "status": 200,
+      "bytes": 3849
+    },
+    {
+      "path": "small-hours-house.js",
+      "status": 200,
+      "bytes": 3762
+    },
+    {
+      "path": "skateboard-course.js",
+      "status": 200,
+      "bytes": 6965
+    },
+    {
+      "path": "soundtrack.js",
+      "status": 200,
+      "bytes": 6631
+    },
+    {
+      "path": "rupture-layout.js",
+      "status": 200,
+      "bytes": 3232
+    },
+    {
+      "path": "last-bloom-layout.js",
+      "status": 200,
+      "bytes": 4297
+    },
+    {
+      "path": "house-furnishings.js",
+      "status": 200,
+      "bytes": 17311
+    },
+    {
+      "path": "house-debris.js",
+      "status": 200,
+      "bytes": 15816
+    },
+    {
+      "path": "rupture-penstock-chase.js",
+      "status": 200,
+      "bytes": 5028
+    },
+    {
+      "path": "assets/audio/ident-landing.mp3",
+      "status": 200,
+      "bytes": 16320
+    },
+    {
+      "path": "assets/repo-company-mark.png",
+      "status": 200,
+      "bytes": 35271
+    },
+    {
+      "path": "assets/textures/stone_block_wall_diff_1k.jpg",
+      "status": 200,
+      "bytes": 610046
+    },
+    {
+      "path": "assets/textures/stone_block_wall_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1233958
+    },
+    {
+      "path": "assets/textures/stone_block_wall_rough_1k.jpg",
+      "status": 200,
+      "bytes": 440405
+    },
+    {
+      "path": "assets/textures/mossy_rock_diff_1k.jpg",
+      "status": 200,
+      "bytes": 1124438
+    },
+    {
+      "path": "assets/textures/mossy_rock_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 995727
+    },
+    {
+      "path": "assets/textures/mossy_rock_rough_1k.jpg",
+      "status": 200,
+      "bytes": 780918
+    },
+    {
+      "path": "assets/textures/rock_face_03_diff_1k.jpg",
+      "status": 200,
+      "bytes": 927082
+    },
+    {
+      "path": "assets/textures/rock_face_03_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1146788
+    },
+    {
+      "path": "assets/textures/rock_face_03_rough_1k.jpg",
+      "status": 200,
+      "bytes": 638904
+    },
+    {
+      "path": "assets/textures/bark_brown_02_diff_1k.jpg",
+      "status": 200,
+      "bytes": 659592
+    },
+    {
+      "path": "assets/textures/bark_brown_02_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1015623
+    },
+    {
+      "path": "assets/textures/bark_brown_02_rough_1k.jpg",
+      "status": 200,
+      "bytes": 337946
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_diff_1k.jpg",
+      "status": 200,
+      "bytes": 708284
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_nor_gl_1k.jpg",
+      "status": 200,
+      "bytes": 1163338
+    },
+    {
+      "path": "assets/textures/concrete_floor_worn_02_rough_1k.jpg",
+      "status": 200,
+      "bytes": 253558
+    },
+    {
+      "path": "assets/textures/sparse_grass_diff_512.jpg",
+      "status": 200,
+      "bytes": 44218
+    },
+    {
+      "path": "assets/textures/sparse_grass_nor_gl_512.jpg",
+      "status": 200,
+      "bytes": 76818
+    },
+    {
+      "path": "assets/textures/sparse_grass_rough_512.jpg",
+      "status": 200,
+      "bytes": 18994
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "assets/audio/foot-carpet-01.wav",
+      "status": 200,
+      "bytes": 35618
+    },
+    {
+      "path": "assets/audio/foot-carpet-02.wav",
+      "status": 200,
+      "bytes": 35618
+    },
+    {
+      "path": "assets/audio/foot-carpet-03.wav",
+      "status": 200,
+      "bytes": 32546
+    },
+    {
+      "path": "assets/audio/foot-carpet-04.wav",
+      "status": 200,
+      "bytes": 35694
+    },
+    {
+      "path": "assets/audio/land-carpet.wav",
+      "status": 200,
+      "bytes": 37494
+    },
+    {
+      "path": "assets/audio/land-damage-01.wav",
+      "status": 200,
+      "bytes": 35300
+    },
+    {
+      "path": "assets/audio/land-damage-02.wav",
+      "status": 200,
+      "bytes": 25068
+    },
+    {
+      "path": "assets/music/menu.mp3",
+      "status": 206,
+      "bytes": 1512272
+    },
+    {
+      "path": "assets/comp-run-logo.png",
+      "status": 200,
+      "bytes": 1364207
+    },
+    {
+      "path": "assets/audio/theatre-storm.wav",
+      "status": 200,
+      "bytes": 1262636
+    },
+    {
+      "path": "assets/music/abated-theatre-loop.ogg",
+      "status": 200,
+      "bytes": 3161002
+    },
+    {
+      "path": "assets/music/abated-theatre-loop.ogg",
+      "status": 206,
+      "bytes": 3161002
+    },
+    {
+      "path": "assets/music/abated-theatre-loop.ogg",
+      "status": 206,
+      "bytes": 80810
+    }
+  ],
+  "galleryTarget": "original-case-assets/comp-run/screenshots",
+  "nextStep": "Visually review all three PNGs, copy the approved PNGs and this provenance into the reserved gallery directory, then run node tools/test-comp-run-integration.cjs --require-screenshots."
+}

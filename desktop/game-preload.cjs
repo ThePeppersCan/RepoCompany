@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('REPO_LAUNCHER', Object.freeze({
   requestExit: () => ipcRenderer.invoke('launcher:game', 'exit'),
   requestSignIn: () => ipcRenderer.invoke('launcher:game', 'account'),
   requestGame: id => ipcRenderer.invoke('launcher:game', 'game', id),
-  requestSession: () => ipcRenderer.invoke('launcher:game', 'session'),
+  ...(gameId === 'comp-run' ? {requestAccount: (kind, body) => ipcRenderer.invoke('launcher:game', 'comp-run-account', {kind, body})} : { requestSession: () => ipcRenderer.invoke('launcher:game', 'session') }),
   checkConnection: () => ipcRenderer.invoke('launcher:game', 'connection'),
   onConnectionChanged: callback => {
     if (typeof callback !== 'function') return () => {};

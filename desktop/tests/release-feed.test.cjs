@@ -7,7 +7,7 @@ const origin = 'https://repo-company-games.pages.dev';
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 function fixture(mode) {
   const manifests = new Map(), blobs = new Map(), calls = [];
-  for (const [id, entry, sample] of [['morogue','interface/vampire-survivor/index.html','interface/vampire-survivor/app.js'],['moratales','preview.html','interface/town-explorer.js'],['manager','index.html','app.js']]) {
+  for (const [id, entry, sample] of [['morogue','interface/vampire-survivor/index.html','interface/vampire-survivor/app.js'],['moratales','preview.html','interface/town-explorer.js'],['manager','index.html','app.js'],['comp-run','index.html','main.js']]) {
     const files = [[entry,Buffer.from('<!doctype html><html><body>Game</body></html>')],[sample,Buffer.from('globalThis.game=true;')],['assets/music.mp3',Buffer.alloc(4096,7)]];
     manifests.set(`/${id}/manifest.json`, { schemaVersion: 1, gameId: id, version: '1.0.0', entry, files: files.map(([name,bytes]) => { const sha256 = hash(bytes), url = `${origin}/blobs/${sha256}.bin`; blobs.set(new URL(url).pathname, bytes); return { path: name, size: bytes.length, sha256, url }; }) });
   }
@@ -35,9 +35,10 @@ function fixture(mode) {
 }
 test('public feed verifier checks all manifests, entry/script hashes and actual binary ranges using read-only methods', async () => {
   const network = fixture(), report = await verifyReleaseFeed(network);
-  assert.equal(report.passed, true); assert.equal(report.games.length, 3);
+  assert.equal(report.passed, true); assert.equal(report.games.length, 4);
   assert(report.games.every(game => game.entry.hashVerified && game.sample.hashVerified && game.largestBinary.range.verified));
-  assert.equal(network.calls.length, 24);
+  assert.equal(network.calls.length, 32);
+  assert.equal(report.games.find(game => game.gameId === 'comp-run').sample.path, 'main.js');
 });
 test('feed verifier rejects cached manifests before checking game blobs', async () => {
   await assert.rejects(verifyReleaseFeed(fixture('cached-manifest')), /unexpected cache headers/);

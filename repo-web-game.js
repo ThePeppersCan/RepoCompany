@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const games = {
+    'comp-run': ['COMP-RUN', 'https://comp-run.fluffy-star-4855.chatgpt.site/'],
     morogue: ['Morogue', 'https://morogue.repocompany.uk/'],
     moratales: ['Moratales', 'https://moratales.repocompany.uk/'],
     manager: ['Velmora Manager', 'https://manager.repocompany.uk/']
@@ -14,14 +15,15 @@
   const fullscreen = document.createElement('button');fullscreen.type='button';fullscreen.textContent='Full screen';
   fullscreen.onclick=()=>{const task=document.fullscreenElement?document.exitFullscreen():panel.requestFullscreen();task?.catch(()=>{});};
   controls.append(fullscreen,exit);bar.append(brand,title,controls);panel.append(bar);document.body.append(panel);
-  let frame,previousFocus;
+  let frame,previousFocus,activeId='';
   function open(id) {
     if (!games[id] || document.documentElement.dataset.repoLauncher==='true') return false;
     if (panel.open) return true;
     previousFocus=document.activeElement;
+    activeId=id;
     title.textContent=games[id][0];panel.setAttribute('aria-label',games[id][0]);
     frame=document.createElement('iframe');frame.title=games[id][0];frame.allow='autoplay; fullscreen';frame.src=games[id][1];
-    frame.onload=()=>{try{if(frame?.contentWindow.location.origin===location.origin&&frame.contentWindow.location.pathname==='/')close();}catch{/* Cross-origin games retain their own storage and account session. */}};
+    frame.onload=()=>{if(!panel.open||activeId!==id)return;try{if(frame?.contentWindow.location.origin===location.origin&&frame.contentWindow.location.pathname==='/'){close();return;}}catch{/* Cross-origin games retain their own storage and account session. */}if(id==='comp-run')void window.repoPlaytime?.start(id);};
     panel.append(frame);panel.showModal();
     window.dashboardAudio?.suspend(true);window.repoAccount?.setGame(id);
     frame.focus();return true;
@@ -31,6 +33,7 @@
     window.repoMessaging?.close();
     if(document.fullscreenElement===panel)document.exitFullscreen().catch(()=>{});
     frame?.remove();frame=null;panel.close();
+    if(activeId==='comp-run')void window.repoPlaytime?.stop();activeId='';
     window.dashboardAudio?.suspend(false);window.repoAccount?.setGame('');previousFocus?.focus?.({preventScroll:true});
   }
   panel.addEventListener('cancel',event=>{event.preventDefault();window.repoMedia?.openSettings();});

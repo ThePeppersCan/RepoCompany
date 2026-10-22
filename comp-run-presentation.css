@@ -1,0 +1,37 @@
+/* COMP-RUN print treatment: preserve the supplied logo and the shared case geometry. */
+.selected-brand>.comp-run-wordmark{left:0;top:-1px;width:460px;height:154px;object-fit:contain;filter:drop-shadow(0 3px 4px #0009)}
+.case-cover.cover-comp-run{background:#09080b}
+.cover-comp-run>.cover-art{position:absolute;left:0;top:92px;width:400px;height:auto;max-height:none}
+.cover-comp-run>.cover-tint{position:absolute;inset:43px 0 0;background:linear-gradient(#09080b88,transparent 27%,transparent 82%,#09080b44)}
+.cover-comp-run>.cover-logo{position:absolute;left:20px;top:59px;width:360px;height:120px;object-fit:contain;filter:drop-shadow(0 3px 3px #080609)}
+.cover-comp-run>.cover-publisher{background:#09090c}
+.case-spine.spine-comp-run{background:#100b0e}
+.spine-comp-run>.spine-logo{left:129px;top:6px;width:350px;height:82px;object-fit:contain;object-position:left center;filter:drop-shadow(0 2px 2px #070508)}
+.spine-comp-run>.spine-picture{left:420px;background-image:url('original-case-assets/comp-run/spine-art.webp');background-size:cover;background-position:right center;mask-image:linear-gradient(90deg,transparent,#000 26%);filter:brightness(.88)}
+.spine-comp-run>.spine-publisher{background:#09090c}
+.dashboard[data-selected-game="comp-run"].home-mode .collection-open .key{border-color:#ed9a98;box-shadow:inset 0 0 0 2px #cb34340b}
+.dashboard[data-selected-game="comp-run"] .closed-case.is-selected .case-edge-light{stroke:#f1a4a1;filter:drop-shadow(0 0 6px #d52d4266)}
+.dashboard[data-open-game="comp-run"] .game-logo{left:0;top:-25px;width:470px;height:157px;object-fit:contain;filter:drop-shadow(0 3px 5px #08070a)}
+.dashboard[data-open-game="comp-run"] .booklet{background:#09080b}
+.comp-run-booklet-art{position:absolute;left:0;top:80px;width:328px;height:auto;max-width:none;max-height:none}
+.comp-run-paper-shade{position:absolute;inset:0;background:linear-gradient(#09080b99,transparent 29%),linear-gradient(90deg,#0002,transparent 15%,transparent 88%,#0003)}
+.dashboard[data-open-game="comp-run"] .booklet .title{left:16px;top:34px;width:296px;height:99px;object-fit:contain;filter:drop-shadow(0 2px 2px #080509)}
+.dashboard[data-open-game="comp-run"] :is(.disc-print,.disc-spin){background:#130a0e}
+.comp-run-disc-art{position:absolute;inset:0;width:400px;height:400px;object-fit:cover;max-width:none}
+.dashboard[data-open-game="comp-run"] .disc-print-shade{background:linear-gradient(#10080d66,transparent 38%,#13070d33)}
+.dashboard[data-open-game="comp-run"] .disc-title{left:75px;top:50px;width:250px;height:84px;object-fit:contain;filter:drop-shadow(0 3px 2px #10060b)}
+.dashboard[data-open-game="comp-run"] .disc-foil-lines{border-color:#e0a8ab80;box-shadow:inset 0 0 0 5px #310d1d36,inset 0 0 0 6px #df747426}
+.dashboard[data-open-game="comp-run"] .disc-brand{background:#12090d77;border-radius:10px}
+.dashboard[data-open-game="comp-run"] .case-rim{stroke:#efb0b1;filter:drop-shadow(0 0 3px #ed687baa) drop-shadow(0 0 9px #c630594d)}
+.dashboard[data-open-game="comp-run"] .case-aura{background:radial-gradient(ellipse,transparent 42%,rgba(var(--game-glow),.11) 62%,transparent 75%)}
+.dashboard[data-open-game="comp-run"] .play{background:linear-gradient(120deg,#a62a35,#7a1b2b);color:#fff0f1;box-shadow:0 3px 15px #0003}
+.dashboard[data-open-game="comp-run"][data-coming-soon="true"] .play{background:#4b1721;color:#efc5c8;opacity:1}
+.dashboard[data-open-game="comp-run"] .coming-soon-download{color:#c9b9bd}
+.dashboard[data-open-game="comp-run"][data-coming-soon="true"] .shot .frame{background:radial-gradient(ellipse at 50% 35%,#38202a,#150f16);box-shadow:inset 0 0 0 1px #dfb0bf26}
+.dashboard[data-open-game="comp-run"] .shot-coming-soon{color:#dac8ce}
+.dashboard[data-open-game="comp-run"] .shot img[hidden],#gallery .gallery-thumbnails img[hidden]{display:none}
+.dashboard[data-open-game="comp-run"] .shot:disabled .frame{background:radial-gradient(ellipse at 50% 35%,#38202a,#150f16);box-shadow:inset 0 0 0 1px #dfb0bf26}
+.profile-game-banner.banner-comp-run{background:#180d12}
+.banner-comp-run .profile-banner-art{object-position:70% center;opacity:.7}
+.banner-comp-run .profile-banner-logo{max-width:78%;height:auto;object-fit:contain}
+@media(max-width:700px){.home-mode .selected-brand>.comp-run-wordmark{left:0;top:-5px;width:530px;height:177px}}

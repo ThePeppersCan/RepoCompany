@@ -32,13 +32,16 @@
 
   function showShot(index, direction = 1) {
     if (launching || dashboard.dataset.comingSoon === 'true') return;
+    const available=shots.map((button,i)=>!button.disabled?i:-1).filter(i=>i>=0);
+    if(!available.length)return;
     const alreadyOpen = gallery.open;
     current = (index + shots.length) % shots.length;
+    while(!available.includes(current))current=(current+direction+shots.length)%shots.length;
     const source = shots[current].querySelector('img');
     galleryImage.src = source.src;
     galleryImage.alt = source.alt;
     document.getElementById('gallery-caption').textContent = shots[current].querySelector('.caption').textContent;
-    document.getElementById('gallery-count').innerHTML = `${String(current + 1).padStart(2, '0')} <span>/ ${String(shots.length).padStart(2, '0')}</span>`;
+    document.getElementById('gallery-count').innerHTML = `${String(available.indexOf(current) + 1).padStart(2, '0')} <span>/ ${String(available.length).padStart(2, '0')}</span>`;
     thumbnails.forEach((button, i) => button.setAttribute('aria-current', String(i === current)));
     shots.forEach((button, i) => button.classList.toggle('selected', i === current));
     imageAnimation?.cancel();
@@ -60,9 +63,9 @@
       updateLoop();
     }
   }
-  shots.forEach((button, i) => button.addEventListener('click', () => showShot(i)));
+  shots.forEach((button, i) => button.addEventListener('click', () => {if(!button.disabled)showShot(i);}));
   shots[0].classList.add('selected');
-  thumbnails.forEach((button, i) => button.addEventListener('click', () => showShot(i, i < current ? -1 : 1)));
+  thumbnails.forEach((button, i) => button.addEventListener('click', () => {if(!button.disabled)showShot(i, i < current ? -1 : 1);}));
   document.getElementById('previous').onclick = () => showShot(current - 1, -1);
   document.getElementById('next').onclick = () => showShot(current + 1);
   gallery.addEventListener('close', () => {
@@ -80,8 +83,10 @@
       showShot(current + direction, direction);
       event.preventDefault();
     } else if (!dashboard.classList.contains('home-mode') && !document.querySelector('dialog[open]')) {
-      const i = shots.indexOf(document.activeElement);
-      shots[(i + direction + shots.length) % shots.length].focus();
+      const available=shots.filter(button=>!button.disabled);
+      if(!available.length)return;
+      const i = available.indexOf(document.activeElement);
+      available[(i + direction + available.length) % available.length].focus();
       event.preventDefault();
     }
   });
@@ -269,6 +274,12 @@
         if (!launching) return;
         if (typeof ready === 'function') { ready(); return; }
         const id = dashboard.dataset.openGame, url = playButton.dataset.gameUrl;
+        // COMP-RUN includes its own original startup sequence.
+        if(id==='comp-run'){
+          if(document.documentElement.dataset.repoLauncher==='true'){resetLaunch();return;}
+          if(window.repoWebGame?.open(id))resetLaunch();else location.assign(url);
+          return;
+        }
         if (!['morogue', 'moratales', 'manager'].includes(id) || !window.mountRepoGameLoader) { location.assign(url); return; }
         // Reuse this instance on browser Back so listeners and animation clocks
         // do not accumulate. Native launches run their intro in the shell only.
@@ -300,7 +311,7 @@
     dashboard.inert = false;
     dashboard.removeAttribute('aria-busy');
     dashboard.classList.remove('case-active');
-    playButton.disabled = dashboard.dataset.comingSoon === 'true';
+    playButton.disabled = dashboard.dataset.comingSoon === 'true' || dashboard.dataset.launcherUpdateRequired === 'true';
     document.body.classList.remove('is-launching');
     launchCurtain.classList.remove('visible');
     launchCurtain.style.removeProperty('transition');
