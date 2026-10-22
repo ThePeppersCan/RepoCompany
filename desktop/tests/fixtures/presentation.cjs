@@ -12,7 +12,7 @@ fixture.fetch = async (input, options) => {
     const account = await (await original(request, options)).text();
     const auth = account.match(/<script>([\s\S]*?)<\/script>/)[1];
     let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-    html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, tag => { const source=tag.match(/^<script\b[^>]*\bsrc="([^"]+)"/);return !source||scripts.has(source[1])?tag:''; });
+    html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, tag => { const source=tag.match(/^<script\b[^>]*\bsrc="([^"]+)"/);return !source||scripts.has(source[1].split('?')[0])?tag:''; });
     html = html.replace(/<link\b[^>]*href="https:[^>]*>/g, '');
     html = html.replace(/<script/, `<div hidden><button id="sign-in"></button><button id="sign-out"></button><p id="status"></p></div>
       <dialog id="account-menu"><nav class="account-tabs"><button data-tab="profile" role="tab">Profile</button></nav><footer class="account-footer"></footer></dialog>
