@@ -28,10 +28,10 @@ const server=http.createServer((req,res)=>{
     await page.locator('.case-select').first().waitFor();
     await page.evaluate(()=>Promise.all([...document.images].filter(i=>i.src).map(i=>i.decode().catch(()=>{}))));
     assert.deepEqual(await page.locator('.case-select').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label'))),
-      ['Select Morogue','Select Velmora Tales','Select Velmora Manager','Select Moratales','Select Demos']);
-    assert.equal(await page.locator('.collection-position').innerText(),'01\n/\n05');
+      ['Select Morogue','Select Velmora Tales','Select Velmora Manager','Select Moratales','Select COMP-RUN','Select Demos']);
+    assert.equal(await page.locator('.collection-position').innerText(),'01\n/\n06');
     await page.screenshot({path:path.join(out,'velmora-collection.png')});
-    await page.locator('#next-case').click();
+    await page.getByRole('button',{name:'Select Velmora Tales',exact:true}).focus();
     await page.locator('#open-selected').click();
     await page.waitForFunction(()=>location.hash==='#velmora-tales'&&!document.querySelector('#dashboard').classList.contains('home-mode'));
     assert(await page.locator('[data-note="Play"]').isDisabled());
@@ -50,10 +50,14 @@ const server=http.createServer((req,res)=>{
     await page.locator('#open-selected').click();
     assert(await page.locator('#demo-library').isVisible());
     await page.locator('.demo-back').click();
-    await page.keyboard.press('Home');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('ArrowDown');
+    await page.getByRole('button',{name:'Select COMP-RUN',exact:true}).focus();
+    await page.locator('#open-selected').click();
+    assert.equal(await page.locator('#dashboard').getAttribute('data-open-game'),'comp-run');
+    assert.equal(await page.locator('.game-achievement-link').evaluate(node=>node.hidden),true);
+    assert.equal(await page.locator('.game-achievement-link').evaluate(node=>getComputedStyle(node).display),'none');
+    assert.equal(await page.getByRole('button',{name:'View COMP-RUN achievements',exact:true}).count(),0);
+    await page.locator('.close-case').click();
+    await page.getByRole('button',{name:'Select Moratales',exact:true}).focus();
     await page.locator('#open-selected').click();
     assert.equal(await page.locator('#dashboard').getAttribute('data-open-game'),'moratales');
     assert(!(await page.locator('[data-note="Play"]').isDisabled()));
@@ -81,6 +85,6 @@ const server=http.createServer((req,res)=>{
     const upcoming=config.games.find(g=>g.id==='velmora-tales');
     assert(upcoming.comingSoon&&!upcoming.installable&&!upcoming.manifestUrl&&!upcoming.origin);
     assert.deepEqual(errors,[]);
-    console.log('PASS: five-case order, Coming soon controls, disabled gallery and launch, existing game and demos, direct route, mobile layout, non-installable launcher entry.');
+    console.log('PASS: six-case order, Coming soon controls, disabled gallery and launch, existing game and demos, direct route, mobile layout, non-installable launcher entry.');
   }finally{await browser.close();server.close();}
 })().catch(error=>{server.close();console.error(error);process.exitCode=1;});

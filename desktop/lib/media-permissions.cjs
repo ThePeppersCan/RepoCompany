@@ -2,9 +2,10 @@
 
 // Device access belongs only to the signed-in, top-level company portal.
 // Game device access and arbitrary permissions remain denied. The selected
-// Repo Runners frame may capture mouse movement for its controls. Display capture
+// Repo Runners frame and the active COMP-RUN main frame may capture mouse movement.
+// COMP-RUN may also enter fullscreen. Display capture
 // requires a fresh, trusted user gesture and an explicit source selection.
-function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog, chooseScreen, cancelScreen, canUseGamePointer }) {
+function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog, chooseScreen, cancelScreen, canUseGamePointer, canUseGameFullscreen }) {
   let generation = 0, grant = null, pending = false;
   const identity = () => { const account = getAccount(); return account?.state?.status === 'online' ? account.identity : null; };
   const trusted = (contents, details = {}, origin) => {
@@ -18,7 +19,7 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
   const allowed = (contents, types) => !!(grant && grant.contents === contents && grant.identity === identity() && types.every(type => grant.types.has(type)));
   session.setPermissionCheckHandler((contents, permission, origin, details = {}) => {
     if (permission === 'pointerLock') return canUseGamePointer?.(contents, details, origin) === true;
-    if (permission === 'fullscreen') return trusted(contents, details, origin);
+    if (permission === 'fullscreen') return trusted(contents, details, origin) || canUseGameFullscreen?.(contents, details, origin) === true;
     const type = details.mediaType;
     if(permission==='display-capture')return !!chooseScreen&&trusted(contents,details,origin);
     if(permission === 'speaker-selection')return trusted(contents,details,origin)&&allowed(contents,['output']);
@@ -26,7 +27,7 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
   });
   session.setPermissionRequestHandler((contents, permission, callback, details = {}) => {
     if (permission === 'pointerLock') { callback(canUseGamePointer?.(contents, details) === true); return; }
-    if (permission === 'fullscreen') { callback(trusted(contents, details)); return; }
+    if (permission === 'fullscreen') { callback(trusted(contents, details) || canUseGameFullscreen?.(contents, details) === true); return; }
     if(permission==='display-capture'){callback(!!chooseScreen&&trusted(contents,details));return;}
     // Electron 44 uses an empty media-type preflight for getDisplayMedia.
     // This only lets it reach the guarded source picker below; microphone and

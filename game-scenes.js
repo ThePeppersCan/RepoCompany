@@ -26,6 +26,21 @@
     shots:shots.map(button=>({file:button.querySelector('img').getAttribute('src').split('/').pop(),caption:button.querySelector('.caption').textContent,alt:button.querySelector('img').alt}))
   };
   const scenes={
+    'comp-run':{
+      name:'COMP-RUN',meta:'First-person horror parkour · Solo',achievements:false,
+      description:'Chain jumps, chase faster times and race through a first-person horror parkour campaign. Keep moving when the nightmare catches up.',
+      url:'https://comp-run.fluffy-star-4855.chatgpt.site/',glow:'194,37,35',
+      title:`<img class="game-logo comp-run-wordmark" src="${assets}comp-run/comp-run-logo.png" alt="COMP-RUN">`,
+      booklet:`<img class="comp-run-booklet-art" src="${assets}comp-run/booklet-art.webp" alt=""><div class="comp-run-paper-shade"></div><img class="title" src="${assets}comp-run/comp-run-logo.png" alt="">`,
+      bookletLabel:'COMP-RUN illustrated booklet with the original game logo',
+      disc:`<img class="comp-run-disc-art" src="${assets}comp-run/disc-art.webp" alt=""><div class="disc-print-shade"></div><div class="disc-foil-lines" aria-hidden="true"></div><img class="disc-title" src="${assets}comp-run/comp-run-logo.png" alt="COMP-RUN">${publisher}`,
+      discLabel:'COMP-RUN red and black printed disc',
+      shots:[
+        {file:'comp-run/screenshots/playdate.png',caption:'The Last Playdate',alt:'COMP-RUN in-engine opening of The Last Playdate'},
+        {file:'comp-run/screenshots/small-hours.png',caption:'Small Hours',alt:'COMP-RUN in-engine opening of Small Hours'},
+        {file:'comp-run/screenshots/final-curtain.png',caption:'Final Curtain',alt:'COMP-RUN in-engine opening of Final Curtain'}
+      ]
+    },
     'velmora-tales':{
       name:'Velmora Tales',meta:'Coming soon',comingSoon:true,
       description:'A new adventure in Velmora is on the horizon. More details coming soon.',
@@ -71,14 +86,16 @@
   };
   // Change print and game data on the same physical shell. Do not replace interactive nodes:
   // the existing disc, gallery, keyboard and audio handlers remain shared across all games.
+  let sceneRevision=0;
   function activate(id) {
     const scene=scenes[id];
     if(!scene)throw new Error(`Unknown scene: ${id}`);
+    const revision=++sceneRevision;
     root.dataset.openGame=id;
     root.dataset.comingSoon=String(Boolean(scene.comingSoon));
     root.dataset.gameName=scene.name;
     const achievements=details.querySelector('[data-open-achievements]');
-    if(achievements){achievements.hidden=Boolean(scene.comingSoon);achievements.dataset.openAchievements=id;achievements.setAttribute('aria-label','View '+scene.name+' achievements');}
+    if(achievements){achievements.hidden=Boolean(scene.comingSoon)||scene.achievements===false;achievements.dataset.openAchievements=id;achievements.setAttribute('aria-label','View '+scene.name+' achievements');}
     root.style.setProperty('--game-glow',scene.glow);
     root.setAttribute('aria-label',`${scene.name} open case`);
     document.getElementById('open-scene').setAttribute('aria-label',scene.name);
@@ -98,6 +115,8 @@
     delete play.dataset.launcherLong;
     if(scene.url)play.dataset.gameUrl=scene.url;
     else delete play.dataset.gameUrl;
+    delete root.dataset.launcherUpdateRequired;
+    downloadNotice.textContent='Download · Coming soon';
     downloadNotice.hidden=!scene.comingSoon;
     play.dataset.gameName=scene.name;
     document.querySelector('.gallery-game').replaceChildren(document.createTextNode(scene.name+' '));
@@ -106,6 +125,9 @@
     document.getElementById('gallery').style.setProperty('--gallery-glow',scene.glow);
     shots.forEach((button,i)=>{
       button.disabled=Boolean(scene.comingSoon);
+      button.dataset.shotReady=String(!scene.comingSoon);
+      const image=button.querySelector('img');image.onload=image.onerror=null;image.hidden=false;
+      thumbs[i].disabled=Boolean(scene.comingSoon);thumbs[i].querySelector('img').hidden=false;
       button.setAttribute('aria-label',scene.comingSoon?'Screenshots coming soon':scene.shots[i].caption);
       let placeholder=button.querySelector('.shot-coming-soon');
       if(!placeholder){
@@ -123,23 +145,61 @@
       }
     });
     scene.shots.forEach((shot,i)=>{
-      const image=shots[i].querySelector('img');image.src=assets+shot.file;image.alt=shot.alt;
+      const button=shots[i],image=button.querySelector('img'),thumb=thumbs[i],thumbnail=thumb.querySelector('img');
+      image.alt=shot.alt;
+      if(id==='comp-run'){
+        const placeholder=button.querySelector('.shot-coming-soon');
+        const ready=value=>{
+          if(revision!==sceneRevision)return;
+          button.disabled=!value;button.dataset.shotReady=String(value);image.hidden=!value;
+          button.setAttribute('aria-label',value?shot.caption:'Screenshot pending');
+          placeholder.hidden=value;placeholder.textContent='Screenshot pending';
+          button.querySelector('.caption').textContent=value?shot.caption:'Screenshot pending';
+          thumb.disabled=!value;thumbnail.hidden=!value;
+          if(value)thumbnail.src=image.src;else thumbnail.removeAttribute('src');
+        };
+        image.onload=()=>ready(image.naturalWidth>0);image.onerror=()=>ready(false);
+        ready(false);image.src=assets+shot.file;
+        if(image.complete&&image.naturalWidth>0)ready(true);
+        thumb.setAttribute('aria-label',shot.caption);
+        return;
+      }
+      image.src=assets+shot.file;
       shots[i].querySelector('.caption').textContent=shot.caption;
-      thumbs[i].querySelector('img').src=image.src;
-      thumbs[i].setAttribute('aria-label',shot.caption);
+      thumbnail.src=image.src;thumb.setAttribute('aria-label',shot.caption);
     });
     // Preload the first full-size screenshot; it shares the original file with its rail image.
-    if(scene.shots.length){
+    if(scene.shots.length&&id!=='comp-run'){
       document.getElementById('gallery-image').src=assets+scene.shots[0].file;
       document.getElementById('gallery-image').alt=scene.shots[0].alt;
       document.getElementById('gallery-caption').textContent=scene.shots[0].caption;
     }else{
       document.getElementById('gallery-image').removeAttribute('src');
       document.getElementById('gallery-image').alt='';
-      document.getElementById('gallery-caption').textContent='Screenshots coming soon';
+      document.getElementById('gallery-caption').textContent=scene.comingSoon?'Screenshots coming soon':'Screenshots pending';
     }
     root.dispatchEvent(new Event('game-change'));
     document.title=`Repo Company — ${scene.name}`;
+    syncLauncherAvailability();
   }
+  // Older installed launchers share this website but do not yet know this game.
+  // Keep their button local and explicit until a catalogue-capable client loads.
+  function syncLauncherAvailability(){
+    if(root.dataset.openGame!=='comp-run')return;
+    const missing=document.documentElement.dataset.repoLauncher==='true'&&document.documentElement.dataset.repoCompRunNative!=='true';
+    if(missing){
+      root.dataset.launcherUpdateRequired='true';
+      play.disabled=true;play.setAttribute('aria-disabled','true');
+      play.setAttribute('aria-label','Update Repo Company to play COMP-RUN');
+      play.textContent='Update launcher';delete play.dataset.gameUrl;
+      downloadNotice.textContent='Update Repo Company from Account → Settings, then reopen COMP-RUN.';downloadNotice.hidden=false;
+    }else if(root.dataset.launcherUpdateRequired==='true'){
+      delete root.dataset.launcherUpdateRequired;
+      play.disabled=false;play.setAttribute('aria-disabled','false');play.setAttribute('aria-label','Play COMP-RUN');
+      play.innerHTML=playMarkup;play.dataset.gameUrl=scenes['comp-run'].url;
+      downloadNotice.hidden=true;
+    }
+  }
+  new MutationObserver(syncLauncherAvailability).observe(document.documentElement,{attributes:true,attributeFilter:['data-repo-launcher','data-repo-comp-run-native']});
   window.dashboardScenes=Object.freeze({activate,ids:Object.freeze(Object.keys(scenes))});
 })();

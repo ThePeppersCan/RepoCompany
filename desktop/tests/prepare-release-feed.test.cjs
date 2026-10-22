@@ -4,7 +4,7 @@ const fs = require('node:fs/promises'), path = require('node:path'), os = requir
 const { prepareReleaseFeed, compareVersions, parseArgs } = require('../tools/prepare-release-feed.cjs');
 const { Library, safeRemove } = require('../lib/library.cjs');
 const ORIGIN = 'https://repo-company-games.pages.dev';
-const entries = { morogue: 'interface/vampire-survivor/index.html', moratales: 'preview.html', manager: 'index.html' };
+const entries = { morogue: 'interface/vampire-survivor/index.html', moratales: 'preview.html', manager: 'index.html', 'comp-run': 'index.html' };
 const digest = value => crypto.createHash('sha256').update(value).digest('hex');
 const exists = async file => { try { await fs.lstat(file); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } };
 async function packageAt(directory, id, version, text = 'original') {
@@ -32,7 +32,7 @@ async function fixture(t) {
 
 test('initial feed keeps the existing CLI format, validates packages and deduplicates common assets', async t => {
   const f = await fixture(t);
-  assert.equal(f.initial.uniqueBlobs, 7);
+  assert.equal(f.initial.uniqueBlobs, 9);
   assert.equal(f.initial.games.find(game => game.id === 'morogue').version, '0.1.0-preview.2');
   assert.deepEqual(parseArgs(['new-stage']), { output: 'new-stage', replacements: {} });
   for (const id of Object.keys(entries)) {
@@ -66,6 +66,28 @@ test('a single-game replacement preserves exact other manifests, every historica
     assert.equal(digest(await fs.readFile(newFile)), name.slice(0, 64));
   }
   assert.deepEqual((await fs.readdir(f.directory)).filter(name => name.startsWith('.repo-feed-')), []);
+});
+test('adding COMP-RUN to a legacy base retains formatted manifests and all historical blobs', async t => {
+  const f = await fixture(t);
+  await fs.rm(path.join(f.base, 'comp-run'), { recursive: true });
+  const before = new Map();
+  for (const id of ['morogue', 'moratales', 'manager']) {
+    const filename = path.join(f.base, id, 'manifest.json');
+    const bytes = Buffer.from(JSON.stringify(JSON.parse(await fs.readFile(filename)), null, 2) + '\n');
+    await fs.writeFile(filename, bytes); before.set(id, bytes);
+  }
+  const oldBlobs = await fs.readdir(path.join(f.base, 'blobs'));
+  const report = await f.prepare({ replacements: { 'comp-run': path.join(f.releasesDirectory, 'comp-run') } });
+  assert.deepEqual(report.games.filter(game => game.replaced).map(game => game.id), ['comp-run']);
+  assert.equal(report.games.length, 4); assert.equal(report.retainedBlobs, oldBlobs.length);
+  for (const [id, bytes] of before) assert.deepEqual(await fs.readFile(path.join(f.output, id, 'manifest.json')), bytes);
+  for (const name of oldBlobs) assert.equal((await fs.stat(path.join(f.output, 'blobs', name))).ino, (await fs.stat(path.join(f.base, 'blobs', name))).ino);
+});
+test('legacy migration does not permit a missing established game manifest', async t => {
+  const f = await fixture(t);
+  await fs.rm(path.join(f.base, 'manager'), { recursive: true });
+  await assert.rejects(f.prepare({ replacements: { 'comp-run': path.join(f.releasesDirectory, 'comp-run') } }), /unexpected or missing/);
+  assert.equal(await exists(f.output), false);
 });
 test('release ordering handles numeric prereleases and rejects invalid, equal or older versions', async t => {
   assert.equal(compareVersions('0.1.0-preview.10', '0.1.0-preview.9'), 1);
@@ -155,6 +177,7 @@ test('a source changing after hardlinking cannot produce a publishable output', 
 test('CLI rejects unknown or duplicate replacements and missing incremental input', async t => {
   const f = await fixture(t);
   assert.deepEqual(parseArgs(['new', '--base', 'old', '--replace', 'morogue=C:/package']), { output: 'new', base: 'old', replacements: { morogue: 'C:/package' } });
+  assert.deepEqual(parseArgs(['new', '--base', 'old', '--replace', 'comp-run=C:/comp-run']), { output: 'new', base: 'old', replacements: { 'comp-run': 'C:/comp-run' } });
   for (const args of [[], ['new', '--replace'], ['new', '--replace', 'unknown=x'], ['new', '--replace', 'morogue=x', '--replace', 'morogue=y'], ['new', '--base', 'x', '--base', 'y']]) assert.throws(() => parseArgs(args));
   await assert.rejects(f.prepare({ replacements: {} }), /at least one/);
   await assert.rejects(f.prepare({ replacements: { unknown: f.replacement } }), /Unknown game/);

@@ -10,7 +10,8 @@ const { verifyGameParity } = require('./verify-game-parity.cjs');
 const { validateManifest, within, MAX_MANIFEST_BYTES } = require('../lib/manifest.cjs');
 const { assertPlainPath } = require('../lib/library.cjs');
 const REPO = path.resolve(__dirname, '../..');
-const GAMES = { morogue: 'interface/vampire-survivor/index.html', moratales: 'preview.html', manager: 'index.html' };
+const GAMES = { morogue: 'interface/vampire-survivor/index.html', moratales: 'preview.html', manager: 'index.html', 'comp-run': 'index.html' };
+const COMP_RUN_ORIGIN = 'https://comp-run.fluffy-star-4855.chatgpt.site';
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 function check(value, message) { if (!value) throw Error(message); }
 function overlap(a, b) { return path.relative(a, b) === '' || within(a, b) || within(b, a); }
@@ -40,7 +41,13 @@ function verifyReceipt(report, id, release, manifest) {
     check(typeof row.sourceURL === 'string' && /^[a-f0-9]{64}$/.test(row.liveSha256) && Number.isSafeInteger(row.liveBytes) && row.liveBytes >= 0, 'Parity receipt lacks original URL/hash evidence: ' + id + '/' + row.path);
     const source = new URL(row.sourceURL);
     check(source.protocol === 'https:' && !source.username && !source.password && !source.hash, 'Parity receipt source is not trusted HTTPS.');
-    check(source.origin === `https://${id}.repocompany.uk` || source.origin === 'https://repocompany.uk' && (source.pathname.startsWith('/game-integrations/' + id + '/') || id === 'manager' && source.pathname === '/vendor/supabase.js'), 'Parity receipt source is outside the published game: ' + row.sourceURL);
+    const gameOrigin = id === 'comp-run' ? COMP_RUN_ORIGIN : `https://${id}.repocompany.uk`;
+    check(source.origin === gameOrigin || id !== 'comp-run' && source.origin === 'https://repocompany.uk' && (source.pathname.startsWith('/game-integrations/' + id + '/') || id === 'manager' && source.pathname === '/vendor/supabase.js'), 'Parity receipt source is outside the published game: ' + row.sourceURL);
+    if (id === 'comp-run') {
+      const publishedPath = file.path === 'index.html' ? '/' : file.path;
+      check(source.href === new URL(publishedPath, COMP_RUN_ORIGIN + '/').href, 'COMP-RUN receipt must identify the exact published file: ' + row.path);
+      check(row.exact === true && row.transform === null && row.liveSha256 === file.sha256 && row.liveBytes === file.size, 'COMP-RUN must match the published bytes without native transforms: ' + row.path);
+    }
   }
   check(report.summary?.equal === files.size && !report.summary.different?.length && !report.summary.errors?.length, 'Parity audit did not pass every file: ' + id);
 }
@@ -56,7 +63,7 @@ async function publishGameRelease({ output, auditOutput, base, games, deploy = f
   output = path.resolve(output); auditOutput = path.resolve(auditOutput); base = base && path.resolve(base);
   check(!overlap(output, REPO), 'Static deployment staging must be outside the website checkout.');
   check(!overlap(output, auditOutput), 'Audit evidence must be outside static deployment staging.');
-  check(games && Object.keys(games).length === 3 && Object.keys(GAMES).every(id => typeof games[id] === 'string' && games[id]), 'Provide all three --game id=reviewed-package-directory arguments.');
+  check(games && Object.keys(games).length === Object.keys(GAMES).length && Object.keys(GAMES).every(id => typeof games[id] === 'string' && games[id]), 'Provide all four --game id=reviewed-package-directory arguments.');
   const releases = Object.fromEntries(Object.entries(games).map(([id, directory]) => [id, path.resolve(directory)]));
   for (const directory of [base, ...Object.values(releases)].filter(Boolean)) {
     check(!overlap(output, directory) && !overlap(auditOutput, directory), 'Outputs must not overlap source releases or the previous feed.');
@@ -78,7 +85,11 @@ async function publishGameRelease({ output, auditOutput, base, games, deploy = f
   for (const id of Object.keys(GAMES)) {
     const current = await manifestAt(releases[id], id);
     check(current.sha256 === packages.get(id).sha256, 'Release manifest changed during the parity gate: ' + id);
-    if (!base || identity((await manifestAt(path.join(base, id), id, true)).raw) !== identity(current.raw)) replacements[id] = releases[id];
+    // The first COMP-RUN release extends the existing three-game feed. Every
+    // legacy manifest remains mandatory; only this newly supported entry may
+    // be absent before the builder validates and preserves the complete base.
+    const newGame = base && id === 'comp-run' && !await exists(path.join(base, id, 'manifest.json'));
+    if (!base || newGame || identity((await manifestAt(path.join(base, id), id, true)).raw) !== identity(current.raw)) replacements[id] = releases[id];
   }
   check(!base || Object.keys(replacements).length, 'All reviewed games match the base feed; there is no new release to publish.');
   onProgress({ stage: 'immutable-staging', games: Object.keys(replacements) });
@@ -100,7 +111,7 @@ function parseArgs(args) {
     const flag = args[i]; if (flag === '--deploy') { check(!options.deploy, 'Duplicate --deploy flag.'); options.deploy = true; continue; }
     const value = args[++i]; check(value && !value.startsWith('--'), 'Incomplete publication option: ' + flag);
     if (['--output', '--audit-output', '--base'].includes(flag)) { const key = flag === '--audit-output' ? 'auditOutput' : flag.slice(2); check(!options[key], 'Duplicate publication option: ' + flag); options[key] = value; }
-    else if (flag === '--game') { const match = /^(morogue|moratales|manager)=(.+)$/.exec(value); check(match && !Object.hasOwn(options.games, match[1]), 'Provide each supported --game exactly once.'); options.games[match[1]] = match[2]; }
+    else if (flag === '--game') { const match = /^(morogue|moratales|manager|comp-run)=(.+)$/.exec(value); check(match && !Object.hasOwn(options.games, match[1]), 'Provide each supported --game exactly once.'); options.games[match[1]] = match[2]; }
     else throw Error('Unknown publication option: ' + flag);
   }
   return options;

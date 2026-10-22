@@ -28,7 +28,7 @@
     $('.update-meter').hidden = failed;
     $('#update-percent').textContent = phase === 'downloading' && Number.isFinite(update.progress) ? Math.floor(progress.value * 100) + '%' : ready || phase === 'verifying' ? '100%' : '';
     $('#update-stage').textContent = failed ? 'Update required to continue' : phase === 'checking' ? 'Connecting securely' : phase === 'downloading' ? 'Downloading' : phase === 'verifying' ? 'Verifying update' : phase === 'saving' ? 'Saving progress' : phase === 'restarting' ? 'Closing client' : '';
-    $('#update-note').textContent = state.activeGame?.id === 'morogue' ? 'This update ends your current run. Completed achievements and scores are kept.' : state.activeGame ? 'Your game will save before the client closes.' : '';
+    $('#update-note').textContent = state.activeGame?.id === 'comp-run' ? 'This update ends your unfinished run. Completed runs and settings stay on this device.' : state.activeGame?.id === 'morogue' ? 'This update ends your current run. Completed achievements and scores are kept.' : state.activeGame ? 'Your game will save before the client closes.' : '';
     $('#update-retry').hidden = !failed; $('#update-retry').disabled = updateRetrying;
     if (ready) {
       const tick = () => { $('#update-stage').textContent = 'Restarting in ' + Math.max(0, Math.ceil((gate.restartAt - Date.now()) / 1000)) + ' seconds'; };

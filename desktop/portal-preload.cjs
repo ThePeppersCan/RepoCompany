@@ -85,7 +85,7 @@ function initialize() {
   const pendingGame = id => ['install','update','uninstall','play'].some(action => pending.has(`${action}:${id}`));
   const updateAvailable = id => installed(id) && entry(id).availableVersion && entry(id).availableVersion !== entry(id).version;
   const originGame = value => {try {const origin = new URL(value,location.href).origin;return games().find(game => game.origin === origin);}catch{return null;}};
-  const imageFor = id => ({'velmora-tales':'/original-case-assets/velmora-tales-artwork.png',morogue:'/account-assets/morogue-activity-banner-v1.png',moratales:'/account-assets/moratales-activity-banner-v1.png',manager:'/account-assets/manager-activity-banner-v1.png',dragonbound:'/original-case-assets/dragonbound-menu.png'}[id]);
+  const imageFor = id => ({'comp-run':'/original-case-assets/comp-run/hero-art.webp','velmora-tales':'/original-case-assets/velmora-tales-artwork.png',morogue:'/account-assets/morogue-activity-banner-v1.png',moratales:'/account-assets/moratales-activity-banner-v1.png',manager:'/account-assets/manager-activity-banner-v1.png',dragonbound:'/original-case-assets/dragonbound-menu.png'}[id]);
   function percent(item) {return Math.round(Math.min(100,Math.max(0,item.totalBytes > 0 ? item.bytes / item.totalBytes * 100 : Number(item.progress || 0) * 100)));}
   function size(value) {const amount=Number(value)||0;if(amount<1024)return `${amount} B`;if(amount<1048576)return `${(amount/1024).toFixed(1)} KB`;return `${(amount/1048576).toFixed(1)} MB`;}
   function statusFor(game) {
@@ -332,7 +332,7 @@ function initialize() {
     finally{if(action==='play')dispatchEvent(new Event('repo-launch-presentation-reset'));pending.delete(token);schedule();}
   }
   let mediaWasOnline=false;
-  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};if(next.externalActivity)dispatchEvent(new CustomEvent('repo-registered-games',{detail:next.externalActivity.registered||[]}));const mediaOnline=next.account?.status==='online';if(mediaOnline&&!mediaWasOnline){mediaWasOnline=true;dispatchEvent(new Event('repo-media-request'));dispatchEvent(new Event('repo-messaging-request'));}else if(!mediaOnline)mediaWasOnline=false;document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
+  function receive(next){if(!next||typeof next!=='object')return;state={...state,...next};const compRunNative=String(games().some(game=>game.id==='comp-run'&&game.installable));if(document.documentElement.dataset.repoCompRunNative!==compRunNative)document.documentElement.dataset.repoCompRunNative=compRunNative;if(next.externalActivity)dispatchEvent(new CustomEvent('repo-registered-games',{detail:next.externalActivity.registered||[]}));const mediaOnline=next.account?.status==='online';if(mediaOnline&&!mediaWasOnline){mediaWasOnline=true;dispatchEvent(new Event('repo-media-request'));dispatchEvent(new Event('repo-messaging-request'));}else if(!mediaOnline)mediaWasOnline=false;document.documentElement.dataset.repoMessageOverlay=String(!!next.messageOverlay);if(typeof next.portalVisible==='boolean')publishPortalVisibility(next.portalVisible);schedule();}
 
   // Capture the trusted click, then run the site's disc/sound/curtain before IPC.
   addEventListener('click',event=>{

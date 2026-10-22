@@ -503,6 +503,20 @@ test('game session IPC is account-bound and close waits for a durable save', asy
   await invoke(event, 'exit'); assert.equal(saved, 2); assert.equal(closed, 1);
 });
 
+test('COMP-RUN cannot obtain a Repo Company access token through direct game IPC', async () => {
+  const h = portalHarness({ hidden: true });
+  const frame = { url: 'https://comp-run.fluffy-star-4855.chatgpt.site/' };
+  const contents = { isDestroyed: () => false, mainFrame: frame };
+  h.context.gameWindow = { __gameId: 'comp-run', __accountId: h.context.fixture.account.identity, webContents: contents };
+  h.context.fixture.mainWindow = { isDestroyed: () => false, webContents: { isDestroyed: () => false } };
+  let accountReads = 0, portalReads = 0;
+  h.context.fixture.account.requireOnline = async () => { accountReads++; return h.context.fixture.account.identity; };
+  h.contents.executeJavaScript = async () => { portalReads++; throw Error('Session must not be read'); };
+  h.run('mainWindow=fixture.mainWindow; games.set("comp-run",gameWindow);');
+  await assert.rejects(h.run('gameCommand')({ sender: contents, senderFrame: frame }, 'session'), /does not use Repo Company account sessions/);
+  assert.equal(accountReads, 0); assert.equal(portalReads, 0);
+});
+
 test('automatic update sweeps deduplicate checks and skip running games and active library operations', async () => {
   const h = harness(); let resolveCheck, checks = 0, updates = 0, busy = false;
   h.context.libraryFixture = {

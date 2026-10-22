@@ -32,9 +32,14 @@ const assert=require('node:assert/strict'),{createFixture}=require('./messaging-
   sql.prepare('INSERT INTO dashboard_game_activity VALUES(?,?,?,?)').run('bob','morogue',500000,Date.now());
   await request('bob','activity-settings',{shareActivity:false,externalGames:true});p=await bob();assert.equal(p.activity,null);assert.equal(p.recentActivity,null,'sharing hides external and Repo history');
   await request('bob','activity-settings',{shareActivity:true,externalGames:false});p=await bob();assert.equal(p.activity,null);assert.equal(p.recentActivity.game,'morogue');
+  sql.prepare('INSERT INTO dashboard_game_activity VALUES(?,?,?,?)').run('bob','comp-run',30000,Date.now());
+  assert.equal((await bob()).recentActivity.game,'comp-run','COMP-RUN appears in recent Repo game activity');
+  sql.prepare('INSERT INTO dashboard_game_presence(username,session_id,game,started_at,last_seen,running) VALUES(?,?,?,?,?,1)').run('bob',crypto.randomUUID(),'comp-run',Date.now(),Date.now());
+  assert.equal((await bob()).activity.game,'comp-run','COMP-RUN has the same authenticated live activity as other Repo games');
+  sql.prepare('UPDATE dashboard_game_presence SET running=0 WHERE username=?').run('bob');
   assert.equal(sql.prepare('SELECT repo_score FROM dashboard_players WHERE username=?').get('bob').repo_score,0,'social time never earns score');
   await request('alice','external-activity',{...beat,game:'https://bad.test/pixel'},400);await request('alice','activity-settings',{shareActivity:'yes',externalGames:true},400);
   sql.prepare('UPDATE dashboard_game_activity SET last_played=?').run(Date.now()-15*86400000);assert.equal((await bob()).recentActivity,null,'old activity is excluded');
-  console.log('PASS: authenticated opt-in, account isolation, live/recent Steam and RuneLite, lease expiry, stop/replay ordering, server-measured time, privacy/blocks/invisible, sharing off, bounded history and no rewards.');
+  console.log('PASS: authenticated opt-in, account isolation, live/recent COMP-RUN, Steam and RuneLite, lease expiry, stop/replay ordering, server-measured time, privacy/blocks/invisible, sharing off, bounded history and no rewards.');
  }finally{await f.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

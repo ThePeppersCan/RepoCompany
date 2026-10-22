@@ -5,7 +5,7 @@ const { Readable } = require('node:stream');
 const { validatePath } = require('./manifest.cjs');
 const { mediaRequest } = require('./reparty-media.cjs');
 const { artworkRequest } = require('./game-artwork.cjs');
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.gif': 'image/gif', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.otf': 'font/otf' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.gif': 'image/gif', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.otf': 'font/otf', '.bin': 'application/octet-stream', '.txt': 'text/plain; charset=utf-8' };
 const fail = (status, message) => new Response(message, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
 
 function within(root, candidate) {
@@ -32,6 +32,10 @@ function injectMorogue(html) {
 }
 function injectGame(html, gameId) {
   if (gameId === 'morogue') return injectMorogue(html);
+  if (gameId === 'comp-run') {
+    if (!/<head(?:\s[^>]*)?>/i.test(html)) throw new Error('The installed entry page is not compatible with this launcher.');
+    return html.replace(/<head(?:\s[^>]*)?>/i, match => match + '\n<script src="/__repo-launcher/account-storage.js"></script>\n<script src="/__repo-launcher/comp-run.js"></script>\n<script defer src="https://repocompany.uk/game-playtime-client.js" data-game="comp-run"></script>');
+  }
   if (!['moratales', 'manager'].includes(gameId) || !/<head(?:\s[^>]*)?>/i.test(html)) throw new Error('The installed entry page is not compatible with this launcher.');
   const clean = html.replace(/<script\b[^>]*src=["'][^"']*(?:game-achievements-client|achievement-runtime)\.js[^"']*["'][^>]*>\s*<\/script>/gi, '');
   return clean.replace(/<head(?:\s[^>]*)?>/i, match => match + '\n<script src="/__repo-launcher/account-storage.js"></script>\n<script src="/__repo-launcher/' + gameId + '.js"></script>\n<script defer src="https://repocompany.uk/__repo-launcher/' + gameId + '-achievements.js" data-game="' + gameId + '" data-bundled="true"></script>');

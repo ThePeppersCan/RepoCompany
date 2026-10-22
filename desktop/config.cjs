@@ -11,6 +11,7 @@ module.exports = function configuration(resourceRoot) {
       'https://repocompany.uk', 'https://www.repocompany.uk',
       'https://morogue.repocompany.uk', 'https://moratales.repocompany.uk',
       'https://manager.repocompany.uk', 'https://dragonbound.repocompany.uk',
+      'https://comp-run.fluffy-star-4855.chatgpt.site',
       'https://hvdrwmjieguurxvrgzfu.supabase.co', 'https://cdn.jsdelivr.net',
       'https://fonts.googleapis.com', 'https://fonts.gstatic.com', releaseOrigin
     ],
@@ -40,6 +41,15 @@ module.exports = function configuration(resourceRoot) {
       { id: 'velmora-tales', name: 'Velmora Tales', genre: 'Coming soon', tagline: 'A new adventure is on the horizon.', description: 'Game, screenshots and download coming soon.', delivery: 'coming-soon', comingSoon: true, installable: false },
       { id: 'moratales', name: 'Moratales', genre: 'Story & life sim', tagline: 'Your next chapter in Velmora.', description: 'A café, a town and stories to bring home.', origin: 'https://moratales.repocompany.uk', entry: 'preview.html', delivery: 'download', installable: true, manifestUrl: releaseOrigin + '/moratales/manifest.json', approvedOrigins: [releaseOrigin], art: 'assets/moratales-cover-source.png', logo: 'assets/moratales-logo.png' },
       { id: 'manager', name: 'Velmora Manager', genre: 'Fantasy sports management', tagline: 'Build your club. Shape its future.', description: 'Lead your club through a season in Velmora.', origin: 'https://manager.repocompany.uk', entry: 'index.html', delivery: 'download', installable: true, manifestUrl: releaseOrigin + '/manager/manifest.json', approvedOrigins: [releaseOrigin], art: 'assets/manager-menu.png', logo: 'assets/manager-logo-clean.png' },
+      {
+        id: 'comp-run', name: 'COMP-RUN', genre: 'First-person horror parkour',
+        tagline: 'Keep moving. Don’t look back.',
+        description: 'Chain jumps, chase faster times and keep moving when the nightmare catches up.',
+        origin: 'https://comp-run.fluffy-star-4855.chatgpt.site', entry: 'index.html',
+        delivery: 'download', installable: true, manifestUrl: releaseOrigin + '/comp-run/manifest.json',
+        approvedOrigins: [releaseOrigin],
+        art: 'assets/comp-run/cover-art.webp', logo: 'assets/comp-run/comp-run-logo.png'
+      },
       { id: 'dragonbound', name: 'Dragonbound', genre: 'Fantasy adventure', tagline: 'A new journey awaits.', description: 'Discover another adventure from the world of Velmora.', origin: 'https://dragonbound.repocompany.uk', delivery: 'web', installable: false, art: 'assets/dragonbound-menu.png' }
     ],
     // These are the website's existing demo routes. Embedded titles retain the

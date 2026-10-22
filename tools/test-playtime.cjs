@@ -40,5 +40,11 @@ const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('n
  assert.equal((await play('alice','stop',1,false,'broomflight','cccccccc-cccc-4ccc-8ccc-cccccccccccc')).status,200);
  assert.equal(sql.prepare('SELECT played_ms FROM dashboard_game_activity WHERE username=? AND game=?').get('alice','broomflight').played_ms,30000);
  assert.equal(presence().game,'broomflight');assert.equal(presence().running,0);
- Date.now=realNow;sql.close();console.log('PASS: authenticated play time, server-clock accounting, hidden/offline pauses, duplicate and reordered ticks, multi-tab ownership and recent history.');
+ now+=60000;const compRunSession='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+ assert.equal((await play('alice','start',0,true,'comp-run',compRunSession)).status,200);now+=30000;
+ assert.equal((await play('alice','stop',1,false,'comp-run',compRunSession)).status,200);
+ assert.equal(sql.prepare('SELECT played_ms FROM dashboard_game_activity WHERE username=? AND game=?').get('alice','comp-run').played_ms,30000);
+ assert.equal(presence().game,'comp-run');assert.equal(presence().running,0);
+ assert.equal((await call('alice','state')).body.profile.repo_score,0,'COMP-RUN time does not invent achievement score');
+ Date.now=realNow;sql.close();console.log('PASS: authenticated play time including COMP-RUN, server-clock accounting, hidden/offline pauses, duplicate and reordered ticks, multi-tab ownership and recent history.');
 })().catch(e=>{console.error(e);process.exit(1);});

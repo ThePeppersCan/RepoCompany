@@ -15,6 +15,7 @@ const { TaskbarAttention } = require('./lib/taskbar-attention.cjs');
 const { ExternalActivity } = require('./lib/external-activity.cjs');
 const { NotificationAudio } = require('./lib/notification-audio.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
+const { canUseCompRunInput } = require('./lib/comp-run-permissions.cjs');
 const { createMouseControl } = require('./lib/mouse-control.cjs');
 let mouseControl;
 const { createScreenPicker } = require('./lib/screen-picker.cjs');
@@ -157,7 +158,7 @@ function handleMainWindowClose(event) {
   event.preventDefault();
   const window = mainWindow;
   if (!window || window.__askingToClose) return; window.__askingToClose = true;
-  return dialog.showMessageBox(window, { type: 'question', title: 'Close Repo Company?', message: 'Close the launcher?', detail: games.has('morogue') || embeddedDemo ? 'Your game will close and its unfinished run will end.' : games.size ? 'Your game progress will be saved before closing.' : 'The current download will stop. You can restart it from your library.', buttons: ['Keep open', 'Close launcher'], defaultId: 0, cancelId: 0, noLink: true }).then(async result => {
+  return dialog.showMessageBox(window, { type: 'question', title: 'Close Repo Company?', message: 'Close the launcher?', detail: games.has('morogue') || games.has('comp-run') || embeddedDemo ? 'Your game will close and its unfinished run will end.' : games.size ? 'Your game progress will be saved before closing.' : 'The current download will stop. You can restart it from your library.', buttons: ['Keep open', 'Close launcher'], defaultId: 0, cancelId: 0, noLink: true }).then(async result => {
     if (!quitting && !window.isDestroyed() && result.response === 1) { for (const game of games.values()) await saveBeforeClose(game); quitApproved = true; app.quit(); }
   }).catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); }).finally(() => { window.__askingToClose = false; });
 }
@@ -221,9 +222,15 @@ function watchWindowVisibility(window) {
 function configureSessionPermissions(targetSession) {
   mouseControl=createMouseControl({BrowserWindow,ipcMain,globalShortcut,screen,dialog,getWindow:()=>mainWindow,getPortal:activePortal,getAccount:()=>account,isPortalUrl});
   const picker=createScreenPicker({BrowserWindow,desktopCapturer,ipcMain,getWindow:()=>mainWindow,hidden:hiddenTest});
-  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog, canUseGamePointer, chooseScreen:async valid=>{const source=await picker.choose(valid);mouseControl.select(source);return source;},cancelScreen:()=>{picker.cancel();mouseControl?.reset();} });
+  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog, canUseGamePointer, canUseGameFullscreen: canUseInstalledGameInput, chooseScreen:async valid=>{const source=await picker.choose(valid);mouseControl.select(source);return source;},cancelScreen:()=>{picker.cancel();mouseControl?.reset();} });
+}
+function canUseInstalledGameInput(contents, details = {}, origin) {
+  return canUseCompRunInput({ contents, details, origin, record: currentGame(), account,
+    gameOrigin: config.games.find(game => game.id === 'comp-run')?.origin, window: mainWindow,
+    blocked: quitting || updateLocked() || messageOverlay || portalViewVisible });
 }
 function canUseGamePointer(contents, details = {}, origin) {
+  if (canUseInstalledGameInput(contents, details, origin)) return true;
   try {
     const record = embeddedDemo, url = new URL(details.requestingUrl);
     return !!(record?.id === 'runners' && record.runtime === 'runners' && record.contents === contents &&
@@ -521,7 +528,7 @@ async function exitCurrentGame() {
   if (record.__exitPrompt) return record.__exitPrompt;
   record.__exitPrompt = (async () => {
     const name = gameById(record.__gameId).name;
-    const result = await dialog.showMessageBox(mainWindow, { type: 'question', title: 'Leave ' + name + '?', message: 'Return to your library?', detail: record.__gameId === 'morogue' ? 'Your unfinished Mora Mode or Endless Night run will end. Completed online results remain on your account.' : 'Your progress will be saved before leaving ' + name + '.', buttons: ['Keep playing', 'Exit game'], defaultId: 0, cancelId: 0, noLink: true });
+    const result = await dialog.showMessageBox(mainWindow, { type: 'question', title: 'Leave ' + name + '?', message: 'Return to your library?', detail: record.__gameId === 'comp-run' ? 'Your unfinished run will end. Completed runs and settings stay on this device.' : record.__gameId === 'morogue' ? 'Your unfinished Mora Mode or Endless Night run will end. Completed online results remain on your account.' : 'Your progress will be saved before leaving ' + name + '.', buttons: ['Keep playing', 'Exit game'], defaultId: 0, cancelId: 0, noLink: true });
     if (!quitting && result.response === 1 && games.get(record.__gameId) === record) await closeGame(record);
   })().catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); throw error; }).finally(() => { record.__exitPrompt = null; });
   return record.__exitPrompt;
@@ -557,6 +564,7 @@ async function gameCommand(event, action, value) {
   const window = found[1];
   if (action === 'connection') { await account.refresh(); return gameConnection(window); }
   if (action === 'session') {
+    if (found[0] === 'comp-run') throw new Error('COMP-RUN does not use Repo Company account sessions.');
     const identity = await account.requireOnline();
     const session = await portalSession();
     if (!gameContents(window) || identity !== window.__accountId || session?.user?.id !== identity || session.access_token !== account.token) throw new Error('Your account changed. Return to the launcher and sign in again.');
@@ -782,10 +790,11 @@ async function launch() {
   configureSessionPermissions(sharedSession);
   sharedSession.on('will-download', (event, item, contents) => {
     const record = [...games.entries()].find(([id, window]) => id !== 'morogue' && gameContents(window) === contents);
-    // Only explicit game save exports may use the native Save As dialog.
+    // Permit existing save exports and COMP-RUN's exact verified offline ZIP.
     const game = record && gameById(record[0]);
-    if (!game || !item.getURL().startsWith('blob:' + game.origin + '/') || !/\.(json|velmora|moratales)$/i.test(item.getFilename())) { event.preventDefault(); return; }
-    item.setSaveDialogOptions({ title: 'Export ' + game.name + ' save', defaultPath: path.join(app.getPath('downloads'), path.basename(item.getFilename())) });
+    const offlineCopy = game?.id === 'comp-run' && item.getFilename() === 'COMP-RUN-Offline.zip';
+    if (!game || !item.getURL().startsWith('blob:' + game.origin + '/') || !(offlineCopy || game.id !== 'comp-run' && /\.(json|velmora|moratales)$/i.test(item.getFilename()))) { event.preventDefault(); return; }
+    item.setSaveDialogOptions({ title: offlineCopy ? 'Download COMP-RUN offline' : 'Export ' + game.name + ' save', defaultPath: path.join(app.getPath('downloads'), path.basename(item.getFilename())) });
   });
   sharedSession.webRequest.onBeforeRequest(handlePortalRequest);
   const network = (request, options = {}) => {

@@ -13,6 +13,9 @@ test('parity maps only known overlays, preserving origin and rejecting unsafe pa
   assert.equal(sourceURL('manager', 'assets/app.js'), 'https://manager.repocompany.uk/assets/app.js');
   assert.equal(sourceURL('moratales', 'interface/town-cafe-day.js'), 'https://repocompany.uk/game-integrations/moratales/town-cafe-day.js');
   assert.equal(sourceURL('manager', 'index.html'), 'https://manager.repocompany.uk/');
+  assert.equal(sourceURL('comp-run', 'index.html'), 'https://comp-run.fluffy-star-4855.chatgpt.site/');
+  assert.equal(sourceURL('comp-run', 'main.js'), 'https://comp-run.fluffy-star-4855.chatgpt.site/main.js');
+  assert.equal(sourceURL('comp-run', 'launcher/achievement-runtime.js'), 'https://comp-run.fluffy-star-4855.chatgpt.site/launcher/achievement-runtime.js');
   assert.equal(sourceURL('morogue', 'interface/vampire-survivor/art.js', { originalURL: 'https://repocompany.uk/game-integrations/morogue/art.js?v=abc' }), 'https://repocompany.uk/game-integrations/morogue/art.js?v=abc');
   assert.throws(() => sourceURL('morogue', 'app.js', { originalURL: 'https://repocompany.uk/account.js' }), /Unapproved/);
   assert.throws(() => sourceURL('morogue', 'app.js', { originalURL: 'https://user@morogue.repocompany.uk/app.js' }), /Unapproved/);
@@ -50,6 +53,30 @@ test('visual CSS changes are never treated as a native launcher exception', () =
   const old = '.background{background:url(assets/ui-v2/main-menu-bg.webp)}';
   assert.deepEqual(expectedNative('manager', 'player-career.css', old), { text: old, transform: null });
   assert.throws(() => expectedNative('moratales', 'interface/town-explorer.js', 'unknown source'), /Unrecognised/);
+  assert.deepEqual(expectedNative('comp-run', 'main.js', 'const version="2.2.1";\r\n'), { text: 'const version="2.2.1";\r\n', transform: null });
+});
+
+test('COMP-RUN parity requires exact bytes for text, artwork and download parts', async t => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'repo-comp-run-parity-'));
+  t.after(() => fs.rm(dir, { recursive: true, force: true }));
+  const release = path.join(dir, 'release');
+  const entries = { 'index.html': Buffer.from('<!doctype html><title>COMP-RUN</title>\r\n'), 'main.js': Buffer.from('const version="2.2.1";\n'), 'assets/cover.png': Buffer.from([0, 1, 255]), 'downloads/archive.001.bin': Buffer.from([3, 4, 5]) };
+  const files = [];
+  for (const [name, bytes] of Object.entries(entries)) {
+    const file = path.join(release, 'payload', name); await fs.mkdir(path.dirname(file), { recursive: true }); await fs.writeFile(file, bytes);
+    files.push({ path: name, size: bytes.length, sha256: sha(bytes) });
+  }
+  await fs.writeFile(path.join(release, 'manifest.json'), JSON.stringify({ gameId: 'comp-run', version: '2.2.1', files }));
+  const fetchImpl = changed => async url => {
+    const parsed = new URL(url); assert.equal(parsed.origin, 'https://comp-run.fluffy-star-4855.chatgpt.site');
+    const name = parsed.pathname === '/' ? 'index.html' : parsed.pathname.slice(1);
+    const bytes = changed && name === 'index.html' ? Buffer.from(entries[name].toString().replace(/\r\n/g, '\n')) : entries[name];
+    return new Response(bytes, { headers: { 'content-type': name.endsWith('.html') ? 'text/html' : 'application/octet-stream' } });
+  };
+  const exact = await verifyGameParity({ release, output: path.join(dir, 'exact'), fetchImpl: fetchImpl(false) });
+  assert.equal(exact.summary.equal, files.length); assert(exact.files.every(row => row.exact && row.transform === null));
+  const drift = await verifyGameParity({ release, output: path.join(dir, 'drift'), fetchImpl: fetchImpl(true) });
+  assert.deepEqual(drift.summary.different, ['index.html']); assert.equal(drift.files.find(row => row.path === 'index.html').equal, false);
 });
 
 test('full audit detects changed binary, local corruption, HTML fallback and text changes', async () => {
