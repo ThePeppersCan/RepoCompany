@@ -18,5 +18,16 @@ const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('n
  await call('bob','friends',{action:'accept',username:'alice'});assert.equal((await call('bob','state')).body.friends[0].frame_id,'ember-crown');
  offline=true;assert.equal((await call('alice','frame',{frameId:'ember-crown'})).status,503);assert.equal((await call('alice','state')).body.profile.frame_id,'ember-crown');
  assert.equal((await call('alice','frame',{frameId:null})).status,200);assert.equal((await call('alice','state')).body.profile.frame_id,null);
- sql.close();console.log('PASS: frame equip requires verified ownership, account isolation, private/pending profile protection, friends visibility, outage preservation and removal.');
+ sql.exec(fs.readFileSync('dashboard-achievements-schema.sql','utf8'));offline=false;
+ const rewards=JSON.parse(fs.readFileSync('avatar-frame-catalog.json')).filter(f=>f.game==='comp-run');
+ assert.equal(rewards.length,8);assert.equal(new Set(rewards.map(f=>f.achievementId)).size,8);
+ for(const reward of rewards){
+  assert.equal((await call('alice','frame',{frameId:reward.id,owned:[reward.id]})).status,403,'Client cannot forge '+reward.id);
+  sql.prepare('INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES(?,?,?,?,?)').run(reward.achievementId,'comp-run','nightmare',1,50);
+  sql.prepare('INSERT INTO dashboard_achievement_unlocks(username,achievement_id,score,unlocked_at) VALUES(?,?,?,?)').run('alice',reward.achievementId,50,Date.now()-86400000);
+  assert.equal((await call('alice','frame',{frameId:reward.id})).status,200,'Existing achievement earns '+reward.id);
+  assert.equal((await call('alice','state')).body.profile.frame_id,reward.id);
+  assert.equal((await call('bob','frame',{frameId:reward.id,username:'alice'})).status,403,'Rewards stay with their owner');
+ }
+ sql.close();console.log('PASS: frame ownership, privacy, outage handling, and all eight COMP-RUN rewards (including prior unlocks and account isolation).');
 })().catch(e=>{console.error(e);process.exitCode=1;});
