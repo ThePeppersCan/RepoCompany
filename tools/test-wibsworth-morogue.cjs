@@ -127,7 +127,7 @@ const crypto = require('node:crypto');
       scripts[pin.id] = bytes.toString('utf8');
     }
     check(() => { for (const pin of MOROGUE_DOWNLOAD_SOURCE_MANIFEST.filter(p => p.id !== 'entry')) assert.ok(scripts.entry.includes('src="' + (pin.path.startsWith('game-integrations/') ? '/' : '') + pin.path), 'Entry must actually load ' + pin.path); });
-    function pure(id) { const sandbox = {module: {exports: {}}}; vm.runInNewContext(scripts[id], sandbox, {timeout: 1000, filename: 'verified-morogue-' + id}); return sandbox.module.exports; }
+    function pure(id) { const sandbox = {module: {exports: {}}, require(name) { assert.equal(id, 'relics'); assert.equal(name, './relic-expansion.js'); return pure('expansion'); }}; vm.runInNewContext(scripts[id], sandbox, {timeout: 1000, filename: 'verified-morogue-' + id}); return sandbox.module.exports; }
     const downloadBuilds = pure('builds'), downloadRelics = pure('relics'), downloadNames = pure('names');
     check(() => { assert.equal(downloadBuilds.SLOTS, 6); assert.equal(downloadRelics.LIMIT, 3); assert.equal(downloadNames.get('perk:bankshot').name, 'Skillet Capers'); assert.equal(downloadNames.get('ability:comet').name, 'Falling-star Cordial'); });
     for (const id of ['finisher', 'special', 'survival']) check(() => {
@@ -149,7 +149,7 @@ const crypto = require('node:crypto');
       close(rules.defend(rules.incoming(20)), 11);
       close(rules.defend(rules.incoming(20)), 17);
       state.time = 23; close(rules.incoming(20), 20);
-      assert.ok(scripts.game.includes('amount=build.defend(relic.incoming(amount))') && scripts.game.includes('amount=relic.defend(amount)'), 'Damage application order must agree with the conditional calculation');
+      assert.ok(scripts.game.includes('amount=build.defend(relic.incoming(amount*rules.damage,source,attacker))') && scripts.game.includes('amount=relic.defend(amount)'), 'Damage application order must agree with the conditional calculation');
     });
     function releasedBuilds() {
       const state = {player: {x: 0, y: 0}, mainWeapon: 'espresso', time: 10, runTime: 300, status: 'playing', relics: {}, enemies: []};
