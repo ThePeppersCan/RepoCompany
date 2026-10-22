@@ -88,6 +88,17 @@ test('dry run writes no package and requires an explicit version/current source 
   await assert.rejects(f.capture({ version: undefined }), /explicit --version/);
   await assert.rejects(f.capture({ source: path.join(f.source, 'dist-web') }), /older dist-web/);
 });
+
+test('current relics app keeps its published path and script position in the native capture', async t => {
+  const f = await fixture(t), appPath = PREFIX + 'relics-20261015/app.js';
+  f.responses.get(GAME + '/').bytes = Buffer.from(f.html.replace(PORTAL + PREFIX + 'app.js', PORTAL + appPath));
+  f.responses.set(PORTAL + appPath, { bytes: Buffer.from('globalThis.app="current-insane-mode";'), type: 'text/javascript' });
+  await f.capture({ write: true });
+  const html = await fs.readFile(path.join(f.output, 'payload/interface/vampire-survivor/index.html'), 'utf8');
+  const scripts = htmlResources(html, GAME + '/').filter(row => row.tag === 'script').map(row => row.url);
+  assert.equal(scripts[3], GAME + appPath);
+  assert.equal(await fs.readFile(path.join(f.output, 'payload' + appPath), 'utf8'), 'globalThis.app="current-insane-mode";');
+});
 test('required HTML or integration files missing from publication fail even if local files exist', async t => {
   const f = await fixture(t), script = GAME + '/interface/vampire-survivor/skin.js', value = f.responses.get(script);
   f.responses.delete(script); await assert.rejects(f.capture({ write: true }), /HTTP 404/); assert.equal(await exists(f.output), false);

@@ -177,7 +177,7 @@ test('portal state exposes only public account and game metadata', async () => {
   const value = await h.invoke({ sender: h.contents, senderFrame: h.frame }, 'state');
   assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 6);
   assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'download'), game => game.id), ['morogue', 'moratales', 'manager', 'comp-run']);
-  assert.deepEqual(Array.from(value.catalog.demos, demo => demo.id), ['runners', 'broomflight', 'dragonbound', 'diver', 'goblin', 'rooftops', 'seas', 'sports']);
+  assert.deepEqual(Array.from(value.catalog.demos, demo => demo.id), ['deadbeat', 'runners', 'broomflight', 'dragonbound', 'diver', 'goblin', 'rooftops', 'seas', 'sports']);
   assert.equal(value.library.morogue.status, 'installed');
   assert.doesNotMatch(JSON.stringify(value), /TEST_ONLY_ACCESS_TOKEN|TEST_ONLY_INTERNAL_ACCOUNT_ID|access_token|refresh_token|developmentManifest|manifestUrl|approvedOrigins/);
 });
@@ -242,9 +242,9 @@ test('Runners mouse capture belongs only to its active, verified game frame', ()
 });
 
 test('Runners, Broomflight and legacy demos open their website runtime without touching installed games', async () => {
-  for (const id of ['runners', 'broomflight', 'diver', 'goblin', 'rooftops', 'seas', 'sports']) {
+  for (const id of ['deadbeat', 'runners', 'broomflight', 'diver', 'goblin', 'rooftops', 'seas', 'sports']) {
     const h = demoHarness(), opened = [];
-    const demoUrl = value => value === 'runners' ? 'https://repocompany.uk/repo-runners/?embedded=1' : value === 'broomflight' ? 'https://repocompany.uk/broomflight/?embedded=1' : 'https://repocompany.uk/legacy-runtime.html?dashboard=' + value;
+    const demoUrl = value => value === 'deadbeat' ? 'https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site/' : value === 'runners' ? 'https://repocompany.uk/repo-runners/?embedded=1' : value === 'broomflight' ? 'https://repocompany.uk/broomflight/?embedded=1' : 'https://repocompany.uk/legacy-runtime.html?dashboard=' + value;
     const dialog = { open: false, querySelector: () => frame }, frame = { src: '' };
     const portalWorld = {
       URL, location: { href: 'https://repocompany.uk/' }, dispatchEvent() {}, PageTransitionEvent: class {},

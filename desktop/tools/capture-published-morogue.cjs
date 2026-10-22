@@ -83,7 +83,7 @@ function transformText(text, { html = false, entryURL = GAME + '/' } = {}) {
     // Preserve the published page's base and script order. Absolute URLs for
     // game-origin assets become explicit local paths under the same origin.
     result = result.replaceAll(GAME + '/', '/');
-    check(/<script\b[^>]*src=["'][^"']*interface\/vampire-survivor\/app\.js(?:[?"'])/i.test(result), 'Published Morogue app script is missing or changed structure.');
+    check(/<script\b[^>]*src=["'](?:\/?interface\/vampire-survivor\/app\.js|\/game-integrations\/morogue\/relics-20261015\/app\.js)(?:[?"'])/i.test(result), 'Published Morogue app script is missing or changed structure.');
   }
   return result;
 }
