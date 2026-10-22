@@ -12,12 +12,12 @@ const http = require('node:http');
 const crypto = require('node:crypto');
 
 const EXPECTED = Object.freeze({
-  "version": "2.4.1",
-  "gameFiles": 144,
-  "gameBytes": 48078902,
-  "gameSha256": "ed796fd0502ca0cce099983d65dc4318a12216baf3060fe83193ee3962641d0c",
-  "distFiles": 148,
-  "distSha256": "034344d87da88d5048a787330aa3b593960a03611268a366f1ea0a18d6bce1b0"
+  "version": "2.4.2",
+  "gameFiles": 145,
+  "gameBytes": 48089001,
+  "gameSha256": "3294ade57b944c1cff842f6c509ab328db0169240453db08e2c5cbef7844c57f",
+  "distFiles": 149,
+  "distSha256": "2d824cf4c2acdf2bdbb3c74b3b396591b72cc176046236d55072c04271ebfb9c"
 });
 const FINGERPRINT = 'SHA256 of sorted UTF-8 path + TAB + byte length + TAB + SHA256 + LF';
 const VIEWPORT = Object.freeze({ width: 1920, height: 1080 });
@@ -52,10 +52,10 @@ No dependency or browser installation is performed by this tool.
   node tools/capture-comp-run-screenshots.cjs --game-dir ".\\native\\payload" --browser chrome --output ".\\capture-review"
 
 Options:
-  --game-dir PATH   Exact 2.4.1 runtime directory containing index.html.
+  --game-dir PATH   Exact 2.4.2 runtime directory containing index.html.
                     Default: ./native/payload, relative to the current folder.
                     The exact original dist (including downloads/) also works.
-  --output PATH     NEW review folder. Default: ./capture-review/comp-run-2.4.1
+  --output PATH     NEW review folder. Default: ./capture-review/comp-run-2.4.2
   --browser NAME    Installed browser channel: msedge (default) or chrome.
                     COMP_RUN_CAPTURE_BROWSER may also specify this choice.
   --help            Show this help without opening a browser.
@@ -131,11 +131,11 @@ async function snapshot(directory) {
   const runtime = entries.filter(file => !file.path.startsWith('downloads/'));
   const result = { entries, buffers, bytes, fingerprint: fingerprint(entries), runtimeFingerprint: fingerprint(runtime) };
   check(runtime.length === EXPECTED.gameFiles && runtime.reduce((sum, file) => sum + file.bytes, 0) === EXPECTED.gameBytes && result.runtimeFingerprint === EXPECTED.gameSha256,
-    'This is not the exact reviewed 2.4.1 runtime. No screenshots will be produced. Use the unchanged native/payload or original dist folder.');
+    'This is not the exact reviewed 2.4.2 runtime. No screenshots will be produced. Use the unchanged native/payload or original dist folder.');
   if (entries.length !== runtime.length) check(entries.length === EXPECTED.distFiles && result.fingerprint === EXPECTED.distSha256,
     'The runtime is correct, but extra/download files differ from the reviewed full dist. Use the exact native/payload or full dist folder.');
   const version = /export\s+const\s+VERSION\s*=\s*['"]([^'"]+)['"]/.exec(buffers.get('race.js').toString('utf8'))?.[1];
-  check(version === EXPECTED.version, 'Runtime VERSION does not match 2.4.1.');
+  check(version === EXPECTED.version, 'Runtime VERSION does not match 2.4.2.');
   return result;
 }
 
@@ -233,6 +233,7 @@ async function capture(browser, url, shot) {
   await page.route('**/*', route => {
     if (route.request().url().startsWith(url) || /^(data|blob):/.test(route.request().url())) return route.continue();
     if(route.request().url().startsWith('https://repocompany.uk/game-achievements-bridge.html?'))return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Offline capture</title>'});
+    if(route.request().url().startsWith('https://repocompany.uk/game-achievements-bridge.html?'))return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Offline capture</title>'});
     failedResources.push({ url: route.request().url(), status: 'unexpected-external-request' }); return route.abort();
   });
   try {
@@ -269,7 +270,7 @@ async function capture(browser, url, shot) {
     check(errors.length === 0 && rendererErrors.length === 0 && failedResources.length === 0, 'The game reported script, renderer or asset errors: ' + JSON.stringify({ errors, rendererErrors, failedResources }));
     return { png, record: {
       file: shot.filename, galleryFile: 'comp-run/screenshots/' + shot.filename, caption: shot.title,
-      alt: shot.title + ' in-engine opening in COMP-RUN 2.4.1, captured with its normal game UI visible.',
+      alt: shot.title + ' in-engine opening in COMP-RUN 2.4.2, captured with its normal game UI visible.',
       courseId: shot.id, captureKind: 'in-engine opening, paused using the ordinary Escape control',
       uiModified: false, gameStateInjected: false, capturedAt: new Date().toISOString(),
       sha256: sha256(png), bytes: png.length, pixels, gameUI: before, consoleMessages

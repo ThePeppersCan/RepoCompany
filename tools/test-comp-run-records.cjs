@@ -8,7 +8,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('nod
  const env={DASHBOARD_DB:{prepare,async batch(statements){sql.exec('BEGIN');try{const rows=[];for(const s of statements)rows.push(await s.all());sql.exec('COMMIT');return rows;}catch(e){sql.exec('ROLLBACK');throw e;}}}};
  const realFetch=global.fetch;global.fetch=async(url,options)=>{const token=options.headers.Authorization.slice(7);if(!['alice','bob'].includes(token))return Response.json({}, {status:401});return Response.json(url.endsWith('/auth/v1/user')?{id:token+'-id'}:[{username:token}]);};
  const call=async(token,path,body,handler=api,origin='https://test.local')=>{sql.exec('DELETE FROM comp_run_rate;DELETE FROM dashboard_achievement_rate');const request=new Request('https://test.local/api/comp-run/'+path,{method:body===undefined?'GET':'POST',headers:{Origin:origin,...(token?{Authorization:'Bearer '+token}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});const r=await handler({request,env,params:{path:path.split('?')[0]}});return {status:r.status,...await r.json(),cors:r.headers.get('Access-Control-Allow-Origin')};};
- const base={courseId:'rupture',mode:'normal',season:'rupture-2',version:boards.version};
+ const base={courseId:'rupture',mode:'normal',season:'rupture-3',version:boards.version};
  const start=async(user,extra={})=>{const r=await call(user,'run-start',{...base,...extra});if(r.run)sql.prepare('UPDATE comp_run_sessions SET started_at=started_at-500000 WHERE id=?').run(r.run);return r;};
  const finish=(run,time=400000,extra={})=>({...base,run,timeMs:time,splits:[1000,2000,3000,4000,5000,6000,7000,time],...extra});
  assert.equal((await call(null,'run-start',base)).status,401);

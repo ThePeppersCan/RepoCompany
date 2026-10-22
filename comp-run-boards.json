@@ -1,5 +1,5 @@
 {
-  "version": "2.4.1",
+  "version": "2.4.2",
   "maps": [
     {
       "id": "sanctuary",
@@ -46,7 +46,7 @@
     {
       "id": "rupture",
       "title": "Rupture",
-      "season": "rupture-2",
+      "season": "rupture-3",
       "gates": 8
     }
   ]
