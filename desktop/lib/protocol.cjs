@@ -26,8 +26,11 @@ function injectMorogue(html) {
   // The bundled hooks have the same account origin as the website. No auth rules are relaxed.
   const clean = html.replace(/<script\b[^>]*src=["'][^"']*(?:game-achievements-client|achievement-runtime)\.js[^"']*["'][^>]*>\s*<\/script>/gi, '');
   const hooks = '<script defer src="https://repocompany.uk/__repo-launcher/morogue-achievements.js" data-game="morogue" data-bundled="true"></script>\n<script defer src="/__repo-launcher/morogue.js"></script>\n';
-  const marker = /<script\b[^>]*src=["'][^"']*interface\/vampire-survivor\/app\.js[^"']*["'][^>]*>/i;
-  if (!marker.test(clean)) throw new Error('The installed Morogue entry page is not compatible with this launcher.');
+  // Published releases retain their actual app path; the relic expansion uses
+  // its own entry script. Match only these reviewed local paths, not arbitrary
+  // app.js filenames or external URLs, and keep the account gate before it.
+  const marker = /<script\b[^>]*\bsrc=["'](?:\/?interface\/vampire-survivor\/app\.js|\/game-integrations\/morogue\/relics-20261015\/app\.js)(?:[?#][^"']*)?["'][^>]*>/i;
+  if (!/<head(?:\s[^>]*)?>/i.test(clean) || !marker.test(clean)) throw new Error('The installed Morogue entry page is not compatible with this launcher.');
   return clean.replace(/<head(?:\s[^>]*)?>/i, match => match + '\n<script src="/__repo-launcher/account-storage.js"></script>').replace(marker, match => hooks + match);
 }
 function injectGame(html, gameId) {
@@ -50,7 +53,10 @@ async function serveFile(request, root, pathname, transform) {
     const headers = { 'Content-Type': MIME[path.extname(file).toLowerCase()], 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'no-cache', 'Accept-Ranges': 'bytes' };
     if (transform) {
       if (stat.size > 16 * 1024 * 1024) return fail(413, 'Entry page is too large.');
-      const body = transform(await fs.promises.readFile(file, 'utf8'));
+      const html = await fs.promises.readFile(file, 'utf8');
+      let body;
+      try { body = transform(html); }
+      catch { return fail(409, 'This installed game needs a newer launcher. Restart Repo Company to update it.'); }
       headers['Content-Length'] = String(Buffer.byteLength(body));
       return new Response(request.method === 'HEAD' ? null : body, { headers });
     }

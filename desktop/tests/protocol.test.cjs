@@ -40,6 +40,39 @@ test('downloaded adventures bind storage and native account before source script
     assert(html.includes('https://repocompany.uk/__repo-launcher/' + id + '-achievements.js'));
   }
 });
+
+test('current and legacy Morogue entries load through the installed game handler', async t => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'repo-morogue-entry-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const entry = 'interface/vampire-survivor/index.html';
+  await fs.mkdir(path.dirname(path.join(root, entry)), { recursive: true });
+  const handler = createHandler({ config: { portalOrigin: 'https://repocompany.uk', approvedOrigins: ['https://morogue.repocompany.uk'], games: [{ id: 'morogue', installable: true, origin: 'https://morogue.repocompany.uk' }] }, library: { getInstalled: () => ({ directory: root, entry }) }, desktopRoot: path.resolve(__dirname, '..'), fetchNetwork: async () => { throw Error('Installed entry must not use the network'); } });
+  for (const source of ['interface/vampire-survivor/app.js', '/interface/vampire-survivor/app.js?v=old', '/game-integrations/morogue/relics-20261015/app.js?v=caa9a1f26ae0']) {
+    const appTag = '<script defer src="' + source + '"></script>';
+    await fs.writeFile(path.join(root, entry), '<html><head><base href="../../"><script defer src="interface/vampire-survivor/site-bridge.js"></script>' + appTag + '</head><body>Morogue</body></html>');
+    for (const route of ['/', '/index.html', '/' + entry]) {
+      const response = await handler(new Request('https://morogue.repocompany.uk' + route));
+      assert.equal(response.status, 200, source + ' via ' + route);
+      const html = await response.text();
+      assert.equal(Number(response.headers.get('Content-Length')), Buffer.byteLength(html));
+      assert.equal((html.match(/src="\/__repo-launcher\/account-storage.js"/g) || []).length, 1);
+      assert(html.indexOf('account-storage.js') < html.indexOf('site-bridge.js'));
+      assert(html.indexOf('/__repo-launcher/morogue.js') < html.indexOf(appTag));
+      assert(html.indexOf('/__repo-launcher/morogue-achievements.js') < html.indexOf(appTag));
+      assert(html.includes(appTag), 'published app path and cache key are preserved');
+    }
+  }
+  for (const source of ['https://untrusted.test/interface/vampire-survivor/app.js', '/other/app.js', '/game-integrations/morogue/relics-20261015/app.js.extra']) {
+    await fs.writeFile(path.join(root, entry), '<html><head><script defer src="' + source + '"></script></head></html>');
+    const response = await handler(new Request('https://morogue.repocompany.uk/'));
+    assert.equal(response.status, 409);
+    assert.match(await response.text(), /newer launcher/);
+  }
+  await fs.unlink(path.join(root, entry));
+  const missing = await handler(new Request('https://morogue.repocompany.uk/'));
+  assert.equal(missing.status, 404);
+  assert.match(await missing.text(), /Repair the game/);
+});
 test('shared HTTPS handler forwards website auth and game APIs but blocks unknown origins', async () => {
   const calls = [];
   const handler = createHandler({ config: { approvedOrigins: ['https://repocompany.uk', 'https://morogue.repocompany.uk', 'https://manager.repocompany.uk'], portalOrigin: 'https://repocompany.uk', games: [{ id: 'morogue', installable: true, origin: 'https://morogue.repocompany.uk' }, { id: 'manager', installable: false, origin: 'https://manager.repocompany.uk' }] }, library: { getInstalled: () => null }, desktopRoot: '.', fetchNetwork: async request => { calls.push(request.url); return new Response('network'); } });

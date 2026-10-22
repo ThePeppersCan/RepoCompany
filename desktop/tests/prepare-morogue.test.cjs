@@ -2,10 +2,17 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs/promises'), path = require('node:path'), os = require('node:os'), crypto = require('node:crypto');
 const { prepareMorogue } = require('../tools/prepare-morogue.cjs');
-const { htmlResources } = require('../tools/capture-published-morogue.cjs');
+const { htmlResources, transformText } = require('../tools/capture-published-morogue.cjs');
 const { safeRemove } = require('../lib/library.cjs');
 const GAME = 'https://morogue.repocompany.uk', PORTAL = 'https://repocompany.uk', PREFIX = '/game-integrations/morogue/';
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+
+test('native URL mapping preserves valid audio constructor bases and local asset requests', () => {
+  const original = 'new URL("shooting-star-cast.wav","' + PORTAL + PREFIX + '").href';
+  const mapped = transformText(original);
+  assert.equal(require('node:vm').runInNewContext(mapped, { URL }), GAME + PREFIX + 'shooting-star-cast.wav');
+  assert.equal(transformText('"' + PORTAL + PREFIX + 'grove-assets/tree.png"'), '"' + GAME + PREFIX + 'grove-assets/tree.png"');
+});
 const exists = async file => { try { await fs.lstat(file); return true; } catch (error) { if (error.code === 'ENOENT') return false; throw error; } };
 async function fixture(t) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'published-morogue-test-')); t.after(() => safeRemove(os.tmpdir(), root));
@@ -66,7 +73,7 @@ test('capture uses published bytes and preserves HTML script order while localiz
   const scripts = htmlResources(html, GAME + '/').filter(row => row.tag === 'script').map(row => row.url);
   assert.deepEqual(scripts, [GAME + '/interface/vampire-survivor/skin.js', GAME + PREFIX + 'game.js?v=deliberately-stale-label', GAME + PREFIX + 'audio.js', GAME + '/interface/vampire-survivor/app.js', PORTAL + '/game-playtime-client.js']);
   assert.match(await read('interface/vampire-survivor/game.js'), /current-coffee-and-salt-oracle/);
-  assert.match(await read('game-integrations/morogue/game.js'), /"\/game-integrations\/morogue\/grove-assets\/tree.png"/);
+  assert((await read('game-integrations/morogue/game.js')).includes('"' + GAME + PREFIX + 'grove-assets/tree.png"'));
   assert.match(await read('game-integrations/morogue/audio.js'), /document.currentScript.src/);
   assert.equal(await read('interface/vampire-survivor/app.js'), 'globalThis.app="published-app";');
   assert.equal(await read('launcher/achievement-runtime.js'), 'globalThis.runtime="published";fetch(base+"/assets/achievements/catalogue.json");');

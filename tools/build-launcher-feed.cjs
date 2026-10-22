@@ -21,7 +21,10 @@ function buildLauncherFeed(root,dist,{now=Date.now()}={}){
   if(!latest||!entries.some(item=>item.name===latest.version+'.json'&&item.bytes.equals(latest.bytes)))throw Error('Latest launcher feed must match its immutable version manifest.');
   const destination=path.join(dist,'releases/launcher');fs.mkdirSync(destination,{recursive:true});
   for(const item of entries)fs.writeFileSync(path.join(destination,item.name),item.bytes);
-  const headers=entries.filter(item=>item.name!=='latest.json').map(item=>'\n/releases/launcher/'+item.name+'\n  Cache-Control: public, max-age=31536000, immutable\n').join('');
+  // One rule per numeric major keeps immutable releases cacheable without
+  // consuming another Pages header rule on every update. Never match latest.
+  const majors=[...new Set(entries.filter(item=>item.name!=='latest.json').map(item=>item.version.split('.')[0]))];
+  const headers=majors.map(major=>'\n/releases/launcher/'+major+'.*\n  Cache-Control: public, max-age=31536000, immutable\n').join('');
   fs.appendFileSync(path.join(dist,'_headers'),headers);
   return entries.length;
 }
