@@ -12,6 +12,7 @@ module.exports = function configuration(resourceRoot) {
       'https://morogue.repocompany.uk', 'https://moratales.repocompany.uk',
       'https://manager.repocompany.uk', 'https://dragonbound.repocompany.uk',
       'https://comp-run.fluffy-star-4855.chatgpt.site',
+      'https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site',
       'https://hvdrwmjieguurxvrgzfu.supabase.co', 'https://cdn.jsdelivr.net',
       'https://fonts.googleapis.com', 'https://fonts.gstatic.com', releaseOrigin
     ],
@@ -55,6 +56,7 @@ module.exports = function configuration(resourceRoot) {
     // These are the website's existing demo routes. Embedded titles retain the
     // account bridge and runtime inside its original dashboard overlay.
     demos: [
+      { id: 'deadbeat', name: 'REPOMETRY', origin: 'https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site', webEntry: 'https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site/', embedded: true, runtime: 'repometry' },
       { id: 'runners', name: 'Repo Runners', origin: 'https://repocompany.uk', webEntry: 'https://repocompany.uk/repo-runners/?embedded=1', embedded: true, runtime: 'runners' },
       { id: 'broomflight', name: 'Broomflight', origin: 'https://repocompany.uk', webEntry: 'https://repocompany.uk/broomflight/?embedded=1', embedded: true, runtime: 'broomflight' },
       { id: 'dragonbound', name: 'Dragonbound', origin: 'https://dragonbound.repocompany.uk', webEntry: 'https://dragonbound.repocompany.uk/', embedded: true, runtime: 'dragonbound' },

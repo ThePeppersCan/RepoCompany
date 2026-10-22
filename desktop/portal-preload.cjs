@@ -291,7 +291,9 @@ function initialize() {
         }else{
           const dialog=document.getElementById('legacy-feature'),frame=dialog?.querySelector('iframe');
           const url=frame?.src?new URL(frame.src,location.href):null;
-          open=Boolean(dialog?.open&&url&&(['broomflight','runners'].includes(embeddedDemo.runtime)
+          open=Boolean(dialog?.open&&url&&(embeddedDemo.runtime==='repometry'
+            ? url.origin===embeddedDemo.origin&&url.pathname==='/'
+            : ['broomflight','runners'].includes(embeddedDemo.runtime)
             ? url.origin===embeddedDemo.origin&&url.pathname===(embeddedDemo.runtime==='runners'?'/repo-runners/':'/broomflight/')&&url.searchParams.get('embedded')==='1'
             : url.searchParams.get('dashboard')===embeddedDemo.id));
         }

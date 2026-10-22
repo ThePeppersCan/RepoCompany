@@ -333,6 +333,10 @@ function selectLibrary(id) {
 function handlePortalRequest(details, callback) {
   let url; try { url = new URL(details.url); } catch { callback({ cancel: true }); return; }
   let pathname; try { pathname = decodeURIComponent(url.pathname); } catch { callback({ cancel: true }); return; }
+  if(url.origin==='https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site'&&['mainFrame','subFrame'].includes(details.resourceType)){
+    const allowed=!quitting&&details.webContentsId===portalContentsId&&details.resourceType==='subFrame'&&pathname==='/'&&embeddedDemo?.id==='deadbeat'&&embeddedDemo.runtime==='repometry'&&account?.state.status==='online'&&account.identity===embeddedDemo.identity;
+    callback({cancel:!allowed});return;
+  }
   const standaloneDemo = ['/broomflight', '/broomflight/', '/broomflight/index.html'].includes(pathname) ? 'broomflight'
     : ['/repo-runners', '/repo-runners/', '/repo-runners/index.html'].includes(pathname) ? 'runners' : null;
   if (isPortalUrl(url.href) && (pathname === '/legacy-runtime.html' || standaloneDemo) && portalContentsId !== null && details.webContentsId === portalContentsId && ['mainFrame', 'subFrame'].includes(details.resourceType)) {
@@ -409,6 +413,8 @@ function demoById(id) {
   if (!demo.embedded) throw new Error('This demo is unavailable.');
   if (demo.runtime === 'dragonbound') {
     if (demo.id !== 'dragonbound' || demo.origin !== 'https://dragonbound.repocompany.uk' || entry.pathname !== '/') throw new Error('This demo is unavailable.');
+  } else if (demo.runtime === 'repometry') {
+    if(demo.id!=='deadbeat'||demo.origin!=='https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site'||entry.pathname!=='/')throw new Error('This demo is unavailable.');
   } else if (demo.runtime === 'broomflight') {
     if (demo.id !== 'broomflight' || !isPortalUrl(entry.href) || entry.pathname !== '/broomflight/' || entry.searchParams.get('embedded') !== '1') throw new Error('This demo is unavailable.');
   } else if (demo.runtime === 'runners') {
@@ -432,6 +438,7 @@ function closeEmbeddedDemo(record = embeddedDemo) {
   if (record.contents === activePortal()) void record.contents.executeJavaScript(`(()=>{if(window.__repoLauncherDemoTicket!==${record.revision})return;delete window.__repoLauncherDemoTicket;${close}})()`).catch(() => {});
 }
 function demoFrameMatch(record) {
+  if(record.runtime==='repometry')return `new URL(frame.src,location.href).origin==='https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site'&&new URL(frame.src,location.href).pathname==='/'`;
   return ['broomflight', 'runners'].includes(record.runtime)
     ? `new URL(frame.src,location.href).origin===${JSON.stringify(config.portalOrigin)}&&new URL(frame.src,location.href).pathname===${JSON.stringify(record.runtime === 'runners' ? '/repo-runners/' : '/broomflight/')}&&new URL(frame.src,location.href).searchParams.get('embedded')==='1'`
     : `new URL(frame.src,location.href).searchParams.get('dashboard')===${JSON.stringify(record.id)}`;
