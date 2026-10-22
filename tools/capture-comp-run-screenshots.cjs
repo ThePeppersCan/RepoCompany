@@ -12,12 +12,12 @@ const http = require('node:http');
 const crypto = require('node:crypto');
 
 const EXPECTED = Object.freeze({
-  "version": "2.4.2",
+  "version": "2.4.3",
   "gameFiles": 145,
-  "gameBytes": 48089001,
-  "gameSha256": "3294ade57b944c1cff842f6c509ab328db0169240453db08e2c5cbef7844c57f",
+  "gameBytes": 48095372,
+  "gameSha256": "d50f64a556e76a3b48b06c9d2c9df6d4a664246ba0d58661c4b7980d63a932c1",
   "distFiles": 149,
-  "distSha256": "2d824cf4c2acdf2bdbb3c74b3b396591b72cc176046236d55072c04271ebfb9c"
+  "distSha256": "864b643b983d4d94467e3d17eb2291655d403697fec3c4f3ca8fe9fa270d6773"
 });
 const FINGERPRINT = 'SHA256 of sorted UTF-8 path + TAB + byte length + TAB + SHA256 + LF';
 const VIEWPORT = Object.freeze({ width: 1920, height: 1080 });
@@ -232,7 +232,6 @@ async function capture(browser, url, shot) {
   });
   await page.route('**/*', route => {
     if (route.request().url().startsWith(url) || /^(data|blob):/.test(route.request().url())) return route.continue();
-    if(route.request().url().startsWith('https://repocompany.uk/game-achievements-bridge.html?'))return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Offline capture</title>'});
     if(route.request().url().startsWith('https://repocompany.uk/game-achievements-bridge.html?'))return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>Offline capture</title>'});
     failedResources.push({ url: route.request().url(), status: 'unexpected-external-request' }); return route.abort();
   });

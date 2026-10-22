@@ -1,52 +1,52 @@
 {
-  "version": "2.4.2",
+  "version": "2.4.3",
   "maps": [
     {
       "id": "sanctuary",
       "title": "The Last Sanctuary",
-      "season": "launch-1",
+      "season": "flow-2",
       "gates": 6
     },
     {
       "id": "hollow",
       "title": "The Hollow Below",
-      "season": "launch-1",
+      "season": "flow-2",
       "gates": 6
     },
     {
       "id": "undertow",
       "title": "A City Beneath God",
-      "season": "launch-1",
+      "season": "flow-2",
       "gates": 6
     },
     {
       "id": "playdate",
       "title": "The Last Playdate",
-      "season": "launch-1",
+      "season": "flow-2",
       "gates": 9
     },
     {
       "id": "small-hours",
       "title": "The Small Hours",
-      "season": "launch-1",
+      "season": "flow-2",
       "gates": 9
     },
     {
       "id": "final-curtain",
       "title": "The Final Curtain",
-      "season": "launch-1",
+      "season": "flow-2",
       "gates": 10
     },
     {
       "id": "last-bloom",
       "title": "The Last Bloom",
-      "season": "launch-1",
+      "season": "flow-2",
       "gates": 12
     },
     {
       "id": "rupture",
       "title": "Rupture",
-      "season": "rupture-3",
+      "season": "rupture-4",
       "gates": 8
     }
   ]
