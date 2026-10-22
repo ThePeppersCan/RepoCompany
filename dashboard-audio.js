@@ -47,7 +47,9 @@
     };
     fades.set(audio, requestAnimationFrame(step));
   }
-  function available() { return unlocked && !muted && !document.hidden && !suspended; }
+  // Native game views cover a still-running portal, so document.hidden alone
+  // cannot stop collection audio. The preload publishes actual portal visibility.
+  function available() { return unlocked && !muted && !document.hidden && document.documentElement.dataset.repoPortalVisible !== 'false' && !suspended; }
   function completionAvailable() { return unlocked && !muted && mix.effects > 0; }
   function sync() {
     toggle.setAttribute('aria-pressed', String(muted));
@@ -129,6 +131,7 @@
     }
   });
   addEventListener('repo-media-state',sync);
+  addEventListener('repo-launcher-portal-visibility',sync);
   document.addEventListener('visibilitychange', sync);
   addEventListener('repo-messaging-state', event => {
     if (typeof event.detail?.open !== 'boolean' || event.detail.open === messagesOpen) return;
