@@ -15,6 +15,12 @@
   if(!state.user)return;const userId=state.user.id,revision=generation;try{const result=await api('state');if(state.user?.id!==userId||generation!==revision)return;state.social=result;state.socialError='';}catch(e){if(state.user?.id!==userId||generation!==revision)return;state.socialError=e.message;}notify();
  }
  async function heartbeat(online=!document.hidden){if(!state.user)return;try{await api('presence',{game,online});}catch(_){} }
+ async function refreshPlayRewards(){
+  if(!state.user)return;const userId=state.user.id,revision=generation;
+  try{const {reward}=await api('play-rewards',{});if(state.user?.id!==userId||revision!==generation)return;
+   state.playRewards=reward;if(Number.isSafeInteger(reward?.balance))state.bank={...state.bank,gp:reward.balance};notify();
+  }catch{}
+ }
  async function refresh(){
   if(refreshPromise)return refreshPromise;
   const revision=++generation;state.loading=true;notify();
@@ -32,7 +38,7 @@
     if(results[3].status==='fulfilled')for(const card of results[3].value?.cards||[])if(!state.cards.includes(card))state.cards.push(card);
     state.slabs=results[2].status==='fulfilled'&&Array.isArray(results[2].value?.slabs)?results[2].value.slabs:[];
     state.collectionError=results[0].status==='rejected'||results[1].status==='rejected'?'Some collection data could not be loaded. Retry before making a purchase.':'';
-    state.error='';await Promise.all([refreshSocial(),refreshFrames()]);await heartbeat();
+    state.error='';await Promise.all([refreshSocial(),refreshFrames(),refreshPlayRewards()]);await heartbeat();
    }catch(e){if(revision===generation)state.error=e.message;}
    finally{if(revision===generation){state.ready=true;state.loading=false;notify();}refreshPromise=null;}
   })();return refreshPromise;
@@ -99,7 +105,8 @@
  }
  window.repoAccount=Object.freeze({state,refresh,refreshSocial,refreshFrames,signIn,signOut,buyPack,openPack,buyFrame,equipFrame,api,rpc,db,setGame(id){game=id;heartbeat();},setAvatar:async avatar=>{const userId=state.user?.id,revision=generation;if(!userId)throw Error('Sign in to save your avatar.');const result=await api('avatar',{avatar});if(!result.ok||!result.avatar)throw Error('Your avatar could not be confirmed. Please reload your profile.');if(state.user?.id!==userId||generation!==revision)throw Error('Your account changed. Reload your profile.');if(state.social?.profile){state.social.profile.avatar=result.avatar;state.social.profile.photo_version=null;}notify();dispatchEvent(new Event('repo-profile-picture'));return result.avatar;},setProfile:async values=>{await api('profile',values);await refreshSocial();}});
  db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(refresh,0);});
- document.addEventListener('visibilitychange',()=>{heartbeat();if(!document.hidden&&state.user){refreshSocial();refreshFrames();}});
+ document.addEventListener('visibilitychange',()=>{heartbeat();if(!document.hidden&&state.user){refreshSocial();refreshFrames();refreshPlayRewards();}});
+ addEventListener('repo-play-rewards',()=>refreshPlayRewards());
  heartbeatTimer=setInterval(()=>{heartbeat();if(!document.hidden&&document.querySelector('#account-menu[open]')&&['friends','profile'].includes(document.querySelector('#account-menu').dataset.accountTab))refreshSocial();},15000);
  addEventListener('pagehide',()=>{clearInterval(heartbeatTimer);});
  refresh();

@@ -40,6 +40,17 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
    await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
    await page.waitForTimeout(50);assert.equal(requests.at(-1).active,true,'Visible games resume');
   }
+  // Repoints require both a running game clock and recent real input.
+  for(const game of ['comp-run','morogue']){
+   const origin=Object.keys(gameOrigins).find(o=>gameOrigins[o]===game);await page.goto(origin);await page.waitForFunction(()=>received.some(m=>m.type==='repo-game-tracker-ready'));
+   await page.evaluate(()=>{window.sim={active:true,time:0};window.REPO_GAME_REWARD_STATE=()=>sim;window.__moratalesSurvivor={game:{state:{get status(){return sim.active?'playing':'paused'},get actualTime(){return sim.time}}}};window.simTimer=setInterval(()=>{if(sim.active)sim.time++;},1000);});
+   await page.keyboard.down('w');await page.clock.runFor(40000);await page.waitForTimeout(100);
+   assert.equal(requests.at(-1).rewardActive,true,game+' earns while playing');
+   await page.evaluate(()=>sim.active=false);await page.clock.runFor(20000);await page.waitForTimeout(100);assert.equal(requests.at(-1).rewardActive,false,game+' pauses rewards in menus');
+   await page.evaluate(()=>sim.active=true);await page.clock.runFor(20000);await page.waitForTimeout(100);assert.equal(requests.at(-1).rewardActive,true,game+' resumes');
+   await page.keyboard.up('w');await page.clock.runFor(70000);await page.waitForTimeout(100);assert.equal(requests.at(-1).rewardActive,false,game+' idle does not earn');
+   await page.keyboard.down('w');await page.evaluate(()=>clearInterval(simTimer));await page.clock.runFor(40000);await page.waitForTimeout(100);assert.equal(requests.at(-1).rewardActive,false,game+' frozen clock does not earn despite held input');await page.keyboard.up('w');
+  }
   assert.equal(errors.length,0,errors.join('; '));
   console.log('PASS: separate game pages connect through the original account, track visible hours, pause hidden tabs, reject unapproved origins and never receive account tokens.');
  }finally{await browser.close();}

@@ -1,10 +1,11 @@
 const fs=require('fs'),assert=require('assert/strict'),{DatabaseSync}=require('node:sqlite');
 (async()=>{
- const source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public-anon'};");
+ const source=require('./api-test-imports.cjs')(fs.readFileSync('functions/api/dashboard/[[path]].js','utf8')).replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public-anon'};");
  const avatarImport="import avatarCatalog from '../../../account-assets/avatar-v2/catalog.json';";
  const prepared=source.replace("import frameCatalog from '../../../avatar-frame-catalog.json';",'const frameCatalog='+fs.readFileSync('avatar-frame-catalog.json','utf8')+';').replace(avatarImport,'const avatarCatalog='+fs.readFileSync('account-assets/avatar-v2/catalog.json','utf8')+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(prepared).toString('base64'));
  const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync('dashboard-social-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-playtime-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-avatar-schema.sql','utf8')+fs.readFileSync('dashboard-frames-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-privacy-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-profile-pictures-schema.sql','utf8'));
+ sql.exec(fs.readFileSync('dashboard-play-rewards-schema.sql','utf8')+fs.readFileSync('dashboard-comp-run-schema.sql','utf8'));
  const prepare=(query,values=[])=>({bind(...args){return prepare(query,args);},async first(){return sql.prepare(query).get(...values)||null;},async all(){return {results:sql.prepare(query).all(...values)};},async run(){return sql.prepare(query).run(...values);}});
  const env={DASHBOARD_DB:{prepare,async batch(statements){sql.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sql.exec('COMMIT');return results;}catch(e){sql.exec('ROLLBACK');throw e;}}}};
  const users={alice:'Alice',bob:'Bob',mallory:'Mallory'};let upstreamCalls=0;

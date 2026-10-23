@@ -1,6 +1,6 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),{DatabaseSync}=require('node:sqlite');
 (async()=>{
- let source=fs.readFileSync('functions/api/dashboard/[[path]].js','utf8');
+ let source=require('./api-test-imports.cjs')(fs.readFileSync('functions/api/dashboard/[[path]].js','utf8'));
  for(const [name,file] of [['config','dashboard-config.json'],['frameCatalog','avatar-frame-catalog.json'],['avatarCatalog','account-assets/avatar-v2/catalog.json']]){
   const value=name==='config'?{url:'https://auth.test',key:'test-public-key'}:JSON.parse(fs.readFileSync(file,'utf8'));
   source=source.replace(new RegExp('import '+name+' from [^;]+;'),'const '+name+'='+JSON.stringify(value)+';');
