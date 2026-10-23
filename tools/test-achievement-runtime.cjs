@@ -31,6 +31,6 @@ const fs=require('fs'),assert=require('node:assert/strict'),{DatabaseSync}=requi
  assert.equal((await call('bob','mine')).repoScore,0);
  sql.exec(fs.readFileSync('dashboard-achievements-schema.sql','utf8'));sql.exec(fs.readFileSync('dashboard-achievement-rules.sql','utf8'));assert.equal((await call('alice','mine')).repoScore,awarded,'Reapplying migration preserves awards');
  sql.exec('UPDATE dashboard_achievement_sessions SET expires_at=0');assert.equal((await submit({paid_orders:30})).status,409);
- assert.equal(sql.prepare('SELECT COUNT(*) n FROM dashboard_achievement_rules').get().n,317);
+ assert.equal(sql.prepare('SELECT COUNT(*) n FROM dashboard_achievement_rules').get().n,319);
  console.log('PASS: real SQL award ledger, progress, dates, retry safety, ownership, practice exclusion, server-calculated score, migration safety and real completion percentages.');
 })().catch(e=>{console.error(e);process.exit(1);});

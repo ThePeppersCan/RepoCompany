@@ -317,3 +317,6 @@ INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('com
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_015','comp-run','completed_rupture_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_016','comp-run','completed_rupture_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_017','comp-run','runners_unlocked',8,100) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_018','comp-run','completed_uncrowned_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_019','comp-run','completed_uncrowned_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;

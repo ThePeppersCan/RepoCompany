@@ -29,9 +29,9 @@ async function poll(fn,test,timeout=45000){const end=Date.now()+timeout;while(Da
   assert.deepEqual(await music(),{paused:true,volume:0,hidden:false,portalVisible:'false'});
   await portal.evaluate(()=>{dashboardAudio.reset();dashboardAudio.setMix('music',.8);});assert.equal((await music()).paused,true);
   report.checks.push('Real homepage music stops behind COMP-RUN while document.hidden stays false; audio settings cannot restart it');
-  await game.locator('#open-settings').click();await game.locator('#volume').fill('37');await game.locator('#settings-done').click();await game.locator('#choose-run').click();await game.locator('#start-run').click();await game.locator('#skip-opening').click();
+  await game.locator('#open-settings').click();await game.locator('#volume').fill('37');await game.locator('#settings-done').click();await game.locator('#choose-run').click();await game.locator('[data-course="uncrowned"]').click();await game.locator('#start-run').click();await game.locator('#skip-opening').click();
   await game.waitForTimeout(2000);await game.keyboard.press('Escape');await game.locator('#pause').waitFor({state:'visible'});await game.screenshot({path:path.join(qa,'comp-run-pause.png')});report.checks.push('Opening skip, gameplay mouse capture and Escape pause');
-  const rpc=await game.evaluate(()=>window.repoGameAchievements.request('run-start',{courseId:'rupture',mode:'normal',season:'rupture-4',version:'2.4.3'}));assert(rpc.run);report.checks.push('Native ranked request through the authenticated main process');
+  const rpc=await game.evaluate(()=>window.repoGameAchievements.request('run-start',{courseId:'uncrowned',mode:'normal',season:'uncrowned-1',version:'2.5.0'}));assert(rpc.run);report.checks.push('Native ranked request through the authenticated main process');
   await game.evaluate(()=>{void window.REPO_LAUNCHER.requestExit();});await poll(()=>shell.evaluate(()=>window.repoLauncher.getState()),s=>!s.running.includes('comp-run'));
   await poll(music,s=>!s.paused&&s.volume>0&&s.portalVisible==='true');report.checks.push('Music resumes on returning to collection');
   await portal.evaluate(()=>accountMenu.close());

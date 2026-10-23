@@ -1,25 +1,30 @@
-# COMP-RUN 2.4.2 release
+# COMP-RUN 2.5.0 release
 
-Browser source a40f79072eec7c44eea745d6787e3bedc43dd1e2 is published at https://comp-run.fluffy-star-4855.chatgpt.site/. COMP-RUN includes the logo-led interface, corrected Fault opening, a continuous destructive penstock chase at twice its previous speed, a faster spillway encounter, and lighting/scenery upgrades to Rupture and Last Bloom. Rupture Normal and Nightmare complete in furnished 120 Hz verification at 392.142 and 391.042 seconds, with eight gates and no unsafe/blocked movement. The new leaderboard season is `rupture-3`; earlier completion evidence still unlocks runners.
+Uncrowned is the ninth course: thirteen Morogue boss encounters across fifteen sections, with enclosed themed arenas, moving furniture landings, swings, three marked ascent towers and three large charged rebounds. The four supplied songs join the original boss score. Six default runners have revised models and realistic names; stable character IDs preserve existing unlocks. Short skippable escape endings and subtle wall-run motion complete the update.
+
+Last Bloom now allows players to land on the fixed exits while its gantry is still rotating. The physics resolver uses the actual world collision shapes and preserves carried momentum. Foliage is checked using its transformed geometry bounds against route visibility and movement volumes, clearing the obstructed late-course landing without adding rendering work.
 
 ## Packages and account integration
 
-The immutable native candidate contains 149 files (93,569,647 bytes), including 145 runtime files (48,089,001 bytes) and the exact offline ZIP parts. Runtime fingerprint: `3294ade57b944c1cff842f6c509ab328db0169240453db08e2c5cbef7844c57f`. Distribution fingerprint: `2d824cf4c2acdf2bdbb3c74b3b396591b72cc176046236d55072c04271ebfb9c`. The offline ZIP is 45,479,914 bytes, SHA-256 `36dcfe31684ed0868d5e0b5cea3f03379fd4126f981f4d043420e2a5d86222b8`.
+The immutable candidate contains 201 files (321,368,652 bytes). Its offline ZIP contains 190 exact runtime files and is 158,774,610 bytes; SHA-256 `49570f2f105fd40a119899e6be8d9cffcb7299f1f639feb6bf13b1e0c9e6881a`. The downloader's bounded archive limit is now 256 MiB. Full assembly, part/archive hashes, cancellation, retry and malformed responses are tested against the actual shipped archive.
 
-Production D1 has all three additive COMP-RUN tables and 17 achievements worth 700 points: each map in Normal and Nightmare plus unlocking all eight completion runners. Guest records stay local; account-owned completions can award achievements. New online personal bests require a server-issued session and valid ordered splits. These are client-attested records with server checks, not server-simulated physics.
+Production D1 contains 19 COMP-RUN achievements worth 775 points. The two additive Uncrowned awards cover Normal and Nightmare. Unlocking all runners still requires the original eight courses, so the new map does not alter an existing reward. There are eighteen map/difficulty boards. New Uncrowned records use `uncrowned-1` and all fifteen ordered gates; Last Bloom uses `bloom-4` after its collision change. Earlier completions still count toward unlocks. Records are client-attested with server validation, not server-simulated physics.
 
-The game uses portal-owned browser sign-in or bounded native account requests; account tokens stay outside the game. The native launcher release is 0.1.33 / sequence 33. Local settings, records and unlocks remain isolated by account; unfinished runs are not resumable and browser saves remain separate.
+The existing launcher 0.1.35 supports this package. Account tokens remain outside the game. Browser and native saves are separate; native settings and progress remain isolated by account.
 
 ## Existing-download preservation
 
-The old feed was recovered from checksum-verified local content and every available historical Pages deployment: 14,669 unique blobs and the exact current native manifests. Current versions are Morogue 0.1.0-preview.5, Moratales 0.1.0-preview.2 and Manager 0.1.0-preview.3. Earlier local packages must not replace those newer published versions.
+The complete base feed retains 14,669 historical content blobs and current manifests for Morogue 0.1.0-preview.7, Moratales 0.1.0-preview.2 and Manager 0.1.0-preview.3. The scoped `publish-comp-run-release.cjs` workflow compares every COMP-RUN payload file against fresh live browser bytes, hashes retained history, preserves the other manifests byte for byte and checks their live identity immediately before deployment. Older local feeds must not replace these versions.
 
-`publish-comp-run-release.cjs` is the scoped COMP-RUN workflow. It checks the base manifests against the current native feed, audits every COMP-RUN file against fresh live web bytes, hashes all retained historical blobs during immutable staging, preserves the other three manifests byte for byte, and checks their live identity again immediately before deployment. It rejects stale bases, corrupt history, changed packages and failed parity. Audit evidence is stored outside the public feed. `publish-game-release.cjs` remains the workflow when intentionally releasing all four reviewed game packages.
+## Verification and limits
 
-## Verification
+- All six furnished Uncrowned runs finished at 30, 60 and 120 Hz, in both difficulties, with all fifteen gates and valid records. Times range from 714.533 to 719.833 seconds.
+- All four furnished Last Bloom runs passed at 120 Hz, covering safe and fast branches in both difficulties. Forty-eight early-exit landings passed across frame rates and rotation phases; gap misses still fall.
+- Both furnished Rupture runs and both final-environment Small Hours runs passed. The lighting audit confirms Small Hours course and collision data match the previous published source exactly.
+- Eight escape scenes were checked in browser for visible action, pause, resume, skip and results. Music transition, boss-art provenance, runner, movement, checkpoint and foliage tests pass.
+- 309 native unit tests, production portal build, achievement/runtime tests, real SQL record tests and 117 Wibsworth source pins pass.
+- The installed Electron integration checks real WebGL startup, launcher music suspension, settings, pause, record requests, account switching and offline gating using isolated account services. No synthetic production records are submitted.
 
-302 native unit tests pass, including stale-feed and concurrent-release rejection. Real SQL tests cover separate difficulties/seasons, PB replacement, ties, ownership and retry safety. Production build and 117 Wibsworth source pins pass. The gallery's three reviewed 1920x1080 images are actual opening scenes from the immutable 2.4.2 payload, with provenance retained under release-evidence.
+An older Rupture destruction-unit assertion also fails on the unchanged published 2.4.3 baseline; the complete furnished Rupture simulations pass. The most aggressive Small Hours test takeoff preset hits an existing support, while its final-environment verification passes. These are retained limitations rather than claims that every historical test is green. Automated traversal and rendering checks do not measure human-perceived difficulty, audible listening quality or guarantee a particular GPU frame rate.
 
-The native integration script installs through Library.install and runs the real WebGL game, settings persistence, account switching, offline gating, pause and token-free record requests. Account/network services use isolated fixtures; no synthetic records are published. Browser checks cover 720p/narrow layouts, menus, Escape and keyboard focus. Automated checks do not verify audible output or substitute for a human playthrough.
-
-Publish the website and signed launcher feed through the existing GitHub-main/Cloudflare route. The static game feed uses its separate guarded deployment. Keep exact deployment, native and parity receipts with the release evidence; a prepared package alone does not establish publication.
+Release evidence records the source, native installation and full live parity. A prepared package alone does not establish publication; the browser Site, guarded native feed and portal must each report a successful deployment.
