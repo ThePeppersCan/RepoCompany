@@ -15,6 +15,8 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('nod
  assert.equal((await call('alice','run-start',base,api,'https://evil.test')).status,403);
  assert.equal((await start('alice',{season:'old'})).status,400);
  assert.equal((await start('alice',{mode:'practice'})).status,400);
+ assert.equal((await start('alice',{version:'2.8.9'})).status,400,'Unreviewed versions remain rejected');
+ for(const version of boards.compatibleVersions||[])assert.equal((await start('alice',{version})).status,200,'Previous compatible patch can keep submitting PBs');
  const a=await start('alice');assert.equal(a.status,200);
  assert.equal((await call('bob','run-finish',finish(a.run))).status,409);
  for(const patch of [{timeMs:1},{splits:[1,2]},{splits:[1,2,3,4,5,6,6,400000]},{username:'bob'},{timeMs:600000}])assert.equal((await call('alice','run-finish',finish(a.run,400000,patch))).status,400);
