@@ -30,16 +30,19 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('nod
  assert.equal((await call(null,'board?map=rupture&mode=normal&page=-1')).status,400);
  const nightmare=await start('alice',{mode:'nightmare'});assert.equal((await call('alice','run-finish',finish(nightmare.run,410000,{mode:'nightmare'}))).status,200);
  const {completionFacts}=require('../achievement-adapter-comp-run.js');
+ assert.equal(completionFacts({'uncrowned:normal':{time:700}}).runners_unlocked,0,'New map does not substitute for an original completion runner');
  const account=await call('alice','start',{game:'comp-run'},achievements);assert.equal(account.status,200);
  const earn=async(records)=>call('alice','progress',{game:'comp-run',session:account.session,facts:completionFacts(records)},achievements);
  let earned=await earn({'rupture:normal':{time:400},'rupture:practice':{time:12}});assert.equal(earned.newUnlocks.length,1);assert.equal(earned.repoScore,25);
  const all=Object.fromEntries(boards.maps.map((m,i)=>[m.id+':'+(i%2?'nightmare':'normal'),{time:500}]));
  earned=await earn(all);assert(earned.achievements.find(a=>a.id==='comp_run_017').unlocked_at);const score=earned.repoScore;assert.equal((await earn(all)).repoScore,score);
  assert.equal(completionFacts({'rupture:normal':{time:-1},'hollow:normal':{time:'10'}}).runners_unlocked,0);
+ for(const mode of ['normal','nightmare']){const extra={courseId:'uncrowned',mode,season:'uncrowned-1'},session=await start('alice',extra);sql.prepare('UPDATE comp_run_sessions SET started_at=started_at-300000 WHERE id=?').run(session.run);assert.equal((await call('alice','run-finish',finish(session.run,700000,{...extra,splits:Array.from({length:15},(_,i)=>i===14?700000:(i+1)*40000)}))).status,200);assert.equal((await call(null,'board?map=uncrowned&mode='+mode)).total,1);}
+ const beforeReward=earned.repoScore;earned=await earn({'uncrowned:normal':{time:700},'uncrowned:nightmare':{time:700}});assert(earned.achievements.find(a=>a.id==='comp_run_018').unlocked_at);assert(earned.achievements.find(a=>a.id==='comp_run_019').unlocked_at);
  const runtime=fs.readFileSync('achievement-adapter-comp-run.js','utf8');let identity=null,tracker,observed={},handlers={};const storage=new Map();
  const context={module:undefined,localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},repoGameAchievements:{get identity(){return identity;},active:true,register(v){tracker=v;},observe(v){observed=v;},request:async()=>({run:'server-id'})},addEventListener:(k,v)=>handlers[k]=v,dispatchEvent(){},CustomEvent:class{},document:{hidden:false},Date};
  vm.runInNewContext(runtime,context);await handlers['comp-run-completed']({detail:{courseId:'hollow',mode:'normal',time:200,splits:[]}});identity='alice-id';tracker.sample();assert.equal(observed.completed_hollow_normal,undefined,'Guest finish never transfers to next signed-in account');
  await handlers['comp-run-completed']({detail:{courseId:'hollow',mode:'normal',time:200,splits:[]}});assert.equal(observed.completed_hollow_normal,1);identity='bob-id';await handlers['comp-run-completed']({detail:{courseId:'rupture',mode:'normal',time:300,splits:[]}});assert.equal([...storage.keys()].some(k=>k.includes('bob')),false,'Account switching cannot transfer evidence');
  for(const f of ['dashboard-achievement-rules.sql','dashboard-comp-run-schema.sql'])sql.exec(fs.readFileSync(f,'utf8'));assert.equal((await call(null,'board?map=rupture&mode=normal')).total,2);
- global.fetch=realFetch;sql.close();console.log('PASS: 17 account achievements, mixed-mode roster reward, guest/account isolation; real SQL rankings, normal/nightmare separation, ties, PB replacement, retry safety, ownership, session/season/gate validation and additive migrations.');
+ global.fetch=realFetch;sql.close();console.log('PASS: 19 account achievements, mixed-mode roster reward, guest/account isolation; real SQL rankings, normal/nightmare separation, ties, PB replacement, retry safety, ownership, session/season/gate validation and additive migrations.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

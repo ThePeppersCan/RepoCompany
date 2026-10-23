@@ -1,0 +1,38 @@
+{
+  "scenes": [
+    {
+      "id": "sanctuary",
+      "passed": true
+    },
+    {
+      "id": "hollow",
+      "passed": true
+    },
+    {
+      "id": "playdate",
+      "passed": true
+    },
+    {
+      "id": "small-hours",
+      "passed": true
+    },
+    {
+      "id": "final-curtain",
+      "passed": true
+    },
+    {
+      "id": "last-bloom",
+      "passed": true
+    },
+    {
+      "id": "rupture",
+      "passed": true
+    },
+    {
+      "id": "uncrowned",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "recordsWritten": []
+}

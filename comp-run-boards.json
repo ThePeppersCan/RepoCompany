@@ -1,5 +1,5 @@
 {
-  "version": "2.4.3",
+  "version": "2.5.0",
   "maps": [
     {
       "id": "sanctuary",
@@ -40,7 +40,7 @@
     {
       "id": "last-bloom",
       "title": "The Last Bloom",
-      "season": "flow-2",
+      "season": "bloom-4",
       "gates": 12
     },
     {
@@ -48,6 +48,12 @@
       "title": "Rupture",
       "season": "rupture-4",
       "gates": 8
+    },
+    {
+      "id": "uncrowned",
+      "title": "Uncrowned",
+      "season": "uncrowned-1",
+      "gates": 15
     }
   ]
 }

@@ -1,0 +1,250 @@
+{
+  "course": "last-bloom",
+  "verifiedAt": "2026-10-23T01:12:16.446Z",
+  "physicsHz": 120,
+  "inputHashes": {
+    "last-bloom.js": "86fad44a6157a5cfba25a6afd94fa6a4de95ff61a1bb7930f6cec8849cdd873a",
+    "last-bloom-layout.js": "7604a9ee263669cd143144b04c0c4531a8bc6ffea501e410c8933fba430c8fee",
+    "last-bloom-dressing.js": "54ff4932352317a7221a4cdc1933a9d2483b712c625b61e605b9c9010e42833d",
+    "last-bloom-lighting.js": "21d0f9650fdd6e3efd5cfe4f60303b0b7d85def7b28c2cdd14053bb9a5a71cf7",
+    "last-bloom-branches.js": "c09db185afff6df919f2b59d5334f4c0db50ee8d164fdbf41c4879c29f79419a",
+    "last-bloom-destruction.js": "27d6a463750b3822edc29bf8e70cc5e57bae2576b0b99f16d9c56e95458ba951",
+    "last-bloom-opening.js": "dcd9739acb1ec036acf3f09fa074bed6e24ff0f36ecfd1ddb7787afe944e5a89",
+    "bloom-creatures.js": "f248b0c2e72c9d894f917fc321d361ab468d63aa363c3adcd0571908dea51b3b",
+    "final-curtain-mechanisms.js": "0b7273dcdf7547989612828407b2dc85de513609606ccee66d17bbebf1f58cfb",
+    "stage.js": "f27bc08651527ee9b976f440c81543476ee0b64e3a983a903122640f393f2296",
+    "movement.js": "f7bf83a77748e4d8c608234c526b9460e068adb79e284ab166198b6a7bc0cc14",
+    "race.js": "a86003968aa93e25543e45edacb94569e9250301b80cc5108719d27fc23f3548",
+    "traversal.js": "0605e22ef9f57fd61680b220f99c2b792e2a0f51b64e15e7922e67abae787fa3",
+    "traversal-visuals.js": "c2bafea88c0a03c3626b1ee8e19d898f3028700eadf43ce7d7c31311241110ec",
+    "track-path.js": "1c916134289f726882b67d60629ccab73c6be17799dcc8fc1a0064c756477f6b",
+    "checkpoints.js": "97a4940f43e7d4c89fa9efd255eb42cf7b88ba5104d815924ac2b20d24567b8d",
+    "../tests/bloom-route-bot.mjs": "d9b3d0722c0195384e288d9e9e32a38e5336046ea00d6a64bcf374d59379f7dc",
+    "../tests/rupture-climbing.mjs": "be2760d10e77f981b1306d27d9321993e338ebc931b4fdae30b1a3a855618648"
+  },
+  "hashNormalization": "Only ?v=<version> cache queries in relative ESM import/export/dynamic-import specifiers are removed before SHA-256. Every other source byte is retained.",
+  "visualReview": "This proves real controller, collision, physical destruction and ordered race progression through the furnished GameWorld. It does not verify rendered appearance or GPU frame rate.",
+  "transitionMatrix": "node tests/bloom-course.mjs: Normal and Nightmare, 30/60/120 Hz, three lateral takeoff offsets, both physical lines at all forks",
+  "branchVerification": "The bot starts from the safe canonical course and targets a chosen line. Production updateBloomBranches adopts it only after actual support contact; there is no branch preselection or progress bypass.",
+  "topology": {
+    "chapters": 12,
+    "rooms": 8,
+    "length": 8209.529212666695,
+    "sequences": 17,
+    "canonicalLine": "safe",
+    "maxConsecutiveOrdinaryJumps": 9,
+    "rebounds": 7,
+    "runUpLaunches": 1,
+    "movingFrames": [
+      "bloom-sinking-skiff",
+      "bloom-irrigation-carousel"
+    ],
+    "forks": [
+      "road-root-fork",
+      "garden-root-fork",
+      "nursery-trellis-fork"
+    ],
+    "reactivePieces": 15,
+    "handover": {
+      "index": 158,
+      "s": 3256.494624177273,
+      "roomId": "vestibule",
+      "position": {
+        "x": 0,
+        "y": 26,
+        "z": -180
+      }
+    },
+    "finish": {
+      "x": 94.5,
+      "y": 34,
+      "z": 638
+    }
+  },
+  "runs": [
+    {
+      "mode": "normal",
+      "branches": "safe",
+      "physicsHz": 120,
+      "status": "finished",
+      "reason": "",
+      "time": 568.283,
+      "validRecord": true,
+      "minLead": 64.408,
+      "maxLead": 277.52,
+      "expectedJumps": 255,
+      "expectedGates": 12,
+      "passedGates": 12,
+      "nextGate": 12,
+      "targetIndex": 411,
+      "collectables": 12,
+      "branchChoices": {
+        "road-root-fork": "safe",
+        "garden-root-fork": "safe",
+        "nursery-trellis-fork": "safe"
+      },
+      "executed": {
+        "jumpTakeoffs": 255,
+        "gapLandings": 255,
+        "slides": 10,
+        "rebounds": 7,
+        "wallContacts": 5,
+        "manualSwings": 9,
+        "cables": 3,
+        "chutes": 7,
+        "completedMachines": 2,
+        "weightWarnings": 15,
+        "takeovers": 1
+      },
+      "destruction": {
+        "broken": 208,
+        "byCause": {
+          "horde": 70,
+          "root": 123,
+          "weight": 15
+        },
+        "maxRootContactError": 1.1718571004216928e-13
+      },
+      "badEvents": [],
+      "verifiedAt": "2026-10-23T01:08:49.893Z"
+    },
+    {
+      "mode": "normal",
+      "branches": "fast",
+      "physicsHz": 120,
+      "status": "finished",
+      "reason": "",
+      "time": 566.133,
+      "validRecord": true,
+      "minLead": 64.408,
+      "maxLead": 277.524,
+      "expectedJumps": 258,
+      "expectedGates": 12,
+      "passedGates": 12,
+      "nextGate": 12,
+      "targetIndex": 411,
+      "collectables": 12,
+      "branchChoices": {
+        "road-root-fork": "fast",
+        "garden-root-fork": "fast",
+        "nursery-trellis-fork": "fast"
+      },
+      "executed": {
+        "jumpTakeoffs": 258,
+        "gapLandings": 258,
+        "slides": 10,
+        "rebounds": 7,
+        "wallContacts": 5,
+        "manualSwings": 9,
+        "cables": 3,
+        "chutes": 7,
+        "completedMachines": 2,
+        "weightWarnings": 15,
+        "takeovers": 1
+      },
+      "destruction": {
+        "broken": 207,
+        "byCause": {
+          "horde": 69,
+          "root": 123,
+          "weight": 15
+        },
+        "maxRootContactError": 1.1368683772161603e-13
+      },
+      "badEvents": [],
+      "verifiedAt": "2026-10-23T01:10:10.252Z"
+    },
+    {
+      "mode": "nightmare",
+      "branches": "safe",
+      "physicsHz": 120,
+      "status": "finished",
+      "reason": "",
+      "time": 567.442,
+      "validRecord": true,
+      "minLead": 41.287,
+      "maxLead": 225.167,
+      "expectedJumps": 257,
+      "expectedGates": 12,
+      "passedGates": 12,
+      "nextGate": 12,
+      "targetIndex": 411,
+      "collectables": 12,
+      "branchChoices": {
+        "road-root-fork": "safe",
+        "garden-root-fork": "safe",
+        "nursery-trellis-fork": "safe"
+      },
+      "executed": {
+        "jumpTakeoffs": 257,
+        "gapLandings": 257,
+        "slides": 10,
+        "rebounds": 7,
+        "wallContacts": 5,
+        "manualSwings": 9,
+        "cables": 3,
+        "chutes": 7,
+        "completedMachines": 2,
+        "weightWarnings": 15,
+        "takeovers": 1
+      },
+      "destruction": {
+        "broken": 196,
+        "byCause": {
+          "horde": 69,
+          "root": 112,
+          "weight": 15
+        },
+        "maxRootContactError": 8.038873388460929e-14
+      },
+      "badEvents": [],
+      "verifiedAt": "2026-10-23T01:11:16.060Z"
+    },
+    {
+      "mode": "nightmare",
+      "branches": "fast",
+      "physicsHz": 120,
+      "status": "finished",
+      "reason": "",
+      "time": 565.442,
+      "validRecord": true,
+      "minLead": 33.696,
+      "maxLead": 225.171,
+      "expectedJumps": 260,
+      "expectedGates": 12,
+      "passedGates": 12,
+      "nextGate": 12,
+      "targetIndex": 411,
+      "collectables": 12,
+      "branchChoices": {
+        "road-root-fork": "fast",
+        "garden-root-fork": "fast",
+        "nursery-trellis-fork": "fast"
+      },
+      "executed": {
+        "jumpTakeoffs": 260,
+        "gapLandings": 260,
+        "slides": 10,
+        "rebounds": 7,
+        "wallContacts": 5,
+        "manualSwings": 9,
+        "cables": 3,
+        "chutes": 7,
+        "completedMachines": 2,
+        "weightWarnings": 15,
+        "takeovers": 1
+      },
+      "destruction": {
+        "broken": 196,
+        "byCause": {
+          "horde": 68,
+          "root": 113,
+          "weight": 15
+        },
+        "maxRootContactError": 1.1368683772161603e-13
+      },
+      "badEvents": [],
+      "verifiedAt": "2026-10-23T01:12:16.439Z"
+    }
+  ]
+}
