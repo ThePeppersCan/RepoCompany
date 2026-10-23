@@ -9,6 +9,7 @@ async function upstream(path,token,body){
 }
 export async function onRequest({request,env,params}){
  const url=new URL(request.url),origin=request.headers.get('Origin'),route=Array.isArray(params.path)?params.path.join('/'):params.path;
+ if(route==='races'||route?.startsWith('races/'))return env.COMP_RUN_RACES?env.COMP_RUN_RACES.fetch(request):reply({error:'Races are temporarily unavailable.'},503,origin);
  try{
   const db=env.DASHBOARD_DB;if(!db)return reply({error:'Rankings are temporarily unavailable.'},503,origin);
   if(route==='board'&&request.method==='GET'){
