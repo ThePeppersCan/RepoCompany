@@ -171,13 +171,13 @@ test('native visible playtime sends only game/visibility and pauses with the COM
   const frame = { style: {}, setAttribute() {}, contentWindow: { postMessage: (body, destination) => messages.push({ body: { ...body }, destination }) } };
   const document = { hidden: false, currentScript: { dataset: { game: 'comp-run' }, src: 'https://repocompany.uk/game-playtime-client.js' }, createElement: () => frame, body: { append() {} }, addEventListener: (type, fn) => listeners.set(type, fn) };
   const root = { document, location: { origin }, URL, REPO_LAUNCHER_CONTEXT: { gameId: 'comp-run', accountId: identity }, REPO_LAUNCHER_GAME: { get active() { return active; } },
-    addEventListener: (type, fn) => listeners.set(type, fn), setInterval: () => 1, clearInterval() {} };
+    performance: {now:()=>0}, addEventListener: (type, fn) => listeners.set(type, fn), setInterval: () => 1, clearInterval() {} };
   root.window = root;
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../../game-playtime-client.js'), 'utf8'), root);
   const handshake = { origin: 'https://repocompany.uk', source: frame.contentWindow, data: { type: 'repo-game-tracker-ready' } };
   listeners.get('message')({ ...handshake, origin: 'https://untrusted.test' }); assert.equal(messages.length, 0);
   listeners.get('message')(handshake);
-  assert.deepEqual(messages.at(-1), { body: { type: 'repo-game-activity', game: 'comp-run', active: true }, destination: 'https://repocompany.uk' });
+  assert.deepEqual(messages.at(-1), { body: { type: 'repo-game-activity', game: 'comp-run', active: true, rewardActive: false }, destination: 'https://repocompany.uk' });
   active = false; listeners.get('repo-game-playtime-visibility')(); assert.equal(messages.at(-1).body.active, false);
   active = true; document.hidden = true; listeners.get('visibilitychange')(); assert.equal(messages.at(-1).body.active, false);
   assert(!JSON.stringify(messages).includes(identity), 'no account identity or token crosses the tracker message channel');

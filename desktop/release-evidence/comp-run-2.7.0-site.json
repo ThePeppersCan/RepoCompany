@@ -1,0 +1,18 @@
+{
+  "version": "2.7.0",
+  "source": "0c2636121491c952f163a07f6a8a9f54796a6805",
+  "siteVersion": "appgprj_6ad7b33d2e988191b3af4b87fee50c1e~appgver_a5b9b6161f5c8191a08adc40643c286c",
+  "versionNumber": 33,
+  "deploymentId": "appgdep_6adb461f3dac819187be1bb3829296e9",
+  "url": "https://comp-run.fluffy-star-4855.chatgpt.site",
+  "status": "succeeded",
+  "archive": {
+    "archive_format": "tar",
+    "sediment_file_id": "file_00000000ce2881f4a4e1ab4df4ae9b69",
+    "content_hash": "sha256:463b88f353b7e041a5e3661cb66c39d2e77861cfc1dcfc718cc835f90c2dd45d",
+    "size_bytes": 181841920,
+    "file_count": 191
+  },
+  "portalDeployment": "https://fa7b970c.repocompany.pages.dev",
+  "raceWorkerVersion": "8ae12b33-518a-4f4a-9af8-914ccf91ae85"
+}

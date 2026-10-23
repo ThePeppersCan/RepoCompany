@@ -1,0 +1,16 @@
+{
+  "version": "2.7.0",
+  "endpoint": "https://repocompany.uk/api/comp-run",
+  "origin": "https://comp-run.fluffy-star-4855.chatgpt.site",
+  "passed": true,
+  "checks": [
+    "origin rejection",
+    "private invitation and host authorization",
+    "ready gate and synchronized countdown",
+    "pose relay",
+    "premature/invalid finish handling",
+    "results and rematch",
+    "host migration"
+  ],
+  "productionLeaderboardRecordsCreated": 0
+}

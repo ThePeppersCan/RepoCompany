@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const {WebSocket}=require('ws');
-const base='http://127.0.0.1:8799',origin='http://127.0.0.1:4193';
+const base=process.env.RACE_TEST_ENDPOINT||'http://127.0.0.1:8799',origin=process.env.RACE_TEST_ORIGIN||'http://127.0.0.1:4193';
 const sleep=t=>new Promise(r=>setTimeout(r,t));
 async function client(code,name,key){const ws=new WebSocket(base.replace('http','ws')+'/races/'+code,{headers:{Origin:origin}}),messages=[];ws.on('message',r=>messages.push(JSON.parse(r)));await new Promise((ok,no)=>{ws.once('open',ok);ws.once('error',no)});ws.send(JSON.stringify({type:'hello',version:'2.7.0',name,runner:'runner-01',key}));async function wait(check){for(let i=0;i<100;i++){const m=messages.findLast(check);if(m)return m;await sleep(30);}throw Error('Timed out: '+JSON.stringify(messages));}const welcome=await wait(m=>m.type==='welcome');return {ws,messages,id:welcome.id,send:m=>ws.send(JSON.stringify(m)),wait};}
 (async()=>{

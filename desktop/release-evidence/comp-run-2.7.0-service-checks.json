@@ -1,0 +1,24 @@
+{
+  "comp-run-boards.json": {
+    "status": 200,
+    "equal": true
+  },
+  "game-playtime-client.js": {
+    "status": 200,
+    "equal": true
+  },
+  "game-playtime-bridge.js": {
+    "status": 200,
+    "equal": true
+  },
+  "dashboard-playtime.js": {
+    "status": 200,
+    "equal": true
+  },
+  "play-rewards": {
+    "status": 401
+  },
+  "play": {
+    "status": 401
+  }
+}
