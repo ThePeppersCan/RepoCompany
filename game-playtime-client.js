@@ -23,7 +23,23 @@
   try{for(const pad of navigator.getGamepads?.()||[])if(pad&&(pad.buttons.some(b=>b.pressed)||pad.axes.some(a=>Math.abs(a)>.18)))lastInput=performance.now();}catch{}
   return active&&state.active===true&&advancing&&(held.size>0||performance.now()-lastInput<60000);
  }
- function pulse(active=!document.hidden){if(game==='comp-run'&&window.REPO_LAUNCHER_CONTEXT)active=active&&window.REPO_LAUNCHER_GAME?.active===true;if(ready)frame.contentWindow.postMessage({type:'repo-game-activity',game,active,rewardActive:earning(active)},dashboard);}
+ // Use the same authenticated connection as achievements and records. The
+ // separate iframe can lack the launcher's account in partitioned storage.
+ const direct=game==='comp-run'&&window.repoGameAchievements&&'activitySession' in window.repoGameAchievements;
+ let activitySession=null,sequence=-1,activityStarted=false,busy=false,lastBeat=0;
+ async function directPulse(active,stop=false){
+  if(busy)return;const cap=window.repoGameAchievements.activitySession;
+  if(!cap){activitySession=null;activityStarted=false;return;}
+  if(cap!==activitySession){activitySession=cap;sequence=-1;activityStarted=false;}
+  const session=activitySession;busy=true;lastBeat=performance.now();
+  try{
+   const response=await fetch(dashboard+'/api/comp-run/activity',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({session,sequence:++sequence,action:stop?'stop':activityStarted?'tick':'start',active:stop?false:active,rewardActive:!stop&&earning(active)}),keepalive:stop,signal:AbortSignal.timeout(12000)});
+   const result=await response.json();if(session!==activitySession)return;
+   if(!response.ok){if(response.status===409)activityStarted=false;return;}
+   activityStarted=!stop;if(result.reward){rewardState=result.reward;dispatchEvent(new CustomEvent('repo-game-rewards',{detail:rewardState}));}
+  }catch{}finally{busy=false;}
+ }
+ function pulse(active=!document.hidden,stop=false){if(game==='comp-run'&&window.REPO_LAUNCHER_CONTEXT)active=active&&window.REPO_LAUNCHER_GAME?.active===true;if(direct){void directPulse(active,stop);return;}if(ready)frame.contentWindow.postMessage({type:'repo-game-activity',game,active,rewardActive:earning(active)},dashboard);}
  function run(){clearInterval(timer);pulse();timer=setInterval(()=>pulse(),10000);}
  addEventListener('message',event=>{
   if(event.origin!==dashboard||event.source!==frame.contentWindow)return;
@@ -33,8 +49,8 @@
  });
  document.addEventListener('visibilitychange',()=>pulse());
  addEventListener('repo-game-playtime-visibility',()=>pulse());
- addEventListener('pagehide',()=>{pulse(false);clearInterval(timer);});
+ addEventListener('pagehide',()=>{pulse(false,true);clearInterval(timer);});
  addEventListener('pageshow',()=>{if(ready)run();});
  window.repoGamePlaytime=Object.freeze({game,get rewards(){return rewardState;}});
- document.body.append(frame);
+ if(direct){ready=true;timer=setInterval(()=>{if(!activityStarted||performance.now()-lastBeat>=10000)pulse();},2000);pulse();}else document.body.append(frame);
 })();

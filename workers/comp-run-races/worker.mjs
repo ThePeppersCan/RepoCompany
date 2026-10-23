@@ -1,6 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 
-const VERSION='2.7.1', MAX_PLAYERS=8, TTL=2*60*60*1000;
+const VERSION='2.8.0', MAX_PLAYERS=8, TTL=2*60*60*1000;
 const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned']);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);
@@ -34,7 +34,7 @@ export class RaceRoom extends DurableObject {
  constructor(ctx,env){super(ctx,env);this.ctx=ctx;this.room=null;ctx.blockConcurrencyWhile(async()=>{this.room=await ctx.storage.get('room')||null;});}
  async create(code,key){
   if(this.room)throw Error('Invitation collision. Try again.');
-  this.room={code,key,host:null,course:'playdate',mode:'normal',state:'lobby',round:0,startAt:0,createdAt:Date.now(),expiresAt:Date.now()+TTL,results:[]};
+  this.room={code,key,host:null,course:'playdate',mode:'normal',rules:'one-life',state:'lobby',round:0,startAt:0,createdAt:Date.now(),expiresAt:Date.now()+TTL,results:[]};
   await this.persist();await this.ctx.storage.setAlarm(this.room.expiresAt);
  }
  async persist(){await this.ctx.storage.put('room',this.room);}
@@ -46,7 +46,7 @@ export class RaceRoom extends DurableObject {
   return new Response(null,{status:101,webSocket:pair[0]});
  }
  members(){return sockets(this.ctx).map(ws=>({ws,data:ws.deserializeAttachment()})).filter(m=>m.data?.joined);}
- publicState(){const r=this.room;return {type:'room',code:r.code,host:r.host,course:r.course,mode:r.mode,state:r.state,round:r.round,startAt:r.startAt,serverTime:Date.now(),version:VERSION,results:r.results,players:this.members().map(({data:d})=>({id:d.id,name:d.name,runner:d.runner,ready:d.ready,finished:d.finished}))};}
+ publicState(){const r=this.room;return {type:'room',code:r.code,host:r.host,course:r.course,mode:r.mode,rules:r.rules||'one-life',state:r.state,round:r.round,startAt:r.startAt,serverTime:Date.now(),version:VERSION,results:r.results,players:this.members().map(({data:d})=>({id:d.id,name:d.name,runner:d.runner,ready:d.ready,finished:d.finished,deaths:d.deaths||0}))};}
  broadcast(value,except){for(const ws of sockets(this.ctx))if(ws!==except)send(ws,value);}
  async webSocketMessage(ws,raw){
   const d=ws.deserializeAttachment(),now=Date.now();if(!d||!this.room)return ws.close(1008,'Room expired.');
@@ -68,14 +68,14 @@ export class RaceRoom extends DurableObject {
   if(m.type==='ping'){send(ws,{type:'pong',sent:m.sent,serverTime:now});return;}
   const host=this.room.host===d.id;
   if(m.type==='configure'&&host&&this.room.state==='lobby'){
-   if(!COURSES.has(m.course)||!MODES.has(m.mode))return error('Choose a map and difficulty.');
-   this.room.course=m.course;this.room.mode=m.mode;for(const {ws:s,data:a}of this.members()){a.ready=false;s.serializeAttachment(a);}await this.persist();this.broadcast(this.publicState());return;
+   if(!COURSES.has(m.course)||!MODES.has(m.mode)||!['one-life','race'].includes(m.rules||'one-life'))return error('Choose a map and difficulty.');
+   this.room.course=m.course;this.room.mode=m.mode;this.room.rules=m.rules||'one-life';for(const {ws:s,data:a}of this.members()){a.ready=false;s.serializeAttachment(a);}await this.persist();this.broadcast(this.publicState());return;
   }
   if(m.type==='ready'&&this.room.state==='lobby'){d.ready=m.ready===true;ws.serializeAttachment(d);this.broadcast(this.publicState());return;}
   if(m.type==='start'&&host&&this.room.state==='lobby'){
    const members=this.members();if(members.length<2||members.some(p=>!p.data.ready))return error('At least two runners must be ready.');
    this.room.state='racing';this.room.round++;this.room.startAt=now+5000;this.room.results=[];
-   for(const {ws:s,data:a}of members){a.finished=false;a.poseAt=0;s.serializeAttachment(a);}
+   for(const {ws:s,data:a}of members){a.finished=false;a.deaths=0;a.poseAt=0;s.serializeAttachment(a);}
    await this.persist();this.broadcast(this.publicState());return;
   }
   if(m.type==='pose'&&this.room.state==='racing'&&!d.finished&&m.round===this.room.round){
@@ -83,10 +83,14 @@ export class RaceRoom extends DurableObject {
    if(!Array.isArray(m.pose)||m.pose.length!==7||m.pose.some(v=>!Number.isFinite(v)||Math.abs(v)>1e6))return;
    d.poseAt=now;ws.serializeAttachment(d);this.broadcast({type:'pose',id:d.id,round:this.room.round,at:now,pose:m.pose},ws);return;
   }
+  if(m.type==='respawn'&&this.room.rules==='race'&&this.room.state==='racing'&&!d.finished&&m.round===this.room.round){
+   if(now<this.room.startAt||now-(d.respawnAt||0)<300)return;
+   d.respawnAt=now;d.deaths=(d.deaths||0)+1;d.poseAt=0;ws.serializeAttachment(d);this.broadcast({type:'respawn',id:d.id,round:this.room.round,deaths:d.deaths});return;
+  }
   if(m.type==='finish'&&this.room.state==='racing'&&!d.finished&&m.round===this.room.round){
    const elapsed=now-this.room.startAt;if(elapsed<0)return;
    const finished=m.finished===true&&Number.isFinite(m.time)&&m.time>=10&&m.time*1000<=elapsed+1200;
-   d.finished=true;ws.serializeAttachment(d);this.room.results.push({id:d.id,name:d.name,finished,time:finished?m.time:null});
+   d.finished=true;ws.serializeAttachment(d);this.room.results.push({id:d.id,name:d.name,finished,time:finished?(this.room.rules==='race'?elapsed/1000:m.time):null,deaths:d.deaths||0});
    if(this.members().every(p=>p.data.finished))this.room.state='results';
    await this.persist();this.broadcast(this.publicState());return;
   }

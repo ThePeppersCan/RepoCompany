@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');
 const {WebSocket}=require('ws');
 const base=process.env.RACE_TEST_ENDPOINT||'http://127.0.0.1:8799',origin=process.env.RACE_TEST_ORIGIN||'http://127.0.0.1:4193';
 const sleep=t=>new Promise(r=>setTimeout(r,t));
-async function client(code,name,key){const ws=new WebSocket(base.replace('http','ws')+'/races/'+code,{headers:{Origin:origin}}),messages=[];ws.on('message',r=>messages.push(JSON.parse(r)));await new Promise((ok,no)=>{ws.once('open',ok);ws.once('error',no)});ws.send(JSON.stringify({type:'hello',version:'2.7.1',name,runner:'runner-01',key}));async function wait(check){for(let i=0;i<100;i++){const m=messages.findLast(check);if(m)return m;await sleep(30);}throw Error('Timed out: '+JSON.stringify(messages));}const welcome=await wait(m=>m.type==='welcome');return {ws,messages,id:welcome.id,send:m=>ws.send(JSON.stringify(m)),wait};}
+async function client(code,name,key){const ws=new WebSocket(base.replace('http','ws')+'/races/'+code,{headers:{Origin:origin}}),messages=[];ws.on('message',r=>messages.push(JSON.parse(r)));await new Promise((ok,no)=>{ws.once('open',ok);ws.once('error',no)});ws.send(JSON.stringify({type:'hello',version:'2.8.0',name,runner:'runner-01',key}));async function wait(check){for(let i=0;i<100;i++){const m=messages.findLast(check);if(m)return m;await sleep(30);}throw Error('Timed out: '+JSON.stringify(messages));}const welcome=await wait(m=>m.type==='welcome');return {ws,messages,id:welcome.id,send:m=>ws.send(JSON.stringify(m)),wait};}
 (async()=>{
  assert.equal((await fetch(base+'/races/new',{method:'POST',headers:{Origin:'https://evil.invalid'}})).status,403);
  const r=await fetch(base+'/races/new',{method:'POST',headers:{Origin:origin}});assert.equal(r.status,201);const room=await r.json();assert.match(room.code,/^[A-HJ-NP-Z2-9]{8}$/);
@@ -18,6 +18,13 @@ async function client(code,name,key){const ws=new WebSocket(base.replace('http',
  b.send({type:'finish',round:1,finished:true,time:999});await a.wait(m=>m.type==='room'&&m.results.length===1);assert.equal(a.messages.findLast(m=>m.type==='room').results[0].finished,false);
  a.send({type:'finish',round:1,finished:false});await b.wait(m=>m.type==='room'&&m.state==='results');
  a.send({type:'rematch'});await b.wait(m=>m.type==='room'&&m.state==='lobby'&&m.round===1);assert.equal(b.messages.findLast(m=>m.type==='room').players.some(p=>p.ready),false);
+ a.send({type:'configure',course:'playdate',mode:'normal',rules:'race'});await b.wait(m=>m.type==='room'&&m.rules==='race');
+ a.send({type:'ready',ready:true});b.send({type:'ready',ready:true});await a.wait(m=>m.type==='room'&&m.rules==='race'&&m.players.every(p=>p.ready));a.send({type:'start'});
+ const second=await b.wait(m=>m.type==='room'&&m.state==='racing'&&m.round===2);await sleep(Math.max(0,second.startAt-Date.now()+100));
+ a.send({type:'respawn',round:2});const restart=await b.wait(m=>m.type==='respawn'&&m.round===2);assert.equal(restart.id,a.id);assert.equal(restart.deaths,1);
+ b.send({type:'pose',round:2,pose:[50,30,60,0,90,12,1]});await a.wait(m=>m.type==='pose'&&m.round===2);assert.equal(b.messages.findLast(m=>m.type==='room').startAt,second.startAt,'Restart keeps the shared race clock');
+ assert.equal(b.messages.findLast(m=>m.type==='room').results.length,0,'A fall does not eliminate anyone in Race');
+ a.send({type:'finish',round:2,finished:false});b.send({type:'finish',round:2,finished:false});await a.wait(m=>m.type==='room'&&m.round===2&&m.state==='results');
  a.ws.close(1000);const migrated=await b.wait(m=>m.type==='room'&&m.host===b.id);assert.equal(migrated.players.length,1);b.ws.close(1000);
  console.log('PASS: origin, invitations, host authorization, ready gate, shared countdown, pose relay, premature/invalid finishes, results, rematch, host migration.');
 })().catch(e=>{console.error(e);process.exit(1)});
