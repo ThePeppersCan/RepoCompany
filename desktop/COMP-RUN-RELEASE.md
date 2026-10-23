@@ -1,3 +1,19 @@
+# COMP-RUN 2.6.0 release
+
+Uncrowned now has thirteen individually authored encounter routes and architectural treatments. Bosses travel on supported galleries alongside the player, with distinct warned environmental attacks. Repeated transport sections have been replaced with shorter combinations through encounter-specific furniture and structures. Full furnished runs at the game's fixed 120 Hz physics step take approximately 10.5 minutes in both difficulties.
+
+Private multiplayer rooms support two to eight runners, every map and either difficulty. Remote runners have no collision. A common countdown, ready controls, standings, results, host migration and rematches are provided by the dedicated `repocompany-comp-run-races` Durable Object service through the portal service binding. Menus cannot pause a live race. Account tokens remain outside room messages; PBs use the existing authenticated completion path. Records remain client-attested with session and gate validation, not server-simulated physics.
+
+The rebuilt route uses season `uncrowned-2`. Earlier completion evidence remains available for earned rewards; other map seasons are unchanged. Version 2.6.0 is accepted by the portal record endpoint.
+
+The immutable native package contains 202 files, 265,959,313 bytes. The offline ZIP contains 193 runtime files, 131,324,295 bytes, SHA-256 `783e99897078d8ba8efbc19709a317146c7acda4b3bf6568d68b530ec4a9152e`. All four supplied MP3s and the fifteen original boss recordings are retained. Launcher 0.1.35 supports this runtime without a new installer.
+
+Validation: full furnished Normal and Nightmare runs at 120 Hz, all thirteen boss/arena render checks, room-service integration, two real browser clients, solo pause and eight escape endings, actual native Library.install and Electron startup/account/music/settings checks, offline archive assembly/hash/error tests, portal SQL record tests and production build. The optional 30 Hz physics bot fails an early Admiral takeoff; the shipped game uses fixed 120 Hz simulation even at lower rendering rates. CPU render submission timings are not a GPU frame-rate guarantee or a human difficulty measurement.
+
+Publication receipts are recorded under `desktop/release-evidence/comp-run-2.6.0-*`. The scoped native publisher must preserve the complete 2.5.0 feed, its historical blobs and the other three current game manifests, and compare all 202 payload files with the published website before deployment.
+
+---
+
 # COMP-RUN 2.5.0 release
 
 Uncrowned is the ninth course: thirteen Morogue boss encounters across fifteen sections, with enclosed themed arenas, moving furniture landings, swings, three marked ascent towers and three large charged rebounds. The four supplied songs join the original boss score. Six default runners have revised models and realistic names; stable character IDs preserve existing unlocks. Short skippable escape endings and subtle wall-run motion complete the update.

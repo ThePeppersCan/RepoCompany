@@ -37,3 +37,11 @@ database_id = "a72085d9-2324-40ad-8e18-004c01a14f5c"
 [[env.production.services]]
 binding = "REPO_VOICE"
 service = "repocompany-voice"
+
+[[env.production.services]]
+binding = "COMP_RUN_RACES"
+service = "repocompany-comp-run-races"
+
+[[env.preview.services]]
+binding = "COMP_RUN_RACES"
+service = "repocompany-comp-run-races"
