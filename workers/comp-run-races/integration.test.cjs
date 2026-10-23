@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');
 const {WebSocket}=require('ws');
 const base=process.env.RACE_TEST_ENDPOINT||'http://127.0.0.1:8799',origin=process.env.RACE_TEST_ORIGIN||'http://127.0.0.1:4193';
 const sleep=t=>new Promise(r=>setTimeout(r,t));
-async function client(code,name,key,version='2.9.1'){const ws=new WebSocket(base.replace('http','ws')+'/races/'+code,{headers:{Origin:origin}}),messages=[];ws.on('message',r=>messages.push(JSON.parse(r)));await new Promise((ok,no)=>{ws.once('open',ok);ws.once('error',no)});ws.send(JSON.stringify({type:'hello',version,name,runner:'runner-01',key}));async function wait(check){for(let i=0;i<100;i++){const m=messages.findLast(check);if(m)return m;await sleep(30);}throw Error('Timed out: '+JSON.stringify(messages));}const welcome=await wait(m=>m.type==='welcome');return {ws,messages,id:welcome.id,send:m=>ws.send(JSON.stringify(m)),wait};}
+async function client(code,name,key,version='2.10.0'){const ws=new WebSocket(base.replace('http','ws')+'/races/'+code,{headers:{Origin:origin}}),messages=[];ws.on('message',r=>messages.push(JSON.parse(r)));await new Promise((ok,no)=>{ws.once('open',ok);ws.once('error',no)});ws.send(JSON.stringify({type:'hello',version,name,runner:'runner-01',key}));async function wait(check){for(let i=0;i<100;i++){const m=messages.findLast(check);if(m)return m;await sleep(30);}throw Error('Timed out: '+JSON.stringify(messages));}const welcome=await wait(m=>m.type==='welcome');return {ws,messages,id:welcome.id,send:m=>ws.send(JSON.stringify(m)),wait};}
 (async()=>{
  assert.equal((await fetch(base+'/races/new',{method:'POST',headers:{Origin:'https://evil.invalid'}})).status,403);
  for(const value of ['https://evil.invalid','null'])assert.equal((await fetch(base+'/races/new',{method:'POST',headers:{Origin:value,'X-Comp-Run-Client':'1'}})).status,403,'Marker never overrides an untrusted origin');
@@ -14,6 +14,7 @@ async function client(code,name,key,version='2.9.1'){const ws=new WebSocket(base
  const a=await client(room.code,'Host',room.key),b=await client(room.code,'Guest <script>',undefined,'2.9.0');
  assert.equal((await a.wait(m=>m.type==='room'&&m.players.length===2)).host,a.id);
  b.send({type:'configure',course:'last-draft',mode:'nightmare'});await sleep(80);assert.equal(a.messages.findLast(m=>m.type==='room').course,'playdate');
+ a.send({type:'configure',course:'rep-orca',mode:'normal'});await a.wait(m=>m.type==='error'&&m.message.includes('Every runner'));assert.equal(a.messages.findLast(m=>m.type==='room').course,'playdate');
  a.send({type:'start'});await a.wait(m=>m.type==='error'&&m.message.includes('ready'));
  a.send({type:'configure',course:'last-draft',mode:'nightmare'});await b.wait(m=>m.type==='room'&&m.course==='last-draft');
  a.send({type:'ready',ready:true});b.send({type:'ready',ready:true});await a.wait(m=>m.type==='room'&&m.players.every(p=>p.ready));a.send({type:'start'});
@@ -31,5 +32,7 @@ async function client(code,name,key,version='2.9.1'){const ws=new WebSocket(base
  assert.equal(b.messages.findLast(m=>m.type==='room').results.length,0,'A fall does not eliminate anyone in Race');
  a.send({type:'finish',round:2,finished:false});b.send({type:'finish',round:2,finished:false});await a.wait(m=>m.type==='room'&&m.round===2&&m.state==='results');
  a.ws.close(1000);const migrated=await b.wait(m=>m.type==='room'&&m.host===b.id);assert.equal(migrated.players.length,1);b.ws.close(1000);
+ const or=await (await fetch(base+'/races/new',{method:'POST',headers:{Origin:origin}})).json(),oa=await client(or.code,'Orca host',or.key),ob=await client(or.code,'Orca guest');
+ oa.send({type:'configure',course:'rep-orca',mode:'nightmare',rules:'race'});await ob.wait(m=>m.type==='room'&&m.course==='rep-orca');oa.send({type:'ready',ready:true});ob.send({type:'ready',ready:true});await oa.wait(m=>m.type==='room'&&m.players.every(p=>p.ready));oa.send({type:'start'});const race=await ob.wait(m=>m.type==='room'&&m.state==='racing');assert.equal(race.course,'rep-orca');assert.equal(race.mode,'nightmare');assert.equal(race.rules,'race');oa.ws.close(1000);ob.ws.close(1000);
  console.log('PASS: origin, invitations, host authorization, ready gate, shared countdown, pose relay, premature/invalid finishes, results, rematch, host migration.');
 })().catch(e=>{console.error(e);process.exit(1)});
