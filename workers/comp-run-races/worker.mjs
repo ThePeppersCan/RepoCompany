@@ -1,7 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 
-const VERSION='2.8.0', MAX_PLAYERS=8, TTL=2*60*60*1000;
-const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned']);
+const VERSION='2.9.0', MAX_PLAYERS=8, TTL=2*60*60*1000;
+const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft']);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);
 const json=(value,status=200,origin)=>Response.json(value,{status,headers:{'Cache-Control':'no-store',...(ORIGINS.has(origin)?{'Access-Control-Allow-Origin':origin,Vary:'Origin'}:{})}});

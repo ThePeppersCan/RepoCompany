@@ -1,45 +1,45 @@
 {
-  "version": "2.8.0",
+  "version": "2.9.0",
   "maps": [
     {
       "id": "sanctuary",
-      "title": "The Last Sanctuary",
+      "title": "Walk, Don’t Run",
       "season": "flow-2",
       "gates": 6
     },
     {
       "id": "hollow",
-      "title": "The Hollow Below",
+      "title": "Split Second",
       "season": "flow-2",
       "gates": 6
     },
     {
       "id": "undertow",
-      "title": "A City Beneath God",
+      "title": "Beneath God",
       "season": "flow-2",
       "gates": 6
     },
     {
       "id": "playdate",
-      "title": "The Last Playdate",
+      "title": "You’re It",
       "season": "flow-2",
       "gates": 9
     },
     {
       "id": "small-hours",
-      "title": "The Small Hours",
+      "title": "Deadbolt",
       "season": "flow-2",
       "gates": 9
     },
     {
       "id": "final-curtain",
-      "title": "The Final Curtain",
+      "title": "Break a Leg",
       "season": "flow-2",
       "gates": 10
     },
     {
       "id": "last-bloom",
-      "title": "The Last Bloom",
+      "title": "Overgrowth",
       "season": "bloom-4",
       "gates": 12
     },
@@ -54,6 +54,12 @@
       "title": "Uncrowned",
       "season": "uncrowned-3",
       "gates": 15
+    },
+    {
+      "id": "last-draft",
+      "title": "The Last Draft",
+      "season": "draft-1",
+      "gates": 6
     }
   ]
 }
