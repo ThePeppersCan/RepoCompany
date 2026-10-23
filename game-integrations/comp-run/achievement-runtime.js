@@ -49,7 +49,7 @@
   if(changed){dirty=true;persist();}void flush();
  }
  function load(file){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=base+'/'+file+'?v=20261011-achievements-1';script.dataset.game=game;script.onload=resolve;script.onerror=reject;document.body.append(script);});}
- window.repoGameAchievements=Object.freeze({observe,connect,register(value){adapter=value;muted=value.muted||muted;},get identity(){return user;},request(kind,body){if(!['run-start','run-finish'].includes(kind)||!user||switched)return Promise.reject(Error('Sign in to Repo Company before starting a ranked run.'));return rpc(kind,body);},get active(){return started&&!testing&&!switched;},base});
+ window.repoGameAchievements=Object.freeze({observe,connect,register(value){adapter=value;muted=value.muted||muted;},get identity(){return user;},get activitySession(){return user&&!switched?session:null;},request(kind,body){if(!['run-start','run-finish'].includes(kind)||!user||switched)return Promise.reject(Error('Sign in to Repo Company before starting a ranked run.'));return rpc(kind,body);},get active(){return started&&!testing&&!switched;},base});
  if(native){const update=state=>account(state.status==='online'?window.REPO_LAUNCHER_CONTEXT.accountId:null);native.onConnectionChanged(update);native.checkConnection().then(update).catch(()=>account(null));}
  if(game==='comp-run'){const control=document.getElementById('connect-account');if(control){const label=()=>{control.textContent=user?(switched?'REOPEN GAME TO CONNECT':'ACCOUNT CONNECTED'):'CONNECT ACCOUNT';control.disabled=!!native||switched;};control.addEventListener('click',connect);addEventListener('repo-account-connection',label);label();}}
  if(tag.dataset.bundled!=='true')load('achievement-notifications.js').then(()=>load('achievement-adapter-'+game+'.js')).catch(()=>{});
@@ -115,22 +115,28 @@
   if(sending||Date.now()<nextSend||!bind())return;sending=true;
   try{for(const [id,payload]of Object.entries(queue)){
    if(Date.now()-payload.queuedAt>86400000){delete queue[id];save();continue;}
-   try{await client.request('run-finish',payload);if(client.identity!==owner)return;delete queue[id];save();root.dispatchEvent(new CustomEvent('comp-run-record-synced'));}
+   try{const result=await client.request('run-finish',Object.fromEntries(Object.entries(payload).filter(([key])=>key!=='frames')));if(client.identity!==owner)return;
+    if(result.replayToken&&Array.isArray(payload.frames)&&payload.frames.length){
+     const response=await fetch(client.base+'/api/comp-run/ghost-upload',{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({run:payload.run,token:result.replayToken,frames:payload.frames}),signal:AbortSignal.timeout(15000)});
+     if(!response.ok&&response.status!==409)throw Error('Replay upload will retry.');
+    }
+    delete queue[id];save();root.dispatchEvent(new CustomEvent('comp-run-record-synced'));}
    catch{nextSend=Date.now()+30000;break;}
   }}finally{sending=false;}
  }
  root.addEventListener('comp-run-started',event=>{
   run=null;const d=event.detail;if(!maps.includes(d?.courseId)||!['normal','nightmare'].includes(d.mode)||!bind())return;
-  const active={owner,courseId:d.courseId,mode:d.mode};run=active;
+  const active={owner,courseId:d.courseId,mode:d.mode,season:d.season};run=active;
   active.pending=(async()=>{for(const delay of [0,400,1000,2000]){if(delay)await new Promise(resolve=>setTimeout(resolve,delay));if(run!==active||client.identity!==active.owner)return null;try{const result=await client.request('run-start',d);active.id=result.run;return result;}catch{}}return null;})();
  });
  root.addEventListener('comp-run-completed',async event=>{
   const d=event.detail;if(!maps.includes(d?.courseId)||!['normal','nightmare'].includes(d.mode)||!Number.isFinite(d.time)||d.time<=0||!bind())return;
-  const name=d.courseId+':'+d.mode;if(!records[name]||d.time<records[name].time)records[name]={time:d.time};save();client.observe(completionFacts(records));
+  const raceOnly=d.ruleset==='race',name=(raceOnly?'race:':'')+d.courseId+':'+d.mode;if(!records[name]||d.time<records[name].time)records[name]={time:d.time};save();if(!raceOnly)client.observe(completionFacts(records));
   const active=run;run=null;if(!active||active.owner!==owner||active.courseId!==d.courseId||active.mode!==d.mode)return;
   await active.pending;if(!active.id||client.identity!==owner)return;
   // One queued best per board, always tied to the account that started the run.
-  const payload={run:active.id,courseId:d.courseId,mode:d.mode,version:d.version,timeMs:Math.round(d.time*1000),splits:d.splits.map(v=>Math.round(v*1000)),queuedAt:Date.now()};
+  const payload={run:active.id,courseId:d.courseId,mode:d.mode,version:d.version,season:active.season,timeMs:Math.round(d.time*1000),splits:d.splits.map(v=>Math.round(v*1000)),queuedAt:Date.now()};
+  if(Array.isArray(d.frames)&&d.frames.length>1){const step=Math.max(1,Math.ceil(d.frames.length/17998));payload.frames=d.frames.filter((_,i)=>i%step===0);if(payload.frames.at(-1)!==d.frames.at(-1))payload.frames.push(d.frames.at(-1));}
   if(!queue[name]||payload.timeMs<queue[name].timeMs)queue[name]=payload;save();void flush();
  });
  client.register({sample(){if(bind()){client.observe(completionFacts(records));void flush();}},muted(){return root.document?.hidden;}});

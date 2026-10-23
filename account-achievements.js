@@ -9,7 +9,7 @@
  function loadBadge(el){el.style.backgroundImage=`url("${el.dataset.sheet}")`;}
  function badge(a,shown,large=false){
   if(!shown)return `<span class="ach-badge ach-secret-badge${large?' ach-badge-large':''}" aria-hidden="true">${lock}</span>`;
-  const t=a.art;
+  const t=a.art;if(!t)return `<span class="ach-badge ach-secret-badge${large?' ach-badge-large':''}" aria-hidden="true">${lock}</span>`;
   return `<span class="ach-badge${large?' ach-badge-large':''}" aria-hidden="true" data-sheet="${esc(t.sheet)}" style="background-size:${t.sheetWidth/t.width*100}% ${t.sheetHeight/t.height*100}%;background-position:${t.x/(t.sheetWidth-t.width)*100}% ${t.y/(t.sheetHeight-t.height)*100}%"></span>`;
  }
  function artwork(g){
@@ -76,7 +76,7 @@
   if(g){categories();container.querySelector('#ach-sort').value=sort;list();}
  }
  function mount(element,options){
-  const gameId=['moratales','manager','morogue'].includes(options.game)?options.game:'';
+  const gameId=['moratales','manager','morogue','comp-run'].includes(options.game)?options.game:'';
   const changed=selected!==gameId;host=element;context=options;
   if(changed){selected=gameId;query='';category='all';sort='default';revealAll=false;}
   let container=host.querySelector('#account-achievements');

@@ -1,1 +1,1 @@
-(() => {const games={moratales:'Moratales',manager:'VelmoraManager',morogue:'Morogue'},id=location.hash.slice(1).split('/')[0];location.replace('/Account/Achievements'+(games[id]?'/'+games[id]:''));})();
+(() => {const games={moratales:'Moratales',manager:'VelmoraManager',morogue:'Morogue','comp-run':'CompRun'},id=location.hash.slice(1).split('/')[0];location.replace('/Account/Achievements'+(games[id]?'/'+games[id]:''));})();

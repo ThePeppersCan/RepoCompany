@@ -19,7 +19,7 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
    return route.fulfill({status:200,contentType:url.pathname.endsWith('.html')?'text/html':'text/javascript',body:fs.readFileSync(filename)});
   });
   const gameOrigins={'https://manager.repocompany.uk':'manager','https://moratales.repocompany.uk':'moratales','https://morogue.repocompany.uk':'morogue','https://comp-run.fluffy-star-4855.chatgpt.site':'comp-run','https://dragonbound.repocompany.uk':'dragonbound','https://evil.example':'manager'};
-  for(const [origin,game] of Object.entries(gameOrigins))await context.route(origin+'/**',route=>route.fulfill({status:200,contentType:'text/html',body:`<!doctype html><body><h1>Game fixture</h1><script>window.received=[];addEventListener('message',e=>received.push(e.data));</script><script defer src="${host}/game-playtime-client.js" data-game="${game}"></script></body>`}));
+  for(const [origin,game] of Object.entries(gameOrigins))await context.route(origin+'/**',route=>route.fulfill({status:200,contentType:'text/html',body:`<!doctype html><body><h1>Game fixture</h1><script>if(location.search.includes('direct'))window.repoGameAchievements={identity:'account-id',activitySession:'11111111-1111-4111-8111-111111111111'};window.received=[];addEventListener('message',e=>received.push(e.data));</script><script defer src="${host}/game-playtime-client.js" data-game="${game}"></script></body>`}));
   await page.goto(host+'/');await page.evaluate(({storageKey,session})=>localStorage.setItem(storageKey,JSON.stringify(session)),{storageKey,session});
   await page.clock.install();
   for(const [origin,game] of Object.entries(gameOrigins)){
@@ -51,6 +51,12 @@ const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),ass
    await page.keyboard.up('w');await page.clock.runFor(70000);await page.waitForTimeout(100);assert.equal(requests.at(-1).rewardActive,false,game+' idle does not earn');
    await page.keyboard.down('w');await page.evaluate(()=>clearInterval(simTimer));await page.clock.runFor(40000);await page.waitForTimeout(100);assert.equal(requests.at(-1).rewardActive,false,game+' frozen clock does not earn despite held input');await page.keyboard.up('w');
   }
+  const beforeDirect=requests.length;await page.goto('https://comp-run.fluffy-star-4855.chatgpt.site/?direct=1');await page.waitForTimeout(100);
+  await page.waitForFunction(()=>window.repoGamePlaytime);assert.equal(await page.locator('iframe').count(),0,'COMP-RUN activity reuses its connected account without another hidden sign-in');
+  assert(requests.slice(beforeDirect).some(r=>r.action==='start'&&r.session==='11111111-1111-4111-8111-111111111111'));
+  await page.clock.runFor(11000);await page.waitForTimeout(100);assert(requests.slice(beforeDirect).some(r=>r.action==='tick'&&r.active));
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new Event('visibilitychange'));});await page.waitForTimeout(100);assert.equal(requests.at(-1).active,false);
+  await page.evaluate(()=>repoGameAchievements.activitySession=null);const stopped=requests.length;await page.clock.runFor(40000);assert.equal(requests.length,stopped,'Signed-out game cannot keep claiming activity');
   assert.equal(errors.length,0,errors.join('; '));
   console.log('PASS: separate game pages connect through the original account, track visible hours, pause hidden tabs, reject unapproved origins and never receive account tokens.');
  }finally{await browser.close();}
