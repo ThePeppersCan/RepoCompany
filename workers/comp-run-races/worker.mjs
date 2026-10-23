@@ -1,6 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 
-const VERSION='2.10.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
+const VERSION='2.10.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
 const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca']);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);

@@ -9,7 +9,7 @@ async function client(code,name,key,version='2.10.0'){const ws=new WebSocket(bas
  assert.equal((await fetch(base+'/races/new',{method:'POST'})).status,403,'Missing origin alone is rejected');
  const preflight=await fetch(base+'/races/new',{method:'OPTIONS',headers:{Origin:origin,'Access-Control-Request-Headers':'X-Comp-Run-Client'}});assert.equal(preflight.status,204);assert.match(preflight.headers.get('Access-Control-Allow-Headers'),/X-Comp-Run-Client/);
  const installed=await fetch(base+'/races/new',{method:'POST',headers:{'X-Comp-Run-Client':'1'}});assert.equal(installed.status,201);const nativeRoom=await installed.json();assert.match(nativeRoom.code,/^[A-HJ-NP-Z2-9]{8}$/);
- const native=await client(nativeRoom.code,'Installed runner',nativeRoom.key);assert.equal((await native.wait(m=>m.type==='room')).host,native.id);native.ws.close(1000);
+ const native=await client(nativeRoom.code,'Installed runner',nativeRoom.key);assert.equal((await native.wait(m=>m.type==='room')).host,native.id);const patch=await client(nativeRoom.code,'Audio patch runner',undefined,'2.9.2');patch.ws.close(1000);native.ws.close(1000);
  const r=await fetch(base+'/races/new',{method:'POST',headers:{Origin:origin}});assert.equal(r.status,201);const room=await r.json();assert.match(room.code,/^[A-HJ-NP-Z2-9]{8}$/);
  const a=await client(room.code,'Host',room.key),b=await client(room.code,'Guest <script>',undefined,'2.9.0');
  assert.equal((await a.wait(m=>m.type==='room'&&m.players.length===2)).host,a.id);
