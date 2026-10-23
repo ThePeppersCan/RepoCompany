@@ -1,7 +1,7 @@
 (function(root){
  'use strict';
- const maps=['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned'];
- const runnerMaps=maps.filter(id=>id!=='uncrowned');
+ const maps=['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft'];
+ const runnerMaps=maps.filter(id=>!['uncrowned','last-draft'].includes(id));
  const metric=(id,mode)=>'completed_'+id.replaceAll('-','_')+'_'+mode;
  function completionFacts(records){
   const facts={};let runners=0;
