@@ -14,15 +14,15 @@
  if(!origins[parentOrigin]?.includes(game)&&!(local&&['moratales','manager','morogue','comp-run','dragonbound'].includes(game)))return;
  const config=window.repoDashboardConfig;
  const db=window.supabase.createClient(config.url,config.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
- const service=window.repoAccount={db,state:{user:null},playtimeActive:false};
+ const service=window.repoAccount={db,state:{user:null},playtimeActive:false,rewardActive:false};
  let lastActive=false,lease;
- function setActive(next){
-  const changed=lastActive!==next;lastActive=next;service.playtimeActive=next;
+ function setActive(next,rewardActive=false){
+  const changed=lastActive!==next||service.rewardActive!==rewardActive;lastActive=next;service.playtimeActive=next;service.rewardActive=next&&rewardActive;
   if(!window.repoPlaytime)return;
   if(next&&!window.repoPlaytime.game&&changed)window.repoPlaytime.start(game);
   else if(changed)dispatchEvent(new Event('repo-playtime-visibility'));
  }
- const core=document.createElement('script');core.src='dashboard-playtime.js?v=open-game-presence-1';
+ const core=document.createElement('script');core.src='dashboard-playtime.js?v=play-rewards-1';
  core.onload=async()=>{
   const {data}=await db.auth.getSession();service.state.user=data.session?.user||null;
   db.auth.onAuthStateChange((_event,session)=>{
@@ -31,12 +31,13 @@
   });
   addEventListener('message',event=>{
    if(event.source!==parent||event.origin!==parentOrigin||event.data?.type!=='repo-game-activity'||event.data.game!==game||typeof event.data.active!=='boolean')return;
-   clearTimeout(lease);setActive(event.data.active);
+   clearTimeout(lease);setActive(event.data.active,event.data.rewardActive===true);
    // A closed, navigated or stalled parent cannot leave a hidden tracker running.
    lease=setTimeout(()=>setActive(false),20000);
   });
   addEventListener('pageshow',event=>{if(event.persisted){lastActive=false;parent.postMessage({type:'repo-game-tracker-ready'},parentOrigin);}});
   parent.postMessage({type:'repo-game-tracker-ready'},parentOrigin);
+  addEventListener('repo-play-rewards',event=>parent.postMessage({type:'repo-play-rewards',game,reward:event.detail},parentOrigin));
  };
  document.body.append(core);
 })();

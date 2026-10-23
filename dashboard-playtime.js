@@ -8,11 +8,13 @@
  service.db.auth.onAuthStateChange((_event,session)=>{token=session?.access_token||null;if(!session)stop();});
  async function send(session,action,{keepalive=false}={}){
   if(!token)return;
-  const body={game:session.game,session:session.id,sequence:++session.sequence,action,active:action==='stop'?false:active()};
+  const body={game:session.game,session:session.id,sequence:++session.sequence,action,active:action==='stop'?false:active(),rewardActive:action!=='stop'&&active()&&service.rewardActive===true};
   try{
    const response=await fetch('/api/dashboard/play',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body),keepalive});
    if(response.status===409&&current===session){clearInterval(timer);current=null;}
    if(!response.ok)throw Error('Play time could not sync.');
+   const result=await response.json();
+   if(result.reward)dispatchEvent(new CustomEvent('repo-play-rewards',{detail:result.reward}));
    session.synced=true;
    if(action==='start')session.started=true;
   }catch{

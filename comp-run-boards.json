@@ -1,5 +1,5 @@
 {
-  "version": "2.6.1",
+  "version": "2.7.0",
   "maps": [
     {
       "id": "sanctuary",
@@ -52,7 +52,7 @@
     {
       "id": "uncrowned",
       "title": "Uncrowned",
-      "season": "uncrowned-2",
+      "season": "uncrowned-3",
       "gates": 15
     }
   ]

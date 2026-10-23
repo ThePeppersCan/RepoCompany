@@ -39,7 +39,9 @@ assert(index.includes('data-open-achievements="moratales"'));
 assert(!index.includes('href="/achievements"'),'The dashboard must keep achievements inside Account');
 for(const script of ['avatar-renderer.js','avatar-studio.js','account-profile.js','dashboard-playtime.js','account-achievements.js'])assert(index.includes(`src="${script}"`),`Missing restored component ${script}`);
 const {execFileSync}=require('node:child_process');
-for(const file of ['account-profile.css','avatar-renderer.js','avatar-studio.js','avatar-studio.css','dashboard-service.js','dashboard-playtime.js','functions/api/dashboard/[[path]].js','wrangler.toml','demo-library.js','legacy-launcher.js']){
+// Reward-bearing account/API/playtime files intentionally evolved. Their live
+// behavior is covered by test-play-rewards, test-playtime and test-social.
+for(const file of ['account-profile.css','avatar-renderer.js','avatar-studio.js','avatar-studio.css','demo-library.js','legacy-launcher.js']){
  const expected=execFileSync('git',['show',`fd6036fecead55f0dc0c43c1c0dfc6df6755034a:${file}`],{cwd:root,encoding:'utf8'}).replace(/\r\n/g,'\n');
  assert.equal(fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n'),expected,`Restored release changed unexpectedly: ${file}`);
 }
@@ -47,5 +49,5 @@ const profile=fs.readFileSync(path.join(root,'account-profile.js'),'utf8');
 for(const marker of ['profile-identity','profile-friends','profile-game-banner','repoAvatar','profile-presence','data-edit-avatar','data-block-player','Mutual friends'])assert(profile.includes(marker),`Missing restored profile feature: ${marker}`);
 for(const game of games)assert(fs.existsSync(path.join(root,game.id==='comp-run'?'original-case-assets/comp-run/hero-art.webp':`account-assets/${game.id}-activity-banner-v1.png`)));
 assert(fs.readFileSync(path.join(root,'homepage.js'),'utf8').includes("game:id.split('/')[2]"));
-console.log('PASS: restored profiles, Friends, banners, avatars, privacy API and play-time components match the previous live release.');
+console.log('PASS: restored profile/avatars/demo components remain intact; current profile features and banners exist.');
 console.log('PASS: 319 unique achievements / 10,225 RepoScore; search, reveal, categories, sorting and asset validation.');

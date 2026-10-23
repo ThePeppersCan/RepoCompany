@@ -12,6 +12,7 @@
     "deploy:production": "npm run build:production && wrangler pages deploy dist --project-name repocompany --branch main",
     "test:packs": "node tools/test-pack.cjs",
     "test:playtime": "node tools/test-playtime.cjs",
+    "test:play-rewards": "node tools/test-play-rewards.cjs && node tools/test-game-playtime.cjs",
     "test:profile": "node tools/test-profile.cjs",
     "test:game-playtime": "node tools/test-game-playtime.cjs",
     "test:avatar": "node tools/test-avatar-api.cjs && node tools/test-avatar-fit.cjs && node tools/test-avatar-ui.cjs",
@@ -23,6 +24,7 @@
     "node": ">=24"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11",
     "playwright": "1.63.0",
     "wrangler": "4.149.0"
   }
