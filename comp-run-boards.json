@@ -1,8 +1,9 @@
 {
-  "version": "2.9.2",
+  "version": "2.10.0",
   "compatibleVersions": [
     "2.9.0",
-    "2.9.1"
+    "2.9.1",
+    "2.9.2"
   ],
   "maps": [
     {
@@ -63,6 +64,12 @@
       "id": "last-draft",
       "title": "The Last Draft",
       "season": "draft-1",
+      "gates": 6
+    },
+    {
+      "id": "rep-orca",
+      "title": "REP-ORCA",
+      "season": "orca-1",
       "gates": 6
     }
   ]

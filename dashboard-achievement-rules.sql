@@ -316,7 +316,7 @@ INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('com
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_014','comp-run','completed_last_bloom_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_015','comp-run','completed_rupture_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_016','comp-run','completed_rupture_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
-INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_017','comp-run','runners_unlocked',8,100) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_017','comp-run','runners_unlocked',11,100) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_018','comp-run','completed_uncrowned_normal',1,25) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_019','comp-run','completed_uncrowned_nightmare',1,50) ON CONFLICT(id) DO UPDATE SET metric=excluded.metric,target=excluded.target;
@@ -324,3 +324,8 @@ INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('com
 -- Additive awards for the new course. Existing achievement rows remain intact.
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_020','comp-run','completed_last_draft_normal',1,25) ON CONFLICT(id) DO NOTHING;
 INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_021','comp-run','completed_last_draft_nightmare',1,50) ON CONFLICT(id) DO NOTHING;
+
+-- Add new awards; earned awards and RepoScore are never removed.
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_022','comp-run','completed_rep_orca_normal',1,25) ON CONFLICT(id) DO NOTHING;
+INSERT INTO dashboard_achievement_rules(id,game,metric,target,score) VALUES('comp_run_023','comp-run','completed_rep_orca_nightmare',1,50) ON CONFLICT(id) DO NOTHING;
+UPDATE dashboard_achievement_rules SET target=11 WHERE id='comp_run_017';
