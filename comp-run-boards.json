@@ -1,6 +1,9 @@
 {
-  "version": "2.9.1",
-  "compatibleVersions": ["2.9.0"],
+  "version": "2.9.2",
+  "compatibleVersions": [
+    "2.9.0",
+    "2.9.1"
+  ],
   "maps": [
     {
       "id": "sanctuary",
