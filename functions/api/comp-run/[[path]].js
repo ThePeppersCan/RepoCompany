@@ -2,6 +2,7 @@ import {recordPlayActivity} from '../../../lib/play-activity.mjs';
 import config from '../../../dashboard-config.json';
 import boards from '../../../comp-run-boards.json';
 const origins=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','http://127.0.0.1:4193']);
+const acceptedVersions=new Set([boards.version,...(boards.compatibleVersions||[])]);
 const maps=new Map(boards.maps.map(m=>[m.id,m]));
 const seasonFor=(map,rules)=>rules==='race'?'race:'+map.season:map.season;
 function validFrames(frames,time){
@@ -69,7 +70,7 @@ export async function onRequest({request,env,params}){
   const token=request.headers.get('Authorization')?.match(/^Bearer (.+)$/)?.[1];if(!token)return reply({error:'Sign in before starting a ranked run.'},401);
   const body=await readBody(request,4096);
   if(!body||typeof body!=='object'||Array.isArray(body)||['username','userId','score','rank'].some(k=>Object.hasOwn(body,k)))return reply({error:'Player identity comes from your account.'},400);
-  const map=maps.get(body.courseId);if(!map||!['normal','nightmare'].includes(body.mode)||body.version!==boards.version)return reply({error:'Update COMP-RUN to submit ranked times.'},400);
+  const map=maps.get(body.courseId);if(!map||!['normal','nightmare'].includes(body.mode)||!acceptedVersions.has(body.version))return reply({error:'Update COMP-RUN to submit ranked times.'},400);
   const season=body.season||map.season;if(![map.season,'race:'+map.season].includes(season))return reply({error:'This route has changed. Update the game.'},400);
   const user=await upstream('/auth/v1/user',token);if(!user?.id)return reply({error:'Sign in again.'},401);
   const result=await upstream('/rest/v1/rpc/get_my_character',token,{}),character=Array.isArray(result)?result[0]:result;
