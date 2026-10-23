@@ -1,0 +1,20 @@
+{
+  "profile": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\repo-company\\desktop\\qa\\comp-run-NYC5SV",
+  "release": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\releases\\comp-run-2.6.1\\native",
+  "install": "Actual Library.install from immutable local manifest",
+  "accountServices": "Isolated fixtures; no production requests",
+  "checks": [
+    "Downloaded and verified all manifest files through Library.install",
+    "Real WebGL game, native identity and token-free account capability",
+    "Real homepage music stops behind COMP-RUN while document.hidden stays false; audio settings cannot restart it",
+    "Opening skip, gameplay mouse capture and Escape pause",
+    "Native ranked request through the authenticated main process",
+    "Music resumes on returning to collection",
+    "Settings survive return to library and reopening",
+    "Disconnect gate and authenticated reconnect",
+    "Saved mute remains enabled after closing the game",
+    "Second account receives separate default settings"
+  ],
+  "errors": [],
+  "passed": true
+}

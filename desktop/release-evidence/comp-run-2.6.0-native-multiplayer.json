@@ -1,0 +1,13 @@
+{
+  "profile": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\repo-company\\desktop\\qa\\comp-run-IAOFuj",
+  "release": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\releases\\comp-run-2.6.0\\native",
+  "install": "Actual Library.install from immutable local manifest",
+  "accountServices": "Isolated fixtures; no production requests",
+  "checks": [
+    "Downloaded and verified all manifest files through Library.install",
+    "Real WebGL game, native identity and token-free account capability",
+    "Installed native game joins the public WebSocket race service and exchanges ready state with a second client"
+  ],
+  "errors": [],
+  "passed": true
+}

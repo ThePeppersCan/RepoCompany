@@ -1,0 +1,17 @@
+{
+  "version": "2.6.1",
+  "origin": "https://repocompany.uk/api/comp-run/races",
+  "passed": true,
+  "checks": [
+    "origin",
+    "invitations",
+    "host authorization",
+    "ready gate",
+    "shared countdown",
+    "pose relay",
+    "premature and invalid finishes",
+    "results",
+    "rematch",
+    "host migration"
+  ]
+}

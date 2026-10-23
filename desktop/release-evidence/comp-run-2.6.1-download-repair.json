@@ -1,0 +1,9 @@
+{
+  "version": "2.6.1",
+  "runtimeFiles": 193,
+  "runtimeUnchanged": true,
+  "archiveUnchanged": true,
+  "archiveSha256": "f759a6eafb3a2afd27dd805186a3f76e9f1c8fe06db65dc7ace6c9d46dc24126",
+  "parts": 9,
+  "reason": "The original fourth hosting object returned HTTP 500; split it into two content-addressed 8 MiB parts. Full assembly/hash/error checks pass."
+}

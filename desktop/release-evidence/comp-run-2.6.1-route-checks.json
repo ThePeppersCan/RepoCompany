@@ -1,0 +1,45 @@
+{
+  "version": "2.6.1",
+  "routes": [
+    {
+      "id": "uncrowned",
+      "mode": "normal",
+      "actualWorld": true,
+      "hz": 120,
+      "status": "finished",
+      "validRecord": true,
+      "nextGate": 15,
+      "time": 633.158,
+      "length": 8490.999,
+      "minLead": 64.275,
+      "maxLead": 99.875,
+      "finishedMechanisms": [
+        "uncrowned-194-orbital-ring",
+        "uncrowned-376-runaway-carriages",
+        "uncrowned-555-crown-ribs"
+      ]
+    },
+    {
+      "id": "uncrowned",
+      "mode": "nightmare",
+      "actualWorld": true,
+      "hz": 120,
+      "status": "finished",
+      "validRecord": true,
+      "nextGate": 15,
+      "time": 632.433,
+      "length": 8484.025,
+      "minLead": 32.996,
+      "maxLead": 66.806,
+      "finishedMechanisms": [
+        "uncrowned-194-orbital-ring",
+        "uncrowned-376-runaway-carriages",
+        "uncrowned-555-crown-ribs"
+      ]
+    }
+  ],
+  "limitations": [
+    "The 30 Hz physics bot fails an early Admiral takeoff. The shipped simulation runs at fixed 120 Hz.",
+    "Automated render submission timings do not guarantee GPU FPS or human-perceived difficulty."
+  ]
+}

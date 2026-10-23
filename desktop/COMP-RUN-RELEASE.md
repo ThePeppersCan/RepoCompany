@@ -4,7 +4,9 @@ This is the final release of the Uncrowned rebuild and private races described b
 
 The Pages API middleware now forwards successful WebSocket upgrades with their sockets intact. Its normal security and CORS response headers remain covered by a regression test. The actual installed native game also joined the public room service and exchanged ready state with a second client.
 
-The 2.6.1 immutable native package contains 202 files / 265,959,382 bytes. Its offline ZIP contains 193 files / 131,324,300 bytes, SHA-256 `f759a6eafb3a2afd27dd805186a3f76e9f1c8fe06db65dc7ace6c9d46dc24126`. Route geometry, rewards and seasons are unchanged from 2.6.0. Native publication must preserve the complete 2.6.0 feed and its prior games.
+The 2.6.1 immutable native package contains 203 files / 265,959,561 bytes. Its offline ZIP contains 193 files / 131,324,300 bytes, SHA-256 `f759a6eafb3a2afd27dd805186a3f76e9f1c8fe06db65dc7ace6c9d46dc24126`. The hosted ZIP is assembled from nine parts after replacing one unavailable 16 MiB object with two content-addressed halves; all 193 runtime files and the assembled ZIP remain unchanged. Reproduce it with `python scripts/package-offline.py --split-part 4`. Route geometry, rewards and seasons are unchanged from 2.6.0. Native publication must preserve the complete 2.6.0 feed and its prior games.
+
+Published: Site version 31 from `bdd45439cecbefbe16813bb224ce10cf36bf5995`; account portal `b2e4a0c9.repocompany.pages.dev`; native feed `cd1a5e24.repo-company-games.pages.dev`. All 203 live website files match the final native package, with no audit errors. The native feed preserves the existing Morogue, Moratales and Manager manifests and all retained content blobs.
 
 ---
 
