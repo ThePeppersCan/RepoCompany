@@ -1,3 +1,13 @@
+# COMP-RUN 2.6.1 release
+
+This is the final release of the Uncrowned rebuild and private races described below. A live two-browser check caught a start-time skew when scene construction took different lengths on each client. Capture the server clock offset before loading the world and drive the countdown from absolute server time. With an injected 1.3-second delay on one client, both clocks agree within 1 ms in the recorded run. Pausing, remote visibility, ready controls, results, rematch and host migration pass against the public service.
+
+The Pages API middleware now forwards successful WebSocket upgrades with their sockets intact. Its normal security and CORS response headers remain covered by a regression test. The actual installed native game also joined the public room service and exchanged ready state with a second client.
+
+The 2.6.1 immutable native package contains 202 files / 265,959,382 bytes. Its offline ZIP contains 193 files / 131,324,300 bytes, SHA-256 `f759a6eafb3a2afd27dd805186a3f76e9f1c8fe06db65dc7ace6c9d46dc24126`. Route geometry, rewards and seasons are unchanged from 2.6.0. Native publication must preserve the complete 2.6.0 feed and its prior games.
+
+---
+
 # COMP-RUN 2.6.0 release
 
 Uncrowned now has thirteen individually authored encounter routes and architectural treatments. Bosses travel on supported galleries alongside the player, with distinct warned environmental attacks. Repeated transport sections have been replaced with shorter combinations through encounter-specific furniture and structures. Full furnished runs at the game's fixed 120 Hz physics step take approximately 10.5 minutes in both difficulties.
