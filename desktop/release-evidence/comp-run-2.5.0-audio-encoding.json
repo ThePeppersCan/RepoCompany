@@ -1,0 +1,126 @@
+{
+  "encoding": "Opus 128 kb/s constrained VBR, stereo 48 kHz; no duration or gain edits",
+  "suppliedOriginalsUnchanged": true,
+  "files": [
+    {
+      "source": "admiral_music.mp3",
+      "sourceBytes": 5710848,
+      "sourceSha256": "ea1fe4d35c1d87ca99643d7c2d563c8898fe27e7f4bea1a8b565ad51204a292b",
+      "output": "admiral_music.ogg",
+      "outputBytes": 2887545,
+      "outputSha256": "bf00b0bd48c1c78d49997ffe8237f389d59b20a0b97dfe95e0d8dbe7f95e0871"
+    },
+    {
+      "source": "beekeeper_music.mp3",
+      "sourceBytes": 3519404,
+      "sourceSha256": "346f46e4011daf89fd10e92f43acdeab2c24277ab672854a4e7e55d59afd115c",
+      "output": "beekeeper_music.ogg",
+      "outputBytes": 2371496,
+      "outputSha256": "06df0cdd73c33695a1fcf5075e7261432c6b94876a9cc6690f8a0eda09403576"
+    },
+    {
+      "source": "briar_music.mp3",
+      "sourceBytes": 5809632,
+      "sourceSha256": "e76371fb214c9c0cb95263bd2005adf63b656006daae0e38fabd1ad8b647985f",
+      "output": "briar_music.ogg",
+      "outputBytes": 2916207,
+      "outputSha256": "58c07636a51f6ee35d501e21e4c8c4391c3fc6732cb15a71f34fff7c28adaad0"
+    },
+    {
+      "source": "cantor_music.mp3",
+      "sourceBytes": 3018284,
+      "sourceSha256": "bea21bae5b52696c998e90fba33b2b3687fcd3cc60a536726f044d6f32c5f062",
+      "output": "cantor_music.ogg",
+      "outputBytes": 2032532,
+      "outputSha256": "5d0fa6ccb1ddabd10a74f20d88170596b1b9626d138b4c8c37fdc204804c4b1f"
+    },
+    {
+      "source": "clock_music.mp3",
+      "sourceBytes": 5720189,
+      "sourceSha256": "33b01775a7a28d309fad6613f125fecebd39b39b1ac9bd39dd5a3981b6fd5b6a",
+      "output": "clock_music.ogg",
+      "outputBytes": 2849376,
+      "outputSha256": "02d7a90de0183d241add7a09bcad39c4ac1a65bf84cc4f582c1ad9ff8737c76c"
+    },
+    {
+      "source": "duelist_music.mp3",
+      "sourceBytes": 3770540,
+      "sourceSha256": "83787f981ec25f4194ce2b2e349a4a7ed04b1e14d14d5b708126ce398eeea2ea",
+      "output": "duelist_music.ogg",
+      "outputBytes": 2540916,
+      "outputSha256": "efb9b4028c446da8f9f1c0865d80ee4ffba0b4c30edfab95681988316575cba7"
+    },
+    {
+      "source": "kiln_music.mp3",
+      "sourceBytes": 7481088,
+      "sourceSha256": "441d0645a348df9b9a1f30afc785d287bd958b54370be3c9595807fd92a770d1",
+      "output": "kiln_music.ogg",
+      "outputBytes": 3782526,
+      "outputSha256": "2c2df7de15d79acbf53722b8f0efb7edf9924b8b15cbb4e768fd09dbcfe350fc"
+    },
+    {
+      "source": "magistrate_music.mp3",
+      "sourceBytes": 7196012,
+      "sourceSha256": "be786a4d48009df252db4d66fba8ccb9b34f52015e6a5d1594f4e70799a48b80",
+      "output": "magistrate_music.ogg",
+      "outputBytes": 4849792,
+      "outputSha256": "dc334aaf065d9a60698b2fbdc4409da792798a2484fccf2276a4059fe8a28a15"
+    },
+    {
+      "source": "oracle_music.mp3",
+      "sourceBytes": 3702572,
+      "sourceSha256": "db2c20de33f3270b8c38eee904d76dd27adf04c09e9e824df2b0203d7056a8f7",
+      "output": "oracle_music.ogg",
+      "outputBytes": 2495136,
+      "outputSha256": "a630fb522022e2ea1d272868efdf8177a331766fe44056e08ef7aa6bb955a570"
+    },
+    {
+      "source": "prism_music.mp3",
+      "sourceBytes": 4069250,
+      "sourceSha256": "55dd009507b79dc9f9bcc7caf7ebb22081518d7ae9a4ff040ac799460592b24d",
+      "output": "prism_music.ogg",
+      "outputBytes": 2057475,
+      "outputSha256": "3ad09067caeeffb0b3b73909d5a1f87e754719eda556f290b2d2c3c1eeb394f1"
+    },
+    {
+      "source": "railmaster_music.mp3",
+      "sourceBytes": 4900076,
+      "sourceSha256": "47fbb5f8d7ac706b92f91be8fe08ae8109632f7baa2c5090c6cfb44a10a2b4da",
+      "output": "railmaster_music.ogg",
+      "outputBytes": 3302766,
+      "outputSha256": "037d94ed27336c48ad160763ec72ba8a70009b46fa83507abf926d5c65a4a194"
+    },
+    {
+      "source": "star_music_v2.mp3",
+      "sourceBytes": 1237620,
+      "sourceSha256": "58f2123e38224258983837812a3941521fab23a58a4a6b315fd228c25eb5c249",
+      "output": "star_music_v2.ogg",
+      "outputBytes": 833908,
+      "outputSha256": "0afac304d554cd12588234104f125b88a9b3a2d5cd5b88031136501a0c812a86"
+    },
+    {
+      "source": "uncrowned_phase1.mp3",
+      "sourceBytes": 4944709,
+      "sourceSha256": "d8174a4417325937afe20d044b8847af36218f9964028877068e0fcfa5fc2db0",
+      "output": "uncrowned_phase1.ogg",
+      "outputBytes": 3332069,
+      "outputSha256": "a774e494e8a4ad3c0fd1f508447cdef7f9b4784043be0a9023c1cb8e988687e6"
+    },
+    {
+      "source": "uncrowned_phase2.mp3",
+      "sourceBytes": 4601229,
+      "sourceSha256": "5244b9efa9dc17c5d300370278436e0a266f2a2ab13cdadebc6e9726caf7b5ff",
+      "output": "uncrowned_phase2.ogg",
+      "outputBytes": 2893066,
+      "outputSha256": "b3ece33872acaf1e8ef0844eb0080b1da6b35b59f6789c7e7cee7a0ce9616549"
+    },
+    {
+      "source": "uncrowned_phase3.mp3",
+      "sourceBytes": 4487043,
+      "sourceSha256": "20eaae83c1238c396f50b2ac3a4bddd75ea5d06d8721ba9ec38e81a603a4add6",
+      "output": "uncrowned_phase3.ogg",
+      "outputBytes": 3024093,
+      "outputSha256": "b1f53ae4ce83323f002e34870f72d893fbf24e9a4dc48876ce972dc6de7fe67e"
+    }
+  ]
+}

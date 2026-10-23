@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-23T01:43:01.982Z",
+  "passed": true,
+  "games": [
+    {
+      "id": "comp-run",
+      "version": "2.5.0",
+      "files": 199,
+      "sha256": "7160bdca0a4b284101c040a834c266e6918ed4002d676db381addcf3c91c227c"
+    },
+    {
+      "id": "morogue",
+      "version": "0.1.0-preview.7",
+      "files": 608,
+      "sha256": "a071e9b1eb18c603fbca59c92e0d4d841ed9b0095daf2ad11b4c0db506375da7"
+    },
+    {
+      "id": "moratales",
+      "version": "0.1.0-preview.2",
+      "files": 1470,
+      "sha256": "16406ea1f4a9689c3ccc570eca3453f64328eff62822231717f294aee9a9408c"
+    },
+    {
+      "id": "manager",
+      "version": "0.1.0-preview.3",
+      "files": 15714,
+      "sha256": "741d0bfcdecbedcd190099297b902e7f505155beb87e05f46bc00840c1db6bcb"
+    }
+  ]
+}

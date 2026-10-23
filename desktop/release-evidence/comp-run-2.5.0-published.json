@@ -1,0 +1,40 @@
+{
+  "prepared": {
+    "project_id": "appgprj_6ad7b33d2e988191b3af4b87fee50c1e",
+    "checkout_path": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\comp-run-upload",
+    "commit_sha": "00e22d119250a6d6a139319a8960687eefac5677",
+    "archive": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\comp-run-optimized-3.tar"
+  },
+  "version": {
+    "id": "appgprj_6ad7b33d2e988191b3af4b87fee50c1e~appgver_7f107364dec481919a2990522e4aa1e2",
+    "project_id": "appgprj_6ad7b33d2e988191b3af4b87fee50c1e",
+    "version_number": 28,
+    "source": {
+      "commit_sha": "00e22d119250a6d6a139319a8960687eefac5677"
+    },
+    "archive_storage": {
+      "archive_format": "tar",
+      "sediment_file_id": "file_00000000a8388243b3d29742c9b4832f",
+      "content_hash": "sha256:a91ee21660543d29cf2b1a50bad6cc6167bc5962f16083c6e9c0c1ec10bf4a0a",
+      "size_bytes": 266055680,
+      "file_count": 200
+    },
+    "screenshot_url": null,
+    "deployment_id": null
+  },
+  "deployment": {
+    "id": "appgdep_6adaba76c9a8819195a6a9cc58a4a73c",
+    "project_id": "appgprj_6ad7b33d2e988191b3af4b87fee50c1e",
+    "title": "COMP-RUN",
+    "version_id": "appgprj_6ad7b33d2e988191b3af4b87fee50c1e~appgver_7f107364dec481919a2990522e4aa1e2",
+    "type": "publish",
+    "status": "succeeded",
+    "url": "https://comp-run.fluffy-star-4855.chatgpt.site",
+    "has_mcp": false,
+    "screenshot_asset_pointer": null,
+    "provider_deployment_id": "site---6ad7b33d2e988191b3af4b87fee50c1e",
+    "failure_message": null,
+    "env_set_revision": 0,
+    "updated_at": "2026-10-23T01:39:04.455301+00:00"
+  }
+}

@@ -6,7 +6,7 @@ Last Bloom now allows players to land on the fixed exits while its gantry is sti
 
 ## Packages and account integration
 
-The immutable candidate contains 201 files (321,368,652 bytes). Its offline ZIP contains 190 exact runtime files and is 158,774,610 bytes; SHA-256 `49570f2f105fd40a119899e6be8d9cffcb7299f1f639feb6bf13b1e0c9e6881a`. The downloader's bounded archive limit is now 256 MiB. Full assembly, part/archive hashes, cancellation, retry and malformed responses are tested against the actual shipped archive.
+The immutable candidate contains 199 files (265,903,106 bytes). Its offline ZIP contains 190 exact runtime files and is 131,308,988 bytes; SHA-256 `a1c5e0122cb439cc6d470f0331f2d152782439f097eeb436236eddbafb5b65f1`. The fifteen inherited Morogue recordings use 128 kb/s constrained-VBR Opus; all four supplied MP3s remain byte-for-byte unchanged. All nineteen tracks were decoded and played in Edge. The downloader's bounded archive limit is now 256 MiB. Full assembly, part/archive hashes, cancellation, retry and malformed responses are tested against the actual shipped archive.
 
 Production D1 contains 19 COMP-RUN achievements worth 775 points. The two additive Uncrowned awards cover Normal and Nightmare. Unlocking all runners still requires the original eight courses, so the new map does not alter an existing reward. There are eighteen map/difficulty boards. New Uncrowned records use `uncrowned-1` and all fifteen ordered gates; Last Bloom uses `bloom-4` after its collision change. Earlier completions still count toward unlocks. Records are client-attested with server validation, not server-simulated physics.
 
@@ -14,7 +14,7 @@ The existing launcher 0.1.35 supports this package. Account tokens remain outsid
 
 ## Existing-download preservation
 
-The complete base feed retains 14,669 historical content blobs and current manifests for Morogue 0.1.0-preview.7, Moratales 0.1.0-preview.2 and Manager 0.1.0-preview.3. The scoped `publish-comp-run-release.cjs` workflow compares every COMP-RUN payload file against fresh live browser bytes, hashes retained history, preserves the other manifests byte for byte and checks their live identity immediately before deployment. Older local feeds must not replace these versions.
+The complete base feed retains 14,919 historical content blobs and current manifests for Morogue 0.1.0-preview.7, Moratales 0.1.0-preview.2 and Manager 0.1.0-preview.3. The scoped `publish-comp-run-release.cjs` workflow compares every COMP-RUN payload file against fresh live browser bytes, hashes retained history, preserves the other manifests byte for byte and checks their live identity immediately before deployment. Older local feeds must not replace these versions.
 
 ## Verification and limits
 
@@ -27,4 +27,4 @@ The complete base feed retains 14,669 historical content blobs and current manif
 
 An older Rupture destruction-unit assertion also fails on the unchanged published 2.4.3 baseline; the complete furnished Rupture simulations pass. The most aggressive Small Hours test takeoff preset hits an existing support, while its final-environment verification passes. These are retained limitations rather than claims that every historical test is green. Automated traversal and rendering checks do not measure human-perceived difficulty, audible listening quality or guarantee a particular GPU frame rate.
 
-Release evidence records the source, native installation and full live parity. A prepared package alone does not establish publication; the browser Site, guarded native feed and portal must each report a successful deployment.
+Browser Site version 28 is published from source `00e22d119250a6d6a139319a8960687eefac5677`. The portal deployment is `55a995bb.repocompany.pages.dev`, with its 2.5.0 boards and nineteen awards verified at the custom domain. Release evidence records the source, native installation and full live parity. A prepared package alone does not establish publication; the browser Site, guarded native feed and portal must each report a successful deployment.

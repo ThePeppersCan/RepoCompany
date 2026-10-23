@@ -1,0 +1,62 @@
+[
+  {
+    "mode": "normal",
+    "hz": 30,
+    "status": "finished",
+    "reason": "",
+    "time": 719.833,
+    "nextGate": 15,
+    "targetIndex": 595,
+    "minLead": 62.523
+  },
+  {
+    "mode": "normal",
+    "hz": 60,
+    "status": "finished",
+    "reason": "",
+    "time": 717.767,
+    "nextGate": 15,
+    "targetIndex": 595,
+    "minLead": 63.556
+  },
+  {
+    "mode": "normal",
+    "hz": 120,
+    "status": "finished",
+    "reason": "",
+    "time": 716.908,
+    "nextGate": 15,
+    "targetIndex": 595,
+    "minLead": 63.699
+  },
+  {
+    "mode": "nightmare",
+    "hz": 30,
+    "status": "finished",
+    "reason": "",
+    "time": 717.133,
+    "nextGate": 15,
+    "targetIndex": 595,
+    "minLead": 28.102
+  },
+  {
+    "mode": "nightmare",
+    "hz": 60,
+    "status": "finished",
+    "reason": "",
+    "time": 715.467,
+    "nextGate": 15,
+    "targetIndex": 595,
+    "minLead": 29.134
+  },
+  {
+    "mode": "nightmare",
+    "hz": 120,
+    "status": "finished",
+    "reason": "",
+    "time": 714.533,
+    "nextGate": 15,
+    "targetIndex": 595,
+    "minLead": 29.706
+  }
+]

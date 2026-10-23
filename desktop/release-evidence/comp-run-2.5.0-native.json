@@ -2,9 +2,9 @@
   "gameId": "comp-run",
   "version": "2.5.0",
   "source": "C:/Users/Isaac/Documents/Codex/2026-10-22/work/comp-run/dist",
-  "output": "C:/Users/Isaac/Documents/Codex/2026-10-22/work/releases/comp-run-2.5.0-final/native",
-  "fileCount": 201,
-  "bytes": 321368652,
+  "output": "C:/Users/Isaac/Documents/Codex/2026-10-22/work/releases/comp-run-2.5.0-published/native",
+  "fileCount": 199,
+  "bytes": 265903106,
   "written": true,
   "exactCopy": true
 }

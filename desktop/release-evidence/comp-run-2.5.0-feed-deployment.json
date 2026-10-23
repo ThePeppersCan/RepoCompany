@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-23T01:41:06.604Z",
+  "scope": "comp-run-only",
+  "unchangedNativeGames": [
+    {
+      "id": "morogue",
+      "sha256": "a071e9b1eb18c603fbca59c92e0d4d841ed9b0095daf2ad11b4c0db506375da7",
+      "version": "0.1.0-preview.7"
+    },
+    {
+      "id": "moratales",
+      "sha256": "16406ea1f4a9689c3ccc570eca3453f64328eff62822231717f294aee9a9408c",
+      "version": "0.1.0-preview.2"
+    },
+    {
+      "id": "manager",
+      "sha256": "741d0bfcdecbedcd190099297b902e7f505155beb87e05f46bc00840c1db6bcb",
+      "version": "0.1.0-preview.3"
+    }
+  ],
+  "parity": {
+    "files": 199,
+    "manifestSha256": "fa424f4b58e35ad4eb255d20c2e6c7b4bec53ea7721c59b0dec94e286a6f497a"
+  },
+  "staged": {
+    "output": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\game-feed-250",
+    "base": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\game-feed-morogue7",
+    "uniqueBlobs": 15038,
+    "retainedBlobs": 14919,
+    "addedBlobs": 119,
+    "games": [
+      {
+        "id": "morogue",
+        "version": "0.1.0-preview.7",
+        "files": 608,
+        "bytes": 569919856,
+        "replaced": false
+      },
+      {
+        "id": "moratales",
+        "version": "0.1.0-preview.2",
+        "files": 1470,
+        "bytes": 1378454188,
+        "replaced": false
+      },
+      {
+        "id": "manager",
+        "version": "0.1.0-preview.3",
+        "files": 15714,
+        "bytes": 643615953,
+        "replaced": false
+      },
+      {
+        "id": "comp-run",
+        "version": "2.5.0",
+        "files": 199,
+        "bytes": 265903106,
+        "replaced": true
+      }
+    ]
+  },
+  "deployed": true,
+  "deploymentOutput": "\n ⛅️ wrangler 4.149.0 (update available 4.152.0)\n───────────────────────────────────────────────\nUploading... (14922/15042)\nUploading... (14944/15042)\nUploading... (14997/15042)\nUploading... (15007/15042)\nUploading... (15013/15042)\nUploading... (15042/15042)\n✨ Success! Uploaded 120 files (14922 already uploaded) (43.28 sec)\n\n✨ Uploading _headers\n🌎 Deploying...\n✨ Deployment complete! Take a peek over at https://d810dfa9.repo-company-games.pages.dev\n"
+}
