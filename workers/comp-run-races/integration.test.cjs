@@ -2,14 +2,14 @@ const assert=require('node:assert/strict');
 const {WebSocket}=require('ws');
 const base=process.env.RACE_TEST_ENDPOINT||'http://127.0.0.1:8799',origin=process.env.RACE_TEST_ORIGIN||'http://127.0.0.1:4193';
 const sleep=t=>new Promise(r=>setTimeout(r,t));
-async function client(code,name,key,version='2.9.1'){const ws=new WebSocket(base.replace('http','ws')+'/races/'+code,{headers:{Origin:origin}}),messages=[];ws.on('message',r=>messages.push(JSON.parse(r)));await new Promise((ok,no)=>{ws.once('open',ok);ws.once('error',no)});ws.send(JSON.stringify({type:'hello',version,name,runner:'runner-01',key}));async function wait(check){for(let i=0;i<100;i++){const m=messages.findLast(check);if(m)return m;await sleep(30);}throw Error('Timed out: '+JSON.stringify(messages));}const welcome=await wait(m=>m.type==='welcome');return {ws,messages,id:welcome.id,send:m=>ws.send(JSON.stringify(m)),wait};}
+async function client(code,name,key,version='2.9.2'){const ws=new WebSocket(base.replace('http','ws')+'/races/'+code,{headers:{Origin:origin}}),messages=[];ws.on('message',r=>messages.push(JSON.parse(r)));await new Promise((ok,no)=>{ws.once('open',ok);ws.once('error',no)});ws.send(JSON.stringify({type:'hello',version,name,runner:'runner-01',key}));async function wait(check){for(let i=0;i<100;i++){const m=messages.findLast(check);if(m)return m;await sleep(30);}throw Error('Timed out: '+JSON.stringify(messages));}const welcome=await wait(m=>m.type==='welcome');return {ws,messages,id:welcome.id,send:m=>ws.send(JSON.stringify(m)),wait};}
 (async()=>{
  assert.equal((await fetch(base+'/races/new',{method:'POST',headers:{Origin:'https://evil.invalid'}})).status,403);
  for(const value of ['https://evil.invalid','null'])assert.equal((await fetch(base+'/races/new',{method:'POST',headers:{Origin:value,'X-Comp-Run-Client':'1'}})).status,403,'Marker never overrides an untrusted origin');
  assert.equal((await fetch(base+'/races/new',{method:'POST'})).status,403,'Missing origin alone is rejected');
  const preflight=await fetch(base+'/races/new',{method:'OPTIONS',headers:{Origin:origin,'Access-Control-Request-Headers':'X-Comp-Run-Client'}});assert.equal(preflight.status,204);assert.match(preflight.headers.get('Access-Control-Allow-Headers'),/X-Comp-Run-Client/);
  const installed=await fetch(base+'/races/new',{method:'POST',headers:{'X-Comp-Run-Client':'1'}});assert.equal(installed.status,201);const nativeRoom=await installed.json();assert.match(nativeRoom.code,/^[A-HJ-NP-Z2-9]{8}$/);
- const native=await client(nativeRoom.code,'Installed runner',nativeRoom.key);assert.equal((await native.wait(m=>m.type==='room')).host,native.id);native.ws.close(1000);
+ const native=await client(nativeRoom.code,'Installed runner',nativeRoom.key);assert.equal((await native.wait(m=>m.type==='room')).host,native.id);const prior=await client(nativeRoom.code,'Prior patch',undefined,'2.9.1');prior.ws.close(1000);native.ws.close(1000);
  const r=await fetch(base+'/races/new',{method:'POST',headers:{Origin:origin}});assert.equal(r.status,201);const room=await r.json();assert.match(room.code,/^[A-HJ-NP-Z2-9]{8}$/);
  const a=await client(room.code,'Host',room.key),b=await client(room.code,'Guest <script>',undefined,'2.9.0');
  assert.equal((await a.wait(m=>m.type==='room'&&m.players.length===2)).host,a.id);
