@@ -1,6 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 
-const VERSION='2.9.0', MAX_PLAYERS=8, TTL=2*60*60*1000;
+const VERSION='2.9.1', CLIENT_VERSIONS=new Set(['2.9.0',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
 const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft']);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);
@@ -12,8 +12,12 @@ const send=(ws,value)=>{try{ws.send(JSON.stringify(value));}catch{}};
 export default {
  async fetch(request,env){
   const origin=request.headers.get('Origin'),path=new URL(request.url).pathname.replace(/^.*\/races/,'');
-  if(!ORIGINS.has(origin))return json({error:'Open multiplayer from COMP-RUN.'},403);
-  if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, GET, OPTIONS','Access-Control-Allow-Headers':'Content-Type',Vary:'Origin','Access-Control-Max-Age':'600'}});
+  // Electron's installed-file protocol forwards this public, anonymous POST
+  // without Origin. A custom header survives it. Never override an explicitly
+  // supplied untrusted origin, and never use this marker for account identity.
+  const launcherCreate=origin===null&&path==='/new'&&request.method==='POST'&&request.headers.get('X-Comp-Run-Client')==='1';
+  if(!ORIGINS.has(origin)&&!launcherCreate)return json({error:'Open multiplayer from COMP-RUN.'},403);
+  if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, GET, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Comp-Run-Client',Vary:'Origin','Access-Control-Max-Age':'600'}});
   if(env.ROOM_LIMIT&&!((await env.ROOM_LIMIT.limit({key:request.headers.get('CF-Connecting-IP')||'local'})).success))return json({error:'Please wait a minute before opening another room.'},429,origin);
   if(path==='/new'&&request.method==='POST'){
    const bytes=crypto.getRandomValues(new Uint8Array(8)),alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -58,7 +62,7 @@ export class RaceRoom extends DurableObject {
   if(!m||typeof m!=='object')return;
   const error=message=>send(ws,{type:'error',message});
   if(m.type==='hello'&&!d.joined){
-   if(m.version!==VERSION){error('Update COMP-RUN before joining this room.');return ws.close(1008,'Version mismatch.');}
+   if(!CLIENT_VERSIONS.has(m.version)){error('Update COMP-RUN before joining this room.');return ws.close(1008,'Version mismatch.');}
    if(this.room.state!=='lobby'){error('This race has started. Join after the next round.');return ws.close(1008,'Race started.');}
    d.joined=true;d.name=cleanName(m.name);d.runner=/^[a-z0-9-]{1,40}$/.test(m.runner)?m.runner:'runner-01';d.ready=false;d.finished=false;
    if(!this.room.host&&m.key===this.room.key)this.room.host=d.id;
