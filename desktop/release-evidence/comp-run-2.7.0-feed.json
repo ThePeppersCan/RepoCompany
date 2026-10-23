@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-23T11:36:40.603Z",
+  "scope": "comp-run-only",
+  "unchangedNativeGames": [
+    {
+      "id": "morogue",
+      "sha256": "a071e9b1eb18c603fbca59c92e0d4d841ed9b0095daf2ad11b4c0db506375da7",
+      "version": "0.1.0-preview.7"
+    },
+    {
+      "id": "moratales",
+      "sha256": "16406ea1f4a9689c3ccc570eca3453f64328eff62822231717f294aee9a9408c",
+      "version": "0.1.0-preview.2"
+    },
+    {
+      "id": "manager",
+      "sha256": "741d0bfcdecbedcd190099297b902e7f505155beb87e05f46bc00840c1db6bcb",
+      "version": "0.1.0-preview.3"
+    }
+  ],
+  "parity": {
+    "files": 190,
+    "manifestSha256": "43cb964167f10c19811d0af1fef904cde7caabeb68cc8aa88e82048dfbe9a9ce"
+  },
+  "staged": {
+    "output": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\game-feed-270-published",
+    "base": "C:\\Users\\Isaac\\Documents\\Codex\\2026-10-22\\work\\game-feed-261-final",
+    "uniqueBlobs": 15319,
+    "retainedBlobs": 15219,
+    "addedBlobs": 100,
+    "games": [
+      {
+        "id": "morogue",
+        "version": "0.1.0-preview.7",
+        "files": 608,
+        "bytes": 569919856,
+        "replaced": false
+      },
+      {
+        "id": "moratales",
+        "version": "0.1.0-preview.2",
+        "files": 1470,
+        "bytes": 1378454188,
+        "replaced": false
+      },
+      {
+        "id": "manager",
+        "version": "0.1.0-preview.3",
+        "files": 15714,
+        "bytes": 643615953,
+        "replaced": false
+      },
+      {
+        "id": "comp-run",
+        "version": "2.7.0",
+        "files": 190,
+        "bytes": 181695107,
+        "replaced": true
+      }
+    ]
+  },
+  "deployed": true,
+  "deploymentOutput": "\n ⛅️ wrangler 4.149.0 (update available 4.152.0)\n───────────────────────────────────────────────\nUploading... (15222/15323)\nUploading... (15255/15323)\nUploading... (15289/15323)\nUploading... (15323/15323)\n✨ Success! Uploaded 101 files (15222 already uploaded) (29.61 sec)\n\n✨ Uploading _headers\n🌎 Deploying...\n✨ Deployment complete! Take a peek over at https://47fd8e91.repo-company-games.pages.dev\n"
+}

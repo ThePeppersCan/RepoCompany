@@ -1,0 +1,652 @@
+{
+  "version": "2.7.0",
+  "routes": [
+    {
+      "id": "uncrowned",
+      "mode": "normal",
+      "actualWorld": true,
+      "hz": 120,
+      "status": "finished",
+      "time": 688.567,
+      "nextGate": 15,
+      "minLead": 55.084
+    },
+    {
+      "id": "uncrowned",
+      "mode": "nightmare",
+      "actualWorld": true,
+      "hz": 120,
+      "status": "finished",
+      "time": 687.083,
+      "nextGate": 15,
+      "minLead": 4.6
+    }
+  ],
+  "interiors": {
+    "report": [
+      {
+        "mode": "normal",
+        "cells": 264,
+        "instances": 49213,
+        "animatedParts": 25,
+        "roofCoverage": 0.9323843416370107,
+        "sideCoverage": 0.7491103202846975,
+        "buildMs": 1024
+      },
+      {
+        "mode": "nightmare",
+        "cells": 264,
+        "instances": 49019,
+        "animatedParts": 21,
+        "roofCoverage": 0.9359430604982206,
+        "sideCoverage": 0.7669039145907474,
+        "buildMs": 725
+      }
+    ],
+    "visual": [
+      {
+        "arena": "The Furnace Court",
+        "index": 2,
+        "drawCalls": 233,
+        "triangles": 93831
+      },
+      {
+        "arena": "The Undertow Dock",
+        "index": 48,
+        "drawCalls": 613,
+        "triangles": 137842
+      },
+      {
+        "arena": "The Root Cathedral",
+        "index": 100,
+        "drawCalls": 678,
+        "triangles": 214336
+      },
+      {
+        "arena": "The Hall of Reflections",
+        "index": 149,
+        "drawCalls": 433,
+        "triangles": 125874
+      },
+      {
+        "arena": "The Unwound Belfry",
+        "index": 191,
+        "drawCalls": 618,
+        "triangles": 111770
+      },
+      {
+        "arena": "The Starless Observatory",
+        "index": 238,
+        "drawCalls": 379,
+        "triangles": 142924
+      },
+      {
+        "arena": "The Bellstorm Belfry",
+        "index": 282,
+        "drawCalls": 797,
+        "triangles": 163936
+      },
+      {
+        "arena": "The Gilded Conservatory",
+        "index": 324,
+        "drawCalls": 245,
+        "triangles": 75730
+      },
+      {
+        "arena": "The Pale Apiary",
+        "index": 364,
+        "drawCalls": 416,
+        "triangles": 111792
+      },
+      {
+        "arena": "The Inkwell Tribunal",
+        "index": 404,
+        "drawCalls": 463,
+        "triangles": 112478
+      },
+      {
+        "arena": "The Cinder Terminus",
+        "index": 442,
+        "drawCalls": 474,
+        "triangles": 99734
+      },
+      {
+        "arena": "The Saltglass Sanctuary",
+        "index": 487,
+        "drawCalls": 759,
+        "triangles": 187530
+      },
+      {
+        "arena": "The Throne Above the Night",
+        "index": 525,
+        "drawCalls": 375,
+        "triangles": 94808
+      },
+      {
+        "kind": "furnace-throat",
+        "index": 0,
+        "drawCalls": 123,
+        "triangles": 56318
+      },
+      {
+        "kind": "tidal-broadside",
+        "index": 46,
+        "drawCalls": 735,
+        "triangles": 167320
+      },
+      {
+        "kind": "skull-descent",
+        "index": 523,
+        "drawCalls": 273,
+        "triangles": 110862
+      },
+      {
+        "progress": 0,
+        "drawCalls": 275,
+        "triangles": 153845
+      },
+      {
+        "progress": 0.45,
+        "drawCalls": 221,
+        "triangles": 140049
+      },
+      {
+        "progress": 1,
+        "drawCalls": 178,
+        "triangles": 122476
+      }
+    ],
+    "errors": []
+  },
+  "spawn": {
+    "report": [
+      {
+        "id": "sanctuary",
+        "spawn": {
+          "x": 0,
+          "y": 340.025,
+          "z": 0,
+          "yaw": 0,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 393,
+        "triangles": 308426
+      },
+      {
+        "id": "hollow",
+        "spawn": {
+          "x": 0,
+          "y": 210.025,
+          "z": 0,
+          "yaw": 0,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 276,
+        "triangles": 250252
+      },
+      {
+        "id": "undertow",
+        "spawn": {
+          "x": 0,
+          "y": 220.025,
+          "z": 0,
+          "yaw": 0,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 384,
+        "triangles": 259314
+      },
+      {
+        "id": "playdate",
+        "spawn": {
+          "x": 0,
+          "y": 40.025,
+          "z": 0,
+          "yaw": 0,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 74,
+        "triangles": 475064
+      },
+      {
+        "id": "small-hours",
+        "spawn": {
+          "x": -150,
+          "y": 157.025,
+          "z": 90,
+          "yaw": 0,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 438,
+        "triangles": 146196
+      },
+      {
+        "id": "final-curtain",
+        "spawn": {
+          "x": -238,
+          "y": 64.025,
+          "z": -320,
+          "yaw": -1.3667783472023474,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 315,
+        "triangles": 402252
+      },
+      {
+        "id": "last-bloom",
+        "spawn": {
+          "x": -610,
+          "y": 25.025,
+          "z": -1060,
+          "yaw": -1.708569385092497,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 312,
+        "triangles": 1114198
+      },
+      {
+        "id": "rupture",
+        "spawn": {
+          "x": -200,
+          "y": 190.025,
+          "z": -360,
+          "yaw": -1.0768549578753155,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 138,
+        "triangles": 403966
+      },
+      {
+        "id": "uncrowned",
+        "spawn": {
+          "x": 0,
+          "y": 380.025,
+          "z": 0,
+          "yaw": 0,
+          "grounded": true
+        },
+        "hits": [],
+        "calls": 539,
+        "triangles": 148548
+      }
+    ],
+    "errors": []
+  },
+  "knife": {
+    "samples": [
+      {
+        "id": "brushed",
+        "draws": 9,
+        "triangles": 1960,
+        "pixel": [
+          233,
+          233,
+          229,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "violet",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          125,
+          93,
+          144,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "crimson",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          208,
+          82,
+          72,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "amber",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          153,
+          113,
+          62,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "prism",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          173,
+          152,
+          218,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "copper",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          225,
+          162,
+          100,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "obsidian",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          64,
+          72,
+          76,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "glacier",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          173,
+          204,
+          205,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "jade",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          97,
+          142,
+          97,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "porcelain",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          224,
+          220,
+          211,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "ember",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          68,
+          61,
+          57,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "royal",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          71,
+          63,
+          82,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "carbon",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          107,
+          106,
+          99,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "aurora",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          171,
+          177,
+          189,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "goldline",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          65,
+          61,
+          56,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "pearl",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          216,
+          213,
+          206,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "viper",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          86,
+          95,
+          60,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "signal",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          215,
+          138,
+          87,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "tidal",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          97,
+          142,
+          160,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "rose",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          244,
+          224,
+          206,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "meteor",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          159,
+          162,
+          152,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "dune",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          226,
+          208,
+          167,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "marble",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          219,
+          216,
+          208,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "petrol",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          209,
+          177,
+          158,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "blueprint",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          77,
+          100,
+          114,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "garnet",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          134,
+          78,
+          81,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "blackstone",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          56,
+          63,
+          63,
+          255
+        ],
+        "physical": true
+      },
+      {
+        "id": "scrimshaw",
+        "draws": 12,
+        "triangles": 3964,
+        "pixel": [
+          203,
+          191,
+          168,
+          255
+        ],
+        "physical": true
+      }
+    ],
+    "shaderErrors": [],
+    "liveTextures": 6,
+    "retainedBaseline": {
+      "geometries": 7,
+      "textures": 1
+    },
+    "closedTextures": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "closedGeometries": [
+      9,
+      9,
+      9,
+      9
+    ],
+    "remaining": {
+      "textures": 1,
+      "geometries": 9
+    },
+    "disposedGeometries": 0,
+    "errors": []
+  },
+  "limitations": [
+    "The full npm test chain stops at the aggressive Small Hours 0.45 takeoff bot preset hitting house-support-314. Reproduced identically on unchanged 2.6.1; final-environment Normal and Nightmare runs pass.",
+    "An alternate 60 Hz Uncrowned bot simulation misses a narrow moving counterweight. Shipping main.js uses fixed 120 Hz regardless of display refresh; both full shipping-timestep runs pass.",
+    "No claim of exact perceived human difficulty or a guaranteed hardware frame rate."
+  ]
+}
