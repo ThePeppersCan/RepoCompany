@@ -1,9 +1,10 @@
 {
-  "version": "2.10.0",
+  "version": "2.11.0",
   "compatibleVersions": [
     "2.9.0",
     "2.9.1",
-    "2.9.2"
+    "2.9.2",
+    "2.10.0"
   ],
   "maps": [
     {
@@ -71,6 +72,12 @@
       "title": "REP-ORCA",
       "season": "orca-1",
       "gates": 6
+    },
+    {
+      "id": "on-the-menu",
+      "title": "On the Menu",
+      "season": "menu-3",
+      "gates": 8
     }
   ]
 }
