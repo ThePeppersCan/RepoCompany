@@ -1,7 +1,8 @@
 import { DurableObject } from 'cloudflare:workers';
 
-const VERSION='2.10.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
-const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca']);
+const VERSION='2.11.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
+const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu']);
+const supportsMap=(course,version)=>course==='on-the-menu'?version===VERSION:course==='rep-orca'?['2.10.0',VERSION].includes(version):CLIENT_VERSIONS.has(version);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);
 const json=(value,status=200,origin)=>Response.json(value,{status,headers:{'Cache-Control':'no-store',...(ORIGINS.has(origin)?{'Access-Control-Allow-Origin':origin,Vary:'Origin'}:{})}});
@@ -64,7 +65,7 @@ export class RaceRoom extends DurableObject {
   if(m.type==='hello'&&!d.joined){
    if(!CLIENT_VERSIONS.has(m.version)){error('Update COMP-RUN before joining this room.');return ws.close(1008,'Version mismatch.');}
    if(this.room.state!=='lobby'){error('This race has started. Join after the next round.');return ws.close(1008,'Race started.');}
-   if(this.room.course==='rep-orca'&&m.version!==VERSION){error('Update COMP-RUN to race REP-ORCA.');return ws.close(1008,'Map version mismatch.');}
+   if(!supportsMap(this.room.course,m.version)){error('Update COMP-RUN to race this map.');return ws.close(1008,'Map version mismatch.');}
    d.version=m.version;d.joined=true;d.name=cleanName(m.name);d.runner=/^[a-z0-9-]{1,40}$/.test(m.runner)?m.runner:'runner-01';d.ready=false;d.finished=false;
    if(!this.room.host&&m.key===this.room.key)this.room.host=d.id;
    ws.serializeAttachment(d);await this.persist();send(ws,{type:'welcome',id:d.id});this.broadcast(this.publicState());return;
@@ -74,7 +75,7 @@ export class RaceRoom extends DurableObject {
   const host=this.room.host===d.id;
   if(m.type==='configure'&&host&&this.room.state==='lobby'){
    if(!COURSES.has(m.course)||!MODES.has(m.mode)||!['one-life','race'].includes(m.rules||'one-life'))return error('Choose a map and difficulty.');
-   if(m.course==='rep-orca'&&this.members().some(p=>p.data.version!==VERSION))return error('Every runner needs the REP-ORCA update for this map.');
+   if(this.members().some(p=>!supportsMap(m.course,p.data.version)))return error('Every runner needs the update for this map.');
    this.room.course=m.course;this.room.mode=m.mode;this.room.rules=m.rules||'one-life';for(const {ws:s,data:a}of this.members()){a.ready=false;s.serializeAttachment(a);}await this.persist();this.broadcast(this.publicState());return;
   }
   if(m.type==='ready'&&this.room.state==='lobby'){d.ready=m.ready===true;ws.serializeAttachment(d);this.broadcast(this.publicState());return;}
