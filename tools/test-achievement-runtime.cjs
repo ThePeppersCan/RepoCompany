@@ -1,7 +1,7 @@
 const fs=require('fs'),assert=require('node:assert/strict'),{DatabaseSync}=require('node:sqlite');
 (async()=>{
  const catalogue=JSON.parse(fs.readFileSync('assets/achievements/catalogue.json'));
- let source=fs.readFileSync('functions/api/achievements/[[path]].js','utf8').replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public'};").replace("import catalogue from '../../../assets/achievements/catalogue.json';",'const catalogue='+JSON.stringify(catalogue)+';');
+ let source=require('./api-test-imports.cjs')(fs.readFileSync('functions/api/achievements/[[path]].js','utf8')).replace("import config from '../../../dashboard-config.json';","const config={url:'https://auth.test',key:'public'};").replace("import catalogue from '../../../assets/achievements/catalogue.json';",'const catalogue='+JSON.stringify(catalogue)+';');
  const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
  const sql=new DatabaseSync(':memory:');for(const file of ['dashboard-social-schema.sql','dashboard-achievements-schema.sql','dashboard-achievement-rules.sql'])sql.exec(fs.readFileSync(file,'utf8'));
  const prepare=(query,args=[])=>({bind(...v){return prepare(query,v);},async first(){return sql.prepare(query).get(...args)||null;},async all(){return {results:sql.prepare(query).all(...args)};},async run(){return sql.prepare(query).run(...args);}});

@@ -20,9 +20,25 @@
  }
  const storageKey=()=>`repo-achievement-observations-v1:${game}:${user}`;
  function persist(){if(user&&!switched)try{localStorage.setItem(storageKey(),JSON.stringify(facts));}catch{}}
+ let cosmeticsAccess=null,cosmeticsBusy=false;
+ async function cosmetics(action,finishId){
+  if(!['state','buy','buy-runner'].includes(action)||!user||switched)throw Error('Connect your Repo Company account to use the shop.');
+  if(cosmeticsBusy)throw Error('The shop is still processing your request.');
+  const owner=user;cosmeticsBusy=true;
+  try{
+   if(!cosmeticsAccess||cosmeticsAccess.expires<Date.now()+10000){const result=await rpc('start');if(user!==owner||switched)throw Error('Your account changed. Reopen the game.');cosmeticsAccess=result.cosmeticsAccess;}
+   if(!cosmeticsAccess?.ticket)throw Error('The shop is temporarily unavailable.');
+   const response=await fetch(base+'/api/comp-run/cosmetics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,ticket:cosmeticsAccess.ticket,...(action==='buy'?{finishId}:action==='buy-runner'?{runnerId:finishId}:{})}),signal:AbortSignal.timeout(18000)});
+   const result=await response.json();if(user!==owner||switched)throw Error('Your account changed. Reopen the game.');
+   if(!response.ok){if(result.reconnect)cosmeticsAccess=null;throw Error(result.error||'The shop could not confirm your request. Refresh before retrying.');}
+   return result;
+  }finally{cosmeticsBusy=false;}
+ }
  function account(id){
-  if(id===user)return;session=null;user=id;dispatchEvent(new CustomEvent('repo-account-connection',{detail:{connected:!!id}}));
-  if(!id)return;if(boundUser&&boundUser!==id){switched=true;return;}boundUser=id;
+  if(id===user)return;session=null;cosmeticsAccess=null;user=id;
+  if(id&&boundUser&&boundUser!==id)switched=true;
+  dispatchEvent(new CustomEvent('repo-account-connection',{detail:{connected:!!id}}));
+  if(!id||switched)return;boundUser=id;
   try{const stored=JSON.parse(localStorage.getItem(storageKey())||'{}');if(stored&&typeof stored==='object'&&!Array.isArray(stored))facts=stored;}catch{}
   dirty=true;
  }
@@ -36,7 +52,7 @@
   if(!started||testing||switched||!user||busy||(!dirty&&session)||Date.now()-lastSent<backoff)return;
   busy=true;lastSent=Date.now();const owner=user;
   try{
-   if(!session){const result=await rpc('start');if(user!==owner)return;session=result.session;saved=Object.fromEntries(result.achievements.map(a=>[a.id,a.unlocked_at]));}
+   if(!session){const result=await rpc('start');if(user!==owner)return;session=result.session;cosmeticsAccess=result.cosmeticsAccess||cosmeticsAccess;saved=Object.fromEntries(result.achievements.map(a=>[a.id,a.unlocked_at]));}
    const sending={...facts};dirty=false;const result=await rpc('progress',{session,facts:sending});if(user!==owner)return;
    const news=result.achievements.filter(a=>a.unlocked_at&&!saved[a.id]).map(a=>({id:a.id,score:a.score,unlocked_at:a.unlocked_at}));saved=Object.fromEntries(result.achievements.map(a=>[a.id,a.unlocked_at]));
    if(news.length)window.repoAchievementNotice?.show(news,{muted:!!muted()});
@@ -49,7 +65,7 @@
   if(changed){dirty=true;persist();}void flush();
  }
  function load(file){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=base+'/'+file+'?v=20261011-achievements-1';script.dataset.game=game;script.onload=resolve;script.onerror=reject;document.body.append(script);});}
- window.repoGameAchievements=Object.freeze({observe,connect,register(value){adapter=value;muted=value.muted||muted;},get identity(){return user;},get activitySession(){return user&&!switched?session:null;},request(kind,body){if(!['run-start','run-finish'].includes(kind)||!user||switched)return Promise.reject(Error('Sign in to Repo Company before starting a ranked run.'));return rpc(kind,body);},get active(){return started&&!testing&&!switched;},base});
+ window.repoGameAchievements=Object.freeze({observe,connect,cosmetics,register(value){adapter=value;muted=value.muted||muted;},get identity(){return user;},get activitySession(){return user&&!switched?session:null;},request(kind,body){if(!['run-start','run-finish'].includes(kind)||!user||switched)return Promise.reject(Error('Sign in to Repo Company before starting a ranked run.'));return rpc(kind,body);},get active(){return started&&!testing&&!switched;},base});
  if(native){const update=state=>account(state.status==='online'?window.REPO_LAUNCHER_CONTEXT.accountId:null);native.onConnectionChanged(update);native.checkConnection().then(update).catch(()=>account(null));}
  if(game==='comp-run'){const control=document.getElementById('connect-account');if(control){const label=()=>{control.textContent=user?(switched?'REOPEN GAME TO CONNECT':'ACCOUNT CONNECTED'):'CONNECT ACCOUNT';control.disabled=!!native||switched;};control.addEventListener('click',connect);addEventListener('repo-account-connection',label);label();}}
  if(tag.dataset.bundled!=='true')load('achievement-notifications.js').then(()=>load('achievement-adapter-'+game+'.js')).catch(()=>{});

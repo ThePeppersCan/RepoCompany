@@ -1,4 +1,5 @@
 import config from '../../../dashboard-config.json';
+import {createCosmeticsAccess} from '../../../lib/comp-run-cosmetics.mjs';
 import catalogue from '../../../assets/achievements/catalogue.json';
 const games=new Map(catalogue.games.map(g=>[g.id,g]));
 const response=(body,status=200,publicData=false)=>Response.json(body,{status,headers:{'Cache-Control':publicData?'public, max-age=300':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -56,7 +57,7 @@ export async function onRequest({request,env,params,waitUntil}){
     db.prepare('INSERT INTO dashboard_achievement_sessions(id,username,game,expires_at) VALUES(?,?,?,?)').bind(id,me,body.game,now+86400000),
     db.prepare('INSERT OR IGNORE INTO dashboard_achievement_players(username,game,started_at) VALUES(?,?,?)').bind(me,body.game,now)
    ]);
-   return response({session:id,...await own(db,me,body.game)});
+   return response({session:id,...await own(db,me,body.game),...(body.game==='comp-run'?{cosmeticsAccess:await createCosmeticsAccess(env,user.id,id,now)}:{})});
   }
   if(typeof body.session!=='string'||!body.facts||typeof body.facts!=='object'||Array.isArray(body.facts))return response({error:'Invalid gameplay observations.'},400);
   const session=await db.prepare('SELECT id FROM dashboard_achievement_sessions WHERE id=? AND username=? AND game=? AND expires_at>?').bind(body.session,me,body.game,now).first();

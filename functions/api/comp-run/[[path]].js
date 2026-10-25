@@ -1,4 +1,5 @@
 import {recordPlayActivity} from '../../../lib/play-activity.mjs';
+import {cosmeticsRequest} from '../../../lib/comp-run-cosmetics.mjs';
 import config from '../../../dashboard-config.json';
 import boards from '../../../comp-run-boards.json';
 const origins=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','http://127.0.0.1:4193']);
@@ -27,6 +28,14 @@ export async function onRequest({request,env,params}){
  if(route==='races'||route?.startsWith('races/'))return env.COMP_RUN_RACES?env.COMP_RUN_RACES.fetch(request):reply({error:'Races are temporarily unavailable.'},503,origin);
  try{
   const db=env.DASHBOARD_DB;if(!db)return reply({error:'Rankings are temporarily unavailable.'},503,origin);
+  if(route==='cosmetics'){
+   if(origin&&origin!=='null'&&!origins.has(origin))return reply({error:'Open COMP-RUN to use its shop.'},403,origin);
+   const corsOrigin=origin==='null'?'null':origins.has(origin)?origin:null;
+   const send=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...(corsOrigin?{'Access-Control-Allow-Origin':corsOrigin,Vary:'Origin'}:{})}});
+   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...(corsOrigin?{'Access-Control-Allow-Origin':corsOrigin}:{}),'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type',Vary:'Origin'}});
+   if(request.method!=='POST')return send({error:'Method not allowed.'},405);
+   return cosmeticsRequest({request,env,config,reply:send,readBody});
+  }
   if(route==='activity'&&request.method==='POST'){
    if(origin&&!origins.has(origin))return reply({error:'Open COMP-RUN to record activity.'},403,origin);
    const body=await readBody(request,2048);if(!body||typeof body.session!=='string'||body.session.length!==36)return reply({error:'Reconnect your account.'},401,origin);

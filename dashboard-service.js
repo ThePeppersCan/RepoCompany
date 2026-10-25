@@ -1,7 +1,7 @@
 (() => {
  'use strict';
  const config=window.repoDashboardConfig,db=window.supabase.createClient(config.url,config.key);
- const state={ready:false,user:null,character:null,bank:null,cards:[],slabs:[],frames:null,framesError:'',social:null,error:'',collectionError:'',socialError:'',loading:false};
+ const state={ready:false,user:null,character:null,bank:null,cards:[],slabs:[],frames:null,framesError:'',compRunFinishes:null,compRunFinishesError:'',compRunRunners:null,compRunRunnersError:'',social:null,error:'',collectionError:'',socialError:'',loading:false};
  let generation=0,game='',refreshPromise=null,heartbeatTimer=null;
  const notify=()=>dispatchEvent(new CustomEvent('repo-account-state',{detail:state}));
  const first=data=>Array.isArray(data)?data[0]:data;
@@ -28,8 +28,8 @@
    try{
     const {data:{user},error}=await db.auth.getUser();
     if(revision!==generation)return;
-    if(error||!user){Object.assign(state,{user:null,character:null,bank:null,cards:[],slabs:[],frames:null,framesError:'',social:null,error:'',collectionError:'',socialError:''});return;}
-    if(state.user?.id!==user.id)Object.assign(state,{bank:null,cards:[],slabs:[],frames:null,framesError:'',social:null});
+    if(error||!user){Object.assign(state,{user:null,character:null,bank:null,cards:[],slabs:[],frames:null,framesError:'',compRunFinishes:null,compRunFinishesError:'',compRunRunners:null,compRunRunnersError:'',social:null,error:'',collectionError:'',socialError:''});return;}
+    if(state.user?.id!==user.id)Object.assign(state,{bank:null,cards:[],slabs:[],frames:null,framesError:'',compRunFinishes:null,compRunFinishesError:'',compRunRunners:null,compRunRunnersError:'',social:null});
     state.user=user;state.character=await rpc('get_my_character');if(!state.character)throw new Error('Your player profile could not be loaded. Please try signing in again.');
     const results=await Promise.allSettled([rpc('get_my_bank'),rpc('get_my_quidditch_tcg_collection'),rpc('get_my_rcg_slab_binder_view'),rpc('get_my_world_cup_pack_event_state',{p_username:state.character.username})]);
     if(revision!==generation)return;
@@ -38,7 +38,7 @@
     if(results[3].status==='fulfilled')for(const card of results[3].value?.cards||[])if(!state.cards.includes(card))state.cards.push(card);
     state.slabs=results[2].status==='fulfilled'&&Array.isArray(results[2].value?.slabs)?results[2].value.slabs:[];
     state.collectionError=results[0].status==='rejected'||results[1].status==='rejected'?'Some collection data could not be loaded. Retry before making a purchase.':'';
-    state.error='';await Promise.all([refreshSocial(),refreshFrames(),refreshPlayRewards()]);await heartbeat();
+    state.error='';await Promise.all([refreshSocial(),refreshFrames(),refreshCompRunFinishes(),refreshCompRunRunners(),refreshPlayRewards()]);await heartbeat();
    }catch(e){if(revision===generation)state.error=e.message;}
    finally{if(revision===generation){state.ready=true;state.loading=false;notify();}refreshPromise=null;}
   })();return refreshPromise;
@@ -53,12 +53,56 @@
   if(create&&!result.data.session)throw new Error('Your account was created, but sign-in requires confirmation. Contact Repo Company support.');
   await refresh();if(state.error)throw new Error(state.error);
  }
- async function signOut(){await heartbeat(false);await db.auth.signOut();generation++;Object.assign(state,{user:null,character:null,bank:null,cards:[],slabs:[],frames:null,framesError:'',social:null,error:'',collectionError:'',socialError:'',ready:true});notify();}
+ async function signOut(){await heartbeat(false);await db.auth.signOut();generation++;Object.assign(state,{user:null,character:null,bank:null,cards:[],slabs:[],frames:null,framesError:'',compRunFinishes:null,compRunFinishesError:'',compRunRunners:null,compRunRunnersError:'',social:null,error:'',collectionError:'',socialError:'',ready:true});notify();}
  async function refreshFrames(){
   const userId=state.user?.id,revision=generation;if(!userId)return;
   try{const [row,rewards]=await Promise.all([rpc('get_my_avatar_frames'),api('frame-rewards')]);if(!Array.isArray(row?.owned)||!Array.isArray(rewards?.owned))throw Error('Your frames could not be loaded.');if(state.user?.id!==userId||revision!==generation)return;state.frames=[...new Set([...row.owned,...rewards.owned])];state.framesError='';}
   catch{if(state.user?.id!==userId||revision!==generation)return;state.frames=null;state.framesError='Your frame collection is unavailable. Refresh before buying or equipping.';}
   notify();
+ }
+ function validateFinishes(row){
+  const balance=Number(row?.new_gp);
+  if(!Array.isArray(row?.owned)||!row.owned.every(id=>typeof id==='string')||!Number.isSafeInteger(balance)||balance<0)throw Error('Your knife collection could not be confirmed.');
+  return {owned:[...new Set(row.owned)],balance};
+ }
+ async function refreshCompRunFinishes(){
+  const userId=state.user?.id,revision=generation;if(!userId)return;
+  try{const row=validateFinishes(await rpc('get_my_comp_run_finishes'));if(state.user?.id!==userId||revision!==generation)return;state.compRunFinishes=row.owned;state.compRunFinishesError='';}
+  catch{if(state.user?.id!==userId||revision!==generation)return;state.compRunFinishes=null;state.compRunFinishesError='Your knife collection is unavailable. Refresh before buying.';}
+  notify();
+ }
+ let finishBusy=false;
+ async function buyCompRunFinish(id){
+  if(finishBusy)throw Error('Your knife purchase is already processing.');
+  if(!state.user)throw Error('Sign in to buy a finish.');
+  if(state.compRunFinishes===null)throw Error('Refresh your knife collection before buying.');
+  const userId=state.user.id,revision=generation;finishBusy=true;
+  try{
+   const result=await rpc('buy_comp_run_finish',{p_finish_id:id}),row=validateFinishes(result);
+   if(state.user?.id!==userId||revision!==generation)throw Error('Your account changed. Refresh your collection.');
+   if(!row.owned.includes(id))throw Error('Your purchase could not be confirmed. Refresh your collection before trying again.');
+   state.compRunFinishes=row.owned;state.compRunFinishesError='';state.bank={...state.bank,gp:row.balance};notify();return result;
+  }catch(error){if(state.user?.id===userId&&revision===generation){state.compRunFinishes=null;state.compRunFinishesError='Refresh your collection to check the purchase before trying again.';notify();}throw error;}
+  finally{finishBusy=false;}
+ }
+ async function refreshCompRunRunners(){
+  const userId=state.user?.id,revision=generation;if(!userId)return;
+  try{const row=validateFinishes(await rpc('get_my_comp_run_runners'));if(state.user?.id!==userId||revision!==generation)return;state.compRunRunners=row.owned;state.compRunRunnersError='';}
+  catch{if(state.user?.id!==userId||revision!==generation)return;state.compRunRunners=null;state.compRunRunnersError='Your runner collection is unavailable. Refresh before buying.';}
+  notify();
+ }
+ async function buyCompRunRunner(id){
+  if(finishBusy)throw Error('Your runner purchase is already processing.');
+  if(!state.user)throw Error('Sign in to buy a runner.');
+  if(state.compRunRunners===null)throw Error('Refresh your runner collection before buying.');
+  const userId=state.user.id,revision=generation;finishBusy=true;
+  try{
+   const result=await rpc('buy_comp_run_runner',{p_runner_id:id}),row=validateFinishes(result);
+   if(state.user?.id!==userId||revision!==generation)throw Error('Your account changed. Refresh your collection.');
+   if(!row.owned.includes(id))throw Error('Your purchase could not be confirmed. Refresh your collection before trying again.');
+   state.compRunRunners=row.owned;state.compRunRunnersError='';state.bank={...state.bank,gp:row.balance};notify();return result;
+  }catch(error){if(state.user?.id===userId&&revision===generation){state.compRunRunners=null;state.compRunRunnersError='Refresh your collection to check the purchase before trying again.';notify();}throw error;}
+  finally{finishBusy=false;}
  }
  let rewardSignature='';addEventListener('repo-achievement-state',()=>{const signature=(state.user?.id||'')+':'+Object.values(window.repoAchievementState?.mine||{}).filter(a=>a.unlocked_at).map(a=>a.id).sort().join(',');if(signature!==rewardSignature){rewardSignature=signature;if(state.user)refreshFrames();}});
  let frameBusy=false;
@@ -103,9 +147,9 @@
    notify();return row;
   }finally{openingPack=false;}
  }
- window.repoAccount=Object.freeze({state,refresh,refreshSocial,refreshFrames,signIn,signOut,buyPack,openPack,buyFrame,equipFrame,api,rpc,db,setGame(id){game=id;heartbeat();},setAvatar:async avatar=>{const userId=state.user?.id,revision=generation;if(!userId)throw Error('Sign in to save your avatar.');const result=await api('avatar',{avatar});if(!result.ok||!result.avatar)throw Error('Your avatar could not be confirmed. Please reload your profile.');if(state.user?.id!==userId||generation!==revision)throw Error('Your account changed. Reload your profile.');if(state.social?.profile){state.social.profile.avatar=result.avatar;state.social.profile.photo_version=null;}notify();dispatchEvent(new Event('repo-profile-picture'));return result.avatar;},setProfile:async values=>{await api('profile',values);await refreshSocial();}});
+ window.repoAccount=Object.freeze({state,refresh,refreshSocial,refreshFrames,refreshCompRunFinishes,buyCompRunFinish,refreshCompRunRunners,buyCompRunRunner,signIn,signOut,buyPack,openPack,buyFrame,equipFrame,api,rpc,db,setGame(id){game=id;heartbeat();},setAvatar:async avatar=>{const userId=state.user?.id,revision=generation;if(!userId)throw Error('Sign in to save your avatar.');const result=await api('avatar',{avatar});if(!result.ok||!result.avatar)throw Error('Your avatar could not be confirmed. Please reload your profile.');if(state.user?.id!==userId||generation!==revision)throw Error('Your account changed. Reload your profile.');if(state.social?.profile){state.social.profile.avatar=result.avatar;state.social.profile.photo_version=null;}notify();dispatchEvent(new Event('repo-profile-picture'));return result.avatar;},setProfile:async values=>{await api('profile',values);await refreshSocial();}});
  db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(refresh,0);});
- document.addEventListener('visibilitychange',()=>{heartbeat();if(!document.hidden&&state.user){refreshSocial();refreshFrames();refreshPlayRewards();}});
+ document.addEventListener('visibilitychange',()=>{heartbeat();if(!document.hidden&&state.user){refreshSocial();refreshFrames();refreshCompRunFinishes();refreshCompRunRunners();refreshPlayRewards();}});
  addEventListener('repo-play-rewards',()=>refreshPlayRewards());
  heartbeatTimer=setInterval(()=>{heartbeat();if(!document.hidden&&document.querySelector('#account-menu[open]')&&['friends','profile'].includes(document.querySelector('#account-menu').dataset.accountTab))refreshSocial();},15000);
  addEventListener('pagehide',()=>{clearInterval(heartbeatTimer);});

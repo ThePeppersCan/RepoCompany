@@ -1,2 +1,2 @@
 const {pathToFileURL}=require('node:url'),path=require('node:path');
-module.exports=source=>source.replace("from '../../../lib/play-rewards.mjs'","from '"+pathToFileURL(path.resolve('lib/play-rewards.mjs')).href+"'").replace("from '../../../lib/play-activity.mjs'","from '"+pathToFileURL(path.resolve('lib/play-activity.mjs')).href+"'");
+module.exports=source=>source.replace(/from '\.\.\/\.\.\/\.\.\/lib\/(play-rewards|play-activity|comp-run-cosmetics)\.mjs'/g,(_,name)=>"from '"+pathToFileURL(path.resolve('lib/'+name+'.mjs')).href+"'");

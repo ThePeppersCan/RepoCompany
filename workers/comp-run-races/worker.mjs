@@ -1,8 +1,10 @@
 import { DurableObject } from 'cloudflare:workers';
+import {cleanCompRunKnife} from '../../lib/comp-run-cosmetic-catalog.mjs';
 
-const VERSION='2.14.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0','2.12.1','2.13.0',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
+const VERSION='2.15.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
 const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground']);
-const supportsMap=(course,version)=>course==='higher-ground'?version===VERSION:course==='on-the-menu'?version===VERSION:course==='rep-orca'?['2.10.0','2.11.0','2.12.0','2.12.1','2.13.0',VERSION].includes(version):CLIENT_VERSIONS.has(version);
+// The cosmetic release preserves every 2.14 route and its race compatibility.
+const supportsMap=(course,version)=>course==='higher-ground'||course==='on-the-menu'?['2.14.0',VERSION].includes(version):course==='rep-orca'?['2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0',VERSION].includes(version):CLIENT_VERSIONS.has(version);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);
 const json=(value,status=200,origin)=>Response.json(value,{status,headers:{'Cache-Control':'no-store',...(ORIGINS.has(origin)?{'Access-Control-Allow-Origin':origin,Vary:'Origin'}:{})}});
@@ -51,7 +53,7 @@ export class RaceRoom extends DurableObject {
   return new Response(null,{status:101,webSocket:pair[0]});
  }
  members(){return sockets(this.ctx).map(ws=>({ws,data:ws.deserializeAttachment()})).filter(m=>m.data?.joined);}
- publicState(){const r=this.room;return {type:'room',code:r.code,host:r.host,course:r.course,mode:r.mode,rules:r.rules||'one-life',state:r.state,round:r.round,startAt:r.startAt,serverTime:Date.now(),version:VERSION,results:r.results,players:this.members().map(({data:d})=>({id:d.id,name:d.name,runner:d.runner,ready:d.ready,finished:d.finished,deaths:d.deaths||0}))};}
+ publicState(){const r=this.room;return {type:'room',code:r.code,host:r.host,course:r.course,mode:r.mode,rules:r.rules||'one-life',state:r.state,round:r.round,startAt:r.startAt,serverTime:Date.now(),version:VERSION,results:r.results,players:this.members().map(({data:d})=>({id:d.id,name:d.name,runner:d.runner,knife:d.knife||null,ready:d.ready,finished:d.finished,deaths:d.deaths||0}))};}
  broadcast(value,except){for(const ws of sockets(this.ctx))if(ws!==except)send(ws,value);}
  async webSocketMessage(ws,raw){
   const d=ws.deserializeAttachment(),now=Date.now();if(!d||!this.room)return ws.close(1008,'Room expired.');
@@ -66,7 +68,7 @@ export class RaceRoom extends DurableObject {
    if(!CLIENT_VERSIONS.has(m.version)){error('Update COMP-RUN before joining this room.');return ws.close(1008,'Version mismatch.');}
    if(this.room.state!=='lobby'){error('This race has started. Join after the next round.');return ws.close(1008,'Race started.');}
    if(!supportsMap(this.room.course,m.version)){error('Update COMP-RUN to race this map.');return ws.close(1008,'Map version mismatch.');}
-   d.version=m.version;d.joined=true;d.name=cleanName(m.name);d.runner=/^[a-z0-9-]{1,40}$/.test(m.runner)?m.runner:'runner-01';d.ready=false;d.finished=false;
+   d.version=m.version;d.joined=true;d.name=cleanName(m.name);d.runner=typeof m.runner==='string'&&/^[a-z0-9-]{1,40}$/.test(m.runner)?m.runner:'runner-01';d.knife=m.knife?cleanCompRunKnife(m.knife):null;d.ready=false;d.finished=false;
    if(!this.room.host&&m.key===this.room.key)this.room.host=d.id;
    ws.serializeAttachment(d);await this.persist();send(ws,{type:'welcome',id:d.id});this.broadcast(this.publicState());return;
   }
@@ -78,7 +80,7 @@ export class RaceRoom extends DurableObject {
    if(this.members().some(p=>!supportsMap(m.course,p.data.version)))return error('Every runner needs the update for this map.');
    this.room.course=m.course;this.room.mode=m.mode;this.room.rules=m.rules||'one-life';for(const {ws:s,data:a}of this.members()){a.ready=false;s.serializeAttachment(a);}await this.persist();this.broadcast(this.publicState());return;
   }
-  if(m.type==='ready'&&this.room.state==='lobby'){d.ready=m.ready===true;ws.serializeAttachment(d);this.broadcast(this.publicState());return;}
+  if(m.type==='ready'&&this.room.state==='lobby'){if(m.knife)d.knife=cleanCompRunKnife(m.knife);if(typeof m.runner==='string'&&/^[a-z0-9-]{1,40}$/.test(m.runner))d.runner=m.runner;d.ready=m.ready===true;ws.serializeAttachment(d);this.broadcast(this.publicState());return;}
   if(m.type==='start'&&host&&this.room.state==='lobby'){
    const members=this.members();if(members.length<2||members.some(p=>!p.data.ready))return error('At least two runners must be ready.');
    this.room.state='racing';this.room.round++;this.room.startAt=now+5000;this.room.results=[];
@@ -88,7 +90,7 @@ export class RaceRoom extends DurableObject {
   if(m.type==='pose'&&this.room.state==='racing'&&!d.finished&&m.round===this.room.round){
    if(now<this.room.startAt||now-d.poseAt<55)return;
    if(!Array.isArray(m.pose)||m.pose.length!==7||m.pose.some(v=>!Number.isFinite(v)||Math.abs(v)>1e6))return;
-   d.poseAt=now;ws.serializeAttachment(d);this.broadcast({type:'pose',id:d.id,round:this.room.round,at:now,pose:m.pose},ws);return;
+   d.poseAt=now;ws.serializeAttachment(d);this.broadcast({type:'pose',id:d.id,round:this.room.round,at:now,pose:m.pose,equipment:m.equipment===2?2:0},ws);return;
   }
   if(m.type==='respawn'&&this.room.rules==='race'&&this.room.state==='racing'&&!d.finished&&m.round===this.room.round){
    if(now<this.room.startAt||now-(d.respawnAt||0)<300)return;
