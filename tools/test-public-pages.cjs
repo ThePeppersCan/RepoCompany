@@ -46,7 +46,7 @@ async function main(){
   const page=await context.newPage();
   for(const route of routes){
    await page.goto(origin+route,{waitUntil:'networkidle'});
-   if(route==='/'){assert.ok((await page.locator('#repo-public-info').innerText()).includes(description));assert.ok(await page.locator('#repo-public-info').isVisible());assert.equal(await page.locator('#viewport').isVisible(),false);}
+   if(route==='/'){assert.ok(!(await page.locator('#repo-public-info').innerText()).includes(description));assert.ok(await page.locator('#repo-public-info').isVisible());assert.equal(await page.locator('#viewport').isVisible(),false);}
    else{assert.equal(await page.locator('h1').count(),1);assert.ok(await page.locator('h1').isVisible());}
    for(const link of await page.locator(route==='/'?'#repo-public-info a[href]':'a[href]').evaluateAll(elements=>elements.map(e=>e.getAttribute('href')))){
     assert.ok(link.startsWith('/'));const target=new URL(link,origin).pathname;assert.ok(['/Wibs','/Reparty','/Moratales','/Morogue','/VelmoraManager'].includes(target)||fs.existsSync(fileFor(target)),route+' -> '+link);

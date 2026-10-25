@@ -31,7 +31,7 @@ function card(p) {
 module.exports = function buildPublicPages(root, dist, {production}) {
   const writePage = (route, html) => { const file = path.join(dist, route, 'index.html'); fs.mkdirSync(path.dirname(file), {recursive:true}); fs.writeFileSync(file, html); };
   const home = {title:'Repo Company — Games & Good Company',description,path:'/'};
-  const intro = `<section id="repo-public-info" class="repo-public-intro" aria-label="About Repo Company"><img class="public-fallback-logo" src="${logo}" width="80" height="80" alt="Repo Company"><p>${esc(description)}</p><nav aria-label="Explore Repo Company">${links()}</nav><noscript><p>Enable JavaScript to log in and open your collection. You can browse the games and Wibs pages above without it.</p></noscript></section>`;
+  const intro = `<section id="repo-public-info" class="repo-public-intro" aria-label="Explore Repo Company"><img class="public-fallback-logo" src="${logo}" width="80" height="80" alt="Repo Company"><nav aria-label="Explore Repo Company">${links()}</nav><noscript><p>Enable JavaScript to log in and open your collection. You can browse the games and Wibs pages above without it.</p></noscript></section>`;
   const index = path.join(dist, 'index.html');
   let html = fs.readFileSync(index,'utf8');
   html = html.replace(/<title>[\s\S]*?<\/title>/,metadata(home,production))
