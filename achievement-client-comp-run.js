@@ -20,6 +20,15 @@
  }
  const storageKey=()=>`repo-achievement-observations-v1:${game}:${user}`;
  function persist(){if(user&&!switched)try{localStorage.setItem(storageKey(),JSON.stringify(facts));}catch{}}
+ let airportAccess=null;
+ async function airport(options={}){
+  if(!user||switched)throw Error("Sign in to enter a multiplayer airport.");
+  const owner=user;
+  if(!airportAccess||airportAccess.expires<Date.now()+10000){const result=await rpc("start");if(user!==owner||switched)throw Error("Your account changed. Reopen the game.");airportAccess=result.airportAccess;}
+  if(!airportAccess?.ticket)throw Error("The airport is temporarily unavailable.");
+  const response=await fetch(base+"/api/comp-run/airport-ticket",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...options,ticket:airportAccess.ticket}),signal:AbortSignal.timeout(18000)});
+  const result=await response.json();if(user!==owner||switched)throw Error("Your account changed. Reopen the game.");if(!response.ok){if(response.status===401)airportAccess=null;throw Error(result.error||"Could not join the airport.");}return result;
+ }
  let cosmeticsAccess=null,cosmeticsBusy=false;
  async function cosmetics(action,finishId){
   if(!['state','buy','buy-runner'].includes(action)||!user||switched)throw Error('Connect your Repo Company account to use the shop.');
@@ -35,7 +44,7 @@
   }finally{cosmeticsBusy=false;}
  }
  function account(id){
-  if(id===user)return;session=null;cosmeticsAccess=null;user=id;
+  if(id===user)return;session=null;cosmeticsAccess=null;airportAccess=null;user=id;
   if(id&&boundUser&&boundUser!==id)switched=true;
   dispatchEvent(new CustomEvent('repo-account-connection',{detail:{connected:!!id}}));
   if(!id||switched)return;boundUser=id;
@@ -65,7 +74,7 @@
   if(changed){dirty=true;persist();}void flush();
  }
  function load(file){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=base+'/'+file+'?v=20261011-achievements-1';script.dataset.game=game;script.onload=resolve;script.onerror=reject;document.body.append(script);});}
- window.repoGameAchievements=Object.freeze({observe,connect,cosmetics,register(value){adapter=value;muted=value.muted||muted;},get identity(){return user;},get activitySession(){return user&&!switched?session:null;},request(kind,body){if(!['run-start','run-finish'].includes(kind)||!user||switched)return Promise.reject(Error('Sign in to Repo Company before starting a ranked run.'));return rpc(kind,body);},get active(){return started&&!testing&&!switched;},base});
+ window.repoGameAchievements=Object.freeze({observe,connect,cosmetics,airport,register(value){adapter=value;muted=value.muted||muted;},get identity(){return user;},get activitySession(){return user&&!switched?session:null;},request(kind,body){if(!['run-start','run-finish'].includes(kind)||!user||switched)return Promise.reject(Error('Sign in to Repo Company before starting a ranked run.'));return rpc(kind,body);},get active(){return started&&!testing&&!switched;},base});
  if(native){const update=state=>account(state.status==='online'?window.REPO_LAUNCHER_CONTEXT.accountId:null);native.onConnectionChanged(update);native.checkConnection().then(update).catch(()=>account(null));}
  if(game==='comp-run'){const control=document.getElementById('connect-account');if(control){const label=()=>{control.textContent=user?(switched?'REOPEN GAME TO CONNECT':'ACCOUNT CONNECTED'):'CONNECT ACCOUNT';control.disabled=!!native||switched;};control.addEventListener('click',connect);addEventListener('repo-account-connection',label);label();}}
  if(tag.dataset.bundled!=='true')load('achievement-notifications.js').then(()=>load('achievement-adapter-'+game+'.js')).catch(()=>{});

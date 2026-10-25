@@ -1,10 +1,10 @@
-import { DurableObject } from 'cloudflare:workers';
+import { DurableObject, WorkerEntrypoint } from 'cloudflare:workers';
 import {cleanCompRunKnife} from '../../lib/comp-run-cosmetic-catalog.mjs';
 
-const VERSION='2.15.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
+const VERSION='2.15.2', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0','2.15.0','2.15.1',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
 const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground']);
 // The cosmetic release preserves every 2.14 route and its race compatibility.
-const supportsMap=(course,version)=>course==='higher-ground'||course==='on-the-menu'?['2.14.0',VERSION].includes(version):course==='rep-orca'?['2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0',VERSION].includes(version):CLIENT_VERSIONS.has(version);
+const supportsMap=(course,version)=>course==='higher-ground'||course==='on-the-menu'?['2.14.0','2.15.0','2.15.1',VERSION].includes(version):course==='rep-orca'?['2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0','2.15.0','2.15.1',VERSION].includes(version):CLIENT_VERSIONS.has(version);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);
 const json=(value,status=200,origin)=>Response.json(value,{status,headers:{'Cache-Control':'no-store',...(ORIGINS.has(origin)?{'Access-Control-Allow-Origin':origin,Vary:'Origin'}:{})}});
@@ -12,13 +12,21 @@ const cleanName=value=>String(value||'Runner').normalize('NFKC').replace(/[^\p{L
 const sockets=ctx=>ctx.getWebSockets().filter(ws=>ws.readyState===1);
 const send=(ws,value)=>{try{ws.send(JSON.stringify(value));}catch{}};
 
-export default {
- async fetch(request,env){
+export {AirportRoom,AirportDirectory} from './airport-service.mjs';
+export {VerifiedRaceRoom} from './verified-race.mjs';
+export default class RaceService extends WorkerEntrypoint {
+ async airportTicket(identity){return this.env.AIRPORT_DIRECTORY.getByName('airports-v1').allocate({...identity,knife:cleanCompRunKnife(identity.knife||{}),runner:typeof identity.runner==='string'&&/^[a-z0-9-]{1,40}$/.test(identity.runner)?identity.runner:'runner-01'});}
+ async verifiedResult(code,proof,userId){if(!/^[A-HJ-NP-Z2-9]{8}$/.test(code||'')||!/^[-a-f0-9]{36}$/.test(proof||''))return null;return this.env.VERIFIED_RACES.getByName(code).verifiedResult(proof,userId);}
+
+ async fetch(request){
+  const env=this.env;
   const origin=request.headers.get('Origin'),path=new URL(request.url).pathname.replace(/^.*\/races/,'');
   // Electron's installed-file protocol forwards this public, anonymous POST
   // without Origin. A custom header survives it. Never override an explicitly
   // supplied untrusted origin, and never use this marker for account identity.
   const launcherCreate=origin===null&&path==='/new'&&request.method==='POST'&&request.headers.get('X-Comp-Run-Client')==='1';
+  const secured=path.match(/^\/(airport|flight)\/([A-HJ-NP-Z2-9]{8})$/);
+  if(secured&&request.method==='GET'&&request.headers.get('Upgrade')?.toLowerCase()==='websocket'&&(ORIGINS.has(origin)||origin==='null'||origin===null))return env[secured[1]==='airport'?'AIRPORT_ROOMS':'VERIFIED_RACES'].getByName(secured[2]).fetch(request);
   if(!ORIGINS.has(origin)&&!launcherCreate)return json({error:'Open multiplayer from COMP-RUN.'},403);
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, GET, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Comp-Run-Client',Vary:'Origin','Access-Control-Max-Age':'600'}});
   if(env.ROOM_LIMIT&&!((await env.ROOM_LIMIT.limit({key:request.headers.get('CF-Connecting-IP')||'local'})).success))return json({error:'Please wait a minute before opening another room.'},429,origin);

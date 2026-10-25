@@ -20,3 +20,19 @@ new_sqlite_classes = ["RaceRoom"]
 name = "ROOM_LIMIT"
 namespace_id = "26001"
 simple = { limit = 30, period = 60 }
+
+[[durable_objects.bindings]]
+name = "AIRPORT_DIRECTORY"
+class_name = "AirportDirectory"
+[[durable_objects.bindings]]
+name = "AIRPORT_ROOMS"
+class_name = "AirportRoom"
+[[durable_objects.bindings]]
+name = "VERIFIED_RACES"
+class_name = "VerifiedRaceRoom"
+[[migrations]]
+tag = "v2-airports"
+new_sqlite_classes = ["AirportDirectory", "AirportRoom", "VerifiedRaceRoom"]
+[[services]]
+binding = "RACE_VERIFIER"
+service = "repocompany-comp-run-verifier"

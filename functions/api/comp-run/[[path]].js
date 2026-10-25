@@ -1,4 +1,5 @@
 import {recordPlayActivity} from '../../../lib/play-activity.mjs';
+import {verifyAirportAccess} from '../../../lib/comp-run-airport-access.mjs';
 import {cosmeticsRequest} from '../../../lib/comp-run-cosmetics.mjs';
 import config from '../../../dashboard-config.json';
 import boards from '../../../comp-run-boards.json';
@@ -28,6 +29,19 @@ export async function onRequest({request,env,params}){
  if(route==='races'||route?.startsWith('races/'))return env.COMP_RUN_RACES?env.COMP_RUN_RACES.fetch(request):reply({error:'Races are temporarily unavailable.'},503,origin);
  try{
   const db=env.DASHBOARD_DB;if(!db)return reply({error:'Rankings are temporarily unavailable.'},503,origin);
+  if(route==='airport-ticket'){
+   if(origin&&origin!=='null'&&!origins.has(origin))return reply({error:'Open COMP-RUN to join an airport.'},403);
+   const headers={'Access-Control-Allow-Origin':origin==='null'?'null':origins.has(origin)?origin:'https://comp-run.fluffy-star-4855.chatgpt.site','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Methods':'POST, OPTIONS',Vary:'Origin','Cache-Control':'no-store'};
+   if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
+   const respond=(data,status=200)=>Response.json(data,{status,headers});
+   if(request.method!=='POST')return respond({error:'Method not allowed.'},405);
+   const body=await readBody(request,2048);let access;try{access=await verifyAirportAccess(env,body?.ticket);}catch{return respond({error:'Reconnect your account to enter the airport.'},401);}
+   const owner=await db.prepare('SELECT p.user_id,COALESCE(p.display_name,p.username) AS name FROM dashboard_achievement_sessions s JOIN dashboard_players p ON p.username=s.username WHERE s.id=? AND s.game=? AND s.expires_at>? AND p.user_id=?').bind(access.session,'comp-run',Date.now(),access.userId).first();
+   if(owner?.user_id!==access.userId)return respond({error:'Reconnect your account.'},401);
+   if(!['public','private','join'].includes(body.kind)||body.kind==='join'&&!/^[A-HJ-NP-Z2-9]{8}$/.test(body.code||''))return respond({error:'Choose a public or private airport.'},400);
+   const result=await env.COMP_RUN_RACES.airportTicket({userId:access.userId,name:owner.name,kind:body.kind,code:body.code,runner:body.runner,knife:body.knife,version:body.version});
+   return respond(result,result.error?409:200);
+  }
   if(route==='cosmetics'){
    if(origin&&origin!=='null'&&!origins.has(origin))return reply({error:'Open COMP-RUN to use its shop.'},403,origin);
    const corsOrigin=origin==='null'?'null':origins.has(origin)?origin:null;
@@ -98,7 +112,9 @@ export async function onRequest({request,env,params}){
   }
   const run=typeof body.run==='string'?await db.prepare('SELECT * FROM comp_run_sessions WHERE id=? AND username=? AND course=? AND mode=? AND season=? AND expires_at>?').bind(body.run,me,map.id,body.mode,season,now).first():null;
   if(!run)return reply({error:'This run could not be linked to your account. Start a new run while signed in.'},409);
-  const time=body.timeMs,splits=body.splits;
+  let time=body.timeMs,splits=body.splits;
+  if(body.proof){const proof=await env.COMP_RUN_RACES.verifiedResult(body.proof.code,body.proof.token,user.id);if(!proof?.verified||proof.course!==map.id||proof.mode!==body.mode||proof.rules!==(season.startsWith('race:')?'race':'one-life'))return reply({error:'The multiplayer result could not be verified.'},409);time=Math.round(proof.time*1000);splits=proof.splits.map(t=>Math.round(t*1000));}
+  else if(body.version==='2.15.2'&&season.startsWith('race:'))return reply({error:'A server-verified race result is required.'},409);
   if(!Number.isSafeInteger(time)||time<10000||time>7200000||time>now-run.started_at+5000||!Array.isArray(splits)||splits.length!==map.gates||splits.some((v,i)=>!Number.isSafeInteger(v)||v<=0||v>time||(i>0&&v<=splits[i-1])))return reply({error:'The complete ordered run could not be validated.'},400);
   if(run.time_ms!==null&&run.time_ms!==time)return reply({error:'This run has already been submitted.'},409);
   await db.batch([

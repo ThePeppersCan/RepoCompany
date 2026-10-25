@@ -1,0 +1,6 @@
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),esbuild=require('esbuild');
+const game=path.resolve(process.argv[2]||'../comp-run-premium/dist'),out=path.resolve(__dirname,'../workers/comp-run-verifier'),hash=crypto.createHash('sha256');
+const inputs=[];function copy(dir,relative=''){for(const item of fs.readdirSync(dir,{withFileTypes:true})){const name=relative+item.name;if(item.isDirectory()){if(item.name!=='assets'&&item.name!=='downloads'&&item.name!=='launcher')copy(path.join(dir,item.name),name+'/');}else if(item.name.endsWith('.js')){const src=fs.readFileSync(path.join(dir,item.name),'utf8');inputs.push([name,src]);}}}copy(game);
+for(const[name,src]of inputs.sort((a,b)=>a[0].localeCompare(b[0]))){hash.update(name+'\0'+src);const target=path.join(out,'game',name);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,src.replace(/(from\s+['"][^'"]+|import\(['"][^'"]+)\?v=[^'"]+/g,'$1'));}
+esbuild.buildSync({entryPoints:[path.join(out,'entry.mjs')],outfile:path.join(out,'bundle.mjs'),bundle:true,format:'esm',platform:'browser',target:'es2022',minify:true});
+fs.writeFileSync(path.join(out,'source-hash.json'),JSON.stringify({version:'2.15.2',sha256:hash.digest('hex'),modules:inputs.length})+'\n');console.log('Built verifier from '+inputs.length+' game modules.');

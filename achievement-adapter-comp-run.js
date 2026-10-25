@@ -51,7 +51,7 @@
   const active=run;run=null;if(!active||active.owner!==owner||active.courseId!==d.courseId||active.mode!==d.mode)return;
   await active.pending;if(!active.id||client.identity!==owner)return;
   // One queued best per board, always tied to the account that started the run.
-  const payload={run:active.id,courseId:d.courseId,mode:d.mode,version:d.version,season:active.season,timeMs:Math.round(d.time*1000),splits:d.splits.map(v=>Math.round(v*1000)),queuedAt:Date.now()};
+  const payload={run:active.id,courseId:d.courseId,mode:d.mode,version:d.version,season:active.season,proof:d.proof||null,timeMs:Math.round(d.time*1000),splits:d.splits.map(v=>Math.round(v*1000)),queuedAt:Date.now()};
   if(Array.isArray(d.frames)&&d.frames.length>1){const step=Math.max(1,Math.ceil(d.frames.length/17998));payload.frames=d.frames.filter((_,i)=>i%step===0);if(payload.frames.at(-1)!==d.frames.at(-1))payload.frames.push(d.frames.at(-1));}
   if(!queue[name]||payload.timeMs<queue[name].timeMs)queue[name]=payload;save();void flush();
  });

@@ -1,6 +1,7 @@
 {
-  "version": "2.15.0",
+  "version": "2.15.2",
   "compatibleVersions": [
+    "2.15.0",
     "2.9.0",
     "2.9.1",
     "2.9.2",
@@ -9,12 +10,13 @@
     "2.12.0",
     "2.12.1",
     "2.13.0",
-    "2.14.0"
+    "2.14.0",
+    "2.15.1"
   ],
   "maps": [
     {
       "id": "sanctuary",
-      "title": "Walk, Don’t Run",
+      "title": "Walk, Don\u2019t Run",
       "season": "flow-2",
       "gates": 6
     },
@@ -32,7 +34,7 @@
     },
     {
       "id": "playdate",
-      "title": "You’re It",
+      "title": "You\u2019re It",
       "season": "flow-2",
       "gates": 9
     },
