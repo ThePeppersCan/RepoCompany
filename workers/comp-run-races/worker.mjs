@@ -1,8 +1,8 @@
 import { DurableObject } from 'cloudflare:workers';
 
-const VERSION='2.12.1', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
-const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu']);
-const supportsMap=(course,version)=>course==='on-the-menu'?version===VERSION:course==='rep-orca'?['2.10.0','2.11.0','2.12.0',VERSION].includes(version):CLIENT_VERSIONS.has(version);
+const VERSION='2.13.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0','2.12.1',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
+const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground']);
+const supportsMap=(course,version)=>course==='higher-ground'?version===VERSION:course==='on-the-menu'?['2.12.1',VERSION].includes(version):course==='rep-orca'?['2.10.0','2.11.0','2.12.0','2.12.1',VERSION].includes(version):CLIENT_VERSIONS.has(version);
 const MODES=new Set(['normal','nightmare']);
 const ORIGINS=new Set(['https://comp-run.fluffy-star-4855.chatgpt.site','https://repocompany.uk','https://www.repocompany.uk','http://127.0.0.1:4193']);
 const json=(value,status=200,origin)=>Response.json(value,{status,headers:{'Cache-Control':'no-store',...(ORIGINS.has(origin)?{'Access-Control-Allow-Origin':origin,Vary:'Origin'}:{})}});

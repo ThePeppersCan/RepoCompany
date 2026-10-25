@@ -84,7 +84,7 @@
 ;
 (function(root){
  'use strict';
- const maps=['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu'];
+ const maps=['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground'];
  const runnerMaps=maps;
  const metric=(id,mode)=>'completed_'+id.replaceAll('-','_')+'_'+mode;
  function completionFacts(records){

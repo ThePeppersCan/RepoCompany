@@ -6,9 +6,9 @@ const {games}=JSON.parse(fs.readFileSync(path.join(root,'assets/achievements/cat
 const model=require('../achievement-model.js');
 const ids=new Set(),artCells=new Set();
 assert.equal(games.length,4);
-assert.equal(games.reduce((n,g)=>n+g.totalRepoScore,0),10225);
+assert.equal(games.reduce((n,g)=>n+g.totalRepoScore,0),10525);
 for(const g of games){
-  assert.equal(g.achievements.length,g.id==='comp-run'?19:100);
+  assert.equal(g.achievements.length,g.id==='comp-run'?27:100);
   assert.equal(g.totalRepoScore,g.achievements.reduce((n,a)=>n+a.repoScore,0));
   for(const a of g.achievements){
     assert(!ids.has(a.id),`Duplicate ID ${a.id}`);ids.add(a.id);
@@ -50,4 +50,4 @@ for(const marker of ['profile-identity','profile-friends','profile-game-banner',
 for(const game of games)assert(fs.existsSync(path.join(root,game.id==='comp-run'?'original-case-assets/comp-run/hero-art.webp':`account-assets/${game.id}-activity-banner-v1.png`)));
 assert(fs.readFileSync(path.join(root,'homepage.js'),'utf8').includes("game:id.split('/')[2]"));
 console.log('PASS: restored profile/avatars/demo components remain intact; current profile features and banners exist.');
-console.log('PASS: 319 unique achievements / 10,225 RepoScore; search, reveal, categories, sorting and asset validation.');
+console.log('PASS: 327 unique achievements / 10,525 RepoScore; search, reveal, categories, sorting and asset validation.');
