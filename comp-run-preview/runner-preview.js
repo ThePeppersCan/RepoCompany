@@ -9,7 +9,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace
 let last=0,time=0,drag=null,disposed=false;
 function resize(){renderer.setSize(innerWidth,innerHeight,false);room.setViewport(innerWidth,innerHeight,$('stage').getBoundingClientRect());}
 function pose(gait){room.setPose(gait);$('still').setAttribute('aria-pressed',String(gait==='idle'));$('run').setAttribute('aria-pressed',String(gait==='run'));}
-function select(){room.setRunner($('runner').value);pose('idle');const r=room.actor.definition;$('name').textContent=r.name;$('description').textContent=r.description+' '+(r.effect||'');$('inspect').hidden=!r.paid;$('inspect').textContent=r.premiumAnimated?'Transform · F':'Inspect · F';$('status').textContent=reduced?'Reduced motion enabled':'';resize();}
+function select(){room.setRunner($('runner').value);pose(query.get('pose')==='idle'?'idle':'run');const r=room.actor.definition;$('name').textContent=r.name;$('description').textContent=r.description+' '+(r.effect||'');$('inspect').hidden=!r.paid;$('inspect').textContent=r.premiumAnimated?'Transform · F':'Inspect · F';$('status').textContent=reduced?'Reduced motion enabled':'';resize();}
 function inspect(){if(reduced){$('status').textContent='Turn off reduced motion in your device settings to play the reveal.';return;}pose('idle');room.inspect();}
 $('runner').onchange=select;$('inspect').onclick=inspect;$('still').onclick=()=>pose('idle');$('run').onclick=()=>pose('run');
 $('stage').onpointerdown=e=>{if(e.button!==0)return;drag=e.clientX;$('stage').setPointerCapture(e.pointerId);};
