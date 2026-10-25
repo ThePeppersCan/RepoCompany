@@ -14,6 +14,9 @@ test('parity maps only known overlays, preserving origin and rejecting unsafe pa
   assert.equal(sourceURL('moratales', 'interface/town-cafe-day.js'), 'https://repocompany.uk/game-integrations/moratales/town-cafe-day.js');
   assert.equal(sourceURL('manager', 'index.html'), 'https://manager.repocompany.uk/');
   assert.equal(sourceURL('comp-run', 'index.html'), 'https://comp-run.fluffy-star-4855.chatgpt.site/');
+  assert.equal(sourceURL('comp-run', 'knife-preview.html'), 'https://comp-run.fluffy-star-4855.chatgpt.site/knife-preview');
+  assert.equal(sourceURL('comp-run', 'runner-preview.html'), 'https://comp-run.fluffy-star-4855.chatgpt.site/runner-preview');
+  assert.equal(sourceURL('comp-run', 'other.html'), 'https://comp-run.fluffy-star-4855.chatgpt.site/other.html');
   assert.equal(sourceURL('comp-run', 'main.js'), 'https://comp-run.fluffy-star-4855.chatgpt.site/main.js');
   assert.equal(sourceURL('comp-run', 'launcher/achievement-runtime.js'), 'https://comp-run.fluffy-star-4855.chatgpt.site/launcher/achievement-runtime.js');
   assert.equal(sourceURL('morogue', 'interface/vampire-survivor/art.js', { originalURL: 'https://repocompany.uk/game-integrations/morogue/art.js?v=abc' }), 'https://repocompany.uk/game-integrations/morogue/art.js?v=abc');

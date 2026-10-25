@@ -20,9 +20,12 @@ const normalized = text => text.replace(/\r\n/g, '\n');
 function sourceURL(gameId, relative, receipt) {
   validatePath(relative);
   if (!ORIGINS[gameId]) throw new Error('Unsupported parity target.');
-  // The published host redirects /index.html to /. Audit the canonical page
-  // directly so redirects remain forbidden for all fetched release resources.
-  if (gameId === 'comp-run') return new URL(relative === 'index.html' ? '/' : relative, ORIGINS[gameId] + '/').href;
+  // The published host canonicalizes HTML pages. Request these observed routes
+  // directly; keep redirects forbidden and still compare every byte exactly.
+  if (gameId === 'comp-run') {
+    const pages = { 'index.html': '/', 'knife-preview.html': '/knife-preview', 'runner-preview.html': '/runner-preview' };
+    return new URL(pages[relative] || relative, ORIGINS[gameId] + '/').href;
+  }
   if (gameId === 'morogue') {
     if (!receipt?.originalURL) throw new Error('Morogue requires a published capture receipt for every file.');
     const url = new URL(receipt.originalURL);
