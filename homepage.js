@@ -8,11 +8,11 @@
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const games = [
     {id:'morogue',name:'Morogue',genre:'Action roguelite',tagline:'Survive the night. Face the Uncrowned.',glow:'181,91,77'},
-    {id:'velmora-tales',name:'Velmora Tales',genre:'Coming soon',tagline:'A new adventure is on the horizon.',glow:'116,155,122'},
+    {id:'velmora-tales',name:'Velmora Tales',genre:'Coming soon',tagline:'Coming soon',glow:'116,155,122'},
     {id:'manager',name:'Velmora Manager',genre:'Fantasy sports management',tagline:'Build your club. Shape its future.',glow:'91,137,190'},
-    {id:'moratales',name:'Moratales',genre:'Story & life sim',tagline:'Your next chapter in Velmora.',glow:'125,155,113'},
+    {id:'moratales',name:'Moratales',genre:'Story & life sim',tagline:'Story & life sim',glow:'125,155,113'},
     {id:'comp-run',name:'COMP-RUN',genre:'First-person horror parkour',tagline:'Keep moving. Don’t look back.',glow:'194,37,35'},
-    {id:'demos',name:'Demos',genre:'Playable demos & minigames',tagline:'Including Dragonbound. Discover something new.',glow:'112,139,204'}
+    {id:'demos',name:'Demos',genre:'Playable demos & minigames',tagline:'Including Dragonbound.',glow:'112,139,204'}
   ];
   // Crop the original source wordmarks. The Dragonbound lettering uses a single foil ink;
   // its letterforms are sampled directly from the original menu, never recreated as text.

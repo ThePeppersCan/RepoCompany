@@ -41,11 +41,11 @@ const pages = [
     path: '/wibs/', name: 'Wibs', type: 'WebApplication',
     title: 'Wibs — Chat, Calls & Community | Repo Company',
     description: 'Wibs is Repo Company’s chat and community platform. Send direct messages, join group chats and voice calls, and keep up with what friends are playing.',
-    lead: 'Your friends, in good company.',
+    lead: '',
     copy: 'Wibs is the chat and community platform inside Repo Company. Catch up in community channels, send direct messages and join voice calls while you play.',
     details: ['Chat & community', 'Web & launcher'], action: '/Wibs', actionLabel: 'Open Wibs',
     icon: '/assets/wibs-icon.svg',
-    features: [['Keep in touch', 'Use community channels, direct messages and group chats to stay connected.'], ['Talk while you play', 'Join a Wibs voice call from the website or Repo Company launcher.'], ['Make it yours', 'Use your Repo Company avatar, send Wibs emotes and GIFs, and see your friends’ game activity.']],
+    features: [['Keep in touch', 'Use community channels, direct messages and group chats to stay connected.'], ['Talk while you play', 'Join a Wibs voice call from the website or Repo Company launcher.'], ['Avatars and emotes', 'Use your Repo Company avatar, send Wibs emotes and GIFs, and see your friends’ game activity.']],
     note: 'Log in with your Repo Company account to open your community and messages.'
   },
   {

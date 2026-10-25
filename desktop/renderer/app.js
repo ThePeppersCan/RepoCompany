@@ -80,8 +80,8 @@
     window.repoBrandMotion?.setActive(state.entryVisible !== false && ['loading', 'signing-in'].includes(phase));
     document.body.dataset.locked = String(account.status !== 'online' || busy);
     $('.connection-card').setAttribute('aria-busy', String(['loading', 'signing-in'].includes(phase)));
-    $('#connection-title').textContent = busy ? 'Making yourself at home' : gameLoading ? 'Opening ' + state.activeGame.name : reconnecting ? 'Reconnecting' : error ? 'Let’s reconnect' : showForm ? createAccount ? 'Your next chapter starts here.' : 'Welcome home.' : 'Opening Repo Company';
-    $('#connection-message').textContent = busy ? 'Signing in to your Repo Company account.' : gameLoading ? 'Getting your game ready.' : reconnecting ? 'Connecting to your collection.' : error || (showForm ? createAccount ? 'One account for every adventure.' : 'Sign in to your Repo Company account.' : 'Connecting to your collection.');
+    $('#connection-title').textContent = busy ? (createAccount ? 'Creating your account' : 'Signing in') : gameLoading ? 'Opening ' + state.activeGame.name : reconnecting ? 'Reconnecting' : error ? 'Let’s reconnect' : showForm ? createAccount ? 'Create account' : 'Welcome home.' : 'Opening Repo Company';
+    $('#connection-message').textContent = busy ? 'Signing in to your Repo Company account.' : gameLoading ? 'Getting your game ready.' : reconnecting ? 'Connecting to your collection.' : error || (showForm ? createAccount ? '' : 'Sign in to your Repo Company account.' : 'Connecting to your collection.');
     $('#sign-in-form').hidden = !showForm || busy;
     $('#sign-in-error').hidden = !authError;
     $('#sign-in-error').textContent = authError;

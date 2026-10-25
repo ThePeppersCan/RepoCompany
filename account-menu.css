@@ -47,3 +47,6 @@
 .account-shop-pack .account-soft-button:hover{background:#f6edda!important}
 @media(max-width:1000px){.account-shop-pack{gap:0 40px}.account-shop-pack .account-pack-copy h3{font-size:28px}.account-shop-pack .account-pack-art{height:350px!important}}
 @media(max-width:650px){.account-shop-pack{display:flex;flex-direction:column;gap:20px;align-items:stretch}.account-shop-pack .account-pack-series{margin:0;text-align:center}.account-shop-pack .account-pack-art{height:310px!important}.account-shop-pack .account-pack-copy{padding:23px 0}.account-shop-pack .account-pack-copy h3{font-size:27px}.account-shop-pack .account-pack-copy>p{margin-bottom:22px}.account-shop-pack .account-pack-copy>div{flex-direction:row;align-items:center;gap:20px}.account-shop-pack .account-soft-button{padding:12px 19px;font-size:14px}.account-shop-pack .account-pack-copy>div>span{font-size:12px}}
+
+/* Empty optional profile/menu copy must not leave a spacer. */
+.account-subtitle:empty,.account-bio:empty,.profile-sidebar-note:empty,.frame-detail-balance:empty{display:none}
