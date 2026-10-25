@@ -1,12 +1,13 @@
 {
-  "version": "2.12.1",
+  "version": "2.13.0",
   "compatibleVersions": [
     "2.9.0",
     "2.9.1",
     "2.9.2",
     "2.10.0",
     "2.11.0",
-    "2.12.0"
+    "2.12.0",
+    "2.12.1"
   ],
   "maps": [
     {
@@ -80,6 +81,12 @@
       "title": "On the Menu",
       "season": "menu-5",
       "gates": 8
+    },
+    {
+      "id": "higher-ground",
+      "title": "Higher Ground",
+      "season": "hg-1",
+      "gates": 10
     }
   ]
 }
