@@ -6,7 +6,7 @@ const fs = require('node:fs/promises'), path = require('node:path'), crypto = re
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const { prepareReleaseFeed } = require('./prepare-release-feed.cjs');
-const { verifyGameParity } = require('./verify-game-parity.cjs');
+const { verifyGameParity, sourceURL } = require('./verify-game-parity.cjs');
 const { validateManifest, within, MAX_MANIFEST_BYTES } = require('../lib/manifest.cjs');
 const { assertPlainPath } = require('../lib/library.cjs');
 const REPO = path.resolve(__dirname, '../..');
@@ -44,8 +44,7 @@ function verifyReceipt(report, id, release, manifest) {
     const gameOrigin = id === 'comp-run' ? COMP_RUN_ORIGIN : `https://${id}.repocompany.uk`;
     check(source.origin === gameOrigin || id !== 'comp-run' && source.origin === 'https://repocompany.uk' && (source.pathname.startsWith('/game-integrations/' + id + '/') || id === 'manager' && source.pathname === '/vendor/supabase.js'), 'Parity receipt source is outside the published game: ' + row.sourceURL);
     if (id === 'comp-run') {
-      const publishedPath = file.path === 'index.html' ? '/' : file.path;
-      check(source.href === new URL(publishedPath, COMP_RUN_ORIGIN + '/').href, 'COMP-RUN receipt must identify the exact published file: ' + row.path);
+      check(source.href === sourceURL('comp-run', file.path), 'COMP-RUN receipt must identify the exact published file: ' + row.path);
       check(row.exact === true && row.transform === null && row.liveSha256 === file.sha256 && row.liveBytes === file.size, 'COMP-RUN must match the published bytes without native transforms: ' + row.path);
     }
   }

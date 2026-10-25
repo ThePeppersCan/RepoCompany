@@ -1,11 +1,22 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs/promises'), path = require('node:path'), os = require('node:os'), crypto = require('node:crypto');
-const { publishGameRelease, parseArgs } = require('../tools/publish-game-release.cjs');
+const { publishGameRelease, parseArgs, verifyReceipt } = require('../tools/publish-game-release.cjs');
 const { prepareReleaseFeed } = require('../tools/prepare-release-feed.cjs');
 const { safeRemove } = require('../lib/library.cjs');
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const ENTRY = { morogue: 'interface/vampire-survivor/index.html', moratales: 'preview.html', manager: 'index.html', 'comp-run': 'index.html' };
+test('preview receipts require their canonical page and retain exact-byte validation', () => {
+  const release=path.resolve('fixture'),digest='a'.repeat(64);
+  for(const page of ['knife-preview','runner-preview']){
+    const file={path:page+'.html',size:5,sha256:digest},manifest={sha256:digest,raw:{version:'2.15.0',files:[file]}};
+    const row={path:file.path,sourceURL:'https://comp-run.fluffy-star-4855.chatgpt.site/'+page,manifestSha256:digest,installedSha256:digest,liveSha256:digest,manifestBytes:5,installedBytes:5,liveBytes:5,equal:true,exact:true,transform:null,manifestIntact:true,status:200};
+    const report={gameId:'comp-run',version:'2.15.0',release,manifestSha256:digest,files:[row],summary:{equal:1}};
+    assert.doesNotThrow(()=>verifyReceipt(report,'comp-run',release,manifest));
+    row.sourceURL+='.html';assert.throws(()=>verifyReceipt(report,'comp-run',release,manifest),/exact published file/);
+    row.sourceURL=row.sourceURL.slice(0,-5);row.liveSha256='b'.repeat(64);assert.throws(()=>verifyReceipt(report,'comp-run',release,manifest),/published bytes/);
+  }
+});
 async function fixture(t) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'repo-release-gate-test-')); t.after(() => safeRemove(os.tmpdir(), root));
   const games = {}, calls = []; let tweak = () => {};
