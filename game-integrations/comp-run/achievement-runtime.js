@@ -130,7 +130,7 @@
    // Installed storage is scoped by the launcher before game scripts execute.
    // Ordinary browser saves may belong to a guest or another account.
    if(root.REPO_LAUNCHER_STORAGE?.accountId===id){
-    const keys=['comp-run.records.unravel.v3','comp-run.records.unravel.v2',...Array.from({length:6},(_,i)=>`comp-run.records.v${i+1}`),...Array.from({length:4},(_,i)=>`comp-run.records.small-hours.v${i+1}`),...Array.from({length:3},(_,i)=>`comp-run.records.final-curtain.v${i+1}`),'comp-run.records.last-bloom.v1','comp-run.records.last-bloom.v2','comp-run.records.last-bloom.v3','comp-run.records.last-bloom.v4','comp-run.records.uncrowned.v1','comp-run.records.rupture.v2','comp-run.records.rupture.v3','comp-run.records.rupture.v4'];
+    const keys=['comp-run.records.world-war-r.v2','comp-run.records.unravel.v3','comp-run.records.unravel.v2',...Array.from({length:6},(_,i)=>`comp-run.records.v${i+1}`),...Array.from({length:4},(_,i)=>`comp-run.records.small-hours.v${i+1}`),...Array.from({length:3},(_,i)=>`comp-run.records.final-curtain.v${i+1}`),'comp-run.records.last-bloom.v1','comp-run.records.last-bloom.v2','comp-run.records.last-bloom.v3','comp-run.records.last-bloom.v4','comp-run.records.uncrowned.v1','comp-run.records.rupture.v2','comp-run.records.rupture.v3','comp-run.records.rupture.v4'];
     for(const k of keys)for(const [name,r]of Object.entries(read(k))){if(Number.isFinite(r?.time)&&r.time>0&&(!records[name]||r.time<records[name].time))records[name]=r;}
     save();
    }

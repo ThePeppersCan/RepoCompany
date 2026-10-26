@@ -1,5 +1,5 @@
 {
-  "version": "2.18.0",
+  "version": "2.18.1",
   "compatibleVersions": [
     "2.15.0",
     "2.9.0",
@@ -16,7 +16,8 @@
     "2.16.0",
     "2.16.1",
     "2.17.0",
-    "2.17.1"
+    "2.17.1",
+    "2.18.0"
   ],
   "maps": [
     {
@@ -112,7 +113,7 @@
     {
       "id": "world-war-r",
       "title": "World War R",
-      "season": "world-war-r-1",
+      "season": "world-war-r-2",
       "gates": 6
     }
   ]

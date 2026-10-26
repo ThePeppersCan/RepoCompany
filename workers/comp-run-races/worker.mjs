@@ -1,7 +1,7 @@
 import { DurableObject, WorkerEntrypoint } from 'cloudflare:workers';
 import {cleanCompRunKnife} from '../../lib/comp-run-cosmetic-catalog.mjs';
 
-const VERSION='2.18.0', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0','2.15.0','2.15.1','2.15.2','2.16.0','2.16.1','2.17.0','2.17.1',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
+const VERSION='2.18.1', CLIENT_VERSIONS=new Set(['2.9.0','2.9.1','2.9.2','2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0','2.15.0','2.15.1','2.15.2','2.16.0','2.16.1','2.17.0','2.17.1','2.18.0',VERSION]), MAX_PLAYERS=8, TTL=2*60*60*1000;
 const COURSES=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground','castaway','unravel','world-war-r']);
 // The cosmetic release preserves every 2.14 route and its race compatibility.
 const supportsMap=(course,version)=>(course==='unravel'||course==='world-war-r')?version===VERSION:course==='castaway'?['2.16.1','2.17.0',VERSION].includes(version):course==='higher-ground'||course==='on-the-menu'?['2.14.0','2.15.0','2.15.1','2.15.2','2.16.0','2.16.1','2.17.0',VERSION].includes(version):course==='rep-orca'?['2.10.0','2.11.0','2.12.0','2.12.1','2.13.0','2.14.0','2.15.0','2.15.1','2.15.2','2.16.0','2.16.1','2.17.0',VERSION].includes(version):CLIENT_VERSIONS.has(version);
