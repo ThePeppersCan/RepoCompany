@@ -1,0 +1,58 @@
+{
+  "version": "2.18.2",
+  "filename": "COMP-RUN-Offline.zip",
+  "bytes": 160070414,
+  "sha256": "2623d17f13bdc171d46621200d6f11fe776a6c153a0e0688b9a5e4f105178cfe",
+  "parts": [
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.001.bin",
+      "bytes": 16777216,
+      "sha256": "a893d35da633bbb1aff88669f684e82b79533e069f83d9d19d0a60623889c9aa"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.002.bin",
+      "bytes": 16777216,
+      "sha256": "69672920106f3ca88470878b9cfdce88ab57e3466b737bbe70f72659e7c09f87"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.003.bin",
+      "bytes": 16777216,
+      "sha256": "65c7bbbcaf6015cd1468048bc7632eb7b113fceb861ea5357beac2c0f250c531"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.004.bin",
+      "bytes": 16777216,
+      "sha256": "08932f2e027ab23bc6a247c873db1d7d36fcaa8af8c1da88aece60cd72c65ff0"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.005.bin",
+      "bytes": 16777216,
+      "sha256": "8706756e01356c235e92c1853e82be7e8fdb97a77fd3dd95cbca1f33f6ef459e"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.006.bin",
+      "bytes": 16777216,
+      "sha256": "4d0cf80c003e660085b04a2abbffba65e3c393e99b467f1fb5a5b06a6fcb964d"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.007.bin",
+      "bytes": 16777216,
+      "sha256": "55a8e7c3deb2ae5309c2d323a9a95c82a759572df52b53f6b3012d626769c25c"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.008.bin",
+      "bytes": 16777216,
+      "sha256": "e3966a3f5719f3de9cbaeaa824b8dd1eaccb5afc501c3deaa4dea26eababbe05"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.009.bin",
+      "bytes": 16777216,
+      "sha256": "0d5dc964b7e4f92a01f441797a2a4b89267371310ec18804455c1144b9c06aba"
+    },
+    {
+      "file": "COMP-RUN-Offline.2623d17f13bd.010.bin",
+      "bytes": 9075470,
+      "sha256": "1f5a700ef49c3eb56d9790844e4e89391527a3960690c5890d6c7b01b19704e7"
+    }
+  ]
+}
