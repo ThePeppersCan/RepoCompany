@@ -5,7 +5,7 @@ const send=(s,m)=>{try{s.send(JSON.stringify(m));}catch{}},code=()=>Array.from(c
 const open=ctx=>ctx.getWebSockets().filter(s=>s.readyState===1),clean=v=>String(v||'Runner').replace(/[^\p{L}\p{N} _.-]/gu,'').slice(0,20);
 export class AirportDirectory extends DurableObject{
  async allocate(identity){return this.ctx.blockConcurrencyWhile(async()=>{
-  if(identity.version!=='2.16.0')return{error:'Update COMP-RUN to enter the airport.'};
+  if(identity.version!=='2.16.1')return{error:'Update COMP-RUN to enter the airport.'};
   const now=Date.now(),key='account:'+identity.userId,previous=await this.ctx.storage.get(key);
   if(previous&&now-previous<2000)return{error:'Please wait a moment before joining again.'};await this.ctx.storage.put(key,now);await this.ctx.storage.setAlarm(now+7200000);
   let rooms=await this.ctx.storage.get('rooms')||[];

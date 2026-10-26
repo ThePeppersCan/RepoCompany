@@ -6940,7 +6940,7 @@
       "name": "COMP-RUN",
       "genre": "First-person horror parkour",
       "description": "Thirteen escapes. Two difficulties. Every runner earned.",
-      "totalRepoScore": 1075,
+      "totalRepoScore": 1150,
       "achievements": [
         {
           "id": "comp_run_001",
@@ -7314,7 +7314,7 @@
           "id": "comp_run_017",
           "number": 17,
           "name": "Everyone Gets Out",
-          "description": "Unlock all thirteen completion runners by clearing every map on Normal or Nightmare. Previously earned awards remain yours.",
+          "description": "Unlock all fourteen completion runners by clearing every map on Normal or Nightmare. Previously earned awards remain yours.",
           "repoScore": 100,
           "category": "Runner collection",
           "secret": false,
