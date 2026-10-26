@@ -1,4 +1,4 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
 // Sparse, local, lit flecks. No giant aura or screen overlay follows a runner.
 export function createRunnerAura(parent,def,resources,{hero=true}={}){
  const count=hero?24:10,geo=new THREE.OctahedronGeometry(1,0),material=new THREE.MeshStandardMaterial({name:def.name+' / suspended fragments',color:def.accent,roughness:.58,metalness:.4,transparent:true,opacity:.38,depthWrite:false});

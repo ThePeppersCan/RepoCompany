@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {RunnerRoom} from './runner-room.js?v=2.15.0';
-import {RUNNERS} from './runner-catalog.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {RunnerRoom} from './runner-room.js?v=2.16.0';
+import {RUNNERS} from './runner-catalog.js?v=2.16.0';
 // Reuse one small render target; portraits show the actual models.
 export class RunnerPortraits{
  constructor(){this.cache=new Map();this.queue=[...RUNNERS];this.room=null;this.target=null;this.failed=false;}

@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {RunnerRoom} from './runner-room.js?v=2.15.0';
-import {RUNNERS} from './runner-catalog.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {RunnerRoom} from './runner-room.js?v=2.16.0';
+import {RUNNERS} from './runner-catalog.js?v=2.16.0';
 const $=id=>document.getElementById(id),query=new URLSearchParams(location.search),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 for(const r of RUNNERS){const option=document.createElement('option');option.value=r.id;option.textContent=r.name;$('runner').append(option);}
 $('runner').value=RUNNERS.some(r=>r.id===query.get('runner'))?query.get('runner'):'archfiend';

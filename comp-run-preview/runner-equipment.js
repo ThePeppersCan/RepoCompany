@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {createKnife} from './knife-models.js?v=2.15.0';
-import {normalizeKnifeSelection} from './knife-catalog.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {createKnife} from './knife-models.js?v=2.16.0';
+import {normalizeKnifeSelection} from './knife-catalog.js?v=2.16.0';
 
 /** The same knife geometry and finish used by first-person and shop previews. */
 export function withRunnerEquipment(actor){

@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {KnifeRoom} from './knife-room.js?v=2.15.0';
-import {KNIVES,KNIFE_FINISHES,getKnifeFinish,normalizeKnifeSelection} from './knife-catalog.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {KnifeRoom} from './knife-room.js?v=2.16.0';
+import {KNIVES,KNIFE_FINISHES,getKnifeFinish,normalizeKnifeSelection} from './knife-catalog.js?v=2.16.0';
 const $=id=>document.getElementById(id),query=new URLSearchParams(location.search),selection=normalizeKnifeSelection({knifeId:query.get('knife')||'wake',finishId:query.get('finish')||'sovereign'});
 for(const [id,list,key]of [['knife',KNIVES,'knifeId'],['finish',KNIFE_FINISHES,'finishId']]){for(const item of list){const option=document.createElement('option');option.value=item.id;option.textContent=item.name;$(id).append(option);}$(id).value=selection[key];}
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,room=new KnifeRoom(selection),renderer=new THREE.WebGLRenderer({canvas:$('canvas'),antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;

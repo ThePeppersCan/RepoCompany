@@ -1,4 +1,4 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
 const TAU=Math.PI*2,clamp=x=>Math.max(0,Math.min(1,x));
 // Authored release / catch cues. Solid droplets, fragments and petals are lit
 // geometry; electrical and spectral filaments have separate paths and timing.

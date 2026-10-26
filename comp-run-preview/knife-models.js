@@ -1,9 +1,9 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {normalizeKnifeSelection,getKnifeSpec,getKnifeFinish} from './knife-catalog.js?v=2.15.0';
-import {createFinishTextures,FINISH_SURFACES} from './knife-materials.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {normalizeKnifeSelection,getKnifeSpec,getKnifeFinish} from './knife-catalog.js?v=2.16.0';
+import {createFinishTextures,FINISH_SURFACES} from './knife-materials.js?v=2.16.0';
 
-import {createKnifeTransformation,hasKnifeTransformation} from './knife-transformations.js?v=2.15.0';
-import {createKnifeEffects} from './knife-effects.js?v=2.15.0';
+import {createKnifeTransformation,hasKnifeTransformation} from './knife-transformations.js?v=2.16.0';
+import {createKnifeEffects} from './knife-effects.js?v=2.16.0';
 
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 

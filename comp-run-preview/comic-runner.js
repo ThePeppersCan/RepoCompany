@@ -1,7 +1,7 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.16.0';
 
-import {createRunnerAnatomy} from './runner-anatomy.js?v=2.15.0';
+import {createRunnerAnatomy} from './runner-anatomy.js?v=2.16.0';
 
 const DESIGNS={
  rowan:{mask:'#29292e',ink:'#100e15',cloth:'#303139',pants:'#22232c',mark:'#ad302c',width:1.05,hood:true,maskShape:[[-.72,1],[-1,.65],[-.87,-.48],[-.31,-1],[.35,-.93],[.92,-.41],[1,.66],[.39,1.08]],cuts:'wrap'},

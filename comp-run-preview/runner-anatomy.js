@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {RUN_STANCE,runStride,runPelvis,runArm} from './runner-stride.js?v=2.15.0';
-import {RUNNER_ANATOMY} from './runner-anatomy-data.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {RUN_STANCE,runStride,runPelvis,runArm} from './runner-stride.js?v=2.16.0';
+import {RUNNER_ANATOMY} from './runner-anatomy-data.js?v=2.16.0';
 
 const clamp=THREE.MathUtils.clamp, smooth=THREE.MathUtils.smoothstep;
 

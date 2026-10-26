@@ -1,4 +1,4 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
 // Every identity has its own mask mechanism and costume construction. Moving
 // parts stay on their owning bone; the shared anatomy supplies all locomotion.
 export function buildRunnerRegalia({def,w,s,root,anatomy,mask,materials:m,motion,secondary}){

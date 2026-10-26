@@ -1,5 +1,5 @@
 {
-  "version": "2.15.2",
+  "version": "2.16.0",
   "compatibleVersions": [
     "2.15.0",
     "2.9.0",
@@ -11,7 +11,8 @@
     "2.12.1",
     "2.13.0",
     "2.14.0",
-    "2.15.1"
+    "2.15.1",
+    "2.15.2"
   ],
   "maps": [
     {
@@ -91,6 +92,12 @@
       "title": "RE-PEAK",
       "season": "hg-2",
       "gates": 10
+    },
+    {
+      "id": "castaway",
+      "title": "Castaway",
+      "season": "castaway-1",
+      "gates": 5
     }
   ]
 }

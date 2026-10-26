@@ -1,5 +1,5 @@
 import {verifyRaceReplay} from './game/race-verifier.js';
-const maps=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground']);
+const maps=new Set(['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground','castaway']);
 export default {async fetch(request){
  const courseId=request.headers.get('X-Course'),mode=request.headers.get('X-Mode'),rules=request.headers.get('X-Rules'),expectedTick=Number(request.headers.get('X-Ticks'));
  if(request.method!=='POST'||!maps.has(courseId)||!['normal','nightmare'].includes(mode)||!['race','one-life'].includes(rules)||!Number.isSafeInteger(expectedTick)||expectedTick<1||expectedTick>216000)return new Response('Invalid replay',{status:400});

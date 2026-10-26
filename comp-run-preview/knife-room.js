@@ -1,9 +1,9 @@
-import {hasKnifeTransformation} from './knife-transformations.js?v=2.15.0';
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {createKnife} from './knife-models.js?v=2.15.0';
-import {normalizeKnifeSelection} from './knife-catalog.js?v=2.15.0';
+import {hasKnifeTransformation} from './knife-transformations.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {createKnife} from './knife-models.js?v=2.16.0';
+import {normalizeKnifeSelection} from './knife-catalog.js?v=2.16.0';
 
-import {createKnifeMotion} from './knife-motion.js?v=2.15.0';
+import {createKnifeMotion} from './knife-motion.js?v=2.16.0';
 
 const TAU=Math.PI*2;
 

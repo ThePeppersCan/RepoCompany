@@ -1,5 +1,5 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {createKnifeFlourish} from './knife-flourish.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {createKnifeFlourish} from './knife-flourish.js?v=2.16.0';
 const TAU=Math.PI*2;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 // All particles are seeded once on the actual blade outline. Neither effects

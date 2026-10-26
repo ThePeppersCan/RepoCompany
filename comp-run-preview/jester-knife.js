@@ -1,5 +1,5 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {finishRunnerBuild} from './runner-craft.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {finishRunnerBuild} from './runner-craft.js?v=2.16.0';
 const clamp=x=>Math.max(0,Math.min(1,x)),ease=x=>{x=clamp(x);return x*x*(3-2*x);};
 // A separate articulated ornament: porcelain mask, cut-metal ruff, asymmetric
 // cap, hinged jaw and folding claw arms. Its timeline never alters the grip.

@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
 
-import {PREMIUM_SURFACES,createPremiumTextures} from './premium-materials.js?v=2.15.0';
+import {PREMIUM_SURFACES,createPremiumTextures} from './premium-materials.js?v=2.16.0';
 
 const TAU=Math.PI*2,clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)),fract=x=>x-Math.floor(x);
 const rgb=hex=>{const n=parseInt(hex.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];};

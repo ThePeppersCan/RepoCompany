@@ -1,5 +1,5 @@
-import * as THREE from './vendor/three.module.js?v=2.15.0';
-import {PREMIUM_FINISHES} from './premium-catalog.js?v=2.15.0';
+import * as THREE from './vendor/three.module.js?v=2.16.0';
+import {PREMIUM_FINISHES} from './premium-catalog.js?v=2.16.0';
 const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n)),fract=n=>n-Math.floor(n),TAU=Math.PI*2;
 const hash=(x,y)=>{let n=Math.imul(x+613,374761393)^Math.imul(y+917,668265263);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967295;};
 const ridge=(n,w=.06)=>clamp(1-Math.abs(n)/w),rgb=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16));
