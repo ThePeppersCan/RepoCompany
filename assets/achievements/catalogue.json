@@ -6940,7 +6940,7 @@
       "name": "COMP-RUN",
       "genre": "First-person horror parkour",
       "description": "Thirteen escapes. Two difficulties. Every runner earned.",
-      "totalRepoScore": 1150,
+      "totalRepoScore": 1225,
       "achievements": [
         {
           "id": "comp_run_001",
@@ -7314,13 +7314,13 @@
           "id": "comp_run_017",
           "number": 17,
           "name": "Everyone Gets Out",
-          "description": "Unlock all fourteen completion runners by clearing every map on Normal or Nightmare. Previously earned awards remain yours.",
+          "description": "Unlock all fifteen completion runners by clearing every map on Normal or Nightmare. Previously earned awards remain yours.",
           "repoScore": 100,
           "category": "Runner collection",
           "secret": false,
           "progress": {
             "metric": "runners_unlocked",
-            "target": 14,
+            "target": 15,
             "unit": "legendary runners"
           },
           "art": {
@@ -7601,6 +7601,52 @@
           },
           "art": {
             "sheet": "assets/achievements/comp-run/castaway-badges.svg",
+            "x": 256,
+            "y": 0,
+            "width": 256,
+            "height": 256,
+            "sheetWidth": 512,
+            "sheetHeight": 256
+          }
+        },
+        {
+          "id": "comp_run_030",
+          "number": 30,
+          "name": "The Last Unbroken Thread",
+          "description": "Complete UNRAVEL from start to finish on Normal.",
+          "repoScore": 25,
+          "category": "Normal escapes",
+          "secret": false,
+          "progress": {
+            "metric": "completed_unravel_normal",
+            "target": 1,
+            "unit": ""
+          },
+          "art": {
+            "sheet": "assets/achievements/comp-run/unravel-badges.svg",
+            "x": 0,
+            "y": 0,
+            "width": 256,
+            "height": 256,
+            "sheetWidth": 512,
+            "sheetHeight": 256
+          }
+        },
+        {
+          "id": "comp_run_031",
+          "number": 31,
+          "name": "Something Remembers How to Fly",
+          "description": "Complete UNRAVEL from start to finish on Nightmare.",
+          "repoScore": 50,
+          "category": "Nightmare escapes",
+          "secret": false,
+          "progress": {
+            "metric": "completed_unravel_nightmare",
+            "target": 1,
+            "unit": ""
+          },
+          "art": {
+            "sheet": "assets/achievements/comp-run/unravel-badges.svg",
             "x": 256,
             "y": 0,
             "width": 256,

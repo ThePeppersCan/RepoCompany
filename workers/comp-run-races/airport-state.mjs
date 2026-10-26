@@ -25,7 +25,7 @@ export function airportCommand(state,id,m,now=Date.now()){
  }
  if(!party)return fail('Create or join a party first.');
  if(m.type==='party-configure'){
-  if(party.leader!==id)return fail('The party leader chooses the flight.');if(!['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground','castaway'].includes(m.course)||!['normal','nightmare'].includes(m.mode)||!['race','one-life'].includes(m.rules))return fail('Choose a valid flight.');Object.assign(party,{course:m.course,mode:m.mode,rules:m.rules});readyReset(party);state.revision++;return{ok:true};
+  if(party.leader!==id)return fail('The party leader chooses the flight.');if(!['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground','castaway','unravel'].includes(m.course)||!['normal','nightmare'].includes(m.mode)||!['race','one-life'].includes(m.rules))return fail('Choose a valid flight.');Object.assign(party,{course:m.course,mode:m.mode,rules:m.rules});readyReset(party);state.revision++;return{ok:true};
  }
  if(m.type==='party-ready'){if(party.preparing)return fail('The flight is preparing.');party.ready=party.ready.filter(p=>p!==id);if(m.ready===true)party.ready.push(id);state.revision++;return{ok:true};}
  if(m.type==='party-depart'){

@@ -1,5 +1,5 @@
 // Original cosmetic collection. Knife and finish selection never changes play.
-import {PREMIUM_FINISHES} from './premium-catalog.js?v=2.16.0';
+import {PREMIUM_FINISHES} from './premium-catalog.js?v=2.17.0';
 export const KNIVES=Object.freeze([
  {id:'wake',name:'Wake',family:'Field knife',animationProfile:'fixed',description:'A broad drop point, ribbed grip and exposed steel tang.',iconPath:'M5 15 L32 15 L36 12 L40 12 L40 15 L92 13 L114 20 L91 28 L40 25 L40 28 L36 28 L32 25 L5 25 Z'},
  {id:'needle',name:'Needle',family:'Stiletto',animationProfile:'stiletto',description:'A narrow diamond blade with polished bolsters and a long grip.',iconPath:'M6 15 L34 15 L37 10 L41 10 L41 17 L112 20 L41 23 L41 30 L37 30 L34 25 L6 25 Z'},

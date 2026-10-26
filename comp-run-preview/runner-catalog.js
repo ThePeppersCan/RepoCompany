@@ -1,5 +1,5 @@
-import {PAID_RUNNERS} from './paid-runner-catalog.js?v=2.16.0';
-export {PAID_RUNNERS} from './paid-runner-catalog.js?v=2.16.0';
+import {PAID_RUNNERS} from './paid-runner-catalog.js?v=2.17.0';
+export {PAID_RUNNERS} from './paid-runner-catalog.js?v=2.17.0';
 // Pure loadout metadata: progression/storage can read this without loading 3D.
 const standard=[
   {id:'rowan',name:'Isaiah Hale',gender:'male',role:'After hours',description:'Washed-black streetwear with a sculpted wrap mask, quilted shoulders, reinforced cargos and ash trainers.',skin:'#aa7a5c',cloth:'#25272b',secondary:'#1b2025',accent:'#b2afa7',hair:'#28241f',style:'hoodie',height:1.86,build:1.06},
@@ -23,6 +23,13 @@ const legendary=[
   {id:'tidemark',name:'Tidemark',gender:'female',role:'Returned by the tide',description:'A swept nacre mask, shell-rib armour and a braided salvage harness over deep-teal expedition cloth. A caged tide lantern and asymmetric pearl mantle remember the world inside REP-ORCA.',skin:'#8b7869',cloth:'#315b60',secondary:'#142b34',accent:'#accfc7',hair:'#263337',style:'salvager',height:1.84,build:.97,unlockJourney:'rep-orca',signature:'pearlescent shell / deep teal / tideglass',glove:'#28444c'},
   {id:'scullion',name:'Scullion',gender:'male',role:'Off the menu',description:'A porcelain rat mask, folded linen cap and split teal kitchen apron, with copper utensils on a swinging belt. Earned by escaping Myron and Rivia.',skin:'#a98c79',cloth:'#b4aa91',secondary:'#283536',accent:'#cda15f',hair:'#4c3930',style:'scullion',height:1.8,build:.98,unlockJourney:'on-the-menu',signature:'porcelain rat mask / teal oilcloth / copper',glove:'#60534a'},
   {id:'wayfarer',name:'Wayfarer',gender:'female',role:'Above the weather',description:'A storm hood, glacier goggles and blue expedition jacket, with orange climbing pack, cream rope coil and an altimeter. Earned on the summit of RE-PEAK.',skin:'#a58a75',cloth:'#568ea5',secondary:'#344a57',accent:'#d9cba9',hair:'#302d2b',style:'alpine',height:1.82,build:.98,unlockJourney:'higher-ground',signature:'glacier cloth / expedition orange / cream rope',glove:'#344a57'},
+  {
+  id:'seamkeeper',name:'Seamkeeper',gender:'female',role:'The last unbroken thread',
+  description:'An ivory folded half-mask, fitted indigo expedition coat and peacock-woven panels. Fine gold seams, a short asymmetric mantle and a mended field spool remember the way out of UNRAVEL.',
+  skin:'#947967',cloth:'#273947',secondary:'#16262d',accent:'#d4b478',glove:'#2b4448',hair:'#252b30',
+  style:'woven-runner',height:1.82,build:.96,rarity:'legendary',unlockJourney:'unravel',
+  signature:'folded ivory / peacock weave / raised gold seams',
+},
   {id:'umbra',name:'Umbra',gender:'male',role:'The shadow that escaped',description:'An ivory crescent half-mask, indigo cut-paper mantle and long divided shadow panels. Apricot scarf lining and fine contour seams remember the dawn left behind. Earned by escaping Castaway.',skin:'#69617a',cloth:'#302a50',secondary:'#171629',accent:'#e7dec7',hair:'#171629',style:'shadow-runner',height:1.85,build:.96,unlockJourney:'castaway',signature:'indigo silhouette / ivory crescent / apricot lining',glove:'#25213c'},
 ];
 export const BASE_RUNNERS=Object.freeze(standard.map(r=>Object.freeze({...r,rarity:'standard'})));

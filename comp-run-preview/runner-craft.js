@@ -1,4 +1,4 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
 
 const clamp=THREE.MathUtils.clamp;
 

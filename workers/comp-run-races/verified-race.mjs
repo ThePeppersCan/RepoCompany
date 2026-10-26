@@ -16,7 +16,7 @@ export class VerifiedRaceRoom extends DurableObject{
   const p=this.room.players.find(p=>p.id===d.id);if(!p)return ws.close(1008,'Board first');
   if(m.type==='ping'){send(ws,{type:'pong',sent:m.sent,serverTime:now});return;}
   if(m.type==='loaded'&&this.room.state==='loading'){
-   if(m.protocol!==3||m.version!=='2.16.1')return this.fail('Players have different game versions. Reopen COMP-RUN.');p.loaded=true;await this.save();
+   if(m.protocol!==3||m.version!=='2.17.0')return this.fail('Players have different game versions. Reopen COMP-RUN.');p.loaded=true;await this.save();
    if(this.room.players.every(p=>p.joined&&p.loaded)){this.room.state='racing';this.room.startAt=now+5000;await this.save();await this.ctx.storage.setAlarm(this.room.startAt+1800000);}
    this.broadcast(this.state());return;
   }

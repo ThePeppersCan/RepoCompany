@@ -1,4 +1,4 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
 
 // Small authored surfaces shared by creature ornaments and runner equipment.
 // Each workshop owns its geometry/materials; animation joints remain separate.

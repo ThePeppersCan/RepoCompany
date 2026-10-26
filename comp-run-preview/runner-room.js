@@ -1,5 +1,5 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
-import {createRunner} from './characters.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
+import {createRunner} from './characters.js?v=2.17.0';
 
 function studioReflection(){
   const width=128,height=64,data=new Float32Array(width*height*4);

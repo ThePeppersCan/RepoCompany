@@ -1,13 +1,14 @@
-import {createCastawayRunner} from './castaway-runner.js?v=2.16.0';
-import {createPaidRunner} from './paid-runners.js?v=2.16.0';
-import * as THREE from './vendor/three.module.js?v=2.16.0';
-import {withRunnerEquipment} from './runner-equipment.js?v=2.16.0';
-import {createComicRunner} from './comic-runner.js?v=2.16.0';
-import {RUNNERS} from './runner-catalog.js?v=2.16.0';
-import {createLegendaryRunner} from './legendary-runners.js?v=2.16.0';
-import {createRunnerAnimator,finishRunnerBuild} from './runner-craft.js?v=2.16.0';
+import {createUnravelRunner} from './unravel-runner.js?v=2.17.0';
+import {createCastawayRunner} from './castaway-runner.js?v=2.17.0';
+import {createPaidRunner} from './paid-runners.js?v=2.17.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
+import {withRunnerEquipment} from './runner-equipment.js?v=2.17.0';
+import {createComicRunner} from './comic-runner.js?v=2.17.0';
+import {RUNNERS} from './runner-catalog.js?v=2.17.0';
+import {createLegendaryRunner} from './legendary-runners.js?v=2.17.0';
+import {createRunnerAnimator,finishRunnerBuild} from './runner-craft.js?v=2.17.0';
 
-export {RUNNERS} from './runner-catalog.js?v=2.16.0';
+export {RUNNERS} from './runner-catalog.js?v=2.17.0';
 
 const clamp=THREE.MathUtils.clamp;
 const smooth=(a,b,t)=>a+(b-a)*t;
@@ -73,6 +74,7 @@ function faceShell({angular=false,hero=true}={}){
 export function createRunner(id,{detail='hero',civilian=false}={}){
   const def=RUNNERS.find(x=>x.id===id)||RUNNERS[0],hero=detail==='hero',sides=hero?20:10;
   if(def.paid&&!civilian)return withRunnerEquipment(createPaidRunner(def,{detail}));
+  if(def.style==='woven-runner'&&!civilian)return withRunnerEquipment(createUnravelRunner(def,{detail}));
   if(def.style==='shadow-runner'&&!civilian)return withRunnerEquipment(createCastawayRunner(def,{detail}));
   if(def.rarity==='legendary'&&!civilian)return withRunnerEquipment(createLegendaryRunner(def,{detail}));
   if(!civilian)return withRunnerEquipment(createComicRunner(def,{detail}));

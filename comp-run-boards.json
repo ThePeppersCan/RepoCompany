@@ -1,5 +1,5 @@
 {
-  "version": "2.16.1",
+  "version": "2.17.0",
   "compatibleVersions": [
     "2.15.0",
     "2.9.0",
@@ -13,7 +13,8 @@
     "2.14.0",
     "2.15.1",
     "2.15.2",
-    "2.16.0"
+    "2.16.0",
+    "2.16.1"
   ],
   "maps": [
     {
@@ -99,6 +100,12 @@
       "title": "Castaway",
       "season": "castaway-1",
       "gates": 5
+    },
+    {
+      "id": "unravel",
+      "title": "UNRAVEL",
+      "season": "unravel-1",
+      "gates": 6
     }
   ]
 }

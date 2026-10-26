@@ -1,6 +1,6 @@
 (function(root){
  'use strict';
- const maps=['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground','castaway'];
+ const maps=['sanctuary','hollow','undertow','playdate','small-hours','final-curtain','last-bloom','rupture','uncrowned','last-draft','rep-orca','on-the-menu','higher-ground','castaway','unravel'];
  const runnerMaps=maps;
  const metric=(id,mode)=>'completed_'+id.replaceAll('-','_')+'_'+mode;
  function completionFacts(records){

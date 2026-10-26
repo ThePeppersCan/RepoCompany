@@ -1,7 +1,7 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
-import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.16.0';
-import {createRunnerAnatomy} from './runner-anatomy.js?v=2.16.0';
-import {applyComicFinish} from './comic-runner.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
+import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.17.0';
+import {createRunnerAnatomy} from './runner-anatomy.js?v=2.17.0';
+import {applyComicFinish} from './comic-runner.js?v=2.17.0';
 
 const APRICOT='#eda27e',IVORY='#e7dec7',INDIGO='#302a50',INK='#171629';
 

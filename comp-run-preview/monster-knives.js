@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
-import {cosmeticSculpt,cosmeticEase as ease,cosmeticEnvelope as envelope} from './cosmetic-sculpt.js?v=2.16.0';
-import {finishRunnerBuild} from './runner-craft.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
+import {cosmeticSculpt,cosmeticEase as ease,cosmeticEnvelope as envelope} from './cosmetic-sculpt.js?v=2.17.0';
+import {finishRunnerBuild} from './runner-craft.js?v=2.17.0';
 
 export const MONSTER_KNIVES=Object.freeze(['mawbound','gallows','hellhound','widow','leviathan']);
 const PALETTES={

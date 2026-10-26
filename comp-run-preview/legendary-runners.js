@@ -1,8 +1,8 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
-import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
+import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.17.0';
 
-import {createRunnerAnatomy} from './runner-anatomy.js?v=2.16.0';
-import {applyComicFinish} from './comic-runner.js?v=2.16.0';
+import {createRunnerAnatomy} from './runner-anatomy.js?v=2.17.0';
+import {applyComicFinish} from './comic-runner.js?v=2.17.0';
 
 // Authored silhouettes share a grounded anatomical rig, while heads,
 // torso construction, outer garments, equipment and armour are built separately.

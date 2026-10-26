@@ -1,6 +1,6 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
-import {RUN_STANCE,runStride,runPelvis,runArm} from './runner-stride.js?v=2.16.0';
-import {RUNNER_ANATOMY} from './runner-anatomy-data.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
+import {RUN_STANCE,runStride,runPelvis,runArm} from './runner-stride.js?v=2.17.0';
+import {RUNNER_ANATOMY} from './runner-anatomy-data.js?v=2.17.0';
 
 const clamp=THREE.MathUtils.clamp, smooth=THREE.MathUtils.smoothstep;
 
@@ -84,13 +84,16 @@ export function createRunnerAnatomy(def,{group,workshop,cloth,pants,glove,sole})
   legs.push({side,id,hip:attach('thigh','cargo details'),knee:attach('shin','knee details'),ankle});
  }
  const restHeight=hipY,legLength=world['thigh.L'].distanceTo(world['shin.L'])+world['shin.L'].distanceTo(world['foot.L']);
- let blend=0,previousTime=null,phase=0;
- function update(time,{gait='idle',speed=0,look=0,travel,motion=true,knife=false}={}){
+ let blend=0,slideWeight=0,crouchWeight=0,previousTime=null,phase=0;
+ function update(time,{gait='idle',speed,look=0,travel,motion=true,knife=false}={}){
   const dt=previousTime===null?0:clamp(time-previousTime,0,.1);previousTime=time;
+  if((gait==='run'||gait==='walk')&&Number.isFinite(speed)&&speed<.15)gait='idle';
   const run=gait==='run',moving=run||gait==='walk',target=moving?1:0;
   blend+=(target-blend)*(1-Math.exp(-dt*10));
-  const velocity=clamp(speed||(run?5.2:1.25),.2,run?12:2.4),rate=run?Math.max(1.65,velocity*RUN_STANCE/.70):Math.max(.98,velocity*.62/.70);
-  phase=Number.isFinite(travel)?travel/(velocity/rate)*Math.PI*2:time*rate*Math.PI*2;
+  slideWeight+=((gait==='slide'?1:0)-slideWeight)*(1-Math.exp(-dt*(gait==='slide'?20:14)));
+  crouchWeight+=((gait==='crouch'?1:0)-crouchWeight)*(1-Math.exp(-dt*14));
+  const low=Math.min(1,slideWeight+crouchWeight),idle=(1-blend)*(1-low),velocity=clamp(speed??(run?5.2:1.25),.2,run?12:2.4),rate=run?Math.max(1.65,velocity*RUN_STANCE/.70):Math.max(.98,velocity*.62/.70);
+  phase=Number.isFinite(travel)?travel/(velocity/rate)*Math.PI*2:phase+dt*rate*Math.PI*2;
   const breath=motion?Math.sin(time*1.7):0;
   for(const b of Object.values(bones)){b.rotation.set(0,0,0);b.position.copy(b.userData.rest);}
   const pelvis=bones.hips;
@@ -104,6 +107,19 @@ export function createRunnerAnatomy(def,{group,workshop,cloth,pants,glove,sole})
   bones.chest.rotation.set((-(run?.105:.01)+headLag*.027)*blend,-Math.cos(phase-.4)*(run?.205:.065)*blend,Math.sin(phase-.3)*.033*blend);
   bones.neck.rotation.set(((run?.13:.015)+Math.sin(phase*2-.8)*.028)*blend,Math.cos(phase-.6)*.055*blend,-Math.sin(phase-.55)*.022*blend);
   bones.head.rotation.set(((run?.075:.035)+Math.sin(phase*2-1.1)*.022)*blend+breath*.004,clamp(look,-.65,.65)+Math.cos(phase-.8)*.035*blend,-Math.sin(phase-.8)*.018*blend);
+  // A quiet weight shift keeps both feet planted. The low poses are solved
+  // against foot targets too, preserving anatomy throughout entry/recovery.
+  pelvis.position.x+=Math.sin(time*.47)*.009*idle*(motion?1:0);
+  pelvis.position.y-=.008*idle;
+  pelvis.position.y=THREE.MathUtils.lerp(pelvis.position.y,.38,slideWeight);
+  pelvis.position.y=THREE.MathUtils.lerp(pelvis.position.y,.61,crouchWeight);
+  pelvis.position.z+=.08*slideWeight+.04*crouchWeight;
+  pelvis.rotation.x=THREE.MathUtils.lerp(pelvis.rotation.x,.12,slideWeight);
+  bones.spine.rotation.x=THREE.MathUtils.lerp(bones.spine.rotation.x,.16,slideWeight);
+  bones.chest.rotation.x=THREE.MathUtils.lerp(bones.chest.rotation.x,.07,slideWeight);
+  bones.head.rotation.x=THREE.MathUtils.lerp(bones.head.rotation.x,-.29,slideWeight);
+  bones.spine.rotation.x=THREE.MathUtils.lerp(bones.spine.rotation.x,-.20,crouchWeight);
+  bones.head.rotation.x+=.16*crouchWeight;
   const pelvisInverse=pelvis.quaternion.clone().invert(),inverseParent=new THREE.Quaternion(),goal=new THREE.Vector3(),kneeGoal=new THREE.Vector3(),direction=new THREE.Vector3(),pole=new THREE.Vector3(),q2=new THREE.Quaternion(),footRotation=new THREE.Quaternion();
   for(const {side,id} of legs){
    const hip=bones[`thigh.${id}`],knee=bones[`shin.${id}`],foot=bones[`foot.${id}`],upper=knee.userData.rest,lower=foot.userData.rest,a=upper.length(),b=lower.length();
@@ -112,11 +128,13 @@ export function createRunnerAnatomy(def,{group,workshop,cloth,pants,glove,sole})
    const authored=run?runStride(u,stride):null;
    const z=(authored?authored.z:u<stance?-stride*.5+stride*u/stance:stride*.5-stride*(swing*swing*(3-2*swing)))*blend;
    const lift=(authored?authored.lift:u<stance?0:Math.sin(swing*Math.PI)*.095)*blend;
-   const pitch=(authored?authored.pitch:-(u<stance?smooth(u,stance*.65,stance)*.40:Math.sin(swing*Math.PI)*.12))*blend;
+   const pitch=(authored?authored.pitch:-(u<stance?smooth(u,stance*.65,stance)*.40:Math.sin(swing*Math.PI)*.12))*blend*(1-low)+(id==='L'?.22:.08)*slideWeight;
    const footHeight=world[`foot.${id}`].y;
    const heelLift=pitch<0?footHeight*(Math.cos(pitch)-1)-.17*Math.sin(pitch):0;
    const toeAnchor=pitch<0?footHeight*Math.sin(pitch)+.17*(Math.cos(pitch)-1):0;
    goal.copy(world[`foot.${id}`]);goal.y+=lift+heelLift;goal.z+=z+toeAnchor;
+   goal.z=THREE.MathUtils.lerp(goal.z,id==='L'?-.66:-.16,slideWeight);
+   goal.x+=side*.025*low;
    goal.sub(pelvis.position).applyQuaternion(pelvisInverse).sub(hip.position);
    const reach=clamp(goal.length(),Math.abs(a-b)+.01,a+b-.0001);direction.copy(goal).normalize();
    // Knee pole is the runner's forward direction. Solve both limbs in the
@@ -124,7 +142,7 @@ export function createRunnerAnatomy(def,{group,workshop,cloth,pants,glove,sole})
    pole.set(0,0,-1).applyQuaternion(pelvisInverse);pole.addScaledVector(direction,-pole.dot(direction)).normalize();
    const along=(a*a-b*b+reach*reach)/(2*reach),height=Math.sqrt(Math.max(0,a*a-along*along));
    kneeGoal.copy(direction).multiplyScalar(along).addScaledVector(pole,height);
-   if(blend>.00001){
+   if(blend>.00001||low>.00001||idle>0){
     hip.quaternion.setFromUnitVectors(upper.clone().normalize(),kneeGoal.clone().normalize());
     q2.setFromUnitVectors(lower.clone().normalize(),goal.clone().sub(kneeGoal).normalize());
     knee.quaternion.copy(hip.quaternion).invert().multiply(q2);
@@ -144,6 +162,11 @@ export function createRunnerAnatomy(def,{group,workshop,cloth,pants,glove,sole})
     // the blade across the body, matching the existing first-person grip.
     fore.rotation.y=.85;hand.rotation.y=.55;hand.rotation.z=-.08;
    }
+   arm.rotation.x=THREE.MathUtils.lerp(arm.rotation.x,holding?-.08:.12,slideWeight);
+   arm.rotation.z=THREE.MathUtils.lerp(arm.rotation.z,side*.22,slideWeight);
+   fore.rotation.x=THREE.MathUtils.lerp(fore.rotation.x,holding?1.03:.55,slideWeight);
+   arm.rotation.x-=.12*crouchWeight;
+   bones[`clavicle.${id}`].rotation.z+=side*(.008+breath*.003)*idle;
    for(let finger=1;finger<=5;finger++)for(let segment=1;segment<=3;segment++){
     const b=bones[`finger${finger}-${segment}.${id}`];
     b.rotation.z=-side*(finger===1?(holding?.55:.1):(holding?[.78,1.0,.62][segment-1]:[.12,.22,.13][segment-1]+[.4,.48,.3][segment-1]*blend));
@@ -154,7 +177,7 @@ export function createRunnerAnatomy(def,{group,workshop,cloth,pants,glove,sole})
    for(const {id,side} of legs){bones[`thigh.${id}`].rotation.x=.3+side*.12;bones[`shin.${id}`].rotation.x=-.65;bones[`foot.${id}`].rotation.x=.2;}
   }
   if(gait==='look-back'){bones.head.rotation.y=-.65;bones.chest.rotation.y=-.14;}
-  group.userData.animation={gait,blend,phase,cadence:rate,stance:run?RUN_STANCE:.62,rig:'anatomical',knife:!!knife};return gait;
+  group.userData.animation={gait,blend,slideWeight,crouchWeight,phase,cadence:rate,stance:run?RUN_STANCE:.62,rig:'anatomical',knife:!!knife};return gait;
  }
  function fitFront(assembly,{filter=()=>true}={}){
   // Rasterise the garment's front once in body space. Fitting many stitches

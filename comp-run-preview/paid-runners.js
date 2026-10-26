@@ -1,10 +1,10 @@
-import * as THREE from './vendor/three.module.js?v=2.16.0';
-import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.16.0';
-import {createRunnerAnatomy} from './runner-anatomy.js?v=2.16.0';
-import {applyComicFinish,sculptRunnerCloth} from './comic-runner.js?v=2.16.0';
-import {cosmeticSculpt,cosmeticEnvelope as envelope} from './cosmetic-sculpt.js?v=2.16.0';
-import {buildRunnerRegalia} from './runner-regalia.js?v=2.16.0';
-import {createRunnerAura} from './runner-aura.js?v=2.16.0';
+import * as THREE from './vendor/three.module.js?v=2.17.0';
+import {createRunnerWorkshop,finishRunnerBuild} from './runner-craft.js?v=2.17.0';
+import {createRunnerAnatomy} from './runner-anatomy.js?v=2.17.0';
+import {applyComicFinish,sculptRunnerCloth} from './comic-runner.js?v=2.17.0';
+import {cosmeticSculpt,cosmeticEnvelope as envelope} from './cosmetic-sculpt.js?v=2.17.0';
+import {buildRunnerRegalia} from './runner-regalia.js?v=2.17.0';
+import {createRunnerAura} from './runner-aura.js?v=2.17.0';
 
 const MASKS={
  blackstitch:[.92,.84,.40,.24],redactor:[.88,.69,.27,.16],ferryman:[1,.78,.58,.31],deadchannel:[.92,.96,.59,.25],
