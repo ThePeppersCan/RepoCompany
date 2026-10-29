@@ -1,0 +1,22 @@
+name = "repocompany-comp-run"
+main = "worker.mjs"
+compatibility_date = "2026-10-13"
+workers_dev = false
+preview_urls = false
+routes = [
+  { pattern = "repocompany.uk/", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/comp-run", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/comp-run/*", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/comp-run-downloads/2.27.1/*", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/api/comp-run/races-v2271/*", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/game-scenes.js*", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/game-achievements-bridge.js*", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/repo-web-game.js*", zone_name = "repocompany.uk" },
+  { pattern = "repocompany.uk/morogue-account-bridge*", zone_name = "repocompany.uk" }
+]
+[observability]
+enabled = true
+head_sampling_rate = 0.1
+[[services]]
+binding = "RACES"
+service = "repocompany-comp-run-races-v2271"
