@@ -1,0 +1,8 @@
+{
+  "build": "2.27.2",
+  "authenticated": true,
+  "productionLobby": true,
+  "players": 1,
+  "slot": 0,
+  "phase": "lobby"
+}

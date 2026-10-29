@@ -1,0 +1,35 @@
+{
+  "version": "2.27.2",
+  "simulationVersion": "2.27.1",
+  "protocol": 3,
+  "createdAt": "2026-10-29T19:37:41.956Z",
+  "files": 487,
+  "before": {
+    "morogue": {
+      "version": "0.1.0-preview.7",
+      "sha256": "a071e9b1eb18c603fbca59c92e0d4d841ed9b0095daf2ad11b4c0db506375da7"
+    },
+    "moratales": {
+      "version": "0.1.0-preview.2",
+      "sha256": "16406ea1f4a9689c3ccc570eca3453f64328eff62822231717f294aee9a9408c"
+    },
+    "manager": {
+      "version": "0.1.0-preview.3",
+      "sha256": "741d0bfcdecbedcd190099297b902e7f505155beb87e05f46bc00840c1db6bcb"
+    },
+    "comp-run": {
+      "version": "2.27.1",
+      "sha256": "18577c557ac21a15242c0b925932d791ca5c0800cce0dfae66afd952be5c2d7f"
+    }
+  },
+  "manifestSHA256": "b16236fcce69fe0c6cc8cfba9d92f3f6eb687a6ab5980ea5d9239969a39e84c7",
+  "changed": [
+    "airport-multiplayer.js",
+    "index.html",
+    "main.js",
+    "multiplayer-interface.js",
+    "party-interface.css"
+  ],
+  "mainFiles": 19379,
+  "archiveFiles": 1280
+}

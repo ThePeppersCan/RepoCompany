@@ -1,0 +1,10 @@
+node_modules/
+game/*
+!game/airport-multiplayer.js
+!game/index.html
+!game/main.js
+!game/multiplayer-interface.js
+!game/party-interface.css
+workers/verifier/bundle.mjs
+workers/**/.wrangler/
+tests/*.png

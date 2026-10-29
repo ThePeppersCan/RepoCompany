@@ -1,0 +1,30 @@
+name = "repocompany-comp-run-races-v2271"
+main = "worker.mjs"
+compatibility_date = "2026-10-13"
+workers_dev = false
+preview_urls = false
+[observability]
+enabled = true
+head_sampling_rate = 0.1
+[[durable_objects.bindings]]
+name = "RACE_ROOMS"
+class_name = "RaceRoom"
+[[durable_objects.bindings]]
+name = "AIRPORT_DIRECTORY"
+class_name = "AirportDirectory"
+[[durable_objects.bindings]]
+name = "AIRPORT_ROOMS"
+class_name = "AirportRoom"
+[[durable_objects.bindings]]
+name = "VERIFIED_RACES"
+class_name = "VerifiedRaceRoom"
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RaceRoom", "AirportDirectory", "AirportRoom", "VerifiedRaceRoom"]
+[[ratelimits]]
+name = "ROOM_LIMIT"
+namespace_id = "26002"
+simple = { limit = 30, period = 60 }
+[[services]]
+binding = "RACE_VERIFIER"
+service = "repocompany-comp-run-verifier-v2271"

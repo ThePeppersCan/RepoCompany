@@ -18,7 +18,7 @@ export function createHandler(files, fetchAsset = fetch) {
     const file=files[aliases[pathname]||pathname];
     if (!file || !Object.hasOwn(files,aliases[pathname]||pathname)) return new Response('Not found',{status:404});
     const etag='"'+file.sha256+'"';
-    const headers=new Headers({'Content-Type':file.type,'ETag':etag,'Accept-Ranges':'bytes','Cache-Control':file.type.startsWith('text/html')?'no-cache':'public, max-age=300','X-Content-Type-Options':'nosniff'});
+    const headers=new Headers({'Content-Type':file.type,'ETag':etag,'Accept-Ranges':'bytes','Cache-Control':file.type.startsWith('text/html')?'no-cache':'public, max-age=300','X-Content-Type-Options':'nosniff','X-Comp-Run-Build':'2.27.2'});
     if(request.headers.get('If-None-Match')===etag)return new Response(null,{status:304,headers});
     let start=0,end=file.size-1,status=200;
     const range=request.headers.get('Range');

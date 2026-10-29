@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {parseHTML} from 'linkedom';
+import {partyState,raceStandings,compactStandings,createMultiplayerInterface} from '../game/multiplayer-interface.js';
+const {document,window}=parseHTML('<html><body></body></html>');globalThis.document=document;
+// linkedom exposes a getter-only select.value; browsers supply both accessors.
+Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.value||this.querySelector('option')?.value||'';},set(value){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',o.value===value);}});
+const courses=[{id:'on-the-menu',title:'On the Menu'},{id:'world-war-r',title:'World War R'}],view=createMultiplayerInterface(courses),commands=[];
+const players=[{id:'me',name:'Isaac'},{id:'other',name:'CatAsthma'},{id:'near',name:'<img src=x onerror=alert(1)>'}];
+let airport={players,capacity:12,party:null,invites:[]};const render=extra=>view.render({airport,id:'me',connected:true,busy:false,loadout:'Chain Saint · Crescent',nearby:[{...players[2],near:true}],onCommand:m=>commands.push(m),...extra});
+render();assert.match(view.chip.textContent,/NOT IN A PARTY/);assert(view.button('depart').disabled===false);assert(!view.button('party-create').classList.contains('hidden'));assert(!view.$('nearby').querySelector('img'),'Player names must never become HTML');
+airport.party={id:'party',leader:'me',members:['me','other'],ready:['other'],course:'on-the-menu',mode:'normal',rules:'race',preparing:false};render();assert.match(view.chip.textContent,/PARTY LEADER/);assert(view.button('depart').disabled);assert(!view.$('map').disabled);assert.equal(view.$('members').children.length,2);
+airport.party.ready.push('me');render();assert(!view.button('depart').disabled);assert.equal(view.button('ready').getAttribute('aria-pressed'),'true');
+airport.party.leader='other';render();assert(view.$('map').disabled);assert(view.button('depart').classList.contains('hidden'));assert.match(view.chip.textContent,/PARTY MEMBER/);
+airport.party.preparing=true;render();assert(view.button('ready').disabled);assert(view.button('party-leave').disabled);
+airport.party=null;airport.invites=[{id:'invite',from:'other',expires:5000}];render({now:1000});assert.match(view.chip.textContent,/INVITATION/);view.$('invites').querySelector('button').click();assert.deepEqual(commands.at(-1),{type:'accept',invite:'invite'});render({now:6000});assert.equal(view.$('invites').children.length,0);
+view.panel.classList.remove('hidden');render();assert(view.chip.classList.contains('hidden'));view.panel.classList.add('hidden');render();assert(!view.chip.classList.contains('hidden'));
+const room={state:'racing',players:Array.from({length:8},(_,i)=>({id:'p'+i,name:'Runner '+i})),results:[{id:'p2',verified:true,time:100},{id:'p1',verified:true,time:95},{id:'p3',verified:false,reason:'Out'}]};room.players[4].finished=true;
+const peers=new Map(room.players.map((p,i)=>[p.id,{progress:800-i*50,at:5000}]));const rows=raceStandings({room,id:'p7',progress:125,total:1000,peers,now:5100});assert.deepEqual(rows.slice(0,3).map(r=>r.id),['p1','p2','p4']);assert.equal(rows.at(-1).id,'p3');assert.equal(rows.find(r=>r.self).status,'12%');
+const compact=compactStandings(rows,'p7');assert.equal(compact.length,5);assert.equal(compact[0].place,1);assert(compact.some(r=>r.self));assert.equal(new Set(compact.map(r=>r.id)).size,5);
+view.standings(rows,'p7');assert.equal(view.hud.querySelectorAll('li').length,5);assert.equal(view.hud.querySelectorAll('[data-self=true]').length,1);
+assert.equal(raceStandings({room:{state:'racing',players:[{id:'stale',name:'Stale'}],results:[]},id:'me',total:100,peers:new Map([['stale',{progress:50,at:0}]]),now:4000})[0].status,'—');
+assert(!partyState({party:{leader:'me',members:['me'],ready:[],preparing:false}},'me').canDepart);
+console.log('PASS: solo/party membership, leader migration, ready/boarding gates, invitations, safe names, stable race ranks and compact self visibility.');

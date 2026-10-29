@@ -1,0 +1,32 @@
+COMP-RUN 2.27.2 — published 29 October 2026
+
+Live site: https://repocompany.uk/comp-run/
+Launcher feed: https://repo-company-games.pages.dev/comp-run/manifest.json
+
+The website and launcher now use the same 487-file game catalogue. The changed files were fetched from both live delivery paths and checked byte for byte. The installed launcher updated to 2.27.2, opened COMP-RUN and authenticated into the production lobby.
+
+The earlier game-launch repair remains live. Native COMP-RUN retains the URL identity recognised by installed launchers, while browser Play loads the current build. The Morogue account bridge repairs and the other three game manifests are preserved.
+
+Party changes
+- Invite once and retain the same party through races and map changes.
+- Leader can restart the whole group and return everyone to the same lobby.
+- Party members can explore while waiting, share a lobby code, and invite other lobby runners without walking next to them.
+- Joining, loading, ready and reconnecting states are shown.
+- A brief lost lobby connection holds membership for 90 seconds and reconnects automatically.
+- Distinct spawn positions and removal of close-range hiding restore visible runners.
+
+Verification
+- Two-client boarding and results checks passed for all 20 maps.
+- Persistent party tests passed across RE-PEAK, The Reverse and Comp Crossing, including restarts, returns, pose exchange, denied nonleader actions, reconnect and leader transfer.
+- Two actual browser game clients visibly rendered each other, used the invitation and ready controls, raced, restarted, returned to the same lobby and reconnected with no browser runtime errors.
+- Live installed-launcher verification used an authenticated production lobby connection.
+
+Scope of verification: the two-player gameplay tests used the real game and a local multiplayer service. Production verification used one authenticated account. Eight-player stress tests and full map playthroughs were not performed. Movement simulation stays on 2.27.1/protocol 3 because physics and replay validation are unchanged. The separately versioned offline ZIP remains 2.27.1.
+
+Already-open game windows need to be reopened to load the new client. Your installed launcher was updated during verification.
+
+Deployments
+Race service: 0cf96199-9f75-4f16-969f-96933b50cdf7
+Site gateway: cb06bac2-7f31-4625-9822-825eeca7960e
+Game feed: https://0e4692de.repo-company-games.pages.dev
+Retained asset archive: https://fbd07938.repo-company-game-archive.pages.dev
