@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "version": "2.27.2",
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "miniflare": "5.20261006.1-alpha",
+    "playwright": "1.63.0",
+    "linkedom": "0.18.14"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "version": "2.27.2",
+  "verifiedAt": "2026-10-29T19:43:28.441Z",
+  "catalogFiles": 487,
+  "verifiedChangedFiles": [
+    "airport-multiplayer.js",
+    "index.html",
+    "main.js",
+    "multiplayer-interface.js",
+    "party-interface.css"
+  ],
+  "unchangedOtherGames": true,
+  "preservedNativeIdentity": true,
+  "manifestSHA256": "b16236fcce69fe0c6cc8cfba9d92f3f6eb687a6ab5980ea5d9239969a39e84c7"
+}

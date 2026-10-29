@@ -1,0 +1,2 @@
+# These five files are the exact published payload; preserve checksum bytes.
+game/* -text

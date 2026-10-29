@@ -1,0 +1,32 @@
+COMP-RUN — next multiplayer lobby update
+29 October 2026
+
+The next priority is a shared reason to stay in Comp-Crossing while the party gets ready. The village already has parkour routes, Bell Relay, Lantern Courier, exploration rewards and hand holds. Its challenge progress and personal bests are currently local. Build on those spaces and make their activities visible to the group.
+
+1. Ship a short competitive circuit first
+Create a clearly marked 45–75 second lap near Hearth Square, with an optional harder shortcut. Anyone can enter without leaving the lobby or party. A start arch gives a shared countdown; checkpoints prevent cutting the course; a nearby board shows this lobby's best times and your personal best. Finishing returns control immediately, with a quick retry at the arch. Spectators remain free to explore. Award no account currency until the server validates checkpoints and timing.
+Acceptance: two runners see the same countdown and standings; an invalid shortcut cannot place; joining halfway spectates until the next start; departing for a map cancels the lap cleanly without losing the party.
+
+2. Turn Bell Relay into a cooperative activity
+Let a party of 2–8 split up to ring the village bells within a shared time limit. Show each bell's state in the world and on a small team tracker. Follow with a cooperative Lantern Courier route: pass the lantern, operate paired switches, and use existing hand holds to cross gaps. Scale objectives to group size, and recover cleanly when someone disconnects. Give cosmetic badges for completion and mastery rather than repeatable currency farming.
+Acceptance: progress is identical for every participant, simultaneous bell presses count once, the objective remains possible after a member leaves, and the party can depart whenever everyone agrees.
+
+3. Add a practice yard with useful feedback
+Place short stations for jump timing, slides, wall runs, ropes and controlled landings around a safe reset point. Show speed, landing accuracy and personal improvement only while practising. Use campaign movement rules. Include optional ghost demonstrations and instant retries; keep tutorials out of the main social path.
+Acceptance: every station can be understood in seconds, resets cannot trap the player, and practice never changes competitive race records.
+
+4. Give unlocked runners a social stage
+Add well-lit podiums and a small photo area near the square. Let players inspect a runner's name and unlock achievement, rotate their character and use existing emotes. Equip unlocked cosmetics without leaving the party or destroying the lobby scene; replicate changes to everyone. Let party members pose together, with a hide-interface photo control.
+Acceptance: only owned cosmetics can be equipped, everyone sees the same selection, switching cosmetics preserves party membership, and idle showcases stay within the lobby's performance budget.
+
+5. Add variety after the core activities work
+Rotate a daily circuit and weekly cooperative objective. Keep one obvious meeting point, clear signs to activities and departures, and a compact party panel. Add party leader transfer, a friends-list invitation flow and opt-in activity invitations after the shared activities are dependable. Let groups choose when to leave an activity; avoid forced popups and automatic teleports.
+
+Release order
+First: circuit, shared timing and lobby standings.
+Second: cooperative Bell Relay and party progress.
+Third: practice stations and runner showcase.
+Then: rotating challenges and additional social tools.
+
+Release checks
+Exercise 2, 4 and 8 players, mixed website/launcher sessions, disconnect/reconnect, leader departure, late joining, simultaneous readiness and map changes. Verify that parties, rewards and challenge state remain correct. Compare frame rates and memory before adding more scenery. This is planned work; these activities have not been newly implemented in the 2.27.2 party repair.
