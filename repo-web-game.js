@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const games = {
-    'comp-run': ['COMP-RUN', 'https://comp-run.fluffy-star-4855.chatgpt.site/'],
+    'comp-run': ['COMP-RUN', 'https://repocompany.uk/comp-run/'],
     morogue: ['Morogue', 'https://morogue.repocompany.uk/'],
     moratales: ['Moratales', 'https://moratales.repocompany.uk/'],
     manager: ['Velmora Manager', 'https://manager.repocompany.uk/']

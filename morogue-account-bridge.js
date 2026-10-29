@@ -3,7 +3,7 @@
  const allowed=new Set(['https://morogue.repocompany.uk','https://moratales.repocompany.uk']);
  if(parent===window)return;
  const config=window.repoDashboardConfig,db=window.supabase.createClient(config.url,config.key),channel='morogue-account-v1';
- let parentOrigin=null,parentNonce=null,authRevision=0;
+ let parentOrigin=null,parentNonce=null,authRevision=0,authUser;
  // The Repo Company origin owns refresh tokens and their rotation. Only a
  // short-lived access token crosses to the two explicitly trusted games.
  async function session(){const {data,error}=await db.auth.getSession();if(error)throw error;const s=data.session;return s?{access_token:s.access_token,expires_at:s.expires_at,user:{id:s.user.id}}:null;}
@@ -48,5 +48,5 @@
   }catch(error){response.error=['signin','adopt'].includes(m.action)?error.message:'Your account connection is temporarily unavailable.';if(error.code)response.code=error.code;}
   reply(e,response);
  });
- db.auth.onAuthStateChange(()=>{authRevision++;setTimeout(()=>{if(parentOrigin)parent.postMessage({channel,nonce:parentNonce,event:'changed'},parentOrigin);},0);});
+ db.auth.onAuthStateChange((event,value)=>{const next=value?.user?.id||null;if(event==='SIGNED_OUT'||authUser!==undefined&&next!==authUser)authRevision++;authUser=next;setTimeout(()=>{if(parentOrigin)parent.postMessage({channel,nonce:parentNonce,event:'changed'},parentOrigin);},0);});
 })();
