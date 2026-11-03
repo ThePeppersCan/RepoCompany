@@ -232,6 +232,7 @@ function canUseInstalledGameInput(contents, details = {}, origin) {
 }
 function canUseGamePointer(contents, details = {}, origin) {
   if (canUseInstalledGameInput(contents, details, origin)) return true;
+  if (require('./lib/comp9-input.cjs').canUseComp9Pointer({contents,portal:activePortal(),details,origin,account,window:mainWindow,visible:portalViewVisible,blocked:quitting||updateLocked()||messageOverlay})) return true;
   try {
     const record = embeddedDemo, url = new URL(details.requestingUrl);
     return !!(record?.id === 'runners' && record.runtime === 'runners' && record.contents === contents &&
