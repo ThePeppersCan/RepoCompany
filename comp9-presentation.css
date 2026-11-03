@@ -1,0 +1,21 @@
+
+/* Seven cases: preserve the stack, protect the full navigation band above it.
+   A uniform 14.1% reduction keeps every spine visible and the right edge anchored. */
+.case-stack[data-case-count="7"] .closed-case{left:417px;top:-63px;transform:translate3d(0,calc(var(--index)*70px),0) scale(.73)}
+.case-stack[data-case-count="7"] .closed-case.is-selected{transform:translate3d(-21px,calc(var(--index)*70px - 5px),0) scale(.73)}
+.opening .case-stack[data-case-count="7"] .closed-case.is-selected{transform:translate3d(-93px,calc(var(--index)*70px - 69px),0) scale(.781) rotate(-2deg)}
+.cover-comp-9{background:#ead8b5}
+.cover-comp-9>.cover-art{position:absolute;left:0;top:43px;width:400px;height:534px;object-fit:cover}
+.cover-comp-9>.cover-logo{position:absolute;left:124px;top:47px;width:152px;height:105px}
+.comp9-spine-art{position:absolute;left:108px;top:0;width:892px;height:94px}.spine-comp9{background:#ead8b5}
+.selected-brand>.comp9-wordmark{left:0;top:-10px;width:255px;height:175px;object-fit:contain}
+.dashboard[data-open-game="comp-9"] .game-logo{width:220px;height:150px;object-fit:contain;object-position:left center;left:0;top:-8px}
+.comp9-booklet-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}.dashboard[data-open-game="comp-9"] .booklet{background:#eee6d3}
+.dashboard[data-open-game="comp-9"] .booklet .title{position:absolute;left:111.5px;top:8px;width:105px;height:72px;filter:none}
+.comp9-disc-art{position:absolute;inset:0;width:400px;height:400px;object-fit:cover}
+.dashboard[data-open-game="comp-9"] .disc-title{left:145px;top:20px;width:110px;height:76px;object-fit:contain}
+.dashboard[data-open-game="comp-9"] .disc-brand{left:175px;top:337px;transform:scale(.55);transform-origin:top left}
+.dashboard[data-open-game="comp-9"] .disc-print{background:#1b1d1c}
+.dashboard[data-open-game="comp-9"] .disc-print-shade{background:none}
+.dashboard[data-open-game="comp-9"] .shot .frame{background:radial-gradient(ellipse at 50% 35%,#3b2928,#1d1718)}
+@media(max-width:700px){.home-mode .selected-brand>.comp9-wordmark{width:280px;height:190px;left:0;top:-10px}}

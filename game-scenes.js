@@ -26,6 +26,15 @@
     shots:shots.map(button=>({file:button.querySelector('img').getAttribute('src').split('/').pop(),caption:button.querySelector('.caption').textContent,alt:button.querySelector('img').alt}))
   };
   const scenes={
+    'comp-9':{
+      name:'COMP-9',meta:'Full cinema playtest · Solo / Co-op',comingSoon:false,achievements:false,
+      description:'Choose your cat, board at COMP-9 Station, and survive all 24 areas of Comp Cinema together.',glow:'160,67,59',
+      title:'<img class="game-logo comp9-wordmark" src="original-case-assets/comp9/logo-light.svg" alt="COMP-9">',
+      booklet:'<img class="comp9-booklet-art" src="original-case-assets/comp9/booklet.webp" alt=""><img class="title" src="original-case-assets/comp9/logo-dark.svg" alt="">',
+      bookletLabel:'COMP-9 booklet: the four survivors surrounded by infected dogs',
+      disc:'<img class="comp9-disc-art" src="original-case-assets/comp9/disc.webp" alt=""><div class="disc-print-shade"></div><img class="disc-title" src="original-case-assets/comp9/logo-light.svg" alt="COMP-9">'+publisher,
+      discLabel:'COMP-9 illustrated character disc',shots:[{file:'../comp9-playtest/shots/foyer.png',caption:'Comp Cinema',alt:'The cinema foyer'},{file:'../comp9-playtest/shots/breakfast.png',caption:'The Bellwether',alt:'The breakfast room'},{file:'../comp9-playtest/shots/arch.png',caption:'Freight Arch',alt:'The railway undercroft'}]
+    },
     'comp-run':{
       name:'COMP-RUN',meta:'First-person horror parkour · Solo',
       description:'Chain jumps, chase faster times and race through a first-person horror parkour campaign. Keep moving when the nightmare catches up.',
