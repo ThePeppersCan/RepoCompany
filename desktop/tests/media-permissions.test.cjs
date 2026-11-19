@@ -1,16 +1,28 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
 const { configureMediaPermissions } = require('../lib/media-permissions.cjs');
-function setup() {
+function setup(options = {}) {
   const handlers = {}, session = { setPermissionCheckHandler(fn) { handlers.check = fn; }, setPermissionRequestHandler(fn) { handlers.request = fn; } };
   let account = { identity: 'alice', state: { status: 'online' } }, resolve;
   const portal = { getURL: () => 'https://repocompany.uk/', isDestroyed: () => false }, window = { isDestroyed: () => false };
   let prompts = 0;
-  const controller = configureMediaPermissions(session, { getPortal: () => portal, getAccount: () => account, getWindow: () => window, isPortalUrl: value => new URL(value).origin === 'https://repocompany.uk', dialog: { showMessageBox() { prompts++; return new Promise(r => { resolve = r; }); } } });
+  const controller = configureMediaPermissions(session, { getPortal: () => portal, getAccount: () => account, getWindow: () => window, isPortalUrl: value => new URL(value).origin === 'https://repocompany.uk', dialog: { showMessageBox() { prompts++; return new Promise(r => { resolve = r; }); } }, ...options });
   const details = { isMainFrame: true, requestingUrl: 'https://repocompany.uk/', mediaTypes: ['audio'] };
   return { handlers, portal, window, details, controller, get prompts() { return prompts; }, setAccount(value) { account = value; }, answer(response) { resolve({ response }); }, request(permission = 'media', override = {}, contents = portal) { return new Promise(r => handlers.request(contents, permission, r, { ...details, ...override })); } };
 }
 const tick = () => new Promise(r => setImmediate(r));
+test('crew voice requires explicit microphone consent and cannot grant camera access or portal call permissions', async () => {
+  const game = {}, details = { requestingUrl: 'https://kure.repocompany.uk/', isMainFrame: true, mediaType: 'audio' };
+  const f = setup({ canUseKureMicrophone: (contents, request) => contents === game && request.isMainFrame === true });
+  const check = () => f.handlers.check(game, 'media', details.requestingUrl, details);
+  assert.equal(check(), false);
+  assert.equal(await f.request('media', {...details, mediaTypes:['audio','video']}, game), false);
+  const request = f.request('media', {...details, mediaTypes:['audio']}, game);
+  await tick(); f.answer(1); assert.equal(await request, true);
+  assert.equal(check(), true);
+  assert.equal(f.handlers.check(f.portal, 'media', 'https://repocompany.uk', {...f.details, mediaType:'audio'}), false);
+  f.controller.reset(); assert.equal(check(), false);
+});
 test('fullscreen is available only in the signed-in portal main frame',async()=>{
  const f=setup();assert.equal(await f.request('fullscreen'),true);
  assert.equal(f.handlers.check(f.portal,'fullscreen','https://repocompany.uk',f.details),true);

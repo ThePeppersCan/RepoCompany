@@ -22,12 +22,7 @@
   kureLink.innerHTML='<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M3 2Q1 1 1 4v20q0 3 2 2l19-11q2-1 0-2Z"/></svg>Play';
   kureLink.hidden=true;
   play.after(kureLink);
-  function syncKureLink(){
-    const desktop=document.documentElement.dataset.repoLauncher==='true';
-    kureLink.href=desktop?'https://repocompany.uk/play/kure':'https://kure.repocompany.uk/';
-    kureLink.target=desktop?'_blank':'_self';
-  }
-  new MutationObserver(syncKureLink).observe(document.documentElement,{attributes:true,attributeFilter:['data-repo-launcher']});
+  kureLink.href='https://kure.repocompany.uk/';
   const downloadNotice=document.createElement('p');
   downloadNotice.className='coming-soon-download';
   downloadNotice.textContent='Download · Coming soon';
@@ -151,8 +146,6 @@
     document.getElementById('case-preview').setAttribute('aria-label',`Animate ${scene.name} disc`);
     kureLink.hidden=id!=='kure';
     play.hidden=id==='kure';
-    syncKureLink();
-    kureLink.rel='noopener';
     play.disabled=Boolean(scene.comingSoon);
     play.setAttribute('aria-disabled',String(Boolean(scene.comingSoon)));
     play.setAttribute('aria-label',scene.comingSoon?`${scene.name}: Coming soon`:`Play ${scene.name}`);
@@ -231,21 +224,28 @@
   // Older installed launchers share this website but do not yet know this game.
   // Keep their button local and explicit until a catalogue-capable client loads.
   function syncLauncherAvailability(){
-    if(root.dataset.openGame!=='comp-run')return;
-    const missing=document.documentElement.dataset.repoLauncher==='true'&&document.documentElement.dataset.repoCompRunNative!=='true';
+    const id=root.dataset.openGame;
+    if(id!=='comp-run' && id!=='kure')return;
+    const desktop=document.documentElement.dataset.repoLauncher==='true';
+    if(id==='kure'){
+      kureLink.hidden=desktop;
+      play.hidden=!desktop;
+    }
+    const capability=id==='kure'?'repoKureNative':'repoCompRunNative';
+    const missing=desktop&&document.documentElement.dataset[capability]!=='true';
     if(missing){
       root.dataset.launcherUpdateRequired='true';
       play.disabled=true;play.setAttribute('aria-disabled','true');
-      play.setAttribute('aria-label','Update Repo Company to play COMP-RUN');
+      play.setAttribute('aria-label','Update Repo Company to play '+scenes[id].name);
       play.textContent='Update launcher';delete play.dataset.gameUrl;
-      downloadNotice.textContent='Update Repo Company from Account → Settings, then reopen COMP-RUN.';downloadNotice.hidden=false;
+      downloadNotice.textContent='Update Repo Company from Account → Settings, then reopen '+scenes[id].name+'.';downloadNotice.hidden=false;
     }else if(root.dataset.launcherUpdateRequired==='true'){
       delete root.dataset.launcherUpdateRequired;
-      play.disabled=false;play.setAttribute('aria-disabled','false');play.setAttribute('aria-label','Play COMP-RUN');
-      play.innerHTML=playMarkup;play.dataset.gameUrl=scenes['comp-run'].url;
+      play.disabled=false;play.setAttribute('aria-disabled','false');play.setAttribute('aria-label','Play '+scenes[id].name);
+      play.innerHTML=playMarkup;play.dataset.gameUrl=scenes[id].url;
       downloadNotice.hidden=true;
     }
   }
-  new MutationObserver(syncLauncherAvailability).observe(document.documentElement,{attributes:true,attributeFilter:['data-repo-launcher','data-repo-comp-run-native']});
+  new MutationObserver(syncLauncherAvailability).observe(document.documentElement,{attributes:true,attributeFilter:['data-repo-launcher','data-repo-comp-run-native','data-repo-kure-native']});
   window.dashboardScenes=Object.freeze({activate,coverPrint,ids:Object.freeze(Object.keys(scenes))});
 })();

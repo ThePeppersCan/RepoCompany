@@ -15,7 +15,7 @@ const { TaskbarAttention } = require('./lib/taskbar-attention.cjs');
 const { ExternalActivity } = require('./lib/external-activity.cjs');
 const { NotificationAudio } = require('./lib/notification-audio.cjs');
 const { configureMediaPermissions } = require('./lib/media-permissions.cjs');
-const { canUseCompRunInput } = require('./lib/comp-run-permissions.cjs');
+const { canUseGameInput } = require('./lib/game-input.cjs');
 const { requestCompRunAccount } = require('./lib/comp-run-account.cjs');
 const { createMouseControl } = require('./lib/mouse-control.cjs');
 let mouseControl;
@@ -160,7 +160,7 @@ function handleMainWindowClose(event) {
   event.preventDefault();
   const window = mainWindow;
   if (!window || window.__askingToClose) return; window.__askingToClose = true;
-  return dialog.showMessageBox(window, { type: 'question', title: 'Close Repo Company?', message: 'Close the launcher?', detail: games.has('morogue') || games.has('comp-run') || embeddedDemo ? 'Your game will close and its unfinished run will end.' : games.size ? 'Your game progress will be saved before closing.' : 'The current download will stop. You can restart it from your library.', buttons: ['Keep open', 'Close launcher'], defaultId: 0, cancelId: 0, noLink: true }).then(async result => {
+  return dialog.showMessageBox(window, { type: 'question', title: 'Close Repo Company?', message: 'Close the launcher?', detail: games.has('kure') ? 'Use Save Game in the KURE pause menu before closing.' : games.has('morogue') || games.has('comp-run') || embeddedDemo ? 'Your game will close and its unfinished run will end.' : games.size ? 'Your game progress will be saved before closing.' : 'The current download will stop. You can restart it from your library.', buttons: ['Keep open', 'Close launcher'], defaultId: 0, cancelId: 0, noLink: true }).then(async result => {
     if (!quitting && !window.isDestroyed() && result.response === 1) { for (const game of games.values()) await saveBeforeClose(game); quitApproved = true; app.quit(); }
   }).catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); }).finally(() => { window.__askingToClose = false; });
 }
@@ -224,11 +224,13 @@ function watchWindowVisibility(window) {
 function configureSessionPermissions(targetSession) {
   mouseControl=createMouseControl({BrowserWindow,ipcMain,globalShortcut,screen,dialog,getWindow:()=>mainWindow,getPortal:activePortal,getAccount:()=>account,isPortalUrl});
   const picker=createScreenPicker({BrowserWindow,desktopCapturer,ipcMain,getWindow:()=>mainWindow,hidden:hiddenTest});
-  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog, canUseGamePointer, canUseGameFullscreen: canUseInstalledGameInput, chooseScreen:async valid=>{const source=await picker.choose(valid);mouseControl.select(source);return source;},cancelScreen:()=>{picker.cancel();mouseControl?.reset();} });
+  mediaPermissions = configureMediaPermissions(targetSession, { getPortal: activePortal, getAccount: () => account, getWindow: () => mainWindow, isPortalUrl, dialog, canUseGamePointer, canUseGameFullscreen: canUseInstalledGameInput, canUseKureMicrophone: (contents, details, origin) => currentGame()?.__gameId === 'kure' && canUseInstalledGameInput(contents, details, origin), chooseScreen:async valid=>{const source=await picker.choose(valid);mouseControl.select(source);return source;},cancelScreen:()=>{picker.cancel();mouseControl?.reset();} });
 }
 function canUseInstalledGameInput(contents, details = {}, origin) {
-  return canUseCompRunInput({ contents, details, origin, record: currentGame(), account,
-    gameOrigin: config.games.find(game => game.id === 'comp-run')?.origin, window: mainWindow,
+  const record = currentGame();
+  if (!record || !['comp-run', 'kure'].includes(record.__gameId)) return false;
+  return canUseGameInput({ contents, details, origin, record, account, gameId: record.__gameId,
+    gameOrigin: gameById(record.__gameId).origin, window: mainWindow,
     blocked: quitting || updateLocked() || messageOverlay || portalViewVisible });
 }
 function canUseGamePointer(contents, details = {}, origin) {
@@ -302,7 +304,8 @@ function secureContents(contents, allowedNavigation) {
     if (quitting) return { action: 'deny' };
     try {
       const target = new URL(url), targetGame = config.games.find(game => game.origin === target.origin);
-      if (targetGame) { selectLibrary(targetGame.id); }
+      if (contents === activePortal() && target.origin === config.portalOrigin && target.pathname === '/play/kure') selectLibrary('kure');
+      else if (targetGame) { selectLibrary(targetGame.id); }
       else if (target.protocol === 'https:' && config.approvedOrigins.includes(target.origin)) void shell.openExternal(target.href).catch(() => {});
     } catch { /* Invalid links have no native action. */ }
     return { action: 'deny' };
@@ -466,7 +469,10 @@ function accountChanged() {
   if (identity !== mediaAccountId) { mediaPermissions?.reset(); mediaAccountId = identity; socialState = emptySocialState(); companionState = mediaControls.empty(); }
   if (embeddedDemo && (account.state.status !== 'online' || account.identity !== embeddedDemo.identity)) closeEmbeddedDemo();
   else void reconcileEmbeddedDemo();
-  for (const record of games.values()) gameContents(record)?.send('launcher:game-connection', gameConnection(record));
+  for (const record of games.values()) {
+    if (record.__gameId === 'kure' && (account.state.status === 'signed-out' || (identity && identity !== record.__accountId))) disposeGame(record);
+    else gameContents(record)?.send('launcher:game-connection', gameConnection(record));
+  }
   if (account.state.status === 'signed-out') { socialState = emptySocialState(); companionState = mediaControls.empty(); }
   setPortalVisible(portalReady);
   broadcast();
@@ -496,7 +502,7 @@ function gameConnection(window) {
   return { status: status === 'online' && account.identity !== window.__accountId ? 'account-changed' : status, accountId: status === 'online' && account.identity === window.__accountId ? window.__accountId : null };
 }
 async function saveBeforeClose(window) {
-  if (window.__gameId === 'morogue' || !gameContents(window)) return;
+  if (window.__gameId === 'morogue' || window.__gameId === 'kure' || !gameContents(window)) return;
   if (window.__saving) return window.__saving;
   window.__saving = window.webContents.executeJavaScript(`(async()=>{
     if(!window.REPO_LAUNCHER_GAME?.beforeClose)throw Error('Your game is still starting. Please wait before closing.');
@@ -538,7 +544,7 @@ async function exitCurrentGame() {
   if (record.__exitPrompt) return record.__exitPrompt;
   record.__exitPrompt = (async () => {
     const name = gameById(record.__gameId).name;
-    const result = await dialog.showMessageBox(mainWindow, { type: 'question', title: 'Leave ' + name + '?', message: 'Return to your library?', detail: record.__gameId === 'comp-run' ? 'Your unfinished run will end. Completed runs and settings stay on this device.' : record.__gameId === 'morogue' ? 'Your unfinished Mora Mode or Endless Night run will end. Completed online results remain on your account.' : 'Your progress will be saved before leaving ' + name + '.', buttons: ['Keep playing', 'Exit game'], defaultId: 0, cancelId: 0, noLink: true });
+    const result = await dialog.showMessageBox(mainWindow, { type: 'question', title: 'Leave ' + name + '?', message: 'Return to your library?', detail: record.__gameId === 'kure' ? 'Use Save Game in the KURE pause menu before leaving.' : record.__gameId === 'comp-run' ? 'Your unfinished run will end. Completed runs and settings stay on this device.' : record.__gameId === 'morogue' ? 'Your unfinished Mora Mode or Endless Night run will end. Completed online results remain on your account.' : 'Your progress will be saved before leaving ' + name + '.', buttons: ['Keep playing', 'Exit game'], defaultId: 0, cancelId: 0, noLink: true });
     if (!quitting && result.response === 1 && games.get(record.__gameId) === record) await closeGame(record);
   })().catch(error => { if (!quitting) dialog.showErrorBox('Unable to save and close', error.message); throw error; }).finally(() => { record.__exitPrompt = null; });
   return record.__exitPrompt;
@@ -571,6 +577,7 @@ async function gameCommand(event, action, value) {
   if (quitting || !windowContents(mainWindow)) throw new Error('The launcher is closing.');
   const found = [...games.entries()].find(([_id, window]) => { const contents = gameContents(window); return contents && contents === event.sender && event.senderFrame && event.senderFrame === contents.mainFrame; });
   if (!found || new URL(event.senderFrame.url).origin !== gameById(found[0]).origin) throw new Error('This action belongs to the game.');
+  if (gameById(found[0]).delivery === 'hosted') throw new Error('This game uses its website account connection.');
   const window = found[1];
   if (action === 'connection') { await account.refresh(); return gameConnection(window); }
   if (action === 'comp-run-account' && found[0] === 'comp-run') return requestCompRunAccount({account,record:window,alive:()=>!!gameContents(window)&&!quitting&&!updateLocked(),portalOrigin:config.portalOrigin,value});
@@ -633,14 +640,11 @@ async function playWeb(id) {
 async function play(id) {
   requireCurrentLauncher();
   const game = gameById(id);
-  if (!game.installable) throw new Error('This game is coming to the desktop library.');
+  const hosted = game.delivery === 'hosted';
+  if (!hosted && !game.installable) throw new Error('This game is coming to the desktop library.');
   await reconcileEmbeddedDemo();
   if (games.has(id)) { focusGame(games.get(id)); return; }
   if (games.size || embeddedDemo) throw new Error('Close your current game before starting another.');
-  const current = library.getInstalled(id);
-  if (!current) throw new Error('Install this game before playing.');
-  const download = library.snapshot()[id];
-  if (library.isBusy(id) || ['downloading', 'updating', 'verifying'].includes(download?.status)) throw new Error('Wait for the update to finish before playing.');
   const identity = await account.requireOnline(id === 'morogue' ? game.origin : undefined);
   if (id === 'morogue') {
     await activePortal()?.executeJavaScript('(async()=>{if(window.repoCharacterSync)await window.repoCharacterSync.ready();})()');
@@ -651,10 +655,12 @@ async function play(id) {
   if (games.has(id)) { focusGame(games.get(id)); return; }
   if (quitting || !mainWindow || mainWindow.isDestroyed()) throw new Error('The launcher is closing.');
   if (games.size || embeddedDemo) throw new Error('Close your current game before starting another.');
-  if (!library.getInstalled(id)) throw new Error('This game is no longer installed.');
-  if (library.isBusy(id) || ['downloading', 'updating', 'verifying'].includes(library.snapshot()[id]?.status)) throw new Error('Wait for the installation to finish before playing.');
+  if (account.state.status !== 'online' || account.identity !== identity) throw new Error('Your account changed. Sign in again before playing.');
+  if (!hosted && !library.getInstalled(id)) throw new Error('Install this game before playing.');
+  if (!hosted && (library.isBusy(id) || ['downloading', 'updating', 'verifying'].includes(library.snapshot()[id]?.status))) throw new Error('Wait for the installation to finish before playing.');
+  const localBridge = hosted ? {} : { preload: path.join(desktopRoot, 'game-preload.cjs'), additionalArguments: ['--repo-account-id=' + identity, '--repo-game-id=' + id] };
   const gameView = new WebContentsView({
-    webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'game-preload.cjs'), additionalArguments: ['--repo-account-id=' + identity, '--repo-game-id=' + id], contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false }
+    webPreferences: { session: sharedSession, ...localBridge, contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false }
   });
   gameView.setBackgroundColor('#121713');
   const introLoops = ['morogue', 'moratales', 'manager'].includes(id) ? 2 : 0;
@@ -690,7 +696,7 @@ async function play(id) {
   record.webContents.on('render-process-gone', () => { disposeGame(record); if (!quitting) dialog.showErrorBox(game.name + ' closed unexpectedly', 'Your previously saved progress and completed online results remain. Reopen the game from your library.'); });
   record.webContents.on('destroyed', () => disposeGame(record));
   try { await record.webContents.loadURL(game.origin + '/'); startGamePresence(); }
-  catch { const wasClosed = record.closed; disposeGame(record); if (!quitting && !wasClosed) throw new Error(game.name + ' could not open. Repair its installation and try again.'); }
+  catch { const wasClosed = record.closed; disposeGame(record); if (!quitting && !wasClosed) throw new Error(game.name + (hosted ? ' could not connect. Try Play again when the game is online.' : ' could not open. Repair its installation and try again.')); }
 }
 async function command(event, action, value) {
   if (!trustedShell(event)) throw new Error('This action belongs to the launcher.');

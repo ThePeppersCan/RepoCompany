@@ -49,6 +49,7 @@ function initialize() {
   function markLauncherDocument() {
     if (!document.documentElement) return false;
     document.documentElement.dataset.repoLauncher = 'true';
+    document.documentElement.dataset.repoKureNative = 'true';
     document.documentElement.dataset.repoScreenSharing = 'true';
     document.documentElement.dataset.repoMouseControl = 'true';
     document.documentElement.dataset.repoBroomflight = 'true';
@@ -85,7 +86,7 @@ function initialize() {
   const pendingGame = id => ['install','update','uninstall','play'].some(action => pending.has(`${action}:${id}`));
   const updateAvailable = id => installed(id) && entry(id).availableVersion && entry(id).availableVersion !== entry(id).version;
   const originGame = value => {try {const origin = new URL(value,location.href).origin;return games().find(game => game.origin === origin);}catch{return null;}};
-  const imageFor = id => ({'comp-run':'/original-case-assets/comp-run/hero-art.webp','velmora-tales':'/original-case-assets/velmora-tales-artwork.png',morogue:'/account-assets/morogue-activity-banner-v1.png',moratales:'/account-assets/moratales-activity-banner-v1.png',manager:'/account-assets/manager-activity-banner-v1.png',dragonbound:'/original-case-assets/dragonbound-menu.png'}[id]);
+  const imageFor = id => ({kure:'/original-case-assets/kure/cover.webp','comp-run':'/original-case-assets/comp-run/hero-art.webp','velmora-tales':'/original-case-assets/velmora-tales-artwork.png',morogue:'/account-assets/morogue-activity-banner-v1.png',moratales:'/account-assets/moratales-activity-banner-v1.png',manager:'/account-assets/manager-activity-banner-v1.png',dragonbound:'/original-case-assets/dragonbound-menu.png'}[id]);
   function percent(item) {return Math.round(Math.min(100,Math.max(0,item.totalBytes > 0 ? item.bytes / item.totalBytes * 100 : Number(item.progress || 0) * 100)));}
   function size(value) {const amount=Number(value)||0;if(amount<1024)return `${amount} B`;if(amount<1048576)return `${(amount/1024).toFixed(1)} KB`;return `${(amount/1048576).toFixed(1)} MB`;}
   function statusFor(game) {
@@ -93,6 +94,7 @@ function initialize() {
     const item=entry(game.id);
     if(running(game.id))return 'Now playing';
     if(busy(game.id))return `${item.status==='verifying'?'Verifying game files':item.status==='updating'?'Updating':'Installing'}${item.totalBytes?' · '+percent(item)+'%':''}`;
+    if(game.delivery==='hosted')return 'Play online in the launcher';
     if(!game.installable)return 'Windows edition coming later';
     if(item.error)return 'Installation needs attention';
     if(updateAvailable(game.id))return 'Update available';
@@ -100,11 +102,11 @@ function initialize() {
   }
   function actionFor(game) {
     if(game.comingSoon)return {label:'Coming soon',disabled:true};
-    if(!game.installable)return {label:'Coming later',disabled:true};
+    if(!game.installable && game.delivery!=='hosted')return {label:'Coming later',disabled:true};
     if(running(game.id))return {label:'Running',disabled:true};
     if(busy(game.id))return {label:entry(game.id).totalBytes?`Installing ${percent(entry(game.id))}%`:'Installing…',disabled:true};
     if(pendingGame(game.id))return {label:'Please wait…',disabled:true};
-    if(!installed(game.id))return {label:entry(game.id).error?'Retry install':'Install game',action:'install'};
+    if(game.installable&&!installed(game.id))return {label:entry(game.id).error?'Retry install':'Install game',action:'install'};
     if(updateAvailable(game.id))return {label:'Update',action:'update'};
     if(state.connectivity?.online===false)return {label:'Reconnect',action:'refresh'};
     if(state.account?.status==='checking')return {label:'Connecting…',disabled:true};
@@ -251,6 +253,8 @@ function initialize() {
   }
   function updatePlayButtons() {
     const candidates=[...document.querySelectorAll('[data-note="Play"][data-game-url]')].map(button=>({button,game:originGame(button.dataset.gameUrl)}));
+    const kureLink=document.querySelector('.kure-play-link:not([hidden])');
+    if(kureLink)candidates.push({button:kureLink,game:games().find(game=>game.id==='kure')});
     const demoButton=document.getElementById('demo-launch'),demo=selectedDemo();if(demoButton&&demo)candidates.push({button:demoButton,game:demo,demo:true});
     for(const candidate of candidates){
       const {button,game}=candidate;if(!game)continue;
@@ -349,9 +353,12 @@ function initialize() {
       const demo=selectedDemo();if(!demo){toast('Your demo collection is connecting. Please try again shortly.');return;}
       const action=demoAction(demo);if(!action.disabled&&action.action)void request(action.action,demo.id);return;
     }
-    if(element.matches('[data-note="Play"][data-game-url]')){
-      const game=originGame(element.dataset.gameUrl);if(!game)return;
+    if(element.matches('[data-note="Play"][data-game-url],.kure-play-link')){
+      const kureLink=element.matches('.kure-play-link');
+      const game=kureLink?games().find(candidate=>candidate.id==='kure'):originGame(element.dataset.gameUrl);
+      if(!game&&!kureLink)return;
       event.preventDefault();event.stopImmediatePropagation();
+      if(!game){toast('Your game library is connecting. Please try again shortly.');return;}
       if(!event.isTrusted)return;const action=actionFor(game);if(!action.disabled&&action.action)void request(action.action,game.id);
     }
   },true);

@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), fsp = require('node:fs/promises'), os = require('node:os'), path = require('node:path'), vm = require('node:vm');
-const { canUseCompRunInput } = require('../lib/comp-run-permissions.cjs');
+const { canUseGameInput } = require('../lib/game-input.cjs');
 const { injectGame, createHandler } = require('../lib/protocol.cjs');
 const { configureMediaPermissions } = require('../lib/media-permissions.cjs');
 const configuration = require('../config.cjs');
@@ -78,7 +78,7 @@ function permissions() {
     window: { isDestroyed: () => false, isVisible: () => true, isMinimized: () => false, isFocused: () => true }, blocked: false };
 }
 test('mouse/fullscreen access rejects background, stale-account, wrong-origin and subframe requests', () => {
-  assert.equal(canUseCompRunInput(permissions()), true);
+  assert.equal(canUseGameInput(permissions()), true);
   for (const change of [
     f => { f.blocked = true; }, f => { f.record.loading = true; }, f => { f.record.closed = true; },
     f => { f.record.__gameId = 'morogue'; }, f => { f.record.webContents = {}; },
@@ -88,11 +88,11 @@ test('mouse/fullscreen access rejects background, stale-account, wrong-origin an
     f => { f.contents.getURL = () => 'https://untrusted.test/'; }, f => { f.contents.isDestroyed = () => true; },
     f => { f.window.isVisible = () => false; }, f => { f.window.isFocused = () => false; },
     f => { f.window.isMinimized = () => true; }, f => { f.details.requestingUrl = 'https://user:password@' + new URL(origin).host + '/'; }
-  ]) { const fixture = permissions(); change(fixture); assert.equal(canUseCompRunInput(fixture), false); }
+  ]) { const fixture = permissions(); change(fixture); assert.equal(canUseGameInput(fixture), false); }
 });
 test('the permission broker delegates game controls without granting camera, microphone or screen capture', () => {
   const fixture = permissions(), handlers = {};
-  const allowed = (contents, details, originValue) => canUseCompRunInput({ ...fixture, contents, details, origin: originValue });
+  const allowed = (contents, details, originValue) => canUseGameInput({ ...fixture, contents, details, origin: originValue });
   const controller = configureMediaPermissions({ setPermissionCheckHandler: fn => { handlers.check = fn; }, setPermissionRequestHandler: fn => { handlers.request = fn; } }, {
     getPortal: () => null, getAccount: () => fixture.account, getWindow: () => fixture.window, isPortalUrl: () => false,
     canUseGamePointer: allowed, canUseGameFullscreen: allowed

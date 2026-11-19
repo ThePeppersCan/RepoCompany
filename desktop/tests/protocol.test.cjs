@@ -121,3 +121,22 @@ test('Steam thumbnails load only for the Repo portal without credentials or arbi
   assert.equal((await handler(request(image,config.portalOrigin,'POST'))).status,403);assert.equal(calls.length,4);
   assert(!config.approvedOrigins.includes(new URL(image).origin),'Steam does not gain top-level navigation or native bridge access');
 });
+test('hosted KURE loads directly, preserves API writes and reports a failed game document', async () => {
+  const config = require('../config.cjs')(__dirname);
+  const origin = config.games.find(game => game.id === 'kure').origin;
+  const requests = [];
+  let failEntry = false;
+  const handler = require('../lib/protocol.cjs').createHandler({ config, desktopRoot: __dirname,
+    library: { getInstalled() { assert.fail('Hosted game requested installed assets'); } },
+    fetchNetwork: async req => {
+      requests.push(req);
+      return new Response('game', { status: failEntry ? 503 : 200 });
+    }
+  });
+  for (const request of [new Request(origin), new Request(origin+'/cab/index.html'), new Request(origin+'/api/room', {method:'POST', body:'crew'})]) {
+    assert.equal((await handler(request)).status, 200);
+    assert.equal(requests.at(-1), request);
+  }
+  failEntry = true;
+  assert.equal((await handler(new Request(origin))).type, 'error');
+});

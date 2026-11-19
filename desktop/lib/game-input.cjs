@@ -2,9 +2,9 @@
 
 // Pointer capture and fullscreen belong only to the visible, signed-in game
 // document. This does not grant games device, screen or subframe permissions.
-function canUseCompRunInput({ contents, details = {}, origin, record, account, gameOrigin, window, blocked = false }) {
+function canUseGameInput({ contents, details = {}, origin, record, account, gameOrigin, gameId = 'comp-run', window, blocked = false }) {
   try {
-    if (blocked || !record || record.__gameId !== 'comp-run' || record.closed || record.loading ||
+    if (blocked || !record || record.__gameId !== gameId || record.closed || record.loading ||
       record.webContents !== contents || !contents || contents.isDestroyed() ||
       account?.state.status !== 'online' || account.identity !== record.__accountId ||
       details.isMainFrame !== true || !window || window.isDestroyed() || !window.isVisible() ||
@@ -16,4 +16,4 @@ function canUseCompRunInput({ contents, details = {}, origin, record, account, g
   } catch { return false; }
 }
 
-module.exports = { canUseCompRunInput };
+module.exports = { canUseGameInput };

@@ -1,12 +1,9 @@
 'use strict';
 
-// Device access belongs only to the signed-in, top-level company portal.
-// Game device access and arbitrary permissions remain denied. The selected
-// Repo Runners frame and the active COMP-RUN main frame may capture mouse movement.
-// COMP-RUN may also enter fullscreen. Display capture
-// requires a fresh, trusted user gesture and an explicit source selection.
-function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog, chooseScreen, cancelScreen, canUseGamePointer, canUseGameFullscreen }) {
-  let generation = 0, grant = null, pending = false;
+// The foreground KURE game can ask for a microphone for crew voice. Portal
+// call permissions are stored separately and display capture uses a source picker.
+function configureMediaPermissions(session, { getPortal, getAccount, getWindow, isPortalUrl, dialog, chooseScreen, cancelScreen, canUseGamePointer, canUseGameFullscreen, canUseKureMicrophone }) {
+  let generation = 0, grants = new WeakMap(), pending = false;
   const identity = () => { const account = getAccount(); return account?.state?.status === 'online' ? account.identity : null; };
   const trusted = (contents, details = {}, origin) => {
     try {
@@ -16,14 +13,19 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
         new URL(details.requestingUrl || origin).origin === new URL(contents.getURL()).origin && identity());
     } catch { return false; }
   };
-  const allowed = (contents, types) => !!(grant && grant.contents === contents && grant.identity === identity() && types.every(type => grant.types.has(type)));
+  const allowed = (contents, types) => {
+    const grant = grants.get(contents);
+    return !!grant && grant.identity === identity() && types.every(type => grant.types.has(type));
+  };
+  const trustedForDevices = (contents, details, origin, types) => trusted(contents, details, origin) ||
+    (types.length === 1 && types[0] === 'audio' && canUseKureMicrophone?.(contents, details, origin) === true);
   session.setPermissionCheckHandler((contents, permission, origin, details = {}) => {
     if (permission === 'pointerLock') return canUseGamePointer?.(contents, details, origin) === true;
     if (permission === 'fullscreen') return trusted(contents, details, origin) || canUseGameFullscreen?.(contents, details, origin) === true;
     const type = details.mediaType;
     if(permission==='display-capture')return !!chooseScreen&&trusted(contents,details,origin);
     if(permission === 'speaker-selection')return trusted(contents,details,origin)&&allowed(contents,['output']);
-    return permission === 'media' && ['audio', 'video'].includes(type) && trusted(contents, details, origin) && allowed(contents, [type]);
+    return permission === 'media' && ['audio', 'video'].includes(type) && trustedForDevices(contents, details, origin, [type]) && allowed(contents, [type]);
   });
   session.setPermissionRequestHandler((contents, permission, callback, details = {}) => {
     if (permission === 'pointerLock') { callback(canUseGamePointer?.(contents, details) === true); return; }
@@ -35,20 +37,22 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
     if(permission==='media'&&Array.isArray(details.mediaTypes)&&details.mediaTypes.length===0&&chooseScreen&&trusted(contents,details)){callback(true);return;}
     const output=permission==='speaker-selection';
     const types = output?['output']:Array.isArray(details.mediaTypes) ? [...new Set(details.mediaTypes)] : [];
-    if ((!output&&permission !== 'media') || !types.length || types.some(type => !(output?['output']:['audio', 'video']).includes(type)) || !trusted(contents, details)) { callback(false); return; }
+    if ((!output&&permission !== 'media') || !types.length || types.some(type => !(output?['output']:['audio', 'video']).includes(type)) || !trustedForDevices(contents, details, undefined, types)) { callback(false); return; }
     if (allowed(contents, types)) { callback(true); return; }
     if (pending) { callback(false); return; }
     const revision = generation, user = identity(), window = getWindow();
     if (!window || window.isDestroyed()) { callback(false); return; }
     pending = true;
     const devices = types.includes('audio') && types.includes('video') ? 'microphone and camera' : types.includes('video') ? 'camera' : 'microphone';
+    const crewVoice = contents !== getPortal();
     Promise.resolve().then(() => dialog.showMessageBox(window, {
-      type: 'question', title: 'Repo Company calls', message: output?'Allow speaker selection for calls?':'Allow your ' + devices + ' for calls?',
-      detail: output?'Choose which headphones or speakers play your calls. This does not grant microphone or camera access.':'Only your Repo Company call can use these devices. You can mute, turn off your camera, or end the call at any time.',
+      type: 'question', title: crewVoice?'KURE crew voice':'Repo Company calls', message: crewVoice?'Allow your microphone for KURE crew voice?':output?'Allow speaker selection for calls?':'Allow your ' + devices + ' for calls?',
+      detail: crewVoice?'Other players in your crew can hear you when voice chat is active.':output?'Choose which headphones or speakers play your calls. This does not grant microphone or camera access.':'Only your Repo Company call can use these devices. You can mute, turn off your camera, or end the call at any time.',
       buttons: ['Not now', 'Allow'], defaultId: 0, cancelId: 0, noLink: true
     })).then(result => {
-      const accept = result.response === 1 && generation === revision && user === identity() && trusted(contents, details) && !window.isDestroyed();
-      if (accept) grant = { contents, identity: user, types: new Set([...(grant?.identity === user && grant.contents === contents ? grant.types : []), ...types]) };
+      const accept = result.response === 1 && generation === revision && user === identity() && trustedForDevices(contents, details, undefined, types) && !window.isDestroyed();
+      const previous = grants.get(contents);
+      if (accept) grants.set(contents, { identity: user, types: new Set([...(previous?.identity === user ? previous.types : []), ...types]) });
       callback(accept);
     }, () => callback(false)).finally(() => { pending = false; });
   });
@@ -57,7 +61,7 @@ function configureMediaPermissions(session, { getPortal, getAccount, getWindow, 
     const valid=()=>{try{return !!user&&revision===generation&&user===identity()&&portal===getPortal()&&!portal.isDestroyed()&&request.frame===portal.mainFrame&&request.userGesture===true&&request.videoRequested===true&&!request.audioRequested&&isPortalUrl(request.securityOrigin)&&isPortalUrl(portal.getURL())&&new URL(request.securityOrigin).origin===new URL(portal.getURL()).origin;}catch{return false;}};
     try{if(!valid()){callback(null);return;}const source=await chooseScreen(valid);callback(valid()&&source?{video:source}:null);}catch{try{callback(null);}catch{}}
   });
-  function reset(){generation++;grant=null;cancelScreen?.();getPortal()?.executeJavaScript?.("dispatchEvent(new Event('repo-screen-share-revoke'))").catch(()=>{});}
+  function reset(){generation++;grants=new WeakMap();cancelScreen?.();getPortal()?.executeJavaScript?.("dispatchEvent(new Event('repo-screen-share-revoke'))").catch(()=>{});}
   return { reset, dispose() {reset();session.setPermissionCheckHandler(() => false); session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));if(chooseScreen)session.setDisplayMediaRequestHandler((_request,callback)=>callback(null)); } };
 }
 module.exports = { configureMediaPermissions };

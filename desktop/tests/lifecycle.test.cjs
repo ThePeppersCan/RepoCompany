@@ -175,7 +175,8 @@ test('a trusted portal cannot call shell-only actions or invent native commands'
 test('portal state exposes only public account and game metadata', async () => {
   const h = portalHarness();
   const value = await h.invoke({ sender: h.contents, senderFrame: h.frame }, 'state');
-  assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 6);
+  assert.equal(value.account.username, 'LauncherTest'); assert.equal(value.catalog.games.length, 7);
+  assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'hosted'), game => game.id), ['kure']);
   assert.deepEqual(Array.from(value.catalog.games.filter(game => game.delivery === 'download'), game => game.id), ['morogue', 'moratales', 'manager', 'comp-run']);
   assert.deepEqual(Array.from(value.catalog.demos, demo => demo.id), ['deadbeat', 'runners', 'broomflight', 'dragonbound', 'diver', 'goblin', 'rooftops', 'seas', 'sports']);
   assert.equal(value.library.morogue.status, 'installed');
@@ -629,6 +630,7 @@ function nativePresenceHarness({ pendingLoad = false, completeManagerIntro = tru
   }
   const dialogs = { response: 1, showErrorBox() {}, async showMessageBox() { return { response: this.response }; } };
   const h = portalHarness({ electronOverrides: { WebContentsView: GameView, BrowserWindow: class { constructor() { throw Error('Playing must not create another native window.'); } }, dialog: dialogs } });
+  h.context.fixture.account.identity = 'original-account';
   h.context.fixture.account.requireOnline = async () => 'original-account';
   h.context.fixture.account.refresh = async () => {};
   h.context.fixture.library = { getInstalled: () => ({ version: '1', entry: 'index.html' }), snapshot: () => ({ manager: { status: 'installed', version: '1' } }), isBusy: () => false, async checkUpdates() { checks++; } };
@@ -640,6 +642,26 @@ function nativePresenceHarness({ pendingLoad = false, completeManagerIntro = tru
   h.run('library=fixture.library; discordPresence=fixture.discord; mainWindow=fixture.mainWindow; sharedSession=fixture.sharedSession; portal=fixture.portal; portalReady=true;');
   return { ...h, windows, activity, checks: () => checks, GameView, children, portal, dialogs };
 }
+
+test('KURE plays the hosted game in one account-scoped native view and exits without an installation', async () => {
+  const h = nativePresenceHarness();
+  h.context.fixture.library.getInstalled = () => assert.fail('Hosted play requested installed files');
+  h.context.fixture.library.isBusy = () => assert.fail('Hosted play requested a download');
+  const sender = { sender: h.contents, senderFrame: h.frame };
+  await Promise.all([h.invoke(sender, 'play', 'kure'), h.invoke(sender, 'play', 'kure')]);
+  assert.equal(h.windows.length, 1);
+  const game = h.windows[0];
+  assert.equal(game.webContents.getURL(), 'https://kure.repocompany.uk/');
+  assert.equal(game.options.webPreferences.session, h.context.fixture.sharedSession);
+  assert.equal(game.options.webPreferences.preload, undefined);
+  assert.equal(game.visible, true);
+  assert.equal(h.portal.visible, false);
+  game.webContents.executeJavaScript = () => assert.fail('Hosted game asked for the installed-game bridge');
+  await h.run('exitCurrentGame()');
+  assert.equal(game.destroyed, true);
+  assert.equal(h.run('currentGame()'), null);
+  assert.equal(h.portal.visible, true);
+});
 
 test('successful native game start, focus and close drive only the corresponding Discord game activity', async () => {
   const h = nativePresenceHarness(), { windows, activity } = h;

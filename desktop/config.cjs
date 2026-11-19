@@ -9,7 +9,7 @@ module.exports = function configuration(resourceRoot) {
     authKey: 'sb_publishable_bln84LaJ8iYmnkYK9mh0Pg_XxP7O1OZ',
     approvedOrigins: [
       'https://repocompany.uk', 'https://www.repocompany.uk',
-      'https://morogue.repocompany.uk', 'https://moratales.repocompany.uk',
+      'https://morogue.repocompany.uk', 'https://moratales.repocompany.uk', 'https://kure.repocompany.uk',
       'https://manager.repocompany.uk', 'https://dragonbound.repocompany.uk',
       'https://comp-run.fluffy-star-4855.chatgpt.site',
       'https://deadbeat-nightmare-dash.fluffy-star-4855.chatgpt.site',
@@ -38,6 +38,12 @@ module.exports = function configuration(resourceRoot) {
         delivery: 'download', installable: true, manifestUrl: releaseOrigin + '/morogue/manifest.json',
         approvedOrigins: [releaseOrigin],
         art: 'assets/morogue-cover-art.png', logo: 'assets/morogue-logo.png'
+      },
+      {
+        id: 'kure', name: 'KURE', genre: 'Co-op survival horror',
+        description: 'Deliver herbs to Wally and earn another three days.',
+        origin: 'https://kure.repocompany.uk', delivery: 'hosted', installable: false,
+        art: 'original-case-assets/kure/cover.webp', logo: 'original-case-assets/kure/wordmark.png'
       },
       { id: 'velmora-tales', name: 'Velmora Tales', genre: 'Coming soon', tagline: 'A new adventure is on the horizon.', description: 'Game, screenshots and download coming soon.', delivery: 'coming-soon', comingSoon: true, installable: false },
       { id: 'moratales', name: 'Moratales', genre: 'Story & life sim', tagline: 'Your next chapter in Velmora.', description: 'A café, a town and stories to bring home.', origin: 'https://moratales.repocompany.uk', entry: 'preview.html', delivery: 'download', installable: true, manifestUrl: releaseOrigin + '/moratales/manifest.json', approvedOrigins: [releaseOrigin], art: 'assets/moratales-cover-source.png', logo: 'assets/moratales-logo.png' },

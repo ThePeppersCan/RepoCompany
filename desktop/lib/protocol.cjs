@@ -114,7 +114,14 @@ function createHandler({ config, library, desktopRoot, fetchNetwork }) {
       const pathname = url.pathname === '/' || url.pathname === '/index.html' ? '/' + installed.entry : url.pathname;
       return serveFile(request, installed.directory, pathname, pathname === '/' + installed.entry ? html => injectGame(html, game.id) : null);
     }
-    try { return await fetchNetwork(request); } catch { return fail(503, 'Connect to the internet to use Repo Company.'); }
+    const hostedEntry = game?.delivery === 'hosted' && url.pathname === '/' && request.method === 'GET';
+    try {
+      const response = await fetchNetwork(request);
+      // A failed game document must reject native loadURL so Play can be retried.
+      return hostedEntry && response.status >= 400 ? Response.error() : response;
+    } catch {
+      return hostedEntry ? Response.error() : fail(503, 'Connect to the internet to use Repo Company.');
+    }
   };
 }
 module.exports = { within, resolveAsset, serveFile, injectMorogue, injectGame, createHandler };
