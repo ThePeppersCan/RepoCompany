@@ -56,3 +56,33 @@
 .home-mode .collection-copy.changing .selected-brand{animation:title-in .3s ease}.home-mode .collection-copy.changing .collection-tagline{animation:title-in .4s ease}@keyframes title-in{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
 @media(max-width:700px){.collection-preview .dashboard.home-mode{width:700px;height:1420px}.home-mode .brand{left:33px;top:35px}.home-mode .account{right:34px;top:49px;gap:20px;font-size:21px}.home-mode .account .divider{display:none}.home-mode .account button{gap:10px}.home-mode .collection-copy{left:43px;top:205px;width:615px}.home-mode .collection-eyebrow{font-size:17px}.home-mode .selected-brand{height:171px;width:560px}.home-mode .selected-brand>img{width:595px;left:-47px;top:-19px}.home-mode .selected-brand>.source-logo{width:505px;height:140px}.home-mode .collection-genre{font-size:20px}.home-mode .collection-tagline{font-size:28px;max-width:610px}.home-mode .collection-open{font-size:26px;margin-top:28px;gap:21px}.home-mode .collection-open .key{width:51px;height:38px}.home-mode .case-stack{transform-origin:0 0;transform:translate(-316px,487px) scale(.62);width:1672px;height:941px}.home-mode .stack-shadow{left:34px;top:991px;width:644px;height:153px}.home-mode .home-backdrop:after{background:radial-gradient(ellipse at 61% 77%,#b8a27a22,transparent 39%)}.home-mode .home-halo{background:radial-gradient(ellipse at 65% 50%,rgba(var(--game-glow),.14),transparent 69%)}.home-mode .collection-footer{left:44px;right:44px;bottom:125px;font-size:22px}.home-mode .collection-navigation button{width:34px;height:37px}.home-mode .collection-navigation svg{width:25px;height:25px}.home-mode .collection-enter{display:none}.home-mode .collection-position{font-size:23px}.home-mode .collection-toast{left:44px;right:44px;bottom:53px;font-size:20px;max-width:none}.home-mode #atmosphere{width:700px;height:1420px}.home-mode .ambient-wash{inset:0}}
 @media(prefers-reduced-motion:reduce){.home-halo,.home-mode .collection-copy.changing .selected-brand,.home-mode .collection-copy.changing .collection-tagline{animation:none}.closed-case,.open-scene,.collection-scene,.stage,.vignette,.case-edge-light,.collection-copy,.collection-toast{transition:none!important}}
+
+/* Keep an eight-case collection inside the same navigation and footer bands. */
+.case-stack[data-case-count="8"] .closed-case {
+  --row-y: calc(var(--index) * 62px);
+  left: 545px;
+  top: -26px;
+  transform: translate3d(0, var(--row-y), 0) scale(.65);
+}
+.case-stack[data-case-count="8"] .closed-case.is-selected {
+  transform: translate3d(-20px, calc(var(--row-y) - 4px), 0) scale(.65);
+}
+.opening .case-stack[data-case-count="8"] .closed-case.is-selected {
+  transform: translate3d(-55px, calc(var(--row-y) - 10px), 0) scale(.67) rotate(-1deg);
+}
+.kure-cover-art, .kure-booklet-art, .kure-disc-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+}
+.spine-kure {background: #d8bc8d}
+.kure-spine-art {position: absolute; inset: 0 0 0 108px; width: 892px; height: 94px}
+.selected-brand > .kure-wordmark {left: 0; top: 25px; width: 423px; height: auto}
+.dashboard[data-open-game="kure"] .game-logo {left: 0; top: 12px; width: 425px; height: auto}
+@media (max-width: 700px) {
+  .home-mode .selected-brand > .kure-wordmark {left: 0; top: 27px; width: 465px}
+  .home-mode .case-stack[data-case-count="8"] {transform: translate(-550px, 535px) scale(.75)}
+}

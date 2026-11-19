@@ -12,6 +12,7 @@
  function catalog(games){return [...games,...(window.demoLibrary?.games||[])];}
  const demoBannerTitles={runners:['Repo','Runners'],broomflight:['Velmora','Broomflight'],dragonbound:['Dragonbound'],diver:['Repo','Diver'],goblin:['Goblin','Bomb Party'],rooftops:['Repo','Rooftops'],seas:['High','Seas']};
  function artwork(game){
+  if(game.id==='kure')return '<span class="profile-game-banner" aria-hidden="true"><img class="profile-banner-art" src="original-case-assets/kure/mill.webp" alt="" loading="lazy"><img class="profile-banner-logo" src="original-case-assets/kure/wordmark.png" alt=""></span>';
   if(game.id==='comp-run')return '<span class="profile-game-banner banner-comp-run" aria-hidden="true"><img class="profile-banner-art" src="original-case-assets/comp-run/hero-art.webp" alt="" loading="lazy"><img class="profile-banner-logo" src="original-case-assets/comp-run/comp-run-logo.png" alt=""></span>';
   if(['moratales','manager','morogue'].includes(game.id)){
    const logo=game.id==='manager'?'<svg class="profile-banner-logo" viewBox="57 178 2073 432"><image width="2167" height="725" href="original-case-assets/manager-logo-clean.png"/></svg>':`<img class="profile-banner-logo" src="original-case-assets/${game.id}-logo.png" alt="">`;

@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const games = {
+    kure: ['KURE', 'https://kure.repocompany.uk/'],
     'comp-run': ['COMP-RUN', 'https://comp-run.fluffy-star-4855.chatgpt.site/'],
     morogue: ['Morogue', 'https://morogue.repocompany.uk/'],
     moratales: ['Moratales', 'https://moratales.repocompany.uk/'],
@@ -22,8 +23,10 @@
     previousFocus=document.activeElement;
     activeId=id;
     title.textContent=games[id][0];panel.setAttribute('aria-label',games[id][0]);
-    frame=document.createElement('iframe');frame.title=games[id][0];frame.allow='autoplay; fullscreen';frame.src=games[id][1];
-    frame.onload=()=>{if(!panel.open||activeId!==id)return;try{if(frame?.contentWindow.location.origin===location.origin&&frame.contentWindow.location.pathname==='/'){close();return;}}catch{/* Cross-origin games retain their own storage and account session. */}if(id==='comp-run')void window.repoPlaytime?.start(id);};
+    frame=document.createElement('iframe');frame.title=games[id][0];
+    frame.allow=id==='kure'?'autoplay; fullscreen; microphone':'autoplay; fullscreen';
+    frame.src=games[id][1];
+    frame.onload=()=>{if(!panel.open||activeId!==id)return;try{if(frame?.contentWindow.location.origin===location.origin&&frame.contentWindow.location.pathname==='/'){close();return;}}catch{/* Cross-origin games retain their own storage and account session. */}if(id==='comp-run'||id==='kure')void window.repoPlaytime?.start(id);};
     panel.append(frame);panel.showModal();
     window.dashboardAudio?.suspend(true);window.repoAccount?.setGame(id);
     frame.focus();return true;
@@ -33,7 +36,7 @@
     window.repoMessaging?.close();
     if(document.fullscreenElement===panel)document.exitFullscreen().catch(()=>{});
     frame?.remove();frame=null;panel.close();
-    if(activeId==='comp-run')void window.repoPlaytime?.stop();activeId='';
+    if(activeId==='comp-run'||activeId==='kure')void window.repoPlaytime?.stop();activeId='';
     window.dashboardAudio?.suspend(false);window.repoAccount?.setGame('');previousFocus?.focus?.({preventScroll:true});
   }
   panel.addEventListener('cancel',event=>{event.preventDefault();window.repoMedia?.openSettings();});

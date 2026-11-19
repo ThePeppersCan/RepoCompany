@@ -26,6 +26,21 @@
     shots:shots.map(button=>({file:button.querySelector('img').getAttribute('src').split('/').pop(),caption:button.querySelector('.caption').textContent,alt:button.querySelector('img').alt}))
   };
   const scenes={
+    kure:{
+      name:'KURE',meta:'Survival horror · Solo / Online co-op',achievements:false,
+      description:'Wally keeps you alive for three days at a time. Take the van to Rivia Coast, gather what he asks for, and get your crew back to the mill.',
+      url:'https://kure.repocompany.uk/',glow:'175,139,93',
+      title:`<img class="game-logo kure-wordmark" src="${assets}kure/wordmark.png" alt="KURE">`,
+      booklet:`<img class="kure-booklet-art" src="${assets}kure/booklet.webp" alt="">`,
+      bookletLabel:'Three Days, the courier’s dose record from Wally’s mill',
+      disc:`<img class="kure-disc-art" src="${assets}kure/disc.webp" alt="">`,
+      discLabel:'Wally behind the oval dispensary window, with Knuckleroot shoots around the rim',
+      shots:[
+        {file:'kure/mill.webp',caption:'Wally’s mill',alt:'The courier van outside Wally’s raised timber mill'},
+        {file:'kure/coast.webp',caption:'Rivia Coast',alt:'Fog drifts across the beach and cliffs of Rivia Coast'},
+        {file:'kure/caves.webp',caption:'Inside the caves',alt:'The limestone passages beneath Rivia Coast'}
+      ]
+    },
     'comp-9':{
       name:'COMP-9',meta:'Full cinema playtest · Solo / Co-op',comingSoon:false,achievements:false,
       description:'Choose your cat, board at COMP-9 Station, and survive all 24 areas of Comp Cinema together.',glow:'160,67,59',

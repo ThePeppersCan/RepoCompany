@@ -8,6 +8,7 @@
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const games = [
     {id:'morogue',name:'Morogue',genre:'Action roguelite',tagline:'Survive the night. Face the Uncrowned.',glow:'181,91,77'},
+    {id:'kure',name:'KURE',genre:'Co-op survival horror',tagline:'Three days until your next dose.',glow:'175,139,93'},
     {id:'velmora-tales',name:'Velmora Tales',genre:'Coming soon',tagline:'Coming soon',glow:'116,155,122'},
     {id:'comp-9',name:'COMP-9',genre:'Co-op cinema survival',tagline:'Board at platform 04.',glow:'160,67,59'},
     {id:'moratales',name:'Moratales',genre:'Story & life sim',tagline:'Story & life sim',glow:'125,155,113'},
@@ -18,6 +19,7 @@
   // Crop the original source wordmarks. The Dragonbound lettering uses a single foil ink;
   // its letterforms are sampled directly from the original menu, never recreated as text.
   function logo(id, extra='') {
+    if(id==='kure') return `<img class="kure-wordmark ${extra}" src="${assets}kure/wordmark.png" alt="">`;
     if(id==='comp-9') return `<img class="comp9-wordmark ${extra}" src="${assets}comp9/logo-${extra==='cover-logo'?'dark':'light'}.svg" alt="">`;
     if(id==='comp-run') return `<img class="comp-run-wordmark ${extra}" src="${assets}comp-run/comp-run-logo.png" alt="">`;
     if(id==='velmora-tales') return `<img class="velmora-wordmark ${extra}" src="${assets}velmora-tales-logo.png" alt="">`;
@@ -30,6 +32,7 @@
   const publisher = '<div class="cover-publisher"><i class="publisher-mark"></i><span class="publisher-wordmark" aria-label="Repo Company"></span></div>';
   function cover(id) {
     let content='';
+    if(id==='kure') content=`<img class="kure-cover-art" src="${assets}kure/cover.webp" alt="">`;
     if(id==='comp-9') content=`<img class="cover-art" src="${assets}comp9/cover.webp" alt="">${logo(id,'cover-logo')}`;
     if(id==='comp-run') content=`<img class="cover-art" src="${assets}comp-run/cover-art.webp" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
     if(id==='velmora-tales') content=`<svg class="velmora-cover-art" viewBox="100 0 986 1448" preserveAspectRatio="none" aria-hidden="true"><image href="${assets}velmora-tales-artwork.png" width="1086" height="1448"/></svg>${logo(id,'cover-logo')}`;
@@ -41,6 +44,7 @@
     return `<div class="case-cover cover-${id}">${publisher}${content}</div>`;
   }
   function spine(id) {
+    if(id==='kure') return `<div class="case-spine spine-kure"><img class="kure-spine-art" src="${assets}kure/spine.webp" alt=""><div class="spine-publisher"><i class="publisher-mark" role="img" aria-label="Repo Company"></i></div></div>`;
     if(id==='comp-9') return `<div class="case-spine spine-comp9"><div class="spine-publisher"><i class="publisher-mark"></i></div><img class="comp9-spine-art" src="${assets}comp9/spine.webp" alt=""></div>`;
     if(id==='comp-run') return `<div class="case-spine spine-comp-run"><div class="spine-publisher"><i class="publisher-mark"></i></div><img class="spine-logo" src="${assets}comp-run/comp-run-spine-logo.png" alt=""><div class="spine-picture"></div></div>`;
     if(id==='velmora-tales') return `<div class="case-spine spine-velmora-tales"><div class="velmora-spine-art" aria-hidden="true"></div><div class="spine-publisher"><i class="publisher-mark"></i></div><svg class="spine-logo" viewBox="0 195 2172 290" preserveAspectRatio="xMinYMid meet" aria-hidden="true"><image href="${assets}velmora-tales-spine-logo.png" width="2172" height="724"/></svg></div>`;
