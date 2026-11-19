@@ -663,6 +663,30 @@ test('KURE plays the hosted game in one account-scoped native view and exits wit
   assert.equal(h.portal.visible, true);
 });
 
+test('KURE fills the client in fullscreen and restores the toolbar in windowed mode', async () => {
+  const h = nativePresenceHarness();
+  await h.run('play("kure")');
+  const game = h.windows[0], window = h.context.fixture.mainWindow;
+  const check = y => {
+    const [width, height] = window.getContentSize();
+    assert.deepEqual({ ...game.bounds }, { x: 0, y, width, height: height - y });
+  };
+  check(44);
+  await h.run('executeCommand("window", "fullscreen")');
+  assert.equal(window.isFullScreen(), true);
+  check(0);
+  window.getContentSize = () => [1920, 1080];
+  h.run('bounds()'); check(0);
+  let prevented = false;
+  game.webContents.emit('before-input-event', { preventDefault() { prevented = true; } }, { type: 'keyDown', key: 'Escape' });
+  assert.equal(prevented, true);
+  assert.equal(window.isFullScreen(), false);
+  h.run('bounds()'); check(44);
+  game.webContents.emit('enter-html-full-screen'); check(0);
+  game.webContents.emit('leave-html-full-screen'); check(44);
+  await h.run('exitCurrentGame()');
+});
+
 test('successful native game start, focus and close drive only the corresponding Discord game activity', async () => {
   const h = nativePresenceHarness(), { windows, activity } = h;
   await h.run('play("manager")');

@@ -85,7 +85,7 @@ const state = () => ({
   connectivity: { online: account?.state.status !== 'offline' },
   library: library?.snapshot() || {}, catalog: publicCatalog(), running: [...games.keys(), ...(embeddedDemo ? [embeddedDemo.id] : [])],
   activeGame: currentGame() ? { id: currentGame().__gameId, name: gameById(currentGame().__gameId).name, loading: !!currentGame().loading, introId: currentGame().introId, introLoops: currentGame().introLoops, closing: !!currentGame().__closing } : null,
-  gameVisible: !!currentGame() && !currentGame().loading && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, media: companionState, fullscreen: !!mainWindow?.isFullScreen?.(),
+  gameVisible: !!currentGame() && !currentGame().loading && !messageOverlay && !updateLocked(), messageOverlay, portalVisible: isPortalVisible(), social: { ...socialState }, media: companionState, fullscreen: !!(mainWindow?.isFullScreen?.() || currentGame()?.htmlFullscreen),
   entryVisible: updateLocked() || !portalViewVisible && (!currentGame() || !!currentGame().loading),
   requiredUpdate: requiredUpdate.snapshot(),
   launcherUpdate: launcherUpdateState(), preferences: preferences?.snapshot() || { automaticGameUpdates: true, discordPresence: true }, discordPresence: discordPresence?.snapshot(), externalActivity: externalActivity?.snapshot(), portalError, portalReady
@@ -293,7 +293,11 @@ function bounds() {
   const panelWidth = Math.min(440, width);
   const portalArea = messageOverlay && !portalNavigation && currentGame() && !companionState.reparty.open && workspaceView !== 'wibsworth' ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
   if (portal && activePortal()) portal.setBounds(portalHtmlFullscreen ? { x:0, y:0, width, height } : portalArea);
-  for (const record of games.values()) if (gameContents(record)) record.view.setBounds(area);
+  for (const record of games.values()) {
+    if (!gameContents(record)) continue;
+    const fullscreen = record.__gameId === 'kure' && !messageOverlay && (record.htmlFullscreen || mainWindow.isFullScreen());
+    record.view.setBounds(fullscreen ? { x: 0, y: 0, width, height } : area);
+  }
 }
 function trustedShell(event) {
   const contents = !quitting && windowContents(mainWindow);
@@ -691,6 +695,17 @@ async function play(id) {
   // Large optional assets may keep loadURL pending after the game is usable.
   // Register this live game document as soon as its DOM is ready instead.
   record.webContents.on('dom-ready', startGamePresence);
+  if (id === 'kure') {
+    record.webContents.on('enter-html-full-screen', () => { record.htmlFullscreen = true; bounds(); broadcast(); });
+    record.webContents.on('leave-html-full-screen', () => { record.htmlFullscreen = false; bounds(); broadcast(); });
+    record.webContents.on('before-input-event', (event, input) => {
+      if (currentGame() !== record || messageOverlay || updateLocked() || input.type !== 'keyDown' || input.isAutoRepeat || record.htmlFullscreen) return;
+      const fullscreen = mainWindow.isFullScreen();
+      if (input.key !== 'F11' && !(fullscreen && input.key === 'Escape')) return;
+      event.preventDefault();
+      mainWindow.setFullScreen(!fullscreen);
+    });
+  }
   record.webContents.on('did-fail-load', (_event, code, _description, _url, isMainFrame) => { if (isMainFrame && code !== -3) stopGamePresence(); });
   record.webContents.on('focus', () => { if (!record.closed && games.get(id) === record) discordPresence?.gameFocused(id); });
   record.webContents.on('render-process-gone', () => { disposeGame(record); if (!quitting) dialog.showErrorBox(game.name + ' closed unexpectedly', 'Your previously saved progress and completed online results remain. Reopen the game from your library.'); });
@@ -768,7 +783,11 @@ async function executeCommand(action, value) {
       if (value === 'minimize') mainWindow.minimize();
       else if (value === 'maximize') mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
       else if (value === 'close') mainWindow.close();
-      else if (value === 'fullscreen' && currentGame() && !updateLocked()) mainWindow.setFullScreen(!mainWindow.isFullScreen());
+      else if (value === 'fullscreen' && currentGame() && !updateLocked()) {
+        const entering = !mainWindow.isFullScreen();
+        mainWindow.setFullScreen(entering);
+        if (entering && currentGame().__gameId === 'kure') focusGame(currentGame());
+      }
       else throw new Error('Unknown window action.');
       return;
     case 'play': return play(value);

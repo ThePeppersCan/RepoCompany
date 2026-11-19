@@ -106,6 +106,7 @@
   }
   function renderGame() {
     const game = state.activeGame;
+    $('.titlebar').hidden = game?.id === 'kure' && state.gameVisible && state.fullscreen;
     $('#game-toolbar').hidden = !game || !!state.requiredUpdate?.locked;
     if (!game) return;
     $('#game-title').textContent = toolbarError || game.name + (game.loading ? ' · Opening…' : '');
