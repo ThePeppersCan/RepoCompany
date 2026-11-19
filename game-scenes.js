@@ -9,6 +9,11 @@
   const shots=[...document.querySelectorAll('[data-shot]')];
   const thumbs=[...document.querySelectorAll('[data-gallery-shot]')];
   const publisher='<div class="disc-brand" role="img" aria-label="Repo Company"></div>';
+  function coverPrint(id,artwork='') {
+    const strip='<div class="cover-publisher"><i class="publisher-mark"></i><span class="publisher-wordmark" aria-label="Repo Company"></span></div>';
+    if(id==='kure') artwork=`<img class="kure-cover-art" src="${assets}kure/cover.webp" alt="">`;
+    return `<div class="case-cover cover-${id}">${strip}${artwork}</div>`;
+  }
   const playMarkup=play.innerHTML;
   const downloadNotice=document.createElement('p');
   downloadNotice.className='coming-soon-download';
@@ -31,8 +36,8 @@
       description:'Wally keeps you alive for three days at a time. Take the van to Rivia Coast, gather what he asks for, and get your crew back to the mill.',
       url:'https://kure.repocompany.uk/',glow:'175,139,93',
       title:`<img class="game-logo kure-wordmark" src="${assets}kure/wordmark.png" alt="KURE">`,
-      booklet:`<img class="kure-booklet-art" src="${assets}kure/booklet.webp" alt="">`,
-      bookletLabel:'Three Days, the courier’s dose record from Wally’s mill',
+      booklet:coverPrint('kure'),
+      bookletLabel:'KURE booklet with the Knuckleroot cover and Repo Company publisher strip',
       disc:`<img class="kure-disc-art" src="${assets}kure/disc.webp" alt="">`,
       discLabel:'Wally behind the oval dispensary window, with Knuckleroot shoots around the rim',
       shots:[
@@ -225,5 +230,5 @@
     }
   }
   new MutationObserver(syncLauncherAvailability).observe(document.documentElement,{attributes:true,attributeFilter:['data-repo-launcher','data-repo-comp-run-native']});
-  window.dashboardScenes=Object.freeze({activate,ids:Object.freeze(Object.keys(scenes))});
+  window.dashboardScenes=Object.freeze({activate,coverPrint,ids:Object.freeze(Object.keys(scenes))});
 })();

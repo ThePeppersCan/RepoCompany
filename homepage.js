@@ -29,10 +29,8 @@
     if(id==='dragonbound') return `<svg class="source-logo dragon-wordmark ${extra}" viewBox="783 148 670 143" aria-hidden="true"><g clip-path="url(#dragon-wordmark-crop)"><image href="${assets}dragonbound-menu.png" width="1672" height="941" filter="url(#dragon-foil)"/></g></svg>`;
     return '<div class="demo-name">DEMOS<small>DEMO DISC 01</small></div>';
   }
-  const publisher = '<div class="cover-publisher"><i class="publisher-mark"></i><span class="publisher-wordmark" aria-label="Repo Company"></span></div>';
   function cover(id) {
     let content='';
-    if(id==='kure') content=`<img class="kure-cover-art" src="${assets}kure/cover.webp" alt="">`;
     if(id==='comp-9') content=`<img class="cover-art" src="${assets}comp9/cover.webp" alt="">${logo(id,'cover-logo')}`;
     if(id==='comp-run') content=`<img class="cover-art" src="${assets}comp-run/cover-art.webp" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
     if(id==='velmora-tales') content=`<svg class="velmora-cover-art" viewBox="100 0 986 1448" preserveAspectRatio="none" aria-hidden="true"><image href="${assets}velmora-tales-artwork.png" width="1086" height="1448"/></svg>${logo(id,'cover-logo')}`;
@@ -41,7 +39,7 @@
     if(id==='manager') content=`<img class="cover-art" src="${assets}manager-menu.png" alt="">${logo(id,'cover-logo')}<span class="cover-edition">VELMORA MANAGER</span>`;
     if(id==='dragonbound') content=`<img class="cover-art" src="${assets}dragonbound-menu.png" alt=""><div class="cover-tint"></div>${logo(id,'cover-logo')}`;
     if(id==='demos') content='<span class="demo-cover-kicker">THE PLAYABLE COLLECTION</span><strong class="demo-cover-title">DEMOS</strong><span class="demo-cover-edition">DEMO DISC 01</span><div class="printed-disc"></div><span class="demo-cover-footer">EXPLORE · PLAY · DISCOVER</span>';
-    return `<div class="case-cover cover-${id}">${publisher}${content}</div>`;
+    return window.dashboardScenes.coverPrint(id,content);
   }
   function spine(id) {
     if(id==='kure') return `<div class="case-spine spine-kure"><img class="kure-spine-art" src="${assets}kure/spine.webp" alt=""><div class="spine-publisher"><i class="publisher-mark" role="img" aria-label="Repo Company"></i></div></div>`;
