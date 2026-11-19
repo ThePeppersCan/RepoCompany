@@ -9,12 +9,25 @@
   const shots=[...document.querySelectorAll('[data-shot]')];
   const thumbs=[...document.querySelectorAll('[data-gallery-shot]')];
   const publisher='<div class="disc-brand" role="img" aria-label="Repo Company"></div>';
+  const kureArtwork=`<img class="kure-cover-art" src="${assets}kure/knuckleroot-print.webp" alt="">`;
   function coverPrint(id,artwork='') {
     const strip='<div class="cover-publisher"><i class="publisher-mark"></i><span class="publisher-wordmark" aria-label="Repo Company"></span></div>';
-    if(id==='kure') artwork=`<img class="kure-cover-art" src="${assets}kure/cover.webp" alt="">`;
+    if(id==='kure') artwork=kureArtwork;
     return `<div class="case-cover cover-${id}">${strip}${artwork}</div>`;
   }
   const playMarkup=play.innerHTML;
+  const kureLink=document.createElement('a');
+  kureLink.className='play kure-play-link';
+  kureLink.setAttribute('aria-label','Play KURE');
+  kureLink.innerHTML='<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M3 2Q1 1 1 4v20q0 3 2 2l19-11q2-1 0-2Z"/></svg>Play';
+  kureLink.hidden=true;
+  play.after(kureLink);
+  function syncKureLink(){
+    const desktop=document.documentElement.dataset.repoLauncher==='true';
+    kureLink.href=desktop?'https://repocompany.uk/play/kure':'https://kure.repocompany.uk/';
+    kureLink.target=desktop?'_blank':'_self';
+  }
+  new MutationObserver(syncKureLink).observe(document.documentElement,{attributes:true,attributeFilter:['data-repo-launcher']});
   const downloadNotice=document.createElement('p');
   downloadNotice.className='coming-soon-download';
   downloadNotice.textContent='Download · Coming soon';
@@ -36,8 +49,8 @@
       description:'Wally keeps you alive for three days at a time. Take the van to Rivia Coast, gather what he asks for, and get your crew back to the mill.',
       url:'https://kure.repocompany.uk/',glow:'175,139,93',
       title:`<img class="game-logo kure-wordmark" src="${assets}kure/wordmark.png" alt="KURE">`,
-      booklet:coverPrint('kure'),
-      bookletLabel:'KURE booklet with the Knuckleroot cover and Repo Company publisher strip',
+      booklet:kureArtwork,
+      bookletLabel:'KURE booklet with the engraved Knuckleroot and its red shoots',
       disc:`<img class="kure-disc-art" src="${assets}kure/disc.webp" alt="">`,
       discLabel:'Wally behind the oval dispensary window, with Knuckleroot shoots around the rim',
       shots:[
@@ -136,6 +149,10 @@
     rotor.innerHTML=scene.disc;
     document.getElementById('disc-plane').setAttribute('aria-label',scene.discLabel);
     document.getElementById('case-preview').setAttribute('aria-label',`Animate ${scene.name} disc`);
+    kureLink.hidden=id!=='kure';
+    play.hidden=id==='kure';
+    syncKureLink();
+    kureLink.rel='noopener';
     play.disabled=Boolean(scene.comingSoon);
     play.setAttribute('aria-disabled',String(Boolean(scene.comingSoon)));
     play.setAttribute('aria-label',scene.comingSoon?`${scene.name}: Coming soon`:`Play ${scene.name}`);

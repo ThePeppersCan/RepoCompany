@@ -3,6 +3,7 @@
  if(parent===window)return;
  const params=new URLSearchParams(location.search),game=params.get('game'),parentOrigin=params.get('parent');
  const origins={
+  'https://kure.repocompany.uk':['kure'],
   'https://moratales.repocompany.uk':['moratales','morogue'],
   'https://morogue.repocompany.uk':['morogue'],
   'https://manager.repocompany.uk':['manager'],
@@ -11,7 +12,7 @@
  };
  let local=false;
  try{const p=new URL(parentOrigin);local=['localhost','127.0.0.1'].includes(location.hostname)&&['localhost','127.0.0.1'].includes(p.hostname)&&['http:','https:'].includes(p.protocol);}catch{return;}
- if(!origins[parentOrigin]?.includes(game)&&!(local&&['moratales','manager','morogue','comp-run','dragonbound'].includes(game)))return;
+ if(!origins[parentOrigin]?.includes(game)&&!(local&&['moratales','manager','morogue','comp-run','dragonbound','kure'].includes(game)))return;
  const config=window.repoDashboardConfig;
  const db=window.supabase.createClient(config.url,config.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
  const service=window.repoAccount={db,state:{user:null},playtimeActive:false,rewardActive:false};

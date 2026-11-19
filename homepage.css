@@ -78,9 +78,7 @@
   max-width: none;
   max-height: none;
 }
-.dashboard[data-open-game="kure"] .booklet .cover-kure {
-  transform: scale(calc(328 / 400), calc(454 / 565));
-}
+.play[hidden] {display:none!important}
 .cover-kure::after,
 .dashboard[data-open-game="kure"] .booklet::after,
 .spine-kure::after {background: none}

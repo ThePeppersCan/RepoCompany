@@ -223,3 +223,7 @@
   Content-Type: application/octet-stream
 /comp-run-downloads/2.16.0/offline-manifest.json
   Content-Type: application/json; charset=utf-8
+
+/kure-save-bridge*
+  Cache-Control: no-store
+  Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self' https://hvdrwmjieguurxvrgzfu.supabase.co; frame-ancestors https://kure.repocompany.uk; base-uri 'none'

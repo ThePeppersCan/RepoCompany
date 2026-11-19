@@ -274,7 +274,6 @@
         if (!launching) return;
         if (typeof ready === 'function') { ready(); return; }
         const id = dashboard.dataset.openGame, url = playButton.dataset.gameUrl;
-        if(id==='kure' && window.repoWebGame?.open(id)){resetLaunch();return;}
         // COMP-RUN includes its own original startup sequence.
         if(id==='comp-run'){
           if(document.documentElement.dataset.repoLauncher==='true'){resetLaunch();return;}

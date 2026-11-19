@@ -3,7 +3,7 @@
  'use strict';
  if(window.repoGamePlaytime)return;
  const script=document.currentScript,game=script?.dataset.game;
- if(!['moratales','manager','morogue','comp-run','dragonbound'].includes(game))return;
+ if(!['moratales','manager','morogue','comp-run','dragonbound','kure'].includes(game))return;
  const dashboard=new URL(script.src).origin;
  const frame=document.createElement('iframe');
  frame.title='RepoCompany play-time connection';frame.setAttribute('aria-hidden','true');frame.tabIndex=-1;
