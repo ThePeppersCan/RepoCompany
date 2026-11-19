@@ -4,7 +4,12 @@ import { createRepartyAuth } from './session-auth.mjs';
 import { createProfiles } from './profiles.js';
 import { parseVideo, parseSunoLink, isSuno, sunoQueueDuration, playbackPosition, formatTime, validRoom } from './core.mjs';
 
+import { createFullscreen } from './fullscreen.mjs';
+import { celebrate, createWatchClock, levelMeter, paintLevel, watchLevel } from './watch-levels.mjs';
+
 const $ = id => document.getElementById(id);
+const viewing = createFullscreen($('television'), $('fullscreen'));
+const memberTimes = new Map();
 const sessionAuth = window.supabase && createRepartyAuth({
   createClient: (...args) => window.supabase.createClient(...args), config,
   onError: error => notify(friendly(error)),
@@ -166,6 +171,41 @@ $('lobbyBack').onclick=()=>{$('lobby').close();lobbyRequest++;lobbyMode=null;$('
 $('refreshRooms').onclick=()=>loadRooms();$('moreRooms').onclick=()=>loadRooms(true);
 setInterval(()=>{if($('lobby').open&&user&&!lobbyLoading)loadRooms();},30000);
 const avatarElement = (id, name) => profiles.avatar(id, name);
+function watchSample() {
+  if (!roomId || !room || !user || !db) return null;
+  const playback = room.playback;
+  const visible = !document.hidden && (!window.frameElement || window.frameElement.getClientRects().length > 0);
+  let active = visible && connectionReady && !localPaused && !blocked && playback?.playing === true;
+  if (active && sunoActive()) {
+    const item = playingEntry()?.item;
+    active = !localMuted && !!item && !$('sunoPlayer').hidden &&
+      (nativeSunoPlayback() || !!$('sunoPlayer').querySelector('iframe') && !$('sunoPlayer').querySelector('.suno-loading')) &&
+      playbackPosition(playback, Date.now() + offset) < sunoQueueDuration(item);
+  } else if (active) {
+    active = playerReady && loadedVideo() === playback.video_id && player.getPlayerState() === 1;
+  }
+  return {actor:user.id, room:roomId, item:playback?.item_id || null, active:!!active};
+}
+const watchClock = createWatchClock(watchSample, async (sample, viewer, elapsed, sequence) => {
+  if (user?.id !== sample.actor) return [];
+  const {data, error} = await db.rpc('reparty_watch_tick', {
+    p_room:sample.room, p_viewer:viewer, p_item:sample.item, p_active:sample.active, p_elapsed_ms:elapsed, p_sequence:sequence
+  }).abortSignal(AbortSignal.timeout(8000));
+  if (error) throw error;
+  return data;
+}, rows => {
+  const people = new Map([...$('participants').children].map(el => [el.dataset.member, el]));
+  for (const {member_id:id, watched_ms:ms} of rows) {
+    const previous = memberTimes.get(id);
+    memberTimes.set(id, ms);
+    const person = people.get(id);
+    if (!person) continue;
+    const level = paintLevel(person.querySelector('.watch-level'), ms, person.dataset.name);
+    if (previous !== undefined && level > watchLevel(previous).level) celebrate(person, level);
+  }
+});
+setInterval(watchClock.sample, 1000);
+document.addEventListener('visibilitychange', watchClock.sample);
 
 function theatreActive() {
   return document.documentElement.classList.contains('theatre') && matchMedia('(min-width: 851px)').matches;
@@ -273,7 +313,9 @@ function renderModes() {
 }
 function queueRow(el) {
   const list = $('queue');
-  return el ? { top: el.offsetTop, bottom: el.offsetTop + el.offsetHeight, view: list.scrollTop, height: list.clientHeight } : null;
+  if (!el) return null;
+  const top = el.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+  return { top, bottom:top+el.offsetHeight, view:list.scrollTop, height:list.clientHeight };
 }
 function isRowVisible(el) { const r = queueRow(el); return !!r && r.bottom > r.view && r.top < r.view + r.height; }
 function scrollQueueTo(el, centre) {
@@ -374,7 +416,7 @@ function renderPlaylists() {
   else if (followPlaying && playingRow) scrollQueueTo(playingRow, false);
   renderedPlaying = room.playback.item_id;
   // Keep keyboard focus on the same control after a re-render (e.g. pressing ↑ repeatedly).
-  if (focusKey) list.querySelector(`[data-key="${CSS.escape(focusKey)}"]`)?.focus();
+  if (focusKey) list.querySelector(`[data-key="${CSS.escape(focusKey)}"]`)?.focus({preventScroll:true});
 }
 function jumpToNowPlaying() {
   const current = playingEntry();
@@ -387,31 +429,28 @@ function jumpToNowPlaying() {
   if (row) { scrollQueueTo(row, true); row.querySelector('.queue-title')?.focus({ preventScroll: true }); }
 }
 function renderMembers(members) {
-  const signature = JSON.stringify(members);
+  const signature = JSON.stringify(members.map(m => [m.user_id, m.name]));
   if (signature === membersSignature) return;
   membersSignature = signature;
+  $('peopleCount').textContent = members.length;
   $('participants').replaceChildren();
   members.forEach(m => {
     const e = node('div', undefined, 'person');
     const copy = node('div');
     const name = node('span', m.name); name.prepend(node('i', undefined, 'online-dot'));
     copy.append(name); if (m.user_id === user.id) copy.append(node('span', 'You', 'you'));
-    e.append(avatarElement(m.user_id, m.name), copy); $('participants').append(e);
+    const portrait = node('span', undefined, 'portrait-level-effect');
+    portrait.append(avatarElement(m.user_id, m.name));
+    e.dataset.member = m.user_id; e.dataset.name = m.name;
+    const meter = levelMeter();
+    paintLevel(meter, memberTimes.get(m.user_id) || 0, m.name);
+    copy.append(meter);
+    e.append(portrait, copy); $('participants').append(e);
   });
 }
 function chatVisible() {
   const panel = $('chatPanel');
   return panel.checkVisibility ? panel.checkVisibility() : !panel.hidden;
-}
-function overlayMessage(m) {
-  const box = $('tvChat');
-  const line = node('div', undefined, 'tv-chat-line');
-  const body = m.body.length > 200 ? `${m.body.slice(0, 197)}…` : m.body;
-  line.append(avatarElement(m.user_id, m.display_name), node('strong', m.display_name), node('span', body));
-  box.append(line);
-  while (box.children.length > 4) box.firstChild.remove();
-  setTimeout(() => line.classList.add('fade'), 8000);
-  setTimeout(() => line.remove(), 9000);
 }
 function renderMessages(messages) {
   const signature = JSON.stringify(messages.map(m => m.id));
@@ -423,7 +462,6 @@ function renderMessages(messages) {
   messagesLoaded = true;
   if (!chatVisible()) unread += fresh.filter(m => m.user_id !== user.id).length;
   $('unread').hidden = unread === 0; $('unread').textContent = unread;
-  if (document.fullscreenElement === $('television')) fresh.forEach(overlayMessage);
   lastMessageId = messages.at(-1)?.id || 0;
   container.replaceChildren();
   if (!messages.length) container.append(node('p', 'First one here? Say hello.', 'muted'));
@@ -442,6 +480,7 @@ async function leaveRoom() {
   const oldRoom = roomId;
   roomId = null; room = null; playerVideo = null; blocked = false;
   latestMembers = [];localPaused=false;
+  watchClock.finish(); memberTimes.clear(); $('peopleCount').textContent = '0';
   entryEpoch++;entering=null;
   clearInterval(poll); clearTimeout(refreshTimer); clearTimeout(skipTimer);
   const oldChannel=channel;channel=null;
@@ -526,7 +565,7 @@ async function ensurePlayer() {
   player = new window.YT.Player('youtubePlayer', {
     width: '100%', height: '100%', host: 'https://www.youtube-nocookie.com',
     // Reparty's own controls drive playback; YouTube's are hidden and a click shield covers the embed.
-    playerVars: { playsinline: 1, origin: location.origin, controls: 0, disablekb: 1, fs: 0, rel: 0, iv_load_policy: 3 },
+    playerVars: { playsinline: 1, origin: location.origin, controls: viewing.supported ? 0 : 1, disablekb: viewing.supported ? 1 : 0, fs: 1, rel: 0, iv_load_policy: 3 },
     events: {
       onReady: () => { clearTimeout(playerReadyTimer); playerReady = true; player.setVolume(localVolume);if(localMuted)player.mute(); mediaControls(); applyPlayback().catch(error => notify(friendly(error))); },
       onStateChange: onPlayerState,
@@ -725,8 +764,7 @@ $('volume').oninput=()=>run(()=>localControl('volume',Number($('volume').value))
 $('mute').onclick=()=>run(()=>localControl('mute'));
 $('resync').onclick = () => run(async () => { await refresh(); await applyPlayback(true); notify(sunoActive()&&!nativeSunoPlayback() ? 'Queue refreshed. Automatic Suno sync requires the launcher.' : 'Caught up with your room.'); });
 $('enablePlayback').onclick = () => { blocked = false; $('enablePlayback').hidden = true; if (playerReady) { player.playVideo(); suppressUntil = performance.now() + 1700; } applyPlayback(true).catch(error => notify(friendly(error))); };
-$('fullscreen').onclick = () => run(async () => { if (document.fullscreenElement) await document.exitFullscreen(); else if ($('television').requestFullscreen) await $('television').requestFullscreen(); });
-document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) $('tvChat').replaceChildren(); });
+$('fullscreen').onclick = () => run(viewing.toggle);
 $('screenShield').addEventListener('click', () => {
   clearTimeout(shieldTimer);
   shieldTimer = setTimeout(() => {
@@ -737,7 +775,7 @@ $('screenShield').addEventListener('click', () => {
   }, 230);
 });
 $('screenShield').addEventListener('dblclick', () => { clearTimeout(shieldTimer); $('fullscreen').click(); });
-$('focusAdd').onclick = () => { $('videoUrl').focus(); $('videoUrl').scrollIntoView({ block: 'center', behavior: 'smooth' }); };
+
 $('startRoom').onclick = () => run(enterSharedRoom);$('changeRoom').onclick = () => openLobby('video');
 $('account').onclick = () => { if (user && !user.is_anonymous) { notify(`Connected as ${user.user_metadata?.username || 'your RepoCompany account'}. Manage your account on RepoCompany.`); } else modal('auth'); };
 $('roomLink').onclick = () => run(async () => {
@@ -748,10 +786,11 @@ $('shortcutHelp').onclick = () => modal('shortcutsDialog');
 document.querySelectorAll('[data-close]').forEach(b => { b.onclick = () => $(b.dataset.close).close(); });
 function showTab(tab) {
   const chat = tab === 'chat';
-  ['playlist', 'chat'].forEach(name => { const active = name === tab; $(`${name}Panel`).hidden = !active; $(`${name}Tab`).setAttribute('aria-selected', String(active)); $(`${name}Tab`).tabIndex = active ? 0 : -1; });
+  const tabs = $('peopleTab').hidden ? ['playlist','chat'] : ['playlist','chat','people'];
+  tabs.forEach(name => { const active = name === tab; $(`${name}Panel`).hidden = !active; $(`${name}Tab`).setAttribute('aria-selected', String(active)); $(`${name}Tab`).tabIndex = active ? 0 : -1; });
   if (chat) { unread = 0; $('unread').hidden = true; $('messages').scrollTop = $('messages').scrollHeight; }
 }
-['playlist', 'chat'].forEach(name => { $(`${name}Tab`).onclick = () => showTab(name); $(`${name}Tab`).onkeydown = e => { if (['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); const target = name === 'chat' ? 'playlist' : 'chat'; showTab(target); $(`${target}Tab`).focus(); } }; });
+['playlist', 'chat', 'people'].forEach(name => { $(`${name}Tab`).onclick = () => showTab(name); $(`${name}Tab`).onkeydown = e => { if (['ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); const tabs=$('peopleTab').hidden?['playlist','chat']:['playlist','chat','people']; const target=tabs[(tabs.indexOf(name)+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length]; showTab(target); $(`${target}Tab`).focus(); } }; });
 $('queueSearch').addEventListener('input', () => { queueFilter = $('queueSearch').value; renderPlaylistsIfRoom(); });
 $('queueSearch').addEventListener('keydown', e => { if (e.key === 'Escape' && $('queueSearch').value) { e.preventDefault(); $('queueSearch').value = ''; queueFilter = ''; renderPlaylistsIfRoom(); } });
 function renderPlaylistsIfRoom() { if (room) renderPlaylists(); }
@@ -779,7 +818,7 @@ const shortcuts = {
   j: () => seekBy(-10), l: () => seekBy(10), t: () => press('theatreToggle'), '?': () => modal('shortcutsDialog'),
   '/': () => { showTab('playlist'); $('queueSearch').focus(); },
   c: () => {
-    if (document.fullscreenElement === $('television')) { $('tvMessage').focus(); return; }
+    if (viewing.active()) return;
     showTab('chat');
     $('message').focus();
   }
@@ -789,6 +828,7 @@ document.addEventListener('keydown', e => {
   const target = e.target instanceof Element ? e.target : null;
   if (target?.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]') || document.querySelector('dialog[open]')) return;
   if (e.key === ' ' && target?.closest('button, a, [role=tab]')) return; // Space still activates the focused control.
+  if (viewing.active() && ['t','/','?','c'].includes(e.key.toLowerCase())) return;
   const action = shortcuts[e.key.length === 1 ? e.key.toLowerCase() : e.key];
   if (!action) return;
   e.preventDefault(); action();
@@ -864,5 +904,5 @@ else {
 }
 
 // Escape opens the same personal audio controls from inside the player.
-addEventListener("keydown",event=>{if(event.key!=="Escape"||document.querySelector("dialog[open]")||document.fullscreenElement)return;if(parent!==window){event.preventDefault();parent.postMessage({type:"repo-reparty-settings"},location.origin);}},true);
+addEventListener("keydown",event=>{if(event.key!=="Escape"||document.querySelector("dialog[open]")||viewing.active())return;if(parent!==window){event.preventDefault();parent.postMessage({type:"repo-reparty-settings"},location.origin);}},true);
 publishMedia();

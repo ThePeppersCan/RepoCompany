@@ -13,7 +13,7 @@
   bar.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();drag={position:coordinate(e),width:width()};bar.setPointerCapture(e.pointerId);host.classList.add('ws-resizing');document.documentElement.classList.add(horizontal?'ws-dragging-row':'ws-dragging');});
   bar.addEventListener('pointermove',e=>{if(!drag)return;saved=Math.max(min,Math.min(limit(),drag.width+(coordinate(e)-drag.position)*forward));paint();});
   for(const name of ['pointerup','pointercancel','lostpointercapture'])bar.addEventListener(name,finish);addEventListener('blur',finish);
-  function reset(){saved=null;store();paint();}bar.addEventListener('dblclick',reset);
+  function reset(){saved=null;store();paint();}bar.addEventListener('dblclick',reset);bar.addEventListener('repo-reset-pane',reset);
   bar.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();reset();return;}const negative=horizontal?'ArrowUp':'ArrowLeft',positive=horizontal?'ArrowDown':'ArrowRight';if(![negative,positive,'Home','End'].includes(e.key))return;e.preventDefault();saved=e.key==='Home'?min:e.key==='End'?limit():width()+(e.key===positive?1:-1)*forward*(e.shiftKey?40:10);saved=Math.max(min,Math.min(limit(),saved));store();paint();});
   new ResizeObserver(paint).observe(host);paint();return bar;
  }

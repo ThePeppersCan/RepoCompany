@@ -33,6 +33,7 @@ const fixtures = !app.isPackaged && process.env.REPO_LAUNCHER_FIXTURES === '1' ?
 const hiddenTest = !app.isPackaged && process.env.REPO_LAUNCHER_HIDDEN_TEST === '1';
 if (fixtures) { fixtures.configure(config); globalThis.__repoLauncherTestServices = fixtures; }
 let messageNotifications, taskbarAttention, notificationAudio, backgroundMessageTimer, externalActivity;
+let portalHtmlFullscreen = false;
 let mainWindow, portal, portalContents, sharedSession, library, account, updater, preferences, discordPresence, timer, checkTimer;
 let view = 'home', selectedGame = null, selectedGameRevision = 0, portalReady = false, portalLoading = false, portalLoadRevision = 0, portalError = '', quitting = false, quitApproved = false, portalContentsId = null;
 let updateSweep = null, updateSweepRequested = false, broadcastTimer = null, restorePaint = null, embeddedDemo = null, demoLaunchRevision = 0;
@@ -289,7 +290,7 @@ function bounds() {
   const area = { x: 0, y: 44, width: Math.max(1, width), height: Math.max(1, height - 44) };
   const panelWidth = Math.min(440, width);
   const portalArea = messageOverlay && !portalNavigation && currentGame() && !companionState.reparty.open && workspaceView !== 'wibsworth' ? { x: width-panelWidth, y:44, width:panelWidth, height:area.height } : area;
-  if (portal && activePortal()) portal.setBounds(portalArea);
+  if (portal && activePortal()) portal.setBounds(portalHtmlFullscreen ? { x:0, y:0, width, height } : portalArea);
   for (const record of games.values()) if (gameContents(record)) record.view.setBounds(area);
 }
 function trustedShell(event) {
@@ -833,6 +834,9 @@ async function launch() {
   ipcMain.on('launcher:notification-action',(event,action)=>messageNotifications?.action(event,action));
   portal = new WebContentsView({ webPreferences: { session: sharedSession, preload: path.join(desktopRoot, 'portal-preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, backgroundThrottling: false } });
   portalContents = portal.webContents; portalContentsId = portalContents.id;
+  portalHtmlFullscreen = false;
+  portalContents.on('enter-html-full-screen', () => { portalHtmlFullscreen = true; bounds(); });
+  portalContents.on('leave-html-full-screen', () => { portalHtmlFullscreen = false; bounds(); });
   sunoPlayback = new SunoPlayback(portalContents, config.portalOrigin);
   mainWindow.contentView.addChildView(portal); portal.setVisible(false); bounds();
   secureContents(portalContents, isPortalUrl);
