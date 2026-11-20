@@ -15,7 +15,7 @@ function harness() {
   };
   vm.runInNewContext(source, context);
   const event = (action, payload, extras = {}) => ({ source: parent, origin: 'https://moratales.repocompany.uk', data: { channel: 'morogue-account-v1', nonce, id: String(++sequence), action, payload }, ...extras });
-  return { replies, requests, auth, parent, event, receive: handlers.message, set user(value) { user = value; }, set session(fn) { sessionHook = fn; }, set fetch(fn) { fetchHook = fn; }, switch(value) { user = value; change(); }, async call(action, payload, extras) { const e = event(action, payload, extras); await handlers.message(e); return replies.find(row => row.message.id === e.data.id)?.message; } };
+  return { replies, requests, auth, parent, event, receive: handlers.message, set user(value) { user = value; }, set session(fn) { sessionHook = fn; }, set fetch(fn) { fetchHook = fn; }, switch(value) { user = value; change(value?'SIGNED_IN':'SIGNED_OUT',value?{user:{id:value}}:null); }, authEvent(event) { change(event,user?{user:{id:user}}:null); }, async call(action, payload, extras) { const e = event(action, payload, extras); await handlers.message(e); return replies.find(row => row.message.id === e.data.id)?.message; } };
 }
 (async () => {
   let h = harness();
@@ -55,5 +55,11 @@ function harness() {
   reply = await h.call('characters-save', { userId: A, revision: 1, characters: [] }); assert.equal(reply.code, 'revision_conflict'); assert.equal(h.requests.length, 1, 'conflicts never silently retry or overwrite');
   h = harness(); let sessions = 0; h.session = async () => ({ data: { session: { user: { id: ++sessions === 1 ? A : B }, access_token: 'old' } } });
   reply = await h.call('characters', { userId: A }); assert.ok(reply.error); assert.equal(reply.result, undefined, 'the final session is checked even without an auth event');
+  for(const event of ['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED']){
+    h=harness();const held=defer();h.fetch=()=>held.promise;
+    const pending=h.call('characters',{userId:A});await flush();h.authEvent(event);h.authEvent(event);
+    held.resolve({ok:true,json:async()=>({userId:A,revision:1,characters:[]})});
+    reply=await pending;assert.equal(reply.result?.userId,A,event+' for the same account must not reject character startup');
+  }
   console.log('PASS: character account bridge origin/nonce restrictions, Morogue read-only access, exact account checks and stale asynchronous results.');
 })().catch(error => { console.error(error); process.exitCode = 1; });
